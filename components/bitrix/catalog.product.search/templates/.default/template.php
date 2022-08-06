@@ -1,4 +1,6 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -10,8 +12,12 @@
 /** @var string $templateFolder */
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
-use Bitrix\Main,
-	Bitrix\Iblock;
+
+global $APPLICATION;
+
+use Bitrix\Main;
+use Bitrix\Catalog;
+use Bitrix\Iblock;
 
 if ($_REQUEST['public_mode'] == "Y")
 {
@@ -21,27 +27,32 @@ if ($_REQUEST['public_mode'] == "Y")
 if (!$arResult['IS_ADMIN_SECTION'])
 	return;
 $listImageSize = (int)Main\Config\Option::get('iblock', 'list_image_size');
-$viewFileParams = array(
+$viewFileParams = [
 	'IMAGE' => 'Y',
 	'PATH' => 'Y',
 	'FILE_SIZE' => 'Y',
 	'DIMENSIONS' => 'Y',
 	'IMAGE_POPUP' => 'Y',
-	'MAX_SIZE' => array(
+	'MAX_SIZE' => [
 		'W' => $listImageSize,
-		'H' => $listImageSize
-	),
-	'MIN_SIZE' => array('W' => 1, 'H' => 1),
-);
+		'H' => $listImageSize,
+	],
+	'MIN_SIZE' => [
+		'W' => 1,
+		'H' => 1,
+	],
+];
 unset($listImageSize);
 
-function getTreeOffsetWidth($level = 0)
+$selectPrefix = 'item_data_';
+
+function getTreeOffsetWidth($level = 0): int
 {
 	// Some magic numbers
 	return 30 + $level * 21;
 }
 
-function renderTree($sections, $level, $tableId)
+function renderTree($sections, $level, $tableId): string
 {
 	$content = '';
 	$level = (int)$level;
@@ -82,9 +93,9 @@ function renderTree($sections, $level, $tableId)
  * @param $name
  * @param $property_fields
  * @param $values
- * @return bool|string
+ * @return string
  */
-function _ShowGroupPropertyFieldList($name, $property_fields, $values)
+function _ShowGroupPropertyFieldList($name, $property_fields, $values): string
 {
 	if (!is_array($values)) $values = array();
 
@@ -113,7 +124,7 @@ function _ShowGroupPropertyFieldList($name, $property_fields, $values)
 	return $result;
 }
 
-function getImageField($property_value_id,$property_value)
+function getImageField($property_value_id, $property_value): string
 {
 	global $viewFileParams;
 	$res = CFileInput::Show('NO_FIELDS[' . $property_value_id . ']', $property_value, $viewFileParams, array(
@@ -125,8 +136,31 @@ function getImageField($property_value_id,$property_value)
 			'description' => false,
 		)
 	);
-	$res = preg_replace('!<script[^>]*>.*</script>!isU','', $res);
-	return $res;
+
+	return preg_replace('!<script[^>]*>.*</script>!isU','', $res);
+}
+
+function getHiddenSelect(string $prefix, array $params): string
+{
+	if (empty($params))
+	{
+		return '';
+	}
+
+	$result = '<span id="' . $prefix . $params['id'] . '"'
+		. ' class="select-hidden"'
+	;
+
+	foreach ($params as $key => $value)
+	{
+		$result .= ' data-product' . htmlspecialcharsbx($key) . '="'
+			. htmlspecialcharsbx($value). '"'
+		;
+	}
+
+	$result .= '>';
+
+	return $result;
 }
 
 if (!empty($arResult['OPEN_SECTION_MODE']))
@@ -143,6 +177,13 @@ else
 
 	// START TEMPLATE
 	$APPLICATION->SetAdditionalCSS('/bitrix/panel/main/admin.css');
+	if (
+		!$arResult['RELOAD']
+		&& $arResult['IS_EXTERNALCONTEXT']
+	)
+	{
+		$APPLICATION->SetAdditionalCSS('/bitrix/panel/main/admin.css');
+	}
 	$lAdmin = new CAdminList($arResult['TABLE_ID'], new CAdminSorting($arResult['TABLE_ID'], "ID", "ASC"));
 	$lAdmin->InitFilter($arResult['FILTER_FIELDS']);
 
@@ -181,18 +222,21 @@ else
 	$arSelectedFields = null;
 	$arSku = array();
 
-	$showSkuName = (string)Main\Config\Option::get('catalog', 'product_form_show_offer_name') == 'Y';
+	$showSkuName = Main\Config\Option::get('catalog', 'product_form_show_offer_name') === 'Y';
 
 	//Add 'Level Up' row to grid
 	if ($arResult['PARENT_SECTION_ID'] >= 0)
 	{
-		$row =& $lAdmin->AddRow(0, array());
+		$row =& $lAdmin->AddRow(0, []);
+		$row->bReadOnly = true;
 		$row->AddViewField('NAME', '<a class="adm-list-table-link"><span class="bx-s-iconset folder"></span>..</a>');
-		$row->AddActions(array(array(
-			"TEXT" => GetMessage("SPS_GOTO_PARENT_SECTION"),
-			"DEFAULT" => "Y",
-			"ACTION" => $tableId . '_helper.onSectionClick(' . (int)$arResult['PARENT_SECTION_ID'] . ');'
-		)));
+		$row->AddActions([
+			[
+				'TEXT' => GetMessage('SPS_GOTO_PARENT_SECTION'),
+				'DEFAULT' => 'Y',
+				'ACTION' => $tableId . '_helper.onSectionClick(' . (int)$arResult['PARENT_SECTION_ID'] . ');'
+			]
+		]);
 	}
 	foreach ($arResult['PRODUCTS'] as $arItems)
 	{
@@ -205,51 +249,55 @@ else
 		$row->AddViewFileField('DETAIL_PICTURE', $viewFileParams);
 
 		$arActions = array();
-		$icon = $arCatalogProduct['TYPE'] == CCatalogProduct::TYPE_SET ? 'f2' : 'f1';
+		$icon = $arCatalogProduct['TYPE'] == Catalog\ProductTable::TYPE_SET ? 'f2' : 'f1';
+		$isSection = $arItems['TYPE'] === 'S';
+		$selectData = [];
 
 		if (!empty($arItems['SKU_ITEMS']) && !empty($arItems['SKU_ITEMS']["SKU_ELEMENTS"]))
 		{
 			$icon = 'f3';
 			$arSkuResult = $arItems['SKU_ITEMS'];
 
-			$arParams = array(
-				'id' => $arItems['ID'],
-				'type' => $arCatalogProduct['TYPE'],
-				'name' => $arItems['NAME']
-			);
-			$jsClick = $tableId.'_helper.SelEl('.CUtil::PhpToJSObject($arParams, false, true, true).', this);';
-			if ($arResult['CALLER'] == 'discount' || $arResult['ALLOW_SELECT_PARENT'] == 'Y')
-			{
-				$row->AddField("ACTION", '<a href="javascript:void(0)" onclick="'.$jsClick.'; BX.PreventDefault(); return false;">'.GetMessage('SPS_SELECT').'</a>');
-			}
 			$row->AddViewField("EXPAND", '<a class="expand-sku">' . GetMessage('SPS_EXPAND') . '</a><a class="collapse-sku">' . GetMessage('SPS_COLLAPSE') . '</a>');
 
-			$arActions[] = array(
+			$arActions[] = [
 				"ICON" => "view",
 				"TEXT" => GetMessage("SPS_SKU_SHOW"),
 				"DEFAULT" => "Y",
 				"ACTION" => $tableId . '_helper.fShowSku(' . CUtil::PhpToJSObject($arSkuResult["SKU_ELEMENTS_ID"]) . ', this);'
-			);
-			if ($arResult['CALLER'] == 'discount' || $arResult['ALLOW_SELECT_PARENT'] == 'Y')
+			];
+
+			if ($arResult['ALLOW_SELECT_PARENT'] === 'Y')
 			{
-				$arActions[] = array(
+				$selectData = [
+					'id' => $arItems['ID'],
+					'type' => $arCatalogProduct['TYPE'],
+					'quantity' => 1,
+					'name' => $arItems['NAME'],
+				];
+
+				$jsClick = $tableId . '_helper.selectItem(' . $arItems['ID'] . ');';
+
+				$row->AddField("ACTION", '<a href="javascript:void(0)" onclick="'.$jsClick.'; BX.PreventDefault(); return false;">'.GetMessage('SPS_SELECT').'</a>');
+
+				$arActions[] = [
 					"TEXT" => GetMessage("SPS_SELECT"),
 					"DEFAULT" => "N",
 					"ACTION" => $jsClick
-				);
+				];
+				unset($jsClick);
 			}
-			unset($jsClick, $arParams);
+			else
+			{
+				$row->bReadOnly = true;
+			}
 
 			foreach ($arSkuResult["SKU_ELEMENTS"] as $val)
 			{
 				$arSku[] = $val["ID"];
 				$rowSku = &$lAdmin->AddRow($val["ID"], $val);
-				$skuProperty = '';
-				if ($showSkuName)
-					$skuProperty .= '<i>'.htmlspecialcharsbx($val['NAME']).'</i>';
 
 				$arSkuActions = array();
-				$rowSku->AddField("NAME", '<div class="sku-item-name">' . $skuProperty . '</div>');
 
 				$rowSku->AddViewFileField('DETAIL_PICTURE', $viewFileParams);
 				$rowSku->AddViewFileField('PREVIEW_PICTURE', $viewFileParams);
@@ -267,24 +315,39 @@ else
 
 				$balance = (float)$val["BALANCE"];
 
-				$ratio = (isset($val['MEASURE_RATIO']) ? $val['MEASURE_RATIO'] : 1);
+				$ratio = ($val['MEASURE_RATIO'] ?? 1);
 				$measure = (isset($val['MEASURE']['SYMBOL_RUS']) ? '&nbsp;'.$val['MEASURE']['SYMBOL_RUS'] : '');
-				$arParams = array(
+				$offerSelectData = [
 					'id' => $val["ID"],
 					'type' => $val["TYPE"],
 					'name' => $val['NAME'],
-					'full_quantity' => $val['QUANTITY'],
-					'measureRatio' => (isset($val['MEASURE_RATIO']) ? $val['MEASURE_RATIO'] : 1),
-					'measure' => (isset($val['MEASURE']['~SYMBOL_RUS']) ? htmlspecialcharsbx($val['MEASURE']['~SYMBOL_RUS']) : ''),
-					'quantity' => $val['DEFAULT_QUANTITY']
+					'full_quantity' => $balance,
+					'measureRatio' => ($val['MEASURE_RATIO'] ?? 1),
+					'measure' => htmlspecialcharsbx($val['MEASURE']['~SYMBOL_RUS'] ?? ''),
+					'quantity' => $val['DEFAULT_QUANTITY'],
+				];
+
+				$skuProperty = '';
+				if ($showSkuName)
+				{
+					$skuProperty .= '<i>' . htmlspecialcharsbx($val['NAME']) . '</i>';
+				}
+
+				$rowSku->AddField(
+					'NAME',
+					'<div class="sku-item-name">'
+						. $skuProperty
+						. '</div>'
+						. getHiddenSelect($selectPrefix, $offerSelectData)
 				);
+
 				$rowSku->AddField("QUANTITY", '<span style="white-space: nowrap;"><input style="text-align: center;" type="text" id="'.$tableId.'_qty_'.$val["ID"].'" value="'.$val['DEFAULT_QUANTITY'].'" size="4" />'.$measure.'</span>');
 				unset($measure, $ratio);
 
 				$arSkuActions[] = array(
 					"TEXT" => GetMessage("SPS_SELECT"),
 					"DEFAULT" => "Y",
-					"ACTION" => $tableId . '_helper.SelEl(' . CUtil::PhpToJSObject($arParams) . ', this);'
+					"ACTION" => $tableId . '_helper.selectItem(' . $val["ID"] . ');'
 				);
 
 				$active = ($val["ACTIVE"] == 'Y' ? GetMessage('SPS_PRODUCT_ACTIVE') : GetMessage('SPS_PRODUCT_NO_ACTIVE'));
@@ -310,7 +373,7 @@ else
 		}
 		else
 		{
-			if ($arItems['TYPE'] == 'S')
+			if ($isSection)
 				$icon = 'folder';
 			elseif (!empty($arCatalogProduct['IS_GROUP']))
 				$icon = 'f4';
@@ -318,26 +381,26 @@ else
 			$balance = isset($arCatalogProduct["STORE_AMOUNT"]) ? (float)$arCatalogProduct["QUANTITY"] . " / " . (float)$arCatalogProduct["STORE_AMOUNT"] : (float)$arCatalogProduct["QUANTITY"];
 			$row->AddField("BALANCE", $arItems['TYPE'] != 'S' ? $balance : '');
 
-			if ($arItems['TYPE'] != 'S')
+			if (!$isSection)
 			{
-				$ratio = (isset($arCatalogProduct['MEASURE_RATIO']) ? $arCatalogProduct['MEASURE_RATIO'] : 1);
+				$ratio = ($arCatalogProduct['MEASURE_RATIO'] ?? 1);
 				$measure = (isset($arCatalogProduct['MEASURE']['SYMBOL_RUS']) ? '&nbsp;'.$arCatalogProduct['MEASURE']['SYMBOL_RUS'] : '');
-				$arParams = array(
+				$selectData = [
 					'id' => $arItems["ID"],
 					'type' => $arCatalogProduct["TYPE"],
 					'name' => $arItems['NAME'],
 					'full_quantity' => $arCatalogProduct['QUANTITY'],
-					'measureRatio' => (isset($arCatalogProduct['MEASURE_RATIO']) ? $arCatalogProduct['MEASURE_RATIO'] : 1),
-					'measure' => (isset($arCatalogProduct['MEASURE']['~SYMBOL_RUS']) ? htmlspecialcharsbx($arCatalogProduct['MEASURE']['~SYMBOL_RUS']) : ''),
-					'quantity' => $arCatalogProduct['DEFAULT_QUANTITY']
-				);
+					'measureRatio' => ($arCatalogProduct['MEASURE_RATIO'] ?? 1),
+					'measure' => htmlspecialcharsbx($arCatalogProduct['MEASURE']['~SYMBOL_RUS'] ?? ''),
+					'quantity' => $arCatalogProduct['DEFAULT_QUANTITY'],
+				];
 				$row->AddField("QUANTITY", '<span style="white-space: nowrap;"><input style="text-align: center;" type="text" id="'.$tableId.'_qty_'.$arItems["ID"].'" value="'.$arCatalogProduct['DEFAULT_QUANTITY'].'" size="4" />'.$measure.'</span>');
 				unset($measure, $ratio);
 
 				$arActions[] = array(
 					"TEXT" => GetMessage("SPS_SELECT"),
 					"DEFAULT" => "Y",
-					"ACTION" => $tableId . '_helper.SelEl(' . CUtil::PhpToJSObject($arParams) . ', this);'
+					"ACTION" => $tableId . '_helper.selectItem(' . $arItems['ID'] . ');',
 				);
 
 				$row->AddField("ACTION", '<a class="select-sku">' . GetMessage('SPS_SELECT') . '</a>');
@@ -371,15 +434,45 @@ else
 			unset($property);
 		}
 
-		$row->AddViewField('NAME', '<a class="adm-list-table-link"><span class="bx-s-iconset ' . $icon . '"></span>' . htmlspecialcharsEx($arItems['NAME']) . '</a>');
+		$hiddenSelect = '';
+
+		$row->AddViewField(
+			'NAME',
+			'<a class="adm-list-table-link">'
+				. '<span class="bx-s-iconset ' . $icon . '"></span>'
+				. htmlspecialcharsEx($arItems['NAME'])
+				. '</a>'
+				. getHiddenSelect($selectPrefix, $selectData)
+		);
+		if ($isSection)
+		{
+			$row->bReadOnly = true;
+		}
 		$row->AddActions($arActions);
+	}
+
+	if ($arResult['MULTIPLE'])
+	{
+		$lAdmin->AddGroupActionTable(
+			[
+				[
+					'action' => $tableId . '_helper.selectItemList();',
+					'value' => 'select',
+					'type' => 'button',
+					'name' => GetMessage('BX_CATALOG_CPS_TPL_MESS_SELECT_BUTTON'),
+				],
+			],
+			[
+				'disable_action_target' => true,
+			]
+		);
 	}
 
 	$lAdmin->BeginEpilogContent();
 	?>
 	<script type="text/javascript">
 	BX.ready(function(){
-	<?
+	<?php
 	if (!empty($arSku))
 	{
 	?>
@@ -398,7 +491,7 @@ else
 			skuRow = null;
 		}
 		skuIds = [];
-	<?
+	<?php
 	}
 	?>
 		// double click patch
@@ -424,28 +517,33 @@ else
 		if (typeof <?=$tableId?>_helper !== 'undefined')
 		{
 			<?=$tableId?>_helper.setBreadcrumbs(<?=CUtil::PhpToJSObject($arResult['BREADCRUMBS'])?>);
-			<?if (!empty($_REQUEST['set_filter']) && $_REQUEST['set_filter'] == 'Y'):?>
-			<?=$tableId?>_helper.setIgnoreFilter(false);
-			<?elseif (!empty($_REQUEST['del_filter']) && $_REQUEST['del_filter'] == 'Y'):?>
-			<?=$tableId?>_helper.setIgnoreFilter(true);
-			<?endif?>
+			<?php
+			if (!empty($_REQUEST['set_filter']) && $_REQUEST['set_filter'] == 'Y'):
+			?><?=$tableId?>_helper.setIgnoreFilter(false);
+			<?php
+			elseif (!empty($_REQUEST['del_filter']) && $_REQUEST['del_filter'] == 'Y'):
+			?><?=$tableId?>_helper.setIgnoreFilter(true);
+			<?php
+			endif;
+			?>
 		}
 		BX('form_<?=$tableId?>').style.overflow = 'auto';
 	});
 	</script>
-	<?
+	<?php
 	$lAdmin->EndEpilogContent();
 	$lAdmin->AddAdminContextMenu(array(), false);
 	$lAdmin->CheckListMode();
 
 	?>
 	<!-- START HTML -->
-	<? if (!$arResult['RELOAD']): ?>
+	<?php
+	if (!$arResult['RELOAD']):
+	?>
 	<div id="<?= $tableId ?>_reload_container" class="catalog-product-search-dialog">
-		<? if ($arResult['IS_EXTERNALCONTEXT']):
-			$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/panel/main/admin.css');
-		endif;
-	endif ?>
+	<?php
+	endif;
+	?>
 	<div class="adm-s-search-sidebar-container-left " style="width: 20%;padding-bottom: 28px">
 		<table class="adm-main-wrap" style="min-width:10px;">
 			<tr><td class="adm-left-side-wrap" style="background: none;" id="<?= $tableId ?>_resizable">
@@ -460,10 +558,10 @@ else
 												<div class="adm-submenu-item-name" id="<?= $tableId ?>_section_0">
 													<a
 														href="#" class="adm-submenu-item-name-link product-search-top-item"
-														onclick="return <?= $tableId ?>_helper.onSectionClick('0')"><?
+														onclick="return <?= $tableId ?>_helper.onSectionClick('0')"><?php
 														if (count($arResult['IBLOCKS']) > 1)
 														{
-															?><span class="adm-s-arrow-cont" title="<?= GetMessage('SPS_CHOOSE_CATALOG') ?>" id="<?= $tableId ?>_iblock_menu_opener"></span><?
+															?><span class="adm-s-arrow-cont" title="<?= GetMessage('SPS_CHOOSE_CATALOG') ?>" id="<?= $tableId ?>_iblock_menu_opener"></span><?php
 														}
 														?><span class="adm-submenu-item-link-icon icon-default fileman_menu_icon"></span>
 														<span class="adm-submenu-item-name-link-text" title="<?= htmlspecialcharsbx($arResult['IBLOCKS'][$arResult['IBLOCK_ID']]['NAME']); ?>">
@@ -513,20 +611,21 @@ else
 				</div>
 			</div>
 
-			<form name="<?= $tableId ?>_find_form" method="GET" action="<? echo $APPLICATION->GetCurPage() ?>?" accept-charset="<? echo LANG_CHARSET; ?>" id="<?= $tableId ?>_form">
+			<form name="<?= $tableId ?>_find_form" method="GET" action="<?php echo $APPLICATION->GetCurPage() ?>?" accept-charset="<?php echo LANG_CHARSET; ?>" id="<?= $tableId ?>_form">
 				<input type="hidden" name="mode" value="list">
 				<input type="hidden" name="SECTION_ID" value="<?= (int)$arResult['SECTION_ID'] ?>" id="<?= $tableId ?>_section_id">
 				<input type="hidden" name="QUERY" value="<?= htmlspecialcharsbx($arFilter['QUERY']) ?>" id="<?= $tableId ?>_query_value">
 				<input type="hidden" name="USE_SUBSTRING_QUERY" value="<?=htmlspecialcharsbx($arFilter['USE_SUBSTRING_QUERY']) ?>" id="<?= $tableId ?>_query_substring_value">
-				<input type="hidden" name="func_name" value="<? echo htmlspecialcharsbx($arResult['JS_CALLBACK']) ?>">
-				<input type="hidden" name="event" value="<? echo htmlspecialcharsbx($arResult['JS_EVENT']) ?>">
-				<input type="hidden" name="lang" value="<? echo LANGUAGE_ID ?>">
-				<input type="hidden" name="LID" value="<?= $arResult['LID'] ?>">
-				<input type="hidden" name="caller" value="<?= $arResult['CALLER'] ?>">
+				<input type="hidden" name="func_name" value="<?php echo htmlspecialcharsbx($arResult['JS_CALLBACK']) ?>">
+				<input type="hidden" name="event" value="<?php echo htmlspecialcharsbx($arResult['JS_EVENT']) ?>">
+				<input type="hidden" name="lang" value="<?php echo LANGUAGE_ID ?>">
+				<input type="hidden" name="LID" value="<?= htmlspecialcharsbx($arResult['LID']) ?>">
+				<input type="hidden" name="caller" value="<?= htmlspecialcharsbx($arResult['CALLER']) ?>">
 				<input type="hidden" name="IBLOCK_ID" value="<?= (int)$arResult['IBLOCK_ID'] ?>" id="<?= $tableId ?>_iblock">
 				<input type="hidden" name="subscribe" value="<?= $arResult['SUBSCRIPTION']? 'Y' : 'N' ?>">
-				<input type="hidden" name="allow_select_parent" value="<?= $arResult['ALLOW_SELECT_PARENT'] ?>">
-				<?
+				<input type="hidden" name="allow_select_parent" value="<?= htmlspecialcharsbx($arResult['ALLOW_SELECT_PARENT']) ?>">
+				<input type="hidden" name="multiple_select" value="<?php echo $arResult['MULTIPLE'] ? 'Y' : 'N'; ?>">
+				<?php
 				$oFilter = new CAdminFilter(
 					$arResult['TABLE_ID'] .'_iblock_'.(int)$arResult['IBLOCK_ID']. "_filter",
 					$arResult['FILTER_LABELS']
@@ -537,12 +636,12 @@ else
 				<tr>
 					<td><?= GetMessage("SPS_CODE") ?>:</td>
 					<td>
-						<input type="text" name="filter_code" size="50" value="<? echo htmlspecialcharsbx($_REQUEST["filter_code"]) ?>">
+						<input type="text" name="filter_code" size="50" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_code"]) ?>">
 					</td>
 				</tr>
 				<tr>
 					<td><?= GetMessage("SPS_TIMESTAMP") ?>:</td>
-					<td><? echo CalendarPeriod("filter_timestamp_from", htmlspecialcharsbx($_REQUEST['filter_timestamp_from']), "filter_timestamp_to", htmlspecialcharsbx($_REQUEST['filter_timestamp_to']), "form1") ?></td>
+					<td><?php echo CalendarPeriod("filter_timestamp_from", htmlspecialcharsbx($_REQUEST['filter_timestamp_from']), "filter_timestamp_to", htmlspecialcharsbx($_REQUEST['filter_timestamp_to']), "form1") ?></td>
 				</tr>
 				<tr>
 					<td><?= GetMessage("SPS_ACTIVE") ?>:</td>
@@ -550,9 +649,9 @@ else
 						<select name="filter_active">
 							<option value="*"><?= htmlspecialcharsbx("(" . GetMessage("SPS_ANY") . ")") ?></option>
 							<option
-								value="Y"<? if ($_REQUEST['filter_active'] == "Y" || empty($_REQUEST['filter_active'])) echo " selected" ?>><?= htmlspecialcharsbx(GetMessage("SPS_YES")) ?></option>
+								value="Y"<?php if ($_REQUEST['filter_active'] == "Y" || empty($_REQUEST['filter_active'])) echo " selected" ?>><?= htmlspecialcharsbx(GetMessage("SPS_YES")) ?></option>
 							<option
-								value="N"<? if ($_REQUEST['filter_active'] == "N") echo " selected" ?>><?= htmlspecialcharsbx(GetMessage("SPS_NO")) ?></option>
+								value="N"<?php if ($_REQUEST['filter_active'] == "N") echo " selected" ?>><?= htmlspecialcharsbx(GetMessage("SPS_NO")) ?></option>
 						</select>
 					</td>
 				</tr>
@@ -560,57 +659,59 @@ else
 				<tr>
 					<td>ID (<?= GetMessage("SPS_ID_FROM_TO") ?>):</td>
 					<td>
-						<input type="text" name="filter_id_start" size="10" value="<?echo htmlspecialcharsbx($_REQUEST['filter_id_start'])?>">
+						<input type="text" name="filter_id_start" size="10" value="<?php echo htmlspecialcharsbx($_REQUEST['filter_id_start'])?>">
 						...
-						<input type="text" name="filter_id_end" size="10" value="<?echo htmlspecialcharsbx($_REQUEST['filter_id_end'])?>">
+						<input type="text" name="filter_id_end" size="10" value="<?php echo htmlspecialcharsbx($_REQUEST['filter_id_end'])?>">
 					</td>
 				</tr>
 				<tr>
 					<td><?= GetMessage("SPS_XML_ID") ?>:</td>
 					<td>
-						<input type="text" name="filter_xml_id" size="50" value="<?echo htmlspecialcharsbx($_REQUEST['filter_xml_id'])?>">
+						<input type="text" name="filter_xml_id" size="50" value="<?php echo htmlspecialcharsbx($_REQUEST['filter_xml_id'])?>">
 					</td>
 				</tr>
 
-				<?foreach ($arProps as $arProp):
+				<?php
+				foreach ($arProps as $arProp):
 					if ($arProp["FILTRABLE"] == "Y" && $arProp["PROPERTY_TYPE"] != "F")
 					{
 						?>
 						<tr>
 							<td><?= htmlspecialcharsbx($arProp["NAME"]) ?>:</td>
 							<td>
-								<?if (array_key_exists("GetAdminFilterHTML", $arProp["PROPERTY_USER_TYPE"])):
+								<?php
+								if (array_key_exists("GetAdminFilterHTML", $arProp["PROPERTY_USER_TYPE"])):
 									echo "<script type='text/javascript'>var arClearHiddenFields = [];</script>";
 									echo call_user_func_array($arProp["PROPERTY_USER_TYPE"]["GetAdminFilterHTML"], array(
 										$arProp,
 										array("VALUE" => 'filter_el_property_'.$arProp["ID"]),
 									));
 								elseif ($arProp["PROPERTY_TYPE"] == 'S'):?>
-									<input type="text" name="filter_el_property_<?= $arProp["ID"] ?>" value="<? echo htmlspecialcharsbx($_REQUEST["filter_el_property_" . $arProp["ID"]]) ?>" size="30">&nbsp;<?= ShowFilterLogicHelp() ?>
-								<?
+									<input type="text" name="filter_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_el_property_" . $arProp["ID"]]) ?>" size="30">&nbsp;<?= ShowFilterLogicHelp() ?>
+								<?php
 								elseif ($arProp["PROPERTY_TYPE"] == 'N' || $arProp["PROPERTY_TYPE"] == 'E'): ?>
-									<input type="text" name="filter_el_property_<?= $arProp["ID"] ?>" value="<? echo htmlspecialcharsbx($_REQUEST["filter_el_property_" . $arProp["ID"]]) ?>" size="30">
-								<?
+									<input type="text" name="filter_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_el_property_" . $arProp["ID"]]) ?>" size="30">
+								<?php
 								elseif ($arProp["PROPERTY_TYPE"] == 'L'): ?>
 									<select name="filter_el_property_<?= $arProp["ID"] ?>">
-										<option value=""><? echo GetMessage("SPS_VALUE_ANY") ?></option>
-										<option value="NOT_REF"><? echo GetMessage("SPS_A_PROP_NOT_SET") ?></option><?
+										<option value=""><?php echo GetMessage("SPS_VALUE_ANY") ?></option>
+										<option value="NOT_REF"><?php echo GetMessage("SPS_A_PROP_NOT_SET") ?></option><?php
 										$dbrPEnum = CIBlockPropertyEnum::GetList(Array("SORT" => "ASC", "VALUE" => "ASC"), Array("PROPERTY_ID" => $arProp["ID"]));
 										while ($arPEnum = $dbrPEnum->GetNext()):
 											?>
 											<option
-												value="<?= $arPEnum["ID"] ?>"<? if ($_REQUEST["filter_el_property_" . $arProp["ID"]] == $arPEnum["ID"]) echo " selected" ?>><?= $arPEnum["VALUE"] ?></option>
-										<?
+												value="<?= $arPEnum["ID"] ?>"<?php if ($_REQUEST["filter_el_property_" . $arProp["ID"]] == $arPEnum["ID"]) echo " selected" ?>><?= $arPEnum["VALUE"] ?></option>
+										<?php
 										endwhile;
 										?></select>
-								<?
+								<?php
 								elseif ($arProp["PROPERTY_TYPE"] == 'G'):
 									echo _ShowGroupPropertyFieldList('filter_el_property_' . $arProp["ID"], $arProp, $_REQUEST['filter_el_property_' . $arProp["ID"]]);
 								endif;
 								?>
 							</td>
 						</tr>
-					<?
+					<?php
 					}
 					endforeach;
 
@@ -620,50 +721,49 @@ else
 					{
 						?>
 						<tr>
-							<td><? echo htmlspecialcharsbx($arProp["NAME"]) ?> (<?=GetMessage("SPS_OFFER")?>):</td>
+							<td><?php echo htmlspecialcharsbx($arProp["NAME"]) ?> (<?=GetMessage("SPS_OFFER")?>):</td>
 							<td>
-								<?if (array_key_exists("GetAdminFilterHTML", $arProp["PROPERTY_USER_TYPE"])):
+								<?php
+								if (array_key_exists("GetAdminFilterHTML", $arProp["PROPERTY_USER_TYPE"])):
 									echo "<script type='text/javascript'>var arClearHiddenFields = [];</script>";
 									echo call_user_func_array($arProp["PROPERTY_USER_TYPE"]["GetAdminFilterHTML"], array(
 										$arProp,
 										array("VALUE" => "filter_sub_el_property_".$arProp["ID"]),
 									));
 								elseif ($arProp["PROPERTY_TYPE"] == 'S'):?>
-									<input type="text" name="filter_sub_el_property_<?= $arProp["ID"] ?>" value="<? echo htmlspecialcharsbx($_REQUEST["filter_sub_el_property_" . $arProp["ID"]]) ?>" size="30">&nbsp;<?= ShowFilterLogicHelp() ?>
-								<?
+									<input type="text" name="filter_sub_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_sub_el_property_" . $arProp["ID"]]) ?>" size="30">&nbsp;<?= ShowFilterLogicHelp() ?>
+								<?php
 								elseif ($arProp["PROPERTY_TYPE"] == 'N' || $arProp["PROPERTY_TYPE"] == 'E'): ?>
-									<input type="text" name="filter_sub_el_property_<?= $arProp["ID"] ?>" value="<? echo htmlspecialcharsbx($_REQUEST["filter_sub_el_property_" . $arProp["ID"]]) ?>" size="30">
-								<?
+									<input type="text" name="filter_sub_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_sub_el_property_" . $arProp["ID"]]) ?>" size="30">
+								<?php
 								elseif ($arProp["PROPERTY_TYPE"] == 'L'): ?>
 									<select name="filter_sub_el_property_<?= $arProp["ID"] ?>">
-										<option value=""><? echo GetMessage("SPS_VALUE_ANY") ?></option>
-										<option value="NOT_REF"><? echo GetMessage("SPS_A_PROP_NOT_SET") ?></option><?
+										<option value=""><?php echo GetMessage("SPS_VALUE_ANY") ?></option>
+										<option value="NOT_REF"><?php echo GetMessage("SPS_A_PROP_NOT_SET") ?></option><?php
 										$dbrPEnum = CIBlockPropertyEnum::GetList(Array("SORT" => "ASC", "VALUE" => "ASC"), Array("PROPERTY_ID" => $arProp["ID"]));
 										while ($arPEnum = $dbrPEnum->GetNext()):
 											?>
 											<option
-												value="<?= $arPEnum["ID"] ?>"<? if ($_REQUEST["filter_sub_el_property_" . $arProp["ID"]] == $arPEnum["ID"]) echo " selected" ?>><?= $arPEnum["VALUE"] ?></option>
-										<?
+												value="<?= $arPEnum["ID"] ?>"<?php if ($_REQUEST["filter_sub_el_property_" . $arProp["ID"]] == $arPEnum["ID"]) echo " selected" ?>><?= $arPEnum["VALUE"] ?></option>
+										<?php
 										endwhile;
 										?></select>
-								<?
+								<?php
 								elseif ($arProp["PROPERTY_TYPE"] == 'G'):
 									echo _ShowGroupPropertyFieldList('filter_sub_el_property_' . $arProp["ID"], $arProp, $_REQUEST['filter_sub_el_property_' . $arProp["ID"]]);
 								endif;
 								?>
 							</td>
 						</tr>
-					<?
+					<?php
 					}
 				}
 
-				$oFilter->Buttons(
-					array(
-						"table_id" => $arResult['TABLE_ID'],
-						"url" => $APPLICATION->GetCurPage(),
-						"form" => $tableId."_find_form"
-					)
-				);
+				$oFilter->Buttons([
+					'table_id' => $arResult['TABLE_ID'],
+					'url' => $APPLICATION->GetCurPage(),
+					'form' => $tableId . '_find_form',
+				]);
 
 				$oFilter->End();
 				?>
@@ -671,59 +771,71 @@ else
 			<div class="adm-navchain" style="vertical-align: middle; margin-left: 0;" id="<?= $tableId ?>_breadcrumbs">
 
 			</div>
-			<?
+			<?php
 			$lAdmin->DisplayList();
 			?>
 		</div>
 	</div>
-	<? if (!$arResult['RELOAD']): ?>
+	<?php
+	if (!$arResult['RELOAD']):
+		$helperParams = [
+			'tableId' => $tableId,
+			'multiple' => $arResult['MULTIPLE'],
+			'callerName' => $arResult['CALLER'],
+			'currentUri' => $APPLICATION->GetCurPage(),
+			'iblockName' => $arResult['IBLOCKS'][$arResult['IBLOCK_ID']]['NAME'],
+			'itemDataNamePrefix' => $selectPrefix,
+		];
+		if ($arResult['JS_CALLBACK'] !== '')
+		{
+			$helperParams['callback'] = $arResult['JS_CALLBACK'];
+		}
+		if ($arResult['JS_EVENT'] !== '')
+		{
+			$helperParams['event'] = $arResult['JS_EVENT'];
+		}
+	?>
 	</div>
 	<script type="text/javascript">
-		<?=$tableId?>_helper = new BX.Catalog.ProductSearchDialog({
-			tableId: '<?=$tableId?>',<?
-			if ($arResult['JS_CALLBACK'] != '' || $arResult['JS_EVENT'] != '')
-			{
-				if ($arResult['JS_CALLBACK'] != '')
-				{
-					?>
-			callback: '<?= $arResult['JS_CALLBACK'] ?>',<?
-				}
-				if ($arResult['JS_EVENT'] != '')
-				{
-					?>
-			event: '<?= $arResult['JS_EVENT'] ?>',<?
-				}
-			}
-			?>
-			callerName: '<?=CUtil::JSEscape($arResult['CALLER'])?>',
-			currentUri: '<?=CUtil::JSEscape($APPLICATION->GetCurPage())?>',
-			popup: BX.WindowManager.Get(),
-			iblockName: '<?=CUtil::JSEscape($arResult['IBLOCKS'][$arResult['IBLOCK_ID']]['NAME'])?>'
-		});
+		<?=$tableId?>_helper = new BX.Catalog.ProductSearchDialog(<?=CUtil::PhpToJSObject(
+			$helperParams,
+			false,
+			false,
+			true
+		); ?>);
 		<?=$tableId?>_helper.setBreadcrumbs(<?=CUtil::PhpToJSObject($arResult['BREADCRUMBS'])?>);
 		BX('<?=$tableId?>_query').focus();
 	</script>
-<? endif ?>
+	<?php
+	endif;
+	?>
 	<script type="text/javascript">
-		<?
+		<?php
 		if (sizeof($arResult['IBLOCKS']) > 1):
-			$iblockMenu = array(array(
-				'HTML' => '<b>'.GetMessage('SPS_CHOOSE_CATALOG').':</b>',
-				'CLOSE_ON_CLICK' => false
-			), array('SEPARATOR' => true));
+			$iblockMenu = [
+				[
+					'HTML' => '<b>'.GetMessage('SPS_CHOOSE_CATALOG').':</b>',
+					'CLOSE_ON_CLICK' => false,
+				],
+				[
+					'SEPARATOR' => true,
+				]
+			];
 			foreach ($arResult['IBLOCKS'] as $arIblock)
 			{
-				$iblockMenu[] = array(
+				$iblockMenu[] = [
 					'HTML' => '<span class="psd-catalog-menu-name" title="'.htmlspecialcharsbx($arIblock['NAME']).'">'.htmlspecialcharsEx($arIblock['NAME']).'</span><span class="psd-catalog-menu-lid" title="'.htmlspecialcharsbx($arIblock['SITE_NAME']).'">'.htmlspecialcharsbx($arIblock['SITE_NAME']).'</span>',
 					'ONCLICK' => $tableId.'_helper.onIblockChange('.(int)$arIblock['ID'].',\''.CUtil::JSEscape($arIblock['NAME']).'\')',
-				);
+				];
 			}
 			?>
 			new BX.COpener({
 				DIV: '<?=$tableId?>_iblock_menu_opener',
 				MENU: <?=CUtil::PhpToJSObject($iblockMenu)?>
 			});
-		<?endif?>
+		<?php
+		endif;
+		?>
 		// override SaveSetting to fix URL
 		<?=$tableId?>.SaveSettings = function (el) {
 			var sCols = '', sBy = '', sOrder = '', sPageSize;
@@ -731,7 +843,7 @@ else
 			var oSelect = document.list_settings.selected_columns;
 			var n = oSelect.length;
 			for (var i = 0; i < n; i++)
-				sCols += (sCols != '' ? ',' : '') + oSelect[i].value;
+				sCols += (sCols !== '' ? ',' : '') + oSelect[i].value;
 
 			oSelect = document.list_settings.order_field;
 			if (oSelect)
@@ -793,5 +905,5 @@ else
 		};
 
 	</script>
-<?
+<?php
 }

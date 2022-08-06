@@ -158,6 +158,7 @@ class CAllSocNetFeatures
 			$DB->Commit();
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
+				$CACHE_MANAGER->ClearByTag('sonet_features');
 				$CACHE_MANAGER->ClearByTag("sonet_feature_".$ID);
 			}
 		}
@@ -234,6 +235,7 @@ class CAllSocNetFeatures
 
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
+				$CACHE_MANAGER->ClearByTag('sonet_features');
 				$CACHE_MANAGER->ClearByTag("sonet_feature_".$ID);
 			}
 		}

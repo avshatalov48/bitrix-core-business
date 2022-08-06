@@ -27,6 +27,26 @@ class Role extends \Bitrix\Landing\Internals\BaseTable
 	public static $internalClass = 'RoleTable';
 
 	/**
+	 * Set forbidden rights in default role manager.
+	 * @var array
+	 */
+	public static $forbiddenManagerRights = [
+		'admin',
+		'knowledge_admin',
+		'unexportable',
+		'knowledge_unexportable',
+	];
+
+	/**
+	 * Set forbidden rights in default role admin.
+	 * @var array
+	 */
+	public static $forbiddenAdminRights = [
+		'unexportable',
+		'knowledge_unexportable'
+	];
+
+	/**
 	 * For correct work we need at least one role.
 	 * @return void
 	 */
@@ -221,6 +241,25 @@ class Role extends \Bitrix\Landing\Internals\BaseTable
 			}
 		}
 
+		$addRightsManager = $addRights;
+		foreach (self::$forbiddenManagerRights as $rightCode)
+		{
+			$key = array_search($rightCode, $addRightsManager, true);
+			if ($key)
+			{
+				array_splice($addRightsManager, $key, 1);
+			}
+		}
+		$addRightsAdmin = $addRights;
+		foreach (self::$forbiddenAdminRights as $rightCode)
+		{
+			$key = array_search($rightCode, $addRightsAdmin, true);
+			if ($key)
+			{
+				array_splice($addRightsAdmin, $key, 1);
+			}
+		}
+
 		$demoData = [
 			'admin' => [
 				'rights' => [
@@ -230,7 +269,7 @@ class Role extends \Bitrix\Landing\Internals\BaseTable
 					'public',
 					'delete'
 				],
-				'additional_rights' => $addRights,
+				'additional_rights' => $addRightsAdmin,
 				'access' => [
 					$defGroup
 				]
@@ -241,7 +280,7 @@ class Role extends \Bitrix\Landing\Internals\BaseTable
 					'edit',
 					'public'
 				],
-				'additional_rights' => $addRights,
+				'additional_rights' => $addRightsManager,
 				'access' => []
 			]
 		];

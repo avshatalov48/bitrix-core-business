@@ -920,7 +920,7 @@ class Selector
 		$request = Main\Context::getCurrent()->getRequest();
 		if ($request->isAdminSection())
 		{
-			$request['admin_section'] = 'Y';
+			$result['admin_section'] = 'Y';
 		}
 		unset($request);
 		return $result;

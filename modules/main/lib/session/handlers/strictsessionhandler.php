@@ -12,17 +12,18 @@ class StrictSessionHandler extends AbstractSessionHandler
 		$this->handler = $handler;
 	}
 
+	#[\ReturnTypeWillChange]
 	public function gc($maxLifeTime)
 	{
 		return $this->handler->gc($maxLifeTime);
 	}
 
-	public function open($savePath, $sessionName)
+	public function open($savePath, $sessionName): bool
 	{
 		return $this->handler->open($savePath, $sessionName);
 	}
 
-	public function updateTimestamp($sessionId, $sessionData)
+	public function updateTimestamp($sessionId, $sessionData): bool
 	{
 		return $this->write($sessionId, $sessionData);
 	}

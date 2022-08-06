@@ -1,7 +1,7 @@
 
 .feed-add-grat-block {
 	background-color: #eef2f4;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-xs, 2px);
 	margin: 0 19px 15px;
 	padding: 37px 24px 37px 86px;
 	position: relative;
@@ -542,6 +542,7 @@ form.comments-form .feed-add-post-buttons {
 	background-color: #f3f6f8;
 	padding: 17px 21px 16px;
 	margin: 8px 18px 9px 17px;
+	border-radius: var(--ui-border-radius-xs);
 }
 
 .feed-add-post-expire-date-inner {

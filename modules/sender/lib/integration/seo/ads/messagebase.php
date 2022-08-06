@@ -178,10 +178,6 @@ abstract class MessageBase implements Message\iBase, Message\iAds
 
 				$result = ob_get_clean();
 				$result .= "<div id=\"$containerNodeId\"></div>";
-				if (!$audienceLookalikeMode)
-				{
-					$result .= "<div style=\"padding: 12px 14px; background: #F8F4BC; color: #91711E;\">" . Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_SYNC_WARN') . "</div>";
-				}
 				return $result;
 			}
 		);

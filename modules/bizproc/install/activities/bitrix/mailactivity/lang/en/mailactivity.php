@@ -13,4 +13,5 @@ $MESS["BPMA_ATTACHMENT_DISK"] = "Drive files";
 $MESS["BPMA_MAIL_USER_FROM"] = "From";
 $MESS["BPMA_MAIL_SUBJECT"] = "Subject";
 $MESS["BPMA_MAIL_USER_TO"] = "To";
+$MESS["BPMA_MAIL_TEXT"] = "Message Text";
 ?>

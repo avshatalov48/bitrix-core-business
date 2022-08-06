@@ -115,10 +115,31 @@ export class StylePanel extends Content
 		Dom.style(document.body, 'pointer-events', 'none');
 	}
 
-	show(): Promise<StylePanel>
+	show(formMode): Promise<StylePanel>
 	{
 		this[showPseudoContent]();
 		StylePanel[disableEditorPointerEvents]();
+
+		if (formMode)
+		{
+			if (!Dom.hasClass(this.layout, 'landing-ui-style-form-mode'))
+			{
+				Dom.addClass(this.layout, 'landing-ui-style-form-mode');
+
+				Dom.style(this.overlay, {
+					'z-index': 9998,
+					width: '880px',
+				});
+				Dom.insertAfter(this.overlay, this.layout);
+				Dom.removeClass(this.overlay, 'landing-ui-panel-style-overlay');
+			}
+		}
+		else
+		{
+			Dom.remove(this.overlay);
+			Dom.addClass(this.overlay, 'landing-ui-panel-style-overlay');
+			Dom.removeClass(this.layout, 'landing-ui-style-form-mode');
+		}
 
 		return super.show()
 			.then(() => {
@@ -129,8 +150,11 @@ export class StylePanel extends Content
 					StylePanel[enableEditorPointerEvents]();
 				}, 300);
 
-				Dom.style(this.getViewWrapper(), 'width', 'calc(100% - 320px)');
-				Dom.addClass(document.body, 'landing-ui-collapsed');
+				if (!formMode)
+				{
+					Dom.style(this.getViewWrapper(), 'width', 'calc(100% - 320px)');
+					Dom.addClass(document.body, 'landing-ui-collapsed');
+				}
 
 				BX.onCustomEvent('BX.Landing.Style:enable', []);
 				this.emit('enable', {panel: this});

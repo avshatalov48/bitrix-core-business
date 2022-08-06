@@ -8,6 +8,7 @@
 	background: #fff;
 	padding: 0 20px;
 	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	border-radius: var(--main-mail-form-border-radius, var(--ui-border-radius-md));
 }
 
 .main-mail-form-fields-wrapper {
@@ -15,7 +16,7 @@
 }
 
 .main-mail-form-docs-wrapper {
-	margin: 0 -20px;
+	margin: -20px 0 15px 0;
 	border-top: 1px solid rgba(198,205,211,0.35);
 	background: rgba(235, 241, 244, 0.23);
 	padding: 10px 20px;
@@ -79,7 +80,7 @@
 	box-sizing: border-box;
 	background: #fff;
 	border: 1px solid #c6cdd3;
-	border-radius: 2px;
+	border-radius: var(--main-mail-form-field-border-radius, var(--ui-border-radius-2xs, 2px));
 	padding: 3px;
 	min-height: 39px;
 }
@@ -278,14 +279,6 @@
 
 .main-mail-form-footer-fixed-hidden {
 	transform: translateY(200%) !important;
-}
-
-.main-mail-form-error {
-	margin: 20px 0 0 0;
-	padding: 10px 18px;
-	background: rgb(253,225,229);
-	color: rgb(219,0,22);
-	font-size: 13px;
 }
 
 .main-mail-form-editor-wrapper {

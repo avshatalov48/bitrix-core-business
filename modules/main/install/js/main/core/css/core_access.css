@@ -54,12 +54,13 @@
 	vertical-align: top;
 	width: 206px;
 	white-space: normal;
+	border-radius: var(--ui-border-radius-sm);
 }
 
 a.access-provider-button {
 	font: 12px Arial;
 	display: block;
-	border-radius: 3px;
+	border-radius: var(--ui-border-radius-2xs, 3px);
 	padding: 4px 7px;
 	text-decoration: none;
 	font-weight: bold;

@@ -149,7 +149,7 @@
 		}
 
 		this.withMenu = false;
-		if (this.context === 'DESKTOP' || this.context === 'FULLSCREEN')
+		if (this.context === 'DESKTOP' || this.context === 'FULLSCREEN' || this.context === 'SLIDER')
 		{
 			BX.addClass(this.content, 'bx-desktop-appearance-show-menu');
 			this.withMenu = true;

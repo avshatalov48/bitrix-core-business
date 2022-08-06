@@ -86,9 +86,6 @@ function GetReportsList($strPath2Import)
 			if ($file == "." || $file == "..")
 				continue;
 
-			if ($GLOBALS["DB"]->type != "MYSQL" && mb_substr($file, 0, mb_strlen("commerceml_g_")) == "commerceml_g_")
-				continue;
-
 			if (is_file($_SERVER["DOCUMENT_ROOT"].$strPath2Import.$file) && mb_substr($file, mb_strlen($file) - 8) == "_run.php")
 			{
 				$import_name = mb_substr($file, 0, mb_strlen($file) - 8);

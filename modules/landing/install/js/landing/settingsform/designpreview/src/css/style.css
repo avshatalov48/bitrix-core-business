@@ -12,14 +12,14 @@
 	--design-preview-font-theme: "Montserrat", Arial, sans-serif;
 	--design-preview-font-h: "Montserrat", Arial, sans-serif;
 	--design-preview-font-h-theme: "Montserrat", Arial, sans-serif;
-}
-
-.landing-design-preview-wrap
-{
 	position: absolute;
 	top: 0;
 	right: 20px;
-	width: 45%;
+	width: 40%;
+}
+
+#landing-design-form .landing-design-preview-wrap {
+	width: 35%;
 }
 
 .landing-design-preview
@@ -27,7 +27,7 @@
 	position: relative;
 	display: flex;
 	flex-direction: column;
-	padding: 30px 25px;
+	padding: 20px;
 	margin-top: 20px;
 	color: var(--design-preview-color);
 	font-size: var(--design-preview-font-size);
@@ -100,10 +100,6 @@
 
 .landing-ui-panel-google-fonts {
     top: 0 !important;
-}
-
-.landing-ui-panel-content {
-    z-index: 1000;
 }
 
 .landing-ui-font-preview {

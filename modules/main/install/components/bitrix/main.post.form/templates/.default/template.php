@@ -22,7 +22,8 @@ use Bitrix\Main\ModuleManager;
 
 Main\UI\Extension::load([
 	'ui.entity-selector',
-	'ui.buttons'
+	'ui.buttons',
+	'ui.design-tokens',
 ]);
 Main\Page\Asset::getInstance()->addJs($templateFolder."/index.js");
 include_once(__DIR__."/functions.php");

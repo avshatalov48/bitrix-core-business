@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SONET_C6_TOPIC"] = "Тема";
 $MESS["SONET_C6_DESCR"] = "Описание";
 $MESS["SONET_C6_CREATED"] = "Дата создания";
@@ -46,4 +46,34 @@ $MESS["SONET_C6_CARD_FAVORITES_N"] = "Добавить в избранное";
 $MESS["SONET_C6_CARD_FAVORITES_Y"] = "Убрать из избранного";
 $MESS["SONET_C6_CARD_WAIT"] = "Пожалуйста, подождите&hellip;";
 $MESS["SONET_C6_CARD_MOD_SCRUM_PROJECT"] = "Команда разработки";
-?>
+$MESS["SONET_C6_CARD_MENU_ABOUT"] = "О группе";
+$MESS["SONET_C6_CARD_MENU_ABOUT_PROJECT"] = "О проекте";
+$MESS["SONET_C6_CARD_MENU_ABOUT_SCRUM"] = "О Скраме";
+$MESS["SONET_C6_CARD_MENU_MEMBERS"] = "Участники";
+$MESS["SONET_C6_CARD_MENU_ROLES"] = "Роли и права";
+$MESS["SONET_C6_CARD_CHANGE_THEME"] = "Сменить тему оформления";
+$MESS["SONET_C6_CARD_MEMBERS_TITLE"] = "Участники группы";
+$MESS["SONET_C6_CARD_MEMBERS_TITLE_PROJECT"] = "Участники проекта";
+$MESS["SONET_C6_CARD_MEMBERS_TITLE_SCRUM"] = "Участники скрам-команды";
+$MESS["SONET_C6_CARD_OWNER_SECTION_TITLE"] = "Владелец группы";
+$MESS["SONET_C6_CARD_OWNER_SECTION_TITLE_PROJECT"] = "Руководитель проекта";
+$MESS["SONET_C6_CARD_OWNER_SECTION_TITLE_SCRUM"] = "Владелец продукта";
+$MESS["SONET_C6_CARD_SCRUMMASTER_TITLE"] = "Скрам-мастер";
+$MESS["SONET_C6_CARD_MODERATORS_SECTION_TITLE"] = "Модераторы группы";
+$MESS["SONET_C6_CARD_MODERATORS_SECTION_TITLE_PROJECT"] = "Помощники руководителя";
+$MESS["SONET_C6_CARD_MODERATORS_SECTION_TITLE_SCRUM"] = "Команда разработки";
+$MESS["SONET_C6_CARD_MEMBERS_SECTION_TITLE"] = "Команда группы";
+$MESS["SONET_C6_CARD_MEMBERS_SECTION_TITLE_PROJECT"] = "Команда проекта";
+$MESS["SONET_C6_CARD_MEMBERS_SECTION_TITLE_SCRUM"] = "Заинтересованные лица";
+$MESS["SONET_C6_CARD_EFFICIENCY_SECTION_TITLE"] = "Эффективность";
+$MESS["SONET_C6_CARD_EFFICIENCY_SECTION_TITLE_PROJECT"] = "Эффективность проекта";
+$MESS["SONET_C6_CARD_EFFICIENCY_HELPER_CAPTION"] = "Как это работает?";
+$MESS["SONET_C6_CARD_ACTION_LINK_EDIT"] = "Изменить";
+$MESS["SONET_C6_CARD_PROJECT_TERM_SECTION_TITLE"] = "Срок проекта";
+$MESS["SONET_C6_CARD_SCRUM_TASK_RESPONSIBLE_TITLE"] = "Ответственный по умолчанию";
+$MESS["SONET_C6_CARD_SCRUM_TASK_RESPONSIBLE_VALUE_A"] = "Постановщик";
+$MESS["SONET_C6_CARD_SCRUM_TASK_RESPONSIBLE_VALUE_M"] = "Скрам-мастер";
+$MESS["SONET_C6_CARD_PROPERTIES_SECTION_TITLE"] = "Свойства группы";
+$MESS["SONET_C6_CARD_PROPERTIES_SECTION_TITLE_PROJECT"] = "Свойства проекта";
+$MESS["SONET_C6_CARD_PROPERTIES_SECTION_TITLE_SCRUM"] = "Свойства скрама";
+

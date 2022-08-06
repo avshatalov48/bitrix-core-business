@@ -153,8 +153,7 @@
 	box-sizing: border-box;
 	background: #fff;
 	border: 1px solid rgba(82,92,104,0.2);
-	-webkit-border-radius: 2px;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-sm, 2px);
 }
 
 .crm-ads-rtg-popup-social:before {

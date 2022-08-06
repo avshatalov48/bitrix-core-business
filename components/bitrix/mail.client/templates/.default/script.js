@@ -585,11 +585,38 @@
 	{
 		var fields = this.htmlForm.elements;
 		var emptyRcpt = true;
+
+		var countCc = 0;
+		var countBcc = 0;
+		var countTo = 0;
+
 		for (var i = 0; i < fields.length; i++)
 		{
-			if ('data[to][]' == fields[i].name && fields[i].value.length > 0)
+			if ('data[to][]' === fields[i].name && fields[i].value.length)
+			{
 				emptyRcpt = false;
+				countTo++;
+			}
+
+			if ('data[cc][]' === fields[i].name && fields[i].value.length)
+			{
+				countCc++;
+			}
+
+			if ('data[bcc][]' === fields[i].name && fields[i].value.length)
+			{
+				countBcc++;
+			}
 		}
+
+		var emailsLimitToSendMessage = Number(BX.message('EMAILS_LIMIT_TO_SEND_MESSAGE'));
+
+		if(emailsLimitToSendMessage !== -1 && (countTo > emailsLimitToSendMessage || countCc > emailsLimitToSendMessage || countBcc > emailsLimitToSendMessage))
+		{console.log(emailsLimitToSendMessage);
+			form.showError(BX.message('MAIL_MESSAGE_NEW_TARIFF_RESTRICTION'));
+			return BX.PreventDefault(event);
+		}
+
 		if (emptyRcpt)
 		{
 			// @TODO: hide on select
@@ -658,10 +685,10 @@
 					code: 0
 				}];
 			}
+
 			for (var i = 0; i < data.errors.length; i++)
 			{
-				errorNode.appendChild(document.createTextNode(data.errors[i].message));
-				errorNode.appendChild(document.createElement('BR'));
+				errorNode.innerHTML += data.errors[i].message + "</br>";
 			}
 
 			form.showError(errorNode.innerHTML);
@@ -690,7 +717,9 @@
 		var replyButton = BX.findChildByClassName(this.__wrapper, 'js-msg-view-reply-panel', true);
 
 		if (this.htmlForm.parentNode === this.__dummyNode)
+		{
 			this.htmlForm.__wrapper.appendChild(this.htmlForm);
+		}
 
 		mailForm.init();
 

@@ -9,7 +9,6 @@ $MESS["CAT_WAREHOUSE_MASTER_CLEAR_7"] = "ein";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_8"] = "aus";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_9"] = "Bestandsverwaltung in Bitrix24 deaktivieren";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_10"] = "Einstellungen der Bestandsverwaltung";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_11"] = "Mobiler Strichcode-Scanner";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_12"] = "Abbrechen";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_13"] = "Bestand zurücksetzen";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_14"] = "Bestand zurücksetzen";

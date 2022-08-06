@@ -1,10 +1,11 @@
-import { EventType } from './event-type'
-import { DialogOneC } from './dialog-onec'
-import { DialogDisable } from './dialog-disable'
-import { DialogClearing } from './dialog-clearing'
+import { EventType } from './event-type';
+import { DialogOneC } from './dialog-onec';
+import { DialogDisable } from './dialog-disable';
+import { DialogClearing } from './dialog-clearing';
 import { DialogError } from './dialog-error';
-import { Slider } from './slider'
-import { Popup } from './popup'
+import { Slider } from './slider';
+import { Popup } from './popup';
+import { ProductGridMenu } from './product-grid-menu';
 
 export
 {
@@ -14,5 +15,6 @@ export
 	DialogClearing,
 	DialogError,
 	Slider,
-	Popup
+	Popup,
+	ProductGridMenu
 }

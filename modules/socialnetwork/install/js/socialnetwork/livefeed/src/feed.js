@@ -19,6 +19,9 @@ import './css/gratitude.css';
 import './css/important.css';
 import './css/warning.css';
 import './css/taskcreator.css';
+import './css/task.css';
+import './css/timeman.css';
+import './css/calendar.css';
 
 class Feed
 {
@@ -26,7 +29,7 @@ class Feed
 	{
 		this.entryData = {};
 		this.feedInitialized = false;
-		this.moreButtonDataList = [];
+		this.moreButtonDataList = new Map();
 	}
 
 	initOnce(params)
@@ -406,6 +409,11 @@ class Feed
 		node.insertBefore(Tag.render`<div class="feed-add-error" style="margin: 18px 37px 4px 84px;"><span class="feed-add-info-text"><span class="feed-add-info-icon"></span><span>${Loc.getMessage('sonetLMenuDeleteFailure')}</span></span></div>`, node.firstChild);
 	}
 
+	setMoreButtons(value)
+	{
+		this.moreButtonDataList = value;
+	}
+
 	getMoreButtons()
 	{
 		return this.moreButtonDataList;
@@ -413,12 +421,12 @@ class Feed
 
 	clearMoreButtons()
 	{
-		this.moreButtonDataList = [];
+		this.moreButtonDataList.clear();
 	}
 
-	addMoreButton(data)
+	addMoreButton(key, data)
 	{
-		this.moreButtonDataList.push(data);
+		this.moreButtonDataList.set(key, data);
 	}
 
 	setNoTasksNotificationRead(event)

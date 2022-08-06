@@ -4,7 +4,14 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 CUtil::InitJSCore(
 	['tooltip', 'admin_interface', 'date', 'uploader', 'file_dialog', 'bp_user_selector', 'bp_field_type']
 );
-\Bitrix\Main\UI\Extension::load(['ui.buttons', 'ui.hint', 'ui.entity-selector']);
+\Bitrix\Main\UI\Extension::load([
+	'bizproc.automation',
+	'ui.buttons',
+	'ui.hint',
+	'ui.entity-selector',
+	'ui.design-tokens'
+]);
+\Bitrix\Main\UI\Extension::load(['bizproc.automation', 'ui.buttons', 'ui.hint', 'ui.entity-selector']);
 /**
  * @var array $arResult
  * @var array $arParams
@@ -29,7 +36,9 @@ if (isset($arParams['~MESSAGES']) && is_array($arParams['MESSAGES']))
 	{
 		BX.namespace('BX.Bizproc.Automation');
 		if (typeof BX.Bizproc.Automation.Component === 'undefined')
+		{
 			return;
+		}
 
 		BX.message(<?=\Bitrix\Main\Web\Json::encode($messages)?>);
 		BX.message({

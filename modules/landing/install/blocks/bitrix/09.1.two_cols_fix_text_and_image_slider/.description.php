@@ -53,6 +53,10 @@ return [
 		'.landing-block-node-carousel-container' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_5_TWO_COLS_FIX_TEXT_AND_IMAGE_SLIDER_CARDS_LANDINGBLOCKCARDCAROUSEL'),
 			'type' => 'animation',
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_5_TWO_COLS_FIX_TEXT_AND_IMAGE_SLIDER_STYLE_LANDINGBLOCKNODE_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show-extended', 'arrows', 'dots'],
+			]
 		],
 		'.landing-block-node-subtitle' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_5_TWO_COLS_FIX_TEXT_AND_IMAGE_SLIDER_STYLE_LANDINGBLOCKNODESUBTITLE'),

@@ -30,10 +30,11 @@ class PropertyValueCollection extends BaseCollection
 	public function setValues($values): self
 	{
 		$values = $this->prepareValues($values);
+		$values = $this->prepareValuesIds($values);
 
 		if ($this->isPropertyMultiple())
 		{
-			$this->removeOldValues($values);
+			$this->removeUnchangedItems($values);
 		}
 
 		foreach ($values as $fields)
@@ -42,6 +43,32 @@ class PropertyValueCollection extends BaseCollection
 		}
 
 		return $this;
+	}
+
+	private function prepareValuesIds($values): array
+	{
+		if (empty($values))
+		{
+			return $values;
+		}
+
+		foreach ($values as $key => $value)
+		{
+			$values[$key]['ID'] = 0;
+		}
+
+		$valueIndex = 0;
+		foreach ($this->getIterator() as $entity)
+		{
+			$values[$valueIndex]['ID'] = $entity->getId();
+			$valueIndex++;
+			if ($valueIndex > count($values) - 1)
+			{
+				break;
+			}
+		}
+
+		return $values;
 	}
 
 	/**
@@ -143,21 +170,21 @@ class PropertyValueCollection extends BaseCollection
 		return $values;
 	}
 
-	private function removeOldValues(array $values): void
+	private function removeUnchangedItems($values): void
 	{
-		$valuesToSave = [];
+		$idsToSave = [];
 
 		foreach ($values as $value)
 		{
-			if (isset($value['VALUE']) && is_scalar($value['VALUE']))
+			if ($value['ID'] > 0)
 			{
-				$valuesToSave[] = $value['VALUE'];
+				$idsToSave[] = $value['ID'];
 			}
 		}
 
 		foreach ($this->getIterator() as $entity)
 		{
-			if ($entity->isNew() || !in_array($entity->getValue(), $valuesToSave, true))
+			if ($entity->isNew() || !in_array($entity->getId(), $idsToSave, true))
 			{
 				$entity->remove();
 			}
@@ -170,9 +197,9 @@ class PropertyValueCollection extends BaseCollection
 
 		if ($this->isPropertyMultiple())
 		{
-			if (is_scalar($fields['VALUE']))
+			if (isset($fields['ID']) && $fields['ID'] > 0)
 			{
-				$entity = $this->findByValue($fields['VALUE']);
+				$entity = $this->findById($fields['ID']);
 			}
 		}
 		else

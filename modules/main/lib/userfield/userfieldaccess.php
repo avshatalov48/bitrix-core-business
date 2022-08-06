@@ -124,7 +124,7 @@ abstract class UserFieldAccess
 			return null;
 		}
 
-		$filter['ENTITY_ID'] = $filterEntityIds;
+		$filter['=ENTITY_ID'] = $filterEntityIds;
 
 		return $filter;
 	}

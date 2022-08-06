@@ -101,8 +101,6 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 			"entityId" => $arParams["LOG_ID"]
 		),
 		"IS_POSTS_LIST" => ($arParams["bFromList"] ? "Y" : "N"),
-		'CONTENT_VIEW_KEY' => $arParams['CONTENT_VIEW_KEY'],
-		'CONTENT_VIEW_KEY_SIGNED' => $arParams['CONTENT_VIEW_KEY_SIGNED'],
 	),
 	$this->__component
 );

@@ -11,6 +11,7 @@ $MESS["STORE_CODE"] = "Symbolic code";
 $MESS["STORE_DELETE"] = "Delete";
 $MESS["STORE_DELETE_CONFIRM"] = "Are you sure you want to delete this warehouse?";
 $MESS["STORE_DESCR"] = "Description";
+$MESS["STORE_ERR_DEFAULT_STORE_WITH_SITE"] = "This warehouse cannot be linked to a site. Please, save changes to restore warehouse correct operation.";
 $MESS["STORE_E_USER_FIELDS_ADD_HREF"] = "Add custom field";
 $MESS["STORE_FIELD_IS_DEFAULT"] = "Default warehouse";
 $MESS["STORE_GPS_N"] = "GPS latitude";

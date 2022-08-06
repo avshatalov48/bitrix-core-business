@@ -131,7 +131,6 @@ $MESS["CATI_IMPORT_SCHEME_NAME"] = "Import scheme name";
 $MESS["CML_R_EDIT"] = "editing";
 $MESS["CML_R_ADD"] = "adding";
 $MESS["CML_R_IBLOCK"] = "Error #ACT# the information block #NAME#: #ERROR#";
-$MESS["CML_R_MYSQL_ONLY"] = "In the <b>MySql</b> version, this script imports data from the CommerceML format. Should you have questions regarding other product versions, please address them to the Helpdesk at <a href=\"mailto:support@bitrixsoft.ru\">support@bitrixsoft.com</a>";
 $MESS["CML_R_MIN"] = "min";
 $MESS["CML_R_TIME"] = "Loading has taken #TIME# sec (#MIN#)";
 $MESS["CML_R_NCATA"] = "Catalogs processed: #NUM#";

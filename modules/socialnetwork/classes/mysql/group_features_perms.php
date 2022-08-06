@@ -50,6 +50,7 @@ class CSocNetFeaturesPerms extends CAllSocNetFeaturesPerms
 				&& defined("BX_COMP_MANAGED_CACHE")
 			)
 			{
+				$CACHE_MANAGER->ClearByTag('sonet_features2perms');
 				$CACHE_MANAGER->ClearByTag("sonet_feature_".$arFields["FEATURE_ID"]);
 			}
 		}

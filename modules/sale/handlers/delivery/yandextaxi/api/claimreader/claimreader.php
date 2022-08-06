@@ -11,7 +11,6 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Offer;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\PerformerInfo;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Pricing;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\RoutePoint;
-use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\RoutePoints;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\ShippingItem;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\ShippingItemSize;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\TransportClassification;
@@ -92,10 +91,6 @@ final class ClaimReader
 		{
 			$claim->setUpdatedTs($response['updated_ts']);
 		}
-		if (isset($response['available_cancel_state']))
-		{
-			$claim->setAvailableCancelState($response['available_cancel_state']);
-		}
 		if (isset($response['items']) && is_array($response['items']))
 		{
 			foreach ($response['items'] as $item)
@@ -106,22 +101,27 @@ final class ClaimReader
 				{
 					$shippingItem->setTitle($item['title']);
 				}
+
 				if (isset($item['weight']))
 				{
 					$shippingItem->setWeight($item['weight']);
 				}
+
 				if (isset($item['quantity']))
 				{
 					$shippingItem->setQuantity($item['quantity']);
 				}
+
 				if (isset($item['cost_value']))
 				{
 					$shippingItem->setCostValue($item['cost_value']);
 				}
+
 				if (isset($item['cost_currency']))
 				{
 					$shippingItem->setCostCurrency($item['cost_currency']);
 				}
+
 				if (isset($item['size']))
 				{
 					$shippingItemSize = new ShippingItemSize();
@@ -142,30 +142,26 @@ final class ClaimReader
 					$shippingItem->setSize($shippingItemSize);
 				}
 
+				if (isset($item['pickup_point']))
+				{
+					$shippingItem->setPickupPoint($item['pickup_point']);
+				}
+
+				if (isset($item['droppof_point']))
+				{
+					$shippingItem->setDroppofPoint($item['droppof_point']);
+				}
+
 				$claim->addItem($shippingItem);
 			}
 		}
-		if (isset($response['route_points']))
+		if (isset($response['route_points']) && is_array($response['route_points']))
 		{
-			$routePoints = new RoutePoints();
+			$routePoints = [];
 
-			if (isset($response['route_points']['source']))
+			foreach ($response['route_points'] as $routePoint)
 			{
-				$routePoints->setSource(
-					$this->buildRoutePoint($response['route_points']['source'])
-				);
-			}
-			if (isset($response['route_points']['destination']))
-			{
-				$routePoints->setDestination(
-					$this->buildRoutePoint($response['route_points']['destination'])
-				);
-			}
-			if (isset($response['route_points']['return']))
-			{
-				$routePoints->setReturn(
-					$this->buildRoutePoint($response['route_points']['return'])
-				);
+				$routePoints[] = $this->buildRoutePoint($routePoint);
 			}
 
 			$claim->setRoutePoints($routePoints);
@@ -316,16 +312,38 @@ final class ClaimReader
 	{
 		$result = new RoutePoint();
 
+		if (isset($node['id']))
+		{
+			$result->setId($node['id']);
+		}
+
+		if (isset($node['point_id']))
+		{
+			$result->setPointId($node['point_id']);
+		}
+
+		if (isset($node['visit_order']))
+		{
+			$result->setVisitOrder($node['visit_order']);
+		}
+
+		if (isset($node['type']))
+		{
+			$result->setType($node['type']);
+		}
+
 		if (isset($node['skip_confirmation']))
 		{
 			$result->setSkipConfirmation($node['skip_confirmation']);
 		}
+
 		if (isset($node['contact']))
 		{
 			$result->setContact(
 				$this->buildContact($node['contact'])
 			);
 		}
+
 		if (isset($node['address']))
 		{
 			$result->setAddress(

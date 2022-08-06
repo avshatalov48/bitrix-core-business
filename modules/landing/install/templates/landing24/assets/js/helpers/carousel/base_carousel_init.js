@@ -1,4 +1,4 @@
-;(function ()
+;(function ($)
 {
 	"use strict";
 
@@ -141,4 +141,12 @@
 			}
 		});
 	});
-})();
+
+	/**
+	 * Reinit slider after change attribute
+	 */
+	BX.addCustomEvent("BX.Landing.Block:Node:updateAttr", function (event)
+	{
+		BX.Landing.SliderHelper.init(event, BX.Landing.SliderHelper.ACTION_UPDATE);
+	});
+})(window.jQueryLanding || jQuery);

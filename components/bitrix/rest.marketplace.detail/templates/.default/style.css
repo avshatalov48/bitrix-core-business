@@ -20,6 +20,9 @@
 	overflow: hidden;
 	background: #fff;
 	padding: 18px;
+	border-radius: var(--ui-border-radius-md);
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
 }
 
 .mp-detail-main-preview {
@@ -138,6 +141,9 @@
 	padding: 0 23px;
 	height: 55px;
 	background: #fafafa;
+	border-radius: var(--ui-border-radius-md);
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
 	margin-bottom: 10px;
 	font-family: "Helvetica Neue", Arial, sans-serif;
 	font-size: 0;
@@ -282,6 +288,7 @@
 .mp-detail-content {
 	padding: 0 18px 18px 18px;
 	background: #fff;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .mp-detail-content-menu {

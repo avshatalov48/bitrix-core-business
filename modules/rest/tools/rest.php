@@ -6,6 +6,7 @@ require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_befo
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Rest\Marketplace\Application;
 use Bitrix\Rest\Engine\Access;
+use Bitrix\Rest\Marketplace\Transport;
 
 Loc::loadMessages(__FILE__);
 
@@ -135,8 +136,9 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 
 					if ($queryField)
 					{
+						$transport = new Transport();
 						$httpClient = new \Bitrix\Main\Web\HttpClient();
-						if ($response = $httpClient->post('https://www.1c-bitrix.ru/buy_tmp/b24_coupon.php', $queryField))
+						if ($response = $httpClient->post($transport->getServiceUrl(Transport::SERVICE_TYPE_COUPON), $queryField))
 						{
 							if (mb_strpos($response, 'OK') === false)
 							{

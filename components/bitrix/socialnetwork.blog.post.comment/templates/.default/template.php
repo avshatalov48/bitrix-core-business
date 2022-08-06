@@ -137,8 +137,6 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 			"entityId" => $arParams["LOG_ID"]
 		),
 		"bPublicPage" => (isset($arParams["bPublicPage"]) && $arParams["bPublicPage"]),
-		'CONTENT_VIEW_KEY' => $arParams['CONTENT_VIEW_KEY'],
-		'CONTENT_VIEW_KEY_SIGNED' => $arParams['CONTENT_VIEW_KEY_SIGNED'],
 	),
 	$this->__component
 );

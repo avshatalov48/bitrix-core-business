@@ -1489,4 +1489,17 @@ export class FormSettingsPanel extends BasePresetPanel
 		Dom.removeClass(editorWindow.document.body, 'landing-ui-hide-action-panels-form');
 		return super.hide();
 	}
+
+	onSidebarButtonClick(event: BaseEvent)
+	{
+		const target = event.getTarget();
+		if (target.options.id === 'design')
+		{
+			this.onFormDesignButtonClick();
+		}
+		else
+		{
+			super.onSidebarButtonClick(event);
+		}
+	}
 }

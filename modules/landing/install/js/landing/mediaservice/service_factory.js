@@ -17,8 +17,8 @@
 		 */
 		services: {
 			youtube: "BX.Landing.MediaService.Youtube",
-			vk: "BX.Landing.MediaService.Vk",
 			rutube: "BX.Landing.MediaService.Rutube",
+			vk: "BX.Landing.MediaService.Vk",
 			vimeo: "BX.Landing.MediaService.Vimeo",
 			vine: "BX.Landing.MediaService.Vine",
 			instagram: "BX.Landing.MediaService.Instagram",

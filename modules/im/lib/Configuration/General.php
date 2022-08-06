@@ -8,7 +8,11 @@ use Bitrix\Im\Model\OptionUserTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\ORM\Fields\ExpressionField;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\UserTable;
 use Exception;
 
 class General extends Base
@@ -203,6 +207,189 @@ class General extends Base
 		$settings = static::decodeSettings($settings);
 
 		return array_replace_recursive($defaultSettings, $settings);
+	}
+
+	public static function allowedUserBySimpleNotificationSettings(int $userId, string $notifyType): bool
+	{
+		$userSettings = static::createWithUserId($userId);
+		if ($userSettings->getValue('notifyScheme') === 'simple')
+		{
+			$settingName = static::getNotifySettingByType($notifyType);
+			return (bool)$userSettings->getValue($settingName);
+		}
+
+		return true;
+	}
+
+	public static function filterAllowedUsersBySimpleNotificationSettings(array $userList, string $notifyType): array
+	{
+		if (empty($userList))
+		{
+			return $userList;
+		}
+
+		$settingName = static::getNotifySettingByType($notifyType);
+		if ($settingName === '')
+		{
+			return $userList;
+		}
+
+		$encodedSettingName = static::encodeName($settingName);
+		$encodedDefaultSettings = static::encodeSettings(static::getDefaultSettings());
+
+		if (!array_key_exists($encodedSettingName, $encodedDefaultSettings))
+		{
+			return $userList;
+		}
+
+		$filteredUsers = [];
+		if (count($userList) < 1000)
+		{
+			$filteredUsers = static::filterChunk($userList, $settingName);
+		}
+		else
+		{
+			$chunkList = array_chunk($userList, static::CHUNK_LENGTH);
+			foreach ($chunkList as $chunk)
+			{
+				$filteredUsers = array_merge($filteredUsers, static::filterChunk($chunk, $settingName));
+			}
+		}
+
+		return $filteredUsers;
+	}
+
+	protected static function filterChunk(array $userList, string $settingName): array
+	{
+		$notifySchemas = static::getUserNotifySchemas($userList);
+		$filteredUserListWithSimpleScheme = static::filterUsersWithSimpleNotifyScheme($notifySchemas['simple'], $settingName);
+
+		return array_merge($filteredUserListWithSimpleScheme, $notifySchemas['expert']);
+	}
+
+	protected static function getNotifySettingByType(string $notifyType): string
+	{
+		switch ($notifyType)
+		{
+			case Notification::SITE:
+				return 'notifySchemeSendSite';
+			case Notification::MAIL:
+				return 'notifySchemeSendEmail';
+			case Notification::XMPP:
+				return 'notifySchemeSendXmpp';
+			case Notification::PUSH:
+				return 'notifySchemeSendPush';
+			default:
+				return '';
+		}
+	}
+
+	/**
+	 * @param array $userList
+	 * @return array{simple:string, expert:string} must be empty
+	 */
+	protected static function getUserNotifySchemas(array $userList): array
+	{
+		if (empty($userList))
+		{
+			return [];
+		}
+
+		$default = static::getDefaultSettings();
+		$notifySchemeValue = $default['notifyScheme'];
+		$encodedSettingName = static::encodeName('notifyScheme');
+
+		$query =
+			OptionUserTable::query()
+				->addSelect('USER_ID')
+				->addSelect(new ExpressionField('NOTIFY_SCHEMA',"IFNULL(%s, '$notifySchemeValue')", ['OPTION_STATE.VALUE']))
+				->registerRuntimeField(
+					'USER',
+					new Reference(
+						'USER',
+						UserTable::class,
+						Join::on('this.USER_ID', 'ref.ID'),
+						['join_type' => Join::TYPE_INNER]
+					)
+				)
+				->registerRuntimeField(
+					'OPTION_STATE',
+					new Reference(
+						'OPTION_STATE',
+						OptionStateTable::class,
+						Join::on('this.GENERAL_GROUP_ID', 'ref.GROUP_ID')
+							->where('ref.NAME', $encodedSettingName),
+						['join_type' => Join::TYPE_LEFT]
+					)
+				)
+				->whereIn('USER_ID', $userList)
+				->where('USER.ACTIVE', 'Y')
+				->where('USER.IS_REAL_USER', 'Y')
+		;
+		$notifySchemas = [
+			'simple' => [],
+			'expert' => [],
+		];
+
+		foreach ($query->exec() as $row)
+		{
+			if($row['NOTIFY_SCHEMA'] === 'simple')
+			{
+				$notifySchemas['simple'][] = (int)$row['USER_ID'];
+			}
+			elseif ($row['NOTIFY_SCHEMA'] === 'expert')
+			{
+				$notifySchemas['expert'][] = (int)$row['USER_ID'];
+			}
+		}
+
+		return $notifySchemas;
+	}
+
+	protected static function filterUsersWithSimpleNotifyScheme(array $userList, string $settingName): array
+	{
+		if (empty($userList))
+		{
+			return [];
+		}
+
+		$encodedSettingName = static::encodeName($settingName);
+		$defaultSettingValue = static::getDefaultSettings()[$settingName] ? 'Y' : 'N';
+		$query =
+			OptionUserTable::query()
+				->addSelect('USER_ID')
+				->registerRuntimeField(
+					'USER',
+					new Reference(
+						'USER',
+						UserTable::class,
+						Join::on('this.USER_ID', 'ref.ID'),
+						['join_type' => Join::TYPE_INNER]
+					)
+				)
+				->registerRuntimeField(
+					'OPTION_STATE',
+					new Reference(
+						'OPTION_STATE',
+						OptionStateTable::class,
+						Join::on('this.GENERAL_GROUP_ID', 'ref.GROUP_ID')
+							->where('ref.NAME', $encodedSettingName),
+						['join_type' => Join::TYPE_LEFT]
+					)
+				)
+				->whereIn('USER_ID', $userList)
+				->where('USER.ACTIVE', 'Y')
+				->where('USER.IS_REAL_USER', 'Y')
+				->whereExpr("IFNULL(%s, '$defaultSettingValue') = 'Y'", ['OPTION_STATE.VALUE'])
+		;
+
+		$filteredUserList = [];
+		foreach ($query->exec() as $row)
+		{
+			$filteredUserList[] = (int)$row['USER_ID'];
+		}
+
+		return $filteredUserList;
 	}
 
 	/**

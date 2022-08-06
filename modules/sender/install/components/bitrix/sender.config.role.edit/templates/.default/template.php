@@ -7,11 +7,14 @@ use Bitrix\Main\Localization\Loc as Loc;
  * @var array $arParams
  * @var CAllMain $APPLICATION
  */
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-$this->addExternalCss('/bitrix/css/main/table/style.css');
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 Bitrix\Main\UI\Extension::load(
 	[
+		'ui.design-tokens',
 		'ui.buttons',
 		'ui.icons',
 		'ui.notification',
@@ -20,10 +23,11 @@ Bitrix\Main\UI\Extension::load(
 		'ui',
 		'ui.info-helper',
 		'ui.actionpanel',
-
+		'loader',
 	]
 );
-\Bitrix\Main\UI\Extension::load('loader');
+
+$this->addExternalCss('/bitrix/css/main/table/style.css');
 
 //CUtil::InitJSCore(Array('access'));
 

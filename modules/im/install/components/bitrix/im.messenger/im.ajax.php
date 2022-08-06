@@ -1364,6 +1364,11 @@ else if ($_POST['IM_CHAT_ADD'] == 'Y')
 			$entityType = 'VIDEOCONF';
 		}
 
+		if (\Bitrix\Im\User::getInstance()->isExtranet())
+		{
+			$_POST['USERS'] = \Bitrix\Im\Integration\Socialnetwork\Extranet::filterUserList($_POST['USERS']);
+		}
+
 		$CIMChat = new CIMChat();
 		$chatId = $CIMChat->Add(Array(
 			'TYPE' => $type,
@@ -1406,6 +1411,11 @@ else if ($_POST['IM_CHAT_EXTEND'] == 'Y')
 	}
 	else
 	{
+		if (\Bitrix\Im\User::getInstance()->isExtranet())
+		{
+			$_POST['USERS'] = \Bitrix\Im\Integration\Socialnetwork\Extranet::filterUserList($_POST['USERS']);
+		}
+
 		$CIMChat = new CIMChat();
 		$result = $CIMChat->AddUser($_POST['CHAT_ID'], $_POST['USERS'], $_POST['HISTORY'] != 'Y');
 		if (!$result)

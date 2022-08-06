@@ -16,6 +16,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	<a hidden class="landing-block-link-1"><p></p></a>
 	<a hidden class="landing-block-link-2"><p></p></a>
 	<a hidden class="landing-block-link-3"><p></p></a>
+	<a hidden class="landing-block-link-4"><p></p></a>
+	<a hidden class="landing-block-link-5"><p></p></a>
 
 	<?php $APPLICATION->IncludeComponent(
 		'bitrix:landing.blocks.tariffs',

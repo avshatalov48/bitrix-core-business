@@ -569,6 +569,9 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 			$filtered = false;
 			$filterOption = new \Bitrix\Main\UI\Filter\Options($result['FILTER_ID']);
 			$filterData = $filterOption->getFilter();
+
+			$result['FILTER_USED'] = (!empty($filterData) ? 'Y' : 'N');
+
 			$this->setFilterData($filterData);
 
 			if (
@@ -674,10 +677,11 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 			}
 
 			$this->setFilterContent(trim($filterData['FIND']));
-			if (!empty($this->getFilterContent()))
+			$findValue = (string)$this->getFilterContent();
+			if ($findValue !== '')
 			{
 				$filtered = true;
-				$this->setFilterKey('*CONTENT',  LogIndex::prepareToken($this->getFilterContent()));
+				$this->setFilterKey('*CONTENT',  LogIndex::prepareToken($findValue));
 			}
 
 			if (

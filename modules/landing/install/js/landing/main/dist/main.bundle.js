@@ -49,15 +49,7 @@ this.BX = this.BX || {};
 	  return true;
 	}
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 
 	BX.Landing.getMode = function () {
 	  return 'edit';
@@ -374,7 +366,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "appendBlock",
 	    value: function appendBlock(data, withoutAnimation) {
-	      var block = main_core.Tag.render(_templateObject(), data.content);
+	      var block = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["", ""])), data.content);
 	      block.id = "block".concat(data.id);
 
 	      if (!withoutAnimation) {
@@ -608,7 +600,7 @@ this.BX = this.BX || {};
 	        s.src = "".concat(u, "?").concat(r);
 	        var h = d.getElementsByTagName('script')[0];
 	        h.parentNode.insertBefore(s, h);
-	      })(rootWindow, rootWindow.document, 'https://landing.bitrix24.ru/bitrix/js/crm/form_loader.js', 'b24formFeedBack');
+	      })(rootWindow, rootWindow.document, 'https://product-feedback.bitrix24.com/bitrix/js/crm/form_loader.js', 'b24formFeedBack');
 	    }
 	    /**
 	     * Creates blocks list panel sidebar button
@@ -623,7 +615,7 @@ this.BX = this.BX || {};
 	      return new BX.Landing.UI.Button.SidebarButton(category, {
 	        text: options.name,
 	        child: !options.separator,
-	        className: options.new ? 'landing-ui-new-section' : '',
+	        className: options["new"] ? 'landing-ui-new-section' : '',
 	        onClick: this.onBlocksListCategoryChange.bind(this, category)
 	      });
 	    }
@@ -650,6 +642,34 @@ this.BX = this.BX || {};
 	        }
 
 	        this.onBlocksListCategoryChange(category);
+	      }
+	    }
+	  }, {
+	    key: "removeBlockFromList",
+	    value: function removeBlockFromList(blockCode) {
+	      var removed = false;
+
+	      for (var category in this.blocks) {
+	        if (this.blocks[category].items[blockCode] !== undefined) {
+	          delete this.blocks[category].items[blockCode];
+	          removed = true;
+	        }
+	      }
+
+	      if (this.lastBlocks.indexOf(blockCode) !== -1) {
+	        this.lastBlocks.splice(this.lastBlocks.indexOf(blockCode), 1);
+	        removed = true;
+	      } // refresh panel
+
+
+	      if (removed) {
+	        var activeCategoryButton = this.getBlocksPanel().sidebarButtons.find(function (button) {
+	          return main_core.Dom.hasClass(button.layout, 'landing-ui-active');
+	        });
+
+	        if (activeCategoryButton) {
+	          this.onBlocksListCategoryChange(activeCategoryButton.id);
+	        }
 	      }
 	    }
 	    /**
@@ -885,7 +905,7 @@ this.BX = this.BX || {};
 	        return self.runBlockScripts(res).then(function () {
 	          return block;
 	        });
-	      }).catch(function (err) {
+	      })["catch"](function (err) {
 	        console.warn(err);
 	      });
 	    }
@@ -1180,7 +1200,7 @@ this.BX = this.BX || {};
 	        favoriteMy: !!block.favoriteMy,
 	        repo_id: block.repo_id,
 	        mode: mode,
-	        isNew: block.new === true,
+	        isNew: block["new"] === true,
 	        onClick: this.onAddBlock.bind(this, blockKey)
 	      });
 	    }

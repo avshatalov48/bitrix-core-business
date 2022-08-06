@@ -1,256 +1,672 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
-/** @global CUser $USER */
-/** @global CDatabase $DB */
+
+use Bitrix\Main\Application;
+use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SiteTable;
+use Bitrix\Main\UserTable;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Type;
+use Bitrix\Main\Engine\CurrentUser;
+use Bitrix\Main\UI\FileInput;
+use Bitrix\Main\Web\PostDecodeFilter;
+use Bitrix\Main\Web\Json;
 use Bitrix\Catalog;
-use Bitrix\Currency\CurrencyTable;
+use Bitrix\Currency;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/prolog.php');
 
-$selfFolderUrl = $adminPage->getSelfFolderUrl();
-$listUrl = $selfFolderUrl."cat_store_document_list.php?lang=".LANGUAGE_ID;
-$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+Loc::loadMessages(__FILE__);
 
-if (!$USER->CanDoOperation('catalog_store'))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
-Loader::includeModule('catalog');
-$bReadOnly = !$USER->CanDoOperation('catalog_store');
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 
-IncludeModuleLangFile(__FILE__);
-
-if (!isset($_REQUEST['AJAX_MODE']))
+function showStoreDocumentDate($field, string $name, bool $isNew, bool $readOnly): string
 {
-	if ($ex = $APPLICATION->GetException())
+	$showDate = null;
+	if ($field instanceof Type\DateTime)
 	{
-		require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
-		ShowError($ex->GetString());
-		require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
-		die();
+		$showDate = $field->toString();
 	}
-}
-
-$ID = (isset($_REQUEST['ID']) ? (int)$_REQUEST['ID'] : 0);
-if ($ID < 0)
-	$ID = 0;
-
-$userId = (int)$USER->GetID();
-$docType = (isset($_REQUEST["DOCUMENT_TYPE"]) ? (string)$_REQUEST['DOCUMENT_TYPE'] : '');
-
-$arSitesShop = array();
-$arSitesTmp = array();
-
-$siteIterator = SiteTable::getList(array(
-	'select' => array('LID', 'NAME', 'SORT'),
-	'filter' => array('=ACTIVE' => 'Y'),
-	'order' => array('SORT' => 'ASC', 'LID' => 'ASC')
-));
-while ($site = $siteIterator->fetch())
-{
-	$saleSite = (string)Option::get('sale', 'SHOP_SITE_'.$site['LID']);
-	if ($site['LID'] == $saleSite)
-		$arSitesShop[] = array('ID' => $site['LID'], 'NAME' => $site['NAME']);
-	$arSitesTmp[] = array('ID' => $site['LID'], 'NAME' => $site['NAME']);
-}
-unset($saleSite, $site, $siteIterator);
-
-$rsCount = count($arSitesShop);
-if($rsCount <= 0)
-{
-	$arSitesShop = $arSitesTmp;
-	$rsCount = count($arSitesShop);
-}
-
-$rsContractors = CCatalogContractor::GetList();
-$arContractors = array();
-while($arContractor = $rsContractors->Fetch())
-	$arContractors[] = $arContractor;
-unset($arContractor, $rsContractors);
-
-$arMeasureCode = $arResult = array();
-$arStores = array();
-$rsStores = CCatalogStore::GetList(array(), array("ACTIVE" => "Y"));
-while($arStore = $rsStores->GetNext())
-	$arStores[$arStore["ID"]] = $arStore;
-unset($arStore, $rsStores);
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Update"] <> '' && !$bReadOnly && check_bitrix_sessid())
-{
-	$adminSidePanelHelper->decodeUriComponent();
-	if (!$_REQUEST["cancellation"] && ($_REQUEST["save_document"] || $_REQUEST["save_and_conduct"]))
+	if ($readOnly)
 	{
-		$contractorId = (isset($_REQUEST['CONTRACTOR_ID']) ? (int)$_REQUEST['CONTRACTOR_ID'] : 0);
-		$currency = '';
-		$result = array();
-		$docId = 0;
-		$currency = (!empty($_REQUEST["CAT_CURRENCY_STORE"]) ? (string)$_REQUEST["CAT_CURRENCY_STORE"] : '');
+		$showDate = (string)$showDate;
 
-		$arGeneral = array(
-			"DOC_TYPE" => $docType,
-			"SITE_ID" => $_REQUEST["SITE_ID"],
-			"DATE_DOCUMENT" => $_REQUEST["DOC_DATE"],
-			"CREATED_BY" => $userId,
-			"MODIFIED_BY" => $userId,
-			"RESPONSIBLE_ID" => $userId,
-			"COMMENTARY" => $_REQUEST["CAT_DOC_COMMENTARY"],
-		);
-		if ($contractorId > 0)
-			$arGeneral["CONTRACTOR_ID"] = $contractorId;
-		if ($currency != '')
-			$arGeneral["CURRENCY"] = $currency;
-		if (isset($_REQUEST["CAT_DOCUMENT_SUM"]))
-			$arGeneral["TOTAL"] = (float)$_REQUEST["CAT_DOCUMENT_SUM"];
-
-		if ($ID > 0)
-		{
-			unset($arGeneral['CREATED_BY']);
-			if(CCatalogDocs::update($ID, $arGeneral))
-				$docId = $ID;
-		}
-		else
-		{
-			$ID = $docId = CCatalogDocs::add($arGeneral);
-		}
-		if($ID > 0)
-		{
-			$dbElement = CCatalogStoreDocsElement::getList(array(), array("DOC_ID" => $ID), false, false, array("ID"));
-			while($arElement = $dbElement->Fetch())
-			{
-				CCatalogStoreDocsElement::delete($arElement["ID"]);
-				$dbDocsBarcode = CCatalogStoreDocsBarcode::getList(array(), array("DOC_ELEMENT_ID" => $arElement["ID"]), false, false, array("ID"));
-				while($arDocsBarcode = $dbDocsBarcode->Fetch())
-					CCatalogStoreDocsBarcode::delete($arDocsBarcode["ID"]);
-			}
-		}
-		if (isset($_POST["PRODUCT"]) && is_array($_POST["PRODUCT"]) && $docId)
-		{
-			$arProducts = ($_POST["PRODUCT"]);
-			foreach($arProducts as $key => $val)
-			{
-				$storeTo = $val["STORE_TO"];
-				$storeFrom = $val["STORE_FROM"];
-
-				$arAdditional = array(
-					"AMOUNT" => $val["AMOUNT"],
-					"ELEMENT_ID" => $val["PRODUCT_ID"],
-					"PURCHASING_PRICE" => $val["PURCHASING_PRICE"],
-					"STORE_TO" => $storeTo,
-					"STORE_FROM" => $storeFrom,
-					"ENTRY_ID" => $key,
-					"DOC_ID" => $docId,
-				);
-
-				if (!empty($val['BASE_PRICE']))
-				{
-					$arAdditional['BASE_PRICE'] = $val['BASE_PRICE'];
-				}
-
-				$docElementId = CCatalogStoreDocsElement::add($arAdditional);
-				if ($docElementId && isset($val["BARCODE"]))
-				{
-					$arBarcode = array();
-					if(!empty($val["BARCODE"]))
-						$arBarcode = explode(', ', $val["BARCODE"]);
-
-					if (!empty($arBarcode))
-					{
-						foreach($arBarcode as $barCode)
-						{
-							CCatalogStoreDocsBarcode::add(array("BARCODE" => $barCode, "DOC_ELEMENT_ID" => $docElementId));
-						}
-					}
-				}
-			}
-		}
-
-		if ($_REQUEST["save_document"] && $docId)
-		{
-			$saveDocumentUrl = $selfFolderUrl."cat_store_document_edit.php?lang=".LANGUAGE_ID."&ID=".$docId;
-			if ($adminSidePanelHelper->isPublicSidePanel())
-			{
-				$saveDocumentUrl = CHTTP::urlAddParams($saveDocumentUrl, ["IFRAME" => "Y", "IFRAME_TYPE" => "SIDE_SLIDER"]);
-			}
-			$adminSidePanelHelper->sendSuccessResponse("apply", ["ID" => $docId, 'reloadUrl' => $saveDocumentUrl]);
-			$saveDocumentUrl = $adminSidePanelHelper->editUrlToPublicPage($saveDocumentUrl);
-			$adminSidePanelHelper->localRedirect($listUrl);
-			LocalRedirect($saveDocumentUrl);
-		}
+		return $showDate === ''
+			? Loc::getMessage('CAT_DOC_MESS_EMPTY_DATE')
+			: $showDate
+		;
 	}
 
-	if ($_REQUEST["save_and_conduct"] || $_REQUEST["cancellation"])
+	if (isset($_POST[$name]) && is_string($_POST[$name]))
 	{
-		$result = false;
-		$DB->StartTransaction();
-
-		if ($_REQUEST["save_and_conduct"])
-			$result = CCatalogDocs::conductDocument($ID, $userId);
-		elseif($_REQUEST["cancellation"])
-			$result = CCatalogDocs::cancellationDocument($ID, $userId);
-
-		if ($result)
-			$DB->Commit();
-		else
-			$DB->Rollback();
-
-		if($ex = $APPLICATION->GetException())
-		{
-			$TAB_TITLE = GetMessage("CAT_DOC_".$docType);
-			$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("CAT_DOC_TITLE_EDIT_EXT")).". ".$TAB_TITLE.".");
-			$strError = $ex->GetString();
-			if(!empty($result) && is_array($result))
-				$strError .= CCatalogStoreControlUtil::showErrorProduct($result);
-			$adminSidePanelHelper->sendJsonErrorResponse($strError);
-			require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-			CAdminMessage::ShowMessage($strError);
-			$bVarsFromForm = true;
-		}
-		else
-		{
-			$documentUrl = $selfFolderUrl . "cat_store_document_edit.php?lang=" . LANGUAGE_ID . "&ID=" . $docId . "&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER&publicSidePanel=Y";
-			$adminSidePanelHelper->sendSuccessResponse("base", ['documentUrl' => $documentUrl]);
-			$adminSidePanelHelper->localRedirect($listUrl);
-			LocalRedirect($listUrl);
-		}
-	}
-}
-ClearVars();
-if($ID > 0)
-{
-	$arSelect = array(
-		"ID",
-		"SITE_ID",
-		"DOC_TYPE",
-		"CONTRACTOR_ID",
-		"DATE_DOCUMENT",
-		"CURRENCY",
-		"STATUS",
-		"COMMENTARY",
-	);
-
-	$dbResult = CCatalogDocs::getList(array(),array('ID' => $ID), false, false, $arSelect);
-	if (!$dbResult->ExtractFields("str_"))
-	{
-		$ID = 0;
+		$sourceDate = $_POST[$name];
 	}
 	else
 	{
-		$docType = $str_DOC_TYPE;
-		$bReadOnly = ($str_STATUS == 'Y') ? true : $bReadOnly;
+		$sourceDate = $showDate;
+		if ($sourceDate === null)
+		{
+			$sourceDate = '';
+			if ($isNew)
+			{
+				$sourceDate = date(Type\Date::convertFormatToPhp(CSite::GetDateFormat('FULL')));
+			}
+		}
+	}
+
+	return CalendarDate(
+		$name,
+		$sourceDate,
+		'form_catalog_document_form',
+		'15',
+		'class="typeinput"'
+	);
+}
+
+function getStoreListForControl(?int $value, array $activeStores, array $allStores, int $defaultStoreId): string
+{
+	$result = '';
+	$nonSelect = false;
+	$list = [];
+
+	if ($value !== null && !isset($allStores[$value]))
+	{
+		$value = null;
+		$nonSelect = true;
+		$list['-'] = [
+			'ID' => '-',
+			'TITLE' => GetMessage('CAT_DOC_MESS_STORE_IS_NOT_SELECT'),
+		];
+	}
+	foreach (array_keys($activeStores) as $storeId)
+	{
+		$list[$storeId] = $activeStores[$storeId];
+	}
+	if ($value !== null && !isset($activeStores[$value]))
+	{
+		$list[$value] = $allStores[$value];
+	}
+	if ($value !== null)
+	{
+		$selectedId = $value;
+	}
+	else
+	{
+		$selectedId = $nonSelect
+			? '-'
+			: $defaultStoreId
+		;
+	}
+
+	foreach ($list as $storeId => $row)
+	{
+		$result .= '<option value="' . $storeId . '"'
+			. ($storeId === $selectedId ? ' selected' : '') . '>'
+			. $row['TITLE']
+			. '</option>'
+		;
+	}
+
+	return $result;
+}
+
+function getRequiredFieldCssClass(array $fields, string $fieldName): string
+{
+	return isset($fields[$fieldName]['required']) && $fields[$fieldName]['required'] === 'Y'
+		? ' class="adm-detail-required-field"'
+		: ''
+	;
+}
+
+$selfFolderUrl = $adminPage->getSelfFolderUrl();
+$listUrl = $selfFolderUrl."cat_store_document_list.php?lang=".LANGUAGE_ID;
+$listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
+$userSearchUrl = $selfFolderUrl . 'user_search.php?lang=' . LANGUAGE_ID . '&JSFUNC=setResponsible';
+
+$currentUser = CurrentUser::get();
+
+if (!$currentUser->canDoOperation('catalog_store'))
+{
+	$APPLICATION->AuthForm(Loc::getMessage('ACCESS_DENIED'));
+}
+Loader::includeModule('catalog');
+
+$canModify = $currentUser->canDoOperation('catalog_store');
+$bReadOnly = !$canModify;
+
+$publicMode = $adminPage->publicMode;
+$canViewUserList = (
+	$currentUser->canDoOperation('view_subordinate_users')
+	|| $currentUser->canDoOperation('view_all_users')
+	|| $currentUser->canDoOperation('edit_all_users')
+	|| $currentUser->canDoOperation('edit_subordinate_users')
+);
+
+if ($publicMode)
+{
+	$canViewUserList = false;
+}
+
+$request = Context::getCurrent()->getRequest();
+
+$isAjaxDocumentRequest = $request->get('AJAX_MODE') === 'Y';
+
+if (
+	$request->isPost()
+	&& $request->getPost('BARCODE_AJAX') === 'Y'
+	&& check_bitrix_sessid()
+)
+{
+	$request->addFilter(new PostDecodeFilter);
+
+	$result = [];
+	$barcode = $request->getPost('BARCODE');
+	$barcode = trim(is_string($barcode) ? $barcode : '');
+	if ($barcode !== '')
+	{
+		$iterator = Catalog\StoreBarcodeTable::getList([
+			'select' => [
+				'ID',
+				'PRODUCT_ID',
+				'BARCODE',
+			],
+			'filter' => [
+				'=BARCODE' => $barcode,
+				'@PRODUCT.TYPE' => [
+					Catalog\ProductTable::TYPE_PRODUCT,
+					Catalog\ProductTable::TYPE_OFFER,
+				]
+			],
+			'limit' => 1,
+		]);
+		$row = $iterator->fetch();
+		if (!empty($row))
+		{
+			$result = [
+				'id' => (int)$row['PRODUCT_ID'],
+				'barcode' => $row['BARCODE'],
+			];
+		}
+		unset($row, $iterator);
+	}
+
+	header('Content-Type: application/json');
+	CMain::FinalActions(Json::encode($result));
+}
+
+$ID = (int)($request->get('ID') ?? 0);
+if ($ID < 0)
+{
+	$ID = 0;
+}
+
+$userId = (int)$currentUser->getId();
+$docType = (string)($request->get('DOCUMENT_TYPE') ?? '');
+
+$defaultValues = [
+	'ID' => 0,
+	'TITLE' => '',
+	'SITE_ID' => '',
+	'DOC_TYPE' => $docType,
+	'DOC_NUMBER' => '',
+	'CONTRACTOR_ID' => '',
+	'DATE_MODIFY' => '',
+	'DATE_CREATE' => '',
+	'CREATED_BY' => '',
+	'MODIFIED_BY' => '',
+	'RESPONSIBLE_ID' => $userId,
+	'CURRENCY' => Currency\CurrencyManager::getBaseCurrency(),
+	'STATUS' => 'N',
+	'WAS_CANCELLED' => 'N',
+	'DATE_STATUS' => '',
+	'DATE_DOCUMENT' => '',
+	'STATUS_BY' => '',
+	'TOTAL' => '',
+	'COMMENTARY' => '',
+	'ITEMS_ORDER_DATE' => '',
+	'ITEMS_RECEIVED_DATE' => '',
+	'DOCUMENT_FILES' => [],
+];
+
+$fields = $defaultValues;
+if ($ID > 0)
+{
+	$fields = Catalog\StoreDocumentTable::getRowById($ID);
+	if ($fields === null)
+	{
+		$ID = 0;
+		$fields = $defaultValues;
+	}
+	else
+	{
+		$docType = $fields['DOC_TYPE'];
+
+		$fields['DOCUMENT_FILES'] = [];
+		$iterator = Catalog\StoreDocumentFileTable::getList([
+			'select' => [
+				'ID',
+				'FILE_ID',
+			],
+			'filter' => [
+				'=DOCUMENT_ID' => $ID,
+			],
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$fields['DOCUMENT_FILES'][$row['ID']] = $row['FILE_ID'];
+		}
+		unset($row, $iterator);
 	}
 }
 
-if (!in_array($docType, Catalog\StoreDocumentTable::getTypeList()))
+$isDocumentConduct = $fields['STATUS'] === 'Y';
+if ($isDocumentConduct)
 {
-	$docType = '';
+	$bReadOnly = true;
+}
+
+$listDocType = Catalog\StoreDocumentTable::getTypeList(true);
+
+if (!isset($listDocType[$docType]))
+{
 	$adminSidePanelHelper->localRedirect($listUrl);
 	LocalRedirect($listUrl);
 }
 
-$requiredFields = CCatalogStoreControlUtil::getFields($docType);
-if(!$requiredFields || $_REQUEST["dontsave"])
+/** @var array $typeFieldList */
+$typeFieldList = CCatalogStoreControlUtil::getTypeFields($docType);
+if (empty($typeFieldList))
+{
+	$adminSidePanelHelper->sendSuccessResponse("close");
+	$adminSidePanelHelper->localRedirect($listUrl);
+	LocalRedirect($listUrl);
+}
+$documentFields = $typeFieldList['DOCUMENT'];
+$elementFields = $typeFieldList['ELEMENT'];
+unset($typeFieldList);
+
+$shopSites = [];
+$allSites = [];
+
+$siteIterator = SiteTable::getList([
+	'select' => [
+		'LID',
+		'NAME',
+		'SORT',
+	],
+	'filter' => [
+		'=ACTIVE' => 'Y',
+	],
+	'order' => [
+		'SORT' => 'ASC',
+		'LID' => 'ASC',
+	],
+]);
+while ($site = $siteIterator->fetch())
+{
+	$saleSite = Option::get('sale', 'SHOP_SITE_'.$site['LID']);
+	if ($site['LID'] == $saleSite)
+	{
+		$shopSites[] = [
+			'ID' => $site['LID'],
+			'NAME' => $site['NAME'],
+		];
+	}
+	$allSites[] = [
+		'ID' => $site['LID'],
+		'NAME' => $site['NAME'],
+	];
+}
+unset($saleSite, $site, $siteIterator);
+
+if (empty($shopSites))
+{
+	$shopSites = $allSites;
+}
+unset($allSites);
+
+$rsContractors = CCatalogContractor::GetList();
+$arContractors = [];
+while($arContractor = $rsContractors->Fetch())
+{
+	$arContractors[] = $arContractor;
+}
+unset($arContractor, $rsContractors);
+
+$arResult = [];
+
+$allStores = [];
+$activeStores = [];
+$defaultStoreId = 0;
+$iterator = Catalog\StoreTable::getList([
+	'select' => [
+		'ID',
+		'IS_DEFAULT',
+		'TITLE',
+		'ADDRESS',
+		'SORT',
+		'ACTIVE',
+	],
+	'order' => [
+		'IS_DEFAULT' => 'DESC',
+		'SORT' => 'ASC',
+	],
+]);
+while ($row = $iterator->fetch())
+{
+	$row['ID'] = (int)$row['ID'];
+	$row['TITLE'] = (string)$row['TITLE'];
+	$row['TITLE'] .= ($row['TITLE'] !== '' ? ' (' .$row['ADDRESS'] . ')' : $row['ADDRESS']);
+	$row['TITLE'] = htmlspecialcharsbx($row['TITLE']);
+
+	$allStores[$row['ID']] = $row;
+	if ($row['ACTIVE'] === 'Y')
+	{
+		$activeStores[$row['ID']] = $row;
+	}
+	if ($row['IS_DEFAULT'] === 'Y')
+	{
+		$defaultStoreId = $row['ID'];
+	}
+}
+unset($row, $iterator);
+
+$errorList = '';
+$error = false;
+$arGeneral = [];
+if (
+	$request->isPost()
+	&& $request->getPost('Update') === 'Y'
+	&& $canModify
+	&& check_bitrix_sessid()
+)
+{
+	$adminSidePanelHelper->decodeUriComponent();
+	$currentAction = '';
+	if ($isDocumentConduct)
+	{
+		if ($request->getPost('cancellation') !== null)
+		{
+			$currentAction = 'cancellation';
+		}
+	}
+	else
+	{
+		if ($request->getPost('save_document') !== null)
+		{
+			$currentAction = 'save';
+		}
+		elseif ($request->getPost('save_and_conduct') !== null)
+		{
+			$currentAction = 'conduct';
+		}
+	}
+	$saveAction = $currentAction === 'save';
+	$conductAction = $currentAction === 'conduct';
+	$cancelAction = $currentAction === 'cancellation';
+
+	if ($saveAction || $conductAction)
+	{
+		$arGeneral = [
+			'DOC_TYPE' => $docType,
+			'MODIFIED_BY' => $userId,
+		];
+
+		$stringList = [
+			'SITE_ID',
+			'TITLE',
+			'DOC_NUMBER',
+			'COMMENTARY',
+			'CURRENCY',
+		];
+		foreach ($stringList as $fieldId)
+		{
+			$value = $request->getPost($fieldId);
+			if (is_string($value))
+			{
+				$arGeneral[$fieldId] = $value;
+			}
+		}
+
+		$dateList = [
+			'DATE_DOCUMENT',
+			'ITEMS_ORDER_DATE DATETIME NULL',
+			'ITEMS_RECEIVED_DATE',
+		];
+		foreach ($dateList as $fieldId)
+		{
+			$value = $request->getPost($fieldId);
+			if (is_string($value) && Type\DateTime::tryParse($value) !== null)
+			{
+				$arGeneral[$fieldId] = $value;
+			}
+		}
+
+		$userList = [
+			'RESPONSIBLE_ID',
+			'CONTRACTOR_ID',
+		];
+		foreach ($userList as $fieldId)
+		{
+			$value = $request->getPost($fieldId);
+			if (is_string($value))
+			{
+				$value = (int)$value;
+				if ($value > 0)
+				{
+					$arGeneral[$fieldId] = $value;
+				}
+			}
+		}
+
+		$floatList = [
+			'TOTAL',
+		];
+		foreach ($floatList as $fieldId)
+		{
+			$value = $request->getPost($fieldId);
+			if (is_string($value))
+			{
+				$arGeneral[$fieldId] = (float)$value;
+			}
+		}
+
+		$fileList = [
+			'DOCUMENT_FILES',
+		];
+		$fileValues = \CCatalogStoreControlUtil::getMultipleFilesFromPost($request, $fileList);
+		if (!empty($fileValues) && is_array($fileValues))
+		{
+			foreach ($fileList as $fieldId)
+			{
+				if (isset($fileValues[$fieldId]))
+				{
+					$arGeneral[$fieldId] = $fileValues[$fieldId];
+				}
+			}
+		}
+
+		$arGeneral = array_intersect_key($arGeneral, $documentFields);
+
+		if ($ID > 0)
+		{
+			$result = CCatalogDocs::update($ID, $arGeneral);
+		}
+		else
+		{
+			$arGeneral['CREATED_BY'] = $userId;
+			$ID = CCatalogDocs::add($arGeneral);
+			$result = $ID !== false;
+			if (!$result)
+			{
+				$ID = 0;
+			}
+		}
+		if (!$result)
+		{
+			$error = true;
+			$ex = $APPLICATION->GetException();
+			if ($ex)
+			{
+				$errorList = $ex->GetString();
+			}
+			else
+			{
+				$errorList = Loc::getMessage('CAT_DOC_ERR_SAVE_COMMON_UNKNOWN');
+			}
+		}
+
+		if (!$error)
+		{
+			$dbElement = CCatalogStoreDocsElement::getList([], ["DOC_ID" => $ID], false, false, ["ID"]);
+			while ($arElement = $dbElement->Fetch())
+			{
+				CCatalogStoreDocsElement::delete($arElement["ID"]);
+				$dbDocsBarcode = CCatalogStoreDocsBarcode::getList([], ["DOC_ELEMENT_ID" => $arElement["ID"]], false,
+					false, ["ID"]);
+				while ($arDocsBarcode = $dbDocsBarcode->Fetch())
+				{
+					CCatalogStoreDocsBarcode::delete($arDocsBarcode["ID"]);
+				}
+			}
+
+			if (isset($_POST["PRODUCT"]) && is_array($_POST["PRODUCT"]))
+			{
+				$arProducts = ($_POST["PRODUCT"]);
+				foreach ($arProducts as $key => $val)
+				{
+					$storeTo = $val["STORE_TO"];
+					$storeFrom = $val["STORE_FROM"];
+
+					$arAdditional = [
+						"AMOUNT" => $val["AMOUNT"],
+						"ELEMENT_ID" => $val["PRODUCT_ID"],
+						"PURCHASING_PRICE" => $val["PURCHASING_PRICE"],
+						"STORE_TO" => $storeTo,
+						"STORE_FROM" => $storeFrom,
+						"ENTRY_ID" => $key,
+						"DOC_ID" => $ID,
+					];
+
+					if (!empty($val['BASE_PRICE']))
+					{
+						$arAdditional['BASE_PRICE'] = $val['BASE_PRICE'];
+					}
+
+					$docElementId = CCatalogStoreDocsElement::add($arAdditional);
+					if ($docElementId && isset($val["BARCODE"]))
+					{
+						$arBarcode = [];
+						if (!empty($val["BARCODE"]))
+						{
+							$arBarcode = explode(', ', $val["BARCODE"]);
+						}
+
+						if (!empty($arBarcode))
+						{
+							foreach ($arBarcode as $barCode)
+							{
+								CCatalogStoreDocsBarcode::add([
+									"BARCODE" => $barCode,
+									"DOC_ELEMENT_ID" => $docElementId,
+									"DOC_ID" => $ID,
+								]);
+							}
+						}
+					}
+				}
+			}
+
+			if ($saveAction)
+			{
+				$saveDocumentUrl = $selfFolderUrl . "cat_store_document_edit.php?lang=" . LANGUAGE_ID . "&ID=" . $ID;
+				if ($adminSidePanelHelper->isPublicSidePanel())
+				{
+					$saveDocumentUrl = CHTTP::urlAddParams($saveDocumentUrl,
+						["IFRAME" => "Y", "IFRAME_TYPE" => "SIDE_SLIDER"]);
+				}
+				$adminSidePanelHelper->sendSuccessResponse("apply", ["ID" => $ID, 'reloadUrl' => $saveDocumentUrl]);
+				$saveDocumentUrl = $adminSidePanelHelper->editUrlToPublicPage($saveDocumentUrl);
+				$adminSidePanelHelper->localRedirect($listUrl);
+				LocalRedirect($saveDocumentUrl);
+			}
+		}
+	}
+
+	if (!$error)
+	{
+		if ($conductAction || $cancelAction)
+		{
+			$conn = Application::getConnection();
+			$conn->startTransaction();
+
+			$result = false;
+			if ($conductAction)
+			{
+				$result = CCatalogDocs::conductDocument($ID, $userId);
+			}
+			elseif ($cancelAction)
+			{
+				$result = CCatalogDocs::cancellationDocument($ID, $userId);
+			}
+
+			if ($result === true)
+			{
+				$conn->commitTransaction();
+			}
+			else
+			{
+				$conn->rollbackTransaction();
+			}
+
+			if ($result !== true)
+			{
+				$TAB_TITLE = $listDocType[$docType];
+				$APPLICATION->SetTitle(str_replace("#ID#", $ID, Loc::getMessage("CAT_DOC_TITLE_EDIT_EXT"))
+					. ". "
+					. $TAB_TITLE
+					. ".");
+				$ex = $APPLICATION->GetException();
+				if (is_object($ex))
+				{
+					$strError = $ex->GetString();
+				}
+				else
+				{
+					$strError = Loc::getMessage('CAT_DOC_ERR_CHANGE_STATUS_UNKNOWN');
+				}
+				if (!empty($result) && is_array($result))
+				{
+					$strError .= CCatalogStoreControlUtil::showErrorProduct($result);
+				}
+				$adminSidePanelHelper->sendJsonErrorResponse($strError);
+				require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
+				CAdminMessage::ShowMessage($strError);
+				$error = true;
+			}
+			else
+			{
+				$documentUrl = $selfFolderUrl
+					. "cat_store_document_edit.php?lang="
+					. LANGUAGE_ID
+					. "&ID="
+					. $ID
+					. "&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER&publicSidePanel=Y";
+				$adminSidePanelHelper->sendSuccessResponse("base", ['documentUrl' => $documentUrl]);
+				$adminSidePanelHelper->localRedirect($listUrl);
+				LocalRedirect($listUrl);
+			}
+		}
+	}
+}
+
+if ($request->getPost('dontsave') !== null)
 {
 	$adminSidePanelHelper->sendSuccessResponse("close");
 	$adminSidePanelHelper->localRedirect($listUrl);
@@ -261,123 +677,177 @@ $sTableID = "b_catalog_store_docs_".$docType;
 $oSort = new CAdminSorting($sTableID, "ID", "ASC");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-$isDocumentConduct = false;
-
-if($ID > 0 || isset($_REQUEST["AJAX_MODE"]))
+if ($ID > 0 || $isAjaxDocumentRequest)
 {
-	$arAllDocumentElement = array();
-	if($ID > 0)
-	{
-		$dbDocument = CCatalogDocs::getList(array(), array("ID" => $ID), false, false, array("DOC_TYPE", "SITE_ID", "CONTRACTOR_ID", "CURRENCY", "TOTAL", "STATUS"));
-		if($arDocument = $dbDocument->Fetch())
-		{
-			$isDocumentConduct = ($arDocument["STATUS"] == 'Y');
-			foreach($arDocument as $key => $value)
-				$arResult[$key] = $value;
-			unset($key, $value);
+	$arAllDocumentElement = [];
 
-			$arResult["DATE_DOCUMENT"] = 'now';
-			$arResult["CREATED_BY"] = $arResult["MODIFIED_BY"] = $USER->GetID();
-			$bReadOnly = ($arDocument["STATUS"] == 'Y') ? true : $bReadOnly;
-		}
-		unset($arDocument, $dbDocument);
-	}
-	if (isset($_REQUEST["AJAX_MODE"]))
-	{
-		if (!isset($arResult['STATUS']) || $arResult['STATUS'] != 'Y')
-		{
-			if (isset($_REQUEST['SITE_ID']))
-			{
-				$arResult['SITE_ID'] = (string)$_REQUEST['SITE_ID'];
-				$str_SITE_ID = $arResult['SITE_ID'];
-			}
-			if (isset($_REQUEST['CONTRACTOR_ID']))
-			{
-				$arResult['CONTRACTOR_ID'] = (int)$_REQUEST['CONTRACTOR_ID'];
-				$str_CONTRACTOR_ID = $arResult['CONTRACTOR_ID'];
-			}
-			if (isset($_REQUEST['CAT_CURRENCY_STORE']))
-			{
-				$arResult['CURRENCY'] = (string)$_REQUEST['CAT_CURRENCY_STORE'];
-				$str_CURRENCY = $arResult['CURRENCY'];
-			}
-		}
-	}
+	$arResult = $fields;
 
-	if(!isset($_REQUEST["AJAX_MODE"]))
+	if (!$isAjaxDocumentRequest)
 	{
-		$dbDocumentElement = CCatalogStoreDocsElement::getList(array('ID' => 'ASC'), array("DOC_ID" => $ID), false, false, array("ID", "STORE_FROM", "STORE_TO", "ELEMENT_ID", "AMOUNT", "BASE_PRICE", "PURCHASING_PRICE", "IS_MULTIPLY_BARCODE", "RESERVED"));
+		$dbDocumentElement = CCatalogStoreDocsElement::getList(
+			[
+				'ID' => 'ASC',
+			],
+			[
+				'DOC_ID' => $ID,
+			],
+			false,
+			false,
+			[
+				'ID',
+				'STORE_FROM',
+				'STORE_TO',
+				'ELEMENT_ID',
+				'AMOUNT',
+				'BASE_PRICE',
+				'PURCHASING_PRICE',
+				'IS_MULTIPLY_BARCODE',
+				'RESERVED',
+			]
+		);
 		while($arDocumentElements = $dbDocumentElement->Fetch())
 		{
+			$arDocumentElements['ID'] = (int)$arDocumentElements['ID'];
+			$arDocumentElements['ELEMENT_ID'] = (int)$arDocumentElements['ELEMENT_ID'];
+			if ($arDocumentElements['STORE_FROM'] !== null)
+			{
+				$arDocumentElements['STORE_FROM'] = (int)$arDocumentElements['STORE_FROM'];
+				if ($arDocumentElements['STORE_FROM'] <= 0)
+				{
+					$arDocumentElements['STORE_FROM'] = null;
+				}
+			}
+			if ($arDocumentElements['STORE_TO'] !== null)
+			{
+				$arDocumentElements['STORE_TO'] = (int)$arDocumentElements['STORE_TO'];
+				if ($arDocumentElements['STORE_TO'] <= 0)
+				{
+					$arDocumentElements['STORE_TO'] = null;
+				}
+			}
+
 			$arAllDocumentElement[] = $arDocumentElements;
 		}
+		unset($arDocumentElements, $dbDocumentElement);
 	}
-	elseif(isset($_REQUEST["PRODUCT"]) && is_array($_REQUEST["PRODUCT"]) || isset($_REQUEST["ELEMENT_ID"]))
+	else
 	{
-		$arElements = array();
-		if(isset($_REQUEST["PRODUCT"]) && is_array($_REQUEST["PRODUCT"]))
-			$arElements = $_REQUEST["PRODUCT"];
-		if(isset($_REQUEST["ELEMENT_ID"]) && is_array($_REQUEST["ELEMENT_ID"]))
+		$requestProducts = $request->getPost('PRODUCT');
+		$newElements = $request->getPost('ELEMENT_ID');
+		$existsProducts = is_array($requestProducts);
+		$existsNewElements = is_array($newElements);
+		if ($existsProducts || $existsNewElements)
 		{
-			$arElements[] = array("PRODUCT_ID" => $_REQUEST["ELEMENT_ID"][0], "SELECTED_BARCODE" => $_REQUEST["HIDDEN_BARCODE"][0], "AMOUNT" => $_REQUEST["HIDDEN_QUANTITY"][0]);
-		}
-		$arAllAddedProductsId = $arAjaxElementInfo = array();
-		foreach($arElements as $eachAddElement)
-		{
-			if(isset($eachAddElement["PRODUCT_ID"]))
+			$arElements = [];
+			if ($existsProducts)
 			{
-				$arAllAddedProductsId[] = intval($eachAddElement["PRODUCT_ID"]);
+				$arElements = $requestProducts;
 			}
-		}
-		$dbElement = CCatalogProduct::GetList(
-			array(),
-			array("ID" => $arAllAddedProductsId),
-			false,
-			false,
-			array("ID", "BARCODE_MULTI", "QUANTITY_RESERVED", 'PURCHASING_PRICE', 'PURCHASING_CURRENCY')
-		);
-		while($arElement = $dbElement->Fetch())
-		{
-			$arAjaxElementInfo[$arElement['ID']] = array(
-				"IS_MULTIPLY_BARCODE" => $arElement["BARCODE_MULTI"],
-				"RESERVED" => $arElement["QUANTITY_RESERVED"],
-				"PURCHASING_PRICE" => $arElement["PURCHASING_PRICE"],
-				"PURCHASING_CURRENCY" => $arElement["PURCHASING_CURRENCY"]
-			);
-		}
-		if (!empty($arElements))
-		{
-			foreach ($arElements as &$arAjaxElement)
+			if ($existsNewElements)
 			{
-				$elementId = $arAjaxElement["PRODUCT_ID"];
-				$arAjaxElement["ELEMENT_ID"] = $arAjaxElement["PRODUCT_ID"];
-				if ($arAjaxElement["SELECTED_BARCODE"] == '')
-					$arAjaxElement["SELECTED_BARCODE"] = $arAjaxElement["BARCODE"];
-				$arAjaxElement["BARCODE"] = array($arAjaxElement["BARCODE"]);
-				if (!empty($arAjaxElementInfo[$elementId]))
+				foreach ($newElements as $row)
 				{
-					$arAjaxElement["IS_MULTIPLY_BARCODE"] = $arAjaxElementInfo[$elementId]["IS_MULTIPLY_BARCODE"];
-					$arAjaxElement["RESERVED"] = $arAjaxElementInfo[$elementId]["RESERVED"];
-					if (
-						(float)$arAjaxElement['PURCHASING_PRICE'] <= 0
-						&& (float)$arAjaxElementInfo[$elementId]["PURCHASING_PRICE"] > 0
-					)
+					if (empty($row) || !is_array($row))
 					{
-						$arAjaxElement["PURCHASING_PRICE"] = $arAjaxElementInfo[$elementId]["PURCHASING_PRICE"];
-						$arAjaxElement["PURCHASING_CURRENCY"] = $arAjaxElementInfo[$elementId]["PURCHASING_CURRENCY"];
+						continue;
 					}
-				}
-				unset($elementId);
-			}
-			unset($arAjaxElement);
-		}
+					if (!isset($row['id']))
+					{
+						continue;
+					}
 
-		$arAllDocumentElement = $arElements;
+					$arElements[] = [
+						'PRODUCT_ID' => $row['id'],
+						'SELECTED_BARCODE' => $row['barcode'] ?? '',
+						'AMOUNT' => $row['quantity'] ?? 1,
+					];
+				}
+			}
+			$arAllAddedProductsId = [];
+			$arAjaxElementInfo = [];
+			foreach ($arElements as $eachAddElement)
+			{
+				if (isset($eachAddElement['PRODUCT_ID']))
+				{
+					$arAllAddedProductsId[] = (int)$eachAddElement['PRODUCT_ID'];
+				}
+			}
+			$iterator = Catalog\ProductTable::getList([
+				'select' => [
+					'ID',
+					'BARCODE_MULTI',
+					'QUANTITY_RESERVED',
+					'PURCHASING_PRICE',
+					'PURCHASING_CURRENCY',
+				],
+				'filter' => [
+					'@ID' => $arAllAddedProductsId,
+				],
+			]);
+			while ($arElement = $iterator->fetch())
+			{
+				$arAjaxElementInfo[$arElement['ID']] = [
+					'IS_MULTIPLY_BARCODE' => $arElement['BARCODE_MULTI'],
+					'RESERVED' => $arElement['QUANTITY_RESERVED'],
+					'PURCHASING_PRICE' => $arElement['PURCHASING_PRICE'],
+					'PURCHASING_CURRENCY' => $arElement['PURCHASING_CURRENCY'],
+				];
+			}
+			unset($arElement, $iterator);
+			if (!empty($arElements))
+			{
+				foreach ($arElements as &$arAjaxElement)
+				{
+					$elementId = (int)$arAjaxElement['PRODUCT_ID'];
+					$arAjaxElement['ELEMENT_ID'] = $elementId;
+					if ($arAjaxElement['SELECTED_BARCODE'] == '')
+					{
+						$arAjaxElement['SELECTED_BARCODE'] = $arAjaxElement['BARCODE'];
+					}
+					$arAjaxElement['BARCODE'] = [$arAjaxElement['BARCODE']];
+					if (!empty($arAjaxElementInfo[$elementId]))
+					{
+						$arAjaxElement['IS_MULTIPLY_BARCODE'] = $arAjaxElementInfo[$elementId]['IS_MULTIPLY_BARCODE'];
+						$arAjaxElement['RESERVED'] = $arAjaxElementInfo[$elementId]['RESERVED'];
+						if (
+							(float)$arAjaxElement['PURCHASING_PRICE'] <= 0
+							&& (float)$arAjaxElementInfo[$elementId]['PURCHASING_PRICE'] > 0
+						)
+						{
+							$arAjaxElement['PURCHASING_PRICE'] = $arAjaxElementInfo[$elementId]['PURCHASING_PRICE'];
+							$arAjaxElement['PURCHASING_CURRENCY'] = $arAjaxElementInfo[$elementId]['PURCHASING_CURRENCY'];
+						}
+					}
+					if (isset($arAjaxElement['STORE_FROM']))
+					{
+						$arAjaxElement['STORE_FROM'] = (int)$arAjaxElement['STORE_FROM'];
+						if ($arAjaxElement['STORE_FROM'] <= 0)
+						{
+							$arAjaxElement['STORE_FROM'] = null;
+						}
+					}
+					if (isset($arAjaxElement['STORE_TO']))
+					{
+						$arAjaxElement['STORE_TO'] = (int)$arAjaxElement['STORE_TO'];
+						if ($arAjaxElement['STORE_TO'] <= 0)
+						{
+							$arAjaxElement['STORE_TO'] = null;
+						}
+					}
+					unset($elementId);
+				}
+				unset($arAjaxElement);
+			}
+
+			$arAllDocumentElement = $arElements;
+		}
 	}
 
 	foreach($arAllDocumentElement as $arDocumentElement)
 	{
-		$arElement = $arElementBarcode = array();
+		$arElement = [];
+		$arElementBarcode = [];
 		$isMultiSingleBarcode = $selectedBarcode = false;
 		foreach($arDocumentElement as $key => $value)
 		{
@@ -388,7 +858,12 @@ if($ID > 0 || isset($_REQUEST["AJAX_MODE"]))
 		{
 			if(isset($arElement["BARCODE"]))
 				unset($arElement["BARCODE"]);
-			$dbDocumentStoreBarcode = CCatalogStoreBarCode::getList(array(), array("PRODUCT_ID" => $arDocumentElement["ELEMENT_ID"]));
+			$dbDocumentStoreBarcode = CCatalogStoreBarCode::getList(
+				[],
+				[
+					'PRODUCT_ID' => $arDocumentElement['ELEMENT_ID'],
+				]
+			);
 			while($arDocumentStoreBarcode = $dbDocumentStoreBarcode->Fetch())
 			{
 				$arElementBarcode[] = $arDocumentStoreBarcode["BARCODE"];
@@ -398,13 +873,25 @@ if($ID > 0 || isset($_REQUEST["AJAX_MODE"]))
 				$isMultiSingleBarcode = true;
 
 				if($bReadOnly)
-					$arElementBarcode = array();
+				{
+					$arElementBarcode = [];
+				}
 			}
 		}
 
 		if($arDocumentElement["IS_MULTIPLY_BARCODE"] == 'Y' || $isMultiSingleBarcode)
 		{
-			$dbDocumentElementBarcode = CCatalogStoreDocsBarcode::getList(array(), array("DOC_ELEMENT_ID" => $arDocumentElement["ID"]), false, false, array("BARCODE"));
+			$dbDocumentElementBarcode = CCatalogStoreDocsBarcode::getList(
+				[],
+				[
+					'DOC_ELEMENT_ID' => $arDocumentElement["ID"],
+				],
+				false,
+				false,
+				[
+					'BARCODE',
+				]
+			);
 			while($arDocumentElementBarcode = $dbDocumentElementBarcode->Fetch())
 			{
 				if($isMultiSingleBarcode)
@@ -434,7 +921,8 @@ if($ID > 0 || isset($_REQUEST["AJAX_MODE"]))
 				],
 				'filter' => [
 					'=PRODUCT_ID' => $arElement['PRODUCT_ID'],
-					'=CATALOG_GROUP_ID' => \CCatalogGroup::GetBaseGroupId(),
+					'=CATALOG_GROUP_ID' => Catalog\GroupTable::getBasePriceTypeId(),
+					'=CURRENCY' => $arResult['CURRENCY'],
 				],
 				'order' => [
 					'ID' => 'ASC',
@@ -452,7 +940,7 @@ if($ID > 0 || isset($_REQUEST["AJAX_MODE"]))
 	}
 }
 
-if (!$USER->CanDoOperation('catalog_store'))
+if (!$currentUser->canDoOperation('catalog_store'))
 {
 	$isDocumentConduct = false;
 }
@@ -461,123 +949,119 @@ $aContext = array();
 if(!$bReadOnly)
 {
 	$aContext = array(
-		/*array(
-			"TEXT" => GetMessage("CAT_DOC_ADD_ITEMS"),
-			"ICON" => "btn_new",
-			"LINK" => "cat_store_edit.php?lang=".LANGUAGE_ID,
-			"TITLE" => GetMessage("CAT_DOC_ADD_ITEMS")
-		),*/
 		array(
-			"TEXT" => GetMessage("CAT_DOC_FIND_ITEMS"),
+			"TEXT" => Loc::getMessage("CAT_DOC_FIND_ITEMS"),
 			"ICON" => "btn_new",
-			"TITLE" => GetMessage("CAT_DOC_FIND_ITEMS"),
+			"TITLE" => Loc::getMessage("CAT_DOC_FIND_ITEMS"),
 			"ONCLICK" => "addProductSearch(1);",
 		),
 		array(
-			"HTML" => GetMessage(
+			"HTML" => Loc::getMessage(
 				"CAT_DOC_LINK_FIND",
-				array("#LINK#" => '<a href="javascript:void(0);" onClick="findBarcodeDivHider()">'.GetMessage('CAT_DOC_BARCODE_FIND_LINK').'</a>')
+				array("#LINK#" => '<a href="javascript:void(0);" onClick="findBarcodeDivHider()">'.Loc::getMessage('CAT_DOC_BARCODE_FIND_LINK').'</a>')
 			),
 		),
 		array(
 			"HTML" => '<div id="cat_barcode_find_div" style="display: none;">'.
 						'<input type="text" id="CAT_DOC_BARCODE_FIND" style="margin: 0 10px;">'.
-						'<a href="javascript:void(0);" class="adm-btn" onclick="productSearch(BX(\'CAT_DOC_BARCODE_FIND\').value);">'.GetMessage('CAT_DOC_BARCODE_FIND').'</a>'.
+						'<a href="javascript:void(0);" class="adm-btn" onclick="productSearch(BX(\'CAT_DOC_BARCODE_FIND\').value);">'.Loc::getMessage('CAT_DOC_BARCODE_FIND').'</a>'.
 						'</div>',
 		),
 	);
 }
 
-$visibleHeaderIds = array();
+$useXmlId = Option::get('iblock', 'show_xml_id') === 'Y';
+
+$visibleHeaderIds = [];
 $arHeaders = array(
 	array(
 		"id" => "IMAGE",
-		"content" => GetMessage("CAT_DOC_PRODUCT_PICTURE"),
+		"content" => Loc::getMessage("CAT_DOC_PRODUCT_PICTURE"),
 		"default" => true
 	),
 	array(
 		"id" => "TITLE",
-		"content" => GetMessage("CAT_DOC_PRODUCT_NAME"),
+		"content" => Loc::getMessage("CAT_DOC_PRODUCT_NAME"),
 		"default" => true
 	),
 );
-if ((string)Option::get('iblock', 'show_xml_id') == 'Y')
+if ($useXmlId)
 {
 	$arHeaders[] = array(
 		"id" => "XML_ID",
-		"content" => GetMessage("CAT_DOC_PRODUCT_XML_ID"),
+		"content" => Loc::getMessage("CAT_DOC_PRODUCT_XML_ID"),
 		"default" => true
 	);
 }
-if(isset($requiredFields["RESERVED"]))
+if (isset($elementFields["RESERVED"]))
 {
 	$arHeaders[] = array(
 		"id" => "RESERVED",
-		"content" => GetMessage("CAT_DOC_PRODUCT_RESERVED"),
-		"default" => ($requiredFields["RESERVED"]["required"] == 'Y')
+		"content" => Loc::getMessage("CAT_DOC_PRODUCT_RESERVED"),
+		"default" => $elementFields["RESERVED"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "RESERVED";
 }
-if(isset($requiredFields["BASE_PRICE"]))
+if (isset($elementFields["BASE_PRICE"]))
 {
 	$arHeaders[] = array(
 		"id" => "BASE_PRICE",
-		"content" => GetMessage("CAT_DOC_PRODUCT_BASE_PRICE"),
-		"default" => ($requiredFields["BASE_PRICE"]["required"] === 'Y')
+		"content" => Loc::getMessage("CAT_DOC_PRODUCT_BASE_PRICE"),
+		"default" => $elementFields["BASE_PRICE"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "BASE_PRICE";
 }
-if(isset($requiredFields["AMOUNT"]))
+if (isset($elementFields["AMOUNT"]))
 {
 	$arHeaders[] = array(
 		"id" => "AMOUNT",
-		"content" => GetMessage("CAT_DOC_PRODUCT_AMOUNT"),
-		"default" => $requiredFields["AMOUNT"]["required"],
+		"content" => Loc::getMessage("CAT_DOC_PRODUCT_AMOUNT"),
+		"default" => $elementFields["AMOUNT"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "AMOUNT";
 }
-if(isset($requiredFields["NET_PRICE"]))
+if (isset($elementFields["NET_PRICE"]))
 {
 	$arHeaders[] = array(
 		"id" => "PURCHASING_PRICE",
-		"content" => GetMessage("CAT_DOC_PRODUCT_PRICE"),
-		"default" => ($requiredFields["NET_PRICE"]["required"] == 'Y')
+		"content" => Loc::getMessage("CAT_DOC_PRODUCT_PRICE"),
+		"default" => $elementFields["NET_PRICE"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "PURCHASING_PRICE";
 }
-if(isset($requiredFields["TOTAL"]))
+if (isset($elementFields["TOTAL"]))
 {
 	$arHeaders[] = array(
 		"id" => "SUMM",
-		"content" => GetMessage("CAT_DOC_PRODUCT_SUMM"),
-		"default" => ($requiredFields["TOTAL"]["required"] == 'Y')
+		"content" => Loc::getMessage("CAT_DOC_PRODUCT_SUMM"),
+		"default" => $elementFields["TOTAL"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "SUMM";
 }
-if(isset($requiredFields["STORE_FROM"]))
+if (isset($elementFields["STORE_FROM"]))
 {
 	$arHeaders[] = array(
 		"id" => "STORE_FROM",
-		"content" => GetMessage("CAT_DOC_STORE_FROM"),
-		"default" => ($requiredFields["STORE_FROM"]["required"] == 'Y')
+		"content" => Loc::getMessage("CAT_DOC_STORE_FROM"),
+		"default" => $elementFields["STORE_FROM"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "STORE_FROM";
 }
-if(isset($requiredFields["STORE_TO"]))
+if (isset($elementFields["STORE_TO"]))
 {
 	$arHeaders[] = array(
 		"id" => "STORE_TO",
-		"content" => GetMessage("CAT_DOC_STORE_TO"),
-		"default" => ($requiredFields["STORE_TO"]["required"] == 'Y')
+		"content" => Loc::getMessage("CAT_DOC_STORE_TO"),
+		"default" => $elementFields["STORE_TO"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "STORE_TO";
 }
-if(isset($requiredFields["BAR_CODE"]))
+if (isset($elementFields["BAR_CODE"]))
 {
 	$arHeaders[] = array(
 		"id" => "BARCODE",
-		"content" => GetMessage("CAT_DOC_BARCODE"),
-		"default" => ($requiredFields["BAR_CODE"]["required"] == 'Y')
+		"content" => Loc::getMessage("CAT_DOC_BARCODE"),
+		"default" => $elementFields["BAR_CODE"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "BARCODE";
 }
@@ -596,7 +1080,6 @@ if(is_array($arResult["ELEMENT"]))
 {
 	foreach($arResult["ELEMENT"] as $code => $value)
 	{
-		$storesTo = $storesFrom = '';
 		$isMultiply = ('Y' == $value["IS_MULTIPLY_BARCODE"]);
 		$arProductInfo = CCatalogStoreControlUtil::getProductInfo($value["ELEMENT_ID"]);
 		if(is_array($arProductInfo))
@@ -604,28 +1087,7 @@ if(is_array($arResult["ELEMENT"]))
 
 		$arRes['ID'] = (int)$code;
 		$maxId = ($arRes['ID'] > $maxId) ? $arRes['ID'] : $maxId;
-		foreach($arStores as $key => $val)
-		{
-			if (isset($value['STORE_TO']))
-			{
-				$selectedTo = ($value['STORE_TO'] == $val['ID']) ? " selected " : " ";
-			}
-			else
-			{
-				$selectedTo = ($val['IS_DEFAULT'] === 'Y') ? " selected " : " ";
-			}
-			if (isset($value['STORE_FROM']))
-			{
-				$selectedFrom = ($value['STORE_FROM'] == $val['ID']) ? " selected " : " ";
-			}
-			else
-			{
-				$selectedFrom = ($val['IS_DEFAULT'] === 'Y') ? " selected " : " ";
-			}
-			$store = ($val["TITLE"] != '') ? $val["TITLE"]." (".$val["ADDRESS"].")" : $val["ADDRESS"];
-			$storesTo .= '<option'.$selectedTo.'value="'.$val['ID'].'">'.$store.'</option>';
-			$storesFrom .= '<option'.$selectedFrom.'value="'.$val['ID'].'">'.$store.'</option>';
-		}
+
 		$arRows[$arRes['ID']] = $row =& $lAdmin->AddRow($arRes['ID']);
 		$row->AddViewField("IMAGE", CFile::ShowImage($value['DETAIL_PICTURE'], 80, 80, "border=0", "", true));
 		if ($value['EDIT_PAGE_URL'])
@@ -635,7 +1097,10 @@ if(is_array($arResult["ELEMENT"]))
 			$value['EDIT_PAGE_URL'] = $editPageUrl;
 		}
 		$row->AddViewField("TITLE", '<a target="_top" href ="'.$value['EDIT_PAGE_URL'].'"> '.$value['NAME'].'</a><input value="'.$value['ELEMENT_ID'].'" type="hidden" name="PRODUCT['.$arRes['ID'].'][PRODUCT_ID]" id="PRODUCT_ID_'.$arRes['ID'].'">');
-		$row->AddViewField('XML_ID', $value['XML_ID']);
+		if ($useXmlId)
+		{
+			$row->AddViewField('XML_ID', $value['XML_ID']);
+		}
 		$readOnly = ($isMultiply && !$bReadOnly) ? ' readonly' : '';
 		if(isset($value['BARCODE']) && $isMultiply)
 		{
@@ -661,30 +1126,70 @@ if(is_array($arResult["ELEMENT"]))
 			$barcodeCount = $value['AMOUNT'];
 		}
 
-		if(isset($requiredFields["BASE_PRICE"]))
-			$row->AddViewField("BASE_PRICE", '<div> <input name="PRODUCT['.$arRes['ID'].'][BASE_PRICE]" onchange="recalculateSum('.$arRes['ID'].');" id="CAT_DOC_BASE_PRICE_'.$arRes['ID'].'" value="'.$value['BASE_PRICE'].'" type="text" size="10"'.$isDisable.'></div>');
-		if(isset($requiredFields["AMOUNT"]))
-			$row->AddViewField("AMOUNT", '<div><input type="hidden" id="CAT_DOC_AMOUNT_HIDDEN_'.$arRes['ID'].'" value="'.$barcodeCount.'" onchange="recalculateSum('.$arRes['ID'].');"> <input name="PRODUCT['.$arRes['ID'].'][AMOUNT]" onchange="recalculateSum('.$arRes['ID'].');" id="CAT_DOC_AMOUNT_'.$arRes['ID'].'" value="'.$value['AMOUNT'].'" type="text" size="10"'.$isDisable.'></div>');
-		if(isset($requiredFields["NET_PRICE"]))
-			$row->AddViewField("PURCHASING_PRICE", '<div> <input name="PRODUCT['.$arRes['ID'].'][PURCHASING_PRICE]" onchange="recalculateSum('.$arRes['ID'].');" id="CAT_DOC_PURCHASING_PRICE_'.$arRes['ID'].'" value="'.$value['PURCHASING_PRICE'].'" type="text" size="10"'.$isDisable.'></div>');
-		if(isset($requiredFields["TOTAL"]))
-			$row->AddViewField("SUMM", '<div id="CAT_DOC_SUMM_'.$arRes['ID'].'">'.doubleval($value['AMOUNT']) * doubleval($value['PURCHASING_PRICE']).'</div><input value="'.doubleval($value['AMOUNT']) * doubleval($value['PURCHASING_PRICE']).'" type="hidden" name="PRODUCT['.$arRes['ID'].'][SUMM]" id="PRODUCT['.$arRes['ID'].'][SUMM]">');
-		if(isset($requiredFields["STORE_FROM"]))
-			$row->AddViewField("STORE_FROM", '<select style="max-width:300px; width:300px;" name="PRODUCT['.$arRes['ID'].'][STORE_FROM]" id="CAT_DOC_STORE_FROM_'.$arRes['ID'].'"'.$isDisable.'>'.$storesFrom.'</select>');
-		if(isset($requiredFields["STORE_TO"]))
-			$row->AddViewField("STORE_TO", '<select style="max-width:300px; width:300px;" name="PRODUCT['.$arRes['ID'].'][STORE_TO]" id="CAT_DOC_STORE_TO_'.$arRes['ID'].'"'.$isDisable.'>'.$storesTo.'</select>');
-		if(isset($requiredFields["RESERVED"]))
+		if (isset($elementFields["BASE_PRICE"]))
+		{
+			$row->AddViewField("BASE_PRICE", '<div> <input name="PRODUCT['.$arRes['ID'].'][BASE_PRICE]" onchange="recalculateRow('.$arRes['ID'].');" id="CAT_DOC_BASE_PRICE_'.$arRes['ID'].'" value="'.$value['BASE_PRICE'].'" type="text" size="10"'.$isDisable.'></div>');
+		}
+		if (isset($elementFields["AMOUNT"]))
+		{
+			$row->AddViewField("AMOUNT", '<div><input type="hidden" id="CAT_DOC_AMOUNT_HIDDEN_'.$arRes['ID'].'" value="'.$barcodeCount.'" onchange="recalculateRow('.$arRes['ID'].');"> <input name="PRODUCT['.$arRes['ID'].'][AMOUNT]" onchange="recalculateRow('.$arRes['ID'].');" id="CAT_DOC_AMOUNT_'.$arRes['ID'].'" value="'.$value['AMOUNT'].'" type="text" size="10"'.$isDisable.'></div>');
+		}
+		if (isset($elementFields["NET_PRICE"]))
+		{
+			$row->AddViewField("PURCHASING_PRICE", '<div> <input name="PRODUCT['.$arRes['ID'].'][PURCHASING_PRICE]" onchange="recalculateRow('.$arRes['ID'].');" id="CAT_DOC_PURCHASING_PRICE_'.$arRes['ID'].'" value="'.$value['PURCHASING_PRICE'].'" type="text" size="10"'.$isDisable.'></div>');
+		}
+		if (isset($elementFields["TOTAL"]))
+		{
+			$row->AddViewField("SUMM", '<div id="CAT_DOC_SUMM_'.$arRes['ID'].'">'.CCurrencyLang::CurrencyFormat((float)$value['AMOUNT'] * (float)$value['PURCHASING_PRICE'], $fields['CURRENCY']).'</div><input value="'.doubleval($value['AMOUNT']) * doubleval($value['PURCHASING_PRICE']).'" type="hidden" name="PRODUCT['.$arRes['ID'].'][SUMM]" id="PRODUCT_'.$arRes['ID'].'_SUMM">');
+		}
+		if (isset($elementFields["STORE_FROM"]))
+		{
+			$storeHtml = '<select style="max-width:300px; width:300px;"'
+				. ' name="PRODUCT['.$arRes['ID'].'][STORE_FROM]"'
+				. ' id="CAT_DOC_STORE_FROM_' . $arRes['ID'] . '"'
+				. $isDisable . '>'
+				. getStoreListForControl(
+					$value['STORE_FROM'],
+					$activeStores,
+					$allStores,
+					$defaultStoreId
+				)
+				. '</select>'
+			;
+			$row->AddViewField('STORE_FROM', $storeHtml);
+			unset($storeHtml);
+		}
+		if (isset($elementFields["STORE_TO"]))
+		{
+			$storeHtml = '<select style="max-width:300px; width:300px;"'
+				. ' name="PRODUCT[' . $arRes['ID'] . '][STORE_TO]"'
+				. ' id="CAT_DOC_STORE_TO_' . $arRes['ID'] . '"'
+				. $isDisable . '>'
+				. getStoreListForControl(
+					$value['STORE_TO'],
+					$activeStores,
+					$allStores,
+					$defaultStoreId
+				)
+				. '</select>'
+			;
+			$row->AddViewField('STORE_TO', $storeHtml);
+			unset($storeHtml);
+		}
+		if (isset($elementFields["RESERVED"]))
+		{
 			$row->AddViewField("RESERVED", '<div > <input readonly name="PRODUCT['.$arRes['ID'].'][RESERVED]" id="CAT_DOC_RESERVED_'.$arRes['ID'].'" value="'.$value['RESERVED'].'" type="text" size="10"'.$isDisable.'></div>');
-		if(isset($requiredFields["BAR_CODE"]) && isset($value['BARCODE']) && is_array($value['BARCODE']))
+		}
+		if (isset($elementFields["BAR_CODE"]) && isset($value['BARCODE']) && is_array($value['BARCODE']))
 		{
 			$barcode = implode(", ", $value['BARCODE']);
 			if($isMultiply)
 			{
 				$readOnly = ($bReadOnly) ? ' readonly' : '';
-				$buttonValue = ($bReadOnly) ? GetMessage('CAT_DOC_BARCODES_VIEW') : GetMessage('CAT_DOC_BARCODES_ENTER');
+				$buttonValue = ($bReadOnly) ? Loc::getMessage('CAT_DOC_BARCODES_VIEW') : Loc::getMessage('CAT_DOC_BARCODES_ENTER');
 				if(empty($barcode))
-					$barcode = '';//GetMessage('CAT_DOC_POPUP_TITLE');
-				$inputBarcode = '<input type="button" value="'.$buttonValue.'" onclick="enterBarcodes('.$arRes['ID'].');"><input '.$readOnly.' type="hidden" value="'.htmlspecialcharsbx($barcode).'" type="text" name="PRODUCT['.$arRes['ID'].'][BARCODE]" id="PRODUCT['.$arRes['ID'].'][BARCODE]" onchange="recalculateSum('.$arRes['ID'].');" size="20">';
+					$barcode = '';
+				$inputBarcode = '<input type="button" value="'.$buttonValue.'" onclick="enterBarcodes('.$arRes['ID'].');"><input '.$readOnly.' type="hidden" value="'.htmlspecialcharsbx($barcode).'" type="text" name="PRODUCT['.$arRes['ID'].'][BARCODE]" id="PRODUCT['.$arRes['ID'].'][BARCODE]" onchange="recalculateRow('.$arRes['ID'].');" size="20">';
 			}
 			elseif(count($value['BARCODE']) < 2)
 				$inputBarcode = htmlspecialcharsbx($barcode);
@@ -705,22 +1210,20 @@ if(is_array($arResult["ELEMENT"]))
 		{
 			$arActions[] = array(
 				"ICON" => "delete",
-				"TEXT" => GetMessage("CAT_DOC_DEL"),
-				"ACTION" => "if(confirm('".GetMessageJS('CAT_DOC_CONFIRM_DELETE')."')) deleteRow(".$arRes['ID'].")"
+				"TEXT" => Loc::getMessage("CAT_DOC_DEL"),
+				"ACTION" => "if(confirm('".CUtil::JSEscape(Loc::getMessage('CAT_DOC_CONFIRM_DELETE'))."')) deleteRow(".$arRes['ID'].")"
 			);
-			$arActions[] = array(
+			$arActions[] = [
 				"ICON" => "copy",
-				"TEXT" => GetMessage("CAT_DOC_COPY"),
-				"ACTION" => "copyRow(null, ".CUtil::PhpToJSObject(array('id' => $value["ELEMENT_ID"], 'parent' => $arRes['ID'])).")"
-			);
+				"TEXT" => Loc::getMessage("CAT_DOC_COPY"),
+				"ACTION" => "copyRow(".CUtil::PhpToJSObject(['id' => $value['ELEMENT_ID'], 'parent' => $arRes['ID']]).")",
+			];
 		}
 		$row->AddActions($arActions);
 		$row->bReadOnly = true;
 	}
-}
-
-if(isset($row))
 	unset($row);
+}
 
 $lAdmin->AddGroupActionTable(
 	array(
@@ -736,31 +1239,51 @@ $lAdmin->AddGroupActionTable(
 $lAdmin->AddAdminContextMenu($aContext, false, true);
 $lAdmin->CheckListMode();
 
-$errorMessage = "";
-$bVarsFromForm = false;
-
-$TAB_TITLE = GetMessage("CAT_DOC_".$docType);
-if($ID > 0)
+if ($ID > 0)
 {
-	if($bReadOnly)
-		$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("CAT_DOC_TITLE_VIEW_EXT")).". ".$TAB_TITLE.".");
+	$pageTitleParams = [
+		'#ID#' => $ID,
+		'#TYPE#' => $listDocType[$docType],
+	];
+	if ($bReadOnly)
+	{
+		$pageTitle = Loc::getMessage(
+			'CAT_DOC_TITLE_VIEW',
+			$pageTitleParams
+		);
+	}
 	else
-		$APPLICATION->SetTitle(str_replace("#ID#", $ID, GetMessage("CAT_DOC_TITLE_EDIT_EXT")).". ".$TAB_TITLE.".");
+	{
+		$pageTitle = Loc::getMessage(
+			'CAT_DOC_TITLE_EDIT',
+			$pageTitleParams
+		);
+	}
+	$APPLICATION->SetTitle($pageTitle);
+	unset($pageTitle, $pageTitleParams);
 }
 else
 {
-	$APPLICATION->SetTitle(GetMessage("CAT_DOC_NEW_EXT").". ".$TAB_TITLE);
+	$APPLICATION->SetTitle(Loc::getMessage(
+		'CAT_DOC_TITLE_NEW',
+		['#TYPE#' => $listDocType[$docType]]
+	));
 }
 
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+if ($isAjaxDocumentRequest)
+{
+	require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_js.php');
+}
+else
+{
+	require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php');
+}
 CJSCore::Init(array('file_input', 'currency'));
 $APPLICATION->SetAdditionalCSS('/bitrix/panel/catalog/catalog_store_docs.css');
-if ($bVarsFromForm)
-	$DB->InitTableVarsForEdit("b_catalog_measure", "", "str_");
 
 $aMenu = array(
 	array(
-		"TEXT" => GetMessage("CAT_DOC_LIST_EXT"),
+		"TEXT" => Loc::getMessage("CAT_DOC_LIST_EXT"),
 		"ICON" => "btn_list",
 		"LINK" => $listUrl
 	)
@@ -769,38 +1292,52 @@ $aMenu = array(
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
-$currencyList = array();
-$currencyIterator = CurrencyTable::getList(array(
-	'select' => array('CURRENCY')
-));
+if (!empty($errorList))
+{
+	CAdminMessage::ShowMessage([
+		'DETAILS' => $errorList,
+		'TYPE' => 'ERROR',
+		'MESSAGE' => Loc::getMessage('CAT_DOC_ERR_SAVE'),
+		'HTML' => true,
+	]);
+}
+
+$currencyList = [];
+$currencyIterator = Currency\CurrencyTable::getList([
+	'select' => [
+		'CURRENCY',
+	],
+]);
 while ($currency = $currencyIterator->fetch())
 {
 	$currencyFormat = CCurrencyLang::GetFormatDescription($currency['CURRENCY']);
-	$currencyList[] = array(
+	$currencyList[] = [
 		'CURRENCY' => $currency['CURRENCY'],
-		'FORMAT' => array(
+		'FORMAT' => [
 			'FORMAT_STRING' => $currencyFormat['FORMAT_STRING'],
 			'DEC_POINT' => $currencyFormat['DEC_POINT'],
 			'THOUSANDS_SEP' => $currencyFormat['THOUSANDS_SEP'],
 			'DECIMALS' => $currencyFormat['DECIMALS'],
 			'THOUSANDS_VARIANT' => $currencyFormat['THOUSANDS_VARIANT'],
-			'HIDE_ZERO' => $currencyFormat['HIDE_ZERO']
-		)
-	);
+			'HIDE_ZERO' => $currencyFormat['HIDE_ZERO'],
+		],
+	];
 }
 unset($currencyFormat, $currency, $currencyIterator);
 
-CAdminMessage::ShowMessage($errorMessage);
 $actionUrl = $APPLICATION->GetCurPage()."?lang=".LANGUAGE_ID."&DOCUMENT_TYPE=".htmlspecialcharsbx($docType);
 $actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
+
+if (!$isAjaxDocumentRequest):
 ?>
 <form enctype="multipart/form-data" method="POST" action="<?=$actionUrl?>" id="form_b_catalog_store_docs" name="form_b_catalog_store_docs" onsubmit="return checkBarcodeSearch();">
-	<?echo GetFilterHiddens("filter_");?>
+	<?php
+	echo GetFilterHiddens("filter_");?>
 	<input type="hidden" name="Update" value="Y">
 	<input type="hidden" name="apply" value="Y">
-	<input type="hidden" name="lang" value="<?echo LANGUAGE_ID; ?>">
-	<input type="hidden" name="ID" value="<?echo $ID ?>">
-	<input type="hidden" name="DOCUMENT_TYPE" id="DOCUMENT_TYPE" value="<? echo htmlspecialcharsbx($docType);?>">
+	<input type="hidden" name="lang" value="<?php echo LANGUAGE_ID; ?>">
+	<input type="hidden" name="ID" value="<?php echo $ID ?>">
+	<input type="hidden" name="DOCUMENT_TYPE" id="DOCUMENT_TYPE" value="<?php echo htmlspecialcharsbx($docType);?>">
 	<input type="hidden" name="productAdd" id="productAdd" value="N">
 	<input value="<?=$maxId?>" type="hidden" id="ROW_MAX_ID">
 	<?=bitrix_sessid_post()?>
@@ -809,103 +1346,296 @@ $actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 			<div class="adm-detail-content-item-block">
 				<table class="adm-detail-content-table edit-table" id="cat-doc-table">
 					<tbody>
-					<?if($ID > 0):?>
-						<tr>
-							<td width="40%" class="adm-detail-content-cell-l"><span class="cat-doc-status-left-<?=$str_STATUS?>"><?=GetMessage('CAT_DOC_STATUS')?>:</span></td>
-							<td width="60%" class="adm-detail-content-cell-r">
-								<span class="cat-doc-status-right-<?=$str_STATUS?>">
-									<?php echo ($str_STATUS === 'Y'
-										? GetMessage('CAT_DOC_EXECUTION_Y_EXT')
-										: GetMessage('CAT_DOC_EXECUTION_N_EXT')
-									);
-									?>
-								</span>
-							</td>
-						</tr>
-					<?endif;?>
-					<tr class="adm-detail-required-field">
-						<td width="40%" class="adm-detail-content-cell-l"><?=GetMessage('CAT_DOC_DATE')?>:</td>
-						<td width="60%" class="adm-detail-content-cell-r">
-							<?if($bReadOnly):?>
-								<?=$str_DATE_DOCUMENT?>
-							<?else:?>
-								<?
-									if ($_POST['DOC_DATE'])
-									{
-										$sourceDate = $_POST['DOC_DATE'];
-									}
-									else
-									{
-										$sourceDate = $str_DATE_DOCUMENT ?? date($DB->DateFormatToPHP(CSite::GetDateFormat("FULL")));
-									}
-
-									echo CalendarDate("DOC_DATE", $sourceDate, "form_catalog_document_form", "15", "class=\"typeinput\"");
+					<?php
+					if (isset($documentFields['STATUS'])):
+					?>
+					<tr<?php echo getRequiredFieldCssClass($documentFields, 'STATUS'); ?>>
+						<td style="width: 40%;" class="adm-detail-content-cell-l"><span class="cat-doc-status-left-<?=$fields['STATUS'];?>"><?=Loc::getMessage('CAT_DOC_STATUS')?>:</span></td>
+						<td style="width: 60%;" class="adm-detail-content-cell-r">
+							<span class="cat-doc-status-right-<?=$fields['STATUS']?>">
+								<?php
+								if ($fields['STATUS'] === 'Y')
+								{
+									$status = Catalog\StoreDocumentTable::STATUS_CONDUCTED;
+								}
+								else
+								{
+									$status = $fields['WAS_CANCELLED'] === 'Y'
+										? Catalog\StoreDocumentTable::STATUS_CANCELLED
+										: Catalog\StoreDocumentTable::STATUS_DRAFT
+									;
+								}
+								echo Catalog\StoreDocumentTable::getStatusName($status);
 								?>
-							<?endif;?>
+							</span>
 						</td>
 					</tr>
-					<tr class="adm-detail-required-field">
-						<td width="40%" class="adm-detail-content-cell-l"><?= GetMessage("CAT_DOC_SITE_ID") ?>:</td>
-						<td width="60%" class="adm-detail-content-cell-r">
-							<select id="SITE_ID" name="SITE_ID" <?=$isDisable?>>
-							<?foreach($arSitesShop as $key => $val)
+					<?php
+					endif;
+					if (isset($documentFields['TITLE'])):
+					?>
+					<tr<?php echo getRequiredFieldCssClass($documentFields, 'TITLE'); ?>>
+						<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_TITLE')?>:</td>
+						<td style="width: 60%;" class="adm-detail-content-cell-r">
+							<input type="text" name="TITLE" value="<?=htmlspecialcharsbx($fields['TITLE']); ?>" <?=$isDisable?> maxlenght="255" size="50">
+						</td>
+					</tr>
+					<?php
+					endif;
+					if (isset($documentFields['DOC_NUMBER'])):
+					?>
+					<tr<?php echo getRequiredFieldCssClass($documentFields, 'DOC_NUMBER'); ?>>
+						<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_DOC_NUMBER')?>:</td>
+						<td style="width: 60%;" class="adm-detail-content-cell-r">
+							<input type="text" name="DOC_NUMBER" value="<?=htmlspecialcharsbx($fields['DOC_NUMBER']); ?>" <?=$isDisable?> maxlenght="64" size="50">
+						</td>
+					</tr>
+					<?php
+					endif;
+					if (isset($documentFields['DATE_DOCUMENT'])):
+					?>
+					<tr<?php echo getRequiredFieldCssClass($documentFields, 'DATE_DOCUMENT'); ?>>
+						<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_DATE_DOCUMENT')?>:</td>
+						<td style="width: 60%;" class="adm-detail-content-cell-r">
+							<?php
+							echo showStoreDocumentDate(
+								$fields['DATE_DOCUMENT'],
+								'DATE_DOCUMENT',
+								$ID === 0,
+								$bReadOnly
+							);
+							?>
+						</td>
+					</tr>
+					<?php
+					endif;
+					if (isset($documentFields['DOCUMENT_FILES'])):
+					?>
+					<tr<?php echo getRequiredFieldCssClass($documentFields, 'DOCUMENT_FILES'); ?>>
+						<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage('CAT_DOC_DOCUMENT_FILES') ?></td>
+						<td style="width: 60%;" class="adm-detail-content-cell-r">
+						<?php
+							$baseConfig = [
+								'name' => 'DOCUMENT_FILES[n#IND#]',
+								'description' => false,
+								'allowUpload' => FileInput::UPLOAD_ANY_FILES,
+								'allowUploadExt' => '',
+							];
+							if ($bReadOnly)
 							{
-								$selected = ($val['ID'] == $str_SITE_ID) ? 'selected' : '';
-								echo"<option ".$selected." value=".htmlspecialcharsbx($val['ID']).">".htmlspecialcharsbx($val["NAME"]." (".$val["ID"].")")."</option>";
+								$uploadConfig = [
+									'upload' => false,
+									'medialib' => false,
+									'fileDialog' => false,
+									'cloud' => false,
+									'delete' => false,
+								];
 							}
+							else
+							{
+								$uploadConfig = [
+									'upload' => true,
+									'medialib' => false,
+									'fileDialog' => true,
+									'cloud' => false,
+									'delete' => true,
+								];
+							}
+
+							$fileInput = FileInput::createInstance(
+								$baseConfig
+								+ $uploadConfig
+							);
+
+							$showFiles = [];
+							foreach ($fields['DOCUMENT_FILES'] as $fileRowId => $fileId)
+							{
+								$showFiles['DOCUMENT_FILES[' . $fileRowId . ']'] = $fileId;
+							}
+
+							echo $fileInput->show($showFiles, $error);
+						?>
+						</td>
+					</tr>
+					<?php
+					endif;
+					if (isset($documentFields['SITE_ID'])):
+					?>
+					<tr<?php echo getRequiredFieldCssClass($documentFields, 'SITE_ID'); ?>>
+						<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage("CAT_DOC_SITE_ID") ?>:</td>
+						<td style="width: 60%;" class="adm-detail-content-cell-r">
+							<select id="SITE_ID" name="SITE_ID" <?=$isDisable?>>
+								<?php
+								foreach($shopSites as $key => $val)
+								{
+									$selected = ($val['ID'] == $fields['SITE_ID']) ? 'selected' : '';
+									echo '<option ' . $selected . ' value="' . htmlspecialcharsbx($val['ID']) . '">'
+										. htmlspecialcharsbx($val['NAME'] . ' (' . $val['ID'] . ')') . '</option>'
+									;
+								}
 							?>
 							</select>
 						</td>
 					</tr>
-					<?if(isset($requiredFields["CONTRACTOR"])):?>
-						<tr class="adm-detail-required-field">
-							<td width="40%" class="adm-detail-content-cell-l"><?= GetMessage("CAT_DOC_CONTRACTOR") ?>:</td>
-							<td width="60%" class="adm-detail-content-cell-r">
-								<?if(count($arContractors) > 0 && is_array($arContractors)):?>
+					<?php
+					endif;
+					if (isset($documentFields["CONTRACTOR_ID"])):
+					?>
+						<tr<?php echo getRequiredFieldCssClass($documentFields, 'CONTRACTOR_ID'); ?>>
+							<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage("CAT_DOC_CONTRACTOR") ?>:</td>
+							<td style="width: 60%;" class="adm-detail-content-cell-r">
+								<?php
+								if (!empty($arContractors) && is_array($arContractors)):?>
 									<select style="max-width:300px"  name="CONTRACTOR_ID" <?=$isDisable?>>
-									<?foreach($arContractors as $key => $val)
-									{
-										$selected = ($val['ID'] == $str_CONTRACTOR_ID) ? 'selected' : '';
-										$companyName = ($val["PERSON_TYPE"] == CONTRACTOR_INDIVIDUAL) ? htmlspecialcharsbx($val["PERSON_NAME"]) : htmlspecialcharsbx($val["COMPANY"]." (".$val["PERSON_NAME"].")");
-										echo"<option ".$selected." value=".$val['ID'].">".$companyName."</option>";
-									}
+										<?php
+										foreach($arContractors as $key => $val)
+										{
+											$selected = ($val['ID'] == $fields['CONTRACTOR_ID']) ? 'selected' : '';
+											$companyName = ($val["PERSON_TYPE"] == CONTRACTOR_INDIVIDUAL) ? htmlspecialcharsbx($val["PERSON_NAME"]) : htmlspecialcharsbx($val["COMPANY"]." (".$val["PERSON_NAME"].")");
+											echo '<option ' . $selected . ' value="' . $val['ID'] . '">'
+												. $companyName . '</option>'
+											;
+										}
 									?>
 									</select>
-								<?else:?>
-									<?
+								<?php
+								else:?>
+									<?php
 										$contractorEditUrl = $selfFolderUrl."cat_contractor_edit.php?lang=".LANGUAGE_ID;
 										$contractorEditUrl = $adminSidePanelHelper->editUrlToPublicPage($contractorEditUrl);
 									?>
-									<a target="_top" href="<?=$contractorEditUrl?>"><?=GetMessage("CAT_DOC_CONTRACTOR_ADD")?></a>
-								<?endif;?>
+									<a target="_top" href="<?=$contractorEditUrl?>"><?=Loc::getMessage("CAT_DOC_CONTRACTOR_ADD")?></a>
+								<?php
+								endif;?>
 							</td>
 						</tr>
-					<?endif;?>
-					<?if(isset($requiredFields["CURRENCY"])):?>
-						<tr class="adm-detail-required-field">
-							<td width="40%" class="adm-detail-content-cell-l"><?= GetMessage("CAT_DOC_CURRENCY") ?>:</td>
-							<td width="60%" class="adm-detail-content-cell-r"><? echo CCurrency::SelectBox("CAT_CURRENCY_STORE", $str_CURRENCY, "", true, "", "onChange=\"recalculateSum(0);\" id='CAT_CURRENCY_STORE'".$isDisable);?></td>
+					<?php
+					endif;
+					if (isset($documentFields["CURRENCY"])):
+					?>
+						<tr<?php echo getRequiredFieldCssClass($documentFields, 'CURRENCY'); ?>>
+							<td style="width: 40%;" class="adm-detail-content-cell-l"><?= Loc::getMessage("CAT_DOC_CURRENCY") ?>:</td>
+							<td style="width: 60%;" class="adm-detail-content-cell-r"><?php
+								echo CCurrency::SelectBox("CURRENCY", $fields['CURRENCY'], "", true, "", 'onChange="recalculateAllRows();" id="CAT_CURRENCY_STORE"'.$isDisable);?>
+							</td>
 						</tr>
-					<?endif;?>
+					<?php
+					endif;
+					if (isset($documentFields['ITEMS_ORDER_DATE'])):
+					?>
+					<tr<?php echo getRequiredFieldCssClass($documentFields, 'ITEMS_ORDER_DATE'); ?>>
+						<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_ITEMS_ORDER_DATE')?>:</td>
+						<td style="width: 60%;" class="adm-detail-content-cell-r">
+							<?php
+							echo showStoreDocumentDate(
+								$fields['ITEMS_ORDER_DATE'],
+								'ITEMS_ORDER_DATE',
+								$ID === 0,
+								$bReadOnly
+							);
+							?>
+						</td>
+					</tr>
+					<?php
+					endif;
+					if (isset($documentFields['ITEMS_RECEIVED_DATE'])):
+					?>
+					<tr<?php echo getRequiredFieldCssClass($documentFields, 'ITEMS_RECEIVED_DATE'); ?>>
+						<td style="width: 40%;" class="adm-detail-content-cell-l"><?=Loc::getMessage('CAT_DOC_ITEMS_RECEIVED_DATE')?>:</td>
+						<td style="width: 60%;" class="adm-detail-content-cell-r">
+							<?php
+							echo showStoreDocumentDate(
+								$fields['ITEMS_RECEIVED_DATE'],
+								'ITEMS_RECEIVED_DATE',
+								$ID === 0,
+								$bReadOnly
+							)
+							?>
+						</td>
+					</tr>
+					<?php
+					endif;
+					if (isset($documentFields['RESPONSIBLE_ID'])):
+					?>
+					<tr<?php echo getRequiredFieldCssClass($documentFields, 'RESPONSIBLE_ID'); ?>>
+						<td style="width: 40%;" class="adm-detail-content-cell-l"><?php echo Loc::getMessage('CAT_DOC_RESPONSIBLE_ID'); ?>:</td>
+						<td style="width: 60%;" class="adm-detail-content-cell-r"><?php
+							?><input type="text" size="7" id="RESPONSIBLE_ID" name="RESPONSIBLE_ID" value="<?php echo htmlspecialcharsbx($fields['RESPONSIBLE_ID']); ?>"><?php
+							if ($canViewUserList)
+							{
+								?>&nbsp;<input type="button" id="RESPONSIBLE_ID_BTN" value="<?php
+									echo htmlspecialcharsbx(Loc::getMessage('CAT_DOC_RESPONSIBLE_ID_BTN_VALUE'));
+								?>" title="<?php
+									echo htmlspecialcharsbx(Loc::getMessage('CAT_DOC_RESPONSIBLE_ID_BTN_TITLE'));
+								?>"><?php
+							}
+							?>&nbsp;<span id="RESPONSIBLE_NAME"><?php
+							if ($fields['RESPONSIBLE_ID'] > 0)
+							{
+								$userIterator = UserTable::getList([
+									'select' => [
+										'ID',
+										'LOGIN',
+										'NAME',
+										'LAST_NAME',
+										'SECOND_NAME',
+										'EMAIL',
+										'TITLE',
+									],
+									'filter' => [
+										'=ID' => $fields['RESPONSIBLE_ID'],
+									],
+								]);
+								$userData = $userIterator->fetch();
+								unset($userIterator);
+								if (!empty($userData))
+								{
+									echo CUser::FormatName(
+										CSite::GetNameFormat(true),
+										$userData,
+										true,
+										true
+									);
+								}
+							}
+							?></span><?php
+						?></td>
+					</tr>
+					<?php
+					endif;
+					if (isset($documentFields['COMMENTARY'])):
+						?>
+						<tr<?php echo getRequiredFieldCssClass($documentFields, 'COMMENTARY'); ?>>
+							<td style="width: 40%;" class="adm-detail-content-cell-l"><?php echo Loc::getMessage('CAT_DOC_COMMENT'); ?>:</td>
+							<td style="width: 60%;" class="adm-detail-content-cell-r">
+								<textarea cols="80" rows="4" class="typearea" name="COMMENTARY" <?=$isDisable?>><?php
+									echo htmlspecialcharsbx($fields['COMMENTARY']);
+								?></textarea>
+							</td>
+						</tr>
+					<?php
+					endif;
+					?>
 					</tbody>
 				</table>
 			</div>
 		</div>
 	</div>
-<?
+	<?php
 
 $aTabs = array();
 
 $tabControl = new CAdminTabControl("storeDocument_".$docType, $aTabs);
 $tabControl->Begin();
 
+?><div id="productgrid"><?php
+
+endif;
+
 $lAdmin->DisplayList();
-?>
-<div class="adm-detail-content-item-block">
-	<span style="vertical-align: top">	<?echo GetMessage("CAT_DOC_COMMENT") ?>: </span>
-	<textarea cols="120" rows="4" class="typearea" name="CAT_DOC_COMMENTARY" <?=$isDisable?> wrap="virtual"><?= $str_COMMENTARY ?></textarea>
-</div>
-<?
+
+if (!$isAjaxDocumentRequest):
+		?></div><?php
 $tabControl->Buttons(
 	array(
 		"disabled" => $bReadOnly,
@@ -922,20 +1652,20 @@ if ($adminSidePanelHelper->isSidePanelFrame())
 	{
 		?>
 		<span style="display:inline-block; width:20px; height: 22px;"></span>
-		<input type="button" class="adm-btn-save" name="save_and_conduct" value="<?echo GetMessage("CAT_DOC_ADD_CONDUCT_EXT") ?>">
-		<input type="button" class="adm-btn" name="save_document" value="<?echo GetMessage("CAT_DOC_SAVE") ?>">
-		<?
+		<input type="button" class="adm-btn-save" name="save_and_conduct" value="<?php echo Loc::getMessage("CAT_DOC_ADD_CONDUCT_EXT") ?>">
+		<input type="button" class="adm-btn" name="save_document" value="<?php echo Loc::getMessage("CAT_DOC_SAVE") ?>">
+		<?php
 	}
 	elseif($isDocumentConduct)
 	{
 		?>
 		<span class="hor-spacer"></span>
-		<input type="button" class="adm-btn" name="cancellation" value="<?echo GetMessage("CAT_DOC_CANCELLATION_EXT") ?>">
-		<?
+		<input type="button" class="adm-btn" name="cancellation" value="<?php echo Loc::getMessage("CAT_DOC_CANCELLATION_EXT") ?>">
+		<?php
 	}
 	?>
-	<input type="button" class="adm-btn" name="dontsave" value="<?echo GetMessage("CAT_DOC_CANCEL") ?>">
-	<?
+	<input type="button" class="adm-btn" name="dontsave" value="<?php echo Loc::getMessage("CAT_DOC_CANCEL") ?>">
+	<?php
 }
 else
 {
@@ -943,32 +1673,32 @@ else
 	{
 		?>
 		<span style="display:inline-block; width:20px; height: 22px;"></span>
-		<input type="submit" class="adm-btn-save" name="save_and_conduct" value="<?echo GetMessage("CAT_DOC_ADD_CONDUCT_EXT") ?>">
-		<input type="submit" class="adm-btn" name="save_document" value="<?echo GetMessage("CAT_DOC_SAVE") ?>">
-		<?
+		<input type="submit" class="adm-btn-save" name="save_and_conduct" value="<?php echo Loc::getMessage("CAT_DOC_ADD_CONDUCT_EXT") ?>">
+		<input type="submit" class="adm-btn" name="save_document" value="<?php echo Loc::getMessage("CAT_DOC_SAVE") ?>">
+		<?php
 	}
 	elseif($isDocumentConduct)
 	{
 		?>
 		<span class="hor-spacer"></span>
 		<input type="hidden" name="cancellation" id="cancellation" value = "0">
-		<input type="button" class="adm-btn" onclick="if(confirm('<?=GetMessage("CAT_DOC_CANCELLATION_CONFIRM_EXT")?>')) {BX('cancellation').value = 1; BX('form_b_catalog_store_docs').submit();}" value="<?echo GetMessage("CAT_DOC_CANCELLATION_EXT") ?>">
-		<?
+		<input type="button" class="adm-btn" onclick="if(confirm('<?=Loc::getMessage("CAT_DOC_CANCELLATION_CONFIRM_EXT")?>')) {BX('cancellation').value = 1; BX('form_b_catalog_store_docs').submit();}" value="<?php echo Loc::getMessage("CAT_DOC_CANCELLATION_EXT") ?>">
+		<?php
 	}
 	?>
-	<input type="submit" class="adm-btn" name="dontsave" id="dontsave" value="<?echo GetMessage("CAT_DOC_CANCEL") ?>">
-	<?
+	<input type="submit" class="adm-btn" name="dontsave" id="dontsave" value="<?php echo Loc::getMessage("CAT_DOC_CANCEL") ?>">
+	<?php
 }
 
 $tabControl->End();
 ?></form>
 <script type="text/javascript">
-BX.Currency.setCurrencies(<? echo CUtil::PhpToJSObject($currencyList, false, true, true); ?>);
+BX.Currency.setCurrencies(<?php echo CUtil::PhpToJSObject($currencyList, false, true, true); ?>);
 if (typeof showTotalSum === 'undefined')
 {
 	function showTotalSum()
 	{
-		<?if(isset($requiredFields["TOTAL"])):?>
+		<?php if(isset($documentFields["TOTAL"])):?>
 		if(BX('<?=$sTableID?>'))
 		{
 			if(BX('<?=$sTableID?>'+'_footer'))
@@ -988,7 +1718,7 @@ if (typeof showTotalSum === 'undefined')
 							props : {
 								id : "CAT_DOCUMENT_SUMM_SPAN"
 							},
-							text : '<?=GetMessageJS('CAT_DOC_TOTAL')?>',
+							text : '<?=CUtil::JSEscape(Loc::getMessage('CAT_DOC_TOTAL'))?>',
 							style : {
 								fontSize: '14px',
 								fontWeight: 'bold'
@@ -997,21 +1727,30 @@ if (typeof showTotalSum === 'undefined')
 						BX.create('input', {
 							props : {
 								type : "hidden",
-								name : "CAT_DOCUMENT_SUM",
+								name : "TOTAL",
 								id : "CAT_DOCUMENT_SUM",
 								value : 0
 							}
 						})
 					]
 				})));
-				var maxId = BX('ROW_MAX_ID').value;
-				for(var i = 0; i <= maxId; i++)
-				{
-					recalculateSum(i);
-				}
+				recalculateAllRows();
 			}
 		}
-		<?endif;?>
+		<?php endif;?>
+	}
+
+	function recalculateAllRows()
+	{
+		var rowCount = BX('ROW_MAX_ID');
+		if (BX.type.isElementNode(rowCount))
+		{
+			var maxId = parseInt(rowCount.value);
+			for (var i = 0; i <= maxId; i++)
+			{
+				recalculateRow(i);
+			}
+		}
 	}
 
 	function deleteRow(id)
@@ -1022,7 +1761,7 @@ if (typeof showTotalSum === 'undefined')
 			if(trDelete)
 			{
 				trDelete.parentNode.removeChild(trDelete);
-				recalculateSum(0);
+				recalculateRow(0);
 			}
 		}
 	}
@@ -1070,7 +1809,11 @@ if (typeof showTotalSum === 'undefined')
 			store_id = params.store_id || '0';
 
 		var popup = new BX.CDialog({
-			content_url: '<?=$selfFolderUrl?>cat_product_search_dialog.php?lang='+lang+'&LID='+site_id+'&caller=' + caller + '&func_name='+callback+'&STORE_FROM_ID='+store_id,
+			content_url: '<?=$selfFolderUrl?>cat_product_search_dialog.php?lang=' + lang
+				+ '&LID=' + site_id + '&caller=' + caller
+				+ '&func_name=' + callback
+				+ '&STORE_FROM_ID=' + store_id
+				+ '&multiple_select=Y',
 			height: Math.max(500, window.innerHeight-400),
 			width: Math.max(800, window.innerWidth-400),
 			draggable: true,
@@ -1085,89 +1828,157 @@ if (typeof showTotalSum === 'undefined')
 		return popup;
 	}
 
-	function addRow(index, arElement)
+	function addRow(elements)
 	{
-		var obProductAdd,
-			hiddenDiv;
-
-		obProductAdd = BX('productAdd');
-		if (!!obProductAdd)
-			obProductAdd.value = 'Y';
-
-		if (typeof index === 'object')
+		if (!BX.type.isArrayFilled(elements))
 		{
-			if (index!==null )
-				arElement = index;
+			return;
 		}
-		hiddenDiv = BX('ELEMENT_ID_DIV');
-		if(hiddenDiv == null)
+
+		var data = {
+			lang: BX.message('LANGUAGE_ID'),
+			sessid: BX.bitrix_sessid(),
+			ID: <?php echo $ID; ?>,
+			DOCUMENT_TYPE: '<?php echo CUtil::JSEscape($docType); ?>',
+			AJAX_MODE: 'Y'
+		};
+		var obProductAdd = BX('productAdd');
+		if (BX.type.isElementNode(obProductAdd) && !obProductAdd.disabled)
 		{
-			hiddenDiv = BX('form_b_catalog_store_docs').appendChild(BX.create(
-				'DIV',
+			data.addProduct = 'Y';
+		}
+
+		data.ELEMENT_ID = elements;
+
+		var rowCount = BX('ROW_MAX_ID');
+		if (BX.type.isElementNode(rowCount))
+		{
+			rowCount.value = (parseInt(rowCount.value) + elements.length).toString();
+		}
+		var form = BX('form_b_catalog_store_docs');
+		if (!BX.type.isElementNode(form))
+		{
+			return;
+		}
+
+		var products = document.getElementById('productgrid');
+
+		if (!BX.type.isElementNode(products))
+		{
+			return;
+		}
+
+		var elements = products.querySelectorAll('table input,table select');
+
+		var nameTemplate = /^PRODUCT\[(\d)+\]\[(\w+)\]/;
+
+		elements.forEach(function(item){
+			if (BX.Type.isStringFilled(item.name))
+			{
+				var name = item.name;
+				if (name === 'ID[]')
 				{
-					props: {
-						id: 'ELEMENT_ID_DIV',
-						name: 'ELEMENT_ID_DIV'
+					return;
+				}
+				var parsed = name.match(nameTemplate);
+				if (parsed === null)
+				{
+					return;
+				}
+
+				var usedItem = true;
+				if (item.type === 'radio' || item.type === 'checkbox')
+				{
+					if (!item.checked)
+					{
+						usedItem = false;
 					}
 				}
-			));
-		}
+				if (!usedItem)
+				{
+					return;
+				}
 
-		if(!arElement.quantity && arElement.parent)
-		{
-			arElement.quantity = BX('CAT_DOC_AMOUNT_'+arElement.parent).value;
-		}
-		var hidden = hiddenDiv.appendChild(BX.create(
-			'INPUT',
-			{
-				props: {
-					type: 'hidden',
-					name: 'ELEMENT_ID[]',
-					value: arElement.id
-				},
-				html: '<input type="hidden" name="HIDDEN_BARCODE[]" value="' + arElement.barcode + '">' +
-					'<input type="hidden" name="HIDDEN_QUANTITY[]" value="' + arElement.quantity + '">' +
-					'<input type="hidden" name="AJAX_MODE" value="Y">'
+				var productIndex = parsed[1];
+				var fieldName = parsed[2];
+
+				if (!('PRODUCT' in data))
+				{
+					data.PRODUCT = {};
+				}
+				if (!(productIndex in data.PRODUCT))
+				{
+					data.PRODUCT[productIndex] = {};
+				}
+				data.PRODUCT[productIndex][fieldName] = item.value;
 			}
-		));
+		});
 
-		BX('form_b_catalog_store_docs').submit();
+		BX.showWait();
+		BX.ajax.post('<?=$actionUrl?>' + '&mode=frame', data, addRowResult);
 	}
 
-	function copyRow(index, arElement)
+	function addRowResult(result)
 	{
-		var obProductAdd = BX('productAdd');
-		if (!!obProductAdd)
+		BX.closeWait();
+		var products = document.getElementById('productgrid');
+		if (!BX.type.isElementNode(products))
+		{
+			return;
+		}
+		products.innerHTML = result;
+
+		recalculateAllRows();
+	}
+
+	function copyRow(element)
+	{
+		let obProductAdd = BX('productAdd');
+		if (BX.type.isElementNode(obProductAdd))
+		{
 			obProductAdd.disabled = true;
-		addRow(index, arElement);
+		}
+
+		let item = {
+			id: element.id
+		};
+
+		let sourceQuantity = BX('CAT_DOC_AMOUNT_' + element.parent);
+		if (BX.type.isElementNode(sourceQuantity))
+		{
+			item.quantity = sourceQuantity.value;
+		}
+
+		addRow([item]);
 	}
 
 	function productSearch(barcode)
 	{
-		var dateURL = '<?=bitrix_sessid_get()?>&BARCODE_AJAX=Y&BARCODE='+barcode+'&lang=<? echo LANGUAGE_ID; ?>';
+		var dateURL = '<?=bitrix_sessid_get()?>&BARCODE_AJAX=Y&BARCODE='+barcode+'&lang=<?php echo LANGUAGE_ID; ?>';
 
 		BX.showWait();
-		BX.ajax.post('<?=$selfFolderUrl?>cat_store_product_search.php', dateURL, fSearchProductResult);
+		BX.ajax.post('<?=$actionUrl?>', dateURL, fSearchProductResult);
 	}
 
 	function fSearchProductResult(result)
 	{
 		BX.closeWait();
+
 		BX("CAT_DOC_BARCODE_FIND").value = '';
 		BX("CAT_DOC_BARCODE_FIND").focus();
 
-		var arBarCodes = [],
-			obProductAdd;
 		if (result.length > 0)
 		{
-			var res = eval( '('+result+')' );
-			if(res['id'] > 0)
+			let res = eval( '('+result+')' );
+			if (res['id'] > 0)
 			{
 				res['quantity'] = 1;
-				obProductAdd = BX('productAdd');
-				if (!!obProductAdd)
+				let obProductAdd = BX('productAdd');
+				if (BX.type.isElementNode(obProductAdd))
+				{
 					obProductAdd.disabled = true;
-				addRow(null, res, null, arBarCodes);
+				}
+				addRow([res]);
 			}
 		}
 	}
@@ -1194,7 +2005,10 @@ if (typeof showTotalSum === 'undefined')
 					}),
 					BX.create('input', {
 						props : {
-							type : 'button', className: "BARCODE_INPUT_button", id : "BARCODE_INPUT_BUTTON_" + id, value : '<?=GetMessageJS('CAT_DOC_ADD')?>' /*disabled: (maxId >= BX('CAT_DOC_AMOUNT_'+id).value)*/
+							type : 'button',
+							className: "BARCODE_INPUT_button",
+							id : "BARCODE_INPUT_BUTTON_" + id,
+							value : '<?=CUtil::JSEscape(Loc::getMessage('CAT_DOC_ADD'))?>' /*disabled: (maxId >= BX('CAT_DOC_AMOUNT_'+id).value)*/
 						},
 						style : {
 							marginLeft: '5px'
@@ -1302,7 +2116,7 @@ if (typeof showTotalSum === 'undefined')
 				BX("BARCODE_INPUT_BUTTON_" + id).disabled = (savedBarcodes.length >= BX('CAT_DOC_AMOUNT_'+id).value);
 				for(i in savedBarcodes)
 				{
-					if(savedBarcodes.hasOwnProperty(i) && savedBarcodes[i] != undefined && savedBarcodes[i] != '<?=GetMessage('CAT_DOC_POPUP_TITLE')?>')
+					if(savedBarcodes.hasOwnProperty(i) && savedBarcodes[i] != undefined && savedBarcodes[i] != '<?=Loc::getMessage('CAT_DOC_POPUP_TITLE')?>')
 					{
 						BX('BARCODE_DIV_'+id).appendChild(BX.create('DIV', {
 							props : {
@@ -1363,9 +2177,9 @@ if (typeof showTotalSum === 'undefined')
 		}
 
 		formBarcodes.setButtons([
-			<?if(!$bReadOnly):?>
+			<?php if(!$bReadOnly):?>
 			new BX.PopupWindowButton({
-				text : "<?=GetMessage('CAT_DOC_SAVE')?>",
+				text : "<?=Loc::getMessage('CAT_DOC_SAVE')?>",
 				className : "",
 				events : {
 					click : function()
@@ -1386,14 +2200,14 @@ if (typeof showTotalSum === 'undefined')
 						}
 
 						BX("PRODUCT["+id+"][BARCODE]").value = barcodes;
-						recalculateSum(id);
+						recalculateRow(id);
 						formBarcodes.close();
 					}
 				}
 			}),
-			<?else:?>
+			<?php else:?>
 			new BX.PopupWindowButton({
-				text : "<?=GetMessage('CAT_DOC_CANCEL')?>",
+				text : "<?=Loc::getMessage('CAT_DOC_CANCEL')?>",
 				className : "",
 				events : {
 					click : function()
@@ -1402,13 +2216,13 @@ if (typeof showTotalSum === 'undefined')
 					}
 				}
 			})
-			<?endif;?>
+			<?php endif;?>
 		]);
 
 		formBarcodes.show();
 		if(BX('BARCODE_INPUT_'+id))
 			BX('BARCODE_INPUT_'+id).focus();
-		<?if($bReadOnly):?>
+		<?php if($bReadOnly):?>
 		var addBarcodeButtons = document.querySelectorAll('.BARCODE_INPUT_button, .BARCODE_INPUT_GREY');
 		[].forEach.call(addBarcodeButtons, function disableButtons(item) {
 			item.disabled = true;
@@ -1417,12 +2231,12 @@ if (typeof showTotalSum === 'undefined')
 		[].forEach.call(addBarcodeDelBut, function hideElements(item) {
 			item.style.display = 'none';
 		});
-		<?endif;?>
+		<?php endif;?>
 	}
 
-	function recalculateSum(id)
+	function recalculateRow(id)
 	{
-		<?if(isset($requiredFields["TOTAL"])):?>
+		<?php if(isset($documentFields["TOTAL"])):?>
 
 		var docType = '<?=$docType?>';
 
@@ -1444,19 +2258,19 @@ if (typeof showTotalSum === 'undefined')
 		}
 		if (BX('CAT_DOC_SUMM_'+id))
 		{
-			BX('CAT_DOC_SUMM_'+id).innerHTML = BX.Currency.currencyFormat(amount * price, BX('CAT_CURRENCY_STORE').value, false);
+			BX('CAT_DOC_SUMM_'+id).innerHTML = BX.Currency.currencyFormat(amount * price, BX('CAT_CURRENCY_STORE').value, true);
 		}
-		if (BX('PRODUCT['+id+'][SUMM]'))
+		if (BX('PRODUCT_'+id+'_SUMM'))
 		{
-			BX('PRODUCT['+id+'][SUMM]').value = (amount * price);
+			BX('PRODUCT_'+id+'_SUMM').value = (amount * price);
 		}
 		var maxId = BX('ROW_MAX_ID').value;
 		var totalSum = 0;
 		for (var i = 0; i <= maxId; i++)
 		{
-			if (BX('PRODUCT['+i+'][SUMM]'))
+			if (BX('PRODUCT_'+i+'_SUMM'))
 			{
-				totalSum = totalSum + Number(BX('PRODUCT['+i+'][SUMM]').value);
+				totalSum = totalSum + Number(BX('PRODUCT_'+i+'_SUMM').value);
 			}
 		}
 		if (isNaN(totalSum))
@@ -1466,7 +2280,7 @@ if (typeof showTotalSum === 'undefined')
 
 		if (BX("CAT_DOCUMENT_SUMM_SPAN"))
 		{
-			BX("CAT_DOCUMENT_SUMM_SPAN").innerHTML = '<?=GetMessage('CAT_DOC_TOTAL')?>' + ': ' + BX.Currency.currencyFormat(totalSum, BX('CAT_CURRENCY_STORE').value, true);
+			BX("CAT_DOCUMENT_SUMM_SPAN").innerHTML = '<?=Loc::getMessage('CAT_DOC_TOTAL')?>' + ': ' + BX.Currency.currencyFormat(totalSum, BX('CAT_CURRENCY_STORE').value, true);
 		}
 		else
 		{
@@ -1477,7 +2291,7 @@ if (typeof showTotalSum === 'undefined')
 		{
 			BX("CAT_DOCUMENT_SUM").value = totalSum;
 		}
-		<?endif;?>
+		<?php endif;?>
 
 		if (BX("BARCODE_INPUT_BUTTON_" + id) && BX("CAT_DOC_AMOUNT_HIDDEN_" + id) && BX('CAT_DOC_AMOUNT_'+id).value > BX("CAT_DOC_AMOUNT_HIDDEN_" + id).value)
 		{
@@ -1498,29 +2312,122 @@ if (typeof showTotalSum === 'undefined')
 		}
 		return true;
 	}
+
+	function selectResposible()
+	{
+		window.open('<?php echo CUtil::JSEscape($userSearchUrl); ?>', '', 'scrollbars=yes,resizable=yes,width=900,height=600');
+	}
+
+	function responsibleRequest()
+	{
+		var responsible = BX('RESPONSIBLE_ID');
+		if (BX.type.isElementNode(responsible))
+		{
+			if (responsible.value !== '')
+			{
+				BX.showWait();
+				BX.ajax.loadJSON(
+					'<?php echo $selfFolderUrl; ?>get_user.php',
+					{
+						lang: BX.message('LANGUAGE_ID'),
+						sessid: BX.bitrix_sessid(),
+						ajax: 'Y',
+						format: 'Y',
+						raw: 'Y',
+						ID: responsible.value
+					},
+					responsibleRequestResult,
+					responsibleRequestFailure
+				);
+			}
+		}
+	}
+
+	function responsibleRequestResult(result)
+	{
+		if (!BX.type.isPlainObject(result))
+		{
+			responsibleRequestFailure();
+			return;
+		}
+
+		BX.closeWait();
+
+		var responsible = BX('RESPONSIBLE_ID'),
+			responsibleName = BX('RESPONSIBLE_NAME');
+
+		if (
+			BX.type.isElementNode(responsible)
+			&& BX.type.isElementNode(responsibleName)
+		)
+		{
+			responsibleName.innerHTML = (responsible.value === result.ID.toString()
+				? BX.Text.encode(result.NAME)
+				: ''
+			);
+		}
+	}
+
+	function responsibleRequestFailure()
+	{
+		BX.closeWait();
+		var responsibleName = BX('RESPONSIBLE_NAME');
+		if (BX.type.isElementNode(responsibleName))
+		{
+			responsibleName.innerHTML = '';
+		}
+	}
+
+	function initSelectResponce()
+	{
+		var btn = BX('RESPONSIBLE_ID_BTN'),
+			input = BX('RESPONSIBLE_ID');
+		if (BX.type.isElementNode(btn))
+		{
+			BX.Event.bind(btn, 'click', selectResposible);
+		}
+		if (BX.type.isElementNode(input))
+		{
+			BX.Event.bind(input, 'change', responsibleRequest);
+		}
+	}
+
+	function SUVsetResponsible(id)
+	{
+		var responsible = BX('RESPONSIBLE_ID');
+		if (BX.type.isElementNode(responsible))
+		{
+			responsible.value = BX.Text.encode(id);
+		}
+		responsibleRequest();
+	}
 }
-<?
+<?php
 $readyFunc = array();
-if (isset($requiredFields["TOTAL"]))
+$readyFunc[] = 'initSelectResponce();';
+if (isset($documentFields["TOTAL"]))
 {
 	$readyFunc[] = 'showTotalSum();';
-}
-if (isset($_REQUEST['AJAX_MODE']) && !empty($_POST['productAdd']) && $_POST['productAdd'] == 'Y')
-{
-	$readyFunc[] = 'addProductSearch();';
 }
 
 if (!empty($readyFunc))
 {
 ?>
 	BX.ready(BX.defer(function(){
-	<? echo implode("\n", $readyFunc); ?>
+		<?php echo implode("\n", $readyFunc); ?>
 	}));
-<?
+<?php
 }
 unset($readyFunc);
 ?>
 </script>
-<?
-
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+<?php
+endif;
+if ($isAjaxDocumentRequest)
+{
+	require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin_js.php');
+}
+else
+{
+	require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php');
+}

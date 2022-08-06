@@ -129,7 +129,7 @@ class CatalogContractorList extends CBitrixComponent
 		$result['SHOW_NAVIGATION_PANEL'] = true;
 		$result['NAV_PARAM_NAME'] = 'page';
 		$result['SHOW_PAGESIZE'] = true;
-		$result['PAGE_SIZES'] = [['NAME' => 10, 'VALUE' => 10], ['NAME' => 20, 'VALUE' => 20], ['NAME' => 50, 'VALUE' => 50]];
+		$result['PAGE_SIZES'] = [['NAME' => 10, 'VALUE' => '10'], ['NAME' => 20, 'VALUE' => '20'], ['NAME' => 50, 'VALUE' => '50']];
 		$result['SHOW_ROW_CHECKBOXES'] = true;
 		$result['SHOW_CHECK_ALL_CHECKBOXES'] = true;
 		$result['SHOW_ACTION_PANEL'] = true;
@@ -171,7 +171,7 @@ class CatalogContractorList extends CBitrixComponent
 		{
 			if ($fieldName === 'PERSON_TYPE')
 			{
-				$columns[$fieldName] = ContractorTable::getTypeList(true)[$value];
+				$columns[$fieldName] = ContractorTable::getTypeDescriptions()[$value];
 			}
 
 			$columns[$fieldName] = htmlspecialcharsbx($columns[$fieldName]);

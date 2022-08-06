@@ -10,7 +10,14 @@ $APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "") . 
 
 $script = $arResult['SCRIPT'];
 
-\Bitrix\Main\UI\Extension::load(["ui.forms", "ui.alerts", "ui.layout-form", "sidepanel", "ui.sidepanel-content"]);
+\Bitrix\Main\UI\Extension::load([
+	"ui.forms",
+	"ui.alerts",
+	"ui.layout-form",
+	"sidepanel",
+	"ui.sidepanel-content",
+	"ui.fonts.opensans",
+]);
 
 $menu = [
 	[

@@ -24,7 +24,7 @@
 	display: block;
 }
 
-.landing-ui-field-image.landing-ui-field-image-icon .landing-ui-field-header
+.landing-ui-field-image.landing-ui-field-image-icon > .landing-ui-field-header
 {
 	display: none;
 }

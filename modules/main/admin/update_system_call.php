@@ -36,33 +36,65 @@ $stableVersionsOnly = COption::GetOptionString("main", "stable_versions_only", "
 
 $queryType = $_REQUEST["query_type"];
 if (!in_array($queryType, array("M", "L", "H")))
+{
 	$queryType = "M";
+}
 
 $arRequestedModules = array();
-if (array_key_exists("requested_modules", $_REQUEST))
-{
-	$arRequestedModulesTmp = explode(",", $_REQUEST["requested_modules"]);
-	for ($i = 0, $cnt = count($arRequestedModulesTmp); $i < $cnt; $i++)
-		if (!in_array($arRequestedModulesTmp[$i], $arRequestedModules))
-			$arRequestedModules[] = $arRequestedModulesTmp[$i];
-}
-
 $arRequestedLangs = array();
-if (array_key_exists("requested_langs", $_REQUEST))
-{
-	$arRequestedLangsTmp = explode(",", $_REQUEST["requested_langs"]);
-	for ($i = 0, $cnt = count($arRequestedLangsTmp); $i < $cnt; $i++)
-		if (!in_array($arRequestedLangsTmp[$i], $arRequestedLangs))
-			$arRequestedLangs[] = $arRequestedLangsTmp[$i];
-}
-
 $arRequestedHelps = array();
-if (array_key_exists("requested_helps", $_REQUEST))
+
+if (
+	\CUpdateExpertMode::isEnabled()
+	&& $_SERVER["REQUEST_METHOD"] === "POST"
+	&& isset($_POST['expertModules'])
+)
 {
-	$arRequestedHelpsTmp = explode(",", $_REQUEST["requested_helps"]);
-	for ($i = 0, $cnt = count($arRequestedHelpsTmp); $i < $cnt; $i++)
-		if (!in_array($arRequestedHelpsTmp[$i], $arRequestedHelps))
-			$arRequestedHelps[] = $arRequestedHelpsTmp[$i];
+	$expertModules = (string)$_POST['expertModules'];
+	if (!empty($expertModules))
+	{
+		$expertModules = json_decode($expertModules, true);
+	}
+	if (is_array($expertModules))
+	{
+		$arRequestedModules = $expertModules;
+	}
+}
+if (empty($arRequestedModules))
+{
+	if (array_key_exists("requested_modules", $_REQUEST))
+	{
+		$arRequestedModulesTmp = explode(",", $_REQUEST["requested_modules"]);
+		for ($i = 0, $cnt = count($arRequestedModulesTmp); $i < $cnt; $i++)
+		{
+			if (!in_array($arRequestedModulesTmp[$i], $arRequestedModules))
+			{
+				$arRequestedModules[] = $arRequestedModulesTmp[$i];
+			}
+		}
+	}
+	if (array_key_exists("requested_langs", $_REQUEST))
+	{
+		$arRequestedLangsTmp = explode(",", $_REQUEST["requested_langs"]);
+		for ($i = 0, $cnt = count($arRequestedLangsTmp); $i < $cnt; $i++)
+		{
+			if (!in_array($arRequestedLangsTmp[$i], $arRequestedLangs))
+			{
+				$arRequestedLangs[] = $arRequestedLangsTmp[$i];
+			}
+		}
+	}
+	if (array_key_exists("requested_helps", $_REQUEST))
+	{
+		$arRequestedHelpsTmp = explode(",", $_REQUEST["requested_helps"]);
+		for ($i = 0, $cnt = count($arRequestedHelpsTmp); $i < $cnt; $i++)
+		{
+			if (!in_array($arRequestedHelpsTmp[$i], $arRequestedHelps))
+			{
+				$arRequestedHelps[] = $arRequestedHelpsTmp[$i];
+			}
+		}
+	}
 }
 
 COption::SetOptionString("main", "update_system_update", Date($GLOBALS["DB"]->DateFormatToPHP(CSite::GetDateFormat("FULL")), time()));

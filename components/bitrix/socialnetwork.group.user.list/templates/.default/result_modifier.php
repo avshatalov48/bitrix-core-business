@@ -38,6 +38,11 @@ $lastConnectedDepartmentId = 0;
 $gridData = $arResult['ROWS'];
 $arResult['ROWS'] = [];
 
+$canDisconnect = (
+	$arResult['GROUP_PERMS']['UserCanModifyGroup']
+	|| \Bitrix\Socialnetwork\Helper\Workgroup::isCurrentUserModuleAdmin()
+);
+
 foreach ($gridData as $key => $row)
 {
 	$processedRow = $row;
@@ -74,41 +79,45 @@ foreach ($gridData as $key => $row)
 			});
 			$connectedDepartmentData = array_shift($filteredDepartmentsList);
 
-			if (in_array((int)$connectedDepartmentData['ID'], $arResult['GROUP']['UF_SG_DEPT'], true))
-			{
-				$disconnectDepartmentLink = '<span class="sonet-group-user-grid-action" data-bx-action="disconnectDepartment" data-bx-department="' . $connectedUserDepartmentId . '">' .
-					Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_DEPARTMENT_DISCONNECT') .
-				'</span>';
-			}
-			else
-			{
-				$disconnectDepartmentLink = '';
+			$disconnectDepartmentLink = '';
 
-				$filteredSubDepartmentsList = array_filter(
-					$arResult['CONNECTED_SUBDEPARTMENTS_LIST'],
-					static function($subDepartmentsList) use ($connectedDepartmentData) {
-						return in_array((int)$connectedDepartmentData['ID'], $subDepartmentsList, true);
-					}
-				);
-				if (!empty($filteredSubDepartmentsList))
+			if ($canDisconnect)
+			{
+				if (in_array((int)$connectedDepartmentData['ID'], $arResult['GROUP']['UF_SG_DEPT'], true))
 				{
-					$key = (int)array_key_first($filteredSubDepartmentsList);
-					$filteredDepartmentsList = array_filter(
-						$arResult['CONNECTED_DEPARTMENTS_LIST'],
-						static function($departmentData) use ($key) {
-							return (int)$departmentData['ID'] === $key;
+					$disconnectDepartmentLink = '<span class="sonet-group-user-grid-action" data-bx-action="disconnectDepartment" data-bx-department="' . $connectedUserDepartmentId . '">' .
+						Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_DEPARTMENT_DISCONNECT') .
+						'</span>';
+				}
+				else
+				{
+
+					$filteredSubDepartmentsList = array_filter(
+						$arResult['CONNECTED_SUBDEPARTMENTS_LIST'],
+						static function($subDepartmentsList) use ($connectedDepartmentData) {
+							return in_array((int)$connectedDepartmentData['ID'], $subDepartmentsList, true);
 						}
 					);
-					if (!empty($filteredDepartmentsList))
+					if (!empty($filteredSubDepartmentsList))
 					{
-						$parentConnectedDepartmentData = array_shift($filteredDepartmentsList);
-						$disconnectDepartmentLink =
-							'&nbsp;/&nbsp;<a href="' .
+						$key = (int)array_key_first($filteredSubDepartmentsList);
+						$filteredDepartmentsList = array_filter(
+							$arResult['CONNECTED_DEPARTMENTS_LIST'],
+							static function($departmentData) use ($key) {
+								return (int)$departmentData['ID'] === $key;
+							}
+						);
+						if (!empty($filteredDepartmentsList))
+						{
+							$parentConnectedDepartmentData = array_shift($filteredDepartmentsList);
+							$disconnectDepartmentLink =
+								'&nbsp;/&nbsp;<a href="' .
 								htmlspecialcharsbx($parentConnectedDepartmentData['URL']) .
-							'" class="">' . htmlspecialcharsEx($parentConnectedDepartmentData['NAME']) . '</a>&nbsp;' .
-							'<span class="sonet-group-user-grid-action" data-bx-action="disconnectDepartment" data-bx-department="' . (int)$parentConnectedDepartmentData['ID'] . '">' .
+								'" class="">' . htmlspecialcharsEx($parentConnectedDepartmentData['NAME']) . '</a>&nbsp;' .
+								'<span class="sonet-group-user-grid-action" data-bx-action="disconnectDepartment" data-bx-department="' . (int)$parentConnectedDepartmentData['ID'] . '">' .
 								Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_DEPARTMENT_DISCONNECT') .
-							'</span>';
+								'</span>';
+						}
 					}
 				}
 			}
@@ -120,8 +129,8 @@ foreach ($gridData as $key => $row)
 				'custom' => '<div class="sonet-group-user-grid-wrapper">' .
 						'<a href="' .
 							htmlspecialcharsbx($connectedDepartmentData['URL']) .
-						'" class="">' . htmlspecialcharsEx($connectedDepartmentData['NAME']) . '</a>&nbsp;' .
-						$disconnectDepartmentLink .
+						'" class="">' . htmlspecialcharsEx($connectedDepartmentData['NAME']) . '</a>' .
+						($disconnectDepartmentLink !== '' ? '&nbsp;' . $disconnectDepartmentLink : '') .
 					'</div>',
 				'not_count' => true,
 				'draggable' => false,
@@ -359,6 +368,31 @@ foreach ($gridData as $key => $row)
 		];
 	}
 
+	if (in_array($componentClassName::AVAILABLE_ACTION_DELETE_INCOMING_REQUEST, $actions, true))
+	{
+		if ($arResult['GROUP']['SCRUM'] === 'Y')
+		{
+			$title = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_ACTION_DELETE_INCOMING_REQUEST_SCRUM_TITLE');
+		}
+		elseif ($arResult['GROUP']['PROJECT'] === 'Y')
+		{
+			$title = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_ACTION_DELETE_INCOMING_REQUEST_PROJECT_TITLE');
+		}
+		else
+		{
+			$title = Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_ACTION_DELETE_INCOMING_REQUEST_TITLE');
+		}
+
+		$processedRow['actions'][] = [
+			'TEXT' => Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_ACTION_DELETE_INCOMING_REQUEST'),
+			'TITLE' => $title,
+			'ONCLICK' => 'BX.Socialnetwork.WorkgroupUserList.Manager.getById("' . $arResult['GRID_ID'] . '").getActionManager().act({
+				action: "' . WorkgroupUserList::AJAX_ACTION_DELETE_INCOMING_REQUEST . '", 
+				userId: ' . $userItem->getId() . ',
+			})',
+		];
+	}
+
 	if (in_array($componentClassName::AVAILABLE_ACTION_PROCESS_INCOMING_REQUEST, $actions, true))
 	{
 		if ($arResult['GROUP']['SCRUM'] === 'Y')
@@ -412,8 +446,6 @@ foreach ($gridData as $key => $row)
 }
 
 unset($arResult['GRID_COLUMNS']);
-
-$arResult['TOOLBAR_MENU'] = [];
 
 $arResult['TOOLBAR_BUTTONS'] = [];
 

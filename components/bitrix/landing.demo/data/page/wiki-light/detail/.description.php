@@ -101,7 +101,7 @@ return [
 					0 => 'Max Brickson',
 				],
 				'.landing-block-node-subtitle' => [
-					0 => '<p>5 August 2021</p>',
+					0 => '<p>5 August 2022</p>',
 				],
 			],
 			'style' => [

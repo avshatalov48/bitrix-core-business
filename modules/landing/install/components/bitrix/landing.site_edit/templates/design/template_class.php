@@ -36,7 +36,7 @@ class Template
 		{
 			$pageFields = $hooks[$code]->getPageFields();
 			$pageFieldsKey = $code . '_USE';
-			if(!isset($pageFields[$pageFieldsKey]))
+			if (!isset($pageFields[$pageFieldsKey]))
 			{
 				return;
 			}
@@ -67,10 +67,9 @@ class Template
 
 	/**
 	 * Print field in new ui-form-layout format
-	 * @param string $name
 	 * @param Field $field
 	 */
-	public function showField(string $name, Field $field): void
+	public function showField(Field $field): void
 	{
 		$type = $field->getType();
 		$code = $field->getCode();
@@ -78,7 +77,7 @@ class Template
 		<div class="ui-form-row">
 			<?php if ($type !== 'checkbox'): ?>
 				<div class="ui-form-label">
-					<label class="ui-ctl-label-text" for="field-<?=strtolower($name)?>-use"><?=$field->getLabel()?></label>
+					<label class="ui-ctl-label-text" for="field-<?=strtolower($code)?>-use"><?=$field->getLabel()?></label>
 					<?php if ($help = $field->getHelpValue()): ?>
 						<span data-hint="<?= $help ?>" class="ui-hint">
 							<span class="ui-hint-icon"></span>
@@ -88,16 +87,16 @@ class Template
 			<?php endif; ?>
 
 			<div class="<?= self::getCssByType($type) ?>">
-				<?php if ($type === 'select'): ?>
+				<?php if (
+					$type === 'select'
+					|| ($code === 'THEMEFONTS_CODE' || $code === 'THEMEFONTS_CODE_H')
+				): ?>
 					<div class="ui-ctl-after ui-ctl-icon-angle"></div>
 				<?php endif; ?>
-				<?php if ($code === 'THEMEFONTS_CODE' || $code === 'THEMEFONTS_CODE_H'): ?>
-					<div class="ui-ctl-after ui-ctl-icon-angle fa-rotate-270"></div>
-				<?php endif; ?>
 				<?=$field->viewForm([
-					'id' => 'field-' . strtolower($name),
+					'id' => 'field-' . strtolower($code),
 					'additional' => 'readonly',
-					'class' => 'ui-ctl-element ui-field-'.strtolower($name),
+					'class' => 'ui-ctl-element ui-field-'.strtolower($code),
 					'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
 				])?>
 			</div>

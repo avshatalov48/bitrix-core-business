@@ -12,15 +12,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }
 	});
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='catalog-warehouse-master-clear-popup-content'>\n\t\t\t\t\t\t<h3>", "</h3>\n\t\t\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">", "\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	var DialogOneC = /*#__PURE__*/function () {
 	  function DialogOneC() {
 	    babelHelpers.classCallCheck(this, DialogOneC);
@@ -51,31 +43,13 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getContent",
 	    value: function getContent() {
-	      return main_core.Tag.render(_templateObject(), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_10'), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_9')));
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='catalog-warehouse-master-clear-popup-content'>\n\t\t\t\t\t\t<h3>", "</h3>\n\t\t\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_10'), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_9')));
 	    }
 	  }]);
 	  return DialogOneC;
 	}();
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='catalog-warehouse-master-clear-popup-content'>\n\t\t\t\t\t\t<h3>", "</h3>\n\t\t\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">", "<div>\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='catalog-warehouse-master-clear-popup-content'>\n\t\t\t\t\t\t<h3>", "</h3>\n\t\t\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">", "\n\t\t\t\t\t\t<br>", "<div>\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1, _templateObject2;
 	var DialogDisable = /*#__PURE__*/function () {
 	  function DialogDisable() {
 	    babelHelpers.classCallCheck(this, DialogDisable);
@@ -129,7 +103,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getDisablePopupContent",
 	    value: function getDisablePopupContent() {
-	      return main_core.Tag.render(_templateObject$1(), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE'), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_7')), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_8')));
+	      return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='catalog-warehouse-master-clear-popup-content'>\n\t\t\t\t\t\t<h3>", "</h3>\n\t\t\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">", "\n\t\t\t\t\t\t<br>", "<div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE'), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_7')), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_8')));
 	    }
 	  }, {
 	    key: "conductedDocumentsPopup",
@@ -157,21 +131,13 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getConductedDocumentsPopupContent",
 	    value: function getConductedDocumentsPopupContent() {
-	      return main_core.Tag.render(_templateObject2(), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE'), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_CLEAR_CONDUCTED_DOCUMENTS_EXIST'));
+	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='catalog-warehouse-master-clear-popup-content'>\n\t\t\t\t\t\t<h3>", "</h3>\n\t\t\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">", "<div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE'), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_CLEAR_CONDUCTED_DOCUMENTS_EXIST'));
 	    }
 	  }]);
 	  return DialogDisable;
 	}();
 
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='catalog-warehouse-master-clear-popup-content'>\n\t\t\t\t\t\t<h3>", "</h3>\n\t\t\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">", "\n\t\t\t\t\t\t<br>", "<div>\n\t\t\t\t\t</div>\n\t\t\t\t"]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2;
 	var DialogClearing = /*#__PURE__*/function () {
 	  function DialogClearing() {
 	    babelHelpers.classCallCheck(this, DialogClearing);
@@ -210,31 +176,13 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getContent",
 	    value: function getContent() {
-	      return main_core.Tag.render(_templateObject$2(), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_3'), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_4')), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_5')));
+	      return main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='catalog-warehouse-master-clear-popup-content'>\n\t\t\t\t\t\t<h3>", "</h3>\n\t\t\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">", "\n\t\t\t\t\t\t<br>", "<div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_3'), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_4')), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_5')));
 	    }
 	  }]);
 	  return DialogClearing;
 	}();
 
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-warehouse-master-clear-popup-content\">\n\t\t\t\t<h3>\n\t\t\t\t\t", "\n\t\t\t\t</h3>\t\n\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a href=\"#\" class=\"ui-link ui-link-dashed documents-grid-link\">\n\t\t\t\t", "\n\t\t\t</a>\n\t\t"]);
-
-	  _templateObject$3 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$3, _templateObject2$1;
 	var DialogError = /*#__PURE__*/function () {
 	  function DialogError() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -276,14 +224,14 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getHelpLink",
 	    value: function getHelpLink() {
-	      var result = main_core.Tag.render(_templateObject$3(), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_DETAILS')));
+	      var result = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a href=\"#\" class=\"ui-link ui-link-dashed documents-grid-link\">\n\t\t\t\t", "\n\t\t\t</a>\n\t\t"])), main_core.Text.encode(main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_DETAILS')));
 	      result.addEventListener('click', this.showHelp.bind(this));
 	      return result;
 	    }
 	  }, {
 	    key: "getContent",
 	    value: function getContent() {
-	      return main_core.Tag.render(_templateObject2$1(), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_10'), main_core.Text.encode(this.text), this.helpArticleId ? this.getHelpLink() : '');
+	      return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-warehouse-master-clear-popup-content\">\n\t\t\t\t<h3>\n\t\t\t\t\t", "\n\t\t\t\t</h3>\t\n\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_10'), main_core.Text.encode(this.text), this.helpArticleId ? this.getHelpLink() : '');
 	    }
 	  }]);
 	  return DialogError;
@@ -379,6 +327,31 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return Popup;
 	}();
 
+	var ProductGridMenu = /*#__PURE__*/function () {
+	  function ProductGridMenu() {
+	    babelHelpers.classCallCheck(this, ProductGridMenu);
+	  }
+
+	  babelHelpers.createClass(ProductGridMenu, null, [{
+	    key: "reloadGridAction",
+	    value: function reloadGridAction() {
+	      document.location.reload();
+	    }
+	  }, {
+	    key: "openWarehousePanel",
+	    value: function openWarehousePanel(url) {
+	      new Slider().open(url, {
+	        data: {
+	          closeSliderOnDone: false
+	        }
+	      }).then(function () {
+	        ProductGridMenu.reloadGridAction();
+	      });
+	    }
+	  }]);
+	  return ProductGridMenu;
+	}();
+
 	exports.EventType = EventType;
 	exports.DialogOneC = DialogOneC;
 	exports.DialogDisable = DialogDisable;
@@ -386,6 +359,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	exports.DialogError = DialogError;
 	exports.Slider = Slider;
 	exports.Popup = Popup;
+	exports.ProductGridMenu = ProductGridMenu;
 
 }((this.BX.Catalog.StoreUse = this.BX.Catalog.StoreUse || {}),BX.Event,BX.UI,BX,BX.Main));
 //# sourceMappingURL=store-use.bundle.js.map

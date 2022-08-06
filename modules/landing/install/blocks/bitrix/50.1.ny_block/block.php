@@ -12,7 +12,7 @@
 						<p>Have a great holidays!</p>
 					</div>
 					<div class="landing-block-node-card-button-container g-max-width-800 mx-auto">
-						<a class="landing-block-node-card-button landing-semantic-link-image-medium button-new-year g-bg-primary btn btn-lg g-font-weight-700 g-font-size-12 text-uppercase g-rounded-50 g-px-45 g-py-15 g-height-45 g-color-white js-animation fadeInUp"
+						<a class="landing-block-node-card-button landing-semantic-link-image-medium button-new-year g-bg-primary btn g-font-weight-700 g-font-size-12 text-uppercase g-rounded-50 g-px-45 g-py-15 g-height-45 g-color-white js-animation fadeInUp"
 						   href="#" tabindex="-1">Thank you</a>
 					</div>
 				</div>

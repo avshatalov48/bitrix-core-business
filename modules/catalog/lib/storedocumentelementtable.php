@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Catalog;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\EnumField;
@@ -151,5 +152,28 @@ class StoreDocumentElementTable extends DataManager
 				['join_type' => 'LEFT']
 			),
 		];
+	}
+
+	/**
+	 * Delete all rows for document.
+	 * @internal
+	 *
+	 * @param int $id
+	 * @return void
+	 */
+	public static function deleteByDocument(int $id): void
+	{
+		if ($id <= 0)
+		{
+			return;
+		}
+
+		$conn = Application::getConnection();
+		$helper = $conn->getSqlHelper();
+		$conn->queryExecute(
+			'delete from ' . $helper->quote(self::getTableName())
+			. ' where ' . $helper->quote('DOC_ID') . ' = ' . $id
+		);
+		unset($helper, $conn);
 	}
 }

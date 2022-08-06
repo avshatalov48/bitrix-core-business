@@ -324,4 +324,20 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 
 		return $color;
 	}
+
+	/**
+	 * Is the correct Hex value
+	 * @param $color - color
+	 *
+	 * @return bool
+	 */
+	public static function isHex($color): bool
+	{
+		$reg = '/#[0-9a-f]{3}([0-9a-f]{3})?/i';
+		if (preg_match($reg, $color))
+		{
+			return true;
+		}
+		return false;
+	}
 }

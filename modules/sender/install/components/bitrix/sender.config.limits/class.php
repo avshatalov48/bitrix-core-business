@@ -116,6 +116,7 @@ class SenderConfigLimitsComponent extends Bitrix\Sender\Internals\CommonSenderCo
 		}
 
 		$this->arResult['LIST'] = $list;
+		Bitrix\Sender\Integration\Bitrix24\Service::initLicensePopup();
 
 		return true;
 	}

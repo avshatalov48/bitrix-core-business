@@ -1,7 +1,6 @@
 <?php
 namespace Bitrix\Catalog\Controller;
 
-use Bitrix\Catalog\Component\StoreMaster;
 use Bitrix\Catalog\Component\UseStore;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\CurrentUser;
@@ -119,7 +118,6 @@ final class Config extends \Bitrix\Main\Engine\Controller
 	public function inventoryManagementNAction(): bool
 	{
 		$result = UseStore::disable();
-		StoreMaster::setIsUsed();
 		UseStore::resetPreset();
 
 		return $result;
@@ -133,7 +131,6 @@ final class Config extends \Bitrix\Main\Engine\Controller
 		}
 
 		UseStore::enable();
-		StoreMaster::setIsUsed();
 		UseStore::installPreset($preset);
 
 		return true;

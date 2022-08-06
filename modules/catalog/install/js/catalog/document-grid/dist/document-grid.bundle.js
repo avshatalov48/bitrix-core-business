@@ -38,7 +38,7 @@ this.BX = this.BX || {};
 	              popup.destroy();
 
 	              _this.grid.reload();
-	            }).catch(function (response) {
+	            })["catch"](function (response) {
 	              if (response.errors) {
 	                BX.UI.Notification.Center.notify({
 	                  content: response.errors[0].message
@@ -82,6 +82,7 @@ this.BX = this.BX || {};
 	        };
 	      }
 
+	      actionConfig.analyticsLabel.mode = 'single';
 	      var popup = new main_popup.Popup({
 	        id: 'catalog_delete_document_popup',
 	        titleBar: main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_TITLE'),
@@ -94,7 +95,7 @@ this.BX = this.BX || {};
 	              popup.destroy();
 
 	              _this2.grid.reload();
-	            }).catch(function (response) {
+	            })["catch"](function (response) {
 	              if (response.errors) {
 	                BX.UI.Notification.Center.notify({
 	                  content: response.errors[0].message
@@ -138,6 +139,7 @@ this.BX = this.BX || {};
 	        };
 	      }
 
+	      actionConfig.analyticsLabel.mode = 'single';
 	      var popup = new main_popup.Popup({
 	        id: 'catalog_delete_document_popup',
 	        titleBar: main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_TITLE'),
@@ -150,7 +152,7 @@ this.BX = this.BX || {};
 	              popup.destroy();
 
 	              _this3.grid.reload();
-	            }).catch(function (response) {
+	            })["catch"](function (response) {
 	              if (response.errors) {
 	                BX.UI.Notification.Center.notify({
 	                  content: response.errors[0].message
@@ -182,7 +184,7 @@ this.BX = this.BX || {};
 	        }
 	      }).then(function (response) {
 	        _this4.grid.reload();
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        if (response.errors) {
 	          response.errors.forEach(function (error) {
 	            if (error.message) {
@@ -210,10 +212,13 @@ this.BX = this.BX || {};
 	      main_core.ajax.runAction('catalog.document.conductList', {
 	        data: {
 	          documentIds: documentIds
+	        },
+	        analyticsLabel: {
+	          mode: 'list'
 	        }
 	      }).then(function (response) {
 	        _this5.grid.reload();
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        if (response.errors) {
 	          response.errors.forEach(function (error) {
 	            if (error.message) {
@@ -241,10 +246,13 @@ this.BX = this.BX || {};
 	      main_core.ajax.runAction('catalog.document.cancelList', {
 	        data: {
 	          documentIds: documentIds
+	        },
+	        analyticsLabel: {
+	          mode: 'list'
 	        }
 	      }).then(function (response) {
 	        _this6.grid.reload();
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        if (response.errors) {
 	          response.errors.forEach(function (error) {
 	            if (error.message) {

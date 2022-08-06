@@ -21,9 +21,11 @@ return array(
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODEBGIMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'editInStyle' => true,
 			'allowInlineEdit' => false,
+			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'create2xByDefault' => false,
+			'isWrapper' => true,
 		),
 		'.landing-block-node-subtitle' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_8_FOUR_COLS_FIX_BIGBGIMG_NODES_LANDINGBLOCKNODESUBTITLE'),
@@ -50,7 +52,7 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-background-overlay'),
+			'type' => ['block-default-background'],
 		),
 		'nodes' => array(
 			'.landing-block-card' => array(

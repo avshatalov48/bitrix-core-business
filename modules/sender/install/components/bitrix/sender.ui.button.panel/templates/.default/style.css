@@ -20,7 +20,8 @@
 }
 
 .sender-footer-container .webform-button-link {
-	font: 12px/39px "OpenSans-Bold",Helvetica,Arial,sans-serif;
+	font: 12px/39px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	transition: background .5s ease;
 	text-align: center;
 	vertical-align: middle;

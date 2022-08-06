@@ -265,6 +265,7 @@ class Dispatcher
 			'LIST_FILTER_LABEL' => $this->checkLabel($fieldInfo['LIST_FILTER_LABEL']),
 			'ERROR_MESSAGE' => $this->checkLabel($fieldInfo['ERROR_MESSAGE']),
 			'HELP_MESSAGE' => $this->checkLabel($fieldInfo['HELP_MESSAGE']),
+			'CONTEXT_PARAMS' => $fieldInfo['CONTEXT_PARAMS'],
 		));
 
 		if(!$fieldId)
@@ -851,6 +852,7 @@ class Dispatcher
 			'SHOW_FILTER' => $userField['SHOW_FILTER'],
 			'SHOW_IN_LIST' => $userField['SHOW_IN_LIST'],
 			'SORT' => $userField['SORT'],
+			'CONTEXT_PARAMS' => $fieldInfo['CONTEXT_PARAMS'],
 		);
 
 		if($userField['USER_TYPE_ID'] === \CUserTypeEnum::USER_TYPE_ID && is_array($userField['ENUM']))

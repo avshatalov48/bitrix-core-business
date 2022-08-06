@@ -1694,7 +1694,7 @@ return [
 		<div class="row">
 			<div class="col-md-6 d-flex align-items-center g-mb-15 g-mb-0--md w-100 mb-0">
 				<div class="landing-block-node-text mr-1 g-color-gray-light-v2 js-animation animation-none">
-					&copy; 2021 All rights reserved.
+					&copy; 2022 All rights reserved.
 				</div>
 			</div>
 

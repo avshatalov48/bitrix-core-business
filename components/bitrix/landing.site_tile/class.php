@@ -161,10 +161,16 @@ class LandingSiteTileComponent extends LandingBaseComponent
 			$item['PUBLIC_URL'] = $item['PUBLIC_URL'] ?? null;
 
 			// can delete?
-			$item['ACCESS_DELETE'] = 'Y';
-			if (is_array($this->arParams['DELETE_LOCKED']) && in_array($item['ID'], $this->arParams['DELETE_LOCKED']))
+			if ($item['ACCESS_DELETE'] !== 'N')
 			{
-				$item['ACCESS_DELETE'] = 'N';
+				$item['ACCESS_DELETE'] = 'Y';
+				if (
+					is_array($this->arParams['DELETE_LOCKED'])
+					&& in_array($item['ID'], $this->arParams['DELETE_LOCKED'], true)
+				)
+				{
+					$item['ACCESS_DELETE'] = 'N';
+				}
 			}
 
 			$published = $item['ACTIVE'] === 'Y' && $item['DELETED'] === 'N';

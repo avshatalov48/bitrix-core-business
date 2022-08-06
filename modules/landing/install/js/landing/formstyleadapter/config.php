@@ -17,6 +17,7 @@ return [
 		'landing.env',
 		'landing.ui.field.color',
 		'landing.pageobject',
+		'landing.ui.panel.formsettingspanel',
 	],
 	'skip_core' => false,
 ];

@@ -49,6 +49,10 @@ return [
 		'.landing-block-node-container' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_40_5_ELEMENT'),
 			'type' => ['container', 'padding-top', 'padding-bottom'],
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_40_5_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show', 'arrows', 'dots'],
+			]
 		],
 	],
 	'assets' => [

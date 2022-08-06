@@ -121,6 +121,12 @@ class Page
 					: 'N'
 			);
 
+			const isFilterUsed = (
+				Type.isPlainObject(responseData.componentResult)
+				&& Type.isStringFilled(responseData.componentResult.FILTER_USED)
+				&& responseData.componentResult.FILTER_USED === 'Y'
+			);
+
 			if (forcePageRefresh === 'Y')
 			{
 				top.window.location.reload();
@@ -139,27 +145,27 @@ class Page
 
 			Dom.clean(feedContainer);
 
-			const emptyBlock = (
-				emptyLivefeed === 'Y'
-				&& document.getElementById('feed-empty-wrap')
-					? document.getElementById('feed-empty-wrap')
-					: null
-			);
+			const emptyBlock = document.getElementById('feed-empty-wrap');
 
 			if (emptyBlock)
 			{
-				feedContainer.appendChild(Dom.create('div', {
-					props: {
-						className: 'feed-wrap',
-					},
-					children: [ emptyBlock ],
-				}));
-				emptyBlock.style.display = 'block';
-
-				const emptyTextNode = emptyBlock.querySelector('.feed-wrap-empty');
-				if (emptyTextNode)
+				if (emptyLivefeed === 'Y')
 				{
-					emptyTextNode.innerHTML = Loc.getMessage('SONET_C30_T_EMPTY_SEARCH');
+					emptyBlock.style.display = 'block';
+
+					const emptyTextNode = emptyBlock.querySelector('.feed-wrap-empty');
+					if (emptyTextNode)
+					{
+						emptyTextNode.innerHTML = (
+							isFilterUsed
+								? Loc.getMessage('SONET_C30_T_EMPTY_SEARCH')
+								: Loc.getMessage('SONET_C30_T_EMPTY')
+						);
+					}
+				}
+				else
+				{
+					emptyBlock.style.display = 'none';
 				}
 			}
 

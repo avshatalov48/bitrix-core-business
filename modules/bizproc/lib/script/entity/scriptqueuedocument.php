@@ -11,9 +11,9 @@ use Bitrix\Main;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_ScriptQueueDocument_Query query()
- * @method static EO_ScriptQueueDocument_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_ScriptQueueDocument_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_ScriptQueueDocument_Result getById($id)
- * @method static EO_ScriptQueueDocument_Result getList(array $parameters = array())
+ * @method static EO_ScriptQueueDocument_Result getList(array $parameters = [])
  * @method static EO_ScriptQueueDocument_Entity getEntity()
  * @method static \Bitrix\Bizproc\Script\Entity\EO_ScriptQueueDocument createObject($setDefaultValues = true)
  * @method static \Bitrix\Bizproc\Script\Entity\EO_ScriptQueueDocument_Collection createCollection()

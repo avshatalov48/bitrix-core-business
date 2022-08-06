@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Socialnetwork = this.BX.Socialnetwork || {};
-(function (exports,main_popup,ui_popupcomponentsmaker,main_core) {
+(function (exports,main_popup,ui_buttons,ui_popupcomponentsmaker,main_core) {
 	'use strict';
 
 	var Waiter = /*#__PURE__*/function () {
@@ -117,41 +117,50 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	}();
 	babelHelpers.defineProperty(SonetGroupMenu, "instance", null);
 
-	var Common = /*#__PURE__*/function () {
-	  function Common() {
-	    babelHelpers.classCallCheck(this, Common);
+	var RecallJoinRequest = /*#__PURE__*/function () {
+	  function RecallJoinRequest(params) {
+	    babelHelpers.classCallCheck(this, RecallJoinRequest);
+	    this.successPopup = null;
+	    this.groupId = !main_core.Type.isUndefined(params.GROUP_ID) ? Number(params.GROUP_ID) : 0;
+	    this.relationId = !main_core.Type.isUndefined(params.RELATION_ID) ? Number(params.RELATION_ID) : 0;
+	    this.urls = {
+	      rejectOutgoingRequest: main_core.Type.isStringFilled(params.URL_REJECT_OUTGOING_REQUEST) ? params.URL_REJECT_OUTGOING_REQUEST : '',
+	      groupsList: main_core.Type.isStringFilled(params.URL_GROUPS_LIST) ? params.URL_GROUPS_LIST : ''
+	    };
+	    this.project = main_core.Type.isBoolean(params.PROJECT) ? params.PROJECT : false;
+	    this.scrum = main_core.Type.isBoolean(params.SCRUM) ? params.SCRUM : false;
 	  }
 
-	  babelHelpers.createClass(Common, null, [{
-	    key: "showRecallJoinRequestPopup",
-	    value: function showRecallJoinRequestPopup(params) {
+	  babelHelpers.createClass(RecallJoinRequest, [{
+	    key: "showPopup",
+	    value: function showPopup() {
 	      var _this = this;
 
-	      if (parseInt(params.RELATION_ID) <= 0 || !main_core.Type.isStringFilled(params.URL_REJECT_OUTGOING_REQUEST)) {
+	      if (this.relationId <= 0 || !main_core.Type.isStringFilled(this.urls.rejectOutgoingRequest)) {
 	        return;
 	      }
 
-	      var recallText = main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT');
-	      var recallButtonTitle = main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_BUTTON');
+	      var recallTitle = main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TITLE2');
+	      var recallText = main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT2');
 
-	      if (main_core.Type.isUndefined(params.SCRUM) && !!params.SCRUM) {
-	        recallText = main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT_SCRUM');
-	        recallButtonTitle = main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_BUTTON_SCRUM');
-	      } else if (main_core.Type.isUndefined(params.PROJECT) && !!params.PROJECT) {
-	        recallText = main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT_PROJECT');
-	        recallButtonTitle = main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_BUTTON_PROJECT');
+	      if (this.scrum) {
+	        recallTitle = main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TITLE2_SCRUM');
+	        recallText = main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT2_SCRUM');
+	      } else if (this.project) {
+	        recallTitle = main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TITLE2_PROJECT');
+	        recallText = main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT2_PROJECT');
 	      }
 
-	      var isProject = !main_core.Type.isUndefined(params.PROJECT) ? !!params.PROJECT : false;
-	      var successPopup = new main_popup.Popup('bx-group-join-successfull-request-popup', window, {
+	      this.successPopup = new main_popup.Popup('bx-group-join-successfull-request-popup', window, {
 	        width: 420,
-	        autoHide: true,
+	        autoHide: false,
 	        lightShadow: false,
 	        zIndex: 1000,
 	        overlay: true,
+	        cachable: false,
 	        content: main_core.Dom.create('DIV', {
 	          children: [main_core.Dom.create('DIV', {
-	            text: main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TITLE'),
+	            text: recallTitle,
 	            props: {
 	              className: 'sonet-group-join-successfull-request-popup-title'
 	            }
@@ -160,73 +169,156 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	            props: {
 	              className: 'sonet-group-join-successfull-request-popup-text'
 	            }
-	          }), main_core.Dom.create('DIV', {
-	            props: {
-	              className: 'sonet-ui-btn-cont sonet-ui-btn-cont-center'
-	            },
-	            children: [main_core.Dom.create('DIV', {
-	              children: [main_core.Dom.create('BUTTON', {
-	                props: {
-	                  className: 'ui-btn ui-btn-md ui-btn-danger'
-	                },
-	                events: {
-	                  click: function click(event) {
-	                    var _currentTarget = event.currentTarget;
-	                    var errorNode = document.getElementById('bx-group-delete-request-error');
-
-	                    _this.hideError(errorNode);
-
-	                    _this.showButtonWait(_currentTarget);
-
-	                    main_core.ajax({
-	                      url: params.URL_REJECT_OUTGOING_REQUEST,
-	                      method: 'POST',
-	                      dataType: 'json',
-	                      data: {
-	                        action: 'reject',
-	                        max_count: 1,
-	                        checked_0: 'Y',
-	                        type_0: 'INVITE_GROUP',
-	                        id_0: params.RELATION_ID,
-	                        type: 'out',
-	                        ajax_request: 'Y',
-	                        sessid: main_core.Loc.getMessage('bitrix_sessid')
-	                      },
-	                      onsuccess: function onsuccess(deleteResponseData) {
-	                        _this.hideButtonWait(_currentTarget);
-
-	                        if (main_core.Type.isStringFilled(deleteResponseData.MESSAGE) && deleteResponseData.MESSAGE === 'SUCCESS') {
-	                          successPopup.destroy();
-
-	                          if (main_core.Type.isStringFilled(params.URL_GROUPS_LIST)) {
-	                            top.location.href = params.URL_GROUPS_LIST;
-	                          }
-	                        } else if (main_core.Type.isStringFilled(deleteResponseData.MESSAGE) && deleteResponseData.MESSAGE === 'ERROR' && main_core.Type.isStringFilled(deleteResponseData.ERROR_MESSAGE)) {
-	                          _this.showError(deleteResponseData.ERROR_MESSAGE, errorNode);
-	                        }
-	                      },
-	                      onfailure: function onfailure() {
-	                        _this.showError(main_core.Loc.getMessage('SONET_EXT_COMMON_AJAX_ERROR'), errorNode);
-
-	                        _this.hideButtonWait(_currentTarget);
-	                      }
-	                    });
-	                  }
-	                },
-	                text: recallButtonTitle
-	              })]
-	            })]
 	          })]
 	        }),
-	        closeByEsc: true,
-	        closeIcon: true
+	        buttons: [new ui_buttons.Button({
+	          size: ui_buttons.Button.Size.MEDIUM,
+	          text: main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_CLOSE_BUTTON'),
+	          events: {
+	            click: function click(button) {
+	              _this.onClose(button.getContainer());
+	            }
+	          }
+	        }), new ui_buttons.Button({
+	          size: ui_buttons.Button.Size.MEDIUM,
+	          color: ui_buttons.Button.Color.LINK,
+	          text: main_core.Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_CANCEL_BUTTON'),
+	          events: {
+	            click: function click(button) {
+	              _this.onCancelRequest(button.getContainer());
+	            }
+	          }
+	        })],
+	        closeByEsc: false,
+	        closeIcon: false
 	      });
-	      successPopup.show();
+	      this.successPopup.show();
 	    }
 	  }, {
+	    key: "onClose",
+	    value: function onClose(button) {
+	      var _this2 = this;
+
+	      if (this.groupId <= 0 || !main_core.Type.isDomNode(button)) {
+	        return;
+	      }
+
+	      RecallJoinRequest.showButtonWait(button);
+	      main_core.ajax.runAction('socialnetwork.api.usertogroup.setHideRequestPopup', {
+	        data: {
+	          groupId: this.groupId
+	        }
+	      }).then(function (response) {
+	        RecallJoinRequest.hideButtonWait(button);
+
+	        _this2.successPopup.close();
+	      }, function () {
+	        RecallJoinRequest.hideButtonWait(button);
+	      });
+	    }
+	  }, {
+	    key: "onCancelRequest",
+	    value: function onCancelRequest(button) {
+	      var _this3 = this;
+
+	      if (this.groupId <= 0 || !main_core.Type.isDomNode(button)) {
+	        return;
+	      }
+
+	      var errorNode = document.getElementById('bx-group-delete-request-error');
+	      RecallJoinRequest.hideError(errorNode);
+	      RecallJoinRequest.showButtonWait(button);
+	      main_core.ajax.runAction('socialnetwork.api.usertogroup.cancelIncomingRequest', {
+	        data: {
+	          groupId: this.groupId,
+	          userId: parseInt(main_core.Loc.getMessage('USER_ID'))
+	        }
+	      }).then(function (response) {
+	        RecallJoinRequest.hideButtonWait(button);
+
+	        _this3.successPopup.destroy();
+
+	        if (main_core.Type.isStringFilled(_this3.urls.groupsList)) {
+	          top.location.href = _this3.urls.groupsList;
+	        }
+
+	        _this3.reload();
+	      })["catch"](function (response) {
+	        RecallJoinRequest.showError(main_core.Loc.getMessage('SONET_EXT_COMMON_AJAX_ERROR'), errorNode); //			RecallJoinRequest.showError(deleteResponseData.ERROR_MESSAGE, errorNode);
+
+	        RecallJoinRequest.hideButtonWait(button);
+	      });
+	    }
+	  }], [{
+	    key: "showButtonWait",
+	    value: function showButtonWait(buttonNode) {
+	      if (main_core.Type.isStringFilled(buttonNode)) {
+	        buttonNode = document.getElementById(buttonNode);
+	      }
+
+	      if (!main_core.Type.isDomNode(buttonNode)) {
+	        return;
+	      }
+
+	      buttonNode.classList.add('ui-btn-clock');
+	      buttonNode.disabled = true;
+	      buttonNode.style.cursor = 'auto';
+	    }
+	  }, {
+	    key: "hideButtonWait",
+	    value: function hideButtonWait(buttonNode) {
+	      if (main_core.Type.isStringFilled(buttonNode)) {
+	        buttonNode = document.getElementById(buttonNode);
+	      }
+
+	      if (!main_core.Type.isDomNode(buttonNode)) {
+	        return;
+	      }
+
+	      buttonNode.classList.remove('ui-btn-clock');
+	      buttonNode.disabled = false;
+	      buttonNode.style.cursor = 'cursor';
+	    }
+	  }, {
+	    key: "showError",
+	    value: function showError(errorText, errorNode) {
+	      if (main_core.Type.isStringFilled(errorNode)) {
+	        errorNode = document.getElementById(errorNode);
+	      }
+
+	      if (!main_core.Type.isDomNode(errorNode)) {
+	        return;
+	      }
+
+	      errorNode.innerHTML = errorText;
+	      errorNode.classList.remove('sonet-ui-form-error-block-invisible');
+	    }
+	  }, {
+	    key: "hideError",
+	    value: function hideError(errorNode) {
+	      if (main_core.Type.isStringFilled(errorNode)) {
+	        errorNode = document.getElementById(errorNode);
+	      }
+
+	      if (!main_core.Type.isDomNode(errorNode)) {
+	        return;
+	      }
+
+	      errorNode.classList.add('sonet-ui-form-error-block-invisible');
+	    }
+	  }]);
+	  return RecallJoinRequest;
+	}();
+
+	var Common = /*#__PURE__*/function () {
+	  function Common() {
+	    babelHelpers.classCallCheck(this, Common);
+	  }
+
+	  babelHelpers.createClass(Common, null, [{
 	    key: "showGroupMenuPopup",
 	    value: function showGroupMenuPopup(params) {
-	      var _this2 = this;
+	      var _this = this;
 
 	      var bindElement = params.bindElement;
 
@@ -254,7 +346,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	            sonetGroupMenu.setItemTitle(!favoritesValue);
 	            sonetGroupMenu.favoritesValue = !favoritesValue;
 
-	            _this2.setFavoritesAjax({
+	            _this.setFavoritesAjax({
 	              groupId: params.groupId,
 	              favoritesValue: favoritesValue,
 	              callback: {
@@ -439,13 +531,24 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 
 	          if (!!params.isOpened) {
 	            userRequestItem.onclick = function () {
-	              _this2.sendJoinRequest(params);
+	              _this.sendJoinRequest(params);
 	            };
 	          } else {
 	            userRequestItem.href = params.urls.userRequestGroup;
 	          }
 
 	          menu.push(userRequestItem);
+	        }
+
+	        if (main_core.Type.isStringFilled(params.userRole) && params.userRole === main_core.Loc.getMessage('USER_TO_GROUP_ROLE_REQUEST') && params.initiatedByType === main_core.Loc.getMessage('USER_TO_GROUP_INITIATED_BY_USER') && parseInt(params.initiatedByUserId) === currentUserId) {
+	          itemTitle = main_core.Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_DELETE_REQUEST');
+	          menu.push({
+	            text: itemTitle,
+	            title: itemTitle,
+	            onclick: function onclick() {
+	              _this.cancelIncomingRequest(params);
+	            }
+	          });
 	        }
 
 	        if (main_core.Type.isBoolean(params.perms.canLeave) && params.perms.canLeave || !main_core.Type.isBoolean(params.perms.canLeave) && params.userIsMember && !params.userIsAutoMember && params.userRole !== main_core.Loc.getMessage('USER_TO_GROUP_ROLE_OWNER')) {
@@ -535,6 +638,36 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      });
 	    }
 	  }, {
+	    key: "cancelIncomingRequest",
+	    value: function cancelIncomingRequest(params) {
+	      var _this2 = this;
+
+	      Waiter.getInstance().show();
+
+	      if (SonetGroupMenu.getInstance() && SonetGroupMenu.getInstance().menuPopup) {
+	        SonetGroupMenu.getInstance().menuPopup.close();
+	      }
+
+	      main_core.ajax.runAction('socialnetwork.api.usertogroup.cancelIncomingRequest', {
+	        data: {
+	          groupId: params.groupId,
+	          userId: parseInt(main_core.Loc.getMessage('USER_ID'))
+	        }
+	      }).then(function (response) {
+	        Waiter.getInstance().hide();
+	        window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', {
+	          code: 'afterIncomingRequestCancel',
+	          data: {
+	            groupId: params.groupId
+	          }
+	        });
+
+	        _this2.reload();
+	      })["catch"](function (response) {
+	        Waiter.getInstance().hide();
+	      });
+	    }
+	  }, {
 	    key: "setFavoritesAjax",
 	    value: function setFavoritesAjax(params) {
 	      main_core.ajax.runAction('socialnetwork.api.workgroup.setFavorites', {
@@ -555,63 +688,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          ERROR: response.errors[0].message
 	        });
 	      });
-	    }
-	  }, {
-	    key: "showButtonWait",
-	    value: function showButtonWait(buttonNode) {
-	      if (main_core.Type.isStringFilled(buttonNode)) {
-	        buttonNode = document.getElementById(buttonNode);
-	      }
-
-	      if (!main_core.Type.isDomNode(buttonNode)) {
-	        return;
-	      }
-
-	      buttonNode.classList.add('ui-btn-clock');
-	      buttonNode.disabled = true;
-	      buttonNode.style.cursor = 'auto';
-	    }
-	  }, {
-	    key: "hideButtonWait",
-	    value: function hideButtonWait(buttonNode) {
-	      if (main_core.Type.isStringFilled(buttonNode)) {
-	        buttonNode = document.getElementById(buttonNode);
-	      }
-
-	      if (!main_core.Type.isDomNode(buttonNode)) {
-	        return;
-	      }
-
-	      buttonNode.classList.remove('ui-btn-clock');
-	      buttonNode.disabled = false;
-	      buttonNode.style.cursor = 'cursor';
-	    }
-	  }, {
-	    key: "showError",
-	    value: function showError(errorText, errorNode) {
-	      if (main_core.Type.isStringFilled(errorNode)) {
-	        errorNode = document.getElementById(errorNode);
-	      }
-
-	      if (!main_core.Type.isDomNode(errorNode)) {
-	        return;
-	      }
-
-	      errorNode.innerHTML = errorText;
-	      errorNode.classList.remove('sonet-ui-form-error-block-invisible');
-	    }
-	  }, {
-	    key: "hideError",
-	    value: function hideError(errorNode) {
-	      if (main_core.Type.isStringFilled(errorNode)) {
-	        errorNode = document.getElementById(errorNode);
-	      }
-
-	      if (!main_core.Type.isDomNode(errorNode)) {
-	        return;
-	      }
-
-	      errorNode.classList.add('sonet-ui-form-error-block-invisible');
 	    }
 	  }, {
 	    key: "reload",
@@ -684,6 +760,11 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }]);
 	  return Common;
 	}();
+
+	babelHelpers.defineProperty(Common, "showError", RecallJoinRequest.showError);
+	babelHelpers.defineProperty(Common, "hideError", RecallJoinRequest.hideError);
+	babelHelpers.defineProperty(Common, "showButtonWait", RecallJoinRequest.showButtonWait);
+	babelHelpers.defineProperty(Common, "hideButtonWait", RecallJoinRequest.hideButtonWait);
 
 	var Widget = /*#__PURE__*/function () {
 	  function Widget() {
@@ -850,7 +931,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 
 	        BX.SidePanel.Instance.open(_this2.urls.card, {
 	          width: 900,
-	          loader: 'group-card-loader'
+	          loader: 'socialnetwork:group-card'
 	        });
 
 	        _this2.hide();
@@ -920,6 +1001,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	exports.Waiter = Waiter;
 	exports.SonetGroupMenu = SonetGroupMenu;
 	exports.WorkgroupWidget = WorkgroupWidget;
+	exports.RecallJoinRequest = RecallJoinRequest;
 
-}((this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {}),BX.Main,BX.UI,BX));
+}((this.BX.Socialnetwork.UI = this.BX.Socialnetwork.UI || {}),BX.Main,BX.UI,BX.UI,BX));
 //# sourceMappingURL=common.bundle.js.map

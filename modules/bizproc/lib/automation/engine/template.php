@@ -10,6 +10,7 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Result;
 use Bitrix\Bizproc\Automation;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\DateTime;
 
 Loc::loadMessages(__FILE__);
 
@@ -755,6 +756,11 @@ class Template
 	public function getActivities()
 	{
 		return $this->template['TEMPLATE'];
+	}
+
+	public function getModified(): ?DateTime
+	{
+		return $this->template['MODIFIED'] ?? null;
 	}
 
 	/**

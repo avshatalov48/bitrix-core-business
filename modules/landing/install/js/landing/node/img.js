@@ -230,17 +230,28 @@
 		{
 			if (value.src)
 			{
-				node.node.style.backgroundImage = "url(\""+value.src+"\")";
-
+				const style = ["background-image: url(\""+value.src+"\");"];
 				if (value.src2x)
 				{
-					var style = [
-						"background-image: url(\""+value.src+"\");",
-						"background-image: -webkit-image-set(url(\""+value.src+"\") 1x, url(\""+value.src2x+"\") 2x);",
-						"background-image: image-set(url(\""+value.src+"\") 1x, url(\""+value.src2x+"\") 2x);"
-					].join(' ');
+					style.push("background-image: -webkit-image-set(url(\""+value.src+"\") 1x, url(\""+value.src2x+"\") 2x);");
+					style.push("background-image: image-set(url(\""+value.src+"\") 1x, url(\""+value.src2x+"\") 2x);");
+				}
 
-					node.node.setAttribute("style", style);
+				// save css-vars and other styles
+				const oldStyleObj = node.node.style;
+				const oldStyle = {};
+				Array.from(oldStyleObj).map(prop =>
+				{
+					oldStyle[prop] = oldStyleObj.getPropertyValue(prop);
+				});
+
+				node.node.setAttribute("style", style.join(' '));
+				for(let prop in oldStyle)
+				{
+					if (prop !== 'background-image')
+					{
+						node.node.style.setProperty(prop, oldStyle[prop]);
+					}
 				}
 			}
 			else
@@ -382,17 +393,20 @@
 
 				var disableLink = !!this.node.closest("a") || !!this.manifest.disableLink;
 
-				this.field = new BX.Landing.UI.Field.Image({
-					selector: this.selector,
-					title: this.manifest.name,
-					description: description,
-					disableLink: disableLink,
-					content: value,
-					dimensions: !!this.manifest.dimensions ? this.manifest.dimensions : {},
-					create2xByDefault: this.manifest.create2xByDefault,
-					disableAltField: isBackground(this),
-					uploadParams: this.uploadParams
-				});
+				if (this.manifest['editInStyle'] !== true)
+				{
+					this.field = new BX.Landing.UI.Field.Image({
+						selector: this.selector,
+						title: this.manifest.name,
+						description: description,
+						disableLink: disableLink,
+						content: value,
+						dimensions: !!this.manifest.dimensions ? this.manifest.dimensions : {},
+						create2xByDefault: this.manifest.create2xByDefault,
+						disableAltField: isBackground(this),
+						uploadParams: this.uploadParams
+					});
+				}
 			}
 			else
 			{

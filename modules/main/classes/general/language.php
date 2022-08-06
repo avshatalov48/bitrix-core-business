@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main\Localization\CultureTable;
+use Bitrix\Main\Localization\LanguageTable;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -168,9 +169,11 @@ class CAllLanguage
 			"INSERT INTO b_language(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
 		$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+
+		LanguageTable::getEntity()->cleanCache();
+
 		return $arFields["LID"];
 	}
-
 
 	public function Update($ID, $arFields)
 	{
@@ -196,6 +199,8 @@ class CAllLanguage
 		$strUpdate = $DB->PrepareUpdate("b_language", $arFields);
 		$strSql = "UPDATE b_language SET ".$strUpdate." WHERE LID='".$DB->ForSql($ID, 2)."'";
 		$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+
+		LanguageTable::getEntity()->cleanCache();
 
 		return true;
 	}
@@ -224,7 +229,11 @@ class CAllLanguage
 		foreach(GetModuleEvents("main", "OnLanguageDelete", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($ID));
 
-		return $DB->Query("DELETE FROM b_language WHERE LID='".$DB->ForSQL($ID, 2)."'", true);
+		$result = $DB->Query("DELETE FROM b_language WHERE LID='".$DB->ForSQL($ID, 2)."'", true);
+
+		LanguageTable::getEntity()->cleanCache();
+
+		return $result;
 	}
 
 	public static function SelectBox($sFieldName, $sValue, $sDefaultValue="", $sFuncName="", $field="class=\"typeselect\"")

@@ -480,10 +480,10 @@ class Hook
 							'select' => ['ID'],
 							'filter' => [
 								'ENTITY_ID' => $id,
-								'ENTITY_TYPE' => $type,
-								'HOOK' => $hook->getCode(),
-								'CODE' => $fieldCode,
-								'PUBLIC' => 'Y'
+								'=ENTITY_TYPE' => $type,
+								'=HOOK' => $hook->getCode(),
+								'=CODE' => $fieldCode,
+								'=PUBLIC' => 'Y'
 							]
 						]);
 						if ($row = $res->fetch())
@@ -504,8 +504,8 @@ class Hook
 					'select' => ['ID'],
 					'filter' => [
 						'SITE_ID' => $id,
-						'PUBLIC' => 'Y',
-						'DELETED' => 'N',
+						'=PUBLIC' => 'Y',
+						'=DELETED' => 'N',
 					],
 				]);
 				while ($landing = $landings->fetch())

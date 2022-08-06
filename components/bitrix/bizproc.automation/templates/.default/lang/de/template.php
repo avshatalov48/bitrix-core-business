@@ -40,6 +40,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_DAY1"] = "Tag";
 $MESS["BIZPROC_AUTOMATION_CMP_DAY2"] = "Tage";
 $MESS["BIZPROC_AUTOMATION_CMP_DAY3"] = "Tage";
 $MESS["BIZPROC_AUTOMATION_CMP_DEBUGGER"] = "Testmodus";
+$MESS["BIZPROC_AUTOMATION_CMP_DEBUGGER_SESSION_LIST_MENU"] = "Testlog";
 $MESS["BIZPROC_AUTOMATION_CMP_DEBUGGER_SOON"] = "Testmode ist in der Entwicklung, er wird bald in Ihrem Bitrix24 verfügbar sein";
 $MESS["BIZPROC_AUTOMATION_CMP_DELAY_AFTER_HELP"] = "Zeitverzögerung, mit der die Regel angewendet wird, nachdem der Status eines CRM-Elements geändert wurde.";
 $MESS["BIZPROC_AUTOMATION_CMP_DELAY_BEFORE_HELP"] = "Die Regel wird in einem bestimmten Zeitraum vor dem Datum angewendet, das im CRM-Element angegeben ist. So kann bspw. eine Zahlungserinnerung gesendet werden, bevor die Zahlung selbst gemacht wird.";
@@ -56,15 +57,6 @@ $MESS["BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE"] = "Datei hochladen";
 $MESS["BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE_LEGEND"] = "Per Drag'n'Drop hinzufügen";
 $MESS["BIZPROC_AUTOMATION_CMP_EDIT"] = "ändern";
 $MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT"] = "Im Workflow Designer bearbeiten";
-$MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_LOCKED"] = "Benutzerdefinierte Automatisierungsregeln können nur in bestimmten kostenpflichtigen Tarifen mithilfe vom Workflow-Designer erstellt und bearbeitet werden. <br><br>
-Upgraden Sie auf den Tarif Professional, um von diesem sowie andere Business-Tools profitieren zu können:<br>
-<ul class=\"hide-features-list\">
-<li class=\"hide-features-list-item\">Unbegrenzte Anzahl der Erkennungen von Visitenkarten sowie Online-Formulare</li>
-<li class=\"hide-features-list-item\">Arbeitszeiterfassung und Arbeitsberichte</li>
-<li class=\"hide-features-list-item\">Unbegrenzte Anzahl von Websites</li>
-</ul>
-Schauen Sie sich die Vergleichstabelle der Tarife und die vollständige Beschreibung der Funktionen <a href=\"https://www.bitrix24.de/prices/index.php\">hier</a> an.
-";
 $MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_TEXT"] = "Automatisierungsregeln können nur im Workflow-Designer konfiguriert werden.";
 $MESS["BIZPROC_AUTOMATION_CMP_FILES_LINKS"] = "Link zur Datei";
 $MESS["BIZPROC_AUTOMATION_CMP_FOR_TIME_1"] = " ";

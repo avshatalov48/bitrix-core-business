@@ -1,9 +1,9 @@
-<section class="landing-block w-100 no-gutters">
+<section class="landing-block w-100 no-gutters" data-slider-arrows="3" data-slider-animation="1">
 	<div class="js-carousel u-carousel-v5 row no-gutters"
 		 data-infinite="true"
 		 data-slides-scroll="true"
 		 data-slides-show="4"
-		 data-arrows-classes="u-arrow-v1 g-pos-abs g-top-150 g-width-45 g-height-45 g-color-white g-bg-primary g-color-primary--hover g-bg-white--hover"
+		 data-arrows-classes="u-arrow-v1 g-pos-abs g-top-150 g-width-45 g-height-45 g-transition-0_2 g-transition--ease-in g-color-white g-bg-primary g-opacity-0_8--hover"
 		 data-arrow-left-classes="fa fa-chevron-left g-left-0"
 		 data-arrow-right-classes="fa fa-chevron-right g-right-0"
 		 data-responsive='[{

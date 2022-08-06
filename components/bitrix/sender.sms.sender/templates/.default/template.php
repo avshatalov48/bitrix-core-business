@@ -15,6 +15,8 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
 
 $containerId = 'bx-sender-sms-sender';
+
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
 ?>
 <script type="text/javascript">
 	BX.ready(function () {

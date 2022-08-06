@@ -870,10 +870,9 @@ final class CatalogStoreDocumentProductListComponent
 			$products[$documentProduct['ID']] = $documentProduct;
 		}
 
-		$rowIds = array_keys($products);
 		$rowBarcodesRaw = StoreDocumentBarcodeTable::getList([
 			'select' => ['DOC_ELEMENT_ID', 'BARCODE'],
-			'filter' => ['=DOC_ELEMENT_ID' => $rowIds]
+			'filter' => ['=DOC_ID' => $this->getDocumentId()]
 		]);
 		while ($barcode = $rowBarcodesRaw->fetch())
 		{
@@ -1323,8 +1322,8 @@ final class CatalogStoreDocumentProductListComponent
 				}
 
 				return [
-					'MAIN_INFO', 'BARCODE_INFO',
-					'STORE_FROM_INFO', 'STORE_FROM_AMOUNT', 'AMOUNT',
+					'MAIN_INFO', 'BARCODE_INFO', 'AMOUNT',
+					'STORE_FROM_INFO', 'STORE_FROM_AMOUNT',
 					'PURCHASING_PRICE', 'BASE_PRICE',
 				];
 			case StoreDocumentTable::TYPE_MOVING:
@@ -1339,9 +1338,9 @@ final class CatalogStoreDocumentProductListComponent
 				}
 
 				return [
-					'MAIN_INFO', 'BARCODE_INFO',
+					'MAIN_INFO', 'BARCODE_INFO', 'AMOUNT',
 					'STORE_FROM_INFO', 'STORE_FROM_AVAILABLE_AMOUNT', 'STORE_FROM_AMOUNT',
-					'STORE_TO_INFO', 'STORE_TO_AVAILABLE_AMOUNT', 'STORE_TO_AMOUNT', 'AMOUNT',
+					'STORE_TO_INFO', 'STORE_TO_AVAILABLE_AMOUNT', 'STORE_TO_AMOUNT',
 					'PURCHASING_PRICE', 'BASE_PRICE',
 				];
 		}
@@ -1638,6 +1637,8 @@ final class CatalogStoreDocumentProductListComponent
 			'templateIdMask' => self::PRODUCT_ID_MASK,
 			'paintedColumns' => ['AMOUNT'],
 			'templateGridEditData' => $editData,
+
+			'productUrlBuilderContext' => htmlspecialcharsbx($this->arParams['BUILDER_CONTEXT']),
 		];
 	}
 

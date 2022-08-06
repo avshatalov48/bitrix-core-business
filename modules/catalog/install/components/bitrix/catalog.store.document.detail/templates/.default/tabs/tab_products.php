@@ -34,6 +34,7 @@ $APPLICATION->IncludeComponent(
 		'DOCUMENT_TYPE' => $arResult['FORM']['ENTITY_DATA']['DOC_TYPE'] ?? null,
 		'PRODUCT_DATA_FIELD_NAME' => 'DOCUMENT_PRODUCTS',
 		'PRESELECTED_PRODUCT_ID' => $arParams['PRESELECTED_PRODUCT_ID'],
+		'PRODUCTS' => $arParams['PRELOADED_FIELDS']['PRODUCTS'] ?? null,
 	],
 	$component
 );

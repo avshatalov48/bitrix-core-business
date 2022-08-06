@@ -11,14 +11,11 @@ $pathTemplate24 = getLocalPath($pathTemplate24);
 $pathCSS = '/bitrix/js/landing/css';
 $pathLang = BX_ROOT . '/modules/landing/lang/' . LANGUAGE_ID;
 
-
 $jsConfig = array(
 	'landing_master' => array(
 		'rel' => array(
 			'landing.master',
 			'landing_icon_fonts',
-			// 'landing_jquery',		// need jq?
-			// 'landing_popup_link', 	// todo: in editor need fancybox for video?
 		),
 	),
 
@@ -129,14 +126,14 @@ $jsConfig = array(
 
 	'landing_jquery' => [
 		'js' => [
-			$pathTemplate24 . '/assets/vendor/jquery/jquery-3.2.1.js',
-			$pathTemplate24 . '/assets/vendor/jquery.easing/js/jquery.easing.js',
+			$pathTemplate24 . '/assets/vendor/jquery/jquery_landing.js',
+			$pathTemplate24 . '/assets/vendor/jquery.easing/js/jquery.easing_landing.js',
 		],
 	],
 
 	'landing_fancybox' => [
 		'js' => [
-			$pathTemplate24 . '/assets/vendor/fancybox/jquery.fancybox.js',
+			$pathTemplate24 . '/assets/vendor/fancybox/jquery.fancybox_landing.js',
 		],
 		'css' => [
 			$pathTemplate24 . '/assets/vendor/fancybox/jquery.fancybox.css',
@@ -226,6 +223,15 @@ $jsConfig = array(
 		'rel' => ['landing_core', 'landing_jquery'],
 	],
 
+	'landing_faq' => [
+		'js' => [
+			$pathTemplate24 . '/assets/js/helpers/faq/faq.js',
+		],
+		'css' => [
+			$pathTemplate24 . '/assets/css/faq.css',
+		],
+	],
+
 	'landing_header' => [
 		'js' => [
 			$pathTemplate24 . '/assets/js/helpers/menu/block-header-entry.js',
@@ -263,7 +269,7 @@ $jsConfig = array(
 
 	'landing_carousel' => array(
 		'js' => array(
-			$pathTemplate24 . '/assets/vendor/slick-carousel/slick/slick.js',
+			$pathTemplate24 . '/assets/vendor/slick-carousel/slick/slick_landing.js',
 			$pathTemplate24 . '/assets/js/components/hs.core_landing.js',
 			$pathTemplate24 . '/assets/js/components/hs.carousel.js',
 			$pathTemplate24 . '/assets/js/helpers/carousel/carousel_helper.js',
@@ -278,7 +284,7 @@ $jsConfig = array(
 
 	'landing_countdown' => array(
 		'js' => array(
-			$pathTemplate24 . '/assets/vendor/jquery.countdown/jquery.countdown.js',
+			$pathTemplate24 . '/assets/vendor/jquery.countdown/jquery.countdown_landing.js',
 			$pathTemplate24 . '/assets/js/components/hs.core_landing.js',
 			$pathTemplate24 . '/assets/js/components/hs.countdown.js',
 			$pathTemplate24 . '/assets/js/helpers/countdown_init.js',
@@ -318,13 +324,14 @@ $jsConfig = array(
 		],
 	],
 
-	'landing_bootstrap_modal' => array(
-		'js' => array(
-			$pathTemplate24 . '/assets/vendor/bootstrap/js/dist/util.js',
-			$pathTemplate24 . '/assets/vendor/bootstrap/js/dist/modal.js',
-		),
-		'rel' => ['landing_core','landing_jquery'],
-	),
+	// todo: not used? can del?
+	// 'landing_bootstrap_modal' => array(
+	// 	'js' => array(
+	// 		$pathTemplate24 . '/assets/vendor/bootstrap/js/dist/util.js',
+	// 		$pathTemplate24 . '/assets/vendor/bootstrap/js/dist/modal.js',
+	// 	),
+	// 	'rel' => ['landing_core','landing_jquery'],
+	// ),
 );
 
 

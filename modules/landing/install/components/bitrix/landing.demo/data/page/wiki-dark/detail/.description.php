@@ -102,7 +102,7 @@ return [
 					0 => 'Julia Exon',
 				],
 				'.landing-block-node-subtitle' => [
-					0 => '<p>January 16, 2021</p>',
+					0 => '<p>January 16, 2022</p>',
 				],
 				'.landing-block-node-img' => [
 					0 => [

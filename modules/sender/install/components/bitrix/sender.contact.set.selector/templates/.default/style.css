@@ -1,7 +1,7 @@
 .sender-campaign-selector-title {
 	display: block;
 	margin: 0 0 6px 0;
-	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868E;
 }
 
@@ -28,16 +28,16 @@
 .sender-campaign-selector-block-name {
 	display: inline-block;
 	margin: 0 7px 0 0;
-	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .sender-campaign-selector-block-number {
-	font: 18px/22px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 18px/22px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .sender-campaign-selector-site {
 	margin: 0 0 0 10px;
 	color: #d0d1d2;
-	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: opacity .5s;
 }

@@ -31,6 +31,29 @@ if ('' == $arParams['TEMPLATE_THEME'])
 
 if (!empty($arResult['ITEMS']))
 {
+	if (
+		\Bitrix\Main\Loader::includeModule('bitrix24')
+		&& \Bitrix\Main\Loader::includeModule('crm')
+	)
+	{
+		$catalogId = \Bitrix\Crm\Product\Catalog::getDefaultId();
+		if ($catalogId !== null)
+		{
+			if (!isset($arParams['ADDITIONAL_PICT_PROP'][$catalogId]))
+			{
+				$arParams['ADDITIONAL_PICT_PROP'][$catalogId] = CIBlockPropertyTools::CODE_MORE_PHOTO;
+			}
+			$offerId = \Bitrix\Crm\Product\Catalog::getDefaultOfferId();
+			if (
+				$offerId !== null
+				&& !isset($arParams['ADDITIONAL_PICT_PROP'][$offerId])
+			)
+			{
+				$arParams['ADDITIONAL_PICT_PROP'][$offerId] = CIBlockPropertyTools::CODE_MORE_PHOTO;
+			}
+		}
+	}
+
 	$arEmptyPreview = false;
 	$strEmptyPreview = $this->GetFolder() . '/images/no_photo.png';
 	if (file_exists($_SERVER['DOCUMENT_ROOT'] . $strEmptyPreview))

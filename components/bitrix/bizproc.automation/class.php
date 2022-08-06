@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Bizproc\Debugger;
 
 Main\UI\Extension::load('ui.alerts');
 
@@ -310,6 +311,7 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 
 		$this->arResult = array(
 			'CAN_EDIT' => $canEdit,
+			'CAN_DEBUG' => Debugger\Session\Manager::canUserDebugAutomation($tplUser->getId(), $documentType),
 			'TITLE_VIEW' => $this->getTitleView(),
 			'TITLE_EDIT' => $this->getTitleEdit(),
 			'DOCUMENT_STATUS' => $target ? $target->getDocumentStatus() : null,

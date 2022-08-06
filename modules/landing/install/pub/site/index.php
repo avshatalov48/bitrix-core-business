@@ -7,7 +7,6 @@ $APPLICATION->IncludeComponent(
 	'bitrix:landing.pub',
 	'',
 	array(
-		'HTTP_HOST' => $_SERVER['HTTP_HOST']
 	),
 	null,
 	array(

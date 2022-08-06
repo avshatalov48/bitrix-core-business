@@ -5,6 +5,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Engine\ActionFilter\Service\Token;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
@@ -17,6 +18,8 @@ $langAdditional = [
 	'SONET_EXT_LIVEFEED_CREATE_TASK_PATH' => \Bitrix\Main\Config\Option::get('socialnetwork', 'user_page', SITE_DIR . 'company/personal/') . 'user/#user_id#/tasks/task/view/#task_id#/',
 	'SONET_EXT_LIVEFEED_SITE_TEMPLATE_ID' => (defined('SITE_TEMPLATE_ID') ? CUtil::JSEscape(SITE_TEMPLATE_ID) : ''),
 	'SONET_EXT_LIVEFEED_INTRANET_INSTALLED' => (\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? 'Y' : 'N'),
+	'SONET_EXT_LIVEFEED_AJAX_ENTITY_HEADER_NAME' => Token::getEntityHeader(),
+	'SONET_EXT_LIVEFEED_AJAX_TOKEN_HEADER_NAME' => Token::getTokenHeader(),
 ];
 
 return [

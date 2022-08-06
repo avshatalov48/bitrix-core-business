@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Bizproc\Automation;
 
+use Bitrix\Bizproc\WorkflowInstanceTable;
 use Bitrix\Bizproc\WorkflowTemplateTable;
 use Bitrix\Bizproc\Automation\Target\BaseTarget;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
@@ -22,104 +23,12 @@ class Tracker
 
 	public function getLog(array $statuses)
 	{
-		$log = [];
-		$currentStatus = $this->target->getDocumentStatus();
-		$statusEntries = $this->getBizprocTrackingEntries($statuses);
-
-		foreach ($statusEntries as $status => $entries)
-		{
-			$log[$status] = $this->convertBizprocTrackingToLog($entries, $status == $currentStatus);
-		}
-
-		return $log;
-	}
-
-	private function convertBizprocTrackingToLog($entries, $isCurrentStatus)
-	{
-		$trigger = null;
-		$robotEntries = array();
-		$robots = array();
-
-		foreach ($entries as $entry)
-		{
-			if ($entry['TYPE'] == \CBPTrackingType::Trigger)
-			{
-				$trigger = array(
-					'ID' => $entry['ACTION_NOTE'],
-					'STATUS' => static::STATUS_COMPLETED,
-					'MODIFIED' => $entry['MODIFIED']
-				);
-			}
-			else
-			{
-				$robotEntries[$entry['ACTION_NAME']][] = $entry;
-			}
-		}
-
-		foreach ($robotEntries as $robotId => $robotEntry)
-		{
-			$status = static::STATUS_WAITING;
-			$modified = null;
-			$isExecute = $isClosed = $isAutocompleted = false;
-			$executeTime = $closedTime = $autocompletedTime = null;
-			$errors = array();
-			$notes = array();
-			foreach ($robotEntry as $entry)
-			{
-				if ($entry['TYPE'] == \CBPTrackingType::ExecuteActivity)
-				{
-					$isExecute = true;
-					$executeTime = $entry['MODIFIED'];
-				}
-				elseif ($entry['TYPE'] == \CBPTrackingType::CloseActivity)
-				{
-					$isClosed = true;
-					$closedTime = $entry['MODIFIED'];
-				}
-				elseif ($entry['TYPE'] == \CBPTrackingType::Error)
-				{
-					$errors[] = $entry['ACTION_NOTE'];
-				}
-				elseif ($entry['TYPE'] == \CBPTrackingType::Custom)
-				{
-					$notes[] = $entry['ACTION_NOTE'];
-				}
-			}
-
-			if ($isAutocompleted)
-			{
-				$status = static::STATUS_AUTOCOMPLETED;
-				$modified = $autocompletedTime;
-			}
-			elseif ($isClosed)
-			{
-				$status = static::STATUS_COMPLETED;
-				$modified = $closedTime;
-			}
-			elseif ($isExecute)
-			{
-				$status = $isCurrentStatus? static::STATUS_RUNNING : static::STATUS_COMPLETED;
-				$modified = $executeTime;
-			}
-
-			$robots[$robotId] = array(
-				'ID' => $robotId,
-				'STATUS' => $status,
-				'MODIFIED' => $modified,
-				'ERRORS' => $errors,
-				'NOTES' => $notes
-			);
-		}
-
-		return array(
-			'trigger' => $trigger,
-			'robots' => $robots
-		);
+		return $this->getBizprocTrackingEntries($statuses);
 	}
 
 	private function getBizprocTrackingEntries($statuses)
 	{
-		$entries = array();
+		$entries = [];
 
 		$states = $this->getStatusesStates($statuses);
 
@@ -129,9 +38,20 @@ class Tracker
 				'@WORKFLOW_ID' => array_keys($states)
 			));
 
+			$workflowStatuses = [];
+
 			while ($row = $trackIterator->fetch())
 			{
+				if (!array_key_exists($row['WORKFLOW_ID'], $workflowStatuses))
+				{
+					$hasInstance = $row['WORKFLOW_ID'] && WorkflowInstanceTable::exists($row['WORKFLOW_ID']);
+					$workflowStatus = $hasInstance ? \CBPWorkflowStatus::Running : \CBPWorkflowStatus::Completed;
+
+					$workflowStatuses[$row['WORKFLOW_ID']] = $workflowStatus;
+				}
+
 				$status = $states[$row['WORKFLOW_ID']];
+				$row['WORKFLOW_STATUS'] = $workflowStatuses[$row['WORKFLOW_ID']];
 				$entries[$status][] = $row;
 			}
 		}

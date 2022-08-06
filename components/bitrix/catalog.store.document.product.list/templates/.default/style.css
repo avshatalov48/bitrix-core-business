@@ -67,6 +67,9 @@
 .catalog-document-total-wrapper {
 	padding: 20px;
 	background-color: #fff;
+	border-radius: var(--ui-border-radius-md);
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
 }
 
 .catalog-document-total-discounts {
@@ -148,7 +151,8 @@
 	margin-bottom: 6px;
 	color: #535c69;
 	text-transform: uppercase;
-	font: 11px/12px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .catalog-document-promotional-code-box {
@@ -232,6 +236,7 @@
 	-webkit-box-pack: justify;
 	    -ms-flex-pack: justify;
 	        justify-content: space-between;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .catalog-document-product-list-add-block .ui-btn + .ui-btn {
@@ -411,7 +416,8 @@ select.catalog-document-product-control-select-field:hover {
 
 .catalog-document-product-list-result-grid-total-big .catalog-document-product-list-result-grid-item-currency-symbol {
 	color: rgba(82,92,105,.5);
-	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .catalog-document-product-list-page-content {
@@ -468,7 +474,8 @@ select.catalog-document-product-control-select-field:hover {
 }
 
 .catalog-document-product-list-result-grid-total-big {
-	font-family: "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 21px;
 	color: #525c69;
 	padding-top: 10px;

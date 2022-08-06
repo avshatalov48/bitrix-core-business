@@ -78,14 +78,6 @@ top.window.autoPublicationEnabled = true;
 			{
 				top.window.autoPublicationEnabled = false;
 			}
-			if (!this.popupMenuIds)
-			{
-				this.popupMenuIds = [];
-			}
-			if (!this.placements)
-			{
-				this.placements = options.placements || [];
-			}
 			if (this.helperFrameOpenUrl)
 			{
 				BX.Helper.init({
@@ -93,19 +85,6 @@ top.window.autoPublicationEnabled = true;
 					langId: BX.message('LANGUAGE_ID')
 				});
 			}
-			// clear menus
-			for (var i = 0, c = this.popupMenuIds.length; i < c; i++)
-			{
-				var menu = BX.PopupMenu.getMenuById(
-					this.popupMenuIds[i]
-				);
-				if (menu)
-				{
-					menu.destroy();
-				}
-			}
-			this.popupMenuIds = [];
-			this.popupMenuInstance = null;
 		},
 
 		/**
@@ -197,14 +176,6 @@ top.window.autoPublicationEnabled = true;
 					rootWindow.BX.Landing.UI.Panel.Top.instance = null;
 					BX.Landing.UI.Panel.Top.getInstance();
 				});
-
-				editorWindow.addEventListener('click', function() {
-					this.closeAllPopupsMenu();
-				}.bind(this));
-
-				editorWindow.addEventListener('resize', BX.debounce(function() {
-					this.closeAllPopupsMenu();
-				}.bind(this), 200));
 			}
 			// build top panel
 			if (this.topInit)
@@ -794,6 +765,7 @@ top.window.autoPublicationEnabled = true;
 									closeIcon : true,
 									closeByEsc : true,
 									noAllPaddings : true,
+									autoHide: true,
 									animation: 'fading-slide',
 									angle: {
 										position: "top",
@@ -819,11 +791,11 @@ top.window.autoPublicationEnabled = true;
 
 			var settingsClick = BX.create('div', {
 				props: { className: 'landing-popup-features-content-block landing-popup-features-content-block-settings' },
-				html: '<div class="landing-popup-features-content-block-settings-icon ui-icon ui-icon-service-light-wheel"><i></i></div>',
+				html: '<div class="landing-popup-features-content-block-settings-icon ui-icon ui-icon-service-light-settings"><i></i></div>',
 				events: {
 					click: function()
 					{
-						this.onSettingsClick(settingsClick);
+						this.onSettingsClick();
 					}.bind(this)
 				}
 			})
@@ -917,7 +889,26 @@ top.window.autoPublicationEnabled = true;
 																				.onAddBlock('33.13.form_2_light_no_text')
 																				.then(function(res) {
 																					res.setAttribute('data-subtype', 'form');
-																					scrollToBlock(res);
+																					var maxIterations = 1000;
+																					var iteration = 0;
+																					var checkFormNode = function() {
+																						requestAnimationFrame(function() {
+																							if (res.querySelector('.b24-form div[id]'))
+																							{
+																								scrollToBlock(res);
+																							}
+																							else
+																							{
+																								if (iteration < maxIterations)
+																								{
+																									iteration += 1;
+																									checkFormNode();
+																								}
+																							}
+																						});
+																					};
+
+																					checkFormNode();
 																				});
 																		}
 																		else
@@ -1095,7 +1086,7 @@ top.window.autoPublicationEnabled = true;
 			var crmFormSettingsButton = document.querySelector('.landing-ui-panel-top-menu-link-settings');
 			if (BX.Type.isDomNode(crmFormSettingsButton))
 			{
-				BX.Event.bind(crmFormSettingsButton, 'click', this.onSettingsClick.bind(this,crmFormSettingsButton));
+				BX.Event.bind(crmFormSettingsButton, 'click', this.onSettingsClick.bind(this));
 			}
 		},
 
@@ -1112,6 +1103,15 @@ top.window.autoPublicationEnabled = true;
 				var formId = editorOptions.formEditorData.formOptions.id;
 				BX.Crm.Form.Embed.open(formId);
 			}
+
+			// if (!this.formSharePopup)
+			// {
+			// 	this.formSharePopup = new BX.Landing.Form.SharePopup({
+			// 		bindElement: event.currentTarget,
+			// 	});
+			// }
+			//
+			// this.formSharePopup.show();
 		},
 
 		getErrorClickHandler: function(errorCode)
@@ -1254,104 +1254,17 @@ top.window.autoPublicationEnabled = true;
 
 		/**
 		 * Handles click on settings button.
-		 * @param element Node element (settings button).
 		 */
-		onSettingsClick: function(element)
+		onSettingsClick: function()
 		{
-			if (!this.popupMenuInstance)
+			if (
+				typeof landingParams['PAGE_URL_LANDING_SETTINGS'] !== 'undefined' &&
+				typeof BX.SidePanel !== 'undefined'
+			)
 			{
-				this.popupMenuIds.push('landing-menu-settings');
-				var menuItems = [
-					{
-						href: this.urls['landingEdit'],
-						text: BX.message('LANDING_TPL_SETTINGS_PAGE_URL'),
-						disabled: !this.rights.settings
-					},
-					!this.formEditor
-					? {
-						href: this.urls['landingSiteEdit'],
-						text: BX.message('LANDING_TPL_SETTINGS_SITE_URL'),
-						disabled: !this.rights.settings
-					}
-					: null,
-					this.storeEnabled
-						? {
-							href: this.urls['landingCatalogEdit'],
-							text: BX.message('LANDING_TPL_SETTINGS_CATALOG_URL'),
-							disabled: !this.rights.settings
-						}
-						: null,
-					!this.formEditor
-						? {delimiter: true}
-						: null,
-					{
-						href: this.urls['landingDesign'],
-						text: BX.message('LANDING_TPL_SETTINGS_PAGE_DIZ_URL'),
-						disabled: !this.rights.settings
-					},
-					!this.formEditor
-						? {
-							href: this.urls['landingSiteDesign'],
-							text: BX.message('LANDING_TPL_SETTINGS_SITE_DIZ_URL'),
-							disabled: !this.rights.settings
-						}
-						: null
-				];
-				var __this = this;
-				if (this.placements.length)
-				{
-					menuItems.push({delimiter: true});
-				}
-				for (var p = 0, cp = this.placements.length; p < cp; p++)
-				{
-					var placementItem = this.placements[p];
-					menuItems.push({
-						text: BX.util.htmlspecialchars(placementItem.TITLE),
-						onclick: function()
-						{
-							BX.rest.AppLayout.openApplication(
-								this.APP_ID,
-								{
-									SITE_ID: __this.siteId,
-									LID: __this.id
-								},
-								{
-									PLACEMENT: this.PLACEMENT,
-									PLACEMENT_ID: this.ID
-								}
-							);
-						}.bind(placementItem, __this)
-					});
-				}
-				this.popupMenuInstance = BX.Main.MenuManager.create({
-						id: 'landing-menu-settings',
-						bindElement: element,
-						autoHide: true,
-						zIndex: 1200,
-						offsetLeft: 20,
-						angle: true,
-						closeByEsc: true,
-						items: menuItems
-					}
-				);
+				BX.SidePanel.Instance.open(landingParams['PAGE_URL_LANDING_SETTINGS']);
 			}
-			this.popupMenuInstance.show();
 		},
-
-		/**
-		 * Close all popups menu.
-		 */
-		closeAllPopupsMenu: function()
-		{
-			this.popupMenuIds.forEach(function(id) {
-				var menu = BX.PopupMenu.getMenuById(id);
-
-				if (menu)
-				{
-					menu.close();
-				}
-			})
-		}
 	};
 
 	/**

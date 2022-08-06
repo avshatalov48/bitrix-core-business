@@ -2365,7 +2365,7 @@
 					credential: this.call.turnServerPassword
 				}
 			],
-			//iceTransportPolicy: 'relay'
+			// iceTransportPolicy: 'relay'
 		};
 
 		this.localIceCandidates = [];

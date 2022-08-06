@@ -24,10 +24,9 @@ $formParams = [
 	"PARSER" => Array(
 		"Bold", "Italic", "Underline", "Strike", "ForeColor",
 		"FontList", "FontSizeList", "RemoveFormat", "Quote",
-		"Code",
-		(!$arResult['NoCommentUrl'] ? 'CreateLink' : ''),
+		"Code", (!$arResult['NoCommentUrl'] ? 'CreateLink' : ''),
 		"Image",
-		($arResult['allowImageUpload'] === 'Y' ? 'UploadImage' : ''),
+		($arResult['allowImageUpload'] === 'Y' ? 'UploadImage' : 'UploadFile'),
 		($arResult['allowVideo'] === 'Y' ? 'InputVideo' : ''),
 		"Table", "Justify", "InsertOrderedList",
 		"InsertUnorderedList",

@@ -218,10 +218,11 @@ else
 }
 
 $arUserTypes = $USER_FIELD_MANAGER->GetUserType();
+Main\Type\Collection::sortByColumn($arUserTypes, 'DESCRIPTION', '', null, true);
 $arUserType = $USER_FIELD_MANAGER->GetUserType($USER_TYPE_ID);
 if(!$arUserType)
 {
-	$arUserType = array_shift($arUserTypes);
+	$arUserType = reset($arUserTypes);
 }
 /** @var Main\UserField\Types\BaseType $userTypeClass */
 $userTypeClass = $arUserType['CLASS_NAME'];
@@ -368,7 +369,6 @@ $tabControl->BeginNextTab();
 			else
 			{
 				$arr = array("reference"=>array(), "reference_id"=>array());
-				Main\Type\Collection::sortByColumn($arUserTypes, 'DESCRIPTION', '', null, true);
 				foreach($arUserTypes as $userType)
 				{
 					$arr["reference"][] = $userType["DESCRIPTION"];

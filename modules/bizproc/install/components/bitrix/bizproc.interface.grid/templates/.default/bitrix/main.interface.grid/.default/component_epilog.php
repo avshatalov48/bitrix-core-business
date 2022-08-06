@@ -11,7 +11,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CMain $APPLICATION
  */
 
-CUtil::InitJSCore(array('window', 'ajax'));
+CUtil::InitJSCore(array('window', 'ajax', 'ui.fonts.opensans'));
 $APPLICATION->AddHeadScript('/bitrix/js/main/utils.js');
 $APPLICATION->AddHeadScript('/bitrix/js/main/popup_menu.js');
 $APPLICATION->AddHeadScript('/bitrix/js/main/dd.js');

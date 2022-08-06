@@ -197,7 +197,7 @@ class CHTMLEditor
 				'/bitrix/js/main/dd.js'
 			),
 			'css' => $basePath.'html-editor.css',
-			'rel' => array('date', 'timer')
+			'rel' => array('date', 'timer', 'ui.design-tokens')
 		));
 		CUtil::InitJSCore(array('html_editor'));
 

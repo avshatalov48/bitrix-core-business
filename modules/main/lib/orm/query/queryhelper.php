@@ -45,6 +45,12 @@ class QueryHelper
 
 			$rows = $query->fetchAll();
 
+			// return empty result
+			if (empty($rows))
+			{
+				return $query->getEntity()->createCollection();
+			}
+
 			// reset query
 			$query = $entity->getDataClass()::query();
 			$query->setSelect($originalSelect);
@@ -89,7 +95,7 @@ class QueryHelper
 		/** @var Collection $collection query data */
 		$collection = $query->fetchCollection();
 
-		if (!empty($dividedSelect))
+		if (!empty($dividedSelect) && $collection->count())
 		{
 			// custom identity map & collect primaries
 			$im = new IdentityMap;

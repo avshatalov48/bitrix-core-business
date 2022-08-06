@@ -172,7 +172,7 @@ class LandingBaseFormComponent extends LandingBaseComponent
 			}
 		}
 
-		// detect groups wich different
+		// detect groups which different
 		$diffGroups = array();
 		if (is_array($additionalFields))
 		{

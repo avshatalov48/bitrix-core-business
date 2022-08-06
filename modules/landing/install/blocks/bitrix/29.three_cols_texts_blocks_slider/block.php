@@ -1,12 +1,12 @@
 <section class="landing-block js-animation fadeIn g-pt-30 g-pb-30">
 
-	<div class="container">
+	<div class="landing-block-slider container" data-slider-autoplay="1" data-slider-autoplay-speed="5000" data-slider-slides-show="3" data-slider-pause-hover="true" data-slider-animation="1">
 
 		<div class="js-carousel g-pb-60 row"
 			 data-infinite="true"
 			 data-autoplay="true"
 			 data-pause-hover="true"
-			 data-speed="7000"
+			 data-speed="5000"
 			 data-lazy-load="progressive"
 			 data-slides-show="3"
 			 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-bottom-0 text-center"

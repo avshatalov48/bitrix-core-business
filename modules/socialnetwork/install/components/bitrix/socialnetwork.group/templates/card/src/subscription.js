@@ -58,18 +58,16 @@ class WorkgroupCardSubscription
 		if (!!active)
 		{
 			node.classList.add('ui-btn-active');
-			node.classList.remove('ui-btn-icon-follow');
-			node.classList.add('ui-btn-icon-unfollow');
-			node.innerHTML = Loc.getMessage('SGCSSubscribeTitleY');
+			node.classList.remove('ui-btn-icon-unfollow');
+			node.classList.add('ui-btn-icon-follow');
 
 			this.showNotifyHint(node, Loc.getMessage('SGCSSubscribeButtonHintOn'));
 		}
 		else
 		{
 			node.classList.remove('ui-btn-active');
-			node.classList.add('ui-btn-icon-follow');
-			node.classList.remove('ui-btn-icon-unfollow');
-			node.innerHTML = Loc.getMessage('SGCSSubscribeTitleN');
+			node.classList.add('ui-btn-icon-unfollow');
+			node.classList.remove('ui-btn-icon-follow');
 
 			this.showNotifyHint(node, Loc.getMessage('SGCSSubscribeButtonHintOff'));
 		}

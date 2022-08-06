@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SALE_ORDER_PAYMENT_NO_DELIVERY_SERVICE"] = "(Wählen Sie einen Lieferservice aus)";
 $MESS["SALE_ORDER_SHIPMENT_ADD_COMPANY"] = "Die Liste aktiver Unternehmen ist leer. <a href=\"#URL#\" target=\"_blank\">Hinzufügen</a>";
 $MESS["SALE_ORDER_SHIPMENT_ADD_SHIPMENT"] = "Auslieferung hinzufügen";
@@ -57,6 +57,7 @@ $MESS["SALE_ORDER_SHIPMENT_NEW_WEIGHT_DELIVERY"] = "Auslieferungsgewicht geschä
 $MESS["SALE_ORDER_SHIPMENT_NO_COMPANY"] = "Nicht ausgewählt";
 $MESS["SALE_ORDER_SHIPMENT_OFFICE"] = "Anschrift für Lieferung";
 $MESS["SALE_ORDER_SHIPMENT_PROFILE"] = "Profile";
+$MESS["SALE_ORDER_SHIPMENT_RECALCULATE_DELIVERY_PRICE"] = "Preis neu berechnen";
 $MESS["SALE_ORDER_SHIPMENT_STORE_SELF_DELIVERY"] = "Lager zum Selbst-Abholen";
 $MESS["SALE_ORDER_SHIPMENT_TITLE"] = "Auslieferung";
 $MESS["SALE_ORDER_SHIPMENT_TRACKING_DESCRIPTION"] = "Statusbeschreibung";
@@ -66,4 +67,3 @@ $MESS["SALE_ORDER_SHIPMENT_TRACKING_STATUS"] = "Auslieferungsstatus";
 $MESS["SALE_ORDER_SHIPMENT_TRACKING_STATUS_REFRESH"] = "Aktualisieren";
 $MESS["SALE_ORDER_SHIPMENT_TRACKING_S_EMPTY"] = "Auslieferungs-ID muss angegeben werden.";
 $MESS["SALE_ORDER_SHIPMENT_TRACKING_URL"] = "Tracking-Details";
-?>

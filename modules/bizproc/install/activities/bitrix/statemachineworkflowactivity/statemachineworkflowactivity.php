@@ -1,9 +1,8 @@
 <?php
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-class CBPStateMachineWorkflowActivity
-	extends CBPCompositeActivity
-	implements IBPActivityEventListener
+class CBPStateMachineWorkflowActivity extends CBPCompositeActivity implements IBPActivityEventListener
 {
 	private $documentId = array();
 	private $workflowTemplateId = null;
@@ -97,8 +96,7 @@ class CBPStateMachineWorkflowActivity
 						$event->Cancel();
 				}
 			}
-			//Clean workflow subscriptions
-			\Bitrix\Bizproc\SchedulerEventTable::deleteByWorkflow($this->workflow->GetInstanceId());
+
 			//Finalize workflow activities
 			$this->workflow->FinalizeActivity($this);
 

@@ -143,7 +143,7 @@ class HttpHeaders implements IteratorAggregate
 	}
 
 	/**
-	 * Returns the content type part of the Content-Type header.
+	 * Returns the content type part of the Content-Type header in lower case.
 	 * @return null|string
 	 */
 	public function getContentType()
@@ -152,22 +152,46 @@ class HttpHeaders implements IteratorAggregate
 		if ($contentType !== null)
 		{
 			$parts = explode(";", $contentType);
-			return trim($parts[0]);
+
+			// RFC 2045 says: "The type, subtype, and parameter names are not case-sensitive."
+			return strtolower(trim($parts[0]));
 		}
 
 		return null;
 	}
 
-	public function getBoundary()
+	/**
+	 * Returns the specified attribute part of the Content-Type header.
+	 * @return null|string
+	 */
+	public function getContentTypeAttribute(string $attribute)
 	{
-		$contentType = $this->get("Content-Type");
+		$contentType = $this->get('Content-Type');
 		if ($contentType !== null)
 		{
-			$parts = explode(";", $contentType);
-			return $parts[1];
+			$attribute = strtolower($attribute);
+			$parts = explode(';', $contentType);
+
+			foreach ($parts as $part)
+			{
+				$values = explode('=', $part);
+				if (strtolower(trim($values[0])) == $attribute)
+				{
+					return trim($values[1]);
+				}
+			}
 		}
 
 		return null;
+	}
+
+	/**
+	 * Returns the boundary value of the Content-Type header.
+	 * @return null|string
+	 */
+	public function getBoundary()
+	{
+		return $this->getContentTypeAttribute('boundary');
 	}
 
 	/**
@@ -176,21 +200,7 @@ class HttpHeaders implements IteratorAggregate
 	 */
 	public function getCharset()
 	{
-		$contentType = $this->get("Content-Type");
-		if ($contentType !== null)
-		{
-			$parts = explode(";", $contentType);
-			foreach ($parts as $part)
-			{
-				$values = explode("=", $part);
-				if (strtolower(trim($values[0])) == "charset")
-				{
-					return trim($values[1]);
-				}
-			}
-		}
-
-		return null;
+		return $this->getContentTypeAttribute('charset');
 	}
 
 	/**
@@ -267,7 +277,7 @@ class HttpHeaders implements IteratorAggregate
 	 * <b>Traversable</b>
 	 * @since 5.0.0
 	 */
-	public function getIterator()
+	public function getIterator(): Traversable
 	{
 		$toIterate = [];
 		foreach ($this->headers as $header)

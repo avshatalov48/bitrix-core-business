@@ -69,7 +69,7 @@ $tabs = [
 	[
 		'id' => 'balance',
 		'name' => Loc::getMessage('CPD_TAB_BALANCE_TITLE'),
-		'enabled' => true,
+		'enabled' => !$arResult['IS_NEW_PRODUCT'],
 		'active' => false,
 	]
 	// [

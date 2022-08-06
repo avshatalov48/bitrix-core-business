@@ -7,6 +7,7 @@ import {Backend} from 'landing.backend';
 import {Env} from 'landing.env';
 import {ColorField} from 'landing.ui.field.color';
 import {PageObject} from 'landing.pageobject';
+import {FormSettingsPanel} from 'landing.ui.panel.formsettingspanel';
 
 import themesMap from './internal/themes-map';
 
@@ -567,7 +568,20 @@ export class FormStyleAdapter extends EventEmitter
 		};
 		const mergedOptions = Runtime.merge(currentFormOptions, designOptions);
 		this.setFormOptions(mergedOptions);
-		this.getCrmForm().adjust(mergedOptions.data);
+		this.getCrmForm().design.adjust(mergedOptions.data.design);
+
+		const formSettingsPanel: FormSettingsPanel = FormSettingsPanel.getInstance();
+		if (formSettingsPanel.isShown())
+		{
+			const initialOptions = formSettingsPanel.getInitialFormOptions();
+			const currentOptions = formSettingsPanel.getFormOptions();
+
+			initialOptions.data.design = mergedOptions.data.design;
+			formSettingsPanel.setInitialFormOptions(initialOptions);
+
+			currentOptions.data.design = mergedOptions.data.design;
+			formSettingsPanel.setFormOptions(currentOptions);
+		}
 
 		this.onDebouncedFormChange();
 	}

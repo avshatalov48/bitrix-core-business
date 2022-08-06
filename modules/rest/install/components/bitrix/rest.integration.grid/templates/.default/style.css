@@ -2,6 +2,7 @@
 	padding: 0 19px;
 	margin-bottom: 15px;
 	background: #fff;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .filter-integration-grid .main-ui-filter-search {

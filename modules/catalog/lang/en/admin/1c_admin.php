@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CAT_1C_CREATE"] = "Create if required";
 $MESS["CAT_1C_CURRENT"] = "Current";
 $MESS["CAT_1C_DEACTIVATE"] = "deactivate";
@@ -16,6 +16,7 @@ $MESS["CAT_1C_GROUP_PERMISSIONS"] = "User groups allowed to upload";
 $MESS["CAT_1C_IBLOCK_CACHE_MODE"] = "Tagged information block cache";
 $MESS["CAT_1C_IBLOCK_TYPE"] = "Information block type";
 $MESS["CAT_1C_INTERVAL"] = "Step duration, sec. (0 - export in one step)";
+$MESS["CAT_1C_MESS_ONLY_BASE_1C_MODULE"] = "This option is only effective when using the built-in 1C exchange module.";
 $MESS["CAT_1C_NONE"] = "leave";
 $MESS["CAT_1C_PICTURE"] = "Preview image";
 $MESS["CAT_1C_PREVIEW_HEIGHT"] = "Maximum height of the preview picture";
@@ -32,4 +33,3 @@ $MESS["CAT_1C_USE_IBLOCK_PICTURE_SETTINGS"] = "Use Information Block Settings fo
 $MESS["CAT_1C_USE_IBLOCK_TYPE_ID"] = "Export Respects Information Block Type";
 $MESS["CAT_1C_USE_OFFERS_2"] = "Import SKU's (properties) to a separate information block";
 $MESS["CAT_1C_USE_ZIP"] = "Use ZIP compression if available";
-?>

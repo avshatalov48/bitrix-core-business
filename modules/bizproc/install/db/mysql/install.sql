@@ -296,3 +296,44 @@ CREATE TABLE b_bp_global_var (
 	primary key (ID),
 	index ix_bp_gv_visibility(VISIBILITY)
 );
+
+CREATE TABLE b_bp_debugger_session (
+	ID varchar(32) NOT NULL,
+	MODULE_ID varchar(32) NULL,
+	ENTITY varchar(64) NOT NULL,
+	DOCUMENT_TYPE varchar(128) NOT NULL,
+	DOCUMENT_CATEGORY_ID int NULL,
+	MODE tinyint unsigned NOT NULL,
+	STARTED_BY int NOT NULL,
+	STARTED_DATE datetime NOT NULL,
+	FINISHED_DATE datetime,
+	ACTIVE char(1) NOT NULL,
+	FIXED char(1) NOT NULL,
+	DEBUGGER_STATE tinyint NOT NULL default -1,
+	primary key (ID)
+);
+
+CREATE TABLE b_bp_debugger_session_document (
+	ID int unsigned NOT NULL auto_increment,
+	SESSION_ID varchar(32) NOT NULL,
+	DOCUMENT_ID varchar(128) NOT NULL,
+	DATE_EXPIRE datetime,
+	primary key (ID)
+);
+
+CREATE TABLE `b_bp_debugger_session_workflow_context` (
+	`ID` int NOT NULL AUTO_INCREMENT,
+	`SESSION_ID` varchar(32) NOT NULL,
+	`WORKFLOW_ID` varchar(32) NOT NULL,
+	`TEMPLATE_SHARDS_ID` int NULL,
+	PRIMARY KEY(`ID`)
+);
+
+CREATE TABLE `b_bp_debugger_session_template_shards` (
+	`ID` int NOT NULL AUTO_INCREMENT,
+	`TEMPLATE_ID` int NOT NULL,
+	`SHARDS` mediumblob NULL,
+	`TEMPLATE_TYPE` tinyint unsigned,
+	`MODIFIED` datetime NOT NULL,
+	PRIMARY KEY(`ID`)
+);

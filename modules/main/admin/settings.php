@@ -257,7 +257,7 @@ function __AdmSettingsDrawRow($module_id, $Option)
 			<tr>
 				<td width="50%">
 					<a href="javascript:void(0)" onclick="addSiteSelector(this)" class="bx-action-href">
-						<?=GetMessage("MAIN_ADMIN_ADD_SITE_SELECTOR")?>
+						<?=GetMessage("MAIN_ADMIN_ADD_SITE_SELECTOR_1")?>
 					</a>
 				</td>
 				<td width="50%"></td>

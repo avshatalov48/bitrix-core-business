@@ -29,6 +29,14 @@ return [
 			'name' => Loc::getMessage('BLOCK_11_3_LINK_3'),
 			'type' => 'link',
 		],
+		'.landing-block-link-4' => [
+			'name' => Loc::getMessage('BLOCK_11_3_LINK_4'),
+			'type' => 'link',
+		],
+		'.landing-block-link-5' => [
+			'name' => Loc::getMessage('BLOCK_11_3_LINK_5'),
+			'type' => 'link',
+		],
 	],
 	'style' => [],
 ];

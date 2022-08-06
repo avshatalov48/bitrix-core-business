@@ -8,7 +8,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 CJSCore::Init('bp_starter');
 
-\Bitrix\Main\UI\Extension::load(['ui.alerts', 'ui.buttons', 'ui.dialogs.messagebox']);
+\Bitrix\Main\UI\Extension::load([
+	'ui.alerts',
+	'ui.buttons',
+	'ui.dialogs.messagebox',
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+]);
 
 if (!empty($arResult["ERROR_MESSAGE"])):
 	ShowError($arResult["ERROR_MESSAGE"]);

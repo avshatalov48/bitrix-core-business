@@ -93,4 +93,4 @@
 
   $.HSCore.init();
 
-})(jQuery);
+})(window.jQueryLanding || jQuery);

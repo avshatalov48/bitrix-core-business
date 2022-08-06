@@ -19,6 +19,13 @@
 
 	var normalizeDateValue = function(value)
 	{
+		if (BX.Type.isArray(value))
+		{
+			return value.map((dateValue) => {
+				return dateValue ? dateValue.replace(/(\s\[-?[0-9]+\])$/, '') : ''
+			});
+		}
+
 		return value ? value.replace(/(\s\[-?[0-9]+\])$/, '') : '';
 	};
 
@@ -39,6 +46,27 @@
 	}
 
 	var FieldType = {
+		isBaseType: function(type)
+		{
+			switch (type)
+			{
+				case 'bool':
+				case 'UF:boolean':
+				case 'select':
+				case 'internalselect':
+				case 'date':
+				case 'UF:date':
+				case 'datetime':
+				case 'text':
+				case 'int':
+				case 'double':
+				case 'string':
+				case 'user':
+					return true;
+			}
+
+			return false;
+		},
 		renderControl: function (documentType, property, fieldName, value, renderMode) {
 			if (!renderMode || renderMode === 'public')
 			{
@@ -486,7 +514,8 @@
 				}
 			});
 
-			var dlg = BX.Bizproc.Automation && BX.Bizproc.Automation.Designer.getRobotSettingsDialog();
+			var designer = BX.getClass('BX.Bizproc.Automation.Designer');
+			var dlg = designer  && designer.getRobotSettingsDialog();
 			if (!dlg)
 			{
 				var img = BX.create('img', {
@@ -571,7 +600,8 @@
 		},
 		createFileNode: function(property, fieldName, value)
 		{
-			var dlg = BX.Bizproc.Automation && BX.Bizproc.Automation.Designer.getRobotSettingsDialog();
+			var designer = BX.getClass('BX.Bizproc.Automation.Designer');
+			var dlg = designer && designer.getRobotSettingsDialog();
 			if (!dlg)
 			{
 				var input = BX.create('input', {
@@ -736,14 +766,17 @@
 		},
 		initControl: function(controlNode, property)
 		{
+			var designer = BX.getClass('BX.Bizproc.Automation.Designer');
 			var dlg;
-			if (dlg = BX.Bizproc.Automation && BX.Bizproc.Automation.Designer.getRobotSettingsDialog())
+			if (designer && designer.getRobotSettingsDialog())
 			{
+				dlg = designer.getRobotSettingsDialog();
 				dlg.template.initRobotSettingsControls(dlg.robot, controlNode);
 			}
-			else if (dlg = BX.Bizproc.Automation && BX.Bizproc.Automation.Designer.getTriggerSettingsDialog())
+			else if (designer && designer.getTriggerSettingsDialog())
 			{
-				dlg.component.triggerManager.initSettingsDialogControls(controlNode);
+				dlg = designer.getTriggerSettingsDialog();
+				dlg.triggerManager.initSettingsDialogControls(controlNode);
 			}
 			else if (property && property['Type'] === 'user' && BX.Bizproc.UserSelector)
 			{
@@ -752,12 +785,12 @@
 		},
 		getDocumentFields: function()
 		{
-			const component = BX.Bizproc.Automation && BX.Bizproc.Automation.Designer.component;
+			var component = BX.getClass('BX.Bizproc.Automation.Designer.component');
 			if (component)
 			{
 				return component.data['DOCUMENT_FIELDS'];
 			}
-			if (BX.Bizproc.Automation && BX.Bizproc.Automation.API.documentFields)
+			if (BX.getClass('BX.Bizproc.Automation.API.documentFields'))
 			{
 				return BX.Bizproc.Automation.API.documentFields;
 			}
@@ -766,7 +799,7 @@
 		},
 		getDocumentUserGroups: function()
 		{
-			if (BX.Bizproc.Automation && BX.Bizproc.Automation.API.documentUserGroups)
+			if (BX.getClass('BX.Bizproc.Automation.API.documentUserGroups'))
 			{
 				return BX.Bizproc.Automation.API.documentUserGroups;
 			}

@@ -32,7 +32,6 @@ $MESS["CAT_DISCOUNT_PERCENT_FROM_BASE_PRICE"] = "Percent discount is derived fro
 $MESS["CAT_DISCOUNT_PERCENT_FROM_BASE_PRICE_NO"] = "No";
 $MESS["CAT_DISCOUNT_PERCENT_FROM_BASE_PRICE_YES"] = "Yes";
 $MESS["CAT_DISCOUNT_PERCENT_FROM_BASE_SALE"] = "Change on the e-Store module settings page";
-$MESS["CAT_DISCOUNT_VAT"] = "Include VAT in discount base";
 $MESS["CAT_DISCSAVE_APPLY"] = "Progressive discount method";
 $MESS["CAT_ENABLE_QUANTITY_TRACE"] = "Enable stock control:";
 $MESS["CAT_ENABLE_RESERVATION"] = "Enable reservations";

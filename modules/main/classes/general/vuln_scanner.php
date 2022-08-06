@@ -43,7 +43,7 @@ class CVariable
 		$this->secure = false;
 		$this->requestInitialization = true;
 	}
-	
+
 	public function newDeclare($id, $line, $start, $end, $tokens, $comment, $dependencies, $tainted_vars)
 	{
 		$this->declares[] = new CVariableDeclare($id, $line, $start, $end, $tokens, $comment, $dependencies, $tainted_vars);
@@ -165,9 +165,9 @@ class CVulnScanner
 		$secure = false;
 		$cur_brace = -1;
 
-		for ($i = 0, $count = count($tokens); $i < $count; $i++) 
+		for ($i = 0, $count = count($tokens); $i < $count; $i++)
 		{
-			if(is_array($tokens[$i])) 
+			if(is_array($tokens[$i]))
 			{
 				$token = $tokens[$i][0];
 				$token_value = $tokens[$i][1];
@@ -297,7 +297,7 @@ class CVulnScanner
 
 			if($skip)
 			{
-				while (!($tokens[$i + 1] === ', ') && $i + 1 < $count) 
+				while (!($tokens[$i + 1] === ', ') && $i + 1 < $count)
 				{
 					if($tokens[$i + 1] === ')')
 						$braces--;
@@ -366,7 +366,7 @@ class CVulnScanner
 		$this->objects = array();
 		for ($i = 0, $tokens_count = count($this->tokens); $i < $tokens_count; $i++)
 		{
-		
+
 			if((time() - $this->arParams['time_start']) >= $this->arParams['time_out'])
 				return false;
 
@@ -401,10 +401,10 @@ class CVulnScanner
 							unset($this->variables[$val]);
 				}
 				elseif(
-					in_array($token, $this->tokens_type['FUNCTIONS']) 
+					in_array($token, $this->tokens_type['FUNCTIONS'])
 					|| ($this->search_xss && !$this->global_xss_ignore && in_array($token, $this->tokens_type['XSS']))
 					|| in_array($token, $this->tokens_type['INCLUDES'])
-				) 
+				)
 				{
 					if(in_array($token, $this->tokens_type['INCLUDES']))
 					{
@@ -442,7 +442,7 @@ class CVulnScanner
 
 								if($this->tokens[$i + 1] === '(' && $this->tokens[$i + 4][0] === T_CONSTANT_ENCAPSED_STRING)
 									$component_template = substr($this->tokens[$i + 4][1], 1, -1);
-								
+
 								//$additional_tokens=array(array(T_VARIABLE, '$arParams', 0), '=', array(T_CONSTANT_ENCAPSED_STRING, ' ', 0), ';', array(T_VARIABLE, '$arResult', 0), '=', array(T_CONSTANT_ENCAPSED_STRING, ' ', 0), ';');
 								$scanner = new CVulnScanner($inc_file, $this->arParams, $this->template, $component_template);
 								$result = $scanner->process();
@@ -473,7 +473,7 @@ class CVulnScanner
 								$skip = 1;
 								$component_path = array_pop(explode('bitrix/components', dirname($this->current_file)));
 								$component_template = (!empty($this->tokens[$i][3]) ? $this->tokens[$i][3] : '.default');
-								if(is_file($this->arParams['doc_root_path'].'/bitrix/templates/'.$this->template.'/components'.$component_path.'/'.$component_template.'/result_modifier.php')) 
+								if(is_file($this->arParams['doc_root_path'].'/bitrix/templates/'.$this->template.'/components'.$component_path.'/'.$component_template.'/result_modifier.php'))
 									$inc_file = $this->arParams['doc_root_path'].'/bitrix/templates/'.$this->template.'/components'.$component_path.'/'.$component_template.'/result_modifier.php';
 								elseif(is_file($this->arParams['doc_root_path'].'/bitrix/templates/'.$component_template.'/components'.$component_path.'/.default/result_modifier.php'))
 									$inc_file = $this->arParams['doc_root_path'].'/bitrix/templates/'.$component_template.'/components'.$component_path.'/.default/result_modifier.php';
@@ -513,7 +513,7 @@ class CVulnScanner
 									$inc_file = $this->arParams['doc_root_path'].'/bitrix/templates/.default/components'.$component_path.'/'.$component_template.'/'.$template_name.'.php';
 								else
 									$inc_file = dirname($this->current_file).'/templates/'.$component_template.'/'.$template_name.'.php';
-								
+
 
 								unset($component_path);
 							}
@@ -804,7 +804,7 @@ class CVulnScanner
 			$taintedVars = array();
 			foreach ($tokensInfo[1] as $res)
 				$taintedVars[] = $res['varName'];
-			
+
 			if(!isset($this->variables[$varName]))
 				$var = new CVariable($varName);
 			else
@@ -862,7 +862,7 @@ class CVulnScanner
 						unset($tokens[$i + $f]);
 						$f++;
 					}
-				
+
 					$f++;
 					while ($braces !== 0 && ($i + $f) < $c)
 					{
@@ -873,7 +873,7 @@ class CVulnScanner
 						unset($tokens[$i + $f]);
 						$f++;
 					}
-				
+
 					for ($j = $i; $j < $i + $f + 1; $j++)
 						unset($tokens[$j]);
 					$i += $f;

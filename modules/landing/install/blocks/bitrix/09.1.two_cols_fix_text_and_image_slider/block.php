@@ -15,15 +15,16 @@
 					</div>
 				</div>
 			</div>
-			<div class="landing-block-node-carousel-container js-animation fadeInRight col-lg-8">
+			<div class="landing-block-node-carousel-container js-animation fadeInRight col-lg-8" data-slider-autoplay-speed="5000" data-slider-slides-show="2" data-slider-arrows="1" data-slider-dots="0" data-slider-animation="1">
 				<div class="landing-block-node-carousel js-carousel g-line-height-0 row"
 					 data-infinite="true"
 					 data-speed="5000"
 					 data-rows="2"
 					 data-slides-show="2"
-					 data-arrows-classes="u-arrow-v1 g-pos-abs g-bottom-100x g-right-0 g-width-35 g-height-35 g-color-gray g-color-white--hover g-bg-gray-light-v5 g-bg-primary--hover g-mb-5 g-transition-0_2 g-transition--ease-in"
+					 data-arrows-classes="u-arrow-v1 g-pos-abs g-bottom-100x g-right-0 g-width-35 g-height-35 g-mb-5 g-transition-0_2 g-transition--ease-in g-color-gray g-color-white--hover g-bg-gray-light-v5 g-bg-primary--hover"
 					 data-arrow-left-classes="fa fa-angle-left g-mr-50"
 					 data-arrow-right-classes="fa fa-angle-right g-mr-5"
+					 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-pt-10"
 					 data-responsive='[{
 							 "breakpoint": 1200,
 							 "settings": {

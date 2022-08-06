@@ -91,6 +91,7 @@ $defaultUrlTemplates404 = array(
 	'site_show' => 'site/#site_show#/',
 	'site_edit' => 'site/edit/#site_edit#/',
 	'site_design' => 'site/design/#site_edit#/',
+	'site_settings' => 'site/settings/#site_edit#/',
 	'site_master' => 'site/master/#site_edit#/',
 	'site_contacts' => 'site/contacts/#site_edit#/',
 	'site_domain' => 'site/domain/#site_edit#/',
@@ -99,6 +100,7 @@ $defaultUrlTemplates404 = array(
 	'landing_edit' => 'site/#site_show#/edit/#landing_edit#/',
 	'landing_design' => 'site/#site_show#/design/#landing_edit#/',
 	'landing_view' => 'site/#site_show#/view/#landing_edit#/',
+	'landing_settings' => 'site/#site_show#/settings/#landing_edit#/',
 	'domains' => 'domains/',
 	'domain_edit' => 'domain/edit/#domain_edit#/',
 	'roles' => 'roles/',
@@ -110,6 +112,7 @@ $urlTpls = array(
 	'sites' => array(),
 	'site_show' => array('site_show'),
 	'site_edit' => array('site_edit'),
+	'site_settings' => array('site_edit'),
 	'site_design' => array('site_edit'),
 	'site_master' => array('site_edit'),
 	'site_contacts' => array('site_edit'),
@@ -119,6 +122,7 @@ $urlTpls = array(
 	'landing_edit' => array('landing_edit', 'site_show'),
 	'landing_design' => array('landing_edit', 'site_show'),
 	'landing_view' => array('landing_edit', 'site_show'),
+	'landing_settings' => array('landing_edit', 'site_show'),
 	'domains' => array(),
 	'domain_edit' => array('domain_edit'),
 	'roles' => array(),
@@ -378,8 +382,8 @@ foreach ($agreements as $lng => $item)
 			'NAME' => isset($mess['LANDING_CMP_AGREEMENT_NAME'])
 						? $mess['LANDING_CMP_AGREEMENT_NAME']
 						: '',
-			'TEXT' => isset($mess['LANDING_CMP_AGREEMENT_TEXT3'])
-						? $mess['LANDING_CMP_AGREEMENT_TEXT3']
+			'TEXT' => isset($mess['LANDING_CMP_AGREEMENT_TEXT4'])
+						? $mess['LANDING_CMP_AGREEMENT_TEXT4']
 						: '',
 			'LANGUAGE_ID' => $lng
 		);

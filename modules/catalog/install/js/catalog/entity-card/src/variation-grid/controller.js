@@ -24,6 +24,7 @@ export default class VariationGridController extends BX.UI.EntityEditorControlle
 
 		EventEmitter.subscribe('BX.UI.EntityEditorIncludedArea:onBeforeLoad', this.onBeforeIncludedAreaLoaded.bind(this));
 		EventEmitter.subscribe('BX.UI.EntityEditorIncludedArea:onAfterLoad', this.onAfterIncludedAreaLoaded.bind(this));
+		EventEmitter.subscribe("BX.UI.EntityEditor:onNothingChanged", this.onNothingChanged.bind(this));
 
 		this.subscribeToFormSubmit();
 	}
@@ -40,6 +41,11 @@ export default class VariationGridController extends BX.UI.EntityEditorControlle
 	{
 		Dom.style(this.getVariationGridLoader(), 'height', '');
 		this.areaHeight = null;
+	}
+
+	onNothingChanged(event: BaseEvent)
+	{
+		this.rollback();
 	}
 
 	getVariationGridLoader()

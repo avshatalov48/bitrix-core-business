@@ -40,6 +40,10 @@ return array(
 	'style' => array(
 		'block' => array(
 			'type' => array('block-default', 'animation'),
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_8_BIG_CAROUSEL_BLOCKS_STYLE_LANDINGBLOCKNODE_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show-extended', 'arrows', 'dots'],
+			]
 		),
 		'nodes' => array(
 			'.landing-block-node-title' => array(

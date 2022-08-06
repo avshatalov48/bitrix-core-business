@@ -18,14 +18,16 @@ return array(
 		'.landing-block-node-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--IMG'),
 			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'create2xByDefault' => false,
+			'isWrapper' => true,
 		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--TITLE'),
 			'type' => 'text',
 		),
-		
 		'.landing-block-node-number-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_3_COUNTDOWN_08--NUMBER_TEXT'),
 			'type' => 'text',
@@ -33,7 +35,7 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-background-overlay'),
+			'type' => ['block-default-background'],
 		),
 		'nodes' => array(
 			'.landing-block-node-title' => array(

@@ -168,6 +168,8 @@ $row = $arResult['FOLDER'];
 	{
 		// rich url toggler
 
+		BX.Landing.Env.getInstance().setOptions({params: {type: '<?php echo $arParams['TYPE']?>'}});
+
 		var editableSelectors = document.querySelectorAll('[data-landing-edit-control]');
 		var editModeClass = 'landing-folder-edit__edit-mode';
 

@@ -1,9 +1,10 @@
-<section class="landing-block landing-semantic-background-color g-bg-gray-light-v4 g-pt-30 g-pb-30">
+<section class="landing-block landing-semantic-background-color g-bg-gray-light-v4 g-pt-30 g-pb-30" data-slider-arrows="3" data-slider-dots="0" data-slider-slides-show="5" data-slider-animation="1">
 	<!-- Product Blocks -->
 	<div class="js-carousel g-px-25 row"
 		 data-infinite="true"
 		 data-slides-show="5"
-		 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-color-white g-bg-primary g-color-primary--hover g-bg-white--hover"
+		 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-pt-20"
+		 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-transition-0_2 g-transition--ease-in g-color-white g-bg-primary g-opacity-0_8--hover"
 		 data-arrow-left-classes="fa fa-chevron-left g-left-0"
 		 data-arrow-right-classes="fa fa-chevron-right g-right-0"
 		 data-responsive='[{

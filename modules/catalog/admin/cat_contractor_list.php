@@ -25,7 +25,7 @@ IncludeModuleLangFile(__FILE__);
 
 $bExport = (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel');
 
-$typeList = Catalog\ContractorTable::getTypeList(true);
+$typeList = Catalog\ContractorTable::getTypeDescriptions();
 
 if ($ex = $APPLICATION->GetException())
 {

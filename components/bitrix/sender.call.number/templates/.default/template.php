@@ -13,7 +13,7 @@
 
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
-\Bitrix\Main\UI\Extension::load(['ui.hint']);
+\Bitrix\Main\UI\Extension::load(['ui.hint', 'ui.design-tokens']);
 $containerId = 'bx-sender-call-number';
 ?>
 <script type="text/javascript">

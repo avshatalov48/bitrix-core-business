@@ -6,6 +6,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
+use Bitrix\Main\UI\Filter\AdditionalNumberType;
 use Bitrix\Main\UI\Filter\Type;
 use Bitrix\Main\UI\Filter\DateType;
 use Bitrix\Main\UI\Filter\AdditionalDateType;
@@ -20,6 +21,7 @@ Extension::load([
 	"loader",
 	"date",
 	"ui.icons.service",
+	"ui.design-tokens",
 ]);
 
 global $USER;
@@ -78,6 +80,15 @@ if ($arResult["COMPACT_STATE"])
 if ($arResult["LIMITS_ENABLED"])
 {
 	$filterSearchClass .= " main-ui-filter-field-limits-active";
+}
+
+if ($currentPreset["IS_SET_OUTSIDE"])
+{
+	$filterSearchClass .= " main-ui-filter-set-outside";
+}
+else
+{
+	$filterSearchClass .= " main-ui-filter-set-inside";
 }
 
 $filterValue = \Bitrix\Main\Text\HtmlFilter::encode(htmlspecialcharsback($arResult["CURRENT_PRESET"]["FIND"]));
@@ -222,7 +233,6 @@ if ($arResult["ENABLE_ADDITIONAL_FILTERS"])
 </script>
 
 <?
-    $frame->end();
     $messages = CUtil::phpToJSObject(Loc::loadLanguageFile(__FILE__), false);
 ?>
 
@@ -237,12 +247,14 @@ if ($arResult["ENABLE_ADDITIONAL_FILTERS"])
 				<?=CUtil::PhpToJSObject(Type::getList())?>,
 				<?=CUtil::PhpToJSObject(DateType::getList())?>,
 				<?=CUtil::PhpToJSObject(NumberType::getList())?>,
-				<?=CUtil::PhpToJSObject(AdditionalDateType::getList())?>
+				<?=CUtil::PhpToJSObject(AdditionalDateType::getList())?>,
+				<?=CUtil::PhpToJSObject(AdditionalNumberType::getList())?>
 			)
 		);
 	});
 </script>
 <?
+	$frame->end();
 	if (!empty($arResult["TARGET_VIEW_ID"]))
 	{
 		$this->EndViewTarget();

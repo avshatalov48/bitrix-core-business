@@ -1,9 +1,10 @@
 <?php
 namespace Bitrix\Catalog;
 
-use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields;
+use Bitrix\Main\Type;
 
 /**
  * Class VatTable
@@ -34,14 +35,14 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\EO_Vat_Collection wakeUpCollection($rows)
  */
 
-class VatTable extends Main\Entity\DataManager
+class VatTable extends DataManager
 {
 	/**
 	 * Returns DB table name for entity.
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_catalog_vat';
 	}
@@ -51,50 +52,68 @@ class VatTable extends Main\Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
-		return array(
-			'ID' => new Main\Entity\IntegerField('ID', array(
-				'primary' => true,
-				'autocomplete' => true,
-				'title' => Loc::getMessage('VAT_ENTITY_ID_FIELD'),
-			)),
-			'TIMESTAMP_X' => new Main\Entity\DatetimeField('TIMESTAMP_X', array(
-				'required' => true,
-				'default_value' => function(){ return new Main\Type\DateTime(); },
-				'title' => Loc::getMessage('VAT_ENTITY_TIMESTAMP_X_FIELD'),
-			)),
-			'ACTIVE' => new Main\Entity\BooleanField('ACTIVE', array(
-				'values' => array('N', 'Y'),
-				'default_value' => 'Y',
-				'title' => Loc::getMessage('VAT_ENTITY_ACTIVE_FIELD'),
-			)),
-			'SORT' => new Main\Entity\IntegerField('SORT', array(
-				'column_name' => 'C_SORT',
-				'default_value' => 100,
-				'title' => Loc::getMessage('VAT_ENTITY_SORT_FIELD'),
-			)),
-			'NAME' => new Main\Entity\StringField('NAME',  array(
-				'required' => true,
-				'validation' => array(__CLASS__, 'validateName'),
-				'title' => Loc::getMessage('VAT_ENTITY_NAME_FIELD'),
-			)),
-			'RATE' => new Main\Entity\FloatField('RATE', array(
-				'required' => true,
-				'title' => Loc::getMessage('VAT_ENTITY_RATE_FIELD'),
-			)),
-		);
-	}
-	/**
-	 * Returns validators for NAME field.
-	 *
-	 * @return array
-	 */
-	public static function validateName()
-	{
-		return array(
-			new Main\Entity\Validator\Length(null, 50),
-		);
+		return [
+			'ID' => new Fields\IntegerField(
+				'ID',
+				[
+					'primary' => true,
+					'autocomplete' => true,
+					'title' => Loc::getMessage('VAT_ENTITY_ID_FIELD'),
+				]
+			),
+			'TIMESTAMP_X' => new Fields\DatetimeField(
+				'TIMESTAMP_X',
+				[
+					'required' => true,
+					'default_value' => function()
+					{
+						return new Type\DateTime();
+					},
+					'title' => Loc::getMessage('VAT_ENTITY_TIMESTAMP_X_FIELD'),
+				]
+			),
+			'ACTIVE' => new Fields\BooleanField(
+				'ACTIVE',
+				[
+					'values' => [
+						'N',
+						'Y',
+					],
+					'default_value' => 'Y',
+					'title' => Loc::getMessage('VAT_ENTITY_ACTIVE_FIELD'),
+				]
+			),
+			'SORT' => new Fields\IntegerField(
+				'SORT',
+				[
+					'column_name' => 'C_SORT',
+					'default_value' => 100,
+					'title' => Loc::getMessage('VAT_ENTITY_SORT_FIELD'),
+				]
+			),
+			'NAME' => new Fields\StringField(
+				'NAME',
+				[
+					'required' => true,
+					'validation' => function()
+					{
+						return [
+							new Fields\Validators\LengthValidator(null, 50),
+						];
+					},
+					'title' => Loc::getMessage('VAT_ENTITY_NAME_FIELD'),
+				]
+			),
+			'RATE' => new Fields\FloatField(
+				'RATE',
+				[
+					'required' => true,
+					'title' => Loc::getMessage('VAT_ENTITY_RATE_FIELD'),
+				]
+			),
+		];
 	}
 
 	/**
@@ -111,11 +130,13 @@ class VatTable extends Main\Entity\DataManager
 			return null;
 		}
 		$row = static::getList([
-			'select' => ['ID'],
+			'select' => [
+				'ID',
+			],
 			'filter' => [
 				'=ACTIVE' => 'Y',
 				'=RATE' => $rate,
-			]
+			],
 		])->fetch();
 		if (!empty($row))
 		{

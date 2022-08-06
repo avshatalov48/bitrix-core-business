@@ -37,6 +37,8 @@ class CCatalogDocs extends CAllCatalogDocs
 		$arFields['~DATE_MODIFY'] = $DB->GetNowFunction();
 		$arFields['~DATE_CREATE'] = $DB->GetNowFunction();
 
+		$arFields['WAS_CANCELLED'] = 'N';
+
 		if (!self::checkFields('ADD', $arFields))
 		{
 			return false;
@@ -66,11 +68,9 @@ class CCatalogDocs extends CAllCatalogDocs
 			],
 		];
 
-		PullManager::getInstance()->sendDocumentAddedEvent(
-			[
-				$item
-			]
-		);
+		PullManager::getInstance()->sendDocumentAddedEvent([
+			$item
+		]);
 
 		if (isset($arFields["ELEMENT"]) && is_array($arFields["ELEMENT"]))
 		{
@@ -79,7 +79,7 @@ class CCatalogDocs extends CAllCatalogDocs
 
 		if (isset($arFields["DOCUMENT_FILES"]) && is_array($arFields["DOCUMENT_FILES"]))
 		{
-			self::saveFiles($lastId, $arFields['DOCUMENT_FILES']);
+			static::saveFiles($lastId, $arFields['DOCUMENT_FILES']);
 		}
 
 		foreach (GetModuleEvents("catalog", "OnDocumentAdd", true) as $arEvent)
@@ -108,29 +108,12 @@ class CCatalogDocs extends CAllCatalogDocs
 			{
 				foreach($arElement['BARCODE'] as $barcode)
 				{
-					CCatalogStoreDocsBarcode::add(['DOC_ELEMENT_ID' => $lastDocElementId, 'BARCODE' => $barcode]);
+					CCatalogStoreDocsBarcode::add([
+						'DOC_ID' => $documentID,
+						'DOC_ELEMENT_ID' => $lastDocElementId,
+						'BARCODE' => $barcode,
+					]);
 				}
-			}
-		}
-	}
-
-	public static function saveFiles($documentId, $files)
-	{
-		if (!empty($files))
-		{
-			$existingFiles = \Bitrix\Catalog\StoreDocumentFileTable::getList([
-				'select' => ['FILE_ID'],
-				'filter' => ['DOCUMENT_ID' => $documentId]
-			])->fetchAll();
-			$existingFiles = array_column($existingFiles, 'FILE_ID');
-			$filesToAdd = array_diff($files, $existingFiles);
-
-			foreach ($filesToAdd as $fileId)
-			{
-				\Bitrix\Catalog\StoreDocumentFileTable::add([
-					'DOCUMENT_ID' => $documentId,
-					'FILE_ID' => $fileId,
-				]);
 			}
 		}
 	}
@@ -155,9 +138,14 @@ class CCatalogDocs extends CAllCatalogDocs
 			"MODIFIED_BY" => array("FIELD" => "CD.MODIFIED_BY", "TYPE" => "int"),
 			"RESPONSIBLE_ID" => array("FIELD" => "CD.RESPONSIBLE_ID", "TYPE" => "int"),
 			"STATUS_BY" => array("FIELD" => "CD.STATUS_BY", "TYPE" => "int"),
-			"STATUS" => array("FIELD" => "CD.STATUS", "TYPE" => "string"),
+			"STATUS" => array("FIELD" => "CD.STATUS", "TYPE" => "char"),
 			"TOTAL" => array("FIELD" => "CD.TOTAL", "TYPE" => "double"),
 			"COMMENTARY" => array("FIELD" => "CD.COMMENTARY", "TYPE" => "string"),
+			'TITLE' => ['FIELD' => 'CD.TITLE', 'TYPE' => 'string'],
+			'ITEMS_ORDER_DATE' => ['FIELD' => 'CD.ITEMS_ORDER_DATE', 'TYPE' => 'datetime'],
+			'ITEMS_RECEIVED_DATE' => ['FIELD' => 'CD.ITEMS_RECEIVED_DATE', 'TYPE' => 'datetime'],
+			'DOC_NUMBER' => ['FIELD' => 'CD.DOC_NUMBER', 'TYPE' => 'string'],
+			'WAS_CANCELLED' => ['FIELD' => 'CD.WAS_CANCELLED', 'TYPE' => 'char'],
 
 			"PRODUCTS_ID" => array("FIELD" => "DE.ID", "TYPE" => "int", "FROM" => "INNER JOIN b_catalog_docs_element DE ON (CD.ID = DE.DOC_ID)"),
 			"PRODUCTS_DOC_ID" => array("FIELD" => "DE.DOC_ID", "TYPE" => "int", "FROM" => "INNER JOIN b_catalog_docs_element DE ON (CD.ID = DE.DOC_ID)"),

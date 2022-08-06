@@ -1,4 +1,14 @@
-<? if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+<?
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.alerts',
+	'ui.buttons'
+]);
 
 $htmlFormId = htmlspecialcharsbx('main_mail_form_'.$arParams['FORM_ID']);
 
@@ -312,13 +322,26 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 
 	?></tr><?
 };
-
-\Bitrix\Main\UI\Extension::load('ui.buttons');
-
 ?>
 <div class="main-mail-form-wrapper" id="<?=$htmlFormId ?>">
 	<div class="main-mail-form-fields-wrapper">
 		<table class="main-mail-form-fields-table">
+			<?
+			/**
+			 * Fix erroneous autocomplete (it won't work without an id)
+			 *
+			 * Some browsers define the form of sending messages as an authorization
+			 * form and give appropriate hints on autofill, modern browsers
+			 * do not take into account the "autocomplete=off" when prompted for autofill
+			 * and can also ignore the name of the field if they "think" that the form is similar
+			 * to the authorization form.
+			 */
+			?>
+			<tr>
+				<td>
+					<input style="display:none" id="mail-form-pseudo-field">
+				</td>
+			</tr>
 			<?
 			foreach ($arParams['FIELDS'] as $field)
 				$renderField($htmlFormId, $field, false, $arParams['VERSION']);
@@ -474,7 +497,7 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 		<div class="main-mail-form-border-bottom"></div>
 	<? endif ?>
 
-	<div class="main-mail-form-error" style="display: none; "></div>
+	<div class="main-mail-form-error"></div>
 	<div class="main-mail-form-footer-wrapper">
 		<div class="main-mail-form-footer">
 			<div class="main-mail-form-footer-buttons-wrapper">

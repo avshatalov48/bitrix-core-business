@@ -14,6 +14,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Crm\Order\TradingPlatform;
 use Bitrix\Crm\Component\EntityDetails\ProductList;
+use Bitrix\Crm\Settings\LeadSettings;
 
 Loc::loadMessages(__FILE__);
 
@@ -94,6 +95,16 @@ final class UseStore
 			return false;
 		}
 		if (\CCrmSaleHelper::isWithOrdersMode())
+		{
+			return false;
+		}
+
+		if (LeadSettings::isEnabled())
+		{
+			return false;
+		}
+
+		if(self::isUsedOneC())
 		{
 			return false;
 		}
@@ -645,11 +656,9 @@ final class UseStore
 			}
 		}
 
-		if ($resetCache && isset($GLOBALS['CACHE_MANAGER']) && is_object($GLOBALS['CACHE_MANAGER']))
+		if ($resetCache)
 		{
-			/** @global \CCacheManager $CACHE_MANAGER */
-			global $CACHE_MANAGER;
-			$CACHE_MANAGER->cleanDir('user_option');
+			Application::getInstance()->getManagedCache()->cleanDir('user_option');
 		}
 
 		if (Loader::includeModule('pull'))

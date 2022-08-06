@@ -17,6 +17,11 @@ if (!Security\User::current()->canView())
 	$APPLICATION->AuthForm(Security\AccessChecker::getError()->getMessage());
 }
 
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+]);
+
 $APPLICATION->SetAdditionalCSS('/bitrix/css/main/grid/webform-button.css');
 
 $senderPathPrefix = '/bitrix/admin/sender_';

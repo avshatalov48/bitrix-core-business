@@ -927,7 +927,7 @@ abstract class CAllDBResult
 						$arTilda[$FName] = FormatText($arFValue, $arRes[$FName."_TYPE"]);
 					elseif(is_array($arFValue))
 						$arTilda[$FName] = htmlspecialcharsEx($arFValue);
-					elseif(preg_match("/[;&<>\"]/", $arFValue))
+					elseif($arFValue != '' && preg_match("/[;&<>\"]/", $arFValue))
 						$arTilda[$FName] = htmlspecialcharsEx($arFValue);
 					else
 						$arTilda[$FName] = $arFValue;

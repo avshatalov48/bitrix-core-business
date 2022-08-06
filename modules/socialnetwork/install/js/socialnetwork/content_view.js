@@ -31,7 +31,9 @@ BX.UserContentView = {
 
 	ajaxSent: false,
 	failedAjaxCounter: 0,
-	failedAjaxLimit: 10
+	failedAjaxLimit: 10,
+
+	preventRead: false,
 };
 
 BX.UserContentView.clear = function()
@@ -100,31 +102,30 @@ BX.UserContentView.init = function(params)
 		}
 	}
 
-	BX.addCustomEvent(window, 'OnUCRecordHasDrawn', BX.delegate(this.onUCRecordHasDrawn, this));
-	BX.addCustomEvent(window, 'OnUCListWasShown', BX.delegate(this.OnUCListWasShown, this));
+	BX.addCustomEvent(window, 'OnUCRecordHasDrawn', this.onUCRecordHasDrawn.bind(this));
+	BX.addCustomEvent(window, 'OnUCListWasShown', this.OnUCListWasShown.bind(this));
 
 	if (this.mobile)
 	{
-		BX.addCustomEvent(window, 'OnUCHasBeenInitialized', BX.delegate(this.OnUCHasBeenInitializedMobile, this));
+		BX.addCustomEvent('OnUCHasBeenInitialized', this.OnUCHasBeenInitializedMobile.bind(this));
+		BX.addCustomEvent('BX.UserContentView.onSetPreventNextPage', this.OnSetPreventNextPage.bind(this));
 		this.sendViewAreaTimeout = 1500;
 	}
 
-	setTimeout(BX.delegate(this.sendViewAreaData, this), this.sendViewAreaTimeout);
+	setTimeout(this.sendViewAreaData.bind(this), this.sendViewAreaTimeout);
 };
 
 
 BX.UserContentView.getXmlId = function(node)
 {
-	return node.getAttribute("bx-content-view-xml-id");
+	return node.getAttribute('bx-content-view-xml-id');
 };
 
 BX.UserContentView.getSaveValue = function(node)
 {
-	var key = node.getAttribute('bx-content-view-key');
 	var signedKey = node.getAttribute('bx-content-view-key-signed');
 
 	return {
-		key: (key ? key : ''),
 		signedKey: (signedKey ? signedKey : ''),
 		value: (node.getAttribute('bx-content-view-save') != 'N' ? 'Y' : 'N'),
 	}
@@ -159,7 +160,7 @@ BX.UserContentView.setRead = function(node)
 			&& BX.type.isNotEmptyObject(BXMobileApp)
 		)
 		{
-			BXMobileApp.onCustomEvent("BX.UserContentView.onSetRead", eventParams, true);
+			BXMobileApp.onCustomEvent('BX.UserContentView.onSetRead', eventParams, true);
 		}
 	}
 };
@@ -181,7 +182,6 @@ BX.UserContentView.sendViewAreaData = function()
 		this.toSendList.push({
 			xmlId: xmlId,
 			save: this.viewAreaReadList[xmlId].value,
-			key: this.viewAreaReadList[xmlId].key,
 			signedKey: this.viewAreaReadList[xmlId].signedKey,
 		});
 	}
@@ -225,7 +225,7 @@ BX.UserContentView.success = function(data)
 {
 	if (
 		BX.type.isNotEmptyString(data.SUCCESS)
-		&& data.SUCCESS == "Y"
+		&& data.SUCCESS == 'Y'
 	)
 	{
 		for (i = 0, length = this.toSendList.length; i < length; i++)
@@ -265,16 +265,16 @@ BX.UserContentView.onUCRecordHasDrawn = function(entityXmlId, id, data)
 
 	if (data.ACTION == 'REPLY')
 	{
-		var fn = BX.delegate(function() {
+		var fn = function() {
 			this.onUCRecordHasDrawnFunc(id);
-		}, this);
+		}.bind(this);
 
-		var fnWeb = BX.debounce(BX.delegate(function() {
-			BX.unbind(document, "mousemove", fnWeb);
+		var fnWeb = BX.debounce(function() {
+			BX.unbind(document, 'mousemove', fnWeb);
 			fn();
-		}, this), 100, this);
+		}.bind(this), 100, this);
 
-		var fnMobile = BX.delegate(function() {
+		var fnMobile = function() {
 			BXMobileApp.UI.Page.isVisible({
 				callback: function(data)
 				{
@@ -288,7 +288,7 @@ BX.UserContentView.onUCRecordHasDrawn = function(entityXmlId, id, data)
 					}
 				}
 			});
-		}, this);
+		}.bind(this);
 
 		if (this.mobile)
 		{
@@ -296,7 +296,7 @@ BX.UserContentView.onUCRecordHasDrawn = function(entityXmlId, id, data)
 		}
 		else
 		{
-			BX.bind(document, "mousemove", fnWeb);
+			BX.bind(document, 'mousemove', fnWeb);
 		}
 	}
 };
@@ -351,6 +351,11 @@ BX.UserContentView.OnUCHasBeenInitializedMobile = function(ENTITY_XML_ID, ob)
 	});
 };
 
+BX.UserContentView.OnSetPreventNextPage = function(status)
+{
+	this.preventRead = !!status;
+};
+
 BX.UserContentView.registerViewAreaList = function(params)
 {
 	if (
@@ -400,9 +405,9 @@ BX.UserContentView.liveUpdate = function(params)
 
 	if (cntNode && cntWrapNode)
 	{
-		var plusOneNode = BX.create("SPAN", {
+		var plusOneNode = BX.create('SPAN', {
 			props : {
-				className : "feed-content-view-plus-one"
+				className: 'feed-content-view-plus-one',
 			},
 			style: {
 				width: (cntWrapNode.clientWidth - 8)+'px',
@@ -431,6 +436,11 @@ BX.UserContentView.liveUpdate = function(params)
 */
 BX.UserContentView.onIntersection = function(entries)
 {
+	if (this.preventRead)
+	{
+		return;
+	}
+
 	entries.forEach(function (entry) {
 		if (entry.isIntersecting)
 		{
@@ -455,13 +465,11 @@ BX.UserContentView.onIntersection = function(entries)
 				}
 			}.bind(entry.target), (this.mobile ? this.viewAreaTimePeriodAvgMobile : this.viewAreaTimePeriodAvg))
 		}
-		else
+		else if (this.checkerMap.has(entry.target))
 		{
-			if (this.checkerMap.has(entry.target))
-			{
-				this.checkerMap.delete(entry.target);
-			}
+			this.checkerMap.delete(entry.target);
 		}
+
 	}.bind(this));
 };
 
@@ -507,12 +515,12 @@ BX.UserContentView.Counter.prototype.init = function(params)
 
 	if (typeof BX.PULL != 'undefined')
 	{
-		BX.PULL.extendWatch("CONTENTVIEW" + this.contentId);
+		BX.PULL.extendWatch('CONTENTVIEW' + this.contentId);
 	}
 
 	this.popupScroll();
 
-	BX.bind(this.node, 'mouseover' , BX.delegate(function() {
+	BX.bind(this.node, 'mouseover' , function() {
 		if (
 			this.popup !== null
 			&& this.popup.isShown()
@@ -520,17 +528,18 @@ BX.UserContentView.Counter.prototype.init = function(params)
 		{
 			return;
 		}
+
 		clearTimeout(this.popupTimeoutId);
 		this.popupContentPage = 1;
 
 		BX.cleanNode(this.popupContent);
-		this.popupContent.appendChild(BX.create("SPAN", {
+		this.popupContent.appendChild(BX.create('SPAN', {
 			props: {
-				className: 'bx-contentview-wait'
-			}
+				className: 'bx-contentview-wait',
+			},
 		}));
 
-		this.popupTimeoutId = setTimeout(BX.delegate(function() {
+		this.popupTimeoutId = setTimeout(function() {
 			if (BX.UserContentView.currentPopupId == this.contentId)
 			{
 				return false;
@@ -543,19 +552,20 @@ BX.UserContentView.Counter.prototype.init = function(params)
 				});
 			}
 
-			this.popupTimeoutId = setTimeout(BX.delegate(function() {
+			this.popupTimeoutId = setTimeout(function() {
 				this.openPopup();
-			}, this), 400);
-		}, this), 400);
-	}, this));
+			}.bind(this), 400);
 
-	BX.bind(this.node, 'mouseout' , BX.delegate(function() {
+		}.bind(this), 400);
+
+	}.bind(this));
+
+	this.node.addEventListener('mouseout', function() {
 		clearTimeout(this.popupTimeoutId);
-	}, this));
+	}.bind(this));
 
-	BX.bind(this.node, 'click' , BX.delegate(function() {
+	this.node.addEventListener('click', function() {
 		clearTimeout(this.popupTimeoutId);
-
 		if (this.popupContentPage == 1)
 		{
 			this.list({
@@ -564,7 +574,7 @@ BX.UserContentView.Counter.prototype.init = function(params)
 		}
 
 		this.openPopup();
-	}, this));
+	}.bind(this));
 };
 
 BX.UserContentView.Counter.prototype.list = function(params)
@@ -639,46 +649,60 @@ BX.UserContentView.Counter.prototype.list = function(params)
 
 			if (BX.type.isNotEmptyString(data.items[i]['PHOTO_SRC']))
 			{
-				avatarNode = BX.create("IMG", {
-					attrs: {src: data.items[i]['PHOTO_SRC']},
-					props: {className: "bx-contentview-popup-avatar-img"}
+				avatarNode = BX.create('IMG', {
+					attrs: {
+						src: data.items[i]['PHOTO_SRC'],
+					},
+					props: {
+						className: 'bx-contentview-popup-avatar-img',
+					},
 				});
 			}
 			else
 			{
-				avatarNode = BX.create("IMG", {
-					attrs: {src: '/bitrix/images/main/blank.gif'},
-					props: {className: "bx-contentview-popup-avatar-img bx-contentview-popup-avatar-img-default"}
+				avatarNode = BX.create('IMG', {
+					attrs: {
+						src: '/bitrix/images/main/blank.gif',
+					},
+					props: {
+						className: 'bx-contentview-popup-avatar-img bx-contentview-popup-avatar-img-default',
+					},
 				});
 			}
 
 			this.popupContent.appendChild(
-				BX.create("A", {
+				BX.create('A', {
 					attrs: {
 						href: data.items[i]['URL'],
 						target: '_blank',
-						title: data.items[i]['DATE_VIEW_FORMATTED']
+						title: data.items[i]['DATE_VIEW_FORMATTED'],
 					},
 					props: {
-						className: "bx-contentview-popup-img" + (!!data.items[i]['TYPE'] ? " bx-contentview-popup-img-" + data.items[i]['TYPE'] : "")
+						className: 'bx-contentview-popup-img' + (
+							!!data.items[i]['TYPE']
+								? ' bx-contentview-popup-img-' + data.items[i]['TYPE']
+								: ''
+						),
 					},
 					children: [
-						BX.create("SPAN", {
+						BX.create('SPAN', {
 							props: {
-								className: "bx-contentview-popup-avatar-new"
+								className: 'bx-contentview-popup-avatar-new',
 							},
 							children: [
 								avatarNode,
-								BX.create("SPAN", {
-									props: {className: "bx-contentview-popup-avatar-status-icon"}
-								})
-							]
+								BX.create('SPAN', {
+									props: {
+										className: 'bx-contentview-popup-avatar-status-icon',
+									},
+								}),
+							],
 						}),
-						BX.create("SPAN", {
+						BX.create('SPAN', {
 							props: {
-								className: "bx-contentview-popup-name-new"
+								className: 'bx-contentview-popup-name-new',
 							},
-							html: data.items[i]['FULL_NAME']
+							html: data.items[i]['FULL_NAME'],
 						})
 					]
 				})
@@ -690,9 +714,9 @@ BX.UserContentView.Counter.prototype.list = function(params)
 			BX.cleanNode(this.hiddenCountNode, true);
 			this.hiddenCountNode = BX.create('SPAN', {
 				props: {
-					className: 'bx-contentview-popup-name-new contentview-counter-hidden'
+					className: 'bx-contentview-popup-name-new contentview-counter-hidden',
 				},
-				html: BX.message('SONET_CONTENTVIEW_JS_HIDDEN_COUNT').replace('#CNT#', data.hiddenCount)
+				html: BX.message('SONET_CONTENTVIEW_JS_HIDDEN_COUNT').replace('#CNT#', data.hiddenCount),
 			});
 			this.popupContent.appendChild(this.hiddenCountNode);
 		}
@@ -743,23 +767,23 @@ BX.UserContentView.Counter.prototype.openPopup = function()
 		});
 		BX.UserContentView.popupList[this.contentId] = this.popup;
 
-		BX.bind(BX('contentview-popup-' + this.contentId), 'mouseout' , BX.delegate(function() {
+		BX.bind(BX('contentview-popup-' + this.contentId), 'mouseout' , function() {
 			clearTimeout(this.popupTimeout);
-			this.popupTimeout = setTimeout(BX.delegate(function() {
+			this.popupTimeout = setTimeout(function() {
 				this.popup.close();
-			}, this), 1000);
-		}, this));
+			}.bind(this), 1000);
+		}.bind(this));
 
-		BX.bind(BX('contentview-popup-' + this.contentId), 'mouseover' , BX.delegate(function() {
+		BX.bind(BX('contentview-popup-' + this.contentId), 'mouseover' , function() {
 			clearTimeout(this.popupTimeout);
 			clearTimeout(this.mouseLeaveTimeoutId);
-		}, this));
+		}.bind(this));
 
-		BX.bind(this.node, 'mouseleave' , BX.delegate(function() {
-			this.mouseLeaveTimeoutId = setTimeout(BX.delegate(function() {
+		BX.bind(this.node, 'mouseleave' , function() {
+			this.mouseLeaveTimeoutId = setTimeout(function() {
 				this.popup.close();
-			}, this), 1000);
-		}, this));
+			}.bind(this), 1000);
+		}.bind(this));
 	}
 
 	if (BX.UserContentView.currentPopupId != null)
@@ -799,12 +823,12 @@ BX.UserContentView.Counter.prototype.adjustWindow = function()
 };
 
 // used only in mobile livefeed so far
-BX.addCustomEvent(window, "BX.UserContentView.onInitCall", BX.delegate(BX.UserContentView.init, BX.UserContentView));
-BX.addCustomEvent(window, "BX.UserContentView.onRegisterViewAreaListCall", BX.delegate(BX.UserContentView.registerViewAreaList, BX.UserContentView));
-BX.addCustomEvent(window, "BX.UserContentView.onClearCall", BX.delegate(BX.UserContentView.clear, BX.UserContentView));
+BX.addCustomEvent(window, 'BX.UserContentView.onInitCall', BX.UserContentView.init.bind(BX.UserContentView));
+BX.addCustomEvent(window, 'BX.UserContentView.onRegisterViewAreaListCall', BX.UserContentView.registerViewAreaList.bind(BX.UserContentView));
+BX.addCustomEvent(window, 'BX.UserContentView.onClearCall', BX.UserContentView.clear.bind(BX.UserContentView));
 
-BX.addCustomEvent("onPullEvent-contentview", function(command, params) {
-	if (command == 'add')
+BX.addCustomEvent('onPullEvent-contentview', function(command, params) {
+	if (command === 'add')
 	{
 		BX.UserContentView.liveUpdate(params);
 	}

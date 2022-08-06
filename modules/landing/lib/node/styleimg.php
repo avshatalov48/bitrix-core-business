@@ -120,7 +120,7 @@ class StyleImg extends Node
 								}
 							}
 
-							if (!$stylesChanged && false)
+							if (!$stylesChanged)
 							{
 								$classList = $resultList[$pos]->getAttribute('class');
 								if (!stripos($classList, 'g-bg-image'))
@@ -128,9 +128,13 @@ class StyleImg extends Node
 									$classList .= ' g-bg-image';
 								}
 								$resultList[$pos]->setAttribute('class', $classList);
-								$fileArray1x = \CFile::GetFileArray($id2x);
+								$fileArray1x = \CFile::GetFileArray($id);
 								$src1x = $fileArray1x['SRC'];
 								$styles['--bg-url'] = "url('{$src1x}');";
+								if ($id2x <= 0 && $id > 0)
+								{
+									$id2x = $id;
+								}
 								$fileArray2x = \CFile::GetFileArray($id2x);
 								$src2x = $fileArray2x['SRC'];
 								$styles['--bg-url-2x'] = "url('{$src2x}');";

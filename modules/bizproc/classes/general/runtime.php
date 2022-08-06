@@ -1,6 +1,8 @@
 <?php
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Bizproc\Debugger\Workflow\DebugWorkflow;
+use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
 use \Bitrix\Main;
 use \Bitrix\Bizproc;
 use \Bitrix\Bizproc\RestActivityTable;
@@ -31,6 +33,7 @@ class CBPRuntime
 	private static $featuresCache = [];
 
 	private $services = [];
+	private $debugServices = [];
 	private $workflows = [];
 
 	private $loadedActivities = [];
@@ -42,7 +45,7 @@ class CBPRuntime
 
 	/**
 	* Private constructor prevents from instantiating this class. Singleton pattern.
-	* 
+	*
 	*/
 	private function __construct()
 	{
@@ -142,49 +145,29 @@ class CBPRuntime
 
 	/**
 	* Public method starts runtime
-	* 
+	*
 	*/
 	public function StartRuntime()
 	{
 		if ($this->isStarted)
+		{
 			return;
-
-		if (!$this->services["SchedulerService"])
-		{
-			$this->services["SchedulerService"] = new CBPSchedulerService();
-		}
-		if (!$this->services["StateService"])
-		{
-			$this->services["StateService"] = new CBPStateService();
-		}
-		if (!$this->services["TrackingService"])
-		{
-			$this->services["TrackingService"] = new CBPTrackingService();
-		}
-		if (!$this->services["TaskService"])
-		{
-			$this->services["TaskService"] = new CBPTaskService();
-		}
-		if (!$this->services["HistoryService"])
-		{
-			$this->services["HistoryService"] = new CBPHistoryService();
-		}
-		if (!$this->services["DocumentService"])
-		{
-			$this->services["DocumentService"] = new CBPDocumentService();
-		}
-		if (!$this->services["AnalyticsService"])
-		{
-			$this->services["AnalyticsService"] = new Bizproc\Service\Analytics();
-		}
-		if (!$this->services["UserService"])
-		{
-			$this->services["UserService"] = new Bizproc\Service\User();
 		}
 
-		foreach ($this->services as $serviceId => $service)
+		$serviceManager = Bizproc\Service\Manager::getInstance();
+		foreach ($serviceManager->getAllServiceNames() as $serviceName)
 		{
-			$service->start($this);
+			$compatibleServiceName = mb_strtoupper($serviceName[0]) . mb_substr($serviceName, 1);
+			if (!$this->services[$compatibleServiceName])
+			{
+				$this->services[$compatibleServiceName] = $serviceManager->getService($serviceName);
+			}
+			if (!$this->debugServices[$compatibleServiceName] && $serviceManager->hasDebugService($serviceName))
+			{
+				$this->debugServices[$compatibleServiceName] = $serviceManager->getDebugService($serviceName);
+			}
+
+			$this->services[$compatibleServiceName]->start($this);
 		}
 
 		$this->isStarted = true;
@@ -192,7 +175,7 @@ class CBPRuntime
 
 	/**
 	* Public method stops runtime
-	* 
+	*
 	*/
 	public function StopRuntime()
 	{
@@ -234,7 +217,9 @@ class CBPRuntime
 	{
 		$workflowTemplateId = intval($workflowTemplateId);
 		if ($workflowTemplateId <= 0)
+		{
 			throw new Exception("workflowTemplateId");
+		}
 
 		$arDocumentId = CBPHelper::ParseDocumentId($documentId);
 
@@ -243,20 +228,26 @@ class CBPRuntime
 		if (!$ignoreLimits && intval($limit) > 0)
 		{
 			if (CBPStateService::CountDocumentWorkflows($documentId) >= $limit)
-				throw new Exception(GetMessage("BPCGDOC_LIMIT_SIMULTANEOUS_PROCESSES", array("#NUM#" => $limit)));
+			{
+				throw new Exception(GetMessage("BPCGDOC_LIMIT_SIMULTANEOUS_PROCESSES", ["#NUM#" => $limit]));
+			}
 		}
 		unset($workflowParameters[CBPDocument::PARAM_IGNORE_SIMULTANEOUS_PROCESSES_LIMIT]);
 
 		if (!$this->isStarted)
+		{
 			$this->StartRuntime();
+		}
 
-		$workflowId = uniqid("", true);
+		$workflowId = $workflowParameters[CBPDocument::PARAM_PRE_GENERATED_WORKFLOW_ID] ?? static::generateWorkflowId();
 
 		if ($parentWorkflow)
 		{
 			$this->addWorkflowToChain($workflowId, $parentWorkflow);
 			if ($this->checkWorkflowRecursion($workflowId, $workflowTemplateId))
+			{
 				throw new Exception(GetMessage("BPCGDOC_WORKFLOW_RECURSION_LOCK"));
+			}
 		}
 
 		$workflow = new CBPWorkflow($workflowId, $this);
@@ -267,7 +258,9 @@ class CBPRuntime
 		[$rootActivity, $workflowVariablesTypes, $workflowParametersTypes] = $loader->LoadWorkflow($workflowTemplateId);
 
 		if ($rootActivity == null)
+		{
 			throw new Exception("EmptyRootActivity");
+		}
 
 		foreach(GetModuleEvents("bizproc", "OnCreateWorkflow", true)  as $arEvent)
 		{
@@ -285,6 +278,53 @@ class CBPRuntime
 		$this->GetService("StateService")->AddWorkflow($workflowId, $workflowTemplateId, $arDocumentId, $starterUserId);
 
 		$this->workflows[$workflowId] = $workflow;
+
+		return $workflow;
+	}
+
+	public function createDebugWorkflow(int $templateId, array $documentId, $workflowParameters = [])
+	{
+		$complexDocumentId = CBPHelper::ParseDocumentId($documentId);
+
+		$workflowId = $workflowParameters[CBPDocument::PARAM_PRE_GENERATED_WORKFLOW_ID] ?? static::generateWorkflowId();
+		$workflow = new DebugWorkflow($workflowId, $this);
+
+		$loader = CBPWorkflowTemplateLoader::GetLoader();
+
+		[$rootActivity, $workflowVariablesTypes, $workflowParametersTypes] = $loader->LoadWorkflow($templateId);
+
+		if (is_null($rootActivity))
+		{
+			throw new Exception('Empty root activity');
+		}
+
+		foreach(GetModuleEvents("bizproc", "OnCreateWorkflow", true)  as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [$templateId, $documentId, &$workflowParameters, $workflowId]);
+		}
+
+		$workflow->Initialize(
+			$rootActivity,
+			$complexDocumentId,
+			$workflowParameters,
+			$workflowVariablesTypes,
+			$workflowParametersTypes,
+			$templateId
+		);
+
+		$starterUserId = 0;
+		if (isset($workflowParameters[CBPDocument::PARAM_TAGRET_USER]))
+		{
+			$starterUserId = intval(mb_substr($workflowParameters[CBPDocument::PARAM_TAGRET_USER], mb_strlen("user_")));
+		}
+
+		$this
+			->GetService("StateService")
+			->AddWorkflow($workflowId, $templateId, $complexDocumentId, $starterUserId)
+		;
+
+		$this->workflows[$workflowId] = $workflow;
+
 		return $workflow;
 	}
 
@@ -296,7 +336,7 @@ class CBPRuntime
 	 * @return CBPWorkflow
 	 * @throws Exception
 	 */
-	public function GetWorkflow($workflowId, $silent = false)
+	public function getWorkflow($workflowId, $silent = false)
 	{
 		if ($workflowId == '')
 			throw new Exception("workflowId");
@@ -307,17 +347,28 @@ class CBPRuntime
 		if (array_key_exists($workflowId, $this->workflows))
 			return $this->workflows[$workflowId];
 
-		$workflow = new CBPWorkflow($workflowId, $this);
+		$workflow = $this->getWorkflowInstance($workflowId);
+		$rootActivity = $workflow->getPersister()->LoadWorkflow($workflowId, $silent);
 
-		$persister = CBPWorkflowPersister::GetPersister();
-		$rootActivity = $persister->LoadWorkflow($workflowId, $silent);
 		if ($rootActivity == null)
+		{
 			throw new Exception("Empty root activity");
+		}
 
-		$workflow->Reload($rootActivity);
+		$workflow->reload($rootActivity);
 
 		$this->workflows[$workflowId] = $workflow;
 		return $workflow;
+	}
+
+	protected function getWorkflowInstance(string $workflowId): CBPWorkflow
+	{
+		if (WorkflowInstanceTable::isDebugWorkflow($workflowId))
+		{
+			return new DebugWorkflow($workflowId, $this);
+		}
+
+		return new CBPWorkflow($workflowId, $this);
 	}
 
 	public function onWorkflowStatusChanged($workflowId, $status)
@@ -332,11 +383,16 @@ class CBPRuntime
 		}
 	}
 
+	public static function generateWorkflowId(): string
+	{
+		return uniqid("", true);
+	}
+
 	/*******************  SERVICES  *********************************************************/
 
 	/**
 	* Returns service instance by its code.
-	* 
+	*
 	* @param mixed $name - Service code.
 	* @return mixed|CBPSchedulerService|CBPStateService|CBPTrackingService|CBPTaskService|CBPHistoryService|CBPDocumentService|Bizproc\Service\Analytics - Service instance or null if service is not found.
 	*/
@@ -350,9 +406,19 @@ class CBPRuntime
 		return null;
 	}
 
+	public function getDebugService($name)
+	{
+		if (array_key_exists($name, $this->debugServices))
+		{
+			return $this->debugServices[$name];
+		}
+
+		return null;
+	}
+
 	/**
 	* Adds new service to runtime. Runtime should be stopped.
-	* 
+	*
 	* @param string $name - Service code.
 	* @param CBPRuntimeService $service - Service object.
 	*/
@@ -377,7 +443,7 @@ class CBPRuntime
 
 	/**
 	* Static method transfer event to the specified workflow instance.
-	* 
+	*
 	* @param mixed $workflowId - ID of the workflow instance.
 	* @param mixed $eventName - Event name.
 	* @param mixed $arEventParameters - Event parameters.
@@ -404,7 +470,7 @@ class CBPRuntime
 
 	/**
 	* Includes activity file by activity code.
-	* 
+	*
 	* @param string $code - Activity code.
 	*/
 	public function IncludeActivityFile($code)
@@ -596,7 +662,7 @@ class CBPRuntime
 		$arProcessedDirs = array();
 		foreach ($this->activityFolders as $folder)
 		{
-			if ($handle = @opendir($folder))
+			if (is_dir($folder) && $handle = opendir($folder))
 			{
 				while (false !== ($dir = readdir($handle)))
 				{
@@ -726,6 +792,7 @@ class CBPRuntime
 		}
 
 		$classesList[] = \CBPWorkflow::class;
+		$classesList[] = DebugWorkflow::class;
 		$classesList[] = Bizproc\BaseType\Value\Date::class;
 		$classesList[] = Bizproc\BaseType\Value\DateTime::class;
 		$classesList[] = Main\Type\Date::class;

@@ -800,7 +800,10 @@ class UserProvider extends BaseProvider
 				{
 					$filter = Query::filter()->logic('or');
 
-					if (empty($options['searchByEmail']))
+					if (
+						empty($options['searchByEmail'])
+						&& !\CSocNetUser::isCurrentUserModuleAdmin()
+					)
 					{
 						$filter->where('IS_INTRANET_USER', 'Y');
 					}
@@ -959,7 +962,10 @@ class UserProvider extends BaseProvider
 		$extranetSiteId = Option::get('extranet', 'extranet_site');
 		$extranetSiteId = ($extranetSiteId && ModuleManager::isModuleInstalled('extranet') ? $extranetSiteId : false);
 
-		if (!$extranetSiteId)
+		if (
+			!$extranetSiteId
+			|| \CSocNetUser::isCurrentUserModuleAdmin()
+		)
 		{
 			return null;
 		}

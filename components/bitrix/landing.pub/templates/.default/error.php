@@ -73,7 +73,9 @@ if (
 					<div class="landing-error-kb-img-inner"></div>
 				</div>
 				<div class="landing-error-kb-desc"><?= Loc::getMessage('LANDING_TPL_ERROR_NOT_ALLOWED_NOTE_KNOWLEDGE');?></div>
+				<?if (!\Bitrix\Landing\Connector\Mobile::isMobileHit()):?>
 				<a href="#" id="landing-access-request" class="ui-btn ui-btn-primary"><?= Loc::getMessage('LANDING_TPL_ERROR_NOT_ALLOWED_ASK');?></a>
+				<?endif?>
 			</div>
 		</div>
 		<script>

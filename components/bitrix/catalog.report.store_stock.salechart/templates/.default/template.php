@@ -23,6 +23,7 @@ Extension::load([
 	'currency',
 	'ui.icons',
 	'ui.hint',
+	'ui.fonts.opensans',
 ]);
 
 

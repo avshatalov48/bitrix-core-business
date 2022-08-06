@@ -452,7 +452,7 @@ final class Loc
 	 */
 	public static function getDefaultLang($lang)
 	{
-		static $subst = array('ua'=>'ru', 'kz'=>'ru', 'by'=>'ru', 'ru'=>'ru', 'en'=>'en', 'de'=>'en');
+		static $subst = ['ua' => 'en', 'kz' => 'ru', 'by' => 'ru', 'ru' => 'ru', 'en' => 'en', 'de' => 'en'];
 		if(isset($subst[$lang]))
 		{
 			return $subst[$lang];

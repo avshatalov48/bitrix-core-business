@@ -49,7 +49,7 @@ class DateTime extends Date
 			{
 				if(isset($parsedValue["zone_type"]) && $parsedValue["zone_type"] == 1)
 				{
-					if(isset($parsedValue["zone"]) && $parsedValue["zone"] <> 0)
+					if(isset($parsedValue["zone"]))
 					{
 						$this->setTimeZone(new \DateTimeZone(static::secondsToOffset($parsedValue["zone"])));
 					}

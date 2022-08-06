@@ -134,6 +134,7 @@ class CBPGetUserInfoActivity
 	{
 		$userId = CBPHelper::ExtractUsers($this->GetUser, $this->GetDocumentId(), true);
 
+		$this->writeDebugInfo($this->getDebugInfo(['GetUser' => $userId]));
 		if (!$userId)
 		{
 			$this->WriteToTrackingService(GetMessage('BPGUIA_ERROR_1'), 0, CBPTrackingType::Error);
@@ -195,8 +196,21 @@ class CBPGetUserInfoActivity
 			$tmUser = new CTimeManUser($userId);
 			$this->__set('TIMEMAN_STATUS', $tmUser->State());
 		}
+		$this->logUserFields();
 
 		return CBPActivityExecutionStatus::Closed;
+	}
+
+	private function logUserFields(): void
+	{
+		$map = array_filter(
+			array_merge(self::getUserFields(), self::getFieldsCreatedByUser()),
+			fn ($fieldId) => !CBPHelper::isEmptyValue($this->__get($fieldId)),
+			ARRAY_FILTER_USE_KEY,
+		);
+		$debugInfo = $this->getDebugInfo([], $map);
+
+		$this->writeDebugInfo($debugInfo);
 	}
 
 	protected function convertSelectValue($value, $fieldMap)
@@ -328,20 +342,25 @@ class CBPGetUserInfoActivity
 
 		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);
 
-		$dialog->setMap([
-			'GetUser' => [
-				'Name' => GetMessage('BPGUIA_TARGET_USER_NAME'),
-				'FieldName' => 'get_user',
-				'Type' => 'user',
-				'Default' => $user->getBizprocId()
-			],
-		]);
+		$dialog->setMap(static::getPropertiesMap($documentType, ['user' => $user]));
 
 		$dialog->setRuntimeData([
 			'user' => $user
 		]);
 
 		return $dialog;
+	}
+
+	protected static function getPropertiesMap(array $documentType, array $context = []): array
+	{
+		return [
+			'GetUser' => [
+				'Name' => GetMessage('BPGUIA_TARGET_USER_NAME'),
+				'FieldName' => 'get_user',
+				'Type' => 'user',
+				'Default' => isset($context['user']) ? $context['user']->getBizprocId() : null,
+			],
+		];
 	}
 
 	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$errors)

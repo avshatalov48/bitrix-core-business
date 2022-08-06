@@ -24,7 +24,7 @@ $arTicket = $ticket->ExtractFields();
 ?>
 <table cellspacing=0 cellpadding=0 class="support-online">
 	<?
-	$mode = $mode <> '' ? $mode : false;
+	$mode = strlen($mode)>0 ? $mode : false;
 	CTicket::UpdateOnline($TICKET_ID, false, $mode);
 	$rs = CTicket::GetOnline($TICKET_ID);
 	while ($ar = $rs->GetNext()) :
@@ -46,7 +46,7 @@ $arTicket = $ticket->ExtractFields();
 			?></font></td>
 
 		<td width="84%" valign="top"><?
-			if (trim($ar["USER_NAME"]) <> ''):
+			if (strlen(trim($ar["USER_NAME"]))>0):
 				?><a title="<?=GetMessage("SUP_USER_PROFILE")?>" target="_blank" href="/bitrix/admin/user_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$ar["USER_ID"]?>"><?=$ar["USER_NAME"]?></a><?
 			else:
 				?><a title="<?=GetMessage("SUP_USER_PROFILE")?>" target="_blank" href="/bitrix/admin/user_edit.php?lang=<?=LANGUAGE_ID?>&ID=<?=$ar["USER_ID"]?>"><?=$ar["USER_LOGIN"]?></a>
@@ -57,9 +57,9 @@ $arTicket = $ticket->ExtractFields();
 	<?endwhile;?>
 </table>
 <?
-if ($lamp <> '') 
+if (strlen($lamp)>0) 
 {
-	$lamp_alt = GetMessage("SUP_".mb_strtoupper($lamp)."_ALT");
+	$lamp_alt = GetMessage("SUP_".strtoupper($lamp)."_ALT");
 	//$lamp = "/bitrix/images/support/$lamp.gif";?>
 <script type="text/javascript">
 <!--

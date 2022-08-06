@@ -97,7 +97,8 @@
 	padding: 0 15px;
 	overflow: hidden;
 	color: #333;
-	font: 18px/24px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 18px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .sender-tpl-section {
@@ -127,7 +128,7 @@
 	height: 208px;
 	background: #fff;
 	margin: 0 20px 30px 20px;
-	border-radius: 1px;
+	border-radius: var(--sender-tpl-content-border-radius, var(--ui-border-radius-md, 1px));
 	font-size: 12px;
 	box-shadow: 0 1px 2px rgba(0,0,0,.15);
 	transition: .2s;
@@ -193,7 +194,8 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	font-size: 12px;
-	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-sarif, serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .sender-tpl-item-title-name {
@@ -215,7 +217,8 @@
 	font-size: 11px;
 	margin-right: -12px;
 	border-radius: 0 1px 0 0;
-	font-family: OpenSans-Bold, Helvetca, Arial, sans-sarif, serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .sender-tpl-content:hover .sender-tpl-item-title-demo {
@@ -309,7 +312,8 @@
 	border-radius: 13px;
 	text-decoration: none;
 	background: transparent;
-	font-family: OpenSans-Bold, Helvetca, Arial, sans-sarif, serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	transition: .1s;
 }
 

@@ -11,153 +11,59 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
+/** @global CUserTypeManager $USER_FIELD_MANAGER */
 
+use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
+use Bitrix\Intranet\Internals\ThemeTable;
 use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\Integration;
 use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Helper;
+
+global $USER_FIELD_MANAGER;
 
 Loc::loadMessages(__FILE__);
 
 CSocNetLogComponent::processDateTimeFormatParams($arParams);
 
-$pageTitle = Loc::getMessage('SONET_C6_CARD_TITLE');
-if ($arResult['isScrumProject'])
-{
-	$pageTitle = Loc::getMessage('SONET_C6_CARD_TITLE_SCRUM');
-}
-elseif ($arResult['Group']['PROJECT'] === 'Y')
-{
-	$pageTitle = Loc::getMessage('SONET_C6_CARD_TITLE_PROJECT');
-}
-$APPLICATION->SetTitle($pageTitle);
-
-if (is_array($arResult["Owner"]))
-{
-	if (intval($arResult["Owner"]["USER_PERSONAL_PHOTO"]) > 0)
-	{
-		$arImage = CFile::ResizeImageGet(
-			$arResult["Owner"]["USER_PERSONAL_PHOTO"], 
-			array("width" => 100, "height" => 100),
-			BX_RESIZE_IMAGE_EXACT
-		);
-	}
-	else
-	{
-		$arImage = array("src" => "");
-	}
-
-	$arResult["Owner"]["USER_PERSONAL_PHOTO_FILE"]["SRC"] = $arImage["src"];
-	$arResult["Owner"]["NAME_FORMATTED"] = CUser::FormatName(
-		$arParams["NAME_TEMPLATE"],
-		array(
-			"NAME" => htmlspecialcharsBack($arResult["Owner"]["USER_NAME"]),
-			"LAST_NAME" => htmlspecialcharsBack($arResult["Owner"]["USER_LAST_NAME"]),
-			"SECOND_NAME" => htmlspecialcharsBack($arResult["Owner"]["USER_SECOND_NAME"]),
-			"LOGIN" => htmlspecialcharsBack($arResult["Owner"]["USER_LOGIN"])
-		),
-		true
-	);
-}
-
-if (is_array($arResult["Moderators"]["List"]))
-{
-	foreach($arResult["Moderators"]["List"] as $key => $moderator)
-	{
-		if (is_array($moderator))
-		{
-			if (intval($moderator["USER_PERSONAL_PHOTO"]) > 0)
-			{
-				$arImage = CFile::ResizeImageGet(
-					$moderator["USER_PERSONAL_PHOTO"],
-					array("width" => 100, "height" => 100),
-					BX_RESIZE_IMAGE_EXACT
-				);
-			}
-			else
-			{
-				$arImage = array("src" => "");
-			}
-
-			$arResult["Moderators"]["List"][$key]["USER_PERSONAL_PHOTO_FILE"]["SRC"] = $arImage["src"];
-			$arResult["Moderators"]["List"][$key]["NAME_FORMATTED"] = CUser::FormatName(
-				$arParams["NAME_TEMPLATE"],
-				array(
-					"NAME" => htmlspecialcharsBack($moderator["USER_NAME"]),
-					"LAST_NAME" => htmlspecialcharsBack($moderator["USER_LAST_NAME"]),
-					"SECOND_NAME" => htmlspecialcharsBack($moderator["USER_SECOND_NAME"]),
-					"LOGIN" => htmlspecialcharsBack($moderator["USER_LOGIN"])
-				),
-				true
-			);
-		}
-	}
-}
-
-if (is_array($arResult["Members"]["List"]))
-{
-	foreach($arResult["Members"]["List"] as $key => $member)
-	{
-		if (is_array($member))
-		{
-			if (intval($member["USER_PERSONAL_PHOTO"]) > 0)
-			{
-				$arImage = CFile::ResizeImageGet(
-					$member["USER_PERSONAL_PHOTO"],
-					array("width" => 100, "height" => 100),
-					BX_RESIZE_IMAGE_EXACT
-				);
-			}
-			else
-			{
-				$arImage = array("src" => "");
-			}
-			
-			$arResult["Members"]["List"][$key]["USER_PERSONAL_PHOTO_FILE"]["SRC"] = $arImage["src"];
-			$arResult["Members"]["List"][$key]["NAME_FORMATTED"] = CUser::FormatName(
-				$arParams["NAME_TEMPLATE"],
-				array(
-					"NAME" => htmlspecialcharsBack($member["USER_NAME"]),
-					"LAST_NAME" => htmlspecialcharsBack($member["USER_LAST_NAME"]),
-					"SECOND_NAME" => htmlspecialcharsBack($member["USER_SECOND_NAME"]),
-					"LOGIN" => htmlspecialcharsBack($member["USER_LOGIN"])
-				),
-				true
-			);
-
-		}
-	}
-}
-
 $arResult["Urls"]["Delete"] = CComponentEngine::MakePathFromTemplate(
 	$arParams["PATH_TO_GROUP_DELETE"],
-	array("group_id" => $arResult["Group"]["ID"])
+	[
+		"group_id" => $arResult["Group"]["ID"],
+	]
 );
 
 $arResult["FAVORITES"] = false;
 if ($USER->IsAuthorized())
 {
-	$res = \Bitrix\Socialnetwork\WorkgroupFavoritesTable::getList(array(
-		'filter' => array(
+	$res = \Bitrix\Socialnetwork\WorkgroupFavoritesTable::getList([
+		'filter' => [
 			'GROUP_ID' => $arResult["Group"]["ID"],
-			'USER_ID' => $USER->getId()
-		)
-	));
+			'USER_ID' => $USER->getId(),
+		],
+	]);
 	$arResult["FAVORITES"] = ($res->fetch());
 }
 
-$arResult["Types"] = \Bitrix\Socialnetwork\Helper\Workgroup::getTypes([
+$arResult["Types"] = Helper\Workgroup::getTypes([
 	'currentExtranetSite' => $arResult["bExtranet"],
 ]);
 
-$arResult["groupTypeCode"] = \Bitrix\Socialnetwork\Helper\Workgroup::getTypeCodeByParams(array(
-	'fields' => array(
-		'VISIBLE' => (isset($arResult["Group"]['VISIBLE']) && $arResult["Group"]['VISIBLE'] === 'Y' ? 'Y' : 'N'),
-		'OPENED' => (isset($arResult["Group"]['OPENED']) && $arResult["Group"]['OPENED'] === 'Y' ? 'Y' : 'N'),
-		'PROJECT' => (isset($arResult["Group"]['PROJECT']) && $arResult["Group"]['PROJECT'] === 'Y' ? 'Y' : 'N'),
-		'EXTERNAL' => (isset($arResult["Group"]["IS_EXTRANET_GROUP"]) && $arResult["Group"]["IS_EXTRANET_GROUP"] === 'Y' ? 'Y' : 'N'),
-	)
-));
+$typeFields = [
+	'PROJECT' => (isset($arResult["Group"]['PROJECT']) && $arResult["Group"]['PROJECT'] === 'Y' ? 'Y' : 'N'),
+	'EXTERNAL' => (isset($arResult["Group"]["IS_EXTRANET_GROUP"]) && $arResult["Group"]["IS_EXTRANET_GROUP"] === 'Y' ? 'Y' : 'N'),
+	'SCRUM_PROJECT' => ($arResult['isScrumProject'] ? 'Y' : 'N'),
+];
+if (!$arResult['isScrumProject'])
+{
+	$typeFields['OPENED'] = (isset($arResult["Group"]['OPENED']) && $arResult["Group"]['OPENED'] === 'Y' ? 'Y' : 'N');
+	$typeFields['VISIBLE'] = (isset($arResult["Group"]['VISIBLE']) && $arResult["Group"]['VISIBLE'] === 'Y' ? 'Y' : 'N');
+}
+
+$arResult["groupTypeCode"] = Helper\Workgroup::getTypeCodeByParams([
+	'fields' => $typeFields,
+]);
 
 $arResult["Group"]["IS_EXTRANET_GROUP"] = (
 	Loader::includeModule("extranet")
@@ -166,7 +72,7 @@ $arResult["Group"]["IS_EXTRANET_GROUP"] = (
 		: "N"
 );
 
-$arResult["Group"]["KEYWORDS_LIST"] = array();
+$arResult["Group"]["KEYWORDS_LIST"] = [];
 if (
 	isset($arResult["Group"]["KEYWORDS"])
 	&& $arResult["Group"]["KEYWORDS"] <> ''
@@ -194,11 +100,11 @@ if (empty($arResult["Urls"]["GroupsList"]))
 {
 	$arResult["Urls"]["GroupsList"] = CComponentEngine::MakePathFromTemplate(
 		$arParams["PATH_TO_GROUPS_LIST"],
-		array("user_id" => $USER->getId())
+		[ "user_id" => $USER->getId() ]
 	);
 }
 
-$arParams['USER_LIMIT'] = 17;
+$arParams['USER_LIMIT'] = 3;
 
 if (
 	!empty($arResult['Group'])
@@ -206,4 +112,80 @@ if (
 )
 {
 	$arResult['Group']['DESCRIPTION'] = str_replace("\n", "<br />", $arResult['Group']['DESCRIPTION']);
+}
+
+$arResult['TASKS_EFFICIENCY'] = null;
+if (
+	$arResult["Group"]['PROJECT'] === 'Y'
+	&& !$arResult['isScrumProject']
+	&& Loader::includeModule('tasks')
+)
+{
+	$arResult['TASKS_EFFICIENCY'] = \Bitrix\Tasks\Internals\Effective::getAverageEfficiency(
+		null,
+		null,
+		0,
+		(int)$arResult['Group']['ID']
+	);
+}
+
+$arResult['themePickerData'] = [];
+if (Loader::includeModule('intranet'))
+{
+	$themePicker = new ThemePicker(SITE_TEMPLATE_ID, false, $USER->getId(), ThemePicker::ENTITY_TYPE_SONET_GROUP, $arResult['Group']['ID']);
+	$themeId = $themePicker->getCurrentThemeId();
+	$themeUserId = false;
+	if ($themeId)
+	{
+		$res = ThemeTable::getList([
+			'filter' => [
+				'=ENTITY_TYPE' => $themePicker->getEntityType(),
+				'ENTITY_ID' => $themePicker->getEntityId(),
+				'=CONTEXT' => $themePicker->getContext(),
+			],
+			'select' => [ 'USER_ID' ],
+		]);
+		if (
+			($themeFields = $res->fetch())
+			&& (int)$themeFields['USER_ID'] > 0
+		)
+		{
+			$themeUserId = (int)$themeFields['USER_ID'];
+		}
+	}
+
+	$arResult['themePickerData'] = $themePicker->getTheme($themeId, $themeUserId);
+}
+
+$arResult['GROUP_PROPERTIES'] = (
+	!empty($arResult['Group'])
+		? $USER_FIELD_MANAGER->getUserFields('SONET_GROUP', $arResult['Group']['ID'], LANGUAGE_ID)
+		: []
+);
+
+foreach ($arResult['GROUP_PROPERTIES'] as $field => $userFieldFata)
+{
+	if (
+		!empty($userFieldFata['SHOW_IN_LIST'])
+		&& $userFieldFata['SHOW_IN_LIST'] === 'N'
+		&& (
+			empty($userFieldFata['MANDATORY'])
+			|| $userFieldFata['MANDATORY'] !== 'Y'
+		)
+	)
+	{
+		unset($arResult['GROUP_PROPERTIES'][$field]);
+		continue;
+	}
+
+	$arResult['GROUP_PROPERTIES'][$field]['LIST_COLUMN_LABEL'] = (
+		(string)$userFieldFata['LIST_COLUMN_LABEL'] !== ''
+			? $userFieldFata['LIST_COLUMN_LABEL']
+			: $userFieldFata['FIELD_NAME']
+	);
+}
+
+if ($arResult['IS_IFRAME'])
+{
+	$APPLICATION->setTitle('');
 }

@@ -80,7 +80,9 @@
 					onChange: this.onChangeHandler,
 					onValueChange: this.onValueChangeHandler,
 					attribute: options.attribute,
-					disabled: BX.Text.toBoolean(options.disabled)
+					disabled: BX.Text.toBoolean(options.disabled),
+					dependency: options.dependency,
+					hint: options.hint
 				});
 			}
 
@@ -182,6 +184,7 @@
 					onChange: this.onChangeHandler,
 					onValueChange: this.onValueChangeHandler,
 					attribute: options.attribute,
+					frame: window,
 					type: options.type === "range-slider" ? "multiple" : null,
 					disabled: BX.Text.toBoolean(options.disabled)
 				});

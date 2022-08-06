@@ -27,6 +27,12 @@ final class ShippingItem extends RequestEntity
 	/** @var int */
 	protected $quantity;
 
+	/** @var int */
+	protected $pickupPoint;
+
+	/** @var int */
+	protected $droppofPoint;
+
 	/**
 	 * @return string
 	 */
@@ -138,6 +144,42 @@ final class ShippingItem extends RequestEntity
 	{
 		$this->quantity = $quantity;
 
+		return $this;
+	}
+
+	/**
+	 * @return int|null
+	 */
+	public function getPickupPoint(): ?int
+	{
+		return $this->pickupPoint;
+	}
+
+	/**
+	 * @param int $pickupPoint
+	 * @return ShippingItem
+	 */
+	public function setPickupPoint(int $pickupPoint): ShippingItem
+	{
+		$this->pickupPoint = $pickupPoint;
+		return $this;
+	}
+
+	/**
+	 * @return int|null
+	 */
+	public function getDroppofPoint(): ?int
+	{
+		return $this->droppofPoint;
+	}
+
+	/**
+	 * @param int $droppofPoint
+	 * @return ShippingItem
+	 */
+	public function setDroppofPoint(int $droppofPoint): ShippingItem
+	{
+		$this->droppofPoint = $droppofPoint;
 		return $this;
 	}
 }

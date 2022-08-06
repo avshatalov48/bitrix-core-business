@@ -6,13 +6,15 @@ use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
+use Bitrix\Main\InvalidOperationException;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ORM\EntityError;
 use Bitrix\Main\ORM\Query\Query;
 
 final class UserFieldHelper
 {
+	public const ERROR_CODE_USER_FIELD_CREATION = 'ERROR_CODE_USER_FIELD_CREATION';
+
 	/** @var UserFieldHelper */
 	private static $instance;
 
@@ -49,9 +51,9 @@ final class UserFieldHelper
 	}
 
 	/**
-	 * @return \CAllMain
+	 * @return \CMain
 	 */
-	public function getApplication(): ?\CAllMain
+	public function getApplication(): ?\CMain
 	{
 		global $APPLICATION;
 
@@ -59,7 +61,7 @@ final class UserFieldHelper
 	}
 
 	/**
-	 * @param $entityId
+	 * @param string $entityId
 	 * @return array|null
 	 */
 	public function parseUserFieldEntityId(string $entityId): ?array
@@ -150,33 +152,46 @@ final class UserFieldHelper
 			$connection = Application::getConnection();
 			$sqlHelper = $connection->getSqlHelper();
 
-			$connection->query(sprintf(
-				'ALTER TABLE %s ADD %s %s',
-				$sqlHelper->quote($typeData['TABLE_NAME']), $sqlHelper->quote($field['FIELD_NAME']), $sql_column_type
-			));
-
-			if ($field['MULTIPLE'] == 'Y')
+			try
 			{
-				// create table for this relation
-				$typeEntity = $dataClass::compileEntity($typeData);
-				$utmEntity = Entity::getInstance($dataClass::getUtmEntityClassName($typeEntity, $field));
-
-				$utmEntity->createDbTable();
-
-				// add indexes
 				$connection->query(sprintf(
-					'CREATE INDEX %s ON %s (%s)',
-					$sqlHelper->quote('IX_UTM_HL'.$typeId.'_'.$field['ID'].'_ID'),
-					$sqlHelper->quote($utmEntity->getDBTableName()),
-					$sqlHelper->quote('ID')
+					'ALTER TABLE %s ADD %s %s',
+					$sqlHelper->quote($typeData['TABLE_NAME']), $sqlHelper->quote($field['FIELD_NAME']), $sql_column_type
 				));
 
-				$connection->query(sprintf(
-					'CREATE INDEX %s ON %s (%s)',
-					$sqlHelper->quote('IX_UTM_HL'.$typeId.'_'.$field['ID'].'_VALUE'),
-					$sqlHelper->quote($utmEntity->getDBTableName()),
-					$sqlHelper->quote('VALUE')
-				));
+				if ($field['MULTIPLE'] == 'Y')
+				{
+					// create table for this relation
+					$typeEntity = $dataClass::compileEntity($typeData);
+					$utmEntity = Entity::getInstance($dataClass::getUtmEntityClassName($typeEntity, $field));
+
+					$utmEntity->createDbTable();
+
+					// add indexes
+					$connection->query(sprintf(
+						'CREATE INDEX %s ON %s (%s)',
+						$sqlHelper->quote('IX_UTM_HL'.$typeId.'_'.$field['ID'].'_ID'),
+						$sqlHelper->quote($utmEntity->getDBTableName()),
+						$sqlHelper->quote('ID')
+					));
+
+					$connection->query(sprintf(
+						'CREATE INDEX %s ON %s (%s)',
+						$sqlHelper->quote('IX_UTM_HL'.$typeId.'_'.$field['ID'].'_VALUE'),
+						$sqlHelper->quote($utmEntity->getDBTableName()),
+						$sqlHelper->quote('VALUE')
+					));
+				}
+			}
+			catch (SqlQueryException $sqlQueryException)
+			{
+				$userTypeEntity = new \CUserTypeEntity;
+				$userTypeEntity->Delete($field['ID']);
+
+				throw new InvalidOperationException(
+					'Could not create new user field ' . $field['FIELD_NAME'],
+					$sqlQueryException
+				);
 			}
 
 			return [

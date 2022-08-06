@@ -11,6 +11,11 @@ use Bitrix\Landing\Update\Stepper;
 /** @var CMain $APPLICATION */
 /** @var CBitrixComponent $component */
 
+$arParams['PAGE_URL_LANDING_SETTINGS'] = str_replace(
+	'#site_show#',
+	$arResult['VARS']['site_show'],
+	$arParams['PAGE_URL_LANDING_SETTINGS']
+);
 $arParams['PAGE_URL_LANDING_EDIT'] = str_replace(
 	'#site_show#',
 	$arResult['VARS']['site_show'],
@@ -44,6 +49,7 @@ Stepper::show();
 		'TYPE' => $arParams['TYPE'],
 		'SITE_ID' => $arResult['VARS']['site_show'],
 		'ACTION_FOLDER' => $arParams['ACTION_FOLDER'],
+		'PAGE_URL_LANDING_SETTINGS' => $arParams['PAGE_URL_LANDING_SETTINGS'],
 		'PAGE_URL_LANDING_EDIT' => $arParams['PAGE_URL_LANDING_EDIT'],
 		'PAGE_URL_LANDING_VIEW' => $arParams['PAGE_URL_LANDING_VIEW'],
 		'PAGE_URL_LANDING_DESIGN' => $arParams['PAGE_URL_LANDING_DESIGN'],

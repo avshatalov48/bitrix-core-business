@@ -10,3 +10,4 @@ $MESS["BIZPROC_CONTROLLER_SCRIPT_CANT_UPDATE_SCRIPT"] = "Insufficient permission
 $MESS["BIZPROC_CONTROLLER_SCRIPT_ERROR_DOCUMENT_ID_LIMIT"] = "Exceeded maximum allowed items to run a smart script on (selected: #SELECTED#, max: #LIMIT#)";
 $MESS["BIZPROC_CONTROLLER_SCRIPT_ERROR_QUEUES_LIMIT"] = "Exceeded maximum smart script instances (running: #CNT#, max: #LIMIT#)";
 $MESS["BIZPROC_CONTROLLER_SCRIPT_NOT_EXISTS"] = "The smart script you requested was not found";
+$MESS["BIZPROC_CONTROLLER_SCRIPT_NO_TEMPLATE"] = "The smart script may be damaged (Unable to read template data)";

@@ -20,12 +20,6 @@ return [
 		'version' => '20.0.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 	],
 	'nodes' => [
-		'.landing-block-node-bgimage' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_59_1_BGIMAGE'),
-			'type' => 'img',
-			'dimensions' => ['width' => 1920, 'height' => 1080],
-			'allowInlineEdit' => false,
-		],
 		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_59_1_TITLE'),
 			'type' => 'text',
@@ -34,10 +28,18 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_59_1_TEXT'),
 			'type' => 'text',
 		],
+		'.landing-block-node-bgimage' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_59_1_BGIMAGE'),
+			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
+			'dimensions' => ['width' => 1920, 'height' => 1080],
+			'isWrapper' => true,
+		],
 	],
 	'style' => [
 		'block' => [
-			'type' => ['block-default-background-overlay-height-vh'],
+			'type' => ['block-default-background-height-vh'],
 		],
 		'nodes' => [
 			'.landing-block-node-title' => [

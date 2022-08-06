@@ -68,8 +68,8 @@
 		{
 			return BX.Landing.Utils.Matchers.youtube.test(value)
 				|| BX.Landing.Utils.Matchers.vimeo.test(value)
-				|| BX.Landing.Utils.Matchers.vk.test(value)
 				|| BX.Landing.Utils.Matchers.rutube.test(value)
+				|| BX.Landing.Utils.Matchers.vk.test(value)
 				|| BX.Landing.Utils.Matchers.vine.test(value)
 				|| BX.Landing.Utils.Matchers.facebookVideos.test(value);
 		},

@@ -1321,7 +1321,7 @@
 	background: url(./../images/im-sprite-v37.png) no-repeat scroll -14px -62px #3D3D3D;
 }
 
-.bx-messenger-dark .bx-messenger-cl-search-wrap:before {
+.bx-messenger-dark .bx-messenger-input-search-icon {
 	opacity: .4;
 }
 

@@ -1,5 +1,6 @@
 import { Dom, Tag, Type } from 'main.core';
 import CounterItem from './item';
+import 'ui.fonts.opensans';
 import './style.css';
 
 export default class CounterPanel
@@ -26,16 +27,16 @@ export default class CounterPanel
 			return new CounterItem({
 				id: item.id ? item.id : null,
 				title: item.title ? item.title : null,
-				value: item.value ? parseInt(item.value, 10) : null,
+				value: Type.isNumber(item.value) ? parseInt(item.value, 10) : null,
 				cross: item.cross ? item.cross : null,
 				color: item.color ? item.color : null,
 				eventsForActive: item.eventsForActive ? item.eventsForActive : null,
 				eventsForUnActive: item.eventsForUnActive ? item.eventsForUnActive : null,
-				panel: this
+				panel: this,
+				separator: item.separator,
+				locked: item.locked ? item.locked : null
 			});
 		});
-
-		this.getItemById();
 	}
 
 	isMultiselect()
@@ -84,7 +85,7 @@ export default class CounterPanel
 					)
 					{
 						this.#getContainer().appendChild(Tag.render`
-							<div class="ui-counter-panel__item-separator"></div>
+							<div class="ui-counter-panel__item-separator ${!item.getSeparator() ? '--invisible' : ''}"></div>
 						`);
 					}
 				}

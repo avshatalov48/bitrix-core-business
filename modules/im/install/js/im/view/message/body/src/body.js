@@ -426,7 +426,7 @@ BitrixVue.component('bx-im-view-message-body',
 						</div>
 					</span>
 					<div v-if="!message.push && enableReactions && message.authorId" class="bx-im-message-content-reaction">
-						<bx-reaction :values="messageReactions" :userId="userId" :openList="false" @set="setReaction({message: message, reaction: $event})" @list="openReactionList({message: message, values: $event.values})"/>
+						<bx-reaction :id="'message'+message.id" :values="messageReactions" :userId="userId" :openList="false" @set="setReaction({message: message, reaction: $event})" @list="openReactionList({message: message, values: $event.values})"/>
 					</div>
 				</div>
 			</template>
@@ -460,7 +460,7 @@ BitrixVue.component('bx-im-view-message-body',
 						</div>
 					</span>
 					<div v-if="!message.push && enableReactions && message.authorId" class="bx-im-message-content-reaction">
-						<bx-reaction :values="messageReactions" :userId="userId" :openList="false" @set="setReaction({message: message, reaction: $event})" @list="openReactionList({message: message, values: $event.values})"/>
+						<bx-reaction :id="'message'+message.id" :values="messageReactions" :userId="userId" :openList="false" @set="setReaction({message: message, reaction: $event})" @list="openReactionList({message: message, values: $event.values})"/>
 					</div>
 				</div>
 			</template>

@@ -651,6 +651,7 @@ class catalog extends CModule
 				],
 				'b_catalog_store_docs' => [
 					'ID' => [
+						'b_catalog_docs_barcode' => 'DOC_ID',
 						'b_catalog_docs_element' => 'DOC_ID',
 						'b_catalog_store_document_file' => 'DOCUMENT_ID',
 					],

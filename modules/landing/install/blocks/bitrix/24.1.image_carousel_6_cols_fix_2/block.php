@@ -1,12 +1,13 @@
 <section class="landing-block js-animation flipInX g-bg-img-hero u-bg-overlay g-bg-primary-opacity-0_9--after g-pt-20 g-pb-40">
-	<div class="container u-bg-overlay__inner text-center g-px-35 g-px-0--md">
+	<div class="landing-block-slider container u-bg-overlay__inner text-center g-px-35 g-px-10--md g-py-10" data-slider-autoplay="1" data-slider-autoplay-speed="3000" data-slider-slides-show="6" data-slider-pause-hover="true" data-slider-arrows="7" data-slider-dots="0" data-slider-animation="1">
 
 		<div class="js-carousel row"
 			 data-autoplay="true"
 			 data-pause-hover="true"
 			 data-infinite="true"
 			 data-slides-show="6"
-			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-font-size-30 g-color-white"
+			 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x"
+			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-font-size-30 g-transition-0_2 g-transition--ease-in g-color-white g-color-primary--hover"
 			 data-arrow-left-classes="fa fa-angle-left g-left-minus-35"
 			 data-arrow-right-classes="fa fa-angle-right g-right-minus-35"
 			 data-responsive='[{

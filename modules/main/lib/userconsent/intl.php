@@ -175,6 +175,7 @@ class Intl
 					array(
 						'CODE' => 'COMPANY_ADDRESS',
 						'TYPE' => 'text',
+						'TAB' => 'text',
 					),
 					array(
 						'CODE' => 'PURPOSES',

@@ -336,7 +336,7 @@ class Livefeed extends Base
 		];
 	}
 
-	public function changeExpertModeAction($value): ?array
+	public function changeExpertModeAction($expertModeValue): ?array
 	{
 		$result = [
 			'success' => false
@@ -348,7 +348,11 @@ class Livefeed extends Base
 			return null;
 		}
 
-		\Bitrix\Socialnetwork\LogViewTable::set($this->getCurrentUser()->getId(), 'tasks', ($value === 'Y' ? 'N' : 'Y'));
+		$viewValue = ($expertModeValue === 'Y' ? 'N' : 'Y');
+		\Bitrix\Socialnetwork\LogViewTable::set($this->getCurrentUser()->getId(), 'tasks', $viewValue);
+		\Bitrix\Socialnetwork\LogViewTable::set($this->getCurrentUser()->getId(), 'crm_activity_add', $viewValue);
+		\Bitrix\Socialnetwork\LogViewTable::set($this->getCurrentUser()->getId(), 'crm_activity_add_comment', $viewValue);
+
 		$result['success'] = true;
 
 		return $result;
@@ -412,7 +416,7 @@ class Livefeed extends Base
 
 	private function getComponentReturnWhiteList(): array
 	{
-		return [ 'LAST_TS', 'LAST_ID', 'EMPTY', 'FORCE_PAGE_REFRESH' ];
+		return [ 'LAST_TS', 'LAST_ID', 'EMPTY', 'FILTER_USED', 'FORCE_PAGE_REFRESH' ];
 	}
 
 	public function getNextPageAction(array $params = []): \Bitrix\Main\Engine\Response\Component

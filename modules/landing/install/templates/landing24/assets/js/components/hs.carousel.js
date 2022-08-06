@@ -300,4 +300,4 @@
 			});
 		},
 	};
-})(jQuery);
+})(window.jQueryLanding || jQuery);

@@ -99,6 +99,11 @@ class CAllCatalogDocs
 				ExecuteModuleEventEx($arEvent, array($id, $arFields, $oldFields));
 		}
 
+		if (isset($arFields['DOCUMENT_FILES']) && is_array($arFields['DOCUMENT_FILES']))
+		{
+			static::saveFiles($id, $arFields['DOCUMENT_FILES']);
+		}
+
 		$item = [
 			'id' => $id,
 			'data' => [
@@ -114,6 +119,229 @@ class CAllCatalogDocs
 		);
 
 		return true;
+	}
+
+	protected static function saveFiles(int $documentId, array $files)
+	{
+		if (empty($files))
+		{
+			return;
+		}
+
+		// load current file list
+		$existingFiles = [];
+		$fileMap = [];
+		$iterator = Catalog\StoreDocumentFileTable::getList([
+			'select' => [
+				'ID',
+				'FILE_ID',
+			],
+			'filter' => [
+				'=DOCUMENT_ID' => $documentId,
+			],
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$id = (int)$row['ID'];
+			$fileId = (int)$row['FILE_ID'];
+			$existingFiles[$id] = [
+				'ID' => $id,
+				'FILE_ID' => $fileId,
+			];
+			$fileMap[$fileId] = $id;
+		}
+		unset($iterator, $row);
+
+		// convert the new list of files to array format for each line if needed
+		$files = static::convertFileList($fileMap, $files);
+		if (empty($files))
+		{
+			return;
+		}
+
+		// checking that the passed set of document files is full
+		foreach (array_keys($existingFiles) as $rowId)
+		{
+			if (!isset($files[$rowId]))
+			{
+				$files[$rowId] = $existingFiles[$rowId];
+			}
+		}
+
+		// process file list
+		$parsed = [];
+		foreach ($files as $rowId => $row)
+		{
+			// replace or delete existing file
+			if (
+				is_int($rowId)
+				&& is_array($row)
+				&& isset($existingFiles[$rowId])
+			)
+			{
+				// delete file
+				if (
+					isset($row['DEL'])
+					&& $row['DEL'] === 'Y'
+				)
+				{
+					$resultInternal = Catalog\StoreDocumentFileTable::delete($rowId);
+					if ($resultInternal->isSuccess())
+					{
+						CFile::Delete($existingFiles[$rowId]['FILE_ID']);
+					}
+				}
+				// replace file
+				elseif (
+					isset($row['FILE_ID'])
+				)
+				{
+					if ($row['FILE_ID'] !== $existingFiles[$rowId]['FILE_ID'])
+					{
+						$resultInternal = Catalog\StoreDocumentFileTable::update(
+							$rowId,
+							[
+								'FILE_ID' => $row['FILE_ID'],
+							]
+						);
+						if ($resultInternal->isSuccess())
+						{
+							CFile::Delete($existingFiles[$rowId]['FILE_ID']);
+						}
+					}
+				}
+			}
+			// save new file
+			elseif (
+				preg_match('/^n[0-9]+$/', $rowId, $parsed)
+				&& is_array($row)
+			)
+			{
+				// file already saved from external code
+				if (isset($row['FILE_ID']))
+				{
+					$resultInternal = Catalog\StoreDocumentFileTable::add([
+						'DOCUMENT_ID' => $documentId,
+						'FILE_ID' => $row['FILE_ID'],
+					]);
+					if ($resultInternal->isSuccess())
+					{
+						$id = (int)$resultInternal->getId();
+						$fileMap[$row['FILE_ID']] = $id;
+						$existingFiles[$id] = [
+							'ID' => $id,
+							'FILE_ID' => $row['FILE_ID'],
+						];
+					}
+				}
+				// save uploaded file
+				elseif (
+					isset($row['FILE_UPLOAD'])
+					&& is_array($row['FILE_UPLOAD'])
+				)
+				{
+					$row['FILE_UPLOAD']['MODULE_ID'] = 'catalog';
+					$fileId = (int)CFile::SaveFile(
+						$row['FILE_UPLOAD'],
+						'catalog',
+						false,
+						true
+					);
+					if ($fileId > 0)
+					{
+						$resultInternal = Catalog\StoreDocumentFileTable::add([
+							'DOCUMENT_ID' => $documentId,
+							'FILE_ID' => $fileId,
+						]);
+						if ($resultInternal->isSuccess())
+						{
+							$id = (int)$resultInternal->getId();
+							$fileMap[$fileId] = $id;
+							$existingFiles[$id] = [
+								'ID' => $id,
+								'FILE_ID' => $fileId,
+							];
+						}
+					}
+				}
+			}
+		}
+	}
+
+	protected static function convertFileList(array $fileMap, array $files): array
+	{
+		$formatArray = false;
+		$formatOther = false;
+		foreach ($files as $value)
+		{
+			if (is_array($value))
+			{
+				$formatArray = true;
+			}
+			else
+			{
+				$formatOther = true;
+			}
+		}
+		unset($value);
+
+		if ($formatArray && $formatOther)
+		{
+			return [];
+		}
+
+		if ($formatArray)
+		{
+			return $files;
+		}
+
+		$counter = 0;
+		$list = array_values(array_unique($files));
+		$files = [];
+		$parsed = [];
+		foreach ($list as $value)
+		{
+			if (!is_string($value))
+			{
+				continue;
+			}
+			if (preg_match('/^delete([0-9]+)$/', $value, $parsed))
+			{
+				$value = (int)$parsed[1];
+				if (isset($fileMap[$value]))
+				{
+					$id = $fileMap[$value];
+					$files[$id] = [
+						'DEL' => 'Y',
+					];
+				}
+			}
+			elseif (preg_match('/^[0-9]+$/', $value, $parsed))
+			{
+				$value = (int)$value;
+				if (isset($fileMap[$value]))
+				{
+					$id = $fileMap[$value];
+					$files[$id] = [
+						'ID' => $id,
+						'FILE_ID' => $value,
+					];
+				}
+				else
+				{
+					$id = 'n' . $counter;
+					$counter++;
+					$files[$id] = [
+						'ID' => null,
+						'FILE_ID' => $value,
+					];
+				}
+			}
+		}
+		unset($value, $list);
+		unset($id, $counter);
+
+		return $files;
 	}
 
 	/**
@@ -163,15 +391,22 @@ class CAllCatalogDocs
 		$DB->Query("DELETE FROM b_catalog_store_docs WHERE ID = ".$id, true);
 
 		static::deleteDocumentFiles($id);
+		Catalog\StoreDocumentElementTable::deleteByDocument($id);
+		Catalog\StoreDocumentBarcodeTable::deleteByDocument($id);
 
-		//TODO: need refactor next methods
-		\CCatalogStoreDocsBarcode::OnBeforeDocumentDelete($id);
-		\CCatalogStoreDocsElement::OnDocumentBarcodeDelete($id);
+		// First and second event - only for compatibility. Attention - order cannot change
+		$eventList = [
+			'OnDocumentBarcodeDelete',
+			'OnDocumentElementDelete',
+			'OnDocumentDelete',
+		];
 
-		$events = GetModuleEvents('catalog', 'OnDocumentDelete', true);
-		foreach($events as $arEvent)
+		foreach ($eventList as $eventName)
 		{
-			ExecuteModuleEventEx($arEvent, [$id]);
+			foreach (GetModuleEvents('catalog', $eventName, true) as $event)
+			{
+				ExecuteModuleEventEx($event, [$id]);
+			}
 		}
 
 		$item = [
@@ -243,6 +478,7 @@ class CAllCatalogDocs
 		if(isset($arFields["DATE_DOCUMENT"]) && (!$DB->IsDate($arFields["DATE_DOCUMENT"])))
 		{
 			unset($arFields["DATE_DOCUMENT"]);
+			$arFields['~DATE_DOCUMENT'] = $DB->GetNowFunction();
 		}
 		return true;
 	}
@@ -354,7 +590,7 @@ class CAllCatalogDocs
 			return false;
 		}
 
-		$result = '';
+		$result = false;
 		$documentId = (int)$documentId;
 		$userId = (int)$userId;
 		$docType = null;
@@ -436,13 +672,32 @@ class CAllCatalogDocs
 		$productID = (int)$productID;
 		if ($productID > 0)
 		{
-			$dbStoreDocs = Catalog\StoreDocumentTable::getList(['select' => ['ID'], 'filter' => ['ELEMENTS.ELEMENT_ID' => $productID]]);
-			if ($arStoreDocs = $dbStoreDocs->fetch())
+			$iterator = Catalog\StoreDocumentElementTable::getList([
+				'select' => [
+					'ELEMENT_ID',
+					'ELEMENT_NAME' => 'ELEMENT.NAME',
+				],
+				'filter' => [
+					'=ELEMENT_ID' => $productID,
+				],
+				'limit' => 1,
+			]);
+			$row = $iterator->fetch();
+			unset($iterator);
+			if (!empty($row))
 			{
-				$APPLICATION->ThrowException(GetMessage("CAT_DOC_ERROR_ELEMENT_IN_DOCUMENT_EXT_2"));
+				$APPLICATION->ThrowException(GetMessage(
+					'CAT_DOC_ERROR_ELEMENT_IN_DOCUMENT_EXISTS',
+					[
+						'#ID#' => $row['ELEMENT_ID'],
+						'#NAME#' => $row['ELEMENT_NAME'],
+					]
+				));
+
 				return false;
 			}
 		}
+
 		return true;
 	}
 }

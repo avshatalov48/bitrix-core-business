@@ -2435,19 +2435,28 @@ class CUserTypeManager
 	 * @param       $entity_id
 	 * @param       $ID
 	 * @param       $arFields
-	 * @param bool $user_id False means current user id.
-	 * @param bool $checkRequired Whether to check required fields.
+	 * @param bool  $user_id False means current user id.
+	 * @param bool  $checkRequired Whether to check required fields.
 	 * @param array $requiredFields Conditionally required fields.
+	 * @param array $filteredFields Filtered fields.
+
 	 * @return bool
 	 */
-	function CheckFields($entity_id, $ID, $arFields, $user_id = false, $checkRequired = true, array $requiredFields = null)
+	function CheckFields($entity_id, $ID, $arFields, $user_id = false, $checkRequired = true, array $requiredFields = null, array $filteredFields = null)
 	{
 		global $APPLICATION;
 		$requiredFieldMap = is_array($requiredFields) ? array_fill_keys($requiredFields, true) : null;
 		$aMsg = array();
 		//1 Get user typed fields list for entity
 		$arUserFields = $this->GetUserFields($entity_id, $ID, LANGUAGE_ID);
-		//2 For each field
+		//2 Filter user typed fields
+		if (isset($filteredFields))
+		{
+			$arUserFields = array_filter($arUserFields, static function ($fieldName) use ($filteredFields) {
+				return in_array($fieldName, $filteredFields);
+			}, ARRAY_FILTER_USE_KEY);
+		}
+		//3 For each field
 		foreach($arUserFields as $FIELD_NAME => $arUserField)
 		{
 			$enableRequiredFieldCheck = $arUserField["MANDATORY"] === "Y"

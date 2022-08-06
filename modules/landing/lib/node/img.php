@@ -4,6 +4,7 @@ namespace Bitrix\Landing\Node;
 use \Bitrix\Landing\File;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Web\DOM\StyleInliner;
+use \Bitrix\Landing\Node;
 
 class Img extends \Bitrix\Landing\Node
 {
@@ -205,6 +206,10 @@ class Img extends \Bitrix\Landing\Node
 		$data = array();
 		$doc = $block->getDom();
 		$resultList = $doc->querySelectorAll($selector);
+		if (!$resultList)
+		{
+			$resultList = Node\Style::getNodesBySelector($block, $selector);
+		}
 
 		foreach ($resultList as $pos => $res)
 		{
@@ -351,5 +356,33 @@ class Img extends \Bitrix\Landing\Node
 		}
 
 		return $searchContent;
+	}
+
+	public static function prepareManifest($block, $node)
+	{
+		if (self::isStyleImgNode($block, $node))
+		{
+			$node['type'] = 'styleimg';
+			$node['handler'] = StyleImg::getHandlerJS();
+		}
+		return $node;
+	}
+
+	public static function isStyleImgNode($block, $node): bool
+	{
+		$isStyleImgNode = false;
+		$matches = [];
+		$pattern = '/' . substr($node['code'], 1) . '[^\"]*/i';
+		if (preg_match($pattern, $block->getContent(), $matches) === 1)
+		{
+			$pattern = '/[\s]?g-bg-image[\s]?/i';
+			if (preg_match($pattern, $matches[0]) === 1)
+			{
+				$node['type'] = 'styleimg';
+				$node['handler'] = StyleImg::getHandlerJS();
+				$isStyleImgNode = true;
+			}
+		}
+		return $isStyleImgNode;
 	}
 }

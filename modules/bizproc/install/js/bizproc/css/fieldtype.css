@@ -39,7 +39,7 @@
 	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 	color: #80868e;
 	font-size: 14px;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	height: 36px;
 	padding: 0 17px;
 	-webkit-box-sizing: border-box !important;
@@ -93,9 +93,7 @@
 	color: #000000;
 	border: 1px solid #c6cdd3;
 	cursor: pointer;
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 2px;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
@@ -125,9 +123,7 @@
 	color: #000000;
 	border: 1px solid #c6cdd3;
 	cursor: pointer;
-	-webkit-border-radius: 2px;
-	-moz-border-radius: 2px;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
@@ -165,7 +161,7 @@
 	display: block;
 	background: #fff;
 	border: 1px solid #c6cdd3;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	min-height: 36px;
 	padding: 1px;
 	-webkit-box-sizing: border-box;

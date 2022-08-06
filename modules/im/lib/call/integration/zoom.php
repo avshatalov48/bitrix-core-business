@@ -85,13 +85,7 @@ class Zoom
 	{
 		if (Loader::includeModule('socialservices'))
 		{
-			$authManager = new \CSocServAuthManager();
-			$activeSocServ = $authManager->GetActiveAuthServices(array());
-			if (isset($activeSocServ['zoom']))
-			{
-				return true;
-			}
-			return false;
+			return (new \CSocServAuthManager())->isActiveAuthService('zoom');
 		}
 
 		return false;

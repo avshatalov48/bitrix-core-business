@@ -97,7 +97,7 @@ class Manager
 	 * @param string $code - Name of asset or CJSCore extension.
 	 * @return mixed
 	 */
-	public function isAssetRegistered($code)
+	protected function isAssetRegistered($code)
 	{
 		return array_key_exists($code, $this->registered);
 	}
@@ -107,7 +107,7 @@ class Manager
 	 * @param string $code Code of added asset
 	 * @return bool|mixed asset location or false, if asset not added
 	 */
-	public function getRegisteredAssetLocation(string $code)
+	protected function getRegisteredAssetLocation(string $code)
 	{
 		if ($this->isAssetRegistered($code))
 		{
@@ -120,7 +120,7 @@ class Manager
 	/**
 	 * @param string $code - Name of asset or CJSCore extension.
 	 */
-	public function markAssetRegistered($code, $location): void
+	protected function markAssetRegistered($code, $location): void
 	{
 		$this->registered[$code] = [
 			self::REGISTERED_KEY_CODE => $code,
@@ -332,7 +332,7 @@ class Manager
 	 * @param string $path Relative path to asset.
 	 * @return null|string
 	 */
-	public static function detectType(string $path): ?string
+	protected static function detectType(string $path): ?string
 	{
 		$path = parse_url($path)['path'];
 		$type = mb_strtolower(mb_substr(strrchr($path, '.'), 1));

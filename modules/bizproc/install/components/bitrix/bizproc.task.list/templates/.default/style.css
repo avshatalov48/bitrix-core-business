@@ -33,7 +33,8 @@
 	text-decoration: none;
 	text-transform: uppercase;
 	color: #535c69;
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .bp-interface-toolbar .bp-context-button:hover,

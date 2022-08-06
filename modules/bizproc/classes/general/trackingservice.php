@@ -2,8 +2,7 @@
 
 use Bitrix\Main;
 
-class CBPAllTrackingService
-	extends CBPRuntimeService
+class CBPTrackingService extends CBPRuntimeService
 {
 	protected $skipTypes = [];
 	protected $forcedModeWorkflows = [];
@@ -70,19 +69,28 @@ class CBPAllTrackingService
 		return $r;
 	}
 
-	public function LoadReport($workflowId)
+	public function loadReport($workflowId, int $limit = 0)
 	{
-		$result = array();
+		$result = [];
+		$navStartParams = $limit > 0 ? ['nTopCount' => $limit] : false;
+		$order = ['ID' => $limit > 0 ? 'DESC' : 'ASC'];
 
-		$dbResult = CBPTrackingService::GetList(
-			array("ID" => "ASC"),
-			array("WORKFLOW_ID" => $workflowId, "TYPE" => CBPTrackingType::Report),
+		$dbResult = static::getList(
+			$order,
+			["WORKFLOW_ID" => $workflowId, "TYPE" => CBPTrackingType::Report],
 			false,
-			false,
-			array("ID", "MODIFIED", "ACTION_NOTE")
+			$navStartParams,
+			["ID", "MODIFIED", "ACTION_NOTE"]
 		);
 		while ($arResult = $dbResult->GetNext())
+		{
 			$result[] = $arResult;
+		}
+
+		if ($limit > 0)
+		{
+			return array_reverse($result);
+		}
 
 		return $result;
 	}
@@ -138,7 +146,8 @@ class CBPAllTrackingService
 
 		return preg_replace_callback(
 			CBPActivity::ValueInlinePattern,
-			function ($matches) use ($documentType) {
+			function ($matches) use ($documentType)
+			{
 				return CBPAllTrackingService::parseStringParameterMatches(
 					$matches,
 					[$documentType[0], $documentType[1], $documentType[2]]
@@ -214,15 +223,31 @@ class CBPAllTrackingService
 
 	public function canWrite($type, $workflowId)
 	{
+		if (in_array($type, [CBPTrackingType::Debug, CBPTrackingType::DebugAutomation, CBPTrackingType::DebugDesigner]))
+		{
+			return false;
+		}
+
 		return (!in_array($type, $this->skipTypes) || $this->isForcedMode($workflowId));
 	}
 
-	public function Write($workflowId, $type, $actionName, $executionStatus, $executionResult, $actionTitle = "", $actionNote = "", $modifiedBy = 0)
+	public function Write(
+		$workflowId,
+		$type,
+		$actionName,
+		$executionStatus,
+		$executionResult,
+		$actionTitle = "",
+		$actionNote = "",
+		$modifiedBy = 0
+	): ?int
 	{
 		global $DB;
 
 		if (!$this->canWrite($type, $workflowId))
-			return;
+		{
+			return null;
+		}
 
 		$workflowId = trim($workflowId);
 		if ($workflowId == '')
@@ -239,15 +264,20 @@ class CBPAllTrackingService
 
 		$modifiedBy = intval($modifiedBy);
 
+		$actionTitle = is_string($actionTitle) ? $actionTitle : '';
+
 		$DB->Query(
 			"INSERT INTO b_bp_tracking(WORKFLOW_ID, TYPE, MODIFIED, ACTION_NAME, ACTION_TITLE, EXECUTION_STATUS, EXECUTION_RESULT, ACTION_NOTE, MODIFIED_BY) ".
 			"VALUES('".$DB->ForSql($workflowId, 32)."', ".intval($type).", ".$DB->CurrentTimeFunction().", '".$DB->ForSql($actionName, 128)."', '".$DB->ForSql($actionTitle, 255)."', ".intval($executionStatus).", ".intval($executionResult).", ".($actionNote <> '' ? "'".$DB->ForSql($actionNote)."'" : "NULL").", ".($modifiedBy > 0 ? $modifiedBy : "NULL").")"
 		);
+		$id = $DB->LastID();
 
 		if (self::getLogSizeLimit() && !$this->isForcedMode($workflowId))
 		{
 			$this->cutLogSizeDeferred($workflowId);
 		}
+
+		return $id;
 	}
 
 	public static function GetList($arOrder = array("ID" => "DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
@@ -463,7 +493,8 @@ class CBPTrackingType
 	const AttachedEntity = 7;
 	const Trigger = 8;
 	const Error = 9;
+	const Debug = 10;
+	const DebugAutomation = 11;
+	const DebugDesigner = 12;
+	const DebugLink = 13;
 }
-
-//Compatibility
-class CBPTrackingService extends CBPAllTrackingService {}

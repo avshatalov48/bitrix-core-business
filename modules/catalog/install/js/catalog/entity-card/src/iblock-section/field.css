@@ -67,6 +67,7 @@
 	padding: 0 30px 0 13px;
 	background-color: #bcedfc;
 	color: #1066bb !important;
+	border-radius: var(--ui-tile-selector-item-border-radius, var(--ui-border-radius-2xs));
 }
 
 .ui-tile-selector-selector-wrap .ui-tile-selector-item,

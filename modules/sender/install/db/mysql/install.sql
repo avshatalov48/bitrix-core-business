@@ -487,3 +487,6 @@ CREATE TABLE b_sender_file
 
 create index IX_SENDER_FILE_ENTITY_TYPE_ENTITY_ID
     on b_sender_file (`ENTITY_TYPE`, `ENTITY_ID`);
+
+create index IX_SENDER_FILE_FILE_ID
+    on b_sender_file (`FILE_ID`);

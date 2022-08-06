@@ -62,7 +62,7 @@ class Export extends Main\Engine\Controller
 	protected $fileType = 'application/csv';
 
 	/** How long to keep temporally files. */
-	const KEEP_FILE_HOURS = 5;
+	const KEEP_FILE_HOURS = 24;
 
 	/** @var int */
 	protected $processedItems = 0;

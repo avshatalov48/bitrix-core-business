@@ -252,9 +252,36 @@
 			if (this.label === null)
 			{
 				this.label = BX.Grid.Utils.getByTag(this.getNode(), 'label', true);
+				BX.Event.bind(this.label, 'paste', this.onLabelPaste.bind(this));
+				BX.Event.bind(this.label, 'keydown', this.onLabelKeydown.bind(this));
 			}
 
 			return this.label;
+		},
+
+		onLabelPaste: function(event)
+		{
+			event.preventDefault();
+
+			if (event.clipboardData && event.clipboardData.getData)
+			{
+				var sourceText = event.clipboardData.getData("text/plain");
+				var encodedText = BX.Text.encode(sourceText);
+				var formattedHtml = encodedText
+					.trim()
+					.replace(new RegExp('\t', 'g'), " ")
+					.replace(new RegExp('\n', 'g'), " ")
+					.replace(/ +(?= )/g,'');
+				document.execCommand("insertHTML", false, formattedHtml);
+			}
+		},
+
+		onLabelKeydown: function(event)
+		{
+			if (event.keyCode === 13)
+			{
+				event.preventDefault();
+			}
 		},
 
 

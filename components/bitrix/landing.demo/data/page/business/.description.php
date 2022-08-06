@@ -160,7 +160,7 @@ return [
                         <img class="landing-block-node-right-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img3.jpg" alt="" />
 
                         <div class="g-pa-30">
-                            <h3 class="landing-block-node-right-title text-uppercase g-font-weight-700 g-font-size-20 g-color-white g-mb-10 js-animation fadeIn">Present 2021</h3>
+                            <h3 class="landing-block-node-right-title text-uppercase g-font-weight-700 g-font-size-20 g-color-white g-mb-10 js-animation fadeIn">Present 2022</h3>
                             <div class="landing-block-node-right-text g-color-gray-light-v2 js-animation fadeIn">
 								<p>Etiam consectetur placerat gravida. Pellentesque ultricies mattis est, quis elementum neque pulvinar at.</p>
                             	<p>Aenean odio ante, varius vel tempor sed Ut condimentum ex ac enim ullamcorper volutpat. Integer arcu nisl, finibus vitae sodales vitae, malesuada ultricies sapien.</p>
@@ -1022,7 +1022,7 @@ return [
         <div class="text-center g-color-gray-dark-v3 g-pa-10">
             <div class="g-width-600 mx-auto">
                 <div class="landing-block-node-text g-font-size-12  js-animation animation-none">
-					<p>&copy; 2021 All rights reserved.</p>
+					<p>&copy; 2022 All rights reserved.</p>
 				</div>
             </div>
         </div>

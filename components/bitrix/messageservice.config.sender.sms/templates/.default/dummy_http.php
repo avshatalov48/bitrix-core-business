@@ -2,7 +2,11 @@
 global $APPLICATION;
 /** @var array $arResult */
 
-CJSCore::Init(['popup']);
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'popup',
+]);
 
 /** @var \Bitrix\MessageService\Sender\Sms\DummyHttp $sender */
 $sender = $arResult['sender'];

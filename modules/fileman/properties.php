@@ -1111,8 +1111,13 @@ function saveYandexKey(domain, input)
 			window.GLOBAL_arMapObjects['<?echo $MAP_ID?>'].events.add('dblclick', window.setPointValue_<?echo $MAP_ID?>);
 			window.GLOBAL_arMapObjects['<?echo $MAP_ID?>'].events.add('click', window.setDefaultPreset_<?echo $MAP_ID?>);
 			var searchInput = BX('bx_address_<?echo $MAP_ID?>');
-			BX.bind(searchInput, "keydown", jsYandexCESearch_<?echo $MAP_ID;?>.setTypingStarted);
-			BX.bind(searchInput, "contextmenu", jsYandexCESearch_<?echo $MAP_ID;?>.setTypingStarted);
+			<?if (\Bitrix\Main\Config\Option::get('fileman', 'yandex_map_api_key', '')):?>
+				BX.bind(searchInput, "keydown", jsYandexCESearch_<?echo $MAP_ID;?>.setTypingStarted);
+				BX.bind(searchInput, "contextmenu", jsYandexCESearch_<?echo $MAP_ID;?>.setTypingStarted);
+			<?else:?>
+				searchInput.disabled = true;
+				searchInput.title = '<?=CUtil::JSEscape(GetMessage("IBLOCK_PROP_MAP_YANDEX_SEARCH_KEY_REQUIRED"))?>';
+			<?endif;?>
 			BX('point_control_<?echo $MAP_ID?>__n<?=$yandexMapLastNumber?>_').style.display = 'none';
 
 			<?if ($bHasValue):?>
@@ -1696,10 +1701,14 @@ function saveYandexKey(domain, input)
 			window.GLOBAL_arMapObjects['<?echo $MAP_ID?>'].events.add('dblclick', window.setPointValue_<?echo $MAP_ID?>);
 			window.GLOBAL_arMapObjects['<?echo $MAP_ID?>'].events.add('click', window.setDefaultPreset_<?echo $MAP_ID?>);
 			var searchInput = BX('bx_address_<?echo $MAP_ID?>');
-			BX.bind(searchInput, "keydown", jsYandexCESearch_<?echo $MAP_ID;?>.setTypingStarted);
-			BX.bind(searchInput, "contextmenu", jsYandexCESearch_<?echo $MAP_ID;?>.setTypingStarted);
+			<?if (\Bitrix\Main\Config\Option::get('fileman', 'yandex_map_api_key', '')):?>
+				BX.bind(searchInput, "keydown", jsYandexCESearch_<?echo $MAP_ID;?>.setTypingStarted);
+				BX.bind(searchInput, "contextmenu", jsYandexCESearch_<?echo $MAP_ID;?>.setTypingStarted);
+			<?else:?>
+				searchInput.disabled = true;
+				searchInput.title = '<?=CUtil::JSEscape(GetMessage("IBLOCK_PROP_MAP_YANDEX_SEARCH_KEY_REQUIRED"))?>';
+			<?endif;?>
 			BX('point_control_<?echo $MAP_ID?>__n<?=$yandexMapLastNumber?>_').style.display = 'none';
-
 			<?if ($bHasValue):?>
 				setPointValue_<?echo $MAP_ID?>__n<?=$yandexMapLastNumber?>_([<?echo $POINT_LAT?>, <?echo $POINT_LON?>]);
 				if (<?=$yandexMapLastNumber?> > 0)

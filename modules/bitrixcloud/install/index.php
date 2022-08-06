@@ -23,7 +23,7 @@ class bitrixcloud extends CModule
 		$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 		$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		$this->MODULE_NAME = GetMessage("BCL_MODULE_NAME");
-		$this->MODULE_DESCRIPTION = GetMessage("BCL_MODULE_DESCRIPTION");
+		$this->MODULE_DESCRIPTION = GetMessage("BCL_MODULE_DESCRIPTION_2");
 	}
 
 	function GetModuleTasks()
@@ -41,7 +41,6 @@ class bitrixcloud extends CModule
 				'OPERATIONS' => array(
 					'bitrixcloud_monitoring',
 					'bitrixcloud_backup',
-					'bitrixcloud_cdn',
 				)
 			),
 		);
@@ -77,7 +76,7 @@ class bitrixcloud extends CModule
 	{
 		global $DB, $APPLICATION;
 		$this->errors = false;
-		UnRegisterModuleDependences("main", "OnEndBufferContent", "bitrixcloud", "CBitrixCloudCDN", "OnEndBufferContent");
+
 		UnRegisterModuleDependences("main", "OnAdminInformerInsertItems", "bitrixcloud", "CBitrixCloudBackup", "OnAdminInformerInsertItems");
 		UnRegisterModuleDependences("mobileapp", "OnBeforeAdminMobileMenuBuild", "bitrixcloud", "CBitrixCloudMobile", "OnBeforeAdminMobileMenuBuild");
 		if (!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")

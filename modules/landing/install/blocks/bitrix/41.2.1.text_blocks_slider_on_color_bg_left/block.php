@@ -1,5 +1,5 @@
 <section class="g-bg-primary g-pt-100 g-pb-100">
-	<div class="container">
+	<div class="landing-block-slider container" data-slider-animation="1">
 		<section class="js-carousel"
 				 data-pagi-classes="u-carousel-indicators-v1--white-inverse justify-content-center align-items-center g-mt-15 g-pos-rel">
 			<div class="landing-block-node-card js-slide align-self-center">

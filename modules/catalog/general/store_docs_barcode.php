@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Catalog;
+
 IncludeModuleLangFile(__FILE__);
 
 class CCatalogStoreDocsBarcodeAll
@@ -54,19 +57,23 @@ class CCatalogStoreDocsBarcodeAll
 		return false;
 	}
 
-	public static function OnBeforeDocumentDelete($id)
+	/**
+	 * @deprecated
+	 * @see Catalog\StoreDocumentBarcodeTable::deleteByDocument
+	 *
+	 * @param $id
+	 * @return bool
+	 */
+	public static function OnBeforeDocumentDelete($id): bool
 	{
-		global $DB;
-		$id = intval($id);
-		$dbElements = CCatalogStoreDocsElement::getList(array(), array("DOC_ID" => $id));
-		while($arElement = $dbElements->Fetch())
+		$id = (int)$id;
+		Catalog\StoreDocumentBarcodeTable::deleteByDocument($id);
+
+		foreach(GetModuleEvents('catalog', 'OnDocumentBarcodeDelete', true) as $arEvent)
 		{
-			if(!$DB->Query("DELETE FROM b_catalog_docs_barcode WHERE DOC_ELEMENT_ID = ".$arElement["ID"]." ", true))
-				return false;
+			ExecuteModuleEventEx($arEvent, [$id]);
 		}
 
-		foreach(GetModuleEvents("catalog", "OnDocumentBarcodeDelete", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($id));
 		return true;
 	}
 }

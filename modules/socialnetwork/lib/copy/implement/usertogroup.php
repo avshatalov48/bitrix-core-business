@@ -82,9 +82,19 @@ class UserToGroup extends CopyImplementer
 			$filter["AUTO_MEMBER"] = "N";
 		}
 
+		$dictionary = $container->getDictionary();
+
 		$queryObject = \CSocNetUserToGroup::getList(["ID" => "DESC"], $filter);
 		while ($userToGroup = $queryObject->fetch())
 		{
+			if (
+				isset($dictionary["NEW_OWNER_ID"])
+				&& $dictionary["NEW_OWNER_ID"] == $userToGroup["USER_ID"]
+			)
+			{
+				continue;
+			}
+
 			$fields[] = $userToGroup;
 		}
 

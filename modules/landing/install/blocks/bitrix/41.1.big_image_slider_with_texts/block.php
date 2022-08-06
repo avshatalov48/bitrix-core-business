@@ -1,4 +1,4 @@
-<section class="landing-block">
+<section class="landing-block" data-slider-autoplay="1" data-slider-autoplay-speed="5000" data-slider-animation="1">
 	<div class="js-carousel" data-autoplay="true" data-infinite="true" data-speed="5000"
 		data-pagi-classes="u-carousel-indicators-v1--white g-absolute-centered--x g-bottom-20">
 		<div class="landing-block-node-card js-slide">

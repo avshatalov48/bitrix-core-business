@@ -1,10 +1,10 @@
 <?
 function __PrintRussian($num, $ext)//$ext - 3 end of digit 1, 2, 5
 {
-	if(mb_strlen($num) > 1 && mb_substr($num, mb_strlen($num) - 2, 1) == "1")
+	if(strlen($num)>1 && substr($num,strlen($num)-2,1)=="1")
 		return $ext[2];
 
-	$c=intval(mb_substr($num, mb_strlen($num) - 1, 1));
+	$c=IntVal(substr($num,strlen($num)-1,1));
 	if($c==0 || ($c>=5 && $c<=9))
 		return $ext[2];
 

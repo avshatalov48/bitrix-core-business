@@ -21,7 +21,7 @@
 
 	var BX = window.BX;
 
-	BX.Main.Date = {
+	BX.Main.Date = BX.Main.DateTimeFormat = {
 
 		AM_PM_MODE: {
 			UPPER: 1,

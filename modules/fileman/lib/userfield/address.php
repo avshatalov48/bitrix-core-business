@@ -2,9 +2,12 @@
 
 namespace Bitrix\Fileman\UserField;
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Fileman\UserField\Types\AddressType;
+
+Loader::includeModule('location');
 
 Loc::loadMessages(__FILE__);
 
@@ -87,98 +90,6 @@ class Address extends \Bitrix\Main\UserField\TypeBase
 		return AddressType::renderEditForm($userField, $additionalParameters);
 	}
 
-	protected static function getEdit($arUserField, $arHtmlControl)
-	{
-		$html = '';
-		\CJSCore::Init(array('userfield_address', 'google_map'));
-
-		if(static::canUseMap())
-		{
-			ob_start();
-
-			$controlId = $arUserField['FIELD_NAME'];
-?>
-<div id="<?=$controlId?>"></div>
-<span style="display: none;" id="<?=HtmlFilter::encode($arUserField['FIELD_NAME'])?>_result"></span>
-<script>
-	(function(){
-		'use strict';
-
-		var control = new BX.Fileman.UserField.Address(BX('<?=$controlId?>'), {
-			value: <?=\CUtil::PhpToJsObject(static::normalizeFieldValue($arUserField['VALUE']))?>,
-			multiple: <?=$arUserField['MULTIPLE'] === 'Y' ? 'true' : 'false'?>
-		});
-		BX.addCustomEvent(control, 'UserFieldAddress::Change', function(value)
-		{
-			var node = BX('<?=\CUtil::JSEscape($arUserField['FIELD_NAME'])?>_result');
-			var html = '';
-			if(value.length === 0)
-			{
-				value = [{text:''}];
-			}
-
-			for(var i = 0; i < value.length; i++)
-			{
-				var inputValue = value[i].text;
-
-				if(!!value[i].coords)
-				{
-					inputValue += '|' + value[i].coords.join(';');
-				}
-
-				html += '<input type="hidden" name="<?=$arHtmlControl['NAME']?>" value="'+BX.util.htmlspecialchars(inputValue)+'" />';
-			}
-
-			node.innerHTML = html;
-		});
-	})();
-</script>
-<?
-			$html = ob_get_clean();
-		}
-		else
-		{
-			$value = static::normalizeFieldValue($arUserField['VALUE']);
-
-			$first = true;
-			foreach($value as $res)
-			{
-				if(!$first)
-				{
-					$html .= static::getHelper()->getMultipleValuesSeparator();
-				}
-				$first = false;
-
-				list($text, $coords) = static::parseValue($res);
-
-				$attrList = array(
-					'type' => 'text',
-					'class' => static::getHelper()->getCssClassName(),
-					'name' => $arHtmlControl['NAME'],
-					'value' => $text,
-				);
-
-				if(static::useRestriction() && !static::checkRestriction())
-				{
-					$attrList['onfocus'] = 'BX.Fileman.UserField.addressSearchRestriction.show(this)';
-				}
-				elseif(static::getApiKey() === '')
-				{
-					$attrList['onfocus'] = 'BX.Fileman.UserField.addressKeyRestriction.show(this)';
-				}
-
-				$html .= static::getHelper()->wrapSingleField('<input '.static::buildTagAttributes($attrList).'/>');
-			}
-
-			if($arUserField["MULTIPLE"] == "Y")
-			{
-				$html .= static::getHelper()->getCloneButton($arHtmlControl['NAME']);
-			}
-		}
-
-		return $html;
-	}
-
 	public static function getPublicEdit($userField, $additionalParameters = array())
 	{
 		return AddressType::RenderEdit($userField, $additionalParameters);
@@ -200,10 +111,5 @@ class Address extends \Bitrix\Main\UserField\TypeBase
 
 	public static function getAdminListEditHtml($userField, $additionalParameters){
 		return AddressType::renderAdminListEdit($userField, $additionalParameters);
-	}
-
-	protected static function parseValue($value)
-	{
-		return AddressType::parseValue($value);
 	}
 }

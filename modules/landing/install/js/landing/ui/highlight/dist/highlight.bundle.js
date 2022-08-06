@@ -51,19 +51,28 @@ this.BX.Landing = this.BX.Landing || {};
 	    }
 	    /**
 	     * Hides highlight for all nodes
+	     * @param force - if true - remove highlight immediately, without requestAnimationFrame
 	     */
 	    // eslint-disable-next-line class-methods-use-this
 
 	  }, {
 	    key: "hide",
 	    value: function hide() {
+	      var force = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 	      Highlight.highlights.forEach(function (item) {
-	        BX.DOM.write(function () {
+	        if (force) {
 	          main_core.Dom.remove(item.highlight);
 	          item.node.style.position = '';
 	          item.node.style.userSelect = '';
 	          item.node.style.cursor = '';
-	        });
+	        } else {
+	          BX.DOM.write(function () {
+	            main_core.Dom.remove(item.highlight);
+	            item.node.style.position = '';
+	            item.node.style.userSelect = '';
+	            item.node.style.cursor = '';
+	          });
+	        }
 	      });
 	      Highlight.highlights.clear();
 	    }

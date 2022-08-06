@@ -1,6 +1,6 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -9,9 +9,6 @@ use Bitrix\Bizproc;
 
 class CBPPropertyVariableCondition extends CBPActivityCondition
 {
-	const CONDITION_JOINER_AND = 0;
-	const CONDITION_JOINER_OR = 1;
-
 	public $condition = null;
 
 	public function __construct($condition)
@@ -21,51 +18,55 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 
 	public function Evaluate(CBPActivity $ownerActivity)
 	{
-		if ($this->condition == null || !is_array($this->condition) || count($this->condition) <= 0)
+		if (!$this->isConditionGroupExist())
 		{
 			return true;
 		}
 
-		if (!is_array($this->condition[0]))
-		{
-			$this->condition = array($this->condition);
-		}
+		$this->conditionGroupToArray();
 
 		$rootActivity = $ownerActivity->GetRootActivity();
 
-		$result = [0 => true];
-		$i = 0;
+		$items = [];
 		foreach ($this->condition as $cond)
 		{
-			$r = true;
-			$joiner = empty($cond[3])? static::CONDITION_JOINER_AND : static::CONDITION_JOINER_OR;
-			if ($rootActivity->IsPropertyExists($cond[0]))
-			{
-				if (!$this->CheckCondition($rootActivity->{$cond[0]}, $cond[1], $cond[2], $rootActivity->GetPropertyBaseType($cond[0]), $rootActivity, $rootActivity->getTemplatePropertyType($cond[0])))
-				{
-					$r = false;
-				}
-			}
-			elseif ($rootActivity->IsVariableExists($cond[0]))
-			{
-				if (!$this->CheckCondition($rootActivity->GetVariable($cond[0]), $cond[1], $cond[2], $rootActivity->GetVariableBaseType($cond[0]), $rootActivity, $rootActivity->getVariableType($cond[0])))
-				{
-					$r = false;
-				}
-			}
-			if ($joiner == static::CONDITION_JOINER_OR)
-			{
-				++$i;
-				$result[$i] = $r;
-			}
-			elseif (!$r)
-			{
-				$result[$i] = false;
-			}
-		}
-		$result = array_filter($result);
+			$valueToCheck = null;
+			$property = null;
+			$baseType = null;
 
-		return sizeof($result) > 0;
+			if ($rootActivity->isPropertyExists($cond[0]))
+			{
+				$valueToCheck = $rootActivity->{$cond[0]};
+				$property = $rootActivity->getTemplatePropertyType($cond[0]);
+				$baseType = $rootActivity->GetPropertyBaseType($cond[0]);
+			}
+			elseif ($rootActivity->isVariableExists($cond[0]))
+			{
+				$valueToCheck = $rootActivity->GetVariable($cond[0]);
+				$property = $rootActivity->getVariableType($cond[0]);
+				$baseType =  $rootActivity->GetVariableBaseType($cond[0]);
+			}
+
+			$type = is_array($property) ? $property['Type'] : $baseType;
+
+			$items[] = [
+				'joiner' => $this->getJoiner($cond),
+				'operator' => $type ? $cond[1] : 'empty',
+				'valueToCheck' => $valueToCheck,
+				'fieldType' => $this->getFieldTypeObject($rootActivity, ['Type' => $type ?? 'string']),
+				'value' => $type ? $rootActivity->ParseValue($cond[2], $type) : null,
+				'fieldName' => ($property && $property['Name']) ?? $cond[0],
+			];
+		}
+
+		$conditionGroup = new Bizproc\Activity\ConditionGroup([
+			'items' => $items,
+			'parameterDocumentId' => $rootActivity->getDocumentId()
+		]);
+
+		$result = $conditionGroup->evaluate();
+
+		return $result;
 	}
 
 	public function collectUsages(CBPActivity $ownerActivity)
@@ -102,37 +103,6 @@ class CBPPropertyVariableCondition extends CBPActivityCondition
 		}
 
 		return $usages;
-	}
-
-	/**
-	 * @param $field
-	 * @param $operation
-	 * @param $value
-	 * @param null $baseType
-	 * @param CBPActivity $rootActivity
-	 * @param null $property
-	 * @return bool
-	 */
-	private function CheckCondition($field, $operation, $value, $baseType, $rootActivity, $property = null)
-	{
-		$type = is_array($property) ? $property['Type'] : $baseType;
-		$condition = new Bizproc\Activity\Condition([
-			'operator' => $operation,
-			'value' => $rootActivity->ParseValue($value, $type),
-		]);
-
-		$fieldType = $rootActivity->workflow
-			->GetService('DocumentService')
-			->getFieldTypeObject($rootActivity->GetDocumentType(), ['Type' => $type]);
-
-		if (!$fieldType)
-		{
-			$fieldType = $rootActivity->workflow
-				->GetService('DocumentService')
-				->getFieldTypeObject($rootActivity->GetDocumentType(), ['Type' => 'string']);
-		}
-
-		return $condition->checkValue($field, $fieldType, $rootActivity->GetDocumentId());
 	}
 
 	public static function GetPropertiesDialog(

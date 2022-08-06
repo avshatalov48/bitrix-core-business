@@ -92,6 +92,12 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_43.1.BIG_TILES_WITH_SLIDER_NODES_LANDINGBLOCKNODECARDIMG'),
 			'type' => ['background-size', 'animation']
 		),
+		'.landing-block-slider' => [
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_43_1_BIG_TILES_WITH_SLIDER_NODES_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show'],
+			]
+		],
 	),
 	'assets' => array(
 		'ext' => array('landing_carousel'),

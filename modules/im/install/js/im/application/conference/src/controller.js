@@ -35,7 +35,7 @@ import { VueVendorV2 } from "ui.vue";
 import { VuexBuilder } from "ui.vue.vuex";
 
 // core
-import { Loc, Tag, Dom } from "main.core";
+import { Loc, Tag, Dom, Text } from "main.core";
 import "promise";
 import 'main.date';
 import { EventEmitter } from 'main.core.events'
@@ -73,7 +73,7 @@ class ConferenceApplication
 		this.event = new VueVendorV2;
 
 		this.callContainer = null;
-		this.callView = null;
+		// this.callView = null;
 		this.preCall = null;
 		this.currentCall = null;
 		this.videoStrategy = null;
@@ -1345,6 +1345,7 @@ class ConferenceApplication
 			toggleScreenSharing: this.onCallViewToggleScreenSharingButtonClick.bind(this),
 			record: this.onCallViewRecordButtonClick.bind(this),
 			toggleVideo: this.onCallViewToggleVideoButtonClick.bind(this),
+			toggleSpeaker: this.onCallViewToggleSpeakerButtonClick.bind(this),
 			showChat: this.onCallViewShowChatButtonClick.bind(this),
 			toggleUsers: this.onCallViewToggleUsersButtonClick.bind(this),
 			share: this.onCallViewShareButtonClick.bind(this),
@@ -1510,6 +1511,21 @@ class ConferenceApplication
 		else
 		{
 			this.template.$emit('setCameraState', event.data.video);
+		}
+	}
+
+	onCallViewToggleSpeakerButtonClick(event)
+	{
+		this.callView.muteSpeaker(!event.speakerMuted);
+
+		if (event.fromHotKey)
+		{
+			BX.UI.Notification.Center.notify({
+				content: BX.message(this.callView.speakerMuted? 'IM_M_CALL_MUTE_SPEAKERS_OFF': 'IM_M_CALL_MUTE_SPEAKERS_ON'),
+				position: "top-right",
+				autoHideDelay: 3000,
+				closeButton: true
+			});
 		}
 	}
 
@@ -2128,7 +2144,7 @@ class ConferenceApplication
 			{
 				const messageAuthor = this.controller.getStore().getters['users/get'](params.message.senderId, true);
 				userName = Tag.render`
-					<div class="bx-im-application-call-notify-new-message-username">${messageAuthor.name}:</div>
+					<div class="bx-im-application-call-notify-new-message-username">${Text.encode(messageAuthor.name)}:</div>
 				`;
 				if (messageAuthor.avatar)
 				{

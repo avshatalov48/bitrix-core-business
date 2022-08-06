@@ -296,7 +296,8 @@
 .catalog-variation-grid-header-title {
 	color: #525c69;
 	text-transform: uppercase;
-	font: 11px/17px "OpenSans-Semibold", Helvetica, Arial, sans-serif;
+	font: 11px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .catalog-variation-grid-header {
@@ -328,6 +329,7 @@
 	height: 46px;
 	display: flex;
 	align-items: center;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .catalog-variation-grid-add-btn {
@@ -337,7 +339,7 @@
 	margin-left: 6px;
 	transition: border-color .2s linear;
 	border: 1px solid transparent;
-	border-radius: 2px;
+	border-radius: var(--ui-btn-radius, 2px);
 	background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2226%22%20height%3D%2226%22%20viewBox%3D%220%200%2026%2026%22%3E%3Cg%20fill%3D%22%232fc6f6%22%20fill-rule%3D%22evenodd%22%20transform%3D%22translate%28-.5%20-.5%29%22%3E%3Crect%20width%3D%2211%22%20height%3D%223%22%20x%3D%228%22%20y%3D%2212%22/%3E%3Crect%20width%3D%223%22%20height%3D%2211%22%20x%3D%2212%22%20y%3D%228%22/%3E%3C/g%3E%3C/svg%3E) no-repeat top 2px left 2px;
 }
 

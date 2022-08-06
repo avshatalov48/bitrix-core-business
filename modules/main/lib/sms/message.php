@@ -14,6 +14,7 @@ class Message
 	protected $sender;
 	protected $receiver;
 	protected $text;
+	protected $template;
 
 	public function __construct()
 	{
@@ -22,6 +23,7 @@ class Message
 	public static function createFromTemplate(Template $template, array $fields)
 	{
 		$message = new static();
+		$message->template = $template;
 
 		if(!isset($fields["SITE_NAME"]))
 		{
@@ -104,5 +106,13 @@ class Message
 	{
 		$this->text = $text;
 		return $this;
+	}
+
+	/**
+	 * @return ?Template
+	 */
+	public function getTemplate(): ?Template
+	{
+		return $this->template;
 	}
 }

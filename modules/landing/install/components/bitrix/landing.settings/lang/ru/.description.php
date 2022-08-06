@@ -1,0 +1,2 @@
+<?php
+$MESS['LANDING_CMP_NAMESPACE_NAME'] = 'Сайты 24';

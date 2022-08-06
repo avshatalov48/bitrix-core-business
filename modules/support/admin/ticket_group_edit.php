@@ -19,7 +19,7 @@ $ID = intval($ID);
 
 $message = false;
 
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=='POST' && $bAdmin && check_bitrix_sessid())
+if ((strlen($save)>0 || strlen($apply)>0) && $REQUEST_METHOD=='POST' && $bAdmin && check_bitrix_sessid())
 {
 	$obSUG = new CSupportUserGroup();
 	$bOK = false;
@@ -27,7 +27,7 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=='POST' && $bAdmin && check
 	
 	$arParams = array(
 		'NAME' => $_POST['NAME'],
-		'SORT' => intval($_POST['SORT']),
+		'SORT' => IntVal($_POST['SORT']),
 		'XML_ID' => $_POST['XML_ID'],
 		'IS_TEAM_GROUP' => $_POST['IS_TEAM_GROUP'],
 	);
@@ -70,7 +70,7 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=='POST' && $bAdmin && check
 	
 	if ($bOK)
 	{
-		if ($save <> '') LocalRedirect($LIST_URL . '?lang=' . LANG);
+		if (strlen($save)>0) LocalRedirect($LIST_URL . '?lang=' . LANG);
 		elseif ($new) LocalRedirect($APPLICATION->GetCurPage() . '?ID='.$ID. '&lang='.LANG.'&tabControl_active_tab='.urlencode($tabControl_active_tab));
 	}
 	else 
@@ -191,8 +191,8 @@ $tabControl = new CAdminTabControl('tabControl', $aTabs, true, true);
 		foreach ($arGroupUsers as $val)
 		{
 			$UIDS[$i] = '';
-			$UserPr = ( (string) $val['USER_ID'] <> '' );
-			if( $UserPr ) $UIDS[$i] = intval($val['USER_ID']);
+			$UserPr = ( strlen($val['USER_ID']) > 0 );
+			if( $UserPr ) $UIDS[$i] = intval($val['USER_ID']);			
 			$cVgm = ( $val['CAN_VIEW_GROUP_MESSAGES'] == "Y" || !$UserPr ) ? " checked" : "";
 			$cMgm = ( $val['CAN_MAIL_GROUP_MESSAGES'] == "Y" || !$UserPr ) ? " checked" : "";
 			$cMUgm = ( $val['CAN_MAIL_UPDATE_GROUP_MESSAGES'] == "Y" || !$UserPr ) ? " checked" : "";

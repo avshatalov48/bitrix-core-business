@@ -266,7 +266,10 @@ class FormVkontakte extends LeadAds\Form
 
 		if (!$serverCreateResponse->isSuccess() || !$serverId = $serverCreateResponse->getData()['server_id'] ?? null)
 		{
-			return new Error('Can not add Callback server.');
+			return new Error(
+				'Can not add Callback server: '
+				. ($serverCreateResponse->getErrorMessages()[0] ?? 'Empty `server_id`.')
+			);
 		}
 
 		$responseSetCallbackSettings = $this->getRequest()->send([
@@ -423,10 +426,23 @@ class FormVkontakte extends LeadAds\Form
 	/**
 	 * @param string $formId ads-form ID
 	 *
-	 * @return bool
+	 * @return Retargeting\Response
 	 */
-	public function register($formId) : bool
+	public function register($formId): Retargeting\Response
 	{
-		return isset($formId,$this->accountId) && $this->registerGroupWebHook()->isSuccess();
+		if (!isset($formId))
+		{
+			return (new Retargeting\Services\ResponseVkontakte())
+				->addError(new Error('VK lead ads form register: Empty formId.'))
+			;
+		}
+		if (!isset($this->accountId))
+		{
+			return (new Retargeting\Services\ResponseVkontakte())
+				->addError(new Error('VK lead ads form register: Empty accountId.'))
+			;
+		}
+
+		return $this->registerGroupWebHook();
 	}
 }

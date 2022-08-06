@@ -1298,7 +1298,8 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      ROW_ID: this.getId(),
 	      ENABLE_SKU_SELECTION: true,
 	      ENABLE_EMPTY_PRODUCT_ERROR: true,
-	      RESTRICTED_PRODUCT_TYPES: [PRODUCT_TYPE_SET]
+	      RESTRICTED_PRODUCT_TYPES: [PRODUCT_TYPE_SET],
+	      URL_BUILDER_CONTEXT: this.editor.getSettingValue('productUrlBuilderContext')
 	    },
 	    mode: catalog_productSelector.ProductSelector.MODE_EDIT
 	  };
@@ -1735,6 +1736,10 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$3(obj, privateSet); privateSet.add(obj); }
 
 	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
+
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
 
 	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var GRID_TEMPLATE_ROW = 'template_0';
@@ -3132,7 +3137,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      if (this.getProductCount()) {
 	        var productData = [];
 	        this.products.forEach(function (item) {
-	          var itemFields = item.getFields();
+	          var itemFields = item.getFields(_classStaticPrivateMethodGet(Editor, Editor, _getAjaxFields).call(Editor));
 
 	          if (!/^[0-9]+$/.test(itemFields['ID'])) {
 	            itemFields['ID'] = 0;
@@ -3146,10 +3151,10 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 
 	      return productDataValue;
 	    }
-	    /* actions */
-
 	  }, {
 	    key: "executeActions",
+
+	    /* actions */
 	    value: function executeActions(actions) {
 	      if (!main_core.Type.isArrayFilled(actions)) {
 	        return;
@@ -3516,6 +3521,10 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  return this.products.filter(function (product) {
 	    return product.getModel().getErrorCollection().hasErrors();
 	  }).length > 0;
+	}
+
+	function _getAjaxFields() {
+	  return ['ID', 'SKU_ID', 'AMOUNT', 'PURCHASING_PRICE', 'BASE_PRICE', 'BASE_PRICE_EXTRA', 'BASE_PRICE_EXTRA_RATE', 'DOC_BARCODE', 'BARCODE', 'STORE_TO', 'STORE_FROM'];
 	}
 
 	exports.Editor = Editor;

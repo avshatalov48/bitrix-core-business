@@ -1,0 +1,50 @@
+.feed-post-emoji-popup-container.--mobile .feed-post-emoji-icon-item {
+	width: 40px;
+	height: 40px;
+	border: none;
+}
+
+.feed-post-emoji-popup-container.--mobile {
+	margin-top: 0;
+	margin-bottom: 40px;
+	height: 61px;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+}
+.feed-post-emoji-popup-inverted.feed-post-emoji-popup-container.--mobile {
+	margin-top: 40px;
+	margin-bottom: 0;
+}
+
+.feed-post-emoji-popup-container.--mobile .feed-post-emoji-icon-inner {
+	height: 43px;
+	padding: 9px;
+}
+
+.feed-post-emoji-popup-container.--mobile .feed-post-emoji-icon-inner .feed-post-emoji-icon-item {
+	flex: 0 0 40px;
+}
+
+.feed-post-emoji-popup-container.--mobile.feed-post-emoji-popup-active-final .feed-post-emoji-icon-item {
+	transform-origin: center bottom;
+}
+.feed-post-emoji-popup-container.--mobile.feed-post-emoji-popup-active-final .feed-post-emoji-icon-item-hover {
+	transform: scale(2);
+	z-index: 999;
+	border: none;
+	transition: transform .3s;
+}
+
+.feed-post-emoji-popup-mobile-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: transparent;
+	opacity: 1;
+	width: 100%;
+	height: 100%;
+	z-index: 9998;
+}

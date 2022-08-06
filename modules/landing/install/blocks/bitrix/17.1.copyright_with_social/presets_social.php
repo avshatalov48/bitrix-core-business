@@ -102,13 +102,13 @@ $result = [
 			<li class="landing-block-card-social list-inline-item g-mr-10"
 				data-card-preset="telegram">
 				<a class="landing-block-card-social-icon-link u-icon-v2 g-width-35 g-height-35 g-font-size-16 g-color-gray-light-v1 g-color-white--hover g-bg-primary--hover g-brd-gray-dark-v5 g-brd-primary--hover g-rounded-50x"
-				   href="https://telegram.com">
+				   href="https://telegram.org">
 					<i class="landing-block-card-social-icon fa fa-telegram"></i>
 				</a>
 			</li>',
 		'values' => [
 			'.landing-block-card-social-icon-link' => [
-				'href' => 'https://telegram.com',
+				'href' => 'https://telegram.org',
 			],
 			'.landing-block-card-social-icon' => [
 				'type' => 'icon',

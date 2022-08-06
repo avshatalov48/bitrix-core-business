@@ -1,6 +1,5 @@
 import {Type} from 'main.core';
 import {EventEmitter, BaseEvent} from 'main.core.events';
-import Toolbar from './toolbar';
 import ActionManager from './actionmanager';
 
 export default class Manager
@@ -23,11 +22,6 @@ export default class Manager
 			componentName: string,
 			signedParameters: string,
 			useSlider: boolean,
-			toolbar: {
-				id: string,
-				menuButtonId: string,
-				menuItems: object,
-			},
 			urls: {
 				users: string,
 				requests: string,
@@ -52,8 +46,6 @@ export default class Manager
 		this.gridContainer = (Type.isStringFilled(params.gridContainerId) ? document.getElementById(params.gridContainerId) : null);
 		this.urls = params.urls;
 
-		params.toolbar.componentName = this.componentName;
-		this.toolbarInstance = new Toolbar(params.toolbar);
 		this.actionManagerInstance = new ActionManager({
 			parent: this,
 		});
@@ -83,7 +75,7 @@ export default class Manager
 				sliderEvent.getEventId() === 'sonetGroupEvent'
 				&& !Type.isUndefined(sliderEvent.data)
 				&& Type.isStringFilled(sliderEvent.data.code)
-				&& sliderEvent.data.code === 'afterInvite'
+				&& [ 'afterInvite', 'afterIncomingRequestCancel' ].includes(sliderEvent.data.code)
 			)
 			{
 				this.reload();

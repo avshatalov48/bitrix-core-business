@@ -6,6 +6,9 @@ use Bitrix\Main\Localization\Loc;
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 
+/**
+ * @deprecated use JS `BX.Catalog.ProductCard.openFeedbackPanelStatic`
+ */
 class CatalogProductCardFeedbackComponent extends CBitrixComponent
 {
 	protected static function getFeedbackFormInfo($region): ?array
@@ -18,10 +21,11 @@ class CatalogProductCardFeedbackComponent extends CBitrixComponent
 			'ua' => ['id' => 357, 'lang' => 'ua', 'sec' => '2z19xl'],
 			'com.br' => ['id' => 353, 'lang' => 'com.br', 'sec' => '5cleqn'],
 		];
-		
+
 		// links
-		$forms['by'] = $forms['kz'] = $forms['ru'];
-		
+		$forms['by'] = $forms['ru'];
+		$forms['kz'] = $forms['ru'];
+
 		return $forms[$region] ?? $forms['en'];
 	}
 

@@ -182,6 +182,7 @@ class CAllSocNetFeaturesPerms
 			{
 				if (defined("BX_COMP_MANAGED_CACHE"))
 				{
+					$CACHE_MANAGER->ClearByTag('sonet_features2perms');
 					$CACHE_MANAGER->ClearByTag("sonet_features2perms_".$ID);
 				}
 				else
@@ -247,6 +248,7 @@ class CAllSocNetFeaturesPerms
 
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
+				$CACHE_MANAGER->ClearByTag('sonet_features2perms');
 				$CACHE_MANAGER->ClearByTag("sonet_features2perms_".$ID);
 			}
 			else

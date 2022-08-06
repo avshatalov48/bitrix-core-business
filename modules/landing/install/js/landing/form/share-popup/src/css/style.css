@@ -1,0 +1,91 @@
+.landing-form-share-popup {
+	background: #E9EAED;
+	box-shadow: 0 12px 27px 0 rgb(0 0 0 / 14%);
+	border-radius: 24px;
+	min-height: 100px;
+}
+
+.landing-form-share-popup-content {
+	padding: 13px 13px 8px;
+}
+
+.landing-form-share-popup-content-block {
+	background: #ffffff;
+	display: flex;
+	align-items: center;
+	box-shadow: 0 1px 3px 0 rgb(0 0 0 / 9%);
+	padding: 15px 12px;
+	border-radius: 12px;
+	margin-bottom: 12px;
+	position: relative;
+	transition: 190ms linear all;
+}
+
+.landing-form-share-popup-content-block-icon {
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-position: center;
+	min-width: 36px;
+	height: 36px;
+	margin-right: 7px;
+}
+
+.landing-form-share-popup-content-block-text {
+	flex-grow: 1;
+	margin-right: 10px;
+}
+
+.landing-form-share-popup-content-block-text-title {
+	font: 13px/15px "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333;
+}
+
+.landing-form-share-popup-content-block-text-link {
+	display: inline;
+	font: 11px/15px "OpenSans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525c69;
+	opacity: .66;
+	border-bottom: 1px dashed;
+	cursor: pointer;
+	transition: 200ms ease opacity;
+}
+
+.landing-form-share-popup-content-block-text-link:hover {
+	color: #333;
+	opacity: .9;
+}
+
+.landing-form-share-popup-content-block-action .ui-btn {
+	--ui-btn-padding: 0 11px;
+	--ui-btn-font-size: 11px;
+	--ui-btn-color: #525c69;
+	--ui-btn-color-hover: #535c69;
+	--ui-btn-color-active: #535c69;
+	--ui-btn-background: #fff;
+	--ui-btn-background-hover: #e5f9ff;
+	--ui-btn-background-active: #e5f9ff;
+	--ui-btn-border-color: rgba(31, 130, 232, 0.3);
+	--ui-btn-border-color-hover: #2fc6f6;
+	--ui-btn-border-color-active: #2fc6f6;
+}
+
+.landing-form-share-popup-content-block[data-type="share"] {
+	background: #7B61FF;
+}
+
+.landing-form-share-popup-content-block[data-type="share"] .landing-form-share-popup-content-block-icon {
+	background-image: url("images/share-icon.svg");
+}
+
+.landing-form-share-popup-content-block[data-type="share"] .landing-form-share-popup-content-block-text-title,
+.landing-form-share-popup-content-block[data-type="share"] .landing-form-share-popup-content-block-text-link {
+	color: #ffffff;
+}
+
+.landing-form-share-popup-content-block[data-type="communication"] .landing-form-share-popup-content-block-icon {
+	background-image: url("images/communication-icon.svg");
+}
+
+.landing-form-share-popup-content-block[data-type="help"] .landing-form-share-popup-content-block-icon {
+	background-image: url("images/help-icon.svg");
+}

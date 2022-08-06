@@ -10,7 +10,10 @@ return [
 	'rel' => [
 		'ui.entity-editor',
 		'ui.notification',
+		'ui.feedback.form',
 		'ui.hint',
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 		'translit',
 		'main.core.events',
 		'main.popup',

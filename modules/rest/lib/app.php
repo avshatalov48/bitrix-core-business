@@ -477,6 +477,7 @@ class AppTable extends Main\Entity\DataManager
 						'select' => [
 							'ID',
 							'PLACEMENT',
+							'USER_ID',
 						],
 					]
 				);
@@ -488,6 +489,7 @@ class AppTable extends Main\Entity\DataManager
 						[
 							'ID' => $item['ID'],
 							'PLACEMENT' => $item['PLACEMENT'],
+							'USER_ID' => $item['USER_ID'],
 						]
 					);
 					EventManager::getInstance()->send($event);

@@ -27,10 +27,6 @@ $bReadOnly = !$USER->CanDoOperation('catalog_store');
 
 Loc::loadMessages(__FILE__);
 
-$bExport = false;
-if ($_REQUEST["mode"] == "excel")
-	$bExport = true;
-
 if($ex = $APPLICATION->GetException())
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -79,11 +75,13 @@ function getSiteTitle(?string $siteId): string
 	return $siteTitle;
 }
 
-$sTableID = "b_catalog_store";
+$sTableID = Catalog\StoreTable::getTableName();
 $entityId = Catalog\StoreTable::getUfId();
 
 $oSort = new CAdminUiSorting($sTableID, "SORT", "ASC");
 $lAdmin = new CAdminUiList($sTableID, $oSort);
+
+$bExport = $lAdmin->isExportMode();
 
 $listSite = array();
 $sitesQueryObject = CSite::getList("sort", "asc", array("ACTIVE" => "Y"));
@@ -851,8 +849,7 @@ while ($arRes = $dbResultList->Fetch())
 
 	$row->AddActions($arActions);
 }
-if(isset($row))
-	unset($row);
+unset($row);
 
 if($arSelectFieldsMap['USER_ID'] || $arSelectFieldsMap['MODIFIED_BY'])
 {
@@ -867,7 +864,7 @@ if($arSelectFieldsMap['USER_ID'] || $arSelectFieldsMap['MODIFIED_BY'])
 		while ($arOneUser = $rsUsers->Fetch())
 		{
 			$arOneUser['ID'] = (int)$arOneUser['ID'];
-			$urlToUser = "/bitrix/admin/user_edit.php?lang=".LANGUAGE_ID."&ID=".$arOneUser["ID"]."";
+			$urlToUser = "/bitrix/admin/user_edit.php?lang=".LANGUAGE_ID."&ID=".$arOneUser["ID"];
 			if ($publicMode)
 			{
 				$urlToUser = $selfFolderUrl."sale_buyers_profile.php?USER_ID=".$arOneUser["ID"]."&lang=".LANGUAGE_ID;
@@ -898,8 +895,7 @@ if($arSelectFieldsMap['USER_ID'] || $arSelectFieldsMap['MODIFIED_BY'])
 			$row->AddViewField("MODIFIED_BY", $strModifiedBy);
 		}
 	}
-	if(isset($row))
-		unset($row);
+	unset($row);
 }
 
 if (!$bReadOnly)

@@ -128,14 +128,6 @@ $MESS["BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE_LEGEND"] = "Перетащить 
 $MESS["BIZPROC_AUTOMATION_CMP_MOD_PRINTABLE_PREFIX"] = "(текст)";
 $MESS["BIZPROC_AUTOMATION_CMP_MOD_DATE_BY_SERVER"] = "(время сервера)";
 $MESS["BIZPROC_AUTOMATION_CMP_MOD_DATE_BY_RESPONSIBLE"] = "(время Ответственного)";
-$MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_LOCKED"] = "Редактирование роботов в дизайнере бизнес-процессов возможно только для тарифа Компания. <br><br>
-Также на этом тарифе вам будет доступно много других полезных инструментов:<br>
-<ul class=\"hide-features-list\">
-	<li class=\"hide-features-list-item\">Неограниченное число распознаваний визиток и CRM-форм</li>
-	<li class=\"hide-features-list-item\">Учет рабочего времени и рабочие отчеты ваших менеджеров</li>
-	<li class=\"hide-features-list-item\">Создание любого количества сайтов для пополнения клиентской базы</li>
-</ul>
-Подробнее о тарифах и их возможностях вы можете узнать <a href=\"https://www.bitrix24.ru/prices/index.php\">здесь</a>.";
 $MESS["BIZPROC_AUTOMATION_NOT_SELECTED"] = "[не установлено]";
 $MESS["BIZPROC_AUTOMATION_NO_FIELDS"] = "Нет подходящих полей";
 $MESS["BIZPROC_AUTOMATION_ROBOTS_LIMIT_ALERT_TITLE"] = "Внимание!";
@@ -147,6 +139,7 @@ $MESS["BIZPROC_AUTOMATION_ASK_PARAMETER"] = "Спрашивать при зап�
 $MESS["BIZPROC_AUTOMATION_ASK_MANUAL"] = "Выбрать сейчас";
 $MESS["BIZPROC_AUTOMATION_CMP_GLOB_VAR_MENU"] = "Переменные";
 $MESS["BIZPROC_AUTOMATION_CMP_GLOB_CONST_MENU"] = "Константы";
+$MESS["BIZPROC_AUTOMATION_CMP_DEBUGGER_SESSION_LIST_MENU"] = "Сессии отладки";
 $MESS["BIZPROC_AUTOMATION_CMP_DEBUGGER"] = "Отладчик роботов";
 $MESS["BIZPROC_AUTOMATION_CMP_DEBUGGER_SOON"] = "Отладчик роботов находится в разработке и скоро будет доступен на вашем портале";
 $MESS["BIZPROC_AUTOMATION_CMP_CREATE"] = "Создать";
@@ -155,7 +148,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_CHANGE_ROBOT"] = "Сменить робота";
 $MESS["BIZPROC_AUTOMATION_CMP_CREATE_TRIGGER"] = "Создать триггер";
 $MESS["BIZPROC_AUTOMATION_CMP_CHANGE_TRIGGER"] = "Сменить триггер";
 $MESS["BIZPROC_AUTOMATION_CMP_SEARCH_PLACEHOLDER"] = "поиск";
-$MESS['BIZPROC_AUTOMATION_RIGHTS_ERROR'] = 'У вас недостаточно прав для редактирования роботов. Обратитесь к администратору вашего Битрикс24 или к сотруднику, который отвечает за CRM.';
+$MESS['BIZPROC_AUTOMATION_RIGHTS_ERROR'] = 'У вас недостаточно прав для редактирования роботов. Обратитесь к администратору вашего Битрикс24 или сотруднику, который отвечает за CRM.';
 $MESS['BIZPOC_AUTOMATION_NO_ROBOT_SELECTED'] = 'Не выбрано ни одного робота';
 
 $MESS['BIZPROC_AUTOMATION_BROKEN_LINK_MESSAGE_ERROR'] = 'В роботе используются отсутствующие или недоступные поля/переменные/константы.';

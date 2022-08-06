@@ -25,8 +25,7 @@ use Bitrix\Socialnetwork\Item\Helper;
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\ComponentHelper;
-use Bitrix\Main\Security\Random;
-use Bitrix\Main\Security\Sign\Signer;
+use Bitrix\Main\Engine\ActionFilter\Service\Token;
 
 if (!CModule::IncludeModule("blog"))
 {
@@ -45,6 +44,10 @@ if (
 {
 	$arParams["CHECK_PERMISSIONS_DEST"] = "N";
 }
+
+$user_id = (int)$USER->getId();
+$arResult['USER_ID'] = $user_id;
+$arResult["TZ_OFFSET"] = CTimeZone::GetOffset();
 
 $arResult["bFromList"] = ($arParams["FROM_LOG"] === "Y" || $arParams["TYPE"] === "DRAFT" || $arParams["TYPE"] === "MODERATION");
 $arResult["contentViewIsSet"] = false;
@@ -112,9 +115,9 @@ $arResult["bTasksAvailable"] = (
 	&& $arResult["bTasksInstalled"]
 	&& (
 		!CModule::IncludeModule('bitrix24')
-		|| CBitrix24BusinessTools::isToolAvailable($USER->getId(), "tasks")
+		|| CBitrix24BusinessTools::isToolAvailable($arResult['USER_ID'], "tasks")
 	)
-	&& \Bitrix\Tasks\Access\TaskAccessController::can($USER->getId(), \Bitrix\Tasks\Access\ActionDictionary::ACTION_TASK_CREATE)
+	&& \Bitrix\Tasks\Access\TaskAccessController::can($arResult['USER_ID'], \Bitrix\Tasks\Access\ActionDictionary::ACTION_TASK_CREATE)
 );
 
 if (!$arResult["bPublicPage"])
@@ -272,10 +275,6 @@ if (\Bitrix\Main\Loader::includeModule('mail'))
 {
 	$arParams['POST_PROPERTY'][] = 'UF_MAIL_MESSAGE';
 }
-
-$user_id = (int)$USER->GetID();
-$arResult["USER_ID"] = $user_id;
-$arResult["TZ_OFFSET"] = CTimeZone::GetOffset();
 
 $arResult["ALLOW_EMAIL_INVITATION"] = (
 	IsModuleInstalled('mail')
@@ -1121,7 +1120,7 @@ if(
 
 						$arResult['images'][$arImage['ID']] = [
 							'small' => '/bitrix/components/bitrix/blog/show_file.php?fid=' . $arImage['ID'] . '&width=' . $arParams['ATTACHED_IMAGE_MAX_WIDTH_SMALL'] . '&height=' . $arParams['ATTACHED_IMAGE_MAX_HEIGHT_SMALL'] . '&type=square',
-							'full' => '/bitrix/components/bitrix/blog/show_file.php?fid' . $arImage['ID'] . '&width=' . $arParams['ATTACHED_IMAGE_MAX_WIDTH_FULL'] . '&height=' . $arParams['ATTACHED_IMAGE_MAX_HEIGHT_FULL'],
+							'full' => '/bitrix/components/bitrix/blog/show_file.php?fid=' . $arImage['ID'] . '&width=' . $arParams['ATTACHED_IMAGE_MAX_WIDTH_FULL'] . '&height=' . $arParams['ATTACHED_IMAGE_MAX_HEIGHT_FULL'],
 							'resizedWidth' => $resizedWidth,
 							'resizedHeight' => $resizedHeight,
 						];
@@ -1661,7 +1660,7 @@ if(
 				)
 				&& !CSocNetUser::IsCurrentUserModuleAdmin()
 				&& is_object($USER)
-				&& $USER->GetId() != $arResult["Post"]["AUTHOR_ID"]
+				&& $arResult['USER_ID'] !== (int)$arResult["Post"]["AUTHOR_ID"]
 				&& !empty($arResult["Post"]["SPERM"]['SG']) // if has sonet groups
 				&& count($arResult["Post"]["SPERM"]) === 1 // and only sonet groups
 			)
@@ -1800,7 +1799,7 @@ if(
 						'TYPE' => 'post',
 						'POST_ID' => $arPost["ID"]
 					));
-					$cache_id = "blog_socnet_post_read_".$USER->GetID();
+					$cache_id = "blog_socnet_post_read_" . $arResult['USER_ID'];
 
 					if ($cache->InitCache($arParams["CACHE_TIME"], $cache_id, $cache_path))
 						$arResult["Post"]["IMPORTANT"] = $cache->GetVars();
@@ -1812,7 +1811,7 @@ if(
 							$CACHE_MANAGER->StartTagCache($cache_path);
 							$CACHE_MANAGER->RegisterTag("BLOG_POST_IMPRTNT".$arPost["ID"]);
 						}
-						$db_user = CUser::GetById($USER->GetId());
+						$db_user = CUser::GetById($arResult['USER_ID']);
 						$arResult["Post"]["IMPORTANT"]["USER"] = $db_user->Fetch();
 
 						$db_res = CBlogUserOptions::GetList(
@@ -1836,7 +1835,7 @@ if(
 								$arPost["ID"],
 								"BLOG_POST_IMPRTNT",
 								"N",
-								$USER->GetId()
+								$arResult['USER_ID']
 							);
 						}
 
@@ -1887,14 +1886,12 @@ if(
 				}
 			}
 
-			$isAuthorized = $USER->isAuthorized();
-			$arResult['CONTENT_VIEW_KEY'] = (string)($arParams['CONTENT_VIEW_KEY'] ?? ($isAuthorized ? Random::getString(8, false) : ''));
-			$arResult['CONTENT_VIEW_KEY_SIGNED'] = (string)($arResult['CONTENT_VIEW_KEY_SIGNED'] ?? (
-				$isAuthorized
-					? (new Signer)->sign($arResult['CONTENT_VIEW_KEY'], 'ajaxSecurity' . $USER->getId() . $arResult['CONTENT_ID'])
+			$arResult['LOG_ID_TOKEN'] = (
+				$arParams['LOG_ID'] > 0
+				&& $arResult['USER_ID'] > 0
+					? (new \Bitrix\Main\Engine\ActionFilter\Service\Token($arResult['USER_ID']))->generate($arParams['LOG_ID'])
 					: ''
-				));
-
+			);
 		}
 		else
 		{
@@ -1902,7 +1899,7 @@ if(
 			$arResult["FATAL_CODE"] = "NO_RIGHTS";
 		}
 	}
-	elseif(!$arResult["bFromList"])
+	elseif (!$arResult["bFromList"])
 	{
 		$arResult["FATAL_MESSAGE"] = GetMessage("B_B_MES_NO_POST");
 		$arResult["FATAL_CODE"] = "NO_POST";
@@ -1931,6 +1928,14 @@ if (
 	{
 		$this->setSiteTemplateId($arParams["SITE_TEMPLATE_ID"]);
 	}
+
+	$arResult['CONTENT_VIEW_KEY_SIGNED'] = (string)($arParams['CONTENT_VIEW_KEY_SIGNED'] ?? (
+		(is_object($USER) && $USER->isAuthorized())
+		&& (string)$arResult['CONTENT_ID'] !== ''
+			? (new Token((int)$USER->getId()))->generate($arResult['CONTENT_ID'])
+			: ''
+	));
+
 	$this->IncludeComponentTemplate();
 }
 
@@ -1951,4 +1956,3 @@ if ($arParams["RETURN_DATA"] === "Y")
 		)
 	);
 }
-?>

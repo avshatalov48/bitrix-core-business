@@ -54,7 +54,7 @@ $result = [
 		'name' => '<span class="fa fa-whatsapp"></span> WhatsApp',
 		'html' => '<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-15 g-mr-0--last g-mb-0"
 			data-card-preset="whatsapp">
-			<a class="landing-block-node-icon landing-block-node-list-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v1--hover g-bg-gray-light-v1 g-color-black text-center" href="https://whatsapp.org/" target="_blank">
+			<a class="landing-block-node-icon landing-block-node-list-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v1--hover g-bg-gray-light-v1 g-color-black text-center" href="https://whatsapp.com/" target="_blank">
 				<i class="landing-block-node-list-icon fa fa-whatsapp"></i>
 			</a>
 		</li>',

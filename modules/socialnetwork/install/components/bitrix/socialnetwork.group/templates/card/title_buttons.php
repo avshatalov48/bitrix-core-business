@@ -1,5 +1,10 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -11,9 +16,13 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
 use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\UserToGroupTable;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
+use Bitrix\UI\Buttons;
 
-UI\Extension::load("ui.buttons");
-UI\Extension::load("ui.buttons.icons");
+UI\Extension::load([
+	'ui.buttons',
+	'ui.buttons.icons',
+]);
 
 Loc::loadMessages(__FILE__);
 
@@ -32,15 +41,13 @@ if (Loader::includeModule('bitrix24'))
 		SGCSSubscribeButtonHintOff: '<?=GetMessageJS("SONET_SGCS_T_NOTIFY_HINT_OFF")?>',
 		SGCSSubscribeButtonTitleOn: '<?=GetMessageJS("SONET_SGCS_T_NOTIFY_TITLE_ON")?>',
 		SGCSSubscribeButtonTitleOff: '<?=GetMessageJS("SONET_SGCS_T_NOTIFY_TITLE_OFF")?>',
-		SGCSSubscribeTitleY: '<?=GetMessageJS("SONET_SGCS_T_SUBSCRIBE_BUTTON_Y")?>',
-		SGCSSubscribeTitleN: '<?=GetMessageJS("SONET_SGCS_T_SUBSCRIBE_BUTTON_N")?>',
-		SGCSPathToRequestUser: '<?=CUtil::JSUrlEscape(
-			!empty($arResult["Urls"]["Invite"])
-				? $arResult["Urls"]["Invite"]
-				: $arResult["Urls"]["Edit"].(mb_strpos($arResult["Urls"]["Edit"], "?") !== false ? "&" : '?')."tab=invite"
-		)?>',
-		SGCSPathToUserRequestGroup: '<?=CUtil::JSUrlEscape($arResult["Urls"]["UserRequestGroup"])?>',
-		SGCSPathToUserLeaveGroup: '<?=CUtil::JSUrlEscape($arResult["Urls"]["UserLeaveGroup"])?>',
+		SGCSPathToRequestUser: '<?= CUtil::JSUrlEscape(
+			!empty($arResult['Urls']['Invite'])
+				? $arResult['Urls']['Invite']
+				: $arResult['Urls']['Edit'] . (mb_strpos($arResult['Urls']['Edit'], '?') !== false ? '&' : '?') . 'tab=invite'
+		) ?>',
+		SGCSPathToUserRequestGroup: '<?= CUtil::JSUrlEscape($arResult['Urls']['UserRequestGroup']) ?>',
+		SGCSPathToUserLeaveGroup: '<?= CUtil::JSUrlEscape($arResult['Urls']['UserLeaveGroup']) ?>',
 		SGCSPathToRequests: '<?=CUtil::JSUrlEscape($arResult["Urls"]["GroupRequests"])?>',
 		SGCSPathToRequestsOut: '<?=CUtil::JSUrlEscape($arResult["Urls"]["GroupRequestsOut"])?>',
 		SGCSPathToMembers: '<?=CUtil::JSUrlEscape($arResult["Urls"]["GroupUsers"])?>',
@@ -50,11 +57,24 @@ if (Loader::includeModule('bitrix24'))
 		SGCSPathToCopy: '<?=CUtil::JSUrlEscape($arResult["Urls"]["Copy"])?>'
 	});
 </script>
-<div class="socialnetwork-group-title-buttons">
-	<button class="ui-btn ui-btn-light-border ui-btn-dropdown ui-btn-themes" id="group_card_menu_button"><?= Loc::getMessage('SONET_SGCS_T_ACTIONS_BUTTON') ?></button><?php
-	if (in_array($arResult['CurrentUserPerms']['UserRole'], UserToGroupTable::getRolesMember(), true))
-	{
-		?><button id="group_card_subscribe_button" class="ui-btn ui-btn-light-border ui-btn-themes<?= ($arResult['bSubscribed'] ? ' ui-btn-active ui-btn-icon-unfollow' : ' ui-btn-icon-follow ') ?>"><?= Loc::getMessage("SONET_SGCS_T_SUBSCRIBE_BUTTON_" . ($arResult['bSubscribed'] ? 'Y' : 'N')) ?></button><?php
-	}
-	?>
-</div>
+<?php
+
+$actionsButton = new Buttons\Button([
+	'color' => ($arResult['IS_IFRAME'] ? Buttons\Color::SUCCESS : Buttons\Color::LIGHT_BORDER),
+	'dropdown' => true,
+	'text' => Loc::getMessage('SONET_SGCS_T_ACTIONS_BUTTON'),
+]);
+$actionsButton->addAttribute('id', 'group_card_menu_button');
+Toolbar::addButton($actionsButton);
+
+if (in_array($arResult['CurrentUserPerms']['UserRole'], UserToGroupTable::getRolesMember(), true))
+{
+	$actionsButton = new Buttons\Button([
+		'color' => Buttons\Color::LIGHT_BORDER,
+		'style' => Buttons\Style::DROPDOWN,
+	]);
+
+	$actionsButton->addAttribute('id', 'group_card_subscribe_button');
+	$actionsButton->addClass(($arResult['bSubscribed'] ? ' ui-btn-active ui-btn-icon-follow ' : ' ui-btn-icon-unfollow '));
+	Toolbar::addButton($actionsButton);
+}

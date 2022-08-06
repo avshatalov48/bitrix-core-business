@@ -362,18 +362,19 @@ class EnumType extends BaseType
 
 	public static function getDefaultValue(array $userField, array $additionalParameters = [])
 	{
-		static::getEnumList($userField, $additionalParameters);
-
 		if (!isset($userField['ENUM']))
 		{
 			$userField['ENUM'] = [];
 			$enumValuesManager = new \CUserFieldEnum();
 			$dbRes = $enumValuesManager->getList(
 				[],
-				['USER_FIELD_ID' => $userField['ID']]
+				[
+					'USER_FIELD_ID' => $userField['ID'],
+					'DEF' => 'Y',
+				]
 			);
 
-			while($enumValue = $dbRes->fetch())
+			while ($enumValue = $dbRes->fetch())
 			{
 				$userField['ENUM'][] = [
 					'ID' => $enumValue['ID'],

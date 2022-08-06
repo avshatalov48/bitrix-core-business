@@ -1,6 +1,6 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -9,9 +9,6 @@ use Bitrix\Bizproc;
 
 class CBPFieldCondition extends CBPActivityCondition
 {
-	const CONDITION_JOINER_AND = 0;
-	const CONDITION_JOINER_OR = 1;
-
 	public $condition = null;
 
 	public function __construct($condition)
@@ -21,15 +18,12 @@ class CBPFieldCondition extends CBPActivityCondition
 
 	public function Evaluate(CBPActivity $ownerActivity)
 	{
-		if ($this->condition == null || !is_array($this->condition) || count($this->condition) <= 0)
+		if (!$this->isConditionGroupExist())
 		{
 			return true;
 		}
 
-		if (!is_array($this->condition[0]))
-		{
-			$this->condition = [$this->condition];
-		}
+		$this->conditionGroupToArray();
 
 		$rootActivity = $ownerActivity->GetRootActivity();
 		$documentId = $rootActivity->GetDocumentId();
@@ -40,13 +34,9 @@ class CBPFieldCondition extends CBPActivityCondition
 		$documentFields = $documentService->GetDocumentFields($documentType);
 		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
 
-		$result = array(0 => true);
-		$i = 0;
+		$items = [];
 		foreach ($this->condition as $cond)
 		{
-			$r = true;
-			$joiner = empty($cond[3])? static::CONDITION_JOINER_AND : static::CONDITION_JOINER_OR;
-
 			if (!isset($document[$cond[0]]) && mb_substr($cond[0], -mb_strlen('_PRINTABLE')) == '_PRINTABLE')
 			{
 				$cond[0] = mb_substr($cond[0], 0, mb_strlen($cond[0]) - mb_strlen('_PRINTABLE'));
@@ -65,24 +55,26 @@ class CBPFieldCondition extends CBPActivityCondition
 				$baseType = 'bool';
 			}
 
-			if (!$this->CheckCondition($cond[0], $fld, $cond[1], $cond[2], $baseType, $type, $rootActivity))
-			{
-				$r = false;
-			}
-
-			if ($joiner == static::CONDITION_JOINER_OR)
-			{
-				++$i;
-				$result[$i] = $r;
-			}
-			elseif (!$r)
-			{
-				$result[$i] = false;
-			}
+			$items[] = [
+				'joiner' => $this->getJoiner($cond),
+				'operator' => $cond[1],
+				'valueToCheck' => ($cond[1] === 'modified') ? $cond[0] : $fld,
+				'fieldType' => $this->getFieldTypeObject($rootActivity, ['Type' => $type ?: $baseType]),
+				'value' =>
+					($cond[1] === 'modified')
+						? $rootActivity->{CBPDocument::PARAM_MODIFIED_DOCUMENT_FIELDS}
+						: $rootActivity->parseValue($cond[2], $baseType)
+				,
+				'fieldName' => $documentFields[$cond[0]]['Name'] ?? $cond[0],
+			];
 		}
-		$result = array_filter($result);
 
-		return sizeof($result) > 0;
+		$conditionGroup = new Bizproc\Activity\ConditionGroup([
+			'items' => $items,
+			'parameterDocumentId' => $rootActivity->getDocumentId()
+		]);
+
+		return $conditionGroup->evaluate();
 	}
 
 	public function collectUsages(CBPActivity $ownerActivity)
@@ -105,48 +97,6 @@ class CBPFieldCondition extends CBPActivityCondition
 		}
 
 		return $usages;
-	}
-
-	/**
-	 * @param $fieldName
-	 * @param $field
-	 * @param $operation
-	 * @param $value
-	 * @param $baseType
-	 * @param $type
-	 * @param CBPActivity $rootActivity
-	 * @return bool
-	 */
-	private function CheckCondition($fieldName, $field, $operation, $value, $baseType, $type, $rootActivity)
-	{
-		if ($operation == 'modified')
-		{
-			$modified = $rootActivity->{CBPDocument::PARAM_MODIFIED_DOCUMENT_FIELDS};
-			if (!is_array($modified))
-			{
-				return true;
-			}
-
-			return in_array($fieldName, $modified);
-		}
-
-		$condition = new Bizproc\Activity\Condition([
-			'operator' => $operation,
-			'value' => $rootActivity->ParseValue($value, $baseType),
-		]);
-
-		$fieldType = $rootActivity->workflow
-			->GetService('DocumentService')
-			->getFieldTypeObject($rootActivity->GetDocumentType(), ['Type' => $type ?: $baseType]);
-
-		if (!$fieldType)
-		{
-			$fieldType = $rootActivity->workflow
-				->GetService('DocumentService')
-				->getFieldTypeObject($rootActivity->GetDocumentType(), ['Type' => 'string']);
-		}
-
-		return $condition->checkValue($field, $fieldType, $rootActivity->GetDocumentId());
 	}
 
 	public static function GetPropertiesDialog(

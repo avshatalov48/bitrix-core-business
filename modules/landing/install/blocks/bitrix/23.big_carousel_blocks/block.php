@@ -1,4 +1,4 @@
-<section class="landing-block js-animation fadeIn g-bg-gray-light-v5 g-pt-30 g-pb-30">
+<section class="landing-block js-animation fadeIn g-bg-gray-light-v5 g-pt-30 g-pb-30" data-slider-autoplay="1" data-slider-autoplay-speed="10000" data-slider-slides-show="4" data-slider-pause-hover="true" data-slider-arrows="1" data-slider-dots="0" data-slider-animation="1">
 
         <div class="js-carousel row"
              data-autoplay="true"
@@ -6,9 +6,10 @@
              data-infinite="true"
 			 data-speed="10000"
              data-slides-show="4"
-			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-60 g-font-size-40 g-color-white g-bg-primary"
+			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-60 g-font-size-40 g-transition-0_2 g-transition--ease-in g-color-white g-bg-primary g-opacity-0_8--hover"
 			 data-arrow-left-classes="fa fa-angle-left g-left-10"
 			 data-arrow-right-classes="fa fa-angle-right g-right-10"
+			 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-pt-10"
 			 data-responsive='[{
                "breakpoint": 1200,
                "settings": {

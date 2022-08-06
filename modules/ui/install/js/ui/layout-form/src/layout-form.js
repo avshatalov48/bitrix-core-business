@@ -1,65 +1,99 @@
 import {Event, Dom} from "main.core";
 import 'ui.forms';
+import {EventEmitter} from 'main.core.events';
 
-export class LayoutForm
+type LayoutOptions = {
+	container?: HTMLElement
+}
+
+export class LayoutForm extends EventEmitter
 {
-	constructor()
+	static HIDDEN_ATTRIBUTE = 'data-form-row-hidden';
+	static SHOW_CLASS = 'ui-form-row-hidden-show';
+	static CHECKBOX_SELECTOR = '.ui-ctl-element[type="checkbox"]';
+
+	params: LayoutOptions;
+	container: HTMLElement;
+	nodes: [HTMLElement];
+
+	constructor(params: ?LayoutOptions)
 	{
-		this.hiddenAttribute = 'data-form-row-hidden';
+		super();
+		this.setEventNamespace('BX.UI.LayoutForm');
+
+		this.params = params ?? {};
+		this.container = this.params.container ?? document.documentElement;
+
 		this.nodes = null;
 
 		this.init();
 	}
 
-	init()
+	init(): void
 	{
-		this.nodes = document.querySelectorAll('[' + this.hiddenAttribute + ']');
-
-		for (let i = 0; i < this.nodes.length; i++) {
-			Event.bind(this.nodes[i], "click", this.onClick.bind(this));
-			this.nodes[i].querySelector('.ui-ctl-element[type="checkbox"]').style.pointerEvents = 'none';
-			this.checkInitialBlockVisibility(this.nodes[i]);
-		}
+		this.nodes = [].slice.call(this.container.querySelectorAll('[' + LayoutForm.HIDDEN_ATTRIBUTE + ']'));
+		this.nodes.forEach(node =>
+		{
+			Event.bind(node, "click", event => {
+				event.preventDefault();
+				this.toggleBLock(node);
+				this.emit('onToggle', {
+					checkbox: node.querySelector(LayoutForm.CHECKBOX_SELECTOR),
+				});
+			});
+			node.querySelector(LayoutForm.CHECKBOX_SELECTOR).style.pointerEvents = 'none';
+			this.checkInitialBlockVisibility(node);
+		});
 	}
 
-	checkInitialBlockVisibility(hiddenRow)
+	checkInitialBlockVisibility(node: HTMLElement): void
 	{
-		let checkbox = hiddenRow.querySelector('.ui-ctl-element[type="checkbox"]');
-		if (checkbox.checked)
+		const checkbox = node.querySelector(LayoutForm.CHECKBOX_SELECTOR);
+		if (checkbox && checkbox.checked)
 		{
-			let hiddenBlock = hiddenRow.nextElementSibling;
-			if (hiddenBlock.scrollHeight > 0)
+			const content = node.nextElementSibling;
+			if (content)
 			{
-				hiddenBlock.style.height = hiddenBlock.scrollHeight + 'px';
-				Dom.addClass(hiddenBlock, 'ui-form-row-hidden-show');
+				content.style.height = 'auto';
+				Dom.addClass(content, LayoutForm.SHOW_CLASS);
 			}
 		}
 	}
 
-	onClick(event)
+	toggleBLock(node: HTMLElement): void
 	{
-		// event.preventDefault();
-
-		let checkbox = event.currentTarget.querySelector('.ui-ctl-element[type="checkbox"]');
-		let hiddenBlock = event.currentTarget.nextElementSibling;
-		let height = hiddenBlock.scrollHeight;
-
-		this.toggleHiddenBLock(checkbox, hiddenBlock, height);
-	}
-
-	toggleHiddenBLock(checkbox, hiddenBlock, height)
-	{
-		if (!checkbox.checked)
+		const checkbox = node.querySelector(LayoutForm.CHECKBOX_SELECTOR);
+		if (checkbox)
 		{
-			checkbox.checked = true;
-			hiddenBlock.style.height = height + 'px';
-			Dom.addClass(hiddenBlock, 'ui-form-row-hidden-show');
-		}
-		else
-		{
-			checkbox.checked = false;
-			hiddenBlock.style.height = 0;
-			Dom.removeClass(hiddenBlock, 'ui-form-row-hidden-show');
+			const content = node.nextElementSibling;
+			if (content)
+			{
+				const height = content.scrollHeight;
+				if (height > 0)
+				{
+					if (!checkbox.checked)
+					{
+						checkbox.checked = true;
+						content.style.height = height + 'px';
+						Dom.addClass(content, LayoutForm.SHOW_CLASS);
+						const onTransitionEnd = () =>
+						{
+							content.style.height = 'auto';
+							Event.unbind(content, 'transitionend', onTransitionEnd);
+						};
+						Event.bind(content, 'transitionend', onTransitionEnd);
+					}
+					else
+					{
+						checkbox.checked = false;
+						content.style.height = height + 'px';
+						requestAnimationFrame(() => {
+							content.style.height = 0;
+							Dom.removeClass(content, LayoutForm.SHOW_CLASS);
+						});
+					}
+				}
+			}
 		}
 	}
 }

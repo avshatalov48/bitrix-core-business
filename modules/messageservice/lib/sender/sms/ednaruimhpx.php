@@ -26,6 +26,11 @@ class EdnaruImHpx extends Sender\BaseConfigurable
 	private const PASSWORD_OPTION = 'password';
 	private const SUBJECT_OPTION = 'subject_id';
 
+	public static function isSupported()
+	{
+		return defined('MESSAGESERIVICE_ALLOW_IMHPX') && MESSAGESERIVICE_ALLOW_IMHPX === true;
+	}
+
 	public function getId()
 	{
 		return static::ID;

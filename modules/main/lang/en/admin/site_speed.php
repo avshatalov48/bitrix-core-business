@@ -24,7 +24,6 @@ $MESS["MAIN_SITE_SPEED_CONNECTION_ERROR"] = "Cannot connect to statistics server
 $MESS["MAIN_SITE_SPEED_PERIOD_LABEL"] = "Reporting period";
 $MESS["MAIN_SITE_SPEED_PERF"] = "Performance Monitor";
 $MESS["MAIN_SITE_SPEED_COMPOSITE_SITE"] = "Composite Website";
-$MESS["MAIN_SITE_SPEED_CDN"] = "CDN Web Accelerator";
 $MESS["MAIN_SITE_SPEED_ENABLED"] = "On";
 $MESS["MAIN_SITE_SPEED_DISABLED"] = "Off";
 $MESS["MAIN_SITE_SPEED_PERF_NO_RES"] = "No performance test was conducted";

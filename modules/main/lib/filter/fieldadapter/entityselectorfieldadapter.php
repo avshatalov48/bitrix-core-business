@@ -125,7 +125,7 @@ class EntitySelectorFieldAdapter
 			}
 			if (in_array((string)$item->getId(), $itemsByEntity[$itemEntityId], true))
 			{
-				$result[] = $this->getItemId($item);
+				$result[] = $item->getTitle();
 			}
 		}
 

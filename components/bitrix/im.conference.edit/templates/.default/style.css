@@ -1,6 +1,7 @@
 .im-conference-create-block {
 	background: #fff;
 	padding: 13px 0 29px;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .im-conference-create-block + .im-conference-create-block {

@@ -337,18 +337,6 @@ class Builder
 				$usedPersonalizeFields
 			);
 		}
-		// update group counter of addresses
-		foreach($this->groupCount as $groupId => $count)
-		{
-			Entity\Segment::updateAddressCounters(
-				$groupId,
-				array(
-					new Connector\DataCounter(array(
-						$this->typeId => $count
-					))
-				)
-			);
-		}
 	}
 
 	protected function stopRecipientListBuilding()

@@ -9,3 +9,4 @@ $MESS["SNBPA_USERS_TO"] = "Получатели";
 $MESS["SNBPA_POST_TITLE"] = "Тема сообщения";
 $MESS["SNBPA_POST_MESSAGE"] = "Текст сообщения";
 $MESS["SNBPA_POST_SITE"] = "Целевой сайт";
+$MESS["SNBPA_POST_URL_LABEL"] = "Открыть новость";

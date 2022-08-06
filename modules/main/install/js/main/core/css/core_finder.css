@@ -20,7 +20,14 @@
 .bx-finder-box-tab-columns td { width: 50%; padding:0; vertical-align: top; }
 
 .bx-finder-box-search { margin: 0 0 7px 0;}
-.bx-finder-box-search-textbox { width: 100%; border:1px solid; border-color: #b0b0b0 #e2e2e2 #e2e2e2 #b0b0b0; font-size:15px; }
+
+.bx-finder-box-search-textbox {
+	width: 100%;
+	border: 1px solid;
+	border-color: #b0b0b0 #e2e2e2 #e2e2e2 #b0b0b0;
+	font-size: 15px;
+	border-radius: var(--ui-field-border-radius);
+}
 
 .bx-finder-box-tabs { margin: 0 0 7px 0; white-space: nowrap; }
 
@@ -180,7 +187,7 @@
 	text-decoration:none;
 	overflow: hidden;
 	outline: none;
-	border-radius: 4px;
+	border-radius: var(--ui-border-radius-xs, 4px);
 }
 .bx-finder-box-item-text {
 	color:black;
@@ -233,7 +240,7 @@
 	text-decoration:none;
 	overflow: hidden;
 	outline: none;
-	border-radius: 4px;
+	border-radius: var(--ui-border-radius-xs, 4px);
 }
 .bx-finder-box-item-t2-text {
 	font: normal normal normal 12px/normal Arial, Helvetica, sans-serif;
@@ -254,9 +261,20 @@
 	padding: 2px 0;
 	text-decoration: none;
 	vertical-align: top;
-	border-radius: 4px;
+	border-radius: var(--ui-border-radius-xs, 4px);
 }
-.bx-finder-box-item-t3-avatar { display: block; float: left ; vertical-align: top; width: 30px; height: 30px;  background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat 0 -664px;  margin-left: 4px; margin-top: 0; }
+
+.bx-finder-box-item-t3-avatar {
+	display: block;
+	float: left;
+	vertical-align: top;
+	width: 30px;
+	height: 30px;
+	background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat 0 -664px;
+	background-size: cover;
+	margin-left: 4px;
+	margin-top: 0;
+}
 .bx-finder-box-item-t3-info { display: block; float: left; padding: 0; margin: 0 0 0 7px; width: 303px; overflow: hidden}
 .bx-finder-box-item-t3-name { font: normal normal normal 12px/normal Arial, Helvetica, sans-serif; color:#000; }
 .bx-finder-box-item-t3-desc { font: normal normal normal 11px/normal Arial, Helvetica, sans-serif; color: #b2b2b2; line-height:11px; }
@@ -297,7 +315,7 @@
 	vertical-align: top;
 	overflow: hidden;
 	word-wrap: break-word;
-	border-radius: 4px;
+	border-radius: var(--ui-border-radius-xs, 4px);
 	cursor: pointer;
 	box-sizing: border-box;
 	transition: background-color 0.2s linear;
@@ -391,7 +409,7 @@
 	vertical-align: middle;
 }
 .bx-finder-box-item-t7:hover,
-.bx-finder-box-item-t7-hover { background:#d5f1fc; border-radius: 2px; }
+.bx-finder-box-item-t7-hover { background:#d5f1fc; }
 
 .bx-finder-box-item-t7-selected { background-color: #D5F1FC; }
 /*.bx-finder-box-item-t7-selected.bx-finder-box-item-t7:hover,
@@ -427,7 +445,7 @@
 	padding: 0;
 	min-height: 30px;
 	width: 48%;
-	border-radius: 4px;
+	border-radius: var(--ui-border-radius-xs, 4px);
 	vertical-align: top;
 	text-decoration: none;
 	word-wrap: break-word;
@@ -438,7 +456,6 @@
 .bx-finder-popup.bx-finder-v2 .bx-finder-box-item-t7-selected.bx-finder-box-item-t7:hover,
 .bx-finder-popup.bx-finder-v2 .bx-finder-box-item-t7-selected.bx-finder-box-item-t7.bx-finder-box-item-t7-hover {
 	background: #B1E5F8;
-	border-radius: 2px;
 }
 
 .bx-finder-popup.bx-finder-v2 .bx-finder-box-item-t7:hover,
@@ -543,7 +560,7 @@
 	margin: 5px 10px 0 0;
 	text-decoration: none;
 	vertical-align: top;
-	border-radius: 4px;
+	border-radius: var(--ui-border-radius-xs, 4px);
 }
 .bx-finder-company-department-employee-avatar { position: absolute; width: 24px; height: 24px; top: 3px; /*margin-top: -27px; */margin-left: 3px; border-radius:50%; background: #fff url(/bitrix/js/main/core/images/finder_sprite.min.svg) no-repeat center;background-position: 0 0;}
 .bx-finder-company-department-employee-info { padding: 2px 0; margin: 0 0 0 32px; }

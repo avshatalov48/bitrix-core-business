@@ -48,6 +48,8 @@ class CHotKeysCode
 
 	protected function CleanUrl($url)
 	{
+		$url = (string)$url;
+
 		//removes host & proto from url
 		if(($hostPos = mb_strpos($url, $_SERVER["HTTP_HOST"])))
 			$cleanUrl = mb_substr($url, $hostPos + mb_strlen($_SERVER["HTTP_HOST"]));

@@ -19,3 +19,4 @@ $MESS["SONET_GCE_T_PARAMS_VIS2_HINT_PROJECT"] = "The project is visible to every
 $MESS["SONET_GCE_T_PARAMS_VIS2_PROJECT"] = "Visible";
 $MESS["SONET_GCE_T_TITLE_TYPE"] = "Workgroup type";
 $MESS["SONET_GCE_T_TITLE_TYPE_PROJECT"] = "Project type";
+$MESS["SONET_GCE_T_TITLE_TYPE_SCRUM"] = "Scrum type";

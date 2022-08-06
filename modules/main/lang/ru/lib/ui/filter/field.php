@@ -60,3 +60,10 @@ $MESS["MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_NEXT_YEAR"] = "Следующи�
 
 $MESS["MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_YEARS_SWITCHER_YES"] = "Учитывать год";
 $MESS["MAIN_UI_FILTER_FIELD_SUBTYPE_CUSTOM_DATE_YEARS_SWITCHER_NO"] = "Не учитывать год";
+
+$MESS["MAIN_UI_FILTER__NUMBER_BEFORE_N"] = "Предыдущие N";
+
+$MESS["MAIN_UI_FILTER__NUMBER_SINGLE"] = "Точно";
+$MESS["MAIN_UI_FILTER__NUMBER_RANGE"] = "Диапазон";
+$MESS["MAIN_UI_FILTER__NUMBER_MORE"] = "Больше чем";
+$MESS["MAIN_UI_FILTER__NUMBER_LESS"] = "Меньше чем";

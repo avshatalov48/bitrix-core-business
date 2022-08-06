@@ -101,9 +101,11 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 		return $this->arResult['Group'];
 	}
 
-	protected function listKeysSignedParameters(): array
+	protected function listKeysSignedParameters()
 	{
-		return [];
+		return [
+			'GROUP_ID',
+		];
 	}
 
 	public function prepareRequestVarParams(&$componentParams): void
@@ -189,6 +191,12 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 		}
 
 		$result['bExtranet'] = (Loader::includeModule('extranet') && CExtranet::IsExtranetSite());
+		$groupFields['IS_EXTRANET_GROUP'] = (
+			Loader::includeModule('extranet')
+			&& \CExtranet::isExtranetSocNetGroup($groupFields['ID'])
+				? 'Y'
+				: 'N'
+		);
 
 		$groupSitesList = [];
 		$res = CSocNetGroup::getSite($groupFields['ID']);
@@ -289,23 +297,7 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 		$result['PageTitle'] = '';
 		if ($this->arParams['SET_TITLE'] === 'Y')
 		{
-			if ($result['IS_IFRAME'])
-			{
-				$result['PageTitle'] = Loc::getMessage('SONET_C5_PAGE_TITLE');
-				if ($result['isScrumProject'])
-				{
-					$result['PageTitle'] = Loc::getMessage('SONET_C5_PAGE_TITLE_SCRUM');
-				}
-				elseif ($result['Group']['PROJECT'] === 'Y')
-				{
-					$result['PageTitle'] = Loc::getMessage('SONET_C5_PAGE_TITLE_PROJECT');
-				}
-			}
-			else
-			{
-				$result['PageTitle'] = $result['Group']['NAME'];
-			}
-
+			$result['PageTitle'] = $result['Group']['NAME'];
 			$APPLICATION->setTitle($result['PageTitle']);
 		}
 
@@ -321,6 +313,7 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 			$this->setGroupOwner($result);
 			$this->setGroupModerators($result);
 			$this->setGroupMembers($result);
+			$this->setScrumMaster($result);
 			$this->setDepartments($result);
 			$this->setFeatures($result);
 		}
@@ -504,6 +497,40 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 		}
 	}
 
+	private function setScrumMaster(&$result): void
+	{
+		$result['ScrumMaster'] = [];
+
+		$scrumMasterId = (int)$result['Group']['SCRUM_MASTER_ID'];
+		if ($scrumMasterId <= 0)
+		{
+			return;
+		}
+
+		$res = \Bitrix\Main\UserTable::getList([
+			'filter' => [
+				'=ID' => $scrumMasterId,
+			],
+			'select' => [
+				'USER_ID' => 'ID',
+				'USER_NAME' => 'NAME',
+				'USER_LAST_NAME' => 'LAST_NAME',
+				'USER_SECOND_NAME' => 'SECOND_NAME',
+				'USER_LOGIN' => 'LOGIN',
+				'USER_PERSONAL_PHOTO' => 'PERSONAL_PHOTO',
+				'USER_PERSONAL_GENDER' => 'PERSONAL_GENDER',
+				'USER_WORK_POSITION' => 'WORK_POSITION',
+			],
+		]);
+		$scrumMasterFields = $res->fetch();
+		if (empty($scrumMasterFields))
+		{
+			return;
+		}
+
+		$result['ScrumMaster'] = $this->getUserFields($scrumMasterFields);
+	}
+
 	private function setDepartments(&$result): void
 	{
 		if (
@@ -541,7 +568,7 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 			'groupId' => $this->arParams['GROUP_ID'],
 		]);
 
-		return [
+		$result = [
 			'ID' => $userFields['ID'],
 			'USER_ID' => $userFields['USER_ID'],
 			'USER_NAME' => $userFields['USER_NAME'],
@@ -561,6 +588,36 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 					: 'N'
 			),
 		];
+
+		if ((int)$userFields['USER_PERSONAL_PHOTO'] > 0)
+		{
+			$resizedImageFields = \CFile::resizeImageGet(
+				(int)$userFields['USER_PERSONAL_PHOTO'],
+				[
+					'width' => 100,
+					'height' => 100,
+				],
+				BX_RESIZE_IMAGE_EXACT
+			);
+		}
+		else
+		{
+			$resizedImageFields = [ 'src' => '' ];
+		}
+
+		$result['USER_PERSONAL_PHOTO_FILE']['SRC_RESIZED'] = $resizedImageFields['src'];
+		$result['NAME_FORMATTED'] = \CUser::formatName(
+			$this->arParams['NAME_TEMPLATE'],
+			[
+				'NAME' => htmlspecialcharsBack($result['USER_NAME']),
+				'LAST_NAME' => htmlspecialcharsBack($result['USER_LAST_NAME']),
+				'SECOND_NAME' => htmlspecialcharsBack($result['USER_SECOND_NAME']),
+				'LOGIN' => htmlspecialcharsBack($result['USER_LOGIN']),
+			],
+			true
+		);
+
+		return $result;
 	}
 
 	private function getUserAvatarFields($userFields, $profileUrl, $canViewProfile): array

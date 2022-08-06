@@ -22,6 +22,8 @@ use Bitrix\Main\ModuleManager;
 
 Loc::loadMessages(__FILE__);
 
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
+
 $arFilterKeys = array("filter_my", "filter_archive", "filter_extranet", "filter_project");
 
 $arResult['menuItems'] = array();

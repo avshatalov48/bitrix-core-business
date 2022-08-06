@@ -18,6 +18,18 @@ abstract class CBPCompositeActivity extends CBPActivity
 		}
 	}
 
+	public function unsetWorkflow()
+	{
+		parent::unsetWorkflow();
+		foreach ($this->arActivities as $activity)
+		{
+			if (method_exists($activity, 'SetWorkflow'))
+			{
+				$activity->unsetWorkflow();
+			}
+		}
+	}
+
 	public function setReadOnlyData(array $data)
 	{
 		$this->readOnlyData = $data;
@@ -87,18 +99,6 @@ abstract class CBPCompositeActivity extends CBPActivity
 	{
 		foreach ($this->arActivities as $activity)
 			$this->workflow->FinalizeActivity($activity);
-	}
-
-	public function HandleFault(Exception $exception)
-	{
-		if (!$exception)
-			throw new Exception("exception");
-
-		$status = $this->Cancel();
-		if ($status == CBPActivityExecutionStatus::Canceling)
-			return CBPActivityExecutionStatus::Faulting;
-
-		return $status;
 	}
 
 	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)

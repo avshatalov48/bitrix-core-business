@@ -56,10 +56,23 @@ class CatalogProductDetailsComponent
 
 	protected function showErrors()
 	{
+		Toolbar::deleteFavoriteStar();
 		foreach ($this->getErrors() as $error)
 		{
 			ShowError($error);
 		}
+	}
+
+	protected function includeErrorComponent(string $errorMessage): void
+	{
+		global $APPLICATION;
+		$APPLICATION->IncludeComponent(
+			"bitrix:catalog.notfounderror",
+			"",
+			[
+				'ERROR_MESSAGE' => $errorMessage,
+			]
+		);
 	}
 
 	public function configureActions()
@@ -102,7 +115,17 @@ class CatalogProductDetailsComponent
 
 	public function executeComponent()
 	{
-		if ($this->checkModules() && $this->checkPermissions() && $this->checkRequiredParameters())
+		if (!$this->isProductTypeSupported())
+		{
+			$this->showProductTypeNotSupportedError();
+			return;
+		}
+
+		if (
+			$this->checkModules()
+			&& $this->checkPermissions()
+			&& $this->checkRequiredParameters()
+		)
 		{
 			$product = $this->getProduct();
 
@@ -131,6 +154,46 @@ class CatalogProductDetailsComponent
 		}
 
 		return true;
+	}
+
+	protected function isProductTypeSupported(): bool
+	{
+		if (!$this->hasProductId())
+		{
+			return true;
+		}
+
+		$dbResult = ProductTable::getRow([
+			'select' => ['TYPE'],
+			'filter' => ['=ID' => $this->getProductId()],
+		]);
+
+		if (!$dbResult)
+		{
+			return true;
+		}
+
+		$type = (int)$dbResult['TYPE'];
+		return $type !== ProductTable::TYPE_SET;
+	}
+
+	protected function showProductTypeNotSupportedError(): void
+	{
+		if (!Loader::includeModule('crm'))
+		{
+			return;
+		}
+
+		Toolbar::deleteFavoriteStar();
+		$builder = new \Bitrix\Catalog\Url\ShopBuilder();
+		$builder->setIblockId(\Bitrix\Crm\Product\Catalog::getDefaultId());
+		$url = $builder->getElementListUrl(0);
+		if ($url)
+		{
+			$link = '<a href="' . $url . '" target="_top" class="ui-link-solid">' . Loc::getMessage('CPD_SETS_NOT_SUPPORTED_LINK') . '</a>';
+			$errorMessage = Loc::getMessage('CPD_SETS_NOT_SUPPORTED_TITLE', ['#LINK#' => $link]);
+			$this->includeErrorComponent($errorMessage);
+		}
 	}
 
 	protected function checkPermissions(): bool
@@ -281,14 +344,7 @@ class CatalogProductDetailsComponent
 		{
 			Toolbar::deleteFavoriteStar();
 
-			global $APPLICATION;
-			$APPLICATION->IncludeComponent(
-				"bitrix:catalog.notfounderror",
-				"",
-				[
-					'ERROR_MESSAGE' => Loc::getMessage('CPD_NOT_FOUND_ERROR_TITLE'),
-				]
-			);
+			$this->includeErrorComponent(Loc::getMessage('CPD_NOT_FOUND_ERROR_TITLE'));
 
 			return null;
 		}
@@ -594,6 +650,10 @@ class CatalogProductDetailsComponent
 				{
 					unset($fields[$name.'_custom']['isFile']);
 					$field = $this->prepareFilePropertyFromGrid($fields[$name.'_custom']);
+					if (empty($field))
+					{
+						$field = '';
+					}
 					unset($fields[$name.'_custom']);
 				}
 				// editor file properties
@@ -1364,6 +1424,7 @@ class CatalogProductDetailsComponent
 		}
 
 		$updateFields = [
+			'IBLOCK_ID' => $property['IBLOCK_ID'],
 			'NAME' => $fields['NAME'],
 		];
 

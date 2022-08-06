@@ -2330,7 +2330,7 @@
 			}
 		}
 
-		if (this.BXIM.messenger.contactListSearchText.length > 0)
+		if (this.BXIM.messenger.contactListSearchText.length > 0 && BX.MessengerWindow && BX.MessengerWindow.currentTab === 'im-ol')
 		{
 			this.contactListPrepareSearch('contactList', this.BXIM.messenger.popupContactListElementsWrap, this.BXIM.messenger.contactListSearchText, params.FORCE? {}: {params: false, timeout: this.isMobile()? 500: 100})
 		}
@@ -2339,8 +2339,30 @@
 			if (this.BXIM.messenger.redrawContactListTimeout['contactList'])
 				clearTimeout(this.BXIM.messenger.redrawContactListTimeout['contactList']);
 
-			this.BXIM.messenger.popupContactListElementsWrap.innerHTML = '';
-			this.BXIM.messenger.popupContactListElementsWrap.appendChild(this.contactListPrepare());
+			if (this.BXIM.newSearchEnabled)
+			{
+				if (BX.MessengerWindow && (BX.MessengerWindow.currentTab === 'im' || BX.MessengerWindow.currentTab === 'notify'))
+				{
+					if (BX.MessengerProxy)
+					{
+						BX.MessengerProxy.sendOpenSearchEvent(this.BXIM.messenger.contactListSearchText);
+					}
+				}
+				else if (BX.MessengerWindow && BX.MessengerWindow.currentTab === 'im-ol')
+				{
+					this.BXIM.messenger.popupContactListElementsWrap.innerHTML = '';
+					this.BXIM.messenger.popupContactListElementsWrap.appendChild(this.contactListPrepare());
+				}
+			}
+			else
+			{
+				if (this.BXIM.messenger.popupContactListElementsWrap)
+				{
+					this.BXIM.messenger.popupContactListElementsWrap.innerHTML = '';
+					this.BXIM.messenger.popupContactListElementsWrap.appendChild(this.contactListPrepare());
+					this.BXIM.messenger.hideNewRecent();
+				}
+			}
 
 			if (this.isMobile())
 			{
@@ -2683,6 +2705,14 @@
 		this.BXIM.messenger.realSearch = !this.BXIM.options.contactListLoad;
 		this.BXIM.messenger.realSearchFound = true;
 
+		if (BX.MessengerWindow && (BX.MessengerWindow.currentTab === 'im' || BX.MessengerWindow.currentTab === 'notify'))
+		{
+			if (BX.MessengerProxy && this.BXIM.newSearchEnabled)
+			{
+				BX.MessengerProxy.sendCloseSearchEvent(this.BXIM.messenger.contactListSearchText);
+			}
+			this.BXIM.messenger.showNewRecent();
+		}
 		this.BXIM.messenger.popupContactListSearchInput.value = '';
 		this.BXIM.messenger.contactListSearchText = BX.util.trim(this.BXIM.messenger.popupContactListSearchInput.value);
 		BX.localStorage.set('mns', this.BXIM.messenger.contactListSearchText, 5);
@@ -2803,6 +2833,15 @@
 			}
 		}
 
+		if (
+			BX.MessengerWindow
+			&& BX.MessengerProxy
+			&& (BX.MessengerWindow.currentTab === 'im' || BX.MessengerWindow.currentTab === 'notify')
+			&& this.BXIM.newSearchEnabled
+		)
+		{
+			BX.MessengerProxy.sendUpdateSearchEvent(this.BXIM.messenger.popupContactListSearchInput.value);
+		}
 		if (this.BXIM.messenger.popupContactListSearchInput.value == this.BXIM.messenger.contactListSearchLastText)
 		{
 			return true;
@@ -2913,66 +2952,44 @@
 			if (this.isPage() && BX.MessengerWindow.currentTab == 'im-ol')
 			{
 				BX.addClass(this.BXIM.messenger.popupContactListElementsWrap, 'bx-messenger-recent-lines-wrap');
+				BX.addClass(this.BXIM.messenger.popupContactListElements, 'bx-messenger-recent-lines-container');
+				BX.removeClass(this.BXIM.messenger.popupContactListElements, 'bx-messenger-recent-container');
 				newRecentList = this.linesListPrepare(params);
 			}
-			else
+			else if (this.isPage() && BX.MessengerWindow.currentTab == 'im')
 			{
-				BX.removeClass(this.BXIM.messenger.popupContactListElementsWrap, 'bx-messenger-recent-lines-wrap');
+				BX.addClass(this.BXIM.messenger.popupContactListElements, 'bx-messenger-recent-container');
+				BX.removeClass(this.BXIM.messenger.popupContactListElements, 'bx-messenger-recent-lines-container');
 				newRecentList = this.recentListPrepare(params);
 			}
-
-			var checkSumCurrent = this.getRecentListCheckSum(this.BXIM.messenger.popupContactListElementsWrap);
-			var checkSumNew = this.getRecentListCheckSum(newRecentList);
 
 			if (this.debug())
 			{
 				console.timeEnd('recentList checkSum');
 			}
 
-			if (BX.browser.IsIE11() || checkSumNew != checkSumCurrent)
+			if (this.isPage() && BX.MessengerWindow.currentTab == 'im-ol')
 			{
-				this.BXIM.messenger.popupContactListElementsWrap.innerHTML = '';
-				this.BXIM.messenger.popupContactListElementsWrap.appendChild(newRecentList);
+				var checkSumCurrent = this.getRecentListCheckSum(this.BXIM.messenger.popupContactListElementsWrap);
+				var checkSumNew = this.getRecentListCheckSum(newRecentList);
 
-				if (this.debug())
+				if (BX.browser.IsIE11() || checkSumNew != checkSumCurrent)
 				{
-					console.log('recentList update', 'done');
+					this.BXIM.messenger.popupContactListElementsWrap.innerHTML = '';
+					this.BXIM.messenger.popupContactListElementsWrap.appendChild(newRecentList);
 				}
+
+				this.BXIM.messenger.hideNewRecent();
+				return;
 			}
-			else if (this.debug())
+			else if (this.isPage() && (BX.MessengerWindow.currentTab == 'im' || BX.MessengerWindow.currentTab == 'notify'))
 			{
-				console.log('recentList update', 'none');
+				this.BXIM.messenger.showNewRecent();
 			}
-		}
-		else if (BX.MessengerExternalList && BX.MessengerExternalList.isAvailable())
-		{
-			var newRecentList = this.recentListPrepare(params);
 
 			if (this.debug())
 			{
-				console.time('recentList checkSum (external)');
-			}
-
-			var checkSumCurrent = this.getRecentListCheckSum(BX.MessengerExternalList.getNode());
-			var checkSumNew = this.getRecentListCheckSum(newRecentList);
-
-			if (this.debug())
-			{
-				console.timeEnd('recentList checkSum (external)');
-			}
-
-			if (checkSumNew != checkSumCurrent)
-			{
-				BX.MessengerExternalList.update(newRecentList);
-
-				if (this.debug())
-				{
-					console.log('recentList update (external)', 'done');
-				}
-			}
-			else if (this.debug())
-			{
-				console.log('recentList update (external)', 'none');
+				console.log('recentList update', 'done');
 			}
 		}
 
@@ -3424,6 +3441,10 @@
 
 		if (sendAjax)
 		{
+			if (BX.MessengerProxy)
+			{
+				BX.MessengerProxy.sendHideChatEvent(dialogId);
+			}
 			BX.ajax({
 				url: this.BXIM.pathToAjax+'?RECENT_HIDE&V='+this.BXIM.revision,
 				method: 'POST',
@@ -4351,12 +4372,28 @@
 			this.BXIM.messenger.popupPopupMenu.close();
 		}
 
-		if (this.BXIM.messenger.popupContactListElementsWrap)
+		if (this.BXIM.newSearchEnabled)
 		{
-			BX.removeClass(this.BXIM.messenger.popupContactListElementsWrap, 'bx-messenger-recent-lines-wrap');
+			if (BX.MessengerWindow && BX.MessengerProxy && (BX.MessengerWindow.currentTab === 'im' || BX.MessengerWindow.currentTab === 'notify'))
+			{
+				BX.MessengerProxy.sendOpenSearchEvent(this.BXIM.messenger.contactListSearchText);
+			}
 
-			this.BXIM.messenger.popupContactListElementsWrap.innerHTML = '';
-			this.BXIM.messenger.popupContactListElementsWrap.appendChild(this.chatListPrepare(params));
+			if (this.BXIM.messenger.popupContactListElementsWrap && BX.MessengerWindow && BX.MessengerWindow.currentTab === 'im-ol')
+			{
+				this.BXIM.messenger.popupContactListElementsWrap.innerHTML = '';
+				this.BXIM.messenger.popupContactListElementsWrap.appendChild(this.chatListPrepare(params));
+			}
+		}
+		else
+		{
+			if (this.BXIM.messenger.popupContactListElementsWrap)
+			{
+				// BX.removeClass(this.BXIM.messenger.popupContactListElementsWrap, 'bx-messenger-recent-lines-wrap');
+				this.BXIM.messenger.popupContactListElementsWrap.innerHTML = '';
+				this.BXIM.messenger.popupContactListElementsWrap.appendChild(this.chatListPrepare(params));
+				this.BXIM.messenger.hideNewRecent();
+			}
 		}
 
 		if (this.isMobile())
@@ -6199,7 +6236,7 @@
 				BX.create("span", { props : { className : "bx-messenger-content-reply-comment" }, children: [
 					BX.create("span", { props : { className : "bx-messenger-content-reply-answer" }, events: {click: BX.delegate(function(){
 						this.joinParentChat(BX.proxy_context.getAttribute('data-messageId'), BX.proxy_context.getAttribute('data-chatId'));
-					}, this)}, attrs: {'data-messageId': messageId, 'data-chatId': chatId}, html: messagesCount+' ' + BX.Loc.getMessagePlural('IM_R_COMMENT', messagesCount)}),
+					}, this)}, attrs: {'data-messageId': messageId, 'data-chatId': chatId}, html: messagesCount+' ' + BX.Loc.getMessagePlural('IM_R_COMMENT', parseInt(messagesCount))}),
 					BX.create("span", { props : { className : "bx-messenger-content-reply-date" }, html: lastMessageDate? ', '+this.formatDate(lastMessageDate): ''}),
 				]}),
 				BX.create("div", { props : { className : "bx-messenger-content-reply-clear" }})
@@ -6812,6 +6849,10 @@
 		}
 		else
 		{
+			if (BX.MessengerProxy)
+			{
+				BX.MessengerProxy.sendLeaveChatEvent('chat'+chatId);
+			}
 			BX.ajax({
 				url: this.BXIM.pathToAjax+'?CHAT_LEAVE&V='+this.BXIM.revision,
 				method: 'POST',
@@ -9427,6 +9468,7 @@
 
 		}
 
+		var oldCounter = BX.MessengerCommon.getCounter(dialogId);
 		this.recentListUpdateItem({
 			id: dialogId,
 			counter: 0,
@@ -9473,6 +9515,10 @@
 
 		if (sendAjax)
 		{
+			if (BX.MessengerProxy)
+			{
+				BX.MessengerProxy.sendCounterChangeEvent(dialogId, 0);
+			}
 			var sendData = {'IM_READ_MESSAGE' : 'Y', 'USER_ID' : dialogId, 'TAB' : this.BXIM.messenger.currentTab, 'IM_AJAX_CALL' : 'Y', 'sessid': BX.bitrix_sessid()};
 			if (parseInt(lastId) > 0)
 				sendData['LAST_ID'] = lastId;
@@ -9498,6 +9544,10 @@
 						else
 						{
 							this.BXIM.messenger.unreadMessage[dialogId] = unreadedMessageUserBackup;
+							if (BX.MessengerProxy)
+							{
+								BX.MessengerProxy.sendCounterChangeEvent(dialogId, oldCounter);
+							}
 							if (data.ERROR == 'SESSION_ERROR' && this.BXIM.messenger.sendAjaxTry < 2)
 							{
 								this.BXIM.messenger.sendAjaxTry++;
@@ -9521,11 +9571,19 @@
 					}
 					else
 					{
+						if (BX.MessengerProxy)
+						{
+							BX.MessengerProxy.sendCounterChangeEvent(dialogId, oldCounter);
+						}
 						this.BXIM.messenger.unreadMessage[dialogId] = unreadedMessageUserBackup;
 					}
 				}, this),
 				onfailure: BX.delegate(function()
 				{
+					if (BX.MessengerProxy)
+					{
+						BX.MessengerProxy.sendCounterChangeEvent(dialogId, oldCounter);
+					}
 					this.BXIM.messenger.unreadMessage[dialogId] = unreadedMessageUserBackup;
 
 					this.BXIM.messenger.sendAjaxTry = 0;
@@ -11197,6 +11255,10 @@
 		}
 
 		BX.onCustomEvent("onImDrawTab", [{id: userId, hasMessage: this.BXIM.messenger.showMessage[userId] && this.BXIM.messenger.showMessage[userId].length > 0}]);
+		if (BX.MessengerProxy && BX.MessengerCommon.getCounter(userId) === 0)
+		{
+			BX.MessengerProxy.sendCounterChangeEvent(userId, 0);
+		}
 
 		if (BX.MessengerCommon.countWriting(userId))
 		{
@@ -11306,6 +11368,15 @@
 
 		BX.onCustomEvent('onImBeforeMessageSend', [{recipientId: recipientId, messageText: messageText}]);
 
+		if (BX.MessengerProxy)
+		{
+			BX.MessengerProxy.sendSetMessageEvent({
+				id: 'temp'+messageTmpIndex,
+				dialogId: recipientId,
+				text: messageText,
+				date: new Date()
+			});
+		}
 		var _ajax = BX.ajax({
 			url: this.BXIM.pathToAjax+'?MESSAGE_SEND&V='+this.BXIM.revision+'&logTag='+BX.MessengerCommon.getLogTrackingParams({
 				name: 'im.message.add',
@@ -12018,6 +12089,14 @@
 
 		BX.MessengerCommon.drawProgessMessage(id);
 
+		if (BX.MessengerProxy)
+		{
+			BX.MessengerProxy.sendSetMessageEvent({
+				id: +id,
+				dialogId: this.BXIM.messenger.message[id].recipientId,
+				text: this.BXIM.messenger.message[id].textOriginal
+			});
+		}
 		BX.ajax({
 			url: this.BXIM.pathToAjax+'?MESSAGE_EDIT&V='+this.BXIM.revision+'&logTag='+BX.MessengerCommon.getLogTrackingParams({
 				name: 'im.message.update',
@@ -12054,6 +12133,14 @@
 
 		BX.MessengerCommon.drawProgessMessage(id);
 
+		if (BX.MessengerProxy)
+		{
+			BX.MessengerProxy.sendSetMessageEvent({
+				id: +id,
+				dialogId: this.BXIM.messenger.message[id].recipientId,
+				text: this.BXIM.messenger.message[id].textOriginal
+			});
+		}
 		BX.ajax({
 			url: this.BXIM.pathToAjax+'?MESSAGE_DELETE&V='+this.BXIM.revision+'&logTag='+BX.MessengerCommon.getLogTrackingParams({
 				name: 'im.message.delete',
@@ -13085,7 +13172,7 @@
 						title = BX.create("span", { props : { className: "bx-messenger-file-title-href"}, events: {click: function(){
 							BX.localStorage.set('impmh', true, 1);
 							app.openDocument({url: this.urlDownload, filename: this.name.toString().toLowerCase()})
-						}.bind(this)}, children: [title]});
+						}.bind(file)}, children: [title]});
 					}
 					else if (!file.viewerAttrs && BX.desktopUtils.canDownload())
 					{

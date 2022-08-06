@@ -41,6 +41,12 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_9_IMAGE_CAROUSEL_6_COLS_FIX_2_CARDS_LANDINGBLOCKCARDCAROUSELELEMENT'),
 				'type' => ['row-align-column', 'align-items-column'],
 			),
+			'.landing-block-slider' => [
+				'additional' => [
+					'name' => Loc::getMessage('LANDING_BLOCK_9_IMAGE_CAROUSEL_6_COLS_FIX_2_SLIDER'),
+					'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show-extended', 'arrows', 'dots'],
+				]
+			],
 		),
 	),
 	'assets' => array(

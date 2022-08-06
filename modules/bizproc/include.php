@@ -28,7 +28,7 @@ CJSCore::RegisterExt('bp_field_type', array(
 	'js' => '/bitrix/js/bizproc/fieldtype.js',
 	'css' => '/bitrix/js/bizproc/css/fieldtype.css',
 	'lang' => '/bitrix/modules/bizproc/lang/'.LANGUAGE_ID.'/install/js/fieldtype.php',
-	'rel' => array('core', 'popup', 'socnetlogdest', 'bp_user_selector'),
+	'rel' => array('core', 'popup', 'socnetlogdest', 'bp_user_selector', 'ui.design-tokens'),
 	'oninit' => function()
 	{
 		\Bitrix\Main\Loader::includeModule('socialnetwork');

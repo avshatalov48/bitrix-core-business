@@ -83,10 +83,6 @@ a.feed-time.feed-com-time:hover {
 	transition: border-color 0.2s linear;
 }
 
-.feed-com-main-content .feed-post-text-more {
-	top: 171px;
-}
-
 .feed-com-main-content .feed-post-text-more-but:before {
 	bottom: -1.5px;
 }

@@ -90,7 +90,8 @@
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
 	white-space: nowrap;
-	font: 600 14px/25px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/25px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	cursor: pointer;
 	-webkit-transition: all 220ms ease;
 	-o-transition: all 220ms ease;
@@ -189,7 +190,8 @@ li.catalog-entity-section-tab-disabled:hover .catalog-entity-section-tab-link {
 	vertical-align: middle;
 	text-align: center;
 	text-transform: uppercase;
-	font: bold 12px/39px "Open Sans", Helvetica, Arial, sans-serif;
+	font: 12px/39px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	-webkit-transition: color .25s ease;
 	-o-transition: color .25s ease;
 	transition: color .25s ease;
@@ -297,7 +299,8 @@ img.catalog-image {
 .catalog-entity-wrap .ui-entity-editor-header-title-text {
 	color: #525c69;
 	text-transform: uppercase;
-	font: 11px/17px "OpenSans-Semibold", Helvetica, Arial, sans-serif;
+	font: 11px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	height: auto;
 }
 
@@ -407,6 +410,7 @@ img.catalog-image {
 	padding: 0 30px 0 13px;
 	background-color: #bcedfc;
 	color: #1066bb !important;
+	border-radius: var(--ui-tile-selector-item-border-radius, var(--ui-border-radius-2xs));
 }
 
 .ui-tile-selector-selector-wrap .ui-tile-selector-item,
@@ -809,7 +813,7 @@ img.catalog-image {
 	margin-bottom: 5px;
 	padding: 13px 12px;
 	border: 1px solid #edeef0;
-	border-radius: 1px;
+	border-radius: var(--ui-border-radius-sm, 1px);
 	background-color: #fdfdfd;
 	-webkit-transition: 160ms all ease;
 	-o-transition: 160ms all ease;

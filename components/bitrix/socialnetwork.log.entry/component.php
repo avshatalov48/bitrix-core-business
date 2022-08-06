@@ -18,8 +18,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 global $CACHE_MANAGER;
 
-use Bitrix\Main\Security\Random;
-use Bitrix\Main\Security\Sign\Signer;
+use Bitrix\Main\Engine\ActionFilter\Service\Token;
 use Bitrix\Socialnetwork\Livefeed;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
@@ -95,6 +94,8 @@ $arResult["bReload"] = $arParams["bReload"];
 $arResult["bGetComments"] = $arParams["bGetComments"];
 $arResult["bIntranetInstalled"] = ModuleManager::isModuleInstalled("intranet");
 
+$currentUserId = (int)$USER->getId();
+
 $arResult['bPublicPage'] = (isset($arParams['PUB']) && $arParams['PUB'] === 'Y');
 
 $arResult["bTasksInstalled"] = Loader::includeModule("tasks");
@@ -103,9 +104,9 @@ $arResult["bTasksAvailable"] = (
 	&& $arResult["bTasksInstalled"]
 	&& (
 		!Loader::includeModule('bitrix24')
-		|| CBitrix24BusinessTools::isToolAvailable($USER->getId(), "tasks")
+		|| CBitrix24BusinessTools::isToolAvailable($currentUserId, "tasks")
 	)
-	&& \Bitrix\Tasks\Access\TaskAccessController::can($USER->getid(), \Bitrix\Tasks\Access\ActionDictionary::ACTION_TASK_CREATE)
+	&& \Bitrix\Tasks\Access\TaskAccessController::can($currentUserId, \Bitrix\Tasks\Access\ActionDictionary::ACTION_TASK_CREATE)
 );
 
 $arResult["Event"] = false;
@@ -254,7 +255,7 @@ if (
 				$arResult["COUNTER_TYPE"] === '**'
 				&& $arResult['LAST_LOG_TS'] > 0
 				&& $event_date_log_ts >= $arResult['LAST_LOG_TS']
-				&& (int)$arCommentTmp['EVENT']['USER_ID'] !== (int)$USER->getId()
+				&& (int)$arCommentTmp['EVENT']['USER_ID'] !== $currentUserId
 				&& (
 					!is_array($arParams['UNREAD_COMMENTS_ID_LIST'])
 					|| in_array($arCommentTmp['EVENT']['ID'], $arParams['UNREAD_COMMENTS_ID_LIST'])
@@ -291,7 +292,7 @@ if (
 	$arCommentRights = CSocNetLogComponent::getCommentRights(array(
 		"EVENT_ID" => $arEvent["EVENT"]["EVENT_ID"],
 		"SOURCE_ID" => $arEvent["EVENT"]["SOURCE_ID"],
-		"USER_ID" => $USER->getId()
+		"USER_ID" => $currentUserId,
 	));
 	$arResult["COMMENT_RIGHTS_EDIT"] = $arCommentRights["COMMENT_RIGHTS_EDIT"];
 	$arResult["COMMENT_RIGHTS_DELETE"] = $arCommentRights["COMMENT_RIGHTS_DELETE"];
@@ -333,11 +334,18 @@ if (
 	&& $contentId
 )
 {
-	$arResult['CONTENT_ID'] = (
+	$arResult['CONTENT_ID'] = (string)(
 		!empty($arParams['CONTENT_ID'])
 			? $arParams['CONTENT_ID']
 			: $contentId['ENTITY_TYPE'] . '-' . (int)$contentId['ENTITY_ID']
 	);
+
+	$arResult['CONTENT_VIEW_KEY_SIGNED'] = (string)($arParams['CONTENT_VIEW_KEY_SIGNED'] ?? (
+		(is_object($USER) && $USER->isAuthorized())
+		&& $arResult['CONTENT_ID'] !== ''
+			? (new Token($USER->getId()))->generate($arResult['CONTENT_ID'])
+			: ''
+	));
 
 	if (isset($arParams["CONTENT_VIEW_CNT"]))
 	{
@@ -358,20 +366,18 @@ if (
 	}
 }
 
-$isAuthorized = $USER->isAuthorized();
-$arResult['CONTENT_VIEW_KEY'] = (string)($arResult['CONTENT_VIEW_KEY'] ?? ($isAuthorized ? Random::getString(8, false) : ''));
-$arResult['CONTENT_VIEW_KEY_SIGNED'] = (string)($arResult['CONTENT_VIEW_KEY_SIGNED'] ?? (
-	$isAuthorized
-		? (new Signer)->sign($arResult['CONTENT_VIEW_KEY'], 'ajaxSecurity' . $USER->getId() . $arResult['CONTENT_ID'])
-		: ''
-	));
-
 $arResult["Event"] = $arEvent;
 $arResult["WORKGROUPS_PAGE"] = COption::GetOptionString("socialnetwork", "workgroups_page", "/workgroups/", SITE_ID);
 
 $arResult['isCurrentUserEventOwner'] = (
-	((int)$arEvent['EVENT']['USER_ID'] === (int)$USER->getId())
+	((int)$arEvent['EVENT']['USER_ID'] === $currentUserId)
 	|| CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, false)
+);
+
+$arResult['LOG_ID_TOKEN'] = (
+	$currentUserId > 0
+		? (new Token($currentUserId))->generate($arParams['LOG_ID'])
+		: ''
 );
 
 $this->IncludeComponentTemplate();

@@ -10,6 +10,7 @@
 	padding: 12px 22px;
 	margin-bottom: 25px;
 	background: #f8f9fa;
+	border-radius: var(--ui-border-radius-sm);
 }
 
 .integration-container p,

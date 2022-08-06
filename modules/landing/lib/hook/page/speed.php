@@ -28,14 +28,8 @@ class Speed extends \Bitrix\Landing\Hook\Page
 			'ASSETS' => new Field\Text('ASSETS', []),
 			'USE_LAZY' => new Field\Checkbox(
 				'USE_LAZY',
-				['title' => Loc::getMessage('LANDING_HOOK_SPEED_USE_LAZY_NEW')]
-			),
-			'USE_WEBPACK' => new Field\Checkbox(
-				'USE_WEBPACK',
 				[
-					'title' => ($mess = Loc::getMessage('LANDING_HOOK_SPEED_USE_WEBPACK2'))
-						? $mess
-						: Loc::getMessage('LANDING_HOOK_SPEED_USE_WEBPACK'),
+					'title' => Loc::getMessage('LANDING_HOOK_SPEED_USE_LAZY_NEW'),
 					'help' => $helpUrl
 						? '<a href="' . $helpUrl . '" target="_blank">' .
 						Loc::getMessage('LANDING_HOOK_SPEED_HELP') .
@@ -43,9 +37,13 @@ class Speed extends \Bitrix\Landing\Hook\Page
 						: '',
 				]
 			),
-			'USE_WEBP' => new Field\Checkbox(
-				'USE_WEBP',
-				['title' => Loc::getMessage('LANDING_HOOK_SPEED_USE_WEBP')]
+			'USE_WEBPACK' => new Field\Checkbox(
+				'USE_WEBPACK',
+				[
+					'title' => ($mess = Loc::getMessage('LANDING_HOOK_SPEED_USE_WEBPACK2'))
+						? $mess
+						: Loc::getMessage('LANDING_HOOK_SPEED_USE_WEBPACK'),
+				]
 			),
 		];
 	}

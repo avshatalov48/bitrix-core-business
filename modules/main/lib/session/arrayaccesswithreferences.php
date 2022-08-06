@@ -60,19 +60,20 @@ trait ArrayAccessWithReferences
 		$this->remove($name);
 	}
 
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		$this->processLazyStart();
 
 		return isset($this->sessionData[$offset]);
 	}
 
+	#[\ReturnTypeWillChange]
 	public function &offsetGet($offset)
 	{
 		return $this->get($offset);
 	}
 
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		if ($offset === null)
 		{
@@ -86,7 +87,7 @@ trait ArrayAccessWithReferences
 		}
 	}
 
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		$this->remove($offset);
 	}

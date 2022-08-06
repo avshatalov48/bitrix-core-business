@@ -19,6 +19,15 @@ return array(
 		),
 	),
 	'nodes' => array(
+		'.landing-block-node-bgimg' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_41.3.COVER_WITH_TEXT_COLUMNS_ON_BGIMG_NODES_LANDINGBLOCKNODEBGIMG'),
+			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
+			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'create2xByDefault' => false,
+			'isWrapper' => true,
+		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_41.3.COVER_WITH_TEXT_COLUMNS_ON_BGIMG_NODES_LANDINGBLOCKNODETITLE'),
 			'type' => 'text',
@@ -35,12 +44,6 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_41.3.COVER_WITH_TEXT_COLUMNS_ON_BGIMG_NODES_LANDINGBLOCKNODECARDTEXT'),
 			'type' => 'text',
 		),
-		'.landing-block-node-bgimg' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_41.3.COVER_WITH_TEXT_COLUMNS_ON_BGIMG_NODES_LANDINGBLOCKNODEBGIMG'),
-			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 1080),
-			'create2xByDefault' => false,
-		),
 		'.landing-block-node-card-icon' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_41.3.COVER_WITH_TEXT_COLUMNS_ON_BGIMG_NODES_LANDINGBLOCKNODECARDICON'),
 			'type' => 'icon',
@@ -48,7 +51,7 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-background-overlay'),
+			'type' => array('block-default-background'),
 		),
 		'nodes' => array(
 			'.landing-block-node-card' => array(
@@ -77,7 +80,7 @@ return array(
 			),
 			'.landing-block-node-bgimg' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_41.3.COVER_WITH_TEXT_COLUMNS_ON_BGIMG_NODES_LANDINGBLOCKNODEBGIMG'),
-				'type' => 'background-attachment',
+				'type' => ['background', 'background-attachment'],
 			),
 		),
 	),

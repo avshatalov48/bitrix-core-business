@@ -126,7 +126,15 @@ class BaseTrigger
 		if ($conditionRules)
 		{
 			$conditionGroup = new ConditionGroup($conditionRules);
-			return $conditionGroup->evaluate($this->getTarget());
+			$target = $this->getTarget();
+			$result = $conditionGroup->evaluate($target);
+
+			if ($result)
+			{
+				$target->setAppliedTriggerConditionResults($conditionGroup->getEvaluateResults());
+			}
+
+			return $result;
 		}
 
 		return true;

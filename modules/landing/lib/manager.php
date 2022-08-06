@@ -887,7 +887,7 @@ class Manager
 	 * @param string $zone Zone code.
 	 * @return bool
 	 */
-	public static function availableOnlyForZone($zone)
+	public static function availableOnlyForZone(string $zone): bool
 	{
 		static $available = null;
 
@@ -898,9 +898,9 @@ class Manager
 
 		$available = true;
 
-		if ($zone == 'ru')
+		if ($zone === 'ru')
 		{
-			if (!in_array(Manager::getZone(), array('ru', 'by', 'kz')))
+			if (!in_array(self::getZone(), ['ru', 'by', 'kz']))
 			{
 				$available = false;
 			}
@@ -1285,6 +1285,19 @@ class Manager
 		}
 	}
 
+	/**
+	 * Clear cache in cloud only for one site
+	 * @param int $siteId
+	 */
+	public static function clearCacheForSite(int $siteId): void
+	{
+		if (!self::isB24())
+		{
+			return;
+		}
+
+		Site::update($siteId, []);
+	}
 	/**
 	 * Clear cache in cloud only for one site by landing ID
 	 * @param int $lid

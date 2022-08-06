@@ -4,7 +4,7 @@
 	position: relative;
 	/*display: inline-block;*/
 	border: 15px solid #eef2f4;
-	border-radius: 3px;
+	border-radius: var(--ui-border-radius-sm, 3px);
 }
 .bp-popup-title {
 	padding: 6px 0 11px;
@@ -140,7 +140,7 @@
 	position: relative;
 	padding: 15px 20px;
 	background: #e8f9fe;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-sm, 2px);
 	color: #000;
 	font-size: 13px;
 	margin-top: 4px;
@@ -270,6 +270,7 @@
 	width: 100%;
 	min-height: 100px;
 	resize: vertical;
+	border-radius: var(--ui-field-border-radius);
 }
 
 .bizproc-task-table select {

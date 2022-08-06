@@ -128,6 +128,37 @@ class Extranet
 
 		return isset($extranetUsers[$userId]);
 	}
+
+	public static function filterUserList(array $userList, $currentUserId = null)
+	{
+		$currentUserId = \Bitrix\Im\Common::getUserId($currentUserId);
+		if ($currentUserId <= 0)
+		{
+			return false;
+		}
+
+		if (empty($userList))
+		{
+			return [];
+		}
+
+		$extranetUsers = [];
+		$groups = self::getGroup([], $currentUserId);
+		if (is_array($groups))
+		{
+			foreach ($groups as $group)
+			{
+				foreach ($group['USERS'] as $uid)
+				{
+					$extranetUsers[$uid] = $uid;
+				}
+			}
+		}
+
+		return array_filter($userList, function($userId) use ($extranetUsers) {
+			return isset($extranetUsers[$userId]);
+		});
+	}
 }
 
 

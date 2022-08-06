@@ -93,7 +93,14 @@
 
 			if (!event.shiftKey)
 			{
-				document.execCommand('indent');
+				if (event.code === 'Tab')
+				{
+					onTabDown();
+				}
+				else
+				{
+					document.execCommand('indent');
+				}
 			}
 			else
 			{
@@ -127,6 +134,68 @@
 		setTimeout(function() {
 			BX.Landing.UI.Panel.EditorPanel.getInstance().adjustPosition(target);
 		}, 10);
+	}
+
+	function onTabDown()
+	{
+		var TAB_COUNT = 10;
+		var isAllowedTab = true;
+		var parentNode = window.getSelection().focusNode.parentNode.parentNode;
+		while (parentNode.tagName === 'DIV')
+		{
+			parentNode = parentNode.parentNode;
+		}
+		var countUlTag = 0;
+		var parentsNodeArr = [];
+		var allowedTagName = ['UL', 'LI', 'BLOCKQUOTE', 'DIV'];
+		while (allowedTagName.indexOf(parentNode.tagName) !== -1)
+		{
+			if (parentNode.tagName !== 'DIV')
+			{
+				countUlTag++;
+				parentsNodeArr.push(parentNode);
+			}
+			parentNode = parentNode.parentNode;
+		}
+		if (countUlTag > TAB_COUNT)
+		{
+			if (parentsNodeArr[parentsNodeArr.length - 1].tagName === 'BLOCKQUOTE')
+			{
+				var previousElement = parentsNodeArr[parentsNodeArr.length - 1].previousSibling;
+				while ((previousElement !== null) && (previousElement.nodeType !== 1))
+				{
+					previousElement = previousElement.previousSibling;
+				}
+				var countBlockquote = 0;
+				while (previousElement && previousElement.tagName === 'BLOCKQUOTE')
+				{
+					previousElement = previousElement.firstChild;
+					countBlockquote++;
+				}
+				if ((countUlTag - countBlockquote) > 0)
+				{
+					isAllowedTab = false;
+				}
+			}
+			else
+			{
+				for (var i = 1; i < parentsNodeArr.length; i++) {
+					if (parentsNodeArr[i].childNodes.length < 2)
+					{
+						isAllowedTab = false;
+						break;
+					}
+				}
+				if (parentsNodeArr[0].firstChild.nextSibling === null)
+				{
+					isAllowedTab = false;
+				}
+			}
+		}
+		if (isAllowedTab)
+		{
+			document.execCommand('indent');
+		}
 	}
 
 	function onScroll()

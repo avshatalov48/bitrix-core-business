@@ -369,7 +369,7 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 					'CACHE_TYPE' => 'N',
 					'PAGE_CONSTANTS' => [
 						'URL_BUILDER_TYPE' => $this->urlBuilder->getId(),
-						'SELF_FOLDER_URL' => $this->arParams['SEF_FOLDER'],
+						'SELF_FOLDER_URL' => '/shop/settings/'
 					]
 				];
 				break;
@@ -387,7 +387,7 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 					'CACHE_TYPE' => 'N',
 					'PAGE_CONSTANTS' => [
 						'URL_BUILDER_TYPE' => $this->urlBuilder->getId(),
-						'SELF_FOLDER_URL' => $this->arParams['SEF_FOLDER'],
+						'SELF_FOLDER_URL' => '/shop/settings/'
 					]
 				];
 				break;
@@ -402,7 +402,7 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 					'CACHE_TYPE' => 'N',
 					'PAGE_CONSTANTS' => [
 						'URL_BUILDER_TYPE' => $this->urlBuilder->getId(),
-						'SELF_FOLDER_URL' => $this->arParams['SEF_FOLDER'],
+						'SELF_FOLDER_URL' => '/shop/settings/'
 					]
 				];
 				break;
@@ -416,7 +416,7 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 					'CACHE_TYPE' => 'N',
 					'PAGE_CONSTANTS' => [
 						'URL_BUILDER_TYPE' => $this->urlBuilder->getId(),
-						'SELF_FOLDER_URL' => $this->arParams['SEF_FOLDER'],
+						'SELF_FOLDER_URL' => '/shop/settings/'
 					]
 				];
 				break;
@@ -437,7 +437,7 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 						'CACHE_TYPE' => 'N',
 						'PAGE_CONSTANTS' => [
 							'URL_BUILDER_TYPE' => $this->urlBuilder->getId(),
-							'SELF_FOLDER_URL' => $this->arParams['SEF_FOLDER'],
+							'SELF_FOLDER_URL' => '/shop/settings/'
 						]
 					];
 				}

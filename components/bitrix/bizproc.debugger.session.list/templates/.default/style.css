@@ -1,0 +1,23 @@
+.bizproc-debugger-session-list-grid-username-wrapper {
+	display: inline-block;
+	vertical-align: top;
+}
+
+.bizproc-debugger-session-list-grid-avatar {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 5px 0 0;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background-size: cover;
+}
+
+.bizproc-debugger-session-list-grid-username-inner {
+	display: inline-block;
+	vertical-align: middle;
+	white-space: nowrap;
+	height: 20px;
+	line-height: 20px;
+	color: #525c69;
+}

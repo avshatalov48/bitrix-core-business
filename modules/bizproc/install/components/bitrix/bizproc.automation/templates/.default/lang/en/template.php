@@ -40,6 +40,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_DAY1"] = "day";
 $MESS["BIZPROC_AUTOMATION_CMP_DAY2"] = "days";
 $MESS["BIZPROC_AUTOMATION_CMP_DAY3"] = "days";
 $MESS["BIZPROC_AUTOMATION_CMP_DEBUGGER"] = "Test mode";
+$MESS["BIZPROC_AUTOMATION_CMP_DEBUGGER_SESSION_LIST_MENU"] = "Test logs";
 $MESS["BIZPROC_AUTOMATION_CMP_DEBUGGER_SOON"] = "Test mode is under development and soon will be available for your Bitrix24";
 $MESS["BIZPROC_AUTOMATION_CMP_DELAY_AFTER_HELP"] = "Delay interval before the rule is applied after a CRM entity has changed status.";
 $MESS["BIZPROC_AUTOMATION_CMP_DELAY_BEFORE_HELP"] = "The rule will be applied at the specified time period prior to the date specified in the CRM entity. For example, it can send a payment reminder one day before the due date.";
@@ -56,14 +57,6 @@ $MESS["BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE"] = "Upload file";
 $MESS["BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE_LEGEND"] = "Add using drag'n'drop";
 $MESS["BIZPROC_AUTOMATION_CMP_EDIT"] = "change";
 $MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT"] = "Edit in Workflow Designer";
-$MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_LOCKED"] = "Custom automation rules can be created and edited in the Workflow Designer in selected commercial plans only. <br><br>
-Upgrade to enjoy other useful business tools:<br>
-<ul class=\"hide-features-list\">
-	<li class=\"hide-features-list-item\">Unlimited business card OCR and CRM forms</li>
-	<li class=\"hide-features-list-item\">Working time management and work reports</li>
-	<li class=\"hide-features-list-item\">Unlimited landing sites to expand your client base</li>
-</ul>
-See the plan comparison chart and full feature description <a href=\"/settings/license_all.php\" target=\"_blank\">here</a>.";
 $MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_TEXT"] = "Automation rules can be configured in Workflow Designer only.";
 $MESS["BIZPROC_AUTOMATION_CMP_FILES_LINKS"] = "File link";
 $MESS["BIZPROC_AUTOMATION_CMP_FOR_TIME_1"] = " ";

@@ -1,4 +1,4 @@
-import {Tag, Type, Loc} from 'main.core';
+import {Tag, Type, Loc, Dom} from 'main.core';
 import {BaseEvent} from "main.core.events";
 
 import BgColor from './bg_color';
@@ -11,7 +11,10 @@ import {IColorValue} from '../types/i_color_value';
 import Opacity from '../control/opacity/opacity';
 import Tabs from '../layout/tabs/tabs';
 import GradientValue from '../gradient_value';
-import Preset from '../layout/preset/preset';
+import Primary from '../layout/primary/primary';
+import Zeroing from '../layout/zeroing/zeroing';
+import {defaultBgImageSize, defaultBgImageAttachment} from "../types/color_value_options";
+import stringToRGB from '../internal/string-to-rgb';
 
 export default class Bg extends BgColor
 {
@@ -20,11 +23,13 @@ export default class Bg extends BgColor
 	static BG_OVERLAY_VAR: string = '--bg-overlay';
 	static BG_SIZE_VAR: string = '--bg-size';
 	static BG_ATTACHMENT_VAR: string = '--bg-attachment';
+	static BG_IMAGE: string = 'background-image';
 
 	constructor(options)
 	{
 		super(options);
 		this.setEventNamespace('BX.Landing.UI.Field.Processor.Bg');
+		this.styleNode = options.styleNode;
 		this.parentVariableName = this.variableName;
 		this.variableName = [
 			this.parentVariableName,
@@ -33,6 +38,7 @@ export default class Bg extends BgColor
 			Bg.BG_OVERLAY_VAR,
 			Bg.BG_SIZE_VAR,
 			Bg.BG_ATTACHMENT_VAR,
+			Bg.BG_IMAGE,
 		];
 		this.parentClassName = this.className;
 		this.className = 'g-bg-image';
@@ -41,14 +47,20 @@ export default class Bg extends BgColor
 		this.image.subscribe('onChange', this.onImageChange.bind(this));
 
 		this.overlay = new ColorSet(options);
-		this.overlay.subscribe('onChange', this.onOverlayChange.bind(this));
+		this.overlay.subscribe('onChange', this.onOverlayColorChange.bind(this));
 		this.overlayOpacity = new Opacity({defaultOpacity: 0.5});
 		this.overlayOpacity.subscribe('onChange', this.onOverlayOpacityChange.bind(this));
+		this.overlayPrimary = new Primary();
+		this.overlayPrimary.subscribe('onChange', this.onOverlayPrimaryChange.bind(this));
+		const overlayZeroingOptions= {};
+		overlayZeroingOptions.textCode = 'LANDING_FIELD_COLOR_OVERLAY_ZEROING_TITLE_2';
+		this.overlayZeroing = new Zeroing(overlayZeroingOptions);
+		this.overlayZeroing.subscribe('onChange', this.overlayZeroingChange.bind(this));
 
 		this.imageTabs = new Tabs().appendTab(
 			'Overlay',
 			Loc.getMessage('LANDING_FIELD_COLOR-BG_OVERLAY'),
-			[this.overlay, this.overlayOpacity],
+			[this.overlay, this.overlayPrimary, this.overlayZeroing, this.overlayOpacity],
 		);
 
 		this.bigTabs = new Tabs()
@@ -98,6 +110,7 @@ export default class Bg extends BgColor
 		this.activeControl = this.image;
 		this.image.setActive();
 
+		this.modifyStyleNode(this.styleNode);
 		this.onChange();
 	}
 
@@ -120,12 +133,36 @@ export default class Bg extends BgColor
 			this.gradient.unsetActive();
 		}
 
+		this.modifyStyleNode(this.styleNode);
 		this.onChange();
 	}
 
 	onOverlayOpacityChange()
 	{
+		this.modifyStyleNode(this.styleNode);
 		this.onChange();
+	}
+
+	onOverlayColorChange(event: BaseEvent)
+	{
+		this.overlayPrimary.unsetActive();
+		this.overlayZeroing.unsetActive();
+		this.onOverlayChange(event);
+	}
+
+	onOverlayPrimaryChange(event: BaseEvent)
+	{
+		this.overlay.unsetActive();
+		this.overlayZeroing.unsetActive();
+		this.onOverlayChange(event);
+	}
+
+	overlayZeroingChange(event: BaseEvent)
+	{
+		this.overlay.unsetActive();
+		this.overlayPrimary.unsetActive();
+		this.overlayZeroing.setActive();
+		this.onOverlayChange(event);
 	}
 
 	unsetActive()
@@ -184,17 +221,25 @@ export default class Bg extends BgColor
 			{
 				bgValue.setOverlay(new ColorValue(value[Bg.BG_OVERLAY_VAR]));
 			}
-
 			this.image.setValue(bgValue);
 			this.bigTabs.showTab('Image');
 			this.activeControl = this.image;
 
+			this.imageTabs.showTab('Overlay');
 			if (Bg.BG_OVERLAY_VAR in value)
 			{
 				const overlayValue = new ColorValue(value[Bg.BG_OVERLAY_VAR]);
 				this.overlay.setValue(overlayValue);
 				this.overlayOpacity.setValue(overlayValue);
-				this.imageTabs.showTab('Overlay');
+				if (value[Bg.BG_OVERLAY_VAR].startsWith('var(--primary') || value['isPrimaryBasedColor'] === true)
+				{
+					this.overlayPrimary.setActive();
+					this.overlay.unsetActive();
+				}
+			}
+			else
+			{
+				this.overlayZeroing.setActive();
 			}
 		}
 	}
@@ -206,8 +251,23 @@ export default class Bg extends BgColor
 			if (this.activeControl === this.image)
 			{
 				const imageValue = this.image.getValue();
-				const overlayValue = this.overlay.getValue();
-				if (imageValue !== null && this.overlay.isActive() && overlayValue !== null)
+				let overlayValue;
+				let isActive = false;
+				if (this.overlay.isActive())
+				{
+					overlayValue = this.overlay.getValue();
+					isActive = true;
+				}
+				if (this.overlayPrimary.isActive())
+				{
+					overlayValue = this.overlayPrimary.getValue();
+					isActive = true;
+				}
+				if (this.overlayZeroing.isActive())
+				{
+					overlayValue = null;
+				}
+				if (imageValue !== null && overlayValue !== null && isActive)
 				{
 					overlayValue.setOpacity(this.overlayOpacity.getValue().getOpacity());
 					imageValue.setOverlay(overlayValue);
@@ -254,10 +314,9 @@ export default class Bg extends BgColor
 		let image = null;
 		let image2x = null;
 		let overlay = null;
-		// let size = 'cover';
 		let size = null;
-		// let attachment = 'scroll';
 		let attachment = null;
+		const backgroundImage = '';
 		if (value instanceof ColorValue || value instanceof GradientValue)
 		{
 			// todo: need change class if not a image?
@@ -275,10 +334,67 @@ export default class Bg extends BgColor
 		return {
 			[this.parentVariableName]: color,
 			[Bg.BG_URL_VAR]: image,
-			[Bg.BG_URL_2X_VAR]: image2x,
+			[Bg.BG_URL_2X_VAR]: image2x ? image2x : image,
 			[Bg.BG_OVERLAY_VAR]: overlay,
 			[Bg.BG_SIZE_VAR]: size,
 			[Bg.BG_ATTACHMENT_VAR]: attachment,
+			[Bg.BG_IMAGE]: backgroundImage,
 		};
+	}
+
+	modifyStyleNode(styleNode)
+	{
+		Dom.style(styleNode.currentTarget, Bg.BG_IMAGE, '');
+	}
+
+	prepareProcessorValue(processorValue, defaultValue)
+	{
+		if (defaultValue && defaultValue.hasOwnProperty(Bg.BG_IMAGE))
+		{
+			const regUrl = /url\(/i;
+			const searchUrl = defaultValue[Bg.BG_IMAGE].match(regUrl);
+			if (searchUrl !== null)
+			{
+				processorValue[Bg.BG_IMAGE] = '';
+				processorValue[Bg.BG_SIZE_VAR] = defaultBgImageSize;
+				processorValue[Bg.BG_ATTACHMENT_VAR] = defaultBgImageAttachment;
+				const regWebkitUrl = /-webkit-image-set\(url\(/i;
+				const searchWebkitUrl = defaultValue[Bg.BG_IMAGE].match(regWebkitUrl);
+				if (searchWebkitUrl !== null)
+				{
+					const regSearchUrl = /"(https?:\/)?\/[\S]*"/gi;
+					const search = defaultValue[Bg.BG_IMAGE].match(regSearchUrl);
+					if (search)
+					{
+						processorValue[Bg.BG_URL_VAR] = search[0].replaceAll('"', '');
+						if (search.length === 2)
+						{
+							processorValue[Bg.BG_URL_2X_VAR] = search[1].replaceAll('"', '');
+						}
+						else
+						{
+							processorValue[Bg.BG_URL_2X_VAR] = search[0].replaceAll('"', '');
+						}
+					}
+				}
+				else
+				{
+					processorValue[Bg.BG_URL_VAR] = defaultValue[Bg.BG_IMAGE];
+					processorValue[Bg.BG_URL_2X_VAR] = defaultValue[Bg.BG_IMAGE];
+				}
+				const computedStyleNode = getComputedStyle(this.styleNode.currentTarget, ':after');
+				processorValue[Bg.BG_OVERLAY_VAR] = computedStyleNode.backgroundColor;
+				const currentColorRGB = stringToRGB(computedStyleNode.backgroundColor);
+				const primaryColorRGB = stringToRGB(computedStyleNode.getPropertyValue('--primary-opacity-0'));
+				if (currentColorRGB !== false
+					&& primaryColorRGB !== false
+					&& currentColorRGB.rgb === primaryColorRGB.rgb
+				)
+				{
+					processorValue['isPrimaryBasedColor'] = true;
+				}
+			}
+		}
+		return processorValue;
 	}
 }

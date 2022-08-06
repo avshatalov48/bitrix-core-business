@@ -110,12 +110,6 @@ foreach ($mapIframeLangKeys as $key)
 				<? else: ?>
 					<a href="/bitrix/admin/composite.php?lang=<?=LANGUAGE_ID?>" class="site-speed-perf-label"><?=Loc::getMessage("MAIN_SITE_SPEED_COMPOSITE_SITE")?></a>:<span class="site-speed-perf-value"><?=$compositeStatus?></span>
 				<? endif ?>
-				<?
-				if (\Bitrix\Main\Loader::includeModule("bitrixcloud")):
-					$cdnStatus = CBitrixCloudCDN::IsActive() ? Loc::getMessage("MAIN_SITE_SPEED_ENABLED") : Loc::getMessage("MAIN_SITE_SPEED_DISABLED");
-				?>
-				<a href="/bitrix/admin/bitrixcloud_cdn.php?lang=<?=LANGUAGE_ID?>" class="site-speed-perf-label"><?=Loc::getMessage("MAIN_SITE_SPEED_CDN")?></a>:<span class="site-speed-perf-value"><?=$cdnStatus?></span>
-				<?endif?>
 			</div>
 		</div>
 

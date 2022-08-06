@@ -12,9 +12,9 @@ use Bitrix\Main\Entity;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_WorkflowState_Query query()
- * @method static EO_WorkflowState_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WorkflowState_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_WorkflowState_Result getById($id)
- * @method static EO_WorkflowState_Result getList(array $parameters = array())
+ * @method static EO_WorkflowState_Result getList(array $parameters = [])
  * @method static EO_WorkflowState_Entity getEntity()
  * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState createObject($setDefaultValues = true)
  * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState_Collection createCollection()

@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Catalog;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\IntegerField;
@@ -9,7 +10,7 @@ use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
 
 /**
- * Class DocsBarcodeTable
+ * Class StoreDocumentBarcodeTable
  *
  * Fields:
  * <ul>
@@ -52,13 +53,13 @@ class StoreDocumentBarcodeTable extends DataManager
 					'title' => Loc::getMessage('INVENTORY_DOCUMENT_BARCODE_ENTITY_ID_FIELD'),
 				]
 			),
-/*			'DOC_ID' => new IntegerField(
+			'DOC_ID' => new IntegerField(
 				'DOC_ID',
 				[
 					'required' => true,
 					'title' => Loc::getMessage('INVENTORY_DOCUMENT_BARCODE_ENTITY_DOC_ID_FIELD'),
 				]
-			), */
+			),
 			'DOC_ELEMENT_ID' => new IntegerField(
 				'DOC_ELEMENT_ID',
 				[
@@ -70,16 +71,21 @@ class StoreDocumentBarcodeTable extends DataManager
 				'BARCODE',
 				[
 					'required' => true,
-					'validation' => [__CLASS__, 'validateBarcode'],
+					'validation' => function()
+						{
+							return [
+								new LengthValidator(null, 100),
+							];
+						},
 					'title' => Loc::getMessage('INVENTORY_DOCUMENT_BARCODE_ENTITY_BARCODE_FIELD'),
 				]
 			),
-/*			'DOCUMENT' => new Reference(
+			'DOCUMENT' => new Reference(
 				'DOCUMENT',
 				'\Bitrix\Catalog\StoreDocument',
 				['=this.DOC_ID' => 'ref.ID'],
 				['join_type' => 'LEFT']
-			), */
+			),
 			'DOCUMENT_ELEMENT' => new Reference(
 				'DOCUMENT_ELEMENT',
 				'\Bitrix\Catalog\StoreDocumentElement',
@@ -90,14 +96,25 @@ class StoreDocumentBarcodeTable extends DataManager
 	}
 
 	/**
-	 * Returns validators for BARCODE field.
+	 * Delete all barcodes for document.
+	 * @internal
 	 *
-	 * @return array
+	 * @param int $id
+	 * @return void
 	 */
-	public static function validateBarcode(): array
+	public static function deleteByDocument(int $id): void
 	{
-		return [
-			new LengthValidator(null, 100),
-		];
+		if ($id <= 0)
+		{
+			return;
+		}
+
+		$conn = Application::getConnection();
+		$helper = $conn->getSqlHelper();
+		$conn->queryExecute(
+			'delete from ' . $helper->quote(self::getTableName())
+			. ' where ' . $helper->quote('DOC_ID') . ' = ' . $id
+		);
+		unset($helper, $conn);
 	}
 }

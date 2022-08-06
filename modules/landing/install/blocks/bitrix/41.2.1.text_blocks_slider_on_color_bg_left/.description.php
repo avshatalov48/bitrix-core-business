@@ -73,6 +73,12 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_41.5.TEXT_BLOCKS_SLIDER_ON_COLOR_BG_CARDS_LANDINGBLOCKNODECARD'),
 			'type' => array('align-items'),
 		),
+		'.landing-block-slider' => [
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_41_5_TEXT_BLOCKS_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show', 'dots'],
+			]
+		],
 	),
 	'assets' => array(
 		'ext' => array('landing_carousel'),

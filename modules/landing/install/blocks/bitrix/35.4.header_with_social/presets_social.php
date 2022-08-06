@@ -51,6 +51,204 @@ $result = [
 			],
 		],
 	],
+
+	'whatsapp' => [
+		'name' => '<i class="fa fa-whatsapp"></i> WhatsApp',
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="whatsapp">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://whatsapp.com/">
+					<i class="landing-block-node-social-icon fa fa-whatsapp"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://whatsapp.com/',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa','fa-whatsapp'],
+			],
+		],
+	],
+
+	'viber' => [
+		'name' => '<i class="fab fa-viber g-pr-5"></i> Viber',
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="viber">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://viber.com/">
+					<i class="landing-block-node-social-icon fab fa-viber"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://www.viber.com/',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fab','fa-viber'],
+			],
+		],
+	],
+
+	'telegram' => [
+		'name' => '<i class="fa fa-telegram"></i> Telegram',
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="telegram">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://telegram.org/">
+					<i class="landing-block-node-social-icon fa fa-telegram"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://telegram.org/',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa','fa-telegram'],
+			],
+		],
+	],
+
+	'facebook-messenger' => [
+		'name' => '<i class="fab fa-facebook-messenger g-pr-5"></i> Facebook Messenger',
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="facebook-messenger">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://www.messenger.com/">
+					<i class="landing-block-node-social-icon fab fa-facebook-messenger"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://www.messenger.com/',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fab','fa-facebook-messenger'],
+			],
+		],
+	],
+
+	'tiktok' => [
+		'name' => '<i class="fab fa-tiktok g-pr-5"></i> TikTok',
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="tiktok">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://www.tiktok.com/">
+					<i class="landing-block-node-social-icon fab fa-tiktok"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://www.tiktok.com/',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fab','fa-tiktok'],
+			],
+		],
+	],
+
+	'youtube' => [
+		'name' => '<i class="fab fa-youtube"></i> YouTube',
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="youtube">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://www.youtube.com/">
+					<i class="landing-block-node-social-icon fab fa-youtube"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://www.youtube.com/',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fab','fa-youtube'],
+			],
+		],
+	],
+
+	'vk' => [
+		'name' => '<i class="fa fa-vk"></i> '.Loc::getMessage('LANDING_BLOCK_HEADER_35_4__SOCIALS__PRESET_VK'),
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="vk">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://vk.com">
+					<i class="landing-block-node-social-icon fa fa-vk"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://vk.com',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa','fa-vk'],
+			],
+		],
+	],
+
+	'odnoklassniki' => [
+		'name' => '<i class="fa fa-odnoklassniki"></i> '.Loc::getMessage('LANDING_BLOCK_HEADER_35_4__SOCIALS__PRESET_OK'),
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="odnoklassniki">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://odnoklassniki.com">
+					<i class="landing-block-node-social-icon fa fa-odnoklassniki"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://odnoklassniki.com',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa','fa-odnoklassniki'],
+			],
+		],
+	],
+
+	'skype' => [
+		'name' => '<i class="fa fa-skype"></i> Skype',
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="skype">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://skype.com">
+					<i class="landing-block-node-social-icon fa fa-skype"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://skype.com',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa','fa-skype'],
+			],
+		],
+	],
 	
 	'twitter' => [
 		'name' => '<i class="fa fa-twitter"></i> Twitter',
@@ -73,47 +271,47 @@ $result = [
 			],
 		],
 	],
-	
-	'youtube' => [
-		'name' => '<i class="fa fa-youtube"></i> Youtube',
+
+	'tumblr' => [
+		'name' => '<i class="fa fa-tumblr"></i> Tumblr',
 		'html' => '
 			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
-				data-card-preset="youtube">
+				data-card-preset="tumblr">
 				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
-				   href="https://youtube.com">
-					<i class="landing-block-node-social-icon fa fa-youtube"></i>
+				   href="https://www.tumblr.com/">
+					<i class="landing-block-node-social-icon fa fa-tumblr"></i>
 				</a>
 			</li>',
 		'disallow' => ['.landing-block-node-social-icon'],
 		'values' => [
 			'.landing-block-node-social-link' => [
-				'href' => 'https://youtube.com',
+				'href' => 'https://www.tumblr.com/',
 			],
 			'.landing-block-node-social-icon' => [
 				'type' => 'icon',
-				'classList' => ['fa','fa-youtube'],
+				'classList' => ['fa','fa-tumblr'],
 			],
 		],
 	],
-	
-	'telegram' => [
-		'name' => '<i class="fa fa-telegram"></i> Telegram',
+
+	'wechat' => [
+		'name' => '<i class="fa fa-weixin"></i> WeChat',
 		'html' => '
 			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
-				data-card-preset="telegram">
+				data-card-preset="wechat">
 				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
-				   href="https://telegram.com">
-					<i class="landing-block-node-social-icon fa fa-telegram"></i>
+				   href="https://www.wechat.com/">
+					<i class="landing-block-node-social-icon fa fa-weixin"></i>
 				</a>
 			</li>',
 		'disallow' => ['.landing-block-node-social-icon'],
 		'values' => [
 			'.landing-block-node-social-link' => [
-				'href' => 'https://telegram.com',
+				'href' => 'https://www.wechat.com/',
 			],
 			'.landing-block-node-social-icon' => [
 				'type' => 'icon',
-				'classList' => ['fa','fa-telegram'],
+				'classList' => ['fa','fa-weixin'],
 			],
 		],
 	],
@@ -139,29 +337,117 @@ $result = [
 			],
 		],
 	],
-	
-	'skype' => [
-		'name' => '<i class="fa fa-skype"></i> Skype',
+
+	'twitch' => [
+		'name' => '<i class="fa fa-twitch"></i> Twitch',
 		'html' => '
 			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
-				data-card-preset="skype">
+				data-card-preset="twitch">
 				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
-				   href="https://skype.com">
-					<i class="landing-block-node-social-icon fa fa-skype"></i>
+				   href="https://www.twitch.tv/">
+					<i class="landing-block-node-social-icon fa fa-twitch"></i>
 				</a>
 			</li>',
 		'disallow' => ['.landing-block-node-social-icon'],
 		'values' => [
 			'.landing-block-node-social-link' => [
-				'href' => 'https://skype.com',
+				'href' => 'https://www.twitch.tv/',
 			],
 			'.landing-block-node-social-icon' => [
 				'type' => 'icon',
-				'classList' => ['fa','fa-skype'],
+				'classList' => ['fa','fa-twitch'],
 			],
 		],
 	],
-	
+
+	'linkedin' => [
+		'name' => '<i class="fa fa-linkedin"></i> LinkedIn',
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="linkedin">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://www.linkedin.com/">
+					<i class="landing-block-node-social-icon fa fa-linkedin"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://www.linkedin.com/',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa','fa-linkedin'],
+			],
+		],
+	],
+
+	'snapchat' => [
+		'name' => '<i class="fa fa-snapchat"></i> Snapchat',
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="snapchat">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://www.snapchat.com/">
+					<i class="landing-block-node-social-icon fa fa-snapchat"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://www.snapchat.com/',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa','fa-snapchat'],
+			],
+		],
+	],
+
+	'flickr' => [
+		'name' => '<i class="fa fa-flickr"></i> Flickr',
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="flickr">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://www.flickr.com/">
+					<i class="landing-block-node-social-icon fa fa-flickr"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://www.flickr.com/',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa','fa-flickr'],
+			],
+		],
+	],
+
+	'soundcloud' => [
+		'name' => '<i class="fa fa-soundcloud"></i> Soundcloud',
+		'html' => '
+			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
+				data-card-preset="soundcloud">
+				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
+				   href="https://soundcloud.com/">
+					<i class="landing-block-node-social-icon fa fa-soundcloud"></i>
+				</a>
+			</li>',
+		'disallow' => ['.landing-block-node-social-icon'],
+		'values' => [
+			'.landing-block-node-social-link' => [
+				'href' => 'https://soundcloud.com/',
+			],
+			'.landing-block-node-social-icon' => [
+				'type' => 'icon',
+				'classList' => ['fa','fa-soundcloud'],
+			],
+		],
+	],
+
 	'dribbble' => [
 		'name' => '<i class="fa fa-dribbble"></i> Dribbble',
 		'html' => '
@@ -183,69 +469,49 @@ $result = [
 			],
 		],
 	],
-	
-	'linkedin' => [
-		'name' => '<i class="fa fa-linkedin"></i> Linkedin',
+
+	'rocketchat' => [
+		'name' => '<i class="fab fa-rocketchat g-pr-5"></i> Rocket.chat',
 		'html' => '
 			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
-				data-card-preset="linkedin">
+				data-card-preset="rocketchat">
 				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
-				   href="https://linkedin.com">
-					<i class="landing-block-node-social-icon fa fa-linkedin"></i>
+				   href="https://rocket.chat/">
+					<i class="landing-block-node-social-icon fab fa-rocketchat"></i>
 				</a>
 			</li>',
 		'disallow' => ['.landing-block-node-social-icon'],
 		'values' => [
 			'.landing-block-node-social-link' => [
-				'href' => 'https://linkedin.com',
+				'href' => 'https://rocket.chat/',
 			],
 			'.landing-block-node-social-icon' => [
 				'type' => 'icon',
-				'classList' => ['fa','fa-linkedin'],
+				'classList' => ['fab','fa-rocketchat'],
 			],
 		],
 	],
-	
-	'vk' => [
-		'name' => '<i class="fa fa-vk"></i> '.Loc::getMessage('LANDING_BLOCK_HEADER_35_4__SOCIALS__PRESET_VK'),
+];
+
+$resultCnZone = [
+	'renren' => [
+		'name' => '<i class="fab fa-renren g-pr-5"></i> Renren',
 		'html' => '
 			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
-				data-card-preset="vk">
+				data-card-preset="renren">
 				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
-				   href="https://vk.com">
-					<i class="landing-block-node-social-icon fa fa-vk"></i>
+				   href="https://rocket.chat/">
+					<i class="landing-block-node-social-icon fab fa-renren"></i>
 				</a>
 			</li>',
 		'disallow' => ['.landing-block-node-social-icon'],
 		'values' => [
 			'.landing-block-node-social-link' => [
-				'href' => 'https://vk.com',
+				'href' => 'https://www.renren.com/',
 			],
 			'.landing-block-node-social-icon' => [
 				'type' => 'icon',
-				'classList' => ['fa','fa-vk'],
-			],
-		],
-	],
-	
-	'odnoklassniki' => [
-		'name' => '<i class="fa fa-odnoklassniki"></i> '.Loc::getMessage('LANDING_BLOCK_HEADER_35_4__SOCIALS__PRESET_OK'),
-		'html' => '
-			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
-				data-card-preset="odnoklassniki">
-				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
-				   href="https://odnoklassniki.com">
-					<i class="landing-block-node-social-icon fa fa-odnoklassniki"></i>
-				</a>
-			</li>',
-		'disallow' => ['.landing-block-node-social-icon'],
-		'values' => [
-			'.landing-block-node-social-link' => [
-				'href' => 'https://odnoklassniki.com',
-			],
-			'.landing-block-node-social-icon' => [
-				'type' => 'icon',
-				'classList' => ['fa','fa-odnoklassniki'],
+				'classList' => ['fab','fa-renren'],
 			],
 		],
 	],
@@ -254,6 +520,11 @@ $result = [
 if (!in_array(Manager::getZone(), ['ru', 'kz', 'by']))
 {
 	unset($result['vk'], $result['odnoklassniki']);
+}
+
+if (Manager::getZone() === 'cn')
+{
+	$result = array_merge($result, $resultCnZone);
 }
 
 return $result;

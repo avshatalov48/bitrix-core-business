@@ -12,9 +12,9 @@ use Bitrix\Main;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Script_Query query()
- * @method static EO_Script_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Script_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Script_Result getById($id)
- * @method static EO_Script_Result getList(array $parameters = array())
+ * @method static EO_Script_Result getList(array $parameters = [])
  * @method static EO_Script_Entity getEntity()
  * @method static \Bitrix\Bizproc\Script\Entity\EO_Script createObject($setDefaultValues = true)
  * @method static \Bitrix\Bizproc\Script\Entity\EO_Script_Collection createCollection()

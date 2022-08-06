@@ -34,7 +34,12 @@ Loc::loadMessages(__FILE__);
 </div>
 <?php
 
-if (((string)$arResult['POST']['DESCRIPTION'] === ''))
+$descriptionExpandable = (
+	(string)$arResult['POST']['DESCRIPTION'] === ''
+	&& \Bitrix\Main\Context::getCurrent()->getRequest()->get('focus') !== 'description'
+);
+
+if ($descriptionExpandable)
 {
 	?>
 	<div class="socialnetwork-group-create-ex__content-block">
@@ -46,10 +51,11 @@ if (((string)$arResult['POST']['DESCRIPTION'] === ''))
 }
 
 $classList = [];
-if ((string)$arResult['POST']['DESCRIPTION'] === '')
-{
-	$classList[] = 'socialnetwork-group-create-ex__content-expandable';
-}
+$classList[] = (
+	$descriptionExpandable
+		? 'socialnetwork-group-create-ex__content-expandable'
+		: 'socialnetwork-group-create-ex__content-expanded'
+);
 ?>
 <div class="socialnetwork-group-create-ex__content-block">
 	<div id="expandable-id-1" class="<?= implode(' ', $classList) ?>">
@@ -57,8 +63,8 @@ if ((string)$arResult['POST']['DESCRIPTION'] === '')
 			<div class="socialnetwork-group-create-ex__text --s ui-ctl-label-text socialnetwork-group-create-ex__create--switch-nonproject <?= ($isProject ? '--project' : '') ?> <?= ($isScrumProject ? '--scrum' : '') ?>"><?= htmlspecialcharsEx(Loc::getMessage('SONET_GCE_T_DESCRIPTION')) ?></div>
 			<div class="socialnetwork-group-create-ex__text --s ui-ctl-label-text socialnetwork-group-create-ex__create--switch-project socialnetwork-group-create-ex__create--switch-nonscrum <?= ($isScrumProject ? '--scrum' : '') ?> <?= ($isProject ? '--project' : '') ?>"><?= htmlspecialcharsEx(Loc::getMessage('SONET_GCE_T_DESCRIPTION_PROJECT')) ?></div>
 			<div class="socialnetwork-group-create-ex__text --s ui-ctl-label-text socialnetwork-group-create-ex__create--switch-scrum <?= ($isScrumProject ? '--scrum' : '') ?> <?= ($isProject ? '--project' : '') ?>"><?= htmlspecialcharsEx(Loc::getMessage('SONET_GCE_T_DESCRIPTION_SCRUM')) ?></div>
-			<div class="ui-ctl  ui-ctl-textarea ui-ctl-resize-y">
-				<textarea name="GROUP_DESCRIPTION" class="ui-ctl-element"><?= ((string)$arResult['POST']['DESCRIPTION'] !== '' ? $arResult['POST']['DESCRIPTION'] : '') ?></textarea>
+			<div class="ui-ctl ui-ctl-textarea ui-ctl-resize-y">
+				<textarea id="GROUP_DESCRIPTION_input" name="GROUP_DESCRIPTION" class="ui-ctl-element"><?= ((string)$arResult['POST']['DESCRIPTION'] !== '' ? $arResult['POST']['DESCRIPTION'] : '') ?></textarea>
 			</div>
 			<div class="socialnetwork-group-create-ex__text --xs ui-ctl-label-text socialnetwork-group-create-ex__create--switch-nonproject <?= ($isProject ? '--project' : '') ?> <?= ($isScrumProject ? '--scrum' : '') ?>"><?= htmlspecialcharsEx(Loc::getMessage('SONET_GCE_T_DESCRIPTION_LABEL')) ?></div>
 			<div class="socialnetwork-group-create-ex__text --xs ui-ctl-label-text socialnetwork-group-create-ex__create--switch-project socialnetwork-group-create-ex__create--switch-nonscrum <?= ($isScrumProject ? '--scrum' : '') ?> <?= ($isProject ? '--project' : '') ?>"><?= htmlspecialcharsEx(Loc::getMessage('SONET_GCE_T_DESCRIPTION_LABEL_PROJECT')) ?></div>

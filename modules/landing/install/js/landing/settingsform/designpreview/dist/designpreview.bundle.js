@@ -55,15 +55,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  return Control;
 	}();
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-design-preview-wrap\">\n\t\t\t\t<div class=\"landing-design-preview\">\n\t\t\t\t\t<h2 class=\"landing-design-preview-title\">", "</h2>\n\t\t\t\t\t<h4 class=\"landing-design-preview-subtitle\">", "</h4>\n\t\t\t\t\t<p class=\"landing-design-preview-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</p>\n\t\t\t\t\t<p class=\"landing-design-preview-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</p>\n\t\t\t\t\t<div class=\"\">\n\t\t\t\t\t\t<a href=\"#\" class=\"landing-design-preview-button\">", "</a>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	var DesignPreview = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(DesignPreview, _EventEmitter);
 
@@ -72,6 +64,7 @@ this.BX.Landing = this.BX.Landing || {};
 
 	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    var phrase = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+	    var id = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 	    babelHelpers.classCallCheck(this, DesignPreview);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DesignPreview).call(this));
 
@@ -79,8 +72,10 @@ this.BX.Landing = this.BX.Landing || {};
 
 	    _this.form = form;
 	    _this.phrase = phrase;
+	    _this.id = id;
+	    _this.options = options;
 
-	    _this.initControls(options);
+	    _this.initControls();
 
 	    _this.initLayout();
 
@@ -95,7 +90,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function initLayout() {
 	      var _this2 = this;
 
-	      this.layout = DesignPreview.createLayout(this.phrase);
+	      this.layout = this.createLayout();
 	      this.styleNode = document.createElement("style");
 	      main_core.Dom.append(this.styleNode, this.layout);
 	      main_core.Dom.append(this.layout, this.form);
@@ -127,21 +122,21 @@ this.BX.Landing = this.BX.Landing || {};
 	          }
 	        });
 	      }, paramsObserver);
-	      var elementDesignPreview = document.querySelector('.landing-design-preview-wrap');
+	      var elementDesignPreview = document.querySelector('#' + this.id).parentNode;
 	      observer.observe(elementDesignPreview);
 	    }
 	  }, {
 	    key: "initControls",
-	    value: function initControls(options) {
+	    value: function initControls() {
 	      this.controls = {};
 
-	      for (var group in options) {
-	        if (!options.hasOwnProperty(group)) {
+	      for (var group in this.options) {
+	        if (!this.options.hasOwnProperty(group)) {
 	          continue;
 	        }
 
-	        for (var key in options[group]) {
-	          if (!options[group].hasOwnProperty(key)) {
+	        for (var key in this.options[group]) {
+	          if (!this.options[group].hasOwnProperty(key)) {
 	            continue;
 	          }
 
@@ -149,7 +144,7 @@ this.BX.Landing = this.BX.Landing || {};
 	            this.controls[group] = {};
 	          }
 
-	          var control = new Control(options[group][key]['control']);
+	          var control = new Control(this.options[group][key]['control']);
 	          control.setChangeHandler(this.applyStyles.bind(this));
 
 	          if (group === 'theme' && key !== 'use') {
@@ -178,15 +173,15 @@ this.BX.Landing = this.BX.Landing || {};
 	          if (_key !== 'use' && this.controls[_group]['use']) {
 	            this.controls[_group][_key].setParent(this.controls[_group]['use']);
 
-	            if (options[_group][_key]['defaultValue']) {
-	              this.controls[_group][_key].setDefaultValue(options[_group][_key]['defaultValue']);
+	            if (this.options[_group][_key]['defaultValue']) {
+	              this.controls[_group][_key].setDefaultValue(this.options[_group][_key]['defaultValue']);
 	            }
 	          }
 	        }
 	      }
 
 	      if (this.controls.theme.corporateColor.node) {
-	        this.controls.theme.corporateColor.node.subscribe('onSelectColor', this.onApplyStyles.bind(this));
+	        this.controls.theme.corporateColor.node.subscribe('onSelectCustomColor', this.applyStyles.bind(this));
 	      }
 
 	      if (this.controls.background.image.node) {
@@ -248,7 +243,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "generateSelectorStart",
 	    value: function generateSelectorStart(className) {
-	      return '.' + className + ' {';
+	      return '#' + className + ' {';
 	    }
 	  }, {
 	    key: "generateSelectorEnd",
@@ -465,7 +460,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "generateCss",
 	    value: function generateCss() {
 	      var css;
-	      css = this.generateSelectorStart('landing-design-preview');
+	      css = this.generateSelectorStart(this.id);
 	      css = this.getCSSPart1(css);
 	      css = this.getCSSPart2(css);
 	      css = this.getCSSPart3(css);
@@ -473,19 +468,24 @@ this.BX.Landing = this.BX.Landing || {};
 	      return css;
 	    }
 	  }, {
+	    key: "createLayout",
+	    value: function createLayout() {
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-design-preview-wrap\"><div id=\"", "\" class=\"landing-design-preview\"><h2 class=\"landing-design-preview-title\">", "</h2><h4 class=\"landing-design-preview-subtitle\">", "</h4><p class=\"landing-design-preview-text\">", "</p><p class=\"landing-design-preview-text\">", "</p><div class=\"\"><a href=\"#\" class=\"landing-design-preview-button\">", "</a></div></div></div>"])), this.id, this.phrase.title, this.phrase.subtitle, this.phrase.text1, this.phrase.text2, this.phrase.button);
+	    }
+	  }, {
 	    key: "fixElement",
 	    value: function fixElement() {
 	      var paddingDesignForm = 20;
-	      var designForm = document.querySelector('.landing-design-form');
+	      var designPreview = document.querySelector('#' + this.id);
+	      var designPreviewWrap = designPreview.parentNode;
+	      var designPreviewWrapPosition = designPreviewWrap.getBoundingClientRect();
+	      var paddingDesignPreview = 20;
+	      var maxWidth = designPreviewWrapPosition.width - paddingDesignPreview * 2;
+	      var designForm = designPreviewWrap.parentNode;
 	      var designFormPosition = designForm.getBoundingClientRect();
-	      var designPreview = document.querySelector('.landing-design-preview');
 	      var designPreviewPosition = designPreview.getBoundingClientRect();
 	      var bodyWidth = document.body.clientWidth;
 	      var positionFixedRight = bodyWidth - designFormPosition.right + paddingDesignForm;
-	      var paddingDesignPreview = 25;
-	      var designPreviewWrap = document.querySelector('.landing-design-preview-wrap');
-	      var designPreviewWrapPosition = designPreviewWrap.getBoundingClientRect();
-	      var maxWidth = designPreviewWrapPosition.width - paddingDesignPreview * 2;
 
 	      if (designFormPosition.height > designPreviewPosition.height) {
 	        var fixedStyle;
@@ -500,7 +500,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "unFixElement",
 	    value: function unFixElement() {
-	      var designPreview = document.querySelector('.landing-design-preview');
+	      var designPreview = document.querySelector('#' + this.id);
 	      designPreview.setAttribute("style", '');
 	    }
 	  }, {
@@ -518,11 +518,6 @@ this.BX.Landing = this.BX.Landing || {};
 	        return firstSymbol.toUpperCase();
 	      });
 	      return font;
-	    }
-	  }], [{
-	    key: "createLayout",
-	    value: function createLayout(phrase) {
-	      return main_core.Tag.render(_templateObject(), phrase.title, phrase.subtitle, phrase.text1, phrase.text2, phrase.button);
 	    }
 	  }]);
 	  return DesignPreview;

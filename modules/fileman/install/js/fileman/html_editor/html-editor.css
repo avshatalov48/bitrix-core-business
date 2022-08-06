@@ -1,6 +1,6 @@
 div.bx-html-editor{
-	border: 1px solid;
-	border-color: #bbc4cd;
+	border: 1px solid #bbc4cd;
+	border-radius: var(--bx-html-editor-border-radius, var(--ui-field-border-radius));
 	overflow: hidden;
 	position: relative;
 	z-index: 30;

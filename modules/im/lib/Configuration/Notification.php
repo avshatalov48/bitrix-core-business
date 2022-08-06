@@ -38,8 +38,6 @@ class Notification extends Base
 		'PUSH' => 4,
 	];
 
-	private const CHUNK_LENGTH = 1000;
-
 	/**
 	 * @param string $module
 	 * @param string $name
@@ -73,6 +71,11 @@ class Notification extends Base
 	 */
 	public function isAllowed(int $userId, string $type): bool
 	{
+		if (!General::allowedUserBySimpleNotificationSettings($userId, $type))
+		{
+			return false;
+		}
+
 		$encodedSetting = self::encodeName($this->module, $this->name, $type);
 
 		$defaultSettings = self::getDefaultSettings();
@@ -153,6 +156,12 @@ class Notification extends Base
 			return [];
 		}
 
+		$userList = General::filterAllowedUsersBySimpleNotificationSettings($userList, $type);
+		if (empty($userList))
+		{
+			return [];
+		}
+
 		$encodedSetting = self::encodeName($this->module, $this->name, $type);
 
 		$defaultSettings = self::getDefaultSettings();
@@ -173,7 +182,7 @@ class Notification extends Base
 		}
 		else
 		{
-			$chunkList = array_chunk($userList, self::CHUNK_LENGTH);
+			$chunkList = array_chunk($userList, static::CHUNK_LENGTH);
 			foreach ($chunkList as $chunk)
 			{
 				$filteredUsers = array_merge($filteredUsers, $this->filterChunk($chunk, $encodedSetting, $value));

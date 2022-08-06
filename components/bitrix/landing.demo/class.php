@@ -3219,12 +3219,14 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			'SITE_LIST' => [SITE_ID],
 			'MISSING_SECTION_ACTION' => \CIBlockXmlImport::ACTION_NOTHING,
 			'MISSING_ELEMENT_ACTION' => \CIBlockXmlImport::ACTION_NOTHING,
-			'INTERVAL' => 15,
+			'INTERVAL' => 20,
 		];
 		$config = [
 			'USE_CRC' => false,
 			'PREVIEW_PICTURE_SETTINGS' => false,
-			'DETAIL_PICTURE_SETTINGS' => false
+			'DETAIL_PICTURE_SETTINGS' => false,
+			'READ_BLOCKSIZE' => 16384,
+			'IBLOCK_CACHE_MODE' => \CIBlockCMLImport::IBLOCK_CACHE_FREEZE,
 		];
 
 		$importer->init($parameters, $config);
@@ -3512,14 +3514,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	private function getNextXml()
 	{
 		$index = array_search($this->getCurrentXml(), $_SESSION['LANDING_DEMO_STORAGE']['XML_LIST']);
-		if (isset($_SESSION['LANDING_DEMO_STORAGE']['XML_LIST'][$index+1]))
-		{
-			return $_SESSION['LANDING_DEMO_STORAGE']['XML_LIST'][$index+1];
-		}
-		else
-		{
-			return null;
-		}
+
+		return $_SESSION['LANDING_DEMO_STORAGE']['XML_LIST'][$index + 1] ?? null;
 	}
 
 	/**
@@ -3540,6 +3536,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	private function getCurrentXmlProgress()
 	{
 		$_SESSION['LANDING_DEMO_STORAGE']['STEP_PARAMETERS']['CURRENT_XML']['PROGRESS'] += 5;
+
 		return $_SESSION['LANDING_DEMO_STORAGE']['STEP_PARAMETERS']['CURRENT_XML']['PROGRESS'];
 	}
 
@@ -3572,7 +3569,6 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	 */
 	private function importXmlFileResultMessage(string $xmlId, bool $complete = true): string
 	{
-		$result = '';
 		if ($complete)
 		{
 			$result = $this->showcase['MESSAGES'][$xmlId]['IMPORT_COMPLETE'] ?? '';
@@ -3581,33 +3577,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		{
 			$result = $this->showcase['MESSAGES'][$xmlId]['IMPORT_PROGRESS'] ?? '';
 		}
-/*		if ($complete)
-			switch ($xmlId)
-			{
-				case 'catalog':
-				case 'products':
-					$result = Loc::getMessage('LANDING_CMP_LD_MESS_XML_IMPORT_CATALOG_COMPLETE');
-					break;
-				case 'catalog_sku':
-				case 'offers':
-					$result = Loc::getMessage('LANDING_CMP_LD_MESS_XML_IMPORT_CATALOG_OFFERS_COMPLETE');
-					break;
-			}
-		}
-		else
-		{
-			switch ($xmlId)
-			{
-				case 'catalog':
-				case 'products':
-					$result = Loc::getMessage('LANDING_CMP_LD_MESS_XML_IMPORT_CATALOG_PROGRESS');
-					break;
-				case 'catalog_sku':
-				case 'offers':
-					$result = Loc::getMessage('LANDING_CMP_LD_MESS_XML_IMPORT_CATALOG_OFFERS_PROGRESS');
-					break;
-			}
-		} */
+
 		return $result;
 	}
 

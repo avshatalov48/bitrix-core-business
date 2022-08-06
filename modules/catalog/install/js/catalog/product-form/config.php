@@ -49,6 +49,8 @@ return [
 	'css' => 'dist/product-form.bundle.css',
 	'js' => 'dist/product-form.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 		'currency',
 		'ui.layout-form',
 		'ui.forms',

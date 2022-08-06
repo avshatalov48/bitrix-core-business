@@ -136,7 +136,7 @@ export class WorkgroupWidget extends Widget
 
 			BX.SidePanel.Instance.open(this.urls.card, {
 				width: 900,
-				loader: 'group-card-loader',
+				loader: 'socialnetwork:group-card',
 			});
 
 			this.hide();

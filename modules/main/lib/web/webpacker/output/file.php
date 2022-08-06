@@ -51,6 +51,15 @@ class File extends Base
 			throw new SystemException('File name is empty.');
 		}
 
+		if ($this->moduleId === 'landing')
+		{
+			AddMessage2Log(
+				'wp output ' . $this->name,
+				'main',
+				7
+			);
+		}
+
 		$content = $builder->stringify();
 		$id = $this->saveFile($content);
 
@@ -206,6 +215,15 @@ class File extends Base
 
 	protected function saveFile($content)
 	{
+		if ($this->moduleId === 'landing')
+		{
+			AddMessage2Log(
+				'wp saveFile ' . $this->name,
+				'main',
+				7
+			);
+		}
+
 		$this->remove();
 
 		$type = $this->type;

@@ -27,7 +27,7 @@ if ($arParams["SEF_MODE"] == "Y")
 
 	if ($componentPage == "ticket_edit")
 		$componentPage = "ticket_edit";
-	elseif($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"] <> '' || $_REQUEST["apply"] <> ''))
+	elseif($_SERVER["REQUEST_METHOD"]=="POST" && (strlen($_REQUEST["save"])>0 || strlen($_REQUEST["apply"])>0))
 		$componentPage = "ticket_edit";
 	else
 		$componentPage = "ticket_list";

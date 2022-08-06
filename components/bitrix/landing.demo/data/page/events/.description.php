@@ -91,7 +91,7 @@ return [
 			<div class="container g-max-width-750 u-bg-overlay__inner g-mb-60 landing-block-node-container js-animation fadeInUp">
 
 				<h2 class="landing-block-node-title text-center text-uppercase g-font-weight-700 g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
-					UI &amp; UX Design 2021</h2>
+					UI &amp; UX Design 2022</h2>
 
 				<div class="row g-mx-minus-5">
 					<div class="col-md-4 g-px-5 g-mb-20 g-mb-0--md">
@@ -103,7 +103,7 @@ return [
 							<div class="media-body text-uppercase">
 								<div class="landing-block-node-date-title g-mb-5 g-font-size-14 g-color-white-opacity-0_5"><span style="font-weight: bold;">When</span></div>
 								<h3 class="landing-block-node-date-text text-uppercase g-font-size-15 g-color-white mb-0">
-									18:30, 12 Jul, 2021</h3>
+									18:30, 12 Jul, 2022</h3>
 							</div>
 						</div>
 					</div>
@@ -232,7 +232,7 @@ return [
 
 								<div class="media-body align-self-center">
 									<h4 class="landing-block-node-card-subtitle text-uppercase g-font-weight-700 g-font-size-12 g-color-primary g-mb-5">
-										Design Trands for 2021</h4>
+										Design Trands for 2022</h4>
 									<h3 class="landing-block-node-card-title text-uppercase g-font-weight-700 g-font-size-23 g-mb-10">
 										Kate Watson,
 										Designer</h3>
@@ -915,7 +915,7 @@ return [
 	<div class="text-center g-pa-10">
 		<div class="g-width-600 mx-auto">
 			<div class="landing-block-node-text g-font-size-12  js-animation animation-none">
-				<p>&copy; 2021 All rights reserved.</p>
+				<p>&copy; 2022 All rights reserved.</p>
 			</div>
 		</div>
 	</div>

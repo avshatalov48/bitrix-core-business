@@ -1,7 +1,8 @@
 .catalog-no-access-title {
 	color: #525C69;
 	margin-bottom: 16px;
-	font: 29px/35px 'OpenSans-Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: 29px/35px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .catalog-no-access-subtitle {

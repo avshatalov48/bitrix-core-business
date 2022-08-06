@@ -1,11 +1,12 @@
 <?php
-$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TITLE"] = "Предупреждение";
-$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT"] = "Ваш запрос на вступление в группу отправлен. После того, как руководство группы одобрит запрос, она появится в списке ваших групп и проектов.";
-$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT_PROJECT"] = "Ваш запрос на вступление в проект отправлен. После того, как руководство проекта одобрит запрос, он появится в списке ваших групп и проектов.";
-$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT_SCRUM"] = "Ваш запрос на вступление в команду отправлен. После того, как руководство команды одобрит запрос, он появится в списке ваших скрам-команд.";
-$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_BUTTON"] = "Отозвать запрос на присоединение к группе";
-$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_BUTTON_PROJECT"] = "Отозвать запрос на присоединение к проекту";
-$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_BUTTON_SCRUM"] = "Отозвать запрос на присоединение к скрам-команде";
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TITLE2"] = "Ваш запрос отправлен владельцу группы";
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TITLE2_PROJECT"] = "Ваш запрос отправлен владельцу проекта";
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TITLE2_SCRUM"] = "Ваш запрос отправлен владельцу скрам-команды";
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT2"] = "После одобрения группа появится в списке ваших групп и проектов";
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT2_PROJECT"] = "После одобрения проект появится в списке ваших групп и проектов";
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT2_SCRUM"] = "После одобрения команда появится в списке ваших групп и проектов";
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_CLOSE_BUTTON"] = "Закрыть";
+$MESS["SONET_EXT_COMMON_RECALL_JOIN_POPUP_CANCEL_BUTTON"] = "Отменить запрос";
 $MESS["SONET_EXT_COMMON_AJAX_ERROR"] = "Произошла ошибка обработки запроса";
 $MESS["SONET_EXT_COMMON_B24_SONET_GROUP_FEATURES_TITLE"] = "Получите дополнительные возможности для вашего Битрикс24";
 $MESS["SONET_EXT_COMMON_B24_SONET_GROUP_FEATURES_TEXT"] = "<p>Права доступа позволяют удобно организовать рабочий процесс в группах для всей компании. Вы можете настроить, с какими инструментами сотрудники смогут работать, а с какими нет.<p>Настройка прав доступа возможна только на расширенных тарифах.";
@@ -30,6 +31,7 @@ $MESS["SONET_EXT_COMMON_GROUP_MENU_REQ_OUT_SCRUM"] = "Приглашения в 
 $MESS["SONET_EXT_COMMON_GROUP_MENU_JOIN"] = "Вступить в группу";
 $MESS["SONET_EXT_COMMON_GROUP_MENU_JOIN_PROJECT"] = "Присоединиться к проекту";
 $MESS["SONET_EXT_COMMON_GROUP_MENU_JOIN_SCRUM"] = "Присоединиться к команде";
+$MESS["SONET_EXT_COMMON_GROUP_MENU_DELETE_REQUEST"] = "Отменить запрос";
 $MESS["SONET_EXT_COMMON_GROUP_MENU_EXIT"] = "Покинуть группу";
 $MESS["SONET_EXT_COMMON_GROUP_MENU_EXIT_PROJECT"] = "Покинуть проект";
 $MESS["SONET_EXT_COMMON_GROUP_MENU_EXIT_SCRUM"] = "Покинуть команду";

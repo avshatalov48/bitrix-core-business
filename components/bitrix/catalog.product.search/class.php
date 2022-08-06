@@ -146,11 +146,23 @@ class ProductSearchComponent extends \CBitrixComponent
 		$params['func_name'] = isset($_REQUEST["func_name"]) ? preg_replace("/[^a-zA-Z0-9_\.]/is", "", $_REQUEST["func_name"]) : '';
 		$params['event'] = isset($_REQUEST['event']) ? preg_replace("/[^a-zA-Z0-9_\.]/is", "", $_REQUEST['event']) : '';
 		$params['caller'] = isset($_REQUEST["caller"]) ? preg_replace("/[^a-zA-Z0-9_\-]/is", "", $_REQUEST["caller"]) : '';
+		$params['multiple_select'] = $_REQUEST['multiple_select'] ?? 'N';
+		$params['multiple_select'] = $params['multiple_select'] === 'Y';
 		$params['subscribe'] = (isset($_REQUEST['subscribe']) && $_REQUEST['subscribe'] == 'Y');
-		$params['store_from_id'] = isset($_REQUEST["STORE_FROM_ID"]) ? (int)$_REQUEST["STORE_FROM_ID"] : 0;
+		$params['store_from_id'] = (int)($_REQUEST["STORE_FROM_ID"] ??  0);
 		if ($params['store_from_id'] < 0)
+		{
 			$params['store_from_id'] = 0;
-		$params['allow_select_parent'] = (isset($_REQUEST['allow_select_parent']) && $_REQUEST['allow_select_parent'] == 'Y' ? 'Y' : 'N');
+		}
+		$params['allow_select_parent'] = $_REQUEST['allow_select_parent'] ?? 'N';
+		if ($params['allow_select_parent'] !== 'Y')
+		{
+			$params['allow_select_parent'] = 'N';
+		}
+		if ($params['caller'] === 'discount')
+		{
+			$params['allow_select_parent'] = 'Y';
+		}
 
 		if (!empty($_REQUEST['del_filter']))
 		{
@@ -1069,9 +1081,14 @@ class ProductSearchComponent extends \CBitrixComponent
 		return (int)$USER->GetID();
 	}
 
-	protected function getCaller()
+	protected function getCaller(): string
 	{
 		return $this->arParams['caller'];
+	}
+
+	protected function isMultipleSelect(): bool
+	{
+		return $this->arParams['multiple_select'];
 	}
 
 	protected function getLid()
@@ -1837,7 +1854,8 @@ class ProductSearchComponent extends \CBitrixComponent
 			'SUBSCRIPTION' => $this->getSubscription(),
 			'IS_ADMIN_SECTION' => $this->isAdminSection(),
 			'IS_EXTERNALCONTEXT' => $this->isExternalContext(),
-			'ALLOW_SELECT_PARENT' => $this->arParams['allow_select_parent']
+			'ALLOW_SELECT_PARENT' => $this->arParams['allow_select_parent'],
+			'MULTIPLE' => $this->isMultipleSelect(),
 		);
 	}
 

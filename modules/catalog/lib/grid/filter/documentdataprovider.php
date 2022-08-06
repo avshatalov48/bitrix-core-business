@@ -4,6 +4,7 @@ namespace Bitrix\Catalog\Grid\Filter;
 
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Main\Grid\Column;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
 \CBitrixComponent::includeComponentClass('bitrix:catalog.store.document.list');
@@ -192,6 +193,14 @@ class DocumentDataProvider extends \Bitrix\Main\Filter\EntityDataProvider
 			]),
 		];
 
+		if (Loader::includeModule('crm'))
+		{
+			$fields['PRODUCTS'] = $this->createField('PRODUCTS', [
+				'partial' => true,
+				'type' => 'entity_selector',
+			]);
+		}
+
 		if ($this->mode !== \CatalogStoreDocumentListComponent::OTHER_MODE)
 		{
 			$fields['DOC_NUMBER'] = $this->createField('DOC_NUMBER');
@@ -230,11 +239,7 @@ class DocumentDataProvider extends \Bitrix\Main\Filter\EntityDataProvider
 				'params' => [
 					'multiple' => 'Y',
 				],
-				'items' => [
-					'Y' => Loc::getMessage('DOCUMENT_STATUS_CONDUCTED'),
-					'N' => Loc::getMessage('DOCUMENT_STATUS_NOT_CONDUCTED'),
-					'C' => Loc::getMessage('DOCUMENT_STATUS_CANCELLED'),
-				]
+				'items' => StoreDocumentTable::getStatusList(),
 			];
 		}
 
@@ -294,6 +299,29 @@ class DocumentDataProvider extends \Bitrix\Main\Filter\EntityDataProvider
 								'id' => 'contractor',
 								'dynamicLoad' => true,
 								'dynamicSearch' => true,
+							]
+						],
+						'dropdownMode' => false,
+					],
+				],
+			];
+		}
+
+		if ($fieldID === 'PRODUCTS')
+		{
+			return [
+				'params' => [
+					'multiple' => 'Y',
+					'dialogOptions' => [
+						'height' => 200,
+						'context' => $this->mode . '_product_filter',
+						'entities' => [
+							[
+								'id' => 'product',
+								'options' => [
+									'iblockId' => \Bitrix\Crm\Product\Catalog::getDefaultId(),
+									'basePriceId' => \Bitrix\Crm\Product\Price::getBaseId(),
+								],
 							]
 						],
 						'dropdownMode' => false,

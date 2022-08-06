@@ -329,7 +329,16 @@ class Field
 	 * @param string $placeholder
 	 * @return array
 	 */
-	public static function number($name, $type = NumberType::SINGLE, $values = array(), $label = "", $placeholder = "")
+	public static function number(
+		$name,
+		$type = NumberType::SINGLE,
+		$values = [],
+		$label = "",
+		$placeholder = "",
+		$exclude = [],
+		$include = [],
+		$messages = []
+	)
 	{
 		$selectParams = array("isMulti" => false);
 
@@ -341,18 +350,54 @@ class Field
 			);
 		}
 
-		$field = array(
+		$subtypes = [];
+		$sourceSubtypes = NumberType::getList();
+
+		foreach ($sourceSubtypes as $key => $subtype)
+		{
+			if (!is_array($exclude) || !in_array($subtype, $exclude))
+			{
+				$subtypes[] = [
+					"NAME" => static::getMessage($messages, "MAIN_UI_FILTER__NUMBER_".$key),
+					"VALUE" => $subtype,
+				];
+
+				if ($subtype == $type)
+				{
+					$subtypeType = [
+						"NAME" => static::getMessage($messages, "MAIN_UI_FILTER__NUMBER_".$key),
+						"VALUE" => $subtype,
+					];
+				}
+			}
+		}
+
+		if (is_array($include))
+		{
+			$additionalSubtypes = AdditionalNumberType::getList();
+			foreach ($additionalSubtypes as $key => $subtype)
+			{
+				if (in_array($subtype, $include))
+				{
+					$subtypes[] = [
+						"NAME" => static::getMessage($messages, "MAIN_UI_FILTER__NUMBER_".$key),
+						"VALUE" => $subtype,
+					];
+				}
+			}
+		}
+
+		return [
 			"ID" => "field_".$name,
 			"TYPE" => Type::NUMBER,
 			"NAME" => $name,
-			"SUB_TYPE" => $type,
+			"SUB_TYPE" => $subtypeType,
+			"SUB_TYPES" => $subtypes,
 			"VALUES" => $values,
 			"LABEL" => $label,
 			"PLACEHOLDER" => $placeholder,
 			"SELECT_PARAMS" => $selectParams
-		);
-
-		return $field;
+		];
 	}
 
 

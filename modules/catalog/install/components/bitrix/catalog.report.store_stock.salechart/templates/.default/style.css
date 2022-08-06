@@ -35,12 +35,14 @@
 	align-items: baseline;
 	/*margin: 0 14px 0 0;*/
 	max-width: 100%;
-	font: 1.8vw "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 1.8vw var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #333;
 }
 
 .catalog-report-store-stock-card-info-percent {
-	font: 1.2vw "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 1.2vw var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #FF5752;
 }
 
@@ -69,12 +71,14 @@
 
 .catalog-report-store-stock-card-info-price .catalog-report-store-stock-card-info-symbol,
 .catalog-report-store-stock-card-info-value-box .catalog-report-store-stock-card-info-symbol {
-	font: 1.4vw "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 1.4vw var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #828B95;
 }
 
 .catalog-report-store-stock-card-info-percent .catalog-report-store-stock-card-info-symbol {
-	font: .9vw "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: .9vw var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #828B95;
 	opacity: .72;
 }
@@ -115,7 +119,8 @@
 	margin: 0 0 17px 0;
 	padding: 0 0 12px 0;
 	border-bottom: 1px solid rgba(130,139,149,.19);
-	font: 13px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #333;
 }
 .catalog-report-store-stock-modal-title {
@@ -150,7 +155,8 @@
 	margin: 0 0 18px 0;
 }
 .catalog-report-store-stock-modal-value {
-	font: 20px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 .catalog-report-store-stock-modal-value-grey {
 	color: #828B95;
@@ -165,20 +171,24 @@
 .catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-price,
 .catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-value-box {
 	margin: 0 30px 0 0;
-	font: 20px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 .catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-value-box {
 	margin: 0;
 }
 .catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-price .catalog-report-store-stock-card-info-symbol,
 .catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-value-box .catalog-report-store-stock-card-info-symbol {
-	font: 18px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 .catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-percent {
-	font: 21px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 21px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 .catalog-report-store-stock-modal-main .catalog-report-store-stock-card-info-percent .catalog-report-store-stock-card-info-symbol {
-	font: 15px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 /* END OF MODAL */
 

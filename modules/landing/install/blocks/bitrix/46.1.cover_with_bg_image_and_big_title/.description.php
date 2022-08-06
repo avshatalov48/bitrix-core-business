@@ -29,6 +29,8 @@ return array(
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.1.COVER_WITH_BG_IMAGE_AND_BIG_TITLE_NODES_LANDINGBLOCKNODEBGIMG'),
 			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
 			'useInDesigner' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'create2xByDefault' => false,
@@ -49,7 +51,7 @@ return array(
 		),
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.1.COVER_WITH_BG_IMAGE_AND_BIG_TITLE_NODES_LANDINGBLOCKNODEBGIMG'),
-			'type' => array('background-overlay', 'background-attachment'),
+			'type' => ['background', 'background-attachment'],
 		),
 		'.landing-block-node-container' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.1.COVER_WITH_BG_IMAGE_AND_BIG_TITLE_NODES_LANDINGBLOCKNODE_CONTAINER'),

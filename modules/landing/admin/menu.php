@@ -38,11 +38,12 @@ $res = \Bitrix\Main\SiteTable::getList(array(
 		'LID', 'NAME'
 	),
 	'filter' => array(
-		'ACTIVE' => 'Y'
+		'=ACTIVE' => 'Y'
 	),
 	'order' => array(
 		'SORT' => 'ASC'
-	)
+	),
+	'cache' => ['ttl' => 86400],
 ));
 while ($row = $res->fetch())
 {

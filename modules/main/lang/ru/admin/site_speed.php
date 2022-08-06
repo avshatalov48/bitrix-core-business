@@ -14,7 +14,6 @@ $MESS["MAIN_SITE_SPEED_CHOOSE_DOMAIN"] = "Выберите другой доме
 $MESS["MAIN_SITE_SPEED_CONNECTION_ERROR"] = "Не удалось соединиться с сервером статистики.";
 $MESS["MAIN_SITE_SPEED_PERF"] = "Монитор производительности";
 $MESS["MAIN_SITE_SPEED_COMPOSITE_SITE"] = "Композитный сайт";
-$MESS["MAIN_SITE_SPEED_CDN"] = "Ускорение сайта (CDN)";
 $MESS["MAIN_SITE_SPEED_ENABLED"] = "включено";
 $MESS["MAIN_SITE_SPEED_DISABLED"] = "выключено";
 $MESS["MAIN_SITE_SPEED_PERF_NO_RES"] = "оценка не проводилась";

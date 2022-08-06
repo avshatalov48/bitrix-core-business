@@ -14,7 +14,7 @@
 							</div>
 						</div>
 						<div class="landing-block-node-card-img-container col-auto d-md-flex order-1 order-lg-2 u-bg-overlay g-bg-black-opacity-0_3--after g-bg-white-opacity-0--after--parent-hover g-overflow-hidden g-rounded-50x px-0 g-mb-20 g-mb-0--md g-mr-30--lg mx-auto g-width-120 g-width-170--md g-height-120 g-height-170--md g-transition-0_2 g-transition--ease-in g-pointer-events-before-after-none">
-							<img class="landing-block-node-card-img img-fluid g-rounded-50x"
+							<img class="landing-block-node-card-img img-fluid g-rounded-50x g-object-fit-cover g-min-width-100x g-min-height-100x"
 								 src="https://cdn.bitrix24.site/bitrix/images/landing/business/200x200/img1.jpg"
 								 alt="">
 						</div>
@@ -55,7 +55,7 @@
 							</div>
 						</div>
 						<div class="landing-block-node-card-img-container col-auto d-md-flex order-1 order-lg-2 u-bg-overlay g-bg-black-opacity-0_3--after g-bg-white-opacity-0--after--parent-hover g-overflow-hidden g-rounded-50x px-0 g-mb-20 g-mb-0--md g-mr-30--lg mx-auto g-width-120 g-width-170--md g-height-120 g-height-170--md g-transition-0_2 g-transition--ease-in g-pointer-events-before-after-none">
-							<img class="landing-block-node-card-img img-fluid g-rounded-50x"
+							<img class="landing-block-node-card-img img-fluid g-rounded-50x g-object-fit-cover g-min-width-100x g-min-height-100x"
 								 src="https://cdn.bitrix24.site/bitrix/images/landing/business/200x200/img2.jpg"
 								 alt="">
 						</div>
@@ -64,7 +64,7 @@
 					<div class="col-md-7 order-1 landing-block-node-card-inner d-flex order-md-2 px-0 g-mb-15 g-mb-0--md d-block d-md-flex">
 						<div class="align-self-center g-width-100x">
 							<h6 class="landing-block-node-card-subtitle landing-semantic-subtitle-medium-primary text-uppercase g-font-weight-700 g-color-primary g-mb-5">
-								Design Trands of 2021</h6>
+								Design Trands of 2022</h6>
 							<h3 class="landing-block-node-card-title landing-semantic-title-small text-uppercase g-font-weight-700 g-mb-10">
 								Kate Watson,
 								Designer</h3>
@@ -95,7 +95,7 @@
 							</div>
 						</div>
 						<div class="landing-block-node-card-img-container col-auto d-md-flex order-1 order-lg-2 u-bg-overlay g-bg-black-opacity-0_3--after g-bg-white-opacity-0--after--parent-hover g-overflow-hidden g-rounded-50x px-0 g-mb-20 g-mb-0--md g-mr-30--lg mx-auto g-width-120 g-width-170--md g-height-120 g-height-170--md g-transition-0_2 g-transition--ease-in g-pointer-events-before-after-none">
-							<img class="landing-block-node-card-img img-fluid g-rounded-50x"
+							<img class="landing-block-node-card-img img-fluid g-rounded-50x g-object-fit-cover g-min-width-100x g-min-height-100x"
 								 src="https://cdn.bitrix24.site/bitrix/images/landing/business/200x200/img3.jpg"
 								 alt="">
 						</div>
@@ -135,7 +135,7 @@
 							</div>
 						</div>
 						<div class="landing-block-node-card-img-container col-auto d-md-flex order-1 order-lg-2 u-bg-overlay g-bg-black-opacity-0_3--after g-bg-white-opacity-0--after--parent-hover g-overflow-hidden g-rounded-50x px-0 g-mb-20 g-mb-0--md g-mr-30--lg mx-auto g-width-120 g-width-170--md g-height-120 g-height-170--md g-transition-0_2 g-transition--ease-in g-pointer-events-before-after-none">
-							<img class="landing-block-node-card-img img-fluid g-rounded-50x"
+							<img class="landing-block-node-card-img img-fluid g-rounded-50x g-object-fit-cover g-min-width-100x g-min-height-100x"
 								 src="https://cdn.bitrix24.site/bitrix/images/landing/business/200x200/img4.jpg"
 								 alt="">
 						</div>

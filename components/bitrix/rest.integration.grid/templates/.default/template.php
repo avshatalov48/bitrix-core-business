@@ -14,7 +14,11 @@ use Bitrix\Main\Web\Json;
 
 Loc ::loadMessages(__FILE__);
 
-CUtil::InitJSCore(['marketplace']);
+\Bitrix\Main\UI\Extension::load([
+	'marketplace',
+	'ui.design-tokens',
+]);
+
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') . 'pagetitle-toolbar-field-view no-background crm-pagetitle-view');
 if ($arParams['SET_TITLE'])

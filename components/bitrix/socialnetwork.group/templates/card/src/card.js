@@ -1,17 +1,25 @@
 import {Type, Loc} from 'main.core';
 import {EventEmitter, BaseEvent} from 'main.core.events';
+import {Circle} from 'ui.graph.circle';
 
 import {WorkgroupCardFavorites} from './favorites';
 import {WorkgroupCardSubscription} from './subscription';
+import {WorkgroupCardThemePicker} from './themepicker';
+import {WorkgroupCardAvatar} from './avatar';
 
 class WorkgroupCard
 {
 	constructor()
 	{
+		this.componentName = '';
+		this.signedParameters = '';
+
 		this.instance = null;
 		this.currentUserId = null;
 
 		this.userRole = null;
+		this.initiatedByType = null;
+		this.initiatedByUserId = null;
 		this.userIsMember = null;
 		this.userIsAutoMember = null;
 		this.userIsScrumMaster = null;
@@ -44,6 +52,8 @@ class WorkgroupCard
 			return;
 		}
 
+		this.componentName = (params.componentName ?? '');
+		this.signedParameters = (params.signedParameters ?? '');
 		this.currentUserId = parseInt(params.currentUserId);
 
 		this.groupId = parseInt(params.groupId);
@@ -53,6 +63,8 @@ class WorkgroupCard
 		this.isOpened = !!params.isOpened;
 
 		this.userRole = params.userRole;
+		this.initiatedByType = params.initiatedByType;
+		this.initiatedByUserId = parseInt(params.initiatedByUserId);
 		this.userIsMember = !!params.userIsMember;
 		this.userIsAutoMember = !!params.userIsAutoMember;
 		this.userIsScrumMaster = this.isScrumProject && (Type.isBoolean(params.userIsScrumMaster) ? params.userIsScrumMaster : false);
@@ -87,6 +99,17 @@ class WorkgroupCard
 			buttonNode: (Type.isStringFilled(params.subscribeButtonNodeId) ? document.getElementById(params.subscribeButtonNodeId) : null),
 		});
 
+		new WorkgroupCardThemePicker({
+			containerNode: this.containerNode,
+		});
+
+		new WorkgroupCardAvatar({
+			componentName: this.componentName,
+			signedParameters: this.signedParameters,
+			containerNode: this.containerNode,
+			groupId: this.groupId,
+		});
+
 		if (
 			this.containerNode
 			&& Type.isPlainObject(params.styles)
@@ -99,7 +122,7 @@ class WorkgroupCard
 				&& Type.isStringFilled(params.styles.tags.box)
 			)
 			{
-				this.containerNode.querySelectorAll(`.${params.styles.tags.box}`).forEach((node) => {
+				this.containerNode.querySelectorAll('[bx-tag-value]').forEach((node) => {
 					node.addEventListener('click', (e) => {
 						const tagValue = e.target.getAttribute('bx-tag-value');
 						if (Type.isStringFilled(tagValue))
@@ -112,27 +135,23 @@ class WorkgroupCard
 			}
 
 			if (
-				Type.isPlainObject(params.styles.users)
-				&& Type.isStringFilled(params.styles.users.box)
-				&& Type.isStringFilled(params.styles.users.item)
+				Type.isPlainObject(params.tasksEfficiency)
+				&& params.tasksEfficiency.available === true
 			)
 			{
-				this.containerNode.querySelectorAll(`.${params.styles.users.box}`).forEach((node) => {
-					node.addEventListener('click', (e) => {
-						let userNode = e.target;
+				const circleNode = this.containerNode.querySelector('.socialnetwork-group-slider-efficency');
+				if (circleNode)
+				{
+					const circle = new Circle(circleNode, 131, Number(params.tasksEfficiency.value), null, null);
+					circle.show();
+				}
+			}
 
-						if (!userNode.hasAttribute('bx-user-id'))
-						{
-							userNode = userNode.closest(`.${params.styles.users.item}`);
-						}
-
-						const userId = userNode.getAttribute('bx-user-id');
-						if (parseInt(userId) > 0)
-						{
-							this.clickUser(userId);
-						}
-						e.preventDefault();
-					}, true);
+			const efficiencyHelperNode = this.containerNode.querySelector('[data-role="efficiency-helper"]');
+			if (efficiencyHelperNode)
+			{
+				efficiencyHelperNode.addEventListener('click', () => {
+					top.BX.Helper.show('redirect=detail&code=6576263');
 				});
 			}
 		}
@@ -157,6 +176,8 @@ class WorkgroupCard
 					userIsAutoMember: this.userIsAutoMember,
 					userIsScrumMaster: this.userIsScrumMaster,
 					userRole: this.userRole,
+					initiatedByType: this.initiatedByType,
+					initiatedByUserId: this.initiatedByUserId,
 					editFeaturesAllowed: this.editFeaturesAllowed,
 					copyFeatureAllowed: this.copyFeatureAllowed,
 					isProject: this.isProject,
@@ -189,22 +210,12 @@ class WorkgroupCard
 
 	clickTag(tagValue)
 	{
-		if (!Type.isStringFilled(tagValue.length))
+		if (!Type.isStringFilled(tagValue))
 		{
 			return;
 		}
 
 		top.location.href = Loc.getMessage('SGCSPathToGroupTag').replace('#tag#', tagValue);
-	}
-
-	clickUser(userId)
-	{
-		if (parseInt(userId) <= 0)
-		{
-			return;
-		}
-
-		top.location.href = Loc.getMessage('SGCSPathToUserProfile').replace('#user_id#', userId);
 	}
 
 	onSliderMessage(event: BaseEvent)
@@ -226,6 +237,13 @@ class WorkgroupCard
 		}
 
 		if (
+			eventData.code === 'afterJoinRequestSend'
+			&& parseInt(eventData.data.groupId) === this.groupId
+		)
+		{
+			BX.SocialnetworkUICommon.reload();
+		}
+		else if (
 			eventData.code === 'afterEdit'
 			&& Type.isPlainObject(eventData.data.group)
 			&& parseInt(eventData.data.group.ID) === this.groupId
@@ -234,7 +252,7 @@ class WorkgroupCard
 			BX.SocialnetworkUICommon.reload();
 		}
 		else if (
-			[ 'afterDelete', 'afterLeave' ].includes(eventData.code)
+			[ 'afterDelete', 'afterLeave', 'afterIncomingRequestCancel',  ].includes(eventData.code)
 			&& !Type.isUndefined(eventData.data.groupId)
 			&& parseInt(eventData.data.groupId) === this.groupId
 		)
@@ -243,6 +261,7 @@ class WorkgroupCard
 			{
 				top.BX.SidePanel.Instance.getSliderByWindow(window).close();
 			}
+
 			top.location.href = this.urls.groupsList;
 		}
 	}

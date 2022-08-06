@@ -103,9 +103,9 @@ abstract class Form extends BaseApiObject
 	/**
 	 * Register WebHook
 	 * @param $formId
-	 * @return bool
+	 * @return Retargeting\Response
 	 */
-	abstract public function register($formId): bool;
+	abstract public function register($formId): Retargeting\Response;
 
 	/**
 	 * Unlink.

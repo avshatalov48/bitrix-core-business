@@ -8,4 +8,5 @@ $MESS["SNBPA_OWNER_ID"] = "Sender";
 $MESS["SNBPA_POST_MESSAGE"] = "Message text";
 $MESS["SNBPA_POST_SITE"] = "Target site";
 $MESS["SNBPA_POST_TITLE"] = "Message title";
+$MESS["SNBPA_POST_URL_LABEL"] = "Open post";
 $MESS["SNBPA_USERS_TO"] = "Recipients";

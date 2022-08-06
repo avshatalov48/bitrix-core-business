@@ -22,7 +22,7 @@ if($arResult['ERROR'])
 	ShowError($arResult['ERROR']);
 	return false;
 }
-\Bitrix\Main\UI\Extension::load(array("ui.tilegrid", "ui.buttons"));
+\Bitrix\Main\UI\Extension::load(array("ui.tilegrid", "ui.buttons", "ui.design-tokens"));
 ?>
 <?php
 $APPLICATION->IncludeComponent(

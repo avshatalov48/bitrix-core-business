@@ -112,7 +112,18 @@
 	function getTypeSettings(prop)
 	{
 		var lp = BX.Landing.Main.getInstance();
-		return lp.options.style["bitrix"]["style"][prop];
+		var type = lp.options.style["bitrix"]["style"][prop];
+		if (prop === 'background')
+		{
+			type.items = type.items.concat(lp.options.style["bitrix"]["style"]['background-overlay'].items);
+		}
+		return type;
+	}
+
+	function getAttrsTypeSettings(prop)
+	{
+		var lp = BX.Landing.Main.getInstance();
+		return lp.options.attrs["bitrix"]["attrs"][prop];
 	}
 
 	function isGroup(prop)
@@ -343,9 +354,12 @@
 
 		showRequiredUserAction: function(data)
 		{
-			//selector [data-map] for blocks with Google Maps without key
-			var node = this.node.querySelector('[data-map]') ?? this.node;
-			node.innerHTML = (
+			let container = this.node;
+			if (data.targetNodeSelector)
+			{
+				container = this.node.querySelector(data.targetNodeSelector);
+			}
+			container.innerHTML = (
 				"<div class=\"landing-block-user-action\">" +
 					"<div class=\"landing-block-user-action-inner\">" +
 						(data.header ? (
@@ -365,7 +379,7 @@
 
 			if (data.onClick)
 			{
-				var button = this.node.querySelector('.landing-block-user-action .ui-btn');
+				var button = container.querySelector('.landing-block-user-action .ui-btn');
 				bind(button, 'click', function(event) {
 					event.preventDefault();
 
@@ -2336,21 +2350,34 @@
 
 			if (card)
 			{
-				var lastCardInCollection = card.node.parentElement.children.length === 1;
 				var cardAction = card.panels.get("cardAction");
-
-				if (lastCardInCollection)
+				if (cardAction)
 				{
-					if (cardAction)
+					var cardIntoSlider = BX.hasClass(card.node, 'landing-block-card-carousel-element');
+					var cardsParent = card.node.closest(".landing-block-node-carousel-container");
+					if (!cardIntoSlider || !cardsParent)
 					{
-						cardAction.buttons.get("remove").disable();
+						var lastCardInCollection = card.node.parentElement.children.length === 1;
+						if (lastCardInCollection)
+						{
+							cardAction.buttons.get("remove").disable();
+						}
+						else
+						{
+							cardAction.buttons.get("remove").enable();
+						}
 					}
-				}
-				else
-				{
-					if (cardAction)
+					else
 					{
-						cardAction.buttons.get("remove").enable();
+						var cardsAmount = cardsParent.querySelectorAll('.landing-block-card-carousel-element').length;
+						if (cardsAmount > 1)
+						{
+							cardAction.buttons.get("remove").enable();
+						}
+						else
+						{
+							cardAction.buttons.get("remove").disable();
+						}
 					}
 				}
 			}
@@ -2792,6 +2819,13 @@
 					if (form.type !== "attrs")
 					{
 						contentForms.add(form);
+
+						if (form.childForms && form.childForms.length > 0)
+						{
+							form.childForms.forEach(function(childForm) {
+								contentForms.add(childForm);
+							});
+						}
 					}
 				});
 
@@ -3242,6 +3276,11 @@
 		 */
 		showStylePanel: function(selector)
 		{
+			var FormSettingsPanel = BX.Reflection.getClass('BX.Landing.UI.Panel.FormSettingsPanel');
+			var formMode = (
+				FormSettingsPanel
+				&& FormSettingsPanel.getInstance().isShown()
+			);
 			var isBlock = this.isBlockSelector(selector);
 			var options = this.getStyleOptions(selector);
 
@@ -3267,7 +3306,7 @@
 								});
 
 								return Promise.all([
-									stylePanel.show(),
+									stylePanel.show(formMode),
 									formStyleAdapter.load()
 								]);
 							}.bind(this))
@@ -3277,7 +3316,7 @@
 					}
 
 					return stylePanel
-						.show()
+						.show(formMode)
 						.then(function(result) {
 							return [result];
 						});
@@ -3310,6 +3349,7 @@
 								form: StyleForm,
 								selector: selector,
 								group: options.additional,
+								attrsType: options.additional.attrsType,
 								onChange: this.onAttributeChange.bind(this)
 							})
 						);
@@ -3395,7 +3435,18 @@
 		{
 			var form = new options.form({title: options.group.name, type: "attrs"});
 
-			options.group.attrs.forEach(function(attrOptions) {
+			var attrsSet = [];
+			if (!BX.Type.isUndefined(options.group.attrs))
+			{
+				attrsSet = options.group.attrs;
+			}
+			else
+			{
+				options.attrsType.forEach((atr) => {
+					attrsSet.push(getAttrsTypeSettings(atr));
+				})
+			}
+			attrsSet.forEach(function(attrOptions) {
 				var currentSelector = attrOptions.selector || options.selector;
 				var field;
 
@@ -3426,9 +3477,43 @@
 				form.addField(field);
 			}, this);
 
+			BX.Event.EventEmitter.subscribe('BX.Landing.UI.Form.StyleForm:attributeChange', (event) => {
+				var eventData = event.data;
+				this.prepareAttributeValue(eventData, form);
+			});
 			return form;
 		},
 
+		prepareAttributeValue: function(eventData, form) {
+			var dependencySet = eventData.data.dependency;
+			if (dependencySet)
+			{
+				dependencySet.forEach((dependency) => {
+					var value = eventData.getValue();
+					var index = dependency['conditions'].indexOf(value);
+					if (index >= 0)
+					{
+						form.fields.forEach((field) => {
+							if (field.attribute === dependency['attribute'])
+							{
+								//action 'changeValue'
+								if (dependency['action'] === 'changeValue')
+								{
+									var value = field.getValue();
+									var index = dependency['attributeCurrentValues'].indexOf(value);
+									if (index >= 0)
+									{
+										field.setValue(dependency['attributeNewValue'], true);
+										this.onAttributeChange(field);
+									}
+								}
+								//action 'hideSetting' need to do
+							}
+						})
+					}
+				})
+			}
+		},
 
 		prepareBlockOptions: function(options)
 		{
@@ -3504,6 +3589,7 @@
 
 		onAttributeChange: function(field)
 		{
+			BX.Event.EventEmitter.emit('BX.Landing.UI.Form.StyleForm:attributeChange', field);
 			clearTimeout(this.attributeChangeTimeout);
 
 			if (!this.requestData)
@@ -3839,35 +3925,22 @@
 
 		onFormDesignClick: function()
 		{
-			var formSettingsPanel = BX.Landing.UI.Panel.FormSettingsPanel.getInstance();
-			if (!formSettingsPanel.isChanged())
+			var formSelector = Object.entries(this.manifest.style.nodes).reduce(function(acc, item) {
+				if (item[1].type === 'crm-form')
+				{
+					return item[0];
+				}
+
+				return acc;
+			}, null);
+
+			if (formSelector)
 			{
-				formSettingsPanel
-					.hide()
-					.then(function() {
-						var formSelector = Object.entries(this.manifest.style.nodes).reduce(function(acc, item) {
-							if (item[1].type === 'crm-form')
-							{
-								return item[0];
-							}
-
-							return acc;
-						}, null);
-
-						if (formSelector)
-						{
-							this.showStylePanel(formSelector);
-						}
-						else
-						{
-							this.showStylePanel(this.selector);
-						}
-					}.bind(this));
-
+				this.showStylePanel(formSelector);
 			}
 			else
 			{
-				this.getFormEditorDesignTour().start();
+				this.showStylePanel(this.selector);
 			}
 		},
 

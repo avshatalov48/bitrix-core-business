@@ -1,10 +1,13 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main;
 
-class CBPRandomStringActivity
-	extends CBPActivity
+class CBPRandomStringActivity extends CBPActivity
 {
 	public function __construct($name)
 	{
@@ -49,6 +52,7 @@ class CBPRandomStringActivity
 		}
 
 		$this->ResultString = Main\Security\Random::getStringByAlphabet($size, $alphabet);
+		$this->logDebug();
 
 		return CBPActivityExecutionStatus::Closed;
 	}
@@ -88,15 +92,22 @@ class CBPRandomStringActivity
 			'siteId' => $siteId
 		));
 
-		$dialog->setMap(array(
-			'StringLength' => array(
+		$dialog->setMap(static::getPropertiesMap($documentType));
+
+		return $dialog;
+	}
+
+	public static function getPropertiesMap(array $documentType, array $context = []): array
+	{
+		return [
+			'StringLength' => [
 				'Name' => GetMessage('BPRNDSA_SIZE_NAME'),
 				'FieldName' => 'string_length',
 				'Type' => 'int',
 				'Required' => true,
 				'Default' => 5,
-			),
-			'Alphabet' => array(
+			],
+			'Alphabet' => [
 				'Name' => GetMessage('BPRNDSA_ALPHABET_NAME'),
 				'FieldName' => 'alphabet',
 				'Type' => 'select',
@@ -110,10 +121,25 @@ class CBPRandomStringActivity
 				'Default' => Main\Security\Random::ALPHABET_NUM,
 				'Settings' => ['display' => 'checkboxes'],
 				'Multiple' => true
-			),
-		));
+			],
+		];
+	}
 
-		return $dialog;
+	public function logDebug()
+	{
+		$debugInfo = $this->getDebugInfo([
+			'StringLength' => (int) $this->StringLength,
+			'Alphabet' => $this->Alphabet,
+		]);
+
+		$debugInfo += $this->getDebugInfo(['ResultString' => $this->ResultString], [
+			'ResultString' =>[
+				'Name' => Main\Localization\Loc::getMessage('BPRNDSA_RESULT_STRING'),
+				'Type' => 'string',
+			]
+		]);
+
+		$this->writeDebugInfo($debugInfo);
 	}
 
 	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$errors)

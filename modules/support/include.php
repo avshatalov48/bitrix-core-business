@@ -6,7 +6,7 @@ IncludeModuleLangFile(__FILE__);
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/errors.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/support_tools.php");
 
-$db_type = mb_strtolower($DB->type);
+$db_type = strtolower($DB->type);
 CModule::AddAutoloadClasses(
 	"support",
 	array(

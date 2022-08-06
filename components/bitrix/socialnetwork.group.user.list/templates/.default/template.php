@@ -8,6 +8,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Socialnetwork\Update\WorkgroupDeptSync;
 use Bitrix\Main\Grid\Panel;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
+use Bitrix\Socialnetwork\Internals\Counter\CounterDictionary;
+use Bitrix\UI\Toolbar\ButtonLocation;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
+use Bitrix\UI\Buttons;
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -17,13 +23,6 @@ use Bitrix\Main\Grid\Panel;
 /** @global CMain $APPLICATION */
 
 $component = $this->getComponent();
-
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\UI\Extension;
-use Bitrix\Socialnetwork\Internals\Counter\CounterDictionary;
-use Bitrix\UI\Toolbar\ButtonLocation;
-use Bitrix\UI\Toolbar\Facade\Toolbar;
-use Bitrix\UI\Buttons;
 
 \Bitrix\Main\Loader::includeModule('ui');
 
@@ -110,18 +109,6 @@ if (
 if (SITE_TEMPLATE_ID === 'bitrix24')
 {
 	echo \Bitrix\Main\Update\Stepper::getHtml([ 'socialnetwork' => [ WorkgroupDeptSync::class ] ], Loc::getMessage('SOCIALNETWORK_GROUP_USER_LIST_TEMPLATE_STEPPER_TITLE'));
-}
-
-$buttonId = "{$toolbarId}_button";
-
-if (!empty($arResult['TOOLBAR_MENU']))
-{
-	$menuButton = new Buttons\Button([
-		'color' => Buttons\Color::LIGHT_BORDER,
-		'icon' => Buttons\Icon::SETTING,
-	]);
-	$menuButton->addAttribute('id', $buttonId);
-	Toolbar::addButton($menuButton);
 }
 
 if (!empty($arResult['TOOLBAR_BUTTONS']))
@@ -213,11 +200,6 @@ $removeButton = [
 			defaultFilterPresetId: '<?= CUtil::JSEscape($arResult['CURRENT_PRESET_ID']) ?>',
 			defaultCounter: '<?= CUtil::JSEscape($arResult['CURRENT_COUNTER']) ?>',
 			gridContainerId: '<?= CUtil::JSEscape($gridContainerId) ?>',
-			toolbar: {
-				id: '<?= CUtil::JSEscape($toolbarId) ?>',
-				menuButtonId: '<?= CUtil::JSEscape($buttonId) ?>',
-				menuItems: <?= CUtil::PhpToJSObject($arResult['TOOLBAR_MENU']) ?>,
-			},
 			urls: {
 				users: '<?= CUtil::JSEscape(\CComponentEngine::makePathFromTemplate(
 					$arParams['PATH_TO_GROUP_USERS'],

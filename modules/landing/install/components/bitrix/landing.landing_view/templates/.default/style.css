@@ -234,6 +234,10 @@ div#landing-popup-publication-error {
 	cursor: pointer;
 }
 
+.landing-popup-features-content-block-settings-icon i {
+	background-size: 60%;
+}
+
 .landing-ui-panel-top-menu-link-help,
 .landing-popup-features-content-block-title {
 	font: 13px/15px "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -704,35 +708,6 @@ div#landing-popup-publication-error {
 	color: #000 !important;
 }
 
-.landing-ui-panel-top-chain-link-site,
-.landing-ui-panel-top-chain-link-page,
-.landing-ui-panel-top-menu-link-settings { padding-right: 22px !important; }
-
-.landing-ui-panel-top-chain-link-site:before,
-.landing-ui-panel-top-chain-link-page:before,
-.landing-ui-panel-top-menu-link-settings:before {
-	position: absolute;
-	top: 50%;
-	right: 10px;
-	width: 0;
-	height: 0;
-	border: 3px solid transparent;
-	border-top-color: #535c69;
-	border-bottom-width: 0;
-	content: '';
-	opacity: .5;
-	transform: translateY(-50%);
-}
-
-.landing-ui-panel-top-chain-link-site.landing-ui-no-icon:before,
-.landing-ui-panel-top-chain-link-page.landing-ui-no-icon:before {
-	display: none;
-}
-
-.landing-ui-panel-top-chain-link-site.landing-ui-no-icon,
-.landing-ui-panel-top-chain-link-page.landing-ui-no-icon {
-	padding-right: 11px !important;
-}
 
 .landing-ui-panel-top-sitemap {
 	position: absolute;
@@ -858,10 +833,17 @@ div#landing-popup-publication-error {
 	color: #525c69;
 }
 
-.landing-ui-panel-top-menu-link-settings,
-.landing-ui-panel-top-menu-link-settings::before,
-.landing-ui-panel-top-menu-link-settings::after {
+.landing-ui-panel-top-menu-link-settings {
 	animation: none !important;
+}
+
+.landing-ui-panel-top-form .landing-ui-panel-top-menu-link-settings::after {
+	opacity: .6;
+	transition: 200ms opacity ease;
+}
+
+.landing-ui-panel-top-form .landing-ui-panel-top-menu-link-settings:hover::after {
+	opacity: 1;
 }
 
 .landing-ui-panel-top-menu-link-help-icon {
@@ -904,10 +886,6 @@ div#landing-popup-publication-error {
 .landing-ui-panel-top-history-undo.landing-ui-disabled,
 .landing-ui-panel-top-history-redo.landing-ui-disabled {
 	opacity: .4;
-}
-
-.ui-btn-icon-setting.landing-ui-panel-top-menu-link-settings {
-	display: none;
 }
 
 .landing-ui-panel-top-history-undo.landing-ui-onload,

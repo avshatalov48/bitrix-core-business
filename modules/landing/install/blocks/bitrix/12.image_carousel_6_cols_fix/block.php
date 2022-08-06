@@ -1,13 +1,14 @@
 <section class="landing-block js-animation zoomIn text-center g-pt-30 g-pb-30">
-	<div class="container g-px-35 g-px-0--md">
+	<div class="landing-block-slider container g-px-35 g-px-0--md" data-slider-autoplay="1" data-slider-autoplay-speed="3000" data-slider-slides-show="6" data-slider-arrows="7" data-slider-dots="0" data-slider-animation="1">
 		<div class="js-carousel row"
 			data-autoplay="true"
 			data-pause-hover="true"
 			data-infinite="true"
 			data-slides-show="6"
-			data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-font-size-30 g-color-gray-light-v1"
+			data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-font-size-30 g-transition-0_2 g-transition--ease-in g-color-gray-light-v1 g-color-primary--hover"
 			data-arrow-left-classes="fa fa-angle-left g-left-minus-35"
 			data-arrow-right-classes="fa fa-angle-right g-right-minus-35"
+			data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-pt-10"
 			data-responsive='[{
 					 "breakpoint": 1200,
 					 "settings": {

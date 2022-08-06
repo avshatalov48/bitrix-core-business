@@ -1,0 +1,7 @@
+<?php
+$MESS['IM_SEARCH_SECTION_EMPLOYEES'] = "Сотрудники";
+$MESS['IM_SEARCH_SECTION_RECENT'] = "Недавний поиск";
+$MESS['IM_SEARCH_SECTION_USERS_AND_CHATS'] = "Пользователи и чаты";
+$MESS['IM_SEARCH_SECTION_CHAT_PARTICIPANTS'] = "Участники чатов";
+$MESS['IM_SEARCH_SECTION_DEPARTMENTS'] = "Отделы";
+$MESS['IM_SEARCH_SECTION_TITLE_SHOW_MORE'] = "Показать ещё";

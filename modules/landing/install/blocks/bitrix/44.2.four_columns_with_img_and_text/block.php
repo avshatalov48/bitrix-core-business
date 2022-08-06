@@ -25,7 +25,7 @@
 						<div class="g-pa-40-30-30">
 							<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-color-white g-mb-20">
 								Innovative</h3>
-							<div class="landing-block-node-card-text landing-semantic-text-medium landing-block-node-text g-color-white-opacity-0_8 mb-0">
+							<div class="landing-block-node-card-text landing-semantic-text-medium g-color-white-opacity-0_8 mb-0">
 								<p>Aliquam lorem ante, dapibus in,
 									viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet.
 									Quisque rutrum.
@@ -46,7 +46,7 @@
 						<div class="g-pa-40-30-30">
 							<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-color-white g-mb-20">
 								Easy</h3>
-							<div class="landing-block-node-card-text landing-semantic-text-medium landing-block-node-text g-color-white-opacity-0_8 mb-0">
+							<div class="landing-block-node-card-text landing-semantic-text-medium g-color-white-opacity-0_8 mb-0">
 								<p>Aliquam lorem ante, dapibus in,
 									viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet.
 									Quisque rutrum.
@@ -67,7 +67,7 @@
 						<div class="g-pa-40-30-30">
 							<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-color-white g-mb-20">
 								Modern</h3>
-							<div class="landing-block-node-card-text landing-semantic-text-medium landing-block-node-text g-color-white-opacity-0_8 mb-0">
+							<div class="landing-block-node-card-text landing-semantic-text-medium g-color-white-opacity-0_8 mb-0">
 								<p>Aliquam lorem ante, dapibus in,
 									viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet.
 									Quisque rutrum.
@@ -89,7 +89,7 @@
 						<div class="g-pa-40-30-30">
 							<h3 class="landing-block-node-card-title landing-semantic-subtitle-medium text-uppercase g-font-weight-700 g-color-white g-mb-20">
 								Simple</h3>
-							<div class="landing-block-node-card-text landing-semantic-text-medium landing-block-node-text g-color-white-opacity-0_8 mb-0">
+							<div class="landing-block-node-card-text landing-semantic-text-medium g-color-white-opacity-0_8 mb-0">
 								<p>Aliquam lorem ante, dapibus in,
 									viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet.
 									Quisque rutrum.

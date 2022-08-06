@@ -17,6 +17,7 @@ class WorkgroupUserList extends \CBitrixComponent implements \Bitrix\Main\Engine
 	public const AVAILABLE_ACTION_REMOVE_MODERATOR = 'remove_moderator';
 	public const AVAILABLE_ACTION_PROCESS_INCOMING_REQUEST = 'process_incoming_request';
 	public const AVAILABLE_ACTION_DELETE_OUTGOING_REQUEST = 'delete_outgoing_request';
+	public const AVAILABLE_ACTION_DELETE_INCOMING_REQUEST = 'delete_incoming_request';
 	public const AVAILABLE_ACTION_REINVITE = 'reinvite';
 
 	public const AJAX_ACTION_SET_OWNER = 'setOwner';
@@ -25,6 +26,7 @@ class WorkgroupUserList extends \CBitrixComponent implements \Bitrix\Main\Engine
 	public const AJAX_ACTION_REMOVE_MODERATOR = 'removeModerator';
 	public const AJAX_ACTION_EXCLUDE = 'exclude';
 	public const AJAX_ACTION_DELETE_OUTGOING_REQUEST = 'deleteOutgoingRequest';
+	public const AJAX_ACTION_DELETE_INCOMING_REQUEST = 'deleteIncomingRequest';
 	public const AJAX_ACTION_ACCEPT_INCOMING_REQUEST = 'acceptIncomingRequest';
 	public const AJAX_ACTION_REJECT_INCOMING_REQUEST = 'rejectIncomingRequest';
 	public const AJAX_ACTION_REINVITE = 'reinvite';
@@ -152,6 +154,14 @@ class WorkgroupUserList extends \CBitrixComponent implements \Bitrix\Main\Engine
 		)
 		{
 			$result[] = self::AVAILABLE_ACTION_REINVITE;
+		}
+
+		if (Helper\Workgroup::canDeleteIncomingRequest([
+			'relation' => $relation,
+			'groupId' => $groupId,
+		]))
+		{
+			$result[] = self::AVAILABLE_ACTION_DELETE_INCOMING_REQUEST;
 		}
 
 		return $result;

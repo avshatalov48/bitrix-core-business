@@ -52,19 +52,6 @@
 	  return ControlPanel;
 	}();
 
-	if (window === window.top && BX.SidePanel.Instance) {
-	  BX.SidePanel.Instance.bindAnchors({
-	    rules: [{
-	      condition: ['/crm/configs/catalog/'],
-	      options: {
-	        width: 1000,
-	        allowChangeHistory: false,
-	        cacheable: false
-	      }
-	    }]
-	  });
-	}
-
 	namespace.ControlPanel = ControlPanel;
 
 }((this.window = this.window || {}),BX,BX.Catalog.StoreUse));

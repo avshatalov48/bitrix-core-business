@@ -83,6 +83,8 @@ export class DocumentGridManager
 			}
 		}
 
+		actionConfig.analyticsLabel.mode = 'single';
+
 		let popup = new Popup({
 			id: 'catalog_delete_document_popup',
 			titleBar: Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_TITLE'),
@@ -140,6 +142,8 @@ export class DocumentGridManager
 				documentType,
 			}
 		}
+
+		actionConfig.analyticsLabel.mode = 'single';
 
 		let popup = new Popup({
 			id: 'catalog_delete_document_popup',
@@ -220,6 +224,9 @@ export class DocumentGridManager
 			{
 				data: {
 					documentIds
+				},
+				analyticsLabel: {
+					mode: 'list',
 				}
 			}
 		).then((response) => {
@@ -253,6 +260,9 @@ export class DocumentGridManager
 			{
 				data: {
 					documentIds
+				},
+				analyticsLabel: {
+					mode: 'list',
 				}
 			}
 		).then((response) => {

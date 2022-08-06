@@ -207,9 +207,6 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 			$arParams['FORM_ID'] = $formId;
 		}
 
-		$arParams['CONTENT_VIEW_KEY'] = (string)($arParams['CONTENT_VIEW_KEY'] ?? '');
-		$arParams['CONTENT_VIEW_KEY_SIGNED'] = (string)($arParams['CONTENT_VIEW_KEY_SIGNED'] ?? '');
-
 		return $arParams;
 	}
 

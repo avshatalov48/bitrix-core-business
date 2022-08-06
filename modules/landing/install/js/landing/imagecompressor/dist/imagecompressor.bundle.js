@@ -909,8 +909,10 @@ this.BX = this.BX || {};
 	    value: function compress(file) {
 	      var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	      return urlToBlob(file).then(function (blob) {
-	        if (main_core.Type.isStringFilled(blob.type) && blob.type.includes('gif')) {
-	          return blob;
+	        if (main_core.Type.isStringFilled(blob.type)) {
+	          if (blob.type.includes('gif') || blob.type.includes('png') && blob.size < ImageCompressor.maxOriginalPngSize) {
+	            return blob;
+	          }
 	        }
 
 	        var compressor = new ImageCompressor(blob, options);
@@ -920,6 +922,7 @@ this.BX = this.BX || {};
 	  }]);
 	  return ImageCompressor;
 	}();
+	babelHelpers.defineProperty(ImageCompressor, "maxOriginalPngSize", 5 * 1024 * 1024);
 
 	exports.ImageCompressor = ImageCompressor;
 

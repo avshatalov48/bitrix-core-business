@@ -39,6 +39,12 @@
 	opacity: 0;
 }
 
+main.landing-edit-mode .landing-ui-panel-content
+{
+	font-weight: normal;
+	line-height: 1.6;
+}
+
 .landing-ui-panel-show-from-right.landing-ui-panel-content {
 	left: auto;
 	right: 0;

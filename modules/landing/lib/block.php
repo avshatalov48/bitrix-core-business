@@ -1264,6 +1264,10 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 					$blocks[$row['CODE'] . '@' . $row['ID']],
 					$meta
 				);
+				if ($blocks[$row['CODE'] . '@' . $row['ID']]['type'] === 'null')
+				{
+					$blocks[$row['CODE'] . '@' . $row['ID']]['type'] = [];
+				}
 			}
 		}
 
@@ -1494,6 +1498,15 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 	public static function getSemantic(): array
 	{
 		return self::getSpecialManifest('semantic');
+	}
+
+	/**
+	 * Returns blocks attrs manifests from repository.
+	 * @return array
+	 */
+	public static function getAttrs(): array
+	{
+		return self::getSpecialManifest('attrs');
 	}
 
 	/**
@@ -4179,6 +4192,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		$manifest['nodes'] = $manifest['nodes'] ?? [];
 		foreach ($manifest['nodes'] as $selector => $node)
 		{
+			$isFind = false;
 			if (isset($data[$selector]))
 			{
 				if (!is_array($data[$selector]))
@@ -4187,16 +4201,39 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						$data[$selector]
 					);
 				}
+				$isFind = true;
+			}
+			if (!$isFind && $node['isWrapper'] === true)
+			{
+				$selector = '#wrapper';
+				if (!is_array($data[$selector]))
+				{
+					$data[$selector] = array(
+						$data[$selector]
+					);
+				}
+				$isFind = true;
+			}
+			if ($node['type'] === 'img')
+			{
+				$isStyleImgNode = \Bitrix\Landing\Node\Img::isStyleImgNode($this, $node);
+				if ($isStyleImgNode)
+				{
+					$node['type'] = 'styleimg';
+				}
+			}
+			if ($isFind)
+			{
 				// and save content from frontend in DOM by handler-class
 				$affected[$selector] = call_user_func_array(array(
 					Node\Type::getClassName($node['type']),
 					'saveNode'
-				), array(
-					$this,
-					$selector,
-					$data[$selector],
-					$additional
-				));
+					), array(
+						$this,
+						$selector,
+						$data[$selector],
+						$additional
+					));
 			}
 		}
 
@@ -4704,6 +4741,26 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 				self::collectAllowedAttrs($item['attrs'], $allowed, $itemSelector);
 			}
 			else if (
+				isset($item['additional']['attrsType']) ||
+				$itemSelector === 'additional'
+			)
+			{
+				$manifestAttrs = self::getAttrs();
+				$attrs = $manifestAttrs['bitrix']['attrs'];
+				if (is_array($item['additional']['attrsType']))
+				{
+					foreach ($attrs as $attr) {
+						$allowed[$itemSelector][] = $attr['attribute'];
+					}
+				}
+				if (is_array($item['attrsType']))
+				{
+					foreach ($attrs as $attr) {
+						$allowed['#wrapper'][] = $attr['attribute'];
+					}
+				}
+			}
+			else if (
 				isset($item['additional']['attrs']) &&
 				is_array($item['additional']['attrs'])
 			)
@@ -4770,6 +4827,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		self::collectAllowedAttrs($manifest['style']['nodes'], $allowedAttrs);
 		self::collectAllowedAttrs($manifest['attrs'], $allowedAttrs);
 		self::collectAllowedAttrs($manifest['cards'], $allowedAttrs);
+		self::collectAllowedAttrs($manifest['style']['block'], $allowedAttrs);
 
 		// update attrs
 		if ($allowedAttrs)
@@ -4778,9 +4836,13 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			foreach ($allowedAttrs as $selector => $allowed)
 			{
 				// it's not interesting for us, if there is no new data for this selector
-				if (isset($data[$selector]) && is_array($data[$selector]))
+				if ((isset($data[$selector]) && is_array($data[$selector])) || isset($data[$wrapper]) )
 				{
 					// set attrs to the block
+					if ($selector === '#wrapper')
+					{
+						$selector = $wrapper;
+					}
 					if ($selector == $wrapper)
 					{
 						$nodesArray = $doc->getChildNodesArray();

@@ -31,10 +31,17 @@ class Encoding
 			return $data;
 		}
 
-		// mb_encoding_aliases emits an E_WARNING level error if encoding is unknown
-		if (@mb_encoding_aliases($charsetFrom) === false || @mb_encoding_aliases($charsetTo) === false)
+		try
 		{
-			// unknown encoding
+			// mb_encoding_aliases emits an E_WARNING level error if encoding is unknown
+			if (@mb_encoding_aliases($charsetFrom) === false || @mb_encoding_aliases($charsetTo) === false)
+			{
+				// unknown encoding
+				return $data;
+			}
+		}
+		catch(\ValueError $e)
+		{
 			return $data;
 		}
 

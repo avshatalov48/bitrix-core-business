@@ -1,31 +1,33 @@
 <?php
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 $runtime = CBPRuntime::GetRuntime();
-$runtime->IncludeActivityFile("SequenceActivity");
+$runtime->IncludeActivityFile('SequenceActivity');
 
-class CBPSequentialWorkflowActivity
-	extends CBPSequenceActivity
-	implements IBPRootActivity
+class CBPSequentialWorkflowActivity extends CBPSequenceActivity implements IBPRootActivity
 {
-	private $documentId = array();
+	private $documentId = [];
 	private $workflowTemplateId = null;
 	private $templateUserId = null;
-	protected $documentType = array();
+	protected $documentType = [];
 
 	private $workflowStatus = CBPWorkflowStatus::Created;
 
 	private $customStatusMode = false;
 
-	protected $arVariables = array();
-	protected $arVariablesTypes = array();
+	protected $arVariables = [];
+	protected $arVariablesTypes = [];
 
-	protected $arFieldTypes = array();
+	protected $arFieldTypes = [];
 
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array("Title" => "", "Permission" => array());
+		$this->arProperties = ['Title' => '', 'Permission' => []];
 	}
 
 	public function GetDocumentId()
@@ -87,8 +89,7 @@ class CBPSequentialWorkflowActivity
 						$event->Cancel();
 				}
 			}
-			//Clean workflow subscriptions
-			\Bitrix\Bizproc\SchedulerEventTable::deleteByWorkflow($this->workflow->GetInstanceId());
+
 			//Finalize workflow activities
 			$this->workflow->FinalizeActivity($this);
 

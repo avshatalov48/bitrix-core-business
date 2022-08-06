@@ -101,7 +101,7 @@ abstract class BaseActivity extends \CBPActivity
 
 	protected function log(string $message = '', int $userId = 0, int $type = -1): void
 	{
-		$this->WriteToTrackingService($message, $userId, -1);
+		$this->WriteToTrackingService($message, $userId, $type);
 	}
 
 	public static function GetPropertiesDialog(

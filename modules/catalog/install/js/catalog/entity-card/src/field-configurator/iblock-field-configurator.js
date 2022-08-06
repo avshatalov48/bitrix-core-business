@@ -394,6 +394,8 @@ export default class IblockFieldConfigurator extends BX.UI.EntityEditorFieldConf
 			}
 		}
 
+		this._field?.getSchemeElement()?.setDataParam('isPublic', params['isPublic']);
+
 		BX.onCustomEvent(this, "onSave", [ this, params]);
 	}
 

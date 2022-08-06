@@ -3,6 +3,7 @@
 	min-height: 500px;
 	background: #fff;
 	margin: 16px 0;
+	border-radius: var(--ui-border-radius-md);
 }
 
 #appHistoryChart .restStatisticChartBalloon {
@@ -37,6 +38,7 @@
 	padding: 0 19px;
 	margin-bottom: 15px;
 	background: #fff;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .filter-statistic .main-ui-filter-search {

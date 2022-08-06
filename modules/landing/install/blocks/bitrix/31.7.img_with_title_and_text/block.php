@@ -3,7 +3,7 @@
 		<div class="landing-block-card js-animation fadeIn g-mx-15 u-block-hover g-pt-30 g-pb-30 g-mb-30 g-mb-0--last">
 			<div class="landing-block-node-padding-y g-px-100--md">
 				<h6 class="landing-block-node-subtitle landing-semantic-text-medium">
-					Alex Teseira - 6 June 2020
+					Alex Teseira - 6 June 2022
 				</h6>
 				<h2 class="landing-block-node-title landing-semantic-title-medium g-font-weight-700 g-mb-50">
 					Talking Why Her?
@@ -22,7 +22,7 @@
 		<div class="landing-block-card js-animation fadeIn g-mx-15 u-block-hover g-pt-30 g-pb-30 g-mb-30 g-mb-0--last">
 			<div class="landing-block-node-padding-y g-px-100--md">
 				<h6 class="landing-block-node-subtitle landing-semantic-text-medium">
-					William Sh. - 1 June 2020
+					William Sh. - 1 June 2022
 				</h6>
 				<h2 class="landing-block-node-title landing-semantic-title-medium g-font-weight-700 g-mb-50">
 					Talking about us?

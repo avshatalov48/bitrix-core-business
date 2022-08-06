@@ -54,7 +54,7 @@ class ContractorDataProvider extends \Bitrix\Main\Filter\EntityDataProvider
 	{
 		if ($fieldID === 'PERSON_TYPE')
 		{
-			return ['items' => ContractorTable::getTypeList(true)];
+			return ['items' => ContractorTable::getTypeDescriptions()];
 		}
 	}
 

@@ -149,6 +149,10 @@ class AppConfiguration
 		if ($type === 'export')
 		{
 			$access = in_array(Rights::ACCESS_TYPES['read'], Rights::getOperationsForSite(0));
+			if ($access)
+			{
+				$access = !Rights::hasAdditionalRight(Rights::ADDITIONAL_RIGHTS['unexportable'], null, false, true);
+			}
 		}
 		else
 		{

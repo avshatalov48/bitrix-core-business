@@ -7,7 +7,7 @@
 	align-items: center;
 	padding: 10px 16px;
 	min-height: 48px;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-xs, 2px);
 	background: #F8FAFB;
 	color: #525C69;
 	box-sizing: border-box;

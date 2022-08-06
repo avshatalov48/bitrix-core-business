@@ -177,7 +177,7 @@ class SenderSegmentListComponent extends Bitrix\Sender\Internals\CommonSenderCom
 		}
 		if (isset($requestFilter['SYSTEM']) && $requestFilter['SYSTEM'])
 		{
-			$filter['=IS_SYSTEM'] = true;
+			$filter['=IS_SYSTEM'] = $requestFilter['SYSTEM'];
 		}
 
 		if (!isset($requestFilter['HIDDEN']) || !$requestFilter['HIDDEN'])

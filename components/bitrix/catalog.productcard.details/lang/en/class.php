@@ -10,3 +10,5 @@ $MESS["CPD_ERROR_EMPTY_LIST_ITEMS"] = "Add list items";
 $MESS["CPD_NEW_LIST_ELEMENT_EMPTY_NAME"] = "New item";
 $MESS["CPD_NEW_PRODUCT_TITLE"] = "New product";
 $MESS["CPD_NOT_FOUND_ERROR_TITLE"] = "Product was not found. It may have been deleted.";
+$MESS["CPD_SETS_NOT_SUPPORTED_LINK"] = "Proceed to Online Store now";
+$MESS["CPD_SETS_NOT_SUPPORTED_TITLE"] = "The Bundle product type you selected is not supported by the new product form. You can view and edit sets in the Online Store area.<br>#LINK#";

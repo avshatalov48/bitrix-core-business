@@ -70,6 +70,12 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_28.PERSONAL_SLIDER_CARDS_LANDINGBLOCKCARDPERSON'),
 				'type' => 'align-items',
 			),
+			'.landing-block-slider' => [
+				'additional' => [
+					'name' => Loc::getMessage('LANDING_BLOCK_28_PERSONAL_SLIDER_STYLE_SLIDER'),
+					'attrsType' => ['autoplay', 'autoplay-speed', 'pause-hover', 'arrows', 'dots'],
+				]
+			],
 		),
 	),
 	'assets' => array(

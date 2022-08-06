@@ -21,7 +21,8 @@ Extension::load(
 		'catalog.product-selector',
 		"seo.seoadbuilder",
 		'ui.entity-selector',
-		'seo.ads.login'
+		'seo.ads.login',
+		'ui.design-tokens',
 	]
 );
 $provider = $arParams['PROVIDER'];

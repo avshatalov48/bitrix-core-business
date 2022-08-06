@@ -5,5 +5,5 @@ export const EventType = Object.freeze({
 			disableCancel: 'BX:Sale:StoreMaster:EventType:popup:disable:cancel',
 			confirm: 'BX:Sale:StoreMaster:EventType:popup:confirm',
 			confirmCancel: 'BX:Sale:StoreMaster:EventType:popup:confirm:cancel',
-		}
+		},
 });

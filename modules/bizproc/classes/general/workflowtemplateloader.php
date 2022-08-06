@@ -3,15 +3,13 @@
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
 
-IncludeModuleLangFile(__FILE__);
-
 define("BP_EI_DIRECTION_EXPORT", 0);
 define("BP_EI_DIRECTION_IMPORT", 1);
 
 /**
 * Workflow templates service.
 */
-class CAllBPWorkflowTemplateLoader
+class CBPWorkflowTemplateLoader
 {
 	protected $useGZipCompression = false;
 	protected static $workflowConstants = array();
@@ -354,7 +352,7 @@ class CAllBPWorkflowTemplateLoader
 			throw new Exception(str_replace('#ID#', $wfId, GetMessage('BPCGWTL_EMPTY_TEMPLATE')));
 		}
 
-		$activityNames = array();
+		$activityNames = [];
 		$rootActivity = $this->parseWorkflowTemplate($wfTemplate, $activityNames);
 
 		return [$rootActivity, $wfVariablesTypes, $wfParametersTypes];
@@ -363,25 +361,33 @@ class CAllBPWorkflowTemplateLoader
 	private function parseWorkflowTemplate($arWorkflowTemplate, &$arActivityNames, CBPActivity $parentActivity = null)
 	{
 		if (!is_array($arWorkflowTemplate))
-			throw new CBPArgumentOutOfRangeException("arWorkflowTemplate");
+		{
+			throw new CBPArgumentOutOfRangeException('arWorkflowTemplate');
+		}
 
 		foreach ($arWorkflowTemplate as $activityFormatted)
 		{
-			if (in_array($activityFormatted["Name"], $arActivityNames))
-				throw new Exception("DuplicateActivityName");
-
-			$arActivityNames[] = $activityFormatted["Name"];
-			$activity = $this->CreateActivity($activityFormatted["Type"], $activityFormatted["Name"]);
-			if ($activity == null)
-				throw new Exception("Activity is not found.");
-
-			$activity->InitializeFromArray($activityFormatted["Properties"]);
-			if ($parentActivity)
-				$parentActivity->FixUpParentChildRelationship($activity);
-
-			if ($activityFormatted["Children"])
+			if (in_array($activityFormatted['Name'], $arActivityNames))
 			{
-				$this->parseWorkflowTemplate($activityFormatted["Children"], $arActivityNames, $activity);
+				throw new Exception('DuplicateActivityName');
+			}
+
+			$arActivityNames[] = $activityFormatted['Name'];
+			$activity = $this->CreateActivity($activityFormatted['Type'], $activityFormatted['Name']);
+			if ($activity == null)
+			{
+				throw new Exception('Activity is not found.');
+			}
+
+			$activity->InitializeFromArray($activityFormatted['Properties']);
+			if ($parentActivity)
+			{
+				$parentActivity->FixUpParentChildRelationship($activity);
+			}
+
+			if ($activityFormatted['Children'])
+			{
+				$this->parseWorkflowTemplate($activityFormatted['Children'], $arActivityNames, $activity);
 			}
 		}
 
@@ -391,9 +397,13 @@ class CAllBPWorkflowTemplateLoader
 	private function CreateActivity($activityCode, $activityName): ?CBPActivity
 	{
 		if (CBPActivity::IncludeActivityFile($activityCode))
+		{
 			return CBPActivity::CreateInstance($activityCode, $activityName);
+		}
 		else
+		{
 			throw new Exception('Activity is not found.');
+		}
 	}
 
 	public static function GetStatesOfTemplate($arWorkflowTemplate)
@@ -1340,8 +1350,7 @@ class CBPWorkflowTemplateUser
 	}
 }
 
-class CBPWorkflowTemplateValidationException
-	extends Exception
+class CBPWorkflowTemplateValidationException extends Exception
 {
 	private $errors;
 	public function __construct($message = "", array $errors = array())
@@ -1355,6 +1364,3 @@ class CBPWorkflowTemplateValidationException
 		return $this->errors;
 	}
 }
-
-//Compatibility
-class CBPWorkflowTemplateLoader extends CAllBPWorkflowTemplateLoader {}

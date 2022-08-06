@@ -1,0 +1,4 @@
+<?php
+$MESS['ADDRESS_USERFIELD_ADD_INPUT'] = 'Добавить';
+$MESS['ADDRESS_USERFIELD_DETAILS'] = 'подробно';
+$MESS['ADDRESS_USERFIELD_NO_DETAILS'] = 'кратко';

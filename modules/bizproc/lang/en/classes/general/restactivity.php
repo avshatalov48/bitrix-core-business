@@ -1,4 +1,5 @@
-<?
+<?php
+$MESS["BPRA_DEBUG_EVENT"] = "Application response wait skipped due to test mode event";
 $MESS["BPRA_DEFAULT_LOG_MESSAGE"] = "Received application response";
 $MESS["BPRA_DEFAULT_STATUS_MESSAGE"] = "Waiting for application response";
 $MESS["BPRA_NOT_FOUND_ERROR"] = "Application activity is not installed.";
@@ -17,4 +18,3 @@ $MESS["BPRA_PD_TIME_S"] = "seconds";
 $MESS["BPRA_PD_USER_ID"] = "Run as";
 $MESS["BPRA_PD_USE_SUBSCRIPTION"] = "Wait for response";
 $MESS["BPRA_PD_YES"] = "Yes";
-?>

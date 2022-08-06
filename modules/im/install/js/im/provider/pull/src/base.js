@@ -159,32 +159,6 @@ export class ImBasePullHandler
 			}
 		}
 
-		const recentItem = this.store.getters['recent/get'](params.dialogId);
-		//add recent item if there is no one
-		if (!recentItem)
-		{
-			const newRecentItem = this.prepareRecentItem(params);
-			this.store.dispatch('recent/set', [newRecentItem]);
-		}
-		//otherwise - update it
-		else
-		{
-			this.store.dispatch('recent/update', {
-				id: params.dialogId,
-				fields: {
-					lines: params.lines || {id: 0},message: {
-						id: params.message.id,
-						text: params.message.textOriginal,
-						date: params.message.date,
-						senderId: params.message.senderId,
-						withFile: typeof params.message.params['FILE_ID'] !== 'undefined',
-						withAttach: typeof params.message.params['ATTACH'] !== 'undefined',
-					},
-					counter: params.counter
-				}
-			});
-		}
-
 		//set users
 		if (params.users)
 		{
@@ -268,12 +242,8 @@ export class ImBasePullHandler
 			userId: params.message.senderId
 		});
 
-		//if we sent message and there are no unloaded unread pages - read all messages on server and client, set counter to 0
-		//TODO: to think about it during new chat development
-		if (
-			params.message.senderId === this.controller.application.getUserId()
-			&& this.controller.application.isUnreadMessagesLoaded()
-		)
+		// if we sent message - read all messages on server and client, set counter to 0
+		if (params.message.senderId === this.controller.application.getUserId())
 		{
 			if (
 				this.store.state.dialogues.collection[params.dialogId]
@@ -355,43 +325,6 @@ export class ImBasePullHandler
 		}).then(() => {
 			EventEmitter.emit(EventType.dialog.scrollToBottom, {chatId: params.chatId, cancelIfScrollChange: true});
 		});
-
-		let recentItem = this.store.getters['recent/get'](params.dialogId);
-		if (
-			command === 'messageUpdate' &&
-			recentItem.element &&
-			recentItem.element.message.id === params.id
-		)
-		{
-			this.store.dispatch('recent/update', {
-				id: params.dialogId,
-				fields: {
-					message: {
-						id: params.id,
-						text: params.text,
-						date: recentItem.element.message.date
-					}
-				}
-			});
-		}
-
-		if (
-			command === 'messageDelete' &&
-			recentItem.element &&
-			recentItem.element.message.id === params.id
-		)
-		{
-			this.store.dispatch('recent/update', {
-				id: params.dialogId,
-				fields: {
-					message: {
-						id: params.id,
-						text: 'Message deleted',
-						date: recentItem.element.message.date
-					}
-				}
-			});
-		}
 	}
 
 	handleMessageDeleteComplete(params, extra)
@@ -540,13 +473,6 @@ export class ImBasePullHandler
 				}
 			});
 		});
-
-		this.store.dispatch('recent/update', {
-			id: params.dialogId,
-			fields: {
-				counter: params.counter
-			}
-		});
 	}
 
 	handleReadMessageChat(params, extra)
@@ -579,19 +505,6 @@ export class ImBasePullHandler
 			date: params.date,
 			action: true
 		});
-
-		const recentItem = this.store.getters['recent/get'](params.dialogId);
-		if (recentItem)
-		{
-			const message = recentItem.element.message;
-			this.store.dispatch('recent/update', {
-				id: params.dialogId,
-				fields: {
-					counter: params.counter,
-					message: {...message, status: 'delivered'}
-				}
-			});
-		}
 	}
 
 	handleUnreadMessageOpponent(params, extra)
@@ -632,21 +545,6 @@ export class ImBasePullHandler
 		});
 	}
 
-	handleChatPin(params, extra)
-	{
-		this.store.dispatch('recent/pin', {
-			id: params.dialogId,
-			action: params.active
-		});
-	}
-
-	handleChatHide(params, extra)
-	{
-		this.store.dispatch('recent/delete', {
-			id: params.dialogId
-		});
-	}
-
 	handleChatMuteNotify(params, extra)
 	{
 		const existingChat = this.store.getters['dialogues/get'](params.dialogId);
@@ -677,16 +575,6 @@ export class ImBasePullHandler
 		});
 	}
 
-	handleReadNotifyList(params, extra)
-	{
-		this.store.dispatch('recent/update', {
-			id: 'notify',
-			fields: {
-				counter: params.counter
-			}
-		});
-	}
-
 	handleUserInvite(params, extra)
 	{
 		if (!params.invited)
@@ -696,42 +584,5 @@ export class ImBasePullHandler
 				fields: params.user
 			});
 		}
-	}
-
-	prepareRecentItem(params)
-	{
-		let type = 'user';
-		if (params.dialogId.toString().startsWith('chat'))
-		{
-			type = 'chat';
-		}
-		params.dialogId.toString().startsWith('chat');
-		const title = type === 'chat'? params.chat[params.chatId].name: params.users[params.dialogId].name;
-		const chat = params.chat[params.chatId]? params.chat[params.chatId]: {};
-		if (!params.users)
-		{
-			params.users = {};
-		}
-		const user = params.users[params.dialogId]? params.users[params.dialogId]: {};
-		const userId = type === 'user'? params.dialogId: 0;
-
-		return {
-			id: params.dialogId,
-			type: type,
-			title: title,
-			counter: params.counter,
-			chatId: params.chatId,
-			chat: chat,
-			user: user,
-			userId: userId,
-			message: {
-				id: params.message.id,
-				text: params.message.textOriginal,
-				date: params.message.date,
-				senderId: params.message.senderId,
-				withFile: typeof params.message.params['FILE_ID'] !== 'undefined',
-				withAttach: typeof params.message.params['ATTACH'] !== 'undefined',
-			}
-		};
 	}
 }

@@ -86,6 +86,13 @@
 		onReconnected: 'onReconnected',
 		onJoin: 'onJoin',
 		onLeave: 'onLeave',
+		onJoinRoomOffer: 'onJoinRoomOffer',
+		onJoinRoom: 'onJoinRoom',
+		onLeaveRoom: 'onLeaveRoom',
+		onListRooms: 'onListRooms',
+		onUpdateRoom: 'onUpdateRoom',
+		onTransferRoomSpeakerRequest: 'onTransferRoomSpeakerRequest',
+		onTransferRoomSpeaker: 'onTransferRoomSpeaker',
 		onDestroy: 'onDestroy',
 	};
 

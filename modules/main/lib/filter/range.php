@@ -1,6 +1,9 @@
 <?php
+
 namespace Bitrix\Main\Filter;
+
 use \Bitrix\Main\UI\Filter\NumberType;
+
 class Range
 {
 	public static function prepareFrom(array &$filter, $name, $value)
@@ -20,8 +23,8 @@ class Range
 			$filter["$operation{$name}"] = $value;
 		}
 		unset($filter["{$name}_from"]);
-
 	}
+
 	public static function prepareTo(array &$filter, $name, $value)
 	{
 		if($value !== '')
@@ -39,6 +42,5 @@ class Range
 			$filter["$operation{$name}"] = $value;
 		}
 		unset($filter["{$name}_to"]);
-
 	}
 }

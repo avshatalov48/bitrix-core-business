@@ -346,6 +346,9 @@ export class Presets
 		if (!isPinned)
 		{
 			const pinnedPresetId = this.getPinnedPresetId();
+			const presetData = this.getPreset(pinnedPresetId);
+			presetData.ADDITIONAL = [];
+
 			const pinnedPresetNode = this.getPinnedPresetNode();
 			const clear = false;
 			const applyPreset = true;
@@ -403,7 +406,7 @@ export class Presets
 		const input = this.getPresetInput(presetNode);
 
 		BX.addClass(presetNode, this.parent.settings.classPresetNameEdit);
-		input.focus();
+		input.select();
 		// noinspection SillyAssignmentJS
 		input.value = BX.util.htmlspecialcharsback(input.value);
 		Event.bind(input, 'input', BX.delegate(this._onPresetNameInput, this));

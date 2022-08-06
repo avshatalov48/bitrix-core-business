@@ -12,6 +12,8 @@
 /** @var CBitrixComponent $component */
 
 $buttonId = $this->randString();
+
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 ?>
 <div class="bx-subscribe"  id="sender-subscribe">
 <?

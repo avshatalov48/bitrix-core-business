@@ -4,7 +4,7 @@
 	color: #555;
 	display: inline-block;
 	font-size: 12px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin: 0 7px 6px 0;
 	height: 30px;
 	min-width: 108px;
@@ -24,7 +24,7 @@
 	display: inline-block;
 	margin: 7px 7px 5px 18px;
 	border-bottom: 1px solid transparent;
-	font: bold 13px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: bold 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2067b0;
 	vertical-align: top;
 	transition: border-bottom-color .2s linear;
@@ -85,7 +85,7 @@
 	display: inline-block;
 	margin: 1px 0 0 0;
 	border-bottom: 1px solid transparent;
-	font: bold 13px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: bold 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2067b0;
 	vertical-align: top;
 	transition: border-bottom-color .2s linear;
@@ -121,7 +121,7 @@
 	padding: 7px 100px 1px 7px;
 	min-height: 36px !important;
 	border: 1px solid #e4e4e4;
-	border-radius: 1px;
+	border-radius: var(--ui-field-border-radius, 1px);
 	background: #fff;
 	overflow: hidden;
 }
@@ -147,8 +147,8 @@
 	margin: 0 6px 6px 0;
 	padding: 0 30px 0 13px;
 	height: 30px;
-	border-radius: 1px;
-	font: bold 13px/29px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	border-radius: var(--sender-ui-tile-item-border-radius, var(--ui-border-radius-2xs, 1px));
+	font: bold 13px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	overflow: hidden;
 	vertical-align: middle;
 	z-index: 2;
@@ -188,7 +188,7 @@
 	display: block;
 	margin: 0 0 7px 0;
 	/*padding: 0 11px;*/
-	font: 11px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868E;
 }
 
@@ -223,7 +223,7 @@
 	padding: 0 11px;
 	margin: 0 16px 0 0;
 	height: 34px;
-	font: bold 13px/34px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: bold 13px/34px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #0063C6;
 	transition: background .3s;
 	overflow: hidden;
@@ -251,7 +251,7 @@
 .sender-ui-tile-searcher-sidebar-item {
 	display: block;
 	height: 30px;
-	font: 13px/29px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 	padding: 0 5px;
 	position: relative;

@@ -152,6 +152,7 @@ class UserConditionControl extends \CSaleCondCtrlComplex
 					'param_id' => 'n',
 					'show_value' => 'Y',
 					'user_load_url' => '/bitrix/admin/sale_discount_edit.php?lang=' . LANGUAGE_ID,
+					'coreUserInfo' => 'Y',
 				),
 				'PHP_VALUE' => array(
 					'VALIDATE' => 'user'

@@ -433,7 +433,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			{
 				$prepareColors['allColors'][] = $colorItem['color'];
 			}
-			if (isset($colorItem['base']) && $colorItem['base'] === true)
+			if (isset($colorItem['base']) && $colorItem['base'] === true && $colorItem['baseInSettings'] !== false)
 			{
 				$prepareColors['startColors'][] = $colorItem['color'];
 			}

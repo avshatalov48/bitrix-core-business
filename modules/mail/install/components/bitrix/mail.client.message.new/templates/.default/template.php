@@ -39,6 +39,9 @@ $this->setViewTarget('above_pagetitle'); ?>
 </div>
 
 <?php
+
+$emailsLimitToSendMessage = Helper\LicenseManager::getEmailsLimitToSendMessage();
+
 $this->endViewTarget();
 
 $message = $arResult['MESSAGE'];
@@ -290,8 +293,10 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 <script type="text/javascript">
 
 	BX.message({
+		EMAILS_LIMIT_TO_SEND_MESSAGE: '<?=$emailsLimitToSendMessage?>',
 		MAIL_MESSAGE_AJAX_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_AJAX_ERROR')) ?>',
 		MAIL_MESSAGE_NEW_EMPTY_RCPT: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_NEW_EMPTY_RCPT')) ?>',
+		MAIL_MESSAGE_NEW_TARIFF_RESTRICTION: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_NEW_TARIFF_RESTRICTION', ['#COUNT#'=> $emailsLimitToSendMessage])) ?>',
 		MAIL_MESSAGE_NEW_UPLOADING: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_MESSAGE_NEW_UPLOADING')) ?>',
 		MAIL_MESSAGE_MAX_SIZE: <?=Helper\Message::getMaxAttachedFilesSize()?>,
 		MAIL_MESSAGE_MAX_SIZE_EXCEED: '<?=\CUtil::jsEscape(

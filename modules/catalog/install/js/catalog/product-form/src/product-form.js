@@ -2,6 +2,8 @@ import {BitrixVue} from 'ui.vue';
 import {VuexBuilder} from 'ui.vue.vuex';
 import {Loc, Type, Text, Tag, ajax, Extension} from 'main.core';
 import 'ui.notification';
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
 import {ProductList} from './models/product-list';
 import {config} from "./config";
 import './templates/form';

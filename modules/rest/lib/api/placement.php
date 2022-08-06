@@ -128,10 +128,22 @@ class Placement extends \IRestService
 			$placementLangList = [];
 			$placementBind = array(
 				'APP_ID' => $appInfo['ID'],
+				'USER_ID' => (int) $params['USER_ID'] > 0 ? (int) $params['USER_ID'] : PlacementTable::DEFAULT_USER_ID_VALUE,
 				'PLACEMENT' => $placement,
 				'PLACEMENT_HANDLER' => $placementHandler,
 				'OPTIONS' => static::prepareOptions($params['OPTIONS'], $placementInfo['options']),
 			);
+
+			if (
+				$placementBind['USER_ID'] !== PlacementTable::DEFAULT_USER_ID_VALUE
+				&& $placementInfo['user_mode'] !== true
+			)
+			{
+				throw new RestException(
+					'User mode is not available.',
+					PlacementTable::ERROR_PLACEMENT_USER_MODE
+				);
+			}
 
 			$langList = Lang::listLanguage();
 			$langDefault = reset($langList);
@@ -173,27 +185,38 @@ class Placement extends \IRestService
 			$placementBind = Lang::mergeFromLangAll($placementBind);
 			unset($placementBind['LANG_ALL']);
 
-			if($placementInfo['max_count'] > 0)
+			if ($placementInfo['max_count'] > 0)
 			{
+				$filter = [
+					'=APP_ID' => $placementBind['APP_ID'],
+					'=PLACEMENT' => $placementBind['PLACEMENT'],
+				];
+				if ($placementInfo['user_mode'] === true)
+				{
+					$filter['=USER_ID'] = [
+						PlacementTable::DEFAULT_USER_ID_VALUE,
+						(int)$placementBind['USER_ID'],
+					];
+				}
+
 				$res = PlacementTable::getList(
 					[
-						'filter' => [
-							'=APP_ID' => $placementBind['APP_ID'],
-							'=PLACEMENT' => $placementBind['PLACEMENT']
+						'filter' => $filter,
+						'select' => [
+							'COUNT',
 						],
-						'select' => array('COUNT'),
-						'runtime' => array(
-							new ExpressionField('COUNT', 'COUNT(*)')
-						)
+						'runtime' => [
+							new ExpressionField('COUNT', 'COUNT(*)'),
+						]
 					]
 				);
 
-				if($result = $res->fetch())
+				if ($result = $res->fetch())
 				{
-					if($result['COUNT'] >= $placementInfo['max_count'])
+					if ($result['COUNT'] >= $placementInfo['max_count'])
 					{
 						throw new RestException(
-							'Placement max count: '.$placementInfo['max_count'],
+							'Placement max count: ' . $placementInfo['max_count'],
 							PlacementTable::ERROR_PLACEMENT_MAX_COUNT
 						);
 					}
@@ -329,6 +352,11 @@ class Placement extends \IRestService
 				'=PLACEMENT' => $placement,
 			);
 
+			if (array_key_exists('USER_ID', $params))
+			{
+				$filter['USER_ID'] = (int)$params['USER_ID'];
+			}
+
 			if($placementHandler <> '')
 			{
 				$filter['=PLACEMENT_HANDLER'] = $placementHandler;
@@ -394,6 +422,7 @@ class Placement extends \IRestService
 				}
 				$result[] = array(
 					'placement' => $placement->getPlacement(),
+					'userId' => $placement->getUserId(),
 					'handler' => $placement->getPlacementHandler(),
 					'options' => $placement->getOptions(),
 					'title' => $placement->getTitle(),

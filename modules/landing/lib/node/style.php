@@ -43,6 +43,11 @@ class Style
 		return $data;
 	}
 
+	/**
+	 * @param Block $block
+	 * @param string $selector
+	 * @return Node[]
+	 */
 	public static function getNodesBySelector(Block $block, string $selector): array
 	{
 		$doc = $block->getDom();

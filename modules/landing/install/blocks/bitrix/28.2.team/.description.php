@@ -21,6 +21,8 @@ return array(
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._NODES_LANDINGBLOCKNODE-BGIMG'),
 			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
 			'useInDesigner' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'create2xByDefault' => false,
@@ -100,7 +102,7 @@ return array(
 			),
 			'.landing-block-node-bgimg' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._NODES_LANDINGBLOCKNODE-BGIMG'),
-				'type' => 'background-overlay',
+				'type' => ['background'],
 			),
 			'.landing-block-inner' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_TEAM002._CARDS_LANDINGBLOCKNODEINNER'),

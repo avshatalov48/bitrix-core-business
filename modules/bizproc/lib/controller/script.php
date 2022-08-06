@@ -90,6 +90,14 @@ class Script extends Base
 		/** @var \Bitrix\Bizproc\Workflow\Template\Tpl $tpl */
 		$tpl = $script->getWorkflowTemplate();
 
+		if (!$tpl)
+		{
+			return [
+				'status' => static::START_STATUS_NOT_EXISTS,
+				'error' => Loc::getMessage('BIZPROC_CONTROLLER_SCRIPT_NO_TEMPLATE')
+			];
+		}
+
 		$templateParameters = $tpl->getParameters();
 
 		if ($templateParameters)

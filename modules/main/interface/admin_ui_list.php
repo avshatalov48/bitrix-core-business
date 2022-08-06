@@ -175,7 +175,7 @@ class CAdminUiList extends CAdminList
 			check_bitrix_sessid()
 		)
 		{
-			$arrays = array(&$_POST, &$_REQUEST, &$GLOBALS);
+			$arrays = array(&$_POST, &$_REQUEST);
 			foreach ($arrays as $i => &$array)
 			{
 				$customFields = [];
@@ -193,7 +193,7 @@ class CAdminUiList extends CAdminList
 								{
 									continue;
 								}
-								foreach ($arrays[$i]["FIELDS"][$id][$key] as $index => $value)
+								foreach ($arrays[$i]["FIELDS"][$id][$key] as $value)
 								{
 									if (!isset($value["name"]) || !isset($value["value"]))
 									{
@@ -210,7 +210,7 @@ class CAdminUiList extends CAdminList
 												{
 													continue;
 												}
-												if (mb_strpos($matchKey, "[") === false && mb_strpos($matchKey, "]") === false)
+												if (strpos($matchKey, "[") === false && strpos($matchKey, "]") === false)
 												{
 													$listPreparedKeys[] = $matchKey;
 												}
@@ -224,7 +224,7 @@ class CAdminUiList extends CAdminList
 								unset($arrays[$i]["FIELDS"][$id][$key]);
 							}
 
-							if(($c = mb_substr($key, 0, 1)) == '~' || $c == '=')
+							if(($c = substr($key, 0, 1)) == '~' || $c == '=')
 							{
 								unset($arrays[$i]["FIELDS"][$id][$key]);
 							}

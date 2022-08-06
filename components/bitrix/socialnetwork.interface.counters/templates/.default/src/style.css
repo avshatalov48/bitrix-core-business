@@ -326,8 +326,8 @@
 .bitrix24-light-theme .sonet-counters--item.--fade .sonet-counters--item-num.--green,
 .bitrix24-light-theme .sonet-counters--item.--fade .sonet-counters--item-num.--yellow,
 .bitrix24-light-theme .sonet-counters--item.--fade .sonet-counters--item-num.--red {
-	background: var(--white_alpha_30);
-	color: var(--white);
+	background: var(--graphite_alpha_15);
+	color: var(--graphite);
 }
 
 .sonet-counters--item-title {

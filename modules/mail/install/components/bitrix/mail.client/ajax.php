@@ -690,6 +690,14 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		$ccEncoded = array_unique($ccEncoded);
 		$bccEncoded = array_unique($bccEncoded);
 
+		$emailsLimitToSendMessage = Helper\LicenseManager::getEmailsLimitToSendMessage();
+
+		if($emailsLimitToSendMessage !== -1 && (count($to) > $emailsLimitToSendMessage || count($cc) > $emailsLimitToSendMessage || count($bcc) > $emailsLimitToSendMessage))
+		{
+			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_MESSAGE_NEW_TARIFF_RESTRICTION', ['#COUNT#'=> $emailsLimitToSendMessage]));
+			return;
+		}
+
 		if (count($to) + count($cc) + count($bcc) > 10)
 		{
 			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_MESSAGE_TO_MANY_RECIPIENTS'));

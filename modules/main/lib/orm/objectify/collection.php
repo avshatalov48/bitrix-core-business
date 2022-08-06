@@ -919,7 +919,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	 * @throws ArgumentException
 	 * @throws SystemException
 	 */
-	public function offsetSet($offset, $value)
+	public function offsetSet($offset, $value): void
 	{
 		$this->add($value);
 	}
@@ -929,10 +929,10 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	 *
 	 * @param mixed $offset
 	 *
-	 * @return bool|void
+	 * @return bool
 	 * @throws NotImplementedException
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		throw new NotImplementedException;
 	}
@@ -944,7 +944,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	 *
 	 * @throws NotImplementedException
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		throw new NotImplementedException;
 	}
@@ -957,6 +957,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	 * @return mixed|void
 	 * @throws NotImplementedException
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		throw new NotImplementedException;
@@ -965,7 +966,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	/**
 	 * Iterator implementation
 	 */
-	public function rewind()
+	public function rewind(): void
 	{
 		$this->_iterableObjects = $this->_objects;
 		reset($this->_iterableObjects);
@@ -976,6 +977,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	 *
 	 * @return EntityObject|mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		if ($this->_iterableObjects === null)
@@ -989,8 +991,9 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	/**
 	 * Iterator implementation
 	 *
-	 * @return int|mixed|null|string
+	 * @return mixed
 	 */
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return key($this->_iterableObjects);
@@ -999,7 +1002,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	/**
 	 * Iterator implementation
 	 */
-	public function next()
+	public function next(): void
 	{
 		next($this->_iterableObjects);
 	}
@@ -1009,7 +1012,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	 *
 	 * @return bool
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		return key($this->_iterableObjects) !== null;
 	}
@@ -1019,7 +1022,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	 *
 	 * @return int
 	 */
-	public function count()
+	public function count(): int
 	{
 		return count($this->_objects);
 	}

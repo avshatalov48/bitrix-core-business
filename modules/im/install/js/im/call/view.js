@@ -21,6 +21,12 @@
 		Error: 5
 	};
 
+	const RoomState = {
+		None: 1,
+		Speaker: 2,
+		NonSpeaker: 3,
+	}
+
 	var EventName = {
 		onShow: 'onShow',
 		onClose: 'onClose',
@@ -231,6 +237,7 @@
 
 		this.uiState = config.uiState || UiState.Calling;
 		this.layout = config.layout || Layouts.Centered;
+		this.roomState = RoomState.None;
 
 		this.eventEmitter = new BX.Event.EventEmitter(this, 'BX.Call.View');
 
@@ -759,6 +766,33 @@
 		});
 	};
 
+	BX.Call.View.prototype.setRoomState = function(roomState)
+	{
+		if (this.roomState === roomState)
+		{
+			return;
+		}
+		this.roomState = roomState;
+		if (this.buttons.microphone)
+		{
+			this.buttons.microphone.setSideIcon(this.getMicrophoneSideIcon(this.roomState));
+		}
+	}
+
+	BX.Call.View.prototype.getMicrophoneSideIcon = function(roomState)
+	{
+		switch (roomState)
+		{
+			case RoomState.Speaker:
+				return 'ellipsis';
+			case RoomState.NonSpeaker:
+				return 'pointer';
+			case RoomState.None:
+			default:
+				return null;
+		}
+	}
+
 	BX.Call.View.prototype.setCurrentPage = function(pageNumber)
 	{
 		if (pageNumber < 1 || pageNumber > this.pagesCount || pageNumber == this.currentPage)
@@ -962,16 +996,16 @@
 	{
 		this.isUserBlockFolded = isUserBlockFolded;
 
+		if (this.elements.userBlock)
+		{
+			this.elements.userBlock.classList.toggle("folded", this.isUserBlockFolded);
+		}
+		if (this.elements.root)
+		{
+			this.elements.root.classList.toggle("bx-messenger-videocall-userblock-folded", this.isUserBlockFolded);
+		}
 		if(this.isUserBlockFolded)
 		{
-			if (this.elements.userBlock)
-			{
-				this.elements.userBlock.classList.add("folded");
-			}
-			if (this.elements.root)
-			{
-				this.elements.root.classList.add("bx-messenger-videocall-userblock-folded");
-			}
 			if (this.buttons.participants && this.layout == Layouts.Centered)
 			{
 				this.buttons.participants.update({
@@ -981,14 +1015,6 @@
 		}
 		else
 		{
-			if (this.elements.userBlock)
-			{
-				this.elements.userBlock.classList.remove("folded");
-			}
-			if (this.elements.root)
-			{
-				this.elements.root.classList.remove("bx-messenger-videocall-userblock-folded");
-			}
 			if (this.buttons.participants)
 			{
 				this.buttons.participants.update({
@@ -1000,7 +1026,7 @@
 
 	BX.Call.View.prototype.addUser = function(userId, state, direction)
 	{
-		userId = parseInt(userId, 10);
+		userId = Number(userId);
 		if(this.users[userId])
 		{
 			return;
@@ -1291,11 +1317,6 @@
 
 	BX.Call.View.prototype.showFloorRequestNotification = function(userId)
 	{
-		if (!this.userData[userId])
-		{
-			return;
-		}
-
 		var userModel = this.userRegistry.get(userId);
 		if (!userModel)
 		{
@@ -2903,8 +2924,10 @@
 						enabled: !this.isMuted,
 						arrowHidden: this.layout == Layouts.Mobile,
 						arrowEnabled: this.isMediaSelectionAllowed(),
+						showPointer: true, //todo
 						blocked: this.isButtonBlocked("microphone"),
 						showLevel: true,
+						sideIcon: this.getMicrophoneSideIcon(this.roomState),
 						onClick: function(e)
 						{
 							this._onMicrophoneButtonClick(e);
@@ -2915,7 +2938,8 @@
 						onMouseOut: function(e)
 						{
 							this._destroyHotKeyHint();
-						}.bind(this)
+						}.bind(this),
+						onSideIconClick: this._onMicrophoneSideIconClick.bind(this),
 					});
 					left.appendChild(this.buttons.microphone.render());
 					break;
@@ -4011,13 +4035,10 @@
 		)
 		{
 			e.preventDefault();
-			this.muteSpeaker(!this.speakerMuted);
-
-			BX.UI.Notification.Center.notify({
-				content: BX.message(this.speakerMuted? 'IM_M_CALL_MUTE_SPEAKERS_OFF': 'IM_M_CALL_MUTE_SPEAKERS_ON'),
-				position: "top-right",
-				autoHideDelay: 3000,
-				closeButton: true
+			this.eventEmitter.emit(EventName.onButtonClick, {
+				buttonName: "toggleSpeaker",
+				speakerMuted: this.speakerMuted,
+				fromHotKey: true,
 			});
 		}
 		else if (
@@ -4252,6 +4273,14 @@
 		this.showDeviceSelector(e.currentTarget);
 	};
 
+	BX.Call.View.prototype._onMicrophoneSideIconClick = function(e)
+	{
+		e.stopPropagation();
+		this.eventEmitter.emit(EventName.onButtonClick, {
+			buttonName: "microphoneSideIcon",
+		});
+	};
+
 	BX.Call.View.prototype._onMicrophoneSelected = function(e)
 	{
 		if(e.data.deviceId === this.microphoneId)
@@ -4296,7 +4325,10 @@
 
 	BX.Call.View.prototype._onSpeakerButtonClick = function(e)
 	{
-		this.muteSpeaker(!this.speakerMuted);
+		this.eventEmitter.emit(EventName.onButtonClick, {
+			buttonName: "toggleSpeaker",
+			speakerMuted: this.speakerMuted
+		});
 	};
 
 	BX.Call.View.prototype._onChangeHdVideo = function(e)
@@ -5223,7 +5255,7 @@
 			}
 		}*/
 
-		if (this.elements.video && this.elements.video.srcObject)
+		/*if (this.elements.video && this.elements.video.srcObject)
 		{
 			if (this.visible)
 			{
@@ -5233,7 +5265,7 @@
 			{
 				this.elements.video.pause();
 			}
-		}
+		}*/
 	};
 
 	CallUser.prototype._onUserFieldChanged = function(event)
@@ -6837,16 +6869,22 @@
 		this.showLevel = (config.showLevel === true);
 		this.level = config.level || 0;
 
+		this.sideIcon = BX.prop.getString(config, "sideIcon", "");
+
 		this.elements = {
 			root: null,
+			iconContainer: null,
 			icon: null,
 			arrow: null,
 			levelMeter: null,
+			pointer: null,
+			ellipsis: null,
 		};
 
 		this.callbacks = {
-			onClick: BX.type.isFunction(config.onClick) ? config.onClick : BX.DoNothing,
-			onArrowClick: BX.type.isFunction(config.onArrowClick) ? config.onArrowClick : BX.DoNothing,
+			onClick: BX.prop.getFunction(config, "onClick", BX.DoNothing),
+			onArrowClick: BX.prop.getFunction(config, "onArrowClick", BX.DoNothing),
+			onSideIconClick: BX.prop.getFunction(config, "onSideIconClick", BX.DoNothing),
 			onMouseOver: BX.prop.getFunction(config, "onMouseOver", BX.DoNothing),
 			onMouseOut: BX.prop.getFunction(config, "onMouseOut", BX.DoNothing),
 		}
@@ -6865,9 +6903,15 @@
 				BX.create("div", {
 					props: {className: "bx-messenger-videocall-panel-item-with-arrow-left"},
 					children: [
-						this.elements.icon = BX.create("div", {
-							props: {className: this.getIconClass()},
+						this.elements.iconContainer = BX.create("div", {
+							props: {className: "bx-messenger-videocall-panel-item-with-arrow-icon-container"},
+							children: [
+								this.elements.icon = BX.create("div", {
+									props: {className: this.getIconClass()},
+								}),
+							]
 						}),
+
 						BX.create("div", {
 							props: {className: "bx-messenger-videocall-panel-text"},
 							text: this.text
@@ -6932,6 +6976,29 @@
 			}));
 		}
 
+		this.elements.ellipsis = BX.create("div", {
+			props: {className: "bx-messenger-videocall-panel-icon-ellipsis"},
+			events: {
+				click: this.callbacks.onSideIconClick
+			}
+		})
+
+		this.elements.pointer = BX.create("div", {
+			props: {className: "bx-messenger-videocall-panel-icon-pointer"},
+			events: {
+				click: this.callbacks.onSideIconClick
+			}
+		})
+
+		if (this.sideIcon == "pointer")
+		{
+			BX.Dom.insertAfter(this.elements.pointer, this.elements.icon);
+		}
+		else if (this.sideIcon == "ellipsis")
+		{
+			BX.Dom.insertAfter(this.elements.ellipsis, this.elements.icon);
+		}
+
 		return this.elements.root;
 	};
 
@@ -6986,6 +7053,27 @@
 			this.elements.root.classList.remove("blocked");
 		}
 	};
+
+	DeviceButton.prototype.setSideIcon = function (sideIcon)
+	{
+		if (this.sideIcon == sideIcon)
+		{
+			return;
+		}
+		this.sideIcon = sideIcon;
+
+		BX.Dom.remove(this.elements.pointer);
+		BX.Dom.remove(this.elements.ellipsis);
+
+		if (this.sideIcon == "pointer")
+		{
+			BX.Dom.insertAfter(this.elements.pointer, this.elements.icon);
+		}
+		else if (this.sideIcon == "ellipsis")
+		{
+			BX.Dom.insertAfter(this.elements.ellipsis, this.elements.icon);
+		}
+	}
 
 	DeviceButton.prototype.showArrow = function()
 	{
@@ -8454,6 +8542,7 @@
 
 	BX.Call.View.UiState = UiState;
 	BX.Call.View.Event = EventName;
+	BX.Call.View.RoomState = RoomState;
 
 	BX.Call.View.DeviceSelector = DeviceSelector;
 	BX.Call.View.NotificationManager = NotificationManager;

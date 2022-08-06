@@ -6,6 +6,7 @@ use Bitrix\Landing\Landing;
 use Bitrix\Landing\Site;
 use Bitrix\Landing\Syspage;
 use Bitrix\Landing\Template;
+use Bitrix\Landing\TemplateRef;
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
@@ -15,7 +16,11 @@ class ChatSales extends Update
 	/**
 	 * This updater expects only this code.
 	 */
-	private const ONLY_CODES = ['store-chats-dark'];
+	private const ONLY_CODES = [
+		'store-chats-dark',
+		'store-chats-light',
+		'store-chats',
+	];
 
 	/**
 	 * Creates catalog's folder if not exists. If exists, return it id.
@@ -29,7 +34,10 @@ class ChatSales extends Update
 		$folders = Site::getFolders($siteId);
 		foreach ($folders as $folder)
 		{
-			if ($folder['CODE'] === 'catalog')
+			if (
+				$folder['CODE'] === 'catalog'
+				|| $folder['CODE'] === 'katalog'
+			)
 			{
 				$catalogFolderId = $folder['ID'];
 			}
@@ -60,11 +68,13 @@ class ChatSales extends Update
 	 */
 	private static function createPageIfNotExists(int $siteId, int $catalogFolderId, string $code): ?int
 	{
+		// find or create
 		$res = Landing::getList([
 			'select' => [
 				'ID'
 			],
 			'filter' => [
+				'DELETED' => 'N',
 				'SITE_ID' => $siteId,
 				'=TPL_CODE' => $code,
 				'CHECK_PERMISSIONS' => 'N'
@@ -72,45 +82,63 @@ class ChatSales extends Update
 		]);
 		if ($row  = $res->fetch())
 		{
-			return $row['ID'];
+			$pageId = $row['ID'];
+			return $pageId;
 		}
-		else
+
+		$res = Landing::addByTemplate($siteId, $code, [
+			'FOLDER_ID' => $catalogFolderId,
+			'SITE_TYPE' => 'STORE'
+		]);
+		$pageId = $res->getId();
+
+		if (
+			$pageId
+			&& Landing::createInstance($pageId)->publication()
+		)
 		{
-			$res = Landing::addByTemplate($siteId, $code, [
-				'FOLDER_ID' => $catalogFolderId,
-				'SITE_TYPE' => 'STORE'
-			]);
-			return $res->getId();
+			return $pageId;
 		}
+
+		return null;
 	}
 
-	private static function setEmptyTemplateToLanding($landingId): bool
+	private static function setTemplateToLanding(int $landingId, string $templateName, array $templateReferences): bool
 	{
-		static $emptyId = null;
-		if (!$emptyId)
+		$resTemplate = Template::getList([
+			'select' => [
+				'ID', 'XML_ID'
+			],
+			'filter' => [
+				'XML_ID' => $templateName
+			]
+		]);
+		if ($template = $resTemplate->fetch())
 		{
-			$res = Template::getList([
-				'select' => [
-					'ID', 'XML_ID'
-				],
-				'filter' => [
-					'XML_ID' => 'empty'
-				]
+			$resUpdate = Landing::update($landingId, [
+				'TPL_ID' => $template['ID']
 			]);
-			if ($row = $res->fetch())
+
+			if ($resUpdate->isSuccess())
 			{
-				$emptyId = $row['ID'];
-			}
-			else
-			{
-				return false;
+				TemplateRef::setForLanding($landingId, $templateReferences);
+
+				return true;
 			}
 		}
 
-		$res = Landing::update($landingId, [
-			'TPL_ID' => $emptyId
-		]);
-		return $res->isSuccess();
+		return false;
+	}
+
+	private static function setIndexToFolder(int $folderId, int $indexId): void
+	{
+		$landing = Landing::createInstance($indexId);
+		if ($landing)
+		{
+			Folder::update($folderId, [
+				'INDEX_ID' => $indexId
+			]);
+		}
 	}
 
 	/**
@@ -122,7 +150,7 @@ class ChatSales extends Update
 	{
 		$site = self::getId($siteId);
 
-		if (!$site || !in_array($site['TPL_CODE'], self::ONLY_CODES))
+		if (!$site || !in_array($site['TPL_CODE'], self::ONLY_CODES, true))
 		{
 			return true;
 		}
@@ -133,43 +161,22 @@ class ChatSales extends Update
 			return false;
 		}
 
-		if ($pageId = self::createPageIfNotExists($siteId, $catalogFolderId, 'store-chats-dark/catalog_order'))
-		{
-			if (!self::setEmptyTemplateToLanding($pageId))
-			{
-				return false;
-			}
-			$landing = Landing::createInstance($pageId);
-			if (!$landing->publication())
-			{
-				return false;
-			}
-		}
-		else
+		if (
+			!($orderId = self::createPageIfNotExists($siteId, $catalogFolderId, 'store-chats-dark/catalog_order'))
+			|| !($detailId = self::createPageIfNotExists($siteId, $catalogFolderId, 'store-chats-dark/catalog_detail'))
+			|| !($catalogId = self::createPageIfNotExists($siteId, $catalogFolderId, 'store-chats-dark/catalog'))
+			|| !($headerId = self::createPageIfNotExists($siteId, $catalogFolderId, 'store-chats-dark/catalog_header'))
+			|| !($footerId = self::createPageIfNotExists($siteId, $catalogFolderId, 'store-chats-dark/catalog_footer'))
+		)
 		{
 			return false;
 		}
 
-		if ($pageId = self::createPageIfNotExists($siteId, $catalogFolderId, 'store-chats-dark/catalog'))
-		{
-			if (!self::setEmptyTemplateToLanding($pageId))
-			{
-				return false;
-			}
-			$landing = Landing::createInstance($pageId);
-			if (!$landing->publication())
-			{
-				return false;
-			}
-			Syspage::set($siteId, 'catalog', $pageId);
-			Folder::update($catalogFolderId, [
-				'INDEX_ID' => $pageId
-			]);
-		}
-		else
-		{
-			return false;
-		}
+		Syspage::set($siteId, 'catalog', $catalogId);
+		self::setIndexToFolder($catalogFolderId, $catalogId);
+		self::setTemplateToLanding($catalogId, 'header_footer', [1 => $headerId, 2 => $footerId]);
+		self::setTemplateToLanding($detailId, 'header_footer', [1 => $headerId, 2 => $footerId]);
+		self::setTemplateToLanding($orderId, 'header_footer', [1 => $headerId, 2 => $footerId]);
 
 		return true;
 	}

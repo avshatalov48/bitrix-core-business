@@ -1,5 +1,6 @@
-<?
+<?php
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\UserConsent\Agreement;
@@ -46,7 +47,7 @@ class MainUserConsentSelectorComponent extends CBitrixComponent
 			);
 		}
 
-		$intl = new Intl(LANGUAGE_ID);
+		$intl = new Intl(Application::getInstance()->getLicense()->getRegion());
 		$this->arResult['DESCRIPTION'] = $intl->getDataValue('DESCRIPTION');
 
 		return true;

@@ -69,7 +69,7 @@ return array(
 			),
 			'.landing-block-node-bgimg' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_46.7.COVER_BGIMG_TEXT_BLOCKS_WITH_ICONS_NODES_LANDINGBLOCKNODEBGIMG'),
-				'type' => array('background-overlay', 'height-vh', 'background-attachment'),
+				'type' => ['background', 'height-vh', 'background-attachment'],
 			),
 		),
 	

@@ -45,8 +45,9 @@
 	 * @param dateTypes.NEXT_MONTH
 	 * @param dateTypes.NEXT_WEEK
 	 * @param {object} numberTypes Number field types from Bitrix\Main\UI\Filter\NumberType
+	 * @memberOf {BX.Main}
 	 */
-	BX.Main.Filter = function(params, options, types, dateTypes, numberTypes, additionalDateTypes)
+	BX.Main.Filter = function(params, options, types, dateTypes, numberTypes, additionalDateTypes, additionalNumberTypes)
 	{
 		this.params = params;
 		this.search = null;
@@ -56,6 +57,7 @@
 		this.types = types;
 		this.dateTypes = dateTypes;
 		this.additionalDateTypes = additionalDateTypes;
+		this.additionalNumberTypes = additionalNumberTypes;
 		this.numberTypes = numberTypes;
 		this.settings = new BX.Filter.Settings(options, this);
 		this.filter = null;
@@ -110,6 +112,11 @@
 
 			this.enableFieldsSearch = this.getParam('ENABLE_FIELDS_SEARCH', false);
 			this.enableHeadersSections = this.getParam('HEADERS_SECTIONS', false);
+
+			if (this.isAppliedDefaultPreset())
+			{
+				this.setDefaultPresetAppliedState(true);
+			}
 		},
 
 		getEmitter: function()
@@ -211,7 +218,8 @@
 			if (BX.type.isDomNode(preset))
 			{
 				BX.remove(preset);
-				BX.prepend(sidebarItem, presetsContainer);
+				presetsContainer.insertBefore(sidebarItem, Presets.getAddPresetField());
+
 			}
 			else
 			{
@@ -251,6 +259,7 @@
 						sort: index,
 						name: presetData.TITLE,
 						fields: this.preparePresetSettingsFields(presetData.FIELDS),
+						rows: presetData.FIELDS.map((field) => field.NAME),
 						for_all: (
 							(forAll && !BX.type.isBoolean(presetData.FOR_ALL)) ||
 							(forAll && presetData.FOR_ALL === true)
@@ -849,6 +858,7 @@
 			params.clear_filter = data.clear_filter || "N";
 			params.with_preset = data.with_preset || "N";
 			params.save = data.save || "N";
+			params.isSetOutside = this.isSetOutside();
 
 			var requestData = {
 				params: params,
@@ -1323,7 +1333,9 @@
 				const headerSectionItem = BX.Tag.render`
 					<div class="main-ui-filter-popup-search-section-item" data-ui-popup-filter-section-button="${key}">
 						<div class="${itemClass}">
-							${BX.Text.encode(headersSections[key].name)}
+							<div>
+								${BX.Text.encode(headersSections[key].name)}
+							</div>
 						</div>
 					</div>
 				`;
@@ -1826,7 +1838,11 @@
 				{
 					preset.updateEditablePreset(preset.getCurrentPresetId());
 					this.saveUserSettings(forAll);
-					!forAll && this.disableEdit();
+
+					if (!forAll)
+					{
+						this.disableEdit();
+					}
 				}
 				else
 				{
@@ -1840,6 +1856,7 @@
 
 		_onCancelButtonClick: function()
 		{
+			this.setIsSetOutsideState(false);
 			this.disableAddPreset();
 			this.getPreset().clearAddPresetFieldInput();
 			this.disableEdit();
@@ -2604,14 +2621,45 @@
 			return false;
 		},
 
+		isAppliedDefaultPreset: function()
+		{
+			const presetData = this.getPreset().getCurrentPresetData();
+			if (!presetData.IS_PINNED)
+			{
+				return false;
+			}
+
+			if (BX.Type.isArrayFilled(presetData.ADDITIONAL))
+			{
+				const hasAdditional = presetData.ADDITIONAL.some((field) => {
+					return !this.getPreset().isEmptyField(field);
+				});
+
+				if (hasAdditional)
+				{
+					return false;
+				}
+			}
+
+			if (BX.Type.isStringFilled(this.getSearch().getSearchString()))
+			{
+				return false;
+			}
+
+			return true;
+		},
+
 		/**
 		 * Applies filter
 		 * @param {?Boolean} [clear] - is need reset filter
 		 * @param {?Boolean} [applyPreset] - is need apply preset
+		 * @param {?Boolean} [isSetOutside] - is filter sets from outside
 		 * @return {BX.Promise}
 		 */
-		applyFilter: function(clear, applyPreset)
+		applyFilter: function(clear, applyPreset, isSetOutside)
 		{
+			this.setIsSetOutsideState(isSetOutside);
+
 			var presetId = this.getPresetId(clear, applyPreset);
 			var filterId = this.getParam('FILTER_ID');
 			var promise = new BX.Promise(null, this);
@@ -2619,6 +2667,8 @@
 			var Search = this.getSearch();
 			var applyParams = {autoResolve: !this.grid};
 			var self = this;
+
+			this.setDefaultPresetAppliedState(this.isAppliedDefaultPreset());
 
 			if (this.isAppliedUserFilter())
 			{
@@ -3110,7 +3160,7 @@
 			if (BX.type.isArray(defaultPresets))
 			{
 				defaultPresets.sort(function(a, b) {
-					return a.SORT < b.SORT;
+					return a.SORT - b.SORT;
 				});
 
 				defaultPresets.forEach(function(defPreset) {
@@ -3287,6 +3337,7 @@
 
 		_onFindButtonClick: function()
 		{
+			this.setIsSetOutsideState(false);
 			var presets = this.getPreset();
 			var currentPresetId = presets.getCurrentPresetId();
 			var promise;
@@ -3982,6 +4033,41 @@
 
 			return BX.Filter.Field.instances.get(node);
 		},
+
+		isSetOutside: function()
+		{
+			return BX.Text.toBoolean(this.isSetOutsideState);
+		},
+
+		setIsSetOutsideState: function(state)
+		{
+			this.isSetOutsideState = BX.Text.toBoolean(state);
+			const searchContainer = this.getSearch().getContainer();
+			if (this.isSetOutsideState)
+			{
+				BX.Dom.addClass(searchContainer, 'main-ui-filter-set-outside');
+				BX.Dom.removeClass(searchContainer, 'main-ui-filter-set-inside');
+			}
+			else
+			{
+				BX.Dom.addClass(searchContainer, 'main-ui-filter-set-inside');
+				BX.Dom.removeClass(searchContainer, 'main-ui-filter-set-outside');
+			}
+		},
+
+		setDefaultPresetAppliedState: function(state)
+		{
+			this.isDefaultPresetAppliedState = BX.Text.toBoolean(state);
+			const searchContainer = this.getSearch().getContainer();
+			if (this.isDefaultPresetAppliedState)
+			{
+				BX.Dom.addClass(searchContainer, 'main-ui-filter-default-applied');
+			}
+			else
+			{
+				BX.Dom.removeClass(searchContainer, 'main-ui-filter-default-applied');
+			}
+		}
 	};
 })();
 
@@ -4008,6 +4094,11 @@
 			}
 
 			return result;
+		},
+
+		getList: function()
+		{
+			return Object.values(this.data);
 		}
 	};
 })();

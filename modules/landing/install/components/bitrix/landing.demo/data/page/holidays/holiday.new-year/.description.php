@@ -53,7 +53,7 @@ return [
 					],
 				],
 				'.landing-block-node-card-title' => [
-					0 => '2021<br />Happy<br />New year',
+					0 => '2022<br />Happy<br />New year',
 				],
 				'.landing-block-node-card-text' => [
 					0 => '

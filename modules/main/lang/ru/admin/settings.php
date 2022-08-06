@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS ['MAIN_TITLE'] = "Настройки модуля";
 $MESS ['MAIN_KERNEL'] = "Главный модуль";
 $MESS ['MAIN_SELECT'] = "Выбрать";
@@ -15,6 +15,6 @@ $MESS ['MAIN_TAB_TITLE_RIGHTS'] = "Уровень доступа к модулю
 $MESS ['MAIN_USER_GROUP_TITLE'] = "Просмотреть параметры группы пользователей";
 $MESS ['MAIN_ADMIN_SET_CONTROLLER_ALT'] = "Данное значение переопределяется Контроллером";
 $MESS ['MAIN_ADMIN_ADD_SITE_SELECTOR'] = "Настроить для другого сайта";
+$MESS ['MAIN_ADMIN_ADD_SITE_SELECTOR_1'] = "Настроить для другого сайта";
 $MESS ['MAIN_ADMIN_SITE_DEFAULT_VALUE_SELECT'] = "(Выберите сайт)";
 $MESS ['MAIN_ADMIN_SITE_ALL_SELECT'] = "Для всех сайтов";
-?>

@@ -42,11 +42,13 @@ class WarehouseMasterClear extends CBitrixComponent implements Bitrix\Main\Engin
 	 */
 	public function executeComponent()
 	{
-		Main\Loader::includeModule('crm');
+		if (Main\Loader::includeModule('crm'))
+		{
+			$this->arResult['IS_WITH_ORDERS_MODE'] = \CCrmSaleHelper::isWithOrdersMode();
+			$this->arResult['IS_LEAD_ENABLED'] = \Bitrix\Crm\Settings\LeadSettings::isEnabled();
+		}
 
 		$this->arResult['IS_USED_ONEC'] = \Bitrix\Catalog\Component\UseStore::isUsedOneC();
-		$this->arResult['IS_WITH_ORDERS_MODE'] = \CCrmSaleHelper::isWithOrdersMode();
-		$this->arResult['IS_LEAD_ENABLED'] = \Bitrix\Crm\Settings\LeadSettings::isEnabled();
 		$this->arResult['IS_PLAN_RESTRICTED'] = \Bitrix\Catalog\Component\UseStore::isPlanRestricted();
 		$this->arResult['IS_USED'] = \Bitrix\Catalog\Component\UseStore::isUsed();
 		$this->arResult['IS_EMPTY'] = \Bitrix\Catalog\Component\UseStore::isEmpty();

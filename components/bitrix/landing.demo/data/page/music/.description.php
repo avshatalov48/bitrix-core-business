@@ -305,7 +305,7 @@ return [
 					</div>
 
 					<div class="d-inline-block g-bg-white-opacity-0_05 g-brd-around g-brd-white-opacity-0_3 g-pa-15-20-10 g-mx-15 g-mb-30">
-						<div class="landing-block-node-date-value g-line-height-1 g-font-size-40 g-font-weight-700 g-mb-2">2021</div>
+						<div class="landing-block-node-date-value g-line-height-1 g-font-size-40 g-font-weight-700 g-mb-2">2022</div>
 						<div class="landing-block-node-date-text text-uppercase text-center g-color-white-opacity-0_7 g-font-size-12">Year</div>
 					</div>
 					
@@ -787,7 +787,7 @@ return [
 
 						<div class="clearfix text-uppercase g-color-white g-font-size-11 g-mb-35">
 							<div class="float-right landing-block-node-card-label-right"> </div>
-							<div class="landing-block-node-card-label-left g-color-primary">April 27, 2021</div>
+							<div class="landing-block-node-card-label-left g-color-primary">April 27, 2022</div>
 						</div>
 
 						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle text-uppercase g-btn-primary g-color-white rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0" href="#" target="_self">read more</a>
@@ -807,7 +807,7 @@ return [
 
 						<div class="clearfix text-uppercase g-color-white g-font-size-11 g-mb-35">
 							<div class="float-right landing-block-node-card-label-right"> </div>
-							<div class="landing-block-node-card-label-left g-color-primary">APRIL 27, 2021</div>
+							<div class="landing-block-node-card-label-left g-color-primary">APRIL 27, 2022</div>
 						</div>
 
 						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle text-uppercase g-btn-primary g-color-white rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0" href="#" target="_self">read more</a>
@@ -827,7 +827,7 @@ return [
 
 						<div class="clearfix text-uppercase g-color-white g-font-size-11 g-mb-35">
 							<div class="float-right landing-block-node-card-label-right"> </div>
-							<div class="landing-block-node-card-label-left g-color-primary">APRIL 27, 2021</div>
+							<div class="landing-block-node-card-label-left g-color-primary">APRIL 27, 2022</div>
 						</div>
 
 						<a class="btn landing-block-node-card-button landing-semantic-link-medium-white js-animation fadeInLeft g-valign-middle text-uppercase g-btn-primary g-color-white rounded-0 g-py-10 g-py-20--md mt-auto g-btn-type-solid g-btn-size-sm g-btn-px-m rounded-0" href="#" target="_self">read more</a>
@@ -982,7 +982,7 @@ return [
 		<div class="row">
 			<div class="col-md-6 d-flex align-items-center g-mb-15 g-mb-0--md w-100 mb-0">
 				<div class="landing-block-node-text mr-1 js-animation animation-none">
-					&copy; 2021 All rights reserved.
+					&copy; 2022 All rights reserved.
 				</div>
 			</div>
 

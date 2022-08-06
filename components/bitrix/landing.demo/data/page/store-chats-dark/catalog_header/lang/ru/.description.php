@@ -1,0 +1,4 @@
+<?php
+$MESS['LANDING_DEMO_STORE_CHATS_CATALOG_HEADER-NAME'] = 'Шапка каталога';
+$MESS['LANDING_DEMO_STORE_CHATS_CATALOG_HEADER-TEXT_1'] = 'Выбирай и покупай!';
+$MESS['LANDING_DEMO_STORE_CHATS_CATALOG_HEADER-TEXT_2'] = 'Просто. Быстро. Персонально';

@@ -1414,6 +1414,7 @@
 	border-radius: 5px;
 	cursor: pointer;
 	-webkit-transition: .2s;
+	-o-transition: .2s;
 	transition: .2s;
 }
 

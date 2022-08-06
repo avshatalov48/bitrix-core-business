@@ -15,7 +15,8 @@ body {
 .sender-consent-title {
 	display: block;
 	margin: 0 0 50px 0;
-	font: 47px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 47px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 .sender-consent-content {
 	margin: 0 0 50px 0;
@@ -23,7 +24,8 @@ body {
 .sender-consent-content-item {
 	display: block;
 	margin: 0 0 19px 0;
-	font: 22px "Helvetica Neue Light", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 22px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 .sender-consent-content-item:last-child {
 	margin: 0;
@@ -32,7 +34,7 @@ body {
 .sender-message-title {
 	display: block;
 	margin: 0 0 6px 0;
-	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868E;
 }
 
@@ -50,7 +52,7 @@ body {
 	display: inline-block;
 	height: 18px;
 	border-bottom: 1px dashed rgba(128,134,142,.5);
-	font: 700 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 700 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868E;
 	transition: border-bottom .3s;
 	cursor: pointer;

@@ -8,10 +8,6 @@
 
 	--gray_light: rgba(201,207,211,1);
 	--gray_lighter: rgba(247,249,250,1);
-
-	--font_os_regular: 	"OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	--font_os_bold: 	"OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	--font_os_semibold: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .bizproc-automation-scheme__step {
@@ -89,7 +85,8 @@
 }
 
 .bizproc-automation-scheme__step-number--value {
-	font: 16px var(--font_os_bold);
+	font: 16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: var(--white);
 }
 
@@ -110,7 +107,8 @@
 
 .bizproc-automation-scheme__step-head--title {
 	color: var(--gray);
-	font: 18px/26px var(--font_os_regular);
+	font: 18px/26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .bizproc-automation-scheme__step-content {

@@ -333,6 +333,7 @@ class TransportBase implements Transport\iBase
 			$dealFilter['=STAGE_SEMANTIC_ID'] = [
 				PhaseSemantics::SUCCESS
 			];
+			$days = (int) $days;
 
 			$dateCreate = (new \DateTime())->modify("-$days days");
 

@@ -1,7 +1,7 @@
 <section class="container-fluid px-0 landing-block">
         <div class="row no-gutters">
 
-            <div class="landing-block-node-left landing-semantic-background-color order-2 order-lg-1 col-md-6 col-lg-4 g-theme-business-bg-blue-dark-v2">
+            <div class="landing-block-node-left landing-semantic-background-color order-2 order-lg-1 col-md-6 col-lg-4 g-theme-business-bg-blue-dark-v2" data-slider-autoplay="1" data-slider-animation="1">
                 <div class="js-carousel carouselLeft g-pb-90"
                      data-infinite="true"
 					 data-autoplay="true"
@@ -35,7 +35,7 @@
                         <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img3.jpg" alt="">
 
                         <div class="g-pa-30">
-                            <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Present 2021</h3>
+                            <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Present 2022</h3>
 							<div class="landing-block-node-carousel-element-text landing-semantic-text-medium js-animation fadeIn g-color-gray-light-v2 ">
                             	<p class="landing-semantic-text-medium">Etiam consectetur placerat gravida. Pellentesque ultricies mattis est, quis elementum neque pulvinar at.</p>
                             	<p class="landing-semantic-text-medium">Aenean odio ante, varius vel tempor sed Ut condimentum ex ac enim ullamcorper volutpat. Integer arcu nisl, finibus vitae sodales vitae, malesuada ultricies sapien.</p>
@@ -58,7 +58,7 @@
 					</div>
             </div>
 
-            <div class="landing-block-node-right landing-semantic-background-color order-3 col-md-6 col-lg-4 g-theme-business-bg-blue-dark-v2">
+            <div class="landing-block-node-right landing-semantic-background-color order-3 col-md-6 col-lg-4 g-theme-business-bg-blue-dark-v2" data-slider-autoplay="1" data-slider-animation="1">
                 <div class="js-carousel carouselRight g-pb-90"
                      data-infinite="true"
                      data-slides-show="1"
@@ -92,7 +92,7 @@
                         <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img1.jpg" alt="">
 
                         <div class="g-pa-30">
-                            <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Present 2021</h3>
+                            <h3 class="landing-block-node-carousel-element-title landing-semantic-title-small js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">Present 2022</h3>
 							<div class="landing-block-node-carousel-element-text landing-semantic-text-medium js-animation fadeIn g-color-gray-light-v2 ">
                             	<p class="landing-semantic-text-medium">Etiam consectetur placerat gravida. Pellentesque ultricies mattis est, quis elementum neque pulvinar at.</p>
                             	<p class="landing-semantic-text-medium">Aenean odio ante, varius vel tempor sed Ut condimentum ex ac enim ullamcorper volutpat. Integer arcu nisl, finibus vitae sodales vitae, malesuada ultricies sapien.</p>

@@ -44,6 +44,10 @@ return array(
 	'style' => array(
 		'block' => array(
 			'type' => array('block-default-wo-background'),
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_01_BIG_WITH_TEXT_BLOCKS_STYLE_LANDINGBLOCKNODECARD_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'dots'],
+			]
 		),
 		'nodes' => array(
 			'.landing-block-node-container' => array(

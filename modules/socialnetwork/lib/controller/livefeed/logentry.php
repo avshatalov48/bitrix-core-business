@@ -5,12 +5,33 @@ namespace Bitrix\Socialnetwork\Controller\Livefeed;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Socialnetwork\Controller\Base;
 use Bitrix\Socialnetwork\LogPinnedTable;
 use Bitrix\Socialnetwork\LogTable;
 
 class LogEntry extends Base
 {
+	public function configureActions()
+	{
+		return [
+			'getPinData' => [
+				'+prefilters' => [
+					new ActionFilter\Token(static function () {
+						$requestParams = \Bitrix\Main\Context::getCurrent()->getRequest()->getPost('params');
+
+						return (
+							is_array($requestParams)
+							&& isset($requestParams['logId'])
+								? (string)$requestParams['logId']
+								: ''
+						);
+					}),
+				],
+			],
+		];
+	}
+
 	public function getHiddenDestinationsAction(array $params = []): ?array
 	{
 		$logId = (int)($params['logId'] ?? 0);
@@ -154,7 +175,6 @@ class LogEntry extends Base
 	public function pinAction(array $params = []): ?array
 	{
 		$logId = (int)($params['logId'] ?? 0);
-		$userId = (int)($params['userId'] ?? $this->getCurrentUser()->getId());
 
 		if ($logId <= 0)
 		{
@@ -170,7 +190,7 @@ class LogEntry extends Base
 
 		LogPinnedTable::set([
 			'logId' => $logId,
-			'userId' => $userId
+			'userId' => (int)$this->getCurrentUser()->getId(),
 		]);
 
 		return [
@@ -181,17 +201,10 @@ class LogEntry extends Base
 	public function unpinAction(array $params = []): ?array
 	{
 		$logId = (int)($params['logId'] ?? 0);
-		$userId = (int)($params['userId'] ?? $this->getCurrentUser()->getId());
 
 		if ($logId <= 0)
 		{
 			$this->addError(new Error('Empty Log ID.', 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_EMPTY_LOG_ID'));
-			return null;
-		}
-
-		if ($userId <= 0)
-		{
-			$this->addError(new Error('Empty User ID.', 'SONET_CONTROLLER_LIVEFEED_LOGENTRY_EMPTY_USER_ID'));
 			return null;
 		}
 
@@ -203,7 +216,7 @@ class LogEntry extends Base
 
 		LogPinnedTable::delete([
 			'LOG_ID' => $logId,
-			'USER_ID' => $userId
+			'USER_ID' => (int)$this->getCurrentUser()->getId(),
 		]);
 
 		return [

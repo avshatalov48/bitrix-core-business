@@ -92,6 +92,12 @@ class Manager
 	];
 
 	/**
+	 * Current temporary functions.
+	 * @var array
+	 */
+	protected static $tmpFeatures = [];
+
+	/**
 	 * Returns map's item by code.
 	 * @param string $code Item code.
 	 * @return array
@@ -203,6 +209,13 @@ class Manager
 	public static function isAllowed(string $code, array $params = [], string $cacheSalt = ''): bool
 	{
 		static $cache = [];
+		if (
+			isset(self::$tmpFeatures[$code]) &&
+			self::$tmpFeatures[$code]
+		)
+		{
+			return true;
+		}
 
 		$cacheCode = $code . ($cacheSalt ? '_' : '') . $cacheSalt;
 
@@ -218,5 +231,37 @@ class Manager
 		}
 
 		return true;
+	}
+
+	/**
+	 * Enable some feature for moment.
+	 * @param string $feature Feature code.
+	 * @return void
+	 */
+	public static function enableFeatureTmp($feature)
+	{
+		self::$tmpFeatures[$feature] = true;
+	}
+
+	/**
+	 * Disable some tmp feature.
+	 * @param string $feature Feature code.
+	 * @return void
+	 */
+	public static function disableFeatureTmp($feature)
+	{
+		if (isset(self::$tmpFeatures[$feature]))
+		{
+			unset(self::$tmpFeatures[$feature]);
+		}
+	}
+
+	/**
+	 * Disable all tmp feature.
+	 * @return void
+	 */
+	public static function disableAllFeaturesTmp()
+	{
+		self::$tmpFeatures = [];
 	}
 }

@@ -9,7 +9,6 @@ $MESS["CAT_WAREHOUSE_MASTER_CLEAR_7"] = "on";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_8"] = "off";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_9"] = "Disable inventory management in Bitrix24";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_10"] = "Inventory management settings";
-$MESS["CAT_WAREHOUSE_MASTER_CLEAR_11"] = "Mobile barcode scanner";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_12"] = "Cancel";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_13"] = "Reset stock";
 $MESS["CAT_WAREHOUSE_MASTER_CLEAR_14"] = "Reset stock";

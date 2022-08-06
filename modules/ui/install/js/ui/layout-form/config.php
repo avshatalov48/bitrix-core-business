@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'main.core',
 		'ui.forms',
+		'main.core.events',
 	],
 	'skip_core' => false,
 ];

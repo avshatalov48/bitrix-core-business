@@ -679,6 +679,8 @@
 			if (searchString)
 			{
 				this.showClearButton();
+				this.parent.setIsSetOutsideState(false);
+				this.parent.setDefaultPresetAppliedState(false);
 			}
 			else
 			{
@@ -686,6 +688,11 @@
 				{
 					this.hideClearButton();
 					this.adjustPlaceholder();
+				}
+
+				if (this.parent.isAppliedDefaultPreset())
+				{
+					this.parent.setDefaultPresetAppliedState(true);
 				}
 			}
 
@@ -1198,6 +1205,16 @@
 									value += current.VALUES._to;
 								}
 							}
+
+							if (current.SUB_TYPE.VALUE === 'before_n')
+							{
+								if (BX.type.isNotEmptyString(current.VALUES._to))
+								{
+									value = current.LABEL + ': < ';
+									value += current.VALUES._to;
+								}
+							}
+
 							break;
 						}
 

@@ -159,7 +159,7 @@ class Base
 	 */
 	protected static function formatValuePrintable(FieldType $fieldType, $value)
 	{
-		return static::convertValueSingle($fieldType, $value, StringType::class);
+		return static::convertValueSingle(clone $fieldType, $value, StringType::class);
 	}
 
 	/**

@@ -18,7 +18,8 @@ class MetaMain extends \Bitrix\Landing\Hook\Page
 	{
 		return array(
 			'USE' => new Field\Checkbox('USE', array(
-				'title' => Loc::getMessage('LANDING_HOOK_METAMAIN_USE')
+				'title' => Loc::getMessage('LANDING_HOOK_METAMAIN_USE'),
+				'help' => Loc::getMessage('LANDING_HOOK_METAMAIN_DESCRIPTION'),
 			)),
 			'TITLE' => new Field\Text('TITLE', array(
 				'title' => Loc::getMessage('LANDING_HOOK_METAMAIN_TITLE'),
@@ -53,7 +54,7 @@ class MetaMain extends \Bitrix\Landing\Hook\Page
 	 * Description of Hook, if you want.
 	 * @return string
 	 */
-	public function getDescription()
+	public function getDescription(): string
 	{
 		return Loc::getMessage('LANDING_HOOK_METAMAIN_DESCRIPTION');
 	}

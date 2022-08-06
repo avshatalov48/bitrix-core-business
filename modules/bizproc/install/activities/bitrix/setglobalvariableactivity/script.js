@@ -501,7 +501,7 @@
 	      } // create input
 
 
-	      input = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\"\">"])));
+	      input = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\">"])));
 
 	      if (data.isExpressionOption) {
 	        input.name = data.role + '_text';

@@ -22,6 +22,10 @@ class ImageInput
 	{
 		this.id = id;
 		this.wrapper = BX(id);
+		if (!this.wrapper)
+		{
+			return;
+		}
 		this.productId = options.productId;
 		this.skuId = options.skuId;
 		this.iblockId = options.iblockId;

@@ -67,7 +67,8 @@ div.pagetitle-container.pagetitle-align-right-container {
 	overflow: hidden;
 }
 .pagetitle {
-	font: 26px/26px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font: 26px/26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	margin: 0;
 	padding: 21px 0 21px 5px;
 	display: block;
@@ -104,7 +105,8 @@ div.pagetitle-container.pagetitle-align-right-container {
 	background-color: transparent;
 	color: #000;
 	word-wrap: break-word;
-	font: 26px/27px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font: 26px/27px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	outline: none;
 }
 

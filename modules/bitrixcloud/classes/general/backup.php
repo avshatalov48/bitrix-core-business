@@ -48,7 +48,7 @@ class CBitrixCloudBackup
 		$node = /*.(CDataXMLNode).*/ null;
 		$node = $this->infoXML->SelectNodes("/control/quota/allow");
 		if (is_object($node))
-			$this->quota = CBitrixCloudCDNQuota::parseSize($node->textContent());
+			$this->quota = CUtil::Unformat($node->textContent());
 
 		$node = $this->infoXML->SelectNodes("/control/files");
 		if (is_object($node))
@@ -60,7 +60,7 @@ class CBitrixCloudBackup
 			foreach($nodeFiles as $nodeFile)
 			{
 				/* @var CDataXMLNode $nodeFile */
-				$size = CBitrixCloudCDNQuota::parseSize($nodeFile->getAttribute("size"));
+				$size = CUtil::Unformat($nodeFile->getAttribute("size"));
 				$name = $nodeFile->getAttribute("name");
 				$this->total_size += $size;
 				$this->files[] = array(
@@ -237,7 +237,7 @@ class CBitrixCloudBackup
 		return $this;
 	}
 	/**
-	 * Shows information about CDN free space in Admin's informer popup
+	 * Shows information about backup free space in Admin's informer popup
 	 *
 	 * @return void
 	 */
@@ -245,7 +245,7 @@ class CBitrixCloudBackup
 	{
 		global $USER;
 
-		$CDNAIParams = array(
+		$informerParams = array(
 			"TITLE" => GetMessage("BCL_BACKUP_AI_TITLE"),
 			"COLOR" => "peach",
 		);
@@ -280,11 +280,11 @@ class CBitrixCloudBackup
 			$PROGRESS_FREE = 100;
 			$AVAIL = $backup->getQuota();
 			$ALLOWED = CFile::FormatSize($backup->getQuota(), 0);
-			$CDNAIParams["ALERT"] = true;
+			$informerParams["ALERT"] = true;
 			$MESS = '<span class="adm-informer-strong-text">'.GetMessage("BCL_BACKUP_AI_NO_FILES").'</span>';
 			if ($USER->CanDoOperation("bitrixcloud_backup") && $USER->CanDoOperation('edit_php'))
 			{
-				$CDNAIParams["FOOTER"] = '<a href="/bitrix/admin/dump.php?lang='.LANGUAGE_ID.'">'.GetMessage("BCL_BACKUP_AI_DO_BACKUP_STRONGLY").'</a>';
+				$informerParams["FOOTER"] = '<a href="/bitrix/admin/dump.php?lang='.LANGUAGE_ID.'">'.GetMessage("BCL_BACKUP_AI_DO_BACKUP_STRONGLY").'</a>';
 			}
 		}
 		elseif($backup->getLastTimeBackup() < (time()-7*24*3600))
@@ -295,7 +295,7 @@ class CBitrixCloudBackup
 
 			$PROGRESS_FREE = round($AVAIL/$backup->getQuota()*100);
 			$ALLOWED = CFile::FormatSize($backup->getQuota(), 0);
-			$CDNAIParams["ALERT"] = true;
+			$informerParams["ALERT"] = true;
 			$MESS = '<span class="adm-informer-strong-text">'.GetMessage("BCL_BACKUP_AI_LAST_TIME").': '.FormatDate(array(
 					"today" => "today",
 					"yesterday" => "yesterday",
@@ -303,7 +303,7 @@ class CBitrixCloudBackup
 				), $backup->getLastTimeBackup()).'.</span>';
 			if ($USER->CanDoOperation("bitrixcloud_backup") && $USER->CanDoOperation('edit_php'))
 			{
-				$CDNAIParams["FOOTER"] = '<a href="/bitrix/admin/dump.php?lang='.LANGUAGE_ID.'">'.GetMessage("BCL_BACKUP_AI_DO_BACKUP_STRONGLY").'</a>';
+				$informerParams["FOOTER"] = '<a href="/bitrix/admin/dump.php?lang='.LANGUAGE_ID.'">'.GetMessage("BCL_BACKUP_AI_DO_BACKUP_STRONGLY").'</a>';
 			}
 		}
 		else
@@ -314,7 +314,7 @@ class CBitrixCloudBackup
 
 			$PROGRESS_FREE = round($AVAIL/$backup->getQuota()*100);
 			$ALLOWED = CFile::FormatSize($backup->getQuota(), 0);
-			$CDNAIParams["ALERT"] = false;
+			$informerParams["ALERT"] = false;
 			$MESS = GetMessage("BCL_BACKUP_AI_LAST_TIME").': '.FormatDate(array(
 					"today" => "today",
 					"yesterday" => "yesterday",
@@ -322,14 +322,14 @@ class CBitrixCloudBackup
 				), $backup->getLastTimeBackup());
 			if ($USER->CanDoOperation("bitrixcloud_backup") && $USER->CanDoOperation('edit_php'))
 			{
-				$CDNAIParams["FOOTER"] = '<a href="/bitrix/admin/dump.php?lang='.LANGUAGE_ID.'">'.GetMessage("BCL_BACKUP_AI_DO_BACKUP").'</a>';
+				$informerParams["FOOTER"] = '<a href="/bitrix/admin/dump.php?lang='.LANGUAGE_ID.'">'.GetMessage("BCL_BACKUP_AI_DO_BACKUP").'</a>';
 			}
 		}
 
-		if(isset($CDNAIParams["ALERT"]))
+		if(isset($informerParams["ALERT"]))
 		{
 			$PROGRESS_FREE_BAR = $PROGRESS_FREE < 0? 0: $PROGRESS_FREE;
-			$CDNAIParams["HTML"] = '
+			$informerParams["HTML"] = '
 				<div class="adm-informer-item-section">
 					<span class="adm-informer-item-l">
 						<span class="adm-informer-strong-text">'.GetMessage("BCL_BACKUP_AI_USAGE_TOTAL").'</span> '.$ALLOWED.'
@@ -343,7 +343,7 @@ class CBitrixCloudBackup
 					<div class="adm-informer-status-bar-text">'.(100-$PROGRESS_FREE).'%</div>
 				</div>
 			'.$MESS;
-			CAdminInformer::AddItem($CDNAIParams);
+			CAdminInformer::AddItem($informerParams);
 		}
 	}
 	/*

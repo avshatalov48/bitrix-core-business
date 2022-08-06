@@ -18,12 +18,12 @@ return array(
 		),
 	),
 	'nodes' => array(
-		
 		'.landing-block-node_bgimage' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_9_ONE_COL_FIX_TEXTS_BLOCKS_SLIDER_NODES_LANDINGBLOCKNODE_BGIMAGE'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'editInStyle' => true,
 			'allowInlineEdit' => false,
+			'dimensions' => array('width' => 1920, 'height' => 1080),
 		),
 		'.landing-block-node-element-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_9_ONE_COL_FIX_TEXTS_BLOCKS_SLIDER_NODES_LANDINGBLOCKNODEELEMENTTITLE'),
@@ -61,12 +61,18 @@ return array(
 			),
 			'.landing-block-node_bgimage' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_9_ONE_COL_FIX_TEXTS_BLOCKS_SLIDER_NODES_LANDINGBLOCKNODE_BGIMAGE'),
-				'type' => 'background-overlay',
+				'type' => ['background'],
 			),
 			'.landing-block-node-button-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_9_ONE_COL_FIX_TEXTS_BLOCKS_SLIDER_NODES_BLOCKNODEELEMENTBUTTON'),
 				'type' => 'text-align',
 			),
+			'.landing-block-slider' => [
+				'additional' => [
+					'name' => Loc::getMessage('LANDING_BLOCK_9_ONE_COL_FIX_TEXTS_BLOCKS_SLIDER_STYLE_SLIDER'),
+					'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show', 'arrows', 'dots'],
+				]
+			],
 		),
 	),
 	'assets' => array(

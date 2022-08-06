@@ -1721,7 +1721,7 @@ select::-ms-expand {
 	line-height: 30px;
 	padding: 0 14px;
 	box-shadow: none;
-	border-radius: 0;
+	border-radius: var(--ui-field-border-radius);
 	height: 30px;
 	width: 100%;
 	box-sizing: border-box;

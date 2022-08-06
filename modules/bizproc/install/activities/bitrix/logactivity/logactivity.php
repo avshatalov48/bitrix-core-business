@@ -37,7 +37,7 @@ class CBPLogActivity
 			$trackingService = $rootActivity->workflow->GetService("TrackingService");
 
 			$report = "";
-			$arReport = $trackingService->LoadReport($rootActivity->GetWorkflowInstanceId());
+			$arReport = $trackingService->LoadReport($rootActivity->GetWorkflowInstanceId(), 50);
 			foreach ($arReport as $value)
 				$report .= $value["MODIFIED"]."\n".$value["ACTION_NOTE"]."\n\n";
 

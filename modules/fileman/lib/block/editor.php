@@ -1030,7 +1030,7 @@ HTML
 			'css' => '/bitrix/js/fileman/block_editor/dialog.css',
 			'lang' => '/bitrix/modules/fileman/lang/' . LANGUAGE_ID . '/js_block_editor.php',
 		));
-		\CJSCore::Init(array("block_editor", "color_picker", "clipboard"));
+		\CJSCore::Init(array("block_editor", "color_picker", "clipboard", "ui.design-tokens"));
 
 		static $isBlockEditorManagerInited = false;
 		$editorBlockTypeListByCode = array();

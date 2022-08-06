@@ -80,6 +80,10 @@ return [
 			'.landing-block-node-right' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_1_THREE_COLS_1_STYLE_LANDINGBLOCKNODERIGHT'),
 				'type' => 'box',
+				'additional' => [
+					'name' => Loc::getMessage('LANDING_BLOCK_1_THREE_COLS_1_STYLE_LANDINGBLOCKNODE_SLIDER'),
+					'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show', 'dots'],
+				]
 			],
 			'.landing-block-node-right-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_1_THREE_COLS_1_STYLE_LANDINGBLOCKNODERIGHTTEXT'),

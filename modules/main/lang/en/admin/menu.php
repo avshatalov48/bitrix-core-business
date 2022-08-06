@@ -120,6 +120,7 @@ $MESS["MAIN_MENU_URLREWRITE_ALT"] = "URLs processing rules settings";
 $MESS["MAIN_MENU_USERS"] = "Users";
 $MESS["MAIN_MENU_USERS_ALT"] = "Manage user profiles";
 $MESS["MAIN_MENU_USER_CONSENT"] = "Consents";
+$MESS["MAIN_MENU_USER_CONSENT_1"] = "Agreements and consents";
 $MESS["MAIN_MENU_USER_FIELD"] = "Custom Fields";
 $MESS["MAIN_MENU_USER_FIELD_TITLE"] = "Custom Fields";
 $MESS["MAIN_MENU_USER_GROUPS_ALT"] = "Users of the group";

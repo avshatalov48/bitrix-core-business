@@ -2,7 +2,8 @@
 
 if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-use Bitrix\Fileman\UserField\Types\AddressType;
+use Bitrix\Location\Entity\Address\Converter\StringConverter;
+use Bitrix\Location\Service\FormatService;
 use Bitrix\Main\Text\HtmlFilter;
 
 /**
@@ -12,14 +13,27 @@ use Bitrix\Main\Text\HtmlFilter;
 
 $component = $this->getComponent();
 
-foreach($arResult['value'] as $value)
+if (\Bitrix\Main\Loader::includeModule('location'))
 {
-	if(isset($value['text']))
+	foreach($arResult['value'] as $value)
 	{
-		?>
-		<span class="mobile-grid-data-span">
-			<?= HtmlFilter::encode($value['text']) ?>
-		</span>
-		<?php
+		if ($value)
+		{
+			$address = \Bitrix\Location\Entity\Address::fromArray($value);
+			$text = $address->toString(FormatService::getInstance()->findDefault(LANGUAGE_ID), StringConverter::STRATEGY_TYPE_TEMPLATE_COMMA);
+			?>
+			<span class="mobile-grid-data-span">
+				<?= HtmlFilter::encode($text) ?>
+			</span>
+			<?php
+		}
 	}
+}
+else
+{
+	?>
+	<span class="mobile-grid-data-span">
+		The "location" module is not installed.
+	</span>
+	<?php
 }

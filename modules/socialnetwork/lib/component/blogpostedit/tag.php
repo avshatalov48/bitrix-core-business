@@ -89,9 +89,6 @@ class Tag
 			}
 		}
 
-		$postItem = new Post;
-		$postItem->setFields($postFields);
-
 		$codeList = [ 'DETAIL_TEXT' ];
 		if (
 			!isset($postFields['MICRO'])

@@ -13,20 +13,23 @@ return array(
 		'dynamic' => false,
 	),
 	'nodes' => array(
+		'.landing-block-img' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_1_BIG_WITH_TEXT_2_1_NODES_LANDINGBLOCKIMG'),
+			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
+			'dimensions' => array('width' => 1920, 'height' => 800),
+			'create2xByDefault' => false,
+			'isWrapper' => true,
+		),
 		'.landing-block-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_1_BIG_WITH_TEXT_2_1_NODES_LANDINGBLOCKTITLE'),
 			'type' => 'text',
 		),
-		'.landing-block-img' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_1_BIG_WITH_TEXT_2_1_NODES_LANDINGBLOCKIMG'),
-			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 800),
-			'create2xByDefault' => false,
-		),
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-wo-background-height-vh', 'background-attachment', 'background-overlay'),
+			'type' => ['block-default-background-height-vh'],
 		),
 		'nodes' => array(
 			'.landing-block-title' => array(

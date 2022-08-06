@@ -137,6 +137,7 @@ $MESS["MAIL_MESSAGE_NEW_FROM"] = "Von";
 $MESS["MAIL_MESSAGE_NEW_SEND"] = "Senden";
 $MESS["MAIL_MESSAGE_NEW_SUBJECT"] = "Betreff";
 $MESS["MAIL_MESSAGE_NEW_SUBJECT_PH"] = "Nachrichtenbetreff eingeben";
+$MESS["MAIL_MESSAGE_NEW_TARIFF_RESTRICTION"] = "Die Einschränkungen Ihres aktuellen Tarifs:<br/>\"An\", \"CC\", \"BBC\" - #COUNT# E-Mail (Empfänger)";
 $MESS["MAIL_MESSAGE_NEW_TO"] = "An";
 $MESS["MAIL_MESSAGE_NEW_UPLOADING"] = "Warten Sie bitte, bis alle Anhänge geladen werden";
 $MESS["MAIL_MESSAGE_POST_TITLE"] = "E-Mail: #SUBJECT#";

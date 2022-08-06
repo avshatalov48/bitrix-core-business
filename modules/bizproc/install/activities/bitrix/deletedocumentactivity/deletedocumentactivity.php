@@ -23,6 +23,16 @@ class CBPDeleteDocumentActivity extends CBPActivity
 		$documentService = $this->workflow->GetService("DocumentService");
 		$documentService->DeleteDocument($documentId);
 
+		$map = $this->getDebugInfo(
+			[
+				'DeletedId' => preg_replace('/\D+/', '', $documentId[2]),
+			],
+			[
+				'DeletedId' => GetMessage('BPDDA_DELETED_ID'),
+			],
+		);
+		$this->writeDebugInfo($map);
+
 		if ($this->TerminateCurrentWorkflow === 'Y')
 		{
 			$this->workflow->Terminate();

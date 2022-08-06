@@ -5,6 +5,8 @@ use Bitrix\Main;
 
 abstract class CBPActivity
 {
+	use Bizproc\Debugger\Mixins\WriterDebugTrack;
+
 	public $parent = null;
 
 	public $executionStatus = CBPActivityExecutionStatus::Initialized;
@@ -33,7 +35,7 @@ abstract class CBPActivity
 	protected $arPropertiesTypes = array();
 
 	protected $name = "";
-	/** @var CBPWorkflow $workflow */
+	/** @var CBPWorkflow | \Bitrix\Bizproc\Debugger\Workflow\DebugWorkflow $workflow */
 	public $workflow = null;
 
 	public $arEventsMap = array();
@@ -126,6 +128,11 @@ abstract class CBPActivity
 		}
 
 		return $userId;
+	}
+
+	protected static function getPropertiesMap(array $documentType, array $context = []): array
+	{
+		return [];
 	}
 
 	/**********************************************************/
@@ -365,6 +372,11 @@ abstract class CBPActivity
 		$this->workflow = $workflow;
 	}
 
+	public function unsetWorkflow()
+	{
+		$this->workflow = null;
+	}
+
 	public function getWorkflowInstanceId()
 	{
 		return $this->workflow->GetInstanceId();
@@ -481,7 +493,7 @@ abstract class CBPActivity
 
 			foreach ($keys as $key)
 			{
-				list($t, $a) = $this->GetPropertyValueRecursive($val[$key], $convertToType);
+				[$t, $a] = $this->GetPropertyValueRecursive($val[$key], $convertToType);
 				if ($b)
 				{
 					if ($t == 1 && is_array($a))
@@ -719,6 +731,12 @@ abstract class CBPActivity
 				$result = PHP_EOL;
 				$property = ['Type' => 'string'];
 			}
+			elseif ($systemField === 'hosturl')
+			{
+				$result = Main\Engine\UrlManager::getInstance()->getHostUrl();
+				$property = ['Type' => 'string'];
+			}
+
 			if ($result === null)
 			{
 				$return = false;
@@ -905,7 +923,7 @@ abstract class CBPActivity
 
 	public function parseValue($value, $convertToType = null)
 	{
-		list($t, $r) = $this->GetPropertyValueRecursive($value, $convertToType);
+		[$t, $r] = $this->GetPropertyValueRecursive($value, $convertToType);
 		return $r;
 	}
 
@@ -932,7 +950,7 @@ abstract class CBPActivity
 		$property = $this->getRawProperty($name);
 		if ($property !== null)
 		{
-			list($t, $r) = $this->GetPropertyValueRecursive($property);
+			[$t, $r] = $this->GetPropertyValueRecursive($property);
 			return $r;
 		}
 		return null;
@@ -971,7 +989,7 @@ abstract class CBPActivity
 		return $usages;
 	}
 
-	private function collectUsagesRecursive($val, &$usages)
+	protected function collectUsagesRecursive($val, &$usages)
 	{
 		if (is_array($val))
 		{
@@ -1089,7 +1107,13 @@ abstract class CBPActivity
 
 	public function handleFault(Exception $exception)
 	{
-		return CBPActivityExecutionStatus::Closed;
+		$status = $this->cancel();
+		if ($status == CBPActivityExecutionStatus::Canceling)
+		{
+			return CBPActivityExecutionStatus::Faulting;
+		}
+
+		return $status;
 	}
 
 	/************************  LOAD / SAVE  *******************************************************/
@@ -1136,6 +1160,16 @@ abstract class CBPActivity
 	{
 		$usedActivities = [];
 		self::SearchUsedActivities($this, $usedActivities);
+
+		if ($children = $this->collectNestedActivities())
+		{
+			/** @var CBPActivity $child */
+			foreach ($children as $child)
+			{
+				$child->unsetWorkflow();
+			}
+		}
+
 		$strUsedActivities = implode(",", $usedActivities);
 		return $strUsedActivities.";".serialize($this);
 	}
@@ -1321,6 +1355,103 @@ abstract class CBPActivity
 		$trackingService->Write($this->GetWorkflowInstanceId(), $trackingType, $this->name, $this->executionStatus, $this->executionResult, ($this->IsPropertyExists("Title") ? $this->Title : ""), $message, $modifiedBy);
 	}
 
+	protected function getDebugInfo(array $values = [], array $map = []): array
+	{
+		if (count($map) <= 0)
+		{
+			$map = static::getPropertiesMap($this->getDocumentType());
+		}
+
+		foreach ($map as $key => &$property)
+		{
+			if (is_string($property))
+			{
+				$property = [
+					'Name' => $property,
+					'Type' => 'string',
+				];
+			}
+
+			if (!array_key_exists('TrackType', $property))
+			{
+				$property['TrackType'] = CBPTrackingType::Debug;
+			}
+
+			if (array_key_exists('TrackValue', $property))
+			{
+				continue;
+			}
+
+			if (!array_key_exists($key, $values))
+			{
+				$property['TrackValue'] = $this->__get($key);
+
+				continue;
+			}
+
+			$property['TrackValue'] = $values[$key];
+		}
+
+		return $map;
+	}
+
+	protected function writeDebugInfo(array $map)
+	{
+		/** @var CBPDocumentService $documentService */
+		$documentService = $this->workflow->GetService("DocumentService");
+
+		foreach ($map as $property)
+		{
+			if (is_string($property))
+			{
+				$property = [
+					'Name' => $property,
+					'Type' => 'string',
+				];
+			}
+
+			$fieldType = $documentService->getFieldTypeObject($this->getDocumentType(), $property);
+			if (!$fieldType)
+			{
+				if (!array_key_exists('BaseType', $property))
+				{
+					continue;
+				}
+				$property['Type'] = $property['BaseType'];
+				$fieldType = $documentService->getFieldTypeObject($this->getDocumentType(), $property);
+
+				if (!$fieldType)
+				{
+					continue;
+				}
+			}
+
+			$value = $fieldType->formatValue($property['TrackValue']);
+			$value = ($value !== '') ? $value : '[]';
+
+			$this->writeDebugTrack(
+				$this->getWorkflowInstanceId(),
+				$this->getName(),
+				$this->executionStatus,
+				$this->executionResult,
+				$this->getActivityTitle(),
+				$this->preparePropertyForWritingToTrack($value, $property['Name'] ?? '')
+			);
+		}
+	}
+
+	private function getActivityTitle(): string
+	{
+		$activityTitle = $this->isPropertyExists('Title') ? $this->Title : '';
+
+		if (is_string($activityTitle))
+		{
+			return $activityTitle;
+		}
+
+		return '';
+	}
+
 	public static function validateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
 	{
 		return array();
@@ -1359,7 +1490,7 @@ abstract class CBPActivity
 			$result = [
 				'object' => $matches['object'],
 				'field' => $matches['field'],
-				'modifiers' => []
+				'modifiers' => [],
 			];
 			if (!empty($matches['mod1']))
 			{

@@ -104,6 +104,14 @@ abstract class Application
 	}
 
 	/**
+	 * @return bool
+	 */
+	public static function hasInstance()
+	{
+		return isset(static::$instance);
+	}
+
+	/**
 	 * Does minimally possible kernel initialization.
 	 */
 	public function initializeBasicKernel()

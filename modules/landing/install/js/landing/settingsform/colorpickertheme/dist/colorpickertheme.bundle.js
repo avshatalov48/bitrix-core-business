@@ -124,6 +124,7 @@ this.BX = this.BX || {};
 	        }
 	      });
 	      this.emit('onSelectColor', event);
+	      this.emit('onSelectCustomColor', event);
 	      this.input.setAttribute('value', color);
 	      this.sendMetric(color);
 	    }

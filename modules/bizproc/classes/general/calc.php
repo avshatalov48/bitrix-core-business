@@ -565,7 +565,9 @@ class CBPCalc
 	private function FunctionDateAdd($args)
 	{
 		if (!is_array($args))
+		{
 			$args = [$args];
+		}
 
 		$ar = $this->ArrgsToArray($args);
 		$date = array_shift($ar);
@@ -573,10 +575,14 @@ class CBPCalc
 		$interval = array_shift($ar);
 
 		if (($date = $this->makeTimestamp($date)) === false)
+		{
 			return null;
+		}
 
 		if (empty($interval))
-			return $date;
+		{
+			return $date; // new Bizproc\BaseType\Value\DateTime($date, $offset);
+		}
 
 		// 1Y2M3D4H5I6S, -4 days 5 hours, 1month, 5h
 
@@ -601,13 +607,19 @@ class CBPCalc
 		{
 			$match2 = mb_strtolower($match[2]);
 			if (array_key_exists($match2, $arMap))
+			{
 				$arInterval[$arMap[$match2]] = ($bMinus ? -intval($match[1]) : intval($match[1]));
+			}
 
 			$p = mb_strpos($interval, $match[0]);
 			$interval = mb_substr($interval, $p + mb_strlen($match[0]));
 		}
 
+		$date += $offset; // to server
+
 		$newDate = AddToTimeStamp($arInterval, $date);
+
+		$newDate -= $offset; // to user timezone
 
 		return new Bizproc\BaseType\Value\DateTime($newDate, $offset);
 	}

@@ -22,9 +22,11 @@ return array(
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_40.3.TEXT_BLOCKS_CAROUSEL_WITH_BGIMG_NODES_LANDINGBLOCKNODEBGIMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'editInStyle' => true,
 			'allowInlineEdit' => false,
+			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'create2xByDefault' => false,
+			'isWrapper' => true,
 		),
 		'.landing-block-node-card-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_40.3.TEXT_BLOCKS_CAROUSEL_WITH_BGIMG_NODES_LANDINGBLOCKNODECARDTITLE'),
@@ -49,7 +51,7 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-background-overlay', 'animation'),
+			'type' => array('block-default-background', 'animation'),
 		),
 		'nodes' => array(
 			'.landing-block-node-card-title' => array(
@@ -72,14 +74,16 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_40.3.TEXT_BLOCKS_CAROUSEL_WITH_BGIMG_NODES_LANDINGBLOCKNODETEXT'),
 				'type' => 'typo',
 			),
-			'.landing-block-node-bgimg' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_40.3.TEXT_BLOCKS_CAROUSEL_WITH_BGIMG_NODES_LANDINGBLOCKNODEBGIMG'),
-				'type' => 'background-attachment',
-			),
 			'.landing-block-node-card' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_40.3.TEXT_BLOCKS_CAROUSEL_WITH_BGIMG_NODES_LANDINGBLOCKNODECARD'),
 				'type' => 'align-self',
 			),
+			'.landing-block-slider' => [
+				'additional' => [
+					'name' => Loc::getMessage('LANDING_BLOCK_40_3_TEXT_BLOCKS_CAROUSEL_WITH_BGIMG_NODES_SLIDET'),
+					'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show', 'arrows', 'dots'],
+				]
+			],
 		),
 	),
 	'assets' => array(

@@ -1,12 +1,14 @@
-<section class="g-pos-rel landing-block g-overflow-hidden">
-
+<section class="g-pos-rel landing-block g-overflow-hidden" data-slider-autoplay="1" data-slider-autoplay-speed="5000" data-slider-dots="0">
 	<div class="js-carousel g-overflow-hidden g-max-height-100vh"
 		 data-autoplay="true"
 		 data-infinite="true"
 		 data-fade="true"
+		 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-bottom-20"
 		 data-speed="5000">
-		<div class="landing-block-card-img js-slide g-bg-img-hero g-min-height-100vh" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1600x1075/img2.jpg);"></div>
-		<div class="landing-block-card-img js-slide g-bg-img-hero g-min-height-100vh" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1600x1075/img1.jpg);"></div>
+		<div class="landing-block-card-img js-slide g-bg-img-hero g-min-height-100vh" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1600x1075/img2.jpg);">
+		</div>
+		<div class="landing-block-card-img js-slide g-bg-img-hero g-min-height-100vh" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1600x1075/img1.jpg);">
+		</div>
 	</div>
 
 	<div class="g-absolute-centered g-width-80x--md">

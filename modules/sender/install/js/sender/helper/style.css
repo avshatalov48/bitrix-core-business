@@ -10,7 +10,8 @@ input.pagetitle-item {
 	background-color: transparent;
 	color: #000;
 	word-wrap: break-word;
-	font: 26px/27px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font: 26px/27px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .pagetitle-edit-button {

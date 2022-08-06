@@ -184,6 +184,7 @@ $MESS["MAIN_PREFIX"] = "Cookie name prefix (without dots and spaces):";
 $MESS["MAIN_REGISTER"] = "Enable self-registration for users";
 $MESS["MAIN_REGISTER_AGREEMENT_DEFAUTL_VALUE"] = "(Select Agreement)";
 $MESS["MAIN_REGISTER_AGREEMENT_TITLE"] = "Manage Agreements. <a href=\"#AGGREMENT_CREATE_URL#\" target=\"_blank\">Create a new Agreement</a>";
+$MESS["MAIN_REGISTER_AGREEMENT_TITLE_1"] = "Agreements and Consents. <a href=\"#AGGREMENT_CREATE_URL#\" target=\"_blank\">Create a new agreement / consent</a>";
 $MESS["MAIN_REGISTER_CLEANUP_DAYS"] = "Delete unconfirmed registrations after (days):";
 $MESS["MAIN_REGISTER_EMAIL_CONFIRMATION"] = "Send request for registration confirmation (<a href=\"#EMAIL_TEMPLATES_URL#\">edit e-mail templates</a>):";
 $MESS["MAIN_REGISTER_EMAIL_UNIQ_CHECK"] = "Check e-mail uniqueness";

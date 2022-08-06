@@ -171,16 +171,23 @@ else
 
 						if ($feature == 'files')
 						{
-							$arResult["Features"][$feature]['note'] = GetMessage("SONET_WEBDAV_RIGHS_NOTE");
+							$arResult["Features"][$feature]['note'] = GetMessage("SONET_WEBDAV_RIGHS_NOTE2");
 							continue;
 						}
 
-						if (
-							$feature === 'tasks'
-							&& $tasksLimited
-						)
+						if ($feature === 'tasks')
 						{
-							$arResult["Features"][$feature]['limit'] = 'limit_tasks_access_permissions';
+							if ($arGroup['isScrumProject'])
+							{
+								$arResult["Features"][$feature]['note'] = Loc::getMessage('SONET_TASKS_SCRUM_ACCESS_NOTE');
+								continue;
+							}
+
+							if ($tasksLimited)
+							{
+								$arResult["Features"][$feature]['limit'] = 'limit_tasks_access_permissions';
+							}
+
 						}
 
 						if (
@@ -244,7 +251,7 @@ else
 
 						if ($feature == 'files')
 						{
-							$arResult["Features"][$feature]['note'] = GetMessage("SONET_WEBDAV_RIGHS_NOTE");
+							$arResult["Features"][$feature]['note'] = GetMessage("SONET_WEBDAV_RIGHS_NOTE2");
 							continue;
 						}
 
@@ -332,7 +339,6 @@ else
 			$pageTitle = Loc::getMessage('SONET_C3_USER_SETTINGS');
 		}
 
-
 		if ($arParams["SET_TITLE"] === "Y")
 		{
 			if ($arResult['IS_IFRAME'])
@@ -405,8 +411,14 @@ else
 				}
 
 				if (
-					$feature == 'tasks'
-					&& $tasksLimited
+					$feature === 'tasks'
+					&& (
+						$tasksLimited
+						|| (
+							isset($arGroup)
+							&& $arGroup['isScrumProject']
+						)
+					)
 				)
 				{
 					continue;

@@ -8,7 +8,18 @@ use Bitrix\Main\Localization\Loc;
 
 $APPLICATION->SetTitle('Title');
 $messages = Loc::loadLanguageFile(__FILE__);
-\Bitrix\Main\UI\Extension::load(['ui.hint', 'ui.label', 'ui.switcher', 'main.loader', 'ui.vue', 'ui.buttons', 'main.popup', 'catalog.store-use']);
+\Bitrix\Main\UI\Extension::load([
+	'ui.hint',
+	'ui.label',
+	'ui.switcher',
+	'main.loader',
+	'ui.vue',
+	'ui.buttons',
+	'main.popup',
+	'catalog.store-use',
+	'ui.fonts.opensans',
+]);
+
 CJSCore::Init(array('marketplace'));
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'catalog-warehouse-master-clear');
 ?>
@@ -165,6 +176,7 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'c
 						this.showLoader = false;
 						if (this.currentSlider)
 						{
+							this.currentSlider.getData().set('isPresetApplied', true);
 							this.currentSlider.close();
 						}
 					})
@@ -313,7 +325,7 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'c
 							this.isUsed = true;
 						})
 						.catch(() => {
-							BX.UI.Notification.Center.notify({
+							top.BX.UI.Notification.Center.notify({
 								content: this.loc.CAT_WAREHOUSE_MASTER_CLEAR_18,
 							});
 
@@ -335,7 +347,7 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'c
 							this.isUsed = false;
 						})
 						.catch(() => {
-							BX.UI.Notification.Center.notify({
+							top.BX.UI.Notification.Center.notify({
 								content: this.loc.CAT_WAREHOUSE_MASTER_CLEAR_18,
 							});
 

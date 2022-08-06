@@ -55,10 +55,25 @@ const BX_CATALOG_FILENAME_REG = '/[^a-zA-Z0-9\s!#\$%&\(\)\[\]\{\}+\.;=@\^_\~\/\\
 // Constants for the store control: //
 const CONTRACTOR_INDIVIDUAL = 1;
 const CONTRACTOR_JURIDICAL = 2;
+/** @deprecated
+ *	@see \Bitrix\Catalog\StoreDocumentTable::TYPE_ARRIVAL
+ */
 const DOC_ARRIVAL = 'A';
+/** @deprecated
+ *	@see \Bitrix\Catalog\StoreDocumentTable::TYPE_MOVING
+ */
 const DOC_MOVING = 'M';
+/** @deprecated
+ * @see \Bitrix\Catalog\StoreDocumentTable::TYPE_RETURN
+ */
 const DOC_RETURNS = 'R';
+/** @deprecated
+ *	@see \Bitrix\Catalog\StoreDocumentTable::TYPE_DEDUCT
+ */
 const DOC_DEDUCT = 'D';
+/** @deprecated
+ *	@see \CCatalogDocsTypes::TYPE_INVENTORY
+ */
 const DOC_INVENTORY = 'I';
 
 //**********************************//

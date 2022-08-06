@@ -62,7 +62,9 @@ class HookDataTable extends Entity\DataManager
 				'required' => true
 			)),
 			'VALUE' => new Entity\StringField('VALUE', array(
-				'title' => Loc::getMessage('LANDING_TABLE_FIELD_VALUE')
+				'title' => Loc::getMessage('LANDING_TABLE_FIELD_VALUE'),
+				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator')
 			)),
 			'PUBLIC' => new Entity\StringField('PUBLIC', array(
 				'title' => Loc::getMessage('LANDING_TABLE_FIELD_PUBLIC'),

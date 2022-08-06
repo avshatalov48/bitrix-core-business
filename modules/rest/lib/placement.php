@@ -46,10 +46,13 @@ class PlacementTable extends Main\Entity\DataManager
 	public const PREFIX_EVENT_ON_AFTER_ADD = 'onAfterPlacementAdd::';
 	public const PREFIX_EVENT_ON_AFTER_DELETE = 'onAfterPlacementDelete::';
 
+	public const DEFAULT_USER_ID_VALUE = 0;
+
 	const PLACEMENT_DEFAULT = 'DEFAULT';
 
 	const ERROR_PLACEMENT_NOT_FOUND = 'ERROR_PLACEMENT_NOT_FOUND';
 	const ERROR_PLACEMENT_MAX_COUNT = 'ERROR_PLACEMENT_MAX_COUNT';
+	const ERROR_PLACEMENT_USER_MODE = 'ERROR_PLACEMENT_USER_MODE';
 
 	const CACHE_TTL = 86400;
 	const CACHE_DIR = 'rest/placement';
@@ -81,6 +84,9 @@ class PlacementTable extends Main\Entity\DataManager
 				'autocomplete' => true,
 			),
 			'APP_ID' => array(
+				'data_type' => 'integer',
+			),
+			'USER_ID' => array(
 				'data_type' => 'integer',
 			),
 			'PLACEMENT' => array(
@@ -134,6 +140,32 @@ class PlacementTable extends Main\Entity\DataManager
 		);
 	}
 
+	private static function getUserFilter($userId)
+	{
+		if (is_null($userId))
+		{
+			global $USER;
+			if ($USER instanceof \CUser)
+			{
+				$userId = (int)$USER->getId();
+			}
+		}
+
+		if ($userId > 0)
+		{
+			$result = [
+				static::DEFAULT_USER_ID_VALUE,
+				$userId,
+			];
+		}
+		else
+		{
+			$result = static::DEFAULT_USER_ID_VALUE;
+		}
+
+		return $result;
+	}
+
 	/**
 	 * Returns list of placement handlers. Use \Bitrix\Rest\PlacementTable::getHandlersList.
 	 *
@@ -141,21 +173,29 @@ class PlacementTable extends Main\Entity\DataManager
 	 *
 	 * @return Main\DB\Result
 	 */
-	public static function getHandlers($placement)
+	public static function getHandlers($placement, int $userId = null)
 	{
-		$dbRes = static::getList(array(
-			'filter' => array(
-				'=PLACEMENT' => $placement,
-				'=REST_APP.ACTIVE' => AppTable::ACTIVE,
-			),
-			'select' => array(
-				'ID', 'ICON_ID', 'TITLE', 'GROUP_NAME',
-				'COMMENT', 'APP_ID', 'ADDITIONAL',
-				'INSTALLED' => 'REST_APP.INSTALLED',
-				'APP_NAME' => 'REST_APP.APP_NAME',
-				'APP_ACCESS' => 'REST_APP.ACCESS',
-			),
-		));
+		$dbRes = static::getList(
+			[
+				'filter' => [
+					'=PLACEMENT' => $placement,
+					'=REST_APP.ACTIVE' => AppTable::ACTIVE,
+					'=USER_ID' => static::getUserFilter($userId),
+				],
+				'select' => [
+					'ID',
+					'ICON_ID',
+					'TITLE',
+					'GROUP_NAME',
+					'COMMENT',
+					'APP_ID',
+					'ADDITIONAL',
+					'INSTALLED' => 'REST_APP.INSTALLED',
+					'APP_NAME' => 'REST_APP.APP_NAME',
+					'APP_ACCESS' => 'REST_APP.ACCESS',
+				],
+			]
+		);
 
 		return $dbRes;
 	}
@@ -222,7 +262,7 @@ class PlacementTable extends Main\Entity\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getHandlersList($placement, $skipInstallCheck = false)
+	public static function getHandlersList($placement, $skipInstallCheck = false, int $userId = null)
 	{
 		if(!array_key_exists($placement, static::$handlersListCache))
 		{
@@ -235,7 +275,7 @@ class PlacementTable extends Main\Entity\DataManager
 			}
 			else
 			{
-				$res = static::getHandlers($placement);
+				$res = static::getHandlers($placement, $userId);
 				foreach ($res->fetchCollection() as $handler)
 				{
 					$id = $handler->getId();
@@ -243,6 +283,7 @@ class PlacementTable extends Main\Entity\DataManager
 					$placementItem = [
 						'ID' => $id,
 						'APP_ID' => $handler->getAppId(),
+						'USER_ID' => $handler->getUserId(),
 						'ICON_ID' => $handler->getIconId(),
 						'ADDITIONAL' => $handler->getAdditional(),
 						'TITLE' => '',

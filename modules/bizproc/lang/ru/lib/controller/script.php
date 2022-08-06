@@ -10,3 +10,4 @@ $MESS["BIZPROC_CONTROLLER_SCRIPT_CANT_TERMINATE_FINISHED"] = "Невозможн
 $MESS["BIZPROC_CONTROLLER_SCRIPT_ERROR_DOCUMENT_ID_LIMIT"] = "Превышен лимит количества элементов для запуска Умного сценария (Выбрано #SELECTED#, разрешено #LIMIT#)";
 $MESS["BIZPROC_CONTROLLER_SCRIPT_ERROR_QUEUES_LIMIT"] = "Превышен лимит запусков Умного сценария (В работе #CNT#, разрешено #LIMIT#)";
 $MESS["BIZPROC_CONTROLLER_SCRIPT_NOT_EXISTS"] = "Запрашиваемый Умный сценарий не найден";
+$MESS["BIZPROC_CONTROLLER_SCRIPT_NO_TEMPLATE"] = "Умный сценарий поврежден (Не удалось прочитать данные шаблона)";

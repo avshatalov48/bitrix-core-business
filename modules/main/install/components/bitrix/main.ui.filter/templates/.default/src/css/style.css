@@ -3,6 +3,7 @@
 	overflow: hidden;
 	height: 100%;
 	color: #535c69;
+	border-radius: var(--main-ui-filter-border-radius, var(--ui-border-radius-lg));
 }
 
 .main-ui-filter-inner-container {
@@ -31,6 +32,9 @@
 	display: none;
 	height: 38px;
 	border: 1px solid #e7eaec;
+	border-radius: var(--main-ui-filter-edit-mask-border-radius, var(--ui-border-radius-2xs));
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
 	border-right: none;
 	background: #fff;
 }
@@ -73,6 +77,7 @@
 .main-ui-filter-edit-text .main-ui-filter-sidebar-item-input {
 	display: block;
 	max-width: 130px;
+	height: 37px;
 }
 
 .main-ui-filter-edit-current .main-ui-filter-edit-mask,
@@ -287,7 +292,7 @@
 	border: 0;
 	background: transparent;
 	text-transform: uppercase;
-	font: 12px/38px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
 
 .main-ui-filter-sidebar-item-input { display: none; }
@@ -972,7 +977,7 @@ select::-ms-expand {
 	position: relative;
 	height: 39px;
 	border: 1px solid transparent;
-	border-radius: 2px;
+	border-radius: var(--main-ui-filter-search-border-radius, var(--ui-border-radius-2xs, 2px));
 	background: #fff;
 	font: 15px/39px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	box-sizing: border-box;
@@ -1176,6 +1181,14 @@ select::-ms-expand {
 	height: 28px;
 }
 
+.main-ui-filter-popup-search-section-item-icon>div{
+	max-width: 300px;
+	max-height: 17px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
 .main-ui-filter-popup-search-input-wrapper{
 	justify-content: flex-end;
 	margin-top: 10px;
@@ -1217,6 +1230,9 @@ select::-ms-expand {
 	border-bottom: 2px rgba(0, 0, 0, .05) solid;
 	margin-bottom: 10px;
 	padding-bottom: 10px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
 }
 
 .main-ui-filter-popup-section-wrapper,
@@ -1320,7 +1336,7 @@ select::-ms-expand {
 	width: 100%;
 	box-sizing: border-box;
 	padding: 0 10px 0 10px!important;
-	line-height: 38px;
+	line-height: 37px;
 }
 
 .main-ui-number-input {
@@ -1900,7 +1916,7 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 }
 
 .main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field-group[data-type="NUMBER"] .main-ui-filter-field-delete {
-	right: -57px;
+	right: -67px;
 }
 
 .main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-control-field-group[data-type="DATE"] .main-ui-filter-additional-filters-button {

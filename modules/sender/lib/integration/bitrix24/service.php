@@ -217,16 +217,18 @@ class Service
 	 */
 	public static function isTolokaVisibleInRegion(): bool
 	{
+		$isLanguageAcceptable = (LANGUAGE_ID ?? 'ru') === 'ru';
+
 		if (self::isCloud())
 		{
-			return self::isCloudRegionRussian();
+			return self::isCloudRegionRussian() && $isLanguageAcceptable ;
 		}
 		elseif (Loader::includeModule('intranet'))
 		{
-			return in_array(\CIntranetUtils::getPortalZone(), ['ru', 'kz', 'by']);
+			return in_array(\CIntranetUtils::getPortalZone(), ['ru', 'kz', 'by']) && $isLanguageAcceptable;
 		}
 
-		return true;
+		return $isLanguageAcceptable;
 	}
 
 	/**

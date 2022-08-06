@@ -45,7 +45,7 @@
 	height: auto;
 	min-height: 38px;
 	background: #fff;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	border: 1px solid rgba(83,92,105,.2);
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
@@ -146,6 +146,7 @@
 	background: rgb(253,225,200);
 	color: rgb(219,90,22);
 	white-space: normal;
+	border-radius: var(--ui-border-radius-xs);
 }
 
 .new-from-email-dialog-field-hint {

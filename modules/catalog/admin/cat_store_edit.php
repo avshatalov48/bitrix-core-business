@@ -98,7 +98,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Update"] <> '' && !$bRead
 		"EMAIL" => ($_POST["EMAIL"] ?? ''),
 		"ISSUING_CENTER" => $ISSUING_CENTER,
 		"SHIPPING_CENTER" => $SHIPPING_CENTER,
-		"SITE_ID" => $_POST["SITE_ID"],
+		"SITE_ID" => $_POST["SITE_ID"] ?? false,
 		"CODE" => $_POST['CODE'] ?? false
 	);
 
@@ -292,7 +292,11 @@ if ($rsCount <= 0)
 	$rsCount = count($arSitesShop);
 }
 
-CAdminMessage::ShowMessage($errorMessage);
+$defaultStore = ($id > 0 && $currentValues['IS_DEFAULT'] === 'Y');
+if ($errorMessage !== '')
+{
+	CAdminMessage::ShowMessage($errorMessage);
+}
 
 $actionUrl = $APPLICATION->GetCurPage();
 $actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
@@ -336,7 +340,7 @@ $userFieldUrl .= "&back_url=".urlencode($APPLICATION->GetCurPageParam('', array(
 	<tr>
 		<td style="width: 40%;"><?= GetMessage("STORE_FIELD_IS_DEFAULT") ?>:</td>
 		<td>
-			<?php echo ($currentValues['IS_DEFAULT'] === 'Y' ? GetMessage('STORE_MESS_YES') : GetMessage('STORE_MESS_NO')); ?>
+			<?php echo ($defaultStore ? GetMessage('STORE_MESS_YES') : GetMessage('STORE_MESS_NO')); ?>
 		</td>
 	</tr>
 	<?php
@@ -363,21 +367,34 @@ $userFieldUrl .= "&back_url=".urlencode($APPLICATION->GetCurPageParam('', array(
 			if(($str_SHIPPING_CENTER == 'Y') || $id == 0) echo "checked";?> size="50" />
 		</td>
 	</tr>
+	<?php
+	if (!$defaultStore || (string)$str_SITE_ID !== ''):
+	?>
 	<tr>
 		<td><?= GetMessage("STORE_SITE_ID") ?>:</td>
-		<td>
+		<td><?php
+			if (!$defaultStore):
+			?>
 			<select id="SITE_ID" style="max-width: 300px; width: 300px;" name="SITE_ID" <?=($bReadOnly) ? " disabled" : ""?>>
 			<option value=""><?=GetMessage("STORE_SELECT_SITE_ID")?></option>
-				<?php
+			<?php
 				foreach($arSitesShop as $key => $val)
-			{
-				$selected = ($val['ID'] == $str_SITE_ID) ? 'selected' : '';
-				echo "<option ".$selected." value=".htmlspecialcharsbx($val['ID']).">".htmlspecialcharsbx($val["NAME"]." (".$val["ID"].")")."</option>";
-			}
+				{
+					$selected = ($val['ID'] == $str_SITE_ID) ? 'selected' : '';
+					echo "<option ".$selected." value=".htmlspecialcharsbx($val['ID']).">".htmlspecialcharsbx($val["NAME"]." (".$val["ID"].")")."</option>";
+				}
 			?>
 			</select>
+			<?php
+			else:
+				echo GetMessage('STORE_ERR_DEFAULT_STORE_WITH_SITE');
+			endif;
+			?>
 		</td>
 	</tr>
+	<?php
+	endif;
+	?>
 	<tr>
 		<td><?= GetMessage("STORE_TITLE") ?>:</td>
 		<td>

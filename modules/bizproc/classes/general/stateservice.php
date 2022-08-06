@@ -1,11 +1,9 @@
-<?
-include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/classes/general/runtimeservice.php");
+<?php
 
 use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
 use Bitrix\Main;
 
-class CBPAllStateService
-	extends CBPRuntimeService
+class CBPStateService extends CBPRuntimeService
 {
 	const COUNTERS_CACHE_TAG_PREFIX = 'b_bp_wfi_cnt_';
 
@@ -167,7 +165,11 @@ class CBPAllStateService
 			}
 
 			foreach (GetModuleEvents('bizproc', 'OnWorkflowComplete', true) as $event)
+			{
 				ExecuteModuleEventEx($event, array($workflowId, $status));
+			}
+			//Clean workflow subscriptions
+			\Bitrix\Bizproc\SchedulerEventTable::deleteByWorkflow($workflowId);
 		}
 	}
 
@@ -264,7 +266,8 @@ class CBPAllStateService
 			"	".$DB->DateToCharFunction("WS.MODIFIED", "FULL")." as MODIFIED, ".
 			"	WS.MODULE_ID, WS.ENTITY, WS.DOCUMENT_ID, ".
 			"	WT.NAME, WT.DESCRIPTION, WP.OBJECT_ID, WP.PERMISSION, WI.STATUS, ".
-			"	WS.STARTED, WS.STARTED_BY ".
+			"	WS.STARTED, ". $DB->DateToCharFunction("WS.STARTED", "FULL")
+			. " as STARTED_FORMATTED, WS.STARTED_BY ".
 			"FROM b_bp_workflow_state WS ".
 			"	LEFT JOIN b_bp_workflow_permissions WP ON (WS.ID = WP.WORKFLOW_ID) ".
 			"	LEFT JOIN b_bp_workflow_template WT ON (WS.WORKFLOW_TEMPLATE_ID = WT.ID) ".
@@ -742,9 +745,4 @@ class CBPAllStateService
 			$cache->clean(self::COUNTERS_CACHE_TAG_PREFIX.$userId);
 		}
 	}
-}
-
-//Compatibility
-class CBPStateService extends CBPAllStateService
-{
 }

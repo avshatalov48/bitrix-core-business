@@ -77,6 +77,66 @@ class Event
 			return $result;
 		}
 
+		$senderId = Main\Config\Option::get("main", "sms_default_service");
+		if($senderId == '')
+		{
+			//messageservice will try to use any available sender
+			$senderId = null;
+		}
+
+		$messageListResult = $this->createMessageList();
+		if (!$messageListResult->isSuccess())
+		{
+			return $result->addErrors($messageListResult->getErrors());
+		}
+		$messageList = $messageListResult->getData();
+
+		foreach($messageList as $message)
+		{
+			$smsMessage = \Bitrix\MessageService\Sender\SmsManager::createMessage([
+				'SENDER_ID' => $senderId,
+				'MESSAGE_FROM' => $message->getSender(),
+				'MESSAGE_TO' => $message->getReceiver(),
+				'MESSAGE_BODY' => $message->getText(),
+			]);
+
+			$event = new Main\Event('main', 'onBeforeSendSms', [
+				'message' => $smsMessage,
+				'template' => $message->getTemplate()
+			]);
+			$event->send();
+			foreach($event->getResults() as $evenResult)
+			{
+				if($evenResult->getType() === Main\EventResult::ERROR)
+				{
+					continue 2;
+				}
+			}
+
+			if($directly)
+			{
+				$smsResult = $smsMessage->sendDirectly();
+			}
+			else
+			{
+				$smsResult = $smsMessage->send();
+			}
+
+			if(!$smsResult->isSuccess())
+			{
+				$result->addErrors($smsResult->getErrors());
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return Main\Result<int, Message>
+	 */
+	public function createMessageList(): Main\Result
+	{
+		$result = new Main\Result();
 		$context = Main\Context::getCurrent();
 
 		if($this->siteId === null)
@@ -102,48 +162,12 @@ class Event
 			return $result;
 		}
 
-		$senderId = Main\Config\Option::get("main", "sms_default_service");
-		if($senderId == '')
-		{
-			//messageservice will try to use any available sender
-			$senderId = null;
-		}
-
+		$messageList = [];
 		foreach($templates as $template)
 		{
-			$message = Message::createFromTemplate($template, $this->fields);
-
-			$smsMessage = \Bitrix\MessageService\Sender\SmsManager::createMessage([
-				'SENDER_ID' => $senderId,
-				'MESSAGE_FROM' => $message->getSender(),
-				'MESSAGE_TO' => $message->getReceiver(),
-				'MESSAGE_BODY' => $message->getText(),
-			]);
-
-			$event = new Main\Event("main", "onBeforeSendSms", ['message' => $smsMessage, "template" => $template]);
-			$event->send();
-			foreach($event->getResults() as $evenResult)
-			{
-				if($evenResult->getType() === Main\EventResult::ERROR)
-				{
-					continue 2;
-				}
-			}
-
-			if($directly)
-			{
-				$smsResult = $smsMessage->sendDirectly();
-			}
-			else
-			{
-				$smsResult = $smsMessage->send();
-			}
-
-			if(!$smsResult->isSuccess())
-			{
-				$result->addErrors($smsResult->getErrors());
-			}
+			$messageList[] = Message::createFromTemplate($template, $this->fields);
 		}
+		$result->setData($messageList);
 
 		return $result;
 	}

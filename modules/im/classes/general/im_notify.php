@@ -460,15 +460,19 @@ class CIMNotify
 
 		$messages = array();
 
-		$filterId = ($setThisAndHigher? '>=': '=').'ID';
+		$filter = [
+			'=CHAT_ID' => $chatId,
+			'=NOTIFY_READ' => 'N',
+			'!=NOTIFY_TYPE' => IM_NOTIFY_CONFIRM,
+		];
+		if ($id > 0)
+		{
+			$filterId = ($setThisAndHigher? '>=': '=').'ID';
+			$filter[$filterId] = $id;
+		}
 		$orm = \Bitrix\Im\Model\MessageTable::getList(Array(
-			'select' => Array('ID', 'CHAT_ID', 'NOTIFY_TAG'),
-			'filter' => Array(
-				'=CHAT_ID' => $chatId,
-				'=NOTIFY_READ' => 'N',
-				'!=NOTIFY_TYPE' => IM_NOTIFY_CONFIRM,
-				$filterId => $id,
-			)
+			'select' => ['ID', 'CHAT_ID', 'NOTIFY_TAG'],
+			'filter' => $filter
 		));
 		while ($row = $orm->fetch())
 		{

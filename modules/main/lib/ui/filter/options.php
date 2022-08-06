@@ -503,6 +503,14 @@ class Options
 		return \Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->getId()]["filter"];
 	}
 
+	public function isSetOutside(): bool
+	{
+		return filter_var(
+			\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->getId()]["isSetOutside"],
+			FILTER_VALIDATE_BOOLEAN
+		);
+	}
+
 
 	/**
 	 * Gets additional preset fields
@@ -1118,6 +1126,7 @@ class Options
 				)
 				{
 					\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->id]["filter"] = $presetId;
+					\Bitrix\Main\Application::getInstance()->getSession()["main.ui.filter"][$this->id]["isSetOutside"] = $params["isSetOutside"];
 				}
 
 			}

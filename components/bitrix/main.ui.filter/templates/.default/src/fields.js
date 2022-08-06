@@ -941,7 +941,10 @@ export class Fields
 
 	createNumber(options)
 	{
-		const {numberTypes} = this.parent;
+		const {
+			numberTypes,
+			additionalNumberTypes,
+		} = this.parent;
 		const {ENABLE_LABEL} = this.parent.params;
 		const {
 			SUB_TYPE = {},
@@ -984,7 +987,10 @@ export class Fields
 			content: [],
 		};
 
-		if (subType !== numberTypes.LESS)
+		if (
+			subType !== numberTypes.LESS
+			&& subType !== additionalNumberTypes.BEFORE_N
+		)
 		{
 			const from = {
 				block: 'main-ui-control-field',
@@ -1021,6 +1027,7 @@ export class Fields
 		if (
 			subType === numberTypes.RANGE
 			|| subType === numberTypes.LESS
+			|| subType === additionalNumberTypes.BEFORE_N
 		)
 		{
 			const to = {

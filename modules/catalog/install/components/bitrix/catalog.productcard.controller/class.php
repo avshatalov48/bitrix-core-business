@@ -19,7 +19,6 @@ class CatalogProductControllerComponent extends CBitrixComponent
 	private const URL_TEMPLATE_VARIATION = 'variation_details';
 	private const URL_TEMPLATE_CREATE_PROPERTY = 'property_creator';
 	private const URL_TEMPLATE_MODIFY_PROPERTY = 'property_modify';
-	private const URL_TEMPLATE_FEEDBACK = 'feedback';
 	private const URL_TEMPLATE_PRODUCT_STORE_AMOUNT = 'product_store_amount_details';
 	private const URL_TEMPLATE_PRODUCT_STORE_AMOUNT_SLIDER = 'product_store_amount_details_slider';
 
@@ -51,7 +50,6 @@ class CatalogProductControllerComponent extends CBitrixComponent
 			self::URL_TEMPLATE_VARIATION => '#IBLOCK_ID#/product/#PRODUCT_ID#/variation/#VARIATION_ID#/',
 			self::URL_TEMPLATE_CREATE_PROPERTY => '#IBLOCK_ID#/create_property/#PROPERTY_TYPE#/',
 			self::URL_TEMPLATE_MODIFY_PROPERTY => '#IBLOCK_ID#/modify_property/#PROPERTY_ID#/',
-			self::URL_TEMPLATE_FEEDBACK => 'feedback/',
 			self::URL_TEMPLATE_PRODUCT_STORE_AMOUNT => '#IBLOCK_ID#/product/#PRODUCT_ID#/store_amount/?storeId=#STORE_ID#',
 			self::URL_TEMPLATE_PRODUCT_STORE_AMOUNT_SLIDER => '#IBLOCK_ID#/product/#PRODUCT_ID#/variation/#VARIATION_ID#/store_amount_slider/',
 		];

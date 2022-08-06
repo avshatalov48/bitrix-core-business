@@ -469,7 +469,7 @@ export default class Dom
 
 					if (Type.isString(item))
 					{
-						element.innerHTML += item;
+						element.insertAdjacentHTML('beforeend', item);
 					}
 				});
 

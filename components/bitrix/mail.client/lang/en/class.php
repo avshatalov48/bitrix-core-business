@@ -137,6 +137,7 @@ $MESS["MAIL_MESSAGE_NEW_FROM"] = "From";
 $MESS["MAIL_MESSAGE_NEW_SEND"] = "Send";
 $MESS["MAIL_MESSAGE_NEW_SUBJECT"] = "Subject";
 $MESS["MAIL_MESSAGE_NEW_SUBJECT_PH"] = "Enter message subject";
+$MESS["MAIL_MESSAGE_NEW_TARIFF_RESTRICTION"] = "Your current plan restrictions:<br/>\"To\", \"CC\", \"BBC\" - #COUNT# Email (recipient)";
 $MESS["MAIL_MESSAGE_NEW_TO"] = "To";
 $MESS["MAIL_MESSAGE_NEW_UPLOADING"] = "Please wait while the attachments are loading";
 $MESS["MAIL_MESSAGE_POST_TITLE"] = "Email: #SUBJECT#";

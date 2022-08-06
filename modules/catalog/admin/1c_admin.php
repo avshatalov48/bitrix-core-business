@@ -103,6 +103,11 @@ if ($USER->CanDoOperation('catalog_read')) :
 			),
 		);
 
+		$optionHints = [
+			'1C_ELEMENT_ACTION' => Loc::getMessage('CAT_1C_MESS_ONLY_BASE_1C_MODULE'),
+			'1C_SECTION_ACTION' => Loc::getMessage('CAT_1C_MESS_ONLY_BASE_1C_MODULE'),
+		];
+
 		if ($_SERVER['REQUEST_METHOD'] == "POST" && $Update <> '' && $USER->CanDoOperation('edit_php') && check_bitrix_sessid())
 		{
 			$arDisableOptions = array();
@@ -166,7 +171,16 @@ if ($USER->CanDoOperation('catalog_read')) :
 			$strOptionName = htmlspecialcharsbx("catalog_".$Option[0]);
 			?>
 		<tr>
-			<td <? echo ('textarea' == $type[0] || 'mlist' == $type[0] ? 'valign="top"' : ''); ?> width="40%"><?	if($type[0]=="checkbox")
+			<td <? echo ('textarea' == $type[0] || 'mlist' == $type[0] ? 'valign="top"' : ''); ?> width="40%">
+				<?php
+				$id = $Option[0];
+				if (isset($optionHints[$id]))
+				{
+					?><span id="hint_<?= $strOptionName; ?>"></span>
+					<script type="text/javascript">BX.hint_replace(BX('hint_<?=$strOptionName;?>'), '<?=\CUtil::JSEscape($optionHints[$id]); ?>');</script>&nbsp;<?
+				}
+				?>
+				<?	if($type[0]=="checkbox")
 							echo '<label for="'.$strOptionName.'">'.$Option[1].'</label>';
 						else
 							echo $Option[1];?>:</td>
@@ -214,7 +228,15 @@ if ($USER->CanDoOperation('catalog_read')) :
 			$strOptionName = htmlspecialcharsbx("catalog_".$Option[0]);
 			?>
 		<tr id="tr_<?echo htmlspecialcharsbx($Option[0])?>" <?if (!$showExtOptions) echo 'style="display:none"'?>>
-			<td <? echo ('textarea' == $type[0] || 'mlist' == $type[0] ? 'valign="top"' : ''); ?> width="40%"><?	if($type[0]=="checkbox")
+			<td <? echo ('textarea' == $type[0] || 'mlist' == $type[0] ? 'valign="top"' : ''); ?> width="40%">
+				<?php
+				$id = $Option[0];
+				if (isset($optionHints[$id]))
+				{
+				?><span id="hint_<?= $strOptionName; ?>"></span>
+				<script type="text/javascript">BX.hint_replace(BX('hint_<?=$strOptionName;?>'), '<?=\CUtil::JSEscape($optionHints[$id]); ?>');</script>&nbsp;<?
+				}?>
+				<?	if($type[0]=="checkbox")
 							echo '<label for="'.$strOptionName.'">'.$Option[1].'</label>';
 						else
 							echo $Option[1];?>:</td>

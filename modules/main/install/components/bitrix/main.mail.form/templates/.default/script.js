@@ -63,7 +63,6 @@
 
 		if (!event.defaultPrevented && event.returnValue !== false)
 		{
-			this.hideError();
 			BX.addClass(button, 'ui-btn-wait');
 			button.disabled = true;
 			button.offsetHeight; // hack to show loader
@@ -110,12 +109,17 @@
 	BXMainMailForm.prototype.showError = function (html)
 	{
 		var errorNode = BX.findChildByClassName(this.formWrapper, 'main-mail-form-error', true);
-		BX.adjust(errorNode, {
-			html: html,
-			style: {
-				display: 'block'
-			}
+
+		var alert = new BX.UI.Alert({
+			text: html,
+			inline: true,
+			closeBtn: true,
+			animate: true,
+			color: BX.UI.Alert.Color.DANGER,
 		});
+
+		errorNode.innerHTML = '';
+		errorNode.append(alert.getContainer());
 
 		this.initScrollable();
 		if (this.__scrollable)
@@ -129,16 +133,6 @@
 			else if (pos0.bottom < pos1.bottom-10-this.__scrollable.scrollTop)
 				this.__scrollable.scrollTop = pos1.bottom-10-pos0.bottom;
 		}
-	};
-
-	BXMainMailForm.prototype.hideError = function ()
-	{
-		var errorNode = BX.findChildByClassName(this.formWrapper, 'main-mail-form-error', true);
-		BX.adjust(errorNode, {
-			style: {
-				display: 'none'
-			}
-		});
 	};
 
 	BXMainMailForm.prototype.init = function()

@@ -91,6 +91,10 @@ export default class Contractor extends BX.UI.EntityEditorField {
 							this._changeHandler();
 						},
 						'Search:onItemCreateAsync': this.createContractor.bind(this),
+						'Item:onDeselect': (event) => {
+							this._input.value = '';
+							this._changeHandler();
+						}
 					},
 				},
 			});

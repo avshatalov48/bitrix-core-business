@@ -103,10 +103,35 @@ class CSocServAuthManager
 		];
 	}
 
+	public function isActiveAuthService(string $code): bool
+	{
+		if (!isset(self::$arAuthServices[$code]))
+		{
+			return false;
+		}
+
+		$service = self::$arAuthServices[$code];
+		if ($service["__active"] === true && $service["DISABLED"] !== true)
+		{
+			$serviceObject = new $service["CLASS"];
+			if (is_callable([$serviceObject, "CheckSettings"]))
+			{
+				if (!call_user_func_array([$serviceObject, "CheckSettings"], []))
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 	public function GetActiveAuthServices($arParams)
 	{
 		$aServ = array();
-		self::SetUniqueKey();
+		// self::SetUniqueKey();
 
 		foreach(self::$arAuthServices as $key=>$service)
 		{
@@ -742,8 +767,7 @@ class CSocServAuthManager
 	public static function GetTwitMessages($lastTwitId = "1", $counter = 1)
 	{
 		$oAuthManager = new CSocServAuthManager();
-		$arActiveSocServ = $oAuthManager->GetActiveAuthServices(array());
-		if(!(isset($arActiveSocServ["Twitter"]) && isset($arActiveSocServ["Twitter"]["__active"])) || !function_exists("hash_hmac"))
+		if(!$oAuthManager->isActiveAuthService('Twitter') || !function_exists("hash_hmac"))
 			return false;
 		if(!CModule::IncludeModule("socialnetwork"))
 			return "CSocServAuthManager::GetTwitMessages(\"$lastTwitId\", $counter);";
@@ -800,8 +824,7 @@ class CSocServAuthManager
 	public static function SendSocialservicesMessages()
 	{
 		$oAuthManager = new CSocServAuthManager();
-		$arActiveSocServ = $oAuthManager->GetActiveAuthServices(array());
-		if(!(isset($arActiveSocServ["Twitter"]) && isset($arActiveSocServ["Twitter"]["__active"])) || !function_exists("hash_hmac"))
+		if(!$oAuthManager->isActiveAuthService('Twitter') || !function_exists("hash_hmac"))
 			return false;
 
 		$ttl = 86400;

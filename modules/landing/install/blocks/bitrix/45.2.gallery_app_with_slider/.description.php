@@ -54,6 +54,12 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_45.2.GALLERY_APP_WO_SLIDER_CARDS_LANDINGBLOCKNODECARDIMG'),
 			'type' => ['align-self', 'animation'],
 		),
+		'.landing-block-slider' => array(
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_45_2_GALLERY_APP_WO_SLIDER_NODES_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show', 'dots'],
+			]
+		),
 	),
 	'assets' => array(
 		'ext' => array('landing_carousel', 'landing_gallery_cards'),

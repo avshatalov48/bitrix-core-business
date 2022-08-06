@@ -10,13 +10,12 @@ use Bitrix\Main\Localization\Loc;
 /** @var array $arResult */
 
 \Bitrix\Main\UI\Extension::load([
-		'ui.layout-form',
-		'ui.buttons',
-		'ui.common',
-		'ui.opensans',
-	]
-);
-\CJSCore::Init();
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ui.layout-form',
+	'ui.buttons',
+	'ui.common',
+]);
 ?>
 
 <?if($arParams['SHOW_HTML_META'] === 'Y'):?>

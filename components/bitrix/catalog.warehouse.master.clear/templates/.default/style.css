@@ -25,7 +25,8 @@
 	display: inline-block;
 	margin-right: 12px;
 	padding-right: 40px;
-	font: 38px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 38px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #fb3c1a;
 }
 
@@ -40,7 +41,8 @@
 }
 
 .catalog-warehouse-master-clear-title-text {
-	font: 38px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 38px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #202020;
 }
 
@@ -68,7 +70,8 @@
 	padding-left: 16px;
 	margin-bottom: 18px;
 	list-style: none;
-	font: 18px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .catalog-warehouse-master-clear-ul-item:last-child {
@@ -117,11 +120,13 @@
 
 .catalog-warehouse__master-clear--content {
 	padding: 24px;
-	font-family: 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .catalog-warehouse__master-clear--title {
-	font: 32px/32px 'OpenSans-Light', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	font: 32px/32px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #202020;
 	margin: 0 0 33px 14px;
 }
@@ -175,7 +180,8 @@
 }
 
 .catalog-warehouse__master-clear--name {
-	font: 20px/26px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 20px/26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #000000;
 }
 
@@ -192,7 +198,8 @@
 .catalog-warehouse__master-clear--label {
 	background: #ced4da;
 	border-radius: 8.5px;
-	font: 9px/14px 'OpenSans-Semibold', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: 9px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	padding: 0 8px;
 	height: 15px;
 	display: inline-block;

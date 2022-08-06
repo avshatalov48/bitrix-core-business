@@ -28,4 +28,5 @@ $MESS["SONET_C3_USER_SETTINGS"] = "User Settings";
 $MESS["SONET_CALENDAR_ACCESS_NOTE"] = "Access permissions for the calendar are configured directly on the event calendar page: Settings --> Access permissions.";
 $MESS["SONET_MODULE_NOT_INSTALL"] = "The Social Network module is not installed.";
 $MESS["SONET_P_USER_NO_USER"] = "The user was not found.";
-$MESS["SONET_WEBDAV_RIGHS_NOTE"] = "Access permissions to files can be set in the document library of a workgroup";
+$MESS["SONET_TASKS_SCRUM_ACCESS_NOTE"] = "Task access permissions are assigned automatically for scrum teams. The team members can see and manage their tasks.";
+$MESS["SONET_WEBDAV_RIGHS_NOTE2"] = "To edit the Drive access permissions for this workgroup, go to the Drive pane workgroup menu and click the gear icon.";

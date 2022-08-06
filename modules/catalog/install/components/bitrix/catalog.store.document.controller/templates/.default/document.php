@@ -15,6 +15,7 @@ $request = Main\Context::getCurrent()->getRequest();
 
 $documentId = (int)($arResult['VARIABLES']['DOCUMENT_ID'] ?? 0);
 $preselectedProductId = $request->get('preselectedProductId') ? (int)$request->get('preselectedProductId') : null;
+$preloadedFields = $request->get('preloadedFields');
 
 global $APPLICATION;
 
@@ -31,6 +32,7 @@ $APPLICATION->IncludeComponent(
 			'DOCUMENT_TYPE' => $request->get('DOCUMENT_TYPE'),
 			'PATH_TO' => $arResult['PATH_TO'],
 			'PRESELECTED_PRODUCT_ID' => $preselectedProductId,
+			'PRELOADED_FIELDS' => $preloadedFields,
 		],
 		'RELOAD_GRID_AFTER_SAVE' => 'all',
 		'USE_UI_TOOLBAR' => 'Y',

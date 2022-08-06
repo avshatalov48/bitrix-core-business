@@ -19,5 +19,4 @@ $MESS["BT_MOD_SALE_BASKET_ERR_FUSER_ID_ABSENT"] = "Не вказаний ID ко
 $MESS["SU_ANONYMOUS_USER_NAME"] = "Анонімний користувач";
 $MESS["SU_ANONYMOUS_USER_CREATE"] = "Помилка створення анонімного користувача. #ERROR#";
 $MESS["BT_STORE_WRONG_BARCODE"] = "У товару \"#PRODUCT_NAME#\" для складу ##STORE_ID# вказано невірний штрихкод \"#BARCODE#\".";
-$MESS["BT_SUBSCRIBE_DEDUCTION_ERROR"] = "При продажу товару-підписки необхідно увімкнути складський облік.";
 ?>

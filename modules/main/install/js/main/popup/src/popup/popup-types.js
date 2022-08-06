@@ -18,6 +18,8 @@ export type PopupOptions = {
 	resizable?: boolean,
 	padding?: number,
 	contentPadding?: number,
+	borderRadius?: string,
+	contentBorderRadius?: string,
 	background?: string,
 	cacheable?: boolean,
 	contentBackground?: string,

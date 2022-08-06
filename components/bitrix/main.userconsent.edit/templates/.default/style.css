@@ -40,6 +40,7 @@
 	background-color: #fff;
 	margin-top: 21px;
 	flex-grow: 1;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .main-user-consent-edit-content .main-ui-filter-search {

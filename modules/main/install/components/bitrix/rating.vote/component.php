@@ -11,15 +11,17 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @global CMain $APPLICATION */
 
 $arResult['VOTE_AVAILABLE'] = isset($arParams['VOTE_AVAILABLE'])? $arParams['VOTE_AVAILABLE'] == 'Y'? 'Y': 'N' : 'Y';
-if ($arResult['VOTE_AVAILABLE'] == 'Y')
+if ($arResult['VOTE_AVAILABLE'] === 'Y')
+{
 	$arAllowVote = CRatings::CheckAllowVote($arParams);
+}
 
 $sRatingVoteType = COption::GetOptionString("main", "rating_vote_type", "standart");
-$sRatingTemplate = $this->GetTemplateName();
-if ($sRatingTemplate == "" || $sRatingTemplate == ".default")
+$ratingTemplateName = $this->GetTemplateName();
+if ($ratingTemplateName == "" || $ratingTemplateName == ".default")
 {
-	$sRatingTemplate = COption::GetOptionString("main", "rating_vote_template", $sRatingVoteType == "like"? "like": "standart");
-	$this->SetTemplateName($sRatingTemplate);
+	$ratingTemplateName = COption::GetOptionString("main", "rating_vote_template", $sRatingVoteType == "like"? "like": "standart");
+	$this->SetTemplateName($ratingTemplateName);
 }
 $arResult['ENTITY_TYPE_ID'] = $arParams['ENTITY_TYPE_ID'];
 $arResult['ENTITY_ID'] = intval($arParams['ENTITY_ID']);
@@ -36,7 +38,7 @@ $arResult['USER_VOTE'] = (float)($arParams['USER_VOTE'] ?? 0);
 $arResult['ALLOW_VOTE'] = $arAllowVote;
 $arResult['PATH_TO_USER_PROFILE'] = $arParams['PATH_TO_USER_PROFILE'];
 
-$isLikeTemplate = in_array($sRatingTemplate, array("like", "like_graphic", "mobile_like", "like_react"));
+$isLikeTemplate = in_array($ratingTemplateName, array("like", "like_graphic", "mobile_like", "like_react"));
 if ($isLikeTemplate)
 {
 	$arResult['TOTAL_VOTES'] = $arResult['TOTAL_POSITIVE_VOTES'];
@@ -61,19 +63,27 @@ if (!array_key_exists('TOTAL_VALUE', $arParams) ||
 		$arResult['USER_REACTION'] = $arComponentVoteResult['USER_REACTION'];
 		$arResult['REACTIONS_LIST'] = $arComponentVoteResult['REACTIONS_LIST'];
 
-		if (in_array($sRatingTemplate, array("like", "like_graphic", "mobile_like")))
+		if (in_array($ratingTemplateName, array("like", "like_graphic", "mobile_like")))
 		{
 			$arResult['TOTAL_VOTES'] = $arComponentVoteResult['TOTAL_POSITIVE_VOTES'];
 		}
 	}
 }
 
-$arResult['VOTE_BUTTON'] = $arResult['USER_HAS_VOTED'] == 'Y'? ($arResult['USER_VOTE'] >= 0? 'PLUS': 'MINUS'): 'NONE';
-if ($isLikeTemplate && $arResult['VOTE_BUTTON'] == 'MINUS')
+$arResult['VOTE_BUTTON'] = (
+	$arResult['USER_HAS_VOTED'] === 'Y'
+		? ($arResult['USER_VOTE'] >= 0 ? 'PLUS' : 'MINUS')
+		: 'NONE'
+);
+if ($isLikeTemplate && $arResult['VOTE_BUTTON'] === 'MINUS')
+{
 	$arResult['USER_HAS_VOTED'] = 'N';
+}
 
 if (!$arResult['ALLOW_VOTE']['RESULT'])
+{
 	$arResult['VOTE_AVAILABLE'] = 'N';
+}
 
 $arResult['VOTE_TITLE'] = (
 	$arResult['TOTAL_VOTES'] == 0
@@ -83,30 +93,34 @@ $arResult['VOTE_TITLE'] = (
 $arResult['VOTE_ID'] = (
 	!empty($arParams['VOTE_ID'])
 		? $arParams['VOTE_ID']
-		: $arResult['ENTITY_TYPE_ID'].'-'.$arResult['ENTITY_ID'].'-'.($arParams["VOTE_RAND"] > 0 ? intval($arParams["VOTE_RAND"]) : (time()+rand(0, 1000)))
+		: $arResult['ENTITY_TYPE_ID'] . '-' . $arResult['ENTITY_ID'].'-' . (
+			$arParams["VOTE_RAND"] > 0
+				? (int)$arParams["VOTE_RAND"]
+				: (time() + random_int(0, 1000))
+		)
 );
 
 $isMobileLog = defined("BX_MOBILE_LOG") && BX_MOBILE_LOG == true;
 
-if (!(isset($arParams['TEMPLATE_HIDE']) && $arParams['TEMPLATE_HIDE'] == 'Y'))
+$arParams['REACTIONS_LIST'] = (
+	is_array($arParams['REACTIONS_LIST'])
+		? array_filter($arParams['REACTIONS_LIST'], static function ($value) {
+			return (int)$value > 0;
+		})
+		: []
+);
+
+if (!(isset($arParams['TEMPLATE_HIDE']) && $arParams['TEMPLATE_HIDE'] === 'Y'))
 {
 	if (!defined('MAIN_RATING_VOTE_JS_INCLUDE'))
 	{
 		define("MAIN_RATING_VOTE_JS_INCLUDE", true);
 
-		if (!$isMobileLog)
-			CJSCore::Init(array('popup', 'ajax'));
-
-		if (!$isMobileLog)
+		if (!$isMobileLog && !$isLikeTemplate)
 		{
-			if ($isLikeTemplate)
-				$APPLICATION->AddHeadScript("/bitrix/js/main/rating_like.js");
-			else
-				$APPLICATION->AddHeadScript("/bitrix/js/main/rating.js");
+			$APPLICATION->AddHeadScript("/bitrix/js/main/rating.js");
 		}
 	}
-	if (!$isMobileLog)
-		$APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/rating.vote/templates/like/popup.css");
 
 	if ($isLikeTemplate)
 	{
@@ -114,7 +128,7 @@ if (!(isset($arParams['TEMPLATE_HIDE']) && $arParams['TEMPLATE_HIDE'] == 'Y'))
 		$arResult['RATING_TEXT_LIKE_N'] = COption::GetOptionString("main", "rating_text_like_n", GetMessage("RATING_TEXT_LIKE_N"));
 		$arResult['RATING_TEXT_LIKE_D'] = COption::GetOptionString("main", "rating_text_like_d", GetMessage("RATING_TEXT_LIKE_D"));
 	}
-	else if ($sRatingTemplate == "standart_text")
+	else if ($ratingTemplateName === "standart_text")
 	{
 		$arResult['RATING_TEXT_A'] = GetMessage("RATING_TEXT_A");
 		$arResult['RATING_TEXT_D'] = GetMessage("RATING_TEXT_D");

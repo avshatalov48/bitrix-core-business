@@ -14,6 +14,7 @@ $APPLICATION->includeComponent(
 	'.default',
 	[
 		'PRODUCT_ID' => $arResult['VARIATION_FIELDS']['ID'],
+		'PATH_TO' => $arParams['PATH_TO'],
 	],
 );
 ?>

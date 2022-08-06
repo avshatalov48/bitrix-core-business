@@ -24,7 +24,8 @@ Loc::loadMessages(__FILE__);
 CJSCore::Init(
 	[
 		'amcharts',
-		'amcharts_serial'
+		'amcharts_serial',
+		'ui.design-tokens',
 	]
 );
 Asset::getInstance()->addJs('/bitrix/js/main/amcharts/3.21/gantt.js');

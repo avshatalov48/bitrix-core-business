@@ -5,8 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-class CBPSocnetBlogPostActivity
-	extends CBPActivity
+class CBPSocnetBlogPostActivity extends CBPActivity
 {
 	public function __construct($name)
 	{
@@ -26,13 +25,20 @@ class CBPSocnetBlogPostActivity
 		global $DB;
 
 		if (!CModule::IncludeModule("socialnetwork") || !CModule::IncludeModule("blog"))
+		{
 			return CBPActivityExecutionStatus::Closed;
+		}
 
 		$rootActivity = $this->GetRootActivity();
 		$documentId = $rootActivity->GetDocumentId();
 
 		$siteId = $this->PostSite ? $this->PostSite : SITE_ID;
 		$ownerId = CBPHelper::ExtractUsers($this->OwnerId, $documentId, true);
+		$usersTo = $this->UsersTo;
+		$title = trim($this->PostTitle);
+		$message = HTMLToTxt(nl2br($this->PostMessage), '', [], 0);
+
+		$this->logDebug($title, $ownerId, $usersTo);
 
 		if (empty($ownerId))
 		{
@@ -46,10 +52,11 @@ class CBPSocnetBlogPostActivity
 
 		$blog = CBlog::GetByOwnerID($ownerId);
 		if (!$blog)
+		{
 			$blog = $this->createBlog($ownerId, $blogGroupID, $siteId);
+		}
 
 		$micro = 'N';
-		$title = trim($this->PostTitle);
 		if (!$title)
 		{
 			$micro = 'Y';
@@ -60,7 +67,7 @@ class CBPSocnetBlogPostActivity
 			));
 		}
 
-		$socnetRights = $this->getSocnetRights($this->UsersTo);
+		$socnetRights = $this->getSocnetRights($usersTo);
 
 		if (empty($socnetRights))
 		{
@@ -72,7 +79,7 @@ class CBPSocnetBlogPostActivity
 		{
 			$postFields = array(
 				'TITLE'            => $title,
-				'DETAIL_TEXT'      => HTMLToTxt(nl2br($this->PostMessage), '', array(), 0),
+				'DETAIL_TEXT'      => $message,
 				'DETAIL_TEXT_TYPE' => 'text',
 				'=DATE_PUBLISH'    => $DB->CurrentTimeFunction(),
 				'PUBLISH_STATUS'   => BLOG_PUBLISH_STATUS_PUBLISH,
@@ -94,7 +101,9 @@ class CBPSocnetBlogPostActivity
 			);
 
 			if(!empty($postFields["SOCNET_RIGHTS"]) && count($postFields["SOCNET_RIGHTS"]) == 1 && in_array("UA", $postFields["SOCNET_RIGHTS"]))
+			{
 				$postFields['HAS_SOCNET_ALL'] = 'Y';
+			}
 
 			$newId = CBlogPost::add($postFields);
 			$postFields["ID"] = $newId;
@@ -116,10 +125,11 @@ class CBPSocnetBlogPostActivity
 				'SITE_ID' => $siteId
 			)));
 
+			$postUrl = CComponentEngine::MakePathFromTemplate($pathToPost, ["post_id" => $newId, "user_id" => $ownerId]);
 			$arFieldsIM = Array(
 				"TYPE" => "POST",
 				"TITLE" => $postFields["TITLE"],
-				"URL" => CComponentEngine::MakePathFromTemplate($pathToPost, array("post_id" => $newId, "user_id" => $ownerId)),
+				"URL" => $postUrl,
 				"ID" => $newId,
 				"FROM_USER_ID" => $ownerId,
 				"TO_USER_ID" => array(),
@@ -127,6 +137,8 @@ class CBPSocnetBlogPostActivity
 				"TO_SOCNET_RIGHTS_OLD" => array()
 			);
 			CBlogPost::NotifyIm($arFieldsIM);
+
+			$this->logDebugPost($postUrl);
 		}
 		catch (Exception $e)
 		{
@@ -294,13 +306,6 @@ class CBPSocnetBlogPostActivity
 
 	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "")
 	{
-		$sites = array();
-		$sitesIterator = CSite::GetList('', '', Array('ACTIVE' => 'Y'));
-		while ($site = $sitesIterator->fetch())
-		{
-			$sites[$site['LID']] = $site['NAME'];
-		}
-
 		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, array(
 			'documentType' => $documentType,
 			'activityName' => $activityName,
@@ -312,43 +317,7 @@ class CBPSocnetBlogPostActivity
 
 		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);
 
-		$dialog->setMap(array(
-			'OwnerId' => array(
-				'Name' => GetMessage("SNBPA_OWNER_ID"),
-				'FieldName' => 'owner_id',
-				'Type' => 'user',
-				'Required' => true,
-				'Default' => $user->getBizprocId()
-			),
-			'UsersTo' => array(
-				'Name' => GetMessage("SNBPA_USERS_TO"),
-				'FieldName' => 'users_to',
-				'Type' => 'user',
-				'Required' => true,
-				'Multiple' => true,
-				'Default' => method_exists(\Bitrix\Bizproc\Automation\Helper::class, 'getResponsibleUserExpression')
-					? \Bitrix\Bizproc\Automation\Helper::getResponsibleUserExpression($documentType) : 'author'
-			),
-			'PostTitle' => array(
-				'Name' => GetMessage("SNBPA_POST_TITLE"),
-				'Description' => GetMessage("SNBPA_POST_TITLE"),
-				'FieldName' => 'post_title',
-				'Type' => 'string'
-			),
-			'PostMessage' => array(
-				'Name' => GetMessage("SNBPA_POST_MESSAGE"),
-				'Description' => GetMessage("SNBPA_POST_MESSAGE"),
-				'FieldName' => 'post_message',
-				'Type' => 'text',
-				'Required' => true
-			),
-			'PostSite' => array(
-				'Name' => GetMessage("SNBPA_POST_SITE"),
-				'FieldName' => 'post_site',
-				'Type' => 'select',
-				'Options' => $sites
-			)
-		));
+		$dialog->setMap(static::getPropertiesMap($documentType, ['user' => $user]));
 
 		$dialog->setRuntimeData(array(
 			'user' => $user
@@ -404,5 +373,97 @@ class CBPSocnetBlogPostActivity
 		$arCurrentActivity["Properties"] = $arProperties;
 
 		return true;
+	}
+
+	protected static function getPropertiesMap(array $documentType, array $context = []): array
+	{
+		$user = $context['user'] ?? new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);
+
+		$sites = [];
+		$sitesIterator = CSite::GetList('', '', ['ACTIVE' => 'Y']);
+		while ($site = $sitesIterator->fetch())
+		{
+			$sites[$site['LID']] = $site['NAME'];
+		}
+
+		return [
+			'PostTitle' => [
+				'Name' => GetMessage("SNBPA_POST_TITLE"),
+				'Description' => GetMessage("SNBPA_POST_TITLE"),
+				'FieldName' => 'post_title',
+				'Type' => 'string'
+			],
+			'PostMessage' => [
+				'Name' => GetMessage("SNBPA_POST_MESSAGE"),
+				'Description' => GetMessage("SNBPA_POST_MESSAGE"),
+				'FieldName' => 'post_message',
+				'Type' => 'text',
+				'Required' => true
+			],
+			'OwnerId' => [
+				'Name' => GetMessage("SNBPA_OWNER_ID"),
+				'FieldName' => 'owner_id',
+				'Type' => 'user',
+				'Required' => true,
+				'Default' => $user->getBizprocId()
+			],
+			'UsersTo' => [
+				'Name' => GetMessage("SNBPA_USERS_TO"),
+				'FieldName' => 'users_to',
+				'Type' => 'user',
+				'Required' => true,
+				'Multiple' => true,
+				'Default' => \Bitrix\Bizproc\Automation\Helper::getResponsibleUserExpression($documentType),
+			],
+			'PostSite' => [
+				'Name' => GetMessage("SNBPA_POST_SITE"),
+				'FieldName' => 'post_site',
+				'Type' => 'select',
+				'Options' => $sites
+			]
+		];
+	}
+
+	private function logDebug($title, $ownerId, $usersTo)
+	{
+		if (!method_exists($this, 'getDebugInfo'))
+		{
+			return;
+		}
+
+		$debugInfo = $this->getDebugInfo([
+			'PostTitle' => $title,
+			'OwnerId' => 'user_' . $ownerId,
+			'UsersTo' => $usersTo,
+		]);
+
+		unset($debugInfo['PostMessage']);
+		unset($debugInfo['PostSite']);
+
+		$this->writeDebugInfo($debugInfo);
+	}
+
+	private function logDebugPost($url)
+	{
+		if (!method_exists($this, 'getDebugInfo'))
+		{
+			return;
+		}
+
+		$toWrite = [
+			'propertyName' => GetMessage("SNBPA_POST_MESSAGE"),
+			'propertyValue' => $url,
+			'propertyLinkName' => GetMessage('SNBPA_POST_URL_LABEL'),
+		];
+
+		$this->writeDebugTrack(
+			$this->getWorkflowInstanceId(),
+			$this->getName(),
+			$this->executionStatus,
+			$this->executionResult,
+			$this->Title ?? '',
+			$toWrite,
+			CBPTrackingType::DebugLink
+		);
 	}
 }

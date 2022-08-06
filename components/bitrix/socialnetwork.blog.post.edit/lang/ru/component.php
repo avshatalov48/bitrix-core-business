@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BLOG_MODULE_NOT_INSTALL"] = "Модуль блогов не установлен.";
 $MESS["B_B_MES_NO_BLOG"] = "Блог не найден";
 $MESS["BLOG_POST_EDIT"] = "Редактирование сообщения";
@@ -21,6 +21,7 @@ $MESS["BLOG_SONET_GROUP_MODULE_NOT_AVAIBLE"] = "Сообщения недост�
 $MESS["BLOG_EMPTY_TITLE_PLACEHOLDER"] = "Изображение";
 $MESS["BLOG_EMPTY_TITLE_PLACEHOLDER2"] = "Файл";
 $MESS["BLOG_EMPTY_TITLE_PLACEHOLDER3"] = "Заголовок";
+$MESS["BLOG_EMPTY_TITLE_VOTE_PLACEHOLDER"] = "Опрос";
 $MESS["B_B_HIDDEN_GROUP"] = "Скрытая группа";
 $MESS["B_B_HIDDEN_USER"] = "Скрытый пользователь";
 $MESS["B_B_HIDDEN_DEPARTMENT"] = "Скрытое подразделение";

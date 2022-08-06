@@ -807,7 +807,7 @@ class CIMEvent
 					if (\Bitrix\Im\User::getInstance($arParams["ID"])->isBot())
 						return true;
 
-					if (!\Bitrix\Im\User::getInstance($arParams["ID"])->isActive())
+					if ($arParams['ACTIVE'] != 'Y' && !\Bitrix\Im\User::getInstance($arParams["ID"])->isActive())
 						return true;
 
 					$userInChat = CIMChat::GetRelationById($commonChatId, $arParams["ID"]);

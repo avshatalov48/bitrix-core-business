@@ -39,7 +39,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\EO_Price_Collection wakeUpCollection($rows)
  */
 
-class PriceTable extends Main\Entity\DataManager
+class PriceTable extends Main\ORM\Data\DataManager
 {
 	/**
 	 * Returns DB table name for entity.

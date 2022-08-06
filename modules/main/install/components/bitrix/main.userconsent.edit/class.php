@@ -129,7 +129,7 @@ class MainUserConsentEditComponent extends CBitrixComponent
 			$GLOBALS['APPLICATION']->SetTitle(
 				$this->agreement->getId()
 				?
-				Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TITLE_EDIT')
+				Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TITLE_EDIT_1')
 				:
 				Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TITLE_ADD')
 			);
@@ -159,7 +159,7 @@ class MainUserConsentEditComponent extends CBitrixComponent
 					'INPUT_NAME' => 'AGREEMENT_TEXT',
 					'CODE' => 'AGREEMENT_TEXT',
 					'TYPE' => 'text',
-					'CAPTION' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_AGREEMENT_TEXT'),
+					'CAPTION' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_AGREEMENT_TEXT_1'),
 					'PLACEHOLDER' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_AGREEMENT_TEXT_HINT'),
 					'VALUE' => $data['AGREEMENT_TEXT'],
 					'TAB' => 'text',
@@ -168,7 +168,7 @@ class MainUserConsentEditComponent extends CBitrixComponent
 					'INPUT_NAME' => 'IS_AGREEMENT_TEXT_HTML',
 					'CODE' => 'IS_AGREEMENT_TEXT_HTML',
 					'TYPE' => 'checkbox',
-					'CAPTION' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_IS_AGREEMENT_TEXT_HTML'),
+					'CAPTION' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_FIELD_IS_AGREEMENT_TEXT_HTML_1'),
 					'VALUE' => $data['IS_AGREEMENT_TEXT_HTML'],
 					'TAB' => 'text',
 				],
@@ -299,7 +299,7 @@ class MainUserConsentEditComponent extends CBitrixComponent
 	{
 		$this->arResult['MENU_ITEMS'] = [
 			'text' => [
-				'NAME' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TAB_TEXT'),
+				'NAME' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TAB_TEXT_1'),
 				'ATTRIBUTES' => [
 					'onclick' => 'BX.Main.UserConsent.Edit.showTextTab();',
 				],
@@ -316,7 +316,7 @@ class MainUserConsentEditComponent extends CBitrixComponent
 		if ($this->arParams['ID'])
 		{
 			$this->arResult['MENU_ITEMS']['list'] = [
-				'NAME' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TAB_LIST'),
+				'NAME' => Loc::getMessage('MAIN_USER_CONSENT_EDIT_COMP_TAB_LIST_1'),
 				'ATTRIBUTES' => [
 					'onclick' => 'BX.Main.UserConsent.Edit.showListTab();',
 				],

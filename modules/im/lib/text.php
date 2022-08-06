@@ -204,6 +204,15 @@ class Text
 		return $text;
 	}
 
+	public static function populateUserBbCode(string $text): string
+	{
+		return preg_replace_callback("/\[USER=([0-9]{1,})\]\[\/USER\]/i", static function($matches){
+			$userId = $matches[1];
+			$userName = \Bitrix\Im\User::getInstance($userId)->getFullName(false);
+			return '[USER='.$userId.' REPLACE]'.$userName.'[/USER]';
+		}, $text);
+	}
+
 	public static function encodeEmoji($text)
 	{
 		return \Bitrix\Main\Text\Emoji::encode($text);

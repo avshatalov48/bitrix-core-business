@@ -73,10 +73,12 @@
 {
 	background: #fff !important;
 }
-.catalog-product-search-dialog .adm-list-table-row.row-sku-selected .adm-list-table-cell
+
+.catalog-product-search-dialog .adm-list-table-row .adm-list-table-cell .select-hidden
 {
-	background: #D8E0B8 !important;
+	display: none;
 }
+
 .catalog-product-search-dialog .sku-item-name
 {
 	padding-left: 30px;

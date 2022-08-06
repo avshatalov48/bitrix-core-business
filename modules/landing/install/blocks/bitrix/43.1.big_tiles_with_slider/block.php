@@ -30,10 +30,10 @@
 			<div class="landing-block-node-img2 col-md-6 col-lg-6 g-bg-img-hero g-height-250 g-height-500--md js-animation fadeInLeft"
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1200x781/img2.jpg);"></div>
 
-			<div class="col-md-6 col-lg-6">
+			<div class="landing-block-slider col-md-6 col-lg-6" data-slider-arrows="1" data-slider-animation="1">
 				<div class="js-carousel"
 					 data-infinite="true"
-					 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-55 g-font-size-12 g-color-gray-dark-v5 g-bg-white g-mt-minus-10"
+					 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-55 g-font-size-12 g-mt-minus-10 g-transition-0_2 g-transition--ease-in g-color-gray g-color-white--hover g-bg-gray-light-v5 g-bg-primary--hover"
 					 data-arrow-left-classes="fa fa-chevron-left g-left-0"
 					 data-arrow-right-classes="fa fa-chevron-right g-right-0">
 					<div class="landing-block-node-card js-slide d-flex align-items-center">

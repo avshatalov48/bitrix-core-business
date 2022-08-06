@@ -15,6 +15,6 @@ class CatalogNotFoundError extends CBitrixComponent
 
 	private function fillResult(): void
 	{
-		$this->arResult['TITLE'] = $this->arParams['ERROR_MESSAGE'] ?? null;
+		$this->arResult['TITLE'] = $this->arParams['~ERROR_MESSAGE'] ?? null;
 	}
 }

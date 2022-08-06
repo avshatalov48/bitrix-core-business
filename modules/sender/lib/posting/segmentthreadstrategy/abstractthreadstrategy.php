@@ -24,6 +24,9 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 	protected $perPage = 100000;
 	protected const GROUP_THREAD_LOCK_KEY = 'group_thread_';
 	public const THREAD_UNAVAILABLE = -1;
+	public const THREAD_LOCKED = -2;
+	public const THREAD_NEEDED = 1;
+
 
 	/**
 	 *
@@ -41,8 +44,6 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 		$query = '
 				INSERT INTO `' . $tableName . '`(THREAD_ID, GROUP_STATE_ID, THREAD_TYPE, STEP)
 					VALUES ' . implode(',', $insertData) . '
-					ON DUPLICATE KEY UPDATE
-				THREAD_ID = VALUES(THREAD_ID)
 							';
 
 		try
@@ -101,6 +102,42 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 		Locker::unlock(self::GROUP_THREAD_LOCK_KEY, $this->groupStateId);
 
 		return $this->threadId;
+	}
+
+	/**
+	 * Check threads is available and not need to insert
+	 * @return int|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function checkThreads(): ?int
+	{
+		if (!static::checkLock())
+		{
+			return self::THREAD_LOCKED;
+		}
+
+		$thread = GroupThreadTable::getList(
+			[
+				"select" => [
+					"THREAD_ID",
+					"STEP"
+				],
+				"filter" => [
+					'=GROUP_STATE_ID' => $this->groupStateId
+				],
+				"limit" => 1
+			]
+		)->fetch();
+
+		if (isset($thread["THREAD_ID"]))
+		{
+			return self::THREAD_UNAVAILABLE;
+		}
+		Locker::unlock(self::GROUP_THREAD_LOCK_KEY, $this->groupStateId);
+
+		return self::THREAD_NEEDED;
 	}
 
 	/**

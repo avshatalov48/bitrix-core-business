@@ -27,8 +27,6 @@ $bWorkflow = Loader::includeModule("workflow");
 $bFileman = Loader::includeModule("fileman");
 $dsc_cookie_name = Main\Config\Option::get('main', 'cookie_name', 'BITRIX_SM')."_DSC";
 
-\Bitrix\Main\UI\Extension::load(['catalog.store-use']);
-
 /** @global CAdminPage $adminPage */
 global $adminPage;
 /** @global CAdminSidePanelHelper $adminSidePanelHelper */
@@ -4886,53 +4884,6 @@ if($bCatalog && $boolCatalogPrice)
 			};
 			var priceChanger = (new top.BX.CAdminDialog(paramsWindowChanger));
 			priceChanger.Show();
-		}
-
-		function openSlider(url, options)
-		{
-			options = {...{cacheable: false, allowChangeHistory: false, events: {}}, ...options};
-			return new Promise((resolve) =>
-			{
-				if(url.length > 1)
-				{
-					options.events.onClose = function(event)
-					{
-						resolve(event.getSlider());
-					};
-					return BX.SidePanel.Instance.open(url, options);
-				}
-				else
-				{
-					resolve();
-				}
-			});
-		}
-
-		function openWarehousePanel(url)
-		{
-			new BX.Catalog.StoreUse.Slider().open(url, {data: {closeSliderOnDone: false}})
-			.then(() => {
-				this.reloadGrid();
-			});
-		}
-
-		function openConfigSlider(url)
-		{
-			openSlider(
-				url,
-				{
-					width: 1000,
-					allowChangeHistory: false,
-					cacheable: false,
-					data: {
-						stateChangeCallbackFn: 'reloadGrid',
-					}
-				});
-		}
-
-		function reloadGrid()
-		{
-			document.location.reload();
 		}
 	</script>
 

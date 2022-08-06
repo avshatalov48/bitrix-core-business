@@ -104,11 +104,28 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }
 	  }, {
 	    key: "show",
-	    value: function show() {
+	    value: function show(formMode) {
 	      var _this4 = this;
 
 	      this[showPseudoContent]();
 	      StylePanel[disableEditorPointerEvents]();
+
+	      if (formMode) {
+	        if (!main_core.Dom.hasClass(this.layout, 'landing-ui-style-form-mode')) {
+	          main_core.Dom.addClass(this.layout, 'landing-ui-style-form-mode');
+	          main_core.Dom.style(this.overlay, {
+	            'z-index': 9998,
+	            width: '880px'
+	          });
+	          main_core.Dom.insertAfter(this.overlay, this.layout);
+	          main_core.Dom.removeClass(this.overlay, 'landing-ui-panel-style-overlay');
+	        }
+	      } else {
+	        main_core.Dom.remove(this.overlay);
+	        main_core.Dom.addClass(this.overlay, 'landing-ui-panel-style-overlay');
+	        main_core.Dom.removeClass(this.layout, 'landing-ui-style-form-mode');
+	      }
+
 	      return babelHelpers.get(babelHelpers.getPrototypeOf(StylePanel.prototype), "show", this).call(this).then(function () {
 	        _this4.loader.show();
 
@@ -117,8 +134,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	          StylePanel[enableEditorPointerEvents]();
 	        }, 300);
-	        main_core.Dom.style(_this4.getViewWrapper(), 'width', 'calc(100% - 320px)');
-	        main_core.Dom.addClass(document.body, 'landing-ui-collapsed');
+
+	        if (!formMode) {
+	          main_core.Dom.style(_this4.getViewWrapper(), 'width', 'calc(100% - 320px)');
+	          main_core.Dom.addClass(document.body, 'landing-ui-collapsed');
+	        }
+
 	        BX.onCustomEvent('BX.Landing.Style:enable', []);
 
 	        _this4.emit('enable', {

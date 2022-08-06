@@ -7,7 +7,8 @@
 }
 
 .pagetitle-inner-container .pagetitle {
-	font: 26px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font: 26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	flex-grow: 1;
 	order: 1;
 }
@@ -35,7 +36,6 @@
 }
 
 .pagetitile-button-container {
-	padding-left: 5px;
 	display: inline-block;
 }
 
@@ -107,7 +107,8 @@
 	color: #525c68;
 	height: 27px;
 	border-bottom: 2px solid transparent;
-	font: 600 14px/25px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/25px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 .catalog-entity-section-tabs .main-buttons-inner-container div.catalog-entity-section-tab-active .main-buttons-item-link,
 .catalog-entity-section-tabs .main-buttons-inner-container div.main-buttons-item.over .main-buttons-item-link{
@@ -198,7 +199,8 @@
 	vertical-align: middle;
 	text-align: center;
 	text-transform: uppercase;
-	font: bold 12px/39px "Open Sans", Helvetica, Arial, sans-serif;
+	font: 12px/39px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	transition: color .25s ease;
 }
 
@@ -242,7 +244,8 @@ input.pagetitle-item {
 	background-color: transparent;
 	color: #000;
 	word-wrap: break-word;
-	font: 26px/27px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font: 26px/27px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .bitrix24-light-theme input.pagetitle-item {
@@ -269,7 +272,8 @@ input.pagetitle-item {
 	display: inline-block;
 	vertical-align: middle;
 	color: #525c69;
-	font: 300 13px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .pagetitle-sub a {
@@ -351,11 +355,11 @@ input.pagetitle-item {
 
 .catalog-title-document-type {
 	color: #525c68;
-	font: 500 14px/25px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/25px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .pagetitile-button-container {
-	padding-left: 5px;
 	display: inline-block;
 }
 
@@ -475,7 +479,8 @@ input.pagetitle-item {
 .catalog-document-type-selector {
 	z-index: 130;
 	font-size: 14px;
-	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	line-height: normal;
 	margin-top: 5px;
 }

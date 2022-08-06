@@ -6,7 +6,7 @@
 	margin: 0 0 10px 0;
 	padding: 10px 20px 10px 20px;
 	-webkit-border-radius: 2px;
-	border-radius: 2px;
+	border-radius: var(--main-user-consent-selector-block-border-radius, var(--ui-border-radius-sm, 2px));
 	background: rgba(83,92,105,.07);
 	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	text-transform: lowercase;
@@ -31,7 +31,7 @@
 	height: 38px;
 	width: 100%;
 	border: 1px solid #caced7;
-	border-radius: 0;
+	border-radius: var(--ui-field-border-radius);
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%228px%22%20height%3D%228px%22%20viewBox%3D%220%200%2011%207%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Ctitle%3EPath%3C/title%3E%3Cpath%20d%3D%22M5.485%204.228L1.37.114%200%201.484l4.8%204.8.685.687%205.486-5.485L9.6.115%205.484%204.227z%22%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E');
 	background-repeat: no-repeat;
 	background-position: 99% center;
@@ -69,7 +69,7 @@
 .main-user-consent-selector-alert {
 	margin: 0 0 16px 0;
 	padding: 14px 20px;
-	border-radius: 3px;
+	border-radius: var(--main-user-consent-selector-alert-border-radius, var(--ui-border-radius-sm, 3px));
 	background: #FFFDE1;
 	font: 13px 'HelveticaNeue', Helvetica, Arial, sans-serif;
 	color: #8B7B60;

@@ -11,6 +11,7 @@
 use Bitrix\Bitrix24\Feature;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Rest\Engine\Access\LoadLimiter;
 use Bitrix\Rest\RestException;
 use Bitrix\Rest\AccessException;
 use Bitrix\Main\Loader;
@@ -27,11 +28,11 @@ class CRestServer
 	const STATUS_PAYMENT_REQUIRED = "402 Payment Required"; // reserved for future use
 	const STATUS_FORBIDDEN = "403 Forbidden";
 	const STATUS_NOT_FOUND = "404 Not Found";
+	const STATUS_TO_MANY_REQUESTS = "429 Too Many Requests";
 	const STATUS_INTERNAL = "500  Internal Server Error";
 
 	/* @var \CRestServer */
 	protected static $instance = null;
-	protected static $operatingTime = 0;
 
 	protected $class = '';
 	protected $method = '';
@@ -188,7 +189,7 @@ class CRestServer
 	{
 		$token = $this->query["token"];
 
-		list($this->scope, $queryString, $querySignature) = explode(\CRestUtil::TOKEN_DELIMITER, $token);
+		[$this->scope, $queryString, $querySignature] = explode(\CRestUtil::TOKEN_DELIMITER, $token);
 
 		$signature = $this->getTokenCheckSignature($this->method, $queryString);
 
@@ -220,6 +221,17 @@ class CRestServer
 
 	protected function processCall()
 	{
+		if (
+			LoadLimiter::is(
+				$this->getAuthType(),
+				!empty($this->getClientId()) ?  $this->getClientId() : $this->getPasswordId(),
+				$this->method
+			)
+		)
+		{
+			throw new RestException('Method is blocked due to operation time limit.', RestException::ERROR_OPERATION_TIME_LIMIT, self::STATUS_TO_MANY_REQUESTS);
+		}
+
 		$start = 0;
 		if(isset($this->query['start']))
 		{
@@ -241,8 +253,17 @@ class CRestServer
 			$this->usage = getrusage();
 		}
 
+		LoadLimiter::registerStarting(
+			$this->getAuthType(),
+			!empty($this->getClientId()) ?  $this->getClientId() : $this->getPasswordId(),
+			$this->method
+		);
 		$result = call_user_func_array($callback, array($this->query, $start, $this));
-
+		LoadLimiter::registerEnding(
+			$this->getAuthType(),
+			!empty($this->getClientId()) ?  $this->getClientId() : $this->getPasswordId(),
+			$this->method
+		);
 		$this->timeProcessFinish = microtime(true);
 
 		if (!empty($result['error']) && !empty($result['error_description']))
@@ -560,7 +581,7 @@ class CRestServer
 		{
 			if(isset($this->query["token"]) && $this->query["token"] <> '')
 			{
-				list($scope) = explode(\CRestUtil::TOKEN_DELIMITER, $this->query["token"], 2);
+				[$scope] = explode(\CRestUtil::TOKEN_DELIMITER, $this->query["token"], 2);
 				$this->scope = $scope == "" ? \CRestUtil::GLOBAL_SCOPE : $scope;
 			}
 		}
@@ -742,16 +763,23 @@ class CRestServer
 		$data['time']['date_start'] = date('c', $data['time']['start']);
 		$data['time']['date_finish'] = date('c', $data['time']['finish']);
 
-		if (ModuleManager::isModuleInstalled('bitrix24') && function_exists('getRestTime'))
+		if (LoadLimiter::isActive())
 		{
-			$server = \Bitrix\Main\Application::getInstance()->getContext()->getServer();
-			$time = \getRestTime($server->getRequestUri());
-			$data['time']['operating'] = $time;
-			if ($this instanceof CRestServerBatchItem)
+			$reset = LoadLimiter::getResetTime(
+				$this->getAuthType(),
+				!empty($this->getClientId()) ?  $this->getClientId() : $this->getPasswordId(),
+				$this->method
+			);
+			if ($reset)
 			{
-				$data['time']['operating'] -= $this::$operatingTime;
-				$this::$operatingTime = $time;
+				$data['time']['operating_reset_at'] = $reset;
 			}
+
+			$data['time']['operating'] = LoadLimiter::getRestTime(
+				$this->getAuthType(),
+				!empty($this->getClientId()) ?  $this->getClientId() : $this->getPasswordId(),
+				$this->method
+			);
 		}
 
 		return $data;

@@ -998,6 +998,30 @@ BX.TreeCondCtrlPopup.prototype.Delete = function()
 	}
 };
 
+	/**
+	 * @param {{}} parentContainer
+	 * @param {{
+	 * 		values: {},
+	 * 		labels: {}
+	 * }} state
+	 * @param {{
+	 * 		id: string,
+	 * 		name: string,
+	 * 		text: string,
+	 * 		type: string,
+	 * 		show_value: string,
+	 * 		defaultText: string,
+	 * 		defaultValue: string,
+	 *
+	 * 		popup_url: string,
+	 * 		popup_params: {},
+	 * 		param_id: string,
+	 * 		coreUserInfo: string,
+	 * 		user_load_url: string
+	 * }} arParams
+	 *
+	 * @return {boolean}
+	 */
 BX.TreeUserCondCtrlPopup = function(parentContainer, state, arParams)
 {
 	var i;
@@ -1008,7 +1032,11 @@ BX.TreeUserCondCtrlPopup = function(parentContainer, state, arParams)
 		{
 			return this.boolResult;
 		}
-		this.user_load_url = arParams.user_load_url;
+
+		//this.coreUserInfo = !(BX.type.isNotEmptyString(arParams.coreUserInfo) && arParams.coreUserInfo === 'N');
+		this.coreUserInfo = (BX.type.isNotEmptyString(arParams.coreUserInfo) && arParams.coreUserInfo === 'Y');
+
+		this.user_load_url = arParams.user_load_url || '';
 
 		this.popup_url = arParams.popup_url;
 
@@ -1203,28 +1231,59 @@ BX.TreeUserCondCtrlPopup.prototype.AppendFakeInputNode = function(id, name)
 };
 BX.TreeUserCondCtrlPopup.prototype.onChangeFake = function(params)
 {
-	var userId = params.target.value;
+	let userId = params.target.value;
 
-	BX.ajax({
-		'method': 'POST',
-		'dataType': 'json',
-		'url': this.user_load_url,
-		'data': {
-			sessid: BX.bitrix_sessid(),
-			AJAX_ACTION: 'getUserName',
-			USER_ID: userId
-		},
-		'onsuccess': BX.delegate(function (data)
-		{
-			var name = data.name;
-			this.AppendInputNode(this.parentContainer.id+'_'+this.id, this.name+'[]', userId);
-			this.AppendItemNode(userId, name);
-
-			this.valuesContainer[this.id].push(userId);
-		}, this)
-	});
-
+	if (this.coreUserInfo)
+	{
+		BX.ajax({
+			'method': 'POST',
+			'dataType': 'json',
+			'url': '/bitrix/tools/get_user.php',
+			'data': {
+				sessid: BX.bitrix_sessid(),
+				ajax: 'Y',
+				format: 'Y',
+				raw: 'Y',
+				ID: userId
+			},
+			'onsuccess': BX.proxy(this.successGetUserData, this)
+		});
+	}
+	else
+	{
+		BX.ajax({
+			'method': 'POST',
+			'dataType': 'json',
+			'url': this.user_load_url,
+			'data': {
+				sessid: BX.bitrix_sessid(),
+				AJAX_ACTION: 'getUserName',
+				USER_ID: userId
+			},
+			'onsuccess': BX.delegate(function (data) {
+				this.setUserData(userId, data.name);
+			}, this)
+		});
+	}
 };
+
+BX.TreeUserCondCtrlPopup.prototype.successGetUserData = function(result)
+{
+	if (!BX.type.isPlainObject(result))
+	{
+		return;
+	}
+	this.setUserData(result.ID, result.NAME);
+};
+
+BX.TreeUserCondCtrlPopup.prototype.setUserData = function(userId, name)
+{
+	this.AppendInputNode(this.parentContainer.id + '_' + this.id, this.name + '[]', userId);
+	this.AppendItemNode(userId, name);
+
+	this.valuesContainer[this.id].push(userId);
+};
+
 BX.TreeUserCondCtrlPopup.prototype.onSave = function(params)
 {
 	if (BX.type.isPlainObject(params))

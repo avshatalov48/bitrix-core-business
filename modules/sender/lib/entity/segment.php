@@ -19,8 +19,10 @@ use Bitrix\Sender\GroupTable;
 use Bitrix\Sender\Internals\Model\GroupCounterTable;
 use Bitrix\Sender\ListTable;
 use Bitrix\Sender\Posting\SegmentDataBuilder;
+use Bitrix\Main\Type;
 
 Loc::loadMessages(__FILE__);
+Loc::loadMessages(__DIR__ . '/letter.php');
 
 class Segment extends Base
 {
@@ -134,7 +136,7 @@ class Segment extends Base
 		$endpoints = $data['ENDPOINTS'];
 		unset($data['ENDPOINTS']);
 
-		if (!$id)
+		if (!$id && $data['STATUS'] !== GroupTable::STATUS_NEW)
 		{
 			$data['STATUS'] = GroupTable::STATUS_DONE;
 		}
@@ -196,6 +198,11 @@ class Segment extends Base
 				}
 
 				$this->updateDealCategory($id, $connector);
+			}
+
+			if (GroupTable::STATUS_NEW === $data['STATUS'])
+			{
+				SegmentDataBuilder::actualize($id, true);
 			}
 
 			SegmentDataBuilder::checkIsSegmentPrepared($id);
@@ -496,6 +503,29 @@ class Segment extends Base
 	public function remove()
 	{
 		return $this->removeByEntity(GroupTable::getEntity(), $this->getId());
+	}
+
+	/**
+	 * Copy.
+	 *
+	 * @return bool
+	 */
+	public function copy()
+	{
+		$data = $this->loadData($this->getId());
+
+		return $this->copyData(
+			$this->getId(),
+			[
+				'NAME' => Loc::getMessage('SENDER_ENTITY_LETTER_COPY_PREFIX') . ' ' .$data['NAME'],
+				'CODE' => null,
+				'STATUS' => GroupTable::STATUS_NEW,
+				'DATE_USE' => null,
+				'USE_COUNT' => 0,
+				'USE_COUNT_EXCLUDE' => 0,
+				'DATE_INSERT' => new Type\DateTime(),
+			]
+		);
 	}
 
 	/**

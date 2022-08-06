@@ -1,7 +1,7 @@
 .sender-segment-selector-title {
 	display: block;
 	margin: 0 0 6px 0;
-	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868E;
 }
 
@@ -17,6 +17,7 @@
 	min-height: 42px;
 	background: rgba(234,241,244,.3);
 	box-sizing: border-box;
+	border-radius: var(--ui-border-radius-xs);
 }
 
 .sender-segment-selector-block {
@@ -28,18 +29,18 @@
 .sender-segment-selector-block-name {
 	display: inline-block;
 	margin: 0 7px 0 0;
-	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .sender-segment-selector-block-number {
-	font: 18px/22px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 18px/22px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .sender-segment-selector-duration {
 	margin: 0 0 0 10px;
 	color: #d0d1d2;
 	opacity: 0;
-	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: opacity .5s;
 	display: none;
 }
@@ -91,6 +92,7 @@
 	position: relative;
 	padding: 15px 18px 20px 18px;
 	background: rgba(247,204,0,.18);
+	border-radius: var(--ui-border-radius-xs);
 }
 
 .sender-segment-selector-exclude:after {

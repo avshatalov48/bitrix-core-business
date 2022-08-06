@@ -180,13 +180,14 @@
 			}
 
 			var hideTimeout = popupParams.hideTimeout || 1500;
+			var offsetLeft = popupParams.offsetLeft || 5;
 			popupParams = BX.mergeEx(popupParams, {
 				content: isCopied ? BX.message('CORE_CLIPBOARD_COPY_SUCCESS') : BX.message('CORE_CLIPBOARD_COPY_FAILURE'),
 				darkMode: true,
 				autoHide: true,
 				zIndex: 1000,
 				angle: true,
-				offsetLeft: 5,
+				offsetLeft: offsetLeft,
 				bindOptions: {
 					position: 'top'
 				}

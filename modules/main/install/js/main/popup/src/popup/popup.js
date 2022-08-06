@@ -178,6 +178,9 @@ export default class Popup extends EventEmitter
 		this.background = null;
 		this.contentBackground = null;
 
+		this.borderRadius = null;
+		this.contentBorderRadius = null;
+
 		this.targetContainer = Type.isElementNode(params.targetContainer) ? params.targetContainer : document.body;
 
 		this.dragOptions = {
@@ -305,6 +308,8 @@ export default class Popup extends EventEmitter
 		this.setResizeMode(params.resizable);
 		this.setPadding(params.padding);
 		this.setContentPadding(params.contentPadding);
+		this.setBorderRadius(params.borderRadius);
+		this.setContentBorderRadius(params.contentBorderRadius);
 		this.setBackground(params.background);
 		this.setContentBackground(params.contentBackground);
 		this.setAnimation(params.animation);
@@ -844,6 +849,34 @@ export default class Popup extends EventEmitter
 	getContentPadding(): number
 	{
 		return this.contentPadding;
+	}
+
+	setBorderRadius(radius): void
+	{
+		if (Type.isStringFilled(radius))
+		{
+			this.borderRadius = radius;
+			this.getPopupContainer().style.setProperty('--popup-window-border-radius', radius);
+		}
+		else if (radius === null)
+		{
+			this.borderRadius = null;
+			this.getPopupContainer().style.removeProperty('--popup-window-border-radius');
+		}
+	}
+
+	setContentBorderRadius(radius): void
+	{
+		if (Type.isStringFilled(radius))
+		{
+			this.contentBorderRadius = radius;
+			this.getContentContainer().style.setProperty('--popup-window-content-border-radius', radius);
+		}
+		else if (radius === null)
+		{
+			this.contentBorderRadius = null;
+			this.getContentContainer().style.removeProperty('--popup-window-content-border-radius');
+		}
 	}
 
 	setContentColor(color: string | null)

@@ -163,18 +163,19 @@ class User extends Base
 			$name = static::generateControlName($field);
 			$controlId = static::generateControlId($field);
 
+			$settings = $fieldType->getSettings();
+
 			$config = [
 				'valueInputName' => $name,
 				'value' => $valueString,
-				'items' => $value ? static::getSelectedItems($value) : [],
+				'items' => $value ? static::getSelectedItems($value, $settings) : [],
 				'multiple' => $fieldType->isMultiple(),
 				'required' => $fieldType->isRequired(),
 			];
 
-			$additional = $fieldType->getSettings();
-			if ($additional && is_array($additional))
+			if ($settings)
 			{
-				$config += $additional;
+				$config += $settings;
 			}
 
 			$groups = \CBPRuntime::GetRuntime()
@@ -322,7 +323,7 @@ HTML;
 		return parent::externalizeValueMultiple($fieldType, $context, $value);
 	}
 
-	private static function getSelectedItems(array $value): ?array
+	private static function getSelectedItems(array $value, array $settings): ?array
 	{
 		if (!class_exists(\Bitrix\UI\EntitySelector\Dialog::class))
 		{
@@ -345,6 +346,26 @@ HTML;
 
 		$preselectedItems = array_filter(array_map($mapCallback, $value));
 
-		return \Bitrix\UI\EntitySelector\Dialog::getSelectedItems($preselectedItems)->toArray();
+		if (!$preselectedItems)
+		{
+			return [];
+		}
+
+		$options = [];
+
+		if (!empty($settings['allowEmailUsers']))
+		{
+			$options['entities'] = [
+				[
+					'id' => 'user',
+					'options' => [
+						'emailUsers' => true,
+						'myEmailUsers' => true,
+					]
+				]
+			];
+		}
+
+		return \Bitrix\UI\EntitySelector\Dialog::getSelectedItems($preselectedItems, $options)->toArray();
 	}
 }

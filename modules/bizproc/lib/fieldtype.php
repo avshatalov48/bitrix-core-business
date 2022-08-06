@@ -481,6 +481,11 @@ class FieldType
 		);
 	}
 
+	public static function isBaseType(string $type): bool
+	{
+		return array_key_exists($type, static::getBaseTypesMap());
+	}
+
 	/**
 	 * Normalize property structure.
 	 * @param string|array $property Document property.

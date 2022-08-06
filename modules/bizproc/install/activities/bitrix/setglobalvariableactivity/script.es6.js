@@ -548,7 +548,7 @@ class SetGlobalVariableActivity {
 		}
 
 		// create input
-		input = Tag.render`<input type="hidden"">`;
+		input = Tag.render`<input type="hidden">`;
 		if (data.isExpressionOption)
 		{
 			input.name = data.role + '_text';

@@ -89,7 +89,16 @@ $sliderConditions = [
 			'(\d+)', '\?'
 		),
 		CUtil::jsEscape($arParams['PAGE_URL_LANDING_DESIGN'])
-	)
+	),
+	str_replace(
+		array(
+			'#landing_edit#', '?'
+		),
+		array(
+			'(\d+)', '\?'
+		),
+		CUtil::jsEscape($arParams['PAGE_URL_LANDING_SETTINGS'])
+	),
 ];
 
 if ($arParams['TILE_MODE'] === 'view')
@@ -237,6 +246,12 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 		$areaCode = '';
 		$areaTitle = '';
 		$accessSite = $arResult['ACCESS_SITE'];
+		$urlSettings = new Uri(str_replace('#landing_edit#', $item['ID'], $arParams['~PAGE_URL_LANDING_SETTINGS']));
+		$urlSettings->addParams([
+			'PAGE' => 'LANDING_EDIT',
+		]);
+		$urlSettings = $urlSettings->getUri();
+
 		$urlEdit = str_replace('#landing_edit#', $item['ID'], $arParams['~PAGE_URL_LANDING_EDIT']);
 		$urlEditDesign = str_replace('#landing_edit#', $item['ID'], $arParams['~PAGE_URL_LANDING_DESIGN']);
 		$urlView = str_replace('#landing_edit#', $item['ID'], $arParams['~PAGE_URL_LANDING_VIEW']);
@@ -340,8 +355,7 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 									copyPage: '<?= htmlspecialcharsbx(CUtil::jsEscape($uriCopy->getUri())) ?>',
 									movePage: '<?= htmlspecialcharsbx(CUtil::jsEscape($uriMove->getUri())) ?>',
 									deletePage: '#',
-									editPage: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlEdit)) ?>',
-									editPageDesign: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlEditDesign))?>',
+									settings: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlSettings)) ?>',
 							 		isFolder: false,
 							 		isActive: <?= ($item['ACTIVE'] === 'Y') ? 'true' : 'false' ?>,
 							 		isDeleted: <?= ($item['DELETED'] === 'Y') ? 'true' : 'false' ?>,
@@ -497,7 +511,7 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 					{
 						url = url[1];
 						url += (url.indexOf('?') > 0) ? '&' : '?';
-						node.style.backgroundImage = 'url(' + url + 'refreshed)';
+						node.style.backgroundImage = 'url(' + url + 'refreshed' + (Date.now()/3600000|0) + ')';
 					}
 				});
 			}
@@ -718,19 +732,9 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 				},
 				{
 					text: params.isFolder
-							? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT_FOLDER'));?>'
-							: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT_2'));?>',
-					href: params.editPage,
-					disabled: params.isDeleted || params.isSettingsDisabled,
-					onclick: function()
-					{
-						this.popupWindow.close();
-					}
-				},
-				params.isFolder ? null :
-				{
-					text: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT_DESIGN_2'));?>',
-					href: params.editPageDesign,
+							? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT_FOLDER')) ?>'
+							: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT_2')) ?>',
+					href: params.isFolder ? params.editPage : params.settings,
 					disabled: params.isDeleted || params.isSettingsDisabled,
 					onclick: function()
 					{

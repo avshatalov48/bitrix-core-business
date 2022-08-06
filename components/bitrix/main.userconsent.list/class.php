@@ -154,7 +154,7 @@ class MainUserConsentListComponent extends CBitrixComponent
 		if ($this->arParams['SET_TITLE'])
 		{
 			/**@var CMain*/
-			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_TITLE'));
+			$GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_TITLE_1'));
 		}
 
 		return true;
@@ -231,7 +231,7 @@ class MainUserConsentListComponent extends CBitrixComponent
 			],
 			[
 				"id" => "ADDITIONAL",
-				"name" => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_COLUMN_TITLE_ADDITIONAL'),
+				"name" => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_COLUMN_TITLE_ADDITIONAL_1'),
 				"default" => true
 			],
 		];
@@ -327,7 +327,7 @@ class MainUserConsentListComponent extends CBitrixComponent
 				'">' . htmlspecialcharsbx($data['NAME']) . '</a>';
 
 			$data['ADDITIONAL'] = '<a data-bx-slider-href="" href="' . htmlspecialcharsbx($pathToConsentList) .
-				'">' . Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_ROW_ACTION_VIEW_CONSENTS') . '</a>';
+				'">' . Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_ROW_ACTION_VIEW_CONSENTS_1') . '</a>';
 
 			$actions = [];
 			$actions[] = [
@@ -336,7 +336,7 @@ class MainUserConsentListComponent extends CBitrixComponent
 				'default' => true
 			];
 			$actions[] = [
-				'text' => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_ROW_ACTION_VIEW_CONSENTS'),
+				'text' => Loc::getMessage('MAIN_USER_CONSENT_LIST_COMP_UI_ROW_ACTION_VIEW_CONSENTS_1'),
 				'href' => CUtil::JSEscape($pathToConsentList),
 			];
 			$actions[] = [

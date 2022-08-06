@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
-(function (exports,ui_entityEditor,ui_notification,ui_hint,translit,main_core_events,main_popup,main_core,catalog_storeUse) {
+(function (exports,ui_entityEditor,ui_notification,ui_feedback_form,ui_hint,ui_designTokens,ui_fonts_opensans,translit,main_core_events,main_popup,main_core,catalog_storeUse) {
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -1130,6 +1130,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      main_core_events.EventEmitter.subscribe('onAjaxSuccess', this.ajaxSuccessHandler.bind(this));
 	      main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorIncludedArea:onBeforeLoad', this.onBeforeIncludedAreaLoaded.bind(this));
 	      main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorIncludedArea:onAfterLoad', this.onAfterIncludedAreaLoaded.bind(this));
+	      main_core_events.EventEmitter.subscribe("BX.UI.EntityEditor:onNothingChanged", this.onNothingChanged.bind(this));
 	      this.subscribeToFormSubmit();
 	    }
 	  }, {
@@ -1144,6 +1145,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    value: function onAfterIncludedAreaLoaded(event) {
 	      main_core.Dom.style(this.getVariationGridLoader(), 'height', '');
 	      this.areaHeight = null;
+	    }
+	  }, {
+	    key: "onNothingChanged",
+	    value: function onNothingChanged(event) {
+	      this.rollback();
 	    }
 	  }, {
 	    key: "getVariationGridLoader",
@@ -2255,6 +2261,8 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "onSaveButtonClick",
 	    value: function onSaveButtonClick() {
+	      var _this$_field3, _this$_field3$getSche;
+
 	      if (this._isLocked) {
 	        return;
 	      }
@@ -2308,6 +2316,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        }
 	      }
 
+	      (_this$_field3 = this._field) === null || _this$_field3 === void 0 ? void 0 : (_this$_field3$getSche = _this$_field3.getSchemeElement()) === null || _this$_field3$getSche === void 0 ? void 0 : _this$_field3$getSche.setDataParam('isPublic', params['isPublic']);
 	      BX.onCustomEvent(this, "onSave", [this, params]);
 	    }
 	  }, {
@@ -3294,15 +3303,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "openFeedbackPanel",
 	    value: function openFeedbackPanel() {
-	      if (!main_core.Reflection.getClass('BX.SidePanel.Instance') || !main_core.Type.isStringFilled(this.feedbackUrl)) {
-	        return;
-	      }
-
-	      BX.SidePanel.Instance.open(this.feedbackUrl, {
-	        cacheable: false,
-	        allowChangeHistory: false,
-	        width: 580
-	      });
+	      EntityCard.openFeedbackPanelStatic();
 	    }
 	  }, {
 	    key: "bindCreateDocumentButtonMenu",
@@ -3577,6 +3578,44 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        }
 	      });
 	    }
+	  }], [{
+	    key: "openFeedbackPanelStatic",
+	    value: function openFeedbackPanelStatic() {
+	      BX.UI.Feedback.Form.open({
+	        id: 'catalog-product-card-feedback',
+	        forms: [{
+	          'id': 269,
+	          'lang': 'ru',
+	          'sec': 'mqerov',
+	          'zones': ['ru', 'by', 'kz']
+	        }, {
+	          'id': 347,
+	          'lang': 'en',
+	          'sec': 'lxfji8',
+	          'zones': ['en']
+	        }, {
+	          'id': 349,
+	          'lang': 'es',
+	          'sec': 'gdf9i1',
+	          'zones': ['es']
+	        }, {
+	          'id': 355,
+	          'lang': 'de',
+	          'sec': 'x8k56n',
+	          'zones': ['de']
+	        }, {
+	          'id': 357,
+	          'lang': 'ua',
+	          'sec': '2z19xl',
+	          'zones': ['ua']
+	        }, {
+	          'id': 353,
+	          'lang': 'com.br',
+	          'sec': '5cleqn',
+	          'zones': ['com.br']
+	        }]
+	      });
+	    }
 	  }]);
 	  return EntityCard;
 	}(BaseCard);
@@ -3584,5 +3623,5 @@ this.BX.Catalog = this.BX.Catalog || {};
 	exports.EntityCard = EntityCard;
 	exports.BaseCard = BaseCard;
 
-}((this.BX.Catalog.EntityCard = this.BX.Catalog.EntityCard || {}),BX,BX,BX,BX,BX.Event,BX.Main,BX,BX.Catalog.StoreUse));
+}((this.BX.Catalog.EntityCard = this.BX.Catalog.EntityCard || {}),BX,BX,BX,BX,BX,BX,BX,BX.Event,BX.Main,BX,BX.Catalog.StoreUse));
 //# sourceMappingURL=entity-card.bundle.js.map

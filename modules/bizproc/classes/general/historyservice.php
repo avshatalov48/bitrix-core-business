@@ -1,10 +1,6 @@
-<?
-IncludeModuleLangFile(__FILE__);
+<?php
 
-include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/classes/general/runtimeservice.php");
-
-class CBPAllHistoryService
-	extends CBPRuntimeService
+class CBPHistoryService extends CBPRuntimeService
 {
 	protected $useGZipCompression = false;
 
@@ -480,6 +476,3 @@ class CBPHistoryResult extends CDBResult
 		return $res;
 	}
 }
-
-//Compatibility
-class CBPHistoryService extends CBPAllHistoryService {}

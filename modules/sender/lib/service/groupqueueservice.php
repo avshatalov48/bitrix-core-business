@@ -26,7 +26,10 @@ class GroupQueueService implements GroupQueueServiceInterface
 		{
 			return;
 		}
-		Locker::lock(self::LOCK_KEY, $entityId);
+		if (!Locker::lock(self::LOCK_KEY, $entityId))
+		{
+			return;
+		}
 		
 		$current = $this->getCurrentRow($type, $entityId, $groupId);
 		if (isset($current['ID']) || isset($current[0]['ID']))

@@ -1,8 +1,11 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-class CBPTrueCondition
-	extends CBPActivityCondition
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+class CBPTrueCondition extends CBPActivityCondition
 {
 	public $condition = true;
 
@@ -18,18 +21,32 @@ class CBPTrueCondition
 
 	public static function ValidateProperties($value = null, CBPWorkflowTemplateUser $user = null)
 	{
-		return array();
+		return [];
 	}
 
-	public static function GetPropertiesDialog($documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $defaultValue, $arCurrentValues = null)
+	public static function GetPropertiesDialog(
+		$documentType,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$defaultValue,
+		$arCurrentValues = null
+	)
 	{
 		return "&nbsp;";
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function GetPropertiesDialogValues(
+		$documentType,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$arCurrentValues,
+		&$arErrors
+	)
 	{
-		$arErrors = array();
+		$arErrors = [];
+
 		return true;
 	}
 }
-?>

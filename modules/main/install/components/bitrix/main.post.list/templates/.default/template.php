@@ -89,8 +89,6 @@ ob_start();
 					 class="feed-com-text-inner"
 					 bx-content-view-xml-id="#CONTENT_ID#"
 					 bx-content-view-save="N"
-					 bx-content-view-key="#CONTENT_VIEW_KEY#"
-					 bx-content-view-key-signed="#CONTENT_VIEW_KEY_SIGNED#"
 					 id="feed-com-text-inner-#CONTENT_ID#"
 					 bx-mpl-block="body">
 						<div class="feed-com-text-inner-inner" id="record-#FULL_ID#-text" bx-mpl-block="text">
@@ -376,9 +374,6 @@ BX.ready(function(){
 			NOTIFY_TEXT : '<?=CUtil::JSEscape($arParams["~NOTIFY_TEXT"])?>',
 			SHOW_POST_FORM : '<?=CUtil::JSEscape($arParams["SHOW_POST_FORM"])?>',
 			BIND_VIEWER : '<?=$arParams["BIND_VIEWER"]?>',
-
-			CONTENT_VIEW_KEY : '<?= CUtil::JSEscape($arParams['CONTENT_VIEW_KEY'] ?? '') ?>',
-			CONTENT_VIEW_KEY_SIGNED : '<?= CUtil::JSEscape($arParams['CONTENT_VIEW_KEY_SIGNED'] ?? '') ?>',
 		}
 	);
 	<?php

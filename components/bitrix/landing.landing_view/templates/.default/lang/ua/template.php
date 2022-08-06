@@ -36,6 +36,7 @@ $MESS["LANDING_TPL_FEATURES_STORE"] = "Можливості магазину";
 $MESS["LANDING_TPL_PREVIEW_URL"] = "Передогляд";
 $MESS["LANDING_TPL_PREVIEW_URL_HINT"] = "Перегляньте, як виглядатиме ваш сайт до публікації.";
 $MESS["LANDING_TPL_PREVIEW_URL_OPEN"] = "Відкрити сайт";
+$MESS["LANDING_TPL_PREVIEW_URL_OPEN_FORM"] = "Відкрити форму";
 $MESS["LANDING_TPL_SETTINGS_CATALOG_URL"] = "Налаштування каталогу";
 $MESS["LANDING_TPL_SETTINGS_PAGE_DIZ_URL"] = "Дизайн сторінки";
 $MESS["LANDING_TPL_SETTINGS_PAGE_URL"] = "Налаштування сторінки";

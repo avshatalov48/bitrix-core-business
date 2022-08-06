@@ -4,7 +4,10 @@ import './entity-card.css';
 import TabManager from './tab/manager';
 import 'ui.entity-editor';
 import 'ui.notification';
+import 'ui.feedback.form';
 import 'ui.hint';
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
 import FieldsFactory from './fields-factory'
 import ControllersFactory from './controllers-factory'
 import IblockFieldConfigurationManager from './field-configurator/iblock-field-configuration-manager'
@@ -394,15 +397,21 @@ class EntityCard extends BaseCard
 
 	openFeedbackPanel()
 	{
-		if (!Reflection.getClass('BX.SidePanel.Instance') || !Type.isStringFilled(this.feedbackUrl))
-		{
-			return;
-		}
+		EntityCard.openFeedbackPanelStatic();
+	}
 
-		BX.SidePanel.Instance.open(this.feedbackUrl, {
-			cacheable: false,
-			allowChangeHistory: false,
-			width: 580
+	static openFeedbackPanelStatic()
+	{
+		BX.UI.Feedback.Form.open({
+			id: 'catalog-product-card-feedback',
+			forms: [
+				{'id': 269, 'lang': 'ru', 'sec': 'mqerov', 'zones': ['ru', 'by', 'kz']},
+				{'id': 347, 'lang': 'en', 'sec': 'lxfji8', 'zones': ['en']},
+				{'id': 349, 'lang': 'es', 'sec': 'gdf9i1', 'zones': ['es']},
+				{'id': 355, 'lang': 'de', 'sec': 'x8k56n', 'zones': ['de']},
+				{'id': 357, 'lang': 'ua', 'sec': '2z19xl', 'zones': ['ua']},
+				{'id': 353, 'lang': 'com.br', 'sec': '5cleqn', 'zones': ['com.br']},
+			],
 		});
 	}
 

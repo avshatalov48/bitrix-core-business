@@ -703,9 +703,6 @@ function cmlCreateTempTables()
 
 
 
-if ($DB->type != "MYSQL")
-	$strImportErrorMessage .= GetMessage("CML_R_MYSQL_ONLY").". ";
-
 if ($strImportErrorMessage == '')
 {
 	$DATA_FILE_NAME = "";

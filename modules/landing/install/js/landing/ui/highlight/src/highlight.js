@@ -38,7 +38,7 @@ export class Highlight
 	}
 
 	static highlightsStore = null;
-	static get highlights()
+	static get highlights(): BX.Landing.Collection.BaseCollection
 	{
 		if (!Highlight.highlightsStore)
 		{
@@ -70,17 +70,29 @@ export class Highlight
 
 	/**
 	 * Hides highlight for all nodes
+	 * @param force - if true - remove highlight immediately, without requestAnimationFrame
 	 */
 	// eslint-disable-next-line class-methods-use-this
-	hide()
+	hide(force: boolean = false)
 	{
 		Highlight.highlights.forEach((item) => {
-			BX.DOM.write(() => {
+			if (force)
+			{
 				Dom.remove(item.highlight);
 				item.node.style.position = '';
 				item.node.style.userSelect = '';
 				item.node.style.cursor = '';
-			});
+			}
+			else
+			{
+				BX.DOM.write(() =>
+				{
+					Dom.remove(item.highlight);
+					item.node.style.position = '';
+					item.node.style.userSelect = '';
+					item.node.style.cursor = '';
+				});
+			}
 		});
 
 		Highlight.highlights.clear();

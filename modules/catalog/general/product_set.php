@@ -774,6 +774,11 @@ abstract class CCatalogProductSetAll
 
 	protected static function fillSetItemsParams(&$items)
 	{
+		if (empty($items) || !is_array($items))
+		{
+			return;
+		}
+
 		$productIterator = Catalog\ProductTable::getList([
 			'select' => ['ID', 'QUANTITY', 'QUANTITY_TRACE', 'CAN_BUY_ZERO', 'WEIGHT'],
 			'filter' => ['@ID' => array_keys($items)]

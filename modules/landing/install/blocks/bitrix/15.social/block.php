@@ -39,7 +39,7 @@
 
 		<li class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0" data-card-preset="whatsapp">
 			<a class="landing-block-node-list-item-link d-block g-color-white text-center g-pt-15 g-pb-15 g-pl-30 g-pr-30 g-bg-whatsapp--hover g-bg-whatsapp"
-			   href="https://whatsapp.org/" target="_blank">
+			   href="https://whatsapp.com/" target="_blank">
 				<i class="landing-block-node-list-item-icon fa fa-whatsapp"></i>
 			</a>
 		</li>

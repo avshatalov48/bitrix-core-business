@@ -311,7 +311,7 @@ this.BX = this.BX || {};
 	    _this.angleArrowElement = null;
 	    _this.overlay = null;
 	    _this.titleBar = null;
-	    _this.bindOptions = babelHelpers.typeof(params.bindOptions) === 'object' ? params.bindOptions : {};
+	    _this.bindOptions = babelHelpers["typeof"](params.bindOptions) === 'object' ? params.bindOptions : {};
 	    _this.autoHide = params.autoHide === true;
 	    _this.autoHideHandler = main_core.Type.isFunction(params.autoHideHandler) ? params.autoHideHandler : null;
 	    _this.handleAutoHide = _this.handleAutoHide.bind(babelHelpers.assertThisInitialized(_this));
@@ -332,6 +332,8 @@ this.BX = this.BX || {};
 	    _this.contentPadding = null;
 	    _this.background = null;
 	    _this.contentBackground = null;
+	    _this.borderRadius = null;
+	    _this.contentBorderRadius = null;
 	    _this.targetContainer = main_core.Type.isElementNode(params.targetContainer) ? params.targetContainer : document.body;
 	    _this.dragOptions = {
 	      cursor: '',
@@ -441,6 +443,10 @@ this.BX = this.BX || {};
 	    _this.setPadding(params.padding);
 
 	    _this.setContentPadding(params.contentPadding);
+
+	    _this.setBorderRadius(params.borderRadius);
+
+	    _this.setContentBorderRadius(params.contentBorderRadius);
 
 	    _this.setBackground(params.background);
 
@@ -566,7 +572,7 @@ this.BX = this.BX || {};
 	    value: function setBindElement(bindElement) {
 	      if (bindElement === null) {
 	        this.bindElement = null;
-	      } else if (babelHelpers.typeof(bindElement) === 'object') {
+	      } else if (babelHelpers["typeof"](bindElement) === 'object') {
 	        if (main_core.Type.isDomNode(bindElement) || main_core.Type.isNumber(bindElement.top) && main_core.Type.isNumber(bindElement.left)) {
 	          this.bindElement = bindElement;
 	        } else if (main_core.Type.isNumber(bindElement.clientX) && main_core.Type.isNumber(bindElement.clientY)) {
@@ -591,7 +597,7 @@ this.BX = this.BX || {};
 	        } else {
 	          return this.getPositionRelativeToTarget(bindElement);
 	        }
-	      } else if (bindElement && babelHelpers.typeof(bindElement) === 'object') {
+	      } else if (bindElement && babelHelpers["typeof"](bindElement) === 'object') {
 	        if (!main_core.Type.isNumber(bindElement.bottom)) {
 	          bindElement.bottom = bindElement.top;
 	        }
@@ -708,13 +714,13 @@ this.BX = this.BX || {};
 	        this.getPopupContainer().appendChild(this.angle.element);
 	      }
 
-	      if (babelHelpers.typeof(params) === 'object' && params.position && ['top', 'right', 'bottom', 'left', 'hide'].includes(params.position)) {
+	      if (babelHelpers["typeof"](params) === 'object' && params.position && ['top', 'right', 'bottom', 'left', 'hide'].includes(params.position)) {
 	        main_core.Dom.removeClass(this.angle.element, className + '-' + this.angle.position);
 	        main_core.Dom.addClass(this.angle.element, className + '-' + params.position);
 	        this.angle.position = params.position;
 	      }
 
-	      if (babelHelpers.typeof(params) === 'object' && main_core.Type.isNumber(params.offset)) {
+	      if (babelHelpers["typeof"](params) === 'object' && main_core.Type.isNumber(params.offset)) {
 	        var offset = params.offset;
 	        var minOffset, maxOffset;
 
@@ -914,6 +920,28 @@ this.BX = this.BX || {};
 	    key: "getContentPadding",
 	    value: function getContentPadding() {
 	      return this.contentPadding;
+	    }
+	  }, {
+	    key: "setBorderRadius",
+	    value: function setBorderRadius(radius) {
+	      if (main_core.Type.isStringFilled(radius)) {
+	        this.borderRadius = radius;
+	        this.getPopupContainer().style.setProperty('--popup-window-border-radius', radius);
+	      } else if (radius === null) {
+	        this.borderRadius = null;
+	        this.getPopupContainer().style.removeProperty('--popup-window-border-radius');
+	      }
+	    }
+	  }, {
+	    key: "setContentBorderRadius",
+	    value: function setContentBorderRadius(radius) {
+	      if (main_core.Type.isStringFilled(radius)) {
+	        this.contentBorderRadius = radius;
+	        this.getContentContainer().style.setProperty('--popup-window-content-border-radius', radius);
+	      } else if (radius === null) {
+	        this.contentBorderRadius = null;
+	        this.getContentContainer().style.removeProperty('--popup-window-content-border-radius');
+	      }
 	    }
 	  }, {
 	    key: "setContentColor",
@@ -1150,7 +1178,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      if (babelHelpers.typeof(params) === 'object' && main_core.Type.isDomNode(params.content)) {
+	      if (babelHelpers["typeof"](params) === 'object' && main_core.Type.isDomNode(params.content)) {
 	        this.titleBar.innerHTML = '';
 	        this.titleBar.appendChild(params.content);
 	      } else if (typeof params === 'string') {
@@ -1653,7 +1681,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "adjustPosition",
 	    value: function adjustPosition(bindOptions) {
-	      if (bindOptions && babelHelpers.typeof(bindOptions) === 'object') {
+	      if (bindOptions && babelHelpers["typeof"](bindOptions) === 'object') {
 	        this.bindOptions = bindOptions;
 	      }
 
@@ -1864,7 +1892,7 @@ this.BX = this.BX || {};
 	      var left = parseInt(this.popupContainer.style.left) + offsetX;
 	      var top = parseInt(this.popupContainer.style.top) + offsetY;
 
-	      if (babelHelpers.typeof(this.params.draggable) === 'object' && this.params.draggable.restrict) {
+	      if (babelHelpers["typeof"](this.params.draggable) === 'object' && this.params.draggable.restrict) {
 	        //Left side
 	        if (left < 0) {
 	          left = 0;
@@ -2804,7 +2832,7 @@ this.BX = this.BX || {};
 
 	    this.menuItems = [];
 	    this.itemsContainer = null;
-	    this.params = params && babelHelpers.typeof(params) === 'object' ? params : {};
+	    this.params = params && babelHelpers["typeof"](params) === 'object' ? params : {};
 	    this.parentMenuWindow = null;
 	    this.parentMenuItem = null;
 

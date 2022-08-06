@@ -59,6 +59,12 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_28_4_TEAM_4_COLS--MEMBER_TEXT'),
 			'type' => 'typo',
 		),
+		'.landing-block-slider' => [
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_28_4_TEAM_4_COLS_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show-extended', 'arrows', 'dots'],
+			]
+		],
 	),
 	'assets' => array(
 	    'ext' => array('landing_carousel'),

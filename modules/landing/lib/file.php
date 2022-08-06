@@ -8,22 +8,22 @@ class File
 	/**
 	 * Entity type site.
 	 */
-	const ENTITY_TYPE_SITE  = 'S';
+	public const ENTITY_TYPE_SITE  = 'S';
 
 	/**
 	 * Entity type landing.
 	 */
-	const ENTITY_TYPE_LANDING = 'L';
+	public const ENTITY_TYPE_LANDING = 'L';
 
 	/**
 	 * Entity type block.
 	 */
-	const ENTITY_TYPE_BLOCK = 'B';
+	public const ENTITY_TYPE_BLOCK = 'B';
 
 	/**
 	 * Entity type asset.
 	 */
-	const ENTITY_TYPE_ASSET = 'A';
+	public const ENTITY_TYPE_ASSET = 'A';
 
 	/**
 	 * Returns sanitized file name.
@@ -402,7 +402,7 @@ class File
 	 * @param int $fileId File id.
 	 * @return void
 	 */
-	public static function addToAsset($assetId, $fileId)
+	public static function addToAsset($assetId, $fileId): void
 	{
 		if ($fileId > 0 && $assetId > 0)
 		{

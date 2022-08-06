@@ -95,13 +95,13 @@ $arJSCoreConfig = array(
 	'access' => array(
 		'js' => $pathJS.'/core_access.js',
 		'css' => $pathCSS.'/core_access.css',
-		'rel' => array('popup', 'ajax', 'finder'),
+		'rel' => array('popup', 'ajax', 'finder', 'ui.design-tokens'),
 		'lang' => $pathLang.'/js_core_access.php',
 	),
 	'finder' => array(
 		'js' => $pathJS.'/core_finder.js',
 		'css' => $pathCSS.'/core_finder.css',
-		'rel' => array('popup', 'ajax', 'db_indexeddb'),
+		'rel' => array('popup', 'ajax', 'db_indexeddb', 'ui.design-tokens'),
 	),
 	'user' => array(
 		'js' => $pathJS.'/core_user.js',
@@ -136,7 +136,7 @@ $arJSCoreConfig = array(
 		'js' => $pathJS.'/core_avatar_editor.js',
 		'css' => $pathCSS.'/core_avatar_editor.css',
 		'lang' => $pathLang.'/js_core_avatar_editor.php',
-		'rel' => array('canvas', 'popup', 'dd', 'uploader', 'webrtc'),
+		'rel' => array('canvas', 'popup', 'dd', 'uploader', 'webrtc', 'ui.design-tokens'),
 	),
 	'canvas' => array(
 		'js' => $pathJS.'/core_canvas.js',
@@ -175,7 +175,7 @@ $arJSCoreConfig = array(
 		'js' => $pathJS.'/core_fileinput.js',
 		'css' => $pathCSS.'/core_fileinput.css',
 		'lang' => $pathLang.'/js_core_fileinput.php',
-		'rel' => array("ajax", "window", "popup", "uploader", "canvas", "dd")
+		'rel' => array("ajax", "window", "popup", "uploader", "canvas", "dd", "ui.design-tokens")
 	),
 	'clipboard' => array(
 		'js' => $pathJS.'/core_clipboard.js',
@@ -203,7 +203,7 @@ $arJSCoreConfig = array(
 	'ui_factory' => array(
 		'js' => $pathJS.'/core_ui_factory.js',
 		'css' => $pathCSS.'/core_ui_control.css',
-		'rel' => array('decl')
+		'rel' => array('decl', 'ui.design-tokens')
 	),
 	'ui' => array(
 		'rel' => array(
@@ -238,7 +238,7 @@ $arJSCoreConfig = array(
 			'/bitrix/js/main/colorpicker/css/colorpicker.css',
 		),
 		'lang' => $pathLang.'/js/colorpicker.php',
-		'rel' => array('popup'),
+		'rel' => array('popup', 'ui.design-tokens'),
 	),
 	'masked_input' => array(
 		'js' => array(
@@ -349,27 +349,27 @@ $arJSCoreConfig = array(
 
 	/* external libs */
 	'jquery' => array(
-		'js' => '/bitrix/js/main/jquery/jquery-1.8.3.min.js',
+		'js' => '/bitrix/js/main/jquery/jquery-1.12.4.min.js',
 		'skip_core' => true,
 	),
 	'jquery_src' => array(
-		'js' => '/bitrix/js/main/jquery/jquery-1.8.3.js',
+		'js' => '/bitrix/js/main/jquery/jquery-1.12.4.js',
 		'skip_core' => true,
 	),
 	'jquery2' => array(
-		'js' => '/bitrix/js/main/jquery/jquery-2.1.3.min.js',
+		'js' => '/bitrix/js/main/jquery/jquery-2.2.4.min.js',
 		'skip_core' => true,
 	),
 	'jquery2_src' => array(
-		'js' => '/bitrix/js/main/jquery/jquery-2.1.3.js',
+		'js' => '/bitrix/js/main/jquery/jquery-2.2.4.js',
 		'skip_core' => true,
 	),
 	'jquery3' => array(
-		'js' => '/bitrix/js/main/jquery/jquery-3.3.1.min.js',
+		'js' => '/bitrix/js/main/jquery/jquery-3.6.0.min.js',
 		'skip_core' => true,
 	),
 	'jquery3_src' => array(
-		'js' => '/bitrix/js/main/jquery/jquery-3.3.1.js',
+		'js' => '/bitrix/js/main/jquery/jquery-3.6.0.js',
 		'skip_core' => true,
 	),
 	'json' => array(

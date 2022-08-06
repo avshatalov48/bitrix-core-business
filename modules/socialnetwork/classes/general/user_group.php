@@ -685,6 +685,11 @@ class CAllSocNetUserToGroup
 			return false;
 		}
 
+		\Bitrix\Socialnetwork\Helper\UserToGroup\RequestPopup::unsetHideRequestPopup([
+			'groupId' => $groupId,
+			'userId' => $userId,
+		]);
+
 		if ($groupFields["OPENED"] === "Y")
 		{
 			if ($autoSubscribe)
@@ -1260,6 +1265,11 @@ class CAllSocNetUserToGroup
 						],
 					]);
 				}
+
+				\Bitrix\Socialnetwork\Helper\UserToGroup\RequestPopup::unsetHideRequestPopup([
+					'groupId' => (int)$relationFields['GROUP_ID'],
+					'userId' => (int)$relationFields['USER_ID'],
+				]);
 			}
 			else
 			{
@@ -1405,6 +1415,11 @@ class CAllSocNetUserToGroup
 					"MESSAGE_TYPE" => SONET_MESSAGE_SYSTEM
 				);
 				CSocNetMessages::Add($arMessageFields);
+
+				\Bitrix\Socialnetwork\Helper\UserToGroup\RequestPopup::unsetHideRequestPopup([
+					'groupId' => (int)$groupId,
+					'userId' => (int)$arRelation['USER_ID'],
+				]);
 			}
 			else
 			{
@@ -2721,6 +2736,7 @@ class CAllSocNetUserToGroup
 			$arReturn["UserCanModerateGroup"] = false;
 			$arReturn["UserCanSpamGroup"] = false;
 			$arReturn["InitiatedByType"] = false;
+			$arReturn["InitiatedByUserId"] = false;
 			$arReturn["Operations"]["viewsystemevents"] = false;
 		}
 		else
@@ -2750,6 +2766,7 @@ class CAllSocNetUserToGroup
 			);
 
 			$arReturn["InitiatedByType"] = false;
+			$arReturn["InitiatedByUserId"] = false;
 			if ($arReturn["UserRole"] === UserToGroupTable::ROLE_REQUEST)
 			{
 				$dbRelation = CSocNetUserToGroup::GetList(
@@ -2757,11 +2774,12 @@ class CAllSocNetUserToGroup
 					[ 'USER_ID' => $userId, 'GROUP_ID' => $groupId ],
 					false,
 					false,
-					[ 'INITIATED_BY_TYPE' ]
+					[ 'INITIATED_BY_TYPE', 'INITIATED_BY_USER_ID' ]
 				);
 				if ($arRelation = $dbRelation->Fetch())
 				{
 					$arReturn["InitiatedByType"] = $arRelation["INITIATED_BY_TYPE"];
+					$arReturn["InitiatedByUserId"] = (int)$arRelation['INITIATED_BY_USER_ID'];
 				}
 			}
 

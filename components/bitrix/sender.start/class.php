@@ -266,6 +266,7 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 			),
 			'TOLOKA' =>  $this->getSenderMessages(
 				$this->getAccessController()->check(ActionDictionary::ACTION_RC_VIEW)
+						&& Integration\Bitrix24\Service::isTolokaVisibleInRegion()
 					?
 					$tolokaMessages
 					:

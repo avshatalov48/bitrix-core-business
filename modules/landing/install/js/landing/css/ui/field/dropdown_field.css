@@ -47,3 +47,7 @@
 	left: 0;
 	right: 0;
 }
+
+.landing-ui-field-dropdown .ui-hint {
+	line-height: 30px;
+}

@@ -343,7 +343,13 @@ class PinnedPanel
 				state: newState
 			});
 
-			ajax.runAction('socialnetwork.api.livefeed.logentry.' + (newState === 'Y' ? 'pin' : 'unpin'), {
+			const action = (
+				newState === 'Y'
+					? 'socialnetwork.api.livefeed.logentry.pin'
+					: 'socialnetwork.api.livefeed.logentry.unpin'
+			);
+
+			ajax.runAction(action, {
 				data: {
 					params: {
 						logId: logId
@@ -435,9 +441,19 @@ class PinnedPanel
 			ajax.runAction('socialnetwork.api.livefeed.logentry.getPinData', {
 				data: {
 					params: {
-						logId: logId
+						logId: logId,
+					},
+				},
+				headers: [
+					{
+						name: Loc.getMessage('SONET_EXT_LIVEFEED_AJAX_ENTITY_HEADER_NAME'),
+						value: params.entityValue || '',
+					},
+					{
+						name: Loc.getMessage('SONET_EXT_LIVEFEED_AJAX_TOKEN_HEADER_NAME'),
+						value: params.tokenValue || '',
 					}
-				}
+				],
 			}).then(response => {
 				return resolve(response.data);
 			}, response => {
@@ -481,13 +497,18 @@ class PinnedPanel
 
 			const postToMove = (post.parentNode.classList.contains(`${this.class.post}`) ? post.parentNode : post);
 
+			const entityValue = post.getAttribute('data-security-entity-pin');
+			const tokenValue = post.getAttribute('data-security-token-pin');
+
 			if (state === 'Y')
 			{
 				const originalPostHeight = postToMove.offsetHeight;
 				postToMove.setAttribute('bx-data-height', originalPostHeight);
 
 				this.getPinnedData({
-					logId: logId
+					logId: logId,
+					entityValue: entityValue,
+					tokenValue: tokenValue,
 				}).then(data => {
 					const pinnedPanelTitleNode = post.querySelector('.feed-post-pinned-title');
 					const pinnedPanelDescriptionNode = post.querySelector('.feed-post-pinned-desc');

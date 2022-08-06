@@ -1,5 +1,9 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -7,56 +11,86 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-?><span class="ilike-light"><span class="bx-ilike-button <?=($arResult['VOTE_AVAILABLE'] == 'Y'? '': 'bx-ilike-button-disable')?>" id="bx-ilike-button-<?=htmlspecialcharsbx($arResult['VOTE_ID'])?>"><span class="bx-ilike-right-wrap <?=($arResult['USER_HAS_VOTED'] == 'N'? '': 'bx-you-like')?>"><span class="bx-ilike-right"><?=htmlspecialcharsEx($arResult['TOTAL_VOTES'])?></span></span><span class="bx-ilike-left-wrap" <?=($arResult['VOTE_AVAILABLE'] == 'Y'? '': 'title="'.htmlspecialcharsbx($arResult['ALLOW_VOTE']['ERROR_MSG']).'"')?>><?
-	if($arResult['VOTE_AVAILABLE'] == 'Y'):
-		?><a href="#like" class="bx-ilike-text"><?=($arResult['USER_HAS_VOTED'] == 'N'? htmlspecialcharsbx($arResult['RATING_TEXT_LIKE_Y']): htmlspecialcharsbx($arResult['RATING_TEXT_LIKE_Y']))?></a><?
-	endif;?></span></span><span class="bx-ilike-wrap-block" id="bx-ilike-popup-cont-<?=htmlspecialcharsbx($arResult['VOTE_ID'])?>" style="display:none;"><span class="bx-ilike-popup"><span class="bx-ilike-wait"></span></span></span></span>
-<script type="text/javascript">
-BX.ready(function() {
-<?if ($arResult['AJAX_MODE'] == 'Y'):?>
-	BX.loadCSS('/bitrix/components/bitrix/rating.vote/templates/like/popup.css');
-	BX.loadCSS('/bitrix/components/bitrix/rating.vote/templates/like/style.css');
-	BX.loadScript('/bitrix/js/main/rating_like.js', function() {
-<?endif;?>
-		if (!window.RatingLike && top.RatingLike)
-			RatingLike = top.RatingLike;
+\Bitrix\Main\UI\Extension::load([
+	'main.rating',
+]);
 
-		if (typeof(RatingLike) == 'undefined')
-			return false;
-
-		if (typeof(RatingLikeInited) == 'undefined')
+$classList = [
+	'bx-ilike-button',
+];
+if ($arResult['VOTE_AVAILABLE'] !== 'Y')
+{
+	$classList[] = 'bx-ilike-button-disable';
+}
+?><span class="ilike-light"><?php
+	?><span class="<?= implode(' ', $classList) ?>" id="bx-ilike-button-<?= htmlspecialcharsbx($arResult['VOTE_ID']) ?>"><?php
+		$classList = [
+			'bx-ilike-right-wrap',
+		];
+		if ($arResult['USER_HAS_VOTED'] !== 'N')
 		{
-			RatingLikeInited = true;
-			RatingLike.setParams({
-				pathToUserProfile: '<?=CUtil::JSEscape($arResult['PATH_TO_USER_PROFILE'])?>'
-			});
+			$classList[] = 'bx-you-like';
 		}
-
-		RatingLike.Set(
-			'<?=CUtil::JSEscape($arResult['VOTE_ID'])?>',
-			'<?=CUtil::JSEscape($arResult['ENTITY_TYPE_ID'])?>',
-			'<?=intval($arResult['ENTITY_ID'])?>',
-			'<?=CUtil::JSEscape($arResult['VOTE_AVAILABLE'])?>',
-			'<?=$USER->GetId()?>',
-			{'LIKE_Y' : '<?=htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y']))?>', 'LIKE_N' : '<?=htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y']))?>', 'LIKE_D' : '<?=htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_D']))?>'},
-			'<?=CUtil::JSEscape($arResult['LIKE_TEMPLATE'])?>',
-			'<?=CUtil::JSEscape($arResult['PATH_TO_USER_PROFILE'])?>'
+		?><span class="<?= implode(' ', $classList) ?>"><span class="bx-ilike-right"><?= htmlspecialcharsEx($arResult['TOTAL_VOTES']) ?></span></span><?php
+		$title = (
+			$arResult['VOTE_AVAILABLE'] !== 'Y'
+				? 'title="' . htmlspecialcharsbx($arResult['ALLOW_VOTE']['ERROR_MSG']) . '"'
+				: ''
 		);
+		?><span class="bx-ilike-left-wrap" <?= $title ?>><?php
+			if ($arResult['VOTE_AVAILABLE'] === 'Y')
+			{
+				?><a href="#like" class="bx-ilike-text"><?= htmlspecialcharsbx($arResult['RATING_TEXT_LIKE_Y']) ?></a><?php
+			}
+		?></span><?php
+	?></span><?php
+	?><span class="bx-ilike-wrap-block" id="bx-ilike-popup-cont-<?= htmlspecialcharsbx($arResult['VOTE_ID']) ?>" style="display:none;"><?php
+		?><span class="bx-ilike-popup"><span class="bx-ilike-wait"></span></span><?php
+	?></span><?php
+?></span>
+<script>
+BX.ready(function() {
 
-		if (typeof(RatingLikePullInit) == 'undefined')
+	<?php
+	if ($arResult['AJAX_MODE'] === 'Y')
+	{
+		?>
+		BX.loadCSS('/bitrix/components/bitrix/rating.vote/templates/like/popup.css');
+		<?php
+	}
+	?>
+
+	if (!window.RatingLike && top.RatingLike)
+	{
+		window.RatingLike = top.RatingLike;
+	}
+
+	if (BX.Type.isUndefined(window.RatingLike))
+	{
+		return false;
+	}
+
+	if (BX.Type.isUndefined(window.RatingLikeInited))
+	{
+		window.RatingLikeInited = true;
+		window.RatingLike.setParams({
+			pathToUserProfile: '<?= CUtil::JSEscape($arResult['PATH_TO_USER_PROFILE']) ?>',
+		});
+	}
+
+	window.RatingLike.Set(
+		'<?= CUtil::JSEscape($arResult['VOTE_ID']) ?>',
+		'<?= CUtil::JSEscape($arResult['ENTITY_TYPE_ID']) ?>',
+		'<?= (int)$arResult['ENTITY_ID'] ?>',
+		'<?= CUtil::JSEscape($arResult['VOTE_AVAILABLE']) ?>',
+		'<?= $USER->GetId() ?>',
 		{
-			RatingLikePullInit = true;
-			BX.addCustomEvent("onPullEvent-main", function(command,params) {
-				if (command == 'rating_vote')
-				{
-					RatingLike.LiveUpdate(params);
-				}
-			});
-		}
-
-<?if ($arResult['AJAX_MODE'] == 'Y'):?>
-	});
-<?endif;?>
-
+			'LIKE_Y': '<?=htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y']))?>',
+			'LIKE_N': '<?=htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y']))?>',
+			'LIKE_D': '<?=htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_D']))?>'
+		},
+		'<?= CUtil::JSEscape($arResult['LIKE_TEMPLATE']) ?>',
+		'<?= CUtil::JSEscape($arResult['PATH_TO_USER_PROFILE']) ?>'
+	);
 });
 </script>

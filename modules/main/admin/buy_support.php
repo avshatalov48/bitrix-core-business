@@ -21,9 +21,23 @@ $APPLICATION->SetAdditionalCSS("/bitrix/components/bitrix/desktop/templates/admi
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_after.php");
 $lkeySign = md5(CUpdateClient::GetLicenseKey());
 
-if(!in_array(LANGUAGE_ID, array("ru", "ua")) || intval(COption::GetOptionString("main", "~PARAM_PARTNER_ID")) <= 0)
+$region = Bitrix\Main\Config\Option::get('main', '~PARAM_CLIENT_LANG', LANGUAGE_ID);
+
+$queryUrl = [
+	'ru' => 'https://util.1c-bitrix.ru',
+	'ua' => 'https://util.bitrix.ua',
+	'en' => 'https://util.bitrixsoft.com',
+	'kz' => 'https://util.1c-bitrix.kz',
+	'by' => 'https://util.1c-bitrix.by'
+];
+if (!isset($queryUrl[$region]))
+	$queryUrl[$region] = $queryUrl['ru'];
+
+$domain = $queryUrl[$region];
+
+if(!in_array($region, array("ru", "ua")) || intval(COption::GetOptionString("main", "~PARAM_PARTNER_ID")) <= 0)
 {
-	LocalRedirect("http://www.1c-bitrix.ru/buy_tmp/key_update.php?license_key=".$lkeySign."&tobasket=y&lang=".LANGUAGE_ID, true);
+	LocalRedirect($domain."/key_update.php?license_key=".$lkeySign."&tobasket=y&lang=".LANGUAGE_ID, true);
 }
 else
 {
@@ -46,7 +60,7 @@ else
 				"partner_id" => $partner_id,
 				"lang" => LANGUAGE_ID,
 			);
-			if($res = $ht->post("https://www.1c-bitrix.ru/buy_tmp/key_update.php", $arF))
+			if($res = $ht->post($domain."/key_update.php", $arF))
 			{
 			if ($ht->getStatus() == "200")
 			{
@@ -92,7 +106,7 @@ else
 						"lang" => LANGUAGE_ID,
 					);
 					$buyUrl = "";
-					if($res = $ht->post("https://www.1c-bitrix.ru/buy_tmp/key_update.php", $arF))
+					if($res = $ht->post($domain."/key_update.php", $arF))
 					{
 						if($ht->getStatus() == "200")
 						{
@@ -137,7 +151,7 @@ else
 							if(em.length > 0 || pn.length > 0)
 							{
 								BX.ajax.post(
-									'https://www.1c-bitrix.ru/buy_tmp/key_update.php',
+									'<?=$domain?>/key_update.php',
 									{"action": "send_partner_info", "partner_id": "<?=intval($partner_id)?>", "phone": pn, "email": em, "name": nm, "license_key": "<?=CUtil::JSEscape($lkeySign)?>", "site" : "<?=CUtil::JSEscape($_SERVER["HTTP_HOST"])?>"}
 								);
 								BX.show(BX('ok'));

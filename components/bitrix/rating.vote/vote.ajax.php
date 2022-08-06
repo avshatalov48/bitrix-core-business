@@ -1,241 +1,107 @@
-<?
-define("PUBLIC_AJAX_MODE", true);
-define("NO_KEEP_STATISTIC", "Y");
-define("NO_AGENT_STATISTIC","Y");
-define("NO_AGENT_CHECK", true);
-define("DisableEventsCheck", true);
+<?php
+
+const PUBLIC_AJAX_MODE = true;
+const NO_KEEP_STATISTIC = "Y";
+const NO_AGENT_STATISTIC = "Y";
+const NO_AGENT_CHECK = true;
+const DisableEventsCheck = true;
+
+use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Rating\Internal\Action;
+
+/** @global CMain $APPLICATION */
+/** @global CUser $USER */
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
-if ($_POST['RATING_VOTE_LIST'] == 'Y'
-	&& $_POST['RATING_VOTE_TYPE_ID'] <> ''
-	&& intval($_POST['RATING_VOTE_ENTITY_ID']) > 0 && check_bitrix_sessid())
+if (
+	(string)$_POST['RATING_VOTE_TYPE_ID'] !== ''
+	&& (int)$_POST['RATING_VOTE_ENTITY_ID'] > 0
+	&& check_bitrix_sessid()
+)
 {
-	$APPLICATION->RestartBuffer();
+	$entityTypeId = $_POST['RATING_VOTE_TYPE_ID'];
+	$entityId = (int)$_POST['RATING_VOTE_ENTITY_ID'];
 
-	$ar = Array(
-		"ENTITY_TYPE_ID" => $_POST['RATING_VOTE_TYPE_ID'],
-		"ENTITY_ID" => intval($_POST['RATING_VOTE_ENTITY_ID']),
-		"LIST_PAGE" => intval($_POST['RATING_VOTE_LIST_PAGE']),
-		"LIST_LIMIT" => 20,
-		"LIST_TYPE" => isset($_POST['RATING_VOTE_LIST_TYPE']) && $_POST['RATING_VOTE_LIST_TYPE'] == 'minus'? 'minus': 'plus',
-	);
+	$currentUserId = ($USER->isAuthorized() ? (int)$USER->getId() : 0);
 
-	$bMailInstalled = IsModuleInstalled('mail');
-	$bReplicaInstalled = IsModuleInstalled('replica');
-	$bExtranetInstalled = IsModuleInstalled('extranet');
-
-	if ($bExtranetInstalled)
-	{
-		$ar["USER_SELECT"] = array("UF_DEPARTMENT");
-	}
-
-	if (
-		$bMailInstalled
-		|| $bReplicaInstalled
-	)
-	{
-		$ar["USER_FIELDS"] = array("ID", "NAME", "LAST_NAME", "SECOND_NAME", "LOGIN", "PERSONAL_PHOTO", "EXTERNAL_AUTH_ID");
-	}
-
-	if (!empty($_POST['RATING_VOTE_REACTION']))
-	{
-		$ar["REACTION"] = $_POST['RATING_VOTE_REACTION'];
-	}
-
-	$arResult = CRatings::GetRatingVoteList($ar);
-
-	if (empty($_POST["PATH_TO_USER_PROFILE"]))
-	{
-		$_POST["PATH_TO_USER_PROFILE"] = '/people/user/#USER_ID#/';
-	}
-
-	$arVoteList = array(
-		'items' => array(),
-		'items_all' => $arResult['items_all'],
-		'items_page' => $arResult['items_page'],
-		'reactions' => (isset($arResult['reactions']) && is_array($arResult['reactions']) ? $arResult['reactions'] : array())
-	);
-
-	foreach($arResult['items'] as $key => $value)
-	{
-		$arUserVote = Array(
-			'USER_ID' => $value['ID'],
-			'VOTE_VALUE' => $value['VOTE_VALUE'],
-			'PHOTO' => $value['PHOTO'],
-			'PHOTO_SRC' => $value['PHOTO_SRC'],
-			'FULL_NAME' => $value['FULL_NAME'],
-			'URL' => CUtil::JSEscape(CComponentEngine::MakePathFromTemplate($_POST["PATH_TO_USER_PROFILE"], array("UID" => $value["USER_ID"], "user_id" => $value["USER_ID"], "USER_ID" => $value["USER_ID"])))
-		);
-
-		if (
-			$bMailInstalled
-			&& $value["EXTERNAL_AUTH_ID"] == "email"
-		)
-		{
-			$arUserVote["USER_TYPE"] = "mail";
-		}
-		elseif (
-			$bReplicaInstalled
-			&& $value["EXTERNAL_AUTH_ID"] == "replica"
-		)
-		{
-			$arUserVote["USER_TYPE"] = "extranet";
-		}
-		elseif (
-			$bExtranetInstalled
-			&& (
-				empty($value["UF_DEPARTMENT"])
-				|| intval($value["UF_DEPARTMENT"][0]) <= 0
-			)
-		)
-		{
-			$arUserVote["USER_TYPE"] = "extranet";
-		}
-
-		$arVoteList['items'][] = $arUserVote;
-	}
-
-	if ($USER->IsAuthorized())
-	{
-		$event = new \Bitrix\Main\Event(
-			'main',
-			'onRatingListViewed',
-			array(
-				'entityTypeId' => $_POST['RATING_VOTE_TYPE_ID'],
-				'entityId' => $_POST['RATING_VOTE_ENTITY_ID'],
-				'userId' => $USER->getId()
-			)
-		);
-		$event->send();
-	}
-
-	Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
-	echo CUtil::PhpToJsObject($arVoteList);
-}
-else if ($_POST['RATING_VOTE'] == 'Y'
-	&& $_POST['RATING_VOTE_TYPE_ID'] <> ''
-	&& intval($_POST['RATING_VOTE_ENTITY_ID']) > 0 && check_bitrix_sessid())
-{
-	$arParams['ENTITY_TYPE_ID'] = $_POST['RATING_VOTE_TYPE_ID'];
-	$arParams['ENTITY_ID'] = intval($_POST['RATING_VOTE_ENTITY_ID']);
-	$arComponentVoteResult  = CRatings::GetRatingVoteResult($_POST['RATING_VOTE_TYPE_ID'], intval($_POST['RATING_VOTE_ENTITY_ID']));
-	if (!empty($arComponentVoteResult))
-	{
-		$arParams['TOTAL_VALUE'] = $arComponentVoteResult['TOTAL_VALUE'];
-		$arParams['TOTAL_VOTES'] = $arComponentVoteResult['TOTAL_VOTES'];
-		$arParams['TOTAL_POSITIVE_VOTES'] = $arComponentVoteResult['TOTAL_POSITIVE_VOTES'];
-		$arParams['TOTAL_NEGATIVE_VOTES'] = $arComponentVoteResult['TOTAL_NEGATIVE_VOTES'];
-		$arParams['USER_HAS_VOTED'] = $arComponentVoteResult['USER_HAS_VOTED'];
-		$arParams['USER_VOTE'] = $arComponentVoteResult['USER_VOTE'];
-	}
-	else
-	{
-		$arParams['TOTAL_VALUE'] = 0;
-		$arParams['TOTAL_VOTES'] = 0;
-		$arParams['TOTAL_POSITIVE_VOTES'] = 0;
-		$arParams['TOTAL_NEGATIVE_VOTES'] = 0;
-		$arParams['USER_HAS_VOTED'] = 'N';
-		$arParams['USER_VOTE'] = '0';
-	}
-	$arAllowVote = CRatings::CheckAllowVote($arParams);
-	if ($arAllowVote['RESULT'])
+	if ($_POST['RATING_VOTE_LIST'] === 'Y')
 	{
 		$APPLICATION->RestartBuffer();
-		$action = 'list';
-		if (in_array($_POST['RATING_VOTE_ACTION'], array('plus', 'minus')))
-		{
-			$arAdd = array(
-				"ENTITY_TYPE_ID" => $_POST['RATING_VOTE_TYPE_ID'],
-				"ENTITY_ID" => intval($_POST['RATING_VOTE_ENTITY_ID']),
-				"VALUE" => $_POST['RATING_VOTE_ACTION'] == 'plus' ? 1 : -1,
-				"USER_IP" => $_SERVER['REMOTE_ADDR'],
-				"USER_ID" => $USER->GetId(),
-				"REACTION" => ($_POST['RATING_VOTE_ACTION'] == 'plus' && !empty($_POST['RATING_VOTE_REACTION']) ? $_POST['RATING_VOTE_REACTION'] : \CAllRatings::REACTION_DEFAULT)
-			);
-			$userData = CRatings::AddRatingVote($arAdd);
-			$action = $_POST['RATING_VOTE_ACTION'];
-		}
-		elseif ($_POST['RATING_VOTE_ACTION'] == 'change')
-		{
-			$arChange = array(
-				"ENTITY_TYPE_ID" => $_POST['RATING_VOTE_TYPE_ID'],
-				"ENTITY_ID" => intval($_POST['RATING_VOTE_ENTITY_ID']),
-				"USER_IP" => $_SERVER['REMOTE_ADDR'],
-				"USER_ID" => $USER->GetId(),
-				"REACTION" => (!empty($_POST['RATING_VOTE_REACTION']) ? $_POST['RATING_VOTE_REACTION'] : \CAllRatings::REACTION_DEFAULT)
-			);
-			$userData = CRatings::ChangeRatingVote($arChange);
-			$action = $_POST['RATING_VOTE_ACTION'];
-		}
-		else if ($_POST['RATING_VOTE_ACTION'] == 'cancel')
-		{
-			$arCancel = array(
-				"ENTITY_TYPE_ID" => $_POST['RATING_VOTE_TYPE_ID'],
-				"ENTITY_ID" => intval($_POST['RATING_VOTE_ENTITY_ID']),
-				"USER_ID" => $USER->GetId(),
-			);
-			$userData = CRatings::CancelRatingVote($arCancel);
-			$action = $_POST['RATING_VOTE_ACTION'];
-		}
-		$ar = Array(
-			"ENTITY_TYPE_ID" => $_POST['RATING_VOTE_TYPE_ID'],
-			"ENTITY_ID" => intval($_POST['RATING_VOTE_ENTITY_ID']),
-			"LIST_LIMIT" => 0,
-			"LIST_TYPE" => isset($_POST['RATING_VOTE_ACTION']) && $_POST['RATING_VOTE_ACTION'] == 'minus'? 'minus': 'plus',
-		);
-		$arVoteList = CRatings::GetRatingVoteList($ar);
-		if ($_POST['RATING_RESULT'] == 'Y') 
-		{
-			$arVoteResult = GetVoteResult($_POST['RATING_VOTE_TYPE_ID'], $_POST['RATING_VOTE_ENTITY_ID']);
-			$arVoteList = array_merge($arVoteList, $arVoteResult);
-		}
-		$arVoteList['action'] = $action;
-		$arVoteList['user_data'] = $userData;
-		Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
-		echo CUtil::PhpToJsObject($arVoteList);
+
+		$params = [
+			'ENTITY_TYPE_ID' => $entityTypeId,
+			'ENTITY_ID' => $entityId,
+			'LIST_PAGE' => (int)$_POST['RATING_VOTE_LIST_PAGE'],
+			'LIST_LIMIT' => 20,
+			'REACTION' => ($_POST['RATING_VOTE_REACTION'] ?? ''),
+			'LIST_TYPE' => (
+				isset($_POST['RATING_VOTE_LIST_TYPE'])
+				&& $_POST['RATING_VOTE_LIST_TYPE'] === 'minus'
+					? 'minus'
+					: 'plus'
+			),
+			'PATH_TO_USER_PROFILE' => (
+				!empty($_POST['PATH_TO_USER_PROFILE'])
+					? $_POST['PATH_TO_USER_PROFILE']
+					: '/people/user/#USER_ID#/'
+			),
+			'CURRENT_USER_ID' => $currentUserId,
+		];
+
+		$voteList = Action::list($params);
+
+		Header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
+		echo CUtil::PhpToJsObject($voteList);
 	}
-} 
-else if ($_POST['RATING_RESULT'] == 'Y'
-	&& $_POST['RATING_VOTE_TYPE_ID'] <> ''
-	&& intval($_POST['RATING_VOTE_ENTITY_ID']) > 0 && check_bitrix_sessid())
-{
-	$arJSON = GetVoteResult($_POST['RATING_VOTE_TYPE_ID'], $_POST['RATING_VOTE_ENTITY_ID']);
-	Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
-	echo CUtil::PhpToJsObject($arJSON);
-}
-
-function GetVoteResult($entityTypeId, $entityId)
-{
-	global $USER;
-	$entityId 		= intval($entityId);
-	$userId 			= intval($USER->GetId());
-
-	$arRatingResult = CRatings::GetRatingVoteResult($entityTypeId, $entityId, $userId);
-	if (empty($arRatingResult)) 
+	else if ($_POST['RATING_VOTE'] === 'Y')
 	{
-		$arRatingResult['USER_HAS_VOTED'] = $USER->IsAuthorized() ? "N" : "Y";
-		$arRatingResult['USER_VOTE'] = 0;
-		$arRatingResult['TOTAL_VALUE'] = 0;
-		$arRatingResult['TOTAL_VOTES'] = 0;
-		$arRatingResult['TOTAL_POSITIVE_VOTES'] = 0;
-		$arRatingResult['TOTAL_NEGATIVE_VOTES'] = 0;
+		$params = [
+			'ENTITY_TYPE_ID' => $entityTypeId,
+			'ENTITY_ID' => $entityId,
+			'ACTION' => (
+				in_array($_POST['RATING_VOTE_ACTION'], [ 'plus', 'minus', 'change', 'cancel' ])
+					? $_POST['RATING_VOTE_ACTION']
+					: 'list'
+			),
+			'REACTION' => ($_POST['RATING_VOTE_REACTION'] ?? ''),
+			'RATING_RESULT' => ($_POST['RATING_RESULT'] === 'Y' ? $_POST['RATING_RESULT'] : 'N'),
+			'REMOTE_ADDR' => $_SERVER['REMOTE_ADDR'],
+			'CURRENT_USER_ID' => $currentUserId,
+		];
+
+		$ratingVoteResult = CRatings::getRatingVoteResult($params['ENTITY_TYPE_ID'], $params['ENTITY_ID']);
+		if (!empty($ratingVoteResult))
+		{
+			$params['TOTAL_VALUE'] = $ratingVoteResult['TOTAL_VALUE'];
+			$params['TOTAL_VOTES'] = $ratingVoteResult['TOTAL_VOTES'];
+			$params['TOTAL_POSITIVE_VOTES'] = $ratingVoteResult['TOTAL_POSITIVE_VOTES'];
+			$params['TOTAL_NEGATIVE_VOTES'] = $ratingVoteResult['TOTAL_NEGATIVE_VOTES'];
+			$params['USER_HAS_VOTED'] = $ratingVoteResult['USER_HAS_VOTED'];
+			$params['USER_VOTE'] = $ratingVoteResult['USER_VOTE'];
+		}
+		else
+		{
+			$params['TOTAL_VALUE'] = 0;
+			$params['TOTAL_VOTES'] = 0;
+			$params['TOTAL_POSITIVE_VOTES'] = 0;
+			$params['TOTAL_NEGATIVE_VOTES'] = 0;
+			$params['USER_HAS_VOTED'] = 'N';
+			$params['USER_VOTE'] = '0';
+		}
+
+		$voteList = Action::vote($params);
+		if (!empty($voteList))
+		{
+			Header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
+			echo CUtil::PhpToJsObject($voteList);
+		}
 	}
-
-	$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/lang/".LANGUAGE_ID."/vote.ajax.php");
-	include_once($path);
-	$resultStatus = $arRatingResult['TOTAL_VALUE'] < 0 ? 'minus' : 'plus';
-	$resultTitle  = sprintf($MESS["RATING_COMPONENT_DESC"], $arRatingResult['TOTAL_VOTES'], $arRatingResult['TOTAL_POSITIVE_VOTES'], $arRatingResult['TOTAL_NEGATIVE_VOTES']);
-
-	return Array(
-		'resultValue' => $arRatingResult['TOTAL_VALUE'],
-		'resultVotes' => $arRatingResult['TOTAL_VOTES'],
-		'resultPositiveVotes' => $arRatingResult['TOTAL_POSITIVE_VOTES'],
-		'resultNegativeVotes' => $arRatingResult['TOTAL_NEGATIVE_VOTES'],		
-		'resultStatus' => $resultStatus,
-		'resultTitle' => $resultTitle,
-	);
+	else if ($_POST['RATING_RESULT'] === 'Y')
+	{
+		Header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
+		echo CUtil::PhpToJsObject(Action::getVoteResult($entityTypeId, $entityId));
+	}
 }
 
 CMain::FinalActions();
-die();

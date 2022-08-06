@@ -207,6 +207,7 @@ class Map
 				'text' => Loc::getMessage('LANDING_BLOCK_EMPTY_GMAP_SETTINGS'),
 				'href' => '#page_url_site_edit@map_required_key',
 				'className' => 'landing-required-link',
+				'targetNodeSelector' => '[data-map]',
 			];
 		}
 

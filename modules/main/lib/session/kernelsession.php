@@ -2,7 +2,6 @@
 
 namespace Bitrix\Main\Session;
 
-use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\NotSupportedException;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\Session\Handlers\CookieSessionHandler;

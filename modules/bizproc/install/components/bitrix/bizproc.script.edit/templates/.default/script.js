@@ -1,81 +1,17 @@
 (function (exports,main_core,main_core_events,ui_notification) {
 	'use strict';
 
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input value=\"\" type=\"text\" class=\"ui-ctl-element\">\n\t\t"]);
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7;
 
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-script-edit-item\">\n\t\t\t\t<div class=\"bizproc-script-edit-subtitle\">", "</div>\n\t\t\t\t<div class=\"bizproc-script-edit-text\">", "</div>\n\t\t\t\t<a onclick=\"", "\" class=\"ui-link ui-link-secondary ui-link-dashed\">", "</a>\n\t\t\t\t<div class=\"bizproc-script-edit-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-slider-section\">\n\t\t\t\t<div class=\"ui-slider-heading-4 ui-slider-heading-4--bizproc-icon\">", "</div>\n\t\t\t\t", "\n\t\t\t</div>"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-script-edit-item\">\n\t\t\t\t<div class=\"bizproc-script-edit-title\">", "</div>\n\t\t\t\t<div class=\"bizproc-script-edit-text\">", "</div>\n\t\t\t</div>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-script-edit-item\">\n\t\t\t\t<div class=\"bizproc-script-edit-title\">", "</div>\n\t\t\t\t<div class=\"bizproc-script-edit-text\">", "</div>\n\t\t\t</div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-alert ui-alert-default ui-alert-xs ui-alert-icon-info\">\n\t\t\t\t\t<span class=\"ui-alert-message\">", "</span>\n\t\t\t\t</div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<form data-role=\"constant-list\" onsubmit=\"return false;\">", "</form>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var namespace = main_core.Reflection.namespace('BX.Bizproc');
@@ -90,25 +26,25 @@
 	  });
 	};
 
-	var _getRobotsTemplate = new WeakSet();
+	var _getRobotsTemplate = /*#__PURE__*/new WeakSet();
 
-	var _activateSection = new WeakSet();
+	var _activateSection = /*#__PURE__*/new WeakSet();
 
-	var _validateScriptName = new WeakSet();
+	var _validateScriptName = /*#__PURE__*/new WeakSet();
 
-	var _validateConstants = new WeakSet();
+	var _validateConstants = /*#__PURE__*/new WeakSet();
 
 	var ScriptEditComponent = /*#__PURE__*/function () {
 	  function ScriptEditComponent(options) {
 	    babelHelpers.classCallCheck(this, ScriptEditComponent);
 
-	    _validateConstants.add(this);
+	    _classPrivateMethodInitSpec(this, _validateConstants);
 
-	    _validateScriptName.add(this);
+	    _classPrivateMethodInitSpec(this, _validateScriptName);
 
-	    _activateSection.add(this);
+	    _classPrivateMethodInitSpec(this, _activateSection);
 
-	    _getRobotsTemplate.add(this);
+	    _classPrivateMethodInitSpec(this, _getRobotsTemplate);
 
 	    babelHelpers.defineProperty(this, "constantPrefix", 'Constant__');
 	    babelHelpers.defineProperty(this, "parameterPrefix", 'Parameter__');
@@ -261,9 +197,9 @@
 	      });
 
 	      if (robotNodes.length) {
-	        main_core.Dom.append(main_core.Tag.render(_templateObject(), robotNodes), configsNode);
+	        main_core.Dom.append(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<form data-role=\"constant-list\" onsubmit=\"return false;\">", "</form>"])), robotNodes), configsNode);
 	      } else {
-	        return main_core.Dom.append(main_core.Tag.render(_templateObject2(), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_SECTION_CONFIGS_EMPTY')), configsNode);
+	        return main_core.Dom.append(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-alert ui-alert-default ui-alert-xs ui-alert-icon-info\">\n\t\t\t\t\t<span class=\"ui-alert-message\">", "</span>\n\t\t\t\t</div>"])), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_SECTION_CONFIGS_EMPTY')), configsNode);
 	      }
 	    }
 	  }, {
@@ -279,7 +215,7 @@
 	      }
 
 	      if (usages.Constant.size) {
-	        itemNodes.push(main_core.Tag.render(_templateObject3(), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_CONSTANT_LABEL'), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_CONSTANT_DESCRIPTION')));
+	        itemNodes.push(main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-script-edit-item\">\n\t\t\t\t<div class=\"bizproc-script-edit-title\">", "</div>\n\t\t\t\t<div class=\"bizproc-script-edit-text\">", "</div>\n\t\t\t</div>"])), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_CONSTANT_LABEL'), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_CONSTANT_DESCRIPTION')));
 	        usages.Constant.forEach(function (constId) {
 	          var constant = constants.find(function (c) {
 	            return c.Id === constId;
@@ -292,7 +228,7 @@
 	      }
 
 	      if (usages.Parameter.size) {
-	        itemNodes.push(main_core.Tag.render(_templateObject4(), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_PARAMETER_LABEL'), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_PARAMETER_DESCRIPTION')));
+	        itemNodes.push(main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"bizproc-script-edit-item\">\n\t\t\t\t<div class=\"bizproc-script-edit-title\">", "</div>\n\t\t\t\t<div class=\"bizproc-script-edit-text\">", "</div>\n\t\t\t</div>"])), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_PARAMETER_LABEL'), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_PARAMETER_DESCRIPTION')));
 	        usages.Parameter.forEach(function (paramId) {
 	          var parameter = parameters.find(function (p) {
 	            return p.Id === paramId;
@@ -304,13 +240,13 @@
 	        });
 	      }
 
-	      return main_core.Tag.render(_templateObject5(), main_core.Text.encode(robot.getTitle()), itemNodes);
+	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-slider-section\">\n\t\t\t\t<div class=\"ui-slider-heading-4 ui-slider-heading-4--bizproc-icon\">", "</div>\n\t\t\t\t", "\n\t\t\t</div>"])), main_core.Text.encode(robot.getTitle()), itemNodes);
 	    }
 	  }, {
 	    key: "renderPropertyBlock",
 	    value: function renderPropertyBlock(property, prefix) {
 	      var control = BX.Bizproc.FieldType.renderControl(this.automationDesigner.documentType, property, prefix + property.Id, property.Default);
-	      return main_core.Tag.render(_templateObject6(), main_core.Text.encode(property.Name), main_core.Text.encode(property.Description), this.changePropertyDescription.bind(this, prefix, property), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_BTN_CHANGE'), control);
+	      return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-script-edit-item\">\n\t\t\t\t<div class=\"bizproc-script-edit-subtitle\">", "</div>\n\t\t\t\t<div class=\"bizproc-script-edit-text\">", "</div>\n\t\t\t\t<a onclick=\"", "\" class=\"ui-link ui-link-secondary ui-link-dashed\">", "</a>\n\t\t\t\t<div class=\"bizproc-script-edit-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>"])), main_core.Text.encode(property.Name), main_core.Text.encode(property.Description), this.changePropertyDescription.bind(this, prefix, property), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_BTN_CHANGE'), control);
 	    }
 	  }, {
 	    key: "changePropertyDescription",
@@ -320,7 +256,7 @@
 	      var element = event.currentTarget;
 	      var wrapper = element.previousElementSibling;
 	      main_core.Dom.hide(element);
-	      var inputElement = main_core.Tag.render(_templateObject7());
+	      var inputElement = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input value=\"\" type=\"text\" class=\"ui-ctl-element\">\n\t\t"])));
 	      inputElement.value = property.Description || '';
 	      main_core.Dom.clean(wrapper);
 	      main_core.Dom.append(inputElement, wrapper);
@@ -373,11 +309,11 @@
 	  return ScriptEditComponent;
 	}();
 
-	var _getRobotsTemplate2 = function _getRobotsTemplate2() {
+	function _getRobotsTemplate2() {
 	  return this.automationDesigner.templateManager.templates[0];
-	};
+	}
 
-	var _activateSection2 = function _activateSection2(section) {
+	function _activateSection2(section) {
 	  if (BX.UI.DropdownMenuItem.getItemByNode) {
 	    var menuItem = BX.UI.DropdownMenuItem.getItemByNode(this.leftMenuNode.querySelector("[data-page=\"".concat(section, "\"]")));
 	    this.menuActivateHandler(section);
@@ -391,9 +327,9 @@
 	  if (section !== 'configs') {
 	    this.setTemplateValues(_classPrivateMethodGet(this, _getRobotsTemplate, _getRobotsTemplate2).call(this));
 	  }
-	};
+	}
 
-	var _validateScriptName2 = function _validateScriptName2(name) {
+	function _validateScriptName2(name) {
 	  if (!main_core.Type.isStringFilled(name)) {
 	    ui_notification.UI.Notification.Center.notify({
 	      content: main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_VALIDATION_EMPTY_NAME')
@@ -405,9 +341,9 @@
 	  }
 
 	  return true;
-	};
+	}
 
-	var _validateConstants2 = function _validateConstants2(constants, usedConstants) {
+	function _validateConstants2(constants, usedConstants) {
 	  var result = true;
 	  constants.forEach(function (constant) {
 	    if (usedConstants.has(constant.Id) && !main_core.Type.isStringFilled(constant.Default)) {
@@ -424,7 +360,7 @@
 	  }
 
 	  return result;
-	};
+	}
 
 	namespace.ScriptEditComponent = ScriptEditComponent;
 

@@ -25,6 +25,7 @@ export const EventType = Object.freeze({
 		clickOnUserName: 'IM.Dialog:clickOnUserName',
 		clickOnMessageMenu: 'IM.Dialog:clickOnMessageMenu',
 		clickOnMessageRetry: 'IM.Dialog:clickOnMessageRetry',
+		doubleClickOnMessage: 'IM.Dialog:doubleClickOnMessage',
 		clickOnUploadCancel: 'IM.Dialog:clickOnUploadCancel',
 		clickOnReadList: 'IM.Dialog:clickOnReadList',
 		setMessageReaction: 'IM.Dialog:setMessageReaction',

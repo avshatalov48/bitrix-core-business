@@ -12,7 +12,7 @@
 	width: 595px;
 	padding: 20px 27px;
 	border-radius: 2px;
-	background: #EEF2F4;
+	background: white;
 	max-height: 300px;
 	overflow-y: auto;
 }
@@ -107,4 +107,29 @@
 
 .landing-slider-no-background .landing-template-preview-body {
 	padding: 0;
+}
+
+.landing-agreement-popup-content p:last-child
+{
+	margin-bottom: 0;
+}
+
+.landing-agreement-popup-content .landing-agreement-popup-content-1
+{
+	background: #E1F3F9;
+	color: #333333;
+	border-radius: 10px;
+	padding: 10px;
+}
+.landing-agreement-popup-content .landing-agreement-popup-content-2
+{
+	padding: 10px;
+}
+.landing-agreement-popup-content .landing-agreement-popup-content-3
+{
+	background: #EEEFF0;
+	color: #525C69;
+	border-radius: 10px;
+	padding: 10px;
+	font-size: 12px;
 }

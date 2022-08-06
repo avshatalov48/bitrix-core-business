@@ -52,35 +52,7 @@ this.BX = this.BX || {};
 	  return Node;
 	}();
 
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-designer-block-node-hover-add\">\n\t\t\t\t<span class=\"landing-designer-block-node-hover-add-title\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-designer-block-pseudo-last\"></div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-designer-block-node-hover\"></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3;
 	var DesignerBlockUI = /*#__PURE__*/function () {
 	  function DesignerBlockUI() {
 	    babelHelpers.classCallCheck(this, DesignerBlockUI);
@@ -89,31 +61,23 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(DesignerBlockUI, null, [{
 	    key: "getHoverDiv",
 	    value: function getHoverDiv() {
-	      return main_core.Tag.render(_templateObject());
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-designer-block-node-hover\"></div>"])));
 	    }
 	  }, {
 	    key: "getPseudoLast",
 	    value: function getPseudoLast() {
-	      return main_core.Tag.render(_templateObject2());
+	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-designer-block-pseudo-last\"></div>"])));
 	    }
 	  }, {
 	    key: "getAddNodeButton",
 	    value: function getAddNodeButton() {
-	      return main_core.Tag.render(_templateObject3(), landing_loc.Loc.getMessage('LANDING_DESIGN_BLOCK_REPO_BUTTON'));
+	      return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-designer-block-node-hover-add\">\n\t\t\t\t<span class=\"landing-designer-block-node-hover-add-title\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</div>"])), landing_loc.Loc.getMessage('LANDING_DESIGN_BLOCK_REPO_BUTTON'));
 	    }
 	  }]);
 	  return DesignerBlockUI;
 	}();
 
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-layer-list-container\"></div>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1;
 	var RepoPanel = /*#__PURE__*/function (_Content) {
 	  babelHelpers.inherits(RepoPanel, _Content);
 
@@ -185,7 +149,7 @@ this.BX = this.BX || {};
 	    key: "getListContainer",
 	    value: function getListContainer() {
 	      return this.cache.remember('listContainer', function () {
-	        return main_core.Tag.render(_templateObject$1());
+	        return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-layer-list-container\"></div>"])));
 	      });
 	    }
 	  }]);
@@ -210,35 +174,7 @@ this.BX = this.BX || {};
 	  return RepoManager;
 	}();
 
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<style>", "{display: none !important;}</style>"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject$2 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$2, _templateObject2$1, _templateObject3$1;
 	var DesignerBlock = /*#__PURE__*/function () {
 	  function DesignerBlock(blockNode, options) {
 	    babelHelpers.classCallCheck(this, DesignerBlock);
@@ -314,7 +250,7 @@ this.BX = this.BX || {};
 	        tags.map(function (tag) {
 	          var insertAfterSelector = tag.insertAfterSelector || null;
 	          var parentNodeSelector = tag.parentNodeSelector || null;
-	          var element = main_core.Tag.render(_templateObject$2(), tag.elementHtml);
+	          var element = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["", ""])), tag.elementHtml);
 
 	          if (insertAfterSelector) {
 	            elementAdded = true;
@@ -351,7 +287,7 @@ this.BX = this.BX || {};
 	      var _this3 = this;
 
 	      main_core.Event.bind(this.saveButton, 'click', function () {
-	        _this3.highlight.hide();
+	        _this3.highlight.hide(true);
 
 	        var finishCallback = function finishCallback() {
 	          if (BX.SidePanel && BX.SidePanel.Instance) {
@@ -460,7 +396,7 @@ this.BX = this.BX || {};
 	      babelHelpers.toConsumableArray(this.blockNode.querySelectorAll(sliderSelector)).map(function (slider) {
 	        var count = (main_core.Text.toNumber(slider.dataset.slidesShow) || 1) * (main_core.Text.toNumber(slider.dataset.rows) || 1);
 	        var selector = ".".concat(babelHelpers.toConsumableArray(slider.classList).join('.'), " .js-slide:not(:nth-child(-n+").concat(count, "))");
-	        document.head.appendChild(main_core.Tag.render(_templateObject2$1(), selector));
+	        document.head.appendChild(main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["<style>", "{display: none !important;}</style>"])), selector));
 	      });
 	    }
 	  }, {
@@ -585,7 +521,7 @@ this.BX = this.BX || {};
 	      var tags = [];
 	      babelHelpers.toConsumableArray(document.body.querySelectorAll(activeNode.getSelector())).map(function (node) {
 	        var elementHtml = repoElement.html;
-	        var element = main_core.Tag.render(_templateObject3$1(), elementHtml);
+	        var element = main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["", ""])), elementHtml);
 	        var insertAfter = _this9.isInsideElement(node) ? node.parentNode : node;
 	        main_core.Dom.insertAfter(element, insertAfter);
 	        tags.push({
@@ -678,7 +614,7 @@ this.BX = this.BX || {};
 	    value: function removeNode(node) {
 	      if (node) {
 	        main_core.Dom.remove(node);
-	        this.nodeMap.delete(node);
+	        this.nodeMap["delete"](node);
 	      }
 	    }
 	  }, {

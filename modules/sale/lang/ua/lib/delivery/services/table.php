@@ -1,6 +1,9 @@
 <?php
 $MESS["DELIVERY_SERVICE_ENTITY_ACTIVE_FIELD"] = "Активність";
+$MESS["DELIVERY_SERVICE_ENTITY_ALLOW_EDIT_SHIPMENT_FIELD"] = "Дозволити автоматичну зміну відвантаження";
+$MESS["DELIVERY_SERVICE_ENTITY_CLASS_NAME_FIELD"] = "Ім'я класу типу доставки";
 $MESS["DELIVERY_SERVICE_ENTITY_CODE_FIELD"] = "Код";
+$MESS["DELIVERY_SERVICE_ENTITY_CONFIG_FIELD"] = "Налаштування";
 $MESS["DELIVERY_SERVICE_ENTITY_CURRENCY_FIELD"] = "Валюта";
 $MESS["DELIVERY_SERVICE_ENTITY_DESCRIPTION_FIELD"] = "Опис";
 $MESS["DELIVERY_SERVICE_ENTITY_ID_FIELD"] = "Ідентифікатор";
@@ -11,4 +14,5 @@ $MESS["DELIVERY_SERVICE_ENTITY_PARENT_ID_FIELD"] = "Ідетифікатор б�
 $MESS["DELIVERY_SERVICE_ENTITY_SETTINGS_FIELD"] = "Налаштування";
 $MESS["DELIVERY_SERVICE_ENTITY_SORT_FIELD"] = "Сортування";
 $MESS["DELIVERY_SERVICE_ENTITY_STORE_FIELD"] = "Склади";
+$MESS["DELIVERY_SERVICE_ENTITY_TRACKING_PARAMS_FIELD"] = "Додаткові налаштування";
 $MESS["DELIVERY_SERVICE_ENTITY_VAT_ID_FIELD"] = "Ставка ПДВ";

@@ -41,7 +41,11 @@ $value = $arResult['value'];
 		else if($arResult['userField']['SETTINGS']['DISPLAY'] === BooleanType::DISPLAY_CHECKBOX)
 		{
 			$label = Loc::getMessage('MAIN_YES');
-			if(isset($arResult['userField']['SETTINGS']['LABEL_CHECKBOX']))
+			if (!empty($arResult['userField']['EDIT_FORM_LABEL']))
+			{
+				$label = $arResult['userField']['EDIT_FORM_LABEL'];
+			}
+			elseif(isset($arResult['userField']['SETTINGS']['LABEL_CHECKBOX']))
 			{
 				if(is_array($arResult['userField']['SETTINGS']['LABEL_CHECKBOX']))
 				{
@@ -49,7 +53,7 @@ $value = $arResult['value'];
 						$arResult['userField']['SETTINGS']['LABEL_CHECKBOX'][LANGUAGE_ID];
 				}
 
-				if($arResult['userField']['SETTINGS']['LABEL_CHECKBOX'] <> '')
+				if($arResult['userField']['SETTINGS']['LABEL_CHECKBOX'] !== '')
 				{
 					$label = $arResult['userField']['SETTINGS']['LABEL_CHECKBOX'];
 				}

@@ -93,6 +93,10 @@ BitrixVue.component('bx-im-view-message',
 		{
 			EventEmitter.emit(EventType.dialog.clickOnMessageRetry, event);
 		},
+		doubleClickByMessage(event)
+		{
+			EventEmitter.emit(EventType.dialog.doubleClickOnMessage, event);
+		},
 		gestureRouter(eventName, event)
 		{
 			this.gestureQuote(eventName, event);
@@ -417,6 +421,7 @@ BitrixVue.component('bx-im-view-message',
 			return this.showLargeFont && this.message.params.LARGE_FONT === 'Y';
 		},
 	},
+	// language=vue
 	template: `
 		<div :class="['bx-im-message', {
 				'bx-im-message-without-menu': !showMenu,
@@ -435,6 +440,7 @@ BitrixVue.component('bx-im-view-message',
 			@touchstart="gestureRouter('touchstart', $event)"
 			@touchmove="gestureRouter('touchmove', $event)"
 			@touchend="gestureRouter('touchend', $event)"
+			@dblclick="doubleClickByMessage({message: message, event: $event})"
 			ref="body"
 			:style="{
 				width: dragWidth > 0? dragWidth+'px': '', 

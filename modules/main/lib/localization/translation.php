@@ -5,7 +5,6 @@ use Bitrix\Main;
 use Bitrix\Main\IO\Path;
 use Bitrix\Main\Context;
 use Bitrix\Main\Config\Configuration;
-use Bitrix\Main\Text\Encoding;
 
 class Translation
 {
@@ -36,8 +35,7 @@ class Translation
 		return
 			($lang === 'ru') ||
 			($lang === 'en') ||
-			($lang === 'de') ||
-			($lang === 'ua');
+			($lang === 'de');
 	}
 
 	/**
@@ -48,13 +46,12 @@ class Translation
 	 */
 	public static function getDefaultTranslationEncoding($lang)
 	{
-		static $sourceEncoding = array(
+		static $sourceEncoding = [
 			'ru' => 'windows-1251',
 			'en' => 'iso-8859-1',
 			'de' => 'iso-8859-15',
-			'ua' => 'windows-1251',
-		);
-		if(isset($sourceEncoding[$lang]))
+		];
+		if (isset($sourceEncoding[$lang]))
 		{
 			return $sourceEncoding[$lang];
 		}

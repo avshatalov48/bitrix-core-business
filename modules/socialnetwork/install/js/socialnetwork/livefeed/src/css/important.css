@@ -29,15 +29,15 @@
 	padding-bottom: 0;
 }
 
-.feed-post-block.feed-imp-post .feed-post-time-wrap {
+.feed-post-block.feed-imp-post .feed-post-time-wrap:not(.feed-inform-contentview) {
 	top: 1px;
 }
 
-.feed-post-block.feed-imp-post.feed-post-block-files:not(.feed-post-block-pinned) .feed-post-time-wrap {
+.feed-post-block.feed-imp-post.feed-post-block-files:not(.feed-post-block-pinned) .feed-post-time-wrap:not(.feed-inform-contentview) {
 	top: 15px;
 }
 
-.feed-post-block-new.feed-imp-post .feed-post-time-wrap {
+.feed-post-block-new.feed-imp-post .feed-post-time-wrap:not(.feed-inform-contentview) {
 	top: 18px;
 }
 

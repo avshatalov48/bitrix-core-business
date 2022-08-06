@@ -1,13 +1,15 @@
-<section class="landing-block g-pos-rel">
+<section class="landing-block g-pos-rel" data-slider-autoplay="1" data-slider-autoplay-speed="5000">
 	<div class="landing-block-node-bgimg js-carousel"
 		 data-autoplay="true"
 		 data-infinite="true"
 		 data-fade="true"
 		 data-speed="5000">
 		<div class="js-slide u-bg-overlay g-bg-black-opacity-0_2--after landing-block-node-card landing-block-node-card-bgimg g-bg-img-hero g-min-height-100vh"
-			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1600x927/img1.jpg);"></div>
+			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1600x927/img1.jpg);">
+		</div>
 		<div class="js-slide u-bg-overlay g-bg-black-opacity-0_2--after landing-block-node-card landing-block-node-card-bgimg g-bg-img-hero g-min-height-100vh"
-			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1600x927/img2.jpg);"></div>
+			 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1600x927/img2.jpg);">
+		</div>
 	</div>
 
 	<div class="u-bg-overlay__inner g-absolute-centered w-100 g-width-80x--md">

@@ -102,7 +102,7 @@
 	display: table;
 	padding-right: 27px;
 	padding-left: 38px;
-	font: bold 20px/27px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: bold 20px/27px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	text-shadow: rgb(255, 255, 255) 0 1px 0;
 }
 
@@ -175,7 +175,7 @@
 
 .sender-trigger-status-mailing-title {
 	position: relative;
-	font: bold 17px/36px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: bold 17px/36px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2d2e2f;
 }
 

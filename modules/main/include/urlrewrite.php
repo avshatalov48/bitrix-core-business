@@ -87,7 +87,15 @@ if((isset($_SERVER['REDIRECT_STATUS']) && $_SERVER['REDIRECT_STATUS'] == '404') 
 			$_GET += $vars;
 			$_REQUEST += $vars;
 			if (ini_get_bool("register_globals"))
-				$GLOBALS += $vars;
+			{
+				foreach ($vars as $key => $val)
+				{
+					if (!isset($GLOBALS[$key]))
+					{
+						$GLOBALS[$key] = $val;
+					}
+				}
+			}
 
 			$_SERVER["QUERY_STRING"] = $QUERY_STRING = CHTTP::urnEncode($params);
 		}
@@ -133,6 +141,12 @@ if (!CHTTP::isPathTraversalUri($_SERVER["REQUEST_URI"]))
 				$_REQUEST += $vars;
 				$_SERVER["QUERY_STRING"] = $QUERY_STRING = CHTTP::urnEncode($params);
 				$url = mb_substr($url, 0, $pos);
+
+				// actualize context if it is initialized already
+				if (\Bitrix\Main\Application::hasInstance() && \Bitrix\Main\Application::getInstance()->getContext())
+				{
+					\Bitrix\Main\Context::getCurrent()->getRequest()->modifyByQueryString($_SERVER["QUERY_STRING"]);
+				}
 			}
 
 			$url = _normalizePath($url);

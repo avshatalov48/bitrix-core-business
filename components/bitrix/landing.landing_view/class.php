@@ -1119,7 +1119,13 @@ class LandingViewComponent extends LandingBaseComponent
 		$sliderConditions = [];
 
 		$sliderUrlKeys = [
-			'landing_edit', 'site_edit', 'site_show', 'landing_design', 'site_design'
+			'landing_edit',
+			'site_edit',
+			'site_show',
+			'landing_design',
+			'site_design',
+			'landing_settings',
+			'site_settings',
 		];
 		$sefUrls = isset($this->arParams['SEF'])
 					? $this->arParams['SEF']
@@ -1243,27 +1249,6 @@ class LandingViewComponent extends LandingBaseComponent
 					$asset->disableOptimizeCss();
 					$asset->disableOptimizeJs();
 				}
-				// get settings placements
-				$this->arResult['PLACEMENTS_SETTINGS'] = array();
-				if (\Bitrix\Main\Loader::includeModule('rest'))
-				{
-					$res = \Bitrix\Rest\PlacementTable::getList(array(
-						'select' => array(
-							'ID', 'APP_ID', 'PLACEMENT', 'TITLE',
-							'APP_NAME' => 'REST_APP.APP_NAME'
-						),
-						'filter' => array(
-							'=PLACEMENT' => 'LANDING_SETTINGS'
-						),
-						'order' => array(
-							'ID' => 'DESC'
-						)
-					));
-					while ($row = $res->fetch())
-					{
-						$this->arResult['PLACEMENTS_SETTINGS'][] = $row;
-					}
-				}
 				// can publication / edit settings for page?
 				if ($this->arResult['SPECIAL_TYPE'])
 				{
@@ -1315,7 +1300,6 @@ class LandingViewComponent extends LandingBaseComponent
 					$this->arResult['SITE'],
 					$rights
 				);
-				$this->arResult['TOP_PANEL_CONFIG']['placements'] = $this->arResult['PLACEMENTS_SETTINGS'];
 
 				if (\Bitrix\Main\Loader::includeModule('bitrix24'))
 				{

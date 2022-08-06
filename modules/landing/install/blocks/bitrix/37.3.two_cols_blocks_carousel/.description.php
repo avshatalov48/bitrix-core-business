@@ -71,6 +71,12 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_37.3.TWO_COLS_BLOCKS_CAROUSEL_NODES_LANDINGBLOCKNODECARD_LABEL_RIGHT'),
 			'type' => 'typo',
 		),
+		'.landing-block-slider' => [
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_37_3_TWO_COLS_BLOCKS_CAROUSEL_STYLE_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show', 'arrows', 'dots'],
+			]
+		],
 	),
 	'assets' => array(
 		'ext' => array('landing_carousel'),

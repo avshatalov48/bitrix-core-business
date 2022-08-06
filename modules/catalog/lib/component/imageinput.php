@@ -202,6 +202,9 @@ class ImageInput
 					'=CODE' => MorePhotoImage::CODE,
 				],
 				'limit' => 1,
+				'cache' => [
+					'ttl' => 86400,
+				],
 			]);
 
 			if ($morePhotoProperty = $propertyRaw->fetch())

@@ -14,6 +14,7 @@ class CBPDocument
 	const PARAM_IGNORE_SIMULTANEOUS_PROCESSES_LIMIT = 'IgnoreSimultaneousProcessesLimit';
 	const PARAM_DOCUMENT_EVENT_TYPE = 'DocumentEventType';
 	const PARAM_DOCUMENT_TYPE = '__DocumentType';
+	const PARAM_PRE_GENERATED_WORKFLOW_ID = 'PreGeneratedWorkflowId';
 
 	public static function MigrateDocumentType($oldType, $newType)
 	{
@@ -332,25 +333,7 @@ class CBPDocument
 		$errors = [];
 		$runtime = CBPRuntime::GetRuntime();
 
-		if (!is_array($parameters))
-		{
-			$parameters = [$parameters];
-		}
-
-		if (!array_key_exists(static::PARAM_TAGRET_USER, $parameters))
-		{
-			$parameters[static::PARAM_TAGRET_USER] = is_object($GLOBALS["USER"]) ? "user_".intval($GLOBALS["USER"]->GetID()) : null;
-		}
-
-		if (!isset($parameters[static::PARAM_MODIFIED_DOCUMENT_FIELDS]))
-		{
-			$parameters[static::PARAM_MODIFIED_DOCUMENT_FIELDS] = false;
-		}
-
-		if (!isset($parameters[static::PARAM_DOCUMENT_EVENT_TYPE]))
-		{
-			$parameters[static::PARAM_DOCUMENT_EVENT_TYPE] = CBPDocumentEventType::None;
-		}
+		$parameters = static::prepareWorkflowParameters($parameters);
 
 		try
 		{
@@ -368,6 +351,63 @@ class CBPDocument
 		}
 
 		return null;
+	}
+
+	public static function startDebugWorkflow($workflowTemplateId, $documentId, $parameters, &$errors): ?string
+	{
+		$errors = [];
+		$runtime = CBPRuntime::GetRuntime(true);
+
+		$parameters = static::prepareWorkflowParameters($parameters);
+
+		try
+		{
+			$workflow = $runtime->createDebugWorkflow($workflowTemplateId, $documentId, $parameters);
+			$workflow->Start();
+
+			return $workflow->getInstanceId();
+		}
+		catch (Exception $e)
+		{
+			$errors[] = array(
+				"code" => $e->getCode(),
+				"message" => $e->getMessage(),
+				"file" => $e->getFile()." [".$e->getLine()."]"
+			);
+		}
+
+		return null;
+	}
+
+	private static function prepareWorkflowParameters($parameters): array
+	{
+		if (!is_array($parameters))
+		{
+			$parameters = [$parameters];
+		}
+
+		if (!array_key_exists(static::PARAM_TAGRET_USER, $parameters))
+		{
+			$currentUserId = Main\Engine\CurrentUser::get()->getId();
+			$parameters[static::PARAM_TAGRET_USER] = isset($currentUserId) ? "user_{$currentUserId}" : null;
+		}
+
+		if (!isset($parameters[static::PARAM_MODIFIED_DOCUMENT_FIELDS]))
+		{
+			$parameters[static::PARAM_MODIFIED_DOCUMENT_FIELDS] = false;
+		}
+
+		if (!isset($parameters[static::PARAM_DOCUMENT_EVENT_TYPE]))
+		{
+			$parameters[static::PARAM_DOCUMENT_EVENT_TYPE] = CBPDocumentEventType::None;
+		}
+
+		if (!isset($parameters[static::PARAM_PRE_GENERATED_WORKFLOW_ID]))
+		{
+			$parameters[static::PARAM_PRE_GENERATED_WORKFLOW_ID] = CBPRuntime::generateWorkflowId();
+		}
+
+		return $parameters;
 	}
 
 	/**
@@ -488,8 +528,12 @@ class CBPDocument
 		{
 			Bizproc\Workflow\Entity\WorkflowInstanceTable::delete($workflowId);
 			CBPTaskService::DeleteByWorkflow($workflowId);
-			CBPTrackingService::DeleteByWorkflow($workflowId);
 			CBPStateService::DeleteWorkflow($workflowId);
+
+			if (!Bizproc\Debugger\Session\Manager::isDebugWorkflow($workflowId))
+			{
+				CBPTrackingService::DeleteByWorkflow($workflowId);
+			}
 		}
 
 		return $errors;
@@ -508,6 +552,12 @@ class CBPDocument
 		foreach ($instanceIds as $instanceId)
 		{
 			static::TerminateWorkflow($instanceId, $documentId, $errors);
+		}
+
+		$debugSession = Bizproc\Debugger\Session\Manager::getActiveSession();
+		if ($debugSession && $debugSession->isFixedDocument($documentId))
+		{
+			Bizproc\Debugger\Listener::getInstance()->onDocumentDeleted();
 		}
 
 		//Deferred deletion
@@ -1536,9 +1586,11 @@ class CBPDocument
 	public static function getDocumentFieldsAliasesMap($fields)
 	{
 		if (empty($fields) || !is_array($fields))
-			return array();
+		{
+			return [];
+		}
 
-		$aliases = array();
+		$aliases = [];
 		foreach ($fields as $key => $property)
 		{
 			if (isset($property['Alias']))

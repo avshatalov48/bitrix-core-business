@@ -24,6 +24,7 @@ class LandingSelector extends LandingBaseComponent
 		$this->checkParam('PAGE_URL_LANDING_VIEW', '');
 		$this->checkParam('PAGE_URL_LANDING_ADD', '');
 		$this->checkParam('PAGE_URL_FOLDER_ADD', '');
+		$this->checkParam('PAGE_URL_FORM_ADD', '');
 
 		if ($this->init())
 		{

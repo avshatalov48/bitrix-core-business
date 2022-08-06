@@ -117,21 +117,20 @@ class Workgroup
 		{
 			if (
 				(
-					isset($params['fields']['SCRUM_PROJECT'])
-					&& $params['fields']['SCRUM_PROJECT'] === 'Y'
-					&& $params['fields']['SCRUM_PROJECT'] === $type['SCRUM_PROJECT']
+					!isset($params['fields']['OPENED'])
+					|| $params['fields']['OPENED'] === $type['OPENED']
 				)
-				|| (
-					$params['fields']['OPENED'] === $type['OPENED']
-					&& (
-						isset($params['fields']['VISIBLE'])
-						&& $params['fields']['VISIBLE'] === $type['VISIBLE']
-					)
-					&& $params['fields']['PROJECT'] === $type['PROJECT']
-					&& $params['fields']['EXTERNAL'] === $type['EXTERNAL']
-					&& (
-						!isset($params['fields']['SCRUM_PROJECT'])
-						|| $params['fields']['SCRUM_PROJECT'] !== 'Y'
+				&& (
+					!isset($params['fields']['VISIBLE'])
+					|| $params['fields']['VISIBLE'] === $type['VISIBLE']
+				)
+				&& $params['fields']['PROJECT'] === $type['PROJECT']
+				&& $params['fields']['EXTERNAL'] === $type['EXTERNAL']
+				&& (
+					!isset($params['fields']['SCRUM_PROJECT'])
+					|| (
+						isset($type['SCRUM_PROJECT'])
+						&& $params['fields']['SCRUM_PROJECT'] === $type['SCRUM_PROJECT']
 					)
 				)
 			)
@@ -285,17 +284,21 @@ class Workgroup
 	 */
 	public static function getByFeatureOperation(array $params = []): array
 	{
-		global $USER;
+		global $USER, $CACHE_MANAGER;
 
 		$result = [];
 
-		$feature = ($params['feature'] ?? '');
-		$operation = ($params['operation'] ?? '');
-		$userId = (isset($params['userId']) ? (int)$params['userId'] : (is_object($USER) && $USER instanceof \CUser ? $USER->getId() : 0));
+		$feature = (string)($params['feature'] ?? '');
+		$operation = (string)($params['operation'] ?? '');
+		$userId = (int)(
+			isset($params['userId'])
+				? (int)$params['userId']
+				: (is_object($USER) && $USER instanceof \CUser ? $USER->getId() : 0)
+		);
 
 		if (
-			(string)$feature === ''
-			|| (string)$operation === ''
+			$feature === ''
+			|| $operation === ''
 			|| $userId <= 0
 		)
 		{
@@ -316,71 +319,94 @@ class Workgroup
 			return $result;
 		}
 
-		$defaultRole = $featuresSettings[$feature]['operations'][$operation][FeatureTable::FEATURE_ENTITY_TYPE_GROUP];
+		$cacheTTL = 3600 * 24 * 30;
+		$cacheDir = '/sonet/features_perms/' . FeatureTable::FEATURE_ENTITY_TYPE_GROUP . '/list/' . (int)($userId / 1000);
+		$cacheId = implode(' ', [ 'entities_list', $feature, $operation, $userId ]);
 
-		$query = new \Bitrix\Main\Entity\Query(WorkgroupTable::getEntity());
-		$query->addFilter('=ACTIVE', 'Y');
-
-		if (
-			(
-				!is_array($featuresSettings[$feature]['minoperation'])
-				|| !in_array($operation, $featuresSettings[$feature]['minoperation'], true)
-			)
-			&& Option::get('socialnetwork', 'work_with_closed_groups', 'N') !== 'Y'
-		)
+		$cache = new \CPHPCache();
+		if ($cache->initCache($cacheTTL, $cacheId, $cacheDir))
 		{
-			$query->addFilter('!=CLOSED', 'Y');
+			$cacheValue = $cache->getVars();
+			if (is_array($cacheValue))
+			{
+				$result = $cacheValue;
+			}
 		}
+		else
+		{
+			$cache->startDataCache();
+			$CACHE_MANAGER->startTagCache($cacheDir);
 
-		$query->addSelect('ID');
+			$CACHE_MANAGER->registerTag('sonet_group');
+			$CACHE_MANAGER->registerTag('sonet_features');
+			$CACHE_MANAGER->registerTag('sonet_features2perms');
+			$CACHE_MANAGER->registerTag('sonet_user2group');
 
-		$query->registerRuntimeField(
-			'',
-			new \Bitrix\Main\Entity\ReferenceField('F',
-				FeatureTable::getEntity(),
-				[
-					'=ref.ENTITY_TYPE' => new SqlExpression('?s', FeatureTable::FEATURE_ENTITY_TYPE_GROUP),
-					'=ref.ENTITY_ID' => 'this.ID',
-					'=ref.FEATURE' => new SqlExpression('?s', $feature),
-				],
-				[ 'join_type' => 'LEFT' ]
+			$defaultRole = $featuresSettings[$feature]['operations'][$operation][FeatureTable::FEATURE_ENTITY_TYPE_GROUP];
+
+			$query = new \Bitrix\Main\Entity\Query(WorkgroupTable::getEntity());
+			$query->addFilter('=ACTIVE', 'Y');
+
+			if (
+				(
+					!is_array($featuresSettings[$feature]['minoperation'])
+					|| !in_array($operation, $featuresSettings[$feature]['minoperation'], true)
+				)
+				&& Option::get('socialnetwork', 'work_with_closed_groups', 'N') !== 'Y'
 			)
-		);
-		$query->addSelect('F.ID', 'FEATURE_ID');
+			{
+				$query->addFilter('!=CLOSED', 'Y');
+			}
 
-		$query->registerRuntimeField(
-			'',
-			new \Bitrix\Main\Entity\ReferenceField('FP',
-				FeaturePermTable::getEntity(),
-				[
-					'=ref.FEATURE_ID' => 'this.FEATURE_ID',
-					'=ref.OPERATION_ID' => new SqlExpression('?s', $operation),
-				],
-				[ 'join_type' => 'LEFT' ]
-			)
-		);
+			$query->addSelect('ID');
 
-		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
-			'PERM_ROLE_CALCULATED',
-			'CASE WHEN %s IS NULL THEN \''.$defaultRole.'\' ELSE %s END',
-			[ 'FP.ROLE', 'FP.ROLE' ]
-		));
+			$query->registerRuntimeField(
+				'',
+				new \Bitrix\Main\Entity\ReferenceField('F',
+					FeatureTable::getEntity(),
+					[
+						'=ref.ENTITY_TYPE' => new SqlExpression('?s', FeatureTable::FEATURE_ENTITY_TYPE_GROUP),
+						'=ref.ENTITY_ID' => 'this.ID',
+						'=ref.FEATURE' => new SqlExpression('?s', $feature),
+					],
+					[ 'join_type' => 'LEFT' ]
+				)
+			);
+			$query->addSelect('F.ID', 'FEATURE_ID');
 
-		$query->registerRuntimeField(
-			'',
-			new \Bitrix\Main\Entity\ReferenceField('UG',
-				UserToGroupTable::getEntity(),
-				[
-					'=ref.GROUP_ID' => 'this.ID',
-					'=ref.USER_ID' => new SqlExpression($userId),
-				],
-				[ 'join_type' => 'LEFT' ]
-			)
-		);
+			$query->registerRuntimeField(
+				'',
+				new \Bitrix\Main\Entity\ReferenceField('FP',
+					FeaturePermTable::getEntity(),
+					[
+						'=ref.FEATURE_ID' => 'this.FEATURE_ID',
+						'=ref.OPERATION_ID' => new SqlExpression('?s', $operation),
+					],
+					[ 'join_type' => 'LEFT' ]
+				)
+			);
 
-		$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
-			'HAS_ACCESS',
-			'CASE
+			$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
+				'PERM_ROLE_CALCULATED',
+				'CASE WHEN %s IS NULL THEN \''.$defaultRole.'\' ELSE %s END',
+				[ 'FP.ROLE', 'FP.ROLE' ]
+			));
+
+			$query->registerRuntimeField(
+				'',
+				new \Bitrix\Main\Entity\ReferenceField('UG',
+					UserToGroupTable::getEntity(),
+					[
+						'=ref.GROUP_ID' => 'this.ID',
+						'=ref.USER_ID' => new SqlExpression($userId),
+					],
+					[ 'join_type' => 'LEFT' ]
+				)
+			);
+
+			$query->registerRuntimeField(new \Bitrix\Main\Entity\ExpressionField(
+				'HAS_ACCESS',
+				'CASE
 				WHEN
 					(
 						%s NOT IN (\''.FeaturePermTable::PERM_OWNER.'\', \''.FeaturePermTable::PERM_MODERATOR.'\', \''.FeaturePermTable::PERM_USER.'\')
@@ -388,21 +414,25 @@ class Workgroup
 					) THEN \'Y\'
 					ELSE \'N\'
 			END',
-			[
-				'PERM_ROLE_CALCULATED',
-				'PERM_ROLE_CALCULATED', 'UG.ROLE',
-			]
-		));
+				[
+					'PERM_ROLE_CALCULATED',
+					'PERM_ROLE_CALCULATED', 'UG.ROLE',
+				]
+			));
 
-		$query->addFilter('=HAS_ACCESS', 'Y');
+			$query->addFilter('=HAS_ACCESS', 'Y');
 
-		$res = $query->exec();
+			$res = $query->exec();
 
-		while ($row = $res->fetch())
-		{
-			$result[] = [
-				'ID' => (int) $row['ID']
-			];
+			while ($row = $res->fetch())
+			{
+				$result[] = [
+					'ID' => (int) $row['ID']
+				];
+			}
+
+			$CACHE_MANAGER->endTagCache();
+			$cache->endDataCache($result);
 		}
 
 		return $result;
@@ -946,6 +976,55 @@ class Workgroup
 		return true;
 	}
 
+	public static function deleteIncomingRequest(array $fields = []): bool
+	{
+		$groupId = (int)($fields['groupId'] ?? 0);
+		$userId = (int)($fields['userId'] ?? 0);
+
+		if ($groupId <= 0)
+		{
+			throw new ArgumentException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_WRONG_GROUP_ID'));
+		}
+
+		if ($userId <= 0)
+		{
+			throw new ArgumentException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_WRONG_USER_ID'));
+		}
+
+		try
+		{
+			$relation = static::getRelation([
+				'=GROUP_ID' => $groupId,
+				'=USER_ID' => $userId,
+			]);
+		}
+		catch (\Exception $e)
+		{
+			throw new \Exception($e->getMessage(), $e->getCode());
+		}
+
+		if (!static::canDeleteIncomingRequest([
+			'relation' => $relation,
+			'groupId' => $groupId,
+		]))
+		{
+			throw new AccessDeniedException(Loc::getMessage('SOCIALNETWORK_HELPER_WORKGROUP_ERROR_OPERATION_NO_PERMS'));
+		}
+
+		try
+		{
+			self::deleteRelation([
+				'relationId' => $relation->getId(),
+			]);
+		}
+		catch (\Exception $e)
+		{
+			throw new \Exception($e->getMessage(), $e->getCode());
+		}
+
+		return true;
+	}
+
 	public static function exclude(array $fields = []): bool
 	{
 		global $APPLICATION;
@@ -1359,6 +1438,29 @@ class Workgroup
 		);
 	}
 
+	public static function canDeleteIncomingRequest(array $params = []): bool
+	{
+		$groupId = (int)($params['groupId'] ?? 0);
+		$relation = ($params['relation'] ?? null);
+
+		if (
+			$groupId <= 0
+			|| !($relation instanceof EO_UserToGroup)
+		)
+		{
+			return false;
+		}
+
+		return (
+			$relation->getRole() === UserToGroupTable::ROLE_REQUEST
+			&& $relation->getInitiatedByType() === UserToGroupTable::INITIATED_BY_USER
+			&& (
+				self::isCurrentUserModuleAdmin(true)
+				|| $relation->getInitiatedByUserId() === User::getCurrentUserId()
+			)
+		);
+	}
+
 	public static function canProcessIncomingRequest(array $params = []): bool
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
@@ -1489,12 +1591,12 @@ class Workgroup
 		);
 	}
 
-	public static function isCurrentUserModuleAdmin(): bool
+	public static function isCurrentUserModuleAdmin(bool $checkSession = false): bool
 	{
 		$result = null;
 		if ($result === null)
 		{
-			$result = \CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, false);
+			$result = \CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, $checkSession);
 		}
 
 		return $result;
@@ -1914,6 +2016,7 @@ class Workgroup
 						'VISIBLE' => 'Y',
 						'OPENED' => 'Y',
 						'PROJECT' => 'Y',
+						'SCRUM_PROJECT' => 'N',
 						'EXTERNAL' => 'N',
 						'TILE_CLASS' => 'social-group-tile-item-cover-open social-group-tile-item-icon-project-open'
 					);
@@ -1929,6 +2032,7 @@ class Workgroup
 						'VISIBLE' => 'N',
 						'OPENED' => 'N',
 						'PROJECT' => 'Y',
+						'SCRUM_PROJECT' => 'N',
 						'EXTERNAL' => 'N',
 						'TILE_CLASS' => 'social-group-tile-item-cover-close social-group-tile-item-icon-project-close'
 					);
@@ -1963,10 +2067,30 @@ class Workgroup
 						'VISIBLE' => 'Y',
 						'OPENED' => 'N',
 						'PROJECT' => 'Y',
+						'SCRUM_PROJECT' => 'N',
 						'EXTERNAL' => 'N',
 						'TILE_CLASS' => ''
 					);
 				}
+			}
+
+			if (
+				$extranetInstalled
+				&& self::checkEntityOption([ 'project', 'scrum', 'extranet', '!landing' ], $entityOptions)
+			)
+			{
+				$result['project-scrum-extranet'] = [
+					'SORT' => $sort += 10,
+					'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_EXTERNAL'),
+					'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_EXTERNAL_DESC'),
+					'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_PROJECT_SCRUM_EXTERNAL_DESC'),
+					'VISIBLE' => 'N',
+					'OPENED' => 'N',
+					'PROJECT' => 'Y',
+					'SCRUM_PROJECT' => 'Y',
+					'EXTERNAL' => 'Y',
+					'TILE_CLASS' => 'social-group-tile-item-cover-scrum social-group-tile-item-icon-project-scrum'
+				];
 			}
 
 			if (
@@ -1982,6 +2106,7 @@ class Workgroup
 					'VISIBLE' => 'N',
 					'OPENED' => 'N',
 					'PROJECT' => 'Y',
+					'SCRUM_PROJECT' => 'N',
 					'EXTERNAL' => 'Y',
 					'TILE_CLASS' => 'social-group-tile-item-cover-outer social-group-tile-item-icon-project-outer'
 				);
@@ -2006,6 +2131,7 @@ class Workgroup
 					'VISIBLE' => 'Y',
 					'OPENED' => 'Y',
 					'PROJECT' => 'N',
+					'SCRUM_PROJECT' => 'N',
 					'EXTERNAL' => 'N',
 					'TILE_CLASS' => 'social-group-tile-item-cover-open social-group-tile-item-icon-group-open'
 				);
@@ -2021,6 +2147,7 @@ class Workgroup
 					'VISIBLE' => 'N',
 					'OPENED' => 'N',
 					'PROJECT' => 'N',
+					'SCRUM_PROJECT' => 'N',
 					'EXTERNAL' => 'N',
 					'TILE_CLASS' => 'social-group-tile-item-cover-close social-group-tile-item-icon-group-close'
 				);
@@ -2034,6 +2161,7 @@ class Workgroup
 						'VISIBLE' => 'Y',
 						'OPENED' => 'N',
 						'PROJECT' => 'N',
+						'SCRUM_PROJECT' => 'N',
 						'EXTERNAL' => 'N',
 						'TILE_CLASS' => ''
 					);
@@ -2054,6 +2182,7 @@ class Workgroup
 				'VISIBLE' => 'N',
 				'OPENED' => 'N',
 				'PROJECT' => 'N',
+				'SCRUM_PROJECT' => 'N',
 				'EXTERNAL' => 'Y',
 				'TILE_CLASS' => 'social-group-tile-item-cover-outer social-group-tile-item-icon-group-outer'
 			);
@@ -2072,6 +2201,7 @@ class Workgroup
 				'VISIBLE' => 'N',
 				'OPENED' => 'N',
 				'PROJECT' => 'N',
+				'SCRUM_PROJECT' => 'N',
 				'EXTERNAL' => 'N',
 				'LANDING' => 'Y',
 				'TILE_CLASS' => 'social-group-tile-item-cover-public social-group-tile-item-icon-group-public'

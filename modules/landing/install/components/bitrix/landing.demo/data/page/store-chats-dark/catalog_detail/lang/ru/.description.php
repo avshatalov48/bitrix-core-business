@@ -1,0 +1,3 @@
+<?php
+$MESS['LANDING_DEMO_STORE_CHATS_DETAIL-NAME'] = 'Карточка товаров';
+$MESS['LANDING_DEMO_STORE_CHATS_DETAIL-BACK'] = 'Назад';

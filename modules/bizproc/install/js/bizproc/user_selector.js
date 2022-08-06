@@ -105,7 +105,10 @@
 					{
 						id: 'user',
 						options: {
-							inviteEmployeeLink: false
+							inviteEmployeeLink: false,
+							inviteGuestLink: false,//this.config.allowEmailUsers === true, // maybe later :-)
+							emailUsers: this.config.allowEmailUsers === true,
+							myEmailUsers: this.config.allowEmailUsers === true,
 						}
 					},
 					{
@@ -233,7 +236,7 @@
 		{
 			const id = this.getValueId(item, type);
 			let value = id;
-			const name = item.getTitle().replace(/[,\.\-\_\>\<\"\']/g, '');
+			const name = this.getItemName(item);
 
 			if (type === 'user')
 			{
@@ -247,7 +250,7 @@
 			{
 				value = [name, id].join(' ');
 			}
-			else if (type === 'bpuserroles' && value === 'author')
+			else if (type === 'bpuserroles' && value.indexOf('{') === -1)
 			{
 				value = name;
 			}
@@ -290,8 +293,20 @@
 			{
 				return '[DR' + id +']';
 			}
+			else if (type === 'bpuserroles' && id.indexOf('G') === 0)
+			{
+				return '[' + id + ']';
+			}
+			else if (type === 'bpuserroles' && id.indexOf('{') === -1)
+			{
+				return this.getItemName(item);
+			}
 
-			return id.indexOf('G') === 0 ? '[' + id + ']' : id;
+			return id;
+		},
+		getItemName(item)
+		{
+			return item.getTitle().replace(/[,\.\-\_\>\<\"\']/g, '');
 		},
 		getValue: function()
 		{

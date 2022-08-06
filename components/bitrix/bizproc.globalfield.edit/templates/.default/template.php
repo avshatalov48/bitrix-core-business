@@ -33,7 +33,7 @@ CUtil::InitJSCore([
 <?php $this->EndViewTarget() ?>
 
 <form id="bizproc.globalfield.edit-form">
-	<input type="hidden" name="ID" value="<?= $arResult['fieldInfo']['id'] ?>">
+	<input type="hidden" name="ID" value="<?= htmlspecialcharsbx($arResult['fieldInfo']['id'])?>">
 	<div class="ui-form">
 		<div class="ui-form-row">
 			<div class="ui-form-label">
@@ -148,7 +148,7 @@ CUtil::InitJSCore([
 			</div>
 			<div class="ui-form-content">
 				<div class="ui-ctl ui-ctl-textarea ui-ctl-resize-y ui-ctl-w100" style="height: auto">
-					<textarea class="ui-ctl-element ui-ctl-resize-y" name="DESCRIPTION"><?= $arResult['fieldInfo']['Description'] ?></textarea>
+					<textarea class="ui-ctl-element ui-ctl-resize-y" name="DESCRIPTION"><?= htmlspecialcharsbx($arResult['fieldInfo']['Description']) ?></textarea>
 				</div>
 			</div>
 		</div>

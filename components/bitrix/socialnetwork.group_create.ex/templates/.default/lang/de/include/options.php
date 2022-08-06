@@ -19,3 +19,4 @@ $MESS["SONET_GCE_T_PARAMS_VIS2_HINT_PROJECT"] = "Dieses Projekt ist für alle si
 $MESS["SONET_GCE_T_PARAMS_VIS2_PROJECT"] = "Sichtbar";
 $MESS["SONET_GCE_T_TITLE_TYPE"] = "Gruppentyp";
 $MESS["SONET_GCE_T_TITLE_TYPE_PROJECT"] = "Projekttyp";
+$MESS["SONET_GCE_T_TITLE_TYPE_SCRUM"] = "Scrum-Typ";

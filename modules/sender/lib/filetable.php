@@ -21,6 +21,7 @@ Loc::loadMessages(__FILE__);
 
 class FileTable extends ORM\Data\DataManager
 {
+	private static $fileList = [];
 	public const TYPES = [
 		'LETTER' => 0,
 		'TEMPLATE' => 1,
@@ -68,17 +69,18 @@ class FileTable extends ORM\Data\DataManager
 		);
 	}
 
-	public static function syncFiles(int $entityId, int $entityType, string $template, bool $deleteFiles = true)
+	public static function syncFiles(int $entityId, int $entityType, string $template, bool $deleteFiles = true, bool $onDeleteEntity = false)
 	{
 		preg_match_all(
-			'#\b/[^,\s()<>]+([^,[:punct:]\s]|/)#',
+			'@src="([^"]+)"@',
 			$template,
-			$urls
+			$matches
 		);
-		$urls = $urls[0];
-
-		$fileList = [];
-
+		$urls = array_pop($matches);
+		// get file list from html
+		$fileNameList = [];
+		$fileNameSearchList = [];
+		$files = [];
 		foreach ($urls as $path)
 		{
 			preg_match("/[^\/|\\\]+$/", $path, $url);
@@ -88,20 +90,45 @@ class FileTable extends ORM\Data\DataManager
 				continue;
 			}
 
-			$fileList[] = $url[0];
+			if (!empty($url[0]))
+			{
+				$fileNameList[] = $url[0];
+				if (array_key_exists($url[0], static::$fileList))
+				{
+					$files[] = static::$fileList[$url[0]];
+					continue;
+				}
+				$fileNameSearchList[] = $url[0];
+			}
+
 		}
-		$files = \Bitrix\Main\FileTable::getList([
-			'select' => ['ID', 'FILE_NAME'],
-			'filter' => [
-				'=MODULE_ID' => 'sender',
-				'@FILE_NAME' => $fileList,
-			],
-			'order' => [
-				'ID' => 'ASC'
-			]
-		])->fetchAll();
+
+		if (!empty($fileNameSearchList))
+		{
+			// get files from main FileTable which exists in html
+			$selectedFiles = \Bitrix\Main\FileTable::getList([
+				'select' => ['ID', 'FILE_NAME'],
+				'filter' => [
+					'=MODULE_ID' => 'sender',
+					'@FILE_NAME' => $fileNameSearchList,
+				],
+				'order' => [
+					'ID' => 'ASC'
+				]
+			])->fetchAll();
+			$files = array_merge($files, $selectedFiles);
+
+			if (empty($selectedFiles))
+			{
+				foreach ($fileNameList as $fileName)
+				{
+					static::$fileList[$fileName] = null;
+				}
+			}
+		}
 
 		$batchData = [];
+		// get files in current sender file table
 		$currentFiles = array_column(self::getCurrentFiles($entityId, $entityType), 'FILE_ID');
 
 		$preparedFiles = [];
@@ -113,6 +140,22 @@ class FileTable extends ORM\Data\DataManager
 		$filesToDelete = [];
 		foreach ($files as $file)
 		{
+			if (is_null($file))
+			{
+				continue;
+			}
+			if (!isset(static::$fileList[$file['FILE_NAME']]))
+			{
+				static::$fileList[$file['FILE_NAME']] = $file;
+			}
+
+			if ($onDeleteEntity && in_array($file['ID'], $preparedFiles))
+			{
+				$filesToDelete[] = $file['ID'];
+				unset($preparedFiles[$file['ID']]);
+				continue;
+			}
+			// do nothing if file in current template
 			if (in_array($file['ID'], $preparedFiles))
 			{
 				unset($preparedFiles[$file['ID']]);
@@ -125,7 +168,7 @@ class FileTable extends ORM\Data\DataManager
 				continue;
 			}
 
-			foreach ($fileList as $fileName)
+			foreach ($fileNameList as $fileName)
 			{
 				if ($fileName === $file['FILE_NAME'])
 				{
@@ -170,11 +213,14 @@ class FileTable extends ORM\Data\DataManager
 			'=ENTITY_ID' => $entityId,
 		]);
 
-		$hasFiles = (bool) self::getCount(
-			[
-				'=FILE_ID' => $fileId
+		$hasFiles = self::getList([
+				'select' => ['ID',],
+				'filter' => [
+					'=FILE_ID' => $fileId
+				],
+				'limit' => 1
 			]
-		);
+		)->fetch();
 
 		if ($deleteFiles)
 		{
@@ -183,7 +229,6 @@ class FileTable extends ORM\Data\DataManager
 				'sender_file_load_completed',
 				0
 				);
-
 		}
 
 		if (!$hasFiles && $deleteFiles)

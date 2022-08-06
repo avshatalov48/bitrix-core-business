@@ -226,7 +226,7 @@ class Condition
 			{
 				$result = in_array($f, $base);
 			}
-			else
+			elseif ($f)
 			{
 				$result = (mb_strpos($base, $f) !== false);
 			}
@@ -282,10 +282,10 @@ class Condition
 	 */
 	public function toArray()
 	{
-		return array(
+		return [
 			'operator' => $this->getOperator(),
 			'value' => $this->getValue(),
-		);
+		];
 	}
 
 	public static function getOperatorList(): array

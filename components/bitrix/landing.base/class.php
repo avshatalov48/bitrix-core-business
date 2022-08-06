@@ -251,7 +251,7 @@ class LandingBaseComponent extends \CBitrixComponent
 					'partner_id' => $partnerId,
 					'date_to' => $tariffDate ?: null
 				],
-				'PORTAL_URI' => 'https://cp.bitrix.ru'
+				'PORTAL_URI' => 'https://bitrix24.team'
 			],
 			'landing-feedback-knowledge' => [
 				'ID' => 'landing-feedback-knowledge',
@@ -275,7 +275,7 @@ class LandingBaseComponent extends \CBitrixComponent
 					'partner_id' => $partnerId,
 					'date_to' => $tariffDate ?: null
 				],
-				'PORTAL_URI' => 'https://cp.bitrix.ru'
+				'PORTAL_URI' => 'https://bitrix24.team'
 			]
 		];
 

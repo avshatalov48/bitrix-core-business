@@ -680,6 +680,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	  setActiveControl(controlName) {}
 
+	  prepareProcessorValue(processorValue, defaultValue, data) {
+	    return processorValue;
+	  }
+
 	}
 
 	let _$1 = t => t,
@@ -2674,14 +2678,23 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	let _$d = t => t,
 	    _t$d;
 	class Zeroing extends main_core_events.EventEmitter {
-	  constructor() {
+	  constructor(options) {
 	    super();
+	    this.options = options;
 	    this.cache = new main_core.Cache.MemoryCache();
 	    this.setEventNamespace('BX.Landing.UI.Field.Color.Zeroing');
 	    main_core.Event.bind(this.getLayout(), 'click', () => this.onClick());
 	  }
 
 	  getLayout() {
+	    let textCode = 'LANDING_FIELD_COLOR-ZEROING_TITLE_2';
+
+	    if (this.options) {
+	      if (this.options.textCode) {
+	        textCode = this.options.textCode;
+	      }
+	    }
+
 	    return this.cache.remember('layout', () => {
 	      return main_core.Tag.render(_t$d || (_t$d = _$d`<div class="landing-ui-field-color-zeroing">
 				<div class="landing-ui-field-color-zeroing-preview">
@@ -2690,7 +2703,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 				<span class="landing-ui-field-color-primary-text">
 					${0}
 				</span>
-			</div>`), main_core.Loc.getMessage('LANDING_FIELD_COLOR-ZEROING_TITLE_2'));
+			</div>`), main_core.Loc.getMessage(textCode));
 	    });
 	  }
 
@@ -2706,6 +2719,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	  unsetActive() {
 	    main_core.Dom.removeClass(this.getLayout(), Zeroing.ACTIVE_CLASS);
+	  }
+
+	  isActive() {
+	    return main_core.Dom.hasClass(this.getLayout(), Zeroing.ACTIVE_CLASS);
 	  }
 
 	}
@@ -3593,7 +3610,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      className: 'landing-ui-field-color-image-image',
 	      compactMode: true,
 	      disableLink: true,
-	      // selector: options.selector,
 	      disableAltField: true,
 	      allowClear: true,
 	      dimensions: {
@@ -3607,26 +3623,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    });
 	    this.imgField.subscribe('change', this.onImageChange.bind(this));
 	    this.sizeField = new BX.Landing.UI.Field.Dropdown({
-	      // todo: need commented fields?
 	      id: 'landing_ui_color_image_size_' + main_core.Text.getRandom().toLowerCase(),
-	      // title: 'size field title',
-	      // description: 'ButtonGroup size description',
 	      title: main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_SIZE_TITLE'),
 	      className: 'landing-ui-field-color-image-size',
-	      // selector: this.options.selector,
 	      items: BgImageValue.getSizeItemsForButtons(),
 	      onChange: this.onSizeChange.bind(this),
 	      contentRoot: this.options.contentRoot
 	    });
 	    this.attachmentField = new BX.Landing.UI.Field.Checkbox({
-	      // todo: need commented fields?
 	      id: 'landing_ui_color_image_attach_' + main_core.Text.getRandom().toLowerCase(),
 	      className: 'landing-ui-field-color-image-attachment',
-	      // title: 'attachement field title',
-	      // description: 'ButtonGroup size description',
 	      multiple: false,
 	      compact: true,
-	      // selector: options.selector,
 	      items: [{
 	        name: main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_FIXED'),
 	        value: true
@@ -3793,25 +3801,54 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	}
 
+	function stringToRGB(str) {
+	  const regRGB = /\d{1,3}(\.\d+)?/g;
+	  const rgb = str.match(regRGB);
+	  const r = rgb[0] ? rgb[0] : null;
+	  const g = rgb[1] ? rgb[1] : null;
+	  const b = rgb[2] ? rgb[2] : null;
+	  const a = rgb[3] ? rgb[3] : 1;
+
+	  if (r === null || g === null || b === null) {
+	    return false;
+	  }
+
+	  const rgbFormat = 'rgb(' + r + ',' + g + ',' + b + ')';
+	  return {
+	    r: r,
+	    g: g,
+	    b: b,
+	    a: a,
+	    rgb: rgbFormat
+	  };
+	}
+
 	let _$h = t => t,
 	    _t$h;
 	class Bg extends BgColor {
 	  constructor(options) {
 	    super(options);
 	    this.setEventNamespace('BX.Landing.UI.Field.Processor.Bg');
+	    this.styleNode = options.styleNode;
 	    this.parentVariableName = this.variableName;
-	    this.variableName = [this.parentVariableName, Bg.BG_URL_VAR, Bg.BG_URL_2X_VAR, Bg.BG_OVERLAY_VAR, Bg.BG_SIZE_VAR, Bg.BG_ATTACHMENT_VAR];
+	    this.variableName = [this.parentVariableName, Bg.BG_URL_VAR, Bg.BG_URL_2X_VAR, Bg.BG_OVERLAY_VAR, Bg.BG_SIZE_VAR, Bg.BG_ATTACHMENT_VAR, Bg.BG_IMAGE];
 	    this.parentClassName = this.className;
 	    this.className = 'g-bg-image';
 	    this.image = new Image(options);
 	    this.image.subscribe('onChange', this.onImageChange.bind(this));
 	    this.overlay = new ColorSet(options);
-	    this.overlay.subscribe('onChange', this.onOverlayChange.bind(this));
+	    this.overlay.subscribe('onChange', this.onOverlayColorChange.bind(this));
 	    this.overlayOpacity = new Opacity({
 	      defaultOpacity: 0.5
 	    });
 	    this.overlayOpacity.subscribe('onChange', this.onOverlayOpacityChange.bind(this));
-	    this.imageTabs = new Tabs().appendTab('Overlay', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_OVERLAY'), [this.overlay, this.overlayOpacity]);
+	    this.overlayPrimary = new Primary();
+	    this.overlayPrimary.subscribe('onChange', this.onOverlayPrimaryChange.bind(this));
+	    const overlayZeroingOptions = {};
+	    overlayZeroingOptions.textCode = 'LANDING_FIELD_COLOR_OVERLAY_ZEROING_TITLE_2';
+	    this.overlayZeroing = new Zeroing(overlayZeroingOptions);
+	    this.overlayZeroing.subscribe('onChange', this.overlayZeroingChange.bind(this));
+	    this.imageTabs = new Tabs().appendTab('Overlay', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_OVERLAY'), [this.overlay, this.overlayPrimary, this.overlayZeroing, this.overlayOpacity]);
 	    this.bigTabs = new Tabs().setBig(true).appendTab('Color', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_COLOR'), [this.colorSet, this.primary, this.zeroing, this.tabs]).appendTab('Image', main_core.Loc.getMessage('LANDING_FIELD_COLOR-BG_IMAGE'), [this.image, this.imageTabs]);
 	  }
 
@@ -3840,6 +3877,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.unsetActive();
 	    this.activeControl = this.image;
 	    this.image.setActive();
+	    this.modifyStyleNode(this.styleNode);
 	    this.onChange();
 	  }
 
@@ -3861,11 +3899,32 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.gradient.unsetActive();
 	    }
 
+	    this.modifyStyleNode(this.styleNode);
 	    this.onChange();
 	  }
 
 	  onOverlayOpacityChange() {
+	    this.modifyStyleNode(this.styleNode);
 	    this.onChange();
+	  }
+
+	  onOverlayColorChange(event) {
+	    this.overlayPrimary.unsetActive();
+	    this.overlayZeroing.unsetActive();
+	    this.onOverlayChange(event);
+	  }
+
+	  onOverlayPrimaryChange(event) {
+	    this.overlay.unsetActive();
+	    this.overlayZeroing.unsetActive();
+	    this.onOverlayChange(event);
+	  }
+
+	  overlayZeroingChange(event) {
+	    this.overlay.unsetActive();
+	    this.overlayPrimary.unsetActive();
+	    this.overlayZeroing.setActive();
+	    this.onOverlayChange(event);
 	  }
 
 	  unsetActive() {
@@ -3919,12 +3978,19 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.image.setValue(bgValue);
 	      this.bigTabs.showTab('Image');
 	      this.activeControl = this.image;
+	      this.imageTabs.showTab('Overlay');
 
 	      if (Bg.BG_OVERLAY_VAR in value) {
 	        const overlayValue = new ColorValue(value[Bg.BG_OVERLAY_VAR]);
 	        this.overlay.setValue(overlayValue);
 	        this.overlayOpacity.setValue(overlayValue);
-	        this.imageTabs.showTab('Overlay');
+
+	        if (value[Bg.BG_OVERLAY_VAR].startsWith('var(--primary') || value['isPrimaryBasedColor'] === true) {
+	          this.overlayPrimary.setActive();
+	          this.overlay.unsetActive();
+	        }
+	      } else {
+	        this.overlayZeroing.setActive();
 	      }
 	    }
 	  } // todo: create base value instead interface. In this case can return ALL types, color, grad, bg
@@ -3934,9 +4000,24 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    return this.cache.remember('value', () => {
 	      if (this.activeControl === this.image) {
 	        const imageValue = this.image.getValue();
-	        const overlayValue = this.overlay.getValue();
+	        let overlayValue;
+	        let isActive = false;
 
-	        if (imageValue !== null && this.overlay.isActive() && overlayValue !== null) {
+	        if (this.overlay.isActive()) {
+	          overlayValue = this.overlay.getValue();
+	          isActive = true;
+	        }
+
+	        if (this.overlayPrimary.isActive()) {
+	          overlayValue = this.overlayPrimary.getValue();
+	          isActive = true;
+	        }
+
+	        if (this.overlayZeroing.isActive()) {
+	          overlayValue = null;
+	        }
+
+	        if (imageValue !== null && overlayValue !== null && isActive) {
 	          overlayValue.setOpacity(this.overlayOpacity.getValue().getOpacity());
 	          imageValue.setOverlay(overlayValue);
 	        }
@@ -3976,11 +4057,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    let color = null;
 	    let image = null;
 	    let image2x = null;
-	    let overlay = null; // let size = 'cover';
-
-	    let size = null; // let attachment = 'scroll';
-
+	    let overlay = null;
+	    let size = null;
 	    let attachment = null;
+	    const backgroundImage = '';
 
 	    if (value instanceof ColorValue || value instanceof GradientValue) {
 	      // todo: need change class if not a image?
@@ -3996,11 +4076,60 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    return {
 	      [this.parentVariableName]: color,
 	      [Bg.BG_URL_VAR]: image,
-	      [Bg.BG_URL_2X_VAR]: image2x,
+	      [Bg.BG_URL_2X_VAR]: image2x ? image2x : image,
 	      [Bg.BG_OVERLAY_VAR]: overlay,
 	      [Bg.BG_SIZE_VAR]: size,
-	      [Bg.BG_ATTACHMENT_VAR]: attachment
+	      [Bg.BG_ATTACHMENT_VAR]: attachment,
+	      [Bg.BG_IMAGE]: backgroundImage
 	    };
+	  }
+
+	  modifyStyleNode(styleNode) {
+	    main_core.Dom.style(styleNode.currentTarget, Bg.BG_IMAGE, '');
+	  }
+
+	  prepareProcessorValue(processorValue, defaultValue) {
+	    if (defaultValue && defaultValue.hasOwnProperty(Bg.BG_IMAGE)) {
+	      const regUrl = /url\(/i;
+	      const searchUrl = defaultValue[Bg.BG_IMAGE].match(regUrl);
+
+	      if (searchUrl !== null) {
+	        processorValue[Bg.BG_IMAGE] = '';
+	        processorValue[Bg.BG_SIZE_VAR] = defaultBgImageSize;
+	        processorValue[Bg.BG_ATTACHMENT_VAR] = defaultBgImageAttachment;
+	        const regWebkitUrl = /-webkit-image-set\(url\(/i;
+	        const searchWebkitUrl = defaultValue[Bg.BG_IMAGE].match(regWebkitUrl);
+
+	        if (searchWebkitUrl !== null) {
+	          const regSearchUrl = /"(https?:\/)?\/[\S]*"/gi;
+	          const search = defaultValue[Bg.BG_IMAGE].match(regSearchUrl);
+
+	          if (search) {
+	            processorValue[Bg.BG_URL_VAR] = search[0].replaceAll('"', '');
+
+	            if (search.length === 2) {
+	              processorValue[Bg.BG_URL_2X_VAR] = search[1].replaceAll('"', '');
+	            } else {
+	              processorValue[Bg.BG_URL_2X_VAR] = search[0].replaceAll('"', '');
+	            }
+	          }
+	        } else {
+	          processorValue[Bg.BG_URL_VAR] = defaultValue[Bg.BG_IMAGE];
+	          processorValue[Bg.BG_URL_2X_VAR] = defaultValue[Bg.BG_IMAGE];
+	        }
+
+	        const computedStyleNode = getComputedStyle(this.styleNode.currentTarget, ':after');
+	        processorValue[Bg.BG_OVERLAY_VAR] = computedStyleNode.backgroundColor;
+	        const currentColorRGB = stringToRGB(computedStyleNode.backgroundColor);
+	        const primaryColorRGB = stringToRGB(computedStyleNode.getPropertyValue('--primary-opacity-0'));
+
+	        if (currentColorRGB !== false && primaryColorRGB !== false && currentColorRGB.rgb === primaryColorRGB.rgb) {
+	          processorValue['isPrimaryBasedColor'] = true;
+	        }
+	      }
+	    }
+
+	    return processorValue;
 	  }
 
 	}
@@ -4009,6 +4138,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	Bg.BG_OVERLAY_VAR = '--bg-overlay';
 	Bg.BG_SIZE_VAR = '--bg-size';
 	Bg.BG_ATTACHMENT_VAR = '--bg-attachment';
+	Bg.BG_IMAGE = 'background-image';
 
 	class BorderColor extends Color {
 	  constructor(options) {
@@ -4391,6 +4521,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        defaultValue[prop] = value[prop];
 	      }
 	    });
+	    processorValue = this.processor.prepareProcessorValue(processorValue, defaultValue);
 
 	    if (processorValue !== null) {
 	      this.processor.setProcessorValue(processorValue);

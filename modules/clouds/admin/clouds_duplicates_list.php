@@ -74,7 +74,7 @@ if (
 		$originalId = \Bitrix\Clouds\FileHashTable::prepareDuplicates($obBucket->ID, $fileIds);
 		if ($originalId && $fileIds)
 		{
-			\Bitrix\Clouds\FileHashTable::processDuplicates($obBucket, $originalId, $fileIds);
+			CFile::DeleteDuplicates($originalId, $fileIds);
 		}
 		if (time() > $etime)
 		{
@@ -149,7 +149,7 @@ if ($action && is_array($arID))
 			$originalId = \Bitrix\Clouds\FileHashTable::prepareDuplicates($obBucket->ID, $fileIds);
 			if ($originalId && $fileIds)
 			{
-				\Bitrix\Clouds\FileHashTable::processDuplicates($obBucket, $originalId, $fileIds);
+				CFile::DeleteDuplicates($originalId, $fileIds);
 			}
 			break;
 		default:

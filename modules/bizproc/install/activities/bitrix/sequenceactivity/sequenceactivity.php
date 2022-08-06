@@ -86,11 +86,4 @@ class CBPSequenceActivity
 		}
 		return CBPActivityExecutionStatus::Closed;
 	}
-
-	public function HandleFault(Exception $exception)
-	{
-		$status = parent::HandleFault($exception);
-		return $status;
-	}
 }
-?>

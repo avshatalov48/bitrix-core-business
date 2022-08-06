@@ -6,7 +6,7 @@ if (!empty($_REQUEST['action_button_'.$arResult["GRID_ID"]]))
 	unset($_REQUEST['bxajaxid'], $_REQUEST['AJAX_CALL']);
 }
 
-\Bitrix\Main\UI\Extension::load("ui.viewer");
+\Bitrix\Main\UI\Extension::load(["ui.viewer", "ui.fonts.opensans"]);
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 \Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/components/bitrix/bizproc.workflow.faces/templates/.default/style.css');
 

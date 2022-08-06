@@ -10,7 +10,7 @@ use Bitrix\Main\Web\Json;
 /** @var array $arResult */
 
 CUtil::InitJSCore(["popup"]);
-Extension::load(['sidepanel', 'ui.forms']);
+Extension::load(['sidepanel', 'ui.forms', 'ui.design-tokens']);
 
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '') . 'no-all-paddings no-background user-consent-content-modifier');

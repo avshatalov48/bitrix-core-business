@@ -88,7 +88,14 @@ class Group extends CopyImplementer
 
 			if ($fields["OWNER_ID"] != $fields["OLD_OWNER_ID"])
 			{
-				\CSocNetUserToGroup::setOwner($fields["OWNER_ID"], $groupId);
+				if (\CSocNetUserToGroup::setOwner($fields["OWNER_ID"], $groupId))
+				{
+					$dictionary = $container->getDictionary();
+
+					$dictionary["NEW_OWNER_ID"] = $fields["OWNER_ID"];
+
+					$container->setDictionary($dictionary);
+				}
 			}
 
 			if ($this->userGroupHelper)

@@ -10,7 +10,8 @@ return [
 	'js' => 'script.js',
 	'rel' => [
 		'main.core',
-		'ui.entity-selector'
+		'ui.entity-selector',
+		'ui.design-tokens',
 	],
 	'skip_core' => false,
 ];

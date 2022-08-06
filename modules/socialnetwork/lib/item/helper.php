@@ -291,44 +291,12 @@ class Helper
 			}
 		}
 
-		$inlineTagsList = \Bitrix\Socialnetwork\Util::detectTags($postFields, ($postFields['MICRO'] === 'Y' ? [ 'DETAIL_TEXT' ] : [ 'DETAIL_TEXT', 'TITLE' ]));
-		if (!empty($inlineTagsList))
+		$categoryIdList = \Bitrix\Socialnetwork\Component\BlogPostEdit\Tag::parseTagsFromFields([
+			'postFields' => $postFields,
+			'blogId' => $blog['ID'],
+		]);
+		if (!empty($categoryIdList))
 		{
-			$inlineTagsList = array_unique(array_map('ToLower', $inlineTagsList));
-
-			$existingCategoriesList = [];
-			$res = \CBlogCategory::getList(
-				[],
-				[
-					'@NAME' => $inlineTagsList,
-					'BLOG_ID' => $postFields['BLOG_ID']
-				],
-				false,
-				false,
-				[ 'ID', 'NAME' ]
-			);
-			while ($category = $res->fetch())
-			{
-				$existingCategoriesList[$category['NAME']] = $category['ID'];
-			}
-
-			$categoryIdList = [];
-
-			foreach ($inlineTagsList as $tag)
-			{
-				if (array_key_exists($tag, $existingCategoriesList))
-				{
-					$categoryIdList[] = $existingCategoriesList[$tag];
-				}
-				else
-				{
-					$categoryIdList[] = \CBlogCategory::add([
-						'BLOG_ID' => $postFields['BLOG_ID'],
-						'NAME' => $tag
-					]);
-				}
-			}
-
 			foreach ($categoryIdList as $categoryId)
 			{
 				\CBlogPostCategory::add([

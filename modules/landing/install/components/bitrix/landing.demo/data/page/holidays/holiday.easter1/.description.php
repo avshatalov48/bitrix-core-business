@@ -606,7 +606,7 @@ return [
 	<div class="text-center g-pa-10">
 		<div class="g-width-600 mx-auto">
 			<div class="landing-block-node-text g-font-size-12  js-animation animation-none">
-				<p>&copy; 2021 all rights reserved.</p>
+				<p>&copy; 2022 all rights reserved.</p>
 			</div>
 		</div>
 	</div>

@@ -48,6 +48,7 @@ return [
 	'syspages' => [
 		'order' => 'store-chats-dark/order',
 		'feedback' => 'store-chats-dark/order',
+		// todo: do not delete all this comments, please! This is for podborki
 		// 'catalog' => 'store-chats-dark/catalog',
 	],
 	// todo: do not delete all this comments, please! This is for podborki
@@ -55,6 +56,9 @@ return [
 	// 	'store-chats-dark/catalog' => [
 	// 		0 => 'store-chats-dark/catalog',
 	// 		1 => 'store-chats-dark/catalog_order',
+	// 		2 => 'store-chats-dark/catalog_detail',
+	// 		3 => 'store-chats-dark/catalog_header',
+	// 		4 => 'store-chats-dark/catalog_footer',
 	// 	],
 	// ],
 	'items' => [
@@ -67,7 +71,11 @@ return [
 		6 => 'store-chats-dark/about',
 		7 => 'store-chats-dark/payinfo',
 		8 => 'store-chats-dark/cutaway',
+		// todo: do not delete all this comments, please! This is for podborki
 		// 9 => 'store-chats-dark/catalog',
 		// 10 => 'store-chats-dark/catalog_order',
+		// 11 => 'store-chats-dark/catalog_detail',
+		// 12 => 'store-chats-dark/catalog_header',
+		// 13 => 'store-chats-dark/catalog_footer',
 	],
 ];

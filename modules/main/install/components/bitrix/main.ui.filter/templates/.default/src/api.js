@@ -4,6 +4,9 @@ export class Api
 {
 	constructor(parent)
 	{
+		/**
+		 * @var {BX.Main.Filter}
+		 */
 		this.parent = parent;
 	}
 
@@ -33,7 +36,8 @@ export class Api
 
 			if (!filter.checkFields || !this.parent.getPreset().isPresetValuesModified(filter.preset_id))
 			{
-				this.parent.applyFilter(false, filter.preset_id);
+				const isSetOutside = true;
+				this.parent.applyFilter(false, filter.preset_id, isSetOutside);
 			}
 			else
 			{
@@ -115,7 +119,10 @@ export class Api
 		{
 			if (!this.parent.isEditEnabled())
 			{
-				this.parent.applyFilter();
+				const clear = false;
+				const applyPreset = false;
+				const isSetOutside = true;
+				this.parent.applyFilter(clear, applyPreset, isSetOutside);
 			}
 
 			this.parent.closePopup();

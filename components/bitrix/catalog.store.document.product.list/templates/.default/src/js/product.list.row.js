@@ -219,6 +219,7 @@ export class Row
 				ENABLE_SKU_SELECTION: true,
 				ENABLE_EMPTY_PRODUCT_ERROR: true,
 				RESTRICTED_PRODUCT_TYPES: [PRODUCT_TYPE_SET],
+				URL_BUILDER_CONTEXT: this.editor.getSettingValue('productUrlBuilderContext'),
 			},
 			mode: ProductSelector.MODE_EDIT,
 		};

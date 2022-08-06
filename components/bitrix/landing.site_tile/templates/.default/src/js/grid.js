@@ -123,7 +123,7 @@ export class SiteTile
 				{
 					url = url[1];
 					url += (url.indexOf('?') > 0) ? '&' : '?';
-					node.style.backgroundImage = 'url(' + url + 'refreshed)';
+					node.style.backgroundImage = 'url(' + url + 'refreshed' + (Date.now()/3600000|0) + ')';
 				}
 			});
 		}

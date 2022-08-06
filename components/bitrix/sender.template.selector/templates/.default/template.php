@@ -19,7 +19,7 @@ use Bitrix\Main\UI\Extension;
 
 $this->addExternalJs($this->GetFolder() . '/grid.js');
 
-Extension::load('ui.hint');
+Extension::load(['ui.hint', 'ui.design-tokens']);
 
 $containerId = 'bx-sender-template-selector';
 

@@ -1,10 +1,13 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-class CBPCodeCondition
-	extends CBPActivityCondition
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
-	public $condition = "";
+	die();
+}
+
+class CBPCodeCondition extends CBPActivityCondition
+{
+	public $condition = '';
 
 	public function __construct($condition)
 	{
@@ -14,6 +17,7 @@ class CBPCodeCondition
 	public function Evaluate(CBPActivity $ownerActivity)
 	{
 		@eval("\$result = ".$this->condition.";");
+
 		return $result;
 	}
 
@@ -23,46 +27,72 @@ class CBPCodeCondition
 
 		if ($user == null || !$user->isAdmin())
 		{
-			$arErrors[] = array(
-				"code" => "perm",
-				"message" => GetMessage("BPCC_NO_PERMS"),
-			);
+			$arErrors[] = [
+				'code' => 'perm',
+				'message' => GetMessage('BPCC_NO_PERMS'),
+			];
 		}
 
 		return array_merge($arErrors, parent::ValidateProperties($value, $user));
 	}
 
-	public static function GetPropertiesDialog($documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $defaultValue, $arCurrentValues = null)
+	public static function GetPropertiesDialog(
+		$documentType,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$defaultValue,
+		$arCurrentValues = null
+	)
 	{
 		$runtime = CBPRuntime::GetRuntime();
 
 		if (!is_array($arCurrentValues))
-			$arCurrentValues = array("php_code_condition" => ($defaultValue == null ? "" : $defaultValue));
+		{
+			$arCurrentValues = ['php_code_condition' => ($defaultValue == null ? '' : $defaultValue)];
+		}
 
 		return $runtime->ExecuteResourceFile(
 			__FILE__,
-			"properties_dialog.php",
-			array("arCurrentValues" => $arCurrentValues)
+			'properties_dialog.php',
+			['arCurrentValues' => $arCurrentValues]
 		);
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function GetPropertiesDialogValues(
+		$documentType,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$arCurrentValues,
+		&$arErrors
+	)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
-		if (!array_key_exists("php_code_condition", $arCurrentValues) || $arCurrentValues["php_code_condition"] == '')
+		if (
+			!array_key_exists('php_code_condition', $arCurrentValues)
+			|| $arCurrentValues['php_code_condition'] == ''
+		)
 		{
-			$arErrors[] = array(
-				"code" => "",
-				"message" => GetMessage("BPCC_EMPTY_CODE"),
-			);
+			$arErrors[] = [
+				'code' => '',
+				'message' => GetMessage('BPCC_EMPTY_CODE'),
+			];
+
 			return null;
 		}
 
-		$arErrors = self::ValidateProperties($arCurrentValues["php_code_condition"], new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
-		if (count($arErrors) > 0)
-			return null;
+		$arErrors = self::ValidateProperties(
+			$arCurrentValues['php_code_condition'],
+			new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser)
+		);
 
-		return $arCurrentValues["php_code_condition"];
+		if (count($arErrors) > 0)
+		{
+			return null;
+		}
+
+		return $arCurrentValues['php_code_condition'];
 	}
 }

@@ -99,11 +99,21 @@ final class License
 
 	private function getRegionByLanguage(): ?string
 	{
-		if (file_exists(Application::getDocumentRoot() . "/bitrix/modules/main/lang/ua"))
+		$documentRoot = Application::getDocumentRoot();
+
+		if (file_exists($documentRoot . '/bitrix/modules/main/lang/ua'))
 		{
 			return 'ua';
 		}
-		if (file_exists(Application::getDocumentRoot() . "/bitrix/modules/main/lang/ru"))
+		if (file_exists($documentRoot . '/bitrix/modules/main/lang/by'))
+		{
+			return 'by';
+		}
+		if (file_exists($documentRoot . '/bitrix/modules/main/lang/kz'))
+		{
+			return 'kz';
+		}
+		if (file_exists($documentRoot . '/bitrix/modules/main/lang/ru'))
 		{
 			return 'ru';
 		}

@@ -10,11 +10,6 @@ Loc::loadMessages(__FILE__);
 class Rights
 {
 	/**
-	 * Option for debug, set full access for admin.
-	 */
-	const MODE_ADMIN_FULL_ACCESS = true;
-
-	/**
 	 * Site entity type.
 	 */
 	const ENTITY_TYPE_SITE = 'S';
@@ -36,11 +31,28 @@ class Rights
 	 */
 	const ADDITIONAL_RIGHTS = [
 		'menu24' => 'menu24',//show in main menu of Bitrix24
+		'admin' => 'admin',//admin rights
 		'create' => 'create',//can create new sites
+		'unexportable' => 'unexportable',
 		'knowledge_menu24' => 'knowledge_menu24',// show Knowledge in main menu of Bitrix24
+		'knowledge_admin' => 'knowledge_admin',//admin rights
 		'knowledge_create' => 'knowledge_create',//can create new Knowledge base
+		'knowledge_unexportable' => 'knowledge_unexportable',
 		'group_create' => 'group_create',//can create new social network group base
+		'group_admin' => 'group_admin',//admin rights
 		'group_menu24' => 'group_menu24',// show group in main menu of Bitrix24
+		'group_unexportable' => 'group_unexportable',
+	];
+
+	const SET_PREFIX = [
+		'knowledge',
+		'group',
+	];
+
+	const REVERSE_RIGHTS = [
+		'unexportable',
+		'knowledge_unexportable',
+		'group_unexportable',
 	];
 
 	/**
@@ -129,11 +141,11 @@ class Rights
 	 */
 	public static function isAdmin()
 	{
-		if (self::MODE_ADMIN_FULL_ACCESS)
+		if (self::hasAdditionalRight(self::ADDITIONAL_RIGHTS['admin'], null, false, true))
 		{
-			return Manager::isAdmin();
+			return true;
 		}
-		return false;
+		return Manager::isAdmin();
 	}
 
 	/**
@@ -996,7 +1008,7 @@ class Rights
 	 * @param bool $checkExtraRights Check extra rights.
 	 * @return bool
 	 */
-	public static function hasAdditionalRight($code, $type = null, bool $checkExtraRights = false)
+	public static function hasAdditionalRight($code, $type = null, bool $checkExtraRights = false, bool $strict = false)
 	{
 		static $options = [];
 
@@ -1037,8 +1049,12 @@ class Rights
 				return false;
 			}
 
-			if (self::isAdmin())
+			if (Manager::isAdmin())
 			{
+				if (in_array($code, self::REVERSE_RIGHTS))
+				{
+					return false;
+				}
 				return true;
 			}
 
@@ -1050,7 +1066,7 @@ class Rights
 			}
 			$option = $options[$code];
 
-			if (!is_array($option))
+			if (!is_array($option) && !$strict)
 			{
 				return true;
 			}

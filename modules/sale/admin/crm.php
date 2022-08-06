@@ -304,17 +304,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 			if (!defined("BX_UTF"))
 				$body1 = CharsetConverter::ConvertCharset($body1, SITE_CHARSET, "UTF-8");
 
-			$head1 = "";
+			$cookies = [];
+			$cookieRe = '/^Set-Cookie:(.+?)=(.+?);/';
 			foreach ($arResponseHeaders as $h)
 			{
-				$p1 = mb_strpos($h, "PHPSESSID=");
-				if ($p1 !== false)
+				if (preg_match($cookieRe, $h, $m))
 				{
-					$p2 = mb_strpos($h, ";", $p1);
-					$head1 .= "Cookie: PHPSESSID=".(($p2 !== false)? mb_substr($h, $p1 + 10, $p2 - $p1 - 10) : mb_substr($h, $p1 + 10))."\r\n";
-					break;
+					$cookies[] = trim($m[1]) . '=' . trim($m[2]);
 				}
 			}
+
+			$head1 = "Cookie: " . join("; ", $cookies) . "\r\n";
 
 			list($arResponseHeaders, $responseBody) = __CrmSaleQuery($crmUrlScheme, $crmUrlHost, $crmUrlPort, $crmLogin, $crmPassword, $head1, $body1, $errorMessageTmp);
 			if (!empty($errorMessageTmp))

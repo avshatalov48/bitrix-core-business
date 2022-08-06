@@ -1,5 +1,5 @@
 <div class="landing-block g-pt-30 g-pb-30">
-	<div class="container">
+	<div class="landing-block-slider container g-py-10" data-slider-animation="1">
 		<div class="js-carousel js-gallery-cards landing-gallery-app-slider row g-pb-20"
 			 data-infinite="true"
 			 data-slides-show="3"

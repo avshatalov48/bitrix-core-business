@@ -1,4 +1,4 @@
-<section class="landing-block">
+<section class="landing-block" data-slider-autoplay="1" data-slider-autoplay-speed="5000">
 	<div class="js-carousel g-overflow-hidden"
 		 data-autoplay="true"
 		 data-infinite="true"

@@ -8,6 +8,9 @@ td {
 {
 	padding: 20px;
 	background-color: #fff;
+	border-radius: var(--ui-border-radius-md);
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
 	-webkit-box-flex: 1;
 	-ms-flex: 1;
 	flex: 1;

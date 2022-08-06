@@ -640,7 +640,7 @@ abstract class Field
 
 	public function unserialize($value)
 	{
-		return unserialize($value);
+		return unserialize((string)$value);
 	}
 
 	/**

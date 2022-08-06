@@ -119,6 +119,7 @@ export class ColorPickerTheme extends EventEmitter
 
 		const event = new BaseEvent({data: {color: color, node: this.element}});
 		this.emit('onSelectColor', event);
+		this.emit('onSelectCustomColor', event);
 
 		this.input.setAttribute('value', color);
 

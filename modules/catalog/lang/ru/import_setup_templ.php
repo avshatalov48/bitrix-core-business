@@ -136,7 +136,6 @@ $MESS["CML_R_EDIT"] = "изменения";
 $MESS["CML_R_ADD"] = "добавления";
 $MESS["CML_R_IBLOCK"] = "Ошибка #ACT# инфоблока #NAME#: #ERROR#";
 $MESS["CML_R_VERSION"] = "Данная схема импорта не работает с инфоблоками 2.0";
-$MESS["CML_R_MYSQL_ONLY"] = "Данный скрипт предназначен для импорта данных из формата CommerceML в <b>MySql</b> версии продукта. По вопросам, связанным с другими версиями продукта, обращайтесь в службу техподдержки по адресу <a href=\"mailto:support@bitrixsoft.ru\">support@bitrixsoft.ru</a>";
 $MESS["CML_R_MIN"] = "мин";
 $MESS["CML_R_TIME"] = "Загрузка заняла #TIME# сек#MIN#";
 $MESS["CML_R_NCATA"] = "Обработано каталогов: #NUM#";

@@ -3,7 +3,8 @@
 	position: absolute;
 	top: 55px;
 	left: 0;
-	font-family: "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 13px;
 	color: #828b95;
 }
@@ -257,7 +258,8 @@
 }
 
 .catalog-product-form-result-grid-total-big {
-	font-family: "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 21px;
 	color: #525c69;
 }
@@ -622,7 +624,9 @@
 	padding: 0 0 0 11px;
 	border: 1px solid #c6cdd3;
 	border-right: none;
-	border-radius: 2px 0 0 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
 	background: #fff;
 	color: #535c69;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -680,7 +684,9 @@
 	background: #fff;
 	border: 1px solid #c6cdd3;
 	border-left: none;
-	border-radius: 0 2px 2px 0;
+	border-radius: var(--ui-field-border-radius, 2px);
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
 	color: rgba(82,92,105,.5);
 	font: 400 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
@@ -740,7 +746,8 @@
 .catalog-pf-product-index {
 	margin-top: 22px;
 	line-height: 39px;
-	font-family: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 13px;
 	color: #828b95;
 }
@@ -1076,7 +1083,8 @@
 .catalog-pf-symbol--total,
 .catalog-pf-text--total {
 	font-size: 21px;
-	font-family: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .catalog-pf-product-selector-wrapper {

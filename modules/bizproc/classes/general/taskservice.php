@@ -1,13 +1,9 @@
-<?
-IncludeModuleLangFile(__FILE__);
-
-include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/classes/general/runtimeservice.php");
+<?php
 
 use Bitrix\Main;
 use Bitrix\Bizproc;
 
-class CBPAllTaskService
-	extends CBPRuntimeService
+class CBPTaskService extends CBPRuntimeService
 {
 	const COUNTERS_CACHE_TAG_PREFIX = 'b_bp_tasks_cnt_';
 
@@ -926,6 +922,3 @@ class CBPTaskResult extends CDBResult
 	}
 
 }
-
-//Compatibility
-class CBPTaskService extends CBPAllTaskService {}

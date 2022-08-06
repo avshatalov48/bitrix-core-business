@@ -18,4 +18,13 @@ class Enum
 			self::TYPE_MATERIAL
 		];
 	}
+
+	static public function getUseAllType(): array
+	{
+		return [
+			self::TYPE_CRM,
+			self::TYPE_MENU,
+			self::TYPE_STORE,
+		];
+	}
 }

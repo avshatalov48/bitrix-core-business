@@ -190,18 +190,17 @@ class RequestHandler extends HandlerBase
 			);
 		}
 
-		$availableCancelState = $claim->getAvailableCancelState();
-		if (!$availableCancelState)
+		$getCancelInfoResult = $this->api->getCancelInfo($request['EXTERNAL_ID']);
+		if (!$getCancelInfoResult->isSuccess())
 		{
-			return $result->addError(
-				new Error(Loc::getMessage('SALE_YANDEX_TAXI_CANCELLATION_TMP_ERROR'))
-			);
+			return $result->addErrors($getCancelInfoResult->getErrors());
 		}
+		$availableCancelState = $getCancelInfoResult->getCancelState();
 
 		$cancellationResult = ServiceContainer::getApi()->cancelClaim(
 			$request['EXTERNAL_ID'],
 			$claim->getVersion(),
-			$claim->getAvailableCancelState()
+			$availableCancelState
 		);
 
 		if (!$cancellationResult->isSuccess())

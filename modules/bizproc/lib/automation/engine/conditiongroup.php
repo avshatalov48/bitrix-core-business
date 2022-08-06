@@ -18,6 +18,8 @@ class ConditionGroup
 
 	private $type;
 	private $items = [];
+	private array $activityNames = [];
+	protected array $evaluateResults = [];
 
 	public function __construct(array $params = null)
 	{
@@ -80,11 +82,11 @@ class ConditionGroup
 			$document = $documentService->getDocument($documentId, $documentType);
 		}
 
-		$documentFields = $documentService->getDocumentFields($documentType);
-
 		$result = [0 => true];
 		$i = 0;
 		$joiner = static::JOINER_AND;
+
+		$this->evaluateResults = [];
 
 		foreach ($this->items as $item)
 		{
@@ -95,17 +97,7 @@ class ConditionGroup
 			$conditionResult = true;
 
 			$fld = $document[$conditionField] ?? null;
-			$fieldType = null;
-
-			if (isset($documentFields[$conditionField]))
-			{
-				$fieldType = $documentService->getFieldTypeObject($documentType, $documentFields[$conditionField]);
-			}
-
-			if (!$fieldType)
-			{
-				$fieldType = $documentService->getFieldTypeObject($documentType, ['Type' => 'string']);
-			}
+			$fieldType = $this->getFieldTypeObject($documentService, $documentType, $conditionField);
 
 			if (!$condition->checkValue($fld, $fieldType, $documentId))
 			{
@@ -121,6 +113,14 @@ class ConditionGroup
 			{
 				$result[$i] = false;
 			}
+
+			$this->evaluateResults[] = [
+				'condition' => $condition->toArray(),
+				'joiner' => $joiner,
+				'fieldValue' => $fld ? $fieldType->formatValue($fld) : null,
+				'result' => $conditionResult ? 'Y' : 'N',
+			];
+
 			$joiner = ($item[1] === static::JOINER_OR) ? static::JOINER_OR : static::JOINER_AND;
 		}
 
@@ -167,6 +167,25 @@ class ConditionGroup
 		return $this->items;
 	}
 
+	public function setActivityNames($activity)
+	{
+		$this->activityNames = [
+			'Activity' => $activity['Name'],
+			'Branch1' => $activity['Children'][0]['Name'],
+			'Branch2' => $activity['Children'][1]['Name'],
+		];
+	}
+
+	public function getActivityNames(): array
+	{
+		if (isset($this->activityNames))
+		{
+			return $this->activityNames;
+		}
+
+		return [];
+	}
+
 	/**
 	 * @return array Array presentation of condition group.
 	 */
@@ -180,7 +199,7 @@ class ConditionGroup
 			$itemsArray[] = [$condition->toArray(), $joiner];
 		}
 
-		return ['type' => $this->getType(), 'items' => $itemsArray];
+		return ['type' => $this->getType(), 'items' => $itemsArray, 'activityNames' => $this->getActivityNames()];
 	}
 
 	/**
@@ -284,6 +303,7 @@ class ConditionGroup
 		{
 			$conditionGroup = new static();
 			$conditionGroup->setType(static::TYPE_MIXED);
+			$conditionGroup->setActivityNames($activity);
 
 			$isMixed = isset($activity['Children'][0]['Properties']['mixedcondition']);
 			$bizprocConditions = $activity['Children'][0]['Properties'][$isMixed?'mixedcondition':'fieldcondition'];
@@ -437,5 +457,29 @@ class ConditionGroup
 			$value = Helper::unConvertExpressions($value, $documentType);
 		}
 		return $value;
+	}
+
+	private function getFieldTypeObject(\CBPDocumentService $documentService, array $documentType, $conditionField): ?\Bitrix\Bizproc\FieldType
+	{
+		$documentFields = $documentService->getDocumentFields($documentType);
+
+		$fieldType = null;
+
+		if (isset($documentFields[$conditionField]))
+		{
+			$fieldType = $documentService->getFieldTypeObject($documentType, $documentFields[$conditionField]);
+		}
+
+		if (!$fieldType)
+		{
+			$fieldType = $documentService->getFieldTypeObject($documentType, ['Type' => 'string']);
+		}
+
+		return $fieldType;
+	}
+
+	public function getEvaluateResults(): array
+	{
+		return $this->evaluateResults;
 	}
 }

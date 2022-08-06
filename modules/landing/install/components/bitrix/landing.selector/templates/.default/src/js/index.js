@@ -8,6 +8,7 @@ type SelectorOptions = {
 	input: HTMLElement,
 	urlLandingAdd: ?string,
 	urlFolderAdd: ?string,
+	urlFormAdd: ?string,
 	siteType: string,
 	siteId: number,
 	folderId: number,
@@ -32,6 +33,7 @@ export class Selector {
 	#input: HTMLElement
 	#urlLandingAdd: ?string;
 	#urlFolderAdd: ?string;
+	#urlFormAdd: ?string;
 	#siteType: string;
 	#siteId: number;
 	folderId: number;
@@ -48,6 +50,7 @@ export class Selector {
 		this.#input = options.input;
 		this.#urlLandingAdd = options.urlLandingAdd || null;
 		this.#urlFolderAdd = options.urlFolderAdd || null;
+		this.#urlFormAdd = options.urlFormAdd || null;
 		this.#siteType = options.siteType;
 		this.#siteId = options.siteId;
 		this.folderId = options.folderId;
@@ -96,7 +99,8 @@ export class Selector {
 				footer: [
 					this.#urlLandingAdd ? Tag.render`<a href="${this.#urlLandingAdd}" class="ui-selector-footer-link ui-selector-footer-link-add">${Loc.getMessage('LANDING_SELECTOR_ADD_PAGE')}</a>` : Tag.render``,
 					this.#urlLandingAdd ? Tag.render`<span class="ui-selector-footer-conjunction">${Loc.getMessage('LANDING_SELECTOR_ADD_OR')}</span>` : Tag.render``,
-					this.#urlFolderAdd ? Tag.render`<a href="${this.#urlFolderAdd}" class="ui-selector-footer-link">${Loc.getMessage('LANDING_SELECTOR_ADD_FOLDER')}</a>` : Tag.render``
+					this.#urlFolderAdd ? Tag.render`<a href="${this.#urlFolderAdd}" class="ui-selector-footer-link">${Loc.getMessage('LANDING_SELECTOR_ADD_FOLDER')}</a>` : Tag.render``,
+					this.#urlFormAdd ? Tag.render`<a href="${this.#urlFormAdd}" class="ui-selector-footer-link ui-selector-footer-link-add">${Loc.getMessage('LANDING_SELECTOR_ADD_FORM')}</a>` : Tag.render``,
 				]
 			});
 		}

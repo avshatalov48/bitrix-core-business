@@ -10,3 +10,5 @@ $MESS["CPD_ERROR_EMPTY_LIST_ITEMS"] = "Elemente für Liste hinzufügen";
 $MESS["CPD_NEW_LIST_ELEMENT_EMPTY_NAME"] = "Neues Element";
 $MESS["CPD_NEW_PRODUCT_TITLE"] = "Neues Produkt";
 $MESS["CPD_NOT_FOUND_ERROR_TITLE"] = "Produkt wurde nicht gefunden. Kann sein, dass es gelöscht wurde.";
+$MESS["CPD_SETS_NOT_SUPPORTED_LINK"] = "Onlineshop jetzt öffnen";
+$MESS["CPD_SETS_NOT_SUPPORTED_TITLE"] = "Der Typ Produktsatz, den Sie gewählt haben, wird vom neuen Produktformular nicht unterstützt. Sie können Sätze im Bereich Onlineshop anzeigen und bearbeiten.<br>#LINK#";

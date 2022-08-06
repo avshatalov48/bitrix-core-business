@@ -637,9 +637,9 @@ function Graf($arrayX, $arrayY, $ImageHandle, $MinX, $MaxX, $MinY, $MaxY, $Color
 		{
 			imagecolorallocate(
 				$ImageHandle,
-				($fgcolors['red'] + $i*$bgcolors['red'])/($i + 1),
-				($fgcolors['green'] + $i*$bgcolors['green'])/($i + 1),
-				($fgcolors['blue'] + $i*$bgcolors['blue'])/($i + 1)
+				(int)(($fgcolors['red'] + $i*$bgcolors['red'])/($i + 1)),
+				(int)(($fgcolors['green'] + $i*$bgcolors['green'])/($i + 1)),
+				(int)(($fgcolors['blue'] + $i*$bgcolors['blue'])/($i + 1))
 			);
 		}
 	}

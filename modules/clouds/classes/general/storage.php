@@ -250,23 +250,8 @@ class CCloudStorage
 			$arDestinationSize = array();
 
 			//Check if it is cache file was deleted, but there was a successful resize
-			if (
-				!$bImmediate
-				&& COption::GetOptionString("clouds", "delayed_resize") === "Y"
-				&& is_array($delayInfo = CCloudStorage::ResizeImageFileGet($cacheImageFile))
-				&& $delayInfo["ERROR_CODE"] < 10
-			)
-			{
-				$callbackData["cacheSTARTED"] = true;
-				if ($arFile["FILE_SIZE"] > 1)
-					$callbackData["fileSize"] = $arFile["FILE_SIZE"];
-				$bNeedResize = false;
-				$result = true;
-			}
-			elseif (
-				is_array($delayInfo = CCloudStorage::ResizeImageFileGet($cacheImageFile))
-				&& $delayInfo["ERROR_CODE"] < 10
-			)
+			$delayInfo = CCloudStorage::ResizeImageFileGet($cacheImageFile);
+			if (is_array($delayInfo) && ($delayInfo["ERROR_CODE"] < 10))
 			{
 				$callbackData["cacheSTARTED"] = true;
 				if ($arFile["FILE_SIZE"] > 1)
@@ -311,6 +296,7 @@ class CCloudStorage
 					)
 				)
 				{
+					$callbackData["delayedResize"] = true;
 					$callbackData["cacheSTARTED"] = false;
 					$bNeedResize = false;
 					$callbackData["cacheOBJ"]->AbortDataCache();
@@ -409,8 +395,6 @@ class CCloudStorage
 							9 //already there
 						);
 					}
-
-					return true;
 				}
 				else
 				{
@@ -453,8 +437,6 @@ class CCloudStorage
 				));
 
 				$arCloudImageSizeCache[$cacheImageFile] = $arImageSize;
-
-				return true;
 			}
 		}
 		elseif (is_array($callbackData["cacheVARS"]))
@@ -466,10 +448,18 @@ class CCloudStorage
 				$callbackData["cacheVARS"]["size"],
 			);
 			$arCloudImageSizeCache[$cacheImageFile] = $arImageSize;
-			return true;
+		}
+		else
+		{
+			return false;
 		}
 
-		return false;
+		foreach (GetModuleEvents("clouds", "OnAfterResizeImage", true) as $arEvent)
+		{
+			ExecuteModuleEventEx($arEvent, [$callbackData["delayedResize"], &$cacheImageFile]);
+		}
+
+		return true;
 	}
 
 	public static function ResizeImageFileGet($destinationFile)
@@ -1455,6 +1445,27 @@ class CCloudStorage
 		}
 	}
 
+	public static function OnAfterFileDeleteDuplicate($original, $duplicate)
+	{
+		$result = false;
+		if ($original->getHandlerId() > 0)
+		{
+			$bucket = new CCloudStorageBucket($original->getHandlerId());
+			if ($bucket->Init())
+			{
+				$duplicatePath = '/' . $duplicate->getSubdir() . '/' . $duplicate->getFileName();
+				\Bitrix\Clouds\FileHashTable::deleteByFilePath($original->getHandlerId(), $duplicatePath);
+
+				$result = $bucket->deleteFile($duplicatePath, $duplicate->getFileSize());
+				if ($result)
+				{
+					$bucket->decFileCounter($duplicate->getFileSize());
+				}
+			}
+		}
+		return $result;
+	}
+
 	public static function CleanUp()
 	{
 		$buckets = array();
@@ -1650,7 +1661,6 @@ class CCloudStorage
 		{
 			$upload_dir = "/".trim(COption::GetOptionString("main", "upload_dir", "upload"), "/")."/";
 			$request_uri = urldecode($_SERVER["REQUEST_URI"]);
-			$request_uri = CCloudUtil::URLEncode($request_uri, LANG_CHARSET);
 			foreach (CCloudStorageBucket::GetAllBuckets() as $arBucket)
 			{
 				if ($arBucket["ACTIVE"] == "Y")
@@ -1665,7 +1675,7 @@ class CCloudStorage
 						)
 						{
 							session_write_close();
-							$to_file = $obBucket->GetFileSRC(urldecode($match[2]));
+							$to_file = $obBucket->GetFileSRC($match[2]);
 							if (CCloudStorage::ResizeImageFileCheck($obBucket, $to_file))
 							{
 								$cache_time = 3600 * 24 * 30; // 30 days

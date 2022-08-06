@@ -144,7 +144,7 @@
 	background: #FFFFFF;
 	border: 1px solid #C6CDD3;
 	box-sizing: border-box;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	padding: 4px 13px 0 9px;
 	transition: .2s;
 }
@@ -550,7 +550,7 @@ html.bx-ios.bx-ios-fix-frame-focus, html.bx-ios.bx-ios-fix-frame-focus iframe, .
 }
 
 .feed-add-post-destination {
-	border-radius: 1px;
+	border-radius: var(--ui-border-radius-3xs, 1px);
 	font-size: 13px;
 	display: inline-block;
 	font-weight: bold;

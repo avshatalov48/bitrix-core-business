@@ -5,7 +5,6 @@ namespace Bitrix\Socialnetwork\Controller;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
 use Bitrix\Main\Engine\ActionFilter;
-use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Socialnetwork\Item\UserContentView;
 
 class ContentView extends Base
@@ -41,7 +40,7 @@ class ContentView extends Base
 			return null;
 		}
 
-		$signer = new Signer();
+		$signer = new \Bitrix\Main\Engine\ActionFilter\Service\Token($USER->getId());
 
 		foreach ($xmlIdList as $key => $item)
 		{
@@ -51,17 +50,11 @@ class ContentView extends Base
 				continue;
 			}
 
-			if (
-				!empty($item['key'])
-				&& !empty($item['signedKey'])
-				&& $item['save'] === 'Y'
-			)
+			if (!empty($item['signedKey']))
 			{
-				$signerSalt = 'ajaxSecurity' . $USER->getId() . $item['xmlId'];
-
 				try
 				{
-					if ($signer->unsign($item['signedKey'], $signerSalt) === $item['key'])
+					if ($signer->unsign($item['signedKey'], $item['xmlId']) === $item['xmlId'])
 					{
 						$xmlIdList[$key]['checkAccess'] = false;
 					}

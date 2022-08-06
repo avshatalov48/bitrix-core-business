@@ -5,7 +5,7 @@
 			<div class="landing-block-node-container js-animation fadeInUp container g-max-width-750 u-bg-overlay__inner g-mb-60">
 
 				<h2 class="landing-block-node-title landing-semantic-title-image-big text-center text-uppercase g-font-weight-700 g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
-					UI & UX Design 2021</h2>
+					UI & UX Design 2022</h2>
 
 				<div class="row g-mx-minus-5">
 					<div class="col-md-4 col-lg-4 g-px-5 g-mb-20 g-mb-0--md">
@@ -18,7 +18,7 @@
 								<div class="landing-block-node-date-title landing-semantic-text-image-medium g-mb-5 g-font-size-14 g-color-white-opacity-0_5">
 									<span style="font-weight: bold;">When</span></div>
 								<h3 class="landing-block-node-date-text landing-semantic-text-image-medium text-uppercase g-font-size-15 g-color-white mb-0">
-									18:30, 12 Jul, 2021</h3>
+									18:30, 12 Jul, 2022</h3>
 							</div>
 						</div>
 					</div>
@@ -48,10 +48,10 @@
 
 			<div class="container u-bg-overlay__inner g-bottom-minus-70 px-0 g-z-index-2">
 				<div class="row u-shadow-v23 g-theme-event-bg-blue-dark-v2 mx-0">
-					<div class="col-md-6 col-lg-6 px-0">
+					<div class="landing-block-slider col-md-6 col-lg-6 px-0 g-pr-10" data-slider-arrows="3" data-slider-animation="1">
 						<div class="js-carousel text-center u-carousel-v5 g-overflow-hidden h-100"
 							 data-infinite="true"
-							 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-40 g-height-40 g-font-size-20 g-color-white g-color-primary--hover g-bg-primary g-bg-white--hover g-transition-0_2 g-transition--ease-in"
+							 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-40 g-height-40 g-font-size-20 g-transition-0_2 g-transition--ease-in g-color-white g-bg-primary g-opacity-0_8--hover"
 							 data-arrow-left-classes="fa fa-angle-left g-left-0"
 							 data-arrow-right-classes="fa fa-angle-right g-right-0">
 							<div class="landing-block-node-card landing-block-node-card-img js-slide g-bg-img-hero g-min-height-50vh"

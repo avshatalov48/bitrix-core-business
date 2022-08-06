@@ -28,6 +28,7 @@ Extension::load([
 	'ui.cnt',
 	'ui.label',
 	'ui.layout-form',
+	'ui.design-tokens',
 ]);
 
 global $APPLICATION;
@@ -118,10 +119,37 @@ $adjustColumnItem = static function(array $column, array $arParams, array $arRes
 	$result .= '</div>';
 
 	return $result;
+};
+
+$gridClasses = ['main-grid'];
+if ($arResult["IS_AJAX"])
+{
+	$gridClasses[] = 'main-grid-load-animation';
 }
+
+if (!$arParams["ALLOW_HORIZONTAL_SCROLL"])
+{
+	$gridClasses[] = 'main-grid-full';
+}
+
+if ($arParams["ALLOW_ROWS_SORT"])
+{
+	$gridClasses[] = 'main-grid-rows-sort-enable';
+}
+
+$emptyFooter =
+	(!$arResult["SHOW_MORE_BUTTON"] || !$arParams["SHOW_MORE_BUTTON"])
+	&& ($arParams["SHOW_NAVIGATION_PANEL"] === false && $arParams["SHOW_ACTION_PANEL"] === false)
+;
+
+if ($emptyFooter)
+{
+	$gridClasses[] = 'main-grid-empty-footer';
+}
+
 ?>
 
-<div class="main-grid<?=$arResult["IS_AJAX"] ? " main-grid-load-animation" : ""?><?=!$arParams["ALLOW_HORIZONTAL_SCROLL"] ? " main-grid-full" : ""?><?=$arParams["ALLOW_ROWS_SORT"] ? " main-grid-rows-sort-enable" : ""?>" id="<?=$arParams["GRID_ID"]?>" data-ajaxid="<?=$arParams["AJAX_ID"]?>"<?=$arResult['IS_AJAX'] ? " style=\"display: none;\"" : ""?>><?
+<div class="<?=join(' ', $gridClasses)?>" id="<?=$arParams["GRID_ID"]?>" data-ajaxid="<?=$arParams["AJAX_ID"]?>"<?=$arResult['IS_AJAX'] ? " style=\"display: none;\"" : ""?>><?
 	?><form name="form_<?=$arParams["GRID_ID"]?>" action="<?=POST_FORM_ACTION_URI; ?>" method="POST"><?
 		?><?=bitrix_sessid_post() ?><?
 		?><div class="main-grid-settings-window"><?php
@@ -143,9 +171,11 @@ $adjustColumnItem = static function(array $column, array $arParams, array $arRes
 											: ''
 									);
 									?><div class="main-grid-settings-window-search-section-item" data-ui-grid-filter-section-button="<?= $headerSection['id'] ?>"><?php
-										?><div class="main-grid-settings-window-search-section-item-icon <?= $activeClass ?>"><?php
+									?><div class="main-grid-settings-window-search-section-item-icon <?= $activeClass ?>"><?php
+										?><div><?php
 											print Text\HtmlFilter::encode($headerSection['name']);
 										?></div><?php
+									?></div><?php
 									?></div><?php
 								}
 							?></div><?php
@@ -292,9 +322,9 @@ $adjustColumnItem = static function(array $column, array $arParams, array $arRes
 						endif ?><?
 							?><tbody><?
 							if (
-									empty($arParams['ROWS'])
-									|| (count($arParams['ROWS']) === 1 && $arParams['ROWS'][0]['id'] === 'template_0')
-									|| isset($arParams['STUB'])
+								empty($arParams['ROWS'])
+								|| (count($arParams['ROWS']) === 1 && $arParams['ROWS'][0]['id'] === 'template_0')
+								|| isset($arParams['STUB'])
 							): ?><?
 								?><tr class="main-grid-row main-grid-row-empty main-grid-row-body"><?
 									?><td class="main-grid-cell main-grid-cell-center" colspan="<?=count($arParams['COLUMNS']) + $additionalColumnsCount + $stickedColumnsCount?>"><?

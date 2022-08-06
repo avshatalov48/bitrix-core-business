@@ -1,4 +1,4 @@
-<header class="landing-block landing-block u-header u-header--sticky u-header--float g-z-index-9999">
+<header class="landing-block u-header u-header--sticky u-header--float g-z-index-9999">
 	<div class="landing-semantic-background-color u-header__section g-bg-darkblue-opacity-0_7 g-transition-0_3 g-py-10"
 		 data-header-fix-moment-exclude="g-bg-darkblue-opacity-0_7"
 		 data-header-fix-moment-classes="u-header__section--light g-bg-white-opacity-0_9">

@@ -38,7 +38,7 @@
 	margin-bottom: 5px;
 	padding: 13px 12px;
 	border: 1px solid #edeef0;
-	border-radius: 1px;
+	border-radius: var(--ui-border-radius-sm, 1px);
 	background-color: #fdfdfd;
 	transition: 160ms all ease;
 }

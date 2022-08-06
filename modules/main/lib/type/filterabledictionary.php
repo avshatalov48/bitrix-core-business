@@ -63,7 +63,7 @@ class FilterableDictionary
 	/**
 	 * Offset to unset
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->values[$offset]);
 		unset($this->arRawValues[$offset]);

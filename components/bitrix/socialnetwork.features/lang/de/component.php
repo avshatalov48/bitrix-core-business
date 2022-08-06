@@ -28,4 +28,5 @@ $MESS["SONET_C3_USER_SETTINGS"] = "Nutzereinstellungen";
 $MESS["SONET_CALENDAR_ACCESS_NOTE"] = "Zugriffsberechtigungen für den Kalender werden direkt auf der Seite des Terminkalenders festgelegt: Einstellungen -> Zugriffsrechte.";
 $MESS["SONET_MODULE_NOT_INSTALL"] = "Das Modul \"Soziales Netz\" wurde nicht installiert.";
 $MESS["SONET_P_USER_NO_USER"] = "Der Nutzer wurde nicht gefunden.";
-$MESS["SONET_WEBDAV_RIGHS_NOTE"] = "Zugriffsberechtigungen für Dateien können in der Dokumentenbibliothek einer Arbeitsgruppe eingestellt werden";
+$MESS["SONET_TASKS_SCRUM_ACCESS_NOTE"] = "Zugriffsrechte für Aufgaben werden den Scrum-Teams automatisch zugewiesen. Die Teammitglieder können ihre Aufgaben anzeigen und bearbeiten.";
+$MESS["SONET_WEBDAV_RIGHS_NOTE2"] = "Um die Drive-Zugriffsrechte für diese Arbeitsgruppe zu bearbeiten, öffnen Sie im Menü der Arbeitsgruppe die Rubrik Drive und klicken Sie auf das Zahnrad-Icon.";

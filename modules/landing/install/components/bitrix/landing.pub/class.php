@@ -799,10 +799,11 @@ class LandingPubComponent extends LandingBaseComponent
 			{
 				$landingIdIndex = $landing['ID'];
 			}
-			if ($site['LANDING_ID_404'] == $landing['ID'])
-			{
-				$landingId404 = $landing['ID'];
-			}
+		}
+
+		if ($site['LANDING_ID_404'] && $this->arParams['SKIP_404'] !== 'Y')
+		{
+			$landingId404 = $site['LANDING_ID_404'];
 		}
 
 		// disable direct access to include areas
@@ -859,7 +860,8 @@ class LandingPubComponent extends LandingBaseComponent
 							),
 							'order' => array(
 								'ID' => 'asc'
-							)
+							),
+							'limit' => 1
 						));
 						if ($row = $res->fetch())
 						{
@@ -1060,13 +1062,14 @@ class LandingPubComponent extends LandingBaseComponent
 
 					if ($types[$siteId]['order'] ?? null)
 					{
+						Rights::setOff();
 						$res = Landing::getList([
 							'select' => [
 								'ID'
 							],
 							'filter' => [
 								'=TPL_CODE' => 'store-chats-dark/catalog_order',
-								'SITE_ID' => $landing->getSiteId()
+								'SITE_ID' => $landing->getSiteId(),
 							],
 							'limit' => 1
 						]);
@@ -1074,6 +1077,7 @@ class LandingPubComponent extends LandingBaseComponent
 						{
 							$types[$siteId]['order']['LANDING_ID'] = $row['ID'];
 						}
+						Rights::setOn();
 					}
 
 					return $types;
@@ -1252,6 +1256,7 @@ class LandingPubComponent extends LandingBaseComponent
 		{
 			Cache::disableCache();
 		}
+
 		$eventManager = EventManager::getInstance();
 		$eventManager->addEventHandler('landing', 'onBlockPublicView',
 			function(Event $event) use($query)
@@ -1269,8 +1274,10 @@ class LandingPubComponent extends LandingBaseComponent
 				// SEARCH replaces
 				$isSearch =
 					$query
-					&& $this->arParams['TYPE'] !== 'KNOWLEDGE'
-					&& $this->arParams['TYPE'] !== 'GROUP';
+					&& (
+						$this->arParams['TYPE'] === 'KNOWLEDGE'
+						|| $this->arParams['TYPE'] === 'GROUP'
+					);
 				if ($isSearch)
 				{
 					$isUtf = defined('BX_UTF') && BX_UTF === true;
@@ -1505,6 +1512,7 @@ class LandingPubComponent extends LandingBaseComponent
 			$this->checkParam('CHECK_PERMISSIONS', 'N');
 			$this->checkParam('NOT_CHECK_DOMAIN', 'N');
 			$this->checkParam('SHOW_EDIT_PANEL', 'N');
+			$this->checkParam('SKIP_404', 'N');
 			$this->checkParam('DRAFT_MODE', 'N');
 			$this->checkParam('PAGE_URL_LANDING_VIEW', '');
 			$this->checkParam('PAGE_URL_SITES', '');

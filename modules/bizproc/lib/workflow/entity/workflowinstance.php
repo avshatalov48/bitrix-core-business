@@ -12,9 +12,9 @@ use Bitrix\Main\Entity;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_WorkflowInstance_Query query()
- * @method static EO_WorkflowInstance_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WorkflowInstance_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_WorkflowInstance_Result getById($id)
- * @method static EO_WorkflowInstance_Result getList(array $parameters = array())
+ * @method static EO_WorkflowInstance_Result getList(array $parameters = [])
  * @method static EO_WorkflowInstance_Entity getEntity()
  * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowInstance createObject($setDefaultValues = true)
  * @method static \Bitrix\Bizproc\Workflow\Entity\EO_WorkflowInstance_Collection createCollection()
@@ -104,6 +104,11 @@ class WorkflowInstanceTable extends Entity\DataManager
 				'join_type' => 'LEFT'
 			),
 		);
+	}
+
+	public static function exists(string $workflowId)
+	{
+		return static::getCount(['=ID' => $workflowId]) > 0;
 	}
 
 	public static function getIdsByDocument(array $documentId)
@@ -198,6 +203,18 @@ class WorkflowInstanceTable extends Entity\DataManager
 		");
 
 		return true;
+	}
+
+	public static function isDebugWorkflow(string $workflowId)
+	{
+		$row = static::getList([
+			'select' => ['STARTED_EVENT_TYPE'],
+			'filter' => [
+				'=ID' => $workflowId,
+			]
+		])->fetch();
+
+		return $row && (int)$row['STARTED_EVENT_TYPE'] === \CBPDocumentEventType::Debug;
 	}
 
 	/**

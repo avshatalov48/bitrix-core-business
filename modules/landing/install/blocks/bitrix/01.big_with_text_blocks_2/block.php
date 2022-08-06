@@ -1,13 +1,13 @@
-<section class="landing-block">
+<section class="landing-block" data-slider-autoplay="1" data-slider-autoplay-speed="5000">
 	<div class="js-carousel"
 		 data-infinite="1"
-		 data-fade="1"
+		 data-fade="true"
 		 data-speed="5000"
 		 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-bottom-30">
 		<div class="landing-block-node-card-block js-slide">
-			<div class="landing-block-node-card-bgimg h-100 d-flex align-items-center u-bg-overlay g-color-white g-bg-black-opacity-0_5--after g-bg-img-hero g-min-height-100vh"
+			<div class="landing-block-node-card-bgimg h-100 d-flex align-items-center u-bg-overlay g-color-white g-bg-black-opacity-0_5--after g-bg-img-hero g-min-height-100vh g-py-40"
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img3.jpg);">
-				<div class="landing-block-card-container u-bg-overlay__inner w-100 d-flex justify-content-center g-py-40">
+				<div class="landing-block-card-container u-bg-overlay__inner w-100 d-flex justify-content-center">
 					<div class="container g-mr-0 g-ml-0 g-pl-0 g-pr-0">
 						<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation slideInUp text-uppercase g-line-height-1_2 g-letter-spacing-1 g-font-size-65 g-color-white g-mb-40">
 							For some,
@@ -53,9 +53,9 @@
 		</div>
 
 		<div class="landing-block-node-card-block js-slide">
-			<div class="landing-block-node-card-bgimg h-100 d-flex align-items-center u-bg-overlay g-color-white g-bg-black-opacity-0_5--after g-bg-img-hero g-min-height-100vh"
+			<div class="landing-block-node-card-bgimg h-100 d-flex align-items-center u-bg-overlay g-color-white g-bg-black-opacity-0_5--after g-bg-img-hero g-min-height-100vh g-py-40"
 				 style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img4.jpg);">
-				<div class="landing-block-card-container u-bg-overlay__inner w-100 d-flex justify-content-center g-py-40">
+				<div class="landing-block-card-container u-bg-overlay__inner w-100 d-flex justify-content-center">
 					<div class="container g-mr-0 g-ml-0 g-pl-0 g-pr-0">
 						<h2 class="landing-block-node-card-title landing-semantic-title-image-medium js-animation slideInUp text-uppercase g-line-height-1_2 g-letter-spacing-1 g-font-size-65 g-color-white g-mb-40">
 							For some,

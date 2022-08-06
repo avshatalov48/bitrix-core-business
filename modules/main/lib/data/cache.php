@@ -49,6 +49,7 @@ class Cache
 	protected static $clearCacheSession = null;
 
 	protected $forceRewriting = false;
+	protected $hasOutput = true;
 
 	public static function createCacheEngine($params = [])
 	{
@@ -343,7 +344,15 @@ class Cache
 
 	public function output()
 	{
-		echo $this->content;
+		if ($this->hasOutput)
+		{
+			echo $this->content;
+		}
+	}
+
+	public function noOutput()
+	{
+		$this->hasOutput = false;
 	}
 
 	public function getVars()
@@ -385,7 +394,11 @@ class Cache
 			return true;
 		}
 
-		ob_start();
+		if ($this->hasOutput)
+		{
+			ob_start();
+		}
+
 		$this->vars = $vars;
 		$this->isStarted = true;
 
@@ -400,7 +413,10 @@ class Cache
 		}
 
 		$this->isStarted = false;
-		ob_end_flush();
+		if ($this->hasOutput)
+		{
+			ob_end_flush();
+		}
 	}
 
 	public function endDataCache($vars=false)
@@ -412,7 +428,7 @@ class Cache
 
 		$this->isStarted = false;
 		$allVars = array(
-			"CONTENT" => ob_get_contents(),
+			"CONTENT" => $this->hasOutput ? ob_get_contents() : '',
 			"VARS" => ($vars!==false ? $vars : $this->vars),
 		);
 
@@ -439,13 +455,16 @@ class Cache
 			Diag\CacheTracker::add($written, $path, $this->baseDir, $this->initDir, $this->filename, "W");
 		}
 
-		if (ob_get_contents() <> '')
+		if ($this->hasOutput)
 		{
-			ob_end_flush();
-		}
-		else
-		{
-			ob_end_clean();
+			if (ob_get_contents() <> '')
+			{
+				ob_end_flush();
+			}
+			else
+			{
+				ob_end_clean();
+			}
 		}
 	}
 

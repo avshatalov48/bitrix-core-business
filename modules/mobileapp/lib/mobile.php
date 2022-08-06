@@ -267,21 +267,8 @@ JSCODE;
 		$userAgent = \Bitrix\Main\Context::getCurrent()->getServer()->get("HTTP_USER_AGENT");
 		if(mb_strpos($userAgent, "WKWebView/BitrixMobile") === false)
 		{
-			if (self::getInstance()->getBXScriptSupported())
-			{
-				/**
-				 * If the application tells us bxscript-feature is available
-				 * it means that device can load cordova-scripts (including plugins) itself.
-				 */
-				$pgJsFile = "/bitrix/js/mobileapp/__deviceload__/cordova.js?mod=1";
-				$APPLICATION->AddHeadString("<script type=\"text/javascript\" src=\"" . $pgJsFile . "\"></script>", false, true);
-
-			}
-			else
-			{
-				$pgJsFile = "/bitrix/js/mobileapp/" . self::$platform . "-cordova-" . self::$pgVersion . ".js";
-				$APPLICATION->AddHeadString("<script type=\"text/javascript\" src=\"" . \CUtil::GetAdditionalFileURL($pgJsFile) . "\"></script>", false, true);
-			}
+			$pgJsFile = "/bitrix/js/mobileapp/__deviceload__/cordova.js?mod=1";
+			$APPLICATION->AddHeadString("<script type='text/javascript' src='$pgJsFile'></script>", false, true);
 		}
 
 

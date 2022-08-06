@@ -1,0 +1,248 @@
+.feed-calendar-view-text {
+	min-height: 70px;
+	overflow: hidden;
+	padding-left: 16px;
+}
+
+.feed-calendar-view-text td.feed-calendar-view-text-cell-l {
+	color: #535c69;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 18px;
+	padding: 0 10px 6px 0;
+	white-space: nowrap;
+}
+
+.feed-calendar-view-text td.feed-calendar-view-text-cell-r {
+	color: #535c69;
+	font-size: 14px;
+	line-height: 18px;
+	padding: 0 0 6px 0;
+}
+
+.bxcal-more-attendees-popup {
+	width: 180px;
+}
+
+.bxcal-att-popup-img {
+	border-bottom: none !important;
+	display: inline-block;
+	margin-right: 3px;
+	overflow: hidden;
+	text-decoration: none;
+}
+
+.bxcal-att-popup-att-full {
+	display: block !important;
+	overflow: hidden;
+	text-decoration: none;
+}
+
+.bxcal-att-popup-avatar {
+	background: url("/bitrix/images/socialnetwork/livefeed/livefeed_sprite.png") no-repeat -62px -170px #535c6a;
+	display: block;
+	float: left;
+	border-radius: 50%;
+	height: 30px;
+	margin: 1px;
+	overflow: hidden;
+	width: 30px;
+}
+
+.bxcal-att-popup-img img {
+	border: medium none;
+	display: block;
+}
+
+.bxcal-att-popup-img-not-empty {
+	background-color: #fff;
+}
+
+.bxcal-att-popup-name {
+	cursor: pointer;
+	display: block;
+	font-size: 11px;
+	height: 15px;
+	min-width: 100px;
+	overflow: hidden;
+	padding-left: 3px;
+	padding-top: 9px;
+	text-decoration: underline;
+	-o-text-overflow: ellipsis;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.bxcal-more-attendees {
+	border-bottom: 1px dashed;
+	color: #7f7f7f;
+	cursor: pointer;
+	display: inline-block;
+	margin: 5px 0 0 6px !important;
+	text-decoration: none;
+	vertical-align: top;
+
+	-webkit-transition: all 0.25s linear;
+	transition: all 0.25s linear;
+}
+
+.bxcal-more-attendees:hover {
+	color: #545454;
+}
+
+.feed-calendar-view-icon {
+	background-color: #2fc7f7;
+	color: #535c69;
+	cursor: pointer;
+	display: block;
+	float: left;
+	/*height: 49px;*/
+	margin-top: 7px;
+	overflow: hidden;
+	padding: 0 4px 4px;
+	position: relative;
+	width: 45px;
+}
+
+.feed-calendar-view-icon-day {
+	color: #fff;
+	font-size: 12px;
+	font-weight: bold;
+	height: 18px;
+	line-height: 18px;
+	position: relative;
+	text-align: center;
+	text-transform: uppercase;
+	z-index: 2;
+}
+
+.feed-calendar-view-icon-date {
+	background-color: #ffffff;
+	color: #535c69;
+	font-size: 28px;
+	font-weight: bold;
+	height: 34px;
+	line-height: 34px;
+	position: relative;
+	text-align: center;
+}
+
+.feed-calendar-view-icon .feed-calendar-view-icon-fake-link {
+	border-bottom: none!important;
+	left: 0;
+	position: absolute;
+	text-decoration: none !important;
+	top: 0;
+	z-index: 300;
+}
+
+.feed-calendar-view-icon .feed-calendar-view-icon-fake-link img {
+	border: 0 none;
+	height: 49px;
+	width: 49px;
+}
+
+.feed-calendar-view-description {
+	/*	border-bottom: 1px solid #eff0f1;*/
+	border-top: 1px solid #eff0f1;
+	margin-bottom: 10px;
+	padding-bottom: 15px;
+}
+
+.feed-cal-view-desc-title {
+	color: #7f7f7f;
+	font-size: 13px;
+	margin: 22px 0 10px;
+}
+
+.feed-event-att-status {
+	border-bottom: 1px dashed transparent;
+	color: #63a800;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 14px;
+	font-weight: bold;
+	padding-bottom: 1px;
+	position: relative;
+
+	-webkit-transition: border-bottom-color 0.2s linear;
+	transition: border-bottom-color 0.2s linear;
+}
+
+.feed-event-att-status:hover {
+	border-bottom: 1px dashed;
+}
+
+.feed-event-att-status:before {
+	background: url("/bitrix/images/calendar/calendar-sprite.png") no-repeat center -254px;
+	content: "";
+	height: 3px;
+	position: absolute;
+	right: -13px;
+	top: 9px;
+	width: 6px;
+}
+
+.feed-event-att-status-declined {
+	color: #7f7f7f;
+}
+
+.feed-event-att-status-declined:hover {
+	border-bottom-color: #7f7f7f;
+}
+
+.feed-event-att-status-declined:before {
+	background: url("/bitrix/images/calendar/calendar-sprite.png") no-repeat center -265px;
+}
+
+.feed-cal-view-inv-controls {
+	height: 39px;
+	margin: 10px 0;
+}
+
+.feed-calendar-view-invite-cont, .feed-event-att-status-accepted, .feed-event-att-status-declined {
+	display: none;
+}
+
+.feed-cal-view-inv-controls-y .feed-event-att-status-accepted {
+	display: inline-block !important;
+}
+
+.feed-cal-view-inv-controls-n .feed-event-att-status-declined {
+	display: inline-block !important;
+}
+
+.feed-cal-view-inv-controls-q .feed-calendar-view-invite-cont {
+	display: block !important;
+}
+
+.feed-cal-view-inv-controls .feed-event-status-popup {
+	display: none;
+}
+
+.feed-event-status-popup .webform-small-button {
+	margin: 0 3px !important;
+}
+
+.feed-cal-view-uf-block {
+	padding: 10px 0;
+}
+
+.feed-cal-view-uf-block-title {
+	color: #5c6470;
+	float: left;
+	font-size: 12px;
+	font-weight: bold;
+	min-width: 50px;
+}
+
+.feed-event-view-timezon-icon {
+	display: inline-block;
+	margin: 3px 0 0 0;
+	height: 13px;
+	width: 14px;
+	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2014%2013%22%3E%3Cpath%20fill%3D%22%238E959D%22%20fill-rule%3D%22evenodd%22%20d%3D%22M12.636%209.942h-2.71v-.03H9.92v-2.31h.977V8.96h1.74v.982zm-2.243-3.96c-1.918%200-3.473%201.556-3.473%203.473%200%201.918%201.555%203.472%203.473%203.472%201.917%200%203.472-1.554%203.472-3.472%200-1.917-1.555-3.472-3.472-3.472zm-6.056%204.57c-1.328-.46-2.405-1.453-2.94-2.743h2.12c.156%201.088.444%202.036.82%202.74zM1.02%205.927c0-.368.048-.725.125-1.07h2.283c-.027.347-.044.704-.044%201.07%200%20.376.017.743.046%201.1H1.154c-.08-.355-.134-.72-.134-1.1zm3.317-4.622c-.38.71-.67%201.67-.824%202.77H1.388c.532-1.303%201.61-2.308%202.95-2.77zm1.592.035c.73%200%201.357%201.127%201.636%202.736H4.292c.28-1.61.906-2.735%201.637-2.735zm4.54%202.736H8.345c-.155-1.1-.445-2.06-.825-2.77%201.338.462%202.418%201.467%202.95%202.77zm-4.607%202.95H4.195c-.035-.353-.058-.717-.058-1.098%200-.37.02-.725.055-1.07h3.474c.007.068.006.143.01.212.8-.5%201.736-.802%202.748-.802.428%200%20.838.067%201.235.164C10.994%201.884%208.685%200%205.93%200%202.654%200%200%202.654%200%205.928c0%203.244%202.606%205.875%205.837%205.925-.263-.505-.446-1.052-.532-1.637-.447-.43-.812-1.297-1.007-2.407h1.226c.09-.274.205-.533.34-.783z%22/%3E%3C/svg%3E');
+	background-repeat: no-repeat;
+	vertical-align: top;
+	cursor: pointer;
+}

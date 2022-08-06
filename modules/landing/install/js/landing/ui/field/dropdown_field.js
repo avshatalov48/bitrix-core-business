@@ -31,6 +31,15 @@
 		var rootWindow = BX.Landing.PageObject.getRootWindow();
 		rootWindow.document.addEventListener("click", this.onDocumentClick.bind(this));
 
+		if (options.hint)
+		{
+			var header = this.layout.querySelector('.landing-ui-field-header');
+			if (header)
+			{
+				BX.Dom.append(top.BX.UI.Hint.createNode(options.hint), header);
+			}
+		}
+
 		if (BX.type.isPlainObject(this.items))
 		{
 			var keys = Object.keys(this.items);

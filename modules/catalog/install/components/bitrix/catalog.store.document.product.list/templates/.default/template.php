@@ -16,6 +16,8 @@ use Bitrix\Main\Web\Json;
 $settings = $arResult['SETTINGS'];
 $currency = $settings['CURRENCY'];
 
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens', 'ui.fonts.opensans']);
+
 ?>
 <div class="catalog-document-product-list-wrapper" id="<?=$arResult['GRID_EDITOR_CONFIG']['containerId']?>">
 	<?php
@@ -78,7 +80,7 @@ $currency = $settings['CURRENCY'];
 	$APPLICATION->IncludeComponent(
 		'bitrix:main.ui.grid',
 		'',
-		$arResult['GRID'],
+		$arResult['GRID'] + ['HIDE_BOTTOM_BORDER_RADIUS' => true],
 		$component
 	);
 

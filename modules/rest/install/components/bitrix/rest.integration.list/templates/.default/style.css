@@ -16,6 +16,7 @@
 	transition: box-shadow .3s;
 	box-sizing: border-box;
 	cursor: pointer;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .rest-integration-tile-item:hover {

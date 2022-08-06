@@ -37,7 +37,7 @@ class CSocServMyMailRu extends CSocServAuth
 		$gAuth = new CMailRuOAuthInterface($appID, $appSecret);
 
 		$redirect_uri = CSocServUtil::GetCurUrl('auth_service_id='.self::ID);
-		$state = 'site_id='.SITE_ID.'&backurl='.($GLOBALS["APPLICATION"]->GetCurPageParam('check_key='.$_SESSION["UNIQUE_KEY"], array("logout", "auth_service_error", "auth_service_id", "backurl")));
+		$state = 'site_id='.SITE_ID.'&backurl='.($GLOBALS["APPLICATION"]->GetCurPageParam('check_key='.\CSocServAuthManager::getUniqueKey(), array("logout", "auth_service_error", "auth_service_id", "backurl")));
 
 		return $gAuth->GetAuthUrl($redirect_uri, $state);
 	}

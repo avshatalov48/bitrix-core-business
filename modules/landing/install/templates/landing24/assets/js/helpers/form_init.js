@@ -96,8 +96,9 @@
 
 			// LOAD by two variant - full params on with ajax load by marker
 			this.useStyle = (this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_USE_STYLE] === 'Y');
-			this.design = this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_DESIGN]
-				? JSON.parse(this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_DESIGN])
+			let designAttr = this.node.dataset[BX.Landing.EmbedFormEntry.ATTR_DESIGN];
+			this.design = designAttr
+				? JSON.parse(designAttr.replaceAll('&quot;', '"'))
 				: {};
 
 			if(formParams.length === 1)
@@ -233,10 +234,10 @@
 
 		loadScript: function()
 		{
-			var cacheTime = (BX.Landing.getMode() === "edit")
+			const cacheTime = (BX.Landing.getMode() === "edit")
 				? Date.now() / 1000 | 0
 				: Date.now() / 60000 | 0;
-			var script = document.createElement('script');
+			const script = document.createElement('script');
 			script.setAttribute('data-b24-form', 'inline/' + this.id + '/' + this.sec);
 			script.setAttribute('data-skip-moving', 'true');
 			script.innerText =
@@ -259,16 +260,16 @@
 
 		getParams: function()
 		{
-			var params = {
+			const params = {
 				design: {
 					shadow: false,
 					font: 'var(--landing-font-family)'
 				}
 			};
 
-			var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
-			var design = this.design;
-			for (var property in design.color)
+			const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+			let design = this.design;
+			for (const property in design.color)
 			{
 				if (
 					design.color.hasOwnProperty(property)
@@ -294,11 +295,11 @@
 		}
 	};
 
-	var embedForms = new BX.Landing.EmbedForms();
+	const embedForms = new BX.Landing.EmbedForms();
 
 	window.addEventListener('b24:form:init', function(event)
 	{
-		var form = embedForms.getFormByNode(event.detail.object.node.parentElement)
+		const form = embedForms.getFormByNode(event.detail.object.node.parentElement)
 		if (!!form && event.detail.object)
 		{
 			form.onFormLoad(event.detail.object);
@@ -307,7 +308,7 @@
 
 	BX.addCustomEvent("BX.Landing.Block:init", function(event)
 	{
-		var formNode = event.block.querySelector(event.makeRelativeSelector(".bitrix24forms"));
+		const formNode = event.block.querySelector(event.makeRelativeSelector(".bitrix24forms"));
 		if (formNode)
 		{
 			embedForms.add(formNode);
@@ -316,7 +317,7 @@
 
 	BX.addCustomEvent("BX.Landing.Block:remove", function(event)
 	{
-		var formNode = event.block.querySelector(event.makeRelativeSelector(".bitrix24forms"));
+		const formNode = event.block.querySelector(event.makeRelativeSelector(".bitrix24forms"));
 		if (formNode)
 		{
 			embedForms.remove(formNode);
@@ -325,7 +326,7 @@
 
 	BX.addCustomEvent("BX.Landing.Block:Node:updateAttr", function(event)
 	{
-		var formNode = event.block.querySelector(event.makeRelativeSelector(".bitrix24forms"));
+		const formNode = event.block.querySelector(event.makeRelativeSelector(".bitrix24forms"));
 		if (formNode)
 		{
 			embedForms.reload(formNode);

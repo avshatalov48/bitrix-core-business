@@ -55,6 +55,15 @@ foreach ($arResult['ROWS'] as $index => $data)
 	);
 	if ($arParams['CAN_EDIT'])
 	{
+
+		$actions[] = array(
+			'TITLE' => Loc::getMessage('SENDER_SEGMENT_LIST_BTN_COPY_TITLE'),
+			'TEXT' => Loc::getMessage('SENDER_SEGMENT_LIST_BTN_COPY'),
+			'ONCLICK' => "BX.Sender.SegmentList.copy({$data['ID']});"
+		);
+	}
+	if ($arParams['CAN_EDIT'])
+	{
 		$actions[] = array(
 			'TITLE' => Loc::getMessage('SENDER_SEGMENT_LIST_BTN_REMOVE_TITLE'),
 			'TEXT' => Loc::getMessage('SENDER_SEGMENT_LIST_BTN_REMOVE'),

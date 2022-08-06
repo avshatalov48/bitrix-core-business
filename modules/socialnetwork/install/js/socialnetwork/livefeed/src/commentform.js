@@ -44,20 +44,21 @@ export class CommentForm
 		}
 
 		EventEmitter.emit('OnBeforeSocialnetworkCommentShowedUp', new BaseEvent({
-			compatData: [ 'socialnetwork' ],
+			compatData: ['socialnetwork'],
 		}));
 
 		const postData = {
-			ENTITY_XML_ID : obj.currentEntity.ENTITY_XML_ID,
-			ENTITY_TYPE : obj.currentEntity.ENTITY_XML_ID.split('_')[0],
-			ENTITY_ID : obj.currentEntity.ENTITY_XML_ID.split('_')[1],
-			parentId : obj.id[1],
-			comment_post_id : obj.currentEntity.ENTITY_XML_ID.split('_')[1],
-			edit_id : obj.id[1],
-			act : (obj.id[1] > 0 ? 'edit' : 'add'),
+			ENTITY_XML_ID: obj.currentEntity.ENTITY_XML_ID,
+			ENTITY_TYPE: obj.currentEntity.ENTITY_XML_ID.split('_')[0],
+			ENTITY_ID: obj.currentEntity.ENTITY_XML_ID.split('_')[1],
+			parentId: obj.id[1],
+			comment_post_id: obj.currentEntity.ENTITY_XML_ID.split('_')[1],
+			edit_id: obj.id[1],
+			act: (obj.id[1] > 0 ? 'edit' : 'add'),
 		};
 
-		Object.entries(postData).forEach(([key, value]) => {
+		Object.entries(postData).forEach(([key, value]) =>
+		{
 			if (!obj.form[key])
 			{
 				obj.form.appendChild(Tag.render`<input type="hidden" name="${key}">`);
@@ -67,17 +68,20 @@ export class CommentForm
 
 		this.onLightEditorShow(text, data);
 
-		const matches = obj.currentEntity.ENTITY_XML_ID.match(/^TASK_(\d+)$/i);
-		if (
-			matches
-			&& this.resultFieldTaskIdList.includes(parseInt(matches[1]))
-		)
+		if (!BX.Type.isUndefined(BX.Tasks))
 		{
-			BX.Tasks.ResultManager.showField();
-		}
-		else
-		{
-			BX.Tasks.ResultManager.hideField();
+			const matches = obj.currentEntity.ENTITY_XML_ID.match(/^TASK_(\d+)$/i);
+			if (
+				matches
+				&& this.resultFieldTaskIdList.includes(parseInt(matches[1]))
+			)
+			{
+				BX.Tasks.ResultManager.showField();
+			}
+			else
+			{
+				BX.Tasks.ResultManager.hideField();
+			}
 		}
 	}
 

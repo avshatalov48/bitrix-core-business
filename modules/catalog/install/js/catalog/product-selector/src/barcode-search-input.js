@@ -294,7 +294,13 @@ export class BarcodeSearchInput extends ProductSearchInput
 		}
 	}
 
-	searchInDialog(searchQuery: string = '')
+	searchInDialog(): void
+	{
+		const searchQuery = this.getFilledValue().trim();
+		this.searchByBarcode(searchQuery);
+	}
+
+	searchByBarcode(searchQuery: string = ''): void
 	{
 		if (!this.selector.isProductSearchEnabled())
 		{
@@ -302,25 +308,25 @@ export class BarcodeSearchInput extends ProductSearchInput
 		}
 
 		const dialog = this.getDialog();
-		/*if (searchQuery === '' && this.model.isEmpty())
+		if (!dialog)
 		{
-			dialog.hide();
 			return;
-		}*/
+		}
 
 		dialog.removeItems()
 
-		if (dialog)
+		if (searchQuery === '')
 		{
-			if (searchQuery === '')
-			{
-				dialog.setPreselectedItems([[BarcodeSearchInput.SEARCH_TYPE_ID, this.model.getSkuId()]])
-				dialog.loadState = 'UNSENT';
-				dialog.load();
-			}
+			dialog.setPreselectedItems([[BarcodeSearchInput.SEARCH_TYPE_ID, this.model.getSkuId()]])
+			dialog.loadState = 'UNSENT';
+			dialog.load();
 			dialog.show();
-			dialog.search(searchQuery);
+
+			return;
 		}
+
+		dialog.show();
+		dialog.search(searchQuery);
 	}
 
 	handleNameInputBlur(event: UIEvent)
@@ -478,7 +484,7 @@ export class BarcodeSearchInput extends ProductSearchInput
 			}
 			else
 			{
-				this.searchInDialog(barcode);
+				this.searchByBarcode(barcode);
 			}
 			this.getNameInput().value = Text.encode(barcode);
 		});
@@ -514,6 +520,7 @@ export class BarcodeSearchInput extends ProductSearchInput
 
 			if (
 				!this.settingsCollection.get('isShowedBarcodeSpotlightInfo')
+				&& this.settingsCollection.get('isAllowedShowBarcodeSpotlightInfo')
 				&& this.selector.getConfig('ENABLE_INFO_SPOTLIGHT', true)
 			)
 			{

@@ -1,0 +1,34 @@
+.feed-work-time-link {
+	display: inline-block;
+	line-height: normal;
+	font-size: 12px;
+	margin-left: 30px;
+	position: relative;
+}
+
+.feed-tasks-info .feed-workday-table {
+	background-color: #ecf2f3;
+	border-color: #cfd7d9 #dee5e6 #e7eeef;
+	display: inline-block;
+	margin-top: 12px;
+	padding-left: 11px;
+	vertical-align: top;
+}
+
+.feed-tasks-info .feed-user-name-wrap,
+.feed-tasks-info .feed-workday-left-side {
+	width: auto;
+}
+
+.feed-tasks-info .feed-workday-avatar {
+	margin-left: 14px;
+}
+
+.feed-workday-table {
+	border-radius: 2px;
+	color: #000;
+	font-size: 13px;
+	margin-top: 7px;
+	max-width: 816px;
+	padding: 7px 25px 9px 22px;
+}

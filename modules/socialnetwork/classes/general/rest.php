@@ -1732,12 +1732,37 @@ class CSocNetLogRestService extends IRestService
 			unset($fields['IMAGE']);
 		}
 
+		if (!isset($fields['SITE_ID']))
+		{
+			$siteIdForCheck = SITE_ID;
+			$fields['SITE_ID'] = [ $siteIdForCheck ];
+		}
+		elseif (!is_array($fields['SITE_ID']))
+		{
+			$siteIdForCheck = ((string)$fields['SITE_ID'] === '' ? SITE_ID : $fields['SITE_ID']);
+			$fields['SITE_ID'] = [ $siteIdForCheck ];
+		}
+		else
+		{
+			$siteIdForCheck = $fields['SITE_ID'][0];
+		}
+
 		if (
-			!is_set($fields, "SITE_ID")
-			|| (string)$fields["SITE_ID"] === ''
+			Loader::includeModule('extranet')
+			&& !CExtranet::isIntranetUser()
 		)
 		{
-			$fields["SITE_ID"] = array(SITE_ID);
+			$siteIdForCheck = self::getExtranetSiteId();
+			$fields['SITE_ID'][] = $siteIdForCheck;
+			$fields['VISIBLE'] = 'N';
+			$fields['OPENED'] = 'N';
+		}
+
+		if (!\Bitrix\Socialnetwork\Helper\Workgroup::canCreate([
+			'siteId' => $siteIdForCheck,
+		]))
+		{
+			throw new Exception('You have no permissions to create a group');
 		}
 
 		if (
@@ -1807,40 +1832,38 @@ class CSocNetLogRestService extends IRestService
 		{
 			throw new Exception('Cannot create group');
 		}
-		else
+
+		CSocNetFeatures::SetFeature(
+			SONET_ENTITY_GROUP,
+			$groupId,
+			'files',
+			true
+		);
+
+		if (
+			isset($fields['GROUP_THEME_ID'])
+			&& Loader::includeModule('intranet')
+		)
 		{
-			CSocNetFeatures::SetFeature(
-				SONET_ENTITY_GROUP,
-				$groupId,
-				'files',
-				true
-			);
+			$siteTemplateId = 'bitrix24';
 
-			if (
-				isset($fields['GROUP_THEME_ID'])
-				&& Loader::includeModule('intranet')
-			)
+			if ($themePicker = new ThemePicker($siteTemplateId, SITE_ID, self::getCurrentUserId(), ThemePicker::ENTITY_TYPE_SONET_GROUP, $groupId))
 			{
-				$siteTemplateId = 'bitrix24';
-
-				if ($themePicker = new ThemePicker($siteTemplateId, SITE_ID, self::getCurrentUserId(), ThemePicker::ENTITY_TYPE_SONET_GROUP, $groupId))
+				if (empty($fields['GROUP_THEME_ID']))
 				{
-					if (empty($fields['GROUP_THEME_ID']))
-					{
-						$themesList = $themePicker->getPatternThemes();
-						$themePickerData = $themesList[array_rand($themesList)];
-						$fields['GROUP_THEME_ID'] = $themePickerData['id'];
-					}
+					$themesList = $themePicker->getPatternThemes();
+					$themePickerData = $themesList[array_rand($themesList)];
+					$fields['GROUP_THEME_ID'] = $themePickerData['id'];
+				}
 
-					try
-					{
-						$themePicker->setCurrentThemeId($fields['GROUP_THEME_ID']);
-						unset($themePicker);
-					}
-					catch (\Bitrix\Main\ArgumentException $exception)
-					{
+				try
+				{
+					$themePicker->setCurrentThemeId($fields['GROUP_THEME_ID']);
+					unset($themePicker);
+				}
+				catch (\Bitrix\Main\ArgumentException $exception)
+				{
 
-					}
 				}
 			}
 		}

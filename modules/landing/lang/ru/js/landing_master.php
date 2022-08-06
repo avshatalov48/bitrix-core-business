@@ -190,7 +190,6 @@ $MESS["LANDING_CONTENT_IMAGE_RECOMMENDED_SIZE"] = "Минимальный раз
 $MESS["LANDING_CONTENT_IMAGE_RECOMMENDED_WIDTH"] = "Минимальная ширина изображения";
 $MESS["LANDING_CONTENT_IMAGE_RECOMMENDED_HEIGHT"] = "Минимальная высота изображения";
 $MESS["LANDING_CONTENT_URL_LINK"] = "Ссылка";
-$MESS["LANDING_CONTENT_URL_PREVIEW_TITLE"] = "Нажмите для предпросмотра";
 $MESS["LANDING_CONTENT_URL_MEDIA_BUTTON"] = "Медиа";
 $MESS["LANDING_CONTENT_URL_MEDIA_FORM_TITLE"] = "Медиа настройки";
 $MESS["LANDING_CONTENT_URL_MEDIA_CAPTIONED"] = "Показывать описание";

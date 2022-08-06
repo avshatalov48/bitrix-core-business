@@ -50,11 +50,21 @@
 		showUsers: 'Call::showUsers',
 		showAll: 'Call::showAll',
 		hideAll: 'Call::hideAll',
+
+		joinRoom: 'Call::joinRoom',
+		leaveRoom: 'Call::leaveRoom',
+		listRooms: 'Call::listRooms',
+		requestRoomSpeaker: 'Call::requestRoomSpeaker',
 	};
 
 	var scenarioEvents = {
 		viewerJoined: 'Call::viewerJoined',
 		viewerLeft: 'Call::viewerLeft',
+
+		joinRoomOffer: 'Call::joinRoomOffer',
+		transferRoomHost: 'Call::transferRoomHost',
+		listRoomsResponse: 'Call::listRoomsResponse',
+		roomUpdated: 'Call::roomUpdated',
 	};
 
 	var VoximplantCallEvent = {
@@ -114,6 +124,8 @@
 
 		this.localVAD = null;
 		this.microphoneLevelInterval = null;
+
+		this.rooms = {};
 
 		Object.defineProperty(this, "screenShared", {
 			get: function() {
@@ -1182,6 +1194,57 @@
 		return result;
 	};
 
+	BX.Call.VoximplantCall.prototype.updateRoom = function(roomData)
+	{
+		if (!this.rooms[roomData.id])
+		{
+			this.rooms[roomData.id] = {
+				id: roomData.id,
+				users: roomData.users,
+				speaker: roomData.speaker
+			}
+		}
+		else
+		{
+			this.rooms[roomData.id].users = roomData.users;
+			this.rooms[roomData.id].speaker = roomData.speaker;
+		}
+	}
+
+	BX.Call.VoximplantCall.prototype.currentRoom = function()
+	{
+		return this._currentRoomId ? this.rooms[this._currentRoomId] : null;
+	}
+
+	BX.Call.VoximplantCall.prototype.isRoomSpeaker = function()
+	{
+		return this.currentRoom() ? this.currentRoom().speaker == this.userId : false;
+	}
+
+	BX.Call.VoximplantCall.prototype.joinRoom = function(roomId)
+	{
+		this.signaling.sendJoinRoom(roomId);
+	}
+
+	BX.Call.VoximplantCall.prototype.requestRoomSpeaker = function()
+	{
+		this.signaling.sendRequestRoomSpeaker(this._currentRoomId);
+	}
+
+	BX.Call.VoximplantCall.prototype.leaveCurrentRoom = function()
+	{
+		this.signaling.sendLeaveRoom(this._currentRoomId);
+	}
+
+	BX.Call.VoximplantCall.prototype.listRooms = function()
+	{
+		return new Promise((resolve, reject) =>
+		{
+			this.signaling.sendListRooms();
+			this.__resolveListRooms = resolve;
+		});
+	}
+
 	BX.Call.VoximplantCall.prototype.__onPeerStateChanged = function(e)
 	{
 		this.runCallback(BX.Call.Event.onUserStateChanged, e);
@@ -1633,9 +1696,69 @@
 	{
 		if(this.logger)
 		{
-			this.logger.sendStat(transformVoxStats(e.stats));
+			this.logger.sendStat(transformVoxStats(e.stats, this.voximplantCall));
 		}
 	}
+
+	BX.Call.VoximplantCall.prototype.__onJoinRoomOffer = function(e)
+	{
+		console.warn("__onJoinRoomOffer", e)
+		this.updateRoom({
+			id: e.roomId,
+			users: e.users,
+			speaker: e.speaker,
+		});
+		this.runCallback(BX.Call.Event.onJoinRoomOffer, {
+			roomId: e.roomId,
+			users: e.users,
+			initiator: e.initiator,
+			speaker: e.speaker,
+		})
+	}
+
+	BX.Call.VoximplantCall.prototype.__onRoomUpdated = function(e)
+	{
+		const speakerChanged = (
+			e.roomId === this._currentRoomId
+			&& this.rooms[e.roomId]
+			&& this.rooms[e.roomId].speaker != e.speaker
+		);
+		const previousSpeaker = speakerChanged && this.rooms[e.roomId].speaker;
+
+		console.log("__onRoomUpdated; speakerChanged: ", speakerChanged)
+		this.updateRoom({
+			id: e.roomId,
+			users: e.users,
+			speaker: e.speaker,
+		});
+
+
+		if (e.roomId === this._currentRoomId && e.users.indexOf(this.userId) === -1)
+		{
+			this._currentRoomId = null;
+			this.runCallback(BX.Call.Event.onLeaveRoom, {
+				roomId: e.roomId
+			})
+		}
+		else if (e.roomId !== this._currentRoomId && e.users.indexOf(this.userId) !== -1)
+		{
+			this._currentRoomId = e.roomId;
+			this.runCallback(BX.Call.Event.onJoinRoom, {
+				roomId: e.roomId,
+				speaker: this.currentRoom().speaker,
+				users: this.currentRoom().users,
+			})
+		}
+		else if (speakerChanged)
+		{
+			this.runCallback(BX.Call.Event.onTransferRoomSpeaker, {
+				roomId: e.roomId,
+				speaker: e.speaker,
+				previousSpeaker: previousSpeaker,
+				initiator: e.initiator,
+			})
+		}
+	};
 
 	BX.Call.VoximplantCall.prototype.__onCallMessageReceived = function(e)
 	{
@@ -1726,6 +1849,24 @@
 		else if (eventName === "scenarioLogUrl")
 		{
 			console.warn("scenario log url: " + message.logUrl)
+		}
+		else if (eventName === scenarioEvents.joinRoomOffer)
+		{
+			console.log(message)
+			this.__onJoinRoomOffer(message);
+		}
+		else if (eventName === scenarioEvents.roomUpdated)
+		{
+			// console.log(message)
+			this.__onRoomUpdated(message);
+		}
+		else if (eventName === scenarioEvents.listRoomsResponse)
+		{
+			if (this.__resolveListRooms)
+			{
+				this.__resolveListRooms(message.rooms)
+				delete this.__resolveListRooms;
+			}
 		}
 		else if (eventName === scenarioEvents.viewerJoined)
 		{
@@ -1939,6 +2080,32 @@
 		{
 			this.__sendPullEvent(pullEvents.userInviteTimeout, data, 0);
 		}
+	};
+
+	BX.Call.VoximplantCall.Signaling.prototype.sendJoinRoom = function(roomId)
+	{
+		return this.__sendMessage(clientEvents.joinRoom, {
+			roomId: roomId
+		});
+	};
+
+	BX.Call.VoximplantCall.Signaling.prototype.sendLeaveRoom = function(roomId)
+	{
+		return this.__sendMessage(clientEvents.leaveRoom, {
+			roomId: roomId
+		});
+	};
+
+	BX.Call.VoximplantCall.Signaling.prototype.sendListRooms = function()
+	{
+		return this.__sendMessage(clientEvents.listRooms);
+	};
+
+	BX.Call.VoximplantCall.Signaling.prototype.sendRequestRoomSpeaker = function(roomId)
+	{
+		return this.__sendMessage(clientEvents.requestRoomSpeaker, {
+			roomId: roomId
+		});
 	};
 
 	BX.Call.VoximplantCall.Signaling.prototype.__sendPullEvent = function(eventName, data, expiry)
@@ -2385,7 +2552,7 @@
 		}
 	};
 
-	var transformVoxStats = function(s)
+	var transformVoxStats = function(s, voximplantCall)
 	{
 		var result = {
 			connection: s.connection,
@@ -2393,6 +2560,12 @@
 			outboundVideo: [],
 			inboundAudio: [],
 			inboundVideo: [],
+		}
+
+		var endpoints = {};
+		if (voximplantCall.getEndpoints)
+		{
+			voximplantCall.getEndpoints().forEach(endpoint => endpoints[endpoint.id] = endpoint)
 		}
 
 		if (!result.connection.timestamp)
@@ -2439,6 +2612,16 @@
 			}
 			else
 			{
+				if (endpoints[stat.endpoint])
+				{
+					let videoRenderer = endpoints[stat.endpoint].mediaRenderers.find(r => r.id == stat.trackId)
+					if (videoRenderer && videoRenderer.element)
+					{
+						stat.actualHeight = videoRenderer.element.videoHeight;
+						stat.actualWidth = videoRenderer.element.videoWidth;
+					}
+				}
+
 				result.inboundVideo.push(stat)
 			}
 		}

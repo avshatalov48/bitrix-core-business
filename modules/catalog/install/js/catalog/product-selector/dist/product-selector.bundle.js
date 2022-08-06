@@ -24,7 +24,7 @@ this.BX = this.BX || {};
 	    } else {
 	      phrase = main_core.Tag.render(_t || (_t = _`
 				<div>${0}</div>
-			`), main_core.Loc.getMessage('CATALOG_SELECTOR_SEARCH_POPUP_FOOTER'));
+			`), main_core.Loc.getMessage('CATALOG_SELECTOR_SEARCH_POPUP_FOOTER_1'));
 	      const createButton = phrase.querySelector('create-button');
 	      main_core.Dom.replace(createButton, this.getLabelContainer());
 	      const changeButton = phrase.querySelector('change-button');
@@ -226,8 +226,35 @@ this.BX = this.BX || {};
 	    _t11,
 	    _t12,
 	    _t13;
+
+	class DialogMode {}
+
+	DialogMode.SEARCHING = 'SEARCHING';
+	DialogMode.SHOW_PRODUCT_ITEM = 'SHOW_PRODUCT_ITEM';
+	DialogMode.SHOW_RECENT = 'SHOW_RECENT';
+
+	var _showSelectedItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showSelectedItem");
+
+	var _loadPreselectedItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadPreselectedItems");
+
+	var _showPreselectedItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showPreselectedItems");
+
+	var _searchItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("searchItem");
+
 	class ProductSearchInput {
 	  constructor(id, options = {}) {
+	    Object.defineProperty(this, _searchItem, {
+	      value: _searchItem2
+	    });
+	    Object.defineProperty(this, _showPreselectedItems, {
+	      value: _showPreselectedItems2
+	    });
+	    Object.defineProperty(this, _loadPreselectedItems, {
+	      value: _loadPreselectedItems2
+	    });
+	    Object.defineProperty(this, _showSelectedItem, {
+	      value: _showSelectedItem2
+	    });
 	    this.cache = new main_core.Cache.MemoryCache();
 	    this.id = id || main_core.Text.getRandom();
 	    this.selector = options.selector;
@@ -247,6 +274,8 @@ this.BX = this.BX || {};
 	    }
 
 	    this.ajaxInProcess = false;
+	    this.loadedSelectedItem = null;
+	    this.handleSearchInput = main_core.Runtime.debounce(this.searchInDialog, 500, this);
 	  }
 
 	  destroy() {}
@@ -382,10 +411,11 @@ this.BX = this.BX || {};
 
 	      this.toggleIcon(this.getSearchIcon(), main_core.Type.isStringFilled(this.getFilledValue()) ? 'none' : 'block');
 	      main_core.Dom.append(this.getSearchIcon(), block);
-	      main_core.Event.bind(this.getNameInput(), 'click', this.handleShowSearchDialog.bind(this));
-	      main_core.Event.bind(this.getNameInput(), 'input', this.handleShowSearchDialog.bind(this));
+	      main_core.Event.bind(this.getNameInput(), 'click', this.handleClickNameInput.bind(this));
+	      main_core.Event.bind(this.getNameInput(), 'input', this.handleSearchInput);
 	      main_core.Event.bind(this.getNameInput(), 'blur', this.handleNameInputBlur.bind(this));
 	      main_core.Event.bind(this.getNameInput(), 'keydown', this.handleNameInputKeyDown.bind(this));
+	      this.dialogMode = this.model.isCatalogExisted() ? DialogMode.SHOW_PRODUCT_ITEM : DialogMode.SHOW_RECENT;
 	    }
 
 	    if (this.showDetailLink() && main_core.Type.isStringFilled(this.getValue())) {
@@ -474,27 +504,29 @@ this.BX = this.BX || {};
 	  }
 
 	  initHasDialogItems() {
-	    if (!main_core.Type.isNil(this.isHasDialogItems)) {
+	    if (!main_core.Type.isNil(this.selector.getConfig('EXIST_DIALOG_ITEMS'))) {
 	      return;
 	    }
 
 	    if (!this.selector.getModel().isEmpty()) {
-	      this.isHasDialogItems = true;
+	      this.selector.setConfig('EXIST_DIALOG_ITEMS', true);
 	      return;
 	    } // is null, that not send ajax
 
 
-	    this.isHasDialogItems = false;
+	    this.selector.setConfig('EXIST_DIALOG_ITEMS', false);
 	    const dialog = this.getDialog();
 
 	    if (dialog.hasDynamicLoad()) {
-	      dialog.hasRecentItems().then(isHasItems => {
-	        if (isHasItems === true) {
-	          this.isHasDialogItems = true;
+	      babelHelpers.classPrivateFieldLooseBase(this, _loadPreselectedItems)[_loadPreselectedItems]();
+
+	      dialog.subscribeOnce('onLoad', () => {
+	        if (dialog.getPreselectedItems().length > 1) {
+	          this.selector.setConfig('EXIST_DIALOG_ITEMS', true);
 	        }
 	      });
 	    } else {
-	      this.isHasDialogItems = true;
+	      this.selector.setConfig('EXIST_DIALOG_ITEMS', true);
 	    }
 	  }
 
@@ -539,11 +571,12 @@ this.BX = this.BX || {};
 	  }
 
 	  handleClearIconClick(event) {
+	    this.loadedSelectedItem = null;
+
 	    if (this.selector.isProductSearchEnabled() && !this.model.isEmpty()) {
 	      this.selector.clearState();
 	      this.selector.clearLayout();
 	      this.selector.layout();
-	      this.selector.searchInDialog();
 	    } else {
 	      const newValue = '';
 	      this.toggleIcon(this.getClearIcon(), 'none');
@@ -593,34 +626,49 @@ this.BX = this.BX || {};
 	    requestAnimationFrame(() => this.getNameInput().focus());
 	  }
 
-	  searchInDialog(searchQuery = '') {
-	    if (!this.selector.isProductSearchEnabled()) {
+	  searchInDialog() {
+	    const searchQuery = this.getFilledValue().trim();
+
+	    if (searchQuery === '') {
+	      if (this.isHasDialogItems === false) {
+	        this.getDialog().hide();
+	        return;
+	      }
+
+	      this.loadedSelectedItem = null;
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _showPreselectedItems)[_showPreselectedItems]();
+
 	      return;
 	    }
 
-	    const dialog = this.getDialog();
+	    this.dialogMode = DialogMode.SEARCHING;
 
-	    if (dialog) {
-	      dialog.removeItems();
-	      searchQuery = searchQuery.trim();
+	    babelHelpers.classPrivateFieldLooseBase(this, _searchItem)[_searchItem](searchQuery);
 
-	      if (searchQuery === '') {
-	        if (this.isHasDialogItems === false) {
-	          dialog.hide();
-	          return;
-	        }
-
-	        dialog.loadState = 'UNSENT';
-	        dialog.load();
-	      }
-
-	      dialog.show();
-	      dialog.search(searchQuery);
-	    }
+	    this.isSearchingInProcess = true;
 	  }
 
-	  handleShowSearchDialog(event) {
-	    this.searchInDialog(this.getNameInput().value);
+	  handleClickNameInput() {
+	    const dialog = this.getDialog();
+
+	    if (dialog.isOpen() || this.getFilledValue() === '' && this.isHasDialogItems === false) {
+	      dialog.hide();
+	      return;
+	    }
+
+	    if (this.getFilledValue() === '') {
+	      babelHelpers.classPrivateFieldLooseBase(this, _showPreselectedItems)[_showPreselectedItems]();
+
+	      return;
+	    }
+
+	    if (!this.model.isCatalogExisted() || this.dialogMode !== DialogMode.SHOW_PRODUCT_ITEM) {
+	      this.searchInDialog();
+	      return;
+	    }
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _showSelectedItem)[_showSelectedItem]();
 	  }
 
 	  handleNameInputBlur(event) {
@@ -645,7 +693,7 @@ this.BX = this.BX || {};
 
 	    if (this.isSearchEnabled() && this.selector.isEnabledEmptyProductError()) {
 	      setTimeout(() => {
-	        if (!this.selector.inProcess() && (this.model.isEmpty() || !main_core.Type.isStringFilled(this.getNameInput().value))) {
+	        if (!this.selector.inProcess() && (this.model.isEmpty() || !main_core.Type.isStringFilled(this.getFilledValue()))) {
 	          this.model.getErrorCollection().setError(SelectorErrorCode.NOT_SELECTED_PRODUCT, main_core.Loc.getMessage('CATALOG_SELECTOR_SELECTED_PRODUCT_TITLE'));
 	          this.selector.layoutErrors();
 	        }
@@ -691,6 +739,8 @@ this.BX = this.BX || {};
 	      this.selector.layout();
 	    }
 
+	    this.dialogMode = DialogMode.SHOW_PRODUCT_ITEM;
+	    this.loadedSelectedItem = item;
 	    this.cache.delete('dialog');
 	  }
 
@@ -823,6 +873,97 @@ this.BX = this.BX || {};
 	  removeQrAuth() {}
 
 	}
+
+	function _showSelectedItem2() {
+	  if (!this.selector.isProductSearchEnabled()) {
+	    return;
+	  }
+
+	  const dialog = this.getDialog();
+	  dialog.removeItems();
+	  new Promise(resolve => {
+	    if (!main_core.Type.isNil(this.loadedSelectedItem)) {
+	      resolve();
+	      return;
+	    }
+
+	    dialog.showLoader();
+	    main_core.ajax.runAction('catalog.productSelector.getSkuSelectorItem', {
+	      json: {
+	        id: this.selector.getModel().getSkuId(),
+	        options: {
+	          iblockId: this.model.getIblockId(),
+	          basePriceId: this.model.getBasePriceId(),
+	          currency: this.model.getCurrency()
+	        }
+	      }
+	    }).then(response => {
+	      dialog.hideLoader();
+	      this.loadedSelectedItem = null;
+
+	      if (main_core.Type.isObject(response.data) && !dialog.isLoading()) {
+	        this.loadedSelectedItem = dialog.addItem(response.data);
+	      }
+
+	      resolve();
+	    });
+	  }).then(() => {
+	    if (!main_core.Type.isNil(this.loadedSelectedItem)) {
+	      dialog.setPreselectedItems([this.selector.getModel().getSkuId()]);
+	      dialog.getRecentTab().getRootNode().addItem(this.loadedSelectedItem);
+	      dialog.selectFirstTab();
+	      dialog.getFooter().hide();
+	    } else {
+	      this.searchInDialog();
+	    }
+	  });
+	  dialog.getPopup().show();
+	  dialog.getFooter().hide();
+	}
+
+	function _loadPreselectedItems2() {
+	  const dialog = this.getDialog();
+
+	  if (dialog.isLoading()) {
+	    return;
+	  }
+
+	  if (this.loadedSelectedItem) {
+	    dialog.removeItems();
+	    dialog.loadState = 'UNSENT';
+	    this.loadedSelectedItem = null;
+	  }
+
+	  dialog.load();
+	}
+
+	function _showPreselectedItems2() {
+	  var _dialog$getFooter;
+
+	  if (!this.selector.isProductSearchEnabled()) {
+	    return;
+	  }
+
+	  this.dialogMode = DialogMode.SHOW_RECENT;
+	  const dialog = this.getDialog();
+
+	  babelHelpers.classPrivateFieldLooseBase(this, _loadPreselectedItems)[_loadPreselectedItems]();
+
+	  dialog.selectFirstTab();
+	  (_dialog$getFooter = dialog.getFooter()) == null ? void 0 : _dialog$getFooter.hide();
+	  dialog.show();
+	}
+
+	function _searchItem2(searchQuery = '') {
+	  if (!this.selector.isProductSearchEnabled()) {
+	    return;
+	  }
+
+	  const dialog = this.getDialog();
+	  dialog.getPopup().show();
+	  dialog.search(searchQuery);
+	}
+
 	ProductSearchInput.SEARCH_TYPE_ID = 'product';
 
 	let _$3 = t => t,
@@ -1248,30 +1389,34 @@ this.BX = this.BX || {};
 	    }
 	  }
 
-	  searchInDialog(searchQuery = '') {
+	  searchInDialog() {
+	    const searchQuery = this.getFilledValue().trim();
+	    this.searchByBarcode(searchQuery);
+	  }
+
+	  searchByBarcode(searchQuery = '') {
 	    if (!this.selector.isProductSearchEnabled()) {
 	      return;
 	    }
 
 	    const dialog = this.getDialog();
-	    /*if (searchQuery === '' && this.model.isEmpty())
-	    {
-	    	dialog.hide();
-	    	return;
-	    }*/
+
+	    if (!dialog) {
+	      return;
+	    }
 
 	    dialog.removeItems();
 
-	    if (dialog) {
-	      if (searchQuery === '') {
-	        dialog.setPreselectedItems([[BarcodeSearchInput.SEARCH_TYPE_ID, this.model.getSkuId()]]);
-	        dialog.loadState = 'UNSENT';
-	        dialog.load();
-	      }
-
+	    if (searchQuery === '') {
+	      dialog.setPreselectedItems([[BarcodeSearchInput.SEARCH_TYPE_ID, this.model.getSkuId()]]);
+	      dialog.loadState = 'UNSENT';
+	      dialog.load();
 	      dialog.show();
-	      dialog.search(searchQuery);
+	      return;
 	    }
+
+	    dialog.show();
+	    dialog.search(searchQuery);
 	  }
 
 	  handleNameInputBlur(event) {
@@ -1387,7 +1532,7 @@ this.BX = this.BX || {};
 	      if (productId) {
 	        this.selectScannedBarcodeProduct(productId);
 	      } else {
-	        this.searchInDialog(barcode);
+	        this.searchByBarcode(barcode);
 	      }
 
 	      this.getNameInput().value = main_core.Text.encode(barcode);
@@ -1416,7 +1561,7 @@ this.BX = this.BX || {};
 				<button	class="ui-ctl-before warehouse-barcode-icon" title="${0}"></button>
 			`), main_core.Loc.getMessage('CATALOG_SELECTOR_BARCODE_ICON_TITLE'));
 
-	      if (!this.settingsCollection.get('isShowedBarcodeSpotlightInfo') && this.selector.getConfig('ENABLE_INFO_SPOTLIGHT', true)) {
+	      if (!this.settingsCollection.get('isShowedBarcodeSpotlightInfo') && this.settingsCollection.get('isAllowedShowBarcodeSpotlightInfo') && this.selector.getConfig('ENABLE_INFO_SPOTLIGHT', true)) {
 	        this.spotlight = new BX.SpotLight({
 	          id: 'selector_barcode_scanner_info',
 	          targetElement: barcodeIcon,

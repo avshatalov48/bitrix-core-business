@@ -9,6 +9,7 @@ use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Mail;
 use Bitrix\Disk;
+use Bitrix\Main\Localization\Loc;
 
 class CBPMailActivity extends CBPActivity
 {
@@ -20,23 +21,23 @@ class CBPMailActivity extends CBPActivity
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array(
-			"Title" => "",
-			"MailUserFrom" => "",
-			"MailUserFromArray" => "",
-			"MailUserTo" => "",
-			"MailUserToArray" => "",
-			"MailSubject" => "",
-			"MailText" => "",
-			"MailMessageType" => "plain",
-			"MailMessageEncoded" => 0,
-			"MailCharset" => "windows-1251",
-			"DirrectMail" => "Y",
-			"MailSite" => null,
-			"MailSeparator" => static::DEFAULT_SEPARATOR,
-			"File" => null,
-			"FileType" => static::FILE_TYPE_FILE,
-		);
+		$this->arProperties = [
+			'Title' => '',
+			'MailUserFrom' => '',
+			'MailUserFromArray' => '',
+			'MailUserTo' => '',
+			'MailUserToArray' => '',
+			'MailSubject' => '',
+			'MailText' => '',
+			'MailMessageType' => 'plain',
+			'MailMessageEncoded' => 0,
+			'MailCharset' => 'windows-1251',
+			'DirrectMail' => 'Y',
+			'MailSite' => null,
+			'MailSeparator' => static::DEFAULT_SEPARATOR,
+			'File' => null,
+			'FileType' => static::FILE_TYPE_FILE,
+		];
 	}
 
 	public function Execute()
@@ -48,57 +49,87 @@ class CBPMailActivity extends CBPActivity
 		}
 
 		$fromList = $this->getFromList($separator);
+		$strMailUserTo = $this->getMailUserTo($separator);
+
+		if ($this->workflow->isDebug())
+		{
+			$this->logDebugUsers([
+				'MailUserFrom' => $fromList,
+				'MailUserTo' => $strMailUserTo,
+			]);
+		}
 
 		if (empty($fromList))
 		{
-			$this->WriteToTrackingService(GetMessage("BPMA_EMPTY_PROP1"), 0, CBPTrackingType::Error);
+			$this->WriteToTrackingService(
+				Loc::getMessage('BPMA_EMPTY_PROP1'),
+				0,
+				CBPTrackingType::Error
+			);
+
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		$strMailUserTo = $this->getMailUserTo($separator);
-
 		if (empty($strMailUserTo))
 		{
-			$this->WriteToTrackingService(GetMessage("BPMA_EMPTY_PROP2"), 0, CBPTrackingType::Error);
+			$this->WriteToTrackingService(
+				Loc::getMessage('BPMA_EMPTY_PROP2'),
+				0,
+				CBPTrackingType::Error
+			);
+
 			return CBPActivityExecutionStatus::Closed;
 		}
 
 		$charset = $this->MailCharset;
 		$mailText = $this->getMailText();
+		$mailSubject = $this->MailSubject;
 
-		if (!$this->IsPropertyExists("DirrectMail") || $this->DirrectMail == "Y")
+		if ($this->workflow->isDebug())
+		{
+			$this->logDebugMessage([
+				'MailText' => $mailText,
+				'MailSubject' => $mailSubject,
+			]);
+		}
+
+		if (!$this->IsPropertyExists('DirrectMail') || $this->DirrectMail == 'Y')
 		{
 			global $APPLICATION;
 
 			$strMailUserTo = $APPLICATION->ConvertCharset($strMailUserTo, SITE_CHARSET, $charset);
 			$strMailUserTo = Main\Mail\Mail::encodeMimeString($strMailUserTo, $charset);
 
-			$mailSubject = $APPLICATION->ConvertCharset($this->MailSubject, SITE_CHARSET, $charset);
+			$mailSubject = $APPLICATION->ConvertCharset($mailSubject, SITE_CHARSET, $charset);
 
-			$mailText = $APPLICATION->ConvertCharset(CBPHelper::ConvertTextForMail($mailText), SITE_CHARSET, $charset);
+			$mailText = $APPLICATION->ConvertCharset(
+				CBPHelper::ConvertTextForMail($mailText),
+				SITE_CHARSET,
+				$charset
+			);
 
 			$context = new Main\Mail\Context();
 			$context->setCategory(Main\Mail\Context::CAT_EXTERNAL);
 			$context->setPriority(Main\Mail\Context::PRIORITY_LOW);
 
 			Main\Mail\Mail::send([
-				'CHARSET'      => $charset,
-				'CONTENT_TYPE' => $this->MailMessageType == "html" ? "html" : "plain",
-				'ATTACHMENT'   => $this->getAttachments(),
-				'TO'           => $strMailUserTo,
-				'SUBJECT'      => $mailSubject,
-				'BODY'         => $mailText,
-				'HEADER'       => array(
-					'From'       => $this->encodeFrom($fromList[0], $charset),
-					'Reply-To'   => $this->encodeReplyTo($fromList, $charset, $separator),
-				),
+				'CHARSET' => $charset,
+				'CONTENT_TYPE' => $this->MailMessageType == 'html' ? 'html' : 'plain',
+				'ATTACHMENT' => $this->getAttachments(),
+				'TO' => $strMailUserTo,
+				'SUBJECT' => $mailSubject,
+				'BODY' => $mailText,
+				'HEADER' => [
+					'From' => $this->encodeFrom($fromList[0], $charset),
+					'Reply-To' => $this->encodeReplyTo($fromList, $charset, $separator),
+				],
 				'CONTEXT' => $context,
 			]);
 		}
 		else
 		{
 			$siteId = null;
-			if ($this->IsPropertyExists("MailSite"))
+			if ($this->IsPropertyExists('MailSite'))
 			{
 				$siteId = $this->MailSite;
 			}
@@ -107,176 +138,270 @@ class CBPMailActivity extends CBPActivity
 				$siteId = SITE_ID;
 			}
 
-			$arFields = array(
-				"SENDER" => $this->encodeFrom($fromList[0], $charset),
-				"REPLY_TO" => $this->encodeFrom($fromList[0], $charset),//$this->encodeReplyTo($fromList, $charset, $separator),
-				"RECEIVER" => $strMailUserTo,
-				"TITLE" => $this->MailSubject,
-				"MESSAGE" => CBPHelper::ConvertTextForMail($mailText),
-			);
+			$arFields = [
+				'SENDER' => $this->encodeFrom($fromList[0], $charset),
+				'REPLY_TO' => $this->encodeFrom($fromList[0], $charset),//$this->encodeReplyTo($fromList, $charset, $separator),
+				'RECEIVER' => $strMailUserTo,
+				'TITLE' => $mailSubject,
+				'MESSAGE' => CBPHelper::ConvertTextForMail($mailText),
+			];
 
 			$files = $this->getFileIds();
 
-			$eventName = ($this->MailMessageType == "html") ? "BIZPROC_HTML_MAIL_TEMPLATE" : "BIZPROC_MAIL_TEMPLATE";
+			$eventName = ($this->MailMessageType == 'html') ? 'BIZPROC_HTML_MAIL_TEMPLATE' : 'BIZPROC_MAIL_TEMPLATE';
 			$event = new CEvent;
-			$event->Send($eventName, $siteId, $arFields, "N", '', $files);
+			$event->Send($eventName, $siteId, $arFields, 'N', '', $files);
 		}
 
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
+	public static function ValidateProperties($arTestProperties = [], CBPWorkflowTemplateUser $user = null)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
-		if ((!array_key_exists("MailUserFrom", $arTestProperties) || $arTestProperties["MailUserFrom"] == '')
-			&& (!array_key_exists("MailUserFromArray", $arTestProperties) || count($arTestProperties["MailUserFromArray"]) <= 0))
-			$arErrors[] = array("code" => "NotExist", "parameter" => "MailUserFrom", "message" => GetMessage("BPMA_EMPTY_PROP1"));
+		if (
+			(
+				!array_key_exists('MailUserFrom', $arTestProperties)
+				|| $arTestProperties['MailUserFrom'] == ''
+			)
+			&& (
+				!array_key_exists('MailUserFromArray', $arTestProperties)
+				|| count($arTestProperties['MailUserFromArray']) <= 0
+			)
+		)
+		{
+			$arErrors[] = [
+				'code' => 'NotExist',
+				'parameter' => 'MailUserFrom',
+				'message' => Loc::getMessage('BPMA_EMPTY_PROP1'),
+			];
+		}
 
-		if ((!array_key_exists("MailUserTo", $arTestProperties) || $arTestProperties["MailUserTo"] == '')
-			&& (!array_key_exists("MailUserToArray", $arTestProperties) || count($arTestProperties["MailUserToArray"]) <= 0))
-			$arErrors[] = array("code" => "NotExist", "parameter" => "MailUserTo", "message" => GetMessage("BPMA_EMPTY_PROP2"));
+		if (
+			(
+				!array_key_exists('MailUserTo', $arTestProperties)
+				|| $arTestProperties['MailUserTo'] == ''
+			)
+			&& (
+				!array_key_exists('MailUserToArray', $arTestProperties)
+				|| count($arTestProperties['MailUserToArray']) <= 0)
+		)
+		{
+			$arErrors[] = [
+				'code' => 'NotExist',
+				'parameter' => 'MailUserTo',
+				'message' => Loc::getMessage('BPMA_EMPTY_PROP2'),
+			];
+		}
 
-		if (!array_key_exists("MailSubject", $arTestProperties) || $arTestProperties["MailSubject"] == '')
-			$arErrors[] = array("code" => "NotExist", "parameter" => "MailSubject", "message" => GetMessage("BPMA_EMPTY_PROP3"));
-		if (!array_key_exists("MailCharset", $arTestProperties) || $arTestProperties["MailCharset"] == '')
-			$arErrors[] = array("code" => "NotExist", "parameter" => "MailCharset", "message" => GetMessage("BPMA_EMPTY_PROP4"));
-		if (!array_key_exists("MailMessageType", $arTestProperties))
-			$arErrors[] = array("code" => "NotExist", "parameter" => "MailMessageType", "message" => GetMessage("BPMA_EMPTY_PROP5"));
-		elseif (!in_array($arTestProperties["MailMessageType"], array("plain", "html")))
-			$arErrors[] = array("code" => "NotInRange", "parameter" => "MailMessageType", "message" => GetMessage("BPMA_EMPTY_PROP6"));
-		if (!array_key_exists("MailText", $arTestProperties) || $arTestProperties["MailText"] == '')
-			$arErrors[] = array("code" => "NotExist", "parameter" => "MailText", "message" => GetMessage("BPMA_EMPTY_PROP7"));
+		if (
+			!array_key_exists('MailSubject', $arTestProperties)
+			|| $arTestProperties['MailSubject'] == ''
+		)
+		{
+			$arErrors[] = [
+				'code' => 'NotExist',
+				'parameter' => 'MailSubject',
+				'message' => Loc::getMessage('BPMA_EMPTY_PROP3'),
+			];
+		}
+
+		if (
+			!array_key_exists('MailCharset', $arTestProperties)
+			|| $arTestProperties['MailCharset'] == ''
+		)
+		{
+			$arErrors[] = [
+				'code' => 'NotExist',
+				'parameter' => 'MailCharset',
+				'message' => Loc::getMessage('BPMA_EMPTY_PROP4'),
+			];
+		}
+
+		if (!array_key_exists('MailMessageType', $arTestProperties))
+		{
+			$arErrors[] = [
+				'code' => 'NotExist',
+				'parameter' => 'MailMessageType',
+				'message' => Loc::getMessage('BPMA_EMPTY_PROP5'),
+			];
+		}
+		elseif (!in_array($arTestProperties['MailMessageType'], ['plain', 'html']))
+		{
+			$arErrors[] = [
+				'code' => 'NotInRange',
+				'parameter' => 'MailMessageType',
+				'message' => Loc::getMessage('BPMA_EMPTY_PROP6'),
+			];
+		}
+
+		if (!array_key_exists('MailText', $arTestProperties) || $arTestProperties['MailText'] == '')
+		{
+			$arErrors[] = [
+				'code' => 'NotExist',
+				'parameter' => 'MailText',
+				'message' => Loc::getMessage('BPMA_EMPTY_PROP7'),
+			];
+		}
 
 		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
 	}
 
-	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "", $popupWindow = null, $siteId = '')
+	public static function GetPropertiesDialog(
+		$documentType,
+		$activityName,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$arCurrentValues = null,
+		$formName = '',
+		$popupWindow = null,
+		$siteId = ''
+	)
 	{
-		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, array(
-			'documentType' => $documentType,
-			'activityName' => $activityName,
-			'workflowTemplate' => $arWorkflowTemplate,
-			'workflowParameters' => $arWorkflowParameters,
-			'workflowVariables' => $arWorkflowVariables,
-			'currentValues' => $arCurrentValues,
-			'formName' => $formName,
-			'siteId' => $siteId
-		));
+		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(
+			__FILE__,
+			[
+				'documentType' => $documentType,
+				'activityName' => $activityName,
+				'workflowTemplate' => $arWorkflowTemplate,
+				'workflowParameters' => $arWorkflowParameters,
+				'workflowVariables' => $arWorkflowVariables,
+				'currentValues' => $arCurrentValues,
+				'formName' => $formName,
+				'siteId' => $siteId
+			]
+		);
 
-		$dialog->setMap(array(
-			'MailUserFrom' => array(
-				'Name' => GetMessage('BPMA_MAIL_USER_FROM'),
+		$dialog->setMap(self::getPropertiesMap($documentType));
+
+		$dialog->setRuntimeData([
+			'mailboxes' => (array)Main\Mail\Sender::prepareUserMailboxes()
+		]);
+
+		return $dialog;
+	}
+
+	protected static function getPropertiesMap(array $documentType, array $context = []): array
+	{
+		return [
+			'MailUserFrom' => [
+				'Name' => Loc::getMessage('BPMA_MAIL_USER_FROM'),
 				'FieldName' => 'mail_user_from',
 				'Type' => 'string',
 				'Required' => true,
-				'Getter' => static::getMailUserPropertyGetter()
-			),
-			'MailUserTo' => array(
-				'Name' => GetMessage('BPMA_MAIL_USER_TO'),
+				'Getter' => static::getMailUserPropertyGetter(),
+			],
+			'MailUserTo' => [
+				'Name' => Loc::getMessage('BPMA_MAIL_USER_TO'),
 				'FieldName' => 'mail_user_to',
 				'Type' => 'user',
 				'Required' => true,
 				'Multiple' => true,
 				'Getter' => static::getMailUserPropertyGetter(),
-				'Default' => \Bitrix\Bizproc\Automation\Helper::getResponsibleUserExpression($documentType)
-			),
-			'MailSubject' => array(
-				'Name' => GetMessage('BPMA_MAIL_SUBJECT'),
-				'Description' => GetMessage('BPMA_MAIL_SUBJECT'),
+				'Default' => \Bitrix\Bizproc\Automation\Helper::getResponsibleUserExpression($documentType),
+			],
+			'MailSubject' => [
+				'Name' => Loc::getMessage('BPMA_MAIL_SUBJECT'),
+				'Description' => Loc::getMessage('BPMA_MAIL_SUBJECT'),
 				'FieldName' => 'mail_subject',
 				'Type' => 'string',
-				'Required' => true
-			),
-			'MailText' => array(
-				'Name' => GetMessage('BPSNMA_MESSAGE'),
+				'Required' => true,
+			],
+			'MailText' => [
+				'Name' => Loc::getMessage('BPSNMA_MESSAGE'),
 				'FieldName' => 'mail_text',
 				'Type' => 'text',
-				'Required' => true
-			),
-			'MailMessageType' => array(
-				'Name' => GetMessage('BPSNMA_MESSAGE'),
+				'Required' => true,
+			],
+			'MailMessageType' => [
+				'Name' => Loc::getMessage('BPSNMA_MESSAGE'),
 				'FieldName' => 'mail_message_type',
 				'Type' => 'select',
-				'Options' => array(
+				'Options' => [
 					'plain' => 'plain',
-					'html' => 'html'
-				),
-				'Default' => 'plain'
-			),
-			'MailMessageEncoded' => array(
-				'Name' => GetMessage('BPSNMA_MESSAGE'),
+					'html' => 'html',
+				],
+				'Default' => 'plain',
+			],
+			'MailMessageEncoded' => [
+				'Name' => Loc::getMessage('BPSNMA_MESSAGE'),
 				'FieldName' => 'mail_message_encoded',
 				'Type' => 'int',
-				'Default' => 0
-			),
-			'MailCharset' => array(
-				'Name' => GetMessage('BPSNMA_MESSAGE'),
+				'Default' => 0,
+			],
+			'MailCharset' => [
+				'Name' => Loc::getMessage('BPSNMA_MESSAGE'),
 				'FieldName' => 'mail_charset',
 				'Type' => 'string',
-			),
-			'DirrectMail' => array(
-				'Name' => GetMessage('BPSNMA_MESSAGE'),
+			],
+			'DirrectMail' => [
+				'Name' => Loc::getMessage('BPSNMA_MESSAGE'),
 				'FieldName' => 'dirrect_mail',
 				'Type' => 'string',
-			),
-			'MailSite' => array(
-				'Name' => GetMessage('BPSNMA_MESSAGE'),
+			],
+			'MailSite' => [
+				'Name' => Loc::getMessage('BPSNMA_MESSAGE'),
 				'FieldName' => 'mail_site',
 				'Type' => 'string',
-			),
-			'MailSeparator' => array(
-				'Name' => GetMessage('BPSNMA_MESSAGE'),
+			],
+			'MailSeparator' => [
+				'Name' => Loc::getMessage('BPSNMA_MESSAGE'),
 				'FieldName' => 'mail_separator',
 				'Type' => 'string',
-				'Default' => static::DEFAULT_SEPARATOR
-			),
-			'File' => array(
-				'Name' => GetMessage('BPMA_ATTACHMENT'),
+				'Default' => static::DEFAULT_SEPARATOR,
+			],
+			'File' => [
+				'Name' => Loc::getMessage('BPMA_ATTACHMENT'),
 				'FieldName' => 'file',
 				'Type' => 'file',
-				'Multiple' => true
-			),
-			'FileType' => array(
-				'Name' => GetMessage('BPMA_ATTACHMENT_TYPE'),
+				'Multiple' => true,
+			],
+			'FileType' => [
+				'Name' => Loc::getMessage('BPMA_ATTACHMENT_TYPE'),
 				'FieldName' => 'file_type',
 				'Type' => 'select',
-				'Options' => array(
+				'Options' => [
 					static::FILE_TYPE_FILE => GetMessage('BPMA_ATTACHMENT_FILE'),
-					static::FILE_TYPE_DISK => GetMessage('BPMA_ATTACHMENT_DISK')
-				)
-			),
-		));
-
-		$dialog->setRuntimeData(array(
-			'mailboxes' => (array) Main\Mail\Sender::prepareUserMailboxes()
-		));
-
-		return $dialog;
+					static::FILE_TYPE_DISK => GetMessage('BPMA_ATTACHMENT_DISK'),
+				],
+			],
+		];
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function GetPropertiesDialogValues(
+		$documentType,
+		$activityName,
+		&$arWorkflowTemplate,
+		&$arWorkflowParameters,
+		&$arWorkflowVariables,
+		$arCurrentValues,
+		&$arErrors
+	)
 	{
-		$arErrors = array();
-		$arMap = array(
-			"mail_user_from" => "MailUserFrom",
-			"mail_user_to" => "MailUserTo",
-			"mail_subject" => "MailSubject",
-			"mail_text" => "MailText",
-			"mail_message_type" => "MailMessageType",
-			"mail_charset" => "MailCharset",
-			"dirrect_mail" => "DirrectMail",
-			"mail_site" => "MailSite",
+		$arErrors = [];
+		$arMap = [
+			'mail_user_from' => 'MailUserFrom',
+			'mail_user_to' => 'MailUserTo',
+			'mail_subject' => 'MailSubject',
+			'mail_text' => 'MailText',
+			'mail_message_type' => 'MailMessageType',
+			'mail_charset' => 'MailCharset',
+			'dirrect_mail' => 'DirrectMail',
+			'mail_site' => 'MailSite',
 			'mail_separator' => 'MailSeparator',
 			'file' => 'File',
 			'file_type' => 'FileType',
-		);
+		];
 
-		$properties = array();
+		$properties = [];
 		foreach ($arMap as $key => $value)
 		{
-			if ($key == "mail_user_from" || $key == "mail_user_to")
+			if ($key == 'mail_user_from' || $key == 'mail_user_to')
+			{
 				continue;
+			}
 			$properties[$value] = $arCurrentValues[$key];
 		}
 
@@ -294,32 +419,56 @@ class CBPMailActivity extends CBPActivity
 		}
 		else
 		{
-			$properties['File'] = isset($arCurrentValues["file"])
-				? $arCurrentValues["file"] : $arCurrentValues["file_text"];
+			$properties['File'] = $arCurrentValues['file'] ?? $arCurrentValues['file_text'];
 		}
 
-		if ($properties["MailSite"] == '')
-			$properties["MailSite"] = $arCurrentValues["mail_site_x"];
+		if ($properties['MailSite'] == '')
+		{
+			$properties['MailSite'] = $arCurrentValues['mail_site_x'];
+		}
 
-		$properties["MailSeparator"] = trim($properties["MailSeparator"]);
-		if ($properties["MailSeparator"] == '')
-			$properties["MailSeparator"] = static::DEFAULT_SEPARATOR;
+		$properties['MailSeparator'] = trim($properties['MailSeparator']);
+		if ($properties['MailSeparator'] == '')
+		{
+			$properties['MailSeparator'] = static::DEFAULT_SEPARATOR;
+		}
 
-		[$mailUserFromArray, $mailUserFrom] = CBPHelper::UsersStringToArray($arCurrentValues["mail_user_from"], $documentType, $arErrors, array(__CLASS__, "CheckEmailUserValue"));
+		[$mailUserFromArray, $mailUserFrom] = CBPHelper::UsersStringToArray(
+			$arCurrentValues['mail_user_from'],
+			$documentType,
+			$arErrors,
+			[__CLASS__, 'CheckEmailUserValue']
+		);
 		if (count($arErrors) > 0)
+		{
 			return false;
-		$properties["MailUserFrom"] = implode(", ", $mailUserFrom);
-		$properties["MailUserFromArray"] = $mailUserFromArray;
+		}
 
-		[$mailUserToArray, $mailUserTo] = CBPHelper::UsersStringToArray($arCurrentValues["mail_user_to"], $documentType, $arErrors, array(__CLASS__, "CheckEmailUserValue"));
-		if (count($arErrors) > 0)
-			return false;
-		$properties["MailUserTo"] = implode(", ", $mailUserTo);
-		$properties["MailUserToArray"] = $mailUserToArray;
+		$properties['MailUserFrom'] = implode(', ', $mailUserFrom);
+		$properties['MailUserFromArray'] = $mailUserFromArray;
 
-		$arErrors = self::ValidateProperties($properties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
+		[$mailUserToArray, $mailUserTo] = CBPHelper::UsersStringToArray(
+			$arCurrentValues['mail_user_to'],
+			$documentType,
+			$arErrors,
+			[__CLASS__, 'CheckEmailUserValue']
+		);
 		if (count($arErrors) > 0)
+		{
 			return false;
+		}
+
+		$properties['MailUserTo'] = implode(', ', $mailUserTo);
+		$properties['MailUserToArray'] = $mailUserToArray;
+
+		$arErrors = self::ValidateProperties(
+			$properties,
+			new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser)
+		);
+		if (count($arErrors) > 0)
+		{
+			return false;
+		}
 
 		$properties['MailMessageEncoded'] = 0;
 		if ($properties['MailMessageType'] === 'html')
@@ -343,7 +492,7 @@ class CBPMailActivity extends CBPActivity
 		}
 
 		$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$arCurrentActivity["Properties"] = $properties;
+		$arCurrentActivity['Properties'] = $properties;
 
 		return true;
 	}
@@ -372,7 +521,9 @@ class CBPMailActivity extends CBPActivity
 		}
 		else
 		{
-			$fileIds = \CBPHelper::MakeArrayFlat((array)$this->ParseValue($this->getRawProperty('File'), 'file'));
+			$fileIds = \CBPHelper::MakeArrayFlat(
+				(array)$this->ParseValue($this->getRawProperty('File'), 'file')
+			);
 			$fileIds = array_filter($fileIds);
 
 			foreach ($fileIds as $id)
@@ -387,6 +538,7 @@ class CBPMailActivity extends CBPActivity
 	private function getFileIds()
 	{
 		$files = $this->getFiles();
+
 		return array_column($files, 'id');
 	}
 
@@ -400,7 +552,9 @@ class CBPMailActivity extends CBPActivity
 			$fileName = isset($file['name']) ? $file['name'] : '';
 
 			if (!is_int($fileId))
+			{
 				continue;
+			}
 
 			$file = \CFile::makeFileArray($fileId);
 
@@ -410,9 +564,9 @@ class CBPMailActivity extends CBPActivity
 			);
 
 			$attachments[] = array(
-				'ID'           => $contentId,
-				'NAME'         => $fileName ?: $file['name'],
-				'PATH'         => $file['tmp_name'],
+				'ID' => $contentId,
+				'NAME' => $fileName ?: $file['name'],
+				'PATH' => $file['tmp_name'],
 				'CONTENT_TYPE' => $file['type'],
 			);
 		}
@@ -433,18 +587,24 @@ class CBPMailActivity extends CBPActivity
 
 	private function encodeFrom(array $from, $charset)
 	{
-		$name = $from['name'] ? \Bitrix\Main\Text\Encoding::convertEncoding($from['name'], SITE_CHARSET, $charset) : '';
+		$name =
+			$from['name']
+				? \Bitrix\Main\Text\Encoding::convertEncoding($from['name'], SITE_CHARSET, $charset)
+				: ''
+		;
 		$email = $from['email'];
 
 		if ($name)
 		{
 			$name = str_replace(array('\\', '"', '<', '>'), array('/', '\'', '(', ')'), $name);
+
 			return sprintf(
 				'%s <%s>',
 				Main\Mail\Mail::encodeSubject($name, $charset),
 				$email
 			);
 		}
+
 		return $email;
 	}
 
@@ -455,6 +615,7 @@ class CBPMailActivity extends CBPActivity
 		{
 			$reply[] = $this->encodeFrom($from, $charset);
 		}
+
 		return implode($separator, $reply);
 	}
 
@@ -494,7 +655,7 @@ class CBPMailActivity extends CBPActivity
 			/** @var \Bitrix\Bizproc\Activity\PropertiesDialog $dialog */
 			$k = $property['Id'];
 
-			$result = $arCurrentActivity["Properties"][$k."Array"];
+			$result = $arCurrentActivity['Properties'][$k . 'Array'];
 			if (!is_array($result))
 			{
 				$result = [];
@@ -503,14 +664,17 @@ class CBPMailActivity extends CBPActivity
 			if ($compatible)
 			{
 				$result = [CBPHelper::UsersArrayToString(
-					$arCurrentActivity["Properties"][$k."Array"],
+					$arCurrentActivity['Properties'][$k . 'Array'],
 					$dialog->getWorkflowTemplate(),
 					$dialog->getDocumentType()
 				)];
 			}
 
-			if ($arCurrentActivity["Properties"][$k] <> '')
-				$result[] = $arCurrentActivity["Properties"][$k];
+			if ($arCurrentActivity['Properties'][$k] <> '')
+			{
+				$result[] = $arCurrentActivity['Properties'][$k];
+			}
+
 			return $compatible ? implode(', ', array_filter($result)) : $result;
 		};
 	}
@@ -524,21 +688,27 @@ class CBPMailActivity extends CBPActivity
 		$arMailUserFromArray = CBPHelper::ExtractUsers($mailUserFromArray, $this->GetDocumentId(), false);
 		foreach ($arMailUserFromArray as $user)
 		{
-			$dbUser = CUser::GetList("", "", array("ID_EQUAL_EXACT" => $user));
+			$dbUser = CUser::GetList('', '', array('ID_EQUAL_EXACT' => $user));
 			if ($arUser = $dbUser->Fetch())
 			{
 				$userName = '';
-				$userEmail = preg_replace("#[\r\n]+#", "", $arUser["EMAIL"]);
+				$userEmail = preg_replace("#[\r\n]+#", '', $arUser['EMAIL']);
 
-				if ($arUser["NAME"] <> '' || $arUser["LAST_NAME"] <> '')
+				if ($arUser['NAME'] <> '' || $arUser['LAST_NAME'] <> '')
 				{
 					$userName = preg_replace(
 						"#['\r\n]+#",
 						"",
 						CUser::FormatName(
-							COption::GetOptionString("bizproc", "name_template", CSite::GetNameFormat(false), SITE_ID),
+							COption::GetOptionString(
+								'bizproc',
+								'name_template',
+								CSite::GetNameFormat(false),
+								SITE_ID
+							),
 							$arUser,
-							false, false
+							false,
+							false
 						)
 					);
 				}
@@ -662,7 +832,7 @@ class CBPMailActivity extends CBPActivity
 			$listResult = CUser::GetList('', '', ['ID_EQUAL_EXACT' => $userId]);
 			if ($row = $listResult->fetch())
 			{
-				$userEmail = trim(preg_replace("#[\r\n]+#", "", $row['EMAIL']));
+				$userEmail = trim(preg_replace("#[\r\n]+#", '', $row['EMAIL']));
 				if ($userEmail)
 				{
 					$result[] = $userEmail;
@@ -716,9 +886,33 @@ class CBPMailActivity extends CBPActivity
 		if (mb_strpos($text, 'base64,') === 0)
 		{
 			$text = mb_substr($text, 7);
+
 			return base64_decode($text);
 		}
+
 		//compatible encode type
 		return htmlspecialcharsback($text);
+	}
+
+	protected function logDebugUsers(array $values = [])
+	{
+		$fullMap = static::getPropertiesMap($this->getDocumentType());
+		$map = [
+			'MailUserFrom' => $fullMap['MailUserFrom']['Name'],
+			'MailUserTo' => $fullMap['MailUserTo']['Name'],
+		];
+
+		$this->writeDebugInfo($this->getDebugInfo($values, $map));
+	}
+
+	protected function logDebugMessage(array $values = [])
+	{
+		$fullMap = static::getPropertiesMap($this->getDocumentType());
+		$map = [
+			'MailSubject' => $fullMap['MailSubject'],
+			'MailText' => Loc::getMessage('BPMA_MAIL_TEXT'),
+		];
+
+		$this->writeDebugInfo($this->getDebugInfo($values, $map));
 	}
 }

@@ -15,6 +15,7 @@ if($arResult['IS_IFRAME'])
 	$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "") . "no-all-paddings no-background");
 }
 
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
 
 if(!$arResult['ERROR']):
 ?>

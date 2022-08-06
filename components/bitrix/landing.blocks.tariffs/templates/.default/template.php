@@ -32,6 +32,24 @@ Loc::loadMessages(__FILE__);
 	{
 		option.replace.order.url.PRO = document.querySelector('.landing-block-link-3').getAttribute("href");
 	}
+	if (document.querySelector('.landing-block-link-4').getAttribute("href"))
+	{
+		option.replace.order.url.ENT = document.querySelector('.landing-block-link-4').getAttribute("href");
+	}
+	//button compare tariff
+	if (document.querySelector('.landing-block-link-5').getAttribute("href"))
+	{
+		option.replace.template = {
+			'message' : {
+				'COMPARE' : {
+					'BUTTON' : {
+						'HREF' : document.querySelector('.landing-block-link-5').getAttribute("href")
+					}
+				}
+			}
+		};
+	}
+	option.host = window.location.host;
 	option = JSON.stringify(option);
 	script.setAttribute('data-sb-b24-table', option);
 

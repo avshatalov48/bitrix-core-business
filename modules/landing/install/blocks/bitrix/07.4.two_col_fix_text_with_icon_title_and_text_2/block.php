@@ -50,7 +50,7 @@
 					<br> tristique senectus et netus et malesuada fames ac turpis egestas.</p>
 			</div>
 			<div class="landing-block-node-button-container">
-				<a class="landing-block-node-button landing-semantic-link-image-medium btn btn-md text-uppercase g-btn-primary rounded-0 g-px-15" href="#">Learn more</a>
+				<a class="landing-block-node-button landing-semantic-link-image-medium btn g-btn-size-md text-uppercase g-btn-primary rounded-0 g-px-15" href="#">Learn more</a>
 			</div>
 		</div>
 	</div>

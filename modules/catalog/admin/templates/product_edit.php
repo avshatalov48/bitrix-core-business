@@ -9,6 +9,8 @@ use Bitrix\Catalog;
 $selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
 $publicMode = defined("SELF_FOLDER_URL");
 
+$isCloud = \Bitrix\Main\Loader::includeModule('bitrix24');
+
 if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_price') || $USER->CanDoOperation('catalog_view'))
 {
 	IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/templates/product_edit.php');
@@ -432,7 +434,46 @@ function togglePriceType()
 		$bUseExtendedPrice = $bVarsFromForm ? $price_useextform == 'Y' : $usedRanges;
 	else
 		$bUseExtendedPrice = false;
-	$str_CAT_VAT_ID = $bVarsFromForm ? $CAT_VAT_ID : ($arBaseProduct['VAT_ID'] == 0 ? $arMainCatalog['VAT_ID'] : $arBaseProduct['VAT_ID']);
+	if ($isCloud)
+	{
+		$str_CAT_VAT_ID = (int)($bVarsFromForm
+			? $CAT_VAT_ID
+			: ($arBaseProduct['VAT_ID'] == 0 ? $arMainCatalog['VAT_ID'] : $arBaseProduct['VAT_ID'])
+		);
+	}
+	else
+	{
+		$str_CAT_VAT_ID = (int)($bVarsFromForm ? $CAT_VAT_ID : $arBaseProduct['VAT_ID']);
+	}
+	$vatList = [];
+	$iterator = Catalog\VatTable::getList([
+		'select' => [
+			'ID',
+			'NAME',
+			'SORT',
+		],
+		'filter' => [
+			'=ACTIVE' => 'Y',
+		],
+		'order' => [
+			'SORT' => 'ASC',
+			'NAME' => 'ASC',
+		]
+	]);
+	while ($row = $iterator->fetch())
+	{
+		$vatList[$row['ID']] = $row['NAME'];
+	}
+	unset($row, $iterator);
+	if (!isset($vatList[$arMainCatalog['VAT_ID']]))
+	{
+		$arMainCatalog['VAT_ID'] = 0;
+	}
+	if (!isset($vatList[$str_CAT_VAT_ID]))
+	{
+		$str_CAT_VAT_ID = 0;
+	}
+
 	$str_CAT_VAT_INCLUDED = $bVarsFromForm ? $CAT_VAT_INCLUDED : $arBaseProduct['VAT_INCLUDED'];
 	?>
 <input type="hidden" name="price_useextform" id="price_useextform_N" value="N" />
@@ -470,13 +511,41 @@ else
 ?>
 	<tr>
 		<td width="40%">
-			<?echo GetMessage("CAT_VAT")?>:
+			<?php
+			if (!$isCloud && (int)$arMainCatalog['VAT_ID'] !== 0)
+			{
+				$hintMessage = GetMessage(
+					'CAT_VAT_ID_CATALOG_HINT',
+					[
+						'#VAT_NAME#' => $vatList[$arMainCatalog['VAT_ID']],
+					]
+				);
+				?>
+				<span id="hint_CAT_VAT_ID"></span>
+				<script type="text/javascript">
+					BX.hint_replace(BX('hint_CAT_VAT_ID'), '<?=\CUtil::JSEscape($hintMessage); ?>');
+				</script>&nbsp;<?php
+			}
+			echo GetMessage("CAT_VAT")?>:
 		</td>
 		<td width="60%">
-			<?
-			$arVATRef = CatalogGetVATArray(array(), true);
-			echo SelectBoxFromArray('CAT_VAT_ID', $arVATRef, $str_CAT_VAT_ID, "", $bReadOnly ? "disabled readonly" : '');
-			?>
+			<select name="CAT_VAT_ID" id="CAT_VAT_ID" <?= ($bReadOnly ? "disabled readonly" : ''); ?>>
+				<?php
+				if (!$isCloud)
+				{
+				$vatSelected = ($str_CAT_VAT_ID === 0 ? ' selected' : '');
+				?>
+				<option value="0"<?=$vatSelected; ?>><?=htmlspecialcharsbx(GetMessage('CAT_VAT_ID_EMPTY')); ?></option>
+				<?php
+				}
+				foreach ($vatList as $vatId => $vatName)
+				{
+					$vatSelected = ($str_CAT_VAT_ID === $vatId ? ' selected' : '');
+					?><option value="<?=htmlspecialcharsbx($vatId); ?>"<?=$vatSelected; ?>><?=htmlspecialcharsbx($vatName); ?></option><?php
+				}
+				unset($vatList);
+				?>
+			</select>
 		</td>
 	</tr>
 	<tr>
@@ -2477,14 +2546,18 @@ if ('Y' == $arMainCatalog['SUBSCRIPTION']):
 			while ($row = $iterator->fetch())
 			{
 				$storeId = (int)$row['STORE_ID'];
-				$storeLink[$storeId]['PRODUCT_AMOUNT'] = $row['AMOUNT'];
-				if ($showStoreReserve)
+				$row['AMOUNT'] = (string)$row['AMOUNT'];
+				$row['QUANTITY_RESERVED'] = (string)$row['QUANTITY_RESERVED'];
+				if ($row['AMOUNT'] !== '0' || $row['QUANTITY_RESERVED'] !== '0')
 				{
-					$row['QUANTITY_RESERVED'] = (string)$row['QUANTITY_RESERVED'];
-					if ($row['QUANTITY_RESERVED'] !== '0')
-					{
-						$storeLink[$storeId]['QUANTITY_RESERVED'] = $row['QUANTITY_RESERVED'];
-					}
+					$storeLink[$storeId]['PRODUCT_AMOUNT'] = $row['AMOUNT'];
+				}
+				if (
+					$showStoreReserve
+					&& $row['QUANTITY_RESERVED'] !== '0'
+				)
+				{
+					$storeLink[$storeId]['QUANTITY_RESERVED'] = $row['QUANTITY_RESERVED'];
 				}
 			}
 			unset($row, $iterator);

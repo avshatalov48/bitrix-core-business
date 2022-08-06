@@ -6,7 +6,7 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-$arParams["BLOG_POSTS_FILTER"] = array(">UF_BLOG_POST_IMPRTNT" => 0);
+$arParams["BLOG_POSTS_FILTER"] = array("=UF_BLOG_POST_IMPRTNT" => 1);
 $arParams["BLOG_POSTS_PAGE_SETTINGS"] = array("bDescPageNumbering" => true, "nPageSize" => 5);
 $arParams["BLOG_POSTS_TEMPLATE"] = "widget";
 $APPLICATION->IncludeComponent(
@@ -14,7 +14,7 @@ $APPLICATION->IncludeComponent(
 	($_REQUEST["template"] !== "" ? $_REQUEST["template"] : ($arParams["BLOG_POSTS_TEMPLATE"] !== "" ? $arParams["BLOG_POSTS_TEMPLATE"] : ".default")),
 	Array(
 		"BLOG_URL" => "",
-		"FILTER" => array(">UF_BLOG_POST_IMPRTNT" => 0, "!POST_PARAM_BLOG_POST_IMPRTNT" => array("USER_ID" => $GLOBALS["USER"]->GetId(), "VALUE" => "Y")),
+		"FILTER" => array("=UF_BLOG_POST_IMPRTNT" => 1, "!POST_PARAM_BLOG_POST_IMPRTNT" => array("USER_ID" => $GLOBALS["USER"]->GetId(), "VALUE" => "Y")),
 		"FILTER_NAME" => "",
 		"YEAR" => "",
 		"MONTH" => "",

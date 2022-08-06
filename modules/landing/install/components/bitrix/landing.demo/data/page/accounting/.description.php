@@ -177,7 +177,7 @@ return [
                         <img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/500x335/img4.jpg" alt="" data-fileid="-1" data-filehash="9eef207add73028ae50f74a9033c20cb" />
 
                         <div class="g-pa-30">
-                            <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-color-white g-mb-10 g-font-size-16 js-animation fadeIn">Present 2021</h3>
+                            <h3 class="landing-block-node-carousel-element-title text-uppercase g-font-weight-700 g-color-white g-mb-10 g-font-size-16 js-animation fadeIn">Present 2022</h3>
 							<div class="landing-block-node-carousel-element-text g-color-gray-light-v1 js-animation fadeIn">
                             	<p>Etiam consectetur placerat gravida. Pellentesque ultricies mattis est, quis elementum neque pulvinar at.</p>
                             	<p>Aenean odio ante, varius vel tempor sed Ut condimentum ex ac enim ullamcorper volutpat. Integer arcu nisl, finibus vitae sodales vitae, malesuada ultricies sapien.</p>
@@ -826,7 +826,7 @@ return [
 		<div class="row">
 			<div class="col-md-6 d-flex align-items-center g-mb-15 g-mb-0--md w-100 mb-0">
 				<div class="landing-block-node-text mr-1 js-animation animation-none">
-					&copy; 2021 All rights reserved.
+					&copy; 2022 All rights reserved.
 				</div>
 			</div>
 

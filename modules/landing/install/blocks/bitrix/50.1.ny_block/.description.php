@@ -17,6 +17,8 @@ return array(
 		'.landing-block-node-card-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_50.1.NEW_YEAR_NODES_LANDINGBLOCKNODECARD_IMG'),
 			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'create2xByDefault' => false,
 		),
@@ -48,7 +50,7 @@ return array(
 			),
 			'.landing-block-node-card-img' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_50.1.NEW_YEAR_NODES_LANDINGBLOCKNODECARD_IMG'),
-				'type' => array('background-overlay', 'height-vh', 'background-attachment'),
+				'type' => ['background', 'height-vh', 'background-attachment'],
 			),
 			'.landing-block-node-card-button' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_50.1.NEW_YEAR_STYLE_LANDINGBLOCKNODECARDBUTTON'),

@@ -19,5 +19,3 @@ $MESS["LANDING_TPL_MENU_RIGHTS"] = "Access Permissions";
 $MESS["LANDING_TPL_MENU_SITES"] = "Sites";
 $MESS["LANDING_TPL_MENU_SITES_KNOWLEDGE"] = "Knowledge bases";
 $MESS["LANDING_TPL_MENU_TRACKING"] = "Sales Intelligence";
-$MESS["LANDING_TPL_SETTING_CATALOG"] = "Catalog settings";
-$MESS["LANDING_TPL_SETTING_SITE"] = "Site settings";

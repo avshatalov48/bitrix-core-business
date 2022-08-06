@@ -808,9 +808,11 @@
 					BX.style(this.getTable(), 'min-height', (gridRect.height + Math.abs(diff) - panelsHeight - paddingOffset) + 'px');
 				}
 
+				BX.Dom.addClass(this.getContainer(), 'main-grid-empty-stub');
+
 				if (this.getCurrentPage() <= 1)
 				{
-					BX.Dom.hide(this.getPanels());
+					this.hidePanels();
 				}
 			}
 			else
@@ -823,7 +825,8 @@
 					BX.style(this.getTable(), 'height', '1px');
 				}.bind(this));
 
-				BX.Dom.show(this.getPanels());
+				this.showPanels();
+				BX.Dom.removeClass(this.getContainer(), 'main-grid-empty-stub');
 			}
 		},
 
@@ -2262,9 +2265,10 @@
 			if (stub)
 			{
 				BX.Dom.attr(stub, 'hidden', null);
+				BX.Dom.addClass(this.getContainer(), 'main-grid-empty-stub');
 				if (this.getCurrentPage() <= 1)
 				{
-					BX.Dom.hide(this.getPanels());
+					this.hidePanels();
 				}
 			}
 		},
@@ -2278,9 +2282,31 @@
 			if (stub)
 			{
 				BX.Dom.attr(stub, 'hidden', true);
+				BX.Dom.removeClass(this.getContainer(), 'main-grid-empty-stub');
 				BX.Dom.style(this.getTable(), 'min-height', null);
-				BX.Dom.show(this.getPanels());
+				this.showPanels();
 			}
+		},
+
+		/**
+		 * @private
+		 */
+		showPanels: function()
+		{
+			BX.Dom.show(this.getPanels());
+			if (this.getPanels().offsetHeight > 0)
+			{
+				BX.Dom.removeClass(this.getContainer(), 'main-grid-empty-footer');
+			}
+		},
+
+		/**
+		 * @private
+		 */
+		hidePanels: function()
+		{
+			BX.Dom.hide(this.getPanels());
+			BX.Dom.addClass(this.getContainer(), 'main-grid-empty-footer');
 		},
 
 		/**

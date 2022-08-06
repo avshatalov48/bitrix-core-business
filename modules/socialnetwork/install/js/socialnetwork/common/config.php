@@ -17,6 +17,7 @@ return array(
 		'intranet_theme_picker',
 		'ui.popupcomponentsmaker',
 		'ui.icons',
+		'ui.buttons',
 	],
 	'lang_additional' => [
 		'USER_SONET_ADMIN' => (\CSocNetUser::isCurrentUserModuleAdmin() ? 'Y' : 'N'),

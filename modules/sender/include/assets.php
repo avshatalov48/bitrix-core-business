@@ -9,7 +9,7 @@
 	"js" =>    array("/bitrix/js/sender/ajax_action/script.js"),
 	"css" =>    array("/bitrix/js/sender/ajax_action/style.css"),
 	"lang" =>    "/bitrix/modules/sender/lang/" . LANGUAGE_ID . "/js_ajax_action.php",
-	"rel" =>   array('core', 'ajax', 'popup')
+	"rel" =>   array('core', 'ui.design-tokens', 'ajax', 'popup')
 ));
 
 CJSCore::RegisterExt('sender_stat', array(
@@ -23,7 +23,7 @@ CJSCore::RegisterExt('sender_stat', array(
 	'css' => array(
 		'/bitrix/js/sender/stat/style.css'
 	),
-	'rel' => array('core', 'ajax', 'date')
+	'rel' => array('core', 'ui.design-tokens', 'ui.fonts.opensans', 'ajax', 'date')
 ));
 
 CJSCore::RegisterExt('sender_page', array(
@@ -43,7 +43,7 @@ CJSCore::RegisterExt('sender_helper', array(
 	'css' => array(
 		'/bitrix/js/sender/helper/style.css'
 	),
-	'rel' => array('core', 'fx')
+	'rel' => array('core', 'fx', 'ui.fonts.opensans')
 ));
 
 CJSCore::RegisterExt('sender_agreement', array(
@@ -54,7 +54,7 @@ CJSCore::RegisterExt('sender_agreement', array(
 		'SENDER_AGREEMENT_IS_REQUIRED' => false,
 		'SENDER_AGREEMENT_TEXT' => \Bitrix\Sender\Security\Agreement::getText(true)
 	),
-	'rel' => array('core', 'popup', 'ajax_action', 'sender_helper')
+	'rel' => array('core', 'ui.design-tokens', 'popup', 'ajax_action', 'sender_helper')
 ));
 
 CJSCore::RegisterExt('sender_b24_license', array(

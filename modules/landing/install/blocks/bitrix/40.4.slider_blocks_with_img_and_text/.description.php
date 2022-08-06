@@ -88,6 +88,12 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_40.4.SLIDER_BLOCKS_WITH_IMG_AND_TEXT_CARDS_LANDINGBLOCKNODECARD'),
 			'type' => array('align-self'),
 		),
+		'.landing-block-slider' => [
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_40_4_SLIDER_BLOCKS_WITH_IMG_AND_TEXT_NODES_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show', 'arrows', 'dots'],
+			]
+		],
 	),
 	'assets' => array(
 		'ext' => array('landing_carousel'),

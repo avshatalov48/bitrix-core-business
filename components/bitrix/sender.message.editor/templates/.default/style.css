@@ -4,11 +4,11 @@
 
 .bx-sender-message-editor {
 	margin: 0 0 10px;
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .sender-message-editor-more-wrap {
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-xs, 2px);
 	border: 1px solid rgba(198,205,211,.67);
 }
 .sender-message-editor-test-wrap {
@@ -87,6 +87,9 @@
 .bx-sender-message-editor-more-fields {
 	padding: 20px;
 	background: #F8F9FA;
+	border-radius: var(--ui-border-radius-xs);
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
 }
 
 .bx-sender-message-editor-field {
@@ -94,7 +97,7 @@
 }
 /*.bx-sender-message-editor-field .bx-sender-caption {*/
 	/*margin: 0 0 10px;*/
-	/*font: 16px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;*/
+	/*font: 16px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));*/
 /*}*/
 .bx-sender-message-editor-field .bx-sender-value {
 	display: flex;
@@ -104,7 +107,7 @@
 .sender-message-title {
 	display: block;
 	margin: 0 0 6px 0;
-	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868E;
 }
 
@@ -116,8 +119,8 @@
 	border: none;
 	-webkit-box-shadow: inset 0 0 0 1px #C6CDD3;
 	box-shadow: inset 0 0 0 1px #C6CDD3;
-	border-radius: 2px;
-	font: 15px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	border-radius: var(--ui-field-border-radius, 2px);
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 	background: #fff;
 	box-sizing: border-box;
@@ -152,7 +155,7 @@
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2219%22%20height%3D%227%22%20viewBox%3D%220%200%2019%207%22%3E%0A%20%20%3Cpolygon%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20points%3D%223.546%207.425%203.546%201.607%201.607%201.607%201.607%208.394%201.607%209.364%209.364%209.364%209.364%207.425%22%20transform%3D%22rotate%28-45%20.657%203.485%29%22/%3E%0A%3C/svg%3E%0A');
 	background-repeat: no-repeat;
 	background-position: right center;
-	font: 15px/12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	min-width: 120px;
 	width: 120px;
 	max-width: 120px;

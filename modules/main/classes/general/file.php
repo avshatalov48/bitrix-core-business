@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
 
 use Bitrix\Main;
@@ -345,7 +345,9 @@ class CFile extends CAllFile
 			//control of duplicates
 			if($checkDuplicates && $arFile["FILE_HASH"] <> '')
 			{
+				$lockId = static::lockFileHash($arFile["size"], $arFile["FILE_HASH"]);
 				$original = static::FindDuplicate($arFile["size"], $arFile["FILE_HASH"]);
+
 				if($original !== null)
 				{
 					//points to the original's physical path
@@ -406,6 +408,11 @@ class CFile extends CAllFile
 			"EXTERNAL_ID" => (isset($arFile["external_id"])? $arFile["external_id"]: md5(mt_rand())),
 			"FILE_HASH" => ($original === null? $arFile["FILE_HASH"] : ''),
 		));
+
+		if (isset($lockId))
+		{
+			static::unlockFileHash($lockId);
+		}
 
 		if($original !== null)
 		{
@@ -509,6 +516,126 @@ class CFile extends CAllFile
 		Internal\FileDuplicateTable::merge($insertFields, $updateFields);
 	}
 
+	/**
+	 * Adds information about a duplicate file.
+	 * @param int $originalId Original file ID.
+	 * @param array $duplicteIds List of file IDs to delete and update their path to the original file path.
+	 */
+	public static function DeleteDuplicates($originalId, array $duplicteIds)
+	{
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		$original = Internal\FileHashTable::getList([
+			'select' => ['FILE_SIZE', 'FILE_HASH', 'FILE.*'],
+			'filter' => ['=FILE_ID' => $originalId],
+		])->fetchObject();
+		if (!$original)
+		{
+			return;
+		}
+
+		$originalPath = '/' . $original->getFile()->getSubdir() . '/' . $original->getFile()->getFileName();
+
+		$io = CBXVirtualIo::GetInstance();
+		$uploadDir = COption::GetOptionString("main", "upload_dir", "upload");
+		$deleteSize = 0;
+		$lockId = '';
+		$fileList = \Bitrix\Main\FileTable::getList([
+			'select' => ['ID', 'FILE_SIZE', 'SUBDIR', 'FILE_NAME'],
+			'filter' => [
+				'=ID' => $duplicteIds,
+				'=HANDLER_ID' => $original->getFile()->getHandlerId(),
+			],
+			'order' => [
+				'ID' => 'ASC',
+			],
+		]);
+		while ($duplicate = $fileList->fetchObject())
+		{
+			if (!$lockId)
+			{
+				$lockId = static::lockFileHash($original->getFileSize(), $original->getFileHash());
+			}
+
+			$deleteResult = Internal\FileHashTable::delete($duplicate->getId());
+
+			$duplicatePath = '/' . $duplicate->getSubdir() . '/' . $duplicate->getFileName();
+			if ($originalPath == $duplicatePath)
+			{
+				continue;
+			}
+
+			$cancel = false;
+			foreach (GetModuleEvents('main', 'OnBeforeFileDeleteDuplicate', true) as $event)
+			{
+				$cancel = ExecuteModuleEventEx($event, array($original->getFile(), $duplicate));
+				if ($cancel)
+				{
+					break;
+				}
+			}
+			if ($cancel)
+			{
+				continue;
+			}
+
+			static::AddDuplicate($originalId, $duplicate->getId());
+
+			$update = $helper->prepareUpdate('b_file', [
+				'SUBDIR' => $original->getFile()->getSubdir(),
+				'FILE_NAME' => $original->getFile()->getFileName(),
+			]);
+			$ddl = 'UPDATE b_file SET ' . $update[0] . 'WHERE ID = ' . $duplicate->getId();
+			$connection->queryExecute($ddl);
+
+			static::cleanCache($duplicate->getId());
+
+			$isExternal = false;
+			foreach (GetModuleEvents('main', 'OnAfterFileDeleteDuplicate', true) as $event)
+			{
+				$isExternal = ExecuteModuleEventEx($event, array($original->getFile(), $duplicate)) || $isExternal;
+			}
+
+			if (!$isExternal)
+			{
+				$dname = $_SERVER["DOCUMENT_ROOT"] . '/' . $uploadDir . '/' . $duplicate->getSubdir();
+				$fname = $dname . '/' . $duplicate->getFileName();
+
+				$file = $io->GetFile($fname);
+				if ($file->isExists() && $file->unlink())
+				{
+					$deleteSize += $res['FILE_SIZE'];
+				}
+
+				$directory = $io->GetDirectory($dname);
+				if ($directory->isExists() && $directory->isEmpty())
+				{
+					if ($directory->rmdir())
+					{
+						$parent = $io->GetDirectory(GetDirPath($dname));
+						if ($parent->isExists() && $parent->isEmpty())
+						{
+							$parent->rmdir();
+						}
+					}
+				}
+			}
+		}
+
+		if ($lockId)
+		{
+			static::unlockFileHash($lockId);
+		}
+
+		/****************************** QUOTA ******************************/
+		if ($deleteSize > 0 && COption::GetOptionInt("main", "disk_space") > 0)
+		{
+			CDiskQuota::updateDiskQuota("file", $deleteSize, "delete");
+		}
+		/****************************** QUOTA ******************************/
+	}
+
 	public static function DoInsert($arFields)
 	{
 		global $DB;
@@ -578,6 +705,9 @@ class CFile extends CAllFile
 
 		if($res = $res->Fetch())
 		{
+			$hash = Internal\FileHashTable::getRowById($ID);
+			$lockId =  $hash ? static::lockFileHash($hash['FILE_SIZE'], $hash['FILE_HASH'], $res['HANDLER_ID']) : '';
+
 			$delete = static::processDuplicates($ID);
 
 			if($delete === self::DELETE_NONE)
@@ -607,7 +737,14 @@ class CFile extends CAllFile
 				$directory = $io->GetDirectory($dname);
 				if($directory->isExists() && $directory->isEmpty())
 				{
-					$directory->rmdir();
+					if ($directory->rmdir())
+					{
+						$parent = $io->GetDirectory(GetDirPath($dname));
+						if ($parent->isExists() && $parent->isEmpty())
+						{
+							$parent->rmdir();
+						}
+					}
 				}
 
 				foreach(GetModuleEvents("main", "OnPhysicalFileDelete", true) as $arEvent)
@@ -626,11 +763,28 @@ class CFile extends CAllFile
 				static::CleanCache($ID);
 			}
 
+			if ($lockId)
+			{
+				static::unlockFileHash($lockId);
+			}
+
 			/****************************** QUOTA ******************************/
 			if($delete_size > 0 && COption::GetOptionInt("main", "disk_space") > 0)
 				CDiskQuota::updateDiskQuota("file", $delete_size, "delete");
 			/****************************** QUOTA ******************************/
 		}
+	}
+
+	public static function lockFileHash($size, $hash, $bucket = 0)
+	{
+		$lockId = $size . '|' . $hash . '|' . (int)$bucket;
+		Main\Application::getConnection()->lock($lockId, -1);
+		return $lockId;
+	}
+
+	public static function unlockFileHash($lockId)
+	{
+		Main\Application::getConnection()->unlock($lockId);
 	}
 
 	protected static function processDuplicates($ID)

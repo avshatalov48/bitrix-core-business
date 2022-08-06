@@ -465,8 +465,8 @@ final class GoogleApiTransport
 	public function multipartDecode($response): array
 	{
 		$events = [];
-		$boundaryParts = explode('=', $this->client->getHeaders()->getBoundary());
-		$boundary = $boundaryParts[1];
+
+		$boundary = $this->client->getHeaders()->getBoundary();
 
 		$response = str_replace("--$boundary--", "--$boundary", $response);
 		$parts = explode("--$boundary\r\n", $response);

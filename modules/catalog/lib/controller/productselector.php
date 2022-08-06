@@ -27,6 +27,8 @@ use Bitrix\Main\Result;
 use Bitrix\Main\Security\Sign\BadSignatureException;
 use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Loader;
+use Bitrix\UI\EntitySelector\Dialog;
 
 class ProductSelector extends JsonController
 {
@@ -894,6 +896,37 @@ class ProductSelector extends JsonController
 		}
 
 		return [];
+	}
+
+	public function getSkuSelectorItemAction(int $id, array $options): ?array
+	{
+		if (!Loader::includeModule('ui'))
+		{
+			return null;
+		}
+
+		$items = [
+			['product', $id]
+		];
+		$dialogOptions = [
+			[
+				'id' => 'product',
+				'options' => $options,
+			],
+		];
+		$selectedItems = Dialog::getSelectedItems($items, $dialogOptions)->toArray();
+		if (!isset($selectedItems[0]))
+		{
+			return null;
+		}
+
+		$item = $selectedItems[0];
+		if ($item['hidden'] === true)
+		{
+			return null;
+		}
+
+		return $item;
 	}
 
 	public function isInstalledMobileAppAction(): bool

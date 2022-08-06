@@ -1,6 +1,6 @@
-<?
+<?php
+
 use Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
 
 class CBPActivityExecutionStatus
 {
@@ -151,6 +151,7 @@ class CBPDocumentEventType
 	const Automation = 8;
 	const Manual = 16;
 	const Script = 32;
+	const Debug = 64;
 
 	public static function Out($v)
 	{
@@ -191,6 +192,11 @@ class CBPDocumentEventType
 			$result[] = "Script";
 		}
 
+		if (($v & self::Debug) != 0)
+		{
+			$result[] = "Debug";
+		}
+
 		return implode(', ', $result);
 	}
 }
@@ -203,6 +209,7 @@ class CBPCanUserOperateOperation
 	const CreateAutomation = 5;
 	const WriteDocument = 2;
 	const ReadDocument = 3;
+	const DebugAutomation = 6;
 }
 
 class CBPSetPermissionsMode
@@ -230,10 +237,13 @@ class CBPSetPermissionsMode
 		}
 		return $result;
 	}
+
 	public static function outScope($v)
 	{
 		if ($v == self::ScopeDocument)
+		{
 			return "ScopeDocument";
+		}
 		return "ScopeWorkflow";
 	}
 }
@@ -258,7 +268,7 @@ class CBPTaskUserStatus
 
 	public static function resolveStatus($name)
 	{
-		switch(mb_strtolower((string)$name))
+		switch (mb_strtolower((string)$name))
 		{
 			case '0':
 			case 'waiting':
@@ -296,10 +306,10 @@ class CBPTaskDelegationType
 
 	public static function getSelectList()
 	{
-		return array(
+		return [
 			self::Subordinate => Loc::getMessage('BPCG_CONSTANTS_DELEGATION_TYPE_SUBORDINATE'),
 			self::AllEmployees => Loc::getMessage('BPCG_CONSTANTS_DELEGATION_TYPE_ALL_EMPLOYEES'),
-			self::None => Loc::getMessage('BPCG_CONSTANTS_DELEGATION_TYPE_NONE')
-		);
+			self::None => Loc::getMessage('BPCG_CONSTANTS_DELEGATION_TYPE_NONE'),
+		];
 	}
 }

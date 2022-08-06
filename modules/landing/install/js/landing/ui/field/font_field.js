@@ -83,6 +83,12 @@
 			}
 		}
 
+		if (this.content.search(new RegExp("var\\(--[a-z-]*\\)")) !== -1)
+		{
+			var fontFamily = window.getComputedStyle(document.body).getPropertyValue("font-family");
+			this.input.innerHTML = fontFamily.replace(REG_SYNTAX, "").split(",")[0];
+		}
+
 		bind(this.input, "click", proxy(this.onInputClick, this));
 		this.defaultFontLink.subscribe('onClick', proxy(this.onLinkClick, this));
 	};

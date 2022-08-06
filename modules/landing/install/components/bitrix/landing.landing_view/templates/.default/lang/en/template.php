@@ -36,6 +36,7 @@ $MESS["LANDING_TPL_FEATURES_STORE"] = "Online store features";
 $MESS["LANDING_TPL_PREVIEW_URL"] = "Preview";
 $MESS["LANDING_TPL_PREVIEW_URL_HINT"] = "See how your site will look when published, without actually making it public.";
 $MESS["LANDING_TPL_PREVIEW_URL_OPEN"] = "Open site";
+$MESS["LANDING_TPL_PREVIEW_URL_OPEN_FORM"] = "Open form";
 $MESS["LANDING_TPL_SETTINGS_CATALOG_URL"] = "Catalog settings";
 $MESS["LANDING_TPL_SETTINGS_PAGE_DIZ_URL"] = "Page design";
 $MESS["LANDING_TPL_SETTINGS_PAGE_URL"] = "Page settings";

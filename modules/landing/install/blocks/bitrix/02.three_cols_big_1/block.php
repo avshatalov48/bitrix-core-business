@@ -16,7 +16,7 @@
 					viverra eros, fringilla porttitor lorem eros vel odio. Praesent egestas ac arcu ac convallis. Donec
 					ut diam risus purus.</p></div>
 		</div>
-		<div class="landing-block-node-right col-md-6 col-lg-4 order-2 order-lg-3">
+		<div class="landing-block-node-right col-md-6 col-lg-4 order-2 order-lg-3" data-slider-autoplay="1" data-slider-animation="1">
 			<div class="js-carousel g-pb-90"
 				 data-autoplay="true"
 				 data-infinite="true"
@@ -55,7 +55,7 @@
 						 src="https://cdn.bitrix24.site/bitrix/images/landing/business/450x300/img3.jpg" alt="">
 					<div class="g-pa-30">
 						<h3 class="landing-block-node-right-title landing-semantic-subtitle-medium js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">
-							Present 2021</h3>
+							Present 2022</h3>
 						<div class="landing-block-node-right-text landing-semantic-text-medium js-animation fadeIn g-color-gray-light-v2">
 							<p>Etiam consectetur placerat gravida. Pellentesque ultricies mattis est, quis elementum neque
 								pulvinar at.</p>

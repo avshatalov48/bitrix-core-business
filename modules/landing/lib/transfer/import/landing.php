@@ -575,16 +575,21 @@ class Landing
 				}
 				unset($delobotAppCode, $kraytAppCode);
 				//fix, delete copyright block
-				$kraytCode = 'bitrix.krayt';
-				$delobotCode = 'bitrix.delobot';
-				if (strpos($appCode, $kraytCode) !== false || strpos($appCode, $delobotCode) !== false)
+				$templateDateCreate = strtotime($content['DATA']['DATE_CREATE']);
+				$lastDate = strtotime('17.02.2022 00:00:00');
+				if ($templateDateCreate < $lastDate)
 				{
-					if (array_slice($data['BLOCKS'], -1)[0]['code'] === '17.copyright')
+					$kraytCode = 'bitrix.krayt';
+					$delobotCode = 'bitrix.delobot';
+					if (strpos($appCode, $kraytCode) !== false || strpos($appCode, $delobotCode) !== false)
 					{
-						array_pop($data['BLOCKS']);
+						if (array_slice($data['BLOCKS'], -1)[0]['code'] === '17.copyright')
+						{
+							array_pop($data['BLOCKS']);
+						}
 					}
+					unset($kraytCode, $delobotCode);
 				}
-				unset($kraytCode, $delobotCode);
 			}
 
 			// save files to landing

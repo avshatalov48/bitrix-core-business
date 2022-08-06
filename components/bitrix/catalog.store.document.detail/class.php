@@ -151,6 +151,26 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 
 		$editorProvider = $this->getEditorProvider();
 		$this->arResult['FORM'] = $editorProvider->getFields();
+		$this->addPreloadedFields();
+	}
+
+	private function addPreloadedFields(): void
+	{
+		$preloadedDocumentFields = $this->arParams['PRELOADED_FIELDS']['DOCUMENT_FIELDS'] ?? null;
+		if (!is_array($preloadedDocumentFields) || empty($preloadedDocumentFields))
+		{
+			return;
+		}
+
+		if (isset($preloadedDocumentFields['TOTAL'], $preloadedDocumentFields['CURRENCY']))
+		{
+			$total = $preloadedDocumentFields['TOTAL'];
+			$currency = $preloadedDocumentFields['CURRENCY'];
+			$preloadedDocumentFields['FORMATTED_TOTAL'] = CCurrencyLang::CurrencyFormat($total, $currency, false);
+			$preloadedDocumentFields['FORMATTED_TOTAL_WITH_CURRENCY'] = CCurrencyLang::CurrencyFormat($total, $currency);
+		}
+
+		$this->arResult['FORM']['ENTITY_DATA'] = array_merge($this->arResult['FORM']['ENTITY_DATA'], $preloadedDocumentFields);
 	}
 
 	private function getEditorProvider(): StoreDocumentProvider
@@ -529,40 +549,9 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 			$this->updateElements($fieldsToUpdate['ELEMENT']);
 		}
 
-		if ($fieldsToUpdate['DOCUMENT_FILES'])
-		{
-			$this->updateFiles($this->documentId, $fieldsToUpdate['DOCUMENT_FILES'], $fieldsToUpdate['DOCUMENT_FILES_del']);
-		}
-
 		$result->setData(['ENTITY_ID' => $this->documentId]);
+
 		return $result;
-	}
-
-	private function updateFiles($documentId, $files, $deletedFiles)
-	{
-		$filesToSave = $files;
-		if (!empty($deletedFiles))
-		{
-			$rowsToDelete = \Bitrix\Catalog\StoreDocumentFileTable::getList([
-				'select' => ['ID', 'FILE_ID'],
-				'filter' => [
-					'DOCUMENT_ID' => $documentId,
-					'FILE_ID' => $deletedFiles,
-				]
-			])->fetchAll();
-			foreach ($rowsToDelete as $row)
-			{
-				$deleteResult = \Bitrix\Catalog\StoreDocumentFileTable::delete($row['ID']);
-				if ($deleteResult->isSuccess())
-				{
-					\CFile::Delete($row['FILE_ID']);
-				}
-			}
-
-			$filesToSave = array_diff($files, $deletedFiles);
-		}
-
-		\CCatalogDocs::saveFiles($documentId, $filesToSave);
 	}
 
 	private function updateBarcodes(array $fields): void
@@ -730,16 +719,10 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 			$generalFields['TOTAL'] = $this->calculateDocumentTotalFromElement($element);
 		}
 
-		if ($fields['DOCUMENT_FILES'])
-		{
-			$preparedFields['DOCUMENT_FILES'] = $generalFields['DOCUMENT_FILES'];
-			unset($generalFields['DOCUMENT_FILES']);
-			$preparedFields['DOCUMENT_FILES_del'] = $generalFields['DOCUMENT_FILES_del'];
-			unset($generalFields['DOCUMENT_FILES_del']);
-		}
+		$generalFields = $this->prepareFilesToUpdate($generalFields);
 
 		$validFieldNames = array_keys(StoreDocumentTable::getEntity()->getFields());
-		$validFieldNames = array_merge($validFieldNames, ['ELEMENT', 'DOCUMENT_FILES', 'DOCUMENT_FILES_del']);
+		$validFieldNames = array_merge($validFieldNames, ['ELEMENT', 'DOCUMENT_FILES']);
 		$generalFields = array_intersect_key($generalFields, array_flip($validFieldNames));
 
 		$preparedFields['GENERAL'] = $generalFields;
@@ -747,6 +730,40 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 		$result->setData(['PREPARED_FIELDS' => $preparedFields]);
 
 		return $result;
+	}
+
+	private function prepareFilesToUpdate(array $fields): array
+	{
+		$filesExists = isset($fields['DOCUMENT_FILES']) && is_array($fields['DOCUMENT_FILES']);
+		$filesDelete = isset($fields['DOCUMENT_FILES_del']) && is_array($fields['DOCUMENT_FILES_del']);
+		if ($filesExists || $filesDelete)
+		{
+			$result = [];
+			if ($filesExists)
+			{
+				$fileList = $fields['DOCUMENT_FILES'];
+				Main\Type\Collection::normalizeArrayValuesByInt($fileList, false);
+				foreach ($fileList as $id)
+				{
+					$result[$id] = $id;
+				}
+			}
+
+			if ($filesDelete)
+			{
+				$deleteList = $fields['DOCUMENT_FILES_del'];
+				Main\Type\Collection::normalizeArrayValuesByInt($deleteList, false);
+				foreach ($deleteList as $id)
+				{
+					$result[$id] = 'delete' . $id;
+				}
+			}
+
+			$fields['DOCUMENT_FILES'] = array_values($result);
+			unset($result);
+		}
+
+		return $fields;
 	}
 
 	private function prepareFieldByName($fieldName, $value): Main\Result

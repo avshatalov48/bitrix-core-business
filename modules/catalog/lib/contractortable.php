@@ -73,7 +73,7 @@ class ContractorTable extends DataManager
 				'PERSON_TYPE',
 				[
 					'required' => true,
-					'values' => static::getTypeList(),
+					'values' => static::getTypes(),
 					'title' => Loc::getMessage('CONTRACTOR_ENTITY_PERSON_TYPE_FIELD'),
 				]
 			),
@@ -356,5 +356,15 @@ class ContractorTable extends DataManager
 				self::TYPE_COMPANY,
 			];
 		}
+	}
+
+	public static function getTypes(): array
+	{
+		return static::getTypeList();
+	}
+
+	public static function getTypeDescriptions(): array
+	{
+		return static::getTypeList(true);
 	}
 }

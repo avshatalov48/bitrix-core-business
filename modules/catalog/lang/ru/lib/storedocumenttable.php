@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["INVENTORY_DOCUMENT_ENTITY_ID_FIELD"] = "Идентификатор";
 $MESS["INVENTORY_DOCUMENT_ENTITY_DOC_NUMBER_FIELD"] = "Номер документа";
 $MESS["INVENTORY_DOCUMENT_ENTITY_TITLE_FIELD"] = "Название";
@@ -26,3 +26,6 @@ $MESS["INVENTORY_DOCUMENT_TYPE_MOVING"] = "Перемещение товара �
 $MESS["INVENTORY_DOCUMENT_TYPE_RETURN"] = "Возврат товара";
 $MESS["INVENTORY_DOCUMENT_TYPE_DEDUCT"] = "Списание товара";
 $MESS["INVENTORY_DOCUMENT_TYPE_UNDO_RESERVE"] = "Отмена резервирования";
+$MESS["INVENTORY_DOCUMENT_STATUS_CONDUCTED"] = "Проведён";
+$MESS["INVENTORY_DOCUMENT_STATUS_DRAFT"] = "Черновик";
+$MESS["INVENTORY_DOCUMENT_STATUS_CANCELLED"] = "Отменён";

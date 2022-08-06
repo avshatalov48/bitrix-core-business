@@ -5,6 +5,8 @@ BX.Catalog.ProductSearchDialog = (function () {
 		this.callback = null;
 		this.event = null;
 		this.tableId = parameters.tableId;
+		this.multiple = parameters.multiple;
+		this.itemDataNamePrefix = parameters.itemDataNamePrefix;
 		if (typeof(parameters.event) !== 'undefined')
 		{
 			this.event = parameters.event;
@@ -15,7 +17,7 @@ BX.Catalog.ProductSearchDialog = (function () {
 		}
 		this.callerName = parameters.callerName;
 		this.currentUri = parameters.currentUri;
-		this.popup = parameters.popup;
+		this.popup = BX.WindowManager.Get();
 		this.iblockName = parameters.iblockName;
 		this.searchTimer = null;
 		this.ignoreFilter = true;
@@ -52,45 +54,149 @@ BX.Catalog.ProductSearchDialog = (function () {
 		return BX(this.tableId + '_iblock').value;
 	};
 
-	ProductSearchDialog.prototype.getForm = function () {
+	ProductSearchDialog.prototype.getForm = function ()
+	{
 		return BX(this.tableId + '_form');
 	};
 
-	ProductSearchDialog.prototype.SelEl = function (arParams, scope) {
-		var qtyElement,
-			parent;
-		if (BX.hasClass(scope, 'adm-list-table-row'))
+	ProductSearchDialog.prototype.getGridForm = function ()
+	{
+		return BX('form_' + this.tableId);
+	};
+
+	ProductSearchDialog.prototype.sendItems = function(items)
+	{
+		if (BX.type.isNotEmptyString(this.event))
 		{
-			BX.addClass(scope, 'row-sku-selected');
+			BX.onCustomEvent(
+				this.event,
+				[items]
+			);
+		}
+		else if (BX.type.isNotEmptyString(this.callback))
+		{
+			window[this.callback](
+				items,
+				this.getIblockId()
+			);
+		}
+	};
+
+	ProductSearchDialog.prototype.getItemData = function(id)
+	{
+		let selectData = BX(this.itemDataNamePrefix + id);
+		const fieldList = [
+			'id',
+			'type',
+			'name',
+			'full_quantity',
+			'measureRatio',
+			'measure',
+			'quantity',
+			'IBLOCK_ID'
+		];
+
+		if (!BX.type.isElementNode(selectData))
+		{
+			return null;
+		}
+
+		let result = {};
+
+		fieldList.forEach(function(item){
+			let index = 'product' + item;
+			if (index in selectData.dataset)
+			{
+				result[item] = selectData.dataset[index];
+			}
+		});
+
+		if (BX.type.isNotEmptyObject(result))
+		{
+			if (typeof(result.IBLOCK_ID) === 'undefined')
+			{
+				result.IBLOCK_ID = this.getIblockId();
+			}
+
+			let quantity = this.getItemCurrentQuantity(id);
+			if (quantity !== null)
+			{
+				result.quantity = quantity;
+			}
+
+			return result;
+		}
+
+		return null;
+	};
+
+	ProductSearchDialog.prototype.getItemCurrentQuantity = function(id)
+	{
+		let quantity = BX(this.tableId + '_qty_' + id);
+		if (BX.type.isElementNode(quantity))
+		{
+			return quantity.value;
+		}
+
+		return null;
+	};
+
+	ProductSearchDialog.prototype.selectItem = function (id) {
+
+		let product = this.getItemData(id);
+
+		if (product === null)
+		{
+			return;
+		}
+
+		if (this.multiple)
+		{
+			this.sendItems([product]);
 		}
 		else
 		{
-			parent = BX.findParent(scope, {className: 'adm-list-table-row'});
-			if (BX.type.isElementNode(parent))
-				BX.addClass(parent, 'row-sku-selected');
-			parent = null;
+			this.sendItems(product);
+		}
+	};
+
+	ProductSearchDialog.prototype.selectItemList = function()
+	{
+		if (!this.multiple)
+		{
+			return;
 		}
 
-		if (typeof arParams['quantity'] === 'undefined')
-			arParams['quantity'] = 1;
-		qtyElement = BX(this.tableId+'_qty_'+arParams['id']);
-		if (!!qtyElement)
-			arParams['quantity'] = qtyElement.value;
+		let items = [],
+			frm = this.getGridForm();
 
-		if (!!this.event)
+		if (BX.type.isElementNode(frm))
 		{
-			if (typeof(arParams.IBLOCK_ID) === 'undefined')
-				arParams.IBLOCK_ID = this.getIblockId();
-			BX.onCustomEvent(this.event, [arParams]);
+			let elementList = frm.querySelectorAll('input[name="ID[]"]');
+			elementList.forEach(
+				function(element)
+				{
+					if (element.checked)
+					{
+						let product = this.getItemData(element.value);
+						if (product !== null)
+						{
+							items.push(product);
+						}
+					}
+				},
+				this
+			);
 		}
-		else if (!!this.callback)
+
+		if (items.length > 0)
 		{
-			window[this.callback](arParams, this.getIblockId());
+			this.sendItems(items);
 		}
 	};
 
 	ProductSearchDialog.prototype.fShowSku = function (sku, scope) {
-		var i,
+		let i,
 			item,
 			expanded = BX.hasClass(scope, 'is-expand');
 
@@ -114,13 +220,13 @@ BX.Catalog.ProductSearchDialog = (function () {
 	};
 
 	ProductSearchDialog.prototype.onSubmitForm = function () {
-		var url = this.buildUrl();
-		window[this.tableId].GetAdminList(url);
+		window[this.tableId].GetAdminList(this.buildUrl());
 		return false;
 	};
 
 	ProductSearchDialog.prototype.onSearch = function (s, time) {
-		var queryInput = BX(this.tableId+'_query_value'), oldValue = queryInput.value;
+		var queryInput = BX(this.tableId+'_query_value'),
+			oldValue = queryInput.value;
 		if (oldValue === s)
 			return false;
 		queryInput.value = s;
@@ -338,7 +444,7 @@ BX.Catalog.ProductSearchDialog = (function () {
 	};
 
 	ProductSearchDialog.prototype.buildUrl = function (appendParameters) {
-		var params = BX.ajax.prepareForm(this.getForm()),
+		let params = BX.ajax.prepareForm(this.getForm()),
 			url = [],
 			k,
 			changeIblock = false;

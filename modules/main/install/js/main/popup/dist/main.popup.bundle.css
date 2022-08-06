@@ -16,6 +16,7 @@
 	-webkit-box-pack: stretch;
 	    -ms-flex-pack: stretch;
 	        justify-content: stretch;
+	border-radius: var(--popup-window-border-radius);
 }
 
 /* A super hack for legacy code which directly reads and writes popupContainer.style.display */
@@ -92,7 +93,7 @@
 	line-height: 39px;
 	margin: 0 12px 0 0;
 	background: #ecedef;
-	border-radius: 2px;
+	border-radius: var(--popup-window-button-border-radius, 2px);
 	cursor: pointer;
 	color: #7a818a;
 	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
@@ -331,10 +332,36 @@
 .popup-window-content {
 	-webkit-box-sizing: border-box;
 	        box-sizing: border-box;
-	background-color: #fff;
 	-webkit-box-flex: 1;
 	    -ms-flex: 1;
 	        flex: 1;
+	border-radius: var(--popup-window-content-border-radius);
+	scrollbar-width: thin;
+	scrollbar-color: var(--popup-window-scrollbar-thumb-background, rgba(82, 92, 105, 0.2));
+}
+
+.popup-window-content::-webkit-scrollbar {
+	width: 12px;
+}
+
+.popup-window-content::-webkit-scrollbar-track {
+	background-color: var(--popup-window-scrollbar-track-background, rgba(82, 92, 105, 0.05));
+	margin: 8px 0;
+	border-right: 4px solid transparent;
+	border-left: 4px solid transparent;
+	background-clip: content-box;
+}
+
+.popup-window-content::-webkit-scrollbar-thumb {
+	background-color: var(--popup-window-scrollbar-thumb-background, rgba(82, 92, 105, 0.2));
+	margin: 8px 0;
+	border-right: 4px solid transparent;
+	border-left: 4px solid transparent;
+	background-clip: content-box;
+}
+
+.popup-window-content::-webkit-scrollbar-thumb:hover {
+	background-color: var(--popup-window-scrollbar-thumb-hover-background, rgba(82, 92, 105, 0.5));
 }
 
 .popup-window-with-titlebar .popup-window-content,
@@ -478,11 +505,13 @@
 	-o-transition: opacity .3s;
 	transition: opacity .3s;
 	position: absolute;
-	right: 0;
-	bottom: 0;
-	width: 10px;
-	height: 10px;
-	background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAADBJREFUGBljYMADLl269B+PNESKNopwmoosgcxGcSeyBDKbKEUoGpA5uNgoplKNAwBv1DPc646T+wAAAABJRU5ErkJggg==");
+	right: 2px;
+	bottom: 2px;
+	width: 12px;
+	height: 12px;
+	background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAAXNSR0IArs4c6QAAADBJREFUGBljYMADLl269B+PNESKNopwmoosgcxGcSeyBDKbKEUoGpA5uNgoplKNAwBv1DPc646T+wAAAABJRU5ErkJggg==");
+	background-repeat: no-repeat;
+	background-position: center;
 	cursor: nwse-resize;
 }
 

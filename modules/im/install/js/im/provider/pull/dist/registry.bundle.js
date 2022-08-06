@@ -130,32 +130,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	            fields: params.chat[params.chatId]
 	          });
 	        }
-	      }
-
-	      var recentItem = this.store.getters['recent/get'](params.dialogId); //add recent item if there is no one
-
-	      if (!recentItem) {
-	        var newRecentItem = this.prepareRecentItem(params);
-	        this.store.dispatch('recent/set', [newRecentItem]);
-	      } //otherwise - update it
-	      else {
-	        this.store.dispatch('recent/update', {
-	          id: params.dialogId,
-	          fields: {
-	            lines: params.lines || {
-	              id: 0
-	            },
-	            message: {
-	              id: params.message.id,
-	              text: params.message.textOriginal,
-	              date: params.message.date,
-	              senderId: params.message.senderId,
-	              withFile: typeof params.message.params['FILE_ID'] !== 'undefined',
-	              withAttach: typeof params.message.params['ATTACH'] !== 'undefined'
-	            },
-	            counter: params.counter
-	          }
-	        });
 	      } //set users
 
 
@@ -222,10 +196,9 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	      this.controller.application.stopOpponentWriting({
 	        dialogId: params.dialogId,
 	        userId: params.message.senderId
-	      }); //if we sent message and there are no unloaded unread pages - read all messages on server and client, set counter to 0
-	      //TODO: to think about it during new chat development
+	      }); // if we sent message - read all messages on server and client, set counter to 0
 
-	      if (params.message.senderId === this.controller.application.getUserId() && this.controller.application.isUnreadMessagesLoaded()) {
+	      if (params.message.senderId === this.controller.application.getUserId()) {
 	        if (this.store.state.dialogues.collection[params.dialogId] && this.store.state.dialogues.collection[params.dialogId].counter !== 0) {
 	          this.controller.restClient.callMethod('im.dialog.read', {
 	            dialog_id: params.dialogId
@@ -304,33 +277,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	          cancelIfScrollChange: true
 	        });
 	      });
-	      var recentItem = this.store.getters['recent/get'](params.dialogId);
-
-	      if (command === 'messageUpdate' && recentItem.element && recentItem.element.message.id === params.id) {
-	        this.store.dispatch('recent/update', {
-	          id: params.dialogId,
-	          fields: {
-	            message: {
-	              id: params.id,
-	              text: params.text,
-	              date: recentItem.element.message.date
-	            }
-	          }
-	        });
-	      }
-
-	      if (command === 'messageDelete' && recentItem.element && recentItem.element.message.id === params.id) {
-	        this.store.dispatch('recent/update', {
-	          id: params.dialogId,
-	          fields: {
-	            message: {
-	              id: params.id,
-	              text: 'Message deleted',
-	              date: recentItem.element.message.date
-	            }
-	          }
-	        });
-	      }
 	    }
 	  }, {
 	    key: "handleMessageDeleteComplete",
@@ -483,12 +429,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	          }
 	        });
 	      });
-	      this.store.dispatch('recent/update', {
-	        id: params.dialogId,
-	        fields: {
-	          counter: params.counter
-	        }
-	      });
 	    }
 	  }, {
 	    key: "handleReadMessageChat",
@@ -520,20 +460,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	        date: params.date,
 	        action: true
 	      });
-	      var recentItem = this.store.getters['recent/get'](params.dialogId);
-
-	      if (recentItem) {
-	        var message = recentItem.element.message;
-	        this.store.dispatch('recent/update', {
-	          id: params.dialogId,
-	          fields: {
-	            counter: params.counter,
-	            message: _objectSpread(_objectSpread({}, message), {}, {
-	              status: 'delivered'
-	            })
-	          }
-	        });
-	      }
 	    }
 	  }, {
 	    key: "handleUnreadMessageOpponent",
@@ -574,21 +500,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	      });
 	    }
 	  }, {
-	    key: "handleChatPin",
-	    value: function handleChatPin(params, extra) {
-	      this.store.dispatch('recent/pin', {
-	        id: params.dialogId,
-	        action: params.active
-	      });
-	    }
-	  }, {
-	    key: "handleChatHide",
-	    value: function handleChatHide(params, extra) {
-	      this.store.dispatch('recent/delete', {
-	        id: params.dialogId
-	      });
-	    }
-	  }, {
 	    key: "handleChatMuteNotify",
 	    value: function handleChatMuteNotify(params, extra) {
 	      var existingChat = this.store.getters['dialogues/get'](params.dialogId);
@@ -617,16 +528,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	      });
 	    }
 	  }, {
-	    key: "handleReadNotifyList",
-	    value: function handleReadNotifyList(params, extra) {
-	      this.store.dispatch('recent/update', {
-	        id: 'notify',
-	        fields: {
-	          counter: params.counter
-	        }
-	      });
-	    }
-	  }, {
 	    key: "handleUserInvite",
 	    value: function handleUserInvite(params, extra) {
 	      if (!params.invited) {
@@ -635,44 +536,6 @@ this.BX.Messenger.Provider = this.BX.Messenger.Provider || {};
 	          fields: params.user
 	        });
 	      }
-	    }
-	  }, {
-	    key: "prepareRecentItem",
-	    value: function prepareRecentItem(params) {
-	      var type = 'user';
-
-	      if (params.dialogId.toString().startsWith('chat')) {
-	        type = 'chat';
-	      }
-
-	      params.dialogId.toString().startsWith('chat');
-	      var title = type === 'chat' ? params.chat[params.chatId].name : params.users[params.dialogId].name;
-	      var chat = params.chat[params.chatId] ? params.chat[params.chatId] : {};
-
-	      if (!params.users) {
-	        params.users = {};
-	      }
-
-	      var user = params.users[params.dialogId] ? params.users[params.dialogId] : {};
-	      var userId = type === 'user' ? params.dialogId : 0;
-	      return {
-	        id: params.dialogId,
-	        type: type,
-	        title: title,
-	        counter: params.counter,
-	        chatId: params.chatId,
-	        chat: chat,
-	        user: user,
-	        userId: userId,
-	        message: {
-	          id: params.message.id,
-	          text: params.message.textOriginal,
-	          date: params.message.date,
-	          senderId: params.message.senderId,
-	          withFile: typeof params.message.params['FILE_ID'] !== 'undefined',
-	          withAttach: typeof params.message.params['ATTACH'] !== 'undefined'
-	        }
-	      };
 	    }
 	  }]);
 	  return ImBasePullHandler;

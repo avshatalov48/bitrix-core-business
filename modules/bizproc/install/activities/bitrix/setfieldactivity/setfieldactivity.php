@@ -1,11 +1,12 @@
-<?
+<?php
 use Bitrix\Bizproc\FieldType;
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-class CBPSetFieldActivity
-	extends CBPActivity
-	implements IBPActivityExternalEventListener
+class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEventListener
 {
 	public function __construct($name)
 	{
@@ -36,13 +37,16 @@ class CBPSetFieldActivity
 		{
 			$this->workflow->AddEventHandler($this->name, $this);
 			$documentService->SubscribeOnUnlockDocument($documentId, $this->GetWorkflowInstanceId(), $this->name);
+
 			return CBPActivityExecutionStatus::Executing;
 		}
 
 		$resultFields = $this->prepareFieldsValues($documentId, $documentType, $fieldValue);
+		$map = $this->getDebugInfo($resultFields);
 
 		try
 		{
+			$this->writeDebugInfo($map);
 			$documentService->UpdateDocument($documentId, $resultFields, $this->ModifiedBy);
 		}
 		catch (Exception $e)
@@ -161,7 +165,7 @@ class CBPSetFieldActivity
 			$arCurrentValues = array();
 
 			$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-			if (is_array($arCurrentActivity["Properties"]) 
+			if (is_array($arCurrentActivity["Properties"])
 				&& array_key_exists("FieldValue", $arCurrentActivity["Properties"])
 				&& is_array($arCurrentActivity["Properties"]["FieldValue"]))
 			{
@@ -234,13 +238,7 @@ class CBPSetFieldActivity
 			'formName' => $formName
 		));
 
-		$dialog->setMap([
-			'MergeMultipleFields' => [
-				'Name' => GetMessage('BPSFA_MERGE_MULTIPLE'),
-				'FieldName' => 'merge_multiple_fields',
-				'Type' => 'bool',
-			]
-		]);
+		$dialog->setMap(static::getPropertiesMap($documentType));
 
 		$dialog->setRuntimeData(array(
 			"arCurrentValues" => $arCurrentValues,
@@ -379,5 +377,40 @@ class CBPSetFieldActivity
 			}
 		}
 		return $usages;
+	}
+
+	protected static function getPropertiesMap(array $documentType, array $context = []): array
+	{
+		return [
+			'MergeMultipleFields' => [
+				'Name' => GetMessage('BPSFA_MERGE_MULTIPLE'),
+				'FieldName' => 'merge_multiple_fields',
+				'Type' => 'bool',
+			]
+		];
+	}
+
+	protected function getDebugInfo(array $values = [], array $map = []): array
+	{
+		if (count($map) <= 0)
+		{
+			$documentService = $this->workflow->GetService("DocumentService");
+			$map = $documentService->GetDocumentFields($this->getDocumentType());
+		}
+
+		foreach ($map as $key => $property)
+		{
+			if (!array_key_exists($key, $values))
+			{
+				unset($map[$key]);
+			}
+		}
+		$map = array_merge($map, static::getPropertiesMap($this->getDocumentType()));
+		$map['ModifiedBy'] = [
+			'Name' => \Bitrix\Main\Localization\Loc::getMessage('BPSFA_MODIFIED_BY'),
+			'Type' => 'user',
+		];
+
+		return parent::getDebugInfo($values, $map);
 	}
 }

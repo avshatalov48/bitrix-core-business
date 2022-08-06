@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Sale\Location;
 
 use Bitrix\Main\Service\GeoIp\Data;
@@ -64,7 +65,6 @@ class GeoIp
 	 */
 	protected static function getData($ip, $lang)
 	{
-		Manager::useCookieToStoreInfo(true);
 		return Manager::getDataResult($ip, $lang, array('cityName'));
 	}
 
@@ -82,7 +82,7 @@ class GeoIp
 
 		$geoData = $geoIpData->getGeoData();
 
-		if($geoData->cityName == \Bitrix\Main\Service\GeoIp\Manager::INFO_NOT_AVAILABLE)
+		if($geoData->cityName == null)
 		{
 			return [];
 		}

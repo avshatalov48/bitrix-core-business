@@ -21,7 +21,8 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') 
 	'bizproc.automation',
 	'ui.buttons',
 	'ui.forms',
-	'ui.alerts'
+	'ui.alerts',
+	'ui.fonts.opensans',
 ]);
 
 /** @var BizprocAutomationSchemeComponent $component */

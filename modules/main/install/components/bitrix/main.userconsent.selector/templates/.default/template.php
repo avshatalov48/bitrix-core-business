@@ -3,7 +3,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Localization\Loc;
 
-CJSCore::Init("sidepanel");
+CJSCore::Init(["sidepanel", "ui.design-tokens"]);
 /** @var array $arParams */
 /** @var array $arResult */
 ?>
@@ -51,7 +51,7 @@ CJSCore::Init("sidepanel");
 	<div class="main-user-consent-selector-footer">
 		<a class="main-user-consent-selector-block-link" data-bx-link-add="" data-bx-slider-href="" data-bx-slider-reload="true" href="<?=htmlspecialcharsbx($arParams['PATH_TO_ADD'])?>">
 			<span class="main-user-consent-selector-block-plus-icon">&#43;</span>
-			<?=Loc::getMessage('MAIN_USER_CONSENT_SELECTOR_BTN_CREATE')?>
+			<?=Loc::getMessage('MAIN_USER_CONSENT_SELECTOR_BTN_CREATE_1')?>
 		</a>
 	</div>
 </div>

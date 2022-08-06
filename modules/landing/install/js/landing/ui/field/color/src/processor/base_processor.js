@@ -141,4 +141,9 @@ export default class BaseProcessor extends EventEmitter
 	setActiveControl(controlName)
 	{
 	}
+
+	prepareProcessorValue(processorValue, defaultValue, data)
+	{
+		return processorValue;
+	}
 }

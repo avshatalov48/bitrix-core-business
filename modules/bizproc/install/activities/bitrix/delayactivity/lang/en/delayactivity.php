@@ -1,4 +1,5 @@
 <?php
+$MESS["BPDA_DEBUG_EVENT"] = "Pause skipped due to test mode event";
 $MESS["BPDA_EMPTY_PROP"] = "The 'Period' value is not specified.";
 $MESS["BPDA_SUBSCRIBE_ERROR"] = "System error when scheduling a task";
 $MESS["BPDA_TRACK"] = "Paused for #PERIOD#";

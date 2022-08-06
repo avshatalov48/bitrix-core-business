@@ -172,7 +172,7 @@
 	padding: 18px 17px 18px 17px;
 	height: 330px;
 	border: 1px solid #C6CDD3;
-	border-radius: 0 2px 2px 2px;
+	border-radius: var(--ui-border-radius-xs, 2px);
 	background: rgba(247,249,250,1);
 }
 

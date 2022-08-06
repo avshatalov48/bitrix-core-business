@@ -14,11 +14,12 @@
 			</div>
 		</div>
 
-		<div class="container">
+		<div class="landing-block-slider container" data-slider-arrows="3" data-slider-dots="0" data-slider-animation="1">
 			<!-- End Carousel v19 -->
 			<section class="js-carousel g-pt-60 g-pt-0--md"
 					 data-infinite="1"
-					 data-arrows-classes="u-arrow-v1 g-pos-abs g-absolute-centered--x--md g-top-0 g-width-40 g-height-40 g-color-white g-color-black--hover g-bg-black g-bg-primary--hover g-transition-0_2 g-transition--ease-in"
+					 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-pt-20"
+					 data-arrows-classes="u-arrow-v1 g-pos-abs g-absolute-centered--x--md g-top-0 g-width-40 g-height-40 g-transition-0_2 g-transition--ease-in g-color-white g-bg-primary g-opacity-0_8--hover"
 					 data-arrow-left-classes="fa fa-chevron-left g-left-0 g-left-50x--md g-ml-35--md"
 					 data-arrow-right-classes="fa fa-chevron-right g-right-0 g-right-50x--md g-ml-85--md">
 				<div class="landing-block-node-card js-slide">

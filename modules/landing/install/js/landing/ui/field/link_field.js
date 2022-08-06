@@ -470,6 +470,20 @@
 			this.targetInput.disable();
 			this.targetInput.closePopup();
 			this.targetInput.setValue("_popup");
+
+
+			this.readyToSave = true;
+			if (!this.mediaService.isDataLoaded)
+			{
+				this.readyToSave = false;
+				BX.addCustomEvent(this.mediaService, 'onDataLoaded', () =>
+				{
+					this.readyToSave = true;
+					this.emit('onChangeReadyToSave');
+				});
+			}
+			this.emit('onChangeReadyToSave');
+
 			this.showMediaPreview();
 		},
 
@@ -481,6 +495,11 @@
 				this.targetInput.enable();
 				this.targetInput.closePopup();
 				this.targetInput.setValue("_self");
+				if (!this.readyToSave)
+				{
+					this.readyToSave = true;
+					this.emit('onChangeReadyToSave');
+				}
 				this.hideMediaPreview();
 				this.hideMediaSettings();
 			}
@@ -578,23 +597,6 @@
 				.hide();
 		},
 
-		onVideoPreviewClick: function()
-		{
-			$.fancybox.open({
-				src: this.mediaService.getEmbedURL(),
-				type: "iframe",
-				afterShow: function(instance, current)
-				{
-					var iframe = current.$slide.find("iframe")[0];
-					void BX.Landing.MediaPlayer.Factory.create(iframe);
-				}
-			}, {
-				iframe: {
-					scrolling : "auto"
-				}
-			});
-		},
-
 		showMediaPreview: function()
 		{
 			// Make and show loader
@@ -606,16 +608,14 @@
 			this.video = loader.layout;
 			loader.show();
 
-			this.mediaService.getURLPreviewElement()
+			return this.mediaService.getURLPreviewElement()
 				.then(function(element) {
 					// Remove loader
 					BX.remove(this.video);
 
 					// Make and show URL preview
 					this.video = element;
-					this.video.title = BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_PREVIEW_TITLE");
 					this.mediaLayout.appendChild(this.video);
-					this.video.addEventListener("click", this.onVideoPreviewClick.bind(this));
 					this.showMediaSettings();
 				}.bind(this), function() {
 					this.hideMediaSettings();
@@ -646,10 +646,7 @@
 
 				if (this.mediaService)
 				{
-					this.mediaService.url = this.hrefInput.getValue();
-
 					this.disableMedia();
-
 					if (this.isAvailableMedia())
 					{
 						this.enableMedia();

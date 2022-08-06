@@ -385,6 +385,16 @@ class FileHashTable extends Main\Entity\DataManager
 		return $connection->query($sql);
 	}
 
+	/**
+	 * Returns duplicate files by bucket, hash, and size.
+	 *
+	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param array $filter Additional filter to pass to FileHashTable.
+	 * @param array $order Sort order.
+	 * @param integer $limit Records count.
+	 * @return Main\DB\Result
+	 * @see \Bitrix\Main\File\Internal\FileHashTable
+	 */
 	public static function duplicateList($bucketId, $filter, $order, $limit = 0)
 	{
 		$connection = \Bitrix\Main\Application::getConnection();
@@ -426,6 +436,12 @@ class FileHashTable extends Main\Entity\DataManager
 
 	}
 
+	/**
+	 * Returns duplicates summary statistics.
+	 *
+	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @return array
+	 */
 	public static function getDuplicatesStat($bucketId)
 	{
 		$bucketId = intval($bucketId);
@@ -453,6 +469,14 @@ class FileHashTable extends Main\Entity\DataManager
 		return $connection->query($sql)->fetch();
 	}
 
+	/**
+	 * Copies file hash information from clouds module table to the main module.
+	 * Returns an array with copy statistics information.
+	 *
+	 * @param integer $lastKey Where to start.
+	 * @param integer $pageSize Batch size.
+	 * @return array
+	 */
 	public static function copyToFileHash($lastKey, $pageSize)
 	{
 		$lastKey = (int)$lastKey;
@@ -493,6 +517,13 @@ class FileHashTable extends Main\Entity\DataManager
 		return $fileIds;
 	}
 
+	/**
+	 * Checks candidates from file duplicates delete. Returns future file original identifier.
+	 *
+	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param array &$fileIds Array of file identifiers candidates for duplicate delete.
+	 * @return false|integer
+	 */
 	public static function prepareDuplicates($bucketId, &$fileIds)
 	{
 		$originalId = false;
@@ -549,69 +580,5 @@ class FileHashTable extends Main\Entity\DataManager
 		}
 
 		return $originalId;
-	}
-
-	public static function processDuplicates($bucket, $originalId, $fileIds)
-	{
-		$connection = \Bitrix\Main\Application::getConnection();
-		$helper = $connection->getSqlHelper();
-
-		$original = \Bitrix\Main\File\Internal\FileHashTable::getList([
-			'select' => ['FILE_SIZE', 'FILE_HASH', 'FILE.*'],
-			'filter' => ['=FILE_ID' => $originalId],
-		])->fetchObject();
-		if (!$original)
-		{
-			return;
-		}
-
-		$originalPath = '/' . $original->getFile()->getSubdir() . '/' . $original->getFile()->getFileName();
-		if (is_callable(['CFile', 'lockFileHash']))
-		{
-			$lockId = \CFile::lockFileHash($original->getFileSize(), $original->getFileHash());
-		}
-
-		$fileList = \Bitrix\Main\FileTable::getList([
-			'select' => ['ID', 'FILE_SIZE', 'SUBDIR', 'FILE_NAME'],
-			'filter' => [
-				'=ID' => $fileIds,
-				'=HANDLER_ID' => $bucket->ID,
-			],
-			'order' => [
-				'ID' => 'ASC',
-			],
-		]);
-		while ($duplicate = $fileList->fetch())
-		{
-			$deleteResult = \Bitrix\Main\File\Internal\FileHashTable::delete($duplicate['ID']);
-
-			$duplicatePath = '/' . $duplicate['SUBDIR'] . '/' . $duplicate['FILE_NAME'];
-			if ($originalPath != $duplicatePath)
-			{
-				\CFile::addDuplicate($originalId, $duplicate['ID']);
-
-				$update = $helper->prepareUpdate('b_file', [
-					'SUBDIR' => $original->getFile()->getSubdir(),
-					'FILE_NAME' => $original->getFile()->getFileName(),
-				]);
-				$ddl = 'UPDATE b_file SET ' . $update[0] . 'WHERE ID = ' . $duplicate['ID'];
-				$connection->queryExecute($ddl);
-
-				\CFile::cleanCache($duplicate['ID']);
-
-
-				\Bitrix\Clouds\FileHashTable::deleteByFilePath($bucket->ID, $duplicatePath);
-				$result = $bucket->deleteFile($duplicatePath, $duplicate["FILE_SIZE"]);
-				if ($result)
-				{
-					$bucket->decFileCounter($duplicate["FILE_SIZE"]);
-				}
-			}
-		}
-
-		if ($lockId)
-		{
-			\CFile::unlockFileHash($lockId);
-		}
 	}
 }

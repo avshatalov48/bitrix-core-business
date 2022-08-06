@@ -17,6 +17,11 @@
 	    babelHelpers.defineProperty(this, "newValues", new Map());
 	    this.id = id;
 	    this.wrapper = BX(id);
+
+	    if (!this.wrapper) {
+	      return;
+	    }
+
 	    this.productId = options.productId;
 	    this.skuId = options.skuId;
 	    this.iblockId = options.iblockId;
@@ -111,7 +116,7 @@
 	        return null;
 	      }
 
-	      this.values.delete(inputName);
+	      this.values["delete"](inputName);
 
 	      if (this.isSaveable()) {
 	        this.save();

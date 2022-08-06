@@ -204,8 +204,9 @@ class LandingSitesComponent extends LandingBaseComponent
 			$this->checkParam('OVER_TITLE', '');
 			$this->checkParam('TILE_MODE', 'list');
 			$this->checkParam('PAGE_URL_SITE', '');
+			$this->checkParam('PAGE_URL_SETTINGS', '');
 			$this->checkParam('PAGE_URL_SITE_EDIT', '');
-			$this->checkParam('PAGE_URL_SITE_DESIGN', '');
+			$this->checkParam('PAGE_URL_SITE_DESI   GN', '');
 			$this->checkParam('PAGE_URL_SITE_CONTACTS', '');
 			$this->checkParam('PAGE_URL_LANDING_EDIT', '');
 			$this->checkParam('PAGE_URL_SITE_DOMAIN_EDIT', '');
@@ -262,6 +263,12 @@ class LandingSitesComponent extends LandingBaseComponent
 				$filter[] = $this->getAdditionalAccessFilter($this->arParams['ACCESS_CODE']);
 			}
 			$this->arResult['EXPORT_DISABLED'] = Restriction\Manager::isAllowed('limit_sites_transfer') ? 'N' : 'Y';
+			if ($this->arResult['EXPORT_DISABLED'] !== 'Y')
+			{
+				Bitrix\Landing\Restriction\Manager::enableFeatureTmp('limit_sites_access_permissions');
+				$this->arResult['EXPORT_DISABLED'] = Rights::hasAdditionalRight(Rights::ADDITIONAL_RIGHTS['unexportable'], null, false, true) ? 'Y' : 'N';
+				Bitrix\Landing\Restriction\Manager::disableFeatureTmp('limit_sites_access_permissions');
+			}
 			$this->arResult['SMN_SITES'] = $this->getSmnSites();
 			$this->arResult['IS_DELETED'] = LandingFilterComponent::isDeleted();
 			$this->arResult['SITES'] = $this->getSites([

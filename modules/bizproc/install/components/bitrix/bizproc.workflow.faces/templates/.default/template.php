@@ -1,5 +1,5 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
-\Bitrix\Main\UI\Extension::load(["ui.tooltip", "ui.icons.b24"]);
+\Bitrix\Main\UI\Extension::load(["ui.tooltip", "ui.icons.b24", "ui.design-tokens", "ui.fonts.opensans"]);
 
 $cmpId = RandString();
 if (empty($arResult['WORKFLOW_ID'])):?>

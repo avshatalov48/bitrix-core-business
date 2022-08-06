@@ -104,10 +104,10 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 				'URL' => $url,
 				'SORT' => 50,
 				'IS_ACTIVE' => strncmp(
-					$rawUrl,
-					$this->request->getRequestedPage(),
-					strlen($rawUrl)
-				) === 0,
+						$rawUrl,
+						$this->request->getRequestedPage(),
+						strlen($rawUrl)
+					) === 0,
 			];
 		}
 
@@ -146,58 +146,21 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 			}
 		}
 
-		$settingsUrls = [
-			$this->getUrlWithParams($this->arParams['PATH_TO']['STORES']),
-			$this->getUrlWithParams($this->arParams['PATH_TO']['CONTRACTORS']),
-		];
-
-		$settingsItems = [
-			[
-				'ID' => 'stores_settings',
-				'PARENT_ID' => 'settings',
-				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_STORES_TITLE'),
-				'SORT' => 1000,
-				'URL' => $this->getUrlWithParams($this->arParams['PATH_TO']['STORES']),
-			],
-			[
-				'ID' => 'contractors_settings',
-				'PARENT_ID' => 'settings',
-				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_CONTRACTORS_TITLE'),
-				'SORT' => 1010,
-				'URL' => $this->getUrlWithParams($this->arParams['PATH_TO']['CONTRACTORS']),
-			],
-		];
-
-		if (!\Bitrix\Catalog\Component\UseStore::isUsed())
+		if (
+			Main\Loader::includeModule('crm')
+			&& !\CCrmSaleHelper::isWithOrdersMode()
+		)
 		{
-			$settingsItems[] = [
-				'ID' => 'store_settings',
-				'PARENT_ID' => 'settings',
-				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_USE_STORE_Y_TITLE'),
-				'SORT' => 1020,
-				'ON_CLICK' => 'new BX.Catalog.Store.Document.ControlPanel().storeMasterOpenSlider(\''.$sliderPath.'\', ' . $masterSliderSettings . ');',
+			Main\UI\Extension::load(['crm.config.catalog']);
+
+			$buttons[] = [
+				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_BUTTON_TITLE'),
+				'SORT' => 60,
+				'ID' => 'settings',
+				'PARENT_ID' => '',
+				'ON_CLICK' => 'BX.Crm.Config.Catalog.Slider.open();',
 			];
 		}
-
-		if (!\CCrmSaleHelper::isWithOrdersMode())
-		{
-			$settingsItems[] = [
-				'ID' => 'store_settings_control_and_settings',
-				'PARENT_ID' => 'settings',
-				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_STORE_CONTROL_AND_PRODUCTS'),
-				'SORT' => 1030,
-				'URL' => '/crm/configs/catalog/',
-			];
-		}
-
-		$buttons[] = [
-			'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_BUTTON_TITLE'),
-			'SORT' => 60,
-			'IS_ACTIVE' => in_array($requestUrl, $settingsUrls),
-			'ID' => 'settings',
-			'PARENT_ID' => '',
-			'ITEMS' => $settingsItems,
-		];
 
 		$url = $this->getUrlToDocumentType(\CatalogStoreDocumentListComponent::OTHER_MODE);
 		$buttons[] = [
@@ -208,6 +171,27 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 			'IS_ACTIVE' => $url === $requestUrl,
 			'IS_DISABLED' => true,
 		];
+
+		$url = $this->getUrlWithParams($this->arParams['PATH_TO']['STORES']);
+		$buttons[] = [
+			'ID' => 'stores_settings',
+			'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_STORES_TITLE'),
+			'URL' => $url,
+			'SORT' => 80,
+			'IS_ACTIVE' => $url === $requestUrl,
+			'IS_DISABLED' => true,
+		];
+
+		$url = $this->getUrlWithParams($this->arParams['PATH_TO']['CONTRACTORS']);
+		$buttons[] = [
+			'ID' => 'contractors_settings',
+			'TEXT' => Loc::getMessage('STORE_DOCUMENTS_SETTINGS_CONTRACTORS_TITLE'),
+			'URL' => $url,
+			'SORT' => 90,
+			'IS_ACTIVE' => $url === $requestUrl,
+			'IS_DISABLED' => true,
+		];
+
 		return $buttons;
 	}
 

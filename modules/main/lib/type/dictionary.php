@@ -76,6 +76,7 @@ class Dictionary
 	/**
 	 * Return the current element
 	 */
+	#[\ReturnTypeWillChange]
 	public function current()
 	{
 		return current($this->values);
@@ -84,14 +85,15 @@ class Dictionary
 	/**
 	 * Move forward to next element
 	 */
-	public function next()
+	public function next(): void
 	{
-		return next($this->values);
+		next($this->values);
 	}
 
 	/**
 	 * Return the key of the current element
 	 */
+	#[\ReturnTypeWillChange]
 	public function key()
 	{
 		return key($this->values);
@@ -100,7 +102,7 @@ class Dictionary
 	/**
 	 * Checks if current position is valid
 	 */
-	public function valid()
+	public function valid(): bool
 	{
 		return ($this->key() !== null);
 	}
@@ -108,15 +110,15 @@ class Dictionary
 	/**
 	 * Rewind the Iterator to the first element
 	 */
-	public function rewind()
+	public function rewind(): void
 	{
-		return reset($this->values);
+		reset($this->values);
 	}
 
 	/**
 	 * Whether a offset exists
 	 */
-	public function offsetExists($offset)
+	public function offsetExists($offset): bool
 	{
 		return isset($this->values[$offset]) || array_key_exists($offset, $this->values);
 	}
@@ -124,6 +126,7 @@ class Dictionary
 	/**
 	 * Offset to retrieve
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetGet($offset)
 	{
 		if (isset($this->values[$offset]) || array_key_exists($offset, $this->values))
@@ -137,6 +140,7 @@ class Dictionary
 	/**
 	 * Offset to set
 	 */
+	#[\ReturnTypeWillChange]
 	public function offsetSet($offset, $value)
 	{
 		if($offset === null)
@@ -152,7 +156,7 @@ class Dictionary
 	/**
 	 * Offset to unset
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		unset($this->values[$offset]);
 	}
@@ -160,7 +164,7 @@ class Dictionary
 	/**
 	 * Count elements of an object
 	 */
-	public function count()
+	public function count(): int
 	{
 		return count($this->values);
 	}
@@ -188,6 +192,7 @@ class Dictionary
 	 * JsonSerializable::jsonSerialize — Specify data which should be serialized to JSON
 	 * @return array
 	 */
+	#[\ReturnTypeWillChange]
 	public function jsonSerialize()
 	{
 		return $this->values;

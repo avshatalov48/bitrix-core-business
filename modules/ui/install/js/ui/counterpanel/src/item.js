@@ -12,6 +12,8 @@ export default class CounterItem {
 		this.eventsForActive = Type.isObject(options.eventsForActive) ? options.eventsForActive : null;
 		this.eventsForUnActive = Type.isObject(options.eventsForUnActive) ? options.eventsForUnActive : null;
 		this.panel = options.panel ? options.panel : null;
+		this.separator = Type.isBoolean(options.separator) ? options.separator : true;
+		this.locked = Type.isBoolean(options.locked) ? options.locked : null;
 
 		this.layout = {
 			container: null,
@@ -20,7 +22,7 @@ export default class CounterItem {
 			cross: null
 		}
 
-		this.counter = null;
+		this.counter = this.#getCounter();
 		this.isActive = false;
 
 		if (!this.#getPanel().isMultiselect())
@@ -40,6 +42,20 @@ export default class CounterItem {
 	}
 
 	updateValue(param: Number)
+	{
+		if (Type.isNumber(param))
+		{
+			this.value = param;
+			this.#getCounter().update(param);
+
+			if (param === 0)
+			{
+				this.updateColor('THEME');
+			}
+		}
+	}
+
+	updateValueAnimate(param: Number)
 	{
 		if (Type.isNumber(param))
 		{
@@ -84,6 +100,11 @@ export default class CounterItem {
 		}
 	}
 
+	getSeparator()
+	{
+		return this.separator;
+	}
+
 	#getPanel()
 	{
 		return this.panel;
@@ -96,7 +117,7 @@ export default class CounterItem {
 			this.counter = new Counter({
 				value: this.value ? this.value : 0,
 				color: this.color ? Counter.Color[this.color] : Counter.Color.THEME,
-				animation: true
+				animation: false
 			});
 		}
 
@@ -142,7 +163,7 @@ export default class CounterItem {
 
 		return this.layout.cross;
 	}
-	
+
 	#setEvents()
 	{
 		if (this.eventsForActive)
@@ -178,39 +199,76 @@ export default class CounterItem {
 		}
 	}
 
+	lock()
+	{
+		this.locked = true;
+		this.getContainer().classList.add('--locked');
+	}
+
+	unLock()
+	{
+		this.locked = false;
+		this.getContainer().classList.remove('--locked');
+	}
+
 	getContainer()
 	{
 		if (!this.layout.container)
 		{
+			const isValue = Type.isNumber(this.value);
+
 			this.layout.container = Tag.render`
 				<div class="ui-counter-panel__item">
-					${this.#getValue()}
-					${this.title ? this.#getTitle() : ''}
-					${this.#getCross()}
+						${isValue ? this.#getValue() : ''}
+						${this.title ? this.#getTitle() : ''}
+						${isValue ? this.#getCross() : ''}
 				</div>
 			`;
 
+			if (!isValue)
+			{
+				this.layout.container.classList.add('--string');
+			}
+
+			if (!isValue && !this.eventsForActive && !this.eventsForUnActive)
+			{
+				this.layout.container.classList.add('--title');
+			}
+
+			if (!this.separator)
+			{
+				this.layout.container.classList.add('--without-separator');
+			}
+
+			if (this.locked)
+			{
+				this.layout.container.classList.add('--locked');
+			}
+
 			this.#setEvents();
 
-			this.layout.container.addEventListener('mouseenter', () => {
-				if (!this.isActive)
-				{
-					this.layout.container.classList.add('--hover');
-				}
-			});
+			if (isValue)
+			{
+				this.layout.container.addEventListener('mouseenter', () => {
+					if (!this.isActive)
+					{
+						this.layout.container.classList.add('--hover');
+					}
+				});
 
-			this.layout.container.addEventListener('mouseleave', () => {
-				if (!this.isActive)
-				{
-					this.layout.container.classList.remove('--hover');
-				}
-			});
+				this.layout.container.addEventListener('mouseleave', () => {
+					if (!this.isActive)
+					{
+						this.layout.container.classList.remove('--hover');
+					}
+				});
 
-			this.layout.container.addEventListener('click', () => {
-				this.isActive
-					? this.deactivate()
-					: this.activate();
-			});
+				this.layout.container.addEventListener('click', () => {
+					this.isActive
+						? this.deactivate()
+						: this.activate();
+				});
+			}
 		}
 
 		return this.layout.container;

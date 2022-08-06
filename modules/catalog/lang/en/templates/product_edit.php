@@ -108,6 +108,8 @@ $MESS["CAT_E_PRICE_EXT"] = "You are about to save the product item in simplified
 All prices that have been previously specified in extended mode will be irreparably LOST.
 Are sure you want to continue?";
 $MESS["CAT_VAT"] = "Tax rate";
+$MESS["CAT_VAT_ID_CATALOG_HINT"] = "If a product doesn't specify a tax rate, the catalog tax rate (#VAT_NAME#) will be used for calculations. You can change it on the catalog settings page.";
+$MESS["CAT_VAT_ID_EMPTY"] = "not selected";
 $MESS["CAT_VAT_INCLUDED"] = "Tax included in price";
 $MESS["CAT_YES"] = "yes";
 $MESS["ENABLE_STORE_TRACE"] = "Enable stock control";

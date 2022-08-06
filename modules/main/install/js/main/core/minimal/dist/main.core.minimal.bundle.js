@@ -9001,7 +9001,7 @@ window._main_polyfill_core = true;
 	            }
 
 	            if (Type.isString(item)) {
-	              element.innerHTML += item;
+	              element.insertAdjacentHTML('beforeend', item);
 	            }
 	          });
 	          return element;

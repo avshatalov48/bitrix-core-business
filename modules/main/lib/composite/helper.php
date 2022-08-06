@@ -342,7 +342,7 @@ class Helper
 			$host = preg_replace("/:(\\d+)\$/", "-\\1", $host);
 		}
 
-		$privateKey = preg_replace("~[^a-z0-9/_]~i", "", $privateKey);
+		$privateKey = preg_replace("~[^a-z0-9/_]~i", "", (string)$privateKey);
 		if ($privateKey <> '')
 		{
 			$privateKey = "/".trim($privateKey, "/");

@@ -65,7 +65,7 @@
 	      main_core.Dom.clean(target);
 	      var dropdownNode = main_core.Dom.create('div', {
 	        attrs: {
-	          class: 'ui-ctl ui-ctl-after-icon ui-ctl-dropdown'
+	          "class": 'ui-ctl ui-ctl-after-icon ui-ctl-dropdown'
 	        },
 	        events: {
 	          click: onclick
@@ -74,7 +74,7 @@
 	      });
 	      target.appendChild(main_core.Dom.create('div', {
 	        attrs: {
-	          class: 'bizproc-automation-scheme__content --padding-15'
+	          "class": 'bizproc-automation-scheme__content --padding-15'
 	        },
 	        children: [dropdownNode]
 	      }));
@@ -129,7 +129,7 @@
 	        }
 
 	        main_core.Dom.removeClass(_this2.executeButton, 'ui-btn-wait');
-	      }).catch(function (response) {
+	      })["catch"](function (response) {
 	        response.errors.forEach(function (error) {
 	          return _this2.showError(error);
 	        });

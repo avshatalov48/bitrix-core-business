@@ -5,6 +5,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Landing\Hook\Page\Settings;
+use Bitrix\Landing\Landing;
+use Bitrix\Landing\Site;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
 use Bitrix\Catalog;
@@ -86,6 +88,29 @@ class StoreCatalogListBlock extends \Bitrix\Landing\LandingBlock
 	}
 
 	/**
+	 * Redirects to site 404 page, if that page exists.
+	 * @param int $siteId Site id.
+	 * @return void
+	 */
+	private function redirectTo404ifExists(int $siteId): void
+	{
+		$res = Site::getList([
+			'select' => [
+				'LANDING_ID_404'
+			],
+			'filter' => [
+				'=ID' => $siteId,
+				'>LANDING_ID_404' => 0
+			],
+			'limit' => 1
+		]);
+		if ($row = $res->fetch())
+		{
+			localRedirect(Landing::createInstance($row['LANDING_ID_404'])->getPublicUrl(), true, '301 Moved Permanently');
+		}
+	}
+
+	/**
 	 * Method, which will be called once time.
 	 * @param array Params array.
 	 * @return void
@@ -106,7 +131,7 @@ class StoreCatalogListBlock extends \Bitrix\Landing\LandingBlock
 		$sectionId = 0;
 		$sectionCode = '';
 		$variables = \Bitrix\Landing\Landing::getVariables();
-		if (isset($variables['sef'][0]))
+		if (isset($variables['sef'][0]) && $variables['sef'][0] !== 'item')
 		{
 			$sectionCode = $variables['sef'][0];
 			if (Loader::includeModule('iblock'))
@@ -115,6 +140,11 @@ class StoreCatalogListBlock extends \Bitrix\Landing\LandingBlock
 					$this->params['IBLOCK_ID'],
 					$sectionCode
 				);
+
+				if (!$sectionId)
+				{
+					$this->redirectTo404ifExists($this->params['SITE_ID']);
+				}
 			}
 		}
 

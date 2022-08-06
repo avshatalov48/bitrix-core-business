@@ -18,7 +18,7 @@ export class TeamManager
 
 	static getInstance()
 	{
-		return WorkgroupForm.instance;
+		return TeamManager.instance;
 	}
 
 	constructor(params)
@@ -41,6 +41,8 @@ export class TeamManager
 		this.isCurrentUserAdmin = (Type.isBoolean(params.isCurrentUserAdmin) ? params.isCurrentUserAdmin : false);
 		this.extranetInstalled = (Type.isBoolean(params.extranetInstalled) ? params.extranetInstalled : false);
 		this.allowExtranet = (Type.isBoolean(params.allowExtranet) ? params.allowExtranet : false);
+
+		TeamManager.instance = this;
 
 		this.buildOwnerSelector();
 		this.buildScrumMasterSelector();
@@ -156,7 +158,6 @@ export class TeamManager
 		const selectorOptions = this.moderatorsOptions;
 
 		this.moderatorsSelector = new TagSelector({
-
 			id: selectorOptions.selectorId || 'group_create_moderators',
 			dialogOptions: {
 				id: selectorOptions.selectorId || 'group_create_moderators',
@@ -396,6 +397,12 @@ export class TeamManager
 					isChecked: this.allowExtranet,
 					options: this.moderatorsOptions,
 				});
+
+				if (WorkgroupForm.getInstance().initialFocus === 'addModerator')
+				{
+					this.moderatorsSelector.getAddButtonLink().click();
+				}
+
 				break;
 			case TeamManager.contextList.users:
 				this.recalcSelectorByExtranetSwitched({

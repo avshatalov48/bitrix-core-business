@@ -24,8 +24,7 @@ class Conference
 		}
 
 		$authManager = new \CSocServAuthManager();
-		$activeSocServ = $authManager->GetActiveAuthServices([]);
-		if (!isset($activeSocServ['zoom']))
+		if (!$authManager->isActiveAuthService('zoom'))
 		{
 			return false;
 		}

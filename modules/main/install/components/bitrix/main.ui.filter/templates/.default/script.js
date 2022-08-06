@@ -1118,9 +1118,9 @@ this.BX = this.BX || {};
 	  };
 	})();
 
-	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 	var EntitySelector = /*#__PURE__*/function () {
 	  function EntitySelector(id, settings) {
@@ -2340,10 +2340,16 @@ this.BX = this.BX || {};
 
 	      if (searchString) {
 	        this.showClearButton();
+	        this.parent.setIsSetOutsideState(false);
+	        this.parent.setDefaultPresetAppliedState(false);
 	      } else {
 	        if (!this.getSquares().length && this.lastSearchString !== searchString) {
 	          this.hideClearButton();
 	          this.adjustPlaceholder();
+	        }
+
+	        if (this.parent.isAppliedDefaultPreset()) {
+	          this.parent.setDefaultPresetAppliedState(true);
 	        }
 	      }
 
@@ -2731,6 +2737,13 @@ this.BX = this.BX || {};
 	                  }
 	                }
 
+	                if (current.SUB_TYPE.VALUE === 'before_n') {
+	                  if (BX.type.isNotEmptyString(current.VALUES._to)) {
+	                    value = current.LABEL + ': < ';
+	                    value += current.VALUES._to;
+	                  }
+	                }
+
 	                break;
 	              }
 
@@ -2977,9 +2990,9 @@ this.BX = this.BX || {};
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
 
-	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$1(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 	(function () {
 
@@ -3025,9 +3038,10 @@ this.BX = this.BX || {};
 	   * @param dateTypes.NEXT_MONTH
 	   * @param dateTypes.NEXT_WEEK
 	   * @param {object} numberTypes Number field types from Bitrix\Main\UI\Filter\NumberType
+	   * @memberOf {BX.Main}
 	   */
 
-	  BX.Main.Filter = function (params, options, types, dateTypes, numberTypes, additionalDateTypes) {
+	  BX.Main.Filter = function (params, options, types, dateTypes, numberTypes, additionalDateTypes, additionalNumberTypes) {
 	    this.params = params;
 	    this.search = null;
 	    this.popup = null;
@@ -3036,6 +3050,7 @@ this.BX = this.BX || {};
 	    this.types = types;
 	    this.dateTypes = dateTypes;
 	    this.additionalDateTypes = additionalDateTypes;
+	    this.additionalNumberTypes = additionalNumberTypes;
 	    this.numberTypes = numberTypes;
 	    this.settings = new BX.Filter.Settings(options, this);
 	    this.filter = null;
@@ -3083,6 +3098,10 @@ this.BX = this.BX || {};
 	      this.getSearch().updatePreset(this.getParam('CURRENT_PRESET'));
 	      this.enableFieldsSearch = this.getParam('ENABLE_FIELDS_SEARCH', false);
 	      this.enableHeadersSections = this.getParam('HEADERS_SECTIONS', false);
+
+	      if (this.isAppliedDefaultPreset()) {
+	        this.setDefaultPresetAppliedState(true);
+	      }
 	    },
 	    getEmitter: function getEmitter() {
 	      return this.emitter;
@@ -3158,7 +3177,7 @@ this.BX = this.BX || {};
 
 	      if (BX.type.isDomNode(preset)) {
 	        BX.remove(preset);
-	        BX.prepend(sidebarItem, presetsContainer);
+	        presetsContainer.insertBefore(sidebarItem, Presets.getAddPresetField());
 	      } else {
 	        presetsContainer && presetsContainer.insertBefore(sidebarItem, Presets.getAddPresetField());
 	      }
@@ -3193,6 +3212,9 @@ this.BX = this.BX || {};
 	            sort: index,
 	            name: presetData.TITLE,
 	            fields: this.preparePresetSettingsFields(presetData.FIELDS),
+	            rows: presetData.FIELDS.map(function (field) {
+	              return field.NAME;
+	            }),
 	            for_all: forAll && !BX.type.isBoolean(presetData.FOR_ALL) || forAll && presetData.FOR_ALL === true
 	          };
 	        }
@@ -3710,6 +3732,7 @@ this.BX = this.BX || {};
 	      params.clear_filter = data.clear_filter || "N";
 	      params.with_preset = data.with_preset || "N";
 	      params.save = data.save || "N";
+	      params.isSetOutside = this.isSetOutside();
 	      var requestData = {
 	        params: params,
 	        data: data
@@ -4066,7 +4089,7 @@ this.BX = this.BX || {};
 
 	      for (var key in headersSections) {
 	        var itemClass = this.settings.classPopupSearchSectionItemIcon + (headersSections[key].selected ? " ".concat(this.settings.classPopupSearchSectionItemIconActive) : '');
-	        var headerSectionItem = BX.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"main-ui-filter-popup-search-section-item\" data-ui-popup-filter-section-button=\"", "\">\n\t\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), key, itemClass, BX.Text.encode(headersSections[key].name));
+	        var headerSectionItem = BX.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"main-ui-filter-popup-search-section-item\" data-ui-popup-filter-section-button=\"", "\">\n\t\t\t\t\t\t<div class=\"", "\">\n\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), key, itemClass, BX.Text.encode(headersSections[key].name));
 	        BX.bind(headerSectionItem, 'click', this.onFilterSectionClick.bind(this, headerSectionItem));
 	        headerSectionsWrapper.firstElementChild.appendChild(headerSectionItem);
 	      }
@@ -4456,7 +4479,10 @@ this.BX = this.BX || {};
 	        if (presetNameInput.value.length) {
 	          preset.updateEditablePreset(preset.getCurrentPresetId());
 	          this.saveUserSettings(forAll);
-	          !forAll && this.disableEdit();
+
+	          if (!forAll) {
+	            this.disableEdit();
+	          }
 	        } else {
 	          var presetMask = presetNode.querySelector(".main-ui-filter-edit-mask");
 	          showLengthError(presetMask).then(function () {
@@ -4466,6 +4492,7 @@ this.BX = this.BX || {};
 	      }
 	    },
 	    _onCancelButtonClick: function _onCancelButtonClick() {
+	      this.setIsSetOutsideState(false);
 	      this.disableAddPreset();
 	      this.getPreset().clearAddPresetFieldInput();
 	      this.disableEdit();
@@ -5089,14 +5116,41 @@ this.BX = this.BX || {};
 
 	      return false;
 	    },
+	    isAppliedDefaultPreset: function isAppliedDefaultPreset() {
+	      var _this3 = this;
+
+	      var presetData = this.getPreset().getCurrentPresetData();
+
+	      if (!presetData.IS_PINNED) {
+	        return false;
+	      }
+
+	      if (BX.Type.isArrayFilled(presetData.ADDITIONAL)) {
+	        var hasAdditional = presetData.ADDITIONAL.some(function (field) {
+	          return !_this3.getPreset().isEmptyField(field);
+	        });
+
+	        if (hasAdditional) {
+	          return false;
+	        }
+	      }
+
+	      if (BX.Type.isStringFilled(this.getSearch().getSearchString())) {
+	        return false;
+	      }
+
+	      return true;
+	    },
 
 	    /**
 	     * Applies filter
 	     * @param {?Boolean} [clear] - is need reset filter
 	     * @param {?Boolean} [applyPreset] - is need apply preset
+	     * @param {?Boolean} [isSetOutside] - is filter sets from outside
 	     * @return {BX.Promise}
 	     */
-	    applyFilter: function applyFilter(clear, applyPreset) {
+	    applyFilter: function applyFilter(clear, applyPreset, isSetOutside) {
+	      this.setIsSetOutsideState(isSetOutside);
 	      var presetId = this.getPresetId(clear, applyPreset);
 	      var filterId = this.getParam('FILTER_ID');
 	      var promise = new BX.Promise(null, this);
@@ -5106,6 +5160,7 @@ this.BX = this.BX || {};
 	        autoResolve: !this.grid
 	      };
 	      var self = this;
+	      this.setDefaultPresetAppliedState(this.isAppliedDefaultPreset());
 
 	      if (this.isAppliedUserFilter()) {
 	        BX.Dom.addClass(this.getSearch().container, 'main-ui-filter-search--active');
@@ -5528,7 +5583,7 @@ this.BX = this.BX || {};
 
 	      if (BX.type.isArray(defaultPresets)) {
 	        defaultPresets.sort(function (a, b) {
-	          return a.SORT < b.SORT;
+	          return a.SORT - b.SORT;
 	        });
 	        defaultPresets.forEach(function (defPreset) {
 	          isReplace = allPresets.some(function (current, index) {
@@ -5667,6 +5722,7 @@ this.BX = this.BX || {};
 	      }
 	    },
 	    _onFindButtonClick: function _onFindButtonClick() {
+	      this.setIsSetOutsideState(false);
 	      var presets = this.getPreset();
 	      var currentPresetId = presets.getCurrentPresetId();
 	      var promise;
@@ -6208,6 +6264,31 @@ this.BX = this.BX || {};
 	    getField: function getField(name) {
 	      var node = this.getFieldListContainer().querySelector('[data-name="' + name + '"]');
 	      return BX.Filter.Field.instances.get(node);
+	    },
+	    isSetOutside: function isSetOutside() {
+	      return BX.Text.toBoolean(this.isSetOutsideState);
+	    },
+	    setIsSetOutsideState: function setIsSetOutsideState(state) {
+	      this.isSetOutsideState = BX.Text.toBoolean(state);
+	      var searchContainer = this.getSearch().getContainer();
+
+	      if (this.isSetOutsideState) {
+	        BX.Dom.addClass(searchContainer, 'main-ui-filter-set-outside');
+	        BX.Dom.removeClass(searchContainer, 'main-ui-filter-set-inside');
+	      } else {
+	        BX.Dom.addClass(searchContainer, 'main-ui-filter-set-inside');
+	        BX.Dom.removeClass(searchContainer, 'main-ui-filter-set-outside');
+	      }
+	    },
+	    setDefaultPresetAppliedState: function setDefaultPresetAppliedState(state) {
+	      this.isDefaultPresetAppliedState = BX.Text.toBoolean(state);
+	      var searchContainer = this.getSearch().getContainer();
+
+	      if (this.isDefaultPresetAppliedState) {
+	        BX.Dom.addClass(searchContainer, 'main-ui-filter-default-applied');
+	      } else {
+	        BX.Dom.removeClass(searchContainer, 'main-ui-filter-default-applied');
+	      }
 	    }
 	  };
 	})();
@@ -6228,15 +6309,18 @@ this.BX = this.BX || {};
 	      }
 
 	      return result;
+	    },
+	    getList: function getList() {
+	      return Object.values(this.data);
 	    }
 	  };
 	})();
 
 	var _templateObject$1;
 
-	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$2(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 	var onValueChange = Symbol('onValueChange');
 	var Field = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Field, _Event$EventEmitter);
@@ -6538,6 +6622,10 @@ this.BX = this.BX || {};
 	var Api = /*#__PURE__*/function () {
 	  function Api(parent) {
 	    babelHelpers.classCallCheck(this, Api);
+
+	    /**
+	     * @var {BX.Main.Filter}
+	     */
 	    this.parent = parent;
 	  }
 
@@ -6569,7 +6657,8 @@ this.BX = this.BX || {};
 	        this.parent.getPreset().applyPreset(filter.preset_id);
 
 	        if (!filter.checkFields || !this.parent.getPreset().isPresetValuesModified(filter.preset_id)) {
-	          this.parent.applyFilter(false, filter.preset_id);
+	          var isSetOutside = true;
+	          this.parent.applyFilter(false, filter.preset_id, isSetOutside);
 	        } else {
 	          var newFields = {};
 
@@ -6636,7 +6725,10 @@ this.BX = this.BX || {};
 
 	      if (!this.parent.isEditEnabled()) {
 	        if (!this.parent.isEditEnabled()) {
-	          this.parent.applyFilter();
+	          var clear = false;
+	          var applyPreset = false;
+	          var isSetOutside = true;
+	          this.parent.applyFilter(clear, applyPreset, isSetOutside);
 	        }
 
 	        this.parent.closePopup();
@@ -6727,9 +6819,9 @@ this.BX = this.BX || {};
 
 	var _templateObject$2, _templateObject2$1;
 
-	function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-	function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$3(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$3(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$3(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$3(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 	/**
 	 * @memberOf BX.Filter
 	 */
@@ -6974,9 +7066,9 @@ this.BX = this.BX || {};
 
 	var _templateObject$3;
 
-	function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function ownKeys$4(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
-	function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$4(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$4(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+	function _objectSpread$4(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$4(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$4(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 	var errorMessages = new WeakMap();
 	var errorMessagesTypes = new WeakMap();
 	var values = new WeakMap();
@@ -7788,7 +7880,9 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createNumber",
 	    value: function createNumber(options) {
-	      var numberTypes = this.parent.numberTypes;
+	      var _this$parent = this.parent,
+	          numberTypes = _this$parent.numberTypes,
+	          additionalNumberTypes = _this$parent.additionalNumberTypes;
 	      var ENABLE_LABEL = this.parent.params.ENABLE_LABEL;
 	      var _options$SUB_TYPE = options.SUB_TYPE,
 	          SUB_TYPE = _options$SUB_TYPE === void 0 ? {} : _options$SUB_TYPE,
@@ -7834,7 +7928,7 @@ this.BX = this.BX || {};
 	        content: []
 	      };
 
-	      if (subType !== numberTypes.LESS) {
+	      if (subType !== numberTypes.LESS && subType !== additionalNumberTypes.BEFORE_N) {
 	        var from = {
 	          block: 'main-ui-control-field',
 	          type: TYPE,
@@ -7864,7 +7958,7 @@ this.BX = this.BX || {};
 	        fieldGroup.content.push(line);
 	      }
 
-	      if (subType === numberTypes.RANGE || subType === numberTypes.LESS) {
+	      if (subType === numberTypes.RANGE || subType === numberTypes.LESS || subType === additionalNumberTypes.BEFORE_N) {
 	        var to = {
 	          block: 'main-ui-control-field',
 	          type: TYPE,
@@ -7896,9 +7990,9 @@ this.BX = this.BX || {};
 	    value: function createDate(options) {
 	      var _this2 = this;
 
-	      var _this$parent = this.parent,
-	          dateTypes = _this$parent.dateTypes,
-	          additionalDateTypes = _this$parent.additionalDateTypes;
+	      var _this$parent2 = this.parent,
+	          dateTypes = _this$parent2.dateTypes,
+	          additionalDateTypes = _this$parent2.additionalDateTypes;
 	      var _options$SUB_TYPE2 = options.SUB_TYPE,
 	          SUB_TYPE = _options$SUB_TYPE2 === void 0 ? {} : _options$SUB_TYPE2,
 	          _options$SUB_TYPES2 = options.SUB_TYPES,
@@ -8638,6 +8732,8 @@ this.BX = this.BX || {};
 	        promise = this.parent.applyFilter();
 	      } else if (!isPinned) {
 	        var pinnedPresetId = this.getPinnedPresetId();
+	        var presetData = this.getPreset(pinnedPresetId);
+	        presetData.ADDITIONAL = [];
 	        var pinnedPresetNode = this.getPinnedPresetNode();
 	        var clear = false;
 	        var applyPreset = true;
@@ -8691,7 +8787,7 @@ this.BX = this.BX || {};
 	    value: function enableEditPresetName(presetNode) {
 	      var input = this.getPresetInput(presetNode);
 	      BX.addClass(presetNode, this.parent.settings.classPresetNameEdit);
-	      input.focus(); // noinspection SillyAssignmentJS
+	      input.select(); // noinspection SillyAssignmentJS
 
 	      input.value = BX.util.htmlspecialcharsback(input.value);
 	      main_core.Event.bind(input, 'input', BX.delegate(this._onPresetNameInput, this));

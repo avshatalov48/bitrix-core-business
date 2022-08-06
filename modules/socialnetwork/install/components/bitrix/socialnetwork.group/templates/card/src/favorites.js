@@ -1,5 +1,6 @@
 import {Type} from 'main.core';
 import {EventEmitter, BaseEvent} from 'main.core.events';
+import {Common, SonetGroupMenu} from 'socialnetwork.common';
 
 import {WorkgroupCardUtil} from './util';
 
@@ -35,14 +36,14 @@ class WorkgroupCardFavorites
 	{
 		const currentValue = this.getValue();
 		const newValue = !currentValue;
-		const sonetGroupMenu = BX.SocialnetworkUICommon.SonetGroupMenu.getInstance();
+		const sonetGroupMenu = SonetGroupMenu.getInstance();
 
 		this.setValue(newValue);
 
 		sonetGroupMenu.favoritesValue = newValue;
 		sonetGroupMenu.setItemTitle(newValue);
 
-		BX.SocialnetworkUICommon.setFavoritesAjax({
+		Common.setFavoritesAjax({
 			groupId: this.groupId,
 			favoritesValue: currentValue,
 			callback: {

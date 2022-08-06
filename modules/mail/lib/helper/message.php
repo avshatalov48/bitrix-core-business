@@ -311,7 +311,11 @@ class Message
 	{
 		global $USER;
 
-		if (!($userId > 0 || is_object($USER) && $USER->isAuthorized()))
+		if (
+			!($userId > 0 || is_object($USER) && $USER->isAuthorized()) ||
+			//If message id = 0 , the message is deleted or not loaded:
+			is_null($message['ID']) || $message['ID'] === 0 || $message['ID'] === '0'
+		)
 		{
 			return false;
 		}

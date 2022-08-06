@@ -102,7 +102,7 @@ $result = [
 			<li class="landing-block-card-social list-inline-item g-mr-10 g-my-5"
 				data-card-preset="telegram">
 				<a class="landing-block-card-social-icon-link u-icon-v2 g-width-35 g-height-35 g-font-size-16 g-color-white g-color-white--hover g-bg-primary--hover g-brd-white g-brd-primary--hover g-rounded-50x"
-				   href="https://telegram.com">
+				   href="https://telegram.org">
 					<i class="landing-block-card-social-icon fa fa-telegram"></i>
 				</a>
 			</li>',

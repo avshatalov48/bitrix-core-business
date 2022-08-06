@@ -9,7 +9,7 @@
 						<p>1At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.</p>
 					</div>
 					<div class="landing-block-node-button-container g-px-10 g-pb-40">
-						<a class="landing-block-node-button landing-semantic-link-image-medium js-animation animation-none btn btn-lg g-btn-type-outline g-btn-white g-btn-px-m rounded-0 g-btn-size-md mx-2 g-color-white g-color-black--hover" href="#">
+						<a class="landing-block-node-button landing-semantic-link-image-medium js-animation animation-none btn g-btn-type-outline g-btn-white g-btn-px-m rounded-0 g-btn-size-md mx-2 g-color-white g-color-black--hover" href="#">
 							Read more
 						</a>
 					</div>
@@ -24,7 +24,7 @@
 						<p>2At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.</p>
 					</div>
 					<div class="landing-block-node-button-container g-px-10 g-pb-40">
-						<a class="landing-block-node-button landing-semantic-link-image-medium js-animation animation-none btn btn-lg g-btn-type-outline g-btn-white g-btn-px-m rounded-0 g-btn-size-md mx-2 g-color-white g-color-black--hover" href="#">
+						<a class="landing-block-node-button landing-semantic-link-image-medium js-animation animation-none btn g-btn-type-outline g-btn-white g-btn-px-m rounded-0 g-btn-size-md mx-2 g-color-white g-color-black--hover" href="#">
 							Read more
 						</a>
 					</div>
@@ -39,7 +39,7 @@
 						<p>3At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.</p>
 					</div>
 					<div class="landing-block-node-button-container g-px-10 g-pb-40">
-						<a class="landing-block-node-button landing-semantic-link-image-medium js-animation animation-none btn btn-lg g-btn-type-outline g-btn-white g-btn-px-m rounded-0 g-btn-size-md mx-2 g-color-white g-color-black--hover" href="#">
+						<a class="landing-block-node-button landing-semantic-link-image-medium js-animation animation-none btn g-btn-type-outline g-btn-white g-btn-px-m rounded-0 g-btn-size-md mx-2 g-color-white g-color-black--hover" href="#">
 							Read more
 						</a>
 					</div>

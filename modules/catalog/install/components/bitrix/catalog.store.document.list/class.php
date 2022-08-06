@@ -5,6 +5,7 @@ use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Main;
 use Bitrix\Main\Context;
 use Bitrix\Main\Engine\Contract\Controllerable;
+use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\Json;
@@ -62,7 +63,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		{
 			CAllCrmInvoice::installExternalEntities();
 		}
-		
+
 		$this->init();
 		if (!$this->checkDocumentReadRights())
 		{
@@ -96,12 +97,12 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 	{
 	}
 
-	private function getFilterId()
+	private function getFilterId(): string
 	{
 		return self::FILTER_ID . '_' . $this->mode;
 	}
 
-	private function getGridId()
+	private function getGridId(): string
 	{
 		return self::GRID_ID . '_' . $this->mode;
 	}
@@ -148,7 +149,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$this->arResult['MODE'] = $this->mode;
 	}
 
-	private function prepareGrid()
+	private function prepareGrid(): array
 	{
 		$result = [];
 
@@ -170,10 +171,19 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 				break;
 			}
 		}
-
-		if ($sortField === 'STATUS')
+		switch ($sortField)
 		{
-			$gridSort['sort']['WAS_CANCELLED'] = $gridSort['sort']['STATUS'];
+			case 'STATUS':
+				$direction = $gridSort['sort'][$sortField];
+				$gridSort['sort'] = [
+					'STATUS' => $direction,
+					'WAS_CANCELLED' => $direction,
+					'ID' => 'DESC',
+				];
+				break;
+			default:
+				$gridSort['sort']['ID'] = 'DESC';
+				break;
 		}
 
 		$result['COLUMNS'] = $gridColumns;
@@ -181,16 +191,36 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$pageNavigation = new \Bitrix\Main\UI\PageNavigation($this->navParamName);
 		$pageNavigation->allowAllRecords(false)->setPageSize($pageSize)->initFromUri();
 
-		$this->arResult['GRID']['ROWS'] = $buffer = [];
+		$this->arResult['GRID']['ROWS'] = [];
 		$listFilter = $this->getListFilter();
+		$filteredProducts = [];
+		if (!empty($listFilter['PRODUCTS']))
+		{
+			$filteredProducts = $listFilter['PRODUCTS'];
+			unset($listFilter['PRODUCTS']);
+		}
+		$filteredStores = [];
+		if (!empty($listFilter['STORES']))
+		{
+			$filteredStores = $listFilter['STORES'];
+			unset($listFilter['STORES']);
+		}
 		$select = array_merge(['*'], $this->getUserSelectColumns($this->getUserReferenceColumns()));
-		$list = StoreDocumentTable::getList([
-			'order' => $gridSort['sort'],
-			'offset' => $pageNavigation->getOffset(),
-			'limit' => $pageNavigation->getLimit(),
-			'filter' => $listFilter,
-			'select' => $select,
-		])->fetchAll();
+		$query = StoreDocumentTable::query()
+			->setOrder($gridSort['sort'])
+			->setOffset($pageNavigation->getOffset())
+			->setLimit($pageNavigation->getLimit())
+			->setFilter($listFilter)
+			->setSelect($select);
+		if (!empty($filteredProducts))
+		{
+			$query->withProducts($filteredProducts);
+		}
+		if (!empty($filteredStores))
+		{
+			$query->withStores($filteredStores);
+		}
+		$list = $query->fetchAll();
 		$totalCount = $this->getTotalCount();
 		if($totalCount > 0)
 		{
@@ -223,9 +253,8 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$result['AJAX_ID'] = \CAjax::GetComponentID("bitrix:main.ui.grid", '', '');
 		$result['SHOW_PAGINATION'] = $totalCount > 0;
 		$result['SHOW_NAVIGATION_PANEL'] = true;
-		$result['NAV_PARAM_NAME'] = 'page';
 		$result['SHOW_PAGESIZE'] = true;
-		$result['PAGE_SIZES'] = [['NAME' => 10, 'VALUE' => 10], ['NAME' => 20, 'VALUE' => 20], ['NAME' => 50, 'VALUE' => 50]];
+		$result['PAGE_SIZES'] = [['NAME' => 10, 'VALUE' => '10'], ['NAME' => 20, 'VALUE' => '20'], ['NAME' => 50, 'VALUE' => '50']];
 		$result['SHOW_ROW_CHECKBOXES'] = true;
 		$result['SHOW_CHECK_ALL_CHECKBOXES'] = true;
 		$result['SHOW_ACTION_PANEL'] = true;
@@ -294,12 +323,12 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return $result;
 	}
 
-	private function getUserReferenceColumns()
+	private function getUserReferenceColumns(): array
 	{
 		return ['RESPONSIBLE', 'CREATED_BY_USER', 'MODIFIED_BY_USER', 'STATUS_BY_USER'];
 	}
 
-	private function getUserSelectColumns($userReferenceNames)
+	private function getUserSelectColumns($userReferenceNames): array
 	{
 		$result = [];
 		$fieldsToSelect = ['LOGIN', 'PERSONAL_PHOTO', 'NAME', 'SECOND_NAME', 'LAST_NAME'];
@@ -315,7 +344,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return $result;
 	}
 
-	private function getItemActions($item)
+	private function getItemActions($item): array
 	{
 		$labelText = $item['DOC_TYPE'] === StoreDocumentTable::TYPE_STORE_ADJUSTMENT
 			? Loc::getMessage('DOCUMENT_LIST_DOC_TYPE_A')
@@ -556,7 +585,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return $column;
 	}
 
-	private function prepareTitleView($column)
+	private function prepareTitleView($column): string
 	{
 		$urlToDocumentDetail = $this->getUrlToDocumentDetail($column['ID']);
 		if ($column['TITLE'])
@@ -575,12 +604,14 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return $result;
 	}
 
-	private function getContractors()
+	private function getContractors(): array
 	{
 		if (!is_null($this->contractors))
 		{
 			return $this->contractors;
 		}
+
+		$this->contractors = [];
 
 		$dbResult = \Bitrix\Catalog\ContractorTable::getList(['select' => ['ID', 'COMPANY', 'PERSON_NAME']]);
 		while ($contractor = $dbResult->fetch())
@@ -594,12 +625,14 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return $this->contractors;
 	}
 
-	private function getStores()
+	private function getStores(): array
 	{
 		if (!is_null($this->stores))
 		{
 			return $this->stores;
 		}
+
+		$this->stores = [];
 
 		$dbResult = \Bitrix\Catalog\StoreTable::getList(['select' => ['ID', 'TITLE']]);
 		while ($store = $dbResult->fetch())
@@ -613,12 +646,14 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return $this->stores;
 	}
 
-	private function getDocumentStores($documentIds)
+	private function getDocumentStores($documentIds): array
 	{
 		if (!is_null($this->documentStores))
 		{
 			return $this->documentStores;
 		}
+
+		$this->documentStores = [];
 
 		$storesResult = \Bitrix\Catalog\StoreDocumentElementTable::getList([
 			'select' => ['DOC_ID', 'STORE_FROM', 'STORE_TO'],
@@ -653,7 +688,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return $this->documentStores;
 	}
 
-	private function getUserDisplay($column, $userId, $userReferenceName)
+	private function getUserDisplay($column, $userId, $userReferenceName): string
 	{
 		$userEmptyAvatar = ' documents-grid-avatar-empty';
 		$userAvatar = '';
@@ -691,28 +726,41 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 
 	private function getTotalCount()
 	{
-		$count = StoreDocumentTable::getList([
-			'select' => ['CNT'],
-			'filter' => $this->getListFilter(),
-			'runtime' => [
-				new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(*)')
-			],
-		])->fetch()['CNT'];
-
-		return $count;
+		$listFilter = $this->getListFilter();
+		$filteredProducts = [];
+		if (!empty($listFilter['PRODUCTS']))
+		{
+			$filteredProducts = $listFilter['PRODUCTS'];
+			unset($listFilter['PRODUCTS']);
+		}
+		$filteredStores = [];
+		if (!empty($listFilter['STORES']))
+		{
+			$filteredStores = $listFilter['STORES'];
+			unset($listFilter['STORES']);
+		}
+		$query = StoreDocumentTable::query()
+			->setFilter($listFilter);
+		if (!empty($filteredProducts))
+		{
+			$query->withProducts($filteredProducts);
+		}
+		if (!empty($filteredStores))
+		{
+			$query->withStores($filteredStores);
+		}
+		return (int)$query->queryCountTotal();
 	}
 
 	private function getTotalCountWithoutUserFilter()
 	{
-		$count = StoreDocumentTable::getList([
+		return StoreDocumentTable::getList([
 			'select' => ['CNT'],
 			'filter' => $this->getDocTypeModeFilter(),
 			'runtime' => [
-				new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(*)')
+				new ExpressionField('CNT', 'COUNT(*)')
 			],
 		])->fetch()['CNT'];
-
-		return $count;
 	}
 
 	private function prepareToolbar()
@@ -777,7 +825,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$this->arResult['ADD_DOCUMENT_BTN_ID'] = $addDocumentButton->getUniqId();
 	}
 
-	private function isFirstTime()
+	private function isFirstTime(): bool
 	{
 		static $doIncomeDocsExist = null;
 
@@ -833,57 +881,34 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 	{
 		$preparedFilter = $filter;
 
-		if ($preparedFilter['STATUS'])
+		if (isset($preparedFilter['STATUS']))
 		{
 			$statuses = $preparedFilter['STATUS'];
 			unset($preparedFilter['STATUS']);
 
-			$statusFilters = [
-				'LOGIC' => 'OR',
-			];
+			$statusFilters = [];
 			foreach ($statuses as $status)
 			{
-				$statusFilter = [];
-				if ($status === 'Y')
+				$statusFilter = StoreDocumentTable::getOrmFilterByStatus($status);
+				if (!empty($statusFilter))
 				{
-					$statusFilter['STATUS'] = 'Y';
+					$statusFilters[] = $statusFilter;
 				}
-				elseif ($status === 'N')
-				{
-					$statusFilter['WAS_CANCELLED'] = 'N';
-					$statusFilter['STATUS'] = 'N';
-				}
-				elseif ($status === 'C')
-				{
-					$statusFilter['STATUS'] = 'N';
-					$statusFilter['WAS_CANCELLED'] = 'Y';
-				}
-
-				$statusFilters[] = $statusFilter;
 			}
-
-			$preparedFilter[] = $statusFilters;
+			if (!empty($statusFilters))
+			{
+				$preparedFilter[] = array_merge(
+					[
+						'LOGIC' => 'OR',
+					],
+					$statusFilters
+				);
+			}
 		}
 
-		if ($preparedFilter['DOC_NUMBER'])
+		if (isset($preparedFilter['DOC_NUMBER']))
 		{
 			$preparedFilter['DOC_NUMBER'] = '%' . $preparedFilter['DOC_NUMBER'] . '%';
-		}
-
-		if ($preparedFilter['STORES'])
-		{
-			$storeIds = $preparedFilter['STORES'];
-			unset($preparedFilter['STORES']);
-			$documentsWithStores = StoreDocumentTable::getList([
-				'select' => ['ID'],
-				'filter' => [
-					'LOGIC' => 'OR',
-					['ELEMENTS.STORE_FROM' => $storeIds],
-					['ELEMENTS.STORE_TO' => $storeIds],
-				],
-			])->fetchAll();
-			$documentsWithStores = array_unique(array_column($documentsWithStores, 'ID'));
-			$preparedFilter['ID'] = $documentsWithStores;
 		}
 
 		$filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filter->getID());
@@ -896,7 +921,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return $preparedFilter;
 	}
 
-	private function getDocTypeModeFilter()
+	private function getDocTypeModeFilter(): array
 	{
 		switch ($this->mode)
 		{
@@ -930,7 +955,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return $url;
 	}
 
-	private function isUserFilterApplied()
+	private function isUserFilterApplied(): bool
 	{
 		return !empty($this->getUserFilter());
 	}

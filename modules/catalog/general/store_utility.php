@@ -9,7 +9,7 @@ class CCatalogStoreControlUtil
 	 * @param $storeId
 	 * @return string
 	 */
-	public static function getStoreName($storeId)
+	public static function getStoreName($storeId): string
 	{
 		$storeId = (int)$storeId;
 		if ($storeId <= 0)
@@ -49,10 +49,9 @@ class CCatalogStoreControlUtil
 	 */
 	public static function getProductInfo($elementId)
 	{
-		$elementId = intval($elementId);
-		$result = "";
+		$elementId = (int)$elementId;
 		if($elementId <= 0)
-			return $result;
+			return '';
 
 		$dbProduct = CIBlockElement::GetList(
 			array(),
@@ -61,57 +60,80 @@ class CCatalogStoreControlUtil
 			false,
 			array('ID', 'IBLOCK_ID', 'IBLOCK_SECTION_ID', 'DETAIL_PICTURE', 'PREVIEW_PICTURE', 'NAME', 'XML_ID')
 		);
-		while($arProduct = $dbProduct->GetNext())
+		$arProduct = $dbProduct->GetNext();
+		unset($dbProduct);
+		if (empty($arProduct))
 		{
-			$imgCode = "";
-
-			if($arProduct["IBLOCK_ID"] > 0)
-				$arProduct["EDIT_PAGE_URL"] = CIBlock::GetAdminElementEditLink($arProduct["IBLOCK_ID"], $elementId, array("find_section_section" => $arProduct["IBLOCK_SECTION_ID"]));
-
-			if($arProduct["DETAIL_PICTURE"] > 0)
-				$imgCode = $arProduct["DETAIL_PICTURE"];
-			elseif($arProduct["PREVIEW_PICTURE"] > 0)
-				$imgCode = $arProduct["PREVIEW_PICTURE"];
-
-			$arProduct["NAME"] = ($arProduct["NAME"]);
-			$arProduct["DETAIL_PAGE_URL"] = htmlspecialcharsex($arProduct["DETAIL_PAGE_URL"]);
-
-			if($imgCode > 0)
-			{
-				$arFile = CFile::GetFileArray($imgCode);
-				$arImgProduct = CFile::ResizeImageGet($arFile, array('width' => 80, 'height' => 80), BX_RESIZE_IMAGE_PROPORTIONAL, false, false);
-				$arProduct["IMG_URL"] = $arImgProduct['src'];
-			}
-
-			return $arProduct;
+			return '';
 		}
-		return $result;
+
+		if($arProduct["IBLOCK_ID"] > 0)
+		{
+			$arProduct["EDIT_PAGE_URL"] = CIBlock::GetAdminElementEditLink(
+				$arProduct["IBLOCK_ID"],
+				$elementId,
+				["find_section_section" => $arProduct["IBLOCK_SECTION_ID"]]
+			);
+		}
+		$arProduct["DETAIL_PAGE_URL"] = htmlspecialcharsex($arProduct["DETAIL_PAGE_URL"]);
+
+		$imgCode = "";
+		if($arProduct["DETAIL_PICTURE"] > 0)
+		{
+			$imgCode = $arProduct["DETAIL_PICTURE"];
+		}
+		elseif($arProduct["PREVIEW_PICTURE"] > 0)
+		{
+			$imgCode = $arProduct["PREVIEW_PICTURE"];
+		}
+
+		if ($imgCode > 0)
+		{
+			$arFile = CFile::GetFileArray($imgCode);
+			$arImgProduct = CFile::ResizeImageGet($arFile, array('width' => 80, 'height' => 80), BX_RESIZE_IMAGE_PROPORTIONAL, false, false);
+			$arProduct["IMG_URL"] = $arImgProduct['src'];
+		}
+
+		return $arProduct;
 	}
 
 	/** Checks whether the same method in the class, describing the transmitted document type. Calls this method and returns a set of fields for this type of document.
-	 * @param $docType
-	 * @return bool
+	 * @param string $docType
+	 * @return array|null
 	 */
-	public static function getFields($docType)
+	public static function getFields(string $docType): ?array
 	{
-		if($docType <> '' && isset(CCatalogDocs::$types[$docType]))
+		if($docType !== '' && isset(CCatalogDocs::$types[$docType]))
 		{
+			/** @var CCatalogDocsTypes $documentClass */
 			$documentClass = CCatalogDocs::$types[$docType];
-			if(method_exists($documentClass, "getFields"))
-			{
-				return $documentClass::getFields();
-			}
+			return $documentClass::getFields();
 		}
-		return false;
+		return null;
 	}
 
+	public static function getTypeFields(string $docType): ?array
+	{
+		if ($docType !== '' && isset(CCatalogDocs::$types[$docType]))
+		{
+			/** @var CCatalogDocsTypes $documentClass */
+			$documentClass = CCatalogDocs::$types[$docType];
+
+			return [
+				'DOCUMENT' => $documentClass::getDocumentFields(),
+				'ELEMENT' => $documentClass::getElementFields(),
+			];
+		}
+
+		return null;
+	}
 
 	/** Generate a list of products on which did not match the total number and amount of all warehouses.
 	 * @param $arProduct
 	 * @param int $numberDisplayedElements
 	 * @return string
 	 */
-	public static function showErrorProduct($arProduct, $numberDisplayedElements = 10)
+	public static function showErrorProduct($arProduct, $numberDisplayedElements = 10): string
 	{
 		$strError = '';
 		$numberDisplayedElements = intval($numberDisplayedElements);
@@ -174,5 +196,110 @@ class CCatalogStoreControlUtil
 			self::$storeNames[$store['ID']] = ($store['TITLE'] !== '' ? $store['TITLE'].' ('.$store['ADDRESS'].')' : $store['ADDRESS']);
 		}
 		unset($store, $storeIterator, $filter);
+	}
+
+	/**
+	 * Returns multiple files from \Bitrix\Main\UI\FileInput control.
+	 *
+	 * @param \Bitrix\Main\HttpRequest $request
+	 * @param array $fieldList
+	 * @return array|null
+	 */
+	public static function getMultipleFilesFromPost(\Bitrix\Main\HttpRequest $request, array $fieldList): ?array
+	{
+		if (empty($fieldList))
+		{
+			return null;
+		}
+
+		$result = [];
+		$requestFields = $request->getPostList();
+		foreach ($fieldList as $fieldId)
+		{
+			if (!is_string($fieldId) || $fieldId === '')
+			{
+				continue;
+			}
+			if (isset($requestFields[$fieldId]) && is_array($requestFields[$fieldId]))
+			{
+				foreach ($requestFields[$fieldId] as $rowId => $value)
+				{
+					$fileRow = [];
+					$parsed = [];
+					if (preg_match('/^[0-9]+$/', $rowId, $parsed))
+					{
+						$fileRow = [
+							'ID' => (int)$rowId,
+						];
+					}
+					elseif (preg_match('/^n[0-9]+$/', $rowId, $parsed))
+					{
+						$fileRow = [
+							'ID' => null,
+						];
+					}
+
+					if (empty($fileRow))
+					{
+						continue;
+					}
+
+					if (is_array($value))
+					{
+						$fileRow['FILE_UPLOAD'] = \CIBlock::makeFileArray(
+							$value
+						);
+					}
+					elseif (is_string($value))
+					{
+						if (preg_match('/^[0-9]+$/', $value, $parsed))
+						{
+							$fileRow['FILE_ID'] = (int)$value;
+						}
+						else
+						{
+							continue;
+						}
+					}
+					else
+					{
+						continue;
+					}
+
+					if (!isset($result[$fieldId]))
+					{
+						$result[$fieldId] = [];
+					}
+					$result[$fieldId][$rowId] = $fileRow;
+				}
+			}
+
+			$deleteFieldId = $fieldId . '_del';
+			if (isset($requestFields[$deleteFieldId]) && is_array($requestFields[$deleteFieldId]))
+			{
+				foreach ($requestFields[$deleteFieldId] as $rowId => $value)
+				{
+					if ($value !== 'Y')
+					{
+						continue;
+					}
+					$parsed = [];
+					if (!preg_match('/^[0-9]+$/', $rowId, $parsed))
+					{
+						continue;
+					}
+					$rowId = (int)$rowId;
+					if (!isset($result[$fieldId]))
+					{
+						$result[$fieldId] = [];
+					}
+					$result[$fieldId][$rowId] = [
+						'DEL' => $value,
+					];
+				}
+			}
+		}
+
+		return (!empty($result) ? $result : null);
 	}
 }

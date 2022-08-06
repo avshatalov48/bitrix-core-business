@@ -347,7 +347,13 @@ if($arParams["CATEGORY_ID"])
 
 if (
 	!empty($arParams["FILTER"])
-	&& isset($arParams["FILTER"][">UF_BLOG_POST_IMPRTNT"])
+	&& (
+		isset($arParams["FILTER"][">UF_BLOG_POST_IMPRTNT"])
+		|| (
+			isset($arParams["FILTER"]["=UF_BLOG_POST_IMPRTNT"])
+			&& (int)$arParams["FILTER"]["=UF_BLOG_POST_IMPRTNT"] === 1
+		)
+	)
 )
 {
 	$arPostUserFields = $USER_FIELD_MANAGER->GetUserFields("BLOG_POST");

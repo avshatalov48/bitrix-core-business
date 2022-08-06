@@ -20,8 +20,8 @@ interface ThreadStrategy
 	function setGroupStateId(int $groupStateId): ThreadStrategy;
 
 	function updateStatus(string $status): bool;
-//	function updateOffset(): bool;
 
 	function lastThreadId(): int;
 	function isProcessLimited(): bool;
+	function checkThreads(): ?int;
 }

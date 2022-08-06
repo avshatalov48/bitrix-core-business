@@ -70,7 +70,7 @@ BX.SidePanel.Instance.bindAnchors({
 			condition: [
 				BX.message('SONET_SLIDER_GROUP_SEF') + 'group/(\\d+)/card/'
 			],
-			loader: 'group-card-loader',
+			loader: 'socialnetwork:group-card',
 			options: {
 				width: 900
 			}

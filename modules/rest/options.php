@@ -57,7 +57,7 @@ $allOptions = [
 			'PRECISION' => 2,
 			'ABS' => 'Y'
 		]
-	]
+	],
 ];
 $filterOptions = [
 	[

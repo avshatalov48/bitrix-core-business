@@ -26,6 +26,7 @@ use Bitrix\Sender\Internals\Model\PostingThreadTable;
 use Bitrix\Sender\MailingTable;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Message\Adapter;
+use Bitrix\Sender\Posting\ThreadStrategy\AbstractThreadStrategy;
 use Bitrix\Sender\Posting\ThreadStrategy\IThreadStrategy;
 use Bitrix\Sender\PostingRecipientTable;
 use Bitrix\Sender\PostingTable;
@@ -173,6 +174,13 @@ class Sender
 			return;
 		}
 
+		$threadState = $this->threadStrategy->checkThreads();
+		if ($threadState === AbstractThreadStrategy::THREAD_LOCKED)
+		{
+			$this->resultCode = static::RESULT_CONTINUE;
+			return;
+		}
+
 		$this->startTime();
 
 		$this->isConsentSupport = $this->letter
@@ -181,7 +189,12 @@ class Sender
 				->get('APPROVE_CONFIRMATION') === 'Y';
 
 		$this->threadStrategy->setPostingId($this->postingId);
-		$this->threadStrategy->fillThreads();
+
+		if ($threadState === AbstractThreadStrategy::THREAD_NEEDED)
+		{
+			$this->threadStrategy->fillThreads();
+		}
+
 		$this->threadStrategy->lockThread();
 		$threadId = $this->threadStrategy->getThreadId();
 

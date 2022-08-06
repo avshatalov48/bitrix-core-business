@@ -168,8 +168,13 @@ if ($USER->IsAuthorized())
 	}
 	elseif (array_key_exists("set_expert_mode", $_GET))
 	{
-		\Bitrix\Socialnetwork\LogViewTable::set($USER->GetID(), 'tasks', ($_GET["set_expert_mode"] == "Y" ? "N" : "Y"));
-		if ($_GET["set_expert_mode"] == "Y")
+		$value = ($_GET['set_expert_mode'] === 'Y' ? 'N' : 'Y');
+
+		\Bitrix\Socialnetwork\LogViewTable::set($USER->GetID(), 'tasks', $value);
+		\Bitrix\Socialnetwork\LogViewTable::set($USER->GetID(), 'crm_activity_add', $value);
+		\Bitrix\Socialnetwork\LogViewTable::set($USER->GetID(), 'crm_activity_add_comment', $value);
+
+		if ($_GET['set_expert_mode'] === 'Y')
 		{
 			$_SESSION["SL_EXPERT_MODE_HINT"] = "Y";
 		}

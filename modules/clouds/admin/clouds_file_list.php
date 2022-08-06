@@ -74,7 +74,7 @@ if (
 		?>
 		<script>
 			CloseWaitWindow();
-			<?=$sTableID?>.GetAdminList('<?echo CUtil::JSEscape($APPLICATION->GetCurPage().'?bucket='.$obBucket->ID.'&path='.urlencode($path))?>');
+			<?=$sTableID?>.GetAdminList('<?echo CUtil::JSEscape($APPLICATION->GetCurPage().'?bucket='.$obBucket->ID.'&path='.rawurlencode($path))?>');
 		</script>
 		<?
 	}
@@ -110,14 +110,14 @@ if ($arID = $lAdmin->GroupAction())
 			{
 				if ($find_name == "" || preg_match($re_find_name, $file))
 				{
-					$arID[] =  "F".urlencode($file);
+					$arID[] =  "F".$file;
 				}
 			}
 			foreach($arFiles["dir"] as $i => $file)
 			{
 				if ($find_name == "" || preg_match($re_find_name, $file))
 				{
-					$arID[] =  "D".urlencode($file);
+					$arID[] =  "D".$file;
 				}
 			}
 		}
@@ -131,7 +131,9 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 	{
 		if($ID == '')
 			continue;
-		$ID = urldecode($ID);
+
+		if(is_array($_REQUEST['ID']))
+			$ID = rawurldecode($ID);
 
 		switch($action)
 		{
@@ -204,7 +206,13 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 						));
 						$lAdmin->EndPrologContent();
 						$lAdmin->BeginEpilogContent();
-						echo '<script>ShowWaitWindow();' . $lAdmin->ActionDoGroup(urlencode($ID), "delete", "bucket=".urlencode($obBucket->ID)."&path=".urlencode($path)."&deleteCount=50") . ';</script>';
+						echo '<script>ShowWaitWindow();' . $lAdmin->ActionDoGroup(rawurlencode($ID), "delete", "bucket=".rawurlencode($obBucket->ID)."&path=".rawurlencode($path)."&deleteCount=50") . ';</script>';
+						$lAdmin->EndEpilogContent();
+					}
+					else
+					{
+						$lAdmin->BeginEpilogContent();
+						echo '<script>CloseWaitWindow();</script>';
 						$lAdmin->EndEpilogContent();
 					}
 				}
@@ -380,7 +388,10 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 								}
 
 								if($moveResult == CCloudStorage::FILE_SKIPPED)
+								{
+									$obUpload->Delete();
 									$strError = GetMessage("CLO_STORAGE_FILE_UNKNOWN_ERROR", array("#CODE#" => "e03"));
+								}
 								else
 								{
 									?><script>
@@ -422,7 +433,7 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 					"BUTTONS" => array(
 						array(
 							"VALUE" => GetMessage("CLO_STORAGE_FILE_STOP"),
-							"ONCLICK" => 'window.location = \''.CUtil::AddSlashes("/bitrix/admin/clouds_file_list.php?lang=".urlencode(LANGUAGE_ID)."&bucket=".urlencode($obBucket->ID)."&path=".urlencode($path)).'\'',
+							"ONCLICK" => 'window.location = \''.CUtil::AddSlashes("/bitrix/admin/clouds_file_list.php?lang=".urlencode(LANGUAGE_ID)."&bucket=".urlencode($obBucket->ID)."&path=".rawurlencode($path)).'\'',
 						),
 					),
 				));
@@ -439,7 +450,7 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 					"TYPE"=>"OK",
 				));
 				?><script>
-					<?=$sTableID?>.GetAdminList('<?echo CUtil::JSEscape($APPLICATION->GetCurPage().'?lang='.urlencode(LANGUAGE_ID).'&bucket='.urlencode($obBucket->ID).'&path='.urlencode($path))?>');
+					<?=$sTableID?>.GetAdminList('<?echo CUtil::JSEscape($APPLICATION->GetCurPage().'?lang='.urlencode(LANGUAGE_ID).'&bucket='.urlencode($obBucket->ID).'&path='.rawurlencode($path))?>');
 				</script><?
 			}
 
@@ -640,7 +651,7 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 					"BUTTONS" => array(
 						array(
 							"VALUE" => GetMessage("CLO_STORAGE_FILE_STOP"),
-							"ONCLICK" => 'window.location = \''.CUtil::JSEscape("/bitrix/admin/clouds_file_list.php?lang=".urlencode(LANGUAGE_ID)."&bucket=".urlencode($obBucket->ID)."&path=".urlencode($path)).'\'',
+							"ONCLICK" => 'window.location = \''.CUtil::JSEscape("/bitrix/admin/clouds_file_list.php?lang=".urlencode(LANGUAGE_ID)."&bucket=".urlencode($obBucket->ID)."&path=".rawurlencode($path)).'\'',
 						),
 					),
 				));
@@ -662,7 +673,7 @@ if($USER->CanDoOperation("clouds_upload") && is_array($arID))
 			if($moveResult == CCloudStorage::FILE_PARTLY_UPLOADED)
 			{
 				$lAdmin->BeginEpilogContent();
-				echo '<script>BX.ready(function(){', $lAdmin->ActionDoGroup(urlencode($ID), "upload", "bucket=".urlencode($obBucket->ID)."&path=".urlencode($path)."&filePath=".urlencode($filePath)), '});</script>';
+				echo '<script>BX.ready(function(){', $lAdmin->ActionDoGroup(urlencode($ID), "upload", "bucket=".urlencode($obBucket->ID)."&path=".rawurlencode($path)."&filePath=".rawurlencode($filePath)), '});</script>';
 				$lAdmin->EndEpilogContent();
 			}
 			break;
@@ -835,7 +846,7 @@ if (is_array($arFiles))
 			else
 			{
 				$arFiles["dir"][$dir] = array(
-					"ID" => "D".urlencode($dir),
+					"ID" => "D".rawurlencode($dir),
 					"TYPE" => "dir",
 					"NAME" => $dir,
 					"FILE_SIZE" => $arFiles["file_size"][$i],
@@ -847,7 +858,7 @@ if (is_array($arFiles))
 		elseif ($find_name == "" || preg_match($re_find_name, $file))
 		{
 			$arData[] = array(
-				"ID" => "F".urlencode($file),
+				"ID" => "F".rawurlencode($file),
 				"TYPE" => "file",
 				"NAME" => $file,
 				"FILE_SIZE" => $arFiles["file_size"][$i],
@@ -881,7 +892,7 @@ if (is_array($arFiles))
 			}
 
 			$arData[] = array(
-				"ID" => "D".urlencode($dir),
+				"ID" => "D".rawurlencode($dir),
 				"TYPE" => "dir",
 				"NAME" => $dir,
 				"FILE_SIZE" => $size,
@@ -1008,11 +1019,11 @@ while(is_array($arRes = $rsData->NavNext()))
 		{
 			$parent = preg_replace('#[^/]*/$#', '', $path);
 			$row->bReadOnly = true;
-			$row->AddViewField("FILE_NAME", '<a href="'.htmlspecialcharsbx('clouds_file_list.php?lang='.urlencode(LANGUAGE_ID).'&bucket='.urlencode($obBucket->ID).'&path='.urlencode($parent)).'" class="adm-list-table-icon-link"><span class="adm-submenu-item-link-icon adm-list-table-icon clouds-up-icon"></span><span class="adm-list-table-link">'.htmlspecialcharsex($arRes["NAME"]).'</span></a>');
+			$row->AddViewField("FILE_NAME", '<a href="'.htmlspecialcharsbx('clouds_file_list.php?lang='.urlencode(LANGUAGE_ID).'&bucket='.urlencode($obBucket->ID).'&path='.rawurlencode($parent)).'" class="adm-list-table-icon-link"><span class="adm-submenu-item-link-icon adm-list-table-icon clouds-up-icon"></span><span class="adm-list-table-link">'.htmlspecialcharsex($arRes["NAME"]).'</span></a>');
 		}
 		else
 		{
-			$row->AddViewField("FILE_NAME", '<a href="'.htmlspecialcharsbx('clouds_file_list.php?lang='.urlencode(LANGUAGE_ID).'&bucket='.urlencode($obBucket->ID).'&path='.urlencode($path.$arRes["NAME"].'/')).'" class="adm-list-table-icon-link"><span class="adm-submenu-item-link-icon adm-list-table-icon clouds-directory-icon"></span><span class="adm-list-table-link">'.htmlspecialcharsex($arRes["NAME"]).'</span></a>');
+			$row->AddViewField("FILE_NAME", '<a href="'.htmlspecialcharsbx('clouds_file_list.php?lang='.urlencode(LANGUAGE_ID).'&bucket='.urlencode($obBucket->ID).'&path='.rawurlencode($path.$arRes["NAME"].'/')).'" class="adm-list-table-icon-link"><span class="adm-submenu-item-link-icon adm-list-table-icon clouds-directory-icon"></span><span class="adm-list-table-link">'.htmlspecialcharsex($arRes["NAME"]).'</span></a>');
 		}
 	}
 	else
@@ -1026,7 +1037,7 @@ while(is_array($arRes = $rsData->NavNext()))
 		$arActions[] = array(
 			"ICON"=>"delete",
 			"TEXT"=>GetMessage("CLO_STORAGE_FILE_DELETE"),
-			"ACTION"=>"if(confirm('".GetMessage("CLO_STORAGE_FILE_DELETE_CONF")."')) ".$lAdmin->ActionDoGroup($arRes["ID"], "delete", 'bucket='.urlencode($obBucket->ID).'&path='.urlencode($path))
+			"ACTION"=>"if(confirm('".GetMessage("CLO_STORAGE_FILE_DELETE_CONF")."')) ".$lAdmin->ActionDoGroup($arRes["ID"], "delete", 'bucket='.urlencode($obBucket->ID).'&path='.rawurlencode($path))
 		);
 
 	if(!empty($arActions))
@@ -1069,7 +1080,7 @@ foreach($arPath as $dir)
 	if($dir != "")
 	{
 		$curPath .= $dir."/";
-		$url = "clouds_file_list.php?lang=".urlencode(LANGUAGE_ID)."&bucket=".urlencode($obBucket->ID)."&path=".urlencode($curPath);
+		$url = "clouds_file_list.php?lang=".urlencode(LANGUAGE_ID)."&bucket=".urlencode($obBucket->ID)."&path=".rawurlencode($curPath);
 		$chain->AddItem(array(
 			"TEXT" => htmlspecialcharsex($dir),
 			"LINK" => htmlspecialcharsbx($url),
@@ -1106,7 +1117,7 @@ else
 {
 	$aContext[] = array(
 		"TEXT" => GetMessage("CLO_STORAGE_FILE_SHOW_DIR_SIZE"),
-		"LINK" => "/bitrix/admin/clouds_file_list.php?lang=".urlencode(LANGUAGE_ID).'&bucket='.urlencode($obBucket->ID).'&path='.urlencode($path).'&size=y',
+		"LINK" => "/bitrix/admin/clouds_file_list.php?lang=".urlencode(LANGUAGE_ID).'&bucket='.urlencode($obBucket->ID).'&path='.rawurlencode($path).'&size=y',
 		"TITLE" => GetMessage("CLO_STORAGE_FILE_SHOW_DIR_SIZE_TITLE"),
 	);
 }
@@ -1125,7 +1136,7 @@ if(is_object($message))
 	{
 		ShowWaitWindow();
 		BX.ajax.post(
-			'clouds_file_list.php?lang=<?echo LANGUAGE_ID?>&<?echo bitrix_sessid_get()?>&act=listing&bucket='+<?=$obBucket->ID?>+'&path=<?echo urlencode($path)?>&lastKey=' + lastKey,
+			'clouds_file_list.php?lang=<?echo LANGUAGE_ID?>&<?echo bitrix_sessid_get()?>&act=listing&bucket='+<?=$obBucket->ID?>+'&path=<?echo rawurlencode($path)?>&lastKey=' + lastKey,
 			null,
 			function (result)
 			{
@@ -1199,7 +1210,7 @@ $oFilter->Begin();
 <?
 $oFilter->Buttons(array(
 	"table_id"=>$sTableID,
-	"url"=>"/bitrix/admin/clouds_file_list.php?lang=".urlencode(LANGUAGE_ID).'&bucket='.urlencode($obBucket->ID).'&path='.urlencode($path),
+	"url"=>"/bitrix/admin/clouds_file_list.php?lang=".urlencode(LANGUAGE_ID).'&bucket='.urlencode($obBucket->ID).'&path='.rawurlencode($path),
 	"form"=>"find_form",
 ));
 $oFilter->End();
@@ -1240,7 +1251,7 @@ function get_upload_url(additional_args)
 		+ 'action=chunk_upload'
 		+ '&ID=Fnew'
 		+ '&lang=<?echo urlencode(LANGUAGE_ID)?>'
-		+ '&path=<?echo urlencode($path)?>'
+		+ '&path=<?echo rawurlencode($path)?>'
 		+ '&path_to_upload=' + BX.util.urlencode(BX('path_to_upload').value)
 		+ '&<?echo bitrix_sessid_get()?>'
 		+ '&bucket=<?echo CUtil::JSEscape($obBucket->ID)?>'

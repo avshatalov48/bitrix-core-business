@@ -2925,7 +2925,15 @@ class CIMChat
 			";
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			$arRes = $dbRes->Fetch();
-			if (!$arRes)
+			if ($arRes)
+			{
+				if (\Bitrix\Im\User::getInstance()->isExtranet())
+				{
+					$GLOBALS["APPLICATION"]->ThrowException(GetMessage("IM_ERROR_AUTHORIZE_ERROR"), "AUTHORIZE_ERROR");
+					return false;
+				}
+			}
+			else
 			{
 				$strSql = "
 					SELECT
@@ -3259,11 +3267,7 @@ class CIMChat
 			}
 		}
 
-		if (
-			$message
-			&& $chatType !== IM_MESSAGE_OPEN
-			&& $chatEntityType !== 'THREAD'
-		)
+		if ($message)
 		{
 			$lastId = self::AddMessage(Array(
 				"TO_CHAT_ID" => $chatId,
@@ -3484,10 +3488,6 @@ class CIMChat
 
 		$message = '';
 
-		if ($chatType === IM_MESSAGE_OPEN || $chatEntityType === 'THREAD')
-		{
-			$skipMessage = true;
-		}
 
 		if ($skipMessage)
 		{
@@ -3582,7 +3582,8 @@ class CIMChat
 					"CODE" => 'CHAT_LEAVE',
 					"NOTIFY" => $chatEntityType == 'LINES'? 'Y': 'N',
 				),
-				"PUSH" => 'N'
+				"PUSH" => 'N',
+				"SKIP_USER_CHECK" => "Y",
 			));
 		}
 
@@ -3598,7 +3599,7 @@ class CIMChat
 				'NOTIFY_TYPE' => IM_NOTIFY_SYSTEM,
 				'NOTIFY_MODULE' => 'im',
 				'NOTIFY_TITLE' => htmlspecialcharsback($arRes['CHAT_TITLE']),
-				'NOTIFY_MESSAGE' => "$notificationMessage",
+				'NOTIFY_MESSAGE' => $notificationMessage,
 			];
 			CIMNotify::Add($notificationFields);
 		}

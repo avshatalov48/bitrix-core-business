@@ -2,7 +2,12 @@
 global $APPLICATION;
 /** @var array $arResult */
 
-CJSCore::Init(array('popup'));
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'popup',
+]);
+
 use Bitrix\Main\Localization\Loc;
 
 /** @var \Bitrix\MessageService\Sender\Sms\SmsAssistentBy $sender */

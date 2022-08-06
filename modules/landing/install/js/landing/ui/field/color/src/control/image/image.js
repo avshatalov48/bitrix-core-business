@@ -29,7 +29,6 @@ export default class Image extends BaseControl
 			className: 'landing-ui-field-color-image-image',
 			compactMode: true,
 			disableLink: true,
-			// selector: options.selector,
 			disableAltField: true,
 			allowClear: true,
 			dimensions: {width: 1920},
@@ -42,27 +41,19 @@ export default class Image extends BaseControl
 		this.imgField.subscribe('change', this.onImageChange.bind(this));
 
 		this.sizeField = new BX.Landing.UI.Field.Dropdown({
-			// todo: need commented fields?
 			id: 'landing_ui_color_image_size_' + Text.getRandom().toLowerCase(),
-			// title: 'size field title',
-			// description: 'ButtonGroup size description',
 			title: Loc.getMessage('LANDING_FIELD_COLOR-BG_SIZE_TITLE'),
 			className: 'landing-ui-field-color-image-size',
-			// selector: this.options.selector,
 			items: BgImageValue.getSizeItemsForButtons(),
 			onChange: this.onSizeChange.bind(this),
 			contentRoot: this.options.contentRoot,
 		});
 
 		this.attachmentField = new BX.Landing.UI.Field.Checkbox({
-			// todo: need commented fields?
 			id: 'landing_ui_color_image_attach_' + Text.getRandom().toLowerCase(),
 			className: 'landing-ui-field-color-image-attachment',
-			// title: 'attachement field title',
-			// description: 'ButtonGroup size description',
 			multiple: false,
 			compact: true,
-			// selector: options.selector,
 			items: [
 				{name: Loc.getMessage('LANDING_FIELD_COLOR-BG_FIXED'), value: true},
 			],

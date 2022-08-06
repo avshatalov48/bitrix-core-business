@@ -363,6 +363,7 @@ else
 									'ERROR_MESSAGE' => ($errorMessage <> '' ? $errorMessage : ''),
 									'URL' => ($errorMessage <> '' ? '' : $arResult["Urls"]["Group"]),
 									'URL_GROUPS_LIST' => ($errorMessage <> '' ? '' : $arResult["Urls"]["GroupsList"]),
+									'GROUP_ID' => $arParams['GROUP_ID'],
 								));
 								require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 								die();

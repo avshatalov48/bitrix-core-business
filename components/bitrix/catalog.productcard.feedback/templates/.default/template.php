@@ -10,6 +10,7 @@ Loader::includeModule('ui');
 
 Toolbar::deleteFavoriteStar();
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 $APPLICATION->SetTitle(\Bitrix\Main\Localization\Loc::getMessage('CATALOG_PRODUCTCARD_FEEDBACK_TITLE'));
 ?>
 <script id="bx24_form_inline" data-skip-moving="true">

@@ -5,7 +5,7 @@
 .sender-start-link {
 	display: inline-block;
 	border: none;
-	font: 15px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #0063C6;
 	transition: color .3s;
 	cursor: pointer;
@@ -17,7 +17,8 @@
 }
 
 .sender-start-link-small-grey-bold {
-	font: 10px/14px 'OpenSans-Bold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 10px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: rgba(130,139,149,.5);
 }
 
@@ -26,7 +27,7 @@
 }
 
 .sender-start-link-small-grey {
-	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #A8ADB4;
 }
 
@@ -45,7 +46,8 @@
 	margin: 0 0 18px 0;
 	padding: 0 0 17px 0;
 	border-bottom: 1px solid rgba(82,92,105,.09);
-	font: 18px/24px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 18px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .sender-start-tile {
@@ -143,7 +145,8 @@
 }
 
 .sender-start-tile-name {
-	font: 15px/20px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .sender-start-tile-campaign .sender-start-tile-item {
@@ -184,14 +187,16 @@
 .sender-start-table-name {
 	margin: 0 0 4px 0;
 	max-width: 310px;
-	font: 14px/16px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
 
 .sender-start-table-desc {
-	font: 13px/15px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: rgba(149,159,171,.7);
 }
 
@@ -205,7 +210,8 @@
 
 .sender-start-campaign-create-desc {
 	margin: 38px 0 28px 0;
-	font: 24px/33px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 24px/33px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .sender-start-campaign-create.webform-small-button {

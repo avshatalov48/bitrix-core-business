@@ -1,4 +1,4 @@
-import {Browser, Cache, Dom, Event, Extension, Loc, Tag, Text, Type} from 'main.core';
+import {ajax, Browser, Cache, Dom, Event, Extension, Loc, Runtime, Tag, Text, Type} from 'main.core';
 import {Dialog, Item} from 'ui.entity-selector';
 import './component.css';
 import {EventEmitter} from 'main.core.events';
@@ -8,6 +8,13 @@ import ProductSearchSelectorFooter from './product-search-selector-footer';
 import ProductCreationLimitedFooter from './product-creation-limited-footer';
 import {SelectorErrorCode} from './selector-error-code';
 import 'ui.notification';
+
+class DialogMode
+{
+	static SEARCHING: string = 'SEARCHING';
+	static SHOW_PRODUCT_ITEM: string = 'SHOW_PRODUCT_ITEM';
+	static SHOW_RECENT: string = 'SHOW_RECENT';
+}
 
 export class ProductSearchInput
 {
@@ -36,6 +43,9 @@ export class ProductSearchInput
 			this.immutableFieldNames.push(this.inputName);
 		}
 		this.ajaxInProcess = false;
+		this.loadedSelectedItem = null;
+
+		this.handleSearchInput = Runtime.debounce(this.searchInDialog, 500, this);
 	}
 
 	destroy()
@@ -43,12 +53,12 @@ export class ProductSearchInput
 
 	}
 
-	getId()
+	getId(): string
 	{
 		return this.id;
 	}
 
-	getSelectorType()
+	getSelectorType(): string
 	{
 		return ProductSelector.INPUT_FIELD_NAME;
 	}
@@ -58,7 +68,7 @@ export class ProductSearchInput
 		return this.model.getField(fieldName);
 	}
 
-	getValue()
+	getValue(): string
 	{
 		return this.getField(this.inputName);
 	}
@@ -199,10 +209,16 @@ export class ProductSearchInput
 			);
 			Dom.append(this.getSearchIcon(), block);
 
-			Event.bind(this.getNameInput(), 'click', this.handleShowSearchDialog.bind(this));
-			Event.bind(this.getNameInput(), 'input', this.handleShowSearchDialog.bind(this));
+			Event.bind(this.getNameInput(), 'click', this.handleClickNameInput.bind(this));
+			Event.bind(this.getNameInput(), 'input', this.handleSearchInput);
 			Event.bind(this.getNameInput(), 'blur', this.handleNameInputBlur.bind(this));
 			Event.bind(this.getNameInput(), 'keydown', this.handleNameInputKeyDown.bind(this));
+
+			this.dialogMode =
+				this.model.isCatalogExisted()
+					? DialogMode.SHOW_PRODUCT_ITEM
+					: DialogMode.SHOW_RECENT
+			;
 		}
 
 		if (this.showDetailLink() && Type.isStringFilled(this.getValue()))
@@ -300,38 +316,39 @@ export class ProductSearchInput
 	}
 
 	initHasDialogItems()
-	{		
-		if (!Type.isNil(this.isHasDialogItems))
+	{
+		if (!Type.isNil(this.selector.getConfig('EXIST_DIALOG_ITEMS')))
 		{
 			return;
 		}
 
 		if (!this.selector.getModel().isEmpty())
 		{
-			this.isHasDialogItems = true;
+			this.selector.setConfig('EXIST_DIALOG_ITEMS', true);
 			return;
 		}
 		
 		// is null, that not send ajax
-		this.isHasDialogItems = false;
-		
+		this.selector.setConfig('EXIST_DIALOG_ITEMS', false);
+
 		const dialog = this.getDialog();
 		if (dialog.hasDynamicLoad())
 		{
-			dialog.hasRecentItems().then((isHasItems) => {
-				if (isHasItems === true)
+			this.#loadPreselectedItems();
+			dialog.subscribeOnce('onLoad', () => {
+				if (dialog.getPreselectedItems().length > 1)
 				{
-					this.isHasDialogItems = true;
+					this.selector.setConfig('EXIST_DIALOG_ITEMS', true);
 				}
-			});	
+			});
 		}
 		else
 		{
-			this.isHasDialogItems = true;
+			this.selector.setConfig('EXIST_DIALOG_ITEMS', true);
 		}
 	}
 
-	isAllowedCreateProduct()
+	isAllowedCreateProduct(): boolean
 	{
 		return this.selector.getConfig('IS_ALLOWED_CREATION_PRODUCT', true);
 	}
@@ -381,12 +398,12 @@ export class ProductSearchInput
 
 	handleClearIconClick(event: UIEvent)
 	{
+		this.loadedSelectedItem = null;
 		if (this.selector.isProductSearchEnabled() && !this.model.isEmpty())
 		{
 			this.selector.clearState();
 			this.selector.clearLayout();
 			this.selector.layout();
-			this.selector.searchInDialog();
 		}
 		else
 		{
@@ -444,7 +461,28 @@ export class ProductSearchInput
 		requestAnimationFrame(() => this.getNameInput().focus());
 	}
 
-	searchInDialog(searchQuery: string = '')
+	searchInDialog(): void
+	{
+		const searchQuery = this.getFilledValue().trim();
+		if (searchQuery === '')
+		{
+			if (this.isHasDialogItems === false)
+			{
+				this.getDialog().hide();
+				return;
+			}
+
+			this.loadedSelectedItem = null;
+			this.#showPreselectedItems()
+			return;
+		}
+
+		this.dialogMode = DialogMode.SEARCHING;
+		this.#searchItem(searchQuery);
+		this.isSearchingInProcess = true;
+	}
+
+	#showSelectedItem()
 	{
 		if (!this.selector.isProductSearchEnabled())
 		{
@@ -452,31 +490,129 @@ export class ProductSearchInput
 		}
 
 		const dialog = this.getDialog();
-		if (dialog)
-		{
-			dialog.removeItems();
+		dialog.removeItems();
 
-			searchQuery = searchQuery.trim();
-			if (searchQuery === '')
+		new Promise((resolve) => {
+			if (!Type.isNil(this.loadedSelectedItem))
 			{
-				if (this.isHasDialogItems === false)
-				{
-					dialog.hide();
-					return;
-				}
-				
-				dialog.loadState = 'UNSENT';
-				dialog.load();
+				resolve();
+				return;
 			}
-			
-			dialog.show();
-			dialog.search(searchQuery);
-		}
+
+			dialog.showLoader();
+			ajax.runAction(
+				'catalog.productSelector.getSkuSelectorItem',
+				{
+					json: {
+						id: this.selector.getModel().getSkuId(),
+						options: {
+							iblockId: this.model.getIblockId(),
+							basePriceId: this.model.getBasePriceId(),
+							currency: this.model.getCurrency(),
+						},
+					}
+				}
+			)
+				.then((response) => {
+					dialog.hideLoader();
+					this.loadedSelectedItem = null;
+					if (Type.isObject(response.data) && !dialog.isLoading())
+					{
+						this.loadedSelectedItem = dialog.addItem(response.data);
+					}
+					resolve();
+				});
+		})
+			.then(() => {
+				if (!Type.isNil(this.loadedSelectedItem))
+				{
+					dialog.setPreselectedItems([this.selector.getModel().getSkuId()]);
+					dialog.getRecentTab().getRootNode().addItem(this.loadedSelectedItem);
+					dialog.selectFirstTab();
+					dialog.getFooter().hide();
+				}
+				else
+				{
+					this.searchInDialog();
+				}
+			});
+
+		dialog.getPopup().show();
+		dialog.getFooter().hide();
 	}
 
-	handleShowSearchDialog(event: UIEvent)
+	#loadPreselectedItems()
 	{
-		this.searchInDialog(this.getNameInput().value);
+		const dialog = this.getDialog();
+		if (dialog.isLoading())
+		{
+			return;
+		}
+
+		if (this.loadedSelectedItem)
+		{
+			dialog.removeItems();
+			dialog.loadState = 'UNSENT';
+			this.loadedSelectedItem = null;
+		}
+
+		dialog.load();
+	}
+
+	#showPreselectedItems()
+	{
+		if (!this.selector.isProductSearchEnabled())
+		{
+			return;
+		}
+
+		this.dialogMode = DialogMode.SHOW_RECENT;
+		const dialog = this.getDialog();
+		this.#loadPreselectedItems();
+
+		dialog.selectFirstTab();
+		dialog.getFooter()?.hide();
+		dialog.show();
+	}
+
+	#searchItem(searchQuery: string = '')
+	{
+		if (!this.selector.isProductSearchEnabled())
+		{
+			return;
+		}
+
+		const dialog = this.getDialog();
+		dialog.getPopup().show();
+		dialog.search(searchQuery);
+	}
+
+	handleClickNameInput(): void
+	{
+		const dialog = this.getDialog();
+
+		if (
+			dialog.isOpen()
+			|| (this.getFilledValue() === '' && this.isHasDialogItems === false)
+		)
+		{
+			dialog.hide();
+			return;
+		}
+
+		if (this.getFilledValue() === '')
+		{
+			this.#showPreselectedItems();
+			return;
+		}
+
+		if (!this.model.isCatalogExisted() || this.dialogMode !== DialogMode.SHOW_PRODUCT_ITEM)
+		{
+			this.searchInDialog();
+			return;
+		}
+
+		this.#showSelectedItem();
 	}
 
 	handleNameInputBlur(event: UIEvent)
@@ -513,7 +649,7 @@ export class ProductSearchInput
 					!this.selector.inProcess()
 					&& (
 						this.model.isEmpty()
-						|| !Type.isStringFilled(this.getNameInput().value)
+						|| !Type.isStringFilled(this.getFilledValue())
 					)
 				)
 				{
@@ -537,7 +673,7 @@ export class ProductSearchInput
 		event.preventDefault();
 	}
 
-	getImmutableFieldNames()
+	getImmutableFieldNames(): []
 	{
 		return this.immutableFieldNames;
 	}
@@ -578,10 +714,12 @@ export class ProductSearchInput
 			this.selector.layout();
 		}
 
+		this.dialogMode = DialogMode.SHOW_PRODUCT_ITEM;
+		this.loadedSelectedItem = item;
 		this.cache.delete('dialog');
 	}
 
-	createProductModelFromSearchQuery(searchQuery: string)
+	createProductModelFromSearchQuery(searchQuery: string): ProductModel
 	{
 		const fields = {...this.selector.getModel().getFields()};
 		fields[this.inputName] = searchQuery;

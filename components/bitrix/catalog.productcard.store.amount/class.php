@@ -188,6 +188,12 @@ class CatalogProductStoreAmountComponent
 			'HEADERS' => $this->getGridHeaders(),
 			'ROWS' => [],
 			'STUB' => $emptyGridStub,
+
+			'AJAX_MODE' => 'Y',
+			'AJAX_ID' => \CAjax::GetComponentID('bitrix:main.ui.grid', '', ''),
+			'AJAX_OPTION_JUMP' => 'N',
+			'AJAX_OPTION_STYLE' => 'N',
+			'AJAX_OPTION_HISTORY' => 'N',
 		];
 	}
 
@@ -228,10 +234,10 @@ class CatalogProductStoreAmountComponent
 			'CURRENT_PAGE' => $pageNavigation->getCurrentPage(),
 			'SHOW_PAGESIZE' => true,
 			'PAGE_SIZES' => [
-				['NAME' => 5, 'VALUE' => 5],
-				['NAME' => 10, 'VALUE' => 10],
-				['NAME' => 20, 'VALUE' => 20],
-				['NAME' => 50, 'VALUE' => 50],
+				['NAME' => '5', 'VALUE' => '5'],
+				['NAME' => '10', 'VALUE' => '10'],
+				['NAME' => '20', 'VALUE' => '20'],
+				['NAME' => '50', 'VALUE' => '50'],
 			],
 			'DEFAULT_PAGE_SIZE' => self::DEFAULT_PAGE_SIZE,
 

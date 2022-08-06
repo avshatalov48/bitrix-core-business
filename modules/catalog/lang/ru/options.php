@@ -93,7 +93,6 @@ $MESS["CAT_PRODUCT_CARD"] = "Карточка товара";
 $MESS["CAT_CATALOGS_LIST"] = "Перечень торговых каталогов";
 $MESS["CAT_SKU_SETTINGS"] = "Торговые предложения";
 $MESS["CAT_DISCOUNT"] = "Скидки";
-$MESS["CAT_DISCOUNT_VAT"] = "Скидки считать на сумму с НДС";
 $MESS["CAT_DISCSAVE_APPLY"] = "Механизм применения накопительных скидок";
 $MESS["CAT_DISCOUNT_PERCENT_FROM_BASE_PRICE"] = "Процентная скидка рассчитывается для полной цены товара:";
 $MESS["CAT_DISCOUNT_PERCENT_FROM_BASE_PRICE_YES"] = "Да";

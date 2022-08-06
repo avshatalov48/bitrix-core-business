@@ -8900,7 +8900,7 @@ window._main_polyfill_core = true;
 	            }
 
 	            if (Type.isString(item)) {
-	              element.innerHTML += item;
+	              element.insertAdjacentHTML('beforeend', item);
 	            }
 	          });
 	          return element;
@@ -10775,6 +10775,10 @@ window._main_polyfill_core = true;
 
 	let _Symbol$iterator;
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
 	var _searchIndexToInsert = /*#__PURE__*/new WeakSet();
@@ -10785,7 +10789,7 @@ window._main_polyfill_core = true;
 	  function OrderedArray(comparator = null) {
 	    babelHelpers.classCallCheck(this, OrderedArray);
 
-	    _searchIndexToInsert.add(this);
+	    _classPrivateMethodInitSpec(this, _searchIndexToInsert);
 
 	    babelHelpers.defineProperty(this, "comparator", null);
 	    babelHelpers.defineProperty(this, "items", []);
@@ -11205,7 +11209,9 @@ window._main_polyfill_core = true;
 	  return ZIndexStack;
 	}();
 
-	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } return method; }
+	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
+
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
 
 	/**
 	 * @memberof BX

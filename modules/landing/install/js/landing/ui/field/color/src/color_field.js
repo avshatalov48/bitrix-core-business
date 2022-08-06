@@ -212,6 +212,7 @@ export class ColorField extends BaseField
 			}
 		});
 
+		processorValue = this.processor.prepareProcessorValue(processorValue, defaultValue);
 		if (processorValue !== null)
 		{
 			this.processor.setProcessorValue(processorValue);

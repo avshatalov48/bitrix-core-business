@@ -17,7 +17,8 @@ use Bitrix\Main\Page\Asset;
 	"im.lib.clipboard",
 	"im.component.conference.conference-edit",
 	"calendar.planner",
-	"calendar.util"
+	"calendar.util",
+	"ui.design-tokens",
 ]);
 \CJSCore::Init(["loader", "date"]);
 

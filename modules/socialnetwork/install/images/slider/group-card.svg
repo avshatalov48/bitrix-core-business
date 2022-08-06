@@ -1,0 +1,78 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="1035" xmlns="http://www.w3.org/2000/svg">
+
+	<svg height="1035px">
+		<rect width="100%" height="1035" fill="#EEF2F4"/>
+		<rect x="19.6841" y="73" width="890" height="60" fill="white"/>
+		<path fill-rule="evenodd" clip-rule="evenodd" d="M20 469H458V929H20V469Z" fill="white"/>
+		<path fill-rule="evenodd" clip-rule="evenodd" d="M473 148H911V634H473V148Z" fill="white"/>
+		<path fill-rule="evenodd" clip-rule="evenodd" d="M20 148H458V454H20V148Z" fill="white"/>
+		<path fill-rule="evenodd" clip-rule="evenodd" d="M473 647H911V808H473V647Z" fill="white"/>
+	</svg>
+
+	<svg height="1035px" id="header">
+		<defs>
+
+		</defs>
+		<rect x="82" y="27" width="264" height="10" rx="2" fill="#DEE2E6"/>
+		<rect x="28" y="14" width="34" height="34" rx="17" fill="#DEE2E6"/>
+		<rect x="44" y="101" width="80" height="6" rx="2" fill="#DEE2E6"/>
+		<rect x="166" y="101" width="80" height="6" rx="2" fill="#DEE2E6"/>
+		<rect x="288" y="101" width="80" height="6" rx="2" fill="#DEE2E6"/>
+
+		<rect x="143" y="669" width="192" height="6" rx="2" fill="#DEE2E6"/>
+		<rect x="164" y="688" width="150" height="6" rx="2" fill="#DEE2E6"/>
+		<path d="M194 598C194 573.147 214.147 553 239 553C263.853 553 284 573.147 284 598C284 622.853 263.853 643 239 643C214.147 643 194 622.853 194 598Z" fill="#DEE2E6"/>
+		<path d="M187 744.5C187 732.074 197.074 722 209.5 722C221.926 722 232 732.074 232 744.5C232 756.926 221.926 767 209.5 767C197.074 767 187 756.926 187 744.5Z" fill="#DEE2E6"/>
+		<path d="M248 744.5C248 732.074 258.074 722 270.5 722C282.926 722 293 732.074 293 744.5C293 756.926 282.926 767 270.5 767C258.074 767 248 756.926 248 744.5Z" fill="#DEE2E6"/>
+		<rect x="131" y="795" width="216" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="160" y="808" width="158" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="160" y="870" width="158" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="141" y="496" width="197" height="8" rx="2" fill="#DEE2E6"/>
+		<rect x="203" y="846" width="73" height="8" rx="2" fill="#DEE2E6"/>
+
+		<rect x="496" y="254" width="216" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="496" y="314" width="216" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="496" y="374" width="216" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="496" y="434" width="216" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="496" y="494" width="216" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="496" y="174" width="197" height="8" rx="2" fill="#DEE2E6"/>
+		<rect x="496" y="239" width="184" height="6" rx="2" fill="#DEE2E6"/>
+		<rect x="496" y="299" width="184" height="6" rx="2" fill="#DEE2E6"/>
+		<rect x="496" y="359" width="184" height="6" rx="2" fill="#DEE2E6"/>
+		<rect x="496" y="419" width="184" height="6" rx="2" fill="#DEE2E6"/>
+		<rect x="496" y="479" width="184" height="6" rx="2" fill="#DEE2E6"/>
+
+		<rect x="40" y="330" width="80" height="6" rx="2" fill="#DEE2E6"/>
+		<rect x="43" y="254" width="216" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="43" y="270" width="216" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="43" y="194" width="216" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="43" y="174" width="197" height="8" rx="2" fill="#DEE2E6"/>
+		<rect x="43" y="239" width="184" height="6" rx="2" fill="#DEE2E6"/>
+		<rect x="40" y="354" width="301" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="40" y="367" width="301" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="40" y="380" width="301" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="40" y="393" width="301" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="40" y="406" width="131" height="4" rx="2" fill="#DEE2E6"/>
+
+		<rect x="493" y="684" width="80" height="6" rx="2" fill="#DEE2E6"/>
+		<rect x="493" y="708" width="301" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="493" y="721" width="301" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="493" y="734" width="301" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="493" y="747" width="301" height="4" rx="2" fill="#DEE2E6"/>
+		<rect x="493" y="760" width="131" height="4" rx="2" fill="#DEE2E6"/>
+	</svg>
+
+	<rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="1035"/>
+
+	<mask id="headerMsk" fill="white">
+		<use xlink:href="#header"/>
+	</mask>
+
+	<linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+		<stop stop-color="#000000" stop-opacity="0" offset="0%"/>
+		<stop stop-color="#000000" stop-opacity="0.07" offset="50%"/>
+		<stop stop-color="#000000" stop-opacity="0" offset="100%"/>
+	</linearGradient>
+
+	<animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+</svg>

@@ -23,4 +23,5 @@ interface IThreadStrategy
 
 	function lastThreadId(): int;
 	function isProcessLimited(): bool;
+	function checkThreads(): ?int;
 }

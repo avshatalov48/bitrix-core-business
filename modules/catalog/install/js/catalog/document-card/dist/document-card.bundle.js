@@ -133,7 +133,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    value: function enableSaveButton() {
 	      var _this$_editor;
 
-	      if ((_this$_editor = this._editor) === null || _this$_editor === void 0 ? void 0 : _this$_editor._toolPanel) {
+	      if ((_this$_editor = this._editor) !== null && _this$_editor !== void 0 && _this$_editor._toolPanel) {
 	        this._editor._toolPanel.enableSaveButton();
 	      }
 	    }
@@ -142,7 +142,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    value: function disableSaveButton() {
 	      var _this$_editor2;
 
-	      if ((_this$_editor2 = this._editor) === null || _this$_editor2 === void 0 ? void 0 : _this$_editor2._toolPanel) {
+	      if ((_this$_editor2 = this._editor) !== null && _this$_editor2 !== void 0 && _this$_editor2._toolPanel) {
 	        this._editor._toolPanel.disableSaveButton();
 	      }
 	    }
@@ -217,7 +217,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      sliders.forEach(function (slider) {
 	        var _slider$getWindow, _slider$getWindow$BX$;
 
-	        if ((_slider$getWindow = slider.getWindow()) === null || _slider$getWindow === void 0 ? void 0 : (_slider$getWindow$BX$ = _slider$getWindow.BX.Catalog) === null || _slider$getWindow$BX$ === void 0 ? void 0 : _slider$getWindow$BX$.DocumentGridManager) {
+	        if ((_slider$getWindow = slider.getWindow()) !== null && _slider$getWindow !== void 0 && (_slider$getWindow$BX$ = _slider$getWindow.BX.Catalog) !== null && _slider$getWindow$BX$ !== void 0 && _slider$getWindow$BX$.DocumentGridManager) {
 	          slider.getWindow().BX.onCustomEvent('DocumentCard:onDocumentCardSave');
 	        }
 	      });
@@ -557,45 +557,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return ProductRowSummary;
 	}(BX.UI.EntityEditorField);
 
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block-text\">", "</div>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block-text\">", "</div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\"></div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<input name=\"", "\" type=\"hidden\" value=\"", "\"/>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
 
 	var Contractor = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(Contractor, _BX$UI$EntityEditorFi);
@@ -650,11 +612,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        this.currentContractorName = this.getContractorNameFromModel();
 	      }
 
-	      this._input = main_core.Tag.render(_templateObject(), name, value);
+	      this._input = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<input name=\"", "\" type=\"hidden\" value=\"", "\"/>"])), name, value);
 
 	      this._wrapper.appendChild(this._input);
 
-	      this.innerWrapper = main_core.Tag.render(_templateObject2());
+	      this.innerWrapper = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block\"></div>"])));
 
 	      this._wrapper.appendChild(this.innerWrapper);
 
@@ -698,7 +660,12 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	                _this2._changeHandler();
 	              },
-	              'Search:onItemCreateAsync': this.createContractor.bind(this)
+	              'Search:onItemCreateAsync': this.createContractor.bind(this),
+	              'Item:onDeselect': function ItemOnDeselect(event) {
+	                _this2._input.value = '';
+
+	                _this2._changeHandler();
+	              }
 	            }
 	          }
 	        });
@@ -710,9 +677,9 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      } else // if(this._mode === BX.UI.EntityEditorMode.view)
 	        {
 	          if (this.hasContentToDisplay()) {
-	            this.viewModeDisplay = main_core.Tag.render(_templateObject3(), BX.util.htmlspecialchars(this.currentContractorName));
+	            this.viewModeDisplay = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block-text\">", "</div>"])), BX.util.htmlspecialchars(this.currentContractorName));
 	          } else {
-	            this.viewModeDisplay = main_core.Tag.render(_templateObject4(), main_core.Loc.getMessage('DOCUMENT_CONTRACTOR_NOT_FILLED'));
+	            this.viewModeDisplay = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-entity-editor-content-block-text\">", "</div>"])), main_core.Loc.getMessage('DOCUMENT_CONTRACTOR_NOT_FILLED'));
 	          }
 
 	          this.innerWrapper.appendChild(this.viewModeDisplay);
@@ -805,7 +772,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	          dialog.hide();
 	          resolve();
-	        }).catch(function () {
+	        })["catch"](function () {
 	          dialog.hideLoader();
 	          BX.UI.Notification.Center.notify({
 	            content: main_core.Loc.getMessage('DOCUMENT_ADD_CONTRACTOR_ERROR')
@@ -860,9 +827,17 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return FieldsFactory;
 	}();
 
-	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
 
-	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } return value; }
+	function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
+
+	function _classStaticPrivateFieldSpecSet(receiver, classConstructor, descriptor, value) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "set"); _classApplyDescriptorSet(receiver, descriptor, value); return value; }
+
+	function _classCheckPrivateStaticFieldDescriptor(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
+
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+
+	function _classApplyDescriptorSet(receiver, descriptor, value) { if (descriptor.set) { descriptor.set.call(receiver, value); } else { if (!descriptor.writable) { throw new TypeError("attempted to set read only private field"); } descriptor.value = value; } }
 
 	var DocumentCard = /*#__PURE__*/function (_BaseCard) {
 	  babelHelpers.inherits(DocumentCard, _BaseCard);
@@ -910,6 +885,8 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  babelHelpers.createClass(DocumentCard, [{
 	    key: "initDocumentTypeSelector",
 	    value: function initDocumentTypeSelector() {
+	      var _this2 = this;
+
 	      var documentTypeSelector = this.settings.documentTypeSelector;
 	      var documentTypeSelectorTypes = this.settings.documentTypeSelectorTypes;
 
@@ -929,6 +906,17 @@ this.BX.Catalog = this.BX.Catalog || {};
 	                DOCUMENT_TYPE: type
 	              });
 	              slider.url = BX.Uri.removeParam(slider.url, ['firstTime']);
+
+	              if (type === 'A' || type === 'S') {
+	                slider.requestMethod = 'post';
+	                slider.requestParams = {
+	                  'preloadedFields': {
+	                    'DOCUMENT_FIELDS': _this2.getDocumentFieldsForTypeSwitching(),
+	                    'PRODUCTS': _this2.getProductsForTypeSwitching()
+	                  }
+	                };
+	              }
+
 	              slider.setFrameSrc();
 	            }
 	          }
@@ -943,6 +931,58 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        e.preventDefault();
 	        popupMenu.show();
 	      });
+	    }
+	  }, {
+	    key: "getDocumentFieldsForTypeSwitching",
+	    value: function getDocumentFieldsForTypeSwitching() {
+	      var documentFields = {};
+	      var editor = this.getEditorInstance();
+
+	      if (!editor) {
+	        return documentFields;
+	      }
+
+	      var form = editor.getFormElement();
+	      var formData = new FormData(form);
+	      var formProps = Object.fromEntries(formData);
+	      var fieldsToTransfer = ['TITLE', 'CURRENCY', 'TOTAL'];
+	      fieldsToTransfer.forEach(function (field) {
+	        var _formProps$field;
+
+	        documentFields[field] = (_formProps$field = formProps[field]) !== null && _formProps$field !== void 0 ? _formProps$field : '';
+	      });
+	      return documentFields;
+	    }
+	  }, {
+	    key: "getProductsForTypeSwitching",
+	    value: function getProductsForTypeSwitching() {
+	      var products = [];
+
+	      if (!main_core.Reflection.getClass('BX.Catalog.Store.ProductList.Instance')) {
+	        return products;
+	      }
+
+	      var productFields = ['ID', 'STORE_TO', {
+	        'ELEMENT_ID': 'SKU_ID'
+	      }, 'AMOUNT', 'PURCHASING_PRICE', 'BASE_PRICE', 'BASE_PRICE_EXTRA', 'BASE_PRICE_EXTRA_RATE'];
+	      BX.Catalog.Store.ProductList.Instance.getProductsFields().forEach(function (productRow) {
+	        var product = {};
+	        productFields.forEach(function (field) {
+	          if (main_core.Type.isObject(field)) {
+	            var _productRow$sourceFie;
+
+	            var destinationField = Object.keys(field)[0];
+	            var sourceField = field[destinationField];
+	            product[destinationField] = (_productRow$sourceFie = productRow[sourceField]) !== null && _productRow$sourceFie !== void 0 ? _productRow$sourceFie : '';
+	          } else {
+	            var _productRow$field;
+
+	            product[field] = (_productRow$field = productRow[field]) !== null && _productRow$field !== void 0 ? _productRow$field : '';
+	          }
+	        });
+	        products.push(product);
+	      });
+	      return products;
 	    }
 	  }, {
 	    key: "openMasterSlider",
@@ -965,7 +1005,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	              BX.SidePanel.Instance.getOpenSliders().forEach(function (slider) {
 	                var _slider$getWindow, _slider$getWindow$BX$;
 
-	                if ((_slider$getWindow = slider.getWindow()) === null || _slider$getWindow === void 0 ? void 0 : (_slider$getWindow$BX$ = _slider$getWindow.BX.Catalog) === null || _slider$getWindow$BX$ === void 0 ? void 0 : _slider$getWindow$BX$.DocumentGridManager) {
+	                if ((_slider$getWindow = slider.getWindow()) !== null && _slider$getWindow !== void 0 && (_slider$getWindow$BX$ = _slider$getWindow.BX.Catalog) !== null && _slider$getWindow$BX$ !== void 0 && _slider$getWindow$BX$.DocumentGridManager) {
 	                  slider.allowChangeHistory = false;
 	                  slider.getWindow().location.reload();
 	                }
@@ -1015,7 +1055,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "subscribeToUserSelectorEvent",
 	    value: function subscribeToUserSelectorEvent() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorUser:openSelector', function (event) {
 	        var eventData = event.data[1];
@@ -1039,12 +1079,12 @@ this.BX.Catalog = this.BX.Catalog || {};
 	                name: main_core.Text.encode(selectedItem.title.text)
 	              };
 
-	              if (_this2.entityId > 0) {
+	              if (_this3.entityId > 0) {
 	                var fields = {};
 	                fields[fieldId] = selectedItem.id;
-	                BX.ajax.runComponentAction(_this2.componentName, 'save', {
+	                BX.ajax.runComponentAction(_this3.componentName, 'save', {
 	                  mode: 'class',
-	                  signedParameters: _this2.signedParameters,
+	                  signedParameters: _this3.signedParameters,
 	                  data: {
 	                    fields: fields
 	                  }
@@ -1077,7 +1117,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "subscribeToOnSaveEvent",
 	    value: function subscribeToOnSaveEvent() {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      main_core_events.EventEmitter.subscribe('BX.UI.EntityEditor:onSave', function (event) {
 	        var _event$data$;
@@ -1091,18 +1131,18 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          (_eventEditor$_toolPan = eventEditor._toolPanel) === null || _eventEditor$_toolPan === void 0 ? void 0 : _eventEditor$_toolPan.clearErrors();
 
 	          if (action === 'SAVE_AND_CONDUCT') {
-	            if (_this3.isConductLocked) {
+	            if (_this4.isConductLocked) {
 	              var _event$data$0$_toolPa;
 
 	              event.data[1].cancel = true;
 	              (_event$data$0$_toolPa = event.data[0]._toolPanel) === null || _event$data$0$_toolPa === void 0 ? void 0 : _event$data$0$_toolPa.setLocked(false);
 
-	              _this3.openMasterSlider();
+	              _this4.openMasterSlider();
 
 	              return;
 	            }
 
-	            if (!_this3.validateControllers(eventEditor.getControllers())) {
+	            if (!_this4.validateControllers(eventEditor.getControllers())) {
 	              var _eventEditor$_toolPan2;
 
 	              event.data[1].cancel = true;
@@ -1119,8 +1159,8 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	          if (form) {
 	            form.addUrlParams({
-	              documentType: _this3.documentType,
-	              isNewDocument: _this3.entityId <= 0 ? 'Y' : 'N'
+	              documentType: _this4.documentType,
+	              isNewDocument: _this4.entityId <= 0 ? 'Y' : 'N'
 	            });
 	          }
 	        }
@@ -1129,29 +1169,29 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "subscribeToTabOpenEvent",
 	    value: function subscribeToTabOpenEvent() {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      main_core_events.EventEmitter.subscribe('BX.Catalog.EntityCard.TabManager:onSelectItem', function (event) {
 	        var tabId = event.data.tabId;
 
-	        if (tabId === 'tab_products' && !_this4.isTabAnalyticsSent) {
-	          _this4.sendAnalyticsData({
+	        if (tabId === 'tab_products' && !_this5.isTabAnalyticsSent) {
+	          _this5.sendAnalyticsData({
 	            tab: 'products',
-	            isNewDocument: _this4.entityId <= 0 ? 'Y' : 'N',
-	            documentType: _this4.documentType
+	            isNewDocument: _this5.entityId <= 0 ? 'Y' : 'N',
+	            documentType: _this5.documentType
 	          });
 
-	          _this4.isTabAnalyticsSent = true;
+	          _this5.isTabAnalyticsSent = true;
 	        }
 	      });
 	    }
 	  }, {
 	    key: "subscribeToDirectActionEvent",
 	    value: function subscribeToDirectActionEvent() {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      main_core_events.EventEmitter.subscribe('BX.UI.EntityEditor:onDirectAction', function (event) {
-	        var _event$data$2;
+	        var _event$data$2, _event$data$3;
 
 	        var eventEditor = event.data[0];
 
@@ -1160,18 +1200,18 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	          (_eventEditor$_toolPan3 = eventEditor._toolPanel) === null || _eventEditor$_toolPan3 === void 0 ? void 0 : _eventEditor$_toolPan3.clearErrors();
 
-	          if (_this5.isConductLocked) {
+	          if (_this6.isConductLocked) {
 	            var _event$data$0$_toolPa2;
 
 	            event.data[1].cancel = true;
 	            (_event$data$0$_toolPa2 = event.data[0]._toolPanel) === null || _event$data$0$_toolPa2 === void 0 ? void 0 : _event$data$0$_toolPa2.setLocked(false);
 
-	            _this5.openMasterSlider();
+	            _this6.openMasterSlider();
 
 	            return;
 	          }
 
-	          if (!_this5.validateControllers(eventEditor.getControllers())) {
+	          if (!_this6.validateControllers(eventEditor.getControllers())) {
 	            var _eventEditor$_toolPan4;
 
 	            event.data[1].cancel = true;
@@ -1180,7 +1220,13 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          }
 
 	          event.data[0]._ajaxForms['CONDUCT'].addUrlParams({
-	            documentType: _this5.documentType
+	            documentType: _this6.documentType
+	          });
+	        }
+
+	        if (((_event$data$3 = event.data[1]) === null || _event$data$3 === void 0 ? void 0 : _event$data$3.actionId) === 'CANCEL_CONDUCT') {
+	          event.data[0]._ajaxForms['CANCEL_CONDUCT'].addUrlParams({
+	            documentType: _this6.documentType
 	          });
 	        }
 	      });
@@ -1189,17 +1235,17 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "subscribeToEntityCreateEvent",
 	    value: function subscribeToEntityCreateEvent() {
 	      main_core_events.EventEmitter.subscribe('onEntityCreate', function (event) {
-	        var _event$data$3;
+	        var _event$data$4;
 
 	        window.top.BX.onCustomEvent('DocumentCard:onEntityCreate');
 	        BX.SidePanel.Instance.getOpenSliders().forEach(function (slider) {
 	          var _slider$getWindow2, _slider$getWindow2$BX;
 
-	          if ((_slider$getWindow2 = slider.getWindow()) === null || _slider$getWindow2 === void 0 ? void 0 : (_slider$getWindow2$BX = _slider$getWindow2.BX.Catalog) === null || _slider$getWindow2$BX === void 0 ? void 0 : _slider$getWindow2$BX.DocumentGridManager) {
+	          if ((_slider$getWindow2 = slider.getWindow()) !== null && _slider$getWindow2 !== void 0 && (_slider$getWindow2$BX = _slider$getWindow2.BX.Catalog) !== null && _slider$getWindow2$BX !== void 0 && _slider$getWindow2$BX.DocumentGridManager) {
 	            slider.getWindow().BX.onCustomEvent('DocumentCard:onEntityCreate');
 	          }
 	        });
-	        var editor = event === null || event === void 0 ? void 0 : (_event$data$3 = event.data[0]) === null || _event$data$3 === void 0 ? void 0 : _event$data$3.sender;
+	        var editor = event === null || event === void 0 ? void 0 : (_event$data$4 = event.data[0]) === null || _event$data$4 === void 0 ? void 0 : _event$data$4.sender;
 
 	        if (editor) {
 	          editor._toolPanel.disableSaveButton();
@@ -1211,26 +1257,26 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "subscribeToBeforeEntityRedirectEvent",
 	    value: function subscribeToBeforeEntityRedirectEvent() {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      main_core_events.EventEmitter.subscribe('beforeEntityRedirect', function (event) {
-	        var _event$data$4;
+	        var _event$data$5;
 
 	        window.top.BX.onCustomEvent('DocumentCard:onBeforeEntityRedirect');
 	        BX.SidePanel.Instance.getOpenSliders().forEach(function (slider) {
 	          slider.getWindow().BX.onCustomEvent('DocumentCard:onBeforeEntityRedirect');
 	        });
-	        var editor = event === null || event === void 0 ? void 0 : (_event$data$4 = event.data[0]) === null || _event$data$4 === void 0 ? void 0 : _event$data$4.sender;
+	        var editor = event === null || event === void 0 ? void 0 : (_event$data$5 = event.data[0]) === null || _event$data$5 === void 0 ? void 0 : _event$data$5.sender;
 
 	        if (editor) {
-	          var _event$data$5;
+	          var _event$data$6;
 
 	          editor._toolPanel.disableSaveButton();
 
 	          editor.hideToolPanel();
-	          _this6.showNotificationOnClose = (event === null || event === void 0 ? void 0 : (_event$data$5 = event.data[0]) === null || _event$data$5 === void 0 ? void 0 : _event$data$5.showNotificationOnClose) === 'Y';
+	          _this7.showNotificationOnClose = (event === null || event === void 0 ? void 0 : (_event$data$6 = event.data[0]) === null || _event$data$6 === void 0 ? void 0 : _event$data$6.showNotificationOnClose) === 'Y';
 
-	          if (_this6.showNotificationOnClose) {
+	          if (_this7.showNotificationOnClose) {
 	            var url = event.data[0].redirectUrl;
 
 	            if (!url) {
@@ -1283,7 +1329,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "addCopyLinkPopup",
 	    value: function addCopyLinkPopup() {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      var copyLinkButton = document.getElementById(this.settings.copyLinkButtonId);
 
@@ -1292,7 +1338,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      }
 
 	      copyLinkButton.onclick = function () {
-	        _this7.copyDocumentLinkToClipboard();
+	        _this8.copyDocumentLinkToClipboard();
 	      };
 	    }
 	  }, {
@@ -1389,15 +1435,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  value: void 0
 	};
 
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-themes\" title=\"", "\">\n\t\t\t\t<span class=\"ui-btn-text\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</button>\n\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1;
 
 	var Button = /*#__PURE__*/function () {
 	  function Button() {
@@ -1408,7 +1446,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "render",
 	    value: function render(parentNode, highlight) {
 	      var buttonTitle = main_core.Loc.getMessage('FEEDBACK_BUTTON_TITLE');
-	      var button = main_core.Tag.render(_templateObject$1(), buttonTitle, buttonTitle);
+	      var button = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<button class=\"ui-btn ui-btn-light-border ui-btn-themes\" title=\"", "\">\n\t\t\t\t<span class=\"ui-btn-text\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</button>\n\t\t"])), buttonTitle, buttonTitle);
 
 	      if (highlight) {
 	        button.style.zIndex = 140;

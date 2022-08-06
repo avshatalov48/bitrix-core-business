@@ -23,6 +23,15 @@
 	}
 
 	let require = function (id) {
+		if (id.startsWith("native/"))
+		{
+			if (typeof nativeRequire === "function") {
+				return nativeRequire(id.replace("native/", ""))
+			}
+
+			return {};
+		}
+
 		if (!modules[id])
 		{
 			throw new Error('extension ' + id + ' not found');

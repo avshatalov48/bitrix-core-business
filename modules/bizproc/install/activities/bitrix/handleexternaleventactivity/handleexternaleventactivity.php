@@ -78,18 +78,6 @@ class CBPHandleExternalEventActivity
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	public function HandleFault(Exception $exception)
-	{
-		if ($exception == null)
-			throw new Exception("exception");
-
-		$status = $this->Cancel();
-		if ($status == CBPActivityExecutionStatus::Canceling)
-			return CBPActivityExecutionStatus::Faulting;
-
-		return $status;
-	}
-
 	public function OnExternalEvent($arEventParameters = array())
 	{
 		if ($this->onExternalEventHandler($arEventParameters))

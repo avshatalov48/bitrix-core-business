@@ -25,21 +25,24 @@ class FileTableInstaller
 	 */
 	public static function fillFileTableFromTemplates(int $offset = 0):string
 	{
-		$templates = TemplateTable::getList([
-			'select' => [
-				'ID',
-				'CONTENT'
-			]
-		]);
-
-		while ($template = $templates->fetch())
+		if ($offset === 0)
 		{
-			FileTable::syncFiles(
-				$template['ID'],
-				FileTable::TYPES['TEMPLATE'],
-				$template['CONTENT'],
-				false
-			);
+			$templates = TemplateTable::getList([
+				'select' => [
+					'ID',
+					'CONTENT'
+				]
+			]);
+
+			while ($template = $templates->fetch())
+			{
+				FileTable::syncFiles(
+					$template['ID'],
+					FileTable::TYPES['TEMPLATE'],
+					$template['CONTENT'],
+					false
+				);
+			}
 		}
 
 		$letters = Letter::getList([
@@ -56,9 +59,9 @@ class FileTableInstaller
 			]
 		]);
 		$counter = 0;
+
 		while ($letter = $letters->fetch())
 		{
-			$offset = $letter['ID'];
 			$letter = Letter::createInstanceById($letter['ID']);
 			FileTable::syncFiles(
 				$letter->getId(),
@@ -68,6 +71,7 @@ class FileTableInstaller
 			);
 			$counter++;
 		}
+		$offset += $counter;
 
 		if ($counter < 100)
 		{
@@ -75,6 +79,6 @@ class FileTableInstaller
 			return '';
 		}
 
-		return '\\Bitrix\Sender\\Install\\FileTableInstaller::installAgent('.$offset.');';
+		return '\\Bitrix\\Sender\\Install\\FileTableInstaller::installAgent('.$offset.');';
 	}
 }

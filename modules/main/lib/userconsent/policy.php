@@ -19,10 +19,10 @@ Loc::loadLanguageFile(__FILE__);
 class Policy
 {
 	/** @var array  */
-	protected static $standardTextForLanguages = array('ru', 'ua');
+	protected static $standardTextForLanguages = array('ru', 'ua', 'by');
 
 	/** @var array  */
-	protected static $requiredForLanguages = array('ru');
+	protected static $requiredForLanguages = array('ru', 'by', 'ua');
 
 	/**
 	 * Is consent required for language.

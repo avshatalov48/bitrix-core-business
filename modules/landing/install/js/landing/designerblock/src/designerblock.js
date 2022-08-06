@@ -190,7 +190,7 @@ export class DesignerBlock
 	initTopPanel()
 	{
 		Event.bind(this.saveButton, 'click', () => {
-			this.highlight.hide();
+			this.highlight.hide(true);
 
 			const finishCallback = () => {
 				if (BX.SidePanel && BX.SidePanel.Instance)

@@ -517,6 +517,14 @@ class UserToGroup extends Base
 		]);
 	}
 
+	public function cancelIncomingRequestAction(int $userId, int $groupId): bool
+	{
+		return Workgroup::deleteIncomingRequest([
+			'userId' => $userId,
+			'groupId' => $groupId,
+		]);
+	}
+
 	public function acceptRequestAction(int $relationId, int $groupId): bool
 	{
 		return \CSocNetUserToGroup::ConfirmRequestToBeMember(
@@ -533,5 +541,21 @@ class UserToGroup extends Base
 			$groupId,
 			[$relationId]
 		);
+	}
+
+	public function setHideRequestPopupAction(int $groupId): ?bool
+	{
+		$result = \Bitrix\Socialnetwork\Helper\UserToGroup\RequestPopup::setHideRequestPopup([
+			'groupId' => $groupId,
+			'userId' => (int)$this->getCurrentUser()->getId(),
+		]);
+
+		if (!$result)
+		{
+			$this->addError(new Error('Cannot process operation', 'SONET_CONTROLLER_USERTOGROUP_SET_HIDE_REQUEST_POPUP_ERROR'));
+			return null;
+		}
+
+		return true;
 	}
 }

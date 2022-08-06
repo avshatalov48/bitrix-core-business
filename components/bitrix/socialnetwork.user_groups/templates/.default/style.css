@@ -278,7 +278,7 @@
 	background-color: #5cd1df;
 	color: #fff;
 	font-size: 14px;
-	border-radius: var(--sonet-groups-sidebar-title, var(--ui-theme-radius-md, 0));
+	border-radius: var(--sonet-groups-sidebar-title-border-radius, var(--ui-border-radius-md, 0));
 	border-bottom-left-radius: 0;
 	border-bottom-right-radius: 0;
 }
@@ -297,7 +297,7 @@
 	overflow: hidden;
 	padding: 0 15px 15px;
 	background: #fff;
-	border-radius: var(--sonet-groups-sidebar-items, var(--ui-theme-radius-md, 0));
+	border-radius: var(--sonet-groups-sidebar-items-border-radius, var(--ui-border-radius-md, 0));
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
 }

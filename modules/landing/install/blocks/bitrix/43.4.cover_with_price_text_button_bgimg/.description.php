@@ -47,6 +47,10 @@ return array(
 	'style' => array(
 		'block' => array(
 			'type' => array('block-default-wo-background'),
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_43_4_COVER_WITH_PRICE_TEXT_BUTTON_BGIMG_NODES_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'pause-hover', 'dots'],
+			]
 		),
 		'nodes' => array(
 			'.landing-block-node-card-price' => array(

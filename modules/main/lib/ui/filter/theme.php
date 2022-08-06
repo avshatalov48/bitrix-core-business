@@ -13,6 +13,7 @@ class Theme
 	const BORDER = "BORDER";
 	const ROUNDED = "ROUNDED";
 	const LIGHT = "LIGHT";
+	const MUTED = "MUTED";
 
 
 	/**

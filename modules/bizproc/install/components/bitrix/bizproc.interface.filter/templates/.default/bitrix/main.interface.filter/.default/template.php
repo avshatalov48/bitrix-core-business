@@ -1,6 +1,6 @@
 <?php
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)die();
-CJSCore::Init(array('popup', 'date'));
+CJSCore::Init(array('popup', 'date', 'ui.fonts.opensans'));
 
 $presets = isset($arParams['~FILTER_PRESETS']) ? $arParams['~FILTER_PRESETS'] : array();
 $savedItems = isset($arResult['OPTIONS'])

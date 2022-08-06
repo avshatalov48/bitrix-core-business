@@ -1,0 +1,35 @@
+<?
+$MESS["IM_LAST_SEEN_F"] = "#POSITION#. Last seen #LAST_SEEN#";
+$MESS["IM_LAST_SEEN_M"] = "#POSITION#. Last seen #LAST_SEEN#";
+$MESS["IM_LAST_SEEN_SHORT_F"] = "Last seen #LAST_SEEN#";
+$MESS["IM_LAST_SEEN_SHORT_M"] = "Last seen #LAST_SEEN#";
+$MESS["IM_STATUS_AWAY"] = "Away";
+$MESS["IM_STATUS_AWAY_TITLE"] = "Away for #TIME#";
+$MESS["IM_STATUS_BOT"] = "Chat bot";
+$MESS["IM_STATUS_DND"] = "Don't disturb";
+$MESS["IM_STATUS_GUEST"] = "Unavailable";
+$MESS["IM_STATUS_LINES-ONLINE"] = "Open Channel user";
+$MESS["IM_STATUS_MOBILE"] = "Mobile App";
+$MESS["IM_STATUS_NA"] = "Unavailable";
+$MESS["IM_STATUS_NETWORK"] = "Bitrix24.Network";
+$MESS["IM_STATUS_OFFLINE"] = "Offline";
+$MESS["IM_STATUS_ONLINE"] = "Online";
+$MESS["IM_STATUS_VACATION"] = "On leave";
+$MESS["IM_STATUS_VACATION_TITLE"] = "On leave until #DATE#";
+$MESS["IM_UTILS_FORMAT_DATE"] = "l, j F Y";
+$MESS["IM_UTILS_FORMAT_DATE_SHORT"] = "d.m.Y";
+$MESS["IM_UTILS_FORMAT_DATE_RECENT"] = "D, F j";
+$MESS["IM_UTILS_FORMAT_DATE_TIME"] = "j F Y g:i a";
+$MESS["IM_UTILS_FORMAT_READED"] = "j F Y g:i a";
+$MESS["IM_UTILS_FORMAT_TIME"] = "g:i a";
+$MESS["IM_UTILS_TEXT_ICON"] = "Icon";
+$MESS["IM_UTILS_TEXT_FILE"] = "File";
+$MESS["IM_UTILS_TEXT_IMAGE"] = "Photo";
+$MESS["IM_UTILS_TEXT_AUDIO"] = "Audio";
+$MESS["IM_UTILS_TEXT_VIDEO"] = "Video";
+$MESS["IM_UTILS_TEXT_RATING"] = "Rating";
+$MESS["IM_UTILS_TEXT_ATTACH"] = "Attachment";
+$MESS["IM_UTILS_TEXT_DELETED"] = "This message has been deleted.";
+$MESS["IM_UTILS_TEXT_CODE"] = "Code block";
+$MESS["IM_UTILS_TEXT_QUOTE"] = "Quote";
+?>

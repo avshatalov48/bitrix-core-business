@@ -72,7 +72,8 @@
 	color: #525c68 !important;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font: 600 14px/25px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/25px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	cursor: pointer;
 	transition: all 220ms ease;
 }
@@ -157,7 +158,8 @@ li.catalog-entity-section-tab-disabled:hover .catalog-entity-section-tab-link {
 	vertical-align: middle;
 	text-align: center;
 	text-transform: uppercase;
-	font: bold 12px/39px "Open Sans", Helvetica, Arial, sans-serif;
+	font: 12px/39px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	transition: color .25s ease;
 }
 
@@ -257,7 +259,8 @@ img.catalog-image {
 .catalog-entity-wrap .ui-entity-editor-header-title-text {
 	color: #525c69;
 	text-transform: uppercase;
-	font: 11px/17px "OpenSans-Semibold", Helvetica, Arial, sans-serif;
+	font: 11px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	height: auto;
 }
 

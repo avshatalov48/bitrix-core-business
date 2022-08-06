@@ -1319,12 +1319,21 @@ else
 						foreach ($arUserIDs as $user_id)
 						{
 							$canInviteGroup = CSocNetUserPerms::CanPerformOperation($arResult["currentUserId"], $user_id, "invitegroup", $arResult['isCurrentUserAdmin']);
-							$user2groupRelation = CSocNetUserToGroup::GetUserRole($user_id, $arResult["GROUP_ID"]);
+							if (!$canInviteGroup)
+							{
+								continue;
+							}
 
-							if (
-								$canInviteGroup
-								&& !$user2groupRelation
-							)
+							$res = UserToGroupTable::getList([
+								'filter' => [
+									'=USER_ID' => $user_id,
+									'=GROUP_ID' => $arResult['GROUP_ID'],
+								],
+								'select' => [ 'ID', 'ROLE', 'INITIATED_BY_TYPE' ]
+							]);
+							$relationFields = $res->fetch();
+
+							if (!$relationFields)
 							{
 								if (!CSocNetUserToGroup::SendRequestToJoinGroup($arResult["currentUserId"], $user_id, $arResult["GROUP_ID"], $_POST["MESSAGE"]))
 								{
@@ -1358,24 +1367,32 @@ else
 									}
 								}
 							}
-							//user already is related to group, don't invite him again
-							else if (
-								$canInviteGroup
-								&& $user2groupRelation
-							)
+							else //user already is related to group, don't invite him again
 							{
 								$rsUser = CUser::getById($user_id);
 								if ($arRes = $rsUser->fetch())
 								{
 									$nameFormatted = CUser::formatName(CSite::getNameFormat(), $arRes, true);
 
-									switch ($user2groupRelation)
+									switch ($relationFields['ROLE'])
 									{
 										case SONET_ROLES_BAN:
 											$warningMessage[] = str_replace("#NAME#", $nameFormatted, GetMessage("SONET_GCE_USERNAME_BANNED_IN_GROUP"));
 											break;
 										case SONET_ROLES_REQUEST:
-											$warningMessage[] = str_replace("#NAME#", $nameFormatted, GetMessage("SONET_GCE_USERNAME_REQUEST_SENT"));
+
+											if ($relationFields['INITIATED_BY_TYPE'] === UserToGroupTable::INITIATED_BY_USER)
+											{
+												Helper\Workgroup::acceptIncomingRequest([
+													'groupId' => $arResult['GROUP_ID'],
+													'userId' => $user_id,
+												]);
+											}
+											else
+											{
+												$warningMessage[] = str_replace("#NAME#", $nameFormatted, GetMessage("SONET_GCE_USERNAME_REQUEST_SENT"));
+											}
+
 											break;
 										default:
 											$warningMessage[] = str_replace("#NAME#", $nameFormatted, GetMessage(

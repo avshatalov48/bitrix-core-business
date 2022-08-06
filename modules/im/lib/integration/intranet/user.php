@@ -302,6 +302,7 @@ class User
 				"MESSAGE" => Loc::getMessage('IM_INT_USR_JOIN_2'),
 				"SYSTEM" => 'Y',
 				"RECENT_SKIP_AUTHOR" => 'Y',
+				"MESSAGE_OUT" => IM_MAIL_SKIP,
 				"PARAMS" => [
 					"CODE" => 'USER_JOIN',
 				],
@@ -351,6 +352,7 @@ class User
 		$params = array_merge($params, [
 			"TO_CHAT_ID" =>  $chatId,
 			"FROM_USER_ID" => $fromUserId,
+			"MESSAGE_OUT" => IM_MAIL_SKIP,
 		]);
 
 		$result = \CIMChat::AddMessage($params);
@@ -422,6 +424,7 @@ class User
 		$user = \CUser::getById($USER->GetId())->Fetch();
 
 		$filter = [
+			'=ACTIVE' => 'Y',
 			'=BIRTHDAY_DATE' => $today,
 			'=IS_REAL_USER' => true,
 		];

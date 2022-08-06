@@ -56,7 +56,7 @@ class ParameterDictionary
 	/**
 	 * Offset to unset
 	 */
-	public function offsetUnset($offset)
+	public function offsetUnset($offset): void
 	{
 		throw new NotSupportedException("Can not unset readonly value");
 	}

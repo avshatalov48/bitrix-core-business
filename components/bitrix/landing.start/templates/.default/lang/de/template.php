@@ -19,5 +19,3 @@ $MESS["LANDING_TPL_MENU_RIGHTS"] = "Zugriffsrechte";
 $MESS["LANDING_TPL_MENU_SITES"] = "Websites";
 $MESS["LANDING_TPL_MENU_SITES_KNOWLEDGE"] = "Wissensbasis";
 $MESS["LANDING_TPL_MENU_TRACKING"] = "Geschäftsanalytik";
-$MESS["LANDING_TPL_SETTING_CATALOG"] = "Katalogeinstellungen";
-$MESS["LANDING_TPL_SETTING_SITE"] = "Website-Einstellungen";

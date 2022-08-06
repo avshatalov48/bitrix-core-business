@@ -2,4 +2,4 @@
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 
-CUtil::InitJSCore(['ui.dialogs.messagebox']);
+CUtil::InitJSCore(['ui.dialogs.messagebox', 'ui.design-tokens']);

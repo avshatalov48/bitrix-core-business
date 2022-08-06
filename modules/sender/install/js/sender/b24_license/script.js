@@ -53,6 +53,7 @@
 				case 'Rc':
 					code = 'limit_crm_marketing_sales_generator';
 					break;
+				case 'Mail_limit':
 				case 'Mailing':
 					code = 'limit_crm_marketing_email'
 					break;

@@ -446,6 +446,10 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 	display: block;
 }
 
+.socialnetwork-group-create-ex__content-expanded {
+	margin-top: 10px;
+}
+
 .socialnetwork-group-create-ex__content-line {
 	display: block;
 	width: 100%;
@@ -759,7 +763,7 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 	min-height: 39px;
 	outline: none;
 	border: 1px solid #c6cdd3;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	background-color: #fff;
 	color: #535c69;
 	vertical-align: middle;

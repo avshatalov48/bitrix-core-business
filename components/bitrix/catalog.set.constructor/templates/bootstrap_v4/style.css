@@ -28,7 +28,8 @@
 
 .catalog-set-constructor-product-name {
 	text-overflow: ellipsis;
-	font: 400 13px/21px "Open Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font: 13px/21px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .catalog-set-constructor-product-new-price { white-space: nowrap; }

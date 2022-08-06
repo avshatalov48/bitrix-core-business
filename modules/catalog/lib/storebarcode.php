@@ -41,7 +41,7 @@ Loc::loadMessages(__FILE__);
  * @method static \Bitrix\Catalog\EO_StoreBarcode_Collection wakeUpCollection($rows)
  */
 
-class StoreBarcodeTable extends Main\Entity\DataManager
+class StoreBarcodeTable extends Main\ORM\Data\DataManager
 {
 	/**
 	 * Returns DB table name for entity.
@@ -61,64 +61,65 @@ class StoreBarcodeTable extends Main\Entity\DataManager
 	public static function getMap()
 	{
 		return array(
-			'ID' => new Main\Entity\IntegerField('ID', array(
+			'ID' => new Main\ORM\Fields\IntegerField('ID', array(
 				'primary' => true,
 				'autocomplete' => true,
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_ID_FIELD')
 			)),
-			'PRODUCT_ID' => new Main\Entity\IntegerField('PRODUCT_ID', array(
+			'PRODUCT_ID' => new Main\ORM\Fields\IntegerField('PRODUCT_ID', array(
 				'required' => true,
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_PRODUCT_ID_FIELD')
 			)),
-			'BARCODE' => new Main\Entity\StringField('BARCODE', array(
+			'BARCODE' => new Main\ORM\Fields\StringField('BARCODE', array(
 				'required' => true,
 				'unique' => true,
-				'validation' => function() {
-					return [
-						new Main\Entity\Validator\Length(null, 100),
-						new Main\ORM\Fields\Validators\UniqueValidator(
-							Loc::getMessage("STORE_BARCODE_ENTITY_BARCODE_IS_NOT_UNIQUE")
-						),
-					];
-				},
+				'validation' => function()
+					{
+						return [
+							new Main\ORM\Fields\Validators\LengthValidator(null, 100),
+							new Main\ORM\Fields\Validators\UniqueValidator(
+								Loc::getMessage("STORE_BARCODE_ENTITY_BARCODE_IS_NOT_UNIQUE")
+							),
+						];
+					},
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_BARCODE_FIELD')
 			)),
-			'STORE_ID' => new Main\Entity\IntegerField('STORE_ID', array(
+			'STORE_ID' => new Main\ORM\Fields\IntegerField('STORE_ID', array(
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_STORE_ID_FIELD')
 			)),
-			'ORDER_ID' => new Main\Entity\IntegerField('ORDER_ID', array(
+			'ORDER_ID' => new Main\ORM\Fields\IntegerField('ORDER_ID', array(
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_ORDER_ID_FIELD')
 			)),
-			'DATE_MODIFY' => new Main\Entity\DatetimeField('DATE_MODIFY', array(
+			'DATE_MODIFY' => new Main\ORM\Fields\DatetimeField('DATE_MODIFY', array(
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_DATE_MODIFY_FIELD')
 			)),
-			'DATE_CREATE' => new Main\Entity\DatetimeField('DATE_CREATE', array(
+			'DATE_CREATE' => new Main\ORM\Fields\DatetimeField('DATE_CREATE', array(
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_DATE_CREATE_FIELD')
 			)),
-			'CREATED_BY' => new Main\Entity\IntegerField('CREATED_BY', array(
+			'CREATED_BY' => new Main\ORM\Fields\IntegerField('CREATED_BY', array(
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_CREATED_BY_FIELD')
 			)),
-			'MODIFIED_BY' => new Main\Entity\IntegerField('MODIFIED_BY', array(
+			'MODIFIED_BY' => new Main\ORM\Fields\IntegerField('MODIFIED_BY', array(
 				'title' => Loc::getMessage('STORE_BARCODE_ENTITY_MODIFIED_BY_FIELD')
 			)),
-			'PRODUCT' => new Main\Entity\ReferenceField(
+			'PRODUCT' => new Main\ORM\Fields\Relations\Reference(
 				'PRODUCT',
 				'\Bitrix\Catalog\Product',
 				array('=this.PRODUCT_ID' => 'ref.ID'),
 				array('join_type' => 'LEFT')
 			),
-			'STORE' => new Main\Entity\ReferenceField(
+			'STORE' => new Main\ORM\Fields\Relations\Reference(
 				'STORE',
 				'\Bitrix\Catalog\Store',
 				array('=this.STORE_ID' => 'ref.ID'),
 				array('join_type' => 'LEFT')
 			),
-			'CREATED_BY_USER' => new Main\Entity\ReferenceField(
+			'CREATED_BY_USER' => new Main\ORM\Fields\Relations\Reference(
 				'CREATED_BY_USER',
 				'\Bitrix\Main\User',
 				array('=this.CREATED_BY' => 'ref.ID')
 			),
-			'MODIFIED_BY_USER' => new Main\Entity\ReferenceField(
+			'MODIFIED_BY_USER' => new Main\ORM\Fields\Relations\Reference(
 				'MODIFIED_BY_USER',
 				'\Bitrix\Main\User',
 				array('=this.MODIFIED_BY' => 'ref.ID')

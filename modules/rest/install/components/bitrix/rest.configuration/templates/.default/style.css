@@ -45,7 +45,7 @@
 	height: 100%;
 	background: #fff;
 	box-shadow: 0 1px 3px 0 rgba(0,0,0,.08);
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-md, 2px);
 	transition: .15s;
 }
 

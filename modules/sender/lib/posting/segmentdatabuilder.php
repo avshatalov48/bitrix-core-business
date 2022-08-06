@@ -6,9 +6,11 @@ use Bitrix\Main\DB\Result;
 use Bitrix\Main\Entity;
 use Bitrix\Sender\Connector;
 use Bitrix\Sender\Connector\IncrementallyConnector;
+use Bitrix\Sender\Entity\Segment;
 use Bitrix\Sender\GroupConnectorTable;
 use Bitrix\Sender\GroupTable;
 use Bitrix\Sender\Integration\Crm\Connectors\QueryCount;
+use Bitrix\Sender\Integration\Sender\Connectors\Contact;
 use Bitrix\Sender\Internals\Model\GroupCounterTable;
 use Bitrix\Sender\Internals\Model\GroupStateTable;
 use Bitrix\Sender\Internals\Model\GroupThreadTable;
@@ -86,6 +88,22 @@ class SegmentDataBuilder
 
 
 		return $groupState ? $groupState : $this->createGroupState();
+	}
+	/**
+	 * @return array|bool|false
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function getAllStates()
+	{
+		return GroupStateTable::getList(
+			[
+				'filter' => [
+					'=GROUP_ID'  => $this->groupId,
+				]
+			]
+		)->fetchAll();
 	}
 
 	/**
@@ -185,7 +203,10 @@ class SegmentDataBuilder
 				]
 			);
 
-			self::checkIsSegmentPrepared($this->groupId);
+			if (self::checkIsSegmentPrepared($this->groupId))
+			{
+				$this->calculateFilterCounts();
+			}
 		}
 	}
 
@@ -199,7 +220,11 @@ class SegmentDataBuilder
 	 */
 	public static function checkIsSegmentPrepared(int $groupId)
 	{
-		Locker::lock(self::SEGMENT_LOCK_KEY, $groupId);
+		if (!Locker::lock(self::SEGMENT_LOCK_KEY, $groupId))
+		{
+			return false;
+		}
+
 		$states = GroupStateTable::getList([
 			'filter' => [
 				'=GROUP_ID' => $groupId
@@ -434,7 +459,18 @@ class SegmentDataBuilder
 		$threadStrategy = Runtime\Env::getGroupThreadContext();
 
 		$threadStrategy->setGroupStateId($groupState['ID']);
-		$threadStrategy->fillThreads();
+
+		$threadState = $threadStrategy->checkThreads();
+		if ($threadState === AbstractThreadStrategy::THREAD_LOCKED)
+		{
+			return false;
+		}
+
+		if ($threadState === AbstractThreadStrategy::THREAD_NEEDED)
+		{
+			$threadStrategy->fillThreads();
+		}
+
 		$threadStrategy->setPerPage(self::PER_PAGE);
 
 		if (
@@ -446,7 +482,10 @@ class SegmentDataBuilder
 		}
 
 		$offset = $threadStrategy->getOffset();
-		Locker::lock(self::SEGMENT_DATA_LOCK_KEY, $this->groupId);
+		if (!Locker::lock(self::SEGMENT_DATA_LOCK_KEY, $this->groupId))
+		{
+			return false;
+		}
 
 		if ($offset < $lastId)
 		{
@@ -558,9 +597,9 @@ class SegmentDataBuilder
 			case Type::PHONE:
 				return ['=HAS_PHONE' => 'Y'];
 			case Type::CRM_COMPANY_ID:
-				return ['=CRM_ENTITY_TYPE_ID' => 4];
+				return  ['!=COMPANY_ID' => null];
 			case Type::CRM_CONTACT_ID:
-				return ['=CRM_ENTITY_TYPE_ID' => 3];
+				return ['!=CONTACT_ID' => null];
 			case Type::CRM_DEAL_PRODUCT_CONTACT_ID:
 			case Type::CRM_ORDER_PRODUCT_CONTACT_ID:
 			case Type::CRM_DEAL_PRODUCT_COMPANY_ID:
@@ -770,6 +809,7 @@ class SegmentDataBuilder
 			self::CONNECTOR_ENTITY[$connector->getCode()]
 		));
 
+		Segment::updateAddressCounters($this->groupId, [$counter]);
 		if (CModule::IncludeModule('pull'))
 		{
 			\CPullWatch::AddToStack(
@@ -789,6 +829,48 @@ class SegmentDataBuilder
 		}
 
 		return $counter;
+	}
+
+	/**
+	 * Calculate all current counters
+	 * @return Connector\DataCounter[]
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	public function calculateFilterCounts(): array
+	{
+		$connectors = GroupConnectorTable::getList(
+			[
+				'filter' => ['=GROUP_ID' => $this->groupId]
+			])->fetchAll();
+
+		$counters = [];
+		foreach ($connectors as $dbConnector)
+		{
+			$endpoint = $dbConnector['ENDPOINT'];
+			$connector = Connector\Manager::getConnector(
+				$endpoint
+			);
+
+			$this->filterId = $endpoint['FILTER_ID'] ?? 'sender_crm_client_--filter--crmclient--';
+			if ($connector instanceof Contact)
+			{
+				$connector->setFieldValues($endpoint['FIELDS']);
+			}
+			$counters[] = self::CONNECTOR_ENTITY[$connector->getCode()] ?
+						new Connector\DataCounter(QueryCount::getPreparedCount(
+						$this->getQuery(),
+						self::SEGMENT_TABLE,
+						self::CONNECTOR_ENTITY[$connector->getCode()]
+					)) : $connector->getDataCounter()
+			;
+
+		}
+
+		Segment::updateAddressCounters($this->groupId, $counters);
+
+		return $counters;
 	}
 
 	/**
@@ -839,6 +921,11 @@ class SegmentDataBuilder
 			}
 
 			$entityConnector = \Bitrix\Sender\Connector\Manager::getConnector($connector['ENDPOINT']);
+
+			if (!$connector['FILTER_ID'] && $entityConnector instanceof Connector\BaseFilter)
+			{
+				$connector['FILTER_ID'] = $entityConnector->getUiFilterId();
+			}
 
 			if (
 				!$entityConnector instanceof IncrementallyConnector
@@ -1030,7 +1117,11 @@ class SegmentDataBuilder
 
 	private function updateCounters(array $rowsDataCounter)
 	{
-		Locker::lock(self::SEGMENT_LOCK_KEY, $this->groupId);
+		if (!Locker::lock(self::SEGMENT_LOCK_KEY, $this->groupId))
+		{
+			return;
+		}
+
 		$counter = GroupCounterTable::getList([
 			'select' => [
 				'GROUP_ID', 'TYPE_ID', 'CNT'

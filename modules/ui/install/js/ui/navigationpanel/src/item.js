@@ -3,15 +3,15 @@ import { EventEmitter } from "main.core.events";
 
 export default class NavigationItem
 {
-	constructor(options)
+	constructor({ id, title, active, events, link })
 	{
-		this.id = options.id;
-		this.title = Type.isString(options.title) ? options.title : null;
-		this.active = Type.isBoolean(options.active) ? options.active : false;
-		this.events = options.events ? options.events : null;
-		this.link = options.link ? options.link : null;
+		this.id = id ? id : null;
+		this.title = Type.isString(title) ? title : null;
+		this.active = Type.isBoolean(active) ? active : false;
+		this.events = events ? events : null;
+		this.link = link ? link : null;
 
-		this.container = null;
+		this.linkContainer = null;
 
 		this.bindEvents();
 	}
@@ -30,9 +30,9 @@ export default class NavigationItem
 
 	getContainer()
 	{
-		if (!this.container)
+		if (!this.linkContainer)
 		{
-			this.container = Tag.render`
+			this.linkContainer = Tag.render`
 				<div class="ui-nav-panel__item">
 					${this.title ? this.getTitle() : ''}
 				</div>
@@ -43,7 +43,7 @@ export default class NavigationItem
 			this.setEvents();
 		}
 
-		return this.container;
+		return this.linkContainer;
 	}
 
 	bindEvents()

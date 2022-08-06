@@ -313,6 +313,11 @@ class Adapter implements iBase
 	 */
 	public function setFields(array $fields)
 	{
+		foreach ($fields as $key => $field)
+		{
+			$fields[$key] = nl2br(htmlspecialcharsbx((string) $field, ENT_COMPAT, false));
+		}
+
 		$this->fields = $fields;
 	}
 
@@ -330,7 +335,7 @@ class Adapter implements iBase
 		foreach ($this->getFields() as $code => $value)
 		{
 			$from[] = "$replaceChar$code$replaceChar";
-			$to[] = (string) $value;
+			$to[] = nl2br(htmlspecialcharsbx((string) $value, ENT_COMPAT, false));
 		}
 
 		return Integration\Sender\Mail\TransportMail::replaceTemplate(str_replace($from, $to, $content));

@@ -1,12 +1,13 @@
-<section class="landing-block js-animation fadeIn">
-	<div class="container">
+<section class="landing-block js-animation fadeIn g-pt-20 g-pb-20">
+	<div class="landing-block-slider container" data-slider-dots="0" data-slider-arrows="7">
 		 <!-- Carousel -->
 		<div class="js-carousel"
 			 data-infinite="true"
 			 data-fade="true"
 			 data-lazy-load="ondemand"
-			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-font-size-30 g-color-text g-color-primary--hover"
+			 data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-45 g-height-45 g-font-size-30 g-transition-0_2 g-transition--ease-in g-color-gray-light-v1 g-color-primary--hover"
 			 data-arrow-left-classes="fa fa-angle-left g-left-0 g-left-40--lg"
+			 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-bottom-0"
 			 data-arrow-right-classes="fa fa-angle-right g-right-0 g-right-40--lg">
 
 			<div class="landing-block-card-person js-slide align-self-center g-pt-30 g-pb-30 g-pl-40 g-pr-40 g-pr-10--md g-pl-10--lg">

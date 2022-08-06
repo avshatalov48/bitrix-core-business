@@ -305,9 +305,12 @@ class Binder
 	private function getAllAutoWiredParameters()
 	{
 		$list = $this->getAutoWiredParameters();
-		foreach (self::$globalAutoWiredParameters as $globalAutoWiredParameter)
+		if (self::$globalAutoWiredParameters)
 		{
-			$list[] = $globalAutoWiredParameter;
+			foreach (self::$globalAutoWiredParameters as $globalAutoWiredParameter)
+			{
+				$list[] = $globalAutoWiredParameter;
+			}
 		}
 
 		return $list;

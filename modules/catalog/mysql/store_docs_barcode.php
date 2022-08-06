@@ -1,4 +1,4 @@
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/store_docs_barcode.php");
 
 class CCatalogStoreDocsBarcode
@@ -29,7 +29,7 @@ class CCatalogStoreDocsBarcode
 		return $lastId;
 	}
 
-	static function getList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function getList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 		if (empty($arSelectFields))
@@ -37,6 +37,7 @@ class CCatalogStoreDocsBarcode
 
 		$arFields = array(
 			"ID" => array("FIELD" => "DB.ID", "TYPE" => "int"),
+			"DOC_ID" => array("FIELD" => "DB.DOC_ID", "TYPE" => "int"),
 			"DOC_ELEMENT_ID" => array("FIELD" => "DB.DOC_ELEMENT_ID", "TYPE" => "int"),
 			"BARCODE" => array("FIELD" => "DB.BARCODE", "TYPE" => "string"),
 		);

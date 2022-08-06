@@ -23,7 +23,7 @@ return [
 		'namespace' => 'bitrix',
 	],
 	'nodes' => [
-		'bitrix:catalog.section' => [
+		'bitrix:landing.blocks.catalog_section_with_carousel' => [
 			'type' => 'component',
 			'extra' => [
 				'editable' => [
@@ -73,13 +73,7 @@ return [
 					'DISCOUNT_PERCENT_POSITION' => [
 						'style' => true,
 					],
-					'DEFERRED_LOAD' => [
-						'hidden' => true
-					],
-					'CYCLIC_LOADING' => [
-						'hidden' => true
-					],
-					'SECTIONS_OFFSET_MODE' => [
+					'SHOW_SECTIONS' => [
 						'hidden' => true
 					],
 				],

@@ -1,7 +1,6 @@
 import {DefaultFooter, Dialog} from 'ui.entity-selector';
-import {ajax, Browser, Dom, Loc, Runtime, Tag, Type, Validation} from 'main.core';
-import {BaseEvent, EventEmitter} from "main.core.events";
-import type {TabOptions, Tab} from "ui.entity-selector";
+import {Dom, Loc, Tag, Type} from 'main.core';
+import {BaseEvent} from "main.core.events";
 import {Loader} from "main.loader";
 import {ProductSelector} from "catalog.product-selector";
 
@@ -27,7 +26,7 @@ export default class ProductSearchSelectorFooter extends DefaultFooter
 		else
 		{
 			phrase = Tag.render`
-				<div>${Loc.getMessage('CATALOG_SELECTOR_SEARCH_POPUP_FOOTER')}</div>
+				<div>${Loc.getMessage('CATALOG_SELECTOR_SEARCH_POPUP_FOOTER_1')}</div>
 			`;
 
 			const createButton = phrase.querySelector('create-button');

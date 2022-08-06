@@ -11,6 +11,7 @@ return [
 		'main.core',
 		'ui.cnt',
 		'main.core.events',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

@@ -140,6 +140,7 @@ Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.sites/templates/.
 <?
 foreach ($arResult['DEMO'] as $item):
 	// empty is in top button, not need show in list
+	// skip chats
 	if (
 		$item['ID'] === 'empty'
 		|| $item['ID'] === 'empty-multipage'

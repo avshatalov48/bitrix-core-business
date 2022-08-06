@@ -43,6 +43,10 @@ return array(
 	'style' => array(
 		'block' => array(
 			'type' => array('block-default-wo-background'),
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_46_4_COVER_WITH_SLIDER_BGIMG_RIGHT_BUTTONS_NODES_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show', 'arrows'],
+			]
 		),
 		'nodes' => array(
 			'.landing-block-node-card-text-container' => array(

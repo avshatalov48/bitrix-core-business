@@ -24,6 +24,8 @@ elseif (!$arResult['DOCUMENT'] && empty($arResult['ERROR_MESSAGES']))
 	$APPLICATION->SetTitle(Loc::getMessage('DOC_TYPE_CREATION_PAGE_TITLE_' . $arResult['DOCUMENT_TYPE']));
 }
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'no-background');
 

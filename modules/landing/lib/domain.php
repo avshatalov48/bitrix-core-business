@@ -137,7 +137,7 @@ class Domain extends \Bitrix\Landing\Internals\BaseTable
 		$res = self::getList(array(
 			'filter' => array(
 				'=ACTIVE' => 'Y',
-				'DOMAIN' => self::getDomainName()
+				'=DOMAIN' => self::getDomainName()
 			)
 		));
 		if ($row = $res->fetch())

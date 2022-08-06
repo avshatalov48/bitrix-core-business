@@ -43,7 +43,8 @@ class Landing extends \CModule
 		'main' => [
 			'onBeforeSiteDelete' => ['\Bitrix\Landing\Site', 'onBeforeMainSiteDelete'],
 			'onSiteDelete' => ['\Bitrix\Landing\Site', 'onMainSiteDelete'],
-			'onUserConsentProviderList' => ['\Bitrix\Landing\Site\Cookies', 'onUserConsentProviderList']
+			'onUserConsentProviderList' => ['\Bitrix\Landing\Site\Cookies', 'onUserConsentProviderList'],
+			'OnAfterFileDeleteDuplicate' => ['\Bitrix\Landing\Update\Block\DuplicateImages', 'onAfterFileDeleteDuplicate'],
 		],
 		'mobile' => [
 			'onMobileMenuStructureBuilt' => ['\Bitrix\Landing\Connector\Mobile', 'onMobileMenuStructureBuilt']

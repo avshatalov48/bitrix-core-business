@@ -5,14 +5,19 @@ this.BX = this.BX || {};
 	var _templateObject, _templateObject2, _templateObject3;
 
 	var NavigationItem = /*#__PURE__*/function () {
-	  function NavigationItem(options) {
+	  function NavigationItem(_ref) {
+	    var id = _ref.id,
+	        title = _ref.title,
+	        active = _ref.active,
+	        events = _ref.events,
+	        link = _ref.link;
 	    babelHelpers.classCallCheck(this, NavigationItem);
-	    this.id = options.id;
-	    this.title = main_core.Type.isString(options.title) ? options.title : null;
-	    this.active = main_core.Type.isBoolean(options.active) ? options.active : false;
-	    this.events = options.events ? options.events : null;
-	    this.link = options.link ? options.link : null;
-	    this.container = null;
+	    this.id = id ? id : null;
+	    this.title = main_core.Type.isString(title) ? title : null;
+	    this.active = main_core.Type.isBoolean(active) ? active : false;
+	    this.events = events ? events : null;
+	    this.link = link ? link : null;
+	    this.linkContainer = null;
 	    this.bindEvents();
 	  }
 
@@ -28,13 +33,13 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
-	      if (!this.container) {
-	        this.container = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-nav-panel__item\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.title ? this.getTitle() : '');
+	      if (!this.linkContainer) {
+	        this.linkContainer = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-nav-panel__item\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.title ? this.getTitle() : '');
 	        this.active ? this.activate() : this.inactivate();
 	        this.setEvents();
 	      }
 
-	      return this.container;
+	      return this.linkContainer;
 	    }
 	  }, {
 	    key: "bindEvents",

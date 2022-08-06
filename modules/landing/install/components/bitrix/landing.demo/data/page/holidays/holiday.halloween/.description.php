@@ -377,7 +377,7 @@ return [
 			'nodes' => [
 				'.landing-block-node-text' => [
 					0 => '
-					&copy; 2021 All rights reserved.
+					&copy; 2022 All rights reserved.
 				',
 				],
 			],

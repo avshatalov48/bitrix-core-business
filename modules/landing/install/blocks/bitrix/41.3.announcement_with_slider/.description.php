@@ -22,8 +22,9 @@ return array(
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_41.2.ANNOUNCEMENT_WITH_SLIDER_NODES_LANDINGBLOCKNODEBGIMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'editInStyle' => true,
 			'allowInlineEdit' => false,
+			'dimensions' => array('width' => 1920, 'height' => 1080),
 			'useInDesigner' => false,
 			'create2xByDefault' => false,
 		),
@@ -122,7 +123,7 @@ return array(
 			),
 			'.landing-block-node-bgimg' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_41.2.ANNOUNCEMENT_WITH_SLIDER_NODES_LANDINGBLOCKNODEBGIMG'),
-				'type' => array('background-overlay', 'background-attachment')
+				'type' => ['background', 'background-attachment']
 			),
 			'.landing-block-node-date-icon-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_41.2.ANNOUNCEMENT_WITH_SLIDER_NODES_LANDINGBLOCKNODEDATEICON2'),
@@ -144,6 +145,12 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_41.2.ANNOUNCEMENT_WITH_SLIDER_NODES_LANDINGBLOCKNODECARDIMG'),
 				'type' => array('background-size', 'bg')
 			),
+			'.landing-block-slider' => [
+				'additional' => [
+					'name' => Loc::getMessage('LANDING_BLOCK_41_2_ANNOUNCEMENT_WITH_SLIDER_NODES_SLIDER'),
+					'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show'],
+				]
+			],
 		),
 	),
 	'assets' => array(

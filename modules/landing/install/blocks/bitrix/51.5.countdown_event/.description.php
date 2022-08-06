@@ -15,17 +15,10 @@ return array(
 		'type' => ['page', 'store', 'smn'],
 	),
 	'nodes' => array(
-		'.landing-block-node-img' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--IMG'),
-			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 1080),
-			'create2xByDefault' => false,
-		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--TITLE'),
 			'type' => 'text',
 		),
-		
 		'.landing-block-node-number-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--NUMBER_TEXT'),
 			'type' => 'text',
@@ -42,7 +35,6 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--ICON'),
 			'type' => 'icon',
 		),
-		
 		'.landing-block-node-place-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--TITLE'),
 			'type' => 'text',
@@ -55,15 +47,23 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--ICON'),
 			'type' => 'icon',
 		),
-		
 		'.landing-block-node-button' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--BUTTON'),
 			'type' => 'link',
 		),
+		'.landing-block-node-img' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--IMG'),
+			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
+			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'create2xByDefault' => false,
+			'isWrapper' => true,
+		),
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-background-overlay'),
+			'type' => ['block-default-background'],
 		),
 		'nodes' => array(
 			'.landing-block-node-title' => array(
@@ -112,10 +112,6 @@ return array(
 			'.landing-block-node-button' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--BUTTON'),
 				'type' => 'button',
-			),
-			'.landing-block-node-img' => array(
-				'name' => Loc::getMessage('LANDING_BLOCK_51_5_COUNTDOWN_EVENT--IMG'),
-				'type' => 'background-attachment',
 			),
 		),
 	),

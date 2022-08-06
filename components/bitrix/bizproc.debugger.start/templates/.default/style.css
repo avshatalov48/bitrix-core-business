@@ -1,0 +1,63 @@
+.bizproc-debugger-start__background {
+	position: fixed;
+	bottom: 0;
+	width: 889px;
+	height: calc(100vh - 620px);
+	background: url(images/bizproc-debugger-start__background.png) left top no-repeat;
+	background-size: 100%;
+	margin-top: -147px;
+	z-index: -9;
+}
+
+.bizproc-debugger-start__wrapper .ui-slider-icon {
+	width: 56px;
+	height: 56px;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='56' height='56' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='28' cy='28' r='28' fill='%232EC8A6'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M35.702 18.046l1.58-5.307a1.36 1.36 0 00-.304-1.313 1.324 1.324 0 00-1.277-.39 1.34 1.34 0 00-.972.924l-1.354 4.555a14.335 14.335 0 00-13.428.014l-1.36-4.57a1.331 1.331 0 00-1.662-.901 1.352 1.352 0 00-.891 1.681l1.587 5.328c-3.564 2.881-5.633 7.249-5.62 11.863 0 6.884 4.486 6.681 10.622 6.404 1.287-.058 2.646-.12 4.052-.12.177 0 .354.002.53.003a11.017 11.017 0 013.82-7.358c-.471-.006-.962-.015-1.469-.025-.92-.017-1.89-.035-2.895-.035-1 0-1.969.018-2.886.035-4.384.082-7.595.142-7.595-1.91 0-2.48 4.694-4.495 10.481-4.495 5.272 0 9.642 1.67 10.378 3.844a11.161 11.161 0 013.947.296 15.144 15.144 0 00-5.284-8.523zm-13.834 6.242a1.604 1.604 0 00-1.292 1.773c.101.844.834 1.462 1.672 1.411a1.599 1.599 0 001.493-1.603 1.746 1.746 0 00-1.873-1.58zm8.294 1.777c.102.843.836 1.46 1.674 1.408a1.6 1.6 0 001.492-1.604 1.746 1.746 0 00-1.88-1.581 1.605 1.605 0 00-1.287 1.777zm4.78 10.345a3.296 3.296 0 003.933 3.934 3.241 3.241 0 002.49-2.491 3.296 3.296 0 00-3.933-3.933c-1.123.239-2.251 1.367-2.49 2.49zm8.787-2.14c.22.43.39.89.508 1.37l1.654.276a.73.73 0 01.611.72v.99a.73.73 0 01-.61.721l-1.621.271a.051.051 0 00-.041.038 6.205 6.205 0 01-.7 1.687c-.01.017-.01.04.002.056l.978 1.371c.21.29.176.689-.076.941l-.701.7a.729.729 0 01-.94.079l-1.375-.982a.051.051 0 00-.056-.002 6.212 6.212 0 01-1.674.692.051.051 0 00-.038.042l-.272 1.63a.73.73 0 01-.72.61h-.991a.728.728 0 01-.72-.61l-.278-1.664a6.218 6.218 0 01-2.003-.882.051.051 0 00-.056-.001l-1.407.883a.73.73 0 01-.936-.133l-.657-.74a.73.73 0 01-.022-.945l1.032-1.279a.051.051 0 00.006-.056 6.22 6.22 0 01-.53-1.394.051.051 0 00-.041-.038l-1.64-.274a.73.73 0 01-.61-.72v-.99a.73.73 0 01.61-.721l1.64-.274a.051.051 0 00.041-.038c.152-.6.389-1.165.698-1.681a.051.051 0 00-.002-.056l-.943-1.32a.73.73 0 01.078-.942l.7-.7a.731.731 0 01.941-.079l1.318.94a.051.051 0 00.056.003 6.22 6.22 0 011.694-.704.051.051 0 00.038-.041l.273-1.63a.728.728 0 01.72-.61h.99a.73.73 0 01.721.61l.272 1.63c.003.02.018.036.038.04a6.222 6.222 0 012.054.934l1.415-.889a.73.73 0 01.935.134l.658.74a.73.73 0 01.022.945l-1.038 1.287a.051.051 0 00-.005.055z' fill='%23fff'/%3E%3C/svg%3E");
+}
+
+.bizproc-debugger-start__wrapper .ui-slider-paragraph:last-child {
+	margin-bottom: 0;
+}
+
+.bizproc-debugger--subtitle {
+	font: 14px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
+	color: #333333;
+	margin-bottom: 3px;
+}
+
+.bizproc-debugger-start__block-deal {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: justify;
+	    -ms-flex-pack: justify;
+	        justify-content: space-between;
+	-webkit-box-align: start;
+	    -ms-flex-align: start;
+	        align-items: flex-start;
+}
+
+.bizproc-debugger-start__block-btn {
+	margin-left: 15px;
+	-ms-flex-negative: 0;
+	    flex-shrink: 0;
+}
+
+.bizproc-debugger--text {
+	font: 14px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+	color: #525C69;
+	margin-top: 6px;
+}
+
+.ui-slider-section.--bizproc-large-section {
+	min-height: 50vh;
+}
+
+.bizproc-debugger-help-link {
+	text-decoration: underline;
+	padding-left: 5px;
+}

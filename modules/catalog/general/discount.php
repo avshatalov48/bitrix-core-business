@@ -539,7 +539,7 @@ class CAllCatalogDiscount
 
 						if ($DB->type == 'MYSQL')
 						{
-							if (64000 < CUtil::BinStrlen($arFields['UNPACK']) || 64000 < CUtil::BinStrlen($arFields['CONDITIONS']))
+							if (64000 < strlen($arFields['UNPACK']) || 64000 < strlen($arFields['CONDITIONS']))
 							{
 								$boolResult = false;
 								$arMsg[] = array('id' => 'CONDITIONS', 'text' => Loc::getMessage('BT_MOD_CATALOG_DISC_ERR_CONDITIONS_TOO_LONG'));

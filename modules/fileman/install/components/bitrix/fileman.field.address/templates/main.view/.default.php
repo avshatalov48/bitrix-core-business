@@ -1,56 +1,63 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
-
 use Bitrix\Fileman\UserField\Types\AddressType;
 use Bitrix\Main\Text\HtmlFilter;
 
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+
+\Bitrix\Main\UI\Extension::load(['fileman.userfield.address_widget', 'userfield_address']);
+
 /**
+ * @var AddressUfComponent $component
  * @var array $arResult
  */
-?>
 
-<span class="fields address field-wrap">
+if ($arResult['additionalParameters']['printable'] ?? false)
+{
+	?>
+	<span class="fields address field-wrap">
 	<?php
-	foreach($arResult['value'] as $item)
+	foreach ($arResult['value'] as $value)
 	{
 		?>
 		<span class="fields address field-item">
 			<?php
-			if(!empty($item['text']))
-			{
-				if(
-					!$arResult['additionalParameters']['printable']
-					&&
-					$item['coords']
-					&&
-					AddressType::getApiKey()
-				)
-				{
-					$mouseOverParams = HtmlFilter::encode(
-						\CUtil::PhpToJSObject(
-							[
-								'text' => $item['text'],
-								'coords' => $item['coords']
-							]
-						)
-					);
-					?>
-					<a
-						href="javascript:void(0)"
-						onmouseover="BX.Fileman.UserField.addressSearchResultDisplayMap.showHover(this, <?= $mouseOverParams ?>);"
-						onmouseout="BX.Fileman.UserField.addressSearchResultDisplayMap.closeHover(this)"
-					>
-						<?= HtmlFilter::encode($item['text']) ?>
-					</a>
-					<?php
-				}
-				else
-				{
-					print HtmlFilter::encode($item['text']);
-				}
-			}
+			$parsedValue = AddressType::parseValue($value);
+			print HtmlFilter::encode($parsedValue[0]);
 			?>
 		</span>
-	<?php } ?>
+		<?php
+	}
+	?>
+	</span>
+	<?php
+
+	return;
+}
+
+$randString = $this->randString();
+if ($component->isAjaxRequest())
+{
+	$randString .= time();
+}
+
+$wrapperId = 'address-wrapper-' . $arResult['userField']['ID'] . '_' . $randString;
+?>
+
+<span class="fields address field-wrap" id="<?= $wrapperId ?>">
 </span>
+
+<script>
+	BX.ready(function(){
+		var addressData = <?= CUtil::PhpToJSObject($arResult['value']) ?>;
+		var wrapperId = <?= CUtil::PhpToJSObject($wrapperId) ?>;
+
+		BX.Runtime.loadExtension('fileman.userfield.address_widget').then(function (){
+			BX.Fileman.UserField.AddressField.init({
+				wrapperId: wrapperId,
+				addressData: addressData,
+				mode: BX.Fileman.UserField.AddressField.VIEW_MODE,
+			});
+		});
+	});
+</script>

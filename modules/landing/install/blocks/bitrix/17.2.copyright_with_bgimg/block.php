@@ -5,7 +5,7 @@
 			<div class="row">
 				<div class="col-md-4 d-flex align-items-center text-center text-md-left g-mb-20 g-mb-0--md">
 					<div class="landing-block-node-copy landing-semantic-text-image-medium w-100 g-font-size-13 g-color-white mb-0 js-animation fadeInLeft">
-						&copy; 2021 All rights reserved.
+						&copy; 2022 All rights reserved.
 					</div>
 				</div>
 

@@ -4020,7 +4020,7 @@ class ComponentHelper
 				"ENTITY_ID" => $post["ID"],
 				"AUTHOR_ID" => $post["AUTHOR_ID"],
 				"URL" => $postUrl,
-				"EXCLUDE_USERS" => array_merge(array($post["AUTHOR_ID"]), array($userIdSentList))
+				'EXCLUDE_USERS' => array_merge([ $post['AUTHOR_ID'] ], $userIdSentList),
 			));
 
 			foreach ($socnetRights as $right)

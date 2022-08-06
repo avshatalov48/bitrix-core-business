@@ -13,6 +13,7 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'b
 \Bitrix\Main\UI\Extension::load([
 	'bizproc.automation',
 	'bizproc.globals',
+	'bizproc.debugger',
 	'sidepanel',
 	'ui.actionpanel',
 	'ui.buttons',
@@ -24,6 +25,8 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'b
 	'ui.entity-selector',
 	'ui.fonts.opensans',
 	'ui.hint',
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 ]);
 /**
  * @var array $arResult
@@ -97,19 +100,17 @@ if ($arParams['HIDE_TOOLBAR'] !== 'Y'):
 			);
 		}
 		?>
-		<?php /*
-		<button
-			class="ui-btn ui-btn-primary"
-			disabled
-			title="<?=htmlspecialcharsbx(GetMessage('BIZPROC_AUTOMATION_CMP_DEBUGGER_SOON'))?>"
-		><?= GetMessage('BIZPROC_AUTOMATION_CMP_DEBUGGER') ?></button>
-		*/ ?>
+		<?php if ($arResult['CAN_DEBUG']): ?>
+			<button
+				class="ui-btn ui-btn-primary"
+				onclick="BX.Bizproc.Automation.Debugger.showStartPage();"
+			><?= GetMessage('BIZPROC_AUTOMATION_CMP_DEBUGGER') ?></button>
+		<?php endif ?>
 	</div>
 	<?php $this->EndViewTarget();
 
 
 $menuTabs = [];
-
 $menuTabs[] = [
 	'ID' => 'robots',
 	'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_AUTOMATION_CMP_ROBOT_LIST'),
@@ -128,6 +129,14 @@ $menuTabs[] = [
 	'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_AUTOMATION_CMP_GLOB_CONST_MENU'),
 	'ON_CLICK' => "BX.Bizproc.Automation.showGlobals.showConstants('{$docType}')",
 ];
+if ($arResult['CAN_DEBUG'])
+{
+	$menuTabs[] = [
+		'ID' => 'debug_sessions',
+		'TEXT' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_AUTOMATION_CMP_DEBUGGER_SESSION_LIST_MENU'),
+		'ON_CLICK' => 'BX.Bizproc.Automation.Debugger.showDebugSessions()',
+	];
+}
 
 $APPLICATION->IncludeComponent(
 	"bitrix:main.interface.buttons",
@@ -269,10 +278,7 @@ endif;
 				BIZPOC_AUTOMATION_NO_ROBOT_SELECTED: '<?=GetMessageJS("BIZPOC_AUTOMATION_NO_ROBOT_SELECTED")?>',
 			});
 
-			var viewMode = BX.Bizproc.Automation.Component.ViewMode.View;
-			<?php if ($arResult['CAN_EDIT']):?>
-				viewMode = BX.Bizproc.Automation.Component.ViewMode.Edit;
-			<?php endif?>
+			var viewMode = BX.Bizproc.Automation.Component.ViewMode.Edit;
 
 			(new BX.Bizproc.Automation.Component(baseNode))
 				.init(<?=\Bitrix\Main\Web\Json::encode(array(

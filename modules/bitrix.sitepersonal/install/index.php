@@ -32,8 +32,6 @@ Class bitrix_sitepersonal extends CModule
 
 	function InstallDB($install_wizard = true)
 	{
-		global $DB, $DBType, $APPLICATION;
-
 		RegisterModule("bitrix.sitepersonal");
 		RegisterModuleDependences("main", "OnBeforeProlog", "bitrix.sitepersonal", "CSitePersonal", "ShowPanel");
 
@@ -42,9 +40,7 @@ Class bitrix_sitepersonal extends CModule
 
 	function UnInstallDB($arParams = Array())
 	{
-		global $DB, $DBType, $APPLICATION;
-
-		UnRegisterModuleDependences("main", "OnBeforeProlog", "bitrix.sitepersonal", "CSitePersonal", "ShowPanel"); 
+		UnRegisterModuleDependences("main", "OnBeforeProlog", "bitrix.sitepersonal", "CSitePersonal", "ShowPanel");
 		UnRegisterModule("bitrix.sitepersonal");
 
 		return true;

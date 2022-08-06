@@ -1,9 +1,10 @@
 <section class="landing-block g-pt-30 g-pb-30">
-	<div class="container">
+	<div class="landing-block-slider container" data-slider-slides-show="2" data-slider-arrows="1" data-slider-dots="0" data-slider-animation="1">
 		<!-- Carousel -->
 		<div class="js-carousel u-carousel-v5 g-pb-85 g-mx-minus-15"
 			 data-slides-show="2"
-			 data-arrows-classes="u-arrow-v1 g-pos-abs g-absolute-centered--x--md g-bottom-0 g-width-45 g-height-45 g-color-white g-color-black--hover g-bg-gray-light-v3 g-bg-primary--hover g-transition-0_2 g-transition--ease-in"
+			 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-pt-15"
+			 data-arrows-classes="u-arrow-v1 g-pos-abs g-absolute-centered--x--md g-bottom-0 g-width-45 g-height-45 g-transition-0_2 g-transition--ease-in g-color-gray g-color-white--hover g-bg-gray-light-v5 g-bg-primary--hover"
 			 data-arrow-left-classes="fa fa-chevron-left g-left-15 g-left-50x--md g-ml-minus-40--md"
 			 data-arrow-right-classes="fa fa-chevron-right g-right-15 g-left-50x--md g-ml-40--md"
 			 data-responsive='[{

@@ -32,7 +32,7 @@
 .bx-desktop-appearance-menu { position: absolute; z-index: 1000; background-color: #fff;border-right: 1px solid #e5e5e5;width: 42px; display: none; }
 .bx-desktop-appearance-content { position: relative; z-index: 2; background-color: #fff;  margin-left:0; }
 .bx-desktop-appearance-show-menu .bx-desktop-appearance-menu { display: block; }
-.bx-desktop-appearance-show-menu .bx-desktop-appearance-content  { margin-left: 44px; }
+.bx-desktop-appearance-show-menu .bx-desktop-appearance-content  { margin-left: 43px; }
 
 
 .bx-desktop-appearance-hide-menu .bx-desktop-appearance-menu  { display: none; }
@@ -274,7 +274,7 @@
 
 .bx-im-fullscreen-adaptive .bx-messenger-call-overlay { z-index: 1100; }
 .bx-im-fullscreen-adaptive .bx-messenger-call-overlay.bx-messenger-call-overlay-folded { margin-left: 302px; width: calc(100% - 302px);}
-.bx-desktop-appearance-show-menu .bx-messenger-call-overlay.bx-messenger-call-overlay-folded { margin-left: 344px; width: calc(100% - 344px);}
+.bx-desktop-appearance-show-menu .bx-messenger-call-overlay.bx-messenger-call-overlay-folded {margin-left: 375px; width: calc(100% - 375px);}
 
 @media screen and (max-width: 599px)  {
 	.bx-im-fullscreen-adaptive .bx-messenger-command-popup { width: 450px; }
@@ -287,6 +287,7 @@
 	.bx-desktop-appearance-show-menu .bx-messenger-call-overlay.bx-messenger-call-overlay-folded { margin-left: 115px!important; width: calc(100% - 115px);}
 	.bx-im-fullscreen-adaptive .bx-messenger-box-dialog { margin-left: 70px!important; }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-extra { margin-left: 70px!important; }
+
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-recent-group {  margin: 2px 2px 2px 2px; text-align: center; }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-recent-group-title { font-size: 10px!important; }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-panel-title-chat-input { width: 100%!important; }
@@ -299,7 +300,7 @@
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-avatar { margin: 0; float: none; }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-item { padding: 6px 11px 6px 11px }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover,
-	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-active { width: 200px!important; background-color: #fff; z-index: 500; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-active { width: 300px!important; background-color: #fff; z-index: 500; }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover .bx-messenger-chatlist-group-add,
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-active .bx-messenger-chatlist-group-add { display: block; }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-panel-status { margin-left: 9px; }
@@ -323,14 +324,14 @@
 	.bx-im-fullscreen-adaptive .bx-messenger-file-box { min-width: 200px; }
 }
 
-@media screen and (max-width: 853px) and (min-width: 660px) {
+@media screen and (max-width: 1000px) and (min-width: 660px) {
 	.bx-im-fullscreen-adaptive .bx-messenger-call-overlay.bx-messenger-call-overlay-folded { margin-left: 203px!important; width: calc(100% - 203px);}
-	.bx-desktop-appearance-show-menu .bx-messenger-call-overlay.bx-messenger-call-overlay-folded { margin-left: 245px!important; width: calc(100% - 245px);}
-	.bx-im-fullscreen-adaptive .bx-messenger-box-contact { width: 200px!important;  }
+	.bx-desktop-appearance-show-menu .bx-messenger-call-overlay.bx-messenger-call-overlay-folded { margin-left: 325px!important; width: calc(100% - 325px);}
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact { width: 280px!important;  }
 	.bx-im-fullscreen-adaptive .bx-messenger-input-search-create { display: none; }
 	.bx-im-fullscreen-adaptive .bx-messenger-input-search-create-short { display: block; }
-	.bx-im-fullscreen-adaptive .bx-messenger-box-dialog { margin-left: 200px!important; }
-	.bx-im-fullscreen-adaptive .bx-messenger-box-extra { margin-left: 200px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-dialog { margin-left: 280px!important; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-extra { margin-left: 280px!important; }
 	.bx-im-fullscreen-adaptive .bx-messenger-panel-title-chat-input { width: 100%!important;}
 	.bx-im-fullscreen-adaptive #disk-wrap .right_section { display: none; }
 	.bx-im-fullscreen-adaptive .bx-messenger-file-box { min-width: 200px; }
@@ -363,7 +364,7 @@
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-avatar { margin: 0; float: none; }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-messenger-cl-item { padding: 6px 11px 6px 11px }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover,
-	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-active { width: 200px!important; background-color: #fff; z-index: 500; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-active { width: 300px!important; background-color: #fff; z-index: 500; }
 	.bx-im-fullscreen-adaptive .bx-messenger-input-search-create { display: none; }
 	.bx-im-fullscreen-adaptive .bx-messenger-input-search-create-short { display: block; }
 	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover .bx-messenger-cl-item-pinned:before,
@@ -380,6 +381,18 @@
 	.bx-im-fullscreen-adaptive .bx-messenger-editform-progress { display: none; }
 	.bx-im-fullscreen-adaptive .bx-messenger-editform-textarea { padding: 9px 0; }
 	.bx-im-fullscreen-adaptive .bx-messenger-confirm { width: auto; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-im-recent-item-content { margin-right: 0; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-im-recent-item-wrap {position: relative; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover .bx-im-recent-item-wrap {position: initial; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-im-recent-item-content-header {display: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover .bx-im-recent-item-content-header {display: flex; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-im-recent-message-text-wrap {display: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover .bx-im-recent-message-text-wrap {display: flex; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-im-recent-pinned-icon {display: none; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover .bx-im-recent-pinned-icon {display: block; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-im-left-panel-wrap { padding-left: 5px; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-hover .bx-im-left-panel-wrap { padding-left: 0; }
+	.bx-im-fullscreen-adaptive .bx-messenger-box-contact-normal .bx-im-recent-counter { position: absolute; top: 11px; right: 2px; }
 }
 @media screen and (max-width: 840px) {
 	.bx-im-fullscreen-adaptive .bx-messenger-panel-call-video,
@@ -405,9 +418,9 @@
 /* browser */
 @media screen and (min-width: 1280px) {
 	.bx-im-fullscreen-popup .bx-messenger-call-overlay.bx-messenger-call-overlay-folded  { margin-left: 345px!important; width: calc(100% - 345px); }
-	.bx-im-fullscreen-popup .bx-messenger-box-contact { width: 300px!important; }
-	.bx-im-fullscreen-popup .bx-messenger-box-dialog { margin-left: 300px!important; }
-	.bx-im-fullscreen-popup .bx-messenger-box-extra { margin-left: 300px!important; }
+	.bx-im-fullscreen-popup .bx-messenger-box-contact { width: 330px!important; }
+	.bx-im-fullscreen-popup .bx-messenger-box-dialog { margin-left: 330px!important; }
+	.bx-im-fullscreen-popup .bx-messenger-box-extra { margin-left: 330px!important; }
 	.bx-im-fullscreen-popup .bx-messenger-panel-title-chat-input { width: 100%!important;}
 	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 { text-align: left; }
 	.bx-im-fullscreen-adaptive .bx-messenger-content-item-1 .bx-messenger-content-item-arrow { float: right; background: url("/bitrix/js/im/images/im-sprite-v37.png") no-repeat scroll -11px -307px;}
@@ -422,8 +435,8 @@
 
 /* desktop */
 @media screen and (min-width: 1160px) {
-	.im-desktop .bx-messenger-box-contact { width: 300px!important;  }
-	.im-desktop .bx-messenger-box-dialog { margin-left: 300px!important; }
-	.im-desktop .bx-messenger-box-extra { margin-left: 300px!important; }
+	.im-desktop .bx-messenger-box-contact { width: 330px!important;  }
+	.im-desktop .bx-messenger-box-dialog { margin-left: 330px!important; }
+	.im-desktop .bx-messenger-box-extra { margin-left: 330px!important; }
 	.im-desktop .bx-messenger-panel-title-chat-input { width: 100%!important;}
 }

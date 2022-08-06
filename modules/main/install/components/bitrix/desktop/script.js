@@ -21,18 +21,18 @@ function BXGadget(gadgetHolderID, allGadgets)
 	allGagdgetHolders[_this.gadgetHolderID] = _this;
 
 	_this.menuItems = [];
-	if (arGDGroups !== undefined)
+	if (!BX.Type.isUndefined(window.arGDGroups))
 	{
-		for(var gr_id in arGDGroups)
+		for(var gr_id in window.arGDGroups)
 		{
-			if (arGDGroups.hasOwnProperty(gr_id))
+			if (window.arGDGroups.hasOwnProperty(gr_id))
 			{
 				var items = [];
-				for(var _gid in arGDGroups[gr_id]['GADGETS'])
+				for(var _gid in window.arGDGroups[gr_id]['GADGETS'])
 				{
-					if (arGDGroups[gr_id]['GADGETS'].hasOwnProperty(_gid))
+					if (window.arGDGroups[gr_id]['GADGETS'].hasOwnProperty(_gid))
 					{
-						var gid = arGDGroups[gr_id]['GADGETS'][_gid];
+						var gid = window.arGDGroups[gr_id]['GADGETS'][_gid];
 						for(var i in _this.allGadgets)
 						{
 							if(_this.allGadgets[i]['ID'].toUpperCase() == gid.toUpperCase())
@@ -49,7 +49,7 @@ function BXGadget(gadgetHolderID, allGadgets)
 			_this.menuItems[gr_id] =
 			{
 				'ID': gr_id,
-				'TEXT':	'<div style="text-align: left;"><b>' + arGDGroups[gr_id]['NAME'] + '</b><br>' + arGDGroups[gr_id]['DESCRIPTION']+'</div>',
+				'TEXT':	'<div style="text-align: left;"><b>' + window.arGDGroups[gr_id]['NAME'] + '</b><br>' + window.arGDGroups[gr_id]['DESCRIPTION']+'</div>',
 				'MENU': items
 			};
 		}

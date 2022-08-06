@@ -167,14 +167,12 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 			$this->entityOAuth->addScope($addScope);
 		}
 
-		CSocServAuthManager::SetUniqueKey();
-
 		$state = 'provider='.static::ID
 			. '&site_id=' . SITE_ID
 			. '&backurl=' . urlencode(
 				$GLOBALS["APPLICATION"]
 					->GetCurPageParam(
-						'check_key=' . $_SESSION["UNIQUE_KEY"],
+						'check_key=' . \CSocServAuthManager::getUniqueKey(),
 						["logout", "auth_service_error", "auth_service_id", "backurl"]
 					)
 			)

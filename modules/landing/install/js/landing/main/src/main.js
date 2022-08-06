@@ -583,7 +583,7 @@ export class Main extends EventEmitter
 			const s = d.createElement('script');
 			const r = 1 * new Date(); s.async = 1; s.src = `${u}?${r}`;
 			const h = d.getElementsByTagName('script')[0]; h.parentNode.insertBefore(s, h);
-		})(rootWindow, rootWindow.document, 'https://landing.bitrix24.ru/bitrix/js/crm/form_loader.js', 'b24formFeedBack');
+		})(rootWindow, rootWindow.document, 'https://product-feedback.bitrix24.com/bitrix/js/crm/form_loader.js', 'b24formFeedBack');
 	}
 
 

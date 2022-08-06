@@ -20,7 +20,7 @@
 					<div class="landing-block-node-cards-container">
 						<div class="landing-block-node-card media d-block d-md-flex text-center text-md-left g-mb-30">
 							<div class="d-md-flex align-self-center g-mb-30 g-mb-0--md g-mr-30--md">
-							<span class="landing-block-node-card-icon-border u-icon-v2 u-icon-size--lg g-font-size-26 g-color-primary g-rounded-50x">
+							<span class="landing-block-node-card-icon-border u-icon-v2 u-icon-size--lg g-font-size-26 g-color-primary g-rounded-50x m-auto">
 								<i class="landing-block-node-card-icon fa fa-flask"></i>
 							</span>
 							</div>
@@ -39,7 +39,7 @@
 
 						<div class="landing-block-node-card media d-block d-md-flex text-center text-md-left g-mb-30">
 							<div class="d-md-flex align-self-center g-mb-30 g-mb-0--md g-mr-30--md">
-							<span class="landing-block-node-card-icon-border u-icon-v2 u-icon-size--lg g-font-size-26 g-color-primary g-rounded-50x">
+							<span class="landing-block-node-card-icon-border u-icon-v2 u-icon-size--lg g-font-size-26 g-color-primary g-rounded-50x m-auto">
 								<i class="landing-block-node-card-icon fa fa-magic"></i>
 							</span>
 							</div>

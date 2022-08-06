@@ -9,6 +9,10 @@
 	z-index: 22!important;
 }
 
+.landing-ui-panel-style.landing-ui-style-form-mode {
+	z-index: 9999!important;
+}
+
 .landing-ui-panel-style .landing-ui-panel-content-body-content {
 	background: none;
 	margin-right: 0;
@@ -91,12 +95,12 @@
 	right: 0;
 }
 
-.landing-ui-panel-style.landing-ui-show ~ .landing-ui-view-wrapper {
+.landing-ui-panel-style:not(.landing-ui-style-form-mode).landing-ui-show ~ .landing-ui-view-wrapper {
 	-webkit-animation: frameResizeIn 300ms ease both;
 	        animation: frameResizeIn 300ms ease both;
 }
 
-.landing-ui-panel-style.landing-ui-hide ~ .landing-ui-view-wrapper {
+.landing-ui-panel-style:not(.landing-ui-style-form-mode).landing-ui-hide ~ .landing-ui-view-wrapper {
 	-webkit-animation: frameResizeOut 300ms ease both;
 	        animation: frameResizeOut 300ms ease both;
 }

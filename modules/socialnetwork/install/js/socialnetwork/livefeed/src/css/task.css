@@ -1,0 +1,57 @@
+.feed-task-info-block {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: stretch;
+	-ms-flex-align: stretch;
+	align-items: stretch;
+}
+
+.feed-task-info-label-cont {
+}
+
+.feed-task-info-label {
+	background: none repeat 0 0 #ecf2f3;
+	border-radius: 2px;
+	color: #5c6470;
+	font-size: 13px;
+	font-weight: bold;
+	padding: 5px 10px;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-ms-flex-align: center;
+	align-items: center;
+	-webkit-box-orient: horizontal;
+	-webkit-box-direction: reverse;
+	-ms-flex-direction: row-reverse;
+	flex-direction: row-reverse;
+}
+
+.feed-task-info-label-icon {
+	background: no-repeat center url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2014%2014%22%3E%3Cpath%20fill%3D%22%23A6ACB2%22%20fill-rule%3D%22evenodd%22%20d%3D%22M9.61.514A6.992%206.992%200%200%201%2013.993%207a6.855%206.855%200%200%201-6.714%206.987A6.992%206.992%200%201%201%209.611.514zM3.245%203.392a5.208%205.208%200%200%200%203.963%208.812%205.106%205.106%200%200%200%205-5.204%205.208%205.208%200%200%200-8.963-3.608zm2.871%204.475V3.48H7.87v2.632h2.633v1.755H6.115z%22/%3E%3C/svg%3E');
+	height: 14px;
+	width: 14px;
+	margin-right: 9px;
+}
+
+.feed-task-info-text {
+	overflow: hidden;
+	padding-left: 11px;
+}
+
+.feed-task-info-text-item {
+	color: #5c6470;
+	font-size: 13px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.feed-task-info-text-item:first-child .feed-task-info-text-title {
+	font-weight: bold;
+}
+
+.feed-task-info-text-title {
+	padding-right: 6px;
+}

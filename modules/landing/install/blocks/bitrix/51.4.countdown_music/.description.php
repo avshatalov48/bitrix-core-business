@@ -33,12 +33,6 @@ return [
 		],
 	],
 	'nodes' => [
-		'.landing-block-node-img' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--IMG'),
-			'type' => 'img',
-			'dimensions' => ['width' => 1920, 'height' => 1080],
-			'create2xByDefault' => false,
-		],
 		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--TITLE'),
 			'type' => 'text',
@@ -51,7 +45,6 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--TEXT'),
 			'type' => 'text',
 		],
-		
 		'.landing-block-node-number-text-days' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--NUMBER_TEXT'),
 			'type' => 'text',
@@ -68,10 +61,19 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--NUMBER_TEXT'),
 			'type' => 'text',
 		],
+		'.landing-block-node-img' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_51_4_COUNTDOWN_MUSIC--IMG'),
+			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
+			'dimensions' => ['width' => 1920, 'height' => 1080],
+			'create2xByDefault' => false,
+			'isWrapper' => true,
+		],
 	],
 	'style' => [
 		'block' => [
-			'type' => ['block-default-background-overlay'],
+			'type' => ['block-default-background'],
 		],
 		'nodes' => [
 			'.landing-block-node-title' => [

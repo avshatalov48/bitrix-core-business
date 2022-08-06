@@ -8,7 +8,7 @@
 		></div>
 	</div>
 
-	<div class="container g-px-30 u-bg-overlay__inner">
+	<div class="landing-block-slider container g-px-30 u-bg-overlay__inner" data-slider-autoplay="1" data-slider-autoplay-speed="5000" data-slider-animation="1">
 		<div class="js-carousel"
 			 data-autoplay="true"
 			 data-infinite="true"

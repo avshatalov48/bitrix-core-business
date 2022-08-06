@@ -100,6 +100,7 @@ class ManagedCache
 		if (isset($this->cache[$uniqueId]))
 		{
 			$obCache = Cache::createInstance();
+			$obCache->noOutput();
 			$obCache->startDataCache($this->ttl[$uniqueId], $uniqueId, $this->cachePath[$uniqueId], $val, "managed_cache");
 			$obCache->endDataCache();
 

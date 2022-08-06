@@ -23,6 +23,7 @@ Extension::load(
 		'ui.buttons',
 		'ui.alerts',
 		'ui.viewer',
+		'ui.design-tokens',
 	]
 );
 

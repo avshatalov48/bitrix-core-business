@@ -455,6 +455,16 @@ class HttpClient implements Log\LoggerAwareInterface
 	}
 
 	/**
+	 * Returns HTTP request headers.
+	 *
+	 * @return HttpHeaders
+	 */
+	public function getRequestHeaders(): HttpHeaders
+	{
+		return $this->requestHeaders;
+	}
+
+	/**
 	 * Clears all HTTP request header fields.
 	 */
 	public function clearHeaders()
@@ -897,11 +907,12 @@ class HttpClient implements Log\LoggerAwareInterface
 		{
 			if ($this->debugLevel)
 			{
-				$logger->debug("{date} - {host}\n{trace}", ['trace' => Diag\Helper::getBackTrace(6, DEBUG_BACKTRACE_IGNORE_ARGS, 3)]);
-			}
-			if ($this->debugLevel & HttpDebug::REQUEST_HEADERS)
-			{
-				$logger->debug("REQUEST>>>\n" . $request);
+				$message = "{date} - {host}\n{trace}";
+				if ($this->debugLevel & HttpDebug::REQUEST_HEADERS)
+				{
+					$message .= "REQUEST>>>\n" . $request;
+				}
+				$logger->debug($message, ['trace' => Diag\Helper::getBackTrace(6, DEBUG_BACKTRACE_IGNORE_ARGS, 3)]);
 			}
 		}
 
@@ -1030,14 +1041,14 @@ class HttpClient implements Log\LoggerAwareInterface
 
 		if ($logger = $this->getLogger())
 		{
-			if ($this->debugLevel & HttpDebug::RESPONSE_BODY)
-			{
-				$logger->debug("\n");
-				$logger->debug($this->result);
-			}
 			if ($this->debugLevel)
 			{
-				$logger->debug("\n{delimiter}\n");
+				$message = "\n{delimiter}\n";
+				if ($this->debugLevel & HttpDebug::RESPONSE_BODY)
+				{
+					$message = "\n" . $this->result . $message;
+				}
+				$logger->debug($message);
 			}
 		}
 
@@ -1131,7 +1142,7 @@ class HttpClient implements Log\LoggerAwareInterface
 			}
 			elseif(mb_strpos($header, ':') !== false)
 			{
-				list($headerName, $headerValue) = explode(':', $header, 2);
+				[$headerName, $headerValue] = explode(':', $header, 2);
 				if(mb_strtolower($headerName) == 'set-cookie')
 				{
 					$this->responseCookies->addFromString($headerValue);

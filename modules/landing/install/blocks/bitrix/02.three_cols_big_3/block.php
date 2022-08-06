@@ -1,7 +1,7 @@
 <section class="landing-block landing-semantic-background-color container-fluid px-0 g-theme-business-bg-blue-dark-v2">
 	<div class="row no-gutters">
 
-		<div class="landing-block-node-left col-md-6 col-lg-4 order-2 order-md-1">
+		<div class="landing-block-node-left col-md-6 col-lg-4 order-2 order-md-1" data-slider-autoplay="1" data-slider-animation="1">
 			<div class="js-carousel g-pb-90"
 				 data-infinite="true"
 				 data-autoplay="true"
@@ -45,7 +45,7 @@
 
 					<div class="g-pa-30">
 						<h3 class="landing-block-node-left-title landing-semantic-subtitle-medium js-animation fadeIn text-uppercase g-font-weight-700 g-color-white g-mb-20">
-							Present 2021</h3>
+							Present 2022</h3>
 						<div class="landing-block-node-left-text landing-semantic-text-medium js-animation fadeIn g-color-gray-light-v2">
 							<p>Etiam consectetur placerat gravida. Pellentesque ultricies mattis est, quis elementum neque
 								pulvinar at.</p>

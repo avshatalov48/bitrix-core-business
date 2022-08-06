@@ -12,7 +12,8 @@
 	height: 0;
 	border-bottom: 3px #eef2f4 solid;
 	background: #fff8d5;
-	font: 13px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #716e62;
 	box-sizing: border-box;
 }
@@ -54,7 +55,8 @@
 	border: 1px solid #c6cdd3;
 	border-radius: 2px;
 	color: #000;
-	font: 400 16px/22px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 16px/22px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .messageservice-retry-tz {
@@ -63,7 +65,8 @@
 	border: 1px solid #c6cdd3;
 	border-radius: 2px;
 	color: #000;
-	font: 400 16px/22px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 16px/22px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	width: 283px;
 	-webkit-appearance: none !important;
 	-moz-appearance: none !important;
@@ -77,7 +80,8 @@
 .messageservice-retry-description {
 	padding: 0 30px;
 	color: #000;
-	font: 400 14px/19px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .messageservice-retry-form {

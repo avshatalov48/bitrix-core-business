@@ -123,7 +123,7 @@ class Helper
 		$result = [];
 		$documentClass = self::PERSONALIZE_NAMESPACE.ucfirst($entityType);
 
-		if(!class_exists($documentClass, 'getData'))
+		if(!class_exists($documentClass, 'getData') || !Loader::includeModule('crm'))
 		{
 			return $result;
 		}

@@ -63,7 +63,11 @@ final class FilePreviewTable extends DataManager
 					return new DateTime();
 				},
 			]),
-			new Entity\DatetimeField('TOUCHED_AT'),
+			new Entity\DatetimeField('TOUCHED_AT', [
+				'default_value' => function () {
+					return new DateTime();
+				},
+			]),
 			new Entity\ReferenceField('FILE',FileTable::class,
 				['=this.FILE_ID' => 'ref.ID'],
 				['join_type' => 'INNER']
@@ -143,10 +147,7 @@ final class FilePreviewTable extends DataManager
 		self::$alreadyDeleted[$file['ID']] = true;
 
 		\CFile::delete($file['PREVIEW_ID']);
-		if (!$keepImage)
-		{
-			\CFile::delete($file['PREVIEW_IMAGE_ID']);
-		}
+		\CFile::delete($file['PREVIEW_IMAGE_ID']);
 	}
 
 	/**

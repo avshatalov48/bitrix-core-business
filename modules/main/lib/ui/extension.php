@@ -37,6 +37,11 @@ class Extension
 	 */
 	public static function register($extName)
 	{
+		if (\CJSCore::isExtRegistered($extName))
+		{
+			return true;
+		}
+
 		$extension = static::getConfig($extName);
 		if ($extension !== null)
 		{

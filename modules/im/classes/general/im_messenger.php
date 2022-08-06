@@ -171,6 +171,11 @@ class CIMMessenger
 			}
 		}
 
+		if ($arFields['FROM_USER_ID'] && \Bitrix\Im\User::getInstance($arFields['FROM_USER_ID'])->isExtranet())
+		{
+			$arFields['SYSTEM'] = 'N';
+		}
+
 		$arFields['MESSAGE_OUT'] = isset($arFields['MESSAGE_OUT'])? trim($arFields['MESSAGE_OUT']): "";
 
 		$arFields['URL_PREVIEW'] = isset($arFields['URL_PREVIEW']) && $arFields['URL_PREVIEW'] == 'N'? 'N': 'Y';
@@ -584,8 +589,7 @@ class CIMMessenger
 							continue;
 						}
 
-						//self chat OR current user is author + no unread messages before
-						if ($isSelfChat || ($relation["USER_ID"] == $arFields["FROM_USER_ID"] && $relation["PREVIOUS_COUNTER"] === 0))
+						if ($isSelfChat || $relation["USER_ID"] == $arFields["FROM_USER_ID"])
 						{
 							$relations[$id]['COUNTER'] = 0;
 							$relationUpdate = array(
@@ -775,6 +779,7 @@ class CIMMessenger
 					WHERE C.ID = ".intval($arFields['TO_CHAT_ID'])."
 				";
 			}
+
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 			if ($arRes = $dbRes->Fetch())
 			{
@@ -1001,7 +1006,7 @@ class CIMMessenger
 						));
 					}
 
-					if ($relation["USER_ID"] == $arFields["FROM_USER_ID"] && $relation["PREVIOUS_COUNTER"] === 0)
+					if ($relation["USER_ID"] == $arFields["FROM_USER_ID"])
 					{
 						$relations[$id]['COUNTER'] = $relation['COUNTER'] = 0;
 
@@ -1921,7 +1926,7 @@ class CIMMessenger
 
 			$arPullMessage['fromUserId'] = (int)$arFields['FROM_USER_ID'];
 			$arPullMessage['toUserId'] = (int)$arFields['TO_USER_ID'];
-			$arPullMessage['senderId'] = (int)$arFields['TO_USER_ID'];
+			$arPullMessage['senderId'] = (int)$arFields['FROM_USER_ID'];
 			$arPullMessage['chatId'] = (int)$arFields['CHAT_ID'];
 		}
 		else
@@ -2281,55 +2286,74 @@ class CIMMessenger
 
 		$pushUsers = $like;
 		$pushUsers[] = $message['AUTHOR_ID'];
+
 		$arPullMessage = Array(
 			'id' => (int)$id,
+			'dialogId' => 0,
 			'chatId' => (int)$chat['ID'],
 			'senderId' => (int)$userId,
+			'set' => (bool)$isLike,
 			'users' => $like
 		);
 
-		if ($chat['ENTITY_TYPE'] == 'LINES')
+		if ($chat['TYPE'] == IM_MESSAGE_PRIVATE)
 		{
+			$fromUserId = (int)$userId;
 			foreach ($relations as $rel)
 			{
-				if ($rel["EXTERNAL_AUTH_ID"] == 'imconnector')
+				if ($rel['USER_ID'] != $fromUserId)
 				{
-					unset($relations[$rel["USER_ID"]]);
+					$toUserId = (int)$rel['USER_ID'];
 				}
 			}
+			$dialogId = $toUserId;
+
+			\Bitrix\Pull\Event::add($fromUserId, Array(
+				'module_id' => 'im',
+				'command' => 'messageLike',
+				'params' => array_merge($arPullMessage, ['dialogId' => $toUserId]),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
+			));
+
+			\Bitrix\Pull\Event::add($toUserId, Array(
+				'module_id' => 'im',
+				'command' => 'messageLike',
+				'params' => array_merge($arPullMessage, ['dialogId' => $fromUserId]),
+				'extra' => \Bitrix\Im\Common::getPullExtra()
+			));
 		}
-
-		\Bitrix\Pull\Event::add(array_keys($relations), Array(
-			'module_id' => 'im',
-			'command' => 'messageLike',
-			'params' => $arPullMessage,
-			'extra' => \Bitrix\Im\Common::getPullExtra()
-		));
-
-		if ($chat['TYPE'] == IM_MESSAGE_OPEN || $chat['TYPE'] == IM_MESSAGE_OPEN_LINE)
+		else
 		{
-			CPullWatch::AddToStack('IM_PUBLIC_'.$chat['ID'], Array(
+			$dialogId = 'chat'.$chat['ID'];
+			$arPullMessage['dialogId'] = $dialogId;
+
+			if ($chat['ENTITY_TYPE'] == 'LINES')
+			{
+				foreach ($relations as $rel)
+				{
+					if ($rel["EXTERNAL_AUTH_ID"] == 'imconnector')
+					{
+						unset($relations[$rel["USER_ID"]]);
+					}
+				}
+			}
+
+			\Bitrix\Pull\Event::add(array_keys($relations), Array(
 				'module_id' => 'im',
 				'command' => 'messageLike',
 				'params' => $arPullMessage,
 				'extra' => \Bitrix\Im\Common::getPullExtra()
 			));
-		}
 
-		if ($chat['TYPE'] == IM_MESSAGE_PRIVATE)
-		{
-			$dialogId = $userId;
-			foreach ($relations as $rel)
+			if ($chat['TYPE'] == IM_MESSAGE_OPEN || $chat['TYPE'] == IM_MESSAGE_OPEN_LINE)
 			{
-				if ($rel['USER_ID'] != $userId)
-				{
-					$dialogId = $rel['USER_ID'];
-				}
+				CPullWatch::AddToStack('IM_PUBLIC_'.$chat['ID'], Array(
+					'module_id' => 'im',
+					'command' => 'messageLike',
+					'params' => $arPullMessage,
+					'extra' => \Bitrix\Im\Common::getPullExtra()
+				));
 			}
-		}
-		else
-		{
-			$dialogId = 'chat'.$chat['ID'];
 		}
 
 		foreach(GetModuleEvents("im", "OnAfterMessagesLike", true) as $arEvent)
@@ -3258,13 +3282,12 @@ class CIMMessenger
 
 		$userColor = isset($arTemplate['CONTACT_LIST']['users'][$USER->GetID()]['color']) ? $arTemplate['CONTACT_LIST']['users'][$USER->GetID()]['color']: '';
 
-		$isOperator = Imopenlines\User::isOperator();
-
 		$recentLastUpdate = (new \Bitrix\Main\Type\DateTime())->format(\DateTimeInterface::RFC3339);
 		$recent = \Bitrix\Im\Recent::getList(null, [
 			'SKIP_NOTIFICATION' => 'Y',
-			'SKIP_OPENLINES' => ($isOperator? 'Y': 'N'),
-			'JSON' => 'Y'
+			'SKIP_OPENLINES' => 'Y',
+			'JSON' => 'Y',
+			'GET_ORIGINAL_TEXT' => 'Y'
 		]);
 
 		$sJS = "
@@ -3284,7 +3307,7 @@ class CIMMessenger
 					'xmppStatus': ".(CIMMessenger::CheckXmppStatusOnline()? 'true': 'false').",
 					'isAdmin': ".(self::IsAdmin()? 'true': 'false').",
 					'canInvite': ".(\Bitrix\Im\Integration\Intranet\User::canInvite()? 'true': 'false').",
-					'isLinesOperator': ".($isOperator? 'true': 'false').",
+					'isLinesOperator': 'true',
 					'isUtfMode': ".(\Bitrix\Main\Application::getInstance()->isUtfMode()? 'true': 'false').",
 					'bitrixNetwork': ".(CIMMessenger::CheckNetwork()? 'true': 'false').",
 					'bitrix24': ".($bitrix24Enabled? 'true': 'false').",

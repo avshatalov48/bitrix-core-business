@@ -326,7 +326,7 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 			'DETAIL_PAGE_URL' => MapTypeCaster::NOTHING,
 
 			'QUANTITY' => MapTypeCaster::NULLABLE_FLOAT,
-			'WEIGHT' => MapTypeCaster::NULLABLE_INT,
+			'WEIGHT' => MapTypeCaster::NULLABLE_FLOAT,
 			'VAT_ID' => MapTypeCaster::NULLABLE_INT,
 			'VAT_INCLUDED' => MapTypeCaster::Y_OR_N,
 			'PURCHASING_PRICE' => MapTypeCaster::NULLABLE_FLOAT,

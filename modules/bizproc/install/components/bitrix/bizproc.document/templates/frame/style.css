@@ -6,7 +6,8 @@
 {
 	margin: 30px 0;
 	color: #333;
-	font-family: "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 ul.bizproc-document-list, ul.bizproc-document-list li {
@@ -32,7 +33,8 @@ ul.bizproc-document-workflow-list-item {
 }
 
 ul.bizproc-document-workflow-list-item li {
-	margin-top: 3px;
+	margin-top: var(--ui-space-stack-xs);
+	border-radius: var(--ui-border-radius-md);
 }
 
 ul.bizproc-document-workflow-list-item table {
@@ -51,7 +53,10 @@ ul.bizproc-document-workflow-list-item td, ul.bizproc-document-workflow-list-ite
 
 ul.bizproc-document-workflow-list-item thead th {
 	text-align: left;
-	padding: 0.5em 0.6em
+	padding: 0.5em 0.6em;
+	border-radius: var(--ui-border-radius-md);
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
 }
 
 ul.bizproc-document-workflow-list-item div.bizproc-document-workflow-toolbar span {
@@ -95,6 +100,14 @@ li.bizproc-document-process tbody tr:first-child td {
 
 li.bizproc-document-process tbody tr:last-child td {
 	padding-bottom: 0.7em;
+}
+
+li.bizproc-document-process tbody tr:last-child td:first-child {
+	border-bottom-left-radius: var(--ui-border-radius-md);
+}
+
+li.bizproc-document-process tbody tr:last-child td:last-child {
+	border-bottom-right-radius: var(--ui-border-radius-md);
 }
 
 ul.bizproc-document-workflow-list-item li.bizproc-document-hastasks {

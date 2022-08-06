@@ -3,3 +3,7 @@
 	width: 100%;
 	max-width: 813px;
 }
+
+#workarea-content {
+	overflow-y: hidden;
+}

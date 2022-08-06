@@ -13,17 +13,19 @@ return array(
 		'type' => 'store',
 		'html' => false,
 	),
-	'nodes' => array(
+	'nodes' => [
 		'.landing-block-node-bgimg' => array(
 			'name' => Loc::getMessage('LD_BLOCK_STORE_BREADCRUMB3_LANDINGBLOCKNODEBGIMG'),
 			'type' => 'img',
+			'editInStyle' => true,
 			'allowInlineEdit' => false,
 			'dimensions' => array('width' => 1920, 'height' => 500),
+			'isWrapper' => true,
 		),
-	),
+	],
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-background-overlay-paddings-x'),
+			'type' => ['block-default-background'],
 		),
 		'nodes' => array(
 			'.landing-block-node-title' => array(

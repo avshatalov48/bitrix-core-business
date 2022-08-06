@@ -8,9 +8,10 @@ use \Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
-class CBPRestActivity
-	extends CBPActivity
-	implements IBPEventActivity, IBPActivityExternalEventListener
+class CBPRestActivity extends CBPActivity implements
+	IBPEventActivity,
+	IBPActivityExternalEventListener,
+	IBPActivityDebugEventListener
 {
 	const TOKEN_SALT = 'bizproc';
 	const PROPERTY_NAME_PREFIX = 'property_';
@@ -97,35 +98,52 @@ class CBPRestActivity
 	public function Execute()
 	{
 		$activityData = $this->getRestActivityData();
-		if (!$activityData)
-			throw new Exception(Loc::getMessage('BPRA_NOT_FOUND_ERROR'));
-		if (!Loader::includeModule('rest') || !\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
-			return CBPActivityExecutionStatus::Closed;
 
-		$propertiesData = [];
-		if (!empty($activityData['PROPERTIES']))
+		if (!$activityData)
+		{
+			throw new Exception(Loc::getMessage('BPRA_NOT_FOUND_ERROR'));
+		}
+
+		if (!Loader::includeModule('rest') || !\Bitrix\Rest\OAuthService::getEngine()->isRegistered())
+		{
+			return CBPActivityExecutionStatus::Closed;
+		}
+
+		$properties = $activityData['PROPERTIES'];
+		$propertiesValues = [];
+		if (!empty($properties))
 		{
 			/** @var CBPDocumentService $documentService */
 			$documentService = $this->workflow->GetService('DocumentService');
-			foreach ($activityData['PROPERTIES'] as $name => $property)
+			foreach ($properties as $name => $property)
 			{
-				$property = Bizproc\FieldType::normalizeProperty($property);
-				$propertiesData[$name] = $this->__get($name);
+				$property = static::normalizeProperty($property);
+				$properties[$name] = $property;
+				$propertiesValues[$name] = $this->__get($name);
 
-				if ($propertiesData[$name])
+				if ($propertiesValues[$name])
 				{
 					$fieldTypeObject = $documentService->getFieldTypeObject($this->GetDocumentType(), $property);
 					if ($fieldTypeObject)
 					{
 						$fieldTypeObject->setDocumentId($this->GetDocumentId());
-						$propertiesData[$name] = $fieldTypeObject->externalizeValue($this->GetName(), $propertiesData[$name]);
+						$propertiesValues[$name] = $fieldTypeObject->externalizeValue($this->GetName(), $propertiesValues[$name]);
 					}
 				}
 
-				if ($propertiesData[$name] === null)
+				if ($propertiesValues[$name] === null)
 				{
-					$propertiesData[$name] = '';
+					$propertiesValues[$name] = '';
 				}
+			}
+
+			if ($this->workflow->isDebug())
+			{
+				$map = $this->getDebugInfo(
+					$propertiesValues,
+					$properties
+				);
+				$this->writeDebugInfo($map);
 			}
 		}
 
@@ -173,7 +191,7 @@ class CBPRestActivity
 					'document_id' => $this->GetDocumentId(),
 					'document_type' => $this->GetDocumentType(),
 					'event_token' => self::generateToken($this->getWorkflowInstanceId(), $this->name, $this->eventId),
-					'properties' => $propertiesData,
+					'properties' => $propertiesValues,
 					'use_subscription' => $this->UseSubscription,
 					'timeout_duration' => $this->CalculateTimeoutDuration(),
 					'ts' => time(),
@@ -212,7 +230,9 @@ class CBPRestActivity
 		}
 
 		if ($this->UseSubscription != 'Y')
+		{
 			return CBPActivityExecutionStatus::Closed;
+		}
 
 		$this->Subscribe($this);
 
@@ -268,6 +288,12 @@ class CBPRestActivity
 		if ($this->eventId !== (string) $eventParameters['EVENT_ID'])
 			return;
 
+		$this->WriteToTrackingService(
+			!empty($eventParameters['LOG_MESSAGE'])
+				? $eventParameters['LOG_MESSAGE']
+				: Loc::getMessage('BPRA_DEFAULT_LOG_MESSAGE')
+		);
+
 		if (!empty($eventParameters['RETURN_VALUES']))
 		{
 			$activityData = self::getRestActivityData();
@@ -291,22 +317,24 @@ class CBPRestActivity
 				$property = $activityData['RETURN_PROPERTIES'][$whiteList[$name]];
 				if ($property && $value)
 				{
-					$property = Bizproc\FieldType::normalizeProperty($property);
+					$property = static::normalizeProperty($property);
 					$fieldTypeObject = $documentService->getFieldTypeObject($this->GetDocumentType(), $property);
 					if ($fieldTypeObject)
 					{
 						$fieldTypeObject->setDocumentId($this->GetDocumentId());
 						$value = $fieldTypeObject->internalizeValue($this->GetName(), $value);
 					}
+
+					$map = $this->getDebugInfo(
+						[$name => $value],
+						[$name => $property]
+					);
+					$this->writeDebugInfo($map);
 				}
 
 				$this->__set($whiteList[$name], $value);
 			}
 		}
-
-		$this->WriteToTrackingService(
-			!empty($eventParameters['LOG_MESSAGE']) ? $eventParameters['LOG_MESSAGE']
-				: Loc::getMessage('BPRA_DEFAULT_LOG_MESSAGE'));
 
 		if (empty($eventParameters['LOG_ACTION']))
 		{
@@ -315,24 +343,32 @@ class CBPRestActivity
 		}
 	}
 
+	public function onDebugEvent(array $eventParameters = [])
+	{
+		if ($this->executionStatus === CBPActivityExecutionStatus::Closed)
+		{
+			return;
+		}
+
+		$this->writeDebugTrack(
+			$this->getWorkflowInstanceId(),
+			$this->getName(),
+			$this->executionStatus,
+			$this->executionResult,
+			$this->Title,
+			\Bitrix\Main\Localization\Loc::getMessage('BPRA_DEBUG_EVENT')
+		);
+
+		$this->Unsubscribe($this);
+		$this->workflow->CloseActivity($this);
+	}
+
 	public function Cancel()
 	{
 		if ($this->UseSubscription == 'Y')
 			$this->Unsubscribe($this);
 
 		return CBPActivityExecutionStatus::Closed;
-	}
-
-	public function HandleFault(Exception $exception)
-	{
-		if ($exception == null)
-			throw new Exception("exception");
-
-		$status = $this->Cancel();
-		if ($status == CBPActivityExecutionStatus::Canceling)
-			return CBPActivityExecutionStatus::Faulting;
-
-		return $status;
 	}
 
 	public static function GetPropertiesDialog($documentType, $activityName, $workflowTemplate, $workflowParameters, $workflowVariables, $currentValues = null, $formName = "")
@@ -809,6 +845,14 @@ class CBPRestActivity
 	{
 		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);
 		return $user->isAdmin();
+	}
+
+	private static function normalizeProperty(array $property): array
+	{
+		$property['NAME'] = RestActivityTable::getLocalization($property['NAME'], LANGUAGE_ID);
+		$property['DESCRIPTION'] = RestActivityTable::getLocalization($property['DESCRIPTION'], LANGUAGE_ID);
+
+		return  Bizproc\FieldType::normalizeProperty($property);
 	}
 
 	public static function generateToken($workflowId, $activityName, $eventId)

@@ -13,7 +13,7 @@ if ($arResult['ERROR'])
 elseif($arResult['MESSAGE'])
 	echo '<div><font class=wizard_oktext>'.$arResult['MESSAGE'].'</font></div>';
 
-$arHelp = [];
+	
 ?>
 <table class="data-table" cellspacing=0 cellpadding=0 border=0 width=100%>
 <tr>
@@ -40,7 +40,7 @@ $arHelp = [];
 	<td style="border:none" align=left>
 		<table cellspacing=0 cellpadding=8 border=0>
 			<?
-			if (!empty($arResult['FIELDS']) && is_array($arResult['FIELDS']))
+			if (count($arResult['FIELDS']))
 			{
 				$i=0;
 				foreach($arResult['FIELDS'] as $num=>$f)
@@ -145,7 +145,7 @@ $arHelp = [];
 </tr>
 </table>
 <?
-	if (!empty($arResult['HIDDEN']) && is_array($arResult['HIDDEN']))
+	if (count($arResult['HIDDEN']))
 	{
 		foreach($arResult['HIDDEN'] as $k=>$v)
 		{
@@ -161,7 +161,7 @@ $arHelp = [];
 <?
 
 // Help
-if (!empty($arHelp))
+if (count($arHelp))
 {
 ?>
 	<br>

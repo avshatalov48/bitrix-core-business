@@ -1,5 +1,5 @@
 <section class="landing-block landing-block-node-bgimg u-bg-overlay g-bg-img-hero g-bg-attachment-fixed g-bg-black-opacity-0_6--after g-pt-100"
-		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1900x645/img2.jpg);">
+		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1900x645/img2.jpg);" data-slider-animation="1">
 	<div class="js-carousel container u-bg-overlay__inner g-pb-120"
 		 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-bottom-60 text-center">
 		<div class="landing-block-node-card js-slide align-self-center">
@@ -18,7 +18,7 @@
 					<a class="g-color-primary" href="#!">#rutrum</a>
 					velit diam, quis pellentesque libero hendrerit a.
 				</blockquote>
-				<div class="landing-block-node-card-date g-color-white-opacity-0_7">12:35 Pm, June 12, 2021</div>
+				<div class="landing-block-node-card-date g-color-white-opacity-0_7">12:35 Pm, June 12, 2022</div>
 			</div>
 		</div>
 
@@ -38,7 +38,7 @@
 					<a class="g-color-primary" href="#!">#rutrum</a>
 					velit diam, quis pellentesque libero hendrerit a.
 				</blockquote>
-				<div class="landing-block-node-card-date g-color-white-opacity-0_7">12:35 Pm, June 12, 2021</div>
+				<div class="landing-block-node-card-date g-color-white-opacity-0_7">12:35 Pm, June 12, 2022</div>
 			</div>
 		</div>
 	</div>

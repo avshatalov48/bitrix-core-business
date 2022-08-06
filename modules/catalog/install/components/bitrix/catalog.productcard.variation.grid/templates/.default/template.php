@@ -22,6 +22,8 @@ Extension::load([
 	'ui.notification',
 	'ui.dialogs.messagebox',
 	'ui.hint',
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 ]);
 
 $containerId = 'catalog_variation_grid';

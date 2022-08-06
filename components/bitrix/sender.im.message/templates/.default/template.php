@@ -15,6 +15,8 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
 
 $containerId = 'sender-im-message-editor';
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens', 'ui.fonts.opensans']);
 ?>
 <script type="text/javascript">
 	BX.ready(function () {

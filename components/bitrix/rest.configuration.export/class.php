@@ -22,7 +22,6 @@ use Bitrix\Main\Security\Random;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\FileTable;
 use Bitrix\Main\Web\HttpClient;
-use CFile;
 
 class CRestConfigurationExportComponent extends CBitrixComponent implements Controllerable
 {
@@ -204,6 +203,12 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 		$context = $this->getContext();
 		$structure = new Structure($context);
 		$fileList = $structure->getFileList();
+
+		if (empty($fileList))
+		{
+			return $result;
+		}
+
 		$list = [];
 		foreach ($fileList as $key => $file)
 		{
@@ -212,6 +217,11 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 				$file['TMP_ID'] = (int)$key;
 				$list[$file['ID']] = $file;
 			}
+		}
+
+		if (empty($list))
+		{
+			return $result;
 		}
 
 		$res = FileTable::getList(

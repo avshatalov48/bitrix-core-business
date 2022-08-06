@@ -32971,6 +32971,14 @@ img.u-block-hover__main--mover-down {
   display: block;
 }
 
+@media (max-width: 767px) {
+  .fancybox-slide.fancybox-slide--iframe .fancybox-content {
+    max-width: 95%;
+    width: 95%;
+    height: 56.25vw;
+  }
+}
+
 [class^="et-"] {
   line-height: 1.1;
 }
@@ -33243,7 +33251,7 @@ div.blog-post-code table.blogcode *, div.blog-post-code table.blogcode {
 }
 
 .landing-highlight {
-  background-color: var(--primary);
+  background-color: var(--primary-opacity-0_5);
 }
 
 @media (min-width: 768px) {

@@ -1,4 +1,4 @@
-;(function ()
+;(function ($)
 {
 	"use strict";
 
@@ -279,6 +279,12 @@
 			}
 
 			BX.addClass(parentNavLink, 'g-menu-sublevel-toggler--parent');
+			const newParentNavLink = BX.create("div");
+			parentNavLink.childNodes.forEach(function(childNode) {
+				newParentNavLink.append(childNode.cloneNode(true))
+			})
+			parentNavLink.innerHTML = '';
+			parentNavLink.append(newParentNavLink);
 			BX.adjust(parentNavLink,
 				{
 					children: [
@@ -336,4 +342,4 @@
 			BX.removeClass(subMenu, 'g-menu-sublevel--hide');
 		}
 	}
-})();
+})(window.jQueryLanding || jQuery);

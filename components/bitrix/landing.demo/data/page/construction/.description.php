@@ -1118,7 +1118,7 @@ return [
 		<div class="container text-center text-md-left u-bg-overlay__inner">
 			<div class="row">
 				<div class="col-md-4 col-lg-5 d-flex align-items-center g-mb-20 g-mb-0--md">
-					<p class="w-100 g-font-size-13 g-color-white mb-0 landing-block-node-copy">&copy; 2021 All rights reserved</p>
+					<p class="w-100 g-font-size-13 g-color-white mb-0 landing-block-node-copy">&copy; 2022 All rights reserved</p>
 				</div>
 
 				<div class="col-md-4 col-lg-2 d-flex text-center align-items-center g-mb-20 g-mb-0--md">

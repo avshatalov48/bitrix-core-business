@@ -5,8 +5,9 @@ namespace Sale\Handlers\Delivery\YandexTaxi\Api;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Bitrix\Main\Error;
+use Bitrix\Main\Web\HttpClient;
+use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\CancelInfoResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\Journal\EventBuilder;
-use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\MultiClaimResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\PhoneResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\PriceResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\SingleClaimResult;
@@ -15,7 +16,6 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\ApiResult\TariffsResult;
 use Sale\Handlers\Delivery\YandexTaxi\Api\ClaimReader\ClaimReader;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Claim;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Estimation;
-use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\SearchOptions;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\TariffsOptions;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Transport;
 use Sale\Handlers\Delivery\YandexTaxi\Common\Logger;
@@ -27,6 +27,9 @@ use Sale\Handlers\Delivery\YandexTaxi\Common\Logger;
  */
 final class Api
 {
+	private const SINGLE_POINT_API_VERSION = 1;
+	private const MULTI_POINT_API_VERSION = 2;
+
 	private const LOG_SOURCE = 'api';
 
 	/** @var Transport\Client */
@@ -64,7 +67,6 @@ final class Api
 	/**
 	 * @param Estimation $estimation
 	 * @return PriceResult
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public function checkPrice(Estimation $estimation): PriceResult
 	{
@@ -72,7 +74,13 @@ final class Api
 
 		try
 		{
-			$response = $this->transport->post('check-price', $estimation);
+			$response = $this->transport->request(
+				self::SINGLE_POINT_API_VERSION,
+				HttpClient::HTTP_POST,
+				'check-price',
+				null,
+				$estimation
+			);
 		}
 		catch (Transport\Exception $requestException)
 		{
@@ -82,13 +90,14 @@ final class Api
 		$statusCode = $response->getStatus();
 		$body = $response->getBody();
 
-		if ($statusCode != 200)
+		if ($statusCode !== 200)
 		{
 			$this->logger->log(static::LOG_SOURCE, 'check_price', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'check_price');
 		}
 
-		if (!isset($body['price'])
+		if (
+			!isset($body['price'])
 			|| !isset($body['currency_rules']['code'])
 			|| (float)$body['price'] <= 0
 		)
@@ -111,7 +120,6 @@ final class Api
 	/**
 	 * @param TariffsOptions $tariffsOptions
 	 * @return TariffsResult
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public function getTariffs(TariffsOptions $tariffsOptions): TariffsResult
 	{
@@ -119,7 +127,13 @@ final class Api
 
 		try
 		{
-			$response = $this->transport->post('tariffs', $tariffsOptions);
+			$response = $this->transport->request(
+				self::SINGLE_POINT_API_VERSION,
+				HttpClient::HTTP_POST,
+				'tariffs',
+				null,
+				$tariffsOptions
+			);
 		}
 		catch (Transport\Exception $requestException)
 		{
@@ -129,7 +143,7 @@ final class Api
 		$statusCode = $response->getStatus();
 		$body = $response->getBody();
 
-		if ($statusCode != 200)
+		if ($statusCode !== 200)
 		{
 			$this->logger->log(static::LOG_SOURCE, 'tariffs', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'tariffs');
@@ -185,7 +199,6 @@ final class Api
 	/**
 	 * @param Claim $claim
 	 * @return SingleClaimResult
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public function createClaim(Claim $claim): SingleClaimResult
 	{
@@ -193,11 +206,11 @@ final class Api
 
 		try
 		{
-			$response = $this->transport->post(
-				sprintf(
-					'claims/create?%s',
-					http_build_query(['request_id' => uniqid('', true)])
-				),
+			$response = $this->transport->request(
+				self::MULTI_POINT_API_VERSION,
+				HttpClient::HTTP_POST,
+				'claims/create',
+				['request_id' => uniqid('', true)],
 				$claim
 			);
 		}
@@ -209,7 +222,7 @@ final class Api
 		$statusCode = $response->getStatus();
 		$body = $response->getBody();
 
-		if ($statusCode != 200)
+		if ($statusCode !== 200)
 		{
 			$this->logger->log(static::LOG_SOURCE, 'create_claim', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'create');
@@ -228,7 +241,6 @@ final class Api
 	 * @param string $claimId
 	 * @param int $version
 	 * @return Result
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public function acceptClaim(string $claimId, int $version): Result
 	{
@@ -236,11 +248,11 @@ final class Api
 
 		try
 		{
-			$response = $this->transport->post(
-				sprintf(
-					'claims/accept?%s',
-					http_build_query(['claim_id' => $claimId])
-				),
+			$response = $this->transport->request(
+				self::SINGLE_POINT_API_VERSION,
+				HttpClient::HTTP_POST,
+				'claims/accept',
+				['claim_id' => $claimId],
 				['version' => $version]
 			);
 		}
@@ -251,7 +263,7 @@ final class Api
 
 		$statusCode = $response->getStatus();
 
-		if ($statusCode != 200)
+		if ($statusCode !== 200)
 		{
 			$this->logger->log(static::LOG_SOURCE, 'accept_claim', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'accept');
@@ -265,7 +277,6 @@ final class Api
 	 * @param int $version
 	 * @param string $cancelState
 	 * @return Result
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public function cancelClaim(string $claimId, int $version, string $cancelState): Result
 	{
@@ -273,11 +284,11 @@ final class Api
 
 		try
 		{
-			$response = $this->transport->post(
-				sprintf(
-					'claims/cancel?%s',
-					http_build_query(['claim_id' => $claimId])
-				),
+			$response = $this->transport->request(
+				self::SINGLE_POINT_API_VERSION,
+				HttpClient::HTTP_POST,
+				'claims/cancel',
+				['claim_id' => $claimId],
 				[
 					'version' => $version,
 					'cancel_state' => $cancelState,
@@ -291,7 +302,7 @@ final class Api
 
 		$statusCode = $response->getStatus();
 
-		if ($statusCode != 200)
+		if ($statusCode !== 200)
 		{
 			$this->logger->log(static::LOG_SOURCE, 'cancel_claim', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'cancel');
@@ -302,20 +313,19 @@ final class Api
 
 	/**
 	 * @param string $claimId
-	 * @return SingleClaimResult
-	 * @throws \Bitrix\Main\ArgumentException
+	 * @return CancelInfoResult
 	 */
-	public function getClaim(string $claimId): SingleClaimResult
+	public function getCancelInfo(string $claimId): CancelInfoResult
 	{
-		$result = new SingleClaimResult();
+		$result = new CancelInfoResult();
 
 		try
 		{
-			$response = $this->transport->post(
-				sprintf(
-					'claims/info?%s',
-					http_build_query(['claim_id' => $claimId])
-				)
+			$response = $this->transport->request(
+				self::MULTI_POINT_API_VERSION,
+				HttpClient::HTTP_POST,
+				'claims/cancel-info',
+				['claim_id' => $claimId]
 			);
 		}
 		catch (Transport\Exception $requestException)
@@ -326,7 +336,46 @@ final class Api
 		$statusCode = $response->getStatus();
 		$body = $response->getBody();
 
-		if ($statusCode != 200)
+		if ($statusCode !== 200)
+		{
+			$this->logger->log(static::LOG_SOURCE, 'cancel_info', $response->toString());
+			return $this->respondStatusError($result, $statusCode, 'cancel_info');
+		}
+
+		if (empty($body['cancel_state']))
+		{
+			return $result->addError(new Error(Loc::getMessage('SALE_YANDEX_TAXI_CANCELLATION_FATAL_ERROR')));
+		}
+
+		return $result->setCancelState($body['cancel_state']);
+	}
+
+	/**
+	 * @param string $claimId
+	 * @return SingleClaimResult
+	 */
+	public function getClaim(string $claimId): SingleClaimResult
+	{
+		$result = new SingleClaimResult();
+
+		try
+		{
+			$response = $this->transport->request(
+				self::MULTI_POINT_API_VERSION,
+				HttpClient::HTTP_POST,
+				'claims/info',
+				['claim_id' => $claimId]
+			);
+		}
+		catch (Transport\Exception $requestException)
+		{
+			return $this->respondTransportError($result);
+		}
+
+		$statusCode = $response->getStatus();
+		$body = $response->getBody();
+
+		if ($statusCode !== 200)
 		{
 			$this->logger->log(static::LOG_SOURCE, 'get_claim', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'info');
@@ -342,69 +391,8 @@ final class Api
 	}
 
 	/**
-	 * @param SearchOptions $searchOptions
-	 * @param bool $onlyActive
-	 * @return MultiClaimResult
-	 * @throws \Bitrix\Main\ArgumentException
-	 */
-	public function searchClaims(SearchOptions $searchOptions, $onlyActive = false): MultiClaimResult
-	{
-		$result = new MultiClaimResult();
-
-		try
-		{
-			$uri = $onlyActive ? 'claims/search' : 'claims/search/active';
-
-			$response = $this->transport->post($uri, $searchOptions);
-		}
-		catch (Transport\Exception $requestException)
-		{
-			return $this->respondTransportError($result);
-		}
-
-		$statusCode = $response->getStatus();
-		$body = $response->getBody();
-
-		if ($statusCode != 200)
-		{
-			$this->logger->log(static::LOG_SOURCE, 'search_claims_1', $response->toString());
-			return $this->respondStatusError($result, $statusCode, 'info');
-		}
-
-		if (isset($body['claims']) && is_array($body['claims']))
-		{
-			foreach ($body['claims'] as $responseClaim)
-			{
-				$claimReadResult = $this->claimReader->readFromArray($responseClaim);
-				if ($claimReadResult->isSuccess())
-				{
-					$result->addClaim($claimReadResult->getClaim());
-				}
-				else
-				{
-					$this->logger->log(static::LOG_SOURCE, 'search_claims_2', $response->toString());
-					return $result->addErrors($claimReadResult->getErrors());
-				}
-			}
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param SearchOptions $searchOptions
-	 * @return MultiClaimResult
-	 * @throws \Bitrix\Main\ArgumentException
-	 */
-	public function searchActiveClaims(SearchOptions $searchOptions): MultiClaimResult
-	{
-		return $this->searchClaims($searchOptions, true);
-	}
-
-	/**
 	 * @param string $claimId
 	 * @return PhoneResult
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public function getPhone(string $claimId): PhoneResult
 	{
@@ -412,7 +400,12 @@ final class Api
 
 		try
 		{
-			$response = $this->transport->post('driver-voiceforwarding', ['claim_id' => $claimId]);
+			$response = $this->transport->request(
+				self::SINGLE_POINT_API_VERSION,
+				HttpClient::HTTP_POST,
+				'driver-voiceforwarding',
+				['claim_id' => $claimId]
+			);
 		}
 		catch (Transport\Exception $requestException)
 		{
@@ -422,7 +415,7 @@ final class Api
 		$statusCode = $response->getStatus();
 		$body = $response->getBody();
 
-		if ($statusCode != 200)
+		if ($statusCode !== 200)
 		{
 			$this->logger->log(static::LOG_SOURCE, 'get_phone', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'driver-voiceforwarding');
@@ -447,7 +440,6 @@ final class Api
 	/**
 	 * @param $cursor
 	 * @return ApiResult\Journal\Result
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public function getJournalRecords($cursor): ApiResult\Journal\Result
 	{
@@ -455,8 +447,13 @@ final class Api
 
 		try
 		{
-			$options = is_null($cursor) ? new \stdClass() : ['cursor' => $cursor];
-			$response = $this->transport->post('claims/journal', $options);
+			$response = $this->transport->request(
+				self::SINGLE_POINT_API_VERSION,
+				HttpClient::HTTP_POST,
+				'claims/journal',
+				null,
+				is_null($cursor) ? new \stdClass() : ['cursor' => $cursor]
+			);
 		}
 		catch (Transport\Exception $requestException)
 		{
@@ -466,7 +463,7 @@ final class Api
 		$statusCode = $response->getStatus();
 		$body = $response->getBody();
 
-		if ($statusCode != 200)
+		if ($statusCode !== 200)
 		{
 			$this->logger->log(static::LOG_SOURCE, 'get_journal_records_1', $response->toString());
 			return $this->respondStatusError($result, $statusCode, 'journal');

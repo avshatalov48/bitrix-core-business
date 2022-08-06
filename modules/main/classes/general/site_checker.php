@@ -2103,6 +2103,11 @@ class CSiteCheckerTest
 		$f = $res->Fetch();
 		$collation_connection = $f['Value'];
 
+		if ($collation_connection == 'utf8mb3_unicode_ci')
+		{
+			$collation_connection = 'utf8_unicode_ci';
+		}
+
 		$bAllIn1251 = true;
 		$res1 = $DB->Query('SELECT C.CHARSET FROM b_lang L, b_culture C WHERE C.ID=L.CULTURE_ID AND L.ACTIVE="Y"'); // for 'no kernel mode'
 		while($f1 = $res1->Fetch())
@@ -2324,6 +2329,12 @@ class CSiteCheckerTest
 					continue;
 
 				$f_charset = getCharsetByCollation($f_collation);
+
+				if ($f_charset == 'utf8mb3')
+				{
+					$f_charset = 'utf8';
+				}
+
 				if ($charset != $f_charset)
 				{
 					// field charset differs

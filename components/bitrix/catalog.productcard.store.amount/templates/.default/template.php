@@ -30,7 +30,7 @@ Extension::load([
 	$APPLICATION->IncludeComponent(
 		'bitrix:main.ui.grid',
 		'',
-		$arResult['GRID'],
+		$arResult['GRID'] + ($arResult['TOTAL_WRAPPER_ID'] ? ['HIDE_BOTTOM_BORDER_RADIUS' => true] : []),
 		);
 
 	if ($arResult['TOTAL_WRAPPER_ID'])

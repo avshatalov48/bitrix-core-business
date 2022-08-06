@@ -994,7 +994,7 @@ class CAdminMenu
 		$bSubmenu = (isset($aMenu["items"]) && is_array($aMenu["items"]) && !empty($aMenu["items"]));
 		if($bSubmenu)
 			$aSections[$aMenu["items_id"]] = array(
-				"menu_id" => $aMenu["menu_id"],
+				"menu_id" => $aMenu["menu_id"] ?? null,
 				"items_id"=>$aMenu["items_id"],
 				"page_icon"=>isset($aMenu["page_icon"])? $aMenu["page_icon"]: null,
 				"text"=>$aMenu["text"],
@@ -1096,7 +1096,7 @@ class CAdminMenu
 			if(!$bSubmenu)
 			{
 				$aSections["_active"] = array(
-					"menu_id"=>$aMenu["menu_id"],
+					"menu_id"=>$aMenu["menu_id"] ?? null,
 					"page_icon"=>isset($aMenu["page_icon"])? $aMenu["page_icon"]: null,
 					"text"=>$aMenu["text"],
 					"url"=>$aMenu["url"],
@@ -1184,7 +1184,7 @@ class CAdminMenu
 		else
 			echo  "<div class=\"adm-sub-submenu-block-children\"></div>";
 ?></div><?
-		$url = str_replace("&amp;", "&", $aMenu['url']);
+		$url = str_replace("&amp;", "&", (string)$aMenu['url']);
 
 		if (isset($aMenu["fav_id"]))
 		{

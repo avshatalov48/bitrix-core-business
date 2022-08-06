@@ -266,7 +266,7 @@ class LetterTable extends Entity\DataManager
 
 			if($row = $messageQuery->fetch())
 			{
-				FileTable::syncFiles($data['primary']['ID'], 0, $row['VALUE']);
+				FileTable::syncFiles($data['primary']['ID'], 0, $row['VALUE'], true, true);
 			}
 
 			MessageTable::delete($fields['MESSAGE_ID']);

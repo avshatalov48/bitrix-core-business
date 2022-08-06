@@ -26,10 +26,17 @@
 		this.ajaxAction = new BX.AjaxAction(this.actionUri);
 		Page.initButtons();
 	};
+
 	ListManager.prototype.remove = function (id)
 	{
 		this.doAction('remove', id);
 	};
+
+	ListManager.prototype.copy = function (id)
+	{
+		this.doAction('copy', id);
+	};
+
 	ListManager.prototype.doAction = function (actionName, id, callback)
 	{
 		var gridId = this.gridId;

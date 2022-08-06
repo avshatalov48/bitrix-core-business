@@ -9,6 +9,11 @@ class CBPMathOperationActivity extends CBPActivity
 {
 	private const NUMERIC_TYPES = ['int', 'integer', 'double'];
 
+	private array $logMap = [];
+	private array $logValues = [];
+
+	private static array $visibilityMessages = [];
+
 	public function __construct($name)
 	{
 		parent::__construct($name);
@@ -26,29 +31,75 @@ class CBPMathOperationActivity extends CBPActivity
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		foreach ($conditions as $varId => $condition)
+		foreach ($conditions as $variableSystemExpression => $condition)
 		{
 			$parameter1 = $condition[0];
 			$operation = $condition[1];
 			$parameter2 = $condition[2];
 
 			// ={=Document:ID}+{=GlobalConst:Constant1}
-			$calcCondition = '=' . $parameter1 . $operation .$parameter2;
+			$calcCondition = '=' . $parameter1 . $operation . $parameter2;
 
-			[$groupId, $id] = static::getGroupIdAndIdFromSystemExpression($varId);
-			$varProperty = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getById($id);
-			if ($varProperty !== null)
+			[$groupId, $id] = static::getGroupIdAndIdFromSystemExpression($variableSystemExpression);
+			$property = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getById($id);
+
+			if ($property === null)
 			{
-				if (!in_array($varProperty['Type'], self::NUMERIC_TYPES))
+				if ($this->workflow->isDebug())
 				{
-					break;
+					$conditionLogValue = $this->getDebugValueForVariable($parameter1, $operation, $parameter2);
+					$changeTo = $this->parseValue($calcCondition, 'double') . ' = ' . $conditionLogValue;
+					$this->addToDebugLog($variableSystemExpression, [], $changeTo);
 				}
-				$varProperty['Default'] = $this->parseValue($calcCondition, $varProperty['Type']);
-				\Bitrix\Bizproc\Workflow\Type\GlobalVar::upsert($id, $varProperty);
+
+				continue;
 			}
+
+			if (!in_array($property['Type'], self::NUMERIC_TYPES))
+			{
+				continue;
+			}
+
+			$property['Default'] = $this->parseValue($calcCondition, $property['Type']);
+
+			if ($this->workflow->isDebug())
+			{
+				$conditionLogValue = $this->getDebugValueForVariable($parameter1, $operation, $parameter2);
+				$changeTo = $property['Default'] . ' = ' . $conditionLogValue;
+				$this->addToDebugLog($variableSystemExpression, $property, $changeTo);
+			}
+
+			\Bitrix\Bizproc\Workflow\Type\GlobalVar::upsert($id, $property);
 		}
 
+		$this->writeDebugInfo($this->getDebugInfo($this->logValues, $this->logMap));
+
 		return CBPActivityExecutionStatus::Closed;
+	}
+
+	private function addToDebugLog($systemExpression, $property, string $changeTo)
+	{
+		[$groupId, $variableId] = static::getGroupIdAndIdFromSystemExpression($systemExpression);
+
+		if (empty($property))
+		{
+			$this->logMap[$systemExpression] = [
+				'Name' => $groupId . ':' . $variableId,
+				'Type' => 'string',
+			];
+			$this->logValues[$systemExpression] = $changeTo;
+
+			return;
+		}
+
+		$visibilityMessages = static::getVisibilityMessages($this->getDocumentType());
+		$fullName = $visibilityMessages[$groupId][$property['Visibility']] . ': ' . $property['Name'];
+
+		$this->logMap[$systemExpression] = [
+			'Name' => $fullName,
+			'Type' => 'string', //hack
+		];
+		$this->logValues[$systemExpression] = $changeTo;
 	}
 
 	public static function GetPropertiesDialog(
@@ -96,14 +147,21 @@ class CBPMathOperationActivity extends CBPActivity
 
 	private static function getVisibilityMessages(array $documentType): array
 	{
+		if (self::$visibilityMessages[implode('@', $documentType)])
+		{
+			return self::$visibilityMessages[implode('@', $documentType)];
+		}
+
 		$variables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getVisibilityFullNames($documentType);
 		$constants = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getVisibilityFullNames($documentType);
 
-		return [
+		self::$visibilityMessages[implode('@', $documentType)] = [
 			\Bitrix\Bizproc\Workflow\Type\GlobalVar::getObjectNameForExpressions() => $variables,
 			\Bitrix\Bizproc\Workflow\Type\GlobalConst::getObjectNameForExpressions() => $constants,
 			'Document' => ['Document' => \Bitrix\Main\Localization\Loc::getMessage('BPMOA_DOCUMENT')],
 		];
+
+		return self::$visibilityMessages[implode('@', $documentType)];
 	}
 
 	private static function getVariables($parameterDocumentType): array
@@ -500,5 +558,55 @@ class CBPMathOperationActivity extends CBPActivity
 		}
 
 		return array_merge($errors, parent::validateProperties($arTestProperties, $user));
+	}
+
+	private function getDebugValueForVariable($parameter1, $operation, $parameter2): string
+	{
+		$fieldType = $this->workflow
+			->GetService('DocumentService')
+			->getFieldTypeObject($this->getDocumentType(), ['Type' => 'string', 'Multiple' => true])
+		;
+		$visibilityMessages = static::getVisibilityMessages($this->getDocumentType());
+
+		$result = $this->getParameterDebugValue($parameter1, $visibilityMessages, $fieldType);
+
+		$result = $result . ' ' . $operation . ' ';
+
+		return $result . $this->getParameterDebugValue($parameter2, $visibilityMessages, $fieldType);
+	}
+
+	private function getParameterDebugValue(string $parameter, array $visibilityMessages, \Bitrix\Bizproc\FieldType $fieldType): string
+	{
+		[$object, $field] = static::getGroupIdAndIdFromSystemExpression($parameter);
+		if (!$object)
+		{
+			return
+				\Bitrix\Main\Localization\Loc::getMessage('BPMOA_NUMBER')
+				. ' ['
+				. $fieldType->formatValue($parameter)
+				. ']'
+			;
+		}
+
+		[$property, $value] = $this->getRuntimeProperty($object, $field, $this);
+		if (!$property['Name'])
+		{
+			$property['Name'] = $object . ':' . $field;
+		}
+		else
+		{
+			if($property['Visibility'])
+			{
+				$visibility = $visibilityMessages[$object][$property['Visibility']];
+			}
+			else
+			{
+				$visibility = ($object === 'Document') ? $visibilityMessages[$object][$object] : '';
+			}
+
+			$property['Name'] = $visibility . ($visibility ? ': ' : '') . $property['Name'];
+		}
+
+		return $property['Name'] . ' [' . $fieldType->formatValue($value) . ']';
 	}
 }

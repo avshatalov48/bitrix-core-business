@@ -49,8 +49,8 @@
 					BX.Landing.Utils.Matchers.vimeo.test(source)
 					|| BX.Landing.Utils.Matchers.vine.test(source)
 					|| BX.Landing.Utils.Matchers.facebookVideos.test(source)
+					|| BX.Landing.Utils.Matchers.rutube.test(source)
 					|| BX.Landing.Utils.Matchers.vk.test(source)
-					|| BX.Landing.Utils.Matchers.rutube.test(video.dataset.source)
 				)
 				{
 					loadPlayerFrame(video);

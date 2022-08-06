@@ -56,6 +56,16 @@ class LicenseManager
 		return (int) Bitrix24\Feature::getVariable('mail_user_mailboxes_limit');
 	}
 
+	public static function getEmailsLimitToSendMessage(): int
+	{
+		if (Main\Loader::includeModule('bitrix24') && (!static::isSyncAvailable() || \CBitrix24::IsDemoLicense()))
+		{
+			return 1;
+		}
+
+		return -1;
+	}
+	
 	/**
 	 * Returns the number of days to store messages
 	 *

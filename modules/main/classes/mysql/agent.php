@@ -142,7 +142,10 @@ class CAgent extends CAllAgent
 					continue;
 			}
 
-			if ($arAgent["RETRY_COUNT"] >= 3)
+			if (
+				defined('BX_AGENTS_MAX_RETRY_COUNT')
+				&& $arAgent["RETRY_COUNT"] >= BX_AGENTS_MAX_RETRY_COUNT
+			)
 			{
 				$DB->Query("UPDATE b_agent SET ACTIVE='N' WHERE ID = ".$arAgent["ID"]);
 				continue;

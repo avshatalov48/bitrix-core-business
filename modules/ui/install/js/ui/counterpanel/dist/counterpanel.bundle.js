@@ -49,13 +49,15 @@ this.BX = this.BX || {};
 	    this.eventsForActive = main_core.Type.isObject(options.eventsForActive) ? options.eventsForActive : null;
 	    this.eventsForUnActive = main_core.Type.isObject(options.eventsForUnActive) ? options.eventsForUnActive : null;
 	    this.panel = options.panel ? options.panel : null;
+	    this.separator = main_core.Type.isBoolean(options.separator) ? options.separator : true;
+	    this.locked = main_core.Type.isBoolean(options.locked) ? options.locked : null;
 	    this.layout = {
 	      container: null,
 	      value: null,
 	      title: null,
 	      cross: null
 	    };
-	    this.counter = null;
+	    this.counter = _classPrivateMethodGet(this, _getCounter, _getCounter2).call(this);
 	    this.isActive = false;
 
 	    if (!_classPrivateMethodGet(this, _getPanel, _getPanel2).call(this).isMultiselect()) {
@@ -66,6 +68,19 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(CounterItem, [{
 	    key: "updateValue",
 	    value: function updateValue(param) {
+	      if (main_core.Type.isNumber(param)) {
+	        this.value = param;
+
+	        _classPrivateMethodGet(this, _getCounter, _getCounter2).call(this).update(param);
+
+	        if (param === 0) {
+	          this.updateColor('THEME');
+	        }
+	      }
+	    }
+	  }, {
+	    key: "updateValueAnimate",
+	    value: function updateValueAnimate(param) {
 	      if (main_core.Type.isNumber(param)) {
 	        this.value = param;
 
@@ -111,28 +126,64 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }, {
+	    key: "getSeparator",
+	    value: function getSeparator() {
+	      return this.separator;
+	    }
+	  }, {
+	    key: "lock",
+	    value: function lock() {
+	      this.locked = true;
+	      this.getContainer().classList.add('--locked');
+	    }
+	  }, {
+	    key: "unLock",
+	    value: function unLock() {
+	      this.locked = false;
+	      this.getContainer().classList.remove('--locked');
+	    }
+	  }, {
 	    key: "getContainer",
 	    value: function getContainer() {
 	      var _this = this;
 
 	      if (!this.layout.container) {
-	        this.layout.container = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-counter-panel__item\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _classPrivateMethodGet(this, _getValue, _getValue2).call(this), this.title ? _classPrivateMethodGet(this, _getTitle, _getTitle2).call(this) : '', _classPrivateMethodGet(this, _getCross, _getCross2).call(this));
+	        var isValue = main_core.Type.isNumber(this.value);
+	        this.layout.container = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-counter-panel__item\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), isValue ? _classPrivateMethodGet(this, _getValue, _getValue2).call(this) : '', this.title ? _classPrivateMethodGet(this, _getTitle, _getTitle2).call(this) : '', isValue ? _classPrivateMethodGet(this, _getCross, _getCross2).call(this) : '');
+
+	        if (!isValue) {
+	          this.layout.container.classList.add('--string');
+	        }
+
+	        if (!isValue && !this.eventsForActive && !this.eventsForUnActive) {
+	          this.layout.container.classList.add('--title');
+	        }
+
+	        if (!this.separator) {
+	          this.layout.container.classList.add('--without-separator');
+	        }
+
+	        if (this.locked) {
+	          this.layout.container.classList.add('--locked');
+	        }
 
 	        _classPrivateMethodGet(this, _setEvents, _setEvents2).call(this);
 
-	        this.layout.container.addEventListener('mouseenter', function () {
-	          if (!_this.isActive) {
-	            _this.layout.container.classList.add('--hover');
-	          }
-	        });
-	        this.layout.container.addEventListener('mouseleave', function () {
-	          if (!_this.isActive) {
-	            _this.layout.container.classList.remove('--hover');
-	          }
-	        });
-	        this.layout.container.addEventListener('click', function () {
-	          _this.isActive ? _this.deactivate() : _this.activate();
-	        });
+	        if (isValue) {
+	          this.layout.container.addEventListener('mouseenter', function () {
+	            if (!_this.isActive) {
+	              _this.layout.container.classList.add('--hover');
+	            }
+	          });
+	          this.layout.container.addEventListener('mouseleave', function () {
+	            if (!_this.isActive) {
+	              _this.layout.container.classList.remove('--hover');
+	            }
+	          });
+	          this.layout.container.addEventListener('click', function () {
+	            _this.isActive ? _this.deactivate() : _this.activate();
+	          });
+	        }
 	      }
 
 	      return this.layout.container;
@@ -160,7 +211,7 @@ this.BX = this.BX || {};
 	    this.counter = new ui_cnt.Counter({
 	      value: this.value ? this.value : 0,
 	      color: this.color ? ui_cnt.Counter.Color[this.color] : ui_cnt.Counter.Color.THEME,
-	      animation: true
+	      animation: false
 	    });
 	  }
 
@@ -300,15 +351,16 @@ this.BX = this.BX || {};
 	    return new CounterItem({
 	      id: item.id ? item.id : null,
 	      title: item.title ? item.title : null,
-	      value: item.value ? parseInt(item.value, 10) : null,
+	      value: main_core.Type.isNumber(item.value) ? parseInt(item.value, 10) : null,
 	      cross: item.cross ? item.cross : null,
 	      color: item.color ? item.color : null,
 	      eventsForActive: item.eventsForActive ? item.eventsForActive : null,
 	      eventsForUnActive: item.eventsForUnActive ? item.eventsForUnActive : null,
-	      panel: _this
+	      panel: _this,
+	      separator: item.separator,
+	      locked: item.locked ? item.locked : null
 	    });
 	  });
-	  this.getItemById();
 	}
 
 	function _getContainer2() {
@@ -328,7 +380,7 @@ this.BX = this.BX || {};
 	        _classPrivateMethodGet$1(_this2, _getContainer, _getContainer2).call(_this2).appendChild(item.getContainer());
 
 	        if (_this2.items.length !== key + 1 && _this2.items.length > 1) {
-	          _classPrivateMethodGet$1(_this2, _getContainer, _getContainer2).call(_this2).appendChild(main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div class=\"ui-counter-panel__item-separator\"></div>\n\t\t\t\t\t\t"]))));
+	          _classPrivateMethodGet$1(_this2, _getContainer, _getContainer2).call(_this2).appendChild(main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<div class=\"ui-counter-panel__item-separator ", "\"></div>\n\t\t\t\t\t\t"])), !item.getSeparator() ? '--invisible' : ''));
 	        }
 	      }
 	    });

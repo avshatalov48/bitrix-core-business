@@ -201,9 +201,9 @@ class Option
 			self::$options[$moduleId] = ["-" => []];
 
 			$query = "
-				SELECT NAME, VALUE 
-				FROM b_option 
-				WHERE MODULE_ID = '{$sqlHelper->forSql($moduleId)}' 
+				SELECT NAME, VALUE
+				FROM b_option
+				WHERE MODULE_ID = '{$sqlHelper->forSql($moduleId)}'
 			";
 
 			$res = $con->query($query);
@@ -217,9 +217,9 @@ class Option
 				//b_option_site possibly doesn't exist
 
 				$query = "
-					SELECT SITE_ID, NAME, VALUE 
-					FROM b_option_site 
-					WHERE MODULE_ID = '{$sqlHelper->forSql($moduleId)}' 
+					SELECT SITE_ID, NAME, VALUE
+					FROM b_option_site
+					WHERE MODULE_ID = '{$sqlHelper->forSql($moduleId)}'
 				";
 
 				$res = $con->query($query);
@@ -232,7 +232,7 @@ class Option
 
 			if($cacheTtl !== false)
 			{
-				$cache->set("b_option:{$moduleId}", self::$options[$moduleId]);
+				$cache->setImmediate("b_option:{$moduleId}", self::$options[$moduleId]);
 			}
 
 			unset(self::$loading[$moduleId]);
@@ -411,8 +411,8 @@ class Option
 		if($moduleId == 'main')
 		{
 			$sqlWhere .= "
-				AND NAME NOT LIKE '~%' 
-				AND NAME NOT IN ('crc_code', 'admin_passwordh', 'server_uniq_id','PARAM_MAX_SITES', 'PARAM_MAX_USERS') 
+				AND NAME NOT LIKE '~%'
+				AND NAME NOT IN ('crc_code', 'admin_passwordh', 'server_uniq_id','PARAM_MAX_SITES', 'PARAM_MAX_USERS')
 			";
 		}
 		else
@@ -423,8 +423,8 @@ class Option
 		if($sqlWhereSite == '')
 		{
 			$con->queryExecute("
-				DELETE FROM b_option 
-				WHERE MODULE_ID = '{$sqlHelper->forSql($moduleId)}' 
+				DELETE FROM b_option
+				WHERE MODULE_ID = '{$sqlHelper->forSql($moduleId)}'
 					{$sqlWhere}
 			");
 		}
@@ -432,8 +432,8 @@ class Option
 		if($deleteForSites)
 		{
 			$con->queryExecute("
-				DELETE FROM b_option_site 
-				WHERE MODULE_ID = '{$sqlHelper->forSql($moduleId)}' 
+				DELETE FROM b_option_site
+				WHERE MODULE_ID = '{$sqlHelper->forSql($moduleId)}'
 					{$sqlWhere}
 					{$sqlWhereSite}
 			");

@@ -4,6 +4,22 @@ namespace Bitrix\Bizproc\Workflow\Type\Entity;
 
 use Bitrix\Main;
 
+/**
+ * Class GlobalVarTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_GlobalVar_Query query()
+ * @method static EO_GlobalVar_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_GlobalVar_Result getById($id)
+ * @method static EO_GlobalVar_Result getList(array $parameters = [])
+ * @method static EO_GlobalVar_Entity getEntity()
+ * @method static \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalVar createObject($setDefaultValues = true)
+ * @method static \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalVar_Collection createCollection()
+ * @method static \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalVar wakeUpObject($row)
+ * @method static \Bitrix\Bizproc\Workflow\Type\Entity\EO_GlobalVar_Collection wakeUpCollection($rows)
+ */
 class GlobalVarTable extends Main\ORM\Data\DataManager
 {
 	public static function getTableName(): string

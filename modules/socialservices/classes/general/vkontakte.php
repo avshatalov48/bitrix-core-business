@@ -39,19 +39,18 @@ class CSocServVKontakte extends CSocServAuth
 	{
 		global $APPLICATION;
 
-		CSocServAuthManager::SetUniqueKey();
 		if (IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME'))
 		{
 			$redirect_uri = self::CONTROLLER_URL . "/redirect.php";
 			// error, but this code is not working at all
 			$state = \CHTTP::URN2URI("/bitrix/tools/oauth/liveid.php") . "?state=";
-			$backurl = urlencode($APPLICATION->GetCurPageParam('check_key=' . $_SESSION["UNIQUE_KEY"], array("logout", "auth_service_error", "auth_service_id", "backurl")));
+			$backurl = urlencode($APPLICATION->GetCurPageParam('check_key=' . \CSocServAuthManager::getUniqueKey(), array("logout", "auth_service_error", "auth_service_id", "backurl")));
 			$state .= urlencode(urlencode("backurl=" . $backurl));
 		}
 		else
 		{
 			$backurl = $APPLICATION->GetCurPageParam(
-				'check_key=' . $_SESSION["UNIQUE_KEY"],
+				'check_key=' . \CSocServAuthManager::getUniqueKey(),
 				array("logout", "auth_service_error", "auth_service_id", "backurl")
 			);
 

@@ -228,18 +228,6 @@ class CBPReviewActivity
 		$this->subscriptionId = 0;
 	}
 
-	public function HandleFault(Exception $exception)
-	{
-		if ($exception == null)
-			throw new Exception("exception");
-
-		$status = $this->Cancel();
-		if ($status == CBPActivityExecutionStatus::Canceling)
-			return CBPActivityExecutionStatus::Faulting;
-
-		return $status;
-	}
-
 	public function Cancel()
 	{
 		if (!$this->isInEventActivityMode && $this->taskId > 0)

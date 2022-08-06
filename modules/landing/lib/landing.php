@@ -1061,7 +1061,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public static function resolveIdByPublicUrl(string $landingUrl, int $siteId): ?int
 	{
-		if (!Manager::isCloudDisable())
+		if (!Manager::isCloudDisable() && Site\Type::isPublicScope())
 		{
 			$landingUrl = rtrim(Manager::getPublicationPath($siteId), '/') . '/' . ltrim($landingUrl, '/');
 		}
@@ -1077,7 +1077,8 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 			'SITE_TYPE' => self::getSiteType(),
 			'CHECK_PERMISSIONS' => 'N',
 			'NOT_CHECK_DOMAIN' => 'Y',
-			'NOT_SEND_HTTP_STATUS' => 'Y'
+			'NOT_SEND_HTTP_STATUS' => 'Y',
+			'SKIP_404' => 'Y'
 		];
 		return $demoCmp->detectPage() ?: null;
 	}
@@ -1152,6 +1153,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				'xml_id' => $this->xmlId,
 				'blocks' => Block::getRepository(),
 				'style' => Block::getStyle(),
+				'attrs' => Block::getAttrs(),
 				'mainOptions' => [
 					'saveOriginalFileName' => Option::get('main', 'save_original_file_name') === 'Y'
 				],

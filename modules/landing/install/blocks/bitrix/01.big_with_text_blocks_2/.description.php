@@ -30,7 +30,6 @@ return [
 		'.landing-block-node-card-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_01.BIG_WITH_TEXT_BLOCKS_2_NODES_LANDINGBLOCKNODECARDTITLE'),
 			'type' => 'text',
-
 		],
 		'.landing-block-node-card-label-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_01.BIG_WITH_TEXT_BLOCKS_2_NODES_LANDINGBLOCKNODECARDLABELTITLE'),
@@ -64,6 +63,10 @@ return [
 	'style' => [
 		'block' => [
 			'type' => ['block-default-wo-background'],
+			'additional' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_01_BIG_WITH_TEXT_BLOCKS_2_CARD_SLIDER'),
+				'attrsType' => ['autoplay', 'autoplay-speed', 'pause-hover', 'dots'],
+			]
 		],
 		'nodes' => [
 			'.landing-block-card-container' => [

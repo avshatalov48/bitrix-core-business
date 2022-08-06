@@ -2654,10 +2654,10 @@ window.BXPostFormTags.prototype.addTag = function(tagStr)
 	for (var i = 0; i < tags.length; i++ )
 	{
 		var tag = BX.util.trim(tags[i]);
-		if(tag.length > 0)
+		if (tag.length > 0)
 		{
 			var allTags = this.hiddenField.value.split(",");
-			if(!BX.util.in_array(tag, allTags))
+			if (!BX.util.in_array(tag, allTags))
 			{
 				var newTagDelete;
 				var newTag = BX.create("span", {
@@ -2794,7 +2794,10 @@ var lastWaitElement = null;
 window.MPFbuttonShowWait = function(el)
 {
 	if (el && !BX.type.isElementNode(el))
+	{
 		el = null;
+	}
+
 	el = el || this;
 	el = (el ? (el.tagName == "A" ? el : el.parentNode) : el);
 	if (el)
@@ -2824,7 +2827,7 @@ BX.addCustomEvent(window, 'onInitialized', function(someObject) {
 
 BX.addCustomEvent(window, 'BX.MPF.MentionSelector:open', function(params) {
 
-	var formId = (BX.type.isNotEmptyString(params.formId) ? params.formId : '');
+	var formId = (BX.Type.isStringFilled(params.formId) ? params.formId : '');
 	if (
 		!BX.Type.isStringFilled(formId)
 		|| BX.Type.isUndefined(repo.mentionParams[formId])
@@ -2833,7 +2836,7 @@ BX.addCustomEvent(window, 'BX.MPF.MentionSelector:open', function(params) {
 		return;
 	}
 
-	var bindNode = (BX.type.isDomNode(params.bindNode) ? params.bindNode : null);
+	var bindNode = (BX.Type.isDomNode(params.bindNode) ? params.bindNode : null);
 	var bindPosition = (BX.type.isNotEmptyObject(params.bindPosition) ? params.bindPosition : null);
 
 	var selectorId = window.MPFgetSelectorId('bx-mention-' + formId + '-id') + (bindNode ? '-withsearch' : '');
@@ -2868,6 +2871,7 @@ BX.addCustomEvent(window, 'BX.MPF.MentionSelector:open', function(params) {
 	}
 	else if (BX.type.isNotEmptyObject(bindPosition))
 	{
+		bindPosition.top -= 5;
 		dialog.popup.setBindElement(bindPosition);
 	}
 	dialog.popup.adjustPosition(popupBindOptions);
@@ -2937,10 +2941,10 @@ window.onKeyDownHandler = function(e, editor, formID)
 			&& e.key === '@'
 		) /* MacOS PT Portugal @ == Alt + 2 */
 		|| (
-			typeof e.getModifierState === 'function'
+			BX.Type.isFunction(e.getModifierState)
 			&& !!e.getModifierState('AltGraph')
 			&& BX.util.in_array(keyCode, [ 81, 50, 48 ])
-			&& typeof e.key !== 'undefined'
+			&& !BX.Type.isUndefined(e.key)
 			&& e.key === '@'
 		) /* Win German @ == AltGr + Q, Win Spanish @ == AltGr + 2, Win French @ == AltGr + 0 */
 		|| (
@@ -2951,12 +2955,11 @@ window.onKeyDownHandler = function(e, editor, formID)
 	{
 		setTimeout(function()
 		{
-			var
-				range = editor.selection.GetRange(),
-				doc = editor.GetIframeDoc(),
-				txt = (range ? range.endContainer.textContent : ''),
-				determiner = (txt ? txt.slice(range.endOffset - 1, range.endOffset) : ''),
-				prevS = (txt ? txt.slice(range.endOffset - 2, range.endOffset-1) : '');
+			var range = editor.selection.GetRange();
+			var doc = editor.GetIframeDoc();
+			var txt = (range ? range.endContainer.textContent : '');
+			var determiner = (txt ? txt.slice(range.endOffset - 1, range.endOffset) : '');
+			var prevS = (txt ? txt.slice(range.endOffset - 2, range.endOffset-1) : '');
 
 			if (
 				(determiner == "@" || determiner == "+")
@@ -2985,7 +2988,7 @@ window.onKeyDownHandler = function(e, editor, formID)
 				range.setEnd(MPFMention.node, 1);
 				editor.selection.SetSelection(range);
 
-				if (BX.type.isNotEmptyString(selectorId))
+				if (BX.Type.isStringFilled(selectorId))
 				{
 					BX.onCustomEvent(window, 'BX.MPF.MentionSelector:open', [{
 						formId: formID,
@@ -2999,7 +3002,11 @@ window.onKeyDownHandler = function(e, editor, formID)
 	if (MPFMention.listen)
 	{
 		var activeDialogTab = null;
-		var dialog = (BX.type.isNotEmptyString(selectorId) ? BX.UI.EntitySelector.Dialog.getById(selectorId) : null);
+		var dialog = (
+			BX.Type.isStringFilled(selectorId)
+				? BX.UI.EntitySelector.Dialog.getById(selectorId)
+				: null
+		);
 		if (
 			dialog
 			&& dialog.getActiveTab()
@@ -3065,9 +3072,8 @@ window.onKeyDownHandler = function(e, editor, formID)
 		var range = editor.selection.GetRange();
 		if (range.collapsed)
 		{
-			var
-				node = range.endContainer,
-				doc = editor.GetIframeDoc();
+			var node = range.endContainer;
+			var doc = editor.GetIframeDoc();
 
 			if (node)
 			{
@@ -3090,9 +3096,9 @@ window.onKeyDownHandler = function(e, editor, formID)
 
 window.onKeyUpHandler = function(e, editor, formID)
 {
-	var
-		keyCode = e.keyCode,
-		range, mentText;
+	var keyCode = e.keyCode;
+	var range;
+	var mentText;
 
 	if (!window['BXfpdStopMent' + formID])
 	{
@@ -3133,13 +3139,13 @@ window.onKeyUpHandler = function(e, editor, formID)
 				var mentTextOrig = mentText;
 
 				mentText = mentText.replace(/^[\+@]*/, '');
-				MPFMention.bSearch = BX.type.isNotEmptyString(mentText);
+				MPFMention.bSearch = BX.Type.isStringFilled(mentText);
 
 				var selectorId = window.MPFgetSelectorId('bx-mention-' + formID + '-id');
 				var dialog = BX.UI.EntitySelector.Dialog.getById(selectorId);
 
 				if (
-					BX.type.isNotEmptyString(mentText)
+					BX.Type.isStringFilled(mentText)
 					&& dialog
 				)
 				{
@@ -3191,9 +3197,8 @@ window.onKeyUpHandler = function(e, editor, formID)
 			range = editor.selection.GetRange();
 			if (range.collapsed)
 			{
-				var
-					node = range.endContainer,
-					doc = editor.GetIframeDoc();
+				var node = range.endContainer;
+				var doc = editor.GetIframeDoc();
 
 				if (node)
 				{
@@ -3227,7 +3232,7 @@ window.onTextareaKeyDownHandler = function(e, editor, formID)
 {
 	var keyCode = e.keyCode;
 
-	if(MPFMention.listen && keyCode == editor.KEY_CODES.enter)
+	if (MPFMention.listen && keyCode == editor.KEY_CODES.enter)
 	{
 		editor.textareaKeyDownPreventDefault = true;
 		e.stopPropagation();
@@ -3268,12 +3273,12 @@ window.onTextareaKeyUpHandler = function(e, editor, formID)
 					mentTextOrig = mentText;
 
 					mentText = mentText.replace(/^[\+@]*/, '');
-					MPFMention.bSearch = BX.type.isNotEmptyString(mentText);
+					MPFMention.bSearch = BX.Type.isStringFilled(mentText);
 
 					var dialog = BX.UI.EntitySelector.Dialog.getById(selectorId);
 
 					if (
-						BX.type.isNotEmptyString(mentText)
+						BX.Type.isStringFilled(mentText)
 						&& dialog
 					)
 					{
@@ -3312,7 +3317,9 @@ window.onTextareaKeyUpHandler = function(e, editor, formID)
 			var _this = this;
 			this.shiftPressed = true;
 			if (this.shiftTimeout)
+			{
 				this.shiftTimeout = clearTimeout(this.shiftTimeout);
+			}
 
 			this.shiftTimeout = setTimeout(function()
 			{
@@ -3327,8 +3334,7 @@ window.onTextareaKeyUpHandler = function(e, editor, formID)
 			if (cursor > 0)
 			{
 				value = editor.textareaView.element.value;
-				var
-					lastChar = value.substr(cursor - 1, 1);
+				var lastChar = value.substr(cursor - 1, 1);
 
 				if (lastChar && (lastChar === '+' || lastChar === '@'))
 				{
@@ -3351,26 +3357,24 @@ window.onTextareaKeyUpHandler = function(e, editor, formID)
 
 var getMentionNodePosition = function(mention, editor)
 {
-	var
-		mentPos = BX.pos(mention),
-		editorPos = BX.pos(editor.dom.areaCont),
-		editorDocScroll = BX.GetWindowScrollPos(editor.GetIframeDoc()),
-		top = editorPos.top + mentPos.bottom - editorDocScroll.scrollTop + 2,
-		left = editorPos.left + mentPos.right - editorDocScroll.scrollLeft;
+	var mentPos = BX.pos(mention);
+	var editorPos = BX.pos(editor.dom.areaCont);
+	var editorDocScroll = BX.GetWindowScrollPos(editor.GetIframeDoc());
+	var top = editorPos.top + mentPos.bottom - editorDocScroll.scrollTop + 2;
+	var left = editorPos.left + mentPos.right - editorDocScroll.scrollLeft;
 
 	return {top: top, left: left};
 };
 
 window.BxInsertMention = function (params)
 {
-	var
-		item = params.item,
-		type = params.type,
-		formID = params.formID,
-		editorId = params.editorId,
-		bNeedComa = params.bNeedComa,
-		editor = LHEPostForm.getEditor(editorId),
-		spaceNode;
+	var item = params.item;
+	var type = params.type;
+	var formID = params.formID;
+	var editorId = params.editorId;
+	var bNeedComa = params.bNeedComa;
+	var editor = LHEPostForm.getEditor(editorId);
+	var spaceNode;
 
 		if (
 		(
@@ -3383,12 +3387,11 @@ window.BxInsertMention = function (params)
 		&& editor
 	)
 	{
-		if(editor.GetViewMode() == 'wysiwyg') // WYSIWYG
+		if (editor.GetViewMode() == 'wysiwyg') // WYSIWYG
 		{
-			var
-				doc = editor.GetIframeDoc(),
-				range = editor.selection.GetRange(),
-				mention = BX.create('SPAN',
+			var doc = editor.GetIframeDoc();
+			var range = editor.selection.GetRange();
+			var mention = BX.create('SPAN',
 					{
 						props: {className: 'bxhtmled-metion'},
 						text: BX.util.htmlspecialcharsback(item.name)
@@ -3451,11 +3454,10 @@ window.BxInsertMention = function (params)
 		{
 			editor.textareaView.Focus();
 
-			var
-				value = editor.textareaView.GetValue(false),
-				cursor = editor.textareaView.GetCursorPosition(),
-				valueBefore = value.substr(0, cursor),
-				charPos = Math.max(valueBefore.lastIndexOf('+'), valueBefore.lastIndexOf('@'));
+			var value = editor.textareaView.GetValue(false);
+			var cursor = editor.textareaView.GetCursorPosition();
+			var valueBefore = value.substr(0, cursor);
+			var charPos = Math.max(valueBefore.lastIndexOf('+'), valueBefore.lastIndexOf('@'));
 
 			if (charPos >= 0 && cursor > charPos)
 			{
@@ -3493,7 +3495,7 @@ window.BxInsertMention = function (params)
 
 		MPFMention["text"] = '';
 
-		if(editor.GetViewMode() == 'wysiwyg') // WYSIWYG
+		if (editor.GetViewMode() == 'wysiwyg') // WYSIWYG
 		{
 			editor.Focus();
 			editor.selection.SetAfter(spaceNode);
@@ -3639,7 +3641,7 @@ window.MPFMentionInit = function(formId, params)
 			selectorInstance.addItem({
 				avatar: item.avatar,
 				customData: {
-					email: (BX.type.isNotEmptyString(item.email) ? item.email : ''),
+					email: (BX.Type.isStringFilled(item.email) ? item.email : ''),
 				},
 				entityId: type,
 				entityType: entityType,
@@ -3676,7 +3678,7 @@ window.MPFMentionInit = function(formId, params)
 			if (
 				!BX.type.isNotEmptyObject(ucFormManager)
 				|| !BX.type.isArray(ucFormManager.id)
-				|| !BX.type.isNotEmptyString(ucFormManager.id[0])
+				|| !BX.Type.isStringFilled(ucFormManager.id[0])
 			)
 			{
 				return;
@@ -3704,13 +3706,12 @@ window.MPFMentionInit = function(formId, params)
 				"click",
 				function(e)
 				{
-					if(MPFMention.listen !== true)
+					if (MPFMention.listen !== true)
 					{
-						var
-							editor = LHEPostForm.getEditor(params.editorId),
-							doc = editor.GetIframeDoc();
+						var editor = LHEPostForm.getEditor(params.editorId);
+						var doc = editor.GetIframeDoc();
 
-						if(editor.GetViewMode() == 'wysiwyg' && doc)
+						if (editor.GetViewMode() == 'wysiwyg' && doc)
 						{
 							MPFMention.listen = true;
 							MPFMention.listenFlag = true;
@@ -3718,8 +3719,7 @@ window.MPFMentionInit = function(formId, params)
 							MPFMention.leaveContent = false;
 							MPFMention.mode = 'button';
 
-							var
-								range = editor.selection.GetRange();
+							var range = editor.selection.GetRange();
 
 							if (BX(MPFMention.node))
 							{
@@ -3799,7 +3799,7 @@ window.BXfpdOnDialogClose = function (params)
 		if (!MPFMention.listen)
 		{
 			var editor = LHEPostForm.getEditor(params.editorId);
-			if(editor)
+			if (editor)
 			{
 				editor.Focus();
 			}
@@ -3814,7 +3814,7 @@ window.BXfpdOnDialogClose = function (params)
 		this.inputNode = null;
 		this.messages = {};
 
-		if (!BX.type.isNotEmptyString(params.id))
+		if (!BX.Type.isStringFilled(params.id))
 		{
 			return null;
 		}
@@ -3835,8 +3835,8 @@ window.BXfpdOnDialogClose = function (params)
 		}
 
 		if (
-			!BX.type.isNotEmptyString(params.id)
-			|| !BX.type.isNotEmptyString(params.tagNodeId)
+			!BX.Type.isStringFilled(params.id)
+			|| !BX.Type.isStringFilled(params.tagNodeId)
 			|| !BX(params.tagNodeId)
 		)
 		{
@@ -3844,7 +3844,7 @@ window.BXfpdOnDialogClose = function (params)
 		}
 
 		if (
-			BX.type.isNotEmptyString(params.inputNodeId)
+			BX.Type.isStringFilled(params.inputNodeId)
 			&& BX(params.inputNodeId)
 		)
 		{
@@ -3861,7 +3861,7 @@ window.BXfpdOnDialogClose = function (params)
 			id: params.id,
 			dialogOptions: {
 				id: params.id,
-				context: (BX.type.isNotEmptyString(params.context) ? params.context : null),
+				context: (BX.Type.isStringFilled(params.context) ? params.context : null),
 
 				preselectedItems: (BX.type.isArray(params.preselectedItems) ? params.preselectedItems : []),
 

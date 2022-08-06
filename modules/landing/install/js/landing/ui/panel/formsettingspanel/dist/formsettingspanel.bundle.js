@@ -1259,6 +1259,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.removeClass(editorWindow.document.body, 'landing-ui-hide-action-panels-form');
 	      return babelHelpers.get(babelHelpers.getPrototypeOf(FormSettingsPanel.prototype), "hide", this).call(this);
 	    }
+	  }, {
+	    key: "onSidebarButtonClick",
+	    value: function onSidebarButtonClick(event) {
+	      var target = event.getTarget();
+
+	      if (target.options.id === 'design') {
+	        this.onFormDesignButtonClick();
+	      } else {
+	        babelHelpers.get(babelHelpers.getPrototypeOf(FormSettingsPanel.prototype), "onSidebarButtonClick", this).call(this, event);
+	      }
+	    }
 	  }], [{
 	    key: "sanitize",
 	    value: function sanitize(value) {

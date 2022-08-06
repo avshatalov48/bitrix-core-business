@@ -3,11 +3,13 @@
 namespace Bitrix\Landing\Update\Block;
 
 use Bitrix\Landing\File;
+use Bitrix\Landing\Internals\FileTable;
 use Bitrix\Landing\Manager;
 use Bitrix\Landing\Internals\BlockTable;
 use Bitrix\Landing\Block;
 use Bitrix\Landing\Node;
 use Bitrix\Main\ArgumentTypeException;
+use Bitrix\Main\EO_File;
 
 /**
  * After enable file duplicate control for all and run the migrator,
@@ -65,6 +67,14 @@ class DuplicateImages
 				foreach ($previousValues as $previousValue)
 				{
 					if (!$previousValue['id'] && !$previousValue['id2x'])
+					{
+						continue;
+					}
+
+					if (
+						!File::getFilePath($previousValue['id'])
+						|| !File::getFilePath($previousValue['id2x'])
+					)
 					{
 						continue;
 					}
@@ -150,6 +160,62 @@ class DuplicateImages
 		{
 			$block = new self($row['ID']);
 			$block->update(true);
+		}
+	}
+
+	public static function onAfterFileDeleteDuplicate(EO_File $original, EO_File $duplicate)
+	{
+		// BLOCKS
+		$sitesToUpdate = [];
+		$oldPath = '/' . $duplicate->getSubdir() . '/' . $duplicate->getFileName();
+		$newPath = '/' . $original->getSubdir() . '/' . $original->getFileName();
+
+		$resFiles = FileTable::query()
+			->addSelect('ENTITY_ID')
+			->where('ENTITY_TYPE', '=', File::ENTITY_TYPE_BLOCK)
+			->where('FILE_ID', $duplicate->getId())
+			->exec()
+		;
+		while($blockFile = $resFiles->fetch())
+		{
+			$resBlocks = BlockTable::query()
+				->addSelect('ID')
+				->addSelect('CONTENT')
+				->addSelect('LANDING.SITE_ID')
+				->where('ID', $blockFile['ENTITY_ID'])
+				->exec()
+			;
+			while($block = $resBlocks->fetch())
+			{
+				BlockTable::update($block['ID'], [
+					'CONTENT' => str_replace($oldPath, $newPath, $block['CONTENT'])
+				]);
+				$sitesToUpdate[] = (int)$block['LANDING_INTERNALS_BLOCK_LANDING_SITE_ID'];
+			}
+		}
+
+		$sitesToUpdate = array_unique($sitesToUpdate);
+		foreach($sitesToUpdate as $siteId)
+		{
+			Manager::clearCacheForSite($siteId);
+		}
+
+		// ASSETS
+		$landingsForUpdate = [];
+		$resFiles = FileTable::query()
+			->addSelect('ENTITY_ID')
+			->where('ENTITY_TYPE', '=', File::ENTITY_TYPE_ASSET)
+			->where('FILE_ID', $duplicate->getId())
+			->exec()
+		;
+		while($assetFile = $resFiles->fetch())
+		{
+			$landingsForUpdate[] = abs((int)$assetFile['ENTITY_ID']);
+		}
+		$landingsForUpdate = array_unique($landingsForUpdate);
+		foreach($landingsForUpdate as $landingId)
+		{
+			Manager::clearCacheForLanding($landingId);
 		}
 	}
 }

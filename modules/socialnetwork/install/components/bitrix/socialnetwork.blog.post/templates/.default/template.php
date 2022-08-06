@@ -60,7 +60,10 @@ $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $bodyClass = $bodyClass ? $bodyClass." no-all-paddings" : "no-all-paddings";
 $APPLICATION->SetPageProperty("BodyClass", $bodyClass);
 
-?><div class="feed-item-wrap" data-livefeed-id="<?= (int)$arParams['LOG_ID'] ?>"><?php
+?><div
+ class="feed-item-wrap"
+ data-livefeed-id="<?= (int)$arParams['LOG_ID'] ?>"
+ bx-content-view-key-signed="<?= htmlspecialcharsbx($arResult['CONTENT_VIEW_KEY_SIGNED']) ?>"><?php
 
 ?><script>
 	BX.message({
@@ -138,8 +141,6 @@ else
 {
 	if (!empty($arResult["Post"]))
 	{
-		$contentXmlId = 'BLOG_POST-'. (int)$arResult['Post']['ID'];
-
 		$APPLICATION->IncludeComponent("bitrix:main.user.link",
 			'',
 			array(
@@ -257,6 +258,31 @@ else
 			{
 				$classNameList[] = 'feed-post-block-pin-active';
 			}
+		}
+
+		$hasNotEmptyProperty = (
+			isset($arResult['POST_PROPERTIES']['DATA'])
+			&& is_array($arResult['POST_PROPERTIES']['DATA'])
+			&& array_reduce($arResult['POST_PROPERTIES']['DATA'], static function ($val, $propertyData) {
+				return $val || (
+					$propertyData['VALUE'] !== null
+					&& $propertyData['VALUE'] !== false
+					&& $propertyData['VALUE'] !== []
+					&& !(
+						$propertyData['VALUE'] === '0'
+						&& $propertyData['USER_TYPE']['BASE_TYPE'] === 'int'
+					)
+				);
+			}, false)
+		);
+
+		if (
+			$hasNotEmptyProperty
+			|| !empty($arResult['Category'])
+			|| !empty($arResult['URL_PREVIEW'])
+		)
+		{
+			$classNameList[] = 'feed-post-block-has-bottom';
 		}
 
 		if (
@@ -385,8 +411,6 @@ else
 					"NAV_TYPE_NEW" => "Y",
 					"SELECTOR_VERSION" => $arResult["SELECTOR_VERSION"],
 					'FORM_ID' => $arParams['FORM_ID'],
-					'CONTENT_VIEW_KEY' => $arResult['CONTENT_VIEW_KEY'],
-					'CONTENT_VIEW_KEY_SIGNED' => $arResult['CONTENT_VIEW_KEY_SIGNED'],
 				],
 				$component
 			);
@@ -398,12 +422,15 @@ else
 			 class="<?=implode(' ', $classNameList)?>"
 			 id="blg-post-<?=$arResult["Post"]["ID"]?>"
 			 data-livefeed-id="<?=(int)$arParams['LOG_ID']?>"
+			 bx-content-view-key-signed="<?= htmlspecialcharsbx($arResult['CONTENT_VIEW_KEY_SIGNED']) ?>"
 			 data-menu-id="blog-post-<?=(int)$arResult["Post"]["ID"]?>"
 			<?php
 			if (isset($pinned))
 			{
 				?>
 				 data-livefeed-post-pinned="<?=($pinned ? 'Y' : 'N')?>"
+				 data-security-entity-pin="<?= (int)$arParams['LOG_ID'] ?>"
+				 data-security-token-pin="<?= htmlspecialcharsbx($arResult['LOG_ID_TOKEN']) ?>"
 				<?php
 			}
 			?>><a name="post<?= $arResult['Post']['ID'] ?>"></a><?php
@@ -947,9 +974,8 @@ else
 
 					$contentViewXmlIdAttribute = (
 						$arResult['bFromList']
-							? 'bx-content-view-xml-id="' . $contentXmlId .
-								'" bx-content-view-key="' . $arResult['CONTENT_VIEW_KEY'] .'"' .
-								'" bx-content-view-key-signed="' . $arResult['CONTENT_VIEW_KEY_SIGNED'] .'"'
+							? 'bx-content-view-xml-id="' . $arResult['CONTENT_ID'] . '"' .
+								' bx-content-view-key-signed="' . $arResult['CONTENT_VIEW_KEY_SIGNED'] .'"'
 							: ''
 					);
 
@@ -990,20 +1016,7 @@ else
 
 					if ($arResult["bFromList"])
 					{
-						?><div class="feed-post-text-more" onclick="BX.UI.Animations.expand({
-							moreButtonNode: this,
-							type: 'post',
-							classBlock: 'feed-post-text-block',
-							classOuter: 'feed-post-text-block-inner',
-							classInner: 'feed-post-text-block-inner-inner',
-							heightLimit: 300,
-							callback: function(textBlock) {
-								if (!BX.type.isUndefined(BX.Livefeed))
-								{
-									BX.Livefeed.MoreButton.expand(textBlock);
-								}
-							}.bind(BX.Livefeed.MoreButton)
-						})" id="blog_post_more_<?= $arResult['Post']['ID'] ?>"><?php
+						?><div class="feed-post-text-more" id="blog_post_more_<?= $arResult['Post']['ID'] ?>"><?php
 							?><div class="feed-post-text-more-but"></div><?php
 						?></div><?php
 						?><script>
@@ -1016,11 +1029,14 @@ else
 									return;
 								}
 
-								BX.Livefeed.FeedInstance.addMoreButton({
-									outerBlockID : 'blog_post_outer_<?= $arResult["Post"]["ID"] ?>',
-									bodyBlockID : 'blog_post_body_<?= $arResult["Post"]["ID"] ?>',
-									informerBlockID : 'blg-post-inform-<?= (int)$arResult["Post"]["ID"] ?>',
-								});
+								BX.Livefeed.FeedInstance.addMoreButton(
+									'blog_post_<?= $arResult['Post']['ID'] ?>',
+									{
+										outerBlockID : 'blog_post_outer_<?= $arResult["Post"]["ID"] ?>',
+										bodyBlockID : 'blog_post_body_<?= $arResult["Post"]["ID"] ?>',
+										informerBlockID : 'blg-post-inform-<?= (int)$arResult["Post"]["ID"] ?>',
+									}
+								);
 							});
 						</script><?php
 					}

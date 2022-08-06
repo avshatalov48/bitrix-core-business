@@ -15,25 +15,27 @@ return array(
 		'type' => ['page', 'store', 'smn'],
 	),
 	'nodes' => array(
-		'.landing-block-node-img' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_51_2_COUNTDOWN_04--IMG'),
-			'type' => 'img',
-			'dimensions' => array('width' => 1920, 'height' => 1080),
-			'create2xByDefault' => false,
-		),
 		'.landing-block-node-title' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_2_COUNTDOWN_04--TITLE'),
 			'type' => 'text',
 		),
-		
 		'.landing-block-node-number-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_51_2_COUNTDOWN_04--NUMBER_TEXT'),
 			'type' => 'text',
 		),
+		'.landing-block-node-img' => array(
+			'name' => Loc::getMessage('LANDING_BLOCK_51_2_COUNTDOWN_04--IMG'),
+			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
+			'dimensions' => array('width' => 1920, 'height' => 1080),
+			'create2xByDefault' => false,
+			'isWrapper' => true,
+		),
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default-background-overlay'),
+			'type' => ['block-default-background'],
 		),
 		'nodes' => array(
 			'.landing-block-node-title' => array(

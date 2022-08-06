@@ -1,4 +1,4 @@
-<section class="landing-block">
+<section class="landing-block" data-slider-animation="1">
 	<div class="js-carousel"
 		 data-pagi-classes="u-carousel-indicators-v1 g-right-30 g-bottom-30"
 		 data-autoplay="false">

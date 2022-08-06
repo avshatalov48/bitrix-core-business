@@ -20,6 +20,11 @@ interface IBPActivityExternalEventListener
 	public function OnExternalEvent($arEventParameters = array());
 }
 
+interface IBPActivityDebugEventListener
+{
+	public function onDebugEvent(array $eventParameters = []);
+}
+
 interface IBPRootActivity
 {
 	public function GetDocumentId();

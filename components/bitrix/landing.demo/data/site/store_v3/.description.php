@@ -20,6 +20,7 @@ return [
 	'preview3x' => '',
 	'show_in_list' => 'Y',
 	'type' => 'store',
+	'version' => 3,
 	'fields' => [
 		'ADDITIONAL_FIELDS' => [
 			'BACKGROUND_USE' => 'Y',

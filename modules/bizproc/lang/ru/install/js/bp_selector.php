@@ -12,6 +12,7 @@ $MESS["BIZPROC_JS_BP_SELECTOR_NOW"] = "Время сервера";
 $MESS["BIZPROC_JS_BP_SELECTOR_NOW_LOCAL"] = "Время локальное";
 $MESS["BIZPROC_JS_BP_SELECTOR_DATE"] = "Текущая дата";
 $MESS["BIZPROC_JS_BP_SELECTOR_EOL"] = "Символ конца строки";
+$MESS["BIZPROC_JS_BP_SELECTOR_HOST_URL"] = "URL сайта";
 $MESS["BIZPROC_JS_BP_SELECTOR_EMPTY_LIST"] = "Ничего не найдено";
 $MESS["BIZPROC_JS_BP_SELECTOR_TARGET_USER"] = "Пользователь, запустивший процесс";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTIONS"] = "Функции";

@@ -1,11 +1,17 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UserField\Types\StringFormattedType;
 
 CJSCore::init(['uf']);
+
+/**
+ * @var $arResult array
+ */
 
 foreach($arResult['value'] as $key => $value)
 {
@@ -17,13 +23,13 @@ foreach($arResult['value'] as $key => $value)
 			[
 				StringFormattedType::getPublicViewHtml(
 					[
-						'SETTINGS' => $arResult['userField']['SETTINGS']
+						'SETTINGS' => $arResult['userField']['SETTINGS'],
 					],
 					[
 						'NAME' => $name,
-						'VALUE' => HtmlFilter::encode($value)
+						'VALUE' => $value,
 					]
-				)
+				),
 			],
 			$arResult['userField']['SETTINGS']['PATTERN']
 		);

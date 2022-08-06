@@ -102,7 +102,7 @@ CModule::AddAutoloadClasses(
 	)
 );
 
-$jsCoreRel = array('im_desktop_utils', 'resize_observer', 'im_common', 'im_phone_call_view', 'im.lib.localstorage', 'clipboard', 'sidepanel', 'loader', 'ui.notification', 'ui.alerts', 'ui.vue', 'ui.buttons', 'ui.switcher', 'ui.hint', 'im.application.notifications');
+$jsCoreRel = array('im_desktop_utils', 'resize_observer', 'im_common', 'im_phone_call_view', 'im.lib.localstorage', 'clipboard', 'sidepanel', 'loader', 'ui.notification', 'ui.alerts', 'ui.vue', 'ui.buttons', 'ui.switcher', 'ui.hint', 'im.application.notifications', 'im.v2.application.left-panel', 'im.v2.application.sidebar');
 $jsCoreRelMobile = array('im_common', 'uploader', 'mobile.pull.client');
 if (IsModuleInstalled('voximplant'))
 {
@@ -151,7 +151,7 @@ $jsImCall = [
 	'/bitrix/js/im/call/voximplant_call.js',
 	'/bitrix/js/im/call/util.js',
 	'/bitrix/js/im/call/view.js',
-	'/bitrix/js/im/call/mic_muted_popup.js',
+	'/bitrix/js/im/call/call_hint_popup.js',
 	'/bitrix/js/im/call/web_screenshare_popup.js',
 	'/bitrix/js/im/call/notification.js',
 	'/bitrix/js/im/call/notification_conference.js',

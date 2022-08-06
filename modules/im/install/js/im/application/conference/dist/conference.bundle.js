@@ -190,8 +190,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    this.template = null;
 	    this.rootNode = this.params.node || document.createElement('div');
 	    this.event = new ui_vue.VueVendorV2();
-	    this.callContainer = null;
-	    this.callView = null;
+	    this.callContainer = null; // this.callView = null;
+
 	    this.preCall = null;
 	    this.currentCall = null;
 	    this.videoStrategy = null;
@@ -1452,6 +1452,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        toggleScreenSharing: this.onCallViewToggleScreenSharingButtonClick.bind(this),
 	        record: this.onCallViewRecordButtonClick.bind(this),
 	        toggleVideo: this.onCallViewToggleVideoButtonClick.bind(this),
+	        toggleSpeaker: this.onCallViewToggleSpeakerButtonClick.bind(this),
 	        showChat: this.onCallViewShowChatButtonClick.bind(this),
 	        toggleUsers: this.onCallViewToggleUsersButtonClick.bind(this),
 	        share: this.onCallViewShareButtonClick.bind(this),
@@ -1584,6 +1585,20 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        this.currentCall.setVideoEnabled(event.data.video);
 	      } else {
 	        this.template.$emit('setCameraState', event.data.video);
+	      }
+	    }
+	  }, {
+	    key: "onCallViewToggleSpeakerButtonClick",
+	    value: function onCallViewToggleSpeakerButtonClick(event) {
+	      this.callView.muteSpeaker(!event.speakerMuted);
+
+	      if (event.fromHotKey) {
+	        BX.UI.Notification.Center.notify({
+	          content: BX.message(this.callView.speakerMuted ? 'IM_M_CALL_MUTE_SPEAKERS_OFF' : 'IM_M_CALL_MUTE_SPEAKERS_ON'),
+	          position: "top-right",
+	          autoHideDelay: 3000,
+	          closeButton: true
+	        });
 	      }
 	    }
 	  }, {
@@ -2171,7 +2186,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	      if (params.message.senderId > 0 && params.message.system !== 'Y') {
 	        var messageAuthor = this.controller.getStore().getters['users/get'](params.message.senderId, true);
-	        userName = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"bx-im-application-call-notify-new-message-username\">", ":</div>\n\t\t\t\t"])), messageAuthor.name);
+	        userName = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"bx-im-application-call-notify-new-message-username\">", ":</div>\n\t\t\t\t"])), main_core.Text.encode(messageAuthor.name));
 
 	        if (messageAuthor.avatar) {
 	          avatar = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<div class=\"bx-im-application-call-notify-new-message-avatar-wrap\">\n\t\t\t\t\t\t\t<img class=\"bx-im-application-call-notify-new-message-avatar\" src=\"", "\" alt=\"\"/>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t"])), messageAuthor.avatar);
@@ -2450,5 +2465,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	exports.ConferenceApplication = ConferenceApplication;
 
-}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX,BX,BX.Messenger.Application,BX.Messenger,BX.Messenger.Model,BX.Messenger,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Const,BX,BX.UI,BX.UI,BX,BX,BX,BX,BX,BX,BX.Event,BX,BX.Messenger.Provider.Pull,BX,BX.Messenger.Lib));
+}((this.BX.Messenger.Application = this.BX.Messenger.Application || {}),BX,BX,BX.Messenger.Application,BX.Messenger,BX.Messenger.Model,BX.Messenger,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Const,BX,BX.UI,BX.UI,BX,BX,BX,BX,BX,BX.Main,BX.Event,BX,BX.Messenger.Provider.Pull,BX,BX.Messenger.Lib));
 //# sourceMappingURL=conference.bundle.js.map

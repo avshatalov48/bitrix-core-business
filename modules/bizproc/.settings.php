@@ -12,4 +12,38 @@ return [
 		],
 		'readonly' => true,
 	],
+	'services' => [
+		'value' => [
+			'bizproc.service.schedulerService' => [
+				'className' => '\\CBPSchedulerService',
+			],
+			'bizproc.service.stateService' => [
+				'className' => '\\CBPStateService',
+			],
+			'bizproc.service.trackingService' => [
+				'className' => '\\CBPTrackingService',
+			],
+			'bizproc.service.taskService' => [
+				'className' => '\\CBPTaskService',
+			],
+			'bizproc.service.historyService' => [
+				'className' => '\\CBPHistoryService',
+			],
+			'bizproc.service.documentService' => [
+				'className' => '\\CBPDocumentService',
+			],
+			'bizproc.service.analyticsService' => [
+				'className' => '\\Bitrix\\Bizproc\\Service\\Analytics',
+			],
+			'bizproc.service.userService' => [
+				'className' => '\\Bitrix\\Bizproc\\Service\\User',
+			],
+			'bizproc.debugger.service.trackingService' => [
+				'className' => '\\Bitrix\\Bizproc\\Debugger\\Services\\TrackingService',
+			],
+			'bizproc.debugger.service.analyticsService' => [
+				'className' => '\\Bitrix\\Bizproc\\Debugger\\Services\\AnalyticsService',
+			],
+		]
+	],
 ];

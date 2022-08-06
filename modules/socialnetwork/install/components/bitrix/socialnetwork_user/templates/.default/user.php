@@ -114,6 +114,7 @@ if (\Bitrix\Main\ModuleManager::isModuleInstalled("intranet") && SITE_TEMPLATE_I
 					"PATH_TO_USER_STRESSLEVEL" => $arResult["PATH_TO_USER_STRESSLEVEL"],
 				)),
 				"POPUP_COMPONENT_USE_BITRIX24_THEME" => "Y",
+				'USE_PADDING' => false,
 				"POPUP_COMPONENT_BITRIX24_THEME_FOR_USER_ID" => $arResult["VARIABLES"]["user_id"],
 				"POPUP_COMPONENT_PARENT" => $this->getComponent()
 			)

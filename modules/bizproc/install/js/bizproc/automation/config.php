@@ -9,6 +9,10 @@ return [
 	'css' => 'dist/automation.bundle.css',
 	'js' => 'dist/automation.bundle.js',
 	'rel' => [
+		'main.popup',
+		'main.core.events',
+		'bizproc.automation',
+		'ui.fonts.opensans',
 		'main.core',
 	],
 	'skip_core' => false,

@@ -34,7 +34,8 @@
 
 .bizproc-script-edit-title {
 	margin-bottom: 16px;
-	font: 18px/24px 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: 18px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .bizproc-script-edit-subtitle {

@@ -1,6 +1,6 @@
-<section class="landing-block">
+<section class="landing-block" data-slider-arrows="3" data-slider-animation="1">
 	<div class="js-carousel"
-		 data-arrows-classes="u-arrow-v1 u-arrow-v1-1 g-color-white g-bg-primary g-opacity-0_8--hover g-transition-0_2 g-transition--ease-in"
+		 data-arrows-classes="u-arrow-v1 u-arrow-v1-1 g-transition-0_2 g-transition--ease-in g-color-white g-bg-primary g-opacity-0_8--hover"
 		 data-arrow-left-classes="fa fa-chevron-left"
 		 data-arrow-right-classes="fa fa-chevron-right">
 		<div class="landing-block-node-card landing-block-node-card-bgimg js-slide d-flex align-items-center u-bg-overlay g-min-height-100vh g-bg-img-hero g-bg-black-opacity-0_5--after"

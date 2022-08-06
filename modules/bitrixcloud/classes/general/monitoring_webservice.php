@@ -1,5 +1,9 @@
 <?php
+
+use Bitrix\Main\Web\Uri;
+
 IncludeModuleLangFile(__FILE__);
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
 
 class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
@@ -23,9 +27,7 @@ class CBitrixCloudMonitoringWebService extends CBitrixCloudWebService
 			$arParams[$key] = $value;
 
 		$url = COption::GetOptionString("bitrixcloud", "monitoring_policy_url");
-		$url = CHTTP::urlAddParams($url, $arParams, array(
-			"encode" => true,
-		)).$this->addStr;
+		$url = (new Uri($url))->addParams($arParams)->getUri() . $this->addStr;
 
 		return $url;
 	}

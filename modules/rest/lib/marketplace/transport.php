@@ -6,18 +6,36 @@ use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Text\Encoding;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 
-if(!defined('REST_MARKETPLACE_URL'))
+if (!defined('REST_MARKETPLACE_URL'))
 {
-	define('REST_MARKETPLACE_URL', 'https://www.1c-bitrix.ru/buy_tmp/b24_app.php');
+	define('REST_MARKETPLACE_URL', '');
 }
 
 class Transport
 {
+	/** @deprecated use Transport()->getServiceUrl() */
 	const SERVICE_URL = REST_MARKETPLACE_URL;
 	protected const VERSION = 1;
+
+	protected string $serviceDomain = '';
+	private const DEFAULT_SERVICE_REGION = 'en';
+	private const SERVICE_DOMAIN_LIST = [
+		'en' => 'https://util.bitrixsoft.com/',
+		'ru' => 'https://util.1c-bitrix.ru/',
+		'kz' => 'https://util.1c-bitrix.kz/',
+		'by' => 'https://util.1c-bitrix.by/',
+		'ua' => 'https://util.bitrix.ua/',
+	];
+	public const SERVICE_TYPE_APP = 'APP';
+	public const SERVICE_TYPE_COUPON = 'COUPON';
+	private const SERVICE_URN_LIST = [
+		self::SERVICE_TYPE_APP => 'b24/apps.php',
+		self::SERVICE_TYPE_COUPON => 'b24/b24_coupon.php',
+	];
 
 	const SOCKET_TIMEOUT = 10;
 	const STREAM_TIMEOUT = 10;
@@ -61,6 +79,26 @@ class Transport
 
 	public function __construct()
 	{
+		if (Loader::includeModule('bitrix24'))
+		{
+			$region = \CBitrix24::getLicensePrefix();
+		}
+		else
+		{
+			$region = Option::get('main', '~PARAM_CLIENT_LANG', LANGUAGE_ID);
+		}
+		$this->serviceDomain = self::SERVICE_DOMAIN_LIST[$region] ?? self::SERVICE_DOMAIN_LIST[self::DEFAULT_SERVICE_REGION];
+	}
+
+	/**
+	 * Returns service url.
+	 *
+	 * @param string $type
+	 * @return string
+	 */
+	public function getServiceUrl(string $type = self::SERVICE_TYPE_APP): string
+	{
+		return self::SERVICE_URN_LIST[$type] ? $this->serviceDomain . self::SERVICE_URN_LIST[$type] : '';
 	}
 
 	public function call($method, $fields = array())
@@ -72,7 +110,7 @@ class Transport
 			'streamTimeout' => static::STREAM_TIMEOUT,
 		));
 
-		$response = $httpClient->post(self::SERVICE_URL, $query);
+		$response = $httpClient->post($this->getServiceUrl(), $query);
 
 		return $this->prepareAnswer($response);
 	}
@@ -88,7 +126,7 @@ class Transport
 		$query = array('batch' => $query);
 
 		$httpClient = new HttpClient();
-		$response = $httpClient->post(self::SERVICE_URL, $query);
+		$response = $httpClient->post($this->getServiceUrl(), $query);
 
 		return $this->prepareAnswer($response);
 	}

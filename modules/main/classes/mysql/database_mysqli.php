@@ -46,6 +46,9 @@ class CDatabase extends CDatabaseMysql
 
 	protected function QueryInternal($strSql)
 	{
+		// back to default before PHP 8.1
+		mysqli_report(MYSQLI_REPORT_OFF);
+
 		return mysqli_query($this->db_Conn, $strSql, MYSQLI_STORE_RESULT);
 	}
 

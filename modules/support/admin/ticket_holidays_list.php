@@ -27,9 +27,9 @@ $USER_FIELD_MANAGER->AdminListAddFilterFields("SUPPORT", $arFilterFields);
 $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
-if($filter_name <> '')
+if(strlen($filter_name) > 0)
 	$arFilter["~NAME"] = "%".$filter_name."%";
-if($filter_open_time <> '')
+if(strlen($filter_open_time) > 0)
 	$arFilter["OPEN_TIME"] = $filter_open_time;
 if(is_array($filter_sla_id))
 	$arFilter["SLA_ID"] = $filter_sla_id;
@@ -50,7 +50,7 @@ if($arID = $lAdmin->GroupAction())
 
 	foreach($arID as $ID)
 	{
-		if($ID == '')
+		if(strlen($ID) <= 0)
 		{
 			continue;
 		}
@@ -204,7 +204,7 @@ $oFilter->Begin();
 		$arr = CSupportHolidays::GetOpenTimeArray();
 		foreach($arr as $v => $n)
 		{
-			$ss = mb_substr($v, 0, 3);
+			$ss = substr($v, 0, 3);
 			if($ss == "GB_")
 			{
 				echo '<optgroup label="' .  GetMessage($n) . '">';

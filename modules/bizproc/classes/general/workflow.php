@@ -8,20 +8,20 @@ class CBPWorkflow
 	private $isNew = false;
 	private $instanceId = "";
 
-	/** @var CBPRuntime|null $runtime */
-	private $runtime = null;
+	protected CBPRuntime $runtime;
+	protected CBPWorkflowPersister $persister;
 
 	/** @var CBPCompositeActivity */
-	private $rootActivity = null;
+	protected $rootActivity = null;
 
-	private $activitiesQueue = array();
-	private $eventsQueue = array();
+	protected $activitiesQueue = array();
+	protected $eventsQueue = array();
 
 	private $activitiesNamesMap = array();
 
 	/************************  PROPERTIES  *******************************/
 
-	public function GetInstanceId()
+	public function getInstanceId()
 	{
 		return $this->instanceId;
 	}
@@ -39,7 +39,7 @@ class CBPWorkflow
 		return $this->rootActivity->GetWorkflowStatus();
 	}
 
-	private function SetWorkflowStatus($newStatus)
+	protected function setWorkflowStatus($newStatus)
 	{
 		$this->rootActivity->SetWorkflowStatus($newStatus);
 		$this->GetRuntime()->onWorkflowStatusChanged($this->GetInstanceId(), $newStatus);
@@ -53,6 +53,11 @@ class CBPWorkflow
 	public function GetDocumentId()
 	{
 		return $this->rootActivity->GetDocumentId();
+	}
+
+	public function getPersister(): CBPWorkflowPersister
+	{
+		return $this->persister;
 	}
 
 	/************************  CONSTRUCTORS  ****************************************************/
@@ -73,6 +78,7 @@ class CBPWorkflow
 
 		$this->instanceId = $instanceId;
 		$this->runtime = $runtime;
+		$this->persister = CBPWorkflowPersister::GetPersister();
 	}
 
 	/**
@@ -172,8 +178,7 @@ class CBPWorkflow
 				$this->SetWorkflowStatus(CBPWorkflowStatus::Suspended);
 		}
 
-		$persister = CBPWorkflowPersister::GetPersister();
-		$persister->SaveWorkflow($this->rootActivity, true);
+		$this->persister->SaveWorkflow($this->rootActivity, true);
 	}
 
 	/************************  EXECUTE WORKFLOW  ************************************************/
@@ -217,15 +222,14 @@ class CBPWorkflow
 				$this->SetWorkflowStatus(CBPWorkflowStatus::Suspended);
 		}
 
-		$persister = CBPWorkflowPersister::GetPersister();
-		$persister->SaveWorkflow($this->rootActivity, true);
+		$this->persister->SaveWorkflow($this->rootActivity, true);
 	}
 
 	/**
 	* Resume existing workflow.
 	* 
 	*/
-	public function Resume()
+	public function resume()
 	{
 		if ($this->GetWorkflowStatus() != CBPWorkflowStatus::Suspended)
 			throw new Exception("CanNotResumeInstance");
@@ -252,8 +256,7 @@ class CBPWorkflow
 				$this->SetWorkflowStatus(CBPWorkflowStatus::Suspended);
 		}
 
-		$persister = CBPWorkflowPersister::GetPersister();
-		$persister->SaveWorkflow($this->rootActivity, true);
+		$this->persister->SaveWorkflow($this->rootActivity, true);
 	}
 
 	public function isNew()
@@ -269,7 +272,7 @@ class CBPWorkflow
 	* @param mixed $eventName - Event name.
 	* @param mixed $arEventParameters - Event parameters.
 	*/
-	public function SendExternalEvent($eventName, $arEventParameters = array())
+	public function sendExternalEvent($eventName, $arEventParameters = array())
 	{
 		$this->AddEventToQueue($eventName, $arEventParameters);
 		$this->Resume();
@@ -406,9 +409,6 @@ class CBPWorkflow
 
 	public function FaultActivity(CBPActivity $activity, Exception $e, $arEventParameters = array())
 	{
-		if ($activity == null)
-			throw new Exception("activity");
-
 		if ($activity->executionStatus == CBPActivityExecutionStatus::Closed)
 		{
 			if ($activity->parent == null)
@@ -430,28 +430,41 @@ class CBPWorkflow
 		array_push($this->activitiesQueue, $item);
 	}
 
-	private function RunQueue()
+	protected function runQueue()
 	{
-		while (true)
+		$canRun = $this->runStep();
+
+		while ($canRun)
 		{
-			$this->ProcessQueuedEvents();
+			$canRun = $this->runStep();
+		}
+	}
 
-			$item = array_shift($this->activitiesQueue);
-			if ($item == null)
-				return;
+	protected function runStep(): bool
+	{
+		$this->ProcessQueuedEvents();
 
-			try
+		$item = array_shift($this->activitiesQueue);
+		if ($item === null)
+		{
+			return false;
+		}
+
+		try
+		{
+			$this->RunQueuedItem($item[0], $item[1], (count($item) > 2 ? $item[2] : null));
+		}
+		catch (Exception $e)
+		{
+			$this->FaultActivity($item[0], $e);
+
+			if ($this->GetWorkflowStatus() == CBPWorkflowStatus::Terminated)
 			{
-				$this->RunQueuedItem($item[0], $item[1], (count($item) > 2 ? $item[2] : null));
-			}
-			catch (Exception $e)
-			{
-				$this->FaultActivity($item[0], $e);
-
-				if ($this->GetWorkflowStatus() == CBPWorkflowStatus::Terminated)
-					return;
+				return false;
 			}
 		}
+
+		return true;
 	}
 
 	private function RunQueuedItem(CBPActivity $activity, $activityOperation, Exception $exception = null)
@@ -554,8 +567,7 @@ class CBPWorkflow
 
 		$this->SetWorkflowStatus(CBPWorkflowStatus::Terminated);
 
-		$persister = CBPWorkflowPersister::GetPersister();
-		$persister->SaveWorkflow($this->rootActivity, true);
+		$this->persister->SaveWorkflow($this->rootActivity, true);
 
 		/** @var CBPStateService $stateService */
 		$stateService = $this->GetService("StateService");
@@ -622,15 +634,24 @@ class CBPWorkflow
 		}
 	}
 
-	private function ProcessQueuedEvent($eventName, $arEventParameters = array())
+	private function ProcessQueuedEvent($eventName, $eventParameters = [])
 	{
 		if (!array_key_exists($eventName, $this->rootActivity->arEventsMap))
 			return;
 
 		foreach ($this->rootActivity->arEventsMap[$eventName] as $eventHandler)
 		{
-			if (is_a($eventHandler, "IBPActivityExternalEventListener"))
-				$eventHandler->OnExternalEvent($arEventParameters);
+			if (!empty($eventParameters['DebugEvent']) && $eventHandler instanceof IBPActivityDebugEventListener)
+			{
+				$eventHandler->onDebugEvent($eventParameters);
+
+				continue;
+			}
+
+			if ($eventHandler instanceof IBPActivityExternalEventListener)
+			{
+				$eventHandler->OnExternalEvent($eventParameters);
+			}
 		}
 	}
 
@@ -640,7 +661,7 @@ class CBPWorkflow
 	* @param mixed $eventName - Event name.
 	* @param IBPActivityExternalEventListener $eventHandler - Event handler.
 	*/
-	public function AddEventHandler($eventName, IBPActivityExternalEventListener $eventHandler)
+	public function addEventHandler($eventName, IBPActivityExternalEventListener $eventHandler)
 	{
 		if (!is_array($this->rootActivity->arEventsMap))
 			$this->rootActivity->arEventsMap = array();
@@ -651,13 +672,18 @@ class CBPWorkflow
 		$this->rootActivity->arEventsMap[$eventName][] = $eventHandler;
 	}
 
+	public function getEventsMap(): array
+	{
+		return is_array($this->rootActivity->arEventsMap) ? $this->rootActivity->arEventsMap : [];
+	}
+
 	/**
 	* Remove the event handler from the specified event.
 	* 
 	* @param mixed $eventName - Event name.
 	* @param IBPActivityExternalEventListener $eventHandler - Event handler.
 	*/
-	public function RemoveEventHandler($eventName, IBPActivityExternalEventListener $eventHandler)
+	public function removeEventHandler($eventName, IBPActivityExternalEventListener $eventHandler)
 	{
 		if (!is_array($this->rootActivity->arEventsMap))
 			$this->rootActivity->arEventsMap = array();
@@ -687,4 +713,8 @@ class CBPWorkflow
 		return $this->rootActivity->GetAvailableStateEvents();
 	}
 
+	public function isDebug(): bool
+	{
+		return false;
+	}
 }

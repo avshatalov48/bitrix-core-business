@@ -169,6 +169,7 @@ $urlLandingAdd = str_replace(['#site_show#', '#landing_edit#'], [$siteId, 0], $a
 $urlFolderAdd = str_replace(['#site_show#', '#landing_edit#'], [$siteId, 0], $arParams['~PARAMS']['sef_url']['site_show'] ?? '');
 $urlLandingAdd = $component->getPageParam($urlLandingAdd, ['folderId' => $folderId]);
 $urlFolderAdd = $component->getPageParam($urlFolderAdd, ['folderId' => $folderId, 'folderNew' => 'Y']);
+$urlFormAdd = '/crm/webform/edit/0/';
 
 if ($formEditor)
 {
@@ -176,6 +177,7 @@ if ($formEditor)
 	Extension::load([
 		'landing.ui.panel.formsettingspanel',
 		'crm.form.embed',
+		'landing.form.share-popup',
 	]);
 }
 
@@ -271,28 +273,19 @@ if (!$request->offsetExists('landing_mode')):
 		<!-- endregion -->
 
 		<!-- region landing.selector -->
-		<?if (!$formEditor):?>
-			<div class="landing-ui-panel-top-selector">
-				<?$APPLICATION->includeComponent('bitrix:landing.selector', '', [
-					'TYPE' => $arParams['TYPE'],
-					'SITE_ID' => $siteId,
-					'FOLDER_ID' => $folderId,
-					'LANDING_ID' => $arResult['LANDING']->getId(),
-					'INPUT_VALUE' => $arResult['LANDING']->getTitle(),
-					'PAGE_URL_LANDING_VIEW' => $arParams['~PARAMS']['sef_url']['landing_view'] ?? '',
-					'PAGE_URL_LANDING_ADD' => $urlLandingAdd,
-					'PAGE_URL_FOLDER_ADD' => $urlFolderAdd
-				]);?>
-			</div>
-		<?else:?>
-			<div class="landing-ui-panel-top-form-name">
-				<span
-					class="landing-ui-panel-top-form-name-inner"
-					title="<?=htmlspecialcharsbx($arResult['FORM_NAME'])?>"><?php
-						echo htmlspecialcharsbx($arResult['FORM_NAME']);
-				?></span>
-			</div>
-		<?endif;?>
+		<div class="landing-ui-panel-top-selector">
+			<?$APPLICATION->includeComponent('bitrix:landing.selector', '', [
+				'TYPE' => $arParams['TYPE'],
+				'SITE_ID' => $siteId,
+				'FOLDER_ID' => $folderId,
+				'LANDING_ID' => $arResult['LANDING']->getId(),
+				'INPUT_VALUE' => $arResult['LANDING']->getTitle(),
+				'PAGE_URL_LANDING_VIEW' => $arParams['~PARAMS']['sef_url']['landing_view'] ?? '',
+				'PAGE_URL_LANDING_ADD' => !$formEditor ? $urlLandingAdd : '',
+				'PAGE_URL_FOLDER_ADD' => !$formEditor ? $urlFolderAdd : '',
+				'PAGE_URL_FORM_ADD' => $formEditor ? $urlFormAdd : '',
+			]);?>
+		</div>
 		<!--  endregion -->
 
 		<?
@@ -347,15 +340,13 @@ if (!$request->offsetExists('landing_mode')):
 		<div class="landing-ui-panel-top-menu" id="landing-panel-settings">
 			<?if ($arParams['DRAFT_MODE'] != 'Y'):?>
 			<?if ($formEditor):?>
-				<span class="ui-btn ui-btn-light-border landing-ui-panel-top-menu-link landing-btn-menu landing-ui-panel-top-menu-link-settings"><?=
-					Loc::getMessage('LANDING_FORM_EDITOR_TOP_PANEL_SETTINGS');
-				?></span>
+				<span class="ui-btn ui-btn-light-border landing-ui-panel-top-menu-link landing-btn-menu ui-btn-icon-setting landing-ui-panel-top-menu-link-settings" title="<?=Loc::getMessage('LANDING_FORM_EDITOR_TOP_PANEL_SETTINGS')?>"></span>
 			<?endif;?>
 			<a href="<?= $urls['preview']->getUri();?>" <?
 				?>id="landing-popup-preview-btn" <?
 				?>data-domain="<?= $site['DOMAIN_NAME']?>" <?
 				?>class="ui-btn ui-btn-light-border landing-ui-panel-top-menu-link landing-btn-menu">
-				<?= Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN');?>
+				<?= $formEditor ? Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN_FORM') : Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN');?>
 			</a>
 
 				<?if (!$formEditor):?>

@@ -1,4 +1,4 @@
-;(function ()
+;(function ($)
 {
 	"use strict";
 
@@ -26,6 +26,7 @@
 		var sliders = [].slice.call(event.block.querySelectorAll(relativeSelector));
 		sliders.forEach(function (sliderNode)
 		{
+			BX.Landing.SliderHelper.applySettings(sliderNode, event.data);
 			if (
 				BX.Landing.SliderHelper.isSliderActive(sliderNode)
 				&& action === BX.Landing.SliderHelper.ACTION_UPDATE
@@ -356,4 +357,175 @@
 	{
 		return !!BX.Landing.SliderHelper.editorEnableFlag;
 	}
-})();
+
+	BX.Landing.SliderHelper.applySettings = function(sliderNode, data) {
+		BX.Landing.SliderHelper.setAutoplay(sliderNode);
+		BX.Landing.SliderHelper.setAutoplaySpeed(sliderNode);
+		BX.Landing.SliderHelper.setPauseOnHover(sliderNode);
+		BX.Landing.SliderHelper.setAnimation(sliderNode);
+		BX.Landing.SliderHelper.setAmountSlidesShow(sliderNode);
+		BX.Landing.SliderHelper.setArrows(sliderNode);
+		BX.Landing.SliderHelper.setDotsVisible(sliderNode);
+	}
+
+	//autoplay settings
+	BX.Landing.SliderHelper.setAutoplay = function(sliderNode) {
+		if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-autoplay') === 0)
+		{
+			BX.Dom.attr(sliderNode, 'data-autoplay', false);
+		}
+		if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-autoplay') === 1)
+		{
+			BX.Dom.attr(sliderNode, 'data-autoplay', true);
+		}
+	}
+
+	//autoplay speed settings
+	BX.Landing.SliderHelper.setAutoplaySpeed = function(sliderNode) {
+		if (BX.Type.isInteger(BX.Dom.attr(sliderNode.parentNode, 'data-slider-autoplay-speed')))
+		{
+			BX.Dom.attr(sliderNode, 'data-speed', BX.Dom.attr(sliderNode.parentNode, 'data-slider-autoplay-speed'));
+		}
+	}
+
+	//dots setting
+	BX.Landing.SliderHelper.setDotsVisible = function(sliderNode) {
+		var dataSlickAttr = BX.Dom.attr(sliderNode, 'data-slick');
+		if (!BX.Type.isObject(dataSlickAttr))
+		{
+			dataSlickAttr = {};
+		}
+		if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-dots') === 0)
+		{
+			dataSlickAttr.dots = false;
+			BX.Dom.attr(sliderNode, 'data-slick', dataSlickAttr);
+		}
+		if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-dots') === 1)
+		{
+			dataSlickAttr.dots = true;
+			BX.Dom.attr(sliderNode, 'data-slick', dataSlickAttr);
+		}
+	}
+
+	//pause on hover setting
+	BX.Landing.SliderHelper.setPauseOnHover = function(sliderNode) {
+		if (BX.Type.isBoolean(BX.Dom.attr(sliderNode.parentNode, 'data-slider-pause-hover')))
+		{
+			BX.Dom.attr(sliderNode, 'data-pause-hover', BX.Dom.attr(sliderNode.parentNode, 'data-slider-pause-hover'));
+		}
+	}
+
+	//amount slides show setting
+	BX.Landing.SliderHelper.setAmountSlidesShow = function(sliderNode) {
+		if (BX.Type.isInteger(BX.Dom.attr(sliderNode.parentNode, 'data-slider-slides-show')))
+		{
+			BX.Dom.attr(sliderNode, 'data-slides-show', BX.Dom.attr(sliderNode.parentNode, 'data-slider-slides-show'));
+		}
+	}
+
+	//arrows visible setting
+	BX.Landing.SliderHelper.setArrows = function(sliderNode) {
+		var dataSlickAttr = BX.Dom.attr(sliderNode, 'data-slick');
+		if (!BX.Type.isObject(dataSlickAttr))
+		{
+			dataSlickAttr = {};
+		}
+		if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-arrows') === 0)
+		{
+			dataSlickAttr.arrows = false;
+			BX.Dom.attr(sliderNode, 'data-slick', dataSlickAttr);
+		}
+		if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-arrows') > 0)
+		{
+			dataSlickAttr.arrows = true;
+			BX.Dom.attr(sliderNode, 'data-slick', dataSlickAttr);
+			var setClasses = [
+				//set classes, use now in slider
+				'g-color-white',
+				'g-color-gray',
+				'g-color-gray-light-v1',
+				'g-color-primary--hover',
+				'g-color-white--hover',
+				'g-bg-primary',
+				'g-bg-gray-light-v2',
+				'g-bg-gray-light-v5',
+				'g-bg-primary--hover',
+				'g-rounded-50x',
+				'g-opacity-0_8--hover',
+				//set old classes, not use now in slider
+				'g-bg-gray-light-v3',
+			];
+			var newArrowClasses = BX.Dom.attr(sliderNode, 'data-arrows-classes');
+			var newArrowClassesArr = newArrowClasses.split(' ');
+			setClasses.forEach(function(setClass) {
+				if (newArrowClassesArr.includes(setClass))
+				{
+					var index = newArrowClassesArr.indexOf(setClass);
+					newArrowClassesArr.splice(index, 1);
+				}
+			})
+
+			var addClasses = [];
+			if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-arrows') === 1)
+			{
+				addClasses = ['g-color-gray', 'g-color-white--hover', 'g-bg-gray-light-v5', 'g-bg-primary--hover'];
+			}
+			if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-arrows') === 2)
+			{
+				addClasses = ['g-color-gray', 'g-color-white--hover', 'g-bg-gray-light-v5', 'g-bg-primary--hover', 'g-rounded-50x'];
+			}
+			if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-arrows') === 3)
+			{
+				addClasses = ['g-color-white', 'g-bg-primary', 'g-opacity-0_8--hover'];
+			}
+			if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-arrows') === 4)
+			{
+				addClasses = ['g-color-white', 'g-bg-primary', 'g-opacity-0_8--hover', 'g-rounded-50x'];
+			}
+			if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-arrows') === 5)
+			{
+				addClasses = ['g-color-white', 'g-bg-gray-light-v2', 'g-bg-primary--hover'];
+			}
+			if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-arrows') === 6)
+			{
+				addClasses = ['g-color-white', 'g-bg-gray-light-v2', 'g-bg-primary--hover', 'g-rounded-50x'];
+			}
+			if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-arrows') === 7)
+			{
+				addClasses = ['g-color-gray-light-v1', 'g-color-primary--hover'];
+			}
+
+			addClasses.forEach(function(addedClass) {
+				newArrowClassesArr.push(addedClass);
+			})
+			newArrowClasses = newArrowClassesArr.join(' ');
+			BX.Dom.attr(sliderNode, 'data-arrows-classes', newArrowClasses);
+		}
+	}
+
+	//animation setting
+	BX.Landing.SliderHelper.setAnimation = function(sliderNode) {
+		var dataSlickAttr = BX.Dom.attr(sliderNode, 'data-slick');
+		if (!BX.Type.isObject(dataSlickAttr))
+		{
+			dataSlickAttr = {};
+		}
+		if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-animation') === 0)
+		{
+			dataSlickAttr.animation = 'none';
+		}
+		if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-animation') === 1)
+		{
+			dataSlickAttr.animation = 'ease';
+		}
+		if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-animation') === 2)
+		{
+			dataSlickAttr.animation = 'cubic-bezier(0.600, -0.280, 0.735, 0.045)';
+		}
+		if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-animation') === 3)
+		{
+			dataSlickAttr.animation = 'fade';
+		}
+		BX.Dom.attr(sliderNode, 'data-slick', dataSlickAttr);
+	}
+})(window.jQueryLanding || jQuery);

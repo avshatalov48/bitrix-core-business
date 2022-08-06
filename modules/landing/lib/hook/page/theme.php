@@ -106,6 +106,9 @@ class Theme extends Page
 				'main' => '#a7a7a7',
 				'base' => true,
 			],
+			'twentyFourth' => [
+				'color' => '#AD8F47',
+			],
 			'travel' => [
 				'color' => '#ee4136',
 				'main' => '#333333',
@@ -157,11 +160,15 @@ class Theme extends Page
 				'main' => '#444444',
 				'colorTitle' => '#222222',
 			],
+			'twentyThird' => [
+				'color' => '#A861AB',
+			],
 			'photography' => [
 				'color' => '#333333',
 				'main' => '#444444',
 				'colorTitle' => '#333333',
 				'base' => true,
+				'baseInSettings' => false,
 			],
 		];
 

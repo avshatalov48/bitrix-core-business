@@ -1,4 +1,4 @@
-import {Loc, Reflection, Tag} from "main.core";
+import {Loc, Reflection, Type} from "main.core";
 import {BaseCard} from "catalog.entity-card";
 import {EventEmitter} from "main.core.events";
 import {Dialog} from 'ui.entity-selector';
@@ -78,6 +78,18 @@ class DocumentCard extends BaseCard
 					{
 						slider.url = BX.Uri.addParam(slider.getUrl(), {DOCUMENT_TYPE: type});
 						slider.url = BX.Uri.removeParam(slider.url, ['firstTime']);
+
+						if (type === 'A' || type === 'S')
+						{
+							slider.requestMethod = 'post';
+							slider.requestParams = {
+								'preloadedFields': {
+									'DOCUMENT_FIELDS': this.getDocumentFieldsForTypeSwitching(),
+									'PRODUCTS': this.getProductsForTypeSwitching(),
+								}
+							};
+						}
+
 						slider.setFrameSrc();
 					}
 				},
@@ -93,6 +105,56 @@ class DocumentCard extends BaseCard
 			e.preventDefault();
 			popupMenu.show();
 		});
+	}
+
+	getDocumentFieldsForTypeSwitching()
+	{
+		const documentFields = {};
+		const editor = this.getEditorInstance();
+		if (!editor)
+		{
+			return documentFields;
+		}
+
+		const form = editor.getFormElement();
+		const formData = new FormData(form);
+		const formProps = Object.fromEntries(formData);
+
+		const fieldsToTransfer = ['TITLE', 'CURRENCY', 'TOTAL'];
+		fieldsToTransfer.forEach((field) => {
+			documentFields[field] = formProps[field] ?? '';
+		});
+
+		return documentFields;
+	}
+
+	getProductsForTypeSwitching()
+	{
+		const products = [];
+		if (!Reflection.getClass('BX.Catalog.Store.ProductList.Instance'))
+		{
+			return products;
+		}
+
+		const productFields = ['ID', 'STORE_TO', {'ELEMENT_ID': 'SKU_ID'}, 'AMOUNT', 'PURCHASING_PRICE', 'BASE_PRICE', 'BASE_PRICE_EXTRA', 'BASE_PRICE_EXTRA_RATE'];
+		BX.Catalog.Store.ProductList.Instance.getProductsFields().forEach((productRow) => {
+			let product = {};
+			productFields.forEach((field) => {
+				if (Type.isObject(field))
+				{
+					const destinationField = Object.keys(field)[0];
+					const sourceField = field[destinationField];
+					product[destinationField] = productRow[sourceField] ?? '';
+				}
+				else
+				{
+					product[field] = productRow[field] ?? '';
+				}
+			});
+			products.push(product);
+		});
+
+		return products;
 	}
 
 	openMasterSlider()
@@ -326,6 +388,13 @@ class DocumentCard extends BaseCard
 				}
 
 				event.data[0]._ajaxForms['CONDUCT'].addUrlParams({
+					documentType: this.documentType,
+				});
+			}
+
+			if (event.data[1]?.actionId === 'CANCEL_CONDUCT')
+			{
+				event.data[0]._ajaxForms['CANCEL_CONDUCT'].addUrlParams({
 					documentType: this.documentType,
 				});
 			}

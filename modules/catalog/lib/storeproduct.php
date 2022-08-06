@@ -87,7 +87,7 @@ class StoreProductTable extends ORM\Data\DataManager
 				'QUANTITY_RESERVED',
 				[
 					'title' => Loc::getMessage('STORE_PRODUCT_ENTITY_QUANTITY_RESERVED_FIELD'),
-				],
+				]
 			),
 			'STORE' => new ORM\Fields\Relations\Reference(
 				'STORE',

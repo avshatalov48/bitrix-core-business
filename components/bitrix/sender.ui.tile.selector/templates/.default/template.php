@@ -13,11 +13,12 @@
 
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
-Bitrix\Main\UI\Extension::load(
-	[
-		'ui.notification',
-	]
-);
+
+Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.notification',
+]);
+
 $getTileTemplate = function () use ($arParams)
 {
 	$inputName = $arParams['INPUT_NAME'] ?: '';

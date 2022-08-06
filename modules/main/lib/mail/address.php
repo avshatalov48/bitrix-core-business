@@ -6,6 +6,7 @@
  * @copyright 2001-2018 Bitrix
  */
 namespace Bitrix\Main\Mail;
+use Bitrix\Main\Text\Emoji;
 
 /**
  * Class Address
@@ -124,7 +125,7 @@ class Address
 	 */
 	public function getName()
 	{
-		return $this->name;
+		return Emoji::decode($this->name);
 	}
 
 	/**
@@ -135,7 +136,7 @@ class Address
 	 */
 	public function setName($name)
 	{
-		$name = trim($name, "\"\x20\t\n\r\0\x0b");
+		$name = trim($name, "\x20\t\n\r\0\x0b");
 		if ($name != '')
 		{
 			$name = str_replace(

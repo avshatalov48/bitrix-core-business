@@ -62,6 +62,12 @@ return array(
 				'name' => Loc::getMessage('LANDING_BLOCK_54_COVER_SLIDER_BGVIDEO--LANDINGBLOCKNODECARD--BTN'),
 				'type' => 'button',
 			),
+			'.landing-block-slider' => [
+				'additional' => [
+					'name' => Loc::getMessage('LANDING_BLOCK_54_COVER_SLIDER_BGVIDEO_SLIDER'),
+					'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show', 'dots'],
+				]
+			],
 		),
 	),
 	'assets' => array(

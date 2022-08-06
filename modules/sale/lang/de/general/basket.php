@@ -19,5 +19,4 @@ $MESS["BT_MOD_SALE_BASKET_ERR_FUSER_ID_ABSENT"] = "Die ID des Warenkorbnutzers i
 $MESS["SU_ANONYMOUS_USER_NAME"] = "Anonymer Nutzer";
 $MESS["SU_ANONYMOUS_USER_CREATE"] = "Fehler bei der Erstellung eines anonymen Nutzers: #ERROR#";
 $MESS["BT_STORE_WRONG_BARCODE"] = "Im Lager ##STORE_ID# wurde für das Produkt \"#PRODUCT_NAME#\" ein ungültiger Strichcode \"#BARCODE#\" angegeben.";
-$MESS["BT_SUBSCRIBE_DEDUCTION_ERROR"] = "Sie müssen die Funktion der Lagerverwaltung deaktivieren, bevor Sie Abonnements verkaufen.";
 ?>

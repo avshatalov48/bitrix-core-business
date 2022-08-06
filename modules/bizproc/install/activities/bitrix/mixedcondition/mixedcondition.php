@@ -1,6 +1,6 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -9,9 +9,6 @@ use Bitrix\Bizproc;
 
 class CBPMixedCondition extends CBPActivityCondition
 {
-	const CONDITION_JOINER_AND = 0;
-	const CONDITION_JOINER_OR = 1;
-
 	public $condition = null;
 
 	public function __construct($condition)
@@ -21,53 +18,39 @@ class CBPMixedCondition extends CBPActivityCondition
 
 	public function Evaluate(CBPActivity $ownerActivity)
 	{
-		if ($this->condition == null || !is_array($this->condition) || count($this->condition) <= 0)
+		if (!$this->isConditionGroupExist())
 		{
 			return true;
 		}
 
-		if (!is_array($this->condition[0]))
-		{
-			$this->condition = [$this->condition];
-		}
+		$this->conditionGroupToArray();
 
-		$rootActivity = $ownerActivity->GetRootActivity();
+		$rootActivity = $ownerActivity->getRootActivity();
 
-		$result = [0 => true];
-		$i = 0;
+		$items = [];
 		foreach ($this->condition as $cond)
 		{
-			$joiner = empty($cond['joiner'])? static::CONDITION_JOINER_AND : static::CONDITION_JOINER_OR;
-
 			[$property, $value] = $ownerActivity->getRuntimeProperty($cond['object'], $cond['field'], $rootActivity);
 
-			if ($property)
-			{
-				$r = $this->checkCondition(
-					$value,
-					$cond['operator'],
-					$cond['value'],
-					$rootActivity,
-					$property
-				);
-			}
-			else
-			{
-				$r = ($cond['operator'] === 'empty');
-			}
-
-			if ($joiner == static::CONDITION_JOINER_OR)
-			{
-				++$i;
-				$result[$i] = $r;
-			}
-			elseif (!$r)
-			{
-				$result[$i] = false;
-			}
+			$items[] = [
+				'joiner' => $this->getJoiner($cond),
+				'operator' => $cond['operator'],
+				'valueToCheck' => $value,
+				'fieldType' => $this->getFieldTypeObject($rootActivity, $property),
+				'value' => $property ? $rootActivity->ParseValue($cond['value'], $property['Type']) : null,
+				'fieldName' => $property['Name'] ?? $cond['field'],
+			];
 		}
-		$result = array_filter($result);
-		return sizeof($result) > 0 ? true : false;
+
+		$conditionGroup = new Bizproc\Activity\ConditionGroup([
+			'items' => $items,
+			'parameterDocumentId' => $rootActivity->getDocumentId(),
+		]);
+
+		$result = $conditionGroup->evaluate();
+		$this->writeAutomationConditionLog($items, $conditionGroup->getEvaluateResults(), $result, $ownerActivity);
+
+		return $result;
 	}
 
 	public function collectUsages(CBPActivity $ownerActivity)
@@ -90,35 +73,6 @@ class CBPMixedCondition extends CBPActivityCondition
 		}
 
 		return $usages;
-	}
-
-	/**
-	 * @param $field
-	 * @param $operation
-	 * @param $value
-	 * @param CBPActivity $rootActivity
-	 * @param array $property
-	 * @return bool
-	 */
-	private function checkCondition($field, $operation, $value, CBPActivity $rootActivity, array $property): bool
-	{
-		$condition = new Bizproc\Activity\Condition([
-			'operator' => $operation,
-			'value' => $rootActivity->ParseValue($value, $property['Type']),
-		]);
-
-		$fieldType = $rootActivity->workflow
-			->GetService('DocumentService')
-			->getFieldTypeObject($rootActivity->GetDocumentType(), $property);
-
-		if (!$fieldType)
-		{
-			$fieldType = $rootActivity->workflow
-				->GetService('DocumentService')
-				->getFieldTypeObject($rootActivity->GetDocumentType(), ['Type' => 'string']);
-		}
-
-		return $condition->checkValue($field, $fieldType, $rootActivity->GetDocumentId());
 	}
 
 	public static function GetPropertiesDialog(
@@ -323,5 +277,10 @@ class CBPMixedCondition extends CBPActivityCondition
 		}
 
 		return null;
+	}
+
+	protected function getJoiner($condition): int
+	{
+		return empty($condition['joiner']) ? static::CONDITION_JOINER_AND : static::CONDITION_JOINER_OR;
 	}
 }

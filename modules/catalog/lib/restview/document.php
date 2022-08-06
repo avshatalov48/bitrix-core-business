@@ -88,6 +88,9 @@ final class Document extends Base
 			'COMMENTARY' => [
 				'TYPE' => DataType::TYPE_CHAR,
 			],
+			'TITLE' => [
+				'TYPE' => DataType::TYPE_STRING,
+			],
 		];
 	}
 }

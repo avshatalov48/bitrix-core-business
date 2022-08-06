@@ -40,7 +40,7 @@ final class CurrentUser
 	}
 
 	/**
-	 * @return null
+	 * @return int|null
 	 */
 	public function getId()
 	{

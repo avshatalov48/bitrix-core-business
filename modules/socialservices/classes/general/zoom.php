@@ -88,18 +88,17 @@ class CSocServZoom extends CSocServAuth
 	{
 		global $APPLICATION;
 
-		CSocServAuthManager::SetUniqueKey();
 		if (defined('BX24_HOST_NAME') && IsModuleInstalled('bitrix24'))
 		{
 			$redirect_uri = static::CONTROLLER_URL . '/redirect.php';
 			$backurl = $APPLICATION->GetCurPageParam('', ['logout', 'auth_service_error', 'auth_service_id', 'backurl']);
 			$state = $this->getEntityOAuth()->GetRedirectURI() .
-				urlencode('?state=' . JWT::urlsafeB64Encode('backurl=' . $backurl . '&check_key=' . $_SESSION['UNIQUE_KEY']));
+				urlencode('?state=' . JWT::urlsafeB64Encode('backurl=' . $backurl . '&check_key=' . \CSocServAuthManager::getUniqueKey()));
 		}
 		else
 		{
 			$state = 'site_id=' . SITE_ID . '&backurl=' .
-				urlencode($APPLICATION->GetCurPageParam('check_key=' . $_SESSION['UNIQUE_KEY'], ['logout', 'auth_service_error', 'auth_service_id', 'backurl'])) .
+				urlencode($APPLICATION->GetCurPageParam('check_key=' . \CSocServAuthManager::getUniqueKey(), ['logout', 'auth_service_error', 'auth_service_id', 'backurl'])) .
 				(isset($arParams['BACKURL']) ? '&redirect_url=' . urlencode($arParams['BACKURL']) : '');
 
 			$redirect_uri = $this->getEntityOAuth()->GetRedirectURI();

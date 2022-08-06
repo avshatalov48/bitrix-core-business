@@ -824,7 +824,7 @@ return [
 			<div class="row">
 				<div class="col-md-4 col-lg-5 d-flex align-items-center g-mb-20 g-mb-0--md">
 					<div class="w-100 g-color-white mb-0 landing-block-node-copy">
-						&copy; 2021 All rights reserved.
+						&copy; 2022 All rights reserved.
 					</div>
 				</div>
 

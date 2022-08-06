@@ -1,0 +1,4 @@
+<?php
+$MESS["LANDING_DEMO_STORE_CHATS_CATALOG_FOOTER-NAME"] = "Catalog footer";
+$MESS["LANDING_DEMO_STORE_CHATS_CATALOG_FOOTER-TEXT_1"] = "Buy while it's hot!";
+$MESS["LANDING_DEMO_STORE_CHATS_CATALOG_FOOTER-TEXT_2"] = "When personal attention matters";

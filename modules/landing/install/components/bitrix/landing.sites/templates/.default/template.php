@@ -51,7 +51,7 @@ Manager::setPageView(
 	'no-all-paddings landing-tile no-background'
 );
 \Bitrix\Main\UI\Extension::load([
-	'sidepanel', 'landing_master', 'action_dialog', 'ui.buttons'
+	'sidepanel', 'landing_master', 'action_dialog', 'ui.buttons', 'ui.design-tokens'
 ]);
 \Bitrix\Main\Page\Asset::getInstance()->addCSS(
 	'/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css'
@@ -152,14 +152,8 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 
 			$menuItems = [
 			[
-				'text' => Loc::getMessage('LANDING_TPL_ACTION_EDIT_CATALOG'),
-				'href' => $arParams['~PAGE_URL_SITE_EDIT'] . '?tpl=catalog',
-				'access' => 'settings',
-				'sidepanel' => true
-			],
-			[
-				'text' => $component->getMessageType('LANDING_TPL_ACTION_EDIT'),
-				'href' => $arParams['~PAGE_URL_SITE_EDIT'],
+				'text' => $component->getMessageType('LANDING_TPL_ACTION_SETTINGS'),
+				'href' => $arParams['~PAGE_URL_SITE_SETTINGS'],
 				'access' => 'settings',
 				'sidepanel' => true
 			],
@@ -237,13 +231,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 			],
 			[
 				'text' => $component->getMessageType('LANDING_TPL_ACTION_EDIT'),
-				'href' => $arParams['~PAGE_URL_SITE_EDIT'],
-				'access' => 'settings',
-				'sidepanel' => true
-			],
-			[
-				'text' => $component->getMessageType('LANDING_TPL_ACTION_EDIT_DESIGN_2'),
-				'href' => $arParams['~PAGE_URL_SITE_DESIGN'],
+				'href' => $arParams['~PAGE_URL_SITE_SETTINGS'],
 				'access' => 'settings',
 				'sidepanel' => true
 			],

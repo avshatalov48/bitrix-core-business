@@ -63,6 +63,7 @@ class Text extends \Bitrix\Landing\Field
 		?>name="<?= \htmlspecialcharsbx(isset($params['name_format'])
 				? str_replace('#field_code#', $this->code, $params['name_format'])
 				: $this->code)?>" <?
+		?><?= (isset($params['disabled']) && $params['disabled']) ? ' disabled ' : ''?><?
 		?>value="<?= \htmlspecialcharsbx($this->value ? $this->value : $this->default)?>" <?
 		?> />
 		<?

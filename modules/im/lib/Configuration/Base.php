@@ -13,6 +13,8 @@ abstract class Base
 	/** @var string  It is used to separate semantic parts in the template*/
 	protected const SEPARATOR = '|';
 
+	protected const CHUNK_LENGTH = 1000;
+
 	/**
 	 * Get default entity settings
 	 * @return array

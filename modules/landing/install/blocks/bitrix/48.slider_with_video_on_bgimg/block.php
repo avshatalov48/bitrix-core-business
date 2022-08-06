@@ -1,5 +1,5 @@
 <section class="landing-block js-animation slideInRight landing-block-node-bgimg u-bg-overlay g-bg-img-hero g-bg-attachment-fixed g-bg-black-opacity-0_6--after g-pt-100"
-		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1900x645/img1.jpg);">
+		style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1900x645/img1.jpg);" data-slider-animation="1">
 	<div class="js-carousel container u-bg-overlay__inner g-pb-140"
 		 data-pagi-classes="u-carousel-indicators-v1--white g-absolute-centered--x g-bottom-40 text-center">
 		<div class="landing-block-node-card js-slide g-py-20">

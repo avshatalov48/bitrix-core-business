@@ -24,19 +24,39 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 			return CBPActivityExecutionStatus::Closed;
 		}
 
+		$map = [];
+		$values = [];
+
+		$visibility = $this->getVisibilityMessages($this->getDocumentType());
+
 		foreach ($variableValue as $variable => $value)
 		{
 			[$groupId, $varId] = static::getGroupIdAndIdFromSystemExpression($variable);
 			$varId = $varId ?? $variable;
 
 			$property = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getById($varId);
+			$map[$variable] =
+				$property
+				?? [
+					'Name' => $groupId . ':' . $varId,
+					'Type' => 'string',
+					'Required' => true,
+				]
+			;
 			if ($property === null)
 			{
+				$values[$variable] = $this->parseValue($value, 'string');
 				continue;
 			}
 			$property['Default'] = $this->parseValue($value, $property['Type']);
 			\Bitrix\Bizproc\Workflow\Type\GlobalVar::upsert($varId, $property);
+
+			$map[$variable]['Name'] = $visibility[$groupId][$property['Visibility']] . ': ' . $map[$variable]['Name'];
+			$map[$variable]['Required'] = true;
+			$values[$variable] = $property['Default'] ?? '[]';
 		}
+
+		$this->writeDebugInfo($this->getDebugInfo($values, $map));
 
 		return CBPActivityExecutionStatus::Closed;
 	}
@@ -215,7 +235,7 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 			$posColon = mb_strpos($fieldName, ': ');
 			if ($fieldName && $groupKey !== 'ROOT' && $posColon !== false)
 			{
-				$names = mb_split(': ', $fieldName);
+				$names = explode(': ', $fieldName);
 				$groupName = array_shift($names);
 				$fieldName = join(': ', $names);
 			}
@@ -224,7 +244,7 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 			if ($posAssignedBy !== false && !in_array($fieldName, ['ASSIGNED_BY_ID', 'ASSIGNED_BY_PRINTABLE']))
 			{
 				$groupKey = 'ASSIGNED_BY';
-				$names = mb_split(' ', $fieldName);
+				$names = explode(' ', $fieldName);
 				$groupName = array_shift($names);
 				$fieldName = join(' ', $names);
 				$fieldName = mb_ereg_replace('(', '', $fieldName);

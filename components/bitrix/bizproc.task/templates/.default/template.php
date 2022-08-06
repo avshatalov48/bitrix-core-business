@@ -1,10 +1,15 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-\Bitrix\Main\UI\Extension::load("ui.viewer");
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 \Bitrix\Main\Loader::includeModule('socialnetwork');
-CJSCore::Init(array('socnetlogdest', 'bp_user_selector'));
-\Bitrix\Main\UI\Extension::load("ui.tooltip");
+
+\Bitrix\Main\UI\Extension::load([
+	'ui.viewer',
+	'ui.tooltip',
+	'socnetlogdest',
+	'bp_user_selector',
+	'ui.design-tokens',
+]);
 
 $cmpId = RandString();
 

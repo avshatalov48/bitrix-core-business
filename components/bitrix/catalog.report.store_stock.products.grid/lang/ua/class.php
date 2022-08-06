@@ -1,2 +1,0 @@
-<?php
-$MESS["STORE_STOCK_PRODUCTS_DEFAULT_STORE_NAME"] = "Без назви";

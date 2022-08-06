@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core_events,main_core,main_popup) {
+(function (exports,ui_graph_circle,socialnetwork_common,main_popup,main_core,main_core_events,main_loader) {
 	'use strict';
 
 	var _templateObject;
@@ -27,7 +27,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showError",
 	    value: function showError(errorText) {
-	      new main_popup.Popup('sgm-error' + Math.random(), null, {
+	      new main_popup.Popup("sgm-error".concat(Math.random()), null, {
 	        autoHide: true,
 	        lightShadow: false,
 	        zIndex: 2,
@@ -77,11 +77,11 @@ this.BX = this.BX || {};
 
 	      var currentValue = this.getValue();
 	      var newValue = !currentValue;
-	      var sonetGroupMenu = BX.SocialnetworkUICommon.SonetGroupMenu.getInstance();
+	      var sonetGroupMenu = socialnetwork_common.SonetGroupMenu.getInstance();
 	      this.setValue(newValue);
 	      sonetGroupMenu.favoritesValue = newValue;
 	      sonetGroupMenu.setItemTitle(newValue);
-	      BX.SocialnetworkUICommon.setFavoritesAjax({
+	      socialnetwork_common.Common.setFavoritesAjax({
 	        groupId: this.groupId,
 	        favoritesValue: currentValue,
 	        callback: {
@@ -182,15 +182,13 @@ this.BX = this.BX || {};
 
 	      if (!!active) {
 	        node.classList.add('ui-btn-active');
-	        node.classList.remove('ui-btn-icon-follow');
-	        node.classList.add('ui-btn-icon-unfollow');
-	        node.innerHTML = main_core.Loc.getMessage('SGCSSubscribeTitleY');
+	        node.classList.remove('ui-btn-icon-unfollow');
+	        node.classList.add('ui-btn-icon-follow');
 	        this.showNotifyHint(node, main_core.Loc.getMessage('SGCSSubscribeButtonHintOn'));
 	      } else {
 	        node.classList.remove('ui-btn-active');
-	        node.classList.add('ui-btn-icon-follow');
-	        node.classList.remove('ui-btn-icon-unfollow');
-	        node.innerHTML = main_core.Loc.getMessage('SGCSSubscribeTitleN');
+	        node.classList.add('ui-btn-icon-unfollow');
+	        node.classList.remove('ui-btn-icon-follow');
 	        this.showNotifyHint(node, main_core.Loc.getMessage('SGCSSubscribeButtonHintOff'));
 	      }
 	    }
@@ -232,12 +230,212 @@ this.BX = this.BX || {};
 	  return WorkgroupCardSubscription;
 	}();
 
+	var WorkgroupCardThemePicker = /*#__PURE__*/function () {
+	  function WorkgroupCardThemePicker(params) {
+	    babelHelpers.classCallCheck(this, WorkgroupCardThemePicker);
+	    this.containerNode = params.containerNode;
+	    this.init();
+	  }
+
+	  babelHelpers.createClass(WorkgroupCardThemePicker, [{
+	    key: "init",
+	    value: function init() {
+	      var _this = this;
+
+	      if (!this.containerNode) {
+	        return;
+	      }
+
+	      var themePickerInstance = BX.Intranet.Bitrix24.ThemePicker.Singleton;
+	      var themePickerNode = this.containerNode.querySelector('.socialnetwork-group-slider-theme-btn');
+
+	      if (themePickerNode) {
+	        themePickerNode.addEventListener('click', function () {
+	          themePickerInstance.showDialog(true);
+	        });
+	      }
+
+	      main_core_events.EventEmitter.subscribe('Intranet.ThemePicker:onSave', function (event) {
+	        var _event$getData = event.getData(),
+	            _event$getData2 = babelHelpers.slicedToArray(_event$getData, 1),
+	            data = _event$getData2[0];
+
+	        if (!main_core.Type.isPlainObject(data.theme) || window === top.window) {
+	          return;
+	        }
+
+	        themePickerInstance.applyTheme(data.theme.id);
+	        themePickerInstance.saveTheme(data.theme.id);
+
+	        _this.draw(data.theme);
+	      });
+	    }
+	  }, {
+	    key: "draw",
+	    value: function draw(theme) {
+	      var themeBoxNode = this.containerNode.querySelector('.socialnetwork-group-slider-theme-box');
+
+	      if (!themeBoxNode) {
+	        return;
+	      }
+
+	      themeBoxNode.style.backgroundImage = main_core.Type.isStringFilled(theme.previewImage) ? "url('".concat(theme.previewImage, "')") : 'none';
+	      themeBoxNode.style.backgroundColor = main_core.Type.isStringFilled(theme.previewColor) ? theme.previewColor : 'transparent';
+	    }
+	  }]);
+	  return WorkgroupCardThemePicker;
+	}();
+
+	var WorkgroupCardAvatar = /*#__PURE__*/function () {
+	  function WorkgroupCardAvatar(params) {
+	    var _params$componentName, _params$signedParamet;
+
+	    babelHelpers.classCallCheck(this, WorkgroupCardAvatar);
+	    this.componentName = (_params$componentName = params.componentName) !== null && _params$componentName !== void 0 ? _params$componentName : '';
+	    this.signedParameters = (_params$signedParamet = params.signedParameters) !== null && _params$signedParamet !== void 0 ? _params$signedParamet : '';
+	    this.containerNode = params.containerNode;
+	    this.groupId = parseInt(params.groupId);
+	    this.init();
+	  }
+
+	  babelHelpers.createClass(WorkgroupCardAvatar, [{
+	    key: "init",
+	    value: function init() {
+	      var _this = this;
+
+	      if (!this.containerNode) {
+	        return;
+	      }
+
+	      var avatarEditor = new BX.AvatarEditor({
+	        enableCamera: false
+	      });
+	      var editButtonNode = this.containerNode.querySelector('.socialnetwork-group-slider-group-logo-btn');
+
+	      if (!editButtonNode) {
+	        return;
+	      }
+
+	      editButtonNode.addEventListener('click', function () {
+	        avatarEditor.show('file');
+	      });
+	      main_core_events.EventEmitter.subscribe(avatarEditor, 'onApply', function (event) {
+	        var _event$getCompatData = event.getCompatData(),
+	            _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 1),
+	            file = _event$getCompatData2[0];
+
+	        var formData = new FormData();
+
+	        if (!file.name) {
+	          file.name = 'tmp.png';
+	        }
+
+	        formData.append('newPhoto', file, file.name);
+
+	        _this.changePhoto(formData);
+	      });
+	    }
+	  }, {
+	    key: "changePhoto",
+	    value: function changePhoto(formData) {
+	      var _this2 = this;
+
+	      if (this.componentName === '') {
+	        return;
+	      }
+
+	      var loader = null;
+	      var boxNode = this.containerNode.querySelector('.socialnetwork-group-slider-group-logo-box');
+
+	      if (boxNode) {
+	        loader = this.showLoader({
+	          node: boxNode,
+	          loader: null,
+	          size: 50
+	        });
+	      }
+
+	      main_core.ajax.runComponentAction(this.componentName, 'loadPhoto', {
+	        signedParameters: this.signedParameters,
+	        mode: 'ajax',
+	        data: formData
+	      }).then(function (response) {
+	        if (main_core.Type.isPlainObject(response.data)) {
+	          if (!boxNode) {
+	            return;
+	          }
+
+	          var avatarNode = boxNode.querySelector('i');
+
+	          if (!avatarNode) {
+	            return;
+	          }
+
+	          boxNode.className = 'sonet-common-workgroup-avatar socialnetwork-group-slider-group-logo-box';
+
+	          if (main_core.Type.isStringFilled(response.data.imageSrc)) {
+	            boxNode.className += ' ui-icon ui-icon-common-user-group';
+	            avatarNode.style = "background: url('".concat(response.data.imageSrc, "') no-repeat center center; background-size: cover;");
+	          } else {
+	            avatarNode.style = 'background: none;';
+	          }
+	        }
+
+	        _this2.hideLoader({
+	          loader: loader
+	        });
+	      }, function (response) {
+	        _this2.hideLoader({
+	          loader: loader
+	        }); //			this.showErrorPopup(response["errors"][0].message);
+
+	      });
+	    }
+	  }, {
+	    key: "showLoader",
+	    value: function showLoader(params) {
+	      var loader = null;
+
+	      if (main_core.Type.isDomNode(params.node)) {
+	        if (params.loader === null) {
+	          loader = new main_loader.Loader({
+	            target: params.node,
+	            size: !main_core.Type.isUndefined(params.size) ? Number(params.size) : 40
+	          });
+	        } else {
+	          loader = params.loader;
+	        }
+
+	        loader.show();
+	      }
+
+	      return loader;
+	    }
+	  }, {
+	    key: "hideLoader",
+	    value: function hideLoader(params) {
+	      if (params.loader !== null) {
+	        params.loader.hide();
+	      }
+
+	      if (params.loader !== null) {
+	        params.loader = null;
+	      }
+	    }
+	  }]);
+	  return WorkgroupCardAvatar;
+	}();
+
 	var WorkgroupCard = /*#__PURE__*/function () {
 	  function WorkgroupCard() {
 	    babelHelpers.classCallCheck(this, WorkgroupCard);
+	    this.componentName = '';
+	    this.signedParameters = '';
 	    this.instance = null;
 	    this.currentUserId = null;
 	    this.userRole = null;
+	    this.initiatedByType = null;
+	    this.initiatedByUserId = null;
 	    this.userIsMember = null;
 	    this.userIsAutoMember = null;
 	    this.userIsScrumMaster = null;
@@ -259,12 +457,16 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(WorkgroupCard, [{
 	    key: "init",
 	    value: function init(params) {
-	      var _this = this;
+	      var _params$componentName,
+	          _params$signedParamet,
+	          _this = this;
 
 	      if (main_core.Type.isUndefined(params) || main_core.Type.isUndefined(params.groupId) || parseInt(params.groupId) <= 0) {
 	        return;
 	      }
 
+	      this.componentName = (_params$componentName = params.componentName) !== null && _params$componentName !== void 0 ? _params$componentName : '';
+	      this.signedParameters = (_params$signedParamet = params.signedParameters) !== null && _params$signedParamet !== void 0 ? _params$signedParamet : '';
 	      this.currentUserId = parseInt(params.currentUserId);
 	      this.groupId = parseInt(params.groupId);
 	      this.groupType = params.groupType;
@@ -272,6 +474,8 @@ this.BX = this.BX || {};
 	      this.isScrumProject = !!params.isScrumProject;
 	      this.isOpened = !!params.isOpened;
 	      this.userRole = params.userRole;
+	      this.initiatedByType = params.initiatedByType;
+	      this.initiatedByUserId = parseInt(params.initiatedByUserId);
 	      this.userIsMember = !!params.userIsMember;
 	      this.userIsAutoMember = !!params.userIsAutoMember;
 	      this.userIsScrumMaster = this.isScrumProject && (main_core.Type.isBoolean(params.userIsScrumMaster) ? params.userIsScrumMaster : false);
@@ -292,12 +496,21 @@ this.BX = this.BX || {};
 	        groupId: this.groupId,
 	        buttonNode: main_core.Type.isStringFilled(params.subscribeButtonNodeId) ? document.getElementById(params.subscribeButtonNodeId) : null
 	      });
+	      new WorkgroupCardThemePicker({
+	        containerNode: this.containerNode
+	      });
+	      new WorkgroupCardAvatar({
+	        componentName: this.componentName,
+	        signedParameters: this.signedParameters,
+	        containerNode: this.containerNode,
+	        groupId: this.groupId
+	      });
 
 	      if (this.containerNode && main_core.Type.isPlainObject(params.styles)) {
 	        this.styles = params.styles;
 
 	        if (main_core.Type.isPlainObject(params.styles.tags) && main_core.Type.isStringFilled(params.styles.tags.box)) {
-	          this.containerNode.querySelectorAll(".".concat(params.styles.tags.box)).forEach(function (node) {
+	          this.containerNode.querySelectorAll('[bx-tag-value]').forEach(function (node) {
 	            node.addEventListener('click', function (e) {
 	              var tagValue = e.target.getAttribute('bx-tag-value');
 
@@ -310,23 +523,20 @@ this.BX = this.BX || {};
 	          });
 	        }
 
-	        if (main_core.Type.isPlainObject(params.styles.users) && main_core.Type.isStringFilled(params.styles.users.box) && main_core.Type.isStringFilled(params.styles.users.item)) {
-	          this.containerNode.querySelectorAll(".".concat(params.styles.users.box)).forEach(function (node) {
-	            node.addEventListener('click', function (e) {
-	              var userNode = e.target;
+	        if (main_core.Type.isPlainObject(params.tasksEfficiency) && params.tasksEfficiency.available === true) {
+	          var circleNode = this.containerNode.querySelector('.socialnetwork-group-slider-efficency');
 
-	              if (!userNode.hasAttribute('bx-user-id')) {
-	                userNode = userNode.closest(".".concat(params.styles.users.item));
-	              }
+	          if (circleNode) {
+	            var circle = new ui_graph_circle.Circle(circleNode, 131, Number(params.tasksEfficiency.value), null, null);
+	            circle.show();
+	          }
+	        }
 
-	              var userId = userNode.getAttribute('bx-user-id');
+	        var efficiencyHelperNode = this.containerNode.querySelector('[data-role="efficiency-helper"]');
 
-	              if (parseInt(userId) > 0) {
-	                _this.clickUser(userId);
-	              }
-
-	              e.preventDefault();
-	            }, true);
+	        if (efficiencyHelperNode) {
+	          efficiencyHelperNode.addEventListener('click', function () {
+	            top.BX.Helper.show('redirect=detail&code=6576263');
 	          });
 	        }
 	      }
@@ -347,6 +557,8 @@ this.BX = this.BX || {};
 	            userIsAutoMember: _this.userIsAutoMember,
 	            userIsScrumMaster: _this.userIsScrumMaster,
 	            userRole: _this.userRole,
+	            initiatedByType: _this.initiatedByType,
+	            initiatedByUserId: _this.initiatedByUserId,
 	            editFeaturesAllowed: _this.editFeaturesAllowed,
 	            copyFeatureAllowed: _this.copyFeatureAllowed,
 	            isProject: _this.isProject,
@@ -379,20 +591,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "clickTag",
 	    value: function clickTag(tagValue) {
-	      if (!main_core.Type.isStringFilled(tagValue.length)) {
+	      if (!main_core.Type.isStringFilled(tagValue)) {
 	        return;
 	      }
 
 	      top.location.href = main_core.Loc.getMessage('SGCSPathToGroupTag').replace('#tag#', tagValue);
-	    }
-	  }, {
-	    key: "clickUser",
-	    value: function clickUser(userId) {
-	      if (parseInt(userId) <= 0) {
-	        return;
-	      }
-
-	      top.location.href = main_core.Loc.getMessage('SGCSPathToUserProfile').replace('#user_id#', userId);
 	    }
 	  }, {
 	    key: "onSliderMessage",
@@ -411,9 +614,11 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      if (eventData.code === 'afterEdit' && main_core.Type.isPlainObject(eventData.data.group) && parseInt(eventData.data.group.ID) === this.groupId) {
+	      if (eventData.code === 'afterJoinRequestSend' && parseInt(eventData.data.groupId) === this.groupId) {
 	        BX.SocialnetworkUICommon.reload();
-	      } else if (['afterDelete', 'afterLeave'].includes(eventData.code) && !main_core.Type.isUndefined(eventData.data.groupId) && parseInt(eventData.data.groupId) === this.groupId) {
+	      } else if (eventData.code === 'afterEdit' && main_core.Type.isPlainObject(eventData.data.group) && parseInt(eventData.data.group.ID) === this.groupId) {
+	        BX.SocialnetworkUICommon.reload();
+	      } else if (['afterDelete', 'afterLeave', 'afterIncomingRequestCancel'].includes(eventData.code) && !main_core.Type.isUndefined(eventData.data.groupId) && parseInt(eventData.data.groupId) === this.groupId) {
 	        if (window !== top.window) // frame
 	          {
 	            top.BX.SidePanel.Instance.getSliderByWindow(window).close();
@@ -428,5 +633,5 @@ this.BX = this.BX || {};
 
 	exports.WorkgroupCard = WorkgroupCard;
 
-}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX.Event,BX,BX.Main));
+}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX.UI.Graph,BX.Socialnetwork.UI,BX.Main,BX,BX.Event,BX));
 //# sourceMappingURL=script.js.map

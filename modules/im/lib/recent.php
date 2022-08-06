@@ -255,6 +255,7 @@ class Recent
 			$item = self::formatRow($row, [
 				'GENERAL_CHAT_ID' => $generalChatId,
 				'WITHOUT_COMMON_USERS' => $withoutCommonUsers,
+				'GET_ORIGINAL_TEXT' => $options['GET_ORIGINAL_TEXT']
 			]);
 			if (!$item)
 			{
@@ -273,11 +274,18 @@ class Recent
 				$result[$index] = self::jsonRow($item);
 			}
 
-			return [
+			$objectToReturn = [
 				'items' => $result,
 				'hasMorePages' => $ormParams['limit'] == $counter, // TODO remove this later
 				'hasMore' => $ormParams['limit'] == $counter
 			];
+
+			if (!isset($options['LAST_MESSAGE_DATE']))
+			{
+				$objectToReturn['birthdayList'] = \Bitrix\Im\Integration\Intranet\User::getBirthdayForToday();
+			}
+
+			return $objectToReturn;
 		}
 
 		return [
@@ -385,6 +393,7 @@ class Recent
 			'CHAT_ENTITY_DATA_2' => 'CHAT.ENTITY_DATA_2',
 			'CHAT_ENTITY_DATA_3' => 'CHAT.ENTITY_DATA_3',
 			'CHAT_DATE_CREATE' => 'CHAT.DATE_CREATE',
+			'CHAT_USER_COUNT' => 'CHAT.USER_COUNT',
 			'USER_EMAIL' => 'USER.EMAIL',
 			'USER_LAST_ACTIVITY_DATE' => 'USER.LAST_ACTIVITY_DATE',
 			'USER_IDLE' => 'STATUS.IDLE',
@@ -494,17 +503,22 @@ class Recent
 
 		if ($row['ITEM_MID'] > 0)
 		{
+			$text = str_replace("\n", " ", $row['MESSAGE_TEXT']);
+			if ($options['GET_ORIGINAL_TEXT'] === 'Y')
+			{
+				$text = Text::populateUserBbCode($text);
+			}
+			else
+			{
+				$text = Text::removeBbCodes(
+					$text,
+					$row['MESSAGE_FILE'] > 0,
+					$row['MESSAGE_ATTACH'] > 0
+				);
+			}
 			$message = [
 				'ID' => (int)$row['ITEM_MID'],
-				'TEXT' => str_replace(
-					"\n",
-					" ",
-					Text::removeBbCodes(
-						$row['MESSAGE_TEXT'],
-						$row['MESSAGE_FILE'] > 0,
-						$row['MESSAGE_ATTACH'] > 0
-					)
-				),
+				'TEXT' => $text,
 				'FILE' => $row['MESSAGE_FILE'] > 0,
 				'AUTHOR_ID' =>  (int)$row['MESSAGE_AUTHOR_ID'],
 				'ATTACH' => $row['MESSAGE_ATTACH'] > 0,
@@ -595,6 +609,13 @@ class Recent
 				$muteList = [$row['RELATION_USER_ID'] => true];
 			}
 
+			$chatOptions = \CIMChat::GetChatOptions();
+			$restrictions = $chatOptions['DEFAULT'];
+			if ($row['CHAT_ENTITY_TYPE'] && array_key_exists($row['CHAT_ENTITY_TYPE'], $chatOptions))
+			{
+				$restrictions = $chatOptions[$row['CHAT_ENTITY_TYPE']];
+			}
+
 			$item['AVATAR'] = [
 				'URL' => $avatar,
 				'COLOR' => $color
@@ -617,6 +638,8 @@ class Recent
 				'MANAGER_LIST' => $managerList,
 				'DATE_CREATE' => $row['CHAT_DATE_CREATE'],
 				'MESSAGE_TYPE' => $row["CHAT_TYPE"],
+				'USER_COUNTER' => (int)$row['CHAT_USER_COUNT'],
+				'RESTRICTIONS' => $restrictions
 			];
 			if ($row["CHAT_ENTITY_TYPE"] == 'LINES')
 			{

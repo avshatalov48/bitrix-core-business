@@ -27,6 +27,12 @@ $arParams['PAGE_URL_LANDING_EDIT'] = str_replace(
 	$arParams['PAGE_URL_LANDING_EDIT']
 );
 
+$arParams['PAGE_URL_LANDING_SETTINGS'] = str_replace(
+	array('#site_show#', '#landing_edit#'),
+	array($arResult['VARS']['site_show'], $arResult['VARS']['landing_edit']),
+	$arParams['PAGE_URL_LANDING_SETTINGS']
+);
+
 $arParams['PAGE_URL_LANDING_DESIGN'] = str_replace(
 	array('#site_show#', '#landing_edit#'),
 	array($arResult['VARS']['site_show'], $arResult['VARS']['landing_edit']),
@@ -82,6 +88,7 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 		'PAGE_URL_LANDINGS' => $arParams['PAGE_URL_SITE_SHOW'],
 		'PAGE_URL_LANDING_EDIT' => $arParams['PAGE_URL_LANDING_EDIT'],
 		'PAGE_URL_LANDING_DESIGN' => $arParams['PAGE_URL_LANDING_DESIGN'],
+		'PAGE_URL_LANDING_SETTINGS' => $arParams['PAGE_URL_LANDING_SETTINGS'],
 		'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
 		'DRAFT_MODE' => $arParams['DRAFT_MODE'],
 		'PARAMS' => $params,

@@ -2,10 +2,15 @@
 namespace Bitrix\Catalog\Url;
 
 use Bitrix\Catalog;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
 
 class ShopBuilder extends AdminPage\CatalogBuilder
 {
 	public const TYPE_ID = 'SHOP';
+
+	public const PAGE_CSV_IMPORT = 'csvImport';
 
 	protected const TYPE_WEIGHT = 300;
 
@@ -36,6 +41,58 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 		}
 
 		return false;
+	}
+
+	public function getContextMenuItems(string $pageType, array $items = [], array $options = []): ?array
+	{
+		if ($pageType !== self::PAGE_ELEMENT_LIST && $pageType !== self::PAGE_SECTION_LIST)
+		{
+			return null;
+		}
+
+		if (!Loader::includeModule('crm'))
+		{
+			return null;
+		}
+
+		$result = [];
+
+		if (!\CCrmSaleHelper::isWithOrdersMode())
+		{
+			Extension::load(['crm.config.catalog']);
+
+			$result[] = [
+				'TEXT' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_INVENTORY_MANAGEMENT_AND_PRODUCTS'),
+				'TITLE' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_INVENTORY_MANAGEMENT_AND_PRODUCTS'),
+				'ONCLICK' => "BX.Crm.Config.Catalog.Slider.open()"
+			];
+		}
+
+		if (
+			Catalog\Config\Feature::isInventoryManagementEnabled()
+			&& !Catalog\Component\UseStore::isUsed()
+		)
+		{
+			Extension::load(['catalog.store-use']);
+
+			$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.warehouse.master.clear');
+			$sliderPath = getLocalPath('components' . $sliderPath . '/slider.php');
+
+			$result[] = [
+				'TEXT' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_WAREHOUSE_Y'),
+				'TITLE' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_WAREHOUSE_Y'),
+				'ONCLICK' => "BX.Catalog.StoreUse.ProductGridMenu.openWarehousePanel('" . $sliderPath . "')"
+			];
+
+			unset($sliderPath);
+		}
+
+		if (!empty($items))
+		{
+			$result = array_merge($result, $items);
+		}
+
+		return (!empty($result) ? $result: null);
 	}
 
 	protected function initConfig(): void

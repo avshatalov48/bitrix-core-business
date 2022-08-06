@@ -29,7 +29,7 @@ CJSCore::init([
 	'landing_master', 'loader'
 ]);
 Asset::getInstance()->addJs(
-	'/bitrix/components/bitrix/landing.site_edit/templates/design/landing-forms.js'
+	'/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.js'
 );
 
 // vars
@@ -158,7 +158,10 @@ else
 										$color['base'] = true;
 									}
 									$allColors[] = $color['color'];
-									if (!isset($color['base']) || $color['base'] !== true)
+									if (
+										!isset($color['base']) || $color['base'] !== true
+										|| !LandingSiteDemoPreviewComponent::isHex($color['color'])
+									)
 									{
 										continue;
 									}

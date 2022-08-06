@@ -198,16 +198,7 @@ export class Util
 				node.classList.remove('--project');
 			}
 		});
-/*
-		const submitButtonNode = document.getElementById('sonet_group_create_popup_form_button_submit');
-		if (
-			submitButtonNode
-			&& submitButtonNode.getAttribute('bx-action-type') === 'create'
-		)
-		{
-			submitButtonNode.innerHTML = (isChecked ? Loc.getMessage('SONET_GCE_T_DO_CREATE_PROJECT') : Loc.getMessage('SONET_GCE_T_DO_CREATE'));
-		}
-*/
+
 		this.recalcNameInput();
 	}
 

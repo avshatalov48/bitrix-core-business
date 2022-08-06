@@ -17,3 +17,7 @@ DROP TABLE if exists b_bp_script_queue;
 DROP TABLE if exists b_bp_script_queue_document;
 DROP TABLE if exists b_bp_storage_activity;
 DROP TABLE if exists b_bp_global_var;
+DROP TABLE if exists b_bp_debugger_session;
+DROP TABLE if exists b_bp_debugger_session_document;
+DROP TABLE if exists b_bp_debugger_session_workflow_context;
+DROP TABLE if exists b_bp_debugger_session_template_shards;

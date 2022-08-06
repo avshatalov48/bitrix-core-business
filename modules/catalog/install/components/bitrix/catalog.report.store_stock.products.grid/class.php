@@ -156,12 +156,12 @@ class CatalogReportStoreStockProductsGridComponent extends \Bitrix\Catalog\Compo
 		$result['SHOW_NAVIGATION_PANEL'] = true;
 		$result['SHOW_PAGESIZE'] = true;
 		$result['PAGE_SIZES'] = [
-			['NAME' => 10, 'VALUE' => 10],
-			['NAME' => 20, 'VALUE' => 20],
-			['NAME' => 50, 'VALUE' => 50],
-			['NAME' => 100, 'VALUE' => 100],
-			['NAME' => 200, 'VALUE' => 200],
-			['NAME' => 500, 'VALUE' => 500],
+			['NAME' => 10, 'VALUE' => '10'],
+			['NAME' => 20, 'VALUE' => '20'],
+			['NAME' => 50, 'VALUE' => '50'],
+			['NAME' => 100, 'VALUE' => '100'],
+			['NAME' => 200, 'VALUE' => '200'],
+			['NAME' => 500, 'VALUE' => '500'],
 		];
 		$result['SHOW_ROW_CHECKBOXES'] = false;
 		$result['SHOW_CHECK_ALL_CHECKBOXES'] = false;
@@ -236,6 +236,7 @@ class CatalogReportStoreStockProductsGridComponent extends \Bitrix\Catalog\Compo
 				'MODE' => 'view',
 				'ENABLE_SEARCH' => false,
 				'ENABLE_IMAGE_CHANGE_SAVING' => false,
+				'ENABLE_IMAGE_INPUT' => false,
 				'ENABLE_INPUT_DETAIL_LINK' => true,
 				'ENABLE_EMPTY_PRODUCT_ERROR' => false,
 				'ENABLE_SKU_SELECTION' => false,

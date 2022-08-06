@@ -939,7 +939,6 @@ class CAllCatalogProduct
 		{
 			foreach (GetModuleEvents('catalog', 'OnGetOptimalPrice', true) as $arEvent)
 			{
-				$eventOnGetExists = true;
 				$mxResult = ExecuteModuleEventEx(
 					$arEvent,
 					array(
@@ -952,6 +951,11 @@ class CAllCatalogProduct
 						$arDiscountCoupons
 					)
 				);
+				if ($mxResult === null)
+				{
+					continue;
+				}
+				$eventOnGetExists = true;
 				if ($mxResult !== true)
 				{
 					self::updateUserHandlerOptimalPrice(
@@ -1268,9 +1272,6 @@ class CAllCatalogProduct
 
 	public static function GetOptimalPriceList(array $products, $arUserGroups = array(), $renewal = "N", $priceList = array(), $siteID = false, $needCoupons = true)
 	{
-		static $eventOnGetExists = null;
-		static $eventOnResultExists = null;
-
 		$needCoupons = ($needCoupons === true);
 
 		$resultList = array();
@@ -1310,6 +1311,10 @@ class CAllCatalogProduct
 								$needCoupons ? false : array()
 							)
 						);
+						if ($mxResult === null)
+						{
+							continue 2;
+						}
 						if ($mxResult !== true)
 						{
 							self::updateUserHandlerOptimalPrice(

@@ -859,6 +859,14 @@ class CIMRestService extends IRestService
 		{
 			$config['SKIP_DIALOG'] = 'Y';
 		}
+		if (isset($arParams['GET_ORIGINAL_TEXT']) && $arParams['GET_ORIGINAL_TEXT'] === 'Y')
+		{
+			$config['GET_ORIGINAL_TEXT'] = 'Y';
+		}
+		else
+		{
+			$config['GET_ORIGINAL_TEXT'] = 'N';
+		}
 
 		if (isset($arParams['LAST_MESSAGE_DATE']) && $arParams['LAST_MESSAGE_DATE'])
 		{
@@ -957,6 +965,14 @@ class CIMRestService extends IRestService
 
 	public static function departmentGet($arParams, $offset, CRestServer $server)
 	{
+		if (
+			\Bitrix\Im\User::getInstance()->isExtranet()
+			|| \Bitrix\Im\User::getInstance()->isBot()
+		)
+		{
+			throw new Bitrix\Rest\RestException("Only intranet users have access to this method.", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+		}
+
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
 		$ids = Array();
@@ -993,6 +1009,14 @@ class CIMRestService extends IRestService
 
 	public static function departmentManagersGet($arParams, $n, CRestServer $server)
 	{
+		if (
+			\Bitrix\Im\User::getInstance()->isExtranet()
+			|| \Bitrix\Im\User::getInstance()->isBot()
+		)
+		{
+			throw new Bitrix\Rest\RestException("Only intranet users have access to this method.", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+		}
+
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
 		$withUserData = $arParams['USER_DATA'] == 'Y';
@@ -1024,6 +1048,14 @@ class CIMRestService extends IRestService
 
 	public static function departmentEmployeesGet($arParams, $n, CRestServer $server)
 	{
+		if (
+			\Bitrix\Im\User::getInstance()->isExtranet()
+			|| \Bitrix\Im\User::getInstance()->isBot()
+		)
+		{
+			throw new Bitrix\Rest\RestException("Only intranet users have access to this method.", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+		}
+
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
 		$withUserData = $arParams['USER_DATA'] == 'Y';
@@ -1055,6 +1087,14 @@ class CIMRestService extends IRestService
 
 	public static function departmentColleaguesList($arParams, $offset, CRestServer $server)
 	{
+		if (
+			\Bitrix\Im\User::getInstance()->isExtranet()
+			|| \Bitrix\Im\User::getInstance()->isBot()
+		)
+		{
+			throw new Bitrix\Rest\RestException("Only intranet users have access to this method.", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+		}
+
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
 		$withUserData = $arParams['USER_DATA'] == 'Y';
@@ -1148,17 +1188,21 @@ class CIMRestService extends IRestService
 		{
 			$add['DESCRIPTION'] = $arParams['DESCRIPTION'];
 		}
-		if (isset($arParams['ENTITY_TYPE']))
+
+		if (\Bitrix\Im\User::getInstance()->isExtranet())
 		{
-			$add['ENTITY_TYPE'] = $arParams['ENTITY_TYPE'];
+			$add['USERS'] = \Bitrix\Im\Integration\Socialnetwork\Extranet::filterUserList($add['USERS']);
 		}
-		if (isset($arParams['ENTITY_ID']))
+		else
 		{
-			$add['ENTITY_ID'] = $arParams['ENTITY_ID'];
-		}
-		if (isset($arParams['OWNER_ID']))
-		{
-			$add['OWNER_ID'] = $arParams['OWNER_ID'];
+			if (isset($arParams['ENTITY_TYPE']))
+			{
+				$add['ENTITY_TYPE'] = $arParams['ENTITY_TYPE'];
+			}
+			if (isset($arParams['ENTITY_ID']))
+			{
+				$add['ENTITY_ID'] = $arParams['ENTITY_ID'];
+			}
 		}
 
 		global $USER;
@@ -1573,6 +1617,11 @@ class CIMRestService extends IRestService
 			}
 		}
 
+		if (\Bitrix\Im\User::getInstance($userId)->isExtranet())
+		{
+			$arParams['USERS'] = \Bitrix\Im\Integration\Socialnetwork\Extranet::filterUserList($arParams['USERS'], $userId);
+		}
+
 		$CIMChat = new CIMChat($userId);
 		$result = $CIMChat->AddUser($arParams['CHAT_ID'], $arParams['USERS'], $hideHistory);
 		if (!$result)
@@ -1837,7 +1886,7 @@ class CIMRestService extends IRestService
 			$arMessageFields = Array(
 				"MESSAGE_TYPE" => IM_MESSAGE_PRIVATE,
 				"FROM_USER_ID" => $arParams['FROM_USER_ID'],
-				"TO_USER_ID" => $arParams['USER_ID'],
+				"DIALOG_ID" => $arParams['USER_ID'],
 			);
 		}
 		else if (isset($arParams['CHAT_ID']))
@@ -1893,7 +1942,7 @@ class CIMRestService extends IRestService
 			$arMessageFields = Array(
 				"MESSAGE_TYPE" => IM_MESSAGE_CHAT,
 				"FROM_USER_ID" => $arParams['FROM_USER_ID'],
-				"TO_CHAT_ID" => $arParams['CHAT_ID'],
+				"DIALOG_ID" => 'chat'.$arParams['CHAT_ID'],
 			);
 		}
 		else
@@ -1979,10 +2028,15 @@ class CIMRestService extends IRestService
 			}
 		}
 
-		if (isset($arParams['SYSTEM']) && $arParams['SYSTEM'] == 'Y')
+		if (
+			isset($arParams['SYSTEM']) && $arParams['SYSTEM'] == 'Y'
+			&& $server->getAuthType() !== \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE
+			&& \Bitrix\Im\Dialog::hasAccess($arMessageFields['DIALOG_ID'])
+		)
 		{
 			$arMessageFields['SYSTEM'] = 'Y';
 		}
+
 		if (isset($arParams['URL_PREVIEW']) && $arParams['URL_PREVIEW'] == 'N')
 		{
 			$arMessageFields['URL_PREVIEW'] = 'N';

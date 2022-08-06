@@ -4,6 +4,7 @@ namespace Bitrix\Main\UI\Filter;
 
 use Bitrix\Main\Localization\Loc;
 
+Loc::loadMessages(__FILE__);
 
 class FieldAdapter
 {
@@ -91,32 +92,11 @@ class FieldAdapter
 					NumberType::SINGLE,
 					array(),
 					$sourceField["name"],
-					$sourceField["placeholder"]
+					$sourceField["placeholder"],
+					($sourceField["exclude"] ?? []),
+					($sourceField["include"] ?? []),
+					($sourceField["messages"] ?? [])
 				);
-
-				$subTypes = array();
-				$subType = is_array($field["SUB_TYPE"]) ? $field["SUB_TYPE"]["VALUE"] : $field["SUB_TYPE"];
-				$dateTypesList = NumberType::getList();
-
-				foreach ($dateTypesList as $key => $type)
-				{
-					$subTypes[] = array(
-						"NAME" => Loc::getMessage("MAIN_UI_FILTER__NUMBER_".$key),
-						"PLACEHOLDER" => "",
-						"VALUE" => $type
-					);
-
-					if ($type === $subType)
-					{
-						$field["SUB_TYPE"] = array(
-							"NAME" => Loc::getMessage("MAIN_UI_FILTER__NUMBER_".$key),
-							"PLACEHOLDER" => "",
-							"VALUE" => $subType
-						);
-					}
-				}
-
-				$field["SUB_TYPES"] = $subTypes;
 
 				break;
 

@@ -2943,6 +2943,29 @@ return [
 			'display', 'background-attachment', 'background-size', 'height-vh',
 			'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top', 'background-overlay',
 		],
+		'block-default-background' => [
+			'display',
+			'background',
+			'background-attachment',
+			'background-size',
+			'padding-top',
+			'padding-bottom',
+			'padding-left',
+			'padding-right',
+			'margin-top',
+		],
+		'block-default-background-height-vh' => [
+			'display',
+			'background',
+			'background-attachment',
+			'background-size',
+			'height-vh',
+			'padding-top',
+			'padding-bottom',
+			'padding-left',
+			'padding-right',
+			'margin-top',
+		],
 		'block-default-wo-background' => [
 			'display', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right', 'margin-top',
 		],
@@ -2955,7 +2978,7 @@ return [
 			'height-vh', 'animation',
 		],
 		'block-border' => [
-			'background', 'block-border-type', 'block-border-margin', 'border-radius', 'block-border-position',  /*'box-shadow',*/
+			'background', 'block-border-type', 'block-border-margin', 'border-radius', 'block-border-position'
 		],
 		'paddings' => ['padding-top', 'padding-bottom', 'padding-left', 'padding-right'],
 		'margins' => ['margin-top', 'margin-bottom', 'margin-left', 'margin-right'],

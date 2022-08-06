@@ -463,7 +463,11 @@
 					{
 						text: BX.message('BIZPROC_JS_BP_SELECTOR_EOL'),
 						value: '{=System:Eol}'
-					}
+					},
+					{
+						text: BX.message('BIZPROC_JS_BP_SELECTOR_HOST_URL'),
+						value: '{=System:HostUrl}'
+					},
 				],
 				query
 			)

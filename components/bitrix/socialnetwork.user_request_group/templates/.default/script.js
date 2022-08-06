@@ -74,7 +74,7 @@ BX.BXSURG.submitForm = function() {
 					window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', {
 						code: 'afterJoinRequestSend',
 						data: {
-							groupId: this.groupId
+							groupId: parseInt(responseData.GROUP_ID),
 						}
 					});
 				}

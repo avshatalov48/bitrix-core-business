@@ -1,135 +1,12 @@
-import {Type, Loc, Dom, ajax} from 'main.core';
-import {Popup, MenuManager} from 'main.popup'
+import {Type, Loc, ajax} from 'main.core';
+import {MenuManager} from 'main.popup'
 
 import {Waiter} from './waiter.js';
 import {SonetGroupMenu} from './sonetgroupmenu.js';
+import {RecallJoinRequest} from './recalljoinrequest.js';
 
-export class Common
+class Common
 {
-	static showRecallJoinRequestPopup(params)
-	{
-		if (
-			parseInt(params.RELATION_ID) <= 0
-			|| !Type.isStringFilled(params.URL_REJECT_OUTGOING_REQUEST)
-		)
-		{
-			return;
-		}
-
-		let recallText = Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT');
-		let recallButtonTitle = Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_BUTTON');
-
-		if (Type.isUndefined(params.SCRUM) && !!params.SCRUM)
-		{
-			recallText = Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT_SCRUM');
-			recallButtonTitle = Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_BUTTON_SCRUM');
-		}
-		else if (Type.isUndefined(params.PROJECT) && !!params.PROJECT)
-		{
-			recallText = Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TEXT_PROJECT');
-			recallButtonTitle = Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_BUTTON_PROJECT');
-		}
-		const isProject = (!Type.isUndefined(params.PROJECT) ? !!params.PROJECT : false);
-
-		const successPopup = new Popup('bx-group-join-successfull-request-popup', window, {
-			width: 420,
-			autoHide: true,
-			lightShadow: false,
-			zIndex: 1000,
-			overlay: true,
-			content: Dom.create('DIV', {
-				children: [
-					Dom.create('DIV', {
-						text: Loc.getMessage('SONET_EXT_COMMON_RECALL_JOIN_POPUP_TITLE'),
-						props: {
-							className: 'sonet-group-join-successfull-request-popup-title',
-						}
-					}),
-					Dom.create('DIV', {
-						text: recallText,
-						props: {
-							className: 'sonet-group-join-successfull-request-popup-text',
-						}
-					}),
-					Dom.create('DIV', {
-						props: {
-							className: 'sonet-ui-btn-cont sonet-ui-btn-cont-center'
-						},
-						children: [
-							Dom.create('DIV', {
-								children: [
-									Dom.create('BUTTON', {
-										props: {
-											className: 'ui-btn ui-btn-md ui-btn-danger',
-										},
-										events: {
-											click: (event) => {
-
-												const _currentTarget = event.currentTarget;
-												const errorNode = document.getElementById('bx-group-delete-request-error');
-												this.hideError(errorNode);
-												this.showButtonWait(_currentTarget);
-
-												ajax({
-													url: params.URL_REJECT_OUTGOING_REQUEST,
-													method: 'POST',
-													dataType: 'json',
-													data: {
-														action: 'reject',
-														max_count: 1,
-														checked_0: 'Y',
-														type_0: 'INVITE_GROUP',
-														id_0: params.RELATION_ID,
-														type: 'out',
-														ajax_request: 'Y',
-														sessid: Loc.getMessage('bitrix_sessid'),
-													},
-													onsuccess: (deleteResponseData) => {
-														this.hideButtonWait(_currentTarget);
-
-														if (
-															Type.isStringFilled(deleteResponseData.MESSAGE)
-															&& deleteResponseData.MESSAGE === 'SUCCESS'
-														)
-														{
-															successPopup.destroy();
-															if (Type.isStringFilled(params.URL_GROUPS_LIST))
-															{
-																top.location.href = params.URL_GROUPS_LIST;
-															}
-														}
-														else if (
-															Type.isStringFilled(deleteResponseData.MESSAGE)
-															&& deleteResponseData.MESSAGE === 'ERROR'
-															&& Type.isStringFilled(deleteResponseData.ERROR_MESSAGE)
-														)
-														{
-															this.showError(deleteResponseData.ERROR_MESSAGE, errorNode);
-														}
-													},
-													onfailure: () => {
-														this.showError(Loc.getMessage('SONET_EXT_COMMON_AJAX_ERROR'), errorNode);
-														this.hideButtonWait(_currentTarget);
-													}
-												});
-
-											},
-										},
-										text: recallButtonTitle,
-									})
-								]
-							})
-						]
-					})
-				]
-			}),
-			closeByEsc: true,
-			closeIcon: true,
-		});
-
-		successPopup.show();
-	}
-
 	static showGroupMenuPopup(params)
 	{
 		let bindElement = params.bindElement;
@@ -396,6 +273,24 @@ export class Common
 			}
 
 			if (
+				Type.isStringFilled(params.userRole)
+				&& params.userRole === Loc.getMessage('USER_TO_GROUP_ROLE_REQUEST')
+				&& params.initiatedByType === Loc.getMessage('USER_TO_GROUP_INITIATED_BY_USER')
+				&& parseInt(params.initiatedByUserId) === currentUserId
+			)
+			{
+				itemTitle = Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_DELETE_REQUEST');
+
+				menu.push({
+					text: itemTitle,
+					title: itemTitle,
+					onclick: () => {
+						this.cancelIncomingRequest(params);
+					},
+				});
+			}
+
+			if (
 				(
 					Type.isBoolean(params.perms.canLeave)
 					&& params.perms.canLeave
@@ -507,6 +402,39 @@ export class Common
 		});
 	}
 
+	static cancelIncomingRequest(params)
+	{
+		Waiter.getInstance().show();
+
+		if (
+			SonetGroupMenu.getInstance()
+			&& SonetGroupMenu.getInstance().menuPopup
+		)
+		{
+			SonetGroupMenu.getInstance().menuPopup.close();
+		}
+
+		ajax.runAction('socialnetwork.api.usertogroup.cancelIncomingRequest', {
+			data: {
+				groupId: params.groupId,
+				userId: parseInt(Loc.getMessage('USER_ID')),
+			},
+		}).then((response) => {
+			Waiter.getInstance().hide();
+
+			window.top.BX.SidePanel.Instance.postMessageAll(window, 'sonetGroupEvent', {
+				code: 'afterIncomingRequestCancel',
+				data: {
+					groupId: params.groupId,
+				}
+			});
+
+			this.reload();
+		}).catch((response) => {
+			Waiter.getInstance().hide();
+		});
+	}
+
 	static setFavoritesAjax(params)
 	{
 		ajax.runAction('socialnetwork.api.workgroup.setFavorites', {
@@ -527,72 +455,6 @@ export class Common
 				ERROR: response.errors[0].message,
 			});
 		});
-	}
-
-	static showButtonWait(buttonNode)
-	{
-		if (Type.isStringFilled(buttonNode))
-		{
-			buttonNode = document.getElementById(buttonNode);
-		}
-
-		if (!Type.isDomNode(buttonNode))
-		{
-			return;
-		}
-
-		buttonNode.classList.add('ui-btn-clock');
-		buttonNode.disabled = true;
-		buttonNode.style.cursor = 'auto';
-
-	}
-
-	static hideButtonWait(buttonNode)
-	{
-		if (Type.isStringFilled(buttonNode))
-		{
-			buttonNode = document.getElementById(buttonNode);
-		}
-
-		if (!Type.isDomNode(buttonNode))
-		{
-			return;
-		}
-
-		buttonNode.classList.remove('ui-btn-clock');
-		buttonNode.disabled = false;
-		buttonNode.style.cursor = 'cursor';
-	}
-
-	static showError(errorText, errorNode)
-	{
-		if (Type.isStringFilled(errorNode))
-		{
-			errorNode = document.getElementById(errorNode);
-		}
-
-		if (!Type.isDomNode(errorNode))
-		{
-			return;
-		}
-
-		errorNode.innerHTML = errorText;
-		errorNode.classList.remove('sonet-ui-form-error-block-invisible');
-	}
-
-	static hideError(errorNode)
-	{
-		if (Type.isStringFilled(errorNode))
-		{
-			errorNode = document.getElementById(errorNode);
-		}
-
-		if (!Type.isDomNode(errorNode))
-		{
-			return;
-		}
-
-		errorNode.classList.add('sonet-ui-form-error-block-invisible');
 	}
 
 	static reload()
@@ -686,5 +548,14 @@ export class Common
 		win.BX.Socialnetwork.UIGroupMenu.getInstance().menuPopup.close();
 	}
 
+	static showError = RecallJoinRequest.showError;
+	static hideError = RecallJoinRequest.hideError;
+	static showButtonWait = RecallJoinRequest.showButtonWait;
+	static hideButtonWait = RecallJoinRequest.hideButtonWait;
+}
+
+export {
+	Common,
+	RecallJoinRequest,
 }
 

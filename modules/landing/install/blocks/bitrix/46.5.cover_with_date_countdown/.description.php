@@ -14,13 +14,6 @@ return [
 	],
 	'cards' => [],
 	'nodes' => [
-		'.landing-block-node-bgimg' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_46.5.COVER_WITH_DATE_COUNTDOWN_NODES_LANDINGBLOCKNODEBGIMG'),
-			'type' => 'img',
-			'allowInlineEdit' => false,
-			'dimensions' => ['width' => 1920, 'height' => 1080],
-			'create2xByDefault' => false,
-		],
 		'.landing-block-node-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_46.5.COVER_WITH_DATE_COUNTDOWN_NODES_LANDINGBLOCKNODETITLE'),
 			'type' => 'text',
@@ -41,10 +34,19 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_46.5.COVER_WITH_DATE_COUNTDOWN_NODES_LANDINGBLOCKNODEDATETEXT'),
 			'type' => 'text',
 		],
+		'.landing-block-node-bgimg' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_46.5.COVER_WITH_DATE_COUNTDOWN_NODES_LANDINGBLOCKNODEBGIMG'),
+			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
+			'dimensions' => ['width' => 1920, 'height' => 1080],
+			'create2xByDefault' => false,
+			'isWrapper' => true,
+		],
 	],
 	'style' => [
 		'block' => [
-			'type' => ['block-default-background-overlay'],
+			'type' => ['block-default-background'],
 		],
 		'nodes' => [
 			'.landing-block-node-title' => [
@@ -74,10 +76,6 @@ return [
 			'.landing-block-node-date-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_46.5.COVER_WITH_DATE_COUNTDOWN_NODES_LANDINGBLOCKNODEDATETEXT'),
 				'type' => 'typo',
-			],
-			'.landing-block-node-bgimg' => [
-				'name' => Loc::getMessage('LANDING_BLOCK_46.5.COVER_WITH_DATE_COUNTDOWN_NODES_LANDINGBLOCKNODEBGIMG'),
-				'type' => 'background-attachment',
 			],
 		],
 

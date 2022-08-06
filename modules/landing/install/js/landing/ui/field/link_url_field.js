@@ -1008,9 +1008,8 @@
 				"</span>"
 			);
 
-			var placeholderRemove = placeholder
-				.querySelector("[class*=\"delete\"]");
-			bind(placeholderRemove, "click", proxy(this.onPlaceholderRemoveClick, this));
+			const placeholderRemove = placeholder.querySelector("[class*=\"delete\"]");
+			BX.Event.bind(placeholderRemove, 'click', proxy(this.onPlaceholderRemoveClick, this));
 
 			if (!isEmpty(options.image) && isString(options.image))
 			{

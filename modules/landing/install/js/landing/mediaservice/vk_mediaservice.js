@@ -11,7 +11,8 @@
 		BX.Landing.MediaService.BaseMediaService.apply(this, arguments);
 		this.matcher = BX.Landing.Utils.Matchers.vk;
 		this.isDataLoaded = false;
-		this.loadEmbedInfo().then(res => {
+		this.embedInfoLoader = this.loadEmbedInfo();
+		this.embedInfoLoader.then(res => {
 			this.isDataLoaded = true;
 			BX.onCustomEvent(this, 'onDataLoaded');
 		});
@@ -148,6 +149,23 @@
 				const videoId = embedUrl.match(BX.Landing.Utils.Matchers.youtube)[4];
 				this.url = 'https://www.youtube.com/watch?v=' + videoId;
 			}
+		},
+
+		/**
+		 * Vk links has no preview image - add from embed info
+		 * @return {Promise<Object, Object>}
+		 */
+		getURLPreview: function()
+		{
+			return this.embedInfoLoader
+				.then(() =>
+				{
+					return BX.Landing.Utils.getURLPreview(this.url);
+				})
+				.then(res => {
+					res.IMAGE = this.embedInfo.preview;
+					return res;
+				});
 		},
 	};
 })();

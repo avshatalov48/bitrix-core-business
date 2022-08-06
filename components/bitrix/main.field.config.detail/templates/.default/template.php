@@ -13,7 +13,8 @@ use Bitrix\Main\Localization\Loc;
 	'ui.userfield',
 	'ui.buttons',
 	'ui.alerts',
-    'date',
+	'date',
+	'ui.design-tokens',
 ]);
 
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/main/dd.js');

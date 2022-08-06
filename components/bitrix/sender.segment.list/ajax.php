@@ -25,6 +25,16 @@ $actions[] = Controller\Action::create('remove')->setHandler(
 		$content->getErrorCollection()->add($entity->getErrors());
 	}
 );
+$actions[] = Controller\Action::create('copy')->setHandler(
+	function (HttpRequest $request, Controller\Response $response)
+	{
+		$entity = new Entity\Segment($request->get('id'));
+		$entity->copy();
+
+		$content = $response->initContentJson();
+		$content->getErrorCollection()->add($entity->getErrors());
+	}
+);
 $checker = CommonAjax\Checker::getModifySegmentPermissionChecker();
 
 Controller\Listener::create()->addChecker($checker)->setActions($actions)->run();

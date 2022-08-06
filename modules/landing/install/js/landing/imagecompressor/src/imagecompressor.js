@@ -6,6 +6,8 @@ import type {ImageCompressorOptions} from './types';
 
 export class ImageCompressor
 {
+	static maxOriginalPngSize = 5 * 1024 * 1024;
+
 	constructor(file, options: ImageCompressorOptions = {})
 	{
 		this.file = file;
@@ -26,12 +28,18 @@ export class ImageCompressor
 	{
 		return urlToBlob(file)
 			.then((blob) => {
-				if (
-					Type.isStringFilled(blob.type)
-					&& blob.type.includes('gif')
-				)
+				if (Type.isStringFilled(blob.type))
 				{
-					return blob;
+					if (
+						blob.type.includes('gif')
+						|| (
+							blob.type.includes('png')
+							&& blob.size < ImageCompressor.maxOriginalPngSize
+						)
+					)
+					{
+						return blob;
+					}
 				}
 
 				const compressor = new ImageCompressor(blob, options);

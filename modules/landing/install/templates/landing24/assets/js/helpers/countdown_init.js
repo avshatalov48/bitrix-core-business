@@ -1,4 +1,4 @@
-;(function ()
+;(function ($)
 {
 	"use strict";
 
@@ -68,4 +68,4 @@
 		}
 	}
 
-})();
+})(window.jQueryLanding || jQuery);

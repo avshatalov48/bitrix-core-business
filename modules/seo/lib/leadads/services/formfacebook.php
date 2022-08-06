@@ -7,6 +7,7 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Context;
 use Bitrix\Main\SystemException;
 use Bitrix\Seo\LeadAds;
+use Bitrix\Seo\Retargeting;
 use Bitrix\Seo\Retargeting\Paginator;
 use Bitrix\Seo\Retargeting\Response;
 use Bitrix\Seo\Retargeting\Services\ResponseFacebook;
@@ -176,17 +177,16 @@ class FormFacebook extends LeadAds\Form
 		}
 		$response->setId($formId);
 
-		if (!$this->subscribeAppToPageEvents())
+		$subscribeResult = $this->subscribeAppToPageEvents();
+		if (!$subscribeResult->isSuccess())
 		{
 			$response->addError(new Error('Can not subscribe App to Page events.'));
-
 			return $response;
 		}
 
 		if(!$this->registerFormWebHook($formId))
 		{
 			$response->addError(new Error('Can not register Form web hook.'));
-
 			return $response;
 		}
 
@@ -205,9 +205,9 @@ class FormFacebook extends LeadAds\Form
 		return $this->removeFormWebHook($id);
 	}
 
-	protected function subscribeAppToPageEvents(): bool
+	protected function subscribeAppToPageEvents(): Retargeting\Services\ResponseFacebook
 	{
-		$response = $this->getRequest()->send(array(
+		return $this->getRequest()->send(array(
 			'methodName' => 'leadads.event.subscribe',
 			'parameters' => [
 				'page_id' => $this->accountId,
@@ -216,8 +216,6 @@ class FormFacebook extends LeadAds\Form
 				]
 			]
 		));
-
-		return $response->isSuccess();
 	}
 
 
@@ -365,10 +363,35 @@ class FormFacebook extends LeadAds\Form
 	/**
 	 * @param string|int|mixed $formId ads-form Id.
 	 *
-	 * @return bool
+	 * @return Retargeting\Response
 	 */
-	public function register($formId) : bool
+	public function register($formId): Retargeting\Response
 	{
-		return isset($formId,$this->accountId) && $this->subscribeAppToPageEvents() && $this->registerFormWebHook($formId);
+		if (!isset($formId))
+		{
+			return (new Retargeting\Services\ResponseFacebook())
+				->addError(new Error('Facebook lead ads form register: Empty formId.'))
+			;
+		}
+		if (!isset($this->accountId))
+		{
+			return (new Retargeting\Services\ResponseFacebook())
+				->addError(new Error('Facebook lead ads form register: Empty accountId.'))
+			;
+		}
+
+		$subscribeResult = $this->subscribeAppToPageEvents();
+		if (!$subscribeResult->isSuccess())
+		{
+			return $subscribeResult;
+		}
+
+		$result = new Retargeting\Services\ResponseFacebook();
+		if (!$this->registerFormWebHook($formId))
+		{
+			$result->addError(new Error('Can not register Form web hook.'));
+		}
+
+		return $result;
 	}
 }

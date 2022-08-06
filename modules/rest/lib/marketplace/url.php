@@ -19,6 +19,7 @@ namespace Bitrix\Rest\Marketplace\Urls
 		protected $pageListAdmin = [];
 		protected $adminSectionMode = false;
 		private static $localDir = null;
+		private static array $instance = [];
 
 		private function __construct()
 		{
@@ -38,13 +39,12 @@ namespace Bitrix\Rest\Marketplace\Urls
 
 		final public static function getInstance()
 		{
-			static $instance = null;
-
-			if (null === $instance)
+			if (null === static::$instance[static::class])
 			{
-				$instance = new static();
+				static::$instance[static::class] = new static();
 			}
-			return $instance;
+
+			return static::$instance[static::class];
 		}
 
 		/**

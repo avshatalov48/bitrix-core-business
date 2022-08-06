@@ -380,10 +380,10 @@ if($USER->CanDoOperation('view_other_settings') || $USER->CanDoOperation('manage
 			"title" => GetMessage('MAIN_MENU_GEOIP_HANDLERS'),
 		);
 		$settingsItems[] = array(
-			"text" => GetMessage('MAIN_MENU_USER_CONSENT'),
+			"text" => GetMessage('MAIN_MENU_USER_CONSENT_1'),
 			"url" => "agreement_admin.php?lang=".LANGUAGE_ID,
 			"more_url" => array("agreement_edit.php", "agreement_consents.php"),
-			"title" => GetMessage('MAIN_MENU_USER_CONSENT'),
+			"title" => GetMessage('MAIN_MENU_USER_CONSENT_1'),
 		);
 	}
 

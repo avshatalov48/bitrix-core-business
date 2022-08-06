@@ -33,7 +33,8 @@
 
 .catalog-document-product-list-result-grid-total-big .catalog-document-product-list-result-grid-item-currency-symbol {
 	color: rgba(82,92,105,.5);
-	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .catalog-document-product-list-page-content {
@@ -82,7 +83,8 @@
 }
 
 .catalog-document-product-list-result-grid-total-big {
-	font-family: "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 21px;
 	color: #525c69;
 	padding-top: 10px;

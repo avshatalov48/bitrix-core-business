@@ -1448,7 +1448,7 @@ export class Editor
 			const productData = [];
 
 			this.products.forEach((item) => {
-				const itemFields = item.getFields();
+				const itemFields = item.getFields(Editor.#getAjaxFields());
 
 				if (!/^[0-9]+$/.test(itemFields['ID']))
 				{
@@ -1464,6 +1464,23 @@ export class Editor
 		}
 
 		return productDataValue;
+	}
+
+	static #getAjaxFields(): []
+	{
+		return [
+			'ID',
+			'SKU_ID',
+			'AMOUNT',
+			'PURCHASING_PRICE',
+			'BASE_PRICE',
+			'BASE_PRICE_EXTRA',
+			'BASE_PRICE_EXTRA_RATE',
+			'DOC_BARCODE',
+			'BARCODE',
+			'STORE_TO',
+			'STORE_FROM',
+		];
 	}
 
 	/* actions */

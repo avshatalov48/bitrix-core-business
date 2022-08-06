@@ -1,6 +1,10 @@
 this.BX = this.BX || {};
-(function (exports,main_core,main_core_events,landing_ui_form_styleform,landing_loc,landing_ui_field_colorpickerfield,landing_backend,landing_env,landing_ui_field_color,landing_pageobject) {
+(function (exports,main_core,main_core_events,landing_ui_form_styleform,landing_loc,landing_ui_field_colorpickerfield,landing_backend,landing_env,landing_ui_field_color,landing_pageobject,landing_ui_panel_formsettingspanel) {
 	'use strict';
+
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 	var themesMap = new Map();
 	themesMap.set('business-light', {
@@ -228,10 +232,13 @@ this.BX = this.BX || {};
 	    right: false
 	  }
 	});
-	themesMap.set('pixel-dark', babelHelpers.objectSpread({}, themesMap.get('pixel-light'), {
+	themesMap.set('pixel-dark', _objectSpread(_objectSpread({}, themesMap.get('pixel-light')), {}, {
 	  theme: 'pixel-dark'
 	}));
 
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys$1(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 	/**
 	 * @memberOf BX.Landing
 	 */
@@ -247,7 +254,7 @@ this.BX = this.BX || {};
 
 	    _this.setEventNamespace('BX.Landing.FormStyleAdapter');
 
-	    _this.options = babelHelpers.objectSpread({}, options);
+	    _this.options = _objectSpread$1({}, options);
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    _this.onDebouncedFormChange = main_core.Runtime.debounce(_this.onDebouncedFormChange, 500);
 	    return _this;
@@ -256,7 +263,7 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(FormStyleAdapter, [{
 	    key: "setFormOptions",
 	    value: function setFormOptions(options) {
-	      this.cache.set('formOptions', babelHelpers.objectSpread({}, options));
+	      this.cache.set('formOptions', _objectSpread$1({}, options));
 	    }
 	  }, {
 	    key: "getFormOptions",
@@ -390,7 +397,7 @@ this.BX = this.BX || {};
 	        }
 
 	        if (main_core.Type.isPlainObject(theme.font)) {
-	          var font = babelHelpers.objectSpread({}, theme.font);
+	          var font = _objectSpread$1({}, theme.font);
 
 	          if (!main_core.Type.isStringFilled(font.family)) {
 	            font.family = landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FONT_DEFAULT');
@@ -598,7 +605,7 @@ this.BX = this.BX || {};
 	      var _this14 = this;
 
 	      return this.cache.remember('fontField', function () {
-	        var value = babelHelpers.objectSpread({}, _this14.getFormOptions().data.design.font);
+	        var value = _objectSpread$1({}, _this14.getFormOptions().data.design.font);
 
 	        if (!main_core.Type.isStringFilled(value.family)) {
 	          value.family = landing_loc.Loc.getMessage('LANDING_FORM_STYLE_ADAPTER_FONT_DEFAULT');
@@ -725,7 +732,18 @@ this.BX = this.BX || {};
 	      };
 	      var mergedOptions = main_core.Runtime.merge(currentFormOptions, designOptions);
 	      this.setFormOptions(mergedOptions);
-	      this.getCrmForm().adjust(mergedOptions.data);
+	      this.getCrmForm().design.adjust(mergedOptions.data.design);
+	      var formSettingsPanel = landing_ui_panel_formsettingspanel.FormSettingsPanel.getInstance();
+
+	      if (formSettingsPanel.isShown()) {
+	        var initialOptions = formSettingsPanel.getInitialFormOptions();
+	        var currentOptions = formSettingsPanel.getFormOptions();
+	        initialOptions.data.design = mergedOptions.data.design;
+	        formSettingsPanel.setInitialFormOptions(initialOptions);
+	        currentOptions.data.design = mergedOptions.data.design;
+	        formSettingsPanel.setFormOptions(currentOptions);
+	      }
+
 	      this.onDebouncedFormChange();
 	    } // eslint-disable-next-line class-methods-use-this
 
@@ -836,5 +854,5 @@ this.BX = this.BX || {};
 
 	exports.FormStyleAdapter = FormStyleAdapter;
 
-}((this.BX.Landing = this.BX.Landing || {}),BX,BX.Event,BX.Landing.UI.Form,BX.Landing,BX.Landing.Ui.Field,BX.Landing,BX.Landing,BX.Landing.UI.Field,BX.Landing));
+}((this.BX.Landing = this.BX.Landing || {}),BX,BX.Event,BX.Landing.UI.Form,BX.Landing,BX.Landing.Ui.Field,BX.Landing,BX.Landing,BX.Landing.UI.Field,BX.Landing,BX.Landing.UI.Panel));
 //# sourceMappingURL=formstyleadapter.bundle.js.map

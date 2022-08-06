@@ -9,6 +9,18 @@ namespace Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity;
  */
 final class RoutePoint extends RequestEntity
 {
+	/** @var int */
+	protected $id;
+
+	/** @var int */
+	protected $pointId;
+
+	/** @var int */
+	protected $visitOrder;
+
+	/** @var string */
+	protected $type;
+
 	/** @var Contact */
 	protected $contact;
 
@@ -19,11 +31,21 @@ final class RoutePoint extends RequestEntity
 	protected $skipConfirmation;
 
 	/**
-	 * @return Contact
+	 * @return int|null
 	 */
-	public function getContact()
+	public function getId(): ?int
 	{
-		return $this->contact;
+		return $this->id;
+	}
+
+	/**
+	 * @param int $id
+	 * @return RoutePoint
+	 */
+	public function setId(int $id): RoutePoint
+	{
+		$this->id = $id;
+		return $this;
 	}
 
 	/**
@@ -38,14 +60,6 @@ final class RoutePoint extends RequestEntity
 	}
 
 	/**
-	 * @return Address
-	 */
-	public function getAddress()
-	{
-		return $this->address;
-	}
-
-	/**
 	 * @param Address $address
 	 * @return RoutePoint
 	 */
@@ -57,14 +71,6 @@ final class RoutePoint extends RequestEntity
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isSkipConfirmation()
-	{
-		return $this->skipConfirmation;
-	}
-
-	/**
 	 * @param bool $skipConfirmation
 	 * @return RoutePoint
 	 */
@@ -72,6 +78,36 @@ final class RoutePoint extends RequestEntity
 	{
 		$this->skipConfirmation = $skipConfirmation;
 
+		return $this;
+	}
+
+	/**
+	 * @param int $pointId
+	 * @return RoutePoint
+	 */
+	public function setPointId(int $pointId): RoutePoint
+	{
+		$this->pointId = $pointId;
+		return $this;
+	}
+
+	/**
+	 * @param int $visitOrder
+	 * @return RoutePoint
+	 */
+	public function setVisitOrder(int $visitOrder): RoutePoint
+	{
+		$this->visitOrder = $visitOrder;
+		return $this;
+	}
+
+	/**
+	 * @param string $type
+	 * @return RoutePoint
+	 */
+	public function setType(string $type): RoutePoint
+	{
+		$this->type = $type;
 		return $this;
 	}
 }

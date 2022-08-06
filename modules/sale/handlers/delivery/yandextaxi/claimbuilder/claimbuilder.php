@@ -17,7 +17,6 @@ use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Address;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Claim;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\Contact;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\RoutePoint;
-use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\RoutePoints;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\ShippingItem;
 use Sale\Handlers\Delivery\YandexTaxi\Api\RequestEntity\TransportClassification;
 use Sale\Handlers\Delivery\YandexTaxi\Api\Tariffs\Repository;
@@ -34,7 +33,13 @@ use Bitrix\Location\Entity\Address\Field;
  */
 final class ClaimBuilder
 {
-	public const NEED_CONTACT_TO_EVENT_CODE = 'OnDeliveryYandexTaxiNeedContactTo';
+	private const SOURCE_ROUTE_POINT_ID = 1;
+	private const SOURCE_ROUTE_POINT_VISIT_ORDER = 1;
+	private const SOURCE_ROUTE_POINT_TYPE = 'source';
+
+	private const DESTINATION_ROUTE_POINT_ID = 2;
+	private const DESTINATION_ROUTE_POINT_VISIT_ORDER = 2;
+	private const DESTINATION_ROUTE_POINT_TYPE = 'destination';
 
 	/** @var Repository */
 	protected $tariffsRepository;
@@ -133,21 +138,22 @@ final class ClaimBuilder
 		$claim
 			->setEmergencyContact($contactFrom)
 			->setClientRequirements($clientRequirements)
-			->setRoutePoints(
-				(new RoutePoints())
-					->setSource(
-						(new RoutePoint())
-							->setContact($contactFrom)
-							->setAddress($addressFrom)
-							->setSkipConfirmation(true)
-					)
-					->setDestination(
-						(new RoutePoint())
-							->setContact($contactTo)
-							->setAddress($addressTo)
-							->setSkipConfirmation(true)
-					)
-			)
+			->setRoutePoints([
+				(new RoutePoint())
+					->setPointId(self::SOURCE_ROUTE_POINT_ID)
+					->setVisitOrder(self::SOURCE_ROUTE_POINT_VISIT_ORDER)
+					->setType(self::SOURCE_ROUTE_POINT_TYPE)
+					->setContact($contactFrom)
+					->setAddress($addressFrom)
+					->setSkipConfirmation(true),
+				(new RoutePoint())
+					->setPointId(self::DESTINATION_ROUTE_POINT_ID)
+					->setVisitOrder(self::DESTINATION_ROUTE_POINT_VISIT_ORDER)
+					->setType(self::DESTINATION_ROUTE_POINT_TYPE)
+					->setContact($contactTo)
+					->setAddress($addressTo)
+					->setSkipConfirmation(true)
+			])
 			->setReferralSource(
 				$this->referralSourceBuilder->getReferralSourceValue()
 			);
@@ -190,6 +196,8 @@ final class ClaimBuilder
 					->setCostValue((string)((float)$basketItem->getPriceWithVat() * $shipmentItem->getQuantity()))
 					->setCostCurrency((string)$basketItem->getCurrency())
 					->setQuantity((int)ceil($shipmentItem->getQuantity()))
+					->setPickupPoint(self::SOURCE_ROUTE_POINT_ID)
+					->setDroppofPoint(self::DESTINATION_ROUTE_POINT_ID)
 			);
 		}
 

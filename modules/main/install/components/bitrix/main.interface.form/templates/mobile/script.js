@@ -182,9 +182,10 @@
 							m;
 						if (dateR.test(str) && (m = dateR.exec(str)) && m)
 						{
-							d.setDate(m[1]);
-							d.setMonth((m[2]-1));
+							d.setDate(1);
 							d.setFullYear(m[3])
+							d.setMonth(m[2] - 1);
+							d.setDate(m[1]);
 						}
 						if (timeR.test(str) && (m = timeR.exec(str)) && m)
 						{

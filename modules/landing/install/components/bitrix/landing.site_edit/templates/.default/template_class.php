@@ -2,8 +2,10 @@
 namespace Bitrix\Landing\Components\LandingEdit;
 
 use Bitrix\Landing\Field;
+use Bitrix\Landing\File;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Landing\Restriction;
+use Bitrix\Main\Security\Random;
 
 class Template
 {
@@ -11,244 +13,265 @@ class Template
 	 * Result of template.
 	 * @var array
 	 */
-	private $result = array();
+	private $result = [];
+
+	/**
+	 * For save originality of fields ID for any page
+	 * @var string
+	 */
+	private string $uniqueId;
 
 	/**
 	 * Constructor.
 	 * @param array $result Result of template.
 	 */
-	public function __construct($result)
+	public function __construct(array $result)
 	{
 		$this->result = $result;
+		$this->uniqueId = Random::getString(8);
 	}
 
 	/**
-	 * Display simple hook.
-	 * @param string $code Code of hook.
-	 * @return void
+	 * Get unique string, then added for all fields IDs
+	 * @return string
 	 */
-	public function showSimple($code)
+	public function getUniqueId(): string
 	{
-		$code = mb_strtoupper($code);
-		$hooks = isset($this->result['HOOKS'])
-					? $this->result['HOOKS']
-					: array();
-
-		if (isset($hooks[$code]))
-		{
-			$pageFields = $hooks[$code]->getPageFields();
-
-			?><div class="ui-checkbox-hidden-input"><?
-
-				// use-checkbox
-				if (isset($pageFields[$code . '_USE']))
-				{
-					$type = $pageFields[$code . '_USE']->getType();
-					$pageFields[$code . '_USE']->viewForm(array(
-					  	'class' => self::getCssByType($type),
-						'id' => 'checkbox-'.mb_strtolower($code) . '-use',
-						'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
-					));
-				}
-
-				?><div class="ui-checkbox-hidden-input-inner"><?
-
-				// use-label
-				if (isset($pageFields[$code . '_USE']))
-				{
-					?>
-						<label class="ui-checkbox-label" for="<?= 'checkbox-'.mb_strtolower($code) . '-use';?>">
-							<?= $pageFields[$code . '_USE']->getLabel();?>
-						</label>
-					<?
-					if ($hooks[$code]->isLocked())
-					{
-						echo Restriction\Manager::getLockIcon(
-							Restriction\Hook::getRestrictionCodeByHookCode($code),
-							['checkbox-' . mb_strtolower($code) . '-use']
-						);
-					}
-					unset($pageFields[$code . '_USE']);
-				}
-
-				// display field
-				foreach ($pageFields as $key => $field)
-				{
-					$type = $field->getType();
-					echo '<div class="ui-checkbox-hidden-input-hook">';
-					echo $field->viewForm(array(
-						'id' => 'field-'.mb_strtolower($key) . '-use',
-						'class' => self::getCssByType($type),
-						'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
-					));
-					if ($type == 'checkbox')
-					{
-						echo '<label for="field-'.mb_strtolower($key) . '-use">' .
-								$field->getLabel() .
-							'</label>';
-					}
-					if ($help  = $field->getHelpValue())
-					{
-						echo '<div class="ui-checkbox-hidden-input-hook-help">' . $help . '</div>';
-					}
-					echo '</div>';
-				}
-
-				?></div><?
-
-			?></div><?
-		}
+		return $this->uniqueId;
 	}
 
-	public function showMultiply(string $code, bool $alwaysOpen = false): void
+	/**
+	 * Build field id string with unique
+	 * @param string $code
+	 * @param bool $isUiField
+	 * @param string $prefix
+	 * @return string
+	 */
+	public function getFieldId(string $code, bool $isUiField = false, string $prefix = ''): string
 	{
-		$code = strtoupper($code);
+		if ($prefix !== '')
+		{
+			return $this->getFieldClass($code, $isUiField, $prefix) . '-' . $this->uniqueId;
+		}
+		return $this->getFieldClass($code, $isUiField) . '-' . $this->uniqueId;
+	}
+
+	/**
+	 * Build field class string (with no unification)
+	 * @param string $code
+	 * @param bool $isUiField
+	 * @param string $prefix
+	 * @return string
+	 */
+	public function getFieldClass(string $code, bool $isUiField = false, string $prefix = 'field'): string
+	{
+		return  $prefix. '-' . ($isUiField ? 'ui-' : '') . strtolower($code);
+	}
+
+	/**
+	 * Print field in new ui-form-layout format
+	 * @param Field $field
+	 * @param array $params [
+	 *  bool|string title => title for field. If true - get from field, or set your our string
+	 *  string additional => some additional params for form as is
+	 *  bool disabled => if field must be disabled
+	 *  bool needWrapper => if rtue - add .ui-form-row wrapper
+	 * ]
+	 */
+	public function showField(Field $field, array $params = []): void
+	{
+		$type = $field->getType();
+		$code = $field->getCode();
+		$additional = $params['additional'] ?? '';
+		$disabled = $params['disabled'] ?? false;
+		$needWrapper = $params['needWrapper'] ?? false;
+
+		$isTitle = (bool)$params['title'];
+		$title = $field->getLabel();
+		if (is_string($params['title']) && $params['title'])
+		{
+			$title = $params['title'];
+		}
+
+		$fieldWrapperTag = ($isTitle && $type === 'checkbox') ? 'label' : 'div';
+		$help = $field->getHelpValue();
+		$isHelpLink = $help && strpos($help, '<a href=') !== false;
+
+		?>
+		<?php if ($needWrapper): ?>
+		<div class="ui-form-row">
+		<?php endif; ?>
+ 		<?php if ($isTitle && $type !== 'checkbox'): ?>
+			<div class="ui-form-label">
+				<label class="ui-ctl-label-text" for="<?=$this->getFieldId($code)?>"><?=$title?></label>
+				<?php if ($help && !$isHelpLink): ?>
+					<span data-hint="<?= $help ?>" class="ui-hint">
+						<span class="ui-hint-icon"></span>
+					</span>
+				<?php endif; ?>
+			</div>
+		<?php elseif (!$isTitle  && $type !== 'checkbox'): ?>
+			<?php if ($help && !$isHelpLink): ?>
+				<div class="ui-form-control-label-help"><?= $help ?></div>
+			<?php endif; ?>
+		<?php endif; ?>
+
+		<<?= $fieldWrapperTag ?> class="<?= self::getCssByType($type) ?>">
+			<?php if (
+				$code === 'THEMEFONTS_CODE'
+				|| $code === 'THEMEFONTS_CODE_H'
+				|| ($type === 'select' && !$field->isMulti())
+			): ?>
+				<div class="ui-ctl-after ui-ctl-icon-angle "></div>
+			<?php endif; ?>
+			<?=$field->viewForm([
+				'id' => $this->getFieldId($code),
+				'additional' => $additional,
+				'class' => 'ui-ctl-element ui-field-'.strtolower($code),
+				'disabled' => $disabled,
+				'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
+			])?>
+			<?php if ($isTitle && $type === 'checkbox'): ?>
+				<div class="ui-ctl-label-text" for="<?=$this->getFieldId($code)?>"><?=$title?></div>
+				<?php if ($help && !$isHelpLink): ?>
+					<span data-hint="<?= $help ?>" class="ui-hint">
+						<span class="ui-hint-icon"></span>
+					</span>
+				<?php endif; ?>
+			<?php endif; ?>
+		</<?= $fieldWrapperTag ?>>
+		<?php if ($help && $isHelpLink) : ?>
+			<div class="ui-checkbox-hidden-input-hook-help"><?= $help ?></div>
+		<?php endif;?>
+		<?php if ($needWrapper): ?>
+		</div>
+		<?php endif; ?>
+		<?php
+	}
+
+	/**
+	 * @param string $code - string code of the hook
+	 * @param array $params. [
+	 *  string useTitle => title for use field
+	 * ]
+	 * @return void
+	 */
+	public function showFieldWithToggle(string $code, array $params = []): void
+	{
+		$code = mb_strtoupper($code);
 		$hooks = $this->result['HOOKS'] ?? [];
 
 		if (isset($hooks[$code]))
 		{
 			$pageFields = $hooks[$code]->getPageFields();
-			?>
+			$useField = $pageFields[$code . '_USE'];
+			// if locked - no need 'row-hidden' functionality, because it set unnecessary click handler
+			$isLocked = $hooks[$code]->isLocked();
+			$isLockedRowHide = $isLocked && $useField->getValue() !== 'Y';
+			$useTitle = true;
+			if (is_string($params['useTitle']) && $params['useTitle'])
+			{
+				$useTitle = $params['useTitle'];
+			}
+			if (is_string($params['restrictionCode']) && $params['restrictionCode'])
+			{
+				$restrictionCode = $params['restrictionCode'];
+			}
 
-			<div class="ui-checkbox-hidden-input">
-
-				<?php
-				// use-checkbox
-				if (isset($pageFields[$code . '_USE']))
-				{
-					if($alwaysOpen)
-					{
-						echo '<input type="hidden" name="fields[ADDITIONAL_FIELDS]['. $code . '_USE]" value="Y"/>';
-					}
-					else
-					{
-						$type = $pageFields[$code . '_USE']->getType();
-						$pageFields[$code . '_USE']->viewForm([
-							'class' => self::getCssByType($type),
-							'id' => 'checkbox-' . strtolower($code) . '-use',
-							'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
-						]);
-					}
-				}
+			if ($useField && $useField->getType() === 'checkbox')
+			{
 				?>
-
-				<div class="ui-checkbox-hidden-input-inner <?=($alwaysOpen ? 'opened' : '')?>">
-
-					<?php
-					if (isset($pageFields[$code . '_USE']))
-					{ ?>
-						<?php if(!$alwaysOpen): ?>
-							<label class="ui-checkbox-label" for="<?= 'checkbox-' . strtolower($code) . '-use'; ?>">
-								<?= $pageFields[$code . '_USE']->getLabel(); ?>
-							</label>
-						<?php endif; ?>
-						<?php unset($pageFields[$code . '_USE']);
-					}
-					?>
-
-					<?php foreach ($pageFields as $key => $field): ?>
-						<?php $type = $field->getType(); ?>
-						<div class="ui-checkbox-hidden-input-hook">
-							<?php if ($type !== 'checkbox'): ?>
-								<label for="field-<?=strtolower($key)?>-use"><?=$field->getLabel()?></label>
-							<?php endif; ?>
-
-							<?=$field->viewForm([
-								'id' => 'field-' . strtolower($key) . '-use',
-								'class' => self::getCssByType($type),
-								'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
-							])?>
-
-							<?php if ($type === 'checkbox'): ?>
-								<label for="field-<?=strtolower($key)?>-use"><?=$field->getLabel()?></label>
-							<?php endif; ?>
-
-							<?php if ($help = $field->getHelpValue()): ?>
-								<div class="ui-checkbox-hidden-input-hook-help"><?=$help?></div>
-							<?php endif; ?>
+				<div class="ui-form-row">
+					<div
+						class="ui-form-label<?= $isLocked ? ' ui-form-label__locked' : ''?>"
+						<?= $isLocked ? '' : 'data-form-row-hidden'?>
+					>
+						<?php
+							$this->showField($useField, [
+								'title' => $useTitle,
+								'disabled' => $isLocked
+							]);
+						?>
+						<?php
+							if ($isLocked && isset($restrictionCode))
+							{
+								echo Restriction\Manager::getLockIcon(
+									Restriction\Hook::getRestrictionCodeByHookCode($restrictionCode)
+								);
+							}
+						?>
+					</div>
+					<?php if (!$isLockedRowHide): ?>
+						<div class="<?= $isLocked ? 'ui-form-row-hidden__locked' : 'ui-form-row-hidden'?>">
+							<div class="ui-form-row">
+							<?php
+								unset($pageFields[$code . '_USE']);
+								foreach ($pageFields as $field)
+								{
+									$this->showField($field, [
+										'additional' => $hooks[$code]->isLocked() ? 'disabled' : ''
+									]);
+								}
+							?>
+							</div>
 						</div>
-					<?php endforeach; ?>
-
+					<?php endif; ?>
 				</div>
-			</div>
-			<?php
-		}
-	}
-
-	public function showField(string $code, Field $field, array $additional = [])
-	{
-		$isHidden = $additional['hidden'] ?: false;
-		// todo: add hits
-		?>
-		<div class="ui-control-wrap"<?= $isHidden ? ' hidden' : '' ?>>
-			<div class="ui-form-control-label"><?= $field->getLabel();?></div>
-			<div class="ui-form-control-field">
 				<?php
-				$field->viewForm([
-					'id' => 'field-' . strtolower($code),
-					'additional' => 'readonly',
-					'class' => self::getCssByType($field->getType()) . ' ui-field-' . strtolower($code),
-					'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]',
-				]);
-				?>
-			</div>
-		</div>
-		<?php
+			}
+		}
 	}
 
 	/**
 	 * Display picture.
-	 * @param \Bitrix\Landing\Field $field Picture field for display.
+	 * @param Field $field Picture field for display.
 	 * @param string $imgPath Path to img by default.
 	 * @param array $params Some params.
 	 * @return void
 	 */
-	public function showPictureJS(\Bitrix\Landing\Field $field, $imgPath = '', $params = array())
+	public function showPictureJS(Field $field, string $imgPath = '', array $params = []): void
 	{
-		if (!isset($params['imgId']))
-		{
-			return;
-		}
-
 		$imgId = $field->getValue();
 		$code = mb_strtolower($field->getCode());
-		$code = preg_replace('/[^a-z]+/', '', $code);
+		// $code = preg_replace('/[^a-z]+/', '', $code);
+		$codeWrapper = $code . '_form';
+		$codeEdit = (isset($params['imgEdit']) && $params['imgEdit']) ? $code . '_edit' : null;
 		?>
 		<script type="text/javascript">
 			BX.ready(function()
 			{
-				var imageFieldWrapper = BX('<?= $params['imgId']?>');
-				var imageFieldInput = BX('landing-form-<?= $code?>-input');
+				const imageFieldWrapper = BX('<?= $this->getFieldId($codeWrapper) ?>');
+				const imageFieldInput = BX('<?= $this->getFieldId($code) ?>');
 
 				if (imageFieldWrapper)
 				{
-					var imageField = new BX.Landing.UI.Field.Image({
-						id: 'page_settings_<?= $code?>',
+					const imageField = new BX.Landing.UI.Field.Image({
+						id: '<?= $this->getFieldId($code, true) ?>',
 						disableLink: true,
                         disableAltField: true,
                         allowClear: true
-						<?if ($imgId):?>
+						<?php if ($imgId):?>
 						,content: {
-							src: '<?= \CUtil::jsEscape(str_replace(' ', '%20', \htmlspecialcharsbx((int) $imgId > 0 ? \Bitrix\Landing\File::getFilePath($imgId) : $imgId)));?>',
-							id : <?= $imgId ? intval($imgId) : -1?>,
+							src: '<?= \CUtil::jsEscape(str_replace(' ', '%20', \htmlspecialcharsbx((int) $imgId > 0 ? File::getFilePath($imgId) : $imgId))) ?>',
+							id : <?= (int)$imgId ?>,
 							alt : ''
 						}
-						<?else:?>
+						<?php else:?>
 						,content: {
-							src: '<?= \CUtil::jsEscape(str_replace(' ', '%20', \htmlspecialcharsbx($imgPath)));?>',
+							src: '<?= \CUtil::jsEscape(str_replace(' ', '%20', \htmlspecialcharsbx($imgPath))) ?>',
 							id : -1,
 							alt : ''
 						}
-						<?endif;?>
-						<?if (isset($params['width']) && isset($params['height'])):?>
+						<?php endif;?>
+						<?if (isset($params['width'], $params['height'])):?>
 						,dimensions: {
-							width: <?= (int)$params['width']?>,
-							height: <?= (int)$params['height']?>
+							maxWidth: <?= (int)$params['width']?>,
+							maxHeight: <?= (int)$params['height']?>
 						}
-						<?endif;?>
-						<?if (isset($params['uploadParams']) && !empty($params['uploadParams'])):?>
-						,uploadParams: <?= \CUtil::phpToJsObject($params['uploadParams']);?>
-						<?endif;?>
+						<?php endif;?>
+						<?php if (isset($params['uploadParams']) && !empty($params['uploadParams'])):?>
+						,uploadParams: <?= \CUtil::phpToJsObject($params['uploadParams']) ?>
+						<?php endif;?>
 					});
 
 					if (imageFieldWrapper)
@@ -258,27 +281,38 @@ class Template
 						{
 							imageField.layout.addEventListener('input', function()
 							{
-								var img = imageField.getValue();
+								const img = imageField.getValue();
 								imageFieldInput.value = parseInt(img.id) > 0
 													? img.id
 													: img.src;
+								BX.onCustomEvent('BX.Landing.UI.Field.Image:onChangeImage');
 							});
 						}
-						<?if (isset($params['imgEditId'])):?>
-						BX.bind(BX('<?= $params['imgEditId']?>'), 'click', function (event)
-						{
-							imageField.onUploadClick(event);
-						});
-						<?endif;?>
+						<?php if ($codeEdit):?>
+							BX.bind(BX('<?= $this->getFieldId($codeEdit) ?>'), 'click', function (event) {
+								imageField.onUploadClick(event);
+							});
+						<?php endif;?>
 					}
+					this.image = imageField;
 				}
 			});
 		</script>
-		<?
-		$field->viewForm(array(
-			'id' => 'landing-form-' . $code . '-input',
+		<div
+			id="<?= $this->getFieldId($codeWrapper) ?>"
+			class="<?= $this->getFieldClass($codeWrapper) ?> ui-ctl-w100">
+		</div>
+		<?php if ($codeEdit):?>
+			<div
+				id="<?= $this->getFieldId($codeEdit) ?>"
+				class="landing-form-social-img-edit">
+			</div>
+		<?php endif; ?>
+		<?php
+		$field->viewForm([
+			'id' => $this->getFieldId($code),
 			'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
-		));
+		]);
 	}
 
 	/**
@@ -293,20 +327,25 @@ class Template
 		switch ($type)
 		{
 			case 'select':
-				{
-					$css = 'ui-select';
-					break;
-				}
+			{
+				$css = 'ui-ctl ui-ctl-after-icon ui-ctl-dropdown ui-ctl-w100';
+				break;
+			}
 			case 'text':
-				{
-					$css = 'ui-input';
-					break;
-				}
+			{
+				$css = 'ui-ctl ui-ctl-textbox ui-ctl-w100';
+				break;
+			}
 			case 'checkbox':
-				{
-					$css = 'ui-checkbox';
-					break;
-				}
+			{
+				$css = 'ui-ctl ui-ctl-checkbox';
+				break;
+			}
+			case 'textarea':
+			{
+				$css = 'ui-ctl ui-ctl-textarea ui-ctl-resize-x';
+				break;
+			}
 		}
 
 		return $css;

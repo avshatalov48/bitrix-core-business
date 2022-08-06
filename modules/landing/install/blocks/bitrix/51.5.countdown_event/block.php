@@ -4,7 +4,7 @@
 
 		<div class="landing-block-node-date-container g-mb-40 g-mb-70--md">
 			<div class="landing-block-node-date mx-auto js-countdown u-countdown text-center"
-				 data-end-date="1649750400000"
+				 data-end-date="1681316400000"
 				 data-days-format="%D"
 				 data-hours-format="%H"
 				 data-minutes-format="%M"
@@ -52,7 +52,7 @@
 		</div>
 
 		<h2 class="landing-block-node-title text-center text-uppercase g-font-weight-700 g-font-size-60 g-color-white g-mb-30 g-mb-70--md">
-			UI & UX Design 2021</h2>
+			UI & UX Design 2022</h2>
 
 		<div class="row">
 			<div class="col-sm-6 col-md-4 text-center text-md-left g-mb-30 g-mb-0--md">

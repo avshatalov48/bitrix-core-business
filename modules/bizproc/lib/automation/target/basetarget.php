@@ -12,6 +12,7 @@ abstract class BaseTarget
 	protected $appliedTrigger;
 	protected $documentId;
 	protected $documentType;
+	protected array $appliedTriggerConditionResults = [];
 
 	public function isAvailable()
 	{
@@ -54,6 +55,12 @@ abstract class BaseTarget
 	}
 
 	abstract public function getDocumentStatus();
+
+	public function getDocumentCategory(): int
+	{
+		return 0;
+	}
+
 	abstract public function setDocumentStatus($statusId);
 
 	abstract public function getDocumentStatusList($categoryId = 0);
@@ -268,8 +275,30 @@ abstract class BaseTarget
 		return $this;
 	}
 
+	public function getComplexDocumentId(): array
+	{
+		$type = $this->getDocumentType();
+
+		return [$type[0], $type[1], $this->getDocumentId()];
+	}
+
 	public function getTemplatesScheme(): ?TemplatesScheme
 	{
 		return null;
+	}
+
+	public function setAppliedTriggerConditionResults(array $log)
+	{
+		$this->appliedTriggerConditionResults = $log;
+	}
+
+	public function getAppliedTriggerConditionResults(): array
+	{
+		return $this->appliedTriggerConditionResults;
+	}
+
+	public function getDocumentCategoryCode(): string
+	{
+		return '';
 	}
 }

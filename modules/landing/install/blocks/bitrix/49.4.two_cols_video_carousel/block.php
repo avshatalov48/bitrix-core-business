@@ -1,10 +1,11 @@
 <section class="landing-block g-pt-30 g-pb-30">
-	<div class="container-fluid g-px-30">
+	<div class="landing-block-slider container-fluid g-px-30" data-slider-dots="0" data-slider-arrows="7" data-slider-animation="1">
 		<div class="js-carousel g-pos-rel g-mx-minus-15 row"
 			data-autoplay="false"
 			data-infinite="false"
 			data-slides-show="2"
-			data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-40 g-height-40 g-font-size-20 g-color-primary g-color-white--hover g-bg-white g-bg-primary--hover g-transition-0_2 g-transition--ease-in"
+			data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-pt-20"
+			data-arrows-classes="u-arrow-v1 g-absolute-centered--y g-width-40 g-height-40 g-font-size-20 g-transition-0_2 g-transition--ease-in g-color-gray-light-v1 g-color-primary--hover"
 			data-arrow-left-classes="fa fa-angle-left g-left-0"
 			data-arrow-right-classes="fa fa-angle-right g-right-0"
 			data-responsive='[{

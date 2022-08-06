@@ -79,4 +79,4 @@ $MESS ['IBLOCK_PROP_VIDEO_FLV_SET'] = "Настройки Flash-плеера";
 $MESS ['IBLOCK_PROP_VIDEO_WMV_SET'] = "Настройки WMV-плеера";
 $MESS ['IBLOCK_PROP_VIDEO_NO_PREVIEW'] = "Нет картинки";
 $MESS ['IBLOCK_PROP_G_MAP_API_KEY'] = "Ключ JavaScript API";
-?>
+$MESS ['IBLOCK_PROP_MAP_YANDEX_SEARCH_KEY_REQUIRED'] = "Для работы поиска по карте необходимо указать ключ для интеграции с Yandex Maps";

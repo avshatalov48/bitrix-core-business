@@ -1,14 +1,25 @@
-<?
+<?php
+
 abstract class CBPActivityCondition
 {
+	use \Bitrix\Bizproc\Debugger\Mixins\WriterDebugTrack;
+
+	public const CONDITION_JOINER_AND = 0;
+	public const CONDITION_JOINER_OR = 1;
+
+	public $condition = null;
+
 	public abstract function Evaluate(CBPActivity $ownerActivity);
 
 	public static function CreateInstance($code, $data)
 	{
 		if (preg_match("#[^a-zA-Z0-9_]#", $code))
-			throw new Exception("Activity '".$code."' is not valid");
+		{
+			throw new Exception("Activity '" . $code . "' is not valid");
+		}
 
-		$classname = 'CBP'.$code;
+		$classname = 'CBP' . $code;
+
 		return new $classname($data);
 	}
 
@@ -19,7 +30,7 @@ abstract class CBPActivityCondition
 
 	public static function ValidateProperties($value = null, CBPWorkflowTemplateUser $user = null)
 	{
-		return array();
+		return [];
 	}
 
 	public static function CallStaticMethod($code, $method, $arParameters = array())
@@ -28,10 +39,101 @@ abstract class CBPActivityCondition
 		$runtime->IncludeActivityFile($code);
 
 		if (preg_match("#[^a-zA-Z0-9_]#", $code))
-			throw new Exception("Activity '".$code."' is not valid");
+		{
+			throw new Exception("Activity '" . $code . "' is not valid");
+		}
 
 		$classname = 'CBP'.$code;
 
 		return call_user_func_array(array($classname, $method), $arParameters);
+	}
+
+	protected function getFieldTypeObject(CBPActivity $rootActivity, $property): ?\Bitrix\Bizproc\FieldType
+	{
+		$fieldType = $rootActivity->workflow
+			->GetService('DocumentService')
+			->getFieldTypeObject($rootActivity->GetDocumentType(), $property)
+		;
+
+		if (!$fieldType)
+		{
+			$fieldType = $rootActivity->workflow
+				->GetService('DocumentService')
+				->getFieldTypeObject($rootActivity->GetDocumentType(), ['Type' => 'string'])
+			;
+		}
+
+		return $fieldType;
+	}
+
+	protected function isConditionGroupExist(): bool
+	{
+		if ($this->condition == null || !is_array($this->condition) || count($this->condition) <= 0)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	protected function conditionGroupToArray()
+	{
+		if (!is_array($this->condition[0]))
+		{
+			$this->condition = [$this->condition];
+		}
+	}
+
+	protected function getJoiner($condition): int
+	{
+		return empty($condition[3]) ? static::CONDITION_JOINER_AND : static::CONDITION_JOINER_OR;
+	}
+
+	protected function writeAutomationConditionLog(array $conditions, array $results, bool $result, CBPActivity $ownerActivity): array
+	{
+		$toLog = [];
+		foreach ($conditions as $index => $condition)
+		{
+			/** @var \Bitrix\Bizproc\FieldType $fieldType */
+			$fieldType = $condition['fieldType'];
+
+			if (in_array($condition['operator'], ['!empty', 'empty']))
+			{
+				$formattedValue = '';
+			}
+			else
+			{
+				$multiple = $fieldType->isMultiple();
+				$fieldType->setMultiple(true);
+				$formattedValue = $fieldType->formatValue($condition['value']);
+				$fieldType->setMultiple($multiple);
+			}
+
+			$toLog[] = [
+				'condition' => [
+					'field' => $condition['fieldName'],
+					'operator' => $condition['operator'],
+					'value' => $formattedValue
+				],
+				'joiner' => $condition['joiner'] === static::CONDITION_JOINER_OR ? 'OR' : 'AND',
+				'fieldValue' => $condition['valueToCheck'] ? $fieldType->formatValue($condition['valueToCheck']) : null,
+				'result' => $results[$index] ? 'Y' : 'N',
+			];
+		}
+
+		$toLog = array_merge(['result' => $result ? 'Y' : 'N'], $toLog);
+		$title = $ownerActivity->isPropertyExists('Title') ? $ownerActivity->Title : '';
+
+		$id = $this->writeDebugTrack(
+			$ownerActivity->getWorkflowInstanceId(),
+			$ownerActivity->getName(),
+			$ownerActivity->executionStatus,
+			$ownerActivity->executionResult,
+			$title ?? '',
+			$toLog,
+			CBPTrackingType::DebugAutomation
+		);
+
+		return [$toLog, $id];
 	}
 }

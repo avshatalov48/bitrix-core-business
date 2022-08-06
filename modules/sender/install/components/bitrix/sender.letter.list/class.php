@@ -63,6 +63,22 @@ class SenderLetterListComponent extends Bitrix\Sender\Internals\CommonSenderComp
 
 		$this->arParams['IS_BX24_INSTALLED'] = Integration\Bitrix24\Service::isCloud();
 		$this->arParams['IS_PHONE_CONFIRMED'] = \Bitrix\Sender\Integration\Bitrix24\Limitation\Verification::isPhoneConfirmed();
+
+		$templatesFilesSyncInstalled = 1 === \COption::GetOptionInt("sender", "sender_files_sync_installed", 0);
+		if (!$templatesFilesSyncInstalled)
+		{
+			\CAgent::AddAgent(
+				'\\Bitrix\\Sender\\Install\\FileTableInstaller::installAgent();',
+				"sender",
+				"N",
+				60,
+				"",
+				"Y",
+				\ConvertTimeStamp(time()+\CTimeZone::GetOffset()+250),
+				"FULL"
+			);
+			COption::SetOptionInt("sender", "sender_files_sync_installed", 1);
+		}
 	}
 
 	protected function getSenderMessages()

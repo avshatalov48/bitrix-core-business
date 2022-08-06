@@ -4,7 +4,6 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\UI\Filter\Type;
 use Bitrix\Main\UI\Filter\FieldAdapter;
 use Bitrix\Main\UI\Filter\DateType;
-use Bitrix\Main\UI\Filter\NumberType;
 use Bitrix\Main\UI\Filter\Theme;
 use Bitrix\Main\Localization\Loc;
 
@@ -764,7 +763,8 @@ class CMainUiFilter extends CBitrixComponent
 					"TITLE" => $presetFields["name"],
 					"FIELDS" => $this->preparePresetFields($rows, $fields),
 					"FOR_ALL" => $forAll,
-					"IS_PINNED" => false
+					"IS_PINNED" => false,
+					"IS_SET_OUTSIDE" => $options->isSetOutside(),
 				);
 
 				$additionalFields = $options->getAdditionalPresetFields($presetId);

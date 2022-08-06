@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -14,68 +15,68 @@ Loc::loadMessages(__FILE__);
 
 class Workgroup
 {
-	public static function getFilterPresetList($params)
+	public static function getFilterPresetList($params): array
 	{
-		$result = array();
+		$result = [];
 
-		$currentUserId = (!empty($params['currentUserId']) ? intval($params['currentUserId']) : false);
+		$currentUserId = (int)($params['currentUserId'] ?? 0);
 
-		if (Option::get("socialnetwork", "work_with_closed_groups", "N") != "Y")
+		if (Option::get('socialnetwork', 'work_with_closed_groups', 'N') !== 'Y')
 		{
-			$result['active'] = array(
+			$result['active'] = [
 				'name' => Loc::getMessage('SONET_C36_T_FILTER_PRESET_ACTIVE'),
-				'fields' => array(
-					'CLOSED' => 'N'
-				),
-				'default' => true
-			);
+				'fields' => [
+					'CLOSED' => 'N',
+				],
+				'default' => true,
+			];
 		}
 
-		if ($currentUserId)
+		if ($currentUserId > 0)
 		{
 			$userLabel = '';
-			$renderPartsUser = new \Bitrix\Socialnetwork\Livefeed\RenderParts\User(array('skipLink' => true));
+			$renderPartsUser = new \Bitrix\Socialnetwork\Livefeed\RenderParts\User([ 'skipLink' => true ]);
 			if ($renderData = $renderPartsUser->getData($currentUserId))
 			{
 				$userLabel = $renderData['name'];
 			}
 
-			$result['my'] = array(
+			$result['my'] = [
 				'name' => Loc::getMessage('SONET_C36_T_FILTER_PRESET_MY'),
-				'fields' => array(
-					'MEMBER' => 'U'.$currentUserId,
+				'fields' => [
+					'MEMBER' => 'U' . $currentUserId,
 					'MEMBER_label' => $userLabel,
-				)
-			);
-			$result['favorites'] = array(
+				],
+			];
+			$result['favorites'] = [
 				'name' => Loc::getMessage('SONET_C36_T_FILTER_PRESET_FAVORITES'),
-				'fields' => array(
-					'FAVORITES' => 'Y'
-				)
-			);
+				'fields' => [
+					'FAVORITES' => 'Y',
+				],
+			];
 		}
 
 		if (
 			!empty($params['extranetSiteId'])
-			&& SITE_ID != $params['extranetSiteId']
+			&& SITE_ID !== $params['extranetSiteId']
 		)
 		{
-			$result['extranet'] = array(
+			$result['extranet'] = [
 				'name' => Loc::getMessage('SONET_C36_T_FILTER_PRESET_EXTRANET'),
-				'fields' => array(
-					'EXTRANET' => 'Y'
-				)
-			);
+				'fields' => [
+					'EXTRANET' => 'Y',
+				],
+			];
 		}
 
-		if (Option::get("socialnetwork", "work_with_closed_groups", "N") != "Y")
+		if (Option::get('socialnetwork', 'work_with_closed_groups', 'N') !== 'Y')
 		{
-			$result['archive'] = array(
+			$result['archive'] = [
 				'name' => Loc::getMessage('SONET_C36_T_FILTER_PRESET_ARCHIVE'),
-				'fields' => array(
-					'CLOSED' => 'Y'
-				)
-			);
+				'fields' => [
+					'CLOSED' => 'Y',
+				],
+			];
 		}
 
 		return $result;

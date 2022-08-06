@@ -7,13 +7,14 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Sender\Message\ConfigurationOption as ConOpt;
 
 Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 	'ui.layout-form',
 	'ui.alerts',
 	'ui.hint',
 	'ui.sidepanel-content',
 	'ui.buttons',
 	'ui.common',
-	'ui.opensans',
 	'sender.rc_editor'
 ]);
 

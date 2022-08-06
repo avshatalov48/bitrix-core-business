@@ -8,6 +8,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 class CBPDelayActivity extends CBPActivity implements
 	IBPEventActivity,
 	IBPActivityExternalEventListener,
+	IBPActivityDebugEventListener,
 	IBPEventDrivenActivity
 {
 	private $subscriptionId = 0;
@@ -53,16 +54,21 @@ class CBPDelayActivity extends CBPActivity implements
 	{
 		$this->isInEventActivityMode = true;
 
-		$timeoutDuration = $this->TimeoutDuration;
+		$delayIntervalProperties = [
+			'TimeoutDuration' => $this->getRawProperty('TimeoutDuration'),
+			'TimeoutDurationType' => $this->getRawProperty('TimeoutDurationType'),
+			'TimeoutTime' => $this->getRawProperty('TimeoutTime'),
+			'TimeoutTimeIsLocal' => $this->getRawProperty('TimeoutTimeIsLocal'),
+		];
+
+		$timeoutDuration = $this->parseValue($delayIntervalProperties['TimeoutDuration']);
 		$timeoutDurationValue = 0;
-		$timeoutTime = $this->TimeoutTime;
+		$timeoutTime = $this->parseValue($delayIntervalProperties['TimeoutTime']);
 
 		if (is_array($timeoutTime)) //if multiple value
 		{
 			$timeoutTime = reset($timeoutTime);
 		}
-
-		$isLocalTime = ($this->TimeoutTimeIsLocal === 'Y');
 
 		if ($timeoutDuration != null)
 		{
@@ -71,23 +77,7 @@ class CBPDelayActivity extends CBPActivity implements
 		}
 		elseif ($timeoutTime != null)
 		{
-			if ($timeoutTime instanceof \Bitrix\Bizproc\BaseType\Value\Date)
-			{
-				$timeoutTime = $timeoutTime->getTimestamp();
-			}
-			else
-			{
-				if (!is_numeric($timeoutTime))
-				{
-					$timeoutTime = MakeTimeStamp((string) $timeoutTime);
-				}
-
-				if ($isLocalTime)
-				{
-					$timeoutTime -= \CTimeZone::GetOffset();
-				}
-			}
-
+			$timeoutTime = $this->timeoutTimeToTimestamp($timeoutTime, $delayIntervalProperties);
 			$expiresAt = $timeoutTime;
 		}
 		else
@@ -95,9 +85,16 @@ class CBPDelayActivity extends CBPActivity implements
 			$expiresAt = time();
 		}
 
+		$this->writeToTrackingService(
+			$this->getDelayAutomationTrack($delayIntervalProperties),
+			0,
+			CBPTrackingType::DebugAutomation
+		);
+
 		if ($timeoutTime != null && $eventHandler === $this && $expiresAt <= time() + 1) //now + 1 second
 		{
 			$this->logMessage(GetMessage('BPDA_TRACK3'));
+
 			return false;
 		}
 
@@ -168,20 +165,24 @@ class CBPDelayActivity extends CBPActivity implements
 	{
 		if ($this->executionStatus != CBPActivityExecutionStatus::Closed)
 		{
+			if (!empty($arEventParameters['DebugEvent']))
+			{
+				$this->writeToTrackingService(
+					\Bitrix\Main\Localization\Loc::getMessage('BPDA_DEBUG_EVENT'),
+					0,
+					CBPTrackingType::Debug
+				);
+			}
+
 			$this->Unsubscribe($this);
 			$this->workflow->CloseActivity($this);
 		}
 	}
 
-	public function HandleFault(Exception $exception)
+	public function onDebugEvent(array $eventParameters = [])
 	{
-		$status = $this->Cancel();
-		if ($status == CBPActivityExecutionStatus::Canceling)
-		{
-			return CBPActivityExecutionStatus::Faulting;
-		}
-
-		return $status;
+		$eventParameters['DebugEvent'] = true;
+		$this->OnExternalEvent($eventParameters);
 	}
 
 	public static function ValidateProperties($arTestProperties = [], CBPWorkflowTemplateUser $user = null)
@@ -232,7 +233,10 @@ class CBPDelayActivity extends CBPActivity implements
 
 	private function logMessage(string $message): void
 	{
-		if ($this->WriteToLog === 'Y')
+		if (
+			$this->WriteToLog === 'Y'
+			|| $this->workflow->getService('TrackingService')->isForcedMode($this->getWorkflowInstanceId())
+		)
 		{
 			$this->WriteToTrackingService($message);
 		}
@@ -357,7 +361,7 @@ class CBPDelayActivity extends CBPActivity implements
 			$properties['TimeoutDuration'] = $arCurrentValues['delay_time'];
 			$properties['TimeoutDurationType'] = $arCurrentValues['delay_type'];
 		}
-		
+
 		$properties['WriteToLog'] = CBPHelper::getBool($arCurrentValues['delay_write_to_log']) ? 'Y' : 'N';
 
 		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);
@@ -371,5 +375,62 @@ class CBPDelayActivity extends CBPActivity implements
 		$currentActivity['Properties'] = $properties;
 
 		return true;
+	}
+
+	private function getDelayAutomationTrack(array $delayIntervalProperties): array
+	{
+		$delayInterval = \Bitrix\Bizproc\Automation\Engine\DelayInterval::createFromActivityProperties($delayIntervalProperties);
+		$parsed = static::parseExpression($delayInterval->getBasis());
+		[$fieldProperty, $fieldValue] = $this->getRuntimeProperty($parsed['object'], $parsed['field'], $this);
+		if ($parsed['object'] !== \Bitrix\Bizproc\Workflow\Template\SourceType::System)
+		{
+			$fieldName = $fieldProperty['Name'] ?? $parsed['field'];
+		}
+		else
+		{
+			$fieldName = null;
+			$fieldValue = $this->parseValue($delayInterval->getBasis());
+		}
+		$fieldValue = $fieldValue ? $this->timeoutTimeToTimestamp($fieldValue, $delayIntervalProperties) : '';
+		if ($fieldValue)
+		{
+			$fieldValue = sprintf(
+				'%s (%s)',
+				ConvertTimeStamp($fieldValue, 'FULL'),
+				date('P', $fieldValue)
+			);
+		}
+
+		return array_merge(
+			$delayInterval->toArray(),
+			[
+				'fieldName' => $fieldName,
+				'fieldValue' => $fieldValue,
+			]
+		);
+	}
+
+	private function timeoutTimeToTimestamp($timeoutTime, $delayIntervalProperties)
+	{
+		$isLocalTime = ($this->parseValue($delayIntervalProperties['TimeoutTimeIsLocal']) === 'Y');
+
+		if ($timeoutTime instanceof \Bitrix\Bizproc\BaseType\Value\Date)
+		{
+			return $timeoutTime->getTimestamp();
+		}
+		else
+		{
+			if (!is_numeric($timeoutTime))
+			{
+				$timeoutTime = MakeTimeStamp((string) $timeoutTime);
+			}
+
+			if ($isLocalTime)
+			{
+				$timeoutTime -= \CTimeZone::GetOffset();
+			}
+		}
+
+		return $timeoutTime;
 	}
 }

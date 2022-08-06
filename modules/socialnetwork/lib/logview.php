@@ -39,22 +39,20 @@ class LogViewTable extends Entity\DataManager
 
 	public static function getMap()
 	{
-		$fieldsMap = array(
-			'USER_ID' => array(
+		return [
+			'USER_ID' => [
 				'data_type' => 'integer',
-				'primary' => true
-			),
-			'EVENT_ID' => array(
+				'primary' => true,
+			],
+			'EVENT_ID' => [
 				'data_type' => 'string',
-				'primary' => true
-			),
-			'TYPE' => array(
+				'primary' => true,
+			],
+			'TYPE' => [
 				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-		);
-
-		return $fieldsMap;
+				'values' => [ 'N', 'Y' ],
+			],
+		];
 	}
 
 	public static function getDefaultValue($eventId, $full = false)
@@ -62,23 +60,23 @@ class LogViewTable extends Entity\DataManager
 		$result = 'Y';
 
 		$eventId = trim($eventId);
-		if($eventId <> '')
+		if($eventId !== '')
 		{
-			throw new Main\SystemException("Empty eventId.");
+			throw new Main\SystemException('Empty eventId.');
 		}
 		if (!$full)
 		{
 			$eventId = \CSocNetLogTools::findFullSetByEventID($eventId);
 		}
 
-		$res = self::getList(array(
-			'order' => array(),
-			'filter' => array(
+		$res = self::getList([
+			'order' => [],
+			'filter' => [
 				'=USER_ID' => 0,
-				'=EVENT_ID' => \Bitrix\Main\Application::getConnection()->getSqlHelper()->forSql($eventId)
-			),
-			'select' => array('TYPE')
-		));
+				'=EVENT_ID' => \Bitrix\Main\Application::getConnection()->getSqlHelper()->forSql($eventId),
+			],
+			'select' => [ 'TYPE' ],
+		]);
 
 		if ($row = $res->fetch())
 		{
@@ -88,14 +86,14 @@ class LogViewTable extends Entity\DataManager
 		return $result;
 	}
 
-	public static function set($userId, $eventId, $type)
+	public static function set($userId, $eventId, $type): void
 	{
-		$userId = intval($userId);
-		$type = ($type == "Y" ? "Y" : "N");
+		$userId = (int)$userId;
+		$type = ($type === 'Y' ? 'Y' : 'N');
 		$eventId = trim($eventId);
-		if ($eventId == '')
+		if ($eventId === '')
 		{
-			throw new Main\SystemException("Empty eventId.");
+			throw new Main\SystemException('Empty eventId.');
 		}
 		$eventId = \CSocNetLogTools::findFullSetByEventID($eventId);
 
@@ -104,37 +102,37 @@ class LogViewTable extends Entity\DataManager
 
 		foreach ($eventId as $val)
 		{
-			$insertFields = array(
-				"USER_ID" => $userId,
-				"TYPE" => $type,
-				"EVENT_ID" => $helper->forSql($val),
-			);
+			$insertFields = [
+				'USER_ID' => $userId,
+				'TYPE' => $type,
+				'EVENT_ID' => $helper->forSql($val),
+			];
 
-			$updateFields = array(
-				"TYPE" => $type
-			);
+			$updateFields = [
+				'TYPE' => $type,
+			];
 
 			$merge = $helper->prepareMerge(
 				static::getTableName(),
-				array("USER_ID", "EVENT_ID"),
+				[ 'USER_ID', 'EVENT_ID' ],
 				$insertFields,
 				$updateFields
 			);
 
-			if ($merge[0] != "")
+			if ($merge[0] !== '')
 			{
 				$connection->query($merge[0]);
 			}
 		}
 	}
 
-	public static function checkExpertModeAuto($userId, $tasksNum, $pageSize)
+	public static function checkExpertModeAuto($userId, $tasksNum, $pageSize): bool
 	{
 		$result = false;
 
-		$userId = intval($userId);
-		$tasksNum = intval($tasksNum);
-		$pageSize = intval($pageSize);
+		$userId = (int)$userId;
+		$tasksNum = (int)$tasksNum;
+		$pageSize = (int)$pageSize;
 
 		if (
 			$userId <= 0
@@ -149,11 +147,11 @@ class LogViewTable extends Entity\DataManager
 			&& ($tasksNum / $pageSize) >= 0.25
 		)
 		{
-			$isAlreadyChecked = \CUserOptions::getOption("socialnetwork", "~log_expertmode_checked", "N", $userId);
-			if ($isAlreadyChecked != 'Y')
+			$isAlreadyChecked = \CUserOptions::getOption('socialnetwork', '~log_expertmode_checked', 'N', $userId);
+			if ($isAlreadyChecked !== 'Y')
 			{
 				self::set($userId, 'tasks', 'N');
-				\CUserOptions::setOption("socialnetwork", "~log_expertmode_checked", "Y", false, $userId);
+				\CUserOptions::setOption('socialnetwork', '~log_expertmode_checked', 'Y', false, $userId);
 				$result = true;
 			}
 		}
@@ -163,11 +161,11 @@ class LogViewTable extends Entity\DataManager
 
 	public static function add(array $data)
 	{
-		throw new NotImplementedException("Use set() method of the class.");
+		throw new NotImplementedException('Use set() method of the class.');
 	}
 
 	public static function update($primary, array $data)
 	{
-		throw new NotImplementedException("Use set() method of the class.");
+		throw new NotImplementedException('Use set() method of the class.');
 	}
 }

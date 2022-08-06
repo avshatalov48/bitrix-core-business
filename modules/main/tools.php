@@ -2341,7 +2341,7 @@ function htmlspecialcharsback($str)
 function htmlspecialcharsbx($string, $flags = ENT_COMPAT, $doubleEncode = true)
 {
 	//function for php 5.4 where default encoding is UTF-8
-	return htmlspecialchars($string, $flags, (defined("BX_UTF")? "UTF-8" : "ISO-8859-1"), $doubleEncode);
+	return htmlspecialchars((string)$string, $flags, (defined("BX_UTF")? "UTF-8" : "ISO-8859-1"), $doubleEncode);
 }
 
 function CheckDirPath($path)
@@ -3332,10 +3332,7 @@ function IncludeModuleLangFile($filepath, $lang=false, $bReturnArray=false)
  */
 function LangSubst($lang)
 {
-	static $arSubst = array('ua'=>'ru', 'kz'=>'ru', 'ru'=>'ru');
-	if(isset($arSubst[$lang]))
-		return $arSubst[$lang];
-	return 'en';
+	return Main\Localization\Loc::getDefaultLang($lang);
 }
 
 /*********************************************************************
@@ -3863,8 +3860,6 @@ function FormDecode()
 			if(!isset($superglobals[$key]))
 				$toGlobals[$key] = $val;
 
-		//$GLOBALS += $toGlobals;
-		//PHP7 bug
 		foreach($toGlobals as $key => $val)
 		{
 			if(!isset($GLOBALS[$key]))
@@ -4051,7 +4046,14 @@ function InitURLParam($url=false)
 		parse_str($params, $_GET);
 		parse_str($params, $arr);
 		$_REQUEST += $arr;
-		$GLOBALS += $arr;
+
+		foreach ($arr as $key => $val)
+		{
+			if (!isset($GLOBALS[$key]))
+			{
+				$GLOBALS[$key] = $val;
+			}
+		}
 	}
 }
 
@@ -4486,7 +4488,7 @@ class CUtil
 						$res .= "'".$value."'";
 					break;
 				default:
-					if(preg_match("#['\"\\n\\r<\\\\\x80]#", $value))
+					if(preg_match("#['\"\\n\\r<\\\\\x80]#", (string)$value))
 						$res .= "'".CUtil::JSEscape($value)."'";
 					else
 						$res .= "'".$value."'";

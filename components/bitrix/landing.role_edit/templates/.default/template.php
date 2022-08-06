@@ -34,6 +34,8 @@ if ($arResult['EXTENDED'])
 $context = \Bitrix\Main\Application::getInstance()->getContext();
 $request = $context->getRequest();
 $row = $arResult['ROLE'];
+$reverseDefaultCodes = ['admin'];
+$reverseActionsCodes = ['unexportable'];
 
 // show errors
 if ($arResult['ERRORS'])
@@ -160,9 +162,13 @@ unset($site);
 		</tr>
 		<?foreach ($arResult['ADDITIONAL'] as $code => $title):
 			$notChecked = ! (
-								!is_array($row['ADDITIONAL_RIGHTS']['CURRENT']) ||
-					   			in_array($code, $row['ADDITIONAL_RIGHTS']['CURRENT'])
-							);
+				!is_array($row['ADDITIONAL_RIGHTS']['CURRENT']) ||
+				in_array($code, $row['ADDITIONAL_RIGHTS']['CURRENT'])
+			);
+			if (!is_array($row['ADDITIONAL_RIGHTS']['CURRENT']) && in_array($code, $reverseDefaultCodes, true))
+			{
+				$notChecked = true;
+			}
 			?>
 			<tr class="tr-first">
 				<td class="table-blue-td-name">
@@ -171,12 +177,20 @@ unset($site);
 				<td class="table-blue-td-param">
 					<label for="landing-operation-additional-<?= $code;?>">
 						<?= Loc::getMessage('LANDING_TPL_ADDITIONAL_ACTION_'.mb_strtoupper($code));?>
+						<?php if (Loc::getMessage('LANDING_TPL_ADDITIONAL_ACTION_HINT_' . mb_strtoupper($code))): ?>
+							<span data-hint="<?= Loc::getMessage('LANDING_TPL_ADDITIONAL_ACTION_HINT_'.mb_strtoupper($code))?>" class="ui-hint"></span>
+						<?php endif;?>
 					</label>
 				</td>
 				<td class="table-blue-td-select">
-					<select class="table-blue-select" name="fields[ADDITIONAL][]" id="landing-operation-additional-<?= $code;?>">
-						<option value="<?= $code;?>"><?= Loc::getMessage('LANDING_TPL_RIGHT_ALLOW');?></option>
-						<option value=""<?= $notChecked ? ' selected="selected"' : '';?>><?= Loc::getMessage('LANDING_TPL_RIGHT_DISALLOW');?></option>
+					<select class="table-blue-select" name="fields[ADDITIONAL][]" id="landing-operation-additional-<?= $code?>">
+						<?php if (!in_array($code, $reverseActionsCodes, true)) : ?>
+							<option value="<?= $code?>"><?= Loc::getMessage('LANDING_TPL_RIGHT_ALLOW')?></option>
+							<option value=""<?= $notChecked ? ' selected="selected"' : ''?>><?= Loc::getMessage('LANDING_TPL_RIGHT_DISALLOW')?></option>
+						<?php else:?>
+							<option value=""<?= $notChecked ? ' selected="selected"' : ''?>><?= Loc::getMessage('LANDING_TPL_RIGHT_ALLOW')?></option>
+							<option value="<?= $code?>"<?= !$notChecked ? ' selected="selected"' : ''?>><?= Loc::getMessage('LANDING_TPL_RIGHT_DISALLOW')?></option>
+						<?php endif;?>
 					</select>
 				</td>
 			</tr>

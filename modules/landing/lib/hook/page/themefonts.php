@@ -6,6 +6,7 @@ use Bitrix\Landing\Assets;
 use Bitrix\Landing\Field;
 use Bitrix\Landing\Hook;
 use Bitrix\Landing\Internals\HookDataTable;
+use Bitrix\Landing\Landing;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Entity\Query;
 use Bitrix\Main\Page\Asset;
@@ -312,16 +313,19 @@ class ThemeFonts extends Hook\Page
 		$fontWeight = $this->getField('FONT_WEIGHT');
 		$hFontWeight = $this->getField('FONT_WEIGHT_H');
 
+		$mainClass = Landing::getEditMode() ? '.landing-edit-mode' : '.landing-public-mode';
 		$assets = Assets\Manager::getInstance();
 		$assets->addString(
 			"<style>
-				body {
+				main{$mainClass} {
 					line-height: {$lineHeight};
 					font-weight: {$fontWeight};
 				}
 				
-				.h1, .h2, .h3, .h4, .h5, .h6, .h7,
-				h1, h2, h3, h4, h5, h6 {
+				{$mainClass} .h1, {$mainClass} .h2, {$mainClass} .h3, {$mainClass} .h4, 
+				{$mainClass} .h5, {$mainClass} .h6, {$mainClass} .h7,
+				{$mainClass} h1, {$mainClass} h2, {$mainClass} h3, {$mainClass} h4, 
+				{$mainClass} h5, {$mainClass} h6 {
 					font-weight: {$hFontWeight};
 				}
 			</style>"

@@ -27,7 +27,7 @@ class WorkgroupCardUtil
 
 	static showError(errorText)
 	{
-		(new Popup('sgm-error' + Math.random(), null, {
+		(new Popup(`sgm-error${Math.random()}`, null, {
 			autoHide: true,
 			lightShadow: false,
 			zIndex: 2,

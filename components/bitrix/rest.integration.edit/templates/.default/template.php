@@ -8,6 +8,8 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
+
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
 ?>
 <form method="post" id="rest-integration-form">
 	<div class="integration" id="rest-integration-form-block">

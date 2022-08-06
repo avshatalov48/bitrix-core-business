@@ -1,6 +1,7 @@
 <?php
 $MESS["SONET_GCE_T_TITLE_TYPE"] = "Тип группы";
 $MESS["SONET_GCE_T_TITLE_TYPE_PROJECT"] = "Тип проекта";
+$MESS["SONET_GCE_T_TITLE_TYPE_SCRUM"] = "Тип скрама";
 $MESS["SONET_GCE_T_PARAMS_VIS2"] = "Видимая";
 $MESS["SONET_GCE_T_PARAMS_VIS2_PROJECT"] = "Видимый";
 $MESS["SONET_GCE_T_PARAMS_VIS2_HINT"] = "Наличие группы видимо всем пользователям, а не только ее участникам";

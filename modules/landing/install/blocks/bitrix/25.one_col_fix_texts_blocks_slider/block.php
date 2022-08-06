@@ -1,11 +1,12 @@
 <section class="landing-block">
 
         <div class="landing-block-node_bgimage u-bg-overlay g-bg-img-hero g-bg-primary-opacity-0_9--after g-py-60" style="background-image: url(https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img2.jpg);">
-            <div class="container u-bg-overlay__inner">
+            <div class="landing-block-slider container u-bg-overlay__inner g-pa-10" data-slider-arrows="1" data-slider-dots="0" data-slider-animation="1">
 
                 <div class="js-carousel"
                      data-infinite="true"
-                     data-arrows-classes="u-arrow-v1 g-pos-abs g-absolute-centered--y--lg g-bottom-0 g-top-50x--md g-width-50 g-height-50 g-color-primary g-bg-gray-dark-v1 g-opacity-0_8--hover g-transition-0_2 g-transition--ease-in"
+					 data-pagi-classes="u-carousel-indicators-v1 g-absolute-centered--x g-pt-20"
+                     data-arrows-classes="u-arrow-v1 g-pos-abs g-absolute-centered--y--lg g-bottom-0 g-top-50x--md g-width-50 g-height-50 g-transition-0_2 g-transition--ease-in g-color-gray g-color-white--hover g-bg-gray-light-v5 g-bg-primary--hover"
                      data-arrow-left-classes="fa fa-arrow-left g-left-0 g-ml-30--md g-left-30x g-left-auto--md"
                      data-arrow-right-classes="fa fa-arrow-right g-right-0 g-mr-30--md g-right-30x g-right-0--md">
                     <div class="landing-block-card-slider-element js-slide">

@@ -4,17 +4,23 @@
  * @var array $arResult
  * @var CAllMain $APPLICATION
  */
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
 \Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/css/main/table/style.css');
 
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
-CUtil::InitJSCore(Array('access'));
-?>
+\Bitrix\Main\UI\Extension::load([
+	'access',
+	'ui.design-tokens'
+]);
 
-<?
 if (!$arResult['CAN_EDIT'])
 {
 	?>

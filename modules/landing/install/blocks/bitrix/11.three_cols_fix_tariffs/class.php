@@ -13,7 +13,7 @@ class ThreeColsFixTariffsBlock extends \Bitrix\Landing\LandingBlock
 	/**
 	 * Url to get Bitrix24 prices.
 	 */
-	const B24_PRICE_URL = 'https://www.1c-bitrix.ru/buy_tmp/b24_catalog.php?currency=RUR&area=ru';
+	const B24_PRICE_URL = 'https://util.1c-bitrix.ru/b24/catalog.php?currency=RUR&area=ru';
 
 	/**
 	 * Available Bitrix24 tariffs.

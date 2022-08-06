@@ -220,7 +220,7 @@ export default class Manager
 
 		const gridId = `CRM_${entity.toUpperCase()}_LIST`;
 		const grid = BX.Main.gridManager.data.find((current) => {
-			return current.id.indexOf(gridId) === 0;
+			return current.id.indexOf(gridId) === 0 || current.id.indexOf('crm-type-item-list') === 0;
 		})
 
 		return grid ? grid.instance : null;

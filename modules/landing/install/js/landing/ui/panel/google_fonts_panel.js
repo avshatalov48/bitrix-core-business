@@ -583,8 +583,8 @@
 			return function(item, index) {
 				if (!initedItems.has(item))
 				{
-					var button = item.querySelector(".landing-ui-font-preview-font-button");
-					bind(button, "click", this.onFontSelect.bind(this, response[index - (this.page * 21)]));
+					const button = item.querySelector(".landing-ui-font-preview-font-button");
+					BX.Event.bind(button, 'click', this.onFontSelect.bind(this, response[index - (this.page * 21)]));
 					initedItems.add(item);
 
 					var input = item.querySelector('.landing-ui-font-preview-pangram');

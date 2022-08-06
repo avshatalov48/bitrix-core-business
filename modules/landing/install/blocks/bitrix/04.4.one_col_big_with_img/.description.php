@@ -13,6 +13,14 @@ return [
 	],
 	'cards' => [],
 	'nodes' => [
+		'.landing-block-node-mainimg' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_3_ONE_COL_BIG_WITH_IMG_NODES_LANDINGBLOCKNODEMAINIMG'),
+			'type' => 'img',
+			'editInStyle' => true,
+			'allowInlineEdit' => false,
+			'dimensions' => ['width' => 1920],
+			'isWrapper' => true,
+		],
 		'.landing-block-node-subtitle' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_3_ONE_COL_BIG_WITH_IMG_NODES_LANDINGBLOCKNODESUBTITLE'),
 			'type' => 'text',
@@ -21,15 +29,10 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_3_ONE_COL_BIG_WITH_IMG_NODES_LANDINGBLOCKNODETITLE'),
 			'type' => 'text',
 		],
-		'.landing-block-node-mainimg' => [
-			'name' => Loc::getMessage('LANDING_BLOCK_3_ONE_COL_BIG_WITH_IMG_NODES_LANDINGBLOCKNODEMAINIMG'),
-			'type' => 'img',
-			'dimensions' => ['width' => 1920],
-		],
 	],
 	'style' => [
 		'block' => [
-			'type' => ['block-default-background-overlay', 'animation'],
+			'type' => ['block-default-background', 'animation'],
 		],
 		'nodes' => [
 			'.landing-block-node-subtitle' => [

@@ -31,3 +31,4 @@ $MESS["STORE_SAVE_ERROR"] = "Ошибка сохранения склада";
 $MESS["STORE_MESS_YES"] = "Да";
 $MESS["STORE_MESS_NO"] = "Нет";
 $MESS["STORE_FIELD_IS_DEFAULT"] = "Склад по умолчанию";
+$MESS["STORE_ERR_DEFAULT_STORE_WITH_SITE"] = "Этот склад не может быть привязан к сайту. Чтобы восстановить правильную работу склада, сохраните изменения.";

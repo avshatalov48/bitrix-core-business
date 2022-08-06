@@ -15,8 +15,8 @@ final class Claim extends RequestEntity
 	/** @var ShippingItem[] */
 	protected $items = [];
 
-	/** @var RoutePoints */
-	protected $routePoints;
+	/** @var RoutePoint[] */
+	protected $routePoints = [];
 
 	/** @var string */
 	protected $id;
@@ -48,9 +48,6 @@ final class Claim extends RequestEntity
 	/** @var string */
 	protected $comment;
 
-	/** @var string */
-	protected $availableCancelState;
-
 	/** @var TransportClassification */
 	protected $clientRequirements;
 
@@ -76,14 +73,6 @@ final class Claim extends RequestEntity
 	protected $referralSource;
 
 	/**
-	 * @return Contact
-	 */
-	public function getEmergencyContact()
-	{
-		return $this->emergencyContact;
-	}
-
-	/**
 	 * @param Contact $emergencyContact
 	 * @return Claim
 	 */
@@ -92,14 +81,6 @@ final class Claim extends RequestEntity
 		$this->emergencyContact = $emergencyContact;
 
 		return $this;
-	}
-
-	/**
-	 * @return ShippingItem[]
-	 */
-	public function getItems(): array
-	{
-		return $this->items;
 	}
 
 	/**
@@ -114,18 +95,10 @@ final class Claim extends RequestEntity
 	}
 
 	/**
-	 * @return RoutePoints
-	 */
-	public function getRoutePoints(): RoutePoints
-	{
-		return $this->routePoints;
-	}
-
-	/**
-	 * @param RoutePoints $routePoints
+	 * @param RoutePoint[] $routePoints
 	 * @return Claim
 	 */
-	public function setRoutePoints(RoutePoints $routePoints): Claim
+	public function setRoutePoints(array $routePoints): Claim
 	{
 		$this->routePoints = $routePoints;
 
@@ -149,14 +122,6 @@ final class Claim extends RequestEntity
 		$this->id = $id;
 
 		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getCorpClientId()
-	{
-		return $this->corpClientId;
 	}
 
 	/**
@@ -228,14 +193,6 @@ final class Claim extends RequestEntity
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isSkipClientNotify()
-	{
-		return $this->skipClientNotify;
-	}
-
-	/**
 	 * @param bool $skipClientNotify
 	 * @return Claim
 	 */
@@ -244,14 +201,6 @@ final class Claim extends RequestEntity
 		$this->skipClientNotify = $skipClientNotify;
 
 		return $this;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isSkipEmergencyNotify()
-	{
-		return $this->skipEmergencyNotify;
 	}
 
 	/**
@@ -266,14 +215,6 @@ final class Claim extends RequestEntity
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isSkipDoorToDoor()
-	{
-		return $this->skipDoorToDoor;
-	}
-
-	/**
 	 * @param bool $skipDoorToDoor
 	 * @return Claim
 	 */
@@ -282,14 +223,6 @@ final class Claim extends RequestEntity
 		$this->skipDoorToDoor = $skipDoorToDoor;
 
 		return $this;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isOptionalReturn()
-	{
-		return $this->optionalReturn;
 	}
 
 	/**
@@ -304,39 +237,12 @@ final class Claim extends RequestEntity
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getComment()
-	{
-		return $this->comment;
-	}
-
-	/**
 	 * @param string $comment
 	 * @return Claim
 	 */
 	public function setComment(string $comment): Claim
 	{
 		$this->comment = $comment;
-
-		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getAvailableCancelState()
-	{
-		return $this->availableCancelState;
-	}
-
-	/**
-	 * @param string $availableCancelState
-	 * @return Claim
-	 */
-	public function setAvailableCancelState(string $availableCancelState): Claim
-	{
-		$this->availableCancelState = $availableCancelState;
 
 		return $this;
 	}
@@ -380,14 +286,6 @@ final class Claim extends RequestEntity
 	}
 
 	/**
-	 * @return TransportClassification
-	 */
-	public function getClientRequirements()
-	{
-		return $this->clientRequirements;
-	}
-
-	/**
 	 * @param TransportClassification $clientRequirements
 	 * @return Claim
 	 */
@@ -396,14 +294,6 @@ final class Claim extends RequestEntity
 		$this->clientRequirements = $clientRequirements;
 
 		return $this;
-	}
-
-	/**
-	 * @return TransportClassification[]
-	 */
-	public function getMatchedCars(): array
-	{
-		return $this->matchedCars;
 	}
 
 	/**
@@ -472,14 +362,6 @@ final class Claim extends RequestEntity
 		$this->warnings[] = $warning;
 
 		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getReferralSource()
-	{
-		return $this->referralSource;
 	}
 
 	/**

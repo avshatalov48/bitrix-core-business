@@ -24,7 +24,8 @@
 	position: relative;
 	padding: 0 30px 0 0;
 	height: 53px;
-	font: 13px 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #535c69;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -82,7 +83,8 @@
     padding: 1px 8px;
     height: 16px;
     border-radius: 30px;
-    font: bold 11px/16px 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font: 11px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
     vertical-align: middle;
     transition: .2s;
 	margin-right: 5px;
@@ -345,7 +347,7 @@
 	-ms-flex-align: center;
 	align-items: center;
 	padding: 0 14px;
-	font: 13px/24px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525C69;
 }
 

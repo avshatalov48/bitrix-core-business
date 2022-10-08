@@ -6,7 +6,7 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LANGUAGE_ID."/template_message.php")));
+$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/lang/".LANGUAGE_ID."/template_message.php")));
 global $MESS;
 include_once($file);
 

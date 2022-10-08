@@ -8,10 +8,6 @@
 	margin-top: 15px;
 }
 
-.im-conference-create-block.im-conference-create-fields-wrapper {
-	margin-top: 15px;
-}
-
 .ui-button-panel-wrapper {
 	width: 100%;
 	opacity: 1;
@@ -36,7 +32,8 @@
 }
 
 .im-conference-create-title-text {
-	font: 11px/17px 'OpenSans-SemiBold', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	font: 11px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #525c69;
 	text-transform: uppercase;
 }
@@ -53,7 +50,7 @@
 
 .im-conference-create-label {
 	display: block;
-	font: 13px/19px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(82, 92, 105, .5);
 	margin-bottom: 5px;
 }
@@ -118,7 +115,7 @@
 .im-conference-create-invitation-title {
 	margin-bottom: 20px;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #525C69;
 }
 
@@ -143,7 +140,8 @@
 }
 
 .im-conference-create-invitation-user-name {
-	font-family: "Open Sans", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 10px;
 	color: #969BA2;
 }
@@ -204,10 +202,11 @@
 	white-space: pre-line;
 	/*width: 400px;*/
 	/*height: 100px;*/
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	font-size: 14px !important;
 	line-height: 20px;
 	box-sizing: border-box;
+	border-radius: var(--ui-field-border-radius);
 }
 
 .im-conference-create-password-section,

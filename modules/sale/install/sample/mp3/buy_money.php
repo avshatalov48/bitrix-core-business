@@ -1,8 +1,8 @@
 <?
 define("NEED_AUTH", true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-include_once(dirname(__FILE__)."/init_vars.php");
-include(GetLangFileName(dirname(__FILE__)."/lang/", "/mp3.php"));
+include_once(__DIR__."/init_vars.php");
+include(GetLangFileName(__DIR__."/lang/", "/mp3.php"));
 
 $APPLICATION->SetTitle(GetMessage("MP3_BUY_MONEY"));
 

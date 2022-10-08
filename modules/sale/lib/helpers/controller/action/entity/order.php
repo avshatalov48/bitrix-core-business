@@ -160,24 +160,51 @@ final class Order
 	public static function getTotal(Sale\Order $order)
 	{
 		/** @var Sale\Basket $basket */
-		$basket = $order->getBasket();
+		//$basket = $order->getBasket();
+
+		$calculateBasket = $order->getBasket()->createClone();
+
+		$discounts = $order->getDiscount();
+		$showPrices = $discounts->getShowPrices();
+		if (!empty($showPrices['BASKET']))
+		{
+			foreach ($showPrices['BASKET'] as $basketCode => $data)
+			{
+				$basketItem = $calculateBasket->getItemByBasketCode($basketCode);
+				if ($basketItem instanceof Sale\BasketItemBase)
+				{
+					$basketItem->setFieldNoDemand('BASE_PRICE', $data['SHOW_BASE_PRICE']);
+					$basketItem->setFieldNoDemand('PRICE', $data['SHOW_PRICE']);
+					$basketItem->setFieldNoDemand('DISCOUNT_PRICE', $data['SHOW_DISCOUNT']);
+				}
+			}
+		}
+		unset($showPrices);
 
 		$result = [
-			'ORDER_PRICE' => 0,
-			'ORDER_WEIGHT' => 0,
 			'WEIGHT_UNIT' => Config\Option::get('sale', 'weight_unit', false, $order->getSiteId()),
 			'WEIGHT_KOEF' => Config\Option::get('sale', 'weight_koef', 1, $order->getSiteId()),
-			'DISCOUNT_PRICE' => 0,
-			'DELIVERY_PRICE' => 0,
 		];
 
-		$result['BASKET_POSITIONS'] = $basket->count();
+/*		$result['BASKET_POSITIONS'] = $basket->count();
 		$result['ORDER_PRICE'] = PriceMaths::roundPrecision($basket->getPrice());
 		$result['ORDER_WEIGHT'] = $basket->getWeight();
 
 		$result['PRICE_WITHOUT_DISCOUNT_VALUE'] = $basket->getBasePrice();
 		$result['BASKET_PRICE_DISCOUNT_DIFF_VALUE'] = PriceMaths::roundPrecision(
 			$basket->getBasePrice() - $basket->getPrice()
+		);
+		$result['DISCOUNT_PRICE'] = PriceMaths::roundPrecision(
+			$order->getDiscountPrice() + ($result['PRICE_WITHOUT_DISCOUNT_VALUE'] - $result['ORDER_PRICE'])
+		); */
+
+		$result['BASKET_POSITIONS'] = $calculateBasket->count();
+		$result['ORDER_PRICE'] = PriceMaths::roundPrecision($calculateBasket->getPrice());
+		$result['ORDER_WEIGHT'] = $calculateBasket->getWeight();
+
+		$result['PRICE_WITHOUT_DISCOUNT_VALUE'] = $calculateBasket->getBasePrice();
+		$result['BASKET_PRICE_DISCOUNT_DIFF_VALUE'] = PriceMaths::roundPrecision(
+			$calculateBasket->getBasePrice() - $calculateBasket->getPrice()
 		);
 		$result['DISCOUNT_PRICE'] = PriceMaths::roundPrecision(
 			$order->getDiscountPrice() + ($result['PRICE_WITHOUT_DISCOUNT_VALUE'] - $result['ORDER_PRICE'])
@@ -447,7 +474,7 @@ final class Order
 					$parentProductId = $parentProduct->getId();
 					$skuId = $sku->getId();
 
-					$tree = $skuTree->loadJsonOffers([$parentProductId => $skuId]);
+					$tree = $skuTree->loadWithSelectedOffers([$parentProductId => $skuId]);
 					if (isset($tree[$parentProductId][$skuId]))
 					{
 						$result = [

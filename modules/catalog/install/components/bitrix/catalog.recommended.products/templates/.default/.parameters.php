@@ -30,7 +30,7 @@ $arThemesList = array(
 	'yellow' => GetMessage('CATALOG_RECOMMENDED_PRODUCTS_TPL_THEME_YELLOW'),
 	'black' => GetMessage('CATALOG_RECOMMENDED_PRODUCTS_TPL_THEME_BLACK')
 );
-$dir = trim(preg_replace("'[\\\\/]+'", "/", dirname(__FILE__)."/themes/"));
+$dir = trim(preg_replace("'[\\\\/]+'", "/", __DIR__."/themes/"));
 if (is_dir($dir))
 {
 	foreach ($arThemesList as $themeID => $themeName)

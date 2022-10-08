@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Main\Type\Collection;
 
 /**
@@ -217,15 +218,19 @@ class CAdminList
 		global $APPLICATION;
 
 		$queryString = DeleteParam([self::MODE_FIELD_NAME]);
+		if ($queryString !== '')
+		{
+			$queryString = '&' . $queryString;
+		}
 		$link = $APPLICATION->GetCurPage();
 		if (isset($config['settings']))
 		{
 			$result[] = [
 				"TEXT" => GetMessage("admin_lib_context_sett"),
 				"TITLE" => GetMessage("admin_lib_context_sett_title"),
-				"ONCLICK" => $this->table_id.".ShowSettings('".CUtil::JSEscape(
-					$link."?mode=settings".($queryString <> ""? "&".$queryString : "")
-				)."')",
+				"ONCLICK" => $this->table_id . ".ShowSettings('" . CUtil::JSEscape(
+					$link . "?" . static::getModeConfigUrlParam() . $queryString
+				) . "')",
 				"GLOBAL_ICON" => "adm-menu-setting",
 			];
 		}
@@ -234,9 +239,9 @@ class CAdminList
 			$result[] = [
 				"TEXT" => "Excel",
 				"TITLE" => GetMessage("admin_lib_excel"),
-				"ONCLICK"=>"location.href='".htmlspecialcharsbx(
-					$link."?mode=excel".($queryString <> ""? "&".$queryString : "")
-				)."'",
+				"ONCLICK"=>"location.href='" . htmlspecialcharsbx(
+					$link . "?" . static::getModeExportUrlParam() . $queryString
+				) . "'",
 				"GLOBAL_ICON"=>"adm-menu-excel",
 			];
 		}
@@ -940,7 +945,7 @@ class CAdminList
 					case "file":
 						$arFile = CFile::GetFileArray($val);
 						if(is_array($arFile))
-							$val = htmlspecialcharsex(CHTTP::URN2URI($arFile["SRC"]));
+							$val = htmlspecialcharsex((new Uri($arFile["SRC"]))->toAbsolute()->getUri());
 						else
 							$val = "";
 						break;
@@ -1324,6 +1329,16 @@ topWindow.BX.ajax.UpdatePageData({});
 	protected static function getModeActionUrlParam(): string
 	{
 		return static::getModeUrlParam(self::MODE_ACTION);
+	}
+
+	protected static function getModeConfigUrlParam(): string
+	{
+		return static::getModeUrlParam(self::MODE_CONFIG);
+	}
+
+	protected static function getModeExportUrlParam(): string
+	{
+		return static::getModeUrlParam(self::MODE_EXPORT);
 	}
 
 	protected static function getModeParam(string $mode): array

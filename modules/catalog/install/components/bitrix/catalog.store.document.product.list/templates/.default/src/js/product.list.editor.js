@@ -8,6 +8,8 @@ import {ProductSelector} from 'catalog.product-selector';
 import HintPopup from './hint.popup';
 import ProductListController from "catalog.document-card";
 import {ProductModel} from "catalog.product-model";
+import {FieldHintManager} from "./field.hint.manager";
+import {Guide} from "ui.tour";
 
 const GRID_TEMPLATE_ROW = 'template_0';
 const DEFAULT_PRECISION: number = 2;
@@ -23,6 +25,8 @@ export class Editor
 	productsWasInitiated = false;
 	pageEventsManager: PageEventsManager;
 	cache = new Cache.MemoryCache();
+
+	#fieldHintManager: FieldHintManager;
 
 	actions = {
 		productChange: 'productChange',
@@ -72,6 +76,8 @@ export class Editor
 		this.initProducts();
 		this.initGridData();
 		this.paintColumns();
+
+		this.#fieldHintManager = new FieldHintManager(this.getContainer(), this.getGrid.bind(this));
 
 		EventEmitter.emit( 'DocumentProductListController', [this]);
 
@@ -333,7 +339,7 @@ export class Editor
 			...eventArgs.data,
 			useProductsFromRequest,
 			signedParameters: this.getSignedParameters(),
-			products: useProductsFromRequest ? this.getProductsFields() : null,
+			products: useProductsFromRequest ? this.getProductsFields(Editor.#getAjaxFields()) : null,
 		};
 
 		let isDeletingRequest = false;
@@ -1480,6 +1486,27 @@ export class Editor
 			'BARCODE',
 			'STORE_TO',
 			'STORE_FROM',
+			'BASE_PRICE_ID',
+			'BASKET_ID',
+			'DOC_ID',
+			'ELEMENT_ID',
+			'IBLOCK_ID',
+			'MEASURE_CODE',
+			'MEASURE_NAME',
+			'NAME',
+			'OFFERS_IBLOCK_ID',
+			'PARENT_PRODUCT_ID',
+			'PRODUCT_ID',
+			'ROW_ID',
+			'STORE_FROM_AMOUNT',
+			'STORE_FROM_AVAILABLE_AMOUNT',
+			'STORE_FROM_RESERVED',
+			'STORE_FROM_TITLE',
+			'STORE_TO_AMOUNT',
+			'STORE_TO_AVAILABLE_AMOUNT',
+			'STORE_TO_RESERVED',
+			'STORE_TO_TITLE',
+			'TOTAL_PRICE',
 		];
 	}
 
@@ -1783,7 +1810,7 @@ export class Editor
 
 	handleOnTabShow(): void
 	{
-		EventEmitter.emit('onDemandRecalculateWrapper');
+		EventEmitter.emit('onDemandRecalculateWrapper', [this]);
 	}
 
 	closeBarcodeSpotlights(): void
@@ -1818,5 +1845,35 @@ export class Editor
 		});
 
 		return errorsArray;
+	}
+
+	showFieldTourHint(fieldName: string, tourData: Object, endTourHandler: Function, addictedFields: Array<string> = []): void
+	{
+		if (this.products.length > 0)
+		{
+			const firstProductRowNode = this.products[0].getNode();
+
+			const addictedNodes = [];
+			for (const fieldName of addictedFields)
+			{
+				const fieldNode = firstProductRowNode.querySelector(`[data-name="${fieldName}"]`);
+				if (fieldNode !== null)
+				{
+					addictedNodes.push(fieldNode);
+				}
+			}
+
+			const fieldNode = firstProductRowNode.querySelector(`[data-name="${fieldName}"]`);
+
+			if (fieldNode !== null)
+			{
+				this.#fieldHintManager.processFieldTour(fieldNode, tourData, endTourHandler, addictedNodes);
+			}
+		}
+	}
+
+	getActiveHint(): Guide|null
+	{
+		return this.#fieldHintManager.getActiveHint();
 	}
 }

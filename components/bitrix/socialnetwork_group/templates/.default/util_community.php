@@ -7,7 +7,7 @@ if (
 	&& in_array($arReturnGroupMenu["CURRENT_USER_PERMS"]["UserRole"], array(SONET_ROLES_OWNER, SONET_ROLES_MODERATOR, SONET_ROLES_USER))
 )
 {
-	$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LANGUAGE_ID."/util_community.php")));
+	$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/lang/".LANGUAGE_ID."/util_community.php")));
 	__IncludeLang($file);
 
 	?><script>

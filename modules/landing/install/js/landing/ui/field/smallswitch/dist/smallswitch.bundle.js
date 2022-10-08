@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_field_switch,main_core,landing_loc) {
+(function (exports,landing_ui_field_switch,main_core,ui_fonts_opensans,landing_loc) {
 	'use strict';
 
 	/**
@@ -48,5 +48,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.SmallSwitch = SmallSwitch;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX,BX.Landing));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX,BX,BX.Landing));
 //# sourceMappingURL=smallswitch.bundle.js.map

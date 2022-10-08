@@ -12,6 +12,10 @@ BitrixVue.component('sale-checkout-view-successful-without-ps', {
 			return Object.freeze(
 				BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_SUCCESSFUL_'))
 		},
+		showReturnButton()
+		{
+			return this.$store.getters['application/getShowReturnButton'] === 'Y';
+		},
 	},
 	// language=Vue
 	template: `
@@ -26,7 +30,7 @@ BitrixVue.component('sale-checkout-view-successful-without-ps', {
             </div>
 			
 			<sale-checkout-view-successful-property_list :items="items" :order="order"/>
-			<sale-checkout-view-element-button-shipping-button :url="config.mainPage">
+			<sale-checkout-view-element-button-shipping-button :url="config.mainPage" v-if="showReturnButton">
 			  <template v-slot:button-title>{{localize.CHECKOUT_VIEW_SUCCESSFUL_ELEMENT_BUTTON_SHIPPING_TO_SHOP}}</template>
 			</sale-checkout-view-element-button-shipping-button>
 		</div>

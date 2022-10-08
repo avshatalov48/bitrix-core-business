@@ -1,18 +1,28 @@
-<?
+<?php
+
 use Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\ORM;
+use Bitrix\Catalog;
 
 class CAllCatalogVat
 {
 	/**
 	 * @deprecated deprecated since catalog 12.5.6
 	 */
-	public static function err_mess()
+	public static function err_mess(): string
 	{
 		return "<br>Module: catalog<br>Class: CCatalogVat<br>File: ".__FILE__;
 	}
 
-	public static function CheckFields($ACTION, &$arFields, $ID = 0)
+	/**
+	 * @deprecated
+	 *
+	 * @param $ACTION
+	 * @param $arFields
+	 * @param $ID
+	 * @return bool
+	 */
+	public static function CheckFields($ACTION, &$arFields, $ID = 0): bool
 	{
 		global $APPLICATION;
 		$arMsg = array();
@@ -102,7 +112,7 @@ class CAllCatalogVat
 	 * @deprecated deprecated since catalog 20.0.200
 	 * @see \Bitrix\Catalog\VatTable::getById()
 	 *
-	 * @param int $ID
+	 * @param $ID
 	 * @return CDBResult|false
 	 */
 	public static function GetByID($ID)
@@ -138,10 +148,10 @@ class CAllCatalogVat
 
 	/**
 	 * @deprecated deprecated since catalog 12.5.6
-	 * @see CCatalogVat::Add()
-	 * @see CCatalogVat::Update()
+	 * @see Catalog\Model\Vat::add
+	 * @see Catalog\Model\Vat::update
 	 *
-	 * @param array $arFields
+	 * @param $arFields
 	 * @return int|false
 	*/
 	public static function Set($arFields)
@@ -159,5 +169,126 @@ class CAllCatalogVat
 	public static function GetByProductID($PRODUCT_ID)
 	{
 
+	}
+
+	/**
+	 * @deprecated
+	 * @see Catalog\Model\Vat::add
+	 *
+	 * @param $fields
+	 * @return false|int
+	 */
+	public static function Add($fields)
+	{
+		if (empty($fields) || !is_array($fields))
+		{
+			return false;
+		}
+
+		self::normalizeFields($fields);
+
+		$result = Catalog\Model\Vat::add($fields);
+
+		$id = false;
+		if (!$result->isSuccess())
+		{
+			self::convertErrors($result);
+		}
+		else
+		{
+			$id = (int)$result->getId();
+		}
+		unset($result);
+
+		return $id;
+	}
+
+	/**
+	 * @deprecated
+	 * @see Catalog\Model\Vat::update
+	 *
+	 * @param $id
+	 * @param $fields
+	 * @return false|int
+	 */
+	public static function Update($id, $fields)
+	{
+		$id = (int)$id;
+		if ($id <= 0 || empty($fields) || !is_array($fields))
+		{
+			return false;
+		}
+
+		self::normalizeFields($fields);
+
+		$result = Catalog\Model\Vat::update($id, $fields);
+
+		if (!$result->isSuccess())
+		{
+			$id = false;
+			self::convertErrors($result);
+		}
+
+		return $id;
+	}
+
+	/**
+	 * @deprecated
+	 * @see Catalog\Model\Vat::delete
+	 *
+	 * @param $id
+	 * @return bool
+	 */
+	public static function Delete($id): bool
+	{
+		$id = (int)$id;
+		if ($id <= 0)
+		{
+			return false;
+		}
+
+		$result = Catalog\Model\Vat::delete($id);
+		$success = $result->isSuccess();
+		if (!$success)
+		{
+			self::convertErrors($result);
+		}
+		unset($result);
+
+		return $success;
+	}
+
+	private static function normalizeFields(array &$fields)
+	{
+		if (!isset($fields['SORT']))
+		{
+			if (isset($fields['C_SORT']))
+			{
+				$fields['SORT'] = $fields['C_SORT'];
+				unset($fields['C_SORT']);
+			}
+		}
+	}
+
+	private static function convertErrors(ORM\Data\Result $result)
+	{
+		global $APPLICATION;
+
+		$oldMessages = [];
+		foreach ($result->getErrorMessages() as $errorText)
+		{
+			$oldMessages[] = [
+				'text' => $errorText,
+			];
+		}
+		unset($errorText);
+
+		if (!empty($oldMessages))
+		{
+			$error = new CAdminException($oldMessages);
+			$APPLICATION->ThrowException($error);
+			unset($error);
+		}
+		unset($oldMessages);
 	}
 }

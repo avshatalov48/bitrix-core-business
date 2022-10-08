@@ -1,6 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 $MESS = array();
-$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/../lang/".LANGUAGE_ID."/script.php");
+$path = str_replace(array("\\", "//"), "/", __DIR__."/../lang/".LANGUAGE_ID."/script.php");
 include_once($path);
 $MESS1 =& $MESS;
 $GLOBALS["MESS"] = $MESS1 + $GLOBALS["MESS"];

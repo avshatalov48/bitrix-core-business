@@ -576,7 +576,38 @@ if (!empty($arCompare) && is_array($arCompare))
 		);
 		if (!empty($list))
 		{
-			$properties = array_unique(array_merge($properties, $list));
+			$properties = array_merge($properties, $list);
+		}
+		if (!empty($properties))
+		{
+			$properties = array_unique($properties);
+			$selectProperties = array_fill_keys($properties, true);
+			$properties = [];
+			$propertyIterator = Iblock\PropertyTable::getList([
+				'select' => [
+					'ID',
+					'CODE',
+					'SORT',
+				],
+				'filter' => [
+					'=IBLOCK_ID' => $arParams['IBLOCK_ID'],
+					'=ACTIVE' => 'Y'
+				],
+				'order' => [
+					'SORT' => 'ASC',
+					'ID' => 'ASC'
+				],
+			]);
+			while ($property = $propertyIterator->fetch())
+			{
+				$code = $property['CODE'] ?? $property['ID'];
+				if (isset($selectProperties[$code]))
+				{
+					$properties[] = $code;
+				}
+			}
+			unset($code, $property, $propertyIterator);
+			unset($selectProperties);
 		}
 		$arParams['PROPERTY_CODE'] = $properties;
 		if ($catalogIncluded && $arResult['OFFERS_IBLOCK_ID'] > 0)
@@ -606,7 +637,38 @@ if (!empty($arCompare) && is_array($arCompare))
 			{
 				$properties = array_merge($properties, $list);
 			}
-			$arParams['OFFERS_PROPERTY_CODE'] = array_unique($properties);
+			if (!empty($properties))
+			{
+				$properties = array_unique($properties);
+				$selectProperties = array_fill_keys($properties, true);
+				$properties = [];
+				$propertyIterator = Iblock\PropertyTable::getList([
+					'select' => [
+						'ID',
+						'CODE',
+						'SORT',
+					],
+					'filter' => [
+						'=IBLOCK_ID' => $arResult['OFFERS_IBLOCK_ID'],
+						'=ACTIVE' => 'Y'
+					],
+					'order' => [
+						'SORT' => 'ASC',
+						'ID' => 'ASC'
+					],
+				]);
+				while ($property = $propertyIterator->fetch())
+				{
+					$code = $property['CODE'] ?? $property['ID'];
+					if (isset($selectProperties[$code]))
+					{
+						$properties[] = $code;
+					}
+				}
+				unset($code, $property, $propertyIterator);
+				unset($selectProperties);
+			}
+			$arParams['OFFERS_PROPERTY_CODE'] = $properties;
 		}
 		unset($list, $properties);
 	}

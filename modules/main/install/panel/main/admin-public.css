@@ -31,8 +31,8 @@
 	color:#3f4b54;
 	cursor:pointer;
 	display:inline-block;
-	font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-	font-weight:bold;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight:var(--ui-font-weight-bold);
 	font-size:13px;
 	/*line-height:18px;*/
 	height: 29px;
@@ -373,7 +373,7 @@
 #bx-admin-prefix .adm-input-file-hint-row{display: block; padding: 3px 0; word-wrap: break-word; }
 /*#bx-admin-prefix .adm-input-file-hint-row a{white-space: nowrap !important;}*/
 #bx-admin-prefix .adm-input-file-exist-cont img{border: 1px solid #e4e6e6;}
-#bx-admin-prefix .adm-input-file-name{color: #2d3e4a !important; display: inline-block; vertical-align: top;font-weight:bold;}
+#bx-admin-prefix .adm-input-file-name{color: #2d3e4a !important; display: inline-block; vertical-align: top;font-weight:var(--ui-font-weight-bold);}
 #bx-admin-prefix .adm-input-file-exist-cont .adm-input-file-img-wrap {border: 1px solid #cacdcd;}
 #bx-admin-prefix .adm-input-file-deleted img {opacity: 0.2;-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";}
 #bx-admin-prefix .adm-input-file-deleted .adm-input-file-name{}
@@ -641,13 +641,19 @@
 }
 
 #bx-admin-prefix .adm-designed-checkbox-label {
-	background:url("images/bx-admin-sprite-small-2.png") no-repeat 0 -983px;
-	cursor: pointer;
+	background: url("images/bx-admin-sprite-small-2.png") no-repeat 0 -983px;
 	display: inline-block;
 	height: 15px;
-	float:none;
+	float: none;
+	min-width: 16px;
 	width: 16px;
 	vertical-align: text-top;
+	cursor: pointer;
+}
+
+.adm-input-chackbox-wrap {
+	display: flex;
+	align-items: center;
 }
 
 .bx-opera #bx-admin-prefix .adm-designed-checkbox {
@@ -716,7 +722,7 @@
 	color: #000;
 	vertical-align: middle;
 	font-size: 13px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-font-smoothing: antialiased;
 }
 
@@ -755,8 +761,8 @@
 	color:#aaafb3;
 	cursor:default;
 	display:inline-block;
-	font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-	font-weight:bold;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight:var(--ui-font-weight-bold);
 	font-size:13px;
 	height: 29px;
 	text-shadow:0 1px rgba(255,255,255,0.7);
@@ -904,7 +910,7 @@
 	box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.3), inset 0 2px 2px -1px rgba(180, 188, 191, 0.7);
 	color: #3f4b54;
 	font-size: 13px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .adm-workarea .adm-input-file {
@@ -923,8 +929,8 @@
 	color:#3f4b54;
 	cursor:pointer;
 	display:inline-block;
-	font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-	font-weight:bold;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight:var(--ui-font-weight-bold);
 	font-size:13px;
 	height: 19px;
 	text-shadow:0 1px #fff;
@@ -1057,7 +1063,7 @@
 }
 
 #bx-admin-prefix .bx-core-popup-menu-item-default .bx-core-popup-menu-item-text {
-	/*font-weight: bold;*/
+	/*font-weight: var(--ui-font-weight-bold);*/
 }
 
 #bx-admin-prefix .bx-core-popup-menu-no-icons .bx-core-popup-menu-item-text {
@@ -1127,7 +1133,7 @@
 	border-bottom:11px solid #F5F9F9;
 	color:#4b6267;
 	font-size:14px;
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	text-align:center!important;
 	text-shadow:0 1px #fff;
 	padding:8px 4px 10px!important;
@@ -1192,7 +1198,7 @@
 	display:inline-block;
 	color:#2b4e0c;
 	font-size:14px;
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	margin-left:-6px;
 	text-shadow:0 1px rgba(255,255,255,0.4);
 	padding:10px 15px 10px 44px;
@@ -1275,7 +1281,7 @@
 	cursor:pointer;
 	color:#1c53a2;
 	font-size:13px;
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	text-shadow:0 1px #fff;
 	height:25px;
 	margin-right:7px;
@@ -1339,7 +1345,7 @@
 	float: none !important;
 	position:static !important;
 	text-decoration: none !important;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }
 
 
@@ -1389,7 +1395,7 @@
 	-webkit-box-shadow:inset 0 -1px 0 0 #d1dadf !important;
 	box-shadow:inset 0 -1px 0 0 #d1dadf !important;
 	color:#4a515d !important;
-	font: normal normal bold 12px/normal "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	margin-bottom:8px !important;
 	text-shadow:0 1px rgba(255,255,255,0.5) !important;
 	padding:10px 0 11px 17px !important;
@@ -1402,7 +1408,7 @@
 	-webkit-box-shadow:0 1px 0 rgba(255,255,255,0.4) !important;
 	box-shadow:0 1px 0 rgba(255,255,255,0.4) !important;
 	color: white !important;
-	font: normal normal bold 12px/normal "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	min-height:15px !important;
 	padding: 6px 0 7px 10px !important;
 	position:relative !important;
@@ -1433,7 +1439,7 @@
 	box-shadow:0 1px 0 #fff !important;
 }
 .adm-informer .adm-informer-item-html {
-	font: normal normal normal 12px/17px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 12px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	min-height:37px !important;
 	text-shadow:0 1px rgba(255,255,255, 0.7) !important;
 	overflow:hidden !important;
@@ -1446,7 +1452,7 @@
 	color: #394C5B !important;
 	text-decoration: underline !important;
 	text-shadow: 0 1px rgba(255, 255, 255, 0.7) !important;
-	font: normal normal normal 12px/normal "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }
 
 .adm-informer-item-red .adm-informer-item-html a, .adm-informer-item-red .adm-informer-item-footer a {
@@ -1490,12 +1496,12 @@
 
 .adm-informer .adm-informer-item-footer {
 	color:#394c5b !important;
-	font: normal normal normal 12px/normal "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	min-height:18px !important;
 	text-shadow:0 1px rgba(255,255,255,0.7) !important;
 	padding:7px 10px !important;
 }
-.adm-informer .adm-informer-strong-text {font-weight:bold !important;}
+.adm-informer .adm-informer-strong-text {font-weight:var(--ui-font-weight-bold) !important;}
 
 .adm-informer .adm-informer-item-blue .adm-informer-item-title{
 	background:#7a9ec0 url("/bitrix/panel/main/images/informer-popup/informer-title-blue.gif") repeat !important;
@@ -1687,7 +1693,7 @@
 	-webkit-box-shadow: inset 0 1px #fff !important;
 	box-shadow:inset 0 1px #fff !important;
 	display:block;
-	font: normal normal bold 12px/normal "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	color:#1c53a2 !important;
 	text-shadow:0 1px rgba(255,255,255,0.5) !important;
 	text-decoration:none !important;
@@ -1737,7 +1743,7 @@
 #bx-admin-prefix .adm-info-message-title {
 	color:#000;
 	font-size:13px;
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	text-shadow:0 1px #fff;
 }
 
@@ -1828,7 +1834,7 @@
 	text-shadow: 0 1px rgba(255,255,255,0.85);
 	font-size: 18px;
 	line-height: 35px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	position: relative;
 }
 
@@ -1858,7 +1864,7 @@
 	text-shadow: 0 1px rgba(0,0,0,0.2);
 	font-size: 18px;
 	line-height: 32px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-align: center;
 	position: absolute;
 	left: -2px;
@@ -1957,7 +1963,7 @@
 	-webkit-box-shadow:inset 0 -1px 0 #a9a9a9, inset 0 1px 0 #fff, inset 0 -2px 0 rgba(255,255,255,0.3);
 	box-shadow:inset 0 -1px 0 #a9a9a9, inset 0 1px 0 #fff, inset 0 -2px 0 rgba(255,255,255,0.3);
 	color:#586d7c;
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	font-size:13px;
 	height:43px;
 	text-shadow:0 1px #fff;
@@ -2064,8 +2070,8 @@
 
 #bx-admin-prefix .adm-calendar-icon:hover {background-position:-1px -3487px;}
 
-#bx-admin-prefix .adm-detail-required-field .adm-detail-content-cell-l { font-weight: bold; }
-#bx-admin-prefix .adm-required-field { font-weight: bold;}
+#bx-admin-prefix .adm-detail-required-field .adm-detail-content-cell-l { font-weight: var(--ui-font-weight-bold); }
+#bx-admin-prefix .adm-required-field { font-weight: var(--ui-font-weight-bold);}
 
 /*================================================================= END FIELDS==================================================*/
 
@@ -2132,7 +2138,7 @@
 	border: none;
 	border-radius: 2px;
 	margin: 4px 1px;
-	font: 15px/30px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/30px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-transition: background .3s;
 	transition: background .3s;
 	box-shadow: none;
@@ -2146,8 +2152,8 @@
 	position: relative;
 	font-size: 12px;
 	color: #535c69;
-	font-family: 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-	font-weight: bold;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	text-transform: uppercase;
 	margin-right: 20px;
 	padding-left: 18px;

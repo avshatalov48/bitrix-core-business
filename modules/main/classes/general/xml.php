@@ -591,36 +591,16 @@ class CDataXML
 			else
 			{
 				// normal start tag
-				$firstSpaceEnd = mb_strpos($tagName, " ");
-				$firstNewlineEnd = mb_strpos($tagName, "\n");
-
-				if ($firstNewlineEnd != false)
+				if (preg_match('/^(\S+)(.*)$/s', $tagName, $match))
 				{
-					if ($firstSpaceEnd != false)
-					{
-						$tagNameEnd = min($firstSpaceEnd, $firstNewlineEnd);
-					}
-					else
-					{
-						$tagNameEnd = $firstNewlineEnd;
-					}
+					$justName = $match[1];
+					$attributePart = $match[2];
 				}
 				else
 				{
-					if ($firstSpaceEnd != false)
-					{
-						$tagNameEnd = $firstSpaceEnd;
-					}
-					else
-					{
-						$tagNameEnd = 0;
-					}
-				}
-
-				if ($tagNameEnd > 0)
-					$justName = mb_substr($tagName, 0, $tagNameEnd);
-				else
 					$justName = $tagName;
+					$attributePart = '';
+				}
 
 				// strip out namespace; nameSpace:Name
 				if ($this->delete_ns)
@@ -639,10 +619,8 @@ class CDataXML
 				$subNode->name = $justName;
 
 				// find attributes
-				if ($tagNameEnd > 0)
+				if ($attributePart)
 				{
-					$attributePart = mb_substr($tagName, $tagNameEnd);
-
 					// attributes
 					unset($attr);
 					$attr = CDataXML::__parseAttributes($attributePart);

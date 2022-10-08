@@ -1,7 +1,7 @@
 /* new planner */
 
 .calendar-planner-wrapper {
-	font: normal 11px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: normal 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #9da2a9;
 	box-sizing: border-box;
 	/*overflow: hidden;*/
@@ -25,6 +25,7 @@
 }
 
 .calendar-planner-time {
+	will-change: width;
 	display: table;
 	-webkit-user-select: none!important;  /* Chrome all / Safari all */
 	-moz-user-select: none!important;     /* Firefox all */
@@ -49,21 +50,30 @@
 }
 
 .calendar-planner-time-day-outer {
+	will-change: width;
 	display: table-cell;
 }
 
-.calendar-planner-time-day-title{
+.calendar-planner-time-day-title {
+	will-change: width;
 	padding: 5px 0 10px 6px;
-	font: normal 11px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: normal 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	position: relative;
 }
 
+.calendar-planner-time-day-title span {
+	position: sticky;
+	left: 0;
+	margin-right: 10px;
+}
+
 .calendar-planner-time-day {
+	will-change: width;
 	display: table;
 }
 
 .calendar-planner-time-day *{
-	font: normal 11px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: normal 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .calendar-planner-time-hour-item {
@@ -92,7 +102,7 @@
 	position: absolute;
 	top:0;
 	left:0;
-	font: normal 11px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: normal 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .calendar-planner-fulldaymode .calendar-planner-time-hour-item i {
@@ -150,12 +160,12 @@
 
 .calendar-planner-users-item {
 	position: relative;
-	font: normal 11px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: normal 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .calendar-planner-users-item *
 {
-	font: normal 11px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: normal 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .calendar-planner-settings-icon,
@@ -244,7 +254,7 @@
 }
 
 .calendar-planner-entry-name {
-	font: bold 13px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	display: inline-block;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -254,7 +264,7 @@
 }
 
 .calendar-planner-all-users {
-	font: normal 11px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: normal 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	max-width: 110px;
 	padding: 4px 3px 0 27px;
 	transition: color 0.4s ease;
@@ -282,21 +292,45 @@
 	overflow-y: hidden;
 }
 
-.calendar-planner-timeline-wrapper.--lock {
+.calendar-planner-timeline-constraint.--lock {
 	display: flex;
 	overflow: hidden;
 }
 
-.calendar-planner-readonly .calendar-planner-timeline-wrapper{
+.calendar-planner-readonly .calendar-planner-timeline-constraint {
 	overflow: hidden;
 }
 
-.calendar-planner-timeline-inner-wrapper{
-	overflow: hidden;
+.calendar-planner-timeline-constraint {
+	overflow-y: hidden;
+}
+
+.calendar-planner-timeline-constraint::-webkit-scrollbar {
+	/*
+		height is 7px, which is 15px - 2 * 4px
+	*/
+	height: 15px;
+}
+
+.calendar-planner-timeline-constraint::-webkit-scrollbar-thumb {
+	background: #d3d3d5;
+	border-radius: 1in;
+	border: 4px solid #0000;
+	background-clip: padding-box;
+}
+
+.calendar-planner-timeline-constraint::-webkit-scrollbar-thumb:hover {
+	background: #a4a4a5;
+	border: 4px solid #0000;
+	background-clip: padding-box;
 }
 
 .calendar-planner-timeline-wrapper.--lock .calendar-planner-timeline-inner-wrapper {
 	pointer-events: none;
+}
+
+.calendar-planner-timeline-inner-wrapper {
+	will-change: width;
 }
 
 .calendar-planner-acc-wrap {
@@ -401,7 +435,7 @@
 	padding: 2px 3px;
 	border: 1px solid rgba(170,174,181, .43);
 	background: #fff;
-	font: bold 10px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 10px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #535c69;
 	-webkit-transform: translate(-50%, -50%);
 	-moz-transform: translate(-50%, -50%);
@@ -472,7 +506,7 @@
 	border-radius: 50%;
 	background: #fff;
 	color: #fe5957;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	-webkit-transform: translate(-50%, -50%);
 	-moz-transform: translate(-50%, -50%);
 	-ms-transform: translate(-50%, -50%);
@@ -536,7 +570,7 @@
 .calendar-planner-settings-popup {padding: 5px 5px 0;}
 .calendar-planner-settings-row{margin: 0 0 5px 0;}
 .calendar-planner-settings-row i {
-	font: normal 11px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: normal 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #9da2a9;
 	line-height: 25px;
 	padding: 0 10px 0 15px;
@@ -556,7 +590,7 @@
 }
 
 .calendar-planner-option-tab {
-	font: normal 11px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: normal 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	display: inline-block;
 	line-height: 25px;
 	background: #eeeff1;
@@ -633,7 +667,7 @@
 .calendar-planner-propose-link {
 	display: inline-block;
 	cursor: pointer;
-	font: bold 13px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #9da2a9;
 	transition: color 0.4s ease;
 }
@@ -695,7 +729,7 @@
 
 .calendar-planner-time-arrow-right-text {
 	display: inline-block;
-	font: bold 9px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 9px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	vertical-align: top !important;
 	text-transform: uppercase;
 	margin: 7px 0 0 0 !important;
@@ -1094,7 +1128,7 @@
 }
 
 .calendar-planner-settings-icon-container .calendar-planner-settings-title {
-	font: normal 11px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: normal 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #9da2a9;
 }
 
@@ -1130,7 +1164,7 @@
 }
 
 .calendar-planner-entry-icons-only .calendar-planner-user-container {
-	width: 50px!important;
+	width: 70px!important;
 }
 .calendar-planner-entry-icons-only .calendar-planner-user-container .calendar-planner-header{
 	display: none;
@@ -1183,8 +1217,25 @@
 }
 
 .calendar-planner-timeline-text {
-	font-family: "OpenSans-Regular", Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 14px;
 	color: #333;
 	line-height: 19px;
+}
+
+.expand-width-0-40 {
+	animation: expand-width-0-40 0.2s linear;
+}
+
+@keyframes expand-width-0-40 {
+	from {
+		min-width: 0;
+		width: 0;
+	}
+
+	to {
+		min-width: 40px;
+		width: 40px;
+	}
 }

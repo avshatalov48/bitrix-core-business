@@ -250,5 +250,5 @@
 
 	namespace.Scheme = Scheme;
 
-}((this.window = this.window || {}),BX,BX.Bizproc,BX.Main));
+}((this.window = this.window || {}),BX,BX.Bizproc.Automation,BX.Main));
 //# sourceMappingURL=script.js.map

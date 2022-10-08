@@ -31,6 +31,7 @@ export default class PostFormEditor extends EventEmitter
 
 		window['setBlogPostFormSubmitted'] = this.setBlogPostFormSubmitted.bind(this);
 		window['submitBlogPostForm'] = this.submitBlogPostForm.bind(this);
+		console.log('constructor');
 	}
 
 	init(formID, params)
@@ -258,6 +259,7 @@ export default class PostFormEditor extends EventEmitter
 
 			if (submitButton)
 			{
+				console.log('add');
 				submitButton.classList.add('ui-btn-clock');
 				this.disabled = true;
 
@@ -314,9 +316,11 @@ export default class PostFormEditor extends EventEmitter
 				}
 			}
 
-			BX.submit(document.getElementById(this.formId), value);
+			setTimeout(()=> {
+				BX.submit(document.getElementById(this.formId), value);
+				this.formParams.submitted = true;
+			}, 100);
 
-			this.formParams.submitted = true;
 		}
 	};
 
@@ -660,7 +664,10 @@ export default class PostFormEditor extends EventEmitter
 		EventEmitter.subscribe(editor, 'OnSetViewAfter', () => {
 			if (this.formParams.createdFromEmail)
 			{
-				editor.SetContent(`${editor.GetContent()}${Loc.getMessage('CREATED_ON_THE_BASIC_OF_THE_MESSAGE')}`);
+				if (editor.GetContent() === '')
+				{
+					editor.SetContent(`${Loc.getMessage('CREATED_ON_THE_BASIC_OF_THE_MESSAGE')}`);
+				}
 				editor.Focus(true);
 			}
 		});

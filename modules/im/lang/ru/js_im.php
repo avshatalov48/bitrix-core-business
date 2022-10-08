@@ -462,6 +462,7 @@ $MESS["IM_CALL_ERROR_UNEXPECTED_ANSWER"] = "Не удалось запустит
 $MESS["IM_CALL_ERROR_BLANK_ANSWER"] = "Не удалось запустить звонок: пустой ответ сервера (вероятно, сетевая проблема)";
 $MESS["IM_CALL_ERROR_ACCESS_DENIED"] = "Ошибка доступа при создании звонка. Вы не можете позвонить этому пользователю или в этот чат";
 $MESS["IM_CALL_ERROR_UNKNOWN"] = "Ошибка создания звонка";
+$MESS["IM_CALL_ERROR_NETWORK"] = "Сетевая ошибка, повторите попытку позже";
 $MESS["IM_CALL_ERROR_UNKNOWN_WITH_CODE"] = "Ошибка создания звонка (код ошибки: #ERROR_CODE#)";
 $MESS["IM_CALL_HARDWARE_REQUEST"] = "Запрашиваем доступ к камере и микрофону";
 $MESS["IM_CALL_CAMERA_ERROR_FALLBACK_TO_MIC"] = "Не удалось получить доступ к камере. Для звонка используется только микрофон";

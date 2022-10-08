@@ -122,15 +122,24 @@
 
 			if (key === 90 && (window.navigator.userAgent.match(/win/i) ? event.ctrlKey : event.metaKey))
 			{
-				if (event.shiftKey)
+				var rootWindow = BX.Landing.PageObject.getRootWindow();
+				var formSettingsPanel = rootWindow.BX.Reflection.getClass('BX.Landing.UI.Panel.FormSettingsPanel');
+
+				if (
+					!formSettingsPanel
+					|| !formSettingsPanel.getInstance().isShown()
+				)
 				{
-					event.preventDefault();
-					this.onRedo();
-				}
-				else
-				{
-					event.preventDefault();
-					this.onUndo();
+					if (event.shiftKey)
+					{
+						event.preventDefault();
+						this.onRedo();
+					}
+					else
+					{
+						event.preventDefault();
+						this.onUndo();
+					}
 				}
 			}
 		},

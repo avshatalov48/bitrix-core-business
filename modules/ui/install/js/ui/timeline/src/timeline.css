@@ -104,12 +104,13 @@
 	content: "1";
 	vertical-align: middle;
 	text-align: center;
-	font: 700 9px/12px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 9px/12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .ui-item-detail-stream-section-no-task .ui-item-detail-stream-content-detail {
 	color: #a8adb4;
-	font: 13px/25px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/25px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-item-detail-stream-section-content {
@@ -119,12 +120,12 @@
 	width: 100%;
 	border-radius: var(--ui-item-detail-stream-section-border-radius, var(--ui-border-radius-md, 2px));
 	background-color: #fff;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: all 300ms ease, 1000ms background-color linear;
 }
 
 .ui-item-detail-stream-content-detail {
-	font: 13px/19px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-item-detail-stream-content-detail-field {
@@ -162,7 +163,8 @@
 }
 
 .ui-item-detail-editor-container .ui-entity-editor-header-title-text {
-	font: 12px/22px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/22px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	text-transform: uppercase;
 }
 
@@ -181,7 +183,8 @@
 .ui-item-detail-stream-content-title-text {
 	color: #333;
 	margin-right: 5px;
-	font: 700 13px/19px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .ui-item-detail-stream-content-employee {
@@ -253,7 +256,7 @@
 .ui-item-detail-stream-content-detail-main {
 	color: #000;
 	padding: 13px 0 13px 4px;
-	font: 13px/19px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-item-detail-stream-content-detail-main:last-child {
@@ -306,14 +309,14 @@
 
 .ui-item-detail-stream-content-detail-subject-resp-current {
 	color: #119bc6;
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .ui-item-detail-stream-content-detail-status {
 	position: relative;
 	color: #525c69;
 	font-size: 13px;
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	padding-right: 16px;
 	margin-left: 5px;
 }
@@ -345,7 +348,7 @@
 
 .ui-item-detail-stream-content-title-time {
 	color: #a8adb4;
-	font: 400 13px/21px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 13px/21px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-item-detail-stream-content-detail-info-status {
@@ -437,12 +440,12 @@
 .ui-item-detail-stream-section-im-user-counter {
 	padding-left: 1px;
 	color: #2fc6f6;
-	font: 11px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 11px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-item-detail-stream-section-im-user-invite-text {
 	padding-left: 6px;
-	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	opacity: .72;
 }
 
@@ -517,7 +520,7 @@
 .ui-item-detail-stream-section-im-time {
 	padding-right: 5px;
 	color: #525c69;
-	font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-item-detail-stream-section-im-message {
@@ -535,7 +538,7 @@
 	color: #525c69;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font: 13px/20px "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font: 13px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-item-detail-stream-section-im-message-counter {
@@ -544,7 +547,8 @@
 	border-radius: 8px;
 	background: #2fc6f6 url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2210%22%20height%3D%2210%22%3E%3Cpath%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20d%3D%22M1.976%203.211a.238.238%200%2001-.244-.233v-.96c0-.129.108-.232.244-.232h6.18c.135%200%20.243.103.243.233v.959c.027.13-.108.233-.244.233h-6.18zm0%202.857a.238.238%200%2001-.244-.233v-.959c0-.13.109-.233.245-.233H8.18c.136%200%20.245.104.245.233v.959c.027.13-.109.233-.245.233H1.977zM1.209%200C.55%200%200%20.518%200%201.14v5.71c0%20.622.55%201.14%201.208%201.14h4.443c.082%200%20.137.026.192.078l1.703%201.736c.164.156.439.052.439-.155V8.223c0-.13.11-.233.247-.233h.56C9.45%207.99%2010%207.472%2010%206.85V1.14C9.973.518%209.423%200%208.764%200H1.208z%22%20opacity%3D%22.936%22/%3E%3C/svg%3E) no-repeat 7px center;
 	color: #fff;
-	font: 9px/16px "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 9px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .ui-item-detail-stream-section-new .ui-item-detail-stream-section-content {
@@ -575,7 +579,8 @@
 	border-bottom: 2px solid transparent;
 	color: #555c6d;
 	vertical-align: middle;
-	font: 14px/47px "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+	font: 14px/47px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	cursor: pointer;
 	transition: all 300ms ease;
 }
@@ -602,7 +607,7 @@
 	border: 0;
 	border-radius: var(--ui-item-detail-stream-section-border-radius, var(--ui-border-radius-md));
 	color: #000;
-	font: 13px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	resize: none;
 	transition: 400ms all ease;
 	margin: 0;
@@ -679,7 +684,7 @@
 	min-height: 18px;
 	border-radius: 11px;
 	color: #fff;
-	font: bold 12px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 12px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	background-color: #9ece00;
 }
 
@@ -906,7 +911,7 @@
 	color: #858c95;
 	vertical-align: middle;
 	text-decoration: none;
-	font: 400 13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 13px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: 250ms all ease;
 }
 

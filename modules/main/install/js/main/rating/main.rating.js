@@ -274,6 +274,7 @@ this.BX = this.BX || {};
 	      likeInstance.countText.innerHTML = data.items_all;
 
 	      if (Number(data.items_page) === 0) {
+	        likeInstance.popup.close();
 	        return false;
 	      }
 
@@ -1017,8 +1018,8 @@ this.BX = this.BX || {};
 	      var userReaction = null;
 	      var result = null;
 
-	      if (((reactionNode = document.elementFromPoint(x, y + this.touchMoveDeltaY - this.touchScrollTop) // icon above/below a finger
-	      ) || (reactionNode = document.elementFromPoint(x, y - this.touchScrollTop)) // icon is under a finger
+	      if (((reactionNode = document.elementFromPoint(x, y + this.touchMoveDeltaY - this.touchScrollTop)) || ( // icon above/below a finger
+	      reactionNode = document.elementFromPoint(x, y - this.touchScrollTop)) // icon is under a finger
 	      ) && (userReaction = reactionNode.getAttribute('data-reaction')) && main_core.Type.isStringFilled(userReaction)) {
 	        result = reactionNode;
 	      }
@@ -1799,8 +1800,8 @@ this.BX = this.BX || {};
 	    value: function addNode(entityId, node) {
 	      if (!main_core.Type.isDomNode(node) //			|| !Type.isUndefined(this.ratingNodeList.get(entityId))
 	      ) {
-	        return;
-	      }
+	          return;
+	        }
 
 	      this.ratingNodeList.set(entityId, node);
 	    }
@@ -1821,7 +1822,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "fireAnimation",
 	    value: function fireAnimation(key) {
-	      this.delayedList["delete"](key);
+	      this.delayedList.delete(key);
 	    }
 	  }, {
 	    key: "addEntity",

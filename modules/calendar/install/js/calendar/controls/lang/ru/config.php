@@ -3,6 +3,7 @@ $MESS["EC_LOCATION"] = "Место";
 $MESS["EC_LOCATION_LABEL"] = "Место проведения";
 $MESS["EC_LOCATION_404"] = "нет данных";
 $MESS["EC_LOCATION_PLACEHOLDER"] = "Выберите или введите переговорную";
+$MESS["EC_LOCATION_PLACEHOLDER_LOCKED"] = "Введите место проведения";
 $MESS["EC_MEETING_ROOM_PLACEHOLDER"] = "Название";
 $MESS["EC_ADD_LOCATION"] = "Добавить переговорную";
 $MESS["EC_LOCATION_MEETING_ROOM_SET"] = "Настроить список";
@@ -77,4 +78,8 @@ $MESS["EC_EMAIL_LIMIT_SAVE_WITHOUT"] = "Сохранить без внешних
 $MESS["EC_HIDE_GUEST_NAMES"] = "Скрывать список участников от гостей";
 $MESS["EC_SHOW_GUEST_NAMES"] = "Показывать список участников гостям";
 $MESS["EC_HIDE_GUEST_NAMES_HINT"] = "Вы можете скрыть от гостей список участников события. Гостю придет персональное приглашение с информацией о встрече без указания участников.";
+
+$MESS["EC_MINUTE_SHORT"] = 'мин.';
+$MESS["EC_HOUR_SHORT"] = 'ч.';
+$MESS["EC_DAY_SHORT"] = 'д.';
 ?>

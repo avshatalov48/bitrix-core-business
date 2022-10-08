@@ -14,7 +14,7 @@
 .landing-ui-field-dropdown-inline,
 .landing-ui-field-dropdown-inline .landing-ui-field-input,
 .landing-ui-field-dropdown-inline .landing-ui-field-header {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #535C69;
 	font-size: 13px;
 	display: inline-block;

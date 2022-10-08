@@ -1,13 +1,13 @@
-<?
+<?php
 /**
  * @global CUser $USER
  * @global CMain $APPLICATION
  */
 
-use \Bitrix\Main\Localization\Loc,
-	\Bitrix\Main\Service\GeoIp;
+use Bitrix\Main\Localization\Loc;
+use	Bitrix\Main\Service\GeoIp;
 
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 
 if(!$USER->CanDoOperation('edit_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -114,7 +114,7 @@ $tabControl->BeginNextTab();
 		<td><?=Loc::getMessage('GEOIP_EDIT_F_TITLE')?>:</td>
 		<td><?=$handler->getTitle()?></td>
 	</tr>
-	<tr>
+	<tr class="adm-detail-valign-top">
 		<td><?=Loc::getMessage('GEOIP_EDIT_F_DESCRIPTION')?>:</td>
 		<td><?=$handler->getDescription()?></td>
 	</tr>
@@ -143,24 +143,32 @@ $tabControl->BeginNextTab();
 		<td colspan="2"><?=Loc::getMessage('GEOIP_EDIT_PROVIDING_INFO')?>:</td>
 	</tr>
 	<tr>
-		<td><?=Loc::getMessage('GEOIP_EDIT_PI_ASN')?>:</td>
-		<td><input type="checkbox"<?=$providingData->asn ? ' checked' : ''?> disabled></td>
+		<td><?= Loc::getMessage("geoip_edit_continent_code") ?></td>
+		<td><input type="checkbox"<?=$providingData->continentCode ? ' checked' : ''?> disabled></td>
 	</tr>
 	<tr>
-		<td><?=Loc::getMessage('GEOIP_EDIT_PI_COUNTRY_NAME')?>:</td>
-		<td><input type="checkbox"<?=$providingData->countryName ? ' checked' : ''?> disabled></td>
+		<td><?= Loc::getMessage("geoip_edit_continent_name") ?></td>
+		<td><input type="checkbox"<?=$providingData->continentName ? ' checked' : ''?> disabled></td>
 	</tr>
 	<tr>
 		<td><?=Loc::getMessage('GEOIP_EDIT_PI_COUNTRY_CODE')?>:</td>
 		<td><input type="checkbox"<?=$providingData->countryCode ? ' checked' : ''?> disabled></td>
 	</tr>
 	<tr>
-		<td><?=Loc::getMessage('GEOIP_EDIT_PI_REGION_NAME')?>:</td>
-		<td><input type="checkbox"<?=$providingData->regionName ? ' checked' : ''?> disabled></td>
+		<td><?=Loc::getMessage('GEOIP_EDIT_PI_COUNTRY_NAME')?>:</td>
+		<td><input type="checkbox"<?=$providingData->countryName ? ' checked' : ''?> disabled></td>
 	</tr>
 	<tr>
 		<td><?=Loc::getMessage('GEOIP_EDIT_PI_REGION_CODE')?>:</td>
 		<td><input type="checkbox"<?=$providingData->regionCode ? ' checked' : ''?> disabled></td>
+	</tr>
+	<tr>
+		<td><?=Loc::getMessage('GEOIP_EDIT_PI_REGION_NAME')?>:</td>
+		<td><input type="checkbox"<?=$providingData->regionName ? ' checked' : ''?> disabled></td>
+	</tr>
+	<tr>
+		<td><?= Loc::getMessage("geoip_edit_subregion_code") ?></td>
+		<td><input type="checkbox"<?=$providingData->subRegionCode ? ' checked' : ''?> disabled></td>
 	</tr>
 	<tr>
 		<td><?=Loc::getMessage('GEOIP_EDIT_PI_SUBREGION_NAME')?>:</td>
@@ -169,6 +177,10 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td><?=Loc::getMessage('GEOIP_EDIT_PI_CITY_NAME')?>:</td>
 		<td><input type="checkbox"<?=$providingData->cityName ? ' checked' : ''?> disabled></td>
+	</tr>
+	<tr>
+		<td><?= Loc::getMessage("geoip_edit_geonames") ?></td>
+		<td><input type="checkbox"<?=$providingData->cityGeonameId ? ' checked' : ''?> disabled></td>
 	</tr>
 	<tr>
 		<td><?=Loc::getMessage('GEOIP_EDIT_PI_ZIP')?>:</td>
@@ -194,8 +206,14 @@ $tabControl->BeginNextTab();
 		<td><?=Loc::getMessage('GEOIP_EDIT_PI_ORG')?>:</td>
 		<td><input type="checkbox"<?=$providingData->organizationName ? ' checked' : ''?> disabled></td>
 	</tr>
-
-
+	<tr>
+		<td><?=Loc::getMessage('GEOIP_EDIT_PI_ASN')?>:</td>
+		<td><input type="checkbox"<?=$providingData->asn ? ' checked' : ''?> disabled></td>
+	</tr>
+	<tr>
+		<td><?= Loc::getMessage("geoip_edit_asn_org") ?></td>
+		<td><input type="checkbox"<?=$providingData->asnOrganizationName ? ' checked' : ''?> disabled></td>
+	</tr>
 
 <?$tabControl->BeginNextTab();?>
 	<?$adminConfigHtml = GeoIp\Manager::getHandlerAdminConfigHtml($handler);?>
@@ -215,5 +233,5 @@ $tabControl->End();
 ?>
 </form>
 
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");

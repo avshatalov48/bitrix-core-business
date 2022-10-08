@@ -121,6 +121,9 @@ class Util
 	 * @param $loc
 	 *
 	 * @return mixed|string
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
 	 */
 	public static function getTextLocation($loc = '')
 	{
@@ -133,20 +136,19 @@ class Util
 			{
 				return $location['str'];
 			}
-			elseif ($location['room_id'] > 0)
+
+			if ($location['room_id'] > 0)
 			{
 				$room = Manager::getRoomById($location['room_id']);
 				return $room ? $room[0]['NAME'] : '';
 			}
-			else
+
+			$MRList = IBlockMeetingRoom::getMeetingRoomList();
+			foreach ($MRList as $MR)
 			{
-				$MRList = IBlockMeetingRoom::getMeetingRoomList();
-				foreach ($MRList as $MR)
+				if ((int)$MR['ID'] === (int)$location['mrid'])
 				{
-					if ($MR['ID'] == $location['mrid'])
-					{
-						return $MR['NAME'];
-					}
+					return $MR['NAME'];
 				}
 			}
 		}
@@ -205,7 +207,7 @@ class Util
 			}
 			
 			$locNew =
-				($mrevid && $mrevid != 'reserved' && $mrevid != 'expire' && $mrevid > 0)
+				($mrevid && $mrevid !== 'reserved' && $mrevid !== 'expire' && $mrevid > 0)
 					? 'ECMR_'.$locNew['mrid'].'_'.$mrevid
 					: ''
 			;

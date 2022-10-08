@@ -678,12 +678,14 @@ SQL
 		return $fields;
 	}
 
-	public function add(array $eventFields, array $ballot, $setCounter = true)
+	public function add(array $eventFields, array $ballot, $setCounter = true): ?EventResult
 	{
 		$this->errorCollection->clear();
 		$fields = $this->check($ballot);
 		if (!$this->errorCollection->isEmpty())
-			return false;
+		{
+			return null;
+		}
 		$eventFields = array(
 			"VOTE_ID"			=> $this->vote->getId(),
 			"VOTE_USER_ID"		=> $eventFields["VOTE_USER_ID"],
@@ -714,7 +716,7 @@ SQL
 			if (ExecuteModuleEventEx($event, array(&$eventFields, &$sqlAnswers)) === false)
 			{
 				$this->errorCollection->add(array(new Error("onBeforeVoting error", "VOTE_".$eventFields["VOTE_ID"])));
-				return false;
+				return null;
 			}
 		}
 		/***************** /Event ******************************************/
@@ -778,6 +780,6 @@ SQL
 			}
 			EventTable::delete($eventId);
 		}
-		return false;
+		return null;
 	}
 }

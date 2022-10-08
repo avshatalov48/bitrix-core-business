@@ -1,12 +1,10 @@
 <?php
 
 use Bitrix\Bizproc;
-use \Bitrix\Bizproc\RestActivityTable;
-use \Bitrix\Rest\Sqs;
-use \Bitrix\Main\Loader;
-use \Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Bizproc\RestActivityTable;
+use Bitrix\Rest\Sqs;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
 class CBPRestActivity extends CBPActivity implements
 	IBPEventActivity,
@@ -79,7 +77,7 @@ class CBPRestActivity extends CBPActivity implements
 		$this->SetPropertiesTypes($types);
 	}
 
-	protected function ReInitialize()
+	protected function reInitialize()
 	{
 		parent::ReInitialize();
 
@@ -95,7 +93,7 @@ class CBPRestActivity extends CBPActivity implements
 		}
 	}
 
-	public function Execute()
+	public function execute()
 	{
 		$activityData = $this->getRestActivityData();
 
@@ -239,7 +237,7 @@ class CBPRestActivity extends CBPActivity implements
 		return CBPActivityExecutionStatus::Executing;
 	}
 
-	public function Subscribe(IBPActivityExternalEventListener $eventHandler)
+	public function subscribe(IBPActivityExternalEventListener $eventHandler)
 	{
 		if ($eventHandler == null)
 			throw new Exception('eventHandler');
@@ -254,7 +252,7 @@ class CBPRestActivity extends CBPActivity implements
 		$this->workflow->AddEventHandler($this->name, $eventHandler);
 	}
 
-	public function Unsubscribe(IBPActivityExternalEventListener $eventHandler)
+	public function unsubscribe(IBPActivityExternalEventListener $eventHandler)
 	{
 		if ($eventHandler == null)
 			throw new Exception('eventHandler');
@@ -271,7 +269,7 @@ class CBPRestActivity extends CBPActivity implements
 		$this->workflow->RemoveEventHandler($this->name, $eventHandler);
 	}
 
-	public function OnExternalEvent($eventParameters = array())
+	public function onExternalEvent($eventParameters = array())
 	{
 		if ($this->executionStatus == CBPActivityExecutionStatus::Closed)
 			return;
@@ -363,7 +361,7 @@ class CBPRestActivity extends CBPActivity implements
 		$this->workflow->CloseActivity($this);
 	}
 
-	public function Cancel()
+	public function cancel()
 	{
 		if ($this->UseSubscription == 'Y')
 			$this->Unsubscribe($this);
@@ -371,7 +369,7 @@ class CBPRestActivity extends CBPActivity implements
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	public static function GetPropertiesDialog($documentType, $activityName, $workflowTemplate, $workflowParameters, $workflowVariables, $currentValues = null, $formName = "")
+	public static function getPropertiesDialog($documentType, $activityName, $workflowTemplate, $workflowParameters, $workflowVariables, $currentValues = null, $formName = "")
 	{
 		if (!Loader::includeModule('rest'))
 		{
@@ -690,7 +688,7 @@ class CBPRestActivity extends CBPActivity implements
 		return ob_get_clean();
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$workflowTemplate, &$workflowParameters, &$workflowVariables, $currentValues, &$errors)
+	public static function getPropertiesDialogValues($documentType, $activityName, &$workflowTemplate, &$workflowParameters, &$workflowVariables, $currentValues, &$errors)
 	{
 		$runtime = CBPRuntime::GetRuntime();
 		$errors = array();
@@ -760,7 +758,7 @@ class CBPRestActivity extends CBPActivity implements
 		return true;
 	}
 
-	public static function ValidateProperties($testProperties = array(), CBPWorkflowTemplateUser $user = null)
+	public static function validateProperties($testProperties = array(), CBPWorkflowTemplateUser $user = null)
 	{
 		$errors = array();
 
@@ -813,7 +811,7 @@ class CBPRestActivity extends CBPActivity implements
 		return array_merge($errors, parent::ValidateProperties($testProperties, $user));
 	}
 
-	private function CalculateTimeoutDuration()
+	private function calculateTimeoutDuration()
 	{
 		$timeoutDuration = ($this->IsPropertyExists('TimeoutDuration') ? $this->TimeoutDuration : 0);
 

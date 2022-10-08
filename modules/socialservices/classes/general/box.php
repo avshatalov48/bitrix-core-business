@@ -37,7 +37,7 @@ class CSocServBoxAuth extends CSocServAuth
 		return array(
 			array("box_appid", GetMessage("socserv_box_client_id"), "", array("text", 40)),
 			array("box_appsecret", GetMessage("socserv_box_client_secret"), "", array("text", 40)),
-			array("note"=>GetMessage("socserv_box_note", array('#URL#'=>CBoxOAuthInterface::GetRedirectURI()))),
+			array("note"=>GetMessage("socserv_box_note_2", array('#URL#'=>CBoxOAuthInterface::GetRedirectURI()))),
 		);
 	}
 

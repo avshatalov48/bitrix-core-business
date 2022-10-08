@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/listitem.bundle.css',
 	'js' => 'dist/listitem.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
 		'main.core',
 		'main.core.events',
 		'landing.loc',

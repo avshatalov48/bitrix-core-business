@@ -14,7 +14,7 @@ import GradientValue from '../gradient_value';
 import Primary from '../layout/primary/primary';
 import Zeroing from '../layout/zeroing/zeroing';
 import {defaultBgImageSize, defaultBgImageAttachment} from "../types/color_value_options";
-import stringToRGB from '../internal/string-to-rgb';
+import rgbaStringToRgbString from '../internal/rgba-string-to-rgb-string';
 
 export default class Bg extends BgColor
 {
@@ -38,7 +38,6 @@ export default class Bg extends BgColor
 			Bg.BG_OVERLAY_VAR,
 			Bg.BG_SIZE_VAR,
 			Bg.BG_ATTACHMENT_VAR,
-			Bg.BG_IMAGE,
 		];
 		this.parentClassName = this.className;
 		this.className = 'g-bg-image';
@@ -111,7 +110,6 @@ export default class Bg extends BgColor
 		this.image.setActive();
 
 		this.modifyStyleNode(this.styleNode);
-		this.onChange();
 	}
 
 	onOverlayChange(event: BaseEvent)
@@ -134,13 +132,11 @@ export default class Bg extends BgColor
 		}
 
 		this.modifyStyleNode(this.styleNode);
-		this.onChange();
 	}
 
 	onOverlayOpacityChange()
 	{
 		this.modifyStyleNode(this.styleNode);
-		this.onChange();
 	}
 
 	onOverlayColorChange(event: BaseEvent)
@@ -344,7 +340,8 @@ export default class Bg extends BgColor
 
 	modifyStyleNode(styleNode)
 	{
-		Dom.style(styleNode.currentTarget, Bg.BG_IMAGE, '');
+		Dom.style(styleNode.getNode()[0], Bg.BG_IMAGE, '');
+		this.onChange();
 	}
 
 	prepareProcessorValue(processorValue, defaultValue)
@@ -382,13 +379,14 @@ export default class Bg extends BgColor
 					processorValue[Bg.BG_URL_VAR] = defaultValue[Bg.BG_IMAGE];
 					processorValue[Bg.BG_URL_2X_VAR] = defaultValue[Bg.BG_IMAGE];
 				}
-				const computedStyleNode = getComputedStyle(this.styleNode.currentTarget, ':after');
+				const computedStyleNode = getComputedStyle(this.styleNode.getNode()[0], ':after');
 				processorValue[Bg.BG_OVERLAY_VAR] = computedStyleNode.backgroundColor;
-				const currentColorRGB = stringToRGB(computedStyleNode.backgroundColor);
-				const primaryColorRGB = stringToRGB(computedStyleNode.getPropertyValue('--primary-opacity-0'));
-				if (currentColorRGB !== false
-					&& primaryColorRGB !== false
-					&& currentColorRGB.rgb === primaryColorRGB.rgb
+				const currentColorRgb = rgbaStringToRgbString(computedStyleNode.backgroundColor);
+				const primaryColorRgb = rgbaStringToRgbString(computedStyleNode.getPropertyValue('--primary-opacity-0'));
+				if (
+					currentColorRgb !== null
+					&& primaryColorRgb !== null
+					&& currentColorRgb === primaryColorRgb
 				)
 				{
 					processorValue['isPrimaryBasedColor'] = true;

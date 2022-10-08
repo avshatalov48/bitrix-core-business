@@ -119,6 +119,18 @@ class MailServiceInstaller
 			),
 			'exchange' => array(),
 			'other' => array(),
+			'exchangeOnline' => array(
+				'SERVER' => 'outlook.office365.com',
+				'PORT' => 993,
+				'ENCRYPTION' => 'Y',
+				'LINK' => 'https://mail.office365.com/',
+				'SMTP_SERVER' => 'smtp.office365.com',
+				'SMTP_PORT' => 587,
+				'SMTP_ENCRYPTION' => 'N',
+				'SMTP_LOGIN_AS_IMAP' => 'Y',
+				'SMTP_PASSWORD_AS_IMAP' => 'Y',
+				'UPLOAD_OUTGOING' => 'N',
+			),
 		);
 
 		$mailServicesByLang = array(
@@ -127,7 +139,7 @@ class MailServiceInstaller
 				200  => 'outlook.com',
 				300  => 'icloud',
 				400  => 'office365',
-				500  => 'exchange',
+				550  => 'exchangeOnline',
 				600  => 'yahoo',
 				700  => 'aol',
 				800  => 'yandex',
@@ -139,7 +151,7 @@ class MailServiceInstaller
 				200  => 'outlook.com',
 				300  => 'icloud',
 				400  => 'office365',
-				500  => 'exchange',
+				550  => 'exchangeOnline',
 				600  => 'yahoo',
 				700  => 'aol',
 				800  => 'other',
@@ -149,7 +161,7 @@ class MailServiceInstaller
 				200 => 'outlook.com',
 				300 => 'icloud',
 				400 => 'office365',
-				500 => 'exchange',
+				550 => 'exchangeOnline',
 				600 => 'yahoo',
 				700 => 'aol',
 				800 => 'other'
@@ -159,7 +171,7 @@ class MailServiceInstaller
 				200 => 'outlook.com',
 				300 => 'icloud',
 				400 => 'office365',
-				500 => 'exchange',
+				550 => 'exchangeOnline',
 				600 => 'yahoo',
 				700 => 'aol',
 				800 => 'other'

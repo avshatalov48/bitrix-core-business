@@ -1,4 +1,4 @@
-import {Loc, Type} from 'main.core';
+import {Loc, Text, Type} from 'main.core';
 import {DateTimeFormat} from 'main.date';
 
 export class Helper
@@ -143,5 +143,12 @@ export class Helper
 		}
 
 		return '';
+	}
+
+	static toHtml(text): string
+	{
+		return Text.encode(text || '')
+			.replace(/\[(\/)?b\]/ig, '<$1b>')
+		;
 	}
 }

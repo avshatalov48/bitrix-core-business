@@ -13,6 +13,7 @@ return [
 	],
 	'rel' => [
 		'main.polyfill.core',
+		'ui.design-tokens',
 		'ui.vue',
 		'im.lib.utils',
 	],

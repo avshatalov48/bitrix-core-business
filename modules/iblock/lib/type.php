@@ -131,16 +131,6 @@ class TypeTable extends ORM\Data\DataManager
 		);
 	}
 
-	public static function onAfterAdd(ORM\Event $event)
-	{
-		self::cleanCache();
-	}
-
-	public static function onAfterUpdate(ORM\Event $event)
-	{
-		self::cleanCache();
-	}
-
 	/**
 	 * Deletes information blocks of given type
 	 * and language messages from TypeLanguageTable
@@ -152,7 +142,6 @@ class TypeTable extends ORM\Data\DataManager
 	public static function onDelete(ORM\Event $event)
 	{
 		//TODO: need refactoring
-		self::cleanCache();
 
 		$id = $event->getParameter("id");
 
@@ -180,8 +169,10 @@ class TypeTable extends ORM\Data\DataManager
 		$result = TypeLanguageTable::deleteByIblockTypeId($id["ID"]);
 	}
 
-	private static function cleanCache(): void
+	public static function cleanCache(): void
 	{
+		parent::cleanCache();
+
 		$application = Main\Application::getInstance();
 		$managedCache = $application->getManagedCache();
 		$managedCache->cleanDir(self::getTableName());

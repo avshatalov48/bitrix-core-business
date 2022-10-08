@@ -8,6 +8,7 @@
 namespace Bitrix\Main;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Fields;
 
 /**
  * Class SiteDomainTable
@@ -47,6 +48,7 @@ class SiteDomainTable extends Entity\DataManager
 				'data_type' => 'Bitrix\Main\Site',
 				'reference' => array('=this.LID' => 'ref.LID'),
 			),
+			new Fields\ExpressionField('DOMAIN_LENGTH', 'LENGTH(%s)', 'DOMAIN'),
 		);
 	}
 }

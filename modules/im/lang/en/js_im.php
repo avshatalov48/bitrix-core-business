@@ -18,6 +18,7 @@ $MESS["IM_CALL_ERROR_CONNECTION"] = "Error connecting to media server:";
 $MESS["IM_CALL_ERROR_HARDWARE"] = "Cannot access camera and microphone. Error:";
 $MESS["IM_CALL_ERROR_HARDWARE_ACCESS_DENIED"] = "Cannot access camera and microphone. Make sure access is not denied in the browser settings.";
 $MESS["IM_CALL_ERROR_HTTPS_REQUIRED"] = "HTTPS protocol required for video calls.";
+$MESS["IM_CALL_ERROR_NETWORK"] = "Network error. Please try again later.";
 $MESS["IM_CALL_ERROR_NO_CAMERA"] = "Camera was not found. The call is using mic only.";
 $MESS["IM_CALL_ERROR_UNEXPECTED_ANSWER"] = "Cannot start the call due to unexpected server response";
 $MESS["IM_CALL_ERROR_UNKNOWN"] = "Error making a call";

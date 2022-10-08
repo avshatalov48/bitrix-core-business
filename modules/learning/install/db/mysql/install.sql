@@ -55,7 +55,7 @@ CREATE TABLE b_learn_course
 	ACTIVE_FROM datetime,
 	ACTIVE_TO datetime,
 	RATING CHAR(1) null,
-	RATING_TYPE varchar(50) null,	
+	RATING_TYPE varchar(50) null,
 	SCORM char(1) NOT NULL default 'N',
 	LINKED_LESSON_ID INT NULL DEFAULT NULL,
 	JOURNAL_STATUS INT NOT NULL DEFAULT '0',
@@ -162,7 +162,7 @@ CREATE TABLE b_learn_answer
 CREATE TABLE b_learn_test
 (
 	ID int(11) not null AUTO_INCREMENT,
-	COURSE_ID int(11) not null REFERENCES b_learn_course(ID),
+	COURSE_ID int(11) unsigned not null REFERENCES b_learn_course(ID),
 	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
 	SORT int(11) not null default '500',
 	ACTIVE char(1) not null default 'Y',
@@ -213,7 +213,7 @@ CREATE TABLE b_learn_test_result
 (
 	ID int(11) unsigned not null AUTO_INCREMENT,
 	ATTEMPT_ID int(11) unsigned not null REFERENCES b_learn_attempt(ID),
-	QUESTION_ID int(11) not null REFERENCES b_learn_question(ID),
+	QUESTION_ID int(11) unsigned not null REFERENCES b_learn_question(ID),
 	RESPONSE text,
 	POINT int not null default 0,
 	CORRECT char(1) not null default 'N',
@@ -250,7 +250,7 @@ CREATE TABLE b_learn_certification
 (
 	ID int(11) unsigned not null auto_increment,
 	STUDENT_ID int(18) not null,
-	COURSE_ID int(11) not null REFERENCES b_learn_course(ID),
+	COURSE_ID int(11) unsigned not null REFERENCES b_learn_course(ID),
 	TIMESTAMP_X timestamp not null default current_timestamp on update current_timestamp,
 	DATE_CREATE datetime,
 	ACTIVE char(1) not null default 'Y',

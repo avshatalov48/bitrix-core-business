@@ -14,12 +14,12 @@ table.sonet-user-profile-friends thead td, table.sonet-user-profile-friends th, 
 {
 	background-color:#f2f2ea;
 	/*text-align:left;*/
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	font-size:12px;
 	background-image:none;
 	border:1px solid #C4C4C3;
 	border-bottom:none;
- 	padding:8px; 
+ 	padding:8px;
 }
 
 table.sonet-user-profile-friend-box
@@ -30,14 +30,14 @@ table.sonet-user-profile-friend-box
 table.sonet-user-profile-friend-box tbody td, table.sonet-user-profile-friend-box td
 {
 	border:none;
-	padding:6px 5px; 
+	padding:6px 5px;
 	background:transparent;
 }
 
 .sonet_online
 {
 	color:#c30808;
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	font-size:11px;
 }
 
@@ -64,7 +64,7 @@ div.bx-links-container {
 }
 div.bx-links-container a {
 	padding-left: 22px;
-	padding-right: 10px;	
+	padding-right: 10px;
 	padding-top: 3px;
 	padding-bottom: 2px;
 	margin-left: 10px;
@@ -79,51 +79,51 @@ td.popupmenu div.popupitem .checked1 {
 	background-image:url(images/checkbox.gif);
 }
 
-.sonet-add-user-button 
+.sonet-add-user-button
 {
 	padding: 10px 0px 10px 0px;
 }
 
-.sonet-add-user-button-left 
-{ 
-	background: url(images/add_user_button_left.gif) no-repeat; 
-	display: block; 
-	float: left; 
+.sonet-add-user-button-left
+{
+	background: url(images/add_user_button_left.gif) no-repeat;
+	display: block;
+	float: left;
 	width: 26px;
 	height: 27px;
 }
 
-.sonet-add-user-button-fill 
-{ 
-	background: url(images/add_user_button_fill.gif) center left repeat-x; 
-	display: block; 
-	float: left; 
+.sonet-add-user-button-fill
+{
+	background: url(images/add_user_button_fill.gif) center left repeat-x;
+	display: block;
+	float: left;
 	height: 27px;
 	text-align: left;
 	padding: 0px 10px 0px 2px;
 }
 
-.sonet-add-user-button-fill-text 
-{ 
+.sonet-add-user-button-fill-text
+{
 	line-height: 24px;
 	text-decoration: none;
 	color: #000000;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 
-.sonet-add-user-button-right 
-{ 
-	background: url(images/add_user_button_right.gif) no-repeat; 
-	display: block; 
-	float: left; 
+.sonet-add-user-button-right
+{
+	background: url(images/add_user_button_right.gif) no-repeat;
+	display: block;
+	float: left;
 	width: 4px;
 	height: 27px;
 }
 
 .sonet-add-user-button-clear
-{ 
-	clear: both; 
+{
+	clear: both;
 }
 
 /* Popup menu */
@@ -133,6 +133,6 @@ td.popupmenu div.popupitemover {margin:0px; border:1px solid #AEB6C2; background
 td.popupmenu div.popupitem td.gutter {width:20px;}
 td.popupmenu div.popupitem td.arrow {width:10px; background-image:url(images/menu_arrow.gif); background-repeat:no-repeat; background-position:2px center;}
 td.popupmenu div.popupitem td.item {padding:3px 5px 3px 9px; font-size:100%; white-space:nowrap; color:black;}
-td.popupmenu div.popupitem td.default {font-weight:bold;}
+td.popupmenu div.popupitem td.default {font-weight:var(--ui-font-weight-bold);}
 td.popupmenu div.popupitem td.disabled {color:#939393;}
 td.popupmenu div.popupseparator {margin:1px 0px 1px 30px; background-color:#B6B6B6; height:1px; overflow:hidden;}

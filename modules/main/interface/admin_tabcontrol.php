@@ -6,6 +6,8 @@
  * @copyright 2001-2016 Bitrix
  */
 
+use Bitrix\Main\Web\Uri;
+
 /*Tab Control*/
 class CAdminTabControl
 {
@@ -396,7 +398,10 @@ echo '
 		if ($params["btnSaveAndAdd"] === true)
 		{
 			global $APPLICATION;
-			$addUrl = CHTTP::urlAddParams($APPLICATION->GetCurPage(), array("lang" => LANGUAGE_ID));
+			$addUrl = (new Uri($APPLICATION->GetCurPage()))
+				->addParams(["lang" => LANGUAGE_ID])
+				->getUri()
+			;
 			if ($addUrl <> '' && !preg_match('/(javascript|data)[\s\0-\13]*:/i', $addUrl))
 			{
 				$htmlAjaxButtons .= '<input type="button" name="save_and_add" value="'.GetMessage("admin_lib_edit_save_and_add").'" title="'.GetMessage("admin_lib_edit_save_and_add_title").'" class="adm-btn-add"  data-url="'.htmlspecialcharsbx(CUtil::addslashes($addUrl)).'">';

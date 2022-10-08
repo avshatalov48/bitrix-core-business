@@ -139,9 +139,25 @@ class GroupAction
 	/**
 	 * @return string
 	 */
-	protected function getEntityId(): string
+	public function getEntityId(): string
 	{
 		return $this->entityId;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getIblockId(): int
+	{
+		return $this->iblockId;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getOptions(): array
+	{
+		return $this->options;
 	}
 
 	/**
@@ -193,7 +209,7 @@ class GroupAction
 	/**
 	 * @return string
 	 */
-	protected function getGridType(): string
+	public function getGridType(): string
 	{
 		return $this->gridType;
 	}
@@ -201,7 +217,7 @@ class GroupAction
 	/**
 	 * @return bool
 	 */
-	protected function isUiGrid(): bool
+	public function isUiGrid(): bool
 	{
 		return $this->getGridType() === self::GRID_TYPE_UI;
 	}
@@ -232,7 +248,7 @@ class GroupAction
 	/**
 	 * @return array
 	 */
-	protected function getDefaultApplyAction(): array
+	public function getDefaultApplyAction(): array
 	{
 		return ['JS' => "BX.adminUiList.SendSelected('{$this->getEntityId()}')"];
 	}
@@ -241,16 +257,16 @@ class GroupAction
 	 * @param string $id
 	 * @return string
 	 */
-	protected function getElementId(string $id): string
+	public function getElementId(string $id): string
 	{
-		return self::PREFIX_ID.$this->getEntityId().'_'.$id;
+		return self::PREFIX_ID.$this->getEntityId().'_'.strtolower($id);
 	}
 
 	/**
 	 * @param array $params
 	 * @return array
 	 */
-	protected function getApplyButton(array $params): array
+	public function getApplyButton(array $params): array
 	{
 		$result = $this->mainSnippet->getApplyButton([]);
 		$result['id'] = $this->getElementId($params['APPLY_BUTTON_ID']);
@@ -272,7 +288,7 @@ class GroupAction
 	 * @param array $params
 	 * @return array
 	 */
-	protected function getApplyButtonWithConfirm(array $params): array
+	public function getApplyButtonWithConfirm(array $params): array
 	{
 		$result = $this->mainSnippet->getApplyButton([]);
 		$result['id'] = $this->getElementId($params['APPLY_BUTTON_ID']);

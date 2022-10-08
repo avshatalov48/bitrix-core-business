@@ -94,7 +94,7 @@ class CAppleMessage extends CPushMessage
 			'"' . self::APPLE_RESERVED_NAMESPACE . '":{}',
 			json_encode($this->_getPayload(), static::JSON_OPTIONS)
 		);
-		$nJSONPayloadLen = \Bitrix\Main\Text\BinaryString::getLength($sJSONPayload);
+		$nJSONPayloadLen = strlen($sJSONPayload);
 		if ($nJSONPayloadLen <= $this->payloadMaxSize)
 		{
 			return $sJSONPayload;
@@ -111,15 +111,15 @@ class CAppleMessage extends CPushMessage
 			$useSenderText = true;
 			$text = $this->customProperties["senderMessage"];
 		}
-		$nMaxTextLen = $nTextLen = \Bitrix\Main\Text\BinaryString::getLength($text) - ($nJSONPayloadLen - $this->payloadMaxSize);
+		$nMaxTextLen = $nTextLen = strlen($text) - ($nJSONPayloadLen - $this->payloadMaxSize);
 		if ($nMaxTextLen <= 0)
 		{
 			return false;
 		}
 
-		while (\Bitrix\Main\Text\BinaryString::getLength($text) > $nMaxTextLen)
+		while (strlen($text) > $nMaxTextLen)
 		{
-			$text = \Bitrix\Main\Text\BinaryString::getSubstring($text, 0, --$nTextLen);
+			$text = substr($text, 0, --$nTextLen);
 		}
 		if($useSenderText)
 		{
@@ -142,7 +142,7 @@ class CAppleMessage extends CPushMessage
 			return false;
 		}
 
-		$nPayloadLength = \Bitrix\Main\Text\BinaryString::getLength($sPayload);
+		$nPayloadLength = strlen($sPayload);
 		$totalBatch = "";
 		foreach ($arTokens as $token)
 		{

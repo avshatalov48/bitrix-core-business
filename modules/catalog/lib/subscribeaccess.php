@@ -12,9 +12,9 @@ use Bitrix\Main\Entity,
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_SubscribeAccess_Query query()
- * @method static EO_SubscribeAccess_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_SubscribeAccess_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_SubscribeAccess_Result getById($id)
- * @method static EO_SubscribeAccess_Result getList(array $parameters = array())
+ * @method static EO_SubscribeAccess_Result getList(array $parameters = [])
  * @method static EO_SubscribeAccess_Entity getEntity()
  * @method static \Bitrix\Catalog\EO_SubscribeAccess createObject($setDefaultValues = true)
  * @method static \Bitrix\Catalog\EO_SubscribeAccess_Collection createCollection()

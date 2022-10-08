@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import {Cache, Tag} from 'main.core';
 import {Loc} from 'landing.loc';
 

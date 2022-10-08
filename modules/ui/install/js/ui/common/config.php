@@ -6,5 +6,5 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 return [
 	"css" => "/bitrix/js/ui/common/ui.common.css",
-	"rel" => "ui.fonts.opensans"
+	"rel" => ["ui.design-tokens", "ui.fonts.opensans"]
 ];

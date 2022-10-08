@@ -15,6 +15,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CUser $USER
  */
 
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
 ?>
 
 <div class="mp_wrap">

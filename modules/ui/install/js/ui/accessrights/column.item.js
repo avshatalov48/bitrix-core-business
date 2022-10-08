@@ -629,7 +629,7 @@ BX.UI.AccessRights.ColumnItem.prototype = {
 									title: user.name
 								},
 								style: {
-									backgroundImage: 'url(' + user.avatar + ')',
+									backgroundImage: 'url(' + encodeURI(user.avatar) + ')',
 									backgroundSize: 'cover'
 								}
 							}) : null,
@@ -790,7 +790,7 @@ BX.UI.AccessRights.ColumnItem.prototype = {
 							title: item.name
 						},
 						style: {
-							backgroundImage: 'url(' + item.avatar + ')',
+							backgroundImage: 'url(' + encodeURI(item.avatar) + ')',
 							backgroundSize: 'cover'
 						}
 					}) : null,

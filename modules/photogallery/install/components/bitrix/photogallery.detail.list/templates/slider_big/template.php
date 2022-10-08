@@ -179,7 +179,6 @@ $arSlideParams = array('speed' => 4, 'effects' => 'N');
 if ($GLOBALS['USER']->IsAuthorized())
 {
 	$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/main/admin_tools.js');
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 	$arSlideParams = CUserOptions::GetOption('photogallery', 'slide', array('speed' => 4, 'effects' => 'N'));
 }
 $arSlideParams = (is_array($arSlideParams) ? $arSlideParams : array());

@@ -8,7 +8,6 @@ $GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/main/utils.js");
 $arParams["SHOW_MAIL"] = (($arParams["SEND_MAIL"] <= "A" || ($arParams["SEND_MAIL"] <= "E" && !$GLOBALS['USER']->IsAuthorized())) ? "N" : "Y");
 
 /************** User options **************************************/
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 $arUserOptions = CUserOptions::GetOption("forum", "profile", "", $arParams["UID"]);
 $arUserOptions = (CheckSerializedData($arUserOptions) ? @unserialize($arUserOptions, ["allowed_classes" => false]) : array());
 

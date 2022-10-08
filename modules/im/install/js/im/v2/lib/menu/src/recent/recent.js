@@ -6,6 +6,7 @@ import {ChatTypes, EventType, OpenTarget, ChatOption} from 'im.v2.const';
 
 import {BaseMenu} from '../base/base';
 import {PinManager} from './pin-manager';
+import {UnreadManager} from './unread-manager';
 import {MuteManager} from './mute-manager';
 import {InviteManager} from './invite-manager';
 import {CallHelper} from './call-helper';
@@ -13,6 +14,7 @@ import {CallHelper} from './call-helper';
 export class RecentMenu extends BaseMenu
 {
 	pinManager: Object = null;
+	unreadManager: Object = null;
 	muteManager: Object = null;
 	callHelper: Object = null;
 
@@ -22,6 +24,7 @@ export class RecentMenu extends BaseMenu
 
 		this.id = 'im-recent-context-menu';
 		this.pinManager = new PinManager($Bitrix);
+		this.unreadManager = new UnreadManager($Bitrix);
 		this.muteManager = new MuteManager($Bitrix);
 		this.callHelper = new CallHelper($Bitrix);
 	}
@@ -50,6 +53,7 @@ export class RecentMenu extends BaseMenu
 
 		return [
 			this.getSendMessageItem(),
+			this.getUnreadMessageItem(),
 			this.getPinMessageItem(),
 			this.getMuteItem(),
 			this.getCallItem(),
@@ -73,6 +77,31 @@ export class RecentMenu extends BaseMenu
 					user: this.store.getters['users/get'](this.context.dialogId, true),
 					target
 				});
+				this.menuInstance.close();
+			}.bind(this)
+		};
+	}
+
+	getUnreadMessageItem(): Object
+	{
+		let isUnreaded = this.context.unread;
+		if (!isUnreaded)
+		{
+			const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
+			isUnreaded = dialog.counter > 0;
+		}
+
+		return {
+			text: isUnreaded ? Loc.getMessage('IM_RECENT_CONTEXT_MENU_READ') : Loc.getMessage('IM_RECENT_CONTEXT_MENU_UNREAD'),
+			onclick: function() {
+				if (isUnreaded)
+				{
+					this.unreadManager.readDialog(this.context.dialogId);
+				}
+				else
+				{
+					this.unreadManager.unreadDialog(this.context.dialogId);
+				}
 				this.menuInstance.close();
 			}.bind(this)
 		};

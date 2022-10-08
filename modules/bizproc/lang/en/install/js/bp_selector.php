@@ -16,6 +16,7 @@ $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_EXPLODE_DESCRIPTION"] = "Splits a string 
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_FIRSTVALUE_DESCRIPTION"] = "Returns the first value of a multiple field";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_FLOATVAL_DESCRIPTION"] = "Returns a number";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_FLOOR_DESCRIPTION"] = "Returns the next lowest value of a specified number";
+$MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_GETDOCUMENTURL_DESCRIPTION"] = "Returns a link to the current document.";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_GETUSERDATEOFFSET_DESCRIPTION"] = "Returns user to server time offset in seconds";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_IF_DESCRIPTION"] = "Conditional statement (if)";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_IMPLODE_DESCRIPTION"] = "Merge multiple items into a string";

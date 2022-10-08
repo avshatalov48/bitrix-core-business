@@ -12,5 +12,11 @@ return [
 				'className' => '\\Bitrix\\Ui\\EntityForm\\Scope',
 			],
 		]
-	]
+	],
+	'ui.uploader' => [
+		'value' => [
+			'allowUseControllers' => true,
+		],
+		'readonly' => true,
+	],
 ];

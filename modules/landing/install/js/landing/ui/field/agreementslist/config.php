@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/agreementslist.bundle.css',
 	'js' => 'dist/agreementslist.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
 		'main.core',
 		'main.popup',
 		'landing.ui.field.basefield',

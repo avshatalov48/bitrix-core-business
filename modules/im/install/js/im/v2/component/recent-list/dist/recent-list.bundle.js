@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
-(function (exports,im_v2_provider_service,im_v2_lib_menu,main_date,ui_vue3,ui_vue3_vuex,main_popup,im_v2_component_elements,im_v2_lib_logger,main_core,im_v2_lib_utils,main_core_events,im_v2_const) {
+(function (exports,ui_designTokens,im_v2_provider_service,im_v2_lib_menu,main_date,ui_vue3_vuex,main_popup,im_v2_component_elements,im_v2_lib_logger,im_v2_lib_utils,main_core,main_core_events,im_v2_const) {
 	'use strict';
 
 	const NewUserPopup = {
@@ -105,8 +105,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    },
 
 	    messageText() {
-	      if (this.isUser && (!this.item.message || !this.item.message.text)) {
-	        return this.$store.getters['users/getPosition'](this.item.dialogId);
+	      if (!this.item.message || !this.item.message.text) {
+	        return this.isUser ? this.$store.getters['users/getPosition'](this.item.dialogId) : this.hiddenMessageText;
 	      }
 
 	      return this.$store.getters['recent/getItemText'](this.item.dialogId);
@@ -331,7 +331,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 						<!-- Message text -->
 						<span class="bx-im-recent-message-text">
 							<template v-if="item.draft.text && dialog.counter === 0">
-								<span class="bx-im-recent-draft-prefix">{{ $Bitrix.Loc.getMessage('IM_RECENT_MESSAGE_DRAFT') }}</span>
+								<span class="bx-im-recent-draft-prefix">{{ $Bitrix.Loc.getMessage('IM_RECENT_MESSAGE_DRAFT_2', {'#TEXT#': ''}) }}</span>
 								<span>{{ item.draft.text }}</span>
 							</template>
 							<template v-else-if="item.invitation.isActive">
@@ -355,11 +355,12 @@ this.BX.Messenger = this.BX.Messenger || {};
 						<!-- End message text -->
 					</div>
 					<div :class="{'bx-im-recent-counter-static-wrap-extended': dialog.counter > 99}" class="bx-im-recent-counter-static-wrap">
-						<div v-if="item.pinned || dialog.counter > 0" class="bx-im-recent-counter-wrap">
-							<div v-if="item.pinned && dialog.counter === 0" class="bx-im-recent-pinned-icon"></div>
+						<div v-if="item.unread || item.pinned || dialog.counter > 0" class="bx-im-recent-counter-wrap">
+							<div v-if="item.pinned && dialog.counter === 0 && !item.unread" class="bx-im-recent-pinned-icon"></div>
 							<div v-if="dialog.counter > 0 && !isSelfChat" :class="{'bx-im-recent-counter-muted': isChatMuted}" class="bx-im-recent-counter">
 								{{ formattedCounter }}
 							</div>
+							<div v-else-if="item.unread" :class="{'bx-im-recent-counter-muted': isChatMuted}"  class="bx-im-recent-counter bx-im-recent-counter-unread"></div>
 						</div>
 					</div>
 				</div>
@@ -399,6 +400,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      default: false
 	    }
 	  },
+	  emits: ['click', 'contextmenu'],
 	  computed: {
 	    RecentCallStatus: () => im_v2_const.RecentCallStatus,
 	    AvatarSize: () => im_v2_const.AvatarSize,
@@ -451,8 +453,35 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      this.getCallController().leaveCurrentCall();
 	    },
 
-	    onActiveCallClick() {
-	      this.getCallController().unfold();
+	    onClick(event) {
+	      if (this.item.state === im_v2_const.RecentCallStatus.joined) {
+	        this.getCallController().unfold();
+	        return;
+	      }
+
+	      const item = this.$store.getters['recent/get'](this.item.dialogId);
+
+	      if (!item) {
+	        return;
+	      }
+
+	      this.$emit('click', {
+	        item,
+	        $event: event
+	      });
+	    },
+
+	    onRightClick() {
+	      const item = this.$store.getters['recent/get'](this.item.dialogId);
+
+	      if (!item) {
+	        return;
+	      }
+
+	      this.$emit('contextmenu', {
+	        item,
+	        $event: event
+	      });
 	    },
 
 	    getJoinMenu(event) {
@@ -483,8 +512,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	  },
 	  template: `
-		<div>
-		<div v-if="!compactMode" @click="onActiveCallClick" class="bx-im-recent-item bx-im-recent-active-call-item">
+		<div :data-id="item.dialogId" class="bx-im-recent-item-wrap">
+		<div v-if="!compactMode" @click="onClick" @click.right.prevent="onRightClick" class="bx-im-recent-item bx-im-recent-active-call-item">
 			<div class="bx-im-recent-avatar-wrap">
 				<Avatar :dialogId="item.dialogId" :size="AvatarSize.L" />
 			</div>
@@ -507,7 +536,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 							</span>
 						</div>
 						<div class="bx-im-recent-item-content-bottom">
-							<div @click="onJoinClick" class="bx-im-recent-active-call-button bx-im-recent-active-call-join-button">
+							<div @click.stop="onJoinClick" class="bx-im-recent-active-call-button bx-im-recent-active-call-join-button">
 								{{ $Bitrix.Loc.getMessage('IM_RECENT_ACTIVE_CALL_JOIN') }}
 							</div>
 						</div>
@@ -531,7 +560,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 							</span>
 						</div>
 						<div class="bx-im-recent-item-content-bottom">
-							<div @click="onHangupClick" class="bx-im-recent-active-call-button bx-im-recent-active-call-hangup-button">
+							<div @click.stop="onHangupClick" class="bx-im-recent-active-call-button bx-im-recent-active-call-hangup-button">
 								{{ $Bitrix.Loc.getMessage('IM_RECENT_ACTIVE_CALL_HANGUP') }}
 							</div>
 						</div>
@@ -539,8 +568,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 				</template>
 			</div>
 		</div>
-		<div v-if="compactMode" class="bx-im-recent-item bx-im-recent-active-call-item">
-			<div @click.right.prevent="onJoinClick" class="bx-im-recent-avatar-wrap">
+		<div v-if="compactMode" @click="onClick" @click.right.prevent="onRightClick" class="bx-im-recent-item bx-im-recent-active-call-item">
+			<div class="bx-im-recent-avatar-wrap">
 				<Avatar :dialogId="item.dialogId" :size="AvatarSize.M" />
 				<div class="bx-im-recent-active-call-compact-icon-container">
 					<div v-if="item.state === RecentCallStatus.waiting" class="bx-im-recent-active-call-icon bx-im-recent-active-call-waiting-icon"></div>
@@ -813,11 +842,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    this.onHideChatHandler = this.onHideChat.bind(this);
 	    this.onLeaveChatHandler = this.onLeaveChat.bind(this);
 	    this.onClearLikeHandler = this.onClearLike.bind(this);
+	    this.onClearHistoryHandler = this.onClearHistory.bind(this);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.recent.setCounter, this.onSetCounterHandler);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.recent.setMessage, this.onSetMessageHandler);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.recent.hideChat, this.onHideChatHandler);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.recent.leaveChat, this.onLeaveChatHandler);
 	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.recent.clearLike, this.onClearLikeHandler);
+	    main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.clearHistory, this.onClearHistoryHandler);
 	  }
 
 	  onSetCounter({
@@ -916,6 +947,27 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    this.store.dispatch('recent/like', {
 	      id: dialogId,
 	      liked: false
+	    });
+	  }
+
+	  onClearHistory({
+	    data: {
+	      dialogId
+	    }
+	  }) {
+	    const recentItem = this.store.getters['recent/get'](dialogId);
+
+	    if (!recentItem) {
+	      return false;
+	    }
+
+	    this.store.dispatch('recent/update', {
+	      id: dialogId,
+	      fields: {
+	        message: { ...recentItem.message,
+	          text: main_core.Loc.getMessage('IM_RECENT_DELETED_MESSAGE')
+	        }
+	      }
 	    });
 	  }
 
@@ -1155,9 +1207,13 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      const fourHours = 60000 * 60 * 4;
 	      const day = 60000 * 60 * 24;
 	      this.birthdayCheckTimeout = setTimeout(() => {
-	        this.recentService.loadFirstPage();
+	        this.recentService.loadFirstPage({
+	          ignorePreloadedItems: true
+	        });
 	        this.birthdayCheckInterval = setInterval(() => {
-	          this.recentService.loadFirstPage();
+	          this.recentService.loadFirstPage({
+	            ignorePreloadedItems: true
+	          });
 	        }, day);
 	      }, im_v2_lib_utils.Utils.date.getTimeToNextMidnight() + fourHours);
 	    },
@@ -1227,5 +1283,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	exports.RecentList = RecentList;
 
-}((this.BX.Messenger.v2 = this.BX.Messenger.v2 || {}),BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Main,BX.Vue3,BX.Vue3.Vuex,BX.Main,BX.Messenger.v2,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Event,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2 = this.BX.Messenger.v2 || {}),BX,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Main,BX.Vue3.Vuex,BX.Main,BX.Messenger.v2,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Const));
 //# sourceMappingURL=recent-list.bundle.js.map

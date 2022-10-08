@@ -4,203 +4,163 @@ namespace Bitrix\Catalog\Controller\Document;
 
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\ActionFilter;
+use Bitrix\Main\Engine\Response\DataType\Page;
+use Bitrix\Main\Error;
+use Bitrix\Main\Result;
+use Bitrix\Main\UI\PageNavigation;
 use CCatalogStoreDocsElement;
-use Bitrix\Catalog\RestView;
 use Bitrix\Catalog;
+use Bitrix\Catalog\Controller\Controller;
 
-class Element extends Engine\Controller
+class Element extends Controller
 {
-	private const LIST_COUNT_DEFAULT = 50;
-	private const LIST_COUNT_LIMIT = 500;
-
-	private const REST_AVAILABLE_DOC_TYPE = [
-		Catalog\StoreDocumentTable::TYPE_ARRIVAL,
-		Catalog\StoreDocumentTable::TYPE_STORE_ADJUSTMENT,
-	];
-
 	private const DOCUMENT_STATUS_ALLOWED = 0;
 	private const DOCUMENT_STATUS_CONDUCT = -1;
 	private const DOCUMENT_STATUS_ABSENT = -2;
 
-	public function addAction(array $fields): ?int
+	//region Actions
+	/**
+	 * @return array
+	 */
+	public function getFieldsAction(): array
 	{
-		if (!$this->checkDocumentWriteRights())
-		{
-			$this->setDocumentRightsError();
+		return ['DOCUMENT_ELEMENT' => $this->getViewFields()];
+	}
 
-			return null;
-		}
-
-		$view = new RestView\DocumentElement();
-		$fields = $view->internalizeFieldsAdd($fields);
-
-		$result = null;
+	/**
+	 * @param array $fields
+	 * @return array|null
+	 */
+	public function addAction(array $fields): ?array
+	{
 		$documentId = (int)($fields['DOC_ID'] ?? 0);
 		switch ($this->getDocumentStatusById($documentId))
 		{
 			case self::DOCUMENT_STATUS_ALLOWED:
-				$result = CCatalogStoreDocsElement::add($fields);
-				if ($result === false)
+				$addResult = CCatalogStoreDocsElement::add($fields);
+				if ($addResult)
 				{
-					$result = null;
+					return ['DOCUMENT_ELEMENT' => $this->get($addResult)];
 				}
+
+				$this->addError(new Error('Error of adding new document element'));
 				break;
+
 			case self::DOCUMENT_STATUS_CONDUCT:
 				$this->setDocumentConductError();
 				break;
+
 			default:
 				$this->setDocumentNotFoundError();
 				break;
 		}
 
-		return $result;
+		return null;
 	}
 
-	public function updateAction(int $id, array $fields): ?bool
+	/**
+	 * @param int $id
+	 * @param array $fields
+	 * @return array|null
+	 */
+	public function updateAction(int $id, array $fields): ?array
 	{
-		if (!$this->checkDocumentWriteRights())
-		{
-			$this->setDocumentRightsError();
-
-			return null;
-		}
-
-		$view = new RestView\DocumentElement();
-		$fields = $view->internalizeFieldsUpdate($fields);
-
-		$result = null;
 		switch ($this->getDocumentStatusByElementId($id))
 		{
 			case self::DOCUMENT_STATUS_ALLOWED:
 				$result = CCatalogStoreDocsElement::update($id, $fields);
-				if ($result === false)
+
+				if ($result)
 				{
-					$result = null;
+					return ['DOCUMENT_ELEMENT' => $this->get($id)];
 				}
+
+				$this->addError(new Error('Error of modifying new document'));
 				break;
+
 			case self::DOCUMENT_STATUS_CONDUCT:
 				$this->setDocumentConductError();
 				break;
+
 			default:
 				$this->setDocumentNotFoundError();
 				break;
 		}
 
-		return $result;
+		return null;
 	}
 
+	/**
+	 * @param int $id
+	 * @return bool|null
+	 */
 	public function deleteAction(int $id): ?bool
 	{
-		if (!$this->checkDocumentWriteRights())
-		{
-			$this->setDocumentRightsError();
-
-			return null;
-		}
-
-		$result = null;
 		switch ($this->getDocumentStatusByElementId($id))
 		{
 			case self::DOCUMENT_STATUS_ALLOWED:
 				$result = CCatalogStoreDocsElement::delete($id);
-				if ($result === false)
+				if ($result)
 				{
-					$result = null;
+					return true;
 				}
+
+				$this->addError(new Error('Error of deleting document'));
 				break;
+
 			case self::DOCUMENT_STATUS_CONDUCT:
 				$this->setDocumentConductError();
 				break;
+
 			default:
 				$this->setDocumentNotFoundError();
 				break;
 		}
 
-		return $result;
+		return null;
 	}
 
+	/**
+	 * @param array $order
+	 * @param array $filter
+	 * @param array $select
+	 * @param PageNavigation $pageNavigation
+	 * @return Page
+	 */
 	public function listAction(
 		array $order = [],
 		array $filter = [],
 		array $select = [],
-		int $offset = 0,
-		int $limit = self::LIST_COUNT_DEFAULT
-	): ?array
+		PageNavigation $pageNavigation
+	): Page
 	{
-		if (!$this->checkDocumentReadRights())
-		{
-			$this->setDocumentRightsError();
-
-			return null;
-		}
-
-		if ($limit <= 0)
-		{
-			$limit = self::LIST_COUNT_DEFAULT;
-		}
-		elseif ($limit > self::LIST_COUNT_LIMIT)
-		{
-			$limit = self::LIST_COUNT_LIMIT;
-		}
-
-		$result = [];
-		$view = new RestView\DocumentElement();
-		$data = $view->internalizeFieldsList(
-			[
-				'order' => $order,
-				'filter' => $filter,
-				'select' => $select,
-			]
-		);
-		$page = 1 + (int)($offset / $limit);
-
-		$filter = $data['filter'] ?? [];
-		$filter['@DOCUMENT.DOC_TYPE'] = self::REST_AVAILABLE_DOC_TYPE;
-
+		$filter['@DOCUMENT.DOC_TYPE'] = array_keys(Catalog\Controller\Document::getAvailableRestDocumentTypes());
 		AddMessage2Log($filter);
 
-		$res = CCatalogStoreDocsElement::getList(
-			$data['order'] ?? [],
-			$filter,
-			false,
-			[
-				'nPageSize' => $limit,
-				'iNumPage' => $page,
-			],
-			$data['select'] ?? [],
+		return new Page(
+			'DOCUMENT_ELEMENTS',
+			$this->getList($select, $filter, $order, $pageNavigation),
+			$this->count($filter)
 		);
-
-		while ($element = $res->fetch())
-		{
-			$result[] = $element;
-		}
-
-		if ($offset >= 0)
-		{
-			$result['total'] = $res->nSelectedCount;
-			if ($res->nSelectedCount > $offset + $limit)
-			{
-				$result['next'] = $page * $limit;
-			}
-		}
-
-		return $result;
 	}
 
+	/**
+	 * @deprecated
+	 *
+	 * @return array|null
+	 */
 	public function fieldsAction(): ?array
 	{
-		if (!$this->checkDocumentReadRights())
+		$r = $this->checkReadPermissionEntity();
+		if (!$r->isSuccess())
 		{
-			$this->setDocumentRightsError();
-
 			return null;
 		}
 
-		$view = new RestView\DocumentElement();
-		return $view->getFields();
+		return [$this->getViewFields()];
 	}
 
-	protected function getDefaultPreFilters()
+	protected function getDefaultPreFilters(): array
 	{
 		return array_merge(
 			parent::getDefaultPreFilters(),
@@ -210,19 +170,62 @@ class Element extends Engine\Controller
 		);
 	}
 
-	private function checkDocumentWriteRights(): bool
+	/**
+	 * @inheritDoc
+	 */
+	protected function getEntityTable()
 	{
-		return Engine\CurrentUser::get()->canDoOperation(Catalog\Controller\Controller::CATALOG_STORE);
+		return new \Bitrix\Catalog\StoreDocumentElementTable();
 	}
 
-	private function checkDocumentReadRights(): bool
+	/**
+	 * @inheritDoc
+	 */
+	protected function checkModifyPermissionEntity()
 	{
+		$r = $this->checkReadPermissionEntity();
+		if($r->isSuccess())
+		{
+			if (!Engine\CurrentUser::get()->canDoOperation(Controller::CATALOG_STORE))
+			{
+				$this->setDocumentRightsError();
+			}
+		}
+
+		return $r;
+	}
+
+	protected function checkReadPermissionEntity()
+	{
+		$r = new Result();
+
 		$currentUser = Engine\CurrentUser::get();
 
-		return
-			$currentUser->canDoOperation(Catalog\Controller\Controller::CATALOG_STORE)
-			|| $currentUser->canDoOperation(Catalog\Controller\Controller::CATALOG_READ)
-			;
+		if (
+			!$currentUser->canDoOperation(Controller::CATALOG_STORE)
+			&& !$currentUser->canDoOperation(Controller::CATALOG_READ)
+		)
+		{
+			$this->setDocumentRightsError();
+		}
+
+		return $r;
+	}
+
+	/**
+	 * @param $name
+	 * @param $arguments
+	 * @return Result
+	 * @throws \Bitrix\Main\NotImplementedException
+	 */
+	protected function checkPermissionEntity($name, $arguments=[])
+	{
+		if ($name === 'fields')
+		{
+			return $this->checkGetFieldsPermissionEntity();
+		}
+
+		return parent::checkPermissionEntity($name, $arguments);
 	}
 
 	private function getDocumentStatusById(int $documentId): int
@@ -268,7 +271,8 @@ class Element extends Engine\Controller
 			return self::DOCUMENT_STATUS_ABSENT;
 		}
 
-		if (!in_array($row['DOC_TYPE'], self::REST_AVAILABLE_DOC_TYPE, true))
+		$documentTypes = Catalog\Controller\Document::getAvailableRestDocumentTypes();
+		if (!isset($documentTypes[$row['DOC_TYPE']]))
 		{
 			return self::DOCUMENT_STATUS_ABSENT;
 		}
@@ -282,7 +286,7 @@ class Element extends Engine\Controller
 	private function setDocumentRightsError(): void
 	{
 		$this->addError(new \Bitrix\Main\Error(
-			Catalog\Controller\Controller::ERROR_ACCESS_DENIED,
+			Controller::ERROR_ACCESS_DENIED,
 			'ERROR_DOCUMENT_RIGHTS'
 		));
 	}

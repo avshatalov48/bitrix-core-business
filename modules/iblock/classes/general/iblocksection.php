@@ -725,7 +725,7 @@ class CAllIBlockSection
 			$Result = $ID;
 
 			/************* QUOTA *************/
-			$_SESSION["SESS_RECOUNT_DB"] = "Y";
+			CDiskQuota::recalculateDb();
 			/************* QUOTA *************/
 		}
 
@@ -1201,7 +1201,7 @@ class CAllIBlockSection
 			$Result = true;
 
 			/*********** QUOTA ***************/
-			$_SESSION["SESS_RECOUNT_DB"] = "Y";
+			CDiskQuota::recalculateDb();
 			/*********** QUOTA ***************/
 		}
 
@@ -1403,7 +1403,7 @@ class CAllIBlockSection
 			$ipropTemplates->delete();
 
 			/************* QUOTA *************/
-			$_SESSION["SESS_RECOUNT_DB"] = "Y";
+			CDiskQuota::recalculateDb();
 			/************* QUOTA *************/
 
 			$arIBlockFields = CIBlock::GetArrayByID($s["IBLOCK_ID"], "FIELDS");

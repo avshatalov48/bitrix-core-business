@@ -376,7 +376,7 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 		$forum = $this->feed->getForum();
 		$this->arParams["ALLOW_UPLOAD"] = $this->arParams["ALLOW_UPLOAD"] ?? $forum["ALLOW_UPLOAD"];
 		$this->arParams["ALLOW_UPLOAD_EXT"] = $this->arParams["ALLOW_UPLOAD_EXT"] ?? $forum["ALLOW_UPLOAD_EXT"];
-		$path = dirname(__FILE__);
+		$path = __DIR__;
 		include_once($path."/files_input.php");
 		$this->arResult["objFiles"] = new CCommentFiles($this);
 
@@ -518,8 +518,18 @@ final class ForumCommentsComponent extends CBitrixComponent implements Main\Engi
 					"POST_MESSAGE" => $post["REVIEW_TEXT"],
 					"AUTHOR_NAME" => ($this->getUser()->isAuthorized() ? $this->getUserName() : (empty($post["REVIEW_AUTHOR"]) ? $GLOBALS["FORUM_STATUS_NAME"]["guest"] : $post["REVIEW_AUTHOR"])),
 					"AUTHOR_EMAIL" => $post["REVIEW_EMAIL"],
-					"USE_SMILES" => $post["REVIEW_USE_SMILES"]
+					"USE_SMILES" => $post["REVIEW_USE_SMILES"],
+					"GUEST_ID" => Main\ModuleManager::isModuleInstalled("statistic") ? $_SESSION["SESS_GUEST_ID"] : null
 				);
+				if ($realIp = Main\Service\GeoIp\Manager::getRealIp())
+				{
+					$arPost["AUTHOR_IP"] = $realIp;
+					$arPost["AUTHOR_REAL_IP"] = $realIp;
+					if (Main\Config\Option::get('forum', 'FORUM_GETHOSTBYADDR', 'N') === "Y")
+					{
+						$arPost["AUTHOR_REAL_IP"] = @gethostbyaddr($realIp);
+					}
+				}
 
 				foreach (GetModuleEvents('forum', 'OnCommentSave', true) as $arEvent) // add custom data from $_REQUEST to arElement, validate here
 				{

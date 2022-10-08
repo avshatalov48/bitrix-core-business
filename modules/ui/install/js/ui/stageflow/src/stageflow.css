@@ -44,7 +44,8 @@
 	vertical-align: middle;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font: 600 12px/23px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/23px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	cursor: pointer;
 	transition: all 250ms ease;
 }

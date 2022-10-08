@@ -14,7 +14,7 @@ return array(
 	),
 	'cards' => array(),
 	'nodes' => array(
-		'.landing-block-node-img' => array(
+		 '.landing-block-node-img' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_CVR003.1._NODES_LANDINGBLOCKNODE_IMG'),
 			'type' => 'img',
 			'isWrapper' => true,

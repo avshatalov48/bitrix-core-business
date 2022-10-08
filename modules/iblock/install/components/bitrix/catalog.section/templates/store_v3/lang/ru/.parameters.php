@@ -94,3 +94,4 @@ $MESS["CPT_BCS_SECTIONS_OFFSET_VARIABLE"] = "Имя ключа со смещен
 $MESS["CP_BCS_TPL_SECTIONS_SECTION_ID"] = "ID раздела для вывода подразделов";
 $MESS["CP_BCS_TPL_SECTIONS_SECTION_CODE"] = "Символьный код раздела для вывода подразделов";
 $MESS["CP_BCS_TPL_SECTIONS_TOP_DEPTH"] = "Максимальная отображаемая глубина разделов";
+$MESS["CP_BCS_TPL_SHOW_SECTIONS"] = "Отображать разделы";

@@ -362,7 +362,7 @@ class Option
 		if($cacheTtl === null)
 		{
 			$cacheFlags = Configuration::getValue("cache_flags");
-			$cacheTtl = $cacheFlags["config_options"] ?? 0;
+			$cacheTtl = $cacheFlags["config_options"] ?? 3600;
 		}
 		return $cacheTtl;
 	}

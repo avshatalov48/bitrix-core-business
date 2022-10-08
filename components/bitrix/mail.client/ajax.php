@@ -812,6 +812,12 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 			}
 		}
 
+		if(!empty($mailboxHelper) && !$mailboxHelper->isAuthenticated())
+		{
+			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('MAIL_IMAP_ERR_AUTH'));
+			return;
+		}
+
 		$outgoingParams = [
 			'CHARSET'      => SITE_CHARSET,
 			'CONTENT_TYPE' => 'html',

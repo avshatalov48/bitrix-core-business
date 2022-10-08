@@ -73,6 +73,7 @@
 		SERVER_RESTARTED : 3002,
 		CONFIG_EXPIRED : 3003,
 		MANUAL : 3004,
+		WRONG_CHANNEL_ID : 4010,
 	};
 
 	var SystemCommands = {
@@ -142,6 +143,7 @@
 		this.connectionAttempt = 0;
 		this.connectionType = '';
 		this.reconnectTimeout = null;
+		this.restartTimeout = null;
 		this.restoreWebSocketTimeout = null;
 
 		this.configGetMethod = typeof params.configGetMethod !== 'string'? 'pull.config.get': params.configGetMethod;
@@ -769,9 +771,24 @@
 		return result;
 	};
 
+	Pull.prototype.scheduleRestart = function(disconnectCode, disconnectReason, restartDelay)
+	{
+		clearTimeout(this.restartTimeout);
+		if (!restartDelay || restartDelay < 1)
+		{
+			restartDelay = Math.ceil(Math.random() * 30) + 5;
+		}
+
+		this.restartTimeout = setTimeout(
+			() => this.restart(disconnectCode, disconnectReason),
+			restartDelay
+		);
+	}
+
 	Pull.prototype.restart = function(disconnectCode, disconnectReason)
 	{
 		var self = this;
+		clearTimeout(this.restartTimeout);
 		this.disconnect(disconnectCode, disconnectReason);
 		if(this.storage)
 		{
@@ -1558,7 +1575,14 @@
 		this.logToConsole('Pull: Websocket connection with push-server closed. Code: ' + e.code + ', reason: ' + e.reason);
 		if(!this.isManualDisconnect)
 		{
-			this.scheduleReconnect();
+			if (e.code == CloseReasons.WRONG_CHANNEL_ID)
+			{
+				this.scheduleRestart(CloseReasons.WRONG_CHANNEL_ID, "restarting to reload config");
+			}
+			else
+			{
+				this.scheduleReconnect();
+			}
 		}
 
 		// to prevent fallback to long polling in case of networking problems

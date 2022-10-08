@@ -6,7 +6,7 @@ use Bitrix\Socialservices\UserTable;
 
 IncludeModuleLangFile(__FILE__);
 
-require_once(dirname(__FILE__)."/descriptions.php");
+require_once(__DIR__."/descriptions.php");
 
 //manager to operate with services
 class CSocServAuthManager
@@ -56,7 +56,7 @@ class CSocServAuthManager
 		$arAuthServices = self::$arAuthServices;
 
 		//user settings: sorting, active
-		$arServices = unserialize(COption::GetOptionString("socialservices", "auth_services".$suffix, ""));
+		$arServices = unserialize(COption::GetOptionString("socialservices", "auth_services".$suffix, ""), ["allowed_classes" => false]);
 		if(is_array($arServices))
 		{
 			$i = 0;
@@ -495,9 +495,9 @@ class CSocServAuthManager
 		$arParams = array();
 		if((IsModuleInstalled('bitrix24') && defined('BX24_HOST_NAME')) && $userLogin != '')
 		{
-			if($arUserTwit = unserialize(base64_decode($userTwit)))
+			if($arUserTwit = unserialize(base64_decode($userTwit), ["allowed_classes" => false]))
 				$userTwit = $arUserTwit;
-			if($arSiteIdCheck = unserialize(base64_decode($arSiteId)))
+			if($arSiteIdCheck = unserialize(base64_decode($arSiteId), ["allowed_classes" => false]))
 				$arSiteId = $arSiteIdCheck;
 			$dbUser = CUser::GetByLogin($userLogin);
 			if($arUser = $dbUser->Fetch())
@@ -1221,7 +1221,7 @@ class CSocServAuth
 						$socServArray = "a:0:{}";
 					}
 
-					$arSocServUser['SOCSERVARRAY'] = unserialize($socServArray);
+					$arSocServUser['SOCSERVARRAY'] = unserialize($socServArray, ["allowed_classes" => false]);
 
 					if(is_array($arSocServUser['SOCSERVARRAY']) && count($arSocServUser['SOCSERVARRAY']) > 0)
 					{
@@ -1260,7 +1260,7 @@ class CSocServAuth
 						$socServArray = "a:0:{}";
 					}
 
-					$arSocServUser['SOCSERVARRAY'] = unserialize($socServArray);
+					$arSocServUser['SOCSERVARRAY'] = unserialize($socServArray, ["allowed_classes" => false]);
 
 					if(is_array($arSocServUser['SOCSERVARRAY']) && count($arSocServUser['SOCSERVARRAY']) > 0)
 					{
@@ -1299,7 +1299,7 @@ class CSocServAuth
 	public static function OptionsSuffix()
 	{
 		//settings depend on current site
-		$arUseOnSites = unserialize(COption::GetOptionString("socialservices", "use_on_sites", ""));
+		$arUseOnSites = unserialize(COption::GetOptionString("socialservices", "use_on_sites", ""), ["allowed_classes" => false]);
 		return (isset($arUseOnSites[SITE_ID]) && $arUseOnSites[SITE_ID] === "Y"? '_bx_site_'.SITE_ID : '');
 	}
 

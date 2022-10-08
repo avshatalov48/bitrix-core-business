@@ -1,11 +1,10 @@
 <?php
-IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Bizproc\Debugger\Workflow\DebugWorkflow;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
-use \Bitrix\Main;
-use \Bitrix\Bizproc;
-use \Bitrix\Bizproc\RestActivityTable;
+use Bitrix\Main;
+use Bitrix\Bizproc;
+use Bitrix\Bizproc\RestActivityTable;
 
 /**
  * Workflow runtime.
@@ -89,7 +88,7 @@ class CBPRuntime
 	 * @param bool $autoStart Starts runtime.
 	 * @return CBPRuntime
 	 */
-	public static function GetRuntime($autoStart = false)
+	public static function getRuntime($autoStart = false)
 	{
 		if (!isset(self::$instance))
 		{
@@ -147,7 +146,7 @@ class CBPRuntime
 	* Public method starts runtime
 	*
 	*/
-	public function StartRuntime()
+	public function startRuntime()
 	{
 		if ($this->isStarted)
 		{
@@ -177,7 +176,7 @@ class CBPRuntime
 	* Public method stops runtime
 	*
 	*/
-	public function StopRuntime()
+	public function stopRuntime()
 	{
 		if (!$this->isStarted)
 		{
@@ -213,7 +212,7 @@ class CBPRuntime
 	 * @throws Exception
 	 * @throws \Bitrix\Main\ArgumentNullException
 	 */
-	public function CreateWorkflow($workflowTemplateId, $documentId, $workflowParameters = array(), $parentWorkflow = null)
+	public function createWorkflow($workflowTemplateId, $documentId, $workflowParameters = array(), $parentWorkflow = null)
 	{
 		$workflowTemplateId = intval($workflowTemplateId);
 		if ($workflowTemplateId <= 0)
@@ -396,7 +395,7 @@ class CBPRuntime
 	* @param mixed $name - Service code.
 	* @return mixed|CBPSchedulerService|CBPStateService|CBPTrackingService|CBPTaskService|CBPHistoryService|CBPDocumentService|Bizproc\Service\Analytics - Service instance or null if service is not found.
 	*/
-	public function GetService($name)
+	public function getService($name)
 	{
 		if (array_key_exists($name, $this->services))
 		{
@@ -422,7 +421,7 @@ class CBPRuntime
 	* @param string $name - Service code.
 	* @param CBPRuntimeService $service - Service object.
 	*/
-	public function AddService($name, CBPRuntimeService $service)
+	public function addService($name, CBPRuntimeService $service)
 	{
 		if ($this->isStarted)
 			throw new Exception("Runtime is started");
@@ -448,7 +447,7 @@ class CBPRuntime
 	* @param mixed $eventName - Event name.
 	* @param mixed $arEventParameters - Event parameters.
 	*/
-	public static function SendExternalEvent($workflowId, $eventName, $arEventParameters = array())
+	public static function sendExternalEvent($workflowId, $eventName, $arEventParameters = array())
 	{
 		$runtime = CBPRuntime::GetRuntime();
 		$workflow = $runtime->GetWorkflow($workflowId);
@@ -473,7 +472,7 @@ class CBPRuntime
 	*
 	* @param string $code - Activity code.
 	*/
-	public function IncludeActivityFile($code)
+	public function includeActivityFile($code)
 	{
 		if (in_array($code, $this->loadedActivities))
 			return true;
@@ -527,7 +526,7 @@ class CBPRuntime
 		return false;
 	}
 
-	public function GetActivityDescription($code, $lang = false)
+	public function getActivityDescription($code, $lang = false)
 	{
 		if (preg_match("#[^a-zA-Z0-9_]#", $code))
 			return null;
@@ -615,12 +614,12 @@ class CBPRuntime
 		return $props;
 	}
 
-	private function LoadActivityLocalization($path, $file, $lang = false)
+	private function loadActivityLocalization($path, $file, $lang = false)
 	{
 		\Bitrix\Main\Localization\Loc::loadLanguageFile($path. '/'. $file);
 	}
 
-	public function GetResourceFilePath($activityPath, $filePath)
+	public function getResourceFilePath($activityPath, $filePath)
 	{
 		$path = str_replace("\\", "/", $activityPath);
 		$path = mb_substr($path, 0, mb_strrpos($path, "/") + 1);
@@ -634,7 +633,7 @@ class CBPRuntime
 			return null;
 	}
 
-	public function ExecuteResourceFile($activityPath, $filePath, $arParameters = array())
+	public function executeResourceFile($activityPath, $filePath, $arParameters = array())
 	{
 		$result = null;
 		$path = $this->GetResourceFilePath($activityPath, $filePath);
@@ -653,7 +652,7 @@ class CBPRuntime
 		return $result;
 	}
 
-	public function SearchActivitiesByType($type, array $documentType = null)
+	public function searchActivitiesByType($type, array $documentType = null)
 	{
 		$type = mb_strtolower(trim($type));
 		if ($type == '')

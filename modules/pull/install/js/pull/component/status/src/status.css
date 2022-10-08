@@ -3,7 +3,7 @@
 }
 .bx-pull-status-wrap {
 	position: relative;
-	font: 12px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #fff;
 	text-align: center;
 	transition: height .4s, background .4s;

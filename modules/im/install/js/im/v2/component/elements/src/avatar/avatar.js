@@ -1,12 +1,14 @@
 import {ChatTypes, RecentSettings, AvatarSize} from 'im.v2.const';
 import {Utils} from 'im.v2.lib.utils';
 
+import 'ui.fonts.opensans';
 import './avatar.css';
 
 const DialogType = {
 	user: 'user',
 	chat: 'chat',
 	open: 'open',
+	general: 'general',
 	videoconf: 'videoconf',
 	announcement: 'announcement',
 	call: 'call',
@@ -75,10 +77,6 @@ export const Avatar = {
 
 			return false;
 		},
-		isGeneralChat(): boolean
-		{
-			return this.dialog.chatId === BX.MessengerProxy.getGeneralChatId();
-		},
 		isActiveInvitation(): boolean
 		{
 			const recentItem = this.$store.getters['recent/get'](this.dialogId);
@@ -95,7 +93,7 @@ export const Avatar = {
 		},
 		avatarText(): string
 		{
-			if (![ChatTypes.user, ChatTypes.open, ChatTypes.chat].includes(this.dialog.type) || this.isGeneralChat)
+			if (![ChatTypes.user, ChatTypes.open, ChatTypes.chat].includes(this.dialog.type))
 			{
 				return '';
 			}
@@ -112,11 +110,6 @@ export const Avatar = {
 			else
 			{
 				classes.push('bx-im-component-avatar-icon-default');
-			}
-
-			if (this.isGeneralChat)
-			{
-				classes.push('bx-im-component-avatar-icon-general');
 			}
 
 			return classes;

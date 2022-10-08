@@ -3,6 +3,7 @@
 namespace Bitrix\Catalog\RestView;
 
 use Bitrix\Catalog\ProductTable;
+use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\ORM\Fields\ScalarField;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Rest\Integration\View\Attributes;
@@ -17,7 +18,7 @@ use Bitrix\Catalog;
 
 final class Product extends Base
 {
-	private $productFieldNames = [];
+	private array $productFieldNames = [];
 
 	/**
 	 * @return array
@@ -94,7 +95,7 @@ final class Product extends Base
 			'NAME'=>[
 				'TYPE'=>DataType::TYPE_STRING,
 				'ATTRIBUTES'=>[
-					Attributes::REQUIRED,
+					Attributes::REQUIRED_ADD,
 				],
 			],
 			'CODE'=>[
@@ -125,13 +126,11 @@ final class Product extends Base
 				'TYPE'=>DataType::TYPE_INT,
 				'ATTRIBUTES'=>[
 					Attributes::REQUIRED,
+					Attributes::IMMUTABLE
 				],
 			],
 			'IBLOCK_SECTION_ID'=>[
-				'TYPE'=>DataType::TYPE_INT,
-				'ATTRIBUTES'=>[
-					Attributes::REQUIRED,
-				],
+				'TYPE'=>DataType::TYPE_INT
 			],
 			'XML_ID'=>[
 				'TYPE'=>DataType::TYPE_STRING,
@@ -162,7 +161,6 @@ final class Product extends Base
 				[
 					'IBLOCK_ID' => $filter['IBLOCK_ID'],
 					'CHECK_PERMISSIONS' => 'N',
-					//'!PROPERTY_TYPE' => 'G'
 				]
 			);
 			while ($property = $res->Fetch())
@@ -202,13 +200,42 @@ final class Product extends Base
 							'VALUE' => $enumValue['VALUE']
 						);
 					}
+					unset($enum);
+
 					$info['VALUES'] = $values;
 				}
+
+				if ($this->isPropertyBoolean($info))
+				{
+					$info['USER_TYPE'] = Catalog\Controller\Enum::PROPERTY_USER_TYPE_BOOL_ENUM;
+				}
+
 
 				$fieldsInfo['PROPERTY_'.$property['ID']] = $info;
 			}
 
+			$fieldsInfo = $this->addCanonicalFieldName($fieldsInfo);
+
 			$result->setData($fieldsInfo);
+		}
+
+		return $result;
+	}
+
+	private function addCanonicalFieldName($fields): array
+	{
+		$result = [];
+
+		foreach ($fields as $name => $info)
+		{
+			if($info['PROPERTY_TYPE'] === 'E' && $info['USER_TYPE'] === 'SKU')
+			{
+				$result['PARENT_ID'] = $info + ['CANONICAL_NAME' => $name];
+			}
+			else
+			{
+				$result[$name] = $info;
+			}
 		}
 
 		return $result;
@@ -252,6 +279,28 @@ final class Product extends Base
 		return $this->fillFieldNames($fieldList);
 	}
 
+	public function isAllowedProductTypeByIBlockId($productTypeId, $iblockId): Result
+	{
+		$result = new Result();
+
+		$iblockData = \CCatalogSku::GetInfoByIBlock($iblockId);
+		if (empty($iblockData))
+		{
+			$result->addError(new Error('iblock is not catalog'));
+		}
+		else
+		{
+			$allowedTypes = self::getProductTypes($iblockData['CATALOG_TYPE']);
+
+			if (!isset($allowedTypes[$productTypeId]))
+			{
+				$result->addError(new Error('productType is not allowed for this catalog'));
+			}
+		}
+
+		return $result;
+	}
+
 	/**
 	 * @param array $filter
 	 * @return Result
@@ -275,23 +324,14 @@ final class Product extends Base
 			$iblockId = (int)$filter['IBLOCK_ID'];
 			$productTypeId = (int)$filter['PRODUCT_TYPE'];
 
-			$iblockData = \CCatalogSku::GetInfoByIBlock($iblockId);
-			if (empty($iblockData))
+			$r = $this->isAllowedProductTypeByIBlockId($productTypeId, $iblockId);
+			if ($r->isSuccess())
 			{
-				$result->addError(new Error('iblock is not catalog'));
+				$result->setData($this->getFieldsCatalogProductByType($productTypeId));
 			}
 			else
 			{
-				$allowedTypes = self::getProductTypes($iblockData['CATALOG_TYPE']);
-
-				if (!isset($allowedTypes[$productTypeId]))
-				{
-					$result->addError(new Error('productType is not allowed for this catalog'));
-				}
-				else
-				{
-					$result->setData($this->getFieldsCatalogProductByType($productTypeId));
-				}
+				$result->addErrors($r->getErrors());
 			}
 		}
 
@@ -580,30 +620,21 @@ final class Product extends Base
 			$iblockId = (int)$filter['IBLOCK_ID'];
 			$productTypeId = (int)$filter['PRODUCT_TYPE'];
 
-			$iblockData = \CCatalogSku::GetInfoByIBlock($iblockId);
-			if (empty($iblockData))
+			$r = $this->isAllowedProductTypeByIBlockId($productTypeId, $iblockId);
+			if ($r->isSuccess())
 			{
-				$result->addError(new Error('iblock is not catalog'));
+				$result->setData(
+					array_merge(
+						$this->getFieldsIBlockElement(),
+						$this->getFieldsIBlockPropertyValuesByFilter(['IBLOCK_ID'=>$iblockId])->getData(),
+						$this->getFieldsCatalogProductCommonFields(),
+						$this->getFieldsCatalogProductByType($productTypeId)
+					)
+				);
 			}
 			else
 			{
-				$allowedTypes = self::getProductTypes($iblockData['CATALOG_TYPE']);
-
-				if (!isset($allowedTypes[$productTypeId]))
-				{
-					$result->addError(new Error('productType is not allowed for this catalog'));
-				}
-				else
-				{
-					$result->setData(
-						array_merge(
-							$this->getFieldsIBlockElement(),
-							$this->getFieldsIBlockPropertyValuesByFilter(['IBLOCK_ID'=>$iblockId])->getData(),
-							$this->getFieldsCatalogProductCommonFields(),
-							$this->getFieldsCatalogProductByType($productTypeId)
-						)
-					);
-				}
+				$result->addErrors($r->getErrors());
 			}
 		}
 
@@ -883,6 +914,18 @@ final class Product extends Base
 					}
 				});
 			}
+			elseif ($this->isPropertyBoolean($info))
+			{
+				$booleanValue = $value[0]['VALUE'];
+				if ($booleanValue === 'Y')
+				{
+					$value[0]['VALUE'] = current($info['VALUES'])['ID'];
+				}
+				elseif ($booleanValue === 'N')
+				{
+					$value[0]['VALUE'] = null;
+				}
+			}
 			//elseif($propertyType === 'S' && $userType === 'HTML'){}
 
 			$value = $isMultiple? $value: $value[0];
@@ -907,6 +950,17 @@ final class Product extends Base
 		}
 
 		return $arguments;
+	}
+
+	protected function externalizeEmptyValue($name, $value, $fields, $fieldsInfo)
+	{
+		$fieldInfo = $fieldsInfo[$name] ?? [];
+		if ($this->isPropertyBoolean($fieldInfo))
+		{
+			return 'N';
+		}
+
+		return parent::externalizeEmptyValue($name, $value, $fields, $fieldsInfo);
 	}
 
 	public function externalizeFieldsGet($fields, $fieldsInfo=[]): array
@@ -1144,6 +1198,17 @@ final class Product extends Base
 					$item['VALUE'] = $this->externalizeFileValue($name, $item['VALUE'], ['PRODUCT_ID'=>$fields['ID']]);
 				});
 			}
+			elseif ($this->isPropertyBoolean($info))
+			{
+				if ($value)
+				{
+					$value = 'Y';
+				}
+				else
+				{
+					$value = 'N';
+				}
+			}
 
 			$value = $isMultiple? $value: $value[0];
 		}
@@ -1207,5 +1272,20 @@ final class Product extends Base
 		}
 
 		return $fieldList;
+	}
+
+	private function isPropertyBoolean(array $property): bool
+	{
+		if (!isset($property['PROPERTY_TYPE'], $property['VALUES']))
+		{
+			return false;
+		}
+
+		if ($property['PROPERTY_TYPE'] !== PropertyTable::TYPE_LIST)
+		{
+			return false;
+		}
+
+		return count($property['VALUES']) === 1;
 	}
 }

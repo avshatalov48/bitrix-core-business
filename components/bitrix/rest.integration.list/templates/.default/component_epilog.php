@@ -15,6 +15,7 @@ Extension::load(
 		'ui.fonts.opensans',
 		'ui.notification',
 		'rest.integration',
+		'ui.fonts.opensans',
 	]
 );
 

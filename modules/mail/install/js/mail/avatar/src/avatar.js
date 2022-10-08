@@ -83,6 +83,39 @@ export class Avatar
 		return this.hashToColor(this.stringToHashCode(name));
 	}
 
+	static getInitials(string, email)
+	{
+		string=string.replace(/[0-9]|[-\u0026\u002f\u005c\u0023\u002c\u002b\u0028\u0029\u0024\u007e\u0025\u002e\u0027\u0022\u003a\u002a\u003f\u003c\u003e\u007b\u007d\u00ab\u00bb]/g,"");
+		string=string.replace(/^\s+|\s+$/g, '');
+
+		const names = string.split(' ');
+
+		let initials = names[0].substring(0, 1).toUpperCase();
+
+		if (names.length > 1)
+		{
+			initials += names[names.length - 1].substring(0, 1).toUpperCase();
+		}
+
+		if(initials === '')
+		{
+			initials = email[0].toUpperCase();
+		}
+
+		return initials;
+	}
+
+	static getAvatarData(config = {
+		fullName: 'User Quest',
+		email: 'info@example.com',
+	})
+	{
+		return {
+			'abbreviation': this.getInitials(config['fullName'], config['email']),
+			'color': this.stringToColor(config['email']),
+		};
+	}
+
 	static build(config = {
 		size: 'small',
 		fullName: 'User Quest',
@@ -96,17 +129,10 @@ export class Avatar
 			config['size'] = 'small';
 		}
 
-		config['fullName'] = config['fullName'].replace(/[\u0026\u005c\u002f\u005c\u005c\u0023\u002c\u002b\u0028\u0029\u0024\u007e\u0025\u002e\u0027\u0022\u003a\u002a\u003f\u003c\u003e\u007b\u007d\u00ab\u00bb]/g, '').toUpperCase();
-		let brokenName = config['fullName'].split(' ');
-		let abbreviation = brokenName[0][0];
+		const data = this.getAvatarData(config);
 
-		if (brokenName.length > 1)
-		{
-			abbreviation += brokenName[1][0];
-		}
-
-		let avatar = Tag.render`<span class="mail-ui-avatar mail-ui-avatar-${config['size']}">${abbreviation}</span>`;
-		avatar.style.backgroundColor = this.stringToColor(config['email']);
+		let avatar = Tag.render`<span class="mail-ui-avatar mail-ui-avatar-${config['size']}">${data['abbreviation']}</span>`;
+		avatar.style.backgroundColor = data['color'];
 
 		return avatar;
 	}

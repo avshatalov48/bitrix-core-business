@@ -197,7 +197,7 @@ class CHTMLEditor
 				'/bitrix/js/main/dd.js'
 			),
 			'css' => $basePath.'html-editor.css',
-			'rel' => array('date', 'timer', 'ui.design-tokens')
+			'rel' => array('ui.design-tokens', 'date', 'timer')
 		));
 		CUtil::InitJSCore(array('html_editor'));
 
@@ -385,6 +385,7 @@ class CHTMLEditor
 			'actionUrl' => $arParams["actionUrl"],
 			'cssIframePath' => $this->cssIframePath,
 			'bodyClass' => $arParams["bodyClass"],
+			'fontSize' => isset($arParams['fontSize']) && is_string($arParams['fontSize']) ? $arParams['fontSize'] : '14px',
 			'bodyId' => $arParams["bodyId"],
 			'spellcheck_path' => $basePath.'html-spell.js?v='.filemtime($_SERVER['DOCUMENT_ROOT'].$basePath.'html-spell.js'),
 			'usePspell' => $arParams["usePspell"],
@@ -1340,9 +1341,13 @@ class CHTMLEditor
 		{
 			foreach($params["controlsMap"] as $control)
 			{
-				if ($control && (mb_strtolower($control['id']) == 'bbcode' || mb_strtolower($control['id']) == 'changeview'))
+				if (isset($control['id']))
 				{
-					$settingsKey .= '_'.$control['id'];
+					$controlId = strtolower($control['id']);
+					if ($controlId == 'bbcode' || $controlId == 'changeview')
+					{
+						$settingsKey .= '_'.$control['id'];
+					}
 				}
 			}
 		}

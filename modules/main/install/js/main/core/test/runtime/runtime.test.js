@@ -200,8 +200,11 @@ describe('Runtime', () => {
 				prop1: 'value1',
 				prop2: 'value2',
 				prop3: ['1', '2', '3'],
-				prop4: source,
+				prop4: null,
 			};
+
+			source.prop4 = source;
+
 			const clone = Runtime.clone(source);
 
 			assert.deepEqual(source, clone);
@@ -217,7 +220,8 @@ describe('Runtime', () => {
 		});
 
 		it('Should clone array with circular reference', () => {
-			const source = [1, 2, 3, 4, source];
+			const source = [1, 2, 3, 4];
+			source.push(source);
 			const clone = Runtime.clone(source);
 
 			assert.deepEqual(source, clone);
@@ -305,7 +309,8 @@ describe('Runtime', () => {
 			});
 
 			it('Should not leak if clone array', () => {
-				let source = ['test', 1, {test: 1}, document.createElement('div'), source];
+				let source = ['test', 1, {test: 1}, document.createElement('div')];
+				source.push(source);
 				let cloned = Runtime.clone(source);
 
 				let isSourceCollected = false;

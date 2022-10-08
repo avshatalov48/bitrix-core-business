@@ -10143,7 +10143,9 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 
 			if(this._model.isFieldLocked(currencyFieldName))
 			{
+				this._select.disabled = true;
 				this._selectContainer.disabled = true;
+				this._selectContainer.classList.add('ui-ctl-disabled');
 			}
 			else
 			{

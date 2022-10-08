@@ -4,7 +4,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 $APPLICATION->SetTitle(GetMessage('REPORT_CONSTRUCT'));
 
-CJSCore::Init(array('report', 'socnetlogdest'));
+CJSCore::Init(['ui.design-tokens', 'ui.fonts.opensans', 'report', 'socnetlogdest',]);
 
 $jsClass = 'ReportConstructClass_'.$arResult['randomString'];
 
@@ -388,7 +388,7 @@ initReportControls();
 		#report-chart-display-checkbox {vertical-align: middle;}
 		#report-chart-switch label {vertical-align: middle;}
 
-		.webform-additional-fields { margin-bottom: 5px; }
+		.webform-additional-fields { margin-bottom: 15px; }
 		#report-chart-params { padding-top: 19px; }
 		.chart-config-label {
 			color: #303030/*#555555*/;
@@ -823,9 +823,7 @@ initReportControls();
 <div class="reports-preview-table-report" id="reports-preview-table-report">
 	<span class="reports-prev-table-title"><?=GetMessage('REPORT_SCHEME_PREVIEW')?></span>
 
-	<div class="reports-list">
-		<div class="reports-list-left-corner"></div>
-		<div class="reports-list-right-corner"></div>
+	<div class="reports-list-preview">
 		<table cellspacing="0" class="reports-list-table">
 			<tr>
 				<th></th>

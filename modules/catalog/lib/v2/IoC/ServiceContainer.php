@@ -37,11 +37,17 @@ final class ServiceContainer
 		return static::$container;
 	}
 
+	/**
+	 * @throws \Bitrix\Main\ObjectNotFoundException
+	 */
 	public static function get($id, array $args = [])
 	{
 		return static::getContainer()->get($id, $args);
 	}
 
+	/**
+	 * @throws \Bitrix\Main\ObjectNotFoundException
+	 */
 	public static function make($id, array $args = [])
 	{
 		return static::getContainer()->make($id, $args);
@@ -117,7 +123,7 @@ final class ServiceContainer
 	{
 		$iblockInfo = static::getIblockInfo($iblockId);
 
-		if ($iblockInfo)
+		if ($iblockInfo && $iblockInfo->canHaveSku())
 		{
 			$iblockId = $iblockInfo->getProductIblockId();
 

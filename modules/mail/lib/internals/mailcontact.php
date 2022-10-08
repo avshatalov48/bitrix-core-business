@@ -82,35 +82,45 @@ class MailContactTable extends Entity\DataManager
 	{
 		if (empty($contactsData))
 		{
-			return;
+			return true;
 		}
+
 		$contactsToCheck = [];
 		foreach ($contactsData as $index => $item)
 		{
 			$item['EMAIL'] = trim($item['EMAIL']);
 			$contactsToCheck[$item['USER_ID']][] = $item;
 		}
+
+		$alreadyAdded = [];
+
 		foreach ($contactsToCheck as $userId => $items)
 		{
 			$alreadyAdded = static::query()
 				->addSelect('EMAIL', 'EMAIL')
+				->addSelect('ID', 'ID')
+				->addSelect('NAME', 'NAME')
 				->where('USER_ID', $userId)
 				->whereIn('EMAIL', array_column($items, 'EMAIL'))
 				->exec()
 				->fetchAll();
-			$alreadyAdded = array_column($alreadyAdded, 'EMAIL');
+
+			$alreadyAddedEmail = array_column($alreadyAdded, 'EMAIL');
+
 			foreach ($items as $item)
 			{
-				if (!in_array($item['EMAIL'], $alreadyAdded, true))
+				if (!in_array($item['EMAIL'], $alreadyAddedEmail, true))
 				{
 					$contactsToAdd[$item['EMAIL']] = $item;
 				}
 			}
 		}
+
 		if (empty($contactsToAdd))
 		{
-			return;
+			return $alreadyAdded;
 		}
+
 		$sqlHelper = Application::getConnection()->getSqlHelper();
 		$values = [];
 		foreach ($contactsToAdd as $item)
@@ -130,5 +140,7 @@ class MailContactTable extends Entity\DataManager
 		$tableName = static::getTableName();
 		$sql = "INSERT IGNORE $tableName($keys) VALUES($values)";
 		Application::getConnection()->query($sql);
+
+		return true;
 	}
 }

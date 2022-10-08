@@ -27,7 +27,14 @@ td.settings-footer-buttons { text-align:center;}
 .settings-footer-buttons-block {border-top:1px solid #dedede; margin-top:55px; padding-top:20px; text-align: center; }
 .settings-cancel-link {color:#ce1f1f; font-size:12px; text-decoration:underline;}
 
-.settings-blocks-note { border:1px solid #ffc34f; background: #fffdbe; padding:1em; margin: 0 0 10px 5px; max-width: 600px; }
+.settings-blocks-note {
+	border: 1px solid #ffc34f;
+	background: #fffdbe;
+	padding: 1em;
+	margin: 0 0 10px 5px;
+	max-width: 600px;
+	border-radius: var(--ui-border-radius-sm);
+}
 
 .settings-block-enable-wrap {height: 16px}
 .settings-block-enable { padding: 0 0 0.5em 1em; position: relative; height: 22px; }
@@ -57,7 +64,7 @@ td.settings-footer-buttons { text-align:center;}
 	margin: 0 0 16px 0;
 	padding: 0 0 16px 0;
 	border-bottom: 1px solid rgba(82,92,105,.1);
-	font: bold 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525C69;
 }
 
@@ -71,7 +78,7 @@ td.settings-footer-buttons { text-align:center;}
 
 .sn-features-caption {
 	margin: 0 0 5px 0;
-	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(82,92,105,.5);
 }
 
@@ -82,7 +89,8 @@ td.settings-footer-buttons { text-align:center;}
 	max-width: 498px;
 	height: 38px;
 	border: 1px solid #C6CDD3;
-	font: 16px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	border-radius: var(--ui-field-border-radius);
+	font: 16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%228%22%20viewBox%3D%220%200%2012%208%22%3E%3Cpath%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M6%204.828L1.757.586.343%202l4.95%204.95.707.707L11.656%202%2010.242.586%206%204.828z%22/%3E%3C/svg%3E');
 	background-color: #fff;
@@ -102,7 +110,7 @@ td.settings-footer-buttons { text-align:center;}
 	margin: 0 0 16px 0;
 	padding: 0 0 16px 0;
 	border-bottom: 1px solid rgba(82,92,105,.1);
-	font: bold 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525C69;
 }
 
@@ -113,7 +121,7 @@ td.settings-footer-buttons { text-align:center;}
 }
 
 .sn-features-subtitle {
-	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .sn-features-lock .sn-features-title {

@@ -8,6 +8,7 @@ return [
 	"css" => "ui.cnt.css",
 	'js' => 'dist/cnt.bundle.js',
 	'rel' => [
+		'ui.fonts.opensans',
 		'main.core',
 	],
 	'skip_core' => false,

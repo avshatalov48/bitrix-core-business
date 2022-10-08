@@ -7,6 +7,8 @@
  * @copyright 2001-2020 Bitrix
  */
 
+import 'ui.design-tokens';
+
 import { BitrixVue } from 'ui.vue';
 import { Vuex } from 'ui.vue.vuex';
 import { Logger } from 'im.lib.logger';

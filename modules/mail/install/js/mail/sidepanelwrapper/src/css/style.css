@@ -16,7 +16,8 @@
 }
 
 .mail-slider-wrapper-header-title {
-	font: 26px/26px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font: 26px/26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .mail-slider-wrapper-footer-fixed {

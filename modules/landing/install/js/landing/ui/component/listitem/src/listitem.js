@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import {Cache, Dom, Runtime, Tag, Text, Type} from 'main.core';
 import {BaseEvent, EventEmitter} from 'main.core.events';
 import {Loc} from 'landing.loc';

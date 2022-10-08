@@ -16,7 +16,8 @@
 	padding: 0 20px;
 }
 .ui-sidepanel-layout-title {
-	font: 24px/26px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font: 24px/26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	margin: 0;
 	padding: 21px 0 21px 5px;
 	display: block;

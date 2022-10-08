@@ -99,6 +99,20 @@ $arComponentParameters = array(
 			"DEFAULT" => "CNT_ACTIVE",
 			"HIDDEN" => (isset($arCurrentValues['COUNT_ELEMENTS']) && $arCurrentValues['COUNT_ELEMENTS'] == 'N' ? 'Y' : 'N')
 		),
+		"ADDITIONAL_COUNT_ELEMENTS_FILTER" => array(
+			"PARENT" => "DATA_SOURCE",
+			"NAME" => GetMessage("CP_BCSL_ADDITIONAL_COUNT_ELEMENTS_FILTER"),
+			"TYPE" => "STRING",
+			"DEFAULT" => "additionalCountFilter",
+			"HIDDEN" => (isset($arCurrentValues['COUNT_ELEMENTS']) && $arCurrentValues['COUNT_ELEMENTS'] == 'N' ? 'Y' : 'N'),
+		),
+		"HIDE_SECTIONS_WITH_ZERO_COUNT_ELEMENTS" => array(
+			"PARENT" => "DATA_SOURCE",
+			"NAME" => GetMessage("CP_BCSL_HIDE_SECTIONS_WITH_ZERO_COUNT_ELEMENTS"),
+			"TYPE" => "CHECKBOX",
+			"DEFAULT" => "N",
+			"HIDDEN" => (isset($arCurrentValues['COUNT_ELEMENTS']) && $arCurrentValues['COUNT_ELEMENTS'] == 'N' ? 'Y' : 'N'),
+		),
 		"TOP_DEPTH" => array(
 			"PARENT" => "DATA_SOURCE",
 			"NAME" => GetMessage("CP_BCSL_TOP_DEPTH"),

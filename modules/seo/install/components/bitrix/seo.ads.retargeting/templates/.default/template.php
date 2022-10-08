@@ -6,7 +6,13 @@ use Bitrix\Main\UI\Extension;
 
 /** @var array $arParams */
 
-Extension::load(['ui.hint', 'seo.ads.client_selector','seo.ads.login', 'ui.design-tokens']);
+Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.roboto',
+	'ui.hint',
+	'seo.ads.client_selector',
+	'seo.ads.login'
+]);
 
 $containerNodeId = $arParams['CONTAINER_NODE_ID'];
 $destroyEventName = $arParams['JS_DESTROY_EVENT_NAME'];

@@ -15,7 +15,7 @@
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Localization\Loc;
 
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 define("HELP_FILE", "settings/lang_edit.php");
 
@@ -42,6 +42,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST["save"] <> '' || $_POST["appl
 		"SORT" => $_POST['SORT'],
 		"DEF" => $_POST['DEF'],
 		"NAME" => $_POST['NAME'],
+		"CODE" => $_POST['CODE'],
 		"CULTURE_ID" => $_POST['CULTURE_ID'],
 	);
 
@@ -179,6 +180,10 @@ $tabControl->BeginNextTab();
 	<tr class="adm-detail-required-field">
 		<td><?echo Loc::getMessage('NAME')?></td>
 		<td><input type="text" name="NAME" size="30" maxlength="50" value="<? echo $langField["NAME"]?>"></td>
+	</tr>
+	<tr>
+		<td><?= Loc::getMessage('lang_edit_code') ?></td>
+		<td><input type="text" name="CODE" size="30" maxlength="50" value="<? echo $langField["CODE"]?>"></td>
 	</tr>
 	<tr>
 		<td><label for="def"><?echo Loc::getMessage('DEF')?></label></td>

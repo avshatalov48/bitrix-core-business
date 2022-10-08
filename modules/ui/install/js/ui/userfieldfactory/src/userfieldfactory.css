@@ -81,13 +81,15 @@
 	display: block;
 	margin-bottom: 2px;
 	color: #333;
-	font: 14px/19px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .ui-userfieldfactory-creation-menu-item-desc {
 	display: block;
 	color: #828b95;
-	font: 400 13px/18px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .ui-userfieldfactory-configurator {
@@ -96,6 +98,7 @@
 	margin: 0 -15px 10px;
 	transition: 220ms opacity linear;
 	background-color: #f6f6f7;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .ui-userfieldfactory-configurator-title {
@@ -106,7 +109,7 @@
 	-ms-flex-pack: justify;
 	margin-bottom: 5px;
 	color: #a3a9b1;
-	font: 12px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-box-pack: justify;
 	justify-content: space-between;
 }
@@ -114,7 +117,7 @@
 .ui-userfieldfactory-configurator-block {
 	color: #424956;
 	word-break: break-word;
-	font: 15px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-userfieldfactory-configurator-block + .ui-userfieldfactory-configurator-block {
@@ -134,7 +137,7 @@
 	border-bottom: 1px dotted #cbced2;
 	background: none;
 	color: #80868e;
-	font: 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	cursor: pointer;
 	transition: all 220ms ease;
 }

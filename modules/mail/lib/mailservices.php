@@ -193,18 +193,19 @@ class MailServicesTable extends Entity\DataManager
 		else
 		{
 			$icons = array(
-				'bitrix24'    => '/bitrix/images/mail/mailservice-icon/' . Localization\Loc::getMessage('mail_mailservice_bitrix24_icon'),
-				'gmail'       => '/bitrix/images/mail/mailservice-icon/post-gmail-icon.png',
-				'icloud'      => '/bitrix/images/mail/mailservice-icon/post-icloud-icon.png',
-				'outlook.com' => '/bitrix/images/mail/mailservice-icon/post-outlook-icon.png',
-				'office365'   => '/bitrix/images/mail/mailservice-icon/post-office360-icon.png',
-				'yahoo'       => '/bitrix/images/mail/mailservice-icon/post-yahoo-icon.png',
-				'aol'         => '/bitrix/images/mail/mailservice-icon/post-aol-icon.png',
-				'yandex'      => '/bitrix/images/mail/mailservice-icon/post-yandex-icon.png',
-				'mail.ru'     => '/bitrix/images/mail/mailservice-icon/post-mail-icon.png',
-				'ukr.net'     => '/bitrix/images/mail/mailservice-icon/post-ukrnet-icon.png',
-				'exchange'    => '/bitrix/images/mail/mailservice-icon/post-exchange-icon.png',
-				'other'       => '/bitrix/images/mail/mailservice-icon/post-imap-icon.png',
+				'bitrix24'	=> '/bitrix/images/mail/mailservice-icon/' . Localization\Loc::getMessage('mail_mailservice_bitrix24_icon'),
+				'gmail'	=> '/bitrix/images/mail/mailservice-icon/post-gmail-icon.png',
+				'icloud'	=> '/bitrix/images/mail/mailservice-icon/post-icloud-icon.png',
+				'outlook.com'	=> '/bitrix/images/mail/mailservice-icon/post-outlook-icon.png',
+				'office365'	=> '/bitrix/images/mail/mailservice-icon/post-office360-icon.png',
+				'yahoo'	=> '/bitrix/images/mail/mailservice-icon/post-yahoo-icon.png',
+				'aol'	=> '/bitrix/images/mail/mailservice-icon/post-aol-icon.png',
+				'yandex'	=> '/bitrix/images/mail/mailservice-icon/post-yandex-icon.png',
+				'mail.ru'	=> '/bitrix/images/mail/mailservice-icon/post-mail-icon.png',
+				'ukr.net'	=> '/bitrix/images/mail/mailservice-icon/post-ukrnet-icon.png',
+				'exchange'	=> '/bitrix/images/mail/mailservice-icon/post-imap-icon.png',
+				'exchangeOnline'	=> '/bitrix/images/mail/mailservice-icon/post-exchange-icon.png',
+				'other'	=> '/bitrix/images/mail/mailservice-icon/post-imap-icon.png',
 			);
 
 			if ($icons[$serviceName])
@@ -214,18 +215,17 @@ class MailServicesTable extends Entity\DataManager
 
 	public static function getOAuthHelper($data)
 	{
-		switch ($data['SERVER'])
+		switch ($data['NAME'])
 		{
-			case 'imap.gmail.com':
+			case 'gmail':
 				return Helper\OAuth\Google::getInstance();
-			case 'imap-mail.outlook.com':
-				return Helper\OAuth\LiveId::getInstance();
-			case 'imap.yandex.com':
-			case 'imap.yandex.ru':
+			case 'yandex':
 				return Helper\OAuth\Yandex::getInstance();
-			case 'imap.mail.ru':
+			case 'mail.ru':
 				return Helper\OAuth\Mailru::getInstance();
-			case 'outlook.office365.com':
+			case 'office365':
+			case 'outlook.com':
+			case 'exchangeOnline':
 				return Helper\OAuth\Office365::getInstance();
 		}
 	}

@@ -15,6 +15,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	};
 
 	var _templateObject, _templateObject2;
+
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	/**
 	 * @memberOf BX.Landing.UI.Button
 	 */
@@ -54,7 +58,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return main_core.Text.getRandom();
 	    }();
 
-	    _this.options = babelHelpers.objectSpread({}, defaultOptions, compatOptions);
+	    _this.options = _objectSpread(_objectSpread({}, defaultOptions), compatOptions);
 	    _this.id = compatId;
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    _this.layout = _this.getLayout();

@@ -2,5 +2,5 @@
 /** @var array $templateData */
 /** @var @global CMain $APPLICATION */
 
-CJSCore::Init(array('fx', 'popup'));
+CJSCore::Init(array('fx', 'popup', 'ui.fonts.opensans'));
 ?>

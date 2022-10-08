@@ -42,3 +42,13 @@ CREATE TABLE b_messageservice_rest_app_lang (
 	DESCRIPTION varchar(1000) null,
 	PRIMARY KEY (ID)
 );
+
+CREATE TABLE b_messageservice_incoming_message (
+	ID int(18) not null auto_increment,
+	REQUEST_BODY longtext null,
+	DATE_EXEC datetime null,
+	SENDER_ID varchar(50) not null,
+	EXTERNAL_ID varchar(128) null,
+	PRIMARY KEY (ID),
+	UNIQUE INDEX UX_MS_INCOMING_MESSAGE_1(SENDER_ID, EXTERNAL_ID)
+)

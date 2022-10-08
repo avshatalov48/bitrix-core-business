@@ -6,7 +6,7 @@ const NO_AGENT_STATISTIC = "Y";
 const NO_AGENT_CHECK = true;
 const DisableEventsCheck = true;
 
-use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Application;
 use Bitrix\Main\Rating\Internal\Action;
 
 /** @global CMain $APPLICATION */
@@ -20,10 +20,16 @@ if (
 	&& check_bitrix_sessid()
 )
 {
+	$currentUserId = ($USER->isAuthorized() ? (int)$USER->getId() : 0);
+
+	$key = 'rating.lock.'.$currentUserId;
+	if (!Application::getConnection()->lock($key))
+	{
+		CMain::FinalActions();
+	}
+
 	$entityTypeId = $_POST['RATING_VOTE_TYPE_ID'];
 	$entityId = (int)$_POST['RATING_VOTE_ENTITY_ID'];
-
-	$currentUserId = ($USER->isAuthorized() ? (int)$USER->getId() : 0);
 
 	if ($_POST['RATING_VOTE_LIST'] === 'Y')
 	{
@@ -47,6 +53,7 @@ if (
 					: '/people/user/#USER_ID#/'
 			),
 			'CURRENT_USER_ID' => $currentUserId,
+			'CHECK_RIGHTS' => 'Y',
 		];
 
 		$voteList = Action::list($params);
@@ -68,6 +75,7 @@ if (
 			'RATING_RESULT' => ($_POST['RATING_RESULT'] === 'Y' ? $_POST['RATING_RESULT'] : 'N'),
 			'REMOTE_ADDR' => $_SERVER['REMOTE_ADDR'],
 			'CURRENT_USER_ID' => $currentUserId,
+			'CHECK_RIGHTS' => 'Y',
 		];
 
 		$ratingVoteResult = CRatings::getRatingVoteResult($params['ENTITY_TYPE_ID'], $params['ENTITY_ID']);
@@ -102,6 +110,8 @@ if (
 		Header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
 		echo CUtil::PhpToJsObject(Action::getVoteResult($entityTypeId, $entityId));
 	}
+
+	Application::getConnection()->unlock($key);
 }
 
 CMain::FinalActions();

@@ -43,7 +43,7 @@ class ScriptEditComponent
 			this.signedParameters = options.signedParameters;
 			this.saveCallback = options.saveCallback
 		}
-		this.automationDesigner = BX.Bizproc.Automation.Designer.component;
+		this.automationDesigner = BX.Bizproc.Automation.Designer.getInstance().component;
 	}
 
 	init()
@@ -307,11 +307,12 @@ class ScriptEditComponent
 	
 	renderPropertyBlock(property: {}, prefix: string)
 	{
-		const control = BX.Bizproc.FieldType.renderControl(
+		const control = BX.Bizproc.FieldType.renderControlPublic(
 			this.automationDesigner.documentType,
 			property,
 			prefix + property.Id,
-			property.Default
+			property.Default,
+			false
 		);
 
 		return Tag.render`

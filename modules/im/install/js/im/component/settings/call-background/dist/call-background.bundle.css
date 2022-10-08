@@ -103,7 +103,8 @@
 	background: rgba(29,181,229,.5);
 	color: #fff;
 	font-size: 12px;
-	font-family: 'OpenSans-Semibold', serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	border-radius: 3px;
 	-webkit-transition: .2s;
 	-o-transition: .2s;
@@ -172,7 +173,8 @@
 .bx-im-settings-video-background-dialog-action-title {
 	color: #6D7985;
 	font-size: 13px;
-	font-family: 'OpenSans-Semibold', serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	text-align: center;
 	margin-top: 80px;
 }
@@ -191,7 +193,8 @@
 	line-height: 31px;
 	font-size: 12px;
 	color: #fff;
-	font-family: "OpenSans-Semibold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
 	background: rgba(0,0,0,.2);

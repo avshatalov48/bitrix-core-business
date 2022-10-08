@@ -85,7 +85,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		return "text";
 	}
 
-	function checkFields($userField, $value)
+	public function checkFields($userField, $value)
 	{
 		if($userField["MANDATORY"] =="Y" && ($value == 'empty' || !$value))
 		{
@@ -804,6 +804,11 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 
 		if ($context == 'CRM_GRID')
 		{
+			\Bitrix\Main\UI\Extension::load([
+				'ui.design-tokens',
+				'ui.fonts.opensans',
+			]);
+
 			\Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/js/calendar/userfield/resourcebooking.css');
 			$resListItems = [];
 			if(count($users) > 0)

@@ -24,9 +24,10 @@ $this->setFrameMode(true);
 <?if($arParams["USE_SEARCH"]=="Y"):?>
 <?$APPLICATION->IncludeComponent(
 	"bitrix:search.form",
-	"flat",
+	"",
 	Array(
-		"PAGE" => $arResult["FOLDER"].$arResult["URL_TEMPLATES"]["search"]
+		"PAGE" => $arResult["FOLDER"].$arResult["URL_TEMPLATES"]["search"],
+		"TEMPLATE_THEME" => $arParams["TEMPLATE_THEME"],
 	),
 	$component
 );?>
@@ -35,7 +36,7 @@ $this->setFrameMode(true);
 <?if($arParams["USE_FILTER"]=="Y"):?>
 <?$APPLICATION->IncludeComponent(
 	"bitrix:catalog.filter",
-	"flat",
+	"bootstrap_v4",
 	Array(
 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],
@@ -46,6 +47,7 @@ $this->setFrameMode(true);
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"CACHE_GROUPS" => $arParams["CACHE_GROUPS"],
 		"PAGER_PARAMS_NAME" => $arParams["PAGER_PARAMS_NAME"],
+		"TEMPLATE_THEME" => $arParams["TEMPLATE_THEME"]
 	),
 	$component
 );
@@ -54,7 +56,7 @@ $this->setFrameMode(true);
 
 <?$APPLICATION->IncludeComponent(
 	"bitrix:news.list",
-	"flat",
+	"bootstrap_v4",
 	Array(
 		"IBLOCK_TYPE" => $arParams["IBLOCK_TYPE"],
 		"IBLOCK_ID" => $arParams["IBLOCK_ID"],

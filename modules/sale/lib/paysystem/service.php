@@ -9,6 +9,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\NotSupportedException;
 use Bitrix\Main\Request;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\Type\Date;
 use Bitrix\Sale;
 use Bitrix\Sale\Order;
 use Bitrix\Sale\Payment;
@@ -312,10 +313,14 @@ class Service
 			$status = null;
 			$operationType = $serviceResult->getOperationType();
 
-			if ($operationType == ServiceResult::MONEY_COMING)
+			if ($operationType === ServiceResult::MONEY_COMING)
+			{
 				$status = 'Y';
-			else if ($operationType == ServiceResult::MONEY_LEAVING)
+			}
+			else if ($operationType === ServiceResult::MONEY_LEAVING)
+			{
 				$status = 'N';
+			}
 
 			if ($status !== null)
 			{
@@ -327,6 +332,14 @@ class Service
 					)
 				);
 				$event->send();
+
+				if ($status === 'N')
+				{
+					$payment->setFieldsNoDemand([
+						'IS_RETURN' => Payment::RETURN_PS,
+						'PAY_RETURN_DATE' => new Date(),
+					]);
+				}
 
 				$paidResult = $payment->setPaid($status);
 				if (!$paidResult->isSuccess())

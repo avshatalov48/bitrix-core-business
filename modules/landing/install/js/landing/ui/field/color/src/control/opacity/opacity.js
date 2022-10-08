@@ -1,5 +1,6 @@
-import {Dom, Event, Tag, Text, Type} from 'main.core';
+import 'ui.design-tokens';
 
+import {Dom, Event, Tag, Text, Type} from 'main.core';
 import {IColorValue} from '../../types/i_color_value';
 import ColorValue from "../../color_value";
 import './css/opacity.css';

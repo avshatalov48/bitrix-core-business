@@ -2,8 +2,12 @@
 
 namespace Bitrix\Main\Session;
 
+use Bitrix\Main\Event;
+
 final class CompositeSessionManager
 {
+	public const EVENT_REGENERATE_SESSION_ID = 'onRegenerateSessionId';
+
 	/**	@var SessionInterface */
 	private $kernelSession;
 	/**	@var SessionInterface */
@@ -66,14 +70,14 @@ final class CompositeSessionManager
 	{
 		$this->start();
 
-		if ($this->kernelSession instanceof KernelSessionProxy)
+		$this->kernelSession->regenerateId();
+		if (!($this->kernelSession instanceof KernelSessionProxy))
 		{
-			$this->kernelSession->regenerateId();
-
-			return;
+			$this->session->regenerateId();
 		}
 
-		$this->kernelSession->regenerateId();
-		$this->session->regenerateId();
+		(new Event('main', self::EVENT_REGENERATE_SESSION_ID, [
+			'newSessionId' => $this->kernelSession->getId(),
+		]))->send();
 	}
 }

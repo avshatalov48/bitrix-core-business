@@ -48,8 +48,8 @@
 .landing-license-info-text {
 	margin-bottom: 33px;
 	color: #525c69;
-	font: 30px/40px 'Open Sans', "Helvetica Neue", Arial, Helvetica, sans-serif;
-	font-weight: 300;
+	font: 30px/40px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .landing-license-info-btn {
@@ -60,8 +60,8 @@
 	border-radius: 60px;
 	background: #fff;
 	text-align: center;
-	font: 22px/30px 'Open Sans', "Helvetica Neue", Arial, Helvetica, sans-serif;
-	font-weight: 300;
+	font: 22px/30px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .landing-license-info-link {
@@ -107,12 +107,14 @@
 .landing-license-banner-title {
 	color: #fff;
 	font-size: 27px;
-	font-family: "OpenSans-Regular", "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	pointer-events: none;
 }
 
 .landing-license-banner-title span {
-	font-family: "OpenSans-Bold", "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .landing-license-banner-icon {
@@ -192,7 +194,8 @@
 	border-radius: 8px;
 	background: #59d1f8;
 	padding: 0 9px;
-	font: 8px/16px "OpenSans-Bold", "Helvetica Neue", Helvetica, sans-serif;
+	font: 8px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .landing-item-bottom
@@ -210,6 +213,9 @@
 	width: 100%;
 	padding: 10px 0 9px 0;
 	box-sizing: border-box;
+	border-radius: var(--landing-item-border-radius, var(--ui-border-radius-md));
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
 }
 
 .landing-item-description:before {
@@ -258,10 +264,12 @@
 .landing-item-designed {
 	background-color: rgba(40, 100, 242, .85);
 	display: inline-block;
-	font: 8px/16px "OpenSans-Bold", "Helvetica Neue", Helvetica, sans-serif;
+	font: 8px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: rgba(255, 255, 255, .8);
 	transition: color .2s linear;
 	padding: 0 7px 1px;
+	border-radius: var(--landing-item-border-radius, var(--ui-border-radius-md));
 }
 
 .landing-item-designed:hover {
@@ -272,7 +280,8 @@
 	background-color: #44c3d3;
 	color: #ffffff;
 	display: inline-block;
-	font: 8px/16px "OpenSans-Bold", "Helvetica Neue", Helvetica, sans-serif;
+	font: 8px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	text-transform: uppercase;
 	position: absolute;
 	top: 5px;

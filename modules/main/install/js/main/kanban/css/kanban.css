@@ -22,7 +22,8 @@
 	max-width: 100%;
 	clear: both;
 	display: block;
-	font-family: "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	height: 100%;
 	/*overflow: hidden;*/
 	-webkit-box-sizing: border-box;
@@ -296,7 +297,8 @@
 	vertical-align: middle;
 	height: 32px;
 	line-height: 32px;
-	font-family: "OpenSans-SemiBold", 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 12px;
 	color: #000;
 	white-space: nowrap;
@@ -320,7 +322,8 @@
 	font-size: 11px;
 	color: #000;
 	opacity: .7;
-	font-family: "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .main-kanban-column-title-dark .main-kanban-column-total-item,
@@ -374,7 +377,8 @@
 	border: 1px solid #eaecef;
 	height: 26px;
 	padding: 0 6px;
-	font-family: "OpenSans-Bold", 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 12px;
 	color: #525c68;
 }
@@ -665,9 +669,8 @@
 	height: 0;
 	background: #e4ebee !important;
 	border: 0 dashed transparent;
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
-	border-radius: 3px;
+
+	border-radius: var(--ui-border-radius-md, 3px);
 	-webkit-transition: .1s;
 	-moz-transition: .1s;
 	transition: .1s;
@@ -771,9 +774,9 @@
 	right: 13px;
 	z-index: -999;
 	background: #ace9fb;
-	-webkit-border-radius: 3px 0 0 3px;
-	-moz-border-radius: 3px 0 0 3px;
-	border-radius: 3px 0 0 3px;
+	border-radius: var(--ui-border-radius-2xs, 3px);
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
 }
 
 .main-kanban-column-title-right {
@@ -810,7 +813,8 @@
 	color: #404956;
 	opacity: 1;
 	font-size: 13px;
-	font-family: "OpenSans-Semibold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
@@ -882,7 +886,8 @@
 	overflow: hidden;
 	height: 32px;
 	line-height: 32px;
-	font-family: "OpenSans-Semibold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #404956;
 	font-size: 13px;
 	white-space: nowrap;
@@ -913,7 +918,8 @@
 .main-kanban-column-subtitle {
 	overflow: hidden;
 	position: relative;
-	font-family: "OpenSans-Light", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	min-height: 25px;
 	line-height: 70px;
 	color: #525c68;
@@ -938,6 +944,7 @@
 	cursor: pointer;
 	background-color: transparent;
 	transition: .2s;
+	border-radius: var(--ui-border-radius-2xs);
 }
 
 .main-kanban-column-add-item-button.--pulse {
@@ -1026,7 +1033,8 @@
 	overflow: hidden;
 	width: 0;
 	vertical-align: middle;
-	font-family: "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 13px;
 	color: var(--graphite);
 	transition: .3s;
@@ -1302,10 +1310,10 @@
 
 .main-kanban-item-wrapper {
 	position: relative;
-	background: #fff;
-	-webkit-border-radius: 2px;
-	border-radius: 2px;
-	font-family: 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	background: var(--ui-color-background-transparent, #fff);
+	border-radius: var(--ui-border-radius-none, 2px);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	-moz-user-select: -moz-none;
 	-moz-user-select: none;
 	user-select: none;
@@ -1420,6 +1428,7 @@
 	margin: 0;
 	padding: 0;
 	pointer-events: none;
+	border-radius: var(--ui-border-radius-md);
 	-webkit-transform: rotate(4deg) translate(-30px, -20px);
 	-moz-transform: rotate(4deg) translate(-30px, -20px);
 	transform: rotate(4deg) translate(-30px, -20px);
@@ -1441,7 +1450,8 @@
 	bottom: 5px;
 	left: 12px;
 	right: 12px;
-	font-family: "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-style: italic;
 	color: var(--graphite_alpha_60);
 	font-size: 13px;
@@ -1469,7 +1479,8 @@
 	border: none;
 	outline: none;
 	resize: none;
-	font-family: "OpenSans-Semibold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #333;
 	font-size: 13px;
 	line-height: 15px;
@@ -1565,7 +1576,8 @@
 }
 
 .main-kanban-dropzone {
-	font-family: "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	position: relative;
 	overflow	: hidden;
 	-webkit-box-flex: 1;
@@ -1584,6 +1596,14 @@
 	-ms-flex-pack: center;
 	justify-content: center;
 	transition: .2s;
+}
+
+.main-kanban-dropzone:first-child .main-kanban-dropzone-bg {
+	border-top-left-radius: var(--ui-border-radius-md);
+}
+
+.main-kanban-dropzone:last-child .main-kanban-dropzone-bg {
+	border-top-right-radius: var(--ui-border-radius-md);
 }
 
 .main-kanban-dropzone .main-kanban-item {
@@ -1663,6 +1683,9 @@
 .main-kanban-dropzone-captured .main-kanban-dropzone-bg {
 	opacity: 1;
 	height: 68px;
+	border-radius: var(--ui-border-radius-md);
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
 }
 
 .main-kanban-dropzone-active .main-kanban-dropzone-title,
@@ -1865,7 +1888,7 @@
 }
 
 .main-kanban-no-data-text {
-	font: 32px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 32px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #c6c8cc;
 	text-align: center;
 	white-space: nowrap;
@@ -1880,7 +1903,8 @@
 }
 
 .main-kanban-no-data-title {
-	font-family: 'OpenSans-Light', Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	font-size: 31px;
 	color: #c6c8cc;
 	text-align: center;
@@ -1896,7 +1920,8 @@
 }
 
 .main-kanban-no-data-description {
-	font-family: 'OpenSans-Light', Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	font-size: 16px;
 	color: #c6c8cc;
 	text-align: center;

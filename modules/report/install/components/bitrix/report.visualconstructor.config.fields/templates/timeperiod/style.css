@@ -3,7 +3,7 @@
 	display: inline-block;
 	margin-right: 5px;
 	max-width: 100%;
-	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(82, 92, 105, .5);
 	white-space: nowrap;
 	text-overflow: ellipsis;
@@ -66,7 +66,7 @@
 
 .visualconstructor-select-item-wrapper
 {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c68;
 	line-height: 36px;
 	padding: 0 15px 0 9px;

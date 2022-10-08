@@ -27,7 +27,8 @@
 }
 
 .landing-ui-card-library-search-field .landing-ui-field-header {
-	font-family: 'OpenSans-Light', Helvetca, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	font-size: 22px;
 	color: #333333;
 	line-height: 28px;
@@ -48,7 +49,7 @@
 }
 
 .landing-ui-card-library .landing-ui-card-library-search-tips .landing-ui-button {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	background: rgba(128, 134, 142, .15);
 	font-size: 13px;
 	margin-right: 10px;
@@ -73,7 +74,7 @@
 }
 
 .landing-ui-card-library .landing-ui-card-library-description {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-weight: 400;
 	font-size: 13px;
 	color: #535C69;
@@ -101,7 +102,7 @@
 }
 
 .landing-ui-card-library-list .landing-ui-card-image-preview-credit {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 12px;
 }
 

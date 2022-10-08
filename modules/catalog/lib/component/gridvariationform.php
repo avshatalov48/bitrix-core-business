@@ -9,6 +9,7 @@ use Bitrix\Currency\CurrencyManager;
 use Bitrix\Iblock\ElementTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Grid\Editor\Types;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Currency\Integration\IblockMoneyProperty;
@@ -404,22 +405,23 @@ class GridVariationForm extends VariationForm
 						break;
 
 					case 'VAT_ID':
+						$defaultVat = $this->getDefaultVat();
 						$vatList = [
-							'D' => Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_DEFAULT",
-								['#VALUE#' => Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED")]),
+							$defaultVat['ID'] => $defaultVat['NAME'],
 						];
 
-						$iblockVatId = $this->entity->getIblockInfo()->getVatId();
+						if ($defaultVat['ID'] !== static::NOT_SELECTED_VAT_ID_VALUE && !Loader::includeModule('bitrix24'))
+						{
+							$vatList[static::NOT_SELECTED_VAT_ID_VALUE] = Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED");
+						}
 
 						foreach ($this->getVats() as $vat)
 						{
-							if ((int)$vat['ID'] === $iblockVatId)
+							if ($vat['RATE'] === $defaultVat['RATE'] && $vat['EXCLUDE_VAT'] === $defaultVat['EXCLUDE_VAT'])
 							{
-								$vatList['D'] = Loc::getMessage(
-									"CATALOG_PRODUCT_CARD_VARIATION_GRID_DEFAULT",
-									['#VALUE#' => htmlspecialcharsbx($vat['NAME'])]
-								);
+								continue;
 							}
+
 							$vatList[$vat['ID']] = htmlspecialcharsbx($vat['NAME']);
 						}
 						$editable = [

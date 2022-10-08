@@ -24,15 +24,18 @@ elseif (!$arResult['DOCUMENT'] && empty($arResult['ERROR_MESSAGES']))
 	$APPLICATION->SetTitle(Loc::getMessage('DOC_TYPE_CREATION_PAGE_TITLE_' . $arResult['DOCUMENT_TYPE']));
 }
 
-\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+]);
 
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'no-background');
 
 if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES'])): ?>
 	<?php foreach($arResult['ERROR_MESSAGES'] as $error):?>
-		<div class="ui-alert ui-alert-danger" style="margin-bottom: 0px;">
-			<span class="ui-alert-message"><?= htmlspecialcharsbx($error) ?></span>
+		<div class="ui-alert ui-alert-danger catalog-store-document-detail--alert" style="margin-bottom: 0;">
+			<span class="ui-alert-message"><?= $error ?></span>
 		</div>
 	<?php endforeach;?>
 	<?php
@@ -40,6 +43,7 @@ if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES'])
 endif;
 
 Extension::load([
+	'ui.alerts',
 	'catalog.document-card',
 	'catalog.entity-card',
 	'ui.entity-selector',

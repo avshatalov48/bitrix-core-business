@@ -247,8 +247,6 @@ class CLQuestion
 
 	public static function GetFilter($arFilter)
 	{
-		global $DBType;
-
 		if (!is_array($arFilter))
 			$arFilter = Array();
 
@@ -278,42 +276,24 @@ class CLQuestion
 					if ($courseLessonId === false)
 						break;	// it is not a course, so skipping
 
-					if ($DBType === 'oracle')
-					{
-						// This subquery gets ids of all childs lesson for given $courseLessonId
-						$subQuery = "
-							SELECT TLE.TARGET_NODE
-							FROM b_learn_lesson_edges TLE
-							START WITH TLE.SOURCE_NODE=" . ($courseLessonId + 0) . "
-							CONNECT BY NOCYCLE PRIOR TLE.TARGET_NODE = TLE.SOURCE_NODE";
+					// MySQL & MSSQL supports "WHERE IN(...)" clause for more than 10 000 elements
 
-						// But we need also $courseLessonId itself, so final clause will be:
-						$arSqlSearch[] = '(CQ.LESSON_ID IN (' . $subQuery . ')
-							OR CQ.LESSON_ID = ' . ($courseLessonId + 0) . ')';
-					}
-					elseif (($DBType === 'mysql') || ($DBType === 'mssql'))
-					{
-						// MySQL & MSSQL supports "WHERE IN(...)" clause for more than 10 000 elements
+					// add to sql "WHERE" constraint: lessons id only from given array
+					$sqlCourseLessonsIdsList = '';
 
-						// add to sql "WHERE" constraint: lessons id only from given array
-						$sqlCourseLessonsIdsList = '';
+					$oTree = CLearnLesson::GetTree($courseLessonId);
+					$arChildLessonForCourse = $oTree->GetLessonsIdListInTree();
 
-						$oTree = CLearnLesson::GetTree($courseLessonId);
-						$arChildLessonForCourse = $oTree->GetLessonsIdListInTree();
+					// root lesson not in tree, so add it
+					$arChildLessonForCourse[] = $courseLessonId;
 
-						// root lesson not in tree, so add it
-						$arChildLessonForCourse[] = $courseLessonId;
+					// We need escape data for SQL
+					$arChildLessonForCourseEscaped = array_map('intval', $arChildLessonForCourse);
 
-						// We need escape data for SQL
-						$arChildLessonForCourseEscaped = array_map('intval', $arChildLessonForCourse);
+					$sqlCourseLessonsIdsList = implode (', ', $arChildLessonForCourseEscaped);
 
-						$sqlCourseLessonsIdsList = implode (', ', $arChildLessonForCourseEscaped);
-
-						if ($sqlCourseLessonsIdsList <> '')
-							$arSqlSearch[] = 'CQ.LESSON_ID IN (' . $sqlCourseLessonsIdsList . ')';
-					}
-					else
-						throw new LearnException('Unsupported DB engine: ' . $DBType, LearnException::EXC_ERR_ALL_GIVEUP);
+					if ($sqlCourseLessonsIdsList <> '')
+						$arSqlSearch[] = 'CQ.LESSON_ID IN (' . $sqlCourseLessonsIdsList . ')';
 
 					break;
 

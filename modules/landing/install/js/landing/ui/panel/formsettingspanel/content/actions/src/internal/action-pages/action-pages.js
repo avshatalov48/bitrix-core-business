@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import {BaseField} from 'landing.ui.field.basefield';
 import {Dom, Tag, Type, Event, Text} from 'main.core';
 import {Loc} from 'landing.loc';

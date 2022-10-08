@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["JS_UI_VIEWER_DEFAULT_ERROR_TITLE"] = "Произошла ошибка";
 $MESS["JS_UI_VIEWER_IMAGE_VIEW_FULL_SIZE"] = "Показать полностью";
 $MESS["JS_UI_VIEWER_ITEM_ACTION_DOWNLOAD"] = "Скачать";
@@ -14,4 +14,6 @@ $MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_TIMEOUT"] = "Неудачная конв
 $MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_ERROR_1"] = "Не удалось открыть файл. Вы можете его <a href=\"#DOWNLOAD_LINK#\" target=\"_blank\">скачать</a>.";
 $MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_HINT"] = "<a href=\"#\" onclick='top.BX.Helper.show(\"redirect=detail&code=8775937\");event.preventDefault();'>Подробнее</a> о возможных причинах.";
 $MESS["JS_UI_VIEWER_ITEM_PREPARING_TO_PRINT"] = "Подготовка документа к печати: #PROGRESS#%";
-?>
+$MESS["JS_UI_VIEWER_SINGLE_DOCUMENT_LISTING_PAGES"] = "Стр. #CURRENT#<div class=\"ui-viewer__single-document--listing-pages-all\">/#ALL#</div>";
+$MESS["JS_UI_VIEWER_SINGLE_DOCUMENT_SCALE_ZOOM_IN"] = "Увеличить";
+$MESS["JS_UI_VIEWER_SINGLE_DOCUMENT_SCALE_ZOOM_OUT"] = "Уменьшить";

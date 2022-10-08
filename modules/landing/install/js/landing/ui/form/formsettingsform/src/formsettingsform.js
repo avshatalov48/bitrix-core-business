@@ -1,3 +1,6 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 import {Cache, Dom, Tag, Text, Type} from 'main.core';
 import {BaseForm, BaseFormOptions} from 'landing.ui.form.baseform';
 import {SmallSwitch} from 'landing.ui.field.smallswitch';

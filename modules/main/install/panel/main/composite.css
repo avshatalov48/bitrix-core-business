@@ -233,10 +233,10 @@ only screen and (min-resolution: 2dppx) {
 
 .adm-composite-title-container {
 	margin: 0;
-	font-family: "Open Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	vertical-align: top;
 	text-align: center;
-	font-weight: normal;
 }
 
 .adm-composite-title {
@@ -305,10 +305,10 @@ only screen and (min-resolution: 2dppx) {
 .adm-composite-description-block-title {
 	color: #000;
 	font-size: 28px;
-	font-weight: normal;
 	text-align: center;
 	margin: 0;
-	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .adm-composite-description-block-list {
@@ -401,7 +401,8 @@ p.adm-composite-status-desc {
 	font-size: 24px;
 	line-height: 33px;
 	vertical-align: middle;
-	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .adm-composite-on-icon {
@@ -447,13 +448,15 @@ p.adm-composite-status-desc {
 	vertical-align: middle;
 	font-size: 24px;
 	text-align: center;
-	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	position: relative;
 	z-index: 20;
 }
 
 .adm-composite-activate-content {
-	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	padding: 16px 27px;
 	background: #fff;
 	line-height: 15px;
@@ -522,7 +525,7 @@ p.adm-composite-status-desc {
 	height: 25px;
 	line-height: 25px;
 	background: #ccc;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	z-index: 2;
 }
 

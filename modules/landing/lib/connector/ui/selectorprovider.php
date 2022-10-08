@@ -53,7 +53,7 @@ class SelectorProvider extends \Bitrix\UI\EntitySelector\BaseProvider
 		}
 		else
 		{
-			$filter['PARENT_ID'] = $parentId;
+			$filter['PARENT_ID'] = abs($parentId);
 		}
 
 		$folders = Site::getFolders($siteId, $filter);
@@ -61,7 +61,7 @@ class SelectorProvider extends \Bitrix\UI\EntitySelector\BaseProvider
 		foreach ($folders as $folder)
 		{
 			$data[$folder['ID']] = new Item([
-				'id' => $folder['ID'],
+				'id' => -1 * $folder['ID'],
 				'entityId' => 'landing',
 				'entityType' => 'folder',
 				'title' => $folder['TITLE'],
@@ -109,7 +109,7 @@ class SelectorProvider extends \Bitrix\UI\EntitySelector\BaseProvider
 		}
 		else
 		{
-			$filter['FOLDER_ID'] = $parentId;
+			$filter['FOLDER_ID'] = abs($parentId);
 		}
 
 		$rows = [];

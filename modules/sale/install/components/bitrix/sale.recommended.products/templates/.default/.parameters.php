@@ -20,7 +20,7 @@ $arThemesList = array(
 	'yellow' => GetMessage('SRP_TPL_THEME_YELLOW'),
 	'black' => GetMessage('SRP_TPL_THEME_BLACK'),
 );
-$dir = trim(preg_replace("'[\\\\/]+'", "/", dirname(__FILE__)."/themes/"));
+$dir = trim(preg_replace("'[\\\\/]+'", "/", __DIR__."/themes/"));
 if (is_dir($dir))
 {
 	foreach ($arThemesList as $themeID => $themeName)

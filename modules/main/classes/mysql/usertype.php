@@ -21,7 +21,7 @@ class CUserTypeEntity extends CAllUserTypeEntity
 					VALUE_DOUBLE float,
 					VALUE_DATE datetime,
 					INDEX ix_utm_".$entity_id."_2(VALUE_ID),
-					INDEX ix_utm_".$entity_id."_3(FIELD_ID, VALUE_INT, VALUE_ID),
+					INDEX ix_utm_".$entity_id."_4(FIELD_ID, VALUE_ID, VALUE_INT),
 					PRIMARY KEY (ID)
 				)
 			", false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);

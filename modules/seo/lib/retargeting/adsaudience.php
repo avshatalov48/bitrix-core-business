@@ -131,6 +131,7 @@ class AdsAudience
 						'isSupportMultiTypeContacts' => $audience->isSupportMultiTypeContacts(),
 						//'isAddingRequireContacts' => $audience->isAddingRequireContacts(),
 						'supportedContactTypes' => $audienceData['SUPPORTED_CONTACT_TYPES'],
+						'status' => $audienceData['STATUS'] ?? '',
 						'name' =>
 							$audienceData['NAME']
 								?

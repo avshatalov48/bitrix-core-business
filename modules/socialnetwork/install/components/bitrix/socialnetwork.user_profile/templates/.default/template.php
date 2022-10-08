@@ -1,5 +1,11 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
+
 if ($arResult["NEED_AUTH"] == "Y")
 {
 	$APPLICATION->AuthForm("");
@@ -45,11 +51,11 @@ else
 			"PATH_TO_MESSAGES_CHAT" => $arParams["~PATH_TO_MESSAGES_CHAT"],
 			"PATH_TO_VIDEO_CALL" => $arParams["~PATH_TO_VIDEO_CALL"],
 			"PATH_TO_CONPANY_DEPARTMENT" => $arParams["~PATH_TO_CONPANY_DEPARTMENT"],
-			"PM_URL" => $arParams["~PATH_TO_MESSAGES_CHAT"],			
+			"PM_URL" => $arParams["~PATH_TO_MESSAGES_CHAT"],
 			"PATH_TO_USER" => $arParams["~PATH_TO_USER"],
 			"PATH_TO_GROUP" => $arParams["~PATH_TO_GROUP"],
 			"DATE_TIME_FORMAT" => $arParams["DATE_TIME_FORMAT"],
-			"SHOW_YEAR" => $arParams["SHOW_YEAR"],			
+			"SHOW_YEAR" => $arParams["SHOW_YEAR"],
 			"NAME_TEMPLATE" => $arParams["NAME_TEMPLATE"],
 			"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 			"CACHE_TIME" => $arParams["CACHE_TIME"],
@@ -113,10 +119,10 @@ else
 			"G_SONET_USER_GROUPS_URL_GROUPS_ADD" => htmlspecialcharsback($arResult["Urls"]["GroupsAdd"]),
 			"G_SONET_USER_GROUPS_URL_GROUPS_SEARCH" => htmlspecialcharsback($arResult["Urls"]["GroupSearch"]),
 			"G_SONET_USER_GROUPS_URL_LOG_GROUPS" => htmlspecialcharsback($arResult["Urls"]["LogGroups"]),
-			
+
 			"G_SONET_USER_TAGS_PAGE_ELEMENTS" => $arParams["SEARCH_TAGS_PAGE_ELEMENTS"],
 			"G_SONET_USER_TAGS_PERIOD" => $arParams["SEARCH_TAGS_PERIOD"],
-			"G_SONET_USER_TAGS_USER_ID" => $arResult["User"]["ID"],	
+			"G_SONET_USER_TAGS_USER_ID" => $arResult["User"]["ID"],
 			"G_SONET_USER_TAGS_PATH_TO_USER_CONTENT_SEARCH" => $arParams["~PATH_TO_USER_CONTENT_SEARCH"],
 			"G_SONET_USER_TAGS_FONT_MAX" => $arParams["SEARCH_TAGS_FONT_MAX"],
 			"G_SONET_USER_TAGS_FONT_MIN" => $arParams["SEARCH_TAGS_FONT_MIN"],
@@ -136,7 +142,7 @@ else
 		$arDesktopParams["G_SONET_USER_FRIENDS_URL_SEARCH"] = htmlspecialcharsback($arResult["Urls"]["Search"]);
 		$arDesktopParams["G_SONET_USER_FRIENDS_URL_LOG_USERS"] = htmlspecialcharsback($arResult["Urls"]["LogUsers"]);
 		$arDesktopParams["G_SONET_USER_FRIENDS_IS_CURRENT_USER"] = $arResult["CurrentUserPerms"]["IsCurrentUser"];
-		
+
 		$arDesktopParams["G_SONET_USER_BIRTHDAY_USER_ID"] = $arResult["User"]["ID"];
 		$arDesktopParams["G_SONET_USER_BIRTHDAY_IS_CURRENT_USER"] = $arResult["CurrentUserPerms"]["IsCurrentUser"];
 		$arDesktopParams["G_SONET_USER_BIRTHDAY_PAGE_VAR"] = $arParams["PAGE_VAR"];
@@ -165,7 +171,7 @@ else
 
 		if (
 			array_key_exists("RATING_ID_ARR", $arParams)
-			&& is_array($arParams["RATING_ID_ARR"]) 
+			&& is_array($arParams["RATING_ID_ARR"])
 			&& count($arParams["RATING_ID_ARR"]) > 0
 			&& array_key_exists("RatingMultiple", $arResult)
 		)
@@ -229,7 +235,7 @@ else
 			$arDesktopParams["G_SONET_FORUM_DATE_TIME_FORMAT"] = $arParams["DATE_TIME_FORMAT"];
 			$arDesktopParams["G_SONET_FORUM_CACHE_TYPE"] = $arParams["CACHE_TYPE"];
 			$arDesktopParams["G_SONET_FORUM_CACHE_TIME"] = $arParams["CACHE_TIME"];
-			$arDesktopParams["G_SONET_FORUM_USER_ID"] = $arParams["ID"];	
+			$arDesktopParams["G_SONET_FORUM_USER_ID"] = $arParams["ID"];
 		}
 		else
 			$arDesktopParams["G_SONET_FORUM_SHOW"] = "N";
@@ -240,7 +246,7 @@ else
 			$arDesktopParams["G_SONET_BLOG_SHOW"] = "Y";
 			$arDesktopParams["G_SONET_BLOG_TEMPLATE_NAME"] = ".default";
 			$arDesktopParams["G_SONET_BLOG_PATH_TO_BLOG"] = $arParams["~PATH_TO_BLOG"];
-			$arDesktopParams["G_SONET_BLOG_PATH_TO_POST"] = $arParams["~PATH_TO_POST"];		
+			$arDesktopParams["G_SONET_BLOG_PATH_TO_POST"] = $arParams["~PATH_TO_POST"];
 			$arDesktopParams["G_SONET_BLOG_PATH_TO_GROUP_BLOG_POST"] = $arParams["~PATH_TO_GROUP_BLOG_POST"];
 			$arDesktopParams["G_SONET_BLOG_PATH_TO_USER"] = $arParams["~PATH_TO_USER"];
 			$arDesktopParams["G_SONET_BLOG_PATH_TO_SMILE"] = $arParams["PATH_TO_BLOG_SMILE"];
@@ -256,7 +262,7 @@ else
 			$arDesktopParams["G_SONET_BLOG_ALLOW_POST_CODE"] = $arParams["BLOG_ALLOW_POST_CODE"];
 		}
 		else
-			$arDesktopParams["G_SONET_BLOG_SHOW"] = "N";		
+			$arDesktopParams["G_SONET_BLOG_SHOW"] = "N";
 
 	}
 	?>

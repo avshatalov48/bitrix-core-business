@@ -141,8 +141,12 @@ class MFIController
 
 	protected function restartBuffer(): void
 	{
-		while(ob_get_clean());
 		global $APPLICATION;
+		if (ob_get_level() > 1)
+		{
+			$APPLICATION->RestartBuffer();
+			while(ob_get_clean() !== false);
+		}
 		$APPLICATION->RestartBuffer();
 	}
 

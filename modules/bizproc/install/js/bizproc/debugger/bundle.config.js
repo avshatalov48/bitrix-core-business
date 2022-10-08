@@ -1,10 +1,6 @@
 module.exports = {
 	input: 'src/index.js',
 	output: 'dist/debugger.bundle.js',
-	namespace: 'BX.Bizproc',
+	namespace: 'BX.Bizproc.Debugger',
 	browserslist: true,
-	concat: {
-		css: ['src/style.css']
-	},
-	//transformClasses: true
 };

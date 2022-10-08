@@ -17,7 +17,20 @@ Loc::loadMessages(__FILE__);
  * </ul>
  *
  * @package Bitrix\Calendar
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Access_Query query()
+ * @method static EO_Access_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_Access_Result getById($id)
+ * @method static EO_Access_Result getList(array $parameters = [])
+ * @method static EO_Access_Entity getEntity()
+ * @method static \Bitrix\Calendar\Internals\EO_Access createObject($setDefaultValues = true)
+ * @method static \Bitrix\Calendar\Internals\EO_Access_Collection createCollection()
+ * @method static \Bitrix\Calendar\Internals\EO_Access wakeUpObject($row)
+ * @method static \Bitrix\Calendar\Internals\EO_Access_Collection wakeUpCollection($rows)
+ */
 class AccessTable extends DataManager
 {
 	/**
@@ -38,43 +51,17 @@ class AccessTable extends DataManager
 	public static function getMap()
 	{
 		return [
-			'ACCESS_CODE' => (new StringField(
-				'ACCESS_CODE', [
-								 'validation' => [__CLASS__, 'validateAccessCode'],
-							 ]
-			))->configureTitle(Loc::getMessage('ACCESS_ENTITY_ACCESS_CODE_FIELD'))->configurePrimary(true),
-			'TASK_ID' => (new IntegerField(
-				'TASK_ID', []
-			))->configureTitle(Loc::getMessage('ACCESS_ENTITY_TASK_ID_FIELD'))->configurePrimary(true),
-			'SECT_ID' => (new StringField(
-				'SECT_ID', [
-							 'validation' => [__CLASS__, 'validateSectId'],
-						 ]
-			))->configureTitle(Loc::getMessage('ACCESS_ENTITY_SECT_ID_FIELD'))->configurePrimary(true),
-		];
-	}
-
-	/**
-	 * Returns validators for ACCESS_CODE field.
-	 *
-	 * @return array
-	 */
-	public static function validateAccessCode()
-	{
-		return [
-			new LengthValidator(null, 100),
-		];
-	}
-
-	/**
-	 * Returns validators for SECT_ID field.
-	 *
-	 * @return array
-	 */
-	public static function validateSectId()
-	{
-		return [
-			new LengthValidator(null, 100),
+			(new StringField('ACCESS_CODE'))
+				->configurePrimary()
+				->configureSize(100)
+			,
+			(new IntegerField('TASK_ID'))
+				->configurePrimary()
+			,
+			(new StringField('SECT_ID'))
+				->configurePrimary()
+				->configureSize(100)
+			,
 		];
 	}
 }

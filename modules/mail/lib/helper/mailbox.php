@@ -313,7 +313,7 @@ abstract class Mailbox
 		\CUserCounter::set(
 			$userId,
 			'mail_unseen',
-			Message::getTotalUnseenCount($userId),
+			Message::getCountersForUserMailboxes($userId, true),
 			$this->mailbox['LID']
 		);
 	}
@@ -428,8 +428,8 @@ abstract class Mailbox
 		global $DB;
 
 		/*
-		Setting a new time for an attempt to synchronize the mailbox
-		through the agent for users with a free tariff
+			Setting a new time for an attempt to synchronize the mailbox
+			through the agent for users with a free tariff
 		*/
 		if (!LicenseManager::isSyncAvailable())
 		{
@@ -855,30 +855,44 @@ abstract class Mailbox
 		return $fetch ? $result->fetchAll() : $result;
 	}
 
-	protected function registerMessage(&$fields, $replaces = null)
+	protected function registerMessage(&$fields, $replaces = null, $isOutgoing = false)
 	{
 		$now = new Main\Type\DateTime();
 
 		if (!empty($replaces))
 		{
-			if (!is_array($replaces))
+			/*
+				To replace the temporary id of outgoing emails with a permanent one
+				after receiving the uid from the original mail service.
+			*/
+			if($isOutgoing)
 			{
-				$replaces = array(
-					'=ID' => $replaces,
-				);
-			}
+				if (!is_array($replaces))
+				{
+					$replaces = [
+						'=ID' => $replaces,
+					];
+				}
 
-			$exists = Mail\MailMessageUidTable::getList(array(
-				'select' => array(
-					'ID',
-					'MESSAGE_ID',
-				),
-				'filter' => array(
-					$replaces,
-					'=MAILBOX_ID' => $this->mailbox['ID'],
-					'==DELETE_TIME' => 0,
-				),
-			))->fetch();
+				$exists = Mail\MailMessageUidTable::getList([
+					'select' => [
+						'ID',
+						'MESSAGE_ID',
+					],
+					'filter' => [
+						$replaces,
+						'=MAILBOX_ID' => $this->mailbox['ID'],
+						'==DELETE_TIME' => 0,
+					],
+				])->fetch();
+			}
+			else
+			{
+				$exists = [
+					'ID' => $replaces,
+					'MESSAGE_ID' => $fields['MESSAGE_ID'],
+				];
+			}
 		}
 
 		if (!empty($exists))
@@ -909,18 +923,19 @@ abstract class Mailbox
 		{
 			$checkResult = new ORM\Data\AddResult();
 			$addFields = array_merge(
-				array(
+				[
 					'MESSAGE_ID'  => 0,
-				),
+				],
 				$fields,
-				array(
+				[
 					'IS_OLD' => 'D',
 					'MAILBOX_ID'  => $this->mailbox['ID'],
 					'SESSION_ID'  => $this->session,
 					'TIMESTAMP_X' => $now,
 					'DATE_INSERT' => $now,
-				)
+				]
 			);
+
 			Mail\MailMessageUidTable::checkFields($checkResult, null, $addFields);
 			if (!$checkResult->isSuccess())
 			{
@@ -933,7 +948,8 @@ abstract class Mailbox
 				'SESSION_ID' => $addFields['SESSION_ID'],
 				'TIMESTAMP_X' => $addFields['TIMESTAMP_X'],
 			]);
-			$result = true;
+
+			return true;
 		}
 
 		return $result;
@@ -1729,6 +1745,7 @@ abstract class Mailbox
 	abstract public function uploadMessage(Main\Mail\Mail $message, array &$excerpt);
 	abstract public function downloadMessage(array &$excerpt);
 	abstract public function syncMessages($mailboxID, $dirPath, $UIDs);
+	abstract public function isAuthenticated();
 
 	public function getErrors()
 	{

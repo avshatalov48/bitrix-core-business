@@ -2,7 +2,7 @@
     margin-bottom: 0!important;
     padding-bottom: 10px!important;
     position: relative;
-    font: 13px/19px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 13px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     color: #555;
     border-bottom: 1px solid #c6cdd3;
 }
@@ -17,13 +17,13 @@
     display: block;
     margin: 0 0 6px;
     padding: 0 !important;
-    font: 13px/19px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 13px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     color: #555;
 }
 .bx-slf-popup-title{
-    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     font-size:14px;
-    font-weight:bold;
+    font-weight:var(--ui-font-weight-bold);
     line-height:30px;
     height:30px;
     margin-bottom:10px;
@@ -31,10 +31,10 @@
     color:#7f858d;
 }
 .bx-slf-popup-cont-title{
-    font-weight: bold;
+    font-weight: var(--ui-font-weight-bold);
 }
 .bx-slf-popup-content{
-    font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     font-size:14px;
     min-width:500px;
     padding:20px;
@@ -196,7 +196,7 @@ select.log-filter-field-inp {
 
 .log-filter-field input,
 .log-filter-field select {
-    font: 13px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 13px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     color: #555;
 }
 
@@ -218,7 +218,7 @@ select.log-filter-field-inp {
 	cursor: pointer;
 	height: 22px;
 	font-size: 12px;
-	font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	min-width: 105px;
 	padding: 1px 19px 0 9px;
 	position: relative;
@@ -275,7 +275,8 @@ select.log-filter-field-inp {
 	border-bottom: 3px solid transparent;
 	border-radius: var(--feed-smart-follow-hint-border-radius, var(--ui-border-radius-md));
 	color: #525C69;
-	font: 13px/17px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 .feed-smart-follow-hint-wrap.feed-smart-follow-hint-hidden {
 	max-height: 0;

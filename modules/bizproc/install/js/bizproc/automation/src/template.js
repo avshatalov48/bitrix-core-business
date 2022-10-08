@@ -1,7 +1,17 @@
-import { Type, Dom, Loc, Reflection, Event } from 'main.core';
+import {Type, Dom, Loc, Reflection, Event, Runtime, Uri} from 'main.core';
 import { MenuManager } from 'main.popup';
 import { BaseEvent, EventEmitter } from 'main.core.events';
-import { getGlobalContext, Tracker, Designer, ConditionGroupSelector, ConditionGroup, DelayIntervalSelector } from 'bizproc.automation';
+import {
+	Context,
+	SelectorContext,
+	getGlobalContext,
+	Tracker,
+	Designer,
+	ConditionGroupSelector,
+	ConditionGroup,
+	DelayIntervalSelector,
+	SelectorManager,
+} from 'bizproc.automation';
 import { Robot } from './robot'
 import { UserOptions } from './user-options';
 import { ViewMode } from './view-mode';
@@ -11,13 +21,14 @@ import { DelayInterval } from './delay-interval';
 
 export class Template extends EventEmitter
 {
+	#context: Context;
+
 	constants: Object<string, any>;
 	globalConstants: Array<Object>;
 	variables: Object<string, any>;
 	globalVariables: Array<Object>;
 	robotSettingsControls;
 
-	#selectors;
 	#delayMinLimitM: number;
 	#userOptions: UserOptions | null;
 	#tracker: Tracker;
@@ -33,8 +44,8 @@ export class Template extends EventEmitter
 	#data: Object;
 
 	constructor(params: {
+		context: ?Context,
 		templateContainerNode: Element,
-		selectors: Object,
 		constants: Object<string, any>,
 		globalConstants: Array<Object>,
 		variables: Object<string, any>,
@@ -46,16 +57,16 @@ export class Template extends EventEmitter
 		super();
 		this.setEventNamespace('BX.Bizproc.Automation');
 
+		this.#context = params.context ?? getGlobalContext();
 		this.constants = params.constants;
 		this.globalConstants = params.globalConstants;
 		this.variables = params.variables;
 		this.globalVariables = params.globalVariables;
 
 		this.#templateContainerNode = params.templateContainerNode;
-		this.#selectors = params.selectors;
 		this.#delayMinLimitM = params.delayMinLimitM;
 		this.#userOptions = params.userOptions;
-		this.#tracker = getGlobalContext().tracker;
+		this.#tracker = this.#context.tracker;
 		this.#data = {};
 		this.#robots = [];
 		this.#viewMode = ViewMode.none();
@@ -133,7 +144,7 @@ export class Template extends EventEmitter
 
 	canEdit()
 	{
-		return getGlobalContext().canEdit;
+		return this.#context.canEdit;
 	}
 
 	initRobots()
@@ -145,9 +156,9 @@ export class Template extends EventEmitter
 			for (let i = 0; i < this.#data.ROBOTS.length; ++i)
 			{
 				const robot = new Robot({
-					document: getGlobalContext().document,
+					document: this.#context.document,
 					template: this,
-					isFrameMode: getGlobalContext().get('isFrameMode'),
+					isFrameMode: this.#context.get('isFrameMode'),
 					tracker: this.#tracker,
 				});
 				robot.init(this.#data.ROBOTS[i], this.#viewMode);
@@ -343,7 +354,7 @@ export class Template extends EventEmitter
 
 	createExternalEditTemplateButton(): undefined | boolean
 	{
-		if (Type.isNil(getGlobalContext().bizprocEditorUrl))
+		if (Type.isNil(this.#context.bizprocEditorUrl))
 		{
 			return false;
 		}
@@ -371,7 +382,7 @@ export class Template extends EventEmitter
 			}
 		});
 
-		if (!getGlobalContext().bizprocEditorUrl.length)
+		if (!this.#context.bizprocEditorUrl.length)
 		{
 			Dom.addClass(anchor, 'bizproc-automation-robot-btn-set-locked');
 		}
@@ -381,7 +392,7 @@ export class Template extends EventEmitter
 
 	createManageModeButton()
 	{
-		if (!getGlobalContext().canManage)
+		if (!this.#context.canManage)
 		{
 			return;
 		}
@@ -422,14 +433,14 @@ export class Template extends EventEmitter
 
 	createConstantsEditButton(): boolean | undefined
 	{
-		if (Type.isNil(getGlobalContext().constantsEditorUrl))
+		if (Type.isNil(this.#context.constantsEditorUrl))
 		{
 			return false;
 		}
 
 		const url =
 			!this.#viewMode.isManage()
-				? getGlobalContext().constantsEditorUrl.replace('#ID#', this.getTemplateId())
+				? this.#context.constantsEditorUrl.replace('#ID#', this.getTemplateId())
 				: '#'
 		;
 
@@ -451,12 +462,12 @@ export class Template extends EventEmitter
 
 	createParametersEditButton(): boolean | undefined
 	{
-		if (Type.isNil(getGlobalContext().parametersEditorUrl))
+		if (Type.isNil(this.#context.parametersEditorUrl))
 		{
 			return false;
 		}
 
-		const url = getGlobalContext().parametersEditorUrl.replace('#ID#', this.getTemplateId());
+		const url = this.#context.parametersEditorUrl.replace('#ID#', this.getTemplateId());
 
 		if (!url.length || this.#viewMode.isManage())
 		{
@@ -576,7 +587,7 @@ export class Template extends EventEmitter
 			ads: [],
 			other: []
 		};
-		const availableRobots = getGlobalContext().availableRobots;
+		const availableRobots = this.#context.availableRobots;
 
 		if (!Type.isPlainObject(context))
 		{
@@ -666,7 +677,7 @@ export class Template extends EventEmitter
 				text: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
 				onclick()
 				{
-					BX.rest.Marketplace.open({}, getGlobalContext().get('marketplaceRobotCategory'));
+					BX.rest.Marketplace.open({}, this.#context.get('marketplaceRobotCategory'));
 					this.getRootMenuWindow().close();
 				},
 			});
@@ -677,7 +688,7 @@ export class Template extends EventEmitter
 				text: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
 				href:
 					'/marketplace/category/%category%/'
-						.replace('%category%', getGlobalContext().get('marketplaceRobotCategory')),
+						.replace('%category%', this.#context.get('marketplaceRobotCategory')),
 				target: '_blank'
 			});
 		}
@@ -741,7 +752,7 @@ export class Template extends EventEmitter
 			HelpHint.showNoPermissionsHint(button);
 			return;
 		}
-		if (!getGlobalContext().bizprocEditorUrl.length)
+		if (!this.#context.bizprocEditorUrl.length)
 		{
 			if (top.BX.UI && top.BX.UI.InfoHelper)
 			{
@@ -769,15 +780,15 @@ export class Template extends EventEmitter
 
 	openBizprocEditor(templateId)
 	{
-		top.window.location.href = getGlobalContext().bizprocEditorUrl.replace('#ID#', templateId)
+		top.window.location.href = this.#context.bizprocEditorUrl.replace('#ID#', templateId)
 	}
 
 	addRobot(robotData, callback)
 	{
 		const robot = new Robot({
-			document: getGlobalContext().document,
+			document: this.#context.document,
 			template: this,
-			isFrameMode: getGlobalContext().get('isFrameMode'),
+			isFrameMode: this.#context.get('isFrameMode'),
 			tracker: this.#tracker,
 		});
 		const initData = {
@@ -923,16 +934,21 @@ export class Template extends EventEmitter
 			},
 		});
 		form.appendChild(iconHelp);
-		context['DOCUMENT_CATEGORY_ID'] = getGlobalContext().document.getCategoryId();
+		context['DOCUMENT_CATEGORY_ID'] = this.#context.document.getCategoryId();
 
 		BX.ajax({
 			method: 'POST',
 			dataType: 'html',
-			url: getGlobalContext().ajaxUrl,
+			url: Uri.addParam(
+				this.#context.ajaxUrl,
+				{
+					analyticsLabel: `automation_robot${robot.draft ? '_draft' : ''}_settings_${robot.data.Type.toLowerCase()}`
+				}
+			),
 			data: {
 				ajax_action: 'get_robot_dialog',
-				document_signed: getGlobalContext().signedDocument,
-				document_status: getGlobalContext().document.getCurrentStatusId(),
+				document_signed: this.#context.signedDocument,
+				document_status: this.#context.document.getCurrentStatusId(),
 				context: context,
 				robot_json: Helper.toJsonString(robot.serialize()),
 				form_name: formName
@@ -958,6 +974,7 @@ export class Template extends EventEmitter
 
 		if (this.#userOptions)
 		{
+			// TODO move from if?
 			this.emit('Template:robot:showSettings');
 			popupWidth = parseInt(
 				this.#userOptions.get('defaults', 'robot_settings_popup_width', 580)
@@ -1006,8 +1023,7 @@ export class Template extends EventEmitter
 			closeByEsc: true,
 			draggable: {restrict: false},
 			events: {
-				onPopupClose: popup => {
-					this.currentRobot = null;
+				onPopupClose: (popup) => {
 					Designer.getInstance().setRobotSettingsDialog(null);
 					this.destroyRobotSettingsControls();
 					popup.destroy();
@@ -1034,10 +1050,15 @@ export class Template extends EventEmitter
 					events : {
 						click()
 						{
+							const isNewRobot = robot.draft;
+
 							me.saveRobotSettings(form, robot, BX.delegate(function()
 							{
 								this.popupWindow.close();
-								me.emit('Template:robot:add', {robot});
+								if (isNewRobot)
+								{
+									me.emit('Template:robot:add', { robot });
+								}
 								if (saveCallback)
 								{
 									saveCallback(robot);
@@ -1058,7 +1079,6 @@ export class Template extends EventEmitter
 			]
 		});
 
-		this.currentRobot = robot;
 		Designer.getInstance().getRobotSettingsDialog().popup = popup;
 		popup.show();
 	}
@@ -1107,32 +1127,67 @@ export class Template extends EventEmitter
 			this.robotSettingsControls = [];
 		}
 
-		let control = null;
 		const role = controlNode.getAttribute('data-role');
 
-		if (role === 'user-selector')
+		const controlProps = {
+			context: new SelectorContext({
+				fields: Runtime.clone(this.#context.document.getFields()),
+				useSwitcherMenu: this.#context.get('showTemplatePropertiesMenuOnSelecting'),
+				rootGroupTitle: this.#context.document.title,
+				userOptions: this.#context.userOptions,
+			}),
+			needSync: robot.draft,
+			checkbox: controlNode,
+		};
+
+		if (role === SelectorManager.SELECTOR_ROLE_USER)
 		{
-			control = new this.#selectors.userSelector(robot, controlNode, this.#data);
+			const fieldProperty = JSON.parse(controlNode.getAttribute('data-property'));
+			controlProps.context.set('additionalUserFields', this.#getUserSelectorAdditionalFields(fieldProperty));
 		}
-		else if (role === 'file-selector')
+		else if (role === SelectorManager.SELECTOR_ROLE_FILE)
 		{
-			control = new this.#selectors.fileSelector(robot, controlNode);
+			this.robots.forEach((robot) => {
+				controlProps.context.fields.push(
+					...robot
+						.getReturnFieldsDescription()
+						.filter(field => field['Type'] === 'file')
+						.map((field) => ({
+							Id: `{{~${robot.getId()}:${field['Id']}}}`,
+							Name: `${robot.getTitle()}: ${field['Name']}`,
+							Type: 'file',
+							Expression: `{{~${robot.getId()}:${field['Id']}}}`,
+						}))
+				);
+			});
 		}
-		else if (role === 'inline-selector-target')
+
+		const control = SelectorManager.createSelectorByRole(role, controlProps);
+
+		if (control && role !== SelectorManager.SELECTOR_ROLE_SAVE_STATE)
 		{
-			control = new this.#selectors.inlineSelector(robot, controlNode, this.#data);
-		}
-		else if (role === 'inline-selector-html')
-		{
-			control = new this.#selectors.inlineSelectorHtml(robot, controlNode);
-		}
-		else if (role === 'time-selector')
-		{
-			control = new this.#selectors.timeSelector(controlNode);
-		}
-		else if (role === 'save-state-checkbox')
-		{
-			control = new this.#selectors.saveStateCheckbox(controlNode, robot);
+			control.renderTo(controlNode);
+
+			control.subscribe('onAskConstant', (event) => {
+				const {fieldProperty} = event.getData();
+				control.onFieldSelect(this.addConstant(fieldProperty));
+			});
+			control.subscribe('onAskParameter', (event) => {
+				const {fieldProperty} = event.getData();
+				control.onFieldSelect(this.addParameter(fieldProperty));
+			});
+			control.subscribe('onOpenMenu', (event) => {
+				this.#addRobotReturnFieldsToSelector(event, robot);
+
+				this.emit(
+					'Template:onSelectorMenuOpen',
+					{
+						template: this,
+						robot,
+						...event.getData()
+					}
+				);
+			});
 		}
 
 		BX.UI.Hint.init(controlNode);
@@ -1141,6 +1196,93 @@ export class Template extends EventEmitter
 		{
 			this.robotSettingsControls.push(control);
 		}
+	}
+
+	#getUserSelectorAdditionalFields(fieldProperty): Array<object>
+	{
+		const additionalFields = (
+			this
+				.#getRobotsWithReturnFields()
+				.map((robot) => (
+					robot
+						.getReturnFieldsDescription()
+						.filter(field => field['Type'] === 'user')
+						.map((field) => ({
+							id: `{{~${robot.getId()}:${field['Id']}}}`,
+							title: `${robot.getTitle()}: ${field['Name']}`,
+						}))
+				))
+				.flat()
+		);
+
+		if (this.#context.get('showTemplatePropertiesMenuOnSelecting') && fieldProperty)
+		{
+			const ask = this.addConstant(Runtime.clone(fieldProperty));
+
+			additionalFields.push({
+				id: ask.Expression,
+				title: Loc.getMessage('BIZPROC_AUTOMATION_ASK_CONSTANT'),
+				tabs: ['recents', 'bpuserroles'],
+				sort: 1,
+			});
+
+			const param = this.addParameter(Runtime.clone(fieldProperty));
+
+			additionalFields.push({
+				id: param.Expression,
+				title: Loc.getMessage('BIZPROC_AUTOMATION_ASK_PARAMETER'),
+				tabs: ['recents', 'bpuserroles'],
+				sort: 2,
+			});
+		}
+
+		return additionalFields;
+	}
+
+	#addRobotReturnFieldsToSelector(event: BaseEvent, skipRobot: ?Robot)
+	{
+		const selector = event.getData().selector;
+		const isMixedCondition = event.getData().isMixedCondition;
+
+		if (Type.isBoolean(isMixedCondition) && !isMixedCondition)
+		{
+			return;
+		}
+
+		const robotMenuItems = (
+			this
+				.#getRobotsWithReturnFields(skipRobot)
+				.map((robot) => ({
+					id: robot.getId(),
+					title: robot.getTitle(),
+					children: robot.getReturnFieldsDescription().map((field) => ({
+						id: field.Expression,
+						title: field.Name,
+						customData: { field },
+					}))
+				}))
+		);
+
+		if (robotMenuItems.length > 0)
+		{
+			selector.addGroup('__RESULT', {
+				id: '__RESULT',
+				title: Loc.getMessage('BIZPROC_AUTOMATION_CMP_ROBOT_LIST'),
+				children: robotMenuItems
+			});
+		}
+	}
+
+	#getRobotsWithReturnFields(skipRobot: ?Robot = undefined): Array<Robot>
+	{
+		const skipId = skipRobot?.getId() || '';
+
+		return this
+			.robots
+			.filter((templateRobot) => (
+				templateRobot.getId() !== skipId && templateRobot.hasReturnFields()
+			))
+		;
 	}
 
 	destroyRobotSettingsControls()
@@ -1242,7 +1384,7 @@ export class Template extends EventEmitter
 
 		const basisFields = [];
 
-		const docFields = getGlobalContext().document.getFields();
+		const docFields = this.#context.document.getFields();
 		const minLimitM = this.#delayMinLimitM;
 
 		if (Type.isArray(docFields))
@@ -1357,8 +1499,20 @@ export class Template extends EventEmitter
 	renderConditionSettings(robot)
 	{
 		const conditionGroup = robot.getCondition();
-		const selector = this.conditionSelector = new ConditionGroupSelector(conditionGroup, {
-			fields: getGlobalContext().document.getFields(),
+		this.conditionSelector = new ConditionGroupSelector(conditionGroup, {
+			fields: this.#context.document.getFields(),
+			onOpenMenu: (event) => {
+				this.#addRobotReturnFieldsToSelector(event, robot);
+
+				this.emit(
+					'Template:onSelectorMenuOpen',
+					{
+						template: this,
+						robot,
+						...event.getData()
+					}
+				);
+			},
 		});
 
 		return Dom.create("div", {
@@ -1371,7 +1525,7 @@ export class Template extends EventEmitter
 							attrs: { className: "bizproc-automation-popup-settings-title" },
 							text: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION') + ":"
 						}),
-						selector.createNode(),
+						this.conditionSelector.createNode(),
 					],
 				})
 			]
@@ -1419,12 +1573,17 @@ export class Template extends EventEmitter
 		this.onBeforeSaveRobotSettings();
 		const formData = BX.ajax.prepareForm(form);
 
-		const ajaxUrl = getGlobalContext().ajaxUrl;
-		const documentSigned = getGlobalContext().signedDocument;
+		const ajaxUrl = this.#context.ajaxUrl;
+		const documentSigned = this.#context.signedDocument;
 		BX.ajax({
 			method: 'POST',
 			dataType: 'json',
-			url: ajaxUrl,
+			url: Uri.addParam(
+				ajaxUrl,
+				{
+					analyticsLabel: `automation_robot${robot.draft ? '_draft' : ''}_save_${robot.data.Type.toLowerCase()}`
+				}
+			),
 			data: {
 				ajax_action: 'save_robot_settings',
 				document_signed: documentSigned,
@@ -1447,7 +1606,7 @@ export class Template extends EventEmitter
 					if (robot.draft)
 					{
 						this.#robots.push(robot);
-						this.insertRobotNode(robot.node)
+						this.insertRobotNode(robot.node);
 					}
 					robot.draft = false;
 
@@ -1768,7 +1927,7 @@ export class Template extends EventEmitter
 
 	getRobotDescription(type: string): ?object
 	{
-		return getGlobalContext().availableRobots.find(item => item['CLASS'] === type);
+		return this.#context.availableRobots.find(item => item['CLASS'] === type);
 	}
 
 	setGlobalVariables(globalVariables: Array = []): this

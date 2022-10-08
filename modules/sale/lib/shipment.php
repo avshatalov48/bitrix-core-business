@@ -747,7 +747,13 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 
 		if (!$this->isSystem())
 		{
-			$this->setField('PRICE_DELIVERY', 0);
+			$this->setField('BASE_PRICE_DELIVERY', 0);
+
+			if ($this->getFields()->isMarkedCustom('PRICE_DELIVERY'))
+			{
+				$this->setField('PRICE_DELIVERY', 0);
+			}
+
 			$this->disallowDelivery();
 		}
 

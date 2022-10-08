@@ -338,7 +338,7 @@
 	-webkit-box-align: center;
 	    -ms-flex-align: center;
 	        align-items: center;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 0 5px 0 0;
 	white-space: nowrap;
 	font-size: 13px;
@@ -423,7 +423,7 @@
 
 .feed-create-task-popup-title {
 	font-size: 16px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-bottom: 10px;
 }
 
@@ -449,7 +449,7 @@
 	border-radius: 2px;
 	color: #5c6470;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 5px 10px;
 	display: -webkit-box;
 	display: -ms-flexbox;
@@ -484,7 +484,7 @@
 }
 
 .feed-task-info-text-item:first-child .feed-task-info-text-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .feed-task-info-text-title {
@@ -494,7 +494,7 @@
 .feed-work-time-link {
 	display: inline-block;
 	line-height: normal;
-	font-size: 12px;
+	font-size: 13px;
 	margin-left: 30px;
 	position: relative;
 }
@@ -518,7 +518,7 @@
 }
 
 .feed-workday-table {
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-sm, 2px);
 	color: #000;
 	font-size: 13px;
 	margin-top: 7px;
@@ -535,7 +535,7 @@
 .feed-calendar-view-text td.feed-calendar-view-text-cell-l {
 	color: #535c69;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 18px;
 	padding: 0 10px 6px 0;
 	white-space: nowrap;
@@ -631,12 +631,13 @@
 	padding: 0 4px 4px;
 	position: relative;
 	width: 45px;
+	border-radius: var(--ui-border-radius-sm);
 }
 
 .feed-calendar-view-icon-day {
 	color: #fff;
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	height: 18px;
 	line-height: 18px;
 	position: relative;
@@ -649,11 +650,12 @@
 	background-color: #ffffff;
 	color: #535c69;
 	font-size: 28px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	height: 34px;
 	line-height: 34px;
 	position: relative;
 	text-align: center;
+	border-radius: var(--ui-border-radius-2xs);
 }
 
 .feed-calendar-view-icon .feed-calendar-view-icon-fake-link {
@@ -690,7 +692,7 @@
 	cursor: pointer;
 	display: inline-block;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding-bottom: 1px;
 	position: relative;
 
@@ -762,7 +764,7 @@
 	color: #5c6470;
 	float: left;
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	min-width: 50px;
 }
 

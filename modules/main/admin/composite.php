@@ -24,6 +24,7 @@ if (Composite\Engine::isSelfHostedPortal())
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 }
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 $APPLICATION->SetAdditionalCSS("/bitrix/panel/main/composite.css");
 $APPLICATION->AddHeadString("<style type=\"text/css\">".Composite\Engine::getInjectedCSS()."</style>");
 

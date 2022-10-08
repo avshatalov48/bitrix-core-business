@@ -197,8 +197,9 @@ Vue.component(config.templateRowName,
 						measureCode: modelFields.MEASURE_CODE || '',
 						measureName: modelFields.MEASURE_NAME || '',
 						properties: modelFields.PROPERTIES || {},
-						brands: modelFields.BRANDS || {},
+						brands: modelFields.BRANDS || [],
 						taxId: modelFields.TAX_ID,
+						morePhoto: modelFields.MORE_PHOTO,
 					};
 				},
 				changeRowData(product: {}): void
@@ -233,6 +234,7 @@ Vue.component(config.templateRowName,
 					);
 					this.processFields(fields);
 					this.setCalculatedFields(fields);
+					this.$emit('onInlineSelectorProductChange', this.basketItem.fields.brands);
 				},
 				onProductSelect()
 				{
@@ -245,7 +247,11 @@ Vue.component(config.templateRowName,
 				},
 				onProductClear()
 				{
-					const fields = this.model.getCalculator().calculatePrice(0);
+					if (Type.isPlainObject(this.options.facebookFailProducts))
+					{
+						delete this.options.facebookFailProducts[this.basketItem.offerId];
+					}
+					/*const fields = this.model.getCalculator().calculatePrice(0);
 
 					fields.BASE_PRICE = 0;
 					fields.NAME = '';
@@ -254,7 +260,7 @@ Vue.component(config.templateRowName,
 					fields.SKU_ID = 0;
 					fields.MODULE = '';
 
-					this.setCalculatedFields(fields);
+					this.setCalculatedFields(fields);*/
 				},
 				onChangeSum(sum: number)
 				{
@@ -345,10 +351,16 @@ Vue.component(config.templateRowName,
 						this.changeRowData({sum: fields.SUM});
 					}
 				},
-				changeBrand(values): void
+				changeBrand(eventData): void
 				{
-					const brands = Type.isArray(values) ? values : [];
+					const brands = Type.isArray(eventData.resultValues) ? eventData.resultValues : [];
+					const isSelectedByProductChange = eventData.isSelectedByProductChange;
 					this.processFields({ BRANDS: brands });
+
+					if (!isSelectedByProductChange)
+					{
+						this.saveCatalogField(['BRANDS']);
+					}
 				},
 				onChangeQuantity(quantity: number): void
 				{
@@ -416,6 +428,10 @@ Vue.component(config.templateRowName,
 				},
 				removeItem()
 				{
+					if (Type.isPlainObject(this.options.facebookFailProducts))
+					{
+						delete this.options.facebookFailProducts[this.basketItem.offerId];
+					}
 					this.$emit('removeItem', {
 						index: this.basketItemIndex
 					});
@@ -427,6 +443,41 @@ Vue.component(config.templateRowName,
 				isVisibleBlock(code): boolean
 				{
 					return Type.isArray(this.options.visibleBlocks) && this.options.visibleBlocks.includes(code)
+				},
+				getPriceValue()
+				{
+					return this.isEditableField(this.blocks.price)
+						? this.basketItem.fields.basePrice
+						: this.basketItem.catalogPrice
+					;
+				},
+				getQuantityValue()
+				{
+					return this.isEditableField(this.blocks.quantity)
+						? this.basketItem.fields.quantity
+						: 1
+					;
+				},
+				getSumValue()
+				{
+					return this.isEditableField(this.blocks.result)
+						? this.basketItem.sum
+						: this.basketItem.catalogPrice
+					;
+				},
+				getDiscountValue()
+				{
+					return this.isEditableField(this.blocks.discount)
+						? this.basketItem.fields.discount
+						: 0
+					;
+				},
+				getDiscountRateValue()
+				{
+					return this.isEditableField(this.blocks.discount)
+						? this.basketItem.fields.discountRate
+						: 0
+					;
 				},
 				hasError(code): boolean
 				{
@@ -572,133 +623,184 @@ Vue.component(config.templateRowName,
 				{
 					return this.mode === FormMode.READ_ONLY
 				},
+				getErrorsText(): string
+				{
+					let errorText = this.basketItem.errors.length !== 0 && !this.model.isEmpty() && this.model.isChanged()
+						? Loc.getMessage('CATALOG_PRODUCT_MODEL_ERROR_NOTIFICATION')
+						: ''
+					;
+					const basketItemOfferId = this.basketItem.offerId;
+					const facebookFailProducts = this.options.facebookFailProducts;
+					const facebookFailProductErrorText = Type.isObject(facebookFailProducts)
+						? facebookFailProducts[basketItemOfferId]
+						: null
+					;
+
+					if (facebookFailProductErrorText)
+					{
+						if (errorText)
+						{
+							errorText += '<br>';
+						}
+						errorText +=
+							Loc.getMessage('CATALOG_FORM_FACEBOOK_ERROR')
+							+ ':<br>'
+							+ facebookFailProductErrorText
+						;
+					}
+
+					return errorText;
+				},
+				hasSku()
+				{
+					return this.basketItem.skuTree !== '';
+				},
 			},
 		// language=Vue
 		template: `
-		<div class="catalog-pf-product-item" v-bind:class="{ 'catalog-pf-product-item--borderless': !isReadOnly && basketItemIndex === 0 }">
-			<div class="catalog-pf-product-item--remove" @click="removeItem" v-if="showRemoveIcon"></div>
-			<div class="catalog-pf-product-item--num">
-				<div class="catalog-pf-product-index">{{basketItemIndex + 1}}</div>
-			</div>
-			<div class="catalog-pf-product-item--left">
-				<div v-if="isVisibleBlock(blocks.productSelector)">
-					<div class="catalog-pf-product-item-section">
-						<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_NAME}}</div>
-					</div>
-					<${config.templateFieldInlineSelector}
-						:basketItem="basketItem"
-						:basketLength="basketLength"
-						:options="options"
-						:model="model"
-						:editable="isEditableField(blocks.productSelector)"
-						@onProductSelect="onProductSelect"
-						@onProductChange="onProductChange"
-						@saveCatalogField="saveCatalogField"
-					/>
+		<div>
+			<div class="catalog-pf-product-item" v-bind:class="{ 'catalog-pf-product-item--borderless': !isReadOnly && basketItemIndex === 0 }">
+				<div class="catalog-pf-product-item--remove" @click="removeItem" v-if="showRemoveIcon"></div>
+				<div class="catalog-pf-product-item--num">
+					<div class="catalog-pf-product-index">{{basketItemIndex + 1}}</div>
 				</div>
-				<div v-if="isVisibleBlock(blocks.brand)" class="catalog-pf-product-input-brand-wrapper">
-					<div class="catalog-pf-product-item-section">
-						<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_BRAND_TITLE}}</div>
-					</div>
-					<${config.templateFieldBrand}
-						:brands="basketItem.fields.brands"
-						:selectorId="getBrandsSelectorId"
-						:hasError="hasError(errorCodes.emptyBrand)"
-						:options="options"
-						:editable="isEditableField(blocks.brand)"
-						@changeBrand="changeBrand"
-						@saveCatalogField="saveCatalogField"
-					/>
-				</div>
-
-			</div>
-			<div class="catalog-pf-product-item--right">
-				<div class="catalog-pf-product-item-section">
-					<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-label" style="width: 94px">
-						{{localize.CATALOG_FORM_PRICE}}
-						<span v-if="hasHint(blocks.price)" class="ui-hint-icon" @click="showPriceNotify"></span>
-					</div>
-					<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-label" style="width: 72px">
-						{{localize.CATALOG_FORM_QUANTITY}}
-					</div>
-					<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-label" style="width: 94px">
-						{{localize.CATALOG_FORM_RESULT}}
-					</div>
-				</div>
-				<div class="catalog-pf-product-item-section">
-
-					<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-control" style="width: 94px">
-						<${config.templateFieldPrice}
-							:selectorId="basketItem.selectorId"
-							:price="basketItem.fields.basePrice"
+				<div class="catalog-pf-product-item--left">
+					<div v-if="isVisibleBlock(blocks.productSelector)">
+						<div v-if="!this.isReadOnly" class="catalog-pf-product-item-section">
+							<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_NAME}}</div>
+						</div>
+						<${config.templateFieldInlineSelector}
+							:basketItem="basketItem"
+							:basketLength="basketLength"
 							:options="options"
-							:editable="isEditableField(blocks.price)"
-							:hasError="hasError(errorCodes.emptyPrice)"
-							@onChangePrice="onChangePrice"
+							:model="model"
+							:editable="isEditableField(blocks.productSelector)"
+							@onProductChange="onProductChange"
+							@onProductSelect="onProductSelect"
+							@onProductClear="onProductClear"
 							@saveCatalogField="saveCatalogField"
 						/>
 					</div>
-
-					<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-control" style="width: 72px">
-						<${config.templateFieldQuantity}
-							:quantity="basketItem.fields.quantity"
-							:measureCode="getMeasureCode"
-							:measureRatio="basketItem.fields.measureRatio"
-							:measureName="getMeasureName"
-							:hasError="hasError(errorCodes.emptyQuantity)"
+					<div
+						v-if="isVisibleBlock(blocks.brand)"
+						class="catalog-pf-product-input-brand-wrapper"
+						v-bind:class="[
+							{ 'catalog-pf-product-input-brand-wrapper-readonly': this.isReadOnly},
+							{ 'catalog-pf-product-input-brand-wrapper-readonly-no-sku': this.isReadOnly && !this.hasSku}
+						]"
+					>
+						<div class="catalog-pf-product-item-section">
+							<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_BRAND_TITLE}}</div>
+						</div>
+						<${config.templateFieldBrand}
+							:brands="basketItem.fields.brands"
+							:selectorId="getBrandsSelectorId"
+							:hasError="hasError(errorCodes.emptyBrand)"
 							:options="options"
-							:editable="isEditableField(blocks.quantity)"
-							@onChangeQuantity="onChangeQuantity"
-							@onSelectMeasure="onSelectMeasure"
+							:editable="isEditableField(blocks.brand)"
+							@changeBrand="changeBrand"
+							@saveCatalogField="saveCatalogField"
 						/>
+						<div v-if="hasError(errorCodes.emptyBrand)" class="catalog-pf-product-item-section">
+							<div class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_BRAND_1}}</div>
+						</div>
 					</div>
-
-					<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-control" style="width: 94px">
-						<${config.templateFieldResultSum}
-								:sum="basketItem.sum"
+	
+				</div>
+				<div class="catalog-pf-product-item--right">
+					<div class="catalog-pf-product-item-section">
+						<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-label" style="width: 94px">
+							{{localize.CATALOG_FORM_PRICE}}
+							<span v-if="hasHint(blocks.price)" class="ui-hint-icon" @click="showPriceNotify"></span>
+						</div>
+						<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-label" style="width: 72px">
+							{{localize.CATALOG_FORM_QUANTITY}}
+						</div>
+						<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-label" style="width: 94px">
+							{{localize.CATALOG_FORM_RESULT}}
+						</div>
+					</div>
+					<div class="catalog-pf-product-item-section">
+	
+						<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-control" style="width: 94px">
+							<${config.templateFieldPrice}
+								:selectorId="basketItem.selectorId"
+								:price="getPriceValue()"
 								:options="options"
-								:editable="isEditableField(blocks.result)"
-								@onChangeSum="onChangeSum"
+								:editable="isEditableField(blocks.price)"
+								:hasError="hasError(errorCodes.emptyPrice)"
+								@onChangePrice="onChangePrice"
+								@saveCatalogField="saveCatalogField"
+							/>
+						</div>
+	
+						<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-control" style="width: 72px">
+							<${config.templateFieldQuantity}
+								:quantity="getQuantityValue()"
+								:measureCode="getMeasureCode"
+								:measureRatio="basketItem.fields.measureRatio"
+								:measureName="getMeasureName"
+								:hasError="hasError(errorCodes.emptyQuantity)"
+								:options="options"
+								:editable="isEditableField(blocks.quantity)"
+								@onChangeQuantity="onChangeQuantity"
+								@onSelectMeasure="onSelectMeasure"
+							/>
+						</div>
+	
+						<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-control" style="width: 94px">
+							<${config.templateFieldResultSum}
+									:sum="getSumValue()"
+									:options="options"
+									:editable="isEditableField(blocks.result)"
+									@onChangeSum="onChangeSum"
+							/>
+						</div>
+					</div>
+					<div v-if="hasError(errorCodes.emptyQuantity)" class="catalog-pf-product-item-section">
+						<div class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_QUANTITY_1}}</div>
+					</div>
+					<div v-if="hasError(errorCodes.emptyPrice)" class="catalog-pf-product-item-section">
+						<div v-if="isEditableField(blocks.price)" class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_PRICE_1}}</div>
+						<div v-else class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_PRICE_FILL_IN_CARD}}</div>
+					</div>
+					<div v-if="showDiscountBlock" class="catalog-pf-product-item-section">
+						<div v-if="showDiscount" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleDiscount('N')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
+						<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleDiscount('Y')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
+					</div>
+	
+					<div v-if="showDiscount" class="catalog-pf-product-item-section">
+						<${config.templateFieldDiscount}
+							:discount="getDiscountValue()"
+							:discountType="basketItem.fields.discountType"
+							:discountRate="getDiscountRateValue()"
+							:options="options"
+							:editable="isEditableField(blocks.discount)"
+							ref="discountWrapper"
+							@changeDiscount="changeDiscount"
+							@changeDiscountType="changeDiscountType"
 						/>
 					</div>
+	
+					<div v-if="showTaxBlock" class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed">
+						<div v-if="showTaxSelector" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleTax('N')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
+						<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleTax('Y')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
+					</div>
+					<div v-if="showTaxSelector && showTaxBlock" class="catalog-pf-product-item-section">
+						<${config.templateFieldTax}
+							:taxId="basketItem.fields.taxId"
+							:options="options"
+							:editable="isEditableField(blocks.tax)"
+							@changeProduct="changeProduct"
+						/>
+					</div>
+					<div class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed"></div>
 				</div>
-				<div v-if="hasError(errorCodes.emptyQuantity)" class="catalog-pf-product-item-section">
-					<div class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_QUANTITY}}</div>
+				<div class="catalog-pf-product-item">
 				</div>
-				<div v-if="hasError(errorCodes.emptyPrice)" class="catalog-pf-product-item-section">
-					<div class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_PRICE}}</div>
-				</div>
-				<div v-if="showDiscountBlock" class="catalog-pf-product-item-section">
-					<div v-if="showDiscount" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleDiscount('N')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
-					<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleDiscount('Y')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
-				</div>
-
-				<div v-if="showDiscount" class="catalog-pf-product-item-section">
-					<${config.templateFieldDiscount}
-						:discount="basketItem.fields.discount"
-						:discountType="basketItem.fields.discountType"
-						:discountRate="basketItem.fields.discountRate"
-						:options="options"
-						:editable="isEditableField(blocks.discount)"
-						ref="discountWrapper"
-						@changeDiscount="changeDiscount"
-						@changeDiscountType="changeDiscountType"
-					/>
-				</div>
-
-				<div v-if="showTaxBlock" class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed">
-					<div v-if="showTaxSelector" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleTax('N')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
-					<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleTax('Y')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
-				</div>
-				<div v-if="showTaxSelector && showTaxBlock" class="catalog-pf-product-item-section">
-					<${config.templateFieldTax}
-						:taxId="basketItem.fields.taxId"
-						:options="options"
-						:editable="isEditableField(blocks.tax)"
-						@changeProduct="changeProduct"
-					/>
-				</div>
-				<div class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed"></div>
+			</div>
+			<div>
+				<div class="catalog-product-error" v-html="getErrorsText"></div>
 			</div>
 		</div>
 	`

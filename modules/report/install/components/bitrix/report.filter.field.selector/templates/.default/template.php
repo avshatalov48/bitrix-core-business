@@ -30,7 +30,7 @@ foreach ($arResult['SELECTOR_ITEMS'] as $selectorConfig)
 				{
 					$initActions['crm'] = true;
 
-					CUtil::InitJSCore(array('ajax', 'popup'));
+					CUtil::InitJSCore(array('ajax', 'popup', 'ui.fonts.opensans'));
 
 					\Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/js/crm/css/crm.css');
 					\Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/crm/crm.js');

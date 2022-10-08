@@ -12,7 +12,7 @@ $arThemesMessages = array(
 	"red" => GetMessage("F_THEME_RED"),
 	"black" => GetMessage("F_THEME_BLACK")
 );
-$dir = trim(preg_replace("'[\\\\/]+'", "/", dirname(__FILE__)."/themes/"));
+$dir = trim(preg_replace("'[\\\\/]+'", "/", __DIR__."/themes/"));
 if (is_dir($dir) && $directory = opendir($dir))
 {
 	while (($file = readdir($directory)) !== false)

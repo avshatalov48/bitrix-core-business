@@ -1,19 +1,13 @@
-<?
+<?php
+
 namespace Bitrix\Main\UI\Uploader;
-use Bitrix\Main\AccessDeniedException;
+
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ArgumentNullException;
-use Bitrix\Main\ArgumentOutOfRangeException;
-use Bitrix\Main\DB\Exception;
 use Bitrix\Main\Error;
-use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\HttpRequest;
 use Bitrix\Main\NotImplementedException;
-use Bitrix\Main\Result;
-use \Bitrix\Main\UI\FileInputUtility;
-use \Bitrix\Main\Web\HttpClient;
-use \Bitrix\Main\Web\Uri;
-use \Bitrix\Main\Context;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Context;
 
 class Package
 {
@@ -228,13 +222,13 @@ class Package
 			$res = array();
 			foreach($data as $k => $v)
 			{
-				$k = \Bitrix\Main\Text\Encoding::convertEncoding(\CHTTP::urnDecode($k), "UTF-8", LANG_CHARSET);
+				$k = Uri::urnDecode($k, "UTF-8");
 				$res[$k] = self::unescape($v);
 			}
 		}
 		else
 		{
-			$res = \Bitrix\Main\Text\Encoding::convertEncoding(\CHTTP::urnDecode($data), "UTF-8", LANG_CHARSET);
+			$res = Uri::urnDecode($data, "UTF-8");
 		}
 
 		return $res;

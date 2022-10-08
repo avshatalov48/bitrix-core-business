@@ -1,0 +1,259 @@
+.ui-notification-manager-browser-column {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.ui-notification-manager-browser-column-wide {
+	width: 100%;
+}
+
+.ui-notification-manager-browser-row {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+}
+
+.ui-notification-manager-browser-row-reply {
+	height: 0;
+	margin-top: 0;
+	opacity: 0;
+	transition: all .25s linear;
+}
+
+.ui-notification-manager-browser-row-reply-animate {
+	height: auto;
+	margin-top: 6px;
+	margin-bottom: 11px;
+	opacity: 1;
+}
+
+.ui-notification-manager-browser-balloon {
+	display: block;
+	position: fixed;
+	opacity: 0;
+	z-index: 3200;
+	transform: translateZ(0px);
+	transition: opacity .25s linear, left .5s ease, top .5s ease, right .5s ease, bottom .5s ease;
+}
+
+.ui-notification-manager-browser-balloon-animate {
+	opacity: 1;
+}
+
+.ui-notification-manager-browser-content {
+	display: flex;
+	flex-direction: column;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	padding: 16px;
+	background-color: rgba(0, 0, 0, .8);
+	border-radius: 8px;
+}
+
+.ui-notification-manager-browser-message {
+	display: flex;
+	padding: 0;
+	color: #fff;
+}
+
+.ui-notification-manager-browser-icon {
+	width: 44px;
+	height: 44px;
+	margin-right: 10px;
+	border-radius: 50%;
+}
+
+.ui-notification-manager-browser-title {
+	height: 17px;
+	font-size: 14px;
+	line-height: 16px;
+	font-weight: var(--ui-font-weight-bold);
+	margin-bottom: 3px;
+	max-width: 300px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.ui-notification-manager-browser-text {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	word-break: break-word;
+	font-size: 13px;
+	line-height: 16px;
+	max-width: 336px;
+	max-height: 48px;
+}
+
+.ui-notification-manager-browser-column + .ui-notification-manager-browser-column > .ui-notification-manager-browser-text {
+	min-height: 16px;
+}
+
+.ui-notification-manager-browser-actions {
+	display: flex;
+	align-items: center;
+	padding: 9px 0 0;
+}
+
+.ui-notification-manager-browser-reply-action {
+	padding: 0;
+}
+
+.ui-notification-manager-browser-reply-action:before {
+	left: 0;
+	top: 16px;
+	width: 100%;
+}
+
+.ui-notification-manager-browser-reply-wrapper {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
+	max-width: 100%;
+	width: 277px;
+	height: 10px;
+	vertical-align: middle;
+	align-items: flex-start;
+	justify-content: center;
+	min-height: 31px;
+	margin-right: 9px;
+}
+
+.ui-notification-manager-browser-input-reply {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0 11px;
+	width: 100%;
+	outline: none;
+	vertical-align: middle;
+	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font: 400 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	transition: border .3s ease, background-color .3s ease, color .3s ease, padding .3s ease;
+	flex: 1;
+	appearance: none;
+	height: 27px;
+	color: #fff;
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid #2FC6F6;
+	border-radius: 96px;
+}
+
+.ui-notification-manager-browser-input-reply::placeholder {
+	color: #747474;
+}
+
+.ui-notification-manager-browser-button-reply {
+	height: 29px;
+	width: 29px;
+	background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTMiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCAxMyAxMyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggb3BhY2l0eT0iMC41IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTguMTI1MTkgMC44NjkzNTFDMTAuNDQ1OCAwLjg2OTM1MSAxMi4zMjcxIDIuNzUwNjEgMTIuMzI3MSA1LjA3MTI3QzEyLjMyNzEgNy4zOTE5MiAxMC40NDU4IDkuMjczMTggOC4xMjUxOSA5LjI3MzE4TDMuOTgwNjQgOS4yNzMxNEwzLjk4MTU5IDEyLjA2TDAuNDMxNjQxIDguNTEwMDlMMy45ODE1OSA0Ljk2MDE0TDMuOTgwNjQgNy44MTcxNEw4LjMxMjI5IDcuODE3MjRDOS44NDk2MyA3LjgxNzI0IDExLjA5NTkgNi41NzA5NyAxMS4wOTU5IDUuMDMzNjNDMTEuMDk1OSAzLjQ5NjI5IDkuODQ5NjMgMi4yNTAwMiA4LjMxMjI5IDIuMjUwMDJMNi45NDI5MiAyLjI0OTE0VjAuODY5MTQxTDguMTI1MTkgMC44NjkzNTFaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K") no-repeat center;
+	border-radius: 50%;
+	border: 1px solid #979797;
+	cursor: default;
+	transition: all 160ms linear;
+}
+
+.ui-notification-manager-browser-button-reply:hover {
+	cursor: pointer;
+	background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTMiIGhlaWdodD0iMTMiIHZpZXdCb3g9IjAgMCAxMyAxMyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik04LjEyNTE5IDAuODY5MzUxQzEwLjQ0NTggMC44NjkzNTEgMTIuMzI3MSAyLjc1MDYxIDEyLjMyNzEgNS4wNzEyN0MxMi4zMjcxIDcuMzkxOTIgMTAuNDQ1OCA5LjI3MzE4IDguMTI1MTkgOS4yNzMxOEwzLjk4MDY0IDkuMjczMTRMMy45ODE1OSAxMi4wNkwwLjQzMTY0MSA4LjUxMDA5TDMuOTgxNTkgNC45NjAxNEwzLjk4MDY0IDcuODE3MTRMOC4zMTIyOSA3LjgxNzI0QzkuODQ5NjMgNy44MTcyNCAxMS4wOTU5IDYuNTcwOTcgMTEuMDk1OSA1LjAzMzYzQzExLjA5NTkgMy40OTYyOSA5Ljg0OTYzIDIuMjUwMDIgOC4zMTIyOSAyLjI1MDAyTDYuOTQyOTIgMi4yNDkxNFYwLjg2OTE0MUw4LjEyNTE5IDAuODY5MzUxWiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cg==") no-repeat center;
+	border-color: #fff;
+}
+
+.ui-notification-manager-browser-button-reply:active {
+	border-color: rgba(255, 255, 255, 0.8);
+}
+
+.ui-notification-manager-browser-button-close {
+	position: absolute;
+	top: 0;
+	right: 2px;
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	padding: 16px;
+	background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOCIgaGVpZ2h0PSI4IiB2aWV3Qm94PSIwIDAgOCA4IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBvcGFjaXR5PSIwLjIxIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTUgNEw4IDdMNyA4TDQgNUwxIDhMMCA3TDMgNEwwIDFMMSAwTDQgM0w3IDBMOCAxTDUgNFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=") no-repeat center;
+	cursor: pointer;
+	transition: all 160ms linear;
+}
+
+.ui-notification-manager-browser-button-close:hover {
+	background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9Im5vbmUiPjxwYXRoIG9wYWNpdHk9Ii44IiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik01IDRMOCA3TDcgOEw0IDVMMSA4TDAgN0wzIDRMMCAxTDEgMEw0IDNMNyAwTDggMUw1IDRaIiBmaWxsPSIjZDVkNWQ1Ii8+PC9zdmc+") no-repeat center;
+}
+
+.ui-notification-manager-browser-button {
+	height: 24px;
+	padding: 0 16px;
+	text-transform: none;
+	font-size: 12px;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
+	border-radius: 13px;
+	line-height: 22px;
+	color: #eeeeee;
+	background-color: rgba(255, 255, 255, 0.07);
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	cursor: pointer;
+	transition: all 160ms linear;
+}
+
+.ui-notification-manager-browser-button:after {
+	position: relative;
+	top: calc(-50% - 5px);
+	left: -15px !important;
+	display: block;
+	width: 9px;
+	height: 7px;
+	content: '';
+	transition: 160ms color linear, 160ms opacity linear, 160ms background-color linear;
+}
+
+.ui-notification-manager-browser-button:hover {
+	color: #eeeeee;
+	background-color: rgba(255, 255, 255, 0.17);
+	border-color: rgba(255, 255, 255, 0.28);
+}
+
+.ui-notification-manager-browser-button:active {
+	color: #eeeeee;
+	background-color: rgba(255, 255, 255, 0.37);
+	border-color: rgba(255, 255, 255, 0.48);
+}
+
+.ui-notification-manager-browser-button > .ui-btn-text {
+	font-size: 12px;
+	height: 24px;
+	max-width: 90px;
+}
+
+.ui-notification-manager-browser-button-accept > .ui-btn-text {
+	max-width: 150px;
+}
+
+.ui-notification-manager-browser-button-accept {
+	padding: 0 16px 0 28px;
+	background-color: rgba(47, 198, 246, 0.3);
+	border-color: rgba(47, 198, 246, 0.4);
+}
+
+.ui-notification-manager-browser-button-accept:hover {
+	background-color: rgba(47, 198, 246, 0.5);
+	border-color: rgba(47, 198, 246, 0.7);
+}
+
+.ui-notification-manager-browser-button-accept:active {
+	background-color: rgba(47, 198, 246, 0.6);
+	border-color: rgba(47, 198, 246, 0.89);
+}
+
+.ui-notification-manager-browser-button-accept:after {
+	background: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEwIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMy42NzEwNiA3LjE3NTI0TDAuNDMyNjE3IDQuMDE5MTJMMS41NjYwNyAyLjkxNDQ4TDMuNjcxMDYgNC45NjU5Nkw4LjQzMzg2IDAuMzI0MjE5TDkuNTY3MzEgMS40Mjg4NkwzLjY3MTA2IDcuMTc1MjRaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K") no-repeat center;
+}
+
+.ui-notification-manager-browser-button + .ui-notification-manager-browser-button {
+	margin-left: 5px;
+}

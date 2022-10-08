@@ -18,8 +18,10 @@ class VariationGrid
 		this.createPropertyHintId = settings.createPropertyHintId;
 		this.gridId = settings.gridId;
 		this.isNew = settings.isNew;
+		this.isSimple = settings.isSimple;
 		this.hiddenProperties = settings.hiddenProperties;
 		this.modifyPropertyLink = settings.modifyPropertyLink;
+		this.productCopyLink = settings.productCopyLink;
 		this.gridEditData = settings.gridEditData;
 		this.canHaveSku = settings.canHaveSku || false;
 		this.storeAmount = settings.storeAmount;
@@ -270,10 +272,18 @@ class VariationGrid
 
 		const addRowButton = document.querySelector('[data-role="catalog-productcard-variation-add-row"]');
 
-		if (Type.isDomNode(addRowButton))
+		if (!Type.isDomNode(addRowButton))
 		{
-			Event.bind(addRowButton, 'click', this.addRowToGrid.bind(this));
+			return;
 		}
+
+		if (this.isSimple)
+		{
+			Event.bind(addRowButton, 'click', this.openSimpleProductRestrictionPopup.bind(this));
+			return;
+		}
+
+		Event.bind(addRowButton, 'click', this.addRowToGrid.bind(this));
 	}
 
 	addCustomClassToGrid()
@@ -341,6 +351,77 @@ class VariationGrid
 		});
 	}
 
+	static #getSimpleProductRestrictionContent()
+	{
+
+		const text = Loc.getMessage(
+			'C_PVG_SIMPLE_PRODUCT_POPUP_TEXT',
+			{
+						'#COPY_BUTTON_NAME#': `<b>${Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_COPY')}</b>`,
+						'#LINK_INFO#': `<a href="">${Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_DOC_LINK_INFO')}</a>`,
+				}
+			);
+
+		const content = Tag.render`<span>${text}</span>`;
+		Event.bind(content.querySelector('a'), 'click', (event)=>{
+			top.BX.Helper.show("redirect=detail&code=16172654");
+			event.preventDefault();
+		});
+
+		return Tag.render`
+			<div class="catalog-simple-popup-wrapper">
+				<h3>${Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_TITLE')}</h3>
+				<div class="catalog-simple-popup-label-text">${content}</div>
+				<div class="catalog-simple-popup-link-block">
+					<a class="ui-link ui-link-primary " target="_blank" href="">
+					</a>
+				</div>
+			</div>
+		`;
+	}
+
+	openSimpleProductRestrictionPopup(event: Event)
+	{
+		event.preventDefault();
+		event.stopPropagation();
+		const id = 'simple-product-restriction';
+		let popup = PopupManager.getPopupById(id);
+
+		if (!popup)
+		{
+			popup = new Popup(
+				{
+					id,
+					width: 400,
+					zIndexOptions: 4000,
+					autoHide: false,
+					draggable: true,
+					overlay: true,
+					className: "bxc-popup-window",
+					content: VariationGrid.#getSimpleProductRestrictionContent(),
+					buttons: [
+						new BX.UI.Button({
+							text : Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_COPY'),
+							color: BX.UI.Button.Color.PRIMARY,
+							onclick: () => {
+								BX.SidePanel.Instance.open(this.productCopyLink);
+							},
+						}),
+						new BX.UI.Button({
+							text : Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_CLOSE'),
+							color: BX.UI.Button.Color.LINK,
+							onclick: () => {
+								popup.close();
+							},
+						}),
+					],
+				}
+			);
+		}
+
+		popup.show();
+	}
+	
 	openStoreAmountPopup(rowId, quantityNode)
 	{
 		const popupId = rowId + '-store-amount';
@@ -647,6 +728,32 @@ class VariationGrid
 			{
 				changed = true;
 				this.activateInlineEdit(item);
+			}
+
+			if (this.isSimple)
+			{
+				item.getNode()
+					?.querySelectorAll('.main-grid-editor.main-dropdown.main-grid-editor-dropdown')
+					.forEach((item) => {
+						const id = item.id;
+						if (Type.isNil(id) || id.indexOf('SKU_GRID_PROPERTY_') === -1)
+						{
+							return;
+						}
+
+						Event.unbindAll(item);
+						Event.bind(item, 'click', this.openSimpleProductRestrictionPopup.bind(this));
+					})
+				;
+
+				item.getNode()
+					?.querySelectorAll('.catalog-productcard-select-container .catalog-productcard-select-block')
+					.forEach((item) => {
+						item.onclick = null;
+						Event.unbindAll(item);
+						Event.bind(item, 'click', this.openSimpleProductRestrictionPopup.bind(this));
+					})
+				;
 			}
 		}
 

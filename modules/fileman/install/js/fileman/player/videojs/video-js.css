@@ -244,7 +244,7 @@
   line-height: 1;
   font-weight: normal;
   font-style: normal;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -342,7 +342,7 @@ body.vjs-full-window {
   color: #fff;
   background-color: #000;
   font-size: 18px;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
   text-align: center;
   width: 300px;
   height: 150px;
@@ -439,7 +439,7 @@ body.vjs-full-window {
   padding: 0;
   margin: 0;
   overflow: auto;
-  font-family: Arial, Helvetica, sans-serif; }
+  font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)); }
 
 .vjs-scrubbing .vjs-menu-button:hover .vjs-menu {
   display: none; }
@@ -472,7 +472,7 @@ body.vjs-full-window {
   line-height: 2em;
   padding: 0;
   margin: 0 0 0.3em 0;
-  font-weight: bold;
+  font-weight: var(--ui-font-weight-bold);
   cursor: default; }
 
 .vjs-menu-button-popup .vjs-menu {
@@ -563,7 +563,7 @@ body.vjs-full-window {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 3.0em;
+  height: 3em;
   background-color: #2B333F;
   background-color: rgba(43, 51, 63, 0.7); }
 
@@ -681,7 +681,7 @@ body.vjs-full-window {
 .video-js .vjs-progress-control:hover .vjs-time-tooltip,
 .video-js .vjs-progress-control:hover .vjs-mouse-display:after,
 .video-js .vjs-progress-control:hover .vjs-play-progress:after {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
   visibility: visible;
   font-size: 0.6em; }
 
@@ -1069,7 +1069,7 @@ video::-webkit-media-text-track-display {
 .vjs-error .vjs-error-display:before {
   color: #fff;
   content: 'X';
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
   font-size: 4em;
   left: 0;
   line-height: 1;

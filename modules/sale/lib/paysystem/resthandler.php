@@ -84,6 +84,16 @@ class RestHandler extends PaySystem\ServiceHandler
 			$requestData = $requestResult->getData();
 			if (empty($requestData['PAYMENT_URL']) || empty($requestData['PAYMENT_ID']))
 			{
+				if (!empty($requestData['PAYMENT_ERRORS']) && is_array($requestData['PAYMENT_ERRORS']))
+				{
+					foreach ($requestData['PAYMENT_ERRORS'] as $error)
+					{
+						$result->addError(new Error($error));
+					}
+
+					return $result;
+				}
+
 				$result->addError(new Error(Loc::getMessage('SALE_HANDLERS_REST_HANDLER_ERROR_DATA_MISSING')));
 				return $result;
 			}

@@ -17,6 +17,8 @@
  * @param CBitrixComponent $this
  */
 
+use Bitrix\Main\Security\Random;
+
 if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)
 	die();
 
@@ -162,10 +164,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["register_submit_button"] 
 		$bConfirmReq = ($arResult["USE_EMAIL_CONFIRMATION"] === "Y");
 		$active = ($bConfirmReq || $arResult["PHONE_REQUIRED"]? "N": "Y");
 
-		$arResult['VALUES']["CHECKWORD"] = md5(CMain::GetServerUniqID().uniqid());
+		$arResult['VALUES']["CHECKWORD"] = Random::getString(32);
 		$arResult['VALUES']["~CHECKWORD_TIME"] = $DB->CurrentTimeFunction();
 		$arResult['VALUES']["ACTIVE"] = $active;
-		$arResult['VALUES']["CONFIRM_CODE"] = ($bConfirmReq? randString(8): "");
+		$arResult['VALUES']["CONFIRM_CODE"] = ($bConfirmReq ? Random::getString(8) : "");
 		$arResult['VALUES']["LID"] = SITE_ID;
 		$arResult['VALUES']["LANGUAGE_ID"] = LANGUAGE_ID;
 

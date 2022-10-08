@@ -26,7 +26,7 @@ class SessionExpander
 		$signer = new Sign\Signer();
 		$signedSessId = $signer->sign($sessid, static::getSalt());
 
-		\CUtil::InitJSCore(['ajax', 'ls']);
+		\CJSCore::Init(['ajax', 'ls']);
 
 		$jsCode = '<script type="text/javascript">'."\n";
 

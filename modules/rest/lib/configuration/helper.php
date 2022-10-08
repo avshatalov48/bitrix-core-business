@@ -208,9 +208,7 @@ class Helper
 	 */
 	public function isBasicManifest($code)
 	{
-		//todo: DONT PUSH!
-		return false;
-		//return (in_array($code, $this->basicManifest)) ? true : false;
+		return (in_array($code, $this->basicManifest)) ? true : false;
 	}
 
 	/**

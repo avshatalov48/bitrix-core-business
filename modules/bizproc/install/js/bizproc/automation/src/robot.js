@@ -5,7 +5,7 @@ import { Template } from './template';
 import { DelayInterval } from './delay-interval';
 import { ViewMode } from './view-mode';
 import { HelpHint } from './help-hint';
-import { ConditionGroup } from 'bizproc.automation';
+import { ConditionGroup, Helper } from 'bizproc.automation';
 import { Tracker } from './tracker/tracker'
 import { TrackingStatus } from './tracker/types';
 
@@ -328,7 +328,7 @@ export class Robot extends EventEmitter
 		const targetLabel = Loc.getMessage('BIZPROC_AUTOMATION_CMP_TO');
 		const targetNode = Dom.create("a", {
 			attrs: {
-				className: "bizproc-automation-robot-settings-name",
+				className: "bizproc-automation-robot-settings-name " + (this.#viewMode.isView() ? '--mode-view' : ''),
 				title: Loc.getMessage('BIZPROC_AUTOMATION_CMP_AUTOMATICALLY')
 			},
 			text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_AUTOMATICALLY')
@@ -380,7 +380,7 @@ export class Robot extends EventEmitter
 				}
 			}
 
-			if (parseInt(this.#data.viewData.responsibleId) > 0)
+			if (this.#viewMode.isEdit() && parseInt(this.#data.viewData.responsibleId) > 0)
 			{
 				targetNode.setAttribute('bx-tooltip-user-id', this.#data.viewData.responsibleId);
 			}
@@ -642,7 +642,7 @@ export class Robot extends EventEmitter
 		this.emit('Robot:title:editStart');
 
 		const self = this;
-		const popup = new BX.PopupWindow(BX.Bizproc.Helper.generateUniqueId(), null, {
+		const popup = new BX.PopupWindow(Helper.generateUniqueId(), null, {
 			titleBar: Loc.getMessage('BIZPROC_AUTOMATION_CMP_ROBOT_NAME'),
 			content: form,
 			closeIcon: true,
@@ -959,6 +959,29 @@ export class Robot extends EventEmitter
 		return this.getTitle() !== 'untitled';
 	}
 
+	hasReturnFields(): boolean
+	{
+		const description = this.template.getRobotDescription(this.#data['Type']);
+		const props = this.#data['Properties'];
+
+		if (!Type.isObject(description))
+		{
+			return false;
+		}
+
+		const hasReturnProperties = () => (
+			Type.isObject(description['RETURN'])
+			&& Type.isArrayFilled(Object.values(description['RETURN']))
+		);
+
+		const hasAdditionalResultProperties = () => (
+			Type.isArray(description['ADDITIONAL_RESULT'])
+			&& description['ADDITIONAL_RESULT'].some(addProperty => Object.values(props[addProperty].length > 0))
+		);
+
+		return hasReturnProperties() || hasAdditionalResultProperties();
+	}
+
 	getReturnFieldsDescription()
 	{
 		const fields = [];
@@ -1008,11 +1031,12 @@ export class Robot extends EventEmitter
 				}
 			}
 		}
+
 		if (description && Type.isArray(description['ADDITIONAL_RESULT']))
 		{
 			const props = this.#data['Properties'];
 
-			description['ADDITIONAL_RESULT'].forEach(addProperty => {
+			description['ADDITIONAL_RESULT'].forEach((addProperty) => {
 				if (props[addProperty])
 				{
 					for (const fieldId in props[addProperty])

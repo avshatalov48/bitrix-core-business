@@ -1,4 +1,4 @@
-(function (exports,ui_vue,main_core_events) {
+(function (exports,ui_fonts_opensans,ui_vue,main_core_events) {
 	'use strict';
 
 	/**
@@ -159,5 +159,5 @@
 	  template: "\n\t\t<div :class=\"['ui-vue-reaction', {'ui-vue-reaction-mobile': isMobile}]\">\n\t\t\t<transition name=\"ui-vue-reaction-result-animation\">\n\t\t\t\t<div v-if=\"isTypesShowed\" class=\"ui-vue-reaction-result\" @click=\"list\">\n\t\t\t\t\t<transition-group tag=\"div\" class=\"ui-vue-reaction-result-types\" name=\"ui-vue-reaction-result-type-animation\" >\n\t\t\t\t\t\t<span v-for=\"element in types\" :class=\"['ui-vue-reaction-result-type', 'ui-vue-reaction-icon-'+element.type]\" :key=\"element.type\"></span>\n\t\t\t\t\t</transition-group>\t\n\t\t\t\t\t<div class=\"ui-vue-reaction-result-counter\">{{counter}}</div>\n\t\t\t\t</div>\n\t\t\t</transition>\n\t\t\t<div v-if=\"userId > 0\"  class=\"ui-vue-reaction-button\" @click.prevent=\"press()\">\n\t\t\t\t<div class=\"ui-vue-reaction-button-container\">\n\t\t\t\t\t<div :class=\"['ui-vue-reaction-button-icon', 'ui-vue-reaction-icon-'+userReaction, {'ui-vue-reaction-button-pressed': buttonAnimate}]\"></div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
-}((this.window = this.window || {}),BX,BX.Event));
+}((this.window = this.window || {}),BX,BX,BX.Event));
 //# sourceMappingURL=reaction.bundle.js.map

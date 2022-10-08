@@ -18,23 +18,22 @@ if($arResult['ERROR_MESSAGE'])
 
 $arServices = $arResult['AUTH_SERVICES_ICONS'];
 
-if ($arResult["IS_ZOOM_ENABLED"])
+$zoomConnected = false;
+if(isset($arResult['DB_SOCSERV_USER']) && $arParams['SHOW_PROFILES'] !== 'N')
 {
-	$zoomConnected = false;
-
-	if(isset($arResult['DB_SOCSERV_USER']) && $arParams['SHOW_PROFILES'] !== 'N')
+	foreach($arResult['DB_SOCSERV_USER'] as $key => $arUser)
 	{
-		foreach($arResult['DB_SOCSERV_USER'] as $key => $arUser)
+		if (($arUser['EXTERNAL_AUTH_ID'] === 'zoom') && in_array($arUser['ID'], $arResult['ALLOW_DELETE_ID'], true))
 		{
-			if (($arUser['EXTERNAL_AUTH_ID'] === 'zoom') && in_array($arUser['ID'], $arResult['ALLOW_DELETE_ID'], true))
-			{
-				$zoomConnected = true;
-				$deleteUrl = htmlspecialcharsbx($arUser['DELETE_LINK']);
-			}
+			$zoomConnected = true;
+			$deleteUrl = htmlspecialcharsbx($arUser['DELETE_LINK']);
 		}
 	}
+}
 
-	if (!$zoomConnected && $arServices['zoom'])
+if ($arServices['zoom'])
+{
+	if (!$zoomConnected)
 	{
 		?>
 		<div class="socserv-auth-split-box socserv-auth-split-color-connect">
@@ -49,7 +48,7 @@ if ($arResult["IS_ZOOM_ENABLED"])
 		</div>
 		<?php
 	}
-	elseif ($zoomConnected && $arServices['zoom'])
+	elseif ($zoomConnected)
 	{?>
 		<div class="socserv-auth-split-box socserv-auth-split-color-disconnect">
 			<div class="socserv-auth-split-left">
@@ -59,8 +58,8 @@ if ($arResult["IS_ZOOM_ENABLED"])
 			</div>
 			<div class="socserv-auth-split-content"><?= Loc::getMessage('SS_PROFILE_ZOOM_CONFERENCE_TITLE') ?></div>
 			<button
-					onclick="if (confirm('<?=Loc::getMessage('SS_PROFILE_DELETE_CONFIRM')?>'))location.href='<?=$deleteUrl?>';"
-					class="socserv-auth-split-btn ui-btn ui-btn-sm ui-btn-light-border">
+				onclick="if (confirm('<?=Loc::getMessage('SS_PROFILE_DELETE_CONFIRM')?>'))location.href='<?=$deleteUrl?>';"
+				class="socserv-auth-split-btn ui-btn ui-btn-sm ui-btn-light-border">
 				<?=Loc::getMessage('SS_PROFILE_ZOOM_DISCONNECT')?>
 			</button>
 		</div>

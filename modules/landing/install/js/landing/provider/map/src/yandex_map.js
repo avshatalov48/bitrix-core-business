@@ -6,6 +6,7 @@ export class YandexMap extends BaseProvider
 	constructor(options: {})
 	{
 		super(options);
+		this.setEventNamespace('BX.Landing.Provider.Map.YandexMap');
 		this.code = 'yandex';
 	}
 
@@ -14,14 +15,12 @@ export class YandexMap extends BaseProvider
 	 */
 	init()
 	{
-		const opts = this.options;
-
 		const controls = ['zoomControl', 'fullscreenControl', 'typeSelector', 'routeButtonControl'];
-		if (opts.fullscreenControl === false)
+		if (this.options.fullscreenControl === false)
 		{
 			controls.splice(controls.indexOf('fullscreenControl'), 1);
 		}
-		if (opts.mapTypeControl === false)
+		if (this.options.mapTypeControl === false)
 		{
 			controls.splice(controls.indexOf('typeSelector'), 1);
 			controls.splice(controls.indexOf('routeButtonControl'), 1);
@@ -30,7 +29,7 @@ export class YandexMap extends BaseProvider
 		this.mapInstance = new ymaps.Map(this.mapContainer, {
 			center: this.convertPointIn(this.mapOptions.center),
 			zoom: this.mapOptions.zoom,
-			behaviors: opts.zoomControl === false ? ['drag'] : ['default'],
+			behaviors: this.options.zoomControl === false ? ['drag'] : ['default'],
 			controls: controls,
 		});
 
@@ -56,6 +55,12 @@ export class YandexMap extends BaseProvider
 		}
 
 		super.init();
+	}
+
+	reinit(options: {})
+	{
+		super.reinit();
+		// Yandex has't changes yet. If some settings will be added later - need implement reinit
 	}
 
 	/**
@@ -155,6 +160,7 @@ export class YandexMap extends BaseProvider
 		}
 
 		this.markers.add(item);
+		this.onChange();
 	}
 
 	onMarkerClick(item): void
@@ -186,7 +192,7 @@ export class YandexMap extends BaseProvider
 		this.markers.remove(event);
 	}
 
-	setZoom(zoom): void
+	setZoom(zoom: number): void
 	{
 		this.mapInstance.setZoom(zoom);
 	}

@@ -2,6 +2,7 @@ import { Tag } from 'main.core';
 import './css/style.css';
 import 'ui.buttons';
 import 'ui.forms';
+import 'ui.fonts.opensans';
 
 export class SidePanelWrapper
 {
@@ -82,7 +83,7 @@ export class SidePanelWrapper
 		wrapper.append(content);
 		wrapper.append(footer);
 
-		BX.SidePanel.Instance.open("mail:side-panel", {
+		BX.SidePanel.Instance.open(config['id'], {
 			id: config['id'],
 			contentCallback: () => new Promise(resolve => resolve(wrapper)),
 			width: 735,

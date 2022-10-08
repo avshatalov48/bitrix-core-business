@@ -275,6 +275,11 @@ abstract class BaseBuilder
 		return 'lang='.urlencode($this->languageId);
 	}
 
+	public function getUrlBuilderIdParam(): string
+	{
+		return 'urlBuilderId='.urlencode($this->id);
+	}
+
 	public function setSliderMode(bool $mode): void
 	{
 		$this->sliderMode = $mode;
@@ -366,7 +371,7 @@ abstract class BaseBuilder
 			&& $listMode != Iblock\IblockTable::LIST_MODE_COMBINED
 		)
 		{
-			$listMode = ((string)Main\Config\Option::get('iblock', 'combined_list_mode') === 'Y'
+			$listMode = (Main\Config\Option::get('iblock', 'combined_list_mode') === 'Y'
 				? Iblock\IblockTable::LIST_MODE_COMBINED
 				: Iblock\IblockTable::LIST_MODE_SEPARATE
 			);
@@ -479,10 +484,7 @@ abstract class BaseBuilder
 
 	protected function getUrlTemplate(string $templateId): ?string
 	{
-		return (isset($this->urlTemplates[$templateId])
-			? $this->urlTemplates[$templateId]
-			: null
-		);
+		return ($this->urlTemplates[$templateId] ?? null);
 	}
 
 	protected function fillUrlTemplate(?string $template, array $replaces): string

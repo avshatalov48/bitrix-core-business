@@ -31,6 +31,12 @@ class CCalendarEventHandlers
 		}
 
 		$CACHE_MANAGER->RegisterTag('calendar_user_'.$userId);
+		$pathToCalendar = CHTTP::urlDeleteParams(CCalendar::GetPathForCalendarEx($userId), [
+			'action',
+			'sessid',
+			'bx_event_calendar_request',
+			'EVENT_ID'
+		]);
 
 		$date_from = CCalendar::Date(time() - date('Z', time()) + CCalendar::GetCurrentOffsetUTC($userId), false);
 		$ts_date_from = CCalendar::Timestamp($date_from) - CCalendar::GetCurrentOffsetUTC($userId);
@@ -43,11 +49,11 @@ class CCalendarEventHandlers
 
 		$arNewEvents = CCalendarEvent::GetList(array(
 			'arFilter' => array(
-				"CAL_TYPE" => 'user',
-				"OWNER_ID" => $userId,
-				"FROM_LIMIT" => $date_from,
-				"TO_LIMIT" => $date_to,
-				"ACTIVE_SECTION" => 'Y'
+				'CAL_TYPE' => 'user',
+				'OWNER_ID' => $userId,
+				'FROM_LIMIT' => $date_from,
+				'TO_LIMIT' => $date_to,
+				'ACTIVE_SECTION' => 'Y'
 			),
 			'arOrder' => Array('DATE_FROM_TS_UTC' => 'asc'),
 			'parseRecursion' => true,
@@ -91,6 +97,10 @@ class CCalendarEventHandlers
 
 				if($params['FULL'])
 				{
+					$eventPath = CHTTP::urlAddParams($pathToCalendar, [
+						'EVENT_ID' => $arEvent['ID'],
+						'EVENT_DATE' => $today
+					]);
 					$arEvents[] = array(
 						'ID' => $arEvent['ID'],
 						'CAL_TYPE' => 'user',
@@ -105,7 +115,8 @@ class CCalendarEventHandlers
 						'ACCESSIBILITY' => $arEvent['ACCESSIBILITY'],
 						'DATE_FROM_TODAY' => $today == ConvertTimeStamp($fromTo['TS_FROM'], 'SHORT'),
 						'DATE_TO_TODAY' => $today == ConvertTimeStamp($fromTo['TS_TO'], 'SHORT'),
-						'SORT' => $fromTo['TS_FROM']
+						'SORT' => $fromTo['TS_FROM'],
+						'EVENT_PATH' => $eventPath
 					);
 				}
 			}

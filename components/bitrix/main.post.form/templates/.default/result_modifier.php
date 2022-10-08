@@ -20,7 +20,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UI\EntitySelector;
 
-__IncludeLang(dirname(__FILE__)."/lang/".LANGUAGE_ID."/result_modifier.php");
+__IncludeLang(__DIR__."/lang/".LANGUAGE_ID."/result_modifier.php");
 
 /********************************************************************
 				Input params
@@ -34,7 +34,7 @@ else
 
 $arParams["LHE"] = (is_array($arParams['~LHE']) ? $arParams['~LHE'] : array());
 $arParams["LHE"]["id"] = (empty($arParams["LHE"]["id"]) ? "idLHE_".$arParams["FORM_ID"] : $arParams["LHE"]["id"]);
-$arParams["LHE"]["jsObjName"] = trim($arParams["LHE"]["jsObjName"]);
+$arParams["LHE"]["jsObjName"] = trim($arParams["LHE"]["jsObjName"] ?? '');
 $arParams["divId"] = (empty($arParams["LHE"]["jsObjName"]) ? $arParams["LHE"]["id"] : $arParams["LHE"]["jsObjName"]);
 $arParams["LHE"]["bInitByJS"] = empty($arParams["TEXT"]["VALUE"]) && $arParams["LHE"]["bInitByJS"] === true;
 $arParams["LHE"]["lazyLoad"] = (
@@ -54,13 +54,13 @@ $arParams["BUTTONS"] = (
 		: $arParams["BUTTONS"]
 );
 $arParams["BUTTONS"] = array_values($arParams["BUTTONS"]);
-$arParams["BUTTONS_HTML"] = is_array($arParams["BUTTONS_HTML"]) ? $arParams["BUTTONS_HTML"] : array();
+$arParams["BUTTONS_HTML"] = isset($arParams["BUTTONS_HTML"]) && is_array($arParams["BUTTONS_HTML"]) ? $arParams["BUTTONS_HTML"] : array();
 
 $arParams["TEXT"] = (is_array($arParams["~TEXT"]) ? $arParams["~TEXT"] : array());
 $arParams["TEXT"]["ID"] = (!empty($arParams["TEXT"]["ID"]) ? $arParams["TEXT"]["ID"] : "POST_MESSAGE");
 $arParams["TEXT"]["NAME"] = (!empty($arParams["TEXT"]["NAME"]) ? $arParams["TEXT"]["NAME"] : "POST_MESSAGE");
-$arParams["TEXT"]["TABINDEX"] = intval($arParams["TEXT"]["TABINDEX"] <= 0 ? 10 : $arParams["TEXT"]["TABINDEX"]);
-$arParams["TEXT"]["~SHOW"] = $arParams["TEXT"]["SHOW"];
+$arParams["TEXT"]["TABINDEX"] = intval(($arParams["TEXT"]["TABINDEX"] ?? 0) <= 0 ? 10 : $arParams["TEXT"]["TABINDEX"]);
+$arParams["TEXT"]["~SHOW"] = $arParams["TEXT"]["SHOW"] ?? '';
 $userOption = CUserOptions::GetOption("main.post.form", "postEdit");
 if(isset($userOption["showBBCode"]) && $userOption["showBBCode"] == "Y")
 	$arParams["TEXT"]["SHOW"] = "Y";
@@ -101,8 +101,8 @@ if (is_array($arParams["ADDITIONAL"]))
 $arParams["UPLOADS_CID"] = array();
 $arParams["UPLOADS_HTML"] = "";
 
-$arParams["DESTINATION"] = (is_array($arParams["DESTINATION"]) && ModuleManager::isModuleInstalled("socialnetwork") ? $arParams["DESTINATION"] : array());
-$arParams["DESTINATION_SHOW"] = (array_key_exists("SHOW", $arParams["DESTINATION"]) ? $arParams["DESTINATION"]["SHOW"] : $arParams["DESTINATION_SHOW"]);
+$arParams["DESTINATION"] = (isset($arParams["DESTINATION"]) && is_array($arParams["DESTINATION"]) && ModuleManager::isModuleInstalled("socialnetwork") ? $arParams["DESTINATION"] : array());
+$arParams["DESTINATION_SHOW"] = (array_key_exists("SHOW", $arParams["DESTINATION"]) ? $arParams["DESTINATION"]["SHOW"] : ($arParams["DESTINATION_SHOW"] ?? ''));
 $arParams["DESTINATION_SHOW"] = ($arParams["DESTINATION_SHOW"] == "Y" ? "Y" : "N");
 $arParams["DESTINATION_USE_CLIENT_DATABASE"] = (
 	array_key_exists("USE_CLIENT_DATABASE", $arParams["DESTINATION"])
@@ -225,7 +225,7 @@ if (
 	);
 }
 
-$arParams["TAGS"] = (is_array($arParams["TAGS"]) ? $arParams["TAGS"] : array());
+$arParams["TAGS"] = (isset($arParams["TAGS"]) && is_array($arParams["TAGS"]) ? $arParams["TAGS"] : array());
 if (!empty($arParams["TAGS"]))
 {
 	$arParams["TAGS"]["VALUE"] = (is_array($arParams["TAGS"]["VALUE"]) ? $arParams["TAGS"]["VALUE"] : array());
@@ -270,7 +270,7 @@ if (array_key_exists("SMILES", $arParams))
 	}
 }
 
-$arParams["CUSTOM_TEXT"] = (is_array($arParams["CUSTOM_TEXT"]) ? $arParams["CUSTOM_TEXT"] : array());
+$arParams["CUSTOM_TEXT"] = (isset($arParams["CUSTOM_TEXT"]) && is_array($arParams["CUSTOM_TEXT"]) ? $arParams["CUSTOM_TEXT"] : array());
 $arParams["CUSTOM_TEXT_HASH"] = (!empty($arParams["CUSTOM_TEXT"]) ? md5(implode("", $arParams["CUSTOM_TEXT"])) : "");
 
 $arParams["IMAGE_THUMB"] = array("WIDTH" => 90, "HEIGHT" => 90);

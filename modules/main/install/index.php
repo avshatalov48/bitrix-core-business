@@ -106,8 +106,8 @@ class main extends CModule
 
 		RegisterModule("main");
 		RegisterModuleDependences('iblock', 'OnIBlockPropertyBuildList', 'main', 'CIBlockPropertyUserID', 'GetUserTypeDescription', 100, '/modules/main/tools/prop_userid.php');
-		RegisterModuleDependences('main', 'OnUserDelete','main', 'CFavorites','OnUserDelete', 100, "/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
-		RegisterModuleDependences('main', 'OnLanguageDelete','main', 'CFavorites','OnLanguageDelete', 100, "/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
+		RegisterModuleDependences('main', 'OnUserDelete','main', 'CFavorites','OnUserDelete', 100, "/modules/main/classes/mysql/favorites.php");
+		RegisterModuleDependences('main', 'OnLanguageDelete','main', 'CFavorites','OnLanguageDelete', 100, "/modules/main/classes/mysql/favorites.php");
 		RegisterModuleDependences('main', 'OnUserDelete','main', 'CUserOptions','OnUserDelete');
 		RegisterModuleDependences('main', 'OnChangeFile','main', 'CMain','OnChangeFileComponent');
 		RegisterModuleDependences('main', 'OnUserTypeRightsCheck','main', 'CUser','UserTypeRightsCheck');
@@ -222,13 +222,9 @@ class main extends CModule
 		self::InstallSmiles();
 
 		/* geolocation handlers */
-		if(function_exists('geoip_db_avail')) //if available php geoip extension
-		{
-			GeoIp\HandlerTable::add(array('SORT' => 90, 'ACTIVE' => 'Y', 'CLASS_NAME' => '\Bitrix\Main\Service\GeoIp\Extension'));
-		}
-
-		GeoIp\HandlerTable::add(array('SORT' => 100, 'ACTIVE' => 'N', 'CLASS_NAME' => '\Bitrix\Main\Service\GeoIp\MaxMind'));
-		GeoIp\HandlerTable::add(array('SORT' => 110, 'ACTIVE' => 'Y', 'CLASS_NAME' => '\Bitrix\Main\Service\GeoIp\SypexGeo'));
+		GeoIp\HandlerTable::add(array('SORT' => 100, 'ACTIVE' => 'Y', 'CLASS_NAME' => '\\Bitrix\\Main\\Service\\GeoIp\\GeoIP2'));
+		GeoIp\HandlerTable::add(array('SORT' => 110, 'ACTIVE' => 'N', 'CLASS_NAME' => '\\Bitrix\\Main\\Service\\GeoIp\\MaxMind'));
+		GeoIp\HandlerTable::add(array('SORT' => 120, 'ACTIVE' => 'N', 'CLASS_NAME' => '\\Bitrix\\Main\\Service\\GeoIp\\SypexGeo'));
 
 		return true;
 	}
@@ -327,6 +323,7 @@ class main extends CModule
 		$arLanguages = array(
 			array(
 				"LID" => LANGUAGE_ID,
+				"CODE" => GetMessage("MAIN_DEFAULT_LANGUAGE_CODE"),
 				"ACTIVE" => "Y",
 				"SORT" => 1,
 				"DEF" => "Y",
@@ -366,6 +363,7 @@ class main extends CModule
 
 			$arLanguages[] = array(
 				"LID" => "en",
+				"CODE" => "en",
 				"ACTIVE" => "Y",
 				"SORT" => 2,
 				"DEF" => "N",
@@ -405,6 +403,7 @@ class main extends CModule
 
 			$arLanguages[] = array(
 				"LID" => "de",
+				"CODE" => "de",
 				"ACTIVE" => "Y",
 				"SORT" => 3,
 				"DEF" => "N",
@@ -444,6 +443,7 @@ class main extends CModule
 
 			$arLanguages[] = array(
 				"LID" => "ua",
+				"CODE" => "uk",
 				"ACTIVE" => "Y",
 				"SORT" => 4,
 				"DEF" => "N",
@@ -483,6 +483,7 @@ class main extends CModule
 
 			$arLanguages[] = array(
 				"LID" => "ru",
+				"CODE" => "ru",
 				"ACTIVE" => "Y",
 				"SORT" => 3,
 				"DEF" => "N",
@@ -1525,6 +1526,13 @@ class main extends CModule
 				'DESCRIPTION' => GetMessage("MAIN_INSTALL_EVENT_TYPE_USER_CODE_REQUEST_DESC"),
 				'SORT'        => 10,
 			);
+			$arEventTypes[] = array(
+				'LID'         => $lid,
+				'EVENT_NAME'  => 'NEW_DEVICE_LOGIN',
+				'NAME'        => GetMessage('MAIN_INSTALL_EVENT_TYPE_NEW_DEVICE_LOGIN'),
+				'DESCRIPTION' => GetMessage('MAIN_INSTALL_EVENT_TYPE_NEW_DEVICE_LOGIN_DESC'),
+				'SORT'        => 11,
+			);
 
 			//sms types
 			$arEventTypes[] = array(
@@ -1647,6 +1655,15 @@ class main extends CModule
 			"EMAIL_TO" => "#EMAIL#",
 			"SUBJECT" => GetMessage("MAIN_INSTALL_EVENT_MESS_USER_CODE_REQUEST"),
 			"MESSAGE" => GetMessage("MAIN_INSTALL_EVENT_MESS_USER_CODE_REQUEST_MESS"),
+		);
+		$arMessages[] = array(
+			"EVENT_NAME" => "NEW_DEVICE_LOGIN",
+			"LID" => "s1",
+			"LANGUAGE_ID" => LANGUAGE_ID,
+			"EMAIL_FROM" => "#DEFAULT_EMAIL_FROM#",
+			"EMAIL_TO" => "#EMAIL#",
+			"SUBJECT" => GetMessage('MAIN_INSTALL_EVENT_MESSAGE_NEW_DEVICE_LOGIN_SUBJECT'),
+			"MESSAGE" => GetMessage('MAIN_INSTALL_EVENT_MESSAGE_NEW_DEVICE_LOGIN'),
 		);
 
 		$message = new CEventMessage;

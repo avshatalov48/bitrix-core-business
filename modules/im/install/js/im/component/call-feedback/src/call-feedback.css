@@ -26,7 +26,8 @@
 }
 
 .bx-im-call-feedback-header-title {
-    font: 20px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
     color: #525C69;
 }
 
@@ -54,7 +55,8 @@
 }
 
 .bx-im-call-feedback-content-title {
-    font: 18px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
     color: #333;
     margin-bottom: 17px;
     text-align: center;
@@ -193,13 +195,13 @@
     width: 274px;
     height: 80px;
     resize: none;
-    font: 400 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 400 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     color: #535C69;
     border: 1px solid #C6CDD3;
 }
 
 .bx-im-call-feedback-problem-description::placeholder {
-    font: 400 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 400 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     color: #535C69;
 }
 
@@ -245,7 +247,8 @@
 }
 
 .bx-im-call-feedback-filled-text {
-    font: 18px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
     color: #525C69;
     text-align: center;
 }

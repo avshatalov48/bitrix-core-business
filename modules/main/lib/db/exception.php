@@ -15,7 +15,7 @@ class Exception extends \Bitrix\Main\SystemException
 	/**
 	 * @param string $message Application message.
 	 * @param string $databaseMessage Database reason.
-	 * @param \Exception $previous The previous exception used for the exception chaining.
+	 * @param \Exception | null $previous The previous exception used for the exception chaining.
 	 */
 	public function __construct($message = "", $databaseMessage = "", \Exception $previous = null)
 	{

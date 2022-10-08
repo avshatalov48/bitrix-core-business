@@ -11,7 +11,7 @@
 	-webkit-box-direction: normal;
 	    -ms-flex-direction: row;
 	        flex-direction: row;
-	font: 14px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	position: relative;
 	margin-top: 2px;
 }
@@ -107,7 +107,7 @@
 }
 
 .bx-im-element-attach-type-display-block .bx-im-element-attach-type-grid-element-name {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bx-im-element-attach-type-display-block + .bx-im-element-attach-type-display-block {
@@ -128,7 +128,7 @@
 }
 
 .bx-im-element-attach-type-display-column-table .bx-im-element-attach-type-grid-element-name {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 20px;
 	vertical-align: top;
 	padding-right: 10px;
@@ -155,7 +155,7 @@
 }
 
 .bx-im-element-attach-type-display-card .bx-im-element-attach-type-grid-element-name {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bx-im-element-attach-type-display-card + .bx-im-element-attach-type-display-card {
@@ -237,7 +237,7 @@
 }
 
 .bx-im-element-attach-type-user {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 .bx-im-element-attach-type-user-body {
 	display: -webkit-box;

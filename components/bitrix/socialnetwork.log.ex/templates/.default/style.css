@@ -1,8 +1,8 @@
 .feed-post-block.feed-wrap,
 .feed-item-wrap {
-	color: #2e2e2e;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 14px;
+	color: #151515;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-size: 14.5px;
 	transition: opacity .5s, transform .5s, height .5s;
 	will-change: opacity, transform, height;
 	-webkit-backface-visibility: hidden;
@@ -13,19 +13,23 @@
 	position: relative;
 	margin-bottom: 15px;
 	z-index: 1;
-	border-radius: var(--feed-item-wrap-border-radius, var(--ui-border-radius-md, 0));
+	border-radius: var(--feed-post-block-border-radius, var(--ui-border-radius-md, 0));
 }
 
 .feed-stub {
 	margin-bottom: 15px;
 }
 
+.feed-stub-svg {
+	border-radius: var(--feed-post-block-border-radius, var(--ui-border-radius-md, 0));
+}
+
 .feed-stub-rect {
-	rx: var(--feed-stub-rect-border-radius, var(--ui-border-radius-md, 0));
+	rx: var(--feed-post-block-border-radius, var(--ui-border-radius-md, 0));
 }
 
 .feed-wrap-empty-wrap {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 26px;
 	color: #d5d6d9;
 	text-align: center;
@@ -61,13 +65,18 @@
 }
 
 .feed-add-post-block {
-	border-radius: var(--feed-add-post-block-border-radius, var(--ui-border-radius-md, 0));
+	border-radius: var(--feed-post-block-border-radius, var(--ui-border-radius-md, 0));
+}
+
+.bitrix24-default-theme.start-page .feed-add-post-block {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 
 .feed-add-post-title {
 	border-bottom: 1px solid #f0f1f2;
 	color: #9c9c9c;
-	font-size: 14px;
+	font-size: 14.5px;
 	height: 26px;
 	margin: 0;
 	padding: 13px 12px 14px 22px;
@@ -91,7 +100,8 @@
 	background: none repeat 0 0 #fff;
 	border: none;
 	color: #80868e;
-	font-family: 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 18px;
 	height: 26px;
 	outline: medium none;
@@ -138,6 +148,7 @@
 	position: relative;
 	padding: 19px 15px 16px;
 	text-align: center;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .feed-com-add-box .feed-add-successfully,
@@ -309,11 +320,10 @@
 	background: url("images/log/live_feed_sprite_6.png?3") no-repeat 500px -5000px;
 	color: #5c6470;
 	float: left;
-	font-size: 12px;
-	font-weight: bold;
+	font-size: 13px;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 20px;
 	overflow: hidden;
-	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .feed-add-post-files-block .feed-add-post-files-title {
@@ -525,7 +535,7 @@
 .feed-add-post-files-text {
 	color: #2067b0;
 	display: block;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	position: relative;
 }
 
@@ -652,12 +662,11 @@
 	border-radius: 5px;
 	color: #a0aeb5;
 	font-size: 17px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 26px;
 	margin: 20px 0 10px;
 	padding: 24px 3px 43px 191px;
 	position: relative;
-	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .feed-add-post-load-place-active {
@@ -777,7 +786,7 @@
 	color: #2067b0;
 	display: block;
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-top: 3px;
 }
 
@@ -827,7 +836,7 @@
 	cursor: pointer;
 	display: inline-block;
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	height: 47px;
 	line-height: 47px;
 	margin: 10px 15px 0 0;
@@ -866,9 +875,8 @@
 .feed-add-post-load {
 	color: #5c6470;
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin: 10px 0 0 57px;
-	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .feed-add-button-transparent {
@@ -1013,7 +1021,7 @@
 	display: none;
 	overflow: hidden;
 	height: 230px;
-	border-radius: var(--feed-new-message-inf-wrap-border-radius, var(--ui-border-radius-md));
+	border-radius: var(--feed-post-block-border-radius, var(--ui-border-radius-md));
 }
 
 .feed-new-message-inf-wrap-first a {
@@ -1032,7 +1040,7 @@
 
 .feed-new-message-inf-bottom {
 	background-color: #fff;
-	border-radius: var(--feed-new-message-inf-bottom-border-radius, var(--ui-border-radius-md, 2px));
+	border-radius: var(--feed-post-block-border-radius, var(--ui-border-radius-md, 2px));
 	color: #0b66c3;
 	cursor: pointer;
 	display: block;
@@ -1110,7 +1118,7 @@
 .feed-new-message-inf-text {
 	display: inline-block;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 33px;
 }
 
@@ -1147,6 +1155,7 @@
 	padding-bottom: 5px;
 	min-height: 87px;
 	position: relative;
+	border-radius: var(--feed-post-block-border-radius, var(--ui-border-radius-md));
 }
 
 .feed-item-wrap .feed-post-block {
@@ -1319,7 +1328,7 @@
 	color: #2067b0;
 	display: inline-block;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin: 0 4px 0 0;
 	vertical-align: middle;
 }
@@ -1343,7 +1352,6 @@ a.feed-post-user-name:hover {
 	margin: 0;
 	overflow: hidden;
 	padding: 12px 0 1px;
-	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 	vertical-align: top;
 }
 
@@ -1367,7 +1375,7 @@ a.feed-post-user-name:hover {
 
 .feed-post-item .feed-add-post-destination-title {
 	background: none repeat 0 0;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 0 8px 0 0;
 	position: relative;
 }
@@ -1387,7 +1395,7 @@ a.feed-post-user-name:hover {
 .feed-add-post-destination-prefix {
 	border-bottom: 1px solid transparent;
 	color: #5a9322;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	vertical-align: middle;
 }
 
@@ -1413,10 +1421,10 @@ a.feed-post-user-name:hover {
 
 .feed-post-title {
 	border-bottom: 1px solid transparent;
-	color: #000 !important;
+	color: #333 !important;
 	display: inline;
-	font-size: 14px;
-	font-weight: bold;
+	font-size: 14.5px;
+	font-weight: var(--ui-font-weight-bold);
 	text-decoration: none;
 	vertical-align: top;
 }
@@ -1619,10 +1627,10 @@ a.feed-post-title:hover {
 }
 
 .feed-post-text-block {
-	color: #2e2e2e;
+	color: #151515;
 	margin: 0 -18px 0 -70px;
 	min-height: 47px;
-	line-height: 20px;
+	line-height: var(--ui-font-line-height-md, 20px);
 	overflow: hidden;
 	padding: 0 28px 3px 70px;
 	position: relative;
@@ -1932,7 +1940,7 @@ span.feed-add-post-destination-new:hover {
 .feed-post-block-pinned .feed-inform-item,
 .feed-post-block-pinned .feed-inform-item a {
 	align-items: center;
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgb(155,162,170);
 }
 
@@ -2093,7 +2101,7 @@ a.feed-post-more-link:hover {
 	color: #535c68;
 	float: left;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	min-width: 50px;
 	margin-top: 2px;
 }
@@ -2462,7 +2470,6 @@ a.feed-post-more-link:hover {
 .feed-user-name-wrap {
 	display: inline-block;
 	line-height: 14px;
-	text-shadow: none;
 	vertical-align: middle;
 	width: 58%;
 }
@@ -2475,7 +2482,7 @@ a.feed-post-more-link:hover {
 	border-bottom: 1px solid transparent;
 	color: #0b66c3;
 	display: inline-block;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -2516,7 +2523,7 @@ a.feed-post-more-link:hover {
 }
 
 .feed-workday-comments {
-	font-size: 12px;
+	font-size: 14px;
 	line-height: 13px;
 	margin: 10px 0 0;
 }
@@ -2599,8 +2606,8 @@ a.feed-post-more-link:hover {
 	line-height: 54px;
 	color: #FFFFFF;
 	text-align: center;
-	font-family: 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-	font-weight: bold;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .feed-post-block-new .feed-post-block-colored + .urlpreview {
@@ -2634,11 +2641,10 @@ a.feed-post-more-link:hover {
 .feed-post-info-cont {
 	display: inline-block;
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 16px;
 	padding-left: 23px;
 	position: relative;
-	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .feed-post-info-icon {
@@ -2689,7 +2695,7 @@ a.feed-post-more-link:hover {
 
 .feed-new-employee .feed-workday-user-position {
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding-top: 0;
 }
 
@@ -2749,7 +2755,7 @@ a.feed-post-more-link:hover {
 }
 
 .feed-quote-block pre {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin: 0;
 	overflow-x: auto;
 }
@@ -2911,7 +2917,7 @@ a.feed-post-more-link:hover {
 }
 
 .popup-window-content-transport-div-title, .popup-window-content-visible-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .popup-window-content-visible-sep {
@@ -3022,7 +3028,7 @@ a.popup-window-content-row-text {
 
 .transport-popup-list-item-text {
 	color: #494949;
-	font: 12px/19px Arial, Helvetica, sans-serif;
+	font: 12px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin: 0 5px;
 }
 
@@ -3112,19 +3118,20 @@ a.popup-window-content-row-text {
 
 .feed-post-block table.forum-quote th, .feed-post-block table.forum-code th, .feed-post-text table.quote th .feed-post-text table.code th, .feed-com-text table.forum-quote th, .feed-com-text table.forum-code th {
 	display: none;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 0.25em 1em;
 	text-align: left;
 }
 
 .feed-post-block table.forum-quote td, .feed-post-block table.forum-code td, .feed-post-text table.quote td, .feed-post-text table.code td, .feed-com-text table.forum-quote td, .feed-com-text table.forum-code td {
-	padding: 4px 40px 8px 27px;
+	padding: 8px 40px 8px 27px;
 	height: 18px;
 }
 
 .feed-post-block table.forum-code td pre, .feed-post-text table.code td pre, .feed-com-text table.forum-code td pre {
-	font-family: "Courier New";
+	font-family: var(--ui-font-family-system-mono, Consolas, monospace);
 	white-space: pre-wrap;
+	margin: 0;
 }
 
 .feed-post-block table.forum-quote th, .feed-post-block table.forum-code th, .feed-post-text table.quote th, .feed-post-text table.code th, .feed-com-text table.forum-quote th, .feed-com-text table.forum-code th,
@@ -3145,12 +3152,12 @@ a.popup-window-content-row-text {
 }
 
 .feed-post-text table.blogcode td {
-	font-family: "Courier New";
+	font-family: var(--ui-font-family-system-mono, Consolas, monospace);
 	white-space: pre-wrap;
 }
 
 .feed-post-text table.blogcode pre {
-	font-family: "Courier New";
+	font-family: var(--ui-font-family-system-mono, Consolas, monospace);
 	font-size: 12px;
 	line-height: 15px;
 	margin: 0;
@@ -3163,7 +3170,7 @@ a.popup-window-content-row-text {
 
 textarea#sonet_log_comment_text {
 	border: 1px solid #dfdfdf;
-	font: 11px Verdana, Arial, Helvetica, sans-serif;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	height: auto;
 	margin-bottom: 5px;
 	overflow: hidden;
@@ -3305,39 +3312,42 @@ table.forum-spoiler thead {
 }
 
 table.forum-spoiler thead div {
-	background-image: url("images/plus.gif");
-	background-position: left center;
+	background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M10 16.693a6.693 6.693 0 1 0 0-13.386 6.693 6.693 0 0 0 0 13.386Zm0-1.46a5.232 5.232 0 1 0 0-10.465 5.232 5.232 0 0 0 0 10.464Zm-.833-6.066v-2.5h1.666v2.5h2.5v1.666h-2.5v2.5H9.167v-2.5h-2.5V9.167h2.5Z' fill='%23525C69' opacity='.5'/%3E%3C/svg%3E");
+	background-position: 5px;
 	background-repeat: no-repeat;
-	padding-left: 15px;
+	padding-left: 27px;
 }
 
 table.forum-spoiler thead.forum-spoiler-head-open div {
-	background-image: url("images/minus.gif");
+	background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M16.693 10a6.693 6.693 0 1 1-13.386 0 6.693 6.693 0 0 1 13.386 0Zm-1.46 0a5.232 5.232 0 1 1-10.465 0 5.232 5.232 0 0 1 10.464 0Zm-1.9-.833H6.667v1.666h6.666V9.167Z' fill='%23525C69' opacity='.5'/%3E%3C/svg%3E");
 }
 
 table.forum-spoiler {
-	border-color: #dedede;
-	margin: 0.5em 0 0;
+	border-color: #e0e2e3;
+	margin: 0.6em 20px 0.6em 0;
 	width: 95%;
+	background-color: #F3F6F7;
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 8px;
 }
 
 table.forum-spoiler td {
-	/*background: none repeat 0 0 #fff !important;*/
 	color: #6a6a6a;
-	padding: 0.9em 2em;
+	padding: 0 40px 10px 27px;
+	word-break: break-word;
+	overflow-x: auto;
 }
 
 table.forum-spoiler th {
-	background: none repeat 0 0 #ebebeb !important;
 	color: #636363;
 	font-size: 12px;
-	font-weight: bold;
-	padding: 0.25em 1em;
+	font-weight: var(--ui-font-weight-bold);
+	padding: 8px 40px 8px 0;
 	text-align: left;
 }
 
 table.forum-spoiler {
-	border-collapse: collapse;
 	border-style: solid;
 	border-width: 1px;
 	font-size: 1em;
@@ -3376,7 +3386,7 @@ table.quote td {
 	box-shadow: 0 1px 2px rgba(185, 185, 185, 0.5) inset;
 	box-sizing: border-box;
 	color: #474747;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	height: 29px;
 	padding: 0 0 0 8px;
@@ -3397,7 +3407,7 @@ form.comments-form .feed-add-post-buttons {
 	color: #599018;
 	display: inline-block;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-right: 3px;
 	vertical-align: middle;
 }
@@ -3423,7 +3433,7 @@ form.comments-form .feed-add-post-buttons {
 table.crm-feed-info-table tr .crm-feed-info-left-cell {
 	color: #585858;
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	height: 17px;
 	padding: 0 20px 5px 0;
 	text-align: left;
@@ -3465,7 +3475,7 @@ table.crm-feed-info-table tr .crm-feed-info-right-cell {
 .crm-feed-info-name {
 	color: #000;
 	font-size: 15px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .crm-feed-info-text {
@@ -3491,7 +3501,6 @@ table.crm-feed-info-table tr .crm-feed-info-right-cell {
 	padding: 6px 7px 0 28px;
 	position: relative;
 	text-align: center;
-	text-shadow: 0 1px #fff;
 }
 
 .bx-crm-filter-btn {
@@ -3548,7 +3557,7 @@ table.crm-feed-info-table tr .crm-feed-info-right-cell {
 	cursor: pointer;
 	display: inline-block;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin: 6px 15px 0;
 	vertical-align: top;
 }
@@ -3597,7 +3606,7 @@ table.crm-feed-info-table tr .crm-feed-info-right-cell {
 
 .feed-post-title.crm-feed-activity-status i {
 	font-style: normal;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .crm-post-deal-wrap {
@@ -3663,7 +3672,7 @@ table.crm-feed-info-table tr .crm-feed-info-right-cell {
 
 .crm-feed-client-block {
 	background-color: #f0f5f6;
-	border-radius: 3px;
+	border-radius: var(--ui-border-radius-xs, 3px);
 	display: block;
 	margin-bottom: 5px;
 	min-height: 42px;
@@ -3803,6 +3812,7 @@ a.crm-feed-client-company:hover {
 	bottom: 0;
 	background: rgba(235,241,244,.45);
 	z-index: 100;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .log-internal-nomask {
@@ -4082,13 +4092,13 @@ a.crm-feed-client-company:hover {
 }
 
 .feed-notification-title {
-	font: 18px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 18px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 	margin-bottom: 7px;
 }
 
 .feed-notification-description {
-	font: 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525C69;
 }
 
@@ -4212,7 +4222,7 @@ a.crm-feed-client-company:hover {
 	display: block;
 	margin-right: 5px;
 	max-width: 100%;
-	font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 14.5px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgb(71,71,71);
 	white-space: nowrap;
 	text-overflow: ellipsis;
@@ -4237,7 +4247,7 @@ a.crm-feed-client-company:hover {
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
-	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14.5px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .feed-post-pinned-desc {
@@ -4265,7 +4275,7 @@ a.crm-feed-client-company:hover {
 
 .feed-post-pinned-link {
 	display: none;
-	font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(82,92,105,.5);
 	transition: color .3s;
 	top: 16px;
@@ -4309,7 +4319,7 @@ a.crm-feed-client-company:hover {
 
 .feed-post-pinned-link-blue {
 	border-bottom: 1px dashed rgba(8,153,213,.41);
-	font: bold 10px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 10px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #009fd1;
 	text-transform: uppercase;
 	transition: border-bottom .3s;
@@ -4339,7 +4349,7 @@ a.crm-feed-client-company:hover {
 }
 
 .feed-inform-comments-pinned-new-value {
-	font: bold 11px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 11px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #FFFFFF;
 	vertical-align: middle;
 }
@@ -4373,7 +4383,7 @@ a.crm-feed-client-company:hover {
 	min-height: 50px;
 	background-color: #fff;
 	box-sizing: border-box;
-	border-radius: var(--feed-post-collapsed-panel-border-radius, var(--ui-border-radius-md));
+	border-radius: var(--feed-post-block-border-radius, var(--ui-border-radius-md));
 	transition: opacity .5s;
 	opacity: 0;
 	will-change: opacity;
@@ -4401,8 +4411,8 @@ a.crm-feed-client-company:hover {
 	transform: translateX(-50%);
 	opacity: .7;
 	z-index: 2;
-	border-bottom-left-radius: var(--ui-border-radius-2xs);
-	border-bottom-right-radius: var(--ui-border-radius-2xs);
+	border-bottom-left-radius: var(--ui-border-radius-md);
+	border-bottom-right-radius: var(--ui-border-radius-md);
 }
 
 .feed-post-collapsed-panel:after {
@@ -4466,7 +4476,7 @@ a.crm-feed-client-company:hover {
 
 .feed-post-collapsed-panel-txt-grey {
 	display: inline-block;
-	font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525C69;
 	white-space: nowrap;
 	overflow: hidden;
@@ -4475,7 +4485,7 @@ a.crm-feed-client-company:hover {
 }
 
 .feed-post-collapsed-panel-txt-grey--light {
-	font: 13px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	opacity: .5;
 }
 
@@ -4484,7 +4494,7 @@ a.crm-feed-client-company:hover {
 }
 
 .feed-post-collapsed-panel-count {
-	font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif bold;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) var(--ui-font-weight-bold);
 	color: #525C69;
 	margin-left: 3px;
 }
@@ -4503,7 +4513,7 @@ a.crm-feed-client-company:hover {
 }
 
 .feed-post-collapsed-panel-count-comments-value {
-	font: bold 11px/13px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 11px/13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #FFFFFF;
 	vertical-align: middle;
 }
@@ -4524,6 +4534,7 @@ a.crm-feed-client-company:hover {
 	margin-bottom: 15px;
 	background-color: rgba(255,255,255,.9);
 	transition: opacity .5s, height .5s;
+	border-radius: var(--feed-post-block-border-radius, var(--ui-border-radius-md, 0));
 	opacity: 0;
 	overflow: hidden;
 	will-change: opacity, height;
@@ -4559,7 +4570,7 @@ a.crm-feed-client-company:hover {
 	align-items: center;
 	justify-content: center;
 	flex-grow: 1;
-	font: 14px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c69;
 	overflow: hidden;
 }
@@ -4569,7 +4580,7 @@ a.crm-feed-client-company:hover {
 	display: inline-block;
 	padding-left: 19px;
 	margin-right: 5px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	max-width: 100%;
 	white-space: nowrap;
 	text-overflow: ellipsis;

@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
-(function (exports,main_core,catalog_skuTree,main_core_events) {
+(function (exports,ui_designTokens,main_core,catalog_skuTree,main_core_events) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7;
@@ -516,5 +516,5 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	exports.SkuTree = SkuTree;
 
-}((this.BX.Catalog.SkuTree = this.BX.Catalog.SkuTree || {}),BX,BX.Catalog.SkuTree,BX.Event));
+}((this.BX.Catalog.SkuTree = this.BX.Catalog.SkuTree || {}),BX,BX,BX.Catalog.SkuTree,BX.Event));
 //# sourceMappingURL=sku-tree.bundle.js.map

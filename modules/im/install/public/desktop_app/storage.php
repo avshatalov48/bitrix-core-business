@@ -64,12 +64,12 @@ catch (\Throwable $e)
 		$exceptionHandler->writeToLog($e);
 	}
 
-
-	/** @global \CMain $APPLICATION */
 	global $APPLICATION;
-
-	$APPLICATION->RestartBuffer();
-	while(ob_end_clean());
+	if ($APPLICATION instanceof \CMain)
+	{
+		$APPLICATION->RestartBuffer();
+		while(ob_end_clean());
+	}
 
 	Application::getInstance()->end(0, AjaxJson::createError($errorCollection));
 }

@@ -5,7 +5,13 @@ use Bitrix\Main\Localization\Loc;
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "") . "no-all-paddings no-background");
 \Bitrix\Main\UI\Extension::load([
-	"ui.buttons", "ui.icons", "ui.forms", "ui.buttons.icons", "seo.seoadbuilder",
+	"ui.design-tokens",
+	"ui.fonts.opensans",
+	"ui.buttons",
+	"ui.icons",
+	"ui.forms",
+	"ui.buttons.icons",
+	"seo.seoadbuilder",
 ]);
 
 \CJSCore::Init("loader");

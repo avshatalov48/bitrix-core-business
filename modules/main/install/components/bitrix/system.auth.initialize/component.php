@@ -15,6 +15,8 @@
  * @param CBitrixComponent $this
  */
 
+use Bitrix\Main\Security\Password;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 
@@ -65,14 +67,12 @@ else
 			$arResult["MESSAGE_CODE"][] = "E03";
 		}
 
-		$salt = mb_substr($arResult["USER"]["CHECKWORD"], 0, 8);
-
 		if($arResult["~CHECKWORD"] == '')
 		{
 			$arResult["MESSAGE_TEXT"] .= GetMessage("CC_MAIN_REG_INIT_MESSAGE_CHECKWORD_EMPTY")."<br>";
 			$arResult["MESSAGE_CODE"][] = "E04";
 		}
-		elseif($arResult["USER"]["CONFIRM_CODE"] != $arResult["~CHECKWORD"] && $arResult["USER"]["CHECKWORD"] != $salt.md5($salt.$arResult["~CHECKWORD"]))
+		elseif($arResult["USER"]["CONFIRM_CODE"] != $arResult["~CHECKWORD"] && !Password::equals($arResult["USER"]["CHECKWORD"], $arResult["~CHECKWORD"]))
 		{
 			$arResult["MESSAGE_TEXT"] .= GetMessage("CC_MAIN_REG_INIT_MESSAGE_CHECKWORD_WRONG");
 			$arResult["MESSAGE_CODE"][] = "E05";

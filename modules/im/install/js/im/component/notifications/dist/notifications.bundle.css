@@ -41,6 +41,7 @@
 	overflow-y: auto;
 	overflow-x: hidden;
 	position: absolute;
+	will-change: transform;
 }
 
 .bx-im-notifications-header-image {
@@ -179,11 +180,15 @@
 
 .bx-messenger-dark .bx-im-notifications-header-filter-box .ui-ctl-element {
     border: 1px solid #505152;
+	background: #313131;
+	color: #c3c3c3;
 }
 
 .bx-messenger-next-notify a {
 	text-decoration: none;
-	font: 14px "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-size: var(--ui-font-size-lg, 14px);
+	line-height: var(--ui-font-line-height-2xs);
 }
 
 .popup-window-content .bx-messenger-confirm {
@@ -248,7 +253,7 @@
 }
 .bx-im-notifications-scroll-button-counter-digit {
 	display: inline-block;
-	font: 11px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 11px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #fff;
 	padding: 0 5px 0 5px;
 	border: 2px solid #fff;
@@ -383,7 +388,7 @@
 	-webkit-box-align: center;
 	    -ms-flex-align: center;
 	        align-items: center;
-	font: 13px/17px "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font: 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #b3b3b3;
 	padding: 0 5px 0 10px;
 	margin-top: -1px;
@@ -395,6 +400,7 @@
 	display: flex;
 	max-width: 75%;
 	font-size: 14px;
+	font-weight: var(--ui-font-weight-semi-bold);
 }
 
 .bx-im-notifications-item-header-more-users {
@@ -493,8 +499,9 @@
 	-webkit-box-align: center;
 	    -ms-flex-align: center;
 	        align-items: center;
-	color: #777;
-	font-size: 14px;
+	color: #151515;
+	font-size: var(--ui-font-size-lg, 14px);
+	line-height: var(--ui-font-line-height-2xs);
 }
 
 .bx-vue-list-icon-subtitle-left {
@@ -515,7 +522,7 @@
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
 	overflow: hidden;
-	color: #666666;
+	color: #151515;
 }
 
 .bx-im-notifications-item-bottom-subtitle-text .bx-smile {
@@ -579,7 +586,7 @@
 }
 
 .bx-notifier-item-text-vue {
-	font: 14px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #666666;
 	display: block;
 	word-wrap: break-word;

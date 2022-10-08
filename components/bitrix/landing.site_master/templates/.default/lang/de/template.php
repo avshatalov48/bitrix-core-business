@@ -37,4 +37,3 @@ $MESS["LANDING_TPL_STEP2_TITLE"] = "Produkte";
 $MESS["LANDING_TPL_STEP3_DESC"] = "Ihr Onlineshop funktioniert jetzt";
 $MESS["LANDING_TPL_STEP3_TITLE"] = "Erste Bestellung";
 $MESS["LANDING_TPL_WORKING_ALREADY"] = "ist fast einsatzbereit, nur noch ein paar Schritte";
-$MESS["LANDING_TPL_FIRST_ORDER_STEPS"] = "Nur noch zwei Schritte, damit Sie Ihren Verkauf starten können:";

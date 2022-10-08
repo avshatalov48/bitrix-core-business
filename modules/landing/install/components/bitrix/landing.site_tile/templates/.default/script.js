@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
-(function (exports,main_popup,ui_dialogs_messagebox,main_core_events,ui_notification,main_core) {
+(function (exports,ui_designTokens,main_popup,ui_dialogs_messagebox,main_core_events,ui_notification,main_core) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
@@ -1309,7 +1309,7 @@ this.BX.Landing = this.BX.Landing || {};
 	          if (url) {
 	            url = url[1];
 	            url += url.indexOf('?') > 0 ? '&' : '?';
-	            node.style.backgroundImage = 'url(' + url + 'refreshed' + (Date.now() / 23600 | 0) + ')';
+	            node.style.backgroundImage = 'url(' + url + 'refreshed' + (Date.now() / 3600000 | 0) + ')';
 	          }
 	        });
 	      }
@@ -1320,5 +1320,5 @@ this.BX.Landing = this.BX.Landing || {};
 
 	exports.SiteTile = SiteTile;
 
-}((this.BX.Landing.Component = this.BX.Landing.Component || {}),BX.Main,BX.UI.Dialogs,BX.Event,BX,BX));
+}((this.BX.Landing.Component = this.BX.Landing.Component || {}),BX,BX.Main,BX.UI.Dialogs,BX.Event,BX,BX));
 //# sourceMappingURL=script.js.map

@@ -4,7 +4,7 @@
 {
 	overflow: hidden;
 	font-size: 14px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	--ui-stepprocessing-dialog-vert-padding: 12px;
 	--ui-stepprocessing-dialog-horizon-slitter: 1px solid #dee2e6;
 }

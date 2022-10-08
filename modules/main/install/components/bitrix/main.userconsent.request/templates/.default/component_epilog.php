@@ -6,6 +6,6 @@ $path = $templateFolder;
 	'js' => $path . '/user_consent.js',
 	'css' => $path . '/user_consent.css',
 	'lang' => $path . '/user_consent.php',
-	'rel' =>   array()
+	'rel' =>   array('ui.design-tokens')
 ));
 CUtil::InitJSCore(array('popup', 'ajax', 'main_user_consent'));

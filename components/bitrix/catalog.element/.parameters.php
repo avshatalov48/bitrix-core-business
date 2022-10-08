@@ -378,6 +378,12 @@ $arComponentParameters = array(
 			"TYPE" => "CHECKBOX",
 			"DEFAULT" => "N",
 		),
+		"ADDITIONAL_FILTER_NAME" => array(
+			'PARENT' => 'DATA_SOURCE',
+			'NAME' => GetMessage('CP_BCE_ADDITIONAL_FILTER_NAME'),
+			'TYPE' => 'STRING',
+			'DEFAULT' => 'elementFilter',
+		),
 		"ADD_SECTIONS_CHAIN" => array(
 			"PARENT" => "ADDITIONAL_SETTINGS",
 			"NAME" => GetMessage("CP_BCE_ADD_SECTIONS_CHAIN"),

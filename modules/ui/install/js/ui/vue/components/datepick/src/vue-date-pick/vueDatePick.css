@@ -39,14 +39,14 @@
 	font-size: 10px;
 	color: #000;
 	color: var(--b24-text-color);
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-family: var(--b24-font-family);
 }
 
 .vdpComponent input,
 .vdpComponent select,
 .vdpComponent button {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-family: var(--b24-font-family);
 }
 
@@ -251,6 +251,7 @@
 	cursor: pointer;
 	opacity: 0;
 	font-size: 1.6em;
+    -webkit-appearance: none;
 }
 
 .vdpTable {

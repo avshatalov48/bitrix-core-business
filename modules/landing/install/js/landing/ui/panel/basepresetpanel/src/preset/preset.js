@@ -1,3 +1,6 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 import {EventEmitter} from 'main.core.events';
 import {Cache, Dom, Tag, Text, Type} from 'main.core';
 import type {Options} from 'crm.form';

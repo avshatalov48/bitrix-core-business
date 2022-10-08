@@ -562,31 +562,39 @@ class ComponentHelper
 	{
 		$result = false;
 
+		$url = (string)$url;
+		$userId = (int)$userId;
+		$entityType = (string)$entityType;
+		$entityId = (int)$entityId;
+		$siteId = (string)$siteId;
+
 		if (
-			$url <> ''
-			&& (int)$userId > 0
-			&& $entityType <> ''
-			&& (int)$entityId > 0
-			&& $siteId <> ''
-			&& Loader::includeModule('mail')
+			$url === ''
+			|| $userId <= 0
+			|| $entityType === ''
+			|| $entityId <= 0
+			|| $siteId === ''
+			|| !Loader::includeModule('mail')
 		)
 		{
-			$urlRes = \Bitrix\Mail\User::getReplyTo(
-				$siteId,
-				(int)$userId,
-				$entityType,
-				$entityId,
-				$url,
-				$backUrl
-			);
-			if (is_array($urlRes))
-			{
-				[ , $backUrl ] = $urlRes;
+			return $result;
+		}
 
-				if ($backUrl)
-				{
-					$result = $backUrl;
-				}
+		$urlRes = \Bitrix\Mail\User::getReplyTo(
+			$siteId,
+			$userId,
+			$entityType,
+			$entityId,
+			$url,
+			$backUrl
+		);
+		if (is_array($urlRes))
+		{
+			[ , $backUrl ] = $urlRes;
+
+			if ($backUrl)
+			{
+				$result = $backUrl;
 			}
 		}
 
@@ -679,7 +687,7 @@ class ComponentHelper
 			$attachedObject = false;
 
 			[ $type, $realValue ] = FileUserType::detectType($value);
-			if ($type == FileUserType::TYPE_NEW_OBJECT)
+			if ($type === FileUserType::TYPE_NEW_OBJECT)
 			{
 				$attachedObject = AttachedObject::load([
 					'=ENTITY_TYPE' => $connectorClass,
@@ -837,12 +845,17 @@ class ComponentHelper
 	*/
 	public static function convertDiskFileBBCode($text, $entityType, $entityId, $authorId, $attachmentList = [])
 	{
+		$text = trim((string)$text);
+		$authorId = (int)$authorId;
+		$entityType = (string)$entityType;
+		$entityId = (int)$entityId;
+
 		if (
-			trim($text) == ''
+			$text === ''
 			|| empty($attachmentList)
-			|| (int)$authorId <= 0
-			|| $entityType == ''
-			|| (int)$entityId <= 0
+			|| $authorId <= 0
+			|| $entityType === ''
+			|| $entityId <= 0
 		)
 		{
 			return $text;
@@ -910,7 +923,7 @@ class ComponentHelper
 				$fileModel = null;
 				[ $type, $realValue ] = FileUserType::detectType($id);
 
-				if ($type == FileUserType::TYPE_NEW_OBJECT)
+				if ($type === FileUserType::TYPE_NEW_OBJECT)
 				{
 					$fileModel = File::loadById($realValue);
 					if(!$fileModel)
@@ -959,12 +972,12 @@ class ComponentHelper
 		}
 
 		$serverTs = \MakeTimeStamp($dateTimeSource) - \CTimeZone::getOffset();
-		$serverGMTOffset = date('Z');
+		$serverGMTOffset = (int)date('Z');
+		$authorOffset = (int)\CTimeZone::getOffset($authorId);
 
-		$authorOffset = \CTimeZone::getOffset($authorId);
 		$authorGMTOffset = $serverGMTOffset + $authorOffset;
 		$authorGMTOffsetFormatted = 'GMT';
-		if ($authorGMTOffset != 0)
+		if ($authorGMTOffset !== 0)
 		{
 			$authorGMTOffsetFormatted .= ($authorGMTOffset >= 0 ? '+' : '-').sprintf('%02d', floor($authorGMTOffset / 3600)).':'.sprintf('%02u', ($authorGMTOffset % 3600) / 60);
 		}
@@ -1113,14 +1126,14 @@ class ComponentHelper
 		if ($user = $res->fetch())
 		{
 			$fields["NAME"] = Loc::getMessage("BLG_NAME")." ".(
-				$user["NAME"]."".$user["LAST_NAME"] == ''
+				$user["NAME"]."".$user["LAST_NAME"] === ''
 					? $user["LOGIN"]
 					: $user["NAME"]." ".$user["LAST_NAME"]
 			);
 
 			$fields["URL"] = str_replace(" ", "_", $user["LOGIN"])."-blog-".$params["SITE_ID"];
-			$urlCheck = preg_replace("/[^a-zA-Z0-9_-]/is", "", $fields["URL"]);
-			if ($urlCheck != $fields["URL"])
+			$urlCheck = preg_replace("/[^a-zA-Z0-9_-]/i", "", $fields["URL"]);
+			if ($urlCheck !== $fields["URL"])
 			{
 				$fields["URL"] = "u".$params["USER_ID"]."-blog-".$params["SITE_ID"];
 			}
@@ -1157,7 +1170,7 @@ class ComponentHelper
 					"view_post"
 				);
 
-				if ($featureOperationPerms == SONET_RELATIONS_TYPE_ALL)
+				if ($featureOperationPerms === SONET_RELATIONS_TYPE_ALL)
 				{
 					$rightsFound = true;
 				}
@@ -3555,9 +3568,9 @@ class ComponentHelper
 			);
 			$event->send();
 
-			foreach($event->getResults() as $eventResult)
+			foreach ($event->getResults() as $eventResult)
 			{
-				if($eventResult->getType() == \Bitrix\Main\EventResult::SUCCESS)
+				if ($eventResult->getType() === \Bitrix\Main\EventResult::SUCCESS)
 				{
 					$eventParams = $eventResult->getParameters();
 
@@ -3865,27 +3878,27 @@ class ComponentHelper
 		}
 		if (!$profileBlogPost)
 		{
-			if(!in_array("U".$authorId, $result))
+			if (!in_array("U".$authorId, $result, true))
 			{
 				$result[] = "U".$authorId;
 			}
 			$result[] = "SA"; // socnet admin
 
 			if (
-				in_array("AU", $result)
-				|| in_array("G2", $result)
+				in_array("AU", $result, true)
+				|| in_array("G2", $result, true)
 			)
 			{
 				$socnetPermsAdd = array();
 
-				foreach($result as $perm)
+				foreach ($result as $perm)
 				{
 					if (preg_match('/^SG(\d+)$/', $perm, $matches))
 					{
 						if (
-							!in_array("SG".$matches[1]."_".UserToGroupTable::ROLE_USER, $result)
-							&& !in_array("SG".$matches[1]."_".UserToGroupTable::ROLE_MODERATOR, $result)
-							&& !in_array("SG".$matches[1]."_".UserToGroupTable::ROLE_OWNER, $result)
+							!in_array("SG".$matches[1]."_".UserToGroupTable::ROLE_USER, $result, true)
+							&& !in_array("SG".$matches[1]."_".UserToGroupTable::ROLE_MODERATOR, $result, true)
+							&& !in_array("SG".$matches[1]."_".UserToGroupTable::ROLE_OWNER, $result, true)
 						)
 						{
 							$socnetPermsAdd[] = "SG".$matches[1]."_".$result;
@@ -4005,10 +4018,10 @@ class ComponentHelper
 		$userIdSentList = \CBlogPost::notifyIm($IMNotificationFields);
 		if (!$userIdSentList)
 		{
-			$userIdSentList = array();
+			$userIdSentList = [];
 		}
 
-		$userIdToMailList = array();
+		$userIdToMailList = [];
 
 		if (!empty($socnetRights))
 		{
@@ -4025,14 +4038,14 @@ class ComponentHelper
 
 			foreach ($socnetRights as $right)
 			{
-				if(mb_substr($right, 0, 1) === "U")
+				if (mb_strpos($right, "U") === 0)
 				{
 					$rightUserId = (int)mb_substr($right, 1);
 					if (
 						$rightUserId > 0
-						&& !in_array($rightUserId, $userIdToMailList)
 						&& empty($socnetRightsOld["U"][$rightUserId])
-						&& $rightUserId != $post["AUTHOR_ID"]
+						&& $rightUserId !== (int)$post["AUTHOR_ID"]
+						&& !in_array($rightUserId, $userIdToMailList, true)
 					)
 					{
 						$userIdToMailList[] = $rightUserId;
@@ -4043,7 +4056,7 @@ class ComponentHelper
 
 		if (!empty($userIdToMailList))
 		{
-			\CBlogPost::notifyMail(array(
+			\CBlogPost::notifyMail([
 				"type" => "POST",
 				"siteId" => $siteId,
 				"userId" => $userIdToMailList,
@@ -4051,11 +4064,11 @@ class ComponentHelper
 				"postId" => $post["ID"],
 				"postUrl" => \CComponentEngine::makePathFromTemplate(
 					'/pub/post.php?post_id=#post_id#',
-					array(
-						"post_id"=> $post["ID"]
-					)
-				)
-			));
+					[
+						"post_id" => $post["ID"],
+					]
+				),
+			]);
 		}
 
 		return true;
@@ -4139,12 +4152,10 @@ class ComponentHelper
 		);
 
 		$extranetUser = (
-			isset($params['IS_EXTRANET_USER'])
-				? $params['IS_EXTRANET_USER']
-				: self::isCurrentUserExtranet(array(
-					'siteId' => SITE_ID,
-					'userId' => $USER->getId()
-				))
+			$params['IS_EXTRANET_USER'] ?? self::isCurrentUserExtranet([
+				'siteId' => SITE_ID,
+				'userId' => $USER->getId(),
+			])
 		);
 
 		$siteId = (
@@ -4166,7 +4177,7 @@ class ComponentHelper
 			&& !empty($socNetPermsListOld)
 			&& !empty($socNetPermsListOld['U'])
 			&& isset($socNetPermsListOld['U'][$postFields['AUTHOR_ID']])
-			&& in_array('U'.$postFields['AUTHOR_ID'], $socNetPermsListOld['U'][$postFields['AUTHOR_ID']])
+			&& in_array('U' . $postFields['AUTHOR_ID'], $socNetPermsListOld['U'][$postFields['AUTHOR_ID']], true)
 		);
 
 		$permList = (
@@ -4202,7 +4213,7 @@ class ComponentHelper
 						$vv <> ''
 						&& (
 							empty($postFields['AUTHOR_ID'])
-							|| $vv != 'U'.$postFields['AUTHOR_ID']
+							|| $vv !== 'U'.$postFields['AUTHOR_ID']
 							|| $authorInDest
 						)
 					)
@@ -4262,7 +4273,8 @@ class ComponentHelper
 				: false
 		);
 
-		$postFields = $oldSonetGroupIdList = array();
+		$postFields = [];
+		$oldSonetGroupIdList = [];
 
 		if ($postId)
 		{
@@ -4284,11 +4296,11 @@ class ComponentHelper
 		{
 			if (preg_match('/^SG(\d+)/i', $code, $matches))
 			{
-				$newSonetGroupIdList[] = $matches[1];
+				$newSonetGroupIdList[] = (int)$matches[1];
 			}
 			elseif (preg_match('/^U(\d+)/i', $code, $matches))
 			{
-				$newUserIdList[] = $matches[1];
+				$newUserIdList[] = (int)$matches[1];
 			}
 		}
 
@@ -4300,7 +4312,7 @@ class ComponentHelper
 			$premoderateSGList = [];
 			$canPublish = true;
 
-			foreach($newSonetGroupIdList as $groupId)
+			foreach ($newSonetGroupIdList as $groupId)
 			{
 				if (
 					!empty($postFields)
@@ -4400,23 +4412,29 @@ class ComponentHelper
 			}
 		}
 
-		if (
-			$extranetUser
-			&& !empty($newUserIdList)
-			&& Loader::includeModule('extranet')
-		)
+		if ($extranetUser)
 		{
-			$visibleUserIdList = \CExtranet::getMyGroupsUsersSimple(SITE_ID);
+			$destinationList = array_filter($destinationList, static function ($code) {
+				return (!preg_match('/^(DR|D)(\d+)$/i', $code, $matches));
+			});
 
-			if (!empty(array_diff($newUserIdList, $visibleUserIdList)))
+			if (
+				!empty($newUserIdList)
+				&& Loader::includeModule('extranet')
+			)
 			{
-				$resultFields['ERROR_MESSAGE'] = Loc::getMessage('SONET_HELPER_NO_PERMISSIONS');
+				$visibleUserIdList = \CExtranet::getMyGroupsUsersSimple(SITE_ID);
+
+				if (!empty(array_diff($newUserIdList, $visibleUserIdList)))
+				{
+					$resultFields['ERROR_MESSAGE'] = Loc::getMessage('SONET_HELPER_NO_PERMISSIONS');
+				}
 			}
 		}
 
 		if (
-			in_array("UA", $destinationList)
-			&& !$allowToAll
+			!$allowToAll
+			&& in_array("UA", $destinationList, true)
 		)
 		{
 			foreach ($destinationList as $key => $value)
@@ -4433,7 +4451,7 @@ class ComponentHelper
 		{
 			if (
 				empty($destinationList)
-				|| in_array("UA", $destinationList)
+				|| in_array("UA", $destinationList, true)
 			)
 			{
 				$resultFields["ERROR_MESSAGE"] .= Loc::getMessage("BLOG_BPE_EXTRANET_ERROR");
@@ -4644,32 +4662,36 @@ class ComponentHelper
 			) tmp');
 		}
 
-		$userWeightData = $logUserData = [];
+		$userWeightData = [];
+		$logUserData = [];
 
-		$currentLogId = false;
+		$currentLogId = 0;
 		$hasMine = false;
 		$cnt = 0;
 
 		while ($voteFields = $res->fetch())
 		{
+			$voteUserId = (int)$voteFields['USER_ID'];
+			$voteLogId = (int)$voteFields['LOG_ID'];
+
 			if (
 				!$hasMine
-				&& (int)$voteFields['USER_ID'] === (int)$USER->getId()
+				&& $voteUserId === (int)$USER->getId()
 			)
 			{
 				$hasMine = true;
 			}
 
-			if ($voteFields['LOG_ID'] != $currentLogId)
+			if ($voteLogId !== $currentLogId)
 			{
 				$cnt = 0;
 				$hasMine = false;
-				$logUserData[$voteFields['LOG_ID']] = [];
+				$logUserData[$voteLogId] = [];
 			}
 
-			$currentLogId = $voteFields['LOG_ID'];
+			$currentLogId = $voteLogId;
 
-			if (in_array($voteFields['USER_ID'], $logUserData[$voteFields['LOG_ID']]))
+			if (in_array($voteUserId, $logUserData[$voteLogId], true))
 			{
 				continue;
 			}
@@ -4681,10 +4703,10 @@ class ComponentHelper
 				continue;
 			}
 
-			$logUserData[$voteFields['LOG_ID']][] = $voteFields['USER_ID'];
-			if (!isset($userWeightData[$voteFields['USER_ID']]))
+			$logUserData[$voteLogId][] = $voteUserId;
+			if (!isset($userWeightData[$voteUserId]))
 			{
-				$userWeightData[$voteFields['USER_ID']] = (float)$voteFields['WEIGHT'];
+				$userWeightData[$voteUserId] = (float)$voteFields['WEIGHT'];
 			}
 		}
 
@@ -4723,7 +4745,7 @@ class ComponentHelper
 							$imageFile,
 							[
 								'width' => $avatarSize,
-								'height' => $avatarSize
+								'height' => $avatarSize,
 							],
 							BX_RESIZE_IMAGE_EXACT,
 							false
@@ -4734,11 +4756,11 @@ class ComponentHelper
 			}
 		}
 
-		foreach($logUserData as $logId => $userIdList)
+		foreach ($logUserData as $logId => $userIdList)
 		{
 			$result[$logId] = [];
 
-			foreach($userIdList as $userId)
+			foreach ($userIdList as $userId)
 			{
 				$result[$logId][] = [
 					'ID' => $userId,
@@ -4751,16 +4773,15 @@ class ComponentHelper
 			}
 		}
 
-		foreach($result as $logId => $data)
+		foreach ($result as $logId => $data)
 		{
 			usort(
 				$data,
-				function($a, $b)
+				static function($a, $b)
 				{
 					if (
-						!isset($a['WEIGHT'])
-						|| !isset($b['WEIGHT'])
-						|| $a['WEIGHT'] == $b['WEIGHT']
+						!isset($a['WEIGHT'], $b['WEIGHT'])
+						|| $a['WEIGHT'] === $b['WEIGHT']
 					)
 					{
 						return 0;
@@ -4995,8 +5016,8 @@ class ComponentHelper
 
 	public static function convertSelectorRequestData(array &$postFields = [], array $params = []): void
 	{
-		$perms = (isset($params['perms']) ? (string)$params['perms'] : '');
-		$crm = (isset($params['crm']) ? (bool)$params['crm'] : false);
+		$perms = (string)($params['perms'] ?? '');
+		$crm = (bool)($params['crm'] ?? false);
 
 		$mapping = [
 			'DEST_DATA' => 'DEST_CODES',
@@ -5016,7 +5037,10 @@ class ComponentHelper
 					$entities = [];
 				}
 
-				$postFields[$to] = array_merge((isset($postFields[$to]) ? $postFields[$to] : []), \Bitrix\Main\UI\EntitySelector\Converter::convertToFinderCodes($entities));
+				$postFields[$to] = array_merge(
+					($postFields[$to] ?? []),
+					\Bitrix\Main\UI\EntitySelector\Converter::convertToFinderCodes($entities)
+				);
 			}
 		}
 
@@ -5066,9 +5090,9 @@ class ComponentHelper
 					}
 					elseif (
 						$from === 'DEST_CODES'
+						&& $perms === BLOG_PERMS_FULL
 						&& preg_match('/^UP(\d+)$/i', $destCode, $matches)
 						&& Loader::includeModule('blog')
-						&& $perms === BLOG_PERMS_FULL
 					)
 					{
 						if (empty($postFields[$to]['UP']))
@@ -5331,7 +5355,7 @@ class ComponentHelper
 
 	public static function checkEmptyParamString(&$params, $paramName, $defaultValue): void
 	{
-		$params[$paramName] = (isset($params[$paramName]) && trim($params[$paramName]) <> '' ? trim($params[$paramName]) : $defaultValue);
+		$params[$paramName] = (isset($params[$paramName]) && trim($params[$paramName]) !== '' ? trim($params[$paramName]) : $defaultValue);
 	}
 
 	public static function checkTooltipComponentParams($params): array

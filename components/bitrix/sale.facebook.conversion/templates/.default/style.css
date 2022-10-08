@@ -90,7 +90,8 @@
 }
 
 .facebook-conversion-auth-container-connect-title {
-	font: 22px/26px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font: 22px/26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .facebook-conversion-auth-connect-container {
@@ -153,7 +154,7 @@
 	text-overflow: ellipsis;
 	font-size: 14px;
 	color: #0b66c3;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	cursor: pointer;
 	text-decoration: none;
 }

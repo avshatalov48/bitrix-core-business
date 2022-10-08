@@ -1066,11 +1066,18 @@ class CAllCatalogProduct
 		$vat = CCatalogProduct::GetVATDataByID($intProductID);
 		if (!empty($vat))
 		{
-			$vat['RATE'] = (float)$vat['RATE'] * 0.01;
+			if ($vat['EXCLUDE_VAT'] === 'N')
+			{
+				$vat['RATE'] = $vat['RATE'] * 0.01;
+			}
 		}
 		else
 		{
-			$vat = array('RATE' => 0.0, 'VAT_INCLUDED' => 'N');
+			$vat = [
+				'RATE' => null,
+				'VAT_INCLUDED' => 'N',
+				'EXCLUDE_VAT' => 'Y',
+			];
 		}
 		unset($iterator);
 
@@ -1082,9 +1089,6 @@ class CAllCatalogProduct
 				$arDiscountCoupons = CCatalogDiscountCoupon::GetCoupons();
 		}
 
-//		$boolDiscountVat = ('N' != COption::GetOptionString('catalog', 'discount_vat', 'Y'));
-		$boolDiscountVat = true;
-
 		$minimalPrice = array();
 
 		if (self::$saleIncluded === null)
@@ -1095,17 +1099,15 @@ class CAllCatalogProduct
 		{
 			$priceData['VAT_RATE'] = $vat['RATE'];
 			$priceData['VAT_INCLUDED'] = $vat['VAT_INCLUDED'];
+			$priceData['NO_VAT'] = $vat['EXCLUDE_VAT'];
 
 			$currentPrice = (float)$priceData['PRICE'];
-			if ($boolDiscountVat)
+			if ($priceData['NO_VAT'] === 'N')
 			{
-				if ($priceData['VAT_INCLUDED'] == 'N')
+				if ($priceData['VAT_INCLUDED'] === 'N')
+				{
 					$currentPrice *= (1 + $priceData['VAT_RATE']);
-			}
-			else
-			{
-				if ($priceData['VAT_INCLUDED'] == 'Y')
-					$currentPrice /= (1 + $priceData['VAT_RATE']);
+				}
 			}
 			if ($priceData['CURRENCY'] != $resultCurrency)
 				$currentPrice = CCurrencyRates::ConvertCurrency($currentPrice, $priceData['CURRENCY'], $resultCurrency);
@@ -1160,22 +1162,13 @@ class CAllCatalogProduct
 				unset($possibleSalePrice);
 			}
 
-			if ($boolDiscountVat)
+			if ($priceData['NO_VAT'] === 'N')
 			{
 				if (!$resultWithVat)
 				{
 					$result['PRICE'] /= (1 + $priceData['VAT_RATE']);
 					$result['COMPARE_PRICE'] /= (1 + $priceData['VAT_RATE']);
 					$result['BASE_PRICE'] /= (1 + $priceData['VAT_RATE']);
-				}
-			}
-			else
-			{
-				if ($resultWithVat)
-				{
-					$result['PRICE'] *= (1 + $priceData['VAT_RATE']);
-					$result['COMPARE_PRICE'] *= (1 + $priceData['VAT_RATE']);
-					$result['BASE_PRICE'] *= (1 + $priceData['VAT_RATE']);
 				}
 			}
 
@@ -1222,6 +1215,14 @@ class CAllCatalogProduct
 
 		$discountValue = ($minimalPrice['BASE_PRICE'] - $minimalPrice['PRICE']);
 
+		if ($minimalPrice['RAW_PRICE']['NO_VAT'] === 'N')
+		{
+			$vatIncluded = $resultWithVat ? 'Y' : 'N';
+		}
+		else
+		{
+			$vatIncluded = 'N';
+		}
 		unset($minimalPrice['RAW_PRICE']['PRICE_SCALE']);
 		$arResult = array(
 			'PRICE' => $minimalPrice['RAW_PRICE'],
@@ -1238,7 +1239,8 @@ class CAllCatalogProduct
 					: 0
 				),
 				'VAT_RATE' => $minimalPrice['RAW_PRICE']['VAT_RATE'],
-				'VAT_INCLUDED' => ($resultWithVat ? 'Y' : 'N'),
+				'VAT_INCLUDED' => $vatIncluded,
+				'NO_VAT' => $minimalPrice['RAW_PRICE']['NO_VAT'],
 				'UNROUND_BASE_PRICE' => $minimalPrice['UNROUND_BASE_PRICE'],
 				'UNROUND_DISCOUNT_PRICE' => $minimalPrice['UNROUND_PRICE']
 			),
@@ -1484,18 +1486,24 @@ class CAllCatalogProduct
 			{
 				if ($vatValue === false)
 				{
-					$vatList[$productId] = array('RATE' => 0.0, 'VAT_INCLUDED' => 'N');
+					$vatList[$productId] = [
+						'RATE' => null,
+						'VAT_INCLUDED' => 'N',
+						'EXCLUDE_VAT' => 'Y',
+					];
 				}
 				else
 				{
-					$vatList[$productId]['RATE'] = (float)$vatValue['RATE'] * 0.01;
+					if ($vatValue['EXCLUDE_VAT'] === 'N')
+					{
+						$vatList[$productId]['RATE'] = $vatValue['RATE'] * 0.01;
+					}
 				}
 			}
 		}
 
 		$isNeedDiscounts = Catalog\Product\Price\Calculation::isAllowedUseDiscounts();
 		$resultWithVat = Catalog\Product\Price\Calculation::isIncludingVat();
-		$boolDiscountVat = ('N' != COption::GetOptionString('catalog', 'discount_vat', 'Y'));
 
 		$discountList = array();
 
@@ -1573,17 +1581,15 @@ class CAllCatalogProduct
 
 			$priceData['VAT_RATE'] = $vat['RATE'];
 			$priceData['VAT_INCLUDED'] = $vat['VAT_INCLUDED'];
+			$priceData['NO_VAT'] = $vat['EXCLUDE_VAT'];
 
 			$currentPrice = (float)$priceData['PRICE'];
-			if ($boolDiscountVat)
+			if ($priceData['NO_VAT'] === 'N')
 			{
 				if ($priceData['VAT_INCLUDED'] == 'N')
+				{
 					$currentPrice *= (1 + $priceData['VAT_RATE']);
-			}
-			else
-			{
-				if ($priceData['VAT_INCLUDED'] == 'Y')
-					$currentPrice /= (1 + $priceData['VAT_RATE']);
+				}
 			}
 
 			if ($priceData['CURRENCY'] != $resultCurrency)
@@ -1647,22 +1653,13 @@ class CAllCatalogProduct
 				unset($possibleSalePrice);
 			}
 
-			if ($boolDiscountVat)
+			if ($priceData['NO_VAT'] === 'N')
 			{
 				if (!$resultWithVat)
 				{
 					$result['PRICE'] /= (1 + $priceData['VAT_RATE']);
 					$result['COMPARE_PRICE'] /= (1 + $priceData['VAT_RATE']);
 					$result['BASE_PRICE'] /= (1 + $priceData['VAT_RATE']);
-				}
-			}
-			else
-			{
-				if ($resultWithVat)
-				{
-					$result['PRICE'] *= (1 + $priceData['VAT_RATE']);
-					$result['COMPARE_PRICE'] *= (1 + $priceData['VAT_RATE']);
-					$result['BASE_PRICE'] *= (1 + $priceData['VAT_RATE']);
 				}
 			}
 
@@ -1709,6 +1706,14 @@ class CAllCatalogProduct
 
 			$discountValue = ($minimalPrice[$basketCode]['BASE_PRICE'] - $minimalPrice[$basketCode]['PRICE']);
 
+			if ($minimalPrice[$basketCode]['RAW_PRICE']['NO_VAT'] === 'N')
+			{
+				$vatIncluded = $resultWithVat ? 'Y' : 'N';
+			}
+			else
+			{
+				$vatIncluded = 'N';
+			}
 			unset($minimalPrice[$basketCode]['RAW_PRICE']['PRICE_SCALE']);
 			$productResult = array(
 				'PRICE' => $minimalPrice[$basketCode]['RAW_PRICE'],
@@ -1725,7 +1730,8 @@ class CAllCatalogProduct
 						: 0
 					),
 					'VAT_RATE' => $minimalPrice[$basketCode]['RAW_PRICE']['VAT_RATE'],
-					'VAT_INCLUDED' => ($resultWithVat ? 'Y' : 'N'),
+					'VAT_INCLUDED' => $vatIncluded,
+					'NO_VAT' => $minimalPrice[$basketCode]['RAW_PRICE']['NO_VAT'],
 					'UNROUND_BASE_PRICE' => $minimalPrice[$basketCode]['UNROUND_BASE_PRICE'],
 					'UNROUND_DISCOUNT_PRICE' => $minimalPrice[$basketCode]['UNROUND_PRICE']
 				),

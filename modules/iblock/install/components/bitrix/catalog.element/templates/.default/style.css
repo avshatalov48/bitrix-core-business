@@ -13,7 +13,7 @@
 .product-item-detail-info-container-title {
 	margin-bottom: 3px;
 	color: #000;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 13px;
 }
 
@@ -52,7 +52,7 @@
 .product-item-detail-price-current {
 	color: #d0021b;
 	white-space: nowrap;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 30px;
 	line-height: 33px;
 	transition: font-size 200ms ease;
@@ -62,7 +62,7 @@
 	color: #bdbdbd;
 	text-decoration: line-through;
 	white-space: nowrap;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 	line-height: 17px;
 }
@@ -286,7 +286,7 @@
 	color: #000;
 	vertical-align: middle;
 	text-align: center;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 19px;
 	line-height: 22px;
 	transition: border 300ms ease;
@@ -320,7 +320,7 @@
 .product-item-amount-label-container {
 	margin: 5px 0;
 	color: #a5a5a5;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 12px;
 }
 
@@ -679,7 +679,7 @@
 .product-item-label-text span {
 	padding: 2px 5px;
 	vertical-align: middle;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .product-item-label-text.product-item-label-small span {
@@ -727,7 +727,7 @@
 .product-item-label-ring {
 	box-sizing: border-box;
 	border-radius: 50%;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .product-item-label-ring.product-item-label-small {
@@ -832,7 +832,7 @@
 	text-transform: uppercase;
 	-ms-text-overflow: ellipsis;
 	text-overflow: ellipsis;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 13px;
 	line-height: 45px;
 	transition: all 250ms ease;
@@ -956,7 +956,8 @@
 	-ms-text-overflow: ellipsis;
 	text-overflow: ellipsis;
 	font-size: 16px;
-	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .product-item-detail-short-card-price {
@@ -977,7 +978,7 @@
 
 .product-item-detail-tab-content h3 {
 	margin-bottom: 10px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 }
 

@@ -17,6 +17,7 @@ export default class YandexTemplate extends CaldavInterfaceTemplate
 			descriptionActiveHeader: Loc.getMessage('CAL_YANDEX_SELECTED_DESCRIPTION'),
 			sliderIconClass: 'calendar-sync-slider-header-icon-yandex',
 			iconPath: '/bitrix/images/calendar/sync/yandex.svg',
+			iconLogoClass: '--yandex',
 			color: '#f9c500',
 			provider: provider,
 			connection: connection,

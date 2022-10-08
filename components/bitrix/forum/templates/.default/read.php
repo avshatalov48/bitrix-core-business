@@ -118,5 +118,5 @@ if ($arInfo != false):
 );?></div><?
 endif;
 
-@include_once(str_replace(array("\\", "//"), "/", dirname(__FILE__)."/footer.php"));
+@include_once(str_replace(array("\\", "//"), "/", __DIR__."/footer.php"));
 ?>

@@ -26,7 +26,7 @@ if ($this->getComponent()->request('close') == 'Y' && !$arResult['ERRORS'])
 // load
 Loc::loadMessages(__FILE__);
 Manager::setPageTitle(Loc::getMessage('LANDING_TPL_TITLE'));
-Extension::load(['ui.hint', 'ui.alerts', 'ui.dialogs.messagebox', 'ui.link']);
+Extension::load(['ui.hint', 'ui.alerts', 'ui.dialogs.messagebox', 'ui.link', 'ui.fonts.opensans']);
 
 // errors
 if ($arResult['ERRORS'])

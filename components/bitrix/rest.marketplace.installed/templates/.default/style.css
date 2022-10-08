@@ -90,7 +90,8 @@
 	margin-bottom: 11px;
 	font-size: 24px;
 	line-height: 28px;
-	font-family: "OpenSans-Regular", Arial, "Helvetica Neue", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .rest-mp-installed-item-content-developer {
@@ -123,7 +124,7 @@
 	line-height: 25px;
 	overflow: hidden;
 	font-size: 13px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(83,92,106,.8);
 	cursor: pointer;
 }
@@ -167,7 +168,8 @@
 
 .ui-btn-link span {
 	color: #ccc;
-	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 12px;
 	text-transform: none;
 	padding-left: 6px;

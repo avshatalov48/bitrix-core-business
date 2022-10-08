@@ -47,6 +47,7 @@ class Listener
 		$documentFields = $documentService->getDocumentFields($documentType);
 		$lazyList = $documentService->GetDocument($documentId);
 
+		$rawValues = [];
 		$values = [];
 		$changedFields[] = 'DATE_MODIFY';
 
@@ -76,10 +77,17 @@ class Listener
 
 			$fieldType->setDocumentId($documentId);
 
-			$values[$fieldId] = $fieldType->formatValue($lazyList[$fieldId]);
+			$rawValues[$fieldId] = $lazyList[$fieldId];
+			$values[$fieldId] = $fieldType->formatValue($rawValues[$fieldId]);
 		}
 
-		$this->pushEvent('documentValues', ['values' => $values]);
+		$this->pushEvent(
+			'documentValues',
+			[
+				'values' => $values,
+				'rawValues' => $rawValues,
+			]
+		);
 	}
 
 	public function onDocumentDeleted()

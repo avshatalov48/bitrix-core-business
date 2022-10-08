@@ -2858,7 +2858,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	exports.useStore = useStore;
 	exports.version = version;
 
-}((this.BX.Vue3.Vuex = this.BX.Vue3.Vuex || {}),BX,BX,BX,BX.Vue3));
+}((this.BX.Vue3.Vuex = this.BX.Vue3.Vuex || {}),BX.Dexie3,BX,BX,BX.Vue3));
 
 
 

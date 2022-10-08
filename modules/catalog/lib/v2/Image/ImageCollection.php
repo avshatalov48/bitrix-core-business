@@ -147,10 +147,24 @@ class ImageCollection extends BaseCollection
 	{
 		foreach ($this->prepareValues($values) as $value)
 		{
-			$this->addValue($value);
+			if (is_array($value))
+			{
+				$this->addValue($value);
+			}
 		}
 
 		return $this;
+	}
+
+	public function addValue(array $value): void
+	{
+		if (!$value)
+		{
+			return;
+		}
+
+		$entity = $this->create();
+		$entity->setFileStructure($value);
 	}
 
 	private function prepareValues(array $values): array
@@ -181,15 +195,6 @@ class ImageCollection extends BaseCollection
 			{
 				$entity->remove();
 			}
-		}
-	}
-
-	private function addValue($value): void
-	{
-		if (!empty($value) && is_array($value))
-		{
-			$entity = $this->create();
-			$entity->setFileStructure($value);
 		}
 	}
 }

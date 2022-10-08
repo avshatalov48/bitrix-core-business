@@ -1,7 +1,6 @@
 .landing-ui-card {
 	--red: rgba(255,87,82,1);
 	--red_alpha_30: rgba(255,87,82,.3);
-	--font_os_semibold: "OpenSans-SemiBold", Helvetica Neue, Helvetica, Arial, sans-serif;
 
 	padding: 20px 40px;
 	margin: 20px 60px;
@@ -30,7 +29,7 @@
 }
 
 .landing-ui-card-body.--warning {
-	cursor: default;	
+	cursor: default;
 }
 
 .landing-ui-card-body.--warning:hover .landing-ui-card-body-warning {
@@ -54,7 +53,8 @@
 	padding: 0 20px;
 	background: var(--red);
 	border-radius: 100px;
-	font-family: var(--font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 12px;
 	color: #fff;
 	z-index: 99;

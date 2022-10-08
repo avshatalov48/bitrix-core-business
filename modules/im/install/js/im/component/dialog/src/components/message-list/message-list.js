@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import {BitrixVue} from 'ui.vue';
 import {Vuex} from 'ui.vue.vuex';
 import 'im.view.message';

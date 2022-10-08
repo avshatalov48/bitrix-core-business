@@ -12,6 +12,7 @@ return [
 		'./dist/body.bundle.css',
 	],
 	'rel' => [
+		'ui.design-tokens',
 		'im.view.element.media',
 		'im.view.element.attach',
 		'im.view.element.keyboard',

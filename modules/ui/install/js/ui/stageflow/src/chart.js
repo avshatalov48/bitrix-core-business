@@ -1,5 +1,6 @@
 import {Text, Dom, Tag, Type, Loc} from 'main.core';
 import {Stage} from "./stage";
+import "./style.css";
 
 import {MenuManager, Popup, PopupManager} from 'main.popup';
 

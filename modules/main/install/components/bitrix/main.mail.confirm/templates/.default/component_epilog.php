@@ -1,5 +1,10 @@
 <?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-
-CUtil::InitJSCore(['ui.dialogs.messagebox', 'ui.design-tokens']);
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.dialogs.messagebox',
+]);

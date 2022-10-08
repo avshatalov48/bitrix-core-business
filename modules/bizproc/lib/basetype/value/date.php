@@ -69,6 +69,11 @@ class Date
 		return date($this->getFormat(), $this->getTimestamp() + $this->offset);
 	}
 
+	public static function fromSystemObject(Main\Type\Date $date)
+	{
+		return new static($date->getTimestamp());
+	}
+
 	public function toSystemObject()
 	{
 		return Main\Type\Date::createFromTimestamp($this->getTimestamp() + $this->offset);

@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'main.core',
 		'main.core.events',
+		'ui.design-tokens',
 	],
 	'skip_core' => false,
 ];

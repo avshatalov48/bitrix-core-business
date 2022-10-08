@@ -9,8 +9,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 Loc::loadMessages(__FILE__);
 
-$arResult["IS_ZOOM_ENABLED"] = true; //todo delete
-
 $socServAvailableList = ["Dropbox", "GoogleOAuth", "Office365", "Box", "YandexOAuth", "LiveIDOAuth", "zoom"];
 $portalPrefix = '';
 if (Loader::includeModule('bitrix24'))

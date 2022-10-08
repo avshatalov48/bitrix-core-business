@@ -104,6 +104,8 @@ $MESS["CAT_PRODUCT_QUANTITY_DECREASE"] = "Количество товара ум
 $MESS["CAT_PRODUCT_RESERVED"] = "Товар резервируется:";
 $MESS["BX_CAT_RESERVE_CONDITION_EMPTY"] = "не задано";
 $MESS["CAT_RESERVATION_CLEAR_PERIOD"] = "Снятие резервов (через сколько дней):";
+$MESS["CAT_SHOW_STORE_SHIPPING_CENTER"] = "Показывать у складов настройку \"Для отгрузки\"";
+$MESS["CAT_SHOW_STORE_SHIPPING_CENTER_HINT"] = "Эта настройка устарела. Ее можно включать только при наличии кастомизированных провайдеров товаров, работающих со складским учетом. Штатные провайдеры больше не используют ее.";
 $MESS["CAT_STORE_1"] = "Складской учёт";
 $MESS["CAT_ALLOW_CAN_BUY_ZERO_EXT"] = "Разрешить покупку при отсутствии товара (включая разрешение отрицательного количества товара):";
 $MESS["CAT_COMMON_EXPIMP_SETTINGS"] = "Общие настройки";
@@ -160,4 +162,3 @@ $MESS["CAT_PRODUCT_SETTINGS_CHANGE"] = "Изменить";
 $MESS["CAT_PRODUCT_SUBSCRIBE_TITLE"] = "Подписка на товары";
 $MESS["CAT_PRODUCT_SUBSCRIBE_LABLE_ENABLE"] = "Разрешить подписку на товары";
 $MESS["CAT_PRODUCT_SUBSCRIBE_LABLE_REPEATED_NOTIFY"] = "Отправка дополнительного письма при повторном отсутствии товара:";
-?>

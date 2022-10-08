@@ -124,9 +124,14 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 <?$filter->Begin();?>
 <tr>
 	<td valign="top" nowrap><?echo GetMessage("MAIL_LOG_FILT_MSG")?></td>
-	<td nowrap><input type="text" name="find_message_subject" value="<?echo htmlspecialcharsbx($find_message_subject)?>" size="47"><?=ShowFilterLogicHelp()?><br><input type="hidden" name="find_show_mess" value="N">
-	<input type="checkbox" name="find_show_mess" value="Y"<?if($find_show_mess=="Y")echo " checked"?> id="find_show_mess"> <label for="find_show_mess"><?echo GetMessage("MAIL_LOG_FILT_SHOW_COLUMN")?></label>
-	
+	<td nowrap>
+	<input type="text" name="find_message_subject" value="<?echo htmlspecialcharsbx($find_message_subject)?>" size="47"><?=ShowFilterLogicHelp()?>
+	<br>
+	<input type="hidden" name="find_show_mess" value="N">
+	<div class="adm-input-chackbox-wrap">
+		<input type="checkbox" name="find_show_mess" value="Y"<?if($find_show_mess=="Y")echo " checked"?> id="find_show_mess">
+		<label for="find_show_mess"><?echo GetMessage("MAIL_LOG_FILT_SHOW_COLUMN")?></label>
+	</div>
 	</td>
 </tr>
 

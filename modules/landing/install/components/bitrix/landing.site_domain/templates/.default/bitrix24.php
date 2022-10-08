@@ -6,6 +6,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+
 $requestDomainName = $this->getComponent()->request('param');
 ?>
 <div class="landing-domain-block">

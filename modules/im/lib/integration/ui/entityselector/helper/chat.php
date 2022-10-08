@@ -2,19 +2,17 @@
 
 namespace Bitrix\Im\Integration\UI\EntitySelector\Helper;
 
-use Bitrix\Im\Model\EO_Chat;
-
 class Chat
 {
-	public static function getSelectorEntityType(EO_Chat $chat): string
+	public static function getSelectorEntityType(array $chat): string
 	{
-		$entityType = $chat->getEntityType();
+		$entityType = $chat['ENTITY_TYPE'];
 		if ($entityType !== '' && $entityType !== null)
 		{
 			return $entityType;
 		}
 
-		$type = $chat->getType();
+		$type = $chat['TYPE'];
 		switch ($type)
 		{
 			case \Bitrix\Im\Chat::TYPE_GROUP:

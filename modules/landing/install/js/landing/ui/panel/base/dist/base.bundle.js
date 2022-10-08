@@ -4,15 +4,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,main_core_events) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel landing-ui-hide\" data-id=\"", "\"></div>\n\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	/**
 	 * @memberOf BX.Landing.UI.Panel
 	 */
@@ -27,7 +19,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "createLayout",
 	    value: function createLayout(id) {
-	      return main_core.Tag.render(_templateObject(), id);
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-panel landing-ui-hide\" data-id=\"", "\"></div>\n\t\t"])), id);
 	    }
 	  }]);
 

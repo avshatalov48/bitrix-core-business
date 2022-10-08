@@ -1,13 +1,15 @@
 import {ConnectionProvider} from "./connectionprovider";
-import {Loc} from "main.core";
+import { Event, Loc } from 'main.core';
 
 export class GoogleProvider extends ConnectionProvider
 {
 	constructor(options)
 	{
 		super({
+			id: options.syncInfo.id || null,
 			status: options.syncInfo.status || false,
 			connected: options.syncInfo.connected || false,
+			userName: options.syncInfo.userName || '',
 			gridTitle: Loc.getMessage('CALENDAR_TITLE_GOOGLE'),
 			gridColor: '#387ced',
 			gridIcon: '/bitrix/images/calendar/sync/google.svg',
@@ -15,20 +17,14 @@ export class GoogleProvider extends ConnectionProvider
 			interfaceClassName: '',
 			viewClassification: 'web',
 			templateClass: 'BX.Calendar.Sync.Interface.GoogleTemplate',
-			mainPanel: options.mainPanel
+			mainPanel: options.mainPanel,
 		});
-		this.syncTimestamp = options.syncInfo.syncTimestamp;
-		this.connectionName = options.syncInfo.userName
-			? options.syncInfo.userName
-			: Loc.getMessage('CALENDAR_TITLE_GOOGLE')
-		;
-		this.id = options.syncInfo.id;
-
-		this.isSetSyncCaldavSettings = options.isSetSyncCaldavSettings;
-
+		this.connectionName = Loc.getMessage('CALENDAR_TITLE_GOOGLE');
+		this.isSetSyncGoogleSettings = options.isSetSyncGoogleSettings;
 		this.syncLink = options.syncLink;
-		this.sections = options.sections;
 
+		this.setSyncDate(options.syncInfo.syncOffset);
+		this.setSections(options.sections);
 		this.setConnections();
 	}
 
@@ -37,8 +33,56 @@ export class GoogleProvider extends ConnectionProvider
 		return this.syncLink;
 	}
 
-	hasSetSyncCaldavSettings()
+	hasSetSyncGoogleSettings()
 	{
-		return this.isSetSyncCaldavSettings;
+		return this.isSetSyncGoogleSettings;
+	}
+
+	saveConnection()
+	{
+		BX.ajax.runAction('calendar.api.syncajax.createGoogleConnection', {
+			data: {}
+		}).then(
+			response => {
+				if (response?.data?.status === this.ERROR_CODE)
+				{
+					this.setStatus(this.STATUS_FAILED);
+					this.setWizardState(
+						{
+							status: this.ERROR_CODE,
+							vendorName: this.type,
+							accountName: response?.data?.googleApiStatus?.googleCalendarPrimaryId
+						}
+					);
+				}
+				else
+				{
+					this.setWizardState(
+						{
+							stage: 'connection_created',
+							vendorName: this.type,
+							accountName: response?.data?.googleApiStatus?.googleCalendarPrimaryId
+						}
+					);
+				}
+
+				this.emit(
+					'onSyncInfoUpdated',
+					new Event.BaseEvent({
+					data: {
+						syncInfo: response.data.syncInfo
+					}
+				}));
+			},
+			response => {
+				this.setStatus(this.STATUS_FAILED);
+				this.setWizardState(
+					{
+						status: this.ERROR_CODE,
+						vendorName: this.type
+					}
+				);
+			}
+		);
 	}
 }

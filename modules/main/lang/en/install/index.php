@@ -14,6 +14,7 @@ $MESS["MAIN_DEFAULT_LANGUAGE_LONG_DATE_FORMAT"] = "F j, Y";
 $MESS["MAIN_DEFAULT_LANGUAGE_LONG_TIME_FORMAT"] = "g:i:s a";
 $MESS["MAIN_DEFAULT_LANGUAGE_MEDIUM_DATE_FORMAT"] = "M j, Y";
 $MESS["MAIN_DEFAULT_LANGUAGE_NAME"] = "English";
+$MESS["MAIN_DEFAULT_LANGUAGE_CODE"] = "en";
 $MESS["MAIN_DEFAULT_LANGUAGE_NUMBER_DECIMAL_SEPARATOR"] = ".";
 $MESS["MAIN_DEFAULT_LANGUAGE_NUMBER_THOUSANDS_SEPARATOR"] = ",";
 $MESS["MAIN_DEFAULT_LANGUAGE_PM_VALUE"] = "pm";
@@ -57,6 +58,19 @@ http://#SERVER_NAME#/bitrix/admin/event_log.php?set_filter=Y&find_audit_type_id=
 $MESS["MAIN_EVERYONE_GROUP_DESC"] = "All users (including non-authorized users).";
 $MESS["MAIN_EVERYONE_GROUP_NAME"] = "All users (with non-authorized users)";
 $MESS["MAIN_INSTALL_DB_ERROR"] = "Cannot connect to the database. Please check the parameters.";
+$MESS["MAIN_INSTALL_EVENT_MESSAGE_NEW_DEVICE_LOGIN"] = "Hello #NAME#,
+
+a new device has just signed in using your login #LOGIN#.
+ 
+Device: #DEVICE# 
+Browser: #BROWSER#
+Platform: #PLATFORM#
+Location: #LOCATION# (approximate)
+Date: #DATE#
+
+We recommend that you change your password immediately if it was not you or the sign-in was not on your behalf.
+";
+$MESS["MAIN_INSTALL_EVENT_MESSAGE_NEW_DEVICE_LOGIN_SUBJECT"] = "New device signed in";
 $MESS["MAIN_INSTALL_EVENT_MESS_USER_CODE_REQUEST"] = "#SITE_NAME#: Request for verification code";
 $MESS["MAIN_INSTALL_EVENT_MESS_USER_CODE_REQUEST_MESS"] = "Use the following code to log in:
 
@@ -71,6 +85,23 @@ Account status: #STATUS#
 Login: #LOGIN#
 
 This message was created automatically.";
+$MESS["MAIN_INSTALL_EVENT_TYPE_NEW_DEVICE_LOGIN"] = "New device signed in";
+$MESS["MAIN_INSTALL_EVENT_TYPE_NEW_DEVICE_LOGIN_DESC"] = "#USER_ID# - User ID
+#EMAIL# - User email:
+#LOGIN# - User login
+#NAME# - User first name
+#LAST_NAME# - User last name
+#DEVICE# - Device
+#BROWSER# - Browser
+#PLATFORM# - Platform
+#USER_AGENT# - User agent
+#IP# - IP address
+#DATE# - Date
+#COUNTRY# - Country
+#REGION# - Region
+#CITY# - City
+#LOCATION# - Full location (city, region, country)
+";
 $MESS["MAIN_INSTALL_EVENT_TYPE_NOTIFICATION"] = "Event log notification";
 $MESS["MAIN_INSTALL_EVENT_TYPE_NOTIFICATION_DESC"] = "#EMAIL# - Recipient email
 #ADDITIONAL_TEXT# - Action additional text

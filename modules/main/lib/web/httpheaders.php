@@ -227,7 +227,7 @@ class HttpHeaders implements IteratorAggregate
 	 */
 	public function getFilename()
 	{
-		$contentDisposition = $this->get('Content-disposition');
+		$contentDisposition = $this->get('Content-Disposition');
 		if ($contentDisposition !== null)
 		{
 			$filename = null;

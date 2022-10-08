@@ -142,7 +142,13 @@ export class SelectInput extends Event.EventEmitter
 				cacheable: false
 			}
 		);
-		this.popupMenu.popupWindow.setWidth(this.input.offsetWidth - 2);
+
+		if (!BX.browser.IsFirefox())
+		{
+			this.popupMenu.popupWindow.setMinWidth(this.input.offsetWidth);
+		}
+
+		this.popupMenu.popupWindow.setMaxWidth(300);
 
 		let menuContainer = this.popupMenu.layout.menuContainer;
 		Dom.addClass(this.popupMenu.layout.menuContainer, 'calendar-resourcebook-select-popup');

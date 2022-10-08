@@ -142,7 +142,7 @@ class Tab implements \JsonSerializable
 
 	public function setTitle($title): self
 	{
-		if (is_string($title) || is_array($title) || $title === null)
+		if (TextNode::isValidText($title) || $title === null)
 		{
 			$this->title = $title === null ? null : new TextNode($title);
 		}
@@ -305,7 +305,7 @@ class Tab implements \JsonSerializable
 	{
 		$json = [
 			'id' => $this->getId(),
-			'title' => $this->getTitleNode(),
+			'title' => $this->getTitleNode() !== null ? $this->getTitleNode()->jsonSerialize() : '',
 			'visible' => $this->isVisible(),
 			'itemOrder' => $this->getItemOrder(),
 			'itemMaxDepth' => $this->getItemMaxDepth(),

@@ -7,13 +7,15 @@ use Bitrix\Main\UI\Extension;
 /** @var array $arParams */
 Extension::load(
 	[
+		"ui.design-tokens",
+		"ui.fonts.opensans",
 		"ui.hint",
 		"seo.ads.client_selector",
 		"ui.icons",
 		"ui.buttons",
 		"ui.buttons.icons",
 		"ui.notification",
-		"ui.sidepanel-content"
+		"ui.sidepanel-content",
 	]
 );
 $containerNodeId = $arParams['CONTAINER_NODE_ID'];

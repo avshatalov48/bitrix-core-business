@@ -109,10 +109,9 @@ $formParams = [
 	"LHE" => [
 		"id" => "id".$arParams["FORM_ID"],
 		"documentCSS" => "body {color:#434343;}",
-		"iframeCss" => "html body {padding-left: 14px!important; font-size: 13px!important; line-height: 18px!important;}",
+		"iframeCss" => "html body {padding-left: 14px!important; line-height: 18px!important;}",
 //		"ctrlEnterHandler" => "__logSubmitCommentForm".$arParams["UID"],
-		"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",
-		"fontSize" => "12px",
+		"fontSize" => "14px",
 		"bInitByJS" => true,
 		"height" => 80
 	],

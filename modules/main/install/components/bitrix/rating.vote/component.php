@@ -103,7 +103,7 @@ $arResult['VOTE_ID'] = (
 $isMobileLog = defined("BX_MOBILE_LOG") && BX_MOBILE_LOG == true;
 
 $arParams['REACTIONS_LIST'] = (
-	is_array($arParams['REACTIONS_LIST'])
+	isset($arParams['REACTIONS_LIST']) && is_array($arParams['REACTIONS_LIST'])
 		? array_filter($arParams['REACTIONS_LIST'], static function ($value) {
 			return (int)$value > 0;
 		})

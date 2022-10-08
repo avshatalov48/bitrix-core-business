@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["JS_UI_VIEWER_DEFAULT_ERROR_TITLE"] = "That's an error.";
 $MESS["JS_UI_VIEWER_IMAGE_VIEW_FULL_SIZE"] = "View full size";
 $MESS["JS_UI_VIEWER_ITEM_ACTION_DELETE"] = "Delete";
@@ -14,4 +14,6 @@ $MESS["JS_UI_VIEWER_ITEM_TRANSFORMATION_TIMEOUT"] = "Conversion failed. You can 
 $MESS["JS_UI_VIEWER_ITEM_UNKNOWN_DOWNLOAD_ACTION"] = "Download file";
 $MESS["JS_UI_VIEWER_ITEM_UNKNOWN_NOTICE"] = "You can view it on your computer";
 $MESS["JS_UI_VIEWER_ITEM_UNKNOWN_TITLE"] = "This file format is not supported";
-?>
+$MESS["JS_UI_VIEWER_SINGLE_DOCUMENT_LISTING_PAGES"] = "Page #CURRENT#<div class=\"ui-viewer-single-document-listing-pages-all\">/#ALL#</div>";
+$MESS["JS_UI_VIEWER_SINGLE_DOCUMENT_SCALE_ZOOM_IN"] = "Zoom in";
+$MESS["JS_UI_VIEWER_SINGLE_DOCUMENT_SCALE_ZOOM_OUT"] = "Zoom out";

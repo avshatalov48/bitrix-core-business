@@ -909,8 +909,14 @@
 			}
 			catch (e)
 			{
-				console.error(e);
+				this.log("Voximplant hangup error: ", e);
+				console.error("Voximplant hangup error: ", e);
 			}
+		}
+		else
+		{
+			this.log("Tried to hangup, but this.voximplantCall points nowhere");
+			console.error("Tried to hangup, but this.voximplantCall points nowhere");
 		}
 
 		this.screenShared = false;
@@ -1630,13 +1636,20 @@
 					})
 				}
 				catch (e)
-				{ /* nothing :) */ }
+				{
+					this.log("Voximplant hangup error: ", e);
+					console.error("Voximplant hangup error: ", e);
+				}
 				this.voximplantCall = null;
 			}
 
-			var client = VoxImplant.getInstance();
-			client.enableSilentLogging(false);
-			client.setLoggerCallback(null);
+			if (typeof(VoxImplant) !== 'undefined')
+			{
+				var client = VoxImplant.getInstance();
+
+				client.enableSilentLogging(false);
+				client.setLoggerCallback(null);
+			}
 
 			if(typeof(error) === "string")
 			{

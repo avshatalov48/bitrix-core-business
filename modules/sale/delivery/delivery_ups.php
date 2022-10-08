@@ -124,7 +124,7 @@ class CDeliveryUPS
 
 		fclose($fp);
 
-		$data_file = dirname(__FILE__)."/".DELIVERY_UPS_ZONES_PHP_FILE;
+		$data_file = __DIR__."/".DELIVERY_UPS_ZONES_PHP_FILE;
 
 		if ($fp = fopen($data_file, "w"))
 		{
@@ -226,7 +226,7 @@ class CDeliveryUPS
 			}
 		}
 
-		$data_file = dirname(__FILE__)."/".DELIVERY_UPS_EXPORT_PHP_FILE;
+		$data_file = __DIR__."/".DELIVERY_UPS_EXPORT_PHP_FILE;
 
 		if ($fp = fopen($data_file, "w"))
 		{
@@ -266,7 +266,7 @@ class CDeliveryUPS
 
 		if (is_array($arUPSZones)) return $arUPSZones;
 
-		if (file_exists(dirname(__FILE__)."/".DELIVERY_UPS_ZONES_PHP_FILE))
+		if (file_exists(__DIR__."/".DELIVERY_UPS_ZONES_PHP_FILE))
 			require(DELIVERY_UPS_ZONES_PHP_FILE);
 
 		if (!is_array($arUPSZones) || count($arUPSZones) <= 0)
@@ -281,7 +281,7 @@ class CDeliveryUPS
 
 		if (is_array($arUPSExport)) return $arUPSExport;
 
-		if (file_exists(dirname(__FILE__)."/".DELIVERY_UPS_EXPORT_PHP_FILE))
+		if (file_exists(__DIR__."/".DELIVERY_UPS_EXPORT_PHP_FILE))
 			require(DELIVERY_UPS_EXPORT_PHP_FILE);
 
 		if (!is_array($arUPSExport) || count($arUPSExport) <= 0)

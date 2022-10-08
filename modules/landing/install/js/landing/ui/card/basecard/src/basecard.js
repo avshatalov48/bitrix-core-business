@@ -1,6 +1,7 @@
 import {Cache, Dom, Tag, Text, Type, Event} from 'main.core';
 import {EventEmitter} from 'main.core.events';
 
+import 'ui.fonts.opensans';
 import './css/base_card.css';
 
 /**

@@ -23,7 +23,8 @@ a.bitrix-footer-link:visited,
 .bitrix-footer-text {
 	color: #919191;
 	margin: 0 3px;
-	font: 12px/14px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 a.bitrix-footer-link,
@@ -58,11 +59,13 @@ body {
 
 .landing-error-site-title {
 	margin-bottom: 19px;
-	font: 40px/48px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 40px/48px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .landing-error-site-desc {
-	font: 16px/22px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 16px/22px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	opacity: .7;
 }
 
@@ -122,12 +125,14 @@ body {
 
 .landing-error-kb-title {
 	margin-bottom: 62px;
-	font: 37px/52px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 37px/52px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .landing-error-kb-desc {
 	max-width: 370px;
-	font: 17px/27px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif
+	font: 17px/27px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .landing-error-kb-desc a {

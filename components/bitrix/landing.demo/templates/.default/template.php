@@ -14,7 +14,12 @@ use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\ModuleManager;
 
-\Bitrix\Main\UI\Extension::load(['ui.fonts.opensans', 'sidepanel']);
+\Bitrix\Main\UI\Extension::load([
+	'ui.fonts.opensans',
+	'sidepanel',
+	'ui.design-tokens',
+]);
+
 Loc::loadMessages(__FILE__);
 Loc::loadMessages(
 	Manager::getDocRoot() . '/bitrix/components/bitrix/landing.demo/templates/.default/designed_by.php'

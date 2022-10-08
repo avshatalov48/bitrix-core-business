@@ -2,11 +2,19 @@
 namespace Bitrix\Calendar\Sync;
 
 use Bitrix\Calendar\Sync\Util\RequestLogger;
+use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\ArgumentNullException;
+use Bitrix\Main\ArgumentOutOfRangeException;
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main\Web;
+use CCalendar;
+use CSocServGoogleOAuth;
+use CSocServGoogleProxyOAuth;
+use Exception;
 
 /**
  * Class GoogleApiTransport
@@ -21,7 +29,7 @@ final class GoogleApiTransport
 	private $errors;
 	private $currentMethod = '';
 	/**
-	 * @var \CSocServGoogleOAuth
+	 * @var CSocServGoogleOAuth
 	 */
 	private $oAuth;
 	/**
@@ -30,74 +38,19 @@ final class GoogleApiTransport
 	protected $requestLogger;
 
 	/**
-	 * @param $channelInfo
-	 * @return array
-	 * @throws ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\LoaderException
-	 */
-	public function openCalendarListChannel($channelInfo): array
-	{
-		$this->currentMethod = __METHOD__;
-
-		return $this->doRequest(
-			Web\HttpClient::HTTP_POST,
-			self::API_BASE_URL. '/users/me/calendarList/watch',
-			Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES)
-		);
-	}
-
-	/**
-	 * @param $calendarId
-	 * @param $channelInfo
-	 * @return array
-	 * @throws ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\LoaderException
-	 */
-	public function openEventsWatchChannel($calendarId, $channelInfo): array
-	{
-		$this->currentMethod = __METHOD__;
-
-		return $this->doRequest(
-			Web\HttpClient::HTTP_POST,
-			self::API_BASE_URL . '/calendars/' . urlencode($calendarId) . '/events/watch',
-			Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES)
-		);
-	}
-
-	/**
-	 * @param $channelId
-	 * @param $resourceId
-	 * @return array
-	 * @throws ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
-	 * @throws \Bitrix\Main\LoaderException
-	 */
-	public function stopChannel($channelId, $resourceId): array
-	{
-		$this->currentMethod = __METHOD__;
-
-		return $this->doRequest(
-			Web\HttpClient::HTTP_POST,
-			self::API_BASE_URL . '/channels/stop',
-			Web\Json::encode(['id' => $channelId, 'resourceId' => $resourceId], JSON_UNESCAPED_SLASHES)
-		);
-	}
-
-	/**
 	 * GoogleApiTransport constructor.
-	 * @throws SystemException
+	 *
 	 * @param int $userId
+	 *
+	 * @throws SystemException
+	 * @throws ArgumentNullException
+	 * @throws LoaderException
 	 */
 	public function __construct($userId)
 	{
 		if (!Loader::includeModule('socialservices'))
 		{
-			throw new SystemException("Can't include module \"SocialServices\"! " . __METHOD__);
+			throw new SystemException("Can not include module \"SocialServices\"! " . __METHOD__);
 		}
 
 		$this->client = new Web\HttpClient();
@@ -106,13 +59,13 @@ final class GoogleApiTransport
 			$this->requestLogger = new RequestLogger((int)$userId, self::SERVICE_NAME);
 		}
 
-		if (\CSocServGoogleProxyOAuth::isProxyAuth())
+		if (CSocServGoogleProxyOAuth::isProxyAuth())
 		{
-			$oAuth = new \CSocServGoogleProxyOAuth($userId);
+			$oAuth = new CSocServGoogleProxyOAuth($userId);
 		}
 		else
 		{
-			$oAuth = new \CSocServGoogleOAuth($userId);
+			$oAuth = new CSocServGoogleOAuth($userId);
 		}
 
 		$oAuth->getEntityOAuth()->addScope(
@@ -133,6 +86,65 @@ final class GoogleApiTransport
 		{
 			$this->errors[] = array("code" => "NO_ACCESS_TOKEN", "message" => "No access token found");
 		}
+	}
+
+	/**
+	 * @param $channelInfo
+	 * @return array
+	 * @throws ArgumentException
+	 * @throws ArgumentNullException
+	 * @throws ArgumentOutOfRangeException
+	 * @throws LoaderException
+	 */
+	public function openCalendarListChannel($channelInfo): array
+	{
+		$this->currentMethod = __METHOD__;
+
+		return $this->doRequest(
+			Web\HttpClient::HTTP_POST,
+			self::API_BASE_URL. '/users/me/calendarList/watch',
+			Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES)
+		);
+	}
+
+	/**
+	 * @param $calendarId
+	 * @param $channelInfo
+	 * @return array
+	 * @throws ArgumentException
+	 * @throws ArgumentNullException
+	 * @throws ArgumentOutOfRangeException
+	 * @throws LoaderException
+	 */
+	public function openEventsWatchChannel($calendarId, $channelInfo): array
+	{
+		$this->currentMethod = __METHOD__;
+
+		return $this->doRequest(
+			Web\HttpClient::HTTP_POST,
+			self::API_BASE_URL . '/calendars/' . urlencode($calendarId) . '/events/watch',
+			Web\Json::encode($channelInfo, JSON_UNESCAPED_SLASHES)
+		);
+	}
+
+	/**
+	 * @param $channelId
+	 * @param $resourceId
+	 * @return array
+	 * @throws ArgumentException
+	 * @throws ArgumentNullException
+	 * @throws ArgumentOutOfRangeException
+	 * @throws LoaderException
+	 */
+	public function stopChannel($channelId, $resourceId): array
+	{
+		$this->currentMethod = __METHOD__;
+
+		return $this->doRequest(
+			Web\HttpClient::HTTP_POST,
+			self::API_BASE_URL . '/channels/stop',
+			Web\Json::encode(['id' => $channelId, 'resourceId' => $resourceId], JSON_UNESCAPED_SLASHES)
+		);
 	}
 
 	/**
@@ -176,7 +188,7 @@ final class GoogleApiTransport
 				$error = Web\Json::decode($this->client->getResult());
 				$this->errors[] = ["code" => "CONNECTION", "message" => "[" . $error['error']['code'] . "] " . $error['error']['message']];
 			}
-			catch (\Bitrix\Main\ArgumentException $exception)
+			catch (ArgumentException $exception)
 			{
 				foreach($this->client->getError() as $code => $error)
 				{
@@ -210,7 +222,7 @@ final class GoogleApiTransport
 	public function deleteEvent($eventId, $calendarId)
 	{
 		$this->currentMethod = __METHOD__;
-		return $this->doRequest(Web\HttpClient::HTTP_DELETE, self::API_BASE_URL . '/calendars/' . $calendarId . '/events/' . str_replace('@google.com', '', $eventId));
+		return $this->doRequest(Web\HttpClient::HTTP_DELETE, self::API_BASE_URL . '/calendars/' . $calendarId . '/events/' . $eventId);
 	}
 
 	/**
@@ -270,7 +282,6 @@ final class GoogleApiTransport
 		$requestBody = Web\Json::encode($eventData, JSON_UNESCAPED_SLASHES);
 		return $this->doRequest(Web\HttpClient::HTTP_POST, self::API_BASE_URL . '/calendars/' . $calendarId . '/events/import', $requestBody);
 	}
-
 
 	/**
 	 * @param $params
@@ -378,7 +389,7 @@ final class GoogleApiTransport
 
 		$requestParameters = ['originalStart' => $originalStart];
 		$requestParameters = array_filter($requestParameters);
-		$url = self::API_BASE_URL . '/calendars/' . urlencode($calendarId) . '/events/'.str_replace('@google.com', '', $eventId).'/instances/';
+		$url = self::API_BASE_URL . '/calendars/' . urlencode($calendarId) . '/events/' . urlencode($eventId) . '/instances/';
 		$url .= empty($requestParameters) ? '' : '?' . preg_replace('/(%3D)/', '=', http_build_query($requestParameters));
 
 		return $this->doRequest(Web\HttpClient::HTTP_GET, $url);
@@ -443,7 +454,7 @@ final class GoogleApiTransport
 
 						$data .= 'Content-type: application/json'."\r\n";
 
-						$data .= 'Content-Length: '.BinaryString::getLength($value['partBody'])."\r\n\r\n";
+						$data .= 'Content-Length: '.mb_strlen($value['partBody'])."\r\n\r\n";
 						$data .= $value['partBody'];
 						$data .= "\r\n\r\n";
 					}
@@ -491,7 +502,7 @@ final class GoogleApiTransport
 					{
 						$event = Web\Json::decode($partEvent[2]);
 					}
-					catch(\Exception $exception)
+					catch(Exception $exception)
 					{
 						continue;
 					}
@@ -573,7 +584,7 @@ final class GoogleApiTransport
 	 */
 	private function getDomain(): string
 	{
-		if (\CCalendar::isBitrix24())
+		if (CCalendar::isBitrix24())
 		{
 			return 'https://bitrix24.com';
 		}
@@ -583,7 +594,7 @@ final class GoogleApiTransport
 			return "https://" . (string)BX24_HOST_NAME;
 		}
 
-		$server = \Bitrix\Main\Application::getInstance()->getContext()->getServer();
+		$server = Application::getInstance()->getContext()->getServer();
 
 		return "https://" . (string)$server['HTTP_HOST'];
 	}

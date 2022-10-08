@@ -28,7 +28,8 @@ export class Application extends VuexBuilderModel
                 },
             option:
                 {
-                    signedParameters: this.getVariable('option.signedParameters', null)
+                    signedParameters: this.getVariable('option.signedParameters', null),
+                    showReturnButton: this.getVariable('option.showReturnButton', true),
                 },
             message:
                 {
@@ -95,17 +96,17 @@ export class Application extends VuexBuilderModel
     validatePaths(fields)
     {
         const result = {};
-    
+
         if (Type.isString(fields.productNoImage))
         {
             result.productNoImage = fields.productNoImage.toString();
         }
-        
+
         if (Type.isString(fields.emptyCart))
         {
             result.emptyCart = fields.emptyCart.toString();
         }
-    
+
         if (Type.isString(fields.mainPage))
         {
             result.mainPage = fields.mainPage.toString();
@@ -127,6 +128,11 @@ export class Application extends VuexBuilderModel
         {
             result.signedParameters = fields.signedParameters.toString();
         }
+
+		if (Type.isString(fields.showReturnButton))
+		{
+			result.showReturnButton = fields.showReturnButton.toString() === 'Y' ? 'Y' : 'N';
+		}
 
         return result;
     }
@@ -155,7 +161,7 @@ export class Application extends VuexBuilderModel
             setStage: ({ commit }, payload) =>
             {
                 payload = this.validate(payload);
-    
+
                 let allowed = Object.values(ApplicationConst.stage);
 
                 payload.stage = allowed.includes(payload.stage) ? payload.stage : ApplicationConst.stage.undefined;
@@ -179,6 +185,10 @@ export class Application extends VuexBuilderModel
             {
                 return state.option.signedParameters;
             },
+			getShowReturnButton: state =>
+			{
+				return state.option.showReturnButton;
+			},
             getPathLocation: (state, getters) =>
             {
                 return getters.getPath.location;

@@ -15,12 +15,24 @@ define('NOT_CHECK_PERMISSIONS', true);
 
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_before.php");
 
-if(isset($_REQUEST["action"]) && $_REQUEST["action"] == 'web_hook')
+if (isset($_REQUEST["action"]) && $_REQUEST["action"] == 'web_hook')
 {
 	if (CModule::IncludeModule("seo") && CModule::IncludeModule("socialservices"))
 	{
 		\Bitrix\Seo\WebHook\Service::listen();
 		exit;
+	}
+}
+
+if (isset($_REQUEST["action"]) && $_REQUEST["action"] === 'catalog_callback')
+{
+	if (CModule::IncludeModule("seo") && CModule::IncludeModule("socialservices"))
+	{
+		$serviceLocator = \Bitrix\Main\DI\ServiceLocator::getInstance();
+		if ($serviceLocator->has('seo.catalog.webhook.handler'))
+		{
+			$serviceLocator->get('seo.catalog.webhook.handler')->handle();
+		}
 	}
 }
 

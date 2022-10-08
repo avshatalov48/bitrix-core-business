@@ -360,7 +360,7 @@ export class EditFieldController
 			}));
 
 			this.DOM.userSelectorWrap = this.DOM.outerWrap.appendChild(Dom.create('DIV', {props: {className: 'calendar-resourcebook-content-block-control-field'}}));
-
+			
 			let userSelectorTitle = Loc.getMessage('USER_TYPE_RESOURCE_USERS_CONTROL_DEFAULT_NAME');
 			this.DOM.userSelectorWrap
 				.appendChild(Dom.create('DIV', {props: {className: 'calendar-resourcebook-content-block-title'}}))

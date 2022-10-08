@@ -87,13 +87,16 @@
 					{
 						this.updateUnreadCounters();
 
-						BX.Mail.Home.Counters.updateCounters([
-							{
-								name: this.getCurrentFolder(),
-								lower: true,
-								count: 1,
-							},
-						]);
+						if(this.getCurrentFolder() !== '')
+						{
+							BX.Mail.Home.Counters.updateCounters([
+								{
+									name: this.getCurrentFolder(),
+									lower: true,
+									count: 1,
+								},
+							]);
+						}
 
 						this.onMessagesRead([row.dataset.id], {action: 'markAsSeen'});
 					}
@@ -731,9 +734,7 @@
 		getCurrentFolder: function ()
 		{
 			var filter = this.getFilterInstance();
-			var dir = filter.getFilterFieldsValues()['DIR'];
-			var inboxDir = this.inboxDir;
-			return dir || inboxDir;
+			return filter.getFilterFieldsValues()['DIR'];
 		},
 		getCurrentMailboxId: function ()
 		{

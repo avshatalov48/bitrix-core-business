@@ -174,7 +174,14 @@ final class CCalendarRestService extends IRestService
 		foreach ($necessaryParams as $param)
 		{
 			if (!isset($params[$param]) || empty($params[$param]))
+			{
 				throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => $param,'#REST_METHOD#' => $methodName)));
+			}
+		}
+
+		if (CCalendar::IsExtranetUser($userId))
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
 
 		$type = $params['type'];
@@ -207,13 +214,17 @@ final class CCalendarRestService extends IRestService
 		foreach($sections as $section)
 		{
 			if ($section['PERM']['view_full'] || $section['PERM']['view_title'] || $section['PERM']['view_time'])
+			{
 				$arSectionIds[] = $section['ID'];
+			}
 		}
 
 		if (isset($params['section']))
 		{
 			if (!is_array($params['section']) && $params['section'] > 0)
+			{
 				$params['section'] = array($params['section']);
+			}
 			$arSectionIds = array_intersect($arSectionIds, $params['section']);
 		}
 
@@ -255,6 +266,11 @@ final class CCalendarRestService extends IRestService
 		if (!isset($params['id']) || empty($params['id']))
 		{
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#PARAM_NAME#' => 'id', '#REST_METHOD#' => $methodName)));
+		}
+
+		if (CCalendar::IsExtranetUser(CCalendar::GetCurUserId()))
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
 		}
 
 		$event = CCalendarEvent::GetById($params['id']);
@@ -839,16 +855,31 @@ final class CCalendarRestService extends IRestService
 		$methodName = "calendar.section.get";
 
 		if (isset($params['type']))
+		{
 			$type = $params['type'];
+		}
 		else
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'type')));
+		}
 
 		if (isset($params['ownerId']))
+		{
 			$ownerId = intval($params['ownerId']);
-		elseif($type == 'user')
+		}
+		elseif($type === 'user')
+		{
 			$ownerId = $userId;
+		}
 		else
+		{
 			throw new RestException(Loc::getMessage('CAL_REST_PARAM_EXCEPTION', array('#REST_METHOD#' => $methodName, '#PARAM_NAME#' => 'ownerId')));
+		}
+
+		if (CCalendar::IsExtranetUser($userId))
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
 
 		$arFilter = array(
 			'CAL_TYPE' => $type,
@@ -861,17 +892,17 @@ final class CCalendarRestService extends IRestService
 		foreach($res as $i => $section)
 		{
 			unset(
-			$res[$i]['OUTLOOK_JS'],
-			$res[$i]['DAV_EXCH_CAL'],
-			$res[$i]['DAV_EXCH_MOD'],
-			$res[$i]['SORT'],
-			$res[$i]['PARENT_ID'],
-			$res[$i]['IS_EXCHANGE'],
-			$res[$i]['EXTERNAL_ID'],
-			$res[$i]['ACTIVE'],
-			$res[$i]['CAL_DAV_MOD'],
-			$res[$i]['CAL_DAV_CAL'],
-			$res[$i]['XML_ID']
+				$res[$i]['OUTLOOK_JS'],
+				$res[$i]['DAV_EXCH_CAL'],
+				$res[$i]['DAV_EXCH_MOD'],
+				$res[$i]['SORT'],
+				$res[$i]['PARENT_ID'],
+				$res[$i]['IS_EXCHANGE'],
+				$res[$i]['EXTERNAL_ID'],
+				$res[$i]['ACTIVE'],
+				$res[$i]['CAL_DAV_MOD'],
+				$res[$i]['CAL_DAV_CAL'],
+				$res[$i]['XML_ID']
 			);
 		}
 
@@ -1291,10 +1322,11 @@ final class CCalendarRestService extends IRestService
 	 */
 	public static function SettingsGet($params = array(), $nav = null, $server = null)
 	{
-		$userId = CCalendar::GetCurUserId();
-		$methodName = "calendar.settings.get";
-		$settings = CCalendar::GetSettings();
-		return $settings;
+		if (CCalendar::IsExtranetUser(CCalendar::GetCurUserId()))
+		{
+			throw new RestException(Loc::getMessage('CAL_REST_ACCESS_DENIED'));
+		}
+		return CCalendar::GetSettings();
 	}
 
 	/*

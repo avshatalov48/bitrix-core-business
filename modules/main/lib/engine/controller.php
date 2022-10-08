@@ -434,7 +434,7 @@ class Controller implements Errorable, Controllerable
 
 	private function processExceptionInDebug(\Throwable $e)
 	{
-		if (!($e instanceof BinderArgumentException))
+		if ($this->shouldWriteToLogException($e))
 		{
 			$this->writeToLogException($e);
 		}
@@ -448,6 +448,21 @@ class Controller implements Errorable, Controllerable
 				$this->addError(new Error(ExceptionHandlerFormatter::format($e->getPrevious())));
 			}
 		}
+	}
+
+	private function shouldWriteToLogException(\Throwable $e): bool
+	{
+		if ($e instanceof BinderArgumentException)
+		{
+			return false;
+		}
+
+		if ($e instanceof SystemException && ($e->getCode() === self::EXCEPTION_UNKNOWN_ACTION))
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	final public static function getFullEventName($eventName)

@@ -2,6 +2,7 @@
 
 use Bitrix\Catalog\Component\BaseForm;
 use Bitrix\Catalog\Component\GridVariationForm;
+use Bitrix\Catalog\Component\UseStore;
 use Bitrix\Catalog\Component\VariationForm;
 use Bitrix\Catalog\Component\StoreAmount;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
@@ -147,6 +148,14 @@ class CatalogProductVariationDetailsComponent
 				$fields[$name] = \CIBlock::makeFileArray($fields[$name], $delete, $description);
 				unset($fields[$name.'_descr'], $fields[$name.'_del']);
 			}
+		}
+	}
+
+	private function prepareCatalogFields(&$fields): void
+	{
+		if ($this->form->isQuantityTraceSettingDisabled())
+		{
+			unset($fields['QUANTITY_TRACE']);
 		}
 	}
 
@@ -454,6 +463,7 @@ class CatalogProductVariationDetailsComponent
 				{
 					$this->prepareDescriptionFields($fields);
 					$this->preparePictureFields($fields);
+					$this->prepareCatalogFields($fields);
 
 					if (isset($fields['PURCHASING_PRICE']) && $fields['PURCHASING_PRICE'] === '')
 					{
@@ -486,15 +496,10 @@ class CatalogProductVariationDetailsComponent
 					$variation->getMeasureRatioCollection()->setDefault($measureRatioField);
 				}
 
-				global $DB;
-				$DB->StartTransaction();
-
 				$result = $variation->save();
 
 				if ($result->isSuccess())
 				{
-					$DB->Commit();
-
 					$redirect = !$this->hasVariationId();
 					$this->setVariationId($variation->getId());
 
@@ -522,7 +527,6 @@ class CatalogProductVariationDetailsComponent
 					return $response;
 				}
 
-				$DB->Rollback();
 				$this->errorCollection->add($result->getErrors());
 			}
 		}
@@ -744,6 +748,9 @@ class CatalogProductVariationDetailsComponent
 		$this->arResult['VARIATION_GRID_ID'] = $this->getForm()->getVariationGridId();
 		$this->arResult['STORE_AMOUNT_GRID_ID'] = $this->getStoreAmount()->getStoreAmountGridId();
 		$this->arResult['CARD_SETTINGS'] = $this->getForm()->getCardSettings();
+		$this->arResult['HIDDEN_FIELDS'] = $this->getForm()->getHiddenFields();
+		$this->arResult['IS_WITH_ORDERS_MODE'] = Loader::includeModule('crm') && \CCrmSaleHelper::isWithOrdersMode();
+		$this->arResult['IS_INVENTORY_MANAGEMENT_USED'] = UseStore::isUsed();
 	}
 
 	public function setCardSettingAction(string $settingId, $selected): Bitrix\Main\Engine\Response\AjaxJson

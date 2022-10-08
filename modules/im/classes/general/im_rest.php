@@ -1619,6 +1619,14 @@ class CIMRestService extends IRestService
 
 		if (\Bitrix\Im\User::getInstance($userId)->isExtranet())
 		{
+			if (is_string($arParams['USERS']))
+			{
+				$arParams['USERS'] = \CUtil::JsObjectToPhp($arParams['USERS']);
+			}
+			if (!is_array($arParams['USERS']))
+			{
+				throw new Bitrix\Rest\RestException("User IDs must be passed in array format", "WRONG_REQUEST", CRestServer::STATUS_WRONG_REQUEST);
+			}
 			$arParams['USERS'] = \Bitrix\Im\Integration\Socialnetwork\Extranet::filterUserList($arParams['USERS'], $userId);
 		}
 

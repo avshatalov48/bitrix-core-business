@@ -22,9 +22,9 @@ use Bitrix\Catalog\Model;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Extra_Query query()
- * @method static EO_Extra_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Extra_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Extra_Result getById($id)
- * @method static EO_Extra_Result getList(array $parameters = array())
+ * @method static EO_Extra_Result getList(array $parameters = [])
  * @method static EO_Extra_Entity getEntity()
  * @method static \Bitrix\Catalog\EO_Extra createObject($setDefaultValues = true)
  * @method static \Bitrix\Catalog\EO_Extra_Collection createCollection()

@@ -297,6 +297,15 @@
 
 	const embedForms = new BX.Landing.EmbedForms();
 
+	window.addEventListener('b24:form:init:before', function(event)
+	{
+		if (BX.Landing.getMode() === "edit")
+		{
+			// tell form that it's in edit mode
+			event.detail.data.editMode = true;
+		}
+	});
+
 	window.addEventListener('b24:form:init', function(event)
 	{
 		const form = embedForms.getFormByNode(event.detail.object.node.parentElement)

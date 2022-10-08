@@ -16,7 +16,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Localization\Loc;
 
-$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/../lang/".LANGUAGE_ID."/include/photogallery.php")));
+$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/../lang/".LANGUAGE_ID."/include/photogallery.php")));
 __IncludeLang($file);
 
 $object = (mb_strpos($componentPage, "group_photo") !== false ? "group" : "user");

@@ -7,6 +7,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 class CBPSetGlobalVariableActivity extends CBPActivity
 {
+	private array $logMap = [];
+	private array $logValues = [];
+
+	private static array $visibilityMessages = [];
+
 	public function __construct($name)
 	{
 		parent::__construct($name);
@@ -18,47 +23,76 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 
 	public function execute(): int
 	{
-		$variableValue = $this->getRawProperty('GlobalVariableValue');
-		if (!$variableValue)
+		$changeVariables = $this->getRawProperty('GlobalVariableValue');
+		if (!$changeVariables)
 		{
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		$map = [];
-		$values = [];
-
-		$visibility = $this->getVisibilityMessages($this->getDocumentType());
-
-		foreach ($variableValue as $variable => $value)
+		foreach ($changeVariables as $systemExpression => $changeTo)
 		{
-			[$groupId, $varId] = static::getGroupIdAndIdFromSystemExpression($variable);
-			$varId = $varId ?? $variable;
+			[$groupId, $variableId] = static::getGroupIdAndIdFromSystemExpression($systemExpression);
+			$variableId = $variableId ?? $systemExpression;
 
-			$property = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getById($varId);
-			$map[$variable] =
-				$property
-				?? [
-					'Name' => $groupId . ':' . $varId,
-					'Type' => 'string',
-					'Required' => true,
-				]
-			;
+			$property = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getById($variableId);
 			if ($property === null)
 			{
-				$values[$variable] = $this->parseValue($value, 'string');
+				if ($this->workflow->isDebug())
+				{
+					$this->addToDebugLog($systemExpression, [], $changeTo);
+				}
+
 				continue;
 			}
-			$property['Default'] = $this->parseValue($value, $property['Type']);
-			\Bitrix\Bizproc\Workflow\Type\GlobalVar::upsert($varId, $property);
 
-			$map[$variable]['Name'] = $visibility[$groupId][$property['Visibility']] . ': ' . $map[$variable]['Name'];
-			$map[$variable]['Required'] = true;
-			$values[$variable] = $property['Default'] ?? '[]';
+			$documentService = $this->workflow->GetService("DocumentService");
+			$fieldType = $documentService->getFieldTypeObject($this->getDocumentType(), $property);
+			$fieldType->setValue($this->parseValue($changeTo, $property['Type']));
+			$property['Default'] = $fieldType->getValue();
+
+			\Bitrix\Bizproc\Workflow\Type\GlobalVar::upsert($variableId, $property);
+
+			if ($this->workflow->isDebug())
+			{
+				$this->addToDebugLog($systemExpression, $property);
+			}
 		}
 
-		$this->writeDebugInfo($this->getDebugInfo($values, $map));
+		if ($this->workflow->isDebug())
+		{
+			$this->writeDebugInfo($this->getDebugInfo($this->logValues, $this->logMap));
+		}
 
 		return CBPActivityExecutionStatus::Closed;
+	}
+
+	private function addToDebugLog($systemExpression, $property, $changeTo = '')
+	{
+		[$groupId, $variableId] = static::getGroupIdAndIdFromSystemExpression($systemExpression);
+		$variableId = $variableId ?? $systemExpression;
+
+		if (empty($property))
+		{
+			$this->logMap[$systemExpression] = [
+				'Name' => $groupId . ':' . $variableId,
+				'Type' => 'string',
+				'Multiple' => true,
+			];
+			$this->logValues[$systemExpression] = $this->parseValue($changeTo, 'string');
+
+			return;
+		}
+
+		$visibilityMessages = static::getVisibilityMessages($this->getDocumentType());
+		$fullName = $visibilityMessages[$groupId][$property['Visibility']] . ': ' . $property['Name'];
+
+		$this->logMap[$systemExpression] = [
+			'Name' => $fullName,
+			'Type' => $property['Type'],
+			'Multiple' => $property['Multiple'],
+			'Options' => $property['Options'],
+		];
+		$this->logValues[$systemExpression] = $property['Default'];
 	}
 
 	public static function GetPropertiesDialog(
@@ -283,14 +317,21 @@ class CBPSetGlobalVariableActivity extends CBPActivity
 
 	private static function getVisibilityMessages(array $documentType): array
 	{
+		if (self::$visibilityMessages[implode('@', $documentType)])
+		{
+			return self::$visibilityMessages[implode('@', $documentType)];
+		}
+
 		$variables = \Bitrix\Bizproc\Workflow\Type\GlobalVar::getVisibilityFullNames($documentType);
 		$constants = \Bitrix\Bizproc\Workflow\Type\GlobalConst::getVisibilityFullNames($documentType);
 
-		return [
+		self::$visibilityMessages[implode('@', $documentType)] = [
 			\Bitrix\Bizproc\Workflow\Type\GlobalVar::getObjectNameForExpressions() => $variables,
 			\Bitrix\Bizproc\Workflow\Type\GlobalConst::getObjectNameForExpressions() => $constants,
 			'Document' => ['Document' => \Bitrix\Main\Localization\Loc::getMessage('BPSGVA_DOCUMENT')],
 		];
+
+		return self::$visibilityMessages[implode('@', $documentType)];
 	}
 
 	private static function getGroupIdAndIdFromSystemExpression(string $text): array

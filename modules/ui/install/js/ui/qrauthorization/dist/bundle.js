@@ -2,7 +2,7 @@ this.BX = this.BX || {};
 (function (exports,main_core,main_popup,main_loader,pull_client) {
 	'use strict';
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
+	var _templateObject, _templateObject2, _templateObject3;
 	var QrAuthorization = /*#__PURE__*/function () {
 	  function QrAuthorization() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -79,16 +79,29 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getPopup",
 	    value: function getPopup() {
+	      var _this3 = this;
+
 	      if (!this.popup) {
-	        var container = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-qr-authorization__popup-wrapper\">\n\t\t\t\t\t<div class=\"ui-qr-authorization__popup-top\">\n\t\t\t\t\t\t<div class=\"ui-qr-authorization__popup-left ", "\"\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-qr-authorization__popup-right ", "\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-qr-authorization__popup-bottom\">\n\t\t\t\t\t\t<div class=\"ui-qr-authorization__popup-bottom--title\">", "</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), !this.title ? '--flex' : '', this.title ? '<div class="ui-qr-authorization__popup-title">' + this.title + '</div>' : '', this.content ? '<div class="ui-qr-authorization__popup-text">' + this.content + '</div>' : '', !this.title ? '--no-margin' : '', this.getQrNode(), main_core.Loc.getMessage('UI_QR_AUTHORIZE_TAKE_CODE'), this.helpLink ? '<a href="' + this.helpLink + '" class="ui-qr-authorization__popup-bottom--link">' + main_core.Loc.getMessage('UI_QR_AUTHORIZE_HELP') + '</a>' : '');
+	        var container = "\n\t\t\t\t<div class=\"ui-qr-authorization__popup-wrapper\">\n\t\t\t\t\t<div class=\"ui-qr-authorization__popup-top\">\n\t\t\t\t\t\t<div class=\"ui-qr-authorization__popup-left ".concat(!this.title ? '--flex' : '', "\"\">\n\t\t\t\t\t\t\t").concat(this.title ? '<div class="ui-qr-authorization__popup-title">' + this.title + '</div>' : '', "\n\t\t\t\t\t\t\t").concat(this.content ? '<div class="ui-qr-authorization__popup-text">' + this.content + '</div>' : '', "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t<div class=\"ui-qr-authorization__popup-right ").concat(!this.title ? '--no-margin' : '', "\" data-role=\"ui-qr-authorization__qr-node\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-qr-authorization__popup-bottom\">\n\t\t\t\t\t\t<div class=\"ui-qr-authorization__popup-bottom--title\">").concat(main_core.Loc.getMessage('UI_QR_AUTHORIZE_TAKE_CODE'), "</div>\n\t\t\t\t\t\t").concat(this.helpLink ? '<a href="' + this.helpLink + '" class="ui-qr-authorization__popup-bottom--link">' + main_core.Loc.getMessage('UI_QR_AUTHORIZE_HELP') + '</a>' : '', "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t");
 	        this.popup = new main_popup.Popup({
 	          className: 'ui-qr-authorization__popup ui-qr-authorization__popup-scope',
 	          width: this.title && this.content ? 710 : null,
 	          content: container,
 	          closeByEsc: true,
 	          closeIcon: {
-	            top: 14,
-	            right: 15
+	            top: '14px',
+	            right: '15px'
+	          },
+	          events: {
+	            onPopupShow: function onPopupShow() {
+	              _this3.createQrCodeImage();
+
+	              var qrTarget = _this3.getPopup().getContentContainer().querySelector('[data-role="ui-qr-authorization__qr-node"]');
+
+	              if (qrTarget) {
+	                qrTarget.appendChild(_this3.getQrNode());
+	              }
+	            }
 	          },
 	          padding: 0,
 	          animation: 'fading-slide'
@@ -108,7 +121,7 @@ this.BX = this.BX || {};
 	    key: "getSuccessNode",
 	    value: function getSuccessNode() {
 	      if (!this.successNode) {
-	        this.successNode = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-qr-authorization__popup-qr-success\"></div>\n\t\t\t"])));
+	        this.successNode = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-qr-authorization__popup-qr-success\"></div>\n\t\t\t"])));
 	      }
 
 	      return this.successNode;
@@ -125,7 +138,7 @@ this.BX = this.BX || {};
 	    key: "getLoadingNode",
 	    value: function getLoadingNode() {
 	      if (!this.loadingNode) {
-	        this.loadingNode = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-qr-authorization__popup-qr-loading\"></div>\n\t\t\t"])));
+	        this.loadingNode = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-qr-authorization__popup-qr-loading\"></div>\n\t\t\t"])));
 	      }
 
 	      return this.loadingNode;
@@ -165,7 +178,6 @@ this.BX = this.BX || {};
 	    key: "show",
 	    value: function show() {
 	      if (!this.getPopup().isShown()) {
-	        this.createQrCodeImage();
 	        this.loading();
 	        this.getPopup().show();
 	      }

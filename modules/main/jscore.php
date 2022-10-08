@@ -1,4 +1,5 @@
-<?
+<?php
+
 $pathJS = '/bitrix/js/main/core';
 $pathCSS = '/bitrix/js/main/core/css';
 $pathCSSPanel = '/bitrix/panel/main';
@@ -16,14 +17,14 @@ $arJSCoreConfig = array(
 		'js' => $pathJS.'/core_admin.js',
 		'css' => array($pathCSS.'/core_panel.css', $pathCSSPanel.'/admin-public.css'),
 		'lang' => $pathLang.'/js_core_admin.php',
-		'rel' => array('ajax'),
+		'rel' => array('ui.design-tokens', 'ui.fonts.opensans', 'ajax'),
 		'use' => CJSCore::USE_PUBLIC,
 	),
 	'admin_interface' => array(
 		'js' => $pathJS.'/core_admin_interface.js',
 		'lang' => $pathLang.'/js_core_admin_interface.php',
 		'css' => $pathCSSPanel.'/admin-public.css',
-		'rel' => array('ajax', 'popup', 'window', 'date', 'fx'),
+		'rel' => array('ui.design-tokens', 'ui.fonts.opensans', 'ajax', 'popup', 'window', 'date', 'fx'),
 		'lang_additional' => array('TITLE_PREFIX' => CUtil::JSEscape(COption::GetOptionString("main", "site_name", $_SERVER["SERVER_NAME"]))." - ")
 	),
 	"admin_login" => array(
@@ -56,7 +57,7 @@ $arJSCoreConfig = array(
 		'js' => $pathJS.'/core_tags.js',
 		'css' => $pathCSS.'/core_tags.css',
 		'lang' => $pathLang.'/js_core_tags.php',
-		'rel' => array('popup'),
+		'rel' => array('ui.design-tokens', 'popup'),
 	),
 	'timer' => array(
 		'js' => $pathJS.'/core_timer.js',
@@ -70,7 +71,6 @@ $arJSCoreConfig = array(
 	'translit' => array(
 		'js' => $pathJS.'/core_translit.js',
 		'lang' => $pathLang.'/js_core_translit.php',
-/*		'lang_additional' => array('BING_KEY' => COption::GetOptionString('main', 'translate_key_bing', '')),*/
 		'lang_additional' => array('YANDEX_KEY' => COption::GetOptionString('main', 'translate_key_yandex', '')),
 	),
 	'image' => array(
@@ -82,26 +82,26 @@ $arJSCoreConfig = array(
 		'js' => $pathJS.'/core_viewer.js',
 		'css' => $pathCSS.'/core_viewer.css',
 		'lang' => $pathLang.'/js_core_viewer.php',
-		'rel' => array('ls', 'ajax', 'popup', 'loader'),
+		'rel' => array('ui.design-tokens', 'ui.fonts.opensans', 'ls', 'ajax', 'popup', 'loader',),
 		'lang_additional' => array('DISK_MYOFFICE' => COption::GetOptionString('disk', 'demo_myoffice', false))
 	),
 	'window' => array(
 		'js' => $pathJS.'/core_window.js',
 		//'css' => $pathCSS.'/core_window.css',
 		'css' => $pathCSSPanel.'/popup.css',
-		'rel' => array('ajax', 'main.pageobject'),
+		'rel' => array('ui.design-tokens', 'ajax', 'main.pageobject'),
 		'lang' => $pathLang.'/js_core.php',
 	),
 	'access' => array(
 		'js' => $pathJS.'/core_access.js',
 		'css' => $pathCSS.'/core_access.css',
-		'rel' => array('popup', 'ajax', 'finder', 'ui.design-tokens'),
+		'rel' => array('ui.design-tokens', 'popup', 'ajax', 'finder'),
 		'lang' => $pathLang.'/js_core_access.php',
 	),
 	'finder' => array(
 		'js' => $pathJS.'/core_finder.js',
 		'css' => $pathCSS.'/core_finder.css',
-		'rel' => array('popup', 'ajax', 'db_indexeddb', 'ui.design-tokens'),
+		'rel' => array('ui.design-tokens', 'popup', 'ajax', 'db_indexeddb',),
 	),
 	'user' => array(
 		'js' => $pathJS.'/core_user.js',
@@ -115,9 +115,9 @@ $arJSCoreConfig = array(
 		'js' => $pathJS.'/core_date.js',
 		'css' => $pathCSS.'/core_date.css',
 		'lang_additional' => array(
-			'WEEK_START' => CSite::GetWeekStart(),
+			'WEEK_START' => \Bitrix\Main\Context::getCurrent()->getCulture()->getWeekStart(),
 		),
-		'rel' => array('main.date', 'popup'),
+		'rel' => array('ui.design-tokens', 'main.date', 'popup'),
 	),
 	'ls' => array(
 		'js' => $pathJS.'/core_ls.js'
@@ -136,13 +136,13 @@ $arJSCoreConfig = array(
 		'js' => $pathJS.'/core_avatar_editor.js',
 		'css' => $pathCSS.'/core_avatar_editor.css',
 		'lang' => $pathLang.'/js_core_avatar_editor.php',
-		'rel' => array('canvas', 'popup', 'dd', 'uploader', 'webrtc', 'ui.design-tokens'),
+		'rel' => array('ui.design-tokens', 'ui.fonts.opensans', 'canvas', 'popup', 'dd', 'uploader', 'webrtc', ),
 	),
 	'canvas' => array(
 		'js' => $pathJS.'/core_canvas.js',
 		'css' => $pathCSS.'/core_canvas.css',
 		'lang' => $pathLang.'/js_core_canvas.php',
-		'rel' => array('popup'),
+		'rel' => array('ui.design-tokens', 'popup'),
 	),
 	'uploader' => array(
 		'js' => array(
@@ -175,7 +175,7 @@ $arJSCoreConfig = array(
 		'js' => $pathJS.'/core_fileinput.js',
 		'css' => $pathCSS.'/core_fileinput.css',
 		'lang' => $pathLang.'/js_core_fileinput.php',
-		'rel' => array("ajax", "window", "popup", "uploader", "canvas", "dd", "ui.design-tokens")
+		'rel' => array("ui.design-tokens", "ajax", "window", "popup", "uploader", "canvas", "dd",)
 	),
 	'clipboard' => array(
 		'js' => $pathJS.'/core_clipboard.js',
@@ -203,7 +203,7 @@ $arJSCoreConfig = array(
 	'ui_factory' => array(
 		'js' => $pathJS.'/core_ui_factory.js',
 		'css' => $pathCSS.'/core_ui_control.css',
-		'rel' => array('decl', 'ui.design-tokens')
+		'rel' => array('ui.design-tokens', 'decl',)
 	),
 	'ui' => array(
 		'rel' => array(
@@ -238,7 +238,7 @@ $arJSCoreConfig = array(
 			'/bitrix/js/main/colorpicker/css/colorpicker.css',
 		),
 		'lang' => $pathLang.'/js/colorpicker.php',
-		'rel' => array('popup', 'ui.design-tokens'),
+		'rel' => array('ui.design-tokens', 'popup',),
 	),
 	'masked_input' => array(
 		'js' => array(
@@ -262,7 +262,7 @@ $arJSCoreConfig = array(
 			'/bitrix/js/main/sidepanel/slider.js'
 		),
 		'css' => '/bitrix/js/main/sidepanel/css/sidepanel.css',
-		'rel' => array('ajax', 'fx', 'main.pageobject', 'clipboard'),
+		'rel' => array('ajax', 'fx', 'main.pageobject', 'clipboard', 'ui.fonts.opensans'),
 		'lang' => $pathLang.'/js/sidepanel.php',
 		'bundle_js' => 'sidepanel',
 		'bundle_css' => 'sidepanel'
@@ -276,7 +276,7 @@ $arJSCoreConfig = array(
 	'helper' => array(
 		'js' => '/bitrix/js/main/helper/helper.js',
 		'css' => '/bitrix/js/main/helper/css/helper.css',
-		'rel' => array('sidepanel', 'ajax'),
+		'rel' => array('sidepanel', 'ajax', 'ui.fonts.opensans'),
 		'lang' => $pathLang.'/js/helper.php',
 	),
 	'webrtc_adapter' => array(
@@ -287,7 +287,7 @@ $arJSCoreConfig = array(
 		'js' => $pathJS.'/core_update_stepper.js',
 		'css' => $pathCSS.'/core_update_stepper.css',
 		'lang' => $pathLang.'/js_core_update_stepper.php',
-		'rel' => array('ajax'),
+		'rel' => array('ajax', 'ui.design-tokens', 'ui.fonts.opensans'),
 	),
 	'uf' => array(
 		'js' => $pathJS.'/core_uf.js',

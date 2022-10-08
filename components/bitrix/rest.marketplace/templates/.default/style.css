@@ -68,7 +68,7 @@
 .mp_dt_rc_graybutton a
 {
 	color: #5b6371;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 0 15px;
 }
 
@@ -302,7 +302,7 @@
 	color: #404a58;
 	display: block;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 40px;
 	overflow: hidden;
 	text-decoration: none;
@@ -347,7 +347,7 @@
 
 .mp_td_owner, .mp_dt_title_section, .mp_dt_pp_title_section
 {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 25px;
 	margin: 0 0 0 125px;
 }
@@ -417,7 +417,7 @@
 {
 	color: #878b94;
 	font-size: 17px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .mp_sc_slide
@@ -480,7 +480,7 @@
 	color: #ffffff;
 	display: block;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 6px 8px;
 	position: absolute;
 	right: 8px;
@@ -584,7 +584,7 @@
 	color: #404a58;
 	display: block;
 	font-size: 16px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-decoration: none;
 }
 
@@ -601,7 +601,7 @@
 	color: #000000;
 	display: block;
 	font-size: 16px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding-top: 7px;
 }
 
@@ -625,7 +625,7 @@
 	cursor: pointer;
 	display: inline-block;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-right: 10px;
 	padding: 8px 17px !important;
 	text-decoration: none;
@@ -776,7 +776,7 @@
 
 .mp_delete_confirm_text
 {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-bottom: 8px;
 }
 
@@ -797,7 +797,7 @@
 	cursor: pointer;
 	display: inline-block;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-right: 5px;
 	padding: 8px 17px !important;
 	text-decoration: none;
@@ -935,7 +935,7 @@
 	cursor: pointer;
 	display: inline-block;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-right: 5px;
 	padding: 7px 17px !important;
 	text-decoration: none;
@@ -970,7 +970,7 @@
 {
 	display: inline-block;
 	font-size: 24px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 35px;
 	margin-right: 20px;
 }
@@ -998,7 +998,7 @@
 	color: #555555;
 	display: block;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .mp_dt_rc_tab_button li a:hover
@@ -1094,14 +1094,16 @@
 	padding: 0;
 	margin: 0 0 2px;
 	color: #000;
-	font: 600 14px/19px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .mp_pp_ul li dd {
 	padding: 0;
 	margin: 0;
 	color: #828b95;
-	font: 400 13px/18px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 .mp_pp_ul li[bx-denied="Y"] {
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2217%22%20height%3D%2213%22%20viewBox%3D%220%200%2017%2013%22%3E%3Cpolygon%20fill%3D%22%23D83E3E%22%20fill-rule%3D%22evenodd%22%20points%3D%225.218%2012.5%200%207.373%201.248%206.156%205.218%2010.067%2015.418%200%2016.667%201.216%22/%3E%3C/svg%3E');
@@ -1128,7 +1130,7 @@
 	border-width: 1px;
 	box-shadow: 0 1px 1px #ede8cc inset;
 	color: #555555;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	line-height: 20px;
 	margin-bottom: 12px;

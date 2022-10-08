@@ -1,13 +1,8 @@
 this.BX = this.BX || {};
-(function (exports,main_popup,ui_buttons,ui_buttons_icons,ui_entitySelector,bp_field_type,ui_layoutForm,ui_hint,main_date,bizproc_debugger,ui_fonts_robotomono,ls,ui_dialogs_messagebox,bizproc_automation,main_core,pull_client,main_core_events) {
+this.BX.Bizproc = this.BX.Bizproc || {};
+(function (exports,main_popup,ui_buttons,ui_buttons_icons,ui_entitySelector,bp_field_type,ui_layoutForm,ui_hint,main_date,main_loader,ui_fonts_robotomono,ls,ui_dialogs_messagebox,bizproc_automation,bizproc_debugger,pull_client,main_core_events,main_core,ui_tour) {
 	'use strict';
 
-	class WorkflowStatus {}
-	WorkflowStatus.Created = 0;
-	WorkflowStatus.Running = 1;
-	WorkflowStatus.Completed = 2;
-	WorkflowStatus.Suspended = 3;
-	WorkflowStatus.Terminated = 4;
 	class DebuggerState {}
 	DebuggerState.Run = 0;
 	DebuggerState.NextStep = 1;
@@ -142,6 +137,10 @@ this.BX = this.BX || {};
 	    return '';
 	  }
 
+	  static toHtml(text) {
+	    return main_core.Text.encode(text || '').replace(/\[(\/)?b\]/ig, '<$1b>');
+	  }
+
 	}
 
 	let _ = t => t,
@@ -192,8 +191,6 @@ this.BX = this.BX || {};
 	var _getPopupHeight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupHeight");
 
 	var _getPopupTitleBar = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupTitleBar");
-
-	var _handleCollapse = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleCollapse");
 
 	var _handleClose = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleClose");
 
@@ -255,6 +252,8 @@ this.BX = this.BX || {};
 
 	var _onWorkflowStatusChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onWorkflowStatusChange");
 
+	var _onAfterDocumentFixed = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onAfterDocumentFixed");
+
 	var _setDebuggerState = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setDebuggerState");
 
 	class AutomationMainView extends main_core_events.EventEmitter {
@@ -262,6 +261,9 @@ this.BX = this.BX || {};
 	    super();
 	    Object.defineProperty(this, _setDebuggerState, {
 	      value: _setDebuggerState2
+	    });
+	    Object.defineProperty(this, _onAfterDocumentFixed, {
+	      value: _onAfterDocumentFixed2
 	    });
 	    Object.defineProperty(this, _onWorkflowStatusChange, {
 	      value: _onWorkflowStatusChange2
@@ -353,9 +355,6 @@ this.BX = this.BX || {};
 	    Object.defineProperty(this, _handleClose, {
 	      value: _handleClose2
 	    });
-	    Object.defineProperty(this, _handleCollapse, {
-	      value: _handleCollapse2
-	    });
 	    Object.defineProperty(this, _getPopupTitleBar, {
 	      value: _getPopupTitleBar2
 	    });
@@ -431,6 +430,7 @@ this.BX = this.BX || {};
 	    debuggerInstance.subscribe('onWorkflowTrackAdded', babelHelpers.classPrivateFieldLooseBase(this, _onWorkflowTrackAdded)[_onWorkflowTrackAdded].bind(this));
 	    debuggerInstance.subscribe('onDocumentValuesUpdated', babelHelpers.classPrivateFieldLooseBase(this, _onDocumentValuesUpdated)[_onDocumentValuesUpdated].bind(this));
 	    debuggerInstance.subscribe('onWorkflowStatusChanged', babelHelpers.classPrivateFieldLooseBase(this, _onWorkflowStatusChange)[_onWorkflowStatusChange].bind(this));
+	    debuggerInstance.subscribe('onAfterDocumentFixed', babelHelpers.classPrivateFieldLooseBase(this, _onAfterDocumentFixed)[_onAfterDocumentFixed].bind(this));
 	  }
 
 	  get debugger() {
@@ -460,6 +460,11 @@ this.BX = this.BX || {};
 	    this.show();
 	  }
 
+	  showCollapsed() {
+	    this.debugger.settings.set('popup-collapsed', true);
+	    this.show();
+	  }
+
 	  close() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().close();
 	  }
@@ -468,13 +473,35 @@ this.BX = this.BX || {};
 	    this.close(); //TODO - cleanup
 	  }
 
+	  handleCollapse() {
+	    const node = babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().getPopupContainer();
+
+	    const collapsed = main_core.Dom.hasClass(node, '--collapse');
+	    this.debugger.settings.set('popup-collapsed', !collapsed);
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().getZIndexComponent().setAlwaysOnTop(!collapsed);
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().setResizeMode(collapsed);
+
+	    main_core.Dom.toggleClass(node, '--collapse');
+	    clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _changingViewTimeout)[_changingViewTimeout]);
+	    main_core.Dom.addClass(node, '--changing-view');
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().setWidth(babelHelpers.classPrivateFieldLooseBase(this, _getPopupWidth)[_getPopupWidth](!collapsed));
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().setHeight(babelHelpers.classPrivateFieldLooseBase(this, _getPopupHeight)[_getPopupHeight](!collapsed));
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _changingViewTimeout)[_changingViewTimeout] = setTimeout(() => main_core.Dom.removeClass(node, '--changing-view'), 500);
+	  }
+
 	}
 
 	function _getPopup2() {
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _popupInstance)[_popupInstance]) {
 	    const collapsed = this.debugger.settings.get('popup-collapsed');
+	    const className = 'bizproc-debugger-automation__main-popup bizproc-debugger-automation__scope';
 	    babelHelpers.classPrivateFieldLooseBase(this, _popupInstance)[_popupInstance] = new main_popup.Popup({
-	      className: 'bizproc-debugger-automation__main-popup bizproc-debugger-automation__scope ' + (collapsed ? '--collapse' : ''),
+	      className: className + (collapsed ? ' --collapse' : ''),
 	      titleBar: babelHelpers.classPrivateFieldLooseBase(this, _getPopupTitleBar)[_getPopupTitleBar](),
 	      noAllPaddings: true,
 	      contentBackground: 'white',
@@ -540,29 +567,8 @@ this.BX = this.BX || {};
 						onclick="${0}"
 					></span>
 				</div>
-			`), document.createTextNode(main_core.Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_POPUP_TITLE')), babelHelpers.classPrivateFieldLooseBase(this, _handleCollapse)[_handleCollapse].bind(this), babelHelpers.classPrivateFieldLooseBase(this, _handleClose)[_handleClose].bind(this))
+			`), document.createTextNode(main_core.Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_POPUP_TITLE')), this.handleCollapse.bind(this), babelHelpers.classPrivateFieldLooseBase(this, _handleClose)[_handleClose].bind(this))
 	  };
-	}
-
-	function _handleCollapse2() {
-	  const node = babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().getPopupContainer();
-
-	  const collapsed = main_core.Dom.hasClass(node, '--collapse');
-	  this.debugger.settings.set('popup-collapsed', !collapsed);
-
-	  babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().getZIndexComponent().setAlwaysOnTop(!collapsed);
-
-	  babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().setResizeMode(collapsed);
-
-	  main_core.Dom.toggleClass(node, '--collapse');
-	  clearTimeout(babelHelpers.classPrivateFieldLooseBase(this, _changingViewTimeout)[_changingViewTimeout]);
-	  main_core.Dom.addClass(node, '--changing-view');
-
-	  babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().setWidth(babelHelpers.classPrivateFieldLooseBase(this, _getPopupWidth)[_getPopupWidth](!collapsed));
-
-	  babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().setHeight(babelHelpers.classPrivateFieldLooseBase(this, _getPopupHeight)[_getPopupHeight](!collapsed));
-
-	  babelHelpers.classPrivateFieldLooseBase(this, _changingViewTimeout)[_changingViewTimeout] = setTimeout(() => main_core.Dom.removeClass(node, '--changing-view'), 500);
 	}
 
 	function _handleClose2() {
@@ -595,11 +601,16 @@ this.BX = this.BX || {};
 	function _renderExpandedMode2() {
 	  var _babelHelpers$classPr, _babelHelpers$classPr2;
 
-	  const hasFields = this.debugger.settings.getSet('watch-fields').size > 0;
 	  const hasRobots = !this.debugger.isTemplateEmpty();
 	  const activeTab = this.debugger.settings.get('tab') === 'log' ? 'log' : 'doc';
 	  const tabDocClass = activeTab === 'doc' ? '--active' : '';
 	  const tabLogClass = activeTab === 'log' ? '--active' : '';
+	  const hasActiveDocument = this.debugger.session.isFixed();
+	  const tabNoDocumentClass = hasActiveDocument ? '' : '--empty --active';
+
+	  const fieldListNode = babelHelpers.classPrivateFieldLooseBase(this, _getFieldListNode)[_getFieldListNode]();
+
+	  const hasFields = fieldListNode.querySelector('[data-field-id]') !== null;
 	  return main_core.Tag.render(_t3 || (_t3 = _`
 				<div class="bizproc-debugger-automation__main">
 					<div class="bizproc-debugger-automation__main-robots">
@@ -626,12 +637,11 @@ this.BX = this.BX || {};
 									<a href="${0}" class="bizproc-debugger-automation__link">${0}</a>
 								</div>
 							</div>
-<!--							<div class="bizproc-debugger-automation__dividing-line"></div>-->
 							${0}
 						</div>
 						${0}
 					</div>
-					<div class="bizproc-debugger-automation__main-fields">
+					<div class="bizproc-debugger-automation__main-fields ${0}">
 						<div data-role="tabs-container" class="bizproc-debugger-automation__main-navigation --active-${0}">
 							<div class="bizproc-debugger-automation__tab-block">
 								<span class="bizproc-debugger-automation__tab ${0}" data-tab-item="doc" onclick="${0}">
@@ -673,11 +683,16 @@ this.BX = this.BX || {};
 						<div data-tab-item="log" class="bizproc-debugger-tab__content ${0} bizproc-debugger-automation-main-section-log">
 							${0}
 						</div>
+						<div data-tab-item="no-document" class="bizproc-debugger-tab__content ${0} bizproc-debugger-automation-main-section-disabled">
+							<div class="bizproc-debugger-tab__content--empty">
+								${0}
+							</div>
+						</div>
 					</div>
 				</div>
-			`), babelHelpers.classPrivateFieldLooseBase(this, _createStageNode)[_createStageNode](), (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _createTriggersHeaderNode)[_createTriggersHeaderNode]()) != null ? _babelHelpers$classPr : '', (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _createTriggersNode)[_createTriggersNode]()) != null ? _babelHelpers$classPr2 : '', main_core.Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_ROBOTS_TITLE'), main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_HELPTIP_ROBOT')), hasRobots ? '' : '--active', main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_NO_ROBOTS_TITLE')), main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_NO_ROBOTS_SUBTITLE')), this.debugger.getSettingsUrl(), main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_AUTOMATION_SETTINGS')), babelHelpers.classPrivateFieldLooseBase(this, _createTemplateNode)[_createTemplateNode](), babelHelpers.classPrivateFieldLooseBase(this, _createTemplateToolbar)[_createTemplateToolbar](), activeTab, tabDocClass, babelHelpers.classPrivateFieldLooseBase(this, _handleChangeTab)[_handleChangeTab].bind(this), main_core.Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_DOCUMENT_TITLE'), main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_HELPTIP_FIELD')), tabLogClass, babelHelpers.classPrivateFieldLooseBase(this, _handleChangeTab)[_handleChangeTab].bind(this), main_core.Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_LOG_TITLE'), main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_HELPTIP_LOG')), tabDocClass, babelHelpers.classPrivateFieldLooseBase(this, _getAddFieldNode)[_getAddFieldNode](), tabLogClass, () => {
+			`), babelHelpers.classPrivateFieldLooseBase(this, _createStageNode)[_createStageNode](), (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _createTriggersHeaderNode)[_createTriggersHeaderNode]()) != null ? _babelHelpers$classPr : '', (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _createTriggersNode)[_createTriggersNode]()) != null ? _babelHelpers$classPr2 : '', main_core.Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_ROBOTS_TITLE'), main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_HELPTIP_ROBOT')), hasRobots ? '' : '--active', main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_NO_ROBOTS_TITLE')), main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_NO_ROBOTS_SUBTITLE')), this.debugger.getSettingsUrl(), main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_AUTOMATION_SETTINGS')), babelHelpers.classPrivateFieldLooseBase(this, _createTemplateNode)[_createTemplateNode](), babelHelpers.classPrivateFieldLooseBase(this, _createTemplateToolbar)[_createTemplateToolbar](), hasActiveDocument ? '' : '--disabled', activeTab, tabDocClass, babelHelpers.classPrivateFieldLooseBase(this, _handleChangeTab)[_handleChangeTab].bind(this), main_core.Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_DOCUMENT_TITLE'), main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_HELPTIP_FIELD')), tabLogClass, babelHelpers.classPrivateFieldLooseBase(this, _handleChangeTab)[_handleChangeTab].bind(this), main_core.Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_LOG_TITLE'), main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_HELPTIP_LOG')), tabDocClass, babelHelpers.classPrivateFieldLooseBase(this, _getAddFieldNode)[_getAddFieldNode](), tabLogClass, () => {
 	    bizproc_debugger.Manager.Instance.openSessionLog(this.debugger.sessionId);
-	  }, tabDocClass, hasFields ? '' : '--empty', main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_NO_FIELD_TITLE')), main_core.Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_DOCUMENT_TITLE'), babelHelpers.classPrivateFieldLooseBase(this, _getFieldListNode)[_getFieldListNode](), tabLogClass, this.debugger.getLogView().shouldScrollToBottom(true).shouldLoadPreviousLog(true).render());
+	  }, hasActiveDocument ? tabDocClass : '', hasFields ? '' : '--empty', main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_NO_FIELD_TITLE')), main_core.Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_DOCUMENT_TITLE'), fieldListNode, hasActiveDocument ? tabLogClass : '', this.debugger.getLogView().shouldScrollToBottom(true).shouldLoadPreviousLog(true).render(), tabNoDocumentClass, main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_NO_FIXED_DOCUMENT')));
 	}
 
 	function _renderCollapsedMode2() {
@@ -791,16 +806,16 @@ this.BX = this.BX || {};
 
 	  fields.delete(fieldId);
 	  this.debugger.settings.set('watch-fields', fields);
+	  main_core.Dom.remove(babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector(`[data-field-id="${fieldId}"]`));
 
 	  babelHelpers.classPrivateFieldLooseBase(this, _handleFieldListChange)[_handleFieldListChange](fields);
-
-	  main_core.Dom.remove(babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector(`[data-field-id="${fieldId}"]`));
 	}
 
 	function _handleFieldListChange2(fields) {
 	  const contentNode = babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector('[data-role="tab-content-doc"]');
 
-	  main_core.Dom[fields.size > 0 ? 'removeClass' : 'addClass'](contentNode, '--empty');
+	  const hasFields = contentNode.querySelector('[data-field-id]') !== null;
+	  main_core.Dom[hasFields ? 'removeClass' : 'addClass'](contentNode, '--empty');
 	}
 
 	function _getFieldNode2(field) {
@@ -942,8 +957,9 @@ this.BX = this.BX || {};
 	    onclick: babelHelpers.classPrivateFieldLooseBase(this, _handleStartTemplate)[_handleStartTemplate].bind(this)
 	  });
 	  const hasEvents = this.debugger.hasWorkflowEvents();
+	  const hasActiveDocument = this.debugger.session.isFixed();
 	  return main_core.Tag.render(_t10 || (_t10 = _`
-			<div class="bizproc-debugger-automation__toolbar">
+			<div class="bizproc-debugger-automation__toolbar ${0}">
 			<div data-role="external-event-info" class="bizproc-debugger-automation__toolbar--info-waiting ${0}">
 				<div>
 					${0}
@@ -959,7 +975,7 @@ this.BX = this.BX || {};
 				</div>
 			</div>
 			</div>
-		`), hasEvents ? '--active' : '', main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_SKIP_WAITING_SUBTITLE')), babelHelpers.classPrivateFieldLooseBase(this, _handleEmulateExternalEvent)[_handleEmulateExternalEvent].bind(this), main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_SKIP_WAITING_TITLE')), babelHelpers.classPrivateFieldLooseBase(this, _buttonPlay)[_buttonPlay].render(), main_core.Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_ACTION_START'));
+		`), hasActiveDocument ? '' : '--disabled', hasEvents ? '--active' : '', main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_SKIP_WAITING_SUBTITLE')), babelHelpers.classPrivateFieldLooseBase(this, _handleEmulateExternalEvent)[_handleEmulateExternalEvent].bind(this), main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_SKIP_WAITING_TITLE')), babelHelpers.classPrivateFieldLooseBase(this, _buttonPlay)[_buttonPlay].render(), main_core.Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_ACTION_START'));
 	}
 
 	function _handleStartTemplate2(button) {
@@ -1047,47 +1063,55 @@ this.BX = this.BX || {};
 	    return;
 	  }
 
-	  const statusTitleNode = babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector('[data-role="document-status-title"]');
-
-	  const statusTitle = babelHelpers.classPrivateFieldLooseBase(this, _getDocumentStatusTitle)[_getDocumentStatusTitle]();
-
-	  statusTitleNode.textContent = statusTitle;
-	  statusTitleNode.parentNode.setAttribute('title', statusTitle);
-
-	  const statusBgNode = babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector('[data-role="document-status-bg"]');
-
-	  const color = babelHelpers.classPrivateFieldLooseBase(this, _getDocumentStatusColor)[_getDocumentStatusColor]();
-
-	  main_core.Dom.style(statusBgNode, {
-	    backgroundColor: color,
-	    borderColor: color
-	  });
-
-	  const documentStatusNode = babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector('[data-role="document-status"]');
-
-	  main_core.Dom.removeClass(documentStatusNode, ['--with-border', '--light-color']);
-	  main_core.Dom.addClass(documentStatusNode, Helper.getBgColorAdditionalClass(color));
-	  main_core.Dom.remove(babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector('[data-role="triggers-header"]'));
-	  main_core.Dom.remove(babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector('[data-role="triggers"]'));
-
 	  const automationContentNode = babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector('[data-role="automation-content"]');
 
-	  main_core.Dom.prepend(babelHelpers.classPrivateFieldLooseBase(this, _createTriggersNode)[_createTriggersNode](), automationContentNode);
+	  const loader = new main_loader.Loader({
+	    target: automationContentNode
+	  });
+	  main_core.Dom.addClass(automationContentNode, '--loading');
+	  loader.show();
+	  this.debugger.loadMainViewInfo().then(() => {
+	    const statusTitleNode = babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector('[data-role="document-status-title"]');
 
-	  const triggersHeaderNode = babelHelpers.classPrivateFieldLooseBase(this, _createTriggersHeaderNode)[_createTriggersHeaderNode]();
+	    const statusTitle = babelHelpers.classPrivateFieldLooseBase(this, _getDocumentStatusTitle)[_getDocumentStatusTitle]();
 
-	  if (triggersHeaderNode) {
-	    bizproc_automation.HelpHint.bindAll(triggersHeaderNode);
-	    main_core.Dom.prepend(triggersHeaderNode, automationContentNode);
-	  }
+	    statusTitleNode.textContent = statusTitle;
+	    statusTitleNode.parentNode.setAttribute('title', statusTitle);
 
-	  const tplNode = babelHelpers.classPrivateFieldLooseBase(this, _createTemplateNode)[_createTemplateNode]();
+	    const statusBgNode = babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector('[data-role="document-status-bg"]');
 
-	  main_core.Dom.replace(babelHelpers.classPrivateFieldLooseBase(this, _node)[_node].querySelector('[data-role="template"]'), tplNode);
-	  const hasTriggers = this.debugger.templateTriggers.length > 0;
-	  const hasRobots = !this.debugger.isTemplateEmpty();
-	  main_core.Dom[hasTriggers || hasRobots ? 'removeClass' : 'addClass'](babelHelpers.classPrivateFieldLooseBase(this, _node)[_node].querySelector('[data-role="no-triggers"]'), '--active');
-	  main_core.Dom[hasRobots ? 'removeClass' : 'addClass'](babelHelpers.classPrivateFieldLooseBase(this, _node)[_node].querySelector('[data-role="no-template"]'), '--active');
+	    const color = babelHelpers.classPrivateFieldLooseBase(this, _getDocumentStatusColor)[_getDocumentStatusColor]();
+
+	    main_core.Dom.style(statusBgNode, {
+	      backgroundColor: color,
+	      borderColor: color
+	    });
+
+	    const documentStatusNode = babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector('[data-role="document-status"]');
+
+	    main_core.Dom.removeClass(documentStatusNode, ['--with-border', '--light-color']);
+	    main_core.Dom.addClass(documentStatusNode, Helper.getBgColorAdditionalClass(color));
+	    main_core.Dom.remove(babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector('[data-role="triggers-header"]'));
+	    main_core.Dom.remove(babelHelpers.classPrivateFieldLooseBase(this, _getNode)[_getNode]().querySelector('[data-role="triggers"]'));
+	    main_core.Dom.prepend(babelHelpers.classPrivateFieldLooseBase(this, _createTriggersNode)[_createTriggersNode](), automationContentNode);
+
+	    const triggersHeaderNode = babelHelpers.classPrivateFieldLooseBase(this, _createTriggersHeaderNode)[_createTriggersHeaderNode]();
+
+	    if (triggersHeaderNode) {
+	      bizproc_automation.HelpHint.bindAll(triggersHeaderNode);
+	      main_core.Dom.prepend(triggersHeaderNode, automationContentNode);
+	    }
+
+	    const tplNode = babelHelpers.classPrivateFieldLooseBase(this, _createTemplateNode)[_createTemplateNode]();
+
+	    main_core.Dom.replace(babelHelpers.classPrivateFieldLooseBase(this, _node)[_node].querySelector('[data-role="template"]'), tplNode);
+	    const hasTriggers = this.debugger.templateTriggers.length > 0;
+	    const hasRobots = !this.debugger.isTemplateEmpty();
+	    main_core.Dom[hasTriggers || hasRobots ? 'removeClass' : 'addClass'](babelHelpers.classPrivateFieldLooseBase(this, _node)[_node].querySelector('[data-role="no-triggers"]'), '--active');
+	    main_core.Dom[hasRobots ? 'removeClass' : 'addClass'](babelHelpers.classPrivateFieldLooseBase(this, _node)[_node].querySelector('[data-role="no-template"]'), '--active');
+	    main_core.Dom.removeClass(automationContentNode, '--loading');
+	    loader.destroy();
+	  });
 	}
 
 	function _onWorkflowEventsChanged2(event) {
@@ -1128,15 +1152,27 @@ this.BX = this.BX || {};
 	  const status = event.getData().status;
 	  const workflowId = event.getData().workflowId;
 
-	  if ([WorkflowStatus.Completed, WorkflowStatus.Terminated].includes(status)) {
+	  if ([bizproc_automation.WorkflowStatus.COMPLETED, bizproc_automation.WorkflowStatus.TERMINATED].includes(status)) {
 	    this.debugger.track.forEach(track => {
 	      if (track['WORKFLOW_ID'] === workflowId) {
-	        track['WORKFLOW_STATUS'] = WorkflowStatus.Completed;
+	        track['WORKFLOW_STATUS'] = bizproc_automation.WorkflowStatus.COMPLETED;
 	      }
 	    });
 
 	    babelHelpers.classPrivateFieldLooseBase(this, _updateTracker)[_updateTracker](this.debugger.track);
 	  }
+	}
+
+	function _onAfterDocumentFixed2() {
+	  const popupContainer = babelHelpers.classPrivateFieldLooseBase(this, _getPopup)[_getPopup]().getPopupContainer();
+
+	  main_core.Dom.removeClass(popupContainer.getElementsByClassName('bizproc-debugger-automation__main-fields')[0], '--disabled');
+	  main_core.Dom.removeClass(popupContainer.getElementsByClassName('bizproc-debugger-automation__toolbar')[0], '--disabled');
+	  const activeTab = this.debugger.settings.get('tab') === 'log' ? 'log' : 'doc';
+	  popupContainer.querySelectorAll([`[data-tab-item="no-document"]`]).forEach(tab => main_core.Dom.removeClass(tab, ['--empty', '--active']));
+	  popupContainer.querySelectorAll([`[data-tab-item="${activeTab}"]`]).forEach(tab => main_core.Dom.addClass(tab, '--active'));
+
+	  babelHelpers.classPrivateFieldLooseBase(this, _onDocumentStatusChanged)[_onDocumentStatusChanged]();
 	}
 
 	function _setDebuggerState2(state) {
@@ -1182,10 +1218,12 @@ this.BX = this.BX || {};
 
 	}
 	Mode.experimental = {
-	  id: 0
+	  id: 0,
+	  code: 'experimental'
 	};
 	Mode.interception = {
-	  id: 1
+	  id: 1,
+	  code: 'interception'
 	};
 
 	var _id = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("id");
@@ -1193,6 +1231,8 @@ this.BX = this.BX || {};
 	var _sessionId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sessionId");
 
 	var _documentId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("documentId");
+
+	var _categoryId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("categoryId");
 
 	var _dateExpire = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dateExpire");
 
@@ -1212,6 +1252,10 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _categoryId, {
+	      writable: true,
+	      value: void 0
+	    });
 	    Object.defineProperty(this, _dateExpire, {
 	      writable: true,
 	      value: void 0
@@ -1223,6 +1267,7 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _id)[_id] = parseInt(options.Id) >= 0 ? parseInt(options.Id) : 0;
 	    babelHelpers.classPrivateFieldLooseBase(this, _sessionId)[_sessionId] = main_core.Type.isStringFilled(options.SessionId) ? options.SessionId : '';
 	    babelHelpers.classPrivateFieldLooseBase(this, _documentId)[_documentId] = main_core.Type.isStringFilled(options.DocumentId) ? options.DocumentId : '';
+	    babelHelpers.classPrivateFieldLooseBase(this, _categoryId)[_categoryId] = main_core.Text.toInteger(options.DocumentCategoryId);
 	    babelHelpers.classPrivateFieldLooseBase(this, _dateExpire)[_dateExpire] = Helper.toDate(options.DateExpire);
 
 	    if (options.DocumentSigned) {
@@ -1232,6 +1277,14 @@ this.BX = this.BX || {};
 
 	  get documentId() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _documentId)[_documentId];
+	  }
+
+	  get categoryId() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _categoryId)[_categoryId];
+	  }
+
+	  set categoryId(categoryId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _categoryId)[_categoryId] = main_core.Type.isNumber(categoryId) ? categoryId : 0;
 	  }
 
 	  get documentSigned() {
@@ -1258,11 +1311,15 @@ this.BX = this.BX || {};
 
 	var _shortDescription = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("shortDescription");
 
+	var _categoryId$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("categoryId");
+
 	var _documentSigned$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("documentSigned");
 
 	var _finished = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("finished");
 
 	var _pullFinishHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pullFinishHandler");
+
+	var _pullDocumentValuesHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pullDocumentValuesHandler");
 
 	var _setMode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setMode");
 
@@ -1270,13 +1327,23 @@ this.BX = this.BX || {};
 
 	var _handleExternalFinished = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleExternalFinished");
 
+	var _handleExternalDocumentValues = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleExternalDocumentValues");
+
 	var _handleFinish = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleFinish");
 
+	var _updateSession = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateSession");
+
 	class Session extends main_core_events.EventEmitter {
-	  constructor(options) {
+	  constructor(_options) {
 	    super();
+	    Object.defineProperty(this, _updateSession, {
+	      value: _updateSession2
+	    });
 	    Object.defineProperty(this, _handleFinish, {
 	      value: _handleFinish2
+	    });
+	    Object.defineProperty(this, _handleExternalDocumentValues, {
+	      value: _handleExternalDocumentValues2
 	    });
 	    Object.defineProperty(this, _handleExternalFinished, {
 	      value: _handleExternalFinished2
@@ -1315,6 +1382,10 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: ''
 	    });
+	    Object.defineProperty(this, _categoryId$1, {
+	      writable: true,
+	      value: 0
+	    });
 	    Object.defineProperty(this, _documentSigned$1, {
 	      writable: true,
 	      value: ''
@@ -1327,27 +1398,34 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _pullDocumentValuesHandler, {
+	      writable: true,
+	      value: void 0
+	    });
 	    this.setEventNamespace('BX.Bizproc.Debugger.Session');
-	    options = main_core.Type.isPlainObject(options) ? options : {};
-	    babelHelpers.classPrivateFieldLooseBase(this, _id$1)[_id$1] = options.Id;
+	    _options = main_core.Type.isPlainObject(_options) ? _options : {};
+	    babelHelpers.classPrivateFieldLooseBase(this, _id$1)[_id$1] = _options.Id;
 
-	    babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](options.Mode);
+	    babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](_options.Mode);
 
-	    babelHelpers.classPrivateFieldLooseBase(this, _startedBy)[_startedBy] = parseInt(options.StartedBy) >= 0 ? parseInt(options.StartedBy) : 0;
-	    babelHelpers.classPrivateFieldLooseBase(this, _shortDescription)[_shortDescription] = String(options.ShortDescription);
-	    babelHelpers.classPrivateFieldLooseBase(this, _active)[_active] = Boolean(options.Active);
-	    babelHelpers.classPrivateFieldLooseBase(this, _fixed)[_fixed] = Boolean(options.Fixed);
+	    babelHelpers.classPrivateFieldLooseBase(this, _startedBy)[_startedBy] = parseInt(_options.StartedBy) >= 0 ? parseInt(_options.StartedBy) : 0;
+	    babelHelpers.classPrivateFieldLooseBase(this, _shortDescription)[_shortDescription] = String(_options.ShortDescription);
+	    babelHelpers.classPrivateFieldLooseBase(this, _active)[_active] = Boolean(_options.Active);
+	    babelHelpers.classPrivateFieldLooseBase(this, _fixed)[_fixed] = Boolean(_options.Fixed);
+	    babelHelpers.classPrivateFieldLooseBase(this, _categoryId$1)[_categoryId$1] = main_core.Text.toInteger(_options.CategoryId);
 
-	    babelHelpers.classPrivateFieldLooseBase(this, _setDocuments)[_setDocuments](options.Documents);
+	    babelHelpers.classPrivateFieldLooseBase(this, _setDocuments)[_setDocuments](_options.Documents);
 
 	    if (this.isActive()) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _pullFinishHandler)[_pullFinishHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handleExternalFinished)[_handleExternalFinished].bind(this);
 	      bizproc_debugger.Manager.Instance.pullHandler.subscribe('sessionFinish', babelHelpers.classPrivateFieldLooseBase(this, _pullFinishHandler)[_pullFinishHandler]);
+	      babelHelpers.classPrivateFieldLooseBase(this, _pullDocumentValuesHandler)[_pullDocumentValuesHandler] = babelHelpers.classPrivateFieldLooseBase(this, _handleExternalDocumentValues)[_handleExternalDocumentValues].bind(this);
+	      bizproc_debugger.Manager.Instance.pullHandler.subscribe('documentValues', babelHelpers.classPrivateFieldLooseBase(this, _pullDocumentValuesHandler)[_pullDocumentValuesHandler]);
 	    }
 	  }
 
 	  set documentSigned(documentSigned) {
-	    if (this.isFixed()) {
+	    if (this.isFixed() && this.activeDocument) {
 	      this.activeDocument.documentSigned = documentSigned;
 	    }
 
@@ -1390,6 +1468,10 @@ this.BX = this.BX || {};
 	    return babelHelpers.classPrivateFieldLooseBase(this, _shortDescription)[_shortDescription];
 	  }
 
+	  get initialCategoryId() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _categoryId$1)[_categoryId$1];
+	  }
+
 	  isActive() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _active)[_active];
 	  }
@@ -1406,12 +1488,24 @@ this.BX = this.BX || {};
 	    return true;
 	  }
 
+	  isInterceptionMode() {
+	    return this.modeId === Mode.interception.id;
+	  }
+
+	  isExperimentalMode() {
+	    return this.modeId === Mode.experimental.id;
+	  }
+
 	  static start(documentSigned, modeId) {
 	    return new Promise((resolve, reject) => {
 	      main_core.ajax.runAction('bizproc.debugger.startSession', {
 	        data: {
 	          documentSigned,
 	          mode: modeId
+	        },
+	        analyticsLabel: {
+	          automation_select_debug_mode: 'Y',
+	          mode_type: Mode.getMode(modeId).code
 	        }
 	      }).then(response => {
 	        const session = new Session(response.data.session);
@@ -1428,6 +1522,33 @@ this.BX = this.BX || {};
 	      }
 	    }).then(response => {
 	      babelHelpers.classPrivateFieldLooseBase(this, _handleFinish)[_handleFinish]();
+
+	      return response;
+	    });
+	  }
+
+	  fixateDocument(id) {
+	    return main_core.ajax.runAction('bizproc.debugger.fixateSessionDocument', {
+	      data: {
+	        documentId: id
+	      }
+	    }).then(response => {
+	      this.documentSigned = response.data.documentSigned;
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _updateSession)[_updateSession](response.data.session);
+
+	      this.emit('onAfterDocumentFixed');
+	      return response;
+	    });
+	  }
+
+	  removeDocuments(ids = []) {
+	    return main_core.ajax.runAction('bizproc.debugger.removeSessionDocument', {
+	      data: {
+	        documentIds: ids
+	      }
+	    }).then(response => {
+	      babelHelpers.classPrivateFieldLooseBase(this, _updateSession)[_updateSession](response.data.session);
 
 	      return response;
 	    });
@@ -1461,6 +1582,21 @@ this.BX = this.BX || {};
 	  }
 	}
 
+	function _handleExternalDocumentValues2(event) {
+	  if (!this.activeDocument) {
+	    return;
+	  }
+
+	  const values = event.getData().rawValues;
+	  const categoryId = values['CATEGORY_ID'];
+
+	  if (categoryId) {
+	    this.activeDocument.categoryId = main_core.Text.toInteger(categoryId); //TODO: refactoring candidate
+
+	    bizproc_debugger.Manager.Instance.requireSetFilter(this);
+	  }
+	}
+
 	function _handleFinish2() {
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _finished)[_finished]) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _finished)[_finished] = true;
@@ -1471,24 +1607,25 @@ this.BX = this.BX || {};
 	      bizproc_debugger.Manager.Instance.pullHandler.unsubscribe('sessionFinish', babelHelpers.classPrivateFieldLooseBase(this, _pullFinishHandler)[_pullFinishHandler]);
 	      babelHelpers.classPrivateFieldLooseBase(this, _pullFinishHandler)[_pullFinishHandler] = null;
 	    }
+
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _pullDocumentValuesHandler)[_pullDocumentValuesHandler]) {
+	      bizproc_debugger.Manager.Instance.pullHandler.unsubscribe('documentValues', babelHelpers.classPrivateFieldLooseBase(this, _pullDocumentValuesHandler)[_pullDocumentValuesHandler]);
+	      babelHelpers.classPrivateFieldLooseBase(this, _pullDocumentValuesHandler)[_pullDocumentValuesHandler] = null;
+	    }
 	  }
 	}
 
-	class TrackingType {}
-	TrackingType.Unknown = 0;
-	TrackingType.ExecuteActivity = 1;
-	TrackingType.CloseActivity = 2;
-	TrackingType.CancelActivity = 3;
-	TrackingType.FaultActivity = 4;
-	TrackingType.Custom = 5;
-	TrackingType.Report = 6;
-	TrackingType.AttachedEntity = 7;
-	TrackingType.Trigger = 8;
-	TrackingType.Error = 9;
-	TrackingType.Debug = 10;
-	TrackingType.DebugAutomation = 11;
-	TrackingType.DebugDesigner = 12;
-	TrackingType.DebugLink = 13;
+	function _updateSession2(options = {}) {
+	  if (Object.keys(options).length <= 0) {
+	    return;
+	  }
+
+	  babelHelpers.classPrivateFieldLooseBase(this, _active)[_active] = Boolean(options.Active);
+	  babelHelpers.classPrivateFieldLooseBase(this, _fixed)[_fixed] = Boolean(options.Fixed);
+	  babelHelpers.classPrivateFieldLooseBase(this, _categoryId$1)[_categoryId$1] = main_core.Text.toInteger(options.CategoryId);
+
+	  babelHelpers.classPrivateFieldLooseBase(this, _setDocuments)[_setDocuments](options.Documents);
+	}
 
 	let _$1 = t => t,
 	    _t$1,
@@ -1659,7 +1796,7 @@ this.BX = this.BX || {};
 	  }
 
 	  renderTrack(track) {
-	    const excludedTypes = [TrackingType.ExecuteActivity, TrackingType.AttachedEntity];
+	    const excludedTypes = [bizproc_automation.TrackingEntry.EXECUTE_ACTIVITY_TYPE, bizproc_automation.TrackingEntry.ATTACHED_ENTITY_TYPE];
 
 	    if (excludedTypes.includes(track.type)) {
 	      return;
@@ -1754,14 +1891,14 @@ this.BX = this.BX || {};
 
 	function _renderPause2(track) {
 	  babelHelpers.classPrivateFieldLooseBase(this, _isPauseRendered)[_isPauseRendered] = true;
-	  const excludedTypes = [TrackingType.CloseActivity]; // ignore
+	  const excludedTypes = [bizproc_automation.TrackingEntry.CLOSE_ACTIVITY_TYPE]; // ignore
 
 	  if (excludedTypes.includes(track.type)) {
 	    return;
 	  } // delay Interval
 
 
-	  if (track.type === TrackingType.DebugAutomation) {
+	  if (track.type === bizproc_automation.TrackingEntry.DEBUG_AUTOMATION_TYPE) {
 	    const node = babelHelpers.classPrivateFieldLooseBase(this, _getCurrentRobotNode)[_getCurrentRobotNode](track);
 
 	    const note = JSON.parse(track.note);
@@ -1806,13 +1943,13 @@ this.BX = this.BX || {};
 	}
 
 	function _renderCondition2(track) {
-	  const excludedTypes = [TrackingType.CloseActivity]; // ignore
+	  const excludedTypes = [bizproc_automation.TrackingEntry.CLOSE_ACTIVITY_TYPE]; // ignore
 
 	  if (excludedTypes.includes(track.type)) {
 	    return;
 	  }
 
-	  if (track.type === TrackingType.DebugAutomation) {
+	  if (track.type === bizproc_automation.TrackingEntry.DEBUG_AUTOMATION_TYPE) {
 	    const node = babelHelpers.classPrivateFieldLooseBase(this, _getCurrentRobotNode)[_getCurrentRobotNode](track);
 
 	    return main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _renderConditions)[_renderConditions](track), node);
@@ -1875,7 +2012,7 @@ this.BX = this.BX || {};
 	}
 
 	function _renderActivity2(track) {
-	  if (track.type === TrackingType.CloseActivity) {
+	  if (track.type === bizproc_automation.TrackingEntry.CLOSE_ACTIVITY_TYPE) {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _isActivityBodyRendered)[_isActivityBodyRendered] === false) {
 	      const node = babelHelpers.classPrivateFieldLooseBase(this, _getCurrentRobotNode)[_getCurrentRobotNode](track);
 
@@ -1910,15 +2047,15 @@ this.BX = this.BX || {};
 	}
 
 	function _renderNote2(track) {
-	  if ([TrackingType.DebugAutomation, TrackingType.Debug].includes(track.type)) {
+	  if ([bizproc_automation.TrackingEntry.DEBUG_AUTOMATION_TYPE, bizproc_automation.TrackingEntry.DEBUG_ACTIVITY_TYPE].includes(track.type)) {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _renderDebugNote)[_renderDebugNote](track);
 	  }
 
-	  if ([TrackingType.DebugLink].includes(track.type)) {
+	  if ([bizproc_automation.TrackingEntry.DEBUG_LINK_TYPE].includes(track.type)) {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _renderDebugLink)[_renderDebugLink](track);
 	  }
 
-	  const colorBox = [TrackingType.CancelActivity, TrackingType.FaultActivity, TrackingType.Error].includes(track.type) ? 'bizproc-debugger-automation__log-color-box --red' : '';
+	  const colorBox = [bizproc_automation.TrackingEntry.CANCEL_ACTIVITY_TYPE, bizproc_automation.TrackingEntry.FAULT_ACTIVITY_TYPE, bizproc_automation.TrackingEntry.ERROR_ACTIVITY_TYPE].includes(track.type) ? 'bizproc-debugger-automation__log-color-box --red' : '';
 	  const node = main_core.Tag.render(_t9$1 || (_t9$1 = _$1`
 			<div class="bizproc-debugger-automation__log-section--row">
 				${0}
@@ -2055,7 +2192,7 @@ this.BX = this.BX || {};
 	  }
 
 	  addTrack(track) {
-	    if (track.type === TrackingType.DebugAutomation && track.name === 'TRIGGER_LOG') {
+	    if (track.type === bizproc_automation.TrackingEntry.DEBUG_AUTOMATION_TYPE && track.name === 'TRIGGER_LOG') {
 	      babelHelpers.classPrivateFieldLooseBase(this, _condition)[_condition] = JSON.parse(track.note);
 	      babelHelpers.classPrivateFieldLooseBase(this, _title)[_title] = track.title;
 	      babelHelpers.classPrivateFieldLooseBase(this, _track)[_track] = track;
@@ -2182,6 +2319,16 @@ this.BX = this.BX || {};
 
 	var _shouldLoadPreviousLog = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("shouldLoadPreviousLog");
 
+	var _onTrackAddedHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onTrackAddedHandler");
+
+	var _onChangeTabHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onChangeTabHandler");
+
+	var _onSessionFinishedHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onSessionFinishedHandler");
+
+	var _autoScrollHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("autoScrollHandler");
+
+	var _scrollAnimationId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("scrollAnimationId");
+
 	var _loadPreviousLog = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadPreviousLog");
 
 	var _loadWorkflowRobotsByWorkflowId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loadWorkflowRobotsByWorkflowId");
@@ -2198,7 +2345,15 @@ this.BX = this.BX || {};
 
 	var _onChangeTab = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onChangeTab");
 
+	var _bindAutoScroll = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("bindAutoScroll");
+
 	var _scrollToBottom = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("scrollToBottom");
+
+	var _animateScroll = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("animateScroll");
+
+	var _cancelAnimateScroll = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("cancelAnimateScroll");
+
+	var _askScrollToBottom = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("askScrollToBottom");
 
 	var _clearWorkflowRobots = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("clearWorkflowRobots");
 
@@ -2213,8 +2368,20 @@ this.BX = this.BX || {};
 	    Object.defineProperty(this, _clearWorkflowRobots, {
 	      value: _clearWorkflowRobots2
 	    });
+	    Object.defineProperty(this, _askScrollToBottom, {
+	      value: _askScrollToBottom2
+	    });
+	    Object.defineProperty(this, _cancelAnimateScroll, {
+	      value: _cancelAnimateScroll2
+	    });
+	    Object.defineProperty(this, _animateScroll, {
+	      value: _animateScroll2
+	    });
 	    Object.defineProperty(this, _scrollToBottom, {
 	      value: _scrollToBottom2
+	    });
+	    Object.defineProperty(this, _bindAutoScroll, {
+	      value: _bindAutoScroll2
 	    });
 	    Object.defineProperty(this, _onChangeTab, {
 	      value: _onChangeTab2
@@ -2296,15 +2463,38 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: false
 	    });
+	    Object.defineProperty(this, _onTrackAddedHandler, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _onChangeTabHandler, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _onSessionFinishedHandler, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _autoScrollHandler, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _scrollAnimationId, {
+	      writable: true,
+	      value: void 0
+	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _debuggerInstance$1)[_debuggerInstance$1] = debuggerInstance;
 	    babelHelpers.classPrivateFieldLooseBase(this, _workflowId)[_workflowId] = this.debugger.workflowId;
 	    const template = this.debugger.getTemplate();
 	    this.initializeWorkflowRobotsRenderer(template ? template['ROBOTS'] : []);
 
 	    if (this.debugger.session.isActive()) {
-	      this.debugger.subscribe('onWorkflowTrackAdded', this.onTrackAdded.bind(this));
-	      this.debugger.getMainView().subscribe('onChangeTab', babelHelpers.classPrivateFieldLooseBase(this, _onChangeTab)[_onChangeTab].bind(this));
-	      this.debugger.session.subscribe('onFinished', babelHelpers.classPrivateFieldLooseBase(this, _onSessionFinished)[_onSessionFinished].bind(this));
+	      babelHelpers.classPrivateFieldLooseBase(this, _onTrackAddedHandler)[_onTrackAddedHandler] = this.onTrackAdded.bind(this);
+	      this.debugger.subscribe('onWorkflowTrackAdded', babelHelpers.classPrivateFieldLooseBase(this, _onTrackAddedHandler)[_onTrackAddedHandler]);
+	      babelHelpers.classPrivateFieldLooseBase(this, _onChangeTabHandler)[_onChangeTabHandler] = babelHelpers.classPrivateFieldLooseBase(this, _onChangeTab)[_onChangeTab].bind(this);
+	      this.debugger.getMainView().subscribe('onChangeTab', babelHelpers.classPrivateFieldLooseBase(this, _onChangeTabHandler)[_onChangeTabHandler]);
+	      babelHelpers.classPrivateFieldLooseBase(this, _onSessionFinishedHandler)[_onSessionFinishedHandler] = babelHelpers.classPrivateFieldLooseBase(this, _onSessionFinished)[_onSessionFinished].bind(this);
+	      this.debugger.session.subscribeOnce('onFinished', babelHelpers.classPrivateFieldLooseBase(this, _onSessionFinishedHandler)[_onSessionFinishedHandler]);
 	    }
 	  }
 
@@ -2413,6 +2603,11 @@ this.BX = this.BX || {};
 
 	    if (main_core.Type.isUndefined(track)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _isRendering)[_isRendering] = false;
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _askScrollToBottom)[_askScrollToBottom]();
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _bindAutoScroll)[_bindAutoScroll](babelHelpers.classPrivateFieldLooseBase(this, _shouldScrollToBottom)[_shouldScrollToBottom]);
+
 	      return;
 	    }
 
@@ -2512,7 +2707,11 @@ this.BX = this.BX || {};
 
 	  addTrack(track) {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isRendering)[_isRendering]) {
-	      return this.renderTrack(track);
+	      this.renderTrack(track);
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _askScrollToBottom)[_askScrollToBottom]();
+
+	      return;
 	    }
 
 	    babelHelpers.classPrivateFieldLooseBase(this, _poolTrack)[_poolTrack].push(track);
@@ -2540,13 +2739,13 @@ this.BX = this.BX || {};
 	      } else if (track.name === 'TRIGGER_LOG') {
 	        new TriggerLog(this).addTrack(track).render();
 	        babelHelpers.classPrivateFieldLooseBase(this, _trackId)[_trackId] = track.id;
-	      } else if (track.name === 'Template' && track.type === TrackingType.ExecuteActivity) {
+	      } else if (track.name === 'Template' && track.type === bizproc_automation.TrackingEntry.EXECUTE_ACTIVITY_TYPE) {
 	        if (main_core.Type.isUndefined(babelHelpers.classPrivateFieldLooseBase(this, _poolWorkflowRobots)[_poolWorkflowRobots][track.workflowId]) && babelHelpers.classPrivateFieldLooseBase(this, _isRendering)[_isRendering] === false) {
 	          babelHelpers.classPrivateFieldLooseBase(this, _isRendering)[_isRendering] = true;
 
 	          babelHelpers.classPrivateFieldLooseBase(this, _loadWorkflowRobotsByWorkflowId)[_loadWorkflowRobotsByWorkflowId](track);
 	        }
-	      } else if (track.name === 'Template' && track.type === TrackingType.CloseActivity) {
+	      } else if (track.name === 'Template' && track.type === bizproc_automation.TrackingEntry.CLOSE_ACTIVITY_TYPE) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _clearWorkflowRobots)[_clearWorkflowRobots](track.workflowId);
 	      }
 
@@ -2692,18 +2891,86 @@ this.BX = this.BX || {};
 	  if (event.getData().tab === 'log') {
 	    this.collapseInfoResults();
 
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _shouldScrollToBottom)[_shouldScrollToBottom]) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _scrollToBottom)[_scrollToBottom]();
+	    babelHelpers.classPrivateFieldLooseBase(this, _askScrollToBottom)[_askScrollToBottom]();
+	  }
+	}
 
-	      babelHelpers.classPrivateFieldLooseBase(this, _shouldScrollToBottom)[_shouldScrollToBottom] = false; // scroll once
-	    }
+	function _bindAutoScroll2(state) {
+	  if (!this.logNode.parentNode) {
+	    return;
+	  }
+
+	  const scrollNode = this.logNode.parentNode;
+
+	  if (state) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _autoScrollHandler)[_autoScrollHandler] = () => {
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _scrollAnimationId)[_scrollAnimationId]) {
+	        return;
+	      }
+
+	      const scrollMax = scrollNode.scrollHeight - scrollNode.clientHeight;
+	      babelHelpers.classPrivateFieldLooseBase(this, _shouldScrollToBottom)[_shouldScrollToBottom] = scrollNode.scrollTop >= scrollMax - babelHelpers.classPrivateFieldLooseBase(this.constructor, _NUMBER_OF_LINES_TO_SHOW_IN_PIXELS)[_NUMBER_OF_LINES_TO_SHOW_IN_PIXELS];
+	    };
+
+	    main_core.Event.bind(scrollNode, 'scroll', babelHelpers.classPrivateFieldLooseBase(this, _autoScrollHandler)[_autoScrollHandler]);
+	  } else if (babelHelpers.classPrivateFieldLooseBase(this, _autoScrollHandler)[_autoScrollHandler]) {
+	    main_core.Event.unbind(scrollNode, 'scroll', babelHelpers.classPrivateFieldLooseBase(this, _autoScrollHandler)[_autoScrollHandler]);
 	  }
 	}
 
 	function _scrollToBottom2() {
-	  var _this$logNode$parentN;
+	  if (!this.logNode.parentNode) {
+	    return;
+	  }
 
-	  this.logNode.parentNode.scrollTop = (_this$logNode$parentN = this.logNode.parentNode) == null ? void 0 : _this$logNode$parentN.scrollHeight;
+	  const scrollNode = this.logNode.parentNode;
+	  const from = scrollNode.scrollTop;
+	  const to = scrollNode.scrollHeight - scrollNode.clientHeight;
+
+	  babelHelpers.classPrivateFieldLooseBase(this, _animateScroll)[_animateScroll](scrollNode, from, to);
+	}
+
+	function _animateScroll2(element, start, end) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _cancelAnimateScroll)[_cancelAnimateScroll]();
+
+	  const increment = 20;
+	  const duration = 500;
+	  const diff = end - start;
+	  let currentPosition = 0;
+
+	  const requestFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
+	    return window.setTimeout(callback, 1000 / 60);
+	  };
+
+	  const animateScroll = () => {
+	    currentPosition += increment;
+	    element.scrollTop = easeInOutQuad(currentPosition, start, diff, duration);
+
+	    if (currentPosition < duration) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _scrollAnimationId)[_scrollAnimationId] = requestFrame(animateScroll);
+	    } else {
+	      babelHelpers.classPrivateFieldLooseBase(this, _scrollAnimationId)[_scrollAnimationId] = null;
+	    }
+	  };
+
+	  return animateScroll();
+	}
+
+	function _cancelAnimateScroll2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _scrollAnimationId)[_scrollAnimationId]) {
+	    const cancelFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame || function (id) {
+	      clearTimeout(id);
+	    };
+
+	    cancelFrame(babelHelpers.classPrivateFieldLooseBase(this, _scrollAnimationId)[_scrollAnimationId]);
+	    babelHelpers.classPrivateFieldLooseBase(this, _scrollAnimationId)[_scrollAnimationId] = null;
+	  }
+	}
+
+	function _askScrollToBottom2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _shouldScrollToBottom)[_shouldScrollToBottom]) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _scrollToBottom)[_scrollToBottom]();
+	  }
 	}
 
 	function _clearWorkflowRobots2(workflowId) {
@@ -2712,14 +2979,25 @@ this.BX = this.BX || {};
 	}
 
 	function _onSessionFinished2() {
-	  this.debugger.unsubscribe('onWorkflowTrackAdded', this.onTrackAdded.bind(this));
-	  this.debugger.getMainView().unsubscribe('onChangeTab', babelHelpers.classPrivateFieldLooseBase(this, _onChangeTab)[_onChangeTab].bind(this));
+	  this.debugger.unsubscribe('onWorkflowTrackAdded', babelHelpers.classPrivateFieldLooseBase(this, _onTrackAddedHandler)[_onTrackAddedHandler]);
+	  this.debugger.getMainView().unsubscribe('onChangeTab', babelHelpers.classPrivateFieldLooseBase(this, _onChangeTabHandler)[_onChangeTabHandler]);
 	}
 
 	Object.defineProperty(AutomationLogView, _NUMBER_OF_LINES_TO_SHOW_IN_PIXELS, {
 	  writable: true,
 	  value: 50
 	});
+
+	const easeInOutQuad = function (current, start, diff, duration) {
+	  current /= duration / 2;
+
+	  if (current < 1) {
+	    return diff / 2 * current * current + start;
+	  }
+
+	  current--;
+	  return -diff / 2 * (current * (current - 2) - 1) + start;
+	};
 
 	var _ttl = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("ttl");
 
@@ -2728,7 +3006,7 @@ this.BX = this.BX || {};
 	var _getName = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getName");
 
 	class Settings {
-	  constructor() {
+	  constructor(section) {
 	    Object.defineProperty(this, _getName, {
 	      value: _getName2
 	    });
@@ -2738,8 +3016,12 @@ this.BX = this.BX || {};
 	    });
 	    Object.defineProperty(this, _prefix, {
 	      writable: true,
-	      value: 'bp-atm-dbg-'
+	      value: 'bp-'
 	    });
+
+	    if (section) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _prefix)[_prefix] += section + '-';
+	    }
 	  }
 
 	  getSet(name) {
@@ -2764,6 +3046,245 @@ this.BX = this.BX || {};
 
 	function _getName2(name) {
 	  return babelHelpers.classPrivateFieldLooseBase(this, _prefix)[_prefix] + name;
+	}
+
+	var _guide = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("guide");
+
+	var _getHtmlTitle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getHtmlTitle");
+
+	class ActionPanelGuide {
+	  constructor(options) {
+	    Object.defineProperty(this, _guide, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _guide)[_guide] = new ui_tour.Guide({
+	      steps: [{
+	        target: options.target,
+	        title: babelHelpers.classPrivateFieldLooseBase(ActionPanelGuide, _getHtmlTitle)[_getHtmlTitle](options.title) || '',
+	        text: options.text || '',
+	        //article: options.article,
+	        condition: {
+	          top: true,
+	          bottom: false,
+	          color: 'warning'
+	        }
+	      }],
+	      onEvents: true
+	    });
+	  }
+
+	  start() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _guide)[_guide].getPopup().setWidth(370); //some magic ^_^
+
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _guide)[_guide].showNextStep();
+	  }
+
+	  finish() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _guide)[_guide].close();
+	  }
+
+	}
+
+	function _getHtmlTitle2(title) {
+	  if (title) {
+	    return `
+				<div class="bizproc__action-panel-guide">
+					<div class="bizproc__action-panel-guide--title --warning-icon">${main_core.Text.encode(title)}</div>
+				</div>
+			`;
+	  }
+
+	  return null;
+	}
+
+	Object.defineProperty(ActionPanelGuide, _getHtmlTitle, {
+	  value: _getHtmlTitle2
+	});
+
+	var _actionPanel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("actionPanel");
+
+	var _grid = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("grid");
+
+	var _guides = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("guides");
+
+	var _debuggerInstance$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("debuggerInstance");
+
+	var _appendItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("appendItems");
+
+	var _onHideActionPanel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onHideActionPanel");
+
+	var _getRemoveEntityActionText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getRemoveEntityActionText");
+
+	var _getCheckedIdsInBpStyle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getCheckedIdsInBpStyle");
+
+	var _handleRejectResponse = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleRejectResponse");
+
+	class CustomCrmActionPanel {
+	  constructor(grid, debuggerInstance) {
+	    Object.defineProperty(this, _handleRejectResponse, {
+	      value: _handleRejectResponse2
+	    });
+	    Object.defineProperty(this, _getCheckedIdsInBpStyle, {
+	      value: _getCheckedIdsInBpStyle2
+	    });
+	    Object.defineProperty(this, _getRemoveEntityActionText, {
+	      value: _getRemoveEntityActionText2
+	    });
+	    Object.defineProperty(this, _onHideActionPanel, {
+	      value: _onHideActionPanel2
+	    });
+	    Object.defineProperty(this, _appendItems, {
+	      value: _appendItems2
+	    });
+	    Object.defineProperty(this, _actionPanel, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _grid, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _guides, {
+	      writable: true,
+	      value: []
+	    });
+	    Object.defineProperty(this, _debuggerInstance$2, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _grid)[_grid] = grid;
+	    babelHelpers.classPrivateFieldLooseBase(this, _debuggerInstance$2)[_debuggerInstance$2] = debuggerInstance;
+	    babelHelpers.classPrivateFieldLooseBase(this, _actionPanel)[_actionPanel] = new BX.UI.ActionPanel({
+	      removeLeftPosition: true,
+	      maxHeight: 58,
+	      parentPosition: 'bottom',
+	      autoHide: false
+	    });
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _appendItems)[_appendItems]();
+
+	    const onHideActionPanelHandler = babelHelpers.classPrivateFieldLooseBase(this, _onHideActionPanel)[_onHideActionPanel].bind(this);
+
+	    main_core_events.EventEmitter.subscribe(babelHelpers.classPrivateFieldLooseBase(this, _actionPanel)[_actionPanel], 'BX.UI.ActionPanel:hidePanel', onHideActionPanelHandler);
+	  }
+
+	  get actionPanel() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _actionPanel)[_actionPanel];
+	  }
+
+	  fixEntityAction() {
+	    const checkedIds = babelHelpers.classPrivateFieldLooseBase(this, _getCheckedIdsInBpStyle)[_getCheckedIdsInBpStyle]();
+
+	    if (checkedIds.length !== 1) {
+	      const guide = new ActionPanelGuide({
+	        target: this.actionPanel.getItemById('fix_entity').layout.container,
+	        title: main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FIX_DEAL_COUNT_ERROR_TITLE'),
+	        article: 'limit_office_bp_designer' // todo: replace,
+
+	      });
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _guides)[_guides].push(guide);
+
+	      guide.start();
+	      return;
+	    }
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _debuggerInstance$2)[_debuggerInstance$2].session.fixateDocument(checkedIds[0]).then(() => {
+	      this.stopActionPanel();
+	      bizproc_debugger.Manager.Instance.requireSetFilter(babelHelpers.classPrivateFieldLooseBase(this, _debuggerInstance$2)[_debuggerInstance$2].session, true);
+
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _debuggerInstance$2)[_debuggerInstance$2].settings.get('popup-collapsed')) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _debuggerInstance$2)[_debuggerInstance$2].getMainView().handleCollapse();
+	      }
+	    }, response => {
+	      babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse)[_handleRejectResponse](response, 'fix_entity');
+	    });
+	  }
+
+	  removeEntityAction() {
+	    const checkedIds = babelHelpers.classPrivateFieldLooseBase(this, _getCheckedIdsInBpStyle)[_getCheckedIdsInBpStyle]();
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _debuggerInstance$2)[_debuggerInstance$2].session.removeDocuments(checkedIds).then(() => {
+	      this.actionPanel.hidePanel();
+
+	      babelHelpers.classPrivateFieldLooseBase(this, _grid)[_grid].reload();
+	    }, response => {
+	      babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse)[_handleRejectResponse](response, 'remove_entity');
+	    });
+	  }
+
+	  stopActionPanel() {
+	    this.actionPanel.hidePanel();
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _grid)[_grid].resetActionPanel();
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _grid)[_grid].stopActionPanel();
+	  }
+
+	}
+
+	function _appendItems2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _actionPanel)[_actionPanel].appendItem({
+	    id: 'fix_entity',
+	    text: main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FIX_DEAL_ACTION'),
+	    onclick: this.fixEntityAction.bind(this)
+	  });
+
+	  babelHelpers.classPrivateFieldLooseBase(this, _actionPanel)[_actionPanel].appendItem({
+	    id: 'remove_entity',
+	    text: babelHelpers.classPrivateFieldLooseBase(this, _getRemoveEntityActionText)[_getRemoveEntityActionText](),
+	    onclick: this.removeEntityAction.bind(this)
+	  });
+
+	  babelHelpers.classPrivateFieldLooseBase(this, _actionPanel)[_actionPanel].appendItem({
+	    id: 'finish_debug',
+	    text: main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FINISH_DEBUG_ACTION'),
+	    onclick: function () {
+	      bizproc_debugger.Manager.Instance.finishSession(babelHelpers.classPrivateFieldLooseBase(this, _debuggerInstance$2)[_debuggerInstance$2].session).then(() => {
+	        this.stopActionPanel();
+	      }, response => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse)[_handleRejectResponse](response, 'finish_debug');
+	      });
+	    }.bind(this)
+	  });
+	}
+
+	function _onHideActionPanel2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _guides)[_guides].forEach(guide => {
+	    guide.finish();
+	  });
+	}
+
+	function _getRemoveEntityActionText2() {
+	  return `
+			<span>${main_core.Text.encode(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_REMOVE_DEAL_ACTION'))}</span>
+		`;
+	}
+
+	function _getCheckedIdsInBpStyle2() {
+	  const checkedIds = babelHelpers.classPrivateFieldLooseBase(this, _grid)[_grid].getCheckedId(); // todo: get EntityType from another place
+
+
+	  return checkedIds.map(id => 'DEAL_' + id);
+	}
+
+	function _handleRejectResponse2(response, actionId) {
+	  let message = '';
+	  response.errors.forEach(error => {
+	    message = message + '\n' + error.message;
+	  });
+	  const guide = new ActionPanelGuide({
+	    target: this.actionPanel.getItemById(actionId).layout.container,
+	    title: message,
+	    article: 'limit_office_bp_designer' // todo: replace,
+
+	  });
+
+	  babelHelpers.classPrivateFieldLooseBase(this, _guides)[_guides].push(guide);
+
+	  guide.start();
 	}
 
 	var _pullHandlers = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pullHandlers");
@@ -2796,19 +3317,30 @@ this.BX = this.BX || {};
 
 	var _debuggerState = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("debuggerState");
 
+	var _customActionPanel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("customActionPanel");
+
+	var _resumeShowActionPanel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("resumeShowActionPanel");
+
+	var _shouldSetCustomActionPanel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("shouldSetCustomActionPanel");
+
 	var _initAutomationContext = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initAutomationContext");
 
 	var _subscribePull = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribePull");
 
 	var _unsubscribePull = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("unsubscribePull");
 
-	var _handleRejectResponse = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleRejectResponse");
+	var _handleRejectResponse$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleRejectResponse");
+
+	var _onAfterDocumentFixed$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onAfterDocumentFixed");
 
 	class Automation extends main_core_events.EventEmitter {
 	  constructor(parameters = {}) {
 	    super();
-	    Object.defineProperty(this, _handleRejectResponse, {
-	      value: _handleRejectResponse2
+	    Object.defineProperty(this, _onAfterDocumentFixed$1, {
+	      value: _onAfterDocumentFixed2$1
+	    });
+	    Object.defineProperty(this, _handleRejectResponse$1, {
+	      value: _handleRejectResponse2$1
 	    });
 	    Object.defineProperty(this, _unsubscribePull, {
 	      value: _unsubscribePull2
@@ -2818,6 +3350,12 @@ this.BX = this.BX || {};
 	    });
 	    Object.defineProperty(this, _initAutomationContext, {
 	      value: _initAutomationContext2
+	    });
+	    Object.defineProperty(this, _shouldSetCustomActionPanel, {
+	      value: _shouldSetCustomActionPanel2
+	    });
+	    Object.defineProperty(this, _resumeShowActionPanel, {
+	      value: _resumeShowActionPanel2
 	    });
 	    this.session = null;
 	    Object.defineProperty(this, _pullHandlers, {
@@ -2880,22 +3418,29 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _customActionPanel, {
+	      writable: true,
+	      value: null
+	    });
 	    this.setEventNamespace('BX.Bizproc.Debugger.Automation');
 	    this.session = parameters.session;
 
 	    if (this.session.isActive()) {
+	      this.session.subscribeOnce('onAfterDocumentFixed', babelHelpers.classPrivateFieldLooseBase(this, _onAfterDocumentFixed$1)[_onAfterDocumentFixed$1].bind(this));
 	      this.session.subscribe('onFinished', this.destroy.bind(this));
 
 	      babelHelpers.classPrivateFieldLooseBase(this, _subscribePull)[_subscribePull]();
 	    }
 
-	    babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings] = new Settings();
+	    babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings] = new Settings('atm-dbg');
 
 	    babelHelpers.classPrivateFieldLooseBase(this, _initAutomationContext)[_initAutomationContext]();
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _resumeShowActionPanel)[_resumeShowActionPanel]();
 	  }
 
 	  destroy() {
-	    var _babelHelpers$classPr;
+	    var _babelHelpers$classPr, _babelHelpers$classPr2;
 
 	    this.unsubscribeAll();
 
@@ -2914,6 +3459,7 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _workflowStatus)[_workflowStatus] = 0;
 	    babelHelpers.classPrivateFieldLooseBase(this, _workflowEvents)[_workflowEvents] = [];
 	    babelHelpers.classPrivateFieldLooseBase(this, _workflowTrack)[_workflowTrack] = [];
+	    (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _customActionPanel)[_customActionPanel]) == null ? void 0 : _babelHelpers$classPr2.stopActionPanel();
 	  }
 
 	  get track() {
@@ -3024,7 +3570,7 @@ this.BX = this.BX || {};
 	        }
 
 	        resolve(response);
-	      }, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse)[_handleRejectResponse].bind(this));
+	      }, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse$1)[_handleRejectResponse$1].bind(this));
 	    });
 	  }
 
@@ -3045,12 +3591,13 @@ this.BX = this.BX || {};
 	      main_core.ajax.runAction('bizproc.debugger.resumeAutomationTemplate', {
 	        data: {
 	          sessionId: this.sessionId
-	        }
+	        },
+	        analyticsLabel: 'automation_start_debug'
 	      }).then(response => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _workflowId$1)[_workflowId$1] = response.data.workflowId;
 	        babelHelpers.classPrivateFieldLooseBase(this, _debuggerState)[_debuggerState] = response.data.debuggerState;
 	        resolve(response.data);
-	      }, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse)[_handleRejectResponse].bind(this));
+	      }, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse$1)[_handleRejectResponse$1].bind(this));
 	    });
 	  }
 
@@ -3069,7 +3616,7 @@ this.BX = this.BX || {};
 	        }
 	      }).then(response => {
 	        resolve(response.data);
-	      }, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse)[_handleRejectResponse].bind(this));
+	      }, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse$1)[_handleRejectResponse$1].bind(this));
 	    });
 	  }
 
@@ -3094,7 +3641,7 @@ this.BX = this.BX || {};
 	        babelHelpers.classPrivateFieldLooseBase(this, _debuggerState)[_debuggerState] = response.data.debuggerState;
 	        bizproc_automation.getGlobalContext().document.setFields(this.getDocumentFields()).setStatusList(this.getStatusList()).setStatus(this.getDocumentStatus());
 	        resolve();
-	      }, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse)[_handleRejectResponse].bind(this));
+	      }, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse$1)[_handleRejectResponse$1].bind(this));
 	    });
 	  }
 
@@ -3106,7 +3653,7 @@ this.BX = this.BX || {};
 	        }
 	      }).then(response => {
 	        resolve(response.data);
-	      }, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse)[_handleRejectResponse].bind(this));
+	      }, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse$1)[_handleRejectResponse$1].bind(this));
 	    });
 	  }
 
@@ -3132,12 +3679,9 @@ this.BX = this.BX || {};
 	      return;
 	    }
 
-	    console.info('document status: ' + status); //this.#documentStatus = status
-	    //TODO - don`t load all
-
-	    this.loadMainViewInfo().then(() => {
-	      this.emit('onDocumentStatusChanged');
-	    });
+	    console.info('document status: ' + status);
+	    babelHelpers.classPrivateFieldLooseBase(this, _documentStatus$1)[_documentStatus$1] = status;
+	    this.emit('onDocumentStatusChanged');
 	  }
 
 	  handleExternalDocumentValues(event) {
@@ -3154,7 +3698,7 @@ this.BX = this.BX || {};
 	      message: main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_CONFIRM_ON_DOCUMENT_DELETE'),
 	      okCaption: main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_VIEWS_MENU_FINISH_SESSION'),
 	      onOk: () => {
-	        return Manager.Instance.finishSession(this.session).then(null, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse)[_handleRejectResponse].bind(this));
+	        return Manager.Instance.finishSession(this.session).then(null, babelHelpers.classPrivateFieldLooseBase(this, _handleRejectResponse$1)[_handleRejectResponse$1].bind(this));
 	      },
 	      buttons: ui_dialogs_messagebox.MessageBoxButtons.OK_CANCEL
 	    });
@@ -3176,7 +3720,7 @@ this.BX = this.BX || {};
 	    const workflowId = event.getData().workflowId;
 	    babelHelpers.classPrivateFieldLooseBase(this, _workflowStatus)[_workflowStatus] = status;
 
-	    if (status === WorkflowStatus.Running) {
+	    if (status === bizproc_automation.WorkflowStatus.RUNNING) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _workflowId$1)[_workflowId$1] = workflowId;
 	    }
 
@@ -3247,8 +3791,35 @@ this.BX = this.BX || {};
 
 	}
 
+	function _resumeShowActionPanel2() {
+	  if (this.session.isInterceptionMode() && !this.session.isFixed()) {
+	    if (main_core.Reflection.getClass('BX.CRM.Kanban.Grid')) {
+	      const gridInstance = BX.CRM.Kanban.Grid.getInstance();
+
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _shouldSetCustomActionPanel)[_shouldSetCustomActionPanel](gridInstance)) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _customActionPanel)[_customActionPanel] = new CustomCrmActionPanel(gridInstance, this);
+	        gridInstance.stopActionPanel(true);
+	        gridInstance.resetActionPanel();
+	        gridInstance.setCustomActionPanel(babelHelpers.classPrivateFieldLooseBase(this, _customActionPanel)[_customActionPanel].actionPanel);
+	      }
+	    }
+	  }
+	}
+
+	function _shouldSetCustomActionPanel2(gridInstance) {
+	  const gridData = gridInstance.getData();
+	  const entityType = gridData.entityType; //todo: modify
+
+	  if (entityType !== 'DEAL') {
+	    return false;
+	  }
+
+	  const categoryId = gridData.params.hasOwnProperty('CATEGORY_ID') ? main_core.Text.toInteger(gridData.params.CATEGORY_ID) : 0;
+	  return this.session.initialCategoryId === categoryId;
+	}
+
 	function _initAutomationContext2() {
-	  const context = new bizproc_automation.AutomationContext({
+	  const context = new bizproc_automation.Context({
 	    document: new bizproc_automation.Document({
 	      rawDocumentType: [],
 	      documentId: null,
@@ -3289,7 +3860,7 @@ this.BX = this.BX || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _pullHandlers)[_pullHandlers] = null;
 	}
 
-	function _handleRejectResponse2(response) {
+	function _handleRejectResponse2$1(response) {
 	  if (main_core.Type.isArrayFilled(response.errors)) {
 	    const noDocumentError = response.errors.find(error => error.code === 404);
 
@@ -3300,6 +3871,12 @@ this.BX = this.BX || {};
 	      ui_dialogs_messagebox.MessageBox.alert(message);
 	    }
 	  }
+	}
+
+	function _onAfterDocumentFixed2$1() {
+	  this.loadMainViewInfo().then(() => {
+	    this.emit('onAfterDocumentFixed');
+	  });
 	}
 
 	var _unsubscribe = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("unsubscribe");
@@ -3361,9 +3938,266 @@ this.BX = this.BX || {};
 	  this.emit(command, params);
 	}
 
+	var _getText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getText");
+
+	class FilterGuide {
+	  constructor(options) {
+	    var _options$events;
+
+	    this.guide = new ui_tour.Guide({
+	      steps: [{
+	        target: options.target,
+	        title: main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_FILTER_TOUR_TITLE'),
+	        text: babelHelpers.classPrivateFieldLooseBase(FilterGuide, _getText)[_getText](),
+	        article: '16087180',
+	        events: (_options$events = options.events) != null ? _options$events : {},
+	        condition: {
+	          top: true,
+	          bottom: false,
+	          color: 'primary'
+	        }
+	      }],
+	      onEvents: true
+	    });
+	    this.bindEvents();
+	  }
+
+	  bindEvents() {// EventEmitter.subscribe('UI.Tour.Guide:onFinish'....
+	  }
+
+	  start() {
+	    this.guide.getPopup().setWidth(365); //some magic ^_^
+
+	    this.guide.showNextStep();
+	  }
+
+	}
+
+	function _getText2() {
+	  return `
+			<ul class="bizproc-debugger-filter-guide-list">
+				<li class="bizproc-debugger-filter-guide-list-item">
+					${Helper.toHtml(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_1'))}
+				</li>
+				<li class="bizproc-debugger-filter-guide-list-item">
+					${Helper.toHtml(main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_2'))}
+				</li>
+			</ul>
+		`;
+	}
+
+	Object.defineProperty(FilterGuide, _getText, {
+	  value: _getText2
+	});
+
+	var _getText$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getText");
+
+	class StageGuide {
+	  constructor(options) {
+	    var _options$events;
+
+	    this.guide = new ui_tour.Guide({
+	      steps: [{
+	        target: options.target,
+	        title: main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_STAGE_TOUR_TITLE'),
+	        text: babelHelpers.classPrivateFieldLooseBase(StageGuide, _getText$1)[_getText$1](),
+	        //article: 'limit_office_bp_designer', // todo: replace,
+	        events: (_options$events = options.events) != null ? _options$events : {},
+	        condition: {
+	          top: true,
+	          bottom: false,
+	          color: 'primary'
+	        }
+	      }],
+	      onEvents: true
+	    });
+	  }
+
+	  start() {
+	    this.guide.getPopup().setWidth(330); //some magic ^_^
+
+	    this.guide.showNextStep();
+	  }
+
+	}
+
+	function _getText2$1() {
+	  return `
+			<ul class="bizproc-debugger-filter-guide-list">
+				<li class="bizproc-debugger-filter-guide-list-item">
+					${main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_STAGE_TOUR_TEXT_LINE_1')}
+				</li>
+				<li class="bizproc-debugger-filter-guide-list-item">
+					${main_core.Loc.getMessage('BIZPROC_JS_DEBUGGER_STAGE_TOUR_TEXT_LINE_2')}
+				</li>
+			</ul>
+		`;
+	}
+
+	Object.defineProperty(StageGuide, _getText$1, {
+	  value: _getText2$1
+	});
+
+	var _grid$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("grid");
+
+	var _guides$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("guides");
+
+	var _reserveFilterIds = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("reserveFilterIds");
+
+	var _getStageGuide = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getStageGuide");
+
+	var _getFilterGuide = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFilterGuide");
+
+	class CrmDebuggerGuide extends main_core_events.EventEmitter {
+	  constructor(options) {
+	    super();
+	    Object.defineProperty(this, _getFilterGuide, {
+	      value: _getFilterGuide2
+	    });
+	    Object.defineProperty(this, _getStageGuide, {
+	      value: _getStageGuide2
+	    });
+	    Object.defineProperty(this, _grid$1, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _guides$1, {
+	      writable: true,
+	      value: []
+	    });
+	    Object.defineProperty(this, _reserveFilterIds, {
+	      writable: true,
+	      value: []
+	    });
+	    this.setEventNamespace('BX.Bizproc.Debugger.CrmDebuggerGuide');
+	    babelHelpers.classPrivateFieldLooseBase(this, _grid$1)[_grid$1] = options.grid;
+	    babelHelpers.classPrivateFieldLooseBase(this, _reserveFilterIds)[_reserveFilterIds] = options.reserveFilterIds; // reverse order
+
+	    if (options.showStageStep) {
+	      const stageStep = babelHelpers.classPrivateFieldLooseBase(this, _getStageGuide)[_getStageGuide]();
+
+	      if (stageStep) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _guides$1)[_guides$1].push(stageStep);
+	      }
+	    }
+
+	    if (options.showFilterStep) {
+	      const filterGuide = babelHelpers.classPrivateFieldLooseBase(this, _getFilterGuide)[_getFilterGuide]();
+
+	      if (filterGuide) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _guides$1)[_guides$1].push(filterGuide);
+	      }
+	    }
+	  }
+
+	  start() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _guides$1)[_guides$1].length <= 0) {
+	      return;
+	    }
+
+	    babelHelpers.classPrivateFieldLooseBase(this, _guides$1)[_guides$1][babelHelpers.classPrivateFieldLooseBase(this, _guides$1)[_guides$1].length - 1].start();
+	  }
+
+	}
+
+	function _getStageGuide2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _grid$1)[_grid$1]) {
+	    return;
+	  }
+
+	  const firstColumn = babelHelpers.classPrivateFieldLooseBase(this, _grid$1)[_grid$1].getColumns()[0];
+
+	  if (!firstColumn) {
+	    return null;
+	  }
+
+	  const guideTarget = firstColumn.getTitleContainer();
+
+	  if (!guideTarget) {
+	    return null;
+	  }
+
+	  const nextGuide = babelHelpers.classPrivateFieldLooseBase(this, _guides$1)[_guides$1][babelHelpers.classPrivateFieldLooseBase(this, _guides$1)[_guides$1].length - 1];
+
+	  return new StageGuide({
+	    target: '.' + guideTarget.classList[0],
+	    events: {
+	      'onShow': function () {
+	        this.emit('onStageGuideStepShow');
+	      }.bind(this),
+	      'onClose': function () {
+	        if (nextGuide) {
+	          nextGuide.start();
+	        }
+	      }.bind(this)
+	    }
+	  });
+	}
+
+	function _getFilterGuide2() {
+	  var _filterApi$parent;
+
+	  const filterId = babelHelpers.classPrivateFieldLooseBase(this, _grid$1)[_grid$1] ? [babelHelpers.classPrivateFieldLooseBase(this, _grid$1)[_grid$1].getData().gridId] : babelHelpers.classPrivateFieldLooseBase(this, _reserveFilterIds)[_reserveFilterIds];
+
+	  if (filterId.length <= 0) {
+	    return null;
+	  }
+
+	  let filter;
+
+	  for (const key in filterId) {
+	    filter = BX.Main.filterManager.getById(filterId[key]);
+
+	    if (filter) {
+	      break;
+	    }
+	  }
+
+	  if (!filter) {
+	    return null;
+	  }
+
+	  const filterApi = filter.getApi();
+	  const guideTarget = filterApi == null ? void 0 : (_filterApi$parent = filterApi.parent) == null ? void 0 : _filterApi$parent.getPopupBindElement();
+
+	  if (!guideTarget) {
+	    return null;
+	  }
+
+	  const nextGuide = babelHelpers.classPrivateFieldLooseBase(this, _guides$1)[_guides$1][babelHelpers.classPrivateFieldLooseBase(this, _guides$1)[_guides$1].length - 1];
+
+	  return new FilterGuide({
+	    target: guideTarget,
+	    events: {
+	      'onShow': function () {
+	        this.emit('onFilterGuideStepShow');
+	      }.bind(this),
+	      'onClose': function () {
+	        if (nextGuide) {
+	          nextGuide.start();
+	        }
+	      }.bind(this)
+	    }
+	  });
+	}
+
 	let instance = null;
 
+	var _settings$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("settings");
+
 	var _showDebugger = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showDebugger");
+
+	var _showGuide = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showGuide");
+
+	var _setDebugFilter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setDebugFilter");
+
+	var _removeDebugFilter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("removeDebugFilter");
+
+	var _lastFilterId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("lastFilterId");
+
+	var _getFilterApis = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFilterApis");
+
+	var _getFilterIds = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getFilterIds");
 
 	class Manager {
 	  static get Instance() {
@@ -3375,10 +4209,34 @@ this.BX = this.BX || {};
 	  }
 
 	  constructor() {
+	    Object.defineProperty(this, _getFilterIds, {
+	      value: _getFilterIds2
+	    });
+	    Object.defineProperty(this, _getFilterApis, {
+	      value: _getFilterApis2
+	    });
+	    Object.defineProperty(this, _lastFilterId, {
+	      get: _get_lastFilterId,
+	      set: _set_lastFilterId
+	    });
+	    Object.defineProperty(this, _removeDebugFilter, {
+	      value: _removeDebugFilter2
+	    });
+	    Object.defineProperty(this, _setDebugFilter, {
+	      value: _setDebugFilter2
+	    });
+	    Object.defineProperty(this, _showGuide, {
+	      value: _showGuide2
+	    });
 	    Object.defineProperty(this, _showDebugger, {
 	      value: _showDebugger2
 	    });
+	    Object.defineProperty(this, _settings$1, {
+	      writable: true,
+	      value: void 0
+	    });
 	    this.pullHandler = new CommandHandler();
+	    babelHelpers.classPrivateFieldLooseBase(this, _settings$1)[_settings$1] = new Settings('manager');
 	  }
 
 	  initializeDebugger(parameters = {
@@ -3392,6 +4250,7 @@ this.BX = this.BX || {};
 	    }
 
 	    session.documentSigned = parameters.documentSigned;
+	    this.requireSetFilter(session);
 
 	    babelHelpers.classPrivateFieldLooseBase(this, _showDebugger)[_showDebugger](session);
 	  }
@@ -3399,9 +4258,13 @@ this.BX = this.BX || {};
 	  startSession(documentSigned, modeId) {
 	    return new Promise((resolve, reject) => {
 	      Session.start(documentSigned, modeId).then(session => {
-	        this.setDebugFilter();
+	        babelHelpers.classPrivateFieldLooseBase(this, _lastFilterId)[_lastFilterId] = null;
 
-	        babelHelpers.classPrivateFieldLooseBase(this, _showDebugger)[_showDebugger](session, true);
+	        babelHelpers.classPrivateFieldLooseBase(this, _setDebugFilter)[_setDebugFilter](session);
+
+	        const debuggerInstance = babelHelpers.classPrivateFieldLooseBase(this, _showDebugger)[_showDebugger](session, true);
+
+	        babelHelpers.classPrivateFieldLooseBase(this, _showGuide)[_showGuide](debuggerInstance);
 
 	        resolve();
 	      }, reject);
@@ -3411,53 +4274,32 @@ this.BX = this.BX || {};
 	  finishSession(session) {
 	    return new Promise((resolve, reject) => {
 	      session.finish().then(response => {
-	        this.removeDebugFilter();
+	        babelHelpers.classPrivateFieldLooseBase(this, _removeDebugFilter)[_removeDebugFilter](session);
+
 	        resolve(response);
 	      }, reject);
 	    });
 	  }
 
-	  setDebugFilter() {
-	    var _BX$Main$filterManage;
+	  requireSetFilter(session, force = false) {
+	    const lastId = babelHelpers.classPrivateFieldLooseBase(this, _getFilterIds)[_getFilterIds](session).pop();
 
-	    const filters = (_BX$Main$filterManage = BX.Main.filterManager) == null ? void 0 : _BX$Main$filterManage.getList();
-
-	    if (!filters) {
-	      return;
+	    if (lastId !== babelHelpers.classPrivateFieldLooseBase(this, _lastFilterId)[_lastFilterId] || force) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _setDebugFilter)[_setDebugFilter](session);
 	    }
-
-	    filters.forEach(filter => {
-	      const api = filter.getApi();
-	      api.setFilter({
-	        preset_id: 'filter_robot_debugger'
-	      });
-	    });
-	  }
-
-	  removeDebugFilter() {
-	    var _BX$Main$filterManage2;
-
-	    const filters = (_BX$Main$filterManage2 = BX.Main.filterManager) == null ? void 0 : _BX$Main$filterManage2.getList();
-
-	    if (!filters) {
-	      return;
-	    }
-
-	    filters.forEach(filter => {
-	      const api = filter.getApi();
-	      api.setFilter({
-	        preset_id: 'default_filter'
-	      });
-	    });
 	  }
 
 	  createAutomationDebugger(parameters = {}) {
 	    return new Automation(parameters);
 	  }
 
-	  openDebuggerStartPage(documentSigned) {
+	  openDebuggerStartPage(documentSigned, parameters = {}) {
 	    const url = BX.Uri.addParam('/bitrix/components/bitrix/bizproc.debugger.start/', {
-	      documentSigned: documentSigned
+	      documentSigned: documentSigned,
+	      analyticsLabel: {
+	        automation_enter_debug: 'Y',
+	        start_type: parameters.analyticsStartType || 'default'
+	      }
 	    });
 	    const options = {
 	      width: 745,
@@ -3510,7 +4352,7 @@ this.BX = this.BX || {};
 
 	}
 
-	function _showDebugger2(session, expanded = false) {
+	function _showDebugger2(session, isFirstShow = false) {
 	  let debuggerInstance = null;
 
 	  if (session.isAutomation()) {
@@ -3520,8 +4362,100 @@ this.BX = this.BX || {};
 	  }
 
 	  if (debuggerInstance) {
-	    debuggerInstance.getMainView()[expanded ? 'showExpanded' : 'show']();
+	    const initialShowState = session.isExperimentalMode() ? 'showExpanded' : 'showCollapsed';
+	    debuggerInstance.getMainView()[isFirstShow ? initialShowState : 'show']();
+	    return debuggerInstance;
 	  }
+
+	  return debuggerInstance;
+	}
+
+	function _showGuide2(debuggerInstance) {
+	  const guide = new CrmDebuggerGuide({
+	    grid: main_core.Reflection.getClass('BX.CRM.Kanban.Grid') ? BX.CRM.Kanban.Grid.getInstance() : null,
+	    showFilterStep: babelHelpers.classPrivateFieldLooseBase(this, _settings$1)[_settings$1].get('filter-guide-shown') !== true,
+	    showStageStep: babelHelpers.classPrivateFieldLooseBase(this, _settings$1)[_settings$1].get('stage-guide-shown') !== true && debuggerInstance.session.isInterceptionMode(),
+	    reserveFilterIds: babelHelpers.classPrivateFieldLooseBase(this, _getFilterIds)[_getFilterIds](debuggerInstance.session)
+	  });
+	  guide.subscribe('onFilterGuideStepShow', function () {
+	    babelHelpers.classPrivateFieldLooseBase(this, _settings$1)[_settings$1].set('filter-guide-shown', true);
+	  }.bind(this));
+	  guide.subscribe('onStageGuideStepShow', function () {
+	    babelHelpers.classPrivateFieldLooseBase(this, _settings$1)[_settings$1].set('stage-guide-shown', true);
+	  }.bind(this));
+	  guide.start();
+	}
+
+	function _setDebugFilter2(session) {
+	  const ids = babelHelpers.classPrivateFieldLooseBase(this, _getFilterIds)[_getFilterIds](session);
+
+	  babelHelpers.classPrivateFieldLooseBase(this, _getFilterApis)[_getFilterApis](ids).forEach(({
+	    id,
+	    api
+	  }) => {
+	    api.setFilter({
+	      preset_id: 'filter_robot_debugger'
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _lastFilterId)[_lastFilterId] = id;
+	  });
+	}
+
+	function _removeDebugFilter2(session) {
+	  const ids = babelHelpers.classPrivateFieldLooseBase(this, _getFilterIds)[_getFilterIds](session);
+
+	  babelHelpers.classPrivateFieldLooseBase(this, _getFilterApis)[_getFilterApis](ids).forEach(({
+	    api
+	  }) => {
+	    api.setFilter({
+	      preset_id: 'default_filter'
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _lastFilterId)[_lastFilterId] = null;
+	  });
+	}
+
+	function _get_lastFilterId() {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _settings$1)[_settings$1].get('last-filter-id');
+	}
+
+	function _set_lastFilterId(value) {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _settings$1)[_settings$1].set('last-filter-id', value);
+	}
+
+	function _getFilterApis2(ids) {
+	  const apis = [];
+	  ids.forEach(id => {
+	    var _BX$Main$filterManage;
+
+	    const filter = (_BX$Main$filterManage = BX.Main.filterManager) == null ? void 0 : _BX$Main$filterManage.getById(id);
+
+	    if (filter) {
+	      apis.push({
+	        id,
+	        api: filter.getApi()
+	      });
+	    }
+	  });
+	  return apis;
+	}
+
+	function _getFilterIds2(session) {
+	  let categoryId;
+
+	  if (session && session.modeId === Mode.interception.id && !session.isFixed()) {
+	    categoryId = session.initialCategoryId;
+	  } else {
+	    var _session$activeDocume;
+
+	    categoryId = session == null ? void 0 : (_session$activeDocume = session.activeDocument) == null ? void 0 : _session$activeDocume.categoryId;
+	  }
+
+	  const filterId = 'CRM_DEAL_LIST_V12';
+
+	  if (!categoryId) {
+	    return [filterId, `${filterId}_C_0`];
+	  }
+
+	  return [`${filterId}_C_${categoryId}`];
 	}
 
 	const Debugger = {
@@ -3535,5 +4469,5 @@ this.BX = this.BX || {};
 	exports.Session = Session;
 	exports.Mode = Mode;
 
-}((this.BX.Bizproc = this.BX.Bizproc || {}),BX.Main,BX.UI,BX,BX.UI.EntitySelector,BX,BX.UI,BX,BX.Main,BX.Bizproc,BX,BX,BX.UI.Dialogs,BX.Bizproc,BX,BX,BX.Event));
+}((this.BX.Bizproc.Debugger = this.BX.Bizproc.Debugger || {}),BX.Main,BX.UI,BX,BX.UI.EntitySelector,BX,BX.UI,BX,BX.Main,BX,BX,BX,BX.UI.Dialogs,BX.Bizproc.Automation,BX.Bizproc.Debugger,BX,BX.Event,BX,BX.UI.Tour));
 //# sourceMappingURL=debugger.bundle.js.map

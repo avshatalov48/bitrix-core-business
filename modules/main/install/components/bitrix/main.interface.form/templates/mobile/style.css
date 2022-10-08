@@ -1,5 +1,5 @@
 .mobile-grid{
-	font-family: "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	background: rgba(223,226,228,.5);
 	word-wrap: break-word;
 }
@@ -118,7 +118,7 @@ del {
 	font-size: 17px;
 	color: #000;
 	line-height: 20px;
-	font-family: "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	outline: none;
 	margin: 0;
 }
@@ -148,7 +148,7 @@ del {
 	font-size: 17px;
 	color: #000;
 	line-height: 20px;
-	font-family: "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	outline: none;
 	margin: 0;
 }
@@ -306,7 +306,7 @@ del {
 	color: #000;
 	max-width:100%;
 	width:110%;
-	font-family: "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	outline: none;
 }
 /*Date*/
@@ -391,7 +391,7 @@ del {
 .mobile-grid-data-custom-container div:last-child{border: none;}
 /*OLD*/
 /*.mobile-grid {
-	font-family: "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	background: rgba(223,226,228,.5);
 	overflow: hidden;
 }*/
@@ -589,7 +589,7 @@ del {
 	font-size: 17px;
 	color: #000;
 	line-height: 20px;
-	font-family: "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	outline: none;
 }
 
@@ -1401,7 +1401,8 @@ i.mobile-grid-menu:after {
 	display: inline-block;
 	border-radius: 2px;
 	cursor: pointer;
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 15px;
 	outline: none;
 	padding: 0 18px;
@@ -1638,7 +1639,7 @@ ol.mobile-grid-field-tasklinks {
 }
 
 .mobile-grid-field-desc-item-total .mobile-grid-field-desc-item-value {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .mobile-grid-field-textarea-name {
@@ -1693,7 +1694,7 @@ ol.mobile-grid-field-tasklinks {
 .mobile-grid-field-textarea-price {
 	position: absolute;
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	bottom: 4px;
 }
 
@@ -1781,7 +1782,7 @@ ol.mobile-grid-field-tasklinks {
 .mobile-grid-field-textarea-sum {
 	position: relative;
 	font-size: 16px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #000;
 	float: right;
 	padding-right: 13px;

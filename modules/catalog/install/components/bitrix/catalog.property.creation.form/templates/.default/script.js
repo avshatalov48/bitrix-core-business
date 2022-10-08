@@ -1,15 +1,7 @@
 (function (exports,main_core) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<p class=\"ui-entity-editor-field-error-text\">", "</p>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 
 	var PropertyCreationForm = /*#__PURE__*/function (_BX$Catalog$IblockFie) {
 	  babelHelpers.inherits(PropertyCreationForm, _BX$Catalog$IblockFie);
@@ -77,7 +69,7 @@
 	        });
 
 	        _this.onFormCancel();
-	      }).catch(this.onError.bind(this));
+	      })["catch"](this.onError.bind(this));
 	    }
 	  }, {
 	    key: "updateProperty",
@@ -94,7 +86,7 @@
 	        });
 
 	        _this2.onFormCancel();
-	      }).catch(this.onError.bind(this));
+	      })["catch"](this.onError.bind(this));
 	    }
 	  }, {
 	    key: "onError",
@@ -122,7 +114,7 @@
 	  }, {
 	    key: "showError",
 	    value: function showError(error) {
-	      this._errorContainer.append(main_core.Tag.render(_templateObject(), error.message));
+	      this._errorContainer.append(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<p class=\"ui-entity-editor-field-error-text\">", "</p>\n\t\t\t"])), error.message));
 	    }
 	  }, {
 	    key: "formatConfiguratorFields",

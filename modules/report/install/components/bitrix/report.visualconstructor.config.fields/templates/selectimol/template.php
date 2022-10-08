@@ -13,6 +13,8 @@ $linesOperators = $field->getLinesOperators();
 $idOpenLinesOptions = $field->getOpenLines()->getId();
 $idSelectLineValue = $field->getOpenLines()->getValue();
 
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
+
 if((int)$idSelectLineValue > 0)
 {
 	$options = $linesOperators[(int)$idSelectLineValue];

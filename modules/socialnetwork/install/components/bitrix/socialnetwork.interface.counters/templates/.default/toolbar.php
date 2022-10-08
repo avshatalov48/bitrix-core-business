@@ -27,6 +27,7 @@ if (!empty($arResult['COUNTERS']))
 	$APPLICATION->setPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') . 'sonet-pagetitle-view');
 }
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 ?>
 <div class="<?= implode(' ', $classList) ?>">
 	<div class="sonet-interface-toolbar">

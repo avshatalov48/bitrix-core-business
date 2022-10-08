@@ -30,6 +30,19 @@ class Session extends Entity\EO_DebuggerSession
 
 	public function finish()
 	{
+		if ($this->isBeforeDebuggerStartState())
+		{
+			$this->fillDocuments();
+			$documents = clone($this->getDocuments());
+			if ($documents)
+			{
+				foreach ($documents as $document)
+				{
+					$this->removeFromDocuments($document);
+				}
+			}
+		}
+
 		$this
 			->setFinishedDate(new \Bitrix\Main\Type\DateTime())
 			->setActive(false)
@@ -159,6 +172,21 @@ class Session extends Entity\EO_DebuggerSession
 		return $this->save();
 	}
 
+	public function removeFromDocuments(\Bitrix\Bizproc\Debugger\Session\Document $debuggerSessionDocument): void
+	{
+		$documentId = $debuggerSessionDocument->getDocumentId();
+
+		parent::removeFromDocuments($debuggerSessionDocument);
+		$debuggerSessionDocument->delete();
+
+		$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+		/** @var \Bitrix\Bizproc\Automation\Target\BaseTarget $target */
+		$target = $documentService->createAutomationTarget($this->getParameterDocumentType());
+		$target->setDocumentId($documentId);
+
+		$target->getRuntime()->runDocumentStatus();
+	}
+
 	/**
 	 * @param string $workflowId
 	 * @param Template | array $template
@@ -184,8 +212,14 @@ class Session extends Entity\EO_DebuggerSession
 		}
 
 		$context->addTemplateShards($template);
+		$result = $context->save();
 
-		return $context->save();
+		if ($result->isSuccess())
+		{
+			$this->addToWorkflowContexts($context);
+		}
+
+		return $result;
 	}
 
 	public function hasWorkflow(string $workflowId): bool
@@ -197,7 +231,7 @@ class Session extends Entity\EO_DebuggerSession
 
 	public function fixateDocument(string $documentId)
 	{
-		if ($this->isFixed())
+		if (!$this->canAddDocument())
 		{
 			$result = new \Bitrix\Main\Result();
 			$error = static::getErrorByCode(self::ERROR_DOCUMENT_ID_ALREADY_FIXED);
@@ -206,7 +240,35 @@ class Session extends Entity\EO_DebuggerSession
 			return $result;
 		}
 
-		$documents = $this->getDocuments() ?? [];
+		if ($this->getMode() === Mode::EXPERIMENTAL)
+		{
+			$result = $this->addDocument($documentId);
+			if ($result->isSuccess())
+			{
+				$this->setFixed(true);
+
+				return $this->save();
+			}
+
+			return $result;
+		}
+
+		$documents = clone($this->getDocuments());
+		$documentIds = $documents ? $documents->getDocumentIdList() : [];
+
+		if (!in_array($documentId, $documentIds, true))
+		{
+			$result = new \Bitrix\Main\Result();
+			$error = static::getErrorByCode(self::ERROR_UNKNOWN_DOCUMENT_ID);
+			$result->addError($error);
+			$result->setData([
+				'session' => $this,
+				'documentId' => $documentId,
+			]);
+
+			return $result;
+		}
+
 		foreach ($documents as $document)
 		{
 			if ($document->getDocumentId() === $documentId)
@@ -216,29 +278,10 @@ class Session extends Entity\EO_DebuggerSession
 				continue;
 			}
 
-			$document->delete();
+			$this->removeFromDocuments($document);
 		}
 
-		if (!$this->isFixed() && $this->getMode() === Mode::EXPERIMENTAL)
-		{
-			$this->addDocument($documentId);
-			$this->setFixed(true);
-		}
-
-		if ($this->isFixed())
-		{
-			return $this->save();
-		}
-
-		$result = new \Bitrix\Main\Result();
-		$error = static::getErrorByCode(self::ERROR_UNKNOWN_DOCUMENT_ID);
-		$result->addError($error);
-		$result->setData([
-			'session' => $this,
-			'documentId' => $documentId,
-		]);
-
-		return $result;
+		return $this->save();
 	}
 
 	public function isActive(): bool
@@ -278,32 +321,28 @@ class Session extends Entity\EO_DebuggerSession
 
 	public function isStartedByUser(int $userId): bool
 	{
-		if ($userId === $this->getStartedBy())
-		{
-			return true;
-		}
-
-		return false;
+		return $userId === $this->getStartedBy();
 	}
 
 	public function isStartedInDocumentType(array $parameterDocumentType): bool
 	{
 		[$moduleId, $entity, $documentType] = \CBPHelper::ParseDocumentId($parameterDocumentType);
-		if (
+
+		return (
 			$moduleId === $this->getModuleId()
 			&& $entity === $this->getEntity()
 			&& $documentType === $this->getDocumentType()
-		)
-		{
-			return true;
-		}
-
-		return false;
+		);
 	}
 
 	public function isFixedDocument(array $parameterDocumentId): bool
 	{
-		$documents = $this->getDocuments() ?? [];
+		$documents = $this->getDocuments();
+		if (!$documents)
+		{
+			return false;
+		}
+
 		foreach ($documents as $document)
 		{
 			$document->setSession($this);
@@ -314,6 +353,11 @@ class Session extends Entity\EO_DebuggerSession
 		}
 
 		return false;
+	}
+
+	public function isSessionDocument(array $parameterDocumentId): bool
+	{
+		return $this->isFixedDocument($parameterDocumentId);
 	}
 
 	public function getShortDescription(): ?string
@@ -337,6 +381,41 @@ class Session extends Entity\EO_DebuggerSession
 				'#DATE#' => $this->getStartedDate()->toUserTime(),
 			]
 		);
+	}
+
+	/**
+	 * Returns true if the session mode is Experimental and false otherwise.
+	 * @return bool
+	 */
+	public function isExperimentalMode(): bool
+	{
+		return ($this->getMode() === Mode::EXPERIMENTAL);
+	}
+
+	/**
+	 * Returns true if the session mode is Interception and false otherwise.
+	 * @return bool
+	 */
+	public function isInterceptionMode(): bool
+	{
+		return ($this->getMode() === Mode::INTERCEPTION);
+	}
+
+	/**
+	 * Returns true if can add document to session documents and false otherwise
+	 * @return bool
+	 */
+	public function canAddDocument(): bool
+	{
+		return !$this->isFixed();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isBeforeDebuggerStartState(): bool
+	{
+		return $this->isInterceptionMode() && $this->canAddDocument();
 	}
 
 	private function getStartedByPrintable(): string
@@ -376,6 +455,8 @@ class Session extends Entity\EO_DebuggerSession
 	public function toArray(): array
 	{
 		$documents = [];
+
+		$this->fillDocuments();
 		$sessionDocuments = $this->getDocuments() ?? [];
 		foreach ($sessionDocuments as $document)
 		{
@@ -391,6 +472,7 @@ class Session extends Entity\EO_DebuggerSession
 			'Fixed' => $this->getFixed(),
 			'Documents' => $documents,
 			'ShortDescription' => $this->getShortDescription(),
+			'CategoryId' => $this->getDocumentCategoryId(),
 		];
 	}
 
@@ -437,7 +519,8 @@ class Session extends Entity\EO_DebuggerSession
 				self::ERROR_DOCUMENT_ID_ALREADY_FIXED
 			);
 		}
-		elseif ($code === static::ERROR_UNKNOWN_DOCUMENT_ID)
+
+		if ($code === static::ERROR_UNKNOWN_DOCUMENT_ID)
 		{
 			return new \Bitrix\Main\Error(
 				Loc::getMessage('BIZPROC_DEBUGGER_SESSION_ERROR_UNKNOWN_DOCUMENT_ID'),

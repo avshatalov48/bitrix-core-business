@@ -585,6 +585,7 @@
 
 				_this.editor.skipPasteHandler = false;
 				_this.editor.skipPasteControl = false;
+				_this.editor.iframeView.pasteLoader.hide();
 			}, 20);
 		},
 
@@ -1750,6 +1751,13 @@
 
 		Show: function(e, target, collapsedSelection)
 		{
+			//open context menu only in admin html-editor
+			const targetBxTag = this.editor.GetBxTag(target);
+			if (targetBxTag.tag === 'diskfile0')
+			{
+				return;
+			}
+
 			this.savedRange = this.editor.selection.GetBookmark();
 			this.Hide();
 
@@ -1962,6 +1970,44 @@
 			// Init Event handlers
 			BX.addCustomEvent(this.editor, "OnIframeFocus", BX.delegate(this.EnableWysiwygButtons, this));
 			BX.addCustomEvent(this.editor, "OnTextareaFocus", BX.delegate(this.DisableWysiwygButtons, this));
+			BX.bind(this.pCont, 'scroll', BX.proxy(this.SetScrollShadows, this));
+		},
+
+		SetScrollShadows: function()
+		{
+			const scrollWidth = this.pCont.scrollWidth;
+			const width = this.pCont.offsetWidth;
+			let scrollLeft = this.pCont.scrollLeft;
+			let scrollRight = scrollWidth - width - scrollLeft;
+			if (scrollRight < 0)
+			{
+				scrollLeft += scrollRight;
+				scrollRight = 0;
+			}
+			if (scrollLeft > 20 && scrollRight > 20)
+			{
+				this.pCont.parentNode.classList.remove('has-tools-on-left');
+				this.pCont.parentNode.classList.remove('has-tools-on-right');
+				this.pCont.parentNode.classList.add('has-tools-on-sides');
+			}
+			else if (scrollLeft > 20)
+			{
+				this.pCont.parentNode.classList.add('has-tools-on-left');
+				this.pCont.parentNode.classList.remove('has-tools-on-right');
+				this.pCont.parentNode.classList.remove('has-tools-on-sides');
+			}
+			else if (scrollRight > 20)
+			{
+				this.pCont.parentNode.classList.remove('has-tools-on-left');
+				this.pCont.parentNode.classList.add('has-tools-on-right');
+				this.pCont.parentNode.classList.remove('has-tools-on-sides');
+			}
+			else if (scrollLeft < 20 && scrollRight < 20)
+			{
+				this.pCont.parentNode.classList.remove('has-tools-on-left');
+				this.pCont.parentNode.classList.remove('has-tools-on-right');
+				this.pCont.parentNode.classList.remove('has-tools-on-sides');
+			}
 		},
 
 		BuildControls: function()
@@ -2149,6 +2195,7 @@
 
 		AdaptControls: function(width)
 		{
+			this.SetScrollShadows();
 			var bCompact = width < this.editor.normalWidth;
 			if (this.controls.More)
 			{

@@ -13,7 +13,8 @@ Loc::loadLanguageFile(__FILE__);
 
 \Bitrix\Main\UI\Extension::load([
 	'ui.entity-selector',
-	'ui.hint'
+	'ui.hint',
+	'ui.fonts.opensans',
 ]);
 
 $currentLanding = $arResult['LANDINGS'][$arParams['LANDING_ID']] ?? null;

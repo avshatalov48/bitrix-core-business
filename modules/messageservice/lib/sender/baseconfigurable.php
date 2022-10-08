@@ -6,10 +6,16 @@ use Bitrix\MessageService\Sender\Result\MessageStatus;
 use Bitrix\Main\Result;
 use Bitrix\Main\Context;
 use Bitrix\Main\Config\Option;
+use Bitrix\MessageService\Providers;
 
 abstract class BaseConfigurable extends Base
 {
 	protected $options;
+
+	protected Providers\DemoManager $demoManager;
+	protected Providers\Registrar $registrar;
+	protected Providers\OptionManager $optionManager;
+	protected Providers\TemplateManager $templateManager;
 
 	public function isConfigurable()
 	{

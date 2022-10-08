@@ -4,6 +4,7 @@ use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Security\Cipher;
 use Bitrix\Main\Service\MicroService\Client;
 use Bitrix\Main\SystemException;
+use Bitrix\SocialServices\UserTable;
 use Bitrix\Main\Web\HttpClient;
 
 
@@ -55,7 +56,7 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 				{
 					$arFields = $this->prepareUser($arGoogleUser);
 					$arFields['USER_ID'] = $this->user->getId();
-					$socialServicesUserId = \Bitrix\Socialservices\UserTable::add($arFields);
+					$authError = $this->AuthorizeUser($arFields);
 				}
 			}
 		}
@@ -63,7 +64,7 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 
 		$aRemove = ["logout", "auth_service_error", "auth_service_id", "code", "error_reason", "error", "error_description", "check_key", "current_fieldset"];
 
-		if($this->user && isset($socialServicesUserId))
+		if($this->user && ($authError === true))
 		{
 			$bSuccess = true;
 			CSocServUtil::checkOAuthProxyParams();
@@ -181,6 +182,7 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 					? '&redirect_url=' . urlencode($arParams['BACKURL'])
 					: '')
 			. '&user_token=' . urlencode($this->generateUserToken())
+			. '&hostUrl=' . urlencode(\Bitrix\Main\Engine\UrlManager::getInstance()->getHostUrl())
 		;
 
 		$redirect_uri = $this->getEntityOAuth()->getRedirectUri();
@@ -291,6 +293,46 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 		}
 
 		return $state;
+	}
+
+	public function AuthorizeUser($socservUserFields, $bSave = false)
+	{
+		if(!isset($socservUserFields['XML_ID']) || $socservUserFields['XML_ID'] == '')
+		{
+			return false;
+		}
+
+		if(!isset($socservUserFields['EXTERNAL_AUTH_ID']) || $socservUserFields['EXTERNAL_AUTH_ID'] == '')
+		{
+			return false;
+		}
+
+		$dbSocUser = UserTable::getList([
+			'filter' => [
+				'=XML_ID'=>$socservUserFields['XML_ID'],
+				'=EXTERNAL_AUTH_ID'=>$socservUserFields['EXTERNAL_AUTH_ID']
+			],
+			'select' => ["ID", "USER_ID", "ACTIVE" => "USER.ACTIVE", "PERSONAL_PHOTO"],
+		]);
+		$socservUser = $dbSocUser->fetch();
+
+		if(!empty($socservUserFields['USER_ID']))
+		{
+			if(!$socservUser)
+			{
+				$result = UserTable::add(UserTable::filterFields($socservUserFields));
+			}
+			else
+			{
+				$result = UserTable::update($socservUser['ID'], UserTable::filterFields($socservUserFields));
+			}
+		}
+		else
+		{
+			return false;
+		}
+
+		return $result->isSuccess();
 	}
 }
 

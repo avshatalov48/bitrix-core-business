@@ -1650,6 +1650,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    PostFormEditor.setInstance(formID, babelHelpers.assertThisInitialized(_this));
 	    window['setBlogPostFormSubmitted'] = _this.setBlogPostFormSubmitted.bind(babelHelpers.assertThisInitialized(_this));
 	    window['submitBlogPostForm'] = _this.submitBlogPostForm.bind(babelHelpers.assertThisInitialized(_this));
+	    console.log('constructor');
 	    return _this;
 	  }
 
@@ -1844,6 +1845,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        });
 
 	        if (submitButton) {
+	          console.log('add');
 	          submitButton.classList.add('ui-btn-clock');
 	          this.disabled = true;
 	          window.addEventListener('beforeunload', function (event) {
@@ -1884,8 +1886,10 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          }
 	        }
 
-	        BX.submit(document.getElementById(this.formId), value);
-	        this.formParams.submitted = true;
+	        setTimeout(function () {
+	          BX.submit(document.getElementById(_this3.formId), value);
+	          _this3.formParams.submitted = true;
+	        }, 100);
 	      }
 	    }
 	  }, {
@@ -2163,7 +2167,10 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      PostForm.getInstance().initedEditorsList.push(editor.id);
 	      main_core_events.EventEmitter.subscribe(editor, 'OnSetViewAfter', function () {
 	        if (_this4.formParams.createdFromEmail) {
-	          editor.SetContent("".concat(editor.GetContent()).concat(main_core.Loc.getMessage('CREATED_ON_THE_BASIC_OF_THE_MESSAGE')));
+	          if (editor.GetContent() === '') {
+	            editor.SetContent("".concat(main_core.Loc.getMessage('CREATED_ON_THE_BASIC_OF_THE_MESSAGE')));
+	          }
+
 	          editor.Focus(true);
 	        }
 	      });
@@ -2358,5 +2365,5 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	exports.PostFormAutoSave = PostFormAutoSave;
 	exports.PostFormEditor = PostFormEditor;
 
-}((this.BX.Socialnetwork.Livefeed = this.BX.Socialnetwork.Livefeed || {}),BX.Main,BX.UI.EntitySelector,BX,BX,BX.Event));
+}((this.BX.Socialnetwork.Livefeed = this.BX.Socialnetwork.Livefeed || {}),BX.Main,BX.UI.EntitySelector,BX.Main,BX,BX.Event));
 //# sourceMappingURL=script.js.map

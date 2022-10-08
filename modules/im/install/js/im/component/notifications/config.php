@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'im.lib.animation',
 		'ui.forms',
+		'ui.design-tokens',
 		'im.view.element.attach',
 		'im.view.element.keyboard',
 		'ui.vue',

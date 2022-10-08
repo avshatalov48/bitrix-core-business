@@ -3,16 +3,20 @@ namespace Bitrix\Calendar;
 
 use Bitrix\Calendar\Sync\Util\MsTimezoneConverter;
 use Bitrix\Main;
+use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
+use COption;
 
 class Util
 {
 	public const USER_SELECTOR_CONTEXT = "CALENDAR";
 	public const LIMIT_NUMBER_BANNER_IMPRESSIONS = 3;
 	public const DATETIME_PHP_FORMAT = 'Y-m-d H:i:sP';
+	public const VERSION_DIFFERENCE = 1;
+	public const DEFAULT_TIMEZONE = "UTC";
 
 	private static $requestUid = '';
 	private static $userAccessCodes = [];
@@ -68,7 +72,7 @@ class Util
 	{
 		if (!$tz)
 		{
-			return new \DateTimeZone("UTC");
+			return new \DateTimeZone(self::DEFAULT_TIMEZONE);
 		}
 
 		if (self::isTimezoneValid($tz))
@@ -298,46 +302,6 @@ class Util
 		}
 
 		return $userList;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public static function isShowDailyBanner(): bool
-	{
-		$isInstallMobileApp = (bool)\CUserOptions::GetOption('mobile', 'iOsLastActivityDate', false)
-			|| (bool)\CUserOptions::GetOption('mobile', 'AndroidLastActivityDate', false)
-		;
-		$isSyncCalendar = (bool)\CUserOptions::GetOption('calendar', 'last_sync_iphone', false)
-			|| (bool)\CUserOptions::GetOption('calendar', 'last_sync_android', false)
-		;
-		if ($isInstallMobileApp && $isSyncCalendar)
-		{
-			return false;
-		}
-
-		$dailySyncBanner = \CUserOptions::GetOption('calendar', 'daily_sync_banner', []);
-		if (!isset($dailySyncBanner['last_sync_day']) && !isset($dailySyncBanner['count']))
-		{
-			$dailySyncBanner['last_sync_day'] = '';
-			$dailySyncBanner['count'] = 0;
-		}
-		$today = (new Main\Type\Date())->format('Y-m-d');
-		$isShowToday = ($today === $dailySyncBanner['last_sync_day']);
-		$isLimitExceeded = ($dailySyncBanner['count'] >= self::LIMIT_NUMBER_BANNER_IMPRESSIONS);
-
-		if ($isLimitExceeded || $isShowToday)
-		{
-			return false;
-		}
-		else
-		{
-			++$dailySyncBanner['count'];
-			$dailySyncBanner['last_sync_day'] = (new Main\Type\Date())->format('Y-m-d');
-			\CUserOptions::SetOption('calendar', 'daily_sync_banner', $dailySyncBanner);
-			return true;
-		}
-
 	}
 
 	/**
@@ -668,5 +632,49 @@ class Util
 		}
 
 		return self::$pathCache[$key];
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function getServerName(): string
+	{
+		return COption::getOptionString('main', 'server_name', Application::getInstance()->getContext()->getServer()->getServerName());
+	}
+
+	/**
+	 * @param int $second
+	 *
+	 * @return int[]
+	 */
+	public static function secondsToDayHoursMinutes(int $second): array
+	{
+		$day = $second / 24 / 3600;
+        $hours = $second / 3600 - (int)$day * 24;
+        $min = $second / 60 - (int)$day * 24 * 60 - (int)$hours * 60;
+
+		return [
+			'days' => (int)$day,
+			'hours' => (int)$hours,
+			'minutes' => (int)$min
+		];
+	}
+
+	/**
+	 * @param int $minutes
+	 *
+	 * @return int[]
+	 */
+	public static function minutesToDayHoursMinutes(int $minutes): array
+	{
+		$day = $minutes / 24 / 60;
+		$hours = $minutes / 60 - (int)$day * 24;
+		$min = $minutes - (int)$day * 24 * 60 - (int)$hours * 60;
+
+		return [
+			'days' => (int)$day,
+			'hours' => (int)$hours,
+			'minutes' => (int)$min
+		];
 	}
 }

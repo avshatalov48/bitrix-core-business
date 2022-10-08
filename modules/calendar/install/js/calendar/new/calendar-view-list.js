@@ -226,7 +226,7 @@
 			}.bind(this),
 			params.focusDate
 		);
-		
+
 		this.loaderCircle.hide();
 	};
 
@@ -265,7 +265,7 @@
 			{
 				this.loaderCircle.hide();
 			}
-			
+
 			return this.showEmptyBlock();
 		}
 		else if (this.noEntriesWrap)
@@ -1222,6 +1222,8 @@
 
 			var dayCode, uid, decision, entry;
 
+			const button = params.e.target.closest('[data-bx-decision-button]');
+
 			if (
 				params.target
 				&& params.target.getAttribute('data-bx-calendar-entry-attendees-control')
@@ -1233,7 +1235,8 @@
 				params.specialTarget
 				&& params.e
 				&& (uid = params.specialTarget.getAttribute('data-bx-calendar-entry'))
-				&& (decision = params.e.target.parentElement.getAttribute('data-bx-decision-button'))
+				&& button
+				&& (decision = button.getAttribute('data-bx-decision-button'))
 			)
 			{
 				if (this.resultEntriesIndex && this.resultEntriesIndex[uid] !== undefined)

@@ -13,7 +13,7 @@
 
 .landing-ui-panel-catalog-list-row {
 	display: flex;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c68;
 	padding: 6px 11px;
 	-webkit-transition: color 0.2s linear;

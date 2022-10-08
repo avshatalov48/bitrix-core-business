@@ -1,7 +1,9 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 import {Cache, Dom, Tag, Text, Type} from 'main.core';
 import {BaseCard} from 'landing.ui.card.basecard';
 import {Loc} from 'landing.loc';
-
 import './css/style.css';
 
 const CONTEXT_WARNING = 'warning';

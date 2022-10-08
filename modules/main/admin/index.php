@@ -6,7 +6,7 @@
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 IncludeModuleLangFile(__FILE__);
 
 $APPLICATION->SetTitle(GetMessage("MAIN_ADMIN_SECTION_TITLE"));

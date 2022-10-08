@@ -1,0 +1,10 @@
+<?php
+$MESS["LANDING_FORM_SHARE__COMMUNICATION_ACTION_LABEL"] = "Configure";
+$MESS["LANDING_FORM_SHARE__COMMUNICATION_LINK_LABEL"] = "How do I add a widget to my site?";
+$MESS["LANDING_FORM_SHARE__COMMUNICATION_TITLE"] = "Customer communication";
+$MESS["LANDING_FORM_SHARE__HELP_ACTION_LABEL"] = "Order now";
+$MESS["LANDING_FORM_SHARE__HELP_LINK_LABEL"] = "Order development with our partners!";
+$MESS["LANDING_FORM_SHARE__HELP_TITLE"] = "Need help?";
+$MESS["LANDING_FORM_SHARE__SHARE_ACTION_LABEL"] = "Share";
+$MESS["LANDING_FORM_SHARE__SHARE_LINK_LABEL"] = "How do I add the CRM form to my site?";
+$MESS["LANDING_FORM_SHARE__SHARE_TITLE"] = "Embedding options";

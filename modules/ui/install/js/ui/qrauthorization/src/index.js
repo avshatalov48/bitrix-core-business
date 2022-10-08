@@ -3,6 +3,8 @@ import { Popup } from 'main.popup';
 import { Loader } from 'main.loader';
 import { PULL } from 'pull.client';
 import 'main.qrcode';
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
 
 export class QrAuthorization
 {
@@ -85,7 +87,7 @@ export class QrAuthorization
 	{
 		if(!this.popup)
 		{
-			let container = Tag.render`
+			let container = `
 				<div class="ui-qr-authorization__popup-wrapper">
 					<div class="ui-qr-authorization__popup-top">
 						<div class="ui-qr-authorization__popup-left ${!this.title ? '--flex' : ''}"">
@@ -96,9 +98,7 @@ export class QrAuthorization
 								? '<div class="ui-qr-authorization__popup-text">' + this.content + '</div>'
 								: ''}
 						</div>
-						<div class="ui-qr-authorization__popup-right ${!this.title ? '--no-margin' : ''}">
-							${this.getQrNode()}
-						</div>
+						<div class="ui-qr-authorization__popup-right ${!this.title ? '--no-margin' : ''}" data-role="ui-qr-authorization__qr-node"></div>
 					</div>
 					<div class="ui-qr-authorization__popup-bottom">
 						<div class="ui-qr-authorization__popup-bottom--title">${Loc.getMessage('UI_QR_AUTHORIZE_TAKE_CODE')}</div>
@@ -115,8 +115,19 @@ export class QrAuthorization
 				content: container,
 				closeByEsc: true,
 				closeIcon: {
-					top: 14,
-					right: 15
+					top: '14px',
+					right: '15px'
+				},
+				events: {
+					onPopupShow: ()=> {
+						this.createQrCodeImage();
+						const qrTarget = this.getPopup().getContentContainer().querySelector('[data-role="ui-qr-authorization__qr-node"]');
+
+						if (qrTarget)
+						{
+							qrTarget.appendChild(this.getQrNode());
+						}
+					}
 				},
 				padding: 0,
 				animation: 'fading-slide'
@@ -201,7 +212,6 @@ export class QrAuthorization
 	{
 		if (!this.getPopup().isShown())
 		{
-			this.createQrCodeImage();
 			this.loading();
 			this.getPopup().show();
 		}

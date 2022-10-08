@@ -20,7 +20,7 @@ if (empty($arRatingResult))
 	$arRatingResult['TOTAL_NEGATIVE_VOTES'] = 0;
 }
 
-$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/lang/".LANGUAGE_ID."/vote.php");
+$path = str_replace(array("\\", "//"), "/", __DIR__."/lang/".LANGUAGE_ID."/vote.php");
 include_once($path);
 $resultValue  = $arRatingResult['TOTAL_VALUE'];
 $resultStatus = $resultValue < 0 ? 'minus' : 'plus';

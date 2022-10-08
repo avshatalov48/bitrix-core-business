@@ -10,8 +10,12 @@ use Bitrix\Main\Localization\Loc;
 /** @var array $arParams */
 /** @var array $arResult */
 
-\Bitrix\Main\UI\Extension::load('ui.buttons');
-\CJSCore::Init();
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ui.buttons',
+]);
+
 ?>
 <div id="main-mail-unsubscribe-container" class="main-mail-unsubscribe-box">
 	<div class="main-mail-unsubscribe-main">

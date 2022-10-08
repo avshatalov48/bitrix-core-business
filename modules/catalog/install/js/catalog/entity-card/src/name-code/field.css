@@ -60,7 +60,7 @@
 .ui-entity-editor-symbol-code-label {
 	display: block;
 	margin-bottom: 4px;
-	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c69;
 	opacity: .5;
 }
@@ -69,7 +69,7 @@
 	position: relative;
 	display: block;
 	padding-left: 20px;
-	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #a7acb3;
 }
 

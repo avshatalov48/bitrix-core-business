@@ -3280,8 +3280,6 @@ class CIMMessenger
 			'localFile' => \CIMDisk::GetLocalDiskFilePath(),
 		);
 
-		$userColor = isset($arTemplate['CONTACT_LIST']['users'][$USER->GetID()]['color']) ? $arTemplate['CONTACT_LIST']['users'][$USER->GetID()]['color']: '';
-
 		$recentLastUpdate = (new \Bitrix\Main\Type\DateTime())->format(\DateTimeInterface::RFC3339);
 		$recent = \Bitrix\Im\Recent::getList(null, [
 			'SKIP_NOTIFICATION' => 'Y',
@@ -3355,7 +3353,7 @@ class CIMMessenger
 					'next': ".(defined('IM_NEXT')? 'true': 'false').",
 					'userId': ".$USER->GetID().",
 					'userEmail': '".CUtil::JSEscape($USER->GetEmail())."',
-					'userColor': '".\Bitrix\Im\Color::getCode($userColor)."',
+					'userColor': '".\Bitrix\Im\Color::getCode(\Bitrix\Im\User::getInstance()->getColor())."',
 					'userGender': '".\Bitrix\Im\User::getInstance()->getGender()."',
 					'userExtranet': ".(\Bitrix\Im\User::getInstance()->isExtranet()? 'true': 'false').",
 					'user': ".($arTemplate['CURRENT_USER']? \Bitrix\Im\Common::objectEncode($arTemplate['CURRENT_USER']): '{}').",

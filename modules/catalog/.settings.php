@@ -6,9 +6,21 @@ return [
 			'defaultNamespace' => '\\Bitrix\\Catalog\\Controller',
 			'restIntegration' => [
 				'enabled' => true,
+				'eventBind' => [
+					'\\Bitrix\\Catalog\\Controller\\Price',
+					'\\Bitrix\\Catalog\\Controller\\Product',
+					'\\Bitrix\\Catalog\\Controller\\Measure',
+					'\\Bitrix\\Catalog\\Controller\\RoundingRule',
+					'\\Bitrix\\Catalog\\Controller\\PriceType',
+				]
 			],
 		],
 		'readonly' => true,
+	],
+	'userField' => [
+		'value' => [
+			'access' => '\\Bitrix\\Catalog\\UserField\\UserFieldAccess',
+		],
 	],
 	'ui.entity-selector' => [
 		'value' => [

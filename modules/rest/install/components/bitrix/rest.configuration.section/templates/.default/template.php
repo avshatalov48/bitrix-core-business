@@ -24,7 +24,7 @@ if(!empty($arResult['ITEMS_JS'])):
 	}
 
 	Loc::loadMessages(__FILE__);
-	Extension::load(array('ui.tilegrid', 'ui.buttons'));
+	Extension::load(array('ui.tilegrid', 'ui.buttons', 'ui.fonts.opensans'));
 
 	$templateId = 'rest-'.md5($component->__name. $this->__name);
 ?>

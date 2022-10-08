@@ -1,7 +1,18 @@
 <?php
 
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\ModuleManager;
+
 class CAllSocNetLogCounter
 {
+	static $moduleManagerClass = ModuleManager::class;
+	static $logClass = CSocNetLog::class;
+	static $logCommentClass = CSocNetLogComments::class;
+	static $allowedClass = CSocNetAllowed::class;
+	static $optionClass = Option::class;
+	static $logRightTableClass = Bitrix\Socialnetwork\LogRightTable::class;
+	static $userTableClass = Bitrix\Main\UserTable::class;
+
 	public static function GetSubSelect2($entityId, $arParams = array())
 	{
 		return CSocNetLogCounter::GetSubSelect(
@@ -72,14 +83,13 @@ class CAllSocNetLogCounter
 			$arUserIdToIncrement = array();
 		}
 
-		$intranetInstalled = \Bitrix\Main\ModuleManager::isModuleInstalled('intranet');
-
+		$intranetInstalled = static::$moduleManagerClass::isModuleInstalled('intranet');
 		if ((int)$entityId <= 0)
 		{
 			return false;
 		}
 
-		$arSocNetAllowedSubscribeEntityTypesDesc = CSocNetAllowed::GetAllowedEntityTypesDesc();
+		$arSocNetAllowedSubscribeEntityTypesDesc = static::$allowedClass::GetAllowedEntityTypesDesc();
 
 		$bGroupCounters = ($type === "group");
 
@@ -105,7 +115,7 @@ class CAllSocNetLogCounter
 
 		if (
 			$type === CSocNetLogCounter::TYPE_LOG_ENTRY
-			&& ($arLog = CSocNetLog::GetByID($entityId))
+			&& ($arLog = static::$logClass::GetByID($entityId))
 		)
 		{
 			$logId = $entityId;
@@ -116,7 +126,7 @@ class CAllSocNetLogCounter
 		}
 		elseif (
 			$type === CSocNetLogCounter::TYPE_LOG_COMMENT
-			&& ($arLogComment = CSocNetLogComments::GetByID($entityId))
+			&& ($arLogComment = static::$logCommentClass::GetByID($entityId))
 		)
 		{
 			$entity_type = $arLogComment["ENTITY_TYPE"];
@@ -131,7 +141,7 @@ class CAllSocNetLogCounter
 		}
 
 		if (
-			!in_array($entity_type, CSocNetAllowed::GetAllowedEntityTypes(), true)
+			!in_array($entity_type, static::$allowedClass::GetAllowedEntityTypes(), true)
 			|| (int)$entity_id <= 0
 			|| $event_id == ''
 		)
@@ -208,7 +218,7 @@ class CAllSocNetLogCounter
 			)
 		);
 
-		$defaultFollowValue = \Bitrix\Main\Config\Option::get('socialnetwork', 'follow_default_type', 'Y');
+		$defaultFollowValue = static::$optionClass::get('socialnetwork', 'follow_default_type', 'Y');
 
 		$followJoin = '';
 		$followWhere = '';
@@ -219,8 +229,8 @@ class CAllSocNetLogCounter
 			{
 				$followWhere = "
 					AND (
-						NOT EXISTS (SELECT USER_ID FROM b_sonet_log_follow WHERE USER_ID = U.ID AND TYPE='N' AND (CODE = 'L".$logId."' OR CODE = '**'))
-						OR EXISTS (SELECT USER_ID FROM b_sonet_log_follow WHERE USER_ID = U.ID AND TYPE='Y' AND CODE = 'L".$logId."')
+						NOT EXISTS (SELECT USER_ID FROM b_sonet_log_follow WHERE USER_ID = U.ID AND TYPE = 'N' AND (CODE = 'L".$logId."' OR CODE = '**'))
+						OR EXISTS (SELECT USER_ID FROM b_sonet_log_follow WHERE USER_ID = U.ID AND TYPE = 'Y' AND CODE = 'L".$logId."')
 					)
 				";
 			}
@@ -257,7 +267,7 @@ class CAllSocNetLogCounter
 		{
 			if (!$bGroupCounters && !$intranetInstalled)
 			{
-				if (\Bitrix\Main\Config\Option::get('socialnetwork', 'sonet_log_smart_filter', 'N') === 'Y')
+				if (static::$optionClass::get('socialnetwork', 'sonet_log_smart_filter', 'N') === 'Y')
 				{
 					$userWhere = "
 						AND (
@@ -317,7 +327,7 @@ class CAllSocNetLogCounter
 				{
 					if (!$bGroupCounters)
 					{
-						$res = \Bitrix\Socialnetwork\LogRightTable::getList([
+						$res = static::$logRightTableClass::getList([
 							'filter' => [
 								'=LOG_ID' => $logId
 							],
@@ -417,7 +427,7 @@ class CAllSocNetLogCounter
 				U.ACTIVE = 'Y'
 				AND U.LAST_ACTIVITY_DATE IS NOT NULL
 				AND U.LAST_ACTIVITY_DATE > ".CSocNetLogCounter::dbWeeksAgo(2)."
-				AND CASE WHEN U.EXTERNAL_AUTH_ID IN ('".implode("','", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'N' ELSE 'Y' END = 'Y'
+				AND CASE WHEN U.EXTERNAL_AUTH_ID IN ('".implode("','", static::$userTableClass::getExternalUserTypes())."') THEN 'N' ELSE 'Y' END = 'Y'
 				".(
 					(
 						$type === CSocNetLogCounter::TYPE_LOG_COMMENT

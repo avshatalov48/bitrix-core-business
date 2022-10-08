@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2012 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
 namespace Bitrix\Main;
 
@@ -16,20 +16,13 @@ use Bitrix\Main\Engine\Response\AjaxJson;
 use Bitrix\Main\Engine\Router;
 use Bitrix\Main\Engine\JsonPayload;
 use Bitrix\Main\UI\PageNavigation;
+use Bitrix\Main\Web;
 
 /**
  * Http application extends application. Contains http specific methods.
  */
 class HttpApplication extends Application
 {
-	/**
-	 * Creates new instance of http application.
-	 */
-	protected function __construct()
-	{
-		parent::__construct();
-	}
-
 	/**
 	 * Initializes context of the current request.
 	 *
@@ -39,19 +32,19 @@ class HttpApplication extends Application
 	{
 		$context = new HttpContext($this);
 
-		$server = new Server($params["server"]);
+		$server = new Server($params['server']);
 
 		$request = new HttpRequest(
 			$server,
-			$params["get"],
-			$params["post"],
-			$params["files"],
-			$params["cookie"]
+			$params['get'],
+			$params['post'],
+			$params['files'],
+			$params['cookie']
 		);
 
 		$response = new HttpResponse();
 
-		$context->initialize($request, $response, $server, array('env' => $params["env"]));
+		$context->initialize($request, $response, $server, ['env' => $params['env']]);
 
 		$this->setContext($context);
 	}
@@ -66,11 +59,11 @@ class HttpApplication extends Application
 	 */
 	public function start()
 	{
+		$this->context->getRequest()->decodeJson();
 	}
 
 	/**
 	 * Finishes request execution.
-	 * It is registered in start() and called automatically on script shutdown.
 	 */
 	public function finish()
 	{

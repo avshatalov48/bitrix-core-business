@@ -13,6 +13,27 @@ class Imap extends Mail\Helper\Mailbox
 	const MESSAGE_PARTS_TEXT = 1;
 	const MESSAGE_PARTS_ATTACHMENT = 2;
 	const MESSAGE_PARTS_ALL = -1;
+	const MAXIMUM_SYNCHRONIZATION_LENGTHS_OF_INTERVALS = [
+		100,
+		50,
+		25,
+		12,
+		6,
+		3,
+		1
+	];
+
+	protected function getMaximumSynchronizationLengthsOfIntervals($num)
+	{
+		if(isset(self::MAXIMUM_SYNCHRONIZATION_LENGTHS_OF_INTERVALS[$num]))
+		{
+			return self::MAXIMUM_SYNCHRONIZATION_LENGTHS_OF_INTERVALS[$num];
+		}
+		else
+		{
+			return self::MAXIMUM_SYNCHRONIZATION_LENGTHS_OF_INTERVALS[count(self::MAXIMUM_SYNCHRONIZATION_LENGTHS_OF_INTERVALS)-1];
+		}
+	}
 
 	protected $client;
 
@@ -857,7 +878,7 @@ class Imap extends Mail\Helper\Mailbox
 		}
 
 		$this->lastSyncResult['newMessages'] += $result;
-		if (!$dir->isTrash() && !$dir->isSpam()) // && !$dir->isDraft() && !$dir->isOutcome()
+		if (!$dir->isTrash() && !$dir->isSpam() && !$dir->isDraft() && !$dir->isOutcome())
 		{
 			$this->lastSyncResult['newMessagesNotify'] += $result;
 		}
@@ -907,6 +928,14 @@ class Imap extends Mail\Helper\Mailbox
 		}
 	}
 
+	/**
+	 * @param $mailboxID
+	 * @param $dirPath
+	 * @param $UIDs
+	 * @return bool - success status
+	 * @throws Main\DB\SqlQueryException
+	 * @throws Main\SystemException
+	 */
 	public function syncMessages($mailboxID, $dirPath, $UIDs)
 	{
 		$meta = $this->client->select($dirPath, $error);
@@ -966,12 +995,32 @@ class Imap extends Mail\Helper\Mailbox
 
 			$this->blacklistMessages($dir->getPath(), $messages);
 
-			$this->prepareMessages($dir->getPath(), $uidtoken, $messages);
+			$this->removeExistingMessagesFromSynchronizationList($dir->getPath(), $uidtoken, $messages);
 
-			foreach ($messages as $id => $item)
+			foreach ($messages as &$message)
 			{
-				$hashesMAp = [];
-				$this->syncMessage($dir->getPath(), $uidtoken, $item, $hashesMAp, true);
+				$this->fillMessageFields($message, $dir->getPath(), $uidtoken);
+			}
+
+			$this->linkWithExistingMessages($messages);
+
+			foreach ($messages as $item)
+			{
+				$isOutgoing = false;
+
+				if(empty($item['__replaces']))
+				{
+					$outgoingMessageId = $this->selectOutgoingMessageIdFromHeader($item);
+
+					if($outgoingMessageId)
+					{
+						$item['__replaces'] = $outgoingMessageId;
+						$isOutgoing = true;
+					}
+				}
+
+				$hashesMap = [];
+				$this->syncMessage($dir->getPath(), $item, $hashesMap, true, $isOutgoing);
 
 				if ($this->isTimeQuotaExceeded())
 				{
@@ -980,6 +1029,16 @@ class Imap extends Mail\Helper\Mailbox
 			}
 
 		}
+		return true;
+	}
+
+	public function isAuthenticated(): bool
+	{
+		if (\Bitrix\Mail\Helper::getImapUnseen($this->mailbox, 'inbox') === false)
+		{
+			return false;
+		}
+
 		return true;
 	}
 
@@ -992,14 +1051,14 @@ class Imap extends Mail\Helper\Mailbox
 
 		$mailboxID = $this->mailbox['ID'];
 
-		$UIDsOnService  = \Bitrix\Mail\Helper::getImapUIDsForSpecificDay($mailboxID, $dirPath, $internalDate);
+		$UIDsOnService = \Bitrix\Mail\Helper::getImapUIDsForSpecificDay($mailboxID, $dirPath, $internalDate);
 
 		return $this->syncMessages($mailboxID, $dirPath, $UIDsOnService);
 	}
 
 	protected function syncDirInternal($dir)
 	{
-		$count = 0;
+		$messagesSynced = 0;
 
 		$meta = $this->client->select($dir->getPath(), $error);
 
@@ -1017,7 +1076,9 @@ class Imap extends Mail\Helper\Mailbox
 
 		$this->getDirsHelper()->updateMessageCount($dir->getId(), $meta['exists']);
 
-		while ($range = $this->getSyncRange($dir->getPath(), $uidtoken))
+		$intervalSynchronizationAttempts = 0;
+
+		while ($range = $this->getSyncRange($dir->getPath(), $uidtoken, $intervalSynchronizationAttempts))
 		{
 			$reverse = $range[0] > $range[1];
 
@@ -1031,20 +1092,43 @@ class Imap extends Mail\Helper\Mailbox
 				$error
 			);
 
+			$fetchErrors=$this->client->getErrors();
+			$errorReceivingMessages = $fetchErrors->getErrorByCode(210) !== null;
+			$failureDueToDataVolume = $fetchErrors->getErrorByCode(104) !== null;
+
 			if (empty($messages))
 			{
 				if (false === $messages)
 				{
-					$this->warnings->add($this->client->getErrors()->toArray());
-
-					return false;
+					if($errorReceivingMessages && !$failureDueToDataVolume)
+					{
+						/*
+						 	 Skip the intervals where all the messages were broken
+						*/
+						return $messagesSynced;
+					}
+					elseif($failureDueToDataVolume && $intervalSynchronizationAttempts < count(self::MAXIMUM_SYNCHRONIZATION_LENGTHS_OF_INTERVALS) - 1 )
+					{
+						$intervalSynchronizationAttempts++;
+						continue;
+						/*
+							Trying to resynchronize by reducing the interval
+						*/
+					}
+					else
+					{
+						/*
+							Fatal errors in which we cannot perform synchronization
+						*/
+						$this->warnings->add($fetchErrors->toArray());
+						return false;
+					}
 				}
-				else
-				{
-					// @TODO: log
-				}
-
 				break;
+			}
+			else
+			{
+				$intervalSynchronizationAttempts = 0;
 			}
 
 			$reverse ? krsort($messages) : ksort($messages);
@@ -1053,20 +1137,40 @@ class Imap extends Mail\Helper\Mailbox
 
 			$this->blacklistMessages($dir->getPath(), $messages);
 
-			$this->prepareMessages($dir->getPath(), $uidtoken, $messages);
+			$this->removeExistingMessagesFromSynchronizationList($dir->getPath(), $uidtoken, $messages);
 
-			$hashesMap = array();
+			foreach ($messages as &$message)
+			{
+				$this->fillMessageFields($message, $dir->getPath(), $uidtoken);
+			}
+
+			$this->linkWithExistingMessages($messages);
+
+			$hashesMap = [];
 
 			//To display new messages(grid reload) until synchronization is complete
 			$numberOfMessagesInABatch = 1;
 			$numberLeftToFillTheBatch = $numberOfMessagesInABatch;
 
-			foreach ($messages as $id => $item)
+			foreach ($messages as $item)
 			{
-				if ($this->syncMessage($dir->getPath(), $uidtoken, $item, $hashesMap))
+				$isOutgoing = false;
+
+				if(empty($item['__replaces']))
+				{
+					$outgoingMessageId = $this->selectOutgoingMessageIdFromHeader($item);
+
+					if($outgoingMessageId)
+					{
+						$item['__replaces'] = $outgoingMessageId;
+						$isOutgoing = true;
+					}
+				}
+
+				if ($this->syncMessage($dir->getPath(), $item, $hashesMap, false, $isOutgoing))
 				{
 					$this->lastSyncResult['newMessageId'] = end($hashesMap);
-					$count++;
+					$messagesSynced++;
 
 					$numberLeftToFillTheBatch--;
 					if($numberLeftToFillTheBatch === 0 and Main\Loader::includeModule('pull'))
@@ -1075,13 +1179,14 @@ class Imap extends Mail\Helper\Mailbox
 						$numberLeftToFillTheBatch = $numberOfMessagesInABatch;
 						\CPullWatch::addToStack(
 							'mail_mailbox_' . $this->mailbox['ID'],
-							array(
-								'params' => array(
-									'dir' => $dir->getPath()
-								),
+							[
+								'params' => [
+									'dir' => $dir->getPath(),
+									'mailboxId' => $this->mailbox['ID'],
+								],
 								'module_id' => 'mail',
 								'command' => 'new_message_is_synchronized',
-							)
+							]
 						);
 						\Bitrix\Pull\Event::send();
 					}
@@ -1101,7 +1206,7 @@ class Imap extends Mail\Helper\Mailbox
 			return false;
 		}
 
-		return $count;
+		return $messagesSynced;
 	}
 
 	public function resyncDir($dirPath, $numberForResync = false)
@@ -1437,9 +1542,25 @@ class Imap extends Mail\Helper\Mailbox
 		}
 	}
 
-	protected function prepareMessages($dirPath, $uidtoken, &$messages)
+	protected function buildMessageIdForDataBase($dirPath, $uidToken, $UID): string
 	{
-		$excerpt = array();
+		return md5(sprintf('%s:%u:%u', $dirPath, $uidToken, $UID));
+	}
+
+	protected function buildMessageHeaderHashForDataBase($message): string
+	{
+		return md5(sprintf(
+			'%s:%s:%u',
+			trim($message['BODY[HEADER]']),
+			$message['INTERNALDATE'],
+			$message['RFC822.SIZE']
+		));
+	}
+
+
+	protected function removeExistingMessagesFromSynchronizationList($dirPath, $uidToken, &$messages)
+	{
+		$existingMessagesId = [];
 
 		$range = array(
 			reset($messages)['UID'],
@@ -1448,10 +1569,12 @@ class Imap extends Mail\Helper\Mailbox
 		sort($range);
 
 		$result = $this->listMessages(array(
-			'select' => array('ID'),
+			'select' => [
+				'ID'
+			],
 			'filter' => array(
 				'=DIR_MD5'  => md5(Emoji::encode($dirPath)),
-				'=DIR_UIDV' => $uidtoken,
+				'=DIR_UIDV' => $uidToken,
 				'>=MSG_UID' => $range[0],
 				'<=MSG_UID' => $range[1],
 			),
@@ -1459,73 +1582,75 @@ class Imap extends Mail\Helper\Mailbox
 
 		while ($item = $result->fetch())
 		{
-			$excerpt[] = $item['ID'];
+			$existingMessagesId[] = $item['ID'];
 		}
 
-		$uids = array();
-		$hashes = array();
 		foreach ($messages as $id => $item)
 		{
-			$messageUid = md5(sprintf('%s:%u:%u', $dirPath, $uidtoken, $item['UID']));
+			$messageUid = $this->buildMessageIdForDataBase($dirPath, $uidToken, $item['UID']);
 
-			if (in_array($messageUid, $excerpt))
+			if (in_array($messageUid, $existingMessagesId))
 			{
 				unset($messages[$id]);
 				continue;
 			}
 
-			$excerpt[] = $uids[$id] = $messageUid;
+			//We also remove duplicate messages
+			$existingMessagesId[] = $messageUid;
+		}
+	}
 
-			$hashes[$id] = md5(sprintf(
-				'%s:%s:%u',
-				trim($item['BODY[HEADER]']),
-				$item['INTERNALDATE'],
-				$item['RFC822.SIZE']
-			));
+	protected function searchExistingMessagesByHeaderInDataBase($headerHashes)
+	{
+		return $this->listMessages([
+			'select' => ['HEADER_MD5', 'MESSAGE_ID', 'DATE_INSERT'],
+			'filter' => [
+				'@HEADER_MD5' => $headerHashes,
+			],
+		], false);
+	}
 
-			$messages[$id]['__internaldate'] = Main\Type\DateTime::createFromPhp(
-				\DateTime::createFromFormat(
-					'j-M-Y H:i:s O',
-					ltrim(trim($item['INTERNALDATE']), '0')
-				) ?: new \DateTime
-			);
+	protected function searchExistingMessagesByIdInDataBase($idsForDataBase)
+	{
+		return $this->listMessages(array(
+			'select' => array('ID', 'MESSAGE_ID', 'DATE_INSERT'),
+			'filter' => array(
+				'@ID' => array_values($idsForDataBase),
+			),
+		), false);
+	}
 
-			$messages[$id]['__fields'] = array(
-				'ID'           => $messageUid,
-				'DIR_MD5'      => md5(Emoji::encode($dirPath)),
-				'DIR_UIDV'     => $uidtoken,
-				'MSG_UID'      => $item['UID'],
-				'INTERNALDATE' => $messages[$id]['__internaldate'],
-				'IS_SEEN'      => preg_grep('/^ \x5c Seen $/ix', $item['FLAGS']) ? 'Y' : 'N',
-				'HEADER_MD5'   => $hashes[$id],
-				'MESSAGE_ID'   => 0,
-			);
+	protected function linkWithExistingMessages(&$messages)
+	{
+		$hashes = [];
+		$idsForDataBase = [];
 
-			if (preg_match('/X-Bitrix-Mail-Message-UID:\s*([a-f0-9]+)/i', $item['BODY[HEADER]'], $matches))
-			{
-				$messages[$id]['__replaces'] = $matches[1];
-			}
+		foreach ($messages as $id => $item)
+		{
+			$hashes[$id] = $item['__fields']['HEADER_MD5'];
+			$idsForDataBase[$id] = $item['__fields']['ID'];
 		}
 
-		$hashesMap = array();
+		$hashesMap = [];
+
 		foreach ($hashes as $id => $hash)
 		{
 			if (!array_key_exists($hash, $hashesMap))
 			{
-				$hashesMap[$hash] = array();
+				$hashesMap[$hash] = [];
 			}
 
 			$hashesMap[$hash][] = $id;
 		}
 
-		$result = $this->listMessages(array(
-			'select' => array('HEADER_MD5', 'MESSAGE_ID', 'DATE_INSERT'),
-			'filter' => array(
-				'@HEADER_MD5' => array_keys($hashesMap),
-			),
-		), false);
+		$existingMessages = $this->searchExistingMessagesByHeaderInDataBase(array_keys($hashesMap));
 
-		while ($item = $result->fetch())
+		/*
+			For example, Gmail's labels act like "tags".
+			Any individual email message can have multiple labels,
+			and thus appear under multiple dirs.
+		*/
+		while ($item = $existingMessages->fetch())
 		{
 			foreach ((array)$hashesMap[$item['HEADER_MD5']] as $id)
 			{
@@ -1534,20 +1659,51 @@ class Imap extends Mail\Helper\Mailbox
 			}
 		}
 
-		$result = $this->listMessages(array(
-			'select' => array('ID', 'MESSAGE_ID', 'DATE_INSERT'),
-			'filter' => array(
-				'@ID' => array_values($uids),
-				// DIR_MD5 can be empty in DB
-			),
-		), false);
+		$existingMessages = $this->searchExistingMessagesByIdInDataBase($idsForDataBase);
 
-		while ($item = $result->fetch())
+		/*
+			To restore messages stored with "broken" directories.
+			For example, previously, data for messages in directories containing emojis were stored incorrectly in the database.
+		*/
+		while ($item = $existingMessages->fetch())
 		{
-			$id = array_search($item['ID'], $uids);
+			$id = array_search($item['ID'], $idsForDataBase);
 			$messages[$id]['__created'] = $item['DATE_INSERT'];
 			$messages[$id]['__fields']['MESSAGE_ID'] = $item['MESSAGE_ID'];
 			$messages[$id]['__replaces'] = $item['ID'];
+		}
+	}
+
+	protected function fillMessageFields(&$message, $dirPath, $uidToken)
+	{
+		$message['__internaldate'] = Main\Type\DateTime::createFromPhp(
+			\DateTime::createFromFormat(
+				'j-M-Y H:i:s O',
+				ltrim(trim($message['INTERNALDATE']), '0')
+			) ?: new \DateTime
+		);
+
+		$message['__fields'] = [
+			'ID'           => $this->buildMessageIdForDataBase($dirPath, $uidToken, $message['UID']),
+			'DIR_MD5'      => md5(Emoji::encode($dirPath)),
+			'DIR_UIDV'     => $uidToken,
+			'MSG_UID'      => $message['UID'],
+			'INTERNALDATE' => $message['__internaldate'],
+			'IS_SEEN'      => preg_grep('/^ \x5c Seen $/ix', $message['FLAGS']) ? 'Y' : 'N',
+			'HEADER_MD5'   => $this->buildMessageHeaderHashForDataBase($message),
+			'MESSAGE_ID'   => 0,
+		];
+	}
+
+	protected function selectOutgoingMessageIdFromHeader($message)
+	{
+		if (preg_match('/X-Bitrix-Mail-Message-UID:\s*([a-f0-9]+)/i', $message['BODY[HEADER]'], $matches))
+		{
+			return $matches[1];
+		}
+		else
+		{
+			return false;
 		}
 	}
 
@@ -1691,7 +1847,7 @@ class Imap extends Mail\Helper\Mailbox
 		return $result->isSuccess();
 	}
 
-	protected function syncMessage($dirPath, $uidtoken, $message, &$hashesMap = array(), $ignoreSyncFrom = false)
+	protected function syncMessage($dirPath, $message, &$hashesMap = [], $ignoreSyncFrom = false, $isOutgoing = false)
 	{
 		$fields = $message['__fields'];
 
@@ -1707,27 +1863,17 @@ class Imap extends Mail\Helper\Mailbox
 			}
 		}
 
-		if (!$this->registerMessage($fields, isset($message['__replaces']) ? $message['__replaces'] : null))
+		if (!$this->registerMessage($fields, ($message['__replaces'] ?? null), $isOutgoing))
 		{
 			return false;
 		}
 
-		if (Mail\Helper\LicenseManager::getSyncOldLimit() > 0)
-		{
-			if ($message['__internaldate']->getTimestamp() < strtotime(sprintf('-%u days', Mail\Helper\LicenseManager::getSyncOldLimit())))
-			{
-				$this->completeMessageSync($fields['ID']);
-				return false;
-			}
-		}
+		$minimumSyncDate = $this->getMinimumSyncDate();
 
-		if (!$ignoreSyncFrom && !empty($this->mailbox['OPTIONS']['sync_from']))
+		if($minimumSyncDate !== false && !$ignoreSyncFrom && $message['__internaldate']->getTimestamp() < $this->getMinimumSyncDate())
 		{
-			if ($message['__internaldate']->getTimestamp() < $this->mailbox['OPTIONS']['sync_from'])
-			{
-				$this->completeMessageSync($fields['ID']);
-				return false;
-			}
+			$this->completeMessageSync($fields['ID']);
+			return false;
 		}
 
 		if (!empty($message['__created']) && !empty($this->mailbox['OPTIONS']['resync_from']))
@@ -1910,7 +2056,7 @@ class Imap extends Mail\Helper\Mailbox
 			}
 		};
 
-		list($bodyHtml, $bodyText, $attachments) = $message['__bodystructure']->traverse(
+		[$bodyHtml, $bodyText, $attachments] = $message['__bodystructure']->traverse(
 			function (Mail\Imap\BodyStructure $item, &$subparts) use (&$message, &$complete)
 			{
 				$parts = &$message['__parts'];
@@ -2023,7 +2169,33 @@ class Imap extends Mail\Helper\Mailbox
 		);
 	}
 
-	protected function getSyncRange($dirPath, &$uidtoken)
+	public function getMinimumSyncDate()
+	{
+		$minimumDate = false;
+
+		if(!empty($this->mailbox['OPTIONS']['sync_from']))
+		{
+			$minimumDate = $this->mailbox['OPTIONS']['sync_from'];
+		}
+
+		$syncOldLimit = Mail\Helper\LicenseManager::getSyncOldLimit();
+
+		if($syncOldLimit > 0)
+		{
+			$syncOldLimit = strtotime(sprintf('-%u days', $syncOldLimit));
+
+			/*
+				Checking in case of changes in tariff limits
+			*/
+			if($minimumDate === false || $minimumDate < $syncOldLimit)
+			{
+				$minimumDate = $syncOldLimit;
+			}
+		}
+		return $minimumDate;
+	}
+
+	protected function getSyncRange($dirPath, &$uidtoken, $intervalSynchronizationAttempts = 0)
 	{
 		$meta = $this->client->select($dirPath, $error);
 		if (false === $meta)
@@ -2040,33 +2212,38 @@ class Imap extends Mail\Helper\Mailbox
 
 		$uidtoken = $meta['uidvalidity'];
 
-		$rangeGetter = function ($min, $max) use ($dirPath, $uidtoken, &$rangeGetter)
+		/*
+			The interval may be smaller if the uid of the last message
+			in the database is close to the split point in the set of intervals
+		*/
+		$maximumLengthSynchronizationInterval = $this->getMaximumSynchronizationLengthsOfIntervals($intervalSynchronizationAttempts);
+
+		$rangeGetter = function ($min, $max) use ($dirPath, $uidtoken, &$rangeGetter, $maximumLengthSynchronizationInterval)
 		{
+
 			$size = $max - $min + 1;
 
-			$set = array();
-			$d = $size < 1000 ? 100 : pow(10, round(ceil(log10($size) - 0.7) / 2) * 2 - 2);
+			$set = [];
+			$d = $size < 1000 ? $maximumLengthSynchronizationInterval : pow(10, round(ceil(log10($size) - 0.7) / 2) * 2 - 2);
 
-			//take every $d (usually 100) id starting from the first one
+			//Take intermediate interval values
 			for ($i = $min; $i <= $max; $i = $i + $d)
 			{
 				$set[] = $i;
 			}
 
-			/*if the interval from the last message id(we will add it later)
-			to the penultimate id in the set is less than one hundred,
-			we will delete the last one to increase the interval.
-				Example: 5000, 5100, 5200... 13900... 14000... 14023.
+			/*
+				The end of the expected interval should not exceed the identifier of the last message
 			*/
-			if (count($set) > 1 && end($set) + 100 >= $max)
+			if (count($set) > 1 && end($set) >= $max)
 			{
 				array_pop($set);
 			}
 
-			//the last item in the set must match the last item on the service
+			//The last item in the set must match the last item on the service
 			$set[] = $max;
 
-			//returns messages starting from the 1st existing one
+			//Return messages starting from the 1st existing one
 			$set = $this->client->fetch(false, $dirPath, join(',', $set), '(UID)', $error);
 
 			if (empty($set))
@@ -2076,20 +2253,22 @@ class Imap extends Mail\Helper\Mailbox
 
 			ksort($set);
 
-			static $uidMin, $uidMax;
+			static $uidMinInDatabase, $uidMaxInDatabase, $takeFromDown;
 
-			if (!isset($uidMin, $uidMax))
+			if (!isset($uidMinInDatabase, $uidMaxInDatabase, $takeFromDown))
 			{
-				$minmax = $this->getUidRange($dirPath, $uidtoken);
+				$messagesUidBoundariesIntervalInDatabase = $this->getUidRange($dirPath, $uidtoken);
 
-				if ($minmax)
+				if ($messagesUidBoundariesIntervalInDatabase)
 				{
-					$uidMin = $minmax['MIN'];
-					$uidMax = $minmax['MAX'];
+					$uidMinInDatabase = $messagesUidBoundariesIntervalInDatabase['MIN'];
+					$uidMaxInDatabase = $messagesUidBoundariesIntervalInDatabase['MAX'];
+					$takeFromDown = $messagesUidBoundariesIntervalInDatabase['TAKE_FROM_DOWN'];
 				}
 				else
 				{
-					$uidMin = $uidMax = (end($set)['UID'] + 1);
+					$takeFromDown = true;
+					$uidMinInDatabase = $uidMaxInDatabase = (end($set)['UID'] + 1);
 				}
 			}
 
@@ -2097,74 +2276,66 @@ class Imap extends Mail\Helper\Mailbox
 			{
 				$uid = reset($set)['UID'];
 
-				if ($uid > $uidMax || $uid < $uidMin)
+				if ($uid > $uidMaxInDatabase || $uid < $uidMinInDatabase)
 				{
 					return array($uid, $uid);
 				}
 			}
-			elseif (end($set)['UID'] > $uidMax)
+			elseif (end($set)['UID'] > $uidMaxInDatabase)
 			{
-				$max = current($set)['id'];
-
-				/*select the closest element with the largest uid
-				from the set of messages on the service (every hundredth)
-				to a message from the database (synchronized) with the maximum uid.*/
+				/*
+					Select the closest element with the largest uid
+					from the set of messages on the service (every hundredth)
+					to a message from the database (synchronized) with the maximum uid.
+				*/
 				do
 				{
-					$exmax = $max;
-
 					$max = current($set)['id'];
 					$min = prev($set)['id'];
 				}
-				while (current($set)['UID'] > $uidMax && prev($set) && next($set));
+				while (current($set)['UID'] > $uidMaxInDatabase && prev($set) && next($set));
 
-				//if the interval of messages for downloading is more than 200 - we repeat the splitting.
-				if ($max - $min > 200)
+				if ($max - $min > $maximumLengthSynchronizationInterval)
 				{
 					return $rangeGetter($min, $max);
 				}
 				else
 				{
-					/*if the synchronization interval turned out to be too small,
-					we take the nearest largest to the end of the interval from the set (every 100).
-					Thus the interval will increase by a hundred
-					(or another value, if at the end of the set).*/
-					if ($set[$max]['UID'] - $uidMax < 100)
-					{
-						$max = $exmax;
-					}
-
+					/*
+						Since we upload messages "up",
+						we know the upper ones and there is no point in "capturing" existing messages in the interval.
+						The selection is made within the interval, so the presence of extreme messages with the specified identifiers is not necessary.
+						+ 1 / - do not include an already uploaded message
+					*/
 					return array(
-						max($set[$min]['UID'], $uidMax + 1),
+						max($set[$min]['UID'], $uidMaxInDatabase + 1),
 						$set[$max]['UID'],
 					);
 				}
 			}
-			elseif (reset($set)['UID'] < $uidMin)
+			elseif (reset($set)['UID'] < $uidMinInDatabase && $takeFromDown)
 			{
-				$min = current($set)['id'];
 				do
 				{
-					$exmin = $min;
-
 					$min = current($set)['id'];
 					$max = next($set)['id'];
 				}
-				while (current($set)['UID'] < $uidMin && next($set) && prev($set));
+				while (current($set)['UID'] < $uidMinInDatabase && next($set) && prev($set));
 
-				if ($max - $min > 200)
+				if ($max - $min > $maximumLengthSynchronizationInterval)
 				{
 					return $rangeGetter($min, $max);
 				}
 				else
 				{
-					if ($uidMin - $set[$min]['UID'] < 100)
-					{
-						$min = $exmin;
-					}
-
+					/*
+						Since we upload messages "down",
+						we know the upper ones and there is no point in "capturing" existing messages in the interval.
+						The selection is made within the interval, so the presence of extreme messages with the specified identifiers is not necessary.
+						- 1 / - do not include an already uploaded message
+					*/
 					return array(
-						min($set[$max]['UID'], $uidMin - 1),
+						min($set[$max]['UID'], $uidMinInDatabase - 1),
 						$set[$min]['UID'],
 					);
 				}
@@ -2184,10 +2355,14 @@ class Imap extends Mail\Helper\Mailbox
 			'>MSG_UID'  => 0,
 		);
 
+		$minimumSyncDate = $this->getMinimumSyncDate();
+
+		$takeFromDown = true;
+
 		$min = $this->listMessages(
 			array(
 				'select' => array(
-					'MIN' => 'MSG_UID',
+					'MIN' => 'MSG_UID','INTERNALDATE'
 				),
 				'filter' => $filter,
 				'order'  => array(
@@ -2197,6 +2372,11 @@ class Imap extends Mail\Helper\Mailbox
 			),
 			false
 		)->fetch();
+
+		if(isset($min['INTERNALDATE']) && $minimumSyncDate !== false && $min['INTERNALDATE']->getTimestamp() < $minimumSyncDate)
+		{
+			$takeFromDown = false;
+		}
 
 		$max = $this->listMessages(
 			array(
@@ -2217,6 +2397,7 @@ class Imap extends Mail\Helper\Mailbox
 			return array(
 				'MIN' => $min['MIN'],
 				'MAX' => $max['MAX'],
+				'TAKE_FROM_DOWN' => $takeFromDown,
 			);
 		}
 

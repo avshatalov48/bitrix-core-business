@@ -3105,7 +3105,7 @@
 							style: {marginRight: '10px'}
 						}),
 						new BasketButton({
-							text: BX.message('BTN_MESSAGE_DETAIL_CLOSE_POPUP'),
+							text: BX.message('BTN_MESSAGE_DETAIL_CLOSE'),
 							events: {
 								click: BX.delegate(this.obPopupWin.close, this.obPopupWin)
 							}

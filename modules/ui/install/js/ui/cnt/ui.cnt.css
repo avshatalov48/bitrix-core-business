@@ -5,7 +5,7 @@
 	--ui-counter-size-md: 16px;
 	--ui-counter-size-lg: 19px;
 	--ui-counter-font-size: 11px;
-	--ui-counter-font-weight: bold;
+	--ui-counter-font-weight: var(--ui-font-weight-bold);
 	/*color*/
 	--ui-counter-current-bg-color: #f54819;
 	--ui-counter-bg-color-gray: #a8adb4;
@@ -42,7 +42,8 @@
 	min-width: var(--ui-counter-current-size)x;
 	box-sizing: border-box;
 	padding: 0 5px;
-	font: var(--ui-counter-font-weight) var(--ui-counter-font-size)/var(--ui-counter-current-size) "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-counter-font-weight) var(--ui-counter-font-size)/var(--ui-counter-current-size) var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 /*endregion*/

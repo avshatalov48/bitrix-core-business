@@ -6,7 +6,7 @@
 	width: 266px;
 	padding: 14px 10px;
 	box-sizing: border-box;
-	border-radius: 1px;
+	border-radius: var(--ui-border-radius-md, 1px);
 	box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .09);
 	transition: 200ms box-shadow ease;
 	margin-bottom: 10px;
@@ -67,7 +67,8 @@
 }
 
 .landing-ui-panel-preset-text-title {
-	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-serif, serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 14px;
 	color: #333333;
 	line-height: 17px;
@@ -76,7 +77,7 @@
 }
 
 .landing-ui-panel-preset-text-description {
-	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	color: #A8ADB4;
 	line-height: 17px;
@@ -98,7 +99,8 @@
 }
 
 .landing-ui-panel-preset-soon-label {
-	font-family: OpenSans-SemiBold, Helvetca, Arial, sans-serif, serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	background: #3BC6F3;
 	border-radius: 11px;
 	font-size: 9px;

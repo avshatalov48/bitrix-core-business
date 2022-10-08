@@ -5,7 +5,7 @@
 }
 
 .ui-selector-dialog {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));;
 	display: -webkit-box;;
 	display: -ms-flexbox;;
 	display: flex;
@@ -263,7 +263,8 @@
 	margin-right: 15px;
 	font-size: 11px;
 	text-transform: uppercase;
-	font-family: "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	white-space: nowrap;
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
@@ -407,7 +408,8 @@
 .ui-selector-tab-default-stub-title {
 	color: #7f868d;
 	font-size: 20px;
-	font-family: "OpenSans-Light", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	text-align: center;
 }
 
@@ -588,7 +590,7 @@
 .ui-selector-search-footer-query {
 	color: #525c69;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 
 	white-space: nowrap;
 	-o-text-overflow: ellipsis;
@@ -705,7 +707,8 @@
 
 .ui-selector-item-supertitle {
 	font-size: 9px;
-	font-family: "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	text-transform: uppercase;
 	color: #b1b6bb;
 	white-space: nowrap;
@@ -1114,7 +1117,7 @@
 	overflow: hidden;
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
-	font: bold 13px/29px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 13px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin-left: 13px;
 }
 
@@ -1158,7 +1161,7 @@
 	background: #fff;
 	color: #555;
 	font-size: 13px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-transition: opacity 100ms ease;
 	-o-transition: opacity 100ms ease;
 	transition: opacity 100ms ease;
@@ -1213,7 +1216,7 @@
 	-webkit-box-align: baseline;
 	    -ms-flex-align: baseline;
 	        align-items: baseline;
-	font: bold 14px "Helvetica Neue", Arial, Helvetica, sans-serif
+	font: var(--ui-font-weight-bold) 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica))
 }
 
 .ui-tag-selector-add-button-caption:before,

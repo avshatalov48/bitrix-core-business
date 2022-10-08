@@ -43,7 +43,7 @@
 }
 
 .landing-ui-field-accordion-item-header-title {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: #2066B0;
 	line-height: 17px;

@@ -58,7 +58,7 @@ $tabControl->BeginNextTab();
 ?>
 <tr valign="top"z><td width="50%"><?=GetMessage("P_FONT")?>:</td><td width="50%"><?
 $arFiles = array();
-$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/fonts/");
+$path = str_replace(array("\\", "//"), "/", __DIR__."/fonts/");
 CheckDirPath($path);
 $handle = opendir($path);
 $file_exist = false;

@@ -1,11 +1,10 @@
 <?php
 
-
 namespace Bitrix\Calendar\Sync\Google;
 
-
-class Dictionary
+class Dictionary extends \Bitrix\Calendar\Sync\Dictionary
 {
+	/** @var array  */
 	public const ACCESS_ROLE_TO_EXTERNAL_TYPE = [
 		'reader' => 'google_readonly',
 		'owner' => 'google',
@@ -13,28 +12,15 @@ class Dictionary
 		'freeBusyOrder' => 'google_freebusy',
 	];
 
-	public const SYNC_STATUS = [
-		'success' => 'success',
-		'failed' => 'failed',
-		'delete' => 'delete',
-		'create' => 'create',
-		'update' => 'update',
-		'next' => 'next',
-		'parent' => 'parent',
-		'instance' => 'instance',
-		'undefined' => 'undefined',
-		'waiting' => 'waiting',
-		'deleted' => 'deleted',
-		'exdated' => 'exdated',
+	/** @var array  */
+	public const SYNC_ACTION = [
+		'confirmed' => 'save',
+		'cancelled' => 'delete',
+		'tentative' => 'save',
 	];
 
-	public const PUSH_STATUS_PROCESS = [
-		'block' => 'B',
-		'unprocessed' => 'U',
-	];
-
-	public const PUSH_TYPE = [
-		'c' => 'CONNECTION',
-		's' => 'SECTION',
+	public const PUSH_CHANNEL_TYPES = [
+		'connection' => 'BX_CONNECTION',
+		'sectionConnection' => 'BX_SC',
 	];
 }

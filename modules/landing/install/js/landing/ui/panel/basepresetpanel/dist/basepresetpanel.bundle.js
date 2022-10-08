@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_panel_content,landing_ui_button_basebutton,landing_ui_field_presetfield,landing_pageobject,landing_ui_button_sidebarbutton,landing_loc,ui_textcrop,main_loader,main_core_events,main_core,landing_ui_card_headercard,landing_ui_card_messagecard,landing_ui_form_formsettingsform,landing_collection_basecollection,landing_ui_form_baseform) {
+(function (exports,landing_ui_panel_content,landing_ui_button_basebutton,landing_ui_field_presetfield,landing_pageobject,landing_ui_button_sidebarbutton,ui_designTokens,ui_fonts_opensans,landing_loc,ui_textcrop,main_loader,main_core_events,main_core,landing_ui_card_headercard,landing_ui_card_messagecard,landing_ui_form_formsettingsform,landing_collection_basecollection,landing_ui_form_baseform) {
 	'use strict';
 
 	var _templateObject, _templateObject2;
@@ -636,5 +636,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	exports.Preset = Preset;
 	exports.ContentWrapper = ContentWrapper;
 
-}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX.Landing.UI.Panel,BX.Landing.UI.Button,BX.Landing.UI.Field,BX.Landing,BX.Landing.UI.Button,BX.Landing,BX.UI,BX,BX.Event,BX,BX.Landing.UI.Card,BX.Landing.UI.Card,BX.Landing.UI.Form,BX.Landing.Collection,BX.Landing.UI.Form));
+}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX.Landing.UI.Panel,BX.Landing.UI.Button,BX.Landing.UI.Field,BX.Landing,BX.Landing.UI.Button,BX,BX,BX.Landing,BX.UI,BX,BX.Event,BX,BX.Landing.UI.Card,BX.Landing.UI.Card,BX.Landing.UI.Form,BX.Landing.Collection,BX.Landing.UI.Form));
 //# sourceMappingURL=basepresetpanel.bundle.js.map

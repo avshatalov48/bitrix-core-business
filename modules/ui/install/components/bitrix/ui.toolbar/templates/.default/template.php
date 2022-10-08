@@ -17,7 +17,7 @@ use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 $this->setFrameMode(true);
 
-\Bitrix\Main\UI\Extension::load('ui.design-tokens');
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens', 'ui.fonts.opensans']);
 
 $filter = Toolbar::getFilter();
 $afterTitleButtons = Toolbar::renderAfterTitleButtons();

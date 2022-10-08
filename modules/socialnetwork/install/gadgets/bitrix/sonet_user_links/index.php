@@ -93,7 +93,7 @@ if ($GLOBALS["USER"]->IsAuthorized()):
 	if (
 		$arGadgetParams["IS_CURRENT_USER"]
 		&& CSocNetUser::IsCurrentUserModuleAdmin(SITE_ID, false)
-		&& !isset($_SESSION["SONET_ADMIN"])
+		&& !CSocNetUser::IsEnabledModuleAdmin()
 	)
 	{
 		?><?

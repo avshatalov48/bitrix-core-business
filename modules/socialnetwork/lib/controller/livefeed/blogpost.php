@@ -227,22 +227,53 @@ class BlogPost extends Base
 			|| !($postItem = \Bitrix\Blog\Item\Post::getById($postId))
 		)
 		{
-			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_LIVEFEED_BLOGPOST_NOT_FOUND'), 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_NOT_FOUND'));
+			$this->addError(
+				new Error(
+					Loc::getMessage('SONET_CONTROLLER_LIVEFEED_BLOGPOST_NOT_FOUND'),
+					'SONET_CONTROLLER_LIVEFEED_BLOGPOST_NOT_FOUND'
+				)
+			);
+
 			return null;
 		}
 
 		$currentUserPerm = Helper::getBlogPostPerm([
 			'USER_ID' => $currentUserId,
-			'POST_ID' => $postId
+			'POST_ID' => $postId,
 		]);
-
 		if ($currentUserPerm <= Permissions::DENY)
 		{
-			$this->addError(new Error(Loc::getMessage('SONET_CONTROLLER_LIVEFEED_BLOGPOST_NOT_FOUND'), 'SONET_CONTROLLER_LIVEFEED_BLOGPOST_NOT_FOUND'));
+			$this->addError(
+				new Error(
+					Loc::getMessage('SONET_CONTROLLER_LIVEFEED_BLOGPOST_NOT_FOUND'),
+					'SONET_CONTROLLER_LIVEFEED_BLOGPOST_NOT_FOUND'
+				)
+			);
+
 			return null;
 		}
 
 		$postFields = $postItem->getFields();
+
+		if (
+			(int)$postFields['AUTHOR_ID'] !== $currentUserId
+			&& ComponentHelper::isCurrentUserExtranet()
+		)
+		{
+			$visibleUserIdList = \CExtranet::getMyGroupsUsersSimple(SITE_ID);
+
+			if (!empty(array_diff([(int)$postFields['AUTHOR_ID']], $visibleUserIdList)))
+			{
+				$this->addError(
+					new Error(
+						Loc::getMessage('SONET_CONTROLLER_LIVEFEED_BLOGPOST_NOT_FOUND'),
+						'SONET_CONTROLLER_LIVEFEED_BLOGPOST_NOT_FOUND'
+					)
+				);
+
+				return null;
+			}
+		}
 
 		$perms2update = [];
 		$sonetPermsListOld = \CBlogPost::getSocNetPerms($postId);

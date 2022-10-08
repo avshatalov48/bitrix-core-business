@@ -1,6 +1,8 @@
 <?
 if(!Defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+use Bitrix\Main\Context;
+
 if ((defined('BX_PUBLIC_MODE')) && (1 == BX_PUBLIC_MODE))
 {
 ?><link rel="stylesheet" type="text/css" href="<?php echo $this->GetFolder().'/style.css'; ?>">
@@ -28,12 +30,18 @@ if($arParams['SHOW_INPUT'] == 'Y'):?>
 	$arParams['ONSELECT'] = 'OnSelect_'.$name_x;
 endif;?>
 <?
+
+$request = Context::getCurrent()->getRequest();
+
 $arAjaxParams = array(
 	"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 	"lang" => LANGUAGE_ID,
-	"site" => SITE_ID,
-	"admin" => (defined('ADMIN_SECTION') && ADMIN_SECTION === true ? 'Y' : 'N')
+	"admin" => ($request->isAdminSection() ? 'Y' : 'N'),
 );
+if (!$request->isAdminSection())
+{
+	$arAjaxParams["site"] = SITE_ID;
+}
 if ('' != $arParams['BAN_SYM'])
 {
 	$arAjaxParams['BAN_SYM'] = $arParams['BAN_SYM'];

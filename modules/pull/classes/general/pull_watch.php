@@ -86,6 +86,10 @@ class CAllPullWatch
 		}
 
 		$arChannel = CPullChannel::Get($userId);
+		if (!$arChannel)
+		{
+			return false;
+		}
 		if (!empty(self::$arUpdate))
 		{
 			$DB->Query("

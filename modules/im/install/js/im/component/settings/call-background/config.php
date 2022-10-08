@@ -13,6 +13,7 @@ return [
 		'im.lib.utils',
 		'ui.info-helper',
 		'ui.notification',
+		'ui.fonts.opensans',
 		'ui.vue',
 		'ui.progressbarjs.uploader',
 		'im.const',

@@ -1,3 +1,4 @@
+import {Loc} from 'main.core';
 import {EventEmitter} from 'main.core.events';
 import {EventType} from 'im.v2.const';
 
@@ -30,12 +31,14 @@ export class EventHandler
 		this.onHideChatHandler = this.onHideChat.bind(this);
 		this.onLeaveChatHandler = this.onLeaveChat.bind(this);
 		this.onClearLikeHandler = this.onClearLike.bind(this);
+		this.onClearHistoryHandler = this.onClearHistory.bind(this);
 
 		EventEmitter.subscribe(EventType.recent.setCounter, this.onSetCounterHandler);
 		EventEmitter.subscribe(EventType.recent.setMessage, this.onSetMessageHandler);
 		EventEmitter.subscribe(EventType.recent.hideChat, this.onHideChatHandler);
 		EventEmitter.subscribe(EventType.recent.leaveChat, this.onLeaveChatHandler);
 		EventEmitter.subscribe(EventType.recent.clearLike, this.onClearLikeHandler);
+		EventEmitter.subscribe(EventType.dialog.clearHistory, this.onClearHistoryHandler);
 	}
 
 	onSetCounter({data: {dialogId, counter}})
@@ -112,6 +115,25 @@ export class EventHandler
 		this.store.dispatch('recent/like', {
 			id: dialogId,
 			liked: false
+		});
+	}
+
+	onClearHistory({data: {dialogId}})
+	{
+		const recentItem = this.store.getters['recent/get'](dialogId);
+		if (!recentItem)
+		{
+			return false;
+		}
+
+		this.store.dispatch('recent/update', {
+			id: dialogId,
+			fields: {
+				message: {
+					...recentItem.message,
+					text: Loc.getMessage('IM_RECENT_DELETED_MESSAGE'),
+				}
+			}
 		});
 	}
 

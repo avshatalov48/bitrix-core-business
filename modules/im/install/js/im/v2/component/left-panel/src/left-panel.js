@@ -40,25 +40,27 @@ export const LeftPanel = {
 		},
 		onOpenSearch(event)
 		{
-			console.warn('OPEN SEARCH');
+			if (this.searchMode)
+			{
+				return;
+			}
 			this.searchMode = true;
 			this.searchQuery = event.data.query;
 		},
 		onUpdateSearch(event)
 		{
-			this.searchMode = this.searchQuery.length > 0;
+			this.searchMode = true;
 			this.searchQuery = event.data.query;
 		},
 		onCloseSearch()
 		{
-			console.warn('CLOSE SEARCH');
 			this.searchQuery = '';
 			this.searchMode = false;
 		},
 	},
 	template: `
 		<div class="bx-im-left-panel-wrap">
-			<SearchComponent v-if="searchMode" :searchQuery="searchQuery" />
+			<SearchComponent v-show="searchMode" :searchMode="searchMode" :searchQuery="searchQuery" />
 			<RecentListComponent v-show="!searchMode" />
 		</div>
 	`

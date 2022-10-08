@@ -37,7 +37,7 @@ class Application
 			{
 				$result = [
 					'error' => $e->getCode(),
-					'error_description' => $e->getMessage()
+					'errorDescription' => $e->getMessage(),
 				];
 			}
 		}
@@ -47,7 +47,8 @@ class Application
 			$version = !empty($version) ? $version : false;
 
 			$result = [
-				'error' => Loc::getMessage('RMP_INSTALL_ERROR')
+				'error' => 'INSTALL_ERROR',
+				'errorDescription' => Loc::getMessage('RMP_INSTALL_ERROR'),
 			];
 
 			$appDetailInfo = false;
@@ -77,7 +78,8 @@ class Application
 			)
 			{
 				$result = [
-					'error' => Loc::getMessage('RMP_ERROR_ACCESS_DENIED'),
+					'error' => 'ACTION_ACCESS_DENIED',
+					'errorDescription' => Loc::getMessage('RMP_ERROR_ACCESS_DENIED'),
 					'helperCode' => Access::getHelperCode(Access::ACTION_INSTALL, Access::ENTITY_TYPE_APP, $appDetailInfo)
 				];
 			}
@@ -125,7 +127,8 @@ class Application
 
 					if ($installResult['error'])
 					{
-						$result['error_description'] = $installResult['error'] . ': ' . $installResult['error_description'];
+						$result['error'] = $installResult['error'];
+						$result['errorDescription'] = $installResult['error_description'];
 					}
 					elseif ($installResult['result'])
 					{
@@ -287,23 +290,44 @@ class Application
 						}
 						else
 						{
-							$result['error_description'] = implode('<br />', $addResult->getErrorMessages());
+							$result['errorDescription'] = implode('<br />', $addResult->getErrorMessages());
 						}
 					}
 				}
 				else
 				{
-					$result = ['error' => Loc::getMessage('RMP_ACCESS_DENIED')];
+					$result = [
+						'error' => 'ACCESS_DENIED',
+						'errorDescription' => Loc::getMessage('RMP_ACCESS_DENIED'),
+					];
 				}
 			}
 			else
 			{
-				$result = ['error' => Loc::getMessage('RMP_NOT_FOUND')];
+				$result = [
+					'error' => 'APPLICATION_NOT_FOUND',
+					'errorDescription' => Loc::getMessage('RMP_NOT_FOUND'),
+				];
 			}
 		}
 		elseif (!$result['error'])
 		{
-			$result = ['error' => Loc::getMessage('RMP_INSTALL_ERROR')];
+			$result = [
+				'error' => 'OAUTH_REGISTER',
+				'errorDescription' => Loc::getMessage('RMP_INSTALL_ERROR'),
+			];
+		}
+
+		if ($result['error'])
+		{
+			if ($result['error'] === 'SUBSCRIPTION_REQUIRED')
+			{
+				$result['errorDescription'] = Loc::getMessage('RMP_ERROR_SUBSCRIPTION_REQUIRED');
+			}
+			elseif ($result['error'] === 'verification_needed')
+			{
+				$result['errorDescription'] = Loc::getMessage('RMP_ERROR_VERIFICATION_NEEDED');
+			}
 		}
 
 		return $result;

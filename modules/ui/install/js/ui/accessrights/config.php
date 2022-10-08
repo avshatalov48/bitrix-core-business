@@ -16,6 +16,7 @@ return [
 	"bundle_css" => "ui_accessrights",
 	"rel" => [
 		"ui.switcher",
-		"ui.design-tokens"
+		"ui.design-tokens",
+		"ui.fonts.opensans",
 	],
 ];

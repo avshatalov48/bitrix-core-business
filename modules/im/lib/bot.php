@@ -289,7 +289,7 @@ class Bot
 
 		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "onImBotDelete") as $event)
 		{
-			ExecuteModuleEventEx($event, Array($bots[$botId], $botId));
+			\ExecuteModuleEventEx($event, Array($bots[$botId], $botId));
 		}
 
 		$orm = \Bitrix\Im\Model\CommandTable::getList(Array(
@@ -477,9 +477,9 @@ class Bot
 	 * @param int $botId Bot Id.
 	 * @param string $messageType Notify type - addBot|updateBot|deleteBot
 	 *
-	 * @return void
+	 * @return bool
 	 */
-	public static function sendPullNotify($botId, $messageType)
+	public static function sendPullNotify($botId, $messageType): bool
 	{
 		if (!\Bitrix\Main\Loader::includeModule('pull'))
 		{
@@ -502,7 +502,8 @@ class Bot
 				'SHOW_ONLINE' => 'N',
 				'PHONES' => 'N'
 			]);
-			\CPullStack::AddShared([
+
+			return \CPullStack::AddShared([
 				'module_id' => 'im',
 				'command' => $messageType,
 				'params' => [
@@ -515,7 +516,7 @@ class Bot
 		}
 		elseif ($messageType === 'botDelete')
 		{
-			\CPullStack::AddShared([
+			return \CPullStack::AddShared([
 				'module_id' => 'im',
 				'command' => $messageType,
 				'params' => [
@@ -525,9 +526,15 @@ class Bot
 			]);
 		}
 
-		return true;
+		return false;
 	}
 
+	/**
+	 * @param int $botId Bot Id.
+	 * @param int|null $userId User Id.
+	 *
+	 * @return bool
+	 */
 	public static function sendPullOpenDialog(int $botId, int $userId = null): bool
 	{
 		if (!\Bitrix\Main\Loader::includeModule('pull'))
@@ -547,7 +554,7 @@ class Bot
 			return false;
 		}
 
-		\Bitrix\Pull\Event::add($userId, [
+		return \Bitrix\Pull\Event::add($userId, [
 			'module_id' => 'im',
 			'expiry' => 10,
 			'command' => 'dialogChange',
@@ -556,8 +563,6 @@ class Bot
 			],
 			'extra' => \Bitrix\Im\Common::getPullExtra()
 		]);
-
-		return true;
 	}
 
 	public static function onMessageAdd($messageId, $messageFields)
@@ -582,7 +587,7 @@ class Bot
 			$messageFields['MESSAGE'] = trim(preg_replace('#\[(?P<tag>USER)=\d+\].+?\[/(?P=tag)\],?#', '', $messageFields['MESSAGE']));
 		}
 
-		$messageFields['DIALOG_ID'] = \Bitrix\Im\Bot::getDialogId($messageFields);
+		$messageFields['DIALOG_ID'] = self::getDialogId($messageFields);
 		$messageFields = self::removeFieldsToEvent($messageFields);
 
 		foreach ($botExecModule as $params)
@@ -611,7 +616,7 @@ class Bot
 
 		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "onImBotMessageAdd") as $event)
 		{
-			ExecuteModuleEventEx($event, Array($botExecModule, $messageId, $messageFields));
+			\ExecuteModuleEventEx($event, Array($botExecModule, $messageId, $messageFields));
 		}
 
 		if (
@@ -649,7 +654,7 @@ class Bot
 			$messageFields['MESSAGE'] = trim(preg_replace('#\[(?P<tag>USER)=\d+\].+?\[/(?P=tag)\],?#', '', $messageFields['MESSAGE']));
 		}
 
-		$messageFields['DIALOG_ID'] = \Bitrix\Im\Bot::getDialogId($messageFields);
+		$messageFields['DIALOG_ID'] = self::getDialogId($messageFields);
 		$messageFields = self::removeFieldsToEvent($messageFields);
 
 		foreach ($botExecModule as $params)
@@ -674,7 +679,7 @@ class Bot
 
 		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "onImBotMessageUpdate") as $event)
 		{
-			ExecuteModuleEventEx($event, Array($botExecModule, $messageId, $messageFields));
+			\ExecuteModuleEventEx($event, Array($botExecModule, $messageId, $messageFields));
 		}
 
 		return true;
@@ -688,7 +693,7 @@ class Bot
 			return true;
 		}
 
-		$messageFields['DIALOG_ID'] = \Bitrix\Im\Bot::getDialogId($messageFields);
+		$messageFields['DIALOG_ID'] = self::getDialogId($messageFields);
 		$messageFields = self::removeFieldsToEvent($messageFields);
 
 		foreach ($botExecModule as $params)
@@ -713,7 +718,7 @@ class Bot
 
 		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "onImBotMessageDelete") as $event)
 		{
-			ExecuteModuleEventEx($event, Array($botExecModule, $messageId, $messageFields));
+			\ExecuteModuleEventEx($event, Array($botExecModule, $messageId, $messageFields));
 		}
 
 		return true;
@@ -775,11 +780,11 @@ class Bot
 		{
 			if ($bot['TYPE'] == self::TYPE_HUMAN)
 			{
-				\Bitrix\Im\Bot::startWriting(Array('BOT_ID' => $joinFields['BOT_ID']), $dialogId);
+				self::startWriting(Array('BOT_ID' => $joinFields['BOT_ID']), $dialogId);
 			}
 
 			$userName = \Bitrix\Im\User::getInstance($joinFields['USER_ID'])->getName();
-			\Bitrix\Im\Bot::addMessage(Array('BOT_ID' => $joinFields['BOT_ID']), Array(
+			self::addMessage(Array('BOT_ID' => $joinFields['BOT_ID']), Array(
 				'DIALOG_ID' => $dialogId,
 				'MESSAGE' => str_replace(Array('#USER_NAME#'), Array($userName), $bot["TEXT_PRIVATE_WELCOME_MESSAGE"]),
 			));
@@ -795,10 +800,10 @@ class Bot
 		{
 			if ($bot['TYPE'] == self::TYPE_HUMAN)
 			{
-				\Bitrix\Im\Bot::startWriting(Array('BOT_ID' => $joinFields['BOT_ID']), $dialogId);
+				self::startWriting(Array('BOT_ID' => $joinFields['BOT_ID']), $dialogId);
 			}
 			$userName = \Bitrix\Im\User::getInstance($joinFields['USER_ID'])->getName();
-			\Bitrix\Im\Bot::addMessage(Array('BOT_ID' => $joinFields['BOT_ID']), Array(
+			self::addMessage(Array('BOT_ID' => $joinFields['BOT_ID']), Array(
 				'DIALOG_ID' => $dialogId,
 				'MESSAGE' => str_replace(Array('#USER_NAME#'), Array($userName), $bot["TEXT_CHAT_WELCOME_MESSAGE"]),
 			));
@@ -806,7 +811,7 @@ class Bot
 
 		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "onImBotJoinChat") as $event)
 		{
-			ExecuteModuleEventEx($event, Array($bot, $dialogId, $joinFields));
+			\ExecuteModuleEventEx($event, Array($bot, $dialogId, $joinFields));
 		}
 
 		return true;
@@ -844,7 +849,7 @@ class Bot
 
 		foreach(\Bitrix\Main\EventManager::getInstance()->findEventHandlers("im", "onImBotLeaveChat") as $event)
 		{
-			ExecuteModuleEventEx($event, Array($bot, $dialogId, $leaveFields));
+			\ExecuteModuleEventEx($event, Array($bot, $dialogId, $leaveFields));
 		}
 
 		return true;
@@ -888,12 +893,17 @@ class Bot
 	}
 
 	/**
-	 * @param array $bot <pre>[
+	 * @param array $bot
+	 * <pre>
+	 * [
 	 * 	(int) BOT_ID
 	 * 	(string) MODULE_ID
 	 * 	(string) APP_ID
-	 * ]</pre>
-	 * @param array $messageFields <pre>[
+	 * ]
+	 * </pre>
+	 * @param array $messageFields
+	 * <pre>
+	 * [
 	 * 	(int) MESSAGE_ID
 	 * 	(int) FROM_USER_ID
 	 * 	(int) TO_USER_ID
@@ -907,7 +917,8 @@ class Bot
 	 * 	(string) SYSTEM - Y|N
 	 * 	(string) SKIP_CONNECTOR - Y|N
 	 * 	(string) EDIT_FLAG - Y|N
-	 * ]</pre>
+	 * ]
+	 * </pre>
 	 *
 	 * @return bool
 	 */
@@ -955,10 +966,10 @@ class Bot
 			return false;
 		}
 
-		$messageFields['MENU'] = $messageFields['MENU']? $messageFields['MENU']: null;
-		$messageFields['ATTACH'] = $messageFields['ATTACH']? $messageFields['ATTACH']: null;
-		$messageFields['KEYBOARD'] = $messageFields['KEYBOARD']? $messageFields['KEYBOARD']: null;
-		$messageFields['PARAMS'] = $messageFields['PARAMS']? $messageFields['PARAMS']: Array();
+		$messageFields['MENU'] = $messageFields['MENU'] ?: null;
+		$messageFields['ATTACH'] = $messageFields['ATTACH'] ?: null;
+		$messageFields['KEYBOARD'] = $messageFields['KEYBOARD'] ?: null;
+		$messageFields['PARAMS'] = $messageFields['PARAMS'] ?: [];
 
 		if (Common::isChatId($messageFields['DIALOG_ID']))
 		{
@@ -1053,12 +1064,17 @@ class Bot
 	}
 
 	/**
-	 * @param array $bot <pre>[
+	 * @param array $bot
+	 * <pre>
+	 * [
 	 * 	(int) BOT_ID
 	 * 	(string) MODULE_ID
 	 * 	(string) APP_ID
-	 * ]</pre>
-	 * @param array $messageFields <pre>[
+	 * ]
+	 * </pre>
+	 * @param array $messageFields
+	 * <pre>
+	 * [
 	 * 	(int) MESSAGE_ID
 	 * 	(array) ATTACH
 	 * 	(array) KEYBOARD
@@ -1067,7 +1083,8 @@ class Bot
 	 * 	(string) URL_PREVIEW - Y|N
 	 * 	(string) SKIP_CONNECTOR - Y|N
 	 * 	(string) EDIT_FLAG - Y|N
-	 * ]</pre>
+	 * ]
+	 * </pre>
 	 *
 	 * @return bool
 	 */
@@ -1368,28 +1385,30 @@ class Bot
 
 	private static function removeFieldsToEvent($messageFields)
 	{
-		unset($messageFields['BOT_IN_CHAT']);
-		unset($messageFields['MESSAGE_OUT']);
-		unset($messageFields['NOTIFY_EVENT']);
-		unset($messageFields['NOTIFY_MODULE']);
-		unset($messageFields['URL_PREVIEW']);
-		unset($messageFields['DATE_CREATE']);
-		unset($messageFields['EMAIL_TEMPLATE']);
-		unset($messageFields['RECENT_ADD']);
-		unset($messageFields['SKIP_USER_CHECK']);
-		unset($messageFields['DATE_CREATE']);
-		unset($messageFields['EMAIL_TEMPLATE']);
-		unset($messageFields['NOTIFY_TYPE']);
-		unset($messageFields['NOTIFY_TAG']);
-		unset($messageFields['NOTIFY_TITLE']);
-		unset($messageFields['NOTIFY_BUTTONS']);
-		unset($messageFields['NOTIFY_READ']);
-		unset($messageFields['NOTIFY_READ']);
-		unset($messageFields['IMPORT_ID']);
-		unset($messageFields['NOTIFY_SUB_TAG']);
-		unset($messageFields['CHAT_PARENT_ID']);
-		unset($messageFields['CHAT_PARENT_MID']);
-		unset($messageFields['DATE_MODIFY']);
+		unset(
+			$messageFields['BOT_IN_CHAT'],
+			$messageFields['MESSAGE_OUT'],
+			$messageFields['NOTIFY_EVENT'],
+			$messageFields['NOTIFY_MODULE'],
+			$messageFields['URL_PREVIEW'],
+			$messageFields['DATE_CREATE'],
+			$messageFields['EMAIL_TEMPLATE'],
+			$messageFields['RECENT_ADD'],
+			$messageFields['SKIP_USER_CHECK'],
+			$messageFields['DATE_CREATE'],
+			$messageFields['EMAIL_TEMPLATE'],
+			$messageFields['NOTIFY_TYPE'],
+			$messageFields['NOTIFY_TAG'],
+			$messageFields['NOTIFY_TITLE'],
+			$messageFields['NOTIFY_BUTTONS'],
+			$messageFields['NOTIFY_READ'],
+			$messageFields['NOTIFY_READ'],
+			$messageFields['IMPORT_ID'],
+			$messageFields['NOTIFY_SUB_TAG'],
+			$messageFields['CHAT_PARENT_ID'],
+			$messageFields['CHAT_PARENT_MID'],
+			$messageFields['DATE_MODIFY']
+		);
 
 		return $messageFields;
 	}

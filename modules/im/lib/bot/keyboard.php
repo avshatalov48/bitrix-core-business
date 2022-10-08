@@ -73,7 +73,7 @@ class Keyboard
 		}
 		else if (
 			isset($params['ACTION'])
-			&& in_array($params['ACTION'], ['PUT', 'SEND', 'COPY', 'CALL', 'DIALOG', 'LIVECHAT'])
+			&& in_array($params['ACTION'], ['PUT', 'SEND', 'COPY', 'CALL', 'DIALOG', 'LIVECHAT', 'HELP'])
 			&& trim($params['ACTION_VALUE']) <> ''
 		)
 		{

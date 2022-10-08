@@ -7,7 +7,7 @@ elseif (!CModule::IncludeModule("iblock")):
 	return 0;
 endif;
 
-$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/../lang/".LANGUAGE_ID."/include/webdav_2.php")));
+$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/../lang/".LANGUAGE_ID."/include/webdav_2.php")));
 __IncludeLang($file);
 
 $obDavEventHandler = CWebDavSocNetEvent::GetRuntime();

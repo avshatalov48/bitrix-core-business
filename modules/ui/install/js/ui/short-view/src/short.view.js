@@ -5,6 +5,7 @@ type Params = {
 	isShortView: 'Y' | 'N'
 }
 
+import 'ui.fonts.opensans';
 import './css/base.css';
 
 export class ShortView extends EventEmitter

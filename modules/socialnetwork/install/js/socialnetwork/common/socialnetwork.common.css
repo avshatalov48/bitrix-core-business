@@ -18,7 +18,7 @@
 
 .sonet-group-join-successfull-request-popup-title {
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding-bottom: 10px;
 }
 .sonet-group-join-successfull-request-popup-text {
@@ -71,7 +71,8 @@
 	-webkit-box-align: center;
 	-ms-flex-align: center;
 	align-items: center;
-	font: 13px/15px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: rgba(82,92,105,.87);
 }
 

@@ -21,10 +21,10 @@ $arParams['cartId'] = $cartId;
 	<?php
 	/** @var \Bitrix\Main\Page\FrameBuffered $frame */
 	$frame = $this->createFrame($cartId, false)->begin();
-	require(realpath(dirname(__FILE__)).'/ajax_template.php');
+	require(realpath(__DIR__).'/ajax_template.php');
 	$frame->beginStub();
 	$arResult['COMPOSITE_STUB'] = 'Y';
-	require(realpath(dirname(__FILE__)).'/top_template.php');
+	require(realpath(__DIR__).'/top_template.php');
 	unset($arResult['COMPOSITE_STUB']);
 	$frame->end();
 	?>

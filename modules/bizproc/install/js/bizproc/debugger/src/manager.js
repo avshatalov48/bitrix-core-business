@@ -1,13 +1,17 @@
-import {Type} from 'main.core';
+import {Type, Reflection} from 'main.core';
 import Automation from "./automation";
 import Session from './session/session';
 import {CommandHandler} from "./pull/command-handler";
+import Settings from "./settings";
+import {Mode} from "./session/mode";
+import {CrmDebuggerGuide} from "./tourguide/crm-debugger-guide";
 
 let instance = null;
 
 export default class Manager
 {
 	pullHandler: CommandHandler;
+	#settings: Settings;
 
 	static get Instance(): Manager
 	{
@@ -22,6 +26,7 @@ export default class Manager
 	constructor()
 	{
 		this.pullHandler = new CommandHandler();
+		this.#settings = new Settings('manager');
 	}
 
 	initializeDebugger(parameters = {session: {}, documentSigned: ''})
@@ -34,6 +39,7 @@ export default class Manager
 
 		session.documentSigned = parameters.documentSigned;
 
+		this.requireSetFilter(session);
 		this.#showDebugger(session);
 	}
 
@@ -42,8 +48,12 @@ export default class Manager
 		return new Promise((resolve, reject) => {
 			Session.start(documentSigned, modeId).then(
 				(session: Session) => {
-					this.setDebugFilter();
-					this.#showDebugger(session, true);
+					this.#lastFilterId = null;
+
+					this.#setDebugFilter(session);
+					const debuggerInstance = this.#showDebugger(session, true);
+
+					this.#showGuide(debuggerInstance);
 
 					resolve();
 				},
@@ -57,7 +67,7 @@ export default class Manager
 		return new Promise((resolve, reject) => {
 			session.finish().then(
 				(response) => {
-					this.removeDebugFilter();
+					this.#removeDebugFilter(session);
 					resolve(response);
 				},
 				reject
@@ -65,7 +75,7 @@ export default class Manager
 		});
 	}
 
-	#showDebugger(session: Session, expanded: boolean = false)
+	#showDebugger(session: Session, isFirstShow: boolean = false): ?Automation
 	{
 		let debuggerInstance = null;
 
@@ -78,36 +88,120 @@ export default class Manager
 
 		if (debuggerInstance)
 		{
-			debuggerInstance.getMainView()[expanded? 'showExpanded' : 'show']();
+			const initialShowState = session.isExperimentalMode() ? 'showExpanded' : 'showCollapsed';
+			debuggerInstance.getMainView()[isFirstShow ? initialShowState : 'show']();
+
+			return debuggerInstance;
+		}
+
+		return debuggerInstance;
+	}
+
+	#showGuide(debuggerInstance: Automation)
+	{
+		const guide = new CrmDebuggerGuide({
+			grid: Reflection.getClass('BX.CRM.Kanban.Grid') ? BX.CRM.Kanban.Grid.getInstance() : null,
+			showFilterStep: (this.#settings.get('filter-guide-shown') !== true),
+			showStageStep: (this.#settings.get('stage-guide-shown') !== true) && debuggerInstance.session.isInterceptionMode(),
+			reserveFilterIds: this.#getFilterIds(debuggerInstance.session),
+		});
+
+		guide.subscribe(
+			'onFilterGuideStepShow', (function () {
+				this.#settings.set('filter-guide-shown', true)
+			}).bind(this)
+		);
+		guide.subscribe(
+			'onStageGuideStepShow', (function () {
+				this.#settings.set('stage-guide-shown', true)
+			}).bind(this)
+		);
+
+		guide.start();
+	}
+
+	requireSetFilter(session: Session, force: boolean = false)
+	{
+		const lastId = this.#getFilterIds(session).pop();
+
+		if (lastId !== this.#lastFilterId || force)
+		{
+			this.#setDebugFilter(session);
 		}
 	}
 
-	setDebugFilter()
+	#setDebugFilter(session: Session)
 	{
-		const filters = BX.Main.filterManager?.getList();
-		if (!filters)
-		{
-			return;
-		}
+		const ids = this.#getFilterIds(session);
 
-		filters.forEach((filter) => {
-			const api = filter.getApi();
-			api.setFilter({preset_id: 'filter_robot_debugger'});
-		});
+		this.#getFilterApis(ids).forEach(
+			({id, api}) => {
+				api.setFilter({preset_id: 'filter_robot_debugger'});
+				this.#lastFilterId = id;
+			}
+		);
 	}
 
-	removeDebugFilter()
+	#removeDebugFilter(session: Session)
 	{
-		const filters = BX.Main.filterManager?.getList();
-		if (!filters)
+		const ids = this.#getFilterIds(session);
+
+		this.#getFilterApis(ids).forEach(
+			({api}) => {
+				api.setFilter({preset_id: 'default_filter'});
+				this.#lastFilterId = null;
+			}
+		);
+	}
+
+	get #lastFilterId()
+	{
+		return this.#settings.get('last-filter-id');
+	}
+
+	set #lastFilterId(value: string)
+	{
+		return this.#settings.set('last-filter-id', value);
+	}
+
+	/**
+	 * @return BX.Filter.Api | null
+	 */
+	#getFilterApis(ids: []): []
+	{
+		const apis = [];
+
+		ids.forEach(id => {
+			const filter = BX.Main.filterManager?.getById(id);
+			if (filter)
+			{
+				apis.push({id, api: filter.getApi()});
+			}
+		});
+
+		return apis;
+	}
+
+	#getFilterIds(session: Session): string[]
+	{
+		let categoryId;
+		if (session && (session.modeId === Mode.interception.id) && !session.isFixed())
 		{
-			return;
+			categoryId = session.initialCategoryId;
+		}
+		else
+		{
+			categoryId = session?.activeDocument?.categoryId
 		}
 
-		filters.forEach((filter) => {
-			const api = filter.getApi();
-			api.setFilter({preset_id: 'default_filter'});
-		});
+		const filterId = 'CRM_DEAL_LIST_V12';
+
+		if (!categoryId)
+		{
+			return [filterId, `${filterId}_C_0`];
+		}
+
+		return [`${filterId}_C_${categoryId}`];
 	}
 
 	createAutomationDebugger(parameters = {}): Automation
@@ -115,12 +209,16 @@ export default class Manager
 		return new Automation(parameters);
 	}
 
-	openDebuggerStartPage(documentSigned: string): Promise
+	openDebuggerStartPage(documentSigned: string, parameters = {}): Promise
 	{
 		const url = BX.Uri.addParam(
 			'/bitrix/components/bitrix/bizproc.debugger.start/',
 			{
-				documentSigned: documentSigned
+				documentSigned: documentSigned,
+				analyticsLabel: {
+					automation_enter_debug: 'Y',
+					start_type: parameters.analyticsStartType || 'default',
+				}
 			}
 		);
 

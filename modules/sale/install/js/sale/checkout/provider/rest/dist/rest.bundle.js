@@ -17,7 +17,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
         var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
         babelHelpers.classCallCheck(this, BaseRestHandler);
 
-        if (babelHelpers.typeof(params.store) === 'object' && params.store) {
+        if (babelHelpers["typeof"](params.store) === 'object' && params.store) {
           this.store = params.store;
         }
       }
@@ -46,45 +46,49 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       return BaseRestHandler;
     }();
 
+    function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+    function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
     function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
-    var _setModelBasketByItem = new WeakSet();
+    var _setModelBasketByItem = /*#__PURE__*/new WeakSet();
 
-    var _setModelBasketForActionError = new WeakSet();
+    var _setModelBasketForActionError = /*#__PURE__*/new WeakSet();
 
-    var _setModelBasketForAction = new WeakSet();
+    var _setModelBasketForAction = /*#__PURE__*/new WeakSet();
 
-    var _hasErrorAction = new WeakSet();
+    var _hasErrorAction = /*#__PURE__*/new WeakSet();
 
-    var _getAction = new WeakSet();
+    var _getAction = /*#__PURE__*/new WeakSet();
 
-    var _getErrorsAction = new WeakSet();
+    var _getErrorsAction = /*#__PURE__*/new WeakSet();
 
-    var _getTypeAction = new WeakSet();
+    var _getTypeAction = /*#__PURE__*/new WeakSet();
 
-    var _hasActionInPool = new WeakSet();
+    var _hasActionInPool = /*#__PURE__*/new WeakSet();
 
-    var _hasActionInPoolItem = new WeakSet();
+    var _hasActionInPoolItem = /*#__PURE__*/new WeakSet();
 
-    var _findItemById = new WeakSet();
+    var _findItemById = /*#__PURE__*/new WeakSet();
 
-    var _changeBasketItem = new WeakSet();
+    var _changeBasketItem = /*#__PURE__*/new WeakSet();
 
-    var _prepareBasketItemFields = new WeakSet();
+    var _prepareBasketItemFields = /*#__PURE__*/new WeakSet();
 
-    var _refreshModelBasketTotal = new WeakSet();
+    var _refreshModelBasketTotal = /*#__PURE__*/new WeakSet();
 
-    var _refreshModelBasketDiscount = new WeakSet();
+    var _refreshModelBasketDiscount = /*#__PURE__*/new WeakSet();
 
-    var _refreshModelProperty = new WeakSet();
+    var _refreshModelProperty = /*#__PURE__*/new WeakSet();
 
-    var _refreshModelBasket = new WeakSet();
+    var _refreshModelBasket = /*#__PURE__*/new WeakSet();
 
-    var _prepareBasketErrors = new WeakSet();
+    var _prepareBasketErrors = /*#__PURE__*/new WeakSet();
 
-    var _preparePropertyErrors = new WeakSet();
+    var _preparePropertyErrors = /*#__PURE__*/new WeakSet();
 
-    var _prepareGeneralErrors = new WeakSet();
+    var _prepareGeneralErrors = /*#__PURE__*/new WeakSet();
 
     var BasketRestHandler = /*#__PURE__*/function (_BaseRestHandler) {
       babelHelpers.inherits(BasketRestHandler, _BaseRestHandler);
@@ -102,43 +106,43 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
         _this = babelHelpers.possibleConstructorReturn(this, (_babelHelpers$getProt = babelHelpers.getPrototypeOf(BasketRestHandler)).call.apply(_babelHelpers$getProt, [this].concat(args)));
 
-        _prepareGeneralErrors.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _prepareGeneralErrors);
 
-        _preparePropertyErrors.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _preparePropertyErrors);
 
-        _prepareBasketErrors.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _prepareBasketErrors);
 
-        _refreshModelBasket.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _refreshModelBasket);
 
-        _refreshModelProperty.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _refreshModelProperty);
 
-        _refreshModelBasketDiscount.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _refreshModelBasketDiscount);
 
-        _refreshModelBasketTotal.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _refreshModelBasketTotal);
 
-        _prepareBasketItemFields.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _prepareBasketItemFields);
 
-        _changeBasketItem.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _changeBasketItem);
 
-        _findItemById.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _findItemById);
 
-        _hasActionInPoolItem.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _hasActionInPoolItem);
 
-        _hasActionInPool.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _hasActionInPool);
 
-        _getTypeAction.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getTypeAction);
 
-        _getErrorsAction.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getErrorsAction);
 
-        _getAction.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _getAction);
 
-        _hasErrorAction.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _hasErrorAction);
 
-        _setModelBasketForAction.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _setModelBasketForAction);
 
-        _setModelBasketForActionError.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _setModelBasketForActionError);
 
-        _setModelBasketByItem.add(babelHelpers.assertThisInitialized(_this));
+        _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _setModelBasketByItem);
 
         return _this;
       }
@@ -247,7 +251,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       return BasketRestHandler;
     }(BaseRestHandler);
 
-    var _setModelBasketByItem2 = function _setModelBasketByItem2(data, pool) {
+    function _setModelBasketByItem2(data, pool) {
       var _this5 = this;
 
       return new Promise(function (resolve, reject) {
@@ -274,9 +278,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
         resolve();
       });
-    };
+    }
 
-    var _setModelBasketForActionError2 = function _setModelBasketForActionError2(data) {
+    function _setModelBasketForActionError2(data) {
       var _this6 = this;
 
       return new Promise(function (resolve, reject) {
@@ -295,9 +299,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
         resolve();
       });
-    };
+    }
 
-    var _setModelBasketForAction2 = function _setModelBasketForAction2(data, pool) {
+    function _setModelBasketForAction2(data, pool) {
       var _this7 = this;
 
       return new Promise(function (resolve, reject) {
@@ -322,7 +326,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
                 }
               } else if (typeAction === sale_checkout_const.Pool.action.restore) {
                 item = _classPrivateMethodGet(_this7, _findItemById, _findItemById2).call(_this7, actions[index].fields.id, items);
-              } else if (typeAction === sale_checkout_const.Pool.action.delete) {
+              } else if (typeAction === sale_checkout_const.Pool.action["delete"]) {
                 fields.status = sale_checkout_const.Loader.status.none;
 
                 _classPrivateMethodGet(_this7, _changeBasketItem, _changeBasketItem2).call(_this7, fields, index).then(function () {
@@ -365,13 +369,13 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
         resolve();
       });
-    };
+    }
 
-    var _getAction2 = function _getAction2(actions, index) {
+    function _getAction2(actions, index) {
       return actions.hasOwnProperty(index) ? actions[index] : null;
-    };
+    }
 
-    var _getErrorsAction2 = function _getErrorsAction2(actions, index) {
+    function _getErrorsAction2(actions, index) {
       var action = _classPrivateMethodGet(this, _getAction, _getAction2).call(this, actions, index);
 
       if (action !== null) {
@@ -379,9 +383,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       } else {
         return null;
       }
-    };
+    }
 
-    var _getTypeAction2 = function _getTypeAction2(actions, index) {
+    function _getTypeAction2(actions, index) {
       var types = Object.values(sale_checkout_const.Pool.action);
 
       var action = _classPrivateMethodGet(this, _getAction, _getAction2).call(this, actions, index);
@@ -392,9 +396,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       }
 
       return null;
-    };
+    }
 
-    var _hasActionInPool2 = function _hasActionInPool2(index, type, poolList) {
+    function _hasActionInPool2(index, type, poolList) {
       var item = poolList.hasOwnProperty(index) ? poolList[index] : null;
 
       if (main_core.Type.isArray(item)) {
@@ -402,15 +406,15 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       }
 
       return false;
-    };
+    }
 
-    var _hasActionInPoolItem2 = function _hasActionInPoolItem2(item, type) {
+    function _hasActionInPoolItem2(item, type) {
       return item.some(function (item) {
         return item.hasOwnProperty(type);
       });
-    };
+    }
 
-    var _findItemById2 = function _findItemById2(id, items) {
+    function _findItemById2(id, items) {
       id = parseInt(id);
 
       for (var index in items) {
@@ -426,16 +430,16 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       }
 
       return null;
-    };
+    }
 
-    var _changeBasketItem2 = function _changeBasketItem2(fields, index) {
+    function _changeBasketItem2(fields, index) {
       return this.store.dispatch('basket/changeItem', {
         index: index,
         fields: fields
       });
-    };
+    }
 
-    var _prepareBasketItemFields2 = function _prepareBasketItemFields2(item) {
+    function _prepareBasketItemFields2(item) {
       return {
         id: item.id,
         name: item.name,
@@ -462,24 +466,24 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           availableQuantity: item.catalogProduct.availableQuantity
         }
       };
-    };
+    }
 
-    var _refreshModelBasketTotal2 = function _refreshModelBasketTotal2(data) {
+    function _refreshModelBasketTotal2(data) {
       var total = data.orderPriceTotal;
       this.store.dispatch('basket/setTotal', {
         price: total.orderPrice,
         basePrice: total.priceWithoutDiscountValue
       });
-    };
+    }
 
-    var _refreshModelBasketDiscount2 = function _refreshModelBasketDiscount2(data) {
+    function _refreshModelBasketDiscount2(data) {
       var total = data.orderPriceTotal;
       this.store.dispatch('basket/setDiscount', {
         sum: total.basketPriceDiscountDiffValue
       });
-    };
+    }
 
-    var _refreshModelProperty2 = function _refreshModelProperty2(data) {
+    function _refreshModelProperty2(data) {
       var _this8 = this;
 
       this.store.commit('property/clearProperty');
@@ -500,9 +504,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           });
         });
       }
-    };
+    }
 
-    var _refreshModelBasket2 = function _refreshModelBasket2(data) {
+    function _refreshModelBasket2(data) {
       var _this9 = this;
 
       return new Promise(function (resolve, reject) {
@@ -525,9 +529,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 
         resolve();
       });
-    };
+    }
 
-    var _prepareBasketErrors2 = function _prepareBasketErrors2(collection, actions) {
+    function _prepareBasketErrors2(collection, actions) {
       var _this10 = this;
 
       var result = [];
@@ -542,9 +546,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
         }
       });
       return result;
-    };
+    }
 
-    var _preparePropertyErrors2 = function _preparePropertyErrors2(errors) {
+    function _preparePropertyErrors2(errors) {
       var result = [];
       errors.forEach(function (fields) {
         if (fields.code === 'PROPERTIES') {
@@ -558,9 +562,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
         }
       });
       return result;
-    };
+    }
 
-    var _prepareGeneralErrors2 = function _prepareGeneralErrors2(errors) {
+    function _prepareGeneralErrors2(errors) {
       var result = [];
       errors.forEach(function (fields) {
         if (parseInt(fields.code) === 0 || fields.code === 'ORDER') {
@@ -570,7 +574,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
         }
       });
       return result;
-    };
+    }
 
     exports.BasketRestHandler = BasketRestHandler;
 

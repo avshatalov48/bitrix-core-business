@@ -224,9 +224,17 @@ export default class Browser
 		{
 			globalClass += ' bx-ios';
 		}
+		else if (Browser.isWin())
+		{
+			globalClass += ' bx-win';
+		}
 		else if (Browser.isMac())
 		{
 			globalClass += ' bx-mac';
+		}
+		else if (Browser.isLinux())
+		{
+			globalClass += ' bx-linux';
 		}
 		else if (Browser.isAndroid())
 		{

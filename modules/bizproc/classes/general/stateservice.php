@@ -7,7 +7,7 @@ class CBPStateService extends CBPRuntimeService
 {
 	const COUNTERS_CACHE_TAG_PREFIX = 'b_bp_wfi_cnt_';
 
-	public function SetStateTitle($workflowId, $stateTitle)
+	public function setStateTitle($workflowId, $stateTitle)
 	{
 		global $DB;
 
@@ -23,7 +23,7 @@ class CBPStateService extends CBPRuntimeService
 		);
 	}
 
-	public function SetStatePermissions($workflowId, $arStatePermissions = array(), $bRewrite = true)
+	public function setStatePermissions($workflowId, $arStatePermissions = array(), $bRewrite = true)
 	{
 		global $DB;
 
@@ -59,7 +59,7 @@ class CBPStateService extends CBPRuntimeService
 		}
 	}
 
-	public function GetStateTitle($workflowId)
+	public function getStateTitle($workflowId)
 	{
 		global $DB;
 
@@ -74,7 +74,7 @@ class CBPStateService extends CBPRuntimeService
 		return "";
 	}
 
-	public static function GetStateDocumentId($workflowId)
+	public static function getStateDocumentId($workflowId)
 	{
 		global $DB;
 
@@ -125,7 +125,7 @@ class CBPStateService extends CBPRuntimeService
 			self::cleanRunningCountersCache($starterUserId);
 	}
 
-	public static function DeleteWorkflow($workflowId)
+	public static function deleteWorkflow($workflowId)
 	{
 		global $DB;
 
@@ -148,7 +148,7 @@ class CBPStateService extends CBPRuntimeService
 		);
 	}
 
-	public function DeleteAllDocumentWorkflows($documentId)
+	public function deleteAllDocumentWorkflows($documentId)
 	{
 		self::DeleteByDocument($documentId);
 	}
@@ -206,7 +206,7 @@ class CBPStateService extends CBPRuntimeService
 		}
 	}
 
-	public static function CountDocumentWorkflows($documentId)
+	public static function countDocumentWorkflows($documentId)
 	{
 		global $DB;
 
@@ -229,7 +229,7 @@ class CBPStateService extends CBPRuntimeService
 		return 0;
 	}
 
-	public static function GetDocumentStates($documentId, $workflowId = "")
+	public static function getDocumentStates($documentId, $workflowId = "")
 	{
 		global $DB;
 
@@ -307,7 +307,7 @@ class CBPStateService extends CBPRuntimeService
 		return array_column($rows, 'ID');
 	}
 
-	public static function GetWorkflowState($workflowId)
+	public static function getWorkflowState($workflowId)
 	{
 		global $DB;
 
@@ -436,7 +436,7 @@ class CBPStateService extends CBPRuntimeService
 		return false;
 	}
 
-	public static function DeleteByDocument($documentId)
+	public static function deleteByDocument($documentId)
 	{
 		global $DB;
 
@@ -495,7 +495,7 @@ class CBPStateService extends CBPRuntimeService
 		));
 	}
 
-	public static function MergeStates($firstDocumentId, $secondDocumentId)
+	public static function mergeStates($firstDocumentId, $secondDocumentId)
 	{
 		global $DB;
 
@@ -514,7 +514,7 @@ class CBPStateService extends CBPRuntimeService
 		);
 	}
 
-	public static function MigrateDocumentType($oldType, $newType, $workflowTemplateIds)
+	public static function migrateDocumentType($oldType, $newType, $workflowTemplateIds)
 	{
 		global $DB;
 
@@ -531,7 +531,7 @@ class CBPStateService extends CBPRuntimeService
 		);
 	}
 
-	public function SetState($workflowId, $arState, $arStatePermissions = array())
+	public function setState($workflowId, $arState, $arStatePermissions = array())
 	{
 		global $DB;
 
@@ -584,7 +584,7 @@ class CBPStateService extends CBPRuntimeService
 		}
 	}
 
-	public function SetStateParameters($workflowId, $arStateParameters = array())
+	public function setStateParameters($workflowId, $arStateParameters = array())
 	{
 		global $DB;
 
@@ -604,7 +604,7 @@ class CBPStateService extends CBPRuntimeService
 		);
 	}
 
-	public function AddStateParameter($workflowId, $arStateParameter)
+	public function addStateParameter($workflowId, $arStateParameter)
 	{
 		global $DB;
 
@@ -637,7 +637,7 @@ class CBPStateService extends CBPRuntimeService
 		}
 	}
 
-	public function DeleteStateParameter($workflowId, $name)
+	public function deleteStateParameter($workflowId, $name)
 	{
 		global $DB;
 

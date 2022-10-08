@@ -4,6 +4,10 @@ this.BX = this.BX || {};
 
 	var _templateObject, _templateObject2;
 
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	var _count = /*#__PURE__*/new WeakMap();
 
 	var _nameOriginal = /*#__PURE__*/new WeakMap();
@@ -87,47 +91,47 @@ this.BX = this.BX || {};
 	    var systemDirs = arguments.length > 3 ? arguments[3] : undefined;
 	    babelHelpers.classCallCheck(this, Item);
 
-	    _count.set(this, {
+	    _classPrivateFieldInitSpec(this, _count, {
 	      writable: true,
 	      value: 0
 	    });
 
-	    _nameOriginal.set(this, {
+	    _classPrivateFieldInitSpec(this, _nameOriginal, {
 	      writable: true,
 	      value: ''
 	    });
 
-	    _name.set(this, {
+	    _classPrivateFieldInitSpec(this, _name, {
 	      writable: true,
 	      value: ''
 	    });
 
-	    _counterElement.set(this, {
+	    _classPrivateFieldInitSpec(this, _counterElement, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _itemElement.set(this, {
+	    _classPrivateFieldInitSpec(this, _itemElement, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _isActive.set(this, {
+	    _classPrivateFieldInitSpec(this, _isActive, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _path.set(this, {
+	    _classPrivateFieldInitSpec(this, _path, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _shiftWidthInPixels.set(this, {
+	    _classPrivateFieldInitSpec(this, _shiftWidthInPixels, {
 	      writable: true,
 	      value: 10
 	    });
 
-	    _zeroLevelShiftWidth.set(this, {
+	    _classPrivateFieldInitSpec(this, _zeroLevelShiftWidth, {
 	      writable: true,
 	      value: 29
 	    });
@@ -208,11 +212,15 @@ this.BX = this.BX || {};
 
 	var _templateObject$1;
 
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
 	var _activeDir = /*#__PURE__*/new WeakMap();
 
@@ -291,20 +299,6 @@ this.BX = this.BX || {};
 	      this.clearActiveMenuButtons();
 	      this.setActiveDir(path);
 	      this.setFilterDir(path);
-	    }
-	  }, {
-	    key: "checkDirectoryForExistence",
-	    value: function checkDirectoryForExistence(checkPath) {
-	      for (var i = 0; i < babelHelpers.classPrivateFieldGet(this, _directoryCounters).length; i++) {
-	        var directory = babelHelpers.classPrivateFieldGet(this, _directoryCounters)[i];
-	        var path = directory['path'];
-
-	        if (checkPath === path) {
-	          return true;
-	        }
-	      }
-
-	      return false;
 	    }
 	  }, {
 	    key: "buildMenu",
@@ -397,27 +391,27 @@ this.BX = this.BX || {};
 	    };
 	    babelHelpers.classCallCheck(this, DirectoryMenu);
 
-	    _activeDir.set(this, {
+	    _classPrivateFieldInitSpec$1(this, _activeDir, {
 	      writable: true,
 	      value: ''
 	    });
 
-	    _menu.set(this, {
+	    _classPrivateFieldInitSpec$1(this, _menu, {
 	      writable: true,
 	      value: main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<ul class=\"ui-mail-left-directory-menu\"></ul>"])))
 	    });
 
-	    _directoryCounters.set(this, {
+	    _classPrivateFieldInitSpec$1(this, _directoryCounters, {
 	      writable: true,
 	      value: new Map()
 	    });
 
-	    _items.set(this, {
+	    _classPrivateFieldInitSpec$1(this, _items, {
 	      writable: true,
 	      value: new Map()
 	    });
 
-	    _systemDirs.set(this, {
+	    _classPrivateFieldInitSpec$1(this, _systemDirs, {
 	      writable: true,
 	      value: []
 	    });
@@ -426,16 +420,13 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldSet(this, _systemDirs, config['systemDirs']);
 	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:apply', function (event) {
 	      var dir = BX.Mail.Home.Counters.getDirPath(_this.filter.getFilterFieldsValues()['DIR']);
+	      main_core_events.EventEmitter.emit('BX.DirectoryMenu:onChangeFilter', new main_core_events.BaseEvent({
+	        data: {
+	          directory: dir
+	        }
+	      }));
 
-	      if (_this.checkDirectoryForExistence(dir)) {
-	        main_core_events.EventEmitter.emit('BX.DirectoryMenu:onChangeFilter', new main_core_events.BaseEvent({
-	          data: {
-	            directory: dir
-	          }
-	        }));
-
-	        _this.setDirectory(dir);
-	      }
+	      _this.setDirectory(dir);
 	    });
 	    babelHelpers.classPrivateFieldSet(this, _directoryCounters, config['dirsWithUnseenMailCounters']);
 	    this.buildMenu(true);

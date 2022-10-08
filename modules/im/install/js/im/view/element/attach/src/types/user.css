@@ -1,5 +1,5 @@
 .bx-im-element-attach-type-user {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 .bx-im-element-attach-type-user-body {
 	display: flex;

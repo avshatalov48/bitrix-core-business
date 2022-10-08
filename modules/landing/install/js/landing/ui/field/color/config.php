@@ -10,6 +10,8 @@ return [
 	'rel' => [
 		'landing.ui.field.basefield',
 		'main.popup',
+		'ui.fonts.opensans',
+		'ui.design-tokens',
 		'main.core.events',
 		'landing.backend',
 		'landing.pageobject',

@@ -24,6 +24,7 @@ if ($saleModulePermissions < "W")
 if ($_SERVER["REQUEST_METHOD"] == "POST" && !check_bitrix_sessid())
 	$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED"));
 
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
 $APPLICATION->SetAdditionalCSS("/bitrix/panel/sale/preset.css");
 
 $enableRestrictedGroupsMode = ($adminSidePanelHelper->isPublicSidePanel()

@@ -3,8 +3,10 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2020 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
+
+use Bitrix\Main\Authentication\Internal\ModuleGroupTable;
 
 /**
  * @deprecated Use CGroup
@@ -926,6 +928,8 @@ class CAllGroup
 
 		if (defined("CACHED_b_group") && CACHED_b_group !== false)
 			$CACHE_MANAGER->CleanDir("b_group");
+
+		ModuleGroupTable::cleanCache();
 
 		return true;
 	}

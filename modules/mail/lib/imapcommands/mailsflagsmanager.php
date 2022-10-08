@@ -77,7 +77,7 @@ class MailsFlagsManager extends SyncInternalManager
 		CUserCounter::set(
 			Main\Engine\CurrentUser::get()->getId(),
 			'mail_unseen',
-			Mail\Helper\Message::getTotalUnseenCount(Main\Engine\CurrentUser::get()->getId()),
+			Mail\Helper\Message::getCountersForUserMailboxes(Main\Engine\CurrentUser::get()->getId(), true),
 			$this->mailbox['LID']
 		);
 	}

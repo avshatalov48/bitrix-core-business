@@ -863,4 +863,19 @@ HTML;
 
 		return 0;
 	}
+
+	public static function validateValueSingle($value, FieldType $fieldType)
+	{
+		return $value;
+	}
+
+	public static function validateValueMultiple($value, FieldType $fieldType): array
+	{
+		foreach ($value as $k => $v)
+		{
+			$value[$k] = static::validateValueSingle($v, $fieldType);
+		}
+
+		return $value;
+	}
 }

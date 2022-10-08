@@ -3,11 +3,212 @@
 	BX.namespace('BX.Mail.UserSignature.Edit');
 
 	BX.Mail.UserSignature.Edit = {
-		signatureId: null
+		signatureId: null,
+		parameters: {
+			bindingType: 'SENDER',
+			bindingNum: 0,
+		},
 	};
+
+
+	BX.Mail.UserSignature.Edit.checkBinding = function ()
+	{
+		BX('sender_bind_checkbox').checked = true;
+	}
+
+	BX.Mail.UserSignature.Edit.setParam = function(key, value)
+	{
+		this.parameters[key] = value;
+	}
+
+	BX.Mail.UserSignature.Edit.getParam = function(key)
+	{
+		return this.parameters[key];
+	}
+
+	BX.Mail.UserSignature.Edit.setBindingType = function(type)
+	{
+		this.setParam('bindingType', type);
+	}
+
+	BX.Mail.UserSignature.Edit.setBindingNum = function(num)
+	{
+		this.setParam('bindingNum', num);
+	}
+
+	BX.Mail.UserSignature.Edit.getBindingNum = function()
+	{
+		return this.getParam('bindingNum');
+	}
+
+	BX.Mail.UserSignature.Edit.getBindingType = function()
+	{
+		return this.getParam('bindingType');
+	}
+
+	BX.Mail.UserSignature.Edit.setBinding = function(bindingText)
+	{
+		this.setParam('bindingText', bindingText);
+		this.bindingSignatureList.innerText = bindingText;
+		this.bindingSignatureList.title = bindingText;
+	}
+
+	BX.Mail.UserSignature.Edit.getBinding = function()
+	{
+		return this.getParam('bindingText');
+	}
+
+	BX.Mail.UserSignature.Edit.changeBindingType = function(type)
+	{
+		BX.Mail.UserSignature.Edit.setBindingType(type);
+		this.bindingTypeField.innerText = BX.message('MAIL_USERSIGNATURE_SENDER_TYPE_' + type);
+		this.bindingTypeField.title = BX.message('MAIL_USERSIGNATURE_SENDER_TYPE_' + type);
+
+		if(type === 'SENDER')
+		{
+			this.setBinding(this.bindingsForPopup['SENDERS'][this.getBindingNum()]['text']);
+		}
+		else
+		{
+			this.setBinding(this.bindingsForPopup['ADDRESSES'][this.getBindingNum()]['text']);
+		}
+	}
 
 	BX.Mail.UserSignature.Edit.init = function(params)
 	{
+		var type = params['senderType'].toUpperCase();
+		var bindingTypeFieldWrapper = BX("binding-type-field-wrapper");
+		var selectedSender = params['selectedSender'];
+		var selectedAddress = params['selectedAddress'];
+
+		var bindings = {
+			'ADDRESSES': params['addresses'],
+			'SENDERS' : params['senders'],
+		};
+
+		this.bindingsForPopup = {
+			'ADDRESSES' : [],
+			'SENDERS' : [],
+		};
+
+		var bindingTypes = {
+			'ADDRESSES' : 'ADDRESSES',
+			'SENDERS' : 'SENDERS',
+		};
+
+		for (bindingType in bindingTypes)
+		{
+			var i = 0;
+			for (key in bindings[bindingType])
+			{
+				var item = {
+					text: bindings[bindingType][key],
+					num: i++,
+					onclick: BX.proxy(function(event, item)
+					{
+						this.checkBinding();
+						item.getMenuWindow().close();
+						this.setBindingNum(item.num);
+						this.setBinding(item.text);
+					}, this),
+				};
+
+				if((selectedSender === item.text && type === 'SENDER') || (selectedAddress === item.text && type === 'ADDRESS'))
+				{
+					this.setBindingNum(item.num);
+				}
+
+				this.bindingsForPopup[bindingType].push(item);
+			}
+		}
+
+
+		this.bindingTypeField = BX.create('a',
+			{
+				text: BX.message('MAIL_USERSIGNATURE_SENDER_TYPE_SENDER'),
+				attrs : {
+					title : BX.message('MAIL_USERSIGNATURE_SENDER_TYPE_SENDER')
+				},
+				props : {
+					className : "mail-signature-binding-type-field"
+				},
+				events:{
+					click: BX.proxy(function(){
+						this.contextMenuBindingType.show();
+					}, this)
+				}
+			}
+		);
+
+		this.contextMenuBindingType = new BX.PopupMenuWindow({
+			bindElement: this.bindingTypeField,
+			items: [
+				{
+					text: BX.message('MAIL_USERSIGNATURE_SENDER_TYPE_SENDER'),
+					onclick: BX.proxy(function(event, item){
+						this.changeBindingType('SENDER');
+						item.getMenuWindow().close();
+						this.checkBinding();
+					}, this),
+				},
+				{
+					text: BX.message('MAIL_USERSIGNATURE_SENDER_TYPE_ADDRESS'),
+					onclick: BX.proxy(function(event, item){
+						this.changeBindingType('ADDRESS');
+						item.getMenuWindow().close();
+						this.checkBinding();
+					}, this),
+
+				}
+			]
+		});
+
+		this.bindingSignatureList = BX.create('a',
+			{
+				text: '',
+				attrs : {
+					title : ''
+				},
+				props : {
+					className : "mail-signature-binding-type-field"
+				},
+				events:{
+					click: BX.proxy(function(){
+						if(this.getBindingType() === 'SENDER')
+						{
+							this.contextMenuSignatureSenders.show();
+						}
+						else
+						{
+							this.contextMenuSignatureAddress.show();
+						}
+					}, this)
+				}
+			}
+		);
+
+		this.contextMenuSignatureAddress = new BX.PopupMenuWindow({
+			maxHeight: 150,
+			bindElement: this.bindingSignatureList,
+			items: this.bindingsForPopup['ADDRESSES'],
+		});
+
+		this.contextMenuSignatureSenders = new BX.PopupMenuWindow({
+			maxHeight: 150,
+			bindElement: this.bindingSignatureList,
+			items: this.bindingsForPopup['SENDERS'],
+		});
+
+		this.changeBindingType(type);
+
+		bindingTypeFieldWrapper.appendChild(
+			this.bindingTypeField
+		);
+
+		bindingTypeFieldWrapper.appendChild(
+			this.bindingSignatureList
+		);
+
 		this.signatureId = params.signatureId || null;
 
 		var singleselect = function(input)
@@ -67,29 +268,10 @@
 		closeAfter = closeAfter === true;
 		var signatureId = BX('mail-signature-signature-id').value;
 		var signature = BXHtmlEditor.Get('signatureeditorid').GetContent();
-		var sender = '', list;
+		var sender = '';
 		if(BX('sender_bind_checkbox').checked)
 		{
-			if(BX('mail_user_signature_sender_type_sender').checked)
-			{
-				list = BX('mail_user_signature_list_sender');
-			}
-			else
-			{
-				list = BX('mail_user_signature_list_address');
-			}
-			var senders = BX.findChildren(list, {tag: 'input', attr: {type: 'radio'}}, true);
-			for(var i in senders)
-			{
-				if(senders.hasOwnProperty(i))
-				{
-					if(senders[i].checked)
-					{
-						sender = senders[i].value;
-						break;
-					}
-				}
-			}
+			sender = this.getBinding();
 		}
 
 		if(signatureId > 0)
@@ -162,20 +344,6 @@
 			}
 		}
 		BX.fireEvent(BX('ui-button-panel-close'), 'click');
-	};
-
-	BX.Mail.UserSignature.Edit.showList = function(list)
-	{
-		if(list === 'sender')
-		{
-			BX.show(BX('mail_user_signature_list_sender'), 'inline-block');
-			BX.hide(BX('mail_user_signature_list_address'));
-		}
-		else
-		{
-			BX.hide(BX('mail_user_signature_list_sender'));
-			BX.show(BX('mail_user_signature_list_address'), 'inline-block');
-		}
 	};
 
 })();

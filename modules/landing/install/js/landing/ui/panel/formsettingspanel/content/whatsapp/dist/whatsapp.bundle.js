@@ -6,6 +6,10 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 (function (exports,main_core,main_core_events,landing_loc,landing_ui_panel_basepresetpanel,landing_ui_form_formsettingsform,landing_ui_card_headercard,landing_ui_field_textfield,landing_ui_card_messagecard,crm_form_client,landing_ui_panel_formsettingspanel) {
 	'use strict';
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	var Whatsapp = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(Whatsapp, _ContentWrapper);
 
@@ -135,7 +139,7 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	  }, {
 	    key: "onChange",
 	    value: function onChange(event) {
-	      this.emit('onChange', babelHelpers.objectSpread({}, event.getData(), {
+	      this.emit('onChange', _objectSpread(_objectSpread({}, event.getData()), {}, {
 	        skipPrepare: true
 	      }));
 	    }

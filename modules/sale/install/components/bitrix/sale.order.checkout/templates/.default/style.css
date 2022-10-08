@@ -882,12 +882,14 @@ input.checkout-item-quantity-field {
 	display: flex;
 	justify-content: flex-end;
 	align-items: center;
+	max-width: 100px;
 	font-style: normal;
 	font-weight: normal;
 	font-size: 17px;
 	text-align: right;
 	position: relative;
 	line-height: 19px;
+	word-break: break-word;
 }
 
 .checkout-basket-total-item-price-block {

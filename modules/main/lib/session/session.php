@@ -89,6 +89,16 @@ class Session implements SessionInterface, \ArrayAccess
 		return session_status() === \PHP_SESSION_ACTIVE;
 	}
 
+	private function isHeadersSent(&$file, &$line): bool
+	{
+		return filter_var(ini_get('session.use_cookies'), FILTER_VALIDATE_BOOLEAN) && headers_sent($file, $line);
+	}
+
+	public function isAccessible(): bool
+	{
+		return !$this->isHeadersSent($file, $line);
+	}
+
 	public function getId(): string
 	{
 		return session_id();
@@ -131,12 +141,12 @@ class Session implements SessionInterface, \ArrayAccess
 			return true;
 		}
 
-		if (session_status() === \PHP_SESSION_ACTIVE)
+		if ($this->isActive())
 		{
 			throw new \RuntimeException('Could not start session by PHP because session is active.');
 		}
 
-		if (filter_var(ini_get('session.use_cookies'), FILTER_VALIDATE_BOOLEAN) && headers_sent($file, $line))
+		if ($this->isHeadersSent($file, $line))
 		{
 			throw new \RuntimeException(
 				"Could not start session because headers have already been sent. \"{$file}\":{$line}."

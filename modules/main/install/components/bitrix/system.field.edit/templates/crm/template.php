@@ -13,6 +13,7 @@ CUtil::InitJSCore(array('ajax', 'popup'));
 
 use Bitrix\Main\Text\HtmlFilter;
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 $APPLICATION->SetAdditionalCSS('/bitrix/js/crm/css/crm.css');
 $APPLICATION->AddHeadScript('/bitrix/js/crm/crm.js');
 

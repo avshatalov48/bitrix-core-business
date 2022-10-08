@@ -146,13 +146,16 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI)
 }
 elseif($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST)
 {
+	if ($arResult['userField']['MULTIPLY'] === 'N')
+	{
+		$arResult['additionalParameters']['VALIGN'] = 'middle';
+	}
 	if($arResult['userField']['SETTINGS']['LIST_HEIGHT'] > 1)
 	{
 		$arResult['size'] = $arResult['userField']['SETTINGS']['LIST_HEIGHT'];
 	}
 	else
 	{
-		$arResult['additionalParameters']['VALIGN'] = 'middle';
 		$arResult['size'] = '';
 	}
 }

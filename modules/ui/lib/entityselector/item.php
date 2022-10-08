@@ -214,7 +214,7 @@ class Item implements \JsonSerializable
 
 	public function setTitle($title): self
 	{
-		if (is_string($title) || is_array($title) || $title === null)
+		if (TextNode::isValidText($title) || $title === null)
 		{
 			$this->title = $title === null ? null : new TextNode($title);
 		}
@@ -234,7 +234,7 @@ class Item implements \JsonSerializable
 
 	public function setSubtitle($subtitle): self
 	{
-		if (is_string($subtitle) || is_array($subtitle) || $subtitle === null)
+		if (TextNode::isValidText($subtitle) || $subtitle === null)
 		{
 			$this->subtitle = $subtitle === null ? null : new TextNode($subtitle);
 		}
@@ -254,7 +254,7 @@ class Item implements \JsonSerializable
 
 	public function setSupertitle($supertitle): self
 	{
-		if (is_string($supertitle) || is_array($supertitle) || $supertitle === null)
+		if (TextNode::isValidText($supertitle) || $supertitle === null)
 		{
 			$this->supertitle = $supertitle === null ? null : new TextNode($supertitle);
 		}
@@ -274,7 +274,7 @@ class Item implements \JsonSerializable
 
 	public function setCaption($caption): self
 	{
-		if (is_string($caption) || is_array($caption) || $caption === null)
+		if (TextNode::isValidText($caption) || $caption === null)
 		{
 			$this->caption = $caption === null ? null : new TextNode($caption);
 		}
@@ -379,7 +379,7 @@ class Item implements \JsonSerializable
 
 	public function setLinkTitle($linkTitle): self
 	{
-		if (is_string($linkTitle) || is_array($linkTitle) || $linkTitle === null)
+		if (TextNode::isValidText($linkTitle) || $linkTitle === null)
 		{
 			$this->linkTitle = $linkTitle === null ? null : new TextNode($linkTitle);
 		}
@@ -688,7 +688,7 @@ class Item implements \JsonSerializable
 		$json = [
 			'id' => $this->getId(),
 			'entityId' => $this->getEntityId(),
-			'title' => $this->getTitleNode()->jsonSerialize(),
+			'title' => $this->getTitleNode() !== null ? $this->getTitleNode()->jsonSerialize() : '',
 		];
 
 		if ($this->getSubtitleNode() !== null)

@@ -97,13 +97,13 @@ export const ChatTitle = {
 				return '';
 			}
 
-			if (this.user.isAbsent)
-			{
-				return TitleIcons.absent;
-			}
-			else if (this.showBirthdays && this.user.isBirthday)
+			if (this.showBirthdays && this.user.isBirthday)
 			{
 				return TitleIcons.birthday;
+			}
+			else if (this.user.isAbsent)
+			{
+				return TitleIcons.absent;
 			}
 
 			return '';

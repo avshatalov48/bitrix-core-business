@@ -6,7 +6,9 @@
  * @copyright 2001-2014 Bitrix
  */
 
+use Bitrix\Main;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Context;
 
 require_once __DIR__."/../general/database.php";
 
@@ -48,17 +50,20 @@ abstract class CDatabaseMysql extends CAllDatabase
 
 	public function StartTransaction()
 	{
-		$this->Query("START TRANSACTION");
+		$this->DoConnect();
+		$this->connection->startTransaction();
 	}
 
 	public function Commit()
 	{
-		$this->Query("COMMIT", true);
+		$this->DoConnect();
+		$this->connection->commitTransaction();
 	}
 
 	public function Rollback()
 	{
-		$this->Query("ROLLBACK", true);
+		$this->DoConnect();
+		$this->connection->rollbackTransaction();
 	}
 
 	public function Connect($DBHost, $DBName, $DBLogin, $DBPassword, $connectionName = "")
@@ -101,7 +106,7 @@ abstract class CDatabaseMysql extends CAllDatabase
 		//and when there is no one we can choose
 		//to run query against master connection
 		//or replicated one
-		$connectionPool = \Bitrix\Main\Application::getInstance()->getConnectionPool();
+		$connectionPool = Main\Application::getInstance()->getConnectionPool();
 
 		if($connectionPool->isMasterOnly())
 		{
@@ -185,14 +190,15 @@ abstract class CDatabaseMysql extends CAllDatabase
 			$this->db_ErrorSQL = $strSql;
 			if(!$bIgnoreErrors)
 			{
-				$application = \Bitrix\Main\Application::getInstance();
+				$application = Main\Application::getInstance();
 
-				$ex = new \Bitrix\Main\DB\SqlQueryException('Mysql query error', $this->db_Error, $strSql);
+				$ex = new Main\DB\SqlQueryException('Mysql query error', $this->db_Error, $strSql);
 				$application->getExceptionHandler()->writeToLog($ex);
 
-				$application->getContext()->getResponse()
+				(new Main\HttpResponse())
 					->setStatus('500 Internal Server Error')
-					->writeHeaders();
+					->writeHeaders()
+				;
 
         		if ($this->DebugToFile)
 				{
@@ -325,7 +331,15 @@ abstract class CDatabaseMysql extends CAllDatabase
 		$id = $strType.",".$lang.",".$bSearchInSitesOnly;
 		if(!isset($CACHE[$id]))
 		{
-			$CACHE[$id] = $this->DateFormatToDB(CLang::GetDateFormat($strType, $lang, $bSearchInSitesOnly), false);
+			if ($lang === false && ($context = Context::getCurrent()) && ($culture = $context->getCulture()) !== null)
+			{
+				$format = ($strType == "FULL" ? $culture->getFormatDatetime() : $culture->getFormatDate());
+			}
+			else
+			{
+				$format = CLang::GetDateFormat($strType, $lang, $bSearchInSitesOnly);
+			}
+			$CACHE[$id] = $this->DateFormatToDB($format);
 		}
 
 		$sFieldExpr = $strFieldName;
@@ -345,14 +359,23 @@ abstract class CDatabaseMysql extends CAllDatabase
 	public function CharToDateFunction($strValue, $strType="FULL", $lang=false)
 	{
 		// get user time
-		if ($strValue instanceof \Bitrix\Main\Type\DateTime && !$strValue->isUserTimeEnabled())
+		if ($strValue instanceof Main\Type\DateTime && !$strValue->isUserTimeEnabled())
 		{
 			$strValue = clone $strValue;
 			$strValue->toUserTime();
 		}
 
 		// format
-		$sFieldExpr = "'".CDatabase::FormatDate($strValue, CLang::GetDateFormat($strType, $lang), ($strType=="SHORT"? "YYYY-MM-DD":"YYYY-MM-DD HH:MI:SS"))."'";
+		if ($lang === false && ($context = Context::getCurrent()) && ($culture = $context->getCulture()) !== null)
+		{
+			$format = ($strType == "FULL" ? $culture->getFormatDatetime() : $culture->getFormatDate());
+		}
+		else
+		{
+			$format = CLang::GetDateFormat($strType, $lang);
+		}
+
+		$sFieldExpr = "'".CDatabase::FormatDate($strValue, $format, ($strType=="SHORT"? "YYYY-MM-DD":"YYYY-MM-DD HH:MI:SS"))."'";
 
 		//time zone
 		if($strType == "FULL" && CTimeZone::Enabled())
@@ -910,19 +933,7 @@ abstract class CDBResultMysql extends CAllDBResult
 				$this->NavPageCount = 1;
 
 			//page number to display
-			$this->NavPageNomer =
-			(
-				$this->PAGEN < 1 || $this->PAGEN > $this->NavPageCount
-				?
-					(\Bitrix\Main\Application::getInstance()->getSession()[$this->SESS_PAGEN] < 1 || \Bitrix\Main\Application::getInstance()->getSession()[$this->SESS_PAGEN] > $this->NavPageCount
-					?
-						$this->NavPageCount
-					:
-						\Bitrix\Main\Application::getInstance()->getSession()[$this->SESS_PAGEN]
-					)
-				:
-					$this->PAGEN
-			);
+			$this->calculatePageNumber($this->NavPageCount);
 
 			//rows to skip
 			$NavFirstRecordShow = 0;
@@ -938,14 +949,11 @@ abstract class CDBResultMysql extends CAllDBResult
 				$this->NavPageCount++;
 
 			//calculate total pages depend on rows count. start with 1
-			if($this->PAGEN >= 1 && $this->PAGEN <= $this->NavPageCount)
-				$this->NavPageNomer = $this->PAGEN;
-			elseif(\Bitrix\Main\Application::getInstance()->getSession()[$this->SESS_PAGEN] >= 1 && \Bitrix\Main\Application::getInstance()->getSession()[$this->SESS_PAGEN] <= $this->NavPageCount)
-				$this->NavPageNomer = \Bitrix\Main\Application::getInstance()->getSession()[$this->SESS_PAGEN];
-			elseif($arNavStartParams["checkOutOfRange"] !== true)
-				$this->NavPageNomer = 1;
-			else
+			$this->calculatePageNumber(1, true, (bool)($arNavStartParams["checkOutOfRange"] ?? false));
+			if ($this->NavPageNomer === null)
+			{
 				return null;
+			}
 
 			//rows to skip
 			$NavFirstRecordShow = $this->NavPageSize*($this->NavPageNomer-1);

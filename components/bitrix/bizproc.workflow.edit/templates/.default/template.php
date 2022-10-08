@@ -11,7 +11,7 @@ use Bitrix\Main\Page\Asset;
 
 \Bitrix\Main\Loader::includeModule('rest');
 CUtil::InitJSCore(['window', 'ajax', 'bp_selector', 'clipboard', 'marketplace', 'bp_field_type']);
-\Bitrix\Main\UI\Extension::load(['ui.hint', 'bizproc.globals']);
+\Bitrix\Main\UI\Extension::load(['ui.hint', 'bizproc.automation', 'bizproc.globals']);
 
 if ($isAdminSection)
 {

@@ -137,7 +137,7 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 			items.push({ name: "string", title: BX.message("UI_ENTITY_EDITOR_UF_STRING_TITLE"), legend: BX.message("UI_ENTITY_EDITOR_UF_STRING_LEGEND") });
 			items.push({ name: "enumeration", title: BX.message("UI_ENTITY_EDITOR_UF_ENUM_TITLE"), legend: BX.message("UI_ENTITY_EDITOR_UF_ENUM_LEGEND") });
 			items.push({ name: "datetime", title: BX.message("UI_ENTITY_EDITOR_UF_DATETIME_TITLE"), legend: BX.message("UI_ENTITY_EDITOR_UF_DATETIME_LEGEND") });
-			items.push({ name: "address", title: BX.message("UI_ENTITY_EDITOR_UF_ADDRESS_TITLE"), legend: BX.message("UI_ENTITY_EDITOR_UF_ADDRESS_LEGEND") });
+			items.push({ name: "address", title: BX.message("UI_ENTITY_EDITOR_UF_ADDRESS_TITLE_2"), legend: BX.message("UI_ENTITY_EDITOR_UF_ADDRESS_LEGEND_2") });
 
 			items.push({ name: "url", title: BX.message("UI_ENTITY_EDITOR_UF_URL_TITLE"), legend: BX.message("UI_ENTITY_EDITOR_UF_URL_LEGEND") });
 			items.push({ name: "file", title: BX.message("UI_ENTITY_EDITOR_UF_FILE_TITLE"), legend: BX.message("UI_ENTITY_EDITOR_UF_FILE_LEGEND") });

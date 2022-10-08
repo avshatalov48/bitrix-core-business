@@ -14,7 +14,8 @@
 	position: relative;
 	height: 22px;
 	margin: 15px 0 20px 0;
-	font-family: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 15px;
 	color: #525c69;
 	text-align: center;
@@ -137,7 +138,8 @@
 
 .landing-sm-teaser-title {
 	display: block;
-	font-family: "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	font-size: 38px;
 	color: #202020;
 	line-height: 48px;
@@ -165,7 +167,8 @@
 
 .landing-sm-teaser-title--sub {
 	opacity: .5;
-	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 21px;
 	color: #333;
 	line-height: 31px;

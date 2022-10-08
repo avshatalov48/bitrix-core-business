@@ -3,9 +3,9 @@ define("NO_KEEP_STATISTIC", true);
 define("NO_LANG_FILES", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
-$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/lang/en/get_message.php");
+$path = str_replace(array("\\", "//"), "/", __DIR__."/lang/en/get_message.php");
 @include_once($path);
-$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/lang/".LANGUAGE_ID."/get_message.php");
+$path = str_replace(array("\\", "//"), "/", __DIR__."/lang/".LANGUAGE_ID."/get_message.php");
 @include_once($path);
 
 if (CModule::IncludeModule("socialnetwork"))

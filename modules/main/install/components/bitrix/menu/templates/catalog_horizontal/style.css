@@ -4,7 +4,7 @@
 	color: #fff;
 	border-radius: 2px;
 	position: relative;
-	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 /* 1 lvl*/
@@ -22,7 +22,7 @@
 
 .bx-top-nav-container .bx-nav-1-lvl > a {
 	color: #fff;
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	display: block;
 	text-decoration: none;
 	text-transform: uppercase;
@@ -116,7 +116,7 @@
 	font-size: 13px;
 	line-height: 16px;
 	text-decoration: none;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	border-bottom: none;
 	display: block;
 }

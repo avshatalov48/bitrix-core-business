@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {Loc} from "main.core";
+import {Loc, Dom} from "main.core";
 import SyncStatusPopup from "./syncstatuspopup";
 
 export default class SyncButton
@@ -72,7 +72,7 @@ export default class SyncButton
 				connections: connections,
 				withUpdateButton: true,
 				node: button.getContainer(),
-				id: 'calendar-syncButton-status',
+				id: 'calendar-sync-button-status',
 			});
 			this.popup.show();
 
@@ -94,14 +94,14 @@ export default class SyncButton
 		}
 	}
 
-	refresh(status, connectionProviders)
+	refresh(status)
 	{
 		this.status = status;
-		this.connectionsProviders = connectionProviders;
+
 		const buttonData = this.getButtonData();
 		this.button.setColor(buttonData.color);
 		this.button.setText(buttonData.text);
-		this.button.removeClass('ui-btn-icon-fail ui-btn-icon-success');
+		this.button.removeClass('ui-btn-icon-fail ui-btn-icon-success ui-btn-clock');
 		this.button.addClass(buttonData.iconClass);
 	}
 
@@ -109,18 +109,21 @@ export default class SyncButton
 	{
 		clearTimeout(this.buttonEnterTimeout);
 		(window.top.BX || window.BX).Runtime.loadExtension('calendar.sync.interface').then((exports) => {
-			BX.ajax.runAction('calendar.api.calendarajax.analytical', {
-				analyticsLabel: {
-					sync_button_click: 'Y',
-					has_active_connection: this.status === 'not_connected' ? 'N' : 'Y'
-				}
-			});
-			this.syncPanel = new exports.SyncPanel({
-				connectionsProviders: this.connectionsProviders,
-				userId: this.userId,
-				status: this.status,
-			});
-			this.syncPanel.openSlider();
+			if (!Dom.hasClass(this.button.button, 'ui-btn-clock'))
+			{
+				BX.ajax.runAction('calendar.api.calendarajax.analytical', {
+					analyticsLabel: {
+						sync_button_click: 'Y',
+						has_active_connection: this.status === 'not_connected' ? 'N' : 'Y'
+					}
+				});
+				this.syncPanel = new exports.SyncPanel({
+					connectionsProviders: this.connectionsProviders,
+					userId: this.userId,
+					status: this.status,
+				});
+				this.syncPanel.openSlider();
+			}
 		});
 	}
 
@@ -130,7 +133,10 @@ export default class SyncButton
 		this.buttonEnterTimeout = setTimeout(() =>
 			{
 				this.buttonEnterTimeout = null;
-				this.showPopup(button);
+				if (!Dom.hasClass(button.button, 'ui-btn-clock'))
+				{
+					this.showPopup(button);
+				}
 			}, 500
 		);
 	}
@@ -169,6 +175,14 @@ export default class SyncButton
 				iconClass: 'ui-btn-icon-fail',
 			}
 		}
+		else if (this.status === 'synchronizing')
+		{
+			return {
+				text: Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
+				color: BX.UI.Button.Color.LIGHT_BORDER,
+				iconClass: 'ui-btn-clock',
+			}
+		}
 
 		return {
 			text: Loc.getMessage('STATUS_BUTTON_SYNC_CALENDAR'),
@@ -179,5 +193,10 @@ export default class SyncButton
 	getSyncPanel()
 	{
 		return this.syncPanel;
+	}
+	
+	setConnectionProviders(connectionsProviders)
+	{
+		this.connectionsProviders = connectionsProviders;
 	}
 }

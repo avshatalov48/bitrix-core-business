@@ -1,0 +1,51 @@
+.ui-sign-up-content-touch-preview {
+	position: relative;
+	height: 137px;
+	border-radius: 14px;
+	border: 1px dashed #2FC6F6;
+	margin-bottom: 16px;
+}
+
+.ui-sign-up-touch-form-label {
+	color: #A8ADB4;
+	margin-top: 18px;
+	margin-bottom: 11px;
+}
+
+.ui-sign-up-touch-clear-button {
+	position: absolute;
+	right: 3px;
+	top: 5px;
+	font-size: 7px;
+	line-height: 9px;
+	padding-top: 4px;
+	padding-right: 4px;
+	padding-bottom: 4px;
+	padding-left: 19px;
+	text-transform: uppercase;
+	color: #525C69;
+	letter-spacing: .4px;
+	font-weight: bold;
+	cursor: pointer;
+	user-select: none;
+	z-index: 999999;
+	opacity: .3;
+	transition: 200ms opacity ease;
+}
+
+.ui-sign-up-touch-clear-button:hover {
+	opacity: .6;
+}
+
+.ui-sign-up-touch-clear-button::after {
+	position: absolute;
+	display: block;
+	content: '';
+	background-image: url("images/clear.svg");
+	top: 50%;
+	left: 0;
+	width: 16px;
+	height: 11px;
+	transform: translateY(-50%);
+	opacity: .8;
+}

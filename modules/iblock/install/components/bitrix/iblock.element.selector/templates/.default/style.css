@@ -191,7 +191,7 @@ input.ies-hidden-input {
 .ies-content-tab-text {
 	line-height: 20px;
 	padding: 0 5px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #2067b0;
 }
 .ies-content-tab:hover {

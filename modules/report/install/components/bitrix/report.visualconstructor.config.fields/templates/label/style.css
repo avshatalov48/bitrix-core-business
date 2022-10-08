@@ -12,7 +12,7 @@
     display: inline-block;
     margin: 0 5px 5px 0;
     max-width: 100%;
-    font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     color: rgba(82, 92, 105, .5);
     white-space: nowrap;
     text-overflow: ellipsis;

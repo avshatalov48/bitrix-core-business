@@ -163,6 +163,16 @@ class Sku extends BaseSku
 
 		if ($isNeedCheckProductLinkAfterSaving && $result->isSuccess())
 		{
+			$product = $this->getParent();
+			if ($product && $this->iblockInfo->getSkuPropertyId())
+			{
+				\CIBlockElement::SetPropertyValuesEx(
+					$this->getId(),
+					$this->iblockInfo->getSkuIblockId(),
+ 					[$this->iblockInfo->getSkuPropertyId() => $product->getId()]
+				);
+			}
+
 			$this->checkProductLink();
 		}
 

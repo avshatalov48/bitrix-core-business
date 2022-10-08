@@ -18,13 +18,12 @@ export class OutlookProvider extends ConnectionProvider
 			viewClassification: 'web',
 			templateClass: 'BX.Calendar.Sync.Interface.OutlookTemplate',
 		});
-		this.syncTimestamp = options.syncInfo.syncTimestamp;
+		this.setSyncDate(options.syncInfo.syncOffset);
 		this.connectionName = Loc.getMessage('CALENDAR_TITLE_OUTLOOK');
 
 		this.sections = options.sections;
 		this.infoBySections = options.infoBySections;
 
-		// this.setConnectStatus();
 		this.setConnections();
 	}
 
@@ -39,53 +38,59 @@ export class OutlookProvider extends ConnectionProvider
 		{
 			if (this.menu)
 			{
-				this.menu.getPopupWindow().setBindElement(bindElement);
-				this.menu.show();
+				this.menu.destroy();
 			}
-			else
+			const menuItems = this.getConnection().getSections();
+
+			menuItems.forEach(item =>
 			{
-				const menuItems = this.getConnection().getSections();
-
-				menuItems.forEach(item =>
+				if (this.infoBySections[item.id])
 				{
-					if (this.infoBySections[item.id])
-					{
-						item.className = 'calendar-sync-outlook-popup-item';
-					}
-
-					item.onclick = () =>
-					{
-						if (item && item.connectURL)
-						{
-							try
-							{
-								eval(item.connectURL);
-							} catch (e)
-							{
-							}
-						}
-					};
-				});
-
-				this.menu = new (window.top.BX || window.BX).Main.Menu({
-					className: 'calendar-sync-popup-status',
-					bindElement: bindElement,
-					items: menuItems,
-					// width: this.MENU_WIDTH,
-					padding: 7,
-					autoHide: true,
-					closeByEsc: true,
-					zIndexAbsolute: 3020,
-					id: this.getType() + '-menu',
-				});
-
-				this.menu.getMenuContainer().addEventListener('click', () =>
+					item.className = 'calendar-sync-outlook-popup-item';
+				}
+				
+				item.onclick = () =>
 				{
-					this.menu.close();
-				});
+					this.connectToOutlook(item);
+				};
+			});
 
-				this.menu.show();
-			}
+			this.menu = new (window.top.BX || window.BX).Main.Menu({
+				className: 'calendar-sync-popup-status',
+				bindElement: bindElement,
+				items: menuItems,
+				padding: 7,
+				autoHide: true,
+				closeByEsc: true,
+				zIndexAbsolute: 3020,
+				id: this.getType() + '-menu',
+				offsetLeft: -40,
+			});
+
+			this.menu.getMenuContainer().addEventListener('click', () =>
+			{
+				this.menu.close();
+			});
+
+			this.menu.show();
+		}
+	}
+	
+	connectToOutlook(section)
+	{
+		if (section.id)
+		{
+			BX.ajax.runAction('calendar.api.syncajax.getOutlookLink', {
+				data: {
+					id: section.id
+				}
+			})
+				.then(
+					(response) => {
+						const url = response.data.result;
+						eval(url);
+					},
+				)
 		}
 	}
 }

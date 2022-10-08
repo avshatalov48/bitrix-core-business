@@ -51,6 +51,20 @@ class Type
 	}
 
 	/**
+	 * Detects site type forms and returns it.
+	 * @param $siteCode
+	 * @return string|null
+	 */
+	public static function getSiteTypeForms($siteCode)
+	{
+		if (preg_match('#^/' . self::PSEUDO_SCOPE_CODE_FORMS . '[\d]*/$#', $siteCode))
+		{
+			return self::PSEUDO_SCOPE_CODE_FORMS;
+		}
+		return null;
+	}
+
+	/**
 	 * Set global scope.
 	 * @param string $scope Scope code.
 	 * @param array $params Additional params.

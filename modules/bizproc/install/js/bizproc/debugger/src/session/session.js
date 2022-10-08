@@ -1,4 +1,4 @@
-import {Type, ajax} from 'main.core';
+import {Type, Text, ajax} from 'main.core';
 import {SessionOptions} from './session-options';
 import {Mode, ModeOptions} from './mode';
 import {Document} from './document';
@@ -15,11 +15,13 @@ export default class Session extends EventEmitter
 	#fixed: boolean;
 	#documents: Array<Document> = [];
 	#shortDescription: string = '';
+	#categoryId: number = 0;
 
 	#documentSigned: string = '';
 
 	#finished: boolean = false;
 	#pullFinishHandler: Function;
+	#pullDocumentValuesHandler: Function;
 
 	constructor(options: SessionOptions)
 	{
@@ -34,6 +36,7 @@ export default class Session extends EventEmitter
 		this.#shortDescription = String(options.ShortDescription);
 		this.#active = Boolean(options.Active);
 		this.#fixed = Boolean(options.Fixed);
+		this.#categoryId = Text.toInteger(options.CategoryId);
 
 		this.#setDocuments(options.Documents);
 
@@ -41,12 +44,15 @@ export default class Session extends EventEmitter
 		{
 			this.#pullFinishHandler = this.#handleExternalFinished.bind(this);
 			Manager.Instance.pullHandler.subscribe('sessionFinish', this.#pullFinishHandler);
+
+			this.#pullDocumentValuesHandler = this.#handleExternalDocumentValues.bind(this);
+			Manager.Instance.pullHandler.subscribe('documentValues', this.#pullDocumentValuesHandler);
 		}
 	}
 
 	set documentSigned(documentSigned: string)
 	{
-		if (this.isFixed())
+		if (this.isFixed() && this.activeDocument)
 		{
 			this.activeDocument.documentSigned = documentSigned;
 		}
@@ -102,7 +108,7 @@ export default class Session extends EventEmitter
 		return this.#startedBy;
 	}
 
-	get activeDocument(): Document | null
+	get activeDocument(): ?Document
 	{
 		if (this.#documents.length === 1)
 		{
@@ -120,6 +126,11 @@ export default class Session extends EventEmitter
 	get shortDescription(): string
 	{
 		return this.#shortDescription;
+	}
+
+	get initialCategoryId(): number
+	{
+		return this.#categoryId;
 	}
 
 	isActive(): boolean
@@ -142,6 +153,16 @@ export default class Session extends EventEmitter
 		return true;
 	}
 
+	isInterceptionMode(): boolean
+	{
+		return this.modeId === Mode.interception.id;
+	}
+
+	isExperimentalMode(): boolean
+	{
+		return this.modeId === Mode.experimental.id;
+	}
+
 	static start(documentSigned: string, modeId: number): Promise
 	{
 		return new Promise((resolve, reject) => {
@@ -151,6 +172,10 @@ export default class Session extends EventEmitter
 					data: {
 						documentSigned,
 						mode: modeId,
+					},
+					analyticsLabel: {
+						automation_select_debug_mode: 'Y',
+						mode_type: Mode.getMode(modeId).code,
 					}
 				}
 			).then(
@@ -181,12 +206,66 @@ export default class Session extends EventEmitter
 		});
 	}
 
+	fixateDocument(id: number): Promise
+	{
+		return ajax.runAction(
+			'bizproc.debugger.fixateSessionDocument',
+			{
+				data: {
+					documentId: id
+				}
+			}
+		).then(response => {
+			this.documentSigned = response.data.documentSigned;
+			this.#updateSession(response.data.session);
+
+			this.emit('onAfterDocumentFixed');
+
+			return response;
+		});
+	}
+
+	removeDocuments(ids: Array = []): Promise
+	{
+		return ajax.runAction(
+			'bizproc.debugger.removeSessionDocument',
+			{
+				data:{
+					documentIds: ids,
+				}
+			}
+		).then(response => {
+			this.#updateSession(response.data.session);
+
+			return response;
+		});
+	}
+
 	#handleExternalFinished(event: BaseEvent)
 	{
 		const sessionId: string = event.getData().sessionId;
 		if (sessionId === this.id)
 		{
 			this.#handleFinish();
+		}
+	}
+
+	#handleExternalDocumentValues(event: BaseEvent)
+	{
+		if (!this.activeDocument)
+		{
+			return;
+		}
+
+		const values: {} = event.getData().rawValues;
+		const categoryId = values['CATEGORY_ID'];
+
+		if (categoryId)
+		{
+			this.activeDocument.categoryId = Text.toInteger(categoryId);
+
+			//TODO: refactoring candidate
+			Manager.Instance.requireSetFilter(this);
 		}
 	}
 
@@ -202,6 +281,25 @@ export default class Session extends EventEmitter
 				Manager.Instance.pullHandler.unsubscribe('sessionFinish', this.#pullFinishHandler);
 				this.#pullFinishHandler = null;
 			}
+			if (this.#pullDocumentValuesHandler)
+			{
+				Manager.Instance.pullHandler.unsubscribe('documentValues', this.#pullDocumentValuesHandler);
+				this.#pullDocumentValuesHandler = null;
+			}
 		}
+	}
+
+	#updateSession(options ={})
+	{
+		if (Object.keys(options).length <= 0)
+		{
+			return;
+		}
+
+		this.#active = Boolean(options.Active);
+		this.#fixed = Boolean(options.Fixed);
+		this.#categoryId = Text.toInteger(options.CategoryId);
+
+		this.#setDocuments(options.Documents);
 	}
 }

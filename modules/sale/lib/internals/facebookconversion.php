@@ -456,6 +456,12 @@ class FacebookConversion
 
 	private static function getSiteUrl(): string
 	{
+		static $url = null;
+		if ($url !== null)
+		{
+			return $url;
+		}
+
 		$request = \Bitrix\Main\Context::getCurrent()->getRequest();
 		$protocol = $request->isHttps() ? 'https://' : 'http://';
 		$url = $protocol . $request->getHttpHost();
@@ -466,13 +472,14 @@ class FacebookConversion
 				'LID' => SITE_ID,
 			],
 			'limit' => 1,
+			'cache' => ['ttl' => 86400],
 		])->fetch();
-		if (!$site)
+		if ($site)
 		{
-			return $url;
+			$url .= $site['DIR'];
 		}
 
-		return $url . $site['DIR'];
+		return $url;
 	}
 
 	private static function getProductDeepestSection(int $productId):? string

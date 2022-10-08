@@ -6,4 +6,5 @@ $MESS['BPCLDA_DOC_TYPE_1'] = "Тип документа";
 $MESS["BPCLDA_DT_LISTS"] = "Списки";
 $MESS["BPCLDA_DT_PROCESSES"] = "Процессы";
 $MESS["BPCLDA_DT_LISTS_SOCNET_1"] = "Списки групп и проектов";
+$MESS["BPCLDA_CREATED_ELEMENT_ID"] = "Создан элемент";
 ?>

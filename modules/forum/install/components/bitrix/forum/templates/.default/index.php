@@ -59,5 +59,5 @@ if (sizeof($arParams['SHOW_STATISTIC_BLOCK']) > 0)
 	),
 	$component);
 }
-include_once(str_replace(array("\\", "//"), "/", dirname(__FILE__)."/footer.php"));
+include_once(str_replace(array("\\", "//"), "/", __DIR__."/footer.php"));
 ?>

@@ -1,4 +1,5 @@
 import { Tag } from 'main.core';
+import 'ui.design-tokens';
 import Item from './item';
 import ItemMarketing from './itemMarketing';
 import Scroller from './scroller';

@@ -1,6 +1,7 @@
 <?
 $MESS["SALE_ACCESS_DENIED"] = "Доступ запрещен.";
 $MESS["SALE_CASHBOX_CHECK_TITLE"] = "Список чеков";
+$MESS["SALE_CASHBOX_CHECK_PRESET_TITLE"] = "Чеки за день";
 $MESS["SALE_F_CASHBOX"] = "Кассы";
 $MESS["SALE_F_CHECK_CREATE"] = "Дата создания чека";
 $MESS["SALE_ALL"] = "Все";
@@ -56,3 +57,5 @@ $MESS['SALE_CASHBOX_ADD_CHECK_SHIPMENT'] = "Отгрузка";
 $MESS['SALE_CASHBOX_ADD_CHECK_ENTITIES'] = 'Выберите оплату или отгрузку';
 $MESS['SALE_CASHBOX_ADD_CHECK_TYPE_CHECKS'] = 'Выберите тип чека';
 $MESS['SALE_CASHBOX_ADD_CHECK_ADDITIONAL_ENTITIES'] = 'Выберите доп. оплаты/отгрузки';
+$MESS["SALE_CASHBOX_ENTITY_ID"] = "ID сущности";
+$MESS["SALE_CASHBOX_ENTITY_ID_SOURCE"] = "Источник";

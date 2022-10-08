@@ -3,6 +3,7 @@
 namespace Bitrix\Mail\Internals;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM;
 
 class MailEntityOptionsTable extends Entity\DataManager
 {
@@ -18,6 +19,18 @@ class MailEntityOptionsTable extends Entity\DataManager
 		{
 			//key conflict
 		}
+	}
+
+	public static function deleteList(array $filter)
+	{
+		$entity = static::getEntity();
+		$connection = $entity->getConnection();
+
+		return $connection->query(sprintf(
+			'DELETE FROM %s WHERE %s',
+			$connection->getSqlHelper()->quote($entity->getDbTableName()),
+			ORM\Query\Query::buildFilterSql($entity, $filter)
+		));
 	}
 
 	public static function getFilePath()

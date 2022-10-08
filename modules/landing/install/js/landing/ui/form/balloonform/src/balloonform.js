@@ -1,3 +1,4 @@
+import 'ui.design-tokens';
 import {BaseForm} from 'landing.ui.form.baseform';
 import {Dom} from 'main.core';
 

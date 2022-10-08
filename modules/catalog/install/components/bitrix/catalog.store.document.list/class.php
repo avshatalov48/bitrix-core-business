@@ -6,6 +6,7 @@ use Bitrix\Main;
 use Bitrix\Main\Context;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Entity\ExpressionField;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\Json;
@@ -15,8 +16,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-\Bitrix\Main\Loader::includeModule('catalog');
-\Bitrix\Main\Loader::includeModule('currency');
+Loader::includeModule('catalog');
+Loader::includeModule('currency');
 
 class CatalogStoreDocumentListComponent extends CBitrixComponent implements Controllerable
 {
@@ -59,16 +60,29 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 
 	public function executeComponent()
 	{
-		if (\Bitrix\Main\Loader::includeModule('crm'))
+		$crmIncluded = Loader::includeModule('crm');
+		if ($crmIncluded)
 		{
-			CAllCrmInvoice::installExternalEntities();
+			CCrmInvoice::installExternalEntities();
 		}
 
 		$this->init();
 		if (!$this->checkDocumentReadRights())
 		{
-			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('DOCUMENT_LIST_NO_VIEW_RIGHTS_ERROR');
+			if ($crmIncluded)
+			{
+				$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage(
+				Loader::includeModule('bitrix24')
+					? 'DOCUMENT_LIST_ERR_ACCESS_DENIED_CLOUD'
+					: 'DOCUMENT_LIST_ERR_ACCESS_DENIED_BOX'
+				);
+			}
+			else
+			{
+				$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('DOCUMENT_LIST_NO_VIEW_RIGHTS_ERROR');
+			}
 			$this->includeComponentTemplate();
+
 			return;
 		}
 		$this->arResult['GRID'] = $this->prepareGrid();
@@ -214,11 +228,11 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			->setSelect($select);
 		if (!empty($filteredProducts))
 		{
-			$query->withProducts($filteredProducts);
+			$query->withProductList($filteredProducts);
 		}
 		if (!empty($filteredStores))
 		{
-			$query->withStores($filteredStores);
+			$query->withStoreList($filteredStores);
 		}
 		$list = $query->fetchAll();
 		$totalCount = $this->getTotalCount();
@@ -743,11 +757,11 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			->setFilter($listFilter);
 		if (!empty($filteredProducts))
 		{
-			$query->withProducts($filteredProducts);
+			$query->withProductList($filteredProducts);
 		}
 		if (!empty($filteredStores))
 		{
-			$query->withStores($filteredStores);
+			$query->withStoreList($filteredStores);
 		}
 		return (int)$query->queryCountTotal();
 	}
@@ -772,6 +786,9 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			'FILTER_PRESETS' => [],
 			'ENABLE_LABEL' => true,
 			'THEME' => Bitrix\Main\UI\Filter\Theme::LIGHT,
+			'CONFIG' => [
+				'AUTOFOCUS' => false,
+			]
 		];
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterOptions);
 
@@ -1015,7 +1032,6 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			</div>
 		';
 	}
-
 
 	private function getZone()
 	{

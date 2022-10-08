@@ -63,7 +63,7 @@ final class Configuration
 			return null;
 		}
 
-		$filterConfigs = self::$filters[$entityId];
+		$filterConfigs = self::$filters[$entityId] ?? null;
 		if (!is_array($filterConfigs) || count($filterConfigs) === 0)
 		{
 			return null;

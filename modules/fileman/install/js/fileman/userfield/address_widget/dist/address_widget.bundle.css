@@ -1,4 +1,4 @@
-.address-edit-wrapper {
+.ui-entity-editor-content-block .address-edit-wrapper {
 	margin-top: -22px;
 }
 
@@ -65,5 +65,5 @@
 }
 
 .address-control-mode-switch, .address-control-mode-switch:hover {
-	font: 12px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }

@@ -4,35 +4,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,landing_ui_panel_content,main_loader,landing_backend,landing_pageobject,landing_ui_button_sidebarbutton,landing_loc,landing_ui_form_formsettingsform,landing_ui_button_basebutton,landing_ui_field_textfield,landing_ui_panel_formsettingspanel,crm_form_client) {
 	'use strict';
 
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-content-create-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+	var _templateObject, _templateObject2, _templateObject3;
 
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div\n\t\t\t\t\tclass=\"landing-ui-panel-content-create-field-button\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-content-element landing-ui-panel-content-search\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-ui-panel-content-search-icon\"></div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	/**
 	 * @memberOf BX.Landing.UI.Panel
@@ -177,7 +153,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	      this.cache.keys().forEach(function (key) {
 	        if (key.startsWith('userFieldFactory_')) {
-	          _this2.cache.delete(key);
+	          _this2.cache["delete"](key);
 	        }
 	      });
 	    }
@@ -384,7 +360,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "resetState",
 	    value: function resetState() {
-	      this.cache.delete('state');
+	      this.cache["delete"]('state');
 	    }
 	  }, {
 	    key: "onSidebarButtonClick",
@@ -457,7 +433,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          });
 
 	          if (main_core.Type.isArrayFilled(filteredFields)) {
-	            acc[categoryId] = babelHelpers.objectSpread({}, category, {
+	            acc[categoryId] = _objectSpread(_objectSpread({}, category), {}, {
 	              FIELDS: filteredFields
 	            });
 	          }
@@ -483,7 +459,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        }),
 	        value: this.getState()[category] || [],
 	        onValueChange: function onValueChange(checkbox) {
-	          var state = babelHelpers.objectSpread({}, _this6.getState());
+	          var state = _objectSpread({}, _this6.getState());
+
 	          state[category] = checkbox.getValue();
 
 	          _this6.setState(state);
@@ -547,7 +524,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this8 = this;
 
 	      return this.cache.remember('searchLayout', function () {
-	        return main_core.Tag.render(_templateObject(), _this8.getSearchField().getLayout());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-content-element landing-ui-panel-content-search\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-ui-panel-content-search-icon\"></div>\n\t\t\t\t</div>\n\t\t\t"])), _this8.getSearchField().getLayout());
 	      });
 	    }
 	  }, {
@@ -634,7 +611,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this11 = this;
 
 	      return this.cache.remember('getCreateFieldButton', function () {
-	        return main_core.Tag.render(_templateObject2(), _this11.onCreateFieldClick.bind(_this11), landing_loc.Loc.getMessage('LANDING_FIELDS_PANEL_CREATE_FIELD'));
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div\n\t\t\t\t\tclass=\"landing-ui-panel-content-create-field-button\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this11.onCreateFieldClick.bind(_this11), landing_loc.Loc.getMessage('LANDING_FIELDS_PANEL_CREATE_FIELD'));
 	      });
 	    }
 	  }, {
@@ -643,7 +620,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this12 = this;
 
 	      return this.cache.remember('createFieldLayout', function () {
-	        return main_core.Tag.render(_templateObject3(), _this12.getCreateFieldButton());
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-panel-content-create-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this12.getCreateFieldButton());
 	      });
 	    }
 	  }, {

@@ -92,8 +92,7 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 					'bSetDefaultCodeView' => ($arParams['EDITOR_CODE_DEFAULT'] == 'Y'),
 					"documentCSS" => "body {color:#434343;}",
 					"iframeCss" => "html body {padding-left: 14px!important;}",
-					"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",
-					"fontSize" => "12px",
+					"fontSize" => "14px",
 					"bInitByJS" => ($arParams['SHOW_MINIMIZED'] == "Y"),
 					"height" => 80
 				),

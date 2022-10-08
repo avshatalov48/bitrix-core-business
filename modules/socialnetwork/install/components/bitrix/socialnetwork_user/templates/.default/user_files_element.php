@@ -1,5 +1,5 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
-$sTplDir = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/user_files_")));
+$sTplDir = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/user_files_")));
 
 if (empty($arParams["FORM_ID"]))
     $arParams["FORM_ID"] = "webdavForm".$arParams["FILES_USER_IBLOCK_ID"];

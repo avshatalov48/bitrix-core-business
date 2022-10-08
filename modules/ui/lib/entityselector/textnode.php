@@ -3,27 +3,32 @@ namespace Bitrix\UI\EntitySelector;
 
 class TextNode implements \JsonSerializable
 {
-	protected $text;
-	protected $type;
+	protected ?string $text = null;
+	protected ?string $type = null;
 
 	public function __construct($options)
 	{
 		if (is_array($options))
 		{
-			if (is_string($options['text']))
+			if (isset($options['text']) && (is_string($options['text']) || is_int($options['text'])))
 			{
-				$this->text = $options['text'];
+				$this->text = (string)$options['text'];
 			}
 
-			if (TextNodeType::isValid($options['type']))
+			if (isset($options['type']) && TextNodeType::isValid($options['type']))
 			{
 				$this->type = $options['type'];
 			}
 		}
-		else if (is_string($options))
+		else if (is_string($options) || is_int($options))
 		{
-			$this->text = $options;
+			$this->text = (string)$options;
 		}
+	}
+
+	public static function isValidText($text): bool
+	{
+		return is_string($text) || is_int($text) || is_array($text);
 	}
 
 	public function getType(): ?string

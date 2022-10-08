@@ -261,7 +261,15 @@
 				BX.delegate(
 					function(response)
 					{
-						callback(response);
+						if(!!response.data.exception)
+						{
+							this.showFatalError(response.data.exception);
+						}
+						else
+						{
+							callback(response);
+						}
+
 						if(!!response.data.errors)
 						{
 							this.addErrors(response.data.errors);
@@ -294,13 +302,28 @@
 			}
 		},
 
-		showFatalError: function ()
+		showFatalError: function (messageList)
 		{
+			var message = '';
 			var infoContainer = BX.findChildByClassName( BX(this.id),'rest-configuration-info');
 			var barContainer = BX.findChildByClassName( BX(this.id),'rest-configuration-start-icon-main');
 			BX.removeClass(barContainer,'rest-configuration-start-icon-main-zip rest-configuration-start-icon-main-loading');
 			BX.addClass(barContainer,'rest-configuration-start-icon-main-error');
-
+			if (messageList.length > 0)
+			{
+				for (var i = 0; i < messageList.length; i++)
+				{
+					if (message !== '')
+					{
+						message += "\n";
+					}
+					message = messageList[i].message;
+				}
+			}
+			else if (BX.type.isString(messageList))
+			{
+				message = messageList;
+			}
 			BX.cleanNode(infoContainer);
 			infoContainer.appendChild(
 				BX.create('div', {
@@ -309,7 +332,7 @@
 					},
 					children:[
 					],
-					'text': BX.message("REST_CONFIGURATION_FATAL_ERROR")
+					'text': (message !== '') ? message : BX.message("REST_CONFIGURATION_FATAL_ERROR")
 				})
 			);
 		},

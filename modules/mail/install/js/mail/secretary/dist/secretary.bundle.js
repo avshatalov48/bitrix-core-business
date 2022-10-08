@@ -2,6 +2,12 @@ this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var ENTITY_TYPE = 'mail';
 	var instances = {};
@@ -18,9 +24,9 @@ this.BX = this.BX || {};
 	  function Secretary(messageId) {
 	    babelHelpers.classCallCheck(this, Secretary);
 
-	    _displayErrors.add(this);
+	    _classPrivateMethodInitSpec(this, _displayErrors);
 
-	    _messageId.set(this, {
+	    _classPrivateFieldInitSpec(this, _messageId, {
 	      writable: true,
 	      value: void 0
 	    });

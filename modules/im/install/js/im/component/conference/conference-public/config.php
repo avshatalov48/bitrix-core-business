@@ -12,6 +12,8 @@ return [
 		'./dist/conference-public.bundle.css',
 	],
 	'rel' => [
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 		'im.event-handler',
 		'im.component.dialog',
 		'im.component.textarea',

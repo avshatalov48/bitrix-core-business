@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'main.polyfill.core',
 		'im.v2.lib.utils',
+		'ui.fonts.opensans',
 		'im.v2.const',
 		'ui.vue3',
 	],

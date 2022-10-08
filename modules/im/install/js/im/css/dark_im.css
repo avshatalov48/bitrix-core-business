@@ -457,7 +457,7 @@
 .bx-messenger-dark .bx-desktop-tab-counter-digit {
 	background-color: #94979B;
 	color: #3D3D3D;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	border-color: #3D3D3D;
 }
 .bx-messenger-dark .bx-desktop-tab-active .bx-desktop-tab-counter-digit,
@@ -567,7 +567,7 @@
 
 .bx-messenger-dark .bx-messenger-cl-count {
 	color: #f1f1f1;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	border-color: #3D3D3D;
 }
 
@@ -678,6 +678,9 @@
 }
 
 .bx-messenger-dark .bx-messenger-attach-user .bx-messenger-attach-user-name {
+	color: #e2e2e2 !important;
+}
+.bx-messenger-dark .bx-messenger-attach-link-desc {
 	color: #e2e2e2 !important;
 }
 
@@ -863,6 +866,17 @@
 .bx-messenger-dark.bx-messenger-mark .bx-messenger-history-items,
 .popup-window-dark.bx-messenger-mark .bx-messenger-history-items {
 	background-color: #313131 !important;
+}
+
+.popup-window-dark.bx-messenger-mark .bx-messenger-history-type-message .bx-messenger-history-items {
+	border-bottom-left-radius: var(--ui-border-radius-md);
+}
+
+.popup-window-dark.bx-messenger-mark .bx-messenger-history-type-disk {
+	border-bottom-right-radius: var(--ui-border-radius-md);
+}
+.popup-window-dark.bx-messenger-mark .bx-messenger-history-type-disk .bx-messenger-history-items {
+	border-bottom-right-radius: var(--ui-border-radius-md);
 }
 
 .bx-messenger-dark.bx-messenger-mark .bx-messenger-history-item,
@@ -1507,7 +1521,7 @@
 }
 .popup-window-dark .bx-messenger-title,
 .bx-messenger-dark .bx-messenger-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #fff;
 }
 

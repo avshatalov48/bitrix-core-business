@@ -270,6 +270,7 @@ this.BX = this.BX || {};
 	FormMode.REGULAR = 'REGULAR';
 	FormMode.READ_ONLY = 'READ_ONLY';
 	FormMode.COMPILATION = 'COMPILATION';
+	FormMode.COMPILATION_READ_ONLY = 'COMPILATION_READ_ONLY';
 
 	ui_vue.Vue.component(config.templateFieldQuantity, {
 	  /**
@@ -683,6 +684,7 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onProductSelect', this.onProductSelect.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.onProductChange.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.onProductClear.bind(this));
+	    main_core_events.EventEmitter.subscribe(this.$root.$app, 'onChangeCompilationMode', this.changeProductSelectorImageRequire.bind(this));
 	  },
 
 	  mounted() {
@@ -691,6 +693,16 @@ this.BX = this.BX || {};
 	  },
 
 	  methods: {
+	    changeProductSelectorImageRequire(event) {
+	      var _event$getData, _event$getData2;
+
+	      const isCompilationMode = (_event$getData = event.getData()) == null ? void 0 : _event$getData.isCompilationMode;
+	      const isFacebookForm = (_event$getData2 = event.getData()) == null ? void 0 : _event$getData2.isFacebookForm;
+	      this.productSelector.setConfig('ENABLE_EMPTY_IMAGES_ERROR', isCompilationMode && isFacebookForm);
+	      this.productSelector.checkEmptyImageError();
+	      this.productSelector.layoutErrors();
+	    },
+
 	    prepareSelectorParams() {
 	      const fields = {
 	        NAME: this.getField('name') || ''
@@ -701,6 +713,9 @@ this.BX = this.BX || {};
 	        fields.CURRENCY = this.options.currency;
 	      }
 
+	      const basketItemOfferId = this.basketItem.offerId;
+	      const facebookFailProducts = this.options.facebookFailProducts;
+	      const hasFacebookError = main_core.Type.isObject(facebookFailProducts) && facebookFailProducts.hasOwnProperty(basketItemOfferId);
 	      const selectorOptions = {
 	        iblockId: this.options.iblockId,
 	        basePriceId: this.options.basePriceId,
@@ -722,6 +737,7 @@ this.BX = this.BX || {};
 	          HIDE_UNSELECTED_ITEMS: this.options.hideUnselectedProperties,
 	          URL_BUILDER_CONTEXT: this.options.urlBuilderContext
 	        },
+	        failedProduct: hasFacebookError,
 	        mode: this.editable ? catalog_productSelector.ProductSelector.MODE_EDIT : catalog_productSelector.ProductSelector.MODE_VIEW,
 	        fields
 	      };
@@ -784,6 +800,8 @@ this.BX = this.BX || {};
 	          CUSTOMIZED: main_core.Type.isNil(data.fields.PRICE) || data.fields.CUSTOMIZED === 'Y' ? 'Y' : 'N',
 	          MEASURE_CODE: data.fields.MEASURE_CODE,
 	          MEASURE_NAME: data.fields.MEASURE_NAME,
+	          MORE_PHOTO: data.morePhoto,
+	          BRANDS: data.fields.BRANDS,
 	          IS_NEW: data.isNew
 	        };
 	        this.$emit('onProductChange', fields);
@@ -807,7 +825,8 @@ this.BX = this.BX || {};
 
 	let _ = t => t,
 	    _t,
-	    _t2;
+	    _t2,
+	    _t3;
 	ui_vue.Vue.component(config.templateFieldBrand, {
 	  /**
 	   * @emits 'changeBrand' {values: Array<any>}
@@ -827,53 +846,96 @@ this.BX = this.BX || {};
 	  },
 
 	  created() {
-	    this.selector = new ui_entitySelector.TagSelector({
-	      id: this.selectorId,
-	      dialogOptions: {
+	    if (this.editable) {
+	      this.selector = new ui_entitySelector.TagSelector({
 	        id: this.selectorId,
-	        context: 'CATALOG_BRANDS',
-	        // enableSearch: true,
-	        preselectedItems: this.getPreselectedBrands(),
-	        events: {
-	          'Item:onSelect': this.onBrandChange.bind(this),
-	          'Item:onDeselect': this.onBrandChange.bind(this),
-	          'Search:onItemCreateAsync': this.createBrand.bind(this)
-	        },
-	        searchTabOptions: {
-	          stub: true,
-	          stubOptions: {
-	            title: main_core.Tag.message(_t || (_t = _`${0}`), 'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_TITLE'),
-	            subtitle: main_core.Tag.message(_t2 || (_t2 = _`${0}`), 'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_SUBTITLE'),
-	            arrow: true
-	          }
-	        },
-	        searchOptions: {
-	          allowCreateItem: true
-	        },
-	        entities: [{
-	          id: 'brand',
-	          options: {
-	            iblockId: this.options.iblockId
+	        dialogOptions: {
+	          id: this.selectorId,
+	          context: 'CATALOG_BRANDS',
+	          // enableSearch: true,
+	          preselectedItems: this.getPreselectedBrands(),
+	          events: {
+	            'Item:onSelect': this.onBrandChange.bind(this),
+	            'Item:onDeselect': this.onBrandChange.bind(this),
+	            'Search:onItemCreateAsync': this.createBrand.bind(this)
 	          },
-	          dynamicSearch: true,
-	          dynamicLoad: true
-	        }]
-	      }
-	    });
+	          searchTabOptions: {
+	            stub: true,
+	            stubOptions: {
+	              title: main_core.Tag.message(_t || (_t = _`${0}`), 'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_TITLE'),
+	              subtitle: main_core.Tag.message(_t2 || (_t2 = _`${0}`), 'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_SUBTITLE'),
+	              arrow: true
+	            }
+	          },
+	          searchOptions: {
+	            allowCreateItem: true
+	          },
+	          entities: [{
+	            id: 'brand',
+	            options: {
+	              iblockId: this.options.iblockId
+	            },
+	            dynamicSearch: true,
+	            dynamicLoad: true
+	          }]
+	        }
+	      });
+	      this.isSelectedByProductChange = false;
+	      this.$parent.$on('onInlineSelectorProductChange', this.selectCurrentBrands.bind(this));
+	    }
 	  },
 
 	  mounted() {
-	    this.selector.renderTo(this.$refs.brandSelectorWrapper);
+	    if (this.editable) {
+	      this.selector.renderTo(this.$refs.brandSelectorWrapper);
+	    } else {
+	      this.brands.forEach((brand, brandIndex, brands) => {
+	        const separator = brandIndex < brands.length - 1 ? ',&nbsp;' : '';
+	        this.$refs.brandSelectorWrapper.appendChild(main_core.Tag.render(_t3 || (_t3 = _`
+					<span>
+						<span
+							class="catalog-pf-product-input-brand-read-only-item"
+							style="background-image:url('${0}');"
+						></span>
+						${0}
+					</span>
+				`), brand['IMAGE_SRC'], brand['NAME'] + separator));
+	      });
+	    }
 	  },
 
 	  methods: {
+	    selectCurrentBrands(brands) {
+	      this.isSelectedByProductChange = true;
+	      this.brands = brands;
+
+	      if (this.selector.getDialog().isLoaded()) {
+	        this.selector.getDialog().deselectAll();
+	        this.selectDialogItems();
+	      } else {
+	        this.selector.getDialog().load();
+	        main_core_events.EventEmitter.subscribe(this.selector.getDialog(), 'onLoad', this.selectDialogItems.bind(this));
+	      }
+	    },
+
+	    selectDialogItems() {
+	      this.brands.forEach(brand => {
+	        const item = this.selector.getDialog().getItem({
+	          id: brand['VALUE'],
+	          entityId: 'brand'
+	        });
+	        item.select();
+	      });
+	      this.isSelectedByProductChange = false;
+	    },
+
 	    getPreselectedBrands() {
 	      if (!main_core.Type.isArray(this.brands) || this.brands.length === 0) {
 	        return [];
 	      }
 
 	      return this.brands.map(item => {
-	        return ['brand', item];
+	        return ['brand', item['VALUE']];
 	      });
 	    },
 
@@ -883,11 +945,19 @@ this.BX = this.BX || {};
 
 	      if (main_core.Type.isArray(items)) {
 	        items.forEach(item => {
-	          resultValues.push(item.getId());
+	          resultValues.push({
+	            'VALUE': item.getId(),
+	            'NAME': item.getTitle(),
+	            'IMAGE_SRC': item.getAvatar()
+	          });
 	        });
 	      }
 
-	      this.$emit('changeBrand', resultValues);
+	      const eventData = {
+	        resultValues: resultValues,
+	        isSelectedByProductChange: this.isSelectedByProductChange
+	      };
+	      this.$emit('changeBrand', eventData);
 	    },
 
 	    createBrand(event) {
@@ -1182,8 +1252,9 @@ this.BX = this.BX || {};
 	        measureCode: modelFields.MEASURE_CODE || '',
 	        measureName: modelFields.MEASURE_NAME || '',
 	        properties: modelFields.PROPERTIES || {},
-	        brands: modelFields.BRANDS || {},
-	        taxId: modelFields.TAX_ID
+	        brands: modelFields.BRANDS || [],
+	        taxId: modelFields.TAX_ID,
+	        morePhoto: modelFields.MORE_PHOTO
 	      };
 	    },
 
@@ -1216,6 +1287,7 @@ this.BX = this.BX || {};
 	      });
 	      this.processFields(fields);
 	      this.setCalculatedFields(fields);
+	      this.$emit('onInlineSelectorProductChange', this.basketItem.fields.brands);
 	    },
 
 	    onProductSelect() {
@@ -1228,14 +1300,18 @@ this.BX = this.BX || {};
 	    },
 
 	    onProductClear() {
-	      const fields = this.model.getCalculator().calculatePrice(0);
-	      fields.BASE_PRICE = 0;
+	      if (main_core.Type.isPlainObject(this.options.facebookFailProducts)) {
+	        delete this.options.facebookFailProducts[this.basketItem.offerId];
+	      }
+	      /*const fields = this.model.getCalculator().calculatePrice(0);
+	      	fields.BASE_PRICE = 0;
 	      fields.NAME = '';
 	      fields.ID = 0;
 	      fields.PRODUCT_ID = 0;
 	      fields.SKU_ID = 0;
 	      fields.MODULE = '';
-	      this.setCalculatedFields(fields);
+	      	this.setCalculatedFields(fields);*/
+
 	    },
 
 	    onChangeSum(sum) {
@@ -1322,11 +1398,16 @@ this.BX = this.BX || {};
 	      }
 	    },
 
-	    changeBrand(values) {
-	      const brands = main_core.Type.isArray(values) ? values : [];
+	    changeBrand(eventData) {
+	      const brands = main_core.Type.isArray(eventData.resultValues) ? eventData.resultValues : [];
+	      const isSelectedByProductChange = eventData.isSelectedByProductChange;
 	      this.processFields({
 	        BRANDS: brands
 	      });
+
+	      if (!isSelectedByProductChange) {
+	        this.saveCatalogField(['BRANDS']);
+	      }
 	    },
 
 	    onChangeQuantity(quantity) {
@@ -1387,6 +1468,10 @@ this.BX = this.BX || {};
 	    },
 
 	    removeItem() {
+	      if (main_core.Type.isPlainObject(this.options.facebookFailProducts)) {
+	        delete this.options.facebookFailProducts[this.basketItem.offerId];
+	      }
+
 	      this.$emit('removeItem', {
 	        index: this.basketItemIndex
 	      });
@@ -1398,6 +1483,26 @@ this.BX = this.BX || {};
 
 	    isVisibleBlock(code) {
 	      return main_core.Type.isArray(this.options.visibleBlocks) && this.options.visibleBlocks.includes(code);
+	    },
+
+	    getPriceValue() {
+	      return this.isEditableField(this.blocks.price) ? this.basketItem.fields.basePrice : this.basketItem.catalogPrice;
+	    },
+
+	    getQuantityValue() {
+	      return this.isEditableField(this.blocks.quantity) ? this.basketItem.fields.quantity : 1;
+	    },
+
+	    getSumValue() {
+	      return this.isEditableField(this.blocks.result) ? this.basketItem.sum : this.basketItem.catalogPrice;
+	    },
+
+	    getDiscountValue() {
+	      return this.isEditableField(this.blocks.discount) ? this.basketItem.fields.discount : 0;
+	    },
+
+	    getDiscountRateValue() {
+	      return this.isEditableField(this.blocks.discount) ? this.basketItem.fields.discountRate : 0;
 	    },
 
 	    hasError(code) {
@@ -1527,135 +1632,175 @@ this.BX = this.BX || {};
 
 	    isReadOnly() {
 	      return this.mode === FormMode.READ_ONLY;
+	    },
+
+	    getErrorsText() {
+	      let errorText = this.basketItem.errors.length !== 0 && !this.model.isEmpty() && this.model.isChanged() ? main_core.Loc.getMessage('CATALOG_PRODUCT_MODEL_ERROR_NOTIFICATION') : '';
+	      const basketItemOfferId = this.basketItem.offerId;
+	      const facebookFailProducts = this.options.facebookFailProducts;
+	      const facebookFailProductErrorText = main_core.Type.isObject(facebookFailProducts) ? facebookFailProducts[basketItemOfferId] : null;
+
+	      if (facebookFailProductErrorText) {
+	        if (errorText) {
+	          errorText += '<br>';
+	        }
+
+	        errorText += main_core.Loc.getMessage('CATALOG_FORM_FACEBOOK_ERROR') + ':<br>' + facebookFailProductErrorText;
+	      }
+
+	      return errorText;
+	    },
+
+	    hasSku() {
+	      return this.basketItem.skuTree !== '';
 	    }
 
 	  },
 	  // language=Vue
 	  template: `
-		<div class="catalog-pf-product-item" v-bind:class="{ 'catalog-pf-product-item--borderless': !isReadOnly && basketItemIndex === 0 }">
-			<div class="catalog-pf-product-item--remove" @click="removeItem" v-if="showRemoveIcon"></div>
-			<div class="catalog-pf-product-item--num">
-				<div class="catalog-pf-product-index">{{basketItemIndex + 1}}</div>
-			</div>
-			<div class="catalog-pf-product-item--left">
-				<div v-if="isVisibleBlock(blocks.productSelector)">
-					<div class="catalog-pf-product-item-section">
-						<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_NAME}}</div>
-					</div>
-					<${config.templateFieldInlineSelector}
-						:basketItem="basketItem"
-						:basketLength="basketLength"
-						:options="options"
-						:model="model"
-						:editable="isEditableField(blocks.productSelector)"
-						@onProductSelect="onProductSelect"
-						@onProductChange="onProductChange"
-						@saveCatalogField="saveCatalogField"
-					/>
+		<div>
+			<div class="catalog-pf-product-item" v-bind:class="{ 'catalog-pf-product-item--borderless': !isReadOnly && basketItemIndex === 0 }">
+				<div class="catalog-pf-product-item--remove" @click="removeItem" v-if="showRemoveIcon"></div>
+				<div class="catalog-pf-product-item--num">
+					<div class="catalog-pf-product-index">{{basketItemIndex + 1}}</div>
 				</div>
-				<div v-if="isVisibleBlock(blocks.brand)" class="catalog-pf-product-input-brand-wrapper">
-					<div class="catalog-pf-product-item-section">
-						<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_BRAND_TITLE}}</div>
-					</div>
-					<${config.templateFieldBrand}
-						:brands="basketItem.fields.brands"
-						:selectorId="getBrandsSelectorId"
-						:hasError="hasError(errorCodes.emptyBrand)"
-						:options="options"
-						:editable="isEditableField(blocks.brand)"
-						@changeBrand="changeBrand"
-						@saveCatalogField="saveCatalogField"
-					/>
-				</div>
-
-			</div>
-			<div class="catalog-pf-product-item--right">
-				<div class="catalog-pf-product-item-section">
-					<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-label" style="width: 94px">
-						{{localize.CATALOG_FORM_PRICE}}
-						<span v-if="hasHint(blocks.price)" class="ui-hint-icon" @click="showPriceNotify"></span>
-					</div>
-					<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-label" style="width: 72px">
-						{{localize.CATALOG_FORM_QUANTITY}}
-					</div>
-					<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-label" style="width: 94px">
-						{{localize.CATALOG_FORM_RESULT}}
-					</div>
-				</div>
-				<div class="catalog-pf-product-item-section">
-
-					<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-control" style="width: 94px">
-						<${config.templateFieldPrice}
-							:selectorId="basketItem.selectorId"
-							:price="basketItem.fields.basePrice"
+				<div class="catalog-pf-product-item--left">
+					<div v-if="isVisibleBlock(blocks.productSelector)">
+						<div v-if="!this.isReadOnly" class="catalog-pf-product-item-section">
+							<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_NAME}}</div>
+						</div>
+						<${config.templateFieldInlineSelector}
+							:basketItem="basketItem"
+							:basketLength="basketLength"
 							:options="options"
-							:editable="isEditableField(blocks.price)"
-							:hasError="hasError(errorCodes.emptyPrice)"
-							@onChangePrice="onChangePrice"
+							:model="model"
+							:editable="isEditableField(blocks.productSelector)"
+							@onProductChange="onProductChange"
+							@onProductSelect="onProductSelect"
+							@onProductClear="onProductClear"
 							@saveCatalogField="saveCatalogField"
 						/>
 					</div>
-
-					<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-control" style="width: 72px">
-						<${config.templateFieldQuantity}
-							:quantity="basketItem.fields.quantity"
-							:measureCode="getMeasureCode"
-							:measureRatio="basketItem.fields.measureRatio"
-							:measureName="getMeasureName"
-							:hasError="hasError(errorCodes.emptyQuantity)"
+					<div
+						v-if="isVisibleBlock(blocks.brand)"
+						class="catalog-pf-product-input-brand-wrapper"
+						v-bind:class="[
+							{ 'catalog-pf-product-input-brand-wrapper-readonly': this.isReadOnly},
+							{ 'catalog-pf-product-input-brand-wrapper-readonly-no-sku': this.isReadOnly && !this.hasSku}
+						]"
+					>
+						<div class="catalog-pf-product-item-section">
+							<div class="catalog-pf-product-label">{{localize.CATALOG_FORM_BRAND_TITLE}}</div>
+						</div>
+						<${config.templateFieldBrand}
+							:brands="basketItem.fields.brands"
+							:selectorId="getBrandsSelectorId"
+							:hasError="hasError(errorCodes.emptyBrand)"
 							:options="options"
-							:editable="isEditableField(blocks.quantity)"
-							@onChangeQuantity="onChangeQuantity"
-							@onSelectMeasure="onSelectMeasure"
+							:editable="isEditableField(blocks.brand)"
+							@changeBrand="changeBrand"
+							@saveCatalogField="saveCatalogField"
 						/>
+						<div v-if="hasError(errorCodes.emptyBrand)" class="catalog-pf-product-item-section">
+							<div class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_BRAND_1}}</div>
+						</div>
 					</div>
-
-					<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-control" style="width: 94px">
-						<${config.templateFieldResultSum}
-								:sum="basketItem.sum"
+	
+				</div>
+				<div class="catalog-pf-product-item--right">
+					<div class="catalog-pf-product-item-section">
+						<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-label" style="width: 94px">
+							{{localize.CATALOG_FORM_PRICE}}
+							<span v-if="hasHint(blocks.price)" class="ui-hint-icon" @click="showPriceNotify"></span>
+						</div>
+						<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-label" style="width: 72px">
+							{{localize.CATALOG_FORM_QUANTITY}}
+						</div>
+						<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-label" style="width: 94px">
+							{{localize.CATALOG_FORM_RESULT}}
+						</div>
+					</div>
+					<div class="catalog-pf-product-item-section">
+	
+						<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-control" style="width: 94px">
+							<${config.templateFieldPrice}
+								:selectorId="basketItem.selectorId"
+								:price="getPriceValue()"
 								:options="options"
-								:editable="isEditableField(blocks.result)"
-								@onChangeSum="onChangeSum"
+								:editable="isEditableField(blocks.price)"
+								:hasError="hasError(errorCodes.emptyPrice)"
+								@onChangePrice="onChangePrice"
+								@saveCatalogField="saveCatalogField"
+							/>
+						</div>
+	
+						<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-control" style="width: 72px">
+							<${config.templateFieldQuantity}
+								:quantity="getQuantityValue()"
+								:measureCode="getMeasureCode"
+								:measureRatio="basketItem.fields.measureRatio"
+								:measureName="getMeasureName"
+								:hasError="hasError(errorCodes.emptyQuantity)"
+								:options="options"
+								:editable="isEditableField(blocks.quantity)"
+								@onChangeQuantity="onChangeQuantity"
+								@onSelectMeasure="onSelectMeasure"
+							/>
+						</div>
+	
+						<div v-if="isVisibleBlock(blocks.result)" class="catalog-pf-product-control" style="width: 94px">
+							<${config.templateFieldResultSum}
+									:sum="getSumValue()"
+									:options="options"
+									:editable="isEditableField(blocks.result)"
+									@onChangeSum="onChangeSum"
+							/>
+						</div>
+					</div>
+					<div v-if="hasError(errorCodes.emptyQuantity)" class="catalog-pf-product-item-section">
+						<div class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_QUANTITY_1}}</div>
+					</div>
+					<div v-if="hasError(errorCodes.emptyPrice)" class="catalog-pf-product-item-section">
+						<div v-if="isEditableField(blocks.price)" class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_PRICE_1}}</div>
+						<div v-else class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_PRICE_FILL_IN_CARD}}</div>
+					</div>
+					<div v-if="showDiscountBlock" class="catalog-pf-product-item-section">
+						<div v-if="showDiscount" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleDiscount('N')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
+						<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleDiscount('Y')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
+					</div>
+	
+					<div v-if="showDiscount" class="catalog-pf-product-item-section">
+						<${config.templateFieldDiscount}
+							:discount="getDiscountValue()"
+							:discountType="basketItem.fields.discountType"
+							:discountRate="getDiscountRateValue()"
+							:options="options"
+							:editable="isEditableField(blocks.discount)"
+							ref="discountWrapper"
+							@changeDiscount="changeDiscount"
+							@changeDiscountType="changeDiscountType"
 						/>
 					</div>
+	
+					<div v-if="showTaxBlock" class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed">
+						<div v-if="showTaxSelector" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleTax('N')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
+						<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleTax('Y')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
+					</div>
+					<div v-if="showTaxSelector && showTaxBlock" class="catalog-pf-product-item-section">
+						<${config.templateFieldTax}
+							:taxId="basketItem.fields.taxId"
+							:options="options"
+							:editable="isEditableField(blocks.tax)"
+							@changeProduct="changeProduct"
+						/>
+					</div>
+					<div class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed"></div>
 				</div>
-				<div v-if="hasError(errorCodes.emptyQuantity)" class="catalog-pf-product-item-section">
-					<div class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_QUANTITY}}</div>
+				<div class="catalog-pf-product-item">
 				</div>
-				<div v-if="hasError(errorCodes.emptyPrice)" class="catalog-pf-product-item-section">
-					<div class="catalog-product-error">{{localize.CATALOG_FORM_ERROR_EMPTY_PRICE}}</div>
-				</div>
-				<div v-if="showDiscountBlock" class="catalog-pf-product-item-section">
-					<div v-if="showDiscount" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleDiscount('N')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
-					<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleDiscount('Y')">{{localize.CATALOG_FORM_DISCOUNT_TITLE}}</div>
-				</div>
-
-				<div v-if="showDiscount" class="catalog-pf-product-item-section">
-					<${config.templateFieldDiscount}
-						:discount="basketItem.fields.discount"
-						:discountType="basketItem.fields.discountType"
-						:discountRate="basketItem.fields.discountRate"
-						:options="options"
-						:editable="isEditableField(blocks.discount)"
-						ref="discountWrapper"
-						@changeDiscount="changeDiscount"
-						@changeDiscountType="changeDiscountType"
-					/>
-				</div>
-
-				<div v-if="showTaxBlock" class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed">
-					<div v-if="showTaxSelector" class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--hide" @click="toggleTax('N')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
-					<div v-else class="catalog-pf-product-link-toggler catalog-pf-product-link-toggler--show" @click="toggleTax('Y')">{{localize.CATALOG_FORM_TAX_TITLE}}</div>
-				</div>
-				<div v-if="showTaxSelector && showTaxBlock" class="catalog-pf-product-item-section">
-					<${config.templateFieldTax}
-						:taxId="basketItem.fields.taxId"
-						:options="options"
-						:editable="isEditableField(blocks.tax)"
-						@changeProduct="changeProduct"
-					/>
-				</div>
-				<div class="catalog-pf-product-item-section catalog-pf-product-item-section--dashed"></div>
+			</div>
+			<div>
+				<div class="catalog-product-error" v-html="getErrorsText"></div>
 			</div>
 		</div>
 	`
@@ -1672,14 +1817,13 @@ this.BX = this.BX || {};
 	let _$1 = t => t,
 	    _t$1,
 	    _t2$1,
-	    _t3,
+	    _t3$1,
 	    _t4,
 	    _t5,
 	    _t6,
 	    _t7,
 	    _t8,
-	    _t9,
-	    _t10;
+	    _t9;
 	ui_vue.Vue.component(config.templatePanelCompilation, {
 	  props: {
 	    compilationOptions: Object,
@@ -1687,13 +1831,13 @@ this.BX = this.BX || {};
 	  },
 
 	  created() {
-	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.destroyPopup.bind(this));
-	    main_core_events.EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.destroyPopup.bind(this));
 	    this.newLabel = new ui_label.Label({
 	      text: this.localize.CATALOG_FORM_COMPILATION_PRODUCT_NEW_LABEL,
 	      color: ui_label.LabelColor.PRIMARY,
 	      fill: true
 	    });
+	    this.popup = null;
+	    this.compilationLink = null;
 	    const moreMessageButton = main_core.Tag.render(_t$1 || (_t$1 = _$1`
 			<a class="ui-btn ui-btn-primary">${0}</a>
 		`), this.localize.CATALOG_FORM_COMPILATION_INFO_BUTTON_MORE);
@@ -1709,7 +1853,7 @@ this.BX = this.BX || {};
 			`), this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_FACEBOOK_FIRST_BLOCK, this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_FACEBOOK_SECOND_BLOCK);
 	    } else {
 	      header = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_TITLE;
-	      description = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_MARKETING;
+	      description = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_MARKETING_2;
 	    }
 
 	    this.message = new ui_messagecard.MessageCard({
@@ -1771,12 +1915,24 @@ this.BX = this.BX || {};
 	        return basketItem == null ? void 0 : (_basketItem$fields = basketItem.fields) == null ? void 0 : _basketItem$fields.skuId;
 	      });
 	      return new Promise((resolve, reject) => {
-	        main_core.ajax.runAction('salescenter.api.store.getLinkToProductCollection', {
-	          json: {
-	            productIds
+	        main_core.ajax.runAction('salescenter.compilation.createCompilation', {
+	          data: {
+	            productIds,
+	            options: {
+	              ownerId: this.$root.$app.options.ownerId,
+	              ownerTypeId: this.$root.$app.options.ownerTypeId,
+	              dialogId: this.$root.$app.options.dialogId,
+	              sessionId: this.$root.$app.options.sessionId
+	            }
 	          }
 	        }).then(response => {
-	          this.compilationLink = response.data.link;
+	          var _response$data$link, _response$data$compil, _response$data$ownerI;
+
+	          this.compilationLink = (_response$data$link = response.data.link) != null ? _response$data$link : null;
+	          main_core_events.EventEmitter.emit(this.$root.$app, 'ProductForm:onCompilationCreated', {
+	            compilationId: (_response$data$compil = response.data.compilationId) != null ? _response$data$compil : null,
+	            ownerId: (_response$data$ownerI = response.data.ownerId) != null ? _response$data$ownerI : null
+	          });
 	          this.popup = new main_popup.Popup({
 	            bindElement: event.target,
 	            content: this.getQRPopupContent(),
@@ -1800,19 +1956,12 @@ this.BX = this.BX || {};
 	      });
 	    },
 
-	    destroyPopup() {
-	      if (this.popup instanceof main_popup.Popup) {
-	        this.popup.destroy();
-	        this.popup = null;
-	      }
-	    },
-
 	    getQRPopupContent() {
 	      if (!this.compilationLink) {
 	        return '';
 	      }
 
-	      const buttonCopy = main_core.Tag.render(_t3 || (_t3 = _$1`
+	      const buttonCopy = main_core.Tag.render(_t3$1 || (_t3$1 = _$1`
 				<div class="catalog-pf-product-qr-popup-copy">${0}</div>
 			`), this.localize.CATALOG_FORM_COMPILATION_QR_COPY);
 	      main_core.Event.bind(buttonCopy, 'click', () => {
@@ -1835,7 +1984,7 @@ this.BX = this.BX || {};
 						<div class="catalog-pf-product-qr-popup-bottom">
 							<a href="${0}" target="_blank" class="catalog-pf-product-qr-popup--url">${0}</a>
 							${0}
-						</div>					
+						</div>
 					</div>
 				`), this.localize.CATALOG_FORM_COMPILATION_QR_POPUP_TITLE, qrWrapper, this.compilationLink, this.localize.CATALOG_FORM_COMPILATION_QR_POPUP_INPUT_TITLE, this.compilationLink, this.compilationLink, buttonCopy);
 	      new QRCode(qrWrapper, {
@@ -1848,67 +1997,20 @@ this.BX = this.BX || {};
 
 	    setSetting(event) {
 	      const value = event.target.checked ? 'Y' : 'N';
-
-	      if (!this.compilationOptions.hasStore) {
-	        this.compilationOptions.disabledSwitcher = true;
-	        const creationStorePopup = new main_popup.Popup({
-	          bindElement: event.target,
-	          className: 'catalog-product-form-popup--creating-shop',
-	          content: this.getOnBeforeCreationStorePopupContent(),
-	          width: 310,
-	          overlay: true,
-	          padding: 17,
-	          animation: 'fading-slide',
-	          angle: false
-	        });
-	        creationStorePopup.show();
-	        main_core.ajax.runAction('salescenter.api.store.getStoreInfo', {
-	          json: {}
-	        }).then(response => {
-	          var _response$data, _response$data$deacti;
-
-	          if (main_core.Type.isStringFilled((_response$data = response.data) == null ? void 0 : (_response$data$deacti = _response$data.deactivatedStore) == null ? void 0 : _response$data$deacti.TITLE)) {
-	            var _response$data2, _response$data2$deact;
-
-	            const title = main_core.Loc.getMessage('CATALOG_FORM_COMPILATION_UNPUBLISHED_STORE', {
-	              '#STORE_TITLE#': main_core.Tag.safe(_t6 || (_t6 = _$1`${0}`), (_response$data2 = response.data) == null ? void 0 : (_response$data2$deact = _response$data2.deactivatedStore) == null ? void 0 : _response$data2$deact.TITLE)
-	            });
-	            BX.UI.Notification.Center.notify({
-	              content: main_core.Tag.render(_t7 || (_t7 = _$1`
-									<div>
-										<span>${0}</span>
-										<a href="/shop/stores/" target="_blank">
-											${0}
-										</a>
-									</div>
-								`), title, main_core.Loc.getMessage('CATALOG_FORM_COMPILATION_UNPUBLISHED_STORE_LINK'))
-	            });
-	          }
-
-	          creationStorePopup.setContent(this.getOnAfterCreationStorePopupContent());
-	          creationStorePopup.setClosingByEsc(true);
-	          creationStorePopup.setAutoHide(true);
-	          creationStorePopup.show();
-	          this.$root.$app.changeFormOption('isCompilationMode', value);
-	          this.compilationOptions.disabledSwitcher = this.compilationOptions.isLimitedStore;
-	          this.compilationOptions.hasStore = true;
-	        });
-	      } else {
-	        this.$root.$app.changeFormOption('isCompilationMode', value);
-	      }
+	      this.$root.$app.changeFormOption('isCompilationMode', value);
 	    },
 
 	    getOnBeforeCreationStorePopupContent() {
-	      const loaderContent = main_core.Tag.render(_t8 || (_t8 = _$1`
+	      const loaderContent = main_core.Tag.render(_t6 || (_t6 = _$1`
 				<div class="catalog-product-form-popup--loader-block"></div>
 			`));
-	      const node = main_core.Tag.render(_t9 || (_t9 = _$1`
+	      const node = main_core.Tag.render(_t7 || (_t7 = _$1`
 				<div class="catalog-product-form-popup--container">
 					<div class="catalog-product-form-popup--title">${0}</div>
 					${0}
 					<div class="catalog-product-form-popup--text">${0}</div>
 				</div>
-			`), main_core.Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING'), loaderContent, main_core.Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING_INFO'));
+			`), main_core.Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING1'), loaderContent, main_core.Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING_INFO1'));
 	      const loader = new main_loader.Loader({
 	        color: "#2fc6f6",
 	        target: loaderContent,
@@ -1918,14 +2020,25 @@ this.BX = this.BX || {};
 	      return node;
 	    },
 
-	    getOnAfterCreationStorePopupContent() {
-	      return main_core.Tag.render(_t10 || (_t10 = _$1`
+	    getOnAfterCreationStorePopupContent(creationStorePopup) {
+	      const continueButton = main_core.Tag.render(_t8 || (_t8 = _$1`
+				<button class="ui-btn ui-btn-md ui-btn-primary">
+					${0}
+				</button>
+			`), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING_CONTINUE'));
+	      main_core.Event.bind(continueButton, 'click', this.closeCreationStorePopup.bind(this, creationStorePopup));
+	      return main_core.Tag.render(_t9 || (_t9 = _$1`
 				<div class="catalog-product-form-popup--container">
 					<div class="catalog-product-form-popup--title">${0}</div>
 					<div class="catalog-product-form-popup--loader-block catalog-product-form-popup--done"></div>
 					<div class="catalog-product-form-popup--text">${0}</div>
+					<div class="catalog-product-form-popup--button-container">${0}</div>
 				</div>
-			`), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING'), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING_INFO'));
+			`), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING1'), main_core.Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING_INFO1'), continueButton);
+	    },
+
+	    closeCreationStorePopup(creationStorePopup) {
+	      creationStorePopup.close();
 	    },
 
 	    onLabelClick() {
@@ -1984,15 +2097,15 @@ this.BX = this.BX || {};
 		<div>
 			<div class="catalog-pf-product-panel-compilation">
 				<div class="catalog-pf-product-panel-compilation-wrapper">
-					<label class="ui-ctl ui-ctl-checkbox" @click="onLabelClick">
-						<input 
-							type="checkbox" 
+					<label class="ui-ctl ui-ctl-checkbox catalog-pf-product-panel-compilation-checkbox-container" @click="onLabelClick">
+						<input
+							type="checkbox"
 							:disabled="compilationOptions.disabledSwitcher"
-							class="ui-ctl-element" 
-							@change="setSetting" 
+							class="ui-ctl-element"
+							@change="setSetting"
 							data-setting-id="isCompilationMode"
 						>
-						<div class="ui-ctl-label-text">{{localize.CATALOG_FORM_COMPILATION_PRODUCT_SWITCHER}}</div>
+						<div class="ui-ctl-label-text">{{localize.CATALOG_FORM_COMPILATION_PRODUCT_SWITCHER_2}}</div>
 						<div ref="hintIcon">
 							<div data-hint-init="vue" class="ui-hint" @click="onClickHint">
 								<span class="ui-hint-icon"></span>
@@ -2001,8 +2114,9 @@ this.BX = this.BX || {};
 						<div ref="label"></div>
 						<div class="tariff-lock" v-if="compilationOptions.isLimitedStore"></div>
 					</label>
+					<div class="catalog-pf-product-panel-compilation-price-info">{{localize.CATALOG_FORM_COMPILATION_PRICE_NOTIFICATION}}</div>
 				</div>
-				<div 				
+				<div
 					v-if="showQrLink"
 					class="catalog-pf-product-panel-compilation-link --icon-qr"
 					@click="showPopup"
@@ -2019,7 +2133,7 @@ this.BX = this.BX || {};
 	let _$2 = t => t,
 	    _t$2,
 	    _t2$2,
-	    _t3$1,
+	    _t3$2,
 	    _t4$1;
 	ui_vue.Vue.component(config.templatePanelButtons, {
 	  /**
@@ -2269,7 +2383,7 @@ this.BX = this.BX || {};
 	      input.disabled = (_item$disabled = item.disabled) != null ? _item$disabled : false;
 	      input.dataset.settingId = item.id;
 	      const hintNode = main_core.Type.isStringFilled(item.hint) ? main_core.Tag.render(_t2$2 || (_t2$2 = _$2`<span class="catalog-product-form-setting-hint" data-hint="${0}"></span>`), item.hint) : '';
-	      const setting = main_core.Tag.render(_t3$1 || (_t3$1 = _$2`
+	      const setting = main_core.Tag.render(_t3$2 || (_t3$2 = _$2`
 				<label class="ui-ctl ui-ctl-checkbox ui-ctl-w100">
 					${0}
 					<div class="ui-ctl-label-text ${0}">${0}${0}</div>
@@ -2446,11 +2560,11 @@ this.BX = this.BX || {};
 	    },
 
 	    showButtonsTop() {
-	      return this.options.singleProductMode !== true && this.mode !== FormMode.READ_ONLY && this.options.buttonsPosition !== FormElementPosition.BOTTOM;
+	      return this.options.singleProductMode !== true && this.mode !== FormMode.READ_ONLY && this.mode !== FormMode.COMPILATION_READ_ONLY && this.options.buttonsPosition !== FormElementPosition.BOTTOM;
 	    },
 
 	    showButtonsBottom() {
-	      return this.options.singleProductMode !== true && this.mode !== FormMode.READ_ONLY && this.options.buttonsPosition === FormElementPosition.BOTTOM;
+	      return this.options.singleProductMode !== true && this.mode !== FormMode.READ_ONLY && this.mode !== FormMode.COMPILATION_READ_ONLY && this.options.buttonsPosition === FormElementPosition.BOTTOM;
 	    },
 
 	    showResultBlock() {
@@ -2622,7 +2736,7 @@ this.BX = this.BX || {};
 	      showDiscountBlock: settingsCollection.get('showDiscountBlock'),
 	      showTaxBlock: settingsCollection.get('showTaxBlock'),
 	      allowedDiscountTypes: [catalog_productCalculator.DiscountType.PERCENTAGE, catalog_productCalculator.DiscountType.MONETARY],
-	      visibleBlocks: [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.QUANTITY, FormInputCode.RESULT, FormInputCode.DISCOUNT],
+	      visibleBlocks: [FormInputCode.PRODUCT_SELECTOR, FormInputCode.IMAGE_EDITOR, FormInputCode.PRICE, FormInputCode.QUANTITY, FormInputCode.RESULT, FormInputCode.DISCOUNT],
 	      requiredFields: [],
 	      editableFields: [],
 	      newItemPosition: FormElementPosition.TOP,
@@ -2633,7 +2747,12 @@ this.BX = this.BX || {};
 	      isCatalogPriceSaveEnabled: settingsCollection.get('isCatalogPriceSaveEnabled'),
 	      fieldHints: settingsCollection.get('fieldHints'),
 	      compilationFormType: FormCompilationType.REGULAR,
-	      compilationFormOption: {}
+	      compilationFormOption: {},
+	      facebookFailProducts: null,
+	      ownerId: null,
+	      ownerTypeId: null,
+	      dialogId: null,
+	      sessionId: null
 	    };
 
 	    if (options.visibleBlocks && !main_core.Type.isArray(options.visibleBlocks)) {
@@ -2748,7 +2867,7 @@ this.BX = this.BX || {};
 	    product.errors = [];
 
 	    if (item.skipFieldChecking !== true) {
-	      const result = babelHelpers.classPrivateFieldLooseBase(this, _checkRequiredFields)[_checkRequiredFields](product.fields);
+	      const result = babelHelpers.classPrivateFieldLooseBase(this, _checkRequiredFields)[_checkRequiredFields](product);
 
 	      product.errors = (result == null ? void 0 : result.errors) || [];
 	    }
@@ -2830,6 +2949,10 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
+	      main_core_events.EventEmitter.emit(this, 'onChangeCompilationMode', {
+	        isCompilationMode: value === 'Y',
+	        isFacebookForm: this.options.compilationFormType === FormCompilationType.FACEBOOK
+	      });
 	      const mode = value === 'Y' ? FormMode.COMPILATION : FormMode.REGULAR;
 
 	      babelHelpers.classPrivateFieldLooseBase(this, _changeCompilationModeSetting)[_changeCompilationModeSetting](mode);
@@ -2869,11 +2992,15 @@ this.BX = this.BX || {};
 	    this.store.dispatch('productList/getTotal');
 	  }
 
-	  setEditable(value) {
-	    this.editable = value;
+	  setEditable(editable, isCompilationMode) {
+	    this.editable = editable;
 
-	    if (!value) {
+	    if (!editable && !isCompilationMode) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](FormMode.READ_ONLY);
+	    } else if (!editable && isCompilationMode) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](FormMode.COMPILATION_READ_ONLY);
+	    } else if (editable && isCompilationMode) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](FormMode.COMPILATION);
 	    } else {
 	      babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](FormMode.REGULAR);
 	    }
@@ -2901,7 +3028,7 @@ this.BX = this.BX || {};
 	  });
 	}
 
-	function _checkRequiredFields2(fields) {
+	function _checkRequiredFields2(product) {
 	  const result = {};
 
 	  if (!main_core.Type.isArray(this.options.requiredFields) || this.options.requiredFields.length === 0) {
@@ -2912,30 +3039,45 @@ this.BX = this.BX || {};
 	  this.options.requiredFields.forEach(code => {
 	    switch (code) {
 	      case FormInputCode.PRICE:
-	        if (fields.price <= 0) {
+	        if (!this.options.isCatalogPriceSaveEnabled && product.catalogPrice <= 0) {
 	          result.errors.push({
 	            code: FormErrorCode.EMPTY_PRICE,
-	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_PRICE')
+	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_PRICE_FILL_IN_CARD')
+	          });
+	        } else if (product.fields.basePrice <= 0) {
+	          result.errors.push({
+	            code: FormErrorCode.EMPTY_PRICE,
+	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_PRICE_1')
 	          });
 	        }
 
 	        break;
 
 	      case FormInputCode.QUANTITY:
-	        if (fields.quantity <= 0) {
+	        if (product.fields.quantity <= 0) {
 	          result.errors.push({
 	            code: FormErrorCode.EMPTY_QUANTITY,
-	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_QUANTITY')
+	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_QUANTITY_1')
 	          });
 	        }
 
 	        break;
 
 	      case FormInputCode.BRAND:
-	        if (!main_core.Type.isArray(fields.brands) || fields.brands.length === 0) {
+	        if (!main_core.Type.isArray(product.fields.brands) || product.fields.brands.length === 0) {
 	          result.errors.push({
 	            code: FormErrorCode.EMPTY_BRAND,
-	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_BRAND')
+	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_BRAND_1')
+	          });
+	        }
+
+	        break;
+
+	      case FormInputCode.IMAGE_EDITOR:
+	        if (!main_core.Type.isObject(product.fields.morePhoto) || Object.keys(product.fields.morePhoto).length === 0) {
+	          result.errors.push({
+	            code: FormErrorCode.EMPTY_IMAGE,
+	            message: main_core.Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_PICTURE_1')
 	          });
 	        }
 
@@ -2946,13 +3088,6 @@ this.BX = this.BX || {};
 	}
 
 	function _changeCompilationModeSetting2(mode) {
-	  this.options.requiredFields = [];
-
-	  if (mode === FormMode.COMPILATION) {
-	    const compilationRequiredFields = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.BRAND];
-	    this.options.requiredFields = this.options.visibleBlocks.filter(item => compilationRequiredFields.includes(item));
-	  }
-
 	  babelHelpers.classPrivateFieldLooseBase(this, _setMode)[_setMode](mode);
 
 	  const basket = this.store.getters['productList/getBasket']();
@@ -2968,12 +3103,23 @@ this.BX = this.BX || {};
 
 	  if (mode === FormMode.READ_ONLY) {
 	    this.options.editableFields = [];
+	  } else if (mode === FormMode.COMPILATION_READ_ONLY) {
+	    this.options.editableFields = [];
+	    this.options.visibleBlocks = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.IMAGE_EDITOR, FormInputCode.PRICE, FormInputCode.BRAND];
+	    this.options.showResults = false;
 	  } else if (mode === FormMode.COMPILATION) {
-	    this.options.editableFields = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.BRAND];
+	    this.options.editableFields = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.BRAND];
+
+	    if (this.options.isCatalogPriceSaveEnabled) {
+	      this.options.editableFields.push(FormInputCode.PRICE);
+	    }
+
 	    this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
 
 	    if (this.options.compilationFormType === FormCompilationType.FACEBOOK) {
-	      this.options.visibleBlocks.push(FormInputCode.BRAND);
+	      this.options.visibleBlocks = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.IMAGE_EDITOR, FormInputCode.PRICE, FormInputCode.BRAND];
+	    } else {
+	      this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
 	    }
 
 	    this.options.showResults = false;
@@ -2988,12 +3134,26 @@ this.BX = this.BX || {};
 	    this.templateEngine.mode = mode;
 	  }
 
+	  this.options.requiredFields = [];
+
+	  if (mode === FormMode.COMPILATION) {
+	    let compilationRequiredFields = [FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE];
+
+	    if (this.options.compilationFormType === FormCompilationType.FACEBOOK) {
+	      compilationRequiredFields.push(FormInputCode.IMAGE_EDITOR);
+	      compilationRequiredFields.push(FormInputCode.BRAND);
+	    }
+
+	    this.options.requiredFields = this.options.visibleBlocks.filter(item => compilationRequiredFields.includes(item));
+	  }
+
 	  main_core_events.EventEmitter.emit(this, 'ProductForm:onModeChange', {
 	    mode
 	  });
 	}
 
 	exports.ProductForm = ProductForm;
+	exports.FormMode = FormMode;
 
 }((this.BX.Catalog = this.BX.Catalog || {}),BX,BX,BX,BX.UI,BX,BX.UI,BX,BX.UI,BX.Catalog,BX.UI.EntitySelector,BX.Catalog,BX,BX,BX.Main,BX,BX,BX.UI,BX.UI,window,BX,BX,BX,BX,BX,BX.Catalog.StoreUse,BX,BX.Event,BX.Currency,BX.Catalog));
 //# sourceMappingURL=product-form.bundle.js.map

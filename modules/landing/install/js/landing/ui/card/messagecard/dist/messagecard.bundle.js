@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,landing_ui_card_basecard,landing_loc) {
+(function (exports,ui_designTokens,ui_fonts_opensans,main_core,landing_ui_card_basecard,landing_loc) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
@@ -157,5 +157,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.MessageCard = MessageCard;
 
-}((this.BX.Landing.UI.Card = this.BX.Landing.UI.Card || {}),BX,BX.Landing.UI.Card,BX.Landing));
+}((this.BX.Landing.UI.Card = this.BX.Landing.UI.Card || {}),BX,BX,BX,BX.Landing.UI.Card,BX.Landing));
 //# sourceMappingURL=messagecard.bundle.js.map

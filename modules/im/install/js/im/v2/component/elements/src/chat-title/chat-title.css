@@ -1,5 +1,5 @@
 :root {
-	--im-chat-title-color: #000;
+	--im-chat-title-color: #181818;
 	--im-chat-title-bot-color: #715fc1;
 	--im-chat-title-extranet-color: #ca7b00;
 	--im-chat-title-network-color: #0a962f;
@@ -20,6 +20,7 @@
 	display: flex;
 	align-items: center;
 	font-size: 14px;
+	font-weight: var(--ui-font-weight-medium, 500);
 	min-width: 0;
 }
 

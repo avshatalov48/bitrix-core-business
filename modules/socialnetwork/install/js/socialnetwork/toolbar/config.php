@@ -7,6 +7,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 return array(
 	'css' => '/bitrix/js/socialnetwork/toolbar/socialnetwork.toolbar.css',
-	'rel' => [],
+	'rel' => ['ui.fonts.opensans'],
 	'lang_additional' => [],
 );

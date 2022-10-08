@@ -1,0 +1,64 @@
+.ui-tile-uploader-drop-box {
+	display: flex;
+	align-items: center;
+	height: 41px;
+}
+
+.ui-tile-uploader-drop-label {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 5px 10px;
+	width: 100%;
+	height: 41px;
+	border-radius: 12px;
+	border: 2px dashed rgba(82,92,105,.15);
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: rgba(82,92,105,.5);
+	text-align: center;
+	transition: height .3s, border .3s;
+	box-sizing: border-box;
+	cursor: pointer;
+	z-index: 100;
+}
+
+.ui-tile-uploader-drop-label:hover {
+	border: 2px dashed rgba(82,92,105,.30);
+}
+
+.ui-tile-uploader.--drag-over .ui-tile-uploader-drop-label {
+	position: absolute;
+	background-color: white;
+	z-index: 5;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	border: 2px dashed #2fc6f6;
+	width: 100%;
+	height: 100%;
+	font: 15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+}
+.ui-tile-uploader.--drag-over .ui-tile-uploader-items {
+	opacity: 0;
+	pointer-events: none;
+}
+
+.ui-tile-uploader.--drag-over .ui-tile-uploader-settings {
+	display: none;
+}
+
+.ui-tile-uploader-settings {
+	display: block;
+	margin-left: 10px;
+	width: 32px;
+	height: 32px;
+	background: url("data:image/svg+xml,%3Csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8.691 11.078a3.158 3.158 0 01-3.769-3.77c.23-1.075 1.31-2.157 2.386-2.386a3.158 3.158 0 013.77 3.77 3.106 3.106 0 01-2.387 2.386zM13.83 6.57c-.113-.46-.276-.901-.488-1.313a.05.05 0 01.006-.053l.994-1.234a.7.7 0 00-.021-.905l-.63-.71a.7.7 0 00-.897-.127l-1.355.852a5.962 5.962 0 00-1.969-.895.05.05 0 01-.037-.04L9.173.586A.7.7 0 008.484 0h-.95a.698.698 0 00-.69.585l-.26 1.562a.05.05 0 01-.037.04 5.96 5.96 0 00-1.624.674.05.05 0 01-.053-.002l-1.263-.901a.7.7 0 00-.902.074l-.671.672a.7.7 0 00-.074.902l.903 1.265a.05.05 0 01.002.054 5.976 5.976 0 00-.669 1.611.05.05 0 01-.04.037l-1.57.262a.7.7 0 00-.585.69v.95a.7.7 0 00.585.69l1.57.262a.05.05 0 01.04.037c.118.469.287.918.508 1.335a.05.05 0 01-.005.054l-.99 1.226a.7.7 0 00.021.905l.63.71a.7.7 0 00.897.127l1.348-.846a.05.05 0 01.053 0 5.96 5.96 0 001.92.846l.267 1.594a.698.698 0 00.69.585h.95a.7.7 0 00.69-.585l.26-1.562a.05.05 0 01.036-.04 5.952 5.952 0 001.605-.663.05.05 0 01.053.002l1.317.94c.277.2.66.169.901-.074l.672-.671a.698.698 0 00.073-.902l-.937-1.314a.05.05 0 01-.002-.054c.298-.496.526-1.039.67-1.616a.05.05 0 01.04-.037l1.553-.259a.699.699 0 00.585-.69v-.95a.7.7 0 00-.585-.69l-1.585-.264z' fill='%23525C69' fill-rule='evenodd' opacity='1'/%3E%3C/svg%3E") center no-repeat;
+	background-size: 16px 16px;
+	transition: opacity .3s;
+	opacity: .4;
+	cursor: pointer;
+}
+
+.ui-tile-uploader-settings:hover {
+	opacity: 1;
+}

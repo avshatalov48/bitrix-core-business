@@ -8,6 +8,7 @@ export class RepeatSelector
 		let formElements =  params.rruleType.form.elements;
 
 		this.getDate = params.getDate;
+		this.previousDate = null;
 		this.DOM = {
 			formElements: formElements,
 			wrap: params.wrap,
@@ -55,8 +56,17 @@ export class RepeatSelector
 				let day = Util.getWeekDayByInd(fromDate.getDay());
 				this.DOM.formElements['EVENT_RRULE[BYDAY][]'].forEach(function(input)
 				{
-					input.checked = input.checked || input.value === day;
+					if (input.checked && this.previousDay === input.value && this.previousDay !== day)
+					{
+						input.checked = false;
+					}
+					else
+					{
+						input.checked = input.checked || input.value === day;
+					}
 				}, this)
+				
+				this.previousDay = day;
 			}
 		}
 	}

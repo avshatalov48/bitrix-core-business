@@ -41,7 +41,8 @@
 	position: relative;
 	display: block;
 	max-width: 100%;
-	font: 47px "OpenSans-Light", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 47px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #525C69;
 	text-align: center;
 	white-space: nowrap;

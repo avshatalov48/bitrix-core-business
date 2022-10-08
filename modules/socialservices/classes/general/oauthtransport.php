@@ -149,4 +149,41 @@ class CSocServOAuthTransport
 	{
 		return array();
 	}
+
+	protected function getDecodedJson($url, $postData = null)
+	{
+		$http = new \Bitrix\Main\Web\HttpClient([
+			'socketTimeout' => $this->httpTimeout,
+			'streamTimeout' => $this->httpTimeout,
+		]);
+
+		if (isset($postData))
+		{
+			$postResult = $http->post($url, $postData);
+		}
+		else
+		{
+			$postResult = $http->get($url);
+		}
+
+		try
+		{
+			$decodedResult = \Bitrix\Main\Web\Json::decode($postResult);
+		}
+		catch (\Bitrix\Main\ArgumentException $e)
+		{
+			if (defined("BX_SOCIALSERVICES_ERROR_DEBUG"))
+			{
+				AddMessage2Log([
+					'post_url' => $http->getEffectiveUrl(),
+					'result_status' => $http->getStatus(),
+					'result_error' => $http->getError(),
+					'result_text' => $http->getResult(),
+				], 'socialservices', 40);
+			}
+			$decodedResult = [];
+		}
+
+		return $decodedResult;
+	}
 }

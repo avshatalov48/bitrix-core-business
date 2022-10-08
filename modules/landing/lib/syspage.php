@@ -94,9 +94,10 @@ class Syspage
 	 * Get pages for site.
 	 * @param int $id Site id.
 	 * @param bool $active Only active items.
+	 * @param bool $force If true - reload static cache
 	 * @return array
 	 */
-	public static function get($id, $active = false)
+	public static function get(int $id, bool $active = false, bool $force = false): array
 	{
 		static $types = array();
 		$id = intval($id);
@@ -122,7 +123,8 @@ class Syspage
 		};
 
 		if (
-			isset($types[$id])
+			!$force
+			&& isset($types[$id])
 			&& count($types[$id]) > 0
 		)
 		{

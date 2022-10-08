@@ -9,6 +9,7 @@ return [
 	"js" => "/bitrix/js/ui/graph/circle/ui.circle.bundle.js",
 	'rel' => [
 		'main.core',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

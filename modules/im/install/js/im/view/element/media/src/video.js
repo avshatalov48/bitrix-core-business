@@ -7,6 +7,7 @@
  * @copyright 2001-2019 Bitrix
  */
 
+import 'ui.design-tokens';
 import './video.css';
 import 'ui.vue.directives.lazyload';
 import 'ui.icons';

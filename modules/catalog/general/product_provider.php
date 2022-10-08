@@ -441,7 +441,8 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 
 			$arResult['PRODUCT_PRICE_ID'] = $arPrice['RESULT_PRICE']['ID'];
 			$arResult['NOTES'] = $arPrice['PRICE']['CATALOG_GROUP_NAME'];
-			$arResult['VAT_RATE'] = $arPrice['PRICE']['VAT_RATE'];
+			$arResult['VAT_RATE'] = $arPrice['RESULT_PRICE']['VAT_RATE'];
+			$arResult['VAT_INCLUDED'] = $arPrice['RESULT_PRICE']['VAT_INCLUDED'];
 			$arResult['DISCOUNT_NAME'] = null;
 			$arResult['DISCOUNT_COUPON'] = null;
 			$arResult['DISCOUNT_VALUE'] = null;
@@ -475,18 +476,24 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 		}
 		else
 		{
-			$vatRate = 0.0;
+			$vatRate = null;
 
 			if (!$arVAT = static::getHitCache(self::CACHE_VAT, $productID))
 			{
-				$rsVAT = CCatalogProduct::GetVATInfo($productID);
-				if ($arVAT = $rsVAT->Fetch())
+				$arVat = CCatalogProduct::GetVATDataByID($productID);
+				if (!empty($arVAT))
+				{
 					static::setHitCache(self::CACHE_VAT, $productID, $arVAT);
-				unset($rsVAT);
+				}
 			}
 
-			if (!empty($arVAT) && is_array($arVAT))
-				$vatRate = (float)$arVAT['RATE'] * 0.01;
+			if (isset($arVAT) && is_array($arVAT))
+			{
+				if ($arVat['EXCLUDE_VAT'] === 'N')
+				{
+					$vatRate = $arVAT['RATE'] * 0.01;
+				}
+			}
 
 			$arResult['VAT_RATE'] = $vatRate;
 		}
@@ -723,7 +730,8 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 			'PRICE_TYPE_ID' => $arPrice['RESULT_PRICE']['PRICE_TYPE_ID'],
 			'BASE_PRICE' => $arPrice['RESULT_PRICE']['BASE_PRICE'],
 			'PRICE' => $arPrice['RESULT_PRICE']['DISCOUNT_PRICE'],
-			'VAT_RATE' => $arPrice['PRICE']['VAT_RATE'],
+			'VAT_RATE' => $arPrice['RESULT_PRICE']['VAT_RATE'],
+			'VAT_INCLUDED' => $arPrice['RESULT_PRICE']['VAT_INCLUDED'],
 			"CURRENCY" => $arPrice['RESULT_PRICE']['CURRENCY'],
 			"WEIGHT" => (float)$arCatalogProduct["WEIGHT"],
 			"DIMENSIONS" => serialize(array(
@@ -760,8 +768,6 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 			if (empty($arResult['DISCOUNT_LIST']))
 				$arResult['DISCOUNT_LIST'] = array($arPrice['DISCOUNT']);
 		}
-
-		$arResult["VAT_INCLUDED"] = "Y";
 
 		return $arResult;
 	}

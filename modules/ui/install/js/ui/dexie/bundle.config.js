@@ -1,5 +1,5 @@
 module.exports = {
-	input: './src/dexie.bitrix.js',
-	output: './dist/dexie.bitrix.bundle.js',
-	namespace: 'BX',
+	input: './src/dexie3.js',
+	output: './dist/dexie3.bundle.js',
+	namespace: 'BX.Dexie3',
 };

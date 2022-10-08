@@ -236,7 +236,7 @@
 }
 
 .catalog-productcard-popup-select-item-new .catalog-productcard-popup-select-text {
-	font: 14px/24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 }
 
@@ -249,7 +249,7 @@
 }
 
 .catalog-productcard-popup-multi-select-item-new .catalog-productcard-popup-select-text {
-	font: 14px/24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 }
 
@@ -314,7 +314,7 @@
 	cursor: pointer;
 	transition: all .2s linear;
 	border-bottom: 1px dashed transparent;
-	font: 13px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .catalog-variation-grid-header-btn:hover {
@@ -408,7 +408,7 @@
 	align-items: center;
 	width: 100%;
 	box-sizing: border-box;
-	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .catalog-dropdown-price, .catalog-dropdown-currency {
@@ -547,4 +547,26 @@ div[data-role="barcode-selector"] {
 
 div[data-role="barcode-selector"] .ui-tag-selector-text-box{
 	min-width: 300px;
+}
+
+.catalog-simple-popup-wrapper {
+	padding: 0 7px;
+	border-bottom: 1px solid #EDEEF0;
+}
+
+.catalog-simple-popup-wrapper h3 {
+	margin: 7px 0 12px;
+}
+
+.catalog-simple-popup-label-text {
+	font: 13px/17px"Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #828B95;
+	margin-bottom: 12px;
+}
+
+.catalog-simple-popup-link-block {
+	word-wrap: break-word;
+	margin-bottom: 28px;
+	font: 14px/17px"Helvetica Neue", Helvetica, Arial, sans-serif;
+	word-break: break-all;
 }

@@ -68,7 +68,7 @@ export default class SyncStatusPopup extends EventEmitter
 
 			const options = {};
 
-			options.syncTime = this.getTime(connection.getSyncTimestamp());
+			options.syncTime = this.getFormattedTime(connection.getSyncDate());
 			options.classStatus = connection.getSyncStatus()
 				? 'calendar-sync-popup-item-status-success'
 				: 'calendar-sync-popup-item-status-fail'
@@ -108,9 +108,14 @@ export default class SyncStatusPopup extends EventEmitter
 		return this.popup;
 	}
 
-	getTime(timestamp)
+	getFormattedTime(timestamp)
 	{
-		var format = [
+		if (Type.isDate(timestamp))
+		{
+			timestamp = timestamp.getTime() / 1000;
+		}
+
+		return BX.date.format([
 			["tommorow", "tommorow, H:i:s"],
 			["s" , Loc.getMessage('CAL_JUST')],
 			["i" , "iago"],
@@ -118,11 +123,8 @@ export default class SyncStatusPopup extends EventEmitter
 			["d", "dago"],
 			["m100", "mago"],
 			["m", "mago"],
-			// ["m5", Loc.getMessage('CAL_JUST')],
 			["-", ""]
-		];
-
-		return BX.date.format(format, timestamp);
+		], timestamp);
 	}
 
 	getSyncElement(options)
@@ -151,7 +153,7 @@ export default class SyncStatusPopup extends EventEmitter
 			this.removeRefreshStatusBlock();
 			this.enableRefreshButton();
 			SyncStatusPopup.IS_RUN_REFRESH = false;
-		}, 300000);
+		}, 120000);
 	}
 
 	removeRefreshStatusBlock()

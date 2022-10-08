@@ -354,6 +354,17 @@ class CRestConfigurationInstallComponent extends CBitrixComponent implements Con
 				}
 			}
 
+			$userId = 0;
+			global $USER;
+			if ($USER->isAuthorized())
+			{
+				$userId = $USER->getId();
+			}
+			$import->getSetting()->set(
+				Setting::SETTING_USER_ID,
+				$userId
+			);
+
 			if ($this->arParams['IMPORT_DISK_FOLDER_ID'] && $this->arParams['IMPORT_DISK_STORAGE_PARAMS'])
 			{
 				$structure = new Structure($this->getUserContext());

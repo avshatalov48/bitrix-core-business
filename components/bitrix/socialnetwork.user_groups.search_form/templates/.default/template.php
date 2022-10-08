@@ -1,4 +1,11 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
+<?
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
+?>
 <span class="sonet-groups-title-button-search"><form action="<?=$GLOBALS["APPLICATION"]->GetCurPageParam("", array("filter_my", "filter_archive", "filter_extranet"))?>" method="POST" id="sonet_groups_search_form"><?
 	?><input type="hidden" name="filter_my" value="<?=$arResult["filter_my"]?>"><?
 	?><input type="hidden" name="filter_archive" value="<?=$arResult["filter_archive"]?>"><?

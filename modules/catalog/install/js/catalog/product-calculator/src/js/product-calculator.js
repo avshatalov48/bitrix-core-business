@@ -111,7 +111,7 @@ export class ProductCalculator
 		return this.#strategy.calculateRowDiscount(value);
 	}
 
-	calculateTax(value: number): FieldScheme
+	calculateTax(value: number | null): FieldScheme
 	{
 		return this.#strategy.calculateTax(value);
 	}

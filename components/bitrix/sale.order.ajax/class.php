@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Crm\Service\Sale\Order\BuyerService;
 use Bitrix\Main;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Controller\PhoneAuth;
@@ -894,8 +895,7 @@ class SaleOrderAjax extends \CBitrixComponent
 			$this->arUserResult['ORDER_PROP'][$property['ID']] = $curVal;
 		}
 
-		$this->checkZipProperty($order, $willUseProfile);
-		$this->checkAltLocationProperty($order, $willUseProfile, $profileProperties);
+		$this->checkProperties($order, $isPersonTypeChanged, $willUseProfile, $profileProperties);
 
 		foreach (GetModuleEvents('sale', 'OnSaleComponentOrderProperties', true) as $arEvent)
 		{
@@ -1020,6 +1020,63 @@ class SaleOrderAjax extends \CBitrixComponent
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Checks all order properties.
+	 *
+	 * @param Order $order
+	 * @param bool $isPersonTypeChanged
+	 * @param bool|null $willUseProfile
+	 * @param array|null $profileProperties
+	 *
+	 * @return void
+	 */
+	protected function checkProperties(
+		Order $order,
+		bool $isPersonTypeChanged,
+		?bool $willUseProfile = null,
+		?array $profileProperties = null
+	): void
+	{
+		$haveProfileId = (int)$this->arUserResult['PROFILE_ID'] > 0;
+
+		if (is_null($willUseProfile))
+		{
+			if ($haveProfileId)
+			{
+				$willUseProfile =
+					$isPersonTypeChanged
+					// first load
+					|| $this->request->getRequestMethod() === 'GET'
+					// just authorized
+					|| $this->request->get('do_authorize') === 'Y'
+					|| $this->request->get('do_register') === 'Y'
+					|| $this->request->get('SMS_CODE')
+					// is profile changed
+					|| $this->arUserResult['PROFILE_CHANGE'] === 'Y'
+				;
+			}
+			else
+			{
+				$willUseProfile = false;
+			}
+		}
+
+		if (is_null($profileProperties))
+		{
+			if ($haveProfileId)
+			{
+				$profileProperties = Sale\OrderUserProperties::getProfileValues((int)$this->arUserResult['PROFILE_ID']);
+			}
+			else
+			{
+				$profileProperties = [];
+			}
+		}
+
+		$this->checkZipProperty($order, $willUseProfile);
+		$this->checkAltLocationProperty($order, $willUseProfile, $profileProperties);
 	}
 
 	/**
@@ -4703,8 +4760,9 @@ class SaleOrderAjax extends \CBitrixComponent
 		{
 			$this->isOrderConfirmed = true;
 			$saveToSession = false;
+			$needToRegister = $this->needToRegister();
 
-			if ($this->needToRegister())
+			if ($needToRegister)
 			{
 				[$userId, $saveToSession] = $this->autoRegisterUser();
 			}
@@ -4732,6 +4790,11 @@ class SaleOrderAjax extends \CBitrixComponent
 				}
 
 				$this->saveOrder($saveToSession);
+
+				if (!$needToRegister && Loader::includeModule('crm'))
+				{
+					BuyerService::getInstance()->attachUserToBuyers($userId);
+				}
 			}
 
 			if (empty($this->arResult["ERROR"]))
@@ -5886,6 +5949,7 @@ class SaleOrderAjax extends \CBitrixComponent
 		$this->initOrderFields($order);
 
 		// initialization of related properties
+		$this->checkProperties($order, $isPersonTypeChanged);
 		$this->setOrderProperties($order);
 
 		$this->recalculatePayment($order);

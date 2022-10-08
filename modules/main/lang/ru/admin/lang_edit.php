@@ -40,4 +40,5 @@ $MESS["DAY_OF_WEEK_5"] = "Пятница";
 $MESS["DAY_OF_WEEK_6"] = "Суббота";
 $MESS["lang_edit_culture"] = "Региональные настройки:";
 $MESS["lang_edit_culture_edit"] = "Изменить выбранные настройки";
+$MESS['lang_edit_code'] = 'Код языка (IETF BCP 47):';
 ?>

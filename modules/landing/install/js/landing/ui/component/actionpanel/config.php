@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/actionpanel.bundle.css',
 	'js' => 'dist/actionpanel.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
 		'main.core',
 		'main.core.events',
 	],

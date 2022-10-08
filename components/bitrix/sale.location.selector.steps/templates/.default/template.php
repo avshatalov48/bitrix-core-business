@@ -4,6 +4,8 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Location;
 
 Loc::loadMessages(__FILE__);
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens', 'fx']);
 ?>
 
 <?if(!empty($arResult['ERRORS']['FATAL'])):?>
@@ -14,7 +16,6 @@ Loc::loadMessages(__FILE__);
 
 <?else:?>
 
-	<?CJSCore::Init(array("fx"));?>
 	<?$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_widget.js')?>
 	<?$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_etc.js')?>
 	<?$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_pager.js')?>
@@ -34,7 +35,7 @@ Loc::loadMessages(__FILE__);
 			</div>
 
 		<?endif?>
-		
+
 		<?if(is_array($arResult['TRUNK_NAMES']) && !empty($arResult['TRUNK_NAMES'])):?>
 			<div class="bx-ui-sls-tree-trunk">
 				<?=htmlspecialcharsbx(implode(', ', $arResult['TRUNK_NAMES']))?>
@@ -77,7 +78,7 @@ Loc::loadMessages(__FILE__);
 				<div class="bx-ui-combobox-toggle" title="<?=Loc::getMessage('SALE_SLS_OPEN_CLOSE_POPUP')?>" data-bx-ui-id="combobox-toggle"></div>
 
 				<div class="bx-ui-combobox-dropdown" data-bx-ui-id="combobox-dropdown">
-					
+
 					<div data-bx-ui-id="pager-pane">
 					</div>
 				</div>

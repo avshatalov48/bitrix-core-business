@@ -8,6 +8,9 @@ $filter = $arResult['FILTER'];
 
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') . ' no-background no-all-paddings pagetitle-toolbar-field-view ');
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
+
 $isBitrix24Template = SITE_TEMPLATE_ID === "bitrix24";
 if ($isBitrix24Template)
 {

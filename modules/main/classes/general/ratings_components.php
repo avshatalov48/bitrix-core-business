@@ -146,17 +146,18 @@ class CAllRatingsComponentsMain
 		return $arParams['SHOW_RATING'];
 	}
 
-	public static function getRatingLikeMessage($emotion)
+	public static function getRatingLikeMessage($emotion, $safe = true)
 	{
 		Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/install/js/main/rating/config.php');
 
 		$emotion = mb_strtoupper($emotion);
 
-		return (
-			empty($emotion)
-			|| $emotion == 'LIKE'
-				? Option::get("main", "rating_text_like_y", Loc::getMessage('RATING_LIKE_EMOTION_LIKE'))
-				: Loc::getMessage('RATING_LIKE_EMOTION_'.$emotion)
-		);
+		if (empty($emotion) || $emotion == 'LIKE')
+		{
+			$text = Option::get("main", "rating_text_like_y", Loc::getMessage('RATING_LIKE_EMOTION_LIKE'));
+			return $safe? htmlspecialcharsEx($text): $text;
+		}
+
+		return Loc::getMessage('RATING_LIKE_EMOTION_'.$emotion);
 	}
 }

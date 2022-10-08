@@ -1,0 +1,27 @@
+<?
+$MESS["BAD_SITE_NAME"] = "Введите Название сайта.";
+$MESS["BAD_SITE_LID"] = "ID сайта должен быть 2 символа.";
+$MESS["MAIN_SITE_LATIN"] = "ID сайта должен содержать только латинские символы и цифры.";
+$MESS["BAD_LANG_DIR"] = "Введите папку для сайта.";
+$MESS["MAIN_BAD_LANGUAGE_ID"] = "Не установлена связь с языком продукта";
+$MESS["MAIN_BAD_LANGUAGE_ID_BAD"] = "Ошибка в значении поля связь с языком продукта";
+$MESS["lang_check_culture_not_set"] = "Не указаны региональные настройки.";
+$MESS["lang_check_culture_incorrect"] = "Указаны неверные региональные настройки.";
+$MESS["BAD_SORT"] = "Введите Сортировку.";
+$MESS["MAIN_BAD_TEMPLATE_DUP"] = "Дублирование привязки к шаблону при одинаковых условиях.";
+$MESS["MAIN_BAD_TEMPLATE"] = "Неправильный шаблон для сайта.";
+$MESS["BAD_SITE_DUP"] = "Дублирование ID сайта.";
+$MESS["MAIN_BEFORE_DEL_ERR1"] = "Ошибка при удалении в модуле";
+$MESS["MAIN_NAME_JOHN_SMITH"] = "Иван Петров";
+$MESS["MAIN_NAME_SMITH_JOHN"] = "Петров Иван";
+$MESS["MAIN_NAME_JOHN_L_SMITH"] = "Иван В. Петров";
+$MESS["MAIN_NAME_SMITH_JOHN_LLOYD"] = "Петров Иван Васильевич";
+$MESS["MAIN_NAME_SMITH_COMMA_JOHN_LLOYD"] = "Петров, Иван Васильевич";
+$MESS["MAIN_NAME_JOHN_LLOYD_SMITH"] = "Иван Васильевич Петров";
+$MESS["MAIN_NAME_J_L_SMITH"] = "И. В. Петров";
+$MESS["MAIN_NAME_J_SMITH"] = "И. Петров";
+$MESS["MAIN_NAME_SMITH_J"] = "Петров И.";
+$MESS["MAIN_NAME_SMITH_J_L"] = "Петров И. В.";
+$MESS["MAIN_NAME_SMITH_COMMA_J"] = "Петров, И.";
+$MESS["MAIN_NAME_SMITH_COMMA_J_L"] = "Петров, И. В.";
+$MESS["MAIN_NAME_MR_SMITH"] = "г-н Петров";

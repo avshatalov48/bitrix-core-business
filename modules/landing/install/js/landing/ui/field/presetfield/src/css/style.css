@@ -25,7 +25,7 @@
 }
 
 .landing-ui-field-preset-right .landing-ui-field-header {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 11px;
 	color: #858C96;
 	opacity: 0.7;
@@ -35,7 +35,7 @@
 
 .landing-ui-field-preset-link {
 	position: relative;
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	color: #2066B0;
 	line-height: 13px;

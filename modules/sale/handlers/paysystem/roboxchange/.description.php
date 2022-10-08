@@ -96,15 +96,6 @@ $data = [
 				'PROVIDER_VALUE' => ($licensePrefix ?: $portalZone) === 'kz' ? 'KZ' : 'RU',
 			]
 		],
-		'PAYMENT_ID' => [
-			'NAME' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_PAYMENT_ID'),
-			'SORT' => 900,
-			'GROUP' => 'PAYMENT',
-			'DEFAULT' => [
-				'PROVIDER_VALUE' => 'ID',
-				'PROVIDER_KEY' => 'PAYMENT'
-			]
-		],
 		'BUYER_PERSON_EMAIL' => [
 			'NAME' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_EMAIL_USER'),
 			'SORT' => 1000,

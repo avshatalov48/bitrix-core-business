@@ -32,13 +32,15 @@ class CCalendarSceleton
 			'calendar.controls',
 			'calendar.sliderloader',
 			'calendar.sync.manager',
+			'calendar.sync.interface',
+			'calendar.categorymanager',
 		]);
 
 		if($config['type'] === 'location')
 		{
 			\Bitrix\Main\UI\Extension::load([
 				'calendar.rooms',
-				'calendar.roomsmanager'
+				'calendar.roomsmanager',
 			]);
 		}
 		else
@@ -99,7 +101,8 @@ class CCalendarSceleton
 
 		$APPLICATION->SetAdditionalCSS("/bitrix/js/calendar/cal-style.css");
 		?>
-		<div class="calendar-main-container" id="<?=$config['id']?>-main-container"></div>
+		<div class="calendar-main-container calendar-main-container--scope" id="<?=$config['id']?>-main-container"></div>
+
 		<script type="text/javascript">
 		window.BXEventCalendar.Show(
 			<?= Json::encode($config)?>,

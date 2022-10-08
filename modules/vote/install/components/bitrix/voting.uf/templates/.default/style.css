@@ -66,7 +66,7 @@ ol.bx-vote-question-list {
 	border-bottom: 1px solid #e6eaec;
 	color: #000;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 9px 0 9px 17px;
 }
 .bx-vote-container[data-bx-vote-result="shown"] .bx-vote-question-title {
@@ -165,7 +165,7 @@ a.bx-vote-voted-users:hover {
 	border-bottom: 1px solid transparent;
 	display: inline-block;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: normal;
 	margin-right: 14px;
 	text-decoration: none;
@@ -375,7 +375,7 @@ label.bx-vote-block-input-wrap-inner {
 	cursor: pointer;
 	display: inline-block;
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	height: 47px;
 	line-height: 47px;
 	margin: 0 14px 0 0;
@@ -401,7 +401,8 @@ label.bx-vote-block-input-wrap-inner {
 	color: #fff;
 	content: '_';
 	font-size: 10px;
-	font-family: "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	line-height: 9px;
 	height: 19px;
 	top: 10px;
@@ -469,7 +470,7 @@ label.bx-vote-block-input-wrap-inner {
 	color: #fff;
 	display: inline-block;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	height: 30px;
 	border-radius: 1px;
 	line-height: 30px;
@@ -494,7 +495,8 @@ label.bx-vote-block-input-wrap-inner {
 	color: #fff;
 	content: '_';
 	font-size: 10px;
-	font-family: "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	line-height: 9px;
 	height: 19px;
 	top: 6px;
@@ -588,6 +590,9 @@ input.bx-vote-checkbox[type=checkbox]:checked ~ .bx-vote-body > label.bx-vote-sw
 	margin-left: -32px;
 	position: absolute;
 	width: 63px;
+	border-radius: var(--ui-border-radius-2xl);
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 	-webkit-transition: border-color 0.2s linear;
 	transition: border-color 0.2s linear;
 	background-color: #f5f7f8;

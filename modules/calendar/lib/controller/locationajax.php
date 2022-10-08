@@ -11,29 +11,40 @@ Loc::loadMessages(__FILE__);
 
 class LocationAjax extends Controller
 {
-	const TYPE = 'location';
-	
+	public const TYPE = 'location';
+
+	/**
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public function createRoomAction(): array
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
+			return [];
 		}
-		
-		$request = $this->getRequest();
-		
-		$room = Rooms\Room::createInstanceFromRequest($request);
-		
-		$manager = Rooms\Manager::createInstanceWithRoom($room)
-			->isEnableEdit()
-			->createRoom()
-			->saveAccess()
-			->clearCache()
-			->eventHandler('OnAfterCalendarRoomCreate')
-			->addPullEvent('create_room');
+
+		if(
+			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
+			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
+		)
+		{
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			return [];
+		}
+
+		$builder = new \Bitrix\Calendar\Core\Builders\Rooms\RoomBuilderFromRequest($this->getRequest());
+		$manager =
+			Rooms\Manager::createInstanceWithRoom($builder->build())
+				->createRoom()
+				->saveAccess()
+				->clearCache()
+				->eventHandler('OnAfterCalendarRoomCreate')
+				->addPullEvent('create_room')
+		;
 		
 		if ($manager->getError())
 		{
@@ -41,66 +52,88 @@ class LocationAjax extends Controller
 				$manager->getError()
 			);
 		}
-		
+
 		return $manager->prepareResponseData();
 	}
 
+	/**
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public function updateRoomAction(): array
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
+			return [];
 		}
-		
-		$request = $this->getRequest();
-		
-		$room = Rooms\Room::createInstanceFromRequest($request);
-		
-		$manager = Rooms\Manager::createInstanceWithRoom($room)
-			->isEnableEdit()
-			->updateRoom()
-			->saveAccess()
-			->clearCache()
-			->eventHandler('OnAfterCalendarRoomUpdate')
-			->addPullEvent('update_room');
-		
+
+		if(
+			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
+			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
+		)
+		{
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			return [];
+		}
+
+		$builder = new \Bitrix\Calendar\Core\Builders\Rooms\RoomBuilderFromRequest($this->getRequest());
+		$manager =
+			Rooms\Manager::createInstanceWithRoom($builder->build())
+				->updateRoom()
+				->saveAccess()
+				->clearCache()
+				->eventHandler('OnAfterCalendarRoomUpdate')
+				->addPullEvent('update_room')
+		;
+
 		if ($manager->getError())
 		{
 			$this->addError(
 				$manager->getError()
 			);
 		}
-		
+
 		return $manager->prepareResponseData();
 	}
 
+	/**
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public function deleteRoomAction(): array
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
+			return [];
 		}
-		
-		$request = $this->getRequest();
-		
-		$room = Rooms\Room::createInstanceFromRequest($request);
-		
-		$manager = Rooms\Manager::createInstanceWithRoom($room)
-			->isEnableEdit()
-			->deleteRoom()
-			->pullDeleteEvents()
-			->deleteEmptyEvents()
-			->deleteLocationFromEvents()
-			->cleanAccessTable()
-			->clearCache()
-			->eventHandler('OnAfterCalendarRoomDelete')
-			->addPullEvent('delete_room');
+
+		if(
+			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
+			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
+		)
+		{
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			return [];
+		}
+
+		$builder = new \Bitrix\Calendar\Core\Builders\Rooms\RoomBuilderFromRequest($this->getRequest());
+		$manager =
+			Rooms\Manager::createInstanceWithRoom($builder->build())
+				->deleteRoom()
+				->pullDeleteEvents()
+				->deleteEmptyEvents()
+				->deleteLocationFromEvents()
+				->cleanAccessTable()
+				->clearCache()
+				->eventHandler('OnAfterCalendarRoomDelete')
+				->addPullEvent('delete_room')
+		;
 		
 
 		if ($manager->getError())
@@ -113,70 +146,285 @@ class LocationAjax extends Controller
 		return $manager->prepareResponseData();
 	}
 
+	/**
+	 * @return array|null
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public function getRoomsManagerDataAction(): ?array
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
+			return [];
 		}
-		
-		$manager = Rooms\Manager::createInstance()->isEnableView();
-		if ($manager->getError())
+
+		if(!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
 		{
-			$this->addError(
-				$manager->getError()
-			);
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			return [];
 		}
-		
-		return $manager->prepareRoomManagerData();
+
+		return Rooms\Manager::prepareRoomManagerData();
 	}
 
+	/**
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\LoaderException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public function getRoomsListAction(): array
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
-		}
-		
-		$response = [];
-		$manager = Rooms\Manager::createInstance()->isEnableView();
-		
-		if ($manager->getError())
-		{
-			$this->addError(
-				$manager->getError()
-			);
+			return [];
 		}
 
+		if(!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
+		{
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			return [];
+		}
+
+		$response = [];
 		$response['rooms'] = Rooms\Manager::getRoomsList();
+
 		return $response;
 	}
-	
+
+	/**
+	 * @return array
+	 * @throws \Bitrix\Main\ObjectException
+	 */
 	public function getLocationAccessibilityAction(): array
 	{
 		$request = $this->getRequest();
-		
-		return Rooms\AccessibilityManager::createInstance()
-			->setLocationList($request->getPost('locationList'))
-			->setDatesRange($request->getPost('datesRange'))
-			->getLocationAccessibility();
+
+		return
+			Rooms\AccessibilityManager::createInstance()
+				->setLocationList($request->getPost('locationList'))
+				->setDatesRange($request->getPost('datesRange'))
+				->getLocationAccessibility()
+			;
 	}
 
-	public function hideSettingsHintLocationAction()
+	/**
+	 * @return void
+	 */
+	public function hideSettingsHintLocationAction(): void
 	{
 		$request = $this->getRequest();
 		$value = ($request->getPost('value') === 'true');
-		
-		return \CUserOptions::SetOption(
+
+		\CUserOptions::SetOption(
 			'calendar',
 			'hideSettingsHintLocation',
 			$value
 		);
+	}
+
+	public function cancelBookingAction(): ?array
+	{
+		if (Loader::includeModule('intranet'))
+		{
+			if (!\Bitrix\Intranet\Util::isIntranetUser())
+			{
+				return [];
+			}
+		}
+
+		$request = $this->getRequest();
+
+		$params['recursion_mode'] = $request->getPost('recursion_mode');
+		$params['parent_event_id'] = (int)$request->getPost('parent_event_id');
+		$params['section_id'] = (int)$request->getPost('section_id');
+		$params['current_event_date_from'] = $request->getPost('current_event_date_from');
+		$params['current_event_date_to'] = $request->getPost('current_event_date_to');
+		$params['owner_id'] = (int)$request->getPost('owner_id');
+
+		if (
+			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT_ACCESS)
+			|| !Rooms\PermissionManager::checkSectionPermission(
+					\CCalendarSect::OPERATION_EDIT_ACCESS,
+					$params['section_id'],
+				)
+		)
+		{
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			return [];
+		}
+
+		$manager =
+			Rooms\Manager::createInstance()
+			->cancelBooking($params)
+		;
+
+		if ($manager->getError())
+		{
+			$this->addError(
+				$manager->getError()
+			);
+		}
+
+		return [];
+	}
+
+	public function createCategoryAction(): array
+	{
+		if (Loader::includeModule('intranet'))
+		{
+			if (!\Bitrix\Intranet\Util::isIntranetUser())
+			{
+				return [];
+			}
+		}
+
+		if(
+			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
+			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
+		)
+		{
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			return [];
+		}
+
+		$builder = new \Bitrix\Calendar\Core\Builders\Rooms\Categories\CategoryBuilderFromRequest($this->getRequest());
+		$manager =
+			Rooms\Categories\Manager::createInstance($builder->build())
+				->createCategory()
+				->clearCache()
+				->addPullEvent('create_category')
+		;
+
+		if ($manager->getError())
+		{
+			$this->addError(
+				$manager->getError()
+			);
+		}
+
+		return Rooms\Categories\Manager::getCategoryList();
+	}
+
+	public function updateCategoryAction(): array
+	{
+		if (Loader::includeModule('intranet'))
+		{
+			if (!\Bitrix\Intranet\Util::isIntranetUser())
+			{
+				return [];
+			}
+		}
+
+		if(
+			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
+			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
+		)
+		{
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			return [];
+		}
+
+		$builder = new \Bitrix\Calendar\Core\Builders\Rooms\Categories\CategoryBuilderFromRequest($this->getRequest());
+		$manager =
+			Rooms\Categories\Manager::createInstance($builder->build())
+				->updateCategory()
+				->clearCache()
+				->addPullEvent('update_category')
+		;
+
+		if ($manager->getError())
+		{
+			$this->addError(
+				$manager->getError()
+			);
+		}
+
+		return Rooms\Categories\Manager::getCategoryList();
+	}
+
+	public function deleteCategoryAction(): array
+	{
+		if (Loader::includeModule('intranet'))
+		{
+			if (!\Bitrix\Intranet\Util::isIntranetUser())
+			{
+				return [];
+			}
+		}
+
+		if(
+			!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_EDIT)
+			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
+		)
+		{
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			return [];
+		}
+
+		$builder = new \Bitrix\Calendar\Core\Builders\Rooms\Categories\CategoryBuilderFromRequest($this->getRequest());
+		$manager =
+			Rooms\Categories\Manager::createInstance($builder->build())
+				->deleteCategory()
+				->clearCache()
+				->addPullEvent('delete_category')
+		;
+
+		if ($manager->getError())
+		{
+			$this->addError(
+				$manager->getError()
+			);
+		}
+
+		return Rooms\Categories\Manager::getCategoryList();
+	}
+
+	public function getCategoryListAction(): array
+	{
+		if (Loader::includeModule('intranet'))
+		{
+			if (!\Bitrix\Intranet\Util::isIntranetUser())
+			{
+				return [];
+			}
+		}
+
+		if(!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
+		{
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			return [];
+		}
+
+		$response = [];
+		$response['categories'] = Rooms\Categories\Manager::getCategoryList();
+
+		return $response;
+	}
+
+	public function getCategoryManagerDataAction(): array
+	{
+		if (Loader::includeModule('intranet'))
+		{
+			if (!\Bitrix\Intranet\Util::isIntranetUser())
+			{
+				return [];
+			}
+		}
+
+		if(!Rooms\PermissionManager::checkTypePermission(\CCalendarType::OPERATION_VIEW))
+		{
+			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			return [];
+		}
+
+		$categoryManagerData = [];
+		$categoryManagerData['permissions'] = Rooms\PermissionManager::getAvailableOperations();
+		$categoryManagerData['categories'] = Rooms\Categories\Manager::getCategoryList();
+
+		return $categoryManagerData;
 	}
 }

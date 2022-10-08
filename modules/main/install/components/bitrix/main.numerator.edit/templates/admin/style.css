@@ -1,6 +1,6 @@
 .adm-numerator-form .main-numerator-edit-caption {
 	font-size: 13px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-font-smoothing: antialiased;
 	color: black;
 	display: inline;
@@ -44,7 +44,7 @@
 	-webkit-box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.3), inset 0 2px 2px -1px rgba(180, 188, 191, 0.7);
 	box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.3), inset 0 2px 2px -1px rgba(180, 188, 191, 0.7);
 	font-size: 13px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	height: 27px;
 	margin: 0;
 	vertical-align: middle;
@@ -86,8 +86,8 @@
 	color: #3f4b54;
 	cursor: pointer;
 	display: inline-block;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-weight: bold;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 13px;
 	height: 29px;
 	text-shadow: 0 1px rgba(255, 255, 255, 0.7);

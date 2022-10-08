@@ -27,7 +27,8 @@
 }
 
 .ui-stepbystep__section-item--counter-number {
-	font: 16px/17px "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font: 16px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: var(--ui-stepbystep--white);
 	display: flex;
 	align-items: center;
@@ -71,7 +72,8 @@
 	padding: 3px 0 17px;
 	border-bottom: 1px solid var(--ui-stepbystep--gray__alpha_08);
 	margin-bottom: 19px;
-	font: 18px/24px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 18px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: var(--ui-stepbystep--dark-grey);
 }
 

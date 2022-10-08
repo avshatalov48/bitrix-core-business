@@ -1,8 +1,10 @@
 <?php
 
 use Bitrix\ImConnector\Library;
+use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Web\Json;
+use Bitrix\MessageService\Providers\Edna\WhatsApp\EdnaRuIncomingMessage;
 use Bitrix\MessageService\Sender\Sms\Ednaru;
 
 define("NOT_CHECK_PERMISSIONS", true);
@@ -23,6 +25,7 @@ if (!$messageFields || !Loader::includeModule('messageservice'))
 	\Bitrix\Main\Application::getInstance()->terminate();
 }
 
+// region Old API
 if (isset($messageFields['dlvStatus']) && isset($messageFields['imOutMessageId']))
 {
 	$messageId = $messageFields['imOutMessageId'];
@@ -40,4 +43,35 @@ else if (isset($messageFields['imSubject']) && Loader::includeModule('imconnecto
 	$portal = new \Bitrix\ImConnector\Input($messageFields);
 	$portal->reception();
 }
+//endregion
+// region New API
+else if (isset($messageFields['requestId'], $messageFields['status']))
+{
+	$messageId = $messageFields['requestId'];
+	$externalStatus = (string)$messageFields['status'];
+
+	$message = \Bitrix\MessageService\Message::loadByExternalId(Ednaru::ID, $messageId);
+	if ($message && $externalStatus !== '')
+	{
+		$message->updateStatusByExternalStatus($externalStatus);
+	}
+}
+else if (isset($messageFields['userInfo']) && Loader::includeModule('imconnector'))
+{
+	$addResult = EdnaRuIncomingMessage::addMessage(Ednaru::ID, $messageFields);
+
+	if (!$addResult->isSuccess())
+	{
+		\Bitrix\Main\Application::getInstance()->terminate();
+	}
+	$messageFields['internalId'] = $addResult->getId();
+
+	Application::getInstance()->addBackgroundJob(
+		[EdnaRuIncomingMessage::class, 'sendMessageToChat'],
+		[$messageFields],
+		Application::JOB_PRIORITY_NORMAL
+	);
+
+}
+// endregion
 \Bitrix\Main\Application::getInstance()->terminate();

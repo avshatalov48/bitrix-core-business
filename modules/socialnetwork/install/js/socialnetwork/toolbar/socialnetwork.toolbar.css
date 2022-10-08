@@ -21,7 +21,8 @@
 	width: 100%;
 	max-height: 33px;
 	min-height: 33px;
-	font-family: OpenSans-Regular, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 14px;
 	color: var(--graphite);
 	padding: 0 5px 0 13px;
@@ -93,4 +94,9 @@
 	border-bottom: 1px solid #dce2e6;
 	box-sizing: border-box;
 	margin-bottom: 20px;
+}
+
+body.ui-action-panel-shown .pagetitle-below,
+body.ui-action-panel-shown .ui-side-panel-wrap-below {
+	border-color: transparent;
 }

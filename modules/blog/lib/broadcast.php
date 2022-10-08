@@ -8,6 +8,8 @@
  */
 namespace Bitrix\Blog;
 
+use Bitrix\Im\Configuration\Manager;
+use Bitrix\Im\Configuration\Notification;
 use Bitrix\Main;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
@@ -368,17 +370,7 @@ class Broadcast
 
 			if (!empty($userIdList))
 			{
-				$userIdListPush = $userIdList;
-				if (Loader::includeModule('im'))
-				{
-					foreach ($userIdListPush as $key=> $userId)
-					{
-						if (!\CIMSettings::getNotifyAccess($userId, 'blog', 'broadcast_post', \CIMSettings::CLIENT_PUSH))
-						{
-							unset($userIdListPush[$key]);
-						}
-					}
-				}
+				$userIdListPush = self::filterRecipients($userIdList, \CIMSettings::CLIENT_PUSH);
 
 				\Bitrix\Pull\Push::add($userIdListPush, [
 					'module_id' => 'blog',
@@ -395,15 +387,24 @@ class Broadcast
 
 				$offlineUserIdList = [];
 
-				$deviceInfo = \CPushManager::getDeviceInfo($userIdList);
-				foreach ($deviceInfo as $userId => $info)
+				$mailRecipients = self::filterRecipients($userIdList, \CIMSettings::CLIENT_MAIL);
+
+				$deviceInfo = \CPushManager::getDeviceInfo($mailRecipients);
+				if (is_array($deviceInfo))
 				{
-					if (
-						in_array($info['mode'], [ \CPushManager::SEND_DEFERRED, \CPushManager::RECORD_NOT_FOUND ], true)
-						&& \CIMSettings::getNotifyAccess($userId, 'blog', 'broadcast_post', \CIMSettings::CLIENT_MAIL)
-					)
+					foreach ($deviceInfo as $userId => $info)
 					{
-						$offlineUserIdList[] = $userId;
+						if (in_array(
+							$info['mode'],
+							[
+								\CPushManager::SEND_DEFERRED,
+								\CPushManager::RECORD_NOT_FOUND,
+							],
+							true
+						))
+						{
+							$offlineUserIdList[] = $userId;
+						}
 					}
 				}
 
@@ -508,5 +509,40 @@ class Broadcast
 		}
 
 		return false;
+	}
+
+	public static function filterRecipients(array $usersId, string $notifyType): array
+	{
+		if (!Loader::includeModule('im'))
+		{
+			return $usersId;
+		}
+
+		if (Manager::isSettingsMigrated())
+		{
+			if ($notifyType === \CIMSettings::CLIENT_MAIL)
+			{
+				$notifyType = Notification::MAIL;
+			}
+
+			$notification = new Notification('blog', 'broadcast_post');
+
+			return $notification->filterAllowedUsers($usersId, $notifyType);
+		}
+
+		foreach ($usersId as $key=> $userId)
+		{
+			if (!\CIMSettings::getNotifyAccess(
+				$userId,
+				'blog',
+				'broadcast_post',
+				$notifyType
+			))
+			{
+				unset($usersId[$key]);
+			}
+		}
+
+		return $usersId;
 	}
 }

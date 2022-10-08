@@ -31,11 +31,23 @@
 table.blogquote, table.blogcode { font-size:1em; margin:0.5em 1em; width:100%; border:1px solid;}
 table.blogquote td,
 table.blogcode td {
-	padding: 4px 40px 8px 27px;
+	padding: 8px 40px 8px 27px;
 	height: 18px;
 }
-table.blogcode td {font-family:"Courier New"; white-space:pre-wrap; color: #333;}
-table.blogcode pre {font-family:"Courier New"; font-size: 12px; margin: 0; line-height: 15px; white-space:pre-wrap;}
+
+table.blogcode td {
+	font-family: var(--ui-font-family-system-mono, Consolas, monospace);
+	white-space: pre-wrap;
+	color: #333;
+}
+
+table.blogcode pre {
+	font-family: var(--ui-font-family-system-mono, Consolas, monospace);
+	font-size: 12px;
+	margin: 0;
+	line-height: 15px;
+	white-space: pre-wrap;
+}
 
 div.blog-post-quote, div.blog-post-code {padding-top: 0.6em; padding-bottom: 0.6em;}
 div.feed-com-block div.blog-post-quote, div.feed-com-block div.blog-post-code {padding-right: 20px;}
@@ -175,7 +187,7 @@ table.blogquote a.blog-p-user-name {
 
 .bx-notifyManager-animation-spbc {position: fixed !important;}
 
-.bx-spbc-notifier-item {width: 200px; padding: 0; display:block; padding: 0; font: 11px "Helvetica Neue",Helvetica,Arial,sans-serif; color: #76797a;}
+.bx-spbc-notifier-item {width: 200px; padding: 0; display:block; padding: 0; font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #76797a;}
 .bx-spbc-notifier-item-avatar { float: left; margin-right: 6px; background: url('images/answer_sprite.png') 0 0 no-repeat; background-color: #FFF; display: inline-block; width: 21px; height: 21px; padding: 0px; vertical-align: top; margin-top: 2px; margin-bottom:-2px }
 .bx-spbc-notifier-item-avatar-img { display: inline-block; width: inherit; height: inherit; border:0 }
 .bx-spbc-notifier-item-content { display: block; padding: 0; min-height: 39px; overflow: hidden;}

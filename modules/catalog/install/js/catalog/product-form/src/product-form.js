@@ -19,7 +19,7 @@ import {FormErrorCode} from "./types/form-error-code";
 import {FormMode} from "./types/form-mode";
 import {FormCompilationType} from "./types/form-compilation-type";
 
-export class ProductForm
+class ProductForm
 {
 	constructor(options: FormOption = {})
 	{
@@ -73,7 +73,7 @@ export class ProductForm
 			showTaxBlock: settingsCollection.get('showTaxBlock'),
 			allowedDiscountTypes: [DiscountType.PERCENTAGE, DiscountType.MONETARY],
 			visibleBlocks: [
-				FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE,
+				FormInputCode.PRODUCT_SELECTOR, FormInputCode.IMAGE_EDITOR, FormInputCode.PRICE,
 				FormInputCode.QUANTITY, FormInputCode.RESULT,
 				FormInputCode.DISCOUNT,
 			],
@@ -88,6 +88,11 @@ export class ProductForm
 			fieldHints: settingsCollection.get('fieldHints'),
 			compilationFormType: FormCompilationType.REGULAR,
 			compilationFormOption: {},
+			facebookFailProducts: null,
+			ownerId: null,
+			ownerTypeId: null,
+			dialogId: null,
+			sessionId: null,
 		};
 
 		if (options.visibleBlocks && !Type.isArray(options.visibleBlocks))
@@ -228,7 +233,7 @@ export class ProductForm
 		product.errors = [];
 		if (item.skipFieldChecking !== true)
 		{
-			const result = this.#checkRequiredFields(product.fields);
+			const result = this.#checkRequiredFields(product);
 			product.errors = result?.errors || [];
 		}
 
@@ -240,7 +245,7 @@ export class ProductForm
 		});
 	}
 
-	#checkRequiredFields(fields: BasketItemScheme): {}
+	#checkRequiredFields(product): {}
 	{
 		const result = {};
 		if (!Type.isArray(this.options.requiredFields) || this.options.requiredFields.length === 0)
@@ -253,29 +258,45 @@ export class ProductForm
 			switch (code)
 			{
 				case FormInputCode.PRICE:
-					if (fields.price <= 0)
+					if (!this.options.isCatalogPriceSaveEnabled && product.catalogPrice <= 0)
 					{
 						result.errors.push({
 							code: FormErrorCode.EMPTY_PRICE,
-							message: Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_PRICE'),
+							message: Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_PRICE_FILL_IN_CARD'),
+						});
+					}
+					else if (product.fields.basePrice <= 0)
+					{
+						result.errors.push({
+							code: FormErrorCode.EMPTY_PRICE,
+							message: Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_PRICE_1'),
 						});
 					}
 					break;
 				case FormInputCode.QUANTITY:
-					if (fields.quantity <= 0)
+					if (product.fields.quantity <= 0)
 					{
 						result.errors.push({
 							code: FormErrorCode.EMPTY_QUANTITY,
-							message: Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_QUANTITY'),
+							message: Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_QUANTITY_1'),
 						});
 					}
 					break;
 				case FormInputCode.BRAND:
-					if (!Type.isArray(fields.brands) || fields.brands.length === 0)
+					if (!Type.isArray(product.fields.brands) || product.fields.brands.length === 0)
 					{
 						result.errors.push({
 							code: FormErrorCode.EMPTY_BRAND,
-							message: Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_BRAND'),
+							message: Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_BRAND_1'),
+						});
+					}
+					break;
+				case FormInputCode.IMAGE_EDITOR:
+					if (!Type.isObject(product.fields.morePhoto) || Object.keys(product.fields.morePhoto).length === 0)
+					{
+						result.errors.push({
+							code: FormErrorCode.EMPTY_IMAGE,
+							message: Loc.getMessage('CATALOG_FORM_ERROR_EMPTY_PICTURE_1'),
 						});
 					}
 					break;
@@ -364,6 +385,10 @@ export class ProductForm
 				return;
 			}
 
+			EventEmitter.emit(this, 'onChangeCompilationMode', {
+				isCompilationMode: value === 'Y',
+				isFacebookForm: this.options.compilationFormType === FormCompilationType.FACEBOOK,
+			});
 			const mode = (value === 'Y') ? FormMode.COMPILATION : FormMode.REGULAR;
 			this.#changeCompilationModeSetting(mode);
 
@@ -408,18 +433,7 @@ export class ProductForm
 
 	#changeCompilationModeSetting(mode: FormMode)
 	{
-		this.options.requiredFields = [];
-		if (mode === FormMode.COMPILATION)
-		{
-			const compilationRequiredFields = [
-				FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.BRAND,
-			];
-			this.options.requiredFields = this.options.visibleBlocks.filter(
-				item => compilationRequiredFields.includes(item)
-			);
-		}
-
-		this.#setMode(mode)
+		this.#setMode(mode);
 
 		const basket = this.store.getters['productList/getBasket']();
 
@@ -436,12 +450,20 @@ export class ProductForm
 		this.store.dispatch('productList/getTotal');
 	}
 
-	setEditable(value): void
+	setEditable(editable, isCompilationMode): void
 	{
-		this.editable = value;
-		if (!value)
+		this.editable = editable;
+		if (!editable && !isCompilationMode)
 		{
 			this.#setMode(FormMode.READ_ONLY);
+		}
+		else if (!editable && isCompilationMode)
+		{
+			this.#setMode(FormMode.COMPILATION_READ_ONLY);
+		}
+		else if (editable && isCompilationMode)
+		{
+			this.#setMode(FormMode.COMPILATION);
 		}
 		else
 		{
@@ -456,17 +478,40 @@ export class ProductForm
 		{
 			this.options.editableFields = [];
 		}
+		else if (mode === FormMode.COMPILATION_READ_ONLY)
+		{
+			this.options.editableFields = [];
+			this.options.visibleBlocks = [
+				FormInputCode.PRODUCT_SELECTOR,
+				FormInputCode.IMAGE_EDITOR,
+				FormInputCode.PRICE,
+				FormInputCode.BRAND
+			];
+			this.options.showResults = false;
+		}
 		else if (mode === FormMode.COMPILATION)
 		{
 			this.options.editableFields = [
-				FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE, FormInputCode.BRAND,
+				FormInputCode.PRODUCT_SELECTOR, FormInputCode.BRAND,
 			];
-
+			if (this.options.isCatalogPriceSaveEnabled)
+			{
+				this.options.editableFields.push(FormInputCode.PRICE);
+			}
 			this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
 
 			if (this.options.compilationFormType === FormCompilationType.FACEBOOK)
 			{
-				this.options.visibleBlocks.push(FormInputCode.BRAND);
+				this.options.visibleBlocks = [
+					FormInputCode.PRODUCT_SELECTOR,
+					FormInputCode.IMAGE_EDITOR,
+					FormInputCode.PRICE,
+					FormInputCode.BRAND
+				];
+			}
+			else
+			{
+				this.options.visibleBlocks = this.defaultOptions.visibleBlocks;
 			}
 
 			this.options.showResults = false;
@@ -482,6 +527,22 @@ export class ProductForm
 		if (this.templateEngine)
 		{
 			this.templateEngine.mode = mode;
+		}
+
+		this.options.requiredFields = [];
+		if (mode === FormMode.COMPILATION)
+		{
+			let compilationRequiredFields = [
+				FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE,
+			];
+			if (this.options.compilationFormType === FormCompilationType.FACEBOOK)
+			{
+				compilationRequiredFields.push(FormInputCode.IMAGE_EDITOR);
+				compilationRequiredFields.push(FormInputCode.BRAND);
+			}
+			this.options.requiredFields = this.options.visibleBlocks.filter(
+				item => compilationRequiredFields.includes(item)
+			);
 		}
 
 		EventEmitter.emit(this, 'ProductForm:onModeChange', { mode });
@@ -507,3 +568,5 @@ export class ProductForm
 		console.error(error);
 	}
 }
+
+export {ProductForm, FormMode}

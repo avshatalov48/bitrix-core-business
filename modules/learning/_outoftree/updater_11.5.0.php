@@ -130,11 +130,11 @@ if($updater->CanUpdateDatabase())
 			// Data for module not converted yet, generate message
 			if (method_exists('CAdminNotify', 'Add'))
 			{
-				$langFile = dirname(__FILE__) . '/lang/' . LANGUAGE_ID . '/updater.php';
+				$langFile = __DIR__ . '/lang/' . LANGUAGE_ID . '/updater.php';
 
 				// Load english version, if localization not available
 				if ( ! (file_exists($langFile) && is_readable($langFile)) )
-					$langFile = dirname(__FILE__) . '/lang/en/updater.php';
+					$langFile = __DIR__ . '/lang/en/updater.php';
 
 				if (file_exists($langFile) && is_readable($langFile))
 				{

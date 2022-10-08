@@ -263,10 +263,22 @@ class LandingSitesComponent extends LandingBaseComponent
 				$filter[] = $this->getAdditionalAccessFilter($this->arParams['ACCESS_CODE']);
 			}
 			$this->arResult['EXPORT_DISABLED'] = Restriction\Manager::isAllowed('limit_sites_transfer') ? 'N' : 'Y';
+			$isAllowedExportByTariff = null;
 			if ($this->arResult['EXPORT_DISABLED'] !== 'Y')
 			{
+				$isAllowedExportByTariff = true;
 				Bitrix\Landing\Restriction\Manager::enableFeatureTmp('limit_sites_access_permissions');
-				$this->arResult['EXPORT_DISABLED'] = Rights::hasAdditionalRight(Rights::ADDITIONAL_RIGHTS['unexportable'], null, false, true) ? 'Y' : 'N';
+				if (
+					Rights::hasAdditionalRight(Rights::ADDITIONAL_RIGHTS['unexportable'], null, false, true)
+					&& !Rights::hasAdditionalRight(Rights::ADDITIONAL_RIGHTS['admin'], null, false, true)
+				)
+				{
+					$this->arResult['EXPORT_DISABLED'] = 'Y';
+				}
+				else
+				{
+					$this->arResult['EXPORT_DISABLED'] = 'N';
+				}
 				Bitrix\Landing\Restriction\Manager::disableFeatureTmp('limit_sites_access_permissions');
 			}
 			$this->arResult['SMN_SITES'] = $this->getSmnSites();
@@ -341,6 +353,14 @@ class LandingSitesComponent extends LandingBaseComponent
 						$item['ACCESS_DELETE'] = 'N';
 					}
 				}
+
+				//can export
+				$item['ACCESS_EXPORT'] = 'Y';
+				if ($isAllowedExportByTariff && $this->arResult['EXPORT_DISABLED'] === 'Y')
+				{
+					$item['ACCESS_EXPORT'] = 'N';
+				}
+
 				if (!$item['LANDING_ID_INDEX'])
 				{
 					$landing = $this->getLandings(array(

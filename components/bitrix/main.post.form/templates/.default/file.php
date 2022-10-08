@@ -67,8 +67,8 @@ foreach ($arParams["UPLOADS"] as $v)
 		$additionalParameters = [
 			'arUserField' => $v,
 			'DISABLE_CREATING_FILE_BY_CLOUD' => $arParams['DISABLE_CREATING_FILE_BY_CLOUD'] ?? $v['DISABLE_CREATING_FILE_BY_CLOUD'],
-			'DISABLE_LOCAL_EDIT' => $arParams['DISABLE_LOCAL_EDIT'] ?? $v['DISABLE_LOCAL_EDIT'],
-			'HIDE_CHECKBOX_ALLOW_EDIT' => $arParams['HIDE_CHECKBOX_ALLOW_EDIT'] ?? $v['HIDE_CHECKBOX_ALLOW_EDIT'],
+			'DISABLE_LOCAL_EDIT' => $arParams['DISABLE_LOCAL_EDIT'] ?? $v['DISABLE_LOCAL_EDIT'] ?? '',
+			'HIDE_CHECKBOX_ALLOW_EDIT' => $arParams['HIDE_CHECKBOX_ALLOW_EDIT'] ?? $v['HIDE_CHECKBOX_ALLOW_EDIT'] ?? '',
 		];
 		if ($v['USER_TYPE_ID'] === 'disk_file'
 			&& isset($v['USER_TYPE'])
@@ -109,7 +109,7 @@ foreach ($arParams["UPLOADS"] as $v)
 			"parser" => $v['USER_TYPE']['TAG'] ? $v["USER_TYPE_ID"] : null,
 			"tag" => $v['USER_TYPE']['TAG'] ? $v["USER_TYPE_ID"] : null,
 			"value" => ($v["USER_TYPE_ID"] == "file" ? $v["VALUE"] : array()),
-			"postfix" => $v["POSTFIX"]
+			"postfix" => $v["POSTFIX"] ?? ''
 		);
 		$arParams['BUTTONS'][] = 'UploadFile';
 	}

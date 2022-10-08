@@ -72,11 +72,11 @@ class CatalogSectionTabHandler extends TabHandler
 				Map::removeSectionsMapping($dataToDelete, $export["ID"], 'ONLY_INTERNAL');
 			}
 		}
-		
+
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * Check POST values
 	 *
@@ -89,7 +89,7 @@ class CatalogSectionTabHandler extends TabHandler
 		$vk = Vk::getInstance();
 		$exports = $vk->getExportProfilesList();
 		$errors = array();
-		
+
 		foreach ($exports as $export)
 		{
 			$currErrors = array();
@@ -113,28 +113,28 @@ class CatalogSectionTabHandler extends TabHandler
 					$currErrors[] = Loc::getMessage("SALE_VK_EXPORT_SETTINGS__ERROR_EMPTY_ALIAS");
 					unset($_POST['VK_EXPORT'][$export["ID"]]["TO_ALBUM_ALIAS"]);
 				}
-				
+
 				if (isset($_POST['VK_EXPORT'][$export["ID"]]["VK_CATEGORY"]) && $_POST['VK_EXPORT'][$export["ID"]]["VK_CATEGORY"] == 0)
 				{
 					$currErrors[] = Loc::getMessage("SALE_VK_EXPORT_SETTINGS__ERROR_WRONG_VK_CATEGORY");
 					unset($_POST['VK_EXPORT'][$export["ID"]]["VK_CATEGORY"]);
 				}
 			}
-			
+
 			if (!empty($currErrors))
 				$errors[] =
 					Loc::getMessage("SALE_VK_EXPORT_PROFILE") .
 					'"' . HtmlFilter::encode($export['DESC']) . '": <br>' .
 					implode('<br>', $currErrors);
 		}
-		
+
 		if (!empty($errors))
 			throw new SystemException(implode('<br><br>', $errors));
-		
+
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * Format HTML for showing. Return HTML string.
 	 *
@@ -156,12 +156,12 @@ class CatalogSectionTabHandler extends TabHandler
 			$resultHtml .= '<img src="/bitrix/images/sale/vk/vk_only_russian.png" alt="">';
 			$resultHtml .= EndNote();
 			$resultHtml .= '</td></tr>';
-			
+
 			return $resultHtml;
 		}
-		
+
 		$resultHtml = "";
-		
+
 		$iblockId = $arArgs["IBLOCK"]["ID"];
 		$sectionId = $arArgs["ID"];
 
@@ -187,7 +187,7 @@ class CatalogSectionTabHandler extends TabHandler
 		$resultHtml .= '
 				<table class="internal" id="table_EXPORT_PROFILES"
 				style="border-left: none !important; border-right: none !important; width: 100%;">';
-		
+
 		$resultHtml .= '
 			<tr
 				id="tr_HEADING"
@@ -213,7 +213,7 @@ class CatalogSectionTabHandler extends TabHandler
 			ShowJSHint(Loc::getMessage("SALE_VK_CATEGORY_SELECTOR_HELP"), array('return'=>true)) . '
 				</td>
 			</tr>';
-		
+
 		foreach ($exports as $export)
 		{
 			try
@@ -223,8 +223,8 @@ class CatalogSectionTabHandler extends TabHandler
 //				load values from post, if page will be reload (e.g. if error)
 				$currSettings = $this->compareSettingsWithPost($currSettings, $export["ID"]);
 				$currSettings = $sectionsList->prepareSettingsVisibility($currSettings, $sectionId);
-				
-				$categoriesVk = new VkCategories($export["ID"]);
+
+				$categoriesVk = new VkCategories((int)$export["ID"]);
 				$vkCategorySelector = $categoriesVk->getVkCategorySelector(
 					$currSettings["VK_CATEGORY"],
 					Loc::getMessage('SALE_VK_CATEGORY_SELECTOR_DEFAULT')
@@ -296,7 +296,7 @@ class CatalogSectionTabHandler extends TabHandler
 					name="VK_EXPORT[' . $export["ID"] . '][TO_ALBUM]">' .
 				$sectionsSelector . '
 				</select>' .
-				
+
 //				alias
 				'<div id="vk_export_to_album_alias_container_'. $export["ID"] .'"
 					style="margin-top: 6px; '. $currSettings["TO_ALBUM_ALIAS__DISPLAY"] .'">' .
@@ -345,10 +345,10 @@ class CatalogSectionTabHandler extends TabHandler
 					id="vk_export_vk_category_parent_' . $export["ID"] . '"
 					value="' . $currSettings["VK_CATEGORY__PARENT"] . '">
 			</td>';
-			
+
 			$resultHtml .= '</tr>';
 		}    //end foreach
-		
+
 		$resultHtml .= '</table>';
 		$resultHtml .= BeginNote() . Loc::getMessage("SALE_VK_CATEGORY_INTRO") . EndNote();
 		$resultHtml .= '</td></tr>';
@@ -384,7 +384,7 @@ class CatalogSectionTabHandler extends TabHandler
 
 		return $settings;
 	}
-	
+
 	private static function setUnactiveExport($exportId)
 	{
 		$vk = Vk::getInstance();

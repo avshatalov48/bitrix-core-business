@@ -7,7 +7,10 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-if ($arResult['additionalParameters']['printable'] ?? false)
+if (
+	($arResult['additionalParameters']['printable'] ?? false)
+	|| !\Bitrix\Main\Loader::includeModule('location')
+)
 {
 	return;
 }

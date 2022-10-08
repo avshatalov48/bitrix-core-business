@@ -51,7 +51,6 @@ $MESS["USER_REGISTER_OK"] = "You have successfully registered.";
 $MESS["USER_STATUS_OFFLINE"] = "Offline";
 $MESS["USER_STATUS_ONLINE"] = "Online";
 $MESS["USER_WITH_EMAIL_EXIST"] = "A user with this e-mail address (#EMAIL#) already exists.";
-$MESS["USER_WRONG_HASH"] = "Verification of stored authorization failed.";
 $MESS["WRONG_CONFIRMATION"] = "Incorrect password confirmation";
 $MESS["WRONG_DATE_ACTIVE_FROM"] = "Incorrect earliest date of the active period for group # #GROUP_ID#";
 $MESS["WRONG_DATE_ACTIVE_TO"] = "Incorrect latest date of the active period for group # #GROUP_ID#";

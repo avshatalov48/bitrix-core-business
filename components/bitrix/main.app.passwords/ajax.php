@@ -81,7 +81,7 @@ if($request->isPost())
 				$answer["success"] = true;
 				$answer["id"] = $result->getId();
 				$answer["date_create"] = $date->toString();
-				$answer["password"] = '<span>'.implode(str_split($password, 4), '</span><span>').'</span>';
+				$answer["password"] = '<span>'.implode('</span><span>', str_split($password, 4)).'</span>';
 			}
 			else
 			{

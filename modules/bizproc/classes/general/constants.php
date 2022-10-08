@@ -10,7 +10,7 @@ class CBPActivityExecutionStatus
 	const Closed = 3;
 	const Faulting = 4;
 
-	public static function Out($v)
+	public static function out($v)
 	{
 		$result = "";
 
@@ -47,7 +47,7 @@ class CBPActivityExecutionResult
 	const Faulted = 3;
 	const Uninitialized = 4;
 
-	public static function Out($v)
+	public static function out($v)
 	{
 		$result = "";
 
@@ -84,7 +84,7 @@ class CBPWorkflowStatus
 	const Suspended = 3;
 	const Terminated = 4;
 
-	public static function Out($v)
+	public static function out($v)
 	{
 		$result = "";
 
@@ -119,7 +119,7 @@ class CBPActivityExecutorOperationType
 	const Cancel = 1;
 	const HandleFault = 2;
 
-	public static function Out($v)
+	public static function out($v)
 	{
 		$result = "";
 
@@ -153,7 +153,7 @@ class CBPDocumentEventType
 	const Script = 32;
 	const Debug = 64;
 
-	public static function Out($v)
+	public static function out($v)
 	{
 		$result = [];
 

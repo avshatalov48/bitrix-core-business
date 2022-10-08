@@ -15,6 +15,8 @@ use Bitrix\Catalog\v2\Fields\TypeCasters\MapTypeCaster;
  */
 abstract class BaseImage extends BaseEntity
 {
+	public const CODE = '';
+
 	public function __construct(ImageRepositoryContract $imageRepository)
 	{
 		parent::__construct($imageRepository);
@@ -23,6 +25,11 @@ abstract class BaseImage extends BaseEntity
 	public function getSource(): string
 	{
 		return (string)$this->getField('SRC');
+	}
+
+	public function getCode(): string
+	{
+		return static::CODE;
 	}
 
 	public function setFileStructure(array $fileFields): BaseImage
@@ -51,6 +58,7 @@ abstract class BaseImage extends BaseEntity
 			'WIDTH' => MapTypeCaster::INT,
 			'HEIGHT' => MapTypeCaster::INT,
 			'WEIGHT' => MapTypeCaster::INT,
+			'TIMESTAMP_X' => MapTypeCaster::DATETIME,
 			'FILE_NAME' => MapTypeCaster::STRING,
 			'FILE_STRUCTURE' => static function ($value) {
 				return is_array($value) ? $value : \CIBlock::makeFileArray(null, true);

@@ -11,6 +11,7 @@ $MESS["CACHE_TYPE_TIP"] = "<i>Auto</i>: the cache is valid during the time prede
 $MESS["CHECK_SECTION_ID_VARIABLE_TIP"] = "If section ID or symbolic code is missing, the value of the variable specified in the \"Variable containing the group ID\" parameter will be used instead.";
 $MESS["COMPARE_PATH_TIP"] = "Specifies the path to a page that includes the product comparison component. If empty, a current page will be used.";
 $MESS["COMPATIBLE_MODE_TIP"] = "Use this option for customized templates created for iblock versions prior to 17.0.0. To improve performance, migrate the component template to the new format.";
+$MESS["CP_BCE_ADDITIONAL_FILTER_NAME"] = "Name of the array with values used to additionally filter an element";
 $MESS["CP_BCE_ADD_ELEMENT_CHAIN"] = "Add element name to breadcrumbs";
 $MESS["CP_BCE_ADD_PROPERTIES_TO_BASKET"] = "Pass item and SKU properties to shipping cart";
 $MESS["CP_BCE_ADD_SECTIONS_CHAIN"] = "Add Section name to breadcrumb navigation";

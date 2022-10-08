@@ -1,12 +1,13 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
-(function (exports,im_v2_lib_utils,im_v2_const,ui_vue3) {
+(function (exports,im_v2_lib_utils,ui_fonts_opensans,im_v2_const,ui_vue3) {
 	'use strict';
 
 	const DialogType = {
 	  user: 'user',
 	  chat: 'chat',
 	  open: 'open',
+	  general: 'general',
 	  videoconf: 'videoconf',
 	  announcement: 'announcement',
 	  call: 'call',
@@ -72,10 +73,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      return false;
 	    },
 
-	    isGeneralChat() {
-	      return this.dialog.chatId === BX.MessengerProxy.getGeneralChatId();
-	    },
-
 	    isActiveInvitation() {
 	      const recentItem = this.$store.getters['recent/get'](this.dialogId);
 
@@ -93,7 +90,7 @@ this.BX.Messenger = this.BX.Messenger || {};
 	    },
 
 	    avatarText() {
-	      if (![im_v2_const.ChatTypes.user, im_v2_const.ChatTypes.open, im_v2_const.ChatTypes.chat].includes(this.dialog.type) || this.isGeneralChat) {
+	      if (![im_v2_const.ChatTypes.user, im_v2_const.ChatTypes.open, im_v2_const.ChatTypes.chat].includes(this.dialog.type)) {
 	        return '';
 	      }
 
@@ -107,10 +104,6 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        classes.push(`bx-im-component-avatar-icon-${this.dialog.type}`);
 	      } else {
 	        classes.push('bx-im-component-avatar-icon-default');
-	      }
-
-	      if (this.isGeneralChat) {
-	        classes.push('bx-im-component-avatar-icon-general');
 	      }
 
 	      return classes;
@@ -254,10 +247,10 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        return '';
 	      }
 
-	      if (this.user.isAbsent) {
-	        return TitleIcons.absent;
-	      } else if (this.showBirthdays && this.user.isBirthday) {
+	      if (this.showBirthdays && this.user.isBirthday) {
 	        return TitleIcons.birthday;
+	      } else if (this.user.isAbsent) {
+	        return TitleIcons.absent;
 	      }
 
 	      return '';
@@ -386,5 +379,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 	exports.ChatTitle = ChatTitle;
 	exports.RecentLoadingState = RecentLoadingState;
 
-}((this.BX.Messenger.v2 = this.BX.Messenger.v2 || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Vue3));
+}((this.BX.Messenger.v2 = this.BX.Messenger.v2 || {}),BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX.Vue3));
 //# sourceMappingURL=registry.bundle.js.map

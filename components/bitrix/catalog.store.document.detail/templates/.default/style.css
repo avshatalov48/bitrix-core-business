@@ -221,7 +221,7 @@
 	width: 100%;
 	background-color: #fae5e8;
 	color: #d0011b;
-	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .pagetitle.catalog-pagetitle {
@@ -328,8 +328,6 @@ input.pagetitle-item {
 	max-width: 100%;
 	background-color: #fff;
 }
-
-.pagetitle-inner-container .ui-btn-split.ui-btn-primary { margin-right: 17px; }
 
 .catalog-entity-card-container,
 .catalog-entity-card-container-shadow {
@@ -462,14 +460,14 @@ input.pagetitle-item {
 
 .catalog-entity-widget-content-block-products-price-currency {
 	color: #a8adb4;
-	font: 400 12px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 12px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .catalog-entity-widget-content-block-products-show-more {
 	border-bottom: 1px dotted;
 	color: #80868e;
 	text-decoration: none;
-	font: 400 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	cursor: pointer;
 	transition: 220ms all ease;
 }
@@ -547,3 +545,9 @@ input.pagetitle-item {
 	padding-right: 8px !important;
 }
 
+@media (min-width: 1500px) {
+	.ui-alert.catalog-store-document-detail--alert {
+		margin: 0 auto;
+		max-width: 600px;
+	}
+}

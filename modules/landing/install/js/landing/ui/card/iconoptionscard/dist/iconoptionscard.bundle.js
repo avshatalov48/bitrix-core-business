@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,landing_ui_card_basecard,landing_loc,landing_ui_panel_iconpanel) {
+(function (exports,main_core,landing_ui_card_basecard,landing_loc,ui_fonts_opensans,landing_ui_panel_iconpanel) {
 	'use strict';
 
 	var _templateObject, _templateObject2;
@@ -121,5 +121,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.IconOptionsCard = IconOptionsCard;
 
-}((this.BX.Landing.UI.Card = this.BX.Landing.UI.Card || {}),BX,BX.Landing.UI.Card,BX.Landing,BX.Landing.UI.Panel));
+}((this.BX.Landing.UI.Card = this.BX.Landing.UI.Card || {}),BX,BX.Landing.UI.Card,BX.Landing,BX,BX.Landing.UI.Panel));
 //# sourceMappingURL=iconoptionscard.bundle.js.map

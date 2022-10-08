@@ -7,6 +7,7 @@ import {ImageUploader} from 'landing.imageuploader';
 import {BaseButton} from 'landing.ui.button.basebutton';
 import {ImageEditor} from 'landing.imageeditor';
 
+import 'ui.fonts.opensans';
 import './css/style.css';
 
 export class Image extends TextField
@@ -517,7 +518,7 @@ export class Image extends TextField
 		this.bindElement.classList.add("landing-ui-active");
 		this.uploadMenu.toggle();
 
-		if (!this.contentRoot)
+		if (!this.contentRoot && this.uploadMenu)
 		{
 			var rect = BX.pos(this.bindElement, this.bindElement.parentNode);
 			this.uploadMenu.popupWindow.popupContainer.style.top = rect.bottom + "px";

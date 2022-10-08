@@ -19,8 +19,9 @@
 		this.contentType = options.contentType;
 		this.isLoaded = false;
 		this.isLoading = false;
+		this.isTransforming = false;
+		this.isTransformationError = false;
 		this.sourceNode = null;
-		this.transformationPromise = null;
 		this.transformationTimeoutId = null;
 		this.viewerGroupBy = null;
 		this.isSeparate = false;
@@ -108,10 +109,13 @@
 			if (this.isPullConnected())
 			{
 				BX.addCustomEvent('onPullEvent-main', function (command, params) {
-					if (command === 'transformationComplete' && this.transformationPromise)
+					if (command === 'transformationComplete' && this.isTransforming)
 					{
 						this.loadData().then(function(){
-							this.transformationPromise.fulfill(this);
+							if (this.transformationPromise)
+							{
+								this.transformationPromise.fulfill(this);
+							}
 						}.bind(this));
 					}
 				}.bind(this));
@@ -146,7 +150,7 @@
 			}
 
 			this.transformationTimeoutId = setTimeout(function(){
-				if (!this.isLoaded)
+				if (this.isLoading)
 				{
 					console.log('Throw transformationTimeout');
 					if (this._loadPromise)
@@ -158,6 +162,7 @@
 						});
 
 						this.isLoading = false;
+						this.isTransformationError = true;
 					}
 				}
 				else
@@ -193,6 +198,13 @@
 
 				return promise;
 			}
+			if (this.isTransformationError)
+			{
+				promise.reject({
+					item: this
+				});
+				return promise;
+			}
 			if (this.isLoading)
 			{
 				console.log('isLoading');
@@ -204,12 +216,14 @@
 			this._loadPromise = this.loadData().then(function(item){
 				this.isLoaded = true;
 				this.isLoading = false;
+				this.isTransforming = false;
 
 				return item;
 			}.bind(this)).catch(function (reason) {
 				console.log('catch');
 				this.isLoaded = false;
 				this.isLoading = false;
+				this.isTransforming = false;
 
 				if(!reason.item)
 				{
@@ -885,7 +899,6 @@
 
 		this.player = null;
 		this.sources = [];
-		this.transformationPromise = null;
 		this.contentNode = null;
 		this.forceTransformation = false;
 		this.videoWidth = null;
@@ -1147,642 +1160,6 @@
 		afterRender: function()
 		{
 			this.player.init();
-		}
-	};
-
-	/**
-	 * @extends {BX.UI.Viewer.Item}
-	 * @param options
-	 * @constructor
-	 */
-	BX.UI.Viewer.Document = function (options)
-	{
-		BX.UI.Viewer.Item.apply(this, arguments);
-
-		options = options || {};
-
-		this.scale = options.scale || 1.4;
-		this.pdfDocument = null;
-		this.pdfPages = {};
-		this.pdfRenderedPages = {};
-		this.lastRenderedPdfPage = null;
-		this.contentNode = null;
-		this.previewHtml = null;
-		this.previewScriptToProcess = null;
-		this.transformationPromise = null;
-		this.disableAnnotationLayer = false;
-	};
-
-	BX.UI.Viewer.Document.prototype =
-	{
-		__proto__: BX.UI.Viewer.Item.prototype,
-		constructor: BX.UI.Viewer.Item,
-
-		/**
-		 * @param {HTMLElement} node
-		 */
-		setPropertiesByNode: function (node)
-		{
-			BX.UI.Viewer.Item.prototype.setPropertiesByNode.apply(this, arguments);
-
-			this.disableAnnotationLayer = node.dataset.hasOwnProperty('disableAnnotationLayer');
-		},
-
-		applyReloadOptions: function (options)
-		{
-			this.controller.unsetCachedData(this.src);
-		},
-
-		listContainerModifiers: function()
-		{
-			return [
-				'ui-viewer-document'
-			]
-		},
-
-		loadData: function ()
-		{
-			var promise = new BX.Promise();
-
-			console.log('loadData pdf');
-			var ajaxPromise = BX.ajax.promise({
-				url: BX.util.add_url_param(this.src, {ts: 'bxviewer'}),
-				method: 'GET',
-				dataType: 'json',
-				headers: [
-					{
-						name: 'BX-Viewer-src',
-						value: this.src
-					},
-					{
-						name: 'BX-Viewer',
-						value: 'document'
-					}
-				]
-			});
-
-			ajaxPromise.then(function (response) {
-				if (!response || !response.data)
-				{
-					promise.reject({
-						item: this,
-						message: BX.message("JS_UI_VIEWER_ITEM_TRANSFORMATION_ERROR_1").replace('#DOWNLOAD_LINK#', this.getSrc()),
-						type: 'error'
-					});
-
-					return;
-				}
-
-				if (response.data.hasOwnProperty('pullTag'))
-				{
-					this.transformationPromise = promise;
-					this.registerTransformationHandler(response.data.pullTag);
-				}
-
-				if (response.data.data && response.data.data.src)
-				{
-					this._pdfSrc = response.data.data.src;
-					BX.loadExt('ui.' + this.getPdfJsExtensionName()).then(function () {
-						if (!pdfjsLib.GlobalWorkerOptions.workerSrc)
-						{
-							pdfjsLib.GlobalWorkerOptions.workerSrc = '/bitrix/js/ui/' + this.getPdfJsExtensionName() + '/pdf.worker.js';
-						}
-
-						promise.fulfill(this);
-					}.bind(this), function(){});
-				}
-			}.bind(this));
-
-			return promise;
-		},
-
-		getPdfJsExtensionName: function()
-		{
-			return BX.browser.IsIE11()? 'pdfjs-ie11' : 'pdfjs';
-		},
-
-		render: function ()
-		{
-			this.controller.showLoading();
-
-			this.contentNode = BX.create('div', {
-				props: {
-					className: 'ui-viewer-item-document-content',
-					tabIndex: 2208
-				},
-				style: {
-					width: '100%',
-					height: '100%',
-					paddingTop: '67px',
-					background: 'rgba(0, 0, 0, 0.1)',
-					overflow: 'auto'
-				}
-			});
-
-			BX.bind(this.contentNode, 'scroll', BX.throttle(this.handleScrollDocument.bind(this), 100));
-
-			return this.contentNode;
-		},
-
-		getNakedActions: function()
-		{
-			var nakedActions = BX.UI.Viewer.Item.prototype.getNakedActions.apply(this, arguments) || [];
-
-			return this.insertPrintBeforeInfo(nakedActions);
-		},
-
-		insertPrintBeforeInfo: function(actions)
-		{
-			actions = actions || [];
-
-			var infoIndex = null;
-			for (var i = 0; i < actions.length; i++)
-			{
-				if (actions[i].type === 'info')
-				{
-					infoIndex = i;
-				}
-			}
-
-			var printAction = {
-				type: 'print',
-				action: this.print.bind(this)
-			};
-
-			if (infoIndex === null)
-			{
-				actions.push(printAction);
-			}
-			else
-			{
-				actions = BX.util.insertIntoArray(actions, infoIndex, printAction);
-			}
-
-			return actions;
-		},
-
-		getFirstDocumentPageHeight: function ()
-		{
-			var promise = new BX.Promise();
-			if (this._height)
-			{
-				promise.fulfill(this._height);
-			}
-			else
-			{
-				this.getDocumentPage(this.pdfDocument, 1).then(function (page) {
-					var viewport = page.getViewport(this.scale);
-					this._height = viewport.height;
-
-					promise.fulfill(this._height);
-				}.bind(this))
-			}
-
-			return promise;
-		},
-
-		handleScrollDocument: function (event)
-		{
-			var sizeToLoad = 3;
-			this.getFirstDocumentPageHeight().then(function (height) {
-				var scrollBottom = this.contentNode.scrollHeight - this.contentNode.scrollTop - this.contentNode.clientHeight;
-				if (scrollBottom < height * sizeToLoad && this.pdfDocument.numPages > this.lastRenderedPdfPage)
-				{
-					for (var i = this.lastRenderedPdfPage + 1; i <= Math.min(this.pdfDocument.numPages, this.lastRenderedPdfPage + sizeToLoad); i++)
-					{
-						this.renderDocumentPage(this.pdfDocument, i);
-					}
-				}
-
-			}.bind(this));
-		},
-
-		loadDocument: function ()
-		{
-			var promise = new BX.Promise();
-			if (this.pdfDocument)
-			{
-				promise.fulfill(this.pdfDocument);
-			}
-			else
-			{
-				pdfjsLib.getDocument(this._pdfSrc).promise.then(function(pdf) {
-					this.pdfDocument = pdf;
-					promise.fulfill(this.pdfDocument);
-				}.bind(this));
-			}
-
-			return promise;
-		},
-
-		getDocumentPage: function(pdf, pageNumber)
-		{
-			var promise = new BX.Promise();
-
-			if (this.pdfPages[pageNumber])
-			{
-				promise.fulfill(this.pdfPages[pageNumber]);
-			}
-			else
-			{
-				pdf.getPage(pageNumber).then(function (page) {
-					this.pdfPages[pageNumber] = page;
-
-					promise.fulfill(this.pdfPages[pageNumber]);
-				}.bind(this));
-			}
-
-			return promise;
-		},
-
-		renderDocumentPage: function(pdf, pageNumber)
-		{
-			if (this.pdfRenderedPages[pageNumber])
-			{
-				return;
-			}
-
-			this.pdfRenderedPages[pageNumber] = true;
-			this.getDocumentPage(pdf, pageNumber).then(function (page) {
-
-				var canvas = this.createCanvasPage();
-				var viewport = page.getViewport(this.scale);
-				canvas.height = viewport.height;
-				canvas.width = viewport.width;
-				var renderPromise = page.render({canvasContext: canvas.getContext('2d'), viewport: viewport});
-
-				if (!this.disableAnnotationLayer)
-				{
-					renderPromise.then(function(){
-						return page.getAnnotations();
-					}).then(function(annotationData){
-						var positionData = BX.pos(canvas);
-						var annotationLayer = BX.create('div', {
-							props : { className: 'ui-viewer-pdf-annotation-layer'}
-						});
-
-						BX.insertAfter(annotationLayer, canvas);
-						BX.adjust(annotationLayer, {style: {
-							margin: '-' + canvas.offsetHeight + 'px auto 0 auto',
-							height: canvas.height + 'px',
-							width: canvas.width + 'px'
-						}});
-
-						pdfjsLib.AnnotationLayer.render({
-							viewport: viewport.clone({dontFlip: true}),
-							linkService: pdfjsLib.SimpleLinkService,
-							div: annotationLayer,
-							annotations: annotationData,
-							page: page
-						});
-					});
-				}
-
-				renderPromise.then(function(){
-					return page.getTextContent();
-				}).then(function(textContent){
-					var positionData = BX.pos(canvas);
-					var textLayer = BX.create('div', {
-						props : { className: 'ui-viewer-pdf-text-layer'}
-					});
-
-					BX.insertAfter(textLayer, canvas);
-					BX.adjust(textLayer, {style: {
-						margin: '-' + canvas.offsetHeight + 'px auto 0 auto',
-						height: canvas.height + 'px',
-						width: canvas.width + 'px'
-					}});
-
-					pdfjsLib.renderTextLayer({
-						textContent: textContent,
-						container: textLayer,
-						viewport: viewport,
-						textDivs: []
-					});
-				});
-
-				this.lastRenderedPdfPage = Math.max(pageNumber, this.lastRenderedPdfPage);
-
-				if (pageNumber === 1)
-				{
-					this.firstWidthDocumentPage = canvas.width;
-					this.contentWidthPromise.fulfill(this.firstWidthDocumentPage);
-				}
-
-				this.controller.hideLoading();
-			}.bind(this));
-		},
-
-		createCanvasPage: function ()
-		{
-			var canvas = document.createElement('canvas');
-			canvas.className = 'ui-viewer-document-page-canvas';
-			this.contentNode.appendChild(canvas);
-
-			return canvas;
-		},
-
-		/**
-		 * @returns {BX.Promise}
-		 */
-		getContentWidth: function()
-		{
-			this.contentWidthPromise = new BX.Promise();
-
-			if (this.firstWidthDocumentPage)
-			{
-				this.contentWidthPromise.fulfill(this.firstWidthDocumentPage);
-			}
-
-			return this.contentWidthPromise;
-		},
-
-		afterRender: function ()
-		{
-			this.loadDocument().then(function (pdf) {
-				for (var i = 1; i <= Math.min(pdf.numPages, 3); i++)
-				{
-					if (i === 1)
-					{
-						this._handleControls = this.controller.handleVisibleControls.bind(this.controller);
-						this.controller.enableReadingMode(true);
-
-						var printAction = this.controller.actionPanel.getItemById('print');
-						if (printAction)
-						{
-							printAction.layout.container.classList.remove('ui-btn-disabled');
-						}
-
-						BX.throttle(BX.bind(window, 'mousemove', this._handleControls), 20);
-					}
-
-					this.renderDocumentPage(pdf, i);
-				}
-			}.bind(this));
-		},
-
-		beforeHide: function()
-		{
-			this.pdfRenderedPages = [];
-			BX.unbind(window, 'mousemove', this._handleControls);
-			if (this.printer)
-			{
-				this.hidePrintProgress();
-				this.printer.destroy();
-			}
-		},
-
-		updatePrintProgressMessage: function (index, total)
-		{
-			var progress = Math.round((index/total)*100);
-			this.controller.setTextOnLoading(BX.message('JS_UI_VIEWER_ITEM_PREPARING_TO_PRINT').replace('#PROGRESS#', progress));
-		},
-
-		showPrintProgress: function (index, total)
-		{
-			this.contentNode.style.opacity = 0.7;
-			this.contentNode.style.filter = 'blur(2px)';
-
-			this.controller.showLoading({
-				zIndex: 1
-			});
-
-			this.updatePrintProgressMessage(index, total);
-		},
-
-		hidePrintProgress: function ()
-		{
-			this.contentNode.style.opacity = null;
-			this.contentNode.style.filter = null;
-
-			this.controller.hideLoading();
-		},
-
-		print: function ()
-		{
-			if (!this.pdfDocument)
-			{
-				console.warn('Where is pdf document to print?');
-
-				return;
-			}
-
-			this.showPrintProgress(0, this.pdfDocument.numPages);
-
-			this.printer = new BX.UI.Viewer.Document.PrintService({
-				pdf: this.pdfDocument
-			});
-
-			this.printer.init().then(function () {
-				this.printer.prepare({
-					onProgress: this.updatePrintProgressMessage.bind(this)
-				}).then(function(){
-					this.hidePrintProgress();
-					this.printer.performPrint();
-				}.bind(this));
-			}.bind(this));
-		},
-
-		handleKeyPress: function (event)
-		{
-			switch (event.code)
-			{
-				case 'PageDown':
-				case 'PageUp':
-				case 'ArrowDown':
-				case 'ArrowUp':
-					BX.focus(this.contentNode);
-					break;
-			}
-		}
-	};
-
-	/**
-	 * @param options
-	 * @constructor
-	 */
-	BX.UI.Viewer.Document.PrintService = function (options)
-	{
-		options = options || {};
-		this.pdf = options.pdf;
-		this.iframe = null;
-		this.documentOverview = {};
-	};
-
-	BX.UI.Viewer.Document.PrintService.prototype =
-	{
-		init: function ()
-		{
-			var promise = new BX.Promise();
-
-			this.pdf.getPage(1).then(function (page) {
-				var viewport = page.getViewport(1);
-
-				this.documentOverview = {
-					width: viewport.width,
-					height: viewport.height,
-					rotation: viewport.rotation
-				};
-
-				promise.fulfill(this.documentOverview);
-			}.bind(this));
-
-			return promise;
-		},
-
-		/**
-		 * @param {?Object} options
-		 * @param {Function} [options.onProgress]
-		 * @return {BX.Promise}
-		 */
-		prepare: function (options)
-		{
-			options = options || {};
-			var pageCount = this.pdf.numPages;
-			var currentPage = -1;
-			var promise = new BX.Promise();
-			var onProgress = null;
-			if (BX.type.isFunction(options.onProgress))
-			{
-				onProgress = options.onProgress;
-			}
-
-			this.frame = this.createIframe();
-
-			var process = function() {
-				if (++currentPage >= pageCount)
-				{
-					console.log('finish', this.frame.contentWindow.document);
-
-					setTimeout(function(){
-						promise.fulfill();
-					}.bind(this), 1000);
-
-					return;
-				}
-
-				this.renderPage(currentPage+1).then(function(){
-					if (onProgress)
-					{
-						onProgress(currentPage+1, pageCount);
-					}
-					process();
-				});
-			}.bind(this);
-
-			process();
-
-			return promise;
-		},
-
-		renderPage: function (pageNumber)
-		{
-			return this.pdf.getPage(pageNumber).then(function(page) {
-				var scratchCanvas = document.createElement('canvas');
-				var viewport = page.getViewport(1);
-				// The size of the canvas in pixels for printing.
-				var PRINT_RESOLUTION = 150;
-				var PRINT_UNITS = PRINT_RESOLUTION / 72.0;
-				scratchCanvas.width = Math.floor(viewport.width * PRINT_UNITS);
-				scratchCanvas.height = Math.floor(viewport.height * PRINT_UNITS);
-
-				// The physical size of the img as specified by the PDF document.
-				var CSS_UNITS = 96.0 / 72.0;
-				var width = Math.floor(viewport.width * CSS_UNITS) + 'px';
-				var height = Math.floor(viewport.height * CSS_UNITS) + 'px';
-
-				var ctx = scratchCanvas.getContext('2d');
-				ctx.save();
-				ctx.fillStyle = 'rgb(255, 255, 255)';
-				ctx.fillRect(0, 0, scratchCanvas.width, scratchCanvas.height);
-				ctx.restore();
-
-				var renderContext = {
-					canvasContext: ctx,
-					transform: [PRINT_UNITS, 0, 0, PRINT_UNITS, 0, 0],
-					viewport: page.getViewport(1, viewport.rotation),
-					intent: 'print'
-				};
-
-				return page.render(renderContext).promise.then(function() {
-					return {
-						scratchCanvas: scratchCanvas,
-						width: width,
-						height: height
-					}
-				});
-			}).then(function(printItem) {
-
-				var img = document.createElement('img');
-				img.style.width = printItem.width;
-				img.style.height = printItem.height;
-
-				var scratchCanvas = printItem.scratchCanvas;
-				if (('toBlob' in scratchCanvas) && !this.disableCreateObjectURL)
-				{
-					scratchCanvas.toBlob(function (blob) {
-						img.src = URL.createObjectURL(blob);
-					});
-				}
-				else
-				{
-					img.src = scratchCanvas.toDataURL();
-				}
-
-				var wrapper = document.createElement('div');
-				wrapper.appendChild(img);
-
-				this.frame.contentWindow.document.body.appendChild(wrapper);
-			}.bind(this));
-		},
-
-		destroy: function()
-		{
-			if (this.frame)
-			{
-				BX.remove(this.frame);
-			}
-		},
-
-		createIframe: function ()
-		{
-			var frame = document.createElement("iframe");
-			frame.src = "about:blank";
-			frame.name = "document-print-frame";
-			frame.style.display = "none";
-			document.body.appendChild(frame);
-
-			var frameWindow = frame.contentWindow;
-			var frameDoc = frameWindow.document;
-			frameDoc.open();
-			frameDoc.write('<html><head>');
-
-			var pageSize = this.getDocumentOverview();
-			var headTags = "<style>";
-			headTags += "html, body { background: #fff !important; height: 100%; }";
-			headTags += '@supports ((size:A4) and (size:1pt 1pt)) {' +
-				'@page { size: ' + pageSize.width + 'pt ' + pageSize.height + 'pt;}' +
-				'}';
-			headTags += "</style>";
-
-			frameDoc.write(headTags);
-
-			frameDoc.write('</head><body>');
-			frameDoc.write('</body></html>');
-			frameDoc.close();
-
-			return frame;
-		},
-
-		performPrint: function ()
-		{
-			this.frame.contentWindow.focus();
-			this.frame.contentWindow.print();
-		},
-
-		getDocumentOverview: function ()
-		{
-			return this.documentOverview;
 		}
 	};
 })();

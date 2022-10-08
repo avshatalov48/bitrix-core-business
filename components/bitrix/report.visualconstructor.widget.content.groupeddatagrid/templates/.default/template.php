@@ -7,6 +7,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
  */
 $calculateResult = $arResult['CALCULATION_RESULT'];
 $backgroundColor = $arResult['WIDGET_COLOR'];
+
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 ?>
 <div class="report-widget-triple-data-with-progress" data-role="report-widget-triple-data-with-progress" style="display: block;">
 	<div class="report-widget-triple-data-with-progress-wrapper" data-role="report-widget-triple-data-with-progress-wrapper">

@@ -33,8 +33,8 @@ use Bitrix\Main\Entity\ReferenceField;
  * <li> CAL_DAV_MOD string(255) optional
  * <li> IS_EXCHANGE string(1) optional
  * <li> GAPI_CALENDAR_ID string(255) optional
- * <li> SYNC_TOKEN string(100) optional
- * <li> PAGE_TOKEN string(100) optional
+ * <li> SYNC_TOKEN string(255) optional
+ * <li> PAGE_TOKEN string(255) optional
  * <li> EXTERNAL_TYPE string(20) optional
  * </ul>
  *
@@ -44,16 +44,15 @@ use Bitrix\Main\Entity\ReferenceField;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Section_Query query()
- * @method static EO_Section_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Section_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Section_Result getById($id)
- * @method static EO_Section_Result getList(array $parameters = array())
+ * @method static EO_Section_Result getList(array $parameters = [])
  * @method static EO_Section_Entity getEntity()
  * @method static \Bitrix\Calendar\Internals\EO_Section createObject($setDefaultValues = true)
  * @method static \Bitrix\Calendar\Internals\EO_Section_Collection createCollection()
  * @method static \Bitrix\Calendar\Internals\EO_Section wakeUpObject($row)
  * @method static \Bitrix\Calendar\Internals\EO_Section_Collection wakeUpCollection($rows)
  */
-
 class SectionTable extends Main\Entity\DataManager
 {
 	/**

@@ -1,0 +1,2 @@
+<?
+$MESS ["LOCATION_INSTALL_STEP1_INSTALL_KEY"] = "Для заполнения адресов с помощью Google API необходимо сохранить ключи в настройках модуля. Как это сделать - можно прочитать в <a href=\"https://dev.1c-bitrix.ru/user_help/components/content/google_maps/map_google_key.php\">документации</a>.";

@@ -1,7 +1,7 @@
 <?if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
 $controlName = $arParams["~INPUT_NAME"];
 $controller = "BX('votes-".$arResult["CONTROL_UID"]."')";
-\Bitrix\Main\UI\Extension::load(["ui.forms", "ui.design-tokens"]);
+\Bitrix\Main\UI\Extension::load(["ui.forms", "ui.design-tokens", "ui.fonts.opensans"]);
 $pr = $controlName."_DATA";
 $arVote = reset($arResult["VOTES"]);
 $uid = $this->randString(6);

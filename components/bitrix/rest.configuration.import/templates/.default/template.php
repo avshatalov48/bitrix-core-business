@@ -17,7 +17,13 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\FileInput;
 Loc::loadMessages(__FILE__);
-Extension::load(["ui.buttons", "ui.common", "ui.notification"]);
+Extension::load([
+	"ui.design-tokens",
+	"ui.fonts.opensans",
+	"ui.buttons",
+	"ui.common",
+	"ui.notification",
+]);
 $containerId = 'rest-configuration-import';
 
 $bodyClass = $APPLICATION->getPageProperty("BodyClass", false);
@@ -52,7 +58,14 @@ else
 		<? if (!empty($titleBlock)):?>
 			<div class="rest-configuration-title"><?=htmlspecialcharsbx($titleBlock)?></div>
 		<? endif;?>
-		<? if($arResult['IMPORT_ACCESS'] === true):?>
+		<? if (!empty($arResult['ERRORS_UPLOAD_FILE'])):?>
+			<div class="rest-configuration-start-icon-main rest-configuration-start-icon-main-error">
+				<div class="rest-configuration-start-icon-refresh"></div>
+				<div class="rest-configuration-start-icon"></div>
+				<div class="rest-configuration-start-icon-circle"></div>
+			</div>
+			<p class="rest-configuration-info"><?=htmlspecialcharsbx($arResult['ERRORS_UPLOAD_FILE'])?></p>
+		<? elseif($arResult['IMPORT_ACCESS'] === true):?>
 			<? if($arParams['MODE'] == 'ROLLBACK'):?>
 				<? if(!empty($arResult['IMPORT_FOLDER_FILES'])):?>
 					<?php

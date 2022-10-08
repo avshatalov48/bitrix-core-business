@@ -10,21 +10,21 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array(
+		$this->arProperties = [
 			"Title" => "",
 			"DocumentType" => null,
 			"Fields" => null,
 
 			//return properties
 			'ElementId' => null,
-		);
+		];
 
 		//return properties mapping
-		$this->SetPropertiesTypes(array(
-			'ElementId' => array(
+		$this->SetPropertiesTypes([
+			'ElementId' => [
 				'Type' => 'int',
-			),
-		));
+			],
+		]);
 	}
 
 	public function ReInitialize()
@@ -35,7 +35,15 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 
 	public function Execute()
 	{
+		if (!\Bitrix\Main\Loader::includeModule('lists'))
+		{
+			return CBPActivityExecutionStatus::Closed;
+		}
+
 		$documentType = $this->DocumentType;
+
+		$this->logDebugType($documentType);
+
 		$fields = $this->Fields;
 		$fields['IBLOCK_ID'] = mb_substr($documentType[2], 7); // strlen('iblock_') == 7
 
@@ -43,9 +51,9 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 		{
 			$stateInfo = CBPStateService::getWorkflowStateInfo($this->getWorkflowInstanceId());
 			if (intval($stateInfo["STARTED_BY"]) > 0)
-				{
-					$fields["CREATED_BY"] = $stateInfo["STARTED_BY"];
-				}
+			{
+				$fields["CREATED_BY"] = $stateInfo["STARTED_BY"];
+			}
 		}
 
 		$documentId = $this->GetDocumentId();
@@ -53,6 +61,8 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 		$documentFields = $documentService->GetDocumentFields($documentType);
 		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($documentFields);
 
+		$fieldsMap = [];
+		$valuesMap = [];
 		$resultFields = [];
 		foreach ($fields as $key => $field)
 		{
@@ -63,6 +73,9 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 
 			if (($property = $documentFields[$key]) && $field)
 			{
+				$fieldsMap[$key] = $property;
+				$valuesMap[$key] = $field;
+
 				$fieldTypeObject = $documentService->getFieldTypeObject($documentType, $property);
 				if ($fieldTypeObject)
 				{
@@ -76,12 +89,15 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 
 		$this->ElementId = $documentService->CreateDocument($documentType, $resultFields);
 
+		$this->logDebugId($this->ElementId);
+		$this->logDebugFields($fieldsMap, $valuesMap);
+
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	public static function ValidateProperties($testProperties = array(), CBPWorkflowTemplateUser $user = null)
+	public static function ValidateProperties($testProperties = [], CBPWorkflowTemplateUser $user = null)
 	{
-		$errors = array();
+		$errors = [];
 
 		try
 		{
@@ -89,16 +105,23 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 		}
 		catch (Exception $e)
 		{
-			$errors[] = array("code" => "NotExist", "parameter" => "DocumentType", "message" => GetMessage("BPCLDA_ERROR_DT_1"));
+			$errors[] = [
+				"code" => "NotExist",
+				"parameter" => "DocumentType",
+				"message" => GetMessage("BPCLDA_ERROR_DT_1"),
+			];
 		}
 
 		return array_merge($errors, parent::ValidateProperties($testProperties, $user));
 	}
 
-	public static function GetPropertiesDialog($paramDocumentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "", $popupWindow = null)
+	public static function GetPropertiesDialog($paramDocumentType, $activityName, $arWorkflowTemplate,
+		$arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "", $popupWindow = null)
 	{
 		if (!CModule::IncludeModule('lists'))
+		{
 			return null;
+		}
 
 		$documentType = null;
 		if (!empty($arCurrentValues['lists_document_type']))
@@ -111,10 +134,13 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 
 		if (!is_array($arCurrentValues))
 		{
-			$arCurrentValues = array();
+			$arCurrentValues = [];
 
 			$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-			if (!empty($arCurrentActivity["Properties"]['Fields']) && is_array($arCurrentActivity["Properties"]["Fields"]))
+			if (
+				!empty($arCurrentActivity["Properties"]['Fields'])
+				&& is_array($arCurrentActivity["Properties"]["Fields"])
+			)
 			{
 				foreach ($arCurrentActivity["Properties"]["Fields"] as $k => $v)
 				{
@@ -133,39 +159,41 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 			foreach ($fields as $key => $value)
 			{
 				if (!$value["Editable"])
+				{
 					continue;
+				}
 
-				$arErrors = array();
-				$arCurrentValues[$key] = $documentService->GetFieldInputValue($documentType, $value, $key, $arCurrentValues, $arErrors);
+				$arErrors = [];
+				$arCurrentValues[$key] = $documentService->GetFieldInputValue($documentType, $value, $key,
+					$arCurrentValues, $arErrors);
 			}
 		}
 
-		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, array(
+		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, [
 			'documentType' => $paramDocumentType,
 			'activityName' => $activityName,
 			'workflowTemplate' => $arWorkflowTemplate,
 			'workflowParameters' => $arWorkflowParameters,
 			'workflowVariables' => $arWorkflowVariables,
 			'currentValues' => $arCurrentValues,
-			'formName' => $formName
-		));
-
-		$dialog->setMap([
-			'DocumentType' => self::getDocumentTypeField()
+			'formName' => $formName,
 		]);
 
-		$dialog->setRuntimeData(array(
+		$dialog->setMap(static::getPropertiesMap($paramDocumentType));
+
+		$dialog->setRuntimeData([
 			"documentFields" => $documentType ? self::getDocumentFields($documentType) : [],
 			"documentService" => $documentService,
 			'listsDocumentType' => $documentType,
-		));
+		]);
 
 		return $dialog;
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$errors)
+	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate,
+		&$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$errors)
 	{
-		$errors = array();
+		$errors = [];
 
 		$runtime = CBPRuntime::GetRuntime();
 
@@ -175,13 +203,13 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 			$documentType = explode('@', $arCurrentValues['lists_document_type']);
 		}
 
-		$arProperties = array("Fields" => array(), 'DocumentType' => $documentType);
+		$arProperties = ["Fields" => [], 'DocumentType' => $documentType];
 
 		$documentService = $runtime->GetService("DocumentService");
-		$arDocumentFields = $documentType ? $documentService->GetDocumentFields($documentType) : array();
+		$arDocumentFields = $documentType ? $documentService->GetDocumentFields($documentType) : [];
 
-		$iblockId = $documentType? mb_substr($documentType[2], 7) : null;
-		$listFields = $iblockId? static::getVisibleFieldsList($iblockId) : array();
+		$iblockId = $documentType ? mb_substr($documentType[2], 7) : null;
+		$listFields = $iblockId ? static::getVisibleFieldsList($iblockId) : [];
 
 		foreach ($arDocumentFields as $fieldKey => $fieldValue)
 		{
@@ -194,14 +222,16 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 			if ($fieldKey !== "CREATED_BY")
 			{
 				if (!$fieldValue["Editable"] || !in_array($fieldKey, $listFields))
+				{
 					continue;
+				}
 			}
 
+			$arFieldErrors = [];
+			$r = $documentService->GetFieldInputValue($documentType, $fieldValue, $fieldKey, $arCurrentValues,
+				$arFieldErrors);
 
-			$arFieldErrors = array();
-			$r = $documentService->GetFieldInputValue($documentType, $fieldValue, $fieldKey, $arCurrentValues, $arFieldErrors);
-
-			if(is_array($arFieldErrors) && !empty($arFieldErrors))
+			if (is_array($arFieldErrors) && !empty($arFieldErrors))
 			{
 				$errors = array_merge($errors, $arFieldErrors);
 			}
@@ -229,14 +259,16 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 
 			if ($fieldValue["Required"] && ($r == null))
 			{
-				$errors[] = array(
+				$errors[] = [
 					"code" => "emptyRequiredField",
 					"message" => str_replace("#FIELD#", $fieldValue["Name"], GetMessage("BPCLDA_FIELD_REQUIED")),
-				);
+				];
 			}
 
 			if ($r != null)
+			{
 				$arProperties["Fields"][$fieldKey] = $r;
+			}
 		}
 
 		if (count($errors) > 0)
@@ -293,18 +325,17 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 			$fieldHtml = $documentService->GetFieldInputControl(
 				$documentType,
 				$fieldValue,
-				array($formName, $fieldKey),
+				[$formName, $fieldKey],
 				$currentValues[$fieldKey],
 				true,
 				false
 			);
 
 			$result .= '<tr><td align="right" width="40%" class="adm-detail-content-cell-l">'
-				.($fieldValue["Required"] ?
-					"<span class=\"adm-required-field\">".htmlspecialcharsbx($fieldValue["Name"]).":</span>"
-					: htmlspecialcharsbx($fieldValue["Name"]).":"
-				).'</td><td width="60%" class="adm-detail-content-cell-r">'.$fieldHtml.'</td></tr>';
-
+				. ($fieldValue["Required"] ?
+					"<span class=\"adm-required-field\">" . htmlspecialcharsbx($fieldValue["Name"]) . ":</span>"
+					: htmlspecialcharsbx($fieldValue["Name"]) . ":"
+				) . '</td><td width="60%" class="adm-detail-content-cell-r">' . $fieldHtml . '</td></tr>';
 		}
 
 		return $result;
@@ -321,8 +352,7 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 		{
 			if (
 				$fieldKey !== "CREATED_BY"
-				&&
-				(!$fieldValue["Editable"] || $fieldKey == 'IBLOCK_ID' || !in_array($fieldKey, $listFields))
+				&& (!$fieldValue["Editable"] || $fieldKey == 'IBLOCK_ID' || !in_array($fieldKey, $listFields))
 			)
 			{
 				unset($fields[$fieldKey]);
@@ -336,13 +366,15 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 	{
 		$list = new CList($iblockId);
 		$listFields = $list->getFields();
-		$result = array();
+		$result = [];
 		foreach ($listFields as $key => $field)
 		{
 			if (mb_strpos($key, 'PROPERTY_') === 0)
 			{
 				if (!empty($field['CODE']))
-					$key = 'PROPERTY_'.$field['CODE'];
+				{
+					$key = 'PROPERTY_' . $field['CODE'];
+				}
 			}
 			$result[] = $key;
 		}
@@ -361,11 +393,11 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 		$options = $groups = [];
 
 		$processesType = COption::getOptionString("lists", "livefeed_iblock_type_id", 'bitrix_processes');
-		$groups = array(
+		$groups = [
 			'lists' => ['name' => GetMessage('BPCLDA_DT_LISTS'), 'items' => []],
 			$processesType => ['name' => GetMessage('BPCLDA_DT_PROCESSES'), 'items' => []],
 			'lists_socnet' => ['name' => GetMessage('BPCLDA_DT_LISTS_SOCNET_1'), 'items' => []],
-		);
+		];
 		// other lists
 		$typesResult = CLists::GetIBlockTypes();
 		while ($typeRow = $typesResult->fetch())
@@ -373,16 +405,17 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 			$groups[$typeRow['IBLOCK_TYPE_ID']] = ['name' => $typeRow['NAME'], 'items' => []];
 		}
 
-		$iterator = CIBlock::GetList(array('SORT'=>'ASC', 'NAME' => 'ASC'), array(
+		$iterator = CIBlock::GetList(['SORT' => 'ASC', 'NAME' => 'ASC'], [
 			'ACTIVE' => 'Y',
 			'TYPE' => array_keys($groups),
 			'CHECK_PERMISSIONS' => 'N',
-		));
+		]);
 
 		while ($row = $iterator->fetch())
 		{
-			$value = 'lists@'.($row['IBLOCK_TYPE_ID'] === $processesType ? 'BizprocDocument' : 'Bitrix\Lists\BizprocDocumentLists').'@iblock_'.$row['ID'];
-			$name = '['.$row['LID'].'] '.$row['NAME'];
+			$value = 'lists@' . ($row['IBLOCK_TYPE_ID'] === $processesType ? 'BizprocDocument'
+					: 'Bitrix\Lists\BizprocDocumentLists') . '@iblock_' . $row['ID'];
+			$name = '[' . $row['LID'] . '] ' . $row['NAME'];
 
 			$options[$value] = $name;
 			$groups[$row['IBLOCK_TYPE_ID']]['items'][$value] = $name;
@@ -392,5 +425,52 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 		$field['Settings'] = ['Groups' => $groups];
 
 		return $field;
+	}
+
+	protected static function getPropertiesMap(array $documentType, array $context = []): array
+	{
+		return [
+			'DocumentType' => self::getDocumentTypeField(),
+		];
+	}
+
+	private function logDebugType($type)
+	{
+		if (!method_exists($this, 'getDebugInfo'))
+		{
+			return;
+		}
+
+		$debugInfo = $this->getDebugInfo([
+			'DocumentType' => implode('@', $type),
+		]);
+
+		$this->writeDebugInfo($debugInfo);
+	}
+
+	private function logDebugId($id)
+	{
+		if (!method_exists($this, 'getDebugInfo'))
+		{
+			return;
+		}
+
+		$debugInfo = $this->getDebugInfo(
+			['ElementId' => $id],
+			['ElementId' => GetMessage('BPCLDA_CREATED_ELEMENT_ID')],
+		);
+
+		$this->writeDebugInfo($debugInfo);
+	}
+
+	private function logDebugFields(array $fields, array $values)
+	{
+		if (!method_exists($this, 'getDebugInfo'))
+		{
+			return;
+		}
+
+		$debugInfo = $this->getDebugInfo($values, $fields);
+		$this->writeDebugInfo($debugInfo);
 	}
 }

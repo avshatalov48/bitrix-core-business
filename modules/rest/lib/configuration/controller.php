@@ -72,7 +72,8 @@ class Controller
 					'FILES' => $parameters['FILES'],
 					'NEXT' => $parameters['NEXT'],
 					'ERROR_MESSAGES' => $parameters['ERROR_MESSAGES'],
-					'ERROR_ACTION' => $parameters['ERROR_ACTION']
+					'ERROR_ACTION' => $parameters['ERROR_ACTION'],
+					'ERROR_EXCEPTION' => $parameters['ERROR_EXCEPTION'],
 				];
 			}
 		}

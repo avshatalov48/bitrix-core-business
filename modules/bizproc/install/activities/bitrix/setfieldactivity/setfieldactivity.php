@@ -1,7 +1,9 @@
 <?php
-use Bitrix\Bizproc\FieldType;
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+use Bitrix\Bizproc\FieldType;
+use Bitrix\Main\Localization\Loc;
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -11,18 +13,18 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array(
-			"Title" => "",
-			"FieldValue" => null,
-			"MergeMultipleFields" => 'N',
-			"ModifiedBy" => null
-		);
+		$this->arProperties = [
+			'Title' => '',
+			'FieldValue' => null,
+			'MergeMultipleFields' => 'N',
+			'ModifiedBy' => null
+		];
 	}
 
-	public function Execute()
+	public function execute()
 	{
-		$documentId = $this->GetDocumentId();
-		$documentType = $this->GetDocumentType();
+		$documentId = $this->getDocumentId();
+		$documentType = $this->getDocumentType();
 
 		$fieldValue = $this->FieldValue;
 
@@ -31,40 +33,48 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		$documentService = $this->workflow->GetService("DocumentService");
+		$documentService = $this->workflow->GetService('DocumentService');
 
-		if ($documentService->IsDocumentLocked($documentId, $this->GetWorkflowInstanceId()))
+		if ($documentService->IsDocumentLocked($documentId, $this->getWorkflowInstanceId()))
 		{
-			$this->workflow->AddEventHandler($this->name, $this);
-			$documentService->SubscribeOnUnlockDocument($documentId, $this->GetWorkflowInstanceId(), $this->name);
+			$this->workflow->addEventHandler($this->name, $this);
+			$documentService->SubscribeOnUnlockDocument($documentId, $this->getWorkflowInstanceId(), $this->name);
 
 			return CBPActivityExecutionStatus::Executing;
 		}
 
 		$resultFields = $this->prepareFieldsValues($documentId, $documentType, $fieldValue);
-		$map = $this->getDebugInfo($resultFields);
 
 		try
 		{
-			$this->writeDebugInfo($map);
+			if ($this->workflow->isDebug())
+			{
+				$this->writeDebugInfo($this->getDebugInfo($resultFields));
+			}
+
 			$documentService->UpdateDocument($documentId, $resultFields, $this->ModifiedBy);
 		}
 		catch (Exception $e)
 		{
-			$this->WriteToTrackingService($e->getMessage(), 0, CBPTrackingType::Error);
+			$this->writeToTrackingService($e->getMessage(), 0, CBPTrackingType::Error);
 		}
 
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	protected function prepareFieldsValues(array $documentId, array $documentType, array $fields, $mergeValues = null): array
+	protected function prepareFieldsValues(
+		array $documentId,
+		array $documentType,
+		array $fields,
+		$mergeValues = null
+	): array
 	{
 		if (!is_bool($mergeValues))
 		{
 			$mergeValues = ($this->MergeMultipleFields === 'Y');
 		}
 
-		$documentService = $this->workflow->GetService("DocumentService");
+		$documentService = $this->workflow->GetService('DocumentService');
 
 		$documentFields = $documentService->GetDocumentFields($documentType);
 		$documentValues = $documentService->GetDocument($documentId, $documentType);
@@ -98,61 +108,87 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 				}
 			}
 
+			if (is_null($value))
+			{
+				$value = '';
+			}
+
 			$resultFields[$key] = $value;
 		}
 
 		return $resultFields;
 	}
 
-	public function OnExternalEvent($arEventParameters = array())
+	public function OnExternalEvent($arEventParameters = [])
 	{
 		if ($this->executionStatus != CBPActivityExecutionStatus::Closed)
 		{
-			$rootActivity = $this->GetRootActivity();
+			$rootActivity = $this->getRootActivity();
 			$documentId = $rootActivity->GetDocumentId();
 
-			$documentService = $this->workflow->GetService("DocumentService");
-			if ($documentService->IsDocumentLocked($documentId, $this->GetWorkflowInstanceId()))
+			$documentService = $this->workflow->GetService('DocumentService');
+			if ($documentService->IsDocumentLocked($documentId, $this->getWorkflowInstanceId()))
+			{
 				return;
+			}
 
 			$fieldValue = $this->FieldValue;
 			if (is_array($fieldValue) && count($fieldValue) > 0)
 			{
-				$resultFields = $this->prepareFieldsValues($documentId, $this->GetDocumentType(), $fieldValue);
+				$resultFields = $this->prepareFieldsValues($documentId, $this->getDocumentType(), $fieldValue);
 				$documentService->UpdateDocument($documentId, $resultFields);
 			}
 
-			$documentService->UnsubscribeOnUnlockDocument($documentId, $this->GetWorkflowInstanceId(), $this->name);
-			$this->workflow->RemoveEventHandler($this->name, $this);
+			$documentService->UnsubscribeOnUnlockDocument($documentId, $this->getWorkflowInstanceId(), $this->name);
+			$this->workflow->removeEventHandler($this->name, $this);
 			$this->workflow->CloseActivity($this);
 		}
 	}
 
-	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
+	public static function validateProperties($arTestProperties = [], CBPWorkflowTemplateUser $user = null)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
-		if (!is_array($arTestProperties)
-			|| !array_key_exists("FieldValue", $arTestProperties)
-			|| !is_array($arTestProperties["FieldValue"])
-			|| count($arTestProperties["FieldValue"]) <= 0)
+		if (
+			!is_array($arTestProperties)
+			|| !array_key_exists('FieldValue', $arTestProperties)
+			|| !is_array($arTestProperties['FieldValue'])
+			|| count($arTestProperties['FieldValue']) <= 0
+		)
 		{
-			$arErrors[] = array("code" => "NotExist", "parameter" => "FieldValue", "message" => GetMessage("BPSFA_EMPTY_FIELDS"));
+			$arErrors[] = [
+				'code' => 'NotExist',
+				'parameter' => 'FieldValue',
+				'message' => Loc::getMessage('BPSFA_EMPTY_FIELDS')
+			];
 		}
 
-		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
+		return array_merge($arErrors, parent::validateProperties($arTestProperties, $user));
 	}
 
-	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "", $popupWindow = null)
+	public static function GetPropertiesDialog(
+		$documentType,
+		$activityName,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$arCurrentValues = null,
+		$formName = '',
+		$popupWindow = null
+	)
 	{
 		$runtime = CBPRuntime::GetRuntime();
 
 		if (!is_array($arWorkflowParameters))
-			$arWorkflowParameters = array();
+		{
+			$arWorkflowParameters = [];
+		}
 		if (!is_array($arWorkflowVariables))
-			$arWorkflowVariables = array();
+		{
+			$arWorkflowVariables = [];
+		}
 
-		$documentService = $runtime->GetService("DocumentService");
+		$documentService = $runtime->GetService('DocumentService');
 		$arDocumentFieldsTmp = $documentService->GetDocumentFields($documentType);
 		$documentFieldsAliasesMap = CBPDocument::getDocumentFieldsAliasesMap($arDocumentFieldsTmp);
 
@@ -162,47 +198,56 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 
 		if (!is_array($arCurrentValues))
 		{
-			$arCurrentValues = array();
+			$arCurrentValues = [];
 
 			$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-			if (is_array($arCurrentActivity["Properties"])
-				&& array_key_exists("FieldValue", $arCurrentActivity["Properties"])
-				&& is_array($arCurrentActivity["Properties"]["FieldValue"]))
+			if (
+				is_array($arCurrentActivity['Properties'])
+				&& array_key_exists('FieldValue', $arCurrentActivity['Properties'])
+				&& is_array($arCurrentActivity['Properties']['FieldValue'])
+			)
 			{
-				foreach ($arCurrentActivity["Properties"]["FieldValue"] as $k => $v)
+				foreach ($arCurrentActivity['Properties']['FieldValue'] as $k => $v)
 				{
 					if (!isset($arDocumentFieldsTmp[$k]) && isset($documentFieldsAliasesMap[$k]))
+					{
 						$k = $documentFieldsAliasesMap[$k];
+					}
 
 					$arCurrentValues[$k] = $v;
 				}
 			}
 
-			if ($arCurrentActivity["Properties"]['ModifiedBy'])
+			if ($arCurrentActivity['Properties']['ModifiedBy'])
 			{
-				$modifiedBy = $arCurrentActivity["Properties"]['ModifiedBy'];
+				$modifiedBy = $arCurrentActivity['Properties']['ModifiedBy'];
 			}
-			if ($arCurrentActivity["Properties"]['MergeMultipleFields'])
+			if ($arCurrentActivity['Properties']['MergeMultipleFields'])
 			{
-				$arCurrentValues['merge_multiple_fields'] = $arCurrentActivity["Properties"]['MergeMultipleFields'];
+				$arCurrentValues['merge_multiple_fields'] = $arCurrentActivity['Properties']['MergeMultipleFields'];
 			}
 		}
 		else
 		{
-			$arErrors = array();
+			$arErrors = [];
 			foreach ($arCurrentValues as $key => $fieldKey)
 			{
 				if ($key === 'modified_by')
 				{
 					$modifiedBy = CBPHelper::UsersStringToArray($fieldKey, $documentType, $arErrors);
+
 					continue;
 				}
 
 				if (mb_strpos($key, 'document_field_') !== 0)
+				{
 					continue;
+				}
 
-				if (!isset($arDocumentFieldsTmp[$fieldKey]) || !$arDocumentFieldsTmp[$fieldKey]["Editable"])
+				if (!isset($arDocumentFieldsTmp[$fieldKey]) || !$arDocumentFieldsTmp[$fieldKey]['Editable'])
+				{
 					continue;
+				}
 
 				$r = $documentService->GetFieldInputValue(
 					$documentType,
@@ -216,77 +261,95 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 			}
 		}
 
-		$arDocumentFields = array();
-		$defaultFieldValue = "";
+		$arDocumentFields = [];
+		$defaultFieldValue = '';
 		foreach ($arDocumentFieldsTmp as $key => $value)
 		{
-			if (!$value["Editable"])
+			if (!$value['Editable'])
+			{
 				continue;
+			}
 
 			$arDocumentFields[$key] = $value;
 			if ($defaultFieldValue == '')
+			{
 				$defaultFieldValue = $key;
+			}
 		}
 
-		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, array(
-			'documentType' => $documentType,
-			'activityName' => $activityName,
-			'workflowTemplate' => $arWorkflowTemplate,
-			'workflowParameters' => $arWorkflowParameters,
-			'workflowVariables' => $arWorkflowVariables,
-			'currentValues' => $arCurrentValues,
-			'formName' => $formName
-		));
+		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(
+			__FILE__,
+			[
+				'documentType' => $documentType,
+				'activityName' => $activityName,
+				'workflowTemplate' => $arWorkflowTemplate,
+				'workflowParameters' => $arWorkflowParameters,
+				'workflowVariables' => $arWorkflowVariables,
+				'currentValues' => $arCurrentValues,
+				'formName' => $formName
+			]
+		);
 
 		$dialog->setMap(static::getPropertiesMap($documentType));
 
-		$dialog->setRuntimeData(array(
-			"arCurrentValues" => $arCurrentValues,
-			"arDocumentFields" => $arDocumentFields,
-			"formName" => $formName,
-			"defaultFieldValue" => $defaultFieldValue,
-			"arFieldTypes" => $arFieldTypes,
-			"javascriptFunctions" => $documentService->GetJSFunctionsForFields(
+		$dialog->setRuntimeData([
+			'arCurrentValues' => $arCurrentValues,
+			'arDocumentFields' => $arDocumentFields,
+			'formName' => $formName,
+			'defaultFieldValue' => $defaultFieldValue,
+			'arFieldTypes' => $arFieldTypes,
+			'javascriptFunctions' => $documentService->GetJSFunctionsForFields(
 				$documentType,
-				"objFields",
+				'objFields',
 				$arDocumentFields,
 				$arFieldTypes
 			),
-			"canSetModifiedBy" => $documentService->isFeatureEnabled($documentType, CBPDocumentService::FEATURE_SET_MODIFIED_BY),
-			"modifiedBy" => $modifiedBy,
-			"modifiedByString" => CBPHelper::UsersArrayToString($modifiedBy, $arWorkflowTemplate, $documentType),
-			"documentType" => $documentType,
-			"popupWindow" => &$popupWindow,
-		));
+			'canSetModifiedBy' => $documentService->isFeatureEnabled(
+				$documentType,
+				CBPDocumentService::FEATURE_SET_MODIFIED_BY
+			),
+			'modifiedBy' => $modifiedBy,
+			'modifiedByString' => CBPHelper::UsersArrayToString($modifiedBy, $arWorkflowTemplate, $documentType),
+			'documentType' => $documentType,
+			'popupWindow' => &$popupWindow,
+		]);
 
 		return $dialog;
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$errors)
+	public static function GetPropertiesDialogValues(
+		$documentType,
+		$activityName,
+		&$arWorkflowTemplate,
+		&$arWorkflowParameters,
+		&$arWorkflowVariables,
+		$arCurrentValues,
+		&$errors
+	)
 	{
 		$errors = [];
 		$runtime = CBPRuntime::GetRuntime();
-		$properties = ["FieldValue" => []];
+		$properties = ['FieldValue' => []];
 
 		/** @var CBPDocumentService $documentService */
-		$documentService = $runtime->GetService("DocumentService");
+		$documentService = $runtime->GetService('DocumentService');
 
 		$arNewFieldsMap = [];
-		if (array_key_exists("new_field_name", $arCurrentValues) && is_array($arCurrentValues["new_field_name"]))
+		if (array_key_exists('new_field_name', $arCurrentValues) && is_array($arCurrentValues['new_field_name']))
 		{
-			$arNewFieldKeys = array_keys($arCurrentValues["new_field_name"]);
+			$arNewFieldKeys = array_keys($arCurrentValues['new_field_name']);
 			foreach ($arNewFieldKeys as $k)
 			{
-				$code = trim($arCurrentValues["new_field_code"][$k]);
+				$code = trim($arCurrentValues['new_field_code'][$k]);
 
-				$arFieldsTmp = array(
-					"name" => $arCurrentValues["new_field_name"][$k],
-					"code" => $code,
-					"type" => $arCurrentValues["new_field_type"][$k],
-					"multiple" => $arCurrentValues["new_field_mult"][$k],
-					"required" => $arCurrentValues["new_field_req"][$k],
-					"options" => $arCurrentValues["new_field_options"][$k],
-				);
+				$arFieldsTmp = [
+					'name' => $arCurrentValues['new_field_name'][$k],
+					'code' => $code,
+					'type' => $arCurrentValues['new_field_type'][$k],
+					'multiple' => $arCurrentValues['new_field_mult'][$k],
+					'required' => $arCurrentValues['new_field_req'][$k],
+					'options' => $arCurrentValues['new_field_options'][$k],
+				];
 
 				$newCode = $documentService->AddDocumentField($documentType, $arFieldsTmp);
 				$property = FieldType::normalizeProperty($arFieldsTmp);
@@ -301,13 +364,21 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 		foreach ($arCurrentValues as $key => $value)
 		{
 			if (mb_strpos($key, 'document_field_') !== 0)
+			{
 				continue;
+			}
 
-			$fieldKey = array_key_exists($value, $arNewFieldsMap) ? $arNewFieldsMap[$value]['Code'] : $value;
-			if (!isset($arDocumentFields[$fieldKey]) || !$arDocumentFields[$fieldKey]["Editable"])
-						continue;
+			$fieldKey = array_key_exists($value, $arNewFieldsMap) ? $arNewFieldsMap[(string)$value]['Code'] : $value;
+			if (!isset($arDocumentFields[$fieldKey]) || !$arDocumentFields[$fieldKey]['Editable'])
+			{
+				continue;
+			}
 
-			$property = array_key_exists($value, $arNewFieldsMap) ? $arNewFieldsMap[$value] : $arDocumentFields[$fieldKey];
+			$property =
+				array_key_exists($value, $arNewFieldsMap)
+					? $arNewFieldsMap[(string)$value]
+					: $arDocumentFields[$fieldKey]
+			;
 
 			$r = $documentService->GetFieldInputValue(
 				$documentType,
@@ -324,21 +395,22 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 
 			if (CBPHelper::getBool($property['Required']) && CBPHelper::isEmptyValue($r))
 			{
-				$errors[] = array(
-					"code" => "NotExist",
-					"parameter" => $fieldKey,
-					"message" => GetMessage("BPSFA_ARGUMENT_NULL", array('#PARAM#' => $property['Name']))
-				);
+				$errors[] = [
+					'code' => 'NotExist',
+					'parameter' => $fieldKey,
+					'message' => Loc::getMessage('BPSFA_ARGUMENT_NULL', ['#PARAM#' => $property['Name']])
+				];
+
 				return false;
 			}
 
-			$properties["FieldValue"][$fieldKey] = $r;
+			$properties['FieldValue'][$fieldKey] = $r;
 		}
 
 		if (isset($arCurrentValues['modified_by']))
 		{
 			$properties['ModifiedBy'] = CBPHelper::UsersStringToArray(
-				$arCurrentValues["modified_by"],
+				$arCurrentValues['modified_by'],
 				$documentType,
 				$errors
 			);
@@ -354,14 +426,17 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 			$properties['MergeMultipleFields'] = $arCurrentValues['merge_multiple_fields'] === 'Y' ? 'Y' : 'N';
 		}
 
-		$errors = self::ValidateProperties($properties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
+		$errors = self::validateProperties(
+			$properties,
+			new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser)
+		);
 		if (count($errors) > 0)
 		{
 			return false;
 		}
 
 		$currentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$currentActivity["Properties"] = $properties;
+		$currentActivity['Properties'] = $properties;
 
 		return true;
 	}
@@ -369,13 +444,14 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 	public function collectUsages()
 	{
 		$usages = parent::collectUsages();
-		if (is_array($this->arProperties["FieldValue"]))
+		if (is_array($this->arProperties['FieldValue']))
 		{
-			foreach (array_keys($this->arProperties["FieldValue"]) as $v)
+			foreach (array_keys($this->arProperties['FieldValue']) as $v)
 			{
 				$usages[] = $this->getObjectSourceType('Document', $v);
 			}
 		}
+
 		return $usages;
 	}
 
@@ -383,7 +459,7 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 	{
 		return [
 			'MergeMultipleFields' => [
-				'Name' => GetMessage('BPSFA_MERGE_MULTIPLE'),
+				'Name' => Loc::getMessage('BPSFA_MERGE_MULTIPLE'),
 				'FieldName' => 'merge_multiple_fields',
 				'Type' => 'bool',
 			]
@@ -394,7 +470,7 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 	{
 		if (count($map) <= 0)
 		{
-			$documentService = $this->workflow->GetService("DocumentService");
+			$documentService = $this->workflow->GetService('DocumentService');
 			$map = $documentService->GetDocumentFields($this->getDocumentType());
 		}
 
@@ -407,7 +483,7 @@ class CBPSetFieldActivity extends CBPActivity implements IBPActivityExternalEven
 		}
 		$map = array_merge($map, static::getPropertiesMap($this->getDocumentType()));
 		$map['ModifiedBy'] = [
-			'Name' => \Bitrix\Main\Localization\Loc::getMessage('BPSFA_MODIFIED_BY'),
+			'Name' => Loc::getMessage('BPSFA_MODIFIED_BY'),
 			'Type' => 'user',
 		];
 

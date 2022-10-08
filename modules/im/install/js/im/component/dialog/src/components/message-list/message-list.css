@@ -70,7 +70,7 @@
 }
 .bx-im-dialog-scroll-button-counter-digit {
 	display: inline-block;
-    font: 11px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 11px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     color: #fff;
 	padding: 0 5px 0 5px;
     border: 2px solid #fff;
@@ -97,7 +97,7 @@
 .bx-im-dialog-list-item {}
 
 .bx-im-dialog-group {
-	font: 14px/19px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	text-align: center;
@@ -153,7 +153,7 @@
 .bx-im-dialog-load-more-text {
 	display: inline-block;
 	height: 29px;
-	font: 15px/29px "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font: 15px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #687B8C;
 	vertical-align: top;
 	padding: 10px 15px;
@@ -188,7 +188,7 @@
 .bx-im-dialog-status {
 	padding: 0 20px 10px;
 	display: block;
-	font: 14px/19px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #585858;
 	word-wrap: break-word;
 	vertical-align: middle;

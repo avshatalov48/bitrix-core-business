@@ -83,7 +83,7 @@
 
 .urlpreview__title{
 	padding: 6px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-align: justify;
 }
 
@@ -162,7 +162,7 @@
 	font-size: 11px;
 	margin-right: 12px;
 	padding-left: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .urlpreview__time:hover {

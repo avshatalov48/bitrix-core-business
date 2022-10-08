@@ -36,7 +36,7 @@
 
 .main-user-consent-request-popup-header {
 	margin: 0 0 10px 0;
-	font: normal 18px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: normal 18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #000;
 	text-align: left;
 	text-overflow: ellipsis;
@@ -70,7 +70,7 @@
 	padding: 0 18px;
 	border: none;
 	border-radius: 2px;
-	font: normal 12px/39px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: normal 12px/39px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #535c69;
 	outline: none;
 	vertical-align: middle;

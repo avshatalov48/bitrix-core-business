@@ -10,7 +10,7 @@ if (!CModule::IncludeModule("socialnetwork"))
 $arResult = array();
 
 if (CSocNetUser::IsCurrentUserModuleAdmin(SITE_ID, false))
-	$arResult["IS_SESSION_ADMIN"] = $arResult["SHOW_BANNER"] = isset($_SESSION["SONET_ADMIN"]);
+	$arResult["IS_SESSION_ADMIN"] = $arResult["SHOW_BANNER"] = CSocNetUser::IsEnabledModuleAdmin();
 
 $this->IncludeComponentTemplate();
 ?>

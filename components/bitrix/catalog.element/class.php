@@ -52,6 +52,12 @@ class CatalogElementComponent extends Element
 			\CJSCore::Init(array('popup'));
 		}
 
+		$params['ADDITIONAL_FILTER_NAME'] = trim($params['ADDITIONAL_FILTER_NAME'] ?? '');
+		if (!preg_match(self::PARAM_TITLE_MASK, $params['ADDITIONAL_FILTER_NAME']))
+		{
+			$params['ADDITIONAL_FILTER_NAME'] = '';
+		}
+
 		return $params;
 	}
 
@@ -282,5 +288,24 @@ class CatalogElementComponent extends Element
 		{
 			Main\Analytics\Counter::sendData('ct', $this->arResult['counterData']);
 		}
+	}
+
+	protected function getFilter()
+	{
+		$result = parent::getFilter();
+		$elementFilter = $this->arParams['ADDITIONAL_FILTER_NAME'];
+		if (
+			$elementFilter !== ''
+			&& !empty($GLOBALS[$elementFilter])
+			&& is_array($GLOBALS[$elementFilter])
+		)
+		{
+			$result = array_merge(
+				$GLOBALS[$elementFilter],
+				$result
+			);
+		}
+
+		return $result;
 	}
 }

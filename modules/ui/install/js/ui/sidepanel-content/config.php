@@ -8,5 +8,6 @@ return [
 	"css" => "/bitrix/js/ui/sidepanel-content/ui.sidepanel-content.css",
 	"rel" => [
 		'ui.design-tokens',
+		'ui.fonts.opensans',
 	]
 ];

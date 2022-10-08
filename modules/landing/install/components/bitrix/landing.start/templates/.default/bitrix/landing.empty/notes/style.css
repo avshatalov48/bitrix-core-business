@@ -23,7 +23,8 @@
 .landing-notes-title {
 	color: #333;
 	margin-bottom: 6px;
-	font: 22px/28px "OpenSans-Light", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 22px/28px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .landing-notes-text {

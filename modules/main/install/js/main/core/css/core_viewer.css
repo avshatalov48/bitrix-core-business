@@ -36,7 +36,7 @@
 	position: absolute;
 	top: 30%;
 	left: 40%;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 
 	-webkit-transition:top 0.15s ease-in, left 0.15s ease-in;
 	-moz-transition:top 0.15s ease-in, left 0.15s ease-in;
@@ -260,7 +260,7 @@
 	color: #535353;
     float: right;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	max-width: 180px;
     text-align: right;
 	overflow: hidden;
@@ -294,7 +294,7 @@
 	color: #979ca3;
 	display: block;
 	font-size: 10px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 14px;
 }
 
@@ -392,7 +392,7 @@
 
 .bx-viewer-cap-title{
 	font-size: 19px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-shadow: 0 1px #fff;
 	padding-bottom: 9px;
 	overflow: hidden;
@@ -427,7 +427,7 @@
 	cursor: pointer;
 	display: inline-block;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	height: 25px;
 	line-height: 24px;
 	margin-right: 5px;
@@ -525,7 +525,7 @@
 	white-space: nowrap;
 	color: white;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 32px;
 	margin: 0 15px;
 }
@@ -572,7 +572,7 @@
 	color: #555;
 	display: inline-block;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	min-width: 80px;
 	line-height: 25px;
 	padding: 0 10px;
@@ -786,7 +786,7 @@
 
 .bx-viewer-file-link {
 	color: #2067b0;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-decoration: none;
 }
 
@@ -827,7 +827,7 @@
 	border-bottom: 1px solid #dfe1e1;
 	color: #555656;
 	font-size: 17px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-align: center;
 	padding: 6px 0 10px;
 }
@@ -853,7 +853,7 @@
 }
 
 .bx-viewer-confirm-popup .popup-window-button-text{
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 	padding-left: 10px;
 	padding-right: 10px;
@@ -914,7 +914,8 @@
 /* popup for video */
 
 .bx-viewer-video {
-	font-family: 'OpenSans-Regular', serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	box-shadow: 0 25px 40px rgba(0,0,0,.5);
 }
 
@@ -938,7 +939,8 @@
 	-webkit-box-shadow: none;
 	box-shadow: none;
 	color: #8f9196;
-	font-family: 'OpenSans-Semibold', serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	text-transform: uppercase;
 	font-size: 11px;
 	cursor: pointer;
@@ -1016,7 +1018,8 @@
 
 .bx-viewer-video .bx-viewer-file-name {
 	color: #fff;
-	font-family: 'OpenSans-Bold', serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .bx-viewer-video .bx-viewer-cap {
@@ -1061,7 +1064,8 @@
 .bx-viewer-error-popup .bx-viewer-error-popup-title {
 	display: block;
 	margin: 0 0 10px 0;
-	font-family: "OpenSans-Regular", HelveticaNeue, serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 21px;
 	color: #525c69;
 }

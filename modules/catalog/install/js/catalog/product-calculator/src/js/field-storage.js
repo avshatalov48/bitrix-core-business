@@ -97,7 +97,16 @@ export class FieldStorage
 		{
 			value = (value === 'Y') ? 'Y' : 'N';
 		}
-		else if (name === 'TAX_RATE' || name === 'DISCOUNT_RATE')
+		else if (name === 'TAX_RATE')
+		{
+			if (Type.isNil(value))
+			{
+				return null;
+			}
+
+			value = FieldStorage.#round(value, this.#getCommonPrecision());
+		}
+		else if (name === 'DISCOUNT_RATE')
 		{
 			value = FieldStorage.#round(value, this.#getCommonPrecision());
 		}

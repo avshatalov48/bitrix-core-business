@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/accordionfield.bundle.css',
 	'js' => 'dist/accordionfield.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
 		'landing.ui.field.basefield',
 		'main.core',
 		'landing.ui.field.smallswitch',

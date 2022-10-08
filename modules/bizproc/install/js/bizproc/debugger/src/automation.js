@@ -1,13 +1,13 @@
 import AutomationMainView from './views/automation-main';
 import Session from './session/session';
-import {ajax, Loc, Type} from "main.core";
+import {ajax, Loc, Type, Text, Reflection} from "main.core";
 import {BaseEvent, EventEmitter} from "main.core.events";
 import AutomationLogView from "./views/automation-log";
-import {WorkflowStatus} from "./workflow/types";
 import Settings from "./settings";
 import {MessageBox, MessageBoxButtons} from "ui.dialogs.messagebox";
 import {Manager} from "./index";
-import { setGlobalContext, getGlobalContext, AutomationContext, Document } from 'bizproc.automation';
+import { setGlobalContext, getGlobalContext, Context, Document, WorkflowStatus } from 'bizproc.automation';
+import {CustomCrmActionPanel} from "./actionpanel/custom-crm-action-panel";
 
 export default class Automation extends EventEmitter
 {
@@ -32,6 +32,8 @@ export default class Automation extends EventEmitter
 	#workflowTrack: Array = [];
 	#debuggerState: number;
 
+	#customActionPanel: CustomCrmActionPanel = null;
+
 	constructor(parameters = {})
 	{
 		super();
@@ -41,17 +43,58 @@ export default class Automation extends EventEmitter
 
 		if (this.session.isActive())
 		{
+			this.session.subscribeOnce('onAfterDocumentFixed', this.#onAfterDocumentFixed.bind(this));
 			this.session.subscribe('onFinished', this.destroy.bind(this));
 			this.#subscribePull();
 		}
 
-		this.#settings = new Settings();
+		this.#settings = new Settings('atm-dbg');
 		this.#initAutomationContext();
+
+		this.#resumeShowActionPanel();
+	}
+
+	#resumeShowActionPanel()
+	{
+		if (this.session.isInterceptionMode() && !this.session.isFixed())
+		{
+			if (Reflection.getClass('BX.CRM.Kanban.Grid'))
+			{
+				const gridInstance = BX.CRM.Kanban.Grid.getInstance();
+				if (this.#shouldSetCustomActionPanel(gridInstance))
+				{
+					this.#customActionPanel = new CustomCrmActionPanel(gridInstance, this);
+					gridInstance.stopActionPanel(true);
+					gridInstance.resetActionPanel();
+					gridInstance.setCustomActionPanel(this.#customActionPanel.actionPanel);
+				}
+			}
+		}
+	}
+
+	#shouldSetCustomActionPanel(gridInstance): boolean
+	{
+		const gridData = gridInstance.getData();
+		const entityType = gridData.entityType;
+
+		//todo: modify
+		if (entityType !== 'DEAL')
+		{
+			return false;
+		}
+
+		const categoryId =
+			gridData.params.hasOwnProperty('CATEGORY_ID')
+				? Text.toInteger(gridData.params.CATEGORY_ID)
+				: 0
+		;
+
+		return (this.session.initialCategoryId === categoryId);
 	}
 
 	#initAutomationContext()
 	{
-		const context = new AutomationContext({
+		const context = new Context({
 			document: new Document({
 				rawDocumentType: [],
 				documentId: null,
@@ -89,6 +132,7 @@ export default class Automation extends EventEmitter
 		this.#workflowStatus = 0;
 		this.#workflowEvents = [];
 		this.#workflowTrack = [];
+		this.#customActionPanel?.stopActionPanel();
 	}
 
 	get track()
@@ -263,7 +307,8 @@ export default class Automation extends EventEmitter
 				{
 					data: {
 						sessionId: this.sessionId,
-					}
+					},
+					analyticsLabel: 'automation_start_debug',
 				}
 			).then(
 				(response) => {
@@ -397,13 +442,8 @@ export default class Automation extends EventEmitter
 		}
 
 		console.info('document status: ' + status);
-
-		//this.#documentStatus = status
-		//TODO - don`t load all
-
-		this.loadMainViewInfo().then(() => {
-			this.emit('onDocumentStatusChanged');
-		});
+		this.#documentStatus = status
+		this.emit('onDocumentStatusChanged');
 	}
 
 	handleExternalDocumentValues(event: BaseEvent)
@@ -468,7 +508,7 @@ export default class Automation extends EventEmitter
 
 		this.#workflowStatus = status;
 
-		if (status === WorkflowStatus.Running)
+		if (status === WorkflowStatus.RUNNING)
 		{
 			this.#workflowId = workflowId;
 		}
@@ -500,6 +540,13 @@ export default class Automation extends EventEmitter
 		this.#workflowEvents = this.#workflowEvents.filter(value => value !== eventName);
 		console.info('workflow events: ' + this.#workflowEvents.join(', '));
 		this.emit('onWorkflowEventsChanged', {events: this.#workflowEvents});
+	}
+
+	#onAfterDocumentFixed()
+	{
+		this.loadMainViewInfo().then(()=> {
+			this.emit('onAfterDocumentFixed');
+		});
 	}
 
 	getField(object, id): object

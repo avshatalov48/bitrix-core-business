@@ -3,7 +3,7 @@
 
 /*post*/
 .blog-post {margin:0; padding-bottom: 2.5em; padding-right:0.8em;}
-.blog-post-title {font-size: 1.65em; font-weight:bold; line-height: 1.3em; margin:0 0 0 0; padding:0.2em; padding-left: 0.6em; font-family: Arial;}
+.blog-post-title {font-size: 1.65em; font-weight:var(--ui-font-weight-bold); line-height: 1.3em; margin:0 0 0 0; padding:0.2em; padding-left: 0.6em; font-family: Arial;}
 .blog-post-title a {text-decoration: none !important;}
 .blog-post-title a :hover{text-decoration: underline !important;}
 .blog-post-info {padding:0.2em 0.6em 0.2em}
@@ -48,8 +48,8 @@ div.blog-post-image-item-border {border: 1px solid; height:100px; text-align: ce
 div.blog-post-image-item-input {padding-top: 0.5em;}
 div.blog-post-image-item-input input {width: 100px;}
 div.blog-post-buttons {padding-top:1em; padding-bottom: 0.4em;}
-div.blog-post-field-category div.blog-post-field-text label, div.blog-post-field-access-title, div.blog-post-field-code div.blog-post-field-text label, div.blog-post-field-seo label {font-weight: bold; font-size: 1.1em;}
- 
+div.blog-post-field-category div.blog-post-field-text label, div.blog-post-field-access-title, div.blog-post-field-code div.blog-post-field-text label, div.blog-post-field-seo label {font-weight: var(--ui-font-weight-bold); font-size: 1.1em;}
+
 div.blog-post-bbcode-line {padding-top:0.2em;}
 .blog-group-edit {background-repeat: no-repeat; width:16px; height:16px; display:inline-block;}
 .blog-group-delete {background-repeat: no-repeat; width:16px; height:16px; display:inline-block;}
@@ -110,7 +110,7 @@ div.blog-settings-menu-box span{ white-space:nowrap; display: inline-block;}
 .blog-sidebar { display:inline; float:right; overflow:hidden; width:20%;}
 .blog-sidebar ul,.blog-sidebar ul li ul {margin:0;padding:0; list-style:none !important;}
 .blog-sidebar ul li {margin:0;padding:0px; list-style:none !important; text-align:left;}
-.blog-sidebar h3 { font-size: 1em; font-weight: bold; letter-spacing: 1px; border-bottom: 1px solid; padding:0; padding-bottom: 0.6em; margin: 0;}
+.blog-sidebar h3 { font-size: 1em; font-weight: var(--ui-font-weight-bold); letter-spacing: 1px; border-bottom: 1px solid; padding:0; padding-bottom: 0.6em; margin: 0;}
 .blog-sidebar li ul li {margin:0;padding:0; border:0;}
 .blog-sidebar ul li ul li {text-align:left; margin:0; padding: 0;}
 .blog-sidebar ul li ul li a {text-decoration: none; outline: 0;}
@@ -146,7 +146,7 @@ table.blog-edit-perms-table th, table.blog-edit-perms-table td {padding:0.2em; v
 table.blog-edit-perms-table  th {text-align:center;}
 
 div.blog-line {background-repeat: no-repeat; height:3px; width:100%;}
-.blog-author {margin:0; padding:0; display:inline; font-weight: bold;}
+.blog-author {margin:0; padding:0; display:inline; font-weight: var(--ui-font-weight-bold);}
 .blog-author-icon {width:16px; height:16px; display:block; float:left; background-repeat: no-repeat; padding-right:0.2em; line-height: 1em;}
 
 /*bbcode line*/
@@ -157,7 +157,7 @@ div.blog-bbcode-line img, div.blog-smiles-line img { border: 0;}
 div.blog-bbcode-line a, div.blog-smiles-line a {vertical-align: middle;}
 div.blog-bbcode-line a {width: 20px; height: 20px; float: left; margin-right: 0.2em; background-position: center center;  background-repeat:no-repeat; display: block;}
 div.blog-bbcode-line a, div.blog-bbcode-line img, div.blog-smiles-line a, div.blog-smiles-line img { outline: none; }
-div.blog-bbcode-line select { float: left; margin-left:3px; padding:0px; height:20px;} 
+div.blog-bbcode-line select { float: left; margin-left:3px; padding:0px; height:20px;}
 div.blog-bbcode-closeall a{padding-left: 1em; vertical-align: middle; float: left;}
 
 /*BBCode Icons*/
@@ -184,7 +184,7 @@ div.blog-mainpage-side-left {float:left; width:52%; padding-right: 0.5em; }
 div.blog-mainpage-side-right {float:right; width:46%; }
 
 .blog-mainpage-item {margin:0; padding-bottom: 0.6em; padding-top: 0.5em;}
-.blog-mainpage-title{margin:0; padding-bottom: 0.5em; padding-top: 0.4em; font-weight:bold; }
+.blog-mainpage-title{margin:0; padding-bottom: 0.5em; padding-top: 0.4em; font-weight:var(--ui-font-weight-bold); }
 .blog-mainpage-content {line-height:1.4em; font-size:0.95em; display:block;}
 .blog-mainpage-meta {font-size:0.89em; line-height:1.4em; margin:0; padding:0; padding-top: 0.4em;}
 .blog-mainpage-meta a {text-decoration: none !important;}
@@ -210,7 +210,7 @@ div.blog-mainpage-blogs .blog-mainpage-content a:hover {text-decoration: none;}
 .blog-tab-items {float: right;  font-size: 0.95em; padding-right: 0.6em; display:inline; white-space: nowrap;}
 .blog-tab-items a {text-decoration: none !important; padding-left: 0.6em;}
 .blog-tab-items a:hover {text-decoration: underline !important;}
-.blog-tab-title {font-weight: bold; padding-left: 0.5em; float: left; display:inline; overflow:hidden;}
+.blog-tab-title {font-weight: var(--ui-font-weight-bold); padding-left: 0.5em; float: left; display:inline; overflow:hidden;}
 .blog-tab-title a {text-decoration: none !important;}
 .blog-tab-title a:hover {text-decoration: underline !important;}
 
@@ -250,7 +250,7 @@ div.blog-page-navigation  {padding-bottom: 0.8em;}
 div.blog-page-navigation a, span.blog-page-current, span.blog-page-dots {padding-left:0.75em;	padding-right: 0.5em; text-decoration: none;}
 
 div.blog-page-navigation a.blog-page-first, div.blog-page-navigation span.blog-page-first { padding-left: 0.5em; }
-span.blog-page-current { font-weight: bold; }
+span.blog-page-current { font-weight: var(--ui-font-weight-bold); }
 
 /*blog navigation*/
 ul.blog-navigation {list-style-position:outside; list-style-type:none; padding: 0; margin: 0; padding-bottom: 1em; }
@@ -318,7 +318,7 @@ img.linked {
     width: 11px;
 }
 
-div.blog-edit-field-code label.blog-edit-field-caption {font-weight:bold;}
+div.blog-edit-field-code label.blog-edit-field-caption {font-weight:var(--ui-font-weight-bold);}
 span#post-code-input {display:none;}
 a#post-code-text {
 	background-color: #fff4ca;
@@ -334,7 +334,7 @@ div.blog-comment-preview div.blog-comment-cont-white{border-top: 1px solid red; 
 div.blog-post-edit-micro #lhe_btn_sourcebb, div.blog-post-edit-micro #blog-post-image{display: none;}
 /*div.blog-post-edit-micro div.blog-comment-field-bbcode{padding:0.2em;}*/
 div.blog-post-edit-micro {margin-bottom: 2em; width: 78%;}
-div.blog-post-edit-micro #blogpost-length {font-weight:bold; display:inline;}
+div.blog-post-edit-micro #blogpost-length {font-weight:var(--ui-font-weight-bold); display:inline;}
 
 div.blog-post-edit-micro div.blog-post-edit-form {padding: 0; background-color: white; width: 100%;}
 div.blog-post-edit-micro div.blog-post-buttons{text-align:left; padding-top:0.7em; padding-bottom:0.1em;}
@@ -423,7 +423,7 @@ div.microblog-post div.blog-post-meta-util a {color: #969696 !important; text-de
 
 
 .blog-comment-nav-item{cursor: pointer;}
-div.blog-comments .blog-comment-nav a.blog-comment-nav-item-sel {font-weight:bold; text-decoration:none; color: #969696; cursor: default;}
+div.blog-comments .blog-comment-nav a.blog-comment-nav-item-sel {font-weight:var(--ui-font-weight-bold); text-decoration:none; color: #969696; cursor: default;}
 .blog-comment-nav-item {}
 
 /* autosave */
@@ -488,8 +488,8 @@ a.blogPostAutoSave {
 
 
 span.blog-post-group-value {
-	margin-left:0.5em; 
-	border-bottom: dashed 1px; 
+	margin-left:0.5em;
+	border-bottom: dashed 1px;
 	overflow: hidden;
 	white-space: nowrap;
 	max-width: 300px;
@@ -508,8 +508,8 @@ span.blog-post-group-delete1 {
 .blog-post-sonet-group {padding-bottom: 0.5em;}
 .blog-post-edit-micro #blog-post-group-selector{
 	display: inline-block;
-	float:right; 
-	font-family: Arial; 
+	float:right;
+	font-family: Arial;
 	color: #b2b2b2;
 	padding-right: 5px;
 }
@@ -525,8 +525,8 @@ span.blog-post-group-delete {
 div.blog-post-group-selector-text
 {
 	display: inline-block;
-	float:right; 
-	font-family: Arial; 
+	float:right;
+	font-family: Arial;
 	color: #b2b2b2;
 	padding-right: 5px;
 	overflow: hidden;
@@ -542,7 +542,7 @@ div.blog-post-group-selector-text
 
 .blog-small-button { margin: 0; background: url(/bitrix/js/main/core/images/controls-sprite.png) repeat-x 0 -551px;}
 .blog-small-button-left { width:4px; background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat -15px -493px; margin-right: 8px; }
-.blog-small-button-text { font: normal normal normal 13px/24px Arial, Helvetica, sans-serif; color: #4f4f4f;}
+.blog-small-button-text { font: normal normal normal 13px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #4f4f4f;}
 .blog-small-button-right { width:6px; background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat -22px -493px; margin-left: 8px;}
 
 .blog-small-button:hover { background: url(/bitrix/js/main/core/images/controls-sprite.png) repeat-x 0 -985px; }
@@ -557,12 +557,12 @@ div.blog-post-group-selector-text
 }
 
 .feed-com-files {padding-top:10px;}
-.feed-com-files-title {color:#5c6470; font-size:12px; font-weight:bold; float:left; min-width:50px;}
+.feed-com-files-title {color:#5c6470; font-size:12px; font-weight:var(--ui-font-weight-bold); float:left; min-width:50px;}
 .feed-com-files-cont {overflow:hidden; padding:1px 0 1px 10px; zoom:1;}
 .feed-com-file-wrap {cursor:pointer; display:inline-block; font-size:12px; line-height:14px; margin:0 12px 12px 0; vertical-align:middle;}
 .feed-com-file-wrap:hover .feed-com-file-name {text-decoration:underline;}
 .feed-con-file-icon {background:url("images/live_feed_sprite.png") no-repeat -55px -220px; display:inline-block; margin-right:5px; height:16px; vertical-align:middle; width:16px;}
-.feed-com-file-name {color:#2067b0; display:inline-block; font-weight:bold; margin-right:4px; max-width:120px; vertical-align:top; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.feed-com-file-name {color:#2067b0; display:inline-block; font-weight:var(--ui-font-weight-bold); margin-right:4px; max-width:120px; vertical-align:top; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .feed-com-file-size {color:#5c6470; display:inline-block; font-size:12px; vertical-align:top;}
 .feed-com-files-photo {
     border:1px solid #eeeeee;
@@ -624,7 +624,7 @@ div.blog-post-group-selector-text
     position:relative;
     z-index:2;
 }
-.feed-add-img-title {color:#2067b0; display:block; font-weight:bold; font-size:12px; margin-top:3px; overflow: hidden;}
+.feed-add-img-title {color:#2067b0; display:block; font-weight:var(--ui-font-weight-bold); font-size:12px; margin-top:3px; overflow: hidden;}
 .feed-add-photo-block .feed-add-close-icon {background-color:#fff; background-position:8px -19px; height:22px; top:1px; right:1px; width:22px;}
 .feed-add-photo-block .feed-add-close-icon:hover {background-position:-57px -60px;}
 .feed-add-post-del-but {

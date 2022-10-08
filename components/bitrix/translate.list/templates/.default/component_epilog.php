@@ -12,11 +12,6 @@ if (defined('SITE_TEMPLATE_ID') && SITE_TEMPLATE_ID === 'bitrix24')
 {
 	\Bitrix\Main\UI\Extension::load('ui.icons.disk');
 }
-else
-{
-	\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
-	$APPLICATION->SetAdditionalCSS('/bitrix/css/main/grid/webform-button.css');
-}
 
 \Bitrix\Main\UI\Extension::load([
 	'ui.buttons',

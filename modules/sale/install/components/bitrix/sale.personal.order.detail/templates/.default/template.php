@@ -4,14 +4,19 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 use Bitrix\Main\Localization\Loc,
 	Bitrix\Main\Page\Asset;
 
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'clipboard',
+	'fx',
+]);
+
 if ($arParams['GUEST_MODE'] !== 'Y')
 {
 	Asset::getInstance()->addJs("/bitrix/components/bitrix/sale.order.payment.change/templates/.default/script.js");
 	Asset::getInstance()->addCss("/bitrix/components/bitrix/sale.order.payment.change/templates/.default/style.css");
 }
 $this->addExternalCss("/bitrix/css/main/bootstrap.css");
-
-CJSCore::Init(array('clipboard', 'fx'));
 
 $APPLICATION->SetTitle("");
 

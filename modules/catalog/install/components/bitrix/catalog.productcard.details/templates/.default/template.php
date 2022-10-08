@@ -84,6 +84,30 @@ $guid = 'product-details';
 $containerId = "{$guid}_container";
 $tabMenuContainerId = "{$guid}_tabs_menu";
 $tabContainerId = "{$guid}_tabs";
+
+$cardParameters = [
+	'entityId' => $arResult['PRODUCT_FIELDS']['ID'],
+	'componentName' => $component->getName(),
+	'componentSignedParams' => $component->getSignedParameters(),
+	'isSimpleProduct' => $arResult['SIMPLE_PRODUCT'],
+	'tabs' => $tabs,
+	'settingsButtonId' => $settingsButton->getUniqId(),
+	'cardSettings' => $arResult['CARD_SETTINGS'],
+	'hiddenFields' => $arResult['HIDDEN_FIELDS'],
+	'isWithOrdersMode' => $arResult['IS_WITH_ORDERS_MODE'],
+	'isInventoryManagementUsed' => $arResult['IS_INVENTORY_MANAGEMENT_USED'],
+	'createDocumentButtonId' => $createDocumentButtonId,
+	'createDocumentButtonMenuPopupItems' => $arResult['CREATE_DOCUMENT_BUTTON_POPUP_ITEMS'],
+	'feedbackUrl' => $arParams['PATH_TO']['FEEDBACK'] ?? '',
+	'containerId' => $containerId,
+	'tabContainerId' => $tabContainerId,
+	'tabMenuContainerId' => $tabMenuContainerId,
+	'serviceUrl' => $arResult['SERVICE_URL'],
+	'creationPropertyUrl' => $arResult['UI_CREATION_PROPERTY_URL'],
+	'creationVariationPropertyUrl' => $arResult['UI_CREATION_SKU_PROPERTY_URL'],
+	'variationGridId' => $arResult['VARIATION_GRID_ID'],
+	'productStoreGridId' => $arResult['STORE_AMOUNT_GRID_ID'],
+];
 ?>
 <script>
 	BX.message(<?=Json::encode(Loc::loadLanguageFile(__FILE__))?>);
@@ -98,26 +122,7 @@ $tabContainerId = "{$guid}_tabs";
 
 		BX.Catalog.ProductCard.Instance = new BX.Catalog.ProductCard(
 			'<?=CUtil::JSEscape($guid)?>',
-			{
-				entityId: '<?=CUtil::JSEscape($arResult['PRODUCT_FIELDS']['ID'])?>',
-				componentName: '<?=CUtil::JSEscape($component->getName())?>',
-				componentSignedParams: '<?=CUtil::JSEscape($component->getSignedParameters())?>',
-				isSimpleProduct: !!'<?=CUtil::JSEscape($arResult['SIMPLE_PRODUCT'])?>',
-				tabs: <?=CUtil::PhpToJSObject($tabs)?>,
-				settingsButtonId: '<?=$settingsButton->getUniqId()?>',
-				cardSettings: <?=CUtil::PhpToJSObject($arResult['CARD_SETTINGS'])?>,
-				createDocumentButtonId: '<?=CUtil::JSEscape($createDocumentButtonId)?>',
-				createDocumentButtonMenuPopupItems: <?=CUtil::PhpToJSObject($arResult['CREATE_DOCUMENT_BUTTON_POPUP_ITEMS'])?>,
-				feedbackUrl: '<?=CUtil::JSEscape($arParams['PATH_TO']['FEEDBACK'] ?? '')?>',
-				containerId: '<?=CUtil::JSEscape($containerId)?>',
-				tabContainerId: '<?=CUtil::JSEscape($tabContainerId)?>',
-				tabMenuContainerId: '<?=CUtil::JSEscape($tabMenuContainerId)?>',
-				serviceUrl: '<?=CUtil::JSEscape($arResult['SERVICE_URL'])?>',
-				creationPropertyUrl: '<?=CUtil::JSEscape($arResult['UI_CREATION_PROPERTY_URL'])?>',
-				creationVariationPropertyUrl: '<?=CUtil::JSEscape($arResult['UI_CREATION_SKU_PROPERTY_URL'])?>',
-				variationGridId: '<?=CUtil::JSEscape($arResult['VARIATION_GRID_ID'])?>',
-				productStoreGridId: '<?=CUtil::JSEscape($arResult['STORE_AMOUNT_GRID_ID'])?>',
-			}
+			<?= CUtil::PhpToJSObject($cardParameters) ?>
 		);
 	});
 </script>

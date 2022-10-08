@@ -73,7 +73,7 @@ class RoboPackage extends BasePacker
 			}
 		}
 
-		if (is_array($datumTmp) && array_key_exists('ROBOTS', $datumTmp))
+		if (is_array($datumTmp) && is_array($datumTmp['ROBOTS']))
 		{
 			$robotTemplate = new Automation\Engine\Template($datumTmp['DOCUMENT_TYPE']);
 			try

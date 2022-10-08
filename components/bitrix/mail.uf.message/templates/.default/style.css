@@ -4,7 +4,7 @@
 	padding: 10px 11px;
 	background-color: #fae5e8;
 	color: #d0011b;
-	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .mail-uf-message-wrapper {
@@ -25,7 +25,7 @@
 .mail-uf-message-h {
 	font-size: 14px;
 	line-height: 20px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .mail-uf-message-date {

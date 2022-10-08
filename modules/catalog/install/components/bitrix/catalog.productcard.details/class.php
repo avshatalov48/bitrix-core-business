@@ -4,6 +4,7 @@ use Bitrix\Catalog\Component\BaseForm;
 use Bitrix\Catalog\Component\GridVariationForm;
 use Bitrix\Catalog\Component\ProductForm;
 use Bitrix\Catalog\Component\StoreAmount;
+use Bitrix\Catalog\Component\UseStore;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\IoC\Dependency;
@@ -134,6 +135,7 @@ class CatalogProductDetailsComponent
 				$this->initializeExternalProductFields($product);
 
 				$this->initializeProductFields($product);
+
 				$this->placePageTitle($product);
 
 				$this->errorCollection->clear();
@@ -293,6 +295,10 @@ class CatalogProductDetailsComponent
 			));
 		}
 
+		$skuRepository = ServiceContainer::getSkuRepository($this->getIblockId());
+		$type = $skuRepository ? ProductTable::TYPE_SKU : ProductTable::TYPE_PRODUCT;
+		$product->setType($type);
+
 		$copyProductId = (int)($this->arParams['COPY_PRODUCT_ID'] ?? 0);
 		if ($copyProductId > 0)
 		{
@@ -302,6 +308,7 @@ class CatalogProductDetailsComponent
 				$fields = $this->copyProduct->getFields();
 				unset(
 					$fields['ID'],
+					$fields['TYPE'],
 					$fields['IBLOCK_ID'],
 					$fields['PREVIEW_PICTURE'],
 					$fields['DETAIL_PICTURE'],
@@ -335,8 +342,6 @@ class CatalogProductDetailsComponent
 
 	protected function loadProduct($productId): ?BaseProduct
 	{
-		$product = null;
-
 		$repositoryFacade = ServiceContainer::getRepositoryFacade();
 		$variation = $repositoryFacade->loadVariation($productId);
 
@@ -422,6 +427,9 @@ class CatalogProductDetailsComponent
 		$this->arResult['VARIATION_GRID_ID'] = $this->getForm()->getVariationGridId();
 		$this->arResult['STORE_AMOUNT_GRID_ID'] = $this->getStoreAmount()->getStoreAmountGridId();
 		$this->arResult['CARD_SETTINGS'] = $this->getForm()->getCardSettings();
+		$this->arResult['HIDDEN_FIELDS'] = $this->getForm()->getHiddenFields();
+		$this->arResult['IS_WITH_ORDERS_MODE'] = Loader::includeModule('crm') && \CCrmSaleHelper::isWithOrdersMode();
+		$this->arResult['IS_INVENTORY_MANAGEMENT_USED'] = UseStore::isUsed();
 
 		$this->arResult['CREATE_DOCUMENT_BUTTON_PARAMS'] = $this->getCreateDocumentButtonParams();
 		$this->arResult['CREATE_DOCUMENT_BUTTON_POPUP_ITEMS'] = $this->getCreateDocumentButtonPopupItems();
@@ -751,6 +759,14 @@ class CatalogProductDetailsComponent
 		}
 	}
 
+	private function prepareCatalogFields(&$fields): void
+	{
+		if ($this->form->isQuantityTraceSettingDisabled())
+		{
+			unset($fields['QUANTITY_TRACE']);
+		}
+	}
+
 	private function checkCompatiblePictureFields(BaseIblockElementEntity $entity, array &$propertyFields): void
 	{
 		if (!isset($propertyFields[BaseForm::MORE_PHOTO]) || !is_array($propertyFields[BaseForm::MORE_PHOTO]))
@@ -1015,10 +1031,6 @@ class CatalogProductDetailsComponent
 		}
 
 		$isSkuProduct = $this->parseIsSkuProduct($fields, $product);
-		if (!$isSkuProduct && $product->isNew())
-		{
-			$product->setType(ProductTable::TYPE_PRODUCT);
-		}
 
 		$skuFields = $this->parseSkuFields($fields);
 		$propertyFields = $this->parsePropertyFields($fields);
@@ -1033,6 +1045,7 @@ class CatalogProductDetailsComponent
 
 		$this->prepareDescriptionFields($fields);
 		$this->preparePictureFields($fields);
+		$this->prepareCatalogFields($fields);
 
 		if ((!isset($fields['CODE']) || $fields['CODE'] === '') && $product->isNew())
 		{
@@ -1076,9 +1089,13 @@ class CatalogProductDetailsComponent
 						$sku = $product->getSkuCollection()->findById($skuId);
 					}
 				}
-				elseif ($product->isNew() && $product->isSimple())
+				elseif ($product->isNew())
 				{
-					$sku = $product->getSkuCollection()->getIterator()[0] ?? null;
+					$sku =
+						$product->isSimple()
+							? $product->getSkuCollection()->getFirst()
+							: $product->getSkuCollection()->create()
+					;
 				}
 
 				if ($sku === null)
@@ -1243,20 +1260,14 @@ class CatalogProductDetailsComponent
 
 	private function saveInternal(BaseProduct $product, bool $notifyAboutNewVariation = false): ?array
 	{
-		global $DB;
-		$DB->StartTransaction();
-
 		$result = $product->save();
 
 		if (!$result->isSuccess())
 		{
-			$DB->Rollback();
 			$this->errorCollection->add($result->getErrors());
 
 			return null;
 		}
-
-		$DB->Commit();
 
 		$redirect = !$this->hasProductId();
 		$this->setProductId($product->getId());
@@ -1918,7 +1929,7 @@ class CatalogProductDetailsComponent
 		}
 		elseif ($settingId === 'WAREHOUSE')
 		{
-			\Bitrix\Catalog\Component\UseStore::disable();
+			UseStore::disable();
 		}
 
 		if (!empty($headers))

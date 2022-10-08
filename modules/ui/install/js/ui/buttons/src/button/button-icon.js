@@ -51,4 +51,8 @@ export default class ButtonIcon
 	static LOW_BATTERY = 'ui-btn-icon-low-battery';
 	static CRIT_BATTERY = 'ui-btn-icon-crit-battery';
 	static DEMO = 'ui-btn-icon-demo';
+	static ROBOTS = 'ui-btn-icon-robots';
+	static NOTE = 'ui-btn-icon-note';
+	static SCRIPT = 'ui-btn-icon-script';
+	static PRINT2 = 'ui-btn-icon-print-2';
 }

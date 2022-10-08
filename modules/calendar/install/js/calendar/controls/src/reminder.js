@@ -571,9 +571,24 @@ export class Reminder extends EventEmitter
 
 			// Hacks for BX.calendar - it works as singleton and has troubles with using inside menupopups
 			// We trying to reinitialize it everytime
-			calendarControl.popup = null;
-			calendarControl._current_layer = null;
-			calendarControl._layers = {};
+			if (calendarControl.popup)
+			{
+				calendarControl.popup.destroy();
+				calendarControl.popup = null;
+				calendarControl._current_layer = null;
+				calendarControl._layers = {};
+			}
+			if (calendarControl.popup_month)
+			{
+				calendarControl.popup_month.destroy();
+				calendarControl.popup_month = null;
+			}
+			if (calendarControl.popup_year)
+			{
+				calendarControl.popup_year.destroy();
+				calendarControl.popup_year = null;
+			}
+			
 
 			calendarControl.Show({
 				node: input,

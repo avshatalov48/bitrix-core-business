@@ -27,6 +27,10 @@ final class CrmViewManager extends ViewManager
 		{
 			$entity = new RestView\OrderEntity();
 		}
+		elseif($controller instanceof Controller\BuyerGroup)
+		{
+			$entity = new RestView\BuyerGroup();
+		}
 		else
 		{
 			throw new RestException('Unknown object ' . get_class($controller));

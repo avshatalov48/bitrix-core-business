@@ -22,11 +22,17 @@ class CCatalogStore extends CAllCatalogStore
 				return false;
 		}
 
-		if(!self::CheckFields('ADD',$arFields))
+		if (!self::CheckFields('ADD',$arFields))
 			return false;
 
+		if (
+			isset($arFields['IMAGE_ID'])
+			&& is_array($arFields['IMAGE_ID'])
+		)
+		{
+			CFile::SaveForDB($arFields, 'IMAGE_ID', 'catalog');
+		}
 		$arInsert = $DB->PrepareInsert("b_catalog_store", $arFields);
-
 		$strSql = "INSERT INTO b_catalog_store (".$arInsert[0].") VALUES(".$arInsert[1].")";
 
 		$res = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -34,7 +40,7 @@ class CCatalogStore extends CAllCatalogStore
 			return false;
 		$lastId = (int)$DB->LastID();
 
-		Catalog\StoreTable::getEntity()->cleanCache();
+		Catalog\StoreTable::cleanCache();
 
 		foreach(GetModuleEvents("catalog", "OnCatalogStoreAdd", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($lastId, $arFields));

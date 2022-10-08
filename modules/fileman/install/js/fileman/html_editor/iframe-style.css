@@ -2,7 +2,8 @@ html{height: 100%;}
 body{
 	margin:0 !important;
 	padding: 8px 8px 8px 18px !important;
-	font-family: Arial,sans-serif;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
 }
 
 html body.fullscreen{
@@ -333,27 +334,27 @@ table[data-bx-no-border="Y"] th
 .bxhtmled-code{
 	border: 1px solid #C0C0C0!important;
 	white-space: pre!important;
-	padding: 5px!important;
+	padding: 8px 8px 8px 24px!important;
 	display: block;
 	min-height: 1em !important;
 }
 .bxhtmled-code *, .bxhtmled-code{
 	background: #eaeaea!important;
-	color: #000080!important;
+	color: #333!important;
 	font-weight: normal!important;
 	line-height: normal!important;
 	text-decoration: none!important;
-	font-size: 11px!important;
-	font-family: consolas, monospace!important;
-	border-radius: 2px !important;
+	font-size: 12px !important;
+	font-family: var(--ui-font-family-system-mono, consolas, monospace) !important;
+	border-radius: var(--ui-border-radius-sm, 2px) !important;
 }
 
 .bxhtmled-quote {
 	border: 1px solid #C0C0C0!important;
 	background-color: #fff4ca;
-	padding: 6px 6px 6px 24px;
-	color: #373737!important;
-	border-radius: 2px !important;
+	padding: 8px 8px 8px 24px;
+	color: #333!important;
+	border-radius: var(--ui-border-radius-sm, 2px) !important;
 	min-height: 1em !important;
 	margin: 0.6em 0 0.8em 0!important;
 }

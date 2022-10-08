@@ -21,6 +21,8 @@ $selectorId = $arResult['SELECTOR_ID'];
 $contentClass = 'ies-content';
 $contentClass .= $arResult['MULTIPLE'] == 'Y' ? ' ies-content-multiple' : '';
 $contentClass .= $arResult['POPUP'] == 'Y' ? ' ies-content-hide' : '';
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
 ?>
 
 <?if($arResult['PANEL_SELECTED_VALUES'] == 'Y'):?>

@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Type;
 
 use Bitrix\Main;
@@ -10,8 +11,8 @@ class Date
 	protected $value;
 
 	/**
-	 * @param string $date String representation of date.
-	 * @param string $format PHP date format. If not specified, the format is got from the current culture.
+	 * @param string | null $date String representation of date.
+	 * @param string | null $format PHP date format. If not specified, the format is got from the current culture.
 	 *
 	 * @throws Main\ObjectException
 	 */
@@ -41,7 +42,7 @@ class Date
 				$this->value->setDate($parsedValue['year'], $parsedValue['month'], $parsedValue['day']);
   			}
 		}
-		$this->value->setTime(0, 0, 0);
+		$this->value->setTime(0, 0);
 	}
 
 	/**
@@ -230,7 +231,7 @@ class Date
 	/**
 	 * Converts a date to the string.
 	 *
-	 * @param Context\Culture $culture Culture contains date format.
+	 * @param Context\Culture | null $culture Culture contains date format.
 	 *
 	 * @return string
 	 */
@@ -253,7 +254,7 @@ class Date
 	/**
 	 * Returns a date format from the culture in the php format.
 	 *
-	 * @param Context\Culture $culture Optional culture.
+	 * @param Context\Culture | null $culture Optional culture.
 	 *
 	 * @return string
 	 */
@@ -282,7 +283,7 @@ class Date
 	/**
 	 * Returns short date culture format.
 	 *
-	 * @param Context\Culture $culture Culture.
+	 * @param Context\Culture | null $culture Culture.
 	 *
 	 * @return string
 	 */
@@ -300,7 +301,7 @@ class Date
 	 *
 	 * @param string $format Format string.
 	 *
-	 * @return mixed
+	 * @return string
 	 */
 	public static function convertFormatToPhp($format)
 	{
@@ -384,7 +385,7 @@ class Date
 	{
 		$d = new static();
 		$d->value = clone $datetime;
-		$d->value->setTime(0, 0, 0);
+		$d->value->setTime(0, 0);
 		return $d;
 	}
 
@@ -399,7 +400,7 @@ class Date
 	{
 		$d = new static();
 		$d->value->setTimestamp($timestamp);
-		$d->value->setTime(0, 0, 0);
+		$d->value->setTime(0, 0);
 		return $d;
 	}
 

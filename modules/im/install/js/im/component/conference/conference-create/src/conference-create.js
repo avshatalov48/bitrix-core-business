@@ -1,3 +1,6 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 import { ajax as Ajax, Reflection, Runtime } from "main.core";
 import {BitrixVue} from "ui.vue";
 import {Logger} from "im.lib.logger";

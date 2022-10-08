@@ -78,7 +78,7 @@
 .bx-im-notifications-item-header-date {
 	display: flex;
 	align-items: center;
-	font: 13px/17px "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font: 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #b3b3b3;
 	padding: 0 5px 0 10px;
 	margin-top: -1px;
@@ -88,6 +88,7 @@
 	display: flex;
 	max-width: 75%;
 	font-size: 14px;
+	font-weight: var(--ui-font-weight-semi-bold);
 }
 
 .bx-im-notifications-item-header-more-users {
@@ -171,8 +172,9 @@
 .bx-im-notifications-item-bottom-subtitle {
 	display: flex;
 	align-items: center;
-	color: #777;
-	font-size: 14px;
+	color: #151515;
+	font-size: var(--ui-font-size-lg, 14px);
+	line-height: var(--ui-font-line-height-2xs);
 }
 
 .bx-vue-list-icon-subtitle-left {
@@ -191,7 +193,7 @@
 .bx-im-notifications-item-bottom-no-subtitle-text {
 	text-overflow: ellipsis;
 	overflow: hidden;
-	color: #666666;
+	color: #151515;
 }
 
 .bx-im-notifications-item-bottom-subtitle-text .bx-smile {
@@ -254,7 +256,7 @@
 }
 
 .bx-notifier-item-text-vue {
-	font: 14px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #666666;
 	display: block;
 	word-wrap: break-word;

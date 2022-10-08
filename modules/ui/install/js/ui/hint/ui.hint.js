@@ -97,6 +97,7 @@
 		popupParameters: null,
 		ownerDocument: null,
 		cursorPosition: {x:0, y:0},
+		anchorNode: null,
 
 		/**
 		 * Create instance of manager. Use for customization purposes.
@@ -217,6 +218,7 @@
 		 */
 		show: function (anchorNode, html)
 		{
+			this.anchorNode = anchorNode;
 			if (!this.content)
 			{
 				this.content= document.createElement('div');
@@ -264,15 +266,26 @@
 					parameters.className = this.classNamePopup;
 				}
 
-				if (anchorNode.hasAttribute(this.attributeInteractivityName))
-				{
-					parameters.className += ' '+ this.classNamePopupInteractivity;
-				}
-
 				this.popup = new BX.PopupWindow(this.id, anchorNode, parameters);
 
 				// register for working interactive mode
-				BX.bind(this.popup.getPopupContainer(), 'mouseleave', () => this.popup.close());
+				BX.bind(this.popup.getPopupContainer(), 'mouseleave', () => {
+					setTimeout(() => {
+						if (!isHovered(this.cursorPosition, this.anchorNode))
+						{
+							this.popup.close();
+						}
+					}, 200);
+				});
+			}
+
+			if (anchorNode.hasAttribute(this.attributeInteractivityName))
+			{
+				BX.Dom.addClass(this.popup.getPopupContainer(), this.classNamePopupInteractivity);
+			}
+			else
+			{
+				BX.Dom.removeClass(this.popup.getPopupContainer(), this.classNamePopupInteractivity);
 			}
 
 			this.content.innerHTML = html;

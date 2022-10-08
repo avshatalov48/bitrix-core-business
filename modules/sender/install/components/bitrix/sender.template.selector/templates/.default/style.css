@@ -8,11 +8,11 @@
 }
 
 .sender-template-caption {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 }
 .sender-template-list-caption {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-left: 20px;
 }
 .sender-template-type-selector{
@@ -23,7 +23,7 @@
 }
 .sender-template-type-selector-title {
 	position: relative;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-bottom: 30px;
 	height: 15px;
 	font-size: 14px;

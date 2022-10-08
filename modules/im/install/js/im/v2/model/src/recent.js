@@ -38,6 +38,7 @@ export class RecentModel extends BuilderModel
 				text: '',
 				date: null
 			},
+			unread: false,
 			pinned: false,
 			liked: false,
 			invitation: {
@@ -68,13 +69,15 @@ export class RecentModel extends BuilderModel
 			},
 			getSortedCollection: (state): Object[] =>
 			{
-				const collectionAsArray = Object.values(state.collection);
+				const collectionAsArray = Object.values(state.collection).filter(item => {
+					const isBirthdayPlaceholder = item.options.birthdayPlaceholder;
+					const isInvitedUser = item.options.defaultUserRecord;
+
+					return !isBirthdayPlaceholder && !isInvitedUser && item.message.id;
+				});
 
 				return [...collectionAsArray].sort((a, b) => {
-					const firstDate = this.store.getters['recent/getMessageDate'](a.dialogId);
-					const secondDate = this.store.getters['recent/getMessageDate'](b.dialogId);
-
-					return secondDate - firstDate;
+					return b.message.date - a.message.date;
 				});
 			},
 			get: (state) => (dialogId: string): Object | null =>
@@ -229,6 +232,20 @@ export class RecentModel extends BuilderModel
 				});
 			},
 
+			unread: (store, payload: {id: string | number, action: boolean}) =>
+			{
+				const existingItem = store.state.collection[payload.id];
+				if (!existingItem)
+				{
+					return false;
+				}
+
+				store.commit('update', {
+					id: existingItem.dialogId,
+					fields: {unread: payload.action}
+				});
+			},
+
 			pin: (store, payload: {id: string | number, action: boolean}) =>
 			{
 				const existingItem = store.state.collection[payload.id];
@@ -266,10 +283,24 @@ export class RecentModel extends BuilderModel
 
 			draft: (store, payload: {id: string | number, text: string}) =>
 			{
-				const existingItem = store.state.collection[payload.id];
-				if (!existingItem)
+				const dialog = this.store.getters['dialogues/get'](payload.id);
+				if (!dialog)
 				{
 					return false;
+				}
+
+				let existingItem = store.state.collection[payload.id];
+				if (!existingItem)
+				{
+					if (payload.text === '')
+					{
+						return false;
+					}
+					const newItem = {
+						dialogId: payload.id.toString(),
+					};
+					store.commit('add', {...this.getElementState(), ...newItem});
+					existingItem = store.state.collection[payload.id];
 				}
 
 				const fields = this.validate({draft: {text: payload.text.toString()}});
@@ -455,6 +486,11 @@ export class RecentModel extends BuilderModel
 		if (Type.isPlainObject(fields.draft))
 		{
 			result.draft = this.prepareDraft(fields);
+		}
+
+		if (Type.isBoolean(fields.unread))
+		{
+			result.unread = fields.unread;
 		}
 
 		if (Type.isBoolean(fields.pinned))

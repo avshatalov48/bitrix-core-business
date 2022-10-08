@@ -66,7 +66,7 @@ $settings = \Bitrix\Landing\Hook\Page\Settings::getDataForSite(
 					</div>
 
 					<!--				search-->
-					<div class="landing-block-search-container col-sm-4 col-md-3 g-mb-10 g-mb-0--md">
+					<div class="landing-block-search-container col-sm-4 col-md-3 g-mb-10 g-mb-0--md align-self-center">
 						<? $APPLICATION->IncludeComponent("bitrix:search.title", "bootstrap_v4", array(
 							"NUM_CATEGORIES" => "1",
 							"TOP_COUNT" => "5",

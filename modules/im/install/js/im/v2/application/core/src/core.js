@@ -371,6 +371,12 @@ class CoreApplication
 				resolve(this);
 			};
 			const bitrixVue = BitrixVue.createApp(initConfig);
+			bitrixVue.config.errorHandler = function (err, vm, info) {
+				console.error(err, info);
+			};
+			bitrixVue.config.warnHandler = function (warn, vm, trace) {
+				console.warn(warn, trace);
+			};
 			application.bitrixVue = bitrixVue;
 			bitrixVue.use(this.store).mount(initConfig.el);
 		});

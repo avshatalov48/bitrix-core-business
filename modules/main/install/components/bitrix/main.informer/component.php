@@ -11,8 +11,6 @@ if (!array_key_exists("NOTES", $arParams) || !is_array($arParams["NOTES"]))
 if (!array_key_exists("ID", $arParams) || $arParams["ID"] == '')
 	$arParams["ID"] = md5($APPLICATION->GetCurPage());
 
-require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
-
 $arResult["text"] = $arParams["NOTES"];
 
 $arResult["informer"] = CUserOptions::GetOption('main', 'informer_'.$arParams["ID"], array('show' => true, 'step' => 1));

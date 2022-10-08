@@ -389,6 +389,183 @@ namespace Bitrix\Main\Authentication {
 	 */
 	class EO_ApplicationPassword_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\ModuleGroupTable:main/lib/authentication/internal/modulegrouptable.php */
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_ModuleGroup
+	 * @see \Bitrix\Main\Authentication\Internal\ModuleGroupTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getModuleId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup setModuleId(\string|\Bitrix\Main\DB\SqlExpression $moduleId)
+	 * @method bool hasModuleId()
+	 * @method bool isModuleIdFilled()
+	 * @method bool isModuleIdChanged()
+	 * @method \string remindActualModuleId()
+	 * @method \string requireModuleId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup resetModuleId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup unsetModuleId()
+	 * @method \string fillModuleId()
+	 * @method \int getGroupId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
+	 * @method bool hasGroupId()
+	 * @method bool isGroupIdFilled()
+	 * @method bool isGroupIdChanged()
+	 * @method \int remindActualGroupId()
+	 * @method \int requireGroupId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup resetGroupId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup unsetGroupId()
+	 * @method \int fillGroupId()
+	 * @method \string getGAccess()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup setGAccess(\string|\Bitrix\Main\DB\SqlExpression $gAccess)
+	 * @method bool hasGAccess()
+	 * @method bool isGAccessFilled()
+	 * @method bool isGAccessChanged()
+	 * @method \string remindActualGAccess()
+	 * @method \string requireGAccess()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup resetGAccess()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup unsetGAccess()
+	 * @method \string fillGAccess()
+	 * @method \string getSiteId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
+	 * @method bool hasSiteId()
+	 * @method bool isSiteIdFilled()
+	 * @method bool isSiteIdChanged()
+	 * @method \string remindActualSiteId()
+	 * @method \string requireSiteId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup resetSiteId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup unsetSiteId()
+	 * @method \string fillSiteId()
+	 * @method \Bitrix\Main\EO_Group getGroup()
+	 * @method \Bitrix\Main\EO_Group remindActualGroup()
+	 * @method \Bitrix\Main\EO_Group requireGroup()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup setGroup(\Bitrix\Main\EO_Group $object)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup resetGroup()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup unsetGroup()
+	 * @method bool hasGroup()
+	 * @method bool isGroupFilled()
+	 * @method bool isGroupChanged()
+	 * @method \Bitrix\Main\EO_Group fillGroup()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup set($fieldName, $value)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup reset($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_ModuleGroup wakeUp($data)
+	 */
+	class EO_ModuleGroup {
+		/* @var \Bitrix\Main\Authentication\Internal\ModuleGroupTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\ModuleGroupTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_ModuleGroup_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getModuleIdList()
+	 * @method \string[] fillModuleId()
+	 * @method \int[] getGroupIdList()
+	 * @method \int[] fillGroupId()
+	 * @method \string[] getGAccessList()
+	 * @method \string[] fillGAccess()
+	 * @method \string[] getSiteIdList()
+	 * @method \string[] fillSiteId()
+	 * @method \Bitrix\Main\EO_Group[] getGroupList()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup_Collection getGroupCollection()
+	 * @method \Bitrix\Main\EO_Group_Collection fillGroup()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\Authentication\Internal\EO_ModuleGroup $object)
+	 * @method bool has(\Bitrix\Main\Authentication\Internal\EO_ModuleGroup $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup getByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup[] getAll()
+	 * @method bool remove(\Bitrix\Main\Authentication\Internal\EO_ModuleGroup $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_ModuleGroup_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_ModuleGroup_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\Authentication\Internal\ModuleGroupTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\ModuleGroupTable';
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_ModuleGroup_Result exec()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_ModuleGroup_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup_Collection fetchCollection()
+	 */
+	class EO_ModuleGroup_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup_Collection createCollection()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup wakeUpObject($row)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_ModuleGroup_Collection wakeUpCollection($rows)
+	 */
+	class EO_ModuleGroup_Entity extends \Bitrix\Main\ORM\Entity {}
+}
 /* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserAuthCodeTable:main/lib/authentication/internal/userauthcodetable.php */
 namespace Bitrix\Main\Authentication\Internal {
 	/**
@@ -572,6 +749,631 @@ namespace Bitrix\Main\Authentication\Internal {
 	 */
 	class EO_UserAuthCode_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserDeviceLoginTable:main/lib/authentication/internal/userdevicelogintable.php */
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_UserDeviceLogin
+	 * @see \Bitrix\Main\Authentication\Internal\UserDeviceLoginTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getDeviceId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setDeviceId(\int|\Bitrix\Main\DB\SqlExpression $deviceId)
+	 * @method bool hasDeviceId()
+	 * @method bool isDeviceIdFilled()
+	 * @method bool isDeviceIdChanged()
+	 * @method \int remindActualDeviceId()
+	 * @method \int requireDeviceId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetDeviceId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetDeviceId()
+	 * @method \int fillDeviceId()
+	 * @method \Bitrix\Main\Type\DateTime getLoginDate()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setLoginDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $loginDate)
+	 * @method bool hasLoginDate()
+	 * @method bool isLoginDateFilled()
+	 * @method bool isLoginDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualLoginDate()
+	 * @method \Bitrix\Main\Type\DateTime requireLoginDate()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetLoginDate()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetLoginDate()
+	 * @method \Bitrix\Main\Type\DateTime fillLoginDate()
+	 * @method \string getIp()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setIp(\string|\Bitrix\Main\DB\SqlExpression $ip)
+	 * @method bool hasIp()
+	 * @method bool isIpFilled()
+	 * @method bool isIpChanged()
+	 * @method \string remindActualIp()
+	 * @method \string requireIp()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetIp()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetIp()
+	 * @method \string fillIp()
+	 * @method \int getCityGeoid()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setCityGeoid(\int|\Bitrix\Main\DB\SqlExpression $cityGeoid)
+	 * @method bool hasCityGeoid()
+	 * @method bool isCityGeoidFilled()
+	 * @method bool isCityGeoidChanged()
+	 * @method \int remindActualCityGeoid()
+	 * @method \int requireCityGeoid()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetCityGeoid()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetCityGeoid()
+	 * @method \int fillCityGeoid()
+	 * @method \int getRegionGeoid()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setRegionGeoid(\int|\Bitrix\Main\DB\SqlExpression $regionGeoid)
+	 * @method bool hasRegionGeoid()
+	 * @method bool isRegionGeoidFilled()
+	 * @method bool isRegionGeoidChanged()
+	 * @method \int remindActualRegionGeoid()
+	 * @method \int requireRegionGeoid()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetRegionGeoid()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetRegionGeoid()
+	 * @method \int fillRegionGeoid()
+	 * @method \string getCountryIsoCode()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setCountryIsoCode(\string|\Bitrix\Main\DB\SqlExpression $countryIsoCode)
+	 * @method bool hasCountryIsoCode()
+	 * @method bool isCountryIsoCodeFilled()
+	 * @method bool isCountryIsoCodeChanged()
+	 * @method \string remindActualCountryIsoCode()
+	 * @method \string requireCountryIsoCode()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetCountryIsoCode()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetCountryIsoCode()
+	 * @method \string fillCountryIsoCode()
+	 * @method \int getAppPasswordId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setAppPasswordId(\int|\Bitrix\Main\DB\SqlExpression $appPasswordId)
+	 * @method bool hasAppPasswordId()
+	 * @method bool isAppPasswordIdFilled()
+	 * @method bool isAppPasswordIdChanged()
+	 * @method \int remindActualAppPasswordId()
+	 * @method \int requireAppPasswordId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetAppPasswordId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetAppPasswordId()
+	 * @method \int fillAppPasswordId()
+	 * @method \int getStoredAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setStoredAuthId(\int|\Bitrix\Main\DB\SqlExpression $storedAuthId)
+	 * @method bool hasStoredAuthId()
+	 * @method bool isStoredAuthIdFilled()
+	 * @method bool isStoredAuthIdChanged()
+	 * @method \int remindActualStoredAuthId()
+	 * @method \int requireStoredAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetStoredAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetStoredAuthId()
+	 * @method \int fillStoredAuthId()
+	 * @method \int getHitAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin setHitAuthId(\int|\Bitrix\Main\DB\SqlExpression $hitAuthId)
+	 * @method bool hasHitAuthId()
+	 * @method bool isHitAuthIdFilled()
+	 * @method bool isHitAuthIdChanged()
+	 * @method \int remindActualHitAuthId()
+	 * @method \int requireHitAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin resetHitAuthId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unsetHitAuthId()
+	 * @method \int fillHitAuthId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin set($fieldName, $value)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin reset($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin wakeUp($data)
+	 */
+	class EO_UserDeviceLogin {
+		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceLoginTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserDeviceLoginTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_UserDeviceLogin_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getDeviceIdList()
+	 * @method \int[] fillDeviceId()
+	 * @method \Bitrix\Main\Type\DateTime[] getLoginDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillLoginDate()
+	 * @method \string[] getIpList()
+	 * @method \string[] fillIp()
+	 * @method \int[] getCityGeoidList()
+	 * @method \int[] fillCityGeoid()
+	 * @method \int[] getRegionGeoidList()
+	 * @method \int[] fillRegionGeoid()
+	 * @method \string[] getCountryIsoCodeList()
+	 * @method \string[] fillCountryIsoCode()
+	 * @method \int[] getAppPasswordIdList()
+	 * @method \int[] fillAppPasswordId()
+	 * @method \int[] getStoredAuthIdList()
+	 * @method \int[] fillStoredAuthId()
+	 * @method \int[] getHitAuthIdList()
+	 * @method \int[] fillHitAuthId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin $object)
+	 * @method bool has(\Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin getByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin[] getAll()
+	 * @method bool remove(\Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_UserDeviceLogin_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceLoginTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserDeviceLoginTable';
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_UserDeviceLogin_Result exec()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_UserDeviceLogin_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection fetchCollection()
+	 */
+	class EO_UserDeviceLogin_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection createCollection()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin wakeUpObject($row)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin_Collection wakeUpCollection($rows)
+	 */
+	class EO_UserDeviceLogin_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserDeviceTable:main/lib/authentication/internal/userdevicetable.php */
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_UserDevice
+	 * @see \Bitrix\Main\Authentication\Internal\UserDeviceTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetUserId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \string getDeviceUid()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setDeviceUid(\string|\Bitrix\Main\DB\SqlExpression $deviceUid)
+	 * @method bool hasDeviceUid()
+	 * @method bool isDeviceUidFilled()
+	 * @method bool isDeviceUidChanged()
+	 * @method \string remindActualDeviceUid()
+	 * @method \string requireDeviceUid()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetDeviceUid()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetDeviceUid()
+	 * @method \string fillDeviceUid()
+	 * @method \int getDeviceType()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setDeviceType(\int|\Bitrix\Main\DB\SqlExpression $deviceType)
+	 * @method bool hasDeviceType()
+	 * @method bool isDeviceTypeFilled()
+	 * @method bool isDeviceTypeChanged()
+	 * @method \int remindActualDeviceType()
+	 * @method \int requireDeviceType()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetDeviceType()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetDeviceType()
+	 * @method \int fillDeviceType()
+	 * @method \string getBrowser()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setBrowser(\string|\Bitrix\Main\DB\SqlExpression $browser)
+	 * @method bool hasBrowser()
+	 * @method bool isBrowserFilled()
+	 * @method bool isBrowserChanged()
+	 * @method \string remindActualBrowser()
+	 * @method \string requireBrowser()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetBrowser()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetBrowser()
+	 * @method \string fillBrowser()
+	 * @method \string getPlatform()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setPlatform(\string|\Bitrix\Main\DB\SqlExpression $platform)
+	 * @method bool hasPlatform()
+	 * @method bool isPlatformFilled()
+	 * @method bool isPlatformChanged()
+	 * @method \string remindActualPlatform()
+	 * @method \string requirePlatform()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetPlatform()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetPlatform()
+	 * @method \string fillPlatform()
+	 * @method \string getUserAgent()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setUserAgent(\string|\Bitrix\Main\DB\SqlExpression $userAgent)
+	 * @method bool hasUserAgent()
+	 * @method bool isUserAgentFilled()
+	 * @method bool isUserAgentChanged()
+	 * @method \string remindActualUserAgent()
+	 * @method \string requireUserAgent()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetUserAgent()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetUserAgent()
+	 * @method \string fillUserAgent()
+	 * @method \boolean getCookable()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice setCookable(\boolean|\Bitrix\Main\DB\SqlExpression $cookable)
+	 * @method bool hasCookable()
+	 * @method bool isCookableFilled()
+	 * @method bool isCookableChanged()
+	 * @method \boolean remindActualCookable()
+	 * @method \boolean requireCookable()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice resetCookable()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unsetCookable()
+	 * @method \boolean fillCookable()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice set($fieldName, $value)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice reset($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserDevice wakeUp($data)
+	 */
+	class EO_UserDevice {
+		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserDeviceTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_UserDevice_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \string[] getDeviceUidList()
+	 * @method \string[] fillDeviceUid()
+	 * @method \int[] getDeviceTypeList()
+	 * @method \int[] fillDeviceType()
+	 * @method \string[] getBrowserList()
+	 * @method \string[] fillBrowser()
+	 * @method \string[] getPlatformList()
+	 * @method \string[] fillPlatform()
+	 * @method \string[] getUserAgentList()
+	 * @method \string[] fillUserAgent()
+	 * @method \boolean[] getCookableList()
+	 * @method \boolean[] fillCookable()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\Authentication\Internal\EO_UserDevice $object)
+	 * @method bool has(\Bitrix\Main\Authentication\Internal\EO_UserDevice $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice getByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice[] getAll()
+	 * @method bool remove(\Bitrix\Main\Authentication\Internal\EO_UserDevice $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_UserDevice_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\Authentication\Internal\UserDeviceTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserDeviceTable';
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_UserDevice_Result exec()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_UserDevice_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection fetchCollection()
+	 */
+	class EO_UserDevice_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection createCollection()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice wakeUpObject($row)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserDevice_Collection wakeUpCollection($rows)
+	 */
+	class EO_UserDevice_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserHitAuthTable:main/lib/authentication/internal/userhitauthtable.php */
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_UserHitAuth
+	 * @see \Bitrix\Main\Authentication\Internal\UserHitAuthTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth resetUserId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \string getHash()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth setHash(\string|\Bitrix\Main\DB\SqlExpression $hash)
+	 * @method bool hasHash()
+	 * @method bool isHashFilled()
+	 * @method bool isHashChanged()
+	 * @method \string remindActualHash()
+	 * @method \string requireHash()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth resetHash()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth unsetHash()
+	 * @method \string fillHash()
+	 * @method \string getUrl()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth setUrl(\string|\Bitrix\Main\DB\SqlExpression $url)
+	 * @method bool hasUrl()
+	 * @method bool isUrlFilled()
+	 * @method bool isUrlChanged()
+	 * @method \string remindActualUrl()
+	 * @method \string requireUrl()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth resetUrl()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth unsetUrl()
+	 * @method \string fillUrl()
+	 * @method \string getSiteId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
+	 * @method bool hasSiteId()
+	 * @method bool isSiteIdFilled()
+	 * @method bool isSiteIdChanged()
+	 * @method \string remindActualSiteId()
+	 * @method \string requireSiteId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth resetSiteId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth unsetSiteId()
+	 * @method \string fillSiteId()
+	 * @method \Bitrix\Main\Type\DateTime getTimestampX()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth setTimestampX(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $timestampX)
+	 * @method bool hasTimestampX()
+	 * @method bool isTimestampXFilled()
+	 * @method bool isTimestampXChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualTimestampX()
+	 * @method \Bitrix\Main\Type\DateTime requireTimestampX()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth resetTimestampX()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth unsetTimestampX()
+	 * @method \Bitrix\Main\Type\DateTime fillTimestampX()
+	 * @method \Bitrix\Main\Type\DateTime getValidUntil()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth setValidUntil(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $validUntil)
+	 * @method bool hasValidUntil()
+	 * @method bool isValidUntilFilled()
+	 * @method bool isValidUntilChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualValidUntil()
+	 * @method \Bitrix\Main\Type\DateTime requireValidUntil()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth resetValidUntil()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth unsetValidUntil()
+	 * @method \Bitrix\Main\Type\DateTime fillValidUntil()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth resetUser()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth set($fieldName, $value)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth reset($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserHitAuth wakeUp($data)
+	 */
+	class EO_UserHitAuth {
+		/* @var \Bitrix\Main\Authentication\Internal\UserHitAuthTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserHitAuthTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_UserHitAuth_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \string[] getHashList()
+	 * @method \string[] fillHash()
+	 * @method \string[] getUrlList()
+	 * @method \string[] fillUrl()
+	 * @method \string[] getSiteIdList()
+	 * @method \string[] fillSiteId()
+	 * @method \Bitrix\Main\Type\DateTime[] getTimestampXList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillTimestampX()
+	 * @method \Bitrix\Main\Type\DateTime[] getValidUntilList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillValidUntil()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth_Collection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\Authentication\Internal\EO_UserHitAuth $object)
+	 * @method bool has(\Bitrix\Main\Authentication\Internal\EO_UserHitAuth $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth getByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth[] getAll()
+	 * @method bool remove(\Bitrix\Main\Authentication\Internal\EO_UserHitAuth $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserHitAuth_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_UserHitAuth_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\Authentication\Internal\UserHitAuthTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserHitAuthTable';
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_UserHitAuth_Result exec()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_UserHitAuth_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth_Collection fetchCollection()
+	 */
+	class EO_UserHitAuth_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth_Collection createCollection()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth wakeUpObject($row)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserHitAuth_Collection wakeUpCollection($rows)
+	 */
+	class EO_UserHitAuth_Entity extends \Bitrix\Main\ORM\Entity {}
+}
 /* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserPasswordTable:main/lib/authentication/internal/userpasswordtable.php */
 namespace Bitrix\Main\Authentication\Internal {
 	/**
@@ -736,6 +1538,194 @@ namespace Bitrix\Main\Authentication\Internal {
 	 * @method \Bitrix\Main\Authentication\Internal\EO_UserPassword_Collection wakeUpCollection($rows)
 	 */
 	class EO_UserPassword_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Main\Authentication\Internal\UserStoredAuthTable:main/lib/authentication/internal/userstoredauthtable.php */
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_UserStoredAuth
+	 * @see \Bitrix\Main\Authentication\Internal\UserStoredAuthTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth resetUserId()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \Bitrix\Main\Type\DateTime getDateReg()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth setDateReg(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateReg)
+	 * @method bool hasDateReg()
+	 * @method bool isDateRegFilled()
+	 * @method bool isDateRegChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateReg()
+	 * @method \Bitrix\Main\Type\DateTime requireDateReg()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth resetDateReg()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth unsetDateReg()
+	 * @method \Bitrix\Main\Type\DateTime fillDateReg()
+	 * @method \Bitrix\Main\Type\DateTime getLastAuth()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth setLastAuth(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $lastAuth)
+	 * @method bool hasLastAuth()
+	 * @method bool isLastAuthFilled()
+	 * @method bool isLastAuthChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualLastAuth()
+	 * @method \Bitrix\Main\Type\DateTime requireLastAuth()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth resetLastAuth()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth unsetLastAuth()
+	 * @method \Bitrix\Main\Type\DateTime fillLastAuth()
+	 * @method \string getStoredHash()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth setStoredHash(\string|\Bitrix\Main\DB\SqlExpression $storedHash)
+	 * @method bool hasStoredHash()
+	 * @method bool isStoredHashFilled()
+	 * @method bool isStoredHashChanged()
+	 * @method \string remindActualStoredHash()
+	 * @method \string requireStoredHash()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth resetStoredHash()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth unsetStoredHash()
+	 * @method \string fillStoredHash()
+	 * @method \boolean getTempHash()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth setTempHash(\boolean|\Bitrix\Main\DB\SqlExpression $tempHash)
+	 * @method bool hasTempHash()
+	 * @method bool isTempHashFilled()
+	 * @method bool isTempHashChanged()
+	 * @method \boolean remindActualTempHash()
+	 * @method \boolean requireTempHash()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth resetTempHash()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth unsetTempHash()
+	 * @method \boolean fillTempHash()
+	 * @method \int getIpAddr()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth setIpAddr(\int|\Bitrix\Main\DB\SqlExpression $ipAddr)
+	 * @method bool hasIpAddr()
+	 * @method bool isIpAddrFilled()
+	 * @method bool isIpAddrChanged()
+	 * @method \int remindActualIpAddr()
+	 * @method \int requireIpAddr()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth resetIpAddr()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth unsetIpAddr()
+	 * @method \int fillIpAddr()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth set($fieldName, $value)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth reset($fieldName)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth wakeUp($data)
+	 */
+	class EO_UserStoredAuth {
+		/* @var \Bitrix\Main\Authentication\Internal\UserStoredAuthTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserStoredAuthTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * EO_UserStoredAuth_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateRegList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateReg()
+	 * @method \Bitrix\Main\Type\DateTime[] getLastAuthList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillLastAuth()
+	 * @method \string[] getStoredHashList()
+	 * @method \string[] fillStoredHash()
+	 * @method \boolean[] getTempHashList()
+	 * @method \boolean[] fillTempHash()
+	 * @method \int[] getIpAddrList()
+	 * @method \int[] fillIpAddr()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\Authentication\Internal\EO_UserStoredAuth $object)
+	 * @method bool has(\Bitrix\Main\Authentication\Internal\EO_UserStoredAuth $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth getByPrimary($primary)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth[] getAll()
+	 * @method bool remove(\Bitrix\Main\Authentication\Internal\EO_UserStoredAuth $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_UserStoredAuth_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\Authentication\Internal\UserStoredAuthTable */
+		static public $dataClass = '\Bitrix\Main\Authentication\Internal\UserStoredAuthTable';
+	}
+}
+namespace Bitrix\Main\Authentication\Internal {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_UserStoredAuth_Result exec()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_UserStoredAuth_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth fetchObject()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth_Collection fetchCollection()
+	 */
+	class EO_UserStoredAuth_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth_Collection createCollection()
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth wakeUpObject($row)
+	 * @method \Bitrix\Main\Authentication\Internal\EO_UserStoredAuth_Collection wakeUpCollection($rows)
+	 */
+	class EO_UserStoredAuth_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Main\Component\ParametersTable:main/lib/component/parameters.php */
 namespace Bitrix\Main\Component {
@@ -4040,6 +5030,16 @@ namespace Bitrix\Main\Localization {
 	 * @method \Bitrix\Main\Localization\EO_Language resetCultureId()
 	 * @method \Bitrix\Main\Localization\EO_Language unsetCultureId()
 	 * @method \int fillCultureId()
+	 * @method \string getCode()
+	 * @method \Bitrix\Main\Localization\EO_Language setCode(\string|\Bitrix\Main\DB\SqlExpression $code)
+	 * @method bool hasCode()
+	 * @method bool isCodeFilled()
+	 * @method bool isCodeChanged()
+	 * @method \string remindActualCode()
+	 * @method \string requireCode()
+	 * @method \Bitrix\Main\Localization\EO_Language resetCode()
+	 * @method \Bitrix\Main\Localization\EO_Language unsetCode()
+	 * @method \string fillCode()
 	 * @method \Bitrix\Main\Context\Culture getCulture()
 	 * @method \Bitrix\Main\Context\Culture remindActualCulture()
 	 * @method \Bitrix\Main\Context\Culture requireCulture()
@@ -4108,6 +5108,8 @@ namespace Bitrix\Main\Localization {
 	 * @method \string[] fillName()
 	 * @method \int[] getCultureIdList()
 	 * @method \int[] fillCultureId()
+	 * @method \string[] getCodeList()
+	 * @method \string[] fillCode()
 	 * @method \Bitrix\Main\Context\Culture[] getCultureList()
 	 * @method \Bitrix\Main\Localization\EO_Language_Collection getCultureCollection()
 	 * @method \Bitrix\Main\Localization\EO_Culture_Collection fillCulture()
@@ -7010,6 +8012,140 @@ namespace Bitrix\Main\Service\GeoIp {
 	 */
 	class EO_Handler_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+/* ORMENTITYANNOTATION:Bitrix\Main\Service\GeoIp\Internal\GeonameTable:main/lib/service/geoip/internal/geonametable.php */
+namespace Bitrix\Main\Service\GeoIp\Internal {
+	/**
+	 * EO_Geoname
+	 * @see \Bitrix\Main\Service\GeoIp\Internal\GeonameTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getLanguageCode()
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname setLanguageCode(\string|\Bitrix\Main\DB\SqlExpression $languageCode)
+	 * @method bool hasLanguageCode()
+	 * @method bool isLanguageCodeFilled()
+	 * @method bool isLanguageCodeChanged()
+	 * @method \string getName()
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method bool isNameChanged()
+	 * @method \string remindActualName()
+	 * @method \string requireName()
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname resetName()
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname unsetName()
+	 * @method \string fillName()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname set($fieldName, $value)
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname reset($fieldName)
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname wakeUp($data)
+	 */
+	class EO_Geoname {
+		/* @var \Bitrix\Main\Service\GeoIp\Internal\GeonameTable */
+		static public $dataClass = '\Bitrix\Main\Service\GeoIp\Internal\GeonameTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\Service\GeoIp\Internal {
+	/**
+	 * EO_Geoname_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getLanguageCodeList()
+	 * @method \string[] getNameList()
+	 * @method \string[] fillName()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\Service\GeoIp\Internal\EO_Geoname $object)
+	 * @method bool has(\Bitrix\Main\Service\GeoIp\Internal\EO_Geoname $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname getByPrimary($primary)
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname[] getAll()
+	 * @method bool remove(\Bitrix\Main\Service\GeoIp\Internal\EO_Geoname $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_Geoname_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\Service\GeoIp\Internal\GeonameTable */
+		static public $dataClass = '\Bitrix\Main\Service\GeoIp\Internal\GeonameTable';
+	}
+}
+namespace Bitrix\Main\Service\GeoIp\Internal {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Geoname_Result exec()
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname fetchObject()
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Geoname_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname fetchObject()
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname_Collection fetchCollection()
+	 */
+	class EO_Geoname_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname_Collection createCollection()
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname wakeUpObject($row)
+	 * @method \Bitrix\Main\Service\GeoIp\Internal\EO_Geoname_Collection wakeUpCollection($rows)
+	 */
+	class EO_Geoname_Entity extends \Bitrix\Main\ORM\Entity {}
+}
 /* ORMENTITYANNOTATION:Bitrix\Main\Session\Handlers\Table\UserSessionTable:main/lib/session/handlers/table/usersessiontable.php */
 namespace Bitrix\Main\Session\Handlers\Table {
 	/**
@@ -7164,6 +8300,13 @@ namespace Bitrix\Main {
 	 * @method bool hasLid()
 	 * @method bool isLidFilled()
 	 * @method bool isLidChanged()
+	 * @method \string getId()
+	 * @method \string remindActualId()
+	 * @method \string requireId()
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method \Bitrix\Main\EO_Site unsetId()
+	 * @method \string fillId()
 	 * @method \int getSort()
 	 * @method \Bitrix\Main\EO_Site setSort(\int|\Bitrix\Main\DB\SqlExpression $sort)
 	 * @method bool hasSort()
@@ -7294,6 +8437,30 @@ namespace Bitrix\Main {
 	 * @method bool isCultureFilled()
 	 * @method bool isCultureChanged()
 	 * @method \Bitrix\Main\Context\Culture fillCulture()
+	 * @method \Bitrix\Main\Localization\EO_Language getLanguage()
+	 * @method \Bitrix\Main\Localization\EO_Language remindActualLanguage()
+	 * @method \Bitrix\Main\Localization\EO_Language requireLanguage()
+	 * @method \Bitrix\Main\EO_Site setLanguage(\Bitrix\Main\Localization\EO_Language $object)
+	 * @method \Bitrix\Main\EO_Site resetLanguage()
+	 * @method \Bitrix\Main\EO_Site unsetLanguage()
+	 * @method bool hasLanguage()
+	 * @method bool isLanguageFilled()
+	 * @method bool isLanguageChanged()
+	 * @method \Bitrix\Main\Localization\EO_Language fillLanguage()
+	 * @method \string getDirLength()
+	 * @method \string remindActualDirLength()
+	 * @method \string requireDirLength()
+	 * @method bool hasDirLength()
+	 * @method bool isDirLengthFilled()
+	 * @method \Bitrix\Main\EO_Site unsetDirLength()
+	 * @method \string fillDirLength()
+	 * @method \string getDocRootLength()
+	 * @method \string remindActualDocRootLength()
+	 * @method \string requireDocRootLength()
+	 * @method bool hasDocRootLength()
+	 * @method bool isDocRootLengthFilled()
+	 * @method \Bitrix\Main\EO_Site unsetDocRootLength()
+	 * @method \string fillDocRootLength()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -7338,6 +8505,8 @@ namespace Bitrix\Main {
 	 * ---------------
 	 *
 	 * @method \string[] getLidList()
+	 * @method \string[] getIdList()
+	 * @method \string[] fillId()
 	 * @method \int[] getSortList()
 	 * @method \int[] fillSort()
 	 * @method \boolean[] getDefList()
@@ -7365,6 +8534,13 @@ namespace Bitrix\Main {
 	 * @method \Bitrix\Main\Context\Culture[] getCultureList()
 	 * @method \Bitrix\Main\EO_Site_Collection getCultureCollection()
 	 * @method \Bitrix\Main\Localization\EO_Culture_Collection fillCulture()
+	 * @method \Bitrix\Main\Localization\EO_Language[] getLanguageList()
+	 * @method \Bitrix\Main\EO_Site_Collection getLanguageCollection()
+	 * @method \Bitrix\Main\Localization\EO_Language_Collection fillLanguage()
+	 * @method \string[] getDirLengthList()
+	 * @method \string[] fillDirLength()
+	 * @method \string[] getDocRootLengthList()
+	 * @method \string[] fillDocRootLength()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -7452,6 +8628,13 @@ namespace Bitrix\Main {
 	 * @method bool isSiteFilled()
 	 * @method bool isSiteChanged()
 	 * @method \Bitrix\Main\EO_Site fillSite()
+	 * @method \string getDomainLength()
+	 * @method \string remindActualDomainLength()
+	 * @method \string requireDomainLength()
+	 * @method bool hasDomainLength()
+	 * @method bool isDomainLengthFilled()
+	 * @method \Bitrix\Main\EO_SiteDomain unsetDomainLength()
+	 * @method \string fillDomainLength()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -7500,6 +8683,8 @@ namespace Bitrix\Main {
 	 * @method \Bitrix\Main\EO_Site[] getSiteList()
 	 * @method \Bitrix\Main\EO_SiteDomain_Collection getSiteCollection()
 	 * @method \Bitrix\Main\EO_Site_Collection fillSite()
+	 * @method \string[] getDomainLengthList()
+	 * @method \string[] fillDomainLength()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -10495,6 +11680,23 @@ namespace Bitrix\Main {
 	 * @method void removeAllGroups()
 	 * @method \Bitrix\Main\EO_User resetGroups()
 	 * @method \Bitrix\Main\EO_User unsetGroups()
+	 * @method \Bitrix\Main\Localization\EO_Language getActiveLanguage()
+	 * @method \Bitrix\Main\Localization\EO_Language remindActualActiveLanguage()
+	 * @method \Bitrix\Main\Localization\EO_Language requireActiveLanguage()
+	 * @method \Bitrix\Main\EO_User setActiveLanguage(\Bitrix\Main\Localization\EO_Language $object)
+	 * @method \Bitrix\Main\EO_User resetActiveLanguage()
+	 * @method \Bitrix\Main\EO_User unsetActiveLanguage()
+	 * @method bool hasActiveLanguage()
+	 * @method bool isActiveLanguageFilled()
+	 * @method bool isActiveLanguageChanged()
+	 * @method \Bitrix\Main\Localization\EO_Language fillActiveLanguage()
+	 * @method \string getNotificationLanguageId()
+	 * @method \string remindActualNotificationLanguageId()
+	 * @method \string requireNotificationLanguageId()
+	 * @method bool hasNotificationLanguageId()
+	 * @method bool isNotificationLanguageIdFilled()
+	 * @method \Bitrix\Main\EO_User unsetNotificationLanguageId()
+	 * @method \string fillNotificationLanguageId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -10671,6 +11873,11 @@ namespace Bitrix\Main {
 	 * @method \Bitrix\Main\EO_UserGroup_Collection[] getGroupsList()
 	 * @method \Bitrix\Main\EO_UserGroup_Collection getGroupsCollection()
 	 * @method \Bitrix\Main\EO_UserGroup_Collection fillGroups()
+	 * @method \Bitrix\Main\Localization\EO_Language[] getActiveLanguageList()
+	 * @method \Bitrix\Main\EO_User_Collection getActiveLanguageCollection()
+	 * @method \Bitrix\Main\Localization\EO_Language_Collection fillActiveLanguage()
+	 * @method \string[] getNotificationLanguageIdList()
+	 * @method \string[] fillNotificationLanguageId()
 	 *
 	 * Common methods:
 	 * ---------------

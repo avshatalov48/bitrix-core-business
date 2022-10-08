@@ -414,65 +414,73 @@ class Message
 		return str_rot13($string);
 	}
 
-	public static function getTotalUnseenCount($userId)
+	/**
+	 * @param $userId
+	 * @param $onlyGeneralCounter
+	 * @return array|int
+	 */
+	public static function getCountersForUserMailboxes($userId, $onlyGeneralCounter = false)
 	{
-		$mailboxes = MailboxTable::getUserMailboxes($userId);
+		static $countersForUsers;
 
-		if (empty($mailboxes))
+		if (empty($countersForUsers))
 		{
-			return 0;
+			$countersForUsers = [];
 		}
 
-		$mailboxIds = array_column($mailboxes, 'ID');
-
-		$totalUnseen = (int)Internals\MailCounterTable::getList([
-			'select' => [
-				new \Bitrix\Main\Entity\ExpressionField(
-					'UNSEEN',
-					'SUM(VALUE)'
-				),
-			],
-			'filter' => [
-				'=ENTITY_TYPE' => 'MAILBOX',
-				'@ENTITY_ID' => $mailboxIds,
-			],
-		])->fetchAll()[0]['UNSEEN'];
-
-		return $totalUnseen;
-	}
-
-	public static function getTotalUnseenForMailboxes($userId)
-	{
-		$mailboxes = MailboxTable::getUserMailboxes($userId);
-
-		if (empty($mailboxes))
+		if (!isset($countersForUsers[$userId]))
 		{
-			return array();
-		}
+			$mailboxes = MailboxTable::getUserMailboxes($userId);
 
-		$mailboxIds = array_column($mailboxes, 'ID');
+			if (empty($mailboxes))
+			{
+				return array();
+			}
 
-		$totalUnseen = Internals\MailCounterTable::getList([
-			'select' => [
-				'VALUE',
-				'ENTITY_ID',
-			],
-			'filter' => [
-				'=ENTITY_TYPE' => 'MAILBOX',
-				'@ENTITY_ID' => $mailboxIds,
-			],
-		])->fetchAll();
+			$mailboxIds = array_column($mailboxes, 'ID');
 
-		$result = [];
+			$totalUnseen = Internals\MailCounterTable::getList([
+				'select' => [
+					new \Bitrix\Main\Entity\ExpressionField(
+						'UNSEEN',
+						'SUM(VALUE)'
+					),
+					'VALUE',
+					'ENTITY_ID',
+				],
+				'filter' => [
+					'=ENTITY_TYPE' => 'MAILBOX',
+					'@ENTITY_ID' => $mailboxIds,
+				],
+			])->fetchAll();
 
-		foreach ($totalUnseen as $index => $item)
-		{
-			$result[$item['ENTITY_ID']] = [
-				'UNSEEN' => $item['VALUE'],
+			$counters = [];
+
+			$totalCounter = 0;
+
+			foreach ($totalUnseen as $index => $item)
+			{
+				$totalCounter += $item['VALUE'];
+
+				$counters[$item['ENTITY_ID']] = [
+					'UNSEEN' => $item['VALUE'],
+				];
+			}
+
+			$countersForUsers[$userId] = [
+				'mailboxesWithCounters' => $counters,
+				'totalCounter' => $totalCounter,
 			];
 		}
 
-		return $result;
+		if($onlyGeneralCounter)
+		{
+			return $countersForUsers[$userId]['totalCounter'];
+		}
+		else
+		{
+			return $countersForUsers[$userId]['mailboxesWithCounters'];
+		}
 	}
 
 	public static function ensureAttachments(&$message)

@@ -13,6 +13,7 @@ use Bitrix\Main\IO\File;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
+use Bitrix\Main\Web\Json;
 use Bitrix\UI\Buttons\Button;
 use Bitrix\UI\Buttons\Color;
 use Bitrix\UI\Buttons\JsHandler;
@@ -69,14 +70,34 @@ $tabs = [
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."no-background");
 
-
-
 $guid = 'product-variation-details';
 $containerId = "{$guid}_container";
 $tabMenuContainerId = "{$guid}_tabs_menu";
 $tabContainerId = "{$guid}_tabs";
+
+$cardParameters = [
+	'entityId' => $arResult['VARIATION_FIELDS']['ID'],
+	'componentName' => $component->getName(),
+	'componentSignedParams' => $component->getSignedParameters(),
+	'tabs' => $tabs,
+	'cardSettings' => $arResult['CARD_SETTINGS'],
+	'hiddenFields' => $arResult['HIDDEN_FIELDS'],
+	'isWithOrdersMode' => $arResult['IS_WITH_ORDERS_MODE'],
+	'isInventoryManagementUsed' => $arResult['IS_INVENTORY_MANAGEMENT_USED'],
+	'feedbackUrl' => $arParams['PATH_TO']['FEEDBACK'] ?? '',
+	'containerId' => $containerId,
+	'settingsButtonId' => $settingsButton->getUniqId(),
+	'tabContainerId' => $tabContainerId,
+	'tabMenuContainerId' => $tabMenuContainerId,
+	'creationPropertyUrl' => $arResult['UI_CREATION_PROPERTY_URL'],
+	'serviceUrl' => $arResult['SERVICE_URL'],
+	'variationGridId' => $arResult['VARIATION_GRID_ID'],
+	'productStoreGridId' => $arResult['STORE_AMOUNT_GRID_ID'],
+	'creationVariationPropertyUrl' => $arResult['UI_CREATION_SKU_PROPERTY_URL'],
+];
 ?>
 <script>
+	BX.message(<?=Json::encode(Loc::loadLanguageFile(__FILE__))?>);
 	BX(function() {
 		var topWindow = BX.PageObject.getRootWindow().window;
 		if (!topWindow.adminSidePanel || !BX.is_subclass_of(topWindow.adminSidePanel, BX.adminSidePanel))
@@ -88,24 +109,7 @@ $tabContainerId = "{$guid}_tabs";
 
 		BX.Catalog.VariationCard.Instance = new BX.Catalog.VariationCard(
 			'<?=CUtil::JSEscape($guid)?>',
-			{
-				entityId: '<?=CUtil::JSEscape($arResult['VARIATION_FIELDS']['ID'])?>',
-				componentName: '<?=CUtil::JSEscape($component->getName())?>',
-				componentSignedParams: '<?=CUtil::JSEscape($component->getSignedParameters())?>',
-				tabs: <?=CUtil::PhpToJSObject($tabs)?>,
-				cardSettings: <?=CUtil::PhpToJSObject($arResult['CARD_SETTINGS'])?>,
-				feedbackUrl: '<?=CUtil::JSEscape($arParams['PATH_TO']['FEEDBACK'] ?? '')?>',
-				containerId: '<?=CUtil::JSEscape($containerId)?>',
-				settingsButtonId: '<?=$settingsButton->getUniqId()?>',
-				tabContainerId: '<?=CUtil::JSEscape($tabContainerId)?>',
-				tabMenuContainerId: '<?=CUtil::JSEscape($tabMenuContainerId)?>',
-				creationPropertyUrl: '<?=CUtil::JSEscape($arResult['UI_CREATION_PROPERTY_URL'])?>',
-				serviceUrl: '<?=CUtil::JSEscape($arResult['SERVICE_URL'])?>',
-				variationGridId: '<?=CUtil::JSEscape($arResult['VARIATION_GRID_ID'])?>',
-				productStoreGridId: '<?=CUtil::JSEscape($arResult['STORE_AMOUNT_GRID_ID'])?>',
-
-				creationVariationPropertyUrl: '<?=CUtil::JSEscape($arResult['UI_CREATION_SKU_PROPERTY_URL'])?>',
-			}
+			<?= CUtil::PhpToJSObject($cardParameters) ?>
 		);
 	});
 </script>

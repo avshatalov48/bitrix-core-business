@@ -1,9 +1,15 @@
 :root {
 	--im-recent-placeholder-color: #E9EAEC;
+	--im-recent-placeholder-opacity: 1.0;
 }
 
 .bx-messenger-dark {
 	--im-recent-placeholder-color: #949595;
+	--im-recent-placeholder-opacity: 0.4;
+}
+
+.bx-im-component-recent-loading-state {
+	opacity: var(--im-recent-placeholder-opacity);
 }
 
 .bx-im-component-recent-loading-state-item {

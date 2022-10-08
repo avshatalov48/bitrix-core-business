@@ -245,7 +245,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           var fields = this.getItem(index);
           fields.deleted = 'Y';
           fields.status = sale_checkout_const.Loader.status.wait;
-          this.pool.add(sale_checkout_const.Pool.action.delete, index, {
+          this.pool.add(sale_checkout_const.Pool.action["delete"], index, {
             id: fields.id,
             fields: {
               value: 'Y'
@@ -442,7 +442,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
                     return resolve();
                   });
                 });
-              }).catch();
+              })["catch"]();
             } else {
               resolve();
             }
@@ -813,7 +813,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
                   _this3.store.dispatch('application/setPathLocation', url);
                 }
               });
-            }).catch(function () {
+            })["catch"](function () {
               return _this3.appSetStatusNone();
             });
           }
@@ -869,7 +869,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             signedParameters: this.store.getters['application/getSignedParameters']
           }).then(function (result) {
             return _this4.executeRestAnswer(cmd, result);
-          }).catch(function (result) {
+          })["catch"](function (result) {
             return _this4.executeRestAnswer(cmd, {
               error: result.errors
             });

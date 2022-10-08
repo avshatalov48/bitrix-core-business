@@ -9,7 +9,7 @@ require_once __DIR__.'/autoload.php';
 $arJSDescription = array(
 	'js' => '/bitrix/js/socialservices/ss_timeman.js',
 	'css' => '/bitrix/js/socialservices/css/ss.css',
-	'rel' => array('popup', 'ajax', 'fx', 'ls', 'date', 'json'),
+	'rel' => ['ui.design-tokens', 'popup', 'ajax', 'fx', 'ls', 'date', 'json'],
 	'lang' => '/bitrix/modules/socialservices/lang/'.LANGUAGE_ID.'/js_socialservices.php'
 	);
 

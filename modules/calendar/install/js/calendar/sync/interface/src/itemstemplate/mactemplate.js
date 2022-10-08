@@ -3,6 +3,7 @@
 
 import {Loc, Tag} from "main.core";
 import {InterfaceTemplate} from "./interfacetemplate";
+import { Util } from 'calendar.util';
 
 export default class MacTemplate extends InterfaceTemplate
 {
@@ -22,6 +23,9 @@ export default class MacTemplate extends InterfaceTemplate
 			connection: connection,
 			popupWithUpdateButton: false,
 		});
+
+		this.warningText = Loc.getMessage('CAL_SYNC_WARNING_IPHONE_AND_MAC');
+		this.warningButtonText = Loc.getMessage('CALENDAR_CONNECT_ICLOUD');
 	}
 
 	getPortalAddress()
@@ -33,6 +37,7 @@ export default class MacTemplate extends InterfaceTemplate
 	{
 		return Tag.render `
 			${this.getContentInfoBodyHeader()}
+			${this.getContentInfoWarning()}
 			${this.getContentBodyConnect()}
 		`;
 	}
@@ -68,7 +73,7 @@ export default class MacTemplate extends InterfaceTemplate
 							<span class="calendar-sync-slider-info-text">${Loc.getMessage('CAL_MAC_INSTRUCTION_POINT_FOURTH')}</span>
 						</li>
 						<li class="calendar-sync-slider-info-item">
-							<span class="calendar-sync-slider-info-text">${Loc.getMessage('CAL_MAC_INSTRUCTION_POINT_FIFTH').replace(/#PORTAL_ADDRESS#/gi, this.provider.getPortalAddress())}</span>
+							<span class="calendar-sync-slider-info-text">${Loc.getMessage('CAL_MAC_INSTRUCTION_POINT_FIFTH', { '#PORTAL_ADDRESS#': this.provider.getPortalAddress() })}</span>
 						</li>
 						<li class="calendar-sync-slider-info-item">
 							<span class="calendar-sync-slider-info-text">${Loc.getMessage('CAL_MAC_INSTRUCTION_POINT_SIXTH')}</span>
@@ -81,5 +86,27 @@ export default class MacTemplate extends InterfaceTemplate
 				</div>
 			</div>
 		`;
+	}
+
+	handleWarningButtonClick()
+	{
+		BX.SidePanel.Instance.getOpenSliders().forEach(slider =>
+		{
+			if (['calendar:auxiliary-sync-slider', 'calendar:item-sync-connect-mac'].includes(slider.getUrl()))
+			{
+				slider.close();
+			}
+		});
+
+		const calendarContext = Util.getCalendarContext();
+		if (calendarContext)
+		{
+			calendarContext
+				.syncInterface
+				.getIcloudProvider()
+				.getInterfaceUnit()
+				.getConnectionTemplate()
+				.handleConnectButton();
+		}
 	}
 }

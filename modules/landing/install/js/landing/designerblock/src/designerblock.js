@@ -9,6 +9,7 @@ import {DesignerBlockUI} from './ui/designerblock';
 import {RepoElementType} from './ui/panels/repo';
 import {RepoManager} from './panels/repo';
 
+import 'ui.fonts.opensans';
 import './designerblock.css';
 
 type ManifestNodesItem = {

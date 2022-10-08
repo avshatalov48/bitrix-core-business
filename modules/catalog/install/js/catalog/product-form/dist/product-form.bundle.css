@@ -68,7 +68,7 @@
 
 .catalog-product-form-text {
 	color: #525c69;
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .catalog-product-form-collapse-link-container {
@@ -81,7 +81,7 @@
 	color: #9b9b9b;
 	cursor: pointer;
 	text-decoration: none;
-	font: 13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .catalog-product-form-collapse-link-hide,
@@ -89,7 +89,7 @@
 .catalog-product-form-collapse-link-pointer-event {
 	display: inline-block;
 	margin: 8px 0 0 1px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	color: #80868e;
 	line-height: 20px;
@@ -170,7 +170,7 @@
 	background-color: #c4f1ff;
 	display: inline-block;
 	color: rgba(82, 92, 105, 0.82);
-	font: bold 7px/10px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 7px/10px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	vertical-align: middle;
 	text-transform: uppercase;
 	display: flex;
@@ -192,7 +192,7 @@
 	cursor: pointer;
 	position: relative;
 	transition: all .2s linear;
-	font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .catalog-product-form-add-item-link:hover {
@@ -232,7 +232,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c69;
 	margin-bottom: 5px;
 }
@@ -433,7 +433,7 @@
 	white-space: nowrap;
 	overflow: hidden;
 	padding: 0 5px 0 3px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: rgba(82,92,105,.5);
 	border: 1px solid #c6cdd3;
@@ -629,7 +629,7 @@
 	border-bottom-right-radius: 0;
 	background: #fff;
 	color: #535c69;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	line-height: 39px;
 }
@@ -667,6 +667,32 @@
 	margin-top: 15px;
 }
 
+.catalog-pf-product-input-brand-wrapper-readonly {
+	margin-left: 115px;
+}
+
+.catalog-product-form-container > div:first-child .catalog-pf-product-item .catalog-pf-product-input-brand-wrapper-readonly-no-sku {
+	position: absolute;
+	top: 10px;
+}
+
+.catalog-pf-product-input-brand-wrapper-readonly-no-sku {
+	position: absolute;
+	top: 28px;
+}
+
+.catalog-pf-product-input-brand-read-only-item {
+	line-height: 24px;
+	border-radius: 2px;
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	vertical-align: middle;
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .05);
+	background-size: cover;
+	margin-bottom: 1px;
+}
+
 .catalog-pf-product-input--after:after {
 	content: '|';
 	display: inline-block;
@@ -688,7 +714,7 @@
 	border-top-left-radius: 0;
 	border-bottom-left-radius: 0;
 	color: rgba(82,92,105,.5);
-	font: 400 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .catalog-pf-product-input-info--action {
@@ -738,7 +764,7 @@
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
-	font: 400 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(82,92,105,1);
 	line-height: 22px;
 }
@@ -763,7 +789,7 @@
 	display: inline-block;
 	padding: 7px 0;
 	cursor: pointer;
-	font: 400 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 	line-height: 25px;
 }
@@ -854,7 +880,7 @@
 
 .catalog-pf-product-qr-popup-text {
 	display: block;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: #333;
 	text-align: center;
@@ -893,7 +919,7 @@
 .catalog-pf-product-qr-popup-copy {
 	height: 18px;
 	line-height: 18px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: rgba(82,92,105,1);
 	white-space: nowrap;
@@ -958,7 +984,7 @@
 .catalog-pf-product-configure-link,
 .catalog-pf-product-add-link {
 	display: inline-block;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: #2066b0;
 	border-bottom: 1px dashed rgba(39,107,179,.4);
@@ -1027,7 +1053,7 @@
 	overflow: hidden;
 	text-align: right;
 	font-size: 21px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .catalog-pf-result-wrapper {
@@ -1141,7 +1167,7 @@ label.ui-ctl-radio-selector {
 	background-color: #c4f1ff;
 	display: inline-block;
 	color: rgba(82, 92, 105, 0.82);
-	font: bold 7px/10px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 7px/10px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	vertical-align: middle;
 	text-transform: uppercase;
 	display: flex;
@@ -1177,7 +1203,7 @@ label.ui-ctl-radio-selector {
 
 .catalog-product-form-popup--creating-shop .catalog-product-form-popup--title {
 	order: -1;
-	font: bold 14px/17px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 14px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #535C69;
 	margin-bottom: 25px;
 }
@@ -1232,6 +1258,13 @@ label.ui-ctl-radio-selector {
 	}
 }
 
+.catalog-product-form-popup--creating-shop .catalog-product-form-popup--button-container {
+	margin-top: 15px;
+	padding-top: 15px;
+	border-top: 1px solid rgba(82, 92, 105, .1);
+	text-align: center;
+}
+
 .catalog-product-form-popup--creating-shop .catalog-product-form-popup--text {
 	line-height: 17px;
 	color: #535c69;
@@ -1253,4 +1286,18 @@ label.ui-ctl-radio-selector {
 .catalog-product-form-setting-hint .ui-hint-icon {
 	margin-top: 0;
 	vertical-align: middle;
+}
+
+
+.catalog-pf-product-panel-compilation-checkbox-container {
+	min-height: auto;
+	margin: 0;
+}
+
+.catalog-pf-product-panel-compilation-price-info {
+	display: block;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-size: 12px;
+	color: rgba(128, 134, 142, .7);
+	line-height: 16px;
 }

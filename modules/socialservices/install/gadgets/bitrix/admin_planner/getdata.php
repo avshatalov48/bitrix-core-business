@@ -7,7 +7,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_befo
 global $USER;
 $rnd = $_REQUEST["rnd"];
 
-__IncludeLang(dirname(__FILE__)."/lang/".LANGUAGE_ID."/getdata.php");
+__IncludeLang(__DIR__."/lang/".LANGUAGE_ID."/getdata.php");
 
 if(!check_bitrix_sessid())
 	return;

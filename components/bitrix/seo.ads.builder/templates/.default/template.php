@@ -8,6 +8,8 @@ use Bitrix\Main\UI\Extension;
 
 Extension::load(
 	[
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 		"ui.hint",
 		"ui.icons",
 		"ui.forms",
@@ -22,7 +24,6 @@ Extension::load(
 		"seo.seoadbuilder",
 		'ui.entity-selector',
 		'seo.ads.login',
-		'ui.design-tokens',
 	]
 );
 $provider = $arParams['PROVIDER'];

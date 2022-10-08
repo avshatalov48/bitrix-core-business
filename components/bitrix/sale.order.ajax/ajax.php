@@ -21,7 +21,7 @@ $request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter);
 if (!Bitrix\Main\Loader::includeModule('sale'))
 	return;
 
-Bitrix\Main\Localization\Loc::loadMessages(dirname(__FILE__).'/class.php');
+Bitrix\Main\Localization\Loc::loadMessages(__DIR__.'/class.php');
 
 $signer = new \Bitrix\Main\Security\Sign\Signer;
 try

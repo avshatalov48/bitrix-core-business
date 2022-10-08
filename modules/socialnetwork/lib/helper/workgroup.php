@@ -1327,6 +1327,7 @@ class Workgroup
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = (int)($params['userId'] ?? User::getCurrentUserId());
+		$checkAdminSession = (bool)($params['checkAdminSession'] ?? true);
 
 		if ($groupId <= 0)
 		{
@@ -1339,7 +1340,8 @@ class Workgroup
 		]);
 
 		return (
-			(
+			\CSocNetUser::isCurrentUserModuleAdmin(SITE_ID, $checkAdminSession)
+			|| (
 				$groupPerms
 				&& $groupPerms['UserCanModifyGroup']
 			)

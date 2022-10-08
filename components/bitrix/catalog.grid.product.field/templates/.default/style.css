@@ -9,7 +9,7 @@
 	font-size: 14px;
 	line-height: 14px;
 	color: #333;
-	border-radius: 3px;
+	border-radius: var(--ui-field-border-radius, 3px);
 }
 
 .main-grid-row-edit .main-grid-editor-text:focus, .main-grid-row-edit .main-grid-editor-textarea:focus,

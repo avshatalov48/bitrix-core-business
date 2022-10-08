@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/controls.bundle.js',
 	'rel' => [
 		'calendar.roomsmanager',
+		'calendar.categorymanager',
 		'ui.icons.b24',
 		'calendar.entry',
 		'calendar.planner',

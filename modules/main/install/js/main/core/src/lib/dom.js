@@ -366,15 +366,31 @@ export default class Dom
 					|| value === 'null'
 				)
 				{
+					if (String(prop).startsWith('--'))
+					{
+						// eslint-disable-next-line
+						element.style.removeProperty(prop);
+						return element;
+					}
+
 					// eslint-disable-next-line
 					element.style[prop] = '';
+
 					return element;
 				}
 
 				if (Type.isString(value) || Type.isNumber(value))
 				{
+					if (String(prop).startsWith('--'))
+					{
+						// eslint-disable-next-line
+						element.style.setProperty(prop, value);
+						return element;
+					}
+
 					// eslint-disable-next-line
 					element.style[prop] = value;
+
 					return element;
 				}
 			}

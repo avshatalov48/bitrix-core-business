@@ -131,7 +131,7 @@ export class LandingSettings
 					{
 						this.loader.hide();
 					}
-					const form = currPage.container.querySelector('.ui-form');
+					const form = currPage.container.querySelector('form.landing-form');
 					if (form)
 					{
 						currPage.form = form;

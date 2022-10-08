@@ -10,13 +10,14 @@ export default class ConnectionItem
 	constructor(options)
 	{
 		this[isConnectionItemProperty] = true;
-		this.syncTimestamp = options.syncTimestamp;
+		this.syncDate = Type.isDate(options.syncDate) ? options.syncDate : new Date();
 		this.connectionName = options.connectionName;
 		this.status = options.status;
 		this.connected = options.connected;
 		this.addParams = options.addParams;
 		this.type = options.type;
 		this.id = options.type;
+		this.userName = options.userName;
 	}
 
 	static createInstance(options)
@@ -29,9 +30,9 @@ export default class ConnectionItem
 		return Type.isObject(target) && target[isConnectionItemProperty] === true;
 	}
 
-	getSyncTimestamp()
+	getSyncDate()
 	{
-		return this.syncTimestamp;
+		return this.syncDate;
 	}
 
 	getConnectionName()
@@ -78,8 +79,38 @@ export default class ConnectionItem
 		return this.addParams.id;
 	}
 
+	getConnectionAccountName()
+	{
+		return this.userName;
+	}
+
 	getType()
 	{
 		return this.type;
+	}
+	
+	setId(id)
+	{
+		this.addParams.id = id;
+	}
+	
+	setStatus(status)
+	{
+		this.status = status;
+	}
+
+	setUserName(userName)
+	{
+		this.userName = userName;
+	}
+	
+	setConnected(connected)
+	{
+		this.connected = connected;
+	}
+
+	setSyncDate(syncDate)
+	{
+		this.syncDate = syncDate;
 	}
 }

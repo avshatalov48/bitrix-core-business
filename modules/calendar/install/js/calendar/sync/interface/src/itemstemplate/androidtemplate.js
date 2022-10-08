@@ -3,6 +3,7 @@
 
 import {Loc} from "main.core";
 import MobileInterfaceTemplate from "./mobileinterfacetemplate";
+import { Util } from 'calendar.util';
 
 export default class AndroidTemplate extends MobileInterfaceTemplate
 {
@@ -22,5 +23,30 @@ export default class AndroidTemplate extends MobileInterfaceTemplate
 			connection: connection,
 			popupWithUpdateButton: false,
 		});
+
+		this.warningText = Loc.getMessage('CAL_SYNC_WARNING_ANDROID');
+		this.warningButtonText = Loc.getMessage('CALENDAR_CONNECT_GOOGLE');
+	}
+
+	handleWarningButtonClick()
+	{
+		BX.SidePanel.Instance.getOpenSliders().forEach(slider =>
+		{
+			if (['calendar:auxiliary-sync-slider', 'calendar:item-sync-connect-android'].includes(slider.getUrl()))
+			{
+				slider.close();
+			}
+		});
+
+		const calendarContext = Util.getCalendarContext();
+		if (calendarContext)
+		{
+			calendarContext
+				.syncInterface
+				.getGoogleProvider()
+				.getInterfaceUnit()
+				.getConnectionTemplate()
+				.handleConnectButton();
+		}
 	}
 }

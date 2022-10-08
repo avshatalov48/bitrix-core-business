@@ -4,9 +4,6 @@
 	--color_text: rgba(82, 92, 105, .8);
 	--color_text-hover: #fff;
 	--color_border-bottom: rgba(82, 92, 105, .4);
-
-	/* fonts */
-	--font_os_regular: 	"OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .bitrix24-light-theme .ui-nav-panel__scope {
@@ -28,7 +25,8 @@
 	margin-right: 10px;
 	border-radius: 16px;
 	background-color: var(--color_background);
-	font: 14px/normal var(--font_os_regular);
+	font: 14px/normal var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .ui-nav-panel__item {

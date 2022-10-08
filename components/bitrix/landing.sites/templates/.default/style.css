@@ -7,7 +7,8 @@
 	box-shadow: 0 1px 2px rgba(0,0,0,.15);
 	height: 150px;
 	float: left;
-	font-family: 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	position: relative;
 	width: 260px;
 	border-radius: var(--landing-item-border-radius, var(--ui-border-radius-md));
@@ -89,7 +90,8 @@
 	color: #333333;
 	display: inline-block;
 	font-size: 14px;
-	font-family: 'OpenSans-SemiBold', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	vertical-align: middle;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -109,7 +111,8 @@
 
 .landing-item-desc-text {
 	opacity: .9;
-	font: 10px/19px 'OpenSans-SemiBold', Helvetica, Arial, sans-serif;
+	font: 10px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #fff;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -209,6 +212,9 @@
 	position: absolute;
 	bottom: 0;
 	left: 0;
+	border-radius: var(--landing-item-border-radius, var(--ui-border-radius-md));
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
 }
 
 .landing-item-status-inner {
@@ -217,7 +223,8 @@
 }
 
 .landing-item-status {
-	font: 8px/20px 'OpenSans-Bold', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: 8px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	text-transform: uppercase;
 }
 
@@ -266,6 +273,9 @@
 	display: block;
 	height: 100%;
 	width: 100%;
+	border-radius: var(--landing-item-border-radius, var(--ui-border-radius-md));
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
 }
 
 /*.landing-slider-frame-popup .landing-item-cover {
@@ -377,7 +387,8 @@
 .landing-tile-title-popup-inner {
 	color: #828b95;
 	font-size: 12px;
-	font-family: 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	line-height: 1.25;
 	overflow: hidden;
 	padding: 7px 14px 10px;
@@ -468,7 +479,8 @@ a.landing-item-link:hover {
 	color: #525c69;
 	display: block;
 	font-size: 11px;
-	font-family: 'OpenSans-Bold', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	text-transform: uppercase;
 	text-align: left;
 }
@@ -917,7 +929,7 @@ body > a[style*="background: highlight"] {
 .landing-item-area-text {
 	position: absolute;
 	opacity: .7;
-	font: 18px/24px Helvetica, Arial, sans-serif;
+	font: 18px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c69;
 	top: 50%;
 	transform: translateY(-50%);
@@ -932,7 +944,8 @@ body > a[style*="background: highlight"] {
 	transform: translate(-50%,-50%);
 	border: 1px solid rgba(255, 255, 255, .67);
 	color: #fff;
-	font: 12px/16px 'OpenSans-Bold', Helvetica, Arial, sans-serif;
+	font: 12px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	text-transform: uppercase;
 	border-radius: 18px;
 	background: rgba(51, 51, 51, .6);
@@ -978,7 +991,8 @@ body > a[style*="background: highlight"] {
 
 .landing-item-contact-title {
 	margin-bottom: 16px;
-	font: 16px/20px 'OpenSans-Bold', Helvetica, Arial, sans-serif;
+	font: 16px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .landing-item-contact-icon {
@@ -1029,7 +1043,8 @@ body > a[style*="background: highlight"] {
 	width: 100%;
 	text-align: center;
 	margin-bottom: 15px;
-	font-family: 'OpenSans-SemiBold', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .landing-item-dev-subtitle {

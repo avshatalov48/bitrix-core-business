@@ -2,10 +2,8 @@ this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
 
-	var SliderLoader = /*#__PURE__*/function () {
-	  function SliderLoader(entryId) {
-	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-	    babelHelpers.classCallCheck(this, SliderLoader);
+	class SliderLoader {
+	  constructor(entryId, options = {}) {
 	    this.extensionName = main_core.Type.isString(entryId) && (entryId === 'NEW' || entryId.substr(0, 4) === 'EDIT') || !parseInt(entryId) ? 'EventEditForm' : 'EventViewForm';
 	    this.sliderId = options.sliderId || "calendar:slider-" + Math.random();
 	    entryId = main_core.Type.isString(entryId) && entryId.substr(0, 4) === 'EDIT' ? parseInt(entryId.substr(4)) : parseInt(entryId);
@@ -70,42 +68,35 @@ this.BX = this.BX || {};
 	    }
 	  }
 
-	  babelHelpers.createClass(SliderLoader, [{
-	    key: "show",
-	    value: function show() {
-	      BX.SidePanel.Instance.open(this.sliderId, {
-	        contentCallback: this.loadExtension.bind(this),
-	        label: {
-	          text: main_core.Loc.getMessage('CALENDAR_EVENT'),
-	          bgColor: "#55D0E0"
-	        },
-	        type: 'calendar:slider'
-	      });
-	    }
-	  }, {
-	    key: "loadExtension",
-	    value: function loadExtension(slider) {
-	      var _this = this;
+	  show() {
+	    BX.SidePanel.Instance.open(this.sliderId, {
+	      contentCallback: this.loadExtension.bind(this),
+	      label: {
+	        text: main_core.Loc.getMessage('CALENDAR_EVENT'),
+	        bgColor: "#55D0E0"
+	      },
+	      type: 'calendar:slider'
+	    });
+	  }
 
-	      return new Promise(function (resolve) {
-	        var extensionName = 'calendar.' + _this.extensionName.toLowerCase();
+	  loadExtension(slider) {
+	    return new Promise(resolve => {
+	      const extensionName = 'calendar.' + this.extensionName.toLowerCase();
+	      main_core.Runtime.loadExtension(extensionName).then(exports => {
+	        if (exports && exports[this.extensionName]) {
+	          const calendarForm = new exports[this.extensionName](this.extensionParams);
 
-	        main_core.Runtime.loadExtension(extensionName).then(function (exports) {
-	          if (exports && exports[_this.extensionName]) {
-	            var calendarForm = new exports[_this.extensionName](_this.extensionParams);
-
-	            if (babelHelpers["typeof"](calendarForm.initInSlider)) {
-	              calendarForm.initInSlider(slider, resolve);
-	            }
-	          } else {
-	            console.error("Extension \"calendar.".concat(extensionName, "\" not found"));
+	          if (typeof calendarForm.initInSlider) {
+	            calendarForm.initInSlider(slider, resolve);
 	          }
-	        });
+	        } else {
+	          console.error(`Extension "calendar.${extensionName}" not found`);
+	        }
 	      });
-	    }
-	  }]);
-	  return SliderLoader;
-	}();
+	    });
+	  }
+
+	}
 
 	exports.SliderLoader = SliderLoader;
 

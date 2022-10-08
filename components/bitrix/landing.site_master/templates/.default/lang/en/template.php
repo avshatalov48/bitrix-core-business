@@ -37,4 +37,3 @@ $MESS["LANDING_TPL_STEP2_TITLE"] = "Products";
 $MESS["LANDING_TPL_STEP3_DESC"] = "Your store is now up and running";
 $MESS["LANDING_TPL_STEP3_TITLE"] = "First order";
 $MESS["LANDING_TPL_WORKING_ALREADY"] = "is almost ready, just a final touch ";
-$MESS["LANDING_TPL_FIRST_ORDER_STEPS"] = "Only two steps to start selling:";

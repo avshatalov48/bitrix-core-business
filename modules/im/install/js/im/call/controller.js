@@ -3030,6 +3030,10 @@
 			{
 				errorMessage = BX.message("IM_CALL_ERROR_UNKNOWN");
 			}
+			else if (errorCode == "NETWORK_ERROR")
+			{
+				errorMessage = BX.message("IM_CALL_ERROR_NETWORK");
+			}
 			else if (errorCode == "NotAllowedError")
 			{
 				errorMessage = BX.message("IM_CALL_ERROR_HARDWARE_ACCESS_DENIED");

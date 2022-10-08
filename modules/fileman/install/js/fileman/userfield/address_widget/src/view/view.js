@@ -1,3 +1,4 @@
+import 'ui.design-tokens';
 import {Address as AddressWidget, Factory} from "location.widget";
 import {Dom, Tag} from "main.core";
 import {Address as AddressEntity, AddressStringConverter, ControlMode, Format} from "location.core";

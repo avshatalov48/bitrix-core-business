@@ -1,4 +1,4 @@
-import {Type, Loc, Event } from 'main.core';
+import {Type, Loc, Event, Runtime } from 'main.core';
 import { SectionManager } from 'calendar.sectionmanager';
 import { Util } from 'calendar.util';
 import { RoomsSection } from './roomssection';
@@ -17,6 +17,7 @@ export class RoomsManager extends SectionManager
 		this.sortRooms();
 		this.setSections(data.sections);
 		this.sortSections();
+		this.reloadRoomsFromDatabaseDebounce = Runtime.debounce(this.reloadRoomsFromDatabase, SectionManager.RELOAD_DELAY, this);
 
 		EventEmitter.subscribeOnce('BX.Calendar.Rooms:delete', this.deleteRoomHandler.bind(this));
 	}
@@ -77,7 +78,8 @@ export class RoomsManager extends SectionManager
 						necessity: params.necessity,
 						ownerId: this.ownerId,
 						color: params.color,
-						access: params.access || null
+						access: params.access || null,
+						categoryId: params.categoryId,
 					}
 				})
 				.then(
@@ -124,7 +126,8 @@ export class RoomsManager extends SectionManager
 						capacity: params.capacity,
 						necessity: params.necessity,
 						color: params.color,
-						access: params.access || null
+						access: params.access || null,
+						categoryId: params.categoryId,
 					}
 				})
 				.then(
@@ -276,12 +279,11 @@ export class RoomsManager extends SectionManager
 	{
 		if (id)
 		{
-			this.room = this.getRoom(id)
-			if (!this.room.isShown())
+			const room = this.getRoom(id)
+			if (room.calendarContext && !room.isShown())
 			{
-				this.room.show();
+				room.show();
 			}
-			return null;
 		}
 	}
 
@@ -304,32 +306,24 @@ export class RoomsManager extends SectionManager
 			}
 			else
 			{
-				this.reloadRoomData();
+				this.reloadRoomsFromDatabaseDebounce();
 			}
 		}
 		else if (params.command === 'create_room')
 		{
-			this.reloadRoomData().then(this.reloadData().then(() => {
-				Util.getBX().Event.EventEmitter.emit(
-					'BX.Calendar.Rooms:pull-create'
-				);
-			})
-		)
+			this.reloadRoomsFromDatabase().then(this.reloadDataDebounce());
+			Util.getBX().Event.EventEmitter.emit('BX.Calendar.Rooms:pull-create');
 			Util.getBX().Event.EventEmitter.emit('BX.Calendar:doRefresh');
 		}
 		else if (params.command === 'update_room')
 		{
-			this.reloadRoomData().then(this.reloadData().then(() => {
-				Util.getBX().Event.EventEmitter.emit(
-					'BX.Calendar.Rooms:pull-update'
-				);
-			})
-		)
+			this.reloadRoomsFromDatabase().then(this.reloadDataDebounce());
+			Util.getBX().Event.EventEmitter.emit('BX.Calendar.Rooms:pull-update');
 			Util.getBX().Event.EventEmitter.emit('BX.Calendar:doRefresh');
 		}
 		else
 		{
-			this.reloadRoomData().then(this.reloadData);
+			this.reloadRoomsFromDatabase().then(this.reloadDataDebounce());
 		}
 	}
 
@@ -353,7 +347,7 @@ export class RoomsManager extends SectionManager
 		}
 	}
 
-	reloadRoomData()
+	reloadRoomsFromDatabase()
 	{
 		return new Promise(resolve => {
 			BX.ajax.runAction('calendar.api.locationajax.getRoomsList')

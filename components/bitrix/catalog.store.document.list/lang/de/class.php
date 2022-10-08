@@ -17,6 +17,8 @@ $MESS["DOCUMENT_LIST_DOC_TYPE_M"] = "Verschiebung";
 $MESS["DOCUMENT_LIST_DOC_TYPE_S"] = "Bestandskorrektur";
 $MESS["DOCUMENT_LIST_DOC_TYPE_W"] = "Vertrieb";
 $MESS["DOCUMENT_LIST_EMPTY_STORE_TITLE"] = "<Ohne Namen>";
+$MESS["DOCUMENT_LIST_ERR_ACCESS_DENIED_BOX"] = "Sie haben nicht genügend Rechte, um auf die Bestandsverwaltung zuzugreifen. Bitte wenden Sie sich an Ihren Bitrix24 Administrator, um den Zugriff zu bekommen. <a href=\"https://training.bitrix24.com/support/training/course/index.php?COURSE_ID=178&LESSON_ID=25118\" target=\"_blank\">Mehr</a>";
+$MESS["DOCUMENT_LIST_ERR_ACCESS_DENIED_CLOUD"] = "Sie haben nicht genügend Rechte, um auf die Bestandsverwaltung zuzugreifen. Bitte wenden Sie sich an Ihren Bitrix24 Administrator, um den Zugriff zu bekommen. Der Administrator wird Ihnen die Manager-Rolle in den CRM-Einstellungen zuweisen müssen. <a onclick=\"top.BX.Helper.show('redirect=detail&code=15955386')\" style=\"cursor: pointer; \">Mehr</a>";
 $MESS["DOCUMENT_LIST_NO_VIEW_RIGHTS_ERROR"] = "Sie haben nicht genügend Rechte, um die Elementliste anzuzeigen.";
 $MESS["DOCUMENT_LIST_SELECT_GROUP_ACTION"] = "Aktion auswählen";
 $MESS["DOCUMENT_LIST_STATUS_CANCELLED"] = "Abgebrochen";

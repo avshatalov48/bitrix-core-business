@@ -15,12 +15,10 @@ export class ExchangeProvider extends ConnectionProvider
 			viewClassification: 'web',
 			templateClass: 'BX.Calendar.Sync.Interface.ExchangeTemplate',
 		});
-
-		this.syncTimestamp = options.syncInfo.syncTimestamp;
 		this.connectionName = Loc.getMessage('CALENDAR_TITLE_EXCHANGE');
 
-		this.sections = options.sections;
-
+		this.setSyncDate(options.syncInfo.syncOffset);
+		this.setSections(options.sections);
 		this.setConnections();
 	}
 

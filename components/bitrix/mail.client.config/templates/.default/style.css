@@ -13,13 +13,15 @@
 }
 
 .mail-add-title {
-	font: 32px/37px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 32px/37px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #333;
 	margin-bottom: 10px;
 }
 
 .mail-add-desc {
-	font: 19px/27px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 19px/27px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #525c69;
 	opacity: .5;
 	margin-bottom: 35px;
@@ -35,7 +37,7 @@
 .mail-add-item {
 	width: 179px;
 	height: 88px;
-	border-radius: 3px;
+	border-radius: var(--ui-border-radius-md, 3px);
 	border: 1px solid #e3e3e3;
 	margin: 0 10px 11px 0;
 	display: flex;
@@ -49,7 +51,7 @@
 .mail-add-text,
 .mail-connect-text {
 	width: 100%;
-	font: bold 22px Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 22px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgb(82,92,105);
 	text-decoration: none;
 	overflow: hidden;
@@ -76,7 +78,8 @@
 .mail-add-item-imap {
 	text-transform: uppercase;
 	color: #525c69;
-	font: 8px/14px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 8px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	margin-bottom: 12px;
 }
 
@@ -110,7 +113,8 @@
 }
 
 .mail-connect-title {
-	font: 16px/24px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 16px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #333;
 }
 
@@ -118,7 +122,7 @@
 	display: flex;
 	align-items: center;
 	border: 1px solid #c6cdd3;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-sm, 2px);
 	padding: 20px 10px 19px 21px;
 	margin-bottom: 9px;
 }
@@ -129,7 +133,7 @@
 
 .mail-connect-option-email {
 	color: #535c6A;
-	font: 13px/22px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/22px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .mail-connect-option-email-num {
@@ -379,19 +383,19 @@
 .mail-connect-notice-text {
 	color: #535c6a;
 	opacity: .8;
-	font: 13px/16px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .mail-connect-warning-block {
 	background: rgb(253,225,200);
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-md, 2px);
 	padding: 10px 30px 11px 14px;
 	margin-bottom: 13px;
 }
 
 .mail-connect-warning-text {
 	color: rgb(219,90,22);
-	font: 13px/16px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .mail-connect-notice-more {
@@ -458,8 +462,8 @@
 
 .mail-connect-access-user-name, .mail-connect-access-user-add {
 	color: #1069c3;
-	font: 13px/16px "Helvetica Neue", Arial, Helvetica, sans-serif;
-	font-weight: 700;
+	font: 13px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .mail-connect-access-user-add {
@@ -701,7 +705,7 @@
 
 .mail-connect-check-status {
 	color: #6f950d;
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 	line-height: 23px;
 }
@@ -717,7 +721,7 @@
 
 .mail-connect-email-text {
 	color: #0b66c3;
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	text-decoration: none;
 }
 
@@ -735,7 +739,8 @@
 	background: #535c6a no-repeat center;
 	background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0Ny4xODgiIGhlaWdodD0iNTQuMDYzIiB2aWV3Qm94PSIwIDAgNDcuMTg4IDU0LjA2MyI+PGRlZnM+PHN0eWxlPi5jbHMtMSB7IGZpbGw6ICNmZmY7IGZpbGwtcnVsZTogZXZlbm9kZDsgfTwvc3R5bGU+PC9kZWZzPjxwYXRoIGlkPSJTaGFwZV8yX2NvcHlfNCIgZGF0YS1uYW1lPSJTaGFwZSAyIGNvcHkgNCIgY2xhc3M9ImNscy0xIiBkPSJNNDcuMTggNTQuMDYyYzAtMy4yMTctMy42MS0xNi44MjYtMy42MS0xNi44MjYgMC0xLjk5LTIuNi00LjI2LTcuNzItNS41ODVhMTcuMzk0IDE3LjM5NCAwIDAgMS00Ljg4Ny0yLjIyM2MtLjMzLS4xODgtLjI4LTEuOTI1LS4yOC0xLjkyNWwtMS42NDgtLjI1YzAtLjE0Mi0uMTQtMi4yMjUtLjE0LTIuMjI1IDEuOTcyLS42NjMgMS43Ny00LjU3NCAxLjc3LTQuNTc0IDEuMjUyLjY5NSAyLjA2OC0yLjQgMi4wNjgtMi40IDEuNDgyLTQuMy0uNzM4LTQuMDQtLjczOC00LjA0YTI3LjA1IDI3LjA1IDAgMCAwIDAtNy45MThjLS45ODctOC43MDgtMTUuODQ3LTYuMzQ0LTE0LjA4NS0zLjUtNC4zNDMtLjgtMy4zNTIgOS4wODItMy4zNTIgOS4wODJsLjk0MiAyLjU2Yy0xLjg1IDEuMi0uNTY0IDIuNjUtLjUgNC4zMi4wOSAyLjQ2NiAxLjYgMS45NTUgMS42IDEuOTU1LjA5MyA0LjA3IDIuMSA0LjYgMi4xIDQuNi4zNzcgMi41NTYuMTQyIDIuMTIuMTQyIDIuMTJsLTEuNzg2LjIxN2E3LjEgNy4xIDAgMCAxLS4xNCAxLjczMmMtMi4xLjkzNi0yLjU1MyAxLjQ4NS00LjY0IDIuNC00LjAzMiAxLjc2Ny04LjQxNCA0LjA2NS05LjE5MyA3LjE2Uy0uMDEyIDU0LjA2LS4wMTIgNTQuMDZoNDcuMTl6Ii8+PC9zdmc+);
 	background-size: 50%;
-	font: 18px/18px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 18px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #fff;
 	padding-top: 10px;
 	text-transform: uppercase;
@@ -789,7 +794,8 @@
 
 .mail-connect-mailbox-name {
 	color: #000;
-	font: 24px/30px "OpenSans-Light", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 24px/30px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .mail-connect-dashed-switch {
@@ -826,7 +832,7 @@
 	border-radius: var(--ui-field-border-radius, 2px);
 	padding: 9px 11px;
 	box-sizing: border-box;
-	font: 13px/22px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/22px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #535c6a;
 	overflow: auto;
 }
@@ -888,7 +894,7 @@
 }
 
 .mail-connect-title-bold {
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .mail-connect-form-label-radio {
@@ -929,7 +935,7 @@
 .mail-connect-last-sync-status {
 	display: inline-block;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin: 0 28px 0 0;
 }
 .mail-connect-last-sync-success {

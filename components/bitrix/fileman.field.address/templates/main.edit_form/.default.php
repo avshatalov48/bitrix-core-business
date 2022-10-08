@@ -10,6 +10,13 @@ use Bitrix\Main\Text\HtmlFilter;
  * @var array $arParams
  */
 
+$isLocationIncluded = \Bitrix\Main\Loader::includeModule('location');
+if (!$isLocationIncluded)
+{
+	echo '<div>' . $component->getLocationModuleMessage() . '</div>';
+	return;
+}
+
 \Bitrix\Main\UI\Extension::load('fileman.userfield.address_widget');
 
 $component = $this->getComponent();

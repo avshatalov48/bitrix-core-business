@@ -6,6 +6,10 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 (function (exports,landing_ui_card_headercard,landing_loc,landing_ui_field_radiobuttonfield,landing_ui_panel_basepresetpanel,landing_ui_form_formsettingsform,main_core,ui_buttons,landing_ui_panel_formsettingspanel,landing_ui_card_messagecard) {
 	'use strict';
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	var KeysForm = /*#__PURE__*/function (_FormSettingsForm) {
 	  babelHelpers.inherits(KeysForm, _FormSettingsForm);
 
@@ -44,7 +48,7 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 
 	              return Captcha.open();
 	            }).then(function (result) {
-	              _this2.value = babelHelpers.objectSpread({}, result);
+	              _this2.value = _objectSpread({}, result);
 	              var formSettingsPanel = landing_ui_panel_formsettingspanel.FormSettingsPanel.getInstance();
 	              formSettingsPanel.getFormDictionary().captcha.hasKeys = main_core.Type.isStringFilled(result.key) && main_core.Type.isStringFilled(result.secret);
 	              var activeButton = formSettingsPanel.getSidebarButtons().find(function (button) {
@@ -69,6 +73,10 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	  }]);
 	  return KeysForm;
 	}(landing_ui_form_formsettingsform.FormSettingsForm);
+
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	var SpamProtection = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(SpamProtection, _ContentWrapper);
@@ -188,15 +196,15 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	    key: "valueReducer",
 	    value: function valueReducer(sourceValue) {
 	      return {
-	        recaptcha: babelHelpers.objectSpread({
+	        recaptcha: _objectSpread$1(_objectSpread$1(_objectSpread$1({
 	          use: sourceValue.use === 'hidden'
-	        }, this.getKeysSettingsForm().serialize(), this.getCustomKeysForm().serialize(), this.getRequiredKeysForm().serialize())
+	        }, this.getKeysSettingsForm().serialize()), this.getCustomKeysForm().serialize()), this.getRequiredKeysForm().serialize())
 	      };
 	    }
 	  }, {
 	    key: "onChange",
 	    value: function onChange(event) {
-	      this.emit('onChange', babelHelpers.objectSpread({}, event.getData(), {
+	      this.emit('onChange', _objectSpread$1(_objectSpread$1({}, event.getData()), {}, {
 	        skipPrepare: true
 	      }));
 	    }

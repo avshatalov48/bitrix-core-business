@@ -24,7 +24,6 @@ export class Entry
 	prepareData(data)
 	{
 		this.data = data;
-		// this.id = this.data.ID || 0;
 		this.id = parseInt(this.data.ID || 0);
 		this.parentId = parseInt(this.data.PARENT_ID || 0);
 
@@ -51,9 +50,11 @@ export class Entry
 		{
 			this.data.DT_LENGTH = this.FULL_DAY_LENGTH;
 		}
-
-		if (!Type.isString(this.data.DATE_FROM) && !Type.isString(this.data.DATE_TO)
-			&& Type.isDate(this.data.dateFrom) && Type.isDate(this.data.dateTo))
+		
+		if (
+			!Type.isString(this.data.DATE_FROM) && !Type.isString(this.data.DATE_TO)
+			&& Type.isDate(this.data.dateFrom) && Type.isDate(this.data.dateTo)
+		)
 		{
 			this.from = this.data.dateFrom;
 			this.to = this.data.dateTo;
@@ -69,7 +70,7 @@ export class Entry
 			else
 			{
 				this.from = new Date(this.from.getTime() - (parseInt(this.data['~USER_OFFSET_FROM']) || 0) * 1000);
-				this.to = new Date(this.from.getTime() + (this.data.DT_LENGTH - (this.fullDay ? 1 : 0)) * 1000);
+				this.to = new Date(this.to.getTime() - (parseInt(this.data['~USER_OFFSET_TO']) || 0) * 1000);
 			}
 		}
 		else
@@ -82,11 +83,7 @@ export class Entry
 			else
 			{
 				this.from = BX.parseDate(this.data.DATE_FROM) || new Date();
-				// if (this.data.DT_SKIP_TIME !== "Y")
-				// {
-				// 	this.from = new Date(this.from.getTime() - (parseInt(this.data['~USER_OFFSET_FROM']) || 0) * 1000);
-				// }
-				this.to = new Date(this.from.getTime() + (this.data.DT_LENGTH - (this.fullDay ? 1 : 0)) * 1000);
+				this.to = BX.parseDate(this.data.DATE_TO) || this.from;
 			}
 		}
 
@@ -242,6 +239,11 @@ export class Entry
 		return !!this.data.IS_MEETING;
 	}
 
+	isPrivate()
+	{
+		return this.private;
+	}
+
 	isResourcebooking()
 	{
 		return this.data.EVENT_TYPE === '#resourcebooking#';
@@ -325,6 +327,11 @@ export class Entry
 	isRecursive()
 	{
 		return !!this.data.RRULE;
+	}
+
+	isFirstInstance()
+	{
+		return this.data.RRULE && this.data.RINDEX === 0;
 	}
 
 	getMeetingHost()

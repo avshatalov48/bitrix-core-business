@@ -157,6 +157,9 @@ class B24button extends \Bitrix\Landing\Hook\Page
 
 
 		return [
+			'USE' => new Landing\Field\Checkbox('USE', [
+				'title' => Loc::getMessage('LANDING_HOOK_B24BUTTONCODE_USE'),
+			]),
 			'CODE' => new Landing\Field\Select('CODE', [
 				'title' => Loc::getMessage('LANDING_HOOK_B24BUTTONCODE'),
 				'options' => $items
@@ -187,9 +190,18 @@ class B24button extends \Bitrix\Landing\Hook\Page
 			return true;
 		}
 
+		$isTelegramWebView = self::isTelegramWebView();
+
+		if ($this->fields['USE']->getValue() === null)
+		{
+			return
+				trim($this->fields['CODE']) !== ''
+				&& !$isTelegramWebView;
+		}
+
 		return
-			trim($this->fields['CODE']) !== ''
-			&& !self::isTelegramWebView();
+			$this->fields['USE']->getValue() === 'Y'
+			&& !$isTelegramWebView;
 	}
 
 	/**
@@ -274,6 +286,15 @@ class B24button extends \Bitrix\Landing\Hook\Page
 				);
 			}
 		}
+	}
+
+	/**
+	 * Title of page Hook, if you want.
+	 * @return string
+	 */
+	public function getPageTitle()
+	{
+		return Loc::getMessage('LANDING_HOOK_B24BUTTONCODE_PAGE_TITLE');
 	}
 
 }

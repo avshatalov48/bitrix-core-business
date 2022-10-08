@@ -15,7 +15,7 @@ class CCalendarPlanner
 	{
 		global $APPLICATION;
 		\Bitrix\Main\UI\Extension::load(['ajax', 'window', 'popup', 'access', 'date', 'viewer', 'socnetlogdest']);
-		\Bitrix\Main\UI\Extension::load(['calendar.planner']);
+		\Bitrix\Main\UI\Extension::load(['calendar.planner', 'ui.fonts.opensans']);
 
 		// Config
 		if (!$config['id'])
@@ -101,8 +101,8 @@ class CCalendarPlanner
 					$userIds[] = (int)$user['USER_ID'];
 				}
 
-				$status = ($hostUserId && $hostUserId === (int)$user['USER_ID']
-					|| !$hostUserId && $curUserId == $user['USER_ID'])
+				$status = (($hostUserId && $hostUserId === (int)$user['USER_ID'])
+					|| (!$hostUserId && $curUserId === (int)$user['USER_ID']))
 					? 'h'
 					: '';
 
@@ -222,7 +222,7 @@ class CCalendarPlanner
 				$roomList = Rooms\IBlockMeetingRoom::getMeetingRoomList();
 				foreach ($roomList as $room)
 				{
-					if ($room['ID'] == $location['mrid'])
+					if ((int)$room['ID'] === (int)$location['mrid'])
 					{
 						$entry['name'] = $room['NAME'];
 						$entry['url'] = $room['URL'];
@@ -269,7 +269,7 @@ class CCalendarPlanner
 				$sectionList = Rooms\Manager::getRoomsList();
 				foreach($sectionList as $room)
 				{
-					if ($room['ID'] == $location['room_id'])
+					if ((int)$room['ID'] === (int)$location['room_id'])
 					{
 						$entry['name'] = $room['NAME'];
 					}

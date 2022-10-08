@@ -6,7 +6,7 @@ $MESS["MAIL_CLIENT_CONFIG_EDIT_TITLE"] = 'Управление почтовым 
 $MESS["MAIL_CLIENT_CONFIG_PROMPT"] = 'Работайте с почтой внутри Битрикс24';
 
 $MESS["MAIL_CLIENT_CONFIG_MAILBOX_NAME"] = "Название ящика";
-$MESS["MAIL_CLIENT_CONFIG_MAILBOX_EMAIL"] = "Email";
+$MESS["MAIL_CLIENT_CONFIG_MAILBOX_EMAIL"] = "E-mail";
 $MESS["MAIL_CLIENT_CONFIG_MAILBOX_USERNAME"] = "Имя отправителя";
 $MESS["MAIL_CLIENT_CONFIG_MAILBOX_LINK"] = "Адрес веб-интерфейса почтового сервера";
 $MESS["MAIL_CLIENT_CONFIG_EXT_SWITCH"] = "Указать дополнительные параметры";
@@ -86,8 +86,8 @@ $MESS["MAIL_CLIENT_CONFIG_PORT_BAD"] = "Недопустимый порт";
 $MESS["MAIL_CLIENT_CONFIG_LOGIN_EMPTY"] = "Введите логин";
 $MESS["MAIL_CLIENT_CONFIG_PASS_EMPTY"] = "Введите пароль";
 
-$MESS["MAIL_CLIENT_CONFIG_EMAIL_BAD"] = "Недопустимый email";
-$MESS["MAIL_CLIENT_CONFIG_EMAIL_EMPTY"] = "Введите email";
+$MESS["MAIL_CLIENT_CONFIG_EMAIL_BAD"] = "Укажите корректный e-mail";
+$MESS["MAIL_CLIENT_CONFIG_EMAIL_EMPTY"] = "Введите e-mail";
 $MESS["MAIL_CLIENT_CONFIG_EMAIL_EXISTS"] = "Вы уже подключили этот ящик";
 
 $MESS["MAIL_CLIENT_CONFIG_IMAP_SERVER_BAD"] = "Недопустимый адрес IMAP-сервера";

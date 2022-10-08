@@ -17,6 +17,8 @@ use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+
 if(!empty($arResult['ITEMS'])):
 	if ($arParams['NO_BACKGROUND'] == "Y")
 	{

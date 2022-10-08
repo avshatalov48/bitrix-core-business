@@ -340,7 +340,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 					<div class="mail-connect-option-email">
 						<input class="mail-connect-form-input mail-connect-form-input-check" type="checkbox"
 							name="fields[use_smtp]" value="1" id="mail_connect_mb_server_smtp_switch"
-							<? if ((empty($mailbox) && (empty($settings['oauth']) || $settings['name'] !== 'office365')) || !empty($mailbox['__smtp'])): ?> checked <? endif ?>
+							<? if ((empty($mailbox) && (empty($settings['oauth']) || !in_array($settings['name'], ['office365', 'exchangeOnline']))) || !empty($mailbox['__smtp'])): ?> checked <? endif ?>
 							onchange="BX('mail_connect_mb_server_smtp_form').style.display = this.checked ? '' : 'none'; ">
 						<label class="mail-connect-form-label mail-connect-form-label-check" for="mail_connect_mb_server_smtp_switch">
 							<?=htmlspecialcharsbx(Loc::getMessage('MAIL_CLIENT_CONFIG_SMTP_ACTIVE')) ?>
@@ -425,7 +425,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 			<div class="mail-connect-section-block">
 				<div class="mail-connect-title-block">
 					<div class="mail-connect-title">
-						<a name="configcrm"></a>
+						<a name="configcrm" id="configcrm"></a>
 						<?=Loc::getMessage('MAIL_CLIENT_CONFIG_CRM') ?>
 					</div>
 				</div>
@@ -638,7 +638,7 @@ $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array());
 		</div>
 
 		<div class="mail-connect-footer mail-connect-footer-fixed">
-			<div class="main-connect-form-error" id="mail_connect_form_error"></div>
+			<div id="mail_connect_form_error"></div>
 			<div class="mail-connect-footer-container">
 				<button class="ui-btn ui-btn-md ui-btn-success ui-btn-success mail-connect-btn-connect"
 					type="submit" id="mail_connect_save_btn"><?=Loc::getMessage(empty($mailbox) ? 'MAIL_CLIENT_CONFIG_BTN_CONNECT' : 'MAIL_CLIENT_CONFIG_BTN_SAVE') ?></button>
@@ -754,8 +754,6 @@ $arJsParams = array(
 			{
 				return;
 			}
-
-			BX.hide(BX('mail_connect_form_error'));
 
 			if(user['emailIsIntended'])
 			{
@@ -1279,8 +1277,6 @@ $arJsParams = array(
 
 			button.disabled = false;
 
-			BX.hide(BX('mail_connect_form_error'));
-
 			if (!checkForm())
 			{
 				return false;
@@ -1292,6 +1288,21 @@ $arJsParams = array(
 			var formField = function (name)
 			{
 				return form.elements['fields[' + name + ']'] || {};
+			}
+
+			var showError = function (text)
+			{
+				var alert = new BX.UI.Alert({
+					text: text,
+					inline: true,
+					closeBtn: true,
+					animate: true,
+					color: BX.UI.Alert.Color.DANGER,
+				});
+
+				var errorWrapper = BX('mail_connect_form_error');
+				errorWrapper.textContent ='';
+				errorWrapper.append(alert.getContainer());
 			}
 
 			BX.ajax.submitAjax(
@@ -1354,8 +1365,7 @@ $arJsParams = array(
 								).join('<br>');
 							}
 
-							BX('mail_connect_form_error').innerHTML = errorText;
-							BX.show(BX('mail_connect_form_error'));
+							showError(errorText);
 						}
 						else
 						{
@@ -1412,9 +1422,7 @@ $arJsParams = array(
 					{
 						button.disabled = false;
 						BX.removeClass(button, 'ui-btn-wait');
-
-						BX('mail_connect_form_error').innerHTML = '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_AJAX_ERROR')) ?>';
-						BX.show(BX('mail_connect_form_error'));
+						showError('<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_AJAX_ERROR')) ?>');
 					}
 				}
 			);

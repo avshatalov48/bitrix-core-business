@@ -614,16 +614,28 @@ abstract class Helper
 		if(is_array($road['additional']) && !empty($road['additional']))
 			$map = array_merge($map, $road['additional']);
 
-		foreach($map as $fldCode => $fldDesc)
+		foreach ($map as $fldCode => $fldDesc)
 		{
-			if((mb_strlen($fldDesc['title']) || $fldDesc['required'] || $fldDesc['primary'] || $fldCode == 'ID'))
+			if (is_array($excluded) && in_array($fldCode, $excluded))
 			{
-				if(is_array($excluded) && in_array($fldCode, $excluded))
-					continue;
+				continue;
+			}
 
-				if(is_array($included) && !in_array($fldCode, $included))
-					continue;
+			if (is_array($included) && !in_array($fldCode, $included))
+			{
+				continue;
+			}
 
+			if (
+				is_array($fldDesc)
+				&& (
+					mb_strlen($fldDesc['title'])
+					|| $fldDesc['required']
+					|| $fldDesc['primary']
+					|| $fldCode === 'ID'
+				)
+			)
+			{
 				$fldDesc['title'] = $fldDesc['title'] <> ''? htmlspecialcharsbx($fldDesc['title']) : $fldCode;
 				$fldDesc['ownerEntity'] = $road['name']; // map can be cumulative, from several entites, so we need to know who is an owner
 				$flds[$fldCode] = $fldDesc;

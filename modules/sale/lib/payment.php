@@ -201,7 +201,8 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 			'PAID' => 'N',
 			'XML_ID' => static::generateXmlId(),
 			'IS_RETURN' => static::RETURN_NONE,
-			'CURRENCY' => $collection->getOrder()->getCurrency()
+			'CURRENCY' => $collection->getOrder()->getCurrency(),
+			'ORDER_ID' => $collection->getOrder()->getId()
 		];
 
 		$payment = static::createPaymentObject();
@@ -633,7 +634,7 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 		$result = new Result();
 
 		$id = $this->getId();
-		$isNew = (int)$id <= 0;
+		$isNew = $id <= 0;
 
 		$this->callEventOnBeforeEntitySaved();
 
@@ -756,7 +757,10 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 		/** @var OrderHistory $orderHistory */
 		$orderHistory = $registry->getOrderHistoryClassName();
 
-		$this->setFieldNoDemand('ORDER_ID', $this->getOrder()->getId());
+		if ($this->getOrderId() === 0)
+		{
+			$this->setFieldNoDemand('ORDER_ID', $this->getOrder()->getId());
+		}
 
 		$r = $this->addInternal($this->getFields()->getValues());
 		if (!$r->isSuccess())
@@ -923,9 +927,9 @@ class Payment extends Internals\CollectableEntity implements IBusinessValueProvi
 	/**
 	 * @return int
 	 */
-	public function getOrderId()
+	public function getOrderId() : int
 	{
-		return $this->getField('ORDER_ID');
+		return (int)$this->getField('ORDER_ID');
 	}
 
 	/**

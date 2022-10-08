@@ -81,6 +81,8 @@ class UI extends \CModule
 
 		ModuleManager::registerModule($this->MODULE_ID);
 
+		\CAgent::addAgent('\Bitrix\UI\FileUploader\TempFileAgent::clearOldRecords();', 'ui', 'N', 1800);
+
 		return true;
 	}
 

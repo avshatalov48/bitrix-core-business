@@ -83,9 +83,9 @@
 	 */
 	BX.addCustomEvent("BX.Landing.Block:updateStyle", BX.debounce(function (event)
 	{
-		var relativeSelector = BX.Landing.SliderHelper.makeCarouselRelativeSelector(event);
-		var sliders = [].slice.call(event.block.querySelectorAll(relativeSelector));
-		var needUpdate = false;
+		const relativeSelector = BX.Landing.SliderHelper.makeCarouselRelativeSelector(event);
+		const sliders = [].slice.call(event.block.querySelectorAll(relativeSelector));
+		let needUpdate = false;
 		sliders.forEach(function (sliderNode)
 		{
 			// Now need rebuild only verticals sliders, i think.
@@ -97,6 +97,19 @@
 		if (needUpdate)
 		{
 			BX.Landing.SliderHelper.init(event, BX.Landing.SliderHelper.ACTION_UPDATE);
+		}
+
+		// add style changes to slick
+		if (event.node && event.data && event.data.style && Object.keys(event.data.style).length > 0)
+		{
+			event.node.forEach(slide => {
+				let currentSavedStyles = $(slide).data('originalStyling') || '';
+				for (const key in event.data.style)
+				{
+					currentSavedStyles += key + ':' + event.data.style[key] + ';'
+				}
+				$(slide).data('originalStyling', currentSavedStyles);
+			});
 		}
 	}, 1000));
 

@@ -3,7 +3,7 @@ this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 this.BX.Landing.Ui.Panel = this.BX.Landing.Ui.Panel || {};
 this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettingspanel || {};
-(function (exports,landing_loc,landing_ui_card_headercard,landing_ui_panel_basepresetpanel,landing_ui_field_accordionfield,landing_ui_card_messagecard,main_core) {
+(function (exports,landing_loc,landing_ui_card_headercard,landing_ui_panel_basepresetpanel,landing_ui_field_accordionfield,landing_ui_card_messagecard,ui_designTokens,main_core) {
 	'use strict';
 
 	var yandexIcon = "/bitrix/js/landing/ui/panel/formsettingspanel/content/analytics/dist/images/yandex.svg";
@@ -11,11 +11,15 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	var googleIcon = "/bitrix/js/landing/ui/panel/formsettingspanel/content/analytics/dist/images/google.svg";
 
 	var _templateObject;
+
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var ContentTableCell = /*#__PURE__*/function () {
 	  function ContentTableCell() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, ContentTableCell);
-	    this.options = babelHelpers.objectSpread({}, options);
+	    this.options = _objectSpread({}, options);
 	  }
 
 	  babelHelpers.createClass(ContentTableCell, [{
@@ -28,10 +32,14 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	}();
 
 	var _templateObject$1;
+
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var ContentTableRow = /*#__PURE__*/function () {
 	  function ContentTableRow(options) {
 	    babelHelpers.classCallCheck(this, ContentTableRow);
-	    this.options = babelHelpers.objectSpread({}, options);
+	    this.options = _objectSpread$1({}, options);
 	  }
 
 	  babelHelpers.createClass(ContentTableRow, [{
@@ -47,10 +55,14 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	}();
 
 	var _templateObject$2, _templateObject2;
+
+	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var ContentTable = /*#__PURE__*/function () {
 	  function ContentTable(options) {
 	    babelHelpers.classCallCheck(this, ContentTable);
-	    this.options = babelHelpers.objectSpread({}, options);
+	    this.options = _objectSpread$2({}, options);
 	    this.headRow = new ContentTableRow({
 	      columns: this.options.columns.map(function (columnOptions) {
 	        return new ContentTableCell(columnOptions);
@@ -195,5 +207,5 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 
 	exports.default = AnalyticsContent;
 
-}((this.BX.Landing.Ui.Panel.Formsettingspanel.Content = this.BX.Landing.Ui.Panel.Formsettingspanel.Content || {}),BX.Landing,BX.Landing.UI.Card,BX.Landing.UI.Panel,BX.Landing.UI.Field,BX.Landing.UI.Card,BX));
+}((this.BX.Landing.Ui.Panel.Formsettingspanel.Content = this.BX.Landing.Ui.Panel.Formsettingspanel.Content || {}),BX.Landing,BX.Landing.UI.Card,BX.Landing.UI.Panel,BX.Landing.UI.Field,BX.Landing.UI.Card,BX,BX));
 //# sourceMappingURL=analytics.bundle.js.map

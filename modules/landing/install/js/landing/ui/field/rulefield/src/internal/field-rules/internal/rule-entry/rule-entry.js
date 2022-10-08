@@ -1,6 +1,7 @@
 /**
 * @bxjs_lang_path
 */
+import 'ui.design-tokens';
 import {Cache, Dom, Tag, Text, Type} from 'main.core';
 import {BaseEvent, EventEmitter} from 'main.core.events';
 import {fetchEventsFromOptions} from 'landing.ui.component.internal';

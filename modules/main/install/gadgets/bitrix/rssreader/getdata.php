@@ -2,7 +2,7 @@
 define("STOP_STATISTICS", true);
 define("BX_SECURITY_SHOW_MESSAGE", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
-__IncludeLang(dirname(__FILE__)."/lang/".LANGUAGE_ID."/getdata.php");
+__IncludeLang(__DIR__."/lang/".LANGUAGE_ID."/getdata.php");
 
 if (!check_bitrix_sessid())
 {
@@ -11,7 +11,7 @@ if (!check_bitrix_sessid())
 
 $rnd = $_REQUEST["rnd"];
 
-include_once(dirname(__FILE__).'/include.php');
+include_once(__DIR__.'/include.php');
 
 if (
 	!array_key_exists("GD_RSS_PARAMS", $_SESSION) 

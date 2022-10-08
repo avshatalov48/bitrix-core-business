@@ -17,7 +17,8 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 	.rest-app-title {
 		margin: 0 0 38px 0;
 		padding: 0;
-		font: 37px/37px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+		font: 37px/37px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+		font-weight: var(--ui-font-weight-light, 300);
 		color: #525C69;
 	}
 
@@ -126,7 +127,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 		animation: rest-app-icon-refresh-animation 2s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
 		opacity: 0;
 	}
-	
+
 	.rest-app-icon-refresh-repeat-animation .rest-app-icon-refresh-noarrows {
 		animation: rest-app-icon-refresh-repeat-animation 2s linear infinite;
 	}

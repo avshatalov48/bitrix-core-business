@@ -17,7 +17,7 @@
 .landing-title-overflow.--create-folder-input {
 	position: relative;
 	height: 32px;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	border: 1px solid #2fc6f6;
 	background-color: #fff;
 	z-index: 2;
@@ -28,7 +28,7 @@
 	height: 32px;
 	width: 100%;
 	border: none;
-	font: 14px/32px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/32px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 	box-sizing: border-box;
 }

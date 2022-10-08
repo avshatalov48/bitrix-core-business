@@ -268,9 +268,6 @@ else
 			$arParams["MODIFICATION_LABEL"] = intval($arParams["MODIFICATION_LABEL"]);
 			if ($arParams["MODIFICATION_LABEL"] > 0)
 			{
-				if (ToUpper($GLOBALS["DB"]->type) == "MSSQL")
-					$arParams["MODIFICATION_LABEL"] += 1;
-
 				$arParams["MODIFICATION_LABEL"] += ($arParams["ZZZ"] - date("Z"));
 
 				$arFilter[">DATE_UPDATE"] = ConvertTimeStamp($arParams["MODIFICATION_LABEL"], "FULL");

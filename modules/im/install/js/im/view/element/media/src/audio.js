@@ -7,6 +7,7 @@
  * @copyright 2001-2019 Bitrix
  */
 
+import 'ui.design-tokens';
 import './audio.css';
 import "ui.vue.components.audioplayer";
 

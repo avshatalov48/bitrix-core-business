@@ -26,7 +26,8 @@
 }
 
 .landing-ui-button-select-link {
-	font-family: 'OpenSans-Bold', Helvetca, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	background: none;
 	font-size: 12px;
 	color: #525C69;
@@ -174,7 +175,8 @@
 }
 
 .landing-ui-field-link-new-label {
-	font-family: OpenSans-Bold, Helvetca, Arial, sans-serif, serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 8px;
 	color: #ffffff;
 	background: #2FC6F6;

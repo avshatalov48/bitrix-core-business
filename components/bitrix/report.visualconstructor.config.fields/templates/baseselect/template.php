@@ -8,6 +8,8 @@ $behaviours = $arResult['CONFIGURATION_FIELD_BEHAVIOURS'];
 $configurationValue = $field->getValue();
 $fieldName = $field->getName();
 $id = $field->getId();
+
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
 ?>
 <div class="report-configuration-item report-configuration-base-select-field-item">
 	<?php if ($field->isDisplayLabel()): ?>

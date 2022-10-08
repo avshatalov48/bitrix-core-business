@@ -71,28 +71,31 @@ class Encoding
 		return $alias;
 	}
 
-	protected static function convert(&$data, $charsetFrom, $charsetTo)
+	protected static function convert($data, $charsetFrom, $charsetTo)
 	{
-		if(is_array($data) || $data instanceof \SplFixedArray)
+		if (is_array($data) || $data instanceof \SplFixedArray)
 		{
 			//let's do a recursion
-			foreach($data as $key => $value)
+			if ($data instanceof \SplFixedArray)
+			{
+				$result = clone $data;
+			}
+			else
+			{
+				$result = [];
+			}
+			foreach ($data as $key => $value)
 			{
 				$newKey = self::convert($key, $charsetFrom, $charsetTo);
 				$newValue = self::convert($value, $charsetFrom, $charsetTo);
 
-				$data[$newKey] = $newValue;
-
-				if($newKey != $key)
-				{
-					unset($data[$key]);
-				}
+				$result[$newKey] = $newValue;
 			}
-			return $data;
+			return $result;
 		}
-		elseif(is_string($data))
+		elseif (is_string($data))
 		{
-			if($data == '')
+			if ($data == '')
 			{
 				return '';
 			}
@@ -106,7 +109,7 @@ class Encoding
 	 * @param $data
 	 * @param $charsetFrom
 	 * @param $charsetTo
-	 * @return mixed
+	 * @return string|array|\SplFixedArray|bool
 	 */
 	public static function convertEncodingArray($data, $charsetFrom, $charsetTo)
 	{
@@ -122,18 +125,65 @@ class Encoding
 		$isUtf8String = self::detectUtf8($string);
 		$isUtf8Config = Application::isUtfMode();
 
+		$from = '';
+		$to = '';
+		if ($isUtf8Config && !$isUtf8String)
+		{
+			$from = static::getCurrentEncoding();
+			$to = 'UTF-8';
+		}
+		elseif (!$isUtf8Config && $isUtf8String)
+		{
+			$from = 'UTF-8';
+			$to = static::getCurrentEncoding();
+		}
+
+		if ($from !== $to)
+		{
+			$string = self::convertEncoding($string, $from, $to);
+		}
+
+		return $string;
+	}
+
+	/**
+	 * @param string $string
+	 * @return bool|string
+	 */
+	public static function convertToUtf($string)
+	{
+		if (self::detectUtf8($string))
+		{
+			return $string;
+		}
+
+		$from = '';
+		$to = '';
+		if (!Application::isUtfMode())
+		{
+			$from = static::getCurrentEncoding();
+			$to = 'UTF-8';
+		}
+
+		if ($from !== $to)
+		{
+			$string = self::convertEncoding($string, $from, $to);
+		}
+
+		return $string;
+	}
+
+	protected static function getCurrentEncoding(): string
+	{
 		$currentCharset = null;
 
-		if (!$isUtf8Config && $isUtf8String)
+		$context = Application::getInstance()->getContext();
+		if ($context != null)
 		{
-			$context = Application::getInstance()->getContext();
-			if ($context != null)
+			$culture = $context->getCulture();
+			if ($culture != null)
 			{
-				$culture = $context->getCulture();
-				if ($culture != null)
-				{
-					$currentCharset = $culture->getCharset();
-				}
+				$currentCharset = $culture->getCharset();
 			}
 		}
 
@@ -147,39 +197,28 @@ class Encoding
 			$currentCharset = "Windows-1251";
 		}
 
-		$fromCp = "";
-		$toCp = "";
-		if ($isUtf8Config && !$isUtf8String)
-		{
-			$fromCp = $currentCharset;
-			$toCp = "UTF-8";
-		}
-		elseif (!$isUtf8Config && $isUtf8String)
-		{
-			$fromCp = "UTF-8";
-			$toCp = $currentCharset;
-		}
-
-		if ($fromCp !== $toCp)
-		{
-			$string = self::convertEncoding($string, $fromCp, $toCp);
-		}
-
-		return $string;
+		return $currentCharset;
 	}
 
 	/**
 	 * @param string $string
+	 * @param bool $replaceHex
 	 * @return bool
 	 */
-	public static function detectUtf8($string)
+	public static function detectUtf8($string, $replaceHex = true)
 	{
 		//http://mail.nl.linux.org/linux-utf8/1999-09/msg00110.html
 
-		$string = preg_replace_callback("/(%)([0-9A-F]{2})/i", function ($match)
+		if ($replaceHex)
 		{
-			return chr(hexdec($match[2]));
-		}, $string);
+			$string = preg_replace_callback(
+				"/(%)([\\dA-F]{2})/i",
+				function ($match) {
+					return chr(hexdec($match[2]));
+				},
+				$string
+			);
+		}
 
 		//valid UTF-8 octet sequences
 		//0xxxxxxx
@@ -189,19 +228,23 @@ class Encoding
 
 		$prevBits8and7 = 0;
 		$isUtf = 0;
-		foreach(unpack("C*", $string) as $byte)
+		foreach (unpack("C*", $string) as $byte)
 		{
 			$hiBits8and7 = $byte & 0xC0;
 			if ($hiBits8and7 == 0x80)
 			{
 				if ($prevBits8and7 == 0xC0)
+				{
 					$isUtf++;
+				}
 				elseif (($prevBits8and7 & 0x80) == 0x00)
+				{
 					$isUtf--;
+				}
 			}
 			elseif ($prevBits8and7 == 0xC0)
 			{
-					$isUtf--;
+				$isUtf--;
 			}
 			$prevBits8and7 = $hiBits8and7;
 		}
@@ -228,7 +271,7 @@ class Encoding
 			}
 			else
 			{
-				//Otherwise assime Little endian without BOF
+				//Otherwise, assime Little endian without BOF
 				$res = mb_convert_encoding($data, $charsetTo, "UTF-16LE");
 			}
 		}

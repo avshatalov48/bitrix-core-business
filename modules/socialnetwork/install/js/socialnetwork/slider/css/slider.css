@@ -5,7 +5,8 @@
 }
 
 .sonet-slider-pagetitle {
-	font: 24px/36px "OpenSans-Light", Helvetica,Arial,sans-serif;
+	font: 24px/36px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	margin: 0;
 	padding: 21px 0 21px 5px;
 	display: block;
@@ -68,7 +69,8 @@
 .ui-page-slider-wrapper .sonet-pagesubtitle-item {
 	display: block;
 	margin: 5px 0 0 0;
-	font: 13px/24px "OpenSans-Light", Helvetica,Arial,sans-serif;
+	font: 13px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: rgba(82,92,105,.6);
 	text-overflow: ellipsis;
 	white-space: nowrap;

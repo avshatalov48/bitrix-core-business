@@ -67,7 +67,7 @@ else
 	define('NO_AGENT_CHECK', true);
 	define("STATISTIC_SKIP_ACTIVITY_CHECK", true);
 	if (!$_SERVER['DOCUMENT_ROOT'])
-		$DOCUMENT_ROOT = $_SERVER['DOCUMENT_ROOT'] = realpath(dirname(__FILE__).'/../../../../');
+		$DOCUMENT_ROOT = $_SERVER['DOCUMENT_ROOT'] = realpath(__DIR__.'/../../../../');
 	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 	IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/admin/dump.php');
 }

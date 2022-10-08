@@ -115,7 +115,7 @@ if(isset($arResult["DB_SOCSERV_USER"]) && $arParams["SHOW_PROFILES"] != 'N')
 	<?if($showDivTwitter):?>
 	<div class="soc-serv-title-grey">
 		<?if(COption::GetOptionString("socialservices", "get_message_from_twitter", "N") == 'Y'):?>
-		<br><?=str_replace("#hash#", $arResult["TWIT_HASH"], GetMessage("SS_SEND_MESSAGE_TO"))."  "?><a href="javascript:void(0)" onclick="ShowTwitDiv()"><?=GetMessage("SS_TO_RECIPIENTS")?></a>
+		<br><?=str_replace("#hash#", $arResult["TWIT_HASH"], GetMessage("SS_SEND_MESSAGE_TO2"))."  "?><a href="javascript:void(0)" onclick="ShowTwitDiv()"><?=GetMessage("SS_TO_RECIPIENTS")?></a>
 			<div id="soc-serv-recipients">
 		<?
 		$APPLICATION->IncludeComponent(

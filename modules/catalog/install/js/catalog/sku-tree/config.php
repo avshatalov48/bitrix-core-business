@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/sku-tree.bundle.css',
 	'js' => 'dist/sku-tree.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
 		'main.core',
 		'catalog.sku-tree',
 		'main.core.events',

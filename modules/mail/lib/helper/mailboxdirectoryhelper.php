@@ -394,7 +394,7 @@ class MailboxDirectoryHelper
 		}
 	}
 
-	public function getDefaultDirPath($emojiEncode = false)
+	public function getDefaultDir()
 	{
 		$inboxDir = $this->getIncome();
 		$sendDir = $this->getOutcome();
@@ -404,7 +404,7 @@ class MailboxDirectoryHelper
 		{
 			if ($dir != null && !$dir->isDisabled() && $dir->isSync())
 			{
-				return $dir->getPath($emojiEncode);
+				return $dir;
 			}
 		}
 
@@ -412,8 +412,20 @@ class MailboxDirectoryHelper
 		{
 			if (!$dir->isDisabled() && $dir->isSync())
 			{
-				return $dir->getPath($emojiEncode);
+				return $dir;
 			}
+		}
+
+		return '';
+	}
+
+	public function getDefaultDirPath($emojiEncode = false)
+	{
+		$dir = $this->getDefaultDir();
+
+		if($dir !== '')
+		{
+			return $dir->getPath($emojiEncode);
 		}
 
 		return '';

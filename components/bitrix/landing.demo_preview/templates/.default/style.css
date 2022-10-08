@@ -239,7 +239,8 @@ body {
 
 .landing-template-preview-loader-text {
 	color: #0063c6;
-	font: 28px/34px 'OpenSans-Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: 28px/34px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	text-align: center;
 	max-width: 400px;
 	position: absolute;
@@ -278,7 +279,8 @@ body {
 }
 
 .landing-template-preview-edit-input {
-	font: 30px/34px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font: 30px/34px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	border: 0;
 	border-bottom: 1px solid #d2d2d2;
 	background: #eef2f4;
@@ -295,13 +297,14 @@ body {
 .landing-template-preview-title {
 	display: flex;
 	align-items: center;
-	font: 26px/26px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font: 26px/26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	margin: 0;
 	word-wrap: break-word;
 }
 
 .landing-template-preview-edit-textarea {
-	font: 13px/17px "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font: 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	border: 0;
 	border-bottom: 1px solid #d2d2d2;
 	background: #eef2f4;
@@ -338,7 +341,7 @@ body {
 }
 
 .template-landing24  {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	font-weight: normal;
 	-moz-osx-font-smoothing: grayscale
@@ -346,4 +349,12 @@ body {
 
 .cursor-pointer {
 	cursor: pointer;
+}
+
+input {
+	outline: none;
+}
+.main-color-picker-custom-input {
+	height: 100%;
+	margin-top: 0 !important;
 }

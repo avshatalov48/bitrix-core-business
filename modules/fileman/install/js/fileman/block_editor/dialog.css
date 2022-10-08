@@ -10,7 +10,7 @@ WYSIWUG BUGFIXES
 
 .bx-block-editor-container{
 	color: #000;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	top: 0;
 	left: 0;
 	bottom: 0;
@@ -87,7 +87,8 @@ WYSIWUG BUGFIXES
   /*-webkit-box-shadow: inset 0 1px 0 0 #fff;*/
   /*box-shadow: inset 0 1px 0 0 #fff;*/
 	/*height: 25px;*/
-	font: 15px/26px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #555C6B;
 	transition: color .3s;
   	/*text-shadow: 0 1px #fff;*/
@@ -126,7 +127,7 @@ WYSIWUG BUGFIXES
 	min-width: 60px;
 	border-radius: 15px;
 	color: white;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	*/
 }
 .bx-block-editor-container .button-panel span.bx-editor-block-btn-close {
@@ -135,7 +136,7 @@ WYSIWUG BUGFIXES
 	align-items: center;
 	margin-right: 12px;
 	margin-top: 16px;
-	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(82,92,105,1);
 	transition: opacity .3s;
 	opacity: .6;
@@ -151,7 +152,7 @@ WYSIWUG BUGFIXES
 	align-items: center;
 	margin-right: 12px;
 	margin-top: 16px;
-	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(82,92,105,1);
 	transition: opacity .3s;
 	opacity: .6;
@@ -345,7 +346,8 @@ WYSIWUG BUGFIXES
 	height: 33px;
 	border: 1px solid #C6CDD3;
 	border-radius: var(--ui-border-radius-2xs, 2px);
-	font: bold 12px/33px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px/33px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #535C69;
 	text-decoration: none;
 	text-transform: uppercase;
@@ -421,7 +423,8 @@ WYSIWUG BUGFIXES
 	display: inline-block;
 	margin: 0 30px 0 0;
 	height: 51px;
-	font: 14px/51px 'OpenSans-SemiBold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px/51px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #525C69;
 	transition: opacity .3s;
 	cursor: pointer;
@@ -478,7 +481,7 @@ ul.bx-block-editor-i-place-list{
 	list-style: none;
 	margin: 0;
 	padding: 0 0 0 20px;
-	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525C69;
 }
 ul.bx-block-editor-i-place-list li {
@@ -608,7 +611,7 @@ ul.bx-block-editor-i-block-list .bx-block-editor-i-block-list-item-name{
 	color:#5e5e5e;
 	height:18px;
 	font-size:12px;
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	line-height:14px;
 	text-shadow:0 1px #fff;
 	text-decoration:none;
@@ -906,7 +909,7 @@ a.adm-nav-page:hover,
 .bx-editor-block-tools .caption{
 	/*padding: 10px;*/
 	margin: 0 0 5px 0;
-	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525C69;
 }
 
@@ -950,7 +953,7 @@ a.adm-nav-page:hover,
 	color: rgba(168,173,180,.5);
 	cursor: pointer;
 	display: inline-block;
-	font: bold 11px/34px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 11px/34px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	height: 34px;
 	min-width: 80px;
 	padding: 0 10px;

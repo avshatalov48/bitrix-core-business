@@ -6,6 +6,7 @@
  * @copyright 2001-2016 Bitrix
  */
 namespace Bitrix\Vote;
+use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DB\SqlExpression;
 use \Bitrix\Main\Entity;
@@ -135,6 +136,7 @@ class UserTable extends Entity\DataManager
 
 class User extends BaseObject
 {
+	private const DB_TIMELOCK = 15;
 	const SYSTEM_USER_ID = 0;
 	static $usersIds = [];
 
@@ -281,6 +283,27 @@ class User extends BaseObject
 			$result = $vote->isVotedFor($userId);
 		}
 		return $result;
+	}
+
+	protected function getLockingKey(int $voteId): string
+	{
+		return implode('_', [
+			static::class,
+			$this->getId() > 0 ? $this->getId() : bitrix_sessid(),
+			$voteId
+		]);
+	}
+
+	public function lock(int $voteId): bool
+	{
+		$lockingKey = $this->getLockingKey($voteId);
+		return Application::getConnection()->lock($lockingKey, self::DB_TIMELOCK);
+	}
+
+	public function unlock(int $voteId)
+	{
+		$lockingKey = $this->getLockingKey($voteId);
+		Application::getConnection()->unlock($lockingKey);
 	}
 
 	/**

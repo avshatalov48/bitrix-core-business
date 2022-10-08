@@ -37,7 +37,8 @@ class EntitySelector
 		EventEmitter.subscribe('BX.Main.Filter:customEntityFocus', this.onCustomEntityFocus.bind(this));
 		EventEmitter.subscribe('BX.Main.Filter:customEntityBlur', this.onCustomEntityBlur.bind(this));
 		EventEmitter.subscribe('BX.Main.Filter:onGetStopBlur', this.onGetStopBlur.bind(this));
-		EventEmitter.subscribe('BX.Main.Filter:move", ', this.onCustomEntityRemove.bind(this));
+		EventEmitter.subscribe('BX.Main.Filter:move', this.onCustomEntityRemove.bind(this));
+		EventEmitter.subscribe('BX.Main.Filter:onApplyPreset', this.onApplyPreset.bind(this));
 
 		this.controlInputChangeHandler = this.onSearchInputChange.bind(this);
 	}
@@ -331,6 +332,16 @@ class EntitySelector
 		{
 			return;
 		}
+		if (this.dialog)
+		{
+			this.dialog.destroy();
+			this.dialog = null;
+		}
+		this.unsetControl();
+	}
+
+	onApplyPreset(event: BaseEvent): void
+	{
 		if (this.dialog)
 		{
 			this.dialog.destroy();

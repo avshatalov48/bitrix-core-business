@@ -3,9 +3,17 @@ import "ls";
 export default class Settings
 {
 	#ttl = 3 * 86400;
-	#prefix = 'bp-atm-dbg-'
+	#prefix = 'bp-'
 
-	#getName(name: string)
+	constructor(section: string)
+	{
+		if (section)
+		{
+			this.#prefix += section + '-';
+		}
+	}
+
+	#getName(name: string): string
 	{
 		return this.#prefix + name;
 	}

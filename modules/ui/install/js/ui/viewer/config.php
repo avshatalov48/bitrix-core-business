@@ -9,6 +9,7 @@ return [
 	"js" => [
 		"/bitrix/js/ui/viewer/ui.viewer.item.js",
 		"/bitrix/js/ui/viewer/ui.viewer.js",
+		"/bitrix/js/ui/viewer/dist/viewer.bundle.js",
 	],
 	'rel' => [
 		'ajax',
@@ -17,5 +18,7 @@ return [
 		'ui.actionpanel',
 		'ui.buttons',
 		'ui.buttons.icons',
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 	],
 ];

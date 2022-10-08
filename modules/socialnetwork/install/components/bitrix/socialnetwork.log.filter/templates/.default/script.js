@@ -105,7 +105,13 @@ BitrixLFFilter.prototype.showLentaMenu = function(params)
 		BX.addClass(bindElement, "lenta-sort-button-active");
 	}
 
-	this.popupMenu = BX.PopupMenu.create("lenta-sort-popup", bindElement, BX.util.array_merge((!short ? BX.util.array_merge(this.menuItems.preset, this.menuItems.filter) : []), this.menuItems.actions), {
+	const items = BX.util.array_merge((!short ? BX.util.array_merge(this.menuItems.preset, this.menuItems.filter) : []), this.menuItems.actions);
+	if (!BX.Type.isArrayFilled(items))
+	{
+		return false;
+	}
+
+	this.popupMenu = BX.PopupMenu.create("lenta-sort-popup", bindElement, items, {
 		offsetTop: (params.siteTemplateId == 'bitrix24' ? -5 : 2),
 		offsetLeft: (params.siteTemplateId == 'bitrix24' ? 17 : 43),
 		angle : true,

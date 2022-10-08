@@ -1,8 +1,9 @@
-<?
+<?php
+
 interface IBPEventActivity
 {
-	public function Subscribe(IBPActivityExternalEventListener $eventHandler);
-	public function Unsubscribe(IBPActivityExternalEventListener $eventHandler);
+	public function subscribe(IBPActivityExternalEventListener $eventHandler);
+	public function unsubscribe(IBPActivityExternalEventListener $eventHandler);
 }
 
 interface IBPEventDrivenActivity
@@ -12,12 +13,12 @@ interface IBPEventDrivenActivity
 
 interface IBPActivityEventListener
 {
-	public function OnEvent(CBPActivity $sender, $arEventParameters = array());
+	public function onEvent(CBPActivity $sender, $arEventParameters = array());
 }
 
 interface IBPActivityExternalEventListener
 {
-	public function OnExternalEvent($arEventParameters = array());
+	public function onExternalEvent($arEventParameters = array());
 }
 
 interface IBPActivityDebugEventListener
@@ -27,20 +28,20 @@ interface IBPActivityDebugEventListener
 
 interface IBPRootActivity
 {
-	public function GetDocumentId();
-	public function SetDocumentId($documentId);
+	public function getDocumentId();
+	public function setDocumentId($documentId);
 
-	public function GetWorkflowStatus();
-	public function SetWorkflowStatus($status);
+	public function getWorkflowStatus();
+	public function setWorkflowStatus($status);
 
-	public function SetProperties($arProperties = array());
+	public function setProperties($arProperties = array());
 
-	public function SetVariables($arVariables = array());
-	public function SetVariable($name, $value);
-	public function GetVariable($name);
-	public function IsVariableExists($name);
+	public function setVariables($arVariables = array());
+	public function setVariable($name, $value);
+	public function getVariable($name);
+	public function isVariableExists($name);
 
-	public function SetCustomStatusMode();
+	public function setCustomStatusMode();
 }
 
 interface IBPWorkflowDocument
@@ -51,7 +52,7 @@ interface IBPWorkflowDocument
 	 * @param string $documentId - Document id.
 	 * @return array - Fields values.
 	 */
-	public static function GetDocument($documentId);
+	public static function getDocument($documentId);
 
 	/**
 	 * Method returns document type fields list.
@@ -59,7 +60,7 @@ interface IBPWorkflowDocument
 	 * @param string $documentType - Document type.
 	 * @return array - Fields array(field_code => array("NAME" => field_name, "TYPE" => field_type), ...).
 	 */
-	public static function GetDocumentFields($documentType);
+	public static function getDocumentFields($documentType);
 
 	/**
 	 * Method creates new document with specified fields.
@@ -68,7 +69,7 @@ interface IBPWorkflowDocument
 	 * @param array $arFields - Fields values array(field_code => value, ...). Fields codes must be compatible with codes from GetDocumentFields.
 	 * @return int - New document id.
 	 */
-	public static function CreateDocument($parentDocumentId, $arFields);
+	public static function createDocument($parentDocumentId, $arFields);
 
 	/**
 	 * Method updates document fields.
@@ -76,28 +77,28 @@ interface IBPWorkflowDocument
 	 * @param string $documentId - Document id.
 	 * @param array $arFields - New fields values array(field_code => value, ...). Fields codes must be compatible with codes from GetDocumentFields.
 	 */
-	public static function UpdateDocument($documentId, $arFields);
+	public static function updateDocument($documentId, $arFields);
 
 	/**
 	 * Method deletes specified document.
 	 *
 	 * @param string $documentId - Document id.
 	 */
-	public static function DeleteDocument($documentId);
+	public static function deleteDocument($documentId);
 
 	/**
 	 * Method publishes document.
 	 *
 	 * @param string $documentId - Document id.
 	 */
-	public static function PublishDocument($documentId);
+	public static function publishDocument($documentId);
 
 	/**
 	 * Method unpublishes document.
 	 *
 	 * @param string $documentId - Document id.
 	 */
-	public static function UnpublishDocument($documentId);
+	public static function unpublishDocument($documentId);
 
 	/**
 	 * Method locks specified document for specified workflow state. A locked document can be changed only by the specified workflow.
@@ -106,7 +107,7 @@ interface IBPWorkflowDocument
 	 * @param string $workflowId - Workflow id.
 	 * @return bool - True on success, false on failure.
 	 */
-	public static function LockDocument($documentId, $workflowId);
+	public static function lockDocument($documentId, $workflowId);
 
 	/**
 	 * Method unlocks specified document. On unlock fires events like "Entity_OnUnlockDocument" with document id as first parameter.
@@ -115,7 +116,7 @@ interface IBPWorkflowDocument
 	 * @param string $workflowId - Workflow id.
 	 * @return bool - True on success, false on failure.
 	 */
-	public static function UnlockDocument($documentId, $workflowId);
+	public static function unlockDocument($documentId, $workflowId);
 
 	/**
 	 * Method checks lock status.
@@ -124,7 +125,7 @@ interface IBPWorkflowDocument
 	 * @param string $workflowId - Workflow id.
 	 * @return bool True if document locked.
 	 */
-	public static function IsDocumentLocked($documentId, $workflowId);
+	public static function isDocumentLocked($documentId, $workflowId);
 
 	/**
 	 * Method checks can user operate specified document with specified operation.
@@ -135,7 +136,7 @@ interface IBPWorkflowDocument
 	 * @param array $arParameters - Additional parameters.
 	 * @return bool
 	 */
-	public static function CanUserOperateDocument($operation, $userId, $documentId, $arParameters = array());
+	public static function canUserOperateDocument($operation, $userId, $documentId, $arParameters = array());
 
 	/**
 	 * Method checks can user operate specified document type with specified operation.
@@ -146,7 +147,7 @@ interface IBPWorkflowDocument
 	 * @param array $arParameters - Additional parameters.
 	 * @return bool
 	 */
-	public static function CanUserOperateDocumentType($operation, $userId, $documentType, $arParameters = array());
+	public static function canUserOperateDocumentType($operation, $userId, $documentType, $arParameters = array());
 
 	/**
 	 * Get document admin page URL.
@@ -154,7 +155,7 @@ interface IBPWorkflowDocument
 	 * @param string|int $documentId - Document id.
 	 * @return string - URL.
 	 */
-	public static function GetDocumentAdminPage($documentId);
+	public static function getDocumentAdminPage($documentId);
 
 	/**
 	 * Method returns document information. This information uses in method RecoverDocumentFromHistory.
@@ -163,7 +164,7 @@ interface IBPWorkflowDocument
 	 * @param $historyIndex - History index.
 	 * @return array - Document data.
 	 */
-	public static function GetDocumentForHistory($documentId, $historyIndex);
+	public static function getDocumentForHistory($documentId, $historyIndex);
 
 	/**
 	 * Method recovers specified document from information, provided by method RecoverDocumentFromHistory.
@@ -171,9 +172,9 @@ interface IBPWorkflowDocument
 	 * @param string $documentId - Document id.
 	 * @param array $arDocument - Document data.
 	 */
-	public static function RecoverDocumentFromHistory($documentId, $arDocument);
+	public static function recoverDocumentFromHistory($documentId, $arDocument);
 
-	public static function GetAllowableOperations($documentType);
-	public static function GetAllowableUserGroups($documentType);
-	public static function GetUsersFromUserGroup($group, $documentId);
+	public static function getAllowableOperations($documentType);
+	public static function getAllowableUserGroups($documentType);
+	public static function getUsersFromUserGroup($group, $documentId);
 }

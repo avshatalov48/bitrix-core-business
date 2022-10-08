@@ -2,12 +2,12 @@
 	margin: 10px 0 0;
 }
 .bx-searchtitle .bx-block-title {
-	font-family: "Open Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #343434;
 	text-transform: uppercase;
 	font-size: 12px;
 	margin-bottom: 9px;
-	font-weight: 600;
 }
 .bx-searchtitle .bx-input-group {
 	position: relative;

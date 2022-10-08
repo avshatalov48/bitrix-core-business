@@ -13,7 +13,7 @@
 
 use \Bitrix\Main\Authentication\Policy;
 
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 define("HELP_FILE", "users/user_edit.php");
 $strRedirect_admin = BX_ROOT."/admin/user_admin.php?lang=".LANG;
@@ -504,7 +504,7 @@ if($canViewUserList)
 {
 	$aMenu[] = array(
 		"TEXT"	=> GetMessage("RECORD_LIST"),
-		"LINK"	=> "/bitrix/admin/user_admin.php?lang=".LANGUAGE_ID."&set_default=Y",
+		"LINK"	=> "user_admin.php?lang=".LANGUAGE_ID."&set_default=Y",
 		"ICON"	=> "btn_list",
 		"TITLE"	=> GetMessage("RECORD_LIST_TITLE"),
 	);
@@ -516,7 +516,7 @@ if($USER->CanDoOperation('edit_php') && $ID != $USER->GetID())
 		"ICON" => "",
 		"TEXT" => GetMessage("MAIN_ADMIN_AUTH"),
 		"TITLE" => GetMessage("MAIN_ADMIN_AUTH_TITLE"),
-		"LINK" => "/bitrix/admin/user_edit.php?lang=".LANGUAGE_ID."&ID=".$ID."&action=authorize&".bitrix_sessid_get()
+		"LINK" => "user_edit.php?lang=".LANGUAGE_ID."&ID=".$ID."&action=authorize&".bitrix_sessid_get()
 	);
 }
 
@@ -526,7 +526,13 @@ if($USER->CanDoOperation('edit_all_users'))
 		"ICON" => "",
 		"TEXT" => GetMessage("MAIN_USER_EDIT_HISTORY"),
 		"TITLE" => GetMessage("MAIN_USER_EDIT_HISTORY_TITLE"),
-		"LINK" => "/bitrix/admin/profile_history.php?lang=".LANGUAGE_ID."&find_user_id=".$ID."&set_filter=Y"
+		"LINK" => "profile_history.php?lang=".LANGUAGE_ID."&find_user_id=".$ID."&set_filter=Y"
+	);
+	$aMenu[] = array(
+		"ICON" => "",
+		"TEXT" => GetMessage('main_user_edit_devices'),
+		"TITLE" => GetMessage('main_user_edit_devices_title'),
+		"LINK" => "user_devices.php?lang=" . LANGUAGE_ID . "&USER_ID=" . $ID . "&apply_filter=Y"
 	);
 }
 
@@ -536,13 +542,13 @@ if($USER->CanDoOperation('edit_all_users') || $USER->CanDoOperation('edit_subord
 	{
 		$aMenu[] = array(
 			"TEXT"	=> GetMessage("MAIN_NEW_RECORD"),
-			"LINK"	=> "/bitrix/admin/user_edit.php?lang=".LANGUAGE_ID,
+			"LINK"	=> "user_edit.php?lang=".LANGUAGE_ID,
 			"ICON"	=> "btn_new",
 			"TITLE"	=> GetMessage("MAIN_NEW_RECORD_TITLE"),
 		);
 		$aMenu[] = array(
 			"TEXT"	=> GetMessage("MAIN_COPY_RECORD"),
-			"LINK"	=> "/bitrix/admin/user_edit.php?lang=".LANGUAGE_ID.htmlspecialcharsbx("&COPY_ID=").$ID,
+			"LINK"	=> "user_edit.php?lang=".LANGUAGE_ID.htmlspecialcharsbx("&COPY_ID=").$ID,
 			"ICON"	=> "btn_copy",
 			"TITLE"	=> GetMessage("MAIN_COPY_RECORD_TITLE"),
 		);
@@ -551,7 +557,7 @@ if($USER->CanDoOperation('edit_all_users') || $USER->CanDoOperation('edit_subord
 		{
 			$aMenu[] = array(
 				"TEXT"	=> GetMessage("MAIN_DELETE_RECORD"),
-				"LINK"	=> "javascript:if(confirm('".GetMessage("MAIN_DELETE_RECORD_CONF")."')) window.location='/bitrix/admin/user_admin.php?action=delete&ID=".$ID."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."';",
+				"LINK"	=> "javascript:if(confirm('".GetMessage("MAIN_DELETE_RECORD_CONF")."')) window.location='user_admin.php?action=delete&ID=".$ID."&lang=".LANGUAGE_ID."&".bitrix_sessid_get()."';",
 				"ICON"	=> "btn_delete",
 				"TITLE"	=> GetMessage("MAIN_DELETE_RECORD_TITLE"),
 			);

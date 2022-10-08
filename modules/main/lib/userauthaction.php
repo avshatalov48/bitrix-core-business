@@ -8,6 +8,7 @@
 namespace Bitrix\Main;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data;
 
 /**
  * Class UserAuthActionTable
@@ -27,6 +28,8 @@ use Bitrix\Main\Entity;
  */
 class UserAuthActionTable extends Entity\DataManager
 {
+	use Data\Internal\DeleteByFilterTrait;
+
 	const PRIORITY_HIGH = 100;
 	const PRIORITY_LOW = 200;
 
@@ -62,25 +65,6 @@ class UserAuthActionTable extends Entity\DataManager
 				'data_type' => 'string'
 			),
 		);
-	}
-
-	/**
-	 * @param array $filter
-	 */
-	public static function deleteByFilter(array $filter)
-	{
-		$entity = static::getEntity();
-		$conn = $entity->getConnection();
-
-		$where = Entity\Query::buildFilterSql($entity, $filter);
-
-		if($where <> '')
-		{
-			$where = " WHERE ".$where;
-		}
-
-		$conn->queryExecute("delete from b_user_auth_action".$where);
-		$entity->cleanCache();
 	}
 
 	/**

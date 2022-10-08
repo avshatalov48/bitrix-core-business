@@ -15,13 +15,21 @@ if (!Loader::includeModule('sale'))
 
 $arComponentParameters = [
 	'PARAMETERS' => [
-		'URL_PATH_TO_DETAIL_PRODUCT' => array(
+		'URL_PATH_TO_DETAIL_PRODUCT' => [
 			'NAME' => Loc::getMessage('SOC_URL_PATH_TO_DETAIL_PRODUCT'),
 			'TYPE' => 'STRING',
 			'MULTIPLE' => 'N',
 			'DEFAULT' => '',
 			'COLS' => 25,
 			'PARENT' => 'ADDITIONAL_SETTINGS',
-		),
+		],
+		'SHOW_RETURN_BUTTON' => [
+			'NAME' => Loc::getMessage('SOC_SHOW_RETURN_BUTTON'),
+			'TYPE' => 'CHECKBOX',
+			'MULTIPLE' => 'N',
+			'DEFAULT' => 'Y',
+			'ADDITIONAL_VALUES' => 'N',
+			'PARENT' => 'ADDITIONAL_SETTINGS',
+		],
 	]
 ];

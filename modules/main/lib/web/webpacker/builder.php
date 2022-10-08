@@ -5,7 +5,7 @@ namespace Bitrix\Main\Web\WebPacker;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Context;
 use Bitrix\Main\Web\Uri;
-use Bitrix\Main\Config\Option;
+use Bitrix\Main\Config;
 
 /**
  * Class Builder
@@ -292,6 +292,13 @@ class Builder
 			return self::$siteUri;
 		}
 
+		$url = Config\Configuration::getValue('main.webpacker')['last_site_url'] ?? '';
+		if ($url)
+		{
+			self::$siteUri = $url;
+			return $url;
+		}
+
 		$server = Context::getCurrent()->getServer();
 		$url = $server->getHttpHost();
 
@@ -300,14 +307,14 @@ class Builder
 
 		if (!$url)
 		{
-			$url = Option::get('main', 'last_site_url', null);
+			$url = Config\Option::get('main', 'last_site_url', null);
 			if ($url)
 			{
 				$isRestored = true;
 			}
 			else
 			{
-				$url = Option::get('main', 'server_name', null);
+				$url = Config\Option::get('main', 'server_name', null);
 				$url = $url ?: $server->getServerName();
 				if (!$url)
 				{
@@ -347,7 +354,7 @@ class Builder
 
 		if ($canSave)
 		{
-			Option::set('main', 'last_site_url', $url);
+			Config\Option::set('main', 'last_site_url', $url);
 		}
 
 		self::$siteUri = $url;

@@ -49,12 +49,14 @@
 
 .crm-order-instagram-edit-title {
 	color: #333;
-	font: 22px/28px 'OpenSans-Light', Helvetca, Arial, sans-sarif;
+	font: 22px/28px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	margin-bottom: 7px;
 }
 
 .crm-order-instagram-edit-name {
-	font-family: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .crm-order-instagram-edit-desc {
@@ -68,7 +70,7 @@
 }
 
 .crm-order-instagram-edit-decs-link {
-	font: 14px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #0063c6;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -76,7 +78,8 @@
 
 .crm-order-instagram-edit-section {
 	color: #333;
-	font: 16px/24px 'OpenSans-Regular', Helvetca, Arial, sans-sarif;
+	font: 16px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	border-bottom: 1px solid rgba(82, 92, 105, .1);
 	padding-bottom: 16px;
 	margin-bottom: 16px;
@@ -128,7 +131,7 @@
 	padding: 20px 0;
 	border: none;
 	background: transparent;
-	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #535c69;
 	cursor: pointer;
 }
@@ -258,7 +261,8 @@
 }
 
 .crm-order-instagram-view-item-input-title {
-	font: 13px/17px "OpenSans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #333;
 	letter-spacing: 0;
 }
@@ -309,7 +313,8 @@
 .crm-order-instagram-view-item-decs:first-child { margin-bottom: 7px; }
 
 .crm-order-instagram-view-item-name {
-	font: 14px/17px "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #333;
 	letter-spacing: 0;
 }
@@ -327,7 +332,8 @@
 
 .crm-order-instagram-view-imported .crm-order-instagram-edit-decs-text {
 	color: #0063c6;
-	font: 18px/20px 'OpenSans-Regular', Helvetca, Arial, sans-sarif;
+	font: 18px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .crm-order-instagram-view-imported .crm-order-instagram-view-item-input { display: none; }
@@ -360,7 +366,8 @@
 
 .crm-order-instagram-view-item-price {
 	color: #333;
-	font: 18px/20px 'OpenSans-SemiBold', Helvetca, Arial, sans-sarif;
+	font: 18px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	cursor: pointer;
 }
 
@@ -482,7 +489,7 @@
 	font-size: 14px;
 	line-height: 20px;
 	color: #525c69;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	max-width: 170px;
 
 	position: absolute;
@@ -510,7 +517,7 @@
 	font-size: 14px;
 	line-height: 20px;
 	color: #525c69;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	max-width: 170px;
 }
 
@@ -558,7 +565,8 @@
 
 .crm-order-instagram-grid-imported .crm-order-instagram-edit-decs-text {
 	color: #0063c6;
-	font: 18px/20px 'OpenSans-Regular', Helvetca, Arial, sans-sarif;
+	font: 18px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .crm-order-instagram-grid-imported .ui-grid-tile-item-checkbox,
@@ -648,7 +656,8 @@
 }
 
 .crm-order-instagram-view-block-title {
-	font: 37px/44px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font: 37px/44px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	margin: 0 0 139px;
 	color: #525c69;
 	position: relative;
@@ -712,7 +721,8 @@
 
 .crm-order-instagram-view-block-subtitle {
 	color: #dcdee1;
-	font: 32px/40px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 32px/40px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 /*.crm-order-instagram-view-footer {
@@ -758,7 +768,7 @@
 	width: 100%;
 	background-color: #fae5e8;
 	color: #d0011b;
-	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 /* messages */

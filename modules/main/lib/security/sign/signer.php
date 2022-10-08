@@ -225,7 +225,7 @@ class Signer
 			$defaultKey = Config\Option::get('main', 'signer_default_key', false);
 			if (!$defaultKey)
 			{
-				$defaultKey = hash('sha512', uniqid(rand(), true));
+				$defaultKey = hash('sha512', \Bitrix\Main\Security\Random::getString(64));
 				Config\Option::set('main', 'signer_default_key', $defaultKey);
 			}
 

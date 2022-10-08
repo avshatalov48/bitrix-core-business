@@ -1,20 +1,22 @@
 <?php
+
 namespace Bitrix\Main\Type;
 
 use Bitrix\Main\NotSupportedException;
 
-class ParameterDictionary
-	extends Dictionary
+class ParameterDictionary extends Dictionary
 {
 	/**
 	 * @var array
 	 */
-	protected $arRawValues = null;
+	protected $rawValues = null;
 
 	protected function setValuesNoDemand(array $values)
 	{
-		if ($this->arRawValues === null)
-			$this->arRawValues = $this->values;
+		if ($this->rawValues === null)
+		{
+			$this->rawValues = $this->values;
+		}
 		$this->values = $values;
 	}
 
@@ -26,15 +28,19 @@ class ParameterDictionary
 	 */
 	public function getRaw($name)
 	{
-		if ($this->arRawValues === null)
+		if ($this->rawValues === null)
 		{
 			if (isset($this->values[$name]) || array_key_exists($name, $this->values))
+			{
 				return $this->values[$name];
+			}
 		}
 		else
 		{
-			if (isset($this->arRawValues[$name]) || array_key_exists($name, $this->arRawValues))
-				return $this->arRawValues[$name];
+			if (isset($this->rawValues[$name]) || array_key_exists($name, $this->rawValues))
+			{
+				return $this->rawValues[$name];
+			}
 		}
 
 		return null;
@@ -42,7 +48,7 @@ class ParameterDictionary
 
 	public function toArrayRaw()
 	{
-		return $this->arRawValues;
+		return $this->rawValues;
 	}
 
 	/**
@@ -50,7 +56,7 @@ class ParameterDictionary
 	 */
 	public function offsetSet($offset, $value)
 	{
-		throw new NotSupportedException("Can not set readonly value");
+		throw new NotSupportedException("Can not set readonly values.");
 	}
 
 	/**
@@ -58,6 +64,11 @@ class ParameterDictionary
 	 */
 	public function offsetUnset($offset): void
 	{
-		throw new NotSupportedException("Can not unset readonly value");
+		throw new NotSupportedException("Can not unset readonly values.");
+	}
+
+	public function setValues($values)
+	{
+		throw new NotSupportedException("Can not set readonly values.");
 	}
 }

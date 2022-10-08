@@ -18,7 +18,7 @@ class CExtra extends CAllExtra
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		static::ClearCache();
-		Catalog\ExtraTable::getEntity()->cleanCache();
+		Catalog\ExtraTable::cleanCache();
 		Catalog\Model\Price::clearSettings();
 
 		return (int)$DB->LastID();

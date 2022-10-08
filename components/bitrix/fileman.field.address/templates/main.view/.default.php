@@ -5,14 +5,17 @@ use Bitrix\Main\Text\HtmlFilter;
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
-\Bitrix\Main\UI\Extension::load(['fileman.userfield.address_widget', 'userfield_address']);
-
 /**
  * @var AddressUfComponent $component
  * @var array $arResult
  */
 
-if ($arResult['additionalParameters']['printable'] ?? false)
+$isLocationIncluded = \Bitrix\Main\Loader::includeModule('location');
+
+if (
+	($arResult['additionalParameters']['printable'] ?? false)
+	|| !$isLocationIncluded
+)
 {
 	?>
 	<span class="fields address field-wrap">
@@ -34,6 +37,8 @@ if ($arResult['additionalParameters']['printable'] ?? false)
 
 	return;
 }
+
+\Bitrix\Main\UI\Extension::load(['fileman.userfield.address_widget', 'userfield_address']);
 
 $randString = $this->randString();
 if ($component->isAjaxRequest())

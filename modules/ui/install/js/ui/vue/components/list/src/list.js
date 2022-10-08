@@ -7,6 +7,7 @@
  * @copyright 2001-2020 Bitrix
  */
 
+import "ui.design-tokens";
 import "./list.css";
 import "./list-element";
 

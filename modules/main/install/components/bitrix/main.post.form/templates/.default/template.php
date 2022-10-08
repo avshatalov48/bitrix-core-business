@@ -21,10 +21,12 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 
 Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 	'ui.entity-selector',
 	'ui.buttons',
-	'ui.design-tokens',
 ]);
+
 Main\Page\Asset::getInstance()->addJs($templateFolder."/index.js");
 include_once(__DIR__."/functions.php");
 include_once(__DIR__."/message.php");
@@ -42,7 +44,7 @@ $controlId = htmlspecialcharsbx($arParams["divId"]);
 		</div>
 	</div>
 	<div class="feed-add-post-form feed-add-post-edit-form">
-		<?= $arParams["~HTML_BEFORE_TEXTAREA"]?>
+		<?= $arParams["~HTML_BEFORE_TEXTAREA"] ?? ''?>
 		<div class="feed-add-post-text">
 <script type="text/javascript">
 <?
@@ -67,7 +69,7 @@ BX.ready(function()
 			eventNode: BX('div<?=CUtil::JSEscape($controlId)?>')
 		},
 		<?=CUtil::PhpToJSObject([
-			'ctrlEnterHandler' => $arParams["LHE"]['ctrlEnterHandler'],
+			'ctrlEnterHandler' => $arParams["LHE"]['ctrlEnterHandler'] ?? '',
 			'showPanelEditor' => ($arParams["TEXT"]["SHOW"] == "Y"),
 			'lazyLoad' => !!$arParams["LHE"]['lazyLoad'],
 			'urlPreviewId' => $arParams['urlPreviewId'],

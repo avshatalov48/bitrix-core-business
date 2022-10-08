@@ -11,7 +11,7 @@ endif;
 /*******************************************************************/
 if (LANGUAGE_ID == 'ru')
 {
-	$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/ru/script.php");
+	$path = str_replace(array("\\", "//"), "/", __DIR__."/ru/script.php");
 	@include_once($path);
 }
 $tabIndex = 1;
@@ -57,7 +57,7 @@ endif;
 
 <div class="forum-reply-form">
 <?
-if (!empty($arResult["ERROR_MESSAGE"])): 
+if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-error">
 	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
@@ -191,7 +191,8 @@ $arParams["FORM_ID"] = "REPLIER";
 					'arSmilesSet' => CForumSmile::getSetsByType("S", LANGUAGE_ID),
 					'arSmiles' => $arSmiles,
 					'content' => (isset($arResult['POST_VALUES']["~POST_MESSAGE"]) ? $arResult['POST_VALUES']["~POST_MESSAGE"] : $arResult['POST_VALUES']["POST_MESSAGE"]),
-					'iframeCss' => 'body{font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; font-size: 13px;}'.
+					'fontSize' => '14px',
+					'iframeCss' =>
 						'.bx-spoiler {border:1px solid #C0C0C0;background-color:#fff4ca;padding: 4px 4px 4px 24px;color:#373737;border-radius:2px;min-height:1em;margin: 0;}'.
 						(is_array($arParams["LHE"]) && isset($arParams["LHE"]["iframeCss"]) ? $arParams["LHE"]["iframeCss"] : ""),
 				)

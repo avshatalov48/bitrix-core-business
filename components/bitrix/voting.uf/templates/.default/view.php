@@ -29,7 +29,7 @@ if (empty($arResult['ATTACHES']))
 	return;
 }
 
-UI\Extension::load([ 'ui.buttons', 'ajax', 'popup', 'ui.design-tokens' ]);
+UI\Extension::load(['ui.buttons', 'ajax', 'popup', 'ui.design-tokens', 'ui.fonts.opensans']);
 
 $this->IncludeLangFile('view.php');
 $GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/rating.vote/templates/like/popup.css');

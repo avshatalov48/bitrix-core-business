@@ -279,7 +279,7 @@
 
 .bx-sender-releases-section {
 	color: #000;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-decoration: none;
 }
 
@@ -369,11 +369,11 @@
 
 .bx-sender-title-statistic-text-bold {
 	opacity:1;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bx-sender-title-statistic-number-bold {
-	font: bold 18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .bx-sender-title-statistic-link {
@@ -582,7 +582,7 @@
 
 .bx-gadget-speed-graph-text {
 	display: block;
-	font: bold 9px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 9px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2F3A45;
 	text-transform: uppercase;
 	text-align: center;
@@ -624,7 +624,7 @@
 	height: 34px;
 	width: 51px;
 	background-color: #545C6A;
-	font: bold 14px/26px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 14px/26px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #fff;
 	text-align: center;
 	-webkit-box-shadow: 0 2px 8px rgba(47,58,69,.56);
@@ -645,7 +645,7 @@
 }
 
 .bx-gadget-speed-value-percent {
-	font: bold 9px/26px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 9px/26px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .bx-gadgets-speed-ready .bx-gadget-speed-waiter {

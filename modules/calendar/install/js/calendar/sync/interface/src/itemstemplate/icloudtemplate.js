@@ -1,27 +1,29 @@
 // @flow
 'use strict';
 
-import {Dom, Loc, Tag, Event} from "main.core";
-import {InterfaceTemplate} from "./interfacetemplate";
-import ConnectionControls from "../controls/connectioncontrols";
-import { MessageBox } from 'ui.dialogs.messagebox';
-import {Popup} from "main.popup";
+import { Loc } from 'main.core';
+import { Util } from 'calendar.util';
+import { InterfaceTemplate } from './interfacetemplate';
+import IcloudAuthDialog from '../controls/icloudauthdialog';
+import IcloudSyncWizard from '../syncwizard/icloudsyncwizard';
+import { EventEmitter } from 'main.core.events';
+import WarnSyncIcloudDialog from '../controls/warnsynciclouddialog';
 
 export default class IcloudTemplate extends InterfaceTemplate
 {
 	constructor(provider, connection = null)
 	{
-		// TODO: replace phrases to correct
 		super({
-			title: Loc.getMessage("CALENDAR_TITLE_GOOGLE"),
+			title: Loc.getMessage("CALENDAR_TITLE_ICLOUD"),
 			helpDeskCode: '6030429',
-			titleInfoHeader: Loc.getMessage('CAL_CONNECT_GOOGLE_CALENDAR'),
-			descriptionInfoHeader: Loc.getMessage('CAL_GOOGLE_CONNECT_DESCRIPTION'),
-			titleActiveHeader: Loc.getMessage('CAL_GOOGLE_CALENDAR_IS_CONNECT'),
-			descriptionActiveHeader: Loc.getMessage('CAL_GOOGLE_SELECTED_DESCRIPTION'),
-			sliderIconClass: 'calendar-sync-slider-header-icon-google',
-			iconPath: '/bitrix/images/calendar/sync/google.svg',
-			color: '#387ced',
+			titleInfoHeader: Loc.getMessage('CAL_CONNECT_ICLOUD_CALENDAR'),
+			descriptionInfoHeader: Loc.getMessage('CAL_ICLOUD_CONNECT_DESCRIPTION'),
+			titleActiveHeader: Loc.getMessage('CAL_CALENDAR_IS_CONNECT'),
+			descriptionActiveHeader: Loc.getMessage('CAL_ICLOUD_SELECTED_DESCRIPTION'),
+			sliderIconClass: 'calendar-sync-slider-header-icon-icloud',
+			iconPath: '/bitrix/images/calendar/sync/icloud.svg',
+			iconLogoClass: '--icloud',
+			color: '#95a0af',
 			provider: provider,
 			connection: connection,
 			popupWithUpdateButton: true,
@@ -31,111 +33,84 @@ export default class IcloudTemplate extends InterfaceTemplate
 		this.sectionList = [];
 	}
 
-	createConnection()
+	createConnection(data)
 	{
-		BX.ajax.runAction('calendar.api.calendarajax.analytical', {
-			analyticsLabel: {
-				click_to_connection_button: 'Y',
-				connection_type: 'google',
+		BX.ajax.runAction('calendar.api.syncajax.createIcloudConnection', {
+			data: {
+				appleId: data.appleId,
+				appPassword: data.appPassword,
+			},
+		}).then(
+			(response) => {
+				const result = response.data;
+				
+				if (result.status === 'success' && result.connectionId)
+				{
+					this.openSyncWizard(data.appleId);
+					this.syncCalendarsWithIcloud(result.connectionId);
+				}
+			},
+			(response) => {
+				const result = response.data;
+				if (result.status === 'incorrect_app_pass')
+				{
+					BX.ajax.runAction('calendar.api.calendarajax.analytical', {
+						analyticsLabel: {
+							calendarAction: 'createConnection',
+							wrong_app_pass: 'Y',
+							connection_type: 'icloud'
+						}
+					});
+					
+				}
+				this.authDialog.showErrorAuthorizationAlert();
 			}
-		});
-
-		BX.util.popup(this.provider.getSyncLink(), 500, 600);
+		);
 	}
 
-	getContentInfoBody()
+	syncCalendarsWithIcloud(connectionId)
 	{
-		const formObject = new ConnectionControls();
-		const button = formObject.getAddButton();
-		const buttonWrapper = formObject.getButtonWrapper();
-		const bodyHeader = this.getContentInfoBodyHeader();
-		const content = bodyHeader.querySelector('.calendar-sync-slider-header');
-
-		Event.bind(button, 'click', this.handleConnectButton.bind(this));
-		Dom.append(button, buttonWrapper);
-		Dom.append(buttonWrapper, content);
-
-		return Tag.render`
-			${bodyHeader}
-		`;
+		this.authDialog.close();
+		
+		return new Promise((resolve) => {
+			BX.ajax.runAction('calendar.api.syncajax.syncIcloudConnection', {
+				data: {
+					connectionId: connectionId,
+				}
+			}).then(
+				(response) => {
+					this.provider.setStatus(this.provider.STATUS_SUCCESS);
+					if (connectionId)
+					{
+						this.provider.getConnection().setId(connectionId);
+						this.provider.getConnection().setStatus(true);
+						this.provider.getConnection().setConnected(true);
+						this.provider.getConnection().setSyncDate(new Date());
+					}
+					
+					resolve(response.data);
+				},
+				(response) => {
+					this.provider.setStatus(this.provider.STATUS_FAILED);
+					this.provider.setWizardState(
+						{
+							status: this.provider.ERROR_CODE,
+							vendorName: this.provider.type,
+						}
+					);
+					resolve(response.errors);
+				});
+		})
 	}
 
-	getContentActiveBody(): *
-	{
-		return Tag.render`
-			${this.getContentActiveBodyHeader()}
-			${this.getContentActiveBodySectionsManager()}
-		`;
-	}
-
-	getContentActiveBodyHeader()
-	{
-		const formObject = new ConnectionControls();
-		const disconnectButton = formObject.getDisconnectButton();
-		disconnectButton.addEventListener('click', (event) => {
-			event.preventDefault();
-			this.sendRequestRemoveConnection(this.connection.getId());
-		});
-
-		return Tag.render`
-			<div class="calendar-sync-slider-section">
-				<div class="calendar-sync-slider-header-icon calendar-sync-slider-header-icon-google"></div>
-				<div class="calendar-sync-slider-header">
-					<div class="calendar-sync-slider-title">${Loc.getMessage('CAL_GOOGLE_CALENDAR_IS_CONNECT')}</div>
-					<span class="calendar-sync-slider-account">
-						<span class="calendar-sync-slider-account-avatar"></span>
-						<span class="calendar-sync-slider-account-email">
-							${BX.util.htmlspecialchars(this.connection.getConnectionName())}
-						</span>
-					</span>
-					<div class="calendar-sync-slider-info">
-						<span class="calendar-sync-slider-info-text">
-							<a class="calendar-sync-slider-info-link" href="javascript:void(0);" onclick="${this.showHelp.bind(this)}">
-								${Loc.getMessage('CAL_TEXT_ABOUT_WORK_SYNC')}
-							</a>
-						</span>
-					</div>
-					${disconnectButton}
-				</div>
-			</div>
-			`;
-	}
-
-	getContentActiveBodySectionsManager()
-	{
-		return Tag.render`
-			<div class="calendar-sync-slider-section calendar-sync-slider-section-col">
-				<div class="calendar-sync-slider-header">
-					<div class="calendar-sync-slider-subtitle">${Loc.getMessage('CAL_AVAILABLE_CALENDAR')}</div>
-				</div>
-				<ul class="calendar-sync-slider-list">
-					${this.getContentActiveBodySections(this.connection.getId())}
-				</ul>
-			</div>
-		`;
-	}
-
-	getContentActiveBodySections(connectionId)
-	{
-		const sectionList = [];
-		this.sectionList.forEach(section => {
-			sectionList.push(Tag.render`
-				<li class="calendar-sync-slider-item">
-					<label class="ui-ctl ui-ctl-checkbox ui-ctl-xs">
-						<input type="checkbox" class="ui-ctl-element" value="${BX.util.htmlspecialchars(section['ID'])}" onclick="${this.onClickCheckSection.bind(this)}" ${section['ACTIVE'] === 'Y' ? 'checked' : ''}>
-						<div class="ui-ctl-label-text">${BX.util.htmlspecialchars(section['NAME'])}</div>
-					</label>
-				</li>
-			`);
-		});
-
-		return sectionList;
-	}
-	
-	getSectionsForGoogle()
+	getSectionsForIcloud()
 	{
 		return new Promise((resolve) => {
-			BX.ajax.runAction('calendar.api.calendarajax.getAllSectionsForGoogle')
+			BX.ajax.runAction('calendar.api.syncajax.getAllSectionsForIcloud', {
+				data: {
+					connectionId: this.connection.addParams.id
+				}
+			})
 			.then(
 				(response) => {
 					this.sectionList = response.data;
@@ -144,43 +119,76 @@ export default class IcloudTemplate extends InterfaceTemplate
 				(response) => {
 					resolve(response.errors);
 				}
-			);
-			
+			)
 		})
 	}
 
 	onClickCheckSection(event)
 	{
 		this.sectionStatusObject[event.target.value] = event.target.checked;
-
 		this.runUpdateInfo();
-	}
-
-	showAlertPopup()
-	{
-		const messageBox = new MessageBox({
-			className: this.id,
-			message: Loc.getMessage('GOOGLE_IS_NOT_CALDAV_SETTINGS_WARNING_MESSAGE'),
-			width: 500,
-			offsetLeft: 60,
-			offsetTop: 5,
-			padding: 7,
-			onOk: () => {
-				messageBox.close();
-			},
-			okCaption: 'OK',
-			buttons: BX.UI.Dialogs.MessageBoxButtons.OK,
-			popupOptions: {
-				zIndexAbsolute: 4020,
-				autoHide: true,
-			},
-		});
-		messageBox.show();
+		this.showUpdateSectionListNotification();
 	}
 
 	handleConnectButton()
 	{
-		// TODO: create connection code here
-		alert('create connection code here');
+		BX.ajax.runAction('calendar.api.calendarajax.analytical', {
+			analyticsLabel: {
+				calendarAction: 'createConnection',
+				click_to_connection_button: 'Y',
+				connection_type: 'icloud',
+			}
+		});
+		
+		this.initPopup();
+		if (Util.isIphoneConnected() || Util.isMacConnected())
+		{
+			this.alertSyncPopup.show();
+		}
+		else
+		{
+			this.authDialog.show();
+		}
+	}
+	
+	initPopup()
+	{
+		if (!this.authDialog)
+		{
+			this.authDialog = new IcloudAuthDialog();
+			
+			EventEmitter.unsubscribeAll('BX.Calendar.Sync.Icloud:onSubmit');
+			EventEmitter.subscribe('BX.Calendar.Sync.Icloud:onSubmit', (e) => {
+				this.createConnection(e.data);
+			})
+		}
+		
+		if (!this.alertSyncPopup)
+		{
+			this.alertSyncPopup = new WarnSyncIcloudDialog({
+				authDialog: this.authDialog
+			})
+		}
+	}
+
+	openSyncWizard(appleId)
+	{
+		this.provider.setWizardSyncMode(true);
+		this.wizard = new IcloudSyncWizard();
+		this.wizard.openSlider();
+		this.provider.setActiveWizard(this.wizard);
+
+		EventEmitter.subscribeOnce('BX.Calendar.Sync.Interface.SyncStageUnit:onRenderDone', () => {
+			this.wizard.updateState({
+				stage: 'connection_created',
+				vendorName: 'icloud',
+				accountName: appleId,
+			})
+		})
+	}
+	
+	sendRequestRemoveConnection(id)
+	{
+		this.deactivateConnection(id);
 	}
 }

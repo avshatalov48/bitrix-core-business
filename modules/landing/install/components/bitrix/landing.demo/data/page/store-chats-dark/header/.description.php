@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 return array(
+	'old_id' => 5,
 	'parent' => 'store-chats-dark',
 	'code' => 'store-chats-dark/header',
 	'name' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-HEADER-NAME'),

@@ -3,9 +3,16 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
 use Bitrix\Main\Text\HtmlFilter;
-\Bitrix\Main\UI\Extension::load("ui.common");
-\Bitrix\Main\UI\Extension::load("ui.forms");
-\Bitrix\Main\UI\Extension::load("ui.buttons");
+
+\Bitrix\Main\UI\Extension::load([
+	"ui.design-tokens",
+	"ui.fonts.opensans",
+	"ui.common",
+	"ui.forms",
+	"ui.buttons",
+	"popup",
+	"ajax",
+]);
 
 /**
  * @var array $arParams
@@ -14,8 +21,6 @@ use Bitrix\Main\Text\HtmlFilter;
  * @var CBitrixComponentTemplate $this
  * @global CUser $USER
  */
-
-CJSCore::Init(array("popup", "ajax"));
 
 ShowMessage($arResult["MESSAGE"]);
 

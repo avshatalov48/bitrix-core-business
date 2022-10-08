@@ -1745,6 +1745,229 @@ class MsTimezoneConverter
 			'Line Islands Standard Time' => [
 				'Pacific/Kiritimati',
 			],
+			//specific old names of timezones
+			'America/Buenos_Aires' => [
+				'America/Argentina/Buenos_Aires',
+			],
+			'America/Catamarca' => [
+				'America/Argentina/Catamarca',
+			],
+			'America/Cordoba' => [
+				'America/Argentina/Cordoba',
+			],
+			'America/Jujuy' => [
+				'America/Argentina/Jujuy',
+			],
+			'America/Indianapolis' => [
+				'America/Indiana/Indianapolis',
+			],
+			'America/Louisville' => [
+				'America/Kentucky/Louisville',
+			],
+			'America/Mendoza' => [
+				'America/Argentina/Mendoza',
+			],
+			'America/Santa_Isabel' => [
+				'America/Tijuana',
+			],
+			'America/Shiprock' => [
+				'America/Regina',
+			],
+			'Asia/Chongqing' => [
+				'Asia/Choibalsan',
+			],
+			'Asia/Chungking' => [
+				'Asia/Choibalsan',
+			],
+			'Asia/Dacca' => [
+				'Asia/Dhaka',
+			],
+			'Asia/Harbin' => [
+				'Asia/Shanghai',
+			],
+			'Asia/Istanbul' => [
+				'Europe/Istanbul',
+			],
+			'Asia/Kashgar' => [
+				'Asia/Urumqi',
+			],
+			'Asia/Katmandu' => [
+				'Asia/Kathmandu',
+			],
+			'Asia/Macao' => [
+				'Asia/Shanghai',
+			],
+			'Asia/Rangoon' => [
+				'Asia/Yangon',
+			],
+			'Asia/Tel_Aviv' => [
+				'Asia/Jerusalem',
+			],
+			'Asia/Thimbu' => [
+				'Asia/Thimphu',
+			],
+			'Asia/Ujung_Pandang' => [
+				'Asia/Makassar',
+			],
+			'Asia/Ulan_Bator' => [
+				'Asia/Ulaanbaatar',
+			],
+			'Atlantic/Faeroe' => [
+				'Atlantic/Faroe',
+			],
+			'Atlantic/Jan_Mayen' => [
+				'Arctic/Longyearbyen',
+			],
+			'Australia/ACT' => [
+				'Australia/Broken_Hill',
+			],
+			'Australia/Canberra' => [
+				'Australia/Brisbane',
+			],
+			'Australia/Currie' => [
+				'Australia/Hobar',
+			],
+			'Australia/LHI' => [
+				'Australia/Lord_Howe',
+			],
+			'Australia/North' => [
+				'Australia/Darwin',
+			],
+			'Australia/NSW' => [
+				'Australia/Broken_Hill',
+			],
+			'Australia/Queensland' => [
+				'Australia/Brisbane',
+			],
+			'Australia/South' => [
+				'Australia/Adelaide',
+			],
+			'Australia/Tasmania' => [
+				'Australia/Hobart',
+			],
+			'Australia/Brisbane' => [
+				'Australia/Brisbane',
+			],
+			'Australia/West' => [
+				'Australia/Perth',
+			],
+			'Australia/Yancowinna' => [
+				'Australia/Adelaide',
+			],
+			'Brazil/Acre' => [
+				'America/Rio_Branco',
+			],
+			'Brazil/DeNoronha' => [
+				'America/Noronha',
+			],
+			'Brazil/East' => [
+				'America/Sao_Paulo',
+			],
+			'Brazil/West' => [
+				'America/Manaus',
+			],
+			'Canada/Atlantic' => [
+				'America/Halifax',
+			],
+			'Canada/Central' => [
+				'America/Winnipeg',
+			],
+			'Canada/Eastern' => [
+				'America/Toronto',
+			],
+			'Canada/Mountain' => [
+				'America/Edmonton',
+			],
+			'Canada/Newfoundland' => [
+				'America/St_Johns',
+			],
+			'Canada/Pacific' => [
+				'America/Vancouver',
+			],
+			'Canada/Saskatchewan' => [
+				'America/Regina',
+			],
+			'Canada/Yukon' => [
+				'America/Whitehorse',
+			],
+			'Chile/Continental' => [
+				'America/Santiago',
+			],
+			'Chile/EasterIsland' => [
+				'Pacific/Easter',
+			],
+			'Europe/Belfast' => [
+				'Europe/London',
+			],
+			'Europe/Nicosia' => [
+				'Asia/Nicosia',
+			],
+			'Europe/Tiraspol' => [
+				'Europe/Chisinau',
+			],
+			'Mexico/BajaNorte' => [
+				'America/Dawson',
+			],
+			'Mexico/BajaSur' => [
+				'America/Mazatlan',
+			],
+			'Mexico/General' => [
+				'America/Mexico_City',
+			],
+			'Pacific/Enderbury' => [
+				'Pacific/Kanton',
+			],
+			'Pacific/Johnston' => [
+				'Pacific/Tahiti',
+			],
+			'Pacific/Ponape' => [
+				'Pacific/Pohnpei',
+			],
+			'Pacific/Samoa' => [
+				'Pacific/Apia',
+			],
+			'Pacific/Truk' => [
+				'Pacific/Chuuk',
+			],
+			'Pacific/Yap' => [
+				'Pacific/Chuuk',
+			],
+			'US/Alaska' => [
+				'America/Anchorage',
+			],
+			'US/Central' => [
+				'America/Chicago',
+			],
+			'US/Eastern' => [
+				'America/Toronto',
+			],
+			'US/Mountain' => [
+				'America/Denver',
+			],
+			'US/Pacific' => [
+				'America/Los_Angeles',
+			],
+			'US/Aleutian' => [
+				'America/Adak',
+			],
+			'US/Arizona' => [
+				'America/Phoenix',
+			],
+			'US/East-Indiana' => [
+				'America/Indiana/Indianapolis',
+			],
+			'US/Hawaii' => [
+				'Pacific/Honolulu',
+			],
+			'US/Indiana-Starke' => [
+				'America/Indiana/Knox',
+			],
+			'US/Michigan' => [
+				'America/Indiana/Indianapolis',
+			],
+			'US/Samoa' => [
+				'Pacific/Pago_Pago',
+			],
 		];
 	}
 

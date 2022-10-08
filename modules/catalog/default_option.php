@@ -52,6 +52,7 @@ $catalog_default_option = [
 	'default_can_buy_zero' => 'N',
 	'allow_negative_amount' => 'N',
 	'default_use_store_control' => 'N',
+	'show_store_shipping_center' => 'N',
 	'enable_reservation' => 'Y',
 	'default_subscribe' => 'Y',
 	'show_catalog_tab_with_offers' => 'N',

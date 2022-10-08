@@ -50,7 +50,7 @@
 	border-radius: 1px;
 	background-color: #fff;
 	color: #424956;
-	font: 15px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: 220ms all ease;
 }
 
@@ -88,7 +88,7 @@
 	padding: 20px 18px;
 	background: #fff;
 	color: #525c69;
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .calendar-resourcebook-widget {
@@ -115,7 +115,8 @@
 	color: #525c69;
 	vertical-align: middle;
 	text-transform: uppercase;
-	font: 600 11px/23px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 11px/23px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .crm-entity-widget-actions-block {
@@ -128,7 +129,7 @@
 	position: relative;
 	margin-bottom: 5px;
 	color: #a3a9b1;
-	font: 12px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 .calendar-resourcebook-content-block-duration-title {
 	position: absolute;
@@ -214,7 +215,7 @@
 	color: #0063c6;
 	border-bottom: 1px dashed rgba(0, 99, 198, .5);
 	margin-left: 3px;
-	font: 14px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .calendar-resourcebook-mode-selector {
@@ -224,7 +225,7 @@
 .calendar-resourcebook-content-block-title-text {
 	color: #525C69;
 	opacity: .5;
-	font: 12px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .calendar-resourcebook-content-block-control {
@@ -280,7 +281,7 @@
 
 .calendar-resourcebook-content-block-control-text {
 	color: #1968b8;
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	cursor: pointer;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -380,7 +381,7 @@
 
 .calendar-resourcebook-content-block-control-field {
 	margin-bottom: 15px;
-	font: 13px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .calendar-resourcebook-content-block-control-field:last-child {
@@ -402,14 +403,14 @@
 
 .calendar-resourcebook-content-block-options {
 	color: #525c69;
-	font: 13px/13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin: 9px 0 15px;
 }
 
 .calendar-resourcebook-content-block-option {
-	 display: flex;
-	 align-items: center;
-	 margin-bottom: 10px;
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
 }
 
 .calendar-resourcebook-content-block-option:last-child {
@@ -445,13 +446,13 @@
 	border-radius: 1px;
 	background-color: #fff;
 	color: #424956;
-	font: 15px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: 220ms all ease;
 }
 
 .calendar-resource-content-block-add-link {
 	color: #80868e;
-	font: 13px/13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	border-bottom: 1px dashed rgba(82, 92, 105, .3);
 	position: relative;
 	transition: 500ms all ease;
@@ -938,7 +939,7 @@ input[type="radio"]:checked + .menu-popup-item-text:before {
 	color: #555!important;
 	display: inline-block!important;
 	font-size: 13px!important;
-	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif!important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica))!important;
 	margin-left: 7px!important;
 	height: 30px!important;
 	min-width: 108px!important;
@@ -961,7 +962,7 @@ input[type="radio"]:checked + .menu-popup-item-text:before {
 	border-radius: 1px;
 	/*background-color: #fff;*/
 	color: #424956;
-	font: 15px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: 220ms all ease;
 }
 
@@ -998,7 +999,7 @@ input.calendar-resbook-error{
 	padding: 10px 11px;
 	background-color: #fae5e8;
 	color: #d0011b;
-	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .calendar-resbook-hr {
@@ -1048,7 +1049,8 @@ input.calendar-resbook-error{
 .calendar-resbook-webform-wrapper {
 	width: 100%;
 	margin: 0 auto;
-	font-family: "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .calendar-resbook-webform-title-text {
@@ -1153,7 +1155,8 @@ input.calendar-resbook-error{
 
 .calendar-resbook-webform-block-date-number {
 	color: #333;
-	font: 17px/23px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 17px/23px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .calendar-resbook-webform-block-date-day {
@@ -1164,7 +1167,8 @@ input.calendar-resbook-error{
 
 .calendar-resbook-webform-block-date-item-today {
 	color: #abadb4;
-	font: 8px/16px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 8px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	text-transform: uppercase;
 	text-align: center;
 	position: absolute;
@@ -1229,7 +1233,8 @@ input.calendar-resbook-error{
 .calendar-resbook-webform-block-col-item-inner {
 	border-radius: 2px;
 	background: #e4f8fe;
-	font: 14px/20px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #828b95;
 	padding: 5px 0;
 }
@@ -1300,7 +1305,7 @@ input.calendar-resbook-error{
 	width: 17px;
 	height: 17px;
 	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2217%22%20height%3D%2217%22%20viewBox%3D%220%200%2017%2017%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M8.46986%2015.1239C4.79477%2015.1239%201.8158%2012.1449%201.8158%208.4698C1.8158%204.79471%204.79477%201.81573%208.46986%201.81573C12.145%201.81573%2015.1239%204.79471%2015.1239%208.4698C15.1239%2012.1449%2012.145%2015.1239%208.46986%2015.1239ZM0%208.4698C0%2013.1477%203.7919%2016.9396%208.4698%2016.9396C13.1477%2016.9396%2016.9396%2013.1477%2016.9396%208.4698C16.9396%203.7919%2013.1477%200%208.4698%200C3.7919%200%200%203.7919%200%208.4698Z%22%20fill%3D%22%232FC6F6%22/%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M8.67678%205H7V10.4497H12.4497V8.77296H8.67678V5Z%22%20fill%3D%22%232FC6F6%22/%3E%0A%3C/svg%3E%0A)
-				no-repeat center;
+	no-repeat center;
 	content: '';
 	-webkit-transform: translateY(-50%);
 	-moz-transform: translateY(-50%);
@@ -1370,7 +1375,7 @@ input.calendar-resbook-error{
 }
 
 .calendar-resbook-webform-block-arrow-next {
-	 right: 0;
+	right: 0;
 }
 
 .calendar-resbook-webform-block-arrow-next:before {
@@ -1423,7 +1428,8 @@ input.calendar-resbook-error{
 
 .calendar-resbook-webform-block-btn-notice {
 	color: #828b95;
-	font: 10px/16px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 10px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .calendar-resbook-webform-block-btn {
@@ -1504,7 +1510,8 @@ input.calendar-resbook-error{
 
 .calendar-resbook-webform-block-strip-date {
 	color: #333;
-	font: 19px/25px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 19px/25px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	margin-right: 11px;
 }
 
@@ -1698,7 +1705,7 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 	background-color: transparent;
 	color: #828b95;
 	font-size: 12px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 
@@ -1707,7 +1714,7 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 	height: 12px;
 	cursor: pointer;
 	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2210%22%20height%3D%2210%22%20viewBox%3D%220%200%2010%2010%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20d%3D%22M9.99017%201.92862L8.06146%200L1.14398%206.91616L3.07269%208.84478L9.99017%201.92862ZM0.0609741%209.9279C0.00823975%209.87402%20-0.0122681%209.79666%200.00726318%209.72343L0.622986%207.437L2.5517%209.36562L0.265564%209.98178C0.192322%2010.0025%200.114685%209.98178%200.0609741%209.9279Z%22%20fill%3D%22%23A8ADB4%22/%3E%0A%3C/svg%3E%0A)
-				no-repeat center;
+	no-repeat center;
 	opacity: .5;
 	transition: all .2s ease;
 	flex-shrink: 0;
@@ -1757,7 +1764,7 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 	width: 14px;
 	height: 5px;
 	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2214%22%20height%3D%225%22%20viewBox%3D%220%200%2014%205%22%20fill%3D%22none%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%0A%3Cpath%20d%3D%22M10.6299%200.0117188C11.236%200.672526%2011.7601%201.17611%2012.2021%201.52246C12.6442%201.86426%2013.0612%202.11947%2013.4531%202.28809V2.5957C13.002%202.81445%2012.5645%203.09473%2012.1406%203.43652C11.7168%203.77376%2011.2109%204.27051%2010.623%204.92676H10.0967C10.5251%204.01074%2010.974%203.30664%2011.4434%202.81445H0.540039V2.12402H11.4434C11.097%201.68197%2010.8555%201.35384%2010.7188%201.13965C10.582%200.925456%2010.3792%200.549479%2010.1104%200.0117188H10.6299Z%22%20fill%3D%22%23A8ADB4%22/%3E%0A%3C/svg%3E%0A)
-				no-repeat;
+	no-repeat;
 }
 
 .calendar-resbook-webform-settings-popup-select {
@@ -1951,7 +1958,7 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 	padding: 12px 12px 10px;
 	height: 38px;
 	border: 1px solid #caced7;
-	font: 13px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	border-radius: 0;
 	background-color: #fff;
 	color: #333;
@@ -1979,11 +1986,11 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 }
 
 .calendar-resbook-webform-wrapper-form .calendar-resbook-webform-block-date-number {
-	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .calendar-resbook-webform-wrapper-form .calendar-resbook-webform-block-col-item-inner {
-	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c69;
 }
 
@@ -1992,7 +1999,8 @@ input.calendar-resbook-webform-settings-popup-field-subtitle-text {
 }
 
 .calendar-resbook-form-popup .menu-popup-item-text {
-	font-family: "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .popup-window-with-titlebar.calendar-resbook-webform-settings-popup-window .popup-window-content {

@@ -10,6 +10,7 @@ namespace Bitrix\Main\UI\AccessRights\Entity;
 
 
 use Bitrix\Main\Access\AccessCode;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Socialnetwork\WorkgroupTable;
 
 class SocnetGroup extends EntityBase
@@ -42,7 +43,7 @@ class SocnetGroup extends EntityBase
 			$arFile = \CFile::GetFileArray($this->model->getImageId());
 			if(is_array($arFile))
 			{
-				return $arFile['SRC'];
+				return Uri::urnEncode($arFile['SRC']);
 			}
 		}
 		return '';

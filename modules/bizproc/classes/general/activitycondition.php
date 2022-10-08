@@ -9,9 +9,9 @@ abstract class CBPActivityCondition
 
 	public $condition = null;
 
-	public abstract function Evaluate(CBPActivity $ownerActivity);
+	public abstract function evaluate(CBPActivity $ownerActivity);
 
-	public static function CreateInstance($code, $data)
+	public static function createInstance($code, $data)
 	{
 		if (preg_match("#[^a-zA-Z0-9_]#", $code))
 		{
@@ -28,12 +28,12 @@ abstract class CBPActivityCondition
 		return [];
 	}
 
-	public static function ValidateProperties($value = null, CBPWorkflowTemplateUser $user = null)
+	public static function validateProperties($value = null, CBPWorkflowTemplateUser $user = null)
 	{
 		return [];
 	}
 
-	public static function CallStaticMethod($code, $method, $arParameters = array())
+	public static function callStaticMethod($code, $method, $arParameters = array())
 	{
 		$runtime = CBPRuntime::GetRuntime();
 		$runtime->IncludeActivityFile($code);

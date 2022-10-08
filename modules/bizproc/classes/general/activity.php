@@ -956,6 +956,11 @@ abstract class CBPActivity
 		return null;
 	}
 
+	public function __isset($name)
+	{
+		return $this->isPropertyExists($name);
+	}
+
 	public function pullProperties(): array
 	{
 		$result = $this->arProperties;
@@ -1435,7 +1440,8 @@ abstract class CBPActivity
 				$this->executionStatus,
 				$this->executionResult,
 				$this->getActivityTitle(),
-				$this->preparePropertyForWritingToTrack($value, $property['Name'] ?? '')
+				$this->preparePropertyForWritingToTrack($value, $property['Name'] ?? ''),
+				$property['TrackType'] ?? \CBPTrackingType::Debug
 			);
 		}
 	}

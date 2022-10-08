@@ -171,9 +171,18 @@ class CVoteAdminQuestions extends \CBitrixComponent
 			{
 				unset($data["IMAGE_ID"]);
 			}
-
-			if (\CVoteQuestion::Update($id, $data))
+			if (
+				\CVoteQuestion::Update(
+					$id,
+					array_filter($data, function($itemKey) {
+						return strpos($itemKey, '~') !== 0;
+						}, ARRAY_FILTER_USE_KEY
+					)
+				)
+			)
+			{
 				return true;
+			}
 			$res = $this->getApplication()->GetException();
 			$this->errorCollection->add([new Bitrix\Main\Error(Loc::getMessage("SAVE_ERROR") . $id . ($res ? ": ".$res->GetString() : ""), $id)]);
 		}

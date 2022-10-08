@@ -36,7 +36,7 @@ if (in_array($arFilePathInfo["extension"], $arImageExts))
 
 if(file_exists($filename))
 {
-	include_once(dirname(__FILE__)."/init_vars.php");
+	include_once(__DIR__."/init_vars.php");
 
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 	if (CModule::IncludeModule("sale"))

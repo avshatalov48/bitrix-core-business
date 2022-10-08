@@ -46,14 +46,22 @@
 					}
 				}
 				else if (
+					BX.Landing.Utils.Matchers.vk.test(source)
+					&& video.dataset.preview
+				)
+				{
+					BX.bind(video, 'click', () => {
+						loadPlayerVK(video);
+					});
+				}
+				else if (
 					BX.Landing.Utils.Matchers.vimeo.test(source)
 					|| BX.Landing.Utils.Matchers.vine.test(source)
 					|| BX.Landing.Utils.Matchers.facebookVideos.test(source)
 					|| BX.Landing.Utils.Matchers.rutube.test(source)
-					|| BX.Landing.Utils.Matchers.vk.test(source)
 				)
 				{
-					loadPlayerFrame(video);
+					loadPlayerIframe(video);
 				}
 				else
 				{
@@ -83,7 +91,7 @@
 		// convert to div
 		if (playerPreview.tagName === 'IFRAME')
 		{
-			var clearPlayerPreview = BX.create('div', {
+			const clearPlayerPreview = BX.create('div', {
 				props: {
 					className: playerPreview.className
 				},
@@ -98,6 +106,7 @@
 
 			BX.insertBefore(clearPlayerPreview, playerPreview);
 			BX.remove(playerPreview);
+
 			return clearPlayerPreview;
 		}
 
@@ -112,48 +121,76 @@
 		return playerPreview;
 	}
 
-	var scheduledPlayers = [];
-
 	function onYTPreviewClick(event)
 	{
-		var playerPreview = event.target;
+		const playerPreview = event.target;
 		loadPlayerYT(playerPreview, {autoplay: 1});
 	}
 
 	/**
-	 *
+	 * Loader for YOutube
 	 * @param {Element} playerPreview
 	 * @param {Object} additionalParams
 	 */
 	function loadPlayerYT(playerPreview, additionalParams)
 	{
-		if (typeof YT === "undefined" || typeof YT.Player === "undefined")
-		{
-			if (!scheduledPlayers.includes(playerPreview))
-			{
-				scheduledPlayers.push(playerPreview);
-			}
+		const loader = new BX.Loader({
+			target: playerPreview
+		});
+		loader.show();
 
-			window.onYouTubeIframeAPIReady = function ()
-			{
-				scheduledPlayers.forEach(function (item)
-				{
-					loadPlayerYT(item, additionalParams)
-				});
-			};
-		}
-		else
-		{
-			var playerFrame = loadPlayerFrame(playerPreview);
-			var player = BX.Landing.MediaPlayer.Factory.create(playerFrame);
-			if (
-				typeof additionalParams !== 'undefined'
-				&& Object.keys(additionalParams).length
-			)
-			{
-				player.parameters = Object.assign(player.parameters, additionalParams);
-			}
-		}
+		const playerFrame = createPlayerFrame(playerPreview);
+		const playerParams = (typeof additionalParams !== 'undefined' && Object.keys(additionalParams).length)
+			? additionalParams
+			: {}
+		;
+		playerParams.onPlayerReadyHandler = () => {
+			loader.hide();
+			BX.remove(playerPreview);
+		};
+		BX.insertBefore(playerFrame, playerPreview);
+		BX.Landing.MediaPlayer.Factory.create(playerFrame, playerParams);
+	}
+
+	/**
+	 * Loader for other videos (just iframe, wo API)
+	 * @param {Element} playerPreview
+	 */
+	function loadPlayerVK(playerPreview)
+	{
+		const loader = new BX.Loader({
+			target: playerPreview
+		});
+		loader.show();
+
+		playerPreview.dataset.src = BX.Landing.Utils.addQueryParams(playerPreview.dataset.src, {
+			autoplay: 1,
+		});
+		const playerFrame = createPlayerFrame(playerPreview);
+		playerFrame.addEventListener('load', () => {
+			loader.hide();
+			BX.remove(playerPreview);
+		});
+		BX.insertBefore(playerFrame, playerPreview);
+	}
+
+	/**
+	 * Loader for other videos (just iframe, wo API)
+	 * @param {Element} playerPreview
+	 */
+	function loadPlayerIframe(playerPreview)
+	{
+		const loader = new BX.Loader({
+			target: playerPreview
+		});
+		loader.show();
+
+		const playerFrame = createPlayerFrame(playerPreview);
+		playerFrame.addEventListener('load', () => {
+			loader.hide();
+			BX.remove(playerPreview);
+		});
+		BX.insertBefore(playerFrame, playerPreview);
 	}
 
 	/**
@@ -161,7 +198,7 @@
 	 * @param {HTMLElement} playerPreview
 	 * @returns {HTMLElement}
 	 */
-	function loadPlayerFrame(playerPreview)
+	function createPlayerFrame(playerPreview)
 	{
 		// old format - iframe already loaded
 		if (playerPreview.tagName === 'IFRAME')
@@ -170,9 +207,9 @@
 		}
 
 		const selector = playerPreview.className;
-		playerPreview.className = 'landing-node-player-preview';
+		playerPreview.classList.add('--loader');
 
-		const playerFrame = BX.create('iframe', {
+		return BX.create('iframe', {
 			props: {
 				className: selector
 			},
@@ -186,20 +223,6 @@
 				src: BX.util.htmlspecialcharsback(playerPreview.dataset.src),
 				source: BX.util.htmlspecialcharsback(playerPreview.dataset.source),
 			},
-			events: {
-				load: function ()
-				{
-					BX.remove(playerPreview);
-					loader.hide();
-				}
-			}
 		});
-		const loader = new BX.Loader({
-			target: playerPreview
-		});
-		loader.show();
-
-		BX.insertBefore(playerFrame, playerPreview);
-		return playerFrame;
 	}
 })();

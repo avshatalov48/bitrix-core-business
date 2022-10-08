@@ -33,7 +33,8 @@
 	flex: 0 0 auto;
 	align-self: center;
 	padding: 21px 0 18px 23px;
-	font: 23px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 23px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	cursor: pointer;
 }
 
@@ -68,7 +69,7 @@
 	align-items: center;
 	margin: 3px 0;
 	padding: 0 9px 0 23px;
-	font: 14px/36px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px/36px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #505A68;
 	text-decoration: none;
 	overflow: hidden;
@@ -93,7 +94,8 @@
 
 .report-analytics-sidebar-toggle-btn {
 	display: none;
-	font: bold 9px/36px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 9px/36px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #AEB4BB;
 	text-transform: uppercase;
 	transition: color .3s;

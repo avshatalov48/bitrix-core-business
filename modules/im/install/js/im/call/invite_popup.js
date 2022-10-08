@@ -384,7 +384,7 @@
 		{
 			var element = BX.MessengerCommon.drawContactListElement({
 				'id': userData.id,
-				'data': userData,
+				'data': this.escapeUserData(userData),
 				'showUserLastActivityDate': true,
 				'showLastMessage': false,
 				'showCounter': false,
@@ -442,6 +442,17 @@
 		{
 			this.selectedUser = null;
 			this.updateDestination();
+		},
+
+		escapeUserData: function(userData)
+		{
+			userData.name = BX.util.htmlspecialchars(userData.name);
+			userData.first_name = BX.util.htmlspecialchars(userData.first_name);
+			userData.last_name = BX.util.htmlspecialchars(userData.last_name);
+			userData.work_position = BX.util.htmlspecialchars(userData.work_position);
+			userData.external_auth_id = BX.util.htmlspecialchars(userData.external_auth_id);
+			userData.status = BX.util.htmlspecialchars(userData.status);
+			return userData;
 		},
 
 		_onMoreButtonClick: function()

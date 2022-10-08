@@ -17,6 +17,8 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
 
 UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 	'ui.buttons',
 	'ui.alerts',
 	'ui.icons.b24',
@@ -25,7 +27,6 @@ UI\Extension::load([
 	'ui.entity-selector',
 	'socialnetwork.common',
 	'intranet_theme_picker',
-	'ui.design-tokens',
 ]);
 
 if (empty($arResult['TAB']))

@@ -1,5 +1,6 @@
 import { Dom, Event, Loc, Tag, Type } from "main.core";
 import { Loader } from "main.loader";
+import "ui.design-tokens";
 import "./client_selector.css";
 
 export class ClientSelector

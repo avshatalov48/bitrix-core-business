@@ -37,3 +37,6 @@ drop table if exists b_catalog_viewed_product;
 drop table if exists b_catalog_subscribe;
 drop table if exists b_catalog_subscribe_access;
 drop table if exists b_catalog_rounding;
+drop table if exists b_catalog_product_compilation;
+drop table if exists b_catalog_exported_product;
+drop table if exists b_catalog_exported_product_queue;

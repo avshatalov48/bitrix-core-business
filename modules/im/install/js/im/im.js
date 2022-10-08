@@ -8,6 +8,7 @@ BX.IM = function(domNode, params)
 	if (params.loggerConfig)
 	{
 		BX.Messenger.Lib.Logger.setConfig(params.loggerConfig);
+		BX.Messenger.v2.Lib.Logger.setConfig(params.loggerConfig);
 	}
 
 	BX.onCustomEvent(window, 'onImInitBefore', [this]);
@@ -100,7 +101,7 @@ BX.IM = function(domNode, params)
 	{
 		this.newRecent.botList = params.bot;
 	}
-	this.newSearchEnabled = false;
+	this.newSearchEnabled = true;
 
 	this.settings = params.settings;
 	this.settingsDisabled = {};
@@ -6667,7 +6668,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 			this.popupMessengerEditForm = BX.create("div", { props : { className : "bx-messenger-editform bx-messenger-editform-disable" }, children : [
 				BX.create("div", { props : { className : "bx-messenger-editform-wrap" }, children : [
 					BX.create("div", { props : { className : "bx-messenger-editform-textarea" }, children : [
-						this.popupMessengerEditTextarea = BX.create("textarea", { props : { value: '', className : "bx-messenger-editform-textarea-input" }, style : {height: '70px'}})
+						this.popupMessengerEditTextarea = BX.create("textarea", { props : { value: '', className : "bx-messenger-editform-textarea-input" }, style : {height: '70px', resize: 'vertical', maxHeight: '500px'}})
 					]}),
 					BX.create("div", { props : { className : "bx-messenger-editform-buttons" }, children : [
 						BX.create("span", { props : { className : "popup-window-button popup-window-button-accept" }, children : [
@@ -7029,6 +7030,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 		}, this));
 	}
 	BX.bind(this.popupContactListSearchInput, "keyup", BX.delegate(BX.MessengerCommon.contactListSearch, BX.MessengerCommon));
+	BX.bind(this.popupContactListSearchInput, "input", BX.delegate(BX.MessengerCommon.handleInputEvent, BX.MessengerCommon));
 
 	BX.bind(this.popupMessengerPanelChatTitle, "click",  BX.delegate(this.renameChatDialog, this));
 
@@ -7934,7 +7936,7 @@ BX.MessengerChat.prototype.dialogStatusRedraw = function(params)
 				return false;
 
 			var titleLastDate = BX.MessengerCommon.getUserLastDate(this.users[this.currentTab]);
-			this.popupMessengerPanelLastDate.innerHTML = titleLastDate? '. '+titleLastDate: '';
+			this.popupMessengerPanelLastDate.innerHTML = titleLastDate? titleLastDate: '';
 
 			return true;
 		}, this);
@@ -9186,6 +9188,7 @@ BX.MessengerChat.prototype.redrawChatHeader = function(params)
 		}
 		else if (this.chat[chatId].entity_type == 'CRM')
 		{
+			BX.removeClass(this.popupMessengerPanelChatTitle, 'bx-messenger-chat-extranet');
 			BX.style(this.popupMessengerPanelCrm, 'display', 'inline-block');
 		}
 		else if (this.chat[chatId].extranet)
@@ -12524,6 +12527,8 @@ BX.MessengerChat.prototype.deleteAllHistory = function(userId)
 	});
 	BX.localStorage.set('mhra', userId, 5);
 
+	BX.MessengerProxy.sendClearHistoryEvent(userId);
+
 	this.history[userId] = [];
 	this.showMessage[userId] = [];
 	this.popupHistoryBodyWrap.innerHTML = '';
@@ -15207,6 +15212,7 @@ BX.MessengerChat.prototype.openSmileMenu = function(params)
 	BX.bindDelegate(this.popupSmileMenuGallery, "click", {className: 'bx-messenger-smile-gallery-image'}, BX.delegate(function(){
 		var textarea = BX.proxy_context.getAttribute('data-textarea') == 'createChat'? this.popupCreateChatTextarea: this.popupMessengerTextarea;
 		this.insertTextareaText(textarea, ' '+BX.proxy_context.getAttribute('data-code')+' ', false);
+		this.textareaHistory[this.currentTab] = textarea.value;
 		this.popupSmileMenu.close();
 		textarea.focus();
 	}, this));
@@ -17555,13 +17561,6 @@ BX.MessengerChat.prototype.storageSet = function(params)
 		if (params.value > this.messageTmpIndex)
 			this.messageTmpIndex = params.value;
 	}
-	else if (params.key == 'mns')
-	{
-		if (this.popupContactListSearchInput != null)
-			this.popupContactListSearchInput.value = params.value != null? params.value+'': '';
-
-		this.contactListSearchText = params.value != null? params.value+'': '';
-	}
 	else if (params.key == 'msm')
 	{
 		if (this.message[params.value.id])
@@ -18603,6 +18602,29 @@ BX.IM.Desktop = function(BXIM, params)
 		if (BX.MessengerCommon.isDesktop())
 			this.BXIM.changeFocus(BX.desktop.windowIsFocused());
 
+		if (typeof BXDesktopSystem != 'undefined')
+		{
+			BX.bind(window, "keydown", BX.delegate(function(e) {
+				if (e.keyCode == 81 && (e.ctrlKey == true || e.metaKey == true))
+				{
+					clearTimeout(this.forceDesktopCloseTimeout);
+					if (this.forceDesktopClose)
+					{
+						console.log('NOTICE: Forced exit from desktop.');
+						BXDesktopSystem.Shutdown();
+						return true;
+					}
+
+					console.log('NOTICE: Prevent forced exit from the desktop.');
+
+					this.forceDesktopClose = true;
+					this.forceDesktopCloseTimeout = setTimeout(function() {
+						this.forceDesktopClose = false;
+					}.bind(this), 3000);
+				}
+			}, this));
+		}
+
 		if (
 			this.BXIM.context == 'DESKTOP'
 			|| this.BXIM.context == 'POPUP-FULLSCREEN'
@@ -19048,7 +19070,7 @@ BX.IM.Desktop = function(BXIM, params)
 		{
 			if (command == 'user_counter' && params[BX.message('SITE_ID')])
 			{
-				var countersToCheck = ['**', 'tasks_total'];
+				var countersToCheck = ['**', 'tasks_total', 'calendar'];
 				var countersToUpdate = {};
 
 				countersToCheck.forEach(function(counter) {
@@ -27958,10 +27980,10 @@ MessengerProxy.prototype.sendOpenSearchEvent = function(query)
 	BX.Event.EventEmitter.emit(EventType.recent.openSearch, {query: query});
 }
 
-MessengerProxy.prototype.sendUpdateSearchEvent = function(query)
+MessengerProxy.prototype.sendUpdateSearchEvent = function(query, keyCode)
 {
 	var EventType = BX.Messenger.v2.Const.EventType;
-	BX.Event.EventEmitter.emit(EventType.recent.updateSearch, {query: query});
+	BX.Event.EventEmitter.emit(EventType.recent.updateSearch, {query: query, keyCode: keyCode});
 }
 
 MessengerProxy.prototype.sendCloseSearchEvent = function()
@@ -28038,6 +28060,12 @@ MessengerProxy.prototype.sendSetMessageEvent = function(messageData)
 	var EventType = BX.Messenger.v2.Const.EventType;
 	BX.Event.EventEmitter.emit(EventType.recent.setMessage, messageData);
 }
+
+MessengerProxy.prototype.sendClearHistoryEvent = function(dialogId)
+{
+	var EventType = BX.Messenger.v2.Const.EventType;
+	BX.Event.EventEmitter.emit(EventType.dialog.clearHistory, {dialogId});
+}
 // endregion chat actions
 
 MessengerProxy.prototype.addChatData = function(data)
@@ -28053,7 +28081,10 @@ MessengerProxy.prototype.addChatData = function(data)
 			color: chat.color,
 			id: chat.id,
 			name: chat.name,
-			type: chat.type
+			type: chat.type,
+			entity_id: chat.entity_id,
+			entity_data_1: chat.entity_data_1,
+			entity_data_2: chat.entity_data_2,
 		};
 	}
 	else if (!isChat && !this.BXIM.messenger.users[dialogId])
@@ -28097,6 +28128,22 @@ MessengerProxy.prototype.sendClosePopupEvent = function()
 {
 	var EventType = BX.Messenger.v2.Const.EventType;
 	BX.Event.EventEmitter.emit(EventType.dialog.closePopup);
+};
+
+MessengerProxy.prototype.clearSearchInput = function()
+{
+	BX.MessengerCommon.contactListSearchClear();
+};
+
+MessengerProxy.prototype.isCurrentUserExtranet = function()
+{
+	return this.BXIM.userExtranet;
+};
+
+MessengerProxy.prototype.sendAccessDeniedErrorEvent = function(dialogId)
+{
+	var EventType = BX.Messenger.v2.Const.EventType;
+	BX.Event.EventEmitter.emit(EventType.dialog.errors.accessDenied, {dialogId: dialogId});
 };
 
 BX.MessengerProxy = new MessengerProxy();

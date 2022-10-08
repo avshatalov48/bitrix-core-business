@@ -19,11 +19,11 @@ if (COption::GetOptionString(
 
 	if ( ! CLearnInstall201203ConvertDB::_IsAlreadyConverted() )
 	{
-		$learningLangFile = dirname(__FILE__) . '/lang/' . LANGUAGE_ID . '/lang.php';
+		$learningLangFile = __DIR__ . '/lang/' . LANGUAGE_ID . '/lang.php';
 
 		// Load english version, if localization not available
 		if ( ! (file_exists($learningLangFile) && is_readable($learningLangFile)) )
-			$learningLangFile = dirname(__FILE__) . '/lang/en/lang.php';
+			$learningLangFile = __DIR__ . '/lang/en/lang.php';
 
 		if (file_exists($learningLangFile) && is_readable($learningLangFile))
 		{
@@ -43,7 +43,6 @@ if (COption::GetOptionString(
 	}
 }
 
-global $DBType;
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/learning/lang.php');
 
 global $LEARNING_CACHE_COURSE;
@@ -56,14 +55,14 @@ CModule::AddAutoloadClasses(
 		'CLQuestion'                       => 'classes/general/question.php',
 		'CLAnswer'                         => 'classes/general/answer.php',
 		'CAllGradeBook'                    => 'classes/general/gradebook.php',
-		'CGradeBook'                       => 'classes/' . $DBType . '/gradebook.php',
-		'CTest'                            => 'classes/' . $DBType . '/test.php',
-		'CTestAttempt'                     => 'classes/' . $DBType . '/attempt.php',
+		'CGradeBook'                       => 'classes/mysql/gradebook.php',
+		'CTest'                            => 'classes/mysql/test.php',
+		'CTestAttempt'                     => 'classes/mysql/attempt.php',
 		'CTestResult'                      => 'classes/general/testresult.php',
 		'CLTestMark'                       => 'classes/general/testmark.php',
-		'CCertification'                   => 'classes/' . $DBType . '/certification.php',
+		'CCertification'                   => 'classes/mysql/certification.php',
 		'CStudent'                         => 'classes/general/student.php',
-		'CSitePath'                        => 'classes/' . $DBType . '/sitepath.php',
+		'CSitePath'                        => 'classes/mysql/sitepath.php',
 		'CCourseImport'                    => 'classes/general/import.php',
 		'CCourseSCORM'                     => 'classes/general/scorm.php',
 		'CCoursePackage'                   => 'classes/general/export.php',

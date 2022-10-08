@@ -12,7 +12,7 @@ class Dictionary
 	/**
 	 * Creates object.
 	 *
-	 * @param array $values
+	 * @param array | null $values
 	 */
 	public function __construct(array $values = null)
 	{

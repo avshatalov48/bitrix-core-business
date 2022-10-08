@@ -267,12 +267,23 @@ export class Counters
 
 	sendCounterUpdateEvent(counters)
 	{
+		if(counters === undefined)
+		{
+			counters = this.counters;
+		}
+
+		if(counters.length === 0)
+		{
+			return;
+		}
+
 		const event = new BaseEvent({
 			data: {
 				counters: counters,
 				hidden: this.hiddenCountersForTotalCounter,
 				selectedDirectory: this.selectedDirectory,
 				name: this.getName(),
+				total: this.getTotalCounter(),
 			}
 		});
 

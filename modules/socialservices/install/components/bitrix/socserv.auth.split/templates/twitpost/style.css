@@ -1,4 +1,4 @@
-div.soc-serv-title { font-family:Arial, Helvetica,sans-serif; }
+div.soc-serv-title { font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica)); }
 div#workarea > div.soc-serv-main {padding-left: 12px; position: relative; }
 tr.soc-serv-header { color:grey;  font-weight:lighter; font-size: 85%; }
 td.split-item-actions a.split-delete-item { width: 14px; height: 14px;  display: inline-block; background:url('images/grey_del.gif');}
@@ -7,8 +7,8 @@ div.soc-serv-accounts { color:grey; font-weight:lighter; }
 div.soc-serv-accounts td.soc-serv-name { color: black; padding-right: 5px; padding-left: 15px !important;}
 div.soc-serv-accounts td.soc-serv-name-title {padding-left: 15px !important;}
 div.soc-serv-title { padding-left: 7px; padding-top: 3px; background: #f5f5f5; width: 460px; height: 19px; border-radius: 3px; -webkit-border-radius: 3px; -moz-border-radius: 3px; }
-div.soc-serv-title-grey { font-family:Arial, Helvetica,sans-serif; color:grey;  font-weight:lighter; padding-left: 4px; }
-.soc-serv-my-actives {font-family:Arial, Helvetica,sans-serif; color:grey;  font-weight:lighter; font-size: 90%; padding-left: 4px; margin-bottom:15px; vertical-align: middle; }
+div.soc-serv-title-grey { font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color:grey;  font-weight:lighter; padding-left: 4px; }
+.soc-serv-my-actives {font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color:grey;  font-weight:lighter; font-size: 90%; padding-left: 4px; margin-bottom:15px; vertical-align: middle; }
 A.soc-serv-link:visited {color: #486DAA; }
 a.soc-serv-link:hover {color: #D00;}
 div.soc-serv-main tr.soc-serv-personal td.bx-ss-icons { padding: 9px !important; }

@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2014 Bitrix
+ * @copyright 2001-2021 Bitrix
  */
+
 namespace Bitrix\Main\Web;
 
 class IpAddress
@@ -81,5 +83,23 @@ class IpAddress
 		}
 
 		return (ip2long($this->ip) & ~((1 << (32 - $mask)) - 1)) === ip2long($subnet);
+	}
+
+	/**
+	 * Formats IP as an unsigned int and returns it as a sting.
+	 * @return string
+	 */
+	public function toUnsigned()
+	{
+		return sprintf('%u', ip2long($this->ip));
+	}
+
+	/**
+	 * Formats IP as a range (192.168.0.0/24).
+	 * @return string
+	 */
+	public function toRange(int $prefixLen)
+	{
+		return long2ip(ip2long($this->ip) & ~((1 << (32 - $prefixLen)) - 1)) . '/' . $prefixLen;
 	}
 }

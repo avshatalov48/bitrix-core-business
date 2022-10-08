@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 return [
+	'old_id' => 10,
 	'code' => 'store-chats-dark/catalog',
 	'name' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_CATALOG-NAME'),
 	'description' => NULL,
@@ -43,12 +44,8 @@ return [
 	],
 	'items' => [
 		1 => [
-			'code' => 'store.catalog.sections_carousel',
-			'nodes' => [
-				'bitrix:landing.blocks.catalog_section_with_carousel' => [
-					'SHOW_SECTIONS' => 'N'
-				]
-			],
+			'code' => 'store.catalog.compilation',
+			'access' => 'W',
 			'style' => [
 				'.landing-component' => [
 					0 => 'landing-component',

@@ -2,7 +2,8 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
-$arExt = array();
+$arExt = ['ui.design-tokens'];
+
 if($arParams["POPUP"])
 	$arExt[] = "window";
 CUtil::InitJSCore($arExt);

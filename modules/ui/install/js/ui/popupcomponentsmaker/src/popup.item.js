@@ -94,7 +94,7 @@ export default class PopupComponentsMakerItem extends EventEmitter
 		if (!this.layout.container)
 		{
 			this.layout.container = Tag.render`
-				<div class="ui-qr-popupcomponentmaker__content--section-item">${this.getContent()}</div>
+				<div class="ui-popupcomponentmaker__content--section-item">${this.getContent()}</div>
 			`;
 
 			if (this.backgroundColor)

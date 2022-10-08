@@ -12,6 +12,8 @@ use \Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 Manager::setPageTitle(Loc::getMessage('LANDING_TPL_TITLE_EDIT'));
+
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
 $this->addExternalCss('/bitrix/css/main/table/style.css');
 
 if ($arResult['EXTENDED'])
@@ -35,7 +37,7 @@ $context = \Bitrix\Main\Application::getInstance()->getContext();
 $request = $context->getRequest();
 $row = $arResult['ROLE'];
 $reverseDefaultCodes = ['admin'];
-$reverseActionsCodes = ['unexportable'];
+$reverseActionsCodes = ['unexportable', 'knowledge_unexportable'];
 
 // show errors
 if ($arResult['ERRORS'])
@@ -136,7 +138,7 @@ foreach ($arResult['SITES'] as &$site)
 unset($site);
 ?>
 
-<form action="<?= POST_FORM_ACTION_URI;?>" method="post" class="ui-form ui-form-gray-padding" id="landing-role-edit">
+<form action="<?= POST_FORM_ACTION_URI;?>" method="post" class="ui-form landing-form-gray-padding" id="landing-role-edit">
 	<input type="hidden" name="fields[SAVE_FORM]" value="Y" />
 	<input type="hidden" name="data[id]" value="<?= $arParams['ROLE_ID'];?>" />
 	<?= bitrix_sessid_post();?>
@@ -240,7 +242,7 @@ unset($site);
 			<button id="landing-rights-save" type="submit" class="ui-btn ui-btn-success bitrix24-metrika" data-metrika24="role_save" name="submit" value="<?= Loc::getMessage('LANDING_TPL_BUTTON_SAVE');?>">
 				<?= Loc::getMessage('LANDING_TPL_BUTTON_SAVE');?>
 			</button>
-			<a class="ui-btn ui-btn-md ui-btn-link" href="<?= $arParams['PAGE_URL_ROLES'];?>">
+			<a id="landing-rights-cancel" class="ui-btn ui-btn-md ui-btn-link landing-rights-cancel" href="<?= $arParams['PAGE_URL_ROLES'];?>">
 				<?= Loc::getMessage('LANDING_TPL_BUTTON_CANCEL');?>
 			</a>
 		</div>

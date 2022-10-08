@@ -32,6 +32,19 @@ if (isset($_GET['alias']))
 		define("BX_PULL_SKIP_INIT", true);
 	}
 	define("BX_PULL_COMMAND_PATH", "/desktop_app/pull.ajax.php");
+
+	if (isset($_GET['videoconf'], $_SERVER['HTTP_ACCEPT_LANGUAGE']) && strlen($_SERVER['HTTP_ACCEPT_LANGUAGE']) > 1)
+	{
+		$preferredLang = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+		if (
+			!defined("LANGUAGE_ID")
+			&& preg_match("/^[a-z]{2}$/", $preferredLang)
+			&& @is_dir($widgetUserLangPath . $preferredLang)
+		)
+		{
+			define("LANGUAGE_ID", $preferredLang);
+		}
+	}
 }
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");

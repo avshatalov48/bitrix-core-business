@@ -268,7 +268,7 @@ $siteTabControl = new CAdminViewTabControl("siteTabControl", $aSiteTabs);
 
 $siteTabControl->Begin();
 
-$arUseOnSites = unserialize(COption::GetOptionString("socialservices", "use_on_sites", ""));
+$arUseOnSites = unserialize(COption::GetOptionString("socialservices", "use_on_sites", ""), ["allowed_classes" => false]);
 
 foreach($arSiteList as $site):
 	$suffix = ($site <> ''? '_bx_site_'.$site:'');
@@ -299,7 +299,7 @@ foreach($arSiteList as $site):
 		</tr>
 	<?endif;?>
 	<tr>
-		<td> <?=str_replace("#hash#", $twitHashInput, GetMessage("socserv_twit_to_buzz"))?> </td><td>
+		<td> <?=str_replace("#hash#", $twitHashInput, GetMessage("socserv_twit_to_buzz2"))?> </td><td>
 			<input type="checkbox" name="get_message_from_twitter" id="get_message_from_twitter" value="Y"
 				<?if(COption::GetOptionString("socialservices", "get_message_from_twitter", "N") == 'Y') echo " checked"; elseif(COption::GetOptionString("socialservices", "get_message_from_twitter", false) === false)  echo " checked";?>>
 

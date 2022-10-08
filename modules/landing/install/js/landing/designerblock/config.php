@@ -15,6 +15,7 @@ return [
 		'landing.loc',
 		'landing.ui.panel.content',
 		'main.core',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

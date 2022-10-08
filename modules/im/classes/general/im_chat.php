@@ -2753,7 +2753,7 @@ class CIMChat
 				}
 			}
 
-			self::index($chatId);
+			self::addChatIndex((int)$chatId, mb_substr($chatTitle, 0, 255));
 		}
 		else
 		{
@@ -3321,7 +3321,7 @@ class CIMChat
 			&& $arRes['CHAT_ENTITY_TYPE'] != 'LIVECHAT'
 		)
 		{
-			self::index($chatId);
+			self::updateChatIndex($chatId);
 		}
 
 		if (!empty($chatEntityType))
@@ -3650,7 +3650,7 @@ class CIMChat
 			&& $arRes['CHAT_ENTITY_TYPE'] != 'LIVECHAT'
 		)
 		{
-			self::index($chatId);
+			self::updateChatIndex($chatId);
 		}
 
 		if (!empty($chatEntityType))
@@ -4047,7 +4047,10 @@ class CIMChat
 			}
 		}
 
-		if (\Bitrix\Main\Loader::includeModule("pull"))
+		if (
+			!empty($pushList)
+			&& \Bitrix\Main\Loader::includeModule("pull")
+		)
 		{
 			\Bitrix\Pull\Event::add($pushList, Array(
 				'module_id' => 'im',
@@ -4065,27 +4068,60 @@ class CIMChat
 
 	public static function index($chatId)
 	{
-		$arRelation = self::GetRelationById($chatId);
-		$users = Array();
+		$index =
+			\Bitrix\Im\Internals\ChatIndex::create()
+				->setChatId((int)$chatId)
+		;
+		static::fillChatIndexWithUserFullNames($index);
 
-		$i = 0;
-		foreach ($arRelation as $relation)
-		{
-			if ($i > 100)
-				break;
-
-			$users[] = \Bitrix\Im\User::getInstance($relation['USER_ID'])->getFullName(false);
-			$i++;
-		}
-
-		\Bitrix\Im\Model\ChatIndexTable::merge(array(
-			'CHAT_ID' => $chatId,
-			'SEARCH_USERS' => implode(' ', $users),
-		));
-
-		\Bitrix\Im\Model\ChatTable::indexRecord($chatId);
+		\Bitrix\Im\Model\ChatTable::indexRecord($index);
 
 		return true;
+	}
+
+	public static function addChatIndex(int $chatId, string $chatTitle)
+	{
+		$index =
+			\Bitrix\Im\Internals\ChatIndex::create()
+				->setChatId($chatId)
+				->setTitle($chatTitle)
+		;
+		static::fillChatIndexWithUserFullNames($index);
+
+		\Bitrix\Im\Model\ChatTable::addIndexRecord($index);
+
+		return true;
+	}
+
+	public static function updateChatIndex($chatId)
+	{
+		$index =
+			\Bitrix\Im\Internals\ChatIndex::create()
+				->setChatId((int)$chatId)
+		;
+		static::fillChatIndexWithUserFullNames($index);
+
+		\Bitrix\Im\Model\ChatTable::updateIndexRecord($index);
+
+		return true;
+	}
+
+	public static function fillChatIndexWithUserFullNames(\Bitrix\Im\Internals\ChatIndex $index)
+	{
+		$query =
+			\Bitrix\Im\Model\RelationTable::query()
+				->addSelect('USER_ID')
+				->where('CHAT_ID', $index->getChatId())
+				->setLimit(100)
+		;
+
+		$users = [];
+		foreach ($query->exec() as $relation)
+		{
+			$users[] = \Bitrix\Im\User::getInstance($relation['USER_ID'])->getFullName(false);
+		}
+
+		$index->setUserList($users);
 	}
 
 	public static function getNextConferenceDefaultTitle()

@@ -75,6 +75,7 @@
 			this.initButtons();
 			this.initButtonsPosition();
 			this.initHelpTips();
+			this.initSelectors();
 			this.fixTitleColors();
 
 			if (!this.embeddedMode)
@@ -90,7 +91,7 @@
 		},
 		initData: function()
 		{
-			this.document = new BX.Bizproc.Document({
+			this.document = new BX.Bizproc.Automation.Document({
 				rawDocumentType: this.data.DOCUMENT_TYPE,
 				documentId: this.data.DOCUMENT_ID,
 				categoryId: this.data.DOCUMENT_CATEGORY_ID,
@@ -111,13 +112,13 @@
 			{
 				rawUserOptions = this.data.USER_OPTIONS;
 			}
-			this.userOptions = new BX.Bizproc.UserOptions(rawUserOptions);
+			this.userOptions = new BX.Bizproc.Automation.UserOptions(rawUserOptions);
 			this.frameMode = BX.type.isBoolean(this.data.FRAME_MODE) ? this.data.FRAME_MODE : false;
 			this.embeddedMode = (this.data.IS_EMBEDDED === true);
 		},
 		initContext: function()
 		{
-			var context = new BX.Bizproc.AutomationContext({
+			var context = new BX.Bizproc.Automation.Context({
 				document: this.document,
 				signedDocument: this.documentSigned,
 				ajaxUrl: this.getAjaxUrl(),
@@ -134,10 +135,11 @@
 				isFrameMode: this.isFrameMode,
 
 				marketplaceRobotCategory: this.data['MARKETPLACE_ROBOT_CATEGORY'],
+				showTemplatePropertiesMenuOnSelecting: this.data['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'] === true
 			});
 			context.set('TRIGGER_CAN_SET_EXECUTE_BY', this.data['TRIGGER_CAN_SET_EXECUTE_BY']);
 
-			BX.Bizproc.setGlobalContext(context);
+			BX.Bizproc.Automation.setGlobalContext(context);
 		},
 		setDocumentStatus: function(status)
 		{
@@ -420,7 +422,7 @@
 		{
 			this.triggerManager = new TriggerManager(this.node);
 			this.subscribeTriggerManagerEvents();
-			this.triggerManager.init(this.data, BX.Bizproc.ViewMode.fromRaw(this.viewMode));
+			this.triggerManager.init(this.data, BX.Bizproc.Automation.ViewMode.fromRaw(this.viewMode));
 
 			this.triggerManager.subscribe('TriggerManager:onHelpClick', function (event)
 			{
@@ -447,7 +449,7 @@
 			{
 				this.data.TRIGGERS = triggers;
 			}
-			this.triggerManager.reInit(this.data, BX.Bizproc.ViewMode.fromRaw(this.viewMode));
+			this.triggerManager.reInit(this.data, BX.Bizproc.Automation.ViewMode.fromRaw(this.viewMode));
 		},
 		initTemplateManager: function()
 		{
@@ -526,6 +528,96 @@
 		initHelpTips: function()
 		{
 			BX.UI.Hint.init(this.node);
+		},
+		initSelectors: function ()
+		{
+			BX.Event.EventEmitter.subscribe(
+				'BX.Bizproc.Automation:Template:onSelectorMenuOpen',
+				function (event)
+				{
+					var template = event.getData().template;
+					var selector = event.getData().selector;
+					var robot = event.getData().robot;
+					var isMixedCondition = event.getData().isMixedCondition;
+
+					if (BX.Type.isBoolean(isMixedCondition) && !isMixedCondition)
+					{
+						return;
+					}
+
+					var triggersReturnProperties = this.triggerManager.getReturnProperties(template.getStatusId());
+
+					var triggerMenuItems = triggersReturnProperties.map((property) => ({
+						id: property['SystemExpression'],
+						title: property['Name'] || property['Id'],
+						subtitle: property['ObjectName'] || property['ObjectId'],
+						customData: { field: property },
+					}));
+
+					if (triggerMenuItems.length > 0)
+					{
+						selector.addGroup('__TRESULT', {
+							id: '__TRESULT',
+							title: BX.message('BIZPROC_AUTOMATION_CMP_TRIGGER_LIST'),
+							children: triggerMenuItems,
+						});
+					}
+
+					// TODO - test !this.showTemplatePropertiesMenuOnSelecting
+					var constantList = template.getConstants().map(function (constant)
+					{
+						return {
+							id: constant.SystemExpression,
+							title: constant['Name'],
+							supertitle: BX.message('BIZPROC_AUTOMATION_CMP_TEMPLATE_CONSTANTS_LIST'),
+							customData: { field: constant }
+						};
+					});
+
+					if (this.data['GLOBAL_CONSTANTS'])
+					{
+						this.getConstants().forEach(function(constant) {
+							constantList.push({
+								id: constant.SystemExpression,
+								title: constant['Name'],
+								supertitle: constant.supertitle,
+								customData: { field: constant },
+							});
+						}.bind(this));
+
+						if (constantList.length > 0)
+						{
+							selector.addGroup('__CONSTANTS', {
+								id: '__CONSTANTS',
+								title: BX.message('BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST'),
+								children: constantList
+							});
+						}
+					}
+
+					if (this.data['GLOBAL_VARIABLES'])
+					{
+						const globalVariableList = this.getGVariables().map(function(variable)
+						{
+							return {
+								id: variable.SystemExpression,
+								title: variable['Name'],
+								supertitle: variable.supertitle,
+								customData: { field: variable }
+							};
+						}.bind(this));
+
+						if (globalVariableList.length > 0)
+						{
+							selector.addGroup('__GLOB_VARIABLES', {
+								id: '__GLOB_VARIABLES',
+								title: BX.message('BIZPROC_AUTOMATION_CMP_GLOB_VARIABLES_LIST_1'),
+								children: globalVariableList
+							});
+						}
+					}
+				}.bind(this)
+			);
 		},
 		reInitButtons: function()
 		{
@@ -665,7 +757,7 @@
 						}
 
 						BX.PopupMenu.show(
-							BX.Bizproc.Helper.generateUniqueId(),
+							BX.Bizproc.Automation.Helper.generateUniqueId(),
 							button,
 							items,
 							{
@@ -1097,20 +1189,12 @@
 		},
 		createTemplate: function (templateData)
 		{
-			var template = new BX.Bizproc.Template({
+			var template = new BX.Bizproc.Automation.Template({
 				constants: {},
 				globalConstants: this.component.getConstants(),
 				variables: {},
 				globalVariables: this.component.getGVariables(),
 				templateContainerNode: this.component.node,
-				selectors: {
-					userSelector: UserSelector,
-					fileSelector: FileSelector,
-					inlineSelector: InlineSelector,
-					inlineSelectorHtml: InlineSelectorHtml,
-					timeSelector: TimeSelector,
-					saveStateCheckbox: SaveStateCheckbox,
-				},
 				delayMinLimitM: this.component.data['DELAY_MIN_LIMIT_M'],
 				userOptions: this.component.userOptions,
 			});
@@ -1468,7 +1552,7 @@
 		},
 		createBaseNode: function()
 		{
-			var idSalt = BX.Bizproc.Helper.generateUniqueId();
+			var idSalt = BX.Bizproc.Automation.Helper.generateUniqueId();
 			var typeRadio1 = null;
 
 			if (this.fileFields.length > 0)
@@ -1724,7 +1808,7 @@
 
 			if (!this.menuId)
 			{
-				this.menuId = BX.Bizproc.Helper.generateUniqueId();
+				this.menuId = BX.Bizproc.Automation.Helper.generateUniqueId();
 			}
 
 			BX.PopupMenu.show(
@@ -1819,1027 +1903,6 @@
 			}
 		}
 	};
-	// <- FileSelector
-	// -> InlineSelector
-	/**
-	 * @param {Robot} robot
-	 * @param {Node} targetInput
-	 * @param data
-	 */
-	var InlineSelector = function(robot, targetInput, data)
-	{
-		var me = this;
-		this.robot = robot;
-		this.component = Designer.getInstance().component;
-		this.documentFields = this.component ? this.component.document.getFields() : data['DOCUMENT_FIELDS'];
-		this.showTemplatePropertiesMenuOnSelecting = (
-			this.component ? this.component.data['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'] === true : false
-		);
-		this.targetInput = BX.clone(targetInput);
-		this.menuButton = BX.create('span', {
-			attrs: {className: 'bizproc-automation-popup-select-dotted'},
-			events: {
-				click: BX.delegate(me.openMenu, this)
-			}
-		});
-		this.appendPropertyMods = true;
-
-		var wrapper = BX.create('div', {
-			attrs: {className: 'bizproc-automation-popup-select'},
-			children: [
-				this.targetInput,
-				this.menuButton
-			]
-		});
-
-		targetInput.parentNode.replaceChild(wrapper, targetInput);
-
-		BX.bind(this.targetInput, 'keydown', function(e) {
-			me.onKeyDown(this, e);
-		});
-		this.targetInput.setAttribute('autocomplete', 'off');
-
-		this.fieldProperty = JSON.parse(this.targetInput.getAttribute('data-property'));
-		if (this.fieldProperty)
-		{
-			delete this.fieldProperty.Default;
-		}
-		if (!this.fieldProperty || !this.robot)
-		{
-			this.showTemplatePropertiesMenuOnSelecting = false;
-		}
-
-		this.fieldType = this.targetInput.getAttribute('data-selector-type');
-		if (this.fieldType === 'date' || this.fieldType === 'datetime')
-		{
-			this.initDateTimeControl();
-		}
-		else if (this.fieldType === 'file')
-		{
-			this.initFileControl();
-		}
-
-		if (this.targetInput.getAttribute('data-select-mode') === 'replace')
-		{
-			this.replaceOnWrite = true;
-		}
-
-		this.selectCallback = function(item)
-		{
-			me.onFieldSelect(item.getCustomData().get('property'));
-		}
-	};
-	InlineSelector.prototype =
-	{
-		onKeyDown: function(container, e)
-		{
-			if (e.keyCode == 45 && e.altKey === false && e.ctrlKey === false && e.shiftKey === false)
-			{
-				this.openMenu(e);
-				e.preventDefault();
-			}
-		},
-		openMenu: function(e, skipPropertiesSwitcher)
-		{
-			if (!skipPropertiesSwitcher && this.showTemplatePropertiesMenuOnSelecting && !this.targetInput.value)
-			{
-				return this.openPropertiesSwitcherMenu();
-			}
-
-			if (this.dialog)
-			{
-				this.dialog.show();
-				return;
-			}
-
-			var me = this, i, field, fields = this.getFields();
-			var context = BX.Bizproc.tryGetGlobalContext();
-			var menuItems = [], fileFields = [], menuGroups = {'ROOT': {
-				title: context && context.document.title ? context.document.title : API.documentName,
-				entityId: 'bp',
-				tabs: 'recents',
-				id: 'ROOT',
-				children: []
-			}};
-
-			for (i = 0; i < fields.length; ++i)
-			{
-				field = fields[i];
-
-				var names, groupKey = field['Id'].indexOf('.') < 0 ? 'ROOT' : field['Id'].split('.')[0];
-				var fieldName = field['Name'];
-				var groupName = '';
-				if (fieldName && groupKey !== 'ROOT' && fieldName.indexOf(': ') >= 0)
-				{
-					names = fieldName.split(': ');
-					groupName = names.shift();
-					fieldName = names.join(': ');
-				}
-
-				if (field['Id'].indexOf('ASSIGNED_BY_') === 0
-					&& field['Id'] !== 'ASSIGNED_BY_ID'
-					&& field['Id'] !== 'ASSIGNED_BY_PRINTABLE'
-				)
-				{
-					groupKey = 'ASSIGNED_BY';
-					names = fieldName.split(' ');
-					groupName = names.shift();
-					fieldName = names.join(' ').replace('(', '').replace(')', '');
-				}
-
-				if (!menuGroups[groupKey])
-				{
-					menuGroups[groupKey] = {
-						title: groupName,
-						entityId: 'bp',
-						tabs: 'recents',
-						tabId: 'bp',
-						id: groupName,
-						children: []
-					};
-				}
-
-				if (field['Type'] === 'file')
-				{
-					fileFields.push(field);
-				}
-
-				menuGroups[groupKey]['children'].push({
-					title: fieldName || field['Id'],
-					customData: {property: field},
-					entityId: 'bp',
-					tabs: 'recents',
-					id: field['SystemExpression'],
-				});
-			}
-
-			if (!this.fieldsOnly)
-			{
-				// ROBOT GROUP
-				if (this.robot)
-				{
-					var skipId = this.robot.getId();
-					var robotResults = [];
-					var tpl = this.robot.template;
-					var templateRobots = tpl ? tpl.robots : [];
-
-					templateRobots.forEach(function(robot)
-					{
-						if (robot.getId() !== skipId)
-						{
-							var fields = [];
-							robot.getReturnFieldsDescription().forEach(function(field)
-							{
-								if (field['Type'] === 'file')
-								{
-									fileFields.push(field);
-								}
-
-								fields.push({
-									title: field['Name'] || field['Id'],
-									customData: {property: field},
-									entityId: 'bp',
-									tabs: 'recents',
-									id: field['SystemExpression'],
-								});
-							});
-							if (fields.length)
-							{
-								robotResults.push({
-									title: robot.getTitle(),
-									entityId: 'bp',
-									tabs: 'recents',
-									id: robot.getId(),
-									children: fields
-								});
-							}
-						}
-					});
-
-					if (robotResults.length)
-					{
-						menuGroups['__RESULT'] = {
-							title: BX.message('BIZPROC_AUTOMATION_CMP_ROBOT_LIST'),
-							entityId: 'bp',
-							tabs: 'recents',
-							id: '__RESULT',
-							children: robotResults
-						};
-					}
-				}
-
-				//TRIGGER GROUP
-				var triggerResults = this.getTriggerProperties().map(function(property)
-				{
-					return {
-						title: property['Name'] || property['Id'],
-						subtitle: property['ObjectName'] || property['ObjectId'],
-						customData: {property: property},
-						entityId: 'bp',
-						tabs: 'recents',
-						id: property['SystemExpression']
-					}
-				})
-				if (triggerResults.length)
-				{
-					menuGroups['__TRESULT'] = {
-						title: BX.message('BIZPROC_AUTOMATION_CMP_TRIGGER_LIST'),
-						entityId: 'bp',
-						tabs: 'recents',
-						id: '__TRESULT',
-						children: triggerResults
-					};
-				}
-
-				//FILES GROUP
-				if (fileFields.length && this.appendPropertyMods)
-				{
-					menuGroups['__FILES'] = {
-						title: BX.message('BIZPROC_AUTOMATION_CMP_FILES_LINKS'),
-						entityId: 'bp',
-						tabs: 'recents',
-						id: '__FILES',
-						children: this.prepareFilesMenu(fileFields)
-					};
-				}
-
-				//CONSTANTS GROUP
-				var constantList = [];
-				if (tpl && !this.showTemplatePropertiesMenuOnSelecting)
-				{
-					tpl.getConstants().forEach(function(constant)
-					{
-						constantList.push({
-							title: constant['Name'],
-							customData: {property: constant},
-							entityId: 'bp',
-							tabs: 'recents',
-							id: constant.SystemExpression,
-							supertitle: BX.message('BIZPROC_AUTOMATION_CMP_TEMPLATE_CONSTANTS_LIST')
-						});
-					});
-				}
-
-				//GLOBAL CONST GROUP
-				if (this.component && this.component.data['GLOBAL_CONSTANTS'])
-				{
-					this.component.getConstants().forEach(function(constant)
-					{
-						constantList.push({
-							title: constant['Name'],
-							customData: {property: constant},
-							entityId: 'bp',
-							tabs: 'recents',
-							id: constant.SystemExpression,
-							supertitle: constant.supertitle
-						});
-					}, this);
-				}
-
-				if (constantList.length)
-				{
-					menuGroups['__CONSTANTS'] = {
-						title: BX.message('BIZPROC_AUTOMATION_CMP_CONSTANTS_LIST'),
-						entityId: 'bp',
-						tabs: 'recents',
-						id: '__CONSTANTS',
-						children: constantList
-					};
-				}
-
-				//GLOBAL VAR GROUP
-				// todo: add Variables?
-				if (this.component && this.component.data['GLOBAL_VARIABLES'])
-				{
-					var globalVariableList = [];
-					this.component.getGVariables().forEach(function(variable)
-					{
-						globalVariableList.push({
-							title: variable['Name'],
-							customData: {property: variable},
-							entityId: 'bp',
-							tabs: 'recents',
-							id: variable.SystemExpression,
-							supertitle: variable.supertitle
-						});
-					}, this);
-
-					if (globalVariableList.length > 0)
-					{
-						menuGroups['__GLOB_VARIABLES'] = {
-							title: BX.message('BIZPROC_AUTOMATION_CMP_GLOB_VARIABLES_LIST_1'),
-							entityId: 'bp',
-							tabs: 'recents',
-							id: '__GLOB_VARIABLES',
-							children: globalVariableList
-						};
-					}
-				}
-
-			}
-
-			if (Object.keys(menuGroups).length < 2)
-			{
-				if (menuGroups['ROOT']['children'].length > 0)
-				{
-					menuItems = menuGroups['ROOT']['children'];
-				}
-			}
-			else
-			{
-				if (menuGroups['ROOT']['children'].length > 0)
-				{
-					menuItems.push(menuGroups['ROOT']);
-				}
-				delete menuGroups['ROOT'];
-				for (groupKey in menuGroups)
-				{
-					if (menuGroups.hasOwnProperty(groupKey) && menuGroups[groupKey]['children'].length > 0)
-					{
-						menuItems.push(menuGroups[groupKey])
-					}
-				}
-			}
-
-			var menuId = this.menuButton.getAttribute('data-selector-id');
-			if (!menuId)
-			{
-				menuId = BX.Bizproc.Helper.generateUniqueId();
-				this.menuButton.setAttribute('data-selector-id', menuId);
-			}
-
-			this.dialog = new BX.UI.EntitySelector.Dialog({
-				targetNode: this.menuButton,
-				width: 500,
-				height: 300,
-				multiple: false,
-				dropdownMode: true,
-				enableSearch: true,
-				items: this.injectDialogMenuTitles(menuItems),
-				showAvatars: false,
-				events: {
-					'Item:onBeforeSelect': function(event)
-					{
-						event.preventDefault();
-						me.selectCallback(event.getData().item);
-					}
-				},
-				compactView: true
-			});
-
-			this.dialog.show();
-		},
-		openPropertiesSwitcherMenu: function()
-		{
-			var me = this;
-			BX.PopupMenu.show(
-				BX.Bizproc.Helper.generateUniqueId(),
-				this.menuButton,
-				[
-					{
-						text: BX.message('BIZPROC_AUTOMATION_ASK_CONSTANT'),
-						onclick: function(e) {
-							this.popupWindow.close();
-							me.onFieldSelect(
-								me.robot.template.addConstant(me.fieldProperty)
-							);
-						}
-					},
-					{
-						text: BX.message('BIZPROC_AUTOMATION_ASK_PARAMETER'),
-						onclick: function(e) {
-							this.popupWindow.close();
-							me.onFieldSelect(
-								me.robot.template.addParameter(me.fieldProperty)
-							);
-						}
-					},
-					{
-						text: BX.message('BIZPROC_AUTOMATION_ASK_MANUAL'),
-						onclick: function(e) {
-							this.popupWindow.close();
-							me.openMenu(e, true);
-						}
-					}
-				],
-				{
-					autoHide: true,
-					offsetLeft: 20,
-					angle: { position: 'top'},
-					events: {
-						onPopupClose: function ()
-						{
-							this.destroy();
-						}
-					}
-				}
-			);
-			this.switcherDialog = BX.PopupMenu.currentItem;
-
-			return true;
-		},
-
-		injectDialogMenuTitles: function(items)
-		{
-			items.forEach(function(parent) {
-				if (BX.type.isArray(parent.children))
-				{
-					parent.searchable = false;
-					this.injectDialogMenuSupertitles(parent.title, parent.children);
-				}
-			}, this);
-			return items;
-		},
-		injectDialogMenuSupertitles: function(title, children)
-		{
-			children.forEach(function(child) {
-				if (!child.supertitle) {
-					child.supertitle = title;
-				}
-				if (BX.type.isArray(child.children))
-				{
-					child.searchable = false;
-					this.injectDialogMenuSupertitles(child.title, child.children);
-				}
-			}, this);
-		},
-
-		prepareFilesMenu: function(fileFields)
-		{
-			var menu = [];
-			fileFields.forEach(function(field)
-			{
-				var exp = field['ObjectId'] === 'Document' ?
-					'{{'+field['Name']+' > shortlink}}'
-					: '{{~'+field['ObjectId']+':'+field['Id']+' > shortlink}}';
-
-				var title = field['Name'] || field['Id'];
-
-				if (field.ObjectName)
-				{
-					title = field.ObjectName + ': ' + title;
-				}
-
-				menu.push({
-					title: title,
-					customData: {
-						property: {
-							Id: field['Id'] + '_shortlink',
-							ObjectId: field['ObjectId'],
-							Name: field['Name'],
-							Type: 'string',
-							Expression: exp,
-							SystemExpression: '{='+field['ObjectId']+':'+field['Id']+' > shortlink}'
-						}
-					},
-					entityId: 'bp',
-					tabs: 'recents',
-					id: exp,
-				});
-			});
-			return menu;
-		},
-		onFieldSelect: function(field)
-		{
-			if (!field)
-			{
-				return;
-			}
-
-			var inputType = this.targetInput.tagName.toLowerCase();
-
-			if (inputType === 'select')
-			{
-				var expressionOption = this.targetInput.querySelector('[data-role="expression"]');
-				if (!expressionOption)
-				{
-					expressionOption = this.targetInput.appendChild(BX.create('option', {attrs: {'data-role': 'expression'}}));
-				}
-				expressionOption.setAttribute('value', field['Expression']);
-				expressionOption.textContent = field['Expression'];
-
-				expressionOption.selected = true;
-			}
-			else if (inputType === 'label')
-			{
-				this.targetInput.textContent = field['Expression'];
-				var hiddenInput = document.getElementById(this.targetInput.getAttribute('for'));
-				if (hiddenInput)
-				{
-					hiddenInput.value = field['Expression'];
-				}
-			}
-			else
-			{
-				if (this.replaceOnWrite)
-				{
-					this.targetInput.value = field['Expression'];
-					this.targetInput.selectionEnd = this.targetInput.value.length;
-				}
-				else
-				{
-					var beforePart = this.targetInput.value.substr(0, this.targetInput.selectionEnd),
-						middlePart = field['Expression'],
-						afterPart = this.targetInput.value.substr(this.targetInput.selectionEnd);
-
-					this.targetInput.value = beforePart + middlePart + afterPart;
-					this.targetInput.selectionEnd = beforePart.length + middlePart.length;
-				}
-			}
-
-			BX.fireEvent(this.targetInput, 'change');
-		},
-		destroy: function()
-		{
-			if (this.dialog)
-			{
-				this.dialog.destroy();
-			}
-			if (this.switcherDialog)
-			{
-				this.switcherDialog.destroy();
-			}
-		},
-		initDateTimeControl: function()
-		{
-			var basisFields = [];
-			var docFields = this.documentFields;
-			if (BX.type.isArray(this.documentFields))
-			{
-				var i, field;
-				for (i = 0; i < this.documentFields.length; ++i)
-				{
-					field = this.documentFields[i];
-					if (field['Type'] === 'date' || field['Type'] === 'datetime')
-					{
-						basisFields.push(field);
-					}
-				}
-			}
-
-			this.documentFields = basisFields;
-			this.replaceOnWrite = true;
-
-			var delayIntervalSelector = new BX.Bizproc.DelayIntervalSelector({
-				labelNode: this.targetInput,
-				basisFields: basisFields,
-				useAfterBasis: true,
-				onchange: (function(delay)
-				{
-					this.targetInput.value = delay.toExpression(
-						basisFields,
-						getResponsibleUserExpression(docFields)
-					);
-				}).bind(this)
-			});
-
-			delayIntervalSelector.init(BX.Bizproc.DelayInterval.fromString(this.targetInput.value, basisFields));
-		},
-		initFileControl: function()
-		{
-			var documentFields = this.component.document.getFields();
-			var basisFields = [];
-
-			var i, field;
-			for (i = 0; i < documentFields.length; ++i)
-			{
-				field = documentFields[i];
-				if (field['Type'] === 'file')
-				{
-					basisFields.push(field);
-				}
-			}
-
-			this.documentFields = basisFields;
-			this.replaceOnWrite = true;
-		},
-		getFields: function()
-		{
-			var printablePrefix = BX.message('BIZPROC_AUTOMATION_CMP_MOD_PRINTABLE_PREFIX');
-			var names = [];
-			this.documentFields.forEach(function(field)
-			{
-				names.push(field['Name']);
-			});
-
-			var namesStr = names.join('\n');
-			var fields = [];
-			var fieldType = this.fieldType;
-
-			this.documentFields.forEach(function(field)
-			{
-				field.ObjectId = 'Document';
-
-				var custom = (field['BaseType'] === 'string' && field['Type'] !== 'string');
-
-				if (!custom || !this.appendPropertyMods)
-				{
-					fields.push(field);
-				}
-
-				if (!this.appendPropertyMods)
-				{
-					return;
-				}
-
-				//generate printable version
-				if (
-					field['Type'] === 'user'
-					||
-					field['Type'] === 'bool'
-					||
-					field['Type'] === 'file'
-					||
-					custom
-				)
-				{
-					var printableName = field['Name'] + ' ' + printablePrefix;
-
-					if (namesStr.indexOf(printableName) < 0)
-					{
-						var printableField = BX.clone(field);
-						var printableTag = (field['Type'] === 'user') ? 'friendly' : 'printable';
-
-						printableField['Name'] = printableName;
-						printableField['Type'] = 'string';
-						printableField['SystemExpression'] = '{=Document:'+printableField['Id']+' > '+printableTag+'}';
-						printableField['Expression'] = '{{'+field['Name']+' > '+printableTag+'}}';
-
-						fields.push(printableField);
-					}
-				}
-				if (field['BaseType'] === 'date' || field['BaseType'] === 'datetime')
-				{
-					var serverField = BX.clone(field);
-					serverField['Name'] += ' '+BX.message('BIZPROC_AUTOMATION_CMP_MOD_DATE_BY_SERVER');
-					serverField['Type'] = 'string';
-					serverField['SystemExpression'] = '{=Document:'+serverField['Id']+' > server}';
-					serverField['Expression'] = '{{'+field['Name']+' > server}}';
-
-					fields.push(serverField);
-
-					var responsibleField = BX.clone(field);
-					responsibleField['Name'] += ' '+BX.message('BIZPROC_AUTOMATION_CMP_MOD_DATE_BY_RESPONSIBLE');
-					responsibleField['Type'] = 'string';
-					responsibleField['SystemExpression'] = '{=Document:'+serverField['Id']+' > responsible}';
-					responsibleField['Expression'] = '{{'+field['Name']+' > responsible}}';
-
-					fields.push(responsibleField);
-				}
-			}, this);
-
-			return fields;
-		},
-		getTriggerProperties: function()
-		{
-			var result = [];
-			if (this.robot && this.robot.template && this.component && this.component.triggerManager)
-			{
-				result = this.component.triggerManager.getReturnProperties(this.robot.template.getStatusId());
-			}
-
-			return result;
-		}
-	};
-	// <- InlineSelector
-	// -> InlineSelectorCondition
-	var InlineSelectorCondition = function(menuButton, fields, cb, condition)
-	{
-		this.component = BX.Bizproc.Automation.Designer.component;
-		this.robot = BX.Bizproc.Automation.Designer.robot;
-		this.documentFields = fields;
-		this.menuButton = menuButton;
-		this.appendPropertyMods = false;
-		this.selectCallback = function(item)
-		{
-			cb(item.getCustomData().get('property'));
-		}
-
-		this.fieldsOnly = !(
-			condition
-			&& condition.parentGroup
-			&& condition.parentGroup.type === ConditionGroup.CONDITION_TYPE.Mixed
-		);
-	};
-	BX.extend(InlineSelectorCondition, InlineSelector);
-	// <- InlineSelectorCondition
-	// -> UserSelector
-	var UserSelector = function(robot, targetInput, data)
-	{
-		this.robot = robot;
-		this.component = Designer.getInstance().component;
-		this.documentFields = this.component ? this.component.document.getFields() : data['DOCUMENT_FIELDS'];
-		this.showTemplatePropertiesMenuOnSelecting = (
-			this.component ? this.component.data['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'] === true : false
-		);
-
-		this.fieldProperty = JSON.parse(targetInput.getAttribute('data-property'));
-		if (this.fieldProperty)
-		{
-			delete this.fieldProperty.Default;
-		}
-		if (!this.fieldProperty || !this.robot)
-		{
-			this.showTemplatePropertiesMenuOnSelecting = false;
-		}
-
-		this.targetInput = this.menuButton = targetInput;
-		this.userSelector = BX.Bizproc.UserSelector.decorateNode(
-			targetInput,
-			this.getSelectorConfig(robot)
-		);
-	};
-	BX.extend(UserSelector, InlineSelector);
-	UserSelector.prototype.destroy = function()
-	{
-		if (this.userSelector)
-		{
-			this.userSelector.destroy();
-			this.userSelector = null;
-		}
-		if (this.switcherDialog)
-		{
-			this.switcherDialog.destroy();
-		}
-	};
-
-	UserSelector.prototype.getSelectorConfig = function(robot)
-	{
-		var templateRobots = robot.template ? robot.template.robots : [];
-		var additionalFields = [];
-		if (BX.type.isArray(templateRobots))
-		{
-			templateRobots.forEach(function(robot)
-			{
-				robot.getReturnFieldsDescription().forEach(function(field)
-				{
-					if (field['Type'] === 'user')
-					{
-						additionalFields.push({
-							id: '{{~'+robot.getId()+':'+field['Id']+'}}',
-							title: robot.getTitle() + ': ' + field['Name'],
-						});
-					}
-				});
-			});
-		}
-
-		if (this.showTemplatePropertiesMenuOnSelecting)
-		{
-			const ask = robot.template.addConstant(BX.clone(this.fieldProperty));
-
-			additionalFields.push({
-				id: ask.Expression,
-				title: BX.message('BIZPROC_AUTOMATION_ASK_CONSTANT'),
-				tabs: ['recents', 'bpuserroles'],
-				sort: 1,
-			});
-
-			const param = robot.template.addParameter(BX.clone(this.fieldProperty));
-
-			additionalFields.push({
-				id: param.Expression,
-				title: BX.message('BIZPROC_AUTOMATION_ASK_PARAMETER'),
-				tabs: ['recents', 'bpuserroles'],
-				sort: 2,
-			});
-		}
-
-		return {additionalFields: additionalFields};
-	}
-	// <- UserSelector
-	// -> InlineSelectorHtml
-	var InlineSelectorHtml = function(robot, targetNode)
-	{
-		var me = this;
-		this.robot = robot;
-		this.component = Designer.getInstance().component;
-		this.documentFields = this.component.document.getFields();
-		this.editorNode = targetNode.firstElementChild.firstElementChild;
-		this.menuButton = BX.create('span', {
-			attrs: {className: 'bizproc-automation-popup-select-dotted'},
-			events: {
-				click: BX.delegate(me.openMenu, this)
-			}
-		});
-		targetNode.firstElementChild.appendChild(this.menuButton);
-		this.bindEvents();
-		this.selectCallback = function(item)
-		{
-			me.onFieldSelect(item.getCustomData().get('property'));
-		}
-		this.appendPropertyMods = true;
-	};
-
-	BX.extend(InlineSelectorHtml, InlineSelector);
-
-	InlineSelectorHtml.prototype.getEditor = function()
-	{
-		var editor;
-		if (this.editorNode)
-		{
-			var editorId = this.editorNode.id.split('-');
-			editor = BXHtmlEditor.Get(editorId[editorId.length -1]);
-		}
-		return editor;
-	};
-
-	InlineSelectorHtml.prototype.bindEvents = function()
-	{
-		this.editorInitFunction = this.bindEditorHooks.bind(this);
-		BX.addCustomEvent('OnEditorInitedAfter', this.editorInitFunction);
-	};
-
-	InlineSelectorHtml.prototype.unBindEvents = function()
-	{
-		BX.removeCustomEvent('OnEditorInitedAfter', this.editorInitFunction);
-	};
-
-	InlineSelectorHtml.prototype.bindEditorHooks = function(editor)
-	{
-		var header = '', footer = '';
-		if (editor.dom.cont !== this.editorNode)
-		{
-			return false;
-		}
-		BX.addCustomEvent(editor, "OnParse", function(mode)
-		{
-			if (!mode)
-			{
-				var content = this.content;
-
-				content = content.replace(/(^[\s\S]*?)(<body.*?>)/i, function(str){
-						header = str;
-						return '';
-					}
-				);
-
-				content = content.replace(/(<\/body>[\s\S]*?$)/i,  function(str){
-						footer = str;
-						return '';
-					}
-				);
-
-				this.content = content;
-			}
-		});
-
-		BX.addCustomEvent(editor, "OnAfterParse", function(mode)
-		{
-			if (mode)
-			{
-				var content = this.content;
-
-				content = content.replace(/^[\s\S]*?<body.*?>/i, "");
-				content = content.replace(/<\/body>[\s\S]*?$/i, "");
-
-				if (header !== '' && footer !== '')
-				{
-					content = header + content + footer;
-				}
-
-
-				this.content = content;
-			}
-		});
-	};
-
-	InlineSelectorHtml.prototype.onFieldSelect = function(field)
-	{
-		var insertText = field['Expression'];
-		var editor = this.getEditor();
-		if (editor && editor.InsertHtml)
-		{
-			if (editor.synchro.IsFocusedOnTextarea())
-			{
-				editor.textareaView.Focus();
-				editor.textareaView.WrapWith('', '', insertText);
-			}
-			else
-			{
-				editor.InsertHtml(insertText);
-			}
-			editor.synchro.Sync();
-		}
-	};
-	InlineSelectorHtml.prototype.destroy = function()
-	{
-		if (this.menu)
-			this.menu.popupWindow.close();
-		this.unBindEvents();
-	};
-	InlineSelectorHtml.prototype.onBeforeSave = function()
-	{
-		var editor = this.getEditor();
-		if (editor && editor.SaveContent)
-		{
-			editor.SaveContent();
-		}
-	};
-	InlineSelectorHtml.prototype.onPopupResize = function()
-	{
-		var editor = this.getEditor();
-		if (editor && editor.ResizeSceleton)
-		{
-			editor.ResizeSceleton();
-		}
-	};
-	// <- InlineSelectorHtml
-	// -> TimeSelector
-	var TimeSelector = function(targetInput)
-	{
-		this.targetInput = targetInput;
-
-		var d = new Date(), currentValue = this.unFormatTime(targetInput.value);
-		d.setHours(0, 0, 0, 0);
-		d.setTime(d.getTime() + currentValue * 1000);
-		targetInput.value = this.formatTime(d); //convert to site format on client side.
-
-		BX.bind(targetInput, 'click', BX.delegate(this.showClock, this));
-	};
-	TimeSelector.prototype =
-	{
-		showClock: function (e)
-		{
-			if (!this.clockInstance)
-			{
-				this.clockInstance = new BX.CClockSelector({
-					start_time: this.unFormatTime(this.targetInput.value),
-					node: this.targetInput,
-					callback: BX.delegate(this.onTimeSelect, this)
-				});
-			}
-			this.clockInstance.Show();
-		},
-		onTimeSelect: function(v)
-		{
-			this.targetInput.value = v;
-			BX.fireEvent(this.targetInput, 'change');
-			this.clockInstance.closeWnd();
-		},
-		unFormatTime: function(time)
-		{
-			var q = time.split(/[\s:]+/);
-			if (q.length == 3)
-			{
-				var mt = q[2];
-				if (mt == 'pm' && q[0] < 12)
-					q[0] = parseInt(q[0], 10) + 12;
-
-				if (mt == 'am' && q[0] == 12)
-					q[0] = 0;
-
-			}
-			return parseInt(q[0], 10) * 3600 + parseInt(q[1], 10) * 60;
-		},
-		formatTime: function(date)
-		{
-			var dateFormat = BX.date.convertBitrixFormat(BX.message('FORMAT_DATE')).replace(/:?\s*s/, ''),
-				timeFormat = BX.date.convertBitrixFormat(BX.message('FORMAT_DATETIME')).replace(/:?\s*s/, ''),
-				str1 = BX.date.format(dateFormat, date),
-				str2 = BX.date.format(timeFormat, date);
-			return BX.util.trim(str2.replace(str1, ''));
-		},
-		destroy: function()
-		{
-			if (this.clockInstance)
-				this.clockInstance.closeWnd();
-		}
-	};
-	// <- TimeSelector
-	// -> SaveStateCheckbox
-	var SaveStateCheckbox = function(checkbox, robot)
-	{
-		this.checkbox = checkbox;
-		this.robot = robot;
-		this.needSync = robot.draft;
-		if (this.needSync)
-		{
-			var key = this.getKey();
-			var savedState = robot.template.userOptions.get('save_state_checkboxes', key, 'N');
-			if (savedState === 'Y')
-			{
-				checkbox.checked = true;
-			}
-		}
-	};
-	SaveStateCheckbox.prototype =
-	{
-		getKey: function()
-		{
-			return this.checkbox.getAttribute('data-save-state-key');
-		},
-		destroy: function()
-		{
-			if (this.needSync)
-			{
-				var key = this.getKey();
-				var value = this.checkbox.checked? 'Y' : 'N';
-				this.robot.template.userOptions.set('save_state_checkboxes', key, value);
-			}
-		}
-	};
-	// <- SaveStateCheckbox
 
 	var API = {
 		documentName: null,
@@ -2848,17 +1911,18 @@
 		documentSigned: null,
 		showRobotSettings: function(robotData, documentType, documentStatus, onSaveCallback)
 		{
-			var document = new BX.Bizproc.Document({
+			var document = new BX.Bizproc.Automation.Document({
 				rawDocumentType: documentType,
 				statusId: documentStatus,
 				documentFields: this.documentFields,
+				title: this.documentName,
 			});
 			var robot = new Robot({
 				document: document,
 				isFrameMode: false,
 			});
-			robot.init(robotData, BX.Bizproc.ViewMode.none());
-			BX.Bizproc.setGlobalContext(new BX.Bizproc.AutomationContext({
+			robot.init(robotData, BX.Bizproc.Automation.ViewMode.none());
+			BX.Bizproc.Automation.setGlobalContext(new BX.Bizproc.Automation.Context({
 				document: document,
 				signedDocument: this.documentSigned,
 				ajaxUrl: getAjaxUrl(),
@@ -2872,14 +1936,6 @@
 			};
 			var tpl = new Template({
 				config: config,
-				selectors: {
-					userSelector: UserSelector,
-					fileSelector: FileSelector,
-					inlineSelector: InlineSelector,
-					inlineSelectorHtml: InlineSelectorHtml,
-					timeSelector: TimeSelector,
-					saveStateCheckbox: SaveStateCheckbox,
-				}
 			});
 			tpl.init({DOCUMENT_FIELDS: this.documentFields}, Component.ViewMode.None);
 
@@ -2980,33 +2036,21 @@
 		},
 	};
 
-	var ConditionGroup = BX.Bizproc.ConditionGroup;
-	var Designer = BX.Bizproc.Designer;
-	var ConditionGroupSelector = BX.Bizproc.ConditionGroupSelector;
-	var Tracker = BX.Bizproc.Tracker;
-	var Helper = BX.Bizproc.Helper;
-	var HelpHint = BX.Bizproc.HelpHint;
+	var Designer = BX.Bizproc.Automation.Designer;
+	var Tracker = BX.Bizproc.Automation.Tracker;
+	var Helper = BX.Bizproc.Automation.Helper;
 
-	var Trigger = BX.Bizproc.Trigger;
-	var TriggerManager = BX.Bizproc.TriggerManager;
-	var Robot = BX.Bizproc.Robot;
-	var Template = BX.Bizproc.Template;
-
-	BX.Bizproc.Automation.Trigger = Trigger;
-	BX.Bizproc.Automation.TriggerManager = TriggerManager;
-	BX.Bizproc.Automation.Robot = Robot;
-	BX.Bizproc.Automation.Template = Template;
+	var TriggerManager = BX.Bizproc.Automation.TriggerManager;
+	var Robot = BX.Bizproc.Automation.Robot;
+	var Template = BX.Bizproc.Automation.Template;
 
 	BX.Bizproc.Automation.Component = Component;
-	BX.Bizproc.Automation.Designer = Designer.getInstance();
 	BX.Bizproc.Automation.API = API;
-	BX.Bizproc.Automation.ConditionGroup = ConditionGroup;
-	BX.Bizproc.Automation.ConditionGroupSelector = ConditionGroupSelector;
 	BX.Bizproc.Automation.showGlobals = showGlobals;
 	BX.Bizproc.Automation.Debugger = Debugger;
 
 	BX.namespace('BX.Bizproc.Automation.Selector');
-	BX.Bizproc.Automation.Selector.InlineSelectorCondition = InlineSelectorCondition;
+	BX.Bizproc.Automation.Selector.InlineSelectorCondition = BX.Bizproc.Automation.InlineSelectorCondition;
 
 
 })(window.BX || window.top.BX);

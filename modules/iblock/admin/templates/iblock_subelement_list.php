@@ -9,6 +9,7 @@
 /** @global array $arSubIBlock */
 /** @global string $by */
 /** @global string $order */
+/** @var string $urlBuilderId */
 use Bitrix\Main,
 	Bitrix\Main\Loader,
 	Bitrix\Main\Localization\Loc,
@@ -1501,6 +1502,11 @@ if (!(false == B_ADMIN_SUBELEMENTS_LIST && $bCopy))
 	}
 
 	$boolOldOffers = false;
+	$editUrlParams = [
+		'WF' => 'Y',
+		'TMP_ID' => $strSubTMP_ID,
+		'urlBuilderId' => $urlBuilderId,
+	];
 	foreach (array_keys($rawRows) as $rowId)
 	{
 		$arRes = $rawRows[$rowId];
@@ -1558,7 +1564,7 @@ if (!(false == B_ADMIN_SUBELEMENTS_LIST && $bCopy))
 			$intSubIBlockID,
 			$intSubPropValue,
 			$arRes_orig['ID'],
-			array('WF' => 'Y', 'TMP_ID' => $strSubTMP_ID),
+			$editUrlParams,
 			$sThisSectionUrl,
 			defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1
 		);
@@ -2916,7 +2922,14 @@ function ShowNewOffer(id)
 		PostParams.PRODUCT_NAME = mxProductName;
 		PostParams.sessid = BX.bitrix_sessid();
 		(new BX.CAdminDialog({
-			'content_url': '<? echo CIBlock::GetAdminSubElementEditLink($intSubIBlockID, $intSubPropValue, 0, array('WF' => 'Y', 'TMP_ID' => $strSubTMP_ID), $sThisSectionUrl, ((defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1))); ?>',
+			'content_url': '<? echo CIBlock::GetAdminSubElementEditLink(
+				$intSubIBlockID,
+				$intSubPropValue,
+				0,
+				$editUrlParams,
+				$sThisSectionUrl,
+				defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1
+			); ?>',
 			'content_post': PostParams,
 			'draggable': true,
 			'resizable': true,
@@ -2943,7 +2956,14 @@ function ShowNewOfferExt(id)
 		PostParams.PRODUCT_NAME = mxProductName;
 		PostParams.sessid = BX.bitrix_sessid();
 		(new BX.CAdminDialog({
-			'content_url': '<? echo CIBlock::GetAdminSubElementEditLink($intSubIBlockID, $intSubPropValue, 0, array('WF' => 'Y', 'TMP_ID' => $strSubTMP_ID, 'SUBPRODUCT_TYPE' => CCatalogAdminTools::TAB_GROUP), $sThisSectionUrl, defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1); ?>',
+			'content_url': '<? echo CIBlock::GetAdminSubElementEditLink(
+				$intSubIBlockID,
+				$intSubPropValue,
+				0,
+				$editUrlParams + ['SUBPRODUCT_TYPE' => CCatalogAdminTools::TAB_GROUP],
+				$sThisSectionUrl,
+				defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1
+			); ?>',
 			'content_post': PostParams,
 			'draggable': true,
 			'resizable': true,
@@ -3003,7 +3023,10 @@ function ShowSkuGenerator(id)
 	PostParams.sessid = BX.bitrix_sessid();
 
 	(new BX.CAdminDialog({
-		'content_url': '/bitrix/tools/catalog/iblock_subelement_generator.php?subIBlockId=<? echo $intSubIBlockID; ?>&subPropValue=<? echo $intSubPropValue; ?>&subTmpId=<? echo $strSubTMP_ID; ?>&iBlockId=<? echo $arSubCatalog['PRODUCT_IBLOCK_ID']; ?>',
+		'content_url': '/bitrix/tools/catalog/iblock_subelement_generator.php?subIBlockId=<? echo $intSubIBlockID; ?>'
+			+ '&subPropValue=<? echo $intSubPropValue; ?>&subTmpId=<? echo $strSubTMP_ID; ?>'
+			+ '&iBlockId=<? echo $arSubCatalog['PRODUCT_IBLOCK_ID']; ?>&lang=<?=LANGUAGE_ID; ?>'
+			+ 'urlBuilderId=<?= CUtil::JSEscape($urlBuilderId); ?>',
 		'content_post': PostParams,
 		'draggable': true,
 		'resizable': true,

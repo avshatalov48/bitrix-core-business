@@ -90,11 +90,17 @@
 
 		getField: function()
 		{
-			return new BX.Landing.UI.Field.Embed({
+			const fieldData = {
 				title: this.manifest.name,
 				selector: this.selector,
 				content: this.getValue()
-			});
+			};
+			if (BX.Dom.hasClass(this.node.parentNode, 'bg-video__inner'))
+			{
+				return new BX.Landing.UI.Field.EmbedBg(fieldData);
+			}
+
+			return new BX.Landing.UI.Field.Embed(fieldData);
 		}
 	};
 

@@ -1,7 +1,7 @@
 import {Dom, Loc, Tag, Text, Type} from 'main.core';
 import Automation from "../automation";
 import {Menu, MenuItem, Popup} from "main.popup";
-import {getGlobalContext, Template, Tracker, ViewMode, TriggerManager, HelpHint } from 'bizproc.automation';
+import {getGlobalContext, Template, Tracker, ViewMode, TriggerManager, HelpHint, WorkflowStatus } from 'bizproc.automation';
 import {BaseEvent, EventEmitter} from "main.core.events";
 import { Button, ButtonSize, ButtonColor, ButtonIcon} from 'ui.buttons';
 import 'ui.buttons.icons';
@@ -9,10 +9,11 @@ import {EntitySelector} from "ui.entity-selector";
 import "bp_field_type";
 import 'ui.layout-form';
 import 'ui.hint';
-import {DebuggerState, WorkflowStatus} from "../workflow/types";
+import {DebuggerState} from "../workflow/types";
 import {MessageBox, MessageBoxButtons} from "ui.dialogs.messagebox";
 import {Manager} from "bizproc.debugger";
 import {Helper} from "../helper";
+import {Loader} from "main.loader";
 
 export default class AutomationMainView extends EventEmitter
 {
@@ -48,6 +49,7 @@ export default class AutomationMainView extends EventEmitter
 		debuggerInstance.subscribe('onWorkflowTrackAdded', this.#onWorkflowTrackAdded.bind(this));
 		debuggerInstance.subscribe('onDocumentValuesUpdated', this.#onDocumentValuesUpdated.bind(this));
 		debuggerInstance.subscribe('onWorkflowStatusChanged', this.#onWorkflowStatusChange.bind(this));
+		debuggerInstance.subscribe('onAfterDocumentFixed', this.#onAfterDocumentFixed.bind(this));
 	}
 
 	get debugger(): Automation
@@ -78,6 +80,12 @@ export default class AutomationMainView extends EventEmitter
 		this.show();
 	}
 
+	showCollapsed()
+	{
+		this.debugger.settings.set('popup-collapsed', true);
+		this.show();
+	}
+
 	close()
 	{
 		this.#getPopup().close();
@@ -94,9 +102,10 @@ export default class AutomationMainView extends EventEmitter
 		if (!this.#popupInstance)
 		{
 			const collapsed = this.debugger.settings.get('popup-collapsed');
+			const className = 'bizproc-debugger-automation__main-popup bizproc-debugger-automation__scope';
 
 			this.#popupInstance = new Popup({
-				className: 'bizproc-debugger-automation__main-popup bizproc-debugger-automation__scope ' + (collapsed ? '--collapse' : ''),
+				className: className + (collapsed ? ' --collapse' : ''),
 				titleBar: this.#getPopupTitleBar(),
 				noAllPaddings: true,
 				contentBackground: 'white',
@@ -162,7 +171,7 @@ export default class AutomationMainView extends EventEmitter
 					${document.createTextNode(Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_POPUP_TITLE'))}
 					<div 
 						class="bizproc-debugger-automation__titlebar--button-collapse" 
-						onclick="${this.#handleCollapse.bind(this)}"
+						onclick="${this.handleCollapse.bind(this)}"
 					></div>
 					<span 
 						class=" popup-window-close-icon 
@@ -175,7 +184,7 @@ export default class AutomationMainView extends EventEmitter
 		};
 	}
 
-	#handleCollapse()
+	handleCollapse()
 	{
 		const node = this.#getPopup().getPopupContainer();
 		const collapsed = Dom.hasClass(node, '--collapse');
@@ -232,12 +241,17 @@ export default class AutomationMainView extends EventEmitter
 
 	#renderExpandedMode(): Element
 	{
-		const hasFields = this.debugger.settings.getSet('watch-fields').size > 0;
 		const hasRobots = !this.debugger.isTemplateEmpty();
 
 		const activeTab = this.debugger.settings.get('tab') === 'log' ? 'log' : 'doc';
 		const tabDocClass = activeTab === 'doc' ? '--active' : '';
 		const tabLogClass = activeTab === 'log' ? '--active' : '';
+
+		const hasActiveDocument = this.debugger.session.isFixed();
+		const tabNoDocumentClass = hasActiveDocument ? '' : '--empty --active';
+
+		const fieldListNode = this.#getFieldListNode();
+		const hasFields = fieldListNode.querySelector('[data-field-id]') !== null;
 
 		return Tag.render`
 				<div class="bizproc-debugger-automation__main">
@@ -265,12 +279,11 @@ export default class AutomationMainView extends EventEmitter
 									<a href="${this.debugger.getSettingsUrl()}" class="bizproc-debugger-automation__link">${Text.encode(Loc.getMessage('BIZPROC_JS_DEBUGGER_AUTOMATION_SETTINGS'))}</a>
 								</div>
 							</div>
-<!--							<div class="bizproc-debugger-automation__dividing-line"></div>-->
 							${this.#createTemplateNode()}
 						</div>
 						${this.#createTemplateToolbar()}
 					</div>
-					<div class="bizproc-debugger-automation__main-fields">
+					<div class="bizproc-debugger-automation__main-fields ${hasActiveDocument ? '' : '--disabled'}">
 						<div data-role="tabs-container" class="bizproc-debugger-automation__main-navigation --active-${activeTab}">
 							<div class="bizproc-debugger-automation__tab-block">
 								<span class="bizproc-debugger-automation__tab ${tabDocClass}" data-tab-item="doc" onclick="${this.#handleChangeTab.bind(this)}">
@@ -300,17 +313,22 @@ export default class AutomationMainView extends EventEmitter
 							</div>
 						</div>
 						
-						<div data-tab-item="doc" data-role="tab-content-doc" class="bizproc-debugger-tab__content ${tabDocClass} ${hasFields ? '' : '--empty'}">
+						<div data-tab-item="doc" data-role="tab-content-doc" class="bizproc-debugger-tab__content ${hasActiveDocument ? tabDocClass : ''} ${hasFields ? '' : '--empty'}">
 							<div class="bizproc-debugger-tab__content--empty">
 								${Text.encode(Loc.getMessage('BIZPROC_JS_DEBUGGER_NO_FIELD_TITLE'))}
 							</div>
 							<div class="bizproc-debugger-tab__content--not-empty">
 								<div class="bizproc-debugger-tab__content-title">${Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_DOCUMENT_TITLE')}</div>							
-								${this.#getFieldListNode()}
+								${fieldListNode}
 							</div>
 						</div>
-						<div data-tab-item="log" class="bizproc-debugger-tab__content ${tabLogClass} bizproc-debugger-automation-main-section-log">
+						<div data-tab-item="log" class="bizproc-debugger-tab__content ${hasActiveDocument ? tabLogClass : ''} bizproc-debugger-automation-main-section-log">
 							${this.debugger.getLogView().shouldScrollToBottom(true).shouldLoadPreviousLog(true).render()}
+						</div>
+						<div data-tab-item="no-document" class="bizproc-debugger-tab__content ${tabNoDocumentClass} bizproc-debugger-automation-main-section-disabled">
+							<div class="bizproc-debugger-tab__content--empty">
+								${Text.encode(Loc.getMessage('BIZPROC_JS_DEBUGGER_NO_FIXED_DOCUMENT'))}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -449,16 +467,15 @@ export default class AutomationMainView extends EventEmitter
 
 		fields.delete(fieldId);
 		this.debugger.settings.set('watch-fields', fields);
-		this.#handleFieldListChange(fields);
-
 		Dom.remove(this.#getNode().querySelector(`[data-field-id="${fieldId}"]`));
+		this.#handleFieldListChange(fields);
 	}
 
 	#handleFieldListChange(fields: Set)
 	{
 		const contentNode = this.#getNode().querySelector('[data-role="tab-content-doc"]');
-
-		Dom[fields.size > 0 ? 'removeClass' : 'addClass'](contentNode, '--empty');
+		const hasFields = contentNode.querySelector('[data-field-id]') !== null;
+		Dom[hasFields ? 'removeClass' : 'addClass'](contentNode, '--empty');
 	}
 
 	#getFieldNode(field: string | {}): ?Element
@@ -612,8 +629,10 @@ export default class AutomationMainView extends EventEmitter
 
 		const hasEvents = this.debugger.hasWorkflowEvents();
 
+		const hasActiveDocument = this.debugger.session.isFixed();
+
 		return Tag.render`
-			<div class="bizproc-debugger-automation__toolbar">
+			<div class="bizproc-debugger-automation__toolbar ${hasActiveDocument ? '' : '--disabled'}">
 			<div data-role="external-event-info" class="bizproc-debugger-automation__toolbar--info-waiting ${hasEvents ? '--active' : ''}">
 				<div>
 					${Text.encode(Loc.getMessage('BIZPROC_JS_DEBUGGER_SKIP_WAITING_SUBTITLE'))}
@@ -727,42 +746,54 @@ export default class AutomationMainView extends EventEmitter
 			return;
 		}
 
-		const statusTitleNode = this.#getNode().querySelector('[data-role="document-status-title"]');
-		const statusTitle = this.#getDocumentStatusTitle();
-		statusTitleNode.textContent = statusTitle;
-		statusTitleNode.parentNode.setAttribute('title', statusTitle);
-
-		const statusBgNode = this.#getNode().querySelector('[data-role="document-status-bg"]');
-		const color = this.#getDocumentStatusColor();
-		Dom.style(statusBgNode, {
-			backgroundColor: color,
-			borderColor: color,
-		});
-
-		const documentStatusNode = this.#getNode().querySelector('[data-role="document-status"]');
-		Dom.removeClass(documentStatusNode,['--with-border', '--light-color']);
-		Dom.addClass(documentStatusNode, Helper.getBgColorAdditionalClass(color));
-
-		Dom.remove(this.#getNode().querySelector('[data-role="triggers-header"]'));
-		Dom.remove(this.#getNode().querySelector('[data-role="triggers"]'));
-
 		const automationContentNode = this.#getNode().querySelector('[data-role="automation-content"]');
 
-		Dom.prepend(this.#createTriggersNode(), automationContentNode);
-		const triggersHeaderNode = this.#createTriggersHeaderNode();
-		if (triggersHeaderNode)
-		{
-			HelpHint.bindAll(triggersHeaderNode);
-			Dom.prepend(triggersHeaderNode, automationContentNode);
-		}
+		const loader = new Loader({
+			target: automationContentNode
+		});
 
-		const tplNode = this.#createTemplateNode();
-		Dom.replace(this.#node.querySelector('[data-role="template"]'), tplNode);
+		Dom.addClass(automationContentNode, '--loading');
+		loader.show();
 
-		const hasTriggers = this.debugger.templateTriggers.length > 0;
-		const hasRobots = !this.debugger.isTemplateEmpty()
-		Dom[hasTriggers || hasRobots ? 'removeClass' : 'addClass'](this.#node.querySelector('[data-role="no-triggers"]'), '--active');
-		Dom[hasRobots ? 'removeClass' :'addClass'](this.#node.querySelector('[data-role="no-template"]'), '--active');
+		this.debugger.loadMainViewInfo().then(() => {
+			const statusTitleNode = this.#getNode().querySelector('[data-role="document-status-title"]');
+			const statusTitle = this.#getDocumentStatusTitle();
+			statusTitleNode.textContent = statusTitle;
+			statusTitleNode.parentNode.setAttribute('title', statusTitle);
+
+			const statusBgNode = this.#getNode().querySelector('[data-role="document-status-bg"]');
+			const color = this.#getDocumentStatusColor();
+			Dom.style(statusBgNode, {
+				backgroundColor: color,
+				borderColor: color,
+			});
+
+			const documentStatusNode = this.#getNode().querySelector('[data-role="document-status"]');
+			Dom.removeClass(documentStatusNode,['--with-border', '--light-color']);
+			Dom.addClass(documentStatusNode, Helper.getBgColorAdditionalClass(color));
+
+			Dom.remove(this.#getNode().querySelector('[data-role="triggers-header"]'));
+			Dom.remove(this.#getNode().querySelector('[data-role="triggers"]'));
+
+			Dom.prepend(this.#createTriggersNode(), automationContentNode);
+			const triggersHeaderNode = this.#createTriggersHeaderNode();
+			if (triggersHeaderNode)
+			{
+				HelpHint.bindAll(triggersHeaderNode);
+				Dom.prepend(triggersHeaderNode, automationContentNode);
+			}
+
+			const tplNode = this.#createTemplateNode();
+			Dom.replace(this.#node.querySelector('[data-role="template"]'), tplNode);
+
+			const hasTriggers = this.debugger.templateTriggers.length > 0;
+			const hasRobots = !this.debugger.isTemplateEmpty()
+			Dom[hasTriggers || hasRobots ? 'removeClass' : 'addClass'](this.#node.querySelector('[data-role="no-triggers"]'), '--active');
+			Dom[hasRobots ? 'removeClass' :'addClass'](this.#node.querySelector('[data-role="no-template"]'), '--active');
+
+			Dom.removeClass(automationContentNode, '--loading');
+			loader.destroy();
+		});
 	}
 
 	#onWorkflowEventsChanged(event: BaseEvent)
@@ -806,17 +837,42 @@ export default class AutomationMainView extends EventEmitter
 		const status = event.getData().status;
 		const workflowId = event.getData().workflowId;
 
-		if ([WorkflowStatus.Completed, WorkflowStatus.Terminated].includes(status))
+		if ([WorkflowStatus.COMPLETED, WorkflowStatus.TERMINATED].includes(status))
 		{
 			this.debugger.track.forEach((track) => {
 				if (track['WORKFLOW_ID'] === workflowId)
 				{
-					track['WORKFLOW_STATUS'] = WorkflowStatus.Completed;
+					track['WORKFLOW_STATUS'] = WorkflowStatus.COMPLETED;
 				}
 			});
 
 			this.#updateTracker(this.debugger.track);
 		}
+	}
+
+	#onAfterDocumentFixed()
+	{
+		const popupContainer = this.#getPopup().getPopupContainer();
+
+		Dom.removeClass(
+			popupContainer.getElementsByClassName('bizproc-debugger-automation__main-fields')[0],
+			'--disabled'
+		);
+
+		Dom.removeClass(
+			popupContainer.getElementsByClassName('bizproc-debugger-automation__toolbar')[0],
+			'--disabled'
+		);
+
+		const activeTab = this.debugger.settings.get('tab') === 'log' ? 'log' : 'doc';
+		popupContainer.querySelectorAll([`[data-tab-item="no-document"]`]).forEach(
+			(tab) => Dom.removeClass(tab, ['--empty', '--active'])
+		);
+		popupContainer.querySelectorAll([`[data-tab-item="${activeTab}"]`]).forEach(
+			(tab) => Dom.addClass(tab, '--active')
+		);
+
+		this.#onDocumentStatusChanged();
 	}
 
 	#setDebuggerState(state: number)

@@ -3,7 +3,7 @@
 
 import 'ui.tilegrid';
 import 'ui.forms';
-import {Tag} from "main.core";
+import { Tag } from "main.core";
 
 export default class GridUnit extends BX.TileGrid.Item
 {

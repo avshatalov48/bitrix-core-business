@@ -67,7 +67,8 @@ abstract class TradeBindingRestriction extends Restriction
 
 		$dbRes = Sale\TradingPlatformTable::getList([
 			'select' => ['CODE', 'CLASS'],
-			'filter' => ['=ACTIVE' => 'Y']
+			'filter' => ['=ACTIVE' => 'Y'],
+			'cache' => ['ttl' => 36000]
 		]);
 		while ($data = $dbRes->fetch())
 		{
@@ -164,7 +165,7 @@ abstract class TradeBindingRestriction extends Restriction
 	 */
 	public static function isAvailable()
 	{
-		return count(static::getTradePlatformList()) > 0;
+		return (bool)static::getTradePlatformList();
 	}
 
 } 

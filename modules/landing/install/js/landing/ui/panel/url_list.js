@@ -154,7 +154,7 @@
 		 */
 		showSites: function(options)
 		{
-			var currentSiteId = options.siteId;
+			let currentSiteId = options.siteId;
 
 			void style(this.layout, {
 				width: null
@@ -179,33 +179,54 @@
 			options.filter.SPECIAL = 'N';
 
 			void BX.Landing.Backend.getInstance()
-				.getSites(options).then(function(sites) {
-					this.appendSidebarButton(
-						new SidebarButton("current_site", {
-							text: BX.Landing.Loc.getMessage("LANDING_LINKS_PANEL_CURRENT_SITE")
-						})
-					);
-
-					sites.forEach(function(site) {
+				.getSites(options).then(sites => {
+					sites.forEach(site => {
 						// noinspection EqualityComparisonWithCoercionJS
 						if (parseInt(site.ID) == currentSiteId)
 						{
+							this.appendSidebarButton(this.createCurrentSiteButton());
+
 							this.currentSiteButton = new SidebarButton(site.ID, {
 								text: site.TITLE,
 								onClick: !options.currentSiteOnly ? this.onSiteClick.bind(this, site.ID, options.enableAreas) : null,
 								child: true,
-								active: true
+								active: true,
 							});
-
 							this.appendSidebarButton(this.currentSiteButton);
 						}
-					}, this);
+					});
+
+					if (!options.currentSiteOnly)
+					{
+						this.appendSidebarButton(
+							new SidebarButton("my_sites", {
+								text: BX.Landing.Loc.getMessage("LANDING_LINKS_PANEL_MY_SITES")
+							})
+						);
+
+						sites.forEach(site => {
+							const button = new SidebarButton(site.ID, {
+								text: site.TITLE,
+								onClick: this.onSiteClick.bind(this, site.ID, options.enableAreas),
+								child: true,
+								active: !this.currentSiteButton,
+							});
+							// get first site if current not in list
+							if (!this.currentSiteButton)
+							{
+								this.currentSiteButton = button;
+								currentSiteId = site.ID;
+							}
+
+							this.appendSidebarButton(button);
+						});
+					}
 
 					BX.Landing.Backend.getInstance()
 						.getLandings({siteId: currentSiteId}, options.filterLanding)
-						.then(function(landings) {
-							var fakeEvent = {currentTarget: this.currentSiteButton.layout};
-							var siteClick = this.onSiteClick.bind(this, currentSiteId, options.enableAreas, fakeEvent);
+						.then(landings => {
+							const fakeEvent = {currentTarget: this.currentSiteButton.layout};
+							const siteClick = this.onSiteClick.bind(this, currentSiteId, options.enableAreas, fakeEvent);
 							if (!options.disableAddPage)
 							{
 								this.appendCard(
@@ -215,7 +236,7 @@
 									})
 								);
 							}
-							landings.forEach(function(landing) {
+							landings.forEach(landing => {
 								if (!landing.IS_AREA || (landing.IS_AREA && options.enableAreas))
 								{
 									this.appendCard(
@@ -227,30 +248,11 @@
 										})
 									);
 								}
-							}, this);
+							});
 
 							this.loader.hide();
-						}.bind(this));
-
-					if (!options.currentSiteOnly)
-					{
-						this.appendSidebarButton(
-							new SidebarButton("my_sites", {
-								text: BX.Landing.Loc.getMessage("LANDING_LINKS_PANEL_MY_SITES")
-							})
-						);
-
-						sites.forEach(function(site) {
-							this.appendSidebarButton(
-								new SidebarButton(site.ID, {
-									text: site.TITLE,
-									onClick: this.onSiteClick.bind(this, site.ID, options.enableAreas),
-									child: true
-								})
-							);
-						}, this);
-					}
-				}.bind(this));
+						});
+				});
 		},
 
 		/**
@@ -292,11 +294,7 @@
 			BX.Landing.Backend.getInstance()
 				.getSites(options)
 				.then(function(sites) {
-					this.appendSidebarButton(
-						this.createCurrentSiteButton()
-					);
-
-					var sitesIds = sites.map(function(site) {
+					const sitesIds = sites.map(function(site) {
 						return site.ID;
 					}, this);
 
@@ -304,7 +302,7 @@
 						.getLandings({siteId: sitesIds})
 						.then(function(landings) {
 							return sites.reduce(function(result, site, index) {
-								var currentLandings = landings.filter(function(landing) {
+								const currentLandings = landings.filter(function(landing) {
 									return site.ID === landing.SITE_ID;
 								});
 
@@ -314,21 +312,29 @@
 						})
 				}.bind(this))
 				.then(function(result) {
-					result[currentSiteId].landings.forEach(function(landing) {
-						var active = parseInt(landing.ID) === parseInt(currentLandingId);
+					let activeButton = null;
+					if (result[currentSiteId])
+					{
+						this.appendSidebarButton(
+							this.createCurrentSiteButton()
+						);
 
-						if (!options.currentPageOnly || active)
+						result[currentSiteId].landings.forEach(function (landing)
 						{
-							var button = this.createLandingSidebarButton(landing, active);
-							this.appendSidebarButton(button);
+							const isActive = parseInt(landing.ID) === parseInt(currentLandingId);
 
-							if (active)
+							if (!options.currentPageOnly || isActive)
 							{
-								button.layout.click();
+								const button = this.createLandingSidebarButton(landing, isActive);
+								this.appendSidebarButton(button);
+								if (isActive)
+								{
+									activeButton = button;
+								}
 							}
-						}
 
-					}, this);
+						}, this);
+					}
 
 					if (!options.currentPageOnly)
 					{
@@ -341,12 +347,20 @@
 								);
 
 								result[siteId].landings.forEach(function(landing) {
-									this.appendSidebarButton(
-										this.createLandingSidebarButton(landing)
-									);
+									const button = this.createLandingSidebarButton(landing);
+									this.appendSidebarButton(button);
+									if (!activeButton)
+									{
+										activeButton = button;
+									}
 								}, this)
 							}
 						}, this);
+					}
+
+					if (activeButton)
+					{
+						activeButton.layout.click();
 					}
 				}.bind(this));
 		},

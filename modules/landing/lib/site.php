@@ -207,6 +207,40 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 		return Hook::getForSite($id);
 	}
 
+	/**
+	 * Get version of site for updater
+	 * @param $siteId
+	 * @return int
+	 */
+	public static function getVersion($siteId): int
+	{
+		static $versions;
+
+		if (isset($versions[$siteId]))
+		{
+			return $versions[$siteId];
+		}
+
+		$resSite = self::getList([
+			'select' => [
+				'VERSION'
+			],
+			'filter' => [
+				'=ID' => $siteId
+			]
+		]);
+		if ($site = $resSite->fetch())
+		{
+			$versions[$siteId] = (int)$site['VERSION'];
+		}
+		else
+		{
+			$versions[$siteId] = 0;
+		}
+
+		return $versions[$siteId];
+	}
+
 
 	/**
 	 * Get additional fields of Landing.

@@ -59,6 +59,7 @@ class CCalendarReminder
 					'userId' => $userId,
 					'entryId' => $eventId,
 					'entryName' => $event['NAME'],
+					'location' => Bitrix\Calendar\Rooms\Util::getTextLocation($event['LOCATION']),
 					'calendarType' => $calendarType,
 					'fromTs' => $fromTs,
 					'dateFrom' => CCalendar::Date($fromTs, $event['DT_SKIP_TIME'] !== 'Y', true, true),
@@ -132,10 +133,25 @@ class CCalendarReminder
 			'#URL_VIEW#' => $params['viewPath']
 		]);
 
+		if ($params['location'])
+		{
+			$notifyFields['MESSAGE'] .= "\n\n" .GetMessage('EC_EVENT_REMINDER_LOCATION', [
+				'#LOCATION#' => $params['location'],
+			]);
+		}
+
 		$notifyFields["PUSH_MESSAGE"] = GetMessage('EC_EVENT_REMINDER_PUSH', [
 			'#EVENT_NAME#' => $params['entryName'],
 			'#DATE_FROM#' => $params['dateFromFormatted']
 		]);
+
+		// if ($params['location'])
+		// {
+		// 	$notifyFields["PUSH_MESSAGE"] .= "\n\n" . GetMessage('EC_EVENT_REMINDER_LOCATION', [
+		// 		'#LOCATION#' => $params['location'],
+		// 	]);
+		// }
+
 		$notifyFields["PUSH_MESSAGE"] = str_replace('&ndash;', '-', $notifyFields["PUSH_MESSAGE"]);
 		$notifyFields["PUSH_MESSAGE"] = mb_substr($notifyFields["PUSH_MESSAGE"], 0, \CCalendarNotify::PUSH_MESSAGE_MAX_LENGTH);
 
@@ -311,25 +327,25 @@ class CCalendarReminder
 		return self::getReminderDelta($a) - self::getReminderDelta($b);
 	}
 
-	private static function getReminderDelta($reminder)
+	public static function getReminderDelta($reminder)
 	{
 		$delta = 0;
-		if (is_array($reminder) && in_array($reminder['type'], self::SIMPLE_TYPE_LIST))
+		if (is_array($reminder) && in_array($reminder['type'], self::SIMPLE_TYPE_LIST, true))
 		{
-			$delta = intval($reminder['count']) * 60;
-			if ($reminder['type'] == 'hour')
+			$delta = (int)$reminder['count'] * 60;
+			if ($reminder['type'] === 'hour')
 			{
-				$delta = $delta * 60; //Hour
+				$delta *= 60; //Hour
 			}
-			elseif ($reminder['type'] == 'day')
+			elseif ($reminder['type'] === 'day')
 			{
-				$delta =  $delta * 60 * 24; //Day
+				$delta *= 60 * 24; //Day
 			}
 		}
 		return $delta;
 	}
 
-	private static function getReminderTimestamp($eventTimestamp, $reminder, $timezoneName = null)
+	public static function getReminderTimestamp($eventTimestamp, $reminder, $timezoneName = null)
 	{
 		$reminderTimestamp = null;
 
@@ -388,15 +404,15 @@ class CCalendarReminder
 					{
 						$reminderList[] = [
 							'type' => $remindValue['type'],
-							'count' => intval($remindValue['count'])
+							'count' => (int)$remindValue['count']
 						];
 					}
 					elseif ($remindValue['type'] === self::TYPE_DAY_BEFORE)
 					{
 						$reminderList[] = [
 							'type' => $remindValue['type'],
-							'before' => intval($remindValue['before']),
-							'time' => intval($remindValue['time'])
+							'before' => (int)$remindValue['before'],
+							'time' => (int)$remindValue['time']
 						];
 					}
 					elseif ($remindValue['type'] === self::TYPE_SPECIFIC_DATETIME)
@@ -409,22 +425,22 @@ class CCalendarReminder
 				}
 				else
 				{
-					$exploadedValue = explode('|', $remindValue);
-					if (count($exploadedValue) > 1)
+					$explodedValue = explode('|', $remindValue);
+					if (count($explodedValue) > 1)
 					{
-						if ($exploadedValue[0] === self::TYPE_DAY_BEFORE)
+						if ($explodedValue[0] === self::TYPE_DAY_BEFORE)
 						{
 							$reminderList[] = [
 								'type' => self::TYPE_DAY_BEFORE,
-								'before' => intval($exploadedValue[1]),
-								'time' => intval($exploadedValue[2])
+								'before' => (int)$explodedValue[1],
+								'time' => (int)$explodedValue[2]
 							];
 						}
-						elseif($exploadedValue[0] === self::TYPE_SPECIFIC_DATETIME)
+						elseif($explodedValue[0] === self::TYPE_SPECIFIC_DATETIME)
 						{
 							$reminderList[] = [
 								'type' => self::TYPE_SPECIFIC_DATETIME,
-								'value' => \CCalendar::Date(\CCalendar::Timestamp($exploadedValue[1]))
+								'value' => \CCalendar::Date(\CCalendar::Timestamp($explodedValue[1]))
 							];
 						}
 					}
@@ -432,7 +448,7 @@ class CCalendarReminder
 					{
 						$reminderList[] = [
 							'type' => 'min',
-							'count' => intval($remindValue)
+							'count' => (int)$remindValue
 						];
 					}
 				}
@@ -472,4 +488,3 @@ class CCalendarReminder
 		return $valueList;
 	}
 }
-?>

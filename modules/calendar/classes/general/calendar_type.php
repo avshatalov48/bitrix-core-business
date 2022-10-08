@@ -5,6 +5,11 @@ use Bitrix\Main\UserTable;
 
 class CCalendarType
 {
+	public const OPERATION_VIEW = 'calendar_type_view';
+	public const OPERATION_ADD = 'calendar_type_add';
+	public const OPERATION_EDIT = 'calendar_type_edit';
+	public const OPERATION_EDIT_SECTION = 'calendar_type_edit_section';
+	public const OPERATION_EDIT_ACCESS = 'calendar_type_edit_access';
 	private static
 		$Permissions = array(),
 		$arOp = array(),

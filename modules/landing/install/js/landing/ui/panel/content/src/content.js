@@ -1,8 +1,12 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 import {Type, Dom, Tag, Event} from 'main.core';
 import {BasePanel} from 'landing.ui.panel.base';
 import getDeltaFromEvent from './internal/get-delta-from-event';
 import calculateDurationTransition from './internal/calculate-duration-transition';
 import scrollTo from './internal/scroll-to';
+
 import './css/style.css';
 import 'landing.utils';
 

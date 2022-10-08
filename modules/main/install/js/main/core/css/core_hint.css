@@ -51,7 +51,8 @@
 
 .bx-panel-tooltip-title
 {
-	font: normal normal bold 14px/normal "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal 14px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+	font-weight: var(--ui-font-weight-bold) !important;
 	color: #16191a !important;
 	position:relative !important;
 	padding: 7px 10px 0 10px !important;
@@ -61,7 +62,7 @@
 
 .bx-panel-tooltip-text
 {
-	font: normal normal normal 12px/normal "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	color: #272b31 !important;
 	padding: 9px 10px 10px 10px !important;
 	margin: 0 !important;
@@ -83,5 +84,5 @@
 
 .bx-panel-tooltip-close:hover { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) no-repeat -32px -1881px !important; }
 
-.bx-panel-tooltip-text a { font: normal normal normal 12px/normal "Helvetica Neue", Helvetica, Arial, sans-serif !important;}
+.bx-panel-tooltip-text a { font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;}
 .bx-panel-tooltip-text a, .bx-panel-tooltip-text a:hover { color: #272b31 !important; text-decoration: underline !important;}

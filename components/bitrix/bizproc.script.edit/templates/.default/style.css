@@ -8,7 +8,7 @@
 }
 
 .bizproc-script-edit-block .ui-ctl-label-text {
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 13px;
 }
 
@@ -39,7 +39,7 @@
 }
 
 .bizproc-script-edit-subtitle {
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	margin-bottom: 8px;
 }
 

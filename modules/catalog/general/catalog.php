@@ -1200,7 +1200,7 @@ class CAllCatalog
 		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 		CCatalogSku::ClearCache();
-		Catalog\CatalogIblockTable::getEntity()->cleanCache();
+		Catalog\CatalogIblockTable::cleanCache();
 
 		return true;
 	}
@@ -1232,7 +1232,7 @@ class CAllCatalog
 				unset(self::$catalogVatCache[$ID]);
 		}
 		CCatalogSku::ClearCache();
-		Catalog\CatalogIblockTable::getEntity()->cleanCache();
+		Catalog\CatalogIblockTable::cleanCache();
 
 		return true;
 	}
@@ -1264,7 +1264,7 @@ class CAllCatalog
 			unset(self::$catalogVatCache[$ID]);
 
 		CCatalogSku::ClearCache();
-		Catalog\CatalogIblockTable::getEntity()->cleanCache();
+		Catalog\CatalogIblockTable::cleanCache();
 		CCatalogProduct::ClearCache();
 
 		return $DB->Query("DELETE FROM b_catalog_iblock WHERE IBLOCK_ID = ".$ID, true);
@@ -1500,7 +1500,7 @@ class CAllCatalog
 				{
 					$messages[] = Loc::getMessage('BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_NAME');
 				}
-				elseif (isset($fields['CODE']) && $fields['CODE'] !== 'BRAND')
+				elseif (isset($fields['CODE']) && $fields['CODE'] !== 'BRAND_FOR_FACEBOOK')
 				{
 					$messages[] = Loc::getMessage('BT_MOD_CATALOG_ERR_CANNOT_CHANGE_BRAND_PROPERTY_CODE');
 				}
@@ -1574,7 +1574,7 @@ class CAllCatalog
 		$crmCatalogId = \CCrmCatalog::GetDefaultID();
 		$property = \CIBlockProperty::GetByID($propertyId)->Fetch();
 
-		return $property['CODE'] === 'BRAND' && (int)$property['IBLOCK_ID'] === $crmCatalogId;
+		return $property['CODE'] === 'BRAND_FOR_FACEBOOK' && (int)$property['IBLOCK_ID'] === $crmCatalogId;
 	}
 
 	public static function OnIBlockModuleUnInstall(): bool

@@ -98,9 +98,9 @@
 	color: #fff;
 	border-radius: 50px;
 	border: 1px solid rgba(255, 255, 255, .67);
-	font: 12px 'OpenSans-Bold', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	text-transform: uppercase;
-	font-weight: bold;
 	white-space: nowrap;
 	-webkit-box-sizing: border-box;
 	        box-sizing: border-box;

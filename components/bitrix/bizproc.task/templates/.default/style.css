@@ -8,7 +8,7 @@
 }
 .bp-popup-title {
 	padding: 6px 0 11px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 	color: #80868e;
 }
@@ -50,7 +50,7 @@
 
 .bp-task-page .bp-title {
 	font-size: 17px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #000;
 	vertical-align: top;
 }
@@ -68,7 +68,7 @@
 
 .bp-task-page .bp-title-desc .bold {
 	color: #000;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bp-task-page .bp-title-desc-icon {
@@ -84,7 +84,7 @@
 	color: #0063c6;
 	font-size: 14px;
 	line-height: 17px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	border-bottom: 1px solid transparent;
 	transition: border-bottom-color 0.2s linear;
 }
@@ -149,7 +149,7 @@
 }
 
 .bp-task-page .bp-task-block-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	display: block;
 	margin-bottom: 15px;
 }
@@ -198,18 +198,19 @@
 	margin-top:16px;
 }
 .bp-tabs-block {
-	border-bottom: 1px solid #c6cdd3;
 	min-height: 42px;
 }
 
 .bp-tab {
 	background-color: #eef2f4;
-	border-radius: 2px 2px 0 0;
+	border-radius: var(--ui-border-radius-xs, 2px);
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
 	color: #535c69;
 	cursor: pointer;
 	display: inline-block;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 42px;
 	height: 42px;
 	margin-right: 10px;
@@ -237,7 +238,8 @@
 	padding: 15px;
 	display: none;
 	border: 1px solid #c6cdd3;
-	border-top: none;
+	border-radius: var(--ui-border-radius-sm, 2px);
+	border-top-left-radius: 0;
 }
 
 .bp-tab-content.active {
@@ -262,7 +264,7 @@
 
 .bizproc-task-table td:first-child {
 	padding: 0 5px 0 0;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-align: left;
 }
 

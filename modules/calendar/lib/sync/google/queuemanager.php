@@ -27,6 +27,8 @@ class QueueManager
 	 */
 	public static function checkNotSendEvents(int $lastHandledId = 0): ?string
 	{
+		return true;
+
 		if (!CCalendar::isGoogleApiEnabled())
 		{
 			return null;
@@ -84,6 +86,8 @@ class QueueManager
 
 	public static function checkIncompleteSync()
 	{
+		return true;
+
 		if (!CCalendar::isGoogleApiEnabled())
 		{
 			return null;
@@ -123,7 +127,8 @@ class QueueManager
 	 */
 	private static function createEvent(array $event): void
 	{
-		$fields = (new GoogleApiSync($event['OWNER_ID']))->saveEvent($event, $event['GAPI_CALENDAR_ID']);
+		$google = new GoogleApiSync($event['OWNER_ID']);
+		$fields = $google->saveEvent($event, $event['GAPI_CALENDAR_ID']);
 
 		if ($fields !== null)
 		{
@@ -145,11 +150,31 @@ class QueueManager
 		$google = new GoogleApiSync($event['OWNER_ID']);
 		$fields = $google->saveEvent($event, $event['GAPI_CALENDAR_ID'], []);
 
-		// if ($errors = $google->getTransportErrors())
-		// {
-		// }
-
-		if ($fields !== null)
+		if ($errors = $google->getTransportErrors())
+		{
+			$googleHelper = ServiceLocator::getInstance()->get('calendar.service.google.helper');
+			if (is_array($errors))
+			{
+				foreach ($errors as $error)
+				{
+					if (
+						$googleHelper->isDeletedResource($error['message'])
+						|| $googleHelper->isNotFoundError($error['message'])
+					)
+					{
+						\CCalendarEvent::updateEventFields($event, [
+							'G_EVENT_ID' => '',
+							'DAV_XML_ID' => '',
+							'CAL_DAV_LABEL' => '',
+							'SYNC_STATUS' => Dictionary::SYNC_STATUS['create'],
+						]);
+						self::createEvent($event);
+						return;
+					}
+				}
+			}
+		}
+		else if ($fields !== null)
 		{
 			\CCalendarEvent::updateEventFields($event, [
 				'CAL_DAV_LABEL' => $fields['CAL_DAV_LABEL'],
@@ -176,7 +201,8 @@ class QueueManager
 			{
 				foreach ($errors as $error)
 				{
-					if ($googleHelper->isDeletedResource($error['message'])
+					if (
+						$googleHelper->isDeletedResource($error['message'])
 						|| $googleHelper->isNotFoundError($error['message'])
 					)
 					{

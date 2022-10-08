@@ -4,8 +4,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-return array(
-	'js'  => array(
+return [
+	'js'  => [
 		'/bitrix/js/report/js/dashboard/board.js',
 		'/bitrix/js/report/js/dashboard/row.js',
 		'/bitrix/js/report/js/dashboard/rowlayouts.js',
@@ -13,11 +13,11 @@ return array(
 		'/bitrix/js/report/js/dashboard/widget.js',
 		'/bitrix/js/report/js/dashboard/content.js',
 		'/bitrix/js/report/js/dashboard/utils.js'
-	),
-	'css' => array(
+	],
+	'css' => [
 		'/bitrix/js/report/js/dashboard/css/dashboard.css',
-	),
-	'rel' => array('date', 'popup', 'color_picker', 'dnd'),
+	],
+	'rel' => ['ui.design-tokens', 'ui.fonts.opensans', 'date', 'popup', 'color_picker', 'dnd',],
 	'bundle_js' => 'dashboard',
-	'bundle_css' => 'dashboard'
-);
+	'bundle_css' => 'dashboard',
+];

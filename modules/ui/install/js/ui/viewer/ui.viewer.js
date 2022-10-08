@@ -19,6 +19,7 @@
 		this.isBodyPaddingAdded = null;
 		this.cycleMode = options.hasOwnProperty('cycleMode')? options.cycleMode : true;
 		this.preload = options.hasOwnProperty('preload')? options.preload : 3;
+		this.stretch = options.hasOwnProperty('stretch')? options.stretch : false;
 		this.cachedData = {};
 		this.optionsByGroup = {};
 		this.layout = {

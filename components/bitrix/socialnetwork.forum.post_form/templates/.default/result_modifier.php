@@ -20,7 +20,7 @@ $arParams["FORM_ID"] = "REPLIER".$arParams["form_index"];
 $arParams["EDITOR_CODE_DEFAULT"] = ($arParams["EDITOR_CODE_DEFAULT"] == "Y" ? "Y" : "N");
 /*******************************************************************/
 if (LANGUAGE_ID == 'ru') {
-	$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/ru/script.php");
+	$path = str_replace(array("\\", "//"), "/", __DIR__."/ru/script.php");
 	@include_once($path); }
 /********************************************************************
 				/Input params

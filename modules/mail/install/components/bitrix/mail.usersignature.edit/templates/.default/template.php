@@ -8,12 +8,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 \Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
 	'sidepanel',
 	'ui.forms',
 	'ui.buttons',
 	'ui.alerts',
 	'ui.notification',
-	'ui.design-tokens',
 ]);
 
 $bodyClass = $APPLICATION->getPageProperty('BodyClass', false);
@@ -84,83 +84,17 @@ $APPLICATION->setPageProperty('BodyClass', trim(sprintf('%s %s', $bodyClass, 'pa
 			?> checked<?
 		}
 		?> />
+
 		<span class="mail-signature-edit-sender-text"><?=Loc::getMessage('MAIL_USERSIGNATURE_SENDER_SELECT') ?></span>
-		<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="mail_user_signature_sender_type_<?=$arResult['senderType'];?>">
-			<input id="mail_user_signature_sender_type_0" type="radio" name="sender_type" value="0">
-			<label for="mail_user_signature_sender_type_0"><?=Loc::getMessage('MAIL_USERSIGNATURE_SENDER_TYPE_'.mb_strtoupper($arResult['senderType'])) ?></label>
-			<div class="mail-set-singleselect-wrapper">
-				<input type="radio" name="sender_type" value="<?=UserSignatureTable::TYPE_SENDER;?>" id="mail_user_signature_sender_type_<?=UserSignatureTable::TYPE_SENDER;?>" onchange="BX.Mail.UserSignature.Edit.showList('<?=UserSignatureTable::TYPE_SENDER;?>');"<?
-				if($arResult['senderType'] != UserSignatureTable::TYPE_ADDRESS)
-				{
-					?> checked<?
-				}?>>
-				<label for="mail_user_signature_sender_type_<?=UserSignatureTable::TYPE_SENDER;?>"><?=Loc::getMessage('MAIL_USERSIGNATURE_SENDER_TYPE_SENDER') ?></label>
-				<input type="radio" name="sender_type" value="<?=UserSignatureTable::TYPE_ADDRESS;?>" id="mail_user_signature_sender_type_<?=UserSignatureTable::TYPE_ADDRESS;?>" onchange="BX.Mail.UserSignature.Edit.showList('<?=UserSignatureTable::TYPE_ADDRESS;?>');"<?
-				if($arResult['senderType'] == UserSignatureTable::TYPE_ADDRESS)
-				{
-					?> checked<?
-				}?>>
-				<label for="mail_user_signature_sender_type_<?=UserSignatureTable::TYPE_ADDRESS;?>"><?=Loc::getMessage('MAIL_USERSIGNATURE_SENDER_TYPE_ADDRESS') ?></label>
-			</div>
-		</label>
 
-		<?$display = 'inline-block';
-		if($arResult['senderType'] != UserSignatureTable::TYPE_SENDER)
-		{
-			$display = 'none';
-		}
-		?>
-		<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="mail_user_signature_sender_<?=htmlspecialcharsbx($arResult['selectedSender']);?>" style="display: <?=$display;?>" id="mail_user_signature_list_<?=UserSignatureTable::TYPE_SENDER;?>">
-			<input id="mail_user_signature_sender_0" type="radio" name="sender" value="0">
-			<label for="mail_user_signature_sender_0"><?=htmlspecialcharsbx($arResult['selectedSender']);?></label>
-			<div class="mail-set-singleselect-wrapper">
-				<?
-				foreach($arResult['senders'] as $sender)
-				{
-					?>
-					<input type="radio" name="sender" value="<?=htmlspecialcharsbx($sender);?>" id="mail_user_signature_sender_<?=htmlspecialcharsbx($sender);?>"<?
-					if($sender == $arResult['selectedSender'])
-					{
-						echo ' checked';
-					}?>>
-					<label for="mail_user_signature_sender_<?=htmlspecialcharsbx($sender);?>"><?=htmlspecialcharsbx($sender);?></label>
-					<?
-				}
-				?>
-			</div>
-		</label>
+		<div id="binding-type-field-wrapper"></div>
 
-		<?$display = 'none';
-		if($arResult['senderType'] == UserSignatureTable::TYPE_ADDRESS)
-		{
-			$display = 'inline-block';
-		}
-		?>
-		<label class="mail-set-singleselect mail-set-singleselect-line" data-checked="mail_user_signature_address_<?=htmlspecialcharsbx($arResult['selectedAddress']);?>" style="display: <?=$display;?>;" id="mail_user_signature_list_<?=UserSignatureTable::TYPE_ADDRESS;?>">
-			<input id="mail_user_signature_address_0" type="radio" name="address" value="0">
-			<label for="mail_user_signature_address_0"><?=htmlspecialcharsbx($arResult['selectedAddress']);?></label>
-			<div class="mail-set-singleselect-wrapper">
-				<?
-				foreach($arResult['addresses'] as $sender)
-				{
-					?>
-					<input type="radio" name="address" value="<?=htmlspecialcharsbx($sender);?>" id="mail_user_signature_address_<?=htmlspecialcharsbx($sender);?>"<?
-					if($sender == $arResult['selectedAddress'])
-					{
-						echo ' checked';
-					}?>>
-					<label for="mail_user_signature_address_<?=htmlspecialcharsbx($sender);?>"><?=htmlspecialcharsbx($sender);?></label>
-					<?
-				}
-				?>
-			</div>
-		</label>
 	</div>
 </div>
 
 <script>
 	BX.ready(function() {
-		BX.Mail.UserSignature.Edit.init(<?=CUtil::PhpToJSObject($arResult);?>);
 		<?='BX.message('.\CUtil::PhpToJSObject(\Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__)).');'?>
+		BX.Mail.UserSignature.Edit.init(<?=CUtil::PhpToJSObject($arResult);?>);
 	});
 </script>

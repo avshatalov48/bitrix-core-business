@@ -15,11 +15,14 @@ foreach ($fields as $field)
 		exit;
 	}
 }
+
 $channelId = $fields['HTTP_X_GOOG_CHANNEL_ID'];
 $resourceId = $fields['HTTP_X_GOOG_RESOURCE_ID'];
 
 \Bitrix\Main\Loader::includeModule('calendar');
+\Bitrix\Main\Loader::includeModule('dav');
 
-\Bitrix\Calendar\Sync\GoogleApiPush::receivePushSignal($channelId, $resourceId);
+(new \Bitrix\Calendar\Sync\Managers\PushManager())->handlePush($channelId, $resourceId);
+// \Bitrix\Calendar\Sync\GoogleApiPush::receivePushSignal($channelId, $resourceId);
 
 \Bitrix\Main\Application::getInstance()->end();

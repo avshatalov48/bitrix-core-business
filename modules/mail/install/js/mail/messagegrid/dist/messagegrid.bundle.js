@@ -1,8 +1,14 @@
 this.BX = this.BX || {};
-(function (exports,main_core_events,main_core) {
+(function (exports,ui_designTokens,ui_fonts_opensans,main_core_events,main_core) {
 	'use strict';
 
 	var _templateObject, _templateObject2;
+
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
@@ -26,39 +32,39 @@ this.BX = this.BX || {};
 
 	    babelHelpers.classCallCheck(this, MessageGrid);
 
-	    _compareGrid.add(this);
+	    _classPrivateMethodInitSpec(this, _compareGrid);
 
-	    _loadingMessagesStubInGridWrapper.set(this, {
+	    _classPrivateFieldInitSpec(this, _loadingMessagesStubInGridWrapper, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _gridWrapper.set(this, {
+	    _classPrivateFieldInitSpec(this, _gridWrapper, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _id.set(this, {
+	    _classPrivateFieldInitSpec(this, _id, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _allRowsSelectedStatus.set(this, {
+	    _classPrivateFieldInitSpec(this, _allRowsSelectedStatus, {
 	      writable: true,
 	      value: false
 	    });
 
-	    _panel.set(this, {
+	    _classPrivateFieldInitSpec(this, _panel, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _checkboxNodeForCheckAll.set(this, {
+	    _classPrivateFieldInitSpec(this, _checkboxNodeForCheckAll, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    if (babelHelpers.typeof(MessageGrid.instance) === 'object') {
+	    if (babelHelpers["typeof"](MessageGrid.instance) === 'object') {
 	      return MessageGrid.instance;
 	    }
 
@@ -272,5 +278,5 @@ this.BX = this.BX || {};
 
 	exports.MessageGrid = MessageGrid;
 
-}((this.BX.Mail = this.BX.Mail || {}),BX.Event,BX));
+}((this.BX.Mail = this.BX.Mail || {}),BX,BX,BX.Event,BX));
 //# sourceMappingURL=messagegrid.bundle.js.map

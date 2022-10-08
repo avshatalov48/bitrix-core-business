@@ -61,4 +61,9 @@ $MESS["EC_NOTIFY_FAIL_ICAL_CANCEL"] = "Не удалось отправить и
 $MESS["EC_NOTIFY_FAIL_ICAL_CANCEL_OUT"] = "Не удалось отправить информацию об отмене события \"#NAME#\" следующим пользователям #USERS_LIST#. Возможно вы не правильно указали адрес или почтовый сервер получателя не отвечает. Проверьте правильность написания адреса получателя и повторите попытку позже";
 $MESS["EC_MESS_FAIL_ICAL_INVITE_TITLE_CANCEL"] = "Не удалось отправить информацию об отмене события \"#NAME#\"";
 $MESS["EC_NOTIFY_DELETE_LOCATION"] = "Переговорная комната <b>\"#LOCATION#\"</b> была удалена и убрана из ваших событий";
+$MESS["EC_NOTIFY_CANCEL_BOOKING_ALL"] = "Отменено бронирование переговорной для всех ваших событий «[url=#LINK#]#EVENT#[/url]», которые проходят [B]#FREQUENCY#, #FROM_TIME#[/B]. ";
+$MESS["EC_NOTIFY_CANCEL_BOOKING_NEXT"] = "Отменено бронирование переговорной для ваших событий «[url=#LINK#]#EVENT#[/url]», которые проходят [B]#FREQUENCY#, #FROM_TIME#[/B]. ";
+$MESS["EC_NOTIFY_CANCEL_BOOKING_THIS"] = "Отменено бронирование переговорной для вашего события «[url=#LINK#]#EVENT#[/url]», которое пройдет [B]#FROM#[/B]. ";
+$MESS["EC_NOTIFY_CANCEL_BOOKING_ENDING"] = "Вы можете выбрать свободную переговорную или проводить встречи онлайн с помощью видеозвонков в Битрикс24";
+$MESS["EC_NOTIFY_CANCEL_BOOKING_TIME"] = "в #FROM_TIME#";
 ?>

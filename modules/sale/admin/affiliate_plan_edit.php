@@ -356,7 +356,7 @@ $tabControl->BeginNextTab();
 				$arCurrencies = array();
 				$dbCurrencyList = CCurrency::GetList("currency", "asc");
 				while ($arCurrency = $dbCurrencyList->Fetch())
-					$arCurrencies[$arCurrency["CURRENCY"]] = "[".$arCurrency["CURRENCY"]."]&nbsp;".htmlspecialcharsEx($arCurrency["FULL_NAME"]);
+					$arCurrencies[$arCurrency["CURRENCY"]] = "[".$arCurrency["CURRENCY"]."] ".htmlspecialcharsbx($arCurrency["FULL_NAME"]);
 
 				foreach ($arCurrencies as $key => $value)
 				{
@@ -379,7 +379,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td colspan="2">
 			<script language="JavaScript">
-			<!--
+
 			function ShowHideSectionBox(cnt, val)
 			{
 				var catalogGroupBox = document.getElementById("ID_CATALOG_GROUP_" + cnt);
@@ -525,7 +525,7 @@ $tabControl->BeginNextTab();
 
 				Chlist(cnt, i);
 			}
-			//-->
+
 			</script>
 
 			<?
@@ -580,18 +580,17 @@ $tabControl->BeginNextTab();
 				}
 				?>
 				<script type="text/javascript">
-				<!--
+
 				itm_name['<?= $arIBlock["ID"] ?>'] = new Object();
 				itm_id['<?= $arIBlock["ID"] ?>'] = new Object();
 				<?=$str1;?>
 				<?=$str2;?>
-				//-->
+
 				</script>
 				<?
 			}
 			?>
 			<script type="text/javascript">
-			<!--
 			itm_lev = <?= $maxLevel ?>;
 			var aff_cnt = 0;
 
@@ -638,7 +637,7 @@ $tabControl->BeginNextTab();
 					$dbModuleList = CModule::GetList();
 					while ($arModuleList = $dbModuleList->Fetch())
 					{
-						?>str += '<option value="<?= $arModuleList["ID"] ?>"><?= htmlspecialcharsbx($arModuleList["ID"]) ?></option>';<?
+						?>str += '<option value="<?= $arModuleList["ID"] ?>"><?= htmlspecialcharsbx(CUtil::JSEscape($arModuleList["ID"])) ?></option>';<?
 					}
 					?>
 					str += '</select>';
@@ -669,7 +668,7 @@ $tabControl->BeginNextTab();
 				<?
 				foreach ($arIBlockCache as $key => $arIBlock)
 				{
-					?>str += '<option value="<?= $arIBlock["ID"] ?>"><?= htmlspecialcharsbx("[".$arIBlockTypeCache[$arIBlock["IBLOCK_TYPE_ID"]]."] ".$arIBlock["NAME"]) ?></option>';<?
+					?>str += '<option value="<?= $arIBlock["ID"] ?>"><?= htmlspecialcharsbx(CUtil::JSescape("[".$arIBlockTypeCache[$arIBlock["IBLOCK_TYPE_ID"]]."] ".$arIBlock["NAME"])) ?></option>';<?
 				}
 				?>
 				str += '</select><br>';
@@ -701,7 +700,7 @@ $tabControl->BeginNextTab();
 				<?
 				foreach ($arCurrencies as $key => $value)
 				{
-					?>str += '<option value="<?= $key ?>"><?= htmlspecialcharsbx($value) ?></option>';<?
+					?>str += '<option value="<?= $key ?>"><?= htmlspecialcharsbx(CUtil::JSEscape($value)) ?></option>';<?
 				}
 				?>
 				str += '</select>';
@@ -784,7 +783,7 @@ $tabControl->BeginNextTab();
 					}
 				});
 			})
-			//-->
+
 			</script>
 
 			<input type="hidden" name="NUM_SECTIONS" id="NUM_SECTIONS" value="-1">
@@ -829,9 +828,9 @@ $tabControl->BeginNextTab();
 
 							?>
 							<script language="JavaScript">
-							<!--
+
 							AffAddSectionRow(-1, <?= CUtil::JSEscape(${"ID_".$i}) ?>, '<?= CUtil::JSEscape(${"MODULE_ID_".$i}) ?>', '<?= CUtil::JSEscape(${"SECTION_ID_".$i}) ?>', '<?= CUtil::JSEscape(${"RATE_".$i}) ?>', '<?= CUtil::JSEscape(${"RATE_TYPE_CMN_".$i}) ?>', <?= (($str <> '') ? "new Array(0, ".$str.")" : "new Array()") ?>);
-							//-->
+
 							</script>
 							<?
 						}
@@ -865,9 +864,9 @@ $tabControl->BeginNextTab();
 						}
 						?>
 						<script language="JavaScript">
-						<!--
+
 						AffAddSectionRow(-1, <?= $arPlanSection["ID"] ?>, '<?= CUtil::JSEscape($str_MODULE_ID) ?>', '<?= CUtil::JSEscape($str_SECTION_ID) ?>', '<?= CUtil::JSEscape($str_RATE) ?>', '<?= CUtil::JSEscape($str_RATE_TYPE_CMN) ?>', <?= (($str <> '') ? "new Array(0, ".$str.")" : "new Array()") ?>);
-						//-->
+
 						</script>
 						<?
 					}

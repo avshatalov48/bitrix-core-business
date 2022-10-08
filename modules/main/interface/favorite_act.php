@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Uri;
+
 define("NO_KEEP_STATISTIC", true);
 define("NO_AGENT_STATISTIC", true);
 define("NOT_CHECK_PERMISSIONS", true);
@@ -30,7 +33,10 @@ if($USER->IsAuthorized() && check_bitrix_sessid())
 							"~DATE_CREATE"	=>	$now,
 							);
 
-			$_REQUEST["addurl"] = CHTTP::urlDeleteParams($_REQUEST["addurl"], array("IFRAME", "IFRAME_TYPE"));
+			$_REQUEST["addurl"] = (new Uri($_REQUEST["addurl"]))
+				->deleteParams(["IFRAME", "IFRAME_TYPE"])
+				->getUri()
+			;
 			if(isset($_REQUEST["menu_id"]))
 			{
 				$arFields["MENU_ID"] = $_REQUEST["menu_id"];

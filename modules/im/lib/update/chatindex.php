@@ -29,18 +29,26 @@ final class ChatIndex extends Stepper
 		$return = false;
 
 		$params = Option::get(self::$moduleId, self::OPTION_NAME, "");
-		$params = ($params !== "" ? @unserialize($params, ['allowed_classes' => false]) : array());
-		$params = (is_array($params) ? $params : array());
+		$params = ($params !== "" ? @unserialize($params, ['allowed_classes' => false]) : []);
+		$params = (is_array($params) ? $params : []);
 
 		if (empty($params))
 		{
-			$params = array(
-				"lastId" => 0,
+			$lastIdQuery =
+				ChatTable::query()
+					->addSelect('ID')
+					->whereIn('TYPE', [Chat::TYPE_OPEN, Chat::TYPE_GROUP])
+					->setOrder(['ID' => 'DESC'])
+					->setLimit(1)
+					->fetch()
+			;
+			$params = [
+				"lastId" => (int)$lastIdQuery['ID'] + 1,
 				"number" => 0,
-				"count" => ChatTable::getCount(array(
-					'=TYPE' => Array(Chat::TYPE_OPEN, Chat::TYPE_GROUP),
-				)),
-			);
+				"count" => ChatTable::getCount([
+					'=TYPE' => [Chat::TYPE_OPEN, Chat::TYPE_GROUP],
+				]),
+			];
 		}
 
 		if ($params["count"] > 0)
@@ -50,16 +58,16 @@ final class ChatIndex extends Stepper
 			$result["steps"] = "";
 			$result["count"] = $params["count"];
 
-			$cursor = ChatTable::getList(array(
-				'order' => array('ID' => 'ASC'),
-				'filter' => array(
-					'>ID' => $params["lastId"],
-					'=TYPE' => Array(Chat::TYPE_OPEN, Chat::TYPE_GROUP),
-				),
-				'select' => array('ID', 'ENTITY_TYPE'),
+			$cursor = ChatTable::getList([
+				'order' => ['ID' => 'DESC'],
+				'filter' => [
+					'<ID' => $params["lastId"],
+					'=TYPE' => [Chat::TYPE_OPEN, Chat::TYPE_GROUP],
+				],
+				'select' => ['ID', 'ENTITY_TYPE'],
 				'offset' => 0,
 				'limit' => 500
-			));
+			]);
 
 			$found = false;
 			while ($row = $cursor->fetch())
@@ -85,7 +93,7 @@ final class ChatIndex extends Stepper
 
 			if ($found === false)
 			{
-				Option::delete(self::$moduleId, array("name" => self::OPTION_NAME));
+				Option::delete(self::$moduleId, ["name" => self::OPTION_NAME]);
 			}
 		}
 		return $return;

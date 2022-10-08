@@ -3,7 +3,12 @@
 $id = $arResult['ID'];
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/tools/clock.php");
 
-CJSCore::Init(array('popup', 'date'));
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'popup',
+	'date',
+]);
 
 \Bitrix\Main\Localization\Loc::loadLanguageFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/classes/general/calendar.php");
 
@@ -60,8 +65,7 @@ $APPLICATION->IncludeComponent(
 						"height" => 120,
 						"documentCSS" => "body {color:#434343;}",
 						"jsObjName" => $arParams["JS_OBJECT_NAME"],
-						"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",
-						"fontSize" => "12px",
+						"fontSize" => "14px",
 						"lazyLoad" => true,
 						"setFocusAfterShow" => false
 				)

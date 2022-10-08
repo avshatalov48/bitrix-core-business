@@ -43,8 +43,8 @@ else
 	$_GET["MUL_MODE"] = "";
 }
 
-$arParams['AJAX_CALL'] = $_GET["MUL_MODE"];
-$arResult["stylePrefix"] = ($_REQUEST["MODE"] == 'UI' ? 'bx-ui-tooltip' : 'bx-user');
+$arParams['AJAX_CALL'] = $_GET["MUL_MODE"] ?? '';
+$arResult["stylePrefix"] = (isset($_REQUEST["MODE"]) && $_REQUEST["MODE"] == 'UI' ? 'bx-ui-tooltip' : 'bx-user');
 if ($bSocialNetwork)
 {
 	if (!array_key_exists("SHOW_FIELDS", $arParams) || !$arParams["SHOW_FIELDS"])
@@ -103,15 +103,15 @@ if (
 )
 {
 	CJSCore::Init();
-	require_once(dirname(__FILE__)."/include.php");
+	require_once(__DIR__."/include.php");
 }
 
-if (intval($_GET["USER_ID"]) > 0)
+if (isset($_GET["USER_ID"]) && intval($_GET["USER_ID"]) > 0)
 {
 	$arParams["ID"] = $_GET["USER_ID"];
 }
 
-$arParams["ID"] = intval($arParams["ID"]);
+$arParams["ID"] = intval($arParams["ID"] ?? 0);
 
 $arContext = array();
 if (
@@ -135,18 +135,18 @@ if ($arParams["ID"] <= 0 && $arParams["AJAX_ONLY"] != "Y")
 elseif (trim($arParams["HTML_ID"]) == '')
 	$arParams["HTML_ID"] = "mul_".RandString(8);
 
-if ($arParams['USE_THUMBNAIL_LIST'] != "N")
+if (!isset($arParams['USE_THUMBNAIL_LIST']) || $arParams['USE_THUMBNAIL_LIST'] != "N")
 {
 	$arParams['USE_THUMBNAIL_LIST'] = "Y";
-	if (intval($arParams['THUMBNAIL_LIST_SIZE']) <= 0)
+	if (!isset($arParams['THUMBNAIL_LIST_SIZE']) || intval($arParams['THUMBNAIL_LIST_SIZE']) <= 0)
 		$arParams['THUMBNAIL_LIST_SIZE'] = 30;
 }
 
-if (array_key_exists("SHOW_FIELDS", $arParams) && in_array("PERSONAL_PHOTO", $arParams['SHOW_FIELDS']) && intval($arParams['THUMBNAIL_DETAIL_SIZE']) <= 0)
+if (array_key_exists("SHOW_FIELDS", $arParams) && in_array("PERSONAL_PHOTO", $arParams['SHOW_FIELDS']) && intval($arParams['THUMBNAIL_DETAIL_SIZE'] ?? 0) <= 0)
 	$arParams['THUMBNAIL_DETAIL_SIZE'] = 100;
 
 if ($arParams["CACHE_TYPE"] == "Y" || ($arParams["CACHE_TYPE"] == "A" && COption::GetOptionString("main", "component_cache_on", "Y") == "Y"))
-	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
+	$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"] ?? 0);
 else
 	$arParams["CACHE_TIME"] = 0;
 
@@ -164,7 +164,7 @@ if ($arParams["DO_RETURN"] != "Y")
 
 $bNeedGetUser = false;
 
-if ($arResult["FatalError"] == '')
+if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 {
 	if ($bSocialNetwork && !array_key_exists("IS_ONLINE", $arParams) && $arParams["AJAX_ONLY"] != "Y" && (!array_key_exists("INLINE", $arParams) || $arParams["INLINE"] != "Y"))
 		MULChangeOnlineStatus($arParams["ID"], $arParams["HTML_ID"]);
@@ -220,9 +220,9 @@ if ($arResult["FatalError"] == '')
 			$arResult["CurrentUserPerms"]["Operations"]["videocall"] = false;
 		}
 
-		if ($arParams['AJAX_CALL'] != 'INFO' && $arParams["PROFILE_URL_LIST"] <> '') // don't use PROFILE_URL in ajax call because it could be another component inclusion
+		if ($arParams['AJAX_CALL'] != 'INFO' && isset($arParams["PROFILE_URL_LIST"]) && $arParams["PROFILE_URL_LIST"] <> '') // don't use PROFILE_URL in ajax call because it could be another component inclusion
 			$arResult["Urls"]["SonetProfile"] = $arParams["~PROFILE_URL_LIST"];
-		elseif ($arParams['AJAX_CALL'] != 'INFO' && $arParams["PROFILE_URL"] <> '')
+		elseif ($arParams['AJAX_CALL'] != 'INFO' && isset($arParams["PROFILE_URL"]) && $arParams["PROFILE_URL"] <> '')
 			$arResult["Urls"]["SonetProfile"] = $arParams["~PROFILE_URL"];
 		elseif($arParams["PATH_TO_SONET_USER_PROFILE"] <> '')
 			$arResult["Urls"]["SonetProfile"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_SONET_USER_PROFILE"], array("user_id" => $arParams["ID"], "USER_ID" => $arParams["ID"], "ID" => $arParams["ID"]));
@@ -559,13 +559,13 @@ if ($arResult["FatalError"] == '')
 	else
 	{
 		$arResult["User"]["ID"] = $arParams["ID"];
-		$arResult["User"]["NAME"] = $arParams["~NAME"];
-		$arResult["User"]["LAST_NAME"] = $arParams["~LAST_NAME"];
-		$arResult["User"]["SECOND_NAME"] = $arParams["~SECOND_NAME"];
-		$arResult["User"]["LOGIN"] = $arParams["LOGIN"];
+		$arResult["User"]["NAME"] = $arParams["~NAME"] ?? '';
+		$arResult["User"]["LAST_NAME"] = $arParams["~LAST_NAME"] ?? '';
+		$arResult["User"]["SECOND_NAME"] = $arParams["~SECOND_NAME"] ?? '';
+		$arResult["User"]["LOGIN"] = $arParams["LOGIN"] ?? '';
 		if (
 			$arParams["USE_THUMBNAIL_LIST"] == "Y"
-			&& $arParams["HREF"] == ''
+			&& (!isset($arParams["HREF"]) || $arParams["HREF"]) == ''
 		)
 		{
 			$arResult["User"]["PersonalPhotoImgThumbnail"] = array(
@@ -574,7 +574,8 @@ if ($arResult["FatalError"] == '')
 			);
 		}
 		elseif (
-			$arParams["USE_THUMBNAIL_LIST"] == "Y" 
+			$arParams["USE_THUMBNAIL_LIST"] == "Y"
+			&& isset($arParams["PERSONAL_PHOTO_FILE"]["ID"])
 			&& intval($arParams["PERSONAL_PHOTO_FILE"]["ID"]) > 0
 		)
 		{
@@ -594,12 +595,12 @@ if ($arResult["FatalError"] == '')
 	if ($bSocialNetwork)
 		$arResult["User"]["HTML_ID"] = $arParams["HTML_ID"];
 
-	if ($arParams["HREF"] <> '')
+	if (isset($arParams["HREF"]) && $arParams["HREF"] <> '')
 		$arResult["User"]["HREF"] = $arParams["~HREF"];
 
 	$arResult["bSocialNetwork"] = $bSocialNetwork;
 
-	if ($arParams["DESCRIPTION"] <> '')
+	if (isset($arParams["DESCRIPTION"]) && $arParams["DESCRIPTION"] <> '')
 	{
 		$arResult["User"]["NAME_DESCRIPTION"] = $arParams["~DESCRIPTION"];
 		if (CheckDateTime($arResult["User"]["NAME_DESCRIPTION"]))

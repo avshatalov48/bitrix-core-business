@@ -52,9 +52,9 @@
 	cursor: pointer;
 	color: #333;
 	display: inline-block;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 12px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	line-height: 20px;
 	height: 21px;
 	vertical-align: top;
@@ -192,7 +192,7 @@
 .bx-finder-box-item-text {
 	color:black;
 	padding:3px 0 3px 5px;
-	font: normal normal normal 12px/normal Arial, Helvetica, sans-serif;
+	font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .bx-finder-box-item-left { margin: 0 3px 0 0;}
@@ -209,7 +209,7 @@
 .bx-finder-box-selected-item {  overflow: hidden; margin: 0 0 5px 6px; }
 .bx-finder-box-selected-item-icon { display: inline-block;vertical-align: top; cursor: pointer;margin-top:1px; width: 13px; height:15px; background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat 0 -282px;}
 .bx-finder-box-selected-item-icon:hover { background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat -17px -282px;}
-.bx-finder-box-selected-item-text {font: normal normal normal 12px/normal Arial, Helvetica, sans-serif; display:inline-block; text-decoration: none; overflow: hidden; padding: 0 0 0 4px;  color: #000; width: 164px;}
+.bx-finder-box-selected-item-text {font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); display:inline-block; text-decoration: none; overflow: hidden; padding: 0 0 0 4px;  color: #000; width: 164px;}
 .bx-finder-workgroup-avatar {  background: url(/bitrix/js/main/core/images/finder-sprite.png) no-repeat 0 -30px;  height: 30px;  width: 30px; }
 
 .bx-finder-box-button {
@@ -222,7 +222,7 @@
 	text-decoration: none;
 	cursor: pointer;
 	display: inline-block;
-	font: 12px "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: opacity .3s ease 0s;
 	overflow: hidden;
 	margin-left: 6px;
@@ -243,7 +243,7 @@
 	border-radius: var(--ui-border-radius-xs, 4px);
 }
 .bx-finder-box-item-t2-text {
-	font: normal normal normal 12px/normal Arial, Helvetica, sans-serif;
+	font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	padding:3px 0 5px 3px;
 	float: left;
 	width: 145px;
@@ -276,8 +276,8 @@
 	margin-top: 0;
 }
 .bx-finder-box-item-t3-info { display: block; float: left; padding: 0; margin: 0 0 0 7px; width: 303px; overflow: hidden}
-.bx-finder-box-item-t3-name { font: normal normal normal 12px/normal Arial, Helvetica, sans-serif; color:#000; }
-.bx-finder-box-item-t3-desc { font: normal normal normal 11px/normal Arial, Helvetica, sans-serif; color: #b2b2b2; line-height:11px; }
+.bx-finder-box-item-t3-name { font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color:#000; }
+.bx-finder-box-item-t3-desc { font: normal normal normal 11px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #b2b2b2; line-height:11px; }
 .bx-finder-box-item-t3:hover { background-color: #f7f7f7; }
 .bx-finder-box-item-t3-hover { background-color: #f7f7f7; }
 .bx-finder-box-item-t3-selected { background-color: #f0f0f0; }
@@ -286,8 +286,8 @@
 .bx-finder-box-item-t5 { display:inline-block;  width: 167px; cursor: pointer; position: relative; margin: 0 0 3px; padding: 2px 0; text-decoration: none; vertical-align: top;}
 .bx-finder-box-item-t5-avatar { display: block; float: left ; vertical-align: top; width: 30px; height: 30px;  background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat 0 -664px;  margin-left: 4px; margin-top: 0; }
 .bx-finder-box-item-t5-info { display: block; float: left; padding: 0; margin: 0 0 0 7px; width: 130px; overflow: hidden}
-.bx-finder-box-item-t5-name { font: normal normal normal 12px/normal Arial, Helvetica, sans-serif; color:#000; }
-.bx-finder-box-item-t5-desc { font: normal normal normal 11px/normal Arial, Helvetica, sans-serif; color: #b2b2b2; line-height:11px; }
+.bx-finder-box-item-t5-name { font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color:#000; }
+.bx-finder-box-item-t5-desc { font: normal normal normal 11px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #b2b2b2; line-height:11px; }
 .bx-finder-box-item-t5:hover { background-color: #f7f7f7; }
 .bx-finder-box-item-t5-hover { background-color: #f7f7f7; }
 .bx-finder-box-item-t5-selected  { background-color: #f0f0f0;  }
@@ -295,8 +295,8 @@
 .bx-finder-box-item-t6 { display:inline-block; cursor: pointer; position: relative; margin: 0 0 3px; padding: 2px 0; text-decoration: none; vertical-align: top;}
 .bx-finder-box-item-t6-avatar { display: block; float: left ; vertical-align: top; width: 30px; height: 30px;  background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat 0 -664px;  margin-left: 4px; margin-top: 3px; }
 .bx-finder-box-item-t6-info { display: block; float: left; padding: 2px 0; margin: 0 0 0 7px; width: 396px; overflow: hidden}
-.bx-finder-box-item-t6-name { font: normal normal normal 12px/normal Arial, Helvetica, sans-serif; color:#000; }
-.bx-finder-box-item-t6-desc { font: normal normal normal 11px/normal Arial, Helvetica, sans-serif; color: #b2b2b2; line-height:11px; }
+.bx-finder-box-item-t6-name { font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color:#000; }
+.bx-finder-box-item-t6-desc { font: normal normal normal 11px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #b2b2b2; line-height:11px; }
 .bx-finder-box-item-t6-icon { position:absolute; margin-top:3px; margin-left: 378px; width: 17px; height:21px; }
 .bx-finder-box-item-t6:hover { background-color: #f0f0f0; }
 .bx-finder-box-item-t6-hover { background-color: #f0f0f0; }
@@ -398,7 +398,7 @@
 	display: inline-block;
 	vertical-align: middle;
 	padding: 0 0 0 0;
-	font: normal normal normal 12px/normal Arial, Helvetica, sans-serif;
+	font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color:#000;
 }
 .bx-finder-box-item-t7-space {
@@ -416,12 +416,12 @@
 .bx-finder-box-item-t7-selected.bx-finder-box-item-t7-hover { outline: #8dc4d6 solid 1px; }*/
 
 .bx-finder-box-item-t7-name{
-	font-family:Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size:13px;
 	color:#535c69;
 }
 
-.bx-finder-box-item-t7-desc { font: normal normal normal 11px/normal Arial, Helvetica, sans-serif; color: #b2b2b2; line-height:11px; }
+.bx-finder-box-item-t7-desc { font: normal normal normal 11px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #b2b2b2; line-height:11px; }
 .bx-finder-box-item-t7-desc-mode .bx-finder-box-item-t7-info { padding-top: 2px; }
 .bx-finder-box-item-t7-desc-mode .bx-finder-box-item-t7-desc { white-space: nowrap; }
 
@@ -490,7 +490,7 @@
 	margin: 0;
 	padding: 0;
 	vertical-align: middle;
-	font: 12px/normal Arial, Helvetica, sans-serif;
+	font: 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-transform: translateY(-50%);
 	-moz-transform: translateY(-50%);
 	-ms-transform: translateY(-50%);
@@ -508,7 +508,7 @@
 	max-width: 100%;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font: bold 13px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .bx-finder-popup.bx-finder-v2 .bx-finder-box-item-t7-desc {
@@ -518,7 +518,7 @@
 	color: #b2b2b2;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font: 400 11px/11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 11px/11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 /**/
 
@@ -532,7 +532,7 @@
 .bx-finder-company-department-check-arrow { float: left; width:16px; height: 17px; background: url(/bitrix/js/main/core/images/finder-sprite.png) no-repeat -16px -6px;}
 .bx-finder-company-department-check-checked .bx-finder-company-department-check-arrow,
 .bx-finder-box-item-selected .bx-finder-company-department-check-arrow { background: url(/bitrix/js/main/core/images/finder-sprite.png) no-repeat 2px -6px!important;}
-.bx-finder-company-department-check-text { float: left; display:inline-block; overflow:hidden; padding: 1px 5px 1px 5px; color: #000; font: normal normal normal 12px/normal Arial, Helvetica, sans-serif;
+.bx-finder-company-department-check-text { float: left; display:inline-block; overflow:hidden; padding: 1px 5px 1px 5px; color: #000; font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	width: 308px; width: calc(100% - 28px);
 }
 .bx-finder-company-department-check:hover .bx-finder-company-department-check-text, .bx-finder-company-department-check:hover .bx-finder-company-department-check-arrow { background-color:#f0f0f0; }
@@ -544,7 +544,7 @@
 
 .bx-finder-company-department-arrow { display:inline-block; float: left; width:16px; height: 17px; background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat -16px -175px;}
 .bx-finder-company-department-opened .bx-finder-company-department-arrow { background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat -16px -191px;}
-.bx-finder-company-department-text { display:inline-block; float: left; overflow:hidden; padding: 1px 5px 1px 5px; color: #000; font: normal normal normal 12px/normal Arial, Helvetica, sans-serif;}
+.bx-finder-company-department-text { display:inline-block; float: left; overflow:hidden; padding: 1px 5px 1px 5px; color: #000; font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica));}
 .bx-finder-company-department-inner:hover .bx-finder-company-department-text, .bx-finder-company-department-inner:hover .bx-finder-company-department-arrow { background-color:#f0f0f0; }
 
 .bx-finder-company-department-children { display: none; margin-left: 4px; padding: 0 0 0 13px;}
@@ -564,20 +564,20 @@
 }
 .bx-finder-company-department-employee-avatar { position: absolute; width: 24px; height: 24px; top: 3px; /*margin-top: -27px; */margin-left: 3px; border-radius:50%; background: #fff url(/bitrix/js/main/core/images/finder_sprite.min.svg) no-repeat center;background-position: 0 0;}
 .bx-finder-company-department-employee-info { padding: 2px 0; margin: 0 0 0 32px; }
-.bx-finder-company-department-employee-name { font: normal normal normal 12px/normal Arial, Helvetica, sans-serif; color:#000; }
-.bx-finder-company-department-employee-position {font: normal normal normal 11px/normal Arial, Helvetica, sans-serif;  color: #b2b2b2;  line-height:11px;   text-overflow: ellipsis;   white-space: nowrap; overflow: hidden}
+.bx-finder-company-department-employee-name { font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color:#000; }
+.bx-finder-company-department-employee-position {font: normal normal normal 11px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica));  color: #b2b2b2;  line-height:11px;   text-overflow: ellipsis;   white-space: nowrap; overflow: hidden}
 
 .bx-finder-company-department-employee:hover { background-color: #f7f7f7; }
 
 .bx-finder-company-department-employee-selected { background-color: #f0f0f0; }
 
-.bx-finder-company-department-employees-loading { font: normal normal normal 11px/normal Arial, Helvetica, sans-serif;  color: #b2b2b2;   font-style: italic; padding-bottom: 5px; padding-top: 5px; padding-left: 13px; }
+.bx-finder-company-department-employees-loading { font: normal normal normal 11px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica));  color: #b2b2b2;   font-style: italic; padding-bottom: 5px; padding-top: 5px; padding-left: 13px; }
 
 .bx-finder-search-wait {background:url("/bitrix/js/main/core/images/wait-big.gif") no-repeat 0 0!important; height: 29px; display: block; margin-top: 4px; line-height: 29px; padding-left: 34px}
-.bx-finder-item-text {display: block; margin-top: 3px; padding-left: 7px;  font: normal normal normal 12px/normal Arial, Helvetica, sans-serif;}
+.bx-finder-item-text {display: block; margin-top: 3px; padding-left: 7px;  font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica));}
 
 .bx-finder-groupbox { display: block; margin: 0 0 4px 0; }
-.bx-finder-groupbox-name {padding: 3px 0 5px 11px; font: normal normal normal 11px/normal Arial, Helvetica, sans-serif; color: #80868E; display: block; vertical-align: top;}
+.bx-finder-groupbox-name {padding: 3px 0 5px 11px; font: normal normal normal 11px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #80868E; display: block; vertical-align: top;}
 
 .bx-finder-groupbox-content { display: block;}
 
@@ -598,7 +598,7 @@
 	border: none;
 	color: #555;
 	display: inline-block;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	height: 30px;
 	min-width: 108px;
 	outline: none;
@@ -610,6 +610,7 @@
 
 .bx-finder-search-block-cell {
 	border: 1px solid #e7e7e7;
+	border-radius: var(--ui-field-border-radius);
 	display: table-cell;
 	padding: 0 10px;
 	width: 450px;
@@ -623,7 +624,7 @@
 .bx-feed-email-title {
 	color: #525c68;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin: 7px 0 12px;
 }
 
@@ -642,7 +643,7 @@
 
 .bx-feed-email-crm-contact {
 	padding-top: 10px;
-	font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	vertical-align: middle;
 }
 

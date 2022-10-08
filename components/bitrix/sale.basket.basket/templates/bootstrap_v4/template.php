@@ -3,7 +3,7 @@
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 
-\Bitrix\Main\UI\Extension::load("ui.fonts.ruble");
+\Bitrix\Main\UI\Extension::load(["ui.fonts.ruble", "ui.fonts.opensans"]);
 
 /**
  * @var array $arParams

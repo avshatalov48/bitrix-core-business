@@ -43,10 +43,10 @@ class IntegerType extends BaseType
 	 */
 	public static function prepareSettings(array $userField): array
 	{
-		$size = (int)$userField['SETTINGS']['SIZE'];
-		$min = (int)$userField['SETTINGS']['MIN_VALUE'];
-		$max = (int)$userField['SETTINGS']['MAX_VALUE'];
-		$default = $userField['SETTINGS']['DEFAULT_VALUE'] !== ''
+		$size = (int)($userField['SETTINGS']['SIZE'] ?? 0);
+		$min = (int)($userField['SETTINGS']['MIN_VALUE'] ?? 0);
+		$max = (int)($userField['SETTINGS']['MAX_VALUE'] ?? 0);
+		$default = ($userField['SETTINGS']['DEFAULT_VALUE'] ?? '') !== ''
 			? (int)$userField['SETTINGS']['DEFAULT_VALUE']
 			: null
 		;

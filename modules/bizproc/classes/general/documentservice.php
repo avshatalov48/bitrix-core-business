@@ -28,7 +28,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return null;
 	}
 
-	public function GetDocument($parameterDocumentId, $parameterDocumentType = null)
+	public function getDocument($parameterDocumentId, $parameterDocumentType = null)
 	{
 		$this->checkCache();
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
@@ -74,7 +74,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return $document[$fieldId] ?? null;
 	}
 
-	public function UpdateDocument($parameterDocumentId, $arFields, $modifiedBy = null)
+	public function updateDocument($parameterDocumentId, $arFields, $modifiedBy = null)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -94,7 +94,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return false;
 	}
 
-	public function CreateDocument($parameterDocumentId, $arFields)
+	public function createDocument($parameterDocumentId, $arFields)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -126,7 +126,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return null;
 	}
 
-	public function PublishDocument($parameterDocumentId)
+	public function publishDocument($parameterDocumentId)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -149,7 +149,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return false;
 	}
 
-	public function UnpublishDocument($parameterDocumentId)
+	public function unpublishDocument($parameterDocumentId)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -168,7 +168,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return false;
 	}
 
-	public function LockDocument($parameterDocumentId, $workflowId)
+	public function lockDocument($parameterDocumentId, $workflowId)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -185,7 +185,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return false;
 	}
 
-	public function UnlockDocument($parameterDocumentId, $workflowId)
+	public function unlockDocument($parameterDocumentId, $workflowId)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -204,7 +204,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return false;
 	}
 
-	public function DeleteDocument($parameterDocumentId)
+	public function deleteDocument($parameterDocumentId)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -221,7 +221,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return false;
 	}
 
-	public function IsDocumentLocked($parameterDocumentId, $workflowId)
+	public function isDocumentLocked($parameterDocumentId, $workflowId)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -236,24 +236,24 @@ class CBPDocumentService extends CBPRuntimeService
 		return false;
 	}
 
-	public function SubscribeOnUnlockDocument($parameterDocumentId, $workflowId,  $eventName)
+	public function subscribeOnUnlockDocument($parameterDocumentId, $workflowId,  $eventName)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 		RegisterModuleDependences($moduleId, $entity."_OnUnlockDocument", "bizproc", "CBPDocumentService", "OnUnlockDocument", 100, "", array($workflowId,  $eventName));
 	}
 
-	public function UnsubscribeOnUnlockDocument($parameterDocumentId, $workflowId, $eventName)
+	public function unsubscribeOnUnlockDocument($parameterDocumentId, $workflowId, $eventName)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 		UnRegisterModuleDependences($moduleId, $entity."_OnUnlockDocument", "bizproc", "CBPDocumentService", "OnUnlockDocument", "", array($workflowId,  $eventName));
 	}
 
-	public static function OnUnlockDocument($workflowId, $eventName, $documentId = [])
+	public static function onUnlockDocument($workflowId, $eventName, $documentId = [])
 	{
 		CBPRuntime::SendExternalEvent($workflowId, $eventName, []);
 	}
 
-	public function GetDocumentType($parameterDocumentId)
+	public function getDocumentType($parameterDocumentId)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -293,7 +293,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return $normalized;
 	}
 
-	public function GetDocumentFields($parameterDocumentType, $importExportMode = false)
+	public function getDocumentFields($parameterDocumentType, $importExportMode = false)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 
@@ -340,7 +340,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return null;
 	}
 
-	public function GetDocumentFieldTypes($parameterDocumentType)
+	public function getDocumentFieldTypes($parameterDocumentType)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 
@@ -355,7 +355,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return CBPHelper::GetDocumentFieldTypes();
 	}
 
-	public function AddDocumentField($parameterDocumentType, $arFields)
+	public function addDocumentField($parameterDocumentType, $arFields)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 
@@ -379,7 +379,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return false;
 	}
 
-	public function UpdateDocumentField($parameterDocumentType, $arFields)
+	public function updateDocumentField($parameterDocumentType, $arFields)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 
@@ -394,7 +394,7 @@ class CBPDocumentService extends CBPRuntimeService
 		return false;
 	}
 
-	public function GetJSFunctionsForFields($parameterDocumentType, $objectName, $arDocumentFields = array(), $arDocumentFieldTypes = array())
+	public function getJSFunctionsForFields($parameterDocumentType, $objectName, $arDocumentFields = array(), $arDocumentFieldTypes = array())
 	{
 		if (!is_array($arDocumentFields) || count($arDocumentFields) <= 0)
 			$arDocumentFields = self::GetDocumentFields($parameterDocumentType);
@@ -809,7 +809,7 @@ EOS;
 		return $result;
 	}
 
-	public function GetFieldInputControlOptions($parameterDocumentType, &$fieldType, $jsFunctionName, &$value)
+	public function getFieldInputControlOptions($parameterDocumentType, &$fieldType, $jsFunctionName, &$value)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 
@@ -836,7 +836,7 @@ EOS;
 		return "";
 	}
 
-	public function GetFieldInputControl($parameterDocumentType, $fieldType, $fieldName, $fieldValue, $bAllowSelection = false, $publicMode = false)
+	public function getFieldInputControl($parameterDocumentType, $fieldType, $fieldName, $fieldValue, $bAllowSelection = false, $publicMode = false)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 
@@ -920,7 +920,7 @@ EOS;
 		return CBPHelper::GetFieldInputControl($parameterDocumentType, $arFieldType, $arFieldName, $fieldValue, $bAllowSelection);
 	}
 
-	public function GetFieldInputValue($parameterDocumentType, $fieldType, $fieldName, $arRequest, &$arErrors)
+	public function getFieldInputValue($parameterDocumentType, $fieldType, $fieldName, $arRequest, &$arErrors)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 
@@ -978,7 +978,7 @@ EOS;
 		return CBPHelper::GetFieldInputValue($parameterDocumentType, $arFieldType, $arFieldName, $arRequest, $arErrors);
 	}
 
-	public function GetFieldInputValuePrintable($parameterDocumentType, $fieldType, $fieldValue)
+	public function getFieldInputValuePrintable($parameterDocumentType, $fieldType, $fieldValue)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 
@@ -1009,7 +1009,7 @@ EOS;
 		return CBPHelper::GetFieldInputValuePrintable($parameterDocumentType, $arFieldType, $fieldValue);
 	}
 
-	public function GetFieldValuePrintable($parameterDocumentId, $fieldName, $fieldType, $fieldValue, $arFieldType = null)
+	public function getFieldValuePrintable($parameterDocumentId, $fieldName, $fieldType, $fieldValue, $arFieldType = null)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -1127,7 +1127,7 @@ EOS;
 	 * @return mixed|string
 	 * @throws CBPArgumentNullException
 	 */
-	public function GetGUIFieldEdit($parameterDocumentType, $formName, $fieldName, $fieldValue, $arDocumentField = array(), $bAllowSelection = false)
+	public function getGUIFieldEdit($parameterDocumentType, $formName, $fieldName, $fieldValue, $arDocumentField = array(), $bAllowSelection = false)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 
@@ -1164,7 +1164,7 @@ EOS;
 	 * @return array|mixed|null
 	 * @throws CBPArgumentNullException
 	 */
-	public function SetGUIFieldEdit($parameterDocumentType, $fieldName, $arRequest, &$arErrors, $arDocumentField = array())
+	public function setGUIFieldEdit($parameterDocumentType, $fieldName, $arRequest, &$arErrors, $arDocumentField = array())
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 
@@ -1185,7 +1185,7 @@ EOS;
 		return CBPHelper::SetGUIFieldEdit($parameterDocumentType, $fieldName, $arRequest, $arErrors, $arDocumentField);
 	}
 
-	public function GetDocumentAdminPage($parameterDocumentId)
+	public function getDocumentAdminPage($parameterDocumentId)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -1331,7 +1331,7 @@ EOS;
 
 	}
 
-	public function GetDocumentForHistory($parameterDocumentId, $historyIndex)
+	public function getDocumentForHistory($parameterDocumentId, $historyIndex)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -1346,7 +1346,7 @@ EOS;
 		return null;
 	}
 
-	public function RecoverDocumentFromHistory($parameterDocumentId, $arDocument)
+	public function recoverDocumentFromHistory($parameterDocumentId, $arDocument)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -1361,7 +1361,7 @@ EOS;
 		return false;
 	}
 
-	public function GetUsersFromUserGroup($group, $parameterDocumentId)
+	public function getUsersFromUserGroup($group, $parameterDocumentId)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 
@@ -1376,7 +1376,7 @@ EOS;
 		return array();
 	}
 
-	public function GetAllowableUserGroups($parameterDocumentType, $withExtended = false)
+	public function getAllowableUserGroups($parameterDocumentType, $withExtended = false)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 
@@ -1397,7 +1397,7 @@ EOS;
 		return array();
 	}
 
-	public function GetAllowableOperations($parameterDocumentType)
+	public function getAllowableOperations($parameterDocumentType)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
 
@@ -1412,7 +1412,7 @@ EOS;
 		return array();
 	}
 
-	public function SetPermissions($parameterDocumentId, $workflowId, $arPermissions, $bRewrite = true)
+	public function setPermissions($parameterDocumentId, $workflowId, $arPermissions, $bRewrite = true)
 	{
 		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
 

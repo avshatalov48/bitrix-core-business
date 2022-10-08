@@ -142,7 +142,8 @@
 	margin: 0;
 	padding: 0 0 15px;
 	color: var(--primary);
-	font: 600 18px "Open Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font: 18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .news-list .card-title a:hover {

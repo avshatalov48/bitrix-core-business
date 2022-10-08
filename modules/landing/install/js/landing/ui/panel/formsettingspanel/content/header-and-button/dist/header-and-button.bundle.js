@@ -8,6 +8,10 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 
 	var headerAndButtonsIcon = "/bitrix/js/landing/ui/panel/formsettingspanel/content/header-and-button/dist/images/header-and-buttons-message-icon.svg";
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	var HeaderAndButtonContent = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(HeaderAndButtonContent, _ContentWrapper);
 
@@ -122,7 +126,7 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        }
 
 	        return acc;
-	      }, babelHelpers.objectSpread({}, sourceValue));
+	      }, _objectSpread({}, sourceValue));
 
 	      if (!this.items[2].getSwitch().getValue()) {
 	        value.title = '';
@@ -134,7 +138,7 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	  }, {
 	    key: "onChange",
 	    value: function onChange(event) {
-	      this.emit('onChange', babelHelpers.objectSpread({}, event.getData(), {
+	      this.emit('onChange', _objectSpread(_objectSpread({}, event.getData()), {}, {
 	        skipPrepare: true
 	      }));
 	    }

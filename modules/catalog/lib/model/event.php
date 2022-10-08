@@ -20,7 +20,7 @@ class Event extends Main\Event
 	{
 		$this->entity = $entity;
 
-		parent::__construct('catalog', get_class($this->entity).'::'.$type, $parameters);
+		parent::__construct('catalog', self::makeEventName(get_class($this->entity), $type), $parameters);
 	}
 
 	/**
@@ -82,12 +82,22 @@ class Event extends Main\Event
 	 * Search handlers for event.
 	 *
 	 * @param Entity $entity
-	 * @param string $type
+	 * @param string $eventName
 	 * @return bool
 	 */
-	public static function existEventHandlers(Entity $entity, string $type): bool
+	public static function existEventHandlers(Entity $entity, string $eventName): bool
 	{
-		return static::existEventHandlersById(get_class($entity).'::'.$type);
+		return static::existEventHandlersById(self::makeEventName(get_class($entity), $eventName));
+	}
+
+	/**
+	 * @param string $class
+	 * @param string $eventName
+	 * @return string
+	 */
+	public static function makeEventName(string $class, string $eventName): string
+	{
+		return $class.'::'.$eventName;
 	}
 
 	/**

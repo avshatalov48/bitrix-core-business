@@ -1,9 +1,9 @@
 // @flow
 'use strict';
 
-import {ajax, Loc, Tag, Dom} from "main.core";
-import StatusBlock from "../controls/statusblock"
-import {EventEmitter} from "main.core.events";
+import { Loc, Tag, Dom, Event, Type } from 'main.core';
+import { EventEmitter } from "main.core.events";
+import { Util } from 'calendar.util';
 
 export class InterfaceTemplate extends EventEmitter
 {
@@ -24,6 +24,7 @@ export class InterfaceTemplate extends EventEmitter
 		this.descriptionActiveHeader = options.descriptionActiveHeader;
 		this.sliderIconClass = options.sliderIconClass;
 		this.iconPath = options.iconPath;
+		this.iconLogoClass = options.iconLogoClass || '';
 		this.color = options.color;
 		this.provider = options.provider;
 		this.connection = options.connection;
@@ -39,36 +40,55 @@ export class InterfaceTemplate extends EventEmitter
 	{
 		return Tag.render`
 			<div class="calendar-sync-wrap calendar-sync-wrap-detail">
-				${this.getContentInfoHeader()}
+				<div class="calendar-sync-header">
+					<span class="calendar-sync-header-text">${this.getHeaderTitle()}</span>
+				</div>
 				${this.getContentInfoBody()}
 			</div>
 		`
+	}
+
+	getContentActiveBodyHeader()
+	{
+		this.disconnectButton = this.getDisconnectButton();
+		Event.bind(this.disconnectButton, 'click', this.handleDisconnectButton.bind(this));
+
+		const timestamp = this.connection.getSyncDate().getTime() / 1000;
+		const syncTime = timestamp
+			? Util.formatDateUsable(timestamp) + ' ' + BX.date.format(Util.getTimeFormatShort(), timestamp)
+			: '';
+
+		return Tag.render`
+			<div class="calendar-sync__account ${this.getSyncStatusClassName()}">
+				<div class="calendar-sync__account-logo">
+					<div class="calendar-sync__account-logo--image ${this.getLogoIconClass()}"></div>
+				</div>
+				<div class="calendar-sync__account-content">
+					${BX.util.htmlspecialchars(this.connection.getConnectionName())}
+					<div class="calendar-sync__account-info">
+						<div class="calendar-sync__account-info--icon --animate"></div>
+						${syncTime}
+					</div>
+				</div>
+				${this.disconnectButton}
+			</div>
+			`;
 	}
 
 	getActiveConnectionContent()
 	{
 		return Tag.render`
 			<div class="calendar-sync-wrap calendar-sync-wrap-detail">
-				${this.getContentActiveHeader()}
-				${this.getContentActiveBody()}
-			</div>
-		`
-	}
-
-	getContentInfoHeader()
-	{
-		this.statusBlock = StatusBlock.createInstance({
-			status: "not_connected",
-			connections: [this.connection],
-			withStatusLabel: false,
-			popupWithUpdateButton: this.popupWithUpdateButton,
-			popupId: 'calendar-interfaceTemplate-status',
-		});
-
-		return Tag.render`
-			<div class="calendar-sync-header">
-				<span class="calendar-sync-header-text">${this.getHeaderTitle()}</span>
-				${this.statusBlock.getContent()}
+				<div class="calendar-sync-header">
+					<span class="calendar-sync-header-text">${this.getHeaderTitle()}</span>
+				</div>
+				<div class="calendar-sync__scope">
+					<div class="calendar-sync__content --border-radius">
+						<div class="calendar-sync__content-block --space-bottom">
+							${this.getContentActiveBody()}
+						</div>
+					</div>
+				</div>
 			</div>
 		`;
 	}
@@ -80,28 +100,12 @@ export class InterfaceTemplate extends EventEmitter
 		`;
 	}
 
-	getContentActiveHeader()
-	{
-		this.statusBlock = StatusBlock.createInstance({
-			status: this.connection.getStatus(),
-			connections: [this.connection],
-			withStatusLabel: false,
-			popupWithUpdateButton: this.popupWithUpdateButton,
-			popupId: 'calendar-interfaceTemplate-status',
-		});
-
-		return Tag.render`
-			<div class="calendar-sync-header">
-				<span class="calendar-sync-header-text">${this.getHeaderTitle()}</span>
-				${this.statusBlock.getContent()}
-			</div>
-		`;
-	}
-
 	getContentActiveBody()
 	{
 		return Tag.render`
 			${this.getContentActiveBodyHeader()}
+			${this.getContentActiveBodySectionsHeader()}
+			${this.getContentActiveBodySectionsManager()}
 		`;
 	}
 
@@ -124,56 +128,58 @@ export class InterfaceTemplate extends EventEmitter
 		return this.title;
 	}
 
+	getLogoIconClass()
+	{
+		return this.iconLogoClass;
+	}
+
 	getContentInfoBodyHeader()
 	{
 		return Tag.render`
 			<div class="calendar-sync-slider-section">
 				<div class="calendar-sync-slider-header-icon ${this.sliderIconClass}"></div>
 				<div class="calendar-sync-slider-header">
-				<div class="calendar-sync-slider-title">
-					${this.titleInfoHeader}
+					<div class="calendar-sync-slider-title">
+						${this.titleInfoHeader}
+					</div>
+					<div class="calendar-sync-slider-info">
+						<span class="calendar-sync-slider-info-text">
+							${this.descriptionInfoHeader}
+						</span>
+					</div>
+					<div class="calendar-sync-slider-info">
+						<span class="calendar-sync-slider-info-text">
+							<a class="calendar-sync-slider-info-link" href="javascript:void(0);" onclick="${this.showHelp.bind(this)}">
+								${Loc.getMessage('CAL_TEXT_ABOUT_WORK_SYNC')}
+							</a>
+						</span>
+					</div>
 				</div>
-				<div class="calendar-sync-slider-info">
-					<span class="calendar-sync-slider-info-text">
-						${this.descriptionInfoHeader}
-					</span>
-				</div>
-				<div class="calendar-sync-slider-info">
-					<span class="calendar-sync-slider-info-text">
-						<a class="calendar-sync-slider-info-link" href="javascript:void(0);" onclick="${this.showHelp.bind(this)}">
-							${Loc.getMessage('CAL_TEXT_ABOUT_WORK_SYNC')}
-						</a>
-					</span>
-				</div>
-			</div>
 			</div>
 		`;
 	}
 
-	getContentActiveBodyHeader()
+	getContentInfoWarning()
 	{
+		const connectOtherButton = this.getWarningButton();
+		Event.bind(connectOtherButton, 'click', this.handleWarningButtonClick.bind(this));
+
 		return Tag.render`
-			<div class="calendar-sync-slider-section">
-				<div class="calendar-sync-slider-header-icon ${this.sliderIconClass}"></div>
-				<div class="calendar-sync-slider-header">
-				<div class="calendar-sync-slider-title">
-					${this.titleActiveHeader}
-				</div>
-				<div class="calendar-sync-slider-info">
-					<span class="calendar-sync-slider-info-text">
-						${this.descriptionActiveHeader}
-					</span>
-				</div>
-				<div class="calendar-sync-slider-info">
-					<span class="calendar-sync-slider-info-text">
-						<a class="calendar-sync-slider-info-link" href="javascript:void(0);" onclick="${this.showHelp.bind(this)}">
-							${Loc.getMessage('CAL_TEXT_ABOUT_WORK_SYNC')}
-						</a>
-					</span>
-				</div>
-			</div>
+			<div class="calendar-sync-slider-section-warning ui-alert ui-alert-warning ui-alert-icon-warning">
+				<span class="ui-alert-message">${this.warningText}
+				<div class="calendar-sync-button">${connectOtherButton}</div>
+				</span>
 			</div>
 		`;
+	}
+
+	getWarningButton()
+	{
+		return Tag.render`
+			<button class="ui-btn ui-btn-success ui-btn-sm">
+				${this.warningButtonText}
+			</button>
+		`
 	}
 
 	setProvider(provider)
@@ -181,39 +187,127 @@ export class InterfaceTemplate extends EventEmitter
 		this.provider = provider;
 	}
 
+	// TODO: move logic to provider
 	sendRequestRemoveConnection(id)
 	{
-		BX.ajax.runAction('calendar.api.calendarajax.removeConnection', {
+		BX.ajax.runAction('calendar.api.syncajax.removeConnection', {
 			data: {
 				connectionId: id,
-				removeCalendars: 'N', //by default
+				removeCalendars: 'Y', //by default
 			}
-		}).then(() => {
+		})
+		.then(() => {
 			BX.reload();
 		});
 	}
 
 	runUpdateInfo()
 	{
-		ajax.runAction('calendar.api.calendarajax.setSectionStatus', {
+		BX.ajax.runAction('calendar.api.calendarajax.setSectionStatus', {
 			data: {
 				sectionStatus: this.sectionStatusObject,
 			},
-		}).then(response => {
-			this.emit('reDrawCalendarGrid', {});
 		})
+		.then((response) => {
+			this.emit('reDrawCalendarGrid', {});
+		});
 	}
 
 	refresh(connection)
 	{
 		this.connection = connection;
-		this.statusBlock
-			.setStatus(this.connection.getStatus())
-			.setConnections([this.connection]);
+		if (this.connection)
+		{
+			this.statusBlock
+				.setStatus(this.connection.getStatus())
+				.setConnections([this.connection]);
+		}
+		
 		Dom.replace(document.getElementById('status-info-block'), this.statusBlock.getContent());
 	}
 
 	handleConnectButton()
 	{
+	}
+
+	getDisconnectButton()
+	{
+		return Tag.render`
+			<button class="ui-btn ui-btn-light-border calendar-sync__account-btn">${Loc.getMessage('CAL_SYNC_DISCONNECT_BUTTON')}</button>
+		`;
+	}
+
+	getSyncStatusClassName()
+	{
+		return this.provider.getStatus() === "success" ? '--complete' : '--error';
+	}
+	
+	getContentActiveBodySectionsHeader()
+	{
+		return Tag.render`
+			<div class="calendar-sync__account-desc">${Loc.getMessage('CAL_SYNC_SELECTED_LIST_TITLE')}</div>
+		`;
+	}
+
+	getContentActiveBodySectionsManager()
+	{
+		return Tag.render`
+			<div class="calendar-sync__account-check-list">
+				${this.getContentActiveBodySections()}
+			</div>
+		`;
+		
+	}
+
+	getContentActiveBodySections()
+	{
+		const sectionList = [];
+		this.sectionList.forEach(section => {
+			sectionList.push(Tag.render`
+				<label class="calendar-sync__account-check-list-label">
+					<input type="checkbox" class="calendar-sync__account-check-list-input"
+						value="${BX.util.htmlspecialchars(section['ID'])}" 
+						onclick="${this.onClickCheckSection.bind(this)}" ${section['ACTIVE'] === 'Y' ? 'checked' : ''}/>
+					<span class="calendar-sync__account-check-list-text">${BX.util.htmlspecialchars(section['NAME'])}</span>
+				</label>
+			`);
+		});
+
+		return sectionList;
+	}
+
+	showUpdateSectionListNotification()
+	{
+		Util.showNotification(
+			Loc.getMessage('CAL_SYNC_CALENDAR_LIST_UPDATED')
+		)
+	}
+
+	handleDisconnectButton(event)
+	{
+		if (Type.isElementNode(this.disconnectButton))
+		{
+			Dom.addClass(this.disconnectButton, ['ui-btn-clock', 'ui-btn-disabled']);
+		}
+		event.preventDefault();
+		// this.provider.removeConnection();
+		this.sendRequestRemoveConnection(this.connection.getId());
+	}
+	
+	deactivateConnection(id)
+	{
+		BX.ajax.runAction('calendar.api.syncajax.deactivateConnection', {
+			data: {
+				connectionId: id,
+				removeCalendars: 'N', //by default
+			}
+		}).then(() => {
+			this.provider.closeSlider();
+			this.provider.setStatus(this.provider.STATUS_NOT_CONNECTED);
+			this.provider.getInterfaceUnit().refreshButton();
+			this.provider.getInterfaceUnit().setSyncStatus(this.provider.STATUS_NOT_CONNECTED);
+			
+			this.emit('reDrawCalendarGrid', {});
+		});
 	}
 }

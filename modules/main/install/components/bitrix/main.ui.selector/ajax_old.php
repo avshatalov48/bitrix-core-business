@@ -13,7 +13,7 @@ if(isset($_POST['site']) && (string) $_POST['site'] != '')
 }
 
 require_once($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/main/include/prolog_before.php');
-require_once(dirname(__FILE__).'/class.php');
+require_once(__DIR__.'/class.php');
 
 CMainUiSelector::executeComponentAjax();
 CMainUiSelector::doFinalActions();

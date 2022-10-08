@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 return array(
+	'old_id' => 4,
 	'parent' => 'store-chats-dark',
 	'code' => 'store-chats-dark/footer',
 	'name' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-FOOTER-NAME'),
@@ -60,37 +61,37 @@ return array(
 					),
 				),
 			),
-			'nodes' => array(
-				'.landing-block-node-link' => array(
-					0 => array(
-						'href' => '#landing@landing[store-chats-dark/about]',
+			'nodes' => [
+				'.landing-block-node-link' => [
+					0 => [
+						'href' => '#landing1',
 						'target' => '_self',
-					),
-					1 => array(
-						'href' => '#landing@landing[store-chats-dark/contacts]',
+					],
+					1 => [
+						'href' => '#landing2',
 						'target' => '_self',
-					),
-					2 => array(
-						'href' => '#landing@landing[store-chats-dark/cutaway]',
+					],
+					2 => [
+						'href' => '#landing3',
 						'target' => '_self',
-					),
-					3 => array(
-						'href' => '#landing@landing[store-chats-dark/payinfo]',
+					],
+					3 => [
+						'href' => '#landing8',
 						'target' => '_self',
-					),
-					4 => array(
-						'href' => '#landing@landing[store-chats-dark/webform]',
+					],
+					4 => [
+						'href' => '#landing9',
 						'target' => '_self',
-					),
-				),
-				'.landing-block-node-link-text' => array(
+					],
+				],
+				'.landing-block-node-link-text' => [
 					0 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-FOOTER-TEXT1'),
 					1 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-FOOTER-TEXT2'),
 					2 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-FOOTER-TEXT5'),
 					3 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-FOOTER-TEXT3'),
 					4 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-FOOTER-TEXT4'),
-				),
-			),
+				],
+			],
 			'style' => array(
 				'.landing-block-node-list-container' => array(
 					0 => 'landing-block-node-list-container row no-gutters justify-content-center',

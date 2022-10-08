@@ -1,0 +1,17 @@
+export type FileInfo = {
+	serverId?: number | string,
+	type?: string,
+	name?: string,
+	originalName?: string,
+	size?: number,
+	width?: number,
+	height?: number,
+	downloadUrl?: string,
+	removeUrl?: string,
+	clientPreview?: File,
+	clientPreviewWidth?: number,
+	clientPreviewHeight?: number,
+	serverPreviewUrl?: string,
+	serverPreviewWidth?: number,
+	serverPreviewHeight?: number,
+};

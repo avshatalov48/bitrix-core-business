@@ -12,14 +12,9 @@ use Bitrix\Main\UI\PageNavigation;
 final class Section extends Controller
 {
 	//region Actions
-	public function getFieldsAction()
+	public function getFieldsAction(): array
 	{
-		$view = $this->getViewManager()
-			->getView($this);
-
-		return ['SECTION'=>$view->prepareFieldInfos(
-			$view->getFields()
-		)];
+		return ['SECTION' => $this->getViewFields()];
 	}
 
 	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)

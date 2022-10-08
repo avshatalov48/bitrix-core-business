@@ -13,6 +13,7 @@ return [
 	],
 	'rel' => [
 		'main.polyfill.core',
+		'ui.fonts.opensans',
 		'ui.vue.directives.lazyload',
 		'ui.vue',
 		'ui.dexie',

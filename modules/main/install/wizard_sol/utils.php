@@ -379,7 +379,7 @@ class WizardServices
 		if (!is_array($siteID))
 			$siteID = Array($siteID);
 
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/classes/".mb_strtolower($GLOBALS["DB"]->type)."/cml2.php");
+		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/classes/mysql/cml2.php");
 		$iblockID = ImportXMLFile(
 			$xmlFile,
 			$iblockType,

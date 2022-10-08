@@ -301,6 +301,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      };
 
 	      const bitrixVue = ui_vue3.BitrixVue.createApp(initConfig);
+
+	      bitrixVue.config.errorHandler = function (err, vm, info) {
+	        console.error(err, info);
+	      };
+
+	      bitrixVue.config.warnHandler = function (warn, vm, trace) {
+	        console.warn(warn, trace);
+	      };
+
 	      application.bitrixVue = bitrixVue;
 	      bitrixVue.use(this.store).mount(initConfig.el);
 	    });

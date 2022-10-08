@@ -7,7 +7,7 @@
 	clear: both;
 	background: #fff;
 	padding: 0 20px;
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	border-radius: var(--main-mail-form-border-radius, var(--ui-border-radius-md));
 }
 
@@ -54,7 +54,7 @@
 }
 
 .main-mail-form-field-title-required .main-mail-form-field-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .main-mail-form-field-spacer {
@@ -150,7 +150,7 @@
 	padding: 0 5px;
 	height: 31px;
 	width: 100%;
-	font: 15px/31px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/31px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	vertical-align: middle;
 }
 

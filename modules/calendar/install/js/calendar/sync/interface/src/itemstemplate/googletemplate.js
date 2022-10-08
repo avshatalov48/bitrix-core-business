@@ -1,14 +1,16 @@
 // @flow
 'use strict';
 
-import {Dom, Loc, Tag, Event} from "main.core";
-import {InterfaceTemplate} from "./interfacetemplate";
-import ConnectionControls from "../controls/connectioncontrols";
+import { Loc, Event, Runtime } from 'main.core';
+import { InterfaceTemplate } from "./interfacetemplate";
 import { MessageBox } from 'ui.dialogs.messagebox';
-import {Popup} from "main.popup";
+import { Util } from 'calendar.util';
+import GoogleSyncWizard from "../syncwizard/googlesyncwizard"
 
 export default class GoogleTemplate extends InterfaceTemplate
 {
+	HANDLE_CONNECTION_DELAY = 500;
+
 	constructor(provider, connection = null)
 	{
 		super({
@@ -20,6 +22,7 @@ export default class GoogleTemplate extends InterfaceTemplate
 			descriptionActiveHeader: Loc.getMessage('CAL_GOOGLE_SELECTED_DESCRIPTION'),
 			sliderIconClass: 'calendar-sync-slider-header-icon-google',
 			iconPath: '/bitrix/images/calendar/sync/google.svg',
+			iconLogoClass: '--google',
 			color: '#387ced',
 			provider: provider,
 			connection: connection,
@@ -28,122 +31,51 @@ export default class GoogleTemplate extends InterfaceTemplate
 
 		this.sectionStatusObject = {};
 		this.sectionList = [];
+
+		this.handleSuccessConnectionDebounce = Runtime.debounce(this.handleSuccessConnection, this.HANDLE_CONNECTION_DELAY, this);
 	}
 
 	createConnection()
 	{
 		BX.ajax.runAction('calendar.api.calendarajax.analytical', {
 			analyticsLabel: {
+				calendarAction: 'createConnection',
 				click_to_connection_button: 'Y',
 				connection_type: 'google',
 			}
 		});
 
-		const childWindow = BX.util.popup(this.provider.getSyncLink(), 500, 600);
+		BX.util.popup(this.provider.getSyncLink(), 500, 600);
 
-
-		debugger;
-		Event.bind(childWindow, 'hashchange', (event) => {
-			debugger;
-			// eslint-disable-next-line no-console
-			console.log('hashchange');
-
-		});
+		Event.bind(window, 'hashchange', this.handleSuccessConnectionDebounce);
+		Event.bind(window, 'message', this.handleSuccessConnectionDebounce);
 	}
 
-	getContentInfoBody()
+	handleSuccessConnection(event)
 	{
-		const formObject = new ConnectionControls();
-		const button = formObject.getAddButton();
-		const buttonWrapper = formObject.getButtonWrapper();
-		const bodyHeader = this.getContentInfoBodyHeader();
-		const content = bodyHeader.querySelector('.calendar-sync-slider-header');
+		if (
+			(window.location.hash === '#googleAuthSuccess')
+			|| (event.data.title === 'googleAuthSuccess')
+		)
+		{
+			Util.removeHash();
+			this.provider.setWizardSyncMode(true);
 
-		Event.bind(button, 'click', this.handleConnectButton.bind(this));
-		Dom.append(button, buttonWrapper);
-		Dom.append(buttonWrapper, content);
-
-		return Tag.render`
-			${bodyHeader}
-		`;
+			this.provider.saveConnection();
+			this.openSyncWizard();
+			this.provider.setStatus(this.provider.STATUS_SYNCHRONIZING);
+			this.provider.getInterfaceUnit().refreshButton();
+		}
 	}
 
-	getContentActiveBody(): *
-	{
-		return Tag.render`
-			${this.getContentActiveBodyHeader()}
-			${this.getContentActiveBodySectionsManager()}
-		`;
-	}
-
-	getContentActiveBodyHeader()
-	{
-		const formObject = new ConnectionControls();
-		const disconnectButton = formObject.getDisconnectButton();
-		disconnectButton.addEventListener('click', (event) => {
-			event.preventDefault();
-			this.sendRequestRemoveConnection(this.connection.getId());
-		});
-
-		return Tag.render`
-			<div class="calendar-sync-slider-section">
-				<div class="calendar-sync-slider-header-icon calendar-sync-slider-header-icon-google"></div>
-				<div class="calendar-sync-slider-header">
-					<div class="calendar-sync-slider-title">${Loc.getMessage('CAL_GOOGLE_CALENDAR_IS_CONNECT')}</div>
-					<span class="calendar-sync-slider-account">
-						<span class="calendar-sync-slider-account-avatar"></span>
-						<span class="calendar-sync-slider-account-email">
-							${BX.util.htmlspecialchars(this.connection.getConnectionName())}
-						</span>
-					</span>
-					<div class="calendar-sync-slider-info">
-						<span class="calendar-sync-slider-info-text">
-							<a class="calendar-sync-slider-info-link" href="javascript:void(0);" onclick="${this.showHelp.bind(this)}">
-								${Loc.getMessage('CAL_TEXT_ABOUT_WORK_SYNC')}
-							</a>
-						</span>
-					</div>
-					${disconnectButton}
-				</div>
-			</div>
-			`;
-	}
-
-	getContentActiveBodySectionsManager()
-	{
-		return Tag.render`
-			<div class="calendar-sync-slider-section calendar-sync-slider-section-col">
-				<div class="calendar-sync-slider-header">
-					<div class="calendar-sync-slider-subtitle">${Loc.getMessage('CAL_AVAILABLE_CALENDAR')}</div>
-				</div>
-				<ul class="calendar-sync-slider-list">
-					${this.getContentActiveBodySections(this.connection.getId())}
-				</ul>
-			</div>
-		`;
-	}
-
-	getContentActiveBodySections(connectionId)
-	{
-		const sectionList = [];
-		this.sectionList.forEach(section => {
-			sectionList.push(Tag.render`
-				<li class="calendar-sync-slider-item">
-					<label class="ui-ctl ui-ctl-checkbox ui-ctl-xs">
-						<input type="checkbox" class="ui-ctl-element" value="${BX.util.htmlspecialchars(section['ID'])}" onclick="${this.onClickCheckSection.bind(this)}" ${section['ACTIVE'] === 'Y' ? 'checked' : ''}>
-						<div class="ui-ctl-label-text">${BX.util.htmlspecialchars(section['NAME'])}</div>
-					</label>
-				</li>
-			`);
-		});
-
-		return sectionList;
-	}
-	
 	getSectionsForGoogle()
 	{
 		return new Promise((resolve) => {
-			BX.ajax.runAction('calendar.api.calendarajax.getAllSectionsForGoogle')
+			BX.ajax.runAction('calendar.api.syncajax.getAllSectionsForGoogle', {
+				data: {
+					connectionId: this.connection.addParams.id
+				}
+			})
 			.then(
 				(response) => {
 					this.sectionList = response.data;
@@ -153,15 +85,14 @@ export default class GoogleTemplate extends InterfaceTemplate
 					resolve(response.errors);
 				}
 			);
-			
 		})
 	}
 
 	onClickCheckSection(event)
 	{
 		this.sectionStatusObject[event.target.value] = event.target.checked;
-
 		this.runUpdateInfo();
+		this.showUpdateSectionListNotification();
 	}
 
 	showAlertPopup()
@@ -188,7 +119,7 @@ export default class GoogleTemplate extends InterfaceTemplate
 
 	handleConnectButton()
 	{
-		if (this.provider.hasSetSyncCaldavSettings())
+		if (this.provider.hasSetSyncGoogleSettings())
 		{
 			this.createConnection();
 		}
@@ -196,5 +127,20 @@ export default class GoogleTemplate extends InterfaceTemplate
 		{
 			this.showAlertPopup();
 		}
+	}
+
+	openSyncWizard()
+	{
+		if (!this.wizard)
+		{
+			this.wizard = new GoogleSyncWizard();
+			this.wizard.openSlider();
+			this.provider.setActiveWizard(this.wizard);
+		}
+	}
+	
+	sendRequestRemoveConnection(id)
+	{
+		this.deactivateConnection(id);
 	}
 }

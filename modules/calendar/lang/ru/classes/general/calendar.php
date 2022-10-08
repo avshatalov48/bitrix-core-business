@@ -72,6 +72,7 @@ $MESS["EC_EVENT_REMINDER_IN_USER"] = "отмеченного в календар
 $MESS["EC_EVENT_REMINDER_IN_PERSONAL"] = "отмеченного в Вашем календаре \"#CALENDAR_NAME#\"";
 $MESS["EC_EVENT_REMINDER_IN_COMMON"] = "отмеченного в календаре \"#CALENDAR_NAME#\" (#IBLOCK_NAME#)";
 $MESS["EC_EVENT_REMINDER_DETAIL"] = "[url=#URL_VIEW#]Посмотреть подробности[/url]";
+$MESS["EC_EVENT_REMINDER_LOCATION"] = "Место проведения: \"[B]#LOCATION#[/B]\"";
 $MESS["EC_ACCESSIBILITY_S"] = "Занятость";
 $MESS["EC_ACCESSIBILITY"] = "Занятость пользователя";
 $MESS["EC_IMPORTANCE"] = "Важность";
@@ -611,7 +612,6 @@ $MESS["EC_RESERVE_PERIOD_WARN"] = "Бронирование переговорн
 $MESS["EC_CAL_OPEN_LINK"] = "Перейти в календарь";
 $MESS["EC_CAL_ACCESS_SETTINGS"] = "Настроить права доступа";
 $MESS["EC_CAL_ACCESS_SETTINGS_WARN"] = "Обратитесь к администратору для настройки прав доступа";
-$MESS["EC_CAL_GOOGLE_HIDE"] = "Отключить и скрыть";
 $MESS["EC_CAL_GOOGLE_HIDE_CONFIRM"] = "Вы действительно хотите отключить синхронизацию этого календаря и скрыть его?";
 $MESS["EC_CAL_SYNC_OK"] = "Синхронизировано";
 $MESS["EC_CAL_LAST_SYNC_DATE"] = "Дата последней успешной синхронизации";

@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,landing_ui_field_basefield,ui_buttons,landing_ui_component_internal,landing_loc) {
+(function (exports,ui_designTokens,ui_fonts_opensans,main_core,landing_ui_field_basefield,ui_buttons,landing_ui_component_internal,landing_loc) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3;
@@ -151,5 +151,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.RadioButtonField = RadioButtonField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Landing.UI.Field,BX.UI,BX.Landing.UI.Component,BX.Landing));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX,BX,BX.Landing.UI.Field,BX.UI,BX.Landing.UI.Component,BX.Landing));
 //# sourceMappingURL=radiobuttonfield.bundle.js.map

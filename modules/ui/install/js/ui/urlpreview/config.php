@@ -12,5 +12,6 @@ return [
 	'js' => [
 	],
 	'rel' => [
+		'ui.design-tokens'
 	],
 ];

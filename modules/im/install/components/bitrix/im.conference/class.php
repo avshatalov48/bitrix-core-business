@@ -66,7 +66,13 @@ class ImComponentConference extends CBitrixComponent
 			{
 				//if password is required - we check if user already had entered the password (this fact will be saved in session storage)
 				$storage = $this->getLocalSession();
-				if ($storage->get('checked') !== true)
+				$isUserInChat = Chat::isUserInChat($this->chatId);
+				if (!$isUserInChat && $storage->get('checked') === true)
+				{
+					$storage->set('checked', false);
+					$this->isPasswordRequired = true;
+				}
+				else if ($storage->get('checked') !== true)
 				{
 					$this->isPasswordRequired = true;
 				}

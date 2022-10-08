@@ -1,28 +1,10 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_field_basefield,main_core,landing_ui_field_smallswitch) {
+(function (exports,ui_designTokens,landing_ui_field_basefield,main_core,landing_ui_field_smallswitch) {
 	'use strict';
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-accordion-item landing-ui-field-accordion-item-active\" data-id=\"", "\">\n\t\t\t\t<div class=\"landing-ui-field-accordion-item-header\">\n\t\t\t\t\t<div class=\"landing-ui-field-accordion-item-header-icon\" style=\"background-image: url(", ")\"></div>\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass=\"landing-ui-field-accordion-item-header-title\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>", "</div>\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass=\"landing-ui-field-accordion-item-header-switch\"\n\t\t\t\t\t\tstyle=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t\t<div class=\"landing-ui-field-accordion-item-header-switch-link\"></div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"landing-ui-field-accordion-item-body\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-accordion-items-container\"></div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2;
 	var AccordionField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(AccordionField, _BaseField);
 
@@ -47,7 +29,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getItemsContainer",
 	    value: function getItemsContainer() {
 	      return this.cache.remember('itemsContainer', function () {
-	        return main_core.Tag.render(_templateObject());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-accordion-items-container\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
@@ -76,7 +58,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          }
 	        }
 	      });
-	      return main_core.Tag.render(_templateObject2(), options.id, options.icon, this.onTitleClick.bind(this), options.title, options.switcher === false ? 'display: none;' : '', switcher.layout, options.content);
+	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-accordion-item landing-ui-field-accordion-item-active\" data-id=\"", "\">\n\t\t\t\t<div class=\"landing-ui-field-accordion-item-header\">\n\t\t\t\t\t<div class=\"landing-ui-field-accordion-item-header-icon\" style=\"background-image: url(", ")\"></div>\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass=\"landing-ui-field-accordion-item-header-title\"\n\t\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>", "</div>\n\t\t\t\t\t<div \n\t\t\t\t\t\tclass=\"landing-ui-field-accordion-item-header-switch\"\n\t\t\t\t\t\tstyle=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t\t<div class=\"landing-ui-field-accordion-item-header-switch-link\"></div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"landing-ui-field-accordion-item-body\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), options.id, options.icon, this.onTitleClick.bind(this), options.title, options.switcher === false ? 'display: none;' : '', switcher.layout, options.content);
 	    }
 	  }, {
 	    key: "addItem",
@@ -90,5 +72,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.AccordionField = AccordionField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX,BX.Landing.UI.Field));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Landing.UI.Field,BX,BX.Landing.UI.Field));
 //# sourceMappingURL=accordionfield.bundle.js.map

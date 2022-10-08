@@ -1,4 +1,5 @@
 import { Reflection } from 'main.core';
+import 'ui.fonts.opensans';
 
 import ProgressBar from './progressbar';
 import ProgressBarColor from './progressbar-color';

@@ -69,6 +69,34 @@
 		</Properties>
 		<ElementProperties>
 			<Property>
+				<Id>BRAND_REF</Id>
+				<SmartFilter>true</SmartFilter>
+				<DisplayType>G</DisplayType>
+				<ShowExpanded>false</ShowExpanded>
+				<Hint></Hint>
+			</Property>
+			<Property>
+				<Id>MANUFACTURER</Id>
+				<SmartFilter>true</SmartFilter>
+				<DisplayType>F</DisplayType>
+				<ShowExpanded>false</ShowExpanded>
+				<Hint></Hint>
+			</Property>
+			<Property>
+				<Id>MATERIAL</Id>
+				<SmartFilter>true</SmartFilter>
+				<DisplayType>F</DisplayType>
+				<ShowExpanded>false</ShowExpanded>
+				<Hint></Hint>
+			</Property>
+			<Property>
+				<Id>COLOR</Id>
+				<SmartFilter>true</SmartFilter>
+				<DisplayType>F</DisplayType>
+				<ShowExpanded>false</ShowExpanded>
+				<Hint></Hint>
+			</Property>
+			<Property>
 				<Id>CML2_PICTURES</Id>
 				<SmartFilter>false</SmartFilter>
 				<DisplayType></DisplayType>

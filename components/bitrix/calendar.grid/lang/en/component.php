@@ -5,7 +5,6 @@ $MESS["EC_CALENDAR_INDEX"] = "Index calendar events";
 $MESS["EC_CALENDAR_NOT_PERMISSIONS_TO_VIEW_GRID_CONTENT"] = "Please contact your Bitrix24 administrator to get help";
 $MESS["EC_CALENDAR_NOT_PERMISSIONS_TO_VIEW_GRID_TITLE"] = "Access to the Calendar was restricted by your Bitrix24 administrator";
 $MESS["EC_CALENDAR_SPOTLIGHT_LIST"] = "Switch between various calendar views for your convenience. Try our new Schedule view created for busy professionals who need a list view of all meetings and appointments.";
-$MESS["EC_CALENDAR_SPOTLIGHT_ROOMS"] = "View meeting room availability";
 $MESS["EC_CALENDAR_SPOTLIGHT_SYNC"] = "Synchronize your calendars with other services and mobile devices automatically. The synchronization works both ways.";
 $MESS["EC_GROUP_ID_NOT_FOUND"] = "Cannot show the group calendar because the group ID is not specified.";
 $MESS["EC_GROUP_NOT_FOUND"] = "Group was not found.";

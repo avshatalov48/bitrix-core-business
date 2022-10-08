@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ADD"] = "Adds a new language";
 $MESS["CHARSET"] = "Charset:";
 $MESS["DAY_OF_WEEK_0"] = "Sunday";
@@ -44,7 +44,7 @@ $MESS["main_culture_edit_full_date1"] = "Day of week, day, month and year:";
 $MESS["main_culture_edit_long_date1"] = "Day, month and year:";
 $MESS["main_culture_edit_long_time1"] = "Long time format (with seconds):";
 $MESS["main_culture_edit_medium_date1"] = "Day, month (abbreviated) and year:";
-$MESS["main_culture_edit_note"] = "You can use the <a href=\"https://training.bitrix24.com/api_help/kernel/functions/date/formatdate.php\" target=\"_blank\">FormatDate()</a> function format specifiers as the date and time format specifier characters.";
+$MESS["main_culture_edit_note"] = "You can use the <a href=\"https://training.bitrix24.com/api_help/main/functions/date/formatdate.php\" target=\"_blank\">FormatDate()</a> function format specifiers as the date and time format specifier characters.";
 $MESS["main_culture_edit_note_currencies"] = "Use the <a href=\"/bitrix/admin/currencies.php?lang=#LANG#\">Currencies</a> page to configure currency output format.";
 $MESS["main_culture_edit_pm"] = "PM text:";
 $MESS["main_culture_edit_short_date1"] = "Numeric date format:";
@@ -59,4 +59,3 @@ $MESS["main_culture_numbers_decimals"] = "Decimal places:";
 $MESS["main_culture_numbers_example"] = "Sample:";
 $MESS["main_culture_numbers_format"] = "Number format";
 $MESS["main_culture_numbers_thousands_sep"] = "Thousands separator:";
-?>

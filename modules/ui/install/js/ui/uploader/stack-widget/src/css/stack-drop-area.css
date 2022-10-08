@@ -1,0 +1,53 @@
+.ui-uploader-stack-drop-area {
+	display: inline-flex;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	background-color: #fff;
+	border: 1px dashed #2fc6f6;
+	box-sizing: border-box;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 12px;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+.ui-uploader-stack-drop-area.--hover,
+.ui-uploader-stack-widget.--drag-over .ui-uploader-stack-drop-area {
+	background-color: rgb(238, 249, 254);
+	transition: background-color 0.3s linear;
+}
+
+.ui-uploader-stack-drop-area-content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-width: 100%;
+}
+
+.ui-uploader-stack-drop-area-icon {
+	width: var(--ui-uploader-stack-drop-area-icon-width);
+	height: var(--ui-uploader-stack-drop-area-icon-height);
+	background-image: var(--ui-uploader-stack-drop-area-icon-bg);
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+	opacity: 0.3;
+}
+
+.ui-uploader-stack-drop-area-title {
+	color: rgba(82, 92, 105, 0.8);
+	text-align: center;
+	margin: var(--ui-uploader-stack-drop-area-title-margin);
+	font-size: var(--ui-uploader-stack-drop-area-font-size);
+	padding: 0 2px;
+}
+
+.ui-uploader-stack-drop-area-hint {
+	color: rgba(82, 92, 105, 0.5);
+	font-size: 10px;
+	text-align: center;
+}

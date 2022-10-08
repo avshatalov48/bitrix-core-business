@@ -1,6 +1,6 @@
 /*Base*/
 span.req {
-	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	opacity: .6;
 	color: #ab2424;
@@ -33,7 +33,7 @@ span.req {
 
 .bx-lists-popup-title {
 	padding: 6px 0 11px 0;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 	color: #80868e;
 }
@@ -47,7 +47,7 @@ span.req {
 }
 
 .bx-lists-template-name {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 	color: #000;
 	margin: 15px 0 10px;
@@ -56,7 +56,7 @@ span.req {
 }
 
 .bx-lists-popup-label {
-	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size:14px;
 	opacity:.6;
 	color:#000;
@@ -64,7 +64,7 @@ span.req {
 
 .bx-lists-popup-error {
 	display: none;
-	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size:14px;
 	color: red;
 	padding-top: 5px;
@@ -116,9 +116,6 @@ span.req {
 .bx-lists-alert-popup {
 	background-color: #fffcde !important;
 	border: 1px solid #f0f0f0 !important;
-	border-radius: 3px !important;
-	-webkit-box-shadow: 0 19px 24px rgba(88, 112, 118, 0.17) !important;
-	box-shadow: 0 19px 24px rgba(88, 112, 118, 0.17) !important;
 }
 
 .lists-pagetitle-flexible-space {

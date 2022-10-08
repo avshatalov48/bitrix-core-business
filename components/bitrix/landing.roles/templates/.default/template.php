@@ -9,6 +9,8 @@ use \Bitrix\Landing\Manager;
 
 Loc::loadMessages(__FILE__);
 Manager::setPageTitle(Loc::getMessage('LANDING_TPL_TITLE'));
+
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
 \Bitrix\Main\Page\Asset::getInstance()->addCss(
 	'/bitrix/css/main/table/style.css'
 );
@@ -22,8 +24,11 @@ if ($arResult['FATAL'])
 	return;
 }
 
-// access
-\CJSCore::init(['access']);
+\Bitrix\Main\UI\Extension::load([
+	'access',
+	'ui.design-tokens'
+]);
+
 $drawSelect = function($position = '#inc#', $selectedId = null) use($arResult)
 {
 	$select = '<select class="table-blue-select" name="rights[ROLE_ID][' . $position . ']">';

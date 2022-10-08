@@ -188,7 +188,7 @@ class CCatalogProduct extends CAllCatalogProduct
 	 *
 	 * @return array
 	 */
-	public static function GetVATDataByIDList(array $list)
+	public static function GetVATDataByIDList(array $list): array
 	{
 		$output = [];
 		if (empty($list))
@@ -200,7 +200,7 @@ class CCatalogProduct extends CAllCatalogProduct
 	}
 
 	/**
-	 * @param int $id
+	 * @param $id
 	 *
 	 * @return false|array
 	 */
@@ -210,7 +210,7 @@ class CCatalogProduct extends CAllCatalogProduct
 		if ($id <= 0)
 			return false;
 		$result = self::loadVatInfoFromDB([$id]);
-		return (isset($result[$id]) ? $result[$id] : false);
+		return ($result[$id] ?? false);
 	}
 
 	/**
@@ -218,7 +218,7 @@ class CCatalogProduct extends CAllCatalogProduct
 	 *
 	 * @return array
 	 */
-	private static function loadVatInfoFromDB(array $list)
+	private static function loadVatInfoFromDB(array $list): array
 	{
 		$result = array_fill_keys($list, false);
 		$ids = [];
@@ -253,8 +253,11 @@ class CCatalogProduct extends CAllCatalogProduct
 				$productId = (int)$row['PRODUCT_ID'];
 				if (isset($row['TIMESTAMP_X']) && $row['TIMESTAMP_X'] instanceof Main\Type\DateTime)
 				{
-					/** @noinspection PhpUndefinedMethodInspection */
 					$row['TIMESTAMP_X'] = $row['TIMESTAMP_X']->toString();
+				}
+				if ($row['RATE'] !== null)
+				{
+					$row['RATE'] = (float)$row['RATE'];
 				}
 				static::$vatCache[$productId] = $row;
 				$result[$productId] = $row;

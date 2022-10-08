@@ -31,17 +31,18 @@ class UrlType extends StringType
 	 */
 	public static function prepareSettings(array $userField): array
 	{
-		$popup = ($userField['SETTINGS']['POPUP'] === 'N' ? 'N' : 'Y');
-		$size = (int)$userField['SETTINGS']['SIZE'];
-		$min = (int)$userField['SETTINGS']['MIN_LENGTH'];
-		$max = (int)$userField['SETTINGS']['MAX_LENGTH'];
+		$popup = (($userField['SETTINGS']['POPUP'] ?? 'Y') === 'N' ? 'N' : 'Y');
+		$size = (int)($userField['SETTINGS']['SIZE'] ?? 0);
+		$min = (int)($userField['SETTINGS']['MIN_LENGTH'] ?? 0);
+		$max = (int)($userField['SETTINGS']['MAX_LENGTH'] ?? 0);
+		$defaultValue = $userField['SETTINGS']['DEFAULT_VALUE'] ?? '';
 
 		return [
 			'POPUP' => $popup,
 			'SIZE' => ($size <= 1 ? 20 : ($size > 255 ? 225 : $size)),
 			'MIN_LENGTH' => $min,
 			'MAX_LENGTH' => $max,
-			'DEFAULT_VALUE' => $userField['SETTINGS']['DEFAULT_VALUE'],
+			'DEFAULT_VALUE' => $defaultValue,
 		];
 	}
 

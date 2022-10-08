@@ -18,7 +18,7 @@ class EventManager
 	 */
 	protected static $instance;
 
-	protected $handlers = array();
+	protected $handlers = [];
 	protected $isHandlersLoaded = false;
 
 	protected static $cacheKey = "b_module_to_module";
@@ -231,15 +231,20 @@ class EventManager
 	protected function loadEventHandlers()
 	{
 		$cache = Application::getInstance()->getManagedCache();
-		if ($cache->read(3600, self::$cacheKey))
+
+		if ($cache->read(3600, self::$cacheKey, self::$cacheKey))
 		{
-			$arEvents = $cache->get(self::$cacheKey);
+			$rawEvents = $cache->get(self::$cacheKey);
+
+			if (!is_array($rawEvents))
+			{
+				$rawEvents = [];
+			}
 		}
 		else
 		{
-			$arEvents = array();
-
 			$con = Application::getConnection();
+
 			$rs = $con->query("
 				SELECT FROM_MODULE_ID, MESSAGE_ID, SORT, TO_MODULE_ID, TO_PATH,
 					TO_CLASS, TO_METHOD, TO_METHOD_ARG, VERSION
@@ -247,54 +252,44 @@ class EventManager
 					INNER JOIN b_module m ON (m2m.TO_MODULE_ID = m.ID)
 				ORDER BY SORT
 			");
-			while ($ar = $rs->fetch())
-			{
-				$ar['TO_NAME'] = $this->formatEventName(
-					array(
-						"TO_MODULE_ID" => $ar["TO_MODULE_ID"],
-						"TO_CLASS" => $ar["TO_CLASS"],
-						"TO_METHOD" => $ar["TO_METHOD"]
-					)
-				);
-				$ar["~FROM_MODULE_ID"] = mb_strtoupper($ar["FROM_MODULE_ID"]);
-				$ar["~MESSAGE_ID"] = mb_strtoupper($ar["MESSAGE_ID"]);
-				if ($ar["TO_METHOD_ARG"] <> '')
-				{
-					$ar["TO_METHOD_ARG"] = unserialize($ar["TO_METHOD_ARG"], ['allowed_classes' => false]);
-				}
-				else
-				{
-					$ar["TO_METHOD_ARG"] = array();
-				}
 
-				$arEvents[] = $ar;
-			}
+			$rawEvents = $rs->fetchAll();
 
-			$cache->set(self::$cacheKey, $arEvents);
-		}
-
-		if (!is_array($arEvents))
-		{
-			$arEvents = array();
+			$cache->set(self::$cacheKey, $rawEvents);
 		}
 
 		$handlers = $this->handlers;
 		$hasHandlers = !empty($this->handlers);
 
-		// compatibility with former event manager
-		foreach ($arEvents as $ar)
+		foreach ($rawEvents as $ar)
 		{
-			$this->handlers[$ar["~FROM_MODULE_ID"]][$ar["~MESSAGE_ID"]][] = array(
-				"SORT" => $ar["SORT"],
-				"TO_MODULE_ID" => $ar["TO_MODULE_ID"],
-				"TO_PATH" => $ar["TO_PATH"],
-				"TO_CLASS" => $ar["TO_CLASS"],
-				"TO_METHOD" => $ar["TO_METHOD"],
-				"TO_METHOD_ARG" => $ar["TO_METHOD_ARG"],
-				"VERSION" => $ar["VERSION"],
-				"TO_NAME" => $ar["TO_NAME"],
-				"FROM_DB" => true,
-			);
+			$ar['TO_NAME'] = $this->formatEventName([
+				'TO_MODULE_ID' => $ar['TO_MODULE_ID'],
+				'TO_CLASS' => $ar['TO_CLASS'],
+				'TO_METHOD' => $ar['TO_METHOD'],
+			]);
+			$ar['FROM_MODULE_ID'] = strtoupper($ar['FROM_MODULE_ID']);
+			$ar['MESSAGE_ID'] = strtoupper($ar['MESSAGE_ID']);
+			if ($ar['TO_METHOD_ARG'] != '')
+			{
+				$ar['TO_METHOD_ARG'] = unserialize($ar['TO_METHOD_ARG'], ['allowed_classes' => false]);
+			}
+			else
+			{
+				$ar['TO_METHOD_ARG'] = [];
+			}
+
+			$this->handlers[$ar['FROM_MODULE_ID']][$ar['MESSAGE_ID']][] = [
+				'SORT' => $ar['SORT'],
+				'TO_MODULE_ID' => $ar['TO_MODULE_ID'],
+				'TO_PATH' => $ar['TO_PATH'],
+				'TO_CLASS' => $ar['TO_CLASS'],
+				'TO_METHOD' => $ar['TO_METHOD'],
+				'TO_METHOD_ARG' => $ar['TO_METHOD_ARG'],
+				'VERSION' => $ar['VERSION'],
+				'TO_NAME' => $ar['TO_NAME'],
+				'FROM_DB' => true,
+			];
 		}
 
 		if ($hasHandlers)
@@ -321,7 +316,7 @@ class EventManager
 	protected function clearLoadedHandlers()
 	{
 		$managedCache = Application::getInstance()->getManagedCache();
-		$managedCache->clean(self::$cacheKey);
+		$managedCache->clean(self::$cacheKey, self::$cacheKey);
 
 		foreach($this->handlers as $module=>$types)
 		{
@@ -329,7 +324,7 @@ class EventManager
 			{
 				foreach($events as $i => $event)
 				{
-					if($event["FROM_DB"] == true)
+					if(isset($event["FROM_DB"]) && $event["FROM_DB"])
 					{
 						unset($this->handlers[$module][$type][$i]);
 					}

@@ -3,8 +3,7 @@
 
 	BX.namespace("BX.Landing.UI");
 
-
-	var isString = BX.Landing.Utils.isString;
+	const slice = BX.Landing.Utils.slice;
 
 	/**
 	 * Implements interface for works with style node
@@ -37,6 +36,12 @@
 		this.onFrameLoad();
 	};
 
+	BX.Landing.UI.Style.SERVICE_CLASSES = [
+		'landing-card',
+		'slick-slide',
+		'slick-current',
+		'slick-active',
+	];
 
 	BX.Landing.UI.Style.prototype = {
 		/**
@@ -66,7 +71,7 @@
 
 		getNode: function(all)
 		{
-			var elements = [].slice.call(this.iframe.document.querySelectorAll(this.relativeSelector));
+			const elements = slice(this.iframe.document.querySelectorAll(this.relativeSelector));
 
 			if (this.isSelectGroup() || all)
 			{
@@ -313,7 +318,7 @@
 				{
 					if (affect !== "background-image")
 					{
-						[].slice.call(node.querySelectorAll("*")).forEach(function(child) {
+						slice(node.querySelectorAll("*")).forEach(function(child) {
 							child.style[affect] = null;
 							if (affect === "color")
 							{
@@ -375,15 +380,15 @@
 		 */
 		getValue: function(isNeedComputed)
 		{
-			var node = this.getNode().length ? this.getNode()[0] : null;
+			const node = this.getNode().length ? this.getNode()[0] : null;
+			const style = {};
 			if (node)
 			{
-				var style = {};
-				var isAllInlineProps = false;
+				let isAllInlineProps = false;
 				if (this.inlineProperties.length)
 				{
 					isAllInlineProps = true;
-					var styleObj = node.style;
+					const styleObj = node.style;
 					this.inlineProperties.forEach(function (prop) {
 						style[prop] = styleObj.getPropertyValue(prop).trim() || null;
 						isAllInlineProps = isAllInlineProps && !!style[prop];
@@ -398,10 +403,11 @@
 					}.bind(this));
 				}
 			}
+
 			return {
-				classList: node ? node.className.split(" ") : [],
+				classList: node ? this.sanitizeClassList(slice(node.classList)) : [],
 				affect: this.affects.toArray(),
-				style: style || {},
+				style: style,
 			};
 		},
 
@@ -410,15 +416,43 @@
 		 */
 		getValueForHistory: function ()
 		{
-			var value = {className: "", style: ""};
+			const value = {className: "", style: ""};
 
 			if (this.node[0])
 			{
-				value.className = this.node[0].className;
+				value.className = this.sanitizeClassName(this.node[0].className);
 				value.style = this.node[0].style.cssText;
 			}
 
 			return value;
-		}
+		},
+
+		/**
+		 * Remove service classes from class list
+		 * @param {[string]} classes
+		 * @returns {[string]} - array without service classes
+		 */
+		sanitizeClassList: function(classes)
+		{
+			const result = [];
+			classes.forEach(classItem => {
+				if (BX.Landing.UI.Style.SERVICE_CLASSES.indexOf(classItem) === -1)
+				{
+					result.push(classItem);
+				}
+			});
+
+			return result;
+		},
+
+		/**
+		 * Remove service classes from classes string
+		 * @param {string} classes
+		 * @returns {string} - classes string without service classes
+		 */
+		sanitizeClassName: function(classes)
+		{
+			return this.sanitizeClassList(classes.split(' ')).join(' ');
+		},
 	};
 })();

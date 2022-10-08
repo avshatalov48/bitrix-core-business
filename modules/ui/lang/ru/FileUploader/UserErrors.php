@@ -1,0 +1,19 @@
+<?
+$MESS["UPLOADER_MAX_FILE_SIZE_EXCEEDED"] = "Файл слишком большой.";
+$MESS["UPLOADER_MAX_FILE_SIZE_EXCEEDED_DESC"] = "Максимальный размер файла #maxFileSize#.";
+$MESS["UPLOADER_MIN_FILE_SIZE_EXCEEDED"] = "Файл слишком мал.";
+$MESS["UPLOADER_MIN_FILE_SIZE_EXCEEDED_DESC"] = "Минимальный размер файла #minFileSize#.";
+$MESS["UPLOADER_IMAGE_MAX_FILE_SIZE_EXCEEDED"] = "Размер файла изображения слишком большой.";
+$MESS["UPLOADER_IMAGE_MAX_FILE_SIZE_EXCEEDED_DESC"] = "Максимальный размер изображения #imageMaxFileSize#.";
+$MESS["UPLOADER_IMAGE_MIN_FILE_SIZE_EXCEEDED"] = "Размер файла изображения слишком маленький.";
+$MESS["UPLOADER_IMAGE_MIN_FILE_SIZE_EXCEEDED_DESC"] = "Минимальный размер изображения #imageMinFileSize#.";
+$MESS["UPLOADER_MAX_TOTAL_FILE_SIZE_EXCEEDED"] = "Превышен максимальный размер файлов.";
+$MESS["UPLOADER_MAX_TOTAL_FILE_SIZE_EXCEEDED_DESC"] = "Максимальный размер файлов: #maxTotalFileSize#.";
+$MESS["UPLOADER_FILE_TYPE_NOT_ALLOWED"] = "Файл неверного типа.";
+$MESS["UPLOADER_IMAGE_IS_TOO_SMALL"] = "Изображение слишком маленькое.";
+$MESS["UPLOADER_IMAGE_IS_TOO_SMALL_DESC"] = "Минимальный размер #minWidth#x#minHeight#.";
+$MESS["UPLOADER_IMAGE_IS_TOO_BIG"] = "Изображение слишком большое.";
+$MESS["UPLOADER_IMAGE_IS_TOO_BIG_DESC"] = "Максимальный размер #maxWidth#x#maxHeight#.";
+$MESS["UPLOADER_IMAGE_TYPE_NOT_SUPPORTED"] = "Тип изображения не поддерживается.";
+$MESS["UPLOADER_MAX_FILE_COUNT_EXCEEDED"] = "Превышено максимальное количество файлов.";
+$MESS["UPLOADER_MAX_FILE_COUNT_EXCEEDED_DESC"] = "Максимальное количество файлов: #maxFileCount#.";

@@ -22,7 +22,8 @@
 .bx-ui-smiles-category {
 	text-align: center;
 	flex: 0 0 100%;
-	font: 16px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	margin: 7px 0;
 }
 

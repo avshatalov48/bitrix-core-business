@@ -133,6 +133,7 @@ class CBPWhileActivity extends CBPCompositeActivity implements IBPActivityEventL
 
 		if (count($this->arActivities) > 0)
 		{
+			/** @var CBPActivity $activity */
 			$activity = $this->arActivities[0];
 			$activity->ReInitialize();
 			$activity->AddStatusChangeHandler(self::ClosedEvent, $this);

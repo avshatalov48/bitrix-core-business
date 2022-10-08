@@ -8,6 +8,7 @@ export class GoogleMap extends BaseProvider
 	constructor(options: {})
 	{
 		super(options);
+		this.setEventNamespace('BX.Landing.Provider.Map.GoogleMap');
 		this.code = 'google';
 		this.themes = themes;
 	}
@@ -39,8 +40,7 @@ export class GoogleMap extends BaseProvider
 			streetViewControl: Type.isBoolean(opts.streetViewControl) ? opts.streetViewControl : true,
 			rotateControl: Type.isBoolean(opts.rotateControl) ? opts.rotateControl : true,
 			fullscreenControl: Type.isBoolean(opts.fullscreenControl) ? opts.fullscreenControl : true,
-			styles: (opts.theme && opts.theme in this.themes ? this.themes[opts.theme] : [])
-				.concat(roads[opts.roads] || [], landmarks[opts.landmarks] || [], labels[opts.labels] || []),
+			styles: this.getStylesFromOptions(opts),
 		});
 
 		if (this.mapOptions.markers)
@@ -60,6 +60,20 @@ export class GoogleMap extends BaseProvider
 		this.mapInstance.addListener("click", this.onMapClickHandler);
 
 		super.init();
+	}
+
+	reinit(options: {})
+	{
+		this.mapInstance.setOptions({
+			styles: this.getStylesFromOptions(options)
+		});
+		super.reinit();
+	}
+
+	getStylesFromOptions(options)
+	{
+		return (options.theme && options.theme in this.themes ? this.themes[options.theme] : [])
+			.concat(roads[options.roads] || [], landmarks[options.landmarks] || [], labels[options.labels] || []);
 	}
 
 	/**

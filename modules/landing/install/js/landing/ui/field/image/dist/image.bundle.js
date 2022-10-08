@@ -347,7 +347,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      this.bindElement.classList.add("landing-ui-active");
 	      this.uploadMenu.toggle();
 
-	      if (!this.contentRoot) {
+	      if (!this.contentRoot && this.uploadMenu) {
 	        var rect = BX.pos(this.bindElement, this.bindElement.parentNode);
 	        this.uploadMenu.popupWindow.popupContainer.style.top = rect.bottom + "px";
 	        this.uploadMenu.popupWindow.popupContainer.style.left = "auto";

@@ -74,10 +74,8 @@ $activeSessionData = $activeSession ? $activeSession->toArray() : null;
 				</div>
 				<div class="bizproc-debugger-start__block-btn">
 					<button
-						class="ui-btn ui-btn-sm ui-btn-success ui-btn-round ui-btn-disabled"
+						class="ui-btn ui-btn-sm ui-btn-success ui-btn-round"
 						id="bizproc-debugger-start-interception-element"
-						data-hint="<?= htmlspecialcharsbx(\Bitrix\Main\Localization\Loc::getMessage('BIPZROC_DEBUGGER_START_TEMPLATE_COMING_SOON')) ?>"
-						data-hint-no-icon="y"
 					>
 						<?= htmlspecialcharsbx(\Bitrix\Main\Localization\Loc::getMessage('BIPZROC_DEBUGGER_START_TEMPLATE_START'))?>
 					</button>
@@ -101,8 +99,6 @@ $activeSessionData = $activeSession ? $activeSession->toArray() : null;
 		});
 
 		component.init();
-
-		BX.UI.Hint.init(BX('bizproc-debugger-start-interception-element').parentElement);
 
 		if (top.BX.Helper)
 		{

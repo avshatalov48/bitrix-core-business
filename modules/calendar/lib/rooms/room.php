@@ -12,51 +12,38 @@ Loc::loadMessages(__FILE__);
 
 class Room
 {
-	const TYPE = 'location';
+	public const TYPE = 'location';
 	
-	/** @var int $id*/
-	private $id;
-	/** @var int $locationId */
-	private $locationId;
-	/** @var int $capacity */
-	private $capacity;
+	/** @var int|null $id*/
+	private ?int $id = null;
+	/** @var int|null $locationId */
+	private ?int$locationId = null;
+	/** @var int|null  $capacity */
+	private ?int $capacity = null;
 	/** @var string $necessity */
-	private $necessity;
+	private string $necessity = 'N';
 	/** @var string $name */
-	private $name;
+	private string $name = '';
 	/** @var string $type */
-	private $type = self::TYPE;
+	private string $type = self::TYPE;
 	/** @var string $color */
-	private $color;
-	/** @var int $ownerId */
-	private $ownerId;
-	/** @var int $createdBy */
-	private $createdBy;
-	/** @var array $access */
-	private $access;
-	/** @var Error $error */
-	private $error;
-	
-	protected function __construct()
-	{
-	}
-	
-	public static function createInstanceFromRequest($request): Room
-	{
-		$room = new self();
-		$room->setId($request->getPost('id'))
-			->setLocationId($request->getPost('location_id'))
-			->setCapacity($request->getPost('capacity'))
-			->setNecessity($request->getPost('necessity'))
-			->setName($request->getPost('name'))
-			->setColor($request->getPost('color'))
-			->setOwnerId($request->getPost('ownerId'))
-			->setCreatedBy()
-			->setAccess($request->getPost('access'));
-		
-		return $room;
-	}
+	private string $color = '#9dcf00';
+	/** @var int|null $ownerId */
+	private ?int $ownerId = null;
+	/** @var int|null $createdBy */
+	private ?int $createdBy = null;
+	/** @var int|null $categoryId */
+	private ?int $categoryId = null;
+	/** @var array|null $access */
+	private ?array $access = [];
+	/** @var Error|null $error */
+	private ?Error $error = null;
 
+	/**
+	 * @param $params
+	 *
+	 * @return Room
+	 */
 	public static function createInstanceFromParams($params): Room
 	{
 		$room = new self();
@@ -68,158 +55,263 @@ class Room
 			->setColor($params['COLOR'])
 			->setOwnerId($params['OWNER_ID'])
 			->setCreatedBy()
-			->setAccess($params['ACCESS']);
+			->setAccess($params['ACCESS'])
+			->setCategoryId($params['CATEGORY_ID'])
+		;
 
 		return $room;
 	}
-	
+
+	/**
+	 * @return Room
+	 */
 	public function createInstance(): Room
 	{
 		return new self();
 	}
-	
-	private function setId($id): Room
+
+	/**
+	 * @param int|null $id
+	 *
+	 * @return Room
+	 */
+	public function setId(?int $id = null): Room
 	{
-		$this->id = (int)$id;
+		$this->id = $id;
 		
 		return $this;
 	}
-	
-	private function setLocationId($locationId): Room
+
+	/**
+	 * @param int|null $locationId
+	 *
+	 * @return Room
+	 */
+	public function setLocationId(?int $locationId = null): Room
 	{
-		$this->locationId = (int)$locationId;
+		$this->locationId = $locationId;
 		
 		return $this;
 		
 	}
-	
-	private function setCapacity($capacity): Room
+
+	/**
+	 * @param int|null $capacity
+	 *
+	 * @return Room
+	 */
+	public function setCapacity(?int $capacity = null): Room
 	{
-		$this->capacity = (int)$capacity;
+		$this->capacity = $capacity;
 		
 		return $this;
 	}
-	
-	private function setNecessity($necessity): Room
+
+	/**
+	 * @param string|null $necessity
+	 *
+	 * @return Room
+	 */
+	public function setNecessity(?string $necessity = 'N'): Room
 	{
 		$this->necessity = ($necessity === 'Y') ? 'Y' : 'N';
 		
 		return $this;
 	}
-	
-	public function setName($name): Room
+
+	/**
+	 * @param string|null $name
+	 *
+	 * @return $this
+	 */
+	public function setName(?string $name = ''): Room
 	{
 		$this->name = Manager::checkRoomName($name);
 		
 		return $this;
 	}
-	
-	private function setColor($color): Room
+
+	/**
+	 * @param string|null $color
+	 *
+	 * @return Room
+	 */
+	public function setColor(?string $color = ''): Room
 	{
 		$this->color = \CCalendar::Color($color);
 		
 		return $this;
 	}
-	
-	private function setOwnerId($ownerId): Room
+
+	/**
+	 * @param int|null $ownerId
+	 *
+	 * @return Room
+	 */
+	public function setOwnerId(?int $ownerId = null): Room
 	{
-		$this->ownerId = (int)$ownerId;
+		$this->ownerId = $ownerId;
 		
 		return $this;
 	}
-	
-	private function setCreatedBy(): Room
+
+	/**
+	 * @return Room
+	 */
+	public function setCreatedBy(): Room
 	{
 		$this->createdBy = \CCalendar::GetCurUserId();
 		
 		return $this;
 	}
-	
-	private function setAccess($access): Room
+
+	/**
+	 * @param array|null $access
+	 *
+	 * @return Room
+	 */
+	public function setAccess(?array $access = []): Room
 	{
 		$this->access = $access;
 		
 		return $this;
 	}
-	
+
+	/**
+	 * @param int|null $categoryId
+	 *
+	 * @return Room
+	 */
+	public function setCategoryId(?int $categoryId = null): Room
+	{
+		$this->categoryId = $categoryId ? $categoryId : null;
+
+		return $this;
+	}
+
+	/**
+	 * @param $error
+	 *
+	 * @return void
+	 */
 	private function addError($error)
 	{
 		$this->error = $error;
 	}
-	
-	public function getId(): int
+
+	/**
+	 * @return int|null
+	 */
+	public function getId(): ?int
 	{
 		return $this->id;
 	}
-	
-	public function getLocationId(): int
+
+	/**
+	 * @return int|null
+	 */
+	public function getLocationId(): ?int
 	{
 		return $this->locationId;
 	}
-	
-	public function getCapacity(): int
+
+	/**
+	 * @return int|null
+	 */
+	public function getCapacity(): ?int
 	{
 		return $this->capacity;
 	}
-	
+
+	/**
+	 * @return string
+	 */
 	public function getNecessity(): string
 	{
 		return $this->necessity;
 	}
-	
+
+	/**
+	 * @return string
+	 */
 	public function getName(): string
 	{
 		return $this->name;
 	}
-	
+
+	/**
+	 * @return string
+	 */
 	public function getType(): string
 	{
 		return $this->type;
 	}
-	
+
+	/**
+	 * @return string
+	 */
 	public function getColor(): string
 	{
 		return $this->color;
 	}
-	
-	public function getOwnerId(): int
+
+	/**
+	 * @return int|null
+	 */
+	public function getOwnerId(): ?int
 	{
 		return $this->ownerId;
 	}
-	
-	public function getCreatedBy(): int
+
+	/**
+	 * @return int|null
+	 */
+	public function getCreatedBy(): ?int
 	{
 		return $this->createdBy;
 	}
-	
+
+	/**
+	 * @return array
+	 */
 	public function getAccess(): array
 	{
 		return $this->access;
 	}
-	
+
+	/**
+	 * @return int|null
+	 */
+	public function getCategoryId(): ?int
+	{
+		return $this->categoryId;
+	}
+
+	/**
+	 * @return Error|null
+	 */
 	public function getError(): ?Error
 	{
 		return $this->error;
 	}
-	
+
 	/**
 	 * @return $this
+	 * @throws \Exception
 	 */
 	public function create(): Room
 	{
-		$section = SectionTable::add(
-			[
-				'CAL_TYPE' => $this->type,
-				'NAME' => $this->name,
-				'COLOR' => $this->color,
-				'OWNER_ID' => $this->ownerId,
-				'SORT' => 100,
-				'CREATED_BY' => $this->createdBy,
-				'DATE_CREATE' => new DateTime(),
-				'TIMESTAMP_X' => new DateTime(),
-				'ACTIVE' => 'Y',
-			]
-		);
+		$section = SectionTable::add([
+			'CAL_TYPE' => $this->type,
+			'NAME' => $this->name,
+			'COLOR' => $this->color,
+			'OWNER_ID' => $this->ownerId,
+			'SORT' => 100,
+			'CREATED_BY' => $this->createdBy,
+			'DATE_CREATE' => new DateTime(),
+			'TIMESTAMP_X' => new DateTime(),
+			'ACTIVE' => 'Y',
+		]);
 		if (!$section->isSuccess())
 		{
 			$this->addError(Loc::getMessage('EC_ROOM_SAVE_ERROR'));
@@ -233,6 +325,7 @@ class Room
 				'SECTION_ID' => $this->id,
 				'NECESSITY' => $this->necessity,
 				'CAPACITY' => $this->capacity,
+				'CATEGORY_ID' => $this->categoryId,
 			]
 		);
 		if (!$location->isSuccess())
@@ -245,9 +338,10 @@ class Room
 		
 		return $this;
 	}
-	
+
 	/**
 	 * @return $this
+	 * @throws \Exception
 	 */
 	public function update(): Room
 	{
@@ -272,6 +366,7 @@ class Room
 			[
 				'NECESSITY' => $this->necessity,
 				'CAPACITY' => $this->capacity,
+				'CATEGORY_ID' => $this->categoryId,
 			]
 		);
 		if (!$location->isSuccess())
@@ -283,9 +378,10 @@ class Room
 
 		return $this;
 	}
-	
+
 	/**
 	 * @return $this
+	 * @throws \Exception
 	 */
 	public function delete(): Room
 	{
@@ -304,6 +400,7 @@ class Room
 			
 			return $this;
 		}
+
 		return $this;
 	}
 }

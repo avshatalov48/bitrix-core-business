@@ -37,6 +37,22 @@ class Mask implements \ArrayAccess
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getVector()
+	{
+		$result = [];
+		foreach ($this->mask as $row)
+		{
+			foreach ($row as $column)
+			{
+				$result[] = $column;
+			}
+		}
+		return $result;
+	}
+
+	/**
 	 * @param int $precision
 	 * @return static
 	 */
@@ -79,6 +95,6 @@ class Mask implements \ArrayAccess
 
 	public function offsetGet($offset)
 	{
-		return (isset($this->mask[$offset])? $this->mask[$offset] : null);
+		return ($this->mask[$offset] ?? null);
 	}
 }

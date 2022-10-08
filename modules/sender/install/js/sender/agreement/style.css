@@ -4,11 +4,11 @@
 
 
 .tracker-text-bold {
-	font: bold 12px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 12px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .tracker-agreement-popup-title-item {
-	font: bold 14px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 14px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868E;
 }
 

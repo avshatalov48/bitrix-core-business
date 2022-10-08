@@ -1,3 +1,6 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 import {Dom, Tag, Text, Type} from 'main.core';
 import {BaseEvent} from 'main.core.events';
 import {BaseField} from 'landing.ui.field.basefield';

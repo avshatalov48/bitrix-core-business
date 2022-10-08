@@ -3,7 +3,7 @@
 	flex-wrap: nowrap;
 	align-items: stretch;
 	flex-direction: row;
-	font: 14px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	position: relative;
 	margin-top: 2px;
 }

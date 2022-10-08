@@ -2,8 +2,9 @@
 namespace Bitrix\Calendar\Internals;
 
 use Bitrix\Main;
-use Bitrix\Main\Entity\ReferenceField;
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\Loc,
+	Bitrix\Main\ORM\Fields\IntegerField,
+	Bitrix\Main\ORM\Fields\BooleanField;
 
 Loc::loadMessages(__FILE__);
 
@@ -16,10 +17,24 @@ Loc::loadMessages(__FILE__);
  * <li> SECTION_ID int mandatory
  * <li> NECESSITY bool ('N', 'Y') optional default 'N'
  * <li> CAPACITY int optional default 0
+ * <li> CATEGORY_ID int optional default null
  * </ul>
  *
  * @package Bitrix\Calendar
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_Location_Query query()
+ * @method static EO_Location_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_Location_Result getById($id)
+ * @method static EO_Location_Result getList(array $parameters = [])
+ * @method static EO_Location_Entity getEntity()
+ * @method static \Bitrix\Calendar\Internals\EO_Location createObject($setDefaultValues = true)
+ * @method static \Bitrix\Calendar\Internals\EO_Location_Collection createCollection()
+ * @method static \Bitrix\Calendar\Internals\EO_Location wakeUpObject($row)
+ * @method static \Bitrix\Calendar\Internals\EO_Location_Collection wakeUpCollection($rows)
+ */
 class LocationTable extends Main\Entity\DataManager
 {
 	/**
@@ -39,50 +54,23 @@ class LocationTable extends Main\Entity\DataManager
 	public static function getMap()
 	{
 		return [
-			'ID' => [
-				'data_type' => 'integer',
-				'primary' => true,
-				'autocomplete' => true,
-				'title' => Loc::getMessage('LOCATION_ID'),
-			],
-			'SECTION_ID' => [
-				'data_type' => 'integer',
-				'required' => true,
-				'validation' => array(__CLASS__, 'validateSectionId'),
-				'title' => Loc::getMessage('LOCATION_SECTION_ID')
-			],
-			'NECESSITY' => [
-				'data_type' => 'boolean',
-				'values' => ['N', 'Y'],
-				'title' => Loc::getMessage('LOCATION_NECESSITY'),
-			],
-			'CAPACITY' => [
-				'data_type' => 'integer',
-				'validation' => array(__CLASS__, 'validateCapacity'),
-				'title' => Loc::getMessage('LOCATION_CAPACITY')
-			],
+			(new IntegerField('ID'))
+				->configurePrimary()
+				->configureAutocomplete()
+			,
+			(new IntegerField('SECTION_ID'))
+				->configureRequired()
+			,
+			(new BooleanField('NECESSITY'))
+				->configureStorageValues('N', 'Y')
+				->configureDefaultValue('N')
+			,
+			(new IntegerField('CAPACITY'))
+				->configureDefaultValue(0)
+			,
+			(new IntegerField('CATEGORY_ID'))
+				->configureDefaultValue(null)
+			,
 		];
-	}
-
-	/**
-	 * Returns validators for SECTION_ID field.
-	 * @return array
-	 */
-	public static function validateSectionId()
-	{
-		return array(
-			new Main\Entity\Validator\Length(null, 100),
-		);
-	}
-
-	/**
-	 * Returns validators for CAPACITY field.
-	 * @return array
-	 */
-	public static function validateCapacity()
-	{
-		return array(
-			new Main\Entity\Validator\Length(null, 10),
-		);
 	}
 }

@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Main\Service\GeoIp;
 
 use Bitrix\Main;
@@ -7,14 +8,12 @@ use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Localization\Loc;
 
-Loc::loadMessages(__FILE__);
-
 /**
  * Class MaxMind
  * @package Bitrix\Main\Service\GeoIp
  * @link https://www.maxmind.com
  */
-final class MaxMind extends Base
+class MaxMind extends Base
 {
 	/**
 	 * @return string Title of handler.
@@ -42,8 +41,9 @@ final class MaxMind extends Base
 	{
 		$result = new Main\Result();
 		$httpClient = $this->getHttpClient();
-		$httpClient->setHeader('Authorization', 'Basic '.base64_encode($userId.':'.$licenseKey));
-		$httpRes = $httpClient->get("https://geoip.maxmind.com/geoip/v2.1/city/".$ipAddress.'?pretty');
+		$httpClient->setAuthorization($userId, $licenseKey);
+
+		$httpRes = $httpClient->get($this->getEndpoint() . $ipAddress . '?pretty');
 
 		$errors = $httpClient->getError();
 
@@ -67,9 +67,6 @@ final class MaxMind extends Base
 
 			if(is_array($arRes))
 			{
-				if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-					$arRes = Encoding::convertEncoding($arRes, 'UTF-8', SITE_CHARSET);
-
 				if ($status == 200)
 				{
 					$result->setData($arRes);
@@ -112,17 +109,16 @@ final class MaxMind extends Base
 	}
 
 	/**
-	 * @param string $ipAddress Ip address
+	 * @param string $ip Ip address
 	 * @param string $lang Language identifier
 	 * @return Result | null
 	 */
-	public function getDataResult($ipAddress, $lang = '')
+	public function getDataResult($ip, $lang = '')
 	{
 		$dataResult = new Result();
 		$geoData = new Data();
 		
-		$geoData->ip = $ipAddress;
-		$geoData->lang = $lang = $lang <> '' ? $lang : 'en';
+		$geoData->lang = ($lang <> '' ? $lang : 'en');
 
 		if($this->config['USER_ID'] == '' || $this->config['LICENSE_KEY'] == '')
 		{
@@ -130,44 +126,63 @@ final class MaxMind extends Base
 			return $dataResult;
 		}
 
-		$res = $this->sendRequest($ipAddress, $this->config['USER_ID'], $this->config['LICENSE_KEY']);
+		$res = $this->sendRequest($ip, $this->config['USER_ID'], $this->config['LICENSE_KEY']);
 
 		if($res->isSuccess())
 		{
+			$lang = $geoData->lang;
+
 			$data = $res->getData();
 
-			if(!empty($data['country']['names'][$lang]))
-				$geoData->countryName = $data['country']['names'][$lang];
+			if (strtolower(SITE_CHARSET) != 'utf-8')
+			{
+				$data = Encoding::convertEncoding($data, 'UTF-8', SITE_CHARSET);
+			}
 
-			if(!empty($data['country']['iso_code']))
-				$geoData->countryCode = $data['country']['iso_code'];
+			$geoData->ipNetwork = $data['traits']['network'] ?? null;
 
-			if(!empty($data['subdivisions'][0]['names'][$lang]))
-				$geoData->regionName = $data['subdivisions'][0]['names'][$lang];
+			$geoData->continentCode = $data['continent']['code'] ?? null;
+			$geoData->continentName = $data['continent']['names'][$lang] ?? $data['continent']['name'] ?? null;
 
-			if(!empty($data['subdivisions'][0]['iso_code']))
-				$geoData->regionCode = $data['subdivisions'][0]['iso_code'];
+			$geoData->countryCode = $data['country']['iso_code'] ?? null;
+			$geoData->countryName = $data['country']['names'][$lang] ?? $data['country']['name'] ?? null;
 
-			if(!empty($data['city']['names'][$lang]))
-				$geoData->cityName = $data['city']['names'][$lang];
+			$geoData->regionCode = $data['subdivisions'][0]['iso_code'] ?? null;
+			$geoData->regionGeonameId = $data['subdivisions'][0]['geoname_id'] ?? null;
+			$geoData->regionName = $data['subdivisions'][0]['names'][$lang] ?? $data['subdivisions'][0]['name'] ?? null;
 
-			if(!empty($data['location']['latitude']))
-				$geoData->latitude = $data['location']['latitude'];
+			if ($geoData->regionGeonameId)
+			{
+				$geoData->geonames[$geoData->regionGeonameId] = $res->getData()['subdivisions'][0]['names'] ?? [];
+			}
 
-			if(!empty($data['location']['longitude']))
-				$geoData->longitude = $data['location']['longitude'];
+			$geoData->subRegionCode = $data['subdivisions'][1]['iso_code'] ?? null;
+			$geoData->subRegionGeonameId = $data['subdivisions'][1]['geoname_id'] ?? null;
+			$geoData->subRegionName = $data['subdivisions'][1]['names'][$lang] ?? $data['subdivisions'][1]['name'] ?? null;
 
-			if(!empty($data['location']['time_zone']))
-				$geoData->timezone = $data['location']['time_zone'];
+			if ($geoData->subRegionGeonameId)
+			{
+				$geoData->geonames[$geoData->subRegionGeonameId] = $res->getData()['subdivisions'][1]['names'] ?? [];
+			}
 
-			if(!empty($data['postal']['code']))
-				$geoData->zipCode = $data['postal']['code'];
+			$geoData->cityName = $data['city']['names'][$lang] ?? $data['city']['name'] ?? null;
+			$geoData->cityGeonameId = $data['city']['geoname_id'] ?? null;
 
-			if(!empty($data['traits']['isp']))
-				$geoData->ispName = $data['traits']['isp'];
+			if ($geoData->cityGeonameId)
+			{
+				$geoData->geonames[$geoData->cityGeonameId] = $res->getData()['city']['names'] ?? [];
+			}
 
-			if(!empty($data['traits']['organization']))
-				$geoData->organizationName = $data['traits']['organization'];
+			$geoData->latitude = $data['location']['latitude'] ?? null;
+			$geoData->longitude = $data['location']['longitude'] ?? null;
+			$geoData->timezone = $data['location']['time_zone'] ?? null;
+
+			$geoData->zipCode = $data['postal']['code'] ?? null;
+
+			$geoData->ispName = $data['traits']['isp'] ?? null;
+			$geoData->organizationName = $data['traits']['organization'] ?? null;
+			$geoData->asn = $data['traits']['autonomous_system_number'] ?? null;
+			$geoData->asnOrganizationName = $data['traits']['autonomous_system_organization'] ?? null;
 		}
 		else
 		{
@@ -194,8 +209,9 @@ final class MaxMind extends Base
 	public function createConfigField(array $postFields)
 	{
 		return array(
-			'USER_ID' => isset($postFields['USER_ID']) ? $postFields['USER_ID'] : '',
-			'LICENSE_KEY' => isset($postFields['LICENSE_KEY']) ? $postFields['LICENSE_KEY'] : '',
+			'SERVICE' => $postFields['SERVICE'] ?? 'GeoIP2City',
+			'USER_ID' => $postFields['USER_ID'] ?? '',
+			'LICENSE_KEY' => $postFields['LICENSE_KEY'] ?? '',
 		);
 	}
 
@@ -204,21 +220,36 @@ final class MaxMind extends Base
 	 */
 	public function getConfigForAdmin()
 	{
-		return array(
-			array(
+		return [
+			[
+				'NAME' => 'SERVICE',
+				'TITLE' => Loc::getMessage("main_geoip_mm_service"),
+				'TYPE' => 'LIST',
+				'VALUE' => ($this->config['SERVICE'] ?? 'GeoIP2City'),
+				'OPTIONS' => [
+					'GeoLite2Country' => 'GeoLite2 Country',
+					'GeoLite2City' => 'GeoLite2 City',
+					'GeoIP2Country' => 'GeoIP2 Country',
+					'GeoIP2City' => 'GeoIP2 City',
+					'GeoIP2Insights' => 'GeoIP2 Insights',
+				],
+				'REQUIRED' => true,
+			],
+			[
 				'NAME' => 'USER_ID',
 				'TITLE' => Loc::getMessage('MAIN_SRV_GEOIP_MM_F_USER_ID'),
 				'TYPE' => 'TEXT',
 				'VALUE' => htmlspecialcharsbx($this->config['USER_ID']),
-				'REQUIRED' => true
-			),
-			array(
+				'REQUIRED' => true,
+			],
+			[
 				'NAME' => 'LICENSE_KEY',
 				'TITLE' => Loc::getMessage('MAIN_SRV_GEOIP_MM_F_LICENSE_KEY'),
 				'TYPE' => 'TEXT',
 				'VALUE' => htmlspecialcharsbx($this->config['LICENSE_KEY']),
-				'REQUIRED' => true			)
-		);
+				'REQUIRED' => true,
+			]
+		];
 	}
 
 	/**
@@ -226,18 +257,31 @@ final class MaxMind extends Base
 	 */
 	public function getProvidingData()
 	{
-		$result = new ProvidingData();
-		$result->countryName = true;
-		$result->countryCode = true;
-		$result->regionName = true;
-		$result->regionCode = true;
-		$result->cityName = true;
-		$result->latitude = true;
-		$result->longitude = true;
-		$result->timezone = true;
-		$result->zipCode = true;
-		$result->ispName = true;
-		$result->organizationName = true;
-		return $result;
+		$service = $this->config['SERVICE'] ?? 'GeoIP2City';
+
+		if ($service == 'GeoLite2Country' || $service == 'GeoIP2Country')
+		{
+			return ProvidingData::createForCountry();
+		}
+
+		return ProvidingData::createForCity();
+	}
+
+	protected function getEndpoint(): string
+	{
+		static $endpoints = [
+			'GeoLite2Country' => 'https://geolite.info/geoip/v2.1/country/',
+			'GeoLite2City' => 'https://geolite.info/geoip/v2.1/city/',
+			'GeoIP2Country' => 'https://geoip.maxmind.com/geoip/v2.1/country/',
+			'GeoIP2City' => 'https://geoip.maxmind.com/geoip/v2.1/city/',
+			'GeoIP2Insights' => 'https://geoip.maxmind.com/geoip/v2.1/insights/',
+		];
+
+		$service = $this->config['SERVICE'] ?? 'GeoIP2City';
+		if (isset($endpoints[$service]))
+		{
+			return $endpoints[$service];
+		}
+		return $endpoints['GeoIP2City'];
 	}
 }

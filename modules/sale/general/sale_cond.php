@@ -300,17 +300,11 @@ class CSaleCondCtrlBasketGroup extends CSaleCondCtrlGroup
 						$currency = Sale\Internals\SiteCurrencyTable::getSiteCurrency(static::$arInitParams['SITE_ID']);
 					if (!empty($currency))
 					{
-						if($oneControl['ID'] == 'CondCumulativeGroup' && $row['control'][2]['id'] === 'Value')
+						if ($oneControl['ID'] == 'CondCumulativeGroup')
 						{
-							//insert currency after Value atom.
-							array_splice($row['control'], 3, 0, $currency);
-							array_splice($row['control'], 4, 0, Loc::getMessage('BT_SALE_COND_GROUP_CUMULATIVE_BEFORE_CONDITION'));
 							$row['containsOneAction'] = true;
 						}
-						else
-						{
-							$row['control'][] = $currency;
-						}
+						$row['control'][] = $currency;
 					}
 					unset($currency);
 				}
@@ -505,27 +499,6 @@ class CSaleCondCtrlBasketGroup extends CSaleCondCtrlGroup
 						'VALIDATE' => ''
 					)
 				),
-				'All' => array(
-					'JS' => array(
-						'id' => 'All',
-						'name' => 'aggregator',
-						'type' => 'select',
-						'values' => array(
-							'AND' => Loc::getMessage('BT_SALE_COND_GROUP_SELECT_ALL'),
-							'OR' => Loc::getMessage('BT_SALE_COND_GROUP_SELECT_ANY')
-						),
-						'defaultText' => Loc::getMessage('BT_SALE_COND_GROUP_BASKET_NUMBER_GROUP_SELECT_DEF'),
-						'defaultValue' => 'AND',
-						'first_option' => '...'
-					),
-					'ATOM' => array(
-						'ID' => 'All',
-						'FIELD_TYPE' => 'string',
-						'FIELD_LENGTH' => 255,
-						'MULTIPLE' => 'N',
-						'VALIDATE' => 'list'
-					)
-				)
 			),
 			'CondBsktAmtGroup' => array(
 				'Logic' => array(

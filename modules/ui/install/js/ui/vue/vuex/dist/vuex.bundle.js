@@ -2791,7 +2791,7 @@
 	exports.VuexVendorV3 = index;
 	exports.VuexVendor = index;
 
-}((this.BX = this.BX || {}),BX,BX,BX));
+}((this.BX = this.BX || {}),BX,BX.Dexie3,BX));
 
 
 

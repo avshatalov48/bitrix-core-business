@@ -1,16 +1,19 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-class CBPGetListsDocumentActivity
-	extends CBPActivity
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+class CBPGetListsDocumentActivity extends CBPActivity
 {
 	public function __construct($name)
 	{
 		parent::__construct($name);
 		$this->arProperties = [
-			"Title"        => "",
+			"Title" => "",
 			"DocumentType" => null,
-			'ElementId'    => null,
+			'ElementId' => null,
 			"Fields" => null,
 			"FieldsMap" => null,
 		];
@@ -32,6 +35,11 @@ class CBPGetListsDocumentActivity
 
 	public function Execute()
 	{
+		if (!\Bitrix\Main\Loader::includeModule('lists'))
+		{
+			return CBPActivityExecutionStatus::Closed;
+		}
+
 		$documentType = $this->DocumentType;
 		$elementId = $this->ElementId;
 
@@ -45,6 +53,8 @@ class CBPGetListsDocumentActivity
 
 		$documentService = $this->workflow->GetService("DocumentService");
 
+		$this->logDebug($elementId, $documentType);
+
 		$realDocumentType = null;
 		$map = $this->FieldsMap;
 
@@ -52,7 +62,9 @@ class CBPGetListsDocumentActivity
 		{
 			$realDocumentType = $documentService->GetDocumentType($documentId);
 		}
-		catch (Exception $e) {}
+		catch (Exception $e)
+		{
+		}
 
 		if (!$realDocumentType || $realDocumentType !== $documentType)
 		{
@@ -69,11 +81,15 @@ class CBPGetListsDocumentActivity
 		}
 
 		$this->SetPropertiesTypes($map);
+		$values = [];
 
 		foreach ($map as $id => $field)
 		{
+			$values[$id] = $document[$id];
 			$this->arProperties[$id] = $document[$id];
 		}
+
+		$this->logDebugFields($map, $values);
 
 		return CBPActivityExecutionStatus::Closed;
 	}
@@ -88,12 +104,20 @@ class CBPGetListsDocumentActivity
 		}
 		catch (Exception $e)
 		{
-			$errors[] = ["code" => "NotExist", "parameter" => "DocumentType", "message" => GetMessage("BPGLDA_ERROR_DT")];
+			$errors[] = [
+				"code" => "NotExist",
+				"parameter" => "DocumentType",
+				"message" => GetMessage("BPGLDA_ERROR_DT"),
+			];
 		}
 
 		if (empty($testProperties['ElementId']))
 		{
-			$errors[] = ["code" => "NotExist", "parameter" => "ElementId", "message" => GetMessage("BPGLDA_ERROR_ELEMENT_ID")];
+			$errors[] = [
+				"code" => "NotExist",
+				"parameter" => "ElementId",
+				"message" => GetMessage("BPGLDA_ERROR_ELEMENT_ID"),
+			];
 		}
 
 		if (empty($testProperties['Fields']))
@@ -104,7 +128,8 @@ class CBPGetListsDocumentActivity
 		return array_merge($errors, parent::ValidateProperties($testProperties, $user));
 	}
 
-	public static function GetPropertiesDialog($paramDocumentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "", $popupWindow = null)
+	public static function GetPropertiesDialog($paramDocumentType, $activityName, $arWorkflowTemplate,
+		$arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "", $popupWindow = null)
 	{
 		if (!CModule::IncludeModule('lists'))
 		{
@@ -122,7 +147,8 @@ class CBPGetListsDocumentActivity
 			}
 			if (!empty($arCurrentActivity["Properties"]['DocumentType']))
 			{
-				$arCurrentValues['lists_document_type'] = implode('@', $arCurrentActivity["Properties"]['DocumentType']);
+				$arCurrentValues['lists_document_type'] = implode('@',
+					$arCurrentActivity["Properties"]['DocumentType']);
 			}
 			if (!empty($arCurrentActivity["Properties"]['Fields']))
 			{
@@ -134,37 +160,22 @@ class CBPGetListsDocumentActivity
 			? explode('@', $arCurrentValues['lists_document_type']) : null;
 
 		$dialog = new \Bitrix\Bizproc\Activity\PropertiesDialog(__FILE__, [
-			'documentType'       => $paramDocumentType,
-			'activityName'       => $activityName,
-			'workflowTemplate'   => $arWorkflowTemplate,
+			'documentType' => $paramDocumentType,
+			'activityName' => $activityName,
+			'workflowTemplate' => $arWorkflowTemplate,
 			'workflowParameters' => $arWorkflowParameters,
-			'workflowVariables'  => $arWorkflowVariables,
-			'currentValues'      => $arCurrentValues,
-			'formName'           => $formName
+			'workflowVariables' => $arWorkflowVariables,
+			'currentValues' => $arCurrentValues,
+			'formName' => $formName,
 		]);
 
-		$dialog->setMap([
-			'ElementId'    => [
-				'Name'      => GetMessage('BPGLDA_ELEMENT_ID'),
-				'FieldName' => 'lists_element_id',
-				'Type'      => 'string',
-				'Required'  => true
-			],
-			'DocumentType' => self::getDocumentTypeField(),
-			'Fields' => [
-				'Name'      => GetMessage('BPGLDA_FIELDS_LABEL'),
-				'FieldName' => 'fields',
-				'Type'      => 'select',
-				'Required'  => true,
-				'Multiple' => true,
-				'Options' => $documentType ? self::getDocumentFieldsOptions($documentType) : []
-			]
-		]);
+		$dialog->setMap(static::getPropertiesMap($paramDocumentType, ['listsDocumentType' => $documentType]));
 
 		return $dialog;
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$errors)
+	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate,
+		&$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$errors)
 	{
 		if (!CModule::IncludeModule('lists'))
 		{
@@ -175,10 +186,11 @@ class CBPGetListsDocumentActivity
 			'DocumentType' => $arCurrentValues['lists_document_type']
 				? explode('@', $arCurrentValues['lists_document_type']) : null,
 			'ElementId' => $arCurrentValues['lists_element_id'],
-			'Fields' => $arCurrentValues['fields']
+			'Fields' => $arCurrentValues['fields'],
 		];
 
-		$errors = self::ValidateProperties($properties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
+		$errors = self::ValidateProperties($properties,
+			new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
 
 		if ($errors)
 		{
@@ -191,6 +203,29 @@ class CBPGetListsDocumentActivity
 		$arCurrentActivity["Properties"] = $properties;
 
 		return true;
+	}
+
+	protected static function getPropertiesMap(array $documentType, array $context = []): array
+	{
+		$fieldList = $context['listsDocumentType'] ? self::getDocumentFieldsOptions($context['listsDocumentType']) : [];
+
+		return [
+			'ElementId' => [
+				'Name' => GetMessage('BPGLDA_ELEMENT_ID'),
+				'FieldName' => 'lists_element_id',
+				'Type' => 'string',
+				'Required' => true,
+			],
+			'DocumentType' => self::getDocumentTypeField(),
+			'Fields' => [
+				'Name' => GetMessage('BPGLDA_FIELDS_LABEL'),
+				'FieldName' => 'fields',
+				'Type' => 'select',
+				'Required' => true,
+				'Multiple' => true,
+				'Options' => $fieldList,
+			],
+		];
 	}
 
 	public static function getAjaxResponse($request)
@@ -214,17 +249,17 @@ class CBPGetListsDocumentActivity
 	private static function getDocumentTypeField()
 	{
 		$field = [
-			'Name'      => GetMessage('BPGLDA_DOC_TYPE'),
+			'Name' => GetMessage('BPGLDA_DOC_TYPE'),
 			'FieldName' => 'lists_document_type',
-			'Type'      => 'select',
-			'Required'  => true,
+			'Type' => 'select',
+			'Required' => true,
 		];
 
 		$options = $groups = [];
 
 		$processesType = COption::getOptionString("lists", "livefeed_iblock_type_id", 'bitrix_processes');
 		$groups = [
-			'lists'        => ['name' => GetMessage('BPGLDA_DT_LISTS'), 'items' => []],
+			'lists' => ['name' => GetMessage('BPGLDA_DT_LISTS'), 'items' => []],
 			$processesType => ['name' => GetMessage('BPGLDA_DT_PROCESSES'), 'items' => []],
 			'lists_socnet' => ['name' => GetMessage('BPGLDA_DT_LISTS_SOCNET'), 'items' => []],
 		];
@@ -236,15 +271,16 @@ class CBPGetListsDocumentActivity
 		}
 
 		$iterator = CIBlock::GetList(['SORT' => 'ASC', 'NAME' => 'ASC'], [
-			'ACTIVE'            => 'Y',
-			'TYPE'              => array_keys($groups),
+			'ACTIVE' => 'Y',
+			'TYPE' => array_keys($groups),
 			'CHECK_PERMISSIONS' => 'N',
 		]);
 
 		while ($row = $iterator->fetch())
 		{
-			$value = 'lists@'.($row['IBLOCK_TYPE_ID'] === $processesType ? 'BizprocDocument' : 'Bitrix\Lists\BizprocDocumentLists').'@iblock_'.$row['ID'];
-			$name = '['.$row['LID'].'] '.$row['NAME'];
+			$value = 'lists@' . ($row['IBLOCK_TYPE_ID'] === $processesType ? 'BizprocDocument'
+					: 'Bitrix\Lists\BizprocDocumentLists') . '@iblock_' . $row['ID'];
+			$name = '[' . $row['LID'] . '] ' . $row['NAME'];
 
 			$options[$value] = $name;
 			$groups[$row['IBLOCK_TYPE_ID']]['items'][$value] = $name;
@@ -280,17 +316,19 @@ class CBPGetListsDocumentActivity
 	{
 		$list = new CList($iblockId);
 		$listFields = $list->getFields();
-		$result = array();
+		$result = [];
 		foreach ($listFields as $key => $field)
 		{
 			if (mb_strpos($key, 'PROPERTY_') === 0)
 			{
 				if (!empty($field['CODE']))
-					$key = 'PROPERTY_'.$field['CODE'];
+				{
+					$key = 'PROPERTY_' . $field['CODE'];
+				}
 			}
 			$result[] = $key;
-			$result[] = $key.'_PRINTABLE';
-			$result[] = $key.'_printable';
+			$result[] = $key . '_PRINTABLE';
+			$result[] = $key . '_printable';
 		}
 		return $result;
 	}
@@ -310,5 +348,33 @@ class CBPGetListsDocumentActivity
 			}
 		}
 		return $map;
+	}
+
+	private function logDebug($id, $type)
+	{
+		if (!method_exists($this, 'getDebugInfo'))
+		{
+			return;
+		}
+
+		$debugInfo = $this->getDebugInfo([
+			'ElementId' => $id,
+			'DocumentType' => implode('@', $type),
+		]);
+
+		unset($debugInfo['Fields']);
+
+		$this->writeDebugInfo($debugInfo);
+	}
+
+	private function logDebugFields(array $fields, array $values)
+	{
+		if (!method_exists($this, 'getDebugInfo'))
+		{
+			return;
+		}
+
+		$debugInfo = $this->getDebugInfo($values, $fields);
+		$this->writeDebugInfo($debugInfo);
 	}
 }

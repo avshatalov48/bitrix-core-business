@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,main_core_events,landing_ui_component_internal) {
+(function (exports,ui_designTokens,main_core,main_core_events,landing_ui_component_internal) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
@@ -278,5 +278,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.BaseField = BaseField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Event,BX.Landing.UI.Component));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX,BX.Event,BX.Landing.UI.Component));
 //# sourceMappingURL=basefield.bundle.js.map

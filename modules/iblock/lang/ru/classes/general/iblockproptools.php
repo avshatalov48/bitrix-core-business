@@ -7,4 +7,5 @@ $MESS["IBPT_PROP_TITLE_ARTNUMBER"] = "Артикул";
 $MESS["IBPT_PROP_TITLE_BACKGROUND_IMAGE"] = "Фоновая картинка для шаблона";
 $MESS["IBPT_PROP_TITLE_PRODUCT_MORE_PHOTO"] = "Картинки товара";
 $MESS["IBPT_PROP_TITLE_PRODUCT_VARIATION_MORE_PHOTO"] = "Картинки вариации";
+$MESS["IBPT_PROP_TITLE_BRAND_FOR_FACEBOOK"] = "Бренд";
 ?>

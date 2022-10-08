@@ -138,6 +138,8 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			saveSettings: this.saveSettings.bind(this),
 			updateCounter: this.updateCounter.bind(this),
 			getActive: this.getActive.bind(this),
+			isDisabled: this.isDisabled.bind(this),
+			isVisibleItem: this.isVisibleItem.bind(this),
 			isEditEnabled: this.isEditEnabled.bind(this),
 			isActiveInMoreMenu: this.isActiveInMoreMenu.bind(this),
 			isSettingsEnabled: this.isSettingsEnabled,
@@ -1557,8 +1559,13 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 						data-slider-ignore-autobinding="true"
 					></span>`,
 					superTitle,
-					BX.Tag.render`<span class="main-buttons-item-text-title">${BX.Text.encode(itemText)}</span>`,
-					BX.Tag.render`<span class="main-buttons-item-menu-arrow"></span>`,
+					BX.Tag.render`
+						<span class="main-buttons-item-text-title">
+							<span class="main-buttons-item-text-box">${
+								BX.Text.encode(itemText)
+							}<span class="main-buttons-item-menu-arrow"></span></span>
+						</span>
+					`,
 					BX.Tag.render`<span 
 						class="main-buttons-item-edit-button"
 						onclick="${this.handleEditButtonClick.bind(this)}" 
@@ -1634,6 +1641,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 					{
 						const itemData = this.getItemData(current);
 						result.push({
+							id: itemData['DATA_ID'],
 							html: this.getMenuItemText(current),
 							href: itemData['URL'],
 							onclick: itemData['ON_CLICK'],
@@ -1671,6 +1679,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 					}
 
 					result.push({
+						id: itemData['DATA_ID'],
 						html: this.getMenuItemText(current),
 						href: itemData['URL'],
 						onclick: itemData['ON_CLICK'],
@@ -1768,6 +1777,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 						}
 
 						result.push({
+							id: itemData['DATA_ID'],
 							html: this.getMenuItemText(current),
 							href: itemData['URL'],
 							onclick: itemData['ON_CLICK'],
@@ -2137,7 +2147,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 						forceTop: true
 					},
 					subMenuOptions: {
-						className: '--sub-menu',
+						className: 'main-buttons-default-menu-popup --sub-menu',
 						minWidth: null,
 						events: {
 							onFirstShow: this._onChildMenuFirstShow.bind(this)
@@ -2244,6 +2254,8 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		 */
 		showMoreMenu: function()
 		{
+			clearTimeout(this.submenuLeaveTimeout);
+
 			if (!this.isEditEnabled())
 			{
 				this.closeChildMenu();
@@ -2272,6 +2284,8 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 		showChildMenu: function(item)
 		{
+			clearTimeout(this.childMenuLeaveTimeout);
+
 			if (!this.isEditEnabled())
 			{
 				this.closeMoreMenu();
@@ -4093,6 +4107,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		handleMoreMenuShow: function(event)
 		{
 			BX.Event.EventEmitter.emit('BX.Main.InterfaceButtons:onMenuShow');
+			BX.Event.EventEmitter.emit(this, 'BX.Main.InterfaceButtons:onMoreMenuShow', {event});
 			setTimeout(() => {
 				if (!this.isEditEnabled())
 				{
@@ -4103,6 +4118,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 		handleMoreMenuClose: function()
 		{
+			BX.Event.EventEmitter.emit(this, 'BX.Main.InterfaceButtons:onMoreMenuClose');
 			this.setMoreMenuShown(false);
 
 			if (this.isEditEnabled())
@@ -4156,6 +4172,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		{
 			BX.Dom.addClass(item, this.classMenuShown);
 			BX.Event.EventEmitter.emit('BX.Main.InterfaceButtons:onMenuShow');
+			BX.Event.EventEmitter.emit(this, 'BX.Main.InterfaceButtons:onSubMenuShow', {item, event});
 
 			if (this.theme !== 'default')
 			{
@@ -4169,6 +4186,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 		_onChildMenuClose: function(item)
 		{
+			BX.Event.EventEmitter.emit(this, 'BX.Main.InterfaceButtons:onSubMenuClose');
 			BX.Dom.removeClass(item, this.classMenuShown);
 			this.closePinHint();
 		},
@@ -4299,7 +4317,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 		/**
 		 * Checks whether the item is disabled
-		 * @private
+		 * @public
 		 * @method isDisabled
 		 * @param  {object} item
 		 * @return {boolean}
@@ -4462,7 +4480,7 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 
 		/**
 		 * Checks whether the item is visible
-		 * @private
+		 * @public
 		 * @method isVisibleItem
 		 * @param  {object}  item
 		 * @return {boolean}

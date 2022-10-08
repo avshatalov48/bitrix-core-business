@@ -392,6 +392,8 @@
 	margin: 0 0 5px 0;
 	position: relative;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+	/*border-radius: var(--ui-border-radius-2xs, 0);*/
+	border-radius: var(--ui-border-radius-md, 0);
 }
 
 .bizproc-automation-trigger-item::after {
@@ -469,6 +471,7 @@
 
 .bizproc-automation-trigger-item-wrapper-complete-light::after {
 	background: rgba(255,255,255,.8);
+	border-radius: var(--ui-border-radius-md, 0);
 }
 
 .bizproc-automation-trigger-item-wrapper::before {
@@ -1322,7 +1325,7 @@
 /*popup styles*/
 
 .bizproc-automation-popup {
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .bizproc-automation-popup-settings {
@@ -1385,7 +1388,7 @@
 	margin: 0 6px;
 	padding: 0 0 2px 0;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #0b66c3;
 	border-bottom: 1px dashed #0b66c3;
 	line-height: normal;
@@ -1431,7 +1434,7 @@
 .bizproc-automation-popup-select-input:checked + .bizproc-automation-popup-settings-link {
 	border-bottom: 1px dashed transparent;
 	color: #525c68;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bizproc-automation-popup-settings .multiple
@@ -1476,7 +1479,7 @@
 	display: block;
 	width: 100%;
 	resize: vertical;
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 	font-size: 14px;
 	line-height: 20px;
@@ -1495,7 +1498,7 @@
 	width: 100%;
 	background: #fff;
 	border: 1px solid #c6cdd3;
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 	font-size: 14px;
 	border-radius: var(--ui-field-border-radius, 2px);
@@ -1588,7 +1591,7 @@
 	line-height: 36px;
 	text-align: center;
 	height: 36px;
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 16px;
 	color: #555c6d;
 }
@@ -1661,7 +1664,7 @@
 	height: 32px;
 	line-height: 32px;
 	margin: 1px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	border-radius: 1px;
 	background: #a1e7f7;
 	white-space: nowrap;
@@ -1724,7 +1727,7 @@
 
 .bizproc-automation-popup-adv-title {
 	float: left;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 13px;
 	color: #80868e;
 	padding: 0 7px 0 0;
@@ -1903,7 +1906,7 @@
 	height: 38px;
 	outline: none;
 	margin: 0 10px 0 0;
-	font: 13px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010.97%206.86%22%3E%3Cpolygon%20points%3D%225.49%204.11%201.37%200%200%201.37%204.8%206.17%205.49%206.86%2010.97%201.37%209.6%200%205.49%204.11%22%20fill%3D%22%23535c69%22/%3E%3C/svg%3E');
 	background-position: right 10px center;
 	background-repeat: no-repeat;
@@ -1940,7 +1943,7 @@
 	min-width: 155px;
 	padding: 10px;
 	outline: none;
-	font: 13px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	line-height: 14px;
 	color: #000000;
 	border: 1px solid #c6cdd3;
@@ -2111,7 +2114,7 @@
 	vertical-align: middle;
 	text-align: center;
 	text-overflow: ellipsis;
-	font: 400 16px/36px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 16px/36px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .bizproc-automation-popup-settings-lbl {

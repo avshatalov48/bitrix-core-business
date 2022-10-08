@@ -34,7 +34,12 @@ $folderId = $arResult['FOLDER_ID'];
 // assets, title
 \Bitrix\Landing\Manager::setPageTitle(\htmlspecialcharsbx($arResult['TITLE']));
 \Bitrix\Main\UI\Extension::load([
-	'landing_master', 'landing.explorer', 'action_dialog', 'clipboard', 'sidepanel'
+	'ui.design-tokens',
+	'landing_master',
+	'landing.explorer',
+	'action_dialog',
+	'clipboard',
+	'sidepanel',
 ]);
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty(
@@ -592,8 +597,12 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 				<?if ($arParams['DRAFT_MODE'] != 'Y'):?>
 				{
 					text: params.wasModified && params.isActive
-						? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC_CHANGED'));?>'
-						: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC'));?>',
+						? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC_CHANGED')) ?>'
+						: (
+							params.isFolder
+							? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC_FOLDER')) ?>'
+							: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_PUBLIC')) ?>'
+						),
 					disabled: params.isDeleted || params.isPublicationDisabled || (!params.wasModified && params.isActive),
 					onclick: function(event)
 					{
@@ -638,7 +647,10 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 					}
 				},
 				{
-					text: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_UNPUBLIC'));?>',
+					text: params.isFolder
+						? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_UNPUBLIC_FOLDER')) ?>'
+						: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_UNPUBLIC')) ?>'
+					,
 					disabled: params.isDeleted || params.isPublicationDisabled || !params.isActive,
 					onclick: function(event)
 					{
@@ -897,6 +909,39 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 								sitePath = sitePath.replace(replace[0], replace[1]);
 							});
 
+							if (
+								event.data.from !== undefined
+								&& typeof BX.Landing.Metrika !== 'undefined'
+							)
+							{
+								var appCode = event.data.from.match(/app_code:(.*)=?:title/i);
+								var title = event.data.from.match(/title:(.*)=?:preview_url/iu);
+								var previewUrl = event.data.from.match(/preview_url:(.*)/i);
+								if (
+									appCode !== null
+									&& appCode.length > 1
+									&& title !== null
+									&& title.length > 1
+									&& previewUrl !== null
+									&& previewUrl.length > 1
+								)
+								{
+									var metrikaValue =
+										sitePath
+										+ '?action=templateCreated&app_code='
+										+ appCode[1]
+										+ '&title='
+										+ title[1]
+										+ '&preview_url='
+										+ previewUrl[1];
+									var metrika = new BX.Landing.Metrika(true);
+									metrika.sendLabel(
+										null,
+										'templateCreated',
+										metrikaValue
+									);
+								}
+							}
 							gotoSiteButton.setAttribute('href', sitePath);
 							window.location.href = sitePath;
 						}

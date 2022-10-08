@@ -380,7 +380,7 @@ class Event
 
 		if(Config::isProtobufUsed())
 		{
-			if(ProtobufTransport::sendMessages(self::$messages))
+			if(ProtobufTransport::sendMessages(self::$messages)->isSuccess())
 			{
 				self::$messages = [];
 			}

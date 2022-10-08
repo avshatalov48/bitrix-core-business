@@ -22,7 +22,7 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 
 	public function Execute()
 	{
-		global $DB;
+		global $DB, $APPLICATION;
 
 		if (!CModule::IncludeModule("socialnetwork") || !CModule::IncludeModule("blog"))
 		{
@@ -106,6 +106,17 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 			}
 
 			$newId = CBlogPost::add($postFields);
+			if ($newId === false && $APPLICATION->GetException())
+			{
+				$this->writeToTrackingService(
+					$APPLICATION->GetException()->GetString(),
+					0,
+					CBPTrackingType::Error
+				);
+
+				return CBPActivityExecutionStatus::Closed;
+			}
+
 			$postFields["ID"] = $newId;
 
 			$arParamsNotify = Array(
@@ -433,7 +444,7 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 
 		$debugInfo = $this->getDebugInfo([
 			'PostTitle' => $title,
-			'OwnerId' => 'user_' . $ownerId,
+			'OwnerId' => $ownerId ? 'user_' . $ownerId : $this->OwnerId,
 			'UsersTo' => $usersTo,
 		]);
 

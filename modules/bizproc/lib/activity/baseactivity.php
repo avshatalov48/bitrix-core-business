@@ -21,7 +21,7 @@ abstract class BaseActivity extends \CBPActivity
 		return $this->preparedProperties[$name] ?? parent::__get($name);
 	}
 
-	public function Execute()
+	public function execute()
 	{
 		if (!static::checkModules())
 		{
@@ -104,7 +104,7 @@ abstract class BaseActivity extends \CBPActivity
 		$this->WriteToTrackingService($message, $userId, $type);
 	}
 
-	public static function GetPropertiesDialog(
+	public static function getPropertiesDialog(
 		$documentType,
 		$activityName,
 		$workflowTemplate,
@@ -205,7 +205,7 @@ abstract class BaseActivity extends \CBPActivity
 		);
 	}
 
-	public static function GetPropertiesDialogValues(
+	public static function getPropertiesDialogValues(
 		$documentType,
 		$activityName,
 		&$workflowTemplate,
@@ -310,7 +310,7 @@ abstract class BaseActivity extends \CBPActivity
 
 	abstract protected static function getFileName(): string;
 
-	public static function ValidateProperties($testProperties = [], \CBPWorkflowTemplateUser $user = null)
+	public static function validateProperties($testProperties = [], \CBPWorkflowTemplateUser $user = null)
 	{
 		$errors = [];
 

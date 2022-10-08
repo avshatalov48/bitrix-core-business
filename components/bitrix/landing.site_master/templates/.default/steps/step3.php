@@ -29,29 +29,25 @@ if (\Bitrix\Main\Loader::includeModule('pull'))
 		<div class="landing-sm-content-page-edit landing-sm-content-page-edit--text"><?= Loc::getMessage('LANDING_TPL_ORDER_CREATE');?></div>
 	</div>
 </div>
-<?if (Manager::getZone() === 'by'):?>
+<?php if (Manager::getZone() === 'by'):?>
 	<div class="landing-sm-content-text landing-sm-content-text--italic">
 		<?= Loc::getMessage('LANDING_TPL_FIRST_ORDER_REQUIREMENTS', [
 			'#LINK_HELP1#' => '<a href="' . Help::getHelpUrl('FIRST_ORDER_REQUIREMENTS') . '">',
 			'#LINK_HELP2#' => '</a>'
 		])?>
 	</div>
-<?endif;?>
-<?if (Manager::availableOnlyForZone('ru') && Manager::getZone() !== 'by'):?>
+<?php endif;?>
+<?php if (Manager::getZone() === 'ru'):?>
 	<div class="landing-sm-content-text landing-sm-content-text--italic">
-		<?= //Loc::getMessage('LANDING_TPL_FIRST_ORDER_STEPS_1', [
-		//todo: need change lang phrases after approval and translation into other languages
-		Loc::getMessage('LANDING_TPL_FIRST_ORDER_STEPS', [
+		<?= Loc::getMessage('LANDING_TPL_FIRST_ORDER_STEPS_1', [
 			'#LINK_HELP1#' => '<a href="' . Help::getHelpUrl('FREE_MESSAGES') . '">',
 			'#LINK_HELP2#' => '</a>'
 		])?>
 	</div>
-	<!--
 	<div class="landing-sm-content-text landing-sm-content-text--italic">
-		<?php //Loc::getMessage('LANDING_TPL_FIRST_ORDER_STEPS_2')?>
+		<?= Loc::getMessage('LANDING_TPL_FIRST_ORDER_STEPS_2')?>
 	</div>
-	-->
-<?endif;?>
+<?php endif;?>
 <script>
 	BX.ready(function() {
 

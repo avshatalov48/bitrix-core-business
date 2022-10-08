@@ -13,11 +13,16 @@ use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 
-Extension::load("ui.common");
-Extension::load("ui.forms");
-Extension::load("ui.buttons");
-Extension::load("ui.notification");
-Extension::load("ui.alerts");
+Extension::load([
+	"ui.design-tokens",
+	"ui.fonts.opensans",
+	"ui.common",
+	"ui.forms",
+	"ui.buttons",
+	"ui.notification",
+	"ui.alerts",
+	"date",
+]);
 
 CJSCore::init(["date"]);
 

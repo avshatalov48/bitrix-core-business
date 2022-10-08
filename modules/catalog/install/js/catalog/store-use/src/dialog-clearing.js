@@ -25,7 +25,7 @@ export class DialogClearing
 					color: Button.Color.PRIMARY,
 					onclick: () => {
 						popup.close();
-						EventEmitter.emit(EventType.popup.confirm, {})
+						EventEmitter.emit(EventType.popup.enable, {})
 					}
 				}),
 				new BX.UI.Button({

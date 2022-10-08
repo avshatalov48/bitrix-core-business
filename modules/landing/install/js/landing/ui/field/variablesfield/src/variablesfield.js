@@ -83,7 +83,13 @@ export class VariablesField extends TextField
 				bindElement: this.getButton(),
 				targetContainer: this.getLayout(),
 				autoHide: true,
+				maxHeight: 250,
 				items: this.options.variables.map((variable) => {
+					if (variable.delimiter)
+					{
+						return {delimiter: true};
+					}
+
 					return {
 						text: variable.name,
 						onclick: () => {

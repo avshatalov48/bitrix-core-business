@@ -31,6 +31,8 @@ use Bitrix\Main\ORM\Fields;
  */
 class UserAuthCodeTable extends Data\DataManager
 {
+	use Data\Internal\DeleteByFilterTrait;
+
 	const TYPE_EMAIL = 'email';
 
 	public static function getTableName()
@@ -74,21 +76,5 @@ class UserAuthCodeTable extends Data\DataManager
 				Join::on('this.USER_ID', 'ref.ID')
 			))->configureJoinType('inner'),
 		);
-	}
-
-	public static function deleteByFilter(array $filter)
-	{
-		$entity = static::getEntity();
-		$conn = $entity->getConnection();
-
-		$where = Main\ORM\Query\Query::buildFilterSql($entity, $filter);
-
-		if($where <> '')
-		{
-			$where = " WHERE ".$where;
-		}
-
-		$conn->queryExecute("delete from b_user_auth_code".$where);
-		$entity->cleanCache();
 	}
 }

@@ -1,0 +1,19 @@
+<?
+$MESS["UPLOADER_MAX_FILE_SIZE_EXCEEDED"] = "File is too large.";
+$MESS["UPLOADER_MAX_FILE_SIZE_EXCEEDED_DESC"] = "Maximum file size is #maxFileSize#.";
+$MESS["UPLOADER_MIN_FILE_SIZE_EXCEEDED"] = "File is too small.";
+$MESS["UPLOADER_MIN_FILE_SIZE_EXCEEDED_DESC"] = "Minimum file size is #minFileSize#.";
+$MESS["UPLOADER_IMAGE_MAX_FILE_SIZE_EXCEEDED"] = "Image file size is too large.";
+$MESS["UPLOADER_IMAGE_MAX_FILE_SIZE_EXCEEDED_DESC"] = "Maximum image file size is #imageMaxFileSize#.";
+$MESS["UPLOADER_IMAGE_MIN_FILE_SIZE_EXCEEDED"] = "Image file size is too small.";
+$MESS["UPLOADER_IMAGE_MIN_FILE_SIZE_EXCEEDED_DESC"] = "Minimum image file size is #imageMinFileSize#.";
+$MESS["UPLOADER_MAX_TOTAL_FILE_SIZE_EXCEEDED"] = "Maximum total size exceeded.";
+$MESS["UPLOADER_MAX_TOTAL_FILE_SIZE_EXCEEDED_DESC"] = "Maximum total file size is #maxTotalFileSize#.";
+$MESS["UPLOADER_FILE_TYPE_NOT_ALLOWED"] = "File of invalid type.";
+$MESS["UPLOADER_IMAGE_IS_TOO_SMALL"] = "Image is too small.";
+$MESS["UPLOADER_IMAGE_IS_TOO_SMALL_DESC"] = "Minimum size is #minWidth#x#minHeight#.";
+$MESS["UPLOADER_IMAGE_IS_TOO_BIG"] = "Image is too big.";
+$MESS["UPLOADER_IMAGE_IS_TOO_BIG_DESC"] = "Maximum size is #maxWidth#x#maxHeight#.";
+$MESS["UPLOADER_IMAGE_TYPE_NOT_SUPPORTED"] = "Image type not supported.";
+$MESS["UPLOADER_MAX_FILE_COUNT_EXCEEDED"] = "Maximum number of files exceeded.";
+$MESS["UPLOADER_MAX_FILE_COUNT_EXCEEDED_DESC"] = "The maximum number of files is #maxFileCount#.";

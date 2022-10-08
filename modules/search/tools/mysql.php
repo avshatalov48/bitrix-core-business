@@ -46,21 +46,19 @@ class CSearchMysql extends CSearchFullText
 	{
 		$DB = CDatabase::GetModuleConnection('search');
 
-		if(array_key_exists("SEARCHABLE_CONTENT", $arFields))
+		if (array_key_exists("SEARCHABLE_CONTENT", $arFields))
 		{
 			$text_md5 = md5($arFields["SEARCHABLE_CONTENT"]);
 			$rsText = $DB->Query("SELECT SEARCH_CONTENT_MD5 FROM b_search_content_text WHERE SEARCH_CONTENT_ID = ".$ID);
 			$arText = $rsText->Fetch();
-			if(!$arText || $arText["SEARCH_CONTENT_MD5"] !== $text_md5)
+			if (!$arText || $arText["SEARCH_CONTENT_MD5"] !== $text_md5)
 			{
-				$DB->Query("DELETE FROM b_search_content_text WHERE SEARCH_CONTENT_ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-				$arText = array(
-					"ID" => 1,
-					"SEARCH_CONTENT_ID" => $ID,
-					"SEARCH_CONTENT_MD5" => $text_md5,
-					"SEARCHABLE_CONTENT" => $arFields["SEARCHABLE_CONTENT"]
-				);
-				$DB->Add("b_search_content_text", $arText, Array("SEARCHABLE_CONTENT"));
+				$DB->Query("
+					REPLACE INTO b_search_content_text
+					(SEARCH_CONTENT_ID, SEARCH_CONTENT_MD5, SEARCHABLE_CONTENT)
+					values
+					(".$ID.", '".$DB->ForSql($text_md5)."', '".$DB->ForSql($arFields["SEARCHABLE_CONTENT"])."')
+				");
 			}
 		}
 	}

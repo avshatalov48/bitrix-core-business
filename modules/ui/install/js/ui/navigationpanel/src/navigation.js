@@ -1,5 +1,6 @@
 import { Dom, Tag, Type } from 'main.core';
 import NavigationItem from './item';
+import 'ui.fonts.opensans';
 import './style.css';
 
 export default class NavigationPanel

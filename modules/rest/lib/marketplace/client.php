@@ -3,11 +3,14 @@ namespace Bitrix\Rest\Marketplace;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Event;
+use Bitrix\Main\EventManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\Engine\Access;
+use Bitrix\Bitrix24\Feature;
 
 if(!defined('REST_MP_CATEGORIES_CACHE_TTL'))
 {
@@ -20,9 +23,11 @@ class Client
 	private const SUBSCRIPTION_REGION = [
 		'ru',
 		'ua',
+		'by',
 	];
 	private const SUBSCRIPTION_DEFAULT_START_TIME = [
 		'ua' => 1625090400,
+		'by' => 1660514400,
 	];
 
 	protected static $buyLinkList = array(
@@ -618,7 +623,7 @@ class Client
 			&& !(
 				ModuleManager::isModuleInstalled('bitrix24')
 				&& Loader::includeModule('bitrix24')
-				&& \CBitrix24::getLicenseFamily() === "demo"
+				&& !Feature::isFeatureEnabled('rest_can_buy_subscription')
 			)
 		)
 		{
@@ -671,5 +676,20 @@ class Client
 		}
 
 		return static::$isPayApplicationAvailable;
+	}
+
+	/**
+	 * @param Event $event
+	 */
+	public static function onChangeSubscriptionDate(Event $event): void
+	{
+		if (static::isSubscriptionAvailable())
+		{
+			$event = new Event(
+				'rest',
+				'onSubscriptionRenew',
+			);
+			EventManager::getInstance()->send($event);
+		}
 	}
 }

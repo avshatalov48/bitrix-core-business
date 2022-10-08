@@ -52,7 +52,8 @@
 	border: none;
 	background: transparent;
 	text-transform: uppercase;
-	font: 12px/38px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px/38px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	-webkit-transition: all .3s ease-in-out;
 	-o-transition: all .3s ease-in-out;
 	transition: all .3s ease-in-out;
@@ -258,11 +259,13 @@
 .main-ui-filter-sidebar-title-item {
 	margin: 12px 0 10px;
 	color: #a0a5ab;
-	font: 8px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 8px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .main-ui-filter-sidebar-item-container {
-	font: 12px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .main-ui-filter-sidebar-item {
@@ -272,7 +275,8 @@
 	max-width: 174px;
 	height: 39px;
 	border-bottom: 1px solid #e7eaec;
-	font: 12px/38px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px/38px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	cursor: pointer;
 }
 
@@ -301,7 +305,8 @@
 	border: 0;
 	background: transparent;
 	text-transform: uppercase;
-	font: 12px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .main-ui-filter-sidebar-item-input { display: none; }
@@ -336,7 +341,7 @@
 .main-ui-filter-field-add-item {
 	border-bottom: 1px dashed transparent;
 	color: #1058d0;
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	cursor: pointer;
 	-webkit-transition: opacity .2s, border-bottom .2s;
 	-o-transition: opacity .2s, border-bottom .2s;
@@ -360,7 +365,7 @@
 	        box-sizing: border-box;
 	height: 30px;
 	border: none;
-	font: 15px/29px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .main-ui-filter-field-square {
@@ -371,7 +376,7 @@
 	padding: 0 30px;
 	height: 30px;
 	vertical-align: middle;
-	font: 15px/29px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-transition: background 0.2s linear;
 	-o-transition: background 0.2s linear;
 	transition: background 0.2s linear;
@@ -462,7 +467,8 @@
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
 	white-space: nowrap;
-	font: 11px/26px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	opacity: .6;
 	cursor: pointer;
 	-webkit-transition: opacity .3s ease;
@@ -528,14 +534,14 @@
 	-webkit-box-sizing: border-box;
 	        box-sizing: border-box;
 	/*margin: 4px 1px;*/
-	padding: 0 50px 0 16px;
+	padding: 0 55px 0 16px;
 	width: 100%;
 	height: 30px;
 	outline: none;
 	border: none;
 	border-radius: 2px;
 	background-color: #fff;
-	font: 15px/30px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/30px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	/*transition: background .3s;*/
 }
 
@@ -596,7 +602,8 @@
 	color: #c5c8cc;
 	content: '+';
 	text-align: center;
-	font: 15px/36px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/36px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 /* END OF SEARCH FIELD */
@@ -665,7 +672,7 @@ select::-ms-expand {
 .main-ui-entity-item {
 	display: block;
 	color: #266db4;
-	font: bold 14px/36px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 14px/36px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .main-ui-search-icon:before {
@@ -881,7 +888,8 @@ select::-ms-expand {
 	        flex-direction: column;
 	margin: 0 0 30px 0;
 	padding: 0 0 0 130px;
-	font: 31px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 31px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #525C69;
 	min-height: 84px;
 }
@@ -1095,7 +1103,7 @@ select::-ms-expand {
 	border: 1px solid transparent;
 	border-radius: var(--main-ui-filter-search-border-radius, var(--ui-border-radius-2xs, 2px));
 	background: #fff;
-	font: 15px/39px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/39px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-box-sizing: border-box;
 	        box-sizing: border-box;
 	outline: none;
@@ -1663,7 +1671,7 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 	color: #a9adb2;
 	display: inline-block;
 	width: 100%;
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	opacity: .7;
 	cursor: default;
 	white-space: nowrap;
@@ -1805,9 +1813,6 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 	color: #80868e;
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
-	-webkit-transition: opacity .3s ease;
-	-o-transition: opacity .3s ease;
-	transition: opacity .3s ease;
 	overflow: hidden;
 	white-space: nowrap;
 	opacity: 0;
@@ -1844,7 +1849,7 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 }
 
 .main-ui-filter-field-restore-items {
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(83,95,105, .5);
 	border-bottom: 1px dashed transparent;
 	-webkit-transition: opacity .2s, border-bottom .2s;
@@ -2197,4 +2202,16 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 
 .main-ui-filter-with-additional-filters .main-ui-filter-field-container-list > .main-ui-filter-field-with-additional-filter[data-type="NUMBER"] .main-ui-filter-additional-filters-button {
 	right: 0;
+}
+
+@media (max-width: 1540px) {
+	.main-ui-filter-compact-state.main-ui-filter-theme-rounded.main-ui-filter-search--active .main-ui-filter-search-square + .main-ui-filter-search-filter {
+		max-width: 9vw;
+	}
+}
+
+@media (max-width: 1470px) {
+	.bx-layout-table:not(.menu-collapsed-mode) .main-ui-filter-search .main-ui-filter-search-square .main-ui-square-item {
+		max-width: 6vw;
+	}
 }

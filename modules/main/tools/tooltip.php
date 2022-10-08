@@ -13,7 +13,7 @@ if(isset($_REQUEST["site"]) && is_string($_REQUEST["site"]))
 	define("SITE_ID", $site_id);
 }
 
-require_once(dirname(__FILE__)."/../include/prolog_before.php");
+require_once(__DIR__."/../include/prolog_before.php");
 
 if (!IsModuleInstalled("b24network"))
 {

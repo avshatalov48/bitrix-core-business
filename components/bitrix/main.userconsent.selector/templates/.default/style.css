@@ -8,7 +8,7 @@
 	-webkit-border-radius: 2px;
 	border-radius: var(--main-user-consent-selector-block-border-radius, var(--ui-border-radius-sm, 2px));
 	background: rgba(83,92,105,.07);
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	text-transform: lowercase;
 }
 
@@ -36,7 +36,7 @@
 	background-repeat: no-repeat;
 	background-position: 99% center;
 	background-color: #fff;
-	font: 15px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+	font: 15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #535C69;
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -57,7 +57,7 @@
 	border-bottom: 1px solid #0B66C3;
 }
 .main-user-consent-selector-block-link-bold {
-	font: bold 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 .main-user-consent-selector-block-hint {
 	margin: 0 0 10px 0;
@@ -71,6 +71,6 @@
 	padding: 14px 20px;
 	border-radius: var(--main-user-consent-selector-alert-border-radius, var(--ui-border-radius-sm, 3px));
 	background: #FFFDE1;
-	font: 13px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #8B7B60;
 }

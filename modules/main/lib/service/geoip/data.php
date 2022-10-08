@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Main\Service\GeoIp;
 
 /**
@@ -10,44 +11,63 @@ namespace Bitrix\Main\Service\GeoIp;
 class Data
 {
 	/** @var string Ip address. */
-	public $ip = Manager::INFO_NOT_AVAILABLE;
+	public $ip;
+	/** @var string Ip network. */
+	public $ipNetwork;
 
 	/** @var string Storing data language. */
-	public $lang = Manager::INFO_NOT_AVAILABLE;
+	public $lang;
 
+	/** @var string Continent name  */
+	public $continentName;
 	/** @var string Country name  */
-	public $countryName = Manager::INFO_NOT_AVAILABLE;
+	public $countryName;
 	/** @var string Region name  */
-	public $regionName = Manager::INFO_NOT_AVAILABLE;
+	public $regionName;
 	/** @var string Subregion name  */
-	public $subRegionName = Manager::INFO_NOT_AVAILABLE;
+	public $subRegionName;
 	/** @var string City name  */
-	public $cityName = Manager::INFO_NOT_AVAILABLE;
+	public $cityName;
 
+	/** @var string Continent code  */
+	public $continentCode;
 	/** @var string Country code  */
-	public $countryCode = Manager::INFO_NOT_AVAILABLE;
+	public $countryCode;
 	/** @var string Region code  */
-	public $regionCode = Manager::INFO_NOT_AVAILABLE;
+	public $regionCode;
+	/** @var string Subregion code  */
+	public $subRegionCode;
+
+	/** @var string A unique identifier for the location as specified by GeoNames  */
+	public $cityGeonameId;
+	/** @var string A unique identifier for the location as specified by GeoNames  */
+	public $regionGeonameId;
+	/** @var string A unique identifier for the location as specified by GeoNames  */
+	public $subRegionGeonameId;
+
+	/** @var array Names for geonameIds, always in UTF-8 */
+	public $geonames = [];
 
 	/** @var string Zip or postal code  */
-	public $zipCode = Manager::INFO_NOT_AVAILABLE;
+	public $zipCode;
 
 	/** @var string Latitude*/
-	public $latitude = Manager::INFO_NOT_AVAILABLE;
+	public $latitude;
 	/** @var string Longitude*/
-	public $longitude = Manager::INFO_NOT_AVAILABLE;
-
+	public $longitude;
 	/** @var string Timezone*/
-	public $timezone = Manager::INFO_NOT_AVAILABLE;
+	public $timezone;
+
+	/** @var string Internet Service Provider (ISP) name */
+	public $ispName;
+	/** @var string Organization name */
+	public $organizationName;
 
 	/** @var string Autonomous System Numbers (ASN) */
-	public $asn = Manager::INFO_NOT_AVAILABLE;
-	/** @var string Internet Service Provider (ISP) name */
-	public $ispName = Manager::INFO_NOT_AVAILABLE;
-
-	/** @var string Organization name */
-	public $organizationName = Manager::INFO_NOT_AVAILABLE;
+	public $asn;
+	/** @var string ASN organization */
+	public $asnOrganizationName;
 
 	/** @var string Geolocation handler - source of information */
-	public $handlerClass = Manager::INFO_NOT_AVAILABLE;
+	public $handlerClass;
 }

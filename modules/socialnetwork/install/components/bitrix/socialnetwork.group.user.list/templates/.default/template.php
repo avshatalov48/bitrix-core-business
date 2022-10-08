@@ -33,6 +33,7 @@ Extension::load([
 	'ui.buttons.icons',
 	'ui.label',
 	'ui.notification',
+	'ui.fonts.opensans',
 ]);
 
 $toolbarId = mb_strtolower($arResult['GRID_ID']) . '_toolbar';

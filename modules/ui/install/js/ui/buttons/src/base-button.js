@@ -2,6 +2,7 @@ import type IButton from './ibutton';
 import ButtonTag from './button/button-tag';
 import { Type, Tag, Dom, Event } from 'main.core';
 import { type BaseButtonOptions } from './base-button-options';
+import './ui.buttons.css';
 
 export default class BaseButton implements IButton
 {

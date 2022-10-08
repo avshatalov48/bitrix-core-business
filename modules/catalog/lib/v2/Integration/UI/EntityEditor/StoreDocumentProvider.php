@@ -167,23 +167,7 @@ class StoreDocumentProvider extends BaseProvider
 				'editable' => true,
 				'required' => true,
 			],
-			[
-				'name' => 'TOTAL_WITH_CURRENCY',
-				'title' => static::getFieldTitle('TOTAL_WITH_CURRENCY'),
-				'type' => 'money',
-				'data' => [
-					'largeFormat' => true,
-					'affectedFields' => ['CURRENCY', 'TOTAL'],
-					'amount' => 'TOTAL',
-					'currency' => [
-						'name' => 'CURRENCY',
-						'items' => $this->prepareCurrencyList(),
-					],
-					'formatted' => 'FORMATTED_TOTAL',
-					'formattedWithCurrency' => 'FORMATTED_TOTAL_WITH_CURRENCY',
-				],
-				'editable' => in_array($this->getDocumentType(), [StoreDocumentTable::TYPE_ARRIVAL, StoreDocumentTable::TYPE_STORE_ADJUSTMENT]),
-			],
+			$this->getTotalInfoControl(),
 			[
 				'name' => 'DATE_MODIFY',
 				'title' => static::getFieldTitle('DATE_MODIFY'),
@@ -221,6 +205,47 @@ class StoreDocumentProvider extends BaseProvider
 				'editable' => false,
 			],
 		];
+	}
+
+	protected function getTotalInfoControl(): array
+	{
+		$result = [
+			'name' => 'TOTAL_WITH_CURRENCY',
+			'editable' => in_array($this->getDocumentType(), [StoreDocumentTable::TYPE_ARRIVAL, StoreDocumentTable::TYPE_STORE_ADJUSTMENT]),
+		];
+
+		if ($this->isNewDocument())
+		{
+			return array_merge(
+				$result,
+				[
+					'title' => static::getFieldTitle('CURRENCY'),
+					'type' => 'list',
+					'data' => [
+						'items' => $this->prepareCurrencyList(),
+					]
+				],
+			);
+		}
+
+		return array_merge(
+			$result,
+			[
+				'title' => static::getFieldTitle('TOTAL_WITH_CURRENCY'),
+				'type' => 'money',
+				'data' => [
+					'largeFormat' => true,
+					'affectedFields' => ['CURRENCY', 'TOTAL'],
+					'amount' => 'TOTAL',
+					'currency' => [
+						'name' => 'CURRENCY',
+						'items' => $this->prepareCurrencyList(),
+					],
+					'formatted' => 'FORMATTED_TOTAL',
+					'formattedWithCurrency' => 'FORMATTED_TOTAL_WITH_CURRENCY',
+				],
+			]
+		);
 	}
 
 	protected function getDocumentSpecificFields(): array
@@ -741,7 +766,7 @@ class StoreDocumentProvider extends BaseProvider
 		$result = [];
 		$existingCurrencies = CurrencyTable::getList([
 			'select' => ['CURRENCY', 'FULL_NAME' => 'CURRENT_LANG_FORMAT.FULL_NAME', 'SORT'],
-			'order' => ['SORT' => 'ASC', 'CURRENCY' => 'ASC'],
+			'order' => ['BASE' => 'DESC', 'SORT' => 'ASC', 'CURRENCY' => 'ASC'],
 		])->fetchAll();
 		foreach ($existingCurrencies as $currency)
 		{
@@ -764,6 +789,8 @@ class StoreDocumentProvider extends BaseProvider
 				return Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_TITLE_ID');
 			case 'TOTAL_WITH_CURRENCY':
 				return Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_FIELD_TOTAL');
+			case 'CURRENCY':
+				return Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_FIELD_CURRENCY');
 			case 'ITEMS_ORDER_DATE':
 				return Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_ITEMS_ORDER_DATE_DOCUMENT');
 			case 'ITEMS_RECEIVED_DATE':

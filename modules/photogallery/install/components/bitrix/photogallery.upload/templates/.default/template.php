@@ -9,7 +9,12 @@
 * @var CMain $APPLICATION
 * @var CUser $USER
 */
-CUtil::InitJSCore("core", "ajax");
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ajax',
+]);
+
 $APPLICATION->AddHeadScript("/bitrix/components/bitrix/photogallery/templates/.default/script.js");
 $APPLICATION->AddHeadScript("/bitrix/components/bitrix/photogallery.interface/templates/.default/script.js");
 $APPLICATION->AddHeadScript("/bitrix/components/bitrix/search.tags.input/templates/.default/script.js");

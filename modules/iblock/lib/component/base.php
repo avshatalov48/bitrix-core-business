@@ -4496,9 +4496,13 @@ abstract class Base extends \CBitrixComponent
 					'QUANTITY' => $quantity
 				];
 				if (!empty($productProperties))
+				{
 					$product['PROPS'] = $productProperties;
-				$basketResult = Catalog\Product\Basket::addProduct($product, $rewriteFields);
+				}
 
+				$basketResult = Catalog\Product\Basket::addProduct($product, $rewriteFields, [
+					'USE_MERGE' => $this->isMergeProductWhenAddedBasket() ? 'Y' : 'N',
+				]);
 				if (!$basketResult->isSuccess())
 				{
 					$errorMsg = implode('; ', $basketResult->getErrorMessages());
@@ -4509,6 +4513,18 @@ abstract class Base extends \CBitrixComponent
 		}
 
 		return array($successfulAdd, $errorMsg);
+	}
+
+	/**
+	 * Should merge products when adding to the basket (increase the quantity of products)?
+	 *
+	 * If not exists parameter 'USE_MERGE_WHEN_ADD_PRODUCT_TO_BASKET' return true
+	 *
+	 * @return bool
+	 */
+	public function isMergeProductWhenAddedBasket()
+	{
+		return ($this->arParams['USE_MERGE_WHEN_ADD_PRODUCT_TO_BASKET'] ?? 'Y') !== 'N';
 	}
 
 	protected function getRewriteFields($action)

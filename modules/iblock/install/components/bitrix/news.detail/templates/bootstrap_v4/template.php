@@ -12,7 +12,7 @@
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
 $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_THEME'] : '';
-CUtil::InitJSCore(array('fx'));
+CUtil::InitJSCore(['fx', 'ui.fonts.opensans']);
 ?>
 <div class="news-detail<?=$themeClass?>">
 	<div class="mb-3" id="<?echo $this->GetEditAreaId($arResult['ID'])?>">

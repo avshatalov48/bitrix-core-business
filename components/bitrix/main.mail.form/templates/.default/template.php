@@ -427,7 +427,6 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 				'LHE' => array(
 					'id' => sprintf('%s_editor', $htmlFormId),
 					'documentCSS' => 'body { color:#434343; }',
-					'fontFamily' => "'Helvetica Neue', Helvetica, Arial, sans-serif",
 					'fontSize' => '15px',
 					'height' => $editorHeight,
 					'lazyLoad' => true,

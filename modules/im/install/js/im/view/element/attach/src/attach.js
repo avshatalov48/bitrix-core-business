@@ -7,6 +7,7 @@
  * @copyright 2001-2019 Bitrix
  */
 
+import 'ui.design-tokens';
 import './attach.css';
 
 import {AttachTypeDelimiter} from './types/delimiter';

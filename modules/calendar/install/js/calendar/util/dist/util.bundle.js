@@ -18,13 +18,13 @@ this.BX = this.BX || {};
 	  }
 
 	  var BX = window.BX;
-	  BX.Main.Date = {
+	  BX.Main.Date = BX.Main.DateTimeFormat = {
 	    AM_PM_MODE: {
 	      UPPER: 1,
 	      LOWER: 2,
 	      NONE: false
 	    },
-	    format: function format(_format, timestamp, now, utc) {
+	    format: function (format, timestamp, now, utc) {
 	      var _this = this;
 	      /*
 	      PHP to Javascript:
@@ -41,54 +41,54 @@ this.BX = this.BX || {};
 	      var date = Utils.isDate(timestamp) ? new Date(timestamp.getTime()) : Utils.isNumber(timestamp) ? new Date(timestamp * 1000) : new Date();
 	      var nowDate = Utils.isDate(now) ? new Date(now.getTime()) : Utils.isNumber(now) ? new Date(now * 1000) : new Date();
 	      var isUTC = !!utc;
-	      if (Utils.isArray(_format)) return _formatDateInterval(_format, date, nowDate, isUTC);else if (!Utils.isNotEmptyString(_format)) return "";
-	      var replaceMap = (_format.match(/{{([^{}]*)}}/g) || []).map(function (x) {
+	      if (Utils.isArray(format)) return _formatDateInterval(format, date, nowDate, isUTC);else if (!Utils.isNotEmptyString(format)) return "";
+	      var replaceMap = (format.match(/{{([^{}]*)}}/g) || []).map(function (x) {
 	        return (x.match(/[^{}]+/) || [''])[0];
 	      });
 
 	      if (replaceMap.length > 0) {
 	        replaceMap.forEach(function (element, index) {
-	          _format = _format.replace("{{" + element + "}}", "{{" + index + "}}");
+	          format = format.replace("{{" + element + "}}", "{{" + index + "}}");
 	        });
 	      }
 
 	      var formatRegex = /\\?(sago|iago|isago|Hago|dago|mago|Yago|sdiff|idiff|Hdiff|ddiff|mdiff|Ydiff|sshort|ishort|Hshort|dshort|mhort|Yshort|yesterday|today|tommorow|tomorrow|[a-z])/gi;
 	      var dateFormats = {
-	        d: function d() {
+	        d: function () {
 	          // Day of the month 01 to 31
 	          return Utils.strPadLeft(getDate(date).toString(), 2, "0");
 	        },
-	        D: function D() {
+	        D: function () {
 	          //Mon through Sun
 	          return _this._getMessage("DOW_" + getDay(date));
 	        },
-	        j: function j() {
+	        j: function () {
 	          //Day of the month 1 to 31
 	          return getDate(date);
 	        },
-	        l: function l() {
+	        l: function () {
 	          //Sunday through Saturday
 	          return _this._getMessage("DAY_OF_WEEK_" + getDay(date));
 	        },
-	        N: function N() {
+	        N: function () {
 	          //1 (for Monday) through 7 (for Sunday)
 	          return getDay(date) || 7;
 	        },
-	        S: function S() {
+	        S: function () {
 	          //st, nd, rd or th. Works well with j
 	          if (getDate(date) % 10 == 1 && getDate(date) != 11) return "st";else if (getDate(date) % 10 == 2 && getDate(date) != 12) return "nd";else if (getDate(date) % 10 == 3 && getDate(date) != 13) return "rd";else return "th";
 	        },
-	        w: function w() {
+	        w: function () {
 	          //0 (for Sunday) through 6 (for Saturday)
 	          return getDay(date);
 	        },
-	        z: function z() {
+	        z: function () {
 	          //0 through 365
 	          var firstDay = new Date(getFullYear(date), 0, 1);
 	          var currentDay = new Date(getFullYear(date), getMonth(date), getDate(date));
 	          return Math.ceil((currentDay - firstDay) / (24 * 3600 * 1000));
 	        },
-	        W: function W() {
+	        W: function () {
 	          //ISO-8601 week number of year
 	          var newDate = new Date(date.getTime());
 	          var dayNumber = (getDay(date) + 6) % 7;
@@ -99,96 +99,96 @@ this.BX = this.BX || {};
 	          var weekNumber = 1 + Math.ceil((firstThursday - newDate) / (7 * 24 * 3600 * 1000));
 	          return Utils.strPadLeft(weekNumber.toString(), 2, "0");
 	        },
-	        F: function F() {
+	        F: function () {
 	          //January through December
 	          return _this._getMessage("MONTH_" + (getMonth(date) + 1) + "_S");
 	        },
-	        f: function f() {
+	        f: function () {
 	          //January through December
 	          return _this._getMessage("MONTH_" + (getMonth(date) + 1));
 	        },
-	        m: function m() {
+	        m: function () {
 	          //Numeric representation of a month 01 through 12
 	          return Utils.strPadLeft((getMonth(date) + 1).toString(), 2, "0");
 	        },
-	        M: function M() {
+	        M: function () {
 	          //A short textual representation of a month, three letters Jan through Dec
 	          return _this._getMessage("MON_" + (getMonth(date) + 1));
 	        },
-	        n: function n() {
+	        n: function () {
 	          //Numeric representation of a month 1 through 12
 	          return getMonth(date) + 1;
 	        },
-	        t: function t() {
+	        t: function () {
 	          //Number of days in the given month 28 through 31
 	          var lastMonthDay = isUTC ? new Date(Date.UTC(getFullYear(date), getMonth(date) + 1, 0)) : new Date(getFullYear(date), getMonth(date) + 1, 0);
 	          return getDate(lastMonthDay);
 	        },
-	        L: function L() {
+	        L: function () {
 	          //1 if it is a leap year, 0 otherwise.
 	          var year = getFullYear(date);
 	          return year % 4 == 0 && year % 100 != 0 || year % 400 == 0 ? 1 : 0;
 	        },
-	        o: function o() {
+	        o: function () {
 	          //ISO-8601 year number
 	          var correctDate = new Date(date.getTime());
 	          setDate(correctDate, getDate(correctDate) - (getDay(date) + 6) % 7 + 3);
 	          return getFullYear(correctDate);
 	        },
-	        Y: function Y() {
+	        Y: function () {
 	          //A full numeric representation of a year, 4 digits
 	          return getFullYear(date);
 	        },
-	        y: function y() {
+	        y: function () {
 	          //A two digit representation of a year
 	          return getFullYear(date).toString().slice(2);
 	        },
-	        a: function a() {
+	        a: function () {
 	          //am or pm
 	          return getHours(date) > 11 ? "pm" : "am";
 	        },
-	        A: function A() {
+	        A: function () {
 	          //AM or PM
 	          return getHours(date) > 11 ? "PM" : "AM";
 	        },
-	        B: function B() {
+	        B: function () {
 	          //000 through 999
 	          var swatch = (date.getUTCHours() + 1) % 24 + date.getUTCMinutes() / 60 + date.getUTCSeconds() / 3600;
 	          return Utils.strPadLeft(Math.floor(swatch * 1000 / 24).toString(), 3, "0");
 	        },
-	        g: function g() {
+	        g: function () {
 	          //12-hour format of an hour without leading zeros 1 through 12
 	          return getHours(date) % 12 || 12;
 	        },
-	        G: function G() {
+	        G: function () {
 	          //24-hour format of an hour without leading zeros 0 through 23
 	          return getHours(date);
 	        },
-	        h: function h() {
+	        h: function () {
 	          //12-hour format of an hour with leading zeros 01 through 12
 	          return Utils.strPadLeft((getHours(date) % 12 || 12).toString(), 2, "0");
 	        },
-	        H: function H() {
+	        H: function () {
 	          //24-hour format of an hour with leading zeros 00 through 23
 	          return Utils.strPadLeft(getHours(date).toString(), 2, "0");
 	        },
-	        i: function i() {
+	        i: function () {
 	          //Minutes with leading zeros 00 to 59
 	          return Utils.strPadLeft(getMinutes(date).toString(), 2, "0");
 	        },
-	        s: function s() {
+	        s: function () {
 	          //Seconds, with leading zeros 00 through 59
 	          return Utils.strPadLeft(getSeconds(date).toString(), 2, "0");
 	        },
-	        u: function u() {
+	        u: function () {
 	          //Microseconds
 	          return Utils.strPadLeft((getMilliseconds(date) * 1000).toString(), 6, "0");
 	        },
-	        e: function e() {
+	        e: function () {
 	          if (isUTC) return "UTC";
 	          return "";
 	        },
-	        I: function I() {
+	        I: function () {
 	          if (isUTC) return 0; //Whether or not the date is in daylight saving time 1 if Daylight Saving Time, 0 otherwise
 
 	          var firstJanuary = new Date(getFullYear(date), 0, 1);
@@ -197,38 +197,38 @@ this.BX = this.BX || {};
 	          var firstJulyUTC = Date.UTC(getFullYear(date), 6, 0);
 	          return 0 + (firstJanuary - firstJanuaryUTC !== firstJuly - firstJulyUTC);
 	        },
-	        O: function O() {
+	        O: function () {
 	          if (isUTC) return "+0000"; //Difference to Greenwich time (GMT) in hours +0200
 
 	          var timezoneOffset = date.getTimezoneOffset();
 	          var timezoneOffsetAbs = Math.abs(timezoneOffset);
 	          return (timezoneOffset > 0 ? "-" : "+") + Utils.strPadLeft((Math.floor(timezoneOffsetAbs / 60) * 100 + timezoneOffsetAbs % 60).toString(), 4, "0");
 	        },
-	        P: function P() {
+	        P: function () {
 	          if (isUTC) return "+00:00"; //Difference to Greenwich time (GMT) with colon between hours and minutes +02:00
 
 	          var difference = this.O();
 	          return difference.substr(0, 3) + ":" + difference.substr(3);
 	        },
-	        Z: function Z() {
+	        Z: function () {
 	          if (isUTC) return 0; //Timezone offset in seconds. The offset for timezones west of UTC is always negative,
 	          //and for those east of UTC is always positive.
 
 	          return -date.getTimezoneOffset() * 60;
 	        },
-	        c: function c() {
+	        c: function () {
 	          //ISO 8601 date
 	          return "Y-m-d\\TH:i:sP".replace(formatRegex, _replaceDateFormat);
 	        },
-	        r: function r() {
+	        r: function () {
 	          //RFC 2822 formatted date
 	          return "D, d M Y H:i:s O".replace(formatRegex, _replaceDateFormat);
 	        },
-	        U: function U() {
+	        U: function () {
 	          //Seconds since the Unix Epoch
 	          return Math.floor(date.getTime() / 1000);
 	        },
-	        sago: function sago() {
+	        sago: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 1000), {
 	            "0": "FD_SECOND_AGO_0",
 	            "1": "FD_SECOND_AGO_1",
@@ -238,7 +238,7 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_SECOND_AGO_MOD_OTHER"
 	          });
 	        },
-	        sdiff: function sdiff() {
+	        sdiff: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 1000), {
 	            "0": "FD_SECOND_DIFF_0",
 	            "1": "FD_SECOND_DIFF_1",
@@ -248,10 +248,10 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_SECOND_DIFF_MOD_OTHER"
 	          });
 	        },
-	        sshort: function sshort() {
+	        sshort: function () {
 	          return _this._getMessage("FD_SECOND_SHORT").replace(/#VALUE#/g, intval((nowDate - date) / 1000));
 	        },
-	        iago: function iago() {
+	        iago: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 60 / 1000), {
 	            "0": "FD_MINUTE_AGO_0",
 	            "1": "FD_MINUTE_AGO_1",
@@ -261,7 +261,7 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_MINUTE_AGO_MOD_OTHER"
 	          });
 	        },
-	        idiff: function idiff() {
+	        idiff: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 60 / 1000), {
 	            "0": "FD_MINUTE_DIFF_0",
 	            "1": "FD_MINUTE_DIFF_1",
@@ -271,7 +271,7 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_MINUTE_DIFF_MOD_OTHER"
 	          });
 	        },
-	        isago: function isago() {
+	        isago: function () {
 	          var minutesAgo = intval((nowDate - date) / 60 / 1000);
 
 	          var result = _formatDateMessage(minutesAgo, {
@@ -295,10 +295,10 @@ this.BX = this.BX || {};
 	          });
 	          return result;
 	        },
-	        ishort: function ishort() {
+	        ishort: function () {
 	          return _this._getMessage("FD_MINUTE_SHORT").replace(/#VALUE#/g, intval((nowDate - date) / 60 / 1000));
 	        },
-	        Hago: function Hago() {
+	        Hago: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 1000), {
 	            "0": "FD_HOUR_AGO_0",
 	            "1": "FD_HOUR_AGO_1",
@@ -308,7 +308,7 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_HOUR_AGO_MOD_OTHER"
 	          });
 	        },
-	        Hdiff: function Hdiff() {
+	        Hdiff: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 1000), {
 	            "0": "FD_HOUR_DIFF_0",
 	            "1": "FD_HOUR_DIFF_1",
@@ -318,22 +318,22 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_HOUR_DIFF_MOD_OTHER"
 	          });
 	        },
-	        Hshort: function Hshort() {
+	        Hshort: function () {
 	          return _this._getMessage("FD_HOUR_SHORT").replace(/#VALUE#/g, intval((nowDate - date) / 60 / 60 / 1000));
 	        },
-	        yesterday: function yesterday() {
+	        yesterday: function () {
 	          return _this._getMessage("FD_YESTERDAY");
 	        },
-	        today: function today() {
+	        today: function () {
 	          return _this._getMessage("FD_TODAY");
 	        },
-	        tommorow: function tommorow() {
+	        tommorow: function () {
 	          return _this._getMessage("FD_TOMORROW");
 	        },
-	        tomorrow: function tomorrow() {
+	        tomorrow: function () {
 	          return _this._getMessage("FD_TOMORROW");
 	        },
-	        dago: function dago() {
+	        dago: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 24 / 1000), {
 	            "0": "FD_DAY_AGO_0",
 	            "1": "FD_DAY_AGO_1",
@@ -343,7 +343,7 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_DAY_AGO_MOD_OTHER"
 	          });
 	        },
-	        ddiff: function ddiff() {
+	        ddiff: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 24 / 1000), {
 	            "0": "FD_DAY_DIFF_0",
 	            "1": "FD_DAY_DIFF_1",
@@ -353,10 +353,10 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_DAY_DIFF_MOD_OTHER"
 	          });
 	        },
-	        dshort: function dshort() {
+	        dshort: function () {
 	          return _this._getMessage("FD_DAY_SHORT").replace(/#VALUE#/g, intval((nowDate - date) / 60 / 60 / 24 / 1000));
 	        },
-	        mago: function mago() {
+	        mago: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 24 / 31 / 1000), {
 	            "0": "FD_MONTH_AGO_0",
 	            "1": "FD_MONTH_AGO_1",
@@ -366,7 +366,7 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_MONTH_AGO_MOD_OTHER"
 	          });
 	        },
-	        mdiff: function mdiff() {
+	        mdiff: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 24 / 31 / 1000), {
 	            "0": "FD_MONTH_DIFF_0",
 	            "1": "FD_MONTH_DIFF_1",
@@ -376,10 +376,10 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_MONTH_DIFF_MOD_OTHER"
 	          });
 	        },
-	        mshort: function mshort() {
+	        mshort: function () {
 	          return _this._getMessage("FD_MONTH_SHORT").replace(/#VALUE#/g, intval((nowDate - date) / 60 / 60 / 24 / 31 / 1000));
 	        },
-	        Yago: function Yago() {
+	        Yago: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 24 / 365 / 1000), {
 	            "0": "FD_YEARS_AGO_0",
 	            "1": "FD_YEARS_AGO_1",
@@ -389,7 +389,7 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_YEARS_AGO_MOD_OTHER"
 	          });
 	        },
-	        Ydiff: function Ydiff() {
+	        Ydiff: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 24 / 365 / 1000), {
 	            "0": "FD_YEARS_DIFF_0",
 	            "1": "FD_YEARS_DIFF_1",
@@ -399,7 +399,7 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_YEARS_DIFF_MOD_OTHER"
 	          });
 	        },
-	        Yshort: function Yshort() {
+	        Yshort: function () {
 	          return _formatDateMessage(intval((nowDate - date) / 60 / 60 / 24 / 365 / 1000), {
 	            "0": "FD_YEARS_SHORT_0",
 	            "1": "FD_YEARS_SHORT_1",
@@ -409,13 +409,13 @@ this.BX = this.BX || {};
 	            "MOD_OTHER": "FD_YEARS_SHORT_MOD_OTHER"
 	          });
 	        },
-	        x: function x() {
+	        x: function () {
 	          var ampm = _this.isAmPmMode(true);
 
 	          var timeFormat = ampm === _this.AM_PM_MODE.LOWER ? "g:i a" : ampm === _this.AM_PM_MODE.UPPER ? "g:i A" : "H:i";
 	          return _this.format([["tomorrow", "tomorrow, " + timeFormat], ["-", _this.convertBitrixFormat(_this._getMessage("FORMAT_DATETIME")).replace(/:s/g, "")], ["s", "sago"], ["i", "iago"], ["today", "today, " + timeFormat], ["yesterday", "yesterday, " + timeFormat], ["", _this.convertBitrixFormat(_this._getMessage("FORMAT_DATETIME")).replace(/:s/g, "")]], date, nowDate, isUTC);
 	        },
-	        X: function X() {
+	        X: function () {
 	          var ampm = _this.isAmPmMode(true);
 
 	          var timeFormat = ampm === _this.AM_PM_MODE.LOWER ? "g:i a" : ampm === _this.AM_PM_MODE.UPPER ? "g:i A" : "H:i";
@@ -426,19 +426,19 @@ this.BX = this.BX || {};
 
 	          if (time.length > 0) return _this._getMessage("FD_DAY_AT_TIME").replace(/#DAY#/g, day).replace(/#TIME#/g, time);else return day;
 	        },
-	        Q: function Q() {
+	        Q: function () {
 	          var daysAgo = intval((nowDate - date) / 60 / 60 / 24 / 1000);
 	          if (daysAgo == 0) return _this._getMessage("FD_DAY_DIFF_1").replace(/#VALUE#/g, 1);else return _this.format([["d", "ddiff"], ["m", "mdiff"], ["", "Ydiff"]], date, nowDate);
 	        }
 	      };
 	      var cutZeroTime = false;
 
-	      if (_format[0] && _format[0] == "^") {
+	      if (format[0] && format[0] == "^") {
 	        cutZeroTime = true;
-	        _format = _format.substr(1);
+	        format = format.substr(1);
 	      }
 
-	      var result = _format.replace(formatRegex, _replaceDateFormat);
+	      var result = format.replace(formatRegex, _replaceDateFormat);
 
 	      if (cutZeroTime) {
 	        /* 	15.04.12 13:00:00 => 15.04.12 13:00
@@ -612,7 +612,7 @@ this.BX = this.BX || {};
 	        return number >= 0 ? Math.floor(number) : Math.ceil(number);
 	      }
 	    },
-	    convertBitrixFormat: function convertBitrixFormat(format) {
+	    convertBitrixFormat: function (format) {
 	      if (!Utils.isNotEmptyString(format)) return "";
 	      return format.replace("YYYY", "Y") // 1999
 	      .replace("MMMM", "F") // January - December
@@ -628,7 +628,7 @@ this.BX = this.BX || {};
 	      .replace("TT", "A") // AM - PM
 	      .replace("T", "a"); // am - pm
 	    },
-	    convertToUTC: function convertToUTC(date) {
+	    convertToUTC: function (date) {
 	      if (!Utils.isDate(date)) return null;
 	      return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds()));
 	    },
@@ -640,7 +640,7 @@ this.BX = this.BX || {};
 	     * @param timestamp - timestamp in seconds
 	     * @returns {Date}
 	     */
-	    getNewDate: function getNewDate(timestamp) {
+	    getNewDate: function (timestamp) {
 	      return new Date(this.getBrowserTimestamp(timestamp));
 	    },
 
@@ -651,7 +651,7 @@ this.BX = this.BX || {};
 	     * @param timestamp - timestamp in seconds
 	     * @returns {number}
 	     */
-	    getBrowserTimestamp: function getBrowserTimestamp(timestamp) {
+	    getBrowserTimestamp: function (timestamp) {
 	      timestamp = parseInt(timestamp, 10);
 	      var browserOffset = new Date(timestamp * 1000).getTimezoneOffset() * 60;
 	      return (parseInt(timestamp, 10) + parseInt(this._getMessage('SERVER_TZ_OFFSET')) + browserOffset) * 1000;
@@ -663,12 +663,12 @@ this.BX = this.BX || {};
 	     * @param timestamp - timestamp in milliseconds
 	     * @returns {number}
 	     */
-	    getServerTimestamp: function getServerTimestamp(timestamp) {
+	    getServerTimestamp: function (timestamp) {
 	      timestamp = parseInt(timestamp, 10);
 	      var browserOffset = new Date(timestamp).getTimezoneOffset() * 60;
 	      return Math.round(timestamp / 1000 - (parseInt(this._getMessage('SERVER_TZ_OFFSET'), 10) + parseInt(browserOffset, 10)));
 	    },
-	    formatLastActivityDate: function formatLastActivityDate(timestamp, now, utc) {
+	    formatLastActivityDate: function (timestamp, now, utc) {
 	      var ampm = this.isAmPmMode(true);
 	      var timeFormat = ampm === this.AM_PM_MODE.LOWER ? "g:i a" : ampm === this.AM_PM_MODE.UPPER ? "g:i A" : "H:i";
 	      var format = [["tomorrow", "#01#" + timeFormat], ["now", "#02#"], ["todayFuture", "#03#" + timeFormat], ["yesterday", "#04#" + timeFormat], ["-", this.convertBitrixFormat(this._getMessage("FORMAT_DATETIME")).replace(/:s/g, "")], ["s60", "sago"], ["i60", "iago"], ["H5", "Hago"], ["H24", "#03#" + timeFormat], ["d31", "dago"], ["m12>1", "mago"], ["m12>0", "dago"], ["", "#05#"]];
@@ -705,7 +705,7 @@ this.BX = this.BX || {};
 
 	      return formattedDate;
 	    },
-	    isAmPmMode: function isAmPmMode(returnConst) {
+	    isAmPmMode: function (returnConst) {
 	      if (returnConst === true) {
 	        return this._getMessage('AMPM_MODE');
 	      }
@@ -720,7 +720,7 @@ this.BX = this.BX || {};
 	     * @returns {*}
 	     * @private
 	     */
-	    _getMessage: function _getMessage(message) {
+	    _getMessage: function (message) {
 	      return BX.message(message);
 	    },
 
@@ -733,7 +733,7 @@ this.BX = this.BX || {};
 	     * @param {string} formatDatetime - format of the date with time
 	     * @returns {Date|null} - returns Date object if string was parsed or null
 	     */
-	    parse: function parse(str, isUTC, formatDate, formatDatetime) {
+	    parse: function (str, isUTC, formatDate, formatDatetime) {
 	      if (Utils.isNotEmptyString(str)) {
 	        if (!formatDate) formatDate = this._getMessage('FORMAT_DATE');
 	        if (!formatDatetime) formatDatetime = this._getMessage('FORMAT_DATETIME');
@@ -837,7 +837,7 @@ this.BX = this.BX || {};
 
 	      return null;
 	    },
-	    getMonthIndex: function getMonthIndex(month) {
+	    getMonthIndex: function (month) {
 	      var i,
 	          q = month.toUpperCase(),
 	          wordMonthCut = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'],
@@ -857,29 +857,27 @@ this.BX = this.BX || {};
 	   */
 
 	  var Utils = {
-	    isDate: function isDate(item) {
+	    isDate: function (item) {
 	      return item && Object.prototype.toString.call(item) == "[object Date]";
 	    },
-	    isNumber: function isNumber(item) {
+	    isNumber: function (item) {
 	      return item === 0 ? true : item ? typeof item == "number" || item instanceof Number : false;
 	    },
-	    isArray: function isArray(item) {
+	    isArray: function (item) {
 	      return item && Object.prototype.toString.call(item) == "[object Array]";
 	    },
-	    isString: function isString(item) {
+	    isString: function (item) {
 	      return item === '' ? true : item ? typeof item == "string" || item instanceof String : false;
 	    },
-	    isNotEmptyString: function isNotEmptyString(item) {
+	    isNotEmptyString: function (item) {
 	      return this.isString(item) ? item.length > 0 : false;
 	    },
-	    strPadLeft: function strPadLeft(input, padLength, padString) {
+	    strPadLeft: function (input, padLength, padString) {
 	      var i = input.length,
 	          q = padString.length;
 	      if (i >= padLength) return input;
 
-	      for (; i < padLength; i += q) {
-	        input = padString + input;
-	      }
+	      for (; i < padLength; i += q) input = padString + input;
 
 	      return input;
 	    },
@@ -888,7 +886,7 @@ this.BX = this.BX || {};
 	     * @deprecated
 	     * @use myArr.findIndex(item => item === needle);
 	     */
-	    array_search: function array_search(needle, haystack) {
+	    array_search: function (needle, haystack) {
 	      for (var i = 0; i < haystack.length; i++) {
 	        if (haystack[i] == needle) return i;
 	      }
@@ -898,671 +896,651 @@ this.BX = this.BX || {};
 	  };
 	})(window);
 
-	var _templateObject;
-	var Util = /*#__PURE__*/function () {
-	  function Util() {
-	    babelHelpers.classCallCheck(this, Util);
+	let _ = t => t,
+	    _t;
+	class Util {
+	  static parseTime(str) {
+	    let date = Util.parseDate1(BX.date.format(Util.getDateFormat(), new Date()) + ' ' + str, false);
+	    return date ? {
+	      h: date.getHours(),
+	      m: date.getMinutes()
+	    } : date;
 	  }
 
-	  babelHelpers.createClass(Util, null, [{
-	    key: "parseTime",
-	    value: function parseTime(str) {
-	      var date = Util.parseDate1(BX.date.format(Util.getDateFormat(), new Date()) + ' ' + str, false);
-	      return date ? {
-	        h: date.getHours(),
-	        m: date.getMinutes()
-	      } : date;
-	    }
-	  }, {
-	    key: "getTimeRounded",
-	    value: function getTimeRounded(date) {
-	      return Math.round(date.getTime() / 60000) * 60000;
-	    }
-	  }, {
-	    key: "parseDate",
-	    value: function parseDate(str, bUTC, formatDate, formatDatetime) {
-	      return BX.parseDate(str, bUTC, formatDate, formatDatetime);
-	    }
-	  }, {
-	    key: "parseDate1",
-	    value: function parseDate1(str, format, trimSeconds) {
-	      var i,
-	          cnt,
-	          k,
-	          regMonths;
-	      if (!format) format = main_core.Loc.getMessage('FORMAT_DATETIME');
-	      str = BX.util.trim(str);
-	      if (trimSeconds !== false) format = format.replace(':SS', '');
+	  static getTimeRounded(date) {
+	    return Math.round(date.getTime() / 60000) * 60000;
+	  }
 
-	      if (BX.type.isNotEmptyString(str)) {
-	        regMonths = '';
+	  static parseDate(str, bUTC, formatDate, formatDatetime) {
+	    return BX.parseDate(str, bUTC, formatDate, formatDatetime);
+	  }
 
-	        for (i = 1; i <= 12; i++) {
-	          regMonths = regMonths + '|' + main_core.Loc.getMessage('MON_' + i);
+	  static parseDate1(str, format, trimSeconds) {
+	    let i,
+	        cnt,
+	        k,
+	        regMonths;
+	    if (!format) format = main_core.Loc.getMessage('FORMAT_DATETIME');
+	    str = BX.util.trim(str);
+	    if (trimSeconds !== false) format = format.replace(':SS', '');
+
+	    if (BX.type.isNotEmptyString(str)) {
+	      regMonths = '';
+
+	      for (i = 1; i <= 12; i++) {
+	        regMonths = regMonths + '|' + main_core.Loc.getMessage('MON_' + i);
+	      }
+
+	      let expr = new RegExp('([0-9]+|[a-z]+' + regMonths + ')', 'ig'),
+	          aDate = str.match(expr),
+	          aFormat = main_core.Loc.getMessage('FORMAT_DATE').match(/(DD|MI|MMMM|MM|M|YYYY)/ig),
+	          aDateArgs = [],
+	          aFormatArgs = [],
+	          aResult = {};
+
+	      if (!aDate) {
+	        return null;
+	      }
+
+	      if (aDate.length > aFormat.length) {
+	        aFormat = format.match(/(DD|MI|MMMM|MM|M|YYYY|HH|H|SS|TT|T|GG|G)/ig);
+	      }
+
+	      for (i = 0, cnt = aDate.length; i < cnt; i++) {
+	        if (BX.util.trim(aDate[i]) !== '') {
+	          aDateArgs[aDateArgs.length] = aDate[i];
 	        }
+	      }
 
-	        var expr = new RegExp('([0-9]+|[a-z]+' + regMonths + ')', 'ig'),
-	            aDate = str.match(expr),
-	            aFormat = main_core.Loc.getMessage('FORMAT_DATE').match(/(DD|MI|MMMM|MM|M|YYYY)/ig),
-	            aDateArgs = [],
-	            aFormatArgs = [],
-	            aResult = {};
-
-	        if (!aDate) {
-	          return null;
+	      for (i = 0, cnt = aFormat.length; i < cnt; i++) {
+	        if (BX.util.trim(aFormat[i]) != '') {
+	          aFormatArgs[aFormatArgs.length] = aFormat[i];
 	        }
+	      }
 
-	        if (aDate.length > aFormat.length) {
-	          aFormat = format.match(/(DD|MI|MMMM|MM|M|YYYY|HH|H|SS|TT|T|GG|G)/ig);
-	        }
+	      let m = BX.util.array_search('MMMM', aFormatArgs);
 
-	        for (i = 0, cnt = aDate.length; i < cnt; i++) {
-	          if (BX.util.trim(aDate[i]) !== '') {
-	            aDateArgs[aDateArgs.length] = aDate[i];
-	          }
-	        }
-
-	        for (i = 0, cnt = aFormat.length; i < cnt; i++) {
-	          if (BX.util.trim(aFormat[i]) != '') {
-	            aFormatArgs[aFormatArgs.length] = aFormat[i];
-	          }
-	        }
-
-	        var m = BX.util.array_search('MMMM', aFormatArgs);
+	      if (m > 0) {
+	        aDateArgs[m] = BX.getNumMonth(aDateArgs[m]);
+	        aFormatArgs[m] = "MM";
+	      } else {
+	        m = BX.util.array_search('M', aFormatArgs);
 
 	        if (m > 0) {
 	          aDateArgs[m] = BX.getNumMonth(aDateArgs[m]);
 	          aFormatArgs[m] = "MM";
-	        } else {
-	          m = BX.util.array_search('M', aFormatArgs);
+	        }
+	      }
 
-	          if (m > 0) {
-	            aDateArgs[m] = BX.getNumMonth(aDateArgs[m]);
-	            aFormatArgs[m] = "MM";
+	      for (i = 0, cnt = aFormatArgs.length; i < cnt; i++) {
+	        k = aFormatArgs[i].toUpperCase();
+	        aResult[k] = k == 'T' || k == 'TT' ? aDateArgs[i] : parseInt(aDateArgs[i], 10);
+	      }
+
+	      if (aResult['DD'] > 0 && aResult['MM'] > 0 && aResult['YYYY'] > 0) {
+	        let d = new Date();
+
+	        {
+	          d.setDate(1);
+	          d.setFullYear(aResult['YYYY']);
+	          d.setMonth(aResult['MM'] - 1);
+	          d.setDate(aResult['DD']);
+	          d.setHours(0, 0, 0);
+	        }
+
+	        if ((!isNaN(aResult['HH']) || !isNaN(aResult['GG']) || !isNaN(aResult['H']) || !isNaN(aResult['G'])) && !isNaN(aResult['MI'])) {
+	          if (!isNaN(aResult['H']) || !isNaN(aResult['G'])) {
+	            let bPM = (aResult['T'] || aResult['TT'] || 'am').toUpperCase() == 'PM';
+	            let h = parseInt(aResult['H'] || aResult['G'] || 0, 10);
+
+	            if (bPM) {
+	              aResult['HH'] = h + (h == 12 ? 0 : 12);
+	            } else {
+	              aResult['HH'] = h < 12 ? h : 0;
+	            }
+	          } else {
+	            aResult['HH'] = parseInt(aResult['HH'] || aResult['GG'] || 0, 10);
 	          }
-	        }
 
-	        for (i = 0, cnt = aFormatArgs.length; i < cnt; i++) {
-	          k = aFormatArgs[i].toUpperCase();
-	          aResult[k] = k == 'T' || k == 'TT' ? aDateArgs[i] : parseInt(aDateArgs[i], 10);
-	        }
-
-	        if (aResult['DD'] > 0 && aResult['MM'] > 0 && aResult['YYYY'] > 0) {
-	          var d = new Date();
+	          if (isNaN(aResult['SS'])) aResult['SS'] = 0;
 
 	          {
-	            d.setDate(1);
-	            d.setFullYear(aResult['YYYY']);
-	            d.setMonth(aResult['MM'] - 1);
-	            d.setDate(aResult['DD']);
-	            d.setHours(0, 0, 0);
+	            d.setHours(aResult['HH'], aResult['MI'], aResult['SS']);
 	          }
+	        }
 
-	          if ((!isNaN(aResult['HH']) || !isNaN(aResult['GG']) || !isNaN(aResult['H']) || !isNaN(aResult['G'])) && !isNaN(aResult['MI'])) {
-	            if (!isNaN(aResult['H']) || !isNaN(aResult['G'])) {
-	              var bPM = (aResult['T'] || aResult['TT'] || 'am').toUpperCase() == 'PM';
-	              var h = parseInt(aResult['H'] || aResult['G'] || 0, 10);
+	        return d;
+	      }
+	    }
 
-	              if (bPM) {
-	                aResult['HH'] = h + (h == 12 ? 0 : 12);
-	              } else {
-	                aResult['HH'] = h < 12 ? h : 0;
-	              }
-	            } else {
-	              aResult['HH'] = parseInt(aResult['HH'] || aResult['GG'] || 0, 10);
-	            }
+	    return null;
+	  }
 
-	            if (isNaN(aResult['SS'])) aResult['SS'] = 0;
+	  static formatTime(hours, minutes) {
+	    let day;
 
-	            {
-	              d.setHours(aResult['HH'], aResult['MI'], aResult['SS']);
-	            }
+	    if (main_core.Type.isDate(hours)) {
+	      day = hours;
+	    } else {
+	      day = new Date();
+	      day.setHours(hours, minutes, 0);
+	    }
+
+	    return BX.date.format(Util.getTimeFormatShort(), day.getTime() / 1000);
+	  }
+
+	  static formatDate(timestamp) {
+	    if (main_core.Type.isDate(timestamp)) {
+	      timestamp = timestamp.getTime();
+	    }
+
+	    return BX.date.format(Util.getDateFormat(), timestamp / 1000);
+	  }
+
+	  static formatDateTime(timestamp) {
+	    if (main_core.Type.isDate(timestamp)) {
+	      timestamp = timestamp.getTime();
+	    }
+
+	    return BX.date.format(Util.getDateTimeFormat(), timestamp / 1000);
+	  }
+
+	  static formatDateUsable(date, showYear = true, showDayOfWeek = false) {
+	    const lang = main_core.Loc.getMessage('LANGUAGE_ID');
+	    let format = Util.getDateFormat();
+
+	    if (lang === 'ru' || lang === 'ua') {
+	      format = showDayOfWeek ? 'l, j F' : 'j F';
+
+	      if (date.getFullYear && date.getFullYear() !== new Date().getFullYear() && showYear !== false) {
+	        format += ' Y';
+	      }
+	    }
+
+	    return BX.date.format([["today", "today"], ["tommorow", "tommorow"], ["yesterday", "yesterday"], ["", format]], date);
+	  }
+
+	  static getDayLength() {
+	    if (!Util.DAY_LENGTH) {
+	      Util.DAY_LENGTH = 86400000;
+	    }
+
+	    return Util.DAY_LENGTH;
+	  }
+
+	  static getDefaultColorList() {
+	    return ['#86b100', '#0092cc', '#00afc7', '#da9100', '#00b38c', '#de2b24', '#bd7ac9', '#838fa0', '#ab7917', '#e97090'];
+	  }
+
+	  static findTargetNode(node, parentCont) {
+	    let res = false;
+
+	    if (node) {
+	      let prefix = 'data-bx-calendar',
+	          i;
+
+	      if (node.attributes && node.attributes.length) {
+	        for (i = 0; i < node.attributes.length; i++) {
+	          if (node.attributes[i].name && node.attributes[i].name.substr(0, prefix.length) === prefix) {
+	            res = node;
+	            break;
 	          }
-
-	          return d;
 	        }
 	      }
 
-	      return null;
-	    }
-	  }, {
-	    key: "formatTime",
-	    value: function formatTime(h, m, skipMinutes) {
-	      var d = null;
+	      if (!res) {
+	        res = BX.findParent(node, function (n) {
+	          let j;
 
-	      if (main_core.Type.isDate(h)) {
-	        d = h;
+	          if (n.attributes && n.attributes.length) {
+	            for (j = 0; j < n.attributes.length; j++) {
+	              if (n.attributes[j].name && n.attributes[j].name.substr(0, prefix.length) === prefix) return true;
+	            }
+	          }
+
+	          return false;
+	        }, parentCont);
+	      }
+	    }
+
+	    return res;
+	  }
+
+	  static getFollowedUserList(userId) {
+	    return [];
+	  }
+
+	  static getWeekDayByInd(index) {
+	    return ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][index];
+	  }
+
+	  static getLoader(size, className) {
+	    return main_core.Tag.render(_t || (_t = _`
+		<div class="${0}">
+			<svg class="calendar-loader-circular"
+				style="width:${0}px; height:${0}px;"
+				viewBox="25 25 50 50">
+					<circle class="calendar-loader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
+					<circle class="calendar-loader-inner-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
+			</svg>
+		</div>
+`), className || 'calendar-loader', parseInt(size), parseInt(size));
+	  }
+
+	  static getDayCode(date) {
+	    return date.getFullYear() + '-' + ("0" + ~~(date.getMonth() + 1)).substr(-2, 2) + '-' + ("0" + ~~date.getDate()).substr(-2, 2);
+	  }
+
+	  static getTextColor(color) {
+	    if (!color) {
+	      return false;
+	    }
+
+	    if (color.charAt(0) === "#") {
+	      color = color.substring(1, 7);
+	    }
+
+	    let r = parseInt(color.substring(0, 2), 16),
+	        g = parseInt(color.substring(2, 4), 16),
+	        b = parseInt(color.substring(4, 6), 16),
+	        light = (r * 0.8 + g + b * 0.2) / 510 * 100;
+	    return light < 50;
+	  }
+
+	  static getKeyCode(key) {
+	    if (!main_core.Type.isString(key)) {
+	      return false;
+	    }
+
+	    let KEY_CODES = {
+	      'backspace': 8,
+	      'enter': 13,
+	      'escape': 27,
+	      'space': 32,
+	      'delete': 46,
+	      'left': 37,
+	      'right': 39,
+	      'up': 38,
+	      'down': 40,
+	      'z': 90,
+	      'y': 89,
+	      'shift': 16,
+	      'ctrl': 17,
+	      'alt': 18,
+	      'cmd': 91,
+	      // 93, 224, 17 Browser dependent
+	      'cmdRight': 93,
+	      // 93, 224, 17 Browser dependent?
+	      'pageUp': 33,
+	      'pageDown': 34,
+	      'd': 68,
+	      'w': 87,
+	      'm': 77,
+	      'a': 65
+	    };
+	    return KEY_CODES[key.toLowerCase()];
+	  }
+
+	  static getUsableDateTime(timestamp, roundMin) {
+	    if (main_core.Type.isDate(timestamp)) {
+	      timestamp = timestamp.getTime();
+	    }
+
+	    let r = (roundMin || 10) * 60 * 1000;
+	    timestamp = Math.ceil(timestamp / r) * r;
+	    return new Date(timestamp);
+	  }
+
+	  static showNotification(message, actions = null) {
+	    if (main_core.Type.isString(message) && message !== '') {
+	      BX.UI.Notification.Center.notify({
+	        content: message,
+	        actions: actions
+	      });
+	    }
+	  }
+
+	  static showFieldError(message, wrap, options) {
+	    if (main_core.Type.isDomNode(wrap) && main_core.Type.isString(message) && message !== '') {
+	      main_core.Dom.remove(wrap.querySelector('.ui-alert'));
+	      let alert = new BX.UI.Alert({
+	        color: BX.UI.Alert.Color.DANGER,
+	        icon: BX.UI.Alert.Icon.DANGER,
+	        text: message
+	      });
+	      let alertWrap = alert.getContainer();
+	      wrap.appendChild(alertWrap);
+	    }
+	  }
+
+	  static getDateFormat() {
+	    if (!Util.DATE_FORMAT) {
+	      Util.DATE_FORMAT = BX.Main.Date.convertBitrixFormat(main_core.Loc.getMessage("FORMAT_DATE"));
+	    }
+
+	    return Util.DATE_FORMAT;
+	  }
+
+	  static setDayOfWeekMonthFormat(value) {
+	    Util.dayOfWeekMonthFormat = value;
+	  }
+
+	  static getDayOfWeekMonthFormat() {
+	    return Util.dayOfWeekMonthFormat || 'l, j F';
+	  }
+
+	  static setDayMonthFormat(value) {
+	    Util.dayMonthFormat = value;
+	  }
+
+	  static getDayMonthFormat() {
+	    return Util.dayMonthFormat || 'j F';
+	  }
+
+	  static getDateTimeFormat() {
+	    if (!Util.DATETIME_FORMAT) {
+	      Util.DATETIME_FORMAT = BX.Main.Date.convertBitrixFormat(main_core.Loc.getMessage("FORMAT_DATETIME"));
+	    }
+
+	    return Util.DATETIME_FORMAT;
+	  }
+
+	  static getTimeFormat() {
+	    if (!Util.TIME_FORMAT) {
+	      if (main_core.Loc.getMessage("FORMAT_DATETIME").substr(0, main_core.Loc.getMessage("FORMAT_DATE").length) === main_core.Loc.getMessage("FORMAT_DATE")) {
+	        Util.TIME_FORMAT = BX.util.trim(Util.getDateTimeFormat().substr(Util.getDateFormat().length));
+	        Util.TIME_FORMAT_BX = BX.util.trim(main_core.Loc.getMessage("FORMAT_DATETIME").substr(main_core.Loc.getMessage("FORMAT_DATE").length));
 	      } else {
-	        d = new Date();
-	        d.setHours(h, m, 0);
-	      }
-
-	      return BX.date.format(Util.getTimeFormatShort(), d.getTime() / 1000);
-	    }
-	  }, {
-	    key: "formatDate",
-	    value: function formatDate(timestamp) {
-	      if (main_core.Type.isDate(timestamp)) {
-	        timestamp = timestamp.getTime();
-	      }
-
-	      return BX.date.format(Util.getDateFormat(), timestamp / 1000);
-	    }
-	  }, {
-	    key: "formatDateTime",
-	    value: function formatDateTime(timestamp) {
-	      if (main_core.Type.isDate(timestamp)) {
-	        timestamp = timestamp.getTime();
-	      }
-
-	      return BX.date.format(Util.getDateTimeFormat(), timestamp / 1000);
-	    }
-	  }, {
-	    key: "formatDateUsable",
-	    value: function formatDateUsable(date) {
-	      var showYear = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-	      var showDayOfWeek = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-	      var lang = main_core.Loc.getMessage('LANGUAGE_ID'),
-	          format = Util.getDateFormat();
-
-	      if (lang === 'ru' || lang === 'ua') {
-	        format = showDayOfWeek ? 'l, j F' : 'j F';
-
-	        if (date.getFullYear && date.getFullYear() !== new Date().getFullYear() && showYear !== false) {
-	          format += ' Y';
-	        }
-	      }
-
-	      return BX.date.format([["today", "today"], ["tommorow", "tommorow"], ["yesterday", "yesterday"], ["", format]], date);
-	    }
-	  }, {
-	    key: "getDayLength",
-	    value: function getDayLength() {
-	      if (!Util.DAY_LENGTH) {
-	        Util.DAY_LENGTH = 86400000;
-	      }
-
-	      return Util.DAY_LENGTH;
-	    }
-	  }, {
-	    key: "getDefaultColorList",
-	    value: function getDefaultColorList() {
-	      return ['#86b100', '#0092cc', '#00afc7', '#da9100', '#00b38c', '#de2b24', '#bd7ac9', '#838fa0', '#ab7917', '#e97090'];
-	    }
-	  }, {
-	    key: "findTargetNode",
-	    value: function findTargetNode(node, parentCont) {
-	      var res = false;
-
-	      if (node) {
-	        var prefix = 'data-bx-calendar',
-	            i; // if (!parentCont)
-	        // {
-	        // 	parentCont = this.calendar.viewsCont;
-	        // }
-
-	        if (node.attributes && node.attributes.length) {
-	          for (i = 0; i < node.attributes.length; i++) {
-	            if (node.attributes[i].name && node.attributes[i].name.substr(0, prefix.length) === prefix) {
-	              res = node;
-	              break;
-	            }
-	          }
-	        }
-
-	        if (!res) {
-	          res = BX.findParent(node, function (n) {
-	            var j;
-
-	            if (n.attributes && n.attributes.length) {
-	              for (j = 0; j < n.attributes.length; j++) {
-	                if (n.attributes[j].name && n.attributes[j].name.substr(0, prefix.length) === prefix) return true;
-	              }
-	            }
-
-	            return false;
-	          }, parentCont);
-	        }
-	      }
-
-	      return res;
-	    }
-	  }, {
-	    key: "getFollowedUserList",
-	    value: function getFollowedUserList(userId) {
-	      return [];
-	    }
-	  }, {
-	    key: "getWeekDayByInd",
-	    value: function getWeekDayByInd(index) {
-	      return ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'][index];
-	    }
-	  }, {
-	    key: "getLoader",
-	    value: function getLoader(size, className) {
-	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t<div class=\"", "\">\n\t\t\t<svg class=\"calendar-loader-circular\"\n\t\t\t\tstyle=\"width:", "px; height:", "px;\"\n\t\t\t\tviewBox=\"25 25 50 50\">\n\t\t\t\t\t<circle class=\"calendar-loader-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t<circle class=\"calendar-loader-inner-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t</svg>\n\t\t</div>\n"])), className || 'calendar-loader', parseInt(size), parseInt(size));
-	    }
-	  }, {
-	    key: "getDayCode",
-	    value: function getDayCode(date) {
-	      return date.getFullYear() + '-' + ("0" + ~~(date.getMonth() + 1)).substr(-2, 2) + '-' + ("0" + ~~date.getDate()).substr(-2, 2);
-	    }
-	  }, {
-	    key: "getTextColor",
-	    value: function getTextColor(color) {
-	      if (!color) {
-	        return false;
-	      }
-
-	      if (color.charAt(0) === "#") {
-	        color = color.substring(1, 7);
-	      }
-
-	      var r = parseInt(color.substring(0, 2), 16),
-	          g = parseInt(color.substring(2, 4), 16),
-	          b = parseInt(color.substring(4, 6), 16),
-	          light = (r * 0.8 + g + b * 0.2) / 510 * 100;
-	      return light < 50;
-	    }
-	  }, {
-	    key: "getKeyCode",
-	    value: function getKeyCode(key) {
-	      if (!main_core.Type.isString(key)) {
-	        return false;
-	      }
-
-	      var KEY_CODES = {
-	        'backspace': 8,
-	        'enter': 13,
-	        'escape': 27,
-	        'space': 32,
-	        'delete': 46,
-	        'left': 37,
-	        'right': 39,
-	        'up': 38,
-	        'down': 40,
-	        'z': 90,
-	        'y': 89,
-	        'shift': 16,
-	        'ctrl': 17,
-	        'alt': 18,
-	        'cmd': 91,
-	        // 93, 224, 17 Browser dependent
-	        'cmdRight': 93,
-	        // 93, 224, 17 Browser dependent?
-	        'pageUp': 33,
-	        'pageDown': 34,
-	        'd': 68,
-	        'w': 87,
-	        'm': 77,
-	        'a': 65
-	      };
-	      return KEY_CODES[key.toLowerCase()];
-	    }
-	  }, {
-	    key: "getUsableDateTime",
-	    value: function getUsableDateTime(timestamp, roundMin) {
-	      if (main_core.Type.isDate(timestamp)) timestamp = timestamp.getTime();
-	      var r = (roundMin || 10) * 60 * 1000;
-	      timestamp = Math.ceil(timestamp / r) * r;
-	      return new Date(timestamp);
-	    }
-	  }, {
-	    key: "showNotification",
-	    value: function showNotification(message) {
-	      var actions = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-	      if (main_core.Type.isString(message) && message !== '') {
-	        BX.UI.Notification.Center.notify({
-	          content: message,
-	          actions: actions
-	        });
+	        Util.TIME_FORMAT_BX = BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS';
+	        Util.TIME_FORMAT = BX.date.convertBitrixFormat(BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS');
 	      }
 	    }
-	  }, {
-	    key: "showFieldError",
-	    value: function showFieldError(message, wrap, options) {
-	      if (main_core.Type.isDomNode(wrap) && main_core.Type.isString(message) && message !== '') {
-	        main_core.Dom.remove(wrap.querySelector('.ui-alert'));
 
-	        var _alert = new BX.UI.Alert({
-	          color: BX.UI.Alert.Color.DANGER,
-	          icon: BX.UI.Alert.Icon.DANGER,
-	          text: message
-	        });
+	    return Util.TIME_FORMAT;
+	  }
 
-	        var alertWrap = _alert.getContainer();
+	  static getTimeFormatShort() {
+	    if (!Util.TIME_FORMAT_SHORT) {
+	      Util.TIME_FORMAT_SHORT = Util.getTimeFormat().replace(':s', '');
+	      Util.TIME_FORMAT_SHORT_BX = Util.TIME_FORMAT_BX.replace(':SS', '');
+	    }
 
-	        wrap.appendChild(alertWrap);
-	      }
-	    }
-	  }, {
-	    key: "getDateFormat",
-	    value: function getDateFormat() {
-	      if (!Util.DATE_FORMAT) {
-	        Util.DATE_FORMAT = BX.Main.Date.convertBitrixFormat(main_core.Loc.getMessage("FORMAT_DATE"));
-	      }
+	    return Util.TIME_FORMAT_SHORT;
+	  }
 
-	      return Util.DATE_FORMAT;
+	  static getCurrentUserId() {
+	    if (!Util.currentUserId) {
+	      Util.currentUserId = parseInt(main_core.Loc.getMessage('USER_ID'));
 	    }
-	  }, {
-	    key: "getDateTimeFormat",
-	    value: function getDateTimeFormat() {
-	      if (!Util.DATETIME_FORMAT) {
-	        Util.DATETIME_FORMAT = BX.Main.Date.convertBitrixFormat(main_core.Loc.getMessage("FORMAT_DATETIME"));
-	      }
 
-	      return Util.DATETIME_FORMAT;
-	    }
-	  }, {
-	    key: "getTimeFormat",
-	    value: function getTimeFormat() {
-	      if (!Util.TIME_FORMAT) {
-	        if (main_core.Loc.getMessage("FORMAT_DATETIME").substr(0, main_core.Loc.getMessage("FORMAT_DATE").length) === main_core.Loc.getMessage("FORMAT_DATE")) {
-	          Util.TIME_FORMAT = BX.util.trim(Util.getDateTimeFormat().substr(Util.getDateFormat().length));
-	          Util.TIME_FORMAT_BX = BX.util.trim(main_core.Loc.getMessage("FORMAT_DATETIME").substr(main_core.Loc.getMessage("FORMAT_DATE").length));
-	        } else {
-	          Util.TIME_FORMAT_BX = BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS';
-	          Util.TIME_FORMAT = BX.date.convertBitrixFormat(BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS');
-	        }
-	      }
+	    return Util.currentUserId;
+	  }
 
-	      return Util.TIME_FORMAT;
-	    }
-	  }, {
-	    key: "getTimeFormatShort",
-	    value: function getTimeFormatShort() {
-	      if (!Util.TIME_FORMAT_SHORT) {
-	        Util.TIME_FORMAT_SHORT = Util.getTimeFormat().replace(':s', '');
-	        Util.TIME_FORMAT_SHORT_BX = Util.TIME_FORMAT_BX.replace(':SS', '');
-	      }
+	  static getTimeByInt(intValue) {
+	    intValue = parseInt(intValue);
+	    let h = Math.floor(intValue / 60);
+	    return {
+	      hour: h,
+	      min: intValue - h * 60
+	    };
+	  }
 
-	      return Util.TIME_FORMAT_SHORT;
-	    }
-	  }, {
-	    key: "getCurrentUserId",
-	    value: function getCurrentUserId() {
-	      if (!Util.currentUserId) {
-	        Util.currentUserId = parseInt(main_core.Loc.getMessage('USER_ID'));
-	      }
+	  static preventSelection(node) {
+	    node.ondrag = BX.False;
+	    node.ondragstart = BX.False;
+	    node.onselectstart = BX.False;
+	  }
 
-	      return Util.currentUserId;
-	    }
-	  }, {
-	    key: "getTimeByInt",
-	    value: function getTimeByInt(intValue) {
-	      intValue = parseInt(intValue);
-	      var h = Math.floor(intValue / 60);
-	      return {
-	        hour: h,
-	        min: intValue - h * 60
-	      };
-	    }
-	  }, {
-	    key: "preventSelection",
-	    value: function preventSelection(node) {
-	      node.ondrag = BX.False;
-	      node.ondragstart = BX.False;
-	      node.onselectstart = BX.False;
-	    }
-	  }, {
-	    key: "getBX",
-	    value: function getBX() {
-	      return window.top.BX || window.BX;
-	    }
-	  }, {
-	    key: "closeAllPopups",
-	    value: function closeAllPopups() {
-	      if (main_popup.PopupManager.isAnyPopupShown()) {
-	        for (var i = 0, length = main_popup.PopupManager._popups.length; i < length; i++) {
-	          if (main_popup.PopupManager._popups[i] && main_popup.PopupManager._popups[i].isShown()) {
-	            main_popup.PopupManager._popups[i].close();
-	          }
+	  static getBX() {
+	    return window.top.BX || window.BX;
+	  }
+
+	  static closeAllPopups() {
+	    if (main_popup.PopupManager.isAnyPopupShown()) {
+	      for (let i = 0, length = main_popup.PopupManager._popups.length; i < length; i++) {
+	        if (main_popup.PopupManager._popups[i] && main_popup.PopupManager._popups[i].isShown()) {
+	          main_popup.PopupManager._popups[i].close();
 	        }
 	      }
 	    }
-	  }, {
-	    key: "sendAnalyticLabel",
-	    value: function sendAnalyticLabel(label) {
-	      BX.ajax.runAction('calendar.api.calendarajax.sendAnalyticsLabel', {
-	        analyticsLabel: label
-	      });
-	    }
-	  }, {
-	    key: "setOptions",
-	    value: function setOptions(config, additionalParams) {
-	      Util.config = config;
-	      Util.additionalParams = additionalParams;
-	    }
-	  }, {
-	    key: "setUserSettings",
-	    value: function setUserSettings(userSettings) {
-	      Util.userSettings = userSettings;
-	    }
-	  }, {
-	    key: "getUserSettings",
-	    value: function getUserSettings() {
-	      return main_core.Type.isObjectLike(Util.userSettings) ? Util.userSettings : {};
-	    }
-	  }, {
-	    key: "setCalendarContext",
-	    value: function setCalendarContext(calendarContext) {
-	      Util.calendarContext = calendarContext;
-	    }
-	  }, {
-	    key: "getCalendarContext",
-	    value: function getCalendarContext() {
-	      return Util.calendarContext || null;
-	    }
-	  }, {
-	    key: "getMeetingStatusList",
-	    value: function getMeetingStatusList() {
-	      return ['Y', 'N', 'Q', 'H'];
-	    }
-	  }, {
-	    key: "checkEmailLimitationPopup",
-	    value: function checkEmailLimitationPopup() {
-	      var emailGuestAmount = Util.getEventWithEmailGuestAmount();
-	      var emailGuestLimit = Util.getEventWithEmailGuestLimit();
-	      return emailGuestLimit > 0 && (emailGuestAmount === 8 || emailGuestAmount === 4 || emailGuestAmount >= emailGuestLimit);
-	    }
-	  }, {
-	    key: "isEventWithEmailGuestAllowed",
-	    value: function isEventWithEmailGuestAllowed() {
-	      return Util.getEventWithEmailGuestLimit() === -1 || Util.getEventWithEmailGuestAmount() < Util.getEventWithEmailGuestLimit();
-	    }
-	  }, {
-	    key: "setEventWithEmailGuestAmount",
-	    value: function setEventWithEmailGuestAmount(value) {
-	      Util.countEventWithEmailGuestAmount = value;
-	    }
-	  }, {
-	    key: "setEventWithEmailGuestLimit",
-	    value: function setEventWithEmailGuestLimit(value) {
-	      Util.eventWithEmailGuestLimit = value;
-	    }
-	  }, {
-	    key: "getEventWithEmailGuestAmount",
-	    value: function getEventWithEmailGuestAmount() {
-	      return Util.countEventWithEmailGuestAmount;
-	    }
-	  }, {
-	    key: "getEventWithEmailGuestLimit",
-	    value: function getEventWithEmailGuestLimit() {
-	      return Util.eventWithEmailGuestLimit;
-	    }
-	  }, {
-	    key: "setCurrentView",
-	    value: function setCurrentView() {
-	      var calendarView = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-	      Util.currentCalendarView = calendarView;
-	    }
-	  }, {
-	    key: "getCurrentView",
-	    value: function getCurrentView() {
-	      return Util.currentCalendarView || null;
-	    }
-	  }, {
-	    key: "adjustDateForTimezoneOffset",
-	    value: function adjustDateForTimezoneOffset(date) {
-	      var timezoneOffset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-	      var fullDay = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-	      if (!main_core.Type.isDate(date)) throw new Error('Wrong type for date attribute. DateTime object expected.');
-	      if (!parseInt(timezoneOffset) || fullDay === true) return date;
-	      return new Date(date.getTime() - parseInt(timezoneOffset) * 1000);
-	    }
-	  }, {
-	    key: "randomInt",
-	    value: function randomInt(min, max) {
-	      return Math.round(min - 0.5 + Math.random() * (max - min + 1));
-	    }
-	  }, {
-	    key: "getRandomColor",
-	    value: function getRandomColor() {
-	      var defaultColors = Util.getDefaultColorList();
-	      return defaultColors[Util.randomInt(0, defaultColors.length - 1)];
-	    }
-	  }, {
-	    key: "setAccessNames",
-	    value: function setAccessNames() {
-	      var accessNames = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      Util.accessNames = {};
+	  }
 
-	      for (var code in accessNames) {
-	        if (accessNames.hasOwnProperty(code)) {
-	          Util.setAccessName(code, accessNames[code]);
-	        }
+	  static sendAnalyticLabel(label) {
+	    BX.ajax.runAction('calendar.api.calendarajax.sendAnalyticsLabel', {
+	      analyticsLabel: label
+	    });
+	  }
+
+	  static setOptions(config, additionalParams) {
+	    Util.config = config;
+	    Util.additionalParams = additionalParams;
+	  }
+
+	  static setUserSettings(userSettings) {
+	    Util.userSettings = userSettings;
+	  }
+
+	  static getUserSettings() {
+	    return main_core.Type.isObjectLike(Util.userSettings) ? Util.userSettings : {};
+	  }
+
+	  static setCalendarContext(calendarContext) {
+	    Util.calendarContext = calendarContext;
+	  }
+
+	  static getCalendarContext() {
+	    return Util.calendarContext || null;
+	  }
+
+	  static getMeetingStatusList() {
+	    return ['Y', 'N', 'Q', 'H'];
+	  }
+
+	  static checkEmailLimitationPopup() {
+	    const emailGuestAmount = Util.getEventWithEmailGuestAmount();
+	    const emailGuestLimit = Util.getEventWithEmailGuestLimit();
+	    return emailGuestLimit > 0 && (emailGuestAmount === 8 || emailGuestAmount === 4 || emailGuestAmount >= emailGuestLimit);
+	  }
+
+	  static isEventWithEmailGuestAllowed() {
+	    return Util.getEventWithEmailGuestLimit() === -1 || Util.getEventWithEmailGuestAmount() < Util.getEventWithEmailGuestLimit();
+	  }
+
+	  static setEventWithEmailGuestAmount(value) {
+	    Util.countEventWithEmailGuestAmount = value;
+	  }
+
+	  static setEventWithEmailGuestLimit(value) {
+	    Util.eventWithEmailGuestLimit = value;
+	  }
+
+	  static getEventWithEmailGuestAmount() {
+	    return Util.countEventWithEmailGuestAmount;
+	  }
+
+	  static getEventWithEmailGuestLimit() {
+	    return Util.eventWithEmailGuestLimit;
+	  }
+
+	  static setCurrentView(calendarView = null) {
+	    Util.currentCalendarView = calendarView;
+	  }
+
+	  static getCurrentView() {
+	    return Util.currentCalendarView || null;
+	  }
+
+	  static adjustDateForTimezoneOffset(date, timezoneOffset = 0, fullDay = false) {
+	    if (!main_core.Type.isDate(date)) throw new Error('Wrong type for date attribute. DateTime object expected.');
+	    if (!parseInt(timezoneOffset) || fullDay === true) return date;
+	    return new Date(date.getTime() - parseInt(timezoneOffset) * 1000);
+	  }
+
+	  static randomInt(min, max) {
+	    return Math.round(min - 0.5 + Math.random() * (max - min + 1));
+	  }
+
+	  static getRandomColor() {
+	    const defaultColors = Util.getDefaultColorList();
+	    return defaultColors[Util.randomInt(0, defaultColors.length - 1)];
+	  }
+
+	  static setAccessNames(accessNames = {}) {
+	    Util.accessNames = {};
+
+	    for (let code in accessNames) {
+	      if (accessNames.hasOwnProperty(code)) {
+	        Util.setAccessName(code, accessNames[code]);
 	      }
 	    }
-	  }, {
-	    key: "getAccessName",
-	    value: function getAccessName(code) {
-	      return Util.accessNames[code] || code;
-	    }
-	  }, {
-	    key: "setAccessName",
-	    value: function setAccessName(code, name) {
-	      Util.accessNames[code] = name;
-	    }
-	  }, {
-	    key: "getRandomInt",
-	    value: function getRandomInt() {
-	      var numCount = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 6;
-	      return Math.round(Math.random() * Math.pow(10, numCount));
-	    }
-	  }, {
-	    key: "displayError",
-	    value: function displayError(errors, reloadPage) {
-	      if (main_core.Type.isArray(errors)) {
-	        var errorMessage = '';
+	  }
 
-	        for (var i = 0; i < errors.length; i++) {
-	          errorMessage += errors[i].message + "\n";
-	        }
+	  static getAccessName(code) {
+	    return Util.accessNames[code] || code;
+	  }
 
-	        errors = errorMessage;
+	  static setAccessName(code, name) {
+	    Util.accessNames[code] = name;
+	  }
+
+	  static getRandomInt(numCount = 6) {
+	    return Math.round(Math.random() * Math.pow(10, numCount));
+	  }
+
+	  static displayError(errors, reloadPage) {
+	    if (main_core.Type.isArray(errors)) {
+	      let errorMessage = '';
+
+	      for (let i = 0; i < errors.length; i++) {
+	        errorMessage += errors[i].message + "\n";
 	      }
 
-	      setTimeout(function () {
-	        alert(errors || '[Bitrix Calendar] Request error');
-
-	        if (reloadPage) {
-	          location.reload();
-	        }
-	      }, 200);
+	      errors = errorMessage;
 	    }
-	  }, {
-	    key: "convertEntityToAccessCode",
-	    value: function convertEntityToAccessCode(entity) {
-	      if (main_core.Type.isObjectLike(entity)) {
-	        if (entity.entityId === 'meta-user' && entity.id === 'all-users') {
-	          return 'UA';
-	        } else if (entity.entityId === 'user') {
-	          return 'U' + entity.id;
-	        } else if (entity.entityId === 'project') {
-	          return 'SG' + entity.id + '_K'; // for all members of group
-	        } else if (entity.entityId === 'department') {
-	          return 'DR' + entity.id;
-	        } else if (entity.entityId === 'group') {
-	          return entity.id;
-	        }
+
+	    setTimeout(() => {
+	      alert(errors || '[Bitrix Calendar] Request error');
+
+	      if (reloadPage) {
+	        location.reload();
+	      }
+	    }, 200);
+	  }
+
+	  static convertEntityToAccessCode(entity) {
+	    if (main_core.Type.isObjectLike(entity)) {
+	      if (entity.entityId === 'meta-user' && entity.id === 'all-users') {
+	        return 'UA';
+	      } else if (entity.entityId === 'user') {
+	        return 'U' + entity.id;
+	      } else if (entity.entityId === 'project') {
+	        return 'SG' + entity.id + '_K'; // for all members of group
+	      } else if (entity.entityId === 'department') {
+	        return 'DR' + entity.id;
+	      } else if (entity.entityId === 'group') {
+	        return entity.id;
 	      }
 	    }
-	  }, {
-	    key: "extendPlannerWatches",
-	    value: function extendPlannerWatches(_ref) {
-	      var entries = _ref.entries,
-	          userId = _ref.userId;
-	      entries.forEach(function (entry) {
-	        if (entry.type === 'user' && parseInt(entry.id) !== parseInt(userId)) {
-	          var tag = Util.PLANNER_PULL_TAG.replace('#USER_ID#', entry.id);
+	  }
 
-	          if (!Util.PLANNER_WATCH_LIST.includes(tag)) {
-	            pull_client.PULL.extendWatch(tag);
-	            Util.PLANNER_WATCH_LIST.push(tag);
-	          }
+	  static extendPlannerWatches({
+	    entries,
+	    userId
+	  }) {
+	    entries.forEach(entry => {
+	      if (entry.type === 'user' && parseInt(entry.id) !== parseInt(userId)) {
+	        const tag = Util.PLANNER_PULL_TAG.replace('#USER_ID#', entry.id);
+
+	        if (!Util.PLANNER_WATCH_LIST.includes(tag)) {
+	          pull_client.PULL.extendWatch(tag);
+	          Util.PLANNER_WATCH_LIST.push(tag);
 	        }
-	      });
-	    }
-	  }, {
-	    key: "clearPlannerWatches",
-	    value: function clearPlannerWatches() {
-	      Util.PLANNER_WATCH_LIST.forEach(function (tag) {
-	        pull_client.PULL.clearWatch(tag);
-	      });
-	      Util.PLANNER_WATCH_LIST = [];
-	    }
-	  }, {
-	    key: "registerRequestId",
-	    value: function registerRequestId() {
-	      var requestUid = BX.Calendar.Util.getRandomInt(8);
-	      Util.REQUEST_ID_LIST.push(requestUid);
-	      return requestUid;
-	    }
-	  }, {
-	    key: "unregisterRequestId",
-	    value: function unregisterRequestId(requestUid) {
-	      Util.REQUEST_ID_LIST = Util.REQUEST_ID_LIST.filter(function (uid) {
-	        return uid !== requestUid;
-	      });
-	    }
-	  }, {
-	    key: "checkRequestId",
-	    value: function checkRequestId(requestUid) {
-	      requestUid = parseInt(requestUid);
-	      return !main_core.Type.isInteger(requestUid) || !Util.REQUEST_ID_LIST.includes(requestUid);
-	    }
-	  }, {
-	    key: "initHintNode",
-	    value: function initHintNode(hintNode) {
-	      var _bx$UI;
-
-	      var bx = Util.getBX();
-
-	      if (main_core.Type.isElementNode(hintNode) && bx !== null && bx !== void 0 && (_bx$UI = bx.UI) !== null && _bx$UI !== void 0 && _bx$UI.Hint) {
-	        var _bx$UI2, _bx$UI2$Hint;
-
-	        if (bx !== null && bx !== void 0 && (_bx$UI2 = bx.UI) !== null && _bx$UI2 !== void 0 && (_bx$UI2$Hint = _bx$UI2.Hint) !== null && _bx$UI2$Hint !== void 0 && _bx$UI2$Hint.popup) {
-	          bx.UI.Hint.popup.destroy();
-	          bx.UI.Hint.popup = null;
-	          bx.UI.Hint.content = null;
-	        }
-
-	        bx.UI.Hint.initNode(hintNode);
 	      }
+	    });
+	  }
+
+	  static clearPlannerWatches() {
+	    Util.PLANNER_WATCH_LIST.forEach(tag => {
+	      pull_client.PULL.clearWatch(tag);
+	    });
+	    Util.PLANNER_WATCH_LIST = [];
+	  }
+
+	  static registerRequestId() {
+	    const requestUid = BX.Calendar.Util.getRandomInt(8);
+	    Util.REQUEST_ID_LIST.push(requestUid);
+	    return requestUid;
+	  }
+
+	  static unregisterRequestId(requestUid) {
+	    Util.REQUEST_ID_LIST = Util.REQUEST_ID_LIST.filter(uid => {
+	      return uid !== requestUid;
+	    });
+	  }
+
+	  static checkRequestId(requestUid) {
+	    requestUid = parseInt(requestUid);
+	    return !main_core.Type.isInteger(requestUid) || !Util.REQUEST_ID_LIST.includes(requestUid);
+	  }
+
+	  static initHintNode(hintNode) {
+	    var _bx$UI;
+
+	    const bx = Util.getBX();
+
+	    if (main_core.Type.isElementNode(hintNode) && bx != null && (_bx$UI = bx.UI) != null && _bx$UI.Hint) {
+	      var _bx$UI2, _bx$UI2$Hint;
+
+	      if (bx != null && (_bx$UI2 = bx.UI) != null && (_bx$UI2$Hint = _bx$UI2.Hint) != null && _bx$UI2$Hint.popup) {
+	        bx.UI.Hint.popup.destroy();
+	        bx.UI.Hint.popup = null;
+	        bx.UI.Hint.content = null;
+	      }
+
+	      bx.UI.Hint.initNode(hintNode);
 	    }
-	  }, {
-	    key: "documentIsDisplayingNow",
-	    value: function documentIsDisplayingNow() {
-	      return !document.hidden;
+	  }
+
+	  static documentIsDisplayingNow() {
+	    return !document.hidden;
+	  }
+
+	  static removeHash() {
+	    if ("pushState" in history) {
+	      history.pushState("", document.title, window.location.pathname + window.location.search);
+	    } else {
+	      // Prevent scrolling by storing the page's current scroll offset
+	      let scrollV = document.body.scrollTop;
+	      let scrollH = document.body.scrollLeft;
+	      window.location.hash = ""; // Restore the scroll offset, should be flicker free
+
+	      document.body.scrollTop = scrollV;
+	      document.body.scrollLeft = scrollH;
 	    }
-	  }]);
-	  return Util;
-	}();
-	babelHelpers.defineProperty(Util, "PLANNER_PULL_TAG", 'calendar-planner-#USER_ID#');
-	babelHelpers.defineProperty(Util, "PLANNER_WATCH_LIST", []);
-	babelHelpers.defineProperty(Util, "REQUEST_ID_LIST", []);
-	babelHelpers.defineProperty(Util, "accessNames", {});
+	  } // TODO: move to syncManager
+
+
+	  static setIphoneConnectionStatus(value) {
+	    Util.iphoneConnectionStatus = value;
+	  }
+
+	  static isIphoneConnected() {
+	    return Util.iphoneConnectionStatus;
+	  }
+
+	  static setMacConnectionStatus(value) {
+	    Util.macConnectionStatus = value;
+	  }
+
+	  static isMacConnected() {
+	    return Util.macConnectionStatus;
+	  }
+
+	}
+	Util.PLANNER_PULL_TAG = 'calendar-planner-#USER_ID#';
+	Util.PLANNER_WATCH_LIST = [];
+	Util.REQUEST_ID_LIST = [];
+	Util.accessNames = {};
 
 	exports.Util = Util;
 

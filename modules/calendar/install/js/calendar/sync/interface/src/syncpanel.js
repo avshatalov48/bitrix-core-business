@@ -81,13 +81,13 @@ export default class SyncPanel
 	getFooterWrapper()
 	{
 		return Tag.render`
-			<div class="calendar-sync__content-block --space-bottom">
+			<div class="calendar-sync__content-block --space-bottom --space-left">
 				${this.getExtraInfoWithCheckIcon()}
 			</div>
-			<div class="calendar-sync__content-block --space-bottom --space-left">
+			<div class="calendar-sync__content-block --space-bottom --space-left--double">
 				${this.getOpenAuxiliaryPanelLink()}
 			</div>
-			<div class="calendar-sync__content-block --space-left">
+			<div class="calendar-sync__content-block --space-left--double">
 				${this.getOpenHelpLink()}
 			</div>
 		`;
@@ -171,12 +171,14 @@ export default class SyncPanel
 		this.renderConnectionUnits(items);
 	}
 
-	renderConnectionUnits(items)
+	renderConnectionUnits(providers)
 	{
 		Dom.clean(this.unitsContentWrapper);
-		items.forEach((item) => {
-			const unit = new SyncPanelUnit({connection: item});
-			unit.renderTo(this.unitsContentWrapper);
+		providers.forEach((provider) => {
+			const interfaceUnit = new SyncPanelUnit({connectionProvider: provider});
+			provider.setInterfaceUnit(interfaceUnit);
+			interfaceUnit.renderTo(this.unitsContentWrapper);
+			interfaceUnit.setSyncStatus(provider.getStatus());
 		});
 	}
 

@@ -2,7 +2,7 @@
 	padding-bottom: 1px;
 }
 .bx-im-message-content {
-	font: 14px/19px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	display: block;
 	padding: 8px 16px;
 	border: 1px solid rgba(0,0,0,.07);
@@ -158,7 +158,7 @@
 
 .bx-im-message-content-date {
 	display:inline-block;
-	font: 11px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 11px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #546d77;
 	text-align: right;
 	padding-top: 1px;
@@ -277,12 +277,12 @@ temporary
 
 .bx-messenger-content-item-like {
 	display:inline-block;
-	font: 11px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 11px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #bac5cd; text-align: right; padding-top: 1px; padding-left: 3px;margin-right: -9px;white-space: nowrap;
 	-moz-user-select:none; -o-user-select:none; -webkit-user-select:none; -ms-user-select:none; user-select:none;
 }
 .bx-messenger-content-like-digit {
-	font: 11px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 11px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #b0b6be;display: inline-block;min-width: 6px; cursor: pointer;
 }
 .bx-messenger-content-item-like-disable .bx-messenger-content-like-button,

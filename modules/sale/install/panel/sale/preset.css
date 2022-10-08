@@ -46,8 +46,8 @@
 	font-size: 16px;
 	float: left;
 	padding: 0 5px;
-	font-weight: bold;
-	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font-weight: var(--ui-font-weight-bold);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 /* NOTE */
 .sale-discount-notifier {
@@ -58,7 +58,7 @@
 	font-size: 13px;
 	border-radius: 2px;
 	color: #756454;
-	font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	background: #faf7de;
 }
 
@@ -142,7 +142,9 @@
 .sale-discount-list-container{position:relative;}
 .sale-discount-list-container.products .sale-discount-list-title-container{
 	border-top:1px solid #52a2e4;
-	border-radius:3px;
+	border-radius: var(--ui-border-radius-sm, 3px);
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
 	background: #278bdd;
 	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzI3OGJkZCIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMxYjYyY2EiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
 	background: -webkit-linear-gradient(#278bdd 0%, #1b62ca 100%);
@@ -153,7 +155,9 @@
 }
 .sale-discount-list-container.payment  .sale-discount-list-title-container{
 	border-top:1px solid #bfd459;
-	border-radius:3px;
+	border-radius: var(--ui-border-radius-sm, 3px);
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
 	background: #afc92f;
 	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2FmYzkyZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM4MmFiMjEiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
 	background: -webkit-linear-gradient(#afc92f 0%, #82ab21 100%);
@@ -164,7 +168,9 @@
 }
 .sale-discount-list-container.delivery .sale-discount-list-title-container{
 	border-top:1px solid #76d4e5;
-	border-radius:3px;
+	border-radius: var(--ui-border-radius-sm, 3px);
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
 	background: #4cc1da;
 	background: -webkit-linear-gradient(#54c9df 0%, #3eb2d1 100%);
 	background:      -o-linear-gradient(#54c9df 0%, #3eb2d1 100%);
@@ -174,7 +180,9 @@
 }
 .sale-discount-list-container.others   .sale-discount-list-title-container{
 	border-top:1px solid #b5b9c1;
-	border-radius:3px;
+	border-radius: var(--ui-border-radius-sm, 3px);
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
 	background: #939aa4;
 	background: -webkit-linear-gradient(#a2a8b1 0%, #7a8390 100%);
 	background:      -o-linear-gradient(#a2a8b1 0%, #7a8390 100%);
@@ -257,6 +265,9 @@ h2.sale-discount-list-title{
 	overflow: hidden;
 	border: 1px solid #e1e6e8;
 	background: #eef5f5;
+	border-radius: var(--ui-border-radius-sm, 3px);
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
 }
 .sale-discount-list-container.close .sale-discount-list-content-container{
 	overflow:hidden;
@@ -304,7 +315,7 @@ h2.sale-discount-list-title{
 	background: #fff;
 	padding: 50px 12px 15px;
 	box-shadow: 0 1px 3px 0 rgba(0,0,0,.3);
-	border-radius: 1px;
+	border-radius: var(--ui-border-radius-sm, 1px);
 	position: relative;
 }
 .sale-discount-list-block-title{
@@ -312,9 +323,9 @@ h2.sale-discount-list-title{
 	top: 10px;
 	left: 12px;
 	right: 12px;
-	font-family:  "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding-bottom: 18px;
 }
 .sale-discount-list-block-info{}
@@ -354,11 +365,11 @@ h2.sale-discount-list-title{
 	display: inline-block;
 	height:23px;
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 23px;
 	border: 1px solid #a9d7e8;
 	text-decoration: none;
-	border-radius: 3px;
+	border-radius: var(--ui-btn-radius, 3px);
 	padding: 0 10px;
 	-webkit-transition:border .3s ease, background-color .3s ease, color .3s ease, box-shadow .3s ease;
 	-moz-transition:border .3s ease, background-color .3s ease, color .3s ease, box-shadow .3s ease;

@@ -256,7 +256,7 @@
 	align-self: center;
 	margin: 2px 3px 0 0;
 	border-bottom: 1px solid transparent;
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2066B0;
 	text-decoration: none;
 	transition: border-bottom .3s;
@@ -573,7 +573,7 @@
 	top: 13px;
 	right: 0;
 	display: inline-block;
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #828B95;
 	animation-name: feed-post-emoji-more-likes-animate-item;
 	animation-duration: .8s;

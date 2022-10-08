@@ -8,4 +8,5 @@ export type SessionOptions = {
 	Fixed: boolean,
 	Documents: [DocumentOptions],
 	ShortDescription: string,
+	CategoryId: number,
 };

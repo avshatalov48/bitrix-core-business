@@ -33,6 +33,7 @@ Init: function(arConfig)
 	this.sEditorMode = 'html';
 	this.toolbarLineCount = 1;
 
+	console.log('arConfig', arConfig);
 	this.CACHE = {};
 	this.arVideos = {};
 
@@ -305,9 +306,21 @@ SetConstants: function()
 	this.imagePath = this.arConfig.imagePath;
 
 	if (!this.arConfig.fontFamily)
-		this.arConfig.fontFamily = 'Helvetica, Verdana, Arial, sans-serif';
+	{
+		const editorContainer = BX('bxlhe_frame_' + this.id);
+		const styleContainer = editorContainer ? editorContainer : document.body;
+		const primaryFont = BX.Dom.style(styleContainer, '--ui-font-family-primary');
+		const fallbackFont = BX.Dom.style(styleContainer, '--ui-font-family-helvetica');
+
+		const currentFont = BX.Type.isStringFilled(primaryFont) ? primaryFont : fallbackFont;
+		if (BX.Type.isStringFilled(currentFont))
+		{
+			this.arConfig.fontFamily = currentFont;
+		}
+	}
+
 	if (!this.arConfig.fontSize)
-		this.arConfig.fontSize = '12px';
+		this.arConfig.fontSize = '14px';
 	if (!this.arConfig.lineHeight)
 		this.arConfig.lineHeight = '16px';
 

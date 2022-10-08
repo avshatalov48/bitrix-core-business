@@ -1,24 +1,13 @@
-import {Cache, Tag, Text, Type, Loc, Reflection, Event} from 'main.core';
+import {Cache, Reflection, Type} from 'main.core';
 import {EventEmitter} from 'main.core.events';
-import {Popup} from 'main.popup';
+import {FeaturesPopup} from 'landing.features-popup';
+import {Loc} from 'landing.loc';
+import {PageObject} from 'landing.pageobject';
 import {Env} from 'landing.env';
 import {Embed} from 'crm.form.embed';
-import {PageObject} from 'landing.pageobject';
+import 'ui.feedback.form';
 
 import './css/style.css';
-
-type TextBlockOptions = {
-	type: string,
-	title: string,
-	link: {
-		label: string,
-		onClick: () => void,
-	},
-	action: {
-		label: string,
-		onClick: () => void,
-	},
-};
 
 /**
  * @memberOf BX.Landing.Form
@@ -33,12 +22,6 @@ export class SharePopup extends EventEmitter
 		this.setEventNamespace('BX.Landing.Form.SharePopup');
 		this.subscribeFromOptions(options.events);
 		this.setOptions(options);
-
-		console.log(PageObject.getEditorWindow().document);
-		Event.bind(PageObject.getEditorWindow().document, 'click', () => {
-			console.log('click');
-			this.hide();
-		});
 	}
 
 	setOptions(options)
@@ -51,170 +34,147 @@ export class SharePopup extends EventEmitter
 		return this.#cache.get('options', {});
 	}
 
-	getPopup(): Popup
+	#getFeaturesPopup(): FeaturesPopup
 	{
-		return this.#cache.remember('popup', () => {
-			return new Popup({
-				id: `form-share-popup-${Text.getRandom()}`,
+		return this.#cache.remember('featuresPopup', () => {
+			return new FeaturesPopup({
 				bindElement: this.getOptions().bindElement,
-				content: this.getContent(),
-				className: 'landing-form-share-popup',
-				width: 410,
-				autoHide: true,
-				closeByEsc: true,
-				noAllPaddings : true,
-				angle: {
-					position: 'top',
-					offset: 115
-				},
-				minWidth: 410,
-				contentBackground: 'transparent',
-				background: '#E9EAED',
-			});
-		});
-	}
-
-	getContent(): HTMLDivElement
-	{
-		return this.#cache.remember('content', () => {
-			return Tag.render`
-				<div class="landing-form-share-popup-content">
-					${this.getShareBlock()}
-					${this.getCommunicationBlock()}
-					${this.getHelpBlock()}
-				</div>
-			`;
-		});
-	}
-
-	getShareBlock(): HTMLDivElement
-	{
-		return this.#cache.remember('shareBlock', () => {
-			return this.createContentBlock({
-				type: 'share',
-				title: Loc.getMessage('LANDING_FORM_SHARE__SHARE_TITLE'),
-				link: {
-					label: Loc.getMessage('LANDING_FORM_SHARE__SHARE_LINK_LABEL'),
-					onClick: () => {},
-				},
-				action: {
-					label: Loc.getMessage('LANDING_FORM_SHARE__SHARE_ACTION_LABEL'),
-					onClick: () => {
-						this.showEmbedPanel();
-						this.hide();
+				items: [
+					{
+						id: 'share',
+						title: Loc.getMessage('LANDING_FORM_SHARE__SHARE_TITLE'),
+						theme: FeaturesPopup.Themes.Highlight,
+						icon: {
+							className: 'landing-form-features-share-icon',
+						},
+						link: {
+							label: Loc.getMessage('LANDING_FORM_SHARE__SHARE_LINK_LABEL'),
+							onClick: () => {
+								if (!Type.isNil(BX.Helper))
+								{
+									BX.Helper.show('redirect=detail&code=13003062');
+								}
+							},
+						},
+						actionButton: {
+							label: Loc.getMessage('LANDING_FORM_SHARE__SHARE_ACTION_LABEL'),
+							onClick: () => {
+								const editorWindow = PageObject.getEditorWindow();
+								const {formEditorData} = editorWindow.BX.Landing.Env.getInstance().getOptions();
+								if (
+									Type.isPlainObject(formEditorData)
+									&& Type.isPlainObject(formEditorData.formOptions)
+								)
+								{
+									Embed.openSlider(formEditorData.formOptions.id);
+								}
+							},
+						},
 					},
-				},
-			});
-		});
-	}
-
-	showEmbedPanel()
-	{
-		const {formEditorData} = Env.getInstance().getOptions();
-		if (
-			Type.isPlainObject(formEditorData)
-			&& Type.isPlainObject(formEditorData.formOptions)
-		)
-		{
-			const {id} = formEditorData.formOptions;
-			Embed.open(id);
-		}
-	}
-
-	showWidgetPanel()
-	{
-		const SidePanelInstance = Reflection.getClass('BX.SidePanel.Instance');
-
-		SidePanelInstance.open(
-			`/crm/button/`,
-			{
-				allowChangeHistory: false,
-				cacheable: false,
-			},
-		);
-	}
-
-	getCommunicationBlock(): HTMLDivElement
-	{
-		return this.#cache.remember('communicationBlock', () => {
-			return this.createContentBlock({
-				type: 'communication',
-				title: Loc.getMessage('LANDING_FORM_SHARE__COMMUNICATION_TITLE'),
-				link: {
-					label: Loc.getMessage('LANDING_FORM_SHARE__COMMUNICATION_LINK_LABEL'),
-					onClick: () => {},
-				},
-				action: {
-					label: Loc.getMessage('LANDING_FORM_SHARE__COMMUNICATION_ACTION_LABEL'),
-					onClick: () => {
-						this.showWidgetPanel();
+					{
+						id: 'communication',
+						title: Loc.getMessage('LANDING_FORM_SHARE__COMMUNICATION_TITLE'),
+						icon: {
+							className: 'landing-form-features-communication-icon',
+						},
+						link: {
+							label: Loc.getMessage('LANDING_FORM_SHARE__COMMUNICATION_LINK_LABEL'),
+							onClick: () => {
+								if (!Type.isNil(BX.Helper))
+								{
+									BX.Helper.show('redirect=detail&code=6986667');
+								}
+							},
+						},
+						actionButton: {
+							label: Loc.getMessage('LANDING_FORM_SHARE__COMMUNICATION_ACTION_LABEL'),
+							onClick: () => {
+								const {landingParams} = PageObject.getRootWindow();
+								if (
+									!Type.isNil(landingParams)
+									&& Type.isStringFilled(landingParams.PAGE_URL_LANDING_SETTINGS)
+								)
+								{
+									const SidePanel: BX.SidePanel = Reflection.getClass('BX.SidePanel');
+									if (!Type.isNil(SidePanel))
+									{
+										SidePanel.Instance.open(
+											`${landingParams['PAGE_URL_LANDING_SETTINGS']}#b24widget`,
+										);
+									}
+								}
+							},
+						},
 					},
-				},
+					[
+						{
+							id: 'help',
+							title: Loc.getMessage('LANDING_FORM_SHARE__HELP_TITLE'),
+							icon: {
+								className: 'landing-form-features-help-icon',
+							},
+							link: {
+								label: Loc.getMessage('LANDING_FORM_SHARE__HELP_LINK_LABEL'),
+								onClick: () => {
+									const Feedback = Reflection.getClass('BX.UI.Feedback');
+									if (!Type.isNil(Feedback))
+									{
+										Feedback.Form.open({
+											id: 'form-editor-feedback-form',
+											portalUri: 'https://bitrix24.team',
+											forms: [
+												{id: 1847, lang: 'ru', sec: 'bbih83', zones: ['ru']},
+												{id: 1852, lang: 'kz', sec: 'dtw568', zones: ['kz']},
+												{id: 1851, lang: 'by', sec: 'nnz05i', zones: ['by']},
+												{id: 1855, lang: 'en', sec: '6lxt2y', zones: ['en', 'eu', 'in', 'uk']},
+												{id: 1856, lang: 'de', sec: '574psk', zones: ['de']},
+												{id: 1857, lang: 'la', sec: '9tlqqk', zones: ['es', 'mx', 'co']},
+												{id: 1858, lang: 'br', sec: '9ptdnu', zones: ['com.br']},
+												{id: 1859, lang: 'pl', sec: 'aynrqw', zones: ['pl']},
+												{id: 1860, lang: 'fr', sec: 'ld3bh8', zones: ['fr']},
+												{id: 1861, lang: 'it', sec: '1rlv2j', zones: ['it']},
+												{id: 1862, lang: 'vn', sec: '5m169k', zones: ['vn']},
+												{id: 1863, lang: 'tr', sec: '2mc2tg', zones: ['com.tr']},
+											],
+											defaultForm: {id: 1855, lang: 'en', sec: '6lxt2y'}
+										});
+									}
+								},
+							},
+						},
+						{
+							id: 'settings',
+							icon: {
+								className: 'landing-form-features-settings-icon',
+							},
+							onClick: () => {
+								const {landingParams} = PageObject.getRootWindow();
+								if (
+									!Type.isNil(landingParams)
+									&& Type.isStringFilled(landingParams.PAGE_URL_LANDING_SETTINGS)
+								)
+								{
+									const SidePanel: BX.SidePanel = Reflection.getClass('BX.SidePanel');
+									if (!Type.isNil(SidePanel))
+									{
+										SidePanel.Instance.open(landingParams['PAGE_URL_LANDING_SETTINGS']);
+									}
+								}
+							},
+						},
+					],
+				],
 			});
 		});
 	}
 
-	getHelpBlock(): HTMLDivElement
+	show()
 	{
-		return this.#cache.remember('helpBlock', () => {
-			return this.createContentBlock({
-				type: 'help',
-				title: Loc.getMessage('LANDING_FORM_SHARE__HELP_TITLE'),
-				link: {
-					label: Loc.getMessage('LANDING_FORM_SHARE__HELP_LINK_LABEL'),
-					onClick: () => {},
-				},
-				action: {
-					label: Loc.getMessage('LANDING_FORM_SHARE__HELP_ACTION_LABEL'),
-					onClick: () => {},
-				},
-			});
-		});
-	}
-
-	createContentBlock(options: TextBlockOptions): HTMLDivElement
-	{
-		return Tag.render`
-				<div class="landing-form-share-popup-content-block" data-type="${Text.encode(options.type)}">
-					<div class="landing-form-share-popup-content-block-icon"></div>
-					<div class="landing-form-share-popup-content-block-text">
-						<div class="landing-form-share-popup-content-block-text-title">
-							${Text.encode(options.title)}
-						</div>
-						<div 
-							class="landing-form-share-popup-content-block-text-link"
-							onclick="${options.link.onClick}"
-						>
-							${Text.encode(options.link.label)}
-						</div>
-					</div>
-					<div class="landing-form-share-popup-content-block-action">
-						<span 
-							class="ui-btn ui-btn-xs ui-btn-round ui-btn-no-caps ui-btn-light-border"
-							onclick="${options.action.onClick}"
-						>${Text.encode(options.action.label)}</span>
-					</div>
-				</div>
-			`;
-	}
-
-	show(options)
-	{
-		const popup: Popup = this.getPopup();
-
-		if (Type.isPlainObject(options))
-		{
-			if (Type.isDomNode(options.bindElement))
-			{
-				popup.setBindElement(options.bindElement);
-			}
-		}
-
-		popup.show();
+		this.#getFeaturesPopup().show();
 	}
 
 	hide()
 	{
-		this.getPopup().close();
+		this.#getFeaturesPopup().hide();
 	}
 }

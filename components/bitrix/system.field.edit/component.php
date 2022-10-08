@@ -20,7 +20,7 @@ use Bitrix\Main\UserField\Types\BaseType;
  * @global CUser $USER
  */
 
-$arParams["bVarsFromForm"] = ($arParams["bVarsFromForm"] ? true : false);
+$arParams["bVarsFromForm"] = (isset($arParams["bVarsFromForm"]) && $arParams["bVarsFromForm"]);
 $arResult["VALUE"] = false;
 $arUserField = &$arParams["arUserField"];
 
@@ -34,7 +34,8 @@ if($arUserField["USER_TYPE"])
 	if(!$arParams["bVarsFromForm"])
 	{
 		if(
-			$arUserField["ENTITY_VALUE_ID"] <= 0
+			(!isset($arUserField["ENTITY_VALUE_ID"]) || $arUserField["ENTITY_VALUE_ID"] <= 0)
+			&& isset($arUserField["SETTINGS"]["DEFAULT_VALUE"])
 			&& !is_array($arUserField["SETTINGS"]["DEFAULT_VALUE"])
 			&& $arUserField["SETTINGS"]["DEFAULT_VALUE"] <> ''
 		)
@@ -153,7 +154,7 @@ if($arUserField["USER_TYPE"])
 
 	$arParams["form_name"] = !empty($arParams["form_name"]) ? $arParams["form_name"] : "form1";
 
-	$arResult["RANDOM"] = ($arParams["RANDOM"] <> '' ? $arParams["RANDOM"] : $this->randString());
+	$arResult["RANDOM"] = (isset($arParams["RANDOM"]) && $arParams["RANDOM"] <> '' ? $arParams["RANDOM"] : $this->randString());
 
 	if(!empty($arUserField['USER_TYPE']['USE_FIELD_COMPONENT']))
 	{

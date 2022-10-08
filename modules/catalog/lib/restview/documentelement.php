@@ -48,4 +48,31 @@ final class DocumentElement extends Base
 			],
 		];
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function internalizeArguments($name, $arguments): array
+	{
+		if ($name === 'fields')
+		{
+			return $arguments;
+		}
+
+		return parent::internalizeArguments($name, $arguments);
+	}
+
+
+	/**
+	 * @inheritDoc
+	 */
+	public function externalizeResult($name, $fields): array
+	{
+		if ($name === 'fields')
+		{
+			return $fields;
+		}
+
+		return parent::externalizeResult($name, $fields);
+	}
 }

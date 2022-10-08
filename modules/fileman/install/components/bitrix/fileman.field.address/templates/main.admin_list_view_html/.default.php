@@ -1,13 +1,41 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+use Bitrix\Fileman\UserField\Types\AddressType;
+use Bitrix\Main\Text\HtmlFilter;
 
-\Bitrix\Main\UI\Extension::load(['fileman.userfield.address_widget', 'userfield_address']);
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 /**
  * @var AddressUfComponent $component
  * @var array $arResult
  */
+
+$isLocationIncluded = \Bitrix\Main\Loader::includeModule('location');
+if (!$isLocationIncluded)
+{
+	?>
+	<span class="fields address field-wrap">
+	<?php
+	foreach ($arResult['value'] as $value)
+	{
+		?>
+		<span class="fields address field-item">
+			<?php
+			$parsedValue = AddressType::parseValue($value);
+			print HtmlFilter::encode($parsedValue[0]);
+			?>
+		</span>
+		<?php
+	}
+	?>
+	</span>
+	<?php
+
+	return;
+}
+
+\Bitrix\Main\UI\Extension::load(['fileman.userfield.address_widget', 'userfield_address']);
+
 $randString = $this->randString();
 if ($component->isAjaxRequest())
 {

@@ -187,11 +187,17 @@ if (Loader::requireModule('bizproc'))
 			{
 				$result = call_user_func_array(
 					$userType['GetPublicViewHTML'],
-					array(
-						array('LINK_IBLOCK_ID' => $fieldType->getOptions()),
-						array('VALUE' => $value),
-						''
-					)
+					[
+						[
+							'LINK_IBLOCK_ID' => $fieldType->getOptions(),
+						],
+						[
+							'VALUE' => $value,
+						],
+						[
+							'MODE' => 'SIMPLE_TEXT',
+						]
+					]
 				);
 				return htmlspecialcharsback($result);
 			}

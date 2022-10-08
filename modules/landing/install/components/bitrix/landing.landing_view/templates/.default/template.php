@@ -22,11 +22,12 @@ Loc::loadMessages(Manager::getDocRoot() . '/bitrix/modules/landing/lib/mutator.p
 
 // assets, extensions
 Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 	'ui.buttons',
 	'ui.buttons.icons',
 	'ui.alerts',
 	'ui.icons',
-	'ui.fonts.opensans',
 	'ui.info-helper',
 	'ui.notification',
 	'sidepanel',
@@ -207,7 +208,6 @@ if (!$request->offsetExists('landing_mode')):
 	$startChain = $component->getMessageType('LANDING_TPL_START_PAGE');
 	$lightMode = $arParams['PANEL_LIGHT_MODE'] == 'Y';
 	$panelModifier = $lightMode ? ' landing-ui-panel-top-light' : '';
-	$panelModifier .= $formEditor ? ' landing-ui-panel-top-form' : '';
 	// feedback form
 	$formCode = '';
 	if (!isset($arResult['LICENSE']) || $arResult['LICENSE'] != 'nfr')
@@ -339,9 +339,6 @@ if (!$request->offsetExists('landing_mode')):
 
 		<div class="landing-ui-panel-top-menu" id="landing-panel-settings">
 			<?if ($arParams['DRAFT_MODE'] != 'Y'):?>
-			<?if ($formEditor):?>
-				<span class="ui-btn ui-btn-light-border landing-ui-panel-top-menu-link landing-btn-menu ui-btn-icon-setting landing-ui-panel-top-menu-link-settings" title="<?=Loc::getMessage('LANDING_FORM_EDITOR_TOP_PANEL_SETTINGS')?>"></span>
-			<?endif;?>
 			<a href="<?= $urls['preview']->getUri();?>" <?
 				?>id="landing-popup-preview-btn" <?
 				?>data-domain="<?= $site['DOMAIN_NAME']?>" <?
@@ -356,8 +353,8 @@ if (!$request->offsetExists('landing_mode')):
 						?> value="<?= $component->getMessageType('LANDING_TPL_FEATURES')?>"<?
 						?> />
 				<?else:?>
-					<span class="ui-btn ui-btn-light-border ui-btn-round ui-btn-icon-share landing-form-editor-share-button"><?
-						echo Loc::getMessage('LANDING_FORM_EDITOR_SHARE_BUTTON')
+					<span class="ui-btn ui-btn-light-border ui-btn-round landing-form-editor-share-button"><?
+						echo Loc::getMessage('LANDING_FORM_FEATURES')
 					?></span>
 				<?endif;?>
 			<?else:?>
@@ -414,7 +411,10 @@ if (!$request->offsetExists('landing_mode')):
 	});
 </script>
 
-<?
+<!-- fonts proxy-->
+<?= $component->getFontProxyUrlScript() ?>
+
+<?php
 // editor frame
 if ($request->offsetExists('landing_mode'))
 {
@@ -483,7 +483,7 @@ if ($request->offsetExists('landing_mode'))
 					{
 						gotoSiteButton = event.data.elementList[i];
 						var replaces = [];
-						var landingPath = '<?= CUtil::jsEscape($arParams['SEF']['landing_view']);?>';
+						var landingPath = '<?= CUtil::jsEscape($arParams['PARAMS']['sef_url']['landing_view']) ?>';
 
 						if (gotoSiteButton.dataset.siteId)
 						{
@@ -499,6 +499,40 @@ if ($request->offsetExists('landing_mode'))
 							replaces.forEach(function(replace) {
 								landingPath = landingPath.replace(replace[0], replace[1]);
 							});
+
+							if (
+								event.data.from !== undefined
+								&& typeof BX.Landing.Metrika !== 'undefined'
+							)
+							{
+								var appCode = event.data.from.match(/app_code:(.*)=?:title/i);
+								var title = event.data.from.match(/title:(.*)=?:preview_url/iu);
+								var previewUrl = event.data.from.match(/preview_url:(.*)/i);
+								if (
+									appCode !== null
+									&& appCode.length > 1
+									&& title !== null
+									&& title.length > 1
+									&& previewUrl !== null
+									&& previewUrl.length > 1
+								)
+								{
+									var metrikaValue =
+										landingPath
+										+ '?action=templateCreated&app_code='
+										+ appCode[1]
+										+ '&title='
+										+ title[1]
+										+ '&preview_url='
+										+ previewUrl[1];
+									var metrika = new BX.Landing.Metrika(true);
+									metrika.sendLabel(
+										null,
+										'templateCreated',
+										metrikaValue
+									);
+								}
+							}
 							gotoSiteButton.setAttribute('href', landingPath);
 							top.window.location.href = landingPath;
 						}

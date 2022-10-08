@@ -76,7 +76,7 @@ class Campaign extends Base
 		{
 			if (!self::$defaultSiteId)
 			{
-				$defaultSite = SiteTable::getRow(['select' => ['ID' => 'LID'], 'filter' => ['=DEF' => 'Y']]);
+				$defaultSite = SiteTable::getRow(['select' => ['ID'], 'filter' => ['=DEF' => 'Y']]);
 				self::$defaultSiteId = ($defaultSite ? $defaultSite['ID'] : SITE_ID);
 			}
 			$siteId = self::$defaultSiteId;

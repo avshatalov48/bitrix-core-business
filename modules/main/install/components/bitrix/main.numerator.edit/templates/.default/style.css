@@ -5,6 +5,7 @@
 .main-numerator-edit-slider .main-numerator-edit-wrap {
 	background: #fff;
 	padding: 23px 21px 150px 23px;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .main-numerator-edit-field-wrap {
@@ -50,7 +51,7 @@
 	outline: none;
 	border: none;
 	color: rgba(32, 102, 176, .5);
-	font: bold 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	display: inline-block;
 	margin: 7px 5px 0 0;
 	padding: 5px 8px;
@@ -119,7 +120,7 @@
 	border: 1px solid rgb(196, 199, 204);
 	border-image: initial;
 	border-radius: 1px;
-	font: 15px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: all 220ms ease;
 }
 
@@ -128,7 +129,7 @@
 }
 
 .main-numerator-edit-caption {
-	font: 13px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/22px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #A9ADB2;
 }
 
@@ -143,7 +144,8 @@
 	width: 100%;
 	min-height: 38px;
 	border: 1px solid #DDE0E8;
-	font: 15px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	border-radius: var(--ui-field-border-radius);
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #475767;
 	transition: border-color .3s;
 	outline: none;
@@ -159,7 +161,7 @@
 
 .main-numerator-edit-alert-text {
 	display: block;
-	font: 12px/2 "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/2 var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #FF5752;
 	clear:  both;
 }
@@ -169,11 +171,11 @@
 	padding: 9px 30px 11px 12px;
 	width: 100%;
 	height: 38px;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	border: 1px solid #DDE0E8;
 	background: transparent url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2011%207%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Ctitle%3EPath%3C/title%3E%3Cpath%20d%3D%22M5.485%204.228L1.37.114%200%201.484l4.8%204.8.685.687%205.486-5.485L9.6.115%205.484%204.227z%22%20fill%3D%22%23535C69%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E') no-repeat center right 13px;
 	background-size: 11px 11px;
-	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #475767;
 	-moz-appearance: none;
 	-webkit-appearance: none;

@@ -110,6 +110,18 @@ class PriceCollection extends BaseCollection
 		return $values;
 	}
 
+	public function hasBasePrice(): bool
+	{
+		$basePrice = $this->findBasePrice();
+
+		return $basePrice && $basePrice->hasPrice();
+	}
+
+	public function hasAnyPrice(): bool
+	{
+		return !empty($this->getValues());
+	}
+
 	private function prepareValues(array $values): array
 	{
 		// ToDo check required properties + QUANTITY_FROM etc

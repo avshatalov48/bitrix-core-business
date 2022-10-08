@@ -45,8 +45,8 @@ export class FieldTypes
 				defaultTitle: Loc.getMessage('UI_USERFIELD_FACTORY_UF_DATETIME_LABEL'),
 			},
 			address: {
-				title: Loc.getMessage("UI_USERFIELD_FACTORY_UF_ADDRESS_TITLE"),
-				description: Loc.getMessage("UI_USERFIELD_FACTORY_UF_ADDRESS_LEGEND"),
+				title: Loc.getMessage("UI_USERFIELD_FACTORY_UF_ADDRESS_TITLE_2"),
+				description: Loc.getMessage("UI_USERFIELD_FACTORY_UF_ADDRESS_LEGEND_2"),
 			},
 			url: {
 				title: Loc.getMessage("UI_USERFIELD_FACTORY_UF_URL_TITLE"),

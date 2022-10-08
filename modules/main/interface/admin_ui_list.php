@@ -1,12 +1,14 @@
 <?php
+
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Grid\Editor\Types;
 use Bitrix\Main\Grid\Panel;
-use Bitrix\Main\UI\Filter\Options;
 use Bitrix\Main\Grid\Context;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Main\Grid;
 use Bitrix\Main\Security;
+use Bitrix\Main\UI\Filter;
+use Bitrix\Main\Web\Uri;
 
 class CAdminUiList extends CAdminList
 {
@@ -30,7 +32,7 @@ class CAdminUiList extends CAdminList
 
 	public function SetVisibleHeaderColumn()
 	{
-		$gridOptions = new Bitrix\Main\Grid\Options($this->table_id);
+		$gridOptions = new Grid\Options($this->table_id);
 		$gridColumns = $gridOptions->GetVisibleColumns();
 		if ($gridColumns)
 		{
@@ -161,7 +163,7 @@ class CAdminUiList extends CAdminList
 
 	public function getNavSize()
 	{
-		$gridOptions = new Bitrix\Main\Grid\Options($this->table_id);
+		$gridOptions = new Grid\Options($this->table_id);
 		$navParams = $gridOptions->getNavParams();
 		return $navParams["nPageSize"];
 	}
@@ -348,7 +350,7 @@ class CAdminUiList extends CAdminList
 
 	public function AddFilter(array $filterFields, array &$arFilter)
 	{
-		$filterOption = new Bitrix\Main\UI\Filter\Options($this->table_id);
+		$filterOption = new Filter\Options($this->table_id);
 		$filterData = $filterOption->getFilter($filterFields);
 		$filterable = array();
 		$quickSearchKey = "";
@@ -455,18 +457,22 @@ class CAdminUiList extends CAdminList
 		{
 			if ($this->contextSettings["pagePath"])
 			{
-				$pageParam = (!empty($_GET) ? http_build_query($_GET, "", "&") : "");
-				$pagePath = $this->contextSettings["pagePath"]."?".$pageParam;
+				$pagePath = $this->contextSettings['pagePath'];
+				$queryString = DeleteParam([self::MODE_FIELD_NAME]);
+				if ($queryString !== '')
+				{
+					$pagePath  .= (strpos($pagePath, '?') === false ? '?' : '&') . $queryString;
+				}
 				$pageParams = static::getModeExportParam();
 				if ($this->isPublicMode)
 					$pageParams["public"] = "y";
-				$link = CHTTP::urlAddParams($pagePath, $pageParams);
+				$uri = (new Uri($pagePath))->addParams($pageParams);
 			}
 			else
 			{
-				$link = CHTTP::urlAddParams($APPLICATION->GetCurPageParam(), static::getModeExportParam());
+				$uri = (new Uri($APPLICATION->GetCurPageParam()))->addParams(static::getModeExportParam());
 			}
-			$link = CHTTP::urlDeleteParams($link, ["apply_filter"]);
+			$link = $uri->deleteParams(["apply_filter"])->getUri();
 			$result[] = [
 				"TEXT" => "Excel",
 				"TITLE" => GetMessage("admin_lib_excel"),
@@ -525,7 +531,7 @@ class CAdminUiList extends CAdminList
 	 */
 	public function setDefaultFilterFields(array $fields)
 	{
-		$filterOptions = new Bitrix\Main\UI\Filter\Options($this->table_id);
+		$filterOptions = new Filter\Options($this->table_id);
 		$filterOptions->setFilterSettings(
 			"default_filter",
 			array("rows" => $fields),
@@ -553,7 +559,7 @@ class CAdminUiList extends CAdminList
 
 	public function deletePreset($presetId)
 	{
-		$options = new Options($this->table_id);
+		$options = new Filter\Options($this->table_id);
 		$options->deleteFilter($presetId);
 		$options->save();
 	}
@@ -561,6 +567,8 @@ class CAdminUiList extends CAdminList
 	public function DisplayFilter(array $filterFields = array())
 	{
 		global $APPLICATION;
+
+		$filterFields = $this->getPreparedFilterFields($filterFields);
 
 		$params = array(
 			"FILTER_ID" => $this->table_id,
@@ -573,7 +581,7 @@ class CAdminUiList extends CAdminList
 
 		if ($this->currentPreset)
 		{
-			$options = new Options($this->table_id, $this->filterPresets);
+			$options = new Filter\Options($this->table_id, $this->filterPresets);
 			$options->setFilterSettings($this->currentPreset["id"], $this->currentPreset, true, false);
 			$options->save();
 		}
@@ -583,7 +591,7 @@ class CAdminUiList extends CAdminList
 			$this->context->setFilterContextParam(true);
 		}
 
-		if ($this->isPublicMode)
+		if ($this->getPublicModeState())
 		{
 			ob_start();
 			?>
@@ -603,6 +611,7 @@ class CAdminUiList extends CAdminList
 		}
 		else
 		{
+			\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 			$APPLICATION->SetAdditionalCSS('/bitrix/css/main/grid/webform-button.css');
 			?>
 			<div class="adm-toolbar-panel-container">
@@ -640,12 +649,66 @@ class CAdminUiList extends CAdminList
 		<?
 	}
 
+	private static function checkFilterField($field): bool
+	{
+		return !(empty($field) || !is_array($field));
+	}
+
+	private function getPreparedFilterFields(array $filterFields): array
+	{
+		$filterFields = array_filter(
+			$filterFields,
+			[__CLASS__, 'checkFilterField']
+		);
+
+		if (
+			!$this->getPublicModeState()
+			|| empty($filterFields)
+		)
+		{
+			return $filterFields;
+		}
+
+		foreach ($filterFields as $index => $row)
+		{
+			if (!isset($row['type']) || $row['type'] !== Filter\FieldAdapter::CUSTOM_ENTITY)
+			{
+				continue;
+			}
+			if (isset($row['selector']) && isset($row['selector']['type']))
+			{
+				if ($row['selector']['type'] === 'user')
+				{
+					$row['type'] = Filter\FieldAdapter::DEST_SELECTOR;
+					unset($row['selector']);
+
+					$row['params'] = [
+						'context' => 'SHOP_USER',
+						'multiple' => 'N',
+						'contextCode' => 'U',
+						'enableAll' => 'N',
+						'enableSonetgroups' => 'N',
+						'allowEmailInvitation' => 'N',
+						'allowSearchEmailUsers' => 'N',
+						'departmentSelectDisable' => 'Y',
+						'isNumeric' => 'Y',
+						'prefix' => 'U',
+					];
+
+					$filterFields[$index] = $row;
+				}
+			}
+		}
+
+		return $filterFields;
+	}
+
 	private function createFilterSelectorHandlers(array $filterFields = array())
 	{
 		$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
 		foreach ($filterFields as $filterField)
 		{
-			if (isset($filterField["type"]) && $filterField["type"] !== "custom_entity")
+			if (isset($filterField["type"]) && $filterField["type"] !== Filter\FieldAdapter::CUSTOM_ENTITY)
 			{
 				continue;
 			}
@@ -789,6 +852,7 @@ class CAdminUiList extends CAdminList
 		}
 
 		global $APPLICATION;
+		\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 		$APPLICATION->SetAdditionalCSS('/bitrix/css/main/grid/webform-button.css');
 
 		echo $this->sPrologContent;
@@ -833,7 +897,7 @@ class CAdminUiList extends CAdminList
 			$gridParameters["TOTAL_ROWS_COUNT_HTML"] = $this->getTotalRowsCountHtml();
 		}
 
-		$gridOptions = new Bitrix\Main\Grid\Options($gridParameters["GRID_ID"]);
+		$gridOptions = new Grid\Options($gridParameters["GRID_ID"]);
 		$defaultSort = array();
 		if ($this->sort instanceof CAdminSorting)
 		{
@@ -1871,14 +1935,14 @@ class CAdminUiResult extends CAdminResult
 
 	public static function GetNavSize($table_id = false, $nPageSize = 20, $listUrl = '')
 	{
-		$gridOptions = new Bitrix\Main\Grid\Options($table_id);
+		$gridOptions = new Grid\Options($table_id);
 		$navParams = $gridOptions->getNavParams();
 		return $navParams["nPageSize"];
 	}
 
 	public function setNavigationParams(array $params)
 	{
-		$gridOptions = new Bitrix\Main\Grid\Options($this->table_id);
+		$gridOptions = new Grid\Options($this->table_id);
 		$this->componentParams = array_merge($params, $gridOptions->getNavParams());
 	}
 }
@@ -2047,7 +2111,7 @@ class CAdminUiSorting extends CAdminSorting
 		{
 			$order = reset($sorting['sort']);
 			$result['by'] = key($sorting['sort']);
-			$result['order'] = mb_strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
+			$result['order'] = strtoupper($order) === 'ASC' ? 'ASC' : 'DESC';
 		}
 
 		return $result;

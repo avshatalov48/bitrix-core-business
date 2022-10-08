@@ -13,11 +13,8 @@ final class GoogleApiPush
 {
 	private const RENEW_LIMIT = 5;
 	private const CREATE_LIMIT = 2;
-	private const PROCESS_LIMIT = 4;
 	private const CLEAR_LIMIT = 6;
 	private const CHECK_LIMIT = 10;
-	public const CHECK_INTERVAL_CHANNEL = 14400;//60*60*4
-	public const RENEW_INTERVAL_CHANNEL = 14400;//60*60*4
 	public const TYPE_SECTION = 'SECTION';
 	public const TYPE_CONNECTION = 'CONNECTION';
 
@@ -146,14 +143,12 @@ final class GoogleApiPush
 
 		if (count($pushRows) < 4)
 		{
-			$nextAgentDate = \Bitrix\Main\Type\DateTime::createFromTimestamp(time() + (60*60*20))->format(\Bitrix\Main\Type\Date::convertFormatToPhp(FORMAT_DATETIME));
 			\CAgent::removeAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::renewWatchChannels();", "calendar");
-			\CAgent::addAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::renewWatchChannels();", "calendar", "N", self::RENEW_INTERVAL_CHANNEL,"", "Y", $nextAgentDate);
 
 			return false;
 		}
 
-		return "\\Bitrix\\Calendar\\Sync\\GoogleApiPush::renewWatchChannels();";
+		return false;
 	}
 
 	public static function checkSectionsPush($localSections, $userId, $connectionId)
@@ -221,7 +216,7 @@ final class GoogleApiPush
 			self::startChannelForInActiveSections($localSections, $inactiveSections, $googleApiConnection);
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
@@ -242,7 +237,7 @@ final class GoogleApiPush
 		$lastId = $start;
 		if(!Loader::includeModule('dav'))
 		{
-			return "\\Bitrix\\Calendar\\Sync\\GoogleApiPush::createWatchChannels(".$lastId.");";
+			return false;
 		}
 
 		$davConnections = \CDavConnection::getList(
@@ -314,11 +309,10 @@ final class GoogleApiPush
 		{
 			\CAgent::removeAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::createWatchChannels(".$start.");", "calendar");
 			\CAgent::removeAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::createWatchChannels(0);", "calendar");
-			\CAgent::addAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::createWatchChannels(0);", "calendar", "N", 3600, "", "Y", Type\DateTime::createFromTimestamp(strtotime('+1 hour'))->format(Type\Date::convertFormatToPhp(FORMAT_DATETIME)));
 			return null;
 		}
 
-		return "\\Bitrix\\Calendar\\Sync\\GoogleApiPush::createWatchChannels(".$lastId.");";
+		return false;
 	}
 
 	/**
@@ -425,7 +419,7 @@ final class GoogleApiPush
 
 		if ($hasRows)
 		{
-			return "\\Bitrix\\Calendar\\Sync\\GoogleApiPush::clearPushChannels();";
+			return false;
 		}
 
 		return null;
@@ -543,7 +537,7 @@ final class GoogleApiPush
 	 */
 	public static function processPush()
 	{
-		return "\\Bitrix\\Calendar\\Sync\\GoogleApiPush::processPush();";
+		return false;
 	}
 
 	public static function checkPushChannel(int $lastIdConnection = 0)
@@ -553,7 +547,7 @@ final class GoogleApiPush
 
 		if (!Loader::includeModule('dav'))
 		{
-			return "\\Bitrix\\Calendar\\Sync\\GoogleApiPush::checkPushChannel();";
+			return false;
 		}
 
 		$davConnectionsDb = \CDavConnection::getList(
@@ -583,10 +577,10 @@ final class GoogleApiPush
 			self::checkPushConnectionChannel($connectionIds, $connections);
 			self::checkPushSectionChannel($connectionIds, $connections);
 
-			return "\\Bitrix\\Calendar\\Sync\\GoogleApiPush::checkPushChannel(" . $lastIdConnection . ");";
+			return false;
 		}
 
-		return "\\Bitrix\\Calendar\\Sync\\GoogleApiPush::checkPushChannel();";
+		return false;
 	}
 
 	/**

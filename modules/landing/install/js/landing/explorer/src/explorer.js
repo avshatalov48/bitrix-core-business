@@ -72,7 +72,12 @@ export class Explorer
 	{
 		MessageBox.alert(
 			errors[0].error_description,
-			Loc.getMessage('LANDING_EXT_EXPLORER_ALERT_TITLE')
+			Loc.getMessage('LANDING_EXT_EXPLORER_ALERT_TITLE'),
+			(messageBox, button) => {
+				button.setWaiting(false);
+				messageBox.close();
+				this.popupWindow.close();
+			}
 		);
 	}
 
@@ -103,7 +108,8 @@ export class Explorer
 							data = {
 								lid: entityId,
 								toSiteId: this.currentSiteId,
-								toFolderId: this.currentFolderId
+								toFolderId: this.currentFolderId,
+								skipSystem: true
 							};
 							break;
 						case 'move':
@@ -130,20 +136,21 @@ export class Explorer
 								site_id: this.currentSiteId,
 								type: this.type
 							},
-							this.popupWindow.setContent(
-								ExplorerUI.getLoader()
-							)
 						)
 						.then(() => {
 							this.popupWindow.setContent(
 								ExplorerUI.getLoader()
 							);
-							window.location.reload();
+						})
+						.then(() => {
+							setTimeout(() => {
+								window.location.reload();
+							}, 500);
 						})
 						.catch(reason => {
 							this.errorAlert(reason.result);
 							return Promise.reject(reason);
-						});
+						})
 				}
 			),
 			ExplorerUI.getCancelButton(() => {

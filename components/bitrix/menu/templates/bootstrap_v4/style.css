@@ -45,7 +45,8 @@
 	color: #fff;
 	text-decoration: none;
 	text-transform: uppercase;
-	font: 500 14px "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	transition: 250ms linear all;
 	align-items: center;
 }
@@ -189,7 +190,7 @@
 .bx-nav-2-lvl-link-text {
 	color: var(--theme-color-primary);
 	text-decoration: none;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 13px;
 	line-height: 16px;
 }

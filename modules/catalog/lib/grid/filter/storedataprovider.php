@@ -71,6 +71,11 @@ class StoreDataProvider extends \Bitrix\Main\Filter\EntityDataProvider
 			]),
 		];
 
+		if (!$this->allowedShippingCenterField())
+		{
+			unset($fields['SHIPPING_CENTER']);
+		}
+
 		return $fields;
 	}
 
@@ -81,7 +86,11 @@ class StoreDataProvider extends \Bitrix\Main\Filter\EntityDataProvider
 
 	public function prepareFieldData($fieldID)
 	{
-		$checkboxFields = ['ACTIVE', 'ISSUING_CENTER', 'SHIPPING_CENTER', 'IS_DEFAULT'];
+		$checkboxFields = ['ACTIVE', 'ISSUING_CENTER', 'IS_DEFAULT'];
+		if ($this->allowedShippingCenterField())
+		{
+			$checkboxFields[] = 'SHIPPING_CENTER';
+		}
 		if (in_array($fieldID, $checkboxFields))
 		{
 			return [
@@ -107,142 +116,149 @@ class StoreDataProvider extends \Bitrix\Main\Filter\EntityDataProvider
 
 	public function getGridColumns()
 	{
-		$columns = [
-			[
-				"id" => "ID",
-				"name" => "ID",
-				"sort" => "ID",
-				"default" => true
-			],
-			[
-				"id" => "SORT",
-				"name" => Loc::getMessage("CSTORE_SORT"),
-				"sort" => "SORT",
-				"default" => true
-			],
-			[
-				"id" => "TITLE",
-				"name" => Loc::getMessage("TITLE"),
-				"sort" => "TITLE",
-				"default" => true,
-				'width' => 175,
-			],
-			[
-				"id" => "ACTIVE",
-				"name" => Loc::getMessage("STORE_ACTIVE"),
-				"sort" => "ACTIVE",
-				"default" => true
-			],
-			[
-				"id" => "IS_DEFAULT",
-				"name" => Loc::getMessage("IS_DEFAULT"),
-				"sort" => "IS_DEFAULT",
-				"default" => true
-			],
-			[
-				"id" => "ADDRESS",
-				"name" => Loc::getMessage("ADDRESS"),
-				"sort" => "",
-				"default" => true
-			],
-			[
-				"id" => "IMAGE_ID",
-				"name" => Loc::getMessage("STORE_IMAGE"),
-				"sort" => "",
-				"default" => false
-			],
-			[
-				"id" => "DESCRIPTION",
-				"name" => Loc::getMessage("DESCRIPTION"),
-				"sort" => "",
-				"default" => true
-			],
-			[
-				"id" => "GPS_N",
-				"name" => Loc::getMessage("GPS_N"),
-				"sort" => "GPS_N",
-				"default" => false
-			],
-			[
-				"id" => "GPS_S",
-				"name" => Loc::getMessage("GPS_S"),
-				"sort" => "GPS_S",
-				"default" => false
-			],
-			[
-				"id" => "PHONE",
-				"name" => Loc::getMessage("PHONE"),
-				"sort" => "",
-				"default" => true
-			],
-			[
-				"id" => "SCHEDULE",
-				"name" => Loc::getMessage("SCHEDULE"),
-				"sort" => "",
-				"default" => true
-			],
-			[
-				"id" => "DATE_MODIFY",
-				"name" => Loc::getMessage("DATE_MODIFY"),
-				"sort" => "DATE_MODIFY",
-				"default" => true
-			],
-			[
-				"id" => "MODIFIED_BY",
-				"name" => Loc::getMessage("MODIFIED_BY"),
-				"sort" => "MODIFIED_BY",
-				"default" => true
-			],
-			[
-				"id" => "DATE_CREATE",
-				"name" => Loc::getMessage("DATE_CREATE"),
-				"sort" => "DATE_CREATE",
-				"default" => false
-			],
-			[
-				"id" => "USER_ID",
-				"name" => Loc::getMessage("USER_ID"),
-				"sort" => "USER_ID",
-				"default" => false
-			],
-			[
-				"id" => "EMAIL",
-				"name" => "E-mail",
-				"sort" => "EMAIL",
-				"default" => false
-			],
-			[
-				"id" => "ISSUING_CENTER",
-				"name" => Loc::getMessage("ISSUING_CENTER"),
-				"sort" => "ISSUING_CENTER",
-				"default" => false
-			],
-			[
+		$columns = [];
+		$columns[] = [
+			"id" => "ID",
+			"name" => "ID",
+			"sort" => "ID",
+			"default" => true
+		];
+		$columns[] = [
+			"id" => "SORT",
+			"name" => Loc::getMessage("CSTORE_SORT"),
+			"sort" => "SORT",
+			"default" => true
+		];
+		$columns[] = [
+			"id" => "TITLE",
+			"name" => Loc::getMessage("TITLE"),
+			"sort" => "TITLE",
+			"default" => true,
+			'width' => 175,
+		];
+		$columns[] = [
+			"id" => "ACTIVE",
+			"name" => Loc::getMessage("STORE_ACTIVE"),
+			"sort" => "ACTIVE",
+			"default" => true
+		];
+		$columns[] = [
+			"id" => "IS_DEFAULT",
+			"name" => Loc::getMessage("IS_DEFAULT"),
+			"sort" => "IS_DEFAULT",
+			"default" => true
+		];
+		$columns[] = [
+			"id" => "ADDRESS",
+			"name" => Loc::getMessage("ADDRESS"),
+			"sort" => "",
+			"default" => true
+		];
+		$columns[] = [
+			"id" => "IMAGE_ID",
+			"name" => Loc::getMessage("STORE_IMAGE"),
+			"sort" => "",
+			"default" => false
+		];
+		$columns[] = [
+			"id" => "DESCRIPTION",
+			"name" => Loc::getMessage("DESCRIPTION"),
+			"sort" => "",
+			"default" => true
+		];
+		$columns[] = [
+			"id" => "GPS_N",
+			"name" => Loc::getMessage("GPS_N"),
+			"sort" => "GPS_N",
+			"default" => false
+		];
+		$columns[] = [
+			"id" => "GPS_S",
+			"name" => Loc::getMessage("GPS_S"),
+			"sort" => "GPS_S",
+			"default" => false
+		];
+		$columns[] = [
+			"id" => "PHONE",
+			"name" => Loc::getMessage("PHONE"),
+			"sort" => "",
+			"default" => true
+		];
+		$columns[] = [
+			"id" => "SCHEDULE",
+			"name" => Loc::getMessage("SCHEDULE"),
+			"sort" => "",
+			"default" => true
+		];
+		$columns[] = [
+			"id" => "DATE_MODIFY",
+			"name" => Loc::getMessage("DATE_MODIFY"),
+			"sort" => "DATE_MODIFY",
+			"default" => true
+		];
+		$columns[] = [
+			"id" => "MODIFIED_BY",
+			"name" => Loc::getMessage("MODIFIED_BY"),
+			"sort" => "MODIFIED_BY",
+			"default" => true
+		];
+		$columns[] = [
+			"id" => "DATE_CREATE",
+			"name" => Loc::getMessage("DATE_CREATE"),
+			"sort" => "DATE_CREATE",
+			"default" => false
+		];
+		$columns[] = [
+			"id" => "USER_ID",
+			"name" => Loc::getMessage("USER_ID"),
+			"sort" => "USER_ID",
+			"default" => false
+		];
+		$columns[] = [
+			"id" => "EMAIL",
+			"name" => "E-mail",
+			"sort" => "EMAIL",
+			"default" => false
+		];
+		$columns[] = [
+			"id" => "ISSUING_CENTER",
+			"name" => Loc::getMessage("ISSUING_CENTER"),
+			"sort" => "ISSUING_CENTER",
+			"default" => false
+		];
+		if ($this->allowedShippingCenterField())
+		{
+			$columns[] = [
 				"id" => "SHIPPING_CENTER",
 				"name" => Loc::getMessage("SHIPPING_CENTER"),
 				"sort" => "SHIPPING_CENTER",
 				"default" => false
-			],
-			[
-				"id" => "SITE_ID",
-				"name" => Loc::getMessage("STORE_SITE_ID"),
-				"sort" => "SITE_ID",
-				"default" => true
-			],
-			[
-				"id" => "CODE",
-				"name" => Loc::getMessage("STORE_CODE"),
-				"sort" => "CODE",
-				"default" => false
-			],
-			[
-				"id" => "XML_ID",
-				"name" => Loc::getMessage("STORE_XML_ID"),
-				"sort" => "XML_ID",
-				"default" => false
-			],
+			];
+		}
+		$columns[] = [
+			"id" => "SITE_ID",
+			"name" => Loc::getMessage("STORE_SITE_ID"),
+			"sort" => "SITE_ID",
+			"default" => true
+		];
+		$columns[] = [
+			"id" => "CODE",
+			"name" => Loc::getMessage("STORE_CODE"),
+			"sort" => "CODE",
+			"default" => false
+		];
+		$columns[] = [
+			"id" => "XML_ID",
+			"name" => Loc::getMessage("STORE_XML_ID"),
+			"sort" => "XML_ID",
+			"default" => false
 		];
 
 		return $columns;
+	}
+
+	protected function allowedShippingCenterField(): bool
+	{
+		return \CCatalogStoreControlUtil::isAllowShowShippingCenter();
 	}
 }

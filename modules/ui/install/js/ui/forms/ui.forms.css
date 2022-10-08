@@ -59,7 +59,7 @@
 	text-align: left;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font: 400 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: border .3s ease, background-color .3s ease, color .3s ease, padding .3s ease;
 	-webkit-box-flex: 1;
 	-ms-flex: 1;
@@ -99,7 +99,10 @@ div.ui-ctl-element { line-height: calc(var(--ui-field-size) - 2px);}
 /*region Fix for IE*/
 .bx-ie .ui-ctl { height: 39px; }
 
-.bx-ie div.ui-ctl-element { font: 400 15px/37px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.bx-ie div.ui-ctl-element {
+	font: 15px/37px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+}
 
 .bx-ie .ui-ctl-element:hover,
 .bx-ie .ui-ctl-element:focus,
@@ -407,6 +410,8 @@ div.ui-ctl-element { line-height: calc(var(--ui-field-size) - 2px);}
 .ui-ctl-ext-after-icon,
 .ui-ctl-after-icon .ui-ctl-element { padding-right: var(--ui-field-size) !important; }
 
+.bx-firefox .ui-ctl-after-icon .ui-ctl-element { padding-right: calc(var(--ui-field-size) - 5px) !important; }
+
 /*region Fix for IE*/
 .bx-ie .ui-ctl-before,
 .bx-ie .ui-ctl-after,
@@ -619,7 +624,7 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 
 .ui-ctl-label-text {
 	padding: 0 0 7px;
-	font: 13px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: #525c69;
 	line-height: 17px;
@@ -688,7 +693,7 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	border-radius: 2px;
 	background: #bcedfc;
 	vertical-align: middle;
-	font: 15px/calc(var(--ui-field-size) - 8px) "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/calc(var(--ui-field-size) - 8px) var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-transition: background 0.2s linear;
 	transition: background 0.2s linear;
 }
@@ -859,7 +864,8 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	text-decoration: none;
 	text-shadow: none;
 	white-space: nowrap;
-	font: 13px "OpenSans", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	cursor: pointer;
 	transition: color 0.2s linear, border-color 0.2s linear;
 	-webkit-font-smoothing: antialiased;
@@ -898,7 +904,8 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	text-transform: uppercase;
 	text-shadow: none;
 	white-space: nowrap;
-	font: 12px "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	line-height: calc(var(--ui-field-size) - 2px);
 	cursor: pointer;
 	transition: background-color 0.2s linear, color 0.2s linear;
@@ -951,7 +958,8 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	text-transform: uppercase;
 	text-shadow: none;
 	white-space: nowrap;
-	font: 12px "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	transition: color 0.2s linear;
 	-webkit-font-smoothing: antialiased;
 }
@@ -1287,7 +1295,7 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	top: -6px;
 	background-color: #4ad3ff;
 	color: #fff;
-	font: bold 7px/13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 7px/13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	vertical-align: middle;
 	text-align: center;
 	padding: 0 6px;
@@ -1321,7 +1329,7 @@ button.ui-ctl-after:active { background-color: #e0e5ea; }
 	border-radius: 3px;
 	color: #fff;
 	z-index: 2;
-	font: 13px/31px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/31px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: all .2s linear;
 	box-sizing: border-box;
 	max-width: 100%;

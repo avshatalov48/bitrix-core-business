@@ -216,7 +216,7 @@ li.catalog-entity-section-tab-disabled:hover .catalog-entity-section-tab-link {
 	width: 100%;
 	background-color: #fae5e8;
 	color: #d0011b;
-	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .catalog-dictionary-item {
@@ -365,7 +365,7 @@ img.catalog-image {
 	background: #fff;
 	border: 1px solid #c6cdd3;
 	border-radius: 2px;
-	font: 13px/29px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-tile-selector-selector-wrap.readonly {
@@ -420,7 +420,7 @@ img.catalog-image {
 	-webkit-transition: .2s;
 	-o-transition: .2s;
 	transition: .2s;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	cursor: pointer;
 }
 
@@ -432,7 +432,7 @@ img.catalog-image {
 	background: #fff;
 	color: #555;
 	font-size: 13px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-tile-selector-input::-webkit-contacts-auto-fill-button {
@@ -451,7 +451,7 @@ img.catalog-image {
 	border-top: 1px solid transparent;
 	border-bottom: 1px solid transparent;
 	line-height: 17px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #2067b0;
 	-webkit-transition: .1s;
 	-o-transition: .1s;
@@ -479,7 +479,7 @@ img.catalog-image {
 	display: inline-block;
 	margin: 1px 0 0;
 	border-bottom: 1px solid transparent;
-	font: bold 13px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2067b0;
 	vertical-align: top;
 	-webkit-transition: border-bottom-color .2s linear;
@@ -553,7 +553,7 @@ img.catalog-image {
 	display: block;
 	margin: 0 0 7px 0;
 	/*padding: 0 11px;*/
-	font: 11px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868E;
 }
 
@@ -587,7 +587,7 @@ img.catalog-image {
 	padding: 0 11px;
 	margin: 0 16px 0 0;
 	height: 34px;
-	font: bold 13px/34px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 13px/34px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #0063C6;
 	-webkit-transition: background .3s;
 	-o-transition: background .3s;
@@ -621,7 +621,7 @@ img.catalog-image {
 .ui-tile-selector-searcher-sidebar-item {
 	display: block;
 	height: 30px;
-	font: 13px/29px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 	padding: 0 5px;
 	position: relative;
@@ -837,7 +837,7 @@ img.catalog-image {
 .ui-entity-editor-symbol-code-label {
 	display: block;
 	margin-bottom: 4px;
-	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c69;
 	opacity: .5;
 }
@@ -846,7 +846,7 @@ img.catalog-image {
 	position: relative;
 	display: block;
 	padding-left: 20px;
-	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #a7acb3;
 }
 

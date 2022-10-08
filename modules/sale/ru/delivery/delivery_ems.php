@@ -171,8 +171,8 @@ class CDeliveryEMS
 
 				if (!is_array($arEMSCityList))
 				{
-					if (file_exists(dirname(__FILE__).'/ems/city.php'))
-						require_once(dirname(__FILE__).'/ems/city.php');
+					if (file_exists(__DIR__.'/ems/city.php'))
+						require_once(__DIR__.'/ems/city.php');
 				}
 
 				$arLocation['CITY_NAME_ORIG'] = ToUpper($arLocation['CITY_NAME_ORIG']);
@@ -209,8 +209,8 @@ class CDeliveryEMS
 
 				if (!is_array($arEMSRegionList))
 				{
-					if (file_exists(dirname(__FILE__).'/ems/region.php'))
-						require_once(dirname(__FILE__).'/ems/region.php');
+					if (file_exists(__DIR__.'/ems/region.php'))
+						require_once(__DIR__.'/ems/region.php');
 				}
 
 				if($arLocation['REGION_NAME_ORIG'] == 'Саха /Якутия/ Респ' || $arLocation['REGION_NAME_ORIG'] == 'Республика Саха (Якутия)')
@@ -266,8 +266,8 @@ class CDeliveryEMS
 
 			if (!is_array($arEMSCountryList))
 			{
-				if (file_exists(dirname(__FILE__).'/ems/country.php'))
-					require_once(dirname(__FILE__).'/ems/country.php');
+				if (file_exists(__DIR__.'/ems/country.php'))
+					require_once(__DIR__.'/ems/country.php');
 			}
 
 			if (is_array($arEMSCountryList))
@@ -329,8 +329,8 @@ class CDeliveryEMS
 				$arCitiesList[$arLocation['name']] = $arLocation['value'];
 			}
 
-			CheckDirPath(dirname(__FILE__)."/ems/");
-			if ($fp = fopen(dirname(__FILE__)."/ems/city.php", "w"))
+			CheckDirPath(__DIR__."/ems/");
+			if ($fp = fopen(__DIR__."/ems/city.php", "w"))
 			{
 				fwrite($fp, '<'."?\r\n");
 				fwrite($fp, '$'."arEMSCityList = array();\r\n");
@@ -368,7 +368,7 @@ class CDeliveryEMS
 				$arEMSRegionList[$arLocation['name']] = $arLocation['value'];
 			}
 
-			$path = dirname(__FILE__);
+			$path = __DIR__;
 			CheckDirPath($path."/ems/");
 			if ($fp = fopen($path."/ems/region.php", "w"))
 			{
@@ -408,8 +408,8 @@ class CDeliveryEMS
 				$arCountriesList[$arLocation['name']] = $arLocation['value'];
 			}
 
-			CheckDirPath(dirname(__FILE__)."/ems/");
-			if ($fp = fopen(dirname(__FILE__)."/ems/country.php", "w"))
+			CheckDirPath(__DIR__."/ems/");
+			if ($fp = fopen(__DIR__."/ems/country.php", "w"))
 			{
 				fwrite($fp, '<'."?\r\n");
 				fwrite($fp, '$'."arEMSCountryList = array();\r\n");
@@ -569,7 +569,7 @@ class CDeliveryEMS
 	{
 		if (defined('DELIVERY_EMS_WRITE_LOG') && DELIVERY_EMS_WRITE_LOG === 1)
 		{
-			$fp = fopen(dirname(__FILE__)."/ems.log", "a");
+			$fp = fopen(__DIR__."/ems.log", "a");
 			fwrite($fp, "\r\n==========================================\r\n");
 			fwrite($fp, $data);
 			fclose($fp);

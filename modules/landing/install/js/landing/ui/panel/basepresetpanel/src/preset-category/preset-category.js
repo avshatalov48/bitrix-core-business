@@ -1,6 +1,7 @@
 import {Cache, Dom, Tag} from 'main.core';
 import type Preset from '../preset/preset';
 
+import 'ui.fonts.opensans';
 import './css/preset-category.css';
 
 type PresetCategoryOptions = {

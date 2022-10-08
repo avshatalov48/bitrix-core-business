@@ -9,11 +9,6 @@ if (!CModule::IncludeModule("socialnetwork"))
 	return;
 }
 
-if(!class_exists('CUserOptions'))
-{
-	include_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/classes/".$GLOBALS['DBType']."/favorites.php");
-}
-
 $arSocNetFeaturesSettings = CSocNetAllowed::GetAllowedFeatures();
 
 $arStaticTabs = array("general", "friends", "groups", "users", "messages_users", "messages_input", "messages_output", "user_ban", "log", "subscribe", "bizproc");

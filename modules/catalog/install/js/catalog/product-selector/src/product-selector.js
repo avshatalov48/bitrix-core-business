@@ -1,4 +1,5 @@
 import {ajax, Cache, Dom, Event, Loc, Reflection, Runtime, Tag, Text, Type} from 'main.core';
+import 'ui.design-tokens';
 import 'ui.forms';
 import 'fileinput';
 import 'ui.notification';
@@ -35,6 +36,7 @@ export class ProductSelector extends EventEmitter
 	onSaveImageHandler = this.onSaveImage.bind(this);
 	onChangeFieldsHandler = Runtime.debounce(this.onChangeFields, 500, this);
 	onUploaderIsInitedHandler = this.onUploaderIsInited.bind(this);
+	onNameChangeFieldHandler = Runtime.debounce(this.onNameChange, 500, this);
 
 	static getById(id: string): ?ProductSelector
 	{
@@ -121,6 +123,7 @@ export class ProductSelector extends EventEmitter
 		}
 
 		EventEmitter.subscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
+		EventEmitter.subscribe('ProductSelector::onNameChange', this.onNameChangeFieldHandler);
 		EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 		EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
 
@@ -299,6 +302,7 @@ export class ProductSelector extends EventEmitter
 
 		this.defineWrapperClass(wrapper);
 		wrapper.innerHTML = '';
+
 		const block = Tag.render`<div class="catalog-product-field-inner"></div>`;
 		Dom.append(this.layoutNameBlock(), block);
 
@@ -335,9 +339,10 @@ export class ProductSelector extends EventEmitter
 
 			Dom.append(this.getImageContainer(), wrapper);
 		}
-		else
+
+		if (this.isViewMode())
 		{
-			Dom.addClass(wrapper, 'catalog-product-field-no-image');
+			wrapper.appendChild(block);
 		}
 
 		if (this.isViewMode())
@@ -489,6 +494,8 @@ export class ProductSelector extends EventEmitter
 		EventEmitter.unsubscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 		EventEmitter.unsubscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
 		EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
+		EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
+		EventEmitter.unsubscribe('ProductSelector::onNameChange', this.onNameChangeFieldHandler);
 	}
 
 	defineWrapperClass(wrapper)
@@ -615,7 +622,7 @@ export class ProductSelector extends EventEmitter
 			}
 		});
 	}
-	
+
 	getSkuTreeInstance(): SkuTree
 	{
 		if (this.isSkuTreeEnabled() && this.getModel()?.getSkuTree() && !this.skuTreeInstance)
@@ -711,6 +718,27 @@ export class ProductSelector extends EventEmitter
 					this.layoutImage();
 				}
 			});
+	}
+
+	onNameChange(event)
+	{
+		const eventData = event.getData();
+
+		if (eventData.rowId !== this.getRowId() || !this.isEnabledAutosave())
+		{
+			return;
+		}
+
+		const fields = eventData.fields;
+		this.getModel().setFields(fields);
+		this.getModel().save().then(() => {
+			BX.UI.Notification.Center.notify({
+				id: 'saving_field_notify_name',
+				closeButton: false,
+				content: Tag.render`<div>${Loc.getMessage('CATALOG_SELECTOR_SAVING_NOTIFICATION_NAME_CHANGED')}</div>`,
+				autoHide: true,
+			});
+		});
 	}
 
 	onSaveImage(event)
@@ -822,7 +850,8 @@ export class ProductSelector extends EventEmitter
 			selectorId: this.id,
 			rowId: this.getRowId(),
 			isNew: config.isNew || false,
-			fields
+			fields,
+			morePhoto: this.getModel().getImageCollection().getMorePhotoValues(),
 		});
 	}
 

@@ -13,6 +13,7 @@ use Bitrix\Main\UI\Filter\AdditionalDateType;
 use Bitrix\Main\UI\Filter\NumberType;
 
 Extension::load([
+	"ui.design-tokens",
 	"ui.buttons",
 	"ui.fonts.opensans",
 	"ui.layout-form",
@@ -21,7 +22,6 @@ Extension::load([
 	"loader",
 	"date",
 	"ui.icons.service",
-	"ui.design-tokens",
 ]);
 
 global $USER;

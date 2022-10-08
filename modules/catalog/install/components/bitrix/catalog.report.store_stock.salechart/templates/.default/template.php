@@ -18,12 +18,13 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Main\UI\Extension;
 
 Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 	'amcharts4',
 	'amcharts4_theme_animated',
 	'currency',
 	'ui.icons',
 	'ui.hint',
-	'ui.fonts.opensans',
 ]);
 
 

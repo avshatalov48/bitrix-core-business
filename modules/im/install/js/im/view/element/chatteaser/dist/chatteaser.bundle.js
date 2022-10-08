@@ -1,4 +1,4 @@
-(function (exports,ui_vue,im_lib_utils) {
+(function (exports,ui_designTokens,ui_vue,im_lib_utils) {
 	'use strict';
 
 	/**
@@ -35,5 +35,5 @@
 	  template: "\n\t\t<div class=\"bx-im-element-chat-teaser\" @click=\"$emit('click', $event)\">\n\t\t\t<span class=\"bx-im-element-chat-teaser-join\">{{$Bitrix.Loc.getMessage('IM_MESSENGER_COMMENT_OPEN')}}</span>\n\t\t\t<span class=\"bx-im-element-chat-teaser-comment\">\n\t\t\t\t<span class=\"bx-im-element-chat-teaser-counter\">{{formattedCounter}}</span>, {{formattedDate}}\n\t\t\t</span>\n\t\t</div>\n\t"
 	});
 
-}((this.window = this.window || {}),BX,BX.Messenger.Lib));
+}((this.window = this.window || {}),BX,BX,BX.Messenger.Lib));
 //# sourceMappingURL=chatteaser.bundle.js.map

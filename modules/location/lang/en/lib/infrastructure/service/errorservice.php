@@ -1,0 +1,2 @@
+<?php
+$MESS["LOCATION_ISTRUCTURE_ERRORSERVICE_ERROR"] = "That's an error.";

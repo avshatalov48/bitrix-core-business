@@ -13,6 +13,7 @@ return [
 		'landing.ui.panel.content',
 		'landing.loc',
 		'landing.pageobject',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

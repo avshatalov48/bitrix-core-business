@@ -1,14 +1,16 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2018 Bitrix
+ * @copyright 2001-2021 Bitrix
  */
 
 namespace Bitrix\Main;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Data;
 
 /**
  * @internal
@@ -28,8 +30,10 @@ use Bitrix\Main\Entity;
  * @method static \Bitrix\Main\EO_UserProfileHistory wakeUpObject($row)
  * @method static \Bitrix\Main\EO_UserProfileHistory_Collection wakeUpCollection($rows)
  */
-class UserProfileHistoryTable extends Entity\DataManager
+class UserProfileHistoryTable extends Data\DataManager
 {
+	use Data\Internal\DeleteByFilterTrait;
+
 	const TYPE_ADD = 1;
 	const TYPE_UPDATE = 2;
 	const TYPE_DELETE = 3;
@@ -142,30 +146,8 @@ class UserProfileHistoryTable extends Entity\DataManager
 		static::deleteByFilter(["=USER_ID" => $userId]);
 	}
 
-	/**
-	 * @param array $filter
-	 */
-	public static function deleteByFilter(array $filter)
+	protected static function onBeforeDeleteByFilter(string $where)
 	{
-		if(empty($filter))
-		{
-			throw new ArgumentException("Deleting by empty filter is not allowed, use truncate (b_user_profile_history).", "filter");
-		}
-
-		$entity = static::getEntity();
-
-		$where = Entity\Query::buildFilterSql($entity, $filter);
-
-		if($where <> '')
-		{
-			$where = "WHERE ".$where;
-
-			UserProfileRecordTable::deleteByHistoryFilter($where);
-
-			$conn = $entity->getConnection();
-			$conn ->query("DELETE FROM b_user_profile_history {$where}");
-
-			$entity->cleanCache();
-		}
+		UserProfileRecordTable::deleteByHistoryFilter($where);
 	}
 }

@@ -34,7 +34,7 @@
 }
 
 .landing-ui-rule-value-operator-label {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: #333333;
 	position: relative;
@@ -57,7 +57,7 @@
 }
 
 .landing-ui-rule-value-value-label-inner {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 15px;
 	color: #333333;
 	display: inline-block;

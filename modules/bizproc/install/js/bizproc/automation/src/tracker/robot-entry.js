@@ -12,7 +12,7 @@ export class RobotEntry
 	notes: Array<string> = [];
 	errors: Array<string> = [];
 	#entryId: number = -1;
-	workflowStatus: number = WorkflowStatus.CREATED_WORKFLOW_STATUS;
+	workflowStatus: number = WorkflowStatus.CREATED;
 
 	constructor(entries: ?Array<TrackingEntry>)
 	{

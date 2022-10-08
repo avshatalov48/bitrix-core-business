@@ -118,5 +118,14 @@ class CatalogStoreDocumentControllerComponent extends CBitrixComponent
 			}
 			LocalRedirect($redirectUrl);
 		}
+		else if ($requestUrl === $defaultUrl.'inventory/')
+		{
+			$redirectUrl = (new \Bitrix\Main\Web\Uri($defaultUrl))
+				->addParams([
+					'inventoryManagementSource' => 'inventory',
+					]);
+
+			LocalRedirect($redirectUrl);
+		}
 	}
 }

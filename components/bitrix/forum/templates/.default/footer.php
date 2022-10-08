@@ -2,9 +2,9 @@
 
 use \Bitrix\Main\Localization\Loc;
 
-$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LANGUAGE_ID."/footer.php")));
+$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/lang/".LANGUAGE_ID."/footer.php")));
 if (!file_exists($file))
-	$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/en/footer.php")));
+	$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/lang/en/footer.php")));
 if(file_exists($file)):
 	global $MESS;
 	include_once($file);

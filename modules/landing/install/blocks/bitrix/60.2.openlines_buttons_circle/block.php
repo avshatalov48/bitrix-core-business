@@ -14,7 +14,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 			'bitrix:landing.blocks.openlines',
 			'circle_buttons',
 			[
-				'BUTTON_ID' => $classBlock->get('BUTTON_ID')
+				'BUTTON_ID' => $classBlock->get('BUTTON_ID'),
+				'SITE_TYPE' => $classBlock->get('SITE_TYPE'),
 			]
 		);?>
 	</div>

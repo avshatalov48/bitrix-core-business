@@ -173,6 +173,7 @@ class CBPStateMachineWorkflowActivity extends CBPCompositeActivity implements IB
 			if ($nextStateActivity == null)
 				throw new Exception("nextStateActivity");
 
+			/** @var CBPActivity $nextStateActivity */
 			$nextStateActivity->ReInitialize();
 			$nextStateActivity->AddStatusChangeHandler(self::ClosedEvent, $this);
 			$this->workflow->ExecuteActivity($nextStateActivity);

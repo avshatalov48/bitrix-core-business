@@ -34,7 +34,8 @@
 }
 
 .mp-slider-view .ui-sidepanel-menu-link-text-counter {
-	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525C69;
 	letter-spacing: -0.28px;
 	opacity: .5;
@@ -61,7 +62,8 @@
 	margin-bottom: 9px;
 	color: #525c69;
 	font-size: 21px;
-	font-family: "OpenSans-Light", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .mp-container { margin-bottom: 28px; }
@@ -147,7 +149,8 @@
 	white-space: nowrap;
 	max-height: 19px;
 	color: #333;
-	font: 14px/17px "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	font: 14px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	cursor: pointer;
 }
 
@@ -164,8 +167,8 @@
 	color: #828b95;
 	max-height: 30px;
 	text-overflow: ellipsis;
-	line-height: 15px;
-	font: 10px/15px "OpenSans-SemiBold", sans-serif;
+	font: 10px/15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .mp-item-developer-full {
@@ -203,13 +206,15 @@
 .mp-item-fb-content .mp-item-title {
 	margin-bottom: 5px;
 	max-height: 23px;
-	font: 17px/21px "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	font: 17px/21px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #fff;
 }
 
 .mp-item-fb-content .mp-item-developer {
 	margin-bottom: 6px;
-	font: 11px "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font: 11px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #fff;
 }
 
@@ -294,7 +299,7 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-size: 13px;
-	font-family: "Helvetica Neue", Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-box-flex: 1;
 	-ms-flex: 1;
 	flex: 1;
@@ -322,7 +327,8 @@
 	border-radius: 7px;
 	color: #fff;
 	vertical-align: middle;
-	font: 8px/15px "OpenSans-Bold", sans-serif;
+	font: 8px/15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .mp-item-status-item:first-child { margin-right: 0; }
@@ -377,7 +383,8 @@
 	padding: 0 0 0 6px;
 	height: 13px;
 	background-color: #ff5752;
-	font: 8px/12px "OpenSans-Bold", "Helvetica Neue", Arial, sans-serif;
+	font: 8px/12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #fff;
 	text-transform: uppercase;
 	box-shadow: 0 1px 0 0 rgba(0,0,0,.07);
@@ -446,7 +453,8 @@
 .mp-head-status-value {
 	display: inline-block;
 	margin: 0 8px 0 0;
-	font: 30px "OpenSans-Light", "Helvetica Neue", Arial, sans-serif;
+	font: 30px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #2FC6F6;
 	letter-spacing: -0.69px;
 }
@@ -454,11 +462,13 @@
 .mp-head-status-plus {
 	display: inline-block;
 	color: #2Fc6F6;
-	font: 30px "OpenSans-Light", "Helvetica Neue", Arial, sans-serif;
+	font: 30px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .mp-head-status-text {
-	font: 12px "OpenSans-Regular", "Helvetica Neue", Arial, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525c69;
 	letter-spacing: -0.28px;
 	opacity: .81;

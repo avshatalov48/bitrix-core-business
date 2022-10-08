@@ -901,7 +901,8 @@ class CAllIBlock
 				$arFields["ID"] = &$ID;
 			}
 
-			$_SESSION["SESS_RECOUNT_DB"] = "Y";
+			CDiskQuota::recalculateDb();
+
 			$this->CleanCache($ID);
 		}
 
@@ -1098,7 +1099,8 @@ class CAllIBlock
 					CSearch::DeleteIndex("iblock", false, false, $ID);
 			}
 
-			$_SESSION["SESS_RECOUNT_DB"] = "Y";
+			CDiskQuota::recalculateDb();
+
 			$Result = true;
 		}
 
@@ -1227,7 +1229,8 @@ class CAllIBlock
 
 		self::clearIblockTagCache($ID);
 
-		$_SESSION["SESS_RECOUNT_DB"] = "Y";
+		CDiskQuota::recalculateDb();
+
 		return true;
 	}
 
@@ -3652,8 +3655,16 @@ REQ
 	public static function GetAdminSubElementEditLink($IBLOCK_ID, $ELEMENT_ID, $SUBELEMENT_ID, $arParams = array(), $strAdd = '', $absoluteUrl = false)
 	{
 		$absoluteUrl = ($absoluteUrl === true);
-		$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
-		$url = ($absoluteUrl ? $selfFolderUrl : '').'iblock_subelement_edit.php?IBLOCK_ID='.(int)$IBLOCK_ID.'&type='.urlencode(CIBlock::GetArrayByID($IBLOCK_ID, 'IBLOCK_TYPE_ID'));
+		// it\s temporary hack
+		if (defined('SELF_FOLDER_URL'))
+		{
+			$url = '/bitrix/tools/iblock/iblock_subelement_edit.php';
+		}
+		else
+		{
+			$url = ($absoluteUrl ? '/bitrix/admin/' : '') . 'iblock_subelement_edit.php';
+		}
+		$url .= '?IBLOCK_ID='.(int)$IBLOCK_ID.'&type='.urlencode(CIBlock::GetArrayByID($IBLOCK_ID, 'IBLOCK_TYPE_ID'));
 		$url .= '&PRODUCT_ID='.(int)$ELEMENT_ID.'&ID='.(int)$SUBELEMENT_ID.'&lang='.LANGUAGE_ID;
 
 		foreach ($arParams as $name => $value)

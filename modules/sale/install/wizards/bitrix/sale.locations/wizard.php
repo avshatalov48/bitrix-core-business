@@ -294,7 +294,7 @@ else if (window.attachEvent)
 
 		if ($wizard->IsNextButtonClick())
 		{
-			$path = dirname(__FILE__);
+			$path = __DIR__;
 			$path = mb_strtolower(str_replace("\\", '/', $path));
 
 			$filename = $wizard->GetVar('locations_csv');

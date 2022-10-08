@@ -161,9 +161,9 @@ export class TrackingUsersForm
 	prepareTrackingSections()
 	{
 		let sections = [];
-		this.superposedSections.forEach((section) => {
-			sections.push(parseInt(section.id));
-		}, this);
+		// this.superposedSections.forEach((section) => {
+		// 	sections.push(parseInt(section.id));
+		// }, this);
 
 		for (let id in this.sectionIndex)
 		{

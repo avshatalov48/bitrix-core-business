@@ -12,7 +12,7 @@
 	overflow-y: auto;
 }
 .bx-im-recent-wrap {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .bx-im-recent-section {

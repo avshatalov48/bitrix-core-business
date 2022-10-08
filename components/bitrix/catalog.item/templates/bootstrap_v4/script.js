@@ -622,7 +622,7 @@
 
 						break;
 					case 3: // sku
-						if (this.offers.length > 0)
+						if (this.offers.length > 0 && this.obTree)
 						{
 							treeItems = BX.findChildren(this.obTree, {tagName: 'li'}, true);
 

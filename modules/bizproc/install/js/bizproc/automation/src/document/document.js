@@ -1,4 +1,4 @@
-import { Type } from 'main.core';
+import { Type, Runtime } from 'main.core';
 
 export class Document
 {
@@ -46,6 +46,21 @@ export class Document
 		}
 
 		this.#fields = Type.isArray(options.documentFields) ? options.documentFields : [];
+	}
+
+	clone(): this
+	{
+		return new Document({
+			rawDocumentType: Runtime.clone(this.#rawType),
+			documentId: this.#id,
+			categoryId: this.#categoryId,
+			statusId: this.getCurrentStatusId(),
+
+			statusList: Runtime.clone(this.#statusList),
+
+			documentFields: Runtime.clone(this.#fields),
+			title: this.#title,
+		});
 	}
 
 	get title(): ?string

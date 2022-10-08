@@ -4,6 +4,7 @@
 	will-change: transform;
 	margin: 0 0 5px;
 	padding: 20px;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .landing-ui-form-style .landing-ui-form-header {

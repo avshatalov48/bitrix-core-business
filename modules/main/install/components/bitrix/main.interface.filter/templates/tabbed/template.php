@@ -2,9 +2,11 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)die();
 
 \Bitrix\Main\UI\Extension::load([
-    'popup',
-    'date',
-    'main.parambag',
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'popup',
+	'date',
+	'main.parambag',
 ]);
 
 $presets = isset($arParams['~FILTER_PRESETS']) ? $arParams['~FILTER_PRESETS'] : array();

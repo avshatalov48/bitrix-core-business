@@ -14,7 +14,7 @@ class Migrator
 	{
 		$ar = array(
 			"utf_mode" => array("value" => defined('BX_UTF'), "readonly" => true),
-			"default_charset" => array("value" => defined('BX_DEFAULT_CHARSET'), "readonly" => false),
+			"default_charset" => array("value" => defined('BX_DEFAULT_CHARSET') ? BX_DEFAULT_CHARSET : null, "readonly" => false),
 			"no_accelerator_reset" => array("value" => defined('BX_NO_ACCELERATOR_RESET'), "readonly" => false),
 			"http_status" => array("value" => (defined('BX_HTTP_STATUS') && BX_HTTP_STATUS), "readonly" => false),
 		);

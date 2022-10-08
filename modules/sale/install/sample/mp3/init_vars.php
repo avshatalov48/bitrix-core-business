@@ -21,8 +21,8 @@ $mp3AuxiliaryPrefix = "MP3_FILE_";
 $bMP3ConvertCurrency = True;
 
 global $mp3Path2Folder, $mp3Url2Folder, $mp3Path2Original, $mp3Url2Original;
-$mp3Path2Folder = str_replace("\\", "/", dirname(__FILE__))."/";
-$mp3Url2Folder = mb_substr(str_replace("\\", "/", dirname(__FILE__)), mb_strlen($_SERVER["DOCUMENT_ROOT"]))."/";
+$mp3Path2Folder = str_replace("\\", "/", __DIR__)."/";
+$mp3Url2Folder = mb_substr(str_replace("\\", "/", __DIR__), mb_strlen($_SERVER["DOCUMENT_ROOT"]))."/";
 
 $mp3Path2Original = $mp3Path2Folder.$mp3FolderName."/files/";
 $mp3Url2Original = $mp3Url2Folder.$mp3FolderName."/";

@@ -24,7 +24,7 @@ if ($this->getComponent()->request('switch') == 'Y' && !$arResult['ERRORS'])
 
 // load
 Loc::loadMessages(__FILE__);
-Extension::load(['ui.common', 'ui.alerts']);
+Extension::load(['ui.common', 'ui.alerts', 'ui.fonts.opensans']);
 
 // errors
 if ($arResult['ERRORS'])

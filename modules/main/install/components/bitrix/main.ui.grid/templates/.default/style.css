@@ -20,7 +20,7 @@
 	width: 100%;
 	height: 34px;
 	border: 1px solid #c6cdd3;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	background: #fff;
 	color: #5c6470;
 	text-align: left;
@@ -62,7 +62,8 @@
 	color: #5c6470;
 	text-align: left;
 	text-transform: uppercase;
-	font: 12px/33px 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px/33px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	cursor: pointer;
 	-webkit-user-select: none;
 	-moz-user-select: none;
@@ -168,7 +169,17 @@
 	display: table;
 	width: 100%;
 	table-layout: fixed;
-	font-family: 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+}
+
+.main-grid.--hide-top-border-radius {
+	--main-grid-top-border-radius: 0;
+}
+
+/*.main-grid.--hide-bottom-border-radius:not(.main-grid-empty-stub):not(.main-grid-empty-footer) {*/
+.main-grid.--hide-bottom-border-radius:not(.main-grid-empty-stub) {
+	--main-grid-bottom-border-radius: 0;
 }
 
 .main-grid-wrapper {
@@ -311,7 +322,7 @@
 
 .main-grid-fade-left .main-grid-fade-shadow-left::before { opacity: 1; }
 
-.main-grid-row-body { font-family: "Helvetica Neue", Arial, Helvetica, sans-serif; }
+.main-grid-row-body { font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)); }
 
 /* THEAD */
 
@@ -402,7 +413,7 @@ span.main-grid-cell-head-container { -webkit-box-sizing: border-box; box-sizing:
 	white-space: nowrap;
 	font-weight: normal;
 	font-size: 14px;
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .main-grid-col-no-sortable { cursor: default; }
@@ -487,6 +498,10 @@ span.main-grid-cell-head-container { -webkit-box-sizing: border-box; box-sizing:
 	vertical-align: top;
 	-khtml-user-drag: none;
 	-webkit-user-drag: none;
+}
+
+.main-grid-row-body:last-child .main-grid-cell {
+	border-bottom: none;
 }
 
 .main-grid-cell * {
@@ -887,6 +902,7 @@ input[type="file"].main-grid-cell-content-edit { display: none; }
 
 /* FOOTER  Panel*/
 .main-grid-panel-wrap {
+	border-top: 2px solid #eef2f4;
 }
 
 .main-grid-panel-table {
@@ -1016,7 +1032,8 @@ input[type="file"].main-grid-cell-content-edit { display: none; }
 }
 
 .main-grid-control-panel-content-title label {
-	font-family: 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 12px;
 	margin-left: -2px;
 	position: relative;
@@ -1227,10 +1244,10 @@ html:not(.bx-firefox) .main-grid-resize-button:active::after {
 .main-grid-more-btn::after {
 	position: absolute;
 	right: 0;
-	bottom: 0;
+	top: 0;
 	left: 0;
 	display: block;
-	height: 1px;
+	height: 2px;
 	background: #eef2f4;
 	content: '';
 }
@@ -1391,7 +1408,7 @@ label.main-grid-checkbox {
 	pointer-events: none;
 }
 
-.main-grid-action-panel { border-top: 3px solid #eef2f4; }
+.main-grid-action-panel { border-top: 2px solid #eef2f4; }
 
 .main-grid-nav-panel,
 .main-grid-action-panel {
@@ -1464,7 +1481,7 @@ label.main-grid-checkbox {
 	        box-sizing: border-box;
 	margin-left: -11px;
 	padding-left: 10px;
-	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	line-height: 35px;
 }
 
@@ -1474,7 +1491,7 @@ label.main-grid-checkbox {
 	text-transform: none;
 	font-weight: normal;
 	font-size: 15px;
-	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	line-height: 36px;
 }
 
@@ -1492,7 +1509,7 @@ label.main-grid-checkbox {
 	color: #333;
 	white-space: nowrap;
 	background: #fff;
-	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	border: 1px solid #c6cdd3;
 	border-radius: 3px;
 	padding: 0 8px;
@@ -1519,8 +1536,8 @@ label.main-grid-checkbox {
 	padding: 3px 8px 2px;
 	height: 39px;
 	border: none;
-	border-radius: 3px;
-	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	border-radius: var(--ui-field-border-radius, 3px);
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 	min-width: 50px;
 }
@@ -1637,7 +1654,8 @@ label.main-grid-checkbox {
 }
 
 .main-grid-bottom-panels {
-	font-family: 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	background-color: #fff;
 	border-radius: var(--main-grid-bottom-border-radius);
 	border-top-left-radius: 0;
@@ -1699,7 +1717,8 @@ label.main-grid-checkbox {
 	text-shadow: none;
 	white-space: nowrap;
 	font-size: 12px;
-	font-family: 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	line-height: 34px;
 	cursor: pointer;
 	-webkit-transition: background-color 0.2s linear, color 0.2s linear;
@@ -1818,7 +1837,8 @@ label.main-grid-checkbox {
 	padding-left: 10px;
 	height: 0;
 	background: #fff;
-	font-family: 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	opacity: 0;
 }
 
@@ -1882,7 +1902,7 @@ label.main-grid-checkbox {
 	border-bottom: 1px #fff solid;
 	border-radius: var(--ui-border-radius-sm, 2px);
 	color: #525C69;
-	font: 14px/33px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px/33px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	cursor: pointer;
 	-webkit-column-break-inside: avoid;
 }
@@ -1905,6 +1925,7 @@ label.main-grid-checkbox {
 	-webkit-box-sizing: border-box;
 	        box-sizing: border-box;
 	padding: 6px 35px 6px 28px;
+	word-break: break-word;
 	min-height: 33px;
 	width: auto;
 	height: auto;
@@ -1917,7 +1938,6 @@ label.main-grid-checkbox {
 	-o-transition: border 200ms;
 	transition: border 200ms;
 	border-radius: 2px;
-	word-break: break-word;
 }
 
 .main-grid-settings-window-list-item-label[contenteditable="true"] { border: 1px rgba(59, 153, 252, .6) solid; }
@@ -1985,7 +2005,7 @@ label.main-grid-checkbox {
 	border: none;
 	background: none;
 	color: #80868e;
-	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	line-height: 19px;
 }
 
@@ -2078,7 +2098,8 @@ label.main-grid-checkbox {
 	display: inline-block;
 	color: #535c69;
 	vertical-align: middle;
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	cursor: pointer;
 }
 
@@ -2186,7 +2207,7 @@ label.main-grid-checkbox {
 
 .main-grid-empty-text {
 	color: #c6c8cc;
-	font: 32px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 32px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 /* END OF NO INFO BLOCK */
@@ -2411,9 +2432,9 @@ label.main-grid-checkbox {
 
 .main-grid-settings-window-section-title{
 	color: #56616c;
-	font-family: 8px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: 8px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 18px;
-	font-weight: 300;
 	line-height: 25px;
 	border-bottom: 2px rgba(0, 0, 0, .05) solid;
 	margin-bottom: 10px;
@@ -2565,12 +2586,12 @@ label.main-grid-checkbox {
 .main-grid-message {
 	margin-bottom: 14px;
 	padding: 10px;
-	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .main-grid-message:last-child { margin-bottom: 0; }
 
-.main-grid-message-title { font-weight: bold; }
+.main-grid-message-title { font-weight: var(--ui-font-weight-bold); }
 
 .main-grid-message.main-grid-message-message { }
 
@@ -2998,7 +3019,8 @@ label.main-grid-checkbox {
 }
 
 .main-grid-empty-block-title {
-	font-family: 'OpenSans-Light', Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	font-size: 31px;
 	color: #333333;
 	text-align: center;
@@ -3006,7 +3028,8 @@ label.main-grid-checkbox {
 }
 
 .main-grid-empty-block-description {
-	font-family: 'OpenSans-Light', Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	font-size: 16px;
 	color: #525C69;
 	text-align: center;
@@ -3156,7 +3179,8 @@ th[class*="main-grid-column-color-"]::before {
 }
 
 .main-grid-tag {
-	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 12px;
 	background: #EBECF0;
 	display: -webkit-inline-box;

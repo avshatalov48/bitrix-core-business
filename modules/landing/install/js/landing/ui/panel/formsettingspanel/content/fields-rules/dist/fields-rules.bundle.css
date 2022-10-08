@@ -49,7 +49,7 @@
 	-webkit-box-direction: normal;
 	    -ms-flex-direction: column;
 	        flex-direction: column;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-md, 2px);
 	padding-left: 16px;
 	padding-right: 16px;
 	padding-top: 16px;
@@ -69,7 +69,8 @@
 }
 
 .landing-ui-rule-group-header-title {
-	font-family: 'OpenSans-Regular', Helvetca, Arial, sans-serif, serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 16px;
 	color: #333;
 	max-width: 420px;
@@ -81,7 +82,7 @@
 
 .landing-ui-rule-group-header-change-logic-link {
 	margin-left: auto;
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: #80868E;
 	line-height: 16px;
@@ -277,7 +278,7 @@
 
 .landing-ui-field-element-text-action .landing-ui-field-dropdown-inline .landing-ui-field-header,
 .landing-ui-field-element-text-action .landing-ui-field-dropdown-inline .landing-ui-field-input {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	opacity: 0.5;
 	font-size: 14px;
 	color: #333333;
@@ -285,7 +286,7 @@
 }
 
 .landing-ui-field-element-text-title {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 15px;
 	color: #333333;
 	line-height: 20px;
@@ -361,7 +362,7 @@
 }
 
 .landing-ui-rule-value-operator-label {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: #333333;
 	position: relative;
@@ -398,7 +399,7 @@
 }
 
 .landing-ui-rule-value-value-label-inner {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 15px;
 	color: #333333;
 	display: inline-block;
@@ -574,7 +575,7 @@
 }
 
 .landing-ui-rule-entry-type-separator-inner {
-	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 	background: #F4F6F8;
 	padding-right: 10px;

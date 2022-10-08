@@ -15,7 +15,7 @@
 
 .integration-container p,
 .integration-container pre {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	line-height: 15px;
 	margin: 0 0 10px 0;

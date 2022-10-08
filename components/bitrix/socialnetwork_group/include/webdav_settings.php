@@ -18,7 +18,7 @@ if (!function_exists("__wd_check_uf_use_bp_property"))
 			$arFieldName = array();
 			$rsLanguage = CLanguage::GetList();
 			while($arLanguage = $rsLanguage->Fetch()):
-				$dir = str_replace(array("\\", "//"), "/", dirname(__FILE__));
+				$dir = str_replace(array("\\", "//"), "/", __DIR__);
 				$dirs = explode("/", $dir);
 				array_pop($dirs);
 				$file = trim(implode("/", $dirs)."/lang/".$arLanguage["LID"]."/include/webdav_settings.php");
@@ -138,7 +138,7 @@ if (defined("WEBDAV_SETTINGS_LIMIT_INCLUDE"))
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/interface/admin_lib.php");
 
-$dir = str_replace(array("\\", "//"), "/", dirname(__FILE__));
+$dir = str_replace(array("\\", "//"), "/", __DIR__);
 $dirs = explode("/", $dir);
 array_pop($dirs);
 $file = trim(implode("/", $dirs)."/lang/".LANGUAGE_ID."/include/webdav_settings.php");

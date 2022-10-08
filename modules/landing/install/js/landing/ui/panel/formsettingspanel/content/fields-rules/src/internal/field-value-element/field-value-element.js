@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import {EventEmitter} from 'main.core.events';
 import {Cache, Dom, Tag, Text, Type} from 'main.core';
 import {IconButton} from 'landing.ui.component.iconbutton';

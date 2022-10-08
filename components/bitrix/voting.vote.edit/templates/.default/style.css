@@ -84,8 +84,8 @@ ol.vote-questions li.vote-question {
 	border:none;
 	color: #2e2e2e;
 	font-size:18px;
-	font-weight: normal;
-	font-family:"OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family:var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	margin-top:6px;
 	height:30px;
 	padding: 0;
@@ -124,7 +124,7 @@ ol.vote-questions input::-webkit-input-placeholder {
 	color: #0b66c3;
 	display:inline-block;
 	font-size:13px;
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	margin-top: 30px;
 
 	outline: none;

@@ -62,7 +62,7 @@ class CSaleProxyResult extends CDBResult
 			$this->NavPageCount++;
 
 		//page number to display. start with 1
-		$this->NavPageNomer = ($this->PAGEN < 1 || $this->PAGEN > $this->NavPageCount? ($_SESSION[$this->SESS_PAGEN] < 1 || $_SESSION[$this->SESS_PAGEN] > $this->NavPageCount? 1:$_SESSION[$this->SESS_PAGEN]):$this->PAGEN);
+		$this->calculatePageNumber();
 
 		$parameters = $this->parameters;
 		$parameters['limit'] = $this->NavPageSize;

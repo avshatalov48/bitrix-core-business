@@ -33,7 +33,7 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/iblock/admin/i
 
 IncludeModuleLangFile(__FILE__);
 $type = (isset($_REQUEST['type']) && is_string($_REQUEST['type']) ? $_REQUEST['type'] : '');
-$IBLOCK_ID = (isset($_REQUEST['IBLOCK_ID']) ? (int)$_REQUEST['IBLOCK_ID'] : 0); //information block ID
+$IBLOCK_ID = (int)($_REQUEST['IBLOCK_ID'] ?? 0); //information block ID
 $arIBTYPE = false; // initial value
 $arIBlock = false; // initial value
 $arElement = false; // initial value
@@ -65,6 +65,7 @@ if ($urlBuilder === null)
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
+$urlBuilderId = $urlBuilder->getId();
 $urlBuilder->setIblockId($IBLOCK_ID);
 $urlBuilder->setUrlParams(array());
 
@@ -94,7 +95,7 @@ $copyID = (isset($_REQUEST['copyID']) ? (int)$_REQUEST['copyID'] : 0);
 if ($ID <= 0 && isset($PID) && (int)$PID > 0)
 	$ID = (int)$PID;
 
-$PREV_ID = (isset($PREV_ID) ? (int)$PREV_ID : 0);
+$PREV_ID = (int)($PREV_ID ?? 0);
 
 $WF_ID = $ID; //This is ID of the current copy
 
@@ -226,7 +227,7 @@ do{ //one iteration loop
 			CBPCanUserOperateOperation::WriteDocument,
 			$USER->GetID(),
 			$arResult["DOCUMENT_ID"],
-			array("UserGroups" => $USER->GetUserGroupArray())
+			array("UserGroups" => $arCurrentUserGroups)
 		);
 		if (!$canWrite)
 		{
@@ -655,7 +656,7 @@ do{ //one iteration loop
 					$PROP[$k1][$prop_value_id] = CIBlock::makeFilePropArray(
 						$PROP[$k1][$prop_value_id],
 						$PROP_del[$k1][$prop_value_id] === "Y",
-						isset($_POST["DESCRIPTION_PROP"][$k1][$prop_value_id])? $_POST["DESCRIPTION_PROP"][$k1][$prop_value_id]: $_POST["PROP_descr"][$k1][$prop_value_id]
+						$_POST["DESCRIPTION_PROP"][$k1][$prop_value_id] ?? $_POST["PROP_descr"][$k1][$prop_value_id]
 					);
 				}
 			}
@@ -1703,7 +1704,7 @@ else
 
 	$useCustomFormPropertyId = true;
 	if ($bCustomForm)
-		$useCustomFormPropertyId = ((string)Main\Config\Option::get('iblock', 'custom_edit_form_use_property_id') == 'Y');
+		$useCustomFormPropertyId = (Main\Config\Option::get('iblock', 'custom_edit_form_use_property_id') === 'Y');
 	$db_prop_values = false; //it is a db cache
 	$arPROP_tmp = array();
 	$properties = CIBlockProperty::GetList(
@@ -1965,8 +1966,8 @@ else:
 	//TODO: this code only for old html editor. Need remove after final cut old editor
 	if (
 		$bFileman
-		&& (string)Main\Config\Option::get('iblock', 'use_htmledit') == 'Y'
-		&& (string)Main\Config\Option::get('fileman', 'use_editor_3', 'Y') != 'Y'
+		&& Main\Config\Option::get('iblock', 'use_htmledit') === 'Y'
+		&& Main\Config\Option::get('fileman', 'use_editor_3', 'Y') !== 'Y'
 	)
 	{
 		echo '<div style="display:none">';
@@ -2212,9 +2213,10 @@ if ($ID > 0 && !$bCopy)
 				$rsUser = CUser::GetByID($str_MODIFIED_BY);
 				$arUser = $rsUser->Fetch();
 			}
-			if ($arUser):
-				echo '&nbsp;'.CUser::FormatName($nameFormat, $arUser, false, true);
-			endif;
+			if ($arUser)
+			{
+				echo '&nbsp;' . CUser::FormatName($nameFormat, $arUser, false, true);
+			}
 		endif ?></td>
 	</tr><?
 }
@@ -2920,7 +2922,7 @@ $tabControl->EndCustomField("DETAIL_TEXT",
 							var oCell = oRow.insertCell(i++);
 							oCell.innerHTML = html;
 
-							var oCell = oRow.insertCell(i++);
+							oCell = oRow.insertCell(i++);
 							oCell.innerHTML =
 								'<input type="button" value="<?echo GetMessage("MAIN_DELETE")?>" OnClick="deleteRow(this)">'+
 								'<input type="hidden" name="IBLOCK_SECTION[]" value="'+section_id+'">';
@@ -3115,7 +3117,7 @@ $tabControl->EndCustomField("DETAIL_TEXT",
 							var oCell = oRow.insertCell(i++);
 							oCell.innerHTML = html;
 
-							var oCell = oRow.insertCell(i++);
+							oCell = oRow.insertCell(i++);
 							oCell.innerHTML =
 								'<input type="button" value="<?echo GetMessage("MAIN_DELETE")?>" OnClick="deleteRow(this)">'+
 								'<input type="hidden" name="IBLOCK_SECTION[]" value="'+section_id+'">';
@@ -3154,7 +3156,7 @@ $tabControl->EndCustomField("DETAIL_TEXT",
 		?>
 		var form = BX('<?echo CUtil::JSEscape($tabControl->GetFormName())?>'),
 			url = '<?echo CUtil::JSEscape($APPLICATION->GetCurPageParam($additionalParams))?>',
-			selectedTab = BX(s='<?echo CUtil::JSEscape("form_element_".$IBLOCK_ID."_active_tab")?>'),
+			selectedTab = BX('<?echo CUtil::JSEscape("form_element_".$IBLOCK_ID."_active_tab")?>'),
 			groupField;
 
 		if (selectedTab && selectedTab.value)
@@ -3231,7 +3233,7 @@ if ($arShowTabs['sku'])
 	$strSubIBlockType = $arSubIBlock['IBLOCK_TYPE_ID'];
 	$arSubIBlockType = CIBlockType::GetByIDLang($strSubIBlockType, LANGUAGE_ID);
 
-	$boolIncludeOffers = CIBlockRights::UserHasRightTo($intSubIBlockID, $intSubIBlockID, "iblock_admin_display");;
+	$boolIncludeOffers = CIBlockRights::UserHasRightTo($intSubIBlockID, $intSubIBlockID, "iblock_admin_display");
 	$arSubCatalog = CCatalogSku::GetInfoByOfferIBlock($arMainCatalog['IBLOCK_ID']);
 	$boolSubCatalog = (!empty($arSubCatalog) && is_array($arSubCatalog));
 	if (!$boolCatalogRead && !$boolCatalogPrice)
@@ -3248,7 +3250,9 @@ if ($arShowTabs['sku'])
 		. '&type='.urlencode($strSubIBlockType) . '&lang=' . LANGUAGE_ID
 		. '&find_section_section=0&find_el_property_' . $arSubCatalog['SKU_PROPERTY_ID']
 		. '='.(0 == $ID || $bCopy ? '-' . $TMP_ID : $ID)
-		. '&TMP_ID=' . urlencode($strSubTMP_ID) . $additionalParams
+		. '&TMP_ID=' . urlencode($strSubTMP_ID)
+		. '&urlBuilderId=' . urlencode($urlBuilderId)
+		. $additionalParams
 	;
 	if ($boolIncludeOffers && file_exists($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/iblock/admin/templates/iblock_subelement_list.php'))
 	{

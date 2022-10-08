@@ -1,0 +1,28 @@
+.ui-uploader-stack-load {
+	display: inline-flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	background: #fff;
+	border: 1px solid rgba(130, 139, 149, 0.3);
+	box-sizing: border-box;
+	border-radius: 6px;
+	cursor: pointer;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+.ui-uploader-stack-load:hover {
+	background-color: #fafafb;
+}
+
+.ui-uploader-stack-load-icon {
+	width: var(--ui-uploader-stack-load-icon-width);
+	height: var(--ui-uploader-stack-load-icon-height);
+	background-image: url(images/loading.svg);
+	background-repeat: no-repeat;
+	background-size: contain;
+}

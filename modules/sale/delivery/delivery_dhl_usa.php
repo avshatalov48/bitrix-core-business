@@ -298,7 +298,7 @@ class CDeliveryDHLUSA
 	{
 		if (defined('DELIVERY_DHL_USA_WRITE_LOG') && DELIVERY_DHL_USA_WRITE_LOG === 1)
 		{
-			$fp = fopen(dirname(__FILE__)."/dhl_usa.log", "a");
+			$fp = fopen(__DIR__."/dhl_usa.log", "a");
 			fwrite($fp, "\r\n==========================================\r\n");
 			fwrite($fp, $data);
 			fclose($fp);

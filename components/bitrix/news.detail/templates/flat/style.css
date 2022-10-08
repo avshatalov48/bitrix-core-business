@@ -144,11 +144,11 @@
 .bx-newsdetail-title a {
 	color: #000;
 	margin: 0;
-	font-weight: 600;
 	padding: 2px 0 15px;
 	font-size: 18px;
 	border-bottom: none;
-	font-family: "Open Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 .bx-newsdetail-title a:hover {
 	text-decoration: none;

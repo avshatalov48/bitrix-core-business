@@ -195,8 +195,7 @@ class CSiteCheckerTest
 			else
 			{
 				$profile |= 16;
-				if ($GLOBALS['DB']->type == 'MYSQL')
-					$profile |= 32;
+				$profile |= 32;
 			}
 			$this->arTest = array();
 			$step0 = $step;
@@ -3066,7 +3065,6 @@ function InitPureDB()
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/autoload.php");
 
 	$application = \Bitrix\Main\HttpApplication::getInstance();
-	$application->initializeBasicKernel();
 
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/mysql/database.php");
 

@@ -15,4 +15,6 @@ export default class LabelColor
 	static LIGHT_BLUE = 'ui-label-lightblue';
 	static LIGHT_GREEN = 'ui-label-lightgreen';
 	static LIGHT_ORANGE = 'ui-label-lightorange';
+	static LIGHT_YELLOW = 'ui-label-lightyellow';
+	static LIGHT_RED = 'ui-label-lightred';
 }

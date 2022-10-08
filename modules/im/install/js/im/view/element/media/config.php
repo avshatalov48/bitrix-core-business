@@ -19,6 +19,7 @@ return [
 		'main.core.events',
 		'im.const',
 		'ui.vue.components.audioplayer',
+		'ui.design-tokens',
 		'ui.vue.directives.lazyload',
 		'ui.icons',
 		'ui.vue.components.socialvideo',

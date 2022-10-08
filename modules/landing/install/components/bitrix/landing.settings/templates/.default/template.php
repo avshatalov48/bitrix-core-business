@@ -25,7 +25,7 @@ use Bitrix\Main\Web\Uri;
 /** @var string $templateFolder */
 /** @var \LandingSiteTileComponent $component */
 
-Extension::load(['sidepanel', 'main.qrcode', 'ui.dialogs.messagebox',  'marketplace', 'applayout']);
+Extension::load(['sidepanel', 'main.qrcode', 'ui.dialogs.messagebox', 'marketplace', 'applayout', 'ui.fonts.opensans']);
 Loader::includeModule("ui");
 
 $isAjax = $component->isAjax();
@@ -141,4 +141,7 @@ if(Loader::includeModule('ui'))
 			);
 		});
 	</script>
+
+	<!-- fonts proxy-->
+	<?= $component->getFontProxyUrlScript() ?>
 </div>

@@ -5,6 +5,7 @@ import BaseControl from "../base_control/base_control";
 import Colorpicker from "../colorpicker/colorpicker";
 import Preset from '../../layout/preset/preset';
 
+import 'ui.fonts.opensans';
 import './css/gradient.css';
 import GradientValue from "../../gradient_value";
 import ColorValue from '../../color_value';

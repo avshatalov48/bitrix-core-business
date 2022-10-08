@@ -29,5 +29,9 @@ $arComponentParameters = [
 			'TYPE' => 'LIST',
 			'VALUES' => $values,
 		],
+		'SITE_TYPE' => [
+			'NAME' => Loc::getMessage('LANDING_PARAMS_SITE_TYPE'),
+			'TYPE' => 'STRING'
+		],
 	],
 ];

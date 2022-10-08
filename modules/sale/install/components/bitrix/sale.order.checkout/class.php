@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Crm\Binding\DealContactTable;
+use Bitrix\Crm\Binding\EntityBinding;
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -69,6 +71,11 @@ class SaleOrderCheckout extends \CBitrixComponent
 				? $arParams['URL_PATH_TO_MAIN_PAGE']
 				: ''
 		;
+
+		if (empty($arParams['SHOW_RETURN_BUTTON']))
+		{
+			$arParams['SHOW_RETURN_BUTTON'] = 'Y';
+		}
 
 		return parent::onPrepareComponentParams($arParams);
 	}
@@ -595,6 +602,7 @@ class SaleOrderCheckout extends \CBitrixComponent
 
 		foreach ($aggregateData['PROPERTIES'] as $property)
 		{
+
 			$scheme['PROPERTIES'][] = [
 				'ID' => $property['ID'],
 				'NAME' => $property['NAME'],

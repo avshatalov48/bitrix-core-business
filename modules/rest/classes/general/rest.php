@@ -253,15 +253,16 @@ class CRestServer
 			$this->usage = getrusage();
 		}
 
+		$entity = !empty($this->getClientId()) ?  $this->getClientId() : $this->getPasswordId();
 		LoadLimiter::registerStarting(
 			$this->getAuthType(),
-			!empty($this->getClientId()) ?  $this->getClientId() : $this->getPasswordId(),
+			$entity,
 			$this->method
 		);
 		$result = call_user_func_array($callback, array($this->query, $start, $this));
 		LoadLimiter::registerEnding(
 			$this->getAuthType(),
-			!empty($this->getClientId()) ?  $this->getClientId() : $this->getPasswordId(),
+			$entity,
 			$this->method
 		);
 		$this->timeProcessFinish = microtime(true);

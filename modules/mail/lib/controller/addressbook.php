@@ -5,6 +5,7 @@ namespace Bitrix\Mail\Controller;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Loader;
 use Bitrix\Mail\Internals\MailContactTable;
+use Bitrix\Main\Error;
 
 /**
  * Class AddressBook
@@ -23,8 +24,8 @@ class AddressBook extends Controller
 		)['USER_ID'];
 
 		if (!($this->getCurrentUser()->getId() === $userID &&
-			  $contactData['NAME'] <> "" &&
-			  check_email($contactData['EMAIL'])))
+			$contactData['NAME'] <> "" &&
+			check_email($contactData['EMAIL'])))
 		{
 			return false;
 		}
@@ -32,7 +33,11 @@ class AddressBook extends Controller
 		MailContactTable::update(
 			$id,
 			[
-				'NAME' => $contactData['NAME'],
+				'ICON' => [
+					'INITIALS' => $contactData['INITIALS'],
+					'COLOR' => $contactData['COLOR'],
+				],
+				'NAME' => trim($contactData['NAME']),
 				'EMAIL' => $contactData['EMAIL'],
 			]
 		);
@@ -51,7 +56,7 @@ class AddressBook extends Controller
 
 	private function checkAccess()
 	{
-		return (check_bitrix_sessid() && $this->isUserAdmin() && Loader::includeModule('mail'));
+		return (check_bitrix_sessid() && Loader::includeModule('mail'));
 	}
 
 	/**
@@ -95,7 +100,7 @@ class AddressBook extends Controller
 			return false;
 		}
 
-		if ($contactData['ID'] !== null)
+		if ($contactData['ID'] !== 'new')
 		{
 			return $this->editContact($contactData);
 		}
@@ -104,11 +109,21 @@ class AddressBook extends Controller
 			$contactsData[] = [
 				'USER_ID' => $this->getCurrentUser()->getId(),
 				'NAME' => $contactData['NAME'],
-				'ICON' => '',
+				'ICON' => [
+					'INITIALS' => $contactData['INITIALS'],
+					'COLOR' => $contactData['COLOR'],
+				],
 				'EMAIL' => $contactData['EMAIL'],
 				'ADDED_FROM' => 'MANUAL',
 			];
-			MailContactTable::addContactsBatch($contactsData);
+
+			$result = MailContactTable::addContactsBatch($contactsData);
+
+			iF($result !== true)
+			{
+				$this->addError(new Error($result));
+				return false;
+			}
 		}
 
 		return true;

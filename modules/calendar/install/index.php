@@ -138,8 +138,13 @@ class calendar extends CModule
 			return false;
 		}
 
+		COption::SetOptionString("intranet", "calendar_2", "Y");
+
 		if (!$DB->Query("SELECT 'x' FROM b_calendar_access ", true))
+		{
 			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/'.$this->MODULE_ID.'/install/db/mysql/install.sql');
+		}
+
 		$this->InstallTasks();
 
 		if (!empty($errors))
@@ -183,19 +188,17 @@ class calendar extends CModule
 			COption::SetOptionString("calendar", "~ft_b_calendar_event", true);
 		}
 
-		$pushOptionEnabled = COption::GetOptionString('calendar', 'sync_by_push', false);
-		if ($pushOptionEnabled || \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'))
+		CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\Managers\\DataSyncManager::dataSyncAgent();", "calendar", "N", 60);
+		CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\Util\\CleanConnectionAgent::cleanAgent();", "calendar");
+		CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\Office365\\SectionManager::updateSectionsAgent();", "calendar", "N", 3600);
+		if (COption::GetOptionString('calendar', 'sync_by_push', false))
 		{
-			\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::createWatchChannels(0);", "calendar", "N", 60);
-			\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::processPush();", "calendar", "N", 180);
-			//\Bitrix\Calendar\Sync\GoogleApiPush::RENEW_INTERVAL_CHANNEL
-			\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::renewWatchChannels();", "calendar", "N", 14400);
-			//\Bitrix\Calendar\Sync\GoogleApiPush::CHECK_INTERVAL_CHANNEL
-			\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::checkPushChannel();", "calendar", "N", 14400);
+			CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\Managers\\PushWatchingManager::renewWatchChannels();", "calendar", "N", 3600);
 		}
-		CAgent::AddAgent("CCalendarSync::doSync();", "calendar", "N", 120);
-		CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\Google\\QueueManager::checkNotSendEvents();", "calendar", "N", 3600);
-		CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\Google\\QueueManager::checkIncompleteSync();", 'calendar', 'N', 3600);
+		else
+		{
+			\CAgent::AddAgent("\\Bitrix\\Calendar\\Sync\\Managers\\DataExchangeManager::importAgent();", 'calendar', 'N', 180);
+		}
 
 		return true;
 	}
@@ -284,8 +287,23 @@ class calendar extends CModule
 		if (IsModuleInstalled('im') && CModule::IncludeModule('im'))
 		{
 			if (method_exists('CIMNotify', 'DeleteByModule'))
+			{
 				CIMNotify::DeleteByModule('calendar');
+			}
 		}
+
+		CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\Managers\\DataSyncManager::dataSyncAgent();", "calendar");
+		CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\Util\\CleanConnectionAgent::cleanAgent();", "calendar");
+		CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\Office365\\SectionManager::updateSectionsAgent();", "calendar");
+		CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\Managers\\PushWatchingManager::renewWatchChannels();", "calendar");
+		CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\Managers\\DataExchangeManager::importAgent();", "calendar");
+		CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::createWatchChannels(0);", "calendar");
+		CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::processPush();", "calendar");
+		CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::renewWatchChannels();", "calendar");
+		CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\GoogleApiPush::checkPushChannel();", "calendar");
+		CAgent::RemoveAgent("CCalendarSync::doSync();", "calendar");
+		CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\Google\\QueueManager::checkNotSendEvents();", "calendar");
+		CAgent::RemoveAgent("\\Bitrix\\Calendar\\Sync\\Google\\QueueManager::checkIncompleteSync();", 'calendar');
 
 		return true;
 	}
@@ -299,29 +317,8 @@ class calendar extends CModule
 		$ar = $rs->Fetch();
 
 		if($ar["C"] <= 0)
-			include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/events.php");
-
-		if (!IsModuleInstalled('intranet'))
 		{
-			COption::SetOptionString("intranet", "calendar_2", "Y");
-			CModule::IncludeModule('calendar');
-			CCalendar::ClearCache();
-			CCalendar::CacheTime(0);
-
-			$arTypes = CCalendarType::GetList();
-			if (!$arTypes || !count($arTypes))
-			{
-				CCalendarType::Edit(array(
-					'NEW' => true,
-					'arFields' => array(
-						'XML_ID' => 'events',
-						'NAME' => GetMessage('CAL_DEFAULT_TYPE'),
-						'ACCESS' => array(
-							'G2' => CCalendar::GetAccessTasksByName('calendar_type', 'calendar_type_view')
-						)
-					)
-				));
-			}
+			include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/calendar/install/events.php");
 		}
 
 		return true;

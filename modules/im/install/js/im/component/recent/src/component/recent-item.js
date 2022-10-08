@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import { Utils } from "im.lib.utils";
 import {TemplateTypes as ItemTypes, RecentSection as Section, MessageStatus, ChatTypes} from 'im.const';
 

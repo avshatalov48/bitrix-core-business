@@ -14,7 +14,8 @@
     display: inline-block;
 	margin: 0;
     max-width: 100%;
-    font: 22px 'OpenSans-SemiBold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 22px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
     color: #333;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -43,7 +44,8 @@
     margin: 3px 0;
     padding: 0 9px 0 29px;
     height: 36px;
-    font: 15px/36px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 15px/36px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
     color: #505A68;
     text-decoration: none;
     transition: color .17s;
@@ -95,7 +97,8 @@
     top: 0;
     right: 0;
     padding: 0 8px 0 25px;
-    font: bold 9px/36px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 9px/36px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
     color: #AEB4BB;
     text-transform: uppercase;
     transition: color .3s;
@@ -133,7 +136,8 @@
 .ui-sidepanel-menu-active .ui-sidepanel-menu-link .ui-sidepanel-menu-link-text {
     padding: 0 11px 0 11px;
     border-radius: 18px;
-    font: 15px/25px 'OpenSans-SemiBold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 15px/25px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
     color: #fff;
 }
 
@@ -157,7 +161,8 @@
 
 .ui-sidepanel-menu-disable-active-state.ui-sidepanel-menu-link .ui-sidepanel-menu-link-text {
     background-color: transparent;
-    font: 15px/36px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 15px/36px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
     color: #505A68;
 }
 
@@ -176,7 +181,8 @@
 	content: 'new';
 	position: absolute;
 	left: 3px;
-	font: 7px/11px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 7px/11px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #2FC6F6;
 	text-transform: uppercase;
 }
@@ -193,7 +199,8 @@
 
 .ui-sidepanel-submenu-active .ui-sidepanel-badge-new:before {
 	left: 4px;
-	font: 7px/13px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 7px/13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .ui-sidepanel-counter {
@@ -203,7 +210,8 @@
 	height: 18px;
 	border-radius: 10px;
 	background-color: #d5dbdf;
-	font: 11px/17px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #717a84;
 	text-align: center;
 }
@@ -219,7 +227,8 @@
 	padding: 0 9px 0 15px;
 	margin: 0 45px;
 	height: 36px;
-	font: 14px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525C69;
 	transition: opacity .3s;
 	opacity: .5;
@@ -275,7 +284,8 @@
 	border: none;
 	border-bottom: 1px solid #dcdcdc;
 	background: transparent;
-	font: 15px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #505A68;
 	outline: none;
 }

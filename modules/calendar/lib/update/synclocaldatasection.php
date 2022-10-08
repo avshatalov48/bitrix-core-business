@@ -2,88 +2,115 @@
 
 namespace Bitrix\Calendar\Update;
 
+use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Internals\SectionTable;
+use Bitrix\Calendar\Sync\Entities\SyncEvent;
+use Bitrix\Calendar\Sync\Entities\SyncEventMap;
+use Bitrix\Calendar\Sync\Entities\SyncSection;
+use Bitrix\Calendar\Sync\Entities\SyncSectionMap;
+use Bitrix\Calendar\Sync\Google\ImportManager;
 use Bitrix\Calendar\Sync\GoogleApiBatch;
 use Bitrix\Calendar\Sync\GoogleApiPush;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Update\Stepper;
 use Bitrix\Main\Type;
+use Bitrix\Calendar\Util;
 
-class SyncLocalDataSection extends Stepper
+
+class SyncLocalDataSection
 {
-	protected static $moduleId = "calendar";
-
-	public static function className()
+	/**
+	 * @throws \Bitrix\Main\ObjectException
+	 */
+	public function export(SyncEventMap $syncEventMap, SyncSectionMap $syncSectionMap)
 	{
-		return get_called_class();
-	}
-
-	public function execute(array &$result)
-	{
-		if (!Loader::includeModule("calendar"))
+		// $syncEventMap = new SyncEventMap();
+		/** @var SyncSection $syncSection */
+		foreach ($syncSectionMap as $syncSection)
 		{
-			return self::FINISH_EXECUTION;
+			if ($syncSection->getSectionConnection()->getVendorSectionId() !== null)
+			{
+				GoogleApiPush::setBlockPush(GoogleApiPush::TYPE_SECTION, $syncSection->getSection()->getId());
+				if (
+					$events = \CCalendarEvent::getLocalBatchEvent(
+						$syncSection->getSection()->getOwner()->getId(),
+						$syncSection->getSection()->getId(),
+						$this->getSyncTimestamp())
+				)
+				{
+					$syncedEvents = (new GoogleApiBatch())
+						->syncLocalEvents(
+							$events,
+							$syncSection->getSection()->getOwner()->getId(),
+							$syncSection->getSectionConnection()->getVendorSectionId()
+						);
+
+					$this->updateEventsBatch($syncedEvents);
+
+					continue;
+				}
+
+				if (
+					$recurrentEvents = \CCalendarEvent::getLocalBatchRecurrentEvent(
+						$syncSection->getSection()->getOwner()->getId(),
+						$syncSection->getSection()->getId(),
+						$this->getSyncTimestamp())
+				)
+				{
+
+					$syncedEvents = (new GoogleApiBatch())->syncLocalEvents(
+						$recurrentEvents,
+						$syncSection->getSection()->getOwner()->getId(),
+						$syncSection->getSectionConnection()->getVendorSectionId()
+					);
+					$this->updateEventsBatch($syncedEvents);
+
+					continue;
+				}
+
+				if (
+					$instances = \CCalendarEvent::getLocalBatchInstances(
+						$syncSection->getSection()->getOwner()->getId(),
+						$syncSection->getSection()->getId(),
+						$this->getSyncTimestamp())
+				)
+				{
+					$syncedInstances = (new GoogleApiBatch())->syncLocalInstances(
+						$instances,
+						$syncSection->getSection()->getOwner()->getId(),
+						$syncSection->getSectionConnection()->getVendorSectionId()
+					);
+
+					$this->updateEventsBatch($syncedInstances);
+
+					continue;
+				}
+
+				GoogleApiPush::setUnblockPush(GoogleApiPush::TYPE_SECTION, $syncSection->getSection()->getId());
+
+				// $pushOptionEnabled = \COption::GetOptionString('calendar', 'sync_by_push', false);
+				// if ($pushOptionEnabled || \CCalendar::IsBitrix24())
+				// {
+				// 	GoogleApiPush::deletePushChannel(['ENTITY_TYPE' => 'SECTION', 'ENTITY_ID' => $syncSection->getSection()->getId()]);
+				// 	GoogleApiPush::checkSectionsPush(
+				// 		[$syncSection->getSection()],
+				// 		$syncSection->getSection()->getOwner()->getId(),
+				// 		$syncSection->getSectionConnection()->getConnection()->getId()
+				// 	);
+				// }
+			}
 		}
 
-		$section = SectionTable::getList([
-			'filter' => [
-				'ID' => (int)$this->getOuterParams()[0],
-			],
-		])->fetch();
-
-		if (is_array($section))
-		{
-			if (empty($section['GAPI_CALENDAR_ID']))
-			{
-				return self::FINISH_EXECUTION;
-			}
-
-			if ($events = \CCalendarEvent::getLocalBatchEvent((int)$section['OWNER_ID'], (int)$section['ID'], $this->getSyncTimestamp()))
-			{
-				GoogleApiPush::setBlockPush(GoogleApiPush::TYPE_SECTION, (int)$section['ID']);
-
-				$syncedEvents = (new GoogleApiBatch())->syncLocalEvents($events, (int)$section['OWNER_ID'], $section['GAPI_CALENDAR_ID']);
-				$this->updateEventsBatch($syncedEvents);
-
-				GoogleApiPush::setUnblockPush(GoogleApiPush::TYPE_SECTION, (int)$section['ID']);
-
-				return self::CONTINUE_EXECUTION;
-			}
-
-			if ($recurrentEvents = \CCalendarEvent::getLocalBatchRecurrentEvent((int)$section['OWNER_ID'], (int)$section['ID'], $this->getSyncTimestamp()))
-			{
-				GoogleApiPush::setBlockPush(GoogleApiPush::TYPE_SECTION, (int)$section['ID']);
-
-				$syncedEvents = (new GoogleApiBatch())->syncLocalEvents($recurrentEvents, (int)$section['OWNER_ID'], $section['GAPI_CALENDAR_ID']);
-				$this->updateEventsBatch($syncedEvents);
-
-				GoogleApiPush::setUnblockPush(GoogleApiPush::TYPE_SECTION, (int)$section['ID']);
-
-				return self::CONTINUE_EXECUTION;
-			}
-
-			if ($instances = \CCalendarEvent::getLocalBatchInstances((int)$section['OWNER_ID'], (int)$section['ID'], $this->getSyncTimestamp()))
-			{
-				GoogleApiPush::setBlockPush(GoogleApiPush::TYPE_SECTION, (int)$section['ID']);
-
-				$syncedInstances = (new GoogleApiBatch())->syncLocalInstances($instances, (int)$section['OWNER_ID'], $section['GAPI_CALENDAR_ID']);
-				$this->updateEventsBatch($syncedInstances);
-
-				GoogleApiPush::setUnblockPush(GoogleApiPush::TYPE_SECTION, (int)$section['ID']);
-
-				return self::CONTINUE_EXECUTION;
-			}
-
-			$pushOptionEnabled = \COption::GetOptionString('calendar', 'sync_by_push', false);
-			if ($pushOptionEnabled || \CCalendar::IsBitrix24())
-			{
-				GoogleApiPush::deletePushChannel(['ENTITY_TYPE' => 'SECTION', 'ENTITY_ID' => $section['ID']]);
-				GoogleApiPush::checkSectionsPush([$section], (int)$section['OWNER_ID'], (int)$section['CAL_DAV_CON']);
-			}
-		}
-
-		return self::FINISH_EXECUTION;
+		// todo move to DataExchangeManager::exchange
+		// Util::addPullEvent(
+		// 	'process_sync_connection',
+		// 	(int)$section['OWNER_ID'],
+		// 	[
+		// 		'vendorName' => 'google',
+		// 		'stage' => 'events_created',
+		// 	]
+		// );
 	}
 
 	/**
@@ -100,6 +127,6 @@ class SyncLocalDataSection extends Stepper
 	 */
 	private function getSyncTimestamp(): int
 	{
-		return (new Type\Date())->add('-2 months')->getTimestamp();
+		return (new Date())->sub(ImportManager::SYNC_EVENTS_DATE_INTERVAL)->getTimestamp();
 	}
 }

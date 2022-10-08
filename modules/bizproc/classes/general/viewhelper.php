@@ -1,14 +1,12 @@
-<?
+<?php
 
 use Bitrix\Main\ArgumentException;
-
-IncludeModuleLangFile(__FILE__);
 
 class CBPViewHelper
 {
 	private static $cachedTasks = array();
 
-	public static function RenderUserSearch($ID, $searchInputID, $dataInputID, $componentName, $siteID = '', $nameFormat = '', $delay = 0)
+	public static function renderUserSearch($ID, $searchInputID, $dataInputID, $componentName, $siteID = '', $nameFormat = '', $delay = 0)
 	{
 		$ID = strval($ID);
 		$searchInputID = strval($searchInputID);

@@ -30,7 +30,7 @@ class CHuaweiPushKitMessage extends CGoogleMessage {
 	{
 		$data = $this->getPayload();
 		$batch = "Content-type: application/json\r\n";
-		$batch .= "Content-length: " . \Bitrix\Main\Text\BinaryString::getLength($data) . "\r\n";
+		$batch .= "Content-length: " . strlen($data) . "\r\n";
 		$batch .= "\r\n";
 		$batch .= $data;
 

@@ -47,9 +47,7 @@ export class CaldavConnection extends ConnectionProvider
 	{
 		if (this.menu)
 		{
-			this.menu.getPopupWindow().setBindElement(bindElement);
-			this.menu.show();
-			return;
+			this.menu.destroy();
 		}
 
 		const menuItems = this.getMenuItems();
@@ -72,8 +70,8 @@ export class CaldavConnection extends ConnectionProvider
 
 	getMenuItems()
 	{
-		const menuItems = this.connections;
-		menuItems.forEach(item =>
+		const menuItems = [];
+		this.connections.forEach(item =>
 		{
 			item.type = this.type;
 			item.id = item.addParams.id;
@@ -82,6 +80,7 @@ export class CaldavConnection extends ConnectionProvider
 			{
 				this.openActiveConnectionSlider(item);
 			};
+			menuItems.push(item);
 		});
 
 		return menuItems;
@@ -113,6 +112,7 @@ export class CaldavConnection extends ConnectionProvider
 			autoHide: true,
 			closeByEsc: true,
 			id: this.getType() + '-menu',
+			offsetLeft: -40,
 		});
 	}
 
@@ -122,7 +122,6 @@ export class CaldavConnection extends ConnectionProvider
 		{
 			this.connectionsSyncInfo.forEach(connection => {
 				this.connections.push(ConnectionItem.createInstance({
-					syncTimestamp: connection.syncInfo.syncTimestamp,
 					connectionName: connection.syncInfo.connectionName,
 					status: connection.syncInfo.status,
 					connected: connection.syncInfo.connected,

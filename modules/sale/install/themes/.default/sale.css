@@ -82,7 +82,7 @@
 .crm-admin-set-title {
 	border-bottom: 1px solid #d6d6d6;
 	font-size: 16px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding-bottom: 10px;
 }
 
@@ -143,7 +143,7 @@
 }
 
 .crm-admin-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 18px;
 	padding-bottom: 14px;
 }
@@ -164,7 +164,7 @@
 .crm-admin-title-link {
 	color: #2f58a4;
 	font-size: 16px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-decoration: underline;
 }
 
@@ -643,7 +643,7 @@ a.get_more {
 
 .order-itog .itog td div {
 	color: #000;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	background: #dbe4b7;
 	box-shadow: 1px 1px 1px 1px #dee4cb;
 }
@@ -715,7 +715,7 @@ td.btn_order a {
 #BASKET_TABLE td.COLUMN_NAME {
 	vertical-align: top;
 	font-size: 14px !important;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 #BASKET_TABLE td.COLUMN_NUMBER,
@@ -808,7 +808,7 @@ td.store_barcode input { text-align: center; }
 .adm-btn-barcode { height: 16px !important; }
 
 .store-doc-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-align: center;
 	font-size: 13px;
 }
@@ -835,7 +835,7 @@ td.barcode_table_checkbox { text-align: center; }
 
 td.barcode_table_name a {
 	font-size: 14px !important;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #004199 !important;
 }
 
@@ -874,7 +874,7 @@ td.barcode_table_name a {
 	color: #717171;
 	text-decoration: line-through;
 	margin-bottom: 5px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 #BASKET_TABLE td.COLUMN_PRICE .base_price span {
@@ -884,14 +884,14 @@ td.barcode_table_name a {
 
 #BASKET_TABLE .edit_price .formated_price {
 	font-size: 15px !important;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-right: 4px;
 }
 
 #BASKET_TABLE span.currency_price {
 	font-size: 11px;
 	color: #717171;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	display: inline;
 }
 
@@ -910,7 +910,7 @@ td.barcode_table_name a {
 #BASKET_TABLE .edit_price.edit_enable .edit_price_product input {
 	border: 1px solid #dcdcdc;
 	background-color: #fff;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-top: -1px;
 }
 
@@ -937,14 +937,14 @@ tr.tr_hover span.pencil {
 	font-size: 15px !important;
 	text-align: right !important;
 	vertical-align: top;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	min-width: 100px !important;
 }
 
 #BASKET_TABLE td.COLUMN_SUM span {
 	color: #717171;
 	font-size: 11px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 #tabs td.tab_img img { border: none; }
@@ -954,7 +954,7 @@ table.itog_header td, table td.heading {
 	padding: 8px 15px 10px;
 	text-align: center !important;
 	color: #4b6267;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .order_count input {
@@ -991,7 +991,7 @@ div.set_coupon {
 	box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, .21);
 	color: #000;
 	text-align: left;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 16px;
 	vertical-align: middle;
 	outline: none !important;
@@ -1234,7 +1234,7 @@ div.dont_can_buy {
 
 .sale-popup-title-bar {
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-align: center;
 	display: inline-block;
 	width: 100%
@@ -1373,12 +1373,12 @@ a.dashed-link:hover { text-decoration: none; }
 }
 
 .https_check_success {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: green;
 }
 
 .https_check_fail {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: red;
 }
 
@@ -1429,7 +1429,7 @@ a.dashed-link:hover { text-decoration: none; }
 	box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, .21);
 	color: #000;
 	text-align: left;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 16px;
 	vertical-align: middle;
 	outline: none !important;
@@ -1539,7 +1539,7 @@ a.dashed-link:hover { text-decoration: none; }
 
 .adm-bus-fastnav-title {
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 25px;
 	min-width: 75px;
 	vertical-align: top;
@@ -1560,7 +1560,7 @@ a.dashed-link:hover { text-decoration: none; }
 }
 
 .adm-bus-fastnav-navlist li a {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 25px;
 	vertical-align: top;
 	text-decoration: none;
@@ -1602,7 +1602,7 @@ a.dashed-link:hover { text-decoration: none; }
 	vertical-align: middle;
 	color: #000;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 21px;
 }
 
@@ -1707,7 +1707,7 @@ a.dashed-link:hover { text-decoration: none; }
 
 .adm-bus-orderinfoblock-content-order-info-result li {
 	font-size: 15px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	position: relative;
 	height: 20px;
 	border-bottom: 1px dotted #cfd5b0;
@@ -1718,7 +1718,7 @@ a.dashed-link:hover { text-decoration: none; }
 .adm-bus-orderinfoblock-content-order-info-result .adm-bus-orderinfoblock-content-order-info-value { background: #edecc6; }
 
 .adm-bus-orderinfoblock-content-block-last {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	float: left;
 	width: 25%;
 }
@@ -1791,7 +1791,7 @@ a.dashed-link:hover { text-decoration: none; }
 
 .adm-bus-orderproblem-title {
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	min-width: 190px;
 	padding-left: 25px;
 	vertical-align: top;
@@ -1801,7 +1801,7 @@ a.dashed-link:hover { text-decoration: none; }
 
 .adm-bus-orderproblem-text {
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #2e2e2e;
 }
 
@@ -1821,13 +1821,13 @@ a.dashed-link:hover { text-decoration: none; }
 	opacity: .6;
 }
 
-.fwb { font-weight: bold; }
+.fwb { font-weight: var(--ui-font-weight-bold); }
 
 .vat { vertical-align: top; }
 
 .adm-bus-customerinfo { margin-bottom: 15px; }
 
-.fwb { font-weight: bold; }
+.fwb { font-weight: var(--ui-font-weight-bold); }
 
 .adm-bus-customerinfobigdata { margin-bottom: 0; }
 
@@ -1858,7 +1858,7 @@ a.dashed-link:hover { text-decoration: none; }
 }
 
 .adm-bus-customerinfobigdata-info-table tr td:first-child {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding-right: 10px;
 	text-align: right;
 	vertical-align: top;
@@ -1968,7 +1968,7 @@ a.dashed-link:hover { text-decoration: none; }
 /*maps*/
 .adm-bus-delivery-section-sidebar-address-title {
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-bottom: 5px;
 	color: #000;
 }
@@ -2026,7 +2026,7 @@ a.dashed-link:hover { text-decoration: none; }
 
 .adm-bus-ordertable > thead > tr > td {
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	height: 42px;
 	padding: 0 5px;
 	text-align: center;
@@ -2071,7 +2071,7 @@ a.dashed-link:hover { text-decoration: none; }
 /**/
 .adm-bus-ordertable-name a {
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-decoration: none;
 	color: #335ea4;
 }
@@ -2175,7 +2175,7 @@ a.dashed-link:hover { text-decoration: none; }
 	color: #4c6267;
 	text-shadow: 0 1px 0 #fff;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-bottom: 10px;
 }
 
@@ -2329,7 +2329,7 @@ a.dashed-link:hover { text-decoration: none; }
 
 .adm-s-detail-order-stas-block > span,
 .adm-bus-pay-section-status td span {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 16px;
 	display: inline-block;
 	height: 16px;
@@ -2368,7 +2368,7 @@ a.dashed-link:hover { text-decoration: none; }
 /*maps*/
 .adm-bus-pay-section-sidebar-address-title {
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-bottom: 5px;
 	color: #000;
 }
@@ -2399,7 +2399,7 @@ a.dashed-link:hover { text-decoration: none; }
 
 .adm-bus-orderproblem-title {
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	min-width: 190px;
 	padding-left: 25px;
 	vertical-align: top;
@@ -2409,7 +2409,7 @@ a.dashed-link:hover { text-decoration: none; }
 
 .adm-bus-orderproblem-text {
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #2e2e2e;
 }
 
@@ -2457,7 +2457,7 @@ a.dashed-link:hover { text-decoration: none; }
 	border-top: 1px solid #e2e5e5;
 	font-size: 14px;
 	color: #3b4649;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-shadow: 0 1px 0 #fff;
 	border-bottom: 1px solid #a9a9a9;
 	padding: 1px 3px;
@@ -2724,7 +2724,7 @@ a.dashed-link:hover { text-decoration: none; }
 
 .adm-s-result-container-itog-table-result td {
 	background: #dbe3b9;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .deducted-status span span,
@@ -2732,7 +2732,7 @@ a.dashed-link:hover { text-decoration: none; }
 .shipment-status span span,
 .payment-status span span {
 	cursor: pointer;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #658d0f;
 	border-bottom: 1px dashed #658d0f;
 }
@@ -2774,7 +2774,7 @@ a.add_store { font-size: 11px; }
 .adm-s-order-table-ddi-table .edit_price.edit_enable .edit_price_product input {
 	border: 1px solid #dcdcdc;
 	background-color: #fff;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-top: -1px;
 }
 
@@ -2797,7 +2797,7 @@ tr.tr_hover span.pencil {
 	color: #717171;
 	text-decoration: line-through;
 	margin-bottom: 5px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .adm-s-result-container-itog-table .edit_field_container .edit_field,
@@ -2927,7 +2927,7 @@ tr.tr_hover span.pencil {
 
 .adm-s-select-popup-element-selected-good span,
 .adm-s-select-popup-element-selected-bad span {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-right: 10px;
 }
 
@@ -2958,7 +2958,7 @@ tr.tr_hover span.pencil {
 
 .adm-s-select-popup-modal-title {
 	color: #576e75;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 13px;
 	margin-bottom: 5px;
 }
@@ -3134,7 +3134,7 @@ td.bdb-line { border-bottom: 1px solid #c9d0d1; }
 	left: 15px;
 	height: 16px;
 	padding: 0 5px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #000;
 	background: -webkit-linear-gradient(top, rgba(255, 255, 255, 0) 7px, #fff 7px, #fff 100%);
 	background: -moz-linear-gradient(top, rgba(255, 255, 255, 0) 7px, #fff 7px, #fff 100%);
@@ -3190,7 +3190,7 @@ td.bdb-line { border-bottom: 1px solid #c9d0d1; }
 
 .adm-bus-orderdocs-threelist-block-date {
 	color: #000;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .adm-bus-orderdocs-threelist-block-responsible-block {
@@ -3225,7 +3225,7 @@ td.bdb-line { border-bottom: 1px solid #c9d0d1; }
 	position: relative;
 	margin-right: 9px;
 	padding-right: 9px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 	border-right: 1px solid #e5e5e5;
 	padding-left: 18px;
@@ -3256,7 +3256,7 @@ td.bdb-line { border-bottom: 1px solid #c9d0d1; }
 
 .adm-bus-pay-use-current-budget {
 	cursor: pointer;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-left: 15px;
 	color: #658d0f;
 	border-bottom: 1px dashed #658d0f;
@@ -3286,7 +3286,7 @@ td.bdb-line { border-bottom: 1px solid #c9d0d1; }
 .bx-adm-pc-title {
 	color: #000;
 	text-shadow: 0 1px 0 #fff;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 13px;
 }
 
@@ -3332,7 +3332,7 @@ td.bdb-line { border-bottom: 1px solid #c9d0d1; }
 	box-shadow: 0 1px 1px 0 rgba(0, 0, 0, .18);
 	font-size: 13px;
 	vertical-align: middle;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-shadow: 0 1px 0 rgba(255, 255, 255, .6);
 	cursor: pointer;
 }
@@ -3427,7 +3427,7 @@ a.adm-s-restriction-open-dialog-link {
 	color: #113c7d !important;
 	text-decoration: none !important;
 	border-bottom: 1px dashed #113c7d;
-	font-weight: bold !important;
+	font-weight: var(--ui-font-weight-bold) !important;
 }
 
 tr.adm-s-product-category-restriction-delcat a.adm-s-bus-morelinkqhsw,
@@ -3525,7 +3525,7 @@ tr.adm-s-delivery-restriction-delcat:hover a.adm-s-bus-morelinkqhsw
 
 .adm-s-detail-order-stas-block > span,
 .adm-bus-section-container-section-status td span {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 16px;
 	display: inline-block;
 	height: 16px;
@@ -3556,7 +3556,7 @@ tr.adm-s-delivery-restriction-delcat:hover a.adm-s-bus-morelinkqhsw
 /*maps*/
 .adm-bus-section-container-section-sidebar-address-title {
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-bottom: 5px;
 	color: #000;
 }
@@ -3657,7 +3657,7 @@ tr.adm-s-delivery-restriction-delcat:hover a.adm-s-bus-morelinkqhsw
 	border: 0;
 	border-radius: 2px;
 	background: #f59023;
-	font: bold 13px/35px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 13px/35px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #fff;
 	transition: background .3s ease;
 }
@@ -3795,7 +3795,8 @@ tr.adm-s-delivery-restriction-delcat:hover a.adm-s-bus-morelinkqhsw
 	height: 22px;
 	border-radius: 100%;
 	background: #68bb0d;
-	font: bold 15px/17px 'Open Sans', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #fff;
 	text-align: center;
 	box-sizing: border-box;
@@ -3831,7 +3832,7 @@ tr.adm-s-delivery-restriction-delcat:hover a.adm-s-bus-morelinkqhsw
 	display: block;
 	width: 4px;
 	height: 5px;
-	font: bold 14px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 14px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #d0011b;
 }
 
@@ -3887,13 +3888,13 @@ tr.adm-s-delivery-restriction-delcat:hover a.adm-s-bus-morelinkqhsw
 .cashbox-list-help-block-title {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .cashbox-list-help-block-link {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-bottom: 10px;
 }
 
@@ -3910,7 +3911,7 @@ tr.adm-s-delivery-restriction-delcat:hover a.adm-s-bus-morelinkqhsw
 	padding: 0 20px;
 	height: 36px;
 	border-radius: 3px;
-	font: bold 13px/36px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 13px/36px "Helvetica Neue", Arial, Helvetica, sans-serif;
 	color: #fff;
 	box-sizing: border-box;
 	cursor: pointer;
@@ -3919,7 +3920,7 @@ tr.adm-s-delivery-restriction-delcat:hover a.adm-s-bus-morelinkqhsw
 .adm-button-main {
 	height: 49px;
 	box-shadow: 0 2px 2px 0 rgba(35, 50, 56, .28), inset 0 3px 0 0 #46d9ef;
-	font: bold 16px/49px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 16px/49px "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
 
 .adm-button-blue {
@@ -3982,7 +3983,7 @@ tr.adm-s-delivery-restriction-delcat:hover a.adm-s-bus-morelinkqhsw
 	box-shadow: inset 0 1px 0 0 #fff;
 	border-top: 1px solid #e2e5e5;
 	color: #3b4649;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-shadow: 0 1px 0 #fff;
 	border-bottom: 1px solid #a9a9a9;
 }
@@ -4000,7 +4001,7 @@ tr.adm-s-delivery-restriction-delcat:hover a.adm-s-bus-morelinkqhsw
 .adm-zreport-list-frame-td-small-text {
 	font-size: 14px;
 	color: #a3aeb7;
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 15px 30px 10px;
 }
 

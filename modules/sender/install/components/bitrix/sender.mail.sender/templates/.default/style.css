@@ -17,7 +17,7 @@
 	display: inline-block;
 	margin: 7px 7px 5px 18px;
 	border-bottom: 1px solid transparent;
-	font: bold 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2067b0;
 	vertical-align: top;
 	transition: border-bottom-color .2s linear;
@@ -77,7 +77,7 @@
 	display: inline-block;
 	margin: 1px 0 0 0;
 	border-bottom: 1px solid transparent;
-	font: bold 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2067b0;
 	vertical-align: top;
 	transition: border-bottom-color .2s linear;
@@ -133,7 +133,7 @@
 	padding: 0 30px 0 13px;
 	height: 30px;
 	border-radius: var(--sender-ui-tile-item-border-radius, var(--ui-border-radius-2xs, 1px));
-	font: bold 13px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 13px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	overflow: hidden;
 	vertical-align: middle;
 	z-index: 2;
@@ -211,7 +211,7 @@
 	padding: 0 11px;
 	margin: 0 16px 0 0;
 	height: 34px;
-	font: bold 13px/34px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 13px/34px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #0063C6;
 	transition: background .3s;
 	overflow: hidden;

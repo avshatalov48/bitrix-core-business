@@ -289,7 +289,7 @@ class Widget extends \Bitrix\Report\VisualConstructor\Controller\Base
 		{
 			$configuration = $configurationFromForm['configurations'];
 
-			if (in_array($reportId, $params['deletedReports']))
+			if (is_array($params['deletedReports']) && in_array($reportId, $params['deletedReports']))
 			{
 				continue;
 			}

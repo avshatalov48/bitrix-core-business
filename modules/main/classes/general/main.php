@@ -1,27 +1,19 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2020 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
 
 use Bitrix\Main;
 use Bitrix\Main\Composite;
-use Bitrix\Main\Localization\CultureTable;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\AssetLocation;
 use Bitrix\Main\Page\AssetMode;
-use Bitrix\Main\SiteTable;
-
-define('BX_RESIZE_IMAGE_PROPORTIONAL_ALT', 0);
-define('BX_RESIZE_IMAGE_PROPORTIONAL', 1);
-define('BX_RESIZE_IMAGE_EXACT', 2);
-
-global $BX_CACHE_DOCROOT;
-$BX_CACHE_DOCROOT = array();
-global $MODULE_PERMISSIONS;
-$MODULE_PERMISSIONS = array();
+use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Authentication\Internal\ModuleGroupTable;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -30,14 +22,13 @@ IncludeModuleLangFile(__FILE__);
  */
 abstract class CAllMain
 {
-	var $ma, $mapos;
+	var $ma;
 	var $sDocPath2, $sDirPath, $sUriParam;
 	var $sDocTitle;
 	var $sDocTitleChanger = null;
 	var $arPageProperties = array();
 	var $arPagePropertiesChanger = array();
 	var $arDirProperties = array();
-	var $sLastError;
 
 	/** @var Asset */
 	public $oAsset;
@@ -55,7 +46,6 @@ abstract class CAllMain
 	var $arHeadAdditionalCSS = array();
 	var $arHeadAdditionalScripts = array();
 	var $arHeadAdditionalStrings = array();
-	var $arHeadBeforeCSSStrings = array();
 	var $bInAjax = false;
 
 	var $version;
@@ -63,7 +53,6 @@ abstract class CAllMain
 	var $FILE_PERMISSION_CACHE = array();
 	var $arPanelButtons = array();
 	var $arPanelFutureButtons = array();
-	var $ShowLogout = false;
 
 	var $ShowPanel = NULL;
 	var $PanelShowed = false;
@@ -98,13 +87,7 @@ abstract class CAllMain
 		$this->sDirPath = GetDirPath($this->sDocPath2);
 		$this->sUriParam = ($_SERVER["QUERY_STRING"] <> '') ? $_SERVER["QUERY_STRING"] : $QUERY_STRING;
 
-		$this->oAsset = \Bitrix\Main\Page\Asset::getInstance();
-	}
-
-	public function reinitPath()
-	{
-		$this->sDocPath2 = GetPagePath(false, true);
-		$this->sDirPath = GetDirPath($this->sDocPath2);
+		$this->oAsset = Asset::getInstance();
 	}
 
 	public function GetCurPage($get_index_page=null)
@@ -313,7 +296,7 @@ abstract class CAllMain
 			include($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/auth/wrapper.php");
 		}
 
-		$autoCompositeArea = \Bitrix\Main\Composite\Internals\AutomaticArea::getCurrentArea();
+		$autoCompositeArea = Main\Composite\Internals\AutomaticArea::getCurrentArea();
 		if ($autoCompositeArea)
 		{
 			$autoCompositeArea->end();
@@ -373,9 +356,9 @@ abstract class CAllMain
 			if($login <> '')
 			{
 				$rsUser = CUser::GetList('LOGIN', 'DESC', array(
-						"LOGIN_EQUAL_EXACT" => $login,
-						"EXTERNAL_AUTH_ID" => "",
-					),
+					"LOGIN_EQUAL_EXACT" => $login,
+					"EXTERNAL_AUTH_ID" => "",
+				),
 					array('FIELDS' => array('ID', 'LOGIN', 'LOGIN_ATTEMPTS'))
 				);
 				$arUser = $rsUser->Fetch();
@@ -400,9 +383,9 @@ abstract class CAllMain
 			if($USER_ATTEMPTS === false)
 			{
 				$rsUser = CUser::GetList('LOGIN', 'DESC', array(
-						"LOGIN_EQUAL_EXACT" => $login,
-						"EXTERNAL_AUTH_ID" => "",
-					),
+					"LOGIN_EQUAL_EXACT" => $login,
+					"EXTERNAL_AUTH_ID" => "",
+				),
 					array('FIELDS' => array('ID', 'LOGIN', 'LOGIN_ATTEMPTS'))
 				);
 				$arUser = $rsUser->Fetch();
@@ -447,7 +430,7 @@ abstract class CAllMain
 	 */
 	public static function IsHTTPS()
 	{
-		return \Bitrix\Main\Context::getCurrent()->getRequest()->isHttps();
+		return Main\Context::getCurrent()->getRequest()->isHttps();
 	}
 
 	public function GetTitle($property_name = false, $strip_tags = false)
@@ -471,7 +454,7 @@ abstract class CAllMain
 		}
 		else
 		{
-			$arTrace = array_reverse(Bitrix\Main\Diag\Helper::getBackTrace(0, DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS));
+			$arTrace = array_reverse(Main\Diag\Helper::getBackTrace(0, DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS));
 
 			foreach ($arTrace as $arTraceRes)
 			{
@@ -725,7 +708,7 @@ abstract class CAllMain
 	{
 		if($cMaxStylesCnt === true)
 		{
-			$cMaxStylesCnt = \Bitrix\Main\Config\Option::get('main', 'max_css_files', 20);
+			$cMaxStylesCnt = Main\Config\Option::get('main', 'max_css_files', 20);
 		}
 		$this->oAsset->setMaxCss($cMaxStylesCnt);
 		$this->oAsset->setXhtml($bXhtmlStyle);
@@ -802,7 +785,7 @@ abstract class CAllMain
 
 	public static function IsExternalLink($src)
 	{
-		return (strncmp($src, 'http://', 7) == 0 || strncmp($src, 'https://', 8) == 0 || strncmp($src, '//', 2) == 0);
+		return (strncasecmp($src, 'http://', 7) == 0 || strncasecmp($src, 'https://', 8) == 0 || strncmp($src, '//', 2) == 0);
 	}
 
 	/** @deprecated deprecated use Asset::addCssKernelInfo() */
@@ -910,7 +893,7 @@ abstract class CAllMain
 
 	public function SetShowIncludeAreas($bShow=true)
 	{
-		\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_INCLUDE_AREAS"] = $bShow;
+		Main\Application::getInstance()->getKernelSession()["SESS_INCLUDE_AREAS"] = $bShow;
 	}
 
 	public function GetShowIncludeAreas()
@@ -919,7 +902,7 @@ abstract class CAllMain
 
 		if(!is_object($USER) || !$USER->IsAuthorized() || defined('ADMIN_SECTION') && ADMIN_SECTION == true)
 			return false;
-		$kernelSession = \Bitrix\Main\Application::getInstance()->getKernelSession();
+		$kernelSession = Main\Application::getInstance()->getKernelSession();
 		if(isset($kernelSession["SESS_INCLUDE_AREAS"]) && $kernelSession["SESS_INCLUDE_AREAS"])
 			return true;
 		static $panel_dynamic_mode = null;
@@ -1032,10 +1015,10 @@ abstract class CAllMain
 			return False;
 
 		$debug = null;
-		$bShowDebug = \Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_INCLUDE_TIME_EXEC"]=="Y"
+		$bShowDebug = Main\Application::getInstance()->getKernelSession()["SESS_SHOW_INCLUDE_TIME_EXEC"]=="Y"
 			&& (
 				$USER->CanDoOperation('edit_php')
-				|| \Bitrix\Main\Application::getInstance()->getKernelSession()["SHOW_SQL_STAT"]=="Y"
+				|| Main\Application::getInstance()->getKernelSession()["SHOW_SQL_STAT"]=="Y"
 			)
 			&& !defined("PUBLIC_AJAX_MODE")
 		;
@@ -1117,6 +1100,19 @@ abstract class CAllMain
 		return $this->__componentStack;
 	}
 
+	/**
+	 * Clears vew content area by code.
+	 * @param string $view View content code.
+	 * @return void
+	 */
+	public function clearViewContent(string $view): void
+	{
+		if ($this->__view[$view] ?? null)
+		{
+			unset($this->__view[$view]);
+		}
+	}
+
 	public function AddViewContent($view, $content, $pos = 500)
 	{
 		if(!is_array($this->__view[$view]))
@@ -1132,7 +1128,7 @@ abstract class CAllMain
 
 	public function GetViewContent($view)
 	{
-		if(!is_array($this->__view[$view]))
+		if(!isset($this->__view[$view]) || !is_array($this->__view[$view]))
 			return '';
 
 		uasort(
@@ -1179,7 +1175,7 @@ abstract class CAllMain
 		/** @noinspection PhpUnusedLocalVariableInspection */
 		global $APPLICATION, $USER, $DB, $MESS, $DOCUMENT_ROOT;
 
-		if(\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_INCLUDE_TIME_EXEC"]=="Y" && ($USER->CanDoOperation('edit_php') || \Bitrix\Main\Application::getInstance()->getKernelSession()["SHOW_SQL_STAT"]=="Y"))
+		if(Main\Application::getInstance()->getKernelSession()["SESS_SHOW_INCLUDE_TIME_EXEC"]=="Y" && ($USER->CanDoOperation('edit_php') || Main\Application::getInstance()->getKernelSession()["SHOW_SQL_STAT"]=="Y"))
 		{
 			$debug = new CDebugInfo();
 			$debug->Start();
@@ -1316,20 +1312,20 @@ abstract class CAllMain
 					'TEXT' => $rel_path
 				);
 
-				$aTrace = Bitrix\Main\Diag\Helper::getBackTrace(1, DEBUG_BACKTRACE_IGNORE_ARGS);
+				$aTrace = Main\Diag\Helper::getBackTrace(1, DEBUG_BACKTRACE_IGNORE_ARGS);
 
 				$sSrcFile = $aTrace[0]["file"];
 				$iSrcLine = intval($aTrace[0]["line"]);
 				$arIcons[] = array(
 					'URL' => 'javascript:'.$APPLICATION->GetPopupLink(array(
-						'URL' => "/bitrix/admin/component_props.php?".
-							"path=".urlencode(CUtil::addslashes($rel_path)).
-							"&template_id=".urlencode(CUtil::addslashes(SITE_TEMPLATE_ID)).
-							"&lang=".LANGUAGE_ID.
-							"&src_path=".urlencode(CUtil::addslashes($sSrcFile)).
-							"&src_line=".$iSrcLine.
-							""
-					)),
+							'URL' => "/bitrix/admin/component_props.php?".
+								"path=".urlencode(CUtil::addslashes($rel_path)).
+								"&template_id=".urlencode(CUtil::addslashes(SITE_TEMPLATE_ID)).
+								"&lang=".LANGUAGE_ID.
+								"&src_path=".urlencode(CUtil::addslashes($sSrcFile)).
+								"&src_line=".$iSrcLine.
+								""
+						)),
 					'ICON'=>"parameters",
 					'TITLE'=>GetMessage("main_incl_file_comp_param"),
 					'DEFAULT'=>true
@@ -1367,15 +1363,15 @@ abstract class CAllMain
 
 				$arIcons[] = array(
 					'URL' => 'javascript:'.$APPLICATION->GetPopupLink(
-						array(
-							'URL' => $editor.$path_url.$arFunctionParams["BACK_URL"].$arFunctionParams["LANG"].$arFunctionParams["TEMPLATE"],
-							"PARAMS" => array(
-								'width' => 770,
-								'height' => 470,
-								'resize' => $resize
+							array(
+								'URL' => $editor.$path_url.$arFunctionParams["BACK_URL"].$arFunctionParams["LANG"].$arFunctionParams["TEMPLATE"],
+								"PARAMS" => array(
+									'width' => 770,
+									'height' => 470,
+									'resize' => $resize
+								)
 							)
-						)
-					),
+						),
 					'ICON'=>'bx-context-toolbar-edit-icon',
 					'TITLE'=>str_replace("#MODE#", $arFunctionParams["MODE"], str_replace("#BLOCK_TYPE#", (!is_set($arFunctionParams, "NAME")? GetMessage("MAIN__INC_BLOCK") : $arFunctionParams["NAME"]), GetMessage("MAIN_INC_ED"))),
 					'DEFAULT'=>!$bDefaultExists
@@ -1403,7 +1399,7 @@ abstract class CAllMain
 			$res = include($_SERVER["DOCUMENT_ROOT"].$path);
 		}
 
-		if(\Bitrix\Main\Application::getInstance()->getKernelSession()["SESS_SHOW_INCLUDE_TIME_EXEC"]=="Y" && ($USER->CanDoOperation('edit_php') || \Bitrix\Main\Application::getInstance()->getSession()["SHOW_SQL_STAT"]=="Y"))
+		if(Main\Application::getInstance()->getKernelSession()["SESS_SHOW_INCLUDE_TIME_EXEC"]=="Y" && ($USER->CanDoOperation('edit_php') || Main\Application::getInstance()->getKernelSession()["SHOW_SQL_STAT"]=="Y"))
 			echo $debug->Output($rel_path, $path);
 		elseif(is_object($debug))
 			$debug->Stop($rel_path, $path);
@@ -2376,201 +2372,109 @@ abstract class CAllMain
 		return $arRoles;
 	}
 
-	/*
-	Returns an array of rights for a module
-	W - max rights (admin)
-	D - min rights (access denied)
-
-	$module_id - a module id
-	$arGroups - array of groups ID, if not set then for current useer
-	$use_default_level - "Y" - use default role
-	$max_right_for_super_admin - "Y" - for group ID=1 return max rights
-	*/
-	public static function GetUserRight($module_id, $arGroups=false, $use_default_level="Y", $max_right_for_super_admin="Y", $site_id=false)
+	/**
+	 * Returns an array of rights for a module
+	 * W - max rights (admin)
+	 * D - min rights (access denied)
+	 * @param string $moduleId - a module id
+	 * @param array | bool $groups - array of groups ID, if not set then for current useer
+	 * @param string $use_default_level - "Y" - use default role
+	 * @param string $max_right_for_super_admin - "Y" - for group ID=1 return max rights
+	 * @param array | bool $siteId
+	 */
+	public static function GetUserRight($moduleId, $groups = false, $use_default_level = 'Y', $max_right_for_super_admin = 'Y', $siteId = false)
 	{
-		global $DB, $USER, $MODULE_PERMISSIONS;
-		$err_mess = (CAllMain::err_mess())."<br>Function: GetUserRight<br>Line: ";
-		$min_right = "D";
-		$max_right = "W";
-		if ($arGroups === false)
+		global $USER;
+
+		$minRight = 'D';
+		$maxRight = 'W';
+
+		if ($groups === false && ($USER instanceof CUser))
 		{
-			if (is_object($USER))
+			if ($max_right_for_super_admin == 'Y' && $USER->IsAdmin())
 			{
-				if($USER->IsAdmin())
-					return $max_right;
-				$arGroups = $USER->GetUserGroupArray();
+				return $maxRight;
 			}
-			if (!is_array($arGroups))
-				$arGroups = array(2);
+			$groups = $USER->GetUserGroupArray();
 		}
 
-		$key = $use_default_level."_".$max_right_for_super_admin;
-		$groups = '';
-		$admin = false;
-		if (is_array($arGroups) && !empty($arGroups))
+		if (!is_array($groups))
 		{
-			foreach($arGroups as $grp)
+			$groups = [2];
+		}
+
+		if (
+			$max_right_for_super_admin == 'Y'
+			&& in_array(1, $groups)
+			&& (
+				COption::GetOptionString('main', 'controller_member', 'N') != 'Y'
+				|| COption::GetOptionString('main', '~controller_limited_admin', 'N') != 'Y'
+			)
+		)
+		{
+			return $maxRight;
+		}
+
+		if (!is_array($siteId))
+		{
+			$siteId = [$siteId];
+		}
+
+		$modulePermissions = ModuleGroupTable::query()
+			->setSelect(['*'])
+			->where('MODULE_ID', $moduleId)
+			->where('GROUP.ACTIVE', 'Y')
+			->setCacheTtl(86400)
+			->cacheJoins(true)
+			->fetchAll()
+		;
+
+		$right = '';
+		foreach ($modulePermissions as $permission)
+		{
+			// site filter
+			if (in_array($permission['SITE_ID'], $siteId))
 			{
-				$grp = intval($grp);
-				$groups .= ($groups <> ''? ',' :'').$grp;
-				if ($grp == 1)
-					$admin = true;
-			}
-			$key .= "_".$groups;
-		}
-
-		if (!$site_id)
-		{
-			$cache_site_key = "COMMON";
-		}
-		elseif (is_array($site_id))
-		{
-			$cache_site_key = "";
-			foreach ($site_id as $i => $site_id_tmp)
-			{
-				if ($i > 0)
-					$cache_site_key .= "_";
-
-				$cache_site_key .= ($site_id_tmp ? $site_id_tmp : "COMMON");
-			}
-		}
-		else
-		{
-			$cache_site_key = $site_id;
-		}
-
-		if(!is_array($MODULE_PERMISSIONS[$module_id][$cache_site_key]))
-			$MODULE_PERMISSIONS[$module_id][$cache_site_key] = array();
-
-		$right = "";
-		if (isset($MODULE_PERMISSIONS[$module_id][$cache_site_key][$key]))
-		{
-			$right = $MODULE_PERMISSIONS[$module_id][$cache_site_key][$key];
-		}
-		elseif (isset(\Bitrix\Main\Application::getInstance()->getKernelSession()["MODULE_PERMISSIONS"][$module_id][$cache_site_key][$key]))
-		{
-			$right = \Bitrix\Main\Application::getInstance()->getKernelSession()["MODULE_PERMISSIONS"][$module_id][$cache_site_key][$key];
-		}
-		else
-		{
-			if ($groups != '')
-			{
-				if (
-					$admin
-					&& $max_right_for_super_admin == "Y"
-					&& (
-						COption::GetOptionString("main", "controller_member", "N") != "Y"
-						|| COption::GetOptionString("main", "~controller_limited_admin", "N") != "Y"
-					)
-				)
+				// group filter
+				if (in_array($permission['GROUP_ID'], $groups))
 				{
-					$right = $max_right;
-				}
-				else
-				{
-					if (!$site_id)
+					// max
+					if ($permission['G_ACCESS'] > $right)
 					{
-						$strSqlSite = "and MG.SITE_ID IS NULL";
-					}
-					elseif (is_array($site_id))
-					{
-						$strSqlSite = " and (";
-						foreach($site_id as $i => $site_id_tmp)
-						{
-							if ($i > 0)
-								$strSqlSite .= " OR ";
-
-							$strSqlSite .= "MG.SITE_ID ".($site_id_tmp ? "= '".$DB->ForSql($site_id_tmp)."'" : "IS NULL");
-						}
-						$strSqlSite .= ")";
-					}
-					else
-					{
-						$strSqlSite = "and MG.SITE_ID = '".$DB->ForSql($site_id)."'";
-					}
-
-					$strSql = "
-						SELECT
-							max(MG.G_ACCESS) G_ACCESS
-						FROM
-							b_module_group MG
-						INNER JOIN b_group G ON (MG.GROUP_ID = G.ID)
-						WHERE
-							MG.MODULE_ID = '".$DB->ForSql($module_id, 50)."'
-						and MG.GROUP_ID in (".$groups.")
-						and G.ACTIVE = 'Y'
-						".$strSqlSite;
-
-					$t = $DB->Query($strSql, false, $err_mess.__LINE__);
-					$tr = $t->Fetch();
-					if ($tr)
-					{
-						$right = $tr["G_ACCESS"];
+						$right = $permission['G_ACCESS'];
 					}
 				}
 			}
+		}
 
-			if ($right == "" && $use_default_level == "Y")
-			{
-				$right = COption::GetOptionString($module_id, "GROUP_DEFAULT_RIGHT", $min_right);
-			}
-
-			$MODULE_PERMISSIONS[$module_id][$cache_site_key][$key] = $right;
-			if (defined("CACHE_MODULE_PERMISSIONS") && constant("CACHE_MODULE_PERMISSIONS") == "SESSION")
-			{
-				\Bitrix\Main\Application::getInstance()->getKernelSession()["MODULE_PERMISSIONS"][$module_id][$cache_site_key][$key] = $right;
-			}
+		if ($right == '' && $use_default_level == 'Y')
+		{
+			$right = COption::GetOptionString($moduleId, 'GROUP_DEFAULT_RIGHT', $minRight);
 		}
 
 		return $right;
 	}
 
-	public static function GetUserRightArray($module_id, $arGroups = false)
+	public static function GetUserRightArray($moduleId, $groups)
 	{
-		global $DB, $USER;
-		$err_mess = (CAllMain::err_mess())."<br>Function: GetUserRightArray<br>Line: ";
-		$arRes = array();
+		$arRes = [];
 
-		if (is_array($arGroups))
+		if (is_array($groups) && !empty($groups))
 		{
-			foreach($arGroups as $key => $groupIdTmp)
+			$query = ModuleGroupTable::query()
+				->setSelect(['*'])
+				->where('MODULE_ID', $moduleId)
+				->where('GROUP.ACTIVE', 'Y')
+				->setCacheTtl(86400)
+				->cacheJoins(true)
+				->exec()
+			;
+
+			while ($tr = $query->fetch())
 			{
-				if (intval($groupIdTmp) <= 0)
+				if (in_array($tr['GROUP_ID'], $groups))
 				{
-					unset($arGroups[$key]);
-				}
-			}
-
-			if (!empty($arGroups))
-			{
-				$groups = '';
-				foreach($arGroups as $grp)
-				{
-					$groups .= ($groups <> '' ? ',' : '').intval($grp);
-				}
-
-				$strSql = "
-					SELECT
-						MG.G_ACCESS G_ACCESS,
-						MG.GROUP_ID,
-						MG.SITE_ID
-					FROM
-						b_module_group MG
-					INNER JOIN b_group G ON (MG.GROUP_ID = G.ID)
-					WHERE
-						MG.MODULE_ID = '".$DB->ForSql($module_id, 50)."'
-					and MG.GROUP_ID in (".$groups.")
-					and G.ACTIVE = 'Y'";
-
-				$t = $DB->Query($strSql, false, $err_mess.__LINE__);
-				while ($tr = $t->Fetch())
-				{
-					if (!isset($arRes[$tr["SITE_ID"]]))
-					{
-						$arRes[$tr["SITE_ID"]] = array();
-					}
-
-					$arRes[($tr["SITE_ID"] <> '' ? $tr["SITE_ID"] : "common")][$tr["GROUP_ID"]] = $tr["G_ACCESS"];
+					$arRes[($tr['SITE_ID'] != '' ? $tr['SITE_ID'] : 'common')][$tr['GROUP_ID']] = $tr['G_ACCESS'];
 				}
 			}
 		}
@@ -2580,25 +2484,28 @@ abstract class CAllMain
 
 	public static function GetGroupRightList($arFilter, $site_id=false)
 	{
-		global $DB;
+		static $fields = ['MODULE_ID' => 1, 'GROUP_ID' => 1, 'G_ACCESS' => 1];
 
-		$strSqlWhere = "";
-		if (array_key_exists("MODULE_ID", $arFilter))
-			$strSqlWhere .= " AND MODULE_ID = '".$DB->ForSql($arFilter["MODULE_ID"])."' ";
-		if (array_key_exists("GROUP_ID", $arFilter))
-			$strSqlWhere .= " AND GROUP_ID = ".intval($arFilter["GROUP_ID"])." ";
-		if (array_key_exists("G_ACCESS", $arFilter))
-			$strSqlWhere .= " AND G_ACCESS = '".$DB->ForSql($arFilter["G_ACCESS"])."' ";
-		$strSqlWhere .= " AND SITE_ID ".($site_id? "= '".$DB->ForSql($site_id)."'" : "IS NULL");
+		$query = ModuleGroupTable::query()->setSelect(['*']);
 
-		$dbRes = $DB->Query(
-			"SELECT ID, MODULE_ID, GROUP_ID, G_ACCESS ".
-			"FROM b_module_group ".
-			"WHERE 1 = 1 ".
-			$strSqlWhere
-		);
+		foreach ($arFilter as $field => $value)
+		{
+			if (isset($fields[$field]))
+			{
+				$query->where($field, $value);
+			}
+		}
 
-		return $dbRes;
+		if ($site_id)
+		{
+			$query->where('SITE_ID', $site_id);
+		}
+		else
+		{
+			$query->whereNull('SITE_ID');
+		}
+
+		return $query->exec();
 	}
 
 	public static function GetGroupRight($module_id, $arGroups=false, $use_default_level="Y", $max_right_for_super_admin="Y", $site_id = false)
@@ -2627,7 +2534,7 @@ abstract class CAllMain
 			"MODULE_ID"	=> "'".$DB->ForSql($module_id,50)."'",
 			"GROUP_ID"	=> $group_id,
 			"G_ACCESS"	=> "'".$DB->ForSql($right,255)."'"
-			);
+		);
 
 		$rows = $DB->Update("b_module_group", $arFields, "WHERE MODULE_ID='".$DB->ForSql($module_id,50)."' AND GROUP_ID='".$group_id."' AND SITE_ID ".($site_id ? "= '".$DB->ForSql($site_id)."'" : "IS NULL"), $err_mess.__LINE__);
 		if(intval($rows)<=0)
@@ -2637,6 +2544,8 @@ abstract class CAllMain
 
 			$DB->Insert("b_module_group",$arFields, $err_mess.__LINE__);
 		}
+
+		ModuleGroupTable::cleanCache();
 
 		foreach (GetModuleEvents("main", "OnAfterSetGroupRight", true) as $arEvent)
 		{
@@ -2684,6 +2593,8 @@ abstract class CAllMain
 		{
 			$DB->Query($strSql, false, $err_mess.__LINE__);
 
+			ModuleGroupTable::cleanCache();
+
 			foreach (GetModuleEvents("main", "OnAfterDelGroupRight", true) as $arEvent)
 			{
 				ExecuteModuleEventEx($arEvent, array($module_id, $arGroups));
@@ -2708,7 +2619,7 @@ abstract class CAllMain
 				"[T] ".GetMessage("OPTION_READ_PROFILE_WRITE"),
 				"[V] ".GetMessage("OPTION_READ_OTHER_PROFILES_WRITE"),
 				"[W] ".GetMessage("OPTION_WRITE"))
-			);
+		);
 		return $arr;
 	}
 
@@ -2720,7 +2631,7 @@ abstract class CAllMain
 				"[D] ".GetMessage("OPTION_DENIED"),
 				"[R] ".GetMessage("OPTION_READ"),
 				"[W] ".GetMessage("OPTION_WRITE"))
-			);
+		);
 		return $arr;
 	}
 
@@ -2804,26 +2715,32 @@ abstract class CAllMain
 	 */
 	public function GetCookieDomain()
 	{
-		return \Bitrix\Main\Web\Cookie::getCookieDomain();
+		return Main\Web\Cookie::getCookieDomain();
 	}
 
 	public function StoreCookies()
 	{
-		$response = Main\Context::getCurrent()->getResponse();
+		$application = Main\Application::getInstance();
 
-		if(is_array(\Bitrix\Main\Application::getInstance()->getSession()['SPREAD_COOKIE']))
+		if ($application->getSessionLocalStorageManager()->isReady())
 		{
-			foreach(\Bitrix\Main\Application::getInstance()->getSession()['SPREAD_COOKIE'] as $cookie)
+			$response = Main\Context::getCurrent()->getResponse();
+
+			$localStorage = $application->getLocalSession('spreadCookies');
+			$cookies = $localStorage->getData();
+
+			foreach ($cookies as $cookie)
 			{
-				if($cookie instanceof Main\Web\Cookie)
+				if ($cookie instanceof Main\Web\Cookie)
 				{
 					$response->addCookie($cookie, false);
 				}
 			}
-		}
-		\Bitrix\Main\Application::getInstance()->getSession()['SPREAD_COOKIE'] = $response->getCookies();
 
-		$this->HoldSpreadCookieHTML(true);
+			$localStorage->setData($response->getCookies());
+
+			$this->HoldSpreadCookieHTML(true);
+		}
 	}
 
 	public function HoldSpreadCookieHTML($bSet = false)
@@ -2852,14 +2769,16 @@ abstract class CAllMain
 			foreach ($this->GetSpreadCookieUrls() as $url)
 			{
 				$res .= "new Image().src='" . CUtil::JSEscape($url) . "';\n";
+			}
+
+			if ($res)
+			{
 				$this->HoldSpreadCookieHTML(true);
+
+				return '<script>' . $res . '</script>';
 			}
 		}
 
-		if ($res)
-		{
-			return '<script>' . $res . '</script>';
-		}
 		return '';
 	}
 
@@ -2876,17 +2795,17 @@ abstract class CAllMain
 			$response = Main\Context::getCurrent()->getResponse();
 			$request = Main\Context::getCurrent()->getRequest();
 
-			if(isset(\Bitrix\Main\Application::getInstance()->getSession()['SPREAD_COOKIE']) && is_array(\Bitrix\Main\Application::getInstance()->getSession()['SPREAD_COOKIE']))
+			$localStorage = Main\Application::getInstance()->getLocalSession('spreadCookies');
+			$cookies = $localStorage->getData();
+
+			foreach($cookies as $cookie)
 			{
-				foreach(\Bitrix\Main\Application::getInstance()->getSession()['SPREAD_COOKIE'] as $cookie)
+				if($cookie instanceof Main\Web\Cookie)
 				{
-					if($cookie instanceof Main\Web\Cookie)
-					{
-						$response->addCookie($cookie, false);
-					}
+					$response->addCookie($cookie, false);
 				}
-				unset(\Bitrix\Main\Application::getInstance()->getSession()['SPREAD_COOKIE']);
 			}
+			$localStorage->clear();
 
 			$cookies = $response->getCookies();
 
@@ -3072,8 +2991,29 @@ abstract class CAllMain
 		return CHotKeys::GetInstance()->PrintGlobalUrlVar();
 	}
 
-	abstract public function GetLang($cur_dir=false, $cur_host=false);
+	/**
+	 * @deprecated
+	 */
+	public function GetLang($directory = false, $host = false)
+	{
+		$context = Main\Context::getCurrent();
+		$culture = $context->getCulture();
+		$site = $context->getSiteObject();
 
+		return [
+			"LID" => ($site ? $site->getLid() : $context->getLanguage()),
+			"DIR" => ($site ? $site->getDir() : ''),
+			"SERVER_NAME" => ($site ? $site->getServerName() : ''),
+			"CHARSET" => $culture->getCharset(),
+			"FORMAT_DATE" => $culture->getFormatDate(),
+			"FORMAT_DATETIME" => $culture->getFormatDatetime(),
+			"LANGUAGE_ID" => $context->getLanguage(),
+		];
+	}
+
+	/**
+	 * @deprecated
+	 */
 	public function GetSiteByDir($cur_dir=false, $cur_host=false)
 	{
 		return $this->GetLang($cur_dir, $cur_host);
@@ -3104,7 +3044,7 @@ abstract class CAllMain
 		}
 		else
 		{
-			$autoCompositeArea = \Bitrix\Main\Composite\Internals\AutomaticArea::getCurrentArea();
+			$autoCompositeArea = Main\Composite\Internals\AutomaticArea::getCurrentArea();
 			if ($autoCompositeArea)
 			{
 				$autoCompositeArea->end();
@@ -3337,16 +3277,16 @@ abstract class CAllMain
 	public static function ShowFileSelectDialog($event, $arResultDest, $arPath = array(), $fileFilter = "", $bAllowFolderSelect = False)
 	{
 		CAdminFileDialog::ShowScript(array(
-				"event" => $event,
-				"arResultDest" => $arResultDest,
-				"arPath" => $arPath,
-				"select" => $bAllowFolderSelect ? 'DF' : 'F',
-				"fileFilter" => $fileFilter,
-				"operation" => 'O',
-				"showUploadTab" => true,
-				"showAddToMenuTab" => false,
-				"allowAllFiles" => true,
-				"SaveConfig" => true
+			"event" => $event,
+			"arResultDest" => $arResultDest,
+			"arPath" => $arPath,
+			"select" => $bAllowFolderSelect ? 'DF' : 'F',
+			"fileFilter" => $fileFilter,
+			"operation" => 'O',
+			"showUploadTab" => true,
+			"showAddToMenuTab" => false,
+			"allowAllFiles" => true,
+			"SaveConfig" => true
 		));
 	}
 
@@ -3378,9 +3318,10 @@ abstract class CAllMain
 
 			if (defined('SITE_TEMPLATE_ID'))
 			{
-				$arUrl['URL'] = CHTTP::urlAddParams($arUrl['URL'], array(
-					'siteTemplateId' => SITE_TEMPLATE_ID
-				), array("encode"));
+				$arUrl['URL'] = (new Uri($arUrl['URL']))
+					->addParams(['siteTemplateId' => SITE_TEMPLATE_ID])
+					->getUri()
+				;
 			}
 
 			$arPos = CUtil::GetPopupSize($check_url);
@@ -3441,7 +3382,7 @@ abstract class CAllMain
 		}
 		if($uniq == '')
 		{
-			$uniq = md5(uniqid(rand(), true));
+			$uniq = Main\Security\Random::getString(32);
 			COption::SetOptionString("main", "server_uniq_id", $uniq);
 		}
 		return $uniq;
@@ -3582,1021 +3523,14 @@ abstract class CAllMain
 		}
 		return true;
 	}
-}
 
-/**
- * @deprecated 
- */
-class CAllSite
-{
-	public static $MAIN_LANGS_CACHE = [];
-	public static $MAIN_LANGS_ADMIN_CACHE = [];
-
-	var $LAST_ERROR;
-
-	public static function InDir($strDir)
+	/** @deprecated */
+	public static function __GetConditionFName()
 	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
-		return (mb_substr($APPLICATION->GetCurPage(true), 0, mb_strlen($strDir)) == $strDir);
-	}
-
-	public static function InPeriod($iUnixTimestampFrom, $iUnixTimestampTo)
-	{
-		if($iUnixTimestampFrom>0 && time()<$iUnixTimestampFrom)
-			return false;
-		if($iUnixTimestampTo>0 && time()>$iUnixTimestampTo)
-			return false;
-
-		return true;
-	}
-
-	public static function InGroup($arGroups)
-	{
-		global $USER;
-		$arUserGroups = $USER->GetUserGroupArray();
-		if (count(array_intersect($arUserGroups,$arGroups))>0)
-			return true;
-		return false;
-	}
-
-	public static function GetWeekStart()
-	{
-		static $weekStart = -1;
-
-		if ($weekStart < 0)
-		{
-			if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
-			{
-				if(!is_set(static::$MAIN_LANGS_CACHE, SITE_ID))
-				{
-					$res = CLang::GetByID(SITE_ID);
-					if ($res = $res->Fetch())
-					{
-						static::$MAIN_LANGS_CACHE[$res["LID"]] = $res;
-					}
-				}
-
-				if (is_set(static::$MAIN_LANGS_CACHE, SITE_ID))
-				{
-					$weekStart = static::$MAIN_LANGS_CACHE[SITE_ID]['WEEK_START'];
-				}
-			}
-			else
-			{
-				if(!is_set(static::$MAIN_LANGS_ADMIN_CACHE, LANGUAGE_ID))
-				{
-					$res = CLanguage::GetByID(LANGUAGE_ID);
-					if($res = $res->Fetch())
-					{
-						static::$MAIN_LANGS_ADMIN_CACHE[$res["LID"]] = $res;
-					}
-				}
-
-				if (is_set(static::$MAIN_LANGS_ADMIN_CACHE, LANGUAGE_ID))
-				{
-					$weekStart = static::$MAIN_LANGS_ADMIN_CACHE[LANGUAGE_ID]['WEEK_START'];
-				}
-			}
-
-			if ($weekStart < 0 || $weekStart == null)
-			{
-				$weekStart = 1;
-			}
-		}
-
-		return $weekStart;
-	}
-
-	public static function GetDateFormat($type="FULL", $lang=false, $bSearchInSitesOnly=false)
-	{
-		$bFullFormat = (mb_strtoupper($type) == "FULL");
-
-		if($lang === false && defined("LANG"))
-			$lang = LANG;
-
-		if(defined("SITE_ID") && $lang == SITE_ID)
-		{
-			if($bFullFormat && defined("FORMAT_DATETIME"))
-				return FORMAT_DATETIME;
-			if(!$bFullFormat && defined("FORMAT_DATE"))
-				return FORMAT_DATE;
-		}
-
-		if(!$bSearchInSitesOnly && defined("ADMIN_SECTION") && ADMIN_SECTION===true)
-		{
-			if(!is_set(static::$MAIN_LANGS_ADMIN_CACHE, $lang))
-			{
-				$res = CLanguage::GetByID($lang);
-				if($res = $res->Fetch())
-					static::$MAIN_LANGS_ADMIN_CACHE[$res["LID"]] = $res;
-			}
-
-			if(is_set(static::$MAIN_LANGS_ADMIN_CACHE, $lang))
-			{
-				if($bFullFormat)
-					return mb_strtoupper(static::$MAIN_LANGS_ADMIN_CACHE[$lang]["FORMAT_DATETIME"]);
-				return mb_strtoupper(static::$MAIN_LANGS_ADMIN_CACHE[$lang]["FORMAT_DATE"]);
-			}
-		}
-
-		// if LANG is not found in LangAdmin:
-		if(!is_set(static::$MAIN_LANGS_CACHE, $lang))
-		{
-			$res = CLang::GetByID($lang);
-			$res = $res->Fetch();
-			static::$MAIN_LANGS_CACHE[$res["LID"]] = $res;
-			if(defined("ADMIN_SECTION") && ADMIN_SECTION === true)
-				static::$MAIN_LANGS_ADMIN_CACHE[$res["LID"]] = $res;
-		}
-
-		if($bFullFormat)
-		{
-			$format = mb_strtoupper(static::$MAIN_LANGS_CACHE[$lang]["FORMAT_DATETIME"]);
-			if($format == '')
-				$format = "DD.MM.YYYY HH:MI:SS";
-		}
-		else
-		{
-			$format = mb_strtoupper(static::$MAIN_LANGS_CACHE[$lang]["FORMAT_DATE"]);
-			if($format == '')
-				$format = "DD.MM.YYYY";
-		}
-		return $format;
-	}
-
-	public static function GetTimeFormat($lang=false, $bSearchInSitesOnly = false)
-	{
-		$dateTimeFormat = self::GetDateFormat('FULL', $lang, $bSearchInSitesOnly);
-		preg_match('~[HG]~', $dateTimeFormat, $chars, PREG_OFFSET_CAPTURE);
-		return trim(mb_substr($dateTimeFormat, $chars[0][1]));
-	}
-
-	public function CheckFields($arFields, $ID=false)
-	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION, $DB;
-
-		$this->LAST_ERROR = "";
-		$arMsg = array();
-
-		if(isset($arFields["NAME"]) && mb_strlen($arFields["NAME"]) < 2)
-		{
-			$this->LAST_ERROR .= GetMessage("BAD_SITE_NAME")." ";
-			$arMsg[] = array("id"=>"NAME", "text"=> GetMessage("BAD_SITE_NAME"));
-		}
-		if(($ID===false || isset($arFields["LID"])) && mb_strlen($arFields["LID"]) <> 2)
-		{
-			$this->LAST_ERROR .= GetMessage("BAD_SITE_LID")." ";
-			$arMsg[] = array("id"=>"LID", "text"=> GetMessage("BAD_SITE_LID"));
-		}
-		if(isset($arFields["LID"]) && preg_match("/[^a-z0-9_]/i", $arFields["LID"]))
-		{
-			$this->LAST_ERROR .= GetMessage("MAIN_SITE_LATIN")." ";
-			$arMsg[] = array("id"=>"LID", "text"=> GetMessage("MAIN_SITE_LATIN"));
-		}
-		if(isset($arFields["DIR"]) && $arFields["DIR"] == '')
-		{
-			$this->LAST_ERROR .= GetMessage("BAD_LANG_DIR")." ";
-			$arMsg[] = array("id"=>"DIR", "text"=> GetMessage("BAD_LANG_DIR"));
-		}
-		if($ID===false && !isset($arFields["LANGUAGE_ID"]))
-		{
-			$this->LAST_ERROR .= GetMessage("MAIN_BAD_LANGUAGE_ID")." ";
-			$arMsg[] = array("id"=>"LANGUAGE_ID", "text"=> GetMessage("MAIN_BAD_LANGUAGE_ID"));
-		}
-		if(isset($arFields["LANGUAGE_ID"]))
-		{
-			$dbl_check = CLanguage::GetByID($arFields["LANGUAGE_ID"]);
-			if(!$dbl_check->Fetch())
-			{
-				$this->LAST_ERROR .= GetMessage("MAIN_BAD_LANGUAGE_ID_BAD")." ";
-				$arMsg[] = array("id"=>"LANGUAGE_ID", "text"=> GetMessage("MAIN_BAD_LANGUAGE_ID_BAD"));
-			}
-		}
-		if($ID === false && !isset($arFields["CULTURE_ID"]))
-		{
-			$this->LAST_ERROR .= GetMessage("lang_check_culture_not_set")." ";
-			$arMsg[] = array("id"=>"CULTURE_ID", "text"=> GetMessage("lang_check_culture_not_set"));
-		}
-		if(isset($arFields["CULTURE_ID"]))
-		{
-			if(CultureTable::getRowById($arFields["CULTURE_ID"]) === null)
-			{
-				$this->LAST_ERROR .= GetMessage("lang_check_culture_incorrect")." ";
-				$arMsg[] = array("id"=>"CULTURE_ID", "text"=> GetMessage("lang_check_culture_incorrect"));
-			}
-		}
-		if(isset($arFields["SORT"]) && $arFields["SORT"] == '')
-		{
-			$this->LAST_ERROR .= GetMessage("BAD_SORT")." ";
-			$arMsg[] = array("id"=>"SORT", "text"=> GetMessage("BAD_SORT"));
-		}
-		if(isset($arFields["TEMPLATE"]))
-		{
-			$isOK = false;
-			$check_templ = array();
-			$dupError = "";
-			foreach($arFields["TEMPLATE"] as $val)
-			{
-				if($val["TEMPLATE"] <> '' && getLocalPath("templates/".$val["TEMPLATE"], BX_PERSONAL_ROOT) !== false)
-				{
-					if(in_array($val["TEMPLATE"].", ".$val["CONDITION"], $check_templ))
-					{
-						$dupError = " ".GetMessage("MAIN_BAD_TEMPLATE_DUP");
-						$isOK = false;
-						break;
-					}
-					$check_templ[] = $val["TEMPLATE"].", ".$val["CONDITION"];
-					$isOK = true;
-				}
-			}
-			if(!$isOK)
-			{
-				$this->LAST_ERROR .= GetMessage("MAIN_BAD_TEMPLATE").$dupError;
-				$arMsg[] = array("id"=>"SITE_TEMPLATE", "text"=> GetMessage("MAIN_BAD_TEMPLATE").$dupError);
-			}
-		}
-
-		if($ID===false)
-			$events = GetModuleEvents("main", "OnBeforeSiteAdd", true);
-		else
-			$events = GetModuleEvents("main", "OnBeforeSiteUpdate", true);
-		foreach($events as $arEvent)
-		{
-			$bEventRes = ExecuteModuleEventEx($arEvent, array(&$arFields));
-			if($bEventRes===false)
-			{
-				if($err = $APPLICATION->GetException())
-				{
-					$this->LAST_ERROR .= $err->GetString()." ";
-					$arMsg[] = array("id"=>"EVENT_ERROR", "text"=> $err->GetString());
-				}
-				else
-				{
-					$this->LAST_ERROR .= "Unknown error. ";
-					$arMsg[] = array("id"=>"EVENT_ERROR", "text"=> "Unknown error. ");
-				}
-				break;
-			}
-		}
-
-		if(!empty($arMsg))
-		{
-			$e = new CAdminException($arMsg);
-			$APPLICATION->ThrowException($e);
-		}
-
-		if($this->LAST_ERROR <> '')
-			return false;
-
-		if($ID===false)
-		{
-			$r = $DB->Query("SELECT 'x' FROM b_lang WHERE LID='".$DB->ForSQL($arFields["LID"], 2)."'");
-			if($r->Fetch())
-			{
-				$this->LAST_ERROR .= GetMessage("BAD_SITE_DUP")." ";
-				$e = new CAdminException(array(array("id" => "LID", "text" => GetMessage("BAD_SITE_DUP"))));
-				$APPLICATION->ThrowException($e);
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	public static function SaveDomains($LID, $domains)
-	{
-		global $DB, $CACHE_MANAGER;
-
-		if(CACHED_b_lang_domain !== false)
-			$CACHE_MANAGER->CleanDir("b_lang_domain");
-
-		$DB->Query("DELETE FROM b_lang_domain WHERE LID='".$DB->ForSQL($LID)."'");
-
-		$domains = str_replace("\r", "\n", $domains);
-		$arDomains = explode("\n", $domains);
-		foreach($arDomains as $i => $domain)
-		{
-			$domain = preg_replace("#^(http://|https://)#", "", rtrim(trim(mb_strtolower($domain)), "/"));
-
-			$arErrors = array();
-			if ($domainTmp = CBXPunycode::ToASCII($domain, $arErrors))
-				$domain = $domainTmp;
-
-			$arDomains[$i] = $domain;
-		}
-		$arDomains = array_unique($arDomains);
-
-		$bIsDomain = false;
-		foreach($arDomains as $domain)
-		{
-			if($domain <> '')
-			{
-				$DB->Query("INSERT INTO b_lang_domain(LID, DOMAIN) VALUES('".$DB->ForSQL($LID, 2)."', '".$DB->ForSQL($domain, 255)."')");
-				$bIsDomain = true;
-			}
-		}
-		$DB->Query("UPDATE b_lang SET DOMAIN_LIMITED='".($bIsDomain? "Y":"N")."' WHERE LID='".$DB->ForSql($LID)."'");
-	}
-
-	public function Add($arFields)
-	{
-		global $DB, $DOCUMENT_ROOT, $CACHE_MANAGER;
-
-		if(!$this->CheckFields($arFields))
-			return false;
-
-		if(isset($arFields["ACTIVE"]) && $arFields["ACTIVE"]!="Y")
-			$arFields["ACTIVE"]="N";
-
-		if(isset($arFields["DEF"]))
-		{
-			if($arFields["DEF"]=="Y")
-				$DB->Query("UPDATE b_lang SET DEF='N' WHERE DEF='Y'");
-			else
-				$arFields["DEF"]="N";
-		}
-
-		$arInsert = $DB->PrepareInsert("b_lang", $arFields);
-
-		$strSql =
-			"INSERT INTO b_lang(".$arInsert[0].") ".
-			"VALUES(".$arInsert[1].")";
-
-		$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-
-		if(CACHED_b_lang!==false)
-			$CACHE_MANAGER->CleanDir("b_lang");
-
-		if(isset($arFields["DIR"]))
-			CheckDirPath($DOCUMENT_ROOT.$arFields["DIR"]);
-
-		if(isset($arFields["DOMAINS"]))
-			self::SaveDomains($arFields["LID"], $arFields["DOMAINS"]);
-
-		if(isset($arFields["TEMPLATE"]))
-		{
-			foreach($arFields["TEMPLATE"] as $arTemplate)
-			{
-				if(trim($arTemplate["TEMPLATE"]) <> '')
-				{
-					$DB->Query(
-						"INSERT INTO b_site_template(SITE_ID, ".CMain::__GetConditionFName().", SORT, TEMPLATE) ".
-						"VALUES('".$DB->ForSQL($arFields["LID"])."', '".$DB->ForSQL(trim($arTemplate["CONDITION"]), 255)."', ".intval($arTemplate["SORT"]).", '".$DB->ForSQL(trim($arTemplate["TEMPLATE"]), 255)."')");
-				}
-			}
-
-			if(CACHED_b_site_template!==false)
-				$CACHE_MANAGER->Clean("b_site_template");
-		}
-
-		SiteTable::getEntity()->cleanCache();
-
-		return $arFields["LID"];
-	}
-
-	public function Update($ID, $arFields)
-	{
-		global $DB, $CACHE_MANAGER;
-
-		unset(static::$MAIN_LANGS_CACHE[$ID]);
-		unset(static::$MAIN_LANGS_ADMIN_CACHE[$ID]);
-
-		if(!$this->CheckFields($arFields, $ID))
-			return false;
-
-		if(isset($arFields["ACTIVE"]) && $arFields["ACTIVE"]!="Y")
-			$arFields["ACTIVE"]="N";
-
-		if(isset($arFields["DEF"]))
-		{
-			if($arFields["DEF"]=="Y")
-				$DB->Query("UPDATE b_lang SET DEF='N' WHERE DEF='Y'");
-			else
-				$arFields["DEF"]="N";
-		}
-
-		$strUpdate = $DB->PrepareUpdate("b_lang", $arFields);
-		if($strUpdate <> '')
-		{
-			$strSql = "UPDATE b_lang SET ".$strUpdate." WHERE LID='".$DB->ForSql($ID, 2)."'";
-			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-		}
-
-		if(CACHED_b_lang!==false)
-			$CACHE_MANAGER->CleanDir("b_lang");
-
-		global $BX_CACHE_DOCROOT;
-		unset($BX_CACHE_DOCROOT[$ID]);
-
-		if(isset($arFields["DIR"]))
-			CheckDirPath($_SERVER["DOCUMENT_ROOT"].$arFields["DIR"]);
-
-		if(isset($arFields["DOMAINS"]))
-			self::SaveDomains($ID, $arFields["DOMAINS"]);
-
-		if(isset($arFields["TEMPLATE"]))
-		{
-			$DB->Query("DELETE FROM b_site_template WHERE SITE_ID='".$DB->ForSQL($ID)."'");
-
-			foreach($arFields["TEMPLATE"] as $arTemplate)
-			{
-				if(trim($arTemplate["TEMPLATE"]) <> '')
-				{
-					$DB->Query(
-						"INSERT INTO b_site_template(SITE_ID, ".CMain::__GetConditionFName().", SORT, TEMPLATE) ".
-						"VALUES('".$DB->ForSQL($ID)."', '".$DB->ForSQL(trim($arTemplate["CONDITION"]), 255)."', ".intval($arTemplate["SORT"]).", '".$DB->ForSQL(trim($arTemplate["TEMPLATE"]), 255)."')");
-				}
-			}
-
-			if(CACHED_b_site_template!==false)
-				$CACHE_MANAGER->Clean("b_site_template");
-		}
-
-		SiteTable::getEntity()->cleanCache();
-
-		return true;
-	}
-
-	public static function Delete($ID)
-	{
-		/** @global CMain $APPLICATION */
-		global $DB, $APPLICATION, $CACHE_MANAGER;
-
-		$APPLICATION->ResetException();
-
-		foreach(GetModuleEvents("main", "OnBeforeLangDelete", true) as $arEvent)
-		{
-			if(ExecuteModuleEventEx($arEvent, array($ID))===false)
-			{
-				$err = GetMessage("MAIN_BEFORE_DEL_ERR1").' '.$arEvent['TO_NAME'];
-				if($ex = $APPLICATION->GetException())
-					$err .= ': '.$ex->GetString();
-				$APPLICATION->throwException($err);
-				return false;
-			}
-		}
-
-		foreach(GetModuleEvents("main", "OnBeforeSiteDelete", true) as $arEvent)
-		{
-			if(ExecuteModuleEventEx($arEvent, array($ID))===false)
-			{
-				$err = GetMessage("MAIN_BEFORE_DEL_ERR1").' '.$arEvent['TO_NAME'];
-				if($ex = $APPLICATION->GetException())
-					$err .= ': '.$ex->GetString();
-				$APPLICATION->throwException($err);
-				return false;
-			}
-		}
-
-		foreach(GetModuleEvents("main", "OnLangDelete", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($ID));
-
-		foreach(GetModuleEvents("main", "OnSiteDelete", true) as $arEvent)
-			ExecuteModuleEventEx($arEvent, array($ID));
-
-		if(!$DB->Query("DELETE FROM b_event_message_site WHERE SITE_ID='".$DB->ForSQL($ID, 2)."'"))
-			return false;
-
-		if(!$DB->Query("DELETE FROM b_lang_domain WHERE LID='".$DB->ForSQL($ID, 2)."'"))
-			return false;
-
-		if(CACHED_b_lang_domain!==false)
-			$CACHE_MANAGER->CleanDir("b_lang_domain");
-
-		if(!$DB->Query("UPDATE b_event_message SET LID=NULL WHERE LID='".$DB->ForSQL($ID, 2)."'"))
-			return false;
-
-		if(!$DB->Query("DELETE FROM b_site_template WHERE SITE_ID='".$DB->ForSQL($ID, 2)."'"))
-			return false;
-
-		if(CACHED_b_site_template!==false)
-			$CACHE_MANAGER->Clean("b_site_template");
-
-		$result = $DB->Query("DELETE FROM b_lang WHERE LID='".$DB->ForSQL($ID, 2)."'", true);
-
-		if(CACHED_b_lang!==false)
-			$CACHE_MANAGER->CleanDir("b_lang");
-
-		SiteTable::getEntity()->cleanCache();
-
-		return $result;
-	}
-
-	public static function GetTemplateList($site_id)
-	{
-		global $DB;
-		$strSql =
-			"SELECT * ".
-			"FROM b_site_template ".
-			"WHERE SITE_ID='".$DB->ForSQL($site_id, 2)."' ".
-			"ORDER BY SORT";
-
-		$dbr = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-		return $dbr;
-	}
-
-	public static function GetDefList()
-	{
-		return static::GetList('def_list', 'asc', ['ACTIVE' => 'Y']);
-	}
-
-	public static function GetSiteDocRoot($site)
-	{
-		if($site === false)
-			$site = SITE_ID;
-
-		global $BX_CACHE_DOCROOT;
-		if(!array_key_exists($site, $BX_CACHE_DOCROOT))
-		{
-			$ar = CSite::getArrayByID($site);
-			if($ar && $ar["DOC_ROOT"] <> '')
-				$BX_CACHE_DOCROOT[$site] = Rel2Abs($_SERVER["DOCUMENT_ROOT"], $ar["DOC_ROOT"]);
-			else
-				$BX_CACHE_DOCROOT[$site] = rtrim($_SERVER["DOCUMENT_ROOT"], "/\\");
-		}
-
-		return $BX_CACHE_DOCROOT[$site];
-	}
-
-	public static function GetSiteByFullPath($path, $bOneResult = true)
-	{
-		$res = array();
-
-		if(($p = realpath($path)))
-			$path = $p;
-		$path = str_replace("\\", "/", $path);
-		$path = mb_strtolower($path)."/";
-
-		$db_res = CSite::GetList("lendir", "desc");
-		while($ar_res = $db_res->Fetch())
-		{
-			$abspath = $ar_res["ABS_DOC_ROOT"].$ar_res["DIR"];
-			if(($p = realpath($abspath)))
-				$abspath = $p;
-			$abspath = str_replace("\\", "/", $abspath);
-			$abspath = mb_strtolower($abspath);
-			if(mb_substr($abspath, -1) <> "/")
-				$abspath .= "/";
-			if(mb_strpos($path, $abspath) === 0)
-			{
-				if($bOneResult)
-					return $ar_res["ID"];
-				$res[] = $ar_res["ID"];
-			}
-		}
-
-		if(!empty($res))
-			return $res;
-
-		return false;
-	}
-
-	public static function GetList($by = "sort", $order = "asc", $arFilter=array())
-	{
-		global $DB, $CACHE_MANAGER;
-
-		if(CACHED_b_lang!==false)
-		{
-			$cacheId = "b_lang".md5($by.".".$order.".".serialize($arFilter));
-			if($CACHE_MANAGER->Read(CACHED_b_lang, $cacheId, "b_lang"))
-			{
-				$arResult = $CACHE_MANAGER->Get($cacheId);
-
-				$res = new CDBResult;
-				$res->InitFromArray($arResult);
-				$res = new _CLangDBResult($res);
-				return $res;
-			}
-		}
-
-		$strSqlSearch = "";
-		$bIncDomain = false;
-		if(is_array($arFilter))
-		{
-			foreach($arFilter as $key=>$val)
-			{
-				if((string)$val == '')
-				{
-					continue;
-				}
-				$val = $DB->ForSql($val);
-				switch(strtoupper($key))
-				{
-					case "ACTIVE":
-						if($val == "Y" || $val == "N")
-						{
-							$strSqlSearch .= " AND L.ACTIVE='".$val."'\n";
-						}
-						break;
-					case "DEFAULT":
-						if($val == "Y" || $val == "N")
-						{
-							$strSqlSearch .= " AND L.DEF='".$val."'\n";
-						}
-						break;
-					case "NAME":
-						$strSqlSearch .= " AND UPPER(L.NAME) LIKE UPPER('".$val."')\n";
-						break;
-					case "DOMAIN":
-						$bIncDomain = true;
-						$strSqlSearch .= " AND UPPER(D.DOMAIN) LIKE UPPER('".$val."')\n";
-						break;
-					case "IN_DIR":
-						$strSqlSearch .= " AND UPPER('".$val."') LIKE ".$DB->Concat("UPPER(L.DIR)", "'%'")."\n";
-						break;
-					case "ID":
-					case "LID":
-						$strSqlSearch .= " AND L.LID='".$val."'\n";
-						break;
-					case "LANGUAGE_ID":
-						$strSqlSearch .= " AND L.LANGUAGE_ID='".$val."'\n";
-						break;
-				}
-			}
-		}
-
-		$strSql = "
-			SELECT ".($bIncDomain ? " DISTINCT " : "")."
-				L.*,
-				L.LID ID,
-				L.LID SITE_ID,
-				".$DB->Length("L.DIR").",
-				".$DB->IsNull($DB->Length("L.DOC_ROOT"), "0").",
-				C.FORMAT_DATE, C.FORMAT_DATETIME, C.FORMAT_NAME, C.WEEK_START, C.CHARSET, C.DIRECTION
-			FROM
-				b_culture C,
-				b_lang L ".($bIncDomain? "LEFT JOIN b_lang_domain D ON D.LID=L.LID " : "")."
-			WHERE
-				C.ID=L.CULTURE_ID
-				".$strSqlSearch."
-			";
-
-		$by = strtolower($by);
-		$order = strtolower($order);
-
-		if($by == "lid" || $by=="id")
-		{
-			$strSqlOrder = " ORDER BY L.LID ";
-		}
-		elseif($by == "active")
-		{
-			$strSqlOrder = " ORDER BY L.ACTIVE ";
-		}
-		elseif($by == "name")
-		{
-			$strSqlOrder = " ORDER BY L.NAME ";
-		}
-		elseif($by == "dir")
-		{
-			$strSqlOrder = " ORDER BY L.DIR ";
-		}
-		elseif($by == "lendir")
-		{
-			$strSqlOrder = " ORDER BY ".$DB->IsNull($DB->Length("L.DOC_ROOT"), "0").($order=="desc"? " desc":"").", ".$DB->Length("L.DIR");
-		}
-		elseif($by == "def")
-		{
-			$strSqlOrder = " ORDER BY L.DEF ";
-		}
-		elseif($by == "def_list")
-		{
-			$strSqlOrder = " ORDER BY L.DEF desc, L.SORT ";
-		}
-		else
-		{
-			$strSqlOrder = " ORDER BY L.SORT ";
-		}
-
-		if($order == "desc")
-		{
-			$strSqlOrder .= " desc ";
-		}
-
-		$strSql .= $strSqlOrder;
-		if(CACHED_b_lang===false)
-		{
-			$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-		}
-		else
-		{
-			$arResult = array();
-			$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-			while($ar = $res->Fetch())
-				$arResult[]=$ar;
-
-			$CACHE_MANAGER->Set($cacheId, $arResult);
-
-			$res = new CDBResult;
-			$res->InitFromArray($arResult);
-		}
-		$res = new _CLangDBResult($res);
-		return $res;
-	}
-
-	public static function GetByID($ID)
-	{
-		return CSite::GetList('', '', array("LID"=>$ID));
-	}
-
-	public static function GetArrayByID($ID)
-	{
-		$res = self::GetByID($ID);
-		return $res->Fetch();
-	}
-
-	public static function GetDefSite($LID = false)
-	{
-		if($LID <> '')
-		{
-			$dbSite = CSite::GetByID($LID);
-			if($dbSite->Fetch())
-				return $LID;
-		}
-
-		$dbDefSites = CSite::GetDefList();
-		if($arDefSite = $dbDefSites->Fetch())
-			return $arDefSite["LID"];
-
-		return false;
-	}
-
-	public static function IsDistinctDocRoots($arFilter=array())
-	{
-		$s = false;
-		$res = CSite::GetList('', '', $arFilter);
-		while($ar = $res->Fetch())
-		{
-			if($s!==false && $s!=$ar["ABS_DOC_ROOT"])
-				return true;
-			$s = $ar["ABS_DOC_ROOT"];
-		}
-		return false;
-	}
-
-
-	///////////////////////////////////////////////////////////////////
-	// Returns drop down list with langs
-	///////////////////////////////////////////////////////////////////
-	public static function SelectBox($sFieldName, $sValue, $sDefaultValue="", $sFuncName="", $field="class=\"typeselect\"")
-	{
-		$l = CLang::GetList();
-		$s = '<select name="'.$sFieldName.'" '.$field;
-		$s1 = '';
-		if($sFuncName <> '') $s .= ' OnChange="'.$sFuncName.'"';
-		$s .= '>'."\n";
-		$found = false;
-		while(($l_arr = $l->Fetch()))
-		{
-			$found = ($l_arr["LID"] == $sValue);
-			$s1 .= '<option value="'.$l_arr["LID"].'"'.($found ? ' selected':'').'>['.htmlspecialcharsex($l_arr["LID"]).']&nbsp;'.htmlspecialcharsex($l_arr["NAME"]).'</option>'."\n";
-		}
-		if($sDefaultValue <> '')
-			$s .= "<option value='NOT_REF' ".($found ? "" : "selected").">".htmlspecialcharsex($sDefaultValue)."</option>";
-		return $s.$s1.'</select>';
-	}
-
-	public static function SelectBoxMulti($sFieldName, $Value)
-	{
-		$l = CLang::GetList();
-		if(is_array($Value))
-			$arValue = $Value;
-		else
-			$arValue = array($Value);
-
-		$s = '<div class="adm-list">';
-		while($l_arr = $l->Fetch())
-		{
-			$s .=
-				'<div class="adm-list-item">'.
-				'<div class="adm-list-control"><input type="checkbox" name="'.$sFieldName.'[]" value="'.htmlspecialcharsex($l_arr["LID"]).'" id="'.htmlspecialcharsex($l_arr["LID"]).'" class="typecheckbox"'.(in_array($l_arr["LID"], $arValue)?' checked':'').'></div>'.
-				'<div class="adm-list-label"><label for="'.htmlspecialcharsex($l_arr["LID"]).'">['.htmlspecialcharsex($l_arr["LID"]).']&nbsp;'.htmlspecialcharsex($l_arr["NAME"]).'</label></div>'.
-				'</div>';
-		}
-
-		$s .= '</div>';
-
-		return $s;
-	}
-
-	public static function GetNameTemplates()
-	{
-		return array(
-			'#NAME# #LAST_NAME#' => GetMessage('MAIN_NAME_JOHN_SMITH'),
-			'#LAST_NAME# #NAME#' => GetMessage('MAIN_NAME_SMITH_JOHN'),
-			'#TITLE# #LAST_NAME#' => GetMessage("MAIN_NAME_MR_SMITH"),
-			'#NAME# #SECOND_NAME_SHORT# #LAST_NAME#' => GetMessage('MAIN_NAME_JOHN_L_SMITH'),
-			'#LAST_NAME# #NAME# #SECOND_NAME#' => GetMessage('MAIN_NAME_SMITH_JOHN_LLOYD'),
-			'#LAST_NAME#, #NAME# #SECOND_NAME#' => GetMessage('MAIN_NAME_SMITH_COMMA_JOHN_LLOYD'),
-			'#NAME# #SECOND_NAME# #LAST_NAME#' => GetMessage('MAIN_NAME_JOHN_LLOYD_SMITH'),
-			'#NAME_SHORT# #SECOND_NAME_SHORT# #LAST_NAME#' => GetMessage('MAIN_NAME_J_L_SMITH'),
-			'#NAME_SHORT# #LAST_NAME#' => GetMessage('MAIN_NAME_J_SMITH'),
-			'#LAST_NAME# #NAME_SHORT#' => GetMessage('MAIN_NAME_SMITH_J'),
-			'#LAST_NAME# #NAME_SHORT# #SECOND_NAME_SHORT#' => GetMessage('MAIN_NAME_SMITH_J_L'),
-			'#LAST_NAME#, #NAME_SHORT#' => GetMessage('MAIN_NAME_SMITH_COMMA_J'),
-			'#LAST_NAME#, #NAME_SHORT# #SECOND_NAME_SHORT#' => GetMessage('MAIN_NAME_SMITH_COMMA_J_L')
-		);
-	}
-
-	/**
-	* Returns current name template
-	*
-	* If site is not defined - will look for name template for current language.
-	* If there is no value for language - returns pre-defined value @see CSite::GetDefaultNameFormat
-	* FORMAT_NAME constant can be set in dbconn.php
-	*
-	* @param null $dummy Unused
-	* @param string $site_id - use to get value for the specific site
-	* @return string ex: #LAST_NAME# #NAME#
-	*/
-	public static function GetNameFormat($dummy = null, $site_id = "")
-	{
-		if ($site_id == "")
-		{
-			$site_id = SITE_ID;
-		}
-
-		$format = "";
-
-		//for current site
-		if(defined("SITE_ID") && $site_id == SITE_ID && defined("FORMAT_NAME"))
-		{
-			$format = FORMAT_NAME;
-		}
-
-		//site value
-		if ($format == "")
-		{
-			static $siteFormat = array();
-			if(!isset($siteFormat[$site_id]))
-			{
-				$db_res = CSite::GetByID($site_id);
-				if ($res = $db_res->Fetch())
-				{
-					$format = $siteFormat[$site_id] = $res["FORMAT_NAME"];
-				}
-			}
-			else
-			{
-				$format = $siteFormat[$site_id];
-			}
-		}
-
-		//if not found - trying to get value for the language
-		if ($format == "")
-		{
-			if(!isset(static::$MAIN_LANGS_ADMIN_CACHE[$site_id]))
-			{
-				$db_res = CLanguage::GetByID(LANGUAGE_ID);
-				if ($res = $db_res->Fetch())
-				{
-					static::$MAIN_LANGS_ADMIN_CACHE[$res["LID"]] = $res;
-				}
-			}
-
-			if(isset(static::$MAIN_LANGS_ADMIN_CACHE[LANGUAGE_ID]))
-			{
-				$format = mb_strtoupper(static::$MAIN_LANGS_ADMIN_CACHE[LANGUAGE_ID]["FORMAT_NAME"]);
-			}
-		}
-
-		//if not found - trying to get default values
-		if ($format == "")
-		{
-			$format = self::GetDefaultNameFormat();
-		}
-
-		$format = str_replace(array("#NOBR#","#/NOBR#"), "", $format);
-
-		return $format;
-	}
-
-	/**
-	* Returns default name template
-	* By default: Russian #LAST_NAME# #NAME#, English #NAME# #LAST_NAME#
-	*
-	* @return string - one of two possible default values
-	*/
-	public static function GetDefaultNameFormat()
-	{
-		return '#NAME# #LAST_NAME#';
-	}
-
-	public static function GetCurTemplate()
-	{
-		/** @noinspection PhpUnusedLocalVariableInspection */
-		global $APPLICATION, $USER, $CACHE_MANAGER;
-
-		$connection = Main\Application::getConnection();
-		$helper = $connection->getSqlHelper();
-
-		$conditionQuoted = $helper->quote("CONDITION");
-
-		$siteTemplate = "";
-		if(CACHED_b_site_template===false)
-		{
-			$strSql = "
-				SELECT
-					".$conditionQuoted.",
-					TEMPLATE
-				FROM
-					b_site_template
-				WHERE
-					SITE_ID='".SITE_ID."'
-				ORDER BY
-					CASE
-						WHEN ".$helper->getIsNullFunction($helper->getLengthFunction($conditionQuoted), 0)."=0 THEN 2
-						ELSE 1
-					END,
-					SORT
-				";
-			$dbr = $connection->query($strSql);
-			while($ar = $dbr->fetch())
-			{
-				$strCondition = trim($ar["CONDITION"]);
-				if($strCondition <> '' && (!@eval("return ".$strCondition.";")))
-				{
-					continue;
-				}
-				if(($path = getLocalPath("templates/".$ar["TEMPLATE"], BX_PERSONAL_ROOT)) !== false && is_dir($_SERVER["DOCUMENT_ROOT"].$path))
-				{
-					$siteTemplate = $ar["TEMPLATE"];
-					break;
-				}
-			}
-		}
-		else
-		{
-			if($CACHE_MANAGER->Read(CACHED_b_site_template, "b_site_template"))
-			{
-				$arSiteTemplateBySite = $CACHE_MANAGER->Get("b_site_template");
-			}
-			else
-			{
-				$dbr = $connection->query("
-					SELECT
-						".$conditionQuoted.",
-						TEMPLATE,
-						SITE_ID
-					FROM
-						b_site_template
-					ORDER BY
-						SITE_ID,
-						CASE
-							WHEN ".$helper->getIsNullFunction($helper->getLengthFunction($conditionQuoted), 0)."=0 THEN 2
-							ELSE 1
-						END,
-						SORT
-				");
-				$arSiteTemplateBySite = array();
-				while($ar = $dbr->fetch())
-				{
-					$arSiteTemplateBySite[$ar['SITE_ID']][] = $ar;
-				}
-				$CACHE_MANAGER->Set("b_site_template", $arSiteTemplateBySite);
-			}
-			if(is_array($arSiteTemplateBySite[SITE_ID]))
-			{
-				foreach($arSiteTemplateBySite[SITE_ID] as $ar)
-				{
-					$strCondition = trim($ar["CONDITION"]);
-					if($strCondition <> '' && (!@eval("return ".$strCondition.";")))
-					{
-						continue;
-					}
-					if(($path = getLocalPath("templates/".$ar["TEMPLATE"], BX_PERSONAL_ROOT)) !== false && is_dir($_SERVER["DOCUMENT_ROOT"].$path))
-					{
-						$siteTemplate = $ar["TEMPLATE"];
-						break;
-					}
-				}
-			}
-		}
-
-		if($siteTemplate == "")
-		{
-			$siteTemplate = ".default";
-		}
-
-		$event = new Main\Event("main", "OnGetCurrentSiteTemplate", array("template" => $siteTemplate));
-		$event->send();
-
-		foreach($event->getResults() as $evenResult)
-		{
-			if(($result = $evenResult->getParameters()) <> '')
-			{
-				//only the first result matters
-				$siteTemplate = $result;
-				break;
-			}
-		}
-
-		return $siteTemplate;
+		return "`CONDITION`";
 	}
 }
 
-class CAllLang extends CAllSite
+class CMain extends CAllMain
 {
 }
-

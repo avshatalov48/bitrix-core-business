@@ -1,6 +1,7 @@
 import {BaseCard} from 'landing.ui.card.basecard';
 import {Dom, Tag, Type} from 'main.core';
 
+import 'ui.fonts.opensans';
 import './css/style.css';
 
 /**

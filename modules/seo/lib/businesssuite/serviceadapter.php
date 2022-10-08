@@ -154,4 +154,20 @@ class ServiceAdapter
 	{
 		return Conversion::create($this->wrapper->getMetaData()->getType())->setService($this->wrapper);
 	}
+
+	public function getCatalog(): ?Catalog
+	{
+		if (!$this->canUse())
+		{
+			return null;
+		}
+
+		$metaData = $this->wrapper->getMetaData();
+		if (!$metaData || !$metaData->getType())
+		{
+			return null;
+		}
+
+		return Catalog::create($metaData->getType())->setService($this->wrapper);
+	}
 }

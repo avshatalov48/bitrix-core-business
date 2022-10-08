@@ -1,3 +1,4 @@
+import 'ui.design-tokens';
 import './field.css'
 import {ajax, Dom, Event, Loc, Runtime, Tag, Text, Type} from 'main.core'
 import {type BaseEvent, EventEmitter} from 'main.core.events'

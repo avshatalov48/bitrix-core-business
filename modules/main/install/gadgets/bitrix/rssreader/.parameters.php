@@ -37,7 +37,7 @@ if (
 	&& trim($arCurrentValues["PREDEFINED_RSS"]) != ""
 )
 {
-	include_once(dirname(__FILE__).'/include.php');
+	include_once(__DIR__.'/include.php');
 	$arVTemp = preg_split("/[\\r\\n \\t]+/", $arCurrentValues["PREDEFINED_RSS"]);
 	foreach($arVTemp as $v)
 	{

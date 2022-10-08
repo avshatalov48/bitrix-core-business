@@ -15,7 +15,7 @@ use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 
-Extension::load(['ui.icons', 'ui.design-tokens']);
+Extension::load(['ui.icons', 'ui.design-tokens', 'ui.fonts.opensans']);
 
 $getTileLayout = function (array $tile = [])
 {

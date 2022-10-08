@@ -6,7 +6,6 @@ include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/lib/loader.php");
 include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/autoload.php");
 
 $application = \Bitrix\Main\HttpApplication::getInstance();
-$application->initializeBasicKernel();
 
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/php_interface/dbconn.php");
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/tools.php");

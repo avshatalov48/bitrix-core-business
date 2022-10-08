@@ -3212,7 +3212,7 @@ class CUserTypeManager
 				case 'datetime':
 					$field = (new Entity\DatetimeField($fieldName, $fieldParameters))
 						->configureNullable()
-						->configureUseTimezone($arUserField['SETTINGS']['USE_TIMEZONE'] == 'Y');
+						->configureUseTimezone(isset($arUserField['SETTINGS']['USE_TIMEZONE']) && $arUserField['SETTINGS']['USE_TIMEZONE'] == 'Y');
 					break;
 				default:
 					throw new \Bitrix\Main\ArgumentException(sprintf(

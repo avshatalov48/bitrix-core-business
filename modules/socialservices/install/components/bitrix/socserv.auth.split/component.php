@@ -82,11 +82,6 @@ $dbSocservUser = \Bitrix\Socialservices\UserTable::getList([
 //***************************************
 while($arUser = $dbSocservUser->fetch())
 {
-	if(!array_key_exists($arUser["EXTERNAL_AUTH_ID"], $arServices))
-	{
-		continue;
-	}
-
 	if($arUser["EXTERNAL_AUTH_ID"] == 'Twitter')
 		$arResult["PostToShow"]["SPERM"] = unserialize($arUser["PERMISSIONS"]);
 	if($arUser["NAME"] != '' && $arUser["LAST_NAME"] != '')
@@ -119,6 +114,11 @@ while($arUser = $dbSocservUser->fetch())
 			default : $arUser["EXTERNAL_AUTH_ID"] = $result[1];
 		}
 
+	}
+
+	if(!array_key_exists($arUser["EXTERNAL_AUTH_ID"], $arServices))
+	{
+		continue;
 	}
 
 	foreach($arResult["AUTH_SERVICES"] as $key => $value)

@@ -2,21 +2,20 @@
 	
 namespace Bitrix\Calendar\Rooms;
 
-use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Main\Type\DateTime;
 
 class AccessibilityManager
 {
-	const TYPE = 'location';
+	private const TYPE = 'location';
 	
-	/** @var string $dateFrom format : dd.mm.yyyy*/
-	private $dateFrom;
-	/** @var string $dateTo format : dd.mm.yyyy*/
-	private $dateTo;
-	/** @var array $datesRange*/
-	private $datesRange;
-	/** @var array $locationList */
-	private $locationList;
+	/** @var ?string $dateFrom format : dd.mm.yyyy*/
+	private ?string $dateFrom = null;
+	/** @var ?string $dateTo format : dd.mm.yyyy*/
+	private ?string $dateTo = null;
+	/** @var ?array $datesRange*/
+	private ?array $datesRange = null;
+	/** @var ?array $locationList */
+	private ?array $locationList = null;
 	
 	protected function __construct()
 	{
@@ -27,50 +26,50 @@ class AccessibilityManager
 		return new self();
 	}
 	
-	public function setLocationList($locationList): AccessibilityManager
+	public function setLocationList(?array $locationList = []): AccessibilityManager
 	{
 		$this->locationList = $locationList;
 		
 		return $this;
 	}
 	
-	public function setDateFrom($dateFrom): AccessibilityManager
+	public function setDateFrom(?string $dateFrom = ''): AccessibilityManager
 	{
 		$this->dateFrom = $dateFrom;
 		
 		return $this;
 	}
 	
-	public function setDateTo($dateTo): AccessibilityManager
+	public function setDateTo(?string $dateTo = ''): AccessibilityManager
 	{
 		$this->dateTo = $dateTo;
 		
 		return $this;
 	}
 	
-	public function setDatesRange($range): AccessibilityManager
+	public function setDatesRange(?array $range = []): AccessibilityManager
 	{
 		$this->datesRange = $range;
 		
 		return $this;
 	}
 	
-	public function getLocationList(): array
+	public function getLocationList(): ?array
 	{
 		return $this->locationList;
 	}
 	
-	public function getDateFrom(): string
+	public function getDateFrom(): ?string
 	{
 		return $this->dateFrom;
 	}
 	
-	public function getDateTo(): string
+	public function getDateTo(): ?string
 	{
 		return $this->dateTo;
 	}
 	
-	public function getDatesRange(): array
+	public function getDatesRange(): ?array
 	{
 		return $this->datesRange;
 	}
@@ -103,10 +102,9 @@ class AccessibilityManager
 			$to = \CCalendar::Date($toTs, false);
 			
 			$curUserId = \CCalendar::GetCurUserId();
-			$deltaOffset =
-				isset($params['timezone'])
-					? (\CCalendar::GetTimezoneOffset($params['timezone']) - \CCalendar::GetCurrentOffsetUTC($curUserId))
-					: 0
+			$deltaOffset = isset($params['timezone'])
+				? (\CCalendar::GetTimezoneOffset($params['timezone']) - \CCalendar::GetCurrentOffsetUTC($curUserId))
+				: 0
 			;
 			
 			if ($location['mrid'])
@@ -127,7 +125,7 @@ class AccessibilityManager
 				
 				foreach ($meetingRoomRes as $entry)
 				{
-					if ($entry['ID'] != $location['mrevid'])
+					if ((int)$entry['ID'] !== (int)$location['mrevid'])
 					{
 						$entryFromTs = \CCalendar::Timestamp($entry['DT_FROM']);
 						$entryToTs = \CCalendar::Timestamp($entry['DT_TO']);
@@ -142,7 +140,7 @@ class AccessibilityManager
 			}
 			elseif ($location['room_id'])
 			{
-				$entries = AccessibilityManager::getRoomAccessibility($location['room_id'], $from, $to);
+				$entries = self::getRoomAccessibility($location['room_id'], $from, $to);
 				foreach ($entries as $entry)
 				{
 					if ((int)$entry['ID'] !== (int)$location['room_event_id']
@@ -182,11 +180,9 @@ class AccessibilityManager
 	 *
 	 * @return array room accessibility for creating event
 	 */
-	public static function getRoomAccessibility($roomId, $from, $to): array
+	public static function getRoomAccessibility(int $roomId, $from, $to): array
 	{
-		$accessibility = [];
-		
-		$roomEvents = \CCalendarEvent::GetList([
+		return \CCalendarEvent::GetList([
 			'arFilter' => [
 				'FROM_LIMIT' => $from,
 				'TO_LIMIT' => $to,
@@ -198,36 +194,21 @@ class AccessibilityManager
 			'fetchSection' => true,
 			'setDefaultLimit' => false,
 		]);
-		
-		
-		foreach ($roomEvents as $roomEvent)
-		{
-			$accessibility[] = [
-				'ID' => $roomEvent['ID'],
-				'PARENT_ID' => $roomEvent['PARENT_ID'],
-				'NAME' => $roomEvent['NAME'],
-				'DATE_FROM' => $roomEvent['DATE_FROM'],
-				'DATE_TO' => $roomEvent['DATE_TO'],
-				'~USER_OFFSET_FROM' => $roomEvent['~USER_OFFSET_FROM'],
-				'~USER_OFFSET_TO' => $roomEvent['~USER_OFFSET_TO'],
-				'DT_SKIP_TIME' => $roomEvent['DT_SKIP_TIME'],
-				'TZ_FROM' => $roomEvent['TZ_FROM'],
-				'TZ_TO' => $roomEvent['TZ_TO'],
-				'ACCESSIBILITY' => $roomEvent['ACCESSIBILITY'],
-				'IMPORTANCE' => $roomEvent['IMPORTANCE'],
-				'EVENT_TYPE' => $roomEvent['EVENT_TYPE'],
-			];
-		}
-		
-		return $accessibility;
 	}
-	
+
 	/**
 	 * @return array
+	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public function getLocationAccessibility(): array
 	{
 		$result = [];
+
+		if (!is_array($this->datesRange) || !is_array($this->locationList))
+		{
+			return $result;
+		}
+
 		$datesLength = count($this->datesRange);
 		if (!$datesLength)
 		{
@@ -242,11 +223,12 @@ class AccessibilityManager
 		foreach ($this->locationList as $location)
 		{
 			$roomId = (int)$location['ID'];
-			$entries = AccessibilityManager::getRoomAccessibility(
+			$entries = self::getRoomAccessibility(
 				$roomId,
 				$this->datesRange[0],
 				$this->datesRange[$datesLength - 1]
 			);
+
 			foreach ($entries as $entry)
 			{
 				$date = new DateTime($entry['DATE_FROM']);

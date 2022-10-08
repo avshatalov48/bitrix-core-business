@@ -838,12 +838,15 @@ this.BX = this.BX || {};
 	     * @param {addBlockResponse} res
 	     * @param {boolean} [preventHistory = false]
 	     * @param {boolean} [withoutAnimation = false]
+	     * @param {boolean} [insertBefore = false]
 	     * @return {Promise<T>}
 	     */
 
 	  }, {
 	    key: "addBlock",
 	    value: function addBlock(res, preventHistory, withoutAnimation) {
+	      var insertBefore = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+
 	      if (this.lastBlocks) {
 	        this.lastBlocks.unshift(res.manifest.codeOriginal || res.manifest.code);
 	      }
@@ -874,7 +877,8 @@ this.BX = this.BX || {};
 	            redo: {
 	              currentBlock: id,
 	              lid: lid,
-	              code: blockRes.manifest.code
+	              code: blockRes.manifest.code,
+	              insertBefore: main_core.Text.toBoolean(insertBefore)
 	            }
 	          }));
 	        }
@@ -933,7 +937,7 @@ this.BX = this.BX || {};
 	      }).then(function (res) {
 	        res.manifest.codeOriginal = blockCode;
 
-	        var p = _this7.addBlock(res, preventHistory, false);
+	        var p = _this7.addBlock(res, preventHistory, false, _this7.insertBefore);
 
 	        _this7.insertBefore = false;
 

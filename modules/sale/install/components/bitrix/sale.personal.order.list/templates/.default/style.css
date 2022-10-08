@@ -12,7 +12,7 @@
 	font-size: 12px;
 }
 .bx_my_order h3{
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size:24px;
 	color: #3f3f3f;
 }
@@ -28,7 +28,7 @@
 }
 .bx_my_order .bx_my_order_table thead tr td{
 	padding: 10px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px;
 	color: #3d4345;
 	border-bottom: 1px solid #d9d9d9;
@@ -59,7 +59,7 @@
 .bx_my_order .bx_my_order_table tbody tr td:first-child{width: 65%}
 /*.bx_my_order .bx_my_order_table tbody tr td[colspan="2"]{
 	padding: 10px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px;
 	color: #3d4345;
 	background: #fafafa;
@@ -73,7 +73,7 @@
 
 .bx_my_order .bx_my_order_status{
 	width: 100%;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 10px 5px;
 	line-height: normal;
 	margin-bottom: 20px;
@@ -151,18 +151,18 @@
 .bx_my_order .bx_medium.bx_bt_button_type_2	{
 	padding:0 13px;
 	height:25px;
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	line-height:25px;
 }
 
-.bx_my_order .bx_medium.bx_bt_button_type_2 		 {font-weight:bold}
+.bx_my_order .bx_medium.bx_bt_button_type_2 		 {font-weight:var(--ui-font-weight-bold)}
 .bx_my_order .bx_medium.bx_bt_button_type_2:hover {}
 .bx_my_order .bx_medium.bx_bt_button_type_2:active{}
 
 .bx_my_order .bx_big.bx_bt_button_type_2	{
 	padding:0 13px;
 	height:34px;
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	line-height:34px;
 }
 
@@ -189,7 +189,8 @@
 
 .sale-order-title {
 	margin-top:40px;
-	font: 20px "Open Sans", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #262626;
 }
 
@@ -205,7 +206,7 @@
 .sale-order-list-title,
 .sale-order-list-accomplished-title {
 	margin-top: 10px;
-	font: bold 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #2f3435;
 }
 
@@ -230,7 +231,7 @@
 	display: inline-block;
 	margin: 0 5px 0 0;
 	vertical-align: middle;
-	font: bold 10px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 10px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #9b9b9b;
 }
 
@@ -254,7 +255,7 @@
 
 .sale-order-list-payment-title,
 .sale-order-list-shipment-title {
-	font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #000;
 }
 
@@ -323,7 +324,7 @@ div.sale-order-list-repeat-container {
 }
 
 .sale-order-list-about-link {
-	font: bold 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .sale-order-list-status-restricted,
@@ -337,7 +338,7 @@ div.sale-order-list-repeat-container {
 	-o-border-radius: 2px;
 	border-radius: 2px;
 	background: #ffe5e8;
-	font: bold 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #d0021b;
 }
 
@@ -405,7 +406,7 @@ div.sale-order-list-repeat-container {
 	height: 38px;
 	background: #70bb18;
 	color: #fff;
-	font: bold 13px/38px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 13px/38px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	text-align: center;
 }
 
@@ -443,7 +444,7 @@ div.sale-order-list-repeat-container {
 }
 
 .sale-order-list-shipment-id {
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .sale-order-list-shipment-id-icon {
@@ -477,7 +478,7 @@ div.sale-order-list-repeat-container {
 .sale-order-list-accomplished-date-number {
 	display: inline-block;
 	margin: 10px 0 0 0;
-	font: bold 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .sale-order-list-accomplished-date {
@@ -518,7 +519,7 @@ div.sale-order-list-repeat-container {
 	-moz-border-radius: 2px;
 	border-radius: 2px;
 	background: #f3f4f5;
-	font: bold 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #535c69;
 	vertical-align: middle;
 }

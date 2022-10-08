@@ -47,7 +47,7 @@ $actualButtons = array_filter($possibleButtons, function ($value, $key) use ($ar
 	return sizeof(array_intersect($keys, $arParams['BUTTONS'])) > 0;
 }, ARRAY_FILTER_USE_BOTH);
 
-if (is_array($arParams['~BUTTONS_HTML']))
+if (isset($arParams['~BUTTONS_HTML']) && is_array($arParams['~BUTTONS_HTML']))
 {
 	foreach ($arParams['~BUTTONS_HTML'] as $key => $val)
 	{
@@ -60,9 +60,9 @@ if (is_array($arParams['~BUTTONS_HTML']))
 
 $possibleControls = array(
 	"Bold" => array("group" => "bui", 'id' => 'Bold',  'compact' => true, 'sort' => 80),
-	"Italic" => array("group" => "bui", 'id' => 'Italic',  'compact' => true, 'sort' => 90),
+	"Italic" => array("group" => "bui", 'id' => 'Italic',  'compact' => false, 'sort' => 90),
 	"Underline" => array("group" => "bui", 'id' => 'Underline',  'compact' => true, 'sort' => 100),
-	"Strike" => array("group" => "bui", 'id' => 'Strikeout',  'compact' => true, 'sort' => 110),
+	"Strike" => array("group" => "bui", 'id' => 'Strikeout',  'compact' => false, 'sort' => 110),
 	"Strikeout" => array("group" => "bui", 'id' => 'Strikeout',  'compact' => true, 'sort' => 110),
 	"RemoveFormat" => array("group" => "bui", 'id' => 'RemoveFormat',  'compact' => true, 'sort' => 120),
 	"Color" => array("group" => "bui", 'id' => 'Color',  'compact' => true, 'sort' => 130),
@@ -77,12 +77,12 @@ $possibleControls = array(
 	"UnorderedList" => array("group" => "format", 'id' => 'UnorderedList',  'compact' => true, 'sort' => 160),
 	"Justify" => array("group" => "format", 'id' => 'AlignList', 'compact' => false, 'sort' => 190),
 	"AlignList" => array("group" => "format", 'id' => 'AlignList', 'compact' => false, 'sort' => 190),
-	"CreateLink" => array("group" => "insert", 'id' => 'InsertLink',  'compact' => true, 'sort' => 210, 'wrap' => $possibleButtons['CreateLink']['LHE_ID']),
-	"InsertLink" => array("group" => "insert", 'id' => 'InsertLink',  'compact' => true, 'sort' => 210, 'wrap' => $possibleButtons['CreateLink']['LHE_ID']),
+	"CreateLink" => array("group" => "insert", 'id' => 'InsertLink',  'compact' => false, 'sort' => 210, 'wrap' => $possibleButtons['CreateLink']['LHE_ID'] ?? ''),
+	"InsertLink" => array("group" => "insert", 'id' => 'InsertLink',  'compact' => true, 'sort' => 210, 'wrap' => $possibleButtons['CreateLink']['LHE_ID'] ?? ''),
 	"Image" => array("group" => "insert", 'id' => 'InsertImage',  'compact' => false, 'sort' => 220),
 	"InsertImage" => array("group" => "insert", 'id' => 'InsertImage',  'compact' => false, 'sort' => 220),
-	"InputVideo" => array("group" => "insert", 'id' => 'InsertVideo',  'compact' => true, 'sort' => 230, 'wrap' => $possibleButtons['InputVideo']['LHE_ID']),
-	"InsertVideo" => array("group" => "insert", 'id' => 'InsertVideo',  'compact' => true, 'sort' => 230, 'wrap' => $possibleButtons['InputVideo']['LHE_ID']),
+	"InputVideo" => array("group" => "insert", 'id' => 'InsertVideo',  'compact' => false, 'sort' => 230, 'wrap' => $possibleButtons['InputVideo']['LHE_ID'] ?? ''),
+	"InsertVideo" => array("group" => "insert", 'id' => 'InsertVideo',  'compact' => true, 'sort' => 230, 'wrap' => $possibleButtons['InputVideo']['LHE_ID'] ?? ''),
 	"Table" => array("group" => "insert", 'id' => 'InsertTable',  'compact' => false, 'sort' => 250),
 	"InsertTable" => array("group" => "insert", 'id' => 'InsertTable',  'compact' => false, 'sort' => 250),
 	"Code" => array("group" => "insert", 'id' => 'Code',  'compact' => true, 'sort' => 260),
@@ -144,13 +144,13 @@ $res = array_merge(
 		'arSmilesSet' => $arResult["SMILES"]["SETS"],
 		'arSmiles' => $arResult["SMILES"]["VALUE"],
 		'content' => htmlspecialcharsBack($arParams["TEXT"]["VALUE"]),
-		'iframeCss' => 'body{font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; font-size: 13px;}'.
-			'.bx-spoiler {border:1px solid #C0C0C0;background-color:#fff4ca;padding: 4px 4px 4px 24px;color:#373737;border-radius:2px;min-height:1em;margin: 0;}'.
+		'iframeCss' =>
+			'.bx-spoiler {border:1px solid #cecece;background-color:#f6f6f6;padding: 8px 8px 8px 24px;color:#373737;border-radius:var(--ui-border-radius-sm, 2px);min-height:1em;margin: 0;}'.
 			(is_array($arParams["LHE"]) && isset($arParams["LHE"]["iframeCss"]) ? $arParams["LHE"]["iframeCss"] : ""),
 	)
 );
 
-if((string) $arParams["TEXT"]["INPUT_NAME"] != '')
+if(isset($arParams["TEXT"]["INPUT_NAME"]) && (string)$arParams["TEXT"]["INPUT_NAME"] != '')
 {
 	$res['inputName'] = $arParams["TEXT"]["INPUT_NAME"];
 }

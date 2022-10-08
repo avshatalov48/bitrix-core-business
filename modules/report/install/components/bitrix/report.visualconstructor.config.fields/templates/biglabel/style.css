@@ -33,7 +33,7 @@
     color: #535c69;
     background: #fff;
     padding: 5px;
-    font: 17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     max-width: 80%;
     transition: border 500ms, width 500ms;
 }
@@ -41,7 +41,7 @@
 .report-configuration-big-label-item .report-configuration-field-input-inactive {
     display: inline-block;
     cursor: pointer;
-    font: 17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     color: rgba(82, 92, 105, .8);
     white-space: nowrap;
     text-overflow: ellipsis;

@@ -22,13 +22,12 @@ export class RoomsSection extends CalendarSection
 		this.location_id = parseInt(data.LOCATION_ID);
 		this.color = this.data.COLOR;
 		this.name = this.data.NAME;
+		this.categoryId = parseInt(this.data.CATEGORY_ID);
+		this.reserved = this.data.reserved || false;
 	}
 
 	belongsToView()
 	{
-		// const calendarContext = Util.getCalendarContext();
-		// return this.type === calendarContext.getCalendarType()
-		// 	&& this.ownerId === calendarContext.getOwnerId();
 		return true;
 	}
 }

@@ -188,7 +188,7 @@ class Select extends Base
 		$showEmptyValue = isset($settings['ShowEmptyValue']) ? \CBPHelper::getBool($settings['ShowEmptyValue']) : null;
 		if (($showEmptyValue === null && !$fieldType->isMultiple()) || $showEmptyValue === true)
 		{
-			$renderResult .= '<option value="">['.Loc::getMessage('BPCGHLP_NOT_SET').']</option>';
+			$renderResult .= '<option value="">['.Loc::getMessage('BPDT_SELECT_NOT_SET').']</option>';
 		}
 
 		$groups = $settings['Groups'] ?: null;
@@ -377,26 +377,19 @@ class Select extends Base
 	protected static function extractValue(FieldType $fieldType, array $field, array $request)
 	{
 		$value = parent::extractValue($fieldType, $field, $request);
-		$options = static::getFieldOptions($fieldType);
-		$showError = false;
+		$value = self::validateValueSingle($value, $fieldType);
 
-		if ($value === '' || sizeof($options) <= 0)
+		$errors = static::getErrors();
+		if (!empty($errors) && $value === null)
 		{
-			$value = null;
-		}
-		elseif ($value !== null && !isset($options[$value]))
-		{
-			$value = null;
-			$showError = true;
-		}
+			$lastErrorKey = array_key_last($errors);
+			if (!array_key_exists('parameter', $errors[$lastErrorKey]))
+			{
+				$errors[$lastErrorKey]['parameter'] = static::generateControlName($field);
+			}
 
-		if ($showError)
-		{
-			static::addError(array(
-				'code' => 'ErrorValue',
-				'message' => Loc::getMessage('BPDT_SELECT_INVALID'),
-				'parameter' => static::generateControlName($field),
-			));
+			static::cleanErrors();
+			static::addErrors($errors);
 		}
 
 		return $value;
@@ -535,5 +528,32 @@ class Select extends Base
 		}
 
 		return parent::mergeValue($fieldType, $baseValue, $appendValue);
+	}
+
+	public static function validateValueSingle($value, FieldType $fieldType)
+	{
+		$options = static::getFieldOptions($fieldType);
+
+		if ($value === '' || empty($options))
+		{
+			$value = null;
+		}
+		elseif ($value !== null && !isset($options[$value]))
+		{
+			$value = null;
+			static::addError([
+				'code' => 'ErrorValue',
+				'message' => Loc::getMessage('BPDT_SELECT_INVALID'),
+			]);
+		}
+
+		return $value;
+	}
+
+	public static function validateValueMultiple($value, FieldType $fieldType): array
+	{
+		$value = parent::validateValueMultiple($value, $fieldType);
+
+		return array_filter($value, fn($v) => (!is_null($v)));
 	}
 }

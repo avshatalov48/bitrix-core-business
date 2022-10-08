@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_ELEMENT_EDIT_TAGS_TIP"] = "(введите слова или словосочетания, разделяя их запятыми)";
 $MESS["IBLOCK_ELEMENT_EDIT_ELEMENTS"] = "Элементы";
 $MESS["IBLOCK_ELEMENT_EDIT_LINKED"] = "Связанные элементы:";
@@ -107,4 +107,3 @@ $MESS["IBLOCK_IMPORT_FROM"] = "Импортирован из";
 $MESS["IBLOCK_LINK_TO_MEDIA"] = "ссылка на публикацию";
 $MESS["IBLOCK_ELEMENT_OFFERS_IS_ABSENT"] = "Не созданы торговые предложения";
 $MESS["IBLOCK_ELEMENT_ERR_BUILDER_ADSENT"] = "Не найден генератор ссылок.";
-?>

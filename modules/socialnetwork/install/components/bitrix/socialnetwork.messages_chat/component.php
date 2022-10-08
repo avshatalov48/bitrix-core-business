@@ -464,7 +464,6 @@ else
 		$arResult["Now"] = date("Y-m-d H:i:s", $strNow_ts);		
 
 		//user options
-		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS['DB']->type)."/favorites.php");
 		$arResult["USER_OPTIONS"] = CUserOptions::GetOption('socnet', 'chat', array());
 		if($arResult["USER_OPTIONS"]["sound"] <> "N")
 			$arResult["USER_OPTIONS"]["sound"] = "Y";

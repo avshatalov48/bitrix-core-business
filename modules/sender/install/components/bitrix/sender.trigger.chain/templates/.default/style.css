@@ -46,17 +46,17 @@
 	background-position: center -182px;
 }
 .sender-mailing-group-head-text{
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px;
 }
 .sender-mailing-group-block-all{
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px;
 	margin-bottom: 10px;
 	display: inline-block;
 }
 .sender-mailing-group-block-sel{
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px;
 	margin-bottom: 10px;
 	display: inline-block;
@@ -102,7 +102,7 @@
 	display: table;
 	padding-right: 27px;
 	padding-left: 38px;
-	font: bold 20px/27px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 20px/27px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	text-shadow: rgb(255, 255, 255) 0 1px 0;
 }
 
@@ -175,7 +175,7 @@
 
 .sender-trigger-status-mailing-title {
 	position: relative;
-	font: bold 17px/36px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 17px/36px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2d2e2f;
 }
 
@@ -200,7 +200,7 @@
 	line-height: 37px;
 	padding: 0 17px;
 	border-radius: 3px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .sender-trigger-chain-container-letter {
@@ -215,7 +215,7 @@
 	color: #2d2e2f;
 	line-height: 16px;
 	margin-bottom: 15px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .sender-trigger-status-mailing-time:before {
@@ -264,7 +264,7 @@
 
 .sender_letter_container_head h3 {
 	font-size: 17px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #2d2e2f;
 	margin: 0 0 15px;
 	min-height: 21px;
@@ -282,7 +282,7 @@
 }
 .sender_letter_container_sorter_view .sender_letter_container_sorter_text {
 	font-size: 24px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 37px;
 	display: inline-block;
 }
@@ -335,13 +335,13 @@
 /*}*/
 
 .sender_letter_container-create {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #383b3c;
 }
 
 .sender_letter_container_button_show {
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #475056;
 	text-shadow: 0 1px 0 #fff;
 	background: #f6f5f9;
@@ -395,7 +395,7 @@
 	line-height: 10px;
 	font-size: 19px;
 	color: #576166;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	background: url("images/bx-admin-sprite-small-2.png") no-repeat 0 -2446px;
 }
 
@@ -426,7 +426,7 @@ table.trigger_chain_item .typearea, table.trigger_chain_item input.sender_letter
 }
 
 table.trigger_chain_item td:first-child {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 }
 

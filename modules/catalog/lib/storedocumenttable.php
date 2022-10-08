@@ -44,6 +44,19 @@ use Bitrix\Main\UserTable;
  * </ul>
  *
  * @package Bitrix\Catalog
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_StoreDocument_Query query()
+ * @method static EO_StoreDocument_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_StoreDocument_Result getById($id)
+ * @method static EO_StoreDocument_Result getList(array $parameters = [])
+ * @method static EO_StoreDocument_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_StoreDocument createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_StoreDocument_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_StoreDocument wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_StoreDocument_Collection wakeUpCollection($rows)
  */
 
 class StoreDocumentTable extends DataManager
@@ -426,7 +439,7 @@ class StoreDocumentTable extends DataManager
 		", ['ID']);
 	}
 
-	public static function withProducts(Main\ORM\Query\Query $query, array $productIds)
+	public static function withProductList(Main\ORM\Query\Query $query, array $productIds)
 	{
 		Main\Type\Collection::normalizeArrayValuesByInt($productIds);
 		if (empty($productIds))
@@ -478,7 +491,7 @@ class StoreDocumentTable extends DataManager
 		", ['ID']);
 	}
 
-	public static function withStores(Main\ORM\Query\Query $query, array $storeIds)
+	public static function withStoreList(Main\ORM\Query\Query $query, array $storeIds)
 	{
 		Main\Type\Collection::normalizeArrayValuesByInt($storeIds);
 		if (empty($storeIds))

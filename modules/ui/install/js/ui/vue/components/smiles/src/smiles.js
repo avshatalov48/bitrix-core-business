@@ -7,6 +7,7 @@
  * @copyright 2001-2020 Bitrix
  */
 
+import "ui.fonts.opensans";
 import "./smiles.css";
 import 'ui.vue.directives.lazyload';
 

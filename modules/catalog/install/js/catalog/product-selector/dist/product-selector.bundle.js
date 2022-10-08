@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,ui_forms,fileinput,catalog_skuTree,main_loader,ui_infoHelper,ui_entitySelector,catalog_productModel,catalog_productSelector,catalog_barcodeScanner,ui_notification,main_core,main_core_events,ui_qrauthorization,spotlight,ui_tour) {
+(function (exports,ui_designTokens,ui_forms,fileinput,catalog_skuTree,main_loader,ui_infoHelper,ui_entitySelector,catalog_productModel,catalog_productSelector,catalog_barcodeScanner,ui_notification,main_core,main_core_events,ui_qrauthorization,spotlight,ui_tour) {
 	'use strict';
 
 	let _ = t => t,
@@ -1640,7 +1640,8 @@ this.BX = this.BX || {};
 	    _t4$4,
 	    _t5$4,
 	    _t6$3,
-	    _t7$2;
+	    _t7$2,
+	    _t8$2;
 	const instances = new Map();
 	const iblockSkuTreeProperties = new Map();
 
@@ -1665,6 +1666,7 @@ this.BX = this.BX || {};
 	    this.onSaveImageHandler = this.onSaveImage.bind(this);
 	    this.onChangeFieldsHandler = main_core.Runtime.debounce(this.onChangeFields, 500, this);
 	    this.onUploaderIsInitedHandler = this.onUploaderIsInited.bind(this);
+	    this.onNameChangeFieldHandler = main_core.Runtime.debounce(this.onNameChange, 500, this);
 	    this.setEventNamespace('BX.Catalog.ProductSelector');
 	    this.id = id || main_core.Text.getRandom();
 	    options.inputFieldName = options.inputFieldName || ProductSelector.INPUT_FIELD_NAME;
@@ -1722,6 +1724,7 @@ this.BX = this.BX || {};
 	    }
 
 	    main_core_events.EventEmitter.subscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
+	    main_core_events.EventEmitter.subscribe('ProductSelector::onNameChange', this.onNameChangeFieldHandler);
 	    main_core_events.EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 	    main_core_events.EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
 	    instances.set(this.id, this);
@@ -1887,8 +1890,10 @@ this.BX = this.BX || {};
 	      }
 
 	      main_core.Dom.append(this.getImageContainer(), wrapper);
-	    } else {
-	      main_core.Dom.addClass(wrapper, 'catalog-product-field-no-image');
+	    }
+
+	    if (this.isViewMode()) {
+	      wrapper.appendChild(block);
 	    }
 
 	    if (this.isViewMode()) {
@@ -1990,6 +1995,8 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.unsubscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 	    main_core_events.EventEmitter.unsubscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
 	    main_core_events.EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
+	    main_core_events.EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
+	    main_core_events.EventEmitter.unsubscribe('ProductSelector::onNameChange', this.onNameChangeFieldHandler);
 	  }
 
 	  defineWrapperClass(wrapper) {
@@ -2168,6 +2175,25 @@ this.BX = this.BX || {};
 	    });
 	  }
 
+	  onNameChange(event) {
+	    const eventData = event.getData();
+
+	    if (eventData.rowId !== this.getRowId() || !this.isEnabledAutosave()) {
+	      return;
+	    }
+
+	    const fields = eventData.fields;
+	    this.getModel().setFields(fields);
+	    this.getModel().save().then(() => {
+	      BX.UI.Notification.Center.notify({
+	        id: 'saving_field_notify_name',
+	        closeButton: false,
+	        content: main_core.Tag.render(_t8$2 || (_t8$2 = _$6`<div>${0}</div>`), main_core.Loc.getMessage('CATALOG_SELECTOR_SAVING_NOTIFICATION_NAME_CHANGED')),
+	        autoHide: true
+	      });
+	    });
+	  }
+
 	  onSaveImage(event) {
 	    const [, inputId, response] = event.getData();
 
@@ -2258,7 +2284,8 @@ this.BX = this.BX || {};
 	      selectorId: this.id,
 	      rowId: this.getRowId(),
 	      isNew: config.isNew || false,
-	      fields
+	      fields,
+	      morePhoto: this.getModel().getImageCollection().getMorePhotoValues()
 	    });
 	  }
 
@@ -2346,5 +2373,5 @@ this.BX = this.BX || {};
 
 	exports.ProductSelector = ProductSelector;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX,BX.Catalog.SkuTree,BX,BX,BX.UI.EntitySelector,BX.Catalog,BX.Catalog,BX.Catalog,BX,BX,BX.Event,BX.UI,BX,BX.UI.Tour));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX,BX,BX.Catalog.SkuTree,BX,BX,BX.UI.EntitySelector,BX.Catalog,BX.Catalog,BX.Catalog,BX,BX,BX.Event,BX.UI,BX,BX.UI.Tour));
 //# sourceMappingURL=product-selector.bundle.js.map

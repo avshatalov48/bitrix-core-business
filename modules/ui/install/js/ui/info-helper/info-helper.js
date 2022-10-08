@@ -5,183 +5,198 @@ BX.UI.InfoHelper =
 	frameUrlTemplate : '',
 	frameNode : null,
 	popupLoader : null,
+	availableDomainList : null,
 	frameUrl: "",
 	inited: false,
 
 	init : function(params)
 	{
-		this.inited = true;
-		this.frameUrlTemplate = params.frameUrlTemplate || '';
-		this.trialableFeatureList = params.trialableFeatureList || [];
-		this.demoStatus = params.demoStatus || 'UNKNOWN';
-
-		BX.bind(window, 'message', BX.proxy(function(event)
+		if (!this.inited && !params['availableDomainList'])
 		{
-			if (!!event.origin && event.origin.indexOf('bitrix') === -1)
-			{
-				return;
-			}
-
-			if (!event.data || typeof(event.data) !== "object")
-			{
-				return;
-			}
-
-			if (event.data.action === "ClosePage")
-			{
-				this.close();
-			}
-
-			if (event.data.action === "openPage")
-			{
-				window.location.href = this.frameUrl;
-			}
-
-			if (event.data.action === "openPageInNewTab")
-			{
-				window.open(this.frameUrl,'_blank');
-			}
-
-			if (event.data.action === 'reloadParent')
-			{
-				this.reloadParent();
-			}
-
-			if (event.data.action === 'openSlider' && !!event.data.url)
-			{
-				top.BX.SidePanel.Instance.open(event.data.url);
-			}
-
-			if (event.data.action === 'openInformer' && !!event.data.code && !!event.data.option)
-			{
-				top.BX.UI.InfoHelper.__showExternal(
-					event.data.code,
-					event.data.option
-				);
-			}
-
-			if (event.data.action === 'activateDemoSubscription')
-			{
-				if (event.data.licenseAgreed === 'Y')
+			this.inited = true;
+			BX.ajax.runAction('ui.infoHelper.getInitParams').then(
+				function (response)
 				{
-					var ajaxRestPath = '/bitrix/tools/rest.php';
-					var callback = function(result)
-					{
-						var slider = BX.SidePanel.Instance.getTopSlider();
-						if (slider)
-						{
-							BX.UI.InfoHelper.frameNode.contentWindow.postMessage(
-								{
-									action: 'onActivateDemoSubscriptionResult',
-									result:result
-								},
-								'*'
-							);
-						}
-					}.bind(this);
+					this.init(response.data)
+				}.bind(this)
+			);
+		}
+		else
+		{
+			this.inited = true;
+			this.frameUrlTemplate = params.frameUrlTemplate || '';
+			this.trialableFeatureList = params.trialableFeatureList || [];
+			this.demoStatus = params.demoStatus || 'UNKNOWN';
+			this.availableDomainList = params.availableDomainList || [];
 
-					BX.ajax(
-						{
-							dataType: 'json',
-							method: 'POST',
-							url: ajaxRestPath,
-							data: {
-								action: 'activate_demo',
-								sessid: BX.bitrix_sessid()
-							},
-							onsuccess: callback,
-							onfailure: function(error_type, error)
-							{
-								callback({error: error_type + (!!error ? ': ' + error : '')});
-							}
-						}
+			BX.bind(window, 'message', BX.proxy(function(event)
+			{
+				if (!event.origin || (!!event.origin && this.availableDomainList.indexOf(event.origin) === -1))
+				{
+					return;
+				}
+
+				if (!event.data || typeof (event.data) !== "object")
+				{
+					return;
+				}
+
+				if (event.data.action === "ClosePage")
+				{
+					this.close();
+				}
+
+				if (event.data.action === "openPage")
+				{
+					window.location.href = this.frameUrl;
+				}
+
+				if (event.data.action === "openPageInNewTab")
+				{
+					window.open(this.frameUrl, '_blank');
+				}
+
+				if (event.data.action === 'reloadParent')
+				{
+					this.reloadParent();
+				}
+
+				if (event.data.action === 'openSlider' && !!event.data.url)
+				{
+					top.BX.SidePanel.Instance.open(event.data.url);
+				}
+
+				if (event.data.action === 'openInformer' && !!event.data.code && !!event.data.option)
+				{
+					top.BX.UI.InfoHelper.__showExternal(
+						event.data.code,
+						event.data.option
 					);
 				}
-			}
 
-			if (event.data.action === 'activateDemoLicense')
-			{
-				BX.ajax.runAction("ui.infoHelper.activateDemoLicense").then(
-					function(response)
+				if (event.data.action === 'activateDemoSubscription')
+				{
+					if (event.data.licenseAgreed === 'Y')
 					{
-						var slider = BX.SidePanel.Instance.getTopSlider();
-						if (slider)
+						var ajaxRestPath = '/bitrix/tools/rest.php';
+						var callback = function(result)
 						{
-							BX.UI.InfoHelper.frameNode.contentWindow.postMessage(
-								{
-									action: 'onActivateDemoLicenseResult',
-									result: response
+							var slider = BX.SidePanel.Instance.getTopSlider();
+							if (slider)
+							{
+								BX.UI.InfoHelper.frameNode.contentWindow.postMessage(
+									{
+										action: 'onActivateDemoSubscriptionResult',
+										result: result
+									},
+									'*'
+								);
+							}
+						}.bind(this);
+
+						BX.ajax(
+							{
+								dataType: 'json',
+								method: 'POST',
+								url: ajaxRestPath,
+								data: {
+									action: 'activate_demo',
+									sessid: BX.bitrix_sessid()
 								},
-								'*'
-							);
-						}
-
-						if (response.data.success === 'Y')
-						{
-							BX.onCustomEvent('BX.UI.InfoHelper:onActivateDemoLicenseSuccess', {
-								result: response
-							});
-						}
-					}.bind(this)
-				);
-			}
-
-			if (event.data.action === 'openBuySubscriptionPage')
-			{
-				BX.ajax.runAction("ui.infoHelper.getBuySubscriptionUrl").then(
-					function(response)
-					{
-						if (!!response.data && !!response.data.url)
-						{
-							if (response.data.action === 'blank')
-							{
-								window.open(response.data.url, '_blank');
+								onsuccess: callback,
+								onfailure: function(error_type, error)
+								{
+									callback({ error: error_type + (!!error ? ': ' + error : '') });
+								}
 							}
-							else if (response.data.action === 'redirect')
-							{
-								window.location.href = response.data.url;
-							}
-						}
-					}.bind(this)
-				);
-			}
-
-			if (event.data.action === 'activateTrialFeature')
-			{
-				BX.ajax.runAction(
-					'ui.infoHelper.activateTrialFeature',
-					{
-						data: {
-							featureId: event.data.featureId
-						}
+						);
 					}
-				).then(
-					function(response)
-					{
-						var slider = BX.SidePanel.Instance.getTopSlider();
-						if (slider)
+				}
+
+				if (event.data.action === 'activateDemoLicense')
+				{
+					BX.ajax.runAction("ui.infoHelper.activateDemoLicense").then(
+						function(response)
 						{
-							BX.UI.InfoHelper.frameNode.contentWindow.postMessage(
-								{
-									action: 'onActivateTrialFeature',
+							var slider = BX.SidePanel.Instance.getTopSlider();
+							if (slider)
+							{
+								BX.UI.InfoHelper.frameNode.contentWindow.postMessage(
+									{
+										action: 'onActivateDemoLicenseResult',
+										result: response
+									},
+									'*'
+								);
+							}
+
+							if (response.data.success === 'Y')
+							{
+								BX.onCustomEvent('BX.UI.InfoHelper:onActivateDemoLicenseSuccess', {
 									result: response
-								},
-								'*'
-							);
-						}
+								});
+							}
+						}.bind(this)
+					);
+				}
 
-						if (response.data.success === 'Y')
+				if (event.data.action === 'openBuySubscriptionPage')
+				{
+					BX.ajax.runAction("ui.infoHelper.getBuySubscriptionUrl").then(
+						function(response)
 						{
-							BX.onCustomEvent('BX.UI.InfoHelper:onActivateTrialFeatureSuccess', {
-								result: response,
-								featureId: event.data.featureId
-							});
-						}
-					}.bind(this)
-				);
-			}
+							if (!!response.data && !!response.data.url)
+							{
+								if (response.data.action === 'blank')
+								{
+									window.open(response.data.url, '_blank');
+								}
+								else if (response.data.action === 'redirect')
+								{
+									window.location.href = response.data.url;
+								}
+							}
+						}.bind(this)
+					);
+				}
 
-		}, this));
+				if (event.data.action === 'activateTrialFeature')
+				{
+					BX.ajax.runAction(
+						'ui.infoHelper.activateTrialFeature',
+						{
+							data: {
+								featureId: event.data.featureId
+							}
+						}
+					).then(
+						function(response)
+						{
+							var slider = BX.SidePanel.Instance.getTopSlider();
+							if (slider)
+							{
+								BX.UI.InfoHelper.frameNode.contentWindow.postMessage(
+									{
+										action: 'onActivateTrialFeature',
+										result: response
+									},
+									'*'
+								);
+							}
+
+							if (response.data.success === 'Y')
+							{
+								BX.onCustomEvent('BX.UI.InfoHelper:onActivateTrialFeatureSuccess', {
+									result: response,
+									featureId: event.data.featureId
+								});
+							}
+						}.bind(this)
+					);
+				}
+
+			}, this));
+		}
 	},
 
 	__showExternal: function(code, option)

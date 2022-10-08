@@ -5,6 +5,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
+
 if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES'])): ?>
 	<?php foreach($arResult['ERROR_MESSAGES'] as $error):?>
 		<div class="ui-alert ui-alert-danger" style="margin-bottom: 0px;">

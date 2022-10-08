@@ -4,7 +4,7 @@
  * @global CUser $USER
  * */
 
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 define("HELP_FILE", "settings/user_settings.php");
 
 $editable = ($USER->CanDoOperation('edit_own_profile') || $USER->CanDoOperation('edit_other_settings'));

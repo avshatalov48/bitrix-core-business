@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SOC_OPT_B24NET_CLIENT_ID"] = "Portal ID";
 $MESS["SOC_OPT_B24NET_CLIENT_SECRET"] = "Portal secret code";
 $MESS["SOC_OPT_B24NET_GET"] = "Get";
@@ -33,4 +33,4 @@ $MESS["socserv_sett_common_title"] = "Parameters Common to All Websites";
 $MESS["socserv_sett_site"] = "Settings For Site";
 $MESS["socserv_sett_site_apply"] = "Apply individual parameters to this website:";
 $MESS["socserv_twit_to_buzz"] = "Relay user tweets with hash #hash# to Activity Stream";
-?>
+$MESS["socserv_twit_to_buzz2"] = "Relay user tweets with hash #hash# to Feed";

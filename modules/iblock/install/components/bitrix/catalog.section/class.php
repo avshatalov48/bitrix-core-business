@@ -1,4 +1,5 @@
 <?
+
 use \Bitrix\Main;
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\Error;
@@ -35,23 +36,6 @@ class CatalogSectionComponent extends ElementList
 	public function onPrepareComponentParams($params)
 	{
 		$params = parent::onPrepareComponentParams($params);
-
-		if (
-			empty($this->globalFilter)
-			&& !empty($params['EXTERNAL_PRODUCT_IDS'])
-			&& is_array($params['EXTERNAL_PRODUCT_IDS'])
-		)
-		{
-			$params['EXTERNAL_PRODUCT_MAP'] = static::getProductsMap($params['EXTERNAL_PRODUCT_IDS']);
-			if (!empty($params['EXTERNAL_PRODUCT_MAP']))
-			{
-				$this->globalFilter = [
-					'ID' => array_unique(array_values($params['EXTERNAL_PRODUCT_MAP']))
-				];
-			}
-		}
-
-		unset($params['EXTERNAL_PRODUCT_IDS']);
 
 		$params['IBLOCK_TYPE'] = isset($params['IBLOCK_TYPE']) ? trim($params['IBLOCK_TYPE']) : '';
 
@@ -339,58 +323,6 @@ class CatalogSectionComponent extends ElementList
 		}
 
 		return $filterFields;
-	}
-
-	protected function editTemplateItems(&$items)
-	{
-		$items = $this->prepareItemsByExternalProductMap($items);
-		parent::editTemplateItems($items);
-	}
-
-	protected function prepareItemsByExternalProductMap(array $items): array
-	{
-		if (!empty($this->arParams['EXTERNAL_PRODUCT_MAP']) && is_array($this->arParams['EXTERNAL_PRODUCT_MAP']))
-		{
-			$itemsByProductId = array_column($items, null, 'ID');
-			$newItems = [];
-
-			foreach ($this->arParams['EXTERNAL_PRODUCT_MAP'] as $offerId => $productId)
-			{
-				$nextItem = $itemsByProductId[$productId] ?? null;
-				if ($nextItem === null)
-				{
-					continue;
-				}
-
-				// offer id not specified
-				if ($offerId === $productId)
-				{
-					$found = true;
-				}
-				else
-				{
-					$found = false;
-					foreach ($nextItem['OFFERS'] as $offer)
-					{
-						if ($offer['ID'] === $offerId)
-						{
-							$nextItem['OFFER_ID_SELECTED'] = $offerId;
-							$found = true;
-							break;
-						}
-					}
-				}
-
-				if ($found)
-				{
-					$newItems[] = $nextItem;
-				}
-			}
-
-			$items = $newItems;
-		}
-
-		return $items;
 	}
 
 	protected function makeOutputResult()

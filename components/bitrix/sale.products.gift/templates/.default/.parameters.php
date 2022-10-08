@@ -49,7 +49,7 @@ $arThemesList = array(
 	'red' => GetMessage('CP_SPG_TPL_THEME_RED'),
 	'yellow' => GetMessage('CP_SPG_TPL_THEME_YELLOW')
 );
-$dir = trim(preg_replace("'[\\\\/]+'", '/', dirname(__FILE__).'/themes/'));
+$dir = trim(preg_replace("'[\\\\/]+'", '/', __DIR__.'/themes/'));
 if (is_dir($dir))
 {
 	foreach ($arThemesList as $themeID => $themeName)

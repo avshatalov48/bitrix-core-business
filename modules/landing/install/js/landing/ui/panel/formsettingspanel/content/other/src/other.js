@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import {HeaderCard} from 'landing.ui.card.headercard';
 import {Loc} from 'landing.loc';
 import {FormSettingsForm} from 'landing.ui.form.formsettingsform';

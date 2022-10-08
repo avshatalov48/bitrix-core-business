@@ -223,7 +223,7 @@ if (isset($arResult['ITEM']))
 					'PRICE_ID' => $itemIds['PRICE'],
 					'PRICE_OLD_ID' => $itemIds['PRICE_OLD'],
 					'PRICE_TOTAL_ID' => $itemIds['PRICE_TOTAL'],
-					'TREE_ID' => $itemIds['PROP_DIV'],
+					'TREE_ID' => !empty($item['OFFERS_PROP']) ? $itemIds['PROP_DIV'] : null,
 					'TREE_ITEM_ID' => $itemIds['PROP'],
 					'BUY_ID' => $itemIds['BUY_LINK'],
 					'DSC_PERC' => $itemIds['DSC_PERC'],
@@ -254,13 +254,13 @@ if (isset($arResult['ITEM']))
 				'TREE_PROPS' => array()
 			);
 
-			if ($arParams['PRODUCT_DISPLAY_MODE'] === 'Y' && !empty($item['OFFERS_PROP']))
+			if ($arParams['PRODUCT_DISPLAY_MODE'] === 'Y')
 			{
 				$jsParams['SHOW_QUANTITY'] = $arParams['USE_PRODUCT_QUANTITY'];
-				$jsParams['SHOW_SKU_PROPS'] = $item['OFFERS_PROPS_DISPLAY'];
+				$jsParams['SHOW_SKU_PROPS'] = !empty($item['OFFERS_PROP']) ? $item['OFFERS_PROPS_DISPLAY'] : null;
 				$jsParams['OFFERS'] = $item['JS_OFFERS'];
 				$jsParams['OFFER_SELECTED'] = $item['OFFERS_SELECTED'];
-				$jsParams['TREE_PROPS'] = $skuProps;
+				$jsParams['TREE_PROPS'] = !empty($item['OFFERS_PROP']) ? $skuProps : null;
 			}
 		}
 

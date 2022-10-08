@@ -20,7 +20,8 @@ final class ServiceFactory
 			Seo\LeadAds\Service::getInstance(),
 			Seo\Analytics\Service::getInstance(),
 			Seo\Retargeting\Service::getInstance(),
-			Seo\Marketing\Service::getInstance()
+			Seo\Marketing\Service::getInstance(),
+			Seo\Catalog\Service::getInstance()
 		];
 	}
 

@@ -6,6 +6,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 if(!$USER->CanDoOperation('view_other_settings'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 Asset::getInstance()->addString('<link rel="stylesheet" type="text/css" href="/bitrix/themes/.default/promo_https.css">');
 Loc::loadMessages(__FILE__);
 

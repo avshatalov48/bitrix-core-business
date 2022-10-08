@@ -1,28 +1,14 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_field_basefield,landing_loc,main_core,ui_draganddrop_draggable,landing_ui_panel_fieldspanel,landing_ui_component_listitem,landing_ui_component_actionpanel,landing_ui_field_textfield,main_core_events,landing_ui_form_formsettingsform,crm_form_client,landing_ui_field_listsettingsfield,landing_ui_panel_separatorpanel,landing_pageobject,main_loader,landing_ui_field_productfield,calendar_resourcebookinguserfield,socnetlogdest,ui_hint,landing_ui_component_iconbutton) {
+(function (exports,ui_designTokens,landing_ui_field_basefield,landing_loc,main_core,ui_draganddrop_draggable,landing_ui_panel_fieldspanel,landing_ui_component_listitem,landing_ui_component_actionpanel,landing_ui_field_textfield,main_core_events,landing_ui_form_formsettingsform,crm_form_client,landing_ui_field_listsettingsfield,landing_ui_panel_separatorpanel,landing_pageobject,main_loader,landing_ui_field_productfield,calendar_resourcebookinguserfield,socnetlogdest,ui_hint,landing_ui_component_iconbutton) {
 	'use strict';
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-fields-list-container\"></div>"]);
+	var _templateObject, _templateObject2;
 
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div><div class=\"crm-webform-resourcebooking-wrap\"></div></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var FieldsListField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(FieldsListField, _BaseField);
 
@@ -169,9 +155,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        var root = landing_pageobject.PageObject.getRootWindow();
 	        var crmField = this.getCrmFieldById(options.id);
 	        return root.BX.Calendar.ResourcebookingUserfield.initCrmFormFieldController({
-	          field: babelHelpers.objectSpread({}, options, {
+	          field: _objectSpread(_objectSpread({}, options), {}, {
 	            dict: crmField,
-	            node: main_core.Tag.render(_templateObject())
+	            node: main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div><div class=\"crm-webform-resourcebooking-wrap\"></div></div>"])))
 	          })
 	        });
 	      }
@@ -185,7 +171,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        id: options.id,
 	        type: options.type ? options.type : '',
 	        content: options.content,
-	        sourceOptions: babelHelpers.objectSpread({}, options),
+	        sourceOptions: _objectSpread({}, options),
 	        draggable: true,
 	        removable: true,
 	        onRemove: this.onItemRemove,
@@ -363,7 +349,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var fields = [];
 	      var form = new landing_ui_form_formsettingsform.FormSettingsForm({
 	        serializeModifier: function serializeModifier(value) {
-	          var modifiedValue = babelHelpers.objectSpread({}, value);
+	          var modifiedValue = _objectSpread({}, value);
 
 	          if (Reflect.has(value, 'label')) {
 	            modifiedValue.label = main_core.Text.decode(value.label);
@@ -447,7 +433,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          onChange: function onChange() {
 	            var oldCustomPrice = form.fields.get('customPrice');
 
-	            var newCustomPrice = _this5.createCustomPriceDropdown(babelHelpers.objectSpread({}, field, {
+	            var newCustomPrice = _this5.createCustomPriceDropdown(_objectSpread(_objectSpread({}, field), {}, {
 	              items: form.serialize().items
 	            }));
 
@@ -466,7 +452,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            form.replaceField(oldCustomPrice, newCustomPrice);
 	            var oldDefaultValue = form.fields.get('productDefaultValue');
 
-	            var newDefaultValue = _this5.createProductDefaultValueDropdown(babelHelpers.objectSpread({}, field, {
+	            var newDefaultValue = _this5.createProductDefaultValueDropdown(_objectSpread(_objectSpread({}, field), {}, {
 	              items: form.serialize().items
 	            }));
 
@@ -586,7 +572,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          var currentDefaultValueField = form.fields.find(function (item) {
 	            return item.selector === 'value';
 	          });
-	          form.replaceField(currentDefaultValueField, _this5.createDefaultValueField(babelHelpers.objectSpread({}, field, {
+	          form.replaceField(currentDefaultValueField, _this5.createDefaultValueField(_objectSpread(_objectSpread({}, field), {}, {
 	            items: form.serialize().items,
 	            value: currentDefaultValueField.getValue()
 	          })));
@@ -699,7 +685,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getListContainer",
 	    value: function getListContainer() {
 	      return this.cache.remember('listContainer', function () {
-	        return main_core.Tag.render(_templateObject2());
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-fields-list-container\"></div>"])));
 	      });
 	    }
 	  }, {
@@ -790,7 +776,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        if (separator.type === 'page' && !_this9.items.find(function (item) {
 	          return item.options.type === 'page';
 	        })) {
-	          fields.push(babelHelpers.objectSpread({}, fields[0]));
+	          fields.push(_objectSpread({}, fields[0]));
 	        }
 
 	        void _this9.showLoader();
@@ -970,5 +956,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.FieldsListField = FieldsListField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX.Landing,BX,BX.UI.DragAndDrop,BX.Landing.UI.Panel,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Landing.UI.Field,BX.Event,BX.Landing.UI.Form,BX.Crm.Form,BX.Landing.UI.Field,BX.Landing.UI.Panel,BX.Landing,BX,BX.Landing.Ui.Field,BX.Calendar,BX,BX,BX.Landing.UI.Component));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Landing.UI.Field,BX.Landing,BX,BX.UI.DragAndDrop,BX.Landing.UI.Panel,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Landing.UI.Field,BX.Event,BX.Landing.UI.Form,BX.Crm.Form,BX.Landing.UI.Field,BX.Landing.UI.Panel,BX.Landing,BX,BX.Landing.Ui.Field,BX.Calendar,BX,BX,BX.Landing.UI.Component));
 //# sourceMappingURL=fieldslistfield.bundle.js.map

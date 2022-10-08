@@ -18,12 +18,12 @@
 .product-item-detail-info-container {
 	display: block;
 	overflow: hidden;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .product-item-detail-info-container-title {
 	margin-bottom: 3px;
-	font: 13px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #a3a9b1;
 }
 

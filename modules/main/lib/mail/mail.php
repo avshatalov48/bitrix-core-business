@@ -1026,7 +1026,7 @@ class Mail
 		if($textReplaced !== null) $text = $textReplaced;
 
 		$textReplaced = preg_replace_callback(
-			"/(background|background-image\\s*:\\s*url\\s*\\()([\"']?)(.*?)(\\2)(\\s*\\)(.*?);)/is",
+			"/(background\\s*:\\s*url\\s*\\(|background-image\\s*:\\s*url\\s*\\()([\"']?)(.*?)(\\2)(\\s*\\)(.*?);)/is",
 			array($this, $replaceImageFunction),
 			$text
 		);

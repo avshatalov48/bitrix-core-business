@@ -3,5 +3,3 @@ $MESS["MAIL_USERSIGNATURE_MODULE_ERROR"] = "Модуль \"Почта\" не у�
 $MESS["MAIL_USERSIGNATURE_EDIT_TITLE"] = "Редактирование подписи";
 $MESS["MAIL_USERSIGNATURE_ADD_TITLE"] = "Добавление подписи";
 $MESS["MAIL_USERSIGNATURE_SENDER_SELECT"] = "Привязать к ";
-$MESS["MAIL_USERSIGNATURE_SENDER_TYPE_SENDER"] = "отправителю";
-$MESS["MAIL_USERSIGNATURE_SENDER_TYPE_ADDRESS"] = "адресу";

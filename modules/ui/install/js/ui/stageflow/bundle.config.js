@@ -1,5 +1,8 @@
 module.exports = {
 	input: './src/index.js',
-	output: './dist/stageflow.bundle.js',
+	output: {
+		js: 'dist/stageflow.bundle.js',
+		css: 'dist/stageflow.bundle.css'
+	},
 	namespace: 'BX.UI',
 };

@@ -3,7 +3,6 @@ $arParams["SHOW_STRINGS"] = (intval($arParams["SHOW_STRINGS"]) > 0 ? $arParams["
 $arResult["SHOW_FILTER"] = array();
 if ($GLOBALS["USER"]->IsAuthorized())
 {
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 	$res = CUserOptions::GetOption("forum", "Filter", "");
 	$res = (CheckSerializedData($res) ? @unserialize($res, ["allowed_classes" => false]) : array());
 

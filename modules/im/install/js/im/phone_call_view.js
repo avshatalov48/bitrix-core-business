@@ -4043,7 +4043,7 @@
 		this.id = params.id;
 
 		this.entityType = '';
-		this.statuses = {}; // {STATUS_ID (string): { STATUS_NAME; string, CLASS: string, ITEMS: []}
+		this.statuses = new Map(); // {STATUS_ID (string): { STATUS_NAME; string, CLASS: string, ITEMS: []}
 		this.elements = {};
 		this.currentStatusId = params.callListStatusId || 'IN_WORK';
 		this.currentItemIndex = params.itemIndex || 0;
@@ -4075,7 +4075,8 @@
 		var self = this;
 		this.load(function()
 		{
-			if(self.statuses[self.currentStatusId].ITEMS.length  > 0)
+			const currentStatus = self.statuses.get(self.currentStatusId)
+			if(currentStatus && currentStatus.ITEMS.length  > 0)
 			{
 				self.render();
 				self.selectItem(self.currentStatusId, self.currentItemIndex);
@@ -4127,17 +4128,22 @@
 						//self.statuses = data.STATUSES;
 						data.STATUSES.forEach(function(statusRecord)
 						{
-							self.statuses[statusRecord.STATUS_ID] = statusRecord;
-							self.statuses[statusRecord.STATUS_ID].ITEMS = [];
+							statusRecord.ITEMS = [];
+							self.statuses.set(statusRecord.STATUS_ID, statusRecord);
 						});
 
 						data.ITEMS.forEach(function(item)
 						{
-							self.statuses[item.STATUS_ID].ITEMS.push(item);
+							let itemStatus = self.statuses.get(item.STATUS_ID);
+							if (itemStatus)
+							{
+								itemStatus.ITEMS.push(item);
+							}
 						});
 					}
 					self.entityType = data.ENTITY_TYPE;
-					if(self.statuses[self.currentStatusId].ITEMS.length == 0)
+					let currentStatus = self.statuses.get(self.currentStatusId);
+					if(currentStatus && currentStatus.ITEMS.length == 0)
 					{
 						self.currentStatusId = self.getNonEmptyStatusId();
 						self.currentItemIndex = 0;
@@ -4154,7 +4160,7 @@
 
 	CallList.prototype.selectItem = function(statusId, newIndex)
 	{
-		var currentNode = this.statuses[this.currentStatusId].ITEMS[this.currentItemIndex]._node;
+		var currentNode = this.statuses.get(this.currentStatusId).ITEMS[this.currentItemIndex]._node;
 		BX.removeClass(currentNode, 'im-phone-call-list-customer-block-active');
 
 		if(this.itemActionMenu)
@@ -4163,10 +4169,10 @@
 		this.currentStatusId = statusId;
 		this.currentItemIndex = newIndex;
 
-		currentNode = this.statuses[this.currentStatusId].ITEMS[this.currentItemIndex]._node;
+		currentNode = this.statuses.get(this.currentStatusId).ITEMS[this.currentItemIndex]._node;
 		BX.addClass(currentNode, 'im-phone-call-list-customer-block-active');
 
-		var newEntity = this.statuses[statusId].ITEMS[newIndex];
+		var newEntity = this.statuses.get(statusId).ITEMS[newIndex];
 
 		if((this.entityType == 'DEAL' || this.entityType == 'QUOTE' || this.entityType == 'INVOICE') && newEntity.ASSOCIATED_ENTITY)
 		{
@@ -4199,7 +4205,7 @@
 	CallList.prototype.moveToNextItem = function()
 	{
 		var newIndex = this.currentItemIndex+1;
-		if(newIndex>= this.statuses[this.currentStatusId].ITEMS.length)
+		if(newIndex>= this.statuses.get(this.currentStatusId).ITEMS.length)
 			newIndex = 0;
 
 		this.selectItem(this.currentStatusId, newIndex);
@@ -4209,7 +4215,7 @@
 	{
 		this.callingStatusId = statusId;
 		this.callingItemIndex = index;
-		currentNode = this.statuses[this.callingStatusId].ITEMS[this.callingItemIndex]._node;
+		currentNode = this.statuses.get(this.callingStatusId).ITEMS[this.callingItemIndex]._node;
 		BX.addClass(currentNode, 'im-phone-call-list-customer-block-calling');
 		this.selectionLocked = true;
 	};
@@ -4219,7 +4225,7 @@
 		if(this.callingStatusId === null || this.callingItemIndex === null)
 			return;
 
-		currentNode = this.statuses[this.callingStatusId].ITEMS[this.callingItemIndex]._node;
+		currentNode = this.statuses.get(this.callingStatusId).ITEMS[this.callingItemIndex]._node;
 		BX.removeClass(currentNode, 'im-phone-call-list-customer-block-calling');
 		this.callingStatusId = null;
 		this.callingItemIndex = null;
@@ -4235,15 +4241,11 @@
 
 	CallList.prototype.renderStatusBlocks = function()
 	{
-		var self =this;
 		var result = [];
-		var statusId;
-		var className;
 
-		for(statusId in this.statuses)
+		for(let [statusId, status] of this.statuses)
 		{
-			var status = this.statuses[statusId];
-			if (status.ITEMS.length == 0)
+			if (!status || status.ITEMS.length === 0)
 				continue;
 
 			status._node = this.renderStatusBlock(status);
@@ -4322,7 +4324,7 @@
 	CallList.prototype.renderCallListItems = function(statusId)
 	{
 		var result = [];
-		var status = this.statuses[statusId];
+		var status = this.statuses.get(statusId);
 
 		if(status._shownCount > 0)
 		{
@@ -4361,7 +4363,7 @@
 
 	CallList.prototype.renderCallListItem = function(itemDescriptor, statusId, itemIndex)
 	{
-		var statusName = this.statuses[statusId].NAME;
+		var statusName = this.statuses.get(statusId).NAME;
 		var self = this;
 
 		var phonesText = '';
@@ -4454,7 +4456,7 @@
 	CallList.prototype.onShowMoreClick = function(e)
 	{
 		var statusId = e.target.dataset.statusId;
-		var status = this.statuses[statusId];
+		var status = this.statuses.get(statusId);
 
 		status._shownCount += this.showDelta;
 		if(status._shownCount > status.ITEMS.length)
@@ -4470,11 +4472,11 @@
 		var self = this;
 		var menuItems = [];
 		var menuItem;
-		for(statusId in this.statuses)
+		for(let [statusId, status] of this.statuses)
 		{
 			menuItem = {
 				id: "setStatus_" + statusId,
-				text: this.statuses[statusId].NAME,
+				text: status.NAME,
 				onclick: this.actionMenuItemClickHandler(callListItem.ELEMENT_ID, statusId).bind(this)
 			};
 			menuItems.push(menuItem);
@@ -4634,24 +4636,24 @@
 	CallList.prototype.repopulateItems = function(items)
 	{
 		var self = this;
-		for(statusId in this.statuses)
+		for (let [statusId, status] of this.statuses)
 		{
-			this.statuses[statusId].ITEMS = [];
+			status.ITEMS = [];
 		}
 
 		items.forEach(function(item)
 		{
-			self.statuses[item.STATUS_ID].ITEMS.push(item);
+			self.statuses.get(item.STATUS_ID).ITEMS.push(item);
 		});
 
-		if(this.statuses[this.currentStatusId].ITEMS.length == 0)
+		if(this.statuses.get(this.currentStatusId).ITEMS.length === 0)
 		{
 			this.currentStatusId = this.getNonEmptyStatusId();
 			this.currentItemIndex = 0;
 		}
 		else
 		{
-			if(this.currentItemIndex >= this.statuses[this.currentStatusId].ITEMS.length)
+			if(this.currentItemIndex >= this.statuses.get(this.currentStatusId).ITEMS.length)
 				this.currentItemIndex = 0;
 		}
 
@@ -4662,9 +4664,9 @@
 	{
 		var foundStatusId = false;
 
-		for(statusId in this.statuses)
+		for(let [statusId, status] of this.statuses)
 		{
-			if(this.statuses[statusId].ITEMS.length > 0)
+			if(status.ITEMS.length > 0)
 			{
 				foundStatusId = statusId;
 				break;
@@ -4675,14 +4677,14 @@
 
 	CallList.prototype.getCurrentElement = function()
 	{
-		return this.statuses[this.currentStatusId].ITEMS[this.currentItemIndex];
+		return this.statuses.get(this.currentStatusId).ITEMS[this.currentItemIndex];
 	};
 
 	CallList.prototype.getStatusTitle = function(statusId)
 	{
-		var count = this.statuses[statusId].ITEMS.length;
+		var count = this.statuses.get(statusId).ITEMS.length;
 
-		return BX.util.htmlspecialchars(this.statuses[statusId].NAME) + ' (' +  count.toString() + ')';
+		return BX.util.htmlspecialchars(this.statuses.get(statusId).NAME) + ' (' +  count.toString() + ')';
 	};
 
 	var foldedCallListInstance = null;

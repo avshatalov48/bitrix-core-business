@@ -266,6 +266,23 @@ class Site
 			$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'Y';
 		}
 
+		if ($additional['title'])
+		{
+			$data['TITLE'] = $additional['title'];
+		}
+
+		//default widget value
+		$buttons = \Bitrix\Landing\Hook\Page\B24button::getButtons();
+		$buttonKeys = array_keys($buttons);
+		if (!empty($buttonKeys))
+		{
+			$data['ADDITIONAL_FIELDS']['B24BUTTON_CODE'] = $buttonKeys[0];
+		}
+		else
+		{
+			$data['ADDITIONAL_FIELDS']['B24BUTTON_CODE'] = 'N';
+		}
+
 		return $data;
 	}
 
@@ -421,16 +438,35 @@ class Site
 			$specialPages = $ratio['LANDING']['SPECIAL_PAGES'];
 			$sysPages = $ratio['LANDING']['SYS_PAGES'];
 			$foldersNew = $ratio['LANDING']['FOLDERS_NEW'];
+			$additional = $event->getParameter('ADDITIONAL_OPTION');
 
 			// if import just page in existing site
-			$additional = $event->getParameter('ADDITIONAL_OPTION');
 			$isPageImport = false;
 			if ($additional && (int)$additional['siteId'] > 0)
 			{
 				$isPageImport = true;
 			}
 
-			\Bitrix\Landing\Site\Type::setScope($siteType);
+			// index page for multipage, or just once - for sigle page import
+			$mainPageId = null;
+			if (!empty($landings))
+			{
+				if ($isPageImport)
+				{
+					$mainPageId = reset($landings);
+				}
+				elseif (
+					$siteId
+					&& $specialPages
+					&& $specialPages['LANDING_ID_INDEX']
+					&& $landings[$specialPages['LANDING_ID_INDEX']]
+				)
+				{
+					$mainPageId = $landings[$specialPages['LANDING_ID_INDEX']];
+				}
+			}
+
+				\Bitrix\Landing\Site\Type::setScope($siteType);
 			if ($blocksPending)
 			{
 				self::linkingPendingBlocks($blocksPending, [
@@ -581,9 +617,12 @@ class Site
 				}
 			}
 
+			//set default additional fields for page
+			self::setAdditionalPageFields($mainPageId, $additional);
+
 			\Bitrix\Landing\Rights::setGlobalOn();
 
-			// match link
+			// link for "go to site" button
 			$linkAttrs = [
 				'class' => 'ui-btn ui-btn-lg ui-btn-primary',
 				'data-is-site' => 'Y',
@@ -591,21 +630,16 @@ class Site
 				'href' => '#' . $siteId,
 				'target' => '_top'
 			];
-			if ($isPageImport && !empty($landings))
+			if ($mainPageId)
 			{
 				$linkAttrs['data-is-landing'] = 'Y';
-				$linkAttrs['data-landing-id'] = reset($landings);
-			}
-			else if (!$isPageImport && $siteId && $specialPages && $specialPages['LANDING_ID_INDEX'])
-			{
-				$linkAttrs['data-is-landing'] = 'Y';
-				$linkAttrs['data-landing-id'] = $specialPages['LANDING_ID_INDEX'];
+				$linkAttrs['data-landing-id'] = $mainPageId;
 			}
 			if ($siteType === 'KNOWLEDGE')
 			{
 				$linkAttrs['href'] = \Bitrix\Landing\Site::getPublicUrl($siteId);
 			}
-			elseif ($siteType === 'PAGE' && empty($event->getParameter('ADDITIONAL_OPTION')))
+			elseif ($siteType === 'PAGE' && empty($additional))
 			{
 				$url = Manager::getOption('tmp_last_show_url', '');
 				if ($url === '' && ModuleManager::isModuleInstalled('bitrix24'))
@@ -662,5 +696,31 @@ class Site
 		\Bitrix\Landing\Rights::setGlobalOn();
 
 		return [];
+	}
+
+	protected static function setAdditionalPageFields($landingId, $additional)
+	{
+		$additionalFields = [];
+
+		// set Title and Description to mainpage
+		if (!empty($additional))
+		{
+			if ($additional['title'])
+			{
+				$additionalFields['METAMAIN_TITLE'] = $additional['title'];
+				$additionalFields['METAOG_TITLE'] = $additional['title'];
+
+				LandingCore::update($landingId, [
+					'TITLE' => $additional['title']
+				]);
+			}
+			if ($additional['description'])
+			{
+				$additionalFields['METAMAIN_DESCRIPTION'] = $additional['description'];
+				$additionalFields['METAOG_DESCRIPTION'] = $additional['description'];
+			}
+		}
+
+		LandingCore::saveAdditionalFields($landingId, $additionalFields);
 	}
 }

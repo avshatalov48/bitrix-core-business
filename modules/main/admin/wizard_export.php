@@ -1,5 +1,5 @@
 <?
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/wizard.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/tar_gz.php");
@@ -20,7 +20,7 @@ if(!extension_loaded('zlib') || !function_exists("gzcompress"))
 $HTTP_ACCEPT_ENCODING = "";
 
 CheckDirPath($_SERVER['DOCUMENT_ROOT'].BX_PERSONAL_ROOT."/tmp/wizards/");
-$tempFile = $_SERVER['DOCUMENT_ROOT'].BX_PERSONAL_ROOT."/tmp/wizards/".md5(uniqid(rand(), true).".tar.gz");
+$tempFile = $_SERVER['DOCUMENT_ROOT'].BX_PERSONAL_ROOT."/tmp/wizards/".\Bitrix\Main\Security\Random::getString(32).".tar.gz";
 $wizardPath = $_SERVER["DOCUMENT_ROOT"].CWizardUtil::GetRepositoryPath().CWizardUtil::MakeWizardPath($ID);
 
 $strError = "";

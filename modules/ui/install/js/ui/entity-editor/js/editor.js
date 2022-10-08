@@ -1063,13 +1063,21 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			BX.onCustomEvent(window, this.eventsNamespace + ":onRelease", [ this, eventArgs ]);
 			//endregion
 
+			var modifiedActiveControls = [];
 			for(var i = 0, length = this._activeControls.length; i < length; i++)
 			{
 				var control = this._activeControls[i];
-				control.setActive(false);
-				control.toggleMode(false, options);
+				if(control.isModeToggleEnabled())
+				{
+					control.setActive(false);
+					control.toggleMode(false, options);
+				}
+				else
+				{
+					modifiedActiveControls.push(control);
+				}
 			}
-			this._activeControls = [];
+			this._activeControls = modifiedActiveControls;
 		},
 		hasChangedControls: function()
 		{
@@ -1601,6 +1609,10 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		switchToViewMode: function(options)
 		{
 			this.releaseActiveControls(options);
+			if(this.getActiveControlCount() > 0)
+			{
+				return; // some controls prevent switching to view mode
+			}
 			if (!this.isToolPanelAlwaysVisible())
 			{
 				this.hideToolPanel();
@@ -1641,7 +1653,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					BX.delegate(
 						function()
 						{
-							BX.bind(document, "click", this._pageTitleExternalClickHandler);
+							BX.bind(document, "mousedown", this._pageTitleExternalClickHandler);
 							BX.bind(this._pageTitleInput, "keyup", this._pageTitleKeyPressHandler);
 						},
 						this
@@ -1664,7 +1676,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					this._buttonWrapper.style.display = "";
 				}
 
-				BX.unbind(document, "click", this._pageTitleExternalClickHandler);
+				BX.unbind(document, "mousedown", this._pageTitleExternalClickHandler);
 				BX.unbind(this._pageTitleInput, "keyup", this._pageTitleKeyPressHandler);
 
 				this.adjustTitle();
@@ -2060,7 +2072,9 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					dataType: "json",
 					url: this._serviceUrl,
 					data: data,
-					onsuccess: BX.delegate(this.onSaveSuccess, this)
+					onsuccess: function(result) {
+						this.onSaveSuccess(result, {switchMode: false});
+					}.bind(this)
 				}
 			);
 		},
@@ -2455,7 +2469,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		{
 			return this._config.isCanChangeCommonConfiguration();
 		},
-		onSaveSuccess: function(result)
+		onSaveSuccess: function(result, params)
 		{
 			this._isRequestRunning = false;
 
@@ -2615,35 +2629,65 @@ if(typeof BX.UI.EntityEditor === "undefined")
 			}
 			else
 			{
-				if(BX.type.isPlainObject(entityData))
+				var needSwitchMode =  BX.prop.getBoolean(params, "switchMode", true);
+				if (needSwitchMode)
 				{
-					//Notification event is disabled because we will call "refreshLayout" for all controls at the end.
-					this._model.setData(entityData, { enableNotification: false });
-				}
+					if(BX.type.isPlainObject(entityData))
+					{
+						//Notification event is disabled because we will call "refreshLayout" for all controls at the end.
+						this._model.setData(entityData, { enableNotification: false });
+					}
 
-				this.adjustTitle();
-				this.adjustSize();
-				this.releaseAjaxForm();
-				this.initializeAjaxForm();
+					this.adjustTitle();
+					this.adjustSize();
+					this.releaseAjaxForm();
+					this.initializeAjaxForm();
 
-				for(var i = 0, length = this._controllers.length; i < length; i++)
-				{
-					this._controllers[i].onAfterSave();
-				}
+					for (var i = 0, length = this._controllers.length; i < length; i++)
+					{
+						this._controllers[i].onAfterSave();
+					}
 
-				if(this._modeSwitch.isRunning())
-				{
-					this._modeSwitch.complete();
-				}
-				else
-				{
-					this.switchToViewMode({ refreshLayout: false });
-				}
+					if (this._modeSwitch.isRunning())
+					{
+						this._modeSwitch.complete();
+					}
+					else
+					{
+						this.switchToViewMode({refreshLayout: false});
+					}
 
-				this.refreshLayout({ reset: true });
-				if (!this.isToolPanelAlwaysVisible())
+					this.refreshLayout({reset: true});
+					if (!this.isToolPanelAlwaysVisible())
+					{
+						this.hideToolPanel();
+					}
+				}
+				else if(BX.type.isPlainObject(entityData))
 				{
-					this.hideToolPanel();
+					var previousModel = Object.create(this._model); // clone model object
+					previousModel.setData(  // copy model data
+						BX.clone(this._model.getData()),
+						{
+							enableNotification: false
+						}
+					);
+
+					//Notification event is disabled because we will call "refreshViewModeLayout" for all controls at the end.
+					this._model.setData(entityData, {enableNotification: false});
+
+					this.adjustTitle();
+					this.adjustSize();
+
+					for(var i = 0, length = this._controllers.length; i < length; i++)
+					{
+						this._controllers[i].onReload();
+					}
+
+					this.refreshViewModeLayout({
+						previousModel: previousModel,
+						reset: true
+					});
 				}
 			}
 		},
@@ -2665,6 +2709,15 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					this._toolPanel.addError(errors[i]);
 				}
 			}
+			var eventParams = {
+				errors: errors,
+			};
+
+			eventParams["sender"] = this;
+			eventParams["entityTypeName"] = this._entityTypeName;
+			eventParams["entityId"] = this._entityId;
+
+			BX.onCustomEvent(window, this.eventsNamespace + ':onEntitySaveFailure', [eventParams]);
 		},
 		onReloadSuccess: function(result)
 		{

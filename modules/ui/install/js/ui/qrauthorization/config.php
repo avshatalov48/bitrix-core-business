@@ -13,6 +13,8 @@ return [
 		'main.loader',
 		'pull.client',
 		'main.qrcode',
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

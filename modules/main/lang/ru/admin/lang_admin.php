@@ -22,4 +22,5 @@ $MESS["ADD_LANG_TITLE"] = "Добавить новый язык";
 $MESS["LANG_EDIT_TITLE"] = "Перейти к редактированию языка";
 $MESS["MAIN_ADMIN_LIST_ACTIVATE"] = "активировать";
 $MESS["MAIN_ADMIN_LIST_DEACTIVATE"] = "деактивировать";
+$MESS['lang_admin_code'] = 'Код';
 ?>

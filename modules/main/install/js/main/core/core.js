@@ -4244,6 +4244,131 @@
 	});
 	isPure || MATCH_ALL in RegExpPrototype || redefine(RegExpPrototype, MATCH_ALL, $matchAll);
 
+	var floor$2 = Math.floor;
+	var charAt$3 = functionUncurryThis(''.charAt);
+	var replace$2 = functionUncurryThis(''.replace);
+	var stringSlice$3 = functionUncurryThis(''.slice);
+	var SUBSTITUTION_SYMBOLS = /\$([$&'`]|\d{1,2}|<[^>]*>)/g;
+	var SUBSTITUTION_SYMBOLS_NO_NAMED = /\$([$&'`]|\d{1,2})/g; // `GetSubstitution` abstract operation
+	// https://tc39.es/ecma262/#sec-getsubstitution
+
+	var getSubstitution = function (matched, str, position, captures, namedCaptures, replacement) {
+	  var tailPos = position + matched.length;
+	  var m = captures.length;
+	  var symbols = SUBSTITUTION_SYMBOLS_NO_NAMED;
+
+	  if (namedCaptures !== undefined) {
+	    namedCaptures = toObject(namedCaptures);
+	    symbols = SUBSTITUTION_SYMBOLS;
+	  }
+
+	  return replace$2(replacement, symbols, function (match, ch) {
+	    var capture;
+
+	    switch (charAt$3(ch, 0)) {
+	      case '$':
+	        return '$';
+
+	      case '&':
+	        return matched;
+
+	      case '`':
+	        return stringSlice$3(str, 0, position);
+
+	      case "'":
+	        return stringSlice$3(str, tailPos);
+
+	      case '<':
+	        capture = namedCaptures[stringSlice$3(ch, 1, -1)];
+	        break;
+
+	      default:
+	        // \d\d?
+	        var n = +ch;
+	        if (n === 0) return match;
+
+	        if (n > m) {
+	          var f = floor$2(n / 10);
+	          if (f === 0) return match;
+	          if (f <= m) return captures[f - 1] === undefined ? charAt$3(ch, 1) : captures[f - 1] + charAt$3(ch, 1);
+	          return match;
+	        }
+
+	        capture = captures[n - 1];
+	    }
+
+	    return capture === undefined ? '' : capture;
+	  });
+	};
+
+	var REPLACE = wellKnownSymbol('replace');
+	var RegExpPrototype$1 = RegExp.prototype;
+	var TypeError$f = global_1.TypeError;
+	var getFlags$1 = functionUncurryThis(regexpFlags);
+	var indexOf$2 = functionUncurryThis(''.indexOf);
+	var replace$3 = functionUncurryThis(''.replace);
+	var stringSlice$4 = functionUncurryThis(''.slice);
+	var max$2 = Math.max;
+
+	var stringIndexOf$1 = function (string, searchValue, fromIndex) {
+	  if (fromIndex > string.length) return -1;
+	  if (searchValue === '') return fromIndex;
+	  return indexOf$2(string, searchValue, fromIndex);
+	}; // `String.prototype.replaceAll` method
+	// https://tc39.es/ecma262/#sec-string.prototype.replaceall
+
+
+	_export({
+	  target: 'String',
+	  proto: true
+	}, {
+	  replaceAll: function replaceAll(searchValue, replaceValue) {
+	    var O = requireObjectCoercible(this);
+	    var IS_REG_EXP, flags, replacer, string, searchString, functionalReplace, searchLength, advanceBy, replacement;
+	    var position = 0;
+	    var endOfLastMatch = 0;
+	    var result = '';
+
+	    if (searchValue != null) {
+	      IS_REG_EXP = isRegexp(searchValue);
+
+	      if (IS_REG_EXP) {
+	        flags = toString_1(requireObjectCoercible('flags' in RegExpPrototype$1 ? searchValue.flags : getFlags$1(searchValue)));
+	        if (!~indexOf$2(flags, 'g')) throw TypeError$f('`.replaceAll` does not allow non-global regexes');
+	      }
+
+	      replacer = getMethod(searchValue, REPLACE);
+
+	      if (replacer) {
+	        return functionCall(replacer, searchValue, O, replaceValue);
+	      } else if (isPure && IS_REG_EXP) {
+	        return replace$3(toString_1(O), searchValue, replaceValue);
+	      }
+	    }
+
+	    string = toString_1(O);
+	    searchString = toString_1(searchValue);
+	    functionalReplace = isCallable(replaceValue);
+	    if (!functionalReplace) replaceValue = toString_1(replaceValue);
+	    searchLength = searchString.length;
+	    advanceBy = max$2(1, searchLength);
+	    position = stringIndexOf$1(string, searchString, 0);
+
+	    while (position !== -1) {
+	      replacement = functionalReplace ? toString_1(replaceValue(searchString, position, string)) : getSubstitution(searchString, string, position, [], undefined, replaceValue);
+	      result += stringSlice$4(string, endOfLastMatch, position) + replacement;
+	      endOfLastMatch = position + searchLength;
+	      position = stringIndexOf$1(string, searchString, position + advanceBy);
+	    }
+
+	    if (endOfLastMatch < string.length) {
+	      result += stringSlice$4(string, endOfLastMatch);
+	    }
+
+	    return result;
+	  }
+	});
+
 	var ITERATOR$3 = wellKnownSymbol('iterator');
 	var SAFE_CLOSING = false;
 
@@ -4291,7 +4416,7 @@
 	var TypedArray = Int8Array && objectGetPrototypeOf(Int8Array);
 	var TypedArrayPrototype = Int8ArrayPrototype && objectGetPrototypeOf(Int8ArrayPrototype);
 	var ObjectPrototype$2 = Object.prototype;
-	var TypeError$f = global_1.TypeError;
+	var TypeError$g = global_1.TypeError;
 	var TO_STRING_TAG$4 = wellKnownSymbol('toStringTag');
 	var TYPED_ARRAY_TAG = uid('TYPED_ARRAY_TAG');
 	var TYPED_ARRAY_CONSTRUCTOR = uid('TYPED_ARRAY_CONSTRUCTOR'); // Fixing native typed arrays in Opera Presto crashes the browser, see #595
@@ -4329,12 +4454,12 @@
 
 	var aTypedArray = function (it) {
 	  if (isTypedArray(it)) return it;
-	  throw TypeError$f('Target is not a typed array');
+	  throw TypeError$g('Target is not a typed array');
 	};
 
 	var aTypedArrayConstructor = function (C) {
 	  if (isCallable(C) && (!objectSetPrototypeOf || objectIsPrototypeOf(TypedArray, C))) return C;
-	  throw TypeError$f(tryToString(C) + ' is not a typed array constructor');
+	  throw TypeError$g(tryToString(C) + ' is not a typed array constructor');
 	};
 
 	var exportTypedArrayMethod = function (KEY, property, forced) {
@@ -4402,7 +4527,7 @@
 	if (!NATIVE_ARRAY_BUFFER_VIEWS || !isCallable(TypedArray) || TypedArray === Function.prototype) {
 	  // eslint-disable-next-line no-shadow -- safe
 	  TypedArray = function TypedArray() {
-	    throw TypeError$f('Incorrect invocation');
+	    throw TypeError$g('Incorrect invocation');
 	  };
 
 	  if (NATIVE_ARRAY_BUFFER_VIEWS) for (NAME in TypedArrayConstructorsList) {
@@ -4474,12 +4599,12 @@
 	  return new Int8Array$1(new ArrayBuffer$2(2), 1, undefined).length !== 1;
 	});
 
-	var floor$2 = Math.floor; // `IsIntegralNumber` abstract operation
+	var floor$3 = Math.floor; // `IsIntegralNumber` abstract operation
 	// https://tc39.es/ecma262/#sec-isintegralnumber
 	// eslint-disable-next-line es/no-number-isinteger -- safe
 
 	var isIntegralNumber = Number.isInteger || function isInteger(it) {
-	  return !isObject(it) && isFinite(it) && floor$2(it) === it;
+	  return !isObject(it) && isFinite(it) && floor$3(it) === it;
 	};
 
 	var RangeError$2 = global_1.RangeError;
@@ -5073,11 +5198,11 @@
 	  return result;
 	}, typedArrayConstructorsRequireWrappers);
 
-	var floor$3 = Math.floor;
+	var floor$4 = Math.floor;
 
 	var mergeSort = function (array, comparefn) {
 	  var length = array.length;
-	  var middle = floor$3(length / 2);
+	  var middle = floor$4(length / 2);
 	  return length < 8 ? insertionSort(array, comparefn) : merge(array, mergeSort(arraySliceSimple(array, 0, middle), comparefn), mergeSort(arraySliceSimple(array, middle), comparefn), comparefn);
 	};
 
@@ -8814,13 +8939,25 @@ window._main_polyfill_core = true;
 	          }
 
 	          if (Type.isNull(value) || value === '' || value === 'null') {
-	            // eslint-disable-next-line
+	            if (String(prop).startsWith('--')) {
+	              // eslint-disable-next-line
+	              element.style.removeProperty(prop);
+	              return element;
+	            } // eslint-disable-next-line
+
+
 	            element.style[prop] = '';
 	            return element;
 	          }
 
 	          if (Type.isString(value) || Type.isNumber(value)) {
-	            // eslint-disable-next-line
+	            if (String(prop).startsWith('--')) {
+	              // eslint-disable-next-line
+	              element.style.setProperty(prop, value);
+	              return element;
+	            } // eslint-disable-next-line
+
+
 	            element.style[prop] = value;
 	            return element;
 	          }
@@ -9253,8 +9390,12 @@ window._main_polyfill_core = true;
 
 	      if (Browser.isIOS()) {
 	        globalClass += ' bx-ios';
+	      } else if (Browser.isWin()) {
+	        globalClass += ' bx-win';
 	      } else if (Browser.isMac()) {
 	        globalClass += ' bx-mac';
+	      } else if (Browser.isLinux()) {
+	        globalClass += ' bx-linux';
 	      } else if (Browser.isAndroid()) {
 	        globalClass += ' bx-android';
 	      }
@@ -9759,129 +9900,327 @@ window._main_polyfill_core = true;
 	  return Loc;
 	}();
 
-	const handlers = new Map();
-	const children = new Map();
-
-	const getUid = (() => {
-	  let incremental = 0;
-	  return () => {
-	    incremental += 1;
-	    return incremental;
-	  };
-	})();
-
-	function bindAll(element, handlersMap) {
-	  handlersMap.forEach((handler, key) => {
-	    const currentElement = element.querySelector(`[${key}]`);
-
-	    if (currentElement) {
-	      currentElement.removeAttribute(key);
-	      const event = key.replace(/-(.*)/, '');
-	      Event.bind(currentElement, event, handler);
-	      handlers.delete(key);
-	    }
-	  });
+	const voidElements = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+	function isVoidElement(element) {
+	  return voidElements.includes(element);
 	}
 
-	function replaceChild(element, childrenMap) {
-	  childrenMap.forEach((item, id) => {
-	    const currentElement = element.getElementById(id);
+	const matchers = {
+	  tag: /<[a-zA-Z0-9\-\!\/](?:"[^"]*"|'[^']*'|[^'">])*>|{{uid[0-9]+}}/g,
+	  comment: /<!--(?!<!)[^\[>].*?-->/g,
+	  tagName: /<\/?([^\s]+?)[/\s>]/,
+	  attributes: /\s([\w\-_:.]+)\s?\n?=\s?\n?"([^"]+)?"|\s([\w\-_:.]+)\s?\n?=\s?\n?'([^']+)?'|\s([\w\-_:.]+)/gs,
+	  placeholder: /{{uid[0-9]+}}/g
+	};
 
-	    if (currentElement) {
-	      Dom.replace(currentElement, item);
-	      children.delete(id);
+	function parseTag(tag) {
+	  const tagResult = {
+	    type: 'tag',
+	    name: '',
+	    svg: false,
+	    attrs: {},
+	    children: [],
+	    voidElement: false
+	  };
+
+	  if (tag.startsWith('<!--')) {
+	    const endIndex = tag.indexOf('-->');
+	    const openTagLength = '<!--'.length;
+	    return {
+	      type: 'comment',
+	      content: endIndex !== -1 ? tag.slice(openTagLength, endIndex) : ''
+	    };
+	  }
+
+	  const tagNameMatch = tag.match(matchers.tagName);
+
+	  if (Type.isArrayFilled(tagNameMatch)) {
+	    const [, tagName] = tagNameMatch;
+	    tagResult.name = tagName;
+	    tagResult.svg = tagName === 'svg';
+	    tagResult.voidElement = isVoidElement(tagName) || tag.trim().endsWith('/>');
+	  }
+
+	  const reg = new RegExp(matchers.attributes);
+
+	  for (;;) {
+	    const result = reg.exec(tag);
+
+	    if (!Type.isNil(result)) {
+	      // Attributes with double quotes
+	      const [, attrName, attrValue] = result;
+
+	      if (!Type.isNil(attrName)) {
+	        tagResult.attrs[attrName] = Type.isStringFilled(attrValue) ? attrValue : '';
+	      } else {
+	        // Attributes with single quotes
+	        const [,,, attrName, attrValue] = result;
+
+	        if (!Type.isNil(attrName)) {
+	          tagResult.attrs[attrName] = Type.isStringFilled(attrValue) ? attrValue : '';
+	        } else {
+	          // Attributes without value
+	          const [,,,,, attrName] = result;
+	          tagResult.attrs[attrName] = '';
+	        }
+	      }
+	    } else {
+	      break;
+	    }
+	  }
+
+	  return tagResult;
+	}
+
+	function parseText(input) {
+	  const preparedText = input.replace(/[\n\r\t]$/, '');
+	  const placeholders = preparedText.match(matchers.placeholder);
+	  return preparedText.split(matchers.placeholder).reduce((acc, item, index) => {
+	    if (Type.isStringFilled(item)) {
+	      acc.push(...item.split(/\n/).reduce((textAcc, text) => {
+	        const preparedItemText = text.replace(/[\t\r]/g, '');
+
+	        if (Type.isStringFilled(preparedItemText)) {
+	          textAcc.push({
+	            type: 'text',
+	            content: preparedItemText
+	          });
+	        }
+
+	        return textAcc;
+	      }, []));
+	    }
+
+	    if (placeholders && placeholders[index]) {
+	      acc.push({
+	        type: 'placeholder',
+	        uid: parseInt(placeholders[index].replace(/{{uid|}}/, ''))
+	      });
+	    }
+
+	    return acc;
+	  }, []);
+	}
+
+	function parse(html, substitutions) {
+	  const result = [];
+
+	  if (html.indexOf('<') !== 0 && !html.startsWith('{{')) {
+	    const end = html.indexOf('<');
+	    result.push(...parseText(end === -1 ? html : html.slice(0, end)));
+	  }
+
+	  const commentsContent = [];
+	  let commentIndex = -1;
+	  html = html.replace(matchers.comment, tag => {
+	    commentIndex += 1;
+	    commentsContent.push(tag.replace(/^<!--|-->$/g, ''));
+	    return `<!--{{cUid${commentIndex}}}-->`;
+	  });
+	  const arr = [];
+	  let level = -1;
+	  let current;
+	  html.replace(matchers.tag, (tag, index) => {
+	    const start = index + tag.length;
+	    const nextChar = html.charAt(start);
+	    let parent;
+
+	    if (tag.startsWith('<!--')) {
+	      const comment = parseTag(tag, substitutions);
+	      comment.content = commentsContent[tag.replace(/<!--{{cUid|}}-->/g, '')];
+
+	      if (level < 0) {
+	        result.push(comment);
+	        return result;
+	      }
+
+	      parent = arr[level];
+	      parent.children.push(comment);
+	      return result;
+	    }
+
+	    if (tag.startsWith('{{')) {
+	      const [placeholder] = parseText(tag);
+
+	      if (level < 0) {
+	        result.push(placeholder);
+	        return result;
+	      }
+
+	      parent = arr[level];
+	      parent.children.push(placeholder);
+	      return result;
+	    }
+
+	    if (!tag.startsWith('</')) {
+	      level++;
+	      current = parseTag(tag, substitutions);
+
+	      if (!current.voidElement && nextChar && nextChar !== '<') {
+	        current.children.push(...parseText(html.slice(start, html.indexOf('<', start))));
+	      }
+
+	      if (level === 0) {
+	        result.push(current);
+	      }
+
+	      parent = arr[level - 1];
+
+	      if (parent) {
+	        if (!current.svg) {
+	          current.svg = parent.svg;
+	        }
+
+	        parent.children.push(current);
+	      }
+
+	      arr[level] = current;
+	    }
+
+	    if (tag.startsWith('</') || current.voidElement) {
+	      if (level > -1 && (current.voidElement || current.name === tag.slice(2, -1))) {
+	        level--;
+	        current = level === -1 ? result : arr[level];
+	      }
+
+	      if (nextChar && nextChar !== '<') {
+	        parent = level === -1 ? result : arr[level].children;
+	        const end = html.indexOf('<', start);
+	        const content = html.slice(start, end === -1 ? undefined : end);
+
+	        if (end > -1 && level + parent.length >= 0 || content !== ' ') {
+	          parent.push(...parseText(content));
+	        }
+	      }
 	    }
 	  });
+	  return result;
+	}
+
+	const appendElement = (current, target) => {
+	  if (Type.isDomNode(current) && Type.isDomNode(target)) {
+	    if (target.nodeName !== 'TEMPLATE') {
+	      Dom.append(current, target);
+	    } else {
+	      // eslint-disable-next-line bitrix-rules/no-native-dom-methods
+	      target.content.append(current);
+	    }
+	  }
+	};
+
+	function renderNode(options) {
+	  const {
+	    node,
+	    parentElement,
+	    substitutions
+	  } = options;
+
+	  if (node.type === 'tag') {
+	    const element = (() => {
+	      if (node.svg) {
+	        return document.createElementNS('http://www.w3.org/2000/svg', node.name);
+	      }
+
+	      return document.createElement(node.name);
+	    })();
+
+	    Object.entries(node.attrs).forEach(([key, value]) => {
+	      if (key.startsWith('on') && new RegExp(matchers.placeholder).test(value)) {
+	        const substitution = substitutions[parseInt(value.replace(/{{uid|}}/, '')) - 1];
+
+	        if (Type.isFunction(substitution)) {
+	          const bindFunctionName = key.endsWith('once') ? 'bindOnce' : 'bind';
+	          Event[bindFunctionName](element, key.replace(/^on|once$/g, ''), substitution);
+	        } else {
+	          element.setAttribute(key, substitution);
+	        }
+	      } else {
+	        if (new RegExp(matchers.placeholder).test(value)) {
+	          const preparedValue = value.split(/{{|}}/).reduce((acc, item) => {
+	            if (item.startsWith('uid')) {
+	              const substitution = substitutions[parseInt(item.replace('uid', '')) - 1];
+	              return `${acc}${substitution}`;
+	            }
+
+	            return `${acc}${item}`;
+	          }, '');
+	          element.setAttribute(key, preparedValue);
+	        } else {
+	          element.setAttribute(key, Text.decode(value));
+	        }
+	      }
+	    });
+	    node.children.forEach(childNode => {
+	      const result = renderNode({
+	        node: childNode,
+	        parentElement: element,
+	        substitutions
+	      });
+
+	      if (Type.isArray(result)) {
+	        result.forEach(subChildElement => {
+	          appendElement(subChildElement, element);
+	        });
+	      } else {
+	        appendElement(result, element);
+	      }
+	    });
+	    return element;
+	  }
+
+	  if (node.type === 'comment') {
+	    return document.createComment(node.content);
+	  }
+
+	  if (node.type === 'text') {
+	    if (parentElement) {
+	      if (parentElement.nodeName !== 'TEMPLATE') {
+	        parentElement.insertAdjacentHTML('beforeend', node.content);
+	      } else {
+	        parentElement.content.append(node.content);
+	      }
+
+	      return;
+	    }
+
+	    return document.createTextNode(node.content);
+	  }
+
+	  if (node.type === 'placeholder') {
+	    return substitutions[node.uid - 1];
+	  }
 	}
 
 	function render(sections, ...substitutions) {
-	  const eventAttrRe = /[ |\t]on(\w+)="$/;
-	  const uselessSymbolsRe = /[\r\n\t]/g;
-	  const html = substitutions.reduce((acc, item, index) => {
-	    let preparedAcc = acc; // Process event handlers
+	  const html = sections.reduce((acc, item, index) => {
+	    if (index > 0) {
+	      const substitution = substitutions[index - 1];
 
-	    const matches = acc.match(eventAttrRe);
+	      if (Type.isString(substitution) || Type.isNumber(substitution)) {
+	        return `${acc}${substitution}${item}`;
+	      }
 
-	    if (matches && Type.isFunction(item)) {
-	      const eventName = matches[1].replace(/=['|"]/, '');
-	      const attrName = `${eventName}-${getUid()}`;
-	      const attribute = `${attrName}="`;
-	      preparedAcc = preparedAcc.replace(eventAttrRe, ` ${attribute}`);
-	      handlers.set(attrName, item);
-	      preparedAcc += sections[index + 1].replace(uselessSymbolsRe, ' ').replace(/  +/g, ' ');
-	      return preparedAcc;
-	    } // Process element
-
-
-	    if (Type.isDomNode(item)) {
-	      const childKey = `tmp___${getUid()}`;
-	      children.set(childKey, item);
-	      preparedAcc += `<span id="${childKey}"> </span>`;
-	      preparedAcc += sections[index + 1];
-	      return preparedAcc;
-	    } // Process array
-
-
-	    if (Type.isArray(item)) {
-	      [...item].forEach(currentElement => {
-	        if (Type.isDomNode(currentElement)) {
-	          const childKey = `tmp___${getUid()}`;
-	          children.set(childKey, currentElement);
-	          preparedAcc += `<span id="${childKey}"> </span>`;
-	        }
-	      });
-	      preparedAcc += sections[index + 1];
-	      return preparedAcc;
+	      return `${acc}{{uid${index}}}${item}`;
 	    }
 
-	    return preparedAcc + item + sections[index + 1];
-	  }, sections[0]);
-	  const lowercaseHtml = html.trim().toLowerCase();
+	    return acc;
+	  }, sections[0]).replace(/^[\r\n\t\s]+/gm, '').replace(/>[\n]+/g, '>').replace(/[}][\n]+/g, '}');
+	  const ast = parse(html);
 
-	  if (lowercaseHtml.startsWith('<!doctype') || lowercaseHtml.startsWith('<html')) {
-	    const doc = document.implementation.createHTMLDocument('');
-	    doc.documentElement.innerHTML = html;
-	    replaceChild(doc, children);
-	    bindAll(doc, handlers);
-	    handlers.clear();
-	    return doc;
-	  }
-
-	  const parser = new DOMParser();
-	  const parsedDocument = parser.parseFromString(html, 'text/html');
-	  replaceChild(parsedDocument, children);
-	  bindAll(parsedDocument, handlers);
-
-	  if (parsedDocument.head.children.length && parsedDocument.body.children.length) {
-	    return parsedDocument;
-	  }
-
-	  if (parsedDocument.body.children.length === 1) {
-	    const [el] = parsedDocument.body.children;
-	    Dom.remove(el);
-	    return el;
-	  }
-
-	  if (parsedDocument.body.children.length > 1) {
-	    return [...parsedDocument.body.children].map(item => {
-	      Dom.remove(item);
-	      return item;
+	  if (ast.length === 1) {
+	    return renderNode({
+	      node: ast[0],
+	      substitutions
 	    });
 	  }
 
-	  if (parsedDocument.body.children.length === 0) {
-	    if (parsedDocument.head.children.length === 1) {
-	      const [el] = parsedDocument.head.children;
-	      Dom.remove(el);
-	      return el;
-	    }
-
-	    if (parsedDocument.head.children.length > 1) {
-	      return [...parsedDocument.head.children].map(item => {
-	        Dom.remove(item);
-	        return item;
+	  if (ast.length > 1) {
+	    return ast.map(node => {
+	      return renderNode({
+	        node,
+	        substitutions
 	      });
-	    }
+	    });
 	  }
 
 	  return false;

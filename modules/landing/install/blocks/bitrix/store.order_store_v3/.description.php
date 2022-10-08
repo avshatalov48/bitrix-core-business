@@ -18,7 +18,9 @@ return [
 			'type' => 'component',
 			'extra' => [
 				'editable' => [
-					'SHOW_COUPONS' => [],
+					'SHOW_RETURN_BUTTON' => [
+						'hidden' => true,
+					],
 				],
 			],
 		],

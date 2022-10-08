@@ -1,0 +1,20 @@
+.ui-button-panel__scope {
+	--ui-button-panel_btn-color: #55d0e0;
+}
+
+.ui-button-panel__container {
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	    -ms-flex-align: center;
+	        align-items: center;
+}
+
+.ui-button-panel__container .ui-btn,
+.ui-button-panel__container .ui-btn-main,
+.ui-button-panel__container .ui-btn-menu {
+	font: 13px/25px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
+	text-transform: none;
+}

@@ -30,6 +30,8 @@ if ($saleIsInstalled)
 	$useSaleDiscountOnly = Option::get('sale', 'use_sale_discount_only') == 'Y';
 }
 
+$crmInstalled = ModuleManager::isModuleInstalled('crm');
+
 $applyDiscSaveModeList = CCatalogDiscountSave::GetApplyModeList(true);
 
 $saleSettingsUrl = 'settings.php?lang='.LANGUAGE_ID.'&mid=sale&mid_menu=1';
@@ -287,11 +289,15 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && !empty($_POST['Update']) && !$bReadO
 		'product_form_show_offers_iblock',
 		'product_form_simple_search',
 		'product_form_show_offer_name',
-		'enable_processing_deprecated_events'
+		'enable_processing_deprecated_events',
 	);
 	if ($enabledCommonCatalog)
 	{
 		$checkboxFields[] = 'product_card_slider_enabled';
+	}
+	if (!$crmInstalled)
+	{
+		$checkboxFields[] = 'show_store_shipping_center';
 	}
 
 	foreach ($checkboxFields as $oneCheckbox)
@@ -1292,6 +1298,7 @@ $currentSettings['save_product_with_empty_price_range'] = Option::get('catalog',
 $currentSettings['default_product_vat_included'] = Option::get('catalog', 'default_product_vat_included');
 $currentSettings['enable_processing_deprecated_events'] = Option::get('catalog', 'enable_processing_deprecated_events');
 $currentSettings['product_card_slider_enabled'] = Option::get('catalog', 'product_card_slider_enabled');
+$currentSettings['show_store_shipping_center'] = Option::get('catalog', 'show_store_shipping_center');
 
 $strShowCatalogTab = Option::get('catalog', 'show_catalog_tab_with_offers');
 $strSaveProductWithoutPrice = Option::get('catalog', 'save_product_without_price');
@@ -1505,6 +1512,19 @@ if ($saleIsInstalled && Loader::includeModule('sale'))
 		</td>
 	</tr>
 	<?
+}
+if (!$crmInstalled)
+{
+	$checked = ($currentSettings['show_store_shipping_center'] === 'Y' ? ' checked' : '');
+	?>
+	<td style="width: 40%;">
+		<span id="hint_show_store_shipping_center"></span> <label for="show_store_shipping_center"><?= Loc::getMessage('CAT_SHOW_STORE_SHIPPING_CENTER'); ?></label>
+	</td>
+	<td>
+		<input type="hidden" name="show_store_shipping_center" id="show_store_shipping_center_n" value="N">
+		<input type="checkbox" name="show_store_shipping_center" id="show_store_shipping_center_y" value="Y"<?= $checked; ?>>
+	</td>
+	<?php
 }
 if (!$useSaleDiscountOnly)
 {
@@ -2161,6 +2181,7 @@ $tabControl->Buttons();
 <script type="text/javascript">
 BX.hint_replace(BX('hint_reservation'), '<?=CUtil::JSEscape(Loc::getMessage('CAT_ENABLE_RESERVATION_HINT')); ?>');
 BX.hint_replace(BX('hint_show_catalog_tab_with_offers'), '<?=CUtil::JSEscape(Loc::getMessage('CAT_ENABLE_SHOW_CATALOG_TAB_WITH_OFFERS')); ?>');
+BX.hint_replace(BX('hint_show_store_shipping_center'), '<?=CUtil::JSEscape(Loc::getMessage('CAT_SHOW_STORE_SHIPPING_CENTER_HINT')); ?>');
 </script>
 <?
 $tabControl->End();

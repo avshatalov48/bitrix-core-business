@@ -3,7 +3,6 @@
 @require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
 if (function_exists("FormDecode")) FormDecode();
-UnQuoteAll();
 
 // create an image canvas
 $ImageHandle = CreateImageHandle(45, 2);

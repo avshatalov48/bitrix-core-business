@@ -28,7 +28,7 @@ class CBPWorkflowPersister
 	/**
 	 * @return self
 	 */
-	public static function GetPersister()
+	public static function getPersister()
 	{
 		if (!isset(self::$instance))
 		{
@@ -39,7 +39,7 @@ class CBPWorkflowPersister
 		return self::$instance;
 	}
 
-	private function RetrieveWorkflow($instanceId, $silent = false)
+	private function retrieveWorkflow($instanceId, $silent = false)
 	{
 		global $DB;
 
@@ -88,7 +88,7 @@ class CBPWorkflowPersister
 		throw new Exception(GetMessage("BPCGWP_INVALID_WF"), \CBPRuntime::EXCEPTION_CODE_INSTANCE_NOT_FOUND);
 	}
 
-	protected function InsertWorkflow($id, $buffer, $status, $bUnlocked, array $creationData = [])
+	protected function insertWorkflow($id, $buffer, $status, $bUnlocked, array $creationData = [])
 	{
 		global $DB;
 
@@ -168,12 +168,12 @@ class CBPWorkflowPersister
 		}
 	}
 
-	protected function GetOwnershipTimeout()
+	protected function getOwnershipTimeout()
 	{
 		return time() + $this->ownershipDelta;
 	}
 
-	public function LoadWorkflow($instanceId, $silent = false)
+	public function loadWorkflow($instanceId, $silent = false)
 	{
 		[$state, $ro] = $this->RetrieveWorkflow($instanceId, $silent);
 
@@ -185,7 +185,7 @@ class CBPWorkflowPersister
 		throw new Exception("WorkflowNotFound");
 	}
 
-	protected function RestoreFromSerializedForm($buffer, $ro)
+	protected function restoreFromSerializedForm($buffer, $ro)
 	{
 		if ($this->useGZipCompression)
 		{
@@ -213,7 +213,7 @@ class CBPWorkflowPersister
 		return $activity;
 	}
 
-	public function SaveWorkflow(CBPActivity $rootActivity, $bUnlocked)
+	public function saveWorkflow(CBPActivity $rootActivity, $bUnlocked)
 	{
 		$creationData = [];
 		if ($rootActivity->workflow->isNew())
@@ -249,7 +249,7 @@ class CBPWorkflowPersister
 		$this->InsertWorkflow($rootActivity->GetWorkflowInstanceId(), $buffer, $workflowStatus, $bUnlocked, $creationData);
 	}
 
-	protected function GetSerializedForm(CBPActivity $rootActivity)
+	protected function getSerializedForm(CBPActivity $rootActivity)
 	{
 		$buffer = $rootActivity->Save();
 
@@ -269,7 +269,7 @@ class CBPWorkflowPersister
 		return $buffer;
 	}
 
-	public function UnlockWorkflow(CBPActivity $rootActivity)
+	public function unlockWorkflow(CBPActivity $rootActivity)
 	{
 		global $DB;
 

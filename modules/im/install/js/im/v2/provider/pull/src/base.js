@@ -105,6 +105,11 @@ export class ImBasePullHandler
 			return false;
 		}
 
+		if (params.lines)
+		{
+			return false;
+		}
+
 		let collection = this.store.state.messages.collection[params.chatId];
 		if (!collection)
 		{

@@ -1,7 +1,8 @@
-import {ajax, Cache, Tag, Type} from 'main.core';
+import {ajax, Cache, Dom, Loc, Tag, Text, Type} from 'main.core';
 import {Vue} from "ui.vue";
 import {config} from "../../config";
 import type {BaseEvent} from "main.core.events";
+import {EventEmitter} from 'main.core.events';
 import {Dialog, TagSelector} from "ui.entity-selector";
 
 Vue.component(config.templateFieldBrand,
@@ -25,48 +26,95 @@ Vue.component(config.templateFieldBrand,
 	},
 	created()
 	{
-		this.selector = new TagSelector({
-			id: this.selectorId,
-			dialogOptions: {
+		if (this.editable)
+		{
+			this.selector = new TagSelector({
 				id: this.selectorId,
-				context: 'CATALOG_BRANDS',
-				// enableSearch: true,
-				preselectedItems: this.getPreselectedBrands(),
-				events: {
-					'Item:onSelect': this.onBrandChange.bind(this),
-					'Item:onDeselect': this.onBrandChange.bind(this),
-					'Search:onItemCreateAsync': this.createBrand.bind(this)
-				},
-				searchTabOptions: {
-					stub: true,
-					stubOptions: {
-						title: Tag.message`${'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_TITLE'}`,
-						subtitle: Tag.message`${'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_SUBTITLE'}`,
-						arrow: true
-					}
-				},
-				searchOptions: {
-					allowCreateItem: true
-				},
-				entities: [
-					{
-						id: 'brand',
-						options: {
-							iblockId: this.options.iblockId,
-						},
-						dynamicSearch: true,
-						dynamicLoad: true
+				dialogOptions: {
+					id: this.selectorId,
+					context: 'CATALOG_BRANDS',
+					// enableSearch: true,
+					preselectedItems: this.getPreselectedBrands(),
+					events: {
+						'Item:onSelect': this.onBrandChange.bind(this),
+						'Item:onDeselect': this.onBrandChange.bind(this),
+						'Search:onItemCreateAsync': this.createBrand.bind(this)
 					},
-				]
-			},
-		});
+					searchTabOptions: {
+						stub: true,
+						stubOptions: {
+							title: Tag.message`${'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_TITLE'}`,
+							subtitle: Tag.message`${'CATALOG_FORM_BRAND_SELECTOR_IS_EMPTY_SUBTITLE'}`,
+							arrow: true
+						}
+					},
+					searchOptions: {
+						allowCreateItem: true
+					},
+					entities: [
+						{
+							id: 'brand',
+							options: {
+								iblockId: this.options.iblockId,
+							},
+							dynamicSearch: true,
+							dynamicLoad: true
+						},
+					]
+				},
+			});
+			this.isSelectedByProductChange = false;
+
+			this.$parent.$on('onInlineSelectorProductChange', this.selectCurrentBrands.bind(this));
+		}
 	},
 	mounted()
 	{
-		this.selector.renderTo(this.$refs.brandSelectorWrapper);
+		if (this.editable)
+		{
+			this.selector.renderTo(this.$refs.brandSelectorWrapper);
+		}
+		else
+		{
+			this.brands.forEach((brand, brandIndex, brands) => {
+				const separator = (brandIndex < brands.length - 1) ? ',&nbsp;' : '';
+				this.$refs.brandSelectorWrapper.appendChild(Tag.render`
+					<span>
+						<span
+							class="catalog-pf-product-input-brand-read-only-item"
+							style="background-image:url('${brand['IMAGE_SRC']}');"
+						></span>
+						${brand['NAME'] + separator}
+					</span>
+				`);
+			});
+		}
 	},
 	methods:
 	{
+		selectCurrentBrands(brands: Array)
+		{
+			this.isSelectedByProductChange = true;
+			this.brands = brands;
+			if (this.selector.getDialog().isLoaded())
+			{
+				this.selector.getDialog().deselectAll();
+				this.selectDialogItems();
+			}
+			else
+			{
+				this.selector.getDialog().load();
+				EventEmitter.subscribe(this.selector.getDialog(), 'onLoad', this.selectDialogItems.bind(this));
+			}
+		},
+		selectDialogItems()
+		{
+			this.brands.forEach(brand => {
+				const item = this.selector.getDialog().getItem({id: brand['VALUE'], entityId: 'brand'});
+				item.select();
+			});
+			this.isSelectedByProductChange = false;
+		},
 		getPreselectedBrands()
 		{
 			if (!Type.isArray(this.brands) || this.brands.length === 0)
@@ -75,7 +123,7 @@ Vue.component(config.templateFieldBrand,
 			}
 
 			return this.brands.map((item) => {
-				return ['brand', item]
+				return ['brand', item['VALUE']]
 			});
 		},
 		onBrandChange(event: BaseEvent)
@@ -85,11 +133,20 @@ Vue.component(config.templateFieldBrand,
 			if (Type.isArray(items))
 			{
 				items.forEach((item) => {
-					resultValues.push(item.getId());
+					resultValues.push({
+						'VALUE': item.getId(),
+						'NAME': item.getTitle(),
+						'IMAGE_SRC': item.getAvatar(),
+					});
 				});
 			}
 
-			this.$emit('changeBrand', resultValues);
+			const eventData = {
+				resultValues: resultValues,
+				isSelectedByProductChange: this.isSelectedByProductChange,
+			};
+
+			this.$emit('changeBrand', eventData);
 		},
 		createBrand(event): Promise
 		{

@@ -8,6 +8,8 @@ return [
 	'css' => 'dist/bundle.css',
 	'js' => 'dist/bundle.js',
 	'rel' => [
+		'ui.fonts.opensans',
+		'main.popup',
 		'main.core.events',
 		'main.core',
 	],

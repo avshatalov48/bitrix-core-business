@@ -93,7 +93,7 @@ this.BX.Landing = this.BX.Landing || {};
 	              _this2.loader.hide();
 	            }
 
-	            var form = currPage.container.querySelector('.ui-form');
+	            var form = currPage.container.querySelector('form.landing-form');
 
 	            if (form) {
 	              currPage.form = form;

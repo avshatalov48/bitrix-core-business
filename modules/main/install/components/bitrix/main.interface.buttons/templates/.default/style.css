@@ -1,7 +1,7 @@
 .main-buttons,
 .main-buttons-more-menu-popup,
-.main-buttons-menu-popup {
-
+.main-buttons-menu-popup,
+.main-buttons-default-menu-popup {
 	--mib-height: 60px;
 	--mib-background: #fff;
 	--mib-item-spacing: 50px;
@@ -16,23 +16,23 @@
 	--mib-menu-underline-bottom: 0;
 
 	--mib-item-font-size: 15px;
-	--mib-item-font-family: "OpenSans-Semibold", "Helvetica Neue", Arial, Helvetica, sans-serif;
-	--mib-item-font-weight: normal;
+	--mib-item-font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	--mib-item-font-weight: var(--ui-font-weight-semi-bold, 600);
 	--mib-item-color: #545c6a;
 	--mib-item-active-color: #1058d0;
 	--mib-item-hover-color: var(--mib-item-active-color);
 	--mib-item-passive-opacity: 0.6;
 	--mib-item-underline-size: 2px;
 	--mib-item-underline-color: #1058d0;
-	--mib-item-underline-bottom: -20px;
+	--mib-item-underline-bottom: 0;
 	--mib-item-hover-underline-size: 0;
 	--mib-item-hover-underline-color: transparent;
 	--mib-item-link-transition: none;
 
 	--mib-item-super-title-font-size: 8px;
 	--mib-item-super-title-color: #2fc6f6;
-	--mib-item-super-title-font-family: "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
-	--mib-item-super-title-font-weight: bold;
+	--mib-item-super-title-font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	--mib-item-super-title-font-weight: var(--ui-font-weight-semi-bold, 600);
 
 	--mib-item-edit-button-opacity: 0.4;
 	--mib-item-drag-button-opacity: 0.4;
@@ -77,11 +77,11 @@
 
 	--mib-item-spacing: 36px;
 	--mib-item-font-size: 14px;
-	--mib-item-font-family: "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	--mib-item-font-weight: 600;
+	--mib-item-font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	--mib-item-font-weight: var(--ui-font-weight-semi-bold, 600);
 	--mib-item-underline-size: 2px;
 	--mib-item-underline-color: #1058d0;
-	--mib-item-underline-bottom: -6px;
+	--mib-item-underline-bottom: 0;
 	--mib-item-hover-underline-size: var(--mib-item-underline-size);
 	--mib-item-hover-underline-color: var(--mib-item-underline-color);
 
@@ -96,7 +96,7 @@
 	--mib-margin-bottom: 0;
 	--mib-radius: 0;
 	--mib-background: transparent;
-
+	--mib-item-font-weight: var(--ui-font-weight-regular, 400);
 
 	--mib-menu-underline-size: 1px;
 	--mib-menu-underline-color: #e2e3e6;
@@ -105,7 +105,7 @@
 	--mib-item-font-size: 14px;
 	--mib-item-underline-size: 1px;
 	--mib-item-underline-color: #1058d0;
-	--mib-item-underline-bottom: -15px;
+	--mib-item-underline-bottom: 0;
 	--mib-item-spacing: 20px;
 	--mib-item-font-family: inherit;
 	--mib-item-drag-button-image-opacity: 0;
@@ -121,7 +121,7 @@
 	--mib-margin-bottom: 0;
 	--mib-radius: 0;
 	--mib-background: transparent;
-
+	--mib-item-font-weight: var(--ui-font-weight-regular, 400);
 
 	--mib-menu-underline-size: 1px;
 	--mib-menu-underline-color: #e2e3e6;
@@ -130,7 +130,7 @@
 	--mib-item-font-size: 13px;
 	--mib-item-underline-size: 1px;
 	--mib-item-underline-color: #1058d0;
-	--mib-item-underline-bottom: -6px;
+	--mib-item-underline-bottom: 0;
 	--mib-item-spacing: 20px;
 	--mib-item-font-family: inherit;
 	--mib-item-drag-button-image-opacity: 0;
@@ -234,7 +234,11 @@
 	display: block;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
 
+.main-buttons-item .main-buttons-item-text-box {
+	top: 50%;
+	transform: translateY(-50%);
 }
 
 .main-buttons-item-active:not(.menu-popup-item) .main-buttons-item-text-title:after,
@@ -296,7 +300,7 @@
 	margin-left: var(--mib-item-menu-arrow-margin-left);
 	background-image: var(--mib-item-menu-arrow-image);
 	background-repeat: no-repeat;
-
+	align-self: center;
 }
 
 .main-buttons-edit .main-buttons-item.--has-menu .main-buttons-item-menu-arrow {
@@ -334,8 +338,8 @@
 
 .main-buttons-menu-popup .menu-popup-item-text {
 	color: #525c69;
-	font: 14px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
-
+	font: 14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	line-height: 47px;
 	padding: 0 25px;
 }
@@ -393,7 +397,7 @@
 	text-transform: none;
 	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 	white-space: nowrap;
-	align-items: center;
+	align-items: stretch;
 }
 
 .main-buttons-edit .main-buttons-item-link {
@@ -430,26 +434,12 @@
 .main-buttons-menu-item.--locked .main-buttons-item-icon,
 .main-buttons-submenu-item.--locked .main-buttons-item-icon {
 	display: inline-flex;
-	align-self: center;
 	width: var(--mib-item-lock-icon-width);
-	height: var(--mib-item-lock-icon-height);
 	margin-right: var(--mib-item-lock-icon-margin-right);
 	background-image: var(--mib-item-lock-icon-image);
-
+	background-repeat: no-repeat;
+	background-position: center;
 }
-
-/*.main-buttons-menu-popup .menu-popup-item.--locked .menu-popup-item-text:after,
-.main-buttons-default-menu-popup .menu-popup-item.--locked .menu-popup-item-text:after {
-	display: inline-block;
-	width: var(--mib-item-lock-icon-width);
-	height: var(--mib-item-lock-icon-height);
-	background-image: var(--mib-item-lock-icon-image);
-	background-repeat: none;
-	margin-left: 5px;
-	vertical-align: baseline;
-	content: '';
-}*/
-
 
 .main-buttons-item.main-buttons-item-more {
 	margin-left: var(--mib-item-spacing);
@@ -457,7 +447,8 @@
 
 .main-buttons-item .main-buttons-item-text {
 	position: relative;
-
+	display: flex;
+	align-items: stretch;
 }
 
 .main-buttons-item .main-buttons-item-counter {
@@ -469,9 +460,12 @@
 	padding: 2px 5px 3px 5px;
 	border-radius: 30px;
 	background: #f54819;
-	font: bold 11px/11px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
-
+	font: 11px/11px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #fff;
+	box-sizing: border-box;
+	min-width: 16px;
+	text-align: center;
 }
 
 .main-buttons-menu-popup-item {
@@ -499,9 +493,12 @@
 	padding: 2px 5px 3px 5px;
 	border-radius: 30px;
 	background: #f54819;
-	font: bold 11px/11px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
-
+	font: 11px/11px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #fff;
+	box-sizing: border-box;
+	min-width: 16px;
+	text-align: center;
 }
 
 .menu-popup-item-text .main-buttons-item-pin {
@@ -567,11 +564,11 @@
 
 .main-buttons-item-super-title {
 	position: absolute;
-
+	top: 50%;
 	margin-top: calc(var(--mib-item-font-size) * -1.35);
 	font-family: var(--mib-item-super-title-font-family);
 	font-size: var(--mib-item-super-title-font-size);
-
+	line-height: var(--mib-item-super-title-font-size);
 	font-weight: var(--mib-item-super-title-font-weight);
 	color: var(--mib-item-super-title-color);
 	text-transform: uppercase;
@@ -687,8 +684,9 @@
 	height: 18px;
 	right: var(--mib-item-edit-button-right);
 	/*top: var(--mib-item-edit-button-top);*/
-
-
+	top: 50%;
+	transform: translateY(-50%);
+	margin-top: 1px;
 	pointer-events: none;
 	opacity: 0;
 	cursor: pointer;
@@ -710,7 +708,6 @@
 .main-buttons-item-drag-button {
 	z-index: 1;
 	left: -15px;
-	top: 2px;
 	right: auto;
 	cursor: move;
 }
@@ -763,8 +760,6 @@
 
 .main-buttons-submenu-item .main-buttons-item-edit-button,
 .main-buttons-submenu-item .main-buttons-item-drag-button {
-	top: 0;
-	bottom: 0;
 	height: auto;
 	width: 30px;
 	display: flex;

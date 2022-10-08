@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core) {
+(function (exports,ui_fonts_opensans,main_core) {
 	'use strict';
 
 	/**
@@ -241,5 +241,5 @@ this.BX = this.BX || {};
 
 	exports.Counter = Counter;
 
-}((this.BX.UI = this.BX.UI || {}),BX));
+}((this.BX.UI = this.BX.UI || {}),BX,BX));
 //# sourceMappingURL=cnt.bundle.js.map

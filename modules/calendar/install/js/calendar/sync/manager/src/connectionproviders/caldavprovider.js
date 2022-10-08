@@ -18,6 +18,6 @@ export class CaldavProvider extends CaldavConnection
 
 		this.connectionsSyncInfo = options.connections;
 
-		this.setConnections(options);
+		this.setConnections();
 	}
 }

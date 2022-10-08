@@ -2,6 +2,7 @@ import {Dom, Event, Tag, Type} from 'main.core';
 import {BaseCard} from 'landing.ui.card.basecard';
 import {Loc} from 'landing.loc';
 
+import 'ui.fonts.opensans';
 import './css/style.css';
 import {IconPanel} from 'landing.ui.panel.iconpanel';
 

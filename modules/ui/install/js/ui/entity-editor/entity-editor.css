@@ -49,9 +49,10 @@
 	padding: 20px;
 	width: 100%;
 	background-color: #fae5e8;
+	border-radius: var(--ui-border-radius-2xs);
 	color: #d0011b;
 	box-sizing: border-box;
-	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 @media print {
@@ -124,7 +125,7 @@
 	color: #525c69;
 	vertical-align: middle;
 	text-transform: none;
-	font: 400 18px/24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 18px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 input.ui-entity-editor-header-title-text {
@@ -436,7 +437,7 @@ input.ui-entity-editor-header-title-text {
 	-ms-flex-pack: justify;
 	margin-bottom: 5px;
 	color: #a3a9b1;
-	font: 12px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-box-pack: justify;
 	justify-content: space-between;
 }
@@ -447,7 +448,7 @@ input.ui-entity-editor-header-title-text {
 	color: #424956;
 	word-break: break-all;
 	word-break: break-word;
-	font: 15px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-entity-editor-content-block-collapsed {
@@ -502,7 +503,7 @@ input.ui-entity-editor-header-title-text {
 
 .ui-entity-editor-content-nothing-selected-text {
 	color: #a3a9b1;
-	font: 12px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 /*endregion*/
@@ -532,7 +533,7 @@ input.ui-entity-editor-header-title-text {
 	color: #80868e;
 	text-decoration: none;
 	white-space: nowrap;
-	font: 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	cursor: pointer;
 	transition: 220ms all ease;
 }
@@ -558,7 +559,7 @@ input.ui-entity-editor-header-title-text {
 /*region Editor - common*/
 .ui-entity-editor-field-description {
 	color: #a3a9b1;
-	font: 12px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	padding-top: 2px;
 }
 
@@ -625,7 +626,7 @@ input.ui-entity-editor-header-title-text {
 	border-radius: var(--ui-field-border-radius, 1px);
 	background-color: #fff;
 	color: #424956;
-	font: 15px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: 220ms all ease;
 }
 
@@ -729,7 +730,7 @@ input.ui-entity-editor-header-title-text {
 	color: #858c95;
 	vertical-align: middle;
 	text-decoration: none;
-	font: 400 13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 13px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: 250ms all ease;
 }
 
@@ -748,7 +749,7 @@ input.ui-entity-editor-header-title-text {
 	padding-left: 20px;
 	color: #424956;
 	vertical-align: middle;
-	font: 14px/25px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/25px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .field-item input[type=checkbox],
@@ -775,13 +776,13 @@ input.ui-entity-editor-header-title-text {
 	background: #e0e5e9;
 	color: #525c69;
 	text-align: center;
-	font: bold 12px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 12px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 /*endregion*/
 
 /*region Editor - Location */
-.fields.address { font: 400 13px/19px "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.fields.address { font: 400 13px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); }
 
 .fields.address a {
 	display: inline;
@@ -809,13 +810,13 @@ input.ui-entity-editor-header-title-text {
 	background: #e0e5e9;
 	color: #525c69;
 	text-align: center;
-	font: bold 12px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 12px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-entity-editor-content-block-radio-description {
 	color: #424956;
 	vertical-align: middle;
-	font: 14px/25px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/25px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 /*endregion*/
@@ -976,7 +977,7 @@ input.ui-entity-editor-header-title-text {
 	padding: 10px 11px;
 	background-color: #fae5e8;
 	color: #d0011b;
-	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	border-radius: var(--ui-border-radius-2xs);
 }
 
@@ -1014,7 +1015,7 @@ input.ui-entity-editor-header-title-text {
 	border-bottom: 1px dotted #cbced2;
 	background: none;
 	color: #80868e;
-	font: 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	cursor: pointer;
 	transition: all 220ms ease;
 }
@@ -1056,7 +1057,7 @@ input.ui-entity-editor-header-title-text {
 	border-bottom: 1px dashed #cbced2;
 	color: #80868e !important;
 	text-decoration: none;
-	font: 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	cursor: pointer;
 	transition: 220ms all ease;
 }
@@ -1152,7 +1153,7 @@ input.ui-entity-editor-header-title-text {
 	position: relative;
 	border-bottom: 1px dashed;
 	color: #80868e;
-	font: 400 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	cursor: pointer;
 	transition: 220ms all ease;
 }
@@ -1182,7 +1183,7 @@ input.ui-entity-editor-header-title-text {
 
 .field-item.file .webform-field-upload-list li div.webform-field-item-wrap {
 	white-space: normal;
-	font: 400 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-entity-editor-content-block .fields.file img {
@@ -1213,7 +1214,8 @@ input.ui-entity-editor-header-title-text {
 .ui-entity-editor-content-block-wallet-large {
 	color: #80868e;
 	font-size: 24px;
-	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	line-height: 30px;
 }
 
@@ -1277,7 +1279,7 @@ input.ui-entity-editor-header-title-text {
 
 .ui-entity-editor-user-position {
 	color: #80868e;
-	font: 12px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-entity-editor-user-change,
@@ -1290,7 +1292,8 @@ input.ui-entity-editor-header-title-text {
 	border-radius: 7px;
 	padding: 0 5px;
 	color: #767b81;
-	font: 8px/14px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 8px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	vertical-align: middle;
 	opacity: 0;
 	cursor: pointer;
@@ -1392,13 +1395,15 @@ input.ui-entity-editor-header-title-text {
 	display: block;
 	margin-bottom: 2px;
 	color: #000;
-	font: 600 14px/19px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .ui-entity-editor-popup-create-field-item-desc {
 	display: block;
 	color: #828b95;
-	font: 400 13px/18px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .ui-entity-card-content-hide {
@@ -1428,7 +1433,8 @@ input.ui-entity-editor-header-title-text {
 	padding-left: 10px;
 	height: auto;
 	background: #fff;
-	font-family: 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	opacity: 1;
 	min-width: 750px;
 }
@@ -1451,7 +1457,7 @@ input.ui-entity-editor-header-title-text {
 	display: block;
 	border-radius: 2px;
 	color: #80868e;
-	font: 14px/33px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px/33px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	cursor: pointer;
 	-webkit-transform: translate3d(0, 0, 0);
 	-webkit-column-break-inside: avoid;
@@ -1545,7 +1551,7 @@ input.ui-entity-editor-header-title-text {
 	border: none;
 	background: none;
 	color: #80868e;
-	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	line-height: 19px;
 }
 
@@ -1564,7 +1570,7 @@ input.ui-entity-editor-header-title-text {
 	padding: 6px 20px 18px 0;
 	border-bottom: 1px solid #e2e2e3;
 	color: #63676c;
-	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-transform: translate3d(0, 0, 0);
 	transform: translate3d(0, 0, 0);
 	-webkit-column-break-inside: avoid;
@@ -1854,7 +1860,7 @@ input.ui-entity-editor-header-title-text {
 
 .ui-entity-editor-block-title-link,
 .ui-entity-editor-block-title-link:hover {
-	font: 12px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-entity-editor-detail-btn {

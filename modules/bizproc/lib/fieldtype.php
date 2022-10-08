@@ -562,4 +562,27 @@ class FieldType
 
 		return $normalized;
 	}
+
+	/**
+	 * @param $value
+	 * @return void
+	 */
+	public function setValue($value)
+	{
+		$typeClass = $this->typeClass;
+
+		$this->property['Default'] =
+			($this->isMultiple())
+				? $typeClass::validateValueMultiple($value, $this)
+				: $typeClass::validateValueSingle($value, $this)
+		;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getValue()
+	{
+		return $this->property['Default'];
+	}
 }

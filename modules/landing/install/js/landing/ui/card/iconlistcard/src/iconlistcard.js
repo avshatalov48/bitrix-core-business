@@ -4,6 +4,7 @@ import {Loc} from 'landing.loc';
 import {BaseCard} from 'landing.ui.card.basecard';
 import {IconOptionsCard} from 'landing.ui.card.iconoptionscard';
 
+import 'ui.fonts.opensans';
 import './css/style.css';
 
 /**

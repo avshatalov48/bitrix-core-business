@@ -23,10 +23,6 @@
 	background: rgba(82,92,105,.08);
 }
 
-.mail-filter-counter-title{
-	margin: 0 5px 2px 0;
-}
-
 .mail-toolbar-counter {
 	height: 33px;
 	display: -webkit-box;
@@ -37,26 +33,9 @@
 	        align-items: center;
 	padding: 0 15px 0 10px;
 	cursor:pointer;
-	font: 14px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	position: relative;
-}
-
-.mail-toolbar-counter:nth-last-child(2)::before {
-	content: '';
-	display: block;
-	width: 1px;
-	height: 15px;
-	position: absolute;
-	right: 0;
-	top: 50%;
-	-webkit-transform: translateY(-50%);
-	    -ms-transform: translateY(-50%);
-	        transform: translateY(-50%);
-	background: rgba(255, 255, 255, 0.3);
-}
-
-.mail-toolbar-counter:last-of-type {
-	padding: 0 15px;
 }
 
 .bitrix24-dark-theme .mail-toolbar-counter:nth-last-child(2)::before {

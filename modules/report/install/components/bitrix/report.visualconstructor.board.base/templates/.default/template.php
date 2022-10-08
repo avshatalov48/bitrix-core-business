@@ -7,6 +7,8 @@ CJSCore::Init(array('report.js.activitywidget')); //TODO remove here when can mo
 CJSCore::Init(array('report_visual_constructor'));
 CJSCore::Init(array('sidepanel'));
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+
 $APPLICATION->IncludeComponent(
 	'bitrix:report.visualconstructor.board.header',
 	$arResult['HEADER_TEMPLATE_NAME'],

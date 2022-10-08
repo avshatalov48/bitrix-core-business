@@ -16,6 +16,8 @@ use Bitrix\Main\Loader;
  * @global CUser $USER
  */
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+
 $arCRMFormParams = array(
 	"ru" => array(
 		"js_params" => "b24form({\"id\":\"65\",\"lang\":\"ru\",\"sec\":\"joq1dv\",\"type\":\"link\",\"click\":\"\"});",

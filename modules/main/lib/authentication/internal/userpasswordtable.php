@@ -31,6 +31,8 @@ use Bitrix\Main\ORM\Fields;
  */
 class UserPasswordTable extends Data\DataManager
 {
+	use Data\Internal\DeleteByFilterTrait;
+
 	public static function getTableName()
 	{
 		return 'b_user_password';
@@ -56,26 +58,6 @@ class UserPasswordTable extends Data\DataManager
 				Join::on('this.USER_ID', 'ref.ID')
 			))->configureJoinType('inner'),
 		];
-	}
-
-	public static function deleteByFilter(array $filter)
-	{
-		$entity = static::getEntity();
-
-		$where = Main\ORM\Query\Query::buildFilterSql($entity, $filter);
-
-		if($where <> '')
-		{
-			$where = " WHERE ".$where;
-		}
-		else
-		{
-			throw new Main\ArgumentException("Deleting by empty filter is not allowed, use truncate (b_user_password).", "filter");
-		}
-
-		$entity->getConnection()->queryExecute("delete from b_user_password".$where);
-
-		$entity->cleanCache();
 	}
 
 	public static function passwordExpired($userId, $days)

@@ -481,8 +481,9 @@ HTML
 					'arSmilesSet' => array(),
 					'arSmiles' => array(),
 					'content' => '',
-					'iframeCss' => 'body{font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; font-size: 13px;}'.
-						'.bx-spoiler {border:1px solid #C0C0C0;background-color:#fff4ca;padding: 4px 4px 4px 24px;color:#373737;border-radius:2px;min-height:1em;margin: 0;}',
+					'fontSize' => '14px',
+					'iframeCss' =>
+						'.bx-spoiler {border:1px solid #cecece;background-color:#f6f6f6;padding: 8px 8px 8px 24px;color:#373737;border-radius:var(--ui-border-radius-sm, 2px);min-height:1em;margin: 0;}',
 				)
 			);
 			$editor->Show($res);
@@ -1028,9 +1029,10 @@ HTML
 				'/bitrix/js/fileman/block_editor/editor.js',
 			),
 			'css' => '/bitrix/js/fileman/block_editor/dialog.css',
+			'rel' => ['ui.design-tokens', 'ui.fonts.opensans'],
 			'lang' => '/bitrix/modules/fileman/lang/' . LANGUAGE_ID . '/js_block_editor.php',
 		));
-		\CJSCore::Init(array("block_editor", "color_picker", "clipboard", "ui.design-tokens"));
+		\CJSCore::Init(array("block_editor", "color_picker", "clipboard"));
 
 		static $isBlockEditorManagerInited = false;
 		$editorBlockTypeListByCode = array();

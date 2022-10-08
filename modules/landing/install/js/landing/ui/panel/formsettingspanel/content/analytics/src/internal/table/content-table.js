@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import {Tag} from 'main.core';
 import {ContentTableCell} from './content-table-cell';
 import {ContentTableRow} from './content-table-row';

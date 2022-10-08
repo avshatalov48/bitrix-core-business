@@ -47,7 +47,7 @@ class DateTimeType extends DateType
 	 */
 	public static function prepareSettings(array $userField): array
 	{
-		$def = $userField['SETTINGS']['DEFAULT_VALUE'];
+		$def = $userField['SETTINGS']['DEFAULT_VALUE'] ?? '';
 		$value = '';
 
 		if(!is_array($def))
@@ -73,8 +73,8 @@ class DateTimeType extends DateType
 
 		return [
 			'DEFAULT_VALUE' => $def,
-			'USE_SECOND' => ($userField['SETTINGS']['USE_SECOND'] === 'N' ? 'N' : 'Y'),
-			'USE_TIMEZONE' => ($userField['SETTINGS']['USE_TIMEZONE'] === 'Y' ? 'Y' : 'N'),
+			'USE_SECOND' => (($userField['SETTINGS']['USE_SECOND'] ?? 'Y') === 'N' ? 'N' : 'Y'),
+			'USE_TIMEZONE' => (($userField['SETTINGS']['USE_TIMEZONE'] ?? 'N') === 'Y' ? 'Y' : 'N'),
 		];
 	}
 
@@ -295,7 +295,8 @@ class DateTimeType extends DateType
 
 	public static function getFieldValue(array $userField, array $additionalParameters = [])
 	{
-		if(!$additionalParameters['bVarsFromForm'])
+		$bVarsFromForm = ($additionalParameters['bVarsFromForm'] ?? false);
+		if(!$bVarsFromForm)
 		{
 			if(
 				isset($userField['ENTITY_VALUE_ID'])

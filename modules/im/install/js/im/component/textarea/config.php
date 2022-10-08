@@ -12,6 +12,7 @@ return [
 		'./dist/textarea.bundle.css',
 	],
 	'rel' => [
+		'ui.design-tokens',
 		'ui.vue',
 		'im.lib.localstorage',
 		'im.lib.utils',

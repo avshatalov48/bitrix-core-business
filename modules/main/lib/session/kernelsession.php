@@ -33,6 +33,11 @@ class KernelSession implements SessionInterface, \ArrayAccess
 		return $this->isStarted();
 	}
 
+	public function isAccessible(): bool
+	{
+		return true;
+	}
+
 	public function getId(): string
 	{
 		return $this->id;

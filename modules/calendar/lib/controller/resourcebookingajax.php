@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Calendar\Controller;
 
+use Bitrix\Calendar\UserField\ResourceBooking;
+use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
@@ -18,11 +20,11 @@ class ResourceBookingAjax extends \Bitrix\Main\Engine\Controller
 		return [
 			'getFillFormData' => [
 				'-prefilters' => [
-					\Bitrix\Main\Engine\ActionFilter\Authentication::class,
-					\Bitrix\Main\Engine\ActionFilter\Csrf::class
+					ActionFilter\Authentication::class,
+					ActionFilter\Csrf::class
 				],
 				'+postfilters' => [
-					new \Bitrix\Main\Engine\ActionFilter\Cors()
+					new ActionFilter\Cors()
 				],
 			],
 		];
@@ -45,12 +47,12 @@ class ResourceBookingAjax extends \Bitrix\Main\Engine\Controller
 
 	public function getDefaultUserfieldSettingsAction()
 	{
-		return \Bitrix\Calendar\UserField\ResourceBooking::prepareSettings();
+		return ResourceBooking::prepareSettings();
 	}
 
 	public function getBitrix24LimitationAction()
 	{
-		return \Bitrix\Calendar\UserField\ResourceBooking::getBitrx24Limitation();
+		return ResourceBooking::getBitrx24Limitation();
 	}
 
 	public function getUserSelectorDataAction()
@@ -69,7 +71,7 @@ class ResourceBookingAjax extends \Bitrix\Main\Engine\Controller
 	public function getFieldParamsAction()
 	{
 		$request = $this->getRequest();
-		return \Bitrix\Calendar\UserField\ResourceBooking::getUserFieldByFieldName($request['fieldname'], $request['selectedUsers']);
+		return ResourceBooking::getUserFieldByFieldName($request['fieldname'], $request['selectedUsers']);
 	}
 
 	public function getFillFormDataAction()
@@ -83,7 +85,7 @@ class ResourceBookingAjax extends \Bitrix\Main\Engine\Controller
 			$settingsData = Json::decode($settingsData);
 		}
 
-		return \Bitrix\Calendar\UserField\ResourceBooking::getFillFormData(
+		return ResourceBooking::getFillFormData(
 			$settingsData,
 			[
 				'fieldName' => $request['fieldName'],

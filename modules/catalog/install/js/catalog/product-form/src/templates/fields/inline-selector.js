@@ -33,6 +33,7 @@ Vue.component(config.templateFieldInlineSelector,
 		EventEmitter.subscribe('BX.Catalog.ProductSelector:onProductSelect', this.onProductSelect.bind(this));
 		EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.onProductChange.bind(this));
 		EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.onProductClear.bind(this))
+		EventEmitter.subscribe(this.$root.$app, 'onChangeCompilationMode', this.changeProductSelectorImageRequire.bind(this));
 	},
 	mounted()
 	{
@@ -41,6 +42,19 @@ Vue.component(config.templateFieldInlineSelector,
 	},
 	methods:
 	{
+		changeProductSelectorImageRequire(event: BaseEvent)
+		{
+			const isCompilationMode = event.getData()?.isCompilationMode;
+			const isFacebookForm = event.getData()?.isFacebookForm;
+
+			this.productSelector.setConfig(
+				'ENABLE_EMPTY_IMAGES_ERROR',
+				isCompilationMode && isFacebookForm
+			);
+
+			this.productSelector.checkEmptyImageError();
+			this.productSelector.layoutErrors();
+		},
 		prepareSelectorParams(): Object
 		{
 			const fields = {
@@ -52,6 +66,13 @@ Vue.component(config.templateFieldInlineSelector,
 				fields.PRICE = this.getField('basePrice');
 				fields.CURRENCY = this.options.currency;
 			}
+
+			const basketItemOfferId = this.basketItem.offerId;
+			const facebookFailProducts = this.options.facebookFailProducts;
+			const hasFacebookError =
+				Type.isObject(facebookFailProducts)
+				&& facebookFailProducts.hasOwnProperty(basketItemOfferId)
+			;
 
 			const selectorOptions = {
 				iblockId: this.options.iblockId,
@@ -74,6 +95,7 @@ Vue.component(config.templateFieldInlineSelector,
 					HIDE_UNSELECTED_ITEMS: this.options.hideUnselectedProperties,
 					URL_BUILDER_CONTEXT: this.options.urlBuilderContext
 				},
+				failedProduct: hasFacebookError,
 				mode: this.editable ? ProductSelector.MODE_EDIT : ProductSelector.MODE_VIEW,
 				fields,
 			};
@@ -138,6 +160,8 @@ Vue.component(config.templateFieldInlineSelector,
 					CUSTOMIZED: (Type.isNil(data.fields.PRICE) || data.fields.CUSTOMIZED === 'Y') ? 'Y' : 'N',
 					MEASURE_CODE: data.fields.MEASURE_CODE,
 					MEASURE_NAME: data.fields.MEASURE_NAME,
+					MORE_PHOTO: data.morePhoto,
+					BRANDS: data.fields.BRANDS,
 					IS_NEW: data.isNew,
 				};
 

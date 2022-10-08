@@ -78,7 +78,6 @@ function makeRowForGrid($item, $canEdit)
 	if ($canEdit)
 	{
 		$actions[] = [
-			'ICONCLASS' => 'menu-popup-item-delete',
 			'TITLE' => Loc::getMessage('MAIL_ADDRESSBOOK_GRID_ACTION_REMOVE'),
 			'TEXT' => Loc::getMessage('MAIL_ADDRESSBOOK_GRID_ACTION_REMOVE'),
 			'ONCLICK' => 'BX.Mail.AddressBook.openRemoveDialog('.Json::Encode(
@@ -121,7 +120,9 @@ function makeRowsForGrid($tableRows, $canEdit)
 }
 
 $removeButton = new \Bitrix\Main\Grid\Panel\Snippet();
-
+?>
+<div class="mail-addressbook-list-grid">
+<?php
 $APPLICATION->IncludeComponent(
 	'bitrix:main.ui.grid',
 	'',
@@ -151,3 +152,4 @@ $APPLICATION->IncludeComponent(
 	]
 );
 ?>
+</div>

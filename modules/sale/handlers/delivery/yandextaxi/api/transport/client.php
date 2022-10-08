@@ -2,6 +2,7 @@
 
 namespace Sale\Handlers\Delivery\YandexTaxi\Api\Transport;
 
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use Sale\Handlers\Delivery\YandexTaxi\Common\Logger;
@@ -49,17 +50,12 @@ final class Client
 
 	/**
 	 * @param int $version
-	 * @throws Exception
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws Exception
-	 * @throws \Bitrix\Main\ArgumentException
 	 * @param string $method
 	 * @param string $endpoint
 	 * @param array|null $queryParams
 	 * @param mixed|null $body
 	 * @return Response
 	 * @throws Exception
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public function request(
 		int $version,
@@ -104,7 +100,16 @@ final class Client
 			throw new Exception(sprintf('transport_exception: %s', $errors));
 		}
 
-		return new Response((int)$httpClient->getStatus(), Json::decode($result));
+		try
+		{
+			$response = Json::decode($result);
+		}
+		catch (ArgumentException $e)
+		{
+			throw new Exception(sprintf('transport_exception: unexpected JSON format: %s', $result));
+		}
+
+		return new Response((int)$httpClient->getStatus(), $response);
 	}
 
 	/**

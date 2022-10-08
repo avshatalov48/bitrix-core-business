@@ -16,6 +16,7 @@ class AudienceYandex extends Audience
 	const MAX_CONTACTS_PER_PACKET = 0;
 	const MIN_CONTACTS_FOR_ACTIVATING = 1000;
 	const URL_AUDIENCE_LIST = 'https://audience.yandex.ru/';
+	private const EXAMPLE_MAIL = 'example@mail.domain';
 
 	const NEW_AUDIENCE_FAKE_ID = -1;
 	const UPDATE_AUDIENCE_TIMEOUT = 60;
@@ -67,6 +68,11 @@ class AudienceYandex extends Audience
 		return false;
 	}
 
+	public static function isSupportAddAudience()
+	{
+		return true;
+	}
+
 	/**
 	 * @param array $data Data.
 	 * @return \Bitrix\Seo\Retargeting\Response
@@ -75,7 +81,23 @@ class AudienceYandex extends Audience
 	 */
 	public function add(array $data)
 	{
-		throw new NotImplementedException('Method `AudienceYandex::Add` not implemented.');
+		$response = $this->request->send(array(
+			'methodName' => 'retargeting.audience.add',
+			'parameters' => array(
+				'name' => $data['NAME'],
+				'hashed' => 0,
+				'contacts' => $this->prepareContacts(["email" => [self::EXAMPLE_MAIL]]),
+			),
+		));
+
+		$responseData = $response->getData();
+		if (isset($responseData['id']))
+		{
+			$response->setId($responseData['id']);
+		}
+
+		return $response
+			;
 	}
 
 	/**
@@ -195,8 +217,7 @@ class AudienceYandex extends Audience
 			$data = array_values(array_filter($data['segments'], function ($item) {
 				return (
 					$item['type'] == 'uploading' && // based on uploaded data
-					$item['content_type'] == 'crm' && // Data from crm
-					$item['status'] != 'is_processed' // Can't use segments which are processed right now
+					$item['content_type'] == 'crm'// Data from crm
 				);
 			}));
 		}

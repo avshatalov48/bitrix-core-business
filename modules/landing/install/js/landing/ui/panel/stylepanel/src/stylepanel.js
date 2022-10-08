@@ -3,6 +3,8 @@ import {Loader} from 'main.loader';
 import {Content} from 'landing.ui.panel.content';
 import {Loc} from 'landing.loc';
 import {PageObject} from 'landing.pageobject';
+
+import 'ui.fonts.opensans';
 import './css/style.css';
 
 const showPseudoContent = Symbol('showPseudoContent');

@@ -17,7 +17,7 @@ use Bitrix\Main\Localization\Loc;
 $this->setFrameMode(true);
 $this->addExternalCss('/bitrix/css/main/bootstrap.css');
 
-$templateLibrary = array('popup', 'fx');
+$templateLibrary = array('popup', 'fx', 'ui.fonts.opensans');
 $currencyList = '';
 
 if (!empty($arResult['CURRENCIES']))

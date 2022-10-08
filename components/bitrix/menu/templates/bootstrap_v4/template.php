@@ -17,6 +17,7 @@ if (empty($arResult["ALL_ITEMS"]))
 	return;
 
 CUtil::InitJSCore();
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 
 $menuBlockId = "catalog_menu_".$this->randString();
 ?>

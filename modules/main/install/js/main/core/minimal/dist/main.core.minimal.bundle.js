@@ -4244,6 +4244,131 @@
 	});
 	isPure || MATCH_ALL in RegExpPrototype || redefine(RegExpPrototype, MATCH_ALL, $matchAll);
 
+	var floor$2 = Math.floor;
+	var charAt$3 = functionUncurryThis(''.charAt);
+	var replace$2 = functionUncurryThis(''.replace);
+	var stringSlice$3 = functionUncurryThis(''.slice);
+	var SUBSTITUTION_SYMBOLS = /\$([$&'`]|\d{1,2}|<[^>]*>)/g;
+	var SUBSTITUTION_SYMBOLS_NO_NAMED = /\$([$&'`]|\d{1,2})/g; // `GetSubstitution` abstract operation
+	// https://tc39.es/ecma262/#sec-getsubstitution
+
+	var getSubstitution = function (matched, str, position, captures, namedCaptures, replacement) {
+	  var tailPos = position + matched.length;
+	  var m = captures.length;
+	  var symbols = SUBSTITUTION_SYMBOLS_NO_NAMED;
+
+	  if (namedCaptures !== undefined) {
+	    namedCaptures = toObject(namedCaptures);
+	    symbols = SUBSTITUTION_SYMBOLS;
+	  }
+
+	  return replace$2(replacement, symbols, function (match, ch) {
+	    var capture;
+
+	    switch (charAt$3(ch, 0)) {
+	      case '$':
+	        return '$';
+
+	      case '&':
+	        return matched;
+
+	      case '`':
+	        return stringSlice$3(str, 0, position);
+
+	      case "'":
+	        return stringSlice$3(str, tailPos);
+
+	      case '<':
+	        capture = namedCaptures[stringSlice$3(ch, 1, -1)];
+	        break;
+
+	      default:
+	        // \d\d?
+	        var n = +ch;
+	        if (n === 0) return match;
+
+	        if (n > m) {
+	          var f = floor$2(n / 10);
+	          if (f === 0) return match;
+	          if (f <= m) return captures[f - 1] === undefined ? charAt$3(ch, 1) : captures[f - 1] + charAt$3(ch, 1);
+	          return match;
+	        }
+
+	        capture = captures[n - 1];
+	    }
+
+	    return capture === undefined ? '' : capture;
+	  });
+	};
+
+	var REPLACE = wellKnownSymbol('replace');
+	var RegExpPrototype$1 = RegExp.prototype;
+	var TypeError$f = global_1.TypeError;
+	var getFlags$1 = functionUncurryThis(regexpFlags);
+	var indexOf$2 = functionUncurryThis(''.indexOf);
+	var replace$3 = functionUncurryThis(''.replace);
+	var stringSlice$4 = functionUncurryThis(''.slice);
+	var max$2 = Math.max;
+
+	var stringIndexOf$1 = function (string, searchValue, fromIndex) {
+	  if (fromIndex > string.length) return -1;
+	  if (searchValue === '') return fromIndex;
+	  return indexOf$2(string, searchValue, fromIndex);
+	}; // `String.prototype.replaceAll` method
+	// https://tc39.es/ecma262/#sec-string.prototype.replaceall
+
+
+	_export({
+	  target: 'String',
+	  proto: true
+	}, {
+	  replaceAll: function replaceAll(searchValue, replaceValue) {
+	    var O = requireObjectCoercible(this);
+	    var IS_REG_EXP, flags, replacer, string, searchString, functionalReplace, searchLength, advanceBy, replacement;
+	    var position = 0;
+	    var endOfLastMatch = 0;
+	    var result = '';
+
+	    if (searchValue != null) {
+	      IS_REG_EXP = isRegexp(searchValue);
+
+	      if (IS_REG_EXP) {
+	        flags = toString_1(requireObjectCoercible('flags' in RegExpPrototype$1 ? searchValue.flags : getFlags$1(searchValue)));
+	        if (!~indexOf$2(flags, 'g')) throw TypeError$f('`.replaceAll` does not allow non-global regexes');
+	      }
+
+	      replacer = getMethod(searchValue, REPLACE);
+
+	      if (replacer) {
+	        return functionCall(replacer, searchValue, O, replaceValue);
+	      } else if (isPure && IS_REG_EXP) {
+	        return replace$3(toString_1(O), searchValue, replaceValue);
+	      }
+	    }
+
+	    string = toString_1(O);
+	    searchString = toString_1(searchValue);
+	    functionalReplace = isCallable(replaceValue);
+	    if (!functionalReplace) replaceValue = toString_1(replaceValue);
+	    searchLength = searchString.length;
+	    advanceBy = max$2(1, searchLength);
+	    position = stringIndexOf$1(string, searchString, 0);
+
+	    while (position !== -1) {
+	      replacement = functionalReplace ? toString_1(replaceValue(searchString, position, string)) : getSubstitution(searchString, string, position, [], undefined, replaceValue);
+	      result += stringSlice$4(string, endOfLastMatch, position) + replacement;
+	      endOfLastMatch = position + searchLength;
+	      position = stringIndexOf$1(string, searchString, position + advanceBy);
+	    }
+
+	    if (endOfLastMatch < string.length) {
+	      result += stringSlice$4(string, endOfLastMatch);
+	    }
+
+	    return result;
+	  }
+	});
+
 	var ITERATOR$3 = wellKnownSymbol('iterator');
 	var SAFE_CLOSING = false;
 
@@ -4291,7 +4416,7 @@
 	var TypedArray = Int8Array && objectGetPrototypeOf(Int8Array);
 	var TypedArrayPrototype = Int8ArrayPrototype && objectGetPrototypeOf(Int8ArrayPrototype);
 	var ObjectPrototype$2 = Object.prototype;
-	var TypeError$f = global_1.TypeError;
+	var TypeError$g = global_1.TypeError;
 	var TO_STRING_TAG$4 = wellKnownSymbol('toStringTag');
 	var TYPED_ARRAY_TAG = uid('TYPED_ARRAY_TAG');
 	var TYPED_ARRAY_CONSTRUCTOR = uid('TYPED_ARRAY_CONSTRUCTOR'); // Fixing native typed arrays in Opera Presto crashes the browser, see #595
@@ -4329,12 +4454,12 @@
 
 	var aTypedArray = function (it) {
 	  if (isTypedArray(it)) return it;
-	  throw TypeError$f('Target is not a typed array');
+	  throw TypeError$g('Target is not a typed array');
 	};
 
 	var aTypedArrayConstructor = function (C) {
 	  if (isCallable(C) && (!objectSetPrototypeOf || objectIsPrototypeOf(TypedArray, C))) return C;
-	  throw TypeError$f(tryToString(C) + ' is not a typed array constructor');
+	  throw TypeError$g(tryToString(C) + ' is not a typed array constructor');
 	};
 
 	var exportTypedArrayMethod = function (KEY, property, forced) {
@@ -4402,7 +4527,7 @@
 	if (!NATIVE_ARRAY_BUFFER_VIEWS || !isCallable(TypedArray) || TypedArray === Function.prototype) {
 	  // eslint-disable-next-line no-shadow -- safe
 	  TypedArray = function TypedArray() {
-	    throw TypeError$f('Incorrect invocation');
+	    throw TypeError$g('Incorrect invocation');
 	  };
 
 	  if (NATIVE_ARRAY_BUFFER_VIEWS) for (NAME in TypedArrayConstructorsList) {
@@ -4474,12 +4599,12 @@
 	  return new Int8Array$1(new ArrayBuffer$2(2), 1, undefined).length !== 1;
 	});
 
-	var floor$2 = Math.floor; // `IsIntegralNumber` abstract operation
+	var floor$3 = Math.floor; // `IsIntegralNumber` abstract operation
 	// https://tc39.es/ecma262/#sec-isintegralnumber
 	// eslint-disable-next-line es/no-number-isinteger -- safe
 
 	var isIntegralNumber = Number.isInteger || function isInteger(it) {
-	  return !isObject(it) && isFinite(it) && floor$2(it) === it;
+	  return !isObject(it) && isFinite(it) && floor$3(it) === it;
 	};
 
 	var RangeError$2 = global_1.RangeError;
@@ -5073,11 +5198,11 @@
 	  return result;
 	}, typedArrayConstructorsRequireWrappers);
 
-	var floor$3 = Math.floor;
+	var floor$4 = Math.floor;
 
 	var mergeSort = function (array, comparefn) {
 	  var length = array.length;
-	  var middle = floor$3(length / 2);
+	  var middle = floor$4(length / 2);
 	  return length < 8 ? insertionSort(array, comparefn) : merge(array, mergeSort(arraySliceSimple(array, 0, middle), comparefn), mergeSort(arraySliceSimple(array, middle), comparefn), comparefn);
 	};
 
@@ -8913,13 +9038,25 @@ window._main_polyfill_core = true;
 	          }
 
 	          if (Type.isNull(value) || value === '' || value === 'null') {
-	            // eslint-disable-next-line
+	            if (String(prop).startsWith('--')) {
+	              // eslint-disable-next-line
+	              element.style.removeProperty(prop);
+	              return element;
+	            } // eslint-disable-next-line
+
+
 	            element.style[prop] = '';
 	            return element;
 	          }
 
 	          if (Type.isString(value) || Type.isNumber(value)) {
-	            // eslint-disable-next-line
+	            if (String(prop).startsWith('--')) {
+	              // eslint-disable-next-line
+	              element.style.setProperty(prop, value);
+	              return element;
+	            } // eslint-disable-next-line
+
+
 	            element.style[prop] = value;
 	            return element;
 	          }
@@ -9362,8 +9499,12 @@ window._main_polyfill_core = true;
 
 	      if (Browser.isIOS()) {
 	        globalClass += ' bx-ios';
+	      } else if (Browser.isWin()) {
+	        globalClass += ' bx-win';
 	      } else if (Browser.isMac()) {
 	        globalClass += ' bx-mac';
+	      } else if (Browser.isLinux()) {
+	        globalClass += ' bx-linux';
 	      } else if (Browser.isAndroid()) {
 	        globalClass += ' bx-android';
 	      }
@@ -9897,139 +10038,349 @@ window._main_polyfill_core = true;
 	  return Loc;
 	}();
 
-	var handlers = new Map();
-	var children = new Map();
-
-	var getUid = function () {
-	  var incremental = 0;
-	  return function () {
-	    incremental += 1;
-	    return incremental;
-	  };
-	}();
-
-	function bindAll(element, handlersMap) {
-	  handlersMap.forEach(function (handler, key) {
-	    var currentElement = element.querySelector("[".concat(key, "]"));
-
-	    if (currentElement) {
-	      currentElement.removeAttribute(key);
-	      var event = key.replace(/-(.*)/, '');
-	      Event.bind(currentElement, event, handler);
-	      handlers["delete"](key);
-	    }
-	  });
+	var voidElements = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+	function isVoidElement(element) {
+	  return voidElements.includes(element);
 	}
 
-	function replaceChild(element, childrenMap) {
-	  childrenMap.forEach(function (item, id) {
-	    var currentElement = element.getElementById(id);
+	var matchers = {
+	  tag: /<[a-zA-Z0-9\-\!\/](?:"[^"]*"|'[^']*'|[^'">])*>|{{uid[0-9]+}}/g,
+	  comment: /<!--(?!<!)[^\[>].*?-->/g,
+	  tagName: /<\/?([^\s]+?)[/\s>]/,
+	  attributes: /\s([\w\-_:.]+)\s?\n?=\s?\n?"([^"]+)?"|\s([\w\-_:.]+)\s?\n?=\s?\n?'([^']+)?'|\s([\w\-_:.]+)/g,
+	  placeholder: /{{uid[0-9]+}}/g
+	};
 
-	    if (currentElement) {
-	      Dom.replace(currentElement, item);
-	      children["delete"](id);
+	function parseTag(tag) {
+	  var tagResult = {
+	    type: 'tag',
+	    name: '',
+	    svg: false,
+	    attrs: {},
+	    children: [],
+	    voidElement: false
+	  };
+
+	  if (tag.startsWith('<!--')) {
+	    var endIndex = tag.indexOf('-->');
+	    var openTagLength = '<!--'.length;
+	    return {
+	      type: 'comment',
+	      content: endIndex !== -1 ? tag.slice(openTagLength, endIndex) : ''
+	    };
+	  }
+
+	  var tagNameMatch = tag.match(matchers.tagName);
+
+	  if (Type.isArrayFilled(tagNameMatch)) {
+	    var _tagNameMatch = babelHelpers.slicedToArray(tagNameMatch, 2),
+	        tagName = _tagNameMatch[1];
+
+	    tagResult.name = tagName;
+	    tagResult.svg = tagName === 'svg';
+	    tagResult.voidElement = isVoidElement(tagName) || tag.trim().endsWith('/>');
+	  }
+
+	  var reg = new RegExp(matchers.attributes);
+
+	  for (;;) {
+	    var result = reg.exec(tag);
+
+	    if (!Type.isNil(result)) {
+	      // Attributes with double quotes
+	      var _result = babelHelpers.slicedToArray(result, 3),
+	          attrName = _result[1],
+	          attrValue = _result[2];
+
+	      if (!Type.isNil(attrName)) {
+	        tagResult.attrs[attrName] = Type.isStringFilled(attrValue) ? attrValue : '';
+	      } else {
+	        // Attributes with single quotes
+	        var _result2 = babelHelpers.slicedToArray(result, 5),
+	            _attrName = _result2[3],
+	            _attrValue = _result2[4];
+
+	        if (!Type.isNil(_attrName)) {
+	          tagResult.attrs[_attrName] = Type.isStringFilled(_attrValue) ? _attrValue : '';
+	        } else {
+	          // Attributes without value
+	          var _result3 = babelHelpers.slicedToArray(result, 6),
+	              _attrName2 = _result3[5];
+
+	          tagResult.attrs[_attrName2] = '';
+	        }
+	      }
+	    } else {
+	      break;
+	    }
+	  }
+
+	  return tagResult;
+	}
+
+	function parseText(input) {
+	  var preparedText = input.replace(/[\n\r\t]$/, '');
+	  var placeholders = preparedText.match(matchers.placeholder);
+	  return preparedText.split(matchers.placeholder).reduce(function (acc, item, index) {
+	    if (Type.isStringFilled(item)) {
+	      acc.push.apply(acc, babelHelpers.toConsumableArray(item.split(/\n/).reduce(function (textAcc, text) {
+	        var preparedItemText = text.replace(/[\t\r]/g, '');
+
+	        if (Type.isStringFilled(preparedItemText)) {
+	          textAcc.push({
+	            type: 'text',
+	            content: preparedItemText
+	          });
+	        }
+
+	        return textAcc;
+	      }, [])));
+	    }
+
+	    if (placeholders && placeholders[index]) {
+	      acc.push({
+	        type: 'placeholder',
+	        uid: parseInt(placeholders[index].replace(/{{uid|}}/, ''))
+	      });
+	    }
+
+	    return acc;
+	  }, []);
+	}
+
+	function parse(html, substitutions) {
+	  var result = [];
+
+	  if (html.indexOf('<') !== 0 && !html.startsWith('{{')) {
+	    var end = html.indexOf('<');
+	    result.push.apply(result, babelHelpers.toConsumableArray(parseText(end === -1 ? html : html.slice(0, end))));
+	  }
+
+	  var commentsContent = [];
+	  var commentIndex = -1;
+	  html = html.replace(matchers.comment, function (tag) {
+	    commentIndex += 1;
+	    commentsContent.push(tag.replace(/^<!--|-->$/g, ''));
+	    return "<!--{{cUid".concat(commentIndex, "}}-->");
+	  });
+	  var arr = [];
+	  var level = -1;
+	  var current;
+	  html.replace(matchers.tag, function (tag, index) {
+	    var start = index + tag.length;
+	    var nextChar = html.charAt(start);
+	    var parent;
+
+	    if (tag.startsWith('<!--')) {
+	      var comment = parseTag(tag, substitutions);
+	      comment.content = commentsContent[tag.replace(/<!--{{cUid|}}-->/g, '')];
+
+	      if (level < 0) {
+	        result.push(comment);
+	        return result;
+	      }
+
+	      parent = arr[level];
+	      parent.children.push(comment);
+	      return result;
+	    }
+
+	    if (tag.startsWith('{{')) {
+	      var _parseText = parseText(tag),
+	          _parseText2 = babelHelpers.slicedToArray(_parseText, 1),
+	          placeholder = _parseText2[0];
+
+	      if (level < 0) {
+	        result.push(placeholder);
+	        return result;
+	      }
+
+	      parent = arr[level];
+	      parent.children.push(placeholder);
+	      return result;
+	    }
+
+	    if (!tag.startsWith('</')) {
+	      level++;
+	      current = parseTag(tag, substitutions);
+
+	      if (!current.voidElement && nextChar && nextChar !== '<') {
+	        var _current$children;
+
+	        (_current$children = current.children).push.apply(_current$children, babelHelpers.toConsumableArray(parseText(html.slice(start, html.indexOf('<', start)))));
+	      }
+
+	      if (level === 0) {
+	        result.push(current);
+	      }
+
+	      parent = arr[level - 1];
+
+	      if (parent) {
+	        if (!current.svg) {
+	          current.svg = parent.svg;
+	        }
+
+	        parent.children.push(current);
+	      }
+
+	      arr[level] = current;
+	    }
+
+	    if (tag.startsWith('</') || current.voidElement) {
+	      if (level > -1 && (current.voidElement || current.name === tag.slice(2, -1))) {
+	        level--;
+	        current = level === -1 ? result : arr[level];
+	      }
+
+	      if (nextChar && nextChar !== '<') {
+	        parent = level === -1 ? result : arr[level].children;
+
+	        var _end = html.indexOf('<', start);
+
+	        var content = html.slice(start, _end === -1 ? undefined : _end);
+
+	        if (_end > -1 && level + parent.length >= 0 || content !== ' ') {
+	          var _parent;
+
+	          (_parent = parent).push.apply(_parent, babelHelpers.toConsumableArray(parseText(content)));
+	        }
+	      }
 	    }
 	  });
+	  return result;
+	}
+
+	var appendElement = function appendElement(current, target) {
+	  if (Type.isDomNode(current) && Type.isDomNode(target)) {
+	    if (target.nodeName !== 'TEMPLATE') {
+	      Dom.append(current, target);
+	    } else {
+	      // eslint-disable-next-line bitrix-rules/no-native-dom-methods
+	      target.content.append(current);
+	    }
+	  }
+	};
+
+	function renderNode(options) {
+	  var node = options.node,
+	      parentElement = options.parentElement,
+	      substitutions = options.substitutions;
+
+	  if (node.type === 'tag') {
+	    var element = function () {
+	      if (node.svg) {
+	        return document.createElementNS('http://www.w3.org/2000/svg', node.name);
+	      }
+
+	      return document.createElement(node.name);
+	    }();
+
+	    Object.entries(node.attrs).forEach(function (_ref) {
+	      var _ref2 = babelHelpers.slicedToArray(_ref, 2),
+	          key = _ref2[0],
+	          value = _ref2[1];
+
+	      if (key.startsWith('on') && new RegExp(matchers.placeholder).test(value)) {
+	        var substitution = substitutions[parseInt(value.replace(/{{uid|}}/, '')) - 1];
+
+	        if (Type.isFunction(substitution)) {
+	          var bindFunctionName = key.endsWith('once') ? 'bindOnce' : 'bind';
+	          Event[bindFunctionName](element, key.replace(/^on|once$/g, ''), substitution);
+	        } else {
+	          element.setAttribute(key, substitution);
+	        }
+	      } else {
+	        if (new RegExp(matchers.placeholder).test(value)) {
+	          var preparedValue = value.split(/{{|}}/).reduce(function (acc, item) {
+	            if (item.startsWith('uid')) {
+	              var _substitution = substitutions[parseInt(item.replace('uid', '')) - 1];
+	              return "".concat(acc).concat(_substitution);
+	            }
+
+	            return "".concat(acc).concat(item);
+	          }, '');
+	          element.setAttribute(key, preparedValue);
+	        } else {
+	          element.setAttribute(key, Text.decode(value));
+	        }
+	      }
+	    });
+	    node.children.forEach(function (childNode) {
+	      var result = renderNode({
+	        node: childNode,
+	        parentElement: element,
+	        substitutions: substitutions
+	      });
+
+	      if (Type.isArray(result)) {
+	        result.forEach(function (subChildElement) {
+	          appendElement(subChildElement, element);
+	        });
+	      } else {
+	        appendElement(result, element);
+	      }
+	    });
+	    return element;
+	  }
+
+	  if (node.type === 'comment') {
+	    return document.createComment(node.content);
+	  }
+
+	  if (node.type === 'text') {
+	    if (parentElement) {
+	      if (parentElement.nodeName !== 'TEMPLATE') {
+	        parentElement.insertAdjacentHTML('beforeend', node.content);
+	      } else {
+	        parentElement.content.append(node.content);
+	      }
+
+	      return;
+	    }
+
+	    return document.createTextNode(node.content);
+	  }
+
+	  if (node.type === 'placeholder') {
+	    return substitutions[node.uid - 1];
+	  }
 	}
 
 	function render(sections) {
-	  var eventAttrRe = /[ |\t]on(\w+)="$/;
-	  var uselessSymbolsRe = /[\r\n\t]/g;
-
 	  for (var _len = arguments.length, substitutions = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
 	    substitutions[_key - 1] = arguments[_key];
 	  }
 
-	  var html = substitutions.reduce(function (acc, item, index) {
-	    var preparedAcc = acc; // Process event handlers
+	  var html = sections.reduce(function (acc, item, index) {
+	    if (index > 0) {
+	      var substitution = substitutions[index - 1];
 
-	    var matches = acc.match(eventAttrRe);
+	      if (Type.isString(substitution) || Type.isNumber(substitution)) {
+	        return "".concat(acc).concat(substitution).concat(item);
+	      }
 
-	    if (matches && Type.isFunction(item)) {
-	      var eventName = matches[1].replace(/=['|"]/, '');
-	      var attrName = "".concat(eventName, "-").concat(getUid());
-	      var attribute = "".concat(attrName, "=\"");
-	      preparedAcc = preparedAcc.replace(eventAttrRe, " ".concat(attribute));
-	      handlers.set(attrName, item);
-	      preparedAcc += sections[index + 1].replace(uselessSymbolsRe, ' ').replace(/  +/g, ' ');
-	      return preparedAcc;
-	    } // Process element
-
-
-	    if (Type.isDomNode(item)) {
-	      var childKey = "tmp___".concat(getUid());
-	      children.set(childKey, item);
-	      preparedAcc += "<span id=\"".concat(childKey, "\"> </span>");
-	      preparedAcc += sections[index + 1];
-	      return preparedAcc;
-	    } // Process array
-
-
-	    if (Type.isArray(item)) {
-	      babelHelpers.toConsumableArray(item).forEach(function (currentElement) {
-	        if (Type.isDomNode(currentElement)) {
-	          var _childKey = "tmp___".concat(getUid());
-
-	          children.set(_childKey, currentElement);
-	          preparedAcc += "<span id=\"".concat(_childKey, "\"> </span>");
-	        }
-	      });
-	      preparedAcc += sections[index + 1];
-	      return preparedAcc;
+	      return "".concat(acc, "{{uid").concat(index, "}}").concat(item);
 	    }
 
-	    return preparedAcc + item + sections[index + 1];
-	  }, sections[0]);
-	  var lowercaseHtml = html.trim().toLowerCase();
+	    return acc;
+	  }, sections[0]).replace(/^[\r\n\t\s]+/gm, '').replace(/>[\n]+/g, '>').replace(/[}][\n]+/g, '}');
+	  var ast = parse(html);
 
-	  if (lowercaseHtml.startsWith('<!doctype') || lowercaseHtml.startsWith('<html')) {
-	    var doc = document.implementation.createHTMLDocument('');
-	    doc.documentElement.innerHTML = html;
-	    replaceChild(doc, children);
-	    bindAll(doc, handlers);
-	    handlers.clear();
-	    return doc;
-	  }
-
-	  var parser = new DOMParser();
-	  var parsedDocument = parser.parseFromString(html, 'text/html');
-	  replaceChild(parsedDocument, children);
-	  bindAll(parsedDocument, handlers);
-
-	  if (parsedDocument.head.children.length && parsedDocument.body.children.length) {
-	    return parsedDocument;
-	  }
-
-	  if (parsedDocument.body.children.length === 1) {
-	    var _parsedDocument$body$ = babelHelpers.slicedToArray(parsedDocument.body.children, 1),
-	        el = _parsedDocument$body$[0];
-
-	    Dom.remove(el);
-	    return el;
-	  }
-
-	  if (parsedDocument.body.children.length > 1) {
-	    return babelHelpers.toConsumableArray(parsedDocument.body.children).map(function (item) {
-	      Dom.remove(item);
-	      return item;
+	  if (ast.length === 1) {
+	    return renderNode({
+	      node: ast[0],
+	      substitutions: substitutions
 	    });
 	  }
 
-	  if (parsedDocument.body.children.length === 0) {
-	    if (parsedDocument.head.children.length === 1) {
-	      var _parsedDocument$head$ = babelHelpers.slicedToArray(parsedDocument.head.children, 1),
-	          _el = _parsedDocument$head$[0];
-
-	      Dom.remove(_el);
-	      return _el;
-	    }
-
-	    if (parsedDocument.head.children.length > 1) {
-	      return babelHelpers.toConsumableArray(parsedDocument.head.children).map(function (item) {
-	        Dom.remove(item);
-	        return item;
+	  if (ast.length > 1) {
+	    return ast.map(function (node) {
+	      return renderNode({
+	        node: node,
+	        substitutions: substitutions
 	      });
-	    }
+	    });
 	  }
 
 	  return false;

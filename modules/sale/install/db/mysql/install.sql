@@ -2118,8 +2118,7 @@ create table if not exists b_sale_facebook_conversion_params(
 	ENABLED CHAR(1) NOT NULL,
 	PARAMS VARCHAR(500) NOT NULL,
 	PRIMARY KEY (ID),
-	INDEX IX_FACEBOOK_CONVERSION_EVENT_NAME(EVENT_NAME),
-	INDEX IX_FACEBOOK_CONVERSION_LID(LID)
+	INDEX IX_FACEBOOK_CONVERSION_EVENT_NAME_LID(EVENT_NAME, LID)
 );
 
 create table if not exists b_sale_analytics(

@@ -294,6 +294,18 @@ class CJSCore
 			{
 				cl += " bx-ios";
 			}
+			else if (/Windows/i.test(ua))
+			{
+				cl += ' bx-win';
+			}
+			else if (/Macintosh/i.test(ua))
+			{
+				cl += " bx-mac";
+			}
+			else if (/Linux/i.test(ua) && !/Android/i.test(ua))
+			{
+				cl += " bx-linux";
+			}
 			else if (/Android/i.test(ua))
 			{
 				cl += " bx-android";
@@ -325,11 +337,6 @@ class CJSCore
 			else if (/Gecko/.test(ua))
 			{
 				cl += " bx-firefox";
-			}
-
-			if (/Macintosh/i.test(ua))
-			{
-				cl += " bx-mac";
 			}
 
 			ht.className = htc ? htc + " " + cl : cl;

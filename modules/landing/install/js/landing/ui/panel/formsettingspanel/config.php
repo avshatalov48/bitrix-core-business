@@ -23,7 +23,10 @@ return [
 		'landing.ui.button.sidebarbutton',
 		'ui.tour',
 		'landing.ui.panel.fieldspanel',
+		'bitrix24.phoneverify',
 		'ui.switcher',
+		'ui.hint',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

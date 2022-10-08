@@ -7,6 +7,8 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Localization\Loc;
 
 \Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 	'ui.forms',
 	'ui.dialogs.messagebox',
 	'main.loader',
@@ -14,7 +16,6 @@ use Bitrix\Main\Localization\Loc;
 	'ui.buttons',
 	'ui.alerts',
 	'date',
-	'ui.design-tokens',
 ]);
 
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/main/dd.js');

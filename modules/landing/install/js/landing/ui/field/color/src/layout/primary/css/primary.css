@@ -28,7 +28,8 @@
 }
 
 .landing-ui-field-color-primary-text {
-	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525c69;
 	opacity: .34;
 	user-select: none;

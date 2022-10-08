@@ -309,7 +309,7 @@ class Img extends \Bitrix\Landing\Node
 						{
 							$data[$pos]['lazyOrigSrc2x'] = $matches[1];
 						}
-
+						// comment just for changes
 						$data[$pos]['lazyOrigSrcset'] = $lazyOrigSrcset;
 					}
 				}
@@ -360,17 +360,17 @@ class Img extends \Bitrix\Landing\Node
 
 	public static function prepareManifest($block, $node)
 	{
-		if (self::isStyleImgNode($block, $node))
-		{
-			$node['type'] = 'styleimg';
-			$node['handler'] = StyleImg::getHandlerJS();
-		}
-		return $node;
+		return self::prepareNode($node, $block);
 	}
 
-	public static function isStyleImgNode($block, $node): bool
+	/**
+	 * Prepare node if is styleImg type.
+	 * @param array $node Selector.
+	 * @param \Bitrix\Landing\Block $block Block instance.
+	 * @return array
+	 */
+	public static function prepareNode(array $node, \Bitrix\Landing\Block $block): array
 	{
-		$isStyleImgNode = false;
 		$matches = [];
 		$pattern = '/' . substr($node['code'], 1) . '[^\"]*/i';
 		if (preg_match($pattern, $block->getContent(), $matches) === 1)
@@ -380,9 +380,8 @@ class Img extends \Bitrix\Landing\Node
 			{
 				$node['type'] = 'styleimg';
 				$node['handler'] = StyleImg::getHandlerJS();
-				$isStyleImgNode = true;
 			}
 		}
-		return $isStyleImgNode;
+		return $node;
 	}
 }

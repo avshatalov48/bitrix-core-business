@@ -605,3 +605,9 @@ $arTemplateParameters['SECTIONS_TOP_DEPTH'] = [
 	'TYPE' => 'STRING',
 	'DEFAULT' => '2'
 ];
+$arTemplateParameters['SHOW_SECTIONS'] = [
+	'NAME' => Loc::getMessage('CP_BCS_TPL_SHOW_SECTIONS'),
+	'PARENT' => 'VISUAL',
+	'TYPE' => 'CHECKBOX',
+	'DEFAULT' => 'Y'
+];

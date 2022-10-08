@@ -93,7 +93,7 @@ function roundTo10($val)
 
 
 $MESS = array();
-$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/lang/".LANGUAGE_ID."/show_file.php");
+$path = str_replace(array("\\", "//"), "/", __DIR__."/lang/".LANGUAGE_ID."/show_file.php");
 include_once($path);
 $MESS1 =& $MESS;
 $GLOBALS["MESS"] = $MESS1 + $GLOBALS["MESS"];

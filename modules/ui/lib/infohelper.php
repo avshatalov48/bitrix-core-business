@@ -20,6 +20,7 @@ class InfoHelper
 			'frameUrlTemplate' => self::getUrl(),
 			'trialableFeatureList' => self::getTrialableFeatureList(),
 			'demoStatus' => self::getDemoStatus(),
+			'availableDomainList' => Util::listDomain(),
 		];
 	}
 

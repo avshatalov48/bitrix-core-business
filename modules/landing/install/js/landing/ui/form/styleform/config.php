@@ -13,6 +13,7 @@ return [
 		'landing.ui.highlight',
 		'landing.ui.field.basefield',
 		'landing.ui.component.internal',
+		'ui.design-tokens',
 	],
 	'skip_core' => false,
 ];

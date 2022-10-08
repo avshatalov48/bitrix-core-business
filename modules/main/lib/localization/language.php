@@ -56,6 +56,9 @@ class LanguageTable extends \Bitrix\Main\ORM\Data\DataManager
 			'CULTURE_ID' => array(
 				'data_type' => 'integer',
 			),
+			'CODE' => array(
+				'data_type' => 'string',
+			),
 			'CULTURE' => array(
 				'data_type' => 'Bitrix\Main\Localization\Culture',
 				'reference' => array('=this.CULTURE_ID' => 'ref.ID'),

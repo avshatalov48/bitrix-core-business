@@ -107,8 +107,6 @@ class CLearnHelper
 	 */
 	public static function SQLClauseForAllSubLessons ($parentLessonId)
 	{
-		global $DBType;
-
 		if ( ! (
 			is_numeric($parentLessonId)
 			&& is_int($parentLessonId + 0)
@@ -120,35 +118,21 @@ class CLearnHelper
 				LearnException::EXC_ERR_ALL_PARAMS);
 		}
 
-		if ($DBType === 'oracle')
-		{
-			// This subquery gets ids of all childs lesson for given $parentLessonId
-			$rc = "
-				SELECT b_learn_lesson_edges.TARGET_NODE
-				FROM b_learn_lesson_edges
-				START WITH b_learn_lesson_edges.SOURCE_NODE=" . ($parentLessonId + 0) . "
-				CONNECT BY NOCYCLE PRIOR b_learn_lesson_edges.TARGET_NODE = b_learn_lesson_edges.SOURCE_NODE";
+		// MySQL & MSSQL supports "WHERE IN(...)" clause for more than 10 000 elements
 
-			return ($rc);
-		}
-		elseif (($DBType === 'mysql') || ($DBType === 'mssql'))
-		{
-			// MySQL & MSSQL supports "WHERE IN(...)" clause for more than 10 000 elements
+		$oTree = CLearnLesson::GetTree($parentLessonId, array('EDGE_SORT' => 'ASC'), array('CHECK_PERMISSIONS' => 'N'));
+		$arChildLessonsIds = $oTree->GetLessonsIdListInTree();	// parent lesson id isn't included
 
-			$oTree = CLearnLesson::GetTree($parentLessonId, array('EDGE_SORT' => 'ASC'), array('CHECK_PERMISSIONS' => 'N'));
-			$arChildLessonsIds = $oTree->GetLessonsIdListInTree();	// parent lesson id isn't included
+		// We need escape data for SQL
+		$arChildLessonsIdsEscaped = array_map('intval', $arChildLessonsIds);
 
-			// We need escape data for SQL
-			$arChildLessonsIdsEscaped = array_map('intval', $arChildLessonsIds);
+		$sqlChildLessonsIdsList = implode (', ', $arChildLessonsIdsEscaped);
 
-			$sqlChildLessonsIdsList = implode (', ', $arChildLessonsIdsEscaped);
+		// No childs => nothing must be selected
+		if ($sqlChildLessonsIdsList == '')
+			$sqlChildLessonsIdsList = 'NULL';		// NULL != any value. NULL != NULL too.
 
-			// No childs => nothing must be selected
-			if ($sqlChildLessonsIdsList == '')
-				$sqlChildLessonsIdsList = 'NULL';		// NULL != any value. NULL != NULL too.
-
-			return ($sqlChildLessonsIdsList);
-		}
+		return ($sqlChildLessonsIdsList);
 	}
 
 

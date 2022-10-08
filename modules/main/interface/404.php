@@ -15,10 +15,9 @@ if (($pos = mb_strpos($_SERVER["REQUEST_URI"], "?")) !== false)
 			$GLOBALS[$key] = $val;
 		}
 	}
-	$HTTP_GET_VARS = $_GET;
 }
 
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 IncludeModuleLangFile(__FILE__);
 
 $APPLICATION->SetTitle(GetMessage("404_title"));

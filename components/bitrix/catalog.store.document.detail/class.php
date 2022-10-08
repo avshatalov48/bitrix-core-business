@@ -187,7 +187,18 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 	{
 		if (!$this->checkDocumentReadRights())
 		{
-			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_NO_VIEW_RIGHTS_ERROR');
+			if (Main\Loader::includeModule('crm'))
+			{
+				$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage(
+					Main\Loader::includeModule('bitrix24')
+						? 'CATALOG_STORE_DOCUMENT_ERR_ACCESS_DENIED_CLOUD'
+						: 'CATALOG_STORE_DOCUMENT_ERR_ACCESS_DENIED_BOX'
+				);
+			}
+			else
+			{
+				$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_NO_VIEW_RIGHTS_ERROR');
+			}
 			return;
 		}
 
@@ -635,7 +646,14 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 		}
 		if (!$preparedFields['CURRENCY'])
 		{
-			$preparedFields['CURRENCY'] = \Bitrix\Currency\CurrencyManager::getBaseCurrency();
+			if ($this->isNew() && isset($preparedFields['TOTAL_WITH_CURRENCY']))
+			{
+				$preparedFields['CURRENCY'] = $preparedFields['TOTAL_WITH_CURRENCY'];
+			}
+			else
+			{
+				$preparedFields['CURRENCY'] = \Bitrix\Currency\CurrencyManager::getBaseCurrency();
+			}
 		}
 		$preparedFields['DOC_TYPE'] = $this->getDocumentType();
 		$preparedFields['SITE_ID'] = $this->getSiteId();

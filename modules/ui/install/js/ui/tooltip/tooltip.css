@@ -117,7 +117,7 @@
 /*}*/
 
 .bx-ui-tooltip-info-data .bx-ui-tooltip-info-data-info {
-	font: 11px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #828B95;
 }
 
@@ -132,7 +132,7 @@
 
 .bx-ui-tooltip-info-data .bx-ui-tooltip-info-data-info .bx-ui-tooltip-field-value,
 .bx-ui-tooltip-info-data .bx-ui-tooltip-info-data-info .bx-ui-tooltip-field-value a {
-	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 }
 
@@ -176,7 +176,7 @@
 	display: inline-block;
 	margin: 0 0 1px 0;
 	border-bottom: 1px solid transparent;
-	font: 20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2066B0;
 	transition: border-bottom .3s;
 	cursor: pointer;
@@ -189,7 +189,7 @@
 .bx-ui-tooltip-user-position {
 	display: block;
 	/*margin: 0 0 16px 0;*/
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #828B95;
 }
 
@@ -229,7 +229,7 @@
 
 .bx-ui-tooltip-info-data .bx-ui-tooltip-info-data-cont .bx-ui-tooltip-info-data-name {
 	margin-bottom: 10px;
-	font: 20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .bx-ui-tooltip-info-data .bx-ui-tooltip-info-data-cont .bx-ui-tooltip-info-data-name-extranet {
@@ -299,7 +299,7 @@
 
 .bx-ui-tooltip-info-data  .bx-ui-tooltip-info-data-cont .bx-ui-tooltip-info-data-name a {
 	font-size: 1.2em;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-decoration: none;
 }
 
@@ -349,7 +349,7 @@
 	padding-top: 6px;
 	line-height: 12px;
 	border-bottom: 1px solid transparent;
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2066B0;
 	transition: border-bottom .3s;
 	/*padding-left: 22px!important;*/
@@ -442,7 +442,7 @@ table.bx-ui-tooltip-info-anchor td.bx-ui-tooltip-info-anchor-cell, table.bx-ui-t
 
 .bx-ui-tooltip-tb-control-left.bx-ui-tooltip-tb-control .bx-icon {
 	max-width: 100%;
-	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 	overflow: hidden;
 	text-overflow: ellipsis;

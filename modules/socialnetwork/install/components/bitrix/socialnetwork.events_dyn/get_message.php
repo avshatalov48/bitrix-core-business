@@ -48,9 +48,6 @@ if(CModule::IncludeModule("socialnetwork"))
 	else
 		$arParams["POPUP_TEMPLATE"] = false;
 
-	if ($arParams["POPUP"] == "Y")
-		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
-
 	if (trim($_REQUEST["nt"]) <> '')
 		$arParams['NAME_TEMPLATE'] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["nt"]));
 	else

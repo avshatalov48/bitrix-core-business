@@ -3058,10 +3058,16 @@ function __run()
 		this.pValuesCont.style.width = '';
 		MoreButton.superclass.Open.apply(this, arguments);
 
-		var
-			bindCont = this.GetPopupBindCont(),
-			pos = BX.pos(bindCont),
-			left = Math.round(pos.left - this.pValuesCont.offsetWidth / 2 + bindCont.offsetWidth / 2 + this.posOffset.left);
+		const bindCont = this.GetPopupBindCont()
+		const pos = BX.pos(bindCont);
+		let left = Math.round(pos.left - this.pValuesCont.offsetWidth / 2 + bindCont.offsetWidth / 2 + this.posOffset.left);
+
+		const right = left + this.pValuesCont.offsetWidth;
+		if (right > window.innerWidth) //if context menu doesn't fit
+		{
+			//right = window.innerWidth - 20;
+			left = window.innerWidth - 20 - this.pValuesCont.offsetWidth;
+		}
 
 		this.pValuesCont.style.width = this.pValuesCont.offsetWidth + 'px';
 		this.pValuesCont.style.left = left + 'px';

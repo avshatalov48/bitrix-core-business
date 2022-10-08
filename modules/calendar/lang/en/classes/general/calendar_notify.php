@@ -33,6 +33,11 @@ $MESS["EC_MESS_REC_THIS_CANCEL_SITE"] = "An instance of event \"[B]#TITLE#[/B]\"
 $MESS["EC_MESS_VIEW_OWN_CALENDAR"] = "You can view other events in your [url=#LINK#]personal calendar[/url]";
 $MESS["EC_MESS_VIEW_OWN_CALENDAR_OUT"] = "You can view other events and meetings in your personal calendar: #LINK#";
 $MESS["EC_NOTIFY_ATTENDEES_CHANGED"] = "Event \"#TITLE#\" you are attending has changed guests, event date: #ACTIVE_FROM#";
+$MESS["EC_NOTIFY_CANCEL_BOOKING_ALL"] = "Meeting room reservation has been canceled for all your events \"[url=#LINK#]#EVENT#[/url]\" to take place [B]#FREQUENCY#, #FROM_TIME#[/B]. ";
+$MESS["EC_NOTIFY_CANCEL_BOOKING_ENDING"] = "You can select a vacant meeting room or set up an online event using Bitrix24 video call feature.";
+$MESS["EC_NOTIFY_CANCEL_BOOKING_NEXT"] = "Meeting room reservation has been canceled for your events \"[url=#LINK#]#EVENT#[/url]\" to take place [B]#FREQUENCY#, #FROM_TIME#[/B]. ";
+$MESS["EC_NOTIFY_CANCEL_BOOKING_THIS"] = "Meeting room reservation has been canceled for your event \"[url=#LINK#]#EVENT#[/url] to take place [B]#FROM#[/B]. ";
+$MESS["EC_NOTIFY_CANCEL_BOOKING_TIME"] = "at #FROM_TIME#";
 $MESS["EC_NOTIFY_DATE_FROM_CHANGED"] = "Event \"#TITLE#\" you are attending has changed start time from \"#OLD_DATE_FROM#\" to \"#NEW_DATE_FROM#\"";
 $MESS["EC_NOTIFY_DATE_TO_CHANGED"] = "Event \"#TITLE#\" you are attending has changed end time from \"#OLD_DATE_TO#\" to \"#NEW_DATE_TO#\"";
 $MESS["EC_NOTIFY_DELETE_LOCATION"] = "Meeting room <b>\"#LOCATION#\"</b> has been deleted and removed from your events.";

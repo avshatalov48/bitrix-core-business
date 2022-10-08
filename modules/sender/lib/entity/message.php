@@ -345,6 +345,10 @@ class Message extends Base
 		{
 			foreach ($utmTags as $utm)
 			{
+				if (empty($utm['VALUE']) || empty($utm['CODE']))
+				{
+					continue;
+				}
 				MessageUtmTable::add(
 					[
 						'MESSAGE_ID' => $id,

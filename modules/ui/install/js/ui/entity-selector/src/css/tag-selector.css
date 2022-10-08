@@ -152,7 +152,7 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	font: bold 13px/29px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 13px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin-left: 13px;
 }
 
@@ -193,7 +193,7 @@
 	background: #fff;
 	color: #555;
 	font-size: 13px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: opacity 100ms ease;
 }
 
@@ -236,7 +236,7 @@
 	transition: .1s;
 	cursor: pointer;
 	align-items: baseline;
-	font: bold 14px "Helvetica Neue", Arial, Helvetica, sans-serif
+	font: var(--ui-font-weight-bold) 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica))
 }
 
 .ui-tag-selector-add-button-caption:before,

@@ -150,7 +150,7 @@
 }
 
 .landing-ui-field-color-opacity-range-output-input {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 15px;
 	text-align: center;
 	color: #000000;
@@ -235,7 +235,7 @@
 	display: block;
 	position: relative;
 	margin-right: 5px;
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(82, 92, 105, .7);
 	-webkit-user-select: none;
 	        user-select: none;
@@ -249,7 +249,7 @@
 
 .landing-ui-field-color-tabs:not(.landing-ui-field-color-tabs--big) .landing-ui-field-color-tabs-tab-toggler-name {
 	display: inline-flex;
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .landing-ui-field-color-tabs:not(.landing-ui-field-color-tabs--big) .landing-ui-field-color-tabs-tab-toggler {
@@ -321,7 +321,8 @@
 	padding: 10px 16px;
 	border-bottom: 1px solid rgba(151,151,151,.29);
 	border-radius: 3px 3px 0 0;
-	font: 11px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 11px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: rgba(130,139,149,.7);
 	text-transform: uppercase;
 	box-sizing: border-box;
@@ -393,7 +394,8 @@
 }
 
 .landing-ui-field-color-primary-text {
-	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525c69;
 	opacity: .34;
 	-webkit-user-select: none;
@@ -466,7 +468,7 @@
 }
 
 .landing-ui-field-color-image-size .landing-ui-field-header {
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin-bottom: 0;
 	color: rgba(82, 92, 105, .7);
 }
@@ -482,7 +484,7 @@
 }
 
 .landing-ui-field-color-image-attachment .landing-ui-field-checkbox-item-label {
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	color: rgba(82, 92, 105, .7) !important;
 }
 
@@ -549,7 +551,8 @@
 }
 
 .landing-ui-field-color-gradient-switch-type {
-	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525c69;
 	opacity: .34;
 	-webkit-user-select: none;
@@ -718,7 +721,8 @@
 .landing-ui-field-color-presets-title {
 	margin-right: 5px;
 	max-width: 100%;
-	font: 13px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525c69;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -727,7 +731,8 @@
 }
 
 .landing-ui-field-color-presets-open {
-	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525c69;
 	opacity: .34;
 	-webkit-user-select: none;
@@ -767,7 +772,7 @@
 	padding-bottom: 10px;
 	margin-bottom: 12px;
 	border-bottom: 1px solid rgba(82,92,105,.1);
-	font: bold 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #535c69;
 }
 

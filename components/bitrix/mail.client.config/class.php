@@ -203,7 +203,6 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		$res = Mail\MailServicesTable::getList(array(
 			'filter' => array(
 				'=ID' => $serviceId,
-				'=ACTIVE' => 'Y',
 				'=SITE_ID' => SITE_ID,
 			),
 		));
@@ -212,6 +211,7 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 		if ($service = $res->fetch())
 		{
 			$this->arParams['SERVICE'] = array(
+				'active' => $service['ACTIVE'],
 				'id' => $service['ID'],
 				'type' => $service['SERVICE_TYPE'],
 				'name' => $service['NAME'],
@@ -1214,6 +1214,12 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				$messages = array(
 					new Main\Error(getMessage('MAIL_CLIENT_CONFIG_IMAP_AUTH_ERR_EXT'), Mail\Imap::ERR_AUTH),
 				);
+
+				$moreDetailsSection = false;
+			}
+			else
+			{
+				$moreDetailsSection = true;
 			}
 
 			$reduce = function($error)
@@ -1221,11 +1227,22 @@ class CMailClientConfigComponent extends CBitrixComponent implements Main\Engine
 				return $error->getMessage();
 			};
 
-			$this->errorCollection[] = new Main\Error(
-				join(': ', array_map($reduce, $messages)),
-				0,
-				join(': ', array_map($reduce, $details))
-			);
+			if($moreDetailsSection)
+			{
+				$this->errorCollection[] = new Main\Error(
+					join(': ', array_map($reduce, $messages)),
+					0,
+					join(': ', array_map($reduce, $details))
+				);
+			}
+			else
+			{
+				$this->errorCollection[] = new Main\Error(
+					join(': ', array_map($reduce, $messages)),
+					0,
+				);
+			}
+
 		}
 		else
 		{

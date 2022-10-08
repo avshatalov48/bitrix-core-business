@@ -15,8 +15,11 @@ import {Alert, AlertColor} from 'ui.alerts';
 import {SidebarButton} from 'landing.ui.button.sidebarbutton';
 import {Guide} from 'ui.tour';
 import {FieldsPanel} from 'landing.ui.panel.fieldspanel';
+import {PhoneVerify} from 'bitrix24.phoneverify'
 import 'ui.switcher';
+import 'ui.hint';
 
+import 'ui.fonts.opensans';
 import './css/style.css';
 
 type CrmField = {
@@ -47,6 +50,12 @@ type CrmCategory = {
 
 };
 
+type ResponseErrors = Array<{
+	code: string,
+	message: string,
+	customData: any
+}>;
+
 /**
  * @memberOf BX.Landing.UI.Panel
  */
@@ -63,6 +72,9 @@ export class FormSettingsPanel extends BasePresetPanel
 
 		return (rootWindowPanel.instance || FormSettingsPanel.instance);
 	}
+
+	adjustActionsPanels = false;
+	#phoneDoesntVerifiedResponseCode = 'PHONE_NOT_VERIFIED';
 
 	constructor()
 	{
@@ -601,13 +613,61 @@ export class FormSettingsPanel extends BasePresetPanel
 
 		void StylePanel.getInstance().hide();
 
+		this.disableHistory();
+
 		return super.show(options).then(() => {
 			setTimeout(() => {
-				this.getCurrentBlock().node.scrollIntoView({behavior: 'smooth'});
+				const y = this.getCurrentBlock().node.offsetTop;
+				PageObject.getEditorWindow().scrollTo(0, y);
 			}, 300);
 
 			return Promise.resolve(true);
 		});
+	}
+
+	getHistoryHint(): HTMLSpanElement
+	{
+		return this.cache.remember('historyHint', () => {
+			const layout = Tag.render`
+				<span 
+					class="landing-ui-history-hint"
+					data-hint="${Text.encode(Loc.getMessage('LANDING_FORM_HISTORY_DISABLED_HINT'))}"
+					data-hint-no-icon
+				></span>
+			`;
+
+			const rootWindow = PageObject.getRootWindow();
+			rootWindow.BX.UI.Hint.initNode(layout);
+
+			return layout;
+		});
+	}
+
+	disableHistory()
+	{
+		const rootWindow = PageObject.getRootWindow();
+		const TopPanel: BX.Landing.UI.Panel.Top = rootWindow.BX.Landing.UI.Panel.Top;
+		if (TopPanel)
+		{
+			const {undoButton, redoButton} = TopPanel.getInstance();
+			Dom.addClass(undoButton, 'landing-ui-disabled-from-form');
+			Dom.addClass(redoButton, 'landing-ui-disabled-from-form');
+
+			Dom.append(this.getHistoryHint(), undoButton.parentElement);
+		}
+	}
+
+	enableHistory()
+	{
+		const rootWindow = PageObject.getRootWindow();
+		const TopPanel: BX.Landing.UI.Panel.Top = rootWindow.BX.Landing.UI.Panel.Top;
+		if (TopPanel)
+		{
+			const {undoButton, redoButton} = TopPanel.getInstance();
+			Dom.removeClass(undoButton, 'landing-ui-disabled-from-form');
+			Dom.removeClass(redoButton, 'landing-ui-disabled-from-form');
+			Dom.remove(this.getHistoryHint());
+		}
 	}
 
 	getAccessError(): HTMLDivElement
@@ -1408,15 +1468,22 @@ export class FormSettingsPanel extends BasePresetPanel
 						.catch((errors) => {
 							if (Type.isArrayFilled(errors))
 							{
-								const errorMessage = errors
-									.map((item) => {
-										return Text.encode(item.message);
-									})
-									.join('<br><br>');
+								if (this.#isPhoneValidationError(errors))
+								{
+									this.#showPhoneVerifySlider()
+								}
+								else
+								{
+									const errorMessage = errors
+										.map((item) => {
+											return Text.encode(item.message);
+										})
+										.join('<br><br>');
 
-								const errorAlert = this.getErrorAlert();
-								errorAlert.setMessage(errorMessage);
-								errorAlert.show();
+									const errorAlert = this.getErrorAlert();
+									errorAlert.setMessage(errorMessage);
+									errorAlert.show();
+								}
 							}
 							else
 							{
@@ -1440,6 +1507,22 @@ export class FormSettingsPanel extends BasePresetPanel
 					Dom.removeClass(this.getSaveButton().layout, 'ui-btn-wait');
 				}
 			});
+	}
+
+	#isPhoneValidationError(errors: ResponseErrors): boolean
+	{
+		return errors.some((error) => {
+				return error.code === this.#phoneDoesntVerifiedResponseCode;
+			}
+		);
+	}
+
+	#showPhoneVerifySlider(): void
+	{
+		if (Type.isObject(PhoneVerify))
+		{
+			PhoneVerify.setVerified(false).showSlider();
+		}
 	}
 
 	isChanged(): boolean
@@ -1487,6 +1570,7 @@ export class FormSettingsPanel extends BasePresetPanel
 	{
 		const editorWindow = PageObject.getEditorWindow();
 		Dom.removeClass(editorWindow.document.body, 'landing-ui-hide-action-panels-form');
+		this.enableHistory();
 		return super.hide();
 	}
 

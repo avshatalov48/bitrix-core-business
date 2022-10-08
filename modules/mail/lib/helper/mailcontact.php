@@ -75,6 +75,9 @@ class MailContact
 		{
 			return mb_strtoupper(mb_substr($name, 0, 1).mb_substr($lastName, 0, 1));
 		}
+
+		$name = trim(preg_replace('/([0-9]|[-&\/\'#,+()~%.":*?<>{}])/m', '',$name));
+
 		$name = explode(' ', $name);
 
 		if (is_array($name) && isset($name[0]) && $name[0])

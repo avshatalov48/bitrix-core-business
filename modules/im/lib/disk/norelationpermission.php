@@ -108,75 +108,43 @@ class NoRelationPermission
 
 	public static function cleaningAgent()
 	{
-		if (!IsModuleInstalled('disk'))
+		if (!\Bitrix\Main\ModuleManager::isModuleInstalled('disk'))
 		{
-			return '\Bitrix\Im\Disk\NoRelationPermission::cleaningAgent();';
+			return __METHOD__.'();';
 		}
 
-		$relation = array();
+		$connection = \Bitrix\Main\Application::getInstance()->getConnection();
 
-		$raw = NoRelationPermissionDiskTable::getList(array(
-				'select' => array('ID', 'CHAT_ID', 'USER_ID'),
-				'filter' => array(
-					array('<=ACTIVE_TO' => DateTime::createFromTimestamp(time()))
-				),
-				'cache'=>array('ttl'=>self::CACHE_TIME)
-			));
+		$relationTbl = RelationTable::getTableName();
+		$noRelationPermTbl = NoRelationPermissionDiskTable::getTableName();
 
-		$filterRelation = array();
-		while($row = $raw->fetch())
+		$connection->queryExecute("
+			DELETE nrd
+			FROM 
+				{$noRelationPermTbl} nrd
+				inner join {$relationTbl} r 
+					on r.CHAT_ID = nrd.CHAT_ID and r.USER_ID = nrd.USER_ID
+		");
+
+		$result = NoRelationPermissionDiskTable::getList([
+			'select' => ['CHAT_ID', 'USER_ID'],
+			'filter' => [
+				'<=ACTIVE_TO' => DateTime::createFromTimestamp(time())
+			]
+		]);
+		$pseudoRelation = [];
+		while($row = $result->fetch())
 		{
-			$permissionDisk[$row['CHAT_ID']][$row['USER_ID']] = $row['USER_ID'];
-			$deletePermissionDisk[$row['ID']] = $row['ID'];
-			$filterRelation[] = array(
-				'=CHAT_ID' => $row['CHAT_ID'],
-				'=USER_ID' => $row['USER_ID']
-			);
+			$pseudoRelation[$row['CHAT_ID']][$row['USER_ID']] = $row['USER_ID'];
 		}
 
-		if(!empty($filterRelation))
+		$connection->queryExecute("DELETE FROM {$noRelationPermTbl} WHERE ACTIVE_TO <= now()");
+
+		foreach ($pseudoRelation as $chatId => $userDelete)
 		{
-			$filterRelation['LOGIC'] = 'OR';
-
-			$rawRelation = RelationTable::getList(array(
-				'select' => array('CHAT_ID', 'USER_ID'),
-				'filter' => $filterRelation,
-				'cache'=>array('ttl'=>self::CACHE_TIME)
-			));
-
-			while($rowRelation = $rawRelation->fetch())
-			{
-				$relation[$rowRelation['CHAT_ID']][$rowRelation['USER_ID']] = $rowRelation['USER_ID'];
-			}
+			\CIMDisk::changeFolderMembers($chatId, $userDelete, false);
 		}
 
-		if(!empty($deletePermissionDisk))
-		{
-			foreach ($deletePermissionDisk as $item)
-			{
-				NoRelationPermissionDiskTable::delete($item);
-			}
-		}
-
-		if(!empty($permissionDisk))
-		{
-			foreach ($permissionDisk as $chatId => $userIds)
-			{
-				$userDelete = array();
-
-				foreach ($userIds as $userId)
-				{
-					if(empty($relation[$chatId][$userId]))
-						$userDelete[] = $userId;
-				}
-
-				if(!empty($userDelete))
-				{
-					\CIMDisk::ChangeFolderMembers($chatId, $userDelete, false);
-				}
-			}
-		}
-
-		return '\Bitrix\Im\Disk\NoRelationPermission::cleaningAgent();';
+		return __METHOD__.'();';
 	}
 }

@@ -622,33 +622,24 @@
 	 */
 	window.reply2author = function(mid)
 	{
-		var author = '';
-		if (mid > 0 && BX(('message_block_' + mid), true) && BX(('message_block_' + mid), true).hasAttribute("bx-author-name")) {
-			author = {
-				name : BX(('message_block_' + mid), true).getAttribute("bx-author-name"),
-				id : BX(('message_block_' + mid), true).getAttribute("bx-author-id")
-			}
+		var editor = LHEPostForm.getHandler('POST_MESSAGE');
+		var node = BX(('message_block_' + mid), true);
+		if (!(window.BxInsertMention
+			&& editor && editor['exec']
+			&& node && node.hasAttribute('bx-author-name')))
+		{
+			return;
 		}
-		var editor = (window["BXHtmlEditor"] ? window["BXHtmlEditor"].Get('POST_MESSAGE') : false);
-		if (!!editor && !!author) {
-			if (editor.GetViewMode() == 'code' && editor.bbCode)  // BB Codes
-			{
-				author = (author.id > 0 ? "[USER=" + author.id + "]" + author.name + "[/USER]" : author.name);
-				editor.textareaView.WrapWith("", ", ", author);
-			}
-			else if (editor.GetViewMode() == 'wysiwyg') // WYSIWYG
-			{
-				author = (author.id > 0 ?
-					('<span id="' + editor.SetBxTag(false, {'tag': "postuser", 'params': {'value' : author.id}}) +
-						'" style="color: #2067B0; border-bottom: 1px dashed #2067B0;">' +
-						author.name.replace(/</gi, '&lt;').replace(/>/gi, '&gt;') + '</span>'
-					) : ('<span>' + author.name.replace(/</gi, '&lt;').replace(/>/gi, '&gt;') + '</span>'));
-				editor.InsertHtml(author + ', ');
-			}
-			editor.Focus();
-			BX.defer(editor.Focus, editor)();
-		}
-		return false;
+		editor.exec(window.BxInsertMention, [{
+			item: {
+				entityId: node.getAttribute('bx-author-id'),
+				name: node.getAttribute('bx-author-name')},
+			type: 'user',
+			formID: editor.formId,
+			editorId: 'POST_MESSAGE',
+			bNeedComa: true,
+			insertHtml: true
+		}]);
 	};
 
 	BX.Forum.params = {};

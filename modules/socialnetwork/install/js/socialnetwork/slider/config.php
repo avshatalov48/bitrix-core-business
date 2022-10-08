@@ -21,5 +21,5 @@ return [
 		'SONET_SLIDER_SITE_TEMPLATE_ID' => SITE_TEMPLATE_ID,
 		'SONET_SLIDER_INTRANET_INSTALLED' => (\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? 'Y' : 'N'),
 	],
-	'rel' => [ 'sidepanel', 'socialnetwork.common' ],
+	'rel' => [ 'sidepanel', 'socialnetwork.common', 'ui.fonts.opensans' ],
 ];

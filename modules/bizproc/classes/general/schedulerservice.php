@@ -1,11 +1,9 @@
-<?
+<?php
+
 use Bitrix\Bizproc\SchedulerEventTable;
 use Bitrix\Main\Loader;
 
-include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/bizproc/classes/general/runtimeservice.php");
-
-class CBPSchedulerService
-	extends CBPRuntimeService
+class CBPSchedulerService extends CBPRuntimeService
 {
 	/**
 	 * @param bool $withType Return as array [value, type].
@@ -59,7 +57,7 @@ class CBPSchedulerService
 		\Bitrix\Main\Config\Option::set('bizproc', 'delay_min_limit', $limit);
 	}
 
-	public function SubscribeOnTime($workflowId, $eventName, $expiresAt)
+	public function subscribeOnTime($workflowId, $eventName, $expiresAt)
 	{
 		$workflowId = preg_replace('#[^a-z0-9.]#i', '', $workflowId);
 		$eventName = preg_replace('#[^a-z0-9._-]#i', '', $eventName);
@@ -84,12 +82,12 @@ class CBPSchedulerService
 		return self::addAgentInternal($name, $expiresAt);
 	}
 
-	public function UnSubscribeOnTime($id)
+	public function unSubscribeOnTime($id)
 	{
 		CAgent::Delete($id);
 	}
 
-	public static function OnAgent($workflowId, $eventName, $eventParameters = array())
+	public static function onAgent($workflowId, $eventName, $eventParameters = array())
 	{
 		try
 		{
@@ -110,7 +108,7 @@ class CBPSchedulerService
 		}
 	}
 
-	public function SubscribeOnEvent($workflowId, $eventHandlerName, $eventModule, $eventName, $entityId = null)
+	public function subscribeOnEvent($workflowId, $eventHandlerName, $eventModule, $eventName, $entityId = null)
 	{
 		$entityKey = null;
 		if (is_array($entityId))
@@ -146,7 +144,7 @@ class CBPSchedulerService
 		);
 	}
 
-	public function UnSubscribeOnEvent($workflowId, $eventHandlerName, $eventModule, $eventName, $entityId = null)
+	public function unSubscribeOnEvent($workflowId, $eventHandlerName, $eventModule, $eventName, $entityId = null)
 	{
 		// Clean old-style registry entry.
 		UnRegisterModuleDependences(
@@ -192,7 +190,7 @@ class CBPSchedulerService
 	 * @param $eventName
 	 * @param array $arEventParameters
 	 */
-	public static function OnEvent($workflowId, $eventName, $arEventParameters = array())
+	public static function onEvent($workflowId, $eventName, $arEventParameters = array())
 	{
 		$num = func_num_args();
 		if ($num > 3)

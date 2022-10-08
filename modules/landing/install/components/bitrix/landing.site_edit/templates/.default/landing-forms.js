@@ -25,8 +25,8 @@ function deleteAccessRow(link)
 	BX.Landing.EditTitleForm = function (node, additionalWidth, isEventTargetNode, display)
 	{
 		this.btn = node.querySelector('.ui-title-input-btn-js');
-		this.label = node.querySelector('.ui-editable-field-label-js');
-		this.input = node.querySelector('.ui-editable-field-input-js');
+		this.label = node.querySelector('.landing-editable-field-label-js');
+		this.input = node.querySelector('.landing-editable-field-input-js');
 		this.additionalWidth = additionalWidth || 0;
 		this.input.IsWidthSet = false;
 		this.display = display;
@@ -622,29 +622,6 @@ function deleteAccessRow(link)
 			saveBtn.classList.add('ui-btn-clock');
 			saveBtn.style.cursor = "default";
 			saveBtn.style.pointerEvents = "none";
-		}
-	};
-
-	/**
-	 * Change iblock select.
-	 */
-	BX.Landing.IblockSelect = function()
-	{
-		this.section = BX('row_section_id');
-		this.init(this.section);
-	};
-
-	BX.Landing.IblockSelect.prototype = {
-
-		init: function(section) {
-			if (!BX('settings_iblock_id').value)
-			{
-				section.classList.add("landing-form-field-section-hidden");
-			}
-			else
-			{
-				section.classList.remove("landing-form-field-section-hidden");
-			}
 		}
 	};
 

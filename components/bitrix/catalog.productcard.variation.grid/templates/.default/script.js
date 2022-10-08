@@ -1,11 +1,15 @@
 (function (exports,main_core,main_core_events,main_popup,ui_dialogs_messagebox,ui_entitySelector) {
 	'use strict';
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12;
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14;
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
+
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
 	var GRID_TEMPLATE_ROW = 'template_0';
 
 	var VariationGrid = /*#__PURE__*/function () {
@@ -19,8 +23,10 @@
 	    this.createPropertyHintId = settings.createPropertyHintId;
 	    this.gridId = settings.gridId;
 	    this.isNew = settings.isNew;
+	    this.isSimple = settings.isSimple;
 	    this.hiddenProperties = settings.hiddenProperties;
 	    this.modifyPropertyLink = settings.modifyPropertyLink;
+	    this.productCopyLink = settings.productCopyLink;
 	    this.gridEditData = settings.gridEditData;
 	    this.canHaveSku = settings.canHaveSku || false;
 	    this.storeAmount = settings.storeAmount;
@@ -239,9 +245,16 @@
 
 	      var addRowButton = document.querySelector('[data-role="catalog-productcard-variation-add-row"]');
 
-	      if (main_core.Type.isDomNode(addRowButton)) {
-	        main_core.Event.bind(addRowButton, 'click', this.addRowToGrid.bind(this));
+	      if (!main_core.Type.isDomNode(addRowButton)) {
+	        return;
 	      }
+
+	      if (this.isSimple) {
+	        main_core.Event.bind(addRowButton, 'click', this.openSimpleProductRestrictionPopup.bind(this));
+	        return;
+	      }
+
+	      main_core.Event.bind(addRowButton, 'click', this.addRowToGrid.bind(this));
 	    }
 	  }, {
 	    key: "addCustomClassToGrid",
@@ -296,6 +309,44 @@
 	          }
 	        }
 	      });
+	    }
+	  }, {
+	    key: "openSimpleProductRestrictionPopup",
+	    value: function openSimpleProductRestrictionPopup(event) {
+	      var _this4 = this;
+
+	      event.preventDefault();
+	      event.stopPropagation();
+	      var id = 'simple-product-restriction';
+	      var popup = main_popup.PopupManager.getPopupById(id);
+
+	      if (!popup) {
+	        popup = new main_popup.Popup({
+	          id: id,
+	          width: 400,
+	          zIndexOptions: 4000,
+	          autoHide: false,
+	          draggable: true,
+	          overlay: true,
+	          className: "bxc-popup-window",
+	          content: _classStaticPrivateMethodGet(VariationGrid, VariationGrid, _getSimpleProductRestrictionContent).call(VariationGrid),
+	          buttons: [new BX.UI.Button({
+	            text: main_core.Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_COPY'),
+	            color: BX.UI.Button.Color.PRIMARY,
+	            onclick: function onclick() {
+	              BX.SidePanel.Instance.open(_this4.productCopyLink);
+	            }
+	          }), new BX.UI.Button({
+	            text: main_core.Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_CLOSE'),
+	            color: BX.UI.Button.Color.LINK,
+	            onclick: function onclick() {
+	              popup.close();
+	            }
+	          })]
+	        });
+	      }
+
+	      popup.show();
 	    }
 	  }, {
 	    key: "openStoreAmountPopup",
@@ -362,7 +413,7 @@
 	  }, {
 	    key: "getStoreAmountTable",
 	    value: function getStoreAmountTable(stores, rowId) {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      var table = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<table class=\"main-grid-table\"></table>"])));
 	      var tableHead = table.createTHead();
@@ -382,17 +433,17 @@
 	        var tableRow = tableBody.insertRow();
 	        tableRow.className = 'main-grid-row main-grid-row-body';
 
-	        _this4.addCellToTable(tableRow, store.title, false, 'left');
+	        _this5.addCellToTable(tableRow, store.title, false, 'left');
 
-	        _this4.addCellToTable(tableRow, store.quantityCommon, false);
+	        _this5.addCellToTable(tableRow, store.quantityCommon, false);
 
-	        if (_this4.isShowedStoreReserve) {
+	        if (_this5.isShowedStoreReserve) {
 	          var quantityReservedNode = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<a class=\"main-grid-cell-content-catalog-reserved-quantity\">", "</a>"])), store.quantityReserved);
-	          main_core.Event.bind(quantityReservedNode, 'click', _this4.openDealsWithReservedProductSlider.bind(_this4, rowId, store.storeId));
+	          main_core.Event.bind(quantityReservedNode, 'click', _this5.openDealsWithReservedProductSlider.bind(_this5, rowId, store.storeId));
 
-	          _this4.addCellToTable(tableRow, quantityReservedNode, false);
+	          _this5.addCellToTable(tableRow, quantityReservedNode, false);
 
-	          _this4.addCellToTable(tableRow, store.quantityAvailable, false);
+	          _this5.addCellToTable(tableRow, store.quantityAvailable, false);
 	        }
 	      });
 	      return table;
@@ -466,29 +517,29 @@
 	  }, {
 	    key: "enableEdit",
 	    value: function enableEdit() {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      this.getGrid().getRows().selectAll();
 	      this.getGrid().getRows().editSelected();
 	      this.getGrid().getRows().getRows().forEach(function (item) {
-	        return _this5.enableBarcodeEditor(item);
+	        return _this6.enableBarcodeEditor(item);
 	      });
 	    }
 	  }, {
 	    key: "prepareNewNodes",
 	    value: function prepareNewNodes() {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      this.getGrid().getRows().getBodyChild().map(function (row) {
 	        var newNode = row.getNode();
 
-	        _this6.markNodeAsNew(newNode);
+	        _this7.markNodeAsNew(newNode);
 
-	        _this6.addSkuListCreationItem(newNode);
+	        _this7.addSkuListCreationItem(newNode);
 
-	        _this6.modifyCustomSkuProperties(newNode);
+	        _this7.modifyCustomSkuProperties(newNode);
 
-	        _this6.disableCheckbox(row);
+	        _this7.disableCheckbox(row);
 	      });
 	    }
 	  }, {
@@ -508,11 +559,11 @@
 	  }, {
 	    key: "bindInlineEdit",
 	    value: function bindInlineEdit() {
-	      var _this7 = this;
+	      var _this8 = this;
 
 	      this.getGrid().getRows().getBodyChild().forEach(function (item) {
 	        return main_core.Event.bind(item.node, 'click', function (event) {
-	          return _this7.toggleInlineEdit(item, event);
+	          return _this8.toggleInlineEdit(item, event);
 	        });
 	      });
 	    }
@@ -559,6 +610,8 @@
 	  }, {
 	    key: "toggleInlineEdit",
 	    value: function toggleInlineEdit(item, event) {
+	      var _this9 = this;
+
 	      var changed = false;
 
 	      if (item.isEdit()) {
@@ -570,6 +623,26 @@
 	        if (event.target.nodeName !== 'A') {
 	          changed = true;
 	          this.activateInlineEdit(item);
+	        }
+
+	        if (this.isSimple) {
+	          var _item$getNode, _item$getNode2;
+
+	          (_item$getNode = item.getNode()) === null || _item$getNode === void 0 ? void 0 : _item$getNode.querySelectorAll('.main-grid-editor.main-dropdown.main-grid-editor-dropdown').forEach(function (item) {
+	            var id = item.id;
+
+	            if (main_core.Type.isNil(id) || id.indexOf('SKU_GRID_PROPERTY_') === -1) {
+	              return;
+	            }
+
+	            main_core.Event.unbindAll(item);
+	            main_core.Event.bind(item, 'click', _this9.openSimpleProductRestrictionPopup.bind(_this9));
+	          });
+	          (_item$getNode2 = item.getNode()) === null || _item$getNode2 === void 0 ? void 0 : _item$getNode2.querySelectorAll('.catalog-productcard-select-container .catalog-productcard-select-block').forEach(function (item) {
+	            item.onclick = null;
+	            main_core.Event.unbindAll(item);
+	            main_core.Event.bind(item, 'click', _this9.openSimpleProductRestrictionPopup.bind(_this9));
+	          });
 	        }
 	      }
 
@@ -609,14 +682,14 @@
 	  }, {
 	    key: "deactivateInlineEdit",
 	    value: function deactivateInlineEdit(item) {
-	      var _this8 = this;
+	      var _this10 = this;
 
 	      item.editCancel();
 	      item.unselect(); // disable multi-selection(and self re-selection) while disabling editing
 
 	      this.getGrid().clickPrevent = true;
 	      setTimeout(function () {
-	        _this8.getGrid().clickPrevent = false;
+	        _this10.getGrid().clickPrevent = false;
 	      }, 100);
 	    }
 	  }, {
@@ -929,7 +1002,7 @@
 	  }, {
 	    key: "addPropertyToGridHeader",
 	    value: function addPropertyToGridHeader(item) {
-	      var _this9 = this;
+	      var _this11 = this;
 
 	      BX.ajax.runComponentAction('bitrix:catalog.productcard.variation.grid', 'addPropertyHeader', {
 	        mode: 'ajax',
@@ -940,7 +1013,7 @@
 	          currentHeaders: this.getHeaderNames()
 	        }
 	      }).then(function (response) {
-	        _this9.reloadGrid();
+	        _this11.reloadGrid();
 	      });
 	    }
 	  }, {
@@ -951,10 +1024,10 @@
 	  }, {
 	    key: "onGridUpdated",
 	    value: function onGridUpdated(event) {
-	      var _this10 = this;
+	      var _this12 = this;
 
 	      this.getGrid().getSettingsWindow().getItems().forEach(function (column) {
-	        if (_this10.getHeaderNames().indexOf(column.node.dataset.name) !== -1) {
+	        if (_this12.getHeaderNames().indexOf(column.node.dataset.name) !== -1) {
 	          column.state.selected = true;
 	          column.checkbox.checked = true;
 	        } else {
@@ -1051,6 +1124,19 @@
 	  }]);
 	  return VariationGrid;
 	}();
+
+	function _getSimpleProductRestrictionContent() {
+	  var text = main_core.Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_TEXT', {
+	    '#COPY_BUTTON_NAME#': "<b>".concat(main_core.Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_COPY'), "</b>"),
+	    '#LINK_INFO#': "<a href=\"\">".concat(main_core.Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_DOC_LINK_INFO'), "</a>")
+	  });
+	  var content = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["<span>", "</span>"])), text);
+	  main_core.Event.bind(content.querySelector('a'), 'click', function (event) {
+	    top.BX.Helper.show("redirect=detail&code=16172654");
+	    event.preventDefault();
+	  });
+	  return main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-simple-popup-wrapper\">\n\t\t\t\t<h3>", "</h3>\n\t\t\t\t<div class=\"catalog-simple-popup-label-text\">", "</div>\n\t\t\t\t<div class=\"catalog-simple-popup-link-block\">\n\t\t\t\t\t<a class=\"ui-link ui-link-primary \" target=\"_blank\" href=\"\">\n\t\t\t\t\t</a>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_TITLE'), content);
+	}
 
 	main_core.Reflection.namespace('BX.Catalog').VariationGrid = VariationGrid;
 

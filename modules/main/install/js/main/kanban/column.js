@@ -86,6 +86,8 @@ BX.Kanban.Column = function(options)
 	this.addItemTitleText = null;
 
 	this.pagination = new BX.Kanban.Pagination(this);
+
+	this.handleScrollWithThrottle =  BX.Runtime.throttle(this.handleScroll, 100, this);
 };
 
 BX.Kanban.Column.DEFAULT_COLOR = "ace9fb";
@@ -944,6 +946,9 @@ BX.Kanban.Column.prototype =
 		this.showRemoveConfirmDialog();
 	},
 
+	handleScroll(event) {
+		BX.Event.EventEmitter.emit(this.getGrid(), 'Kanban.Column:onScroll', { event });
+	},
 	showColorPicker: function()
 	{
 		this.stopTextBoxBlur();
@@ -1269,7 +1274,8 @@ BX.Kanban.Column.prototype =
 				"data-type": "column"
 			},
 			events: {
-				wheel: BX.delegate(this.blockPageScroll, this)
+				wheel: BX.delegate(this.blockPageScroll, this),
+				scroll: this.handleScrollWithThrottle.bind(this),
 			},
 			children: [
 				this.getItemsContainer(),

@@ -1,12 +1,14 @@
 // @flow
-import {Util} from 'calendar.util';
-import {Type, Event, Loc, Tag, Dom} from 'main.core';
-import {EventEmitter, BaseEvent} from 'main.core.events';
-import {MenuItem} from "main.popup";
-import {EditForm} from "./editform"
-import {TrackingUsersForm} from "./trackingusersform"
-import {TrackingGroupsForm} from "./trackinggroupsform"
-import {TrackingTypesForm} from "./trackingtypesform"
+import { Util } from 'calendar.util';
+import { IcalSyncPopup } from 'calendar.sync.interface';
+import { Dom, Event, Loc, Tag, Text, Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { MenuItem } from 'main.popup';
+import { EditForm } from './editform';
+import { TrackingUsersForm } from './trackingusersform';
+import { TrackingGroupsForm } from './trackinggroupsform';
+import { TrackingTypesForm } from './trackingtypesform';
+import { SectionManager } from 'calendar.sectionmanager';
 
 export class SectionInterface extends EventEmitter
 {
@@ -17,6 +19,7 @@ export class SectionInterface extends EventEmitter
 	SLIDER_DURATION = 80;
 	sliderId = "calendar:section-slider";
 	denyClose = false;
+	deletedSectionsIds = [];
 
 	constructor({calendarContext, readonly, sectionManager})
 	{
@@ -57,39 +60,41 @@ export class SectionInterface extends EventEmitter
 
 	addEventEmitterSubscriptions()
 	{
-		Util.getBX().Event.EventEmitter.subscribe(
+		this.BX.Event.EventEmitter.subscribe(
 			'BX.Calendar.Section:delete',
 			this.deleteSectionHandlerBinded
 		);
-		Util.getBX().Event.EventEmitter.subscribe(
+		this.BX.Event.EventEmitter.subscribe(
 			'BX.Calendar.Section:pull-delete',
 			this.deleteSectionHandlerBinded
 		);
-		Util.getBX().Event.EventEmitter.subscribe(
+		this.BX.Event.EventEmitter.subscribe(
 			'BX.Calendar.Section:edit',
-			this.refreshSectionListBinded);
-		Util.getBX().Event.EventEmitter.subscribe(
-			'BX.Calendar.Section:pull-edit',
+			this.refreshSectionListBinded
+		);
+
+		this.BX.Event.EventEmitter.subscribe(
+			'BX.Calendar.Section:pull-reload-data',
 			this.refreshSectionListBinded
 		);
 	}
 
 	destroyEventEmitterSubscriptions()
 	{
-		Util.getBX().Event.EventEmitter.unsubscribe(
+		this.BX.Event.EventEmitter.unsubscribe(
 			'BX.Calendar.Section:delete',
 			this.deleteSectionHandlerBinded
 		);
-		Util.getBX().Event.EventEmitter.unsubscribe(
+		this.BX.Event.EventEmitter.unsubscribe(
 			'BX.Calendar.Section:pull-delete',
 			this.deleteSectionHandlerBinded
 		);
-		Util.getBX().Event.EventEmitter.unsubscribe(
+		this.BX.Event.EventEmitter.unsubscribe(
 			'BX.Calendar.Section:edit',
 			this.refreshSectionListBinded
 		);
-		Util.getBX().Event.EventEmitter.unsubscribe(
-			'BX.Calendar.Section:pull-edit',
+		this.BX.Event.EventEmitter.unsubscribe(
+			'BX.Calendar.Section:pull-reload-data',
 			this.refreshSectionListBinded
 		);
 	}
@@ -127,7 +132,9 @@ export class SectionInterface extends EventEmitter
 
 			BX.removeCustomEvent("SidePanel.Slider:onCloseComplete", BX.proxy(this.destroy, this));
 			BX.SidePanel.Instance.destroy(this.sliderId);
-			delete this.DOM.sectionListWrap;
+			delete this.DOM.localSectionListWrap;
+
+			this.deletedSectionsIds = [];
 
 			if (this.sectionActionMenu)
 			{
@@ -243,81 +250,254 @@ export class SectionInterface extends EventEmitter
 
 	createSectionList()
 	{
-		let title;
-		this.sliderSections = this.sectionManager.getSections();
-		const type = this.sectionManager.calendarType;
+		this.sliderSections = this.sectionManager.getSections().filter(section => {
+			return !this.deletedSectionsIds.find(id => id === section.id);
+		});
+		if (Type.isElementNode(this.DOM.sectonListOuterWrap))
+		{
+			Dom.remove(this.DOM.sectonListOuterWrap);
+		}
+		this.DOM.sectonListOuterWrap = this.DOM.outerWrap.appendChild(Tag.render`<div></div>`);
+		Event.bind(this.DOM.sectonListOuterWrap, 'click', this.sectionClickHandler.bind(this));
 
-		if (type === 'user')
-		{
-			title = Loc.getMessage('EC_SEC_SLIDER_MY_CALENDARS_LIST');
-		}
-		else if (type === 'group')
-		{
-			title = Loc.getMessage('EC_SEC_SLIDER_GROUP_CALENDARS_LIST');
-		}
-		else
-		{
-			title = Loc.getMessage('EC_SEC_SLIDER_TYPE_CALENDARS_LIST');
-		}
+		this.createLocalSectionsList();
+		this.createExternalSectionsList();
+	}
 
-		if (this.DOM.sectionListWrap)
-		{
-			Dom.clean(this.DOM.sectionListWrap);
-			Dom.adjust(this.DOM.sectionListWrap, {
-				props: {className: 'calendar-list-slider-card-widget'},
-				html: `
-					<div class="calendar-list-slider-card-widget-title">
-						<span class="calendar-list-slider-card-widget-title-text">
-							${title}
-						</span>
-					</div>
-				`
-			});
-		}
-		else
-		{
-			this.DOM.sectionListWrap = this.DOM.outerWrap.appendChild(Dom.create('DIV', {
-				props: {className: 'calendar-list-slider-card-widget'},
-				html: `
-					<div class="calendar-list-slider-card-widget-title">
-						<span class="calendar-list-slider-card-widget-title-text">
-							${title}
-						</span>
-					</div>
-				`
-			}));
-		}
+	createLocalSectionsList()
+	{
+		this.DOM.localSectionListWrap = this.DOM.sectonListOuterWrap.appendChild(
+			this.getSectionListWrap(this.getLocalSectionListTitle())
+		);
 
-		this.createSectionBlock({
-			wrap: this.DOM.sectionListWrap,
-			sectionList: this.sliderSections.filter(function(section){
-				return section.belongsToView() || section.isPseudo();
+		this.createSectionsBlock({
+			wrap: this.DOM.localSectionListWrap,
+			sectionList: this.sliderSections.filter(section => {
+				return (section.externalTypeIsLocal() && section.belongsToView()) || section.isPseudo();
 			})
 		});
 
-		// Company calendar
-		let sections = this.sliderSections.filter(function(section)
+		this.createCompanySectionList();
+		this.createUsersSectionList();
+		this.createGroupsSectionList();
+	}
+
+	createExternalSectionsList()
+	{
+		const externalSections = this.sliderSections.filter(section => {
+			return !section.externalTypeIsLocal() && section.belongsToView();
+		});
+
+		this.DOM.extSectionListWrap = [];
+
+		externalSections.forEach(section => {
+			const listWrap = this.getSectionListWrapForSection(section);
+
+			this.createSectionUnit({
+				section: section,
+				wrap: listWrap
+			});
+		});
+	}
+
+	getSectionListWrapForSection(section)
+	{
+		let sectionExternalType = section.getExternalType();
+		if (section.isGoogle())
+		{
+			sectionExternalType = 'google';
+		}
+		if (section.data['IS_EXCHANGE'])
+		{
+			sectionExternalType = 'exchange';
+		}
+
+		const sectionExternalConnection = SectionManager.getSectionExternalConnection(section, sectionExternalType);
+		const calendarContext = this.calendarContext || Util.getCalendarContext();
+
+		section.data.CAL_DAV_CON = sectionExternalConnection?.addParams?.id || null;
+		let key = sectionExternalType + (
+			sectionExternalConnection
+				? sectionExternalConnection.getId()
+				: '-disconnected'
+		);
+
+		if (!Type.isElementNode(this.DOM.extSectionListWrap[key]))
+		{
+			const sectionListWrap = this.DOM.sectonListOuterWrap.appendChild(
+				this.getSectionListWrap(this.getExternalConnectionBlockTitle(
+					{
+						type: sectionExternalType,
+						connection: sectionExternalConnection
+					})
+				)
+			);
+
+			sectionListWrap.appendChild(Tag.render`
+				<div class="calendar-list-slider-widget-content">
+					<div class="calendar-list-slider-widget-content-block">
+						${this.DOM.extSectionListWrap[key] = Tag.render`<ul class="calendar-list-slider-container"/>`}
+					</div>
+				</div>
+			`);
+
+			if (
+				!sectionExternalConnection
+				&& calendarContext
+				&& calendarContext.util.userIsOwner()
+				&& !section.isArchive()
+				&& (section.isExchange() && !calendarContext.util.config.bExchange)
+			)
+			{
+				sectionListWrap.querySelector('.calendar-list-slider-widget-content-block')
+					.appendChild(
+						Tag.render`
+							<div data-bx-calendar-open-sync="Y" class="calendar-list-slider-card-widget-bottom-button">
+								<span class="calendar-list-slider-link">
+									${Loc.getMessage('EC_SEC_SLIDER_ADJUST_SYNC')}
+								</span>
+							</div>`
+					);
+
+				sectionListWrap.querySelector('.calendar-list-slider-card-widget-title')
+					.appendChild(
+						Tag.render`
+							<span class="calendar-list-slider-card-widget-title-text calendar-list-title-disabled" >
+								${Loc.getMessage('EC_SEC_SLIDER_SYNC_DISABLED')}
+							</span>`,
+					);
+			}
+			else if (section.isArchive())
+			{
+				const hintNode = sectionListWrap.querySelector('.calendar-list-slider-card-widget-title')
+					.appendChild(Tag.render`
+						<div class="ui-icon ui-icon-common-question calendar-list-slider-archive-hint"
+						data-hint="${Loc.getMessage('EC_SEC_SLIDER_TYPE_ARCHIVE_HELPER')}">
+							<i></i>	
+						</div>
+				`);
+				if (Type.isDomNode(hintNode))
+				{
+					Util.initHintNode(hintNode);
+				}
+			}
+		}
+
+		return this.DOM.extSectionListWrap[key];
+	}
+
+	getExternalConnectionBlockTitle({type, connection}): string
+	{
+		let title = '';
+		const connectionName = connection
+			? connection.getConnectionAccountName() || connection.getConnectionName()
+			: null
+		;
+
+		switch (type)
+		{
+			case 'google':
+				if (connectionName)
+				{
+					title = Loc.getMessage(
+						'EC_SEC_SLIDER_TYPE_GOOGLE',
+						{ '#CONNECTION_NAME#': connectionName }
+					);
+				}
+				else
+				{
+					title = Loc.getMessage('EC_SEC_SLIDER_TYPE_GOOGLE_DIS')
+				}
+
+				break;
+			case 'office365':
+				if (connectionName)
+				{
+					title = Loc.getMessage(
+						'EC_SEC_SLIDER_TYPE_OFFICE365',
+						{ '#CONNECTION_NAME#': connectionName }
+					);
+				}
+				else
+				{
+					title = Loc.getMessage('EC_SEC_SLIDER_TYPE_OFFICE365_DIS')
+				}
+				break;
+			case 'icloud':
+				if (connectionName)
+				{
+					title = Loc.getMessage(
+						'EC_SEC_SLIDER_TYPE_ICLOUD',
+						{ '#CONNECTION_NAME#': connectionName }
+					);
+				}
+				else
+				{
+					title = Loc.getMessage('EC_SEC_SLIDER_TYPE_ICLOUD_DIS')
+				}
+				break;
+			case 'caldav':
+				if (connectionName)
+				{
+					if (connection.getType() === 'yandex')
+					{
+						title = Loc.getMessage(
+							'EC_SEC_SLIDER_TYPE_YANDEX',
+							{ '#CONNECTION_NAME#': connectionName }
+						);
+					}
+					else
+					{
+						title = Loc.getMessage(
+							'EC_SEC_SLIDER_TYPE_CALDAV',
+							{ '#CONNECTION_NAME#': connectionName }
+						);
+					}
+				}
+				else
+				{
+					title = Loc.getMessage('EC_SEC_SLIDER_TYPE_DEFAULT');
+				}
+				break;
+			case 'exchange':
+				title = Loc.getMessage('EC_CAL_SYNC_EXCHANGE');
+				break;
+			case 'archive':
+				title = Loc.getMessage('EC_SEC_SLIDER_TYPE_ARCHIVE');
+				break;
+			default:
+				title = Loc.getMessage('EC_SEC_SLIDER_TYPE_DEFAULT')
+		}
+
+		return title;
+	}
+
+	createCompanySectionList()
+	{
+		const sections = this.sliderSections.filter(function(section)
 		{
 			return section.isCompanyCalendar() && !section.belongsToView();
 		});
 
 		if (sections.length > 0)
 		{
-			this.DOM.sectionListWrap.appendChild(Dom.create('DIV', {
-				props: {className: 'calendar-list-slider-card-section-title'},
-				html: '<span class="calendar-list-slider-card-section-title-text">' + Loc.getMessage('EC_SEC_SLIDER_TITLE_COMP_CAL') + '</span>'
-			}));
+			this.DOM.localSectionListWrap.appendChild(Tag.render`
+				<div class="calendar-list-slider-card-section-title">
+					<span class="calendar-list-slider-card-section-title-text">${Loc.getMessage('EC_SEC_SLIDER_TITLE_COMP_CAL')}</span>
+				</div>
+			`);
 
-			this.createSectionBlock({
-				wrap: this.DOM.sectionListWrap,
-				sectionList: this.sliderSections.filter(function (section)
-				{
+			this.createSectionsBlock({
+				wrap: this.DOM.localSectionListWrap,
+				sectionList: this.sliderSections.filter(section => {
 					return section.isCompanyCalendar();
 				})
 			});
 		}
+	}
 
-		// Users calendars
+	createUsersSectionList()
+	{
 		this.calendarContext.util.getSuperposedTrackedUsers().forEach((user) => {
 			const sections = this.sliderSections.filter((section) => {
 				return !section.belongsToView()
@@ -327,32 +507,67 @@ export class SectionInterface extends EventEmitter
 
 			if (sections.length > 0)
 			{
-				this.DOM.sectionListWrap.appendChild(Dom.create('DIV', {
-					props: {className: 'calendar-list-slider-card-section-title'},
-					html: '<span class="calendar-list-slider-card-section-title-text">' + BX.util.htmlspecialchars(user.FORMATTED_NAME) + '</span>'
-				}));
-				this.createSectionBlock({
-					wrap: this.DOM.sectionListWrap,
+				this.DOM.localSectionListWrap.appendChild(Tag.render`
+					<div class="calendar-list-slider-card-section-title">
+						<span class="calendar-list-slider-card-section-title-text">${Text.encode(user.FORMATTED_NAME)}</span>
+					</div>
+				`);
+
+				this.createSectionsBlock({
+					wrap: this.DOM.localSectionListWrap,
 					sectionList: sections
 				});
 			}
 		}, this);
+	}
 
-		// Groups calendars
-		sections = this.sliderSections.filter((section) => {
+	createGroupsSectionList()
+	{
+		const sections = this.sliderSections.filter((section) => {
 			return !section.belongsToView() && section.type === 'group';
 		});
 
 		if (sections.length > 0)
 		{
-			this.DOM.sectionListWrap.appendChild(Dom.create('DIV', {
-				props: {className: 'calendar-list-slider-card-section-title'},
-				html: '<span class="calendar-list-slider-card-section-title-text">' + Loc.getMessage('EC_SEC_SLIDER_TITLE_GROUP_CAL') + '</span>'
-			}));
-			this.createSectionBlock({
-				wrap: this.DOM.sectionListWrap,
+			this.DOM.localSectionListWrap.appendChild(Tag.render`
+				<div class="calendar-list-slider-card-section-title">
+					<span class="calendar-list-slider-card-section-title-text">${Loc.getMessage('EC_SEC_SLIDER_TITLE_GROUP_CAL')}</span>
+				</div>
+			`);
+
+			this.createSectionsBlock({
+				wrap: this.DOM.localSectionListWrap,
 				sectionList: sections
 			});
+		}
+	}
+
+	getSectionListWrap(title)
+	{
+		return Tag.render`
+				<div class="calendar-list-slider-card-widget">
+					<div class="calendar-list-slider-card-widget-title">
+						<span class="calendar-list-slider-card-widget-title-text">
+							${title}
+						</span>
+					</div>
+				</div>
+			`;
+	}
+
+	getLocalSectionListTitle()
+	{
+		if (this.sectionManager.calendarType === 'user')
+		{
+			return Loc.getMessage('EC_SEC_SLIDER_MY_CALENDARS_LIST');
+		}
+		else if (this.sectionManager.calendarType === 'group')
+		{
+			return Loc.getMessage('EC_SEC_SLIDER_GROUP_CALENDARS_LIST');
+		}
+		else
+		{
+			return Loc.getMessage('EC_SEC_SLIDER_TYPE_CALENDARS_LIST');
 		}
 	}
 
@@ -363,17 +578,15 @@ export class SectionInterface extends EventEmitter
 			&& this.calendarContext.util.config.perm.edit_section
 		)
 		{
-			const addButtonOuter = this.DOM.titleWrap.appendChild(
-				Dom.create('SPAN',
-					{
-						props: {className: 'ui-btn-split ui-btn-light-border'},
-						style: {marginRight: 0}
-					}
-				)
-			);
-
-			this.DOM.addButton = addButtonOuter.appendChild(Dom.create('SPAN', {props: {className: 'ui-btn-main'}, text: Loc.getMessage('EC_ADD')}));
-			this.DOM.addButtonMore = addButtonOuter.appendChild(Dom.create('SPAN', {props: {className: 'ui-btn-extra'}}));
+			const addButtonOuter = this.DOM.titleWrap.appendChild(Tag.render`
+				<span class="ui-btn-split ui-btn-light-border" style="margin-right: 0"></span>
+			`);
+			this.DOM.addButton = addButtonOuter.appendChild(Tag.render`
+				<span class="ui-btn-main">${Loc.getMessage('EC_ADD')}</span>
+			`);
+			this.DOM.addButtonMore = addButtonOuter.appendChild(Tag.render`
+				<span class="ui-btn-extra"></span>
+			`);
 
 			Event.bind(this.DOM.addButtonMore, 'click', this.showAddButtonPopup.bind(this));
 			Event.bind(this.DOM.addButton, 'click', this.showEditSectionForm.bind(this));
@@ -442,73 +655,54 @@ export class SectionInterface extends EventEmitter
 		);
 
 		this.addBtnMenu.show();
-
-		//Dom.addClass(_this.sectionField.select, 'active');
-		// this.denySliderClose();
-
-		// top.BX.addCustomEvent(this.addBtnMenu.popupWindow, 'onPopupClose', function()
-		// {
-		// 	_this.allowSliderClose();
-		// });
 	}
 
-	createSectionBlock({sectionList, wrap})
+	createSectionsBlock({sectionList, wrap})
 	{
 		if (Type.isArray(sectionList))
 		{
-			const listWrap = wrap.appendChild(
-				Dom.create('DIV', {props: {className: 'calendar-list-slider-widget-content'}}))
-					.appendChild(Dom.create('DIV', {props: {className: 'calendar-list-slider-widget-content-block'}}))
-					.appendChild(Dom.create('UL', {props: {className: 'calendar-list-slider-container'}}));
-
-			Event.bind(listWrap, 'click', this.sectionClickHandler.bind(this));
+			const listWrap = wrap.appendChild(Tag.render`<div class="calendar-list-slider-widget-content"></div>`)
+				.appendChild(Tag.render`<div class="calendar-list-slider-widget-content-block"></div>`)
+				.appendChild(Tag.render`<ul class="calendar-list-slider-container"></ul>`)
+			;
 
 			sectionList.forEach((section) => {
-
-				if (!section.DOM)
-				{
-					section.DOM = {};
-				}
-
-				const sectionId = section.id.toString();
-				const li = listWrap.appendChild(Dom.create('LI', {
-					props: {className: 'calendar-list-slider-item'},
-					attrs: {'data-bx-calendar-section': sectionId}
-				}));
-
-				const checkbox = li.appendChild(Dom.create('DIV', {
-					props: {
-						className: 'calendar-list-slider-item-checkbox'
-							+ (section.isShown() ? ' calendar-list-slider-item-checkbox-checked' : '')
-					},
-					style: {backgroundColor: section.color}
-				}));
-
-				const title = li.appendChild(Dom.create('DIV', {
-					props: {
-						className: 'calendar-list-slider-item-name',
-						title: section.name,
-					},
-					text: section.name
-				}));
-
-				section.DOM.item = li;
-				section.DOM.checkbox = checkbox;
-				section.DOM.title = title;
-
-				section.DOM.actionCont = li.appendChild(Dom.create('DIV', {
-					props: {className: 'calendar-list-slider-item-actions-container'},
-					attrs: {'data-bx-calendar-section-menu': sectionId},
-					html: '<span class="calendar-list-slider-item-context-menu"></span>'
-				}));
+				this.createSectionUnit({section, wrap: listWrap});
 			});
 		}
+	}
+
+	createSectionUnit({section, wrap})
+	{
+		if (!section.DOM)
+		{
+			section.DOM = {};
+		}
+		const sectionId = section.id.toString();
+		const li = wrap.appendChild(Tag.render`
+			<li class="calendar-list-slider-item" data-bx-calendar-section="${sectionId}"></li>
+		`);
+		const checkbox = li.appendChild(Tag.render`
+			<div class="calendar-list-slider-item-checkbox ${section.isShown() ? 'calendar-list-slider-item-checkbox-checked' : ''}" style="background-color: ${section.color}"></div>
+		`);
+		const title = li.appendChild(Tag.render`
+			<div class="calendar-list-slider-item-name" title="${Text.encode(section.name)}">${Text.encode(section.name)}</div>
+		`);
+
+		section.DOM.item = li;
+		section.DOM.checkbox = checkbox;
+		section.DOM.title = title;
+
+		section.DOM.actionCont = li.appendChild(Tag.render`
+			<div class="calendar-list-slider-item-actions-container" data-bx-calendar-section-menu="${sectionId}">
+				<span class="calendar-list-slider-item-context-menu"></span>
+			</div>
+		`);
 	}
 
 	sectionClickHandler(e)
 	{
 		const target = Util.findTargetNode(e.target || e.srcElement, this.DOM.outerWrap);
-
 		if (target && target.getAttribute)
 		{
 			if (target.getAttribute('data-bx-calendar-section-menu') !== null)
@@ -521,12 +715,16 @@ export class SectionInterface extends EventEmitter
 			{
 				this.switchSection(this.sectionManager.getSection(target.getAttribute('data-bx-calendar-section')));
 			}
+			else if(target.getAttribute('data-bx-calendar-open-sync') !== null)
+			{
+				this.calendarContext.syncInterface.openSyncPanel();
+			}
 		}
 	}
 
 	findCheckBoxNodes(id)
 	{
-		return this.DOM.sectionListWrap.querySelectorAll(
+		return this.DOM.sectonListOuterWrap.querySelectorAll(
 			'.calendar-list-slider-item[data-bx-calendar-section=\''
 			+ id
 			+ '\'] .calendar-list-slider-item-checkbox'
@@ -650,7 +848,7 @@ export class SectionInterface extends EventEmitter
 			});
 		}
 
-		if (section.canBeConnectedToOutlook())
+		if (section.canBeConnectedToOutlook() && section.data['EXTERNAL_TYPE'] === 'local')
 		{
 			menuItems.push({
 				text : Loc.getMessage('EC_SEC_CONNECT_TO_OUTLOOK'),
@@ -662,7 +860,12 @@ export class SectionInterface extends EventEmitter
 			});
 		}
 
-		if (!section.isPseudo() && section.data.EXPORT && section.data.EXPORT.LINK)
+		if (
+			!section.isPseudo()
+			&& section.data.EXPORT
+			&& section.data.EXPORT.LINK
+			&& section.data['EXTERNAL_TYPE'] === 'local'
+		)
 		{
 			menuItems.push({
 				text: Loc.getMessage('EC_ACTION_EXPORT'),
@@ -673,13 +876,13 @@ export class SectionInterface extends EventEmitter
 						sectionLink: section.data.EXPORT.LINK,
 						calendarPath: this.calendarContext.util.config.path,
 					};
-					if (BX.Calendar.Sync.Interface.IcalSyncPopup.checkPathes(options))
+					if (IcalSyncPopup.checkPathes(options))
 					{
-						BX.Calendar.Sync.Interface.IcalSyncPopup.createInstance(options).show();
+						IcalSyncPopup.createInstance(options).show();
 					}
 					else
 					{
-						BX.Calendar.Sync.Interface.IcalSyncPopup.showPopupWithPathesError();
+						IcalSyncPopup.showPopupWithPathesError();
 					}
 				}
 			});
@@ -715,25 +918,12 @@ export class SectionInterface extends EventEmitter
 			});
 		}
 
-		if ((section.isGoogle() || section.isCalDav()) && section.canDo('edit_section'))
+		if (section.canDo('edit_section') && connection)
 		{
-			menuItems.push({
-				text : Loc.getMessage('EC_ACTION_REFRESH'),
-				onclick: () => {
-					this.sectionActionMenu.close();
-					this.calendarContext.reload({syncGoogle: true});
-					this.close();
-				}
-			});
-
-			if (
-				(section.isGoogle() || section.isCalDav())
-				&& section.canDo('edit_section')
-				&& connection
-			)
+			if (section.isGoogle() || section.isIcloud() || section.isOffice365() || section.isCalDav())
 			{
 				menuItems.push({
-					text : Loc.getMessage('EC_ACTION_EXTERNAL_ADJUST'),
+					text: Loc.getMessage('EC_ACTION_EXTERNAL_ADJUST'),
 					onclick: () => {
 						this.sectionActionMenu.close();
 						if (provider)
@@ -744,13 +934,24 @@ export class SectionInterface extends EventEmitter
 				});
 			}
 
-			if (section.data['EXTERNAL_TYPE'] !== 'local' && connection)
+			if (section.isGoogle() || section.isIcloud() || section.isOffice365())
 			{
 				menuItems.push({
 					text: Loc.getMessage('EC_ACTION_HIDE'),
 					onclick: () => {
 						this.sectionActionMenu.close();
-						section.hideGoogle();
+						section.hideSyncSection();
+					}
+				});
+			}
+
+			else if (section.isCalDav())
+			{
+				menuItems.push({
+					text: Loc.getMessage('EC_ACTION_HIDE'),
+					onclick: () => {
+						this.sectionActionMenu.close();
+						section.hideExternalCalendarSection();
 					}
 				});
 			}
@@ -883,6 +1084,7 @@ export class SectionInterface extends EventEmitter
 
 		this.editSectionForm.show({
 			showAccess: showAccessControl,
+			allowChangeName: params.section ? !params.section.isPrimaryForConnection() : true,
 			section: params.section || {
 				color: Util.getRandomColor(),
 				access: this.sectionManager.getDefaultSectionAccess()
@@ -964,20 +1166,39 @@ export class SectionInterface extends EventEmitter
 
 	deleteSectionHandler(event)
 	{
-		if (event && event instanceof Util.getBX().Event.BaseEvent)
+		if (event && event instanceof this.BX.Event.BaseEvent)
 		{
 			const data = event.getData();
 			const sectionId = parseInt(data.sectionId, 10);
 
 			this.sliderSections.forEach((section, index) => {
-
-				if (parseInt(section.id) === sectionId && section.DOM && section.DOM.item)
+				if (parseInt(section.id) === sectionId)
 				{
-					Dom.addClass(section.DOM.item, 'calendar-list-slider-item-disappearing');
-					setTimeout(() => {
-						Dom.clean(section.DOM.item, true);
-						this.sliderSections = BX.util.deleteFromArray(this.sliderSections, index);
-					}, 300);
+					this.sectionManager.deleteSectionHandler(sectionId);
+					this.deletedSectionsIds.push(sectionId);
+					const deleteSectionNodes = this.DOM.sectonListOuterWrap.querySelectorAll(
+						`.calendar-list-slider-item[data-bx-calendar-section='${sectionId}']`
+					);
+
+					deleteSectionNodes.forEach(node => {
+						Dom.addClass(node, 'calendar-list-slider-item-disappearing');
+					});
+
+					if (!section.externalTypeIsLocal())
+					{
+						const listWrap = this.getSectionListWrapForSection(section);
+						setTimeout(() => {
+							deleteSectionNodes.forEach(node => {
+								Dom.remove(node);
+							});
+							this.sliderSections = BX.util.deleteFromArray(this.sliderSections, index);
+
+							if(!listWrap.querySelector('li.calendar-list-slider-item'))
+							{
+								Dom.remove(listWrap.closest('.calendar-list-slider-card-widget'));
+							}
+						}, 300);
+					}
 				}
 			}, this);
 

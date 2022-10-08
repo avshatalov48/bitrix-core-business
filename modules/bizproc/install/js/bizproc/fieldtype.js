@@ -80,11 +80,15 @@
 			return BX.create('div', {text: 'incorrect render mode'});
 		},
 
-		renderControlPublic: function (documentType, property, fieldName, value)
+		renderControlPublic: function (documentType, property, fieldName, value, needInit)
 		{
 			var node,
-				renderer = this.getRenderFunctionName(property),
+				renderer = this.getRenderFunctionName(property);
+
+			if (!BX.Type.isBoolean(needInit))
+			{
 				needInit = true;
+			}
 
 			if (BX.type.isString(documentType))
 			{
@@ -155,7 +159,7 @@
 
 			if (needInit && node)
 			{
-				this.initControl(node, property);
+				return this.initControl(node, property) || node;
 			}
 
 			return node;
@@ -514,7 +518,7 @@
 				}
 			});
 
-			var designer = BX.getClass('BX.Bizproc.Automation.Designer');
+			var designer = BX.getClass('BX.Bizproc.Automation.Designer') && BX.Bizproc.Automation.Designer.getInstance();
 			var dlg = designer  && designer.getRobotSettingsDialog();
 			if (!dlg)
 			{
@@ -600,7 +604,7 @@
 		},
 		createFileNode: function(property, fieldName, value)
 		{
-			var designer = BX.getClass('BX.Bizproc.Automation.Designer');
+			var designer = BX.getClass('BX.Bizproc.Automation.Designer') && BX.Bizproc.Automation.Designer.getInstance();
 			var dlg = designer && designer.getRobotSettingsDialog();
 			if (!dlg)
 			{
@@ -766,8 +770,9 @@
 		},
 		initControl: function(controlNode, property)
 		{
-			var designer = BX.getClass('BX.Bizproc.Automation.Designer');
+			var designer = BX.getClass('BX.Bizproc.Automation.Designer') && BX.Bizproc.Automation.Designer.getInstance();
 			var dlg;
+			var childControlNodes = controlNode.querySelectorAll('[data-role]');
 			if (designer && designer.getRobotSettingsDialog())
 			{
 				dlg = designer.getRobotSettingsDialog();
@@ -782,10 +787,36 @@
 			{
 				BX.Bizproc.UserSelector.decorateNode(controlNode.querySelector('[data-role="user-selector"]'));
 			}
+			else if (childControlNodes.length > 0)
+			{
+				var context = BX.Bizproc.Automation && BX.Bizproc.Automation.tryGetGlobalContext();
+				if (context)
+				{
+					childControlNodes.forEach(function(node)
+					{
+						var selector = BX.Bizproc.Automation.SelectorManager.createSelectorByRole(
+							node.getAttribute('data-role'),
+							{
+								context: new BX.Bizproc.Automation.SelectorContext({
+									fields: BX.clone(context.document.getFields()),
+									useSwitcherMenu: context.get('showTemplatePropertiesMenuOnSelecting'),
+									rootGroupTitle: context.document.title,
+									userOptions: context.userOptions
+								})
+							},
+						);
+						if (selector && node.parentNode)
+						{
+							node.parentNode.replaceChild(selector.renderWith(node), node);
+						}
+					});
+				}
+			}
 		},
 		getDocumentFields: function()
 		{
-			var component = BX.getClass('BX.Bizproc.Automation.Designer.component');
+			var designer = BX.getClass('BX.Bizproc.Automation.Designer') && BX.Bizproc.Automation.Designer.getInstance();
+			var component = designer && designer.component;
 			if (component)
 			{
 				return component.data['DOCUMENT_FIELDS'];

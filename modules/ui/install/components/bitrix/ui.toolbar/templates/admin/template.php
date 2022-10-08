@@ -28,6 +28,7 @@ if (Toolbar::getTitleMaxWidth() !== null)
 
 $titleStyles = !empty($titleProps) ? ' style="'.$titleProps.'"' : "";
 
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens', 'ui.fonts.opensans']);
 ?>
 
 <div id="uiToolbarContainer" class="ui-toolbar"><?

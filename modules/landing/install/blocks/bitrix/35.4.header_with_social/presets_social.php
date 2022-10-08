@@ -493,38 +493,37 @@ $result = [
 	],
 ];
 
-$resultCnZone = [
-	'renren' => [
-		'name' => '<i class="fab fa-renren g-pr-5"></i> Renren',
-		'html' => '
+if (Manager::getZone() === 'cn')
+{
+	$resultCnZone = [
+		'renren' => [
+			'name' => '<i class="fab fa-renren g-pr-5"></i> Renren',
+			'html' => '
 			<li class="landing-block-node-social-item list-inline-item g-valign-middle g-mx-3 g-mb-6"
 				data-card-preset="renren">
 				<a class="landing-block-node-social-link d-block u-icon-v3 u-icon-size--sm g-rounded-50x g-bg-gray-light-v4 g-color-gray-light-v1 g-bg-primary--hover g-color-white--hover g-font-size-14"
-				   href="https://rocket.chat/">
+				   href="https://www.renren.com">
 					<i class="landing-block-node-social-icon fab fa-renren"></i>
 				</a>
 			</li>',
-		'disallow' => ['.landing-block-node-social-icon'],
-		'values' => [
-			'.landing-block-node-social-link' => [
-				'href' => 'https://www.renren.com/',
-			],
-			'.landing-block-node-social-icon' => [
-				'type' => 'icon',
-				'classList' => ['fab','fa-renren'],
+			'disallow' => ['.landing-block-node-social-icon'],
+			'values' => [
+				'.landing-block-node-social-link' => [
+					'href' => 'https://www.renren.com',
+				],
+				'.landing-block-node-social-icon' => [
+					'type' => 'icon',
+					'classList' => ['fab','fa-renren'],
+				],
 			],
 		],
-	],
-];
+	];
+	$result = array_merge($result, $resultCnZone);
+}
 
 if (!in_array(Manager::getZone(), ['ru', 'kz', 'by']))
 {
 	unset($result['vk'], $result['odnoklassniki']);
-}
-
-if (Manager::getZone() === 'cn')
-{
-	$result = array_merge($result, $resultCnZone);
 }
 
 return $result;

@@ -7,17 +7,17 @@ class CBPTaskService extends CBPRuntimeService
 {
 	const COUNTERS_CACHE_TAG_PREFIX = 'b_bp_tasks_cnt_';
 
-	public function DeleteTask($id)
+	public function deleteTask($id)
 	{
 		self::Delete($id);
 	}
 
-	public function DeleteAllWorkflowTasks($workflowId)
+	public function deleteAllWorkflowTasks($workflowId)
 	{
 		self::DeleteByWorkflow($workflowId);
 	}
 
-	public function MarkCompleted($taskId, $userId, $status = CBPTaskUserStatus::Ok)
+	public function markCompleted($taskId, $userId, $status = CBPTaskUserStatus::Ok)
 	{
 		global $DB;
 
@@ -188,7 +188,7 @@ class CBPTaskService extends CBPRuntimeService
 		return false;
 	}
 
-	public static function Delete($id)
+	public static function delete($id)
 	{
 		global $DB;
 
@@ -222,7 +222,7 @@ class CBPTaskService extends CBPRuntimeService
 			ExecuteModuleEventEx($arEvent, array($id));
 	}
 
-	public static function DeleteByWorkflow($workflowId, $taskStatus = null)
+	public static function deleteByWorkflow($workflowId, $taskStatus = null)
 	{
 		global $DB;
 
@@ -365,7 +365,7 @@ class CBPTaskService extends CBPRuntimeService
 		}
 	}
 
-	protected static function ParseFields(&$arFields, $id = 0)
+	protected static function parseFields(&$arFields, $id = 0)
 	{
 		global $DB;
 
@@ -452,7 +452,7 @@ class CBPTaskService extends CBPRuntimeService
 		}
 	}
 
-	public static function OnAdminInformerInsertItems()
+	public static function onAdminInformerInsertItems()
 	{
 		global $USER;
 
@@ -475,12 +475,12 @@ class CBPTaskService extends CBPRuntimeService
 		}
 	}
 
-	public function CreateTask($arFields)
+	public function createTask($arFields)
 	{
 		return self::Add($arFields);
 	}
 
-	public static function Add($arFields)
+	public static function add($arFields)
 	{
 		global $DB;
 
@@ -524,7 +524,7 @@ class CBPTaskService extends CBPRuntimeService
 		return $taskId;
 	}
 
-	public static function Update($id, $arFields)
+	public static function update($id, $arFields)
 	{
 		global $DB;
 
@@ -627,7 +627,7 @@ class CBPTaskService extends CBPRuntimeService
 		return $id;
 	}
 
-	public static function GetList($arOrder = array("ID" => "DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function getList($arOrder = array("ID" => "DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -747,7 +747,7 @@ class CBPTaskResult extends CDBResult
 		Main\Web\Uri::class
 	];
 
-	function Fetch()
+	function fetch()
 	{
 		$res = parent::Fetch();
 
@@ -762,7 +762,7 @@ class CBPTaskResult extends CDBResult
 		return $res;
 	}
 
-	function GetNext($bTextHtmlAuto=true, $use_tilda=true)
+	function getNext($bTextHtmlAuto=true, $use_tilda=true)
 	{
 		$res = parent::GetNext($bTextHtmlAuto, $use_tilda);
 
@@ -782,7 +782,7 @@ class CBPTaskResult extends CDBResult
 	 * @param $text
 	 * @return array|string|string[]|null
 	 */
-	function ConvertBBCode($text)
+	function convertBBCode($text)
 	{
 		$text = preg_replace(
 			"'(?<=^|[\s.,;:!?\#\-\*\|\[\(\)\{\}]|\s)((http|https|news|ftp|aim|mailto)://[\.\-\_\:a-z0-9\@]([^\"\s\'\[\]\{\}])*)'is",
@@ -827,7 +827,7 @@ class CBPTaskResult extends CDBResult
 	 * @param string $url
 	 * @return string
 	 */
-	function ConvertBCodeImageTag($url = "")
+	function convertBCodeImageTag($url = "")
 	{
 		if (is_array($url))
 			$url = $url[1];
@@ -860,7 +860,7 @@ class CBPTaskResult extends CDBResult
 	 * @param string $text
 	 * @return string
 	 */
-	function ConvertBCodeAnchorTag($url, $text = '')
+	function convertBCodeAnchorTag($url, $text = '')
 	{
 		if (is_array($url))
 		{

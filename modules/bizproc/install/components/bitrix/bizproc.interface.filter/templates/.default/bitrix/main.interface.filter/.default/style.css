@@ -149,7 +149,7 @@
 	color: #535c69;
 	vertical-align: top;
 	text-shadow: 0 1px #fff;
-	font:14px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font:14px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
@@ -543,8 +543,8 @@
 	color: #535c69;
 	cursor:pointer;
 	display:inline-block;
-	font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-	font-weight:bold;
+	font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight:var(--ui-font-weight-bold);
 	font-size:12px;
 	height: 40px;
 	line-height: 38px;
@@ -607,7 +607,7 @@
 	border-radius:4px;
 	border:none;
 	color: #535c69;
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	margin:0;
 	outline:none;

@@ -68,6 +68,7 @@ class CBPCalc
 		'shuffle' => ['args' => true, 'func' => 'FunctionShuffle'],
 		'firstvalue'=> ['args' => true, 'func' => 'FunctionFirstValue'],
 		'swirl' => ['args' => true, 'func' => 'FunctionSwirl'],
+		'getdocumenturl' => ['args' => true, 'func' => 'FunctionGetDocumentUrl'],
 	];
 
 	// Allowable errors
@@ -92,7 +93,7 @@ class CBPCalc
 		$this->activity = $activity;
 	}
 
-	private function GetVariableValue($variable)
+	private function getVariableValue($variable)
 	{
 		$variable = trim($variable);
 		if (!preg_match(CBPActivity::ValuePattern, $variable))
@@ -101,12 +102,12 @@ class CBPCalc
 		return $this->activity->ParseValue($variable);
 	}
 
-	private function SetError($errnum, $errstr = '')
+	private function setError($errnum, $errstr = '')
 	{
 		$this->arErrorsList[] = [$errnum, str_replace('#STR#', $errstr, $this->arAvailableErrors[$errnum])];
 	}
 
-	public function GetErrors()
+	public function getErrors()
 	{
 		return $this->arErrorsList;
 	}
@@ -117,7 +118,7 @@ class CBPCalc
 		key => array(value, self::Operation | self::Variable | self::Constant)
 	)
 	*/
-	private function GetPolishNotation($text)
+	private function getPolishNotation($text)
 	{
 		$text = trim($text);
 		if (mb_substr($text, 0, 1) === '=')
@@ -274,7 +275,7 @@ class CBPCalc
 		return $arPolishNotation;
 	}
 
-	public function Calculate($text)
+	public function calculate($text)
 	{
 		if (!$arPolishNotation = $this->GetPolishNotation($text))
 			return null;
@@ -407,7 +408,7 @@ class CBPCalc
 		return array_shift($stack);
 	}
 
-	private function ArrgsToArray($args)
+	private function arrgsToArray($args)
 	{
 		if (!is_array($args))
 			return [$args];
@@ -431,12 +432,12 @@ class CBPCalc
 
 	/* Math */
 
-	private function FunctionAbs($num)
+	private function functionAbs($num)
 	{
 		return abs((float) $num);
 	}
 
-	private function FunctionRound($args)
+	private function functionRound($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$val = (float)array_shift($ar);
@@ -445,17 +446,17 @@ class CBPCalc
 		return round($val, $precision);
 	}
 
-	private function FunctionCeil($num)
+	private function functionCeil($num)
 	{
 		return ceil($num);
 	}
 
-	private function FunctionFloor($num)
+	private function functionFloor($num)
 	{
 		return floor($num);
 	}
 
-	private function FunctionMin($args)
+	private function functionMin($args)
 	{
 		if (!is_array($args))
 			return (float) $args;
@@ -467,7 +468,7 @@ class CBPCalc
 		return min($args);
 	}
 
-	private function FunctionMax($args)
+	private function functionMax($args)
 	{
 		if (!is_array($args))
 			return (float) $args;
@@ -479,7 +480,7 @@ class CBPCalc
 		return max($args);
 	}
 
-	private function FunctionRand($args)
+	private function functionRand($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$min = (int)array_shift($ar);
@@ -492,29 +493,29 @@ class CBPCalc
 		return mt_rand($min, $max);
 	}
 
-	private function FunctionIntval($num)
+	private function functionIntval($num)
 	{
 		return intval($num);
 	}
 
-	private function FunctionFloatval($num)
+	private function functionFloatval($num)
 	{
 		return floatval($num);
 	}
 
 	/* Logic */
 
-	private function FunctionTrue()
+	private function functionTrue()
 	{
 		return true;
 	}
 
-	private function FunctionFalse()
+	private function functionFalse()
 	{
 		return false;
 	}
 
-	private function FunctionIf($args)
+	private function functionIf($args)
 	{
 		if (!is_array($args))
 			return null;
@@ -525,12 +526,12 @@ class CBPCalc
 		return $expression ? $ifTrue : $ifFalse;
 	}
 
-	private function FunctionNot($arg)
+	private function functionNot($arg)
 	{
 		return !((boolean) $arg);
 	}
 
-	private function FunctionAnd($args)
+	private function functionAnd($args)
 	{
 		if (!is_array($args))
 			return (boolean) $args;
@@ -545,7 +546,7 @@ class CBPCalc
 		return true;
 	}
 
-	private function FunctionOr($args)
+	private function functionOr($args)
 	{
 		if (!is_array($args))
 			return (boolean) $args;
@@ -562,7 +563,7 @@ class CBPCalc
 
 	/* Date */
 
-	private function FunctionDateAdd($args)
+	private function functionDateAdd($args)
 	{
 		if (!is_array($args))
 		{
@@ -624,7 +625,7 @@ class CBPCalc
 		return new Bizproc\BaseType\Value\DateTime($newDate, $offset);
 	}
 
-	private function FunctionWorkDateAdd($args)
+	private function functionWorkDateAdd($args)
 	{
 		if (!is_array($args))
 			$args = [$args];
@@ -703,7 +704,7 @@ class CBPCalc
 		return new Bizproc\BaseType\Value\DateTime($date, $offset);
 	}
 
-	private function FunctionAddWorkDays($args)
+	private function functionAddWorkDays($args)
 	{
 		if (!is_array($args))
 			$args = [$args];
@@ -724,7 +725,7 @@ class CBPCalc
 		return new Bizproc\BaseType\Value\DateTime($date, $offset);
 	}
 
-	private function FunctionIsWorkDay($args)
+	private function functionIsWorkDay($args)
 	{
 		if (!CModule::IncludeModule('calendar'))
 			return null;
@@ -747,7 +748,7 @@ class CBPCalc
 		return !$this->isHoliday($date);
 	}
 
-	private function FunctionIsWorkTime($args)
+	private function functionIsWorkTime($args)
 	{
 		if (!CModule::IncludeModule('calendar'))
 			return null;
@@ -770,7 +771,7 @@ class CBPCalc
 		return !$this->isHoliday($date) && $this->isWorkTime($date);
 	}
 
-	private function FunctionDateDiff($args)
+	private function functionDateDiff($args)
 	{
 		if (!is_array($args))
 			$args = [$args];
@@ -795,7 +796,7 @@ class CBPCalc
 		return $interval === false ? null : $interval->format($format);
 	}
 
-	private function FunctionDate($args)
+	private function functionDate($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$format = array_shift($ar);
@@ -816,7 +817,7 @@ class CBPCalc
 		return date($format, $ts);
 	}
 
-	private function FunctionToUserDate($args)
+	private function functionToUserDate($args)
 	{
 		if (!is_array($args))
 		{
@@ -847,7 +848,7 @@ class CBPCalc
 		return new Bizproc\BaseType\Value\DateTime($date, $offset);
 	}
 
-	private function FunctionGetUserDateOffset($args)
+	private function functionGetUserDateOffset($args)
 	{
 		if (!is_array($args))
 		{
@@ -872,7 +873,7 @@ class CBPCalc
 		return CTimeZone::GetOffset($userId, true);
 	}
 
-	private function FunctionStrtotime($args)
+	private function functionStrtotime($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$datetime = (string)array_shift($ar);
@@ -895,7 +896,7 @@ class CBPCalc
 		return new Bizproc\BaseType\Value\DateTime($timestamp);
 	}
 
-	private function FunctionLocDate($args)
+	private function functionLocDate($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$format = array_shift($ar);
@@ -1273,7 +1274,7 @@ class CBPCalc
 
 	/* String & Formatting */
 
-	private function FunctionNumberFormat($args)
+	private function functionNumberFormat($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$number = (float) array_shift($ar);
@@ -1295,7 +1296,7 @@ class CBPCalc
 		return number_format($number, $decimals, $decPoint, $thousandsSeparator);
 	}
 
-	private function FunctionRandString($args)
+	private function functionRandString($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$len = (int)array_shift($ar);
@@ -1303,7 +1304,7 @@ class CBPCalc
 		return \randString($len);
 	}
 
-	private function FunctionSubstr($args)
+	private function functionSubstr($args)
 	{
 		if (!is_array($args))
 			$args = [$args];
@@ -1325,7 +1326,7 @@ class CBPCalc
 		return mb_substr($str, $pos);
 	}
 
-	private function FunctionStrpos($args)
+	private function functionStrpos($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$haystack = (string)array_shift($ar);
@@ -1335,7 +1336,7 @@ class CBPCalc
 		return mb_strpos($haystack, $needle, $offset);
 	}
 
-	private function FunctionStrlen($args)
+	private function functionStrlen($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$str = array_shift($ar);
@@ -1349,7 +1350,7 @@ class CBPCalc
 		return mb_strlen($str);
 	}
 
-	private function FunctionImplode($args)
+	private function functionImplode($args)
 	{
 		$ar = (array) $args;
 		$glue = array_shift($ar);
@@ -1358,7 +1359,7 @@ class CBPCalc
 		return implode($glue, $pieces);
 	}
 
-	private function FunctionExplode($args)
+	private function functionExplode($args)
 	{
 		$ar = (array) $args;
 		$delimiter = array_shift($ar);
@@ -1378,7 +1379,7 @@ class CBPCalc
 		return explode($delimiter, $str);
 	}
 
-	private function FunctionUrlencode($args)
+	private function functionUrlencode($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$str = array_shift($ar);
@@ -1399,7 +1400,7 @@ class CBPCalc
 		return urlencode($str);
 	}
 
-	private function FunctionConvert($args)
+	private function functionConvert($args)
 	{
 		if (!is_array($args))
 			$args = [$args];
@@ -1457,7 +1458,7 @@ class CBPCalc
 		return $result;
 	}
 
-	private function FunctionStrtolower($args)
+	private function functionStrtolower($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$str = array_shift($ar);
@@ -1470,7 +1471,7 @@ class CBPCalc
 		return mb_strtolower((string) $str);
 	}
 
-	private function FunctionStrtoupper($args)
+	private function functionStrtoupper($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$str = array_shift($ar);
@@ -1483,7 +1484,7 @@ class CBPCalc
 		return mb_strtoupper((string) $str);
 	}
 
-	private function FunctionUcwords($args)
+	private function functionUcwords($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$str = array_shift($ar);
@@ -1496,7 +1497,7 @@ class CBPCalc
 		return mb_convert_case((string) $str, MB_CASE_TITLE);
 	}
 
-	private function FunctionUcfirst($args)
+	private function functionUcfirst($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$str = array_shift($ar);
@@ -1519,7 +1520,7 @@ class CBPCalc
 
 	/* Complex values */
 
-	private function FunctionMerge($args)
+	private function functionMerge($args)
 	{
 		if (!is_array($args))
 			$args = [];
@@ -1531,7 +1532,7 @@ class CBPCalc
 		return call_user_func_array('array_merge', $args);
 	}
 
-	private function FunctionShuffle($args)
+	private function functionShuffle($args)
 	{
 		if (!is_array($args) || $args === [])
 		{
@@ -1544,14 +1545,14 @@ class CBPCalc
 		return $array;
 	}
 
-	private function FunctionFirstValue($args)
+	private function functionFirstValue($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 
 		return $ar[0] ?? null;
 	}
 
-	private function FunctionSwirl($args)
+	private function functionSwirl($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		if (count($ar) <= 1)
@@ -1560,5 +1561,49 @@ class CBPCalc
 		}
 
 		return array_merge(array_slice($ar, 1), [$ar[0]]);
+	}
+
+	private function FunctionGetDocumentUrl($args)
+	{
+		$ar = $this->ArrgsToArray($args);
+		$format = array_shift($ar);
+		$external = array_shift($ar);
+
+		$url = $this->activity->workflow->getService('DocumentService')->GetDocumentAdminPage(
+			$this->activity->getDocumentId()
+		);
+		$name = null;
+
+		if ($external)
+		{
+			$url = Main\Engine\UrlManager::getInstance()->getHostUrl() . $url;
+		}
+
+		if ($format === 'bb' || $format === 'html')
+		{
+			$name = $this->activity->workflow->getService('DocumentService')->getDocumentName(
+				$this->activity->getDocumentId()
+			);
+		}
+
+		if ($format === 'bb')
+		{
+			return sprintf(
+				'[url=%s]%s[/url]',
+				$url,
+				$name
+			);
+		}
+
+		if ($format === 'html')
+		{
+			return sprintf(
+				'<a href="%s" target="_blank">%s</a>',
+				$url,
+				htmlspecialcharsbx($name)
+			);
+		}
+
+		return $url;
 	}
 }

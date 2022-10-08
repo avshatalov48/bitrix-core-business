@@ -3,6 +3,7 @@
 	{
 		this.DEFAULT_VIEW = 'month';
 		this.RELOAD_DELAY = 500;
+		this.REFRESH_DELAY = 500;
 		this.id = config.id;
 		this.showTasks = config.showTasks;
 		this.calDavConnections = config.connections;
@@ -28,6 +29,7 @@
 		this.sectionManager = new BX.Calendar.SectionManager(data, config);
 		this.entryManager = new BX.Calendar.EntryManager(data, config);
 		this.roomsManager = new BX.Calendar.RoomsManager(data, config);
+		this.categoryManager = new BX.Calendar.CategoryManager(data, config);
 		if (BX.Calendar.Controls && BX.Calendar.Controls.Location)
 		{
 			BX.Calendar.Controls.Location.setLocationList(additionalParams.locationList);
@@ -40,6 +42,12 @@
 		BX.Calendar.Util.setAccessNames(config.accessNames);
 		BX.Calendar.Util.setEventWithEmailGuestAmount(config.countEventWithEmailGuestAmount);
 		BX.Calendar.Util.setEventWithEmailGuestLimit(config.eventWithEmailGuestLimit);
+
+		BX.Calendar.Util.setDayOfWeekMonthFormat(config.dayOfWeekMonthFormat);
+		BX.Calendar.Util.setDayMonthFormat(config.dayMonthFormat);
+
+		BX.Calendar.Util.setIphoneConnectionStatus(config.isIphoneConnected);
+		BX.Calendar.Util.setMacConnectionStatus(config.isMacConnected);
 
 		this.requests = {};
 		this.currentUser = config.user;
@@ -63,10 +71,11 @@
 			}
 		}
 
-		BX.addCustomEvent('onPullEvent-calendar', this.handlePullEvent.bind(this));
-		BX.addCustomEvent('onPullEvent-tasks', this.handlePullEvent.bind(this));
+		BX.Event.EventEmitter.subscribe('onPullEvent-calendar', this.handlePullEvent.bind(this));
+		BX.Event.EventEmitter.subscribe('onPullEvent-tasks', this.handlePullEvent.bind(this));
 
 		this.reloadDebounce = BX.Runtime.debounce(this.reload, this.RELOAD_DELAY, this);
+		this.refreshDebounce = BX.Runtime.debounce(this.refresh, this.REFRESH_DELAY, this);
 	}
 
 	Calendar.prototype = {
@@ -172,7 +181,8 @@
 						syncInfo: this.util.config.syncInfo,
 						userId: this.currentUser.id,
 						syncLinks: this.util.config.syncLinks,
-						isSetSyncCaldavSettings: this.util.config.isSetSyncCaldavSettings,
+						isSetSyncGoogleSettings: this.util.config.isSetSyncGoogleSettings,
+						isSetSyncOffice365Settings: this.util.config.isSetSyncOffice365Settings,
 						sections: this.sectionManager.getSections(),
 						portalAddress: this.util.config.caldav_link_all,
 						isRuZone: this.util.config.isRuZone,
@@ -231,7 +241,7 @@
 
 				BX.Event.EventEmitter.subscribe('BX.Calendar.CompactEventForm:doRefresh', function(event)
 				{
-					this.refresh();
+					this.refreshDebounce();
 				}.bind(this));
 
 				if (this.isLocationViewDisabled())
@@ -245,10 +255,6 @@
 						this.mainCont.appendChild(this.lockView);
 					}
 				}
-			}
-			if (this.util.config.displayMobileBanner)
-			{
-				new BX.Calendar.Sync.Interface.MobileSyncBanner().showInPopup();
 			}
 		},
 
@@ -952,6 +958,7 @@
 						addEntry: function()
 						{
 							BX.Calendar.EntryManager.openEditSlider({
+								calendarContext: this,
 								type: this.util.type,
 								isLocationCalendar: false,
 								locationAccess: this.util.config.locationAccess,
@@ -991,6 +998,7 @@
 										calendarContext: this,
 										readonly: this.util.readOnlyMode(),
 										roomsManager: this.roomsManager,
+										categoryManager: this.categoryManager,
 									},
 								);
 							}
@@ -1038,7 +1046,9 @@
 						addEntry: function()
 						{
 							BX.Calendar.EntryManager.openEditSlider({
+								calendarContext: this,
 								roomsManager: this.roomsManager,
+								categoryManager: this.categoryManager,
 								type: 'user',
 								isLocationCalendar: true,
 								locationAccess: this.util.config.locationAccess,
@@ -1184,66 +1194,76 @@
 			}
 		},
 
-		handlePullEvent: function(command, params)
+		handlePullEvent: function(event)
 		{
-			params = BX.Type.isObjectLike(params) ? params : {};
-			params.command = command;
+			if (event && BX.Type.isFunction(event.getData))
+			{
+				const data = {
+					command: event.getData()[0],
+					...event.getData()[1]
+				};
 
-			if (BX.Calendar.Util.documentIsDisplayingNow())
-			{
-				this.processPullEvent(params);
-			}
-			else
-			{
-				this.storePullEvent(params);
+				if (BX.Calendar.Util.documentIsDisplayingNow())
+				{
+					this.processPullEvent(data);
+				}
+				else
+				{
+					this.storePullEvent(data);
+				}
 			}
 		},
 
-		storePullEvent: function(params)
+		storePullEvent: function(data)
 		{
-			if (!BX.Calendar.Util.checkRequestId(params.requestUid))
+			if (!BX.Calendar.Util.checkRequestId(data.requestUid))
 			{
 				return;
 			}
 
-			if (this.pullEventList.has(params))
+			if (this.pullEventList.has(data))
 			{
-				this.pullEventList.delete(params);
+				this.pullEventList.delete(data);
 			}
-			this.pullEventList.add(params);
+			this.pullEventList.add(data);
 		},
 
-		processPullEvent: function(params)
+		processPullEvent: function(data)
 		{
-			params.sections = this.sectionManager.getSections();
-			switch (params.command)
+			data.sections = this.sectionManager.getSections();
+			switch (data.command)
 			{
 				case 'edit_event':
 				case 'delete_event':
 				case 'set_meeting_status':
-					this.entryManager.handlePullChanges(params);
+					this.entryManager.handlePullChanges(data);
 					break;
 				case 'edit_section':
 				case 'delete_section':
 				case 'change_section_subscription':
-					this.sectionManager.handlePullChanges(params);
+					this.sectionManager.handlePullChanges(data);
 					break;
 				case 'delete_room':
 				case 'create_room':
 				case 'update_room':
-					this.roomsManager.handlePullRoomChanges(params);
+					this.roomsManager.handlePullRoomChanges(data);
+					break;
+				case 'delete_category':
+				case 'create_category':
+				case 'update_category':
+					this.categoryManager.handlePullCategoryChanges(data);
 					break;
 				case 'change_section_customization':
 					this.reloadDebounce();
 					break;
 				case 'refresh_sync_status':
-					this.syncInterface.updateSyncStatus(params);
-					break;
 				case 'add_sync_connection':
-					this.syncInterface.addSyncConnection(params);
-					break;
 				case 'delete_sync_connection':
-					this.syncInterface.deleteSyncConnection(params);
+				case 'process_sync_connection':
+					if (this.syncInterface)
+					{
+						this.syncInterface.handlePullEvent(data);
+					}
 					break;
 				case 'task_remove':
 				case 'task_add':
@@ -1367,7 +1387,8 @@
 						data: {},
 					}).then(function(response)
 						{
-							if (BX.Type.isObjectLike(response.data.counters)
+							if (
+								BX.Type.isObjectLike(response.data.counters)
 								&& this.search
 								&& this.util.isCountersEnabled()
 							)

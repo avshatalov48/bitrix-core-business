@@ -3,7 +3,7 @@ this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 this.BX.Landing.Ui.Panel = this.BX.Landing.Ui.Panel || {};
 this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettingspanel || {};
-(function (exports,landing_ui_panel_basepresetpanel,landing_ui_card_headercard,landing_ui_field_radiobuttonfield,landing_ui_form_formsettingsform,landing_ui_field_basefield,landing_ui_component_iconbutton,main_popup,landing_pageobject,landing_ui_field_textfield,main_core_events,main_core,landing_ui_component_internal,landing_ui_component_actionpanel,landing_loc) {
+(function (exports,landing_ui_panel_basepresetpanel,landing_ui_card_headercard,landing_ui_field_radiobuttonfield,landing_ui_form_formsettingsform,ui_fonts_opensans,landing_ui_field_basefield,landing_ui_component_iconbutton,main_popup,landing_pageobject,landing_ui_field_textfield,ui_designTokens,main_core_events,main_core,landing_ui_component_internal,landing_ui_component_actionpanel,landing_loc) {
 	'use strict';
 
 	var RuleType = function RuleType() {
@@ -1596,5 +1596,5 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 
 	exports.default = FieldsRules;
 
-}((this.BX.Landing.Ui.Panel.Formsettingspanel.Content = this.BX.Landing.Ui.Panel.Formsettingspanel.Content || {}),BX.Landing.UI.Panel,BX.Landing.UI.Card,BX.Landing.UI.Field,BX.Landing.UI.Form,BX.Landing.UI.Field,BX.Landing.UI.Component,BX.Main,BX.Landing,BX.Landing.UI.Field,BX.Event,BX,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Landing));
+}((this.BX.Landing.Ui.Panel.Formsettingspanel.Content = this.BX.Landing.Ui.Panel.Formsettingspanel.Content || {}),BX.Landing.UI.Panel,BX.Landing.UI.Card,BX.Landing.UI.Field,BX.Landing.UI.Form,BX,BX.Landing.UI.Field,BX.Landing.UI.Component,BX.Main,BX.Landing,BX.Landing.UI.Field,BX,BX.Event,BX,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Landing));
 //# sourceMappingURL=fields-rules.bundle.js.map

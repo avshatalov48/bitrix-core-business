@@ -823,9 +823,9 @@ abstract class DataManager
 	}
 
 	/**
-	 * @param EntityObject                 $object
-	 * @param                              $ufdata
-	 * @param \Bitrix\Main\ORM\Data\Result $result
+	 * @param EntityObject $object
+	 * @param $ufdata
+	 * @param Result $result
 	 */
 	protected static function checkUfFields($object, $ufdata, $result)
 	{
@@ -904,7 +904,7 @@ abstract class DataManager
 			}
 
 			// check if there is still some data
-			if (!count($fields + $ufdata))
+			if (empty($fields) && empty($ufdata))
 			{
 				$result->addError(new EntityError("There is no data to add."));
 			}
@@ -975,10 +975,17 @@ abstract class DataManager
 			// save uf data
 			if (!empty($ufdata))
 			{
-				$USER_FIELD_MANAGER->update($entity->getUfId(), end($primary), $ufdata);
+				$ufUserId = false;
+
+				if ($object->authContext)
+				{
+					$ufUserId = $object->authContext->getUserId();
+				}
+
+				$USER_FIELD_MANAGER->update($entity->getUfId(), end($primary), $ufdata, $ufUserId);
 			}
 
-			$entity->cleanCache();
+			static::cleanCache();
 
 			static::callOnAfterAddEvent($object, $fields + $ufdata, $id);
 		}
@@ -1071,7 +1078,7 @@ abstract class DataManager
 				}
 
 				// check if there is still some data
-				if (!count($fields + $ufdata))
+				if (empty($fields) && empty($ufdata))
 				{
 					$result->addError(new EntityError("There is no data to add."));
 				}
@@ -1173,15 +1180,22 @@ abstract class DataManager
 			}
 
 			// save uf data
-			foreach ($allUfData as $ufdata)
+			foreach ($allUfData as $k => $ufdata)
 			{
 				if (!empty($ufdata))
 				{
-					$USER_FIELD_MANAGER->update($entity->getUfId(), end($primary), $ufdata);
+					$ufUserId = false;
+
+					if ($objects[$k]->authContext)
+					{
+						$ufUserId = $objects[$k]->authContext->getUserId();
+					}
+
+					$USER_FIELD_MANAGER->update($entity->getUfId(), end($primary), $ufdata, $ufUserId);
 				}
 			}
 
-			$entity->cleanCache();
+			static::cleanCache();
 
 			// after event
 			if (!$ignoreEvents)
@@ -1237,7 +1251,7 @@ abstract class DataManager
 		// compatibility
 		$fields = $data;
 
-		/** @var EntityObject $object prepare entity object for compatibility with new code */
+		// prepare entity object for compatibility with new code
 		$object = static::convertArrayToObject($fields, false, $primary);
 
 		$entity = static::getEntity();
@@ -1263,7 +1277,7 @@ abstract class DataManager
 			}
 
 			// check if there is still some data
-			if (!count($fields + $ufdata))
+			if (empty($fields) && empty($ufdata))
 			{
 				return $result;
 			}
@@ -1317,10 +1331,17 @@ abstract class DataManager
 			// save uf data
 			if (!empty($ufdata))
 			{
-				$USER_FIELD_MANAGER->update($entity->getUfId(), end($primary), $ufdata);
+				$ufUserId = false;
+
+				if ($object->authContext)
+				{
+					$ufUserId = $object->authContext->getUserId();
+				}
+
+				$USER_FIELD_MANAGER->update($entity->getUfId(), end($primary), $ufdata, $ufUserId);
 			}
 
-			$entity->cleanCache();
+			static::cleanCache();
 
 			// event after update
 			static::callOnAfterUpdateEvent($object, $fields + $ufdata);
@@ -1411,7 +1432,7 @@ abstract class DataManager
 				}
 
 				// check if there is still some data
-				if (!count($fields + $ufdata))
+				if (empty($fields) && empty($ufdata))
 				{
 					$result->addError(new EntityError("There is no data to add."));
 				}
@@ -1570,7 +1591,7 @@ abstract class DataManager
 				}
 			}
 
-			$entity->cleanCache();
+			static::cleanCache();
 
 			// event after update
 			if (!$ignoreEvents)
@@ -1658,7 +1679,7 @@ abstract class DataManager
 				$USER_FIELD_MANAGER->delete($entity->getUfId(), end($primary));
 			}
 
-			$entity->cleanCache();
+			static::cleanCache();
 
 			//event after delete
 			static::callOnAfterDeleteEvent($object, $entity);
@@ -1834,7 +1855,7 @@ abstract class DataManager
 	}
 
 	/**
-	 * @param $primary
+	 * @param $object
 	 * @param $entity
 	 * @param $result
 	 */
@@ -1851,7 +1872,7 @@ abstract class DataManager
 	}
 
 	/**
-	 * @param $primary
+	 * @param $object
 	 * @param $entity
 	 */
 	protected static function callOnDeleteEvent($object, $entity)
@@ -1865,7 +1886,7 @@ abstract class DataManager
 	}
 
 	/**
-	 * @param $primary
+	 * @param $object
 	 * @param $entity
 	 */
 	protected static function callOnAfterDeleteEvent($object, $entity)
@@ -1884,9 +1905,6 @@ abstract class DataManager
 	 * @param string $field
 	 * @param string $table
 	 * @param bool   $mode
-	 *
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	public static function enableCrypto($field, $table = null, $mode = true)
 	{
@@ -1911,8 +1929,6 @@ abstract class DataManager
 	 * @param string $table
 	 *
 	 * @return bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
 	public static function cryptoEnabled($field, $table = null)
 	{
@@ -1940,6 +1956,12 @@ abstract class DataManager
 	{
 		$entityClass = static::getEntity()->getDataClass();
 		self::$currentDeletingObjects[$entityClass][$object->primaryAsString] = $object;
+	}
+
+	public static function cleanCache(): void
+	{
+		$entity = static::getEntity();
+		$entity->cleanCache();
 	}
 
 	/*

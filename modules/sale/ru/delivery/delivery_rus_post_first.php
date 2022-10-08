@@ -421,7 +421,7 @@ class CDeliveryRusPostFirst
 
 		if(empty($data))
 		{
-			require_once(dirname(__FILE__).'/rus_post/old_loc_to_codes.php');
+			require_once(__DIR__.'/rus_post/old_loc_to_codes.php');
 			$data = $locToCode;
 		}
 

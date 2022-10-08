@@ -228,19 +228,7 @@ final class CDBResult extends \CDBResult
 				$this->NavPageCount = 1;
 
 			//page number to display
-			$this->NavPageNomer =
-				(
-				$this->PAGEN < 1 || $this->PAGEN > $this->NavPageCount
-					?
-					($_SESSION[$this->SESS_PAGEN] < 1 || $_SESSION[$this->SESS_PAGEN] > $this->NavPageCount
-						?
-						$this->NavPageCount
-						:
-						$_SESSION[$this->SESS_PAGEN]
-					)
-					:
-					$this->PAGEN
-				);
+			$this->calculatePageNumber($this->NavPageCount);
 
 			//rows to skip
 			$NavFirstRecordShow = 0;
@@ -256,14 +244,11 @@ final class CDBResult extends \CDBResult
 				$this->NavPageCount++;
 
 			//calculate total pages depend on rows count. start with 1
-			if($this->PAGEN >= 1 && $this->PAGEN <= $this->NavPageCount)
-				$this->NavPageNomer = $this->PAGEN;
-			elseif($_SESSION[$this->SESS_PAGEN] >= 1 && $_SESSION[$this->SESS_PAGEN] <= $this->NavPageCount)
-				$this->NavPageNomer = $_SESSION[$this->SESS_PAGEN];
-			elseif($arNavStartParams["checkOutOfRange"] !== true)
-				$this->NavPageNomer = 1;
-			else
+			$this->calculatePageNumber(1, true, (bool)($arNavStartParams["checkOutOfRange"] ?? false));
+			if ($this->NavPageNomer === null)
+			{
 				return null;
+			}
 
 			//rows to skip
 			$NavFirstRecordShow = $this->NavPageSize*($this->NavPageNomer-1);

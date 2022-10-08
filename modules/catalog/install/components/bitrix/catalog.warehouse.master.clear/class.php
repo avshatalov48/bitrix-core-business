@@ -53,7 +53,6 @@ class WarehouseMasterClear extends CBitrixComponent implements Bitrix\Main\Engin
 		$this->arResult['IS_USED'] = \Bitrix\Catalog\Component\UseStore::isUsed();
 		$this->arResult['IS_EMPTY'] = \Bitrix\Catalog\Component\UseStore::isEmpty();
 		$this->arResult['MODE'] = $this->arParams['MODE'];
-		$this->arResult['CONDUCTED_DOCUMENTS_EXIST'] = \Bitrix\Catalog\Component\UseStore::conductedDocumentsExist();
 		$this->arResult['PRESET_LIST'] = $this->getPresetList();
 		$this->arResult['PREVIEW_LANG'] = $this->getPortalZone();
 

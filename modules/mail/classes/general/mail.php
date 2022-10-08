@@ -4,6 +4,7 @@ use Bitrix\Mail\Helper\MailContact;
 use Bitrix\Main\Application;
 use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Main\Config\Ini;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -1538,7 +1539,7 @@ class CAllMailMessage
 
 	public static function parseMessage($message, $charset)
 	{
-		$headerP = \CUtil::binStrpos($message, "\r\n\r\n");
+		$headerP = strpos($message, "\r\n\r\n");
 
 		if (false === $headerP)
 		{
@@ -1547,8 +1548,8 @@ class CAllMailMessage
 		}
 		else
 		{
-			$rawHeader = \CUtil::binSubstr($message, 0, $headerP);
-			$body      = \CUtil::binSubstr($message, $headerP+4);
+			$rawHeader = substr($message, 0, $headerP);
+			$body      = substr($message, $headerP+4);
 		}
 
 		$header = \CMailMessage::parseHeader($rawHeader, $charset);
@@ -1564,10 +1565,10 @@ class CAllMailMessage
 			$startRegex = sprintf('/(^|\r\n)--%s\r\n/', preg_quote($header->getBoundary(), '/'));
 			if (preg_match($startRegex, $body, $matches, PREG_OFFSET_CAPTURE))
 			{
-				$startP = $matches[0][1] + \CUtil::binStrlen($matches[0][0]);
+				$startP = $matches[0][1] + strlen($matches[0][0]);
 			}
 
-			$endP = \CUtil::binStrlen($body);
+			$endP = strlen($body);
 			$endRegex = sprintf('/\r\n--%s--(\r\n|$)/', preg_quote($header->getBoundary(), '/'));
 			if (preg_match($endRegex, $body, $matches, PREG_OFFSET_CAPTURE))
 			{
@@ -1579,14 +1580,14 @@ class CAllMailMessage
 				$startP = 0;
 			}
 
-			$data = \CUtil::binSubstr($body, $startP, $endP-$startP);
+			$data = substr($body, $startP, $endP-$startP);
 
 			$isHtml = false;
 			$rawParts = preg_split(sprintf('/\r\n--%s\r\n/', preg_quote($header->getBoundary(), '/')), $data);
 			$tmpParts = array();
 			foreach ($rawParts as $part)
 			{
-				if (CUtil::binSubstr($part, 0, 2) == "\r\n")
+				if (substr($part, 0, 2) == "\r\n")
 					$part = "\r\n" . $part;
 
 				[, $subHtml, $subText, $subParts] = CMailMessage::parseMessage($part, $charset);
@@ -1864,8 +1865,8 @@ class CAllMailMessage
 
 			if ($message_body_html)
 			{
-				CUtil::AdjustPcreBacktrackLimit(strlen($message_body_html)*2);
-
+				Ini::adjustPcreBacktrackLimit(strlen($message_body_html)*2);
+				
 				$msg = array(
 					'html'        => $message_body_html,
 					'attachments' => array(),
@@ -2272,7 +2273,7 @@ class CAllMailMessage
 		}
 
 		if(is_set($arFields, "FILE_DATA") && !is_set($arFields, "FILE_SIZE"))
-			$arFields["FILE_SIZE"] = CUtil::BinStrlen($arFields["FILE_DATA"]);
+			$arFields["FILE_SIZE"] = strlen($arFields["FILE_DATA"]);
 
 		$file = array(
 			'name'      => md5($arFields['FILE_NAME']),
@@ -2762,10 +2763,10 @@ class CAllMailUtil
 			$key = COption::GetOptionString("main", "pwdhashadd", "");
 		$key1 = CMailUtil::BinMD5($key);
 		$str = base64_decode($str);
-		while (\CUtil::binStrlen($str) > 0)
+		while (strlen($str) > 0)
 		{
-			$m = CUtil::BinSubstr($str, 0, 16);
-			$str = CUtil::BinSubstr($str, 16);
+			$m = substr($str, 0, 16);
+			$str = substr($str, 16);
 			$m = CMailUtil::ByteXOR($m, $key1, 16);
 			$res .= $m;
 			$key1 = CMailUtil::BinMD5($key.$key1.$m);
@@ -2779,10 +2780,10 @@ class CAllMailUtil
 		if($key===false)
 			$key = COption::GetOptionString("main", "pwdhashadd", "");
 		$key1 = CMailUtil::BinMD5($key);
-		while (\CUtil::binStrlen($str) > 0)
+		while (strlen($str) > 0)
 		{
-			$m = CUtil::BinSubstr($str, 0, 16);
-			$str = CUtil::BinSubstr($str, 16);
+			$m = substr($str, 0, 16);
+			$str = substr($str, 16);
 			$res .= CMailUtil::ByteXOR($m, $key1, 16);
 			$key1 = CMailUtil::BinMD5($key.$key1.$m);
 		}

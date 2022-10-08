@@ -1,4 +1,6 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /**
  * @var array $arParams
  */
@@ -10,7 +12,7 @@ if(is_array($arParams["PROPERTIES"]))
 	{
 		if(isset($val['USER_TYPE_ID']) && $val['USER_TYPE_ID'] == 'url_preview')
 		{
-			$arParams['urlPreviewId'] = isset($val['ELEMENT_ID']) ? $val['ELEMENT_ID'] : 'url_preview_'.$this->randString();
+			$arParams['urlPreviewId'] = $val['ELEMENT_ID'] ?? 'url_preview_'.$this->randString();
 			ob_start();
 			$APPLICATION->IncludeComponent(
 				"bitrix:system.field.edit",
@@ -18,7 +20,7 @@ if(is_array($arParams["PROPERTIES"]))
 				array(
 					"arUserField" => $val,
 					'urlPreviewId' => $arParams['urlPreviewId'],
-					'STYLE' => $val['STYLE']
+					'STYLE' => $val['STYLE'] ?? ''
 				)
 			);
 			$arParams['URL_PREVIEW_HTML'] = ob_get_clean();

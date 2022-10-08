@@ -23,6 +23,8 @@ Loc::loadMessages(__FILE__);
 
 Extension::load(
 	[
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 		'ui.buttons',
 		'ui.alerts',
 		'marketplace',

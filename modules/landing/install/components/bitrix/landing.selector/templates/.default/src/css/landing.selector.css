@@ -42,7 +42,8 @@ label.landing-selector-container {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font: 15px/17px "OpenSans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525c69;
 	letter-spacing: 0;
 }

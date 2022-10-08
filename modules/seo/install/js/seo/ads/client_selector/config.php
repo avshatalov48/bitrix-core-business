@@ -10,6 +10,7 @@ return array(
 	'rel' => [
 		'main.core',
 		'main.loader',
+		'ui.design-tokens',
 	],
 	'skip_core' => false,
 );

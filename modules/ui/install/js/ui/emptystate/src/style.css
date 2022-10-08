@@ -1,0 +1,39 @@
+.ui-emptystate {
+	display: inline-flex;
+	position: relative;
+	width: 250px;
+	height: 250px;
+}
+
+.ui-emptystate i {
+	flex: 1;
+	background: url(../images/ui-emptystate-icon-text.svg) center no-repeat;
+	background-size: contain;
+}
+
+.ui-emptystate:after {
+	content: '';
+	position: absolute;
+	bottom: 6%;
+	left: -44%;
+	width: 180%;
+	padding-top: 68%;
+	background: url(../images/ui-emptystate-clouds.svg) center no-repeat;
+	background-size: contain;
+}
+
+.ui-emptystate.--contacts i {
+	background-image: url(../images/ui-emptystate-icon-contacts.svg);
+}
+
+.ui-emptystate.--date i {
+	background-image: url(../images/ui-emptystate-icon-date.svg);
+}
+
+.ui-emptystate.--search i {
+	background-image: url(../images/ui-emptystate-icon-search.svg);
+}
+
+.ui-emptystate.--text i {
+	background-image: url(../images/ui-emptystate-icon-text.svg);
+}

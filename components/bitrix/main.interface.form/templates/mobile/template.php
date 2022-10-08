@@ -97,10 +97,20 @@ $arParams["DATE_FORMAT"] = array(
 );
 
 CJSCore::GetCoreMessages();
+
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ajax',
+	'date',
+	"mobile_fastclick",
+	"uploader",
+]);
+
 global $APPLICATION;
 $APPLICATION->SetPageProperty('BodyClass', 'mobile-grid-field-form');
 $APPLICATION->SetAdditionalCSS($templateFolder."/style_add.css");
-CUtil::InitJSCore(array('ajax', 'date', "mobile_fastclick", "uploader"));
+
 $userUrl = str_replace("//", "/", "/".SITE_DIR."mobile/users/?user_id=#ID#");
 $groupUrl = str_replace("//", "/", "/".SITE_DIR."mobile/log/?group_id=#ID#");
 

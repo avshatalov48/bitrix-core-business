@@ -30,7 +30,7 @@
 	margin-right: 4px;
 }
 .bx-im-element-keyboard-button-text {
-	font: 13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	padding: 4px 10px;
 	display: inline-block;
 	text-decoration: none;

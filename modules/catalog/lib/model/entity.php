@@ -4,6 +4,7 @@ namespace Bitrix\Catalog\Model;
 use Bitrix\Main;
 use Bitrix\Main\ORM;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -79,7 +80,27 @@ abstract class Entity
 		$entity = static::getEntity();
 		$parameters = $entity->prepareTabletQueryParameters($parameters);
 		$entity->result = $entity->getTablet()->getList($parameters);
+
 		return $entity;
+	}
+
+	/**
+	 * Entity getRow with change cache. Wrapper for entity getList.
+	 *
+	 * @param array $parameters
+	 * @return array|null
+	 * @throws Main\ArgumentException
+	 * @throws Main\ObjectNotFoundException
+	 * @throws Main\ObjectPropertyException
+	 * @throws Main\SystemException
+	 */
+	public static function getRow(array $parameters): ?array
+	{
+		$parameters['limit'] = 1;
+		$result = static::getList($parameters);
+		$row = $result->fetch();
+
+		return (is_array($row) ? $row : null);
 	}
 
 	/**
@@ -798,6 +819,11 @@ abstract class Entity
 		return $baseFields;
 	}
 
+	static public function getCallbackRestEvent(): array
+	{
+		return [Main\Rest\Event::class, 'processItemEvent'];
+	}
+
 	/* entity cache item tools */
 
 	/**
@@ -944,4 +970,73 @@ abstract class Entity
 	public static function clearSettings(): void {}
 
 	/* entity cache item tools end */
+
+	protected static function prepareFloatValue($value): ?float
+	{
+		if ($value === null)
+		{
+			return null;
+		}
+
+		$result = null;
+		if (is_string($value))
+		{
+			if ($value !== '' && is_numeric($value))
+			{
+				$value = (float)$value;
+				if (is_finite($value))
+				{
+					$result = $value;
+				}
+			}
+		}
+		else
+		{
+			if (is_int($value))
+			{
+				$value = (float)$value;
+			}
+			if (
+				is_float($value) && is_finite($value)
+			)
+			{
+				$result = $value;
+			}
+		}
+
+		return $result;
+	}
+
+	protected static function prepareIntValue($value): ?int
+	{
+		if ($value === null)
+		{
+			return null;
+		}
+
+		$result = null;
+		if (is_string($value))
+		{
+			if ($value !== '' && is_numeric($value))
+			{
+				$result = (int)$value;
+			}
+		}
+		elseif (is_int($value))
+		{
+			$result = $value;
+		}
+
+		return $result;
+	}
+
+	protected static function prepareStringValue($value): ?string
+	{
+		if (is_string($value))
+		{
+			return trim($value) ?: null;
+		}
+
+		return null;
+	}
 }

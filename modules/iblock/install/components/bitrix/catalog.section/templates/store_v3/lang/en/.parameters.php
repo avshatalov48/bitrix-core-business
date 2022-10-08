@@ -64,6 +64,7 @@ $MESS["CP_BCS_TPL_SHOW_MAX_QUANTITY_M"] = "replace balance with text";
 $MESS["CP_BCS_TPL_SHOW_MAX_QUANTITY_N"] = "don't show";
 $MESS["CP_BCS_TPL_SHOW_MAX_QUANTITY_Y"] = "show real balance";
 $MESS["CP_BCS_TPL_SHOW_OLD_PRICE"] = "Show previous price";
+$MESS["CP_BCS_TPL_SHOW_SECTIONS"] = "Show sections";
 $MESS["CP_BCS_TPL_SIMILAR"] = "Similar products";
 $MESS["CP_BCS_TPL_SIMILAR_ANY"] = "Also purchased/Also viewed/Similar products";
 $MESS["CP_BCS_TPL_SOLD_WITH"] = "Also bought";

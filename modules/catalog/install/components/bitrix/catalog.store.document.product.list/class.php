@@ -733,9 +733,12 @@ final class CatalogStoreDocumentProductListComponent
 				$availableAmountFrom = $this->getAvailableProductAmountOnStore($productStoreInfo, $productId, $document['STORE_FROM']);
 			}
 
+			$amount = (float)$document['AMOUNT'];
+			$calculatedPrice = (float)($document[$this->getDefaultTotalCalculationField()] ?? 0.0);
+			$totalPrice = $amount * $calculatedPrice;
+
 			$additionalData = [
 				'ROW_ID' => $this->getRowIdPrefix($document['ID']),
-				'PRODUCT_INFO' => $product ?? [],
 				'BARCODE' => $barcode,
 				'DOC_BARCODE' => $barcode,
 				'STORE_TO_TITLE' => $this->stores[$document['STORE_TO']]['TITLE'] ?? '',
@@ -761,6 +764,7 @@ final class CatalogStoreDocumentProductListComponent
 				'NAME' => $productName,
 				'BASE_PRICE' => $document['BASE_PRICE'] ?? null,
 				'PURCHASING_PRICE' => $document['PURCHASING_PRICE'] ?? 0,
+				'TOTAL_PRICE' => $totalPrice,
 				'BASKET_ID' => $document['BASKET_ID'] ?? 0,
 			];
 
@@ -781,6 +785,8 @@ final class CatalogStoreDocumentProductListComponent
 		{
 			return [];
 		}
+
+		$skuTreeItems = $this->getSkuTreeItems($rows);
 
 		foreach ($rows as $index => $row)
 		{
@@ -820,6 +826,7 @@ final class CatalogStoreDocumentProductListComponent
 			$floatFields = [
 				'AMOUNT',
 				'PURCHASING_PRICE',
+				'TOTAL_PRICE',
 			];
 
 			if ($rows[$index]['BASE_PRICE'] === '' || $rows[$index]['BASE_PRICE'] === null)
@@ -846,12 +853,41 @@ final class CatalogStoreDocumentProductListComponent
 				{
 					$skuImageField = new ImageInput($sku);
 					$rows[$index]['IMAGE_INFO'] = $skuImageField->getFormattedField();
+
+					$skuTree = $skuTreeItems[$row['IBLOCK_ID']][$row['PRODUCT_ID']][$row['SKU_ID']] ?? null;
+					$rows[$index]['SKU_TREE'] = $skuTree ? Json::encode($skuTree) : null;
 				}
 			}
-
 		}
 
 		return $rows;
+	}
+
+	private function getSkuTreeItems(array $rows): array
+	{
+		$iblockProductOfferIds = [];
+		foreach ($rows as $row)
+		{
+			if (empty($row['SKU_ID']))
+			{
+				continue;
+			}
+
+			$iblockProductOfferIds[$row['IBLOCK_ID']][$row['PRODUCT_ID']][] = (int)$row['SKU_ID'];
+		}
+		$skuTreeItems = [];
+		foreach ($iblockProductOfferIds as $iblockId => $productOfferIds)
+		{
+			$skuTree = \Bitrix\Catalog\v2\IoC\ServiceContainer::make('sku.tree', ['iblockId' => $iblockId]);
+			if (!$skuTree)
+			{
+				continue;
+			}
+
+			$skuTreeItems[$iblockId] = $skuTree->loadJsonOffers($productOfferIds);
+		}
+
+		return $skuTreeItems;
 	}
 
 	protected function getDocumentProducts(): array
@@ -1304,12 +1340,14 @@ final class CatalogStoreDocumentProductListComponent
 					return [
 						'MAIN_INFO','PURCHASING_PRICE', 'BASE_PRICE',
 						'AMOUNT', 'STORE_TO_INFO', 'STORE_TO_AMOUNT', 'BARCODE_INFO',
+						'TOTAL_PRICE',
 					];
 				}
 
 				return [
 					'MAIN_INFO', 'BARCODE_INFO', 'PURCHASING_PRICE', 'BASE_PRICE',
 					'AMOUNT', 'STORE_TO_INFO', 'STORE_TO_AMOUNT',
+					'TOTAL_PRICE',
 				];
 			case StoreDocumentTable::TYPE_DEDUCT:
 				if ($this->isReadOnly())
@@ -1318,6 +1356,7 @@ final class CatalogStoreDocumentProductListComponent
 						'MAIN_INFO',
 						'STORE_FROM_INFO', 'STORE_FROM_AMOUNT', 'AMOUNT',
 						'PURCHASING_PRICE', 'BASE_PRICE', 'BARCODE_INFO',
+						'TOTAL_PRICE',
 					];
 				}
 
@@ -1325,6 +1364,7 @@ final class CatalogStoreDocumentProductListComponent
 					'MAIN_INFO', 'BARCODE_INFO', 'AMOUNT',
 					'STORE_FROM_INFO', 'STORE_FROM_AMOUNT',
 					'PURCHASING_PRICE', 'BASE_PRICE',
+					'TOTAL_PRICE',
 				];
 			case StoreDocumentTable::TYPE_MOVING:
 				if ($this->isReadOnly())
@@ -1334,6 +1374,7 @@ final class CatalogStoreDocumentProductListComponent
 						'STORE_FROM_INFO', 'STORE_FROM_AVAILABLE_AMOUNT', 'STORE_FROM_AMOUNT',
 						'STORE_TO_INFO', 'STORE_TO_AVAILABLE_AMOUNT', 'STORE_TO_AMOUNT', 'AMOUNT',
 						'PURCHASING_PRICE', 'BASE_PRICE', 'BARCODE_INFO',
+						'TOTAL_PRICE',
 					];
 				}
 
@@ -1342,6 +1383,7 @@ final class CatalogStoreDocumentProductListComponent
 					'STORE_FROM_INFO', 'STORE_FROM_AVAILABLE_AMOUNT', 'STORE_FROM_AMOUNT',
 					'STORE_TO_INFO', 'STORE_TO_AVAILABLE_AMOUNT', 'STORE_TO_AMOUNT',
 					'PURCHASING_PRICE', 'BASE_PRICE',
+					'TOTAL_PRICE',
 				];
 		}
 
@@ -1531,6 +1573,16 @@ final class CatalogStoreDocumentProductListComponent
 				'CURRENCY_LIST' => $this->getMeasureListForMoneyField(),
 				'PLACEHOLDER' => '0',
 			],
+			'width' => $columnDefaultWidth,
+		];
+
+		$result['TOTAL_PRICE'] = [
+			'id' => 'TOTAL_PRICE',
+			'name' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_TOTAL_PRICE'),
+			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_TOTAL_PRICE'),
+			'sort' => null,
+			'default' => true,
+			'editable' => false,
 			'width' => $columnDefaultWidth,
 		];
 
@@ -1735,6 +1787,7 @@ final class CatalogStoreDocumentProductListComponent
 							: null
 					,
 					'PURCHASING_PRICE' => \CCurrencyLang::formatValue($item['PURCHASING_PRICE_FORMATTED'], $this->currency['FORMAT']),
+					'TOTAL_PRICE' => \CCurrencyLang::formatValue($item['TOTAL_PRICE_FORMATTED'], $this->currency['FORMAT']),
 					'AMOUNT' => (float)$row['AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
 					'STORE_FROM_AMOUNT' => (float)$row['STORE_FROM_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
 					'STORE_TO_AMOUNT' => (float)$row['STORE_TO_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
@@ -1744,11 +1797,6 @@ final class CatalogStoreDocumentProductListComponent
 					'STORE_TO_AVAILABLE_AMOUNT' => (float)$row['STORE_TO_AVAILABLE_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
 				],
 				'editable' => !$this->isReadOnly(),
-				'parent_id' =>
-					\Bitrix\Main\Grid\Context::isInternalRequest() && !empty($row['PRODUCT_INFO']['PARENT_ID'])
-						? $row['PRODUCT_INFO']['PARENT_ID']
-						: 0
-				,
 			];
 		}
 
@@ -1780,6 +1828,10 @@ final class CatalogStoreDocumentProductListComponent
 		{
 			$purchasingPriceFormatted = $this->formatPrices($row['PURCHASING_PRICE']);
 		}
+
+		$row['TOTAL_PRICE'] ??= 0;
+		$totalPriceFormatted = $this->formatPrices($row['TOTAL_PRICE']);
+
 		$editorFields = [
 			'AMOUNT' => [
 				'PRICE' => [
@@ -1796,6 +1848,7 @@ final class CatalogStoreDocumentProductListComponent
 			'BASE_PRICE_EXTRA' => $row['BASE_PRICE_EXTRA'],
 			'BASE_PRICE_EXTRA_RATE' => $row['BASE_PRICE_EXTRA_RATE'],
 			'BASE_PRICE_FORMATTED' => $priceFormatted,
+			'TOTAL_PRICE_FORMATTED' => $totalPriceFormatted,
 			'PURCHASING_PRICE_FORMATTED' => $purchasingPriceFormatted,
 		];
 		foreach($this->getColumns() as $column)
@@ -1804,6 +1857,7 @@ final class CatalogStoreDocumentProductListComponent
 			switch ($columnId)
 			{
 				case 'BASE_PRICE':
+				case 'TOTAL_PRICE':
 				case 'PURCHASING_PRICE':
 					if ($column['editable']['TYPE'] === Types::MONEY)
 					{
@@ -1872,6 +1926,7 @@ final class CatalogStoreDocumentProductListComponent
 			'BARCODE' => '',
 			'DOC_BARCODE' => '',
 			'BASE_PRICE' => null,
+			'TOTAL_PRICE' => null,
 			'PURCHASING_PRICE' => null,
 			'CURRENCY' => $this->getCurrency(),
 			'MEASURE_NAME' => $defaultMeasure['SYMBOL'] ?? '',

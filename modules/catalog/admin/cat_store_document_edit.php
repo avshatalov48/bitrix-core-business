@@ -154,6 +154,10 @@ if ($publicMode)
 }
 
 $request = Context::getCurrent()->getRequest();
+if ($request->isAjaxRequest())
+{
+	$request->addFilter(new PostDecodeFilter);
+}
 
 $isAjaxDocumentRequest = $request->get('AJAX_MODE') === 'Y';
 
@@ -163,8 +167,6 @@ if (
 	&& check_bitrix_sessid()
 )
 {
-	$request->addFilter(new PostDecodeFilter);
-
 	$result = [];
 	$barcode = $request->getPost('BARCODE');
 	$barcode = trim(is_string($barcode) ? $barcode : '');
@@ -387,7 +389,6 @@ if (
 	&& check_bitrix_sessid()
 )
 {
-	$adminSidePanelHelper->decodeUriComponent();
 	$currentAction = '';
 	if ($isDocumentConduct)
 	{
@@ -524,21 +525,41 @@ if (
 
 		if (!$error)
 		{
-			$dbElement = CCatalogStoreDocsElement::getList([], ["DOC_ID" => $ID], false, false, ["ID"]);
+			$dbElement = CCatalogStoreDocsElement::getList(
+				[],
+				[
+					'=DOC_ID' => $ID,
+				],
+				false,
+				false,
+				[
+					'ID',
+				]
+			);
 			while ($arElement = $dbElement->Fetch())
 			{
-				CCatalogStoreDocsElement::delete($arElement["ID"]);
-				$dbDocsBarcode = CCatalogStoreDocsBarcode::getList([], ["DOC_ELEMENT_ID" => $arElement["ID"]], false,
-					false, ["ID"]);
-				while ($arDocsBarcode = $dbDocsBarcode->Fetch())
-				{
-					CCatalogStoreDocsBarcode::delete($arDocsBarcode["ID"]);
-				}
+				CCatalogStoreDocsElement::delete($arElement['ID']);
 			}
+			unset($arElement, $dbElement);
 
-			if (isset($_POST["PRODUCT"]) && is_array($_POST["PRODUCT"]))
+			$dbDocsBarcode = CCatalogStoreDocsBarcode::getList(
+				[],
+				[
+					'=DOC_ID' => $ID,
+				],
+				false,
+				false,
+				['ID']
+			);
+			while ($arDocsBarcode = $dbDocsBarcode->Fetch())
 			{
-				$arProducts = ($_POST["PRODUCT"]);
+				CCatalogStoreDocsBarcode::delete($arDocsBarcode['ID']);
+			}
+			unset($arDocsBarcode, $dbDocsBarcode);
+
+			$arProducts = $request->getPost('PRODUCT');
+			if (!empty($arProducts) && is_array($arProducts))
+			{
 				foreach ($arProducts as $key => $val)
 				{
 					$storeTo = $val["STORE_TO"];
@@ -582,6 +603,7 @@ if (
 					}
 				}
 			}
+			unset($arProducts);
 
 			if ($saveAction)
 			{
@@ -997,7 +1019,8 @@ if (isset($elementFields["RESERVED"]))
 {
 	$arHeaders[] = array(
 		"id" => "RESERVED",
-		"content" => Loc::getMessage("CAT_DOC_PRODUCT_RESERVED"),
+		"content" => $elementFields["RESERVED"]["name"],
+		"title" => $elementFields["RESERVED"]["title"],
 		"default" => $elementFields["RESERVED"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "RESERVED";
@@ -1006,7 +1029,8 @@ if (isset($elementFields["BASE_PRICE"]))
 {
 	$arHeaders[] = array(
 		"id" => "BASE_PRICE",
-		"content" => Loc::getMessage("CAT_DOC_PRODUCT_BASE_PRICE"),
+		"content" => $elementFields["BASE_PRICE"]["name"],
+		"title" => $elementFields["BASE_PRICE"]["title"],
 		"default" => $elementFields["BASE_PRICE"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "BASE_PRICE";
@@ -1015,7 +1039,8 @@ if (isset($elementFields["AMOUNT"]))
 {
 	$arHeaders[] = array(
 		"id" => "AMOUNT",
-		"content" => Loc::getMessage("CAT_DOC_PRODUCT_AMOUNT"),
+		"content" => $elementFields["AMOUNT"]["name"],
+		"title" => $elementFields["AMOUNT"]["title"],
 		"default" => $elementFields["AMOUNT"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "AMOUNT";
@@ -1024,7 +1049,8 @@ if (isset($elementFields["NET_PRICE"]))
 {
 	$arHeaders[] = array(
 		"id" => "PURCHASING_PRICE",
-		"content" => Loc::getMessage("CAT_DOC_PRODUCT_PRICE"),
+		"content" => $elementFields["NET_PRICE"]["name"],
+		"title" => $elementFields["NET_PRICE"]["title"],
 		"default" => $elementFields["NET_PRICE"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "PURCHASING_PRICE";
@@ -1042,7 +1068,8 @@ if (isset($elementFields["STORE_FROM"]))
 {
 	$arHeaders[] = array(
 		"id" => "STORE_FROM",
-		"content" => Loc::getMessage("CAT_DOC_STORE_FROM"),
+		"content" => $elementFields["STORE_FROM"]["name"],
+		"title" => $elementFields["STORE_FROM"]["title"],
 		"default" => $elementFields["STORE_FROM"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "STORE_FROM";
@@ -1051,7 +1078,8 @@ if (isset($elementFields["STORE_TO"]))
 {
 	$arHeaders[] = array(
 		"id" => "STORE_TO",
-		"content" => Loc::getMessage("CAT_DOC_STORE_TO"),
+		"content" => $elementFields["STORE_TO"]["name"],
+		"title" => $elementFields["STORE_TO"]["title"],
 		"default" => $elementFields["STORE_TO"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "STORE_TO";
@@ -1060,7 +1088,8 @@ if (isset($elementFields["BAR_CODE"]))
 {
 	$arHeaders[] = array(
 		"id" => "BARCODE",
-		"content" => Loc::getMessage("CAT_DOC_BARCODE"),
+		"content" => $elementFields["BAR_CODE"]["name"],
+		"title" => $elementFields["BAR_CODE"]["title"],
 		"default" => $elementFields["BAR_CODE"]["required"] === 'Y',
 	);
 	$visibleHeaderIds[] = "BARCODE";
@@ -1870,7 +1899,7 @@ if (typeof showTotalSum === 'undefined')
 
 		var elements = products.querySelectorAll('table input,table select');
 
-		var nameTemplate = /^PRODUCT\[(\d)+\]\[(\w+)\]/;
+		var nameTemplate = /^PRODUCT\[(\d+)\]\[(\w+)\]/;
 
 		elements.forEach(function(item){
 			if (BX.Type.isStringFilled(item.name))

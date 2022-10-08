@@ -140,6 +140,7 @@ $APPLICATION->IncludeComponent(
 		"POPUP_COMPONENT_TEMPLATE_NAME" => "",
 		"POPUP_COMPONENT_PARAMS" => $arLogParams,
 		"POPUP_COMPONENT_PARENT" => $this->getComponent(),
+		'USE_PADDING' => false,
 	)
 );
 

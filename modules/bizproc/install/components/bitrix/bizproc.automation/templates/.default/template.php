@@ -5,12 +5,21 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 \Bitrix\Main\Loader::includeModule('socialnetwork');
-CUtil::InitJSCore(
-	['tooltip', 'admin_interface', 'date', 'uploader', 'file_dialog', 'bp_user_selector', 'bp_field_type', 'dnd']
-);
+
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'bizpoc-automation-body');
+
 \Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'tooltip',
+	'admin_interface',
+	'date',
+	'uploader',
+	'file_dialog',
+	'bp_user_selector',
+	'bp_field_type',
+	'dnd',
 	'bizproc.automation',
 	'bizproc.globals',
 	'bizproc.debugger',
@@ -23,10 +32,7 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'b
 	'ui.alerts',
 	'ui.dialogs.messagebox',
 	'ui.entity-selector',
-	'ui.fonts.opensans',
 	'ui.hint',
-	'ui.design-tokens',
-	'ui.fonts.opensans',
 ]);
 /**
  * @var array $arResult

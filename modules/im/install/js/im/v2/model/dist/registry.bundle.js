@@ -2581,7 +2581,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        const user = state.collection[userId];
 
 	        if (userId <= 0 || !user) {
-	          return false;
+	          return '';
 	        }
 
 	        return im_v2_lib_utils.Utils.user.getLastDateText(user);
@@ -2730,6 +2730,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        if (im_v2_lib_utils.Utils.user.isMobileOnline(payload.fields.lastActivityDate, payload.fields.mobileLastDate)) {
 	          user.isMobileOnline = true;
 	          this.addToMobileOnlineList(payload.fields.id);
+	        }
+
+	        if (payload.fields.absent === false) {
+	          state.absentList = state.absentList.filter(element => {
+	            return element !== payload.id;
+	          });
+	          state.collection[payload.id].isAbsent = false;
 	        }
 
 	        state.collection[payload.id] = { ...state.collection[payload.id],
@@ -3615,6 +3622,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        text: '',
 	        date: null
 	      },
+	      unread: false,
 	      pinned: false,
 	      liked: false,
 	      invitation: {
@@ -3641,11 +3649,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return Object.values(state.collection);
 	      },
 	      getSortedCollection: state => {
-	        const collectionAsArray = Object.values(state.collection);
+	        const collectionAsArray = Object.values(state.collection).filter(item => {
+	          const isBirthdayPlaceholder = item.options.birthdayPlaceholder;
+	          const isInvitedUser = item.options.defaultUserRecord;
+	          return !isBirthdayPlaceholder && !isInvitedUser && item.message.id;
+	        });
 	        return [...collectionAsArray].sort((a, b) => {
-	          const firstDate = this.store.getters['recent/getMessageDate'](a.dialogId);
-	          const secondDate = this.store.getters['recent/getMessageDate'](b.dialogId);
-	          return secondDate - firstDate;
+	          return b.message.date - a.message.date;
 	        });
 	      },
 	      get: state => dialogId => {
@@ -3780,6 +3790,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          fields: this.validate(payload.fields)
 	        });
 	      },
+	      unread: (store, payload) => {
+	        const existingItem = store.state.collection[payload.id];
+
+	        if (!existingItem) {
+	          return false;
+	        }
+
+	        store.commit('update', {
+	          id: existingItem.dialogId,
+	          fields: {
+	            unread: payload.action
+	          }
+	        });
+	      },
 	      pin: (store, payload) => {
 	        const existingItem = store.state.collection[payload.id];
 
@@ -3816,10 +3840,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        });
 	      },
 	      draft: (store, payload) => {
-	        const existingItem = store.state.collection[payload.id];
+	        const dialog = this.store.getters['dialogues/get'](payload.id);
+
+	        if (!dialog) {
+	          return false;
+	        }
+
+	        let existingItem = store.state.collection[payload.id];
 
 	        if (!existingItem) {
-	          return false;
+	          if (payload.text === '') {
+	            return false;
+	          }
+
+	          const newItem = {
+	            dialogId: payload.id.toString()
+	          };
+	          store.commit('add', { ...this.getElementState(),
+	            ...newItem
+	          });
+	          existingItem = store.state.collection[payload.id];
 	        }
 
 	        const fields = this.validate({
@@ -3987,6 +4027,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	    if (main_core.Type.isPlainObject(fields.draft)) {
 	      result.draft = this.prepareDraft(fields);
+	    }
+
+	    if (main_core.Type.isBoolean(fields.unread)) {
+	      result.unread = fields.unread;
 	    }
 
 	    if (main_core.Type.isBoolean(fields.pinned)) {

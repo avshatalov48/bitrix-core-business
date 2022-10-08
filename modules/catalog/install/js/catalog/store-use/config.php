@@ -8,6 +8,8 @@ return [
 	'css' => 'dist/store-use.bundle.css',
 	'js' => 'dist/store-use.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
+		'catalog.store-use',
 		'main.core.events',
 		'ui.buttons',
 		'main.core',

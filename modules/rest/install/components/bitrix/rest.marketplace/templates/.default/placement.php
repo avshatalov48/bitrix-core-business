@@ -21,6 +21,8 @@ $appId = 0;
 $placementId = 0;
 $placementCode = '';
 
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
+
 if($arResult["VARIABLES"]["PLACEMENT_ID"] > 0)
 {
 	$res = PlacementTable::getById(intval($arResult["VARIABLES"]["PLACEMENT_ID"]));

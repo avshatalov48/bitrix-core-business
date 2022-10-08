@@ -2,6 +2,7 @@ export const ChatTypes = {
 	user: 'user',
 	chat: 'chat',
 	open: 'open',
+	general: 'general',
 	videoconf: 'videoconf',
 	announcement: 'announcement',
 	call: 'call',

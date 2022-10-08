@@ -292,8 +292,6 @@
 						this.setItems(this.getDefaultItems());
 						BX.cleanNode(this.popupAlertContainer);
 						this.newAlertContainer = null;
-
-						return;
 					}
 					else
 					{
@@ -359,7 +357,7 @@
 				}
 				else if(
 					searchQuery.length >= this.minSearchStringLength
-					&& searchQuery != this.previousSearchQuery
+					&& searchQuery !== this.previousSearchQuery
 					&& isRequestsFlowAllowed
 				) {
 					this.isLastSearchComplete = false;

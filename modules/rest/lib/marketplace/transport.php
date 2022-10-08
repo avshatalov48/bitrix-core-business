@@ -98,6 +98,11 @@ class Transport
 	 */
 	public function getServiceUrl(string $type = self::SERVICE_TYPE_APP): string
 	{
+		if ($type === self::SERVICE_TYPE_APP && !empty(self::SERVICE_URL))
+		{
+			return self::SERVICE_URL;
+		}
+
 		return self::SERVICE_URN_LIST[$type] ? $this->serviceDomain . self::SERVICE_URN_LIST[$type] : '';
 	}
 

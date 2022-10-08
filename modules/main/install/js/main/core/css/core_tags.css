@@ -5,7 +5,7 @@
 
 .popup-tags-create-new { position: relative; margin: 0 0 7px 0;}
 .popup-tags-textbox { margin: 0 33px 0 0;}
-.popup-tags-textbox input { width: 99%; border: 1px solid; border-color:#b0b0b0 #e2e2e2 #e2e2e2 #b0b0b0; padding: 2px 0 3px 3px; font: 13px/normal Arial, Helvetica, sans-serif; }
+.popup-tags-textbox input { width: 99%; border: 1px solid; border-color:#b0b0b0 #e2e2e2 #e2e2e2 #b0b0b0; padding: 2px 0 3px 3px; font: 13px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); }
 .popup-tags-add-button { position: absolute; top: 3px; right: 6px; width:17px; height: 17px; background: url(../images/controls-sprite.png?2) right -304px; cursor: pointer; }
 .popup-tags-add-button-disabled { cursor: default; -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)"; filter: alpha(opacity=50); -moz-opacity: 0.5; -khtml-opacity: 0.5; opacity: 0.5; }
 

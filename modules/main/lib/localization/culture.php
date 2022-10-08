@@ -3,14 +3,12 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2012 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
 namespace Bitrix\Main\Localization;
 
-use Bitrix\Main;
 use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Data;
-use Bitrix\Translate\IO\Directory;
 
 /**
  * Class CultureTable

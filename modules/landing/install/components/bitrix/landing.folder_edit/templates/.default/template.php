@@ -30,11 +30,13 @@ Loc::loadMessages(__FILE__);
 Manager::setPageTitle(Loc::getMessage('LANDING_TPL_TITLE'));
 
 \Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 	'landing_master',
 	'sidepanel',
 	'ui.forms',
 	'ui.alerts',
-	'ui.switcher'
+	'ui.switcher',
 ]);
 
 $row = $arResult['FOLDER'];

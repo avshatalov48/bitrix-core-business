@@ -47,25 +47,25 @@ final class RoundingRule extends Base
 			'CREATED_BY'=>[
 				'TYPE'=>DataType::TYPE_INT,
 				'ATTRIBUTES'=>[
-					Attributes::REQUIRED
+					Attributes::READONLY
 				]
 			],
 			'DATE_CREATE'=>[
 				'TYPE'=>DataType::TYPE_DATETIME,
 				'ATTRIBUTES'=>[
-					Attributes::REQUIRED
+					Attributes::READONLY
 				]
 			],
 			'MODIFIED_BY'=>[
 				'TYPE'=>DataType::TYPE_INT,
 				'ATTRIBUTES'=>[
-					Attributes::REQUIRED
+					Attributes::READONLY
 				]
 			],
 			'DATE_MODIFY'=>[
 				'TYPE'=>DataType::TYPE_DATETIME,
 				'ATTRIBUTES'=>[
-					Attributes::REQUIRED
+					Attributes::READONLY
 				]
 			]
 		];

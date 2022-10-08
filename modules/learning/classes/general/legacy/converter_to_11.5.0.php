@@ -84,12 +84,7 @@
 
 		protected static function StartTransaction()
 		{
-			global $DB, $DBType;
-
-			$dbtype = mb_strtolower($DBType);
-
-			if ($dbtype == 'mssql')
-				return;
+			global $DB;
 
 			$DB->StartTransaction();
 		}
@@ -97,12 +92,7 @@
 
 		protected static function Rollback()
 		{
-			global $DB, $DBType;
-
-			$dbtype = mb_strtolower($DBType);
-
-			if ($dbtype == 'mssql')
-				return;
+			global $DB;
 
 			$DB->Rollback();
 		}
@@ -110,12 +100,7 @@
 
 		protected static function Commit()
 		{
-			global $DB, $DBType;
-
-			$dbtype = mb_strtolower($DBType);
-
-			if ($dbtype == 'mssql')
-				return;
+			global $DB;
 
 			$DB->Commit();
 		}
@@ -123,45 +108,6 @@
 
 		protected static function ReCreateTriggersForMSSQL()
 		{
-			global $DB, $DBType;
-
-			$dbtype = mb_strtolower($DBType);
-
-			if ($dbtype != 'mssql')
-				return;
-
-			$arTriggers = array(
-				'B_LEARN_COURSE_UPDATE'        => 'B_LEARN_COURSE',
-				'B_LEARN_CHAPTER_UPDATE'       => 'B_LEARN_CHAPTER',
-				'B_LEARN_LESSON_UPDATE'        => 'B_LEARN_LESSON',
-				'B_LEARN_QUESTION_UPDATE'      => 'B_LEARN_QUESTION',
-				'B_LEARN_TEST_UPDATE'          => 'B_LEARN_TEST',
-				'B_LEARN_CERTIFICATION_UPDATE' => 'B_LEARN_CERTIFICATION'
-				);
-
-			foreach ($arTriggers as $triggerName => $tableName)
-			{
-				$DB->Query('DROP TRIGGER ' . $triggerName, true);
-
-				$DB->Query('
-					CREATE TRIGGER ' . $triggerName . ' ON ' . $tableName . ' FOR UPDATE AS
-					BEGIN
-						SET NOCOUNT ON;
-						IF (NOT UPDATE(TIMESTAMP_X))
-						BEGIN
-							UPDATE ' . $tableName . ' SET
-								TIMESTAMP_X = GETDATE()
-							FROM
-								' . $tableName . ' U,
-								INSERTED I,
-								DELETED D
-							WHERE
-								U.ID = I.ID 
-								AND U.ID = D.ID;
-						END
-					END
-					', true);
-			}
 		}
 
 
@@ -594,46 +540,17 @@
 
 		protected static function _CreateTblRightsAll ()
 		{
-			global $DB, $DBType;
+			global $DB;
 
 			if ( ! $DB->TableExists('b_learn_rights_all') )
 			{
-				$dbtype = mb_strtolower($DBType);
-
 				// Prepare sql code for adding fields
-				if ($dbtype === 'mysql')
-				{
-					$sql_tbl_b_learn_rights_all = "
-						CREATE TABLE b_learn_rights_all (
-						SUBJECT_ID VARCHAR( 100 ) NOT NULL ,
-						TASK_ID INT NOT NULL ,
-						PRIMARY KEY ( SUBJECT_ID )
-						)";
-				}
-				elseif ($dbtype === 'mssql')
-				{
-					$sql_tbl_b_learn_rights_all = "
-					CREATE TABLE B_LEARN_RIGHTS_ALL
-					(
-						SUBJECT_ID VARCHAR(100) NOT NULL,
-						TASK_ID INT NOT NULL,
-						CONSTRAINT PK_B_LEARN_RIGHTS_ALL PRIMARY KEY( SUBJECT_ID)
-					)";
-				}
-				elseif ($dbtype === 'oracle')
-				{
-					$sql_tbl_b_learn_rights_all = "
-					CREATE TABLE b_learn_rights_all
-					(
-						SUBJECT_ID VARCHAR2(100 CHAR) NOT NULL,
-						TASK_ID NUMBER(11) NOT NULL,
-						PRIMARY KEY(SUBJECT_ID)
-					)";
-				}
-				else
-				{
-					throw new CLearnInstall201203ConvertDBException('SQL code not ready for: ' . $DBType . ' in line #' . __LINE__);
-				}
+				$sql_tbl_b_learn_rights_all = "
+					CREATE TABLE b_learn_rights_all (
+					SUBJECT_ID VARCHAR( 100 ) NOT NULL ,
+					TASK_ID INT NOT NULL ,
+					PRIMARY KEY ( SUBJECT_ID )
+				)";
 
 				$rc = $DB->Query($sql_tbl_b_learn_rights_all);
 				if ($rc === false)
@@ -1245,9 +1162,7 @@
 		 */
 		public static function _UnrepeatableCreateLesson ($arFields)
 		{
-			global $DB, $DBType;
-
-			$dbtype = mb_strtolower($DBType);
+			global $DB;
 
 			if ( ! is_array($arFields) )
 				throw new CLearnInstall201203ConvertDBException('EA_PARAMS');
@@ -1282,46 +1197,19 @@
 
 			$arInsert = $DB->PrepareInsert('b_learn_lesson', $arFields);
 
-			if ($dbtype === 'oracle')
-			{
-				$newLessonId = intval($DB->NextID('sq_b_learn_lesson'));
+			$strSql =
+				"INSERT INTO b_learn_lesson 
+					(" . $arInsert[0] . ", 
+					TIMESTAMP_X, DATE_CREATE, CREATED_BY) " .
+				"VALUES 
+					(" . $arInsert[1] . ", "
+					. $DB->GetNowFunction() . ", " . $DB->GetNowFunction() . ", 1)";
 
-				$strSql =
-					"INSERT INTO b_learn_lesson 
-						(ID, " . $arInsert[0] . ", 
-						TIMESTAMP_X, DATE_CREATE, CREATED_BY) " .
-					"VALUES 
-						(" . $newLessonId . ", " . $arInsert[1] . ", " 
-						. $DB->GetNowFunction() . ", " . $DB->GetNowFunction() . ", 1)";
+			$rc = $DB->Query($strSql, true);
+			if ($rc === false)
+				throw new CLearnInstall201203ConvertDBException('EA_SQLERROR');
 
-				$arBinds = array();
-
-				if (array_key_exists('PREVIEW_TEXT', $arFields))
-					$arBinds['PREVIEW_TEXT'] = $arFields['PREVIEW_TEXT'];
-				
-				if (array_key_exists('DETAIL_TEXT', $arFields))
-					$arBinds['DETAIL_TEXT'] = $arFields['DETAIL_TEXT'];
-
-				$rc = $DB->QueryBind($strSql, $arBinds);
-				if ($rc === false)
-					throw new CLearnInstall201203ConvertDBException('EA_SQLERROR');
-			}
-			elseif (($dbtype === 'mssql') || ($dbtype === 'mysql'))
-			{
-				$strSql =
-					"INSERT INTO b_learn_lesson 
-						(" . $arInsert[0] . ", 
-						TIMESTAMP_X, DATE_CREATE, CREATED_BY) " .
-					"VALUES 
-						(" . $arInsert[1] . ", " 
-						. $DB->GetNowFunction() . ", " . $DB->GetNowFunction() . ", 1)";
-
-				$rc = $DB->Query($strSql, true);
-				if ($rc === false)
-					throw new CLearnInstall201203ConvertDBException('EA_SQLERROR');
-
-				$newLessonId = intval($DB->LastID());
-			}
+			$newLessonId = intval($DB->LastID());
 
 			return ($newLessonId);
 		}
@@ -1371,73 +1259,39 @@
 
 		protected static function _RemoveOrphanedTables()
 		{
-			global $DB, $DBType;
+			global $DB;
 
 			if ( ! $DB->TableExists('b_learn_course_permission') )
 				return;
 
 			$rc = $DB->Query ("DROP TABLE b_learn_course_permission", true);
 			if ($rc === false)
-				throw new CLearnInstall201203ConvertDBException('Can\'t DROP `b_learn_course_permission` under database engine: ' . $DBType);
+				throw new CLearnInstall201203ConvertDBException('Can\'t DROP `b_learn_course_permission` under database engine: mysql');
 		}
 
 		public static function _CreateEdgesTbl()
 		{
-			global $DB, $DBType;
+			global $DB;
 
 			if ($DB->TableExists('b_learn_lesson_edges'))
 				return;
 
-			switch(mb_strtolower($DBType))
-			{
-				case 'mysql':
-					$sql
-						= "CREATE TABLE b_learn_lesson_edges (
-						SOURCE_NODE INT NOT NULL ,
-						TARGET_NODE INT NOT NULL ,
-						SORT INT NOT NULL DEFAULT '500',
-						PRIMARY KEY ( SOURCE_NODE , TARGET_NODE )
-					)";
-					break;
-
-				case 'mssql':
-					$sql
-						= "CREATE TABLE B_LEARN_LESSON_EDGES (
-						SOURCE_NODE INT NOT NULL ,
-						TARGET_NODE INT NOT NULL ,
-						SORT INT NOT NULL DEFAULT '500',
-						CONSTRAINT PK_B_LEARN_LESSON_EDGES PRIMARY KEY (SOURCE_NODE, TARGET_NODE)
-					)
-					
-					";
-					break;
-
-				case 'oracle':
-					$sql
-						= "CREATE TABLE b_learn_lesson_edges
-					(
-						SOURCE_NODE NUMBER(11) NOT NULL,
-						TARGET_NODE NUMBER(11) NOT NULL,
-						SORT NUMBER(11) DEFAULT 500 NOT NULL,
-						PRIMARY KEY(SOURCE_NODE, TARGET_NODE)
-					)
-					
-					";
-					break;
-
-				default:
-					throw new CLearnInstall201203ConvertDBException('Unsupported database engine: '.$DBType);
-					break;
-			}
+			$sql
+				= "CREATE TABLE b_learn_lesson_edges (
+				SOURCE_NODE INT NOT NULL ,
+				TARGET_NODE INT NOT NULL ,
+				SORT INT NOT NULL DEFAULT '500',
+				PRIMARY KEY ( SOURCE_NODE , TARGET_NODE )
+			)";
 
 			$rc = $DB->Query ($sql, $ignore_errors = true);
 			if ($rc === false)
-				throw new CLearnInstall201203ConvertDBException('Can\'t create `b_learn_lesson_edges` under database engine: ' . $DBType);
+				throw new CLearnInstall201203ConvertDBException('Can\'t create `b_learn_lesson_edges` under database engine: mysql');
 		}
 
 		public static function _CreateFieldsInTbls()
 		{
-			global $DB, $DBType;
+			global $DB;
 
 			$arTableFields = array(
 				'b_learn_lesson'  => $DB->GetTableFieldsList ('b_learn_lesson'),
@@ -1446,214 +1300,63 @@
 				);
 
 			$sql_add = array();
-			$dbtype = mb_strtolower($DBType);
 			$other_sql_skip_errors = array();
 			$other_sql = array();
 
 			// Prepare sql code for adding fields
-			if ($dbtype === 'mysql')
-			{
-				$sql_add['b_learn_lesson'] = array (
-					'KEYWORDS'              => "ALTER TABLE b_learn_lesson ADD KEYWORDS TEXT NOT NULL",
-					'CODE'                  => "ALTER TABLE b_learn_lesson ADD CODE VARCHAR( 50 ) NULL DEFAULT NULL",
-					'WAS_CHAPTER_ID'        => "ALTER TABLE b_learn_lesson ADD WAS_CHAPTER_ID INT NULL DEFAULT NULL",
-					'WAS_PARENT_CHAPTER_ID' => "ALTER TABLE b_learn_lesson ADD WAS_PARENT_CHAPTER_ID INT NULL DEFAULT NULL",
-					'WAS_PARENT_COURSE_ID'  => "ALTER TABLE b_learn_lesson ADD WAS_PARENT_COURSE_ID INT NULL DEFAULT NULL",
-					'WAS_COURSE_ID'         => "ALTER TABLE b_learn_lesson ADD WAS_COURSE_ID INT NULL DEFAULT NULL",
-					'JOURNAL_STATUS'        => "ALTER TABLE b_learn_lesson ADD JOURNAL_STATUS INT NOT NULL DEFAULT '0'"
-					);
-				
-				$sql_add['b_learn_chapter'] = array (
-					'JOURNAL_STATUS' => "ALTER TABLE b_learn_chapter ADD JOURNAL_STATUS INT NOT NULL DEFAULT '0'"
-					);
-				
-				$sql_add['b_learn_course'] = array (
-					'LINKED_LESSON_ID' => "ALTER TABLE b_learn_course ADD LINKED_LESSON_ID INT NULL DEFAULT NULL",
-					'JOURNAL_STATUS'   => "ALTER TABLE b_learn_course ADD JOURNAL_STATUS INT NOT NULL DEFAULT '0'"
-					);
+			$sql_add['b_learn_lesson'] = array (
+				'KEYWORDS'              => "ALTER TABLE b_learn_lesson ADD KEYWORDS TEXT NOT NULL",
+				'CODE'                  => "ALTER TABLE b_learn_lesson ADD CODE VARCHAR( 50 ) NULL DEFAULT NULL",
+				'WAS_CHAPTER_ID'        => "ALTER TABLE b_learn_lesson ADD WAS_CHAPTER_ID INT NULL DEFAULT NULL",
+				'WAS_PARENT_CHAPTER_ID' => "ALTER TABLE b_learn_lesson ADD WAS_PARENT_CHAPTER_ID INT NULL DEFAULT NULL",
+				'WAS_PARENT_COURSE_ID'  => "ALTER TABLE b_learn_lesson ADD WAS_PARENT_COURSE_ID INT NULL DEFAULT NULL",
+				'WAS_COURSE_ID'         => "ALTER TABLE b_learn_lesson ADD WAS_COURSE_ID INT NULL DEFAULT NULL",
+				'JOURNAL_STATUS'        => "ALTER TABLE b_learn_lesson ADD JOURNAL_STATUS INT NOT NULL DEFAULT '0'"
+				);
 
-				$sql_tbl_b_learn_rights = "
-					CREATE TABLE b_learn_rights (
-					LESSON_ID INT UNSIGNED NOT NULL ,
-					SUBJECT_ID VARCHAR( 100 ) NOT NULL ,
-					TASK_ID INT NOT NULL ,
-					PRIMARY KEY ( LESSON_ID , SUBJECT_ID )
-					)";
+			$sql_add['b_learn_chapter'] = array (
+				'JOURNAL_STATUS' => "ALTER TABLE b_learn_chapter ADD JOURNAL_STATUS INT NOT NULL DEFAULT '0'"
+				);
 
-				$other_sql_skip_errors[] = 'ALTER TABLE b_learn_lesson DROP FOREIGN KEY FK_B_LEARN_LESSON1';
-				$other_sql_skip_errors[] = 'ALTER TABLE b_learn_lesson DROP FOREIGN KEY FK_B_LEARN_LESSON2';
-				$other_sql_skip_errors[] = 'ALTER TABLE b_learn_chapter DROP FOREIGN KEY FK_B_LEARN_CHAPTER1';
-				$other_sql_skip_errors[] = 'ALTER TABLE b_learn_chapter DROP FOREIGN KEY FK_B_LEARN_CHAPTER2';
+			$sql_add['b_learn_course'] = array (
+				'LINKED_LESSON_ID' => "ALTER TABLE b_learn_course ADD LINKED_LESSON_ID INT NULL DEFAULT NULL",
+				'JOURNAL_STATUS'   => "ALTER TABLE b_learn_course ADD JOURNAL_STATUS INT NOT NULL DEFAULT '0'"
+				);
 
-				$other_sql_skip_errors[] = "ALTER TABLE b_learn_course ALTER COLUMN NAME SET DEFAULT 'name'";
-				$other_sql_skip_errors[] = "ALTER TABLE b_learn_lesson ALTER COLUMN NAME SET DEFAULT 'name'";
-				$other_sql_skip_errors[] = "ALTER TABLE b_learn_lesson ALTER COLUMN COURSE_ID SET DEFAULT '0'";
-
-				$other_sql_skip_errors[] = "
-					CREATE TABLE b_learn_publish_prohibition
-					(
-						COURSE_LESSON_ID INT UNSIGNED NOT NULL ,
-						PROHIBITED_LESSON_ID INT UNSIGNED NOT NULL ,
-						PRIMARY KEY ( COURSE_LESSON_ID , PROHIBITED_LESSON_ID )
-					)";
-
-				$other_sql_skip_errors[] = "
-					CREATE TABLE b_learn_exceptions_log (
-						DATE_REGISTERED datetime NOT NULL,
-						CODE int(11) NOT NULL,
-						MESSAGE text NOT NULL,
-						FFILE text NOT NULL,
-						LINE int(11) NOT NULL,
-						BACKTRACE text NOT NULL
-					)";
-			}
-			elseif ($dbtype === 'mssql')
-			{
-				$sql_add['b_learn_lesson'] = array (
-					'KEYWORDS'              => "ALTER TABLE b_learn_lesson ADD KEYWORDS TEXT NOT NULL DEFAULT ''",
-					'CODE'                  => "ALTER TABLE b_learn_lesson ADD CODE VARCHAR( 50 ) NULL DEFAULT NULL",
-					'WAS_CHAPTER_ID'        => "ALTER TABLE b_learn_lesson ADD WAS_CHAPTER_ID INT NULL DEFAULT NULL",
-					'WAS_PARENT_CHAPTER_ID' => "ALTER TABLE b_learn_lesson ADD WAS_PARENT_CHAPTER_ID INT NULL DEFAULT NULL",
-					'WAS_PARENT_COURSE_ID'  => "ALTER TABLE b_learn_lesson ADD WAS_PARENT_COURSE_ID INT NULL DEFAULT NULL",
-					'WAS_COURSE_ID'         => "ALTER TABLE b_learn_lesson ADD WAS_COURSE_ID INT NULL DEFAULT NULL",
-					'JOURNAL_STATUS'        => "ALTER TABLE b_learn_lesson ADD JOURNAL_STATUS INT NOT NULL DEFAULT '0'"
-					);
-				
-				$sql_add['b_learn_chapter'] = array (
-					'JOURNAL_STATUS' => "ALTER TABLE b_learn_chapter ADD JOURNAL_STATUS INT NOT NULL DEFAULT '0'"
-					);
-				
-				$sql_add['b_learn_course'] = array (
-					'LINKED_LESSON_ID' => "ALTER TABLE b_learn_course ADD LINKED_LESSON_ID INT NULL DEFAULT NULL",
-					'JOURNAL_STATUS'   => "ALTER TABLE b_learn_course ADD JOURNAL_STATUS INT NOT NULL DEFAULT '0'"
-					);
-
-				$sql_tbl_b_learn_rights = "
-				CREATE TABLE B_LEARN_RIGHTS
-				(
-					LESSON_ID INT NOT NULL ,
-					SUBJECT_ID VARCHAR(100) NOT NULL,
-					TASK_ID INT NOT NULL,
-					CONSTRAINT PK_B_LEARN_RIGHTS PRIMARY KEY(LESSON_ID, SUBJECT_ID)
+			$sql_tbl_b_learn_rights = "
+				CREATE TABLE b_learn_rights (
+				LESSON_ID INT UNSIGNED NOT NULL ,
+				SUBJECT_ID VARCHAR( 100 ) NOT NULL ,
+				TASK_ID INT NOT NULL ,
+				PRIMARY KEY ( LESSON_ID , SUBJECT_ID )
 				)";
 
-				$other_sql_skip_errors[] = 'ALTER TABLE b_learn_lesson DROP CONSTRAINT FK_B_LEARN_LESSON1';
-				$other_sql_skip_errors[] = 'ALTER TABLE b_learn_lesson DROP CONSTRAINT FK_B_LEARN_LESSON2';
-				$other_sql_skip_errors[] = 'ALTER TABLE b_learn_chapter DROP CONSTRAINT FK_B_LEARN_CHAPTER1';
-				$other_sql_skip_errors[] = 'ALTER TABLE b_learn_chapter DROP CONSTRAINT FK_B_LEARN_CHAPTER2';
+			$other_sql_skip_errors[] = 'ALTER TABLE b_learn_lesson DROP FOREIGN KEY FK_B_LEARN_LESSON1';
+			$other_sql_skip_errors[] = 'ALTER TABLE b_learn_lesson DROP FOREIGN KEY FK_B_LEARN_LESSON2';
+			$other_sql_skip_errors[] = 'ALTER TABLE b_learn_chapter DROP FOREIGN KEY FK_B_LEARN_CHAPTER1';
+			$other_sql_skip_errors[] = 'ALTER TABLE b_learn_chapter DROP FOREIGN KEY FK_B_LEARN_CHAPTER2';
 
-				$other_sql_skip_errors[] = "ALTER TABLE b_learn_course ADD CONSTRAINT DF_b_learn_course_name DEFAULT 'name' FOR NAME";
-				$other_sql_skip_errors[] = "ALTER TABLE b_learn_lesson ADD CONSTRAINT DF_b_learn_lesson_name DEFAULT 'name' FOR NAME";
-				$other_sql_skip_errors[] = "ALTER TABLE b_learn_lesson ADD CONSTRAINT DF_b_learn_lesson_course_id DEFAULT 0 FOR COURSE_ID";
+			$other_sql_skip_errors[] = "ALTER TABLE b_learn_course ALTER COLUMN NAME SET DEFAULT 'name'";
+			$other_sql_skip_errors[] = "ALTER TABLE b_learn_lesson ALTER COLUMN NAME SET DEFAULT 'name'";
+			$other_sql_skip_errors[] = "ALTER TABLE b_learn_lesson ALTER COLUMN COURSE_ID SET DEFAULT '0'";
 
-				$other_sql_skip_errors[] = "
-					CREATE TABLE B_LEARN_PUBLISH_PROHIBITION
-					(
-						COURSE_LESSON_ID INT NOT NULL ,
-						PROHIBITED_LESSON_ID INT NOT NULL,
-						CONSTRAINT PK_B_LEARN_PUBLISH_PROHIBITION PRIMARY KEY(COURSE_LESSON_ID, PROHIBITED_LESSON_ID)
-					)";
-
-				$other_sql_skip_errors[] = "
-					CREATE TABLE B_LEARN_EXCEPTIONS_LOG (
-						DATE_REGISTERED DATETIME NOT NULL DEFAULT GETDATE(),
-						CODE INT NOT NULL,
-						MESSAGE TEXT NOT NULL,
-						FFILE TEXT NOT NULL,
-						LINE INT NOT NULL,
-						BACKTRACE TEXT NOT NULL
-					)";
-
-				/*
-
-				declare @default sysname, @sql nvarchar(max)
-
-				SELECT @default = name 
-				FROM sys.default_constraints 
-				WHERE parent_object_id = object_id('b_learn_lesson')
-				AND type = 'D'
-				AND parent_column_id = (
-					select column_id 
-					from sys.columns 
-					where object_id = object_id('b_learn_lesson')
-					and name = 'COURSE_ID'
-				)
-
-				-- create alter table command as string and run it
-				set @sql = N'ALTER TABLE b_learn_lesson DROP CONSTRAINT ' + @default
-				exec sp_executesql @sql
-
-				-- now we can alter column
-				ALTER TABLE [TABLE_NAME]
-				ALTER COLUMN COLUMN_NAME datetime -- here you can have any datatype you want of course
-
-				-- last step, we need to recreate constraint
-				-- DEFAULT getdate() is just for example, you can have any constraint you need of course
-				ALTER TABLE [TABLE_NAME]
-				ADD CONSTRAINT [YOUR_CONSTRAINT_NAME] DEFAULT getdate() For COLUMN_NAME 
-				*/
-			}
-			elseif ($dbtype === 'oracle')
-			{
-				$sql_add['b_learn_lesson'] = array (
-					'KEYWORDS'              => "ALTER TABLE b_learn_lesson ADD KEYWORDS CLOB DEFAULT ' '",
-					'CODE'                  => "ALTER TABLE b_learn_lesson ADD CODE VARCHAR( 50 CHAR ) NULL",
-					'WAS_CHAPTER_ID'        => "ALTER TABLE b_learn_lesson ADD WAS_CHAPTER_ID NUMBER(11) NULL",
-					'WAS_PARENT_CHAPTER_ID' => "ALTER TABLE b_learn_lesson ADD WAS_PARENT_CHAPTER_ID NUMBER(11) NULL",
-					'WAS_PARENT_COURSE_ID'  => "ALTER TABLE b_learn_lesson ADD WAS_PARENT_COURSE_ID NUMBER(11) NULL",
-					'WAS_COURSE_ID'         => "ALTER TABLE b_learn_lesson ADD WAS_COURSE_ID NUMBER(11) NULL",
-					'JOURNAL_STATUS'        => "ALTER TABLE b_learn_lesson ADD JOURNAL_STATUS NUMBER(11) DEFAULT '0' NOT NULL"
-					);
-				
-				$sql_add['b_learn_chapter'] = array (
-					'JOURNAL_STATUS' => "ALTER TABLE b_learn_chapter ADD JOURNAL_STATUS NUMBER(11) DEFAULT '0' NOT NULL"
-					);
-				
-				$sql_add['b_learn_course'] = array (
-					'LINKED_LESSON_ID' => "ALTER TABLE b_learn_course ADD LINKED_LESSON_ID NUMBER(11) NULL",
-					'JOURNAL_STATUS'   => "ALTER TABLE b_learn_course ADD JOURNAL_STATUS NUMBER(11) DEFAULT '0' NOT NULL"
-					);
-
-				$sql_tbl_b_learn_rights = "
-				CREATE TABLE b_learn_rights
-				(
-					LESSON_ID NUMBER(11) NOT NULL ,
-					SUBJECT_ID VARCHAR2(100 CHAR) NOT NULL,
-					TASK_ID NUMBER(11) NOT NULL,
-					PRIMARY KEY(LESSON_ID, SUBJECT_ID)
-				)";
-
-				$other_sql_skip_errors[] = 'ALTER TABLE b_learn_lesson DROP CONSTRAINT FK_B_LEARN_LESSON1';
-				$other_sql_skip_errors[] = 'ALTER TABLE b_learn_lesson DROP CONSTRAINT FK_B_LEARN_LESSON2';
-				$other_sql_skip_errors[] = 'ALTER TABLE b_learn_chapter DROP CONSTRAINT FK_B_LEARN_CHAPTER1';
-				$other_sql_skip_errors[] = 'ALTER TABLE b_learn_chapter DROP CONSTRAINT FK_B_LEARN_CHAPTER2';
-
-				$other_sql_skip_errors[] = "ALTER TABLE b_learn_course MODIFY NAME DEFAULT 'name'";
-				$other_sql_skip_errors[] = "ALTER TABLE b_learn_lesson MODIFY NAME DEFAULT 'name'";
-				$other_sql_skip_errors[] = "ALTER TABLE b_learn_lesson MODIFY COURSE_ID DEFAULT '0'";
-
-				$other_sql_skip_errors[] = "
-				CREATE TABLE b_learn_exceptions_log (
-					DATE_REGISTERED DATE DEFAULT SYSDATE NOT NULL,
-					CODE NUMBER(11) NOT NULL,
-					MESSAGE CLOB NOT NULL,
-					FFILE CLOB NOT NULL,
-					LINE NUMBER(11) NOT NULL,
-					BACKTRACE CLOB NOT NULL
-				)";
-
-				$other_sql_skip_errors[] = "
+			$other_sql_skip_errors[] = "
 				CREATE TABLE b_learn_publish_prohibition
 				(
-					COURSE_LESSON_ID NUMBER(11) NOT NULL ,
-					PROHIBITED_LESSON_ID NUMBER(11) NOT NULL ,
+					COURSE_LESSON_ID INT UNSIGNED NOT NULL ,
+					PROHIBITED_LESSON_ID INT UNSIGNED NOT NULL ,
 					PRIMARY KEY ( COURSE_LESSON_ID , PROHIBITED_LESSON_ID )
 				)";
-			}
-			else
-			{
-				throw new CLearnInstall201203ConvertDBException('SQL code not ready for: ' . $DBType . ' in line #' . __LINE__);
-			}
+
+			$other_sql_skip_errors[] = "
+				CREATE TABLE b_learn_exceptions_log (
+					DATE_REGISTERED datetime NOT NULL,
+					CODE int(11) NOT NULL,
+					MESSAGE text NOT NULL,
+					FFILE text NOT NULL,
+					LINE int(11) NOT NULL,
+					BACKTRACE text NOT NULL
+				)";
 
 			if ( ! $DB->TableExists('b_learn_rights'))
 			{

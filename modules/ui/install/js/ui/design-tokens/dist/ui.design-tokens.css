@@ -1,6 +1,6 @@
 /**
  * Do not edit directly
- * Generated on Tue, 28 Jun 2022 07:52:42 GMT
+ * Generated on Thu, 11 Aug 2022 11:32:53 GMT
  */
 
 :root {
@@ -276,6 +276,8 @@
   --ui-color-tag-2-rgb: 0, 186, 242;
   --ui-color-tag-1: #bcedfc;
   --ui-color-tag-1-rgb: 188, 237, 252;
+  --ui-color-link-primary-base: #2066b0;
+  --ui-color-link-primary-base-rgb: 32, 102, 176;
   --ui-color-background-none: none;
   --ui-color-background-transparent: transparent;
   --ui-border-width-thick: 2px;
@@ -328,8 +330,6 @@
   --ui-typography-heading-h1-font-weight: 300;
   --ui-typography-heading-h1-line-height: 1.2;
   --ui-typography-heading-h1-font-size: var(--ui-font-size-5xl);
-  --ui-color-link-primary-base: var(--ui-color-palette-orange-60);
-  --ui-color-link-primary-base-rgb: var(--ui-color-palette-orange-60-rgb);
   --ui-color-base-default: var(--ui-color-palette-black-base);
   --ui-color-base-default-rgb: var(--ui-color-palette-black-base-rgb);
   --ui-color-base-solid: var(--ui-color-palette-black-solid);

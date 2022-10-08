@@ -219,7 +219,7 @@ class CSocServGoogleOAuth extends CSocServAuth
 			{
 				$temp_path =  CFile::GetTempName('', sha1($arGoogleUser['picture']));
 
-				$http = new \Bitrix\Main\Web\HttpClient();
+				$http = new HttpClient();
 				$http->setPrivateIp(false);
 				if($http->download($arGoogleUser['picture'], $temp_path))
 				{
@@ -527,12 +527,7 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 
 		try
 		{
-			$http = new HttpClient([
-				'socketTimeout' => SOCSERV_DEFAULT_HTTP_TIMEOUT,
-				'streamTimeout' => SOCSERV_DEFAULT_HTTP_TIMEOUT,
-			]);
-			$publicKeys = $http->get(self::CERTS_URL);
-			$publicKeys = Json::decode($publicKeys);
+			$publicKeys = $this->getDecodedJson(self::CERTS_URL);
 			if (empty($publicKeys['keys']) || count($publicKeys['keys']) < 1)
 			{
 				return null;
@@ -616,10 +611,6 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 			}
 		}
 
-		$http = new HttpClient(array(
-			"socketTimeout" => $this->httpTimeout
-		));
-
 		$authParams = [
 			"client_id" => $this->appID,
 			"code" => $this->code,
@@ -628,16 +619,7 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 			"client_secret" => $this->appSecret,
 		];
 
-		$result = $http->post(static::TOKEN_URL, $authParams);
-
-		try
-		{
-			$this->arResult = \Bitrix\Main\Web\Json::decode($result);
-		}
-		catch(\Bitrix\Main\ArgumentException $e)
-		{
-			$this->arResult = array();
-		}
+		$this->arResult = $this->getDecodedJson(static::TOKEN_URL, $authParams);
 
 		if(isset($this->arResult["access_token"]) && $this->arResult["access_token"] <> '')
 		{
@@ -671,13 +653,9 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 		if($this->access_token === false)
 			return false;
 
-		$h = new HttpClient(array(
-			"socketTimeout" => $this->httpTimeout,
-		));
-		$result = $h->get(static::CONTACTS_URL.'?access_token='.urlencode($this->access_token));
-		$result = \Bitrix\Main\Web\Json::decode($result);
+		$result = $this->getDecodedJson(static::CONTACTS_URL.'?access_token='.urlencode($this->access_token));
 
-		if(is_array($result))
+		if ($result)
 		{
 			$result["access_token"] = $this->access_token;
 			$result["refresh_token"] = $this->refresh_token;
@@ -706,14 +684,9 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 			return false;
 		}
 
-		$h = new \Bitrix\Main\Web\HttpClient();
-		$h->setTimeout($this->httpTimeout);
+		$result = $this->getDecodedJson(static::TOKENINFO_URL.'?access_token='.urlencode($this->access_token));
 
-		$result = $h->get(static::TOKENINFO_URL.'?access_token='.urlencode($this->access_token));
-
-		$result = \Bitrix\Main\Web\Json::decode($result);
-
-		if(is_array($result) && $result["audience"])
+		if ($result && $result["audience"])
 		{
 			$result["id"] = $result["audience"];
 		}
@@ -861,25 +834,12 @@ class CGoogleOAuthInterface extends CSocServOAuthTransport
 			$refreshToken = $this->refresh_token;
 		}
 
-		$http = new HttpClient(
-			array("socketTimeout" => $this->httpTimeout)
-		);
-
-		$result = $http->post(static::TOKEN_URL, [
+		$this->arResult = $this->getDecodedJson(static::TOKEN_URL, [
 			"client_id" => $this->appID,
 			"refresh_token"=>$refreshToken,
 			"grant_type"=>"refresh_token",
 			"client_secret" => $this->appSecret,
 		]);
-
-		try
-		{
-			$this->arResult = \Bitrix\Main\Web\Json::decode($result);
-		}
-		catch(\Bitrix\Main\ArgumentException $e)
-		{
-			$this->arResult = array();
-		}
 
 		if (isset($this->arResult["access_token"]) && $this->arResult["access_token"] <> '')
 		{

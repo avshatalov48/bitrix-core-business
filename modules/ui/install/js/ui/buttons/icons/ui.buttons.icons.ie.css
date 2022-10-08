@@ -1140,4 +1140,26 @@
 
 /*endregion*/
 
+/*region ui-btn-icon-funnel*/
+.bx-ie .ui-btn-icon-funnel.ui-btn:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn.ui-btn-danger:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn.ui-btn-primary:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn.ui-btn-default:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn-main:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn-danger .ui-btn-main:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn-primary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn-default .ui-btn-main:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn.ui-btn-link:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn.ui-btn-light:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn.ui-btn-success:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn.ui-btn-secondary:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn.ui-btn-light-border:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn-link .ui-btn-main:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn-light .ui-btn-main:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn-success .ui-btn-main:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn-secondary .ui-btn-main:after,
+.bx-ie .ui-btn-icon-funnel.ui-btn-light-border .ui-btn-main:after { background-image: url(/bitrix/js/ui/buttons/icons/images/ui-btn-icon-funnel-white.svg?v=1.2); }
+
+/*endregion*/
+
 /*endregion*/

@@ -395,7 +395,7 @@ class CIMDisk
 			return false;
 		}
 
-		$folderModel = self::GetFolderModel($chatId);
+		$folderModel = self::getFolderModel($chatId, false);
 		if (!$folderModel)
 		{
 			return false;
@@ -1288,7 +1288,7 @@ class CIMDisk
 			return $fileArray;
 		}
 
-		$folderModel = self::GetFolderModel($chatId);
+		$folderModel = self::getFolderModel($chatId, false);
 		if (!$folderModel)
 		{
 			return $fileArray;
@@ -1358,7 +1358,7 @@ class CIMDisk
 			return $fileArray;
 		}
 
-		$folderModel = self::GetFolderModel($chatId);
+		$folderModel = self::getFolderModel($chatId, false);
 		if (!$folderModel)
 		{
 			return $fileArray;
@@ -1421,7 +1421,7 @@ class CIMDisk
 			return $maxId;
 		}
 
-		$folderModel = self::GetFolderModel($chatId);
+		$folderModel = self::getFolderModel($chatId, false);
 		if (!$folderModel)
 		{
 			return $maxId;
@@ -1482,7 +1482,7 @@ class CIMDisk
 		{
 			return $fileArray;
 		}
-		$folderModel = self::GetFolderModel($chatId);
+		$folderModel = self::getFolderModel($chatId, false);
 		if (!$folderModel)
 		{
 			return $fileArray;
@@ -1666,10 +1666,11 @@ class CIMDisk
 	}
 
 	/**
-	 * @param int $chatId
+	 * @param int $chatId Chat Id.
+	 * @param bool $createFolder Create disk folder if not exists.
 	 * @return \Bitrix\Disk\Folder|false|null
 	 */
-	public static function GetFolderModel($chatId)
+	public static function GetFolderModel($chatId, $createFolder = true)
 	{
 		if (!self::Enabled())
 		{
@@ -1690,18 +1691,22 @@ class CIMDisk
 		}
 
 		$folderId = (int)$chat['DISK_FOLDER_ID'];
-		$chatType = $chat['TYPE'];
 		if ($folderId > 0)
 		{
 			$folderModel = \Bitrix\Disk\Folder::getById($folderId);
-			if (!$folderModel || $folderModel->getStorageId() != self::GetStorageId())
+			if (
+				!$folderModel
+				|| !($folderModel instanceof \Bitrix\Disk\Folder)
+				|| ($folderModel->getStorageId() != self::GetStorageId())
+			)
 			{
 				$folderId = 0;
 			}
 		}
 
-		if (!$folderId)
+		if (!$folderId && $createFolder === true)
 		{
+			$chatType = $chat['TYPE'];
 			$driver = \Bitrix\Disk\Driver::getInstance();
 			$storageModel = self::GetStorage();
 			if (!$storageModel)
@@ -1772,7 +1777,7 @@ class CIMDisk
 			return false;
 		}
 
-		$folderModel = self::GetFolderModel($chatId);
+		$folderModel = self::getFolderModel($chatId, false);
 		if (!$folderModel)
 		{
 			return false;

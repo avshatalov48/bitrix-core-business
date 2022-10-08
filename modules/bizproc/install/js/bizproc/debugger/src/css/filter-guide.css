@@ -1,0 +1,13 @@
+.bizproc-debugger-filter-guide-list {
+	padding: 0;
+	padding-left: 25px;
+	margin: 0;
+}
+
+.bizproc-debugger-filter-guide-list-item {
+	line-height: 25px;
+}
+
+.bizproc-debugger-filter-guide-list-item + .bizproc-debugger-filter-guide-list-item{
+	margin-top: 15px;
+}

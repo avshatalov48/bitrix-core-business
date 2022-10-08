@@ -20,6 +20,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	var _enableButtons = /*#__PURE__*/new WeakSet();
 
+	var _setActiveSessionHint = /*#__PURE__*/new WeakSet();
+
 	var _initEvents = /*#__PURE__*/new WeakSet();
 
 	var _onStartSessionClick = /*#__PURE__*/new WeakSet();
@@ -31,6 +33,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    _classPrivateMethodInitSpec(this, _onStartSessionClick);
 
 	    _classPrivateMethodInitSpec(this, _initEvents);
+
+	    _classPrivateMethodInitSpec(this, _setActiveSessionHint);
 
 	    _classPrivateMethodInitSpec(this, _enableButtons);
 
@@ -55,6 +59,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function init() {
 	      if (babelHelpers.classPrivateFieldGet(this, _activeSession)) {
 	        _classPrivateMethodGet(this, _disableButtons, _disableButtons2).call(this);
+
+	        _classPrivateMethodGet(this, _setActiveSessionHint, _setActiveSessionHint2).call(this);
 	      } else {
 	        _classPrivateMethodGet(this, _initEvents, _initEvents2).call(this);
 	      }
@@ -64,6 +70,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    get: function get() {
 	      var buttons = {};
 	      buttons[bizproc_debugger.Mode.experimental.id] = document.getElementById('bizproc-debugger-start-experimental-element');
+	      buttons[bizproc_debugger.Mode.interception.id] = document.getElementById('bizproc-debugger-start-interception-element');
 	      return buttons;
 	    }
 	  }]);
@@ -71,14 +78,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	}();
 
 	function _disableButtons2() {
-	  var _this = this;
-
 	  var buttons = this.buttons;
 	  Object.keys(buttons).forEach(function (key) {
-	    var _babelHelpers$classPr;
-
 	    main_core.Dom.addClass(buttons[key], 'ui-btn-disabled');
-	    main_core.Dom.attr(buttons[key], 'title', main_core.Text.encode((_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(_this, _activeSession)) === null || _babelHelpers$classPr === void 0 ? void 0 : _babelHelpers$classPr.shortDescription));
 	  });
 	}
 
@@ -86,6 +88,21 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  var buttons = this.buttons;
 	  Object.keys(buttons).forEach(function (key) {
 	    main_core.Dom.removeClass(buttons[key], 'ui-btn-disabled');
+	  });
+	}
+
+	function _setActiveSessionHint2() {
+	  var _this = this;
+
+	  if (!babelHelpers.classPrivateFieldGet(this, _activeSession)) {
+	    return;
+	  }
+
+	  var buttons = this.buttons;
+	  Object.keys(buttons).forEach(function (key) {
+	    main_core.Dom.attr(buttons[key], 'data-hint', main_core.Text.encode(babelHelpers.classPrivateFieldGet(_this, _activeSession).shortDescription));
+	    main_core.Dom.attr(buttons[key], 'data-hint-no-icon', 'y');
+	    BX.UI.Hint.init(BX(buttons[key].id).parentElement);
 	  });
 	}
 
@@ -108,7 +125,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	    main_core.Dom.addClass(btn, 'ui-btn-wait');
 	    var Manager = exports.Manager;
-	    Manager.Instance.startSession(babelHelpers.classPrivateFieldGet(_this3, _documentSigned), modeId).then(function () {
+	    Manager.Instance.startSession(babelHelpers.classPrivateFieldGet(_this3, _documentSigned), main_core.Text.toInteger(modeId)).then(function () {
 	      _classPrivateMethodGet(_this3, _enableButtons, _enableButtons2).call(_this3);
 
 	      BX.SidePanel.Instance.closeAll();
@@ -134,5 +151,5 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	namespace.DebuggerStartComponent = DebuggerStartComponent;
 
-}((this.BX.Bizproc.Component = this.BX.Bizproc.Component || {}),BX,BX.UI.Dialogs,BX.Bizproc));
+}((this.BX.Bizproc.Component = this.BX.Bizproc.Component || {}),BX,BX.UI.Dialogs,BX.Bizproc.Debugger));
 //# sourceMappingURL=script.js.map

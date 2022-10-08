@@ -1,5 +1,6 @@
 // @flow
 
+import 'ui.design-tokens';
 import 'ui.progressbar';
 import {Type, Tag, Loc, Dom, Event} from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
@@ -189,7 +190,7 @@ export class Dialog
 		}
 	}
 
-	getId() 
+	getId()
 	{
 		return this.id;
 	}
@@ -775,7 +776,7 @@ export class Dialog
 	}
 
 	//endregion
-	
+
 	//region Progressbar
 
 	setProgressBar(totalItems: number, processedItems: number, textBefore: string)
@@ -806,7 +807,7 @@ export class Dialog
 		}
 		return this;
 	}
-	
+
 	//endregion
 
 	//region Initial options

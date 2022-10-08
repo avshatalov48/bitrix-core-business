@@ -1,6 +1,7 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/start.php");
-error_reporting(COption::GetOptionInt("main", "error_reporting", E_COMPILE_ERROR|E_ERROR|E_CORE_ERROR|E_PARSE));
+
 class CMainPage
 {
 	// определяет сайт по HTTP_HOST в таблице сайтов
@@ -102,4 +103,3 @@ class CMainPage
 		return false;
 	}
 }
-?>

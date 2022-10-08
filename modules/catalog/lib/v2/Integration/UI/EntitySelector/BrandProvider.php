@@ -14,7 +14,7 @@ class BrandProvider extends BaseProvider
 {
 	private const BRAND_LIMIT = 20;
 	private const BRAND_ENTITY_ID = 'brand';
-	private const BRAND_CODE = 'BRAND_REF';
+	private const BRAND_CODE = 'BRAND_FOR_FACEBOOK';
 
 	public function __construct(array $options = [])
 	{
@@ -32,7 +32,7 @@ class BrandProvider extends BaseProvider
 	{
 		$items = [];
 
-		$filter = !empty($ids) ? ['=ID' => $ids] : [];
+		$filter = !empty($ids) ? ['=UF_XML_ID' => $ids] : [];
 
 		foreach ($this->getBrands($filter) as $section)
 		{
@@ -101,6 +101,8 @@ class BrandProvider extends BaseProvider
 		{
 			return [];
 		}
+
+		\Bitrix\Catalog\v2\Integration\Iblock\BrandProperty::createFacebookBrandProperty();
 
 		$catalogId = $this->options['iblockId'];
 		if ($catalogId <= 0)

@@ -18,13 +18,14 @@
 	/**
 	 * Creates player instance
 	 * @param {HTMLIFrameElement} iframe
+	 * @param {Object} params - additional params for player
 	 * @return {BX.Landing.MediaPlayer.BasePlayer}
 	 */
-	BX.Landing.MediaPlayer.Factory.create = function(iframe)
+	BX.Landing.MediaPlayer.Factory.create = function(iframe, params)
 	{
 		if (matchers.youtube.test(iframe.src))
 		{
-			return new BX.Landing.MediaPlayer.Youtube(iframe);
+			return new BX.Landing.MediaPlayer.Youtube(iframe, params);
 		}
 	};
 })();

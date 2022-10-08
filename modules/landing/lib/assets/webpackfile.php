@@ -168,12 +168,10 @@ class WebpackFile
 			$this->fileId = $fileId;
 			$file = \CFile::GetByID($fileId)->Fetch();
 			$this->setFileName($file['ORIGINAL_NAME'] ?: $this->filename);
-
-			$msgAdd = " Existing {$fileId} with NAME {$file['FILE_NAME']} and ORIG_NAME {$file['ORIGINAL_NAME']}";
 		}
 
 		AddMessage2Log(
-			"[lndgdbg] configureFile for lid {$this->landingId}." . $msgAdd,
+			"[lndgdbg] configureFile for lid {$this->landingId}.",
 			'landing',
 			7
 		);
@@ -196,6 +194,21 @@ class WebpackFile
 		{
 			foreach(File::getFilesFromAsset($this->landingId) as $fileId)
 			{
+				$currentFile = \CFile::GetByID($fileId)->Fetch();
+				$msg = "Current file {$fileId} with ORIG_NAME {$currentFile['ORIGINAL_NAME']}. ";
+
+				$currentName = self::DEFAULT_NAME . '_' . $this->packageHash;
+				$msg .= "Hash name {$currentName} ";
+				$msg .= strpos($currentFile['ORIGINAL_NAME'], $currentName) === 0
+					? 'and it MATCH with file.'
+					: 'and it NOT MATCH with file.'
+				;
+				AddMessage2Log(
+					"[lndgdbg] findExistFile for lid {$this->landingId}. {$msg}",
+					'landing',
+					7
+				);
+
 				if(
 					$fileId > 0
 					&& $this->packageHash

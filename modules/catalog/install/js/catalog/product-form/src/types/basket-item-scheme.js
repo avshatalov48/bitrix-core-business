@@ -26,4 +26,5 @@ export type BasketItemScheme = {
 	additionalFields: Array<any>,
 	properties: Array<any>,
 	brands: Array<any>,
+	morePhoto?: object,
 }

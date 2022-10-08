@@ -1,6 +1,5 @@
 <?php
 
-use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog;
 use Bitrix\Catalog\Document\Action;
@@ -116,8 +115,6 @@ abstract class CCatalogDocsTypes
 	protected const ERR_STORE_ABSENT = 'ABSENT';
 	protected const ERR_STORE_UNKNOWN = 'UNKNOWN';
 	protected const ERR_STORE_DISABLED = 'DISABLED';
-
-	protected static $clearAutoCache = [];
 
 	public static function getFields(): array
 	{
@@ -994,6 +991,12 @@ abstract class CCatalogDocsTypes
 		);
 	}
 
+	/**
+	 * @param string $action
+	 * @param array $document
+	 * @param int $userId
+	 * @return array|null
+	 */
 	protected static function getDocumentActions(string $action, array $document, int $userId): ?array
 	{
 		if (
@@ -1239,13 +1242,36 @@ class CCatalogArrivalDocs extends CCatalogDocsTypes
 	public static function getElementFields(): array
 	{
 		return [
-			'ELEMENT_ID' => ['required' => 'Y'],
-			'AMOUNT' => ['required' => 'Y'],
-			'NET_PRICE' => ['required' => 'Y'],
-			'BASE_PRICE' => ['required' => 'Y'],
-			'STORE_TO' => ['required' => 'Y'],
-			'BAR_CODE' => ['required' => 'Y'],
-			'TOTAL' => ['required' => 'Y'],
+			'AMOUNT' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_ARRIVAL_AMOUNT'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_ARRIVAL_AMOUNT'),
+			],
+			'NET_PRICE' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_PURCHASING_PRICE'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_PURCHASING_PRICE'),
+			],
+			'BASE_PRICE' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_PRICE'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_PRICE'),
+			],
+			'STORE_TO' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_STORE_TO'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_STORE_TO'),
+			],
+			'BAR_CODE' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_BARCODE'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_BARCODE'),
+			],
+			'TOTAL' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_TOTAL'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_TOTAL'),
+			],
 		];
 	}
 
@@ -1390,11 +1416,11 @@ class CCatalogArrivalDocs extends CCatalogDocsTypes
 		return [
 			'ERR_ABSENT' => [
 				'CATALOG_STORE_DOCS_ERR_ARRIVAL_STORE_DESTINATION_IS_ABSENT_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_ARRIVAL_STORE_DESTINATION_IS_ABSENT_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_ARRIVAL_STORE_DESTINATION_IS_ABSENT_PRODUCT_LIST_EXT',
 			],
 			'ERR_UNKNOWN' => [
 				'CATALOG_STORE_DOCS_ERR_ARRIVAL_STORE_DESTINATION_IS_UNKNOWN_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_ARRIVAL_STORE_DESTINATION_IS_ABSENT_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_ARRIVAL_STORE_DESTINATION_IS_UNKNOWN_PRODUCT_LIST',
 			],
 			'ERR_DISABLED' => [
 				'CATALOG_STORE_DOCS_ERR_ARRIVAL_STORE_DESTINATION_IS_DISABLE_PRODUCT',
@@ -1423,13 +1449,36 @@ class CCatalogStoreAdjustmentDocs extends CCatalogArrivalDocs
 	public static function getElementFields(): array
 	{
 		return [
-			'ELEMENT_ID' => ['required' => 'Y'],
-			'AMOUNT' => ['required' => 'Y'],
-			'NET_PRICE' => ['required' => 'Y'],
-			'BASE_PRICE' => ['required' => 'Y'],
-			'STORE_TO' => ['required' => 'Y'],
-			'BAR_CODE' => ['required' => 'Y'],
-			'TOTAL' => ['required' => 'Y'],
+			'AMOUNT' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_ARRIVAL_AMOUNT'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_ARRIVAL_AMOUNT'),
+			],
+			'NET_PRICE' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_PURCHASING_PRICE'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_PURCHASING_PRICE'),
+			],
+			'BASE_PRICE' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_PRICE'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_PRICE'),
+			],
+			'STORE_TO' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_STORE_TO'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_STORE_TO'),
+			],
+			'BAR_CODE' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_BARCODE'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_BARCODE'),
+			],
+			'TOTAL' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_TOTAL'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_TOTAL'),
+			],
 		];
 	}
 
@@ -1453,11 +1502,11 @@ class CCatalogStoreAdjustmentDocs extends CCatalogArrivalDocs
 		return [
 			'ERR_ABSENT' => [
 				'CATALOG_STORE_DOCS_ERR_ADJUSTMENT_STORE_DESTINATION_IS_ABSENT_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_ADJUSTMENT_STORE_DESTINATION_IS_ABSENT_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_ADJUSTMENT_STORE_DESTINATION_IS_ABSENT_PRODUCT_LIST_EXT',
 			],
 			'ERR_UNKNOWN' => [
 				'CATALOG_STORE_DOCS_ERR_ADJUSTMENT_STORE_DESTINATION_IS_UNKNOWN_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_ADJUSTMENT_STORE_DESTINATION_IS_ABSENT_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_ADJUSTMENT_STORE_DESTINATION_IS_UNKNOWN_PRODUCT_LIST',
 			],
 			'ERR_DISABLED' => [
 				'CATALOG_STORE_DOCS_ERR_ADJUSTMENT_STORE_DESTINATION_IS_DISABLE_PRODUCT',
@@ -1483,11 +1532,26 @@ class CCatalogMovingDocs extends CCatalogDocsTypes
 	public static function getElementFields(): array
 	{
 		return [
-			'ELEMENT_ID' => ['required' => 'Y'],
-			'AMOUNT' => ['required' => 'Y'],
-			'STORE_TO' => ['required' => 'Y'],
-			'BAR_CODE' => ['required' => 'Y'],
-			'STORE_FROM' => ['required' => 'Y'],
+			'AMOUNT' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_AMOUNT'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_AMOUNT'),
+			],
+			'STORE_TO' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_MOVING_STORE_TO'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_MOVING_STORE_TO'),
+			],
+			'BAR_CODE' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_BARCODE'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_BARCODE'),
+			],
+			'STORE_FROM' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_MOVING_STORE_FROM'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_MOVING_STORE_FROM'),
+			],
 		];
 	}
 
@@ -1623,7 +1687,7 @@ class CCatalogMovingDocs extends CCatalogDocsTypes
 				if ((int)$position['STORE_TO'] === (int)$position['STORE_FROM'])
 				{
 					self::setErrors([
-						Loc::getMessage('CATALOG_STORE_DOCS_ERR_STORE_DESTINATION_EQUALS_SOURCE')
+						Loc::getMessage('CATALOG_STORE_DOCS_ERR_STORE_FROM_EQUALS_STORE_TO')
 					]);
 					return false;
 				}
@@ -1658,11 +1722,11 @@ class CCatalogMovingDocs extends CCatalogDocsTypes
 		return [
 			'ERR_ABSENT' => [
 				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_DESTINATION_IS_ABSENT_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_DESTINATION_IS_ABSENT_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_DESTINATION_IS_ABSENT_PRODUCT_LIST_EXT',
 			],
 			'ERR_UNKNOWN' => [
 				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_DESTINATION_IS_UNKNOWN_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_DESTINATION_IS_ABSENT_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_DESTINATION_IS_UNKNOWN_PRODUCT_LIST',
 			],
 			'ERR_DISABLED' => [
 				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_DESTINATION_IS_DISABLE_PRODUCT',
@@ -1675,16 +1739,16 @@ class CCatalogMovingDocs extends CCatalogDocsTypes
 	{
 		return [
 			'ERR_ABSENT' => [
-				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_SOURCE_IS_ABSENT_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_SOURCE_IS_ABSENT_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_FROM_IS_ABSENT_PRODUCT',
+				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_FROM_IS_ABSENT_PRODUCT_LIST',
 			],
 			'ERR_UNKNOWN' => [
-				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_SOURCE_IS_UNKNOWN_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_SOURCE_IS_ABSENT_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_FROM_IS_UNKNOWN_PRODUCT',
+				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_FROM_IS_UNKNOWN_PRODUCT_LIST',
 			],
 			'ERR_DISABLED' => [
-				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_SOURCE_IS_DISABLE_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_SOURCE_IS_DISABLE_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_FROM_IS_DISABLE_PRODUCT',
+				'CATALOG_STORE_DOCS_ERR_MOVING_STORE_FROM_IS_DISABLE_PRODUCT_LIST',
 			],
 		];
 	}
@@ -1698,10 +1762,21 @@ class CCatalogReturnsDocs extends CCatalogDocsTypes
 	public static function getElementFields(): array
 	{
 		return [
-			'ELEMENT_ID' => ['required' => 'Y'],
-			'AMOUNT' => ['required' => 'Y'],
-			'STORE_TO' => ['required' => 'Y'],
-			'BAR_CODE' => ['required' => 'Y'],
+			'AMOUNT' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_AMOUNT'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_AMOUNT'),
+			],
+			'STORE_TO' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_STORE_TO'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_STORE_TO'),
+			],
+			'BAR_CODE' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_BARCODE'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_BARCODE'),
+			],
 		];
 	}
 
@@ -1819,11 +1894,11 @@ class CCatalogReturnsDocs extends CCatalogDocsTypes
 		return [
 			'ERR_ABSENT' => [
 				'CATALOG_STORE_DOCS_ERR_RETURNS_STORE_DESTINATION_IS_ABSENT_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_RETURNS_STORE_DESTINATION_IS_ABSENT_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_RETURNS_STORE_DESTINATION_IS_ABSENT_PRODUCT_LIST_EXT',
 			],
 			'ERR_UNKNOWN' => [
 				'CATALOG_STORE_DOCS_ERR_RETURNS_STORE_DESTINATION_IS_UNKNOWN_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_RETURNS_STORE_DESTINATION_IS_ABSENT_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_RETURNS_STORE_DESTINATION_IS_UNKNOWN_PRODUCT_LIST',
 			],
 			'ERR_DISABLED' => [
 				'CATALOG_STORE_DOCS_ERR_RETURNS_STORE_DESTINATION_IS_DISABLE_PRODUCT',
@@ -1849,10 +1924,21 @@ class CCatalogDeductDocs extends CCatalogDocsTypes
 	public static function getElementFields(): array
 	{
 		return [
-			'ELEMENT_ID' => ['required' => 'Y'],
-			'AMOUNT' => ['required' => 'Y'],
-			'BAR_CODE' => ['required' => 'Y'],
-			'STORE_FROM' => ['required' => 'Y'],
+			'AMOUNT' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_AMOUNT'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_AMOUNT'),
+			],
+			'BAR_CODE' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_BARCODE'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_BARCODE'),
+			],
+			'STORE_FROM' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_DEDUCT_STORE_FROM'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_DEDUCT_STORE_FROM'),
+			],
 		];
 	}
 
@@ -1970,11 +2056,11 @@ class CCatalogDeductDocs extends CCatalogDocsTypes
 		return [
 			'ERR_ABSENT' => [
 				'CATALOG_STORE_DOCS_ERR_DEDUCT_STORE_SOURCE_IS_ABSENT_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_DEDUCT_STORE_SOURCE_IS_ABSENT_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_DEDUCT_STORE_SOURCE_IS_ABSENT_PRODUCT_LIST_EXT',
 			],
 			'ERR_UNKNOWN' => [
 				'CATALOG_STORE_DOCS_ERR_DEDUCT_STORE_SOURCE_IS_UNKNOWN_PRODUCT',
-				'CATALOG_STORE_DOCS_ERR_DEDUCT_STORE_SOURCE_IS_ABSENT_PRODUCT_LIST',
+				'CATALOG_STORE_DOCS_ERR_DEDUCT_STORE_SOURCE_IS_UNKNOWN_PRODUCT_LIST',
 			],
 			'ERR_DISABLED' => [
 				'CATALOG_STORE_DOCS_ERR_DEDUCT_STORE_SOURCE_IS_DISABLE_PRODUCT',
@@ -1992,10 +2078,21 @@ class CCatalogUnReservedDocs extends CCatalogDocsTypes
 	public static function getElementFields(): array
 	{
 		return [
-			'ELEMENT_ID' => ['required' => 'Y'],
-			'AMOUNT' => ['required' => 'Y'],
-			'RESERVED' => ['required' => 'Y'],
-			'STORE_FROM' => ['required' => 'Y'],
+			'AMOUNT' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_AMOUNT'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_AMOUNT'),
+			],
+			'RESERVED' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_RESERVED'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_COMMON_RESERVED'),
+			],
+			'STORE_FROM' => [
+				'required' => 'Y',
+				'name' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_UNRESERVED_STORE_FROM'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCS_ELEMENT_FIELD_UNRESERVED_STORE_FROM'),
+			],
 		];
 	}
 

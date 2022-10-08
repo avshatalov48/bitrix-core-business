@@ -201,13 +201,11 @@ abstract class CLearnGraphNode implements ILearnGraphNode
 
 	protected static function _InsertOrUpdate ($arInFields, $mode, $id = false)
 	{
-		global $DB, $USER, $DBType;
+		global $DB, $USER;
 
 		$createdBy = 1;
 		if (is_object($USER) && method_exists($USER, 'getId'))
 			$createdBy = (int) $USER->getId();
-
-		$dbtype = mb_strtolower($DBType);
 
 		switch ($mode)
 		{
@@ -252,45 +250,17 @@ abstract class CLearnGraphNode implements ILearnGraphNode
 		{
 			$arInsert = $DB->PrepareInsert('b_learn_lesson', $arFieldsToDb);
 
-			if ($dbtype === 'oracle')
-			{
-				$newLessonId = intval($DB->NextID('sq_b_learn_lesson'));
+			$strSql =
+				"INSERT INTO b_learn_lesson 
+					(" . $arInsert[0] . ", 
+					TIMESTAMP_X, DATE_CREATE, CREATED_BY) " .
+				"VALUES 
+					(" . $arInsert[1] . ", "
+					. $DB->GetNowFunction() . ", " . $DB->GetNowFunction() . ", " . $createdBy . ")";
 
-				$strSql =
-					"INSERT INTO b_learn_lesson 
-						(ID, " . $arInsert[0] . ", 
-						TIMESTAMP_X, DATE_CREATE, CREATED_BY) " .
-					"VALUES 
-						(" . $newLessonId . ", " . $arInsert[1] . ", " 
-						. $DB->GetNowFunction() . ", " . $DB->GetNowFunction() . ", " . $createdBy . ")";
+			$rc = $DB->Query($strSql, true);
 
-				$arBinds = array();
-
-				if (array_key_exists('PREVIEW_TEXT', $arFieldsToDb))
-					$arBinds['PREVIEW_TEXT'] = $arFieldsToDb['PREVIEW_TEXT'];
-
-				if (array_key_exists('DETAIL_TEXT', $arFieldsToDb))
-					$arBinds['DETAIL_TEXT'] = $arFieldsToDb['DETAIL_TEXT'];
-
-				if (array_key_exists('KEYWORDS', $arFieldsToDb))
-					$arBinds['KEYWORDS'] = $arFieldsToDb['KEYWORDS'];
-
-				$rc = $DB->QueryBind($strSql, $arBinds, true);
-			}
-			elseif (($dbtype === 'mssql') || ($dbtype === 'mysql'))
-			{
-				$strSql =
-					"INSERT INTO b_learn_lesson 
-						(" . $arInsert[0] . ", 
-						TIMESTAMP_X, DATE_CREATE, CREATED_BY) " .
-					"VALUES 
-						(" . $arInsert[1] . ", " 
-						. $DB->GetNowFunction() . ", " . $DB->GetNowFunction() . ", " . $createdBy . ")";
-
-				$rc = $DB->Query($strSql, true);
-
-				$newLessonId = intval($DB->LastID());
-			}
+			$newLessonId = intval($DB->LastID());
 		}
 		else	// update
 		{
@@ -303,25 +273,7 @@ abstract class CLearnGraphNode implements ILearnGraphNode
 					TIMESTAMP_X = " . $DB->GetNowFunction()
 				. " WHERE ID = " . ($id + 0);
 
-			if ($dbtype === 'oracle')
-			{
-				$arBinds = array();
-
-				if (array_key_exists('PREVIEW_TEXT', $arFieldsToDb))
-					$arBinds['PREVIEW_TEXT'] = $arFieldsToDb['PREVIEW_TEXT'];
-
-				if (array_key_exists('DETAIL_TEXT', $arFieldsToDb))
-					$arBinds['DETAIL_TEXT'] = $arFieldsToDb['DETAIL_TEXT'];
-
-				if (array_key_exists('KEYWORDS', $arFieldsToDb))
-					$arBinds['KEYWORDS'] = $arFieldsToDb['KEYWORDS'];
-
-				$rc = $DB->QueryBind($strSql, $arBinds);
-			}
-			elseif (($dbtype === 'mssql') || ($dbtype === 'mysql'))
-			{
-				$rc = $DB->Query($strSql, $bIgnoreErrors = true);
-			}
+			$rc = $DB->Query($strSql, $bIgnoreErrors = true);
 
 			// TIMESTAMP_X - date when data last changed, so update it
 			$arFieldsToDb['TIMESTAMP_X'] = $DB->GetNowFunction();

@@ -1,8 +1,16 @@
 <?php
-\Bitrix\Main\UI\Extension::load("ui.buttons");
-\Bitrix\Main\UI\Extension::load("ui.buttons.icons");
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ui.buttons',
+	'ui.buttons.icons',
+]);
 
 /** @var CBitrixComponentTemplate $this */
 
@@ -175,7 +183,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 			background-color: white;
 			border: 1px solid #D0D8D9;
 			box-shadow: 1px 1px 2px 0 rgba(88, 112, 118, 0.1);
-			border-radius: 2px;
+			border-radius: var(--ui-border-radius-2xs, 2px);
 			color: gray;
 			font-size: 14px;
 			margin: 0 3px 23px;
@@ -1110,9 +1118,12 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 			</thead>
 			<tbody>
 			<!-- data -->
-			<? $rowNum = 0; ?>
+			<?
+				$rowNum = 0;
+				$lastRowNum = count($arResult['data']) - 1;
+			?>
 			<? foreach ($arResult['data'] as $row): ?>
-				<tr class="reports-list-item">
+				<tr class="reports-list-item<?=($lastRowNum === $rowNum ? ' reports-list-last-item' : '')?>">
 					<? $i = 0; foreach($arResult['viewColumns'] as $col): ?>
 						<?
 							$i++;

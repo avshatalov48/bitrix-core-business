@@ -43,7 +43,7 @@
 	display: flex;
 	margin: 15px 0 0 0;
 	height: 32px;
-	font-family: "HelveticaNeue", Helvetica, Arial, sans-serif;;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));;
 	font-size: 13px;
 	color: #a8adb4;
 }

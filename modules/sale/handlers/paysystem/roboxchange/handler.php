@@ -66,7 +66,7 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 			'PS_MODE' => self::getHandlerModeAlias($this->service->getField('PS_MODE')),
 			'SIGNATURE_VALUE' => $this->getSignatureValue($payment, $receipt, $additionalUserFields),
 			'ROBOXCHANGE_ORDERDESCR' => $this->getOrderDescription($payment),
-			'PAYMENT_ID' => $this->getBusinessValue($payment, 'PAYMENT_ID'),
+			'PAYMENT_ID' => $payment->getId(),
 			'SUM' => PriceMaths::roundPrecision($payment->getSum()),
 			'CURRENCY' => $payment->getField('CURRENCY'),
 			'OUT_SUM_CURRENCY' => $this->getOutSumCurrency($payment),
@@ -117,7 +117,7 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 		$signaturePartList = [
 			$this->getBusinessValue($payment, 'ROBOXCHANGE_SHOPLOGIN'),
 			$payment->getSum(),
-			$this->getBusinessValue($payment, 'PAYMENT_ID'),
+			$payment->getId(),
 		];
 
 		if ($receipt)

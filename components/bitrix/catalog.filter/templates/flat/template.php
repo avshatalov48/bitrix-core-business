@@ -11,6 +11,8 @@
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
+
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 $this->addExternalCss("/bitrix/css/main/bootstrap.css");
 ?>
 <div class="bx-flat-filter">

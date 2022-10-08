@@ -13,14 +13,9 @@ use Bitrix\Main\UI\PageNavigation;
 final class Store extends Controller
 {
 	//region Actions
-	public function getFieldsAction()
+	public function getFieldsAction(): array
 	{
-		$view = $this->getViewManager()
-			->getView($this);
-
-		return ['STORE'=>$view->prepareFieldInfos(
-			$view->getFields()
-		)];
+		return ['STORE' => $this->getViewFields()];
 	}
 
 	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)

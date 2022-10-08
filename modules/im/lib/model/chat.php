@@ -1,8 +1,11 @@
 <?php
 namespace Bitrix\Im\Model;
 
+use Bitrix\Im\Internals\ChatIndex;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Search\MapBuilder;
+
 Loc::loadMessages(__FILE__);
 
 /**
@@ -96,7 +99,7 @@ class ChatTable extends Entity\DataManager
 				'data_type' => 'string',
 				'validation' => array(__CLASS__, 'validateType'),
 				'title' => Loc::getMessage('CHAT_ENTITY_TYPE_FIELD'),
-				'default_value' => 'P',
+				'default_value' => 'C',
 			),
 			'EXTRANET' => array(
 				'data_type' => 'boolean',
@@ -202,62 +205,85 @@ class ChatTable extends Entity\DataManager
 		if (isset($fields['TITLE']))
 		{
 			$primary = $event->getParameter("id");
-			static::indexRecord($primary["ID"]);
+
+			$chatIndex =
+				ChatIndex::create()
+					->setChatId((int)$primary["ID"])
+			;
+			static::updateIndexRecord($chatIndex);
 		}
 
 		return new Entity\EventResult();
 	}
 
-	public static function indexRecord($id)
+	public static function indexRecord(ChatIndex $chatIndex)
 	{
-		$id = (int)$id;
-		if($id == 0)
+		if ($chatIndex->getChatId() === 0)
 		{
 			return;
 		}
 
-		$record = parent::getByPrimary($id)->fetch();
+		$record = static::getRecordChatData($chatIndex->getChatId());
 		if(!is_array($record))
 		{
 			return;
 		}
 
-		if (in_array($record['TYPE'], [\Bitrix\Im\Chat::TYPE_SYSTEM, \Bitrix\Im\Chat::TYPE_PRIVATE]))
-		{
-			return;
-		}
+		$chatIndex->setTitle($record['TITLE']);
 
-		if ($record['ENTITY_TYPE'] === 'LIVECHAT')
-		{
-			return;
-		}
-
-		ChatIndexTable::merge(array(
-			'CHAT_ID' => $id,
-			'SEARCH_TITLE' => $record['TITLE'],
-			'SEARCH_CONTENT' => self::generateSearchContent($record)
-		));
+		ChatIndexTable::merge([
+			'CHAT_ID' => $chatIndex->getChatId(),
+			'SEARCH_CONTENT' => MapBuilder::create()->addText(self::generateSearchContent($chatIndex))->build(),
+			'SEARCH_TITLE' => MapBuilder::create()->addText(self::generateSearchTitle($chatIndex))->build(),
+		]);
 	}
+
+	public static function addIndexRecord(ChatIndex $index)
+	{
+		if ($index->getChatId() === 0)
+		{
+			return;
+		}
+		$insertData = self::prepareParamsForIndex($index);
+
+		ChatIndexTable::add($insertData);
+	}
+
+	public static function updateIndexRecord(ChatIndex $index)
+	{
+		$record = static::getRecordChatData($index->getChatId());
+		if(!is_array($record))
+		{
+			return;
+		}
+
+		$index->setTitle($record['TITLE']);
+		$updateData = self::prepareParamsForIndex($index);
+
+		ChatIndexTable::updateIndex(
+			$index->getChatId(),
+			'CHAT_ID',
+			$updateData
+		);
+	}
+
 
 	/**
-	 * @param array $fields Record as returned by getList
+	 * @param ChatIndex $chatIndex
 	 * @return string
 	 */
-	public static function generateSearchContent(array $fields)
+	public static function generateSearchContent(ChatIndex $chatIndex)
 	{
-		$indexTitle = $fields['TITLE'];
+		$indexTitle = $chatIndex->getClearedTitle();
+		$userNameList = static::getChatUserNameList($chatIndex);
 
-		$record = ChatIndexTable::getByPrimary($fields['ID'])->fetch();
-		if ($record && $record['SEARCH_USERS'])
-		{
-			$indexTitle .= ' '.$record['SEARCH_USERS'];
-		}
-
-		$result = \Bitrix\Main\Search\MapBuilder::create()->addText($indexTitle)->build();
-
-		return $result;
+		return $indexTitle . ' ' . implode(' ', $userNameList);
 	}
 
+	public static function generateSearchTitle(ChatIndex $chatIndex): string
+	{
+		return $chatIndex->getClearedTitle();
+	}
 
 	public static function validateTitle()
 	{
@@ -310,5 +336,58 @@ class ChatTable extends Entity\DataManager
 		return array(
 			new Entity\Validator\Length(null, 50),
 		);
+	}
+
+	/**
+	 * @param int $id
+	 * @return array|false
+	 */
+	private static function getRecordChatData(int $id)
+	{
+		return
+			self::query()
+				->setSelect(['*'])
+				->where('ID', $id)
+				->whereNot('ENTITY_TYPE', 'LIVECHAT')
+				->whereNotIn('TYPE', [\Bitrix\Im\Chat::TYPE_SYSTEM, \Bitrix\Im\Chat::TYPE_PRIVATE])
+				->fetch()
+			;
+	}
+
+	private static function getChatUserNameList(ChatIndex $chatIndex): array
+	{
+		if (!$chatIndex->isEmptyUsers())
+		{
+			return $chatIndex->getClearedUserList();
+		}
+
+		$query =
+			\Bitrix\Im\Model\RelationTable::query()
+				->addSelect('USER_ID')
+				->where('CHAT_ID', $chatIndex->getChatId())
+				->setLimit(100)
+		;
+
+		$clearedUsers = [];
+		foreach ($query->exec() as $relation)
+		{
+			$rowUserName = \Bitrix\Im\User::getInstance($relation['USER_ID'])->getFullName(false);
+			$clearedUsers[] = ChatIndex::clearText($rowUserName);
+		}
+
+		return $clearedUsers;
+	}
+
+	/**
+	 * @param ChatIndex $index
+	 * @return array{CHAT_ID: string, SEARCH_CONTENT: string, SEARCH_TITLE: string}
+	 */
+	private static function prepareParamsForIndex(ChatIndex $index): array
+	{
+		return [
+			'CHAT_ID' => $index->getChatId(),
+			'SEARCH_CONTENT' => MapBuilder::create()->addText(self::generateSearchContent($index))->build(),
+			'SEARCH_TITLE' => MapBuilder::create()->addText(self::generateSearchTitle($index))->build(),
+		];
 	}
 }

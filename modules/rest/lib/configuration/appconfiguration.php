@@ -2,12 +2,13 @@
 
 namespace Bitrix\Rest\Configuration;
 
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Rest\AppLogTable;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\EventTable;
 use Bitrix\Rest\Event\Sender;
 use Bitrix\Main\Event;
-use CRestUtil;
+use Bitrix\Rest\Marketplace\Application;
 
 class AppConfiguration
 {
@@ -145,9 +146,19 @@ class AppConfiguration
 		$result = false;
 		if (!empty($item['CONTENT']['DATA']['code']))
 		{
-			$code = $item['CONTENT']['DATA']['code'];
-			$result = CRestUtil::InstallApp($code);
-			if ($result === true)
+			$code = preg_replace('/[^a-zA-Z0-9._\-]/', '', $item['CONTENT']['DATA']['code']);
+			if ($code !== $item['CONTENT']['DATA']['code'])
+			{
+				return [
+					'ERROR_EXCEPTION' => [
+						'message' => Loc::getMessage(
+							'REST_CONFIGURATION_ERROR_UNKNOWN_APP'
+						),
+					],
+				];
+			}
+			$result = Application::install($code);
+			if ($result['success'])
 			{
 				$res = AppTable::getList(
 					[
@@ -201,6 +212,32 @@ class AppConfiguration
 					}
 				}
 			}
+			elseif (is_array($result) && $result['errorDescription'])
+			{
+				$result['ERROR_EXCEPTION']['message'] = Loc::getMessage(
+					'REST_CONFIGURATION_ERROR_INSTALL_APP_CONTENT_DATA',
+					[
+						'#ERROR_CODE#' => $result['error'],
+						'#ERROR_MESSAGE#' => $result['errorDescription'],
+					]
+				);
+			}
+			else
+			{
+				$result['ERROR_EXCEPTION']['message'] = Loc::getMessage(
+					'REST_CONFIGURATION_ERROR_INSTALL_APP_CONTENT'
+				);
+			}
+		}
+		else
+		{
+			return [
+				'ERROR_EXCEPTION' => [
+					'message' => Loc::getMessage(
+						'REST_CONFIGURATION_ERROR_UNKNOWN_APP'
+					),
+				],
+			];
 		}
 
 		return $result;

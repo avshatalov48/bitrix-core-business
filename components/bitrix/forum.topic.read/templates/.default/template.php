@@ -16,7 +16,6 @@ $message = (is_array($message) ? $message : array($message));
 $arUserSettings = array("first_post" => "show");
 if ($arParams["SHOW_FIRST_POST"] == "Y" && $GLOBALS["USER"]->IsAuthorized())
 {
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 	$arUserSettings = CUserOptions::GetOption("forum", "default_template", "");
 	$arUserSettings = (CheckSerializedData($arUserSettings) ? @unserialize($arUserSettings, ["allowed_classes" => false]) : array());
 

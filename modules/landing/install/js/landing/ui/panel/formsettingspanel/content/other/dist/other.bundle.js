@@ -3,7 +3,7 @@ this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 this.BX.Landing.Ui.Panel = this.BX.Landing.Ui.Panel || {};
 this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettingspanel || {};
-(function (exports,landing_ui_card_headercard,landing_loc,landing_ui_form_formsettingsform,landing_ui_field_textfield,landing_ui_panel_basepresetpanel,main_core_events,landing_ui_field_basefield,ui_entitySelector,landing_pageobject,main_core,landing_ui_card_basecard) {
+(function (exports,ui_designTokens,landing_ui_card_headercard,landing_loc,landing_ui_form_formsettingsform,landing_ui_field_textfield,landing_ui_panel_basepresetpanel,main_core_events,landing_ui_field_basefield,ui_entitySelector,landing_pageobject,main_core,landing_ui_card_basecard) {
 	'use strict';
 
 	var UserSelectorField = /*#__PURE__*/function (_BaseField) {
@@ -67,6 +67,10 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	}(landing_ui_field_basefield.BaseField);
 
 	var _templateObject;
+
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	var Other = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(Other, _ContentWrapper);
@@ -237,7 +241,7 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        }
 	      }
 
-	      this.emit('onChange', babelHelpers.objectSpread({}, event.getData(), {
+	      this.emit('onChange', _objectSpread(_objectSpread({}, event.getData()), {}, {
 	        skipPrepare: true
 	      }));
 	    }
@@ -247,5 +251,5 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 
 	exports.default = Other;
 
-}((this.BX.Landing.Ui.Panel.Formsettingspanel.Content = this.BX.Landing.Ui.Panel.Formsettingspanel.Content || {}),BX.Landing.UI.Card,BX.Landing,BX.Landing.UI.Form,BX.Landing.UI.Field,BX.Landing.UI.Panel,BX.Event,BX.Landing.UI.Field,BX.UI.EntitySelector,BX.Landing,BX,BX.Landing.UI.Card));
+}((this.BX.Landing.Ui.Panel.Formsettingspanel.Content = this.BX.Landing.Ui.Panel.Formsettingspanel.Content || {}),BX,BX.Landing.UI.Card,BX.Landing,BX.Landing.UI.Form,BX.Landing.UI.Field,BX.Landing.UI.Panel,BX.Event,BX.Landing.UI.Field,BX.UI.EntitySelector,BX.Landing,BX,BX.Landing.UI.Card));
 //# sourceMappingURL=other.bundle.js.map

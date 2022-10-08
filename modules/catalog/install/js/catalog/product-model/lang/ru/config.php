@@ -4,3 +4,4 @@ $MESS["CATALOG_PRODUCT_MODEL_SAVING_NOTIFICATION_DECLINE_SAVE"] = "Отмени�
 $MESS["CATALOG_PRODUCT_MODEL_SAVING_NOTIFICATION_PRICE_CHANGED_QUERY"] = "Цена товара будет сохранена в каталоге.";
 $MESS["CATALOG_PRODUCT_MODEL_SAVING_NOTIFICATION_MEASURE_CHANGED_QUERY"] = "Единица изменения товара будет сохранена в каталоге.";
 $MESS["CATALOG_PRODUCT_MODEL_SAVING_NOTIFICATION_BRAND_CHANGED_QUERY"] = "Бренд товара будет сохранен в каталоге.";
+$MESS["CATALOG_PRODUCT_MODEL_ERROR_NOTIFICATION"] = "Заполните обязательные поля";

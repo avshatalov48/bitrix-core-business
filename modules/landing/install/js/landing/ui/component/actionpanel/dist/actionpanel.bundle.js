@@ -1,58 +1,14 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,main_core_events) {
+(function (exports,ui_designTokens,main_core,main_core_events) {
 	'use strict';
 
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div \n\t\t\t\tclass=\"landing-ui-component-action-panel-button\"\n\t\t\t\tonclick=\"", "\"\n\t\t\t\tdata-id=\"", "\"\n\t\t\t>", "</div>\n\t\t"]);
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
 
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-action-panel-right\"></div>\n\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-action-panel-center\"></div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-action-panel-left\"></div>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-action-panel\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var ActionPanel = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(ActionPanel, _EventEmitter);
 
@@ -64,7 +20,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    _this.setEventNamespace('BX.Landing.UI.Component.ActionPanel');
 
-	    _this.options = babelHelpers.objectSpread({}, options);
+	    _this.options = _objectSpread({}, options);
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    var _this$options = _this.options,
 	        left = _this$options.left,
@@ -73,7 +29,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    if (main_core.Type.isArray(left)) {
 	      left.forEach(function (item) {
-	        return _this.addItem(babelHelpers.objectSpread({}, item, {
+	        return _this.addItem(_objectSpread(_objectSpread({}, item), {}, {
 	          align: 'left'
 	        }));
 	      });
@@ -81,7 +37,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    if (main_core.Type.isArray(center)) {
 	      center.forEach(function (item) {
-	        return _this.addItem(babelHelpers.objectSpread({}, item, {
+	        return _this.addItem(_objectSpread(_objectSpread({}, item), {}, {
 	          align: 'center'
 	        }));
 	      });
@@ -89,7 +45,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    if (main_core.Type.isArray(right)) {
 	      right.forEach(function (item) {
-	        return _this.addItem(babelHelpers.objectSpread({}, item, {
+	        return _this.addItem(_objectSpread(_objectSpread({}, item), {}, {
 	          align: 'right'
 	        }));
 	      });
@@ -112,7 +68,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject(), _this2.getLeftContainer(), _this2.getCenterContainer(), _this2.getRightContainer());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-action-panel\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this2.getLeftContainer(), _this2.getCenterContainer(), _this2.getRightContainer());
 	      });
 	    }
 	  }, {
@@ -124,27 +80,27 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getLeftContainer",
 	    value: function getLeftContainer() {
 	      return this.cache.remember('leftContainer', function () {
-	        return main_core.Tag.render(_templateObject2());
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-action-panel-left\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
 	    key: "getCenterContainer",
 	    value: function getCenterContainer() {
 	      return this.cache.remember('centerContainer', function () {
-	        return main_core.Tag.render(_templateObject3());
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-action-panel-center\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
 	    key: "getRightContainer",
 	    value: function getRightContainer() {
 	      return this.cache.remember('rightContainer', function () {
-	        return main_core.Tag.render(_templateObject4());
+	        return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-action-panel-right\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
 	    key: "addItem",
 	    value: function addItem(itemOptions) {
-	      var item = main_core.Tag.render(_templateObject5(), itemOptions.onClick, itemOptions.id, main_core.Text.encode(itemOptions.text));
+	      var item = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div \n\t\t\t\tclass=\"landing-ui-component-action-panel-button\"\n\t\t\t\tonclick=\"", "\"\n\t\t\t\tdata-id=\"", "\"\n\t\t\t>", "</div>\n\t\t"])), itemOptions.onClick, itemOptions.id, main_core.Text.encode(itemOptions.text));
 
 	      if (itemOptions.align === 'left') {
 	        main_core.Dom.append(item, this.getLeftContainer());
@@ -164,5 +120,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.ActionPanel = ActionPanel;
 
-}((this.BX.Landing.UI.Component = this.BX.Landing.UI.Component || {}),BX,BX.Event));
+}((this.BX.Landing.UI.Component = this.BX.Landing.UI.Component || {}),BX,BX,BX.Event));
 //# sourceMappingURL=actionpanel.bundle.js.map

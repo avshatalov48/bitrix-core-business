@@ -1,3 +1,4 @@
+import 'ui.fonts.opensans';
 import './style.css';
 import {Item, ItemOptions} from './item.js';
 import {Collection} from './collection.js';

@@ -15,9 +15,9 @@ export class IphoneProvider extends ConnectionProvider
 			viewClassification: 'mobile',
 			templateClass: 'BX.Calendar.Sync.Interface.IphoneTemplate',
 		});
-		this.syncTimestamp = options.syncInfo.syncTimestamp;
 		this.connectionName = Loc.getMessage('CALENDAR_TITLE_IPHONE');
 
+		this.setSyncDate(options.syncInfo.syncOffset);
 		this.setConnections();
 	}
 }

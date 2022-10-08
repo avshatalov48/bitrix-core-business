@@ -15,6 +15,7 @@
 
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Authentication\Policy;
+use Bitrix\Main\Authentication\Device;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -193,6 +194,9 @@ $arAllOptions = array(
 		array("use_time_zones", GetMessage("MAIN_OPT_USE_TIMEZONES"), "N", array("checkbox", "Y", 'onclick="this.form.default_time_zone.disabled = this.form.auto_time_zone.disabled = !this.checked;"')),
 		array("default_time_zone", GetMessage("MAIN_OPT_TIME_ZONE_DEF"), "", array("selectbox", $aZones)),
 		array("auto_time_zone", GetMessage("MAIN_OPT_TIME_ZONE_AUTO"), "N", array("checkbox", "Y")),
+
+		GetMessage('main_options_geo'),
+		array("collect_geonames", GetMessage('main_options_geo_collect_names'), "N", array("checkbox", "Y")),
 	),
 	"mail" => array(
 		GetMessage("main_options_mail"),
@@ -259,6 +263,13 @@ $arAllOptions = array(
 		GetMessage("MAIN_OPT_PROFILE"),
 		Array("user_profile_history", GetMessage("MAIN_OPT_PROFILE_HYSTORY"), "N", Array("checkbox", "Y")),
 		Array("profile_history_cleanup_days", GetMessage("MAIN_OPT_HISTORY_DAYS"), "0", Array("text", 5)),
+
+		GetMessage('main_options_device_history_title'),
+		Array('user_device_history', GetMessage('main_options_device_history'), 'N', ['checkbox', 'Y']),
+		Array('device_history_cleanup_days', GetMessage('main_options_device_history_days'), '180', ['text', 5]),
+		Array('user_device_geodata', GetMessage('main_options_device_geoip'), 'N', ['checkbox', 'Y']),
+		Array('user_device_notify', GetMessage('main_options_device_history_notify', ['#EMAIL_TEMPLATES_URL#' => '/bitrix/admin/message_admin.php?lang=' . LANGUAGE_ID . '&amp;set_filter=Y&amp;find_type_id=' . Device::EMAIL_EVENT]), 'N', ['checkbox', 'Y']),
+		Array('note' => GetMessage('main_options_device_history_note')),
 	),
 	"update" => Array(
 		Array("update_devsrv", GetMessage("MAIN_OPTIONS_UPDATE_DEVSRV"), "N", Array("checkbox", "Y")),

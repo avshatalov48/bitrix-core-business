@@ -1,7 +1,7 @@
 <?
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-__IncludeLang(dirname(__FILE__)."/lang/".LANGUAGE_ID."/gplus.php");
+__IncludeLang(__DIR__."/lang/".LANGUAGE_ID."/gplus.php");
 $name = "gplus";
 $title = GetMessage("BOOKMARK_HANDLER_GOOGLE_PLUS");
 $icon_url_template = "

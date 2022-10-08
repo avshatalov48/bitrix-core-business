@@ -11,7 +11,7 @@ if(!isset($USER)) {global $USER;}
 if(!isset($APPLICATION)) {global $APPLICATION;}
 if(!isset($DB)) {global $DB;}
 
-require_once(dirname(__FILE__)."/../include.php");
+require_once(__DIR__."/../include.php");
 
 CMain::PrologActions();
 ?>

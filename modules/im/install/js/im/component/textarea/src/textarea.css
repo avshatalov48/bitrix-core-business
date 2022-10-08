@@ -21,7 +21,7 @@
 	min-height: auto;
 	border: none;
 	background: transparent;
-	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 	resize: none;
 	outline: none;

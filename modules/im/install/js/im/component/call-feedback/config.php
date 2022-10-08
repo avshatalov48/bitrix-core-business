@@ -9,6 +9,8 @@ return [
 	'js' => 'dist/call-feedback.bundle.js',
 	'rel' => [
 		'main.polyfill.core',
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 		'ui.vue',
 		'ui.forms',
 		'main.popup',

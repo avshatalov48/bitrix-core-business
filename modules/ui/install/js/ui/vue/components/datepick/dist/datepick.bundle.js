@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 this.BX.UI.Vue = this.BX.UI.Vue || {};
-(function (exports,main_core,main_popup,ui_vue) {
+(function (exports,ui_designTokens,main_core,main_popup,ui_vue) {
 	'use strict';
 
 	var Format = {
@@ -731,5 +731,5 @@ this.BX.UI.Vue = this.BX.UI.Vue || {};
 
 	exports.DatePick = DatePick;
 
-}((this.BX.UI.Vue.Components = this.BX.UI.Vue.Components || {}),BX,BX.Main,BX));
+}((this.BX.UI.Vue.Components = this.BX.UI.Vue.Components || {}),BX,BX,BX.Main,BX));
 //# sourceMappingURL=datepick.bundle.js.map

@@ -29,6 +29,11 @@ CJSCore::Init(array('lists'));
 		}
 		elseif(!IsModuleInstalled("intranet"))
 		{
+			\Bitrix\Main\UI\Extension::load([
+				'ui.design-tokens',
+				'ui.fonts.opensans',
+			]);
+
 			$APPLICATION->SetAdditionalCSS("/bitrix/js/lists/css/intranet-common.css");
 		}
 	?>

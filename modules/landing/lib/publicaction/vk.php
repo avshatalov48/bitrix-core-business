@@ -82,7 +82,6 @@ class Vk
 		}
 		else
 		{
-			$response->getErrors();
 			$error = new Error;
 			foreach ($response->getErrors() as $err)
 			{

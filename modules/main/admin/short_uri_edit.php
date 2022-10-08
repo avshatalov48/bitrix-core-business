@@ -142,6 +142,8 @@ $tabControl->BeginNextTab();
 		<td><span id="id_short_uri_span"></span>
 <?
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
+$proto = $request->isHttps() ? "https://" : "http://";
+$host = $request->getHttpHost();
 ?>
 			<script type="text/javascript">
 				function ShortUriChangeHandler(val)
@@ -149,11 +151,11 @@ $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 					var d = document.getElementById("id_short_uri_span");
 					if (d)
 					{
-						d.innerHTML = '<a href="<?= ($request->isHttps()? "https://" : "http://").$request->getHttpHost()?>/' + BX.util.htmlspecialchars(encodeURI(val)) +'"><?= ($request->isHttps()? "https://" : "http://").$request->getHttpHost()?>/' + BX.util.htmlspecialchars(val) + '</a>';
+						d.innerHTML = '<a href="<?= $proto . $host ?>/' + BX.util.htmlspecialchars(encodeURI(val)) +'"><?= $proto . $host ?>/' + BX.util.htmlspecialchars(val) + '</a>';
 					}
 				}
 
-				setTimeout("ShortUriChangeHandler('<?=CUtil::JSEscape(htmlspecialcharsback($str_SHORT_URI))?>')", 2);
+				setTimeout(function () {ShortUriChangeHandler('<?=CUtil::JSEscape(htmlspecialcharsback($str_SHORT_URI))?>');}, 10);
 			</script>
 		</td>
 	</tr>

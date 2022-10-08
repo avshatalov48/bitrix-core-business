@@ -6,6 +6,7 @@ use Bitrix\Forum\Internals\Error\ErrorCollection;
 use Bitrix\Forum\MessageTable;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Web\Json;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Forum\Internals\Error\Error;
@@ -44,15 +45,12 @@ class Comment extends BaseObject
 			"XML_ID" => $this->getEntity()->getXmlId(),
 			"AUX" => ($params["AUX"] ?? 'N'),
 			"AUX_DATA" => ($params["AUX_DATA"] ?? ''),
-		);
-		if (array_key_exists("POST_DATE", $params))
-		{
-			$result["POST_DATE"] = $params["POST_DATE"];
-		}
-		if (array_key_exists("SOURCE_ID", $params))
-		{
-			$result["SOURCE_ID"] = $params["SOURCE_ID"];
-		}
+		) + array_intersect_key($params, array_flip([
+			"POST_DATE", "SOURCE_ID",
+			"AUTHOR_IP", "AUTHOR_REAL_IP",
+			"GUEST_ID"
+		]));
+
 		$errorCollection = new ErrorCollection();
 		if (isset($params["SERVICE_TYPE"]))
 		{
@@ -194,9 +192,10 @@ class Comment extends BaseObject
 			"AUTHOR_ID" => $this->getUser()->getId(),
 			"AUTHOR_NAME" => trim($params["AUTHOR_NAME"]),
 			"AUTHOR_EMAIL" => trim($params["AUTHOR_EMAIL"]),
-			"AUTHOR_IP" => "<no address>",
-			"AUTHOR_REAL_IP" => "<no address>",
-			"GUEST_ID" => $_SESSION["SESS_GUEST_ID"],
+
+			"AUTHOR_IP" => $params["AUTHOR_IP"] ?? "<no address>",
+			"AUTHOR_REAL_IP" => $params["AUTHOR_REAL_IP"] ?? "<no address>",
+			"GUEST_ID" => $params["GUEST_ID"] ?? null,
 
 			"AUX" => $params["AUX"],
 			"AUX_DATA" => $auxData,
@@ -204,21 +203,11 @@ class Comment extends BaseObject
 			"SERVICE_DATA" => ($params["SERVICE_DATA"] ?? null),
 
 			"UF_TASK_COMMENT_TYPE" => ($params["UF_TASK_COMMENT_TYPE"] ?? null),
-			'UF_FORUM_MES_URL_PRV' => ($params['UF_FORUM_MES_URL_PRV'] ?? null),
+			"UF_FORUM_MES_URL_PRV" => ($params["UF_FORUM_MES_URL_PRV"] ?? null),
 		);
 
 		if ($this->prepareFields($params, $this->errorCollection))
 		{
-			if ($realIp = \Bitrix\Main\Service\GeoIp\Manager::getRealIp())
-			{
-				$params["AUTHOR_IP"] = $realIp;
-				$params["AUTHOR_REAL_IP"] = $realIp;
-				if (\Bitrix\Main\Config\Option::get('forum', 'FORUM_GETHOSTBYADDR', 'N') === "Y")
-				{
-					$params["AUTHOR_REAL_IP"] = @gethostbyaddr($realIp);
-				}
-			}
-
 			/***************** Events OnBeforeCommentAdd ******************/
 			$event = new Event("forum", "OnBeforeCommentAdd", [
 				$this->getEntity()->getType(),

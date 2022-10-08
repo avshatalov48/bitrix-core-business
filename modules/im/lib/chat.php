@@ -37,6 +37,16 @@ class Chat
 		$messageType = trim($messageType);
 		$entityType = trim($entityType);
 
+		$chatId = null;
+		if (isset($chatData['ID']))
+		{
+			$chatId = (int)$chatData['ID'];
+		}
+		else if (isset($chatData['CHAT_ID']))
+		{
+			$chatId = (int)$chatData['CHAT_ID'];
+		}
+
 		if ($messageType == IM_MESSAGE_PRIVATE)
 		{
 			$result = 'private';
@@ -46,7 +56,7 @@ class Chat
 			// convert to camelCase
 			$result = str_replace('_', '', lcfirst(ucwords(mb_strtolower($entityType), '_')));
 		}
-		else if ($chatData['ID'] && $chatData['ID'] == \CIMChat::GetGeneralChatId())
+		else if ($chatId && $chatId === (int)\CIMChat::GetGeneralChatId())
 		{
 			$result = 'general';
 		}
@@ -191,8 +201,11 @@ class Chat
 			else
 			{
 				$customCounter = true;
-				$query = \Bitrix\Main\Application::getInstance()->getConnection()->query("
-					SELECT ID FROM b_im_message M WHERE M.CHAT_ID = {$chatId} ORDER BY ID DESC LIMIT 100
+				$query = $connection->query("
+					SELECT ID FROM b_im_message 
+					WHERE CHAT_ID = {$chatId} 
+					ORDER BY DATE_CREATE DESC, ID DESC
+					LIMIT 100
 				");
 				$messageCounter = 0;
 				while ($row = $query->fetch())
@@ -229,7 +242,7 @@ class Chat
 			{$limit} {$offset}
 		";
 		$relations = array();
-		$query = \Bitrix\Main\Application::getInstance()->getConnection()->query($sql);
+		$query = $connection->query($sql);
 		while ($row = $query->fetch())
 		{
 			if ($customCounter)

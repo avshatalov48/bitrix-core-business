@@ -9,11 +9,13 @@ return [
 	'css' => 'dist/automation.bundle.css',
 	'js' => 'dist/automation.bundle.js',
 	'rel' => [
+		'ui.entity-selector',
 		'main.popup',
 		'main.core.events',
 		'bizproc.automation',
-		'ui.fonts.opensans',
 		'main.core',
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

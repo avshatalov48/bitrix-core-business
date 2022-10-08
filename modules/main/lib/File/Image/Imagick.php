@@ -276,9 +276,16 @@ class Imagick extends Engine
 			return false;
 		}
 
-		$kernel = \ImagickKernel::fromMatrix($mask->getValue());
-
-		$this->image->filter($kernel);
+		$imVersion = \Imagick::getVersion();
+		if ($imVersion['versionNumber'] < 0x700 || phpversion('imagick') < '3.4.0')
+		{
+			$this->image->convolveImage($mask->getVector());
+		}
+		else
+		{
+			$kernel = \ImagickKernel::fromMatrix($mask->getValue());
+			$this->image->convolveImage($kernel);
+		}
 
 		return true;
 	}

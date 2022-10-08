@@ -176,12 +176,16 @@ class UserSettings
 			{
 				foreach($ids as $id)
 				{
-					if (intval($id) > 0)
+					if ((int)$id > 0)
 					{
-						$res[] = intval($id);
+						$res[] = (int)$id;
 					}
 				}
 			}
+		}
+		if (is_array($res) && !in_array($userId, $res))
+		{
+			$res[] = $userId;
 		}
 
 		if (isset($params['userList']))
@@ -265,10 +269,14 @@ class UserSettings
 	public static function setTrackingGroups($userId = false, $value = [])
 	{
 		if (!$userId)
+		{
 			$userId = \CCalendar::getUserId();
+		}
 
 		if (!is_array($value))
+		{
 			$value = [];
+		}
 
 		\CUserOptions::setOption("calendar", "superpose_tracking_groups", serialize($value), false, $userId);
 	}

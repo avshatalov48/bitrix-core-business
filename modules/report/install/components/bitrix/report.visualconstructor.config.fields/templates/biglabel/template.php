@@ -8,6 +8,8 @@ $events = $arResult['CONFIGURATION_FIELD_EVENTS'];
 $behaviours = $arResult['CONFIGURATION_FIELD_BEHAVIOURS'];
 $fieldName = $field->getName();
 $id = $field->getId();
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
 ?>
 <div class="report-configuration-item report-configuration-big-label-item">
 	<?php if ($field->isDisplayLabel()): ?>

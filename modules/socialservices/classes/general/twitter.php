@@ -606,7 +606,7 @@ class CTwitterInterface
 		]);
 		while($arSocUser = $dbSocUser->fetch())
 		{
-			$arUserPermis = unserialize($arSocUser["PERMISSIONS"]);
+			$arUserPermis = unserialize($arSocUser["PERMISSIONS"], ['allowed_classes' => false]);
 			if(is_array($arUserPermis))
 				foreach($arUserPermis as $key=>$value)
 					if($value == "UA")

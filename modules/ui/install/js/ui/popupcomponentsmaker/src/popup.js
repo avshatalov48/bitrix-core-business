@@ -1,20 +1,24 @@
-import PopupComponentsMakerItem from './popup.item';
 import { Type, Tag } from 'main.core';
 import { Popup } from 'main.popup';
 
+import PopupComponentsMakerItem from './popup.item';
+
+import 'ui.fonts.opensans';
+import 'ui.design-tokens';
+
 export class PopupComponentsMaker
 {
-	constructor(options = {})
+	constructor({ id, target, content, width, cacheable })
 	{
-		this.id = Type.isString(options.id) ? options.id : null;
-		this.target = Type.isElementNode(options.target) ? options.target : null;
-		this.content = options.content || null;
+		this.id = Type.isString(id) ? id : null;
+		this.target = Type.isElementNode(target) ? target : null;
+		this.content = content || null;
 		this.contentWrapper = null;
 		this.popup = null;
 		this.loader = null;
 		this.items = [];
-		this.width = Type.isNumber(options.width) ? options.width : null;
-		this.cacheable = Type.isBoolean(options.cacheable) ? options.cacheable : true;
+		this.width = Type.isNumber(width) ? width : null;
+		this.cacheable = Type.isBoolean(cacheable) ? cacheable : true;
 	}
 
 	getItems()
@@ -48,8 +52,8 @@ export class PopupComponentsMaker
 			const popupId = this.id ? this.id + '-popup' : null;
 
 			this.popup = new Popup(popupId, this.target, {
-				className: 'ui-qr-popupcomponentmaker',
-				// background: 'transparent',
+				className: 'ui-popupcomponentmaker',
+
 				contentBackground: 'transparent',
 				angle: {
 					offset: (popupWidth / 2) - 16
@@ -83,7 +87,7 @@ export class PopupComponentsMaker
 		if (!this.contentWrapper)
 		{
 			this.contentWrapper = Tag.render`
-				<div class="ui-qr-popupcomponentmaker__content"></div>
+				<div class="ui-popupcomponentmaker__content"></div>
 			`;
 
 			if (!this.content)
@@ -110,7 +114,7 @@ export class PopupComponentsMaker
 				if (Type.isArray(item?.html))
 				{
 					let innerSection = Tag.render`
-						<div class="ui-qr-popupcomponentmaker__content--section-item --flex-column --transparent"></div>
+						<div class="ui-popupcomponentmaker__content--section-item --flex-column --transparent"></div>
 					`;
 
 					item.html.map((itemObj)=> {
@@ -175,7 +179,7 @@ export class PopupComponentsMaker
 	getSection(): HTMLElement
 	{
 		return Tag.render`
-			<div class="ui-qr-popupcomponentmaker__content--section"></div>
+			<div class="ui-popupcomponentmaker__content--section"></div>
 		`;
 	}
 

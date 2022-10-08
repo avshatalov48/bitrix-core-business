@@ -33,7 +33,7 @@ class CBPWorkflowTemplateLoader
 	 *
 	 * @return CBPWorkflowTemplateLoader
 	 */
-	public static function GetLoader()
+	public static function getLoader()
 	{
 		if (!isset(self::$instance))
 		{
@@ -44,7 +44,7 @@ class CBPWorkflowTemplateLoader
 		return self::$instance;
 	}
 
-	public static function GetList($arOrder = array("ID" => "DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function getList($arOrder = array("ID" => "DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		$loader = CBPWorkflowTemplateLoader::GetLoader();
 		return $loader->GetTemplatesList($arOrder, $arFilter, $arGroupBy, $arNavStartParams, $arSelectFields);
@@ -67,7 +67,7 @@ class CBPWorkflowTemplateLoader
 		return true;
 	}
 
-	public function ValidateTemplate($arActivity, $user)
+	public function validateTemplate($arActivity, $user)
 	{
 		$errors = CBPActivity::CallStaticMethod(
 			$arActivity["Type"],
@@ -112,7 +112,7 @@ class CBPWorkflowTemplateLoader
 		return $errors;
 	}
 
-	protected function ParseFields(&$arFields, $id = 0, $systemImport = false, $validationRequired = true)
+	protected function parseFields(&$arFields, $id = 0, $systemImport = false, $validationRequired = true)
 	{
 		$id = intval($id);
 		$updateMode = ($id > 0 ? true : false);
@@ -228,13 +228,13 @@ class CBPWorkflowTemplateLoader
 		unset($arFields["MODIFIED"]);
 	}
 
-	public static function Add($arFields, $systemImport = false)
+	public static function add($arFields, $systemImport = false)
 	{
 		$loader = CBPWorkflowTemplateLoader::GetLoader();
 		return $loader->AddTemplate($arFields, $systemImport);
 	}
 
-	public static function Update($id, $arFields, $systemImport = false, $validationRequired = true)
+	public static function update($id, $arFields, $systemImport = false, $validationRequired = true)
 	{
 		$loader = CBPWorkflowTemplateLoader::GetLoader();
 		if (isset($arFields['TEMPLATE']) && !$systemImport)
@@ -244,7 +244,7 @@ class CBPWorkflowTemplateLoader
 		return $returnId;
 	}
 
-	private function GetSerializedForm($arTemplate)
+	private function getSerializedForm($arTemplate)
 	{
 		$buffer = serialize($arTemplate);
 		if ($this->useGZipCompression)
@@ -252,7 +252,7 @@ class CBPWorkflowTemplateLoader
 		return $buffer;
 	}
 
-	public static function Delete($id)
+	public static function delete($id)
 	{
 		$loader = CBPWorkflowTemplateLoader::GetLoader();
 		$loader->DeleteTemplate($id);
@@ -268,7 +268,7 @@ class CBPWorkflowTemplateLoader
 		unset(self::$workflowConstants[$id]);
 	}
 
-	public function DeleteTemplate($id)
+	public function deleteTemplate($id)
 	{
 		global $DB;
 
@@ -313,7 +313,7 @@ class CBPWorkflowTemplateLoader
 		}
 	}
 
-	public function LoadWorkflow($workflowTemplateId)
+	public function loadWorkflow($workflowTemplateId)
 	{
 		$workflowTemplateId = intval($workflowTemplateId);
 		if ($workflowTemplateId <= 0)
@@ -394,7 +394,7 @@ class CBPWorkflowTemplateLoader
 		return $activity;
 	}
 
-	private function CreateActivity($activityCode, $activityName): ?CBPActivity
+	private function createActivity($activityCode, $activityName): ?CBPActivity
 	{
 		if (CBPActivity::IncludeActivityFile($activityCode))
 		{
@@ -406,7 +406,7 @@ class CBPWorkflowTemplateLoader
 		}
 	}
 
-	public static function GetStatesOfTemplate($arWorkflowTemplate)
+	public static function getStatesOfTemplate($arWorkflowTemplate)
 	{
 		if (!is_array($arWorkflowTemplate))
 			throw new CBPArgumentTypeException("arWorkflowTemplate", "array");
@@ -421,7 +421,7 @@ class CBPWorkflowTemplateLoader
 		return $arStates;
 	}
 
-	private static function FindSetStateActivities($arWorkflowTemplate)
+	private static function findSetStateActivities($arWorkflowTemplate)
 	{
 		$arResult = array();
 
@@ -437,7 +437,7 @@ class CBPWorkflowTemplateLoader
 		return $arResult;
 	}
 
-	public static function GetTransfersOfState($arWorkflowTemplate, $stateName)
+	public static function getTransfersOfState($arWorkflowTemplate, $stateName)
 	{
 		if (!is_array($arWorkflowTemplate))
 			throw new CBPArgumentTypeException("arWorkflowTemplate", "array");
@@ -464,7 +464,7 @@ class CBPWorkflowTemplateLoader
 		return $arTransfers;
 	}
 
-	private static function ParseDocumentTypeStates($arTemplatesListItem)
+	private static function parseDocumentTypeStates($arTemplatesListItem)
 	{
 		$arWorkflowTemplate = $arTemplatesListItem["TEMPLATE"];
 		if (!is_array($arWorkflowTemplate))
@@ -549,7 +549,7 @@ class CBPWorkflowTemplateLoader
 		return $result;
 	}
 
-	private static function ExtractValuesFromVariables($ar, $variables, $constants = array())
+	private static function extractValuesFromVariables($ar, $variables, $constants = array())
 	{
 		if (is_string($ar) && preg_match(CBPActivity::ValuePattern, $ar, $arMatches))
 			$ar = array($arMatches['object'], $arMatches['field']);
@@ -579,7 +579,7 @@ class CBPWorkflowTemplateLoader
 		return $ar;
 	}
 
-	public static function GetDocumentTypeStates($documentType, $autoExecute = -1, $stateName = "")
+	public static function getDocumentTypeStates($documentType, $autoExecute = -1, $stateName = "")
 	{
 		$arFilter = array("DOCUMENT_TYPE" => $documentType);
 		$autoExecute = intval($autoExecute);
@@ -608,7 +608,7 @@ class CBPWorkflowTemplateLoader
 		return static::$typesStates[$cacheKey];
 	}
 
-	public static function GetTemplateState($workflowTemplateId, $stateName = "")
+	public static function getTemplateState($workflowTemplateId, $stateName = "")
 	{
 		$workflowTemplateId = intval($workflowTemplateId);
 		if ($workflowTemplateId <= 0)
@@ -707,7 +707,7 @@ class CBPWorkflowTemplateLoader
 		return $result;
 	}
 
-	public static function CheckWorkflowParameters($arTemplateParameters, $arPossibleValues, $documentType, &$arErrors)
+	public static function checkWorkflowParameters($arTemplateParameters, $arPossibleValues, $documentType, &$arErrors)
 	{
 		$arErrors = array();
 		$arWorkflowParameters = array();
@@ -746,7 +746,7 @@ class CBPWorkflowTemplateLoader
 		return $arWorkflowParameters;
 	}
 
-	public static function SearchTemplatesByDocumentType($documentType, $autoExecute = -1)
+	public static function searchTemplatesByDocumentType($documentType, $autoExecute = -1)
 	{
 		$result = array();
 
@@ -810,7 +810,7 @@ class CBPWorkflowTemplateLoader
 		return null;
 	}
 
-	public static function ExportTemplate($id, $bCompress = true)
+	public static function exportTemplate($id, $bCompress = true)
 	{
 		$tpl = \Bitrix\Bizproc\Workflow\Template\Entity\WorkflowTemplateTable::getById($id)->fetchObject();
 		if (!$tpl)
@@ -827,7 +827,7 @@ class CBPWorkflowTemplateLoader
 		return $packer->pack($tpl)->getPackage();
 	}
 
-	private static function WalkThroughWorkflowTemplate(&$arWorkflowTemplate, $callback, $user)
+	private static function walkThroughWorkflowTemplate(&$arWorkflowTemplate, $callback, $user)
 	{
 		foreach ($arWorkflowTemplate as $key => $value)
 		{
@@ -843,7 +843,7 @@ class CBPWorkflowTemplateLoader
 		return true;
 	}
 
-	private static function ImportTemplateChecker($arActivity, $user)
+	private static function importTemplateChecker($arActivity, $user)
 	{
 		$arErrors = CBPActivity::CallStaticMethod($arActivity["Type"], "ValidateProperties", array($arActivity["Properties"], $user));
 		if (count($arErrors) > 0)
@@ -860,7 +860,7 @@ class CBPWorkflowTemplateLoader
 		return true;
 	}
 
-	public static function ImportTemplate($id, $documentType, $autoExecute, $name, $description, $datum, $systemCode = null, $systemImport = false)
+	public static function importTemplate($id, $documentType, $autoExecute, $name, $description, $datum, $systemCode = null, $systemImport = false)
 	{
 
 		$packer = new \Bitrix\Bizproc\Workflow\Template\Packer\Bpt();
@@ -985,7 +985,7 @@ class CBPWorkflowTemplateLoader
 		}
 	}
 
-	public function GetTemplatesList($arOrder = array("ID" => "DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public function getTemplatesList($arOrder = array("ID" => "DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -1138,7 +1138,7 @@ class CBPWorkflowTemplateLoader
 		return $dbRes;
 	}
 
-	public function AddTemplate($arFields, $systemImport = false)
+	public function addTemplate($arFields, $systemImport = false)
 	{
 		global $DB;
 
@@ -1163,7 +1163,7 @@ class CBPWorkflowTemplateLoader
 		return intval($DB->LastID());
 	}
 
-	public function UpdateTemplate($id, $arFields, $systemImport = false, $validationRequired = true)
+	public function updateTemplate($id, $arFields, $systemImport = false, $validationRequired = true)
 	{
 		global $DB;
 
@@ -1225,7 +1225,7 @@ class CBPWorkflowTemplateResult extends CDBResult
 		parent::__construct($res);
 	}
 
-	private function GetFromSerializedForm($value)
+	private function getFromSerializedForm($value)
 	{
 		if ($value <> '')
 		{
@@ -1247,7 +1247,7 @@ class CBPWorkflowTemplateResult extends CDBResult
 		return $value;
 	}
 
-	function Fetch()
+	function fetch()
 	{
 		$res = parent::Fetch();
 

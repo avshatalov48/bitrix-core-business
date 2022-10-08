@@ -36,7 +36,9 @@ class FactoryComponents
 	/**
 	 * @param $properties
 	 * @param $subComponents
+	 *
 	 * @return $this
+	 * @throws IcalParserException
 	 */
 	public function createComponent($properties, $subComponents): FactoryComponents
 	{
@@ -57,6 +59,8 @@ class FactoryComponents
 			case 'vtimezone':
 				$this->component = $this->getTimezoneComponent($properties, $subComponents);
 				break;
+			case 'valarm':
+				break; //TODO: Add VALARM component support
 			default:
 				$this->addMessageLog();
 		}
@@ -116,7 +120,9 @@ class FactoryComponents
 	/**
 	 * @param $properties
 	 * @param $subComponents
+	 *
 	 * @return Event
+	 * @throws IcalParserException
 	 */
 	private function getEventComponent($properties, $subComponents): Event
 	{
@@ -158,7 +164,7 @@ class FactoryComponents
 	}
 
 	/**
-	 *
+	 * @return void
 	 */
 	private function addMessageLog(): void
 	{

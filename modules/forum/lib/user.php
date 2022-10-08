@@ -677,16 +677,10 @@ class User implements \ArrayAccess {
 	 */
 	public function readTopic($topicId = 0): void
 	{
-		if ($topicId <= 0)
-		{
-			return;
-		}
-
-		try
-		{
-			$topic = Topic::getById($topicId);
-		}
-		catch (Main\ObjectNotFoundException $e)
+		if ($topicId <= 0
+			|| !($topic = Topic::getById($topicId))
+			|| !($topic instanceof Topic)
+		)
 		{
 			return;
 		}

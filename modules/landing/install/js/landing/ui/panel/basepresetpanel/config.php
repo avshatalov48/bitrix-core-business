@@ -13,6 +13,8 @@ return [
 		'landing.ui.field.presetfield',
 		'landing.pageobject',
 		'landing.ui.button.sidebarbutton',
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 		'landing.loc',
 		'ui.textcrop',
 		'main.loader',

@@ -12,3 +12,4 @@ $MESS["STORE_DOCUMENTS_SETTINGS_STORES_TITLE"] = "Lager";
 $MESS["STORE_DOCUMENTS_SETTINGS_STORE_CONTROL_AND_PRODUCTS"] = "Einstellungen der Bestandsverwaltung";
 $MESS["STORE_DOCUMENTS_SETTINGS_USE_STORE_N_TITLE"] = "Bestandsverwaltung deaktivieren";
 $MESS["STORE_DOCUMENTS_SETTINGS_USE_STORE_Y_TITLE"] = "Bestandsverwaltung aktivieren";
+$MESS["STORE_DOCUMENTS_TRANSFER_DATA_TITLE"] = "Datenübertragung";

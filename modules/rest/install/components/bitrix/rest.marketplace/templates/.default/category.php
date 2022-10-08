@@ -3,7 +3,10 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
-?><?$APPLICATION->IncludeComponent(
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
+
+$APPLICATION->IncludeComponent(
 	'bitrix:rest.marketplace.category',
 	'',
 	[

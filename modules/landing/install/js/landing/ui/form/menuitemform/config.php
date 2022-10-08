@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'main.core',
 		'landing.ui.form.baseform',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'main.polyfill.core',
 		'ui.vue.vuex',
+		'ui.design-tokens',
 		'im.lib.utils',
 		'im.const',
 		'ui.vue',

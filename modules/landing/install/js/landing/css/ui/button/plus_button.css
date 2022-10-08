@@ -1,5 +1,6 @@
 .landing-ui-button-plus {
-	font-family: 'OpenSans-Semibold', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 12px;
 	text-transform: uppercase;
 	background: #d1f066;

@@ -13,6 +13,7 @@ return [
 		'main.core.events',
 		'calendar.util',
 		'main.core',
+		'calendar.ui.tools.draganddrop',
 		'main.popup',
 	],
 	'skip_core' => false,

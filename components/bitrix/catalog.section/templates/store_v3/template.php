@@ -195,7 +195,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 				$this->addEditAction($uniqueId, $item['EDIT_LINK'], $elementEdit);
 				$this->addDeleteAction($uniqueId, $item['DELETE_LINK'], $elementDelete, $elementDeleteParams);
 
-			?><div class="catalog-section-item-wrapper col-12 col-sm-6 d-flex align-items-stretch"><?
+			?><div class="catalog-section-item-wrapper col-12 col-sm-6 d-flex align-items-stretch"><?php
 				$APPLICATION->IncludeComponent(
 					'bitrix:catalog.item',
 					'store_v3',
@@ -213,40 +213,42 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 						'HIDE_ICONS' => 'Y',
 					]
 				);
-			?></div><?
+			?></div><?php
 			}
-
-			$APPLICATION->IncludeComponent(
-				'bitrix:catalog.section.list',
-				'store_v3',
-				[
-					'ADD_SECTIONS_CHAIN' => 'N',
-					'CACHE_FILTER' => $arParams['CACHE_FILTER'],
-					'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],
-					'CACHE_TIME' => $arParams['CACHE_TIME'],
-					'CACHE_TYPE' => $arParams['CACHE_TYPE'],
-					'COUNT_ELEMENTS' => 'Y',
-					'COUNT_ELEMENTS_FILTER' => 'CNT_AVAILABLE', // it's no use
-					'FILTER_NAME' => $arParams['SECTIONS_FILTER_NAME'],
-					'IBLOCK_ID' => $arParams['IBLOCK_ID'],
-					'IBLOCK_TYPE' => $arParams['IBLOCK_TYPE'],
-					'SECTION_CODE' => $arParams['SECTIONS_SECTION_CODE'],
-					'SECTION_FIELDS' => array("",""),
-					'SECTION_ID' => $arParams['SECTIONS_SECTION_ID'],
-					'SECTION_URL' => $arParams['SECTION_URL'],
-					'SECTION_USER_FIELDS' => array("",""),  // check and replace to $arParams['SECTION_USER_FIELDS']
-					'SHOW_TITLE' => 'N',
-					'TOP_DEPTH' => $arParams['SECTIONS_TOP_DEPTH'],
-					'OFFSET_MODE' => $arParams['SECTIONS_OFFSET_MODE'],
-					'OFFSET_VALUE' => $arParams['SECTIONS_OFFSET_VALUE'],
-					'OFFSET_VARIABLE' => $arParams['SECTIONS_OFFSET_VARIABLE'],
-					'AREA_ID' => $arResult['AREA_ID_ADDITIONAL_SALT']
-				],
-				$component,
-				[
-					'HIDE_ICONS' => 'Y',
-				]
-			);
+			if ($arParams['SHOW_SECTIONS'] === 'Y')
+			{
+				$APPLICATION->IncludeComponent(
+					'bitrix:catalog.section.list',
+					'store_v3',
+					[
+						'ADD_SECTIONS_CHAIN' => 'N',
+						'CACHE_FILTER' => $arParams['CACHE_FILTER'],
+						'CACHE_GROUPS' => $arParams['CACHE_GROUPS'],
+						'CACHE_TIME' => $arParams['CACHE_TIME'],
+						'CACHE_TYPE' => $arParams['CACHE_TYPE'],
+						'COUNT_ELEMENTS' => 'Y',
+						'COUNT_ELEMENTS_FILTER' => 'CNT_AVAILABLE', // it's no use
+						'FILTER_NAME' => $arParams['SECTIONS_FILTER_NAME'],
+						'IBLOCK_ID' => $arParams['IBLOCK_ID'],
+						'IBLOCK_TYPE' => $arParams['IBLOCK_TYPE'],
+						'SECTION_CODE' => $arParams['SECTIONS_SECTION_CODE'],
+						'SECTION_FIELDS' => ["", ""],
+						'SECTION_ID' => $arParams['SECTIONS_SECTION_ID'],
+						'SECTION_URL' => $arParams['SECTION_URL'],
+						'SECTION_USER_FIELDS' => ["", ""],  // check and replace to $arParams['SECTION_USER_FIELDS']
+						'SHOW_TITLE' => 'N',
+						'TOP_DEPTH' => $arParams['SECTIONS_TOP_DEPTH'],
+						'OFFSET_MODE' => $arParams['SECTIONS_OFFSET_MODE'],
+						'OFFSET_VALUE' => $arParams['SECTIONS_OFFSET_VALUE'],
+						'OFFSET_VARIABLE' => $arParams['SECTIONS_OFFSET_VARIABLE'],
+						'AREA_ID' => $arResult['AREA_ID_ADDITIONAL_SALT']
+					],
+					$component,
+					[
+						'HIDE_ICONS' => 'Y',
+					]
+				);
+			}
 		}
 		else
 		{

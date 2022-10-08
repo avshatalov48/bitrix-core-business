@@ -9,7 +9,9 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(DiscountType, "MONETARY", 1);
 	babelHelpers.defineProperty(DiscountType, "PERCENTAGE", 2);
 
-	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } return method; }
+	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
+
+	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
 
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var initialFields = {
@@ -29,13 +31,13 @@ this.BX = this.BX || {};
 	  SUM: 0
 	};
 
-	var _getPricePrecision = new WeakSet();
+	var _getPricePrecision = /*#__PURE__*/new WeakSet();
 
-	var _getCommonPrecision = new WeakSet();
+	var _getCommonPrecision = /*#__PURE__*/new WeakSet();
 
-	var _getQuantityPrecision = new WeakSet();
+	var _getQuantityPrecision = /*#__PURE__*/new WeakSet();
 
-	var _validateValue = new WeakSet();
+	var _validateValue = /*#__PURE__*/new WeakSet();
 
 	var FieldStorage = /*#__PURE__*/function () {
 	  function FieldStorage(fields, calculator) {
@@ -186,25 +188,19 @@ this.BX = this.BX || {};
 	  return FieldStorage;
 	}();
 
-	var _round = function _round(value) {
-	  var precision = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : catalog_productCalculator.ProductCalculator.DEFAULT_PRECISION;
-	  var factor = Math.pow(10, precision);
-	  return Math.round(value * factor) / factor;
-	};
-
-	var _getPricePrecision2 = function _getPricePrecision2() {
+	function _getPricePrecision2() {
 	  return this.calculator.getPricePrecision();
-	};
+	}
 
-	var _getCommonPrecision2 = function _getCommonPrecision2() {
+	function _getCommonPrecision2() {
 	  return this.calculator.getCommonPrecision();
-	};
+	}
 
-	var _getQuantityPrecision2 = function _getQuantityPrecision2() {
+	function _getQuantityPrecision2() {
 	  return this.calculator.getQuantityPrecision();
-	};
+	}
 
-	var _validateValue2 = function _validateValue2(name, value) {
+	function _validateValue2(name, value) {
 	  var priceFields = ['PRICE', 'PRICE_EXCLUSIVE', 'PRICE_NETTO', 'PRICE_BRUTTO', 'DISCOUNT_SUM', 'DISCOUNT_ROW', 'TAX_SUM', 'SUM'];
 
 	  if (name === 'DISCOUNT_TYPE_ID') {
@@ -213,14 +209,26 @@ this.BX = this.BX || {};
 	    value = _classStaticPrivateMethodGet(FieldStorage, FieldStorage, _round).call(FieldStorage, value, _classPrivateMethodGet(this, _getQuantityPrecision, _getQuantityPrecision2).call(this));
 	  } else if (name === 'CUSTOMIZED' || name === 'TAX_INCLUDED') {
 	    value = value === 'Y' ? 'Y' : 'N';
-	  } else if (name === 'TAX_RATE' || name === 'DISCOUNT_RATE') {
+	  } else if (name === 'TAX_RATE') {
+	    if (main_core.Type.isNil(value)) {
+	      return null;
+	    }
+
+	    value = _classStaticPrivateMethodGet(FieldStorage, FieldStorage, _round).call(FieldStorage, value, _classPrivateMethodGet(this, _getCommonPrecision, _getCommonPrecision2).call(this));
+	  } else if (name === 'DISCOUNT_RATE') {
 	    value = _classStaticPrivateMethodGet(FieldStorage, FieldStorage, _round).call(FieldStorage, value, _classPrivateMethodGet(this, _getCommonPrecision, _getCommonPrecision2).call(this));
 	  } else if (priceFields.includes(name)) {
 	    value = _classStaticPrivateMethodGet(FieldStorage, FieldStorage, _round).call(FieldStorage, value, _classPrivateMethodGet(this, _getPricePrecision, _getPricePrecision2).call(this));
 	  }
 
 	  return value;
-	};
+	}
+
+	function _round(value) {
+	  var precision = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : catalog_productCalculator.ProductCalculator.DEFAULT_PRECISION;
+	  var factor = Math.pow(10, precision);
+	  return Math.round(value * factor) / factor;
+	}
 
 	var TaxForPriceStrategy = /*#__PURE__*/function () {
 	  function TaxForPriceStrategy(productCalculator) {
@@ -580,13 +588,13 @@ this.BX = this.BX || {};
 
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
-	var _fields = new WeakMap();
+	var _fields = /*#__PURE__*/new WeakMap();
 
-	var _strategy = new WeakMap();
+	var _strategy = /*#__PURE__*/new WeakMap();
 
-	var _settings = new WeakMap();
+	var _settings = /*#__PURE__*/new WeakMap();
 
-	var _getSetting = new WeakSet();
+	var _getSetting = /*#__PURE__*/new WeakSet();
 
 	var ProductCalculator = /*#__PURE__*/function () {
 	  function ProductCalculator() {
@@ -720,11 +728,12 @@ this.BX = this.BX || {};
 	  }]);
 	  return ProductCalculator;
 	}();
-	babelHelpers.defineProperty(ProductCalculator, "DEFAULT_PRECISION", 2);
 
-	var _getSetting2 = function _getSetting2(name, defaultValue) {
+	function _getSetting2(name, defaultValue) {
 	  return babelHelpers.classPrivateFieldGet(this, _settings).hasOwnProperty(name) ? babelHelpers.classPrivateFieldGet(this, _settings)[name] : defaultValue;
-	};
+	}
+
+	babelHelpers.defineProperty(ProductCalculator, "DEFAULT_PRECISION", 2);
 
 	var TaxForSumStrategy = /*#__PURE__*/function (_TaxForPriceStrategy) {
 	  babelHelpers.inherits(TaxForSumStrategy, _TaxForPriceStrategy);

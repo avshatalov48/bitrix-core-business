@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
 this.BX.Catalog.Store = this.BX.Catalog.Store || {};
-(function (exports,ui_hint,catalog_storeSelector,main_popup,main_core,main_core_events,currency_currencyCore,catalog_productSelector,catalog_documentCard,catalog_productModel) {
+(function (exports,ui_hint,catalog_storeSelector,main_popup,main_core_events,currency_currencyCore,catalog_productSelector,catalog_documentCard,catalog_productModel,main_core,spotlight,ui_tour) {
 	'use strict';
 
 	catalog_documentCard = catalog_documentCard && catalog_documentCard.hasOwnProperty('default') ? catalog_documentCard['default'] : catalog_documentCard;
@@ -835,6 +835,16 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      this.setField('BASE_PRICE', value);
 	      this.addActionProductChange();
 	      this.addActionUpdateTotal();
+	      this.updateRowTotalPrice();
+	    }
+	  }, {
+	    key: "updateRowTotalPrice",
+	    value: function updateRowTotalPrice() {
+	      var field = this.getEditor().getSettingValue('totalCalculationSumField', 'PURCHASING_PRICE');
+	      var value = this.getAmount() * this.getField(field, 0);
+	      value = Math.max(value, 0);
+	      this.setField('TOTAL_PRICE', value);
+	      this.updateUiField('TOTAL_PRICE', value.toFixed(this.getPricePrecision()));
 	    }
 	  }, {
 	    key: "updateProductStoreValues",
@@ -922,6 +932,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      this.setField('PURCHASING_PRICE', value);
 	      this.addActionProductChange();
 	      this.addActionUpdateTotal();
+	      this.updateRowTotalPrice();
 	    }
 	  }, {
 	    key: "setAmount",
@@ -938,6 +949,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        this.setField('AMOUNT', value);
 	        this.addActionProductChange();
 	        this.addActionUpdateTotal();
+	        this.updateRowTotalPrice();
 	      }
 	    }
 	  }, {
@@ -1142,6 +1154,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        case 'MEASURE_CODE':
 	        case 'BASE_PRICE':
 	        case 'PURCHASING_PRICE':
+	        case 'TOTAL_PRICE':
 	          result = field;
 	          break;
 	      }
@@ -1151,7 +1164,9 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  }, {
 	    key: "getUiFieldType",
 	    value: function getUiFieldType(field) {
-	      if (field === 'BASE_PRICE' || field === 'PURCHASING_PRICE') {
+	      var moneyFields = ['BASE_PRICE', 'PURCHASING_PRICE', 'TOTAL_PRICE'];
+
+	      if (moneyFields.includes(field)) {
 	        var _this$getEditor3, _column$editable;
 
 	        var column = (_this$getEditor3 = this.getEditor()) === null || _this$getEditor3 === void 0 ? void 0 : _this$getEditor3.getColumnInfo(field);
@@ -1723,6 +1738,304 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  });
 	}
 
+	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$3(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec$2(obj, privateMap, value) { _checkPrivateRedeclaration$3(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _gridGetter = /*#__PURE__*/new WeakMap();
+
+	var _contentContainer = /*#__PURE__*/new WeakMap();
+
+	var _bindGridNodeVisionChange = /*#__PURE__*/new WeakSet();
+
+	var _getPossibleToValidateFieldNodes = /*#__PURE__*/new WeakSet();
+
+	var _fieldNodeIsInGridVision = /*#__PURE__*/new WeakSet();
+
+	var _bindSpotlightToNode = /*#__PURE__*/new WeakSet();
+
+	var _freezeGridContainer = /*#__PURE__*/new WeakSet();
+
+	var _tieTourToNode = /*#__PURE__*/new WeakSet();
+
+	var FieldHintManager = /*#__PURE__*/function () {
+	  function FieldHintManager(contentContainer, gridGetter) {
+	    babelHelpers.classCallCheck(this, FieldHintManager);
+
+	    _classPrivateMethodInitSpec$2(this, _tieTourToNode);
+
+	    _classPrivateMethodInitSpec$2(this, _freezeGridContainer);
+
+	    _classPrivateMethodInitSpec$2(this, _bindSpotlightToNode);
+
+	    _classPrivateMethodInitSpec$2(this, _fieldNodeIsInGridVision);
+
+	    _classPrivateMethodInitSpec$2(this, _getPossibleToValidateFieldNodes);
+
+	    _classPrivateMethodInitSpec$2(this, _bindGridNodeVisionChange);
+
+	    babelHelpers.defineProperty(this, "fieldHintIsBusy", false);
+	    babelHelpers.defineProperty(this, "activeHintGuide", null);
+
+	    _classPrivateFieldInitSpec$2(this, _gridGetter, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _classPrivateFieldInitSpec$2(this, _contentContainer, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    babelHelpers.classPrivateFieldSet(this, _contentContainer, contentContainer);
+	    babelHelpers.classPrivateFieldSet(this, _gridGetter, gridGetter);
+	  }
+
+	  babelHelpers.createClass(FieldHintManager, [{
+	    key: "processFieldTour",
+	    value: function processFieldTour(fieldNode, tourData, endTourHandler) {
+	      var _this = this;
+
+	      var addictedFieldNodes = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
+
+	      if (this.fieldHintIsBusy) {
+	        return;
+	      }
+
+	      this.fieldHintIsBusy = true; // When click action in progress tour will be closed -> 'onClose' tour method will be executed
+
+	      tourData.events = {
+	        onClose: function onClose() {
+	          endTourHandler();
+	          _this.fieldHintIsBusy = false;
+	          _this.activeHintGuide = null;
+	        }
+	      };
+
+	      if (_classPrivateMethodGet$2(this, _fieldNodeIsInGridVision, _fieldNodeIsInGridVision2).call(this, fieldNode)) {
+	        var tourObject = _classPrivateMethodGet$2(this, _tieTourToNode, _tieTourToNode2).call(this, fieldNode, tourData);
+
+	        _classPrivateMethodGet$2(this, _freezeGridContainer, _freezeGridContainer2).call(this, function () {
+	          tourObject.close();
+	        });
+	      } else {
+	        var gridContainer = babelHelpers.classPrivateFieldGet(this, _gridGetter).call(this).getContainer();
+	        var leftArrow = gridContainer.querySelector('.main-grid-ear-left');
+	        var rightArrow = gridContainer.querySelector('.main-grid-ear-right');
+	        var fieldPos = fieldNode.getClientRects()[0].x;
+	        var gridPos = gridContainer.getClientRects()[0].x;
+	        var spotlight$$1 = null;
+
+	        if (fieldPos > gridPos) {
+	          spotlight$$1 = _classPrivateMethodGet$2(this, _bindSpotlightToNode, _bindSpotlightToNode2).call(this, rightArrow);
+	        } else {
+	          spotlight$$1 = _classPrivateMethodGet$2(this, _bindSpotlightToNode, _bindSpotlightToNode2).call(this, leftArrow);
+	        }
+
+	        _classPrivateMethodGet$2(this, _bindGridNodeVisionChange, _bindGridNodeVisionChange2).call(this, fieldNode, function () {
+	          spotlight$$1.close();
+
+	          var tourObject = _classPrivateMethodGet$2(_this, _tieTourToNode, _tieTourToNode2).call(_this, fieldNode, tourData);
+
+	          _classPrivateMethodGet$2(_this, _freezeGridContainer, _freezeGridContainer2).call(_this, function () {
+	            tourObject.close();
+	          });
+	        }, [], addictedFieldNodes);
+	      }
+	    }
+	  }, {
+	    key: "getActiveHint",
+	    value: function getActiveHint() {
+	      if (!this.fieldHintIsBusy) {
+	        return null;
+	      } else if (this.activeHintGuide instanceof ui_tour.Guide) {
+	        return this.activeHintGuide;
+	      }
+
+	      return null;
+	    }
+	  }]);
+	  return FieldHintManager;
+	}();
+
+	function _bindGridNodeVisionChange2(observedNode, onSuccessVisionCallback) {
+	  var _classPrivateMethodGe,
+	      _this2 = this;
+
+	  var callbackParams = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+	  var addictedNodes = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
+
+	  var observedNodes = (_classPrivateMethodGe = _classPrivateMethodGet$2(this, _getPossibleToValidateFieldNodes, _getPossibleToValidateFieldNodes2)).call.apply(_classPrivateMethodGe, [this, observedNode].concat(babelHelpers.toConsumableArray(addictedNodes)));
+
+	  var observer = function observer(event) {
+	    var _classPrivateMethodGe2;
+
+	    if ((_classPrivateMethodGe2 = _classPrivateMethodGet$2(_this2, _fieldNodeIsInGridVision, _fieldNodeIsInGridVision2)).call.apply(_classPrivateMethodGe2, [_this2].concat(babelHelpers.toConsumableArray(observedNodes)))) {
+	      main_core.Event.unbind(babelHelpers.classPrivateFieldGet(_this2, _gridGetter).call(_this2).getScrollContainer(), 'scroll', observer);
+	      main_core.Event.unbind(window, 'resize', observer);
+	      onSuccessVisionCallback.apply(void 0, babelHelpers.toConsumableArray(callbackParams));
+	    }
+	  };
+
+	  main_core.Event.bind(babelHelpers.classPrivateFieldGet(this, _gridGetter).call(this).getScrollContainer(), 'scroll', observer);
+	  main_core.Event.bind(window, 'resize', observer);
+	}
+
+	function _getPossibleToValidateFieldNodes2(mainNode) {
+	  var _babelHelpers$classPr, _babelHelpers$classPr2;
+
+	  var nodesTuple = [];
+
+	  for (var _len = arguments.length, addictedNodes = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	    addictedNodes[_key - 1] = arguments[_key];
+	  }
+
+	  for (var _i = 0, _addictedNodes = addictedNodes; _i < _addictedNodes.length; _i++) {
+	    var addictedNode = _addictedNodes[_i];
+	    nodesTuple.push({
+	      node: addictedNode,
+	      nodeRect: addictedNode.getClientRects()[0]
+	    });
+	  }
+
+	  var mainNodeTupleEl = {
+	    node: mainNode,
+	    nodeRect: mainNode.getClientRects()[0]
+	  };
+	  nodesTuple.push(mainNodeTupleEl);
+	  nodesTuple.sort(function (firstEl, secondEl) {
+	    var firstX = firstEl.nodeRect.x;
+	    var secondX = secondEl.nodeRect.x;
+
+	    if (firstX < secondX) {
+	      return -1;
+	    } else if (firstX > secondX) {
+	      return 1;
+	    } else {
+	      return 0;
+	    }
+	  });
+	  var gridRect = (_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _gridGetter).call(this)) === null || _babelHelpers$classPr === void 0 ? void 0 : (_babelHelpers$classPr2 = _babelHelpers$classPr.getContainer().getClientRects()) === null || _babelHelpers$classPr2 === void 0 ? void 0 : _babelHelpers$classPr2[0];
+
+	  function widthIsValid(leftPos, rightPos) {
+	    return Math.abs(leftPos - rightPos) < gridRect.width;
+	  }
+
+	  while (nodesTuple.length > 1 && !widthIsValid(nodesTuple[0].nodeRect.x, nodesTuple[nodesTuple.length - 1].nodeRect.x)) {
+	    var firstEl = nodesTuple[0];
+	    var lastEl = nodesTuple[nodesTuple.length - 1];
+
+	    if (firstEl === mainNodeTupleEl) {
+	      nodesTuple.pop();
+	    } else if (lastEl === mainNodeTupleEl) {
+	      nodesTuple.shift();
+	    } else {
+	      var firstElDistance = mainNodeTupleEl.nodeRect.x - firstEl.nodeRect.x;
+	      var lastElDistance = lastEl.nodeRect.x - mainNodeTupleEl.nodeRect.x;
+
+	      if (firstElDistance >= lastElDistance) {
+	        nodesTuple.shift();
+	      } else {
+	        nodesTuple.pop();
+	      }
+	    }
+	  }
+
+	  return nodesTuple.map(function (el) {
+	    return el.node;
+	  });
+	}
+
+	function _fieldNodeIsInGridVision2() {
+	  var _babelHelpers$classPr3, _babelHelpers$classPr4;
+
+	  var gridRect = (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldGet(this, _gridGetter).call(this)) === null || _babelHelpers$classPr3 === void 0 ? void 0 : (_babelHelpers$classPr4 = _babelHelpers$classPr3.getContainer().getClientRects()) === null || _babelHelpers$classPr4 === void 0 ? void 0 : _babelHelpers$classPr4[0];
+
+	  if (gridRect === undefined) {
+	    return false;
+	  }
+
+	  var gridLeftEdge = gridRect.x;
+	  var gridRightEdge = gridRect.x + gridRect.width;
+
+	  for (var _len2 = arguments.length, fieldNodes = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+	    fieldNodes[_key2] = arguments[_key2];
+	  }
+
+	  for (var _i2 = 0, _fieldNodes = fieldNodes; _i2 < _fieldNodes.length; _i2++) {
+	    var _fieldNode$getClientR;
+
+	    var fieldNode = _fieldNodes[_i2];
+	    var fieldRect = (_fieldNode$getClientR = fieldNode.getClientRects()) === null || _fieldNode$getClientR === void 0 ? void 0 : _fieldNode$getClientR[0];
+
+	    if (fieldRect === undefined) {
+	      return false;
+	    }
+
+	    var fieldLeftEdge = fieldRect.x;
+	    var fieldRightEdge = fieldRect.x + fieldRect.width;
+
+	    if (fieldLeftEdge < gridLeftEdge || fieldRightEdge > gridRightEdge) {
+	      return false;
+	    }
+	  }
+
+	  return true;
+	}
+
+	function _bindSpotlightToNode2(targetNode) {
+	  var spotlight$$1 = new BX.SpotLight({
+	    id: 'arrow_spotlight',
+	    targetElement: targetNode,
+	    autoSave: true,
+	    targetVertex: "middle-center",
+	    zIndex: 200
+	  });
+	  spotlight$$1.show();
+	  spotlight$$1.container.style.pointerEvents = "none";
+	  return spotlight$$1;
+	}
+
+	function _freezeGridContainer2(onCloseCallback) {
+	  var _this3 = this;
+
+	  var callbackParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+	  var gridContainer = babelHelpers.classPrivateFieldGet(this, _gridGetter).call(this).getContainer();
+	  var leftArrow = gridContainer.querySelector('.main-grid-ear-left');
+	  var rightArrow = gridContainer.querySelector('.main-grid-ear-right');
+	  gridContainer.style.pointerEvents = "none";
+	  leftArrow.style.pointerEvents = "none";
+	  rightArrow.style.pointerEvents = "none";
+
+	  var clickObserver = function clickObserver(event) {
+	    gridContainer.style.pointerEvents = "auto";
+	    leftArrow.style.pointerEvents = "auto";
+	    rightArrow.style.pointerEvents = "auto";
+	    main_core.Event.unbind(babelHelpers.classPrivateFieldGet(_this3, _contentContainer), 'click', clickObserver);
+	    onCloseCallback.apply(void 0, babelHelpers.toConsumableArray(callbackParams));
+	  };
+
+	  setTimeout(function () {
+	    main_core.Event.bind(babelHelpers.classPrivateFieldGet(_this3, _contentContainer), 'click', clickObserver);
+	  }, 500);
+	}
+
+	function _tieTourToNode2(tourTarget, tourData) {
+	  var guide = new ui_tour.Guide({
+	    steps: [Object.assign({
+	      target: tourTarget
+	    }, tourData)],
+	    onEvents: true
+	  });
+	  this.activeHintGuide = guide;
+	  guide.showNextStep();
+	  return guide;
+	}
+
 	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
 	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
@@ -1733,17 +2046,21 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 
 	function _arrayLikeToArray$1(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
-	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$3(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateMethodInitSpec$3(obj, privateSet) { _checkPrivateRedeclaration$4(obj, privateSet); privateSet.add(obj); }
 
-	function _checkPrivateRedeclaration$3(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateFieldInitSpec$3(obj, privateMap, value) { _checkPrivateRedeclaration$4(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$4(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
 	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
 
 	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
 
-	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	function _classPrivateMethodGet$3(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var GRID_TEMPLATE_ROW = 'template_0';
 	var DEFAULT_PRECISION = 2;
+
+	var _fieldHintManager = /*#__PURE__*/new WeakMap();
 
 	var _initSupportCustomRowActions = /*#__PURE__*/new WeakSet();
 
@@ -1753,13 +2070,19 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  function Editor(id) {
 	    babelHelpers.classCallCheck(this, Editor);
 
-	    _classPrivateMethodInitSpec$2(this, _childrenHasErrors);
+	    _classPrivateMethodInitSpec$3(this, _childrenHasErrors);
 
-	    _classPrivateMethodInitSpec$2(this, _initSupportCustomRowActions);
+	    _classPrivateMethodInitSpec$3(this, _initSupportCustomRowActions);
 
 	    babelHelpers.defineProperty(this, "products", []);
 	    babelHelpers.defineProperty(this, "productsWasInitiated", false);
 	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
+
+	    _classPrivateFieldInitSpec$3(this, _fieldHintManager, {
+	      writable: true,
+	      value: void 0
+	    });
+
 	    babelHelpers.defineProperty(this, "actions", {
 	      productChange: 'productChange',
 	      productListChanged: 'productListChanged',
@@ -1804,9 +2127,10 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      this.initProducts();
 	      this.initGridData();
 	      this.paintColumns();
+	      babelHelpers.classPrivateFieldSet(this, _fieldHintManager, new FieldHintManager(this.getContainer(), this.getGrid.bind(this)));
 	      main_core_events.EventEmitter.emit('DocumentProductListController', [this]);
 
-	      _classPrivateMethodGet$2(this, _initSupportCustomRowActions, _initSupportCustomRowActions2).call(this);
+	      _classPrivateMethodGet$3(this, _initSupportCustomRowActions, _initSupportCustomRowActions2).call(this);
 
 	      this.subscribeDomEvents();
 	      this.subscribeCustomEvents();
@@ -2053,7 +2377,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      eventArgs.data = _objectSpread$1(_objectSpread$1({}, eventArgs.data), {}, {
 	        useProductsFromRequest: useProductsFromRequest,
 	        signedParameters: this.getSignedParameters(),
-	        products: useProductsFromRequest ? this.getProductsFields() : null
+	        products: useProductsFromRequest ? this.getProductsFields(_classStaticPrivateMethodGet(Editor, Editor, _getAjaxFields).call(Editor)) : null
 	      });
 	      var isDeletingRequest = false;
 
@@ -2781,7 +3105,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  }, {
 	    key: "handleProductErrorsChange",
 	    value: function handleProductErrorsChange() {
-	      if (_classPrivateMethodGet$2(this, _childrenHasErrors, _childrenHasErrors2).call(this)) {
+	      if (_classPrivateMethodGet$3(this, _childrenHasErrors, _childrenHasErrors2).call(this)) {
 	        this.controller.disableSaveButton();
 	      } else {
 	        this.controller.enableSaveButton();
@@ -3474,7 +3798,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  }, {
 	    key: "handleOnTabShow",
 	    value: function handleOnTabShow() {
-	      main_core_events.EventEmitter.emit('onDemandRecalculateWrapper');
+	      main_core_events.EventEmitter.emit('onDemandRecalculateWrapper', [this]);
 	    }
 	  }, {
 	    key: "closeBarcodeSpotlights",
@@ -3509,6 +3833,46 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      });
 	      return errorsArray;
 	    }
+	  }, {
+	    key: "showFieldTourHint",
+	    value: function showFieldTourHint(fieldName, tourData, endTourHandler) {
+	      var addictedFields = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
+
+	      if (this.products.length > 0) {
+	        var firstProductRowNode = this.products[0].getNode();
+	        var addictedNodes = [];
+
+	        var _iterator7 = _createForOfIteratorHelper$1(addictedFields),
+	            _step7;
+
+	        try {
+	          for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+	            var _fieldName = _step7.value;
+
+	            var _fieldNode = firstProductRowNode.querySelector("[data-name=\"".concat(_fieldName, "\"]"));
+
+	            if (_fieldNode !== null) {
+	              addictedNodes.push(_fieldNode);
+	            }
+	          }
+	        } catch (err) {
+	          _iterator7.e(err);
+	        } finally {
+	          _iterator7.f();
+	        }
+
+	        var fieldNode = firstProductRowNode.querySelector("[data-name=\"".concat(fieldName, "\"]"));
+
+	        if (fieldNode !== null) {
+	          babelHelpers.classPrivateFieldGet(this, _fieldHintManager).processFieldTour(fieldNode, tourData, endTourHandler, addictedNodes);
+	        }
+	      }
+	    }
+	  }, {
+	    key: "getActiveHint",
+	    value: function getActiveHint() {
+	      return babelHelpers.classPrivateFieldGet(this, _fieldHintManager).getActiveHint();
+	    }
 	  }]);
 	  return Editor;
 	}();
@@ -3524,11 +3888,11 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	}
 
 	function _getAjaxFields() {
-	  return ['ID', 'SKU_ID', 'AMOUNT', 'PURCHASING_PRICE', 'BASE_PRICE', 'BASE_PRICE_EXTRA', 'BASE_PRICE_EXTRA_RATE', 'DOC_BARCODE', 'BARCODE', 'STORE_TO', 'STORE_FROM'];
+	  return ['ID', 'SKU_ID', 'AMOUNT', 'PURCHASING_PRICE', 'BASE_PRICE', 'BASE_PRICE_EXTRA', 'BASE_PRICE_EXTRA_RATE', 'DOC_BARCODE', 'BARCODE', 'STORE_TO', 'STORE_FROM', 'BASE_PRICE_ID', 'BASKET_ID', 'DOC_ID', 'ELEMENT_ID', 'IBLOCK_ID', 'MEASURE_CODE', 'MEASURE_NAME', 'NAME', 'OFFERS_IBLOCK_ID', 'PARENT_PRODUCT_ID', 'PRODUCT_ID', 'ROW_ID', 'STORE_FROM_AMOUNT', 'STORE_FROM_AVAILABLE_AMOUNT', 'STORE_FROM_RESERVED', 'STORE_FROM_TITLE', 'STORE_TO_AMOUNT', 'STORE_TO_AVAILABLE_AMOUNT', 'STORE_TO_RESERVED', 'STORE_TO_TITLE', 'TOTAL_PRICE'];
 	}
 
 	exports.Editor = Editor;
 	exports.PageEventsManager = PageEventsManager;
 
-}((this.BX.Catalog.Store.ProductList = this.BX.Catalog.Store.ProductList || {}),BX,BX.Catalog,BX.Main,BX,BX.Event,BX.Currency,BX.Catalog,BX.Catalog.DocumentCard,BX.Catalog));
+}((this.BX.Catalog.Store.ProductList = this.BX.Catalog.Store.ProductList || {}),BX,BX.Catalog,BX.Main,BX.Event,BX.Currency,BX.Catalog,BX.Catalog.DocumentCard,BX.Catalog,BX,BX,BX.UI.Tour));
 //# sourceMappingURL=script.js.map

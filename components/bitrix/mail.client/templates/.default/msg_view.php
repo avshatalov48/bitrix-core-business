@@ -9,7 +9,7 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_NAME' => 'bitrix:mail.client.message.view',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => $arResult,
-		'USE_UI_TOOLBAR' => 'Y',
+		'USE_UI_TOOLBAR' => 'N',
 		'USE_PADDING' => false,
 		'PLAIN_VIEW' => false,
 		'PAGE_MODE' => false,

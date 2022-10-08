@@ -60,7 +60,7 @@ return array(
 		),
 		'.landing-block-node-card-inner' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_NODES_LANDINGBLOCKNODECARDINNER'),
-			'type' => 'background-overlay',
+			'type' => ['background-color', 'background-overlay'],
 		),
 		'.landing-block-inner' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_44.1.FOUR_COLUMNS_WITH_IMG_AND_TEXT_CARDS_LANDINGBLOCKNODECARD'),

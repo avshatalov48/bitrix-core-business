@@ -58,7 +58,8 @@
 	display: inline-block;
 	margin: 5px 9px;
 	border: 1px solid #efefef;
-	padding: 5px
+	padding: 5px;
+	border-radius: var(--ui-border-radius-2xs);
 }
 
 .report-widget-view-miniature-container-active,
@@ -97,4 +98,5 @@
 {
 	border: 2px dashed #a7b0b5;
 	margin-top: 14px;
+	border-radius: var(--ui-border-radius-sm);
 }

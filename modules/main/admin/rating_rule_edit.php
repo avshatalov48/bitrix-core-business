@@ -6,7 +6,7 @@
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 
 ClearVars();
 
@@ -220,7 +220,7 @@ $conditionCount = count($arCurrentCondition['FIELDS']);
 						?>
 						<tr valign="top" style="">
 							<td class="field-name" style="vertical-align:middle"><label><?=$arCurrentCondition['FIELDS'][$i]['NAME']?>:</label></td>
-							<td width="25%"><?=SelectBoxFromArray("CONDITION_CONFIG[".$arCurrentCondition['ID']."][".$arCurrentCondition['FIELDS'][$i]['ID']."]", $arSelect, $strFieldValue);?></td>
+							<td width="25%"><?=SelectBoxFromArray("CONDITION_CONFIG[".$arCurrentCondition['ID']."][".$arCurrentCondition['FIELDS'][$i]['ID']."]", $arSelect, htmlspecialcharsbx($strFieldValue));?></td>
 						</tr>
 						<?
 					}
@@ -236,7 +236,7 @@ $conditionCount = count($arCurrentCondition['FIELDS']);
 						?>
 						<tr valign="top" style="">
 							<td class="field-name" style="vertical-align:middle"><label><?=$arCurrentCondition['FIELDS'][$i]['NAME']?>:</label></td>
-							<td width="25%"><?=SelectBoxFromArray("CONDITION_CONFIG[".$arCurrentCondition['ID']."][".$arCurrentCondition['FIELDS'][$i]['ID']."]", $arSelect, $strFieldValue, "");?></td>
+							<td width="25%"><?=SelectBoxFromArray("CONDITION_CONFIG[".$arCurrentCondition['ID']."][".$arCurrentCondition['FIELDS'][$i]['ID']."]", $arSelect, htmlspecialcharsbx($strFieldValue), "");?></td>
 						</tr>
 						<?
 					}
@@ -260,8 +260,8 @@ $conditionCount = count($arCurrentCondition['FIELDS']);
 						<tr valign="top" style="">
 							<td class="field-name" style="vertical-align:middle"><label><?=$arCurrentCondition['FIELDS'][$i]['NAME']?>:</label></td>
 							<td width="25%">
-								<?=SelectBoxFromArray("CONDITION_CONFIG[".$arCurrentCondition['ID']."][".$arCurrentCondition['FIELDS'][$i]['ID']."]", $arSelect, $strFieldValue, "");?>
-								<input type="text" name="CONDITION_CONFIG[<?=$arCurrentCondition['ID']?>][<?=$arCurrentCondition['FIELDS'][$i]['ID_INPUT']?>]" value="<?=$strFieldValueInput?>" style="width:45px;">
+								<?=SelectBoxFromArray("CONDITION_CONFIG[".$arCurrentCondition['ID']."][".$arCurrentCondition['FIELDS'][$i]['ID']."]", $arSelect, htmlspecialcharsbx($strFieldValue), "");?>
+								<input type="text" name="CONDITION_CONFIG[<?=$arCurrentCondition['ID']?>][<?=$arCurrentCondition['FIELDS'][$i]['ID_INPUT']?>]" value="<?=htmlspecialcharsbx($strFieldValueInput)?>" style="width:45px;">
 							</td>
 						</tr>
 						<?
@@ -279,8 +279,8 @@ $conditionCount = count($arCurrentCondition['FIELDS']);
 						<tr valign="top">
 							<td class="field-name" style="vertical-align:middle"><label><?=$arCurrentCondition['FIELDS'][$i]['NAME']?>:</label></td>
 							<td width="25%" style="vertical-align:middle">
-								<?=GetMessage('PP_USER_CONDITION_RATING_INTERVAL_FROM')?> <input type="text" name="CONDITION_CONFIG[<?=$arCurrentCondition['ID']?>][<?=$arCurrentCondition['FIELDS'][$i]['ID']?>]" value="<?=$strFieldValue?>" style="width:45px;">
-								<?=GetMessage('PP_USER_CONDITION_RATING_INTERVAL_TO')?> <input type="text" name="CONDITION_CONFIG[<?=$arCurrentCondition['ID']?>][<?=$arCurrentCondition['FIELDS'][$i]['ID_2']?>]" value="<?=$strFieldValue2?>" style="width:45px;">
+								<?=GetMessage('PP_USER_CONDITION_RATING_INTERVAL_FROM')?> <input type="text" name="CONDITION_CONFIG[<?=$arCurrentCondition['ID']?>][<?=$arCurrentCondition['FIELDS'][$i]['ID']?>]" value="<?=htmlspecialcharsbx($strFieldValue)?>" style="width:45px;">
+								<?=GetMessage('PP_USER_CONDITION_RATING_INTERVAL_TO')?> <input type="text" name="CONDITION_CONFIG[<?=$arCurrentCondition['ID']?>][<?=$arCurrentCondition['FIELDS'][$i]['ID_2']?>]" value="<?=htmlspecialcharsbx($strFieldValue2)?>" style="width:45px;">
 							</td>
 						</tr>
 						<?
@@ -306,7 +306,7 @@ $conditionCount = count($arCurrentCondition['FIELDS']);
 						?>
 						<tr valign="top">
 							<td class="field-name" style="vertical-align:middle"><label><?=$arCurrentCondition['FIELDS'][$i]['NAME']?>:</label></td>
-							<td width="25%" style="vertical-align:middle"><input type="text" name="CONDITION_CONFIG[<?=$arCurrentCondition['ID']?>][<?=$arCurrentCondition['FIELDS'][$i]['ID']?>]" size="<?=intval($arCurrentCondition['FIELDS'][$i]['SIZE'])?>" value="<?=$strFieldValue?>"> <?=isset($arCurrentCondition['FIELDS'][$i]['NAME_DESC'])? $arCurrentCondition['FIELDS'][$i]['NAME_DESC']: ''?></td>
+							<td width="25%" style="vertical-align:middle"><input type="text" name="CONDITION_CONFIG[<?=$arCurrentCondition['ID']?>][<?=$arCurrentCondition['FIELDS'][$i]['ID']?>]" size="<?=intval($arCurrentCondition['FIELDS'][$i]['SIZE'])?>" value="<?=htmlspecialcharsbx($strFieldValue)?>"> <?=isset($arCurrentCondition['FIELDS'][$i]['NAME_DESC'])? $arCurrentCondition['FIELDS'][$i]['NAME_DESC']: ''?></td>
 						</tr>
 						<?
 					}
@@ -375,7 +375,7 @@ if (!isset($arCurrentCondition['HIDE_ACTION']) || !$arCurrentCondition['HIDE_ACT
 							?>
 							<tr valign="top" style="">
 								<td class="field-name" style="vertical-align:middle"><label><?=$arCurrentAction['FIELDS'][$i]['NAME']?>:</label></td>
-								<td width="25%"><?=SelectBoxFromArray("ACTION_CONFIG[".$arCurrentAction['ID']."][".$arCurrentAction['FIELDS'][$i]['ID']."]", $arSelect, $strFieldValue, "", 'style="width: 300px"');?></td>
+								<td width="25%"><?=SelectBoxFromArray("ACTION_CONFIG[".$arCurrentAction['ID']."][".$arCurrentAction['FIELDS'][$i]['ID']."]", $arSelect, htmlspecialcharsbx($strFieldValue), "", 'style="width: 300px"');?></td>
 							</tr>
 							<?
 						}
@@ -394,7 +394,7 @@ if (!isset($arCurrentCondition['HIDE_ACTION']) || !$arCurrentCondition['HIDE_ACT
 							?>
 							<tr valign="top" style="">
 								<td class="field-name" style="vertical-align:middle"><label><?=$arCurrentAction['FIELDS'][$i]['NAME']?>:</label></td>
-								<td width="25%"><?=SelectBoxFromArray("ACTION_CONFIG[".$arCurrentAction['ID']."][".$arCurrentAction['FIELDS'][$i]['ID']."]", $arSelect, $strFieldValue, "", 'style="width: 300px"');?></td>
+								<td width="25%"><?=SelectBoxFromArray("ACTION_CONFIG[".$arCurrentAction['ID']."][".$arCurrentAction['FIELDS'][$i]['ID']."]", $arSelect, htmlspecialcharsbx($strFieldValue), "", 'style="width: 300px"');?></td>
 							</tr>
 							<?
 						}
@@ -409,7 +409,7 @@ if (!isset($arCurrentCondition['HIDE_ACTION']) || !$arCurrentCondition['HIDE_ACT
 							?>
 							<tr valign="top" style="">
 								<td class="field-name" style="vertical-align:middle"><label><?=$arCurrentAction['FIELDS'][$i]['NAME']?>:</label></td>
-								<td width="25%"><?=SelectBoxFromArray("ACTION_CONFIG[".$arCurrentAction['ID']."][".$arCurrentAction['FIELDS'][$i]['ID']."]", $arSelect, $strFieldValue, "");?></td>
+								<td width="25%"><?=SelectBoxFromArray("ACTION_CONFIG[".$arCurrentAction['ID']."][".$arCurrentAction['FIELDS'][$i]['ID']."]", $arSelect, htmlspecialcharsbx($strFieldValue), "");?></td>
 							</tr>
 							<?
 						}
@@ -433,8 +433,8 @@ if (!isset($arCurrentCondition['HIDE_ACTION']) || !$arCurrentCondition['HIDE_ACT
 							<tr valign="top" style="">
 								<td class="field-name" style="vertical-align:middle"><label><?=$arCurrentAction['FIELDS'][$i]['NAME']?>:</label></td>
 								<td width="25%">
-									<?=SelectBoxFromArray("CONDITION_CONFIG[".$arCurrentAction['ID']."][".$arCurrentAction['FIELDS'][$i]['ID']."]", $arSelect, $strFieldValue, "");?>
-									<input type="text" name="CONDITION_CONFIG[<?=$arCurrentAction['ID']?>][<?=$arCurrentAction['FIELDS'][$i]['ID_INPUT']?>]" value="<?=$strFieldValueInput?>" style="width:45px;">
+									<?=SelectBoxFromArray("CONDITION_CONFIG[".$arCurrentAction['ID']."][".$arCurrentAction['FIELDS'][$i]['ID']."]", $arSelect, htmlspecialcharsbx($strFieldValue), "");?>
+									<input type="text" name="CONDITION_CONFIG[<?=$arCurrentAction['ID']?>][<?=$arCurrentAction['FIELDS'][$i]['ID_INPUT']?>]" value="<?=htmlspecialcharsbx($strFieldValueInput)?>" style="width:45px;">
 								</td>
 							</tr>
 							<?
@@ -453,7 +453,7 @@ if (!isset($arCurrentCondition['HIDE_ACTION']) || !$arCurrentCondition['HIDE_ACT
 							?>
 							<tr valign="top" style="">
 								<td class="field-name" style="vertical-align:middle"><label><?=$arCurrentAction['FIELDS'][$i]['NAME']?>:</label></td>
-								<td width="25%"><input type="text" name="ACTION_CONFIG[<?=$arCurrentAction['ID']?>][<?=$arCurrentAction['FIELDS'][$i]['ID']?>]" value="<?=$strFieldValue?>"></td>
+								<td width="25%"><input type="text" name="ACTION_CONFIG[<?=$arCurrentAction['ID']?>][<?=$arCurrentAction['FIELDS'][$i]['ID']?>]" value="<?=htmlspecialcharsbx($strFieldValue)?>"></td>
 							</tr>
 							<?
 						}

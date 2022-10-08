@@ -146,4 +146,5 @@
 }
 
 .ui-bottomsheet__panel-content {
+	overflow: auto;
 }

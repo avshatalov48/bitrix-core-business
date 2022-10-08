@@ -357,11 +357,15 @@ if ($arResult["SHOW_SUBSCRIBE"] == "Y")
 
 if ($arResult["SHOW_PANEL_ATTACH_IMG"] == "Y")
 {
-	foreach ($arResult["MESSAGE"]["FILES"] as $key => $val):
-		if (intval($val) <= 0)
-			return false;
-		$arResult["MESSAGE"]["FILES"][$key] = CFile::GetFileArray($key);
-	endforeach;
+	$fileIds = array_keys($arResult["MESSAGE"]["FILES"]);
+	$arResult["MESSAGE"]["FILES"] = [];
+	foreach ($fileIds as $key)
+	{
+		if ($file = CFile::GetFileArray($key))
+		{
+			$arResult["MESSAGE"]["FILES"][$key] = $file;
+		}
+	}
 /************** For custom component *******************************/
 	$arResult["MESSAGE"]["ATTACH_IMG_FILE"] = false;
 	if ($arResult["MESSAGE"]["ATTACH_IMG"] <> '')

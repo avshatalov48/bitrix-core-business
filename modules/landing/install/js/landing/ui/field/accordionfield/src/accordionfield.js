@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import {BaseField} from 'landing.ui.field.basefield';
 import {Dom, Tag, Text} from 'main.core';
 import {SmallSwitch} from 'landing.ui.field.smallswitch';

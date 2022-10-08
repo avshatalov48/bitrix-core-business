@@ -22,7 +22,7 @@
 
 .visualconsructor-configuration-popup-item-text {
 	display: inline-block;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c68;
 	line-height: 36px;
 	padding: 0 15px 0 9px;

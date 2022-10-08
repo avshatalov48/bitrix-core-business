@@ -83,7 +83,7 @@ class CAllExtra
 				CPrice::ReCalculate('EXTRA', $ID, $arFields['PERCENTAGE']);
 			}
 			static::ClearCache();
-			Catalog\ExtraTable::getEntity()->cleanCache();
+			Catalog\ExtraTable::cleanCache();
 			Catalog\Model\Price::clearSettings();
 		}
 
@@ -98,7 +98,7 @@ class CAllExtra
 			return false;
 		$DB->Query("UPDATE b_catalog_price SET EXTRA_ID = NULL WHERE EXTRA_ID = ".$ID);
 		static::ClearCache();
-		Catalog\ExtraTable::getEntity()->cleanCache();
+		Catalog\ExtraTable::cleanCache();
 		Catalog\Model\Price::clearSettings();
 
 		return $DB->Query("DELETE FROM b_catalog_extra WHERE ID = ".$ID, true);

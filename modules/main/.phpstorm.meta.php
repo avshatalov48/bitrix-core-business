@@ -16,6 +16,7 @@ namespace PHPSTORM_META
 	exitPoint(\Bitrix\Main\Application::end());
 	exitPoint(\Bitrix\Main\Application::terminate());
 	exitPoint(\CAllMain::FinalActions());
+	exitPoint(\LocalRedirect());
 
 	registerArgumentsSet(
 		'bitrix_main_modules_list',

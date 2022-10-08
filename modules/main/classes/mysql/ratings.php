@@ -407,8 +407,8 @@ class CRatings extends CAllRatings
 			";
 		}
 
-//		$DB->Query("TRUNCATE TABLE b_rating_prepare", false, $err_mess.__LINE__);
-		$DB->Query("DELETE FROM b_rating_prepare", false, $err_mess.__LINE__);
+//		$DB->Query("TRUNCATE TABLE b_rating_prepare");
+		$DB->Query("DELETE FROM b_rating_prepare");
 
 		if ($bAllGroups || empty($arGroups))
 		{
@@ -436,12 +436,12 @@ class CRatings extends CAllRatings
 				AND U.LAST_LOGIN > DATE_SUB(NOW(), INTERVAL ".intval($communityLastVisit)." DAY)
 			";
 		}
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 
 		$strSql = 'SELECT COUNT(*) as COMMUNITY_SIZE, SUM(CURRENT_VALUE) COMMUNITY_AUTHORITY
 						FROM b_rating_results RC LEFT JOIN b_rating_prepare TT ON RC.ENTITY_ID = TT.ID
 						WHERE RATING_ID = '.intval($ratingId).' AND TT.ID IS NOT NULL';
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res->Fetch();
 	}
@@ -580,7 +580,7 @@ class CRatings extends CAllRatings
 		{
 			$arEventResult = ExecuteModuleEventEx($arEvent, array($arVoteParam));
 			if (is_array($arEventResult) && isset($arEventResult['RESULT']) && $arEventResult['RESULT'] === false
-				&& isset($arEventResult['ERROR_TYPE']) && $arEventResult['ERROR_MSG'] <> ''
+				&& isset($arEventResult['ERROR_TYPE']) && $arEventResult['ERROR_TYPE'] <> ''
 				&& isset($arEventResult['ERROR_MSG']) && $arEventResult['ERROR_MSG'] <> '')
 			{
 				$arInfo = array(

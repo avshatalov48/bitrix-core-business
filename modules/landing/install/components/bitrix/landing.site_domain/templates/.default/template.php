@@ -278,7 +278,7 @@ if (isset($menuItems[$tab]))
 		return;
 	}
 	?>
-	<form action="<?= \htmlspecialcharsbx($uriSave->getUri());?>" method="post" class="ui-form ui-form-gray-padding">
+	<form action="<?= \htmlspecialcharsbx($uriSave->getUri());?>" method="post" class="ui-form landing-form-gray-padding">
 		<input type="hidden" name="action" value="save<?= $tab;?>">
 		<?= bitrix_sessid_post();?>
 		<?

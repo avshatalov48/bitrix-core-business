@@ -1,7 +1,6 @@
 import AutomationLogView from "../views/automation-log";
 import {TrackingEntry} from "bizproc.automation";
 import {Dom, Loc, Tag, Text} from 'main.core';
-import {TrackingType} from "./types";
 import {Helper} from "../helper";
 
 export default class TriggerLog
@@ -19,7 +18,7 @@ export default class TriggerLog
 
 	addTrack(track: TrackingEntry): TriggerLog
 	{
-		if (track.type === TrackingType.DebugAutomation && track.name === 'TRIGGER_LOG')
+		if (track.type === TrackingEntry.DEBUG_AUTOMATION_TYPE && track.name === 'TRIGGER_LOG')
 		{
 			this.#condition = JSON.parse(track.note);
 			this.#title = track.title;

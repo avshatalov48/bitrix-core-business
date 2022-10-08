@@ -1,4 +1,5 @@
-<?
+<?php
+
 //This function will protect against utf-7 xss
 //on page with no character setting
 function htmlspecialchars_plus($str)
@@ -6,17 +7,30 @@ function htmlspecialchars_plus($str)
 	return str_replace("+","&#43;", htmlspecialchars($str));
 }
 
-if(!isset($_GET["img"]) || !is_string($_GET["img"]))
+if (!isset($_GET["img"]) || !is_string($_GET["img"]))
+{
 	die();
-
-if(isset($_GET["alt"]) && is_string($_GET["alt"]))
-	$alt = htmlspecialchars_plus($_GET["alt"]);
-else
-	$alt = "";
+}
 
 $img = $_GET["img"];
-if(mb_substr($img, 0, 1) !== "/" && mb_strtolower(mb_substr($img, 0, 4) !== "http"))
-	$img = "/".$img; // some browsers run javascript: in img src tag
+
+if (strncasecmp($img, 'http://', 7) == 0 || strncasecmp($img, 'https://', 8) == 0 || strncmp($img, '//', 2) == 0)
+{
+	// external url
+	die();
+}
+
+if (mb_substr($img, 0, 1) !== "/")
+{
+	// some browsers run javascript: in img src tag
+	$img = "/".$img;
+}
+
+$alt = "";
+if (isset($_GET["alt"]) && is_string($_GET["alt"]))
+{
+	$alt = htmlspecialchars_plus($_GET["alt"]);
+}
 ?>
 <html>
 <head>

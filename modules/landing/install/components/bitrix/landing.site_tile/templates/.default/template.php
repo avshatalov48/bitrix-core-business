@@ -12,7 +12,13 @@ use Bitrix\Main\Localization\Loc;
 /** @var string $templateFolder */
 /** @var \LandingSiteTileComponent $component */
 
-Extension::load(['sidepanel', 'main.qrcode', 'ui.dialogs.messagebox']);
+Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'sidepanel',
+	'main.qrcode',
+	'ui.dialogs.messagebox',
+]);
 
 if (!$arParams['ITEMS'] && !$arParams['PAGE_URL_SITE_ADD'])
 {

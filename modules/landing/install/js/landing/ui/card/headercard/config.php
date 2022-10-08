@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'landing.ui.card.basecard',
 		'main.core',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

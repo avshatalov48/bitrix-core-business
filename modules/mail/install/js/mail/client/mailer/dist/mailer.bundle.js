@@ -3,11 +3,15 @@ this.BX.Mail = this.BX.Mail || {};
 (function (exports,mail_client_filtertoolbar,mail_client_binding,main_core_events) {
 	'use strict';
 
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
 	var _filter = /*#__PURE__*/new WeakMap();
 
@@ -17,48 +21,33 @@ this.BX.Mail = this.BX.Mail || {};
 
 	var _mailboxId = /*#__PURE__*/new WeakMap();
 
-	var _startDir = /*#__PURE__*/new WeakMap();
-
-	var _selectedDirectory = /*#__PURE__*/new WeakMap();
-
 	var Mailer = /*#__PURE__*/function () {
 	  function Mailer() {
 	    var _this = this;
 
 	    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-	      startDir: 'INBOX',
 	      filterId: '',
 	      mailboxId: 0,
 	      syncAvailable: true
 	    };
 	    babelHelpers.classCallCheck(this, Mailer);
 
-	    _filter.set(this, {
+	    _classPrivateFieldInitSpec(this, _filter, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _filterToolbar.set(this, {
+	    _classPrivateFieldInitSpec(this, _filterToolbar, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _binding.set(this, {
+	    _classPrivateFieldInitSpec(this, _binding, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _mailboxId.set(this, {
-	      writable: true,
-	      value: void 0
-	    });
-
-	    _startDir.set(this, {
-	      writable: true,
-	      value: void 0
-	    });
-
-	    _selectedDirectory.set(this, {
+	    _classPrivateFieldInitSpec(this, _mailboxId, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -83,9 +72,7 @@ this.BX.Mail = this.BX.Mail || {};
 
 	    babelHelpers.classPrivateFieldSet(this, _mailboxId, config['mailboxId']);
 	    babelHelpers.classPrivateFieldSet(this, _filter, BX.Main.filterManager.getById(config['filterId']));
-	    BX.Mail.Home.Counters.setShortcut('', config['startDir']); //Set the default directory (may change if the 'inbox' directory is disabled)
-
-	    this.setStartDir(''); //Removing the focus from the filter field
+	    this.sendApplyFilterEventForMenuRefresh(); //Removing the focus from the filter field
 
 	    if (document.activeElement) {
 	      document.activeElement.blur();
@@ -93,7 +80,6 @@ this.BX.Mail = this.BX.Mail || {};
 
 	    var mailCounterWrapper = document.querySelector('[data-role="mail-counter-toolbar"]');
 	    var filterToolbar = new mail_client_filtertoolbar.FilterToolbar({
-	      startDir: config['startDir'],
 	      wrapper: mailCounterWrapper,
 	      filter: babelHelpers.classPrivateFieldGet(this, _filter)
 	    });
@@ -132,13 +118,9 @@ this.BX.Mail = this.BX.Mail || {};
 	  }
 
 	  babelHelpers.createClass(Mailer, [{
-	    key: "setStartDir",
-	    value: function setStartDir(name) {
+	    key: "sendApplyFilterEventForMenuRefresh",
+	    value: function sendApplyFilterEventForMenuRefresh() {
 	      if (!!babelHelpers.classPrivateFieldGet(this, _filter) && babelHelpers.classPrivateFieldGet(this, _filter) instanceof BX.Main.Filter) {
-	        var FilterApi = babelHelpers.classPrivateFieldGet(this, _filter).getApi();
-	        FilterApi.setFields({
-	          'DIR': name
-	        });
 	        setTimeout(function () {
 	          main_core_events.EventEmitter.emit('BX.Main.Filter:apply', new main_core_events.BaseEvent());
 	        }, 1);

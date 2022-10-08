@@ -22,7 +22,7 @@ body {
 .block-container-item div {
     margin-top: 10px;
     color: blue;
-    font-weight: bold;
+    font-weight: var(--ui-font-weight-bold);
     cursor: pointer;
 }
 .block-container-item img {
@@ -280,7 +280,7 @@ body[style*="cursor: move;"] .landing-ui-panel-block-card-action {
 .block-buttons-clone-add {
     cursor: pointer;
     width: 15px;
-    font-weight: bold;
+    font-weight: var(--ui-font-weight-bold);
     text-align: center;
     float: left;
     color: green;
@@ -288,7 +288,7 @@ body[style*="cursor: move;"] .landing-ui-panel-block-card-action {
 .block-buttons-clone-remove {
     cursor: pointer;
     width: 15px;
-    font-weight: bold;
+    font-weight: var(--ui-font-weight-bold);
     text-align: center;
     float: left;
     color: red;
@@ -300,14 +300,14 @@ body[style*="cursor: move;"] .landing-ui-panel-block-card-action {
     height: 20px;
     background-color: #dfdfdf;
     padding: 5px;
-    font-weight: bold;
+    font-weight: var(--ui-font-weight-bold);
     text-align: center;
 }
 .block-content-card-subtitle {
     height: 20px;
     background-color: lightcyan;
     padding: 5px;
-    font-weight: bold;
+    font-weight: var(--ui-font-weight-bold);
     text-align: center;
 }
 
@@ -635,7 +635,7 @@ body[style*="cursor: move;"] .landing-ui-panel-block-card-action {
 
 .landing-ui-new-inline {
 	position: relative;
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 9px;
 	letter-spacing: .5px;
 	top: -1px;
@@ -731,7 +731,7 @@ body[style*="cursor: move;"] .landing-ui-panel-block-card-action {
 	.l-d-lg-none {
 		display: block!important;
 	}
-	
+
 	.l-d-lg-none.g-flex-centered {
 		display: flex!important;
 	}
@@ -1050,7 +1050,8 @@ div[id^="popup-window-content-calendar-resourcebooking-settings-popup"] {
 .landing-ui-field-color .landing-ui-field-header {
 	padding: 0 4px;
 	margin-bottom: 16px;
-	font: 17px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #535c69;
 }
 
@@ -1065,7 +1066,7 @@ div[id^="popup-window-content-calendar-resourcebooking-settings-popup"] {
 }
 
 .landing-main > [class~='block-wrapper']:first-of-type .landing-ui-panel-create-before-action {
-	display: block;
+	display: none;
 	opacity: 0;
 }
 
@@ -1074,7 +1075,7 @@ div[id^="popup-window-content-calendar-resourcebooking-settings-popup"] {
 	opacity: 1;
 }
 
-.landing-main > [class~='block-wrapper']:first-of-type:hover .landing-ui-panel-create-before-action {
+body:not(.landing-ui-hide-action-panels) .landing-main > [class~='block-wrapper']:first-of-type:hover .landing-ui-panel-create-before-action {
 	display: block;
 	opacity: 1;
 }
@@ -1103,4 +1104,13 @@ div[id^="popup-window-content-calendar-resourcebooking-settings-popup"] {
 
 .ui-btn:focus {
 	outline: none!important;
+}
+
+.landing-ui-hide-action-panels .landing-ui-panel-create-before-action {
+	display: none;
+}
+
+.landing-ui-hide-action-panels-form.landing-ui-hide-action-panels .landing-ui-panel-create-action,
+.landing-ui-hide-action-panels-form.landing-ui-hide-action-panels .landing-ui-panel-create-before-action {
+	display: none!important;
 }

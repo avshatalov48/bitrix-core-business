@@ -1066,7 +1066,7 @@ class CAllBlogPost
 				if (CModule::IncludeModule("extranet"))
 				{
 					CSocNetLog::Update($arLog["ID"], array(
-						"SITE_ID" => CExtranet::GetSitesByLogDestinations($socnetPerms, $arPost["AUTHOR_ID"])
+						"SITE_ID" => CExtranet::GetSitesByLogDestinations($socnetPerms, $arPost["AUTHOR_ID"], ($arParams['SITE_ID'] ?? false))
 					));
 				}
 				$socnetPerms[] = "SA"; // socnet admin
@@ -1216,7 +1216,8 @@ class CAllBlogPost
 
 		if(
 			empty($perms)
-			|| in_array("UA", $perms)
+			|| in_array('UA', $perms, true)
+			|| in_array('G2', $perms, true)
 		) //if default rights or for everyone
 		{
 			CBlogPost::__AddSocNetPerms($ID, "U", $arPost["AUTHOR_ID"], "US".$arPost["AUTHOR_ID"]); // for myself
@@ -1490,7 +1491,7 @@ class CAllBlogPost
 					WHERE
 						SR.POST_ID = " . $ID . "
 					ORDER BY SR.ID ASC
-					LIMIT 100
+					LIMIT 300
 					";
 
 		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);

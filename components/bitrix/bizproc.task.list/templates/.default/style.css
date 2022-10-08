@@ -113,7 +113,8 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 	color: #0069ac;
 	/*margin-bottom: 15px;*/
 	overflow: hidden;
-	height: 32px;
+	line-height: 1.4;
+	height: 40px;
 }
 
 .bp-folder-title:after, .bp-folder-title-link:after,
@@ -164,7 +165,7 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 }
 
 .bp-folder-title-description span {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bx-bizproc-table-body td {
@@ -196,7 +197,8 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 	color: #000;
 	position: relative;
 	display: block;
-	max-height: 30px;
+	max-height: 40px;
+	line-height: 1.4;
 	overflow: hidden;
 	margin-right: 10px;
 }

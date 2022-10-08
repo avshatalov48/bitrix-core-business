@@ -1,7 +1,6 @@
 <?php
 $MESS["SALE_HPS_ROBOXCHANGE_DESCRIPTION_MAIN"] = "<a href='https://partner.robokassa.ru/Reg/Register?PromoCode=01Bitrix&culture=ru' target='_blank'>Подключиться к Robokassa</a>";
 $MESS["SALE_HPS_ROBOXCHANGE_TITLE"] = "Robokassa";
-$MESS["SALE_HPS_ROBOXCHANGE_PAYMENT_ID"] = "Номер оплаты";
 $MESS["SALE_HPS_ROBOXCHANGE_EMAIL_USER"] = "E-mail";
 $MESS["SALE_HPS_ROBOXCHANGE_SHOPLOGIN"] = "Логин магазина";
 $MESS["SALE_HPS_ROBOXCHANGE_SHOPPASSWORD"] = "Пароль магазина";

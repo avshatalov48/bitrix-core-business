@@ -1,4 +1,4 @@
-.invite-main-wrap {font-size:13px; color:#000; font-family:Arial, Helvetica, sans-serif;}
+.invite-main-wrap {font-size:13px; color:#000; font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica));}
 .invite-main-wrap-out {padding-top: 20px;}
 .invite-title {font-size:15px; color:#000; padding-bottom:15px;}
 .invite-list {border:none; border-top:1px solid #ededed; width:100%;}
@@ -50,8 +50,8 @@ tr.invite-list-active {background:#fff3d3;}
 .sonet-group-requests-smbutton-accept { margin: 0 12px 0 0; background: url("/bitrix/js/main/core/images/controls-sprite.png") repeat-x 0 -356px; }
 .sonet-group-requests-smbutton-left { width: 4px; background: url("/bitrix/js/main/core/images/controls-sprite.png") no-repeat -15px -493px; margin-right: 8px; }
 .sonet-group-requests-smbutton-accept .sonet-group-requests-smbutton-left { width: 4px; background: url("/bitrix/js/main/core/images/controls-sprite.png") no-repeat 0 -328px; margin-right: 6px; }
-.sonet-group-requests-smbutton-text { font: normal normal normal 13px/24px Arial, Helvetica, sans-serif; color: #4F4F4F; }
-.sonet-group-requests-smbutton-accept .sonet-group-requests-smbutton-text { font: normal normal normal 13px/24px Arial, Helvetica, sans-serif; color: white; text-shadow: #75AB6F -1px -1px 0/*, #72C868 1px 1px 0*/; }
+.sonet-group-requests-smbutton-text { font: normal normal normal 13px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #4F4F4F; }
+.sonet-group-requests-smbutton-accept .sonet-group-requests-smbutton-text { font: normal normal normal 13px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: white; text-shadow: #75AB6F -1px -1px 0/*, #72C868 1px 1px 0*/; }
 .sonet-group-requests-smbutton-right { width: 6px; background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat -22px -493px; margin-left: 8px; }
 .sonet-group-requests-smbutton-accept .sonet-group-requests-smbutton-right { width: 6px; background: url(/bitrix/js/main/core/images/controls-sprite.png) no-repeat -6px -328px; margin-left: 6px; }
 

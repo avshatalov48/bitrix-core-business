@@ -21,6 +21,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 \Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
 
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+]);
+
 if ($arResult['TO_PLUG_EXTENSION_SALES_LETTER_TEMPLATE'])
 {
 	\Bitrix\Main\UI\Extension::load('mail.saleslettertemplate');

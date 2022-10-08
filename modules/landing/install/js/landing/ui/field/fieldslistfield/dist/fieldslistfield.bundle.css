@@ -104,7 +104,7 @@
 }
 
 .landing-ui-field-fields-list-item-text-title {
-	font: 12.5px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12.5px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #515e68;
 	letter-spacing: .25px;
 	padding-bottom: 5px;
@@ -112,7 +112,7 @@
 }
 
 .landing-ui-field-fields-list-item-text-description {
-	font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #3f4857;
 	text-align: left;
 }
@@ -172,7 +172,7 @@
 
 .landing-ui-field-fields-list-actions-button {
 	display: inline-block;
-	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 	border-bottom: 1px dashed #d8d8d8;
 	-webkit-transition: all 200ms ease;

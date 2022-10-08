@@ -1,3 +1,12 @@
+#landing-design-form .ui-form {
+	min-height: 500px;
+}
+
+#landing-site-design-form .landing-design-preview-wrap,
+#landing-design-form .landing-design-preview-wrap {
+	width: 35%;
+}
+
 #landing-design-form .ui-ctl-w100,
 #landing-site-design-form .ui-ctl-w100
 {
@@ -46,10 +55,6 @@
 
 .ui-form-row-group:last-child {
 	padding-bottom: 0;
-}
-
-.ui-form {
-	min-height: 500px;
 }
 
 .last-row {
@@ -128,9 +133,14 @@
 	font-size: 13px;
 }
 
-.landing-color-container {
+.landing-color-label {
 	margin-top: 20px;
+}
+.landing-color-container {
 	display: flex;
+}
+.landing-color-container.landing-color-allowed {
+	margin-top: 20px;
 }
 
 .landing-template-site-color-item {

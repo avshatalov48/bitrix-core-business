@@ -4,7 +4,7 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/themes/blue/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/forum/templates/.default/styles/additional.css');
 endif;
-$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/interface.php");
+$path = str_replace(array("\\", "//"), "/", __DIR__."/interface.php");
 include_once($path);
 // *****************************************************************************************
 if (!empty($arResult["ERROR_MESSAGE"])): 

@@ -33,8 +33,10 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	  } // region public
 
 
-	  loadFirstPage() {
-	    if (this.dataIsPreloaded) {
+	  loadFirstPage({
+	    ignorePreloadedItems = false
+	  } = {}) {
+	    if (this.dataIsPreloaded && !ignorePreloadedItems) {
 	      im_v2_lib_logger.Logger.warn(`Im.RecentList: first page was preloaded`);
 	      return Promise.resolve();
 	    }

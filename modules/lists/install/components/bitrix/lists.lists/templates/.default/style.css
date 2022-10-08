@@ -52,7 +52,7 @@
 .bp-bx-application-title {
 	overflow: hidden;
 	display: block;
-	font: bold 14px/18px Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	vertical-align: middle;
@@ -63,7 +63,7 @@
 
 .bp-bx-application-check label {
 	vertical-align: middle;
-	font: 11px Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #000;
 }
 
@@ -102,9 +102,6 @@
 .bx-lists-alert-popup {
 	background-color: #fffcde !important;
 	border: 1px solid #f0f0f0 !important;
-	border-radius: 3px !important;
-	-webkit-box-shadow: 0 19px 24px rgba(88, 112, 118, 0.17) !important;
-	box-shadow: 0 19px 24px rgba(88, 112, 118, 0.17) !important;
 }
 .bp-bx-application-title .bx-lists-application-link span:after
 {

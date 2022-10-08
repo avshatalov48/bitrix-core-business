@@ -9,6 +9,6 @@
 
 .catalog-warehouse-master-clear-popup-text {
 	margin-bottom: 12px;
-	font: 13px/17px"Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/17pxvar(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #828b95;
 }

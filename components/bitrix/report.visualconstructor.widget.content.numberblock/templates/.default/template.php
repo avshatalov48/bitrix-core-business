@@ -1,6 +1,8 @@
 <?php
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
+
 /** @var array $arResult
  *  CALCULATION_RESULT @see \Bitrix\Report\VisualConstructor\IReportSingleData::getSingleData()
  *  WIDGET @see \Bitrix\Report\VisualConstructor\Controller\Widget
@@ -9,6 +11,8 @@ $calculateResult = $arResult['CALCULATION_RESULT'];
 $unitOfMeasurement[0] = !empty($calculateResult['data'][0]['config']['unitOfMeasurement']) ? $calculateResult['data'][0]['config']['unitOfMeasurement'] : '';
 $unitOfMeasurement[1] = !empty($calculateResult['data'][1]['config']['unitOfMeasurement']) ? $calculateResult['data'][1]['config']['unitOfMeasurement'] : '';
 $unitOfMeasurement[2] = !empty($calculateResult['data'][2]['config']['unitOfMeasurement']) ? $calculateResult['data'][2]['config']['unitOfMeasurement'] : '';
+
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 ?>
 <div class="report-widget-number-block-container">
 	<div class="report-widget-number-block-row-container">

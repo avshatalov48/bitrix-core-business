@@ -145,7 +145,7 @@ $configAttributeValue = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($config
 
 		BX.ready(function ()
 		{
-			var dialog = BX.Bizproc.Automation.Designer.getRobotSettingsDialog();
+			var dialog = BX.Bizproc.Automation.Designer.getInstance().getRobotSettingsDialog();
 			if (!dialog)
 			{
 				return;

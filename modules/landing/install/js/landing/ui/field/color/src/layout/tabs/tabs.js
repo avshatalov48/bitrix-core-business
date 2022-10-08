@@ -1,7 +1,11 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 import {Cache, Dom, Event, Tag, Type} from 'main.core';
 import {BaseEvent, EventEmitter} from 'main.core.events';
 
 import BaseControl from '../../control/base_control/base_control';
+
 import './css/tabs.css';
 
 export default class Tabs extends EventEmitter

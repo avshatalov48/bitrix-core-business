@@ -666,7 +666,8 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 					var dropDownItem = {
 						caption: audienceData.name,
 						value: audienceData.id,
-						selected: audienceData.id == this.audienceId
+						selected: audienceData.id == this.audienceId,
+						disabled: audienceData.status === 'is_processed'
 					};
 
 					dropDownData.push(dropDownItem);
@@ -789,6 +790,7 @@ if (typeof(CrmAdsRetargeting) === "undefined")
 				var option = document.createElement('option');
 				option.value = item.value;
 				option.selected = !!item.selected;
+				option.disabled = !!item.disabled;
 				option.innerText = item.caption;
 				node.appendChild(option);
 			});

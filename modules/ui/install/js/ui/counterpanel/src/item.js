@@ -163,7 +163,7 @@ export default class CounterItem {
 
 		return this.layout.cross;
 	}
-
+	
 	#setEvents()
 	{
 		if (this.eventsForActive)

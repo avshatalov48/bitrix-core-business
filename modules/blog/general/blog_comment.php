@@ -1111,7 +1111,8 @@ HTML
 					"SHOW_POST_FORM" => (!empty($arParams["CAN_USER_COMMENT"]) && $arParams["CAN_USER_COMMENT"] ? "Y" : "N"),
 
 					"IMAGE_SIZE" => "",
-					"mfi" => ""
+					"mfi" => "",
+					'CURRENT_USER_ID' => (isset($arParams['CURRENT_USER_ID']) ? (int)$arParams['CURRENT_USER_ID'] : 0),
 				),
 				array(),
 				null

@@ -5,6 +5,8 @@ import AlertColor from './alert-color';
 import AlertSize from './alert-size';
 import AlertIcon from './alert-icon';
 
+import 'ui.design-tokens';
+
 type AlertOptions = {
 	text: string;
 	color: AlertColor;
@@ -310,7 +312,7 @@ export default class Alert {
 			260
 		);
 	}
-	
+
 	//endregion
 
 	show()

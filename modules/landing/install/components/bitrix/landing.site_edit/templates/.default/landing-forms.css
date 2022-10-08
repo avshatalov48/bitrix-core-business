@@ -2,12 +2,13 @@
 {
 	padding: 11px 15px;
 	background: #fff;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .ui-input {
 	box-sizing: border-box;
 	border: none;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	box-shadow: inset 0 0 0 1px #c6cdd3;
 	color: #5e6675;
 	font-size: 14px;
@@ -25,7 +26,7 @@
 .ui-textarea {
 	color: #7c7c7c;
 	font-size: 14px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .ui-input::-webkit-input-placeholder { /* Chrome/Opera/Safari */
@@ -44,12 +45,12 @@
 	color: #bdc7d2;
 }
 
-.ui-form-label__locked
+.landing-form-label__locked
 {
 	position: relative;
 }
 
-.ui-form-label__locked .tariff-lock
+.landing-form-label__locked .tariff-lock
 {
 	position: absolute;
 	top: 2px;
@@ -61,28 +62,29 @@
 	padding: 0 0 10px;
 }
 
-.ui-editable-field {
+.landing-editable-field {
 	display: inline-block;
 	height: 42px;
 	position: relative;
 	padding-right: 24px;
 }
 
-.ui-editable-field-textar-wrap {
+.landing-editable-field-textar-wrap {
 	height: auto;
 }
 
-.ui-editable-field-input,
-.ui-editable-field-textarea {
+.landing-editable-field-input,
+.landing-editable-field-textarea {
 	display: none;
 	font-size: 19px;
-	font-family: 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	height: 42px;
 	padding: 0 0 0 11px;
 	animation: uiShowTitleInput 0.2s linear;
 }
 
-.ui-editable-field-textarea {
+.landing-editable-field-textarea {
 	height: auto;
 }
 
@@ -91,18 +93,19 @@
 	100% { box-shadow: inset 0 0 0 1px rgba(198,205,211, 1);}
 }
 
-.ui-editable-field-label {
+.landing-editable-field-label {
 	color: #7c7c7c;
 	display: inline-block;
 	font-size: 19px;
-	font-family: 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	height: 42px;
 	line-height: 42px;
 	padding-left: 11px;
 	margin: 0;
 }
 
-.ui-editable-field-textar-wrap .ui-editable-field-label {
+.landing-editable-field-textar-wrap .landing-editable-field-label {
 	height: auto;
 }
 
@@ -115,7 +118,7 @@
 	width: 20px;
 }
 
-.ui-editable-field-textar .ui-title-input-btn {
+.landing-editable-field-textar .ui-title-input-btn {
 	top: 1px;
 }
 
@@ -133,26 +136,27 @@
 	opacity: 0.8;
 }
 
-.ui-form-collapse {
+.landing-form-collapse {
 	border: none;
 	padding: 0;
 }
 
-.ui-form-collapse-block {
+.landing-form-collapse-block {
 	background-color: #ffffff;
 	cursor: pointer;
 	min-height: 71px;
 	position: relative;
 	display: flex;
 	width: 100%;
+	border-radius: var(--ui-form-collapse-block-border-radius);
 }
 
-.ui-form-gray-padding .ui-form-collapse-block {
+.landing-form-gray-padding .landing-form-collapse-block {
 	padding: 25px 27px 0 42px;
 	box-sizing: border-box;
 }
 
-.ui-form-collapse-block:before {
+.landing-form-collapse-block:before {
 	background-image: url(data:image/svg+xml,%3Csvg%20width%3D%2212px%22%20height%3D%228px%22%20viewBox%3D%220%200%2012%208%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%3Cpath%20d%3D%22M3.82842712%2C3.48528137%20L3.82842712%2C-2.34314575%20L1.82842712%2C-2.34314575%20L1.82842712%2C3.48528137%20L1.65685425%2C3.48528137%20L1.65685425%2C5.48528137%20L1.82842712%2C5.48528137%20L1.82842712%2C5.65685425%20L3.82842712%2C5.65685425%20L3.82842712%2C5.48528137%20L9.65685425%2C5.48528137%20L9.65685425%2C3.48528137%20L3.82842712%2C3.48528137%20Z%22%20id%3D%22Path-Copy-3%22%20fill%3D%22%238A9098%22%20transform%3D%22translate%285.656854%2C%201.656854%29%20rotate%28-45.000000%29%20translate%28-5.656854%2C%20-1.656854%29%20%22%3E%3C/path%3E%3C/svg%3E);
 	background-repeat: no-repeat;
 	background-position: 0 0;
@@ -165,13 +169,13 @@
 	width: 12px;
 }
 
-.ui-form-collapse-block:hover:before {
+.landing-form-collapse-block:hover:before {
 	opacity: 1;
 }
 
-.ui-form-collapse-label {
+.landing-form-collapse-label {
 	color: #535c69;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-right: 2px;
 }
 
@@ -179,7 +183,7 @@
 	margin-top: 5px;
 }
 
-.ui-form-control-label-help {
+.landing-form-control-label-help {
 	color: #80868e;
 	font-size: 14px;
 	margin-bottom: 9px;
@@ -247,7 +251,7 @@
 	opacity: 0.8;
 }
 
-.ui-form-field-description {
+.landing-form-field-description {
 	color: #80868e;
 	font-size: 13px;
 	margin: 0 0 15px;
@@ -475,7 +479,8 @@
 
 .ui-form-row.landing-form-title-catalog {
 	color: #333;
-	font: 18px/24px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 18px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	padding: 19px 0 15px 20px;
 	margin-left: -20px;
 	background-color: #fff;

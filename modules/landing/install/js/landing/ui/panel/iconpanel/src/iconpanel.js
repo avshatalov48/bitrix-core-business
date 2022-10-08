@@ -7,6 +7,7 @@ import {TextField} from 'landing.ui.field.textfield';
 import {Loc} from 'landing.loc';
 import {Cache, Dom, Runtime, Type, Tag} from 'main.core';
 
+import 'ui.fonts.opensans';
 import './css/style.css';
 
 /**

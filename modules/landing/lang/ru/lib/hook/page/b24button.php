@@ -6,3 +6,5 @@ $MESS['LANDING_HOOK_B24BUTTONCOLOR_SITE'] = 'использовать основ
 $MESS['LANDING_HOOK_B24BUTTONCOLOR_BUTTON'] = 'использовать цвет из настроек виджета';
 $MESS['LANDING_HOOK_B24BUTTONCOLOR_CUSTOM'] = 'использовать свой цвет';
 $MESS['LANDING_HOOK_B24BUTTONCOLOR_VALUE'] = 'Свой цвет';
+$MESS['LANDING_HOOK_B24BUTTONCODE_PAGE_TITLE'] = 'Виджет на страницу';
+$MESS['LANDING_HOOK_B24BUTTONCODE_USE'] = 'Индивидуальная настройка виджета';

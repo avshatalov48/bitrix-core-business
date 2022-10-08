@@ -116,26 +116,30 @@
 .rest-configuration-banner-title {
 	color: #fff;
 	font-size: 27px;
-	font-family: "OpenSans-Regular", "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	pointer-events: none;
 }
 
 .rest-configuration-banner-title .rest-configuration-banner-title-strong {
 	display: block;
-	font-family: "OpenSans-Bold", "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .rest-configuration-banner-title-light {
 	display: block;
 	padding-left: 1px;
 	max-width: 420px;
-	font-family: "OpenSans-Regular", "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 15px;
 	line-height: 18px;
 }
 
 .rest-configuration-banner-title-light span {
-	font-family: "OpenSans-Bold", "Helvetica Neue", Helvetica, sans-serif;;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .rest-configuration-banner-icon {
@@ -206,6 +210,7 @@
 .rest-market-partners-price {
 	font-size: 14px;
 	color: #525C69;
-	font-family: "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 /* END OF BANNER */

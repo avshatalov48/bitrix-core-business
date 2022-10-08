@@ -907,7 +907,7 @@ class Imap
 
 			if (preg_match('/^ \{ ( \d+ ) \} $/ix', $sname, $literal))
 			{
-				$sname = \CUtil::binSubstr($matches['ext'], 0, $literal[1]);
+				$sname = substr($matches['ext'], 0, $literal[1]);
 			}
 			else if (preg_match('/^ " ( .* ) " $/ix', $sname, $quoted))
 			{
@@ -1743,7 +1743,7 @@ class Imap
 		}
 
 		$fails = 0;
-		while (\CUtil::binStrlen($data) > 0 && !feof($this->stream))
+		while (strlen($data) > 0 && !feof($this->stream))
 		{
 			$bytes = @fputs($this->stream, $data);
 
@@ -1759,10 +1759,10 @@ class Imap
 
 			$fails = 0;
 
-			$data = \CUtil::binSubstr($data, $bytes);
+			$data = substr($data, $bytes);
 		}
 
-		if (\CUtil::binStrlen($data) > 0)
+		if (strlen($data) > 0)
 		{
 			$this->reset();
 			return false;
@@ -1791,7 +1791,7 @@ class Imap
 				: array('timed_out' => false);
 
 			$data  .= $buffer;
-			$bytes -= \CUtil::binStrlen($buffer);
+			$bytes -= strlen($buffer);
 
 			if ($meta['timed_out'])
 				break;
@@ -1886,7 +1886,7 @@ class Imap
 		if (preg_match('/^[^\x00\x0a\x0d\x80-\xff]*$/', $data))
 			return sprintf('"%s"', static::escapeQuoted($data));
 		else
-			return sprintf("{%u}\x00%s", \CUtil::binStrlen($data), $data);
+			return sprintf("{%u}\x00%s", strlen($data), $data);
 	}
 
 	protected static function escapeQuoted($data)
@@ -2029,6 +2029,7 @@ class Imap
 			case self::ERR_CAPABILITY:
 				return Loc::getMessage('MAIL_IMAP_ERR_CAPABILITY');
 			case self::ERR_AUTH:
+			case self::ERR_SELECT:
 				return Loc::getMessage('MAIL_IMAP_ERR_AUTH');
 			case self::ERR_AUTH_MECH:
 				return Loc::getMessage('MAIL_IMAP_ERR_AUTH_MECH');
@@ -2036,8 +2037,6 @@ class Imap
 				return Loc::getMessage('MAIL_IMAP_ERR_AUTH_OAUTH');
 			case self::ERR_LIST:
 				return Loc::getMessage('MAIL_IMAP_ERR_LIST');
-			case self::ERR_SELECT:
-				return Loc::getMessage('MAIL_IMAP_ERR_SELECT');
 			case self::ERR_SEARCH:
 				return Loc::getMessage('MAIL_IMAP_ERR_SEARCH');
 			case self::ERR_FETCH:

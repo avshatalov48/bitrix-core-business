@@ -1,11 +1,13 @@
 export class Mode
 {
 	static experimental: ModeOptions = {
-		id: 0
+		id: 0,
+		code: 'experimental',
 	};
 
 	static interception: ModeOptions = {
-		id: 1
+		id: 1,
+		code: 'interception',
 	};
 
 	static isMode(modeId: number): boolean
@@ -38,4 +40,5 @@ export class Mode
 
 export type ModeOptions = {
 	id: number,
+	code: string,
 }

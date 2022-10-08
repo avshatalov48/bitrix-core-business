@@ -3,7 +3,7 @@
 }
 
 .bx-im-element-attach-type-display-block .bx-im-element-attach-type-grid-element-name {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bx-im-element-attach-type-display-block + .bx-im-element-attach-type-display-block {
@@ -24,7 +24,7 @@
 }
 
 .bx-im-element-attach-type-display-column-table .bx-im-element-attach-type-grid-element-name {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 20px;
 	vertical-align: top;
 	padding-right: 10px;
@@ -50,7 +50,7 @@
 }
 
 .bx-im-element-attach-type-display-card .bx-im-element-attach-type-grid-element-name {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bx-im-element-attach-type-display-card + .bx-im-element-attach-type-display-card {

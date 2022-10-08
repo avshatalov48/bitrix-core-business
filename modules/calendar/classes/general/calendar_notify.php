@@ -112,6 +112,9 @@ class CCalendarNotify
 			case 'delete_location':
 				$notifyFields = self::DeleteLocation($notifyFields, $params);
 				break;
+			case 'cancel_booking':
+				$notifyFields = self::CancelBooking($notifyFields, $params);
+				break;
 		}
 
 		$messageId = CIMNotify::Add($notifyFields);
@@ -190,8 +193,12 @@ class CCalendarNotify
 
 		if ($params['location'] != "")
 		{
-			$fields['MESSAGE'] .= "\n\n".Loc::getMessage('EC_LOCATION').': '.$params['location'];
-			$fields['MESSAGE_OUT'] .= "\n\n".Loc::getMessage('EC_LOCATION').': '.$params['location'];
+			$fields['MESSAGE'] .= "\n\n" . Loc::getMessage('EC_EVENT_REMINDER_LOCATION', [
+				'#LOCATION#' => $params['location']
+			]);
+			$fields['MESSAGE_OUT'] .= "\n\n" . Loc::getMessage('EC_EVENT_REMINDER_LOCATION', [
+				'#LOCATION#' => $params['location']
+			]);;
 		}
 
 		$fields['PUSH_MESSAGE'] = str_replace(
@@ -794,6 +801,58 @@ class CCalendarNotify
 				'#LOCATION#' => $params["location"]
 			]
 		);
+
+		return $fields;
+	}
+
+	public static function CancelBooking($fields = [], $params)
+	{
+		$fields['NOTIFY_EVENT'] = 'release_location';
+		$fields['FROM_USER_ID'] = (int)$params['userId'];
+		$fields['TO_USER_ID'] = (int)$params['guestId'];
+		$fields['NOTIFY_TAG'] =
+			'CALENDAR|LOCATION|' . (int)$params['locationId']
+			. '|' . (int)$params['userId'] . '|' . (int)$params['eventId'] . '|' . 'cancel'
+		;
+		$fields['NOTIFY_SUB_TAG'] = 'CALENDAR|LOCATION|' . $params['locationId'];
+
+		switch ($params['recursionMode'])
+		{
+			case 'all':
+
+				$notificationCode = 'EC_NOTIFY_CANCEL_BOOKING_ALL';
+				break;
+			case 'next':
+				$notificationCode = 'EC_NOTIFY_CANCEL_BOOKING_NEXT';
+				break;
+			default:
+				$notificationCode = 'EC_NOTIFY_CANCEL_BOOKING_THIS';
+				break;
+		}
+		$fromTime = '';
+		$fromDate = '';
+		if($params['fields']['DT_SKIP_TIME'] === 'N')
+		{
+			$fromTime = Loc::getMessage('EC_NOTIFY_CANCEL_BOOKING_TIME',
+				[
+					'#FROM_TIME#'=> mb_substr($params['from'], -5, 5)
+				],
+			);
+			$fromDate = mb_substr($params['from'], 0, mb_strlen($params['from']) - 6);
+		}
+		$fields['MESSAGE'] =
+			Loc::getMessage($notificationCode,
+			[
+				'#FROM#' => $params['from_formatted'],
+				'#LINK#' => $params['pathToEvent'],
+				'#EVENT#' => $params['eventName'],
+				'#FREQUENCY#' => $params['rrule'],
+				'#FROM_TIME#' => $fromTime,
+				'#FROM_DATE#' => $fromDate,
+			])
+			.
+			Loc::getMessage('EC_NOTIFY_CANCEL_BOOKING_ENDING')
+		;
 
 		return $fields;
 	}

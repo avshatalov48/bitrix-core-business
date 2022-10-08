@@ -11,6 +11,8 @@ $value = $field->getValue();
 $fieldName = $field->getName();
 $fieldId = $field->getId();
 $options = $field->getOptions();
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
 ?>
 
 <div class="report-configuration-item report-configuration-item-inline report-configuration-custom-select-item">

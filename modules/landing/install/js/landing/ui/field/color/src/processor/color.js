@@ -176,10 +176,11 @@ export default class Color extends BaseProcessor
 		{
 			let oldClass;
 			let activeControl;
-			if (styleNode.hasOwnProperty('currentTarget'))
+			const node = styleNode.getNode();
+			if (node.length > 0)
 			{
 				items.forEach((item) => {
-					if (Dom.hasClass(styleNode.currentTarget, item.value))
+					if (Dom.hasClass(node[0], item.value))
 					{
 						oldClass = item.value;
 					}

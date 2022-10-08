@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["VOTE_ANONYMOUSLY"] = "Anonymous";
 $MESS["VOTE_ERROR"] = "Error:";
 $MESS["VOTE_ERROR_BY_COOKIE"] = "This cookie is already marked as voted [cookie].";
@@ -15,6 +15,7 @@ $MESS["VOTE_ERROR_SAME_DATE_VOTE_IS_ALREADY_EXISTS"] = "The poll date range conf
 $MESS["VOTE_GUEST"] = "Guest";
 $MESS["VOTE_GUESTS"] = "Guests";
 $MESS["VOTE_IS_NOT_ACTIVE"] = "The poll is inactive.";
+$MESS["VOTE_IS_OCCUPIED"] = "The poll is still active. Please try again later.";
 $MESS["V_EXPORT_DATE"] = "Date";
 $MESS["V_EXPORT_GENERAL_INFO"] = "General information";
 $MESS["V_EXPORT_NAME"] = "Name";
@@ -25,4 +26,3 @@ $MESS["V_NOTIFY_MESSAGE_HREF"] = "Voted in the poll <a href=\"#VOTE_URL#\">#VOTE
 $MESS["V_NOTIFY_MESSAGE_HREF_F"] = "Voted in the poll <a href=\"#VOTE_URL#\">#VOTE_TITLE#</a>.";
 $MESS["V_NOTIFY_MESSAGE_OUT_HREF"] = "Voted in the poll \"#VOTE_TITLE#\" (#VOTE_URL#)";
 $MESS["V_NOTIFY_MESSAGE_OUT_HREF_F"] = "Voted in the poll \"#VOTE_TITLE#\" (#VOTE_URL#)";
-?>

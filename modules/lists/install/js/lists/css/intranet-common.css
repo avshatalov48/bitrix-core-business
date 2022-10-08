@@ -164,7 +164,7 @@ span.webform-field-textbox, span.webform-field-textbox-double { display: inline-
 
 span.webform-field-textbox-inner { display: inline-block; }
 
-.webform-field-textbox input, .webform-field-textbox-double input { font: normal normal normal 13px/normal Arial, Helvetica, sans-serif; border: 0; padding: 0; color: #000; background-color: #fff; margin: 0; }
+.webform-field-textbox input, .webform-field-textbox-double input { font: normal normal normal 13px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); border: 0; padding: 0; color: #000; background-color: #fff; margin: 0; }
 
 .webform-field-textbox input[type="text"], .webform-field-textbox-double input[type="text"] { outline: none; }
 
@@ -190,7 +190,7 @@ span.webform-field-textbox-inner { display: inline-block; }
 
 .webform-field-combobox-arrow { display: inline-block; width: 25px; background: url(/bitrix/js/main/core/images/controls-sprite.png?1) no-repeat -15px -14px; vertical-align: top; text-decoration: none !important; outline: none; }
 
-.webform-field-combobox input, .webform-field-combobox-arrow { font: normal normal normal 15px/normal Arial, Helvetica, sans-serif; }
+.webform-field-combobox input, .webform-field-combobox-arrow { font: normal normal normal 15px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); }
 
 .webform-field-combobox-disabled .webform-field-combobox-arrow { display: none; }
 
@@ -198,7 +198,7 @@ span.webform-field-textbox-inner { display: inline-block; }
 
 .webform-field-date { border: 1px solid #d9d9d9; background-color: #fff; display: inline-block; vertical-align: top; padding: 3px 6px 4px 6px; }
 
-.webform-field-date input { width: 140px; border: 0; padding: 0; color: #191919; background-color: #fff; vertical-align: top; font: normal normal normal 13px/normal Arial, Helvetica, sans-serif; }
+.webform-field-date input { width: 140px; border: 0; padding: 0; color: #191919; background-color: #fff; vertical-align: top; font: normal normal normal 13px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); }
 
 .webform-field-date input[type="text"] { outline: none; }
 
@@ -208,7 +208,7 @@ span.webform-field-textbox-inner { display: inline-block; }
 
 .webform-additional-fields .webform-field-textarea { border: 1px solid #f6f6f6; }
 
-.webform-field-textarea textarea { width: 99%; height: 100px; font: normal normal normal 14px/normal Arial, Helvetica, sans-serif; border: 0; padding: 0; color: #000; outline: none; background-color: #fff; resize: none; }
+.webform-field-textarea textarea { width: 99%; height: 100px; font: normal normal normal 14px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); border: 0; padding: 0; color: #000; outline: none; background-color: #fff; resize: none; }
 
 .webform-field-textarea textarea.inactive { color: #999; }
 
@@ -304,9 +304,9 @@ span.webform-field-textbox-inner { display: inline-block; }
 	height: 47px;
 	line-height: 47px;
 	margin: 0 16px 0 0;
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 12px;
-	font-weight: normal;
 	outline: none;
 	padding: 0 18px;
 	vertical-align: middle;
@@ -346,8 +346,8 @@ span.webform-field-textbox-inner { display: inline-block; }
 	color: #7a818a;
 	display: inline;
 	height: auto;
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
-	font-weight: normal;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 12px;
 	line-height: 47px;
 	text-shadow: none !important;
@@ -433,8 +433,8 @@ span.webform-field-textbox-inner { display: inline-block; }
 	color: #7a818a;
 	display: inline;
 	height: auto;
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
-	font-weight: normal;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 12px;
 	line-height: 47px;
 	text-shadow: none !important;
@@ -457,8 +457,8 @@ span.webform-field-textbox-inner { display: inline-block; }
 	display: inline-block;
 	height: auto;
 	line-height: 39px;
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
-	font-weight: normal;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 12px;
 	cursor: pointer;
 	vertical-align: top;
@@ -702,7 +702,7 @@ span.webform-field-textbox-inner { display: inline-block; }
 	cursor: pointer;
 	margin: 8px 15px 0 0;
 	border-bottom: 1px solid transparent;
-	font: normal normal normal 14px/normal "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: normal normal normal 14px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-transition: border-bottom-color 0.25s linear;
 	transition: border-bottom-color 0.25s linear;
 	text-decoration: none !important;
@@ -899,8 +899,8 @@ span.webform-field-textbox-inner { display: inline-block; }
 	display: block;
 	content: '_';
 	font-size: 10px;
-	font-family: "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-weight: normal;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	line-height: 10px;
 	height: 21px;
 	top: 13px;
@@ -1037,7 +1037,7 @@ span.webform-field-textbox-inner { display: inline-block; }
 .finder-box {
 	padding: 2px 6px 6px 6px;
 	background: #fff;
-	font: normal normal normal 12px/normal Arial, Helvetica, sans-serif;
+	font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	overflow: hidden;
 	width: 395px;
 }
@@ -1071,7 +1071,7 @@ span.webform-field-textbox-inner { display: inline-block; }
 
 .finder-box-tab-right { }
 
-.finder-box-tab-text { line-height: 21px; padding: 0 5px; font-weight: bold; color: #333; }
+.finder-box-tab-text { line-height: 21px; padding: 0 5px; font-weight: var(--ui-font-weight-bold); color: #333; }
 
 .finder-box-tab:hover { background: url(/bitrix/js/main/core/images/controls-sprite.png?1) repeat-x 0 -621px; }
 
@@ -1139,7 +1139,7 @@ span.webform-field-textbox-inner { display: inline-block; }
 
 .company-department-opened .company-department-arrow { background: url(/bitrix/js/main/core/images/controls-sprite.png?1) no-repeat -16px -191px; }
 
-.company-department-text { display: inline-block; overflow: hidden; padding: 1px 5px 1px 5px; color: #000; font: normal normal normal 12px/normal Arial, Helvetica, sans-serif; }
+.company-department-text { display: inline-block; overflow: hidden; padding: 1px 5px 1px 5px; color: #000; font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)); }
 
 .company-department-inner:hover .company-department-text, .company-department-inner:hover .company-department-arrow { background-color: #f0f0f0; }
 
@@ -1197,7 +1197,7 @@ span.webform-field-textbox-inner { display: inline-block; }
 	color: #0069c4;
 	cursor: pointer;
 	display: inline-block;
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 12px;
 	height: 19px;
 	line-height: 19px;
@@ -1218,16 +1218,16 @@ span.webform-field-textbox-inner { display: inline-block; }
 	margin-bottom: 10px;
 	background: #fff;
 	line-height: 20px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	max-width: 500px;
 }
 
 .invite-dialog-inv-block {
 	color: #000;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 15px 0;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	width: 520px;
 	line-height: 20px;
 }
@@ -1289,7 +1289,7 @@ a.invite-dialog-inv-link, a.invite-dialog-inv-link:active, a.invite-dialog-inv-l
 	border: 1px solid;
 	border-color: #b9bcbe #bdc1c3 #c1c5c8;
 	border-radius: 2px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	height: 30px;
 	padding: 0 0 0 3%;
 	width: 97%;
@@ -1302,7 +1302,7 @@ a.invite-dialog-inv-link, a.invite-dialog-inv-link:active, a.invite-dialog-inv-l
 	border: 1px solid;
 	border-color: #b9bcbe #bdc1c3 #c1c5c8;
 	border-radius: 2px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	padding: 10px;
 	width: 93%;
 	font-size: 13px;
@@ -1320,7 +1320,7 @@ a.invite-dialog-inv-link, a.invite-dialog-inv-link:active, a.invite-dialog-inv-l
 	border: 1px solid;
 	border-color: #b9bcbe #bdc1c3 #c1c5c8;
 	border-radius: 2px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	height: 32px;
 	outline: none;
 	padding: 5px 3px 5px 0;
@@ -1329,7 +1329,7 @@ a.invite-dialog-inv-link, a.invite-dialog-inv-link:active, a.invite-dialog-inv-l
 
 .invite-dialog-inv-form-hidden-text {
 	height: 32px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	padding-top: 7px;
 }
 
@@ -1355,7 +1355,7 @@ a.invite-dialog-inv-link, a.invite-dialog-inv-link:active, a.invite-dialog-inv-l
 	font-size: 14px;
 	font-weight: normal;
 	padding: 10px 0 10px 0;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .invite-dialog-inv-success-block {
@@ -1396,7 +1396,7 @@ a.invite-dialog-inv-link, a.invite-dialog-inv-link:active, a.invite-dialog-inv-l
 	height: 23px;
 	line-height: 23px;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	vertical-align: middle;
 	text-shadow: 0 1px #fff;
 	padding: 0 5px;

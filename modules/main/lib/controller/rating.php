@@ -10,10 +10,13 @@
 namespace Bitrix\Main\Controller;
 
 use Bitrix\Main;
+use Bitrix\Main\Application;
 use Bitrix\Main\Rating\Internal\Action;
 
 class Rating extends Main\Engine\Controller
 {
+	private const LOCK_KEY_PREFIX = 'rating.lock.';
+
 	public function configureActions(): array
 	{
 		$configureActions = parent::configureActions();
@@ -29,6 +32,14 @@ class Rating extends Main\Engine\Controller
 
 	public function voteAction(array $params = []): ?array
 	{
+		$key = self::LOCK_KEY_PREFIX.$this->getCurrentUser()->getId();
+
+		if (!Application::getConnection()->lock($key))
+		{
+			$this->addError(new Main\Error('Request already exists', 'ERR_PARAMS'));
+			return null;
+		}
+
 		$entityTypeId = (string)($params['RATING_VOTE_TYPE_ID'] ?? '');
 		$entityId = (int)($params['RATING_VOTE_ENTITY_ID'] ?? 0);
 		$action = (string)($params['RATING_VOTE_ACTION'] ?? '');
@@ -51,6 +62,7 @@ class Rating extends Main\Engine\Controller
 			'RATING_RESULT' => 'N',
 			'REMOTE_ADDR' => $_SERVER['REMOTE_ADDR'],
 			'CURRENT_USER_ID' => $this->getCurrentUser()->getId(),
+			'CHECK_RIGHTS' => 'Y',
 		];
 
 		$ratingVoteResult = \CRatings::getRatingVoteResult($ratingParams['ENTITY_TYPE_ID'], $ratingParams['ENTITY_ID']);
@@ -78,6 +90,8 @@ class Rating extends Main\Engine\Controller
 		{
 			$this->addError(new Main\Error('Cannot do vote', 'CANNOT_VOTE'));
 		}
+
+		Application::getConnection()->unlock($key);
 
 		return $voteList;
 	}
@@ -114,6 +128,7 @@ class Rating extends Main\Engine\Controller
 			'LIST_TYPE' => $listType,
 			'PATH_TO_USER_PROFILE' => $pathToUserProfile,
 			'CURRENT_USER_ID' => $this->getCurrentUser()->getId(),
+			'CHECK_RIGHTS' => 'Y',
 		]);
 	}
 }

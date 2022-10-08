@@ -17,7 +17,7 @@ $arThemesMessages = array(
 	"orange" => GetMessage("BLG_THEME_ORANGE"), 
 	);
 $arThemes = array();
-$dir = trim(preg_replace("'[\\\\/]+'", "/", dirname(__FILE__)."/themes/"));
+$dir = trim(preg_replace("'[\\\\/]+'", "/", __DIR__."/themes/"));
 if (is_dir($dir) && $directory = opendir($dir)):
 	
 	while (($file = readdir($directory)) !== false)

@@ -1,5 +1,6 @@
 this.BX = this.BX || {};
-(function (exports,main_popup,main_core_events,bizproc_automation,ui_fonts_opensans,main_core) {
+this.BX.Bizproc = this.BX.Bizproc || {};
+(function (exports,ui_entitySelector,main_popup,main_core_events,bizproc_automation,main_core) {
 	'use strict';
 
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
@@ -2021,7 +2022,7 @@ this.BX = this.BX || {};
 	      });
 	      var titleBar = trigger.draft ? this.createChangeTriggerTitleBar(title, trigger.documentStatus) : null;
 	      var self = this;
-	      var popup = new BX.PopupWindow(BX.Bizproc.Helper.generateUniqueId(), null, {
+	      var popup = new BX.PopupWindow(Helper.generateUniqueId(), null, {
 	        titleBar: titleBar || title,
 	        content: form,
 	        closeIcon: true,
@@ -2101,8 +2102,12 @@ this.BX = this.BX || {};
 	              if (trigger.draft) {
 	                babelHelpers.classPrivateFieldGet(self, _triggers).push(trigger);
 	                self.insertTriggerNode(trigger.getStatusId(), trigger.node);
-	              }
+	              } //analytics
 
+
+	              main_core.ajax.runAction('bizproc.analytics.push', {
+	                analyticsLabel: "automation_trigger".concat(trigger.draft ? '_draft' : '', "_save_").concat(trigger.getCode().toLowerCase())
+	              });
 	              delete trigger.draft;
 	              trigger.reInit();
 	              self.markModified();
@@ -2120,7 +2125,11 @@ this.BX = this.BX || {};
 	        })]
 	      });
 	      Designer.getInstance().getTriggerSettingsDialog().popup = popup;
-	      popup.show();
+	      popup.show(); //analytics
+
+	      main_core.ajax.runAction('bizproc.analytics.push', {
+	        analyticsLabel: "automation_trigger".concat(trigger.draft ? '_draft' : '', "_settings_").concat(trigger.getCode().toLowerCase())
+	      });
 	    }
 	  }, {
 	    key: "createChangeTriggerTitleBar",
@@ -2421,6 +2430,19 @@ this.BX = this.BX || {};
 	  }
 
 	  babelHelpers.createClass(Document, [{
+	    key: "clone",
+	    value: function clone() {
+	      return new Document({
+	        rawDocumentType: main_core.Runtime.clone(babelHelpers.classPrivateFieldGet(this, _rawType)),
+	        documentId: babelHelpers.classPrivateFieldGet(this, _id),
+	        categoryId: babelHelpers.classPrivateFieldGet(this, _categoryId),
+	        statusId: this.getCurrentStatusId(),
+	        statusList: main_core.Runtime.clone(babelHelpers.classPrivateFieldGet(this, _statusList)),
+	        documentFields: main_core.Runtime.clone(babelHelpers.classPrivateFieldGet(this, _fields)),
+	        title: babelHelpers.classPrivateFieldGet(this, _title)
+	      });
+	    }
+	  }, {
 	    key: "getRawType",
 	    value: function getRawType() {
 	      return babelHelpers.classPrivateFieldGet(this, _rawType);
@@ -2974,11 +2996,11 @@ this.BX = this.BX || {};
 	var WorkflowStatus = function WorkflowStatus() {
 	  babelHelpers.classCallCheck(this, WorkflowStatus);
 	};
-	babelHelpers.defineProperty(WorkflowStatus, "CREATED_WORKFLOW_STATUS", 0);
-	babelHelpers.defineProperty(WorkflowStatus, "RUNNING_WORKFLOW_STATUS", 1);
-	babelHelpers.defineProperty(WorkflowStatus, "COMPLETED_WORKFLOW_STATUS", 2);
-	babelHelpers.defineProperty(WorkflowStatus, "SUSPENDED_WORKFLOW_STATUS", 3);
-	babelHelpers.defineProperty(WorkflowStatus, "TERMINATED_WORKFLOW_STATUS", 4);
+	babelHelpers.defineProperty(WorkflowStatus, "CREATED", 0);
+	babelHelpers.defineProperty(WorkflowStatus, "RUNNING", 1);
+	babelHelpers.defineProperty(WorkflowStatus, "COMPLETED", 2);
+	babelHelpers.defineProperty(WorkflowStatus, "SUSPENDED", 3);
+	babelHelpers.defineProperty(WorkflowStatus, "TERMINATED", 4);
 
 	function _classPrivateFieldInitSpec$7(obj, privateMap, value) { _checkPrivateRedeclaration$7(obj, privateMap); privateMap.set(obj, value); }
 
@@ -3041,7 +3063,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getAllWorkflowStatuses",
 	    value: function getAllWorkflowStatuses() {
-	      return [WorkflowStatus.CREATED_WORKFLOW_STATUS, WorkflowStatus.RUNNING_WORKFLOW_STATUS, WorkflowStatus.COMPLETED_WORKFLOW_STATUS, WorkflowStatus.SUSPENDED_WORKFLOW_STATUS, WorkflowStatus.TERMINATED_WORKFLOW_STATUS];
+	      return [WorkflowStatus.CREATED, WorkflowStatus.RUNNING, WorkflowStatus.COMPLETED, WorkflowStatus.SUSPENDED, WorkflowStatus.TERMINATED];
 	    }
 	  }, {
 	    key: "isKnownWorkflowStatus",
@@ -3101,7 +3123,7 @@ this.BX = this.BX || {};
 	      value: -1
 	    });
 
-	    babelHelpers.defineProperty(this, "workflowStatus", WorkflowStatus.CREATED_WORKFLOW_STATUS);
+	    babelHelpers.defineProperty(this, "workflowStatus", WorkflowStatus.CREATED);
 
 	    if (main_core.Type.isArray(entries)) {
 	      var _iterator = _createForOfIteratorHelper$2(entries),
@@ -3182,7 +3204,7 @@ this.BX = this.BX || {};
 	        title: '',
 	        datetime: '',
 	        note: '',
-	        workflowStatus: WorkflowStatus.CREATED_WORKFLOW_STATUS
+	        workflowStatus: WorkflowStatus.CREATED
 	      }
 	    });
 
@@ -3349,7 +3371,7 @@ this.BX = this.BX || {};
 
 	              if (!main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _document))) {
 	                var isRobotRunning = robotEntry.status === TrackingStatus.RUNNING;
-	                var isWorkflowCompleted = robotEntry.workflowStatus === WorkflowStatus.COMPLETED_WORKFLOW_STATUS;
+	                var isWorkflowCompleted = robotEntry.workflowStatus === WorkflowStatus.COMPLETED;
 	                var isCurrentStatus = babelHelpers.classPrivateFieldGet(this, _document).getCurrentStatusId() === statusId;
 	                var isRobotRunningAtAnotherStatus = isRobotRunning && !isCurrentStatus;
 	                var isRobotRunningAndCurrentWorkflowCompleted = isRobotRunning && isWorkflowCompleted && isCurrentStatus;
@@ -3763,7 +3785,7 @@ this.BX = this.BX || {};
 	      var targetLabel = main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TO');
 	      var targetNode = main_core.Dom.create("a", {
 	        attrs: {
-	          className: "bizproc-automation-robot-settings-name",
+	          className: "bizproc-automation-robot-settings-name " + (babelHelpers.classPrivateFieldGet(this, _viewMode$2).isView() ? '--mode-view' : ''),
 	          title: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AUTOMATICALLY')
 	        },
 	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_AUTOMATICALLY')
@@ -3799,7 +3821,7 @@ this.BX = this.BX || {};
 	          }
 	        }
 
-	        if (parseInt(babelHelpers.classPrivateFieldGet(this, _data$1).viewData.responsibleId) > 0) {
+	        if (babelHelpers.classPrivateFieldGet(this, _viewMode$2).isEdit() && parseInt(babelHelpers.classPrivateFieldGet(this, _data$1).viewData.responsibleId) > 0) {
 	          targetNode.setAttribute('bx-tooltip-user-id', babelHelpers.classPrivateFieldGet(this, _data$1).viewData.responsibleId);
 	        }
 	      }
@@ -4027,7 +4049,7 @@ this.BX = this.BX || {};
 	      }));
 	      this.emit('Robot:title:editStart');
 	      var self = this;
-	      var popup = new BX.PopupWindow(BX.Bizproc.Helper.generateUniqueId(), null, {
+	      var popup = new BX.PopupWindow(bizproc_automation.Helper.generateUniqueId(), null, {
 	        titleBar: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ROBOT_NAME'),
 	        content: form,
 	        closeIcon: true,
@@ -4305,6 +4327,28 @@ this.BX = this.BX || {};
 	    key: "hasTitle",
 	    value: function hasTitle() {
 	      return this.getTitle() !== 'untitled';
+	    }
+	  }, {
+	    key: "hasReturnFields",
+	    value: function hasReturnFields() {
+	      var description = this.template.getRobotDescription(babelHelpers.classPrivateFieldGet(this, _data$1)['Type']);
+	      var props = babelHelpers.classPrivateFieldGet(this, _data$1)['Properties'];
+
+	      if (!main_core.Type.isObject(description)) {
+	        return false;
+	      }
+
+	      var hasReturnProperties = function hasReturnProperties() {
+	        return main_core.Type.isObject(description['RETURN']) && main_core.Type.isArrayFilled(Object.values(description['RETURN']));
+	      };
+
+	      var hasAdditionalResultProperties = function hasAdditionalResultProperties() {
+	        return main_core.Type.isArray(description['ADDITIONAL_RESULT']) && description['ADDITIONAL_RESULT'].some(function (addProperty) {
+	          return Object.values(props[addProperty].length > 0);
+	        });
+	      };
+
+	      return hasReturnProperties() || hasAdditionalResultProperties();
 	    }
 	  }, {
 	    key: "getReturnFieldsDescription",
@@ -4600,6 +4644,11 @@ this.BX = this.BX || {};
 	  }
 
 	  babelHelpers.createClass(UserOptions, [{
+	    key: "clone",
+	    value: function clone() {
+	      return new UserOptions(main_core.Runtime.clone(babelHelpers.classPrivateFieldGet(this, _options)));
+	    }
+	  }, {
 	    key: "set",
 	    value: function set(category, key, value) {
 	      if (!main_core.Type.isPlainObject(babelHelpers.classPrivateFieldGet(this, _options)[category])) {
@@ -4634,11 +4683,19 @@ this.BX = this.BX || {};
 	  return UserOptions;
 	}();
 
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$d(obj, privateSet); privateSet.add(obj); }
+
 	function _classPrivateFieldInitSpec$d(obj, privateMap, value) { _checkPrivateRedeclaration$d(obj, privateMap); privateMap.set(obj, value); }
 
 	function _checkPrivateRedeclaration$d(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
-	var _selectors = /*#__PURE__*/new WeakMap();
+	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _context = /*#__PURE__*/new WeakMap();
 
 	var _delayMinLimitM = /*#__PURE__*/new WeakMap();
 
@@ -4662,16 +4719,30 @@ this.BX = this.BX || {};
 
 	var _data$2 = /*#__PURE__*/new WeakMap();
 
+	var _getUserSelectorAdditionalFields = /*#__PURE__*/new WeakSet();
+
+	var _addRobotReturnFieldsToSelector = /*#__PURE__*/new WeakSet();
+
+	var _getRobotsWithReturnFields = /*#__PURE__*/new WeakSet();
+
 	var Template = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Template, _EventEmitter);
 
 	  function Template(params) {
+	    var _params$context;
+
 	    var _this;
 
 	    babelHelpers.classCallCheck(this, Template);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Template).call(this));
 
-	    _classPrivateFieldInitSpec$d(babelHelpers.assertThisInitialized(_this), _selectors, {
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _getRobotsWithReturnFields);
+
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _addRobotReturnFieldsToSelector);
+
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _getUserSelectorAdditionalFields);
+
+	    _classPrivateFieldInitSpec$d(babelHelpers.assertThisInitialized(_this), _context, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -4733,15 +4804,15 @@ this.BX = this.BX || {};
 
 	    _this.setEventNamespace('BX.Bizproc.Automation');
 
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _context, (_params$context = params.context) !== null && _params$context !== void 0 ? _params$context : bizproc_automation.getGlobalContext());
 	    _this.constants = params.constants;
 	    _this.globalConstants = params.globalConstants;
 	    _this.variables = params.variables;
 	    _this.globalVariables = params.globalVariables;
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _templateContainerNode, params.templateContainerNode);
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _selectors, params.selectors);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _delayMinLimitM, params.delayMinLimitM);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _userOptions, params.userOptions);
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _tracker$1, bizproc_automation.getGlobalContext().tracker);
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _tracker$1, babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _context).tracker);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _data$2, {});
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _robots, []);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _viewMode$3, ViewMode.none());
@@ -4808,7 +4879,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "canEdit",
 	    value: function canEdit() {
-	      return bizproc_automation.getGlobalContext().canEdit;
+	      return babelHelpers.classPrivateFieldGet(this, _context).canEdit;
 	    }
 	  }, {
 	    key: "initRobots",
@@ -4818,9 +4889,9 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isArray(babelHelpers.classPrivateFieldGet(this, _data$2).ROBOTS)) {
 	        for (var i = 0; i < babelHelpers.classPrivateFieldGet(this, _data$2).ROBOTS.length; ++i) {
 	          var robot = new Robot({
-	            document: bizproc_automation.getGlobalContext().document,
+	            document: babelHelpers.classPrivateFieldGet(this, _context).document,
 	            template: this,
-	            isFrameMode: bizproc_automation.getGlobalContext().get('isFrameMode'),
+	            isFrameMode: babelHelpers.classPrivateFieldGet(this, _context).get('isFrameMode'),
 	            tracker: babelHelpers.classPrivateFieldGet(this, _tracker$1)
 	          });
 	          robot.init(babelHelpers.classPrivateFieldGet(this, _data$2).ROBOTS[i], babelHelpers.classPrivateFieldGet(this, _viewMode$3));
@@ -4992,7 +5063,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createExternalEditTemplateButton",
 	    value: function createExternalEditTemplateButton() {
-	      if (main_core.Type.isNil(bizproc_automation.getGlobalContext().bizprocEditorUrl)) {
+	      if (main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _context).bizprocEditorUrl)) {
 	        return false;
 	      }
 
@@ -5017,7 +5088,7 @@ this.BX = this.BX || {};
 	        }
 	      });
 
-	      if (!bizproc_automation.getGlobalContext().bizprocEditorUrl.length) {
+	      if (!babelHelpers.classPrivateFieldGet(this, _context).bizprocEditorUrl.length) {
 	        main_core.Dom.addClass(anchor, 'bizproc-automation-robot-btn-set-locked');
 	      }
 
@@ -5028,7 +5099,7 @@ this.BX = this.BX || {};
 	    value: function createManageModeButton() {
 	      var _this3 = this;
 
-	      if (!bizproc_automation.getGlobalContext().canManage) {
+	      if (!babelHelpers.classPrivateFieldGet(this, _context).canManage) {
 	        return;
 	      }
 
@@ -5065,11 +5136,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createConstantsEditButton",
 	    value: function createConstantsEditButton() {
-	      if (main_core.Type.isNil(bizproc_automation.getGlobalContext().constantsEditorUrl)) {
+	      if (main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _context).constantsEditorUrl)) {
 	        return false;
 	      }
 
-	      var url = !babelHelpers.classPrivateFieldGet(this, _viewMode$3).isManage() ? bizproc_automation.getGlobalContext().constantsEditorUrl.replace('#ID#', this.getTemplateId()) : '#';
+	      var url = !babelHelpers.classPrivateFieldGet(this, _viewMode$3).isManage() ? babelHelpers.classPrivateFieldGet(this, _context).constantsEditorUrl.replace('#ID#', this.getTemplateId()) : '#';
 
 	      if (!url.length) {
 	        return false;
@@ -5089,11 +5160,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createParametersEditButton",
 	    value: function createParametersEditButton() {
-	      if (main_core.Type.isNil(bizproc_automation.getGlobalContext().parametersEditorUrl)) {
+	      if (main_core.Type.isNil(babelHelpers.classPrivateFieldGet(this, _context).parametersEditorUrl)) {
 	        return false;
 	      }
 
-	      var url = bizproc_automation.getGlobalContext().parametersEditorUrl.replace('#ID#', this.getTemplateId());
+	      var url = babelHelpers.classPrivateFieldGet(this, _context).parametersEditorUrl.replace('#ID#', this.getTemplateId());
 
 	      if (!url.length || babelHelpers.classPrivateFieldGet(this, _viewMode$3).isManage()) {
 	        return false;
@@ -5204,7 +5275,7 @@ this.BX = this.BX || {};
 	        ads: [],
 	        other: []
 	      };
-	      var availableRobots = bizproc_automation.getGlobalContext().availableRobots;
+	      var availableRobots = babelHelpers.classPrivateFieldGet(this, _context).availableRobots;
 
 	      if (!main_core.Type.isPlainObject(context)) {
 	        context = {};
@@ -5274,14 +5345,14 @@ this.BX = this.BX || {};
 	        menuItems['other'].push({
 	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
 	          onclick: function onclick() {
-	            BX.rest.Marketplace.open({}, bizproc_automation.getGlobalContext().get('marketplaceRobotCategory'));
+	            BX.rest.Marketplace.open({}, babelHelpers.classPrivateFieldGet(this, _context).get('marketplaceRobotCategory'));
 	            this.getRootMenuWindow().close();
 	          }
 	        });
 	      } else {
 	        menuItems['other'].push({
 	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
-	          href: '/marketplace/category/%category%/'.replace('%category%', bizproc_automation.getGlobalContext().get('marketplaceRobotCategory')),
+	          href: '/marketplace/category/%category%/'.replace('%category%', babelHelpers.classPrivateFieldGet(this, _context).get('marketplaceRobotCategory')),
 	          target: '_blank'
 	        });
 	      }
@@ -5345,7 +5416,7 @@ this.BX = this.BX || {};
 	        return;
 	      }
 
-	      if (!bizproc_automation.getGlobalContext().bizprocEditorUrl.length) {
+	      if (!babelHelpers.classPrivateFieldGet(this, _context).bizprocEditorUrl.length) {
 	        if (top.BX.UI && top.BX.UI.InfoHelper) {
 	          top.BX.UI.InfoHelper.show('limit_office_bp_designer');
 	        }
@@ -5370,15 +5441,15 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "openBizprocEditor",
 	    value: function openBizprocEditor(templateId) {
-	      top.window.location.href = bizproc_automation.getGlobalContext().bizprocEditorUrl.replace('#ID#', templateId);
+	      top.window.location.href = babelHelpers.classPrivateFieldGet(this, _context).bizprocEditorUrl.replace('#ID#', templateId);
 	    }
 	  }, {
 	    key: "addRobot",
 	    value: function addRobot(robotData, callback) {
 	      var robot = new Robot({
-	        document: bizproc_automation.getGlobalContext().document,
+	        document: babelHelpers.classPrivateFieldGet(this, _context).document,
 	        template: this,
-	        isFrameMode: bizproc_automation.getGlobalContext().get('isFrameMode'),
+	        isFrameMode: babelHelpers.classPrivateFieldGet(this, _context).get('isFrameMode'),
 	        tracker: babelHelpers.classPrivateFieldGet(this, _tracker$1)
 	      });
 	      var initData = {
@@ -5508,15 +5579,17 @@ this.BX = this.BX || {};
 	        }
 	      });
 	      form.appendChild(iconHelp);
-	      context['DOCUMENT_CATEGORY_ID'] = bizproc_automation.getGlobalContext().document.getCategoryId();
+	      context['DOCUMENT_CATEGORY_ID'] = babelHelpers.classPrivateFieldGet(this, _context).document.getCategoryId();
 	      BX.ajax({
 	        method: 'POST',
 	        dataType: 'html',
-	        url: bizproc_automation.getGlobalContext().ajaxUrl,
+	        url: main_core.Uri.addParam(babelHelpers.classPrivateFieldGet(this, _context).ajaxUrl, {
+	          analyticsLabel: "automation_robot".concat(robot.draft ? '_draft' : '', "_settings_").concat(robot.data.Type.toLowerCase())
+	        }),
 	        data: {
 	          ajax_action: 'get_robot_dialog',
-	          document_signed: bizproc_automation.getGlobalContext().signedDocument,
-	          document_status: bizproc_automation.getGlobalContext().document.getCurrentStatusId(),
+	          document_signed: babelHelpers.classPrivateFieldGet(this, _context).signedDocument,
+	          document_status: babelHelpers.classPrivateFieldGet(this, _context).document.getCurrentStatusId(),
 	          context: context,
 	          robot_json: Helper.toJsonString(robot.serialize()),
 	          form_name: formName
@@ -5542,6 +5615,7 @@ this.BX = this.BX || {};
 	      var popupWidth = popupMinWidth;
 
 	      if (babelHelpers.classPrivateFieldGet(this, _userOptions)) {
+	        // TODO move from if?
 	        this.emit('Template:robot:showSettings');
 	        popupWidth = parseInt(babelHelpers.classPrivateFieldGet(this, _userOptions).get('defaults', 'robot_settings_popup_width', 580));
 	      }
@@ -5581,7 +5655,6 @@ this.BX = this.BX || {};
 	        },
 	        events: {
 	          onPopupClose: function onPopupClose(popup) {
-	            _this5.currentRobot = null;
 	            bizproc_automation.Designer.getInstance().setRobotSettingsDialog(null);
 
 	            _this5.destroyRobotSettingsControls();
@@ -5604,11 +5677,15 @@ this.BX = this.BX || {};
 	          className: "popup-window-button-accept",
 	          events: {
 	            click: function click() {
+	              var isNewRobot = robot.draft;
 	              me.saveRobotSettings(form, robot, BX.delegate(function () {
 	                this.popupWindow.close();
-	                me.emit('Template:robot:add', {
-	                  robot: robot
-	                });
+
+	                if (isNewRobot) {
+	                  me.emit('Template:robot:add', {
+	                    robot: robot
+	                  });
+	                }
 
 	                if (saveCallback) {
 	                  saveCallback(robot);
@@ -5626,7 +5703,6 @@ this.BX = this.BX || {};
 	          }
 	        })]
 	      });
-	      this.currentRobot = robot;
 	      bizproc_automation.Designer.getInstance().getRobotSettingsDialog().popup = popup;
 	      popup.show();
 	    }
@@ -5666,25 +5742,68 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "initRobotSettingsControl",
 	    value: function initRobotSettingsControl(robot, controlNode) {
+	      var _this6 = this;
+
 	      if (!main_core.Type.isArray(this.robotSettingsControls)) {
 	        this.robotSettingsControls = [];
 	      }
 
-	      var control = null;
 	      var role = controlNode.getAttribute('data-role');
+	      var controlProps = {
+	        context: new bizproc_automation.SelectorContext({
+	          fields: main_core.Runtime.clone(babelHelpers.classPrivateFieldGet(this, _context).document.getFields()),
+	          useSwitcherMenu: babelHelpers.classPrivateFieldGet(this, _context).get('showTemplatePropertiesMenuOnSelecting'),
+	          rootGroupTitle: babelHelpers.classPrivateFieldGet(this, _context).document.title,
+	          userOptions: babelHelpers.classPrivateFieldGet(this, _context).userOptions
+	        }),
+	        needSync: robot.draft,
+	        checkbox: controlNode
+	      };
 
-	      if (role === 'user-selector') {
-	        control = new (babelHelpers.classPrivateFieldGet(this, _selectors).userSelector)(robot, controlNode, babelHelpers.classPrivateFieldGet(this, _data$2));
-	      } else if (role === 'file-selector') {
-	        control = new (babelHelpers.classPrivateFieldGet(this, _selectors).fileSelector)(robot, controlNode);
-	      } else if (role === 'inline-selector-target') {
-	        control = new (babelHelpers.classPrivateFieldGet(this, _selectors).inlineSelector)(robot, controlNode, babelHelpers.classPrivateFieldGet(this, _data$2));
-	      } else if (role === 'inline-selector-html') {
-	        control = new (babelHelpers.classPrivateFieldGet(this, _selectors).inlineSelectorHtml)(robot, controlNode);
-	      } else if (role === 'time-selector') {
-	        control = new (babelHelpers.classPrivateFieldGet(this, _selectors).timeSelector)(controlNode);
-	      } else if (role === 'save-state-checkbox') {
-	        control = new (babelHelpers.classPrivateFieldGet(this, _selectors).saveStateCheckbox)(controlNode, robot);
+	      if (role === bizproc_automation.SelectorManager.SELECTOR_ROLE_USER) {
+	        var fieldProperty = JSON.parse(controlNode.getAttribute('data-property'));
+	        controlProps.context.set('additionalUserFields', _classPrivateMethodGet$1(this, _getUserSelectorAdditionalFields, _getUserSelectorAdditionalFields2).call(this, fieldProperty));
+	      } else if (role === bizproc_automation.SelectorManager.SELECTOR_ROLE_FILE) {
+	        this.robots.forEach(function (robot) {
+	          var _controlProps$context;
+
+	          (_controlProps$context = controlProps.context.fields).push.apply(_controlProps$context, babelHelpers.toConsumableArray(robot.getReturnFieldsDescription().filter(function (field) {
+	            return field['Type'] === 'file';
+	          }).map(function (field) {
+	            return {
+	              Id: "{{~".concat(robot.getId(), ":").concat(field['Id'], "}}"),
+	              Name: "".concat(robot.getTitle(), ": ").concat(field['Name']),
+	              Type: 'file',
+	              Expression: "{{~".concat(robot.getId(), ":").concat(field['Id'], "}}")
+	            };
+	          })));
+	        });
+	      }
+
+	      var control = bizproc_automation.SelectorManager.createSelectorByRole(role, controlProps);
+
+	      if (control && role !== bizproc_automation.SelectorManager.SELECTOR_ROLE_SAVE_STATE) {
+	        control.renderTo(controlNode);
+	        control.subscribe('onAskConstant', function (event) {
+	          var _event$getData = event.getData(),
+	              fieldProperty = _event$getData.fieldProperty;
+
+	          control.onFieldSelect(_this6.addConstant(fieldProperty));
+	        });
+	        control.subscribe('onAskParameter', function (event) {
+	          var _event$getData2 = event.getData(),
+	              fieldProperty = _event$getData2.fieldProperty;
+
+	          control.onFieldSelect(_this6.addParameter(fieldProperty));
+	        });
+	        control.subscribe('onOpenMenu', function (event) {
+	          _classPrivateMethodGet$1(_this6, _addRobotReturnFieldsToSelector, _addRobotReturnFieldsToSelector2).call(_this6, event, robot);
+
+	          _this6.emit('Template:onSelectorMenuOpen', _objectSpread$1({
+	            template: _this6,
+	            robot: robot
+	          }, event.getData()));
+	        });
 	      }
 
 	      BX.UI.Hint.init(controlNode);
@@ -5779,7 +5898,7 @@ this.BX = this.BX || {};
 	        }
 	      });
 	      var basisFields = [];
-	      var docFields = bizproc_automation.getGlobalContext().document.getFields();
+	      var docFields = babelHelpers.classPrivateFieldGet(this, _context).document.getFields();
 	      var minLimitM = babelHelpers.classPrivateFieldGet(this, _delayMinLimitM);
 
 	      if (main_core.Type.isArray(docFields)) {
@@ -5880,9 +5999,19 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "renderConditionSettings",
 	    value: function renderConditionSettings(robot) {
+	      var _this7 = this;
+
 	      var conditionGroup = robot.getCondition();
-	      var selector = this.conditionSelector = new bizproc_automation.ConditionGroupSelector(conditionGroup, {
-	        fields: bizproc_automation.getGlobalContext().document.getFields()
+	      this.conditionSelector = new bizproc_automation.ConditionGroupSelector(conditionGroup, {
+	        fields: babelHelpers.classPrivateFieldGet(this, _context).document.getFields(),
+	        onOpenMenu: function onOpenMenu(event) {
+	          _classPrivateMethodGet$1(_this7, _addRobotReturnFieldsToSelector, _addRobotReturnFieldsToSelector2).call(_this7, event, robot);
+
+	          _this7.emit('Template:onSelectorMenuOpen', _objectSpread$1({
+	            template: _this7,
+	            robot: robot
+	          }, event.getData()));
+	        }
 	      });
 	      return main_core.Dom.create("div", {
 	        attrs: {
@@ -5897,7 +6026,7 @@ this.BX = this.BX || {};
 	              className: "bizproc-automation-popup-settings-title"
 	            },
 	            text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CONDITION') + ":"
-	          }), selector.createNode()]
+	          }), this.conditionSelector.createNode()]
 	        })]
 	      });
 	    }
@@ -5937,7 +6066,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "saveRobotSettings",
 	    value: function saveRobotSettings(form, robot, callback, btnNode) {
-	      var _this6 = this;
+	      var _this8 = this;
 
 	      if (btnNode) {
 	        btnNode.classList.add('popup-window-button-wait');
@@ -5945,12 +6074,14 @@ this.BX = this.BX || {};
 
 	      this.onBeforeSaveRobotSettings();
 	      var formData = BX.ajax.prepareForm(form);
-	      var ajaxUrl = bizproc_automation.getGlobalContext().ajaxUrl;
-	      var documentSigned = bizproc_automation.getGlobalContext().signedDocument;
+	      var ajaxUrl = babelHelpers.classPrivateFieldGet(this, _context).ajaxUrl;
+	      var documentSigned = babelHelpers.classPrivateFieldGet(this, _context).signedDocument;
 	      BX.ajax({
 	        method: 'POST',
 	        dataType: 'json',
-	        url: ajaxUrl,
+	        url: main_core.Uri.addParam(ajaxUrl, {
+	          analyticsLabel: "automation_robot".concat(robot.draft ? '_draft' : '', "_save_").concat(robot.data.Type.toLowerCase())
+	        }),
 	        data: {
 	          ajax_action: 'save_robot_settings',
 	          document_signed: documentSigned,
@@ -5968,20 +6099,20 @@ this.BX = this.BX || {};
 	          if (response.SUCCESS) {
 	            robot.updateData(response.DATA.robot);
 
-	            _this6.setDelaySettingsFromForm(formData['data'], robot);
+	            _this8.setDelaySettingsFromForm(formData['data'], robot);
 
-	            _this6.setConditionSettingsFromForm(formData['data'], robot);
+	            _this8.setConditionSettingsFromForm(formData['data'], robot);
 
 	            if (robot.draft) {
-	              babelHelpers.classPrivateFieldGet(_this6, _robots).push(robot);
+	              babelHelpers.classPrivateFieldGet(_this8, _robots).push(robot);
 
-	              _this6.insertRobotNode(robot.node);
+	              _this8.insertRobotNode(robot.node);
 	            }
 
 	            robot.draft = false;
 	            robot.reInit();
 
-	            _this6.markModified();
+	            _this8.markModified();
 
 	            if (callback) {
 	              callback(response.DATA);
@@ -6039,11 +6170,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getConstants",
 	    value: function getConstants() {
-	      var _this7 = this;
+	      var _this9 = this;
 
 	      var constants = [];
 	      Object.keys(babelHelpers.classPrivateFieldGet(this, _data$2).CONSTANTS).forEach(function (id) {
-	        var constant = BX.clone(babelHelpers.classPrivateFieldGet(_this7, _data$2).CONSTANTS[id]);
+	        var constant = BX.clone(babelHelpers.classPrivateFieldGet(_this9, _data$2).CONSTANTS[id]);
 	        constant.Id = id;
 	        constant.ObjectId = 'Constant';
 	        constant.SystemExpression = '{=Constant:' + id + '}';
@@ -6119,11 +6250,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getParameters",
 	    value: function getParameters() {
-	      var _this8 = this;
+	      var _this10 = this;
 
 	      var params = [];
 	      Object.keys(babelHelpers.classPrivateFieldGet(this, _data$2).PARAMETERS).forEach(function (id) {
-	        var param = BX.clone(babelHelpers.classPrivateFieldGet(_this8, _data$2).PARAMETERS[id]);
+	        var param = BX.clone(babelHelpers.classPrivateFieldGet(_this10, _data$2).PARAMETERS[id]);
 	        param.Id = id;
 	        param.ObjectId = 'Template';
 	        param.SystemExpression = '{=Template:' + id + '}';
@@ -6201,11 +6332,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getVariables",
 	    value: function getVariables() {
-	      var _this9 = this;
+	      var _this11 = this;
 
 	      var variables = [];
 	      Object.keys(babelHelpers.classPrivateFieldGet(this, _data$2).VARIABLES).forEach(function (id) {
-	        var variable = BX.clone(babelHelpers.classPrivateFieldGet(_this9, _data$2).VARIABLES[id]);
+	        var variable = BX.clone(babelHelpers.classPrivateFieldGet(_this11, _data$2).VARIABLES[id]);
 	        variable.Id = id;
 	        variable.ObjectId = 'Variable';
 	        variable.SystemExpression = '{=Variable:' + id + '}';
@@ -6270,7 +6401,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getRobotDescription",
 	    value: function getRobotDescription(type) {
-	      return bizproc_automation.getGlobalContext().availableRobots.find(function (item) {
+	      return babelHelpers.classPrivateFieldGet(this, _context).availableRobots.find(function (item) {
 	        return item['CLASS'] === type;
 	      });
 	    }
@@ -6309,6 +6440,79 @@ this.BX = this.BX || {};
 	  }]);
 	  return Template;
 	}(main_core_events.EventEmitter);
+
+	function _getUserSelectorAdditionalFields2(fieldProperty) {
+	  var additionalFields = _classPrivateMethodGet$1(this, _getRobotsWithReturnFields, _getRobotsWithReturnFields2).call(this).map(function (robot) {
+	    return robot.getReturnFieldsDescription().filter(function (field) {
+	      return field['Type'] === 'user';
+	    }).map(function (field) {
+	      return {
+	        id: "{{~".concat(robot.getId(), ":").concat(field['Id'], "}}"),
+	        title: "".concat(robot.getTitle(), ": ").concat(field['Name'])
+	      };
+	    });
+	  }).flat();
+
+	  if (babelHelpers.classPrivateFieldGet(this, _context).get('showTemplatePropertiesMenuOnSelecting') && fieldProperty) {
+	    var ask = this.addConstant(main_core.Runtime.clone(fieldProperty));
+	    additionalFields.push({
+	      id: ask.Expression,
+	      title: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ASK_CONSTANT'),
+	      tabs: ['recents', 'bpuserroles'],
+	      sort: 1
+	    });
+	    var param = this.addParameter(main_core.Runtime.clone(fieldProperty));
+	    additionalFields.push({
+	      id: param.Expression,
+	      title: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ASK_PARAMETER'),
+	      tabs: ['recents', 'bpuserroles'],
+	      sort: 2
+	    });
+	  }
+
+	  return additionalFields;
+	}
+
+	function _addRobotReturnFieldsToSelector2(event, skipRobot) {
+	  var selector = event.getData().selector;
+	  var isMixedCondition = event.getData().isMixedCondition;
+
+	  if (main_core.Type.isBoolean(isMixedCondition) && !isMixedCondition) {
+	    return;
+	  }
+
+	  var robotMenuItems = _classPrivateMethodGet$1(this, _getRobotsWithReturnFields, _getRobotsWithReturnFields2).call(this, skipRobot).map(function (robot) {
+	    return {
+	      id: robot.getId(),
+	      title: robot.getTitle(),
+	      children: robot.getReturnFieldsDescription().map(function (field) {
+	        return {
+	          id: field.Expression,
+	          title: field.Name,
+	          customData: {
+	            field: field
+	          }
+	        };
+	      })
+	    };
+	  });
+
+	  if (robotMenuItems.length > 0) {
+	    selector.addGroup('__RESULT', {
+	      id: '__RESULT',
+	      title: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ROBOT_LIST'),
+	      children: robotMenuItems
+	    });
+	  }
+	}
+
+	function _getRobotsWithReturnFields2() {
+	  var skipRobot = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
+	  var skipId = (skipRobot === null || skipRobot === void 0 ? void 0 : skipRobot.getId()) || '';
+	  return this.robots.filter(function (templateRobot) {
+	    return templateRobot.getId() !== skipId && templateRobot.hasReturnFields();
+	  });
+	}
 
 	function _classPrivateFieldInitSpec$e(obj, privateMap, value) { _checkPrivateRedeclaration$e(obj, privateMap); privateMap.set(obj, value); }
 
@@ -6616,7 +6820,7 @@ this.BX = this.BX || {};
 
 	var _fieldPrefix = /*#__PURE__*/new WeakMap();
 
-	var _inlineSelector = /*#__PURE__*/new WeakMap();
+	var _onOpenMenu = /*#__PURE__*/new WeakMap();
 
 	var ConditionSelector = /*#__PURE__*/function () {
 	  function ConditionSelector(condition, options) {
@@ -6642,7 +6846,7 @@ this.BX = this.BX || {};
 	      value: void 0
 	    });
 
-	    _classPrivateFieldInitSpec$g(this, _inlineSelector, {
+	    _classPrivateFieldInitSpec$g(this, _onOpenMenu, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -6667,6 +6871,8 @@ this.BX = this.BX || {};
 	      if (options.fieldPrefix) {
 	        babelHelpers.classPrivateFieldSet(this, _fieldPrefix, options.fieldPrefix);
 	      }
+
+	      babelHelpers.classPrivateFieldSet(this, _onOpenMenu, options.onOpenMenu);
 	    }
 	  }
 
@@ -6930,12 +7136,30 @@ this.BX = this.BX || {};
 	    key: "onFieldSelectorClick",
 	    value: function onFieldSelectorClick(fieldSelectLabel, fieldSelect, fields, objectSelect, event) {
 	      if (!this.fieldDialog) {
-	        this.fieldDialog = new BX.Bizproc.Automation.Selector.InlineSelectorCondition(fieldSelectLabel, fields, function (property) {
+	        var globalContext = bizproc_automation.getGlobalContext();
+
+	        var _fields2 = main_core.Runtime.clone(main_core.Type.isArrayFilled(babelHelpers.classPrivateFieldGet(this, _fields$1)) ? babelHelpers.classPrivateFieldGet(this, _fields$1) : globalContext.document.getFields());
+
+	        this.fieldDialog = new bizproc_automation.InlineSelectorCondition({
+	          context: new bizproc_automation.SelectorContext({
+	            fields: _fields2,
+	            rootGroupTitle: globalContext.document.title
+	          }),
+	          condition: babelHelpers.classPrivateFieldGet(this, _condition$2)
+	        });
+
+	        if (main_core.Type.isFunction(babelHelpers.classPrivateFieldGet(this, _onOpenMenu))) {
+	          this.fieldDialog.subscribe('onOpenMenu', babelHelpers.classPrivateFieldGet(this, _onOpenMenu));
+	        }
+
+	        this.fieldDialog.subscribe('change', function (event) {
+	          var property = event.getData().field;
 	          fieldSelectLabel.textContent = property.Name;
 	          fieldSelect.value = property.Id;
 	          objectSelect.value = property.ObjectId;
 	          BX.fireEvent(fieldSelect, 'change');
-	        }, babelHelpers.classPrivateFieldGet(this, _condition$2));
+	        });
+	        this.fieldDialog.renderTo(fieldSelectLabel);
 	      }
 
 	      this.fieldDialog.openMenu(event);
@@ -7117,7 +7341,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "createValueNode",
 	    value: function createValueNode(docField, value) {
-	      var docType = bizproc_automation.Designer.getInstance().component ? bizproc_automation.Designer.getInstance().component.document.getRawType() : BX.Bizproc.Automation.API.documentType;
+	      var docType = bizproc_automation.Designer.getInstance().component ? bizproc_automation.Designer.getInstance().component.document.getRawType() : bizproc_automation.getGlobalContext().document.getRawType();
 	      var field = BX.clone(docField);
 	      field.Multiple = false;
 	      return BX.Bizproc.FieldType.renderControl(docType, field, babelHelpers.classPrivateFieldGet(this, _fieldPrefix) + 'value', value);
@@ -7191,6 +7415,8 @@ this.BX = this.BX || {};
 
 	var _itemSelectors = /*#__PURE__*/new WeakMap();
 
+	var _onOpenMenu$1 = /*#__PURE__*/new WeakMap();
+
 	var ConditionGroupSelector = /*#__PURE__*/function () {
 	  function ConditionGroupSelector(conditionGroup, options) {
 	    babelHelpers.classCallCheck(this, ConditionGroupSelector);
@@ -7215,6 +7441,11 @@ this.BX = this.BX || {};
 	      value: void 0
 	    });
 
+	    _classPrivateFieldInitSpec$h(this, _onOpenMenu$1, {
+	      writable: true,
+	      value: void 0
+	    });
+
 	    babelHelpers.classPrivateFieldSet(this, _conditionGroup, conditionGroup);
 	    babelHelpers.classPrivateFieldSet(this, _fields$2, []);
 	    babelHelpers.classPrivateFieldSet(this, _fieldPrefix$1, 'condition_');
@@ -7228,6 +7459,8 @@ this.BX = this.BX || {};
 	      if (options.fieldPrefix) {
 	        babelHelpers.classPrivateFieldSet(this, _fieldPrefix$1, options.fieldPrefix);
 	      }
+
+	      babelHelpers.classPrivateFieldSet(this, _onOpenMenu$1, options.onOpenMenu);
 	    }
 	  }
 
@@ -7241,7 +7474,8 @@ this.BX = this.BX || {};
 	        var conditionSelector = new ConditionSelector(item[0], {
 	          fields: fields,
 	          joiner: item[1],
-	          fieldPrefix: babelHelpers.classPrivateFieldGet(me, _fieldPrefix$1)
+	          fieldPrefix: babelHelpers.classPrivateFieldGet(me, _fieldPrefix$1),
+	          onOpenMenu: babelHelpers.classPrivateFieldGet(this, _onOpenMenu$1)
 	        });
 	        babelHelpers.classPrivateFieldGet(this, _itemSelectors).push(conditionSelector);
 	        conditionNodes.push(conditionSelector.createNode());
@@ -7269,7 +7503,8 @@ this.BX = this.BX || {};
 	    value: function addItem(buttonNode) {
 	      var conditionSelector = new ConditionSelector(new bizproc_automation.Condition({}, babelHelpers.classPrivateFieldGet(this, _conditionGroup)), {
 	        fields: babelHelpers.classPrivateFieldGet(this, _fields$2),
-	        fieldPrefix: babelHelpers.classPrivateFieldGet(this, _fieldPrefix$1)
+	        fieldPrefix: babelHelpers.classPrivateFieldGet(this, _fieldPrefix$1),
+	        onOpenMenu: babelHelpers.classPrivateFieldGet(this, _onOpenMenu$1)
 	      });
 	      babelHelpers.classPrivateFieldGet(this, _itemSelectors).push(conditionSelector);
 	      buttonNode.parentNode.insertBefore(conditionSelector.createNode(), buttonNode);
@@ -7285,6 +7520,1593 @@ this.BX = this.BX || {};
 	  }]);
 	  return ConditionGroupSelector;
 	}();
+
+	var Manager = /*#__PURE__*/function () {
+	  function Manager() {
+	    babelHelpers.classCallCheck(this, Manager);
+	  }
+
+	  babelHelpers.createClass(Manager, null, [{
+	    key: "createSelectorByRole",
+	    value: function createSelectorByRole(role, selectorProps) {
+	      if (role === this.SELECTOR_ROLE_USER) {
+	        return new bizproc_automation.UserSelector(selectorProps);
+	      } else if (role === this.SELECTOR_ROLE_FILE) {
+	        return new bizproc_automation.FileSelector(selectorProps);
+	      } else if (role === this.SELECTOR_ROLE_INLINE) {
+	        return new bizproc_automation.InlineSelector(selectorProps);
+	      } else if (role === this.SELECTOR_ROLE_INLINE_HTML) {
+	        return new bizproc_automation.InlineSelectorHtml(selectorProps);
+	      } else if (role === this.SELECTOR_ROLE_TIME) {
+	        return new bizproc_automation.TimeSelector(selectorProps);
+	      } else if (role === this.SELECTOR_ROLE_SAVE_STATE) {
+	        return new bizproc_automation.SaveStateCheckbox(selectorProps);
+	      } else {
+	        return undefined;
+	      }
+	    }
+	  }]);
+	  return Manager;
+	}();
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_USER", 'user-selector');
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_FILE", 'file-selector');
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_INLINE", 'inline-selector-target');
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_INLINE_HTML", 'inline-selector-html');
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_TIME", 'time-selector');
+	babelHelpers.defineProperty(Manager, "SELECTOR_ROLE_SAVE_STATE", 'save-state-checkbox');
+
+	var _templateObject, _templateObject2;
+
+	function ownKeys$2(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$2(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$2(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$2(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+	function _classPrivateMethodInitSpec$2(obj, privateSet) { _checkPrivateRedeclaration$i(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec$i(obj, privateMap, value) { _checkPrivateRedeclaration$i(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$i(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classPrivateMethodGet$2(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _menuGroups = /*#__PURE__*/new WeakMap();
+
+	var _dialog = /*#__PURE__*/new WeakMap();
+
+	var _switcherDialog = /*#__PURE__*/new WeakMap();
+
+	var _normalizeGroup = /*#__PURE__*/new WeakSet();
+
+	var _prepareSelectorUsingFieldType = /*#__PURE__*/new WeakSet();
+
+	var _shouldShowField = /*#__PURE__*/new WeakSet();
+
+	var _onKeyDown = /*#__PURE__*/new WeakSet();
+
+	var _prepareFilesMenu = /*#__PURE__*/new WeakSet();
+
+	var InlineSelector = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(InlineSelector, _EventEmitter);
+
+	  function InlineSelector(props) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, InlineSelector);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(InlineSelector).call(this));
+
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _prepareFilesMenu);
+
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _onKeyDown);
+
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _shouldShowField);
+
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _prepareSelectorUsingFieldType);
+
+	    _classPrivateMethodInitSpec$2(babelHelpers.assertThisInitialized(_this), _normalizeGroup);
+
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "fieldProperty", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "replaceOnWrite", false);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "menuButton", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "targetInput", null);
+
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _menuGroups, {
+	      writable: true,
+	      value: {}
+	    });
+
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "basisFields", []);
+
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _dialog, {
+	      writable: true,
+	      value: null
+	    });
+
+	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _switcherDialog, {
+	      writable: true,
+	      value: null
+	    });
+
+	    _this.setEventNamespace('BX.Bizproc.Automation.Selector');
+
+	    _this.context = props.context;
+	    _this.basisFields = _this.context.fields;
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(InlineSelector, [{
+	    key: "hasGroup",
+	    value: function hasGroup(groupId) {
+	      return babelHelpers.classPrivateFieldGet(this, _menuGroups).hasOwnProperty(groupId);
+	    }
+	  }, {
+	    key: "addGroup",
+	    value: function addGroup(groupId, group) {
+	      babelHelpers.classPrivateFieldGet(this, _menuGroups)[groupId] = _classPrivateMethodGet$2(this, _normalizeGroup, _normalizeGroup2).call(this, group);
+	    }
+	  }, {
+	    key: "addGroupItem",
+	    value: function addGroupItem(groupId, item) {
+	      if (this.hasGroup(groupId)) {
+	        babelHelpers.classPrivateFieldGet(this, _menuGroups)[groupId].children.push(_classPrivateMethodGet$2(this, _normalizeGroup, _normalizeGroup2).call(this, item));
+	      }
+	    }
+	  }, {
+	    key: "renderWith",
+	    value: function renderWith(targetInput) {
+	      this.targetInput = main_core.Runtime.clone(targetInput);
+	      this.targetInput.setAttribute('autocomplete', 'off');
+	      this.menuButton = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span \n\t\t\t\tonclick=\"", "\"\n\t\t\t\tclass=\"bizproc-automation-popup-select-dotted\"\n\t\t\t></span>\n\t\t"])), this.openMenu.bind(this));
+	      this.parseTargetProperties();
+	      this.replaceOnWrite |= this.targetInput.getAttribute('data-select-mode') === 'replace';
+	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-select\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.targetInput, this.menuButton);
+	    }
+	  }, {
+	    key: "renderTo",
+	    value: function renderTo(targetInput) {
+	      targetInput.parentNode.replaceChild(this.renderWith(targetInput), targetInput);
+	    }
+	  }, {
+	    key: "bindTargetEvents",
+	    value: function bindTargetEvents() {
+	      main_core.Event.bind(this.targetInput, 'keydown', _classPrivateMethodGet$2(this, _onKeyDown, _onKeyDown2).bind(this));
+	    }
+	  }, {
+	    key: "parseTargetProperties",
+	    value: function parseTargetProperties() {
+	      this.fieldProperty = JSON.parse(this.targetInput.getAttribute('data-property'));
+	      var propertyType = this.targetInput.getAttribute('data-selector-type');
+
+	      if (!this.fieldProperty && propertyType) {
+	        this.fieldProperty = {
+	          Type: propertyType
+	        };
+	      }
+
+	      if (this.fieldProperty) {
+	        this.fieldProperty.Type = this.fieldProperty.Type || propertyType;
+
+	        _classPrivateMethodGet$2(this, _prepareSelectorUsingFieldType, _prepareSelectorUsingFieldType2).call(this);
+	      } else {
+	        this.context.useSwitcherMenu = false;
+	      }
+
+	      this.replaceOnWrite |= this.targetInput.getAttribute('data-select-mode') === 'replace';
+	    }
+	  }, {
+	    key: "openMenu",
+	    value: function openMenu(event) {
+	      var _this2 = this;
+
+	      var skipPropertiesSwitcher = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+	      if (!skipPropertiesSwitcher && this.context.useSwitcherMenu && !this.targetInput.value) {
+	        return this.openPropertiesSwitcherMenu();
+	      }
+
+	      if (babelHelpers.classPrivateFieldGet(this, _dialog)) {
+	        babelHelpers.classPrivateFieldGet(this, _dialog).show();
+	        return;
+	      }
+
+	      this.fillGroups();
+	      this.onMenuOpen();
+	      var menuItems = [];
+
+	      for (var _i = 0, _Object$values = Object.values(babelHelpers.classPrivateFieldGet(this, _menuGroups)); _i < _Object$values.length; _i++) {
+	        var group = _Object$values[_i];
+
+	        if (group.children.length > 0) {
+	          menuItems.push(group);
+	        }
+	      }
+
+	      if (menuItems.length === 1) {
+	        menuItems = menuItems[0].children;
+	      }
+
+	      var menuId = this.menuButton.getAttribute('data-selector-id');
+
+	      if (!menuId) {
+	        menuId = bizproc_automation.Helper.generateUniqueId();
+	        this.menuButton.setAttribute('data-selector-id', menuId);
+	      }
+
+	      babelHelpers.classPrivateFieldSet(this, _dialog, new ui_entitySelector.Dialog({
+	        targetNode: this.menuButton,
+	        width: 500,
+	        height: 300,
+	        multiple: false,
+	        dropdownMode: true,
+	        enableSearch: true,
+	        items: this.injectDialogMenuTitles(menuItems),
+	        showAvatars: false,
+	        events: {
+	          'Item:onBeforeSelect': function ItemOnBeforeSelect(event) {
+	            event.preventDefault();
+	            var item = event.getData().item;
+
+	            _this2.onFieldSelect(item.getCustomData().get('field'));
+	          }
+	        },
+	        compactView: true
+	      }));
+	      babelHelpers.classPrivateFieldGet(this, _dialog).show();
+	    }
+	  }, {
+	    key: "fillGroups",
+	    value: function fillGroups() {
+	      this.fillFieldsGroups();
+	      this.fillFileGroup();
+	    }
+	  }, {
+	    key: "fillFieldsGroups",
+	    value: function fillFieldsGroups() {
+	      var _this3 = this;
+
+	      this.addGroup('ROOT', {
+	        id: 'ROOT',
+	        title: this.context.rootGroupTitle,
+	        searchable: false
+	      });
+	      this.getFields().forEach(function (field) {
+	        var groupKey = field.Id.indexOf('.') < 0 ? 'ROOT' : field.Id.split('.')[0];
+	        var groupName = '';
+
+	        if (field.Name && groupKey !== 'ROOT' && field.Name.indexOf(': ') >= 0) {
+	          var names = field.Name.split(': ');
+	          groupName = names.shift();
+	          field.Name = names.join(': ');
+	        }
+
+	        if (field['Id'].indexOf('ASSIGNED_BY_') === 0 && field['Id'] !== 'ASSIGNED_BY_ID' && field['Id'] !== 'ASSIGNED_BY_PRINTABLE') {
+	          groupKey = 'ASSIGNED_BY';
+
+	          var _names = field.Name.split(' ');
+
+	          groupName = _names.shift();
+	          field.Name = _names.join(' ').replace('(', '').replace(')', '');
+	        }
+
+	        if (!_this3.hasGroup(groupKey)) {
+	          _this3.addGroup(groupKey, {
+	            id: groupKey,
+	            title: groupName,
+	            searchable: false
+	          });
+	        }
+
+	        _this3.addGroupItem(groupKey, {
+	          id: field.SystemExpression,
+	          title: field.Name || field.Id,
+	          customData: {
+	            field: field
+	          }
+	        });
+	      });
+	    }
+	  }, {
+	    key: "fillFileGroup",
+	    value: function fillFileGroup() {
+	      var fileFields = this.getFields().filter(function (field) {
+	        return field.Type === 'file';
+	      });
+
+	      if (fileFields.length > 0) {
+	        this.addGroup('__FILES', {
+	          id: '__FILES',
+	          title: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_FILES_LINKS'),
+	          children: _classPrivateMethodGet$2(this, _prepareFilesMenu, _prepareFilesMenu2).call(this, fileFields),
+	          searchable: false
+	        });
+	      }
+	    }
+	  }, {
+	    key: "onMenuOpen",
+	    value: function onMenuOpen() {
+	      this.emit('onOpenMenu', {
+	        selector: this
+	      });
+	    }
+	  }, {
+	    key: "openPropertiesSwitcherMenu",
+	    value: function openPropertiesSwitcherMenu() {
+	      var self = this;
+	      main_popup.MenuManager.show(bizproc_automation.Helper.generateUniqueId(), this.menuButton, [{
+	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ASK_CONSTANT'),
+	        onclick: function onclick(event) {
+	          this.popupWindow.close();
+	          self.emit('onAskConstant', {
+	            fieldProperty: self.fieldProperty
+	          });
+	        }
+	      }, {
+	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ASK_PARAMETER'),
+	        onclick: function onclick(event) {
+	          this.popupWindow.close();
+	          self.emit('onAskParameter', {
+	            fieldProperty: self.fieldProperty
+	          });
+	        }
+	      }, {
+	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ASK_MANUAL'),
+	        onclick: function onclick(event) {
+	          this.popupWindow.close();
+	          self.openMenu(event, true);
+	        }
+	      }], {
+	        autoHide: true,
+	        offsetLeft: 20,
+	        angle: {
+	          position: 'top'
+	        },
+	        events: {
+	          onPopupClose: function onPopupClose() {
+	            this.destroy();
+	          }
+	        }
+	      });
+	      babelHelpers.classPrivateFieldSet(this, _switcherDialog, main_popup.MenuManager.currentItem);
+	      return true;
+	    }
+	  }, {
+	    key: "injectDialogMenuTitles",
+	    value: function injectDialogMenuTitles(items) {
+	      var _this4 = this;
+
+	      items.forEach(function (parent) {
+	        if (main_core.Type.isArray(parent.children)) {
+	          _this4.injectDialogMenuSupertitles(parent.title, parent.children);
+	        }
+	      });
+	      return items;
+	    }
+	  }, {
+	    key: "injectDialogMenuSupertitles",
+	    value: function injectDialogMenuSupertitles(title, children) {
+	      var _this5 = this;
+
+	      children.forEach(function (child) {
+	        if (!child.supertitle) {
+	          child.supertitle = title;
+	        }
+
+	        if (main_core.Type.isArrayFilled(child.children)) {
+	          _this5.injectDialogMenuSupertitles(child.title, child.children);
+	        }
+	      });
+	    }
+	  }, {
+	    key: "onFieldSelect",
+	    value: function onFieldSelect(field) {
+	      if (!field) {
+	        return;
+	      }
+
+	      var inputType = this.targetInput.tagName.toLowerCase();
+
+	      if (inputType === 'select') {
+	        var expressionOption = this.targetInput.querySelector('[data-role="expression"]');
+
+	        if (!expressionOption) {
+	          expressionOption = this.targetInput.appendChild(main_core.Dom.create('option', {
+	            attrs: {
+	              'data-role': 'expression'
+	            }
+	          }));
+	        }
+
+	        expressionOption.setAttribute('value', field.Expression);
+	        expressionOption.textContent = field['Expression'];
+	        expressionOption.selected = true;
+	      } else if (inputType === 'label') {
+	        this.targetInput.textContent = field.Expression;
+	        var hiddenInput = document.getElementById(this.targetInput.getAttribute('for'));
+
+	        if (hiddenInput) {
+	          hiddenInput.value = field.Expression;
+	        }
+	      } else {
+	        if (this.replaceOnWrite) {
+	          this.targetInput.value = field.Expression;
+	          this.targetInput.selectionEnd = this.targetInput.value.length;
+	        } else {
+	          var beforePart = this.targetInput.value.substr(0, this.targetInput.selectionEnd);
+	          var middlePart = field.Expression;
+	          var afterPart = this.targetInput.value.substr(this.targetInput.selectionEnd);
+	          this.targetInput.value = beforePart + middlePart + afterPart;
+	          this.targetInput.selectionEnd = beforePart.length + middlePart.length;
+	        }
+	      }
+
+	      BX.fireEvent(this.targetInput, 'change');
+	      this.emit('change', {
+	        field: field
+	      });
+	    }
+	  }, {
+	    key: "destroy",
+	    value: function destroy() {
+	      if (babelHelpers.classPrivateFieldGet(this, _dialog)) {
+	        babelHelpers.classPrivateFieldGet(this, _dialog).destroy();
+	      }
+
+	      if (babelHelpers.classPrivateFieldGet(this, _switcherDialog)) {
+	        babelHelpers.classPrivateFieldGet(this, _switcherDialog).destroy();
+	      }
+	    }
+	  }, {
+	    key: "getFields",
+	    value: function getFields() {
+	      var printablePrefix = main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_MOD_PRINTABLE_PREFIX');
+	      var names = this.context.fields.map(function (field) {
+	        return field.Name;
+	      }).join('\n');
+	      var fields = [];
+	      this.basisFields.forEach(function (field) {
+	        field.ObjectId = 'Document';
+	        var custom = field['BaseType'] === 'string' && field['Type'] !== 'string';
+
+	        if (!custom) {
+	          fields.push(field);
+	        } //generate printable version
+
+
+	        if (field['Type'] === 'user' || field['Type'] === 'bool' || field['Type'] === 'file' || custom) {
+	          var printableName = field['Name'] + ' ' + printablePrefix;
+
+	          if (names.indexOf(printableName) < 0) {
+	            var printableField = BX.clone(field);
+	            var printableTag = field['Type'] === 'user' ? 'friendly' : 'printable';
+	            printableField['Name'] = printableName;
+	            printableField['Type'] = 'string';
+	            printableField['SystemExpression'] = '{=Document:' + printableField['Id'] + ' > ' + printableTag + '}';
+	            printableField['Expression'] = '{{' + field['Name'] + ' > ' + printableTag + '}}';
+	            fields.push(printableField);
+	          }
+	        }
+
+	        if (field['BaseType'] === 'date' || field['BaseType'] === 'datetime') {
+	          var serverField = BX.clone(field);
+	          serverField['Name'] += ' ' + main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_MOD_DATE_BY_SERVER');
+	          serverField['Type'] = 'string';
+	          serverField['SystemExpression'] = "{=Document:".concat(serverField['Id'], " > server}");
+	          serverField['Expression'] = "{{".concat(field['Name'], " > server}}");
+	          fields.push(serverField);
+	          var responsibleField = BX.clone(field);
+	          responsibleField['Name'] += ' ' + main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_MOD_DATE_BY_RESPONSIBLE');
+	          responsibleField['Type'] = 'string';
+	          responsibleField['SystemExpression'] = "{=Document:".concat(serverField['Id'], " > responsible}");
+	          responsibleField['Expression'] = "{{".concat(field['Name'], " > responsible}}");
+	          fields.push(responsibleField);
+	        }
+	      });
+	      return fields;
+	    }
+	  }]);
+	  return InlineSelector;
+	}(main_core_events.EventEmitter);
+
+	function _normalizeGroup2(group) {
+	  var _this6 = this;
+
+	  if (!main_core.Type.isArray(group.children)) {
+	    group.children = [];
+	  }
+
+	  group.children = group.children.filter(function (item) {
+	    var _item$customData;
+
+	    return (_item$customData = item.customData) !== null && _item$customData !== void 0 && _item$customData.field ? _classPrivateMethodGet$2(_this6, _shouldShowField, _shouldShowField2).call(_this6, item.customData.field) : true;
+	  }).map(function (childGroup) {
+	    return _classPrivateMethodGet$2(_this6, _normalizeGroup, _normalizeGroup2).call(_this6, childGroup);
+	  });
+	  return _objectSpread$2({
+	    entityId: 'bp',
+	    tabs: 'recents'
+	  }, group);
+	}
+
+	function _prepareSelectorUsingFieldType2() {
+	  var _this7 = this,
+	      _this$fieldProperty;
+
+	  this.basisFields = this.basisFields.filter(function (field) {
+	    return _classPrivateMethodGet$2(_this7, _shouldShowField, _shouldShowField2).call(_this7, field);
+	  });
+	  var type = (_this$fieldProperty = this.fieldProperty) === null || _this$fieldProperty === void 0 ? void 0 : _this$fieldProperty.Type;
+
+	  if (type === 'file') {
+	    this.replaceOnWrite = true;
+	  } else if (type === 'date' || type === 'datetime') {
+	    this.replaceOnWrite = true;
+	    var delayIntervalSelector = new bizproc_automation.DelayIntervalSelector({
+	      labelNode: this.targetInput,
+	      basisFields: this.basisFields,
+	      useAfterBasis: true,
+	      onchange: function (delay) {
+	        this.targetInput.value = delay.toExpression(this.basisFields, bizproc_automation.Helper.getResponsibleUserExpression(this.context.fields));
+	      }.bind(this)
+	    });
+	    delayIntervalSelector.init(bizproc_automation.DelayInterval.fromString(this.targetInput.value, this.basisFields));
+	  }
+	}
+
+	function _shouldShowField2(field) {
+	  var _this$fieldProperty2;
+
+	  var fieldType = (_this$fieldProperty2 = this.fieldProperty) === null || _this$fieldProperty2 === void 0 ? void 0 : _this$fieldProperty2.Type;
+
+	  if (fieldType === 'file') {
+	    return field.Type === 'file';
+	  } else if (fieldType === 'date' || fieldType === 'datetime') {
+	    return field.Type === 'date' || field.Type === 'datetime';
+	  }
+
+	  return true;
+	}
+
+	function _onKeyDown2(event) {
+	  if (event.keyCode === 45 && event.altKey === false && event.ctrlKey === false && event.shiftKey === false) {
+	    this.openMenu(event);
+	    event.preventDefault();
+	  }
+	}
+
+	function _prepareFilesMenu2(fileFields) {
+	  return fileFields.map(function (field) {
+	    var exp = field['ObjectId'] === 'Document' ? '{{' + field['Name'] + ' > shortlink}}' : '{{~' + field['ObjectId'] + ':' + field['Id'] + ' > shortlink}}';
+	    var title = field.Name || field.Id;
+
+	    if (field.ObjectName) {
+	      title = field.ObjectName + ': ' + title;
+	    }
+
+	    return {
+	      title: title,
+	      customData: {
+	        field: {
+	          Id: field['Id'] + '_shortlink',
+	          ObjectId: field['ObjectId'],
+	          Name: field['Name'],
+	          Type: 'string',
+	          Expression: exp,
+	          SystemExpression: '{=' + field['ObjectId'] + ':' + field['Id'] + ' > shortlink}'
+	        }
+	      },
+	      id: exp
+	    };
+	  });
+	}
+
+	function ownKeys$3(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$3(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$3(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$3(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+	function _classPrivateMethodInitSpec$3(obj, privateSet) { _checkPrivateRedeclaration$j(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec$j(obj, privateMap, value) { _checkPrivateRedeclaration$j(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$j(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classPrivateMethodGet$3(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _condition$3 = /*#__PURE__*/new WeakMap();
+
+	var _isMixedConditionGroup = /*#__PURE__*/new WeakSet();
+
+	var InlineSelectorCondition = /*#__PURE__*/function (_InlineSelector) {
+	  babelHelpers.inherits(InlineSelectorCondition, _InlineSelector);
+
+	  function InlineSelectorCondition(props) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, InlineSelectorCondition);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(InlineSelectorCondition).call(this, props));
+
+	    _classPrivateMethodInitSpec$3(babelHelpers.assertThisInitialized(_this), _isMixedConditionGroup);
+
+	    _classPrivateFieldInitSpec$j(babelHelpers.assertThisInitialized(_this), _condition$3, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _condition$3, props.condition);
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(InlineSelectorCondition, [{
+	    key: "renderTo",
+	    value: function renderTo(target) {
+	      this.targetInput = target;
+	      this.menuButton = target;
+	      this.parseTargetProperties();
+	      this.bindTargetEvents();
+	    }
+	  }, {
+	    key: "fillGroups",
+	    value: function fillGroups() {
+	      this.fillFieldsGroups();
+	    }
+	  }, {
+	    key: "onMenuOpen",
+	    value: function onMenuOpen() {
+	      this.emit('onOpenMenu', {
+	        selector: this,
+	        // TODO - rename
+	        isMixedCondition: _classPrivateMethodGet$3(this, _isMixedConditionGroup, _isMixedConditionGroup2).call(this)
+	      });
+	    }
+	  }, {
+	    key: "onFieldSelect",
+	    value: function onFieldSelect(field) {
+	      this.emit('change', {
+	        field: field
+	      });
+	    }
+	  }, {
+	    key: "getFields",
+	    value: function getFields() {
+	      return this.context.fields.map(function (field) {
+	        return _objectSpread$3(_objectSpread$3({}, field), {}, {
+	          ObjectId: 'Document'
+	        });
+	      });
+	    }
+	  }]);
+	  return InlineSelectorCondition;
+	}(InlineSelector);
+
+	function _isMixedConditionGroup2() {
+	  return babelHelpers.classPrivateFieldGet(this, _condition$3) && babelHelpers.classPrivateFieldGet(this, _condition$3).parentGroup && babelHelpers.classPrivateFieldGet(this, _condition$3).parentGroup.type === bizproc_automation.ConditionGroup.CONDITION_TYPE.Mixed;
+	}
+
+	var _templateObject$1;
+
+	function _classPrivateMethodInitSpec$4(obj, privateSet) { _checkPrivateRedeclaration$k(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec$k(obj, privateMap, value) { _checkPrivateRedeclaration$k(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$k(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classPrivateMethodGet$4(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _editorNode = /*#__PURE__*/new WeakMap();
+
+	var _eventHandlers = /*#__PURE__*/new WeakMap();
+
+	var _bindEvents = /*#__PURE__*/new WeakSet();
+
+	var _unbindEvents = /*#__PURE__*/new WeakSet();
+
+	var _bindEditorHooks = /*#__PURE__*/new WeakSet();
+
+	var _getEditor = /*#__PURE__*/new WeakSet();
+
+	var InlineSelectorHtml = /*#__PURE__*/function (_InlineSelector) {
+	  babelHelpers.inherits(InlineSelectorHtml, _InlineSelector);
+
+	  function InlineSelectorHtml() {
+	    var _babelHelpers$getProt;
+
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, InlineSelectorHtml);
+
+	    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+	      args[_key] = arguments[_key];
+	    }
+
+	    _this = babelHelpers.possibleConstructorReturn(this, (_babelHelpers$getProt = babelHelpers.getPrototypeOf(InlineSelectorHtml)).call.apply(_babelHelpers$getProt, [this].concat(args)));
+
+	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _getEditor);
+
+	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _bindEditorHooks);
+
+	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _unbindEvents);
+
+	    _classPrivateMethodInitSpec$4(babelHelpers.assertThisInitialized(_this), _bindEvents);
+
+	    _classPrivateFieldInitSpec$k(babelHelpers.assertThisInitialized(_this), _editorNode, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _classPrivateFieldInitSpec$k(babelHelpers.assertThisInitialized(_this), _eventHandlers, {
+	      writable: true,
+	      value: {
+	        'OnEditorInitedAfter': _classPrivateMethodGet$4(babelHelpers.assertThisInitialized(_this), _bindEditorHooks, _bindEditorHooks2).bind(babelHelpers.assertThisInitialized(_this))
+	      }
+	    });
+
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(InlineSelectorHtml, [{
+	    key: "destroy",
+	    value: function destroy() {
+	      _classPrivateMethodGet$4(this, _unbindEvents, _unbindEvents2).call(this);
+	    }
+	  }, {
+	    key: "renderTo",
+	    value: function renderTo(targetInput) {
+	      this.targetInput = targetInput;
+	      babelHelpers.classPrivateFieldSet(this, _editorNode, targetInput.querySelector('.bx-html-editor'));
+	      this.menuButton = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span\n\t\t\t\tonclick=\"", "\"\n\t\t\t\tclass=\"bizproc-automation-popup-select-dotted\"\n\t\t\t></span>\n\t\t"])), this.openMenu.bind(this));
+	      this.parseTargetProperties();
+	      this.bindTargetEvents();
+	      targetInput.firstElementChild.appendChild(this.menuButton);
+
+	      _classPrivateMethodGet$4(this, _bindEvents, _bindEvents2).call(this);
+	    }
+	  }, {
+	    key: "onFieldSelect",
+	    value: function onFieldSelect(field) {
+	      var insertText = field.Expression;
+
+	      var editor = _classPrivateMethodGet$4(this, _getEditor, _getEditor2).call(this);
+
+	      if (editor && editor.InsertHtml) {
+	        if (editor.synchro.IsFocusedOnTextarea()) {
+	          editor.textareaView.Focus();
+	          editor.textareaView.WrapWith('', '', insertText);
+	        } else {
+	          editor.InsertHtml(insertText);
+	        }
+
+	        editor.synchro.Sync();
+	      }
+	    }
+	  }, {
+	    key: "onBeforeSave",
+	    value: function onBeforeSave() {
+	      var editor = _classPrivateMethodGet$4(this, _getEditor, _getEditor2).call(this);
+
+	      if (editor && editor.SaveContent) {
+	        editor.SaveContent();
+	      }
+	    }
+	  }, {
+	    key: "onPopupResize",
+	    value: function onPopupResize() {
+	      var editor = _classPrivateMethodGet$4(this, _getEditor, _getEditor2).call(this);
+
+	      if (editor && editor.ResizeSceleton) {
+	        editor.ResizeSceleton();
+	      }
+	    }
+	  }]);
+	  return InlineSelectorHtml;
+	}(InlineSelector);
+
+	function _bindEvents2() {
+	  for (var _i = 0, _Object$entries = Object.entries(babelHelpers.classPrivateFieldGet(this, _eventHandlers)); _i < _Object$entries.length; _i++) {
+	    var _Object$entries$_i = babelHelpers.slicedToArray(_Object$entries[_i], 2),
+	        name = _Object$entries$_i[0],
+	        handler = _Object$entries$_i[1];
+
+	    BX.addCustomEvent(name, handler);
+	  }
+	}
+
+	function _unbindEvents2() {
+	  for (var _i2 = 0, _Object$entries2 = Object.entries(babelHelpers.classPrivateFieldGet(this, _eventHandlers)); _i2 < _Object$entries2.length; _i2++) {
+	    var _Object$entries2$_i = babelHelpers.slicedToArray(_Object$entries2[_i2], 2),
+	        name = _Object$entries2$_i[0],
+	        handler = _Object$entries2$_i[1];
+
+	    BX.removeCustomEvent(name, handler);
+	  }
+	}
+
+	function _bindEditorHooks2(editor) {
+	  if (editor.dom.cont !== babelHelpers.classPrivateFieldGet(this, _editorNode)) {
+	    return false;
+	  }
+
+	  var header = '';
+	  var footer = '';
+
+	  var cutHeader = function cutHeader(content) {
+	    var shouldSaveHeader = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+	    return content.replace(/(^[\s\S]*?)(<body.*?>)/i, function (str) {
+	      if (shouldSaveHeader) {
+	        header = str;
+	      }
+
+	      return '';
+	    });
+	  };
+
+	  var cutFooter = function cutFooter(content) {
+	    var shouldSaveFooter = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+	    return content.replace(/(<\/body>[\s\S]*?$)/i, function (str) {
+	      if (shouldSaveFooter) {
+	        footer = str;
+	      }
+
+	      return '';
+	    });
+	  };
+
+	  BX.addCustomEvent(editor, 'OnParse', function (mode) {
+	    if (!mode) {
+	      this.content = cutFooter(cutHeader(this.content, true), true);
+	    }
+	  });
+	  BX.addCustomEvent(editor, 'OnAfterParse', function (mode) {
+	    if (mode) {
+	      var content = cutFooter(cutHeader(this.content));
+
+	      if (header !== '' && footer !== '') {
+	        content = header + content + footer;
+	      }
+
+	      this.content = content;
+	    }
+	  });
+	}
+
+	function _getEditor2() {
+	  if (babelHelpers.classPrivateFieldGet(this, _editorNode)) {
+	    var editorId = babelHelpers.classPrivateFieldGet(this, _editorNode).id.split('-');
+	    return BXHtmlEditor.Get(editorId[editorId.length - 1]);
+	  }
+
+	  return null;
+	}
+
+	function _classPrivateMethodInitSpec$5(obj, privateSet) { _checkPrivateRedeclaration$l(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec$l(obj, privateMap, value) { _checkPrivateRedeclaration$l(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$l(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classPrivateMethodGet$5(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _context$1 = /*#__PURE__*/new WeakMap();
+
+	var _checkbox = /*#__PURE__*/new WeakMap();
+
+	var _needSync = /*#__PURE__*/new WeakMap();
+
+	var _getKey = /*#__PURE__*/new WeakSet();
+
+	var _getValue = /*#__PURE__*/new WeakSet();
+
+	var SaveStateCheckbox = /*#__PURE__*/function () {
+	  function SaveStateCheckbox(props) {
+	    babelHelpers.classCallCheck(this, SaveStateCheckbox);
+
+	    _classPrivateMethodInitSpec$5(this, _getValue);
+
+	    _classPrivateMethodInitSpec$5(this, _getKey);
+
+	    _classPrivateFieldInitSpec$l(this, _context$1, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _classPrivateFieldInitSpec$l(this, _checkbox, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _classPrivateFieldInitSpec$l(this, _needSync, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    babelHelpers.classPrivateFieldSet(this, _context$1, props.context);
+	    babelHelpers.classPrivateFieldSet(this, _checkbox, props.checkbox);
+	    babelHelpers.classPrivateFieldSet(this, _needSync, props.needSync);
+
+	    if (props.needSync) {
+	      var category = 'save_state_checkbox';
+	      var savedState = babelHelpers.classPrivateFieldGet(this, _context$1).get('userOptions').get(category, _classPrivateMethodGet$5(this, _getKey, _getKey2).call(this), 'N');
+
+	      if (savedState === 'Y') {
+	        babelHelpers.classPrivateFieldGet(this, _checkbox).checked = true;
+	      }
+	    }
+	  }
+
+	  babelHelpers.createClass(SaveStateCheckbox, [{
+	    key: "destroy",
+	    value: function destroy() {
+	      if (babelHelpers.classPrivateFieldGet(this, _needSync)) {
+	        babelHelpers.classPrivateFieldGet(this, _context$1).get('userOptions').set('save_state_checkboxes', _classPrivateMethodGet$5(this, _getKey, _getKey2).call(this), _classPrivateMethodGet$5(this, _getValue, _getValue2).call(this));
+	      }
+	    }
+	  }]);
+	  return SaveStateCheckbox;
+	}();
+
+	function _getKey2() {
+	  return babelHelpers.classPrivateFieldGet(this, _checkbox).getAttribute('data-save-state-key');
+	}
+
+	function _getValue2() {
+	  return babelHelpers.classPrivateFieldGet(this, _checkbox).checked ? 'Y' : 'N';
+	}
+
+	var UserSelector = /*#__PURE__*/function (_InlineSelector) {
+	  babelHelpers.inherits(UserSelector, _InlineSelector);
+
+	  function UserSelector() {
+	    babelHelpers.classCallCheck(this, UserSelector);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(UserSelector).apply(this, arguments));
+	  }
+
+	  babelHelpers.createClass(UserSelector, [{
+	    key: "renderTo",
+	    value: function renderTo(targetInput) {
+	      this.targetInput = targetInput;
+	      this.menuButton = targetInput;
+	      this.fieldProperty = JSON.parse(targetInput.getAttribute('data-property'));
+
+	      if (!this.fieldProperty) {
+	        this.context.useSwitcherMenu = false;
+	      }
+
+	      var additionalUserFields = this.context.get('additionalUserFields');
+	      this.userSelector = BX.Bizproc.UserSelector.decorateNode(targetInput, {
+	        additionalFields: main_core.Type.isArray(additionalUserFields) ? additionalUserFields : []
+	      });
+	    }
+	  }, {
+	    key: "destroy",
+	    value: function destroy() {
+	      babelHelpers.get(babelHelpers.getPrototypeOf(UserSelector.prototype), "destroy", this).call(this);
+
+	      if (this.userSelector) {
+	        this.userSelector.destroy();
+	        this.userSelector = null;
+	      }
+	    }
+	  }]);
+	  return UserSelector;
+	}(InlineSelector);
+
+	var _templateObject$2, _templateObject2$1, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
+
+	function _createForOfIteratorHelper$5(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$5(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+	function _unsupportedIterableToArray$5(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$5(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$5(o, minLen); }
+
+	function _arrayLikeToArray$5(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+	function _classPrivateMethodInitSpec$6(obj, privateSet) { _checkPrivateRedeclaration$m(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec$m(obj, privateMap, value) { _checkPrivateRedeclaration$m(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$m(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess$3(receiver, classConstructor); return method; }
+
+	function _classCheckPrivateStaticAccess$3(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+
+	function _classPrivateMethodGet$6(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _type$3 = /*#__PURE__*/new WeakMap();
+
+	var _multiple = /*#__PURE__*/new WeakMap();
+
+	var _required = /*#__PURE__*/new WeakMap();
+
+	var _valueInputName = /*#__PURE__*/new WeakMap();
+
+	var _typeInputName = /*#__PURE__*/new WeakMap();
+
+	var _useDisk = /*#__PURE__*/new WeakMap();
+
+	var _label = /*#__PURE__*/new WeakMap();
+
+	var _labelFile = /*#__PURE__*/new WeakMap();
+
+	var _labelDisk = /*#__PURE__*/new WeakMap();
+
+	var _diskUploader = /*#__PURE__*/new WeakMap();
+
+	var _diskControllerNode = /*#__PURE__*/new WeakMap();
+
+	var _fileItemsNode = /*#__PURE__*/new WeakMap();
+
+	var _fileControllerNode = /*#__PURE__*/new WeakMap();
+
+	var _menuId = /*#__PURE__*/new WeakMap();
+
+	var _createBaseNode = /*#__PURE__*/new WeakSet();
+
+	var _showTypeControlLayout = /*#__PURE__*/new WeakSet();
+
+	var _showDiskControllerLayout = /*#__PURE__*/new WeakSet();
+
+	var _hideDiskControllerLayout = /*#__PURE__*/new WeakSet();
+
+	var _showFileControllerLayout = /*#__PURE__*/new WeakSet();
+
+	var _hideFileControllerLayout = /*#__PURE__*/new WeakSet();
+
+	var _getDiskUploader = /*#__PURE__*/new WeakSet();
+
+	var _onTypeChange = /*#__PURE__*/new WeakSet();
+
+	var _addFileItem = /*#__PURE__*/new WeakSet();
+
+	var _isFileItemSelected = /*#__PURE__*/new WeakSet();
+
+	var _removeFileItem = /*#__PURE__*/new WeakSet();
+
+	var _onFileFieldAddClick = /*#__PURE__*/new WeakSet();
+
+	var _createFileItemNode = /*#__PURE__*/new WeakSet();
+
+	var FileSelector = /*#__PURE__*/function (_InlineSelector) {
+	  babelHelpers.inherits(FileSelector, _InlineSelector);
+
+	  function FileSelector(props) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, FileSelector);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FileSelector).call(this, props));
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _createFileItemNode);
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _onFileFieldAddClick);
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _removeFileItem);
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _isFileItemSelected);
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _addFileItem);
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _onTypeChange);
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _getDiskUploader);
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _hideFileControllerLayout);
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _showFileControllerLayout);
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _hideDiskControllerLayout);
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _showDiskControllerLayout);
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _showTypeControlLayout);
+
+	    _classPrivateMethodInitSpec$6(babelHelpers.assertThisInitialized(_this), _createBaseNode);
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _type$3, {
+	      writable: true,
+	      value: FileSelector.TYPE.None
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _multiple, {
+	      writable: true,
+	      value: false
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _required, {
+	      writable: true,
+	      value: false
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _valueInputName, {
+	      writable: true,
+	      value: ''
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _typeInputName, {
+	      writable: true,
+	      value: ''
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _useDisk, {
+	      writable: true,
+	      value: false
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _label, {
+	      writable: true,
+	      value: ''
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _labelFile, {
+	      writable: true,
+	      value: ''
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _labelDisk, {
+	      writable: true,
+	      value: ''
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _diskUploader, {
+	      writable: true,
+	      value: null
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _diskControllerNode, {
+	      writable: true,
+	      value: null
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _fileItemsNode, {
+	      writable: true,
+	      value: null
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _fileControllerNode, {
+	      writable: true,
+	      value: null
+	    });
+
+	    _classPrivateFieldInitSpec$m(babelHelpers.assertThisInitialized(_this), _menuId, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _this.context.set('fileFields', _this.context.fields.filter(function (field) {
+	      return field.Type === 'file';
+	    }));
+
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(FileSelector, [{
+	    key: "destroy",
+	    value: function destroy() {
+	      if (this.menu) {
+	        this.menu.popupWindow.close();
+	      }
+	    }
+	  }, {
+	    key: "renderTo",
+	    value: function renderTo(targetInput) {
+	      this.targetInput = targetInput;
+	      var selected = this.parseTargetProperties();
+	      this.targetInput.appendChild(_classPrivateMethodGet$6(this, _createBaseNode, _createBaseNode2).call(this));
+
+	      _classPrivateMethodGet$6(this, _showTypeControlLayout, _showTypeControlLayout2).call(this, selected); // this.setFileFields()
+	      // this.createDom
+
+	    }
+	  }, {
+	    key: "parseTargetProperties",
+	    value: function parseTargetProperties() {
+	      var config = JSON.parse(this.targetInput.getAttribute('data-config'));
+
+	      if (!main_core.Type.isPlainObject(config)) {
+	        config = {};
+	      }
+
+	      babelHelpers.classPrivateFieldSet(this, _type$3, config.type || FileSelector.TYPE.File);
+
+	      if (config.selected && !config.selected.length) {
+	        babelHelpers.classPrivateFieldSet(this, _type$3, FileSelector.TYPE.None);
+	      }
+
+	      babelHelpers.classPrivateFieldSet(this, _multiple, config.multiple || false);
+	      babelHelpers.classPrivateFieldSet(this, _required, config.required || false);
+	      babelHelpers.classPrivateFieldSet(this, _valueInputName, config.valueInputName || '');
+	      babelHelpers.classPrivateFieldSet(this, _typeInputName, config.typeInputName || '');
+	      babelHelpers.classPrivateFieldSet(this, _useDisk, config.useDisk || false);
+	      babelHelpers.classPrivateFieldSet(this, _label, config.label || 'Attachment');
+	      babelHelpers.classPrivateFieldSet(this, _labelFile, config.labelFile || 'File');
+	      babelHelpers.classPrivateFieldSet(this, _labelDisk, config.labelDisk || 'Disk');
+
+	      if (config.selected && config.selected.length > 0) {
+	        return main_core.Runtime.clone(config.selected);
+	      }
+	    }
+	  }, {
+	    key: "addItems",
+	    value: function addItems(items) {
+	      if (babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.File) {
+	        var _iterator = _createForOfIteratorHelper$5(items),
+	            _step;
+
+	        try {
+	          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	            var fileItem = _step.value;
+
+	            _classPrivateMethodGet$6(this, _addFileItem, _addFileItem2).call(this, fileItem);
+	          }
+	        } catch (err) {
+	          _iterator.e(err);
+	        } finally {
+	          _iterator.f();
+	        }
+	      } else {
+	        _classPrivateMethodGet$6(this, _getDiskUploader, _getDiskUploader2).call(this).setValues(_classStaticPrivateMethodGet(FileSelector, FileSelector, _convertToDiskItems).call(FileSelector, items));
+	      }
+	    }
+	  }, {
+	    key: "onFieldSelect",
+	    value: function onFieldSelect(field) {
+	      _classPrivateMethodGet$6(this, _addFileItem, _addFileItem2).call(this, {
+	        id: field.Id,
+	        expression: field.Expression,
+	        name: field.Name,
+	        type: FileSelector.TYPE.File
+	      });
+	    }
+	  }, {
+	    key: "onBeforeSave",
+	    value: function onBeforeSave() {
+	      var ids = [];
+
+	      if (babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.Disk) {
+	        ids = _classPrivateMethodGet$6(this, _getDiskUploader, _getDiskUploader2).call(this).getValues();
+	      } else if (babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.File) {
+	        ids = Array.from(babelHelpers.classPrivateFieldGet(this, _fileItemsNode).childNodes).map(function (node) {
+	          return node.getAttribute('data-file-expression');
+	        }).filter(function (id) {
+	          return id !== '';
+	        });
+	      }
+
+	      var _iterator2 = _createForOfIteratorHelper$5(ids),
+	          _step2;
+
+	      try {
+	        for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+	          var id = _step2.value;
+	          this.targetInput.appendChild(main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t\ttype=\"hidden\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t/>\n\t\t\t"])), babelHelpers.classPrivateFieldGet(this, _valueInputName) + (babelHelpers.classPrivateFieldGet(this, _multiple) ? '[]' : ''), id));
+	        }
+	      } catch (err) {
+	        _iterator2.e(err);
+	      } finally {
+	        _iterator2.f();
+	      }
+	    }
+	  }]);
+	  return FileSelector;
+	}(InlineSelector);
+
+	function _createBaseNode2() {
+	  var idSalt = bizproc_automation.Helper.generateUniqueId();
+	  var fileRadio = null;
+	  var fileTypeOptions = [];
+
+	  if (this.context.get('fileFields').length > 0) {
+	    fileRadio = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t\tid=\"type-1", "\"\n\t\t\t\t\tclass=\"bizproc-automation-popup-select-input\"\n\t\t\t\t\ttype=\"radio\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\t", "\n\t\t\t\t/>\n\t\t\t"])), idSalt, babelHelpers.classPrivateFieldGet(this, _typeInputName), FileSelector.TYPE.File, babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.File ? 'checked' : '');
+	  }
+
+	  var diskFileRadio = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input\n\t\t\t\tid=\"type-2", "\"\n\t\t\t\tclass=\"bizproc-automation-popup-select-input\"\n\t\t\t\ttype=\"radio\"\n\t\t\t\tname=\"", "\"\n\t\t\t\tvalue=\"", "\"\n\t\t\t\t", "\n\t\t\t/>\n\t\t"])), idSalt, babelHelpers.classPrivateFieldGet(this, _typeInputName), FileSelector.TYPE.Disk, babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.Disk ? 'checked' : '');
+	  fileTypeOptions.push(main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"bizproc-automation-popup-settings-title\">", ":</span>\n\t\t"])), babelHelpers.classPrivateFieldGet(this, _label)));
+
+	  if (fileRadio) {
+	    fileTypeOptions.push(fileRadio, main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label\n\t\t\t\t\tclass=\"bizproc-automation-popup-settings-link\"\n\t\t\t\t\tfor=\"type-1", "\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t>\n\t\t\t\t", "\n\t\t\t\t</label>\n\t\t\t"])), idSalt, _classPrivateMethodGet$6(this, _onTypeChange, _onTypeChange2).bind(this, FileSelector.TYPE.File), babelHelpers.classPrivateFieldGet(this, _labelFile)));
+	  }
+
+	  fileTypeOptions.push(diskFileRadio, main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<label\n\t\t\t\tclass=\"bizproc-automation-popup-settings-link\"\n\t\t\t\tfor=\"type-2", "\"\n\t\t\t\tonclick=\"", "\"\n\t\t\t>\n\t\t\t", "\n\t\t\t</label>\n\t\t"])), idSalt, _classPrivateMethodGet$6(this, _onTypeChange, _onTypeChange2).bind(this, FileSelector.TYPE.Disk), babelHelpers.classPrivateFieldGet(this, _labelDisk)));
+	  return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-automation-popup-settings-block\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), fileTypeOptions);
+	}
+
+	function _showTypeControlLayout2(selected) {
+	  if (babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.Disk) {
+	    _classPrivateMethodGet$6(this, _hideFileControllerLayout, _hideFileControllerLayout2).call(this);
+
+	    _classPrivateMethodGet$6(this, _showDiskControllerLayout, _showDiskControllerLayout2).call(this, selected);
+	  } else if (babelHelpers.classPrivateFieldGet(this, _type$3) === FileSelector.TYPE.File) {
+	    _classPrivateMethodGet$6(this, _hideDiskControllerLayout, _hideDiskControllerLayout2).call(this);
+
+	    _classPrivateMethodGet$6(this, _showFileControllerLayout, _showFileControllerLayout2).call(this, selected);
+	  } else {
+	    _classPrivateMethodGet$6(this, _hideFileControllerLayout, _hideFileControllerLayout2).call(this);
+
+	    _classPrivateMethodGet$6(this, _hideDiskControllerLayout, _hideDiskControllerLayout2).call(this);
+	  }
+	}
+
+	function _showDiskControllerLayout2(selected) {
+	  if (!babelHelpers.classPrivateFieldGet(this, _diskControllerNode)) {
+	    babelHelpers.classPrivateFieldSet(this, _diskControllerNode, main_core.Dom.create('div'));
+	    this.targetInput.appendChild(babelHelpers.classPrivateFieldGet(this, _diskControllerNode));
+
+	    var diskUploader = _classPrivateMethodGet$6(this, _getDiskUploader, _getDiskUploader2).call(this);
+
+	    diskUploader.layout(babelHelpers.classPrivateFieldGet(this, _diskControllerNode));
+	    diskUploader.show(true);
+
+	    if (selected) {
+	      this.addItems(selected);
+	    }
+	  } else {
+	    main_core.Dom.show(babelHelpers.classPrivateFieldGet(this, _diskControllerNode));
+	  }
+	}
+
+	function _hideDiskControllerLayout2() {
+	  if (babelHelpers.classPrivateFieldGet(this, _diskControllerNode)) {
+	    main_core.Dom.hide(babelHelpers.classPrivateFieldGet(this, _diskControllerNode));
+	  }
+	}
+
+	function _showFileControllerLayout2(selected) {
+	  if (!babelHelpers.classPrivateFieldGet(this, _fileControllerNode)) {
+	    babelHelpers.classPrivateFieldSet(this, _fileItemsNode, main_core.Dom.create('span'));
+	    babelHelpers.classPrivateFieldSet(this, _fileControllerNode, main_core.Dom.create('div', {
+	      children: [babelHelpers.classPrivateFieldGet(this, _fileItemsNode)]
+	    }));
+	    this.targetInput.appendChild(babelHelpers.classPrivateFieldGet(this, _fileControllerNode));
+	    var addButtonNode = main_core.Dom.create('a', {
+	      attrs: {
+	        className: 'bizproc-automation-popup-settings-link bizproc-automation-popup-settings-link-thin'
+	      },
+	      text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ADD')
+	    });
+	    babelHelpers.classPrivateFieldGet(this, _fileControllerNode).appendChild(addButtonNode);
+	    main_core.Event.bind(addButtonNode, 'click', _classPrivateMethodGet$6(this, _onFileFieldAddClick, _onFileFieldAddClick2).bind(this, addButtonNode));
+
+	    if (selected) {
+	      this.addItems(selected);
+	    }
+	  } else {
+	    main_core.Dom.show(babelHelpers.classPrivateFieldGet(this, _fileControllerNode));
+	  }
+	}
+
+	function _hideFileControllerLayout2() {
+	  if (babelHelpers.classPrivateFieldGet(this, _fileControllerNode)) {
+	    main_core.Dom.hide(babelHelpers.classPrivateFieldGet(this, _fileControllerNode));
+	  }
+	}
+
+	function _getDiskUploader2() {
+	  if (!babelHelpers.classPrivateFieldGet(this, _diskUploader)) {
+	    babelHelpers.classPrivateFieldSet(this, _diskUploader, BX.Bizproc.Automation.DiskUploader.create('', {
+	      msg: {
+	        'diskAttachFiles': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_ATTACH_FILE'),
+	        'diskAttachedFiles': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_ATTACHED_FILES'),
+	        'diskSelectFile': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE'),
+	        'diskSelectFileLegend': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_SELECT_FILE_LEGEND'),
+	        'diskUploadFile': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE'),
+	        'diskUploadFileLegend': main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_DISK_UPLOAD_FILE_LEGEND')
+	      }
+	    }));
+	    babelHelpers.classPrivateFieldGet(this, _diskUploader).setMode(1);
+	  }
+
+	  return babelHelpers.classPrivateFieldGet(this, _diskUploader);
+	}
+
+	function _onTypeChange2(newType) {
+	  if (babelHelpers.classPrivateFieldGet(this, _type$3) !== newType) {
+	    babelHelpers.classPrivateFieldSet(this, _type$3, newType);
+
+	    _classPrivateMethodGet$6(this, _showTypeControlLayout, _showTypeControlLayout2).call(this);
+	  }
+	}
+
+	function _addFileItem2(item) {
+	  if (_classPrivateMethodGet$6(this, _isFileItemSelected, _isFileItemSelected2).call(this, item)) {
+	    return false;
+	  }
+
+	  var node = _classPrivateMethodGet$6(this, _createFileItemNode, _createFileItemNode2).call(this, item);
+
+	  if (!babelHelpers.classPrivateFieldGet(this, _multiple)) {
+	    main_core.Dom.clean(babelHelpers.classPrivateFieldGet(this, _fileItemsNode));
+	  }
+
+	  babelHelpers.classPrivateFieldGet(this, _fileItemsNode).appendChild(node);
+	}
+
+	function _isFileItemSelected2(item) {
+	  return !!babelHelpers.classPrivateFieldGet(this, _fileItemsNode).querySelector("[data-file-id=\"".concat(item.id, "\"]"));
+	}
+
+	function _convertToDiskItems(items) {
+	  return items.map(function (item) {
+	    return {
+	      ID: item['id'],
+	      NAME: item['name'],
+	      SIZE: item['size'],
+	      VIEW_URL: ''
+	    };
+	  });
+	}
+
+	function _removeFileItem2(item) {
+	  var itemNode = babelHelpers.classPrivateFieldGet(this, _fileItemsNode).querySelector("[data-file-id=\"".concat(item.id, "\"]"));
+
+	  if (itemNode) {
+	    babelHelpers.classPrivateFieldGet(this, _fileItemsNode).removeChild(itemNode);
+	  }
+	}
+
+	function _onFileFieldAddClick2(addButtonNode, event) {
+	  var self = this;
+
+	  if (!babelHelpers.classPrivateFieldGet(this, _menuId)) {
+	    babelHelpers.classPrivateFieldSet(this, _menuId, bizproc_automation.Helper.generateUniqueId());
+	  }
+
+	  main_popup.MenuManager.show(babelHelpers.classPrivateFieldGet(this, _menuId), addButtonNode, this.context.get('fileFields').map(function (field) {
+	    return {
+	      text: main_core.Text.encode(field.Name),
+	      field: field,
+	      onclick: function onclick(event, item) {
+	        this.popupWindow.close();
+	        self.onFieldSelect(field);
+	      }
+	    };
+	  }), {
+	    autoHide: true,
+	    offsetLeft: main_core.Dom.getPosition(addButtonNode)['width'] / 2,
+	    angle: {
+	      position: 'top',
+	      offset: 0
+	    }
+	  }); // this.#menu = MenuManager.currentItem;
+
+	  event.preventDefault();
+	}
+
+	function _createFileItemNode2(item) {
+	  var itemField = this.context.get('fileFields').find(function (field) {
+	    return field.Expression === item.expression;
+	  });
+	  var label = (itemField === null || itemField === void 0 ? void 0 : itemField.Name) || '';
+	  return main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span\n\t\t\t\tclass=\"bizproc-automation-popup-autocomplete-item\"\n\t\t\t\tdata-file-id=\"", "\"\n\t\t\t\tdata-file-expression=\"", "\"\n\t\t\t>\n\t\t\t\t<span class=\"bizproc-automation-popup-autocomplete-name\">", "</span>\n\t\t\t\t<span\n\t\t\t\t\tclass=\"bizproc-automation-popup-autocomplete-delete\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></span>\n\t\t\t</span>\n\t\t"])), item.id, item.expression, label, _classPrivateMethodGet$6(this, _removeFileItem, _removeFileItem2).bind(this, item));
+	}
+
+	babelHelpers.defineProperty(FileSelector, "TYPE", {
+	  None: '',
+	  Disk: 'disk',
+	  File: 'file'
+	});
+
+	function _classPrivateMethodInitSpec$7(obj, privateSet) { _checkPrivateRedeclaration$n(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec$n(obj, privateMap, value) { _checkPrivateRedeclaration$n(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$n(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classStaticPrivateMethodGet$1(receiver, classConstructor, method) { _classCheckPrivateStaticAccess$4(receiver, classConstructor); return method; }
+
+	function _classCheckPrivateStaticAccess$4(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+
+	function _classPrivateMethodGet$7(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _clockInstance = /*#__PURE__*/new WeakMap();
+
+	var _onTimeSelect = /*#__PURE__*/new WeakSet();
+
+	var _getCurrentTime = /*#__PURE__*/new WeakSet();
+
+	var _convertTimeToSeconds = /*#__PURE__*/new WeakSet();
+
+	var TimeSelector = /*#__PURE__*/function (_InlineSelector) {
+	  babelHelpers.inherits(TimeSelector, _InlineSelector);
+
+	  function TimeSelector() {
+	    var _babelHelpers$getProt;
+
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, TimeSelector);
+
+	    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+	      args[_key] = arguments[_key];
+	    }
+
+	    _this = babelHelpers.possibleConstructorReturn(this, (_babelHelpers$getProt = babelHelpers.getPrototypeOf(TimeSelector)).call.apply(_babelHelpers$getProt, [this].concat(args)));
+
+	    _classPrivateMethodInitSpec$7(babelHelpers.assertThisInitialized(_this), _convertTimeToSeconds);
+
+	    _classPrivateMethodInitSpec$7(babelHelpers.assertThisInitialized(_this), _getCurrentTime);
+
+	    _classPrivateMethodInitSpec$7(babelHelpers.assertThisInitialized(_this), _onTimeSelect);
+
+	    _classPrivateFieldInitSpec$n(babelHelpers.assertThisInitialized(_this), _clockInstance, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(TimeSelector, [{
+	    key: "destroy",
+	    value: function destroy() {
+	      if (babelHelpers.classPrivateFieldGet(this, _clockInstance)) {
+	        babelHelpers.classPrivateFieldGet(this, _clockInstance).closeWnd();
+	      }
+	    }
+	  }, {
+	    key: "renderTo",
+	    value: function renderTo(targetInput) {
+	      var _this$constructor;
+
+	      this.targetInput = targetInput; //this.targetInput = Runtime.clone(targetInput);
+
+	      var datetime = new Date();
+	      datetime.setHours(0, 0, 0, 0);
+	      datetime.setTime(datetime.getTime() + _classPrivateMethodGet$7(this, _getCurrentTime, _getCurrentTime2).call(this) * 1000);
+	      this.targetInput.value = _classStaticPrivateMethodGet$1(_this$constructor = this.constructor, TimeSelector, _formatTime).call(_this$constructor, datetime);
+	      main_core.Event.bind(targetInput, 'click', this.showClock.bind(this));
+	    }
+	  }, {
+	    key: "showClock",
+	    value: function showClock() {
+	      if (!babelHelpers.classPrivateFieldGet(this, _clockInstance)) {
+	        babelHelpers.classPrivateFieldSet(this, _clockInstance, new BX.CClockSelector({
+	          start_time: _classPrivateMethodGet$7(this, _getCurrentTime, _getCurrentTime2).call(this),
+	          node: this.targetInput,
+	          callback: _classPrivateMethodGet$7(this, _onTimeSelect, _onTimeSelect2).bind(this)
+	        }));
+	      }
+
+	      babelHelpers.classPrivateFieldGet(this, _clockInstance).Show();
+	    }
+	  }]);
+	  return TimeSelector;
+	}(InlineSelector);
+
+	function _onTimeSelect2(time) {
+	  this.targetInput.value = time;
+	  BX.fireEvent(this.targetInput, 'change');
+	  babelHelpers.classPrivateFieldGet(this, _clockInstance).closeWnd();
+	}
+
+	function _getCurrentTime2() {
+	  return _classPrivateMethodGet$7(this, _convertTimeToSeconds, _convertTimeToSeconds2).call(this, this.targetInput.value);
+	}
+
+	function _convertTimeToSeconds2(time) {
+	  var timeParts = time.split(/[\s:]+/).map(function (part) {
+	    return parseInt(part);
+	  });
+
+	  var _timeParts = babelHelpers.slicedToArray(timeParts, 2),
+	      hours = _timeParts[0],
+	      minutes = _timeParts[1];
+
+	  if (timeParts.length === 3) {
+	    var period = timeParts[2];
+
+	    if (period === 'pm' && hours < 12) {
+	      hours += 12;
+	    } else if (period === 'am' && hours === 12) {
+	      hours = 0;
+	    }
+	  }
+
+	  return hours * 3600 + minutes * 60;
+	}
+
+	function _formatTime(datetime) {
+	  var getFormat = function getFormat(formatId) {
+	    return BX.date.convertBitrixFormat(main_core.Loc.getMessage(formatId)).replace(/:?\s*s/, '');
+	  };
+
+	  var dateFormat = getFormat('FORMAT_DATE');
+	  var timeFormat = getFormat('FORMAT_DATETIME').replace(dateFormat, '').trim();
+	  return BX.date.format(timeFormat, datetime);
+	}
 
 	var DelayIntervalSelector = /*#__PURE__*/function () {
 	  function DelayIntervalSelector(options) {
@@ -7968,22 +9790,22 @@ this.BX = this.BX || {};
 	  return DelayIntervalSelector;
 	}();
 
-	function _classPrivateFieldInitSpec$i(obj, privateMap, value) { _checkPrivateRedeclaration$i(obj, privateMap); privateMap.set(obj, value); }
+	function _classPrivateFieldInitSpec$o(obj, privateMap, value) { _checkPrivateRedeclaration$o(obj, privateMap); privateMap.set(obj, value); }
 
-	function _checkPrivateRedeclaration$i(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _checkPrivateRedeclaration$o(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
 	var _values = /*#__PURE__*/new WeakMap();
 
-	var Context = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(Context, _EventEmitter);
+	var BaseContext = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(BaseContext, _EventEmitter);
 
-	  function Context(defaultValue) {
+	  function BaseContext(defaultValue) {
 	    var _this;
 
-	    babelHelpers.classCallCheck(this, Context);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Context).call(this));
+	    babelHelpers.classCallCheck(this, BaseContext);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BaseContext).call(this));
 
-	    _classPrivateFieldInitSpec$i(babelHelpers.assertThisInitialized(_this), _values, {
+	    _classPrivateFieldInitSpec$o(babelHelpers.assertThisInitialized(_this), _values, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -7997,7 +9819,17 @@ this.BX = this.BX || {};
 	    return _this;
 	  }
 
-	  babelHelpers.createClass(Context, [{
+	  babelHelpers.createClass(BaseContext, [{
+	    key: "clone",
+	    value: function clone() {
+	      return new BaseContext(main_core.clone(babelHelpers.classPrivateFieldGet(this, _values)));
+	    }
+	  }, {
+	    key: "getValues",
+	    value: function getValues() {
+	      return babelHelpers.classPrivateFieldGet(this, _values);
+	    }
+	  }, {
 	    key: "set",
 	    value: function set(name, value) {
 	      var isValueChanged = this.has(name);
@@ -8029,18 +9861,59 @@ this.BX = this.BX || {};
 	      return this;
 	    }
 	  }]);
-	  return Context;
+	  return BaseContext;
 	}(main_core_events.EventEmitter);
 
-	var AutomationContext = /*#__PURE__*/function (_Context) {
-	  babelHelpers.inherits(AutomationContext, _Context);
+	var SelectorContext = /*#__PURE__*/function (_BaseContext) {
+	  babelHelpers.inherits(SelectorContext, _BaseContext);
 
-	  function AutomationContext(props) {
-	    babelHelpers.classCallCheck(this, AutomationContext);
-	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(AutomationContext).call(this, props));
+	  function SelectorContext(props) {
+	    babelHelpers.classCallCheck(this, SelectorContext);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(SelectorContext).call(this, props));
 	  }
 
-	  babelHelpers.createClass(AutomationContext, [{
+	  babelHelpers.createClass(SelectorContext, [{
+	    key: "fields",
+	    get: function get() {
+	      var fields = this.get('fields');
+	      return main_core.Type.isArray(fields) ? fields : [];
+	    }
+	  }, {
+	    key: "useSwitcherMenu",
+	    get: function get() {
+	      return main_core.Type.isBoolean(this.get('useSwitcherMenu')) ? this.get('useSwitcherMenu') : false;
+	    },
+	    set: function set(value) {
+	      this.set('useSwitcherMenu', value);
+	    }
+	  }, {
+	    key: "rootGroupTitle",
+	    get: function get() {
+	      var _this$get;
+
+	      return (_this$get = this.get('rootGroupTitle')) !== null && _this$get !== void 0 ? _this$get : '';
+	    }
+	  }]);
+	  return SelectorContext;
+	}(BaseContext);
+
+	var Context = /*#__PURE__*/function (_BaseContext) {
+	  babelHelpers.inherits(Context, _BaseContext);
+
+	  function Context(props) {
+	    babelHelpers.classCallCheck(this, Context);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Context).call(this, props));
+	  }
+
+	  babelHelpers.createClass(Context, [{
+	    key: "clone",
+	    value: function clone() {
+	      var _this$userOptions;
+
+	      // TODO - clone Tracker object when the corresponding method appears
+	      return new Context(main_core.Runtime.clone(this.getValues())).set('document', this.document.clone()).set('userOptions', (_this$userOptions = this.userOptions) === null || _this$userOptions === void 0 ? void 0 : _this$userOptions.clone());
+	    }
+	  }, {
 	    key: "getAvailableTrigger",
 	    value: function getAvailableTrigger(code) {
 	      return this.availableTriggers.find(function (trigger) {
@@ -8129,15 +10002,13 @@ this.BX = this.BX || {};
 	      return this.get('parametersEditorUrl');
 	    }
 	  }]);
-	  return AutomationContext;
-	}(Context);
+	  return Context;
+	}(BaseContext);
 
+	var contextInstance;
 	function getGlobalContext() {
-	  main_core.Reflection.namespace('BX.Bizproc.Automation');
-	  var context = BX.Bizproc.Automation.Context;
-
-	  if (context instanceof AutomationContext) {
-	    return context;
+	  if (contextInstance instanceof Context) {
+	    return contextInstance;
 	  }
 
 	  throw new Error('Context is not initialized yet');
@@ -8150,13 +10021,17 @@ this.BX = this.BX || {};
 	  }
 	}
 	function setGlobalContext(context) {
-	  main_core.Reflection.namespace('BX.Bizproc.Automation');
-	  BX.Bizproc.Automation.Context = context;
+	  if (context instanceof Context) {
+	    contextInstance = context;
+	  } else {
+	    throw new Error('Unsupported Context');
+	  }
+
 	  return context;
 	}
 
 	exports.TemplatesScheme = TemplatesScheme;
-	exports.AutomationContext = AutomationContext;
+	exports.Context = Context;
 	exports.getGlobalContext = getGlobalContext;
 	exports.tryGetGlobalContext = tryGetGlobalContext;
 	exports.setGlobalContext = setGlobalContext;
@@ -8172,9 +10047,18 @@ this.BX = this.BX || {};
 	exports.ConditionGroupSelector = ConditionGroupSelector;
 	exports.Condition = Condition;
 	exports.Designer = Designer;
+	exports.SelectorManager = Manager;
+	exports.InlineSelector = InlineSelector;
+	exports.InlineSelectorCondition = InlineSelectorCondition;
+	exports.InlineSelectorHtml = InlineSelectorHtml;
+	exports.SaveStateCheckbox = SaveStateCheckbox;
+	exports.UserSelector = UserSelector;
+	exports.FileSelector = FileSelector;
+	exports.TimeSelector = TimeSelector;
 	exports.DelayInterval = DelayInterval;
 	exports.DelayIntervalSelector = DelayIntervalSelector;
 	exports.HelpHint = HelpHint;
+	exports.SelectorContext = SelectorContext;
 	exports.Helper = Helper;
 	exports.RobotEntry = RobotEntry;
 	exports.TriggerEntry = TriggerEntry;
@@ -8182,6 +10066,7 @@ this.BX = this.BX || {};
 	exports.TrackingEntry = TrackingEntry;
 	exports.TrackingStatus = TrackingStatus;
 	exports.Tracker = Tracker;
+	exports.WorkflowStatus = WorkflowStatus;
 
-}((this.BX.Bizproc = this.BX.Bizproc || {}),BX.Main,BX.Event,BX.Bizproc,BX,BX));
+}((this.BX.Bizproc.Automation = this.BX.Bizproc.Automation || {}),BX.UI.EntitySelector,BX.Main,BX.Event,BX.Bizproc.Automation,BX));
 //# sourceMappingURL=automation.bundle.js.map

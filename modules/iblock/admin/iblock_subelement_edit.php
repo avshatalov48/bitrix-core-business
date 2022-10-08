@@ -25,10 +25,10 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/iblock/classes/general/s
 
 if (!function_exists('tabFilter'))
 {
-	function tabFilter($tab)
+	function tabFilter($tab): bool
 	{
 		return ($tab['DIV'] != 'product_group');
-	};
+	}
 }
 
 $type = (isset($_REQUEST['type']) && is_string($_REQUEST['type']) ? $_REQUEST['type'] : '');
@@ -138,6 +138,33 @@ $view = ($view=="Y") ? "Y" : "N"; //view mode
 
 $return_url = '';
 
+$request = Main\Context::getCurrent()->getRequest();
+// TODO: hack for psevdo-excel export in crm (\CAdminUiList::GetSystemContextMenu)
+$urlBuilderManager = Iblock\Url\AdminPage\BuilderManager::getInstance();
+$urlBuilder = null;
+$urlBuilderId = (string)$request->get('urlBuilderId') ;
+if ($urlBuilderId !== '')
+{
+	$urlBuilder = $urlBuilderManager->getBuilder($urlBuilderId);
+}
+// TODO end
+if ($urlBuilder === null)
+{
+	$urlBuilder = $urlBuilderManager->getBuilder();
+}
+unset($urlBuilderManager);
+
+if ($urlBuilder === null)
+{
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	ShowError(GetMessage("IBLOCK_ELEMENT_ERR_BUILDER_ADSENT"));
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	die();
+}
+$urlBuilderId = $urlBuilder->getId();
+$urlBuilder->setIblockId($IBLOCK_ID);
+$urlBuilder->setUrlParams(array());
+
 CCatalogAdminTools::setSkuFormParams();
 $arSubCatalogEx = array();
 $arSubCatalogTabs = CCatalogAdminTools::getShowTabs($IBLOCK_ID, ($copyID > 0 && $ID == 0 ? $copyID : $ID), $arSubCatalogEx);
@@ -198,9 +225,9 @@ do{ //one iteration loop
 
 	if($arIBlock)
 	{
-		if (($ID > 0 && !$bCopy) && !CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ID, "iblock_admin_display"))
+		if (($ID > 0 && !$bSubCopy) && !CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ID, "iblock_admin_display"))
 			$bBadBlock = true;
-		elseif (($ID <= 0 || $bCopy) && !CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, 0, "iblock_admin_display"))
+		elseif (($ID <= 0 || $bSubCopy) && !CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, 0, "iblock_admin_display"))
 			$bBadBlock = true;
 		elseif (CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ID, "element_edit"))
 			$bBadBlock = false;
@@ -209,7 +236,7 @@ do{ //one iteration loop
 		elseif ($bBizproc)
 			$bBadBlock = false;
 		elseif(
-			(($ID <= 0) || $bCopy)
+			(($ID <= 0) || $bSubCopy)
 			&& CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, 0, "section_element_bind")
 		)
 			$bBadBlock = false;
@@ -1453,7 +1480,7 @@ else
 
 if (COption::GetOptionString("iblock", "show_xml_id", "N")=="Y")
 {
-	if ($bCopy || $ID == 0)
+	if ($bSubCopy || $ID == 0)
 	{
 		$tabControl->BeginCustomField("SUB_XML_ID", GetMessage("IBLOCK_FIELD_XML_ID") . ":", $arIBlock["FIELDS"]["XML_ID"]["IS_REQUIRED"] === "Y");
 		?><tr id="tr_SUB_XML_ID">
@@ -2124,7 +2151,7 @@ if($arShowTabs['edit_rights']):
 			"SUB_RIGHTS",
 			$obRights->GetRightsList(),
 			$obRights->GetRights(array("count_overwrited" => true, "parents" => array())),
-			false, /*$bForceInherited=*/($ID <= 0) || $bCopy
+			false, /*$bForceInherited=*/($ID <= 0) || $bSubCopy
 		);
 	$tabControl->EndCustomField("RIGHTS", $htmlHidden);
 endif;
@@ -2133,11 +2160,11 @@ $bDisabled =
 	($view=="Y")
 	|| ($bWorkflow && $prn_LOCK_STATUS=="red")
 	|| (
-		(($ID <= 0) || $bCopy)
+		(($ID <= 0) || $bSubCopy)
 		&& !CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, 0, "section_element_bind")
 	)
 	|| (
-		(($ID > 0) && !$bCopy)
+		(($ID > 0) && !$bSubCopy)
 		&& !CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $ID, "element_edit")
 	)
 	|| (

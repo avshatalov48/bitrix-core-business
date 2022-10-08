@@ -261,3 +261,11 @@ $MESS["main_options_weak_pass_note"] = "Текстовый файл в форм�
 $MESS["main_options_upload_success"] = "База данных слабых паролей успешно загружена.";
 $MESS["main_options_upload_error"] = "Произошла ошибка при загрузке базы данных слабых паролей.";
 $MESS["main_option_qrcode_auth"] = "Разрешить аутентификацию по QR-коду:";
+$MESS["main_options_device_history_title"] = "История входов и устройств";
+$MESS["main_options_device_history"] = "Сохранять историю входов с устройств пользователя:";
+$MESS["main_options_device_history_days"] = "Сколько дней хранить историю входов:";
+$MESS["main_options_device_history_notify"] = "Оповещать пользователей о входе с нового устройства (<a href=\"#EMAIL_TEMPLATES_URL#\">почтовые шаблоны</a>):";
+$MESS["main_options_device_history_note"] = 'Для лучшего определения устройств настройте <a href="https://www.php.net/manual/en/function.get-browser.php" target = "_blank">browscap</a> в PHP. Используйте последнюю версию ini-файла с <a href="http://browscap.org" target="_blank">Browser Capabilities Project</a>.';
+$MESS['main_options_device_geoip'] = 'Собирать IP-геоданные для истории входов:';
+$MESS['main_options_geo'] = 'Геолокация';
+$MESS['main_options_geo_collect_names'] = 'Собирать названия местоположений Geonames в локальную БД:';

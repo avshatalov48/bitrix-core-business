@@ -86,7 +86,11 @@ class ProductProvider extends BaseProvider
 
 		$recentItems = $dialog->getRecentItems()->getEntityItems(self::ENTITY_ID);
 		$recentItemsCount = count($recentItems);
-		if ($this->options['restrictedProductTypes'] !== null && $recentItemsCount > 0)
+		if (
+			$this->options['restrictedProductTypes']
+			&& is_array($this->options['restrictedProductTypes'])
+			&& $recentItemsCount > 0
+		)
 		{
 			$ids = [];
 			foreach ($recentItems as $recentItem)
@@ -95,18 +99,32 @@ class ProductProvider extends BaseProvider
 			}
 
 			$products = $this->getProductsByIds($ids);
+
+			$restrictedTypes = array_flip($this->options['restrictedProductTypes']);
+			$selectedIds = [];
+			foreach ($products as $sku)
+			{
+				if (!isset($restrictedTypes[$sku['TYPE']]))
+				{
+					$selectedIds[] = $sku['ID'];
+				}
+			}
+
+			if ($selectedIds)
+			{
+				$selectedIds = array_flip($selectedIds);
+			}
+
 			/** @var RecentItem $recentItem */
 			foreach ($recentItems as $recentItem)
 			{
-				if (!isset($products[$recentItem->getId()]))
+				if (!isset($selectedIds[$recentItem->getId()]))
 				{
 					$recentItem->setAvailable(false);
 					$recentItemsCount--;
 				}
 			}
 		}
-
-		$recentItemsCount = count($dialog->getRecentItems()->getEntityItems(self::ENTITY_ID));
 
 		if ($recentItemsCount < self::PRODUCT_LIMIT)
 		{

@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/fieldslistfield.bundle.css',
 	'js' => 'dist/fieldslistfield.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
 		'landing.ui.field.basefield',
 		'landing.loc',
 		'main.core',

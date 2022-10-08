@@ -12,8 +12,12 @@
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 
-CJSCore::Init(array('lists'));
-\Bitrix\Main\UI\Extension::load("ui.buttons");
+\Bitrix\Main\UI\Extension::load([
+	"ui.design-tokens",
+	"lists",
+	"ui.buttons",
+]);
+
 $randString = $component->randString();
 $jsClass = 'ListsIblockClass_'.$randString;
 
@@ -31,6 +35,11 @@ if($isBitrix24Template)
 }
 elseif(!IsModuleInstalled("intranet"))
 {
+	\Bitrix\Main\UI\Extension::load([
+		'ui.design-tokens',
+		'ui.fonts.opensans',
+	]);
+
 	$APPLICATION->SetAdditionalCSS("/bitrix/js/lists/css/intranet-common.css");
 }
 if($arParams['CAN_EDIT']): ?>

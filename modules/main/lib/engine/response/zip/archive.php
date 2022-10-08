@@ -1,7 +1,7 @@
 <?php
 namespace Bitrix\Main\Engine\Response\Zip;
 
-use \Bitrix\Main\Loader;
+use Bitrix\Main\Web\Uri;
 
 class Archive extends \Bitrix\Main\HttpResponse
 {
@@ -67,7 +67,7 @@ class Archive extends \Bitrix\Main\HttpResponse
 
 	protected function setContentDispositionHeader()
 	{
-		$utfName = \CHTTP::urnEncode($this->name, 'UTF-8');
+		$utfName = Uri::urnEncode($this->name, 'UTF-8');
 		$translitName = \CUtil::translit($this->name, LANGUAGE_ID, [
 			'max_len' => 1024,
 			'safe_chars' => '.',

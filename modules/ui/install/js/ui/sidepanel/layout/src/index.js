@@ -1,9 +1,10 @@
+import 'ui.fonts.opensans';
 import './style.css';
 import 'sidepanel';
-import {Dom, Tag, Type, BaseError} from 'main.core';
+import {Dom, Tag, Type, BaseError, Event, Runtime} from 'main.core';
+import {BaseEvent, EventEmitter} from 'main.core.events';
 import {CloseButton, CancelButton, BaseButton} from 'ui.buttons';
 import {Menu, type MenuOptions, Item as MenuItem} from 'ui.sidepanel.menu';
-import {BaseEvent} from "main.core.events";
 
 const UI = BX.UI;
 const SidePanel = BX.SidePanel;
@@ -70,6 +71,16 @@ export class Layout
 		;
 	}
 
+	static createLayout(options: Options = {}): Promise
+	{
+		options = prepareOptions(options);
+
+		return top.BX.Runtime
+			.loadExtension(options.extensions)
+			.then(() => new Layout(options))
+		;
+	}
+
 	#container;
 	#containerFooter;
 	#options;
@@ -102,6 +113,11 @@ export class Layout
 			this.#container = Tag.render`<div class="ui-sidepanel-layout"></div>`;
 		}
 		return this.#container;
+	}
+
+	getMenu(): Menu
+	{
+		return this.#menu;
 	}
 
 	getFooterContainer()
@@ -264,11 +280,17 @@ export class Layout
 
 	afterRender()
 	{
-		const parentSet = this.getContainer().parentNode;
+		this.#adjustFooter();
 
-		if (parentSet.scrollWidth > parentSet.offsetWidth) 
+		const resizeHandler = Runtime.throttle(this.#adjustFooter, 300, this);
+		Event.bind(window, "resize", resizeHandler);
+
+		const topSlider = SidePanel.Instance.getTopSlider();
+		if (topSlider)
 		{
-			this.getFooterContainer().style.setProperty('bottom', this.#getScrollWidth() + 'px');
+			EventEmitter.subscribeOnce(topSlider, 'SidePanel.Slider:onDestroy', () => {
+				Event.unbind(window, "resize", resizeHandler);
+			});
 		}
 	}
 
@@ -279,6 +301,21 @@ export class Layout
 		const scrollWidth = div.offsetWidth - div.clientWidth
 		Dom.remove(div);
 		return scrollWidth;
+	}
+
+
+	#adjustFooter()
+	{
+		const parentSet = this.getContainer().parentNode;
+
+		if (parentSet.scrollWidth > parentSet.offsetWidth)
+		{
+			Dom.style(this.getFooterContainer(), 'bottom', this.#getScrollWidth() + 'px');
+		}
+		else
+		{
+			Dom.style(this.getFooterContainer(), 'bottom', 0);
+		}
 	}
 
 	#onMenuItemClick(item: MenuItem, container: HTMLElement = null)

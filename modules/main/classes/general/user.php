@@ -1,15 +1,24 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2020 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
 
 use Bitrix\Main;
+use Bitrix\Main\Authentication;
+use Bitrix\Main\Authentication\ShortCode;
+use Bitrix\Main\Authentication\Device;
 use Bitrix\Main\Authentication\ApplicationPasswordTable;
 use Bitrix\Main\Authentication\Internal\UserPasswordTable;
+use Bitrix\Main\Authentication\Internal\UserDeviceTable;
+use Bitrix\Main\Authentication\Internal\UserStoredAuthTable;
+use Bitrix\Main\Authentication\Internal\UserHitAuthTable;
+use Bitrix\Main\Authentication\Internal\UserDeviceLoginTable;
 use Bitrix\Main\Authentication\Policy;
+use Bitrix\Main\UserProfileHistoryTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\Security\Password;
@@ -22,8 +31,9 @@ IncludeModuleLangFile(__FILE__);
 class CAllUser extends CDBResult
 {
 	var $LAST_ERROR = "";
-	var $bLoginByHash = false;
-	protected $admin = null;
+	protected $admin;
+	/** @var Authentication\Context */
+	protected $context;
 	/** @var Main\Session\SessionInterface  */
 	protected static $kernelSession;
 	protected static $CURRENT_USER = false;
@@ -51,9 +61,22 @@ class CAllUser extends CDBResult
 	public function GetParam($name)
 	{
 		if(isset(static::$kernelSession["SESS_AUTH"][$name]))
+		{
 			return static::$kernelSession["SESS_AUTH"][$name];
+		}
 		else
-			return null;
+		{
+			// compatibility
+			switch ($name)
+			{
+				case 'USER_ID':
+					return (string)$this->getContext()->getUserId();
+
+				case 'APPLICATION_ID':
+					return $this->getContext()->getApplicationId();
+			}
+		}
+		return null;
 	}
 
 	public function SetParam($name, $value)
@@ -169,9 +192,11 @@ class CAllUser extends CDBResult
 		);
 	}
 
+	/**
+	 * @deprecated Does nothing.
+	 */
 	public static function err_mess()
 	{
-		return "<br>Class: CUser<br>File: ".__FILE__;
 	}
 
 	public function Add($arFields)
@@ -194,13 +219,15 @@ class CAllUser extends CDBResult
 			$arFields['BLOCKED'] = (is_set($arFields, 'BLOCKED') && $arFields['BLOCKED'] == 'Y'? 'Y' : 'N');
 			$arFields['PASSWORD_EXPIRED'] = (is_set($arFields, 'PASSWORD_EXPIRED') && $arFields['PASSWORD_EXPIRED'] == 'Y'? 'Y' : 'N');
 
-			if($arFields["PERSONAL_GENDER"]=="NOT_REF" || ($arFields["PERSONAL_GENDER"]!="M" && $arFields["PERSONAL_GENDER"]!="F"))
+			if ($arFields["PERSONAL_GENDER"] != "M" && $arFields["PERSONAL_GENDER"] != "F")
+			{
 				$arFields["PERSONAL_GENDER"] = "";
+			}
 
 			$originalPassword = $arFields["PASSWORD"];
 			$arFields["PASSWORD"] = Password::hash($arFields["PASSWORD"]);
 
-			$checkword = ($arFields["CHECKWORD"] == ''? md5(uniqid().CMain::GetServerUniqID()) : $arFields["CHECKWORD"]);
+			$checkword = ($arFields["CHECKWORD"] == ''? Random::getString(32) : $arFields["CHECKWORD"]);
 			$arFields["CHECKWORD"] = Password::hash($checkword);
 
 			$arFields["~CHECKWORD_TIME"] = $DB->CurrentTimeFunction();
@@ -283,7 +310,7 @@ class CAllUser extends CDBResult
 
 			if(Main\Config\Option::get("main", "user_profile_history") === "Y")
 			{
-				Main\UserProfileHistoryTable::addHistory($ID, Main\UserProfileHistoryTable::TYPE_ADD);
+				UserProfileHistoryTable::addHistory($ID, UserProfileHistoryTable::TYPE_ADD);
 			}
 
 			$Result = $ID;
@@ -315,7 +342,7 @@ class CAllUser extends CDBResult
 	public static function GetDropDownList($strSqlSearch="and ACTIVE='Y'", $strSqlOrder="ORDER BY ID, NAME, LAST_NAME")
 	{
 		global $DB;
-		$err_mess = (static::err_mess())."<br>Function: GetDropDownList<br>Line: ";
+
 		$strSql = "
 			SELECT
 				ID as REFERENCE_ID,
@@ -327,7 +354,8 @@ class CAllUser extends CDBResult
 			$strSqlSearch
 			$strSqlOrder
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
+
 		return $res;
 	}
 
@@ -335,8 +363,6 @@ class CAllUser extends CDBResult
 	{
 		/** @global CUserTypeManager $USER_FIELD_MANAGER */
 		global $DB, $USER_FIELD_MANAGER;
-
-		$err_mess = (static::err_mess())."<br>Function: GetList<br>Line: ";
 
 		if (is_array($by))
 		{
@@ -760,7 +786,7 @@ class CAllUser extends CDBResult
 			if($nTopCount > 0)
 			{
 				$strSql = $DB->TopSql($strSql, $nTopCount);
-				$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$res = $DB->Query($strSql);
 				if($userFieldsSelect <> '')
 					$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("USER"));
 			}
@@ -776,7 +802,7 @@ class CAllUser extends CDBResult
 		}
 		else
 		{
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 			if($userFieldsSelect <> '')
 				$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("USER"));
 		}
@@ -858,27 +884,20 @@ class CAllUser extends CDBResult
 
 	public function LoginByCookies()
 	{
-		global $USER;
-
 		if(COption::GetOptionString("main", "store_password", "Y") == "Y")
 		{
-			$bLogout = isset($_REQUEST["logout"]) && (strtolower($_REQUEST["logout"]) == "yes");
-
-			$cookie_prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
-			$cookie_login = strval($_COOKIE[$cookie_prefix.'_UIDL']);
-			if($cookie_login == '')
+			if (!isset($_REQUEST["logout"]) || strtolower($_REQUEST["logout"]) != "yes")
 			{
-				//compatibility reasons
-				$cookie_login = strval($_COOKIE[$cookie_prefix.'_LOGIN']);
-			}
-			$cookie_md5pass = strval($_COOKIE[$cookie_prefix.'_UIDH']);
+				$prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
+				$login = (string)$_COOKIE[$prefix.'_UIDL'];
+				$password = (string)$_COOKIE[$prefix.'_UIDH'];
 
-			if($cookie_login <> '' && $cookie_md5pass <> '' && !$bLogout)
-			{
-				if(static::$kernelSession["SESS_PWD_HASH_TESTED"] !== md5($cookie_login."|".$cookie_md5pass))
+				if($login != '' && $password != '')
 				{
-					$USER->LoginByHash($cookie_login, $cookie_md5pass);
-					static::$kernelSession["SESS_PWD_HASH_TESTED"] = md5($cookie_login."|".$cookie_md5pass);
+					if($login != $this->GetLogin() || $password !== $this->getContext()->getStoredAuthHash())
+					{
+						$this->LoginByHash($login, $password);
+					}
 				}
 			}
 		}
@@ -890,7 +909,7 @@ class CAllUser extends CDBResult
 		global $DB, $APPLICATION;
 
 		$result_message = true;
-		$user_id = 0;
+		$userId = 0;
 		$arParams = array(
 			"LOGIN" => $login,
 			"HASH" => $hash,
@@ -918,33 +937,32 @@ class CAllUser extends CDBResult
 		if($bOk && $arParams['HASH'] <> '')
 		{
 			$strSql =
-				"SELECT U.ID, U.ACTIVE, U.STORED_HASH, U.EXTERNAL_AUTH_ID ".
+				"SELECT U.ID, U.ACTIVE, U.EXTERNAL_AUTH_ID, U.BLOCKED ".
 				"FROM b_user U ".
-				"WHERE U.LOGIN='".$DB->ForSQL($arParams['LOGIN'], 50)."' ";
-			$result = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				"WHERE U.LOGIN = '".$DB->ForSQL($arParams['LOGIN'], 50)."' ";
+			$result = $DB->Query($strSql);
 
-			$bFound = false;
-			$bHashFound = false;
+			$userFound = false;
+			$hashFound = false;
 			while(($arUser = $result->Fetch()))
 			{
-				$bFound = true;
+				$userFound = true;
+				$userId = $arUser['ID'];
 				//there is no stored auth for external authorization, but domain spread auth should work
 				$bExternal = ($arUser["EXTERNAL_AUTH_ID"] <> '');
 				$bAllowExternalSave = COption::GetOptionString("main", "allow_external_auth_stored_hash", "N") == "Y";
-				if(
-					// if old method (STORED_HASH <> '') and exact match
-					($arUser["STORED_HASH"] <> '' && $arUser["STORED_HASH"] == $arParams['HASH'])
-					|| // or new method
-					(static::CheckStoredHash($arUser["ID"], $arParams['HASH'], ($bExternal) && (!$bAllowExternalSave)))
-				)
+				$tempHash = $bExternal && !$bAllowExternalSave;
+
+				$context = (new Authentication\Context())
+					->setUserId($userId)
+				;
+
+				if (static::CheckStoredHash($context, $arParams['HASH'], $tempHash))
 				{
-					$bHashFound = true;
-					if($arUser["ACTIVE"] == "Y")
+					$hashFound = true;
+					if ($arUser["ACTIVE"] == 'Y' && $arUser["BLOCKED"] != 'Y')
 					{
-						$user_id = $arUser["ID"];
-						$this->SetParam("SESSION_HASH", $arParams['HASH']);
-						$this->bLoginByHash = true;
-						$this->Authorize($arUser["ID"], (!$bExternal) || ($bAllowExternalSave));
+						$this->Authorize($context, !$tempHash);
 					}
 					else
 					{
@@ -953,44 +971,33 @@ class CAllUser extends CDBResult
 					}
 					break;
 				}
-				else
-				{
-					//Delete invalid stored auth cookie
-					$spread = (COption::GetOptionString("main", "auth_multisite", "N") == "Y"? (Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN) : Main\Web\Cookie::SPREAD_DOMAIN);
-
-					$cookie = new Main\Web\Cookie("UIDH", "", 0);
-					$cookie->setSpread($spread);
-					$cookie->setHttpOnly(true);
-					Main\Context::getCurrent()->getResponse()->addCookie($cookie);
-				}
 			}
-			if(!$bFound)
+			if (!$userFound || !$hashFound)
 			{
 				$APPLICATION->ThrowException(GetMessage("WRONG_LOGIN"));
 				$result_message = array("MESSAGE"=>GetMessage("WRONG_LOGIN")."<br>", "TYPE"=>"ERROR");
 			}
-			elseif(!$bHashFound)
-			{
-				$APPLICATION->ThrowException(GetMessage("USER_WRONG_HASH"));
-				$result_message = array("MESSAGE"=>GetMessage("USER_WRONG_HASH")."<br>", "TYPE"=>"ERROR");
-			}
 		}
 
-		$arParams["USER_ID"] = $user_id;
+		$arParams["USER_ID"] = $userId;
 		$arParams["RESULT_MESSAGE"] = $result_message;
 
 		foreach (GetModuleEvents("main", "OnAfterUserLoginByHash", true) as $arEvent)
+		{
 			ExecuteModuleEventEx($arEvent, array(&$arParams));
+		}
 
-		if(($result_message !== true) && (COption::GetOptionString("main", "event_log_login_fail", "N") === "Y"))
+		if ($result_message !== true && COption::GetOptionString("main", "event_log_login_fail", "N") === "Y")
+		{
 			CEventLog::Log("SECURITY", "USER_LOGINBYHASH", "main", $login, $result_message["MESSAGE"]);
+		}
 
 		return $arParams["RESULT_MESSAGE"];
 	}
 
 	public function LoginByHttpAuth()
 	{
-		$arAuth = CHTTP::ParseAuthRequest();
+		$arAuth = Bitrix\Main\Context::getCurrent()->getServer()->parseAuthRequest();
 
 		foreach(GetModuleEvents("main", "onBeforeUserLoginByHttpAuth", true) as $arEvent)
 		{
@@ -1121,52 +1128,52 @@ class CAllUser extends CDBResult
 		$helper = $connection->getSqlHelper();
 
 		// todo: here should be concat(replace(UH.URL, '\\', '\\\\'), '%')
-		$strSql =
-			"SELECT UH.ID, UH.USER_ID, UH.HASH, UH.VALID_UNTIL "
-			. "FROM b_user_hit_auth UH "
-			. "INNER JOIN b_user U ON U.ID = UH.USER_ID AND U.ACTIVE = 'Y' AND U.BLOCKED <> 'Y' "
-			. "WHERE UH.HASH = '" . $helper->forSql($hash, 32) . "' "
-			. "	AND '" . $helper->forSql($APPLICATION->GetCurPageParam("", [], true), 255) . "' LIKE " . $helper->getConcatFunction("UH.URL", "'%'");
+		$query = UserHitAuthTable::query()
+			->setSelect(['ID', 'USER_ID', 'HASH', 'VALID_UNTIL'])
+			->where('USER.ACTIVE', 'Y')
+			->where('USER.BLOCKED', 'N')
+			->where('HASH', $hash)
+			->whereExpr("'" . $helper->forSql($APPLICATION->GetCurPageParam('', [], true), 255) . "' LIKE " . $helper->getConcatFunction('%s', "'%%'"), ['URL'])
+		;
 
 		if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
 		{
-			$strSql .= " AND UH.SITE_ID = '" . $helper->forSql(SITE_ID) . "'";
+			$query->where('SITE_ID', SITE_ID);
 		}
 
-		$result = $connection->query($strSql);
-		if($hashData = $result->fetch())
+		if($hashData = $query->fetch())
 		{
 			// case sensitive
 			if ($hashData['HASH'] === $hash)
 			{
-				$doAuthorize = true;
-
 				if ($hashData['VALID_UNTIL'] instanceof Main\Type\DateTime)
 				{
 					if ((new Main\Type\DateTime())->getTimestamp() > $hashData['VALID_UNTIL']->getTimestamp())
 					{
-						$doAuthorize = false;
+						UserHitAuthTable::delete($hashData['ID']);
+						return false;
 					}
 				}
 
-				if ($doAuthorize)
+				setSessionExpired($closeSession);
+
+				$context = (new Authentication\Context())
+					->setUserId($hashData["USER_ID"])
+					->setHitAuthId($hashData["ID"])
+				;
+
+				$this->Authorize($context, $remember);
+
+				if ($delete)
 				{
-					setSessionExpired($closeSession);
-
-					$this->Authorize($hashData["USER_ID"], $remember);
-
-					if (!$delete)
-					{
-						$connection->query("UPDATE b_user_hit_auth SET TIMESTAMP_X = " . $helper->getCurrentDateTimeFunction() . " WHERE ID = ".$hashData["ID"]);
-					}
+					UserHitAuthTable::delete($hashData['ID']);
+				}
+				else
+				{
+					UserHitAuthTable::update($hashData['ID'], ['TIMESTAMP_X' => new Main\Type\DateTime()]);
 				}
 
-				if ($delete || !$doAuthorize)
-				{
-					$connection->query("DELETE FROM b_user_hit_auth WHERE ID = ".$hashData["ID"]);
-				}
-
-				return $doAuthorize;
+				return true;
 			}
 		}
 
@@ -1175,7 +1182,7 @@ class CAllUser extends CDBResult
 
 	public static function AddHitAuthHash($url, $user_id = false, $site_id = false, $ttl = null)
 	{
-		global $USER, $DB;
+		global $USER;
 
 		if ($url == '')
 		{
@@ -1196,33 +1203,33 @@ class CAllUser extends CDBResult
 
 		if ($user_id)
 		{
-			$hash = Main\Security\Random::getString(32, true);
+			$hash = Random::getString(32, true);
 
-			$arFields = array(
+			$fields = [
 				'USER_ID' => $user_id,
 				'URL' => trim($url),
 				'HASH' => $hash,
 				'SITE_ID' => trim($site_id),
-				'~TIMESTAMP_X' => $DB->CurrentTimeFunction(),
-			);
+				'TIMESTAMP_X' => new Main\Type\DateTime(),
+			];
 
 			if ($ttl > 0)
 			{
-				$arFields['~VALID_UNTIL'] = Main\Application::getConnection()->getSqlHelper()->addSecondsToDateTime((int)$ttl);
+				$fields['VALID_UNTIL'] = (new Main\Type\DateTime())->add('T' . (int)$ttl . 'S');
 			}
 
-			$DB->Add("b_user_hit_auth", $arFields);
+			UserHitAuthTable::add($fields);
 		}
 
 		return $hash;
 	}
 
-	public static function GetHitAuthHash($url_mask, $userID = false, $siteId = null)
+	public static function GetHitAuthHash($urlMask, $userID = false, $siteId = null)
 	{
 		global $USER;
 
-		$url_mask = trim($url_mask);
-		if ($url_mask == '')
+		$urlMask = trim($urlMask);
+		if ($urlMask == '')
 		{
 			return false;
 		}
@@ -1237,34 +1244,29 @@ class CAllUser extends CDBResult
 			return false;
 		}
 
-		$connection = Main\Application::getConnection();
-		$helper = $connection->getSqlHelper();
-
-		$strSql = "
-			SELECT ID, HASH, VALID_UNTIL 
-			FROM b_user_hit_auth 
-			WHERE URL = '{$helper->forSql($url_mask, 255)}' 
-				AND USER_ID = " . (int)$userID
+		$query = UserHitAuthTable::query()
+			->setSelect(['ID', 'HASH', 'VALID_UNTIL'])
+			->where('URL', $urlMask)
+			->where('USER_ID', $userID)
 		;
 
 		if ($siteId !== null)
 		{
-			$strSql .= " AND SITE_ID = '{$helper->ForSql($siteId)}'";
+			$query->where('SITE_ID', $siteId);
 		}
 
-		$result = $connection->query($strSql);
-		if($hashData = $result->fetch())
+		if($hashData = $query->fetch())
 		{
 			if ($hashData['VALID_UNTIL'] instanceof Main\Type\DateTime)
 			{
 				if ((new Main\Type\DateTime())->getTimestamp() > $hashData['VALID_UNTIL']->getTimestamp())
 				{
-					$connection->query("DELETE FROM b_user_hit_auth WHERE ID = " . $hashData['ID']);
+					UserHitAuthTable::delete($hashData['ID']);
 					return false;
 				}
 			}
 
-			return $hashData["HASH"];
+			return $hashData['HASH'];
 		}
 
 		return false;
@@ -1272,30 +1274,25 @@ class CAllUser extends CDBResult
 
 	public static function CleanUpHitAuthAgent()
 	{
-		global $DB;
-		$cleanup_days = COption::GetOptionInt("main", "hit_auth_cleanup_days", 30);
-		if($cleanup_days > 0)
+		$cleanupDays = COption::GetOptionInt('main', 'hit_auth_cleanup_days', 30);
+		if ($cleanupDays > 0)
 		{
-			$arDate = localtime(time());
-			$date = mktime(0, 0, 0, $arDate[4]+1, $arDate[3]-$cleanup_days, 1900+$arDate[5]);
-			$DB->Query("DELETE FROM b_user_hit_auth WHERE TIMESTAMP_X <= ".$DB->CharToDateFunction(ConvertTimeStamp($date, "FULL")));
-
+			UserHitAuthTable::deleteByFilter(['<=TIMESTAMP_X' => (new Main\Type\DateTime())->add("-{$cleanupDays}D")]);
 		}
-		return "CUser::CleanUpHitAuthAgent();";
+		return 'CUser::CleanUpHitAuthAgent();';
 	}
 
-	protected function UpdateSessionData($id, $applicationId = null, $onlyActive = true)
+	protected function UpdateSessionData(Authentication\Context $context, $onlyActive = true)
 	{
 		global $DB, $APPLICATION;
 
 		unset(static::$kernelSession["SESS_OPERATIONS"]);
-		unset(static::$kernelSession["MODULE_PERMISSIONS"]);
 		$APPLICATION->SetNeedCAPTHA(false);
 
 		$strSql =
 			"SELECT U.* ".
 			"FROM b_user U  ".
-			"WHERE U.ID='".intval($id)."' ";
+			"WHERE U.ID = " . $context->getUserId();
 
 		if ($onlyActive)
 		{
@@ -1307,8 +1304,6 @@ class CAllUser extends CDBResult
 		if($arUser = $result->Fetch())
 		{
 			$data = [
-				"AUTHORIZED" => "Y",
-				"USER_ID" => $arUser["ID"],
 				"LOGIN" => $arUser["LOGIN"],
 				"EMAIL" => $arUser["EMAIL"],
 				"TITLE" => $arUser["TITLE"],
@@ -1318,7 +1313,6 @@ class CAllUser extends CDBResult
 				"LAST_NAME" => $arUser["LAST_NAME"],
 				"PERSONAL_PHOTO" => $arUser["PERSONAL_PHOTO"],
 				"PERSONAL_GENDER" => $arUser["PERSONAL_GENDER"],
-				"PERSONAL_WWW" => $arUser["PERSONAL_WWW"],
 				"EXTERNAL_AUTH_ID" => $arUser["EXTERNAL_AUTH_ID"],
 				"XML_ID" => $arUser["XML_ID"],
 				"ADMIN" => false,
@@ -1326,11 +1320,8 @@ class CAllUser extends CDBResult
 				"AUTO_TIME_ZONE" => trim($arUser["AUTO_TIME_ZONE"]),
 				"TIME_ZONE" => $arUser["TIME_ZONE"],
 				"TIME_ZONE_OFFSET" => $arUser["TIME_ZONE_OFFSET"],
-				"APPLICATION_ID" => $applicationId,
-				"BX_USER_ID" => $arUser["BX_USER_ID"],
 				"GROUPS" => Main\UserTable::getUserGroupIds($arUser["ID"]),
-				"SESSION_HASH" => $this->GetParam("SESSION_HASH"),
-				"LANGUAGE_ID" => $arUser["LANGUAGE_ID"],
+				"CONTEXT" => json_encode($context),
 			];
 
 			foreach ($data["GROUPS"] as $groupId)
@@ -1344,6 +1335,11 @@ class CAllUser extends CDBResult
 
 			static::$kernelSession["SESS_AUTH"] = $data;
 
+			// flag for IsAdmin() optimization
+			$this->admin = null;
+
+			$this->context = $context;
+
 			return $arUser;
 		}
 		return false;
@@ -1354,17 +1350,26 @@ class CAllUser extends CDBResult
 	 *    fills session parameters;
 	 *    remembers auth;
 	 *    spreads auth through sites.
-	 * @param int $id An user ID.
+	 * @param Authentication\Context|int $context Contains user id.
 	 * @param bool $bSave Save authorization in cookies.
 	 * @param bool $bUpdate Update last login information in DB.
 	 * @param string|null $applicationId An application password ID.
 	 * @return bool
 	 */
-	public function Authorize($id, $bSave = false, $bUpdate = true, $applicationId = null, $onlyActive = true)
+	public function Authorize($context, $bSave = false, $bUpdate = true, $applicationId = null, $onlyActive = true)
 	{
 		global $DB;
 
-		$arUser = $this->UpdateSessionData($id, $applicationId, $onlyActive);
+		// compatibility magic
+		if (!($context instanceof Authentication\Context))
+		{
+			$context = (new Authentication\Context())
+				->setUserId($context)
+				->setApplicationId($applicationId)
+			;
+		}
+
+		$arUser = $this->UpdateSessionData($context, $onlyActive);
 
 		if($arUser !== false)
 		{
@@ -1376,15 +1381,14 @@ class CAllUser extends CDBResult
 
 			self::$CURRENT_USER = false;
 			$this->justAuthorized = true;
-			$this->SetControllerAdmin(false);
 
 			//sometimes we don't need to update db (REST)
 			if($bUpdate)
 			{
 				$tz = '';
-				if(CTimeZone::Enabled())
+				if (CTimeZone::Enabled())
 				{
-					if(!CTimeZone::IsAutoTimeZone(trim($arUser["AUTO_TIME_ZONE"])) || CTimeZone::GetCookieValue() !== null)
+					if (!CTimeZone::IsAutoTimeZone(trim($arUser["AUTO_TIME_ZONE"])) || CTimeZone::getTzCookie() !== null)
 					{
 						$offset = CTimeZone::GetOffset();
 						$tz = ', TIME_ZONE_OFFSET = '.$offset;
@@ -1399,9 +1403,7 @@ class CAllUser extends CDBResult
 					{
 						// save new bxuid value
 						$bxUid = ", BX_USER_ID = '".$_COOKIE['BX_USER_ID']."'";
-
 						$arUser['BX_USER_ID'] = $_COOKIE['BX_USER_ID'];
-						$this->SetParam("BX_USER_ID", $_COOKIE['BX_USER_ID']);
 					}
 				}
 
@@ -1409,7 +1411,6 @@ class CAllUser extends CDBResult
 				if ($arUser['LANGUAGE_ID'] === '')
 				{
 					$arUser['LANGUAGE_ID'] = LANGUAGE_ID;
-					$this->SetParam("LANGUAGE_ID", LANGUAGE_ID);
 					$languageId = ", LANGUAGE_ID='".$DB->ForSql(LANGUAGE_ID)."'";
 				}
 
@@ -1428,82 +1429,73 @@ class CAllUser extends CDBResult
 
 				if ($bSave || COption::GetOptionString("main", "auth_multisite", "N") == "Y")
 				{
-					$response = Main\Context::getCurrent()->getResponse();
-
-					$hash = $this->GetSessionHash();
-					$secure = (COption::GetOptionString("main", "use_secure_password_cookies", "N")=="Y" && CMain::IsHTTPS());
-
-					if($bSave)
+					if (($hash = $context->getStoredAuthHash()) === null)
 					{
-						$period = time()+60*60*24*30*12;
-						$spread = Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN;
+						$hash = Random::getString(32, true);
+					}
+
+					$this->setStoredAuthCookies($arUser["LOGIN"], $hash, $bSave);
+
+					$date = new Main\Type\DateTime();
+					$ipAddress = new Main\Web\IpAddress(Main\Context::getCurrent()->getServer()->getRemoteAddr());
+					$ipExpr = new Main\DB\SqlExpression($ipAddress->toUnsigned());
+
+					if($context->getStoredAuthId() > 0)
+					{
+						UserStoredAuthTable::update($context->getStoredAuthId(), [
+							'LAST_AUTH' => $date,
+							'IP_ADDR' => $ipExpr,
+						]);
 					}
 					else
 					{
-						$period = 0;
-						$spread = Main\Web\Cookie::SPREAD_SITES;
-					}
-
-					$cookie = new Bitrix\Main\Web\Cookie("UIDH", $hash, $period);
-
-					$cookie->setSecure($secure)
-						->setSpread($spread)
-						->setHttpOnly(true);
-
-					$response->addCookie($cookie);
-
-					$cookie = new Bitrix\Main\Web\Cookie("UIDL", $arUser["LOGIN"], $period);
-
-					$cookie->setSecure($secure)
-						->setSpread($spread)
-						->setHttpOnly(true);
-
-					$response->addCookie($cookie);
-
-					$stored_id = static::CheckStoredHash($arUser["ID"], $hash);
-					if($stored_id)
-					{
-						$DB->Query(
-							"UPDATE b_user_stored_auth SET
-								LAST_AUTH = ".$DB->CurrentTimeFunction().",
-								".($this->bLoginByHash? "" : "TEMP_HASH = '".($bSave? "N" : "Y")."', ")."
-								IP_ADDR = '".sprintf("%u", ip2long($_SERVER["REMOTE_ADDR"]))."'
-							WHERE ID = ".$stored_id
-						);
-					}
-					else
-					{
-						$arFields = array(
+						UserStoredAuthTable::add([
 							'USER_ID' => $arUser["ID"],
-							'~DATE_REG' => $DB->CurrentTimeFunction(),
-							'~LAST_AUTH' => $DB->CurrentTimeFunction(),
-							'TEMP_HASH' => ($bSave? "N" : "Y"),
-							'~IP_ADDR' => sprintf("%u", ip2long($_SERVER["REMOTE_ADDR"])),
-							'STORED_HASH' => $hash
-						);
-						$stored_id = $DB->Add("b_user_stored_auth", $arFields);
+							'DATE_REG' => $date,
+							'LAST_AUTH' => $date,
+							'TEMP_HASH' => ($bSave? 'N' : 'Y'),
+							'IP_ADDR' => $ipExpr,
+							'STORED_HASH' => $hash,
+						]);
 					}
-					$this->SetParam("STORED_AUTH_ID", $stored_id);
+				}
+
+				if(($applicationPassId = $context->getApplicationPasswordId()) !== null)
+				{
+					//update usage statistics for the application
+					ApplicationPasswordTable::update($applicationPassId, array(
+						'DATE_LOGIN' => new Main\Type\DateTime(),
+						'LAST_IP' => $_SERVER["REMOTE_ADDR"],
+					));
 				}
 
 				if(COption::GetOptionString("main", "event_log_login_success", "N") === "Y")
-					CEventLog::Log("SECURITY", "USER_AUTHORIZE", "main", $arUser["ID"], $applicationId);
-			}
+				{
+					CEventLog::Log("SECURITY", "USER_AUTHORIZE", "main", $arUser["ID"], $context->getApplicationId());
+				}
 
-			$this->admin = null;
+				if(COption::GetOptionString('main', 'user_device_history', 'N') === 'Y')
+				{
+					Device::addLogin($context, $arUser);
+				}
+			}
 
 			$arParams = array(
 				"user_fields" => $arUser,
 				"save" => $bSave,
 				"update" => $bUpdate,
-				"applicationId" => $applicationId,
+				"applicationId" => $context->getApplicationId(),
 			);
 
 			foreach (GetModuleEvents("main", "OnAfterUserAuthorize", true) as $arEvent)
+			{
 				ExecuteModuleEventEx($arEvent, array($arParams));
+			}
 
 			foreach (GetModuleEvents("main", "OnUserLogin", true) as $arEvent)
+			{
 				ExecuteModuleEventEx($arEvent, array($this->GetID(), $arParams));
+			}
 
 			if($bUpdate)
 			{
@@ -1518,43 +1510,61 @@ class CAllUser extends CDBResult
 		return false;
 	}
 
-	public function GetSessionHash()
+	protected function setStoredAuthCookies($login, $hash, $save)
 	{
-		if($this->GetParam("SESSION_HASH") == '')
+		$context = Main\Context::getCurrent();
+		$response = $context->getResponse();
+		$request = $context->getRequest();
+
+		$secure = (COption::GetOptionString('main', 'use_secure_password_cookies', 'N') == 'Y' && $request->isHttps());
+
+		if ($save)
 		{
-			$this->SetParam("SESSION_HASH", md5(uniqid("", true).CMain::GetServerUniqID()));
+			$period = time() + 60 * 60 * 24 * 30 * 12;
+			$spread = Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN;
 		}
-		return $this->GetParam("SESSION_HASH");
-	}
-
-	/** @deprecated */
-	public function GetPasswordHash($PASSWORD_HASH)
-	{
-		$add = COption::GetOptionString("main", "pwdhashadd", "");
-		if($add == '')
+		else
 		{
-			$add = md5(uniqid(rand(), true));
-			COption::SetOptionString("main", "pwdhashadd", $add);
+			$period = 0;
+			$spread = Main\Web\Cookie::SPREAD_SITES;
 		}
 
-		return md5($add.$PASSWORD_HASH);
-	}
+		$cookie = new Bitrix\Main\Web\Cookie('UIDH', $hash, $period);
 
-	/** @deprecated */
-	public function SavePasswordHash()
-	{
-		$hash = $this->GetSessionHash();
-		$time = time()+60*60*24*30*60;
-		$secure = (COption::GetOptionString("main", "use_secure_password_cookies", "N")=="Y" && CMain::IsHTTPS());
-		$spread = (COption::GetOptionString("main", "auth_multisite", "N") == "Y"? (Main\Web\Cookie::SPREAD_SITES | Main\Web\Cookie::SPREAD_DOMAIN) : Main\Web\Cookie::SPREAD_DOMAIN);
-
-		$cookie = new Main\Web\Cookie("UIDH", $hash, $time);
-
-		$cookie->setSpread($spread)
-			->setSecure($secure)
+		$cookie->setSecure($secure)
+			->setSpread($spread)
 			->setHttpOnly(true);
 
-		Main\Context::getCurrent()->getResponse()->addCookie($cookie);
+		$response->addCookie($cookie);
+
+		$cookie = new Bitrix\Main\Web\Cookie('UIDL', $login, $period);
+
+		$cookie->setSecure($secure)
+			->setSpread($spread)
+			->setHttpOnly(true);
+
+		$response->addCookie($cookie);
+	}
+
+	/**
+	 * @deprecated Does nothing.
+	 */
+	public function GetSessionHash()
+	{
+	}
+
+	/**
+	 * @deprecated Does nothing.
+	 */
+	public function GetPasswordHash($PASSWORD_HASH)
+	{
+	}
+
+	/**
+	 * @deprecated Does nothing.
+	 */
+	public function SavePasswordHash()
+	{
 	}
 
 	/**
@@ -1571,8 +1581,7 @@ class CAllUser extends CDBResult
 
 		$result_message = true;
 		$user_id = 0;
-		$applicationId = null;
-		$applicationPassId = null;
+		$context = new Authentication\Context();
 
 		$arParams = array(
 			"LOGIN" => &$login,
@@ -1582,7 +1591,6 @@ class CAllUser extends CDBResult
 		);
 
 		unset(static::$kernelSession["SESS_OPERATIONS"]);
-		unset(static::$kernelSession["MODULE_PERMISSIONS"]);
 		$APPLICATION->SetNeedCAPTHA(false);
 
 		$bOk = true;
@@ -1626,8 +1634,7 @@ class CAllUser extends CDBResult
 			if($user_id <= 0)
 			{
 				//internal authentication OR application password for external user
-
-				$user_id = static::LoginInternal($arParams, $result_message, $applicationId, $applicationPassId);
+				$user_id = static::LoginInternal($arParams, $result_message, $context);
 
 				if($user_id <= 0)
 				{
@@ -1643,8 +1650,11 @@ class CAllUser extends CDBResult
 								//bingo, the user has the application password
 								$user_id = $external_user_id;
 								$result_message = true;
-								$applicationId = $appPassword["APPLICATION_ID"];
-								$applicationPassId = $appPassword["ID"];
+
+								$context
+									->setApplicationId($appPassword["APPLICATION_ID"])
+									->setApplicationPasswordId($appPassword["ID"])
+								;
 							}
 							break;
 						}
@@ -1673,7 +1683,7 @@ class CAllUser extends CDBResult
 
 		if($user_id > 0)
 		{
-			if($applicationId === null && CModule::IncludeModule("security"))
+			if($context->getApplicationId() === null && CModule::IncludeModule("security"))
 			{
 				/*
 				MFA can allow or disallow authorization.
@@ -1695,23 +1705,16 @@ class CAllUser extends CDBResult
 
 			if($doAuthorize)
 			{
-				$this->Authorize($user_id, ($arParams["REMEMBER"] == "Y"), true, $applicationId);
+				$context->setUserId($user_id);
 
-				if($applicationPassId !== null)
-				{
-					//update usage statistics for the application
-					Main\Authentication\ApplicationPasswordTable::update($applicationPassId, array(
-						'DATE_LOGIN' => new Main\Type\DateTime(),
-						'LAST_IP' => $_SERVER["REMOTE_ADDR"],
-					));
-				}
+				$this->Authorize($context, ($arParams["REMEMBER"] == "Y"));
 			}
 			else
 			{
 				$result_message = false;
 			}
 
-			if($applicationId === null && $arParams["LOGIN"] <> '')
+			if($context->getApplicationId() === null && $arParams["LOGIN"] <> '')
 			{
 				//the cookie is for authentication forms mostly, does not make sense for applications
 				$cookie = new Bitrix\Main\Web\Cookie("LOGIN", $arParams["LOGIN"], time()+60*60*24*30*12);
@@ -1743,11 +1746,10 @@ class CAllUser extends CDBResult
 	 * Internal authentication by login and password.
 	 * @param array $arParams
 	 * @param array|bool $result_message
-	 * @param string|null $applicationId
-	 * @param string|null $applicationPassId
+	 * @param Authentication\Context|null $context
 	 * @return int User ID on success or 0 on failure. Additionally, $result_message will hold an error.
 	 */
-	public static function LoginInternal(&$arParams, &$result_message = true, &$applicationId = null, &$applicationPassId = null)
+	public static function LoginInternal(&$arParams, &$result_message = true, $context = null)
 	{
 		global $DB, $APPLICATION;
 
@@ -1777,6 +1779,7 @@ class CAllUser extends CDBResult
 		{
 			$passwordCorrect = false;
 			$policy = null;
+			$applicationId = null;
 			$original = ($arParams["PASSWORD_ORIGINAL"] == "Y");
 			$loginAttempts = intval($arUser["LOGIN_ATTEMPTS"]) + 1;
 
@@ -1822,7 +1825,14 @@ class CAllUser extends CDBResult
 						{
 							$passwordCorrect = true;
 							$applicationId = $appPassword["APPLICATION_ID"];
-							$applicationPassId = $appPassword["ID"];
+
+							if ($context instanceof Authentication\Context)
+							{
+								$context
+									->setApplicationId($applicationId)
+									->setApplicationPasswordId($appPassword["ID"])
+								;
+							}
 						}
 					}
 				}
@@ -2383,7 +2393,7 @@ class CAllUser extends CDBResult
 		if($checkword === null)
 		{
 			// change CHECKWORD
-			$checkword = md5(uniqid().CMain::GetServerUniqID());
+			$checkword = Random::getString(32);
 
 			$strSql = "UPDATE b_user SET ".
 				"	CHECKWORD = '".Password::hash($checkword)."', ".
@@ -2398,7 +2408,7 @@ class CAllUser extends CDBResult
 						"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
 				);
 
-			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$DB->Query($strSql);
 		}
 
 		$res = $DB->Query(
@@ -2665,7 +2675,6 @@ class CAllUser extends CDBResult
 		$phoneRegistration = (COption::GetOptionString("main", "new_user_phone_auth", "N") == "Y");
 		$phoneRequired = ($phoneRegistration && COption::GetOptionString("main", "new_user_phone_required", "N") == "Y");
 
-		$checkword = md5(uniqid().CMain::GetServerUniqID());
 		$active = ($bConfirmReq || $phoneRequired? "N": "Y");
 
 		$arFields = array(
@@ -2673,7 +2682,7 @@ class CAllUser extends CDBResult
 			"NAME" => $USER_NAME,
 			"LAST_NAME" => $USER_LAST_NAME,
 			"PASSWORD" => $USER_PASSWORD,
-			"CHECKWORD" => Password::hash($checkword),
+			"CHECKWORD" => Random::getString(32),
 			"~CHECKWORD_TIME" => $DB->CurrentTimeFunction(),
 			"CONFIRM_PASSWORD" => $USER_CONFIRM_PASSWORD,
 			"EMAIL" => $USER_EMAIL,
@@ -2773,7 +2782,6 @@ class CAllUser extends CDBResult
 				}
 
 				$arFields["USER_ID"] = $ID;
-				$arFields["CHECKWORD"] = $checkword;
 
 				$arEventFields = $arFields;
 				unset($arEventFields["PASSWORD"]);
@@ -2854,9 +2862,8 @@ class CAllUser extends CDBResult
 
 		global $REMOTE_ADDR;
 
-		$checkword = md5(uniqid().CMain::GetServerUniqID());
 		$arFields = array(
-			"CHECKWORD" => Password::hash($checkword),
+			"CHECKWORD" => Random::getString(32),
 			"~CHECKWORD_TIME" => $DB->CurrentTimeFunction(),
 			"EMAIL" => $USER_EMAIL,
 			"ACTIVE" => "Y",
@@ -2909,7 +2916,7 @@ class CAllUser extends CDBResult
 		if($bOk)
 		{
 			$arFields["LID"] = $arFields["SITE_ID"];
-			$arFields["CHECKWORD"] = $checkword;
+
 			if($ID = $this->Add($arFields))
 			{
 				if($bRandLogin)
@@ -2970,7 +2977,7 @@ class CAllUser extends CDBResult
 			global $USER;
 			return $USER->IsAuthorized();
 		}
-		return ($this->GetParam("AUTHORIZED") == "Y");
+		return ($this->GetID() > 0);
 	}
 
 	public function HasNoAccess()
@@ -3053,7 +3060,7 @@ class CAllUser extends CDBResult
 	public function Logout()
 	{
 		/** @global CMain $APPLICATION */
-		global $APPLICATION, $DB;
+		global $APPLICATION;
 
 		$USER_ID = $this->GetID();
 
@@ -3080,25 +3087,28 @@ class CAllUser extends CDBResult
 		if($bOk)
 		{
 			foreach(GetModuleEvents("main", "OnUserLogout", true) as $arEvent)
-				ExecuteModuleEventEx($arEvent, array($USER_ID));
-
-			if(($storedAuthId = $this->GetParam("STORED_AUTH_ID")) > 0)
 			{
-				$DB->Query("DELETE FROM b_user_stored_auth WHERE ID=".intval($storedAuthId));
+				ExecuteModuleEventEx($arEvent, array($USER_ID));
+			}
+
+			if(($storedAuthId = $this->getContext()->getStoredAuthId()) > 0)
+			{
+				UserStoredAuthTable::delete($storedAuthId);
 			}
 
 			$this->justAuthorized = false;
 			$this->admin = null;
+			$this->context = null;
 
 			static::$kernelSession["SESS_AUTH"] = array();
 			unset(static::$kernelSession["SESS_AUTH"]);
 			unset(static::$kernelSession["SESS_OPERATIONS"]);
-			unset(static::$kernelSession["MODULE_PERMISSIONS"]);
-			unset(static::$kernelSession["SESS_PWD_HASH_TESTED"]);
 			unset(static::$kernelSession['fixed_session_id']);
 
+			$application = Main\Application::getInstance();
+
 			//change session id for security reason after logout
-			$compositeSessionManager = Main\Application::getInstance()->getCompositeSessionManager();
+			$compositeSessionManager = $application->getCompositeSessionManager();
 			//todo here was session_regenerate_id(true). Should we delete old?
 			$compositeSessionManager->regenerateId();
 
@@ -3120,10 +3130,14 @@ class CAllUser extends CDBResult
 
 		$arParams["SUCCESS"] = $bOk;
 		foreach(GetModuleEvents("main", "OnAfterUserLogout", true) as $arEvent)
+		{
 			ExecuteModuleEventEx($arEvent, array(&$arParams));
+		}
 
 		if(COption::GetOptionString("main", "event_log_logout", "N") === "Y")
+		{
 			CEventLog::Log("SECURITY", "USER_LOGOUT", "main", $USER_ID);
+		}
 	}
 
 	public static function GetUserGroup($ID)
@@ -3157,7 +3171,7 @@ class CAllUser extends CDBResult
 				and G.ACTIVE = 'Y'
 			UNION SELECT 2, 'everyone', NULL, NULL ";
 
-		$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
@@ -3177,7 +3191,7 @@ class CAllUser extends CDBResult
 				UG.USER_ID = ".intval($ID)."
 			UNION SELECT 2, NULL, NULL ";
 
-		$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
@@ -3619,7 +3633,7 @@ class CAllUser extends CDBResult
 					if(!Password::equals($arUser["PASSWORD"], $originalPassword))
 					{
 						//password changed, remove stored authentication
-						$DB->Query("DELETE FROM b_user_stored_auth WHERE USER_ID=".$ID);
+						UserStoredAuthTable::deleteByFilter(['=USER_ID' => $ID]);
 
 						$passwordChanged = true;
 					}
@@ -3643,7 +3657,7 @@ class CAllUser extends CDBResult
 			{
 				if(is_set($arFields, "PASSWORD") || is_set($arFields, "EMAIL") || is_set($arFields, "LOGIN")  || is_set($arFields, "ACTIVE"))
 				{
-					$checkword = md5(uniqid().CMain::GetServerUniqID());
+					$checkword = Random::getString(32);
 					$arFields["CHECKWORD"] = Password::hash($checkword);
 				}
 			}
@@ -3697,7 +3711,7 @@ class CAllUser extends CDBResult
 
 			$strSql = "UPDATE b_user SET ".$strUpdate." WHERE ID=".$ID;
 
-			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$DB->Query($strSql);
 
 			$USER_FIELD_MANAGER->Update("USER", $ID, $arFields);
 
@@ -3809,7 +3823,6 @@ class CAllUser extends CDBResult
 					'PERSONAL_GENDER' => 'PERSONAL_GENDER',
 					'AUTO_TIME_ZONE' => 'AUTO_TIME_ZONE',
 					'TIME_ZONE' => 'TIME_ZONE',
-					'LANGUAGE_ID' => 'LANGUAGE_ID'
 				];
 				foreach($arSessFields as $key => $val)
 					if(isset($arFields[$val]))
@@ -3827,7 +3840,7 @@ class CAllUser extends CDBResult
 				$rUser = static::GetByID($ID);
 				$newUser = $rUser->Fetch();
 
-				Main\UserProfileHistoryTable::addHistory($ID, Main\UserProfileHistoryTable::TYPE_UPDATE, $arUser, $newUser);
+				UserProfileHistoryTable::addHistory($ID, UserProfileHistoryTable::TYPE_UPDATE, $arUser, $newUser);
 			}
 		}
 
@@ -3879,7 +3892,8 @@ class CAllUser extends CDBResult
 
 	public static function SetUserGroup($USER_ID, $arGroups, $newUser = false)
 	{
-		global $DB;
+		$connection = Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		$USER_ID = intval($USER_ID);
 
@@ -3895,15 +3909,13 @@ class CAllUser extends CDBResult
 			if($res_arr["GROUP_ID"] <> 2)
 				$aPrevGroups[$res_arr["GROUP_ID"]] = $res_arr;
 
-		$DB->Query("DELETE FROM b_user_group WHERE USER_ID=".$USER_ID, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-
-		$inserted = array();
-		if(is_array($arGroups))
+		$inserted = [];
+		$values = [];
+		if (is_array($arGroups))
 		{
-			$values = [];
-			foreach($arGroups as $group)
+			foreach ($arGroups as $group)
 			{
-				if(!is_array($group))
+				if (!is_array($group))
 				{
 					$group = array("GROUP_ID" => $group);
 				}
@@ -3915,21 +3927,29 @@ class CAllUser extends CDBResult
 				];
 
 				$group_id = intval($groupFields["GROUP_ID"]);
-				if($group_id > 0 && $group_id <> 2 && !isset($inserted[$group_id]))
+				if ($group_id > 0 && $group_id <> 2 && !isset($inserted[$group_id]))
 				{
-					$arInsert = $DB->PrepareInsert("b_user_group", $groupFields);
+					$arInsert = $GLOBALS['DB']->PrepareInsert("b_user_group", $groupFields);
 					$values[] = "(".$USER_ID.",	".$arInsert[1].")";
 					$inserted[$group_id] = $groupFields;
 				}
 			}
-			if(!empty($values))
-			{
-				$strSql = "
-					INSERT IGNORE INTO b_user_group (USER_ID, GROUP_ID, DATE_ACTIVE_FROM, DATE_ACTIVE_TO)
-					VALUES ".implode(", ", $values);
-				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-			}
 		}
+
+		$connection->startTransaction();
+
+		$connection->query("DELETE FROM b_user_group WHERE USER_ID=".$USER_ID);
+
+		if (!empty($values))
+		{
+			$strSql = "
+				INSERT IGNORE INTO b_user_group (USER_ID, GROUP_ID, DATE_ACTIVE_FROM, DATE_ACTIVE_TO)
+				VALUES ".implode(", ", $values);
+			$connection->query($strSql);
+		}
+
+		$connection->commitTransaction();
+
 		static::clearUserGroupCache($USER_ID);
 
 		foreach (GetModuleEvents("main", "OnAfterSetUserGroup", true) as $arEvent)
@@ -3998,10 +4018,6 @@ class CAllUser extends CDBResult
 	 */
 	public static function AppendUserGroup($user_id, $groups)
 	{
-		$lockName = 'AppendUserGroup' . $user_id;
-		$connection = Main\Application::getConnection();
-		$connection->lock($lockName, -1);
-
 		$arGroups = array();
 		$res = static::GetUserGroupList($user_id);
 		while($res_arr = $res->Fetch())
@@ -4028,8 +4044,6 @@ class CAllUser extends CDBResult
 		}
 
 		static::SetUserGroup($user_id, $arGroups);
-
-		$connection->unlock($lockName);
 	}
 
 	public static function GetCount()
@@ -4042,18 +4056,21 @@ class CAllUser extends CDBResult
 
 	public static function Delete($ID)
 	{
-		/** @global CMain $APPLICATION */
-		/** @global CUserTypeManager $USER_FIELD_MANAGER */
 		global $DB, $APPLICATION, $USER_FIELD_MANAGER, $CACHE_MANAGER;
 
 		$ID = intval($ID);
 
-		@set_time_limit(600);
-
-		$rsUser = $DB->Query("SELECT ID, LOGIN, NAME, LAST_NAME, EXTERNAL_AUTH_ID FROM b_user WHERE ID=".$ID." AND ID<>1");
+		$rsUser = $DB->Query("
+			SELECT ID, LOGIN, NAME, LAST_NAME, EXTERNAL_AUTH_ID, PERSONAL_PHOTO, WORK_LOGO 
+			FROM b_user 
+			WHERE ID = {$ID} 
+				AND ID <> 1
+		");
 		$arUser = $rsUser->Fetch();
 		if(!$arUser)
+		{
 			return false;
+		}
 
 		$events = array_merge(GetModuleEvents("main", "OnBeforeUserDelete", true), GetModuleEvents("main", "OnUserDelete", true));
 
@@ -4078,27 +4095,36 @@ class CAllUser extends CDBResult
 			}
 		}
 
-		$strSql = "SELECT F.ID FROM	b_user U, b_file F WHERE U.ID='$ID' and (F.ID=U.PERSONAL_PHOTO or F.ID=U.WORK_LOGO)";
-		$z = $DB->Query($strSql, false, "FILE: ".__FILE__." LINE:".__LINE__);
-		while ($zr = $z->Fetch())
-			CFile::Delete($zr["ID"]);
+		if ($arUser['PERSONAL_PHOTO'] > 0)
+		{
+			CFile::Delete($arUser['PERSONAL_PHOTO']);
+		}
+		if ($arUser['WORK_LOGO'] > 0)
+		{
+			CFile::Delete($arUser['WORK_LOGO']);
+		}
 
 		CAccess::OnUserDelete($ID);
 
-		if(!$DB->Query("DELETE FROM b_user_group WHERE USER_ID=".$ID))
-			return false;
+		$DB->Query("DELETE FROM b_user_group WHERE USER_ID=".$ID);
 
-		if(!$DB->Query("DELETE FROM b_user_digest WHERE USER_ID=".$ID))
-			return false;
+		$DB->Query("DELETE FROM b_user_digest WHERE USER_ID=".$ID);
 
-		if(!$DB->Query("DELETE FROM b_app_password WHERE USER_ID=".$ID))
-			return false;
+		$userFilter = ['=USER_ID' => $ID];
+
+		ApplicationPasswordTable::deleteByFilter($userFilter);
 
 		Main\UserPhoneAuthTable::delete($ID);
 
-		Main\Authentication\ShortCode::deleteByUser($ID);
+		ShortCode::deleteByUser($ID);
 
-		UserPasswordTable::deleteByFilter(["=USER_ID" => $ID]);
+		UserPasswordTable::deleteByFilter($userFilter);
+
+		UserStoredAuthTable::deleteByFilter($userFilter);
+
+		UserHitAuthTable::deleteByFilter($userFilter);
+
+		UserDeviceTable::deleteByFilter($userFilter);
 
 		$USER_FIELD_MANAGER->Delete("USER", $ID);
 
@@ -4109,7 +4135,9 @@ class CAllUser extends CDBResult
 		}
 
 		if(!$DB->Query("DELETE FROM b_user WHERE ID=".$ID." AND ID<>1"))
+		{
 			return false;
+		}
 
 		if(defined("BX_COMP_MANAGED_CACHE"))
 		{
@@ -4126,13 +4154,14 @@ class CAllUser extends CDBResult
 
 		Main\UserAuthActionTable::addLogoutAction($ID);
 
+		UserProfileHistoryTable::deleteByFilter($userFilter);
+
 		if(Main\Config\Option::get("main", "user_profile_history") === "Y")
 		{
-			Main\UserProfileHistoryTable::deleteByUser($ID);
-			Main\UserProfileHistoryTable::addHistory($ID, Main\UserProfileHistoryTable::TYPE_DELETE);
+			UserProfileHistoryTable::addHistory($ID, UserProfileHistoryTable::TYPE_DELETE);
 		}
 
-		\Bitrix\Main\UserTable::deleteIndexRecord($ID);
+		Main\UserTable::deleteIndexRecord($ID);
 
 		foreach(GetModuleEvents("main", "OnAfterUserDelete", true) as $arEvent)
 		{
@@ -4314,40 +4343,46 @@ class CAllUser extends CDBResult
 		return $policy;
 	}
 
-	public static function CheckStoredHash($userId, $sHash, $bTempHashOnly=false)
+	public static function CheckStoredHash($context, $hash, $tempHash = false)
 	{
-		global $DB;
+		if (!($context instanceof Authentication\Context))
+		{
+			$context = (new Authentication\Context())
+				->setUserId($context)
+			;
+		}
 
 		$cnt = 0;
-		$auth_id = false;
-		$site_format = CSite::GetDateFormat();
+		$hashId = false;
 
-		CTimeZone::Disable();
-		$strSql =
-			"SELECT A.*, ".
-			"	".$DB->DateToCharFunction("A.DATE_REG", "FULL")." as DATE_REG, ".
-			"	".$DB->DateToCharFunction("A.LAST_AUTH", "FULL")." as LAST_AUTH ".
-			"FROM b_user_stored_auth A ".
-			"WHERE A.USER_ID = ".intval($userId)." ".
-			"ORDER BY A.LAST_AUTH DESC";
-		$res = $DB->Query($strSql);
-		CTimeZone::Enable();
+		$res = UserStoredAuthTable::query()
+			->setSelect(['*'])
+			->where('USER_ID', $context->getUserId())
+			->setOrder(['LAST_AUTH' => 'DESC'])
+			->exec()
+		;
 
-		$policy = static::getPolicy($userId);
+		$policy = static::getPolicy($context->getUserId());
 
 		$maxStoreNum = $policy->getMaxStoreNum();
 		$storeTimeout = $policy->getStoreTimeout();
 		$sessionTimeout = $policy->getSessionTimeout();
 		$storeIpMask = ip2long($policy->getStoreIpMask());
 
-		while($ar = $res->Fetch())
+		$ipAddress = Main\Context::getCurrent()->getServer()->getRemoteAddr();
+
+		while($ar = $res->fetch())
 		{
 			if ($ar["TEMP_HASH"] == "N")
 			{
 				$cnt++;
 			}
 
-			$lastAuthTime = MakeTimeStamp($ar["LAST_AUTH"], $site_format);
+			$lastAuthTime = 0;
+			if ($ar["LAST_AUTH"] instanceof Main\Type\DateTime)
+			{
+				$lastAuthTime = $ar["LAST_AUTH"]->getTimestamp();
+			}
 
 			if (
 				$cnt > $maxStoreNum
@@ -4355,23 +4390,29 @@ class CAllUser extends CDBResult
 				|| ($ar["TEMP_HASH"] == "Y" && time() - ($sessionTimeout * 60) > $lastAuthTime)
 			)
 			{
-				$DB->Query("DELETE FROM b_user_stored_auth WHERE ID=".$ar["ID"]);
+				UserStoredAuthTable::delete($ar['ID']);
 			}
-			elseif (!$auth_id)
+			elseif (!$hashId)
 			{
 				//for domain spreaded external auth we should check only temporary hashes
-				if($bTempHashOnly == false || $ar["TEMP_HASH"] == "Y")
+				if ($tempHash == false || $ar["TEMP_HASH"] == "Y")
 				{
-					$remote_net = $storeIpMask & ip2long($_SERVER["REMOTE_ADDR"]);
+					$remote_net = $storeIpMask & ip2long($ipAddress);
 					$stored_net = $storeIpMask & (float)$ar["IP_ADDR"];
-					if($sHash === $ar["STORED_HASH"] && $remote_net == $stored_net)
+
+					if ($hash === $ar["STORED_HASH"] && $remote_net == $stored_net)
 					{
-						$auth_id = $ar["ID"];
+						$hashId = $ar["ID"];
+
+						$context
+							->setStoredAuthId($hashId)
+							->setStoredAuthHash($hash)
+						;
 					}
 				}
 			}
 		}
-		return $auth_id;
+		return $hashId;
 	}
 
 	public function GetAllOperations($arGroups = false)
@@ -4408,7 +4449,7 @@ class CAllUser extends CDBResult
 			WHERE OP.NAME='GROUP_DEFAULT_RIGHT'
 		";
 
-		$z = $DB->Query($sql_str, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$z = $DB->Query($sql_str);
 		$arr = array();
 		while($r = $z->Fetch())
 			$arr[$r['OPERATION_NAME']] = $r['OPERATION_NAME'];
@@ -4578,6 +4619,7 @@ class CAllUser extends CDBResult
 					static::Delete($user["ID"]);
 				}
 			}
+
 			if(COption::GetOptionString("main", "new_user_phone_auth", "N") === "Y")
 			{
 				//unconfirmed phone confirmations
@@ -4596,6 +4638,23 @@ class CAllUser extends CDBResult
 				}
 			}
 		}
+
+		$historyCleanupDays = COption::GetOptionInt("main", "profile_history_cleanup_days", 0);
+		if($historyCleanupDays > 0)
+		{
+			$date = new Main\Type\Date();
+			$date->add("-{$historyCleanupDays}D");
+			UserProfileHistoryTable::deleteByFilter(["<DATE_INSERT" => $date]);
+		}
+
+		$deviceCleanupDays = COption::GetOptionInt("main", "device_history_cleanup_days", 180);
+		if($deviceCleanupDays > 0)
+		{
+			$date = new Main\Type\Date();
+			$date->add("-{$deviceCleanupDays}D");
+			UserDeviceLoginTable::deleteByFilter(["<LOGIN_DATE" => $date]);
+		}
+
 		return "CUser::CleanUpAgent();";
 	}
 
@@ -5226,12 +5285,10 @@ class CAllUser extends CDBResult
 			static::$kernelSession["AUTH_ACTIONS_PERFORMED"] = array();
 		}
 
-		$user_id = $this->GetID();
-
 		$now = new Main\Type\DateTime();
 
 		$actions = Main\UserAuthActionTable::getList(array(
-			"filter" => array("=USER_ID" => $user_id),
+			"filter" => array("=USER_ID" => $this->getContext()->getUserId()),
 			"order" => array("USER_ID" => "ASC", "PRIORITY" => "ASC", "ID" => "DESC"),
 			"cache" => array("ttl" => 3600),
 		));
@@ -5244,7 +5301,7 @@ class CAllUser extends CDBResult
 				continue;
 			}
 
-			if($action["APPLICATION_ID"] <> '' && $this->GetParam("APPLICATION_ID") <> $action["APPLICATION_ID"])
+			if($action["APPLICATION_ID"] <> '' && $this->getContext()->getApplicationId() <> $action["APPLICATION_ID"])
 			{
 				//this action is for the specific application only
 				continue;
@@ -5278,7 +5335,7 @@ class CAllUser extends CDBResult
 						break;
 
 					case Main\UserAuthActionTable::ACTION_UPDATE:
-						$this->UpdateSessionData($user_id, $this->GetParam("APPLICATION_ID"));
+						$this->UpdateSessionData($this->getContext());
 						break;
 				}
 
@@ -5468,10 +5525,10 @@ class CAllUser extends CDBResult
 	{
 		$result = new Main\Result();
 
-		$context = new Main\Authentication\Context();
+		$context = new Authentication\Context();
 		$context->setUserId($userId);
 
-		$shortCode = new Main\Authentication\ShortCode($context);
+		$shortCode = new ShortCode($context);
 
 		//alowed only once in a minute
 		$check = $shortCode->checkDateSent();
@@ -5492,6 +5549,19 @@ class CAllUser extends CDBResult
 		$result->setData($check->getData());
 
 		return $result;
+	}
+
+	/**
+	 * Returns the current authentication context, stored in the session.
+	 * @return Authentication\Context
+	 */
+	public function getContext()
+	{
+		if ($this->context === null)
+		{
+			$this->context = Authentication\Context::jsonDecode((string)$this->GetParam('CONTEXT'));
+		}
+		return $this->context;
 	}
 }
 

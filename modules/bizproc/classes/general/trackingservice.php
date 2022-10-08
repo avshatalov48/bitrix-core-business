@@ -10,7 +10,7 @@ class CBPTrackingService extends CBPRuntimeService
 
 	private $cutQueue = [];
 
-	public function Start(CBPRuntime $runtime = null)
+	public function start(CBPRuntime $runtime = null)
 	{
 		parent::Start($runtime);
 
@@ -21,12 +21,12 @@ class CBPTrackingService extends CBPRuntimeService
 		}
 	}
 
-	public function DeleteAllWorkflowTracking($workflowId)
+	public function deleteAllWorkflowTracking($workflowId)
 	{
 		self::DeleteByWorkflow($workflowId);
 	}
 
-	public static function DumpWorkflow($workflowId)
+	public static function dumpWorkflow($workflowId)
 	{
 		global $DB;
 
@@ -95,7 +95,7 @@ class CBPTrackingService extends CBPRuntimeService
 		return $result;
 	}
 
-	public static function DeleteByWorkflow($workflowId)
+	public static function deleteByWorkflow($workflowId)
 	{
 		global $DB;
 
@@ -131,7 +131,7 @@ class CBPTrackingService extends CBPRuntimeService
 		);
 	}
 
-	public static function ClearOldAgent()
+	public static function clearOldAgent()
 	{
 		CBPTrackingService::ClearOld(COption::GetOptionString("bizproc", "log_cleanup_days", "90"));
 		return "CBPTrackingService::ClearOldAgent();";
@@ -231,7 +231,7 @@ class CBPTrackingService extends CBPRuntimeService
 		return (!in_array($type, $this->skipTypes) || $this->isForcedMode($workflowId));
 	}
 
-	public function Write(
+	public function write(
 		$workflowId,
 		$type,
 		$actionName,
@@ -280,7 +280,7 @@ class CBPTrackingService extends CBPRuntimeService
 		return $id;
 	}
 
-	public static function GetList($arOrder = array("ID" => "DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
+	public static function getList($arOrder = array("ID" => "DESC"), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
@@ -371,7 +371,7 @@ class CBPTrackingService extends CBPRuntimeService
 		return $dbRes;
 	}
 
-	public static function ClearOld($days = 0)
+	public static function clearOld($days = 0)
 	{
 		global $DB;
 

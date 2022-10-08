@@ -11,6 +11,7 @@ abstract class MysqlCommonConnection extends Connection
 	const INDEX_SPATIAL = 'SPATIAL';
 
 	protected $engine = "";
+	protected int $transactionLevel = 0;
 
 	/**
 	 * @inheritDoc
@@ -18,7 +19,7 @@ abstract class MysqlCommonConnection extends Connection
 	public function __construct(array $configuration)
 	{
 		parent::__construct($configuration);
-		$this->engine = isset($configuration['engine']) ? $configuration['engine'] : "";
+		$this->engine = $configuration['engine'] ?? '';
 	}
 
 	/**
@@ -180,10 +181,10 @@ abstract class MysqlCommonConnection extends Connection
 		$indexTypeSql = '';
 
 		if ($indexType !== null
-			&& in_array(mb_strtoupper($indexType), [static::INDEX_UNIQUE, static::INDEX_FULLTEXT, static::INDEX_SPATIAL], true)
+			&& in_array(strtoupper($indexType), [static::INDEX_UNIQUE, static::INDEX_FULLTEXT, static::INDEX_SPATIAL], true)
 		)
 		{
-			$indexTypeSql = mb_strtoupper($indexType);
+			$indexTypeSql = strtoupper($indexType);
 		}
 
 		$sql = 'CREATE '.$indexTypeSql.' INDEX '.$sqlHelper->quote($indexName).' ON '.$sqlHelper->quote($tableName)
@@ -209,7 +210,7 @@ abstract class MysqlCommonConnection extends Connection
 	}
 
 	/*********************************************************
-	 * Transaction
+	 * Transactions
 	 *********************************************************/
 
 	/**
@@ -217,7 +218,16 @@ abstract class MysqlCommonConnection extends Connection
 	 */
 	public function startTransaction()
 	{
-		$this->query("START TRANSACTION");
+		if ($this->transactionLevel == 0)
+		{
+			$this->query("START TRANSACTION");
+		}
+		else
+		{
+			$this->query("SAVEPOINT TRANS{$this->transactionLevel}");
+		}
+
+		$this->transactionLevel++;
 	}
 
 	/**
@@ -225,15 +235,33 @@ abstract class MysqlCommonConnection extends Connection
 	 */
 	public function commitTransaction()
 	{
-		$this->query("COMMIT");
+		$this->transactionLevel--;
+
+		if ($this->transactionLevel == 0)
+		{
+			// commits all nested transactions
+			$this->query("COMMIT");
+		}
 	}
 
 	/**
 	 * @inheritDoc
+	 * @throws TransactionException
 	 */
 	public function rollbackTransaction()
 	{
-		$this->query("ROLLBACK");
+		$this->transactionLevel--;
+
+		if ($this->transactionLevel == 0)
+		{
+			$this->query("ROLLBACK");
+		}
+		else
+		{
+			$this->query("ROLLBACK TO SAVEPOINT TRANS{$this->transactionLevel}");
+
+			throw new TransactionException('Nested rollbacks are unsupported.');
+		}
 	}
 
 	/*********************************************************
@@ -270,7 +298,7 @@ abstract class MysqlCommonConnection extends Connection
 		$unique = \CMain::GetServerUniqID();
 
 		//64 characters max for mysql 5.7+
-		return $unique.md5($name);
+		return md5($unique).md5($name);
 	}
 
 	/*********************************************************

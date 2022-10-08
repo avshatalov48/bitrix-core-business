@@ -10,8 +10,10 @@ export class TextCrop
 		this.text = null;
 		this.rowHeight = null;
 
-		this.$wrapper = null;
-		this.$basicBlock = null;
+		this.layout = {
+			wrapper: null,
+			basicBlock: null
+		}
 	}
 
 	getText()
@@ -28,26 +30,26 @@ export class TextCrop
 
 	getWrapper()
 	{
-		if(!this.$wrapper)
+		if(!this.layout.wrapper)
 		{
-			this.$wrapper = Tag.render`
+			this.layout.wrapper = Tag.render`
 				<div>${this.getText()}</div>
 			`;
 		}
 
-		return this.$wrapper;
+		return this.layout.wrapper;
 	}
 
 	getBasicBlock()
 	{
-		if(!this.$basicBlock)
+		if(!this.layout.basicBlock)
 		{
-			this.$basicBlock = Tag.render`
+			this.layout.basicBlock = Tag.render`
 				<div>a</div>
 			`;
 		}
 
-		return this.$basicBlock;
+		return this.layout.basicBlock;
 	}
 
 	getRowHeight()
@@ -59,7 +61,7 @@ export class TextCrop
 			if (styleAtt.lineHeight  === 'normal')
 			{
 				let firstHeight = this.getWrapper().offsetHeight;
-				this.$wrapper.appendChild(this.getBasicBlock());
+				this.layout.wrapper.appendChild(this.getBasicBlock());
 				let secondHeight = this.getWrapper().offsetHeight;
 				this.getBasicBlock().remove();
 
@@ -78,7 +80,16 @@ export class TextCrop
 	{
 		if(this.resize)
 		{
-			window.addEventListener('resize', BX.delegate(this.init, this));
+			let timer;
+			window.addEventListener('resize', () => {
+				if (!timer)
+				{
+					timer = setTimeout(() => {
+						this.init();
+						clearTimeout(timer);
+					}, 100);
+				}
+			});
 		}
 	}
 
@@ -96,7 +107,7 @@ export class TextCrop
 
 		this.getText();
 		this.target.innerText = '';
-		this.$wrapper = '';
+		this.layout.wrapper = '';
 		this.target.appendChild(this.getWrapper());
 
 		let rowHeight = this.getRowHeight();
@@ -109,8 +120,8 @@ export class TextCrop
 
 			while (this.getWrapper().offsetHeight / parseInt(rowHeight) > this.rows)
 			{
-				cropText = this.$wrapper.textContent.substring(0, this.$wrapper.textContent.length - 4);
-				this.$wrapper.innerHTML = cropText + '...';
+				cropText = this.layout.wrapper.textContent.substring(0, this.layout.wrapper.textContent.length - 4);
+				this.layout.wrapper.innerHTML = cropText + '...';
 			}
 		}
 

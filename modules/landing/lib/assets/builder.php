@@ -95,6 +95,7 @@ abstract class Builder
 		$resources = array_merge($resources, [
 			'bundle_js' => $extFullName,
 			'bundle_css' => $extFullName,
+			'skip_core' => true,
 		]);
 		/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
 		\CJSCore::registerExt($extName, $resources);

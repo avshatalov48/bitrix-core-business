@@ -149,7 +149,7 @@
 
 .sender-mailing-group-container .sender-mailing-group-container-title {
 	font-size: 20px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	display: inline-block;
 	line-height: 27px;
 	padding-right: 27px;

@@ -11,6 +11,7 @@ return [
 		'main.core',
 		'landing.ui.button.basebutton',
 		'landing.loc',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

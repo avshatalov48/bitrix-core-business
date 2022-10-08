@@ -12,9 +12,9 @@ use Bitrix\Main\UserAccessTable;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_EntityFormConfigAc_Query query()
- * @method static EO_EntityFormConfigAc_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_EntityFormConfigAc_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_EntityFormConfigAc_Result getById($id)
- * @method static EO_EntityFormConfigAc_Result getList(array $parameters = array())
+ * @method static EO_EntityFormConfigAc_Result getList(array $parameters = [])
  * @method static EO_EntityFormConfigAc_Entity getEntity()
  * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfigAc createObject($setDefaultValues = true)
  * @method static \Bitrix\Ui\EntityForm\EO_EntityFormConfigAc_Collection createCollection()

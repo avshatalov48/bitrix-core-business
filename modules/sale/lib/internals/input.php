@@ -723,6 +723,7 @@ class StringInput extends Base // String reserved in php 7
 
 	public static function getEditHtmlSingle($name, array $input, $value)
 	{
+		$input = self::prepareIntFields($input);
 		if ($input['MULTILINE'] == 'Y')
 		{
 			$attributes = static::extractAttributes($input,
@@ -739,6 +740,21 @@ class StringInput extends Base // String reserved in php 7
 
 			return '<input type="text" name="'.$name.'" value="'.htmlspecialcharsbx($value).'"'.$attributes.'>';
 		}
+	}
+
+	private static function prepareIntFields(array $input): array
+	{
+		$intFields = ['SIZE', 'ROWS', 'COLS'];
+		foreach ($intFields as $intField)
+		{
+			$input[$intField] = (int)($input['$intField'] ?? 0);
+			if ($input[$intField] <= 0)
+			{
+				unset($input[$intField]);
+			}
+		}
+
+		return $input;
 	}
 
 	/**
@@ -758,13 +774,17 @@ class StringInput extends Base // String reserved in php 7
 
 		$value = trim($value);
 
-		if ($input['MINLENGTH'] && mb_strlen($value) < $input['MINLENGTH'])
-			$errors['MINLENGTH'] = Loc::getMessage('INPUT_STRING_MINLENGTH_ERROR', array("#NUM#" => $input['MINLENGTH']));
+		$minLength = isset($input['MINLENGTH']) && is_numeric($input['MINLENGTH']) ? (int)$input['MINLENGTH'] : 0;
+		if ($minLength > 0 && mb_strlen($value) < $minLength)
+		{
+			$errors['MINLENGTH'] = Loc::getMessage('INPUT_STRING_MINLENGTH_ERROR', ['#NUM#' => $minLength]);
+		}
 
-		if ($input['MAXLENGTH'] && mb_strlen($value) > $input['MAXLENGTH'])
-			$errors['MAXLENGTH'] = Loc::getMessage('INPUT_STRING_MAXLENGTH_ERROR', array("#NUM#" => $input['MAXLENGTH']));
-
-
+		$maxLength = isset($input['MAXLENGTH']) && is_numeric($input['MAXLENGTH']) ? (int)$input['MAXLENGTH'] : 0;
+		if ($maxLength > 0 && mb_strlen($value) > $maxLength)
+		{
+			$errors['MAXLENGTH'] = Loc::getMessage('INPUT_STRING_MAXLENGTH_ERROR', ['#NUM#' => $maxLength]);
+		}
 
 		if (strval(trim($input['PATTERN'])) != "")
 		{
@@ -782,11 +802,22 @@ class StringInput extends Base // String reserved in php 7
 				$matchPattern = "/".$pattern."/";
 			}
 
-			if (!preg_match($matchPattern, $value))
-				$errors['PATTERN'] = Loc::getMessage('INPUT_STRING_PATTERN_ERROR');
+			$pregMatchResult = null;
+			try
+			{
+				$pregMatchResult = preg_match($matchPattern, $value);
+			}
+			catch (\Exception $e)
+			{
+			}
+			finally
+			{
+				if (!$pregMatchResult)
+				{
+					$errors['PATTERN'] = Loc::getMessage('INPUT_STRING_PATTERN_ERROR');
+				}
+			}
 		}
-
-
 
 		return $errors;
 	}

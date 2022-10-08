@@ -174,7 +174,7 @@
 .feed-add-grat-list-title {
 	color: #555;
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin: 8px 20px 6px 10px;
 	white-space: nowrap;
 }
@@ -235,7 +235,7 @@
 	border-radius: 1px;
 	font-size: 13px;
 	display: inline-block;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin: 0 6px 6px 0;
 	height: 30px;
 	line-height: 29px;
@@ -272,7 +272,7 @@
 	color: #2067b0;
 	display: inline-block;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 17px;
 	margin: 7px 7px 7px 18px;
 	text-decoration: none;
@@ -300,7 +300,7 @@
 	border: medium none;
 	color: #555;
 	display: inline-block;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 12px;
 	height: 20px;
 	margin: 0 9px 9px 0;
@@ -334,7 +334,8 @@
 	color: #80868e;
 	cursor: pointer;
 	display: inline-block;
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 12px;
 	height: 40px;
 	line-height: 40px;
@@ -467,7 +468,8 @@ form.comments-form .feed-add-post-buttons {
 .feed-add-post-micro {
 	color: #80868e;
 	font-size: 18px;
-	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	margin: 0;
 	height: 18px;
 	padding: 19px 2px 27px 22px;
@@ -563,7 +565,7 @@ form.comments-form .feed-add-post-buttons {
 .feed-add-post-expire-date-duration, .feed-add-post-expire-date-final {
 	border-bottom: 1px dashed #0b66c3;
 	cursor: pointer;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 0 1px;
 	font-size: 13px;
 	line-height: 22px;

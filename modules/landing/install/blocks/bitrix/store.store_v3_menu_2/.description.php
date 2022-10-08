@@ -78,7 +78,7 @@ return [
 		],
 	],
 	'assets' => [
-		'ext' => ['landing_menu', 'landing_header'],
+		'ext' => ['landing_menu', 'landing_header', 'landing_backlinks'],
 	],
 	'groups' => [
 		'phone' => Loc::getMessage('LNDBLCK_STOREMENUV3_1_PHONE'),

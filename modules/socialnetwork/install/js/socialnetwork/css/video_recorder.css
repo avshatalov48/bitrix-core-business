@@ -26,7 +26,8 @@
 .bx-videomessage-record {
 	background-color: rgba(255,52,52, .5);
 	box-sizing: border-box;
-	font-family: 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: rgba(255,255,255, .75);
 	display: block;
 	font-size: 15px;
@@ -76,7 +77,8 @@
 }
 
 .bx-videomessage-video-timer {
-	font-family: 'OpenSans-Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	position: absolute;
 	left: 37px;
 	font-size: 36px;
@@ -97,7 +99,8 @@
 .bx-videomessage-video-starttimer {
 	color: #fff;
 	display: none;
-	font-family: 'OpenSans-Light', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	font-size: 86px;
 	height: 272px;
 	left: 50%;
@@ -203,8 +206,8 @@
 	border-bottom: 1px solid transparent;
 	color: #ffffff;
 	display: none;
-	font-family: 'OpenSans-Bold', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-	font-weight: 400;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 16px;
 	text-transform: uppercase;
 	margin: 23px 16px 0 0;
@@ -333,7 +336,8 @@
 	padding: 15px 43px 20px 22px;
 	max-width: 456px;
 	background: rgba(40,47,57,.4);
-	font: 14px 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #EDEEF0;
 	text-align: left;
 	box-sizing: border-box;
@@ -347,7 +351,8 @@
 	height: 19px;
 	border-radius: 33px;
 	background: rgba(255,255,255,.2);
-	font: bold 14px/18px 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: 14px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #fff;
 }
 

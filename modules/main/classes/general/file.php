@@ -11,6 +11,7 @@ use Bitrix\Main\IO;
 use Bitrix\Main\UI\Viewer;
 use Bitrix\Main\File;
 use Bitrix\Main\Web;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Main\File\Image;
 use Bitrix\Main\File\Image\Rectangle;
 use Bitrix\Main\File\Internal;
@@ -1740,7 +1741,7 @@ function ImgShw(ID, width, height, alt)
 
 		if (!preg_match("/^https?:/i", $strImage))
 		{
-			$strImage = CHTTP::urnEncode($strImage, "UTF-8");
+			$strImage = Uri::urnEncode($strImage, "UTF-8");
 		}
 
 		if(GetFileType($strImage) == "FLASH")
@@ -1772,7 +1773,7 @@ function ImgShw(ID, width, height, alt)
 		}
 		else
 		{
-			$strAlt = $arImgParams['ALT']? $arImgParams['ALT']: $arImgParams['DESCRIPTION'];
+			$strAlt = $arImgParams['ALT']? $arImgParams['ALT'] : ($arImgParams['DESCRIPTION'] ?? '');
 
 			if($sParams === null || $sParams === false)
 			{
@@ -1826,7 +1827,7 @@ function ImgShw(ID, width, height, alt)
 			return "";
 
 		if (!preg_match("/^https?:/i", $strImage1))
-			$strImage1 = CHTTP::urnEncode($arImgParams["SRC"], "UTF-8");
+			$strImage1 = Uri::urnEncode($arImgParams["SRC"], "UTF-8");
 
 		$intWidth = $arImgParams["WIDTH"];
 		$intHeight = $arImgParams["HEIGHT"];
@@ -1858,7 +1859,7 @@ function ImgShw(ID, width, height, alt)
 				$sPopupTitle = GetMessage("FILE_ENLARGE");
 
 			if (!preg_match("/^https?:/i", $strImage2))
-				$strImage2 = CHTTP::urnEncode($arImgParams["SRC"], "UTF-8");
+				$strImage2 = Uri::urnEncode($arImgParams["SRC"], "UTF-8");
 			$intWidth2 = $arImgParams["WIDTH"];
 			$intHeight2 = $arImgParams["HEIGHT"];
 			$strAlt2 = $arImgParams["ALT"];
@@ -2876,7 +2877,7 @@ function ImgShw(ID, width, height, alt)
 				}
 			}
 
-			$utfName = CHTTP::urnEncode($attachment_name, "UTF-8");
+			$utfName = Uri::urnEncode($attachment_name, "UTF-8");
 			$translitName = CUtil::translit($attachment_name, LANGUAGE_ID, array(
 				"max_len" => 1024,
 				"safe_chars" => ".",
@@ -2944,7 +2945,7 @@ function ImgShw(ID, width, height, alt)
 				}
 				else
 				{
-					$filename = CHTTP::urnEncode($filename, "UTF-8");
+					$filename = Uri::urnEncode($filename, "UTF-8");
 					$response->addHeader('X-Accel-Redirect', $filename);
 				}
 				$response->writeHeaders();

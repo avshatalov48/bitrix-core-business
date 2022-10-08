@@ -36,9 +36,15 @@ abstract class Base
 
 	protected function prepareFieldAttributs($info, $attributs): array
 	{
+		$intersectRequired = array_intersect([
+			Attributes::REQUIRED,
+			Attributes::REQUIRED_ADD,
+			Attributes::REQUIRED_UPDATE
+		], $attributs);
+
 		return array(
 			'TYPE' => $info['TYPE'],
-			'IS_REQUIRED' => in_array(Attributes::REQUIRED, $attributs, true),
+			'IS_REQUIRED' => count($intersectRequired) > 0,
 			'IS_READ_ONLY' => in_array(Attributes::READONLY, $attributs, true),
 			'IS_IMMUTABLE' => in_array(Attributes::IMMUTABLE, $attributs, true)
 		);
@@ -122,7 +128,6 @@ abstract class Base
 	//endregion
 
 	//region internalize fields
-
 	public function internalizeArguments($name, $arguments): array
 	{
 		throw new NotImplementedException('Internalize arguments. The method '.$name.' is not implemented.');
@@ -190,7 +195,7 @@ abstract class Base
 				continue;
 			}
 
-			$result[$name] = $r->getData()[0];
+			$result[$this->canonicalizeField($name, $info)] = $r->getData()[0];
 		}
 		return $result;
 	}
@@ -398,7 +403,7 @@ abstract class Base
 
 		$fieldsInfo = empty($fieldsInfo)? $this->getFields():$fieldsInfo;
 
-		if(is_array($fields) && count($fields)>0)
+		if (is_array($fields) && !empty($fields))
 		{
 			$listFieldsInfo = $this->getListFieldInfo($fieldsInfo, ['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN]]]);
 
@@ -407,25 +412,27 @@ abstract class Base
 				$field = \CSqlUtil::GetFilterOperation($rawName);
 
 				$info = isset($listFieldsInfo[$field['FIELD']]) ? $listFieldsInfo[$field['FIELD']]:null;
-				if(!$info)
+				if (!$info)
 				{
 					continue;
 				}
 
 				$r = $this->internalizeValue($value, $info);
 
-				if($r->isSuccess() === false)
+				if ($r->isSuccess() === false)
 				{
 					continue;
 				}
 
 				$operation = mb_substr($rawName, 0, mb_strlen($rawName) - mb_strlen($field['FIELD']));
-				if(isset($info['FORBIDDEN_FILTERS'])
+				if (isset($info['FORBIDDEN_FILTERS'])
 					&& is_array($info['FORBIDDEN_FILTERS'])
 					&& in_array($operation, $info['FORBIDDEN_FILTERS'], true))
 				{
 					continue;
 				}
+
+				$rawName = $operation.$this->canonicalizeField($field['FIELD'], $info);
 
 				$result[$rawName] = $r->getData()[0];
 			}
@@ -442,22 +449,20 @@ abstract class Base
 
 		$listFieldsInfo = $this->getListFieldInfo($fieldsInfo, ['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN]]]);
 
-		if(empty($fields) || in_array('*', $fields, true))
+		if (empty($fields) || in_array('*', $fields, true))
 		{
-			$result = array_keys($listFieldsInfo);
+			$fields = array_keys($listFieldsInfo);
 		}
-		else
-		{
-			foreach ($fields as $name)
-			{
-				$info = isset($listFieldsInfo[$name]) ? $listFieldsInfo[$name]:null;
-				if(!$info)
-				{
-					continue;
-				}
 
-				$result[] = $name;
+		foreach ($fields as $name)
+		{
+			$info = isset($listFieldsInfo[$name]) ? $listFieldsInfo[$name]:null;
+			if (!$info)
+			{
+				continue;
 			}
+
+			$result[] = $this->canonicalizeField($name, $info);
 		}
 
 		return $result;
@@ -469,20 +474,19 @@ abstract class Base
 
 		$fieldsInfo = empty($fieldsInfo)? $this->getFields():$fieldsInfo;
 
-		if(is_array($fields)
-			&& count($fields)>0)
+		if (is_array($fields) && count($fields)>0)
 		{
 			$listFieldsInfo = $this->getListFieldInfo($fieldsInfo, ['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN]]]);
 
-			foreach ($fields as $field=>$order)
+			foreach ($fields as $field => $order)
 			{
 				$info = isset($listFieldsInfo[$field]) ? $listFieldsInfo[$field]:null;
-				if(!$info)
+				if (!$info)
 				{
 					continue;
 				}
 
-				$result[$field]=$order;
+				$result[$this->canonicalizeField($field, $info)] = $order;
 			}
 		}
 
@@ -517,7 +521,7 @@ abstract class Base
 
 		if(empty($value))
 		{
-			$value = null;
+			$value = $this->externalizeEmptyValue($name, $value, $fields, $fieldsInfo);
 		}
 		else
 		{
@@ -585,15 +589,17 @@ abstract class Base
 		{
 			foreach($fields as $name => $value)
 			{
+				$name = $this->aliasesField($name, $fieldsInfo);
+
 				$info = isset($fieldsInfo[$name]) ? $fieldsInfo[$name] : null;
-				if(!$info)
+				if (!$info)
 				{
 					continue;
 				}
 
 				$r = $this->externalizeValue($name, $value, $fields, $fieldsInfo);
 
-				if($r->isSuccess() === false)
+				if ($r->isSuccess() === false)
 				{
 					continue;
 				}
@@ -602,6 +608,11 @@ abstract class Base
 			}
 		}
 		return $result;
+	}
+
+	protected function externalizeEmptyValue($name, $value, $fields, $fieldsInfo)
+	{
+		return null;
 	}
 
 	final protected function externalizeDateValue($value): Result
@@ -739,7 +750,7 @@ abstract class Base
 	{
 		return $this->checkRequiredFields($fields, $this->getListFieldInfo(
 			$this->getFields(),
-			['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN, Attributes::READONLY]]]
+			['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN, Attributes::READONLY, Attributes::REQUIRED_UPDATE]]]
 		));
 	}
 
@@ -747,7 +758,7 @@ abstract class Base
 	{
 		return $this->checkRequiredFields($fields, $this->getListFieldInfo(
 			$this->getFields(),
-			['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN, Attributes::READONLY, Attributes::IMMUTABLE]]]
+			['filter'=>['ignoredAttributes'=>[Attributes::HIDDEN, Attributes::READONLY, Attributes::REQUIRED_ADD, Attributes::IMMUTABLE]]]
 		));
 	}
 
@@ -772,6 +783,45 @@ abstract class Base
 		}
 
 		return $r;
+	}
+	//endregion
+
+	//region canonical
+	final protected function canonicalizeField($name, $info): string
+	{
+		$canonical = $info['CANONICAL_NAME'] ?? null;
+		if ($canonical)
+		{
+			return $canonical;
+		}
+		else
+		{
+			return $name;
+		}
+	}
+	//endregion
+
+	//region aliases
+	final protected function aliasesField($name, $fieldsInfo): string
+	{
+		$alias = $name;
+
+		$item = array_filter($fieldsInfo, function($info) use ($name){
+			$canonical = $info['CANONICAL_NAME'] ?? null;
+			if (!$canonical)
+			{
+				return false;
+			}
+
+			return $canonical === $name;
+		});
+
+		if (is_array($item) && !empty($item))
+		{
+			$alias = array_keys($item)[0];
+		}
+
+		return $alias;
 	}
 	//endregion
 }

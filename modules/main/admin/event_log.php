@@ -455,9 +455,22 @@ $oFilter->Begin();
 </tr>
 <tr>
 	<td><?echo GetMessage("MAIN_EVENTLOG_SEVERITY")?>:</td>
-	<td><?echo SelectBoxMFromArray("find_severity[]", array(
-			"REFERENCE"    => array("SECURITY", "ERROR", "WARNING", "INFO", "DEBUG"),
-			"REFERENCE_ID" => array("SECURITY", "ERROR", "WARNING", "INFO", "DEBUG"),
+	<td><?
+		$severity = [
+			CEventLog::SEVERITY_SECURITY,
+			CEventLog::SEVERITY_EMERGENCY,
+			CEventLog::SEVERITY_ALERT,
+			CEventLog::SEVERITY_CRITICAL,
+			CEventLog::SEVERITY_ERROR,
+			CEventLog::SEVERITY_WARNING,
+			CEventLog::SEVERITY_NOTICE,
+			CEventLog::SEVERITY_INFO,
+			CEventLog::SEVERITY_DEBUG,
+			'UNKNOWN',
+		];
+		echo SelectBoxMFromArray("find_severity[]", array(
+			"REFERENCE" => $severity,
+			"REFERENCE_ID" => $severity,
 		), $find_severity, GetMessage("MAIN_ALL"))?></td>
 </tr>
 <tr>

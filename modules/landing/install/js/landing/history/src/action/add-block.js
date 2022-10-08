@@ -30,6 +30,7 @@ export default function addBlock(state, entry)
 
 					return PageObject.getInstance().view().then((iframe) => {
 						landing.currentArea = iframe.contentDocument.body.querySelector(`[data-landing="${entry[state].lid}"]`);
+						landing.insertBefore = entry[state].insertBefore;
 						return landing.onAddBlock(entry[state].code, entry.block, true);
 					});
 				});

@@ -1,4 +1,4 @@
-(function (exports,ui_vue,pull_client) {
+(function (exports,ui_designTokens,ui_vue,pull_client) {
 	'use strict';
 
 	/**
@@ -167,5 +167,5 @@
 	  template: "\n\t\t<div v-if=\"!isMobile()\" :class=\"['bx-pull-status', connectionClass]\">\n\t\t\t<div class=\"bx-pull-status-wrap\">\n\t\t\t\t<span class=\"bx-pull-status-text\">{{connectionText}}</span>\n\t\t\t\t<span class=\"bx-pull-status-button\" @click=\"reconnect\">\n\t\t\t\t\t<span class=\"bx-pull-status-button-title\">{{button.title}}</span>\n\t\t\t\t\t<span class=\"bx-pull-status-button-key\" v-html=\"button.key\"></span>\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
-}((this.window = this.window || {}),BX,BX));
+}((this.window = this.window || {}),BX,BX,BX));
 //# sourceMappingURL=status.bundle.js.map

@@ -172,20 +172,20 @@ export class Util
 		return null;
 	}
 
-	static formatTime(h, m, skipMinutes)
+	static formatTime(hours, minutes)
 	{
-		let d = null;
-		if (Type.isDate(h))
+		let day;
+		if (Type.isDate(hours))
 		{
-			d = h;
+			day = hours;
 		}
 		else
 		{
-			d = new Date();
-			d.setHours(h, m, 0);
+			day = new Date();
+			day.setHours(hours, minutes, 0);
 		}
 
-		return BX.date.format(Util.getTimeFormatShort(), d.getTime() / 1000);
+		return BX.date.format(Util.getTimeFormatShort(), day.getTime() / 1000);
 	}
 
 	static formatDate(timestamp)
@@ -208,9 +208,8 @@ export class Util
 
 	static formatDateUsable(date, showYear = true, showDayOfWeek = false)
 	{
-		let
-			lang = Loc.getMessage('LANGUAGE_ID'),
-			format = Util.getDateFormat();
+		const lang = Loc.getMessage('LANGUAGE_ID');
+		let format = Util.getDateFormat();
 		if (lang === 'ru' || lang === 'ua')
 		{
 			format = showDayOfWeek ? 'l, j F' : 'j F';
@@ -252,11 +251,6 @@ export class Util
 		if (node)
 		{
 			let prefix = 'data-bx-calendar', i;
-
-			// if (!parentCont)
-			// {
-			// 	parentCont = this.calendar.viewsCont;
-			// }
 
 			if (node.attributes && node.attributes.length)
 			{
@@ -378,7 +372,9 @@ export class Util
 	static getUsableDateTime(timestamp, roundMin)
 	{
 		if (Type.isDate(timestamp))
+		{
 			timestamp = timestamp.getTime();
+		}
 
 		let r = (roundMin || 10) * 60 * 1000;
 		timestamp = Math.ceil(timestamp / r) * r;
@@ -422,6 +418,26 @@ export class Util
 			Util.DATE_FORMAT = BX.Main.Date.convertBitrixFormat(Loc.getMessage("FORMAT_DATE"));
 		}
 		return Util.DATE_FORMAT;
+	}
+
+	static setDayOfWeekMonthFormat(value)
+	{
+		Util.dayOfWeekMonthFormat = value;
+	}
+
+	static getDayOfWeekMonthFormat()
+	{
+		return Util.dayOfWeekMonthFormat || 'l, j F';
+	}
+
+	static setDayMonthFormat(value)
+	{
+		Util.dayMonthFormat = value;
+	}
+
+	static getDayMonthFormat()
+	{
+		return Util.dayMonthFormat || 'j F';
 	}
 
 	static getDateTimeFormat()
@@ -745,5 +761,44 @@ export class Util
 	static documentIsDisplayingNow()
 	{
 		return !document.hidden;
+	}
+
+	static removeHash()
+	{
+		if ("pushState" in history)
+		{
+			history.pushState("", document.title, window.location.pathname + window.location.search);
+		}
+		else
+			{
+			// Prevent scrolling by storing the page's current scroll offset
+			let scrollV = document.body.scrollTop;
+			let scrollH = document.body.scrollLeft;
+			window.location.hash = "";
+			// Restore the scroll offset, should be flicker free
+			document.body.scrollTop = scrollV;
+			document.body.scrollLeft = scrollH;
+		}
+	}
+	
+	// TODO: move to syncManager
+	static setIphoneConnectionStatus(value)
+	{
+		Util.iphoneConnectionStatus = value;
+	}
+	
+	static isIphoneConnected()
+	{
+		return Util.iphoneConnectionStatus;
+	}
+	
+	static setMacConnectionStatus(value)
+	{
+		Util.macConnectionStatus = value;
+	}
+	
+	static isMacConnected()
+	{
+		return Util.macConnectionStatus;
 	}
 }

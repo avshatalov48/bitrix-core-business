@@ -259,7 +259,7 @@ $tabControl->BeginNextTab();
     <tr>
         <td><input name="sync_by_push" type="checkbox" value="Y" id="cal_sync_by_push" <?if($SET['sync_by_push']){echo'checked';}?>/></td>
         <td>
-            <label for="cal_sync_by_push"><?= GetMessage("CAL_SYNC_BY_PUSH")?></label>
+            <label for="cal_sync_by_push"><?= GetMessage("CAL_SYNC_PUSH_ENABLE")?></label>
         </td>
     </tr>
 	<tr>

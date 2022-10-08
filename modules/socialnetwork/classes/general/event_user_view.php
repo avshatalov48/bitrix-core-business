@@ -1008,7 +1008,7 @@ class CAllSocNetEventUserView
 		else
 			$strUser = " AND EUV.USER_ID IN (".intval($user_id).", 0)";
 
-		return "INNER JOIN b_sonet_event_user_view EUV ".($GLOBALS["DB"]->type == "MYSQL" ? "USE INDEX (IX_SONET_EVENT_USER_VIEW_2)" : "")." ON
+		return "INNER JOIN b_sonet_event_user_view EUV USE INDEX (IX_SONET_EVENT_USER_VIEW_2) ON
 						EUV.ENTITY_TYPE = ".$table.".ENTITY_TYPE 
 						AND ( 
 							EUV.ENTITY_ID = ".$table.".ENTITY_ID

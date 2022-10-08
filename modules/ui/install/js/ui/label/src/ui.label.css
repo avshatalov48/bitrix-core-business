@@ -4,7 +4,8 @@
 	--ui-label-background-color-hover: var(--ui-label-background-color);
 	--ui-label-color: #fff;
 	--ui-label-link-dashed-color: rgba(255, 255, 255, 0.51);
-	--ui-label-font: "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--ui-label-font: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	--ui-label-font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .ui-label {
@@ -114,6 +115,18 @@ a.ui-label:not(.ui-label-fill):hover,
 	--ui-label-color: #B47A00;
 }
 
+.ui-label-lightred {
+	--ui-label-background-color: rgba(255, 87, 82, 0.17);
+	--ui-label-background-color-hover: rgba(255, 87, 82, 0.17);
+	--ui-label-color: rgba(207, 21, 21, 1);
+}
+
+.ui-label-lightyellow {
+	--ui-label-background-color: rgba(242, 228, 28, 0.42);
+	--ui-label-background-color-hover: rgba(242, 228, 28, 0.42);
+	--ui-label-color: rgba(157, 126, 43, 1);
+}
+
 .ui-label-light {
 	--ui-label-background-color: rgba(168, 173, 180, 0.24);
 	--ui-label-background-color-hover: rgba(168, 173, 180, 0.91);
@@ -125,14 +138,14 @@ a.ui-label:not(.ui-label-fill):hover,
 	--ui-label-background-color: #EAEBED;
 	--ui-label-background-color-hover: #DCDEE1;
 	--ui-label-color: #525C69;
-	--ui-label-font: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--ui-label-font-weight: var(--ui-label-font-weight, 400);
 }
 
 .ui-label-tag-secondary {
 	--ui-label-background-color: #bcedfc;
 	--ui-label-background-color-hover: #bcedfc;
 	--ui-label-color: #333;
-	--ui-label-font: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--ui-label-font-weight: var(--ui-label-font-weight, 400);
 }
 
 /*endregion*/

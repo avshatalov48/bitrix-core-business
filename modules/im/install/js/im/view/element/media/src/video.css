@@ -10,7 +10,7 @@
 }
 
 .bx-im-element-file-video .ui-vue-socialvideo-timers-container {
-	font: 11px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 11px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .bx-im-element-file-video .ui-vue-socialvideo-image-source,

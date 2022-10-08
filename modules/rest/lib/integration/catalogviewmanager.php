@@ -3,74 +3,131 @@
 
 namespace Bitrix\Rest\Integration;
 
-
-use Bitrix\Main\Engine\Controller;
+use Bitrix\Main\Engine;
 use Bitrix\Rest\Integration\View\Base;
 use Bitrix\Rest\RestException;
+use Bitrix\Catalog\Controller;
+use Bitrix\Catalog\RestView;
 
 final class CatalogViewManager extends ViewManager
 {
 	/**
-	 * @param Controller $controller
+	 * @param Engine\Controller $controller
 	 * @return Base
 	 * @throws RestException
 	 */
-	public function getView(Controller $controller)
+	public function getView(Engine\Controller $controller)
 	{
-		$entity = null;
-		if($controller instanceof \Bitrix\Catalog\Controller\PriceType)
+		if ($controller instanceof Controller\PriceType)
 		{
-			$entity = new \Bitrix\Catalog\RestView\PriceType();
+			return new RestView\PriceType();
 		}
-		elseif($controller instanceof \Bitrix\Catalog\Controller\RoundingRule)
+		
+		if ($controller instanceof Controller\PriceTypeLang)
 		{
-			$entity = new \Bitrix\Catalog\RestView\RoundingRule();
+			return new RestView\PriceTypeLang();
 		}
-		elseif($controller instanceof \Bitrix\Catalog\Controller\Enum)
+		
+		if ($controller instanceof Controller\PriceTypeGroup)
 		{
-			$entity = new \Bitrix\Catalog\RestView\Enum();
+			return new RestView\PriceTypeGroup();
 		}
-		elseif($controller instanceof \Bitrix\Catalog\Controller\Extra)
+		
+		if ($controller instanceof Controller\RoundingRule)
 		{
-			$entity = new \Bitrix\Catalog\RestView\Extra();
+			return new RestView\RoundingRule();
 		}
-		elseif($controller instanceof \Bitrix\Catalog\Controller\Measure)
+		
+		if ($controller instanceof Controller\Enum)
 		{
-			$entity = new \Bitrix\Catalog\RestView\Measure();
+			return new RestView\Enum();
 		}
-		elseif($controller instanceof \Bitrix\Catalog\Controller\Ratio)
+		
+		if ($controller instanceof Controller\Extra)
 		{
-			$entity = new \Bitrix\Catalog\RestView\Ratio();
+			return new RestView\Extra();
 		}
-		elseif($controller instanceof \Bitrix\Catalog\Controller\Vat)
+		
+		if ($controller instanceof Controller\Measure)
 		{
-			$entity = new \Bitrix\Catalog\RestView\Vat();
+			return new RestView\Measure();
 		}
-		elseif($controller instanceof \Bitrix\Catalog\Controller\Store)
+		
+		if ($controller instanceof Controller\Ratio)
 		{
-			$entity = new \Bitrix\Catalog\RestView\Store();
+			return new RestView\Ratio();
 		}
-		elseif($controller instanceof \Bitrix\Catalog\Controller\Product)
+		
+		if ($controller instanceof Controller\Vat)
 		{
-			$entity = new \Bitrix\Catalog\RestView\Product();
+			return new RestView\Vat();
 		}
-		elseif($controller instanceof \Bitrix\Catalog\Controller\Catalog)
+		
+		if ($controller instanceof Controller\Store)
 		{
-			$entity = new \Bitrix\Catalog\RestView\Catalog();
-		}
-		elseif($controller instanceof \Bitrix\Catalog\Controller\Section)
-		{
-			$entity = new \Bitrix\Catalog\RestView\Section();
-		}
-		elseif($controller instanceof \Bitrix\Catalog\Controller\Price)
-		{
-			$entity = new \Bitrix\Catalog\RestView\Price();
-		}
-		else
-		{
-			throw new RestException('Unknown object ' . get_class($controller));
+			return new RestView\Store();
 		}
 
-		return $entity;
+		if ($controller instanceof Controller\StoreProduct)
+		{
+			return new RestView\StoreProduct();
+		}
+		
+		if ($controller instanceof Controller\Product)
+		{
+			return new RestView\Product();
+		}
+		
+		if ($controller instanceof Controller\Catalog)
+		{
+			return new RestView\Catalog();
+		}
+		
+		if ($controller instanceof Controller\Section)
+		{
+			return new RestView\Section();
+		}
+		
+		if ($controller instanceof Controller\Price)
+		{
+			return new RestView\Price();
+		}
+		
+		if ($controller instanceof Controller\ProductImage)
+		{
+			return new RestView\ProductImage();
+		}
+		
+		if ($controller instanceof Controller\ProductProperty)
+		{
+			return new RestView\ProductProperty();
+		}
+		
+		if ($controller instanceof Controller\ProductPropertyEnum)
+		{
+			return new RestView\ProductPropertyEnum();
+		}
+		
+		if ($controller instanceof Controller\ProductPropertyFeature)
+		{
+			return new RestView\ProductPropertyFeature();
+		}
+		
+		if ($controller instanceof Controller\ProductPropertySection)
+		{
+			return new RestView\ProductPropertySection();
+		}
+		
+		if ($controller instanceof Controller\Document)
+		{
+			return new RestView\Document();
+		}
+		
+		if ($controller instanceof Controller\Document\Element)
+		{
+			return new RestView\DocumentElement();
+		}
+		
+		throw new RestException('Unknown object ' . get_class($controller));
 	}
 }

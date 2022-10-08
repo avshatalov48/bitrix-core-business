@@ -136,7 +136,7 @@ class SenderCampaignEditComponent extends \Bitrix\Sender\Internals\CommonSenderC
 		static $sites = null;
 		if ($sites === null)
 		{
-			$sites = \Bitrix\Main\SiteTable::getList(['select' => ['ID' => 'LID', 'NAME']])->fetchAll();
+			$sites = \Bitrix\Main\SiteTable::getList(['select' => ['ID', 'NAME']])->fetchAll();
 			foreach ($sites as $index => $site)
 			{
 				$site['SELECTED'] = $this->arResult['ROW']['SITE_ID'] === $site['ID'];

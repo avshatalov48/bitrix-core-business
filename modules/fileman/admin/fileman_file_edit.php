@@ -6,20 +6,26 @@
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/prolog.php");
 
 if (!($USER->CanDoOperation('fileman_admin_files') || $USER->CanDoOperation('fileman_edit_existent_files')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/include.php");
+Loader::includeModule('fileman');
 IncludeModuleLangFile(__FILE__);
+
+$request = Context::getCurrent()->getRequest();
 
 $strWarning = "";
 
 $addUrl = 'lang='.LANGUAGE_ID.($logical == "Y"?'&logical=Y':'');
 
 $io = CBXVirtualIo::GetInstance();
+$path = (string)($request->get('path') ?? '');
 $path = $io->CombinePath("/", $path);
 
 $bVarsFromForm = false;		//flag, witch points were get content from: file or post form

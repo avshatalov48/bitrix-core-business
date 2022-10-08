@@ -3,61 +3,13 @@ this.BX.Seo = this.BX.Seo || {};
 (function (exports,main_core,main_loader) {
 	'use strict';
 
-	function _createForOfIteratorHelper(o, allowArrayLike) { var it; if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it.return != null) it.return(); } finally { if (didErr) throw err; } } }; }
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
+
+	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 	function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"seo-ads-client-popup\">\n\t\t\t<div class=\"seo-ads-client-popup-text\">\n\t\t\t", "\n\t\t\t</div>\n\t\t</div>"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"seo-ads-client-menu-avatar\"></div>"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"seo-ads-client-menu-avatar\" style=\"background-image: url('", "');\"></div>"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t", "\n\t\t\t<span class=\"seo-ads-client-menu-popup-user\">", "</span>\n\t\t\t<span class=\"seo-ads-client-menu-popup-shutoff\" data-role=\"client-remove\" data-client-id=\"", "\">", "</span>\n\t\t</div>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t<div class=\"seo-ads-client\">\n\t\t\t<div class=\"seo-ads-client-selector\">\n\t\t\t\t<div class=\"seo-ads-client-selector-avatar\" data-role=\"user-avatar\"></div>\n\t\t\t\t<div class=\"seo-ads-client-selector-user\">\n\t\t\t\t\t<a target=\"_top\" data-role=\"user-name user-link\" class=\"seo-ads-client-selector-user-link\" title=\"\"></a>\n\t\t\t\t</div>\n\t\t\t\t<span class=\"seo-ads-client-selector-arrow\"></span>\n\t\t\t\t<span class=\"seo-ads-client-selector-loader\"></span>\n\t\t\t</div>\n\t\t\t<div class=\"seo-ads-client-note\">\n\t\t\t", "\n\t\t\t</div>\n\t\t</div>\n\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
 	var ClientSelector = /*#__PURE__*/function () {
 	  function ClientSelector(container, params) {
 	    babelHelpers.classCallCheck(this, ClientSelector);
@@ -122,18 +74,18 @@ this.BX.Seo = this.BX.Seo || {};
 	  }, {
 	    key: "getHtml",
 	    value: function getHtml() {
-	      return main_core.Tag.render(_templateObject(), main_core.Loc.getMessage('SEO_ADS_CLIENT_NOTE'));
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t<div class=\"seo-ads-client\">\n\t\t\t<div class=\"seo-ads-client-selector\">\n\t\t\t\t<div class=\"seo-ads-client-selector-avatar\" data-role=\"user-avatar\"></div>\n\t\t\t\t<div class=\"seo-ads-client-selector-user\">\n\t\t\t\t\t<a target=\"_top\" data-role=\"user-name user-link\" class=\"seo-ads-client-selector-user-link\" title=\"\"></a>\n\t\t\t\t</div>\n\t\t\t\t<span class=\"seo-ads-client-selector-arrow\"></span>\n\t\t\t\t<span class=\"seo-ads-client-selector-loader\"></span>\n\t\t\t</div>\n\t\t\t<div class=\"seo-ads-client-note\">\n\t\t\t", "\n\t\t\t</div>\n\t\t</div>\n\t\t"])), main_core.Loc.getMessage('SEO_ADS_CLIENT_NOTE'));
 	    }
 	  }, {
 	    key: "getMenuItemHtml",
 	    value: function getMenuItemHtml(item) {
-	      var html = main_core.Tag.render(_templateObject2(), item.PICTURE ? main_core.Tag.render(_templateObject3(), item.PICTURE) : main_core.Tag.render(_templateObject4()), item.NAME, item.CLIENT_ID, main_core.Loc.getMessage('SEO_ADS_CLIENT_DISCONNECT'));
+	      var html = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div>\n\t\t\t", "\n\t\t\t<span class=\"seo-ads-client-menu-popup-user\">", "</span>\n\t\t\t<span class=\"seo-ads-client-menu-popup-shutoff\" data-role=\"client-remove\" data-client-id=\"", "\">", "</span>\n\t\t</div>"])), item.PICTURE ? main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"seo-ads-client-menu-avatar\" style=\"background-image: url('", "');\"></div>"])), item.PICTURE) : main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<div class=\"seo-ads-client-menu-avatar\"></div>"]))), item.NAME, item.CLIENT_ID, main_core.Loc.getMessage('SEO_ADS_CLIENT_DISCONNECT'));
 	      return html.innerHTML;
 	    }
 	  }, {
 	    key: "getRemoveConfirmPopupHtml",
 	    value: function getRemoveConfirmPopupHtml(item) {
-	      return main_core.Tag.render(_templateObject5(), main_core.Loc.getMessage('SEO_ADS_CLIENT_REMOVE').replace('#NAME#', item.NAME));
+	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<div class=\"seo-ads-client-popup\">\n\t\t\t<div class=\"seo-ads-client-popup-text\">\n\t\t\t", "\n\t\t\t</div>\n\t\t</div>"])), main_core.Loc.getMessage('SEO_ADS_CLIENT_REMOVE').replace('#NAME#', item.NAME));
 	    }
 	  }, {
 	    key: "updateClientHtml",

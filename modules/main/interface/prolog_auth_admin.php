@@ -14,8 +14,8 @@ if (isset($_REQUEST['bxsender']))
 }
 
 IncludeModuleLangFile(__FILE__);
-IncludeModuleLangFile(dirname(__FILE__)."/epilog_main_admin.php");
-IncludeModuleLangFile(dirname(__FILE__)."/epilog_auth_admin.php");
+IncludeModuleLangFile(__DIR__."/epilog_main_admin.php");
+IncludeModuleLangFile(__DIR__."/epilog_auth_admin.php");
 
 if($APPLICATION->GetTitle() == '')
 	$APPLICATION->SetTitle(GetMessage("MAIN_PROLOG_ADMIN_AUTH_TITLE"));

@@ -23,22 +23,22 @@ class LandingBlocksTariffsComponent extends \CBitrixComponent
 		}
 
 		$zone = $this->getZone();
-		if ($zone === 'by')
-		{
-			$currencyCode = 'BYR';
-		}
-		if ($zone === 'kz')
-		{
-			$currencyCode = 'KZT';
-		}
-		if ($zone === 'ua')
-		{
-			$currencyCode = 'UAH';
-		}
-		if (!isset($currencyCode))
-		{
-			$currencyCode = 'RUR';
-		}
+		// if ($zone === 'by')
+		// {
+		// 	$currencyCode = 'BYR';
+		// }
+		// if ($zone === 'kz')
+		// {
+		// 	$currencyCode = 'KZT';
+		// }
+		// if ($zone === 'ua')
+		// {
+		// 	$currencyCode = 'UAH';
+		// }
+		// if (!isset($currencyCode))
+		// {
+		// 	$currencyCode = 'RUR';
+		// }
 
 		if (Manager::isB24())
 		{
@@ -53,7 +53,7 @@ class LandingBlocksTariffsComponent extends \CBitrixComponent
 			'productTypeCode' => 'CLOUD',
 			'locationAreaId' => $zone,
 			'languageId' => LANGUAGE_ID,
-			'currencyCode' => $currencyCode,
+			// 'currencyCode' => $currencyCode,
 			'catalogForNewCustomer' => false,
 			'partnerId' => $partnerId,
 			'replace' => [

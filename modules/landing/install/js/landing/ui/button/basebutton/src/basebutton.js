@@ -3,6 +3,7 @@ import {EventEmitter} from 'main.core.events';
 import type BaseButtonOptions from './types/button-options';
 import defaultOptions from './internal/default-options';
 
+import 'ui.fonts.opensans';
 import './css/base_button.css';
 
 /**

@@ -87,7 +87,7 @@ if (!function_exists("__wd_create_default_bp_user_and_groups"))
 	}
 }
 
-$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/../lang/".LANGUAGE_ID."/include/webdav.php")));
+$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/../lang/".LANGUAGE_ID."/include/webdav.php")));
 
 __IncludeLang($file);
 
@@ -341,7 +341,7 @@ if (!empty($arError))
 				Default params
 ********************************************************************/
 define("WEBDAV_SETTINGS_LIMIT_INCLUDE", "Y");
-$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/webdav_settings.php")));
+$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/webdav_settings.php")));
 require_once($file);
 
 /************** Path ***********************************************/

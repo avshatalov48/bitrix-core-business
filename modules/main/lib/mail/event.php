@@ -46,7 +46,7 @@ class Event
 			$manageCache->clean('events');
 		}
 
-		$fileList = array();
+		$fileList = [];
 		if(isset($data['FILE']))
 		{
 			if(is_array($data['FILE']))
@@ -55,32 +55,54 @@ class Event
 			unset($data['FILE']);
 		}
 
+		$attachments = [];
+		foreach ($fileList as $file)
+		{
+			$attachment = [];
+			if (is_numeric($file) && \CFile::GetFileArray($file))
+			{
+				$attachment['FILE_ID'] = $file;
+				$attachment['IS_FILE_COPIED'] = 'N';
+			}
+			else
+			{
+				$fileArray = \CFile::MakeFileArray($file);
+				$fileArray['MODULE_ID'] = 'main';
+
+				$attachment['FILE'] = $fileArray;
+				$attachment['IS_FILE_COPIED'] = 'Y';
+			}
+			$attachments[] = $attachment;
+		}
+
+		$connection = Application::getConnection();
+
+		$connection->startTransaction();
+
 		$result = MailInternal\EventTable::add($data);
+
 		if ($result->isSuccess())
 		{
 			$id = $result->getId();
-			foreach($fileList as $file)
+
+			foreach ($attachments as $file)
 			{
-				$dataAttachment = array(
+				$attachment = [
 					'EVENT_ID' => $id,
-					'FILE_ID' => null,
-					'IS_FILE_COPIED' => 'Y',
-				);
-				if(is_numeric($file) && \CFile::GetFileArray($file))
+					'IS_FILE_COPIED' => $file['IS_FILE_COPIED'],
+					'FILE_ID' => $file['FILE_ID'] ?? null,
+				];
+
+				if ($attachment['IS_FILE_COPIED'] == 'Y')
 				{
-					$dataAttachment['FILE_ID'] = $file;
-					$dataAttachment['IS_FILE_COPIED'] = 'N';
-				}
-				else
-				{
-					$fileArray = \CFile::MakeFileArray($file);
-					$fileArray["MODULE_ID"] = "main";
-					$dataAttachment['FILE_ID'] = \CFile::SaveFile($fileArray, "main");
+					$attachment['FILE_ID'] = \CFile::SaveFile($file['FILE'], 'main');
 				}
 
-				MailInternal\EventAttachmentTable::add($dataAttachment);
+				MailInternal\EventAttachmentTable::add($attachment);
 			}
 		}
+
+		$connection->commitTransaction();
 
 		return $result;
 	}

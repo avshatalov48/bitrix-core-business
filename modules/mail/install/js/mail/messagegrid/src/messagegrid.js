@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
 import './css/style.css';
 import { EventEmitter } from 'main.core.events';
 import { Dom, Tag, Loc, Type } from 'main.core';

@@ -77,7 +77,8 @@
 
 
 .landing-ui-panel-style-header {
-	font-family: OpenSans-Light;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	font-size: 24px;
 	color: #000000;
 	line-height: 24px;

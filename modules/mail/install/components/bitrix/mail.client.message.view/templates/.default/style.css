@@ -16,7 +16,7 @@
 	-webkit-margin-after: 0.67em;
 	-webkit-margin-start: 0;
 	-webkit-margin-end: 0;
-	font-weight: bold
+	font-weight: var(--ui-font-weight-bold)
 }
 
 .mail-msg-view-body a:-webkit-any-link {
@@ -82,7 +82,7 @@
 	padding: 0;
 	margin-bottom: 1px;
 	float: right;
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 }
 
@@ -147,7 +147,7 @@
 .mail-msg-view-log-item-name,
 .mail-msg-view-log-item-description {
 	display: inline-block;
-	font: 13px "ArialMT", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	vertical-align: middle;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -233,7 +233,7 @@
 	align-items: center;
 	margin: 0 0 0 auto;
 	padding: 0 16px 0 0;
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 	position: relative;
 }
@@ -356,7 +356,7 @@
 
 .mail-msg-view-header-info {
 	display: block;
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 }
 
@@ -396,7 +396,7 @@
 .mail-msg-view-sender-name {
 	margin: 0 10px 0 0;
 	max-width: 60%;
-	font: bold 17px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 17px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 	overflow: hidden;
 	white-space: nowrap;
@@ -461,7 +461,8 @@
 	justify-content: center;
 	position: relative;
 	margin: 0 20px 16px 20px;
-	font: bold 11px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #828B95;
 	text-transform: uppercase;
 	white-space: nowrap;
@@ -557,7 +558,7 @@
 	display: -ms-flexbox;
 	display: flex;
 	padding: 20px 22px 15px;
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #828B95;
 }
 
@@ -683,7 +684,7 @@
 
 .mail-msg-view-reply-panel-text {
 	border-bottom: 1px dashed transparent;
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #828b95;
 	-webkit-transition: border-bottom .3s;
 	transition: border-bottom .3s;
@@ -709,7 +710,7 @@
 
 .mail-additional-title {
 	overflow: hidden;
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 	margin-left: 6px;
 	cursor: pointer;
@@ -789,7 +790,7 @@
 }
 
 .mail-additional-item-value-responsible {
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .mail-additional-item-value {
@@ -851,13 +852,13 @@
 	height: 15px;
 	white-space: nowrap;
 	text-overflow: ellipsis;
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 }
 
 .mail-msg-view-header-set-title {
 	margin-bottom: 3px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #333;
 	line-height: 15px;
 }
@@ -869,7 +870,7 @@
 
 .mail-msg-view-table {
 	margin-bottom: 11px;
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	line-height: 22px;
 }
@@ -894,7 +895,7 @@
 .mail-msg-view-table-head {
 	display: inline-block;
 	margin: 10px 0;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px;
 	color: #333;
 }

@@ -18,12 +18,12 @@ use Bitrix\Main\Web\Json;
 use Bitrix\UI\Util;
 
 Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 	'ui.common',
 	'ui.notification',
 	'ui.dialogs.messagebox',
 	'ui.hint',
-	'ui.design-tokens',
-	'ui.fonts.opensans',
 ]);
 
 $containerId = 'catalog_variation_grid';
@@ -112,8 +112,10 @@ $isProduct = $arParams['VARIATION_ID_LIST'] === null;
 			'gridId' => $component->getGridId(),
 			'isGridReload' => $component->isAjaxGridAction(),
 			'isNew' => $component->isNewProduct(),
+			'isSimple' => $component->isSimpleProduct(),
 			'hiddenProperties' => $arResult['GRID']['HIDDEN_PROPERTIES'],
 			'modifyPropertyLink' => $arResult['PROPERTY_MODIFY_LINK'],
+			'productCopyLink' => $arResult['PROPERTY_COPY_LINK'],
 			'gridEditData' => $arResult['GRID']['EDIT_DATA'],
 			'canHaveSku' => $arResult['CAN_HAVE_SKU'],
 			'copyItemsMap' => $arResult['COPY_ITEM_MAP'] ?? null,

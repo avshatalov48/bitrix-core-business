@@ -58,7 +58,8 @@
 .ui-progressround-text-before {
 	padding: 0 17px 4px;
 	color: #535c69;
-	font: 13px/16px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .ui-progressround-text-after {
@@ -112,7 +113,8 @@
 
 .ui-progressround-status-percent {
 	color: #333;
-	font: 300 16px/20px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 16px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .ui-progressround-status-percent-incircle,

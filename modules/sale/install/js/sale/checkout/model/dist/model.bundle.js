@@ -167,7 +167,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
           if (main_core.Type.isString(fields.status)) {
             var allowed = Object.values(sale_checkout_const.Check.status);
             var status = fields.status.toString();
-            result.status = allowed.includes(status) ? status : sale_checkout_const.Check.status.new;
+            result.status = allowed.includes(status) ? status : sale_checkout_const.Check.status["new"];
           }
 
           return result;
@@ -251,7 +251,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             id: 0,
             paymentId: 0,
             dateFormatted: null,
-            status: sale_checkout_const.Check.status.new,
+            status: sale_checkout_const.Check.status["new"],
             link: null
           };
         }
@@ -1320,7 +1320,8 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
               tradingPlatformId: this.getVariable('common.tradingPlatformId', null)
             },
             option: {
-              signedParameters: this.getVariable('option.signedParameters', null)
+              signedParameters: this.getVariable('option.signedParameters', null),
+              showReturnButton: this.getVariable('option.showReturnButton', true)
             },
             message: {
               buttonCheckoutTitle: this.getVariable('messages.buttonCheckoutTitle', null)
@@ -1406,6 +1407,10 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             result.signedParameters = fields.signedParameters.toString();
           }
 
+          if (main_core.Type.isString(fields.showReturnButton)) {
+            result.showReturnButton = fields.showReturnButton.toString() === 'Y' ? 'Y' : 'N';
+          }
+
           return result;
         }
       }, {
@@ -1449,6 +1454,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             },
             getSignedParameters: function getSignedParameters(state) {
               return state.option.signedParameters;
+            },
+            getShowReturnButton: function getShowReturnButton(state) {
+              return state.option.showReturnButton;
             },
             getPathLocation: function getPathLocation(state, getters) {
               return getters.getPath.location;

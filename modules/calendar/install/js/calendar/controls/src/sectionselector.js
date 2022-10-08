@@ -370,6 +370,11 @@ export class SectionSelector
 		if (this.viewMode)
 		{
 			Dom.addClass(this.DOM.outerWrap, 'calendar-section-selector-readonly');
+			if (this.DOM.outerWrap !== this.DOM.select)
+			{
+				Dom.removeClass(this.DOM.select, 'calendar-field-select');
+				Dom.addClass(this.DOM.select, 'calendar-section-selector-readonly');
+			}
 		}
 		else
 		{

@@ -51,7 +51,7 @@ div.bx-core-dialog-overlay {top:0; left:0; width:100%; height:100%; position: ab
 	background-repeat: repeat-x;
 }
 
-.bx-core-dialog .dialog-head div.c span {line-height: 39px; white-space: nowrap; font-family: Verdana; font-size: 13px; font-weight: bold; display: inline-block; width: 100%; overflow: hidden;}
+.bx-core-dialog .dialog-head div.c span {line-height: 39px; white-space: nowrap; font-family: Verdana; font-size: 13px; font-weight: var(--ui-font-weight-bold); display: inline-block; width: 100%; overflow: hidden;}
 
 
 .bx-core-dialog  .dialog-foot {
@@ -117,7 +117,7 @@ div.bx-core-dialog-overlay {top:0; left:0; width:100%; height:100%; position: ab
 }
 
 div.bx-core-dialog-head .bx-core-dialog-head-content {padding: 6px 30px 9px 0; background-repeat: no-repeat; background-position: top right; font-size: 12px; border-bottom: 1px solid #CCC;}
-div.bx-core-dialog-head .bx-core-dialog-head-content p.title {margin: 0px 0px 5px 0px !important; font-weight: bold; font-size: 14px;}
+div.bx-core-dialog-head .bx-core-dialog-head-content p.title {margin: 0px 0px 5px 0px !important; font-weight: var(--ui-font-weight-bold); font-size: 14px;}
 div.bx-core-dialog-head .bx-core-dialog-head-content p {margin: 0px !important;}
 
 div.bx-core-admin-dialog-head {margin: 5px 0px 4px 0px;}
@@ -153,7 +153,7 @@ div#bx_admin_form td {background-image:none;}
 div.bx-core-dialog-content tr.empty td {background-image:none !important; padding:1px !important;}
 div.bx-core-dialog-content tr.section td {background-image:none !important; background-color:#ededed !important;padding:3px !important;}
 div.bx-core-dialog-content tr.section table td {padding:0px !important;}
-div.bx-core-dialog-content input, div.bx-core-dialog-content select {font-family:"Helvetica Neue",Helvetica,Arial,sans-serif; font-size:12px !important; margin:0 !important; padding:1px !important;}
+div.bx-core-dialog-content input, div.bx-core-dialog-content select {font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica)); font-size:12px !important; margin:0 !important; padding:1px !important;}
 div.bx-core-dialog-content td.bx-popup-label {text-align:right !important;}
 div.bx-core-dialog-content td.bx-core-dialog-padding {padding-left: 3px; background-image:none;}
 
@@ -172,7 +172,7 @@ div.bxhinticon {width:0%;height:0%;}
 /* admin dialog */
 div.bx-core-dialog table.edit-tabs td.tab-left-selected, div.bx-core-dialog table.edit-tabs td.tab-selected, div.bx-core-dialog table.edit-tabs td.tab-right-selected, div.bx-core-dialog table.edit-tabs td.tab-right-last-selected {border:medium none !important;}
 
-div.bx-core-dialog table.edit-tabs td {font-size:11px !important; font-weight:bold !important; color:#555556 !important;white-space:nowrap !important; border-bottom: solid 1px #B8C1DD !important; padding:0px !important;}
+div.bx-core-dialog table.edit-tabs td {font-size:11px !important; font-weight:var(--ui-font-weight-bold) !important; color:#555556 !important;white-space:nowrap !important; border-bottom: solid 1px #B8C1DD !important; padding:0px !important;}
 
 div.bx-core-dialog table.edit-tabs td.tab-container {border:none !important; cursor:pointer !important; cursor: hand !important;}
 div.bx-core-dialog table.edit-tabs td.tab-container-selected, table.edit-tabs td.tab-container-disabled {border:none !important; cursor:default !important;}
@@ -211,7 +211,7 @@ div.bx-core-dialog div#bx_admin_form table.edit-tab td div.edit-tab-inner {heigh
 div.bx-core-dialog div#bx_admin_form  table.edit-table {width:100% !important;}
 div.bx-core-admin-dialog-content table.edit-table td {font-size:11px !important; padding:4px !important;}
 div.bx-core-admin-dialog-content table.edit-table td.field-name {color:#646465 !important; text-align:right !important;}
-div.bx-core-admin-dialog-content table.edit-table tr.heading td {color:#525355 !important; text-align:center !important; font-weight:bold !important; background-color:#E0E4F1 !important;}
+div.bx-core-admin-dialog-content table.edit-table tr.heading td {color:#525355 !important; text-align:center !important; font-weight:var(--ui-font-weight-bold) !important; background-color:#E0E4F1 !important;}
 div.bx-core-admin-dialog-content table.edit-table table td {padding:0px !important; border:none !important;}
 div.bx-core-admin-dialog-content table.edit-table table.edit-table td {padding:4px !important;}
 div.bx-core-admin-dialog-content table.edit-table div {font-size:100%;}
@@ -231,7 +231,7 @@ div.bx-core-admin-dialog-content table.edit-table table.internal table td {paddi
 /* Edit tab title*/
 div.bx-core-dialog div#bx_admin_form table.edit-tab-title {width:auto !important;}
 div.bx-core-admin-dialog-content table.edit-tab-title td.icon {padding:5px 5px 5px 0px !important; width:32px !important; height:32px !important;}
-div.bx-core-admin-dialog-content table.edit-tab-title td.title {width:100% !important; padding:5px 0px 5px 0px !important; font-size:16px !important; color:#494949 !important; font-weight:bold !important; font-family:Arial,helvetica,sans-serif !important;}
+div.bx-core-admin-dialog-content table.edit-tab-title td.title {width:100% !important; padding:5px 0px 5px 0px !important; font-size:16px !important; color:#494949 !important; font-weight:var(--ui-font-weight-bold) !important; font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;}
 div.bx-core-admin-dialog-content table.edit-tab-title td.delimiter {padding:0px !important; height:5px !important; background-image:url(/bitrix/themes/.default/images/edit/title_dot.gif) !important; background-position:left top !important; background-repeat:repeat-x !important;}
 div.bx-core-admin-dialog-content table.edit-tab-title td.delimiter-top {background-position:left bottom !important;}
 
@@ -239,7 +239,7 @@ div.bx-core-admin-dialog-content table.edit-tab-title td.delimiter-top {backgrou
 div.bx-core-admin-dialog-content div.view-tab-container {}
 div.bx-core-admin-dialog-content div.view-tab-container table.edit-tab-title {margin-bottom:5px !important;}
 div.bx-core-admin-dialog-content div.view-tab-content {border:1px solid #ABB6D7; padding:5px; background-color:#F9FAFD; font-size:11px;}
-div.bx-core-admin-dialog-content div.view-tab {height:23px; float:left; bottom:-1px; position:relative; padding:5px; color:#555556; font-size:11px; font-weight:bold; white-space:nowrap; box-sizing:border-box; -moz-box-sizing:border-box;}
+div.bx-core-admin-dialog-content div.view-tab {height:23px; float:left; bottom:-1px; position:relative; padding:5px; color:#555556; font-size:11px; font-weight:var(--ui-font-weight-bold); white-space:nowrap; box-sizing:border-box; -moz-box-sizing:border-box;}
 div.bx-core-admin-dialog-content div.view-tab-active {border:1px solid #ABB6D7; border-bottom:none; border-top-color:#8B94BA; background-color:#F9FAFD; padding:4px 4px 5px 4px; background-image:url(/bitrix/themes/.default/images/tabs/active_bg.gif); background-position:left top; background-repeat:repeat-x;}
 div.bx-core-admin-dialog-content div.view-tab-delimiter{overflow:hidden; float:left; width:2px; height:13px; background-color:#ABB6D7; margin:6px 0px 4px 0px;}
 div.bx-core-admin-dialog-content div.view-tab-hide-delimiter{background-color:transparent;}
@@ -295,7 +295,7 @@ td.bx-popup-menu div.bx-popup-item-over, td.bx-popup-menu div.bx-pressed {margin
 td.bx-popup-menu div.bx-popup-item td.gutter {width:22px !important;}
 td.bx-popup-menu div.bx-popup-item td.arrow {width:10px !important; background:transparent url(../images/menu/menu_arrow.gif) 2px center no-repeat !important;}
 td.bx-popup-menu div.bx-popup-item td.item {padding:3px 7px 3px 9px !important; font-family:Verdana,Arial,sans-serif; font-size:11px !important; white-space:nowrap !important; color:black !important; line-height:normal !important; font-weight:normal !important;}
-td.bx-popup-menu div.bx-popup-item td.default {font-weight:bold !important; line-height:normal !important;}
+td.bx-popup-menu div.bx-popup-item td.default {font-weight:var(--ui-font-weight-bold) !important; line-height:normal !important;}
 td.bx-popup-menu div.bx-popup-item td.disabled {color:#939393 !important;}
 td.bx-popup-menu div.bx-popup-menu-separator {margin:1px 4px 1px 30px; background-color:#EAEAEA; overflow:hidden; line-height: 1px; font-size: 1px; height: 1px;}
 td.bx-popup-menu div.bx-popup-item div.icon {width:22px; height:20px; background-position:center; background-repeat:no-repeat;}

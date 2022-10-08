@@ -578,10 +578,13 @@
 						this.setAnalyticsDataLayer('showDetail');
 						break;
 					case 3: // sku
-						treeItems = this.obTree.querySelectorAll('li');
-						for (i = 0; i < treeItems.length; i++)
+						if (this.obTree)
 						{
-							BX.bind(treeItems[i], 'click', BX.delegate(this.selectOfferProp, this));
+							treeItems = this.obTree.querySelectorAll('li');
+							for (i = 0; i < treeItems.length; i++)
+							{
+								BX.bind(treeItems[i], 'click', BX.delegate(this.selectOfferProp, this));
+							}
 						}
 
 						for (i = 0; i < this.offers.length; i++)
@@ -3106,7 +3109,7 @@
 							style: {marginRight: '10px'}
 						}),
 						new BasketButton({
-							text: BX.message('BTN_MESSAGE_CLOSE_POPUP'),
+							text: BX.message('BTN_MESSAGE_CLOSE'),
 							events: {
 								click: BX.delegate(this.obPopupWin.close, this.obPopupWin)
 							}

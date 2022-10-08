@@ -8,7 +8,9 @@
 	margin: 0 63px 0 61px;
 	border-radius: 4px;
 	transition: background 2s, border 2s, box-shadow .5s;
-	font: 12px/19px "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-size: var(--ui-font-size-sm, 12px);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	line-height: var(--ui-font-line-height-2xs, 19px);
 	color: #a8a9ab;
 }
 
@@ -66,7 +68,9 @@
 	padding-left: 10px;
 	margin-left: 1px;
 	margin-top: 8px;
-	font: 13px/19px "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-size: var(--ui-font-size-md, 13px);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	line-height: var(--ui-font-line-height-2xs, 19px);
 	overflow: hidden;
 	position: relative;
 }
@@ -90,10 +94,10 @@
 .bx-messenger-attach-chat-avatar-default {  background: url("./../images/im-sprite-v37.png") repeat scroll -2px -2030px #77828e; }
 .bx-messenger-attach-bot-avatar-default {  background: url("./../images/im-sprite-v37.png") repeat scroll -1px -2050px #77828e; }
 .bx-messenger-attach-user-name {
-	display: inline-block; font: bold 12px/21px "Helvetica Neue", Helvetica, Arial, sans-serif;padding-left: 1px; margin-left: 5px;
+	display: inline-block; font: var(--ui-font-weight-bold) 12px/21px var(--ui-font-family-primary, var(--ui-font-family-helvetica));padding-left: 1px; margin-left: 5px;
 	overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
-.bx-messenger-attach-user .bx-messenger-attach-user-name { 	color: #323232!important;  font-weight: bold!important; }
+.bx-messenger-attach-user .bx-messenger-attach-user-name { 	color: #323232!important;  font-weight: var(--ui-font-weight-bold)!important; }
 .bx-messenger-attach-user-name.bx-messenger-ajax { border-color: #323232; }
 .bx-messenger-attach-user-link { cursor:pointer; }
 .bx-messenger-attach-rich-links {
@@ -118,7 +122,7 @@
 
 .bx-messenger-attach-rich-link-with-preview { padding-bottom: 5px; }
 .bx-messenger-attach-rich-link-name {
-	font-size: 14px; display: block; font-weight: bold; color: #000!important; margin-bottom: 4px;
+	font-size: 14px; display: block; font-weight: var(--ui-font-weight-bold); color: #000!important; margin-bottom: 4px;
 	max-height: 40px;
     overflow: hidden;
 }
@@ -183,7 +187,7 @@
 }
 
 .bx-messenger-attach:hover .bx-messenger-attach-delete {opacity: 1}
-.bx-messenger-attach-delete { opacity: 0; transition: opacity .4s; outline: none; position:absolute; z-index: 4; font: 12px/17px "Helvetica Neue",Helvetica,Arial,sans-serif; cursor: pointer; display: block; right: 10px; margin-top: 10px; background: #000; width: 15px; height: 15px;  background: url(./../images/im-sprite-v37.png) -222px -591px no-repeat;}
+.bx-messenger-attach-delete { opacity: 0; transition: opacity .4s; outline: none; position:absolute; z-index: 4; font: 12px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); cursor: pointer; display: block; right: 10px; margin-top: 10px; background: #000; width: 15px; height: 15px;  background: url(./../images/im-sprite-v37.png) -222px -591px no-repeat;}
 .bx-messenger-attach-delete:hover {background-position: -106px -962px;}
 .bx-messenger-attach-delimiter {
 	background-color: #c6c6c6;
@@ -216,7 +220,7 @@
 .bx-messenger-attach-block-row .bx-messenger-attach-block-value { display: inline-block;
 	vertical-align: top;
 }
-.bx-messenger-attach-block-name { font-weight: bold;
+.bx-messenger-attach-block-name { font-weight: var(--ui-font-weight-bold);
 	display: block;
 }
 .bx-messenger-attach-block-value {
@@ -259,13 +263,13 @@
 .bx-messenger-content-item .bx-messenger-content-item-content.bx-messenger-content-item-content-transparent  .bx-messenger-content-item-arrow { opacity: 0; }
 .bx-messenger-content-item .bx-messenger-content-item-content.bx-messenger-content-item-content-transparent  .bx-messenger-content-item-avatar { margin-top: 10px;}
 
-.bx-messenger-content-quote .bx-messenger-file-image { margin-left: 0; }
+.bx-messenger-content-quote .bx-messenger-file-image { margin: 0; }
 
 .bx-messenger-content-reply { display: block; margin: 5px 68px 5px 61px; }
 .bx-messenger-content-reply-comment { display: inline-block; white-space: nowrap; float: right; padding-top: 3px }
 .bx-messenger-content-reply-join { display: inline-block; margin-right: 10px; float: left; }
 .bx-messenger-content-reply-join-button {
-	font: 13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     padding: 4px 10px;
     display: inline-block;
     text-decoration: none;
@@ -385,7 +389,7 @@
 
 .bx-messenger-file-image-link { max-width: 450px; max-height: 120px; }
 
-.bx-messenger-file-title {font: bold 13px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #0562b1;display: inline-block; white-space: nowrap;}
+.bx-messenger-file-title {font: var(--ui-font-weight-bold) 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));color: #0562b1;display: inline-block; white-space: nowrap;}
 .bx-messenger-file-title-href {
 	width: calc(100% - 60px);
     display: inline-block;
@@ -406,7 +410,7 @@
 	color: #fff;
 }
 .bx-messenger-file-size {
-	font: 12px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #777;margin-left: 6px;display: inline-block;
+	font: 12px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));color: #777;margin-left: 6px;display: inline-block;
 	width: 53px;
 	text-align: right;
 }
@@ -418,7 +422,7 @@
 .bx-messenger-file-box-with-message .bx-messenger-file-download {
 	padding-right: 0;
 }
-.bx-messenger-file-download-link {font: 11px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;color: #63635c;cursor: pointer;margin-right: 10px;text-decoration: none;}
+.bx-messenger-file-download-link {font: 11px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));color: #63635c;cursor: pointer;margin-right: 10px;text-decoration: none;}
 .bx-messenger-file-download-link:hover { color: #63635c; }
 .bx-messenger-file-download-pc {}
 .bx-messenger-file-download-disk {}
@@ -489,7 +493,7 @@
 	height: 22px;
 	box-shadow: none;
 	white-space: nowrap;
-	font: 12px/22px "Helvetica Neue", Helvetica, Arial, sans-serif!important;
+	font: 12px/22px var(--ui-font-family-primary, var(--ui-font-family-helvetica))!important;
 	text-shadow: none!important;
 	transition: background .3s;
 	text-transform: none !important;
@@ -501,7 +505,7 @@
 
 .bx-messenger-mark .popup-window-button-text { padding: 0 0;
 	height: inherit;
-	font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif; text-shadow: none!important;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); text-shadow: none!important;
 	color: #525865; text-transform: capitalize; line-height: 22px !important;
 }
 .bx-notifier-item-button:hover, .bx-messenger-mark .popup-window-button:hover,
@@ -538,7 +542,7 @@
 .bx-messenger-keyboard-button-line { display: inline-block; margin-right: 4px; }
 .bx-messenger-keyboard-button-text,
 .bx-messenger-dark .bx-messenger-keyboard-button-text,
-.popup-window-dark.bx-messenger-mark .bx-messenger-keyboard-button-text { font: 13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;  padding: 4px 10px; display: inline-block;  text-decoration: none; background-color: #e8e9eb; border-radius: 4px; color: #535c68; text-align: center;  min-width: 24px;  cursor: pointer; transition: opacity .5s; opacity: 1; }
+.popup-window-dark.bx-messenger-mark .bx-messenger-keyboard-button-text { font: 13px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));  padding: 4px 10px; display: inline-block;  text-decoration: none; background-color: #e8e9eb; border-radius: 4px; color: #535c68; text-align: center;  min-width: 24px;  cursor: pointer; transition: opacity .5s; opacity: 1; }
 .bx-messenger-keyboard-button-text:hover,
 .bx-messenger-dark .bx-messenger-keyboard-button-text:hover,
 .popup-window-dark.bx-messenger-mark .bx-messenger-keyboard-button-text:hover { text-decoration: none; color: #000;  }
@@ -567,7 +571,7 @@
 
 .bx-messenger-content-item-notice.bx-messenger-content-item-ol-end .bx-messenger-message,
 .bx-messenger-content-item-notice.bx-messenger-content-item-ol-start .bx-messenger-message {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bx-messenger-content-item-ol-start .bx-messenger-content-item-params  { display: none; }
@@ -584,7 +588,7 @@
 .bx-messenger-content-item-vote .bx-messenger-content-item-like {display: none;}
 .bx-messenger-content-item-vote .bx-messenger-message { text-align: center; display: block;}
 .bx-messenger-content-item-vote-block { display: inline-block; width: 165px; min-height: 105px; padding: 26px 26px 10px; }
-.bx-messenger-content-item-vote-block-text { text-transform: uppercase; font: bold 10px "Helvetica Neue", Arial, Helvetica, sans-serif;  text-align: center;  }
+.bx-messenger-content-item-vote-block-text { text-transform: uppercase; font: var(--ui-font-weight-bold) 10px var(--ui-font-family-primary, var(--ui-font-family-helvetica));  text-align: center;  }
 .bx-messenger-content-item-vote-block-buttons { position: relative; padding-top: 20px; height: 60px; overflow: hidden; }
 .bx-messenger-content-item-vote-block-final { text-align: center; height: 0; overflow: hidden;  }
 .bx-messenger-content-item-vote-block-smile-like, .bx-messenger-content-item-vote-block-smile-dislike { display: inline-block; height: 60px; width: 60px; background: url("./../images/im-sprite-v37.png") repeat -1px -2125px; }
@@ -615,7 +619,12 @@
 }
 .bx-messenger-content-item-1 { text-align: right; }
 .bx-messenger-content-item-2 {  text-align: left;  }
-.bx-messenger-content-item .bx-messenger-content-item-content { text-align: left; position: relative; }
+
+.bx-messenger-content-item .bx-messenger-content-item-content {
+	text-align: left;
+	position: relative;
+	color: #151515;
+}
 
 .bx-messenger-content-item-system+.bx-messenger-content-item-system { margin-top: -20px;  }
 /*

@@ -1061,7 +1061,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public static function resolveIdByPublicUrl(string $landingUrl, int $siteId): ?int
 	{
-		if (!Manager::isCloudDisable() && Site\Type::isPublicScope())
+		if (Manager::isB24() && !Manager::isCloudDisable() && Site\Type::isPublicScope())
 		{
 			$landingUrl = rtrim(Manager::getPublicationPath($siteId), '/') . '/' . ltrim($landingUrl, '/');
 		}
@@ -2778,9 +2778,10 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 	 * @param int|null $toSiteId Site id (if you want copy in another site).
 	 * @param int|null $toFolderId Folder id (if you want copy in some folder).
 	 * @param bool $withoutBlocks Copy only pages, without blocks.
+	 * @param bool $skipSystem If true, don't copy system flag.
 	 * @return int|null New landing id.
 	 */
-	public function copy(?int $toSiteId = null, ?int $toFolderId = null, bool $withoutBlocks = false): ?int
+	public function copy(?int $toSiteId = null, ?int $toFolderId = null, bool $withoutBlocks = false, bool $skipSystem = false): ?int
 	{
 		if ($this->exist())
 		{
@@ -2829,7 +2830,7 @@ class Landing extends \Bitrix\Landing\Internals\BaseTable
 				'TITLE' => $addCopyMark
 							? $landingRow['TITLE'] . ' ' . Loc::getMessage('LANDING_COPY_SUFFIX')
 							: $landingRow['TITLE'],
-				'SYS' => $landingRow['SYS'],
+				'SYS' => $skipSystem ? 'N' : $landingRow['SYS'],
 				'XML_ID' => $landingRow['XML_ID'],
 				'TPL_CODE' => $landingRow['TPL_CODE'],
 				'INITIATOR_APP_CODE' => $landingRow['INITIATOR_APP_CODE'],

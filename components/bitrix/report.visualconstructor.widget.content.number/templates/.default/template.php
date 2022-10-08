@@ -7,6 +7,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 $calculateResult = $arResult['CALCULATION_RESULT'];
 $backgroundColor = $arResult['WIDGET_COLOR'];
 $unitOfMeasurement = !empty($calculateResult['data']['config']['unitOfMeasurement']) ? $calculateResult['data']['config']['unitOfMeasurement'] : '';
+
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 ?>
 <div class="report-widget-number-diagram-content">
 	<div class="report-widget-number-value">

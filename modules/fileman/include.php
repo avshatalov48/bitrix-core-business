@@ -1,4 +1,5 @@
 <?
+
 /*patchlimitationmutatormark1*/
 CModule::AddAutoloadClasses(
 	"fileman",
@@ -80,6 +81,9 @@ CJSCore::RegisterExt('player', [
 	'css' => [
 		'/bitrix/js/fileman/player/videojs/video-js.css',
 	],
+	'rel' => [
+		'ui.design-tokens',
+	]
 ]);
 
 //on update method still not exist

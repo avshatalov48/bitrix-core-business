@@ -475,6 +475,9 @@ class CIMHistory
 					IM\Model\MessageTable::delete($messageInfo['ID']);
 				}
 			}
+
+			$primaryKey = ['USER_ID' => $this->user_id, 'ITEM_TYPE' => IM_MESSAGE_PRIVATE, 'ITEM_ID' => $userId];
+			IM\Model\RecentTable::update($primaryKey, ['ITEM_MID' => 0]);
 		}
 
 		return true;
@@ -510,6 +513,10 @@ class CIMHistory
 		{
 			$strSql = "UPDATE b_im_relation SET START_ID = ".intval($arRes['MAX_ID']).", LAST_ID = ".(intval($arRes['MAX_ID'])-1)." WHERE ID = ".intval($arRes['R1_ID']);
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+
+			$chatType = $ar ? $ar['MESSAGE_TYPE'] : IM_MESSAGE_CHAT;
+			$primaryKey = ['USER_ID' => $this->user_id, 'ITEM_TYPE' => $chatType, 'ITEM_ID' => $chatId];
+			IM\Model\RecentTable::update($primaryKey, ['ITEM_MID' => 0]);
 		}
 
 		return true;
@@ -1116,6 +1123,10 @@ class CIMHistory
 				return false;
 			}
 		}
+		elseif ((int)$messageId < (int)$relations[$this->user_id]['START_ID'])
+		{
+			return false;
+		}
 
 		$dialogId = 0;
 		if ($message['CHAT_TYPE'] == IM_MESSAGE_PRIVATE)
@@ -1151,6 +1162,12 @@ class CIMHistory
 
 		$previousMessages = $this->GetPreviousMessages($messageId, $message['CHAT_ID'], $message['DATE_CREATE'], $previous, $timezone);
 		$nextMessages = $this->GetNextMessages($messageId, $message['CHAT_ID'], $message['DATE_CREATE'], $next, $timezone);
+
+		$startId = (int)($relations[$this->user_id]['START_ID'] ?? 0);
+		if ($startId > 0)
+		{
+			$previousMessages = array_filter($previousMessages, static fn (array $message) => (int)$message['ID'] >= $startId);
+		}
 
 		$messages = array_replace($previousMessages, $nextMessages);
 

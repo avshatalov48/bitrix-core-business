@@ -40,9 +40,9 @@ export class RecentService
 	}
 
 	// region public
-	loadFirstPage(): Promise
+	loadFirstPage({ignorePreloadedItems = false} = {}): Promise
 	{
-		if (this.dataIsPreloaded)
+		if (this.dataIsPreloaded && !ignorePreloadedItems)
 		{
 			Logger.warn(`Im.RecentList: first page was preloaded`);
 

@@ -14,7 +14,6 @@ import {
 } from "calendar.controls";
 import {Entry, EntryManager} from "calendar.entry";
 import {SectionManager} from "calendar.sectionmanager";
-import {MobileSyncBanner} from "calendar.sync.interface";
 
 export class CompactEventForm extends EventEmitter
 {
@@ -75,7 +74,7 @@ export class CompactEventForm extends EventEmitter
 		Event.bind(document, "mousedown", this.outsideMouseDownClose);
 		Event.bind(document, "mouseup", this.checkOutsideClickClose);
 		Event.bind(document, "keydown", this.keyHandler);
-		Event.bind(this.popup.popupContainer, 'transitionend', ()=>{Dom.removeClass(this.popup.popupContainer, 'calendar-simple-view-popup-show');});
+		Event.bind(this.popup.popupContainer, 'transitionend', () => {Dom.removeClass(this.popup.popupContainer, 'calendar-simple-view-popup-show');});
 
 		// Fulfill previous deletions to avoid data inconsistency
 		if (this.getMode() === CompactEventForm.EDIT_MODE)
@@ -84,7 +83,7 @@ export class CompactEventForm extends EventEmitter
 		}
 
 		this.prepareData()
-			.then(()=>{
+			.then(() => {
 				if (this.checkLocationView())
 				{
 					this.setFormValuesLocation();
@@ -159,10 +158,12 @@ export class CompactEventForm extends EventEmitter
 
 	close()
 	{
-		if (this.getMode() === CompactEventForm.EDIT_MODE
+		if (
+			this.getMode() === CompactEventForm.EDIT_MODE
 			&& this.formDataChanged()
 			&& this.checkDataBeforeCloseMode
-			&& !confirm(Loc.getMessage('EC_SAVE_ENTRY_CONFIRM')))
+			&& !confirm(Loc.getMessage('EC_SAVE_ENTRY_CONFIRM'))
+		)
 		{
 			// Workaround to prevent form closing even if user don't want to and presses "cancel" in confirm
 			if (this.popup)
@@ -208,7 +209,7 @@ export class CompactEventForm extends EventEmitter
 				</div>
 			</div>`}
 			<div class="calendar-field-container calendar-field-container-choice">
-				${this.getSectionControl()}
+				${this.getSectionControl('textselect')}
 			</div>
 
 			${this.getDateTimeControl()}
@@ -243,7 +244,7 @@ export class CompactEventForm extends EventEmitter
 				</div>
 			</div>`}
 			<div class="calendar-field-container calendar-field-container-choice">
-				${this.getLocationSectionControls()}
+				${this.getSectionControl('location')}
 			</div>
 			${this.getDateTimeControl()}
 			
@@ -265,107 +266,88 @@ export class CompactEventForm extends EventEmitter
 
 		if (mode === CompactEventForm.EDIT_MODE)
 		{
-			buttons.push(
-				new BX.UI.Button({
-					name: 'save',
-					text : (this.isNewEntry()
-						? Loc.getMessage('CALENDAR_EVENT_DO_ADD')
-						: Loc.getMessage('CALENDAR_EVENT_DO_SAVE')),
-					className: "ui-btn ui-btn-primary",
-					events : {click : () => {
+			const saveBtn = new BX.UI.Button({
+				name: 'save',
+				text : (this.isNewEntry()
+					? Loc.getMessage('CALENDAR_EVENT_DO_ADD')
+					: Loc.getMessage('CALENDAR_EVENT_DO_SAVE')),
+				className: "ui-btn ui-btn-primary",
+				events : {click : () => {
+						this.checkDataBeforeCloseMode = false;
+						this.save();
+					}}
+			});
+			saveBtn.button.setAttribute('data-role', 'saveButton');
+			buttons.push(saveBtn);
+
+
+			const closeBtn = new BX.UI.Button({
+				text : Loc.getMessage('CALENDAR_EVENT_DO_CANCEL'),
+				className: "ui-btn ui-btn-link",
+				events : {click : () => {
+						if (this.isNewEntry())
+						{
 							this.checkDataBeforeCloseMode = false;
-							this.save();
-						}}
-				})
-			);
+							this.close();
+						}
+						else
+						{
+							this.setFormValues();
 
-			// For testing purposes
-			if (Type.isElementNode(buttons[0].button))
-			{
-				buttons[0].button.setAttribute('data-role', 'saveButton');
-			}
-
-			buttons.push(
-				new BX.UI.Button({
-					text : Loc.getMessage('CALENDAR_EVENT_DO_CANCEL'),
-					className: "ui-btn ui-btn-link",
-					events : {click : () => {
-							if (this.isNewEntry())
+							if (this.userPlannerSelector)
 							{
-								this.checkDataBeforeCloseMode = false;
-								this.close();
+								this.userPlannerSelector.destroy();
 							}
-							else
-							{
-								this.setFormValues();
 
-								if (this.userPlannerSelector)
-								{
-									this.userPlannerSelector.destroy();
-								}
+							this.setMode(CompactEventForm.VIEW_MODE);
+							this.popup.setButtons(this.getButtons());
+						}
+					}}
+			});
+			closeBtn.button.setAttribute('data-role', 'closeButton');
+			buttons.push(closeBtn);
 
-								this.setMode(CompactEventForm.VIEW_MODE);
-								this.popup.setButtons(this.getButtons());
-							}
-						}}
-				})
-			);
-
-			buttons.push(
-				new BX.UI.Button({
-					text : Loc.getMessage('CALENDAR_EVENT_FULL_FORM'),
-					className: "ui-btn calendar-full-form-btn",
-					events : {click : this.editEntryInSlider.bind(this)}
-				})
-			);
-			//sideButton = true;
-
-			// if (!this.isNewEntry() && this.canDo('delete'))
-			// {
-			// 	buttons.push(
-			// 		new BX.UI.Button({
-			// 			text : Loc.getMessage('CALENDAR_EVENT_DO_DELETE'),
-			// 			className: "ui-btn ui-btn-link",
-			// 			events : {click : ()=>{
-			// 				EntryManager.deleteEntry(this.entry);
-			// 			}}
-			// 		})
-			// 	);
-			// }
+			const fullFormBtn = new BX.UI.Button({
+				text : Loc.getMessage('CALENDAR_EVENT_FULL_FORM'),
+				className: "ui-btn calendar-full-form-btn",
+				events : {click : this.editEntryInSlider.bind(this)}
+			});
+			fullFormBtn.button.setAttribute('data-role', 'fullForm');
+			buttons.push(fullFormBtn);
 		}
 		else if (mode === CompactEventForm.VIEW_MODE)
 		{
-			if (this.entry.isMeeting()
-				&& this.entry.getCurrentStatus() === 'Q')
+			if (this.entry.isMeeting() && this.entry.getCurrentStatus() === 'Q')
 			{
-				buttons.push(
-					new BX.UI.Button({
-						className: "ui-btn ui-btn-primary",
-						text : Loc.getMessage('EC_DESIDE_BUT_Y'),
-						events : {click : ()=>{
-								EntryManager.setMeetingStatus(this.entry, 'Y')
-									.then(this.refreshMeetingStatus.bind(this));
-							}}
-					})
-				);
+				const acceptBtn = new BX.UI.Button({
+					className: "ui-btn ui-btn-primary",
+					text : Loc.getMessage('EC_DESIDE_BUT_Y'),
+					events : {click : () => {
+							EntryManager.setMeetingStatus(this.entry, 'Y')
+								.then(this.refreshMeetingStatus.bind(this));
+						}}
+				});
+				acceptBtn.button.setAttribute('data-role', 'accept');
+				buttons.push(acceptBtn);
 
-				buttons.push(
-					new BX.UI.Button({
-						className: "ui-btn ui-btn-link",
-						text : Loc.getMessage('EC_DESIDE_BUT_N'),
-						events : {click : ()=>{
-								EntryManager.setMeetingStatus(this.entry, 'N')
-									.then(() => {
-											if (this.isShown())
-											{
-												this.close();
-											}
+				const declineBtn = new BX.UI.Button({
+					className: "ui-btn ui-btn-link",
+					text : Loc.getMessage('EC_DESIDE_BUT_N'),
+					events : {click : () => {
+							EntryManager.setMeetingStatus(this.entry, 'N')
+								.then(() => {
+										if (this.isShown())
+										{
+											this.close();
 										}
-									);
-							}}
-					})
-				);
+									}
+								);
+						}}
+				});
+				declineBtn.button.setAttribute('data-role', 'decline');
+				buttons.push(declineBtn);
 			}
+
 			if (this.checkLocationView())
 			{
 				if (this.entry.id !== this.entry.parentId)
@@ -374,7 +356,7 @@ export class CompactEventForm extends EventEmitter
 						new BX.UI.Button({
 							className: `ui-btn ${this.entry.isMeeting() && this.entry.getCurrentStatus() === 'Q' ? 'ui-btn-link' : 'ui-btn-primary'}`,
 							text : Loc.getMessage('CALENDAR_EVENT_DO_OPEN_PARENT'),
-							events : {click : ()=>{
+							events : {click : () => {
 									this.checkDataBeforeCloseMode = false;
 									BX.Calendar.EntryManager.openViewSlider(
 										this.entry.parentId,
@@ -388,6 +370,20 @@ export class CompactEventForm extends EventEmitter
 								}}
 						})
 					);
+					if(this.canDo('release'))
+					{
+						buttons.push(
+							new BX.UI.Button({
+								name: 'release',
+								text : Loc.getMessage('CALENDAR_EVENT_DO_RELEASE'),
+								className: 'ui-btn ui-btn-light-border',
+								events : {click : () => {
+										this.checkDataBeforeCloseMode = false;
+										this.releaseLocation();
+									}},
+							})
+						);
+					}
 				}
 				else
 				{
@@ -401,65 +397,62 @@ export class CompactEventForm extends EventEmitter
 			}
 			else
 			{
-				buttons.push(
-					new BX.UI.Button({
-						className: `ui-btn ${this.entry.isMeeting() && this.entry.getCurrentStatus() === 'Q' ? 'ui-btn-link' : 'ui-btn-primary'}`,
-						text : Loc.getMessage('CALENDAR_EVENT_DO_OPEN'),
-						events : {click : ()=>{
-								this.checkDataBeforeCloseMode = false;
-								BX.Calendar.EntryManager.openViewSlider(
-									this.entry.id,
-									{
-										entry: this.entry,
-										calendarContext: this.calendarContext,
-										type: this.type,
-										ownerId: this.ownerId,
-										userId: this.userId,
-										from: this.entry.from,
-										timezoneOffset: this.entry && this.entry.data ? this.entry.data.TZ_OFFSET_FROM : null
+				const openBtn = new BX.UI.Button({
+					className: `ui-btn ${this.entry.isMeeting() && this.entry.getCurrentStatus() === 'Q' ? 'ui-btn-link' : 'ui-btn-primary'}`,
+					text : Loc.getMessage('CALENDAR_EVENT_DO_OPEN'),
+					events : {click : () => {
+							this.checkDataBeforeCloseMode = false;
+							BX.Calendar.EntryManager.openViewSlider(
+								this.entry.id,
+								{
+									entry: this.entry,
+									calendarContext: this.calendarContext,
+									type: this.type,
+									ownerId: this.ownerId,
+									userId: this.userId,
+									from: this.entry.from,
+									timezoneOffset: this.entry && this.entry.data ? this.entry.data.TZ_OFFSET_FROM : null
+								}
+							);
+							this.close();
+						}}
+				});
+				openBtn.button.setAttribute('data-role', 'openButton');
+				buttons.push(openBtn);
+			}
+
+			if (this.entry.isMeeting() && this.entry.getCurrentStatus() === 'N')
+			{
+				const acceptBtn = new BX.UI.Button({
+					className: "ui-btn ui-btn-link",
+					text : Loc.getMessage('EC_DESIDE_BUT_Y'),
+					events : {click : () => {
+							EntryManager.setMeetingStatus(this.entry, 'Y')
+								.then(this.refreshMeetingStatus.bind(this));
+						}}
+				});
+				acceptBtn.button.setAttribute('data-role', 'accept');
+				buttons.push(acceptBtn);
+			}
+
+			if (this.entry.isMeeting() && this.entry.getCurrentStatus() === 'Y')
+			{
+				const declineBtn = new BX.UI.Button({
+					className: "ui-btn ui-btn-link",
+					text : Loc.getMessage('EC_DESIDE_BUT_N'),
+					events : {click : () => {
+							EntryManager.setMeetingStatus(this.entry, 'N')
+								.then(() => {
+										if (this.isShown())
+										{
+											this.close();
+										}
 									}
 								);
-								this.close();
-							}}
-					})
-				);
-			}
-
-
-			// For testing purposes
-			if (Type.isElementNode(buttons[buttons.length - 1].button))
-			{
-				buttons[buttons.length - 1].button.setAttribute('data-role', 'openButton');
-			}
-
-			if (this.entry.isMeeting()
-				&& this.entry.getCurrentStatus() === 'N')
-			{
-				buttons.push(
-					new BX.UI.Button({
-						className: "ui-btn ui-btn-link",
-						text : Loc.getMessage('EC_DESIDE_BUT_Y'),
-						events : {click : ()=>{
-								EntryManager.setMeetingStatus(this.entry, 'Y')
-									.then(this.refreshMeetingStatus.bind(this));
-							}}
-					})
-				);
-			}
-
-			if (this.entry.isMeeting()
-				&& this.entry.getCurrentStatus() === 'Y')
-			{
-				buttons.push(
-					new BX.UI.Button({
-						className: "ui-btn ui-btn-link",
-						text : Loc.getMessage('EC_DESIDE_BUT_N'),
-						events : {click : () => {
-								EntryManager.setMeetingStatus(this.entry, 'N')
-									.then(this.refreshMeetingStatus.bind(this));
-							}}
-					})
-				);
+						}}
+				});
+				declineBtn.button.setAttribute('data-role', 'decline');
+				buttons.push(declineBtn);
 			}
 
 			if (!this.isNewEntry() && this.canDo('edit') && this.type !== 'location')
@@ -473,7 +466,12 @@ export class CompactEventForm extends EventEmitter
 				);
 			}
 
-			if (!this.isNewEntry() && this.canDo('delete') && this.entry.getCurrentStatus() === 'H' && !this.checkLocationView())
+			if (
+				!this.isNewEntry()
+				&& this.canDo('delete')
+				&& this.entry.getCurrentStatus() === 'H'
+				&& !this.checkLocationView()
+			)
 			{
 				if (!this.entry.isMeeting()
 					|| !this.entry.getCurrentStatus()
@@ -483,8 +481,8 @@ export class CompactEventForm extends EventEmitter
 						new BX.UI.Button({
 							text : Loc.getMessage('CALENDAR_EVENT_DO_DELETE'),
 							className: "ui-btn ui-btn-link",
-							events : {click : ()=>{
-									EventEmitter.subscribeOnce('BX.Calendar.Entry:beforeDelete', ()=>{
+							events : {click : () => {
+									EventEmitter.subscribeOnce('BX.Calendar.Entry:beforeDelete', () => {
 										this.checkDataBeforeCloseMode = false;
 										this.close();
 									});
@@ -582,16 +580,20 @@ export class CompactEventForm extends EventEmitter
 
 	checkForChanges()
 	{
-		if (!this.isNewEntry()
+		if (
+			!this.isNewEntry()
 			&& this.getMode() === CompactEventForm.VIEW_MODE
-			&& this.formDataChanged())
+			&& this.formDataChanged()
+		)
 		{
 			this.setMode(CompactEventForm.EDIT_MODE);
 			this.popup.setButtons(this.getButtons());
 		}
-		else if (!this.isNewEntry()
+		else if (
+			!this.isNewEntry()
 			&& this.getMode() === CompactEventForm.EDIT_MODE
-			&& !this.formDataChanged())
+			&& !this.formDataChanged()
+		)
 		{
 			this.setMode(CompactEventForm.VIEW_MODE);
 			this.popup.setButtons(this.getButtons());
@@ -634,14 +636,14 @@ export class CompactEventForm extends EventEmitter
 		let fields = [];
 
 		// Name
-		if (!excludes.includes('name')
-			&& entry.name !== this.DOM.titleInput.value)
+		if (!excludes.includes('name') && entry.name !== this.DOM.titleInput.value)
 		{
 			fields.push('name');
 		}
 
 		// Location
-		if (!excludes.includes('location')
+		if (
+			!excludes.includes('location')
 			&&
 			this.locationSelector.getTextLocation(Location.parseStringValue(entry.getLocation()))
 			!==
@@ -653,34 +655,36 @@ export class CompactEventForm extends EventEmitter
 
 		// Date + time
 		const dateTime = this.dateTimeControl.getValue();
-		if (!excludes.includes('date&time')
+		if (
+			!excludes.includes('date&time')
 			&&
 			(entry.isFullDay() !== dateTime.fullDay
 				|| dateTime.from.toString() !== entry.from.toString()
-				|| dateTime.to.toString() !== entry.to.toString()))
+				|| dateTime.to.toString() !== entry.to.toString()
+			)
+		)
 		{
 			fields.push('date&time');
 		}
 
 		// Notify
-		if (!excludes.includes('notify')
-			&&
-			(!entry.isMeeting() || entry.getMeetingNotify())
-			!== this.userPlannerSelector.getInformValue())
+		if (
+			!excludes.includes('notify')
+			&& (!entry.isMeeting() || entry.getMeetingNotify()) !== this.userPlannerSelector.getInformValue()
+		)
 		{
 			fields.push('notify');
 		}
 
 		// Section
-		if (!excludes.includes('section')
-			&&
-			parseInt(entry.sectionId) !== parseInt(this.sectionValue))
+		if (!excludes.includes('section') && parseInt(entry.sectionId) !== parseInt(this.sectionValue))
 		{
 			fields.push('section');
 		}
 
 		// Access codes
-		if (!excludes.includes('codes')
+		if (
+			!excludes.includes('codes')
 			&&
 			this.userPlannerSelector.getEntityList().map((item)=>{return item.entityId + ':' + item.id}).join('|')
 			!==
@@ -714,7 +718,8 @@ export class CompactEventForm extends EventEmitter
 		this.entry = EntryManager.getEntryInstance(params.entry, params.userIndex, {type: this.type, ownerId: this.ownerId});
 		this.sectionValue = null;
 
-		if (!this.entry.id
+		if (
+			!this.entry.id
 			&& Type.isPlainObject(params.entryTime)
 			&& Type.isDate(params.entryTime.from)
 			&& Type.isDate(params.entryTime.to)
@@ -729,7 +734,10 @@ export class CompactEventForm extends EventEmitter
 		}
 
 		this.locationFeatureEnabled = !!params.locationFeatureEnabled;
-		this.locationList = params.locationList || [];
+		this.locationList = Type.isArray(params.locationList)
+			? params.locationList.filter(locationItem => {return locationItem.PERM.view_full})
+			: [];
+
 		this.roomsManager = params.roomsManager || null;
 		this.iblockMeetingRoomList = params.iblockMeetingRoomList || [];
 
@@ -744,15 +752,21 @@ export class CompactEventForm extends EventEmitter
 		this.sectionIndex = {};
 		this.trackingUsersList = trackingUsersList || [];
 
-		if (Type.isArray(sections))
+		if (Type.isArray(this.sections))
 		{
-			sections.forEach((value, ind) => {
+			this.sections.forEach((value, ind) => {
 				const id = parseInt(value.ID || value.id);
 				if (id > 0)
 				{
 					this.sectionIndex[id] = ind;
 				}
 			}, this);
+		}
+
+		const section = this.getCurrentSection();
+		if (this.entry.id)
+		{
+			this.getSectionsForEditEvent(this.sections, section);
 		}
 	}
 
@@ -820,7 +834,8 @@ export class CompactEventForm extends EventEmitter
 		const userUrl = CompactEventForm.USER_URL.replace('#USER_ID#', userId);
 		const userAvatar = this.BX.Calendar.EntryManager.userIndex[userId]
 			? this.BX.Calendar.EntryManager.userIndex[userId].AVATAR
-			: '';
+			: ''
+		;
 
 		this.DOM.hostBar = Tag.render`
 			<div class="calendar-slider-detail-option-without-border">
@@ -830,7 +845,7 @@ export class CompactEventForm extends EventEmitter
 					</div>
 					<span class="calendar-field-location-host-img">
 						<a href="${userUrl}">
-							<img class="calendar-field-location-host-img-value" src="${userAvatar}">
+							<img class="calendar-field-location-host-img-value" src="${userAvatar}" alt="">
 						</a>
 					</span>
 					<div class="calendar-slider-detail-option-value">
@@ -854,9 +869,10 @@ export class CompactEventForm extends EventEmitter
 			if (event instanceof BaseEvent)
 			{
 				const color = event.getData().value;
-				if (!this.isNewEntry()
-					&& (this.canDo('edit')
-						|| this.entry.getCurrentStatus() !== false))
+				if (
+					!this.isNewEntry()
+					&& (this.canDo('edit') || this.entry.getCurrentStatus() !== false)
+				)
 				{
 					this.BX.ajax.runAction('calendar.api.calendarajax.updateColor', {
 						data: {
@@ -887,7 +903,7 @@ export class CompactEventForm extends EventEmitter
 		return this.DOM.colorSelect;
 	}
 
-	getSectionControl()
+	getSectionControl(mode)
 	{
 		this.DOM.sectionSelectWrap = Tag.render`<div class="calendar-field-choice-calendar"></div>`;
 		this.sectionSelector = new SectionSelector({
@@ -901,10 +917,10 @@ export class CompactEventForm extends EventEmitter
 				userId: this.userId,
 				trackingUsersList: this.trackingUsersList,
 			}),
-			mode: 'textselect',
+			mode: mode,
 			zIndex: this.zIndex,
-			getCurrentSection: ()=>{
-				let section = this.getCurrentSection();
+			getCurrentSection: () => {
+				const section = this.getCurrentSection();
 				if (section)
 				{
 					return {
@@ -928,39 +944,6 @@ export class CompactEventForm extends EventEmitter
 					SectionManager.saveDefaultSectionId(this.sectionValue);
 				}
 			}
-		});
-
-		return this.DOM.sectionSelectWrap;
-	}
-
-	getLocationSectionControls()
-	{
-		this.DOM.sectionSelectWrap = Tag.render`<div class="calendar-field-choice-calendar"></div>`;
-		this.sectionSelector = new SectionSelector({
-			outerWrap: this.DOM.sectionSelectWrap,
-			defaultCalendarType: this.type,
-			defaultOwnerId: this.ownerId,
-			sectionList: this.sections,
-			sectionGroupList: SectionManager.getSectionGroupList({
-				type: this.type,
-				ownerId: this.ownerId,
-				userId: this.userId,
-				trackingUsersList: this.trackingUsersList,
-			}),
-			mode: 'location',
-			zIndex: this.zIndex,
-			getCurrentSection: ()=>{
-				let section = this.getCurrentSection();
-				if (section)
-				{
-					return {
-						id: section.id,
-						name: section.name,
-						color: section.color
-					}
-				}
-				return false;
-			},
 		});
 
 		return this.DOM.sectionSelectWrap;
@@ -1004,7 +987,7 @@ export class CompactEventForm extends EventEmitter
 					this.userPlannerSelector.setDateTime(value, true);
 					this.userPlannerSelector.refreshPlannerStateDebounce();
 				}
-				
+
 				if (this.locationSelector)
 				{
 					this.locationSelector.checkLocationAccessibility(
@@ -1016,7 +999,7 @@ export class CompactEventForm extends EventEmitter
 						},
 					)
 				}
-				
+
 				this.checkForChangesDebounce();
 			}
 		});
@@ -1227,15 +1210,19 @@ export class CompactEventForm extends EventEmitter
 			return section.canDo('view_full');
 		}
 
+		if(action === 'release')
+		{
+			return section.canDo('access');
+		}
+
 		return true;
 	}
 
 	setFormValues()
 	{
-		let
-			entry = this.entry,
-			section = this.getCurrentSection(),
-			readOnly = !this.canDo('edit');
+		const entry = this.entry;
+		const section = this.getCurrentSection();
+		const readOnly = !this.canDo('edit');
 
 		// Date time
 		this.dateTimeControl.setValue({
@@ -1274,7 +1261,14 @@ export class CompactEventForm extends EventEmitter
 		// Section
 		this.sectionValue = this.getCurrentSectionId();
 		this.sectionSelector.updateValue();
-		this.sectionSelector.setViewMode(readOnly);
+		if (this.isSyncSection(section) && entry.id)
+		{
+			this.sectionSelector.setViewMode(true);
+		}
+		else
+		{
+			this.sectionSelector.setViewMode(readOnly);
+		}
 
 		// Reminders
 		this.remindersControl.setValue(entry.getReminders(), false);
@@ -1290,15 +1284,6 @@ export class CompactEventForm extends EventEmitter
 			this.DOM.rruleInfoWrap.style = '';
 			Dom.adjust(this.DOM.rruleInfo, {text: entry.getRRuleDescription()});
 		}
-
-		// Timezone
-		// if (Type.isStringFilled(entry.getTimezoneFrom())
-		// 	&& entry.getTimezoneFrom() !== this.userSettings.timezoneName
-		// 	&& !this.isNewEntry())
-		// {
-		// 	this.DOM.timezoneInfoWrap.style = '';
-		// 	Dom.adjust(this.DOM.timezoneInfo, {text: entry.getTimezoneFrom()});
-		// }
 
 		// Location
 		let location = entry.getLocation();
@@ -1333,8 +1318,10 @@ export class CompactEventForm extends EventEmitter
 		}
 
 		//User Planner Selector
-		if ((this.userPlannerSelector
-			&& (this.canDo('viewFull') || entry.getCurrentStatus() !== false)))
+		if (
+			this.userPlannerSelector
+			&& (this.canDo('viewFull') || entry.getCurrentStatus() !== false)
+		)
 		{
 			this.userPlannerSelector.setValue({
 				attendeesEntityList: entry.getAttendeesEntityList(),
@@ -1361,8 +1348,10 @@ export class CompactEventForm extends EventEmitter
 		this.DOM.infoContainer = this.DOM.wrap.querySelector('.calendar-field-container-info');
 		for(let i = 0; i <= this.DOM.infoContainer.childNodes.length; i++)
 		{
-			if (Type.isElementNode(this.DOM.infoContainer.childNodes[i])
-				&& this.DOM.infoContainer.childNodes[i].style.display !== 'none')
+			if (
+				Type.isElementNode(this.DOM.infoContainer.childNodes[i])
+				&& this.DOM.infoContainer.childNodes[i].style.display !== 'none'
+			)
 			{
 				hideInfoContainer = false;
 			}
@@ -1453,7 +1442,9 @@ export class CompactEventForm extends EventEmitter
 		{
 			EntryManager.showConfirmEditDialog({
 				callback: (params) => {
-					options.recursionMode = params.recursionMode;
+					options.recursionMode = (entry.isFirstInstance() && params.recursionMode === 'next')
+						? 'all'
+						: params.recursionMode;
 					options.confirmed = true;
 					this.save(options);
 				}
@@ -1502,6 +1493,7 @@ export class CompactEventForm extends EventEmitter
 			sendInvitesAgain: options.sendInvitesAgain ? 'Y' : 'N',
 			hide_guests: this.userPlannerSelector.hideGuests ? 'Y' : 'N',
 			requestUid: BX.Calendar.Util.registerRequestId(),
+			private_event: entry.isPrivate() ? 'Y' : 'N'
 		};
 
 		let checkCurrentUsersAccessibility = !entry.id || this.checkCurrentUsersAccessibility();
@@ -1547,7 +1539,7 @@ export class CompactEventForm extends EventEmitter
 		}
 
 		this.state = this.STATE.REQUEST;
-		
+
 		this.freezePopup();
 		this.BX.ajax.runAction('calendar.api.calendarentryajax.editEntry', {
 				data: data,
@@ -1563,10 +1555,18 @@ export class CompactEventForm extends EventEmitter
 				}
 			})
 			.then((response) => {
-					if (this.isLocationCalendar)
+					if (this.isLocationCalendar && this.roomsManager)
 					{
 						this.roomsManager.unsetHiddenRoom(Location.parseStringValue(data.location).room_id);
 					}
+
+					// unset section from hidden
+					const section = this.getCurrentSection();
+					if (section && !section.isShown())
+					{
+						section.show();
+					}
+
 					this.unfreezePopup();
 					this.state = this.STATE.READY;
 					if (response.data.entryId)
@@ -1588,11 +1588,6 @@ export class CompactEventForm extends EventEmitter
 						}
 					}));
 					this.close();
-
-					if (response.data.displayMobileBanner)
-					{
-						new MobileSyncBanner().showInPopup();
-					}
 
 					if (response.data.countEventWithEmailGuestAmount)
 					{
@@ -1664,14 +1659,17 @@ export class CompactEventForm extends EventEmitter
 
 	handleKeyPress(e)
 	{
-		if (this.getMode() === CompactEventForm.EDIT_MODE
+		if (
+			this.getMode() === CompactEventForm.EDIT_MODE
 			&& e.keyCode === Util.getKeyCode('enter')
-			&& this.checkTopSlider())
+			&& (e.ctrlKey || e.metaKey) && !e.altKey
+		)
 		{
 			this.checkDataBeforeCloseMode = false;
 			this.save();
 		}
-		else if (this.checkTopSlider()
+		else if (
+			this.checkTopSlider()
 			&& e.keyCode === Util.getKeyCode('escape')
 			&& this.couldBeClosedByEsc()
 		)
@@ -1679,19 +1677,16 @@ export class CompactEventForm extends EventEmitter
 			this.close();
 		}
 		else if (
-			(
-				e.keyCode === Util.getKeyCode('delete')
-				// || e.keyCode === Util.getKeyCode('backspace')
-			)
+			e.keyCode === Util.getKeyCode('delete')
 			&& !this.isNewEntry()
 			&& this.canDo('delete')
-			&& this.checkTopSlider())
+		)
 		{
 			const target = event.target || event.srcElement;
 			const tagName = Type.isElementNode(target) ? target.tagName.toLowerCase() : null;
 			if (tagName && !['input', 'textarea'].includes(tagName))
 			{
-				EventEmitter.subscribeOnce('BX.Calendar.Entry:beforeDelete', ()=>{
+				EventEmitter.subscribeOnce('BX.Calendar.Entry:beforeDelete', () => {
 					this.checkDataBeforeCloseMode = false;
 					this.close();
 				});
@@ -1710,7 +1705,8 @@ export class CompactEventForm extends EventEmitter
 		let section = false;
 		const sectionId = this.getCurrentSectionId();
 
-		if (sectionId
+		if (
+			sectionId
 			&& this.sectionIndex[sectionId] !== undefined
 			&& this.sections[this.sectionIndex[sectionId]] !== undefined)
 		{
@@ -1753,7 +1749,7 @@ export class CompactEventForm extends EventEmitter
 			// Date time
 			this.dateTimeControl.setValue(dateTimeValue);
 			this.userPlannerSelector.setDateTime(this.dateTimeControl.getValue());
-			
+
 			if (this.locationSelector)
 			{
 				this.locationSelector.checkLocationAccessibility(
@@ -1765,6 +1761,7 @@ export class CompactEventForm extends EventEmitter
 					},
 				)
 			}
+			this.checkForChangesDebounce();
 		}
 	}
 
@@ -1772,7 +1769,9 @@ export class CompactEventForm extends EventEmitter
 	{
 		this.checkDataBeforeCloseMode = false;
 		const dateTime = this.dateTimeControl.getValue();
+		const calendarContext = Util.getCalendarContext();
 		BX.Calendar.EntryManager.openEditSlider({
+			calendarContext: calendarContext,
 			entry: this.entry,
 			type: this.type,
 			isLocationCalendar: this.isLocationCalendar,
@@ -1870,11 +1869,15 @@ export class CompactEventForm extends EventEmitter
 			const calendar = Util.getCalendarContext();
 			if (calendar)
 			{
-				this.entry = EntryManager.getEntryInstance(
+				const entry = EntryManager.getEntryInstance(
 					calendar.getView().getEntryById(this.entry.getUniqueId())
 				);
 
-				this.setFormValues();
+				if (entry && entry.getUniqueId())
+				{
+					this.entry = entry;
+					this.setFormValues();
+				}
 			}
 		}
 	}
@@ -1923,5 +1926,97 @@ export class CompactEventForm extends EventEmitter
 				BX.Event.EventEmitter.subscribe('BX.Calendar:onEntryListReload', onEntryListReloadHandler);
 			}
 		}
+	}
+
+	isSyncSection(section)
+	{
+		return section.isGoogle()
+			|| section.isIcloud()
+			|| section.isOffice365()
+			|| section.isCalDav()
+			|| section.hasConnection()
+		;
+	}
+
+	getSectionsForEditEvent(sections, currentSection)
+	{
+		const result = [];
+		const currentType = currentSection.type;
+		result.push(currentSection);
+
+		sections.forEach((section) => {
+			if (!this.isSyncSection(section) && section.type === currentType)
+			{
+				result.push(section);
+			}
+		});
+
+		this.sections = result;
+		this.sectionIndex = [];
+		if (Type.isArray(this.sections))
+		{
+			this.sections.forEach((value, ind) => {
+				const id = parseInt(value.ID || value.id);
+				if (id > 0)
+				{
+					this.sectionIndex[id] = ind;
+				}
+			}, this);
+		}
+	}
+
+	releaseLocation(options = {})
+	{
+		const entry = this.getCurrentEntry();
+
+		if (entry.id && entry.isRecursive()
+			&& !options.confirmed
+		)
+		{
+			EntryManager.showConfirmEditDialog({
+				callback: (params) => {
+					options.confirmed = true;
+					this.releaseLocation({
+						recursionMode: params.recursionMode,
+						confirmed: true
+					});
+				}
+			});
+			return false;
+		}
+
+		if(!options.recursionMode)
+		{
+			options.recursionMode = '';
+		}
+
+		this.state = this.STATE.REQUEST;
+
+		this.freezePopup();
+
+		this.BX.ajax.runAction('calendar.api.locationajax.cancelBooking', {
+			data:{
+				parent_event_id: entry.parentId,
+				recursion_mode: options.recursionMode,
+				section_id: entry.sectionId,
+				current_event_date_from: entry.data.DATE_FROM,
+				current_event_date_to: entry.data.DATE_TO,
+				owner_id: entry.data.CREATED_BY,
+			}
+		})
+		.then((response) => {
+				this.unfreezePopup();
+				this.state = this.STATE.READY;
+				EntryManager.showReleaseLocationNotification();
+				this.calendarContext.reloadDebounce();
+				this.close();
+			},
+			(response) => {
+				this.unfreezePopup();
+				this.state = this.STATE.ERROR;
+				this.close();
+		});
+
+		return true;
 	}
 }

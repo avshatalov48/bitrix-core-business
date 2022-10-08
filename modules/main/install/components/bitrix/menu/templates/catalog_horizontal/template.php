@@ -16,7 +16,7 @@ $this->setFrameMode(true);
 if (empty($arResult["ALL_ITEMS"]))
 	return;
 
-CUtil::InitJSCore();
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
 
 if (file_exists($_SERVER["DOCUMENT_ROOT"].$this->GetFolder().'/themes/'.$arParams["MENU_THEME"].'/colors.css'))
 	$APPLICATION->SetAdditionalCSS($this->GetFolder().'/themes/'.$arParams["MENU_THEME"].'/colors.css');

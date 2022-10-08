@@ -1,11 +1,14 @@
 <?php
 namespace Bitrix\Catalog\Model;
 
+use Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductTable;
 use Bitrix\Main;
 use Bitrix\Main\ORM;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Iblock;
 
 Loc::loadMessages(__FILE__);
 
@@ -20,6 +23,8 @@ class Product extends Entity
 	private static $separateSkuMode = null;
 	/** @var bool Sale exists */
 	private static $saleIncluded = null;
+	/** @var string Query for update element timestamp */
+	private static $queryElementDate;
 
 	/**
 	 * Returns product tablet name.
@@ -599,18 +604,29 @@ class Product extends Entity
 			switch ($product['TYPE'])
 			{
 				case Catalog\ProductTable::TYPE_OFFER:
-					Catalog\Product\Sku::calculateComplete(
-						$id,
-						$data['external_fields']['IBLOCK_ID'],
-						Catalog\ProductTable::TYPE_OFFER
-					);
+					if (isset($data['actions']['SKU_AVAILABLE']))
+					{
+						Catalog\Product\Sku::calculateComplete(
+							$id,
+							$data['external_fields']['IBLOCK_ID'],
+							Catalog\ProductTable::TYPE_OFFER
+						);
+					}
+					self::updateElementModificationTime($id);
 					break;
 				case Catalog\ProductTable::TYPE_SKU:
-					Catalog\Product\Sku::calculateComplete(
-						$id,
-						$data['external_fields']['IBLOCK_ID'],
-						Catalog\ProductTable::TYPE_SKU
-					);
+					if (isset($data['actions']['SKU_AVAILABLE']))
+					{
+						Catalog\Product\Sku::calculateComplete(
+							$id,
+							$data['external_fields']['IBLOCK_ID'],
+							Catalog\ProductTable::TYPE_SKU
+						);
+					}
+					break;
+				case Catalog\ProductTable::TYPE_PRODUCT:
+				case Catalog\ProductTable::TYPE_SET:
+					self::updateElementModificationTime($id);
 					break;
 			}
 		}
@@ -683,6 +699,7 @@ class Product extends Entity
 		Catalog\ProductGroupAccessTable::deleteByProduct($id);
 		Catalog\StoreProductTable::deleteByProduct($id);
 		Catalog\SubscribeTable::onIblockElementDelete($id);
+		ExportedProductTable::deleteProduct($id);
 		//TODO: replace this code
 		$conn = Main\Application::getConnection();
 		$helper = $conn->getSqlHelper();
@@ -867,5 +884,18 @@ class Product extends Entity
 		}
 
 		return $result;
+	}
+
+	private static function updateElementModificationTime(int $elementId): void
+	{
+		$conn = Main\Application::getConnection();
+		if (self::$queryElementDate === null)
+		{
+			$helper = $conn->getSqlHelper();
+			self::$queryElementDate = 'update ' . $helper->quote(Iblock\ElementTable::getTableName())
+				. ' set ' . $helper->quote('TIMESTAMP_X') . ' = ' . $helper->getCurrentDateTimeFunction()
+				. ' where ' . $helper->quote('ID') . '=';
+		}
+		$conn->queryExecute(self::$queryElementDate . $elementId);
 	}
 }

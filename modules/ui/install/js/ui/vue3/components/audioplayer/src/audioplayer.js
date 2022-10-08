@@ -7,6 +7,7 @@
  * @copyright 2001-2021 Bitrix
  */
 
+import 'ui.fonts.opensans';
 import "./audioplayer.css";
 import 'main.polyfill.intersectionobserver';
 

@@ -5,6 +5,7 @@ import {BaseField} from 'landing.ui.field.basefield';
 
 import './css/style_form.css';
 import {fetchEventsFromOptions} from 'landing.ui.component.internal';
+import 'ui.design-tokens';
 
 /**
  * @memberOf BX.Landing.UI.Form

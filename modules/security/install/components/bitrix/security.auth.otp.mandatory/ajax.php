@@ -1,4 +1,5 @@
 <?php
+
 define('NOT_CHECK_PERMISSIONS', true);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
@@ -87,8 +88,7 @@ switch($request->getPost('action'))
 
 function response($result)
 {
-	echo Json::encode($result);
-	die;
+	CMain::FinalActions(Json::encode($result));
 }
 
 function checkAndActivate($fields)

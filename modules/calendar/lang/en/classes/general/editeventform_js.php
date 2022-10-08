@@ -11,6 +11,7 @@ $MESS["EC_DESTINATION_ADD_USERS"] = "Add persons, groups or departments";
 $MESS["EC_ENTRY_NAME"] = "Event name";
 $MESS["EC_EVENT_TZ_DEF_HINT"] = "Select your time zone. Your preference will be saved.";
 $MESS["EC_EVENT_TZ_HINT"] = "If the event is going to take place in a different time zone, select one in the list. Different time zones for event start and end times are possible.";
+$MESS["EC_LOCATION_CLEAR_INPUT"] = "clear";
 $MESS["EC_LOCATION_EMPTY"] = "Meeting room was not found";
 $MESS["EC_LOCATION_LABEL"] = "Location";
 $MESS["EC_LOCATION_OVERFLOW"] = "Number of attendees exceeds meeting room capacity";

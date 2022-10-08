@@ -36,20 +36,21 @@
 .socialnetwork-group-title {
 	display: inline-block;
 	margin: 20px 0;
-	font: 19px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #3B3B3B;
 }
 
 .socialnetwork-group-desc {
 	margin: 10px 0 31px 0;
-	font: 14px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/22px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #8F959D;
 }
 
 .socialnetwork-group-link {
 	display: inline-block;
 	border-bottom: 1px dashed rgba(82,92,105,.58);
-	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525C69;
 	transition: border-bottom .3s;
 	cursor: pointer;
@@ -63,7 +64,7 @@
 .socialnetwork-group-left {
 	flex: 0 1 130px;
 	margin: 0 19px 0 0;
-	font: 14px/24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #828B95;
 }
 
@@ -91,7 +92,7 @@
 	display: inline-block;
 	align-self: center;
 	height: 32px;
-	font: 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #828B95;
 	transition: opacity .3s;
 	cursor: pointer;
@@ -109,7 +110,7 @@
 .socialnetwork-group-tag {
 	display: inline-block;
 	border-bottom: 1px solid transparent;
-	font: 13px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #1069C3;
 	transition: border-bottom .3s;
 	cursor: pointer;
@@ -191,7 +192,8 @@
 	border-radius: 30px;
 	border: 1px solid rgba(51, 51, 51, .44);
 	background-color: rgba(51, 51, 51, .143824);
-	font: 11px/22px "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font: 11px/22px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #333;
 	text-transform: uppercase;
 	transition: background-color .3s;
@@ -255,7 +257,8 @@
 
 .socialnetwork-group-slider-desc-editable {
 /*	max-width: 302px;*/
-	font: 13px/20px "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font: 13px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525C69;
 }
 
@@ -337,7 +340,8 @@
 .socialnetwork-group-slider-member-name {
 	display: block;
 	margin-bottom: 4px;
-	font: 400 15px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: var(--color-dark);
 }
 
@@ -500,7 +504,7 @@
 	max-width: 100px;
 	padding: 0 10px 0 15px;
 	box-sizing: border-box;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 12px;
 	line-height: 15px;
 	color: #858c96;
@@ -757,7 +761,8 @@
 	align-items: center;
 	margin-right: 9px;
 	max-width: 100%;
-	font: 24px/31px "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font: 24px/31px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #333;
 	white-space: nowrap;
 	overflow: hidden;
@@ -784,7 +789,8 @@ a.socialnetwork-group-slider-title-name:hover {
 .socialnetwork-group-slider-title-type {
 	flex: 1 0 auto;
 	margin: 0 15px 0 0;
-	font: 13px "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #A8ADB4;
 }
 

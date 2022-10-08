@@ -47,13 +47,9 @@ class Template
 	 * @param string $prefix
 	 * @return string
 	 */
-	public function getFieldId(string $code, bool $isUiField = false, string $prefix = ''): string
+	public function getFieldId(string $code, bool $isUiField = false, string $prefix = 'field'): string
 	{
-		if ($prefix !== '')
-		{
-			return $this->getFieldClass($code, $isUiField, $prefix) . '-' . $this->uniqueId;
-		}
-		return $this->getFieldClass($code, $isUiField) . '-' . $this->uniqueId;
+		return $this->getFieldClass($code, $isUiField, $prefix) . '-' . $this->uniqueId;
 	}
 
 	/**
@@ -112,7 +108,7 @@ class Template
 			</div>
 		<?php elseif (!$isTitle  && $type !== 'checkbox'): ?>
 			<?php if ($help && !$isHelpLink): ?>
-				<div class="ui-form-control-label-help"><?= $help ?></div>
+				<div class="landing-form-control-label-help"><?= $help ?></div>
 			<?php endif; ?>
 		<?php endif; ?>
 
@@ -169,34 +165,39 @@ class Template
 			$isLocked = $hooks[$code]->isLocked();
 			$isLockedRowHide = $isLocked && $useField->getValue() !== 'Y';
 			$useTitle = true;
-			if (is_string($params['useTitle']) && $params['useTitle'])
+			if ($params['useTitle'] && is_string($params['useTitle']))
 			{
 				$useTitle = $params['useTitle'];
 			}
-			if (is_string($params['restrictionCode']) && $params['restrictionCode'])
+			if ($params['restrictionCode'] && is_string($params['restrictionCode']))
 			{
 				$restrictionCode = $params['restrictionCode'];
 			}
+			else
+			{
+				$restrictionCode = $code;
+			}
+			$fieldId = $this->getFieldId($code);
 
 			if ($useField && $useField->getType() === 'checkbox')
 			{
 				?>
-				<div class="ui-form-row">
+				<div class="ui-form-row" id="<?= $fieldId ?>">
 					<div
-						class="ui-form-label<?= $isLocked ? ' ui-form-label__locked' : ''?>"
+						class="ui-form-label<?= $isLocked ? ' landing-form-label__locked' : ''?>"
 						<?= $isLocked ? '' : 'data-form-row-hidden'?>
 					>
 						<?php
 							$this->showField($useField, [
 								'title' => $useTitle,
-								'disabled' => $isLocked
 							]);
 						?>
 						<?php
 							if ($isLocked && isset($restrictionCode))
 							{
 								echo Restriction\Manager::getLockIcon(
-									Restriction\Hook::getRestrictionCodeByHookCode($restrictionCode)
+									Restriction\Hook::getRestrictionCodeByHookCode($restrictionCode),
+									[$fieldId]
 								);
 							}
 						?>

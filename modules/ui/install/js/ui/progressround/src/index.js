@@ -1,4 +1,5 @@
 import { Reflection } from 'main.core';
+import 'ui.fonts.opensans';
 
 import ProgressRound from './progressround';
 import ProgressRoundColor from './progressround-color';

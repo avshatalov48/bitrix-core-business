@@ -17,7 +17,7 @@
 	float: none !important;
 	position:static !important;
 	text-decoration: none !important;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }
 #bx-panel {cursor: default !important; z-index: 995 !important; box-shadow: 0 0 7px rgba(0,0,0, 1.2) !important; position: relative !important;}
 #bx-panel span { display: inline !important; }
@@ -59,7 +59,7 @@
 	margin:0 0 0 0 !important;
 	padding:10px 10px 0 0 !important;
 	background: scroll #4a525b url(../images/panel/top-panel-sprite-2.png) repeat-x 0 0 !important;
-	font: normal normal normal 11px/normal "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 11px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	white-space: nowrap !important;
 }
 
@@ -76,14 +76,14 @@
 	vertical-align: top !important;
 	cursor: pointer !important;
 	text-align: left !important;
-	font: normal normal bold 12px/29px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }
 #bx-panel #bx-panel-menu-text
 {
 	display: inline-block !important;
 	height: 31px !important;
 	padding:0 13px 0 29px !important;
-	font: normal normal bold 12px/29px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	color:#dde7e9 !important;
 }
 
@@ -128,7 +128,7 @@
 	vertical-align: top !important;
 	cursor: pointer !important;
 	text-align: left !important;
-	font: normal normal bold 17px/37px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 17px/37px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }
 
 #bx-panel #bx-panel-view-tab span {
@@ -136,7 +136,7 @@
 	height: 40px !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -980px !important;
 	padding: 0 23px 0 21px !important;
-	font: normal normal bold 17px/37px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 17px/37px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	color: #16191a !important;
 	text-shadow: 1px 1px 0 rgba(221, 223, 233, 0.29) !important;
 }
@@ -152,7 +152,7 @@
 	height: 31px !important;
 	color: rgba(221, 231, 233, 0.988) !important;
 	padding: 0 13px !important;
-	font: normal normal bold 12px/29px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	color: #dde7e9 !important;
 	max-width: 345px !important;
 	white-space: nowrap !important;
@@ -215,7 +215,7 @@
 	vertical-align: top !important;
 	cursor: pointer !important;
 	text-align: left !important;
-	font: normal normal bold 17px/37px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 17px/37px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }
 
 #bx-panel.bx-panel-admin-mode #bx-panel-admin-tab {
@@ -229,7 +229,7 @@
 	height: 40px !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -1029px !important;
 	padding: 0 20px 0 18px !important;
-	font: normal normal bold 17px/37px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 17px/37px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	color: #bdc1c8 !important;
 }
 
@@ -251,7 +251,7 @@
 	vertical-align: top !important;
 	cursor: pointer !important;
 	text-align: left !important;
-	font: normal normal bold 12px/29px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	background: none !important;
 	position: relative !important;
 }
@@ -261,7 +261,7 @@
 	display: inline-block !important;
 	height: 31px !important;
 	padding: 0 13px !important;
-	font: normal normal bold 12px/29px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	color: #dde7e9 !important;
 	background: -moz-linear-gradient(90deg, #181d28 0%, #202736 100%) !important;
 	background: -webkit-linear-gradient(90deg, #181d28 0%, #202736 100%) !important;
@@ -305,7 +305,7 @@
 	text-align: right !important;
 	margin:0 0 !important;
 	padding:0 !important;
-	font: normal normal normal 11px/27px "Helvetica Neue", Helvetica, Arial, sans-serif  !important;
+	font: normal normal normal 11px/27px var(--ui-font-family-primary, var(--ui-font-family-helvetica))  !important;
 }
 
 #bx-panel #bx-panel-hotkeys {
@@ -350,7 +350,7 @@
 	vertical-align: top !important;
 	cursor: pointer !important;
 	text-align: left !important;
-	font: normal normal bold 12px/29px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -1129px !important;
 	position: relative !important;
 }
@@ -359,7 +359,7 @@
 	display: inline-block !important;
 	height: 31px !important;
 	padding:0 13px 0 29px !important;
-	font: normal normal bold 12px/29px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	color:#dde7e9 !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -1129px !important;
 	max-width: 345px !important;
@@ -388,7 +388,7 @@
 	text-decoration: none !important;
 	cursor: pointer !important;
 	display: inline-block !important;
-	font: normal normal bold 12px/30px "Helvetica Neue", Helvetica, Arial, sans-serif  !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/30px var(--ui-font-family-primary, var(--ui-font-family-helvetica))  !important;
 	margin: 0 22px 0 21px !important;
 	vertical-align: top !important;
 	padding: 0 !important;
@@ -419,7 +419,7 @@
 	height: 97px !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) no-repeat -10px -1297px !important;
 }
-#bx-panel #bx-panel-buttons-inner { padding: 3px 0 0 0 !important; margin:0 !important; font: normal normal normal 11px/28px "Helvetica Neue", Helvetica, Arial, sans-serif !important; position: relative !important; }
+#bx-panel #bx-panel-buttons-inner { padding: 3px 0 0 0 !important; margin:0 !important; font: normal normal normal 11px/28px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important; position: relative !important; }
 
 #bx-panel .bx-panel-button-group
 {
@@ -428,7 +428,7 @@
 	padding:0 !important;
 	height: 94px !important;
 	vertical-align:top !important;
-	font: normal normal normal 11px/28px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 11px/28px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }
 #bx-panel .bx-panel-button
 {
@@ -462,7 +462,7 @@
 	cursor: pointer !important;
 	color: #484847 !important;
 	text-align: center !important;
-	font: normal normal normal 11px/9px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 11px/9px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }
 #bx-panel .bx-panel-button-inner a:hover {color: #484847 !important;}
 #bx-panel .bx-panel-small-button-inner a
@@ -515,7 +515,7 @@
 	margin:0 1px 0 0 !important;
 	padding:0 0 0 3px !important;
 	display:inline-block !important;
-	font: normal normal normal 11px/28px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 11px/28px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }
 #bx-panel .bx-panel-small-button-text-hover .bx-panel-small-button-text,
 #bx-panel .bx-panel-small-button-arrow-hover .bx-panel-small-button-text,
@@ -577,7 +577,7 @@
 	display:block !important;
 	padding:7px 0 8px !important;
 	text-align:center !important;
-	font: normal normal normal 11px/11px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 11px/11px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	vertical-align: top !important;
 }
 #bx-panel .bx-panel-button-text-hover span.bx-panel-button-text,
@@ -740,7 +740,7 @@
 	background: scroll transparent none repeat-x 0 0 !important;
 	text-decoration: none !important;
 	cursor: pointer !important;
-	font: normal normal normal 11px/9px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 11px/9px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }
 
 #bx-panel #bx-panel-switcher-gutter-right { display: none !important; }
@@ -775,7 +775,7 @@
 #bx-panel #bx-panel-userinfo #bx-panel-toggle .bx-panel-break { display: none !important; }
 
 
-#bx-panel #bx-panel-toggle span { font: normal normal normal 11px/11px "Helvetica Neue", Helvetica, Arial, sans-serif !important; color: #dde7e9 !important;}
+#bx-panel #bx-panel-toggle span { font: normal normal normal 11px/11px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important; color: #dde7e9 !important;}
 
 #bx-panel #bx-panel-toggle-indicator {
 	display: inline-block !important;
@@ -828,7 +828,7 @@
 #bx-panel #bx-panel-hider
 {
 	color:#dde7e9 !important;
-	font: normal normal normal 11px/normal "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 11px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	padding: 0 0 0 0 !important;
 	margin: 15px 0 0 0 !important;
 	display: inline-block !important;
@@ -870,7 +870,7 @@
 }
 
 #bx-panel.bx-panel-folded #bx-panel-menu { display: inline-block !important; position: relative !important; height: 29px !important; margin: 0 9px 0 0 !important; top:auto !important; left: auto !important;}
-#bx-panel.bx-panel-folded #bx-panel-menu-text { height: 29px !important; font: normal normal bold 12px/27px "Helvetica Neue", Helvetica, Arial, sans-serif !important; }
+#bx-panel.bx-panel-folded #bx-panel-menu-text { height: 29px !important; font: normal normal var(--ui-font-weight-bold) 12px/27px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important; }
 #bx-panel.bx-panel-folded #bx-panel-menu:hover { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -1978px !important;}
 #bx-panel.bx-panel-folded #bx-panel-menu:hover #bx-panel-menu-text {  background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -1978px !important; color:#eee !important;}
 #bx-panel.bx-panel-folded #bx-panel-top #bx-panel-menu.bx-pressed { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -2017px !important;}
@@ -888,7 +888,7 @@
 	vertical-align: top !important;
 	cursor: pointer !important;
 	text-align: left !important;
-	font: normal normal bold 12px/27px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/27px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -1938px !important;
 }
 
@@ -902,7 +902,7 @@
 	display: inline-block !important;
 	height: 29px !important;
 	padding:0 13px 0 10px !important;
-	font: normal normal bold 12px/27px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/27px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	color:#dde7e9 !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -1938px !important;
 	position: relative;
@@ -930,7 +930,7 @@
 	vertical-align:top !important;
 	margin: 0 0 0 8px !important;
 	color:#dde7e9 !important;
-	font: normal normal normal 11px/18px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 11px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	-webkit-font-smoothing: auto;
 }
 #bx-panel.bx-panel-folded #bx-panel-clear-cache:hover #bx-panel-clear-cache-icon { background: scroll transparent url(../images/panel/top-panel-sprite-2.png) no-repeat -159px -1765px !important;}
@@ -939,13 +939,13 @@
 #bx-panel.bx-panel-folded #bx-panel-user {
 	display: inline-block !important;
 	height: 29px !important;
-	font: normal normal bold 12px/27px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/27px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -1938px !important;
 }
 
 #bx-panel.bx-panel-folded #bx-panel-user-text {
 	height: 28px !important;
-	font: normal normal bold 12px/27px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/27px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -1938px !important;
 }
 #bx-panel.bx-panel-folded #bx-panel-user-icon { top: 7px !important;}
@@ -988,7 +988,7 @@
 	height:18px !important;
 	vertical-align:top !important;
 	color: #dde7e9 !important;
-	font: normal normal bold 11px/28px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 11px/28px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 
 }
 #bx-panel #bx-panel-expander:hover #bx-panel-expander-text {text-decoration: underline !important; color: #fff !important; }
@@ -1038,7 +1038,7 @@
 #bx-panel .adm-warning-text {
 	display:inline-block !important;
 	color:#2b4e0c !important;
-	font: normal normal bold 14px/normal "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 14px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	margin-left:-6px !important;
 	text-shadow:0 1px rgba(255,255,255,0.4) !important;
 	padding:10px 15px 10px 44px !important;
@@ -1120,7 +1120,7 @@ span.bx-context-toolbar, span.bx-context-toolbar a
 	float: none !important;
 	position:static !important;
 	text-decoration: none !important;
-	font: normal normal normal 11px/43px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 11px/43px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	outline: none !important;
 }
 
@@ -1313,7 +1313,7 @@ span.bx-context-toolbar-button-text
 	display: inline-block !important;
 	vertical-align: top !important;
 	color:#dde7e9 !important;
-	font: normal normal normal 11px/41px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal normal 11px/41px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	border: none !important;
 	margin:0 3px 0 0 !important;
 	padding:0 !important;
@@ -1403,7 +1403,7 @@ span.bx-context-toolbar-vertical-mode span.bx-context-toolbar-button-underlay
 	vertical-align: top !important;
 	cursor: pointer !important;
 	text-align: left !important;
-	font: normal normal bold 12px/30px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/30px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -1129px !important;
 }
 
@@ -1428,7 +1428,7 @@ span.bx-context-toolbar-vertical-mode span.bx-context-toolbar-button-underlay
 	display: inline-block !important;
 	height: 31px !important;
 	padding:0 12px 0 7px !important;
-	font: normal normal bold 12px/29px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	color:#dde7e9 !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -1129px !important;
 	vertical-align: top !important;
@@ -1437,7 +1437,7 @@ span.bx-context-toolbar-vertical-mode span.bx-context-toolbar-button-underlay
 #bx-panel.bx-panel-folded .adm-header-notif-block
 {
 	height: 29px !important;
-	font: normal normal bold 12px/25px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/25px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) 0 -1938px !important;
 }
 
@@ -1445,7 +1445,7 @@ span.bx-context-toolbar-vertical-mode span.bx-context-toolbar-button-underlay
 	display: inline-block !important;
 	height: 29px !important;
 	padding:0 12px 0 7px !important;
-	font: normal normal bold 12px/25px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: normal normal var(--ui-font-weight-bold) 12px/25px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	background: scroll transparent url(../images/panel/top-panel-sprite-2.png) right -1938px !important;
 }
 

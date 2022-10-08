@@ -12,6 +12,8 @@
 /** @var CBitrixComponent $component */
 $this->setFrameMode(true);
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+
 $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_THEME'] : '';
 ?>
 <div class="row news-list<?=$themeClass?>">

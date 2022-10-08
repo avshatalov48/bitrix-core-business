@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Fileman = this.BX.Fileman || {};
-(function (exports,location_widget,location_core,main_core,main_core_events) {
+(function (exports,ui_designTokens,location_widget,location_core,main_core,main_core_events) {
 	'use strict';
 
 	var _wrapper = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("wrapper");
@@ -386,10 +386,16 @@ this.BX.Fileman = this.BX.Fileman || {};
 	  getInitialAddressFieldValue() {
 	    var _babelHelpers$classPr, _babelHelpers$classPr2;
 
-	    let inputValue = ''; // for compatibility with the format used before the switch to location module's addresses
+	    let inputValue = '';
 
-	    if (((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _address)[_address]) == null ? void 0 : _babelHelpers$classPr.id) === 0) {
-	      inputValue = `${babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].getFieldValue(location_core.AddressType.ADDRESS_LINE_2)}|${babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].latitude};${babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].longitude}`;
+	    if (((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _address)[_address]) == null ? void 0 : _babelHelpers$classPr.id) == 0) {
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].location) {
+	        // JSON has probably been passed as the component's value; we need to create a new address
+	        inputValue = main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].toJson());
+	      } else {
+	        // for compatibility with the format used before the switch to location module's addresses
+	        inputValue = `${babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].getFieldValue(location_core.AddressType.ADDRESS_LINE_2)}|${babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].latitude};${babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].longitude}`;
+	      }
 	    } else if (((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _address)[_address]) == null ? void 0 : _babelHelpers$classPr2.id) > 0) {
 	      inputValue = `${this.getFormattedAddress(babelHelpers.classPrivateFieldLooseBase(this, _address)[_address])}|${babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].latitude};${babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].longitude}|${babelHelpers.classPrivateFieldLooseBase(this, _address)[_address].id}`;
 	    }
@@ -719,5 +725,5 @@ this.BX.Fileman = this.BX.Fileman || {};
 	const namespace = main_core.Reflection.namespace('BX.Fileman.UserField');
 	namespace.AddressField = AddressField;
 
-}((this.BX.Fileman.Userfield = this.BX.Fileman.Userfield || {}),BX.Location.Widget,BX.Location.Core,BX,BX.Event));
+}((this.BX.Fileman.Userfield = this.BX.Fileman.Userfield || {}),BX,BX.Location.Widget,BX.Location.Core,BX,BX.Event));
 //# sourceMappingURL=address_widget.bundle.js.map

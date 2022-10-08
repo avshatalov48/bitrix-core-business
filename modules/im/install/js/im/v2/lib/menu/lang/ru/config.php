@@ -1,6 +1,8 @@
 <?php
 $MESS['IM_RECENT_CONTEXT_MENU_LOADING'] = "Загрузка меню...";
 $MESS['IM_RECENT_CONTEXT_MENU_WRITE'] = "Написать сообщение";
+$MESS['IM_RECENT_CONTEXT_MENU_READ'] = "Отметить как прочитанное";
+$MESS['IM_RECENT_CONTEXT_MENU_UNREAD'] = "Отметить как непрочитанное";
 $MESS['IM_RECENT_CONTEXT_MENU_PIN'] = "Закрепить диалог";
 $MESS['IM_RECENT_CONTEXT_MENU_UNPIN'] = "Открепить диалог";
 $MESS['IM_RECENT_CONTEXT_MENU_MUTE'] = "Отключить уведомления";

@@ -13,6 +13,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 $component = $this->getComponent();
 $arParams = $component->applyTemplateModifications();
 
+$arParams['SHOW_SECTIONS'] = $arParams['SHOW_SECTIONS'] ?? 'Y';
+$arParams['SHOW_SECTIONS'] = $arParams['SHOW_SECTIONS'] === 'N' ? 'N' : 'Y';
+
 if (!isset($arParams['SECTIONS_OFFSET_MODE']))
 {
 	$arParams['SECTIONS_OFFSET_MODE'] = 'N';

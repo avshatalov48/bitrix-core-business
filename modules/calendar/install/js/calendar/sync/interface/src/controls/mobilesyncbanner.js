@@ -49,7 +49,6 @@ export default class MobileSyncBanner
 	getContainer()
 	{
 		this.DOM.container = Tag.render `
-			${this.getSliderContentInfoBlock}
 			<div class="calendar-sync-qr-popup-content">
 				<div class="calendar-sync-qr-popup-title">
 					${this.getTitle()}
@@ -124,7 +123,7 @@ export default class MobileSyncBanner
 	getMobileSyncUrl()
 	{
 		return new Promise((resolve, reject) => {
-			BX.ajax.runAction('calendar.api.calendarajax.getAuthLink', {
+			BX.ajax.runAction('calendar.api.syncajax.getAuthLink', {
 				data: {
 					type: this.type ? 'slider' : 'banner',
 				}

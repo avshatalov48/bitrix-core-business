@@ -1,0 +1,202 @@
+.ui-uploader-stack-widget {
+	display: inline-flex;
+	position: relative;
+	flex-direction: var(--ui-uploader-stack-widget-direction);
+	align-items: center;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+}
+
+.ui-uploader-stack-item {
+	width: var(--ui-uploader-stack-widget-width);
+	height: var(--ui-uploader-stack-widget-height);
+	position: relative;
+}
+
+.ui-uploader-stack-item-leave-active {
+	transition: opacity .1s;
+}
+
+.ui-uploader-stack-item-leave-to {
+	transition-delay: .5s;
+	opacity: 0.2;
+}
+
+.ui-uploader-stack-add-btn {
+	width: var(--ui-uploader-stack-add-btn-width);
+	height: var(--ui-uploader-stack-add-btn-height);
+	margin: var(--ui-uploader-stack-add-btn-margin);
+	background-image: url(images/add-btn.svg);
+	background-repeat: no-repeat;
+	background-size: contain;
+	transition: opacity 0.3s;
+	opacity: 0.6;
+	cursor: pointer;
+}
+
+.ui-uploader-stack-add-btn:hover {
+	opacity: 1;
+}
+
+.ui-uploader-stack-widget.--large {
+	--ui-uploader-stack-widget-width: 232px;
+	--ui-uploader-stack-widget-height: 142px;
+	--ui-uploader-stack-widget-direction: column;
+
+	--ui-uploader-stack-drop-area-font-size: 12px;
+	--ui-uploader-stack-drop-area-icon-width: 47px;
+	--ui-uploader-stack-drop-area-icon-height: 47px;
+	--ui-uploader-stack-drop-area-title-margin: 12px 0 0;
+
+	--ui-uploader-stack-add-btn-width: 18px;
+	--ui-uploader-stack-add-btn-height: 18px;
+	--ui-uploader-stack-add-btn-margin: 9px 0;
+
+	--ui-uploader-stack-load-icon-width: 44px;
+	--ui-uploader-stack-load-icon-height: 44px;
+
+	--ui-uploader-stack-upload-progress-margin: 11px 0 0;
+	--ui-uploader-stack-upload-title-margin: 0 0 7px 0;
+	--ui-uploader-stack-upload-percent-font-size: 12px;
+	--ui-uploader-stack-upload-stats-margin: 6px 0 0;
+	--ui-uploader-stack-upload-stats-font-size: 10px;
+
+	--ui-uploader-stack-upload-abort-icon-width: 11px;
+	--ui-uploader-stack-upload-abort-icon-height: 11px;
+	--ui-uploader-stack-upload-abort-padding: 6px 10px 5px 6px;
+	--ui-uploader-stack-upload-menu-width: 31px;
+	--ui-uploader-stack-upload-menu-height: 18px;
+	--ui-uploader-stack-upload-menu-icon-width: 16px;
+	--ui-uploader-stack-upload-menu-icon-margin: 8px 6px 0 0;
+	--ui-uploader-stack-upload-first-ear-rotation: 2deg;
+	--ui-uploader-stack-upload-second-ear-rotation: 3.3deg;
+
+	--ui-uploader-stack-preview-file-icon-margin: 0 0 8px 0;
+	--ui-uploader-stack-preview-file-name-font-size: 12px;
+
+	--ui-uploader-stack-preview-stats-left: 5px;
+	--ui-uploader-stack-preview-stats-bottom: 6px;
+	--ui-uploader-stack-preview-box-padding: 11px;
+	--ui-uploader-stack-preview-total-font-size: 10px;
+	--ui-uploader-stack-preview-total-padding: 3px 6px;
+	--ui-uploader-stack-preview-total-height: 8px;
+}
+
+.ui-uploader-stack-widget.--medium {
+	--ui-uploader-stack-widget-width: 72px;
+	--ui-uploader-stack-widget-height: 78px;
+	--ui-uploader-stack-widget-direction: row;
+
+	--ui-uploader-stack-drop-area-font-size: 9px;
+	--ui-uploader-stack-drop-area-icon-width: 34px;
+	--ui-uploader-stack-drop-area-icon-height: 34px;
+	--ui-uploader-stack-drop-area-title-margin: 7px 0 0;
+
+	--ui-uploader-stack-add-btn-width: 18px;
+	--ui-uploader-stack-add-btn-height: 18px;
+	--ui-uploader-stack-add-btn-margin: 0 8px;
+
+	--ui-uploader-stack-load-icon-width: 27px;
+	--ui-uploader-stack-load-icon-height: 27px;
+
+	--ui-uploader-stack-upload-progress-margin: 7px 0 0;
+	--ui-uploader-stack-upload-percent-font-size: 11px;
+	--ui-uploader-stack-upload-stats-margin: 2px 0 0;
+	--ui-uploader-stack-upload-stats-font-size: 9px;
+
+	--ui-uploader-stack-upload-abort-icon-width: 10px;
+	--ui-uploader-stack-upload-abort-icon-height: 10px;
+	--ui-uploader-stack-upload-abort-padding: 4px 8px 4px 5px;
+
+	--ui-uploader-stack-upload-menu-width: 26px;
+	--ui-uploader-stack-upload-menu-height: 15px;
+	--ui-uploader-stack-upload-menu-icon-width: 13px;
+	--ui-uploader-stack-upload-menu-icon-margin: 6px 6px 0 0;
+	--ui-uploader-stack-upload-first-ear-rotation: 5deg;
+	--ui-uploader-stack-upload-second-ear-rotation: 8deg;
+
+	--ui-uploader-stack-preview-file-icon-margin: 0 0 3px 0;
+	--ui-uploader-stack-preview-file-name-font-size: 9px;
+
+	--ui-uploader-stack-preview-stats-left: 4px;
+	--ui-uploader-stack-preview-stats-bottom: 5px;
+	--ui-uploader-stack-preview-box-padding: 4px;
+	--ui-uploader-stack-preview-total-font-size: 9px;
+	--ui-uploader-stack-preview-total-padding: 2px 5px;
+	--ui-uploader-stack-preview-total-height: 8px;
+}
+
+.ui-uploader-stack-widget.--small,
+.ui-uploader-stack-widget.--tiny {
+	--ui-uploader-stack-widget-direction: row;
+
+	--ui-uploader-stack-drop-area-icon-width: 24px;
+	--ui-uploader-stack-drop-area-icon-height: 24px;
+
+	--ui-uploader-stack-add-btn-width: 14px;
+	--ui-uploader-stack-add-btn-height: 14px;
+	--ui-uploader-stack-add-btn-margin: 0 6px;
+
+	--ui-uploader-stack-load-icon-width: 19px;
+	--ui-uploader-stack-load-icon-height: 19px;
+
+	--ui-uploader-stack-upload-percent-font-size: 9px;
+	--ui-uploader-stack-upload-stats-margin: 2px 0 0;
+	--ui-uploader-stack-upload-stats-font-size: 7px;
+	--ui-uploader-stack-upload-menu-icon-margin: 4px 4px 0 0;
+	--ui-uploader-stack-upload-first-ear-rotation: 7deg;
+	--ui-uploader-stack-upload-second-ear-rotation: 12deg;
+
+	--ui-uploader-stack-preview-box-padding: 0;
+	--ui-uploader-stack-preview-total-font-size: 8px;
+	--ui-uploader-stack-preview-total-padding: 1px 4px;
+	--ui-uploader-stack-preview-total-height: 8px;
+	--ui-uploader-stack-preview-stats-left: 3px;
+	--ui-uploader-stack-preview-stats-bottom: 4px;
+}
+
+.ui-uploader-stack-widget.--small {
+	--ui-uploader-stack-widget-width: 46px;
+	--ui-uploader-stack-widget-height: 52px;
+
+	--ui-uploader-stack-upload-menu-width: 20px;
+	--ui-uploader-stack-upload-menu-height: 12px;
+	--ui-uploader-stack-upload-menu-icon-width: 12px;
+
+	--ui-uploader-stack-upload-abort-icon-width: 8px;
+	--ui-uploader-stack-upload-abort-icon-height: 8px;
+	--ui-uploader-stack-upload-abort-padding: 3px 8px 3px 4px;
+
+	--ui-uploader-stack-upload-progress-margin: 4px 0 0;
+}
+
+.ui-uploader-stack-widget.--tiny {
+	--ui-uploader-stack-widget-width: 39px;
+	--ui-uploader-stack-widget-height: 39px;
+
+	--ui-uploader-stack-upload-menu-width: 18px;
+	--ui-uploader-stack-upload-menu-height: 11px;
+	--ui-uploader-stack-upload-menu-icon-width: 9px;
+
+	--ui-uploader-stack-upload-abort-icon-width: 7px;
+	--ui-uploader-stack-upload-abort-icon-height: 7px;
+	--ui-uploader-stack-upload-abort-padding: 3px 4px 1px 3px;
+
+	--ui-uploader-stack-upload-progress-margin: 3px 0 0;
+}
+
+.ui-uploader-stack-widget {
+	--ui-uploader-stack-drop-area-icon-bg: url(images/upload-file.svg);
+}
+
+.ui-uploader-stack-widget.--only-images.--large {
+	--ui-uploader-stack-drop-area-icon-bg: url(images/upload-image-large.svg);
+}
+
+.ui-uploader-stack-widget.--only-images.--medium {
+	--ui-uploader-stack-drop-area-icon-bg: url(images/upload-image-medium.svg);
+}
+
+.ui-uploader-stack-widget.--only-images.--small,
+.ui-uploader-stack-widget.--only-images.--tiny {
+	--ui-uploader-stack-drop-area-icon-bg: url(images/upload-image-small.svg);
+}

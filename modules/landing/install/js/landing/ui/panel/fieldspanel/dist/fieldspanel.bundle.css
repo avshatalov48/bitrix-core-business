@@ -51,6 +51,7 @@
 .landing-ui-panel-content-search {
 	position: relative;
 	background: rgba(255, 255, 255, .6);
+	border-radius: var(--ui-border-radius-md);
 	padding-left: 15px;
 	padding-right: 20px;
 	padding-top: 15px;
@@ -100,7 +101,8 @@
 }
 
 .landing-ui-panel-content-create-field-button {
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 12px;
 	text-transform: uppercase;
 	background: rgba(51, 51, 51, .6);

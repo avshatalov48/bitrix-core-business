@@ -880,15 +880,16 @@ class Landing
 	 * @param int $lid Landing id.
 	 * @param int|null $toSiteId Site id (if you want copy in another site).
 	 * @param int|null $toFolderId Folder id (if you want copy in some folder).
+	 * @param bool $skipSystem If true, don't copy system flag.
 	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function copy(int $lid, ?int $toSiteId = null, ?int $toFolderId = null): PublicActionResult
+	public static function copy(int $lid, ?int $toSiteId = null, ?int $toFolderId = null, bool $skipSystem = false): PublicActionResult
 	{
 		$result = new PublicActionResult();
 
 		LandingCore::disableCheckDeleted();
 		$landing = LandingCore::createInstance($lid);
-		$result->setResult($landing->copy($toSiteId ?: null, $toFolderId ?: null));
+		$result->setResult($landing->copy($toSiteId ?: null, $toFolderId ?: null, false, Utils::isTrue($skipSystem)));
 		$result->setError($landing->getError());
 		LandingCore::enableCheckDeleted();
 

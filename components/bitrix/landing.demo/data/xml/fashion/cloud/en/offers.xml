@@ -70,7 +70,7 @@
 				<Id>COLOR_REF</Id>
 				<Title>Color</Title>
 				<Multiple>false</Multiple>
-				<BitrixSort>400</BitrixSort>
+				<BitrixSort>200</BitrixSort>
 				<BitrixCode>COLOR_REF</BitrixCode>
 				<BitrixPropertyType>S</BitrixPropertyType>
 				<BitrixRows>1</BitrixRows>
@@ -144,7 +144,7 @@
 						<Sort>700</Sort>
 					</Choice>
 				</ChoiceValue>
-				<BitrixSort>200</BitrixSort>
+				<BitrixSort>400</BitrixSort>
 				<BitrixCode>SIZES_CLOTHES</BitrixCode>
 				<BitrixPropertyType>L</BitrixPropertyType>
 				<BitrixRows>1</BitrixRows>
@@ -196,9 +196,17 @@
 			</Property>
 			<Property>
 				<Id>COLOR_REF</Id>
-				<SmartFilter>false</SmartFilter>
+				<SmartFilter>true</SmartFilter>
+				<DisplayType>G</DisplayType>
+				<ShowExpanded>true</ShowExpanded>
+				<Hint></Hint>
+				<BitrixLinkedInformationBlock>FUTURE-1C-CATALOG</BitrixLinkedInformationBlock>
+			</Property>
+			<Property>
+				<Id>SIZES_SHOES</Id>
+				<SmartFilter>true</SmartFilter>
 				<DisplayType>F</DisplayType>
-				<ShowExpanded>false</ShowExpanded>
+				<ShowExpanded>true</ShowExpanded>
 				<Hint></Hint>
 				<BitrixLinkedInformationBlock>FUTURE-1C-CATALOG</BitrixLinkedInformationBlock>
 			</Property>

@@ -1,8 +1,4 @@
 <?php
-
-use Bitrix\Catalog\v2\Integration\Landing\ProductTokenizer;
-use Bitrix\Main\Loader;
-
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 	die();
 }
@@ -32,22 +28,7 @@ if ($detailUrl) {
 		'FILTER' => [],
 		'FILTER_NAME' => 'arrFilter',
 	]
-);
-
-if (
-	Loader::includeModule('catalog')
-	&& method_exists(ProductTokenizer::class, 'decodeFromRequest')
-)
-{
-	$productIds = ProductTokenizer::decodeFromRequest(
-		Bitrix\Main\Context::getCurrent()->getRequest()
-	);
-}
-else
-{
-	$productIds = null;
-}
-?>
+); ?>
 
 <section class="landing-block g-pt-20 g-pb-20">
 	<div class="landing-component">
@@ -60,7 +41,6 @@ else
 				'SECTION_ID' => $sectionId,
 				'SECTION_CODE' => $sectionCode,
 				'SECTION_USER_FIELDS' => [],
-				'EXTERNAL_PRODUCT_IDS' => $productIds,
 				'ELEMENT_SORT_FIELD' => 'sort',
 				'ELEMENT_SORT_ORDER' => 'desc',
 				'ELEMENT_SORT_FIELD2' => '',

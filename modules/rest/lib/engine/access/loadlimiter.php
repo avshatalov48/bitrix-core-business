@@ -8,6 +8,7 @@ use Bitrix\Rest\OAuth\Client;
 use Bitrix\Main\Application;
 use Bitrix\Rest\APAuth;
 use Bitrix\Rest\OAuth;
+use Bitrix\Bitrix24\Feature;
 
 /**
  * Class LoadLimiter
@@ -19,7 +20,7 @@ class LoadLimiter
 	private const BITRIX24_CONNECTOR_NAME = 'cache.redis';
 	private const CACHE_EXPIRE_TIME_PREFIX = 'expire';
 	private const DEFAULT_DOMAIN = 'default';
-	private static int $version = 1;
+	private static int $version = 2;
 	private static int $bucketSize = 60; //sec
 	private static int $bucketCount = 10;
 	private static int $limitTime = 480; // total hits duration per 10 min
@@ -47,6 +48,11 @@ class LoadLimiter
 		if (Loader::includeModule('bitrix24'))
 		{
 			$result = static::$limitTime;
+			$seconds = (int)Feature::getVariable('rest_load_limiter_seconds');
+			if ($seconds > 0)
+			{
+				$result = $seconds;
+			}
 		}
 		else
 		{
@@ -137,8 +143,8 @@ class LoadLimiter
 	{
 		if (
 			static::isActive()
-			|| in_array($entityType, static::$limitedEntityTypes, true)
-			|| !in_array($method, static::$ignoreMethod, true)
+			&& in_array($entityType, static::$limitedEntityTypes, true)
+			&& !in_array($method, static::$ignoreMethod, true)
 		)
 		{
 			$key = static::getKey($entityType, $entity, $method);
@@ -167,8 +173,8 @@ class LoadLimiter
 	{
 		if (
 			!static::isActive()
-			|| in_array($entityType, static::$limitedEntityTypes, true)
-			|| !in_array($method, static::$ignoreMethod, true)
+			|| !in_array($entityType, static::$limitedEntityTypes, true)
+			|| in_array($method, static::$ignoreMethod, true)
 		)
 		{
 			return false;
@@ -227,9 +233,17 @@ class LoadLimiter
 						break;
 					}
 				}
-				if (!$result && $resource->exists($key . $numBucket))
+				if (!$result)
 				{
-					$result = (int)$resource->get($key . $numBucket);
+					if (!empty(static::$timeRegistered))
+					{
+						$item = reset(static::$timeRegistered);
+						if (!empty($item['timeStart']))
+						{
+							$firstTimeStart = reset($item['timeStart']);
+							$result = $firstTimeStart + static::$bucketCount * static::$bucketSize;
+						}
+					}
 				}
 			}
 		}
@@ -277,7 +291,11 @@ class LoadLimiter
 				{
 					if (static::$timeRegistered[$key]['timeFinish'][$k])
 					{
-						$result[] = static::$timeRegistered[$key]['timeFinish'][$k] - $timeStart;
+						$time = static::$timeRegistered[$key]['timeFinish'][$k] - $timeStart;
+						if ($time > static::$minimalFixTime)
+						{
+							$result[] = $time;
+						}
 					}
 				}
 			}
@@ -329,6 +347,7 @@ class LoadLimiter
 						}
 					}
 				}
+				static::$timeRegistered = [];
 			}
 		}
 	}

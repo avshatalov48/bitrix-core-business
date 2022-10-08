@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2014 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
 namespace Bitrix\Main;
 
@@ -44,11 +44,17 @@ class HttpRequest extends Request
 	protected $cookiesRaw;
 
 	/**
+	 * @var Type\ParameterDictionary
+	 */
+	protected $jsonData;
+
+	/**
 	 * @var HttpHeaders
 	 */
 	protected $headers;
 
 	protected $httpHost;
+	protected $acceptedLanguages;
 
 	/**
 	 * Creates new HttpRequest object
@@ -70,6 +76,7 @@ class HttpRequest extends Request
 		$this->cookiesRaw = new Type\ParameterDictionary($cookies);
 		$this->cookies = new Type\ParameterDictionary($this->prepareCookie($cookies));
 		$this->headers = $this->buildHttpHeaders($server);
+		$this->jsonData = new Type\ParameterDictionary();
 	}
 
 	private function buildHttpHeaders(Server $server)
@@ -90,37 +97,52 @@ class HttpRequest extends Request
 	 */
 	public function addFilter(Type\IRequestFilter $filter)
 	{
-		$filteredValues = $filter->filter(array(
-			"get" => $this->queryString->values,
-			"post" => $this->postData->values,
-			"files" => $this->files->values,
-			"headers" => $this->headers,
-			"cookie" => $this->cookiesRaw->values
-		));
+		$filteredValues = $filter->filter([
+			'get' => $this->queryString->values,
+			'post' => $this->postData->values,
+			'files' => $this->files->values,
+			'headers' => $this->headers,
+			'cookie' => $this->cookiesRaw->values,
+			'json' => $this->jsonData->values,
+		]);
 
 		if (isset($filteredValues['get']))
+		{
 			$this->queryString->setValuesNoDemand($filteredValues['get']);
+		}
 		if (isset($filteredValues['post']))
+		{
 			$this->postData->setValuesNoDemand($filteredValues['post']);
+		}
 		if (isset($filteredValues['files']))
+		{
 			$this->files->setValuesNoDemand($filteredValues['files']);
+		}
 		if (isset($filteredValues['headers']) && ($this->headers instanceof HttpHeaders))
+		{
 			$this->headers = $filteredValues['headers'];
+		}
 		if (isset($filteredValues['cookie']))
 		{
 			$this->cookiesRaw->setValuesNoDemand($filteredValues['cookie']);
 			$this->cookies = new Type\ParameterDictionary($this->prepareCookie($filteredValues['cookie']));
 		}
+		if (isset($filteredValues['json']))
+		{
+			$this->jsonData->setValuesNoDemand($filteredValues['json']);
+		}
 
 		if (isset($filteredValues['get']) || isset($filteredValues['post']))
+		{
 			$this->values = array_merge($this->queryString->values, $this->postData->values);
+		}
 	}
 
 	/**
 	 * Returns the GET parameter of the current request.
 	 *
 	 * @param string $name Parameter name
-	 * @return null|mixed
+	 * @return null | string | array
 	 */
 	public function getQuery($name)
 	{
@@ -141,7 +163,7 @@ class HttpRequest extends Request
 	 * Returns the POST parameter of the current request.
 	 *
 	 * @param $name
-	 * @return null|mixed
+	 * @return string | array | null
 	 */
 	public function getPost($name)
 	{
@@ -162,7 +184,7 @@ class HttpRequest extends Request
 	 * Returns the FILES parameter of the current request.
 	 *
 	 * @param $name
-	 * @return null|mixed
+	 * @return string | array | null
 	 */
 	public function getFile($name)
 	{
@@ -232,9 +254,23 @@ class HttpRequest extends Request
 		return $this->cookiesRaw;
 	}
 
+	public function getJsonList()
+	{
+		return $this->jsonData;
+	}
+
 	public function getRemoteAddress()
 	{
-		return $this->server->get("REMOTE_ADDR");
+		return $this->server->get('REMOTE_ADDR');
+	}
+
+	/**
+	 * Returns the User-Agent HTTP request header.
+	 * @return null|string
+	 */
+	public function getUserAgent()
+	{
+		return $this->server->get('HTTP_USER_AGENT');
 	}
 
 	public function getRequestUri()
@@ -259,34 +295,24 @@ class HttpRequest extends Request
 
 	public function isPost()
 	{
-		return ($this->getRequestMethod() == "POST");
-	}
-
-	/**
-	 * Returns the User-Agent HTTP request header.
-	 * @return null|string
-	 */
-	public function getUserAgent()
-	{
-		return $this->server->get("HTTP_USER_AGENT");
+		return ($this->getRequestMethod() == 'POST');
 	}
 
 	public function getAcceptedLanguages()
 	{
-		static $acceptedLanguages = array();
-
-		if (empty($acceptedLanguages))
+		if ($this->acceptedLanguages === null)
 		{
-			$acceptedLanguagesString = $this->server->get("HTTP_ACCEPT_LANGUAGE");
-			$arAcceptedLanguages = explode(",", $acceptedLanguagesString);
-			foreach ($arAcceptedLanguages as $langString)
+			$this->acceptedLanguages = [];
+
+			$acceptedLanguages = explode(',', $this->server->get('HTTP_ACCEPT_LANGUAGE'));
+			foreach ($acceptedLanguages as $language)
 			{
-				$arLang = explode(";", $langString);
-				$acceptedLanguages[] = $arLang[0];
+				$lang = explode(';', $language);
+				$this->acceptedLanguages[] = $lang[0];
 			}
 		}
 
-		return $acceptedLanguages;
+		return $this->acceptedLanguages;
 	}
 
 	/**
@@ -426,9 +452,9 @@ class HttpRequest extends Request
 		$headers = [];
 		foreach ($server as $name => $value)
 		{
-			if (mb_strpos($name, 'HTTP_') === 0)
+			if (strpos($name, 'HTTP_') === 0)
 			{
-				$headerName = mb_substr($name, 5);
+				$headerName = substr($name, 5);
 				$headers[$headerName] = $value;
 			}
 			elseif (in_array($name, ['CONTENT_TYPE', 'CONTENT_LENGTH'], true))
@@ -445,7 +471,7 @@ class HttpRequest extends Request
 		$normalizedHeaders = [];
 		foreach ($headers as $name => $value)
 		{
-			$headerName = mb_strtolower(str_replace('_', '-', $name));
+			$headerName = strtolower(str_replace('_', '-', $name));
 			$normalizedHeaders[$headerName] = $value;
 		}
 
@@ -454,7 +480,7 @@ class HttpRequest extends Request
 
 	protected static function normalize($path)
 	{
-		if (mb_substr($path, -1, 1) === "/")
+		if (substr($path, -1, 1) === "/")
 		{
 			$path .= "index.php";
 		}
@@ -526,5 +552,23 @@ class HttpRequest extends Request
 	public function getCookiesMode()
 	{
 		return $this->getCookie(HttpResponse::STORE_COOKIE_NAME);
+	}
+
+	/**
+	 * Decodes JSON from application/json requests.
+	 */
+	public function decodeJson()
+	{
+		if ($this->headers->getContentType() == 'application/json')
+		{
+			try
+			{
+				$json = Web\Json::decode(static::getInput());
+				$this->jsonData = new Type\ParameterDictionary($json);
+			}
+			catch (ArgumentException $exception)
+			{
+			}
+		}
 	}
 }

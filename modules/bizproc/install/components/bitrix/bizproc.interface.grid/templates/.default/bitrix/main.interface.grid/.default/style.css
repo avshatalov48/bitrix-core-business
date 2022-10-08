@@ -1,8 +1,8 @@
-div.bx-bizproc-interface-list {font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;}
+div.bx-bizproc-interface-list {font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica));}
 div.empty {height:0;}
 
 /* Drag-n-Drop*/
-div.bx-drag-object {height: 50px; padding: 0 10px; border:1px solid #CDCDCD; color:black; font-weight:bold; background-color:#D6F1FB; background-image:url(images/listhead.png); background-repeat:repeat-x; background-position:top; box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box;}
+div.bx-drag-object {height: 50px; padding: 0 10px; border:1px solid #CDCDCD; color:black; font-weight:var(--ui-font-weight-bold); background-color:#D6F1FB; background-image:url(images/listhead.png); background-repeat:repeat-x; background-position:top; box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box;}
 div.bx-drag-arrow {width:11px; height:6px; background-image:url(images/drag_arrow.gif); background-repeat:no-repeat; background-position:left top; box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box;}
 
 /* Filter */
@@ -25,7 +25,7 @@ a.bx-filter-show:hover, a.bx-filter-hide:hover, a.bx-filter-menu:hover, a.bx-fil
 div.bx-filter-sep {float:left; width:1px; height:17px; margin:3px; background-color:#B7B7B7;}
 div.bx-filter-off {background-image:url(images/filter/check-off.gif);}
 div.bx-filter-on {background-image:url(images/filter/check-on.gif);}
-div.bx-filter-text {float:left; color:white; font-size:12px; font-weight:bold; margin:5px 3px 0px 0px;}
+div.bx-filter-text {float:left; color:white; font-size:12px; font-weight:var(--ui-font-weight-bold); margin:5px 3px 0px 0px;}
 span.bx-filter-hellip { width:20px; display:inline-block; text-align:center;}
 
 /*Common actions icons */
@@ -91,7 +91,7 @@ div.bx-popup-menu td.popupmenu div.popupitem td.gutter div.grid-views {backgroun
 	padding:0 20px 13px 0;
 }
 .bx-bizproc-interface-list td{
-	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size:14px;
 	/*vertical-align:middle !important;*/
 }
@@ -436,7 +436,7 @@ td.bx-bizproc-not-result:hover{
 
 /*Footer Toolbar*/
 .bx-bizproc-footer-interface-toolbar-container{
-	font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size:14px;
 	line-height:54px;
 	height:54px;

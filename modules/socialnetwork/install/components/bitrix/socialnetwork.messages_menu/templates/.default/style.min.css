@@ -1,0 +1,8 @@
+.bx-sm-holder-show .bx-sm-parent .bx-sm-header{padding-left:20px;padding-right:20px;display:block}.bx-sm-parent .bx-sm-header{height:34px;text-align:center}.bx-sm-feature-noselect .bx-sm-parent .bx-sm-header{margin-right:2px}.bx-sm-feature-select .bx-sm-parent .bx-sm-header{margin-right:2px}.bx-sm-parent a,a.bx-sm-parent{display:block;text-decoration:none;font-size:13px;font-weight:var(--ui-font-weight-bold);line-height:34px;font-family:var(--ui-font-family-primary,var(--ui-font-family-helvetica))}.bx-sm-feature-select .bx-sm-parent a,.bx-sm-feature-select a.bx-sm-parent{color:#000;decoration:none}.bx-sm-feature-select .bx-sm-parent a:visited,.bx-sm-feature-select a.bx-sm-parent:visited{color:#000;decoration:none}.bx-sm-feature-select .bx-sm-parent a:hover,.bx-sm-feature-select a.bx-sm-parent:hover{color:#000;decoration:none}.bx-sm-feature-noselect .bx-sm-parent a,.bx-sm-feature-noselect a.bx-sm-parent{decoration:none}.bx-sm-feature-noselect .bx-sm-parent a:visited,.bx-sm-feature-noselect a.bx-sm-parent:visited{decoration:none}.bx-sm-feature-noselect .bx-sm-parent a:hover,.bx-sm-feature-noselect a.bx-sm-parent:hover{decoration:none;}
+
+.bx-sm-leftshadow {
+	background: url(images/left-shadow.gif) no-repeat left bottom; }
+.bx-sm-rightshadow {
+	background: url(images/right-shadow.gif) no-repeat left bottom; }
+.bx-sm-rightline {
+	background: url(images/right-line.gif) no-repeat left bottom;}

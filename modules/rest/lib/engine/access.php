@@ -575,7 +575,7 @@ class Access
 	{
 		static::reset();
 		if (
-			!static::isActiveRules()
+			!Client::isSubscriptionAccess()
 			&& Loader::includeModule('bitrix24')
 			&& in_array($licenseType, \CBitrix24::PAID_EDITIONS, true)
 		)

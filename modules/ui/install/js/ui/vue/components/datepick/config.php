@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/datepick.bundle.css',
 	'js' => 'dist/datepick.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
 		'main.core',
 		'main.popup',
 		'ui.vue',

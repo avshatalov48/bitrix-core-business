@@ -8,19 +8,14 @@ export class Mailer
 	#filterToolbar;
 	#binding;
 	#mailboxId;
-	#startDir;
-	#selectedDirectory;
 	focusReset = false;
 
 	constructor(config ={
-		startDir: 'INBOX',
 		filterId: '',
 		mailboxId: 0,
 		syncAvailable: true,
 	})
 	{
-
-
 		//delete the loader (the envelope is bouncing)
 		let elements = top.document.getElementsByClassName('mail-loader-modifier');
 		for (let element of elements)
@@ -31,10 +26,7 @@ export class Mailer
 		this.#mailboxId = config['mailboxId'];
 		this.#filter = BX.Main.filterManager.getById(config['filterId']);
 
-		BX.Mail.Home.Counters.setShortcut('',config['startDir']);
-
-		//Set the default directory (may change if the 'inbox' directory is disabled)
-		this.setStartDir('');
+		this.sendApplyFilterEventForMenuRefresh();
 
 		//Removing the focus from the filter field
 		if (document.activeElement)
@@ -45,7 +37,6 @@ export class Mailer
 		const mailCounterWrapper = document.querySelector('[data-role="mail-counter-toolbar"]');
 
 		const filterToolbar = new FilterToolbar({
-			startDir: config['startDir'],
 			wrapper: mailCounterWrapper,
 			filter: this.#filter,
 		});
@@ -85,14 +76,10 @@ export class Mailer
 		}
 	}
 
-	setStartDir(name)
+	sendApplyFilterEventForMenuRefresh()
 	{
 		if (!!this.#filter && (this.#filter instanceof BX.Main.Filter))
 		{
-			const FilterApi = this.#filter.getApi();
-			FilterApi.setFields({
-				'DIR': name,
-			});
 			setTimeout(function ()
 			{
 				EventEmitter.emit('BX.Main.Filter:apply', new BaseEvent());

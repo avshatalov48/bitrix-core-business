@@ -95,7 +95,8 @@
 }
 
 .landing-ui-field-image-action-button {
-	font-family: 'OpenSans-Bold', Helvetca, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	background: none;
 	font-size: 12px;
 	color: #525C69;
@@ -150,7 +151,6 @@
 	align-items: center;
 	justify-content: center;
 	height: 215px;
-	border-radius: 2px;
 	transition: background 200ms ease;
 }
 
@@ -163,7 +163,7 @@
 	content: '';
 	border: 2px #B9C8CD dashed;
 	transition: all 200ms ease;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-sm, 2px);
 }
 
 .landing-ui-field-image-dropzone::before:hover,
@@ -187,7 +187,8 @@
 }
 
 .landing-ui-field-image-dropzone-text {
-	font-family: 'OpenSans-Regular', Helvetca, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 15px;
 	color: #535C69;
 	line-height: 28px;
@@ -258,7 +259,8 @@
 	text-transform: uppercase!important;
 	/* letter-spacing: -0.31px; */
 	white-space: nowrap!important;
-	font: 600 12px/39px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif!important;
+	font: 12px/39px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	cursor: pointer;
 	transition: 160ms color linear, 160ms background-color linear, 160ms opacity linear, 160ms padding linear;
 	left: 50%!important;

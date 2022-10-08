@@ -476,6 +476,25 @@ class Helper
 		return $groups;
 	}
 
+	public static function isDocumentUserGroup(string $value, array $documentType): bool
+	{
+		$documentGroups = static::getDocumentUserGroups($documentType);
+		if (empty($documentGroups))
+		{
+			return false;
+		}
+
+		foreach ($documentGroups as $group)
+		{
+			if ($group['id'] === $value)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	protected static function getFieldsMap(array $documentType)
 	{
 		$key = implode('@', $documentType);

@@ -2,6 +2,7 @@ import { Tag } from 'main.core';
 import './css/style.css';
 import { Loc } from 'main.core';
 import { BaseEvent, EventEmitter } from "main.core.events";
+import 'ui.fonts.opensans';
 
 export class FilterToolbar
 {
@@ -17,7 +18,6 @@ export class FilterToolbar
 	constructor(config = {
 		wrapper: [],
 		filter: [],
-		startDir: 'INBOX',
 	})
 	{
 		EventEmitter.subscribe('BX.Main.Filter:apply', (event) => {
@@ -97,6 +97,16 @@ export class FilterToolbar
 		}
 	}
 
+	hideReadAllBtn()
+	{
+		this.#readAllBtn.classList.add('mail-toolbar-hide-element');
+	}
+
+	showReadAllBtn()
+	{
+		this.#readAllBtn.classList.remove('mail-toolbar-hide-element');
+	}
+
 	hideCounter()
 	{
 		this.#counterBtn.classList.add('mail-toolbar-hide-element');
@@ -127,7 +137,7 @@ export class FilterToolbar
 	{
 		const mailFilterToolbar = Tag.render`<div class="mail-filter-toolbar">
 			<div class="mail-filter-counter" data-role="mail-filter-counter">
-				<div class="mail-filter-counter-title"  data-role="mail-filter-title">
+				<div data-role="mail-filter-title">
 					${Loc.getMessage("MAIL_FILTER_TOOLBAR_TITLE")}
 				</div>
 			</div>
@@ -173,9 +183,19 @@ export class FilterToolbar
 				const counters = event['data']['counters'];
 				const hidden = event['data']['hidden'];
 				const currentDir = event['data']['selectedDirectory'];
-				const currentFolderCount = counters[currentDir];
+				let currentFolderCount = counters[currentDir];
 
-				if(hidden[currentDir])
+				if(currentDir !== '')
+				{
+					this.showReadAllBtn()
+				}
+				else
+				{
+					currentFolderCount = event['data']['total'];
+					this.hideReadAllBtn()
+				}
+
+				if(hidden[currentDir] && currentDir !== '')
 				{
 					this.hideCounter();
 				}

@@ -1,0 +1,41 @@
+.ui-sign-up-content-photo-button-wrapper {
+	display: flex;
+	justify-content: center;
+	margin-top: 16px;
+}
+
+.ui-sign-up-content-photo-button-wrapper:first-child {
+	margin-top: 44px;
+}
+
+.ui-sign-up-content-photo-button-wrapper:last-child {
+	margin-bottom: 44px;
+}
+
+.ui-sign-up-content-photo-preview {
+	position: relative;
+	height: 106px;
+	border: 1px solid #E7E7E7;
+	box-sizing: border-box;
+	border-radius: 6px;
+	margin-top: 32px;
+	margin-bottom: 26px;
+	overflow: hidden;
+}
+
+.ui-sign-up-content-photo-more-button {
+	background: url("images/more.svg") center center no-repeat;
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	width: 21px;
+	height: 16px;
+	cursor: pointer;
+	opacity: .4;
+	transition: 200ms opacity ease;
+}
+
+.ui-sign-up-content-photo-more-button:hover {
+	opacity: 1;
+}
+

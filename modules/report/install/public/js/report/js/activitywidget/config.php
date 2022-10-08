@@ -4,14 +4,14 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-return array(
-	'js'  => array(
+return [
+	'js'  => [
 		'/bitrix/js/report/js/activitywidget/activitywidget.js',
-	),
-	'css' => array(
+	],
+	'css' => [
 		'/bitrix/js/report/js/activitywidget/css/activitywidget.css',
-	),
-	'rel' => array('popup'),
+	],
+	'rel' => ['ui.design-tokens', 'ui.fonts.opensans', 'popup',],
 	'bundle_js' => 'activitywidget',
-	'bundle_css' => 'activitywidget'
-);
+	'bundle_css' => 'activitywidget',
+];

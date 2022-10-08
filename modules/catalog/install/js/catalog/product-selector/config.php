@@ -50,6 +50,7 @@ return [
 	'css' => 'dist/product-selector.bundle.css',
 	'js' => 'dist/product-selector.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
 		'ui.forms',
 		'fileinput',
 		'catalog.sku-tree',

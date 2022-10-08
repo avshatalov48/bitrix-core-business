@@ -14,7 +14,7 @@
 
 use Bitrix\Main\Localization\Loc;
 
-CJSCore::Init(array('lists'));
+CJSCore::Init(['lists', 'ui.fonts.opensans']);
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 \Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/components/bitrix/bizproc.workflow.faces/templates/.default/style.css');
 
@@ -70,6 +70,11 @@ if($isBitrix24Template)
 }
 elseif(!IsModuleInstalled("intranet"))
 {
+	\Bitrix\Main\UI\Extension::load([
+		'ui.design-tokens',
+		'ui.fonts.opensans',
+	]);
+
 	$APPLICATION->SetAdditionalCSS("/bitrix/js/lists/css/intranet-common.css");
 }
 ?>

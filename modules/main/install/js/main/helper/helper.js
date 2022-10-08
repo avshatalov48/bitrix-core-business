@@ -51,7 +51,10 @@ BX.Helper =
 
 		BX.bind(window, 'message', BX.proxy(function(event)
 		{
-			if(!!event.origin && event.origin.indexOf('bitrix') === -1)
+			var eventOrigin = event.origin || '';
+			var frameOrigin = new URL(this.frameOpenUrl).origin;
+
+			if(eventOrigin !== frameOrigin)
 			{
 				return;
 			}
@@ -279,6 +282,11 @@ BX.Helper =
 
 	showNotification : function(num)
 	{
+		if (!this.notifyBlock)
+		{
+			return;
+		}
+
 		if (!isNaN(parseFloat(num)) && isFinite(num) && num > 0)
 		{
 			var numBlock = '<div class="help-cl-count"><span class="help-cl-count-digit">' + (num > 99 ? '99+' : num) + '</span></div>';

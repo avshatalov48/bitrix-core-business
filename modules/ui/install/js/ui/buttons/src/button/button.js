@@ -24,6 +24,7 @@ export default class Button extends BaseButton
 
 		super(options);
 
+		this.isDependOnTheme = null;
 		this.size = null;
 		this.color = null;
 		this.icon = null;
@@ -35,6 +36,7 @@ export default class Button extends BaseButton
 		this.handleMenuClick = this.handleMenuClick.bind(this);
 		this.handleMenuClose = this.handleMenuClose.bind(this);
 
+		this.setDependOnTheme(this.options.dependOnTheme);
 		this.setSize(this.options.size);
 		this.setColor(this.options.color);
 		this.setIcon(this.options.icon);
@@ -196,6 +198,41 @@ export default class Button extends BaseButton
 	isRound(): boolean
 	{
 		return Dom.hasClass(this.getContainer(), ButtonStyle.ROUND);
+	}
+
+	/**
+	 * @public
+	 * @param {boolean} [flag=true]
+	 * @return {this}
+	 */
+	setDependOnTheme(flag: boolean): this {
+		if (flag === true)
+		{
+			Dom.addClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME);
+		}
+		else if (flag === false)
+		{
+			Dom.removeClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME);
+		}
+
+		return this;
+	}
+
+	/**
+	 *
+	 * @return {boolean}
+	 */
+	isDependOnTheme(): boolean {
+		if (flag === false)
+		{
+			Dom.removeClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME);
+		}
+		else
+		{
+			Dom.addClass(this.getContainer(), ButtonStyle.DEPEND_ON_THEME);
+		}
+
+		return this;
 	}
 
 	/**

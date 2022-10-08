@@ -15,11 +15,10 @@ export class MacProvider extends ConnectionProvider
 			viewClassification: 'web',
 			templateClass: 'BX.Calendar.Sync.Interface.MacTemplate',
 		});
-
-		this.syncTimestamp = options.syncInfo.syncTimestamp;
 		this.portalAddress = options.portalAddress;
 		this.connectionName = Loc.getMessage('CALENDAR_TITLE_MAC');
 
+		this.setSyncDate(options.syncInfo.syncOffset);
 		this.setConnections();
 	}
 

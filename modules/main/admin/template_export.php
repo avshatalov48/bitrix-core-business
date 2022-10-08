@@ -27,7 +27,7 @@ if(!extension_loaded('zlib') || !function_exists("gzcompress"))
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/tar_gz.php");
 
 CheckDirPath($_SERVER['DOCUMENT_ROOT'].BX_PERSONAL_ROOT."/tmp/templates/");
-$tmpfname = $_SERVER['DOCUMENT_ROOT'].BX_PERSONAL_ROOT."/tmp/templates/".md5(uniqid(rand(), true).".tar.gz");
+$tmpfname = $_SERVER['DOCUMENT_ROOT'].BX_PERSONAL_ROOT."/tmp/templates/".\Bitrix\Main\Security\Random::getString(32).".tar.gz";
 
 $HTTP_ACCEPT_ENCODING = "";
 

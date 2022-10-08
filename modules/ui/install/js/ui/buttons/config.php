@@ -5,12 +5,10 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'css' => [
-		'src/css/ui.buttons.css',
-		'src/css/ui.buttons.ie.css'
-	],
+	'css' => 'dist/ui.buttons.bundle.css',
 	'js' => 'dist/ui.buttons.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
 		'ui.fonts.opensans',
 		'main.popup'
 	]

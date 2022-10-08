@@ -23,7 +23,7 @@
 }
 
 .landing-ui-rule-entry-type-separator-inner {
-	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 	background: #F4F6F8;
 	padding-right: 10px;

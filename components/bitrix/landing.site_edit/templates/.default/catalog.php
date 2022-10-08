@@ -18,8 +18,12 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 
 Loc::loadMessages(__DIR__ . '/template.php');
-Extension::load('ui.buttons');
-\CJSCore::init(['landing_master']);
+Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ui.buttons',
+	'landing_master',
+]);
 
 if ($arResult['ERRORS'])
 {
@@ -87,7 +91,7 @@ else
 	<form
 		action="<?= \htmlspecialcharsbx($uriSave->getUri());?>"
 		method="post"
-		class="ui-form ui-form-section ui-form-gray-padding landing-form-collapsed"
+		class="ui-form ui-form-section landing-form landing-form-gray-padding landing-form-collapsed"
 		id="landing-site-catalog-set-form"
 	>
 		<?= bitrix_sessid_post();?>
@@ -157,28 +161,6 @@ else
 											}
 										});
 										BX("fieldSectionId").appendChild(fieldSection.layout);
-										// if iblock id select exist
-										if (BX("settings_iblock_id"))
-										{
-											BX("row_section_id").classList.add("landing-form-field-section");
-											new BX.Landing.IblockSelect();
-
-											BX.bind(
-												BX("settings_iblock_id"),
-												"change",
-												() => {
-													fieldSection.setValue("");
-													fieldSection.setIblocks([{
-														name: "iblock",
-														value: BX("settings_iblock_id").value
-													}]);
-
-													new BX.Landing.IblockSelect();
-												}
-											);
-
-											BX.fireEvent(BX("settings_iblock_id"), "change");
-										}
 									</script>
 								<?php else:?>
 									<?php $template->showField($field, [

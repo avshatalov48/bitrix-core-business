@@ -89,6 +89,13 @@ return [
 				],
 			],
 			[
+				'id' => 'im-chat-user',
+				'options' => [
+					'dynamicLoad' => true,
+					'dynamicSearch' => true,
+				]
+			],
+			[
 				'id' => 'im-user',
 				'options' => [
 					'dynamicLoad' => true,
@@ -99,6 +106,12 @@ return [
 				'id' => 'im-recent',
 				'options' => [
 					'dynamicLoad' => true,
+				],
+			],
+			[
+				'id' => 'imbot-network',
+				'options' => [
+					'dynamicSearch' => true,
 				],
 			],
 		],

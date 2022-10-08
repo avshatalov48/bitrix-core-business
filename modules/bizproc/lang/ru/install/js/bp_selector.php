@@ -53,3 +53,4 @@ $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_LOCDATE_DESCRIPTION"] = "Меняет я�
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_SHUFFLE_DESCRIPTION"] = "Перемешивает значения множественного поля";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_FIRSTVALUE_DESCRIPTION"] = "Возвращает первое значение множественного поля";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_SWIRL_DESCRIPTION"] = "Перемещает первое значение множественного поля в конец";
+$MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_GETDOCUMENTURL_DESCRIPTION"] = "Возвращает ссылку на текущий документ";

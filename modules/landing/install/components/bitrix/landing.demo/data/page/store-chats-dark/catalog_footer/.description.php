@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 return [
+	'old_id' => 12,
 	'code' => 'store-chats-dark/catalog_footer',
 	'name' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_CATALOG_FOOTER-NAME'),
 	'description' => NULL,
@@ -52,34 +53,34 @@ return [
 				],
 			],
 			'nodes' => [
-				// '.landing-block-node-link' => [
-				// 	0 => [
-				// 		'href' => '#landing@landing[store-chats-dark/about]',
-				// 		'target' => '_self',
-				// 	],
-				// 	1 => [
-				// 		'href' => '#landing@landing[store-chats-dark/contacts]',
-				// 		'target' => '_self',
-				// 	],
-				// 	2 => [
-				// 		'href' => '#landing@landing[store-chats-dark/cutaway]',
-				// 		'target' => '_self',
-				// 	],
-				// 	3 => [
-				// 		'href' => '#landing@landing[store-chats-dark/payinfo]',
-				// 		'target' => '_self',
-				// 	],
-				// 	4 => [
-				// 		'href' => '#landing@landing[store-chats-dark/webform]',
-				// 		'target' => '_self',
-				// 	],
-				// ],
+				'.landing-block-node-link' => [
+					0 => [
+						'href' => '#landing1',
+						'target' => '_self',
+					],
+					1 => [
+						'href' => '#landing2',
+						'target' => '_self',
+					],
+					2 => [
+						'href' => '#landing3',
+						'target' => '_self',
+					],
+					3 => [
+						'href' => '#landing8',
+						'target' => '_self',
+					],
+					4 => [
+						'href' => '#landing9',
+						'target' => '_self',
+					],
+				],
 				'.landing-block-node-link-text' => [
-					0 => 'test link 0',
-					1 => 'test link 1',
-					2 => 'test link 2',
-					3 => 'test link 3',
-					4 => 'test link 4',
+					0 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_CATALOG_FOOTER-TEXT1'),
+					1 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_CATALOG_FOOTER-TEXT2'),
+					2 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_CATALOG_FOOTER-TEXT5'),
+					3 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_CATALOG_FOOTER-TEXT3'),
+					4 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_CATALOG_FOOTER-TEXT4'),
 				],
 			],
 			'style' => [

@@ -1,4 +1,4 @@
-(function (exports,ui_icons_disk,ui_vue_directives_lazyload,im_model,im_lib_utils,ui_vue) {
+(function (exports,ui_designTokens,ui_icons_disk,ui_vue_directives_lazyload,im_model,im_lib_utils,ui_vue) {
 	'use strict';
 
 	/**
@@ -622,5 +622,5 @@
 	  template: "\n\t\t<div class=\"bx-im-element-attach\">\n\t\t\t<div v-if=\"color\" class=\"bx-im-element-attach-border\" :style=\"{borderColor: color}\"></div>\n\t\t\t<div class=\"bx-im-element-attach-content\">\n\t\t\t\t<template v-for=\"(block, index) in config.BLOCKS\">\n\t\t\t\t\t<component :is=\"getComponentForBlock(block)\" :config=\"block\" :color=\"color\" :key=\"index\" />\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
-}((this.window = this.window || {}),BX,window,BX.Messenger.Model,BX.Messenger.Lib,BX));
+}((this.window = this.window || {}),BX,BX,window,BX.Messenger.Model,BX.Messenger.Lib,BX));
 //# sourceMappingURL=attach.bundle.js.map

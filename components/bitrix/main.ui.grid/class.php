@@ -416,6 +416,16 @@ class CMainUIGrid extends CBitrixComponent
 			""
 		);
 
+		$this->arParams["HIDE_TOP_BORDER_RADIUS"] = Grid\Params::prepareBoolean(
+			array($this->arParams["HIDE_TOP_BORDER_RADIUS"]),
+			false
+		);
+
+		$this->arParams["HIDE_BOTTOM_BORDER_RADIUS"] = Grid\Params::prepareBoolean(
+			array($this->arParams["HIDE_BOTTOM_BORDER_RADIUS"]),
+			false
+		);
+
 		return $this->arParams;
 	}
 

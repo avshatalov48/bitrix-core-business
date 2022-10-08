@@ -21,6 +21,8 @@ use Bitrix\UI\Toolbar\Facade\Toolbar;
 use Bitrix\Main\UserField;
 
 UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 	'socialnetwork.common',
 	'ui.icons.b24',
 	'ui.info-helper',

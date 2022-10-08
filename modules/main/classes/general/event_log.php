@@ -10,11 +10,15 @@ IncludeModuleLangFile(__FILE__);
 
 class CEventLog
 {
-	const SEVERITY_SECURITY = 1;
-	const SEVERITY_ERROR = 2;
-	const SEVERITY_WARNING = 3;
-	const SEVERITY_INFO = 4;
-	const SEVERITY_DEBUG = 5;
+	public const SEVERITY_SECURITY = 'SECURITY';
+	public const SEVERITY_EMERGENCY = 'EMERGENCY';
+	public const SEVERITY_ALERT = 'ALERT';
+	public const SEVERITY_CRITICAL = 'CRITICAL';
+	public const SEVERITY_ERROR = 'ERROR';
+	public const SEVERITY_WARNING = 'WARNING';
+	public const SEVERITY_NOTICE = 'NOTICE';
+	public const SEVERITY_INFO = 'INFO';
+	public const SEVERITY_DEBUG = 'DEBUG';
 
 	public static function Log($SEVERITY, $AUDIT_TYPE_ID, $MODULE_ID, $ITEM_ID, $DESCRIPTION = false, $SITE_ID = false)
 	{
@@ -31,20 +35,24 @@ class CEventLog
 	public static function Add($arFields)
 	{
 		global $USER, $DB;
-		static $arSeverity = array(
-			"SECURITY" => self::SEVERITY_SECURITY,
-			"ERROR" => self::SEVERITY_ERROR,
-			"WARNING" => self::SEVERITY_WARNING,
-			"INFO" => self::SEVERITY_INFO,
-			"DEBUG" => self::SEVERITY_DEBUG,
-		);
+		static $arSeverity = [
+			self::SEVERITY_SECURITY => 1,
+			self::SEVERITY_EMERGENCY => 1,
+			self::SEVERITY_ALERT => 1,
+			self::SEVERITY_CRITICAL => 1,
+			self::SEVERITY_ERROR => 1,
+			self::SEVERITY_WARNING => 1,
+			self::SEVERITY_NOTICE => 1,
+			self::SEVERITY_INFO => 1,
+			self::SEVERITY_DEBUG => 1,
+		];
 
 		$url = preg_replace("/(&?sessid=[0-9a-z]+)/", "", $_SERVER["REQUEST_URI"]);
 		$SITE_ID = defined("ADMIN_SECTION") && ADMIN_SECTION==true ? false : SITE_ID;
-
 		$session = \Bitrix\Main\Application::getInstance()->getSession();
+
 		$arFields = array(
-			"SEVERITY" => array_key_exists($arFields["SEVERITY"], $arSeverity)? $arFields["SEVERITY"]: "UNKNOWN",
+			"SEVERITY" => isset($arSeverity[$arFields["SEVERITY"]]) ? $arFields["SEVERITY"] : "UNKNOWN",
 			"AUDIT_TYPE_ID" => $arFields["AUDIT_TYPE_ID"] == ''? "UNKNOWN": $arFields["AUDIT_TYPE_ID"],
 			"MODULE_ID" => $arFields["MODULE_ID"] == ''? "UNKNOWN": $arFields["MODULE_ID"],
 			"ITEM_ID" => $arFields["ITEM_ID"] == ''? "UNKNOWN": $arFields["ITEM_ID"],
@@ -72,14 +80,6 @@ class CEventLog
 			$arDate = localtime(time());
 			$date = mktime(0, 0, 0, $arDate[4]+1, $arDate[3]-$cleanup_days, 1900+$arDate[5]);
 			$DB->Query("DELETE FROM b_event_log WHERE TIMESTAMP_X <= ".$DB->CharToDateFunction(ConvertTimeStamp($date, "FULL")));
-		}
-
-		$historyCleanupDays = (int)COption::GetOptionInt("main", "profile_history_cleanup_days", 0);
-		if($historyCleanupDays > 0)
-		{
-			$date = new \Bitrix\Main\Type\Date();
-			$date->add("-{$historyCleanupDays}D");
-			\Bitrix\Main\UserProfileHistoryTable::deleteByFilter(["<DATE_INSERT" => $date]);
 		}
 
 		return "CEventLog::CleanUpAgent();";

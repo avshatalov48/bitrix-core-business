@@ -23,9 +23,13 @@ if($arResult['ERROR'])
 	ShowError($arResult['ERROR']);
 	return false;
 }
-\Bitrix\Main\UI\Extension::load(array("ui.tilegrid", "ui.buttons", "ui.design-tokens"));
-?>
-<?
+
+\Bitrix\Main\UI\Extension::load([
+	"ui.design-tokens",
+	"ui.tilegrid",
+	"ui.buttons",
+]);
+
 $APPLICATION->IncludeComponent(
 	'bitrix:rest.configuration.section',
 	'',

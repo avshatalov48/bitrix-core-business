@@ -15,6 +15,7 @@ class Handlers
 	const SCOPE_USER_CONSENT = 'userconsent';
 	const SCOPE_RATING = 'rating';
 	const SCOPE_SMILE = 'smile';
+	const SCOPE_USER_FIELD_CONFIG = 'userfieldconfig';
 
 	public static function onRestServiceBuildDescription()
 	{
@@ -34,6 +35,9 @@ class Handlers
 			),
 			static::SCOPE_SMILE => array(
 				'smile.get' => array(Smile::class, 'getList'),
+			),
+			static::SCOPE_USER_FIELD_CONFIG => array(
+				\CRestUtil::EVENTS => UserField::getHandlers(),
 			)
 		);
 	}

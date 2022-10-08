@@ -15,6 +15,7 @@ return [
 		'landing.ui.field.textfield',
 		'landing.loc',
 		'main.core',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

@@ -28,6 +28,8 @@ class CRestProvider
 		"project" => "project",
 		"corporation" => "corporation",
 		"company" => "company",
+		"company2" => "company2",
+		"company3" => "company3",
 		"team" => "team",
 		"demo" => "demo",
 		"nfr" => "nfr",
@@ -35,9 +37,14 @@ class CRestProvider
 		"crm" => "crm",
 		"tasks" => "tasks",
 		"basic" => "basic",
+		"start" => "start",
 		"std" => "std",
 		"pro" => "pro",
 		"ent" => "ent",
+		"pro100" => "pro100",
+		"ent250" => "ent250",
+		"ent500" => "ent500",
+		"ent1000" => "ent1000",
 	);
 
 	protected static $arApp = null;
@@ -103,6 +110,17 @@ class CRestProvider
 								"category" => \Bitrix\Rest\Sqs::CATEGORY_IMPORTANT,
 							)
 						),
+						'OnSubscriptionRenew' => [
+							'rest',
+							'onAfterSubscriptionRenew',
+							[
+								__CLASS__,
+								'onSubscriptionRenew',
+							],
+							[
+								'sendRefreshToken' => true,
+							],
+						],
 						'OnAppTest' => array(
 							'rest',
 							'OnRestAppTest',

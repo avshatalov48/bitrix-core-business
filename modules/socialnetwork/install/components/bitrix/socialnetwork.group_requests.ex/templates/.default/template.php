@@ -9,10 +9,14 @@
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
 
-UI\Extension::load("ui.buttons");
-UI\Extension::load("ui.alerts");
-UI\Extension::load("ui.tooltip");
-UI\Extension::load("socialnetwork.common");
+UI\Extension::load([
+	"ui.design-tokens",
+	"ui.fonts.opensans",
+	"ui.buttons",
+	"ui.alerts",
+	"ui.tooltip",
+	"socialnetwork.common",
+]);
 
 if ($arResult["NEED_AUTH"] == "Y")
 {

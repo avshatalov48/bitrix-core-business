@@ -37,9 +37,22 @@ if (!empty($arParams['ERRORS']))
 
 foreach ($arParams['WIDGETS'] as $widget) :?>
 	<?php if (is_array($widget['show']) && isset($widget['show']['url'])): ?>
-		<a class="<?= $widget['classList'] ?> openlines-style-circle g-pointer-events-none--edit-mode" target="_blank" href="<?= $widget['show']['url'] ?>">
-		</a>
-
+		<?php if (is_array($widget['show']['url'])): ?>
+			<?php if ($arParams['IS_MOBILE']): ?>
+				<a class="<?= $widget['classList'] ?> openlines-style-circle g-pointer-events-none--edit-mode" target="_blank" href="<?= $widget['show']['url']['mobile'] ?>">
+				</a>
+			<?php else: ?>
+				<div
+					class="openlines-style-circle g-cursor-pointer g-pointer-events-none--edit-mode <?= $widget['classList'] ?>"
+					target="_blank"
+					onclick="<?= $widget['show']['js']['desktop'] ?>"
+				>
+				</div>
+			<?php endif; ?>
+		<?php else: ?>
+			<a class="<?= $widget['classList'] ?> openlines-style-circle g-pointer-events-none--edit-mode" target="_blank" href="<?= $widget['show']['url'] ?>">
+			</a>
+		<?php endif; ?>
 	<?php else: ?>
 		<div
 			class="openlines-style-circle g-cursor-pointer g-pointer-events-none--edit-mode <?= $widget['classList'] ?>"

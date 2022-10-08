@@ -7,6 +7,7 @@
  * @copyright 2001-2019 Bitrix
  */
 
+import 'ui.fonts.opensans';
 import "./reaction.css";
 import "./icons.css";
 

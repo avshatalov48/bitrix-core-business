@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,ui_vue_vuex,im_lib_utils,im_const,ui_vue,main_core_events) {
+(function (exports,ui_vue_vuex,ui_designTokens,im_lib_utils,im_const,ui_vue,main_core_events) {
 	'use strict';
 
 	var RecentItem = ui_vue.BitrixVue.localComponent('bx-im-component-recent-item', {
@@ -644,5 +644,5 @@ this.BX = this.BX || {};
 	  template: "\n\t\t\t<div class=\"bx-messenger-recent\">\n\t\t\t\t<div class=\"bx-messenger-recent-list\" @scroll=\"onScroll\">\n\t\t\t\t\t<template v-for=\"item in pinnedItems\">\n\t\t\t\t\t\t<recent-item\n\t\t\t\t\t\t\t:itemData=\"item\"\n\t\t\t\t\t\t\t:key=\"item.id\"\n\t\t\t\t\t\t\t:data-id=\"item.id\"\n\t\t\t\t\t\t\tv-recent-list-observer\n\t\t\t\t\t\t\t@click=\"onClick\"\n\t\t\t\t\t\t\t@rightClick=\"onRightClick\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t</template>\n\t\t\t\t\t<template v-for=\"item in generalItems\">\n\t\t\t\t\t\t<recent-item\n\t\t\t\t\t\t\t:itemData=\"item\"\n\t\t\t\t\t\t\t:key=\"item.id\"\n\t\t\t\t\t\t\t:data-id=\"item.id\"\n\t\t\t\t\t\t\tv-recent-list-observer\n\t\t\t\t\t\t\t@click=\"onClick\"\n\t\t\t\t\t\t\t@rightClick=\"onRightClick\"\n\t\t\t\t\t\t/>\n\t\t\t\t\t</template>\n\t\t\t\t</div>\n\t\t\t</div>\n\t"
 	});
 
-}((this.BX.Messenger = this.BX.Messenger || {}),BX,BX.Messenger.Lib,BX.Messenger.Const,BX,BX.Event));
+}((this.BX.Messenger = this.BX.Messenger || {}),BX,BX,BX.Messenger.Lib,BX.Messenger.Const,BX,BX.Event));
 //# sourceMappingURL=recent.bundle.js.map

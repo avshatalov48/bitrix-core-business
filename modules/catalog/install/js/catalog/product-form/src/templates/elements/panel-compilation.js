@@ -25,13 +25,13 @@ Vue.component(config.templatePanelCompilation,
 	},
 	created()
 	{
-		EventEmitter.subscribe('BX.Catalog.ProductSelector:onChange', this.destroyPopup.bind(this));
-		EventEmitter.subscribe('BX.Catalog.ProductSelector:onClear', this.destroyPopup.bind(this));
 		this.newLabel = new Label({
 			text: this.localize.CATALOG_FORM_COMPILATION_PRODUCT_NEW_LABEL,
 			color: LabelColor.PRIMARY,
 			fill: true
 		});
+		this.popup = null;
+		this.compilationLink = null;
 
 		const moreMessageButton = Tag.render`
 			<a class="ui-btn ui-btn-primary">${this.localize.CATALOG_FORM_COMPILATION_INFO_BUTTON_MORE}</a>
@@ -52,7 +52,7 @@ Vue.component(config.templatePanelCompilation,
 		else
 		{
 			header = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_TITLE;
-			description = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_MARKETING;
+			description = this.localize.CATALOG_FORM_COMPILATION_INFO_MESSAGE_BODY_MARKETING_2;
 		}
 
 		this.message = new MessageCard({
@@ -124,15 +124,29 @@ Vue.component(config.templatePanelCompilation,
 			return new Promise(
 				(resolve, reject) => {
 					ajax.runAction(
-						'salescenter.api.store.getLinkToProductCollection',
+						'salescenter.compilation.createCompilation',
 						{
-							json: {
-								productIds
+							data: {
+								productIds,
+								options: {
+									ownerId: this.$root.$app.options.ownerId,
+									ownerTypeId: this.$root.$app.options.ownerTypeId,
+									dialogId: this.$root.$app.options.dialogId,
+									sessionId: this.$root.$app.options.sessionId,
+								}
 							}
 						}
 					)
 						.then(response => {
-							this.compilationLink = response.data.link
+							this.compilationLink = response.data.link ?? null;
+							EventEmitter.emit(
+								this.$root.$app,
+								'ProductForm:onCompilationCreated',
+								{
+									compilationId: response.data.compilationId ?? null,
+									ownerId: response.data.ownerId ?? null,
+								}
+							);
 							this.popup = new Popup({
 								bindElement: event.target,
 								content: this.getQRPopupContent(),
@@ -151,14 +165,6 @@ Vue.component(config.templatePanelCompilation,
 						})
 						.catch(() => reject());
 				});
-		},
-		destroyPopup(): void
-		{
-			if (this.popup instanceof Popup)
-			{
-				this.popup.destroy();
-				this.popup = null;
-			}
 		},
 		getQRPopupContent(): HTMLElement
 		{
@@ -193,7 +199,7 @@ Vue.component(config.templatePanelCompilation,
 						<div class="catalog-pf-product-qr-popup-bottom">
 							<a href="${this.compilationLink}" target="_blank" class="catalog-pf-product-qr-popup--url">${this.compilationLink}</a>
 							${buttonCopy}
-						</div>					
+						</div>
 					</div>
 				`;
 
@@ -208,60 +214,7 @@ Vue.component(config.templatePanelCompilation,
 		setSetting(event)
 		{
 			const value = event.target.checked ? 'Y' : 'N';
-			if (!this.compilationOptions.hasStore)
-			{
-				this.compilationOptions.disabledSwitcher = true;
-				const creationStorePopup = new Popup({
-					bindElement: event.target,
-					className: 'catalog-product-form-popup--creating-shop',
-					content: this.getOnBeforeCreationStorePopupContent(),
-					width: 310,
-					overlay: true,
-					padding: 17,
-					animation: 'fading-slide',
-					angle: false,
-				});
-
-				creationStorePopup.show();
-				ajax.runAction('salescenter.api.store.getStoreInfo', {
-					json: {}}
-				)
-					.then((response) => {
-						if (Type.isStringFilled(response.data?.deactivatedStore?.TITLE))
-						{
-							const title = Loc.getMessage(
-								'CATALOG_FORM_COMPILATION_UNPUBLISHED_STORE',
-								{'#STORE_TITLE#': Tag.safe`${response.data?.deactivatedStore?.TITLE}`}
-							);
-
-							BX.UI.Notification.Center.notify({
-								content: Tag.render`
-									<div>
-										<span>${title}</span>
-										<a href="/shop/stores/" target="_blank">
-											${Loc.getMessage('CATALOG_FORM_COMPILATION_UNPUBLISHED_STORE_LINK')}
-										</a>
-									</div>
-								`,
-							});
-						}
-						creationStorePopup.setContent(
-							this.getOnAfterCreationStorePopupContent()
-						);
-
-						creationStorePopup.setClosingByEsc(true);
-						creationStorePopup.setAutoHide(true);
-
-						creationStorePopup.show();
-						this.$root.$app.changeFormOption('isCompilationMode', value);
-						this.compilationOptions.disabledSwitcher = this.compilationOptions.isLimitedStore;
-						this.compilationOptions.hasStore = true;
-					});
-			}
-			else
-			{
-				this.$root.$app.changeFormOption('isCompilationMode', value);
-			}
+			this.$root.$app.changeFormOption('isCompilationMode', value);
 		},
 		getOnBeforeCreationStorePopupContent()
 		{
@@ -271,9 +224,9 @@ Vue.component(config.templatePanelCompilation,
 
 			const node = Tag.render`
 				<div class="catalog-product-form-popup--container">
-					<div class="catalog-product-form-popup--title">${Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING')}</div>
+					<div class="catalog-product-form-popup--title">${Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING1')}</div>
 					${loaderContent}
-					<div class="catalog-product-form-popup--text">${Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING_INFO')}</div>
+					<div class="catalog-product-form-popup--text">${Loc.getMessage('CATALOG_FORM_POPUP_BEFORE_MARKET_CREATING_INFO1')}</div>
 				</div>
 			`;
 
@@ -287,15 +240,26 @@ Vue.component(config.templatePanelCompilation,
 
 			return node;
 		},
-		getOnAfterCreationStorePopupContent()
+		getOnAfterCreationStorePopupContent(creationStorePopup)
 		{
+			const continueButton = Tag.render`
+				<button class="ui-btn ui-btn-md ui-btn-primary">
+					${Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING_CONTINUE')}
+				</button>
+			`;
+			Event.bind(continueButton, 'click', this.closeCreationStorePopup.bind(this, creationStorePopup));
 			return Tag.render`
 				<div class="catalog-product-form-popup--container">
-					<div class="catalog-product-form-popup--title">${Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING')}</div>
+					<div class="catalog-product-form-popup--title">${Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING1')}</div>
 					<div class="catalog-product-form-popup--loader-block catalog-product-form-popup--done"></div>
-					<div class="catalog-product-form-popup--text">${Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING_INFO')}</div>
+					<div class="catalog-product-form-popup--text">${Loc.getMessage('CATALOG_FORM_POPUP_AFTER_MARKET_CREATING_INFO1')}</div>
+					<div class="catalog-product-form-popup--button-container">${continueButton}</div>
 				</div>
 			`;
+		},
+		closeCreationStorePopup(creationStorePopup)
+		{
+			creationStorePopup.close();
 		},
 		onLabelClick()
 		{
@@ -360,15 +324,15 @@ Vue.component(config.templatePanelCompilation,
 		<div>
 			<div class="catalog-pf-product-panel-compilation">
 				<div class="catalog-pf-product-panel-compilation-wrapper">
-					<label class="ui-ctl ui-ctl-checkbox" @click="onLabelClick">
-						<input 
-							type="checkbox" 
+					<label class="ui-ctl ui-ctl-checkbox catalog-pf-product-panel-compilation-checkbox-container" @click="onLabelClick">
+						<input
+							type="checkbox"
 							:disabled="compilationOptions.disabledSwitcher"
-							class="ui-ctl-element" 
-							@change="setSetting" 
+							class="ui-ctl-element"
+							@change="setSetting"
 							data-setting-id="isCompilationMode"
 						>
-						<div class="ui-ctl-label-text">{{localize.CATALOG_FORM_COMPILATION_PRODUCT_SWITCHER}}</div>
+						<div class="ui-ctl-label-text">{{localize.CATALOG_FORM_COMPILATION_PRODUCT_SWITCHER_2}}</div>
 						<div ref="hintIcon">
 							<div data-hint-init="vue" class="ui-hint" @click="onClickHint">
 								<span class="ui-hint-icon"></span>
@@ -377,8 +341,9 @@ Vue.component(config.templatePanelCompilation,
 						<div ref="label"></div>
 						<div class="tariff-lock" v-if="compilationOptions.isLimitedStore"></div>
 					</label>
+					<div class="catalog-pf-product-panel-compilation-price-info">{{localize.CATALOG_FORM_COMPILATION_PRICE_NOTIFICATION}}</div>
 				</div>
-				<div 				
+				<div
 					v-if="showQrLink"
 					class="catalog-pf-product-panel-compilation-link --icon-qr"
 					@click="showPopup"

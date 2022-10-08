@@ -216,126 +216,154 @@ final class MailHandler
 			"CREATE" => "Y",
 		));
 
-		if ($blog)
+		if (!$blog)
 		{
-			$connection = \Bitrix\Main\Application::getConnection();
-			$helper = $connection->getSqlHelper();
+			return $postId;
+		}
 
-			$fields = Array(
-				"BLOG_ID" => $blog["ID"],
-				"AUTHOR_ID" => $userId,
-				"=DATE_CREATE" => $helper->getCurrentDateTimeFunction(),
-				"=DATE_PUBLISH" => $helper->getCurrentDateTimeFunction(),
-				"MICRO" => "N",
-				"TITLE" => $subject,
-				"DETAIL_TEXT" => $message,
-				"DETAIL_TEXT_TYPE" => "text",
-				"PUBLISH_STATUS" => BLOG_PUBLISH_STATUS_PUBLISH,
-				"HAS_IMAGES" => "N",
-				"HAS_TAGS" => "N",
-				"HAS_SOCNET_ALL" => "N",
-				"SOCNET_RIGHTS" => array("U".$userId)
-			);
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
-			if ($fields["TITLE"] == '')
+		$fields = Array(
+			"BLOG_ID" => $blog["ID"],
+			"AUTHOR_ID" => $userId,
+			"=DATE_CREATE" => $helper->getCurrentDateTimeFunction(),
+			"=DATE_PUBLISH" => $helper->getCurrentDateTimeFunction(),
+			"MICRO" => "N",
+			"TITLE" => $subject,
+			"DETAIL_TEXT" => $message,
+			"DETAIL_TEXT_TYPE" => "text",
+			"PUBLISH_STATUS" => BLOG_PUBLISH_STATUS_PUBLISH,
+			"HAS_IMAGES" => "N",
+			"HAS_TAGS" => "N",
+			"HAS_SOCNET_ALL" => "N",
+			"SOCNET_RIGHTS" => array("U".$userId)
+		);
+
+		if ($fields["TITLE"] == '')
+		{
+			$fields["MICRO"] = "Y";
+			$fields["TITLE"] = preg_replace("/\[ATTACHMENT\s*=\s*[^\]]*\]/is".BX_UTF_PCRE_MODIFIER, "", \blogTextParser::killAllTags($fields["DETAIL_TEXT"]));
+			$fields["TITLE"] = TruncateText(trim(preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", $fields["TITLE"])), 100);
+			if($fields["TITLE"] == '')
 			{
-				$fields["MICRO"] = "Y";
-				$fields["TITLE"] = preg_replace("/\[ATTACHMENT\s*=\s*[^\]]*\]/is".BX_UTF_PCRE_MODIFIER, "", \blogTextParser::killAllTags($fields["DETAIL_TEXT"]));
-				$fields["TITLE"] = TruncateText(trim(preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", $fields["TITLE"])), 100);
-				if($fields["TITLE"] == '')
-				{
-					$fields["TITLE"] = Loc::getMessage("BLOG_MAILHANDLER_EMPTY_TITLE_PLACEHOLDER");
-				}
+				$fields["TITLE"] = Loc::getMessage("BLOG_MAILHANDLER_EMPTY_TITLE_PLACEHOLDER");
 			}
+		}
 
-			$ufCode = (
-				isModuleInstalled("webdav")
-				|| isModuleInstalled("disk")
-					? "UF_BLOG_POST_FILE"
-					: "UF_BLOG_POST_DOC"
-			);
-			$fields[$ufCode] = array();
+		$ufCode = (
+			isModuleInstalled("webdav")
+			|| isModuleInstalled("disk")
+				? "UF_BLOG_POST_FILE"
+				: "UF_BLOG_POST_DOC"
+		);
+		$fields[$ufCode] = array();
 
-			$type = false;
-			$attachmentRelations = array();
+		$type = false;
+		$attachmentRelations = array();
 
-			foreach ($attachments as $key => $attachedFile)
+		foreach ($attachments as $key => $attachedFile)
+		{
+			$resultId = \CSocNetLogComponent::saveFileToUF($attachedFile, $type, $userId);
+			if ($resultId)
 			{
-				$resultId = \CSocNetLogComponent::saveFileToUF($attachedFile, $type, $userId);
-				if ($resultId)
-				{
-					$fields[$ufCode][] = $resultId;
-					$attachmentRelations[$key] = $resultId;
-				}
+				$fields[$ufCode][] = $resultId;
+				$attachmentRelations[$key] = $resultId;
 			}
+		}
 
-			$fields["HAS_PROPS"] = (!empty($attachmentRelations) ? "Y" :"N");
+		$fields["HAS_PROPS"] = (!empty($attachmentRelations) ? "Y" :"N");
 
-			$fields["DETAIL_TEXT"] = preg_replace_callback(
-				"/\[ATTACHMENT\s*=\s*([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER,
-				function ($matches) use ($attachmentRelations)
-				{
-					return (
-						isset($attachmentRelations[$matches[1]])
-							? "[DISK FILE ID=".$attachmentRelations[$matches[1]]."]"
-							: ""
-					);
-				},
-				$fields["DETAIL_TEXT"]
-			);
-
-			if (Loader::includeModule('disk'))
+		$fields["DETAIL_TEXT"] = preg_replace_callback(
+			"/\[ATTACHMENT\s*=\s*([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER,
+			function ($matches) use ($attachmentRelations)
 			{
-				\Bitrix\Disk\Uf\FileUserType::setValueForAllowEdit("BLOG_POST", true);
-			}
-
-			$postId = \CBlogPost::add($fields);
-
-			if ($postId)
-			{
-				BXClearCache(true, "/".$siteId."/blog/last_messages_list/");
-
-				$fields["ID"] = $postId;
-				$paramsNotify = array(
-					"bSoNet" => true,
-					"UserID" => $userId,
-					"allowVideo" => "N",
-					"PATH_TO_SMILE" => Config\Option::get("socialnetwork", "smile_page", '', $siteId),
-					"PATH_TO_POST" => $pathToPost,
-					"user_id" => $userId,
-					"NAME_TEMPLATE" => \CSite::getNameFormat(null, $siteId),
-					"SHOW_LOGIN" => "Y",
-					"SEND_COUNTER_TO_AUTHOR" => "Y"
+				return (
+					isset($attachmentRelations[$matches[1]])
+						? "[DISK FILE ID=".$attachmentRelations[$matches[1]]."]"
+						: ""
 				);
-				\CBlogPost::notify($fields, $blog, $paramsNotify);
+			},
+			$fields["DETAIL_TEXT"]
+		);
 
-				if (Loader::includeModule('im'))
-				{
-					$postUrl = \CComponentEngine::makePathFromTemplate($pathToPost, array(
-						"post_id" => $postId,
-						"user_id" => $userId
-					));
+		if (Loader::includeModule('disk'))
+		{
+			\Bitrix\Disk\Uf\FileUserType::setValueForAllowEdit("BLOG_POST", true);
+		}
 
-					$processedPathData = \CSocNetLogTools::processPath(array("POST_URL" => $postUrl), $userId, $siteId);
-					$serverName = $processedPathData["SERVER_NAME"];
-					$postUrl = $processedPathData["URLS"]["POST_URL"];
+		$postId = \CBlogPost::add($fields);
 
-					\CIMNotify::add(array(
-						"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
-						"NOTIFY_TYPE" => IM_NOTIFY_SYSTEM,
-						"NOTIFY_MODULE" => "blog",
-						"NOTIFY_EVENT" => "post_mail",
-						"NOTIFY_TAG" => "BLOG|POST|".$postId,
-						"TO_USER_ID" => $userId,
-						"NOTIFY_MESSAGE" => Loc::getMessage("BLOG_MAILHANDLER_NEW_POST", array(
-							"#TITLE#" => "<a href=\"".$postUrl."\">".$fields["TITLE"]."</a>"
-						)),
-						"NOTIFY_MESSAGE_OUT" => Loc::getMessage("BLOG_MAILHANDLER_NEW_POST", array(
-								"#TITLE#" => $fields["TITLE"]
-							)).' '.$serverName.$postUrl
-					));
-				}
+		if (!$postId)
+		{
+			return $postId;
+		}
+
+		BXClearCache(true, "/".$siteId."/blog/last_messages_list/");
+
+		$fields["ID"] = $postId;
+		$paramsNotify = array(
+			"bSoNet" => true,
+			"UserID" => $userId,
+			"allowVideo" => "N",
+			"PATH_TO_SMILE" => Config\Option::get("socialnetwork", "smile_page", '', $siteId),
+			"PATH_TO_POST" => $pathToPost,
+			"user_id" => $userId,
+			"NAME_TEMPLATE" => \CSite::getNameFormat(null, $siteId),
+			"SHOW_LOGIN" => "Y",
+			"SEND_COUNTER_TO_AUTHOR" => "Y"
+		);
+		\CBlogPost::notify($fields, $blog, $paramsNotify);
+
+		if (Loader::includeModule('im'))
+		{
+			$postUrl = \CComponentEngine::makePathFromTemplate($pathToPost, array(
+				"post_id" => $postId,
+				"user_id" => $userId
+			));
+
+			$processedPathData = \CSocNetLogTools::processPath(array("POST_URL" => $postUrl), $userId, $siteId);
+			$serverName = $processedPathData["SERVER_NAME"];
+			$postUrl = $processedPathData["URLS"]["POST_URL"];
+
+			\CIMNotify::add(array(
+				"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
+				"NOTIFY_TYPE" => IM_NOTIFY_SYSTEM,
+				"NOTIFY_MODULE" => "blog",
+				"NOTIFY_EVENT" => "post_mail",
+				"NOTIFY_TAG" => "BLOG|POST|".$postId,
+				"TO_USER_ID" => $userId,
+				"NOTIFY_MESSAGE" => Loc::getMessage("BLOG_MAILHANDLER_NEW_POST", array(
+					"#TITLE#" => "<a href=\"".$postUrl."\">".$fields["TITLE"]."</a>"
+				)),
+				"NOTIFY_MESSAGE_OUT" => Loc::getMessage("BLOG_MAILHANDLER_NEW_POST", array(
+						"#TITLE#" => $fields["TITLE"]
+					)).' '.$serverName.$postUrl
+			));
+		}
+
+		$categoryIdList = \Bitrix\Socialnetwork\Component\BlogPostEdit\Tag::parseTagsFromFields([
+			'postFields' => $fields,
+			'blogId' => $blog['ID'],
+		]);
+		if (!empty($categoryIdList))
+		{
+			foreach ($categoryIdList as $categoryId)
+			{
+				\CBlogPostCategory::add([
+					'BLOG_ID' => $fields['BLOG_ID'],
+					'POST_ID' => $postId,
+					'CATEGORY_ID' => $categoryId
+				]);
 			}
+
+			\CBlogPost::update(
+				$postId,
+				[
+					'CATEGORY_ID' => implode(',', $categoryIdList),
+					'HAS_TAGS' => 'Y',
+				]
+			);
 		}
 
 		return $postId;

@@ -38,6 +38,7 @@ Extension::load(
 		'ui.buttons',
 		'ui.sidepanel-content',
 		'rest.integration',
+		'ui.fonts.opensans',
 	]
 );
 

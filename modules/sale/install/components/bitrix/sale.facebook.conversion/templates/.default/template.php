@@ -10,12 +10,12 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\UI\Extension;
 
-Extension::load(['seo.ads.login', 'ui.buttons', 'ui.switcher', 'ui.notification']);
-
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
+
+Extension::load(['seo.ads.login', 'ui.buttons', 'ui.switcher', 'ui.notification', 'ui.fonts.opensans']);
 ?>
 <div id="facebook_conversion_container"></div>
 <script>

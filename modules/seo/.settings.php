@@ -38,7 +38,18 @@ return [
 					}
 					return [];
 				}
-			]
+			],
+			'seo.catalog.webhook.handler' => [
+				'className' => '\\Bitrix\\Seo\\Catalog\\CatalogWebhookHandler',
+				'constructorParams' => static function () : array {
+					return [
+						\Bitrix\Main\Context::getCurrent()->getRequest(),
+						\Bitrix\Seo\Service::getEngine(),
+						\Bitrix\Main\EventManager::getInstance(),
+						\Bitrix\Main\Application::getInstance(),
+					];
+				}
+			],
 		],
 		'readonly' => true,
 	],

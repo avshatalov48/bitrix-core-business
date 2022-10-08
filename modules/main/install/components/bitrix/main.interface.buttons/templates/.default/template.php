@@ -4,7 +4,7 @@ use \Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Converter;
 use Bitrix\Main\Web\Json;
 
-CJSCore::Init(['ajax', 'popup', 'ui.buttons.icons']);
+CJSCore::Init(['ajax', 'popup', 'ui.buttons.icons', 'ui.fonts.opensans']);
 
 $templateFolder = $this->getFolder();
 $this->addExternalJs($templateFolder."/utils.js");
@@ -114,8 +114,9 @@ $this->addExternalJs($templateFolder."/utils.js");
 								$style = empty($color) ? '' : ' style="color:' . $color . '"';
 								?><span class="main-buttons-item-super-title<?=$className?>"<?=$style?>><?=$text?></span><?
 							endif
-							?><span class="main-buttons-item-text-title"><?=htmlspecialcharsbx($title)?></span><?
-							?><span class="main-buttons-item-menu-arrow"></span><?
+							?><span class="main-buttons-item-text-title"><?
+								?><span class="main-buttons-item-text-box"><?=htmlspecialcharsbx($title)?><span class="main-buttons-item-menu-arrow"></span></span><?
+							?></span><?
 							?><span class="main-buttons-item-edit-button" data-slider-ignore-autobinding="true"></span><?
 							?><span class="main-buttons-item-text-marker"></span><?
 						?></span><?
@@ -219,7 +220,9 @@ $this->addExternalJs($templateFolder."/utils.js");
 											$style = empty($color) ? '' : ' style="color:' . $color . '"';
 											?><span class="main-buttons-item-super-title<?=$className?>"<?=$style?>><?=$text?></span><?
 										endif
-										?><span class="main-buttons-item-text-title"><?=htmlspecialcharsbx($title)?></span><?
+										?><span class="main-buttons-item-text-title"><?
+											?><span class="main-buttons-item-text-box"><?=htmlspecialcharsbx($title)?></span><?
+										?></span><?
 										?><span class="main-buttons-item-edit-button" data-slider-ignore-autobinding="true"></span><?
 										?><span class="main-buttons-item-text-marker"></span><?
 									?></span><?
@@ -252,8 +255,9 @@ $this->addExternalJs($templateFolder."/utils.js");
 			?><span class="main-buttons-item-link<?=$arParams["CLASS_ITEM_LINK"] ? " ".$arParams["CLASS_ITEM_LINK"] : ""?>"><?
 				?><span class="main-buttons-item-icon<?=$arParams["CLASS_ITEM_ICON"] ? " ".$arParams["CLASS_ITEM_ICON"] : ""?>"></span><?
 				?><span class="main-buttons-item-text<?=$arParams["CLASS_ITEM_TEXT"] ? " ".$arParams["CLASS_ITEM_TEXT"] : ""?>"><?
-					?><span class="main-buttons-item-text-title"><?=$arResult["MORE_BUTTON"]["TEXT"]?></span><?
-					?><span class="main-buttons-item-menu-arrow"></span><?
+					?><span class="main-buttons-item-text-title"><?
+						?><span class="main-buttons-item-text-box"><?=$arResult["MORE_BUTTON"]["TEXT"]?><span class="main-buttons-item-menu-arrow"></span></span><?
+					?></span><?
 				?></span><?
 				?><span class="main-buttons-item-counter"></span><?
 			?></span>

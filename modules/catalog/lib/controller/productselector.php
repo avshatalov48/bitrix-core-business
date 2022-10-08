@@ -291,6 +291,7 @@ class ProductSelector extends JsonController
 			'PROPERTIES' => $formFields['properties'],
 			'VAT_ID' => $formFields['taxId'],
 			'VAT_INCLUDED' => $formFields['taxIncluded'],
+			'BRANDS' => $this->getProductBrand($sku),
 		];
 
 		$previewImage = $sku->getFrontImageCollection()->getFrontImage();
@@ -346,6 +347,39 @@ class ProductSelector extends JsonController
 		return null;
 	}
 
+	private function getProductBrand($sku): ?array
+	{
+		$product = $sku->getParent();
+		if (!$product)
+		{
+			return null;
+		}
+
+		$brand = $product->getPropertyCollection()->findByCode('BRAND_FOR_FACEBOOK');
+		if (!$brand)
+		{
+			return null;
+		}
+
+		$userType = \CIBlockProperty::GetUserType($brand->getUserType());
+		$userTypeMethod = $userType['GetUIEntityEditorProperty'];
+		$propertySettings = $brand->getSettings();
+		$propertyValues = $brand->getPropertyValueCollection()->getValues();
+		$description = $userTypeMethod($propertySettings, $propertyValues);
+		$propertyBrandItems = $description['data']['items'];
+
+		$selectedBrandItems = [];
+
+		foreach ($propertyBrandItems as $propertyBrandItem)
+		{
+			if (in_array($propertyBrandItem['VALUE'], $propertyValues, true))
+			{
+				$selectedBrandItems[] = $propertyBrandItem;
+			}
+		}
+
+		return $selectedBrandItems;
+	}
 
 	public function createProductAction(array $fields): ?array
 	{
@@ -369,13 +403,20 @@ class ProductSelector extends JsonController
 			return null;
 		}
 
+		$skuRepository = ServiceContainer::getSkuRepository($iblockId);
+		$type = $skuRepository ? ProductTable::TYPE_SKU : ProductTable::TYPE_PRODUCT;
+
 		/** @var BaseProduct $product */
 		$product = $productFactory
 			->createEntity()
-			->setType(ProductTable::TYPE_PRODUCT)
+			->setType($type)
 		;
 
-		$sku = $product->getSkuCollection()->getFirst();
+		$sku =
+			$skuRepository
+				? $product->getSkuCollection()->create()
+				:  $product->getSkuCollection()->getFirst()
+		;
 
 		if (!empty($fields['BARCODE']))
 		{
@@ -457,6 +498,10 @@ class ProductSelector extends JsonController
 		}
 
 		$product->setFields($fields);
+		if ($fields['MEASURE'] > 0)
+		{
+			$sku->setField('MEASURE', $fields['MEASURE']);
+		}
 
 		if (isset($fields['PRICE']) && $fields['PRICE'] >= 0)
 		{
@@ -490,7 +535,7 @@ class ProductSelector extends JsonController
 		}
 
 		return [
-			'id' => $product->getId(),
+			'id' => $sku->getId(),
 		];
 	}
 
@@ -798,6 +843,15 @@ class ProductSelector extends JsonController
 				;
 
 				$barcodeCollection->add($barcodeItem);
+			}
+		}
+
+		if (isset($fields['BRANDS']) && is_array($fields['BRANDS']))
+		{
+			$product = $sku->getParent();
+			if ($product)
+			{
+				$product->getPropertyCollection()->setValues(['BRAND_FOR_FACEBOOK' => $fields['BRANDS']]);
 			}
 		}
 

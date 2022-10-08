@@ -6,6 +6,10 @@ use Bitrix\Main\SystemException;
 
 class SettingsContainer
 {
+	public const BUILDER_SCENARIO_SHIPMENT = 'shipment';
+	public const BUILDER_SCENARIO_PAYMENT = 'payment';
+	public const BUILDER_SCENARIO_RESERVATION = 'reservation';
+
 	const DISALLOW_NEW_USER_CREATION = 0;
 	const ALLOW_NEW_USER_CREATION = 1;
 	const SET_ANONYMOUS_USER = 2;
@@ -57,6 +61,10 @@ class SettingsContainer
 			'acceptableErrorCodes' => [],
 			//We need this if some of order properties upload files.
 			'propsFiles' => [],
+			//Fill shipments by FORM_DATA of basket builder
+			'fillShipmentsByBasketBuilder' => false,
+			//Builder scenario
+			'builderScenario' => null,
 		];
 	}
 

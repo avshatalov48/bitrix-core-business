@@ -1407,94 +1407,102 @@ HTML;
 	public function registerEvent(array $data, array $params, \Bitrix\Vote\User $user)
 	{
 		if ($this["LAMP"] == "red")
+		{
 			throw new AccessDeniedException(Loc::getMessage("VOTE_IS_NOT_ACTIVE"));
-
+		}
 		$voteId = $this->getId();
+		if ($user->lock($voteId) !== true)
+		{
+			throw new AccessDeniedException(Loc::getMessage("VOTE_IS_OCCUPIED"));
+		}
+
 		$userId = $user->getId();
+
+		$this->errorCollection->clear();
+
 		/** @var \Bitrix\Main\Result $result */
 		if ($params["revote"] != true)
 		{
 			$result = $this->canVote($user);
 		}
 		//region Delete event If It is possible
-		else
+		else if (
+			($result = $this->canRevote($user))
+			&& $result->isSuccess()
+			&& !empty($result->getData())
+			&& ($eventIdsToDelete = array_column($result->getData(), 'ID'))
+			&& !empty($eventIdsToDelete)
+		)
 		{
-			$result = $this->canRevote($user);
-
-			if ($result->isSuccess() && !empty($result->getData()))
+			$dbRes = \Bitrix\Vote\EventTable::getList([
+				"select" => [
+					"V_" => "*",
+					"Q_" => "QUESTION.*",
+					"A_" => "QUESTION.ANSWER.*"],
+				"filter" => [
+					"VOTE_ID" => $voteId,
+					"ID" => $eventIdsToDelete],
+				"order" => [
+					"ID" => "ASC",
+					"QUESTION.ID" => "ASC",
+					"QUESTION.ANSWER.ID" => "ASC"]
+			]);
+			if ($dbRes && ($res = $dbRes->fetch()))
 			{
-				$ids = [];
-				foreach ($result->getData() as $res)
-					$ids[] = $res["ID"];
-				if (!empty($ids))
+				if (\Bitrix\Main\Loader::includeModule("im"))
 				{
-					$dbRes = \Bitrix\Vote\EventTable::getList([
-						"select" => [
-							"V_" => "*",
-							"Q_" => "QUESTION.*",
-							"A_" => "QUESTION.ANSWER.*"],
-						"filter" => [
-							"VOTE_ID" => $voteId,
-							"ID" => $ids],
-						"order" => [
-							"ID" => "ASC",
-							"QUESTION.ID" => "ASC",
-							"QUESTION.ANSWER.ID" => "ASC"]
-					]);
-					if ($dbRes && ($res = $dbRes->fetch()))
-					{
-						if (\Bitrix\Main\Loader::includeModule("im"))
-							\CIMNotify::DeleteByTag("VOTING|".$voteId, $userId);
-						$vEId = 0;
-						$qEId = 0;
-						do
-						{
-							if ($vEId < $res["V_ID"])
-							{
-								$vEId = $res["V_ID"];
-								\Bitrix\Vote\Event::deleteEvent(intval($res["V_ID"]));
-								$this->vote["COUNTER"] = max($this->vote["COUNTER"] - 1, 0);
-							}
-							if (array_key_exists($res["Q_QUESTION_ID"], $this->questions) &&
-								array_key_exists($res["A_ANSWER_ID"], $this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"]))
-							{
-								if ($qEId < $res["Q_ID"])
-								{
-									$qEId = $res["Q_ID"];
-									$this->questions[$res["Q_QUESTION_ID"]]["COUNTER"] = max($this->questions[$res["Q_QUESTION_ID"]]["COUNTER"] - 1, 0);
-								}
-
-								$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["COUNTER"] = max(
-									$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["COUNTER"] - 1,
-									0);
-								if ($this->questions[$res["Q_QUESTION_ID"]]["COUNTER"] > 0)
-								{
-									$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["~PERCENT"] =
-										$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["COUNTER"] * 100 /
-										$this->questions[$res["Q_QUESTION_ID"]]["COUNTER"];
-									$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["PERCENT"] = round($this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["~PERCENT"], 2);
-								}
-								else
-								{
-									$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["~PERCENT"] = 0;
-									$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["PERCENT"] = 0;
-								}
-							}
-						} while ($dbRes && ($res = $dbRes->fetch()));
-						$this->clearCache();
-						$this->clearVotingCache();
-					}
+					\CIMNotify::DeleteByTag("VOTING|".$voteId, $userId);
 				}
-				$result = $this->canVote($user);
+				$vEId = 0;
+				$qEId = 0;
+				do
+				{
+					if ($vEId < $res["V_ID"])
+					{
+						$vEId = $res["V_ID"];
+						\Bitrix\Vote\Event::deleteEvent(intval($res["V_ID"]));
+						$this->vote["COUNTER"] = max($this->vote["COUNTER"] - 1, 0);
+					}
+					if (array_key_exists($res["Q_QUESTION_ID"], $this->questions) &&
+						array_key_exists($res["A_ANSWER_ID"], $this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"]))
+					{
+						if ($qEId < $res["Q_ID"])
+						{
+							$qEId = $res["Q_ID"];
+							$this->questions[$res["Q_QUESTION_ID"]]["COUNTER"] = max($this->questions[$res["Q_QUESTION_ID"]]["COUNTER"] - 1, 0);
+						}
+
+						$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["COUNTER"] = max(
+							$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["COUNTER"] - 1,
+							0);
+						if ($this->questions[$res["Q_QUESTION_ID"]]["COUNTER"] > 0)
+						{
+							$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["~PERCENT"] =
+								$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["COUNTER"] * 100 /
+								$this->questions[$res["Q_QUESTION_ID"]]["COUNTER"];
+							$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["PERCENT"] = round($this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["~PERCENT"], 2);
+						}
+						else
+						{
+							$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["~PERCENT"] = 0;
+							$this->questions[$res["Q_QUESTION_ID"]]["ANSWERS"][$res["A_ANSWER_ID"]]["PERCENT"] = 0;
+						}
+					}
+				} while ($dbRes && ($res = $dbRes->fetch()));
+				$this->clearCache();
+				$this->clearVotingCache();
 			}
+			$result = $this->canVote($user);
 		}
 		//endregion
-		if (!$result->isSuccess())
-			throw new AccessDeniedException(implode(" ", $result->getErrorMessages()));
 
-		$event = new \Bitrix\Vote\Event($this);
-		if ($event->check($data))
+		if (!$result->isSuccess())
 		{
+			$this->errorCollection->add($result->getErrors());
+		}
+		else
+		{
+			$event = new \Bitrix\Vote\Event($this);
 			/**
 			 * @var \Bitrix\Main\Type\Dictionary $eventResult
 			 */
@@ -1506,7 +1514,13 @@ HTML;
 				"VALID"				=> "Y",
 				"VISIBLE" 			=> ($this["ANONYMITY"] == \Bitrix\Vote\Vote\Anonymity::ANONYMOUSLY ? "N" : "Y") // can be replaced from $data array ["EXTRAS"]["HIDDEN"] = "Y"
 			);
-			if (($eventResult = $event->add($eventFields, $data)) && $eventResult)
+			if (!$event->check($data)
+				|| !($eventResult = $event->add($eventFields, $data))
+			)
+			{
+				$this->errorCollection->add($event->getErrors());
+			}
+			else
 			{
 				$this->vote["COUNTER"]++;
 				foreach ($eventResult->get("BALLOT") as $questionId => $question)
@@ -1551,17 +1565,20 @@ HTML;
 				}
 				// notification TODO replace this functional into other function
 				if ($this["NOTIFY"] !== "N" && $this["AUTHOR_ID"] > 0 && $this["AUTHOR_ID"] != $userId)
+				{
 					self::sendVotingMessage($eventResult->toArray(), $this, ($this["NOTIFY"] == "I" ? "im" : "mail"));
+				}
 
 				/***************** Event onAfterVoting *****************************/
 				foreach (GetModuleEvents("vote", "onAfterVoting", true) as $ev)
+				{
 					ExecuteModuleEventEx($ev, array($voteId, $eventResult->get("EVENT_ID"), $userId));
+				}
 				/***************** /Event ******************************************/
-				return true;
 			}
 		}
-		$this->errorCollection->add($event->getErrors());
-		return false;
+		$user->unlock($voteId);
+		return $this->errorCollection->isEmpty();
 	}
 
 	/**

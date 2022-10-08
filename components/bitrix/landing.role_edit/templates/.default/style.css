@@ -5,7 +5,7 @@
 .landing-form-role-caption {
 	display: block;
 	margin: 0 0 6px 0;
-	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 }
 
@@ -17,7 +17,7 @@
 	-webkit-box-shadow: inset 0 0 0 1px #C6CDD3;
 	box-shadow: inset 0 0 0 1px #C6CDD3;
 	border-radius: 2px;
-	font: 15px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 	background: #fff;
 	box-sizing: border-box;
@@ -91,4 +91,10 @@
 
 .landing-message-label.warning {
 	background: #ffeca8;
+}
+
+#landing-rights-cancel.ui-btn {
+	margin-top: 0;
+	padding-left: 20px;
+	padding-right: 20px;
 }

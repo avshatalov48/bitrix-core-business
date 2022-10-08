@@ -10,7 +10,8 @@
 .rest-market-section-title {
 	padding-bottom: 15px;
 	margin-bottom: 25px;
-	font-family: "OpenSans-Light", Arial, "Helvetica Neue", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	font-size: 24px;
 	color: #333;
 	line-height: 32px;
@@ -23,7 +24,8 @@
 	display: block;
 	overflow: hidden;
 	margin-bottom: 5px;
-	font-family: "OpenSans-Regular", Arial, "Helvetica Neue", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 16px;
 	color: #525c69;
 }
@@ -113,7 +115,8 @@
 	overflow: hidden;
 	max-height: 30px;
 	margin-bottom: 5px;
-	font-family: "OpenSans-SemiBold", Arial, "Helvetica Neue", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 20px;
 	color: #333;
 	line-height: 30px;
@@ -125,7 +128,7 @@
 	display: block;
 	overflow: hidden;
 	height: 54px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	color: rgba(82,92,105,.7);
 	line-height: 17px;
@@ -138,7 +141,8 @@
 
 .rest-market-directions-link,
 .rest-market-directions-link:hover {
-	font-family: "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 11px;
 	color: #535c69;
 	text-align: center;
@@ -173,7 +177,8 @@
 	overflow: hidden;
 	max-height: 41px;
 	padding: 0 12px;
-	font-family: "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 13px;
 	color: #333;
 	line-height: 41px;

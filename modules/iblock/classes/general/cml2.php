@@ -2845,7 +2845,7 @@ class CIBlockCMLImport
 
 	function __unserialize_callback($match)
 	{
-		return 's:'.CUtil::BinStrlen($match[2]).':"'.$match[2].'";';
+		return 's:'.strlen($match[2]).':"'.$match[2].'";';
 	}
 
 	function convertBaseUnitFromXmlToPropertyValue($xmlValue)

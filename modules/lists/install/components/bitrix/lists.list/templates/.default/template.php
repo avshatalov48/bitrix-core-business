@@ -11,7 +11,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Option;
 
-CJSCore::Init(array("lists"));
+CJSCore::Init(array("lists", "ui.fonts.opensans"));
 Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/main/utils.js');
 Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/js/lists/css/autorun_progress_bar.css');
 Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/lists/js/autorun_progress_bar.js');
@@ -160,6 +160,11 @@ if($isBitrix24Template)
 }
 elseif(!IsModuleInstalled("intranet"))
 {
+	\Bitrix\Main\UI\Extension::load([
+		'ui.design-tokens',
+		'ui.fonts.opensans',
+	]);
+
 	$APPLICATION->SetAdditionalCSS("/bitrix/js/lists/css/intranet-common.css");
 }
 ?>
@@ -333,7 +338,7 @@ $APPLICATION->IncludeComponent(
 			randomString: '<?= $arResult["RAND_STRING"] ?>',
 			iblockTypeId: '<?= $arParams["IBLOCK_TYPE_ID"] ?>',
 			iblockId: '<?= $arResult["IBLOCK_ID"] ?>',
-			sectionId: '<?= $sectionId ?>',
+			sectionId: '<?= (int) $sectionId ?>',
 			socnetGroupId: '<?=$socnetGroupId?>',
 			jsObject: '<?= $arResult['JS_OBJECT'] ?>',
 			listAction: <?=\Bitrix\Main\Web\Json::encode($listAction)?>,

@@ -3,9 +3,13 @@ namespace Bitrix\MessageService\Sender;
 
 use Bitrix\MessageService\MessageStatus;
 use Bitrix\MessageService\MessageType;
+use Bitrix\MessageService\Providers;
 
 abstract class Base
 {
+	protected Providers\Informant $informant;
+	protected Providers\Initiator $initiator;
+	protected Providers\Sender $sender;
 	/**
 	 * @return bool
 	 */
@@ -14,6 +18,7 @@ abstract class Base
 		return true;
 	}
 
+	/** @deprecated  */
 	public static function className()
 	{
 		return get_called_class();

@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core,ui_forms,main_core_events) {
+(function (exports,main_core,ui_designTokens,ui_forms,main_core_events) {
 	'use strict';
 
 	var LayoutForm = /*#__PURE__*/function (_EventEmitter) {
@@ -103,5 +103,5 @@ this.BX = this.BX || {};
 
 	exports.LayoutForm = LayoutForm;
 
-}((this.BX.UI = this.BX.UI || {}),BX,BX,BX.Event));
+}((this.BX.UI = this.BX.UI || {}),BX,BX,BX,BX.Event));
 //# sourceMappingURL=layout-form.bundle.js.map

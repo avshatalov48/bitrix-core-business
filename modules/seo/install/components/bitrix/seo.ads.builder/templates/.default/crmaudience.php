@@ -9,12 +9,14 @@ $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $APPLICATION->SetPageProperty("BodyClass", ($bodyClass? $bodyClass." " : "")."no-all-paddings no-background");
 \Bitrix\Main\UI\Extension::load(
 	[
+		"ui.design-tokens",
+		"ui.fonts.opensans",
 		"ui.buttons",
 		"ui.icons",
 		"ui.forms",
 		"ui.progressbar",
 		"seo.seoadbuilder",
-		'ui.entity-selector'
+		"ui.entity-selector",
 	]
 );
 \CJSCore::Init("loader");

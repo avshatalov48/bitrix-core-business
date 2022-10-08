@@ -70,7 +70,7 @@
 				<Id>CML2_ARTICLE</Id>
 				<Title>Articul number</Title>
 				<Multiple>false</Multiple>
-				<BitrixSort>200</BitrixSort>
+				<BitrixSort>150</BitrixSort>
 				<BitrixCode>ARTNUMBER</BitrixCode>
 				<BitrixPropertyType>S</BitrixPropertyType>
 				<BitrixRows>1</BitrixRows>

@@ -27,7 +27,9 @@ class CBPCalendar2Activity extends CBPActivity
 	public function Execute()
 	{
 		if (!CModule::IncludeModule("calendar"))
+		{
 			return CBPActivityExecutionStatus::Closed;
+		}
 
 		$rootActivity = $this->GetRootActivity();
 		$documentId = $rootActivity->GetDocumentId();
@@ -35,7 +37,7 @@ class CBPCalendar2Activity extends CBPActivity
 		$fromTs = CCalendar::Timestamp($this->CalendarFrom);
 		$toTs = $this->CalendarTo == '' ? $fromTs : CCalendar::Timestamp($this->CalendarTo);
 
-		$arFields = array(
+		$arFields = [
 			"CAL_TYPE" => !$this->CalendarType ? 'user' : $this->CalendarType,
 			"NAME" => trim($this->CalendarName) == '' ? GetMessage('EC_DEFAULT_EVENT_NAME') : $this->CalendarName,
 			"DESCRIPTION" => $this->CalendarDesrc,
@@ -44,34 +46,35 @@ class CBPCalendar2Activity extends CBPActivity
 			"RRULE" => false,
 			"TZ_FROM" => $this->CalendarTimezone,
 			"TZ_TO" => $this->CalendarTimezone
-		);
+		];
 
 		if ($fromTs == $toTs && !$arFields["SKIP_TIME"])
+		{
 			$toTs += 3600 /* HOUR LENGTH*/;
+		}
 
 		$arFields['DATE_FROM'] = CCalendar::Date($fromTs);
 		$arFields['DATE_TO'] = CCalendar::Date($toTs);
 
-		if ($this->CalendarSection && intval($this->CalendarSection) > 0)
+		if ($this->CalendarSection && (int)$this->CalendarSection > 0 && CCalendarSect::GetById((int)$this->CalendarSection))
 		{
-			$arFields['SECTIONS'] = array(intval($this->CalendarSection));
+			$arFields['SECTIONS'] = [(int)$this->CalendarSection];
 		}
 
-		if ($this->CalendarOwnerId || ($arFields["CAL_TYPE"] != "user" && $arFields["CAL_TYPE"] != "group"))
+		if ($this->CalendarOwnerId || ($arFields["CAL_TYPE"] !== "user" && $arFields["CAL_TYPE"] !== "group"))
 		{
 			$arFields["OWNER_ID"] = $this->CalendarOwnerId;
 			if (!$arFields['SKIP_TIME'] && !$this->CalendarTimezone)
 			{
 				unset($arFields["TZ_FROM"], $arFields["TZ_TO"]);
 			}
-			CCalendar::SaveEvent(
-				array(
-					'userId' => CBPHelper::ExtractUsers($this->CalendarUser, $documentId, true),
-					'arFields' => $arFields,
-					'autoDetectSection' => true,
-					'autoCreateSection' => true
-				)
-			);
+
+			CCalendar::SaveEvent([
+				'userId' => CBPHelper::ExtractUsers($this->CalendarUser, $documentId, true),
+				'arFields' => $arFields,
+				'autoDetectSection' => true,
+				'autoCreateSection' => true
+			]);
 		}
 		else
 		{
@@ -87,14 +90,12 @@ class CBPCalendar2Activity extends CBPActivity
 					$arFields["TZ_FROM"] = $arFields["TZ_TO"] = $tzName;
 				}
 
-				CCalendar::SaveEvent(
-					[
-						'userId' => $calendarUser,
-						'arFields' => $arFields,
-						'autoDetectSection' => true,
-						'autoCreateSection' => true,
-					]
-				);
+				CCalendar::SaveEvent([
+					'userId' => $calendarUser,
+					'arFields' => $arFields,
+					'autoDetectSection' => true,
+					'autoCreateSection' => true,
+				]);
 			}
 		}
 

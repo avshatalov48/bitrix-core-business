@@ -11,7 +11,7 @@ use Bitrix\UI\Toolbar\Facade\Toolbar;
 use Bitrix\UI\Buttons\Button;
 use Bitrix\UI\Buttons\Color;
 
-Extension::load(["ui.notifications", "ui.dialogs.messagebox", "im.lib.clipboard"]);
+Extension::load(["ui.notifications", "ui.dialogs.messagebox", "im.lib.clipboard", "ui.fonts.opensans"]);
 
 global $APPLICATION;
 $APPLICATION->SetTitle(Loc::getMessage('CONFERENCE_LIST_TITLE'));

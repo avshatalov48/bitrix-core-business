@@ -11,14 +11,16 @@
 	border-left: 1px solid rgb(76, 153, 218);
 	margin: 0 10px 0 0;
 	display: block;
-	font: 20px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 #appHistoryChart .restStatisticChartBalloon .restStatisticChartBalloonTitle {
 	margin: 0 0 0 7px;
 	padding: 0 0 12px 5px;
 	border-bottom: 1px solid rgba(130, 139, 149, .19);
-	font: 13px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #333;
 }
 

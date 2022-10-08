@@ -1,5 +1,9 @@
 <?php
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Localization\Loc;
 
@@ -12,6 +16,8 @@ use Bitrix\Main\Localization\Loc;
  * @var SaleBsmSiteMaster $component
  * @var string $templateFolder
  */
+
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 
 Loc::loadMessages(__FILE__);
 $messages = Loc::loadLanguageFile(__FILE__);

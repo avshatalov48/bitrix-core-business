@@ -7,11 +7,14 @@ use Bitrix\Landing\Field;
 use Bitrix\Landing\Hook;
 use Bitrix\Landing\Internals\HookDataTable;
 use Bitrix\Landing\Landing;
+use Bitrix\Landing\Manager;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Entity\Query;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\AssetLocation;
 use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\UI\Fonts;
 
 /**
  * Typographic settings
@@ -174,7 +177,7 @@ class ThemeFonts extends Hook\Page
 	protected function setThemeFont(): void
 	{
 		$font = $this->getField('CODE');
-		$font = self::convertFont($font);
+		$font = self::convertFontName($font);
 
 		$assets = Assets\Manager::getInstance();
 		if ($this->fields['CODE']->getValue() !== null)
@@ -209,7 +212,7 @@ class ThemeFonts extends Hook\Page
 	protected function setHFontTheme(): void
 	{
 		$font = $this->getField('CODE_H');
-		$font = self::convertFont($font);
+		$font = self::convertFontName($font);
 
 		$assets = Assets\Manager::getInstance();
 		$assets->addString(self::getFontLink($font));
@@ -227,7 +230,7 @@ class ThemeFonts extends Hook\Page
 	 * @param string $fontName
 	 * @return string
 	 */
-	protected static function convertFont(string $fontName): string
+	protected static function convertFontName(string $fontName): string
 	{
 		$fontName = str_replace(['g-font-', '-', 'ibm ', 'pt '], ['', ' ', 'IBM ', 'PT '], $fontName);
 
@@ -251,7 +254,13 @@ class ThemeFonts extends Hook\Page
 
 	protected static function getFontLink(string $font): string
 	{
-		$fontLink = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=';
+		$domain = 'fonts.googleapis.com';
+		if (Loader::includeModule('ui'))
+		{
+			$domain = Fonts\Proxy::resolveDomain(Manager::getZone());
+		}
+
+		$fontLink = "<link rel=\"stylesheet\" href=\"https://{$domain}/css2?family=";
 		$fontLink .= str_replace(" ", "+", $font);
 		$fontLink .= ':wght@100;200;300;400;500;600;700;800;900">';
 

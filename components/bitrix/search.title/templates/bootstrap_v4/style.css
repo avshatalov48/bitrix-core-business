@@ -5,8 +5,10 @@
 	background-repeat: no-repeat;
 	background-position: center;
 	min-width: 45px;
-	min-height: 38px;
+	/* min-height: 38px; */
+	height: calc(1.5em + 0.75rem);
 }
+
 
 .title-search-result {
 	border: 1px solid #ced4da;

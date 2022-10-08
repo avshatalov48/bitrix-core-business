@@ -59,7 +59,7 @@
 	      this.saveCallback = options.saveCallback;
 	    }
 
-	    this.automationDesigner = BX.Bizproc.Automation.Designer.component;
+	    this.automationDesigner = BX.Bizproc.Automation.Designer.getInstance().component;
 	  }
 
 	  babelHelpers.createClass(ScriptEditComponent, [{
@@ -245,7 +245,7 @@
 	  }, {
 	    key: "renderPropertyBlock",
 	    value: function renderPropertyBlock(property, prefix) {
-	      var control = BX.Bizproc.FieldType.renderControl(this.automationDesigner.documentType, property, prefix + property.Id, property.Default);
+	      var control = BX.Bizproc.FieldType.renderControlPublic(this.automationDesigner.documentType, property, prefix + property.Id, property.Default, false);
 	      return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"bizproc-script-edit-item\">\n\t\t\t\t<div class=\"bizproc-script-edit-subtitle\">", "</div>\n\t\t\t\t<div class=\"bizproc-script-edit-text\">", "</div>\n\t\t\t\t<a onclick=\"", "\" class=\"ui-link ui-link-secondary ui-link-dashed\">", "</a>\n\t\t\t\t<div class=\"bizproc-script-edit-field\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>"])), main_core.Text.encode(property.Name), main_core.Text.encode(property.Description), this.changePropertyDescription.bind(this, prefix, property), main_core.Loc.getMessage('BIZPROC_SCRIPT_EDIT_BTN_CHANGE'), control);
 	    }
 	  }, {

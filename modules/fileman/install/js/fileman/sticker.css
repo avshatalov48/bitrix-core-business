@@ -23,7 +23,13 @@ div.bx-sticker div.bxst-header div.bxst-collapse img{background-position: -15px 
 div.bx-sticker div.bxst-header div.bxst-close img{background-position:  -15px -14px;}
 div.bx-sticker div.bxst-footer div.bxst-marker-area-but, div.bx-sticker div.bxst-footer div.bxst-marker-elem-but{float: left; margin: 3px 2px 0;}
 div.bx-sticker div.bxst-footer div.bxst-marker-area-but{margin-left: 5px!important;}
-div.bx-sticker div.bxst-footer div.bxst-ctrl-txt span{font-size: 10px; text-decoration: underline; cursor: pointer;font-family:Verdana!important;}
+
+div.bx-sticker div.bxst-footer div.bxst-ctrl-txt span {
+	font-size: 10px;
+	text-decoration: underline;
+	cursor: pointer;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+}
 div.bx-sticker div.bxst-footer div.bxst-color-but, div.bx-sticker div.bxst-footer div.bxst-add-but{float: left; margin: 4px 0 0 6px;  cursor: pointer;}
 div.bx-sticker div.bxst-footer div.bxst-resizer{float: right; margin:12px 0 0;}
 div.bx-sticker div.bxst-footer div.bxst-marker-area-but img{width: 19px;height: 19px;cursor: pointer; background-position:  -9px -101px;}
@@ -41,7 +47,12 @@ div.bx-sticker div.bxst-footer div.bxst-info-icon img{width: 19px;height: 19px; 
 div.bx-sticker div.bxst-type-cont div.bxst-type-corn{float: left; width: 3px; height: 12px; background-image: url(/bitrix/images/fileman/stickers_sprite.png)!important; cursor: pointer!important;}
 div.bx-sticker div.bxst-type-cont div.bxst-type-c{height: 12px; float: left; padding: 0 1px;}
 div.bx-sticker div.bxst-type-cont div span{color: #fff!important; cursor: pointer!important;}
-div.bx-sticker div.bxst-type-cont *{font-size: 10px!important;line-height:10px!important; font-family:Verdana!important;}
+
+div.bx-sticker div.bxst-type-cont * {
+	font-size: 10px !important;
+	line-height: 10px !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+}
 
 /* for personal - green */
 div.bx-sticker div.bxst-type-pers div.bxst-type-l{background-position:  -41px -45px;}
@@ -171,8 +182,17 @@ div.bx-sticker div.bxst-content div.bxst-lhe-cont{position: static!important;}
 /* Content area */
 div.bxst-content-area{padding: 5px 5px 5px 21px !important; position:relative;top:0px;left:0px;}
 
-div.bxst-content-area, div.bxst-content-area *{font-size: 12px!important; font-family:Verdana!important;}
-div.bxst-content-area .bxst-title{font-size: 11px!important; font-family:Verdana!important; margin:0 0 0 -7px !important;line-height:18px!important;}
+div.bxst-content-area, div.bxst-content-area * {
+	font-size: 12px !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+}
+
+div.bxst-content-area .bxst-title {
+	font-size: 11px !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+	margin: 0 0 0 -7px !important;
+	line-height: 18px !important;
+}
 
 div.bx-sticker-overlay{position: absolute; border:1px solid #d1d1d1; background: #d1d1d1; display: none;}
 div.bx-sticker-op-0{filter: alpha(opacity=25); opacity: 0.25; display: block!important;}
@@ -195,11 +215,39 @@ div.bxst-collapsed div.bxst-check-cont label{display: none!important;} /* hide c
 
 div.bxst-collapsed div.bxst-type-cont{margin: 3px 2px 0 3px!important;} /* hide checkbox*/
 div.bxst-collapsed div.bxst-col-title-cont{display: block!important;} /* show collapsed title*/
-div.bxst-collapsed div.bxst-col-title-cont .bxst-title{font-size: 12px!important; font-family:Verdana!important; display: inline!important;} /* show collapsed title*/
+div.bxst-collapsed div.bxst-col-title-cont .bxst-title {
+	font-size: 12px !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+	display: inline !important;
+}
+
+/* show collapsed title*/
 
 div.bxst-marker-overlay{height:100%; width:100%; left: 0; top: 0; z-index: 790; position: absolute; -moz-user-select: none !important; display: none; background-color:#FFFFFF; filter: gray() alpha(opacity=20); -moz-opacity: 0.2; opacity: 0.2; cursor: url(/bitrix/images/fileman/crosshair.cur), crosshair!important;}
 
-div.bxst-cursor-hint{left: 500px; top: 200px; z-index: 792; position: absolute; display: none; padding: 4px 5px!important; margin: 0!important;font-size:11px!important; font-family: Tahoma, Arial, Verdana, Sans-Serif!important; color:black!important; background-color: #ffffce!important; border:1px solid #858585!important; overflow: visible; line-height:normal; font-weight:normal; letter-spacing:normal !important; font-variant:normal !important; font-style:normal !important; text-indent:0 !important; word-spacing:normal !important; text-align:left !important;}
+div.bxst-cursor-hint {
+	left: 500px;
+	top: 200px;
+	z-index: 792;
+	position: absolute;
+	display: none;
+	padding: 4px 5px !important;
+	margin: 0 !important;
+	font-size: 11px !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+	color: black !important;
+	background-color: #ffffce !important;
+	border: 1px solid #858585 !important;
+	overflow: visible;
+	line-height: normal;
+	font-weight: normal;
+	letter-spacing: normal !important;
+	font-variant: normal !important;
+	font-style: normal !important;
+	text-indent: 0 !important;
+	word-spacing: normal !important;
+	text-align: left !important;
+}
 
 
 div.bxst-sticker-marker{position: absolute; filter: alpha(opacity=40); opacity: 0.4; border-width: 1px; border-style: solid; display: none;}
@@ -247,7 +295,15 @@ div.bxstl-but div.bxstl-but-l{float: left; background-position: -20px -142px;}
 div.bxstl-but div.bxstl-but-r{float: right; background-position: -26px -142px;}
 
 div.bxstl-but div.bxstl-but-c{margin: 0 3px; padding: 0 3px!important; float: left; background: transparent; height: 18px!important;}
-div.bxstl-but div.bxstl-but-c span{line-height: 16px!important; font-size: 13px!important; font-family:Verdana !important; color:#000!important; cursor: pointer!important; text-decoration: underline;}
+
+div.bxstl-but div.bxstl-but-c span {
+	line-height: 16px !important;
+	font-size: 13px !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+	color: #000 !important;
+	cursor: pointer !important;
+	text-decoration: underline;
+}
 
 /* Checked buttons */
 div.bxstl-but-checked div.bxstl-but-l, div.bxstl-but-checked div.bxstl-but-r{display: block!important;}
@@ -274,8 +330,20 @@ div.bxst-list-items{overflow: auto; width: 100%;}
 div.bxst-list-items table{border-collapse: collapse!important; width: 100%; table-layout: fixed;}
 div.bxst-list-items table td{padding: 0!important;}
 div.bxst-list-items table tr.bxst-list-header td{background: #E5E5E5!important; vertical-align: top!important;}
-div.bxst-list-items table tr.bxst-list-header td div.bxstl-h-div{margin:7px 10px 7px 10px!important; font-family: Verdana; font-size: 11px; float: left; white-space: nowrap!important;}
-div.bxst-list-items table tr.bxst-list-item td {padding: 4px 10px 4px 10px !important; font-family: Verdana; font-size: 12px;}
+
+div.bxst-list-items table tr.bxst-list-header td div.bxstl-h-div {
+	margin: 7px 10px 7px 10px !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-size: 11px;
+	float: left;
+	white-space: nowrap !important;
+}
+
+div.bxst-list-items table tr.bxst-list-item td {
+	padding: 4px 10px 4px 10px !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-size: 12px;
+}
 div.bxst-list-items table tr.bxst-list-item td.bxst-list-it-link a, div.bxst-list-items table tr.bxst-list-item td nobr{ display: block; color: #000!important; text-decoration: none; -o-text-overflow: ellipsis; text-overflow: ellipsis; -moz-binding: url('text-overflow.xml#ellipsis'); overflow:hidden; white-space: nowrap; }
 div.bxst-list-items table tr.bxst-list-item td.bxst-list-it-link a.bxst-list-it-path{color: #666666!important;}
 div.bxst-list div.bxst-list-items table tr.bxst-list-item-closed td, div.bxst-list  div.bxst-list-items table tr.bxst-list-item-closed td *, div.bxst-list div.bxst-list-items table tr.bxst-list-item-closed td a, div.bxst-list div.bxst-list-items table tr.bxst-list-item-closed td nobr, div.bxst-list div.bxst-list-items table tr.bxst-list-item-closed td a.bxst-list-it-path, div.bxst-list div.bxst-list-items table tr.bxst-list-item-closed td.bxst-id-cell a{color: #B0B0B0!important;}
@@ -296,17 +364,36 @@ div.bxst-list-items tr.bxst-list-item-closed td.bxst-id-cell {text-decoration: l
 
 /* NAVIgation section*/
 div.bxst-list div.bxst-list-navi{float: left; margin: 15px 0 0 2px;}
-div.bxstl-navi-prev-next-cnt a{font-size: 14px!important; font-family: Verdana!important; margin: 0 5px 0 3px!important; color: #3F93C7!important;}
+
+div.bxstl-navi-prev-next-cnt a {
+	font-size: 14px !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+	margin: 0 5px 0 3px !important;
+	color: #3f93c7 !important;
+}
 div.bxstl-navi-pages-cnt{margin: 5px 0 0 0!important;}
-div.bxstl-navi-pages-cnt div.bxstl-navi-item-cur, div.bxstl-navi-pages-cnt a.bxstl-navi-item{display: block; float: left; font-size: 14px!important; font-family: Verdana!important; color: #3F93C7!important; margin: 0 4px!important;}
+
+div.bxstl-navi-pages-cnt div.bxstl-navi-item-cur, div.bxstl-navi-pages-cnt a.bxstl-navi-item {
+	display: block;
+	float: left;
+	font-size: 14px !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+	color: #3f93c7 !important;
+	margin: 0 4px !important;
+}
 div.bxstl-navi-pages-cnt div.bxstl-navi-item-cur div.bxstl-navi-it-l, div.bxstl-navi-pages-cnt div.bxstl-navi-item-cur div.bxstl-navi-it-r{width: 3px; height: 18px; background-image: url(/bitrix/images/fileman/stickers_sprite.png)!important;}
 
 div.bxstl-navi-pages-cnt div.bxstl-navi-item-cur {width: 20px;}
 div.bxstl-navi-pages-cnt div.bxstl-navi-item-cur div.bxstl-navi-it-l{float: left; background-position: -20px -142px;}
 div.bxstl-navi-pages-cnt div.bxstl-navi-item-cur div.bxstl-navi-it-r{float: right; background-position: -26px -142px;}
-div.bxstl-navi-pages-cnt div.bxstl-navi-item-cur div.bxstl-navi-it-c{height: 18px; float: left; background: url(/bitrix/images/fileman/stickers_sprite.png) transparent 0 -167px repeat-x!important; margin: 0!important; padding: 0 2px!important; cursor: default!important; font-weight: bold!important; color: #000!important;}
+div.bxstl-navi-pages-cnt div.bxstl-navi-item-cur div.bxstl-navi-it-c{height: 18px; float: left; background: url(/bitrix/images/fileman/stickers_sprite.png) transparent 0 -167px repeat-x!important; margin: 0!important; padding: 0 2px!important; cursor: default!important; font-weight: var(--ui-font-weight-bold)!important; color: #000!important;}
 
-div.bxstl-no-stickers{margin: 20px 25px; font-family: Verdana; font-size: 14px; color: #666666!important;}
+div.bxstl-no-stickers {
+	margin: 20px 25px;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-size: 14px;
+	color: #666 !important;
+}
 div.bxstl-sep{width: 1px!important; height:18px !important; margin:5px 0 0 0!important;  background-color: #CECECE; float:right;}
 
 div.bxst-marker-res-cont{position: absolute;top:0;left:0;width: 1px; height:1px; z-index: 750;}

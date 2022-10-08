@@ -13,7 +13,8 @@
 .calendar-pub-event-title-main {
 	display: block;
 	margin-bottom: 10px;
-	font: 32px/43px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 32px/43px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #333;
 	text-align: center;
 }
@@ -27,7 +28,8 @@
 .calendar-pub-event-link {
 	display: inline-block;
 	border-bottom: 1px solid rgba(0,101,163,.2);
-	font: 14px/22px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/22px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #0b66c3;
 	transition: border-bottom .3s;
 }
@@ -52,7 +54,8 @@
 	min-height: 27px;
 	border-radius: 9px 9px 0 0;
 	background-color: #ff5752;
-	font: 12px/19px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #fff;
 	text-align: center;
 }
@@ -125,7 +128,8 @@
 	border: 6px solid #c2c7cf;
 	border-top: none;
 	border-radius: 0 0 9px 9px;
-	font: 42px/48px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 42px/48px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	text-align: center;
 	box-sizing: border-box;
 }
@@ -192,18 +196,21 @@
 
 .calendar-pub-event-info-text {
 	margin: 6px 0;
-	font: 20px/28px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 20px/28px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #333;
 }
 
 .calendar-pub-event-info-time {
-	font: 13px/20px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525c69;
 	opacity: .69;
 }
 
 .calendar-pub-event--decision .calendar-pub-event-info-time {
-	font: 13px/17px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .calendar-pub-event--decision .calendar-pub-event-info-text {
@@ -224,7 +231,8 @@
 	min-height: 52px;
 	border-radius: 30px!important;
 	min-width: 295px;
-	font: 17px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #333;
 	text-transform: initial;
 }
@@ -240,7 +248,8 @@
 }
 
 .calendar-pub-event-btn.ui-btn.ui-btn-link {
-	font: 17px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	opacity: .68;
 	text-transform: initial;
 }
@@ -265,7 +274,7 @@
 }
 
 .calendar-pub-event-footer-desc {
-	font: bold 16px/19px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 16px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .calendar-pub-event--decision .calendar-pub-event-head {
@@ -298,7 +307,8 @@
 }
 
 .calendar-pub-event--decision .calendar-pub-event-date-head {
-	font: 10px/14px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 10px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .calendar-pub-event--decision .calendar-pub-event-date-head:before {
@@ -314,7 +324,8 @@
 
 .calendar-pub-event--decision .calendar-pub-event-date-num {
 	min-height: 46px;
-	font: 33px/36px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 33px/36px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .calendar-pub-event-head {
@@ -332,7 +343,8 @@
 .calendar-pub-event-head-right .calendar-pub-event-title-main {
 	margin-bottom: 5px;
 	margin-top: 4px;
-	font: 26px/29px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 26px/29px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	text-align: left;
 }
 
@@ -342,7 +354,8 @@
 
 .calendar-pub-event-desc {
 	display: block;
-	font: 14px/19px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	text-align: inherit;
 }
 
@@ -402,7 +415,8 @@
 .calendar-pub-event-attachment-list-title {
 	display: block;
 	margin-bottom: 6px;
-	font: 10px/19px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 10px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: rgba(82,92,105,.42);
 	text-transform: uppercase;
 }
@@ -429,7 +443,8 @@
 	display: block;
 	padding-left: 21px;
 	margin-bottom: 13px;
-	font: 15px/19px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #333;
 }
 
@@ -477,7 +492,8 @@
 .calendar-pub-event-user-attachment-btn {
 	display: inline-block;
 	padding-left: 21px;
-	font: 14px/19px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #333;
 	opacity: .5;
     transition: opacity .2s;
@@ -508,7 +524,7 @@
 .calendar-pub-event-attachment-file-name-box {
     display: flex;
     align-items: center;
-    font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	overflow: hidden;
 }
 
@@ -531,7 +547,7 @@
 }
 
 .calendar-pub-event-attachment-file-size {
-    font: 15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     color: #828b95;
 	white-space: nowrap;
 }
@@ -562,7 +578,8 @@
 
 .calendar-pub-event-user-list-desc .calendar-pub-event-user-list-content p {
 	margin: 0;
-	font: 15px/20px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .calendar-pub-event-user-list-desc .calendar-pub-event-user-list-content  p:first-child {
@@ -575,7 +592,8 @@
 
 .calendar-pub-event-user-list-location .calendar-pub-event-user-list-content p {
 	margin: 0;
-	font: 15px/20px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .calendar-pub-event-user-list-location .calendar-pub-event-user-list-content  p:first-child {
@@ -623,14 +641,16 @@
 	display: block;
 	margin: 0 auto 25px auto;
 	max-width: 320px;
-	font: 19px/27px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 19px/27px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #cd1a15;
 	text-align: center;
 }
 
 .calendar-pub-event-message-dark {
 	display: block;
-	font: 17px/23px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 17px/23px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #333;
 	text-align: center;
 }
@@ -731,10 +751,12 @@
 		max-width: 256px;
 		min-width: 256px;
 		max-height: 51px;
-		font: 16px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-seri;
+		font: 16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+		font-weight: var(--ui-font-weight-semi-bold, 600);
 	}
 
 	.calendar-pub-event-btn.ui-btn.ui-btn-link {
-		font: 16px "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-seri;
+		font: 16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+		font-weight: var(--ui-font-weight-semi-bold, 600);
 	}
 }

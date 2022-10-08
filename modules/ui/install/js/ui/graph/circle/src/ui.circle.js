@@ -1,4 +1,5 @@
 import {Event, Dom} from "main.core";
+import 'ui.fonts.opensans';
 
 export class Circle
 {

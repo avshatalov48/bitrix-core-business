@@ -1,177 +1,479 @@
-import {ajax as Ajax, Type} from 'main.core';
+import {ajax as Ajax} from 'main.core';
 import {Logger} from 'im.v2.lib.logger';
-import {ChatTypes, EventType} from 'im.v2.const';
+import {ChatTypes, EventType, RestMethod} from 'im.v2.const';
 import {EventEmitter} from 'main.core.events';
-import {SearchCacheService} from './search-cache-service';
-import {EntityIdTypes, ImSearchItem} from './type/search-item';
+import {SearchCache} from './search-cache';
+import {EntityIdTypes, ImSearchItem} from './types/search-item';
 import {Config} from './search-config';
+import {SearchUtils} from './search-utils';
+import {SearchRecentList} from './search-recent-list';
+import {SearchItem} from './search-item';
+
+const RestMethodImopenlinesNetworkJoin = 'imopenlines.network.join';
 
 export class SearchService
 {
+	static instance = null;
 	store: Object = null;
-	cacheService: Object = null;
+	cache: SearchCache = null;
+	recentList: SearchRecentList = null;
 
-	constructor($Bitrix)
+	static getInstance($Bitrix, cache, recentList)
 	{
-		Logger.enable('log');
-		Logger.enable('warn');
-
-		this.store = $Bitrix.Data.get('controller').store;
-		this.cacheService = new SearchCacheService();
-
-		this.onItemSelectHandler = this.onItemSelect.bind(this);
-		EventEmitter.subscribe(EventType.search.selectItem, this.onItemSelectHandler);
-	}
-
-	getJsonConfig()
-	{
-		return Config;
-	}
-
-	onItemSelect(event)
-	{
-		const dialogId = event.getData();
-
-		const recentItem = this.dialogIdToRecentItem(dialogId);
-
-		this.cacheService.unshiftItem(recentItem);
-		this.addItemsToRecentSearchResults([{id: recentItem[1], entityId: recentItem[0]}]);
-	}
-
-	loadDepartmentUsers(parentItem)
-	{
-		return new Promise((resolve, reject) => {
-			Ajax.runAction('ui.entityselector.getChildren', {
-					json: {
-						...this.getJsonConfig(),
-						parentItem: parentItem
-					}
-				})
-				.then(response => {
-					Logger.warn(`Im.Search: load department users result`, response);
-					this.cacheService.saveToCache(response.data.dialog);
-
-					resolve(response.data.dialog.items);
-				})
-				.catch(error => reject(error));
-		});
-	}
-
-	loadRecentSearch()
-	{
-		return this.cacheService.loadRecentFromCache().then(result => {
-			if (result.recentItems.length === 0)
-			{
-				return this.requestRecentSearch().then(response => {
-					return this.updateModels(response.items).then(() => {
-						return this.convertRecentItemsToDialogIds(response.recentItems);
-					});
-				});
-			}
-			this.updateModels(result.items).then(() => {
-				this.requestRecentSearch();
-			});
-
-			return this.convertRecentItemsToDialogIds(result.recentItems);
-		});
-	}
-
-	searchInCache(query: string)
-	{
-		let wrongLayoutSearchPromise = Promise.resolve([]);
-		if (this.store.state.application.common.languageId === 'ru' && BX.correctText)
+		if (!this.instance)
 		{
-			// eslint-disable-next-line bitrix-rules/no-bx
-			const wrongLayoutQueryWords = this.splitQueryByWords(BX.correctText(query.trim()));
-			wrongLayoutSearchPromise = this.getDialogIdsByQueryWords(wrongLayoutQueryWords);
+			this.instance = new this($Bitrix, cache, recentList);
 		}
 
-		const correctLayoutQueryWords = this.splitQueryByWords(query.trim());
-		const correctLayoutSearchPromise = this.getDialogIdsByQueryWords(correctLayoutQueryWords);
+		return this.instance;
+	}
+
+	constructor($Bitrix, cache, recentList)
+	{
+		this.store = $Bitrix.Data.get('controller').store;
+		this.cache = cache;
+		this.recentList = recentList;
+		this.restClient = $Bitrix.RestClient.get();
+
+		this.onItemSelectHandler = this.onItemSelect.bind(this);
+		this.onOpenNetworkItemHandler = this.onOpenNetworkItem.bind(this);
+		EventEmitter.subscribe(EventType.search.selectItem, this.onItemSelectHandler);
+		EventEmitter.subscribe(EventType.search.openNetworkItem, this.onOpenNetworkItemHandler);
+	}
+
+	//region Public methods
+
+	loadRecentSearchFromCache(): Promise
+	{
+		return this.cache.loadRecentFromCache().then(responseFromCache => {
+			Logger.warn('Im.Search: Recent search loaded from cache');
+
+			return responseFromCache;
+		}).then(responseFromCache => {
+			const {items, recentItems} = responseFromCache;
+			const itemMap = SearchUtils.createItemMap(items);
+
+			return this.updateModels(itemMap).then(() => {
+				return this.getItemsFromRecentItems(recentItems, itemMap);
+			});
+		});
+	}
+
+	loadRecentSearchFromServer(): Promise
+	{
+		return this.loadRecentFromServer().then(responseFromCache => {
+			Logger.warn('Im.Search: Recent search loaded from server');
+			const items = SearchUtils.createItemMap(responseFromCache.items);
+			const recentItems = SearchUtils.prepareRecentItems(responseFromCache.recentItems);
+
+			return this.updateModels(items, true).then(() => {
+				return this.getItemsFromRecentItems(recentItems, items);
+			});
+		});
+	}
+
+	searchLocal(query: string)
+	{
+		const originalLayoutQuery = query.trim().toLowerCase();
+
+		const searchInCachePromise = this.searchInCache(originalLayoutQuery);
+		const searchInRecentListPromise = this.searchInRecentList(originalLayoutQuery);
+
+		return Promise.all([searchInCachePromise, searchInRecentListPromise]).then(result => {
+			// Spread order is important, because we have more data in cache than in recent list
+			// (for example contextSort field)
+			const items = new Map([...result[1], ...result[0]]);
+
+			return this.getSortedItems(items, originalLayoutQuery);
+		});
+	}
+
+	searchOnServer(query: string, config: Object): Promise
+	{
+		const originalLayoutQuery = query.trim().toLowerCase();
+
+		let items = [];
+		return this.searchRequest(originalLayoutQuery, config).then(itemsFromServer => {
+			items = SearchUtils.createItemMap(itemsFromServer);
+
+			return this.updateModels(items, true);
+		}).then(() => {
+			return this.allocateSearchResults(items, originalLayoutQuery);
+		});
+	}
+
+	searchOnNetwork(query: string): Promise
+	{
+		const originalLayoutQuery = query.trim().toLowerCase();
+
+		return this.searchOnNetworkRequest(originalLayoutQuery).then(items => {
+			return SearchUtils.createItemMap(items);
+		});
+	}
+
+	loadDepartmentUsers(parentItem: ImSearchItem): Promise
+	{
+		let items = [];
+		return this.loadDepartmentUsersFromServer(parentItem).then(responseFromServer => {
+			items = SearchUtils.createItemMap(responseFromServer);
+
+			return this.updateModels(items, true);
+		}).then(() => {
+			return items;
+		});
+	}
+
+	destroy()
+	{
+		this.cache.destroy();
+		EventEmitter.unsubscribe(EventType.search.selectItem, this.onItemSelectHandler);
+		EventEmitter.unsubscribe(EventType.search.openNetworkItem, this.onOpenNetworkItemHandler);
+	}
+
+	//endregion
+
+	searchInCache(originalLayoutQuery: string): Promise
+	{
+		let wrongLayoutSearchPromise = Promise.resolve([]);
+		if (this.needLayoutChange(originalLayoutQuery))
+		{
+			const wrongLayoutQuery = this.changeLayout(originalLayoutQuery);
+			wrongLayoutSearchPromise = this.getItemsFromCacheByQuery(wrongLayoutQuery);
+		}
+
+		const correctLayoutSearchPromise = this.getItemsFromCacheByQuery(originalLayoutQuery);
 
 		return Promise.all([correctLayoutSearchPromise, wrongLayoutSearchPromise]).then(result => {
-			return [...new Set([...result[0], ...result[1]])];
+			return new Map([...result[0], ...result[1]]);
+		}).catch(error => {
+			console.error('Unknown exception', error);
+
+			return new Map();
 		});
 	}
 
-	getDialogIdsByQueryWords(queryWords: Array<string>)
+	searchInRecentList(originalLayoutQuery: string): Promise
 	{
-		return this.cacheService.search(queryWords).then(items => {
-			return this.updateModels(items).then(() => {
-				return this.convertItemsToDialogIds(items);
+		let wrongLayoutSearchPromise = Promise.resolve([]);
+		if (this.needLayoutChange(originalLayoutQuery))
+		{
+			const wrongLayoutQuery = this.changeLayout(originalLayoutQuery);
+			wrongLayoutSearchPromise = this.getItemsFromRecentListByQuery(wrongLayoutQuery);
+		}
+
+		const correctLayoutSearchPromise = this.getItemsFromRecentListByQuery(originalLayoutQuery);
+
+		return Promise.all([correctLayoutSearchPromise, wrongLayoutSearchPromise]).then(result => {
+			return new Map([...result[0], ...result[1]]);
+		});
+	}
+
+	getItemsFromRecentListByQuery(query: string): Promise
+	{
+		const queryWords = SearchUtils.getWordsFromString(query);
+
+		return this.recentList.search(queryWords);
+	}
+
+	getSearchConfig(): Object
+	{
+		return Config.get();
+	}
+
+	onItemSelect(event): void
+	{
+		const {selectedItem, onlyOpen} = event.getData();
+		const item = [selectedItem.entityId, selectedItem.id];
+
+		if (!onlyOpen)
+		{
+			this.cache.unshiftItem(item);
+			this.addItemsToRecentSearchResults(item);
+		}
+	}
+
+	onOpenNetworkItem(event): void
+	{
+		const code = event.getData();
+
+		return new Promise((resolve, reject) => {
+			this.restClient.callBatch(
+				this.getDataRequestQuery(code),
+				(result) => resolve(this.handleBatchRequestResult(result)),
+				(error) => reject(error)
+			);
+		});
+	}
+
+	handleBatchRequestResult(result: Object): Object
+	{
+		if (result[RestMethodImopenlinesNetworkJoin] && result[RestMethodImopenlinesNetworkJoin].error())
+		{
+			return {
+				error: result[RestMethodImopenlinesNetworkJoin].error().ex.error_description
+			};
+		}
+
+		if (result[RestMethod.imUserGet] && result[RestMethod.imUserGet].error())
+		{
+			return {
+				error: result[RestMethod.imUserGet].error().ex.error_description
+			};
+		}
+
+		const user = result[RestMethod.imUserGet].data();
+		this.store.dispatch('users/set', [user]);
+		const dialogue = this.prepareChatForAdditionalUser(user);
+		this.store.dispatch('dialogues/set', [dialogue]);
+
+		return user;
+	}
+
+	prepareChatForAdditionalUser(user: Object): Object
+	{
+		return {
+			dialogId: user.id,
+			avatar: user.avatar,
+			color: user.color,
+			name: user.name,
+			type: ChatTypes.user
+		};
+	}
+
+	getDataRequestQuery(code: string): Object
+	{
+		const query = {
+			[RestMethodImopenlinesNetworkJoin]: [RestMethodImopenlinesNetworkJoin, {code: code}]
+		};
+
+		query[RestMethod.imUserGet] = [
+			RestMethod.imUserGet,
+			{
+				id: `$result[${RestMethodImopenlinesNetworkJoin}]`
+			}
+		];
+
+		return query;
+	}
+
+	getItemsFromCacheByQuery(query: string): Promise
+	{
+		const queryWords = SearchUtils.getWordsFromString(query);
+
+		return this.cache.search(queryWords).then(cacheItems => {
+			const items = SearchUtils.createItemMap(cacheItems);
+			return this.updateModels(items).then(() => items);
+		});
+	}
+
+	getSortedItems(items: Map<string, SearchItem>, originalLayoutQuery: string): Map<string, SearchItem>
+	{
+		let sortedItems = this.sortItemsBySearchField(items, originalLayoutQuery);
+		sortedItems = this.sortItemsByEntityIdAndContextSort(sortedItems);
+
+		return sortedItems;
+	}
+
+	sortItemsBySearchField(items: Map<string, SearchItem>, originalLayoutQuery: string): Map<string, SearchItem>
+	{
+		let queryWords = SearchUtils.getWordsFromString(originalLayoutQuery);
+		if (this.needLayoutChange(originalLayoutQuery))
+		{
+			const wrongLayoutQueryWords = SearchUtils.getWordsFromString(this.changeLayout(originalLayoutQuery));
+			queryWords = [...queryWords, ...wrongLayoutQueryWords];
+		}
+		const uniqueWords = [...new Set(queryWords)];
+
+		const searchFieldsWeight = {
+			title: 10_000,
+			name: 1000,
+			lastName: 100,
+			position: 1,
+		};
+
+		items.forEach(item => {
+			uniqueWords.forEach(word => {
+				if (item.getTitle().toLowerCase().startsWith(word))
+				{
+					item.addCustomSort(searchFieldsWeight.title);
+				}
+				else if (item.getName()?.toLowerCase().startsWith(word))
+				{
+					item.addCustomSort(searchFieldsWeight.name);
+				}
+				else if (item.getLastName()?.toLowerCase().startsWith(word))
+				{
+					item.addCustomSort(searchFieldsWeight.lastName);
+				}
+				else if (item.getPosition()?.toLowerCase().startsWith(word))
+				{
+					item.addCustomSort(searchFieldsWeight.position);
+				}
 			});
 		});
+
+		return new Map([...items.entries()].sort((firstItem, secondItem) => {
+			const [, firstItemValue] = firstItem;
+			const [, secondItemValue] = secondItem;
+
+			return secondItemValue.getCustomSort() - firstItemValue.getCustomSort();
+		}));
 	}
 
-	requestRecentSearch()
+	sortItemsByEntityIdAndContextSort(items: Map<string, SearchItem>): Map<string, SearchItem>
 	{
-		return Ajax.runAction('ui.entityselector.load', {
-				json: this.getJsonConfig(),
-			})
-			.then(response => {
+		const entityWeight = {
+			'user': 100,
+			'im-chat': 80,
+			'im-chat-user': 80,
+			'im-bot': 70,
+			'department': 60,
+			'extranet': 10,
+		};
+
+		return new Map([...items.entries()].sort((firstItem, secondItem) => {
+			const [, firstItemValue] = firstItem;
+			const [, secondItemValue] = secondItem;
+
+			const secondItemEntityId = secondItemValue.isExtranet() ? 'extranet' : secondItemValue.getEntityId();
+			const firstItemEntityId = firstItemValue.isExtranet() ? 'extranet' : firstItemValue.getEntityId();
+
+			if (entityWeight[secondItemEntityId] < entityWeight[firstItemEntityId])
+			{
+				return -1;
+			}
+			else if (entityWeight[secondItemEntityId] > entityWeight[firstItemEntityId])
+			{
+				return 1;
+			}
+			else
+			{
+				return secondItemValue.getContextSort() - firstItemValue.getContextSort();
+			}
+		}));
+	}
+
+	loadRecentFromServer(): Promise
+	{
+		const config = {
+			json: this.getSearchConfig()
+		};
+
+		const chatEntity = Config.getChatEntity();
+		chatEntity.options.searchableChatTypes = ['C', 'O'];
+		config.json.dialog.entities.push(chatEntity);
+
+		return new Promise((resolve, reject) => {
+			Ajax.runAction('ui.entityselector.load', config).then(response => {
 				Logger.warn(`Im.Search: Recent search request result`, response);
-				this.cacheService.saveToCache(response.data.dialog);
+				this.cache.save(response.data.dialog);
 
-				return response.data.dialog;
-			});
-	}
-
-	searchOnServer(query)
-	{
-		return this.searchRequest(query).then(items => {
-			return this.updateModels(items, true).then(() => {
-				return {
-					items: this.convertItemsToDialogIds(items),
-					departments: items.filter(item => item.entityId === EntityIdTypes.department)
-				};
-			});
+				resolve(response.data.dialog);
+			}).catch(error => reject(error));
 		});
 	}
 
-	searchRequest(query)
+	loadDepartmentUsersFromServer(parentItem: ImSearchItem): Promise
 	{
-		const config = this.getJsonConfig();
-		const queryWords = this.splitQueryByWords(query);
+		const config = {
+			json: {
+				...this.getSearchConfig(),
+				parentItem
+			}
+		};
 
-		config.searchQuery = {
-			'queryWords': queryWords,
-			'query': query,
-			'dynamicSearchEntities': []
+		const departmentEntity = Config.getDepartmentEntity();
+		config.json.dialog.entities.push(departmentEntity);
+
+		return new Promise((resolve, reject) => {
+			Ajax.runAction('ui.entityselector.getChildren', config).then(response => {
+				Logger.warn('Im.Search: load department users result', response);
+				this.cache.save(response.data.dialog);
+				resolve(response.data.dialog.items);
+			}).catch(error => reject(error));
+		});
+	}
+
+	searchRequest(query: string, requestConfig: Object): Promise
+	{
+		const config = {
+			json: this.getSearchConfig()
+		};
+
+		if (requestConfig.network)
+		{
+			const networkEntity = Config.getNetworkEntity();
+			config.json.dialog.entities.push(networkEntity);
+		}
+
+		if (requestConfig.departments)
+		{
+			const departmentEntity = Config.getDepartmentEntity();
+			config.json.dialog.entities.push(departmentEntity);
+		}
+
+		const chatEntity = Config.getChatEntity();
+		config.json.dialog.entities.push(chatEntity);
+
+		config.json.searchQuery = {
+			'queryWords': SearchUtils.getWordsFromString(query.trim()),
+			'query': query.trim(),
 		};
 
 		return new Promise((resolve, reject) => {
-			Ajax.runAction('ui.entityselector.doSearch', {
-					json: config,
-				})
-				.then(response => {
-					Logger.warn(`Im.Search: Search request result`, response);
-					this.cacheService.saveToCache(response.data.dialog);
+			Ajax.runAction('ui.entityselector.doSearch', config).then(response => {
+				Logger.warn(`Im.Search: Search request result`, response);
+				this.cache.save(response.data.dialog);
 
-					resolve(response.data.dialog.items);
-				})
-				.catch(error => reject(error));
+				resolve(response.data.dialog.items);
+			}).catch(error => reject(error));
 		});
 	}
 
-	// todo: refactor (debounce & queue)
-	addItemsToRecentSearchResults(recentItems)
+	searchOnNetworkRequest(query: string): Promise
 	{
-		if (!Type.isArrayFilled(recentItems))
-		{
-			return;
-		}
+		const config = {
+			json: this.getSearchConfig()
+		};
 
-		return Ajax.runAction('ui.entityselector.saveRecentItems', {
+		const networkEntity = Config.getNetworkEntity();
+
+		config.json.dialog.entities = [networkEntity];
+		config.json.searchQuery = {
+			'queryWords': SearchUtils.getWordsFromString(query.trim()),
+			'query': query.trim(),
+		};
+
+		return new Promise((resolve, reject) => {
+			Ajax.runAction('ui.entityselector.doSearch', config).then(response => {
+				Logger.warn(`Im.Search: Network Search request result`, response);
+
+				resolve(response.data.dialog.items);
+			}).catch(error => reject(error));
+		});
+	}
+
+	addItemsToRecentSearchResults(recentItem: Array<string, number>): void
+	{
+		const [entityId, id] = recentItem;
+		const recentItems = [{id, entityId}];
+
+		const config = {
 			json: {
-				...this.getJsonConfig(),
+				...this.getSearchConfig(),
 				recentItems
 			},
-		});
+		};
+
+		const chatEntity = Config.getChatEntity();
+		config.json.dialog.entities.push(chatEntity);
+
+		Ajax.runAction('ui.entityselector.saveRecentItems', config);
 	}
 
-	updateModels(rawItems, set = false): Promise
+	updateModels(items: Map<string, SearchItem>, set: boolean = false): Promise
 	{
-		const {users, dialogues} = this.prepareDataForModels(rawItems);
+		const {users, dialogues} = this.prepareDataForModels(items);
 
 		const usersActionName = set ? 'users/set' : 'users/add';
 		const dialoguesActionName = set ? 'dialogues/set' : 'dialogues/add';
@@ -182,7 +484,7 @@ export class SearchService
 		return Promise.all([usersPromise, dialoguesPromise]);
 	}
 
-	prepareDataForModels(items: Array<ImSearchItem>): Object
+	prepareDataForModels(items: Map<string, SearchItem>): { users: Array<Object>, dialogues: Array<Object> }
 	{
 		const result = {
 			users: [],
@@ -190,15 +492,15 @@ export class SearchService
 		};
 
 		items.forEach(item => {
-			if (!item.customData)
+			if (!item.getCustomData())
 			{
 				return;
 			}
 
 			// user
-			if (item.customData.imUser && item.customData.imUser.ID > 0)
+			if (item.isUser())
 			{
-				const preparedUser = this.toLowerCaseKeys(item.customData.imUser);
+				const preparedUser = SearchUtils.convertKeysToLowerCase(item.getUserCustomData());
 				result.users.push(preparedUser);
 
 				result.dialogues.push({
@@ -206,18 +508,15 @@ export class SearchService
 					color: preparedUser.color,
 					name: preparedUser.name,
 					type: ChatTypes.user,
-					dialogId: item.id
+					dialogId: item.getId()
 				});
 			}
 
 			// chat
-			if (item.customData.imChat && item.customData.imChat.ID > 0)
+			if (item.isChat() && !item.isOpeLinesType())
 			{
-				if (item.entityType === 'LINES')
-				{
-					return;
-				}
-				const chat = this.toLowerCaseKeys(item.customData.imChat);
+				const chat = SearchUtils.convertKeysToLowerCase(item.getChatCustomData());
+
 				result.dialogues.push({
 					...chat,
 					dialogId: `chat${chat.id}`
@@ -228,87 +527,90 @@ export class SearchService
 		return result;
 	}
 
-	// todo: move somewhere else
-	splitQueryByWords(query)
+	getItemsFromRecentItems(recentItems: Array<Object>, items: Map<string, SearchItem>): Map<string, SearchItem>
 	{
-		const clearedQuery = query
-			.replace('(', ' ')
-			.replace(')', ' ')
-			.replace('[', ' ')
-			.replace(']', ' ')
-			.replace('{', ' ')
-			.replace('}', ' ')
-			.replace('<', ' ')
-			.replace('>', ' ')
-			.replace('-', ' ')
-			.replace('#', ' ')
-			.replace('"', ' ')
-			.replace('\'', ' ')
-			.replace('/ss+/', ' ')
-		;
-
-		return clearedQuery
-			.toLowerCase()
-			.split(' ')
-			.filter(word => word !== '')
-			;
-	}
-
-	toLowerCaseKeys(object)
-	{
-		const result = {};
-		Object.keys(object).forEach(key => {
-			result[key.toLowerCase()] = object[key];
-		});
-
-		return result;
-	}
-
-	convertRecentItemsToDialogIds(recentItems: Array<Array<string, number>>): Array<string>
-	{
-		const dialogIds = [];
-
-		recentItems.forEach(item => {
-			if (item[0] === EntityIdTypes.chat)
+		const filledRecentItems = new Map();
+		recentItems.forEach(recentItem => {
+			const itemFromMap = items.get(recentItem.cacheId);
+			if (itemFromMap && !itemFromMap.isOpeLinesType())
 			{
-				dialogIds.push(`chat${item[1]}`);
-			}
-			else if (item[0] === EntityIdTypes.user || item[0] === EntityIdTypes.bot)
-			{
-				dialogIds.push(item[1].toString());
+				filledRecentItems.set(itemFromMap.getEntityFullId(), itemFromMap);
 			}
 		});
 
-		return dialogIds;
+		return filledRecentItems;
 	}
 
-	convertItemsToDialogIds(items: Array<ImSearchItem>): Array<string>
+	allocateSearchResults(items: Map<string, SearchItem>, originalLayoutQuery: string): Object
 	{
-		const dialogIds = [];
+		const usersAndChats = new Map();
+		const chatUsers = new Map();
+		const departments = new Map();
+		const openLines = new Map();
+		const network = new Map();
 
 		items.forEach(item => {
-			if (item.entityType === 'LINES')
+			switch (item.getEntityId())
 			{
-				return;
-			}
-
-			if (item.customData && item.customData.imChat && item.customData.imChat.ID > 0)
-			{
-				dialogIds.push(`chat${item.customData.imChat.ID}`);
-			}
-			else if (item.customData && item.customData.imUser && item.customData.imUser.ID > 0)
-			{
-				dialogIds.push(item.customData.imUser.ID.toString());
+				case EntityIdTypes.chatUser:
+				{
+					chatUsers.set(item.getEntityFullId(), item);
+					break;
+				}
+				case EntityIdTypes.department:
+				{
+					departments.set(item.getEntityFullId(), item);
+					break;
+				}
+				case EntityIdTypes.network:
+				{
+					network.set(item.getEntityFullId(), item);
+					break;
+				}
+				default:
+				{
+					if (item.isOpeLinesType())
+					{
+						openLines.set(item.getEntityFullId(), item);
+					}
+					else
+					{
+						usersAndChats.set(item.getEntityFullId(), item);
+					}
+				}
 			}
 		});
 
-		return dialogIds;
+		return {
+			usersAndChats: this.getSortedItems(usersAndChats, originalLayoutQuery),
+			chatUsers: chatUsers,
+			departments: departments,
+			openLines: openLines,
+			network: network
+		};
 	}
 
-	dialogIdToRecentItem(dialogId: string): Array<string, number>
+	isRussianInterface(): boolean
 	{
-		return dialogId.startsWith('chat')
-			? [EntityIdTypes.chat, Number.parseInt(dialogId.replace('chat', ''), 10)]
-			: [EntityIdTypes.user, Number.parseInt(dialogId, 10)];
+		return this.store.state.application.common.languageId === 'ru';
+	}
+
+	changeLayout(query: string): string
+	{
+		if (this.isRussianInterface() && BX.correctText)
+		{
+			// eslint-disable-next-line bitrix-rules/no-bx
+			return BX.correctText(query, {replace_way: 'AUTO'});
+		}
+
+		return query;
+	}
+
+	needLayoutChange(originalLayoutQuery: string): boolean
+	{
+		const wrongLayoutQuery = this.changeLayout(originalLayoutQuery);
+		const isIdenticalQuery = wrongLayoutQuery === originalLayoutQuery;
+
+		return this.isRussianInterface() && !isIdenticalQuery;
 	}
 }

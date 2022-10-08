@@ -38,6 +38,7 @@ $templateData = array(
 );
 unset($currencyList, $templateLibrary);
 
+$haveOffers = !empty($arResult['OFFERS']);
 $mainId = $this->GetEditAreaId($arResult['ID']);
 $itemIds = array(
 	'ID' => $mainId,
@@ -65,7 +66,7 @@ $itemIds = array(
 	'BASKET_ACTIONS_ID' => $mainId.'_basket_actions',
 	'NOT_AVAILABLE_MESS' => $mainId.'_not_avail',
 	'COMPARE_LINK' => $mainId.'_compare_link',
-	'TREE_ID' => $mainId.'_skudiv',
+	'TREE_ID' => $haveOffers && !empty($arResult['OFFERS_PROP']) ? $mainId.'_skudiv' : null,
 	'DISPLAY_PROP_DIV' => $mainId.'_sku_prop',
 	'DESCRIPTION_ID' => $mainId.'_description',
 	'DISPLAY_MAIN_PROP_DIV' => $mainId.'_main_sku_prop',
@@ -88,7 +89,6 @@ $alt = !empty($arResult['IPROPERTY_VALUES']['ELEMENT_DETAIL_PICTURE_FILE_ALT'])
 	? $arResult['IPROPERTY_VALUES']['ELEMENT_DETAIL_PICTURE_FILE_ALT']
 	: $arResult['NAME'];
 
-$haveOffers = !empty($arResult['OFFERS']);
 if ($haveOffers)
 {
 	$actualItem = $arResult['OFFERS'][$arResult['OFFERS_SELECTED']] ?? reset($arResult['OFFERS']);

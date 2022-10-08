@@ -18,12 +18,11 @@
 	width: 100%;
 }
 
-.mail-addressbook-dialogeditcontact-contact-error {
-	display: none;
+a[data-role='contact-email'] {
+	cursor: pointer;
+}
+
+.mail-addressbook-error-box
+{
 	margin-top: 5px;
-	margin-bottom: 15px;
-	padding: 10px 11px;
-	background-color: #fae5e8;
-	color: #d0011b;
-	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
 }

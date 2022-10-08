@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
-(function (exports,ui_entityEditor,ui_notification,ui_feedback_form,ui_hint,ui_designTokens,ui_fonts_opensans,translit,main_core_events,main_popup,main_core,catalog_storeUse) {
+(function (exports,ui_entityEditor,ui_notification,ui_feedback_form,ui_hint,ui_fonts_opensans,ui_designTokens,translit,main_core_events,main_popup,main_core,catalog_storeUse) {
 	'use strict';
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
@@ -1184,6 +1184,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	        });
 	      }
 
+	      BX.Main.gridManager.destroy(this.getGridId());
 	      this.subscribeToFormSubmit();
 	      babelHelpers.get(babelHelpers.getPrototypeOf(VariationGridController.prototype), "onAfterSave", this).call(this);
 	    }
@@ -1408,7 +1409,6 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      eventArgs.options.data[skuGridName] = skuGridData;
 	      this.areaHeight = this.getGridControl().getWrapper().offsetHeight;
-	      BX.Main.gridManager.destroy(this.getGridId());
 	    }
 	  }]);
 	  return VariationGridController;
@@ -2941,6 +2941,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(EntityCard).call(this, id, settings));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "stackWithOffset", null);
 	    _this.cardSettings = settings.cardSettings || [];
+	    _this.hiddenFields = settings.hiddenFields || [];
 	    _this.feedbackUrl = settings.feedbackUrl || '';
 	    _this.variationGridId = settings.variationGridId;
 	    _this.productStoreGridId = settings.productStoreGridId || null;
@@ -2950,6 +2951,8 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    _this.componentName = settings.componentName || null;
 	    _this.componentSignedParams = settings.componentSignedParams || null;
 	    _this.isSimpleProduct = settings.isSimpleProduct || false;
+	    _this.isWithOrdersMode = settings.isWithOrdersMode || false;
+	    _this.isInventoryManagementUsed = settings.isInventoryManagementUsed || false;
 
 	    _this.registerFieldsFactory();
 

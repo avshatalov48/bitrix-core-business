@@ -1,5 +1,11 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
+
 if($arResult["MESSAGE"] <> '')
 {
 	?>
@@ -71,11 +77,11 @@ else
 						<td>
 
 								<?$APPLICATION->IncludeComponent(
-									"bitrix:system.field.view", 
-									$arPostField["USER_TYPE"]["USER_TYPE_ID"], 
+									"bitrix:system.field.view",
+									$arPostField["USER_TYPE"]["USER_TYPE_ID"],
 									array("arUserField" => $arPostField), null, array("HIDE_ICONS"=>"Y"));?>
 						</td>
-					</tr>			
+					</tr>
 					<?endif;?>
 					<?endforeach;?>
 					</table>

@@ -9,7 +9,8 @@
     margin-bottom: 2px;
     border-radius: 1px;
     border: 1px solid transparent;
-	font-family: 'OpenSans-Regular', serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
     /*transition: .3s;*/
 }
 .report-operator-open {
@@ -85,7 +86,8 @@
     min-width: 230px;
 }
 .report-operator-user-name-link {
-    font-family: "OpenSans-Semibold", Helvetica, Arial, sans-serif;
+    font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
     overflow: hidden;
     text-overflow: ellipsis;
     text-decoration: none;
@@ -252,7 +254,8 @@
 	margin-top: -10px;
 	padding: 0 0 10px 20px;
 	overflow: hidden;
-	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 14px;
 	color: #525C69;
 	cursor: pointer;

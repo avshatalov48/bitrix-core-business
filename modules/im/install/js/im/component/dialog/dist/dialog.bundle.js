@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,im_view_message,im_lib_utils,im_lib_animation,im_lib_logger,main_polyfill_intersectionobserver,ui_vue,im_const,main_core,main_core_events,ui_vue_vuex) {
+(function (exports,ui_fonts_opensans,ui_designTokens,im_view_message,im_lib_utils,im_lib_animation,im_lib_logger,main_polyfill_intersectionobserver,ui_vue,im_const,main_core,main_core_events,ui_vue_vuex) {
 	'use strict';
 
 	var ObserverType = Object.freeze({
@@ -2046,5 +2046,5 @@ this.BX = this.BX || {};
 	  template: "\n\t\t<div :class=\"dialogWrapClasses\">\n\t\t\t<div :class=\"dialogBoxClasses\" ref=\"chatBox\">\n\t\t\t\t<!-- Error state -->\n\t\t\t\t<ErrorState v-if=\"application.error.active\" />\n\t\t\t\t<template v-else>\n\t\t\t\t\t<div :class=\"dialogBodyClasses\" key=\"with-message\">\n\t\t\t\t\t\t<!-- Loading state -->\n\t\t\t\t\t  \t<LoadingState v-if=\"isLoading\" />\n\t\t\t\t\t\t<!-- Empty state -->\n\t\t\t\t\t  \t<EmptyState v-else-if=\"isEmpty\" />\n\t\t\t\t\t\t<!-- Message list state -->\n\t\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t\t<div class=\"bx-mobilechat-dialog\">\n\t\t\t\t\t\t\t\t<MessageList\n\t\t\t\t\t\t\t\t\t:userId=\"userId\" \n\t\t\t\t\t\t\t\t\t:dialogId=\"dialogId\"\n\t\t\t\t\t\t\t\t\t:messageLimit=\"application.dialog.messageLimit\"\n\t\t\t\t\t\t\t\t\t:enableReadMessages=\"application.dialog.enableReadMessages\"\n\t\t\t\t\t\t\t\t\t:enableReactions=\"true\"\n\t\t\t\t\t\t\t\t\t:enableDateActions=\"false\"\n\t\t\t\t\t\t\t\t\t:enableCreateContent=\"false\"\n\t\t\t\t\t\t\t\t\t:enableGestureQuote=\"enableGestureQuote\"\n\t\t\t\t\t\t\t\t\t:enableGestureQuoteFromRight=\"enableGestureQuoteFromRight\"\n\t\t\t\t\t\t\t\t\t:enableGestureMenu=\"enableGestureMenu\"\n\t\t\t\t\t\t\t\t\t:showMessageUserName=\"showMessageUserName\"\n\t\t\t\t\t\t\t\t\t:showMessageAvatar=\"showMessageAvatar\"\n\t\t\t\t\t\t\t\t\t:showMessageMenu=\"false\"\n\t\t\t\t\t\t\t\t />\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t<!-- Quote panel -->\n\t\t\t\t\t\t\t<QuotePanel :quotePanelData=\"quotePanelData\" />\n\t\t\t\t\t\t</template>\n\t\t\t\t\t</div>\n\t\t\t\t</template>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
-}((this.BX.Messenger = this.BX.Messenger || {}),window,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX,BX,BX.Messenger.Const,BX,BX.Event,BX));
+}((this.BX.Messenger = this.BX.Messenger || {}),BX,BX,window,BX.Messenger.Lib,BX.Messenger.Lib,BX.Messenger.Lib,BX,BX,BX.Messenger.Const,BX,BX.Event,BX));
 //# sourceMappingURL=dialog.bundle.js.map

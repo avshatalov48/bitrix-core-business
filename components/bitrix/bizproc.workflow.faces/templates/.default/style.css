@@ -7,7 +7,7 @@
 	position: relative;
 	display: inline-block;
 	border: 2px solid #edeef0;
-	border-radius: 3px;
+	border-radius: var(--ui-border-radius-md, 3px);
 	padding: 0 17px 0;
 }
 
@@ -74,7 +74,7 @@ a.process-step-more {
 	display: block;
 	border-bottom: 1px dashed;
 	color: #535c69;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin-top: -10px;
 	font-size: 13px;
 	text-align: center;
@@ -180,7 +180,7 @@ a.process-step-more {
 	text-align: center;
 	width: 48px;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #535c69;
 	padding-top: 25px;
 }
@@ -419,7 +419,7 @@ a.process-step-more {
 	line-height: 18px !important;
 	padding: 8px 10px;
 	border-bottom: 1px solid transparent;
-	/*font-weight: bold;*/
+	/*font-weight: var(--ui-font-weight-bold);*/
 }
 .bp-button:hover
 {
@@ -653,9 +653,9 @@ a.process-step-more {
 	color: #cd8600;
 	line-height: 16px;
 	text-align: left;
-	border-radius: 3px;
+	border-radius: var(--ui-border-radius-md, 3px);
 	background: #ffefd0;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	display: inline-block;
 	position: relative;
 }
@@ -676,7 +676,7 @@ a.process-step-more {
 	position: relative;
 	display: inline-block;
 	color: #f73200;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding-left: 22px;
 	line-height: 17px;
 	vertical-align: middle;

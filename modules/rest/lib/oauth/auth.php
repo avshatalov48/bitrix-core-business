@@ -9,6 +9,7 @@
 namespace Bitrix\Rest\OAuth;
 
 
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Rest\Application;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\AuthStorageInterface;
@@ -139,7 +140,19 @@ class Auth
 
 				if(!$error && $tokenInfo['user_id'] > 0)
 				{
-					if(!\CRestUtil::makeAuth($tokenInfo))
+					global $USER;
+					if ($USER instanceof \CUser && $USER->isAuthorized())
+					{
+						if ((int)$USER->getId() !== (int)$tokenInfo['user_id'])
+						{
+							$tokenInfo = [
+								'error' => 'authorization_error',
+								'error_description' => Loc::getMessage('REST_OAUTH_ERROR_LOGOUT_BEFORE'),
+							];
+							$error = true;
+						}
+					}
+					elseif (!\CRestUtil::makeAuth($tokenInfo))
 					{
 						$tokenInfo = array('error' => 'authorization_error', 'error_description' => 'Unable to authorize user');
 						$error = true;

@@ -1,6 +1,6 @@
 /* >>> bizproc.workflow.setparameters */
 .bp-question {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #f43400;
 	font-size: 16px;
 	line-height: 23px;
@@ -31,7 +31,7 @@
 }
 
 .bp-question-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 	color: #000;
 	margin: 40px 0 10px;
@@ -134,6 +134,6 @@
 	box-sizing: border-box;
 	width: 100%;
 	max-width: 100%;
-	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 /* <<< bizproc.workflow.setparameters */

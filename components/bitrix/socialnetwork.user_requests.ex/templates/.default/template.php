@@ -8,7 +8,10 @@
 
 use Bitrix\Main\UI;
 
-UI\Extension::load("ui.tooltip");
+UI\Extension::load([
+	"ui.design-tokens",
+	"ui.tooltip"
+]);
 
 if ($arResult["NEED_AUTH"] == "Y")
 {

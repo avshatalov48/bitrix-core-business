@@ -273,7 +273,7 @@ CJSCore::RegisterExt('videorecorder', array(
 		'BLOG_VIDEO_RECORD_PERMISSIONS_ERROR_TITLE' => GetMessage('BLOG_VIDEO_RECORD_PERMISSIONS_ERROR_TITLE'),
 		'BLOG_VIDEO_RECORD_ERROR_CHROME_HTTPS' => GetMessage('BLOG_VIDEO_RECORD_ERROR_CHROME_HTTPS'),
 	),
-	'rel' => array('core', 'popup'),
+	'rel' => array('core', 'popup', 'ui.fonts.opensans'),
 ));
 
 CJSCore::RegisterExt('comment_aux', [
@@ -293,7 +293,7 @@ CJSCore::RegisterExt('content_view', array(
 	'lang_additional' => array(
 		'SONET_CONTENTVIEW_JS_HIDDEN_COUNT' => GetMessage("SONET_CONTENTVIEW_JS_HIDDEN_COUNT"),
 	),
-	'rel' => [ 'ajax', 'popup', 'main.polyfill.intersectionobserver' ]
+	'rel' => ['ui.design-tokens', 'ajax', 'popup', 'main.polyfill.intersectionobserver' ]
 ));
 
 $arLogEvents = array(

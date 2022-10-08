@@ -18,6 +18,8 @@ return [
 	],
 	'lang' => BX_ROOT.'/modules/main/js/kanban.php',
 	'rel' => [
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 		'color_picker',
 		'dnd',
 	],

@@ -7,6 +7,7 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Entity\AddResult;
 use Bitrix\Main\Entity\ScalarField;
+use Bitrix\Main\Text\Emoji;
 
 /**
  * Class UrlMetadataTable
@@ -59,11 +60,20 @@ class UrlMetadataTable extends Entity\DataManager
 			'TYPE' => new Entity\StringField('TYPE', array(
 				'required' => true,
 			)),
-			'TITLE' => new Entity\StringField('TITLE'),
-			'DESCRIPTION' => new Entity\TextField('DESCRIPTION'),
+			'TITLE' => new Entity\StringField('TITLE', [
+				'save_data_modification' => [Emoji::class, 'getSaveModificator'],
+				'fetch_data_modification' => [Emoji::class, 'getFetchModificator'],
+			]),
+			'DESCRIPTION' => new Entity\TextField('DESCRIPTION', [
+				'save_data_modification' => [Emoji::class, 'getSaveModificator'],
+				'fetch_data_modification' => [Emoji::class, 'getFetchModificator'],
+			]),
 			'IMAGE_ID' => new Entity\IntegerField('IMAGE_ID'),
 			'IMAGE' => new Entity\StringField('IMAGE'),
-			'EMBED' => new Entity\TextField('EMBED'),
+			'EMBED' => new Entity\TextField('EMBED', [
+				'save_data_modification' => [Emoji::class, 'getSaveModificator'],
+				'fetch_data_modification' => [Emoji::class, 'getFetchModificator'],
+			]),
 			'EXTRA' => new Entity\TextField('EXTRA', array(
 				'serialized' => true,
 			)),

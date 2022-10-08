@@ -107,7 +107,6 @@ if (!empty($arParams["ADDITIONAL_SIGHTS"]))
 	if (empty($arParams["PICTURES_SIGHT"]) && !empty($arParams["PICTURES"])):
 		if ($GLOBALS["USER"]->IsAuthorized())
 		{
-			require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 			$arTemplateParams = CUserOptions::GetOption('photogallery', 'template');
 			$arTemplateParams = (!is_array($arTemplateParams) ? array() : $arTemplateParams);
 			$arParams["PICTURES_SIGHT"] = $arTemplateParams['sight'];

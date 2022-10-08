@@ -1,5 +1,5 @@
 .landing-ui-card-block-preview {
-	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	display: flex;
 	flex-direction: column;
 	position: relative;
@@ -57,8 +57,8 @@
 	margin-right: 7px;
 	background: #2fc6f6;
 	border-radius: 2px 2px 0 0;
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-	font-weight: bold;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 9px;
 	color: #fff;
 	cursor: pointer;
@@ -204,7 +204,7 @@
 }
 
 .landing-ui-requires-update-overlay-footer {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 12px;
 	background-color: rgba(255, 255, 255, .8);
 	position: absolute;

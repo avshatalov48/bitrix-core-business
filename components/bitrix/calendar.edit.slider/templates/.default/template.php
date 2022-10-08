@@ -148,8 +148,7 @@ $arParams['UF'] = $UF;
 											"jsObjName" => $arParams['id'].'_entry_slider_editor',
 											"height" => 120,
 											"documentCSS" => "",
-											"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",
-											"fontSize" => "12px",
+											"fontSize" => "14px",
 											"lazyLoad" => false,
 											"setFocusAfterShow" => false
 										)
@@ -821,8 +820,7 @@ $arParams['UF'] = $UF;
 																	"jsObjName" => $arParams['id'].'_entry_slider_editor',
 																	"height" => 120,
 																	"documentCSS" => "",
-																	"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",
-																	"fontSize" => "12px",
+																	"fontSize" => "14px",
 																	"lazyLoad" => false,
 																	"setFocusAfterShow" => false
 																)

@@ -364,6 +364,28 @@ if (isset($item))
 										//endregion
 
 										//region SKU
+										if ($item['OFFERS_PROPS_DISPLAY'])
+										{
+											foreach ($item['JS_OFFERS'] as $keyOffer => $jsOffer)
+											{
+												$strProps = '';
+
+												if (!empty($jsOffer['DISPLAY_PROPERTIES']))
+												{
+													foreach ($jsOffer['DISPLAY_PROPERTIES'] as $displayProperty)
+													{
+														$strProps .= '<dt>'.$displayProperty['NAME'].'</dt><dd>'
+															.(is_array($displayProperty['VALUE'])
+																? implode(' / ', $displayProperty['VALUE'])
+																: $displayProperty['VALUE'])
+															.'</dd>';
+													}
+												}
+
+												$item['JS_OFFERS'][$keyOffer]['DISPLAY_PROPERTIES'] = $strProps;
+											}
+											unset($jsOffer, $strProps);
+										}
 										if ($arParams['PRODUCT_DISPLAY_MODE'] === 'Y' && !empty($item['OFFERS_PROP']))
 										{
 											?>
@@ -437,29 +459,6 @@ if (isset($item))
 											}
 
 											unset($skuProperty, $value);
-
-											if ($item['OFFERS_PROPS_DISPLAY'])
-											{
-												foreach ($item['JS_OFFERS'] as $keyOffer => $jsOffer)
-												{
-													$strProps = '';
-
-													if (!empty($jsOffer['DISPLAY_PROPERTIES']))
-													{
-														foreach ($jsOffer['DISPLAY_PROPERTIES'] as $displayProperty)
-														{
-															$strProps .= '<dt>'.$displayProperty['NAME'].'</dt><dd>'
-																.(is_array($displayProperty['VALUE'])
-																	? implode(' / ', $displayProperty['VALUE'])
-																	: $displayProperty['VALUE'])
-																.'</dd>';
-														}
-													}
-
-													$item['JS_OFFERS'][$keyOffer]['DISPLAY_PROPERTIES'] = $strProps;
-												}
-												unset($jsOffer, $strProps);
-											}
 										}
 										//endregion
 									?></div><?php
@@ -676,7 +675,7 @@ if (isset($item))
 
 	?><script data-type="text/html" type="application/ld+json"><?=json_encode($arrayData, JSON_UNESCAPED_UNICODE ), "";?></script><?php
 
-	if ($arParams['PRODUCT_DISPLAY_MODE'] === 'Y' && !empty($item['OFFERS_PROP']))
+	if ($arParams['PRODUCT_DISPLAY_MODE'] === 'Y')
 	{
 		$jsParams['SHOW_SKU_PROPS'] = $item['OFFERS_PROPS_DISPLAY'];
 
@@ -738,10 +737,10 @@ if (isset($item))
 
 		$jsParams['OFFERS'] = $item['JS_OFFERS'];
 		$jsParams['OFFER_SELECTED'] = $item['OFFERS_SELECTED'];
-		$jsParams['TREE_PROPS'] = $skuProps;
+		$jsParams['TREE_PROPS'] = !empty($item['OFFERS_PROP']) ? $skuProps : null;
 
-		$jsParams['VISUAL']['TREE_ID'] = $itemIds['PROP_DIV'];
-		$jsParams['VISUAL']['TREE_ITEM_ID'] = $itemIds['PROP'];
+		$jsParams['VISUAL']['TREE_ID'] = !empty($item['OFFERS_PROP']) ? $itemIds['PROP_DIV'] : null;
+		$jsParams['VISUAL']['TREE_ITEM_ID'] = !empty($item['OFFERS_PROP']) ? $itemIds['PROP'] : null;
 
 		if ($item['OFFERS_PROPS_DISPLAY'])
 		{
@@ -753,7 +752,7 @@ if (isset($item))
 			'PICTURE_SECOND' => $item['PRODUCT_PREVIEW_SECOND'],
 		];
 
-		$jsParams['BASKET']['SKU_PROPS'] = $item['OFFERS_PROP_CODES'];
+		$jsParams['BASKET']['SKU_PROPS'] = !empty($item['OFFERS_PROP']) ? $item['OFFERS_PROP_CODES'] : null;
 	}
 	else
 	{

@@ -160,7 +160,7 @@ export class UsersModel extends BuilderModel
 				const user = state.collection[userId];
 				if (userId <= 0 || !user)
 				{
-					return false;
+					return '';
 				}
 
 				return Utils.user.getLastDateText(user);
@@ -328,6 +328,14 @@ export class UsersModel extends BuilderModel
 				{
 					user.isMobileOnline = true;
 					this.addToMobileOnlineList(payload.fields.id);
+				}
+
+				if (payload.fields.absent === false)
+				{
+					state.absentList = state.absentList.filter(element => {
+						return element !== payload.id;
+					});
+					state.collection[payload.id].isAbsent = false;
 				}
 
 				state.collection[payload.id] = {...state.collection[payload.id], ...payload.fields};

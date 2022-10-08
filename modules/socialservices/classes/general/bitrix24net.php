@@ -747,6 +747,7 @@ class CBitrix24NetTransport
 	const METHOD_PROFILE_CONTACTS = 'profile.contacts';
 	const METHOD_PROFILE_RESTORE_PASSWORD = 'profile.password.restore';
 	const METHOD_PROFILE_PUSH_QRCODE_AUTH_TOKEN = 'profile.pushqrcodeauthtoken';
+	const METHOD_BRANCH_LIST = 'branch.list';
 
 	const RESTORE_PASSWORD_METHOD_EMAIL = 'EMAIL';
 	const RESTORE_PASSWORD_METHOD_PHONE = 'PHONE';
@@ -937,6 +938,16 @@ class CBitrix24NetTransport
 	public function pushQrCodeAuthToken(array $params)
 	{
 		return $this->call(self::METHOD_PROFILE_PUSH_QRCODE_AUTH_TOKEN, $params, LANGUAGE_ID);
+	}
+
+	/**
+	 * Returns branch list.
+	 * @param array $params
+	 * @return mixed
+	 */
+	public function branchList(array $params = [])
+	{
+		return $this->call(self::METHOD_BRANCH_LIST, $params);
 	}
 }
 

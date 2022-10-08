@@ -1,4 +1,5 @@
-import {Type, Dom, Event, BookingUtil} from "calendar.resourcebooking";
+import { Type, Dom, Event, BookingUtil } from "calendar.resourcebooking";
+import { Popup } from 'main.popup';
 
 export class PlannerPopup
 {
@@ -6,7 +7,7 @@ export class PlannerPopup
 	{
 	}
 
-	show (params)
+	show(params)
 	{
 		if (!params)
 		{
@@ -35,8 +36,8 @@ export class PlannerPopup
 				className: 'calendar-planner-wrapper'
 			}
 		});
-
-		this.popup = new BX.PopupWindow(this.plannerId + "_popup",
+		
+		this.popup = new Popup(this.plannerId + "_popup",
 			this.bindNode,
 			{
 				autoHide: false,
@@ -45,10 +46,11 @@ export class PlannerPopup
 				offsetLeft: this.bindNode.offsetWidth + 38,
 				lightShadow: true,
 				content: this.plannerWrap
-			});
+			})
 
 		this.popup.setAngle({offset: 100, position: 'left'});
-		this.popup.show(true);
+		this.popup.show();
+		
 		this.lastPlannerIdShown = this.plannerId;
 
 		let
@@ -57,29 +59,20 @@ export class PlannerPopup
 
 		this.plannerWidth = winSize.innerWidth - bindPos.right - 160;
 		this.config.width = this.plannerWidth;
-
-		setTimeout(function(){
-			if (this.popup && this.popup.popupContainer)
-			{
-				Dom.addClass(this.popup.popupContainer, 'calendar-resbook-planner-popup');
-				this.popup.popupContainer.style.width = 0;
-			}
-		}.bind(this), 1);
-
-		setTimeout(function(){
-			if (this.popup && this.popup.popupContainer)
-			{
-				this.popup.popupContainer.style.width = (this.plannerWidth + 40) + 'px';
-				Dom.addClass(this.popup.popupContainer, 'show');
-			}
+		
+		if (this.popup && this.popup.popupContainer)
+		{
+			Dom.addClass(this.popup.popupContainer, 'calendar-resbook-planner-popup');
+			Dom.addClass(this.popup.popupContainer, 'show');
+			this.popup.popupContainer.style.width = (this.plannerWidth + 40) + 'px';
 			Event.bind(document, 'click', this.handleClick.bind(this));
-		}.bind(this), 50);
-		setTimeout(this.showPlanner.bind(this), 350);
+		}
+		this.showPlanner();
 
 		BX.addCustomEvent(this.popup, 'onPopupClose', this.close.bind(this));
 	}
 
-	update (params, refreshParams)
+	update(params, refreshParams)
 	{
 		if (!this.isShown())
 		{
@@ -294,7 +287,8 @@ export class PlannerPopup
 			requestPlannerUpdate = true;
 		}
 		// 2. Compare users
-		if (!requestPlannerUpdate
+		if (
+			!requestPlannerUpdate
 			&& Type.isArray(requestData.codes) && Type.isArray(this.lastRequestData.codes)
 			&& BX.util.array_diff(requestData.codes, this.lastRequestData.codes).length > 0
 		)
@@ -337,7 +331,7 @@ export class PlannerPopup
 		return requestPlannerUpdate;
 	}
 
-	showPlanner ()
+	showPlanner()
 	{
 		this.planner = new CalendarPlanner(
 			this.params.plannerConfig,
@@ -390,7 +384,7 @@ export class PlannerPopup
 
 	}
 
-	showPlannerLoader ()
+	showPlannerLoader()
 	{
 		if (this.planner && this.planner.outerWrap)
 		{
@@ -402,7 +396,7 @@ export class PlannerPopup
 		}
 	}
 
-	hidePlannerLoader ()
+	hidePlannerLoader()
 	{
 		if (this.loader)
 		{
@@ -438,7 +432,9 @@ export class PlannerPopup
 	isShown()
 	{
 		return this.lastPlannerIdShown === this.plannerId
-			&& this.popup && this.popup.isShown && this.popup.isShown();
+			&& this.popup
+			&& this.popup.isShown()
+		;
 	}
 
 	getPlannerId()
@@ -450,22 +446,15 @@ export class PlannerPopup
 		return this.plannerId;
 	}
 
-	getPlannerContainer()
-	{
-		return BX('calendar-planner-outer' + this.getPlannerId(), true);
-	}
-
-	refreshDateTimeView(params)
-	{
-	}
-
 	handleClick(e)
 	{
 		let target = e.target || e.srcElement;
-		if (this.isShown()
+		if (
+			this.isShown()
 			&& !BX.isParentForNode(this.bindNode, target)
 			&& !BX.isParentForNode(BX('BXSocNetLogDestination'), target)
 			&& !BX.isParentForNode(this.popup.popupContainer, target)
+			&& !Dom.hasClass(target, 'calendar-resourcebook-content-block-control-delete')
 		)
 		{
 			if (!document.querySelector('div.popup-window-resource-select'))

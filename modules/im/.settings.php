@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Im\Integration\UI\EntitySelector\DepartmentDataFilter;
+
 return [
 	'controllers' => [
 		'value' => [
@@ -27,6 +30,11 @@ return [
 					'id' => 'im.userDataFilter',
 					'entityId' => 'user',
 					'className' => '\\Bitrix\\Im\\Integration\\UI\\EntitySelector\\UserDataFilter',
+				],
+				[
+					'id' => 'im.departmentDataFilter',
+					'entityId' => 'department',
+					'className' => DepartmentDataFilter::class,
 				]
 			],
 			'entities' => [
@@ -42,6 +50,13 @@ return [
 					'provider' => [
 						'moduleId' => 'im',
 						'className' => '\\Bitrix\\Im\\Integration\\UI\\EntitySelector\\ChatProvider',
+					],
+				],
+				[
+					'entityId' => 'im-chat-user',
+					'provider' => [
+						'moduleId' => 'im',
+						'className' => '\\Bitrix\\Im\\Integration\\UI\\EntitySelector\\ChatUserProvider',
 					],
 				],
 				[

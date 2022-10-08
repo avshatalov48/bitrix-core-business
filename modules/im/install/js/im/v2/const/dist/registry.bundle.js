@@ -108,6 +108,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  imRecentGet: 'im.recent.get',
 	  imRecentList: 'im.recent.list',
 	  imRecentPin: 'im.recent.pin',
+	  imRecentUnread: 'im.recent.unread',
 	  imCallGetCallLimits: 'im.call.getCallLimits',
 	  imNotifyGet: 'im.notify.get',
 	  imNotifySchemaGet: 'im.notify.schema.get'
@@ -153,6 +154,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    open: 'IM.Dialog:open',
 	    call: 'IM.Dialog:call',
 	    openHistory: 'IM.Dialog:openHistory',
+	    clearHistory: 'IM.Dialog:clearHistory',
 	    hide: 'IM.Dialog:hide',
 	    leave: 'IM.Dialog:leave',
 	    newMessage: 'EventType.dialog.newMessage',
@@ -178,7 +180,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    beforeMobileKeyboard: 'IM.Dialog:beforeMobileKeyboard',
 	    messagesSet: 'IM.Dialog:messagesSet',
 	    settingsChange: 'IM.Dialog:settingsChange',
-	    closePopup: 'IM.Dialog:closePopup'
+	    closePopup: 'IM.Dialog:closePopup',
+	    errors: {
+	      accessDenied: 'IM.Dialog.errors:accessDenied'
+	    }
 	  },
 	  textarea: {
 	    focus: 'IM.Textarea:focus',
@@ -216,7 +221,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    openUserList: 'IM.Mobile:openUserList'
 	  },
 	  search: {
-	    selectItem: 'IM.Search:selectItem'
+	    selectItem: 'IM.Search:selectItem',
+	    openContextMenu: 'IM.Search:openContextMenu',
+	    openNetworkItem: 'IM.Search:openNetworkItem'
 	  },
 	  recent: {
 	    openSearch: 'IM.Recent:openSearch',
@@ -360,6 +367,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  user: 'user',
 	  chat: 'chat',
 	  open: 'open',
+	  general: 'general',
 	  videoconf: 'videoconf',
 	  announcement: 'announcement',
 	  call: 'call',

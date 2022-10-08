@@ -8,7 +8,7 @@
 
 .landing-ui-component-action-panel-button {
 	display: inline-block;
-	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868e;
 	border-bottom: 1px dashed #d8d8d8;
 	-webkit-transition: all 200ms ease;

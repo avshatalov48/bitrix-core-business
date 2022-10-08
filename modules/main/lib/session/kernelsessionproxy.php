@@ -17,6 +17,11 @@ final class KernelSessionProxy extends KernelSession
 		return $this->session->isActive();
 	}
 
+	public function isAccessible(): bool
+	{
+		return $this->session->isAccessible();
+	}
+
 	public function getId(): string
 	{
 		return $this->session->getId();

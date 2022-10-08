@@ -1,9 +1,9 @@
 <?php
 namespace Bitrix\Catalog\Product;
 
-use Bitrix\Main,
-	Bitrix\Catalog,
-	Bitrix\Iblock;
+use Bitrix\Main;
+use Bitrix\Catalog;
+use Bitrix\Iblock;
 
 /**
  * Class Sku
@@ -13,18 +13,22 @@ use Bitrix\Main,
  */
 class Sku
 {
-	const OFFERS_ERROR = 0x0000;
-	const OFFERS_NOT_EXIST = 0x0001;
-	const OFFERS_NOT_AVAILABLE = 0x0002;
-	const OFFERS_AVAILABLE = 0x0004;
+	public const OFFERS_ERROR = 0x0000;
+	public const OFFERS_NOT_EXIST = 0x0001;
+	public const OFFERS_NOT_AVAILABLE = 0x0002;
+	public const OFFERS_AVAILABLE = 0x0004;
+
+	protected const ACTION_AVAILABLE = 'AVAILABLE';
+	protected const ACTION_PRICE = 'PRICE';
+	protected const ACTION_ELEMENT_TIMESTAMP = 'ELEMENT_TIMESTAMP';
 
 	protected static $allowUpdateAvailable = 0;
 	protected static $allowPropertyHandler = 0;
 
-	protected static $productIds = array();
-	protected static $offers = array();
-	private static $changeActive = array();
-	private static $currentActive = array();
+	protected static $productIds = [];
+	protected static $offers = [];
+	private static $changeActive = [];
+	private static $currentActive = [];
 
 	private static $separateSkuMode = null;
 
@@ -33,15 +37,17 @@ class Sku
 	private static $calculateAvailable = false;
 	private static $calculatePriceTypes = array();
 
-	private static $deferredSku = array();
-	private static $deferredOffers = array();
-	private static $deferredUnknown = array();
+	private static $deferredSku = [];
+	private static $deferredOffers = [];
+	private static $deferredUnknown = [];
 
-	private static $skuExist = array();
-	private static $skuAvailable = array();
-	private static $offersIds = array();
-	private static $offersMap = array();
-	private static $skuPrices = array();
+	private static $skuExist = [];
+	private static $skuAvailable = [];
+	private static $offersIds = [];
+	private static $offersMap = [];
+	private static $skuPrices = [];
+
+	private static $queryElementTimestamp;
 
 	/**
 	 * Enable automatic update parent product available and prices.
@@ -68,7 +74,7 @@ class Sku
 	 *
 	 * @return bool
 	 */
-	public static function allowedUpdateAvailable()
+	public static function allowedUpdateAvailable(): bool
 	{
 		return (self::$allowUpdateAvailable >= 0);
 	}
@@ -98,7 +104,7 @@ class Sku
 	 *
 	 * @return bool
 	 */
-	public static function usedDeferredCalculation()
+	public static function usedDeferredCalculation(): bool
 	{
 		return (self::$deferredCalculation >= 0);
 	}
@@ -411,7 +417,7 @@ class Sku
 				elseif (isset(self::$deferredOffers[$id]))
 					self::setCalculatePriceTypes(self::$deferredOffers, $id, $iblockId, $priceTypes);
 				else
-				self::setCalculatePriceTypes(self::$deferredUnknown, $id, $iblockId, $priceTypes);
+					self::setCalculatePriceTypes(self::$deferredUnknown, $id, $iblockId, $priceTypes);
 				break;
 		}
 
@@ -450,6 +456,7 @@ class Sku
 			{
 				self::loadProductData($pageIds);
 				self::updateProductData($pageIds);
+				self::updateElements($pageIds);
 				self::updateProductFacetIndex($pageIds);
 			}
 			unset($pageIds, $list);
@@ -1043,7 +1050,7 @@ class Sku
 	 *
 	 * @return bool
 	 */
-	protected static function allowedPropertyHandler()
+	protected static function allowedPropertyHandler(): bool
 	{
 		return (self::$allowPropertyHandler >= 0);
 	}
@@ -1055,7 +1062,7 @@ class Sku
 	 *
 	 * @return bool
 	 */
-	protected static function filterActive(array $row)
+	protected static function filterActive(array $row): bool
 	{
 		return (isset($row['ACTIVE']) && $row['ACTIVE'] == 'Y');
 	}
@@ -1065,14 +1072,13 @@ class Sku
 	 * @internal
 	 *
 	 * @return bool
-	 *
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
 	 */
-	private static function isSeparateSkuMode()
+	private static function isSeparateSkuMode(): bool
 	{
 		if (self::$separateSkuMode === null)
-			self::$separateSkuMode = (string)Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') == 'Y';
+		{
+			self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') == 'Y';
+		}
 
 		return self::$separateSkuMode;
 	}
@@ -1085,8 +1091,6 @@ class Sku
 	 * @param array $productFields			Product fields (optional).
 	 *
 	 * @return array
-	 *
-	 * @throws Main\ArgumentException
 	 */
 	private static function getParentDataAsProduct($productId, array $productFields = array())
 	{
@@ -1264,14 +1268,17 @@ class Sku
 		if ($iblockId === null)
 		{
 			if (isset($list[$id]))
+			{
 				$iblockId = $list[$id]['IBLOCK_ID'];
+			}
 		}
 
-		$list[$id] = array(
+		$list[$id] = [
 			'IBLOCK_ID' => $iblockId,
-			'AVAILABLE' => true,
-			'PRICE' => self::$calculatePriceTypes
-		);
+			self::ACTION_AVAILABLE => true,
+			self::ACTION_PRICE => self::$calculatePriceTypes,
+			self::ACTION_ELEMENT_TIMESTAMP => true,
+		];
 	}
 
 	/**
@@ -1291,39 +1298,56 @@ class Sku
 
 		//TODO:: replace \CCatalogGroup::GetListArray after create cached d7 method
 		if ($allPriceTypes === null)
+		{
 			$allPriceTypes = array_keys(\CCatalogGroup::GetListArray());
+		}
 
 		if (empty($priceTypes))
+		{
 			$priceTypes = $allPriceTypes;
+		}
 
 		foreach ($priceTypes as $typeId)
+		{
 			self::$calculatePriceTypes[$typeId] = true;
+		}
 
 		if ($iblockId === null)
 		{
 			if (isset($list[$id]))
+			{
 				$iblockId = $list[$id]['IBLOCK_ID'];
+			}
 		}
 
 		if (!isset($list[$id]))
 		{
-			$list[$id] = array(
+			$list[$id] = [
 				'IBLOCK_ID' => $iblockId,
-				'PRICE' => array_fill_keys($priceTypes, true)
-			);
+				self::ACTION_PRICE => array_fill_keys($priceTypes, true),
+				self::ACTION_ELEMENT_TIMESTAMP => true,
+			];
 		}
-		elseif (!isset($list[$id]['PRICE']))
+		elseif (!isset($list[$id][self::ACTION_PRICE]))
 		{
 			if ($iblockId !== null)
+			{
 				$list[$id]['IBLOCK_ID'] = $iblockId;
-			$list[$id]['PRICE'] = array_fill_keys($priceTypes, true);
+			}
+			$list[$id][self::ACTION_PRICE] = array_fill_keys($priceTypes, true);
+			$list[$id][self::ACTION_ELEMENT_TIMESTAMP] = true;
 		}
 		else
 		{
 			if ($iblockId !== null)
+			{
 				$list[$id]['IBLOCK_ID'] = $iblockId;
+			}
 			foreach ($priceTypes as $typeId)
-				$list[$id]['PRICE'][$typeId] = true;
+			{
+				$list[$id][self::ACTION_PRICE][$typeId] = true;
+			}
+			$list[$id][self::ACTION_ELEMENT_TIMESTAMP] = true;
 		}
 
 		unset($typeId);
@@ -1346,10 +1370,10 @@ class Sku
 
 		if (isset($destination[$id]))
 		{
-			if (isset($source[$id]['AVAILABLE']))
+			if (isset($source[$id][self::ACTION_AVAILABLE]))
 				self::setCalculateData($destination, $id, $source[$id]['IBLOCK_ID']);
-			elseif (isset($source[$id]['PRICE']))
-				self::setCalculatePriceTypes($destination, $id, $source[$id]['IBLOCK_ID'], array_keys($source[$id]['PRICE']));
+			elseif (isset($source[$id][self::ACTION_PRICE]))
+				self::setCalculatePriceTypes($destination, $id, $source[$id]['IBLOCK_ID'], array_keys($source[$id][self::ACTION_PRICE]));
 		}
 		else
 		{
@@ -1377,10 +1401,10 @@ class Sku
 
 		if (isset($destination[$destinationId]))
 		{
-			if (isset($source[$sourceId]['AVAILABLE']))
+			if (isset($source[$sourceId][self::ACTION_AVAILABLE]))
 				self::setCalculateData($destination, $destinationId, $iblockId);
-			elseif (isset($source[$sourceId]['PRICE']))
-				self::setCalculatePriceTypes($destination, $destinationId, $iblockId, array_keys($source[$sourceId]['PRICE']));
+			elseif (isset($source[$sourceId][self::ACTION_PRICE]))
+				self::setCalculatePriceTypes($destination, $destinationId, $iblockId, array_keys($source[$sourceId][self::ACTION_PRICE]));
 		}
 		else
 		{
@@ -1514,7 +1538,7 @@ class Sku
 		{
 			foreach ($listIds as $id)
 			{
-				if (empty(self::$deferredSku[$id]['AVAILABLE']))
+				if (empty(self::$deferredSku[$id][self::ACTION_AVAILABLE]))
 					continue;
 				if (empty(self::$deferredSku[$id]['IBLOCK_ID']))
 					continue;
@@ -1599,7 +1623,7 @@ class Sku
 				$typeId = (int)$row['CATALOG_GROUP_ID'];
 				$offerId = (int)$row['PRODUCT_ID'];
 				$productId = self::$offersMap[$offerId];
-				if (!isset(self::$deferredSku[$productId]['PRICE'][$typeId]))
+				if (!isset(self::$deferredSku[$productId][self::ACTION_PRICE][$typeId]))
 					continue;
 				unset($row['PRODUCT_ID']);
 
@@ -1721,6 +1745,28 @@ class Sku
 		}
 	}
 
+	private static function updateElements(array $listIds): void
+	{
+		if (self::isSeparateSkuMode())
+		{
+			return;
+		}
+		$conn = \Bitrix\Main\Application::getConnection();
+		if (self::$queryElementTimestamp === null)
+		{
+			$helper = $conn->getSqlHelper();
+			self::$queryElementTimestamp = 'update ' . $helper->quote(\Bitrix\Iblock\ElementTable::getTableName())
+				. ' set ' . $helper->quote('TIMESTAMP_X') . ' = ' . $helper->getCurrentDateTimeFunction()
+				. ' where ' . $helper->quote('ID') . '=';
+		}
+		foreach ($listIds as $id)
+		{
+			if (empty(self::$deferredSku[$id][self::ACTION_ELEMENT_TIMESTAMP]))
+				continue;
+			$conn->queryExecute(self::$queryElementTimestamp . $id);
+		}
+	}
+
 	/**
 	 * Update parent product facet index.
 	 * @internal
@@ -1729,7 +1775,7 @@ class Sku
 	 *
 	 * @return void
 	 */
-	private static function updateProductFacetIndex(array $listIds)
+	private static function updateProductFacetIndex(array $listIds): void
 	{
 		foreach ($listIds as $id)
 		{
@@ -1752,7 +1798,7 @@ class Sku
 	 *
 	 * @return void
 	 */
-	private static function calculateOfferChange($elementId, $iblockId)
+	private static function calculateOfferChange($elementId, $iblockId): void
 	{
 		if (!isset(self::$offers[$elementId]))
 			return;

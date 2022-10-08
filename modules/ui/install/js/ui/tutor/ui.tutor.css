@@ -182,7 +182,8 @@
 
 .ui-tutor-popup-header-title {
 	color: #40454c;
-	font: 13px/19px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .ui-tutor-popup-step .ui-tutor-popup-header-title {
@@ -362,22 +363,26 @@
 .ui-tutor-popup-title {
 	color: #0b66c3;
 	margin-bottom: 15px;
-	font: 15px/21px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/21px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .ui-tutor-popup-header-counter {
 	color: #40454c;
-	font: 15px/21px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/21px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .ui-tutor-popup-header-subtitle {
-	font: 9px/15px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 9px/15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #7e858f;
 	text-transform: uppercase;
 }
 
 .ui-tutor-popup-step-subject {
-	font: 11px/17px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #a8adb4;
 	text-transform: uppercase;
 	margin-right: 6px;
@@ -388,19 +393,21 @@
 }
 
 .ui-tutor-popup-step-title {
-	font: 19px/19px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 19px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #333;
 	margin-bottom: 10px;
 }
 
 .ui-tutor-popup-step-decs {
-	font: 14px/18px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c69;
 }
 
 .ui-tutor-popup-help {
 	color: #525c69;
-	font: 13px/18px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	margin: 22px 0 20px;
 	height: 338px;
 	display: flex;
@@ -467,12 +474,12 @@
 }
 
 .ui-tutor-popup-help-article-text {
-	font: 13px/18px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c69;
 }
 
 .ui-tutor-popup-help-article-date {
-	font: 12px/16px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(51, 51, 51, .3);
 }
 
@@ -791,7 +798,7 @@
 	position: absolute;
 	color: #bfc3c8;
 	top: 20px;
-	font: 8px/12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 8px/12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	left: 50%;
 	transform: translate(-50%, 0);
 }
@@ -959,7 +966,8 @@
 .ui-tutor-popup-collapse .ui-tutor-popup-step-title {
 	margin-bottom: 0;
 	margin-right: 10px;
-	font: 13px/18px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
@@ -972,7 +980,8 @@
 	opacity: .6;
 	color: #333;
 	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%2212%22%3E%3Cpath%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20d%3D%22M5.722%204.607L10.108.221a.69.69%200%200%201%20.975.975L6.696%205.582l4.387%204.386a.69.69%200%200%201-.975.975L5.722%206.557l-4.386%204.386a.69.69%200%200%201-.975-.975l4.386-4.386L.361%201.196A.69.69%200%200%201%201.336.22l4.386%204.386z%22%20opacity%3D%22102%22/%3E%3C/svg%3E) no-repeat center;
-	font: 13px/18px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	box-sizing: border-box;
 	transform: translate(0, -50%);
 }
@@ -1022,7 +1031,8 @@
 
 .ui-tutor-popup-completed-text {
 	color: #525c69;
-	font: 27px/32px "OpenSans-Light", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 27px/32px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .ui-tutor-popup-completed-text:after {
@@ -1059,7 +1069,8 @@
 
 .ui-tutor-informer {
 	color: #fff;
-	font: 10px/13px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 10px/13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	position: absolute;
 	top: 10px;
 	right: 8px;
@@ -1095,16 +1106,19 @@
 }
 
 .ui-tutor-popup-help-empty-text {
-	font: 24px/30px "OpenSans-Light", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 24px/30px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .ui-tutor-popup-finished-notice {
-	font: 18px/38px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 18px/38px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525c69;
 }
 
 .ui-tutor-popup-finished {
-	font-family: "OpenSans-Light", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	min-height: 200px;
 	display: flex;
 	flex-direction: column;
@@ -1144,7 +1158,8 @@
 }
 
 .ui-tutor-popup-new-text {
-	font: 15px/21px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/21px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #333;
 	padding-left: 53px;
 	position: relative;

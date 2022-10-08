@@ -17,6 +17,7 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UI;
 
 UI\Extension::load([
+	'ui.design-tokens',
 	'socialnetwork.common',
 	'ui.buttons',
 	'ui.alerts',

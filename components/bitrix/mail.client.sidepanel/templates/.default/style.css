@@ -8,7 +8,8 @@
 	align-items: center;
 	-ms-flex-pack: justify;
 	justify-content: space-between;
-	font: 26px/26px 'OpenSans-Light', Helvetica, Arial, sans-serif;
+	font: 26px/26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	overflow: hidden;
 	text-overflow: ellipsis;
 }

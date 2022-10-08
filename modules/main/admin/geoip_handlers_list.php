@@ -3,7 +3,7 @@
  * @global CUser $USER
  * @global CMain $APPLICATION
  */
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 
 use \Bitrix\Main\Service\GeoIp,
 	\Bitrix\Main\Localization\Loc;

@@ -38,7 +38,7 @@ Class learning extends CModule
 
 	function InstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		if (is_object($GLOBALS['CACHE_MANAGER']))
@@ -52,7 +52,7 @@ Class learning extends CModule
 		// was:		if(!$DB->Query("SELECT 'x' FROM b_learn_course WHERE 1=0", true))
 		if ( ! $DB->TableExists('b_learn_lesson') )
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/db/mysql/install.sql");
 
 			if ($this->errors === false)
 			{
@@ -119,12 +119,12 @@ Class learning extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/install/db/mysql/uninstall.sql");
 
 			// remove module permissions data
 			self::_RightsModelPurge();
@@ -238,7 +238,7 @@ Class learning extends CModule
 				$cond = "CSite::InDir('".$path."course/')";
 
 				$DB->Query(
-				"INSERT INTO b_site_template(SITE_ID, ".CMain::__GetConditionFName().", SORT, TEMPLATE) ".
+				"INSERT INTO b_site_template(SITE_ID, `CONDITION`, SORT, TEMPLATE) ".
 				"VALUES('".$DB->ForSQL($SITE_ID)."', '".$DB->ForSQL($cond, 255)."', '100', '".$DB->ForSQL(trim($_REQUEST["template_id"]), 255)."')", true);
 			}
 		}

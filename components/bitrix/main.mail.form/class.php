@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Uri;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
@@ -359,10 +360,9 @@ class MainMailFormComponent extends CBitrixComponent
 				{
 					$editor['value'] = preg_replace(
 						sprintf('/bxacid:%u/', $fileId),
-						\CHTTP::urlAddParams(
-							$diskUrlManager->getUrlForShowFile($objects[$fileId]),
-							array('__bxacid' => $fileId)
-						),
+						(new Uri($diskUrlManager->getUrlForShowFile($objects[$fileId])))
+							->addParams(['__bxacid' => $fileId])
+							->getUri(),
 						$editor['value']
 					);
 				}

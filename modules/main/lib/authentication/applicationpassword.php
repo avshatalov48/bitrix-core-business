@@ -30,6 +30,8 @@ use Bitrix\Main\ORM\Fields;
  */
 class ApplicationPasswordTable extends Data\DataManager
 {
+	use Data\Internal\DeleteByFilterTrait;
+
 	protected const PASSWORD_ALPHABET = "qwertyuiopasdfghjklzxcvbnm";
 	protected const PASSWORD_LENGTH = 16;
 
@@ -102,7 +104,7 @@ class ApplicationPasswordTable extends Data\DataManager
 		return $result;
 	}
 
-	public static function onBeforeDelete(ORM\Event $event)
+	public static function onDelete(ORM\Event $event)
 	{
 		$id = $event->getParameter("id");
 

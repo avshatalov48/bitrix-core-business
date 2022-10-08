@@ -7,7 +7,7 @@ div.bx-interface-form div.bx-buttons {padding:10px; height:44px; border:1px soli
 /* Tab controls*/
 table.bx-edit-tabs {border-collapse:separate;}
 table.bx-edit-tabs table {border-collapse:separate;}
-table.bx-edit-tabs td {font-size:12px; font-weight:bold; color:#7C7C7C; white-space:nowrap; border-bottom:4px solid #878787; padding:0px;}
+table.bx-edit-tabs td {font-size:12px; font-weight:var(--ui-font-weight-bold); color:#7C7C7C; white-space:nowrap; border-bottom:4px solid #878787; padding:0px;}
 table.bx-edit-tabs td.bx-tab-container {border:none; cursor:pointer; cursor: hand;}
 table.bx-edit-tabs td.bx-tab-container-selected, table.bx-edit-tabs td.bx-tab-container-disabled {cursor:default;}
 table.bx-edit-tabs td.bx-tab-container-disabled td {border:none; color:#D7D7D7;}
@@ -40,7 +40,7 @@ table.bx-edit-tab td {padding:0;}
 div.bx-edit-tab-title {background-color:#E8E8E8; padding-left:8px;}
 table.bx-edit-tab-title {width:100%; border-collapse:separate;}
 table.bx-edit-tab-title td.bx-icon {padding:5px 5px 5px 0px; width:32px; height:32px;}
-table.bx-edit-tab-title td.bx-form-title {width:100%; padding:10px 0px 10px 0px; font-size:140%; color:black; font-weight:bold; font-family:Arial,helvetica,sans-serif;}
+table.bx-edit-tab-title td.bx-form-title {width:100%; padding:10px 0px 10px 0px; font-size:140%; color:black; font-weight:var(--ui-font-weight-bold); font-family:var(--ui-font-family-primary, var(--ui-font-family-helvetica));}
 
 /* Edit table */
 div.bx-edit-table {margin:10px;}
@@ -51,7 +51,7 @@ table.bx-edit-table tr.bx-after-heading td {background-image:none;}
 table.bx-edit-table td.bx-field-name {width:30%; text-align:right; vertical-align:top; }
 table.bx-edit-table td.bx-field-value {vertical-align:top;}
 table.bx-edit-table td.bx-padding {padding-top:9px;}
-table.bx-edit-table td.bx-heading {color:black; font-weight:bold; background-color:#E8E8E8; background-image:none;}
+table.bx-edit-table td.bx-heading {color:black; font-weight:var(--ui-font-weight-bold); background-color:#E8E8E8; background-image:none;}
 table.bx-edit-table table td {padding:0px; border:none; background-image:none;}
 table.bx-edit-table table.bx-edit-table td {padding:4px;}
 table.bx-edit-table div {font-size:100%;}

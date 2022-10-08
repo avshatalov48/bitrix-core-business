@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import {Dom, Loc, Reflection, Runtime, Tag, Type} from 'main.core';
 import {Menu} from 'main.popup';
 import {BaseField} from 'landing.ui.field.basefield';

@@ -88,6 +88,33 @@ abstract class CommonElementTable extends DataManager
 		return static::$entity[$class];
 	}
 
+	/**
+	 * Iblock elements doesn't support group adding
+	 *
+	 * @param $rows
+	 * @param false $ignoreEvents
+	 * @return \Bitrix\Main\ORM\Data\AddResult|null
+	 * @throws \Exception
+	 */
+	public static function addMulti($rows, $ignoreEvents = false)
+	{
+		$result = null;
+
+		foreach ($rows as $row)
+		{
+			if (!empty($row['__object']))
+			{
+				$result = $row['__object']->save();
+			}
+			else
+			{
+				$result = static::add($row);
+			}
+		}
+
+		return $result;
+	}
+
 	public static function onBeforeAdd(Event $event)
 	{
 		$object = $event->getParameter('object');

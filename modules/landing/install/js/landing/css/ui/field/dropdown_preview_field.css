@@ -1,5 +1,5 @@
 .landing-ui-field-dropdown-preview {
-    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     font-size: 15px;
     color: #000;
     -webkit-user-select: none;

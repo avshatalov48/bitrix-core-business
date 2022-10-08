@@ -310,10 +310,24 @@ class AddressType extends BaseType
 		}
 
 		$address = null;
-		$addressId = self::parseValue($value)[2];
-		if (is_numeric($addressId))
+
+		try
 		{
-			$address = Address::load((int)$addressId);
+			$convertedValue = Encoding::convertEncoding($value, LANG_CHARSET, 'UTF-8');
+			$address = Address::fromJson($convertedValue);
+		}
+		catch (\Exception | \TypeError $exception)
+		{
+			// the value is not in JSON format, so we can try another format
+		}
+
+		if (!$address)
+		{
+			$addressId = self::parseValue($value)[2];
+			if (is_numeric($addressId))
+			{
+				$address = Address::load((int)$addressId);
+			}
 		}
 
 		if ($address)

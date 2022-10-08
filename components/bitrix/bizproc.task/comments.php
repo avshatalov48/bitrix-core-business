@@ -57,8 +57,22 @@ $APPLICATION->RestartBuffer();
 	$APPLICATION->ShowHead();
 	$APPLICATION->AddHeadString('
 				<style>
-				body {background: #F8FAFB !important;}
-				.iframe-comments-cont .feed-comments-block {margin: 0; padding-top: 10px; }
+				.iframe-comments-cont .feed-comments-block {
+					margin: 0; 
+					padding-top: 10px;
+					font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)); 
+				}
+				
+				a {
+					color: #2067b0;
+					text-decoration: none;
+					transition: border-bottom-color 0.2s linear;
+				}
+
+				a:hover {
+					color: #2067b0;
+					text-decoration: none;
+				}
 				</style>
 			', false, true);
 	?></head>

@@ -86,11 +86,11 @@ export class TrackingEntry
 	static getAllWorkflowStatuses(): Array<number>
 	{
 		return [
-			WorkflowStatus.CREATED_WORKFLOW_STATUS,
-			WorkflowStatus.RUNNING_WORKFLOW_STATUS,
-			WorkflowStatus.COMPLETED_WORKFLOW_STATUS,
-			WorkflowStatus.SUSPENDED_WORKFLOW_STATUS,
-			WorkflowStatus.TERMINATED_WORKFLOW_STATUS,
+			WorkflowStatus.CREATED,
+			WorkflowStatus.RUNNING,
+			WorkflowStatus.COMPLETED,
+			WorkflowStatus.SUSPENDED,
+			WorkflowStatus.TERMINATED,
 		];
 	}
 

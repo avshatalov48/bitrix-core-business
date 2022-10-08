@@ -34,9 +34,6 @@ final class Manager
 	const HANDLER_AVAILABLE_TRUE = true;
 	const HANDLER_AVAILABLE_FALSE = false;
 
-	const HANDLER_INDEPENDENT_TRUE = true;
-	const HANDLER_INDEPENDENT_FALSE = false;
-
 	const EVENT_ON_GET_HANDLER_DESC = 'OnSaleGetHandlerDescription';
 	const EVENT_ON_PAYSYSTEM_UPDATE = 'OnSalePaySystemUpdate';
 
@@ -49,6 +46,12 @@ final class Manager
 		'CUSTOM' => '',
 		'LOCAL' => '/local/php_interface/include/sale_payment/',
 		'SYSTEM' => '/bitrix/modules/sale/handlers/paysystem/',
+
+		/**
+		 * @deprecated
+		 * The directory /bitrix/modules/sale/payment/ is not supported since version 22.200.0
+		 * Key SYSTEM_OLD is left for compatibility
+		 */
 		'SYSTEM_OLD' => '/bitrix/modules/sale/payment/'
 	);
 
@@ -450,7 +453,6 @@ final class Manager
 						$data = array();
 						$psTitle = '';
 						$isAvailable = null;
-						$isIndependent = null;
 
 						if (mb_strpos($item->getName(), '.description') !== false)
 						{
@@ -464,11 +466,6 @@ final class Manager
 								if (isset($data['IS_AVAILABLE']))
 								{
 									$isAvailable = $data['IS_AVAILABLE'];
-								}
-
-								if (isset($data['IS_INDEPENDENT']))
-								{
-									$isIndependent = $data['IS_INDEPENDENT'];
 								}
 							}
 							else
@@ -490,13 +487,6 @@ final class Manager
 							{
 								if ($isAvailable !== null
 									&& $isAvailable === static::HANDLER_AVAILABLE_FALSE
-								)
-								{
-									continue(2);
-								}
-
-								if ($isIndependent !== null
-									&& $isIndependent === static::HANDLER_INDEPENDENT_FALSE
 								)
 								{
 									continue(2);

@@ -8,41 +8,51 @@ export { UserOptions } from './user-options';
 export { Document } from './document/document';
 export { ViewMode } from './view-mode';
 export { ConditionGroup } from './condition/condition-group';
-export { ConditionGroupSelector } from './condition/condition-group-selector';
+export { ConditionGroupSelector } from './selectors/condition-group-selector';
 export { Condition } from './condition/condition';
 export { Designer } from './designer';
 export * from './tracker/tracker';
+export * from './workflow/types';
+export { Manager as SelectorManager} from './selectors/manager';
+export { InlineSelector } from './selectors/inline-selector';
+export { InlineSelectorCondition } from './selectors/inline-selector-condition';
+export { InlineSelectorHtml } from './selectors/inline-selector-html';
+export { SaveStateCheckbox } from './selectors/save-state-checkbox';
+export { UserSelector } from './selectors/user-selector';
+export { FileSelector } from './selectors/file-selector';
+export { TimeSelector } from './selectors/time-selector';
 export { DelayInterval } from './delay-interval';
 export { DelayIntervalSelector } from './delay-interval-selector';
 export { HelpHint } from './help-hint';
-import { AutomationContext } from './context/automation-context';
-
-import 'ui.fonts.opensans';
+export { SelectorContext } from './context/selector-context';
+import { Context } from './context/context';
 
 export { Helper } from './helper';
 
 import { Reflection } from "main.core";
+
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
 import './css/style.css'
 
 export {
 	TemplatesScheme,
-	AutomationContext,
+	Context,
 }
 
-export function getGlobalContext(): AutomationContext
-{
-	Reflection.namespace('BX.Bizproc.Automation');
+let contextInstance: ?Context;
 
-	const context = BX.Bizproc.Automation.Context;
-	if (context instanceof AutomationContext)
+export function getGlobalContext(): Context
+{
+	if (contextInstance instanceof Context)
 	{
-		return context;
+		return contextInstance;
 	}
 
 	throw new Error('Context is not initialized yet');
 }
 
-export function tryGetGlobalContext(): ?AutomationContext
+export function tryGetGlobalContext(): ?Context
 {
 	try
 	{
@@ -54,11 +64,16 @@ export function tryGetGlobalContext(): ?AutomationContext
 	}
 }
 
-export function setGlobalContext(context: AutomationContext): AutomationContext
+export function setGlobalContext(context: Context): Context
 {
-	Reflection.namespace('BX.Bizproc.Automation');
-
-	BX.Bizproc.Automation.Context = context;
+	if (context instanceof Context)
+	{
+		contextInstance = context;
+	}
+	else
+	{
+		throw new Error('Unsupported Context');
+	}
 
 	return context;
 }

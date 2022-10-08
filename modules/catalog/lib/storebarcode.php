@@ -31,9 +31,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_StoreBarcode_Query query()
- * @method static EO_StoreBarcode_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_StoreBarcode_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_StoreBarcode_Result getById($id)
- * @method static EO_StoreBarcode_Result getList(array $parameters = array())
+ * @method static EO_StoreBarcode_Result getList(array $parameters = [])
  * @method static EO_StoreBarcode_Entity getEntity()
  * @method static \Bitrix\Catalog\EO_StoreBarcode createObject($setDefaultValues = true)
  * @method static \Bitrix\Catalog\EO_StoreBarcode_Collection createCollection()

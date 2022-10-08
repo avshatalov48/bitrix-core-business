@@ -5,6 +5,7 @@ import {Utils} from "im.lib.utils";
 import {FileStatus} from "im.const";
 import "ui.info-helper";
 import "ui.notification";
+import "ui.fonts.opensans";
 
 import "./call-background.css";
 import {CallBackgroundItem} from "./item-background";

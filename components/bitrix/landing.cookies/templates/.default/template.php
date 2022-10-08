@@ -10,9 +10,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
-\Bitrix\Main\UI\Extension::load(
-	['ui.buttons', 'ui.link', 'ui.switcher']
-);
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ui.buttons',
+	'ui.link',
+	'ui.switcher',
+]);
 ?>
 
 <?if ($arParams['USE'] == 'Y'):?>

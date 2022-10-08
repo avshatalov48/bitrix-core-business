@@ -120,7 +120,7 @@ final class FilePreviewTable extends DataManager
 		return "\\Bitrix\\Main\\UI\\Viewer\\FilePreviewTable::deleteOldAgent({$dayToDeath}, {$portion});";
 	}
 
-	public static function onBeforeDelete(Event $event)
+	public static function onDelete(Event $event)
 	{
 		$id = $event->getParameter('primary')['ID'];
 		if (isset(self::$alreadyDeleted[$id]))

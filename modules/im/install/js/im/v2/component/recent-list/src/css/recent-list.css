@@ -70,7 +70,8 @@
 	height: 100%;
 	overflow: hidden;
 	overflow-y: auto;
-	background-color: var(--im-recent-background-color)
+	background-color: var(--im-recent-background-color);
+	will-change: transform;
 }
 
 .bx-im-recent-empty {
@@ -78,13 +79,13 @@
 	justify-content: center;
 	align-items: center;
 	font-size: 18px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #BDC1C6;
 	margin-top: 127px;
 }
 
 .bx-im-recent-wrap {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .bx-im-recent-section {
@@ -101,6 +102,11 @@
 	transition: background .3s;
 	background-color: var(--im-recent-background-color);
 }
+
+.bx-win .bx-im-recent-item {
+	opacity: 0.99; /* Disable Windows ClearType */
+}
+
 .bx-im-recent-item:hover {
 	cursor: pointer;
 	background-color: var(--im-recent-hover-background-color);
@@ -216,6 +222,12 @@
 	border-color: var(--im-recent-counter-muted-border-color);
 }
 
+.bx-im-recent-counter.bx-im-recent-counter-unread {
+	width: 18px;
+	height: 18px;
+	padding: 0;
+}
+
 .bx-im-recent-message-text-wrap {
 	display: flex;
 	align-items: center;
@@ -311,7 +323,7 @@
 }
 
 .bx-messenger-recent-compact .bx-im-recent-empty {
-	font: 13px/20px "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font: 13px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #606162;
 	height: 21px;
 	transform: rotate(90deg);
@@ -508,7 +520,7 @@
 }
 
 .bx-im-recent-new-user-popup-title {
-	font: 12px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #75797d;
 	white-space: nowrap;
 	text-overflow: ellipsis;
@@ -516,7 +528,7 @@
 }
 
 .bx-im-recent-new-user-popup-text {
-	font: 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333333;
 	max-width: 440px;
 	white-space: nowrap;
@@ -567,7 +579,7 @@
 }
 
 #im-recent-context-menu.im-context-menu-dark .popup-window-content {
-	background-color: inherit;
+
 }
 
 #im-recent-context-menu.im-context-menu-dark .menu-popup-item-text {

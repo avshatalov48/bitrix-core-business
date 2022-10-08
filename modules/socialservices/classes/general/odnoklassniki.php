@@ -220,9 +220,9 @@ class CSocServOdnoklassniki extends CSocServAuth
 
 class COdnoklassnikiInterface
 {
-	const AUTH_URL = "http://www.odnoklassniki.ru/oauth/authorize";
-	const TOKEN_URL = "http://api.odnoklassniki.ru/oauth/token.do";
-	const CONTACTS_URL = "http://api.odnoklassniki.ru/fb.do";
+	const AUTH_URL = "https://www.odnoklassniki.ru/oauth/authorize";
+	const TOKEN_URL = "https://api.odnoklassniki.ru/oauth/token.do";
+	const CONTACTS_URL = "https://api.odnoklassniki.ru/fb.do";
 
 	protected $appID;
 	protected $appSecret;

@@ -105,7 +105,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 	    value: function clean(fields) {
 	      var timer = this.get(fields.index);
 	      clearTimeout(timer.id);
-	      this.delete({
+	      this["delete"]({
 	        index: fields.index
 	      });
 	    }

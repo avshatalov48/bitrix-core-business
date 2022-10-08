@@ -5,6 +5,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
+
 /**
  * @var array $arResult
  * @var array $arParams
@@ -78,12 +80,12 @@ else
 				my_html = '<?=$arResult["ImageModified"]?>' +
 					'<br /><input name=IMAGE_ID_title[<?=$arResult["Image"]["ID"]?>] value="<?=Cutil::JSEscape($arResult["Image"]["TITLE'"])?>" style="width:100px">' +
 					'<br /><input type=checkbox name=IMAGE_ID_del[<?=$arResult["Image"]["ID"]?>] id=img_del_<?=$arResult["Image"]["ID"]?>> <label for=img_del_<?=$arResult["Image"]["ID"]?>><?=GetMessage("BLOG_DELETE")?></label>';
-					
+
 				if (!opener.document.getElementById('img_TABLE'))
 				{
 					main_table = opener.document.getElementById("main_table");
 					tr_text = opener.document.getElementById("tr_TEXT");
-					
+
 					var oTR = main_table.insertRow(tr_text.rowIndex + 1);
 
 					var oCell = opener.document.createElement("TH");
@@ -107,13 +109,13 @@ else
 				}
 				else
 					oRow = imgTable.insertRow(-1);
-				
+
 				oRow.vAlign = 'top';
 
 				oCell = oRow.insertCell(-1);
 				oCell.vAlign = 'top';
 				oCell.innerHTML = my_html;
-				
+
 				<?
 				if ($_GET["htmlEditor"] == "Y")
 				{
@@ -126,7 +128,7 @@ else
 						{
 							imageSrc = window.opener.document.getElementById(<?=$arResult["Image"]["ID"]?>).src;
 							_str = '<img __bxtagname="blogImage" __bxcontainer="<?=$arResult["Image"]["ID"]?>" src="'+imageSrc+'">';
-											
+
 							pMainObj.insertHTML(_str);
 							var i = window.opener.arImages.length++;
 							window.opener.arImages[i] = '<?=$arResult["Image"]["ID"]?>';
@@ -200,7 +202,7 @@ else
 			}
 
 			</script>
-			
+
 			<?
 			function CustomizeEditorForBlog()
 			{
@@ -216,7 +218,7 @@ else
 							imageSrc = document.getElementById(arImages[i]).src;
 							_str = _str.replace("[IMG ID="+arImages[i]+"]", '<img __bxtagname="blogImage" __bxcontainer="'+arImages[i]+'" src="'+imageSrc+'">');
 							j = _str.indexOf("[IMG ID="+arImages[i]+"]");
-						} 
+						}
 					}
 
 					for (var i=0, cnt = arVideo.length; i<cnt; i++)
@@ -226,7 +228,7 @@ else
 						{
 							_str = _str.replace(arVideo[i], '<img __bxtagname="blogVideo" src="/bitrix/images/1.gif" style="border: 1px solid rgb(182, 182, 184); background-color: rgb(226, 223, 218); background-image: url('+document.getElementById('videoImg').src+'); background-position: center center; background-repeat: no-repeat; width: '+arVideoW[i]+'px; height: '+arVideoH[i]+'px;" __bxcontainer="'+arVideoP[i]+'" width="'+arVideoW[i]+'" height="'+arVideoH[i]+'" />');
 							j = _str.indexOf(arVideo[i]);
-						} 
+						}
 					}
 					return _str;
 				}
@@ -241,11 +243,11 @@ else
 					{
 						return '[video width='+_node.arAttributes["width"]+' height='+_node.arAttributes["height"]+']'+_node.arAttributes["__bxcontainer"]+'[/video]';
 					}
-					
+
 					return false;
 				}
 				oBXEditorUtils.addUnParser(_blogImageLinkUnParser);
-				
+
 				arButtons['ImageLink']	=	[
 						'BXButton',
 						{
@@ -259,13 +261,13 @@ else
 							}
 						}
 					];
-				
+
 				arButtons['image'][1].handler = function ()
 					{
 						this.bNotFocus = true;
 						this.pMainObj.CreateCustomElement("BXDialogImageUpload");
 					};
-				arButtons['BlogInputVideo']	=	
+				arButtons['BlogInputVideo']	=
 					[
 						'BXButton',
 						{
@@ -276,12 +278,12 @@ else
 							handler : function ()
 							{
 								ShowVideoInput();
-								
+
 							}
 						}
 					];
 
-				arButtons['BlogCUT']	=	
+				arButtons['BlogCUT']	=
 					[
 						'BXButton',
 						{
@@ -292,7 +294,7 @@ else
 							handler : function ()
 							{
 								this.pMainObj.insertHTML('[CUT]');
-								
+
 							}
 						}
 					];
@@ -315,19 +317,19 @@ else
 				if (imageID > 0)
 				{
 					tmpArray = arGlobalToolbar.slice(0, imageID).concat([arButtons['ImageLink']]);
-					arGlobalToolbar = tmpArray.concat(arGlobalToolbar.slice(imageID));		
+					arGlobalToolbar = tmpArray.concat(arGlobalToolbar.slice(imageID));
 					imageID++;
 					imageID++;
-					
+
 					tmpArray = arGlobalToolbar.slice(0, imageID).concat([arButtons['BlogInputVideo']]);
-					arGlobalToolbar = tmpArray.concat(arGlobalToolbar.slice(imageID));	
+					arGlobalToolbar = tmpArray.concat(arGlobalToolbar.slice(imageID));
 				}
 				if (cutID > 0)
 				{
 					tmpArray = arGlobalToolbar.slice(0, cutID).concat([arButtons['BlogCUT']]);
-					arGlobalToolbar = tmpArray.concat(arGlobalToolbar.slice(cutID));					
-				}										
-				
+					arGlobalToolbar = tmpArray.concat(arGlobalToolbar.slice(cutID));
+				}
+
 				</script>
 
 				<?
@@ -365,7 +367,7 @@ else
 	else
 	{
 		include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/script.php");
-		
+
 		if ($arResult["preview"] == "Y" && !empty($arResult["PostToShow"]))
 		{
 			echo "<span class=\"blogtext\"><b>".GetMessage("BLOG_PREVIEW_TITLE")."</b></span>";
@@ -555,7 +557,7 @@ else
 				<?
 			}
 			?>
-				
+
 			<tr>
 				<th valign="top" align="right" nowrap>
 				<b><?=GetMessage("BLOG_STATUS")?></b></th>
@@ -599,7 +601,7 @@ else
 						<!--<input type="button" name="ok" OnClick="AddCategoryToList()" value="<?=GetMessage("BLOG_CATEGORY_ADD")?>">//-->
 					</div>
 
-					
+
 				</td>
 			</tr>
 			<tr>
@@ -645,11 +647,11 @@ else
 					<th><b><?=$arPostField["EDIT_FORM_LABEL"]?>:</b></th>
 					<td>
 							<?$APPLICATION->IncludeComponent(
-								"bitrix:system.field.edit", 
-								$arPostField["USER_TYPE"]["USER_TYPE_ID"], 
+								"bitrix:system.field.edit",
+								$arPostField["USER_TYPE"]["USER_TYPE_ID"],
 								array("arUserField" => $arPostField), null, array("HIDE_ICONS"=>"Y"));?>
 					</td>
-				</tr>			
+				</tr>
 				<?endforeach;?>
 			<?endif;?>
 			<?if ($USER->IsAdmin()):?>

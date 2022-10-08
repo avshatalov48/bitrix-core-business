@@ -280,7 +280,7 @@ trait AnnotationTrait
 				// search for with* methods
 				if (substr($method, 0, 4) === 'with')
 				{
-					$reflectionMethod = new ReflectionMethod($dataClass, $method);
+					$reflectionMethod = new \ReflectionMethod($dataClass, $method);
 
 					if ($reflectionMethod->isStatic())
 					{

@@ -2,12 +2,13 @@
 	background-color: #fff;
 	box-shadow: 0 7px 21px rgba(83, 92, 105, .12), 0 -1px 6px 0 rgba(83, 92, 105, .06);
 	padding: 10px;
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
 	justify-content: stretch;
 	border-radius: var(--popup-window-border-radius);
+	will-change: opacity;
 }
 
 /* A super hack for legacy code which directly reads and writes popupContainer.style.display */
@@ -55,7 +56,7 @@
 	background: #fff;
 	color: #b1b6bc;
 	font-size: 10px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-transform: uppercase;
 	white-space: nowrap;
 	overflow-x: hidden;
@@ -79,9 +80,9 @@
 	border-radius: var(--popup-window-button-border-radius, 2px);
 	cursor: pointer;
 	color: #7a818a;
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 12px;
-	font-weight: normal;
 	outline: none;
 	padding: 0 18px;
 	vertical-align: middle;
@@ -141,7 +142,7 @@
 	display: block !important;
 	content: '_' !important;
 	font-size: 10px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	line-height: 10px;
 	height: 21px;
 	top: 10px;
@@ -277,7 +278,7 @@
 	color: #80868e;
 	display: inline-block;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	max-width: 100%;
 	line-height: 49px;
 	overflow: hidden;
@@ -481,7 +482,7 @@
 	padding: 0 0 0 4px;
 	color: #4c4c4c;
 	white-space: nowrap;
-	font: normal normal normal 12px/normal Arial, Helvetica, sans-serif;
+	font: normal normal normal 12px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .menu-popup .menu-popup-item {
@@ -523,7 +524,7 @@
 .menu-popup-item-text {
 	display: inline-block;
 	flex: 1;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c68;
 	line-height: 36px;
 	padding: 0 15px 0 9px;
@@ -663,8 +664,7 @@
 /* ========Popup Window Darken==========*/
 .popup-window-dark {
 	background-color: rgba(0, 0, 0, 0.8);
-	-webkit-border-radius: 4px;
-	border-radius: 4px;
+	border-radius: var(--popup-window-border-radius, 4px);
 	box-shadow: 0 19px 24px rgba(88, 112, 118, 0.17);
 }
 
@@ -708,8 +708,8 @@
 	border: none;
 	vertical-align: top;
 	font-size: 14px;
-	font-weight: bold;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: var(--ui-font-weight-bold);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	line-height: 41px;
 	color: #535c69;
 	background-color: #ecf2f3;

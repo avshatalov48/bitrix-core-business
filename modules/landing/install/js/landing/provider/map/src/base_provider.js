@@ -36,7 +36,7 @@ export class BaseProvider extends EventEmitter
 		this.onMapClickHandler = Type.isFunction(options.onMapClick) ? options.onMapClick : (() => {});
 		this.onAddMarkerHandler = Type.isFunction(options.onAddMarker) ? options.onAddMarker : (() => {});
 		this.onApiLoadedHandler = Type.isFunction(options.onApiLoaded) ? options.onApiLoaded : (() => {});
-		this.onInitHandler = Type.isFunction(options.onProviderInit) ? options.onProviderInit : this.init;
+		this.onInitHandler = Type.isFunction(options.onProviderInit) ? options.onProviderInit : (() => {});
 		this.options = options;
 		this.mapOptions = this.prepareMapOptions(options.mapOptions);
 		this.mapContainer = options.mapContainer;
@@ -180,6 +180,18 @@ export class BaseProvider extends EventEmitter
 	 */
 	init()
 	{
+		this.onInitHandler();
+		this.emit('onInit');
+	}
+
+	/**
+	 * Pass new options and reinit map
+	 * @param options
+	 */
+	reinit(options: {})
+	{
+		// todo: add options type and validation
+		this.options = options;
 		this.emit('onInit');
 	}
 

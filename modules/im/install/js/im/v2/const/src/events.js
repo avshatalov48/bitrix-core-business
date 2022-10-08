@@ -13,6 +13,7 @@ export const EventType = Object.freeze({
 		open: 'IM.Dialog:open',
 		call: 'IM.Dialog:call',
 		openHistory: 'IM.Dialog:openHistory',
+		clearHistory: 'IM.Dialog:clearHistory',
 		hide: 'IM.Dialog:hide',
 		leave: 'IM.Dialog:leave',
 		newMessage: 'EventType.dialog.newMessage',
@@ -42,6 +43,10 @@ export const EventType = Object.freeze({
 		messagesSet: 'IM.Dialog:messagesSet',
 		settingsChange: 'IM.Dialog:settingsChange',
 		closePopup: 'IM.Dialog:closePopup',
+
+		errors: {
+			accessDenied: 'IM.Dialog.errors:accessDenied',
+		}
 	},
 	textarea:
 	{
@@ -86,6 +91,8 @@ export const EventType = Object.freeze({
 	search:
 	{
 		selectItem: 'IM.Search:selectItem',
+		openContextMenu: 'IM.Search:openContextMenu',
+		openNetworkItem: 'IM.Search:openNetworkItem',
 	},
 	recent:
 	{

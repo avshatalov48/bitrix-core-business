@@ -16,6 +16,11 @@ global $APPLICATION;
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
 global $USER_FIELD_MANAGER;
 
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
+
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
 if (defined("BX_PUBLIC_MODE") && BX_PUBLIC_MODE == 1)
@@ -92,6 +97,7 @@ $urlBuilder->setUrlParams(array());
 
 $pageConfig = array(
 	'IBLOCK_EDIT' => false,
+	'PUBLIC_PAGE' => false,
 
 	'SHOW_NAVCHAIN' => true,
 	'NAVCHAIN_ROOT' => false,
@@ -101,8 +107,10 @@ switch ($urlBuilder->getId())
 {
 	case 'CRM':
 	case 'SHOP':
+	case 'INVENTORY':
 		$pageConfig['SHOW_NAVCHAIN'] = false;
 		$pageConfig['SHOW_CONTEXT_MENU'] = false;
+		$pageConfig['PUBLIC_PAGE'] = true;
 		break;
 	case 'CATALOG':
 		break;
@@ -121,7 +129,9 @@ $APPLICATION->AddHeadScript('/bitrix/js/main/admin_tools.js');
 $APPLICATION->AddHeadScript('/bitrix/js/iblock/iblock_edit.js');
 
 if(!$arIBlock["SECTION_NAME"])
-	$arIBlock["SECTION_NAME"] = $arIBTYPE["SECTION_NAME"]? $arIBTYPE["SECTION_NAME"]: GetMessage("IBLOCK_SECTION");
+{
+	$arIBlock["SECTION_NAME"] = $arIBTYPE["SECTION_NAME"] ?: GetMessage("IBLOCK_SECTION");
+}
 
 $bEditRights = $arIBlock["RIGHTS_MODE"] === "E" && CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $ID, "section_rights_edit");
 
@@ -409,6 +419,7 @@ if(
 		if($e = $APPLICATION->GetException())
 			$message = new CAdminMessage(GetMessage("admin_lib_error"), $e);
 
+		$errorMessage = '';
 		if ($strWarning !== '')
 		{
 			$errorMessage = $strWarning;
@@ -416,12 +427,16 @@ if(
 		elseif ($message instanceof \CAdminMessage)
 		{
 			$messageList = array();
-			foreach ($message->GetMessages() as $item)
+			$rawMessageList = $message->GetMessages();
+			if (is_array($rawMessageList))
 			{
-				if (is_array($item))
-					$messageList[] = $item["text"];
-				else
-					$messageList[] = $item;
+				foreach ($rawMessageList as $item)
+				{
+					$messageList[] = is_array($item)
+						? $item["text"]
+						: $item
+					;
+				}
 			}
 			$errorMessage = implode("; ", $messageList);
 			unset($messageList);
@@ -443,6 +458,10 @@ if(
 			$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
 		}
 
+		// fix open page without slider from public shop
+		$urlBuilder->setSliderMode(false);
+		$urlBuilder->setUrlParams([]);
+		// fix end
 		if($apply == '' && $save_and_add == '')
 		{
 			if ($bAutocomplete)
@@ -774,7 +793,7 @@ if($arTranslit["TRANSLITERATION"] == "Y")
 <script type="text/javascript">
 	var InheritedPropertiesTemplates = new JCInheritedPropertiesTemplates(
 		'<?echo $tabControl->GetName()?>_form',
-		'<?=$selfFolderUrl?>iblock_templates.ajax.php?ENTITY_TYPE=S&IBLOCK_ID=<?echo intval($IBLOCK_ID)?>&ENTITY_ID=<?echo intval($ID)?>&bxpublic=y'
+		'<?=$selfFolderUrl?>iblock_templates.ajax.php?ENTITY_TYPE=S&IBLOCK_ID=<?echo $IBLOCK_ID;?>&ENTITY_ID=<?echo intval($ID)?>&bxpublic=y'
 	);
 	BX.ready(function(){
 		setTimeout(function(){
@@ -1314,7 +1333,7 @@ if(
 	foreach($arUserFields as $FIELD_NAME => $arUserField)
 	{
 		$arUserField["VALUE_ID"] = intval($ID);
-		$strLabel = $arUserField["EDIT_FORM_LABEL"]? $arUserField["EDIT_FORM_LABEL"]: $arUserField["FIELD_NAME"];
+		$strLabel = $arUserField["EDIT_FORM_LABEL"]?: $arUserField["FIELD_NAME"];
 		$arUserField["EDIT_FORM_LABEL"] = $strLabel;
 
 		$tabControl->BeginCustomField($FIELD_NAME, $strLabel, $arUserField["MANDATORY"]=="Y");

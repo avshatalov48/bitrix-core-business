@@ -5,6 +5,7 @@
 
 use Bitrix\Catalog;
 use Bitrix\Catalog\Component\ImageInput;
+use Bitrix\Catalog\Product\SystemField\ProductMapping;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Crm\Order\Import\Instagram;
 use Bitrix\Crm;
@@ -106,8 +107,13 @@ if ($urlBuilder === null)
 	die();
 }
 $urlBuilderId = $urlBuilder->getId();
+//TODO: hack fo compensation BX.adminSidePanel.prototype.checkActionByUrl where remove IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER from url
+if ($urlBuilderId === 'INVENTORY')
+{
+	$urlBuilder->setSliderMode(true);
+}
+// end hack
 $urlBuilder->setIblockId($IBLOCK_ID);
-
 $urlBuilder->setUrlParams([]);
 
 $pageConfig = array(
@@ -115,6 +121,8 @@ $pageConfig = array(
 	'CHECK_NEW_CARD' => false,
 	'USE_NEW_CARD' => false,
 	'CATALOG' => false,
+	'PUBLIC_CRM_CATALOG' => false,
+	'PUBLIC_MODE' => false,
 
 	'LIST_ID_PREFIX' => '',
 	'LIST_ID' => $type.'.'.$IBLOCK_ID,
@@ -135,11 +143,16 @@ switch ($urlBuilderId)
 		$pageConfig['LIST_ID_PREFIX'] = 'tbl_product_list_';
 		$pageConfig['CHECK_NEW_CARD'] = true;
 		$pageConfig['SHOW_NAVCHAIN'] = false;
-		$pageConfig['CONTEXT_PATH'] = '/shop/settings/cat_product_list.php'; // TODO: temporary hack
+		$pageConfig['CONTEXT_PATH'] = '/shop/settings/cat_product_list.php?' . $urlBuilder->getUrlBuilderIdParam(); // TODO: temporary hack
 		$pageConfig['CATALOG'] = true;
 		$pageConfig['ALLOW_EXTERNAL_LINK'] = false;
 		$pageConfig['ALLOW_USER_EDIT'] = false;
 		$pageConfig['DEFAULT_ACTION_TYPE'] = CAdminUiListRow::LINK_TYPE_SLIDER;
+		if (Loader::includeModule('crm'))
+		{
+			$pageConfig['PUBLIC_CRM_CATALOG'] = \Bitrix\Crm\Product\Catalog::getDefaultId() === $IBLOCK_ID;
+		}
+		$pageConfig['PUBLIC_MODE'] = true;
 		break;
 	case 'CATALOG':
 		$pageConfig['LIST_ID_PREFIX'] = 'tbl_product_list_';
@@ -382,6 +395,7 @@ if ($by == 'CATALOG_TYPE')
 
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 $lAdmin->bMultipart = true;
+$lAdmin->setPublicModeState($pageConfig['PUBLIC_MODE']);
 
 $bExcel = $lAdmin->isExportMode();
 
@@ -458,33 +472,26 @@ $filterFields = array(
 		"filterable" => ""
 	)
 );
-
-if ($canViewUserList)
-{
-	$filterFields[] = array(
-		"id" => "MODIFIED_USER_ID",
-		"name" => GetMessage("IBLIST_A_F_MODIFIED_BY"),
-		"type" => "custom_entity",
-		"selector" => array("type" => "user"),
-		"filterable" => ""
-	);
-}
+$filterFields[] = array(
+	"id" => "MODIFIED_USER_ID",
+	"name" => GetMessage("IBLIST_A_F_MODIFIED_BY"),
+	"type" => "custom_entity",
+	"selector" => array("type" => "user"),
+	"filterable" => ""
+);
 $filterFields[] = array(
 	"id" => "DATE_CREATE",
 	"name" => GetMessage("IBLIST_A_DATE_CREATE"),
 	"type" => "date",
 	"filterable" => ""
 );
-if ($canViewUserList)
-{
-	$filterFields[] = array(
-		"id" => "CREATED_USER_ID",
-		"name" => GetMessage("IBLIST_A_F_CREATED_BY"),
-		"type" => "custom_entity",
-		"selector" => array("type" => "user"),
-		"filterable" => ""
-	);
-}
+$filterFields[] = array(
+	"id" => "CREATED_USER_ID",
+	"name" => GetMessage("IBLIST_A_F_CREATED_BY"),
+	"type" => "custom_entity",
+	"selector" => array("type" => "user"),
+	"filterable" => ""
+);
 $filterFields[] = array(
 	"id" => "DATE_ACTIVE_FROM",
 	"name" => GetMessage("IBLIST_A_DATE_ACTIVE_FROM"),
@@ -2539,6 +2546,28 @@ if(($arID = $lAdmin->GroupAction()))
 							}
 							unset($error);
 						}
+						else
+						{
+							// notification
+							$fieldName = 'UF_'. ProductMapping::getFieldId();
+							if (isset($actionParams[$fieldName]))
+							{
+								if (Loader::includeModule('pull'))
+								{
+									// TODO: change to general ui pull event 'notification-balloon'
+									$ret = CPullStack::AddByUser(
+										$USER->GetID(),
+										[
+											'module_id' => 'catalog',
+											'command' => 'notification-balloon',
+											'params' => [
+												'message' => GetMessage('IBLIST_A_CATALOG_PRODUCT_MAPPING_SAVE_NOTIFICATION'),
+											],
+										]
+									);
+								}
+							}
+						}
 						unset($result);
 					}
 					break;
@@ -2963,6 +2992,8 @@ foreach (array_keys($rawRows) as $rowId)
 	{
 		if (isset($arRes['CATALOG_TYPE']))
 			$arRes['CATALOG_TYPE'] = (int)$arRes['CATALOG_TYPE'];
+
+		$arRes['TAGS'] = $arRes['TAGS'] ?? '';
 
 		if (isset($arVisibleColumnsMap['CATALOG_TYPE']))
 		{
@@ -4970,7 +5001,7 @@ if(CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $find_section_section, "sect
 			'IBLOCK_SECTION_ID'=>$find_section_section,
 			'from' => 'iblock_list_admin',
 		)),
-		"PUBLIC" => $pageConfig['USE_NEW_CARD']
+		"PUBLIC" => $pageConfig['PUBLIC_MODE']
 	);
 }
 
@@ -4992,9 +5023,6 @@ if($bBizproc && IsModuleInstalled("bizprocdesigner"))
 	}
 }
 
-// TODO: hack for psevdo-excel export in crm (\CAdminUiList::GetSystemContextMenu)
-$_GET['urlBuilderId'] = $urlBuilderId;
-// TODO end
 $lAdmin->setContextSettings(array("pagePath" => $pageConfig['CONTEXT_PATH']));
 $contextConfig = array();
 $excelExport = (Main\Config\Option::get("iblock", "excel_export_rights") == "Y"
@@ -5014,10 +5042,17 @@ $lAdmin->SetContextMenu($aContext, $additional, $contextConfig);
 
 $lAdmin->CheckListMode();
 
-if ($pageConfig['CATALOG'])
-	$APPLICATION->SetTitle(GetMessage("IBLIST_A_LIST_TITLE", array("#IBLOCK_NAME#" => $arIBlock["NAME"])));
+if ($pageConfig['PUBLIC_CRM_CATALOG'])
+{
+	$APPLICATION->SetTitle(GetMessage("IBLIST_A_LIST_TITLE_2"));
+}
 else
-	$APPLICATION->SetTitle($arIBlock["NAME"]);
+{
+	if ($pageConfig['CATALOG'])
+		$APPLICATION->SetTitle(GetMessage("IBLIST_A_LIST_TITLE", ["#IBLOCK_NAME#" => $arIBlock["NAME"]]));
+	else
+		$APPLICATION->SetTitle($arIBlock["NAME"]);
+}
 
 Main\Page\Asset::getInstance()->addJs('/bitrix/js/iblock/iblock_edit.js');
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -5202,6 +5237,23 @@ if ($bCatalog && !$isChangeVariationRequest && $pageConfig['USE_NEW_CARD'])
 		});
 	</script>
 	<?php
+
+	if (Loader::includeModule('pull'))
+	{
+		Extension::load('ui.nofiticaion');
+		?>
+		<script>
+			BX.addCustomEvent("onPullEvent-catalog", function(command, params) {
+				if (command === 'notification-balloon')
+				{
+					BX.UI.Notification.Center.notify({
+						content: params.message,
+					});
+				}
+			});
+		</script>
+		<?php
+	}
 }
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

@@ -129,22 +129,14 @@ this.BX.Sale = this.BX.Sale || {};
 	  template: "\n      <div class=\"checkout-container-wrapper\">\n\t\t  <div class=\"checkout-basket-container\">\n\t\t\t<template v-if=\"getStage === stage.edit\">\n\t\t\t  <sale-checkout-view-product :items=\"getBasket\" :total=\"getTotal\" :mode=\"mode.edit\" :errors=\"getBasketErrors\" :config=\"getBasketConfig\"/>\n\t\t\t  <sale-checkout-view-property :items=\"getProperty\" :mode=\"mode.edit\" :errors=\"getPropertyErrors\"/>\n\t\t\t  <sale-checkout-view-alert-list :errors=\"getErrors\"/>\n\t\t\t  <sale-checkout-view-user_consent :item=\"getConsent\" v-if=\"needCheckConsent\"/>\n\t\t\t  <template v-if=\"checkoutButtonEnabled\">\n\t\t\t\t<sale-checkout-view-element-button-checkout :title=\"getTitleCheckoutButton.title\" :wait=\"getStatus === status.wait\"/>\n\t\t\t  </template>\n\t\t\t  <template v-else>\n\t\t\t\t<sale-checkout-view-element-button-checkout_disabled :title=\"getTitleCheckoutButton.title\"/>\n\t\t\t  </template>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.success\">\n\t\t\t  <template v-if=\"hasPS\">\n\t\t\t\t<sale-checkout-view-successful :items=\"getProperty\" :order=\"getOrder\" :config=\"getSuccessfulConfig\"/>\n\t\t\t  </template>\n\t\t\t  <template v-else>\n\t\t\t\t<sale-checkout-view-successful-without-ps :items=\"getProperty\" :order=\"getOrder\" :config=\"getSuccessfulConfig\"/>\n\t\t\t  </template>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.payed\">\n              <sale-checkout-view-successful_ps_return :items=\"getProperty\" :order=\"getOrder\" :total=\"getTotal\" :config=\"getSuccessfulConfig\"/>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.view\">\n\t\t\t  <sale-checkout-view-product :items=\"getBasket\" :total=\"getTotal\" :mode=\"mode.view\" :errors=\"getBasketErrors\" :config=\"getBasketConfig\"/>\n\t\t\t  <sale-checkout-view-property :items=\"getProperty\" :mode=\"mode.view\" :order=\"getOrder\"/>\n\t\t\t  <sale-checkout-view-product-summary :total=\"getTotal\" :mode=\"mode.view\"/>\n              <sale-checkout-view-payment :order=\"getOrder\" :payments=\"getPayment\" :paySystems=\"getPaySystem\" :check=\"getCheck\" :config=\"getPaymentConfig\"/>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.empty\">\n\t\t\t  <sale-checkout-view-empty_cart :config=\"getEmptyCartConfig\"/>\n\t\t\t</template>\n\t\t  </div>\n\t\t  <template v-if=\"getStage === stage.view\">\n\t\t\t<sale-checkout-view-total :total=\"getTotal\" :showBackdrop=\"totalIsShow\"/>\n\t\t  </template>\n      </div>\n\t"
 	});
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"\"></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	var Application = /*#__PURE__*/function () {
 	  function Application() {
 	    var _this = this;
 
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Application);
-	    this.wrapper = main_core.Tag.render(_templateObject());
+	    this.wrapper = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"\"></div>"])));
 	    this.init().then(function () {
 	      return _this.prepareParams({
 	        options: options
@@ -156,7 +148,7 @@ this.BX.Sale = this.BX.Sale || {};
 	        _this.initController().then(function () {});
 
 	        _this.initTemplate().then(function () {});
-	      }).catch(function (error) {
+	      })["catch"](function (error) {
 	        return Application.showError(error);
 	      });
 	    });

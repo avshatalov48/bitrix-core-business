@@ -36,7 +36,8 @@
 .bx-conference-quick-create-title {
 	width: 480px;
 	text-align: center;
-	font-family: "Open Sans", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 16px;
 	color: #525C69;
 	padding: 25px 0;
@@ -67,7 +68,7 @@
 }
 
 .bx-conference-quick-create-field-label {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: rgba(82,92,105,0.66);
 	margin-bottom: 6px;
@@ -84,7 +85,7 @@
 	border-radius: 2px;
 	padding: 8px 15px;
 	background: #fff;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	border: 1px solid #C6CDD3;
 }
@@ -194,10 +195,11 @@
 
 .bx-conference-quick-create-success-title {
 	color: #fff;
-    font-family: "Open Sans", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 22px;
-    line-height: 30px;
-    text-align: center;
+	line-height: 30px;
+	text-align: center;
 }
 
 .bx-conference-quick-create-wrap-dark .bx-conference-quick-create-success-title {

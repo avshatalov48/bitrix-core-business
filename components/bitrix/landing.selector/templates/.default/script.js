@@ -5,6 +5,12 @@ this.BX.Landing = this.BX.Landing || {};
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
 	var _dialog = /*#__PURE__*/new WeakMap();
@@ -49,79 +55,79 @@ this.BX.Landing = this.BX.Landing || {};
 	  function Selector(options) {
 	    babelHelpers.classCallCheck(this, Selector);
 
-	    _onSearch.add(this);
+	    _classPrivateMethodInitSpec(this, _onSearch);
 
-	    _showOverlay.add(this);
+	    _classPrivateMethodInitSpec(this, _showOverlay);
 
-	    _hideSelector.add(this);
+	    _classPrivateMethodInitSpec(this, _hideSelector);
 
-	    _showSelector.add(this);
+	    _classPrivateMethodInitSpec(this, _showSelector);
 
-	    _handleSearchClick.add(this);
+	    _classPrivateMethodInitSpec(this, _handleSearchClick);
 
-	    _getDialog.add(this);
+	    _classPrivateMethodInitSpec(this, _getDialog);
 
-	    _dialog.set(this, {
+	    _classPrivateFieldInitSpec(this, _dialog, {
 	      writable: true,
 	      value: null
 	    });
 
-	    _node.set(this, {
+	    _classPrivateFieldInitSpec(this, _node, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _input.set(this, {
+	    _classPrivateFieldInitSpec(this, _input, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _urlLandingAdd.set(this, {
+	    _classPrivateFieldInitSpec(this, _urlLandingAdd, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _urlFolderAdd.set(this, {
+	    _classPrivateFieldInitSpec(this, _urlFolderAdd, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _urlFormAdd.set(this, {
+	    _classPrivateFieldInitSpec(this, _urlFormAdd, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _siteType.set(this, {
+	    _classPrivateFieldInitSpec(this, _siteType, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _siteId.set(this, {
+	    _classPrivateFieldInitSpec(this, _siteId, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _items.set(this, {
+	    _classPrivateFieldInitSpec(this, _items, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _onSelect.set(this, {
+	    _classPrivateFieldInitSpec(this, _onSelect, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _selectorContainer.set(this, {
+	    _classPrivateFieldInitSpec(this, _selectorContainer, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _overlayElement.set(this, {
+	    _classPrivateFieldInitSpec(this, _overlayElement, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _overlayShown.set(this, {
+	    _classPrivateFieldInitSpec(this, _overlayShown, {
 	      writable: true,
 	      value: void 0
 	    });

@@ -6,6 +6,8 @@
  * @copyright 2001-2013 Bitrix
  */
 
+use Bitrix\Main\Security\Random;
+
 IncludeModuleLangFile(__FILE__);
 
 class CSVUserImport
@@ -328,10 +330,10 @@ class CSVUserImport
 			$arFields["EXTERNAL_AUTH_ID"] = $this->externalAuthID;
 
 		if (!array_key_exists("XML_ID", $arFields))
-			$arFields["XML_ID"] = md5(uniqid(rand(), true));
+			$arFields["XML_ID"] = Random::getString(32);
 
 		if(!array_key_exists("CHECKWORD", $arFields) || $arFields["CHECKWORD"] == '')
-			$arFields["CHECKWORD"] = md5(CMain::GetServerUniqID().uniqid());
+			$arFields["CHECKWORD"] = Random::getString(32);
 
 		if ($this->imageFilePath !== null)
 		{

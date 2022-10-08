@@ -225,15 +225,28 @@ class QueryBuilder
 	{
 		$countUnset = count($toUnset);
 		$properties = null;
+		$propertyCodeMap = null;
 		foreach ($filter as $filterKey => $filterValue)
 		{
 			if (preg_match("/^(=)PROPERTY\$/i", $filterKey, $keyDetails) && is_array($filterValue))
 			{
 				if ($properties === null)
 					$properties = $this->getFilterProperty();
+				if ($propertyCodeMap === null)
+				{
+					$propertyCodeMap = $this->getPropertyCodeMap();
+				}
 
 				foreach ($filterValue as $propertyId => $value)
 				{
+					$propertyId = $propertyCodeMap[$propertyId] ?? null;
+					if (
+						$propertyId === null
+						|| !isset($properties[$propertyId])
+					)
+					{
+						continue;
+					}
 					$facetId = $this->storage->propertyIdToFacetId($propertyId);
 					if ($properties[$propertyId] == Storage::DICTIONARY || $properties[$propertyId] == Storage::STRING)
 					{
@@ -255,8 +268,19 @@ class QueryBuilder
 			{
 				if ($properties === null)
 					$properties = $this->getFilterProperty();
+				if ($propertyCodeMap === null)
+				{
+					$propertyCodeMap = $this->getPropertyCodeMap();
+				}
 
-				$propertyId = $keyDetails[2];
+				$propertyId = $propertyCodeMap[$keyDetails[2]] ?? null;
+				if (
+					$propertyId === null
+					|| !isset($properties[$propertyId])
+				)
+				{
+					continue;
+				}
 				$value = $filterValue;
 				$facetId = $this->storage->propertyIdToFacetId($propertyId);
 				if ($properties[$propertyId] == Storage::DICTIONARY || $properties[$propertyId] == Storage::STRING)
@@ -278,9 +302,21 @@ class QueryBuilder
 			{
 				if ($properties === null)
 					$properties = $this->getFilterProperty();
+				if ($propertyCodeMap === null)
+				{
+					$propertyCodeMap = $this->getPropertyCodeMap();
+				}
 
 				foreach ($filterValue as $propertyId => $value)
 				{
+					$propertyId = $propertyCodeMap[$propertyId] ?? null;
+					if (
+						$propertyId === null
+						|| !isset($properties[$propertyId])
+					)
+					{
+						continue;
+					}
 					$facetId = $this->storage->propertyIdToFacetId($propertyId);
 					if ($properties[$propertyId] == Storage::NUMERIC)
 					{
@@ -316,9 +352,21 @@ class QueryBuilder
 			{
 				if ($properties === null)
 					$properties = $this->getFilterProperty();
+				if ($propertyCodeMap === null)
+				{
+					$propertyCodeMap = $this->getPropertyCodeMap();
+				}
 
 				foreach ($filterValue as $propertyId => $value)
 				{
+					$propertyId = $propertyCodeMap[$propertyId] ?? null;
+					if (
+						$propertyId === null
+						|| !isset($properties[$propertyId])
+					)
+					{
+						continue;
+					}
 					$facetId = $this->storage->propertyIdToFacetId($propertyId);
 					if ($properties[$propertyId] == Storage::NUMERIC)
 					{
@@ -505,7 +553,7 @@ class QueryBuilder
 	 *
 	 * @return integer[]
 	 */
-	private function getFilterProperty()
+	private function getFilterProperty(): array
 	{
 		//TODO: remove this code to \Bitrix\Iblock\Model\Property
 		if (!isset($this->propertyFilter))
@@ -531,5 +579,52 @@ class QueryBuilder
 			}
 		}
 		return $this->propertyFilter;
+	}
+
+	private function getPropertyCodeMap(): array
+	{
+		$result = [];
+
+		$iterator = \Bitrix\Iblock\PropertyTable::getList([
+			'select' => [
+				'ID',
+				'CODE',
+			],
+			'filter' => [
+				'=IBLOCK_ID' => $this->facet->getIblockId(),
+			],
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$id = (int)$row['ID'];
+			$result[$id] = $id;
+			$row['CODE'] = (string)$row['CODE'];
+			if ($row['CODE'] !== '')
+			{
+				$result[$row['CODE']] = $id;
+			}
+		}
+		unset($iterator);
+
+		$skuIblockId = $this->facet->getSkuIblockId();
+		if ($skuIblockId > 0)
+		{
+			$iterator = \Bitrix\Iblock\PropertyTable::getList([
+				'select' => [
+					'ID',
+				],
+				'filter' => [
+					'=IBLOCK_ID' => $skuIblockId,
+				],
+			]);
+			while ($row = $iterator->fetch())
+			{
+				$id = (int)$row['ID'];
+				$result[$id] = $id;
+			}
+			unset($iterator);
+		}
+
+		return $result;
 	}
 }

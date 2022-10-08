@@ -35,6 +35,7 @@ CREATE TABLE b_language
 	CHARSET varchar(255) null,
 	DIRECTION char(1) null,
 	CULTURE_ID int,
+	CODE varchar(35),
 	PRIMARY KEY (LID)
 );
 
@@ -353,7 +354,8 @@ CREATE TABLE b_agent
 	PRIMARY KEY (ID),
 	INDEX ix_act_next_exec(ACTIVE, NEXT_EXEC),
 	INDEX ix_agent_user_id(USER_ID),
-	INDEX ix_agent_name(NAME(100))
+	INDEX ix_agent_name(NAME(100)),
+	INDEX ix_agent_act_period_next_exec(ACTIVE, IS_PERIOD, NEXT_EXEC)
 );
 
 CREATE TABLE b_file
@@ -1526,4 +1528,43 @@ CREATE TABLE b_sm_version_history
 	DATE_INSERT datetime,
 	VERSIONS text,
 	PRIMARY KEY (ID)
+);
+
+CREATE TABLE b_user_device
+(
+	ID bigint unsigned not null auto_increment,
+	USER_ID bigint unsigned not null,
+	DEVICE_UID varchar(50) not null,
+	DEVICE_TYPE int unsigned not null default 0,
+	BROWSER varchar(100),
+	PLATFORM varchar(25),
+	USER_AGENT varchar(1000),
+	COOKABLE char(1) not null default 'N',
+	PRIMARY KEY(ID),
+	INDEX ix_user_device_user(USER_ID, DEVICE_UID)
+);
+
+CREATE TABLE b_user_device_login
+(
+	ID bigint unsigned not null auto_increment,
+	DEVICE_ID bigint unsigned not null,
+	LOGIN_DATE datetime,
+	IP varchar(20),
+	CITY_GEOID bigint,
+	REGION_GEOID bigint,
+	COUNTRY_ISO_CODE varchar(10),
+	APP_PASSWORD_ID bigint unsigned,
+	STORED_AUTH_ID bigint unsigned,
+	HIT_AUTH_ID bigint unsigned,
+	PRIMARY KEY(ID),
+	INDEX ix_user_device_login_device(DEVICE_ID),
+	INDEX ix_user_device_login_date(LOGIN_DATE)
+);
+
+CREATE TABLE b_geoname
+(
+	ID bigint unsigned not null,
+	LANGUAGE_CODE varchar(35),
+	NAME varchar(600),
+	PRIMARY KEY(ID, LANGUAGE_CODE)
 );

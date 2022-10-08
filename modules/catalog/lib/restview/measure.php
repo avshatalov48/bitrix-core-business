@@ -22,13 +22,13 @@ final class Measure extends Base
 			'CODE'=>[
 				'TYPE'=>DataType::TYPE_INT,
 				'ATTRIBUTES'=>[
-					Attributes::REQUIRED
+					Attributes::REQUIRED_ADD
 				]
 			],
 			'MEASURE_TITLE'=>[
 				'TYPE'=>DataType::TYPE_STRING,
 				'ATTRIBUTES'=>[
-					Attributes::REQUIRED
+					Attributes::REQUIRED_ADD
 				]
 			],
 			'SYMBOL'=>[

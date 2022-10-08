@@ -2,95 +2,7 @@ this.BX = this.BX || {};
 (function (exports,ui_forms,main_core_events,main_core,ui_entitySelector,catalog_storeSelector,ui_notification,catalog_productModel) {
 	'use strict';
 
-	function _templateObject9() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject9 = function _templateObject9() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject8() {
-	  var data = babelHelpers.taggedTemplateLiteral(["", ""]);
-
-	  _templateObject8 = function _templateObject8() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject7() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-ctl ui-ctl-w100 ui-ctl-after-icon\"></div>"]);
-
-	  _templateObject7 = function _templateObject7() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject6() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button\n\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-search\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></button>\n\t\t\t"]);
-
-	  _templateObject6 = function _templateObject6() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a\n\t\t\t\t\thref=\"", "\"\n\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-forward\"\n\t\t\t\t></button>\n\t\t\t"]);
-
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button\n\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-clear\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></button>\n\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t \ttype=\"hidden\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"text\"\n\t\t\t\t\tclass=\"ui-ctl-element ui-ctl-textbox\"\n\t\t\t\t\tautocomplete=\"off\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tonchange=\"", "\"\n\t\t\t\t>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-w100\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9;
 	var StoreSearchInput = /*#__PURE__*/function () {
 	  function StoreSearchInput(id) {
 	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -125,7 +37,7 @@ this.BX = this.BX || {};
 	      var _this = this;
 
 	      return this.cache.remember('nameBlock', function () {
-	        return main_core.Tag.render(_templateObject(), _this.getNameInput(), _this.getHiddenNameInput());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-ctl ui-ctl-textbox ui-ctl-w100\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this.getNameInput(), _this.getHiddenNameInput());
 	      });
 	    }
 	  }, {
@@ -134,7 +46,7 @@ this.BX = this.BX || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('nameInput', function () {
-	        return main_core.Tag.render(_templateObject2(), main_core.Text.encode(_this2.selector.getStoreTitle()), main_core.Text.encode(_this2.getPlaceholder()), main_core.Text.encode(_this2.selector.getStoreTitle()), _this2.handleNameInputHiddenChange.bind(_this2));
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input type=\"text\"\n\t\t\t\t\tclass=\"ui-ctl-element ui-ctl-textbox\"\n\t\t\t\t\tautocomplete=\"off\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t\tplaceholder=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t\tonchange=\"", "\"\n\t\t\t\t>\n\t\t\t"])), main_core.Text.encode(_this2.selector.getStoreTitle()), main_core.Text.encode(_this2.getPlaceholder()), main_core.Text.encode(_this2.selector.getStoreTitle()), _this2.handleNameInputHiddenChange.bind(_this2));
 	      });
 	    }
 	  }, {
@@ -143,7 +55,7 @@ this.BX = this.BX || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('hiddenNameInput', function () {
-	        return main_core.Tag.render(_templateObject3(), main_core.Text.encode(_this3.inputName), main_core.Text.encode(_this3.selector.getStoreTitle()));
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input\n\t\t\t\t \ttype=\"hidden\"\n\t\t\t\t\tname=\"", "\"\n\t\t\t\t\tvalue=\"", "\"\n\t\t\t\t>\n\t\t\t"])), main_core.Text.encode(_this3.inputName), main_core.Text.encode(_this3.selector.getStoreTitle()));
 	      });
 	    }
 	  }, {
@@ -157,7 +69,7 @@ this.BX = this.BX || {};
 	      var _this4 = this;
 
 	      return this.cache.remember('closeIcon', function () {
-	        return main_core.Tag.render(_templateObject4(), _this4.handleClearIconClick.bind(_this4));
+	        return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button\n\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-clear\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></button>\n\t\t\t"])), _this4.handleClearIconClick.bind(_this4));
 	      });
 	    }
 	  }, {
@@ -166,7 +78,7 @@ this.BX = this.BX || {};
 	      var _this5 = this;
 
 	      return this.cache.remember('arrowIcon', function () {
-	        return main_core.Tag.render(_templateObject5(), _this5.selector.getDetailPath());
+	        return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a\n\t\t\t\t\thref=\"", "\"\n\t\t\t\t\ttarget=\"_blank\"\n\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-forward\"\n\t\t\t\t></button>\n\t\t\t"])), _this5.selector.getDetailPath());
 	      });
 	    }
 	  }, {
@@ -175,27 +87,27 @@ this.BX = this.BX || {};
 	      var _this6 = this;
 
 	      return this.cache.remember('searchIcon', function () {
-	        return main_core.Tag.render(_templateObject6(), _this6.handleSearchIconClick.bind(_this6));
+	        return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button\n\t\t\t\t\tclass=\"ui-ctl-after ui-ctl-icon-search\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></button>\n\t\t\t"])), _this6.handleSearchIconClick.bind(_this6));
 	      });
 	    }
 	  }, {
 	    key: "clearInputCache",
 	    value: function clearInputCache() {
-	      this.cache.delete('dialog');
-	      this.cache.delete('nameBlock');
-	      this.cache.delete('nameInput');
-	      this.cache.delete('hiddenNameInput');
+	      this.cache["delete"]('dialog');
+	      this.cache["delete"]('nameBlock');
+	      this.cache["delete"]('nameInput');
+	      this.cache["delete"]('hiddenNameInput');
 	    }
 	  }, {
 	    key: "clearDialogCache",
 	    value: function clearDialogCache() {
-	      this.cache.delete('dialog');
+	      this.cache["delete"]('dialog');
 	    }
 	  }, {
 	    key: "layout",
 	    value: function layout() {
 	      this.clearInputCache();
-	      var block = main_core.Tag.render(_templateObject7());
+	      var block = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-ctl ui-ctl-w100 ui-ctl-after-icon\"></div>"])));
 	      block.appendChild(this.getSearchIcon());
 	      this.toggleIcon(this.getSearchIcon(), 'none');
 	      block.appendChild(this.getClearIcon());
@@ -249,8 +161,8 @@ this.BX = this.BX || {};
 	          searchTabOptions: {
 	            stub: true,
 	            stubOptions: {
-	              title: main_core.Tag.message(_templateObject8(), 'CATALOG_STORE_SELECTOR_IS_EMPTY_TITLE'),
-	              subtitle: main_core.Tag.message(_templateObject9(), 'CATALOG_STORE_SELECTOR_IS_EMPTY_SUBTITLE'),
+	              title: main_core.Tag.message(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["", ""])), 'CATALOG_STORE_SELECTOR_IS_EMPTY_TITLE'),
+	              subtitle: main_core.Tag.message(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["", ""])), 'CATALOG_STORE_SELECTOR_IS_EMPTY_SUBTITLE'),
 	              arrow: true
 	            }
 	          },
@@ -396,7 +308,7 @@ this.BX = this.BX || {};
 	      this.toggleIcon(this.getSearchIcon(), 'none');
 	      this.selector.clearLayout();
 	      this.selector.layout();
-	      this.cache.delete('dialog');
+	      this.cache["delete"]('dialog');
 	    }
 	  }, {
 	    key: "createStore",
@@ -433,7 +345,7 @@ this.BX = this.BX || {};
 
 	          dialog.hide();
 	          resolve();
-	        }).catch(function () {
+	        })["catch"](function () {
 	          return reject();
 	        });
 	      });
@@ -447,48 +359,14 @@ this.BX = this.BX || {};
 	  return StoreSearchInput;
 	}();
 
-	function _templateObject4$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-store-field-input\"></div>"]);
+	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1;
 
-	  _templateObject4$1 = function _templateObject4() {
-	    return data;
-	  };
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
 
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span title=\"", "\">", "</span>"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a href=\"", "\" title=\"", "\">", "</a>\n\t\t\t"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-store-field-inner\"></div>"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 	var instances = new Map();
 
-	var _storeInfo = new WeakMap();
+	var _storeInfo = /*#__PURE__*/new WeakMap();
 
 	var StoreSelector = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(StoreSelector, _EventEmitter);
@@ -509,7 +387,7 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "productId", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "cache", new main_core.Cache.MemoryCache());
 
-	    _storeInfo.set(babelHelpers.assertThisInitialized(_this), {
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _storeInfo, {
 	      writable: true,
 	      value: new Map()
 	    });
@@ -625,7 +503,7 @@ this.BX = this.BX || {};
 	      }
 
 	      this.defineWrapperClass(wrapper);
-	      var block = main_core.Tag.render(_templateObject$1());
+	      var block = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-store-field-inner\"></div>"])));
 	      wrapper.appendChild(block);
 	      block.appendChild(this.layoutNameBlock());
 	    }
@@ -686,15 +564,15 @@ this.BX = this.BX || {};
 	      var titlePlaceholder = main_core.Loc.getMessage('CATALOG_STORE_SELECTOR_VIEW_NAME_TITLE');
 
 	      if (this.getDetailPath()) {
-	        return main_core.Tag.render(_templateObject2$1(), this.getDetailPath(), titlePlaceholder, storeTitle);
+	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a href=\"", "\" title=\"", "\">", "</a>\n\t\t\t"])), this.getDetailPath(), titlePlaceholder, storeTitle);
 	      }
 
-	      return main_core.Tag.render(_templateObject3$1(), titlePlaceholder, storeTitle);
+	      return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["<span title=\"", "\">", "</span>"])), titlePlaceholder, storeTitle);
 	    }
 	  }, {
 	    key: "layoutNameBlock",
 	    value: function layoutNameBlock() {
-	      var block = main_core.Tag.render(_templateObject4$1());
+	      var block = main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["<div class=\"catalog-store-field-input\"></div>"])));
 
 	      if (this.isViewMode()) {
 	        block.appendChild(this.getViewHtml());

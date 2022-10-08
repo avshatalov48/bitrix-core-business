@@ -852,7 +852,7 @@ class Dispatcher
 			'SHOW_FILTER' => $userField['SHOW_FILTER'],
 			'SHOW_IN_LIST' => $userField['SHOW_IN_LIST'],
 			'SORT' => $userField['SORT'],
-			'CONTEXT_PARAMS' => $fieldInfo['CONTEXT_PARAMS'],
+			'CONTEXT_PARAMS' => $userField['CONTEXT_PARAMS'],
 		);
 
 		if($userField['USER_TYPE_ID'] === \CUserTypeEnum::USER_TYPE_ID && is_array($userField['ENUM']))

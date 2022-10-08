@@ -116,7 +116,15 @@ BX.ready(function()
 							}).then(
 								function()
 								{
-									BX.fireEvent(createFolderEl, 'click');
+									if (data.result[0].error === 'FOLDER_IS_NOT_UNIQUE')
+									{
+										createFolderText.value = '';
+										createFolderText.focus();
+									}
+									else
+									{
+										BX.fireEvent(createFolderEl, 'click');
+									}
 								}
 							);
 						}

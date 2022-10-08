@@ -74,7 +74,10 @@ export class EntryManager {
 					|| dateTime > displayedViewRange.end.getTime()
 				)
 				{
-					date = Util.getUsableDateTime(displayedViewRange.start);
+					const startDate = new Date(displayedViewRange.start.getTime());
+					const workTime = calendarContext.util.getWorkTime();
+					startDate.setHours(workTime.start, 0, 0,0);
+					date = Util.getUsableDateTime(startDate);
 				}
 			}
 		}
@@ -149,6 +152,13 @@ export class EntryManager {
 		}
 	}
 
+	static showReleaseLocationNotification()
+	{
+		BX.UI.Notification.Center.notify({
+			content: Loc.getMessage('CALENDAR_RELEASE_LOCATION_NOTIFICATION'),
+		});
+	}
+
 	static closeDeleteNotificationBalloon(entry)
 	{
 		if (entry && entry instanceof Entry)
@@ -170,6 +180,7 @@ export class EntryManager {
 			new bx.Calendar.SliderLoader(
 				options.entry ? 'EDIT' + options.entry.id : 'NEW',
 				{
+					calendarContext: options.calendarContext,
 					entry: options.entry || null,
 					type: options.type,
 					isLocationCalendar: options.isLocationCalendar || false,
@@ -488,8 +499,10 @@ export class EntryManager {
 		}
 
 		const compactForm = EntryManager.getCompactViewForm();
-		if (compactForm
-			&& compactForm.isShown())
+		if (
+			compactForm
+			&& compactForm.isShown()
+		)
 		{
 			compactForm.handlePull(params);
 		}
@@ -503,15 +516,12 @@ export class EntryManager {
 				&& data.entry.parentId === parseInt(params?.fields?.PARENT_ID)
 			)
 			{
-				if (params.command === 'delete_event'
+				if (
+					params.command === 'delete_event'
 					&& data.entry.getType() === params?.fields?.CAL_TYPE
 				)
 				{
 					slider.close();
-				}
-				else if (data.control instanceof EventViewForm)
-				{
-					data.control.reloadSliderDebounce(params);
 				}
 			}
 		});
@@ -530,7 +540,7 @@ export class EntryManager {
 			{
 				top.BX.Event.EventEmitter.emit('BX.Calendar:doReloadCounters');
 			}
-			
+
 			if (params?.fields?.CAL_TYPE === 'location' && top.BX.Calendar?.Controls?.Location)
 			{
 				top.BX.Calendar.Controls.Location.handlePull(params);
@@ -617,12 +627,7 @@ export class EntryManager {
 
 				EntryManager.unregisterDeleteTimeout({action, data, params});
 			});
-
-
-
-
 		});
-
 	}
 
 	static getEntryUniqueId(entryData, entry)

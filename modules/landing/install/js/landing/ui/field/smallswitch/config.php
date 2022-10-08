@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'landing.ui.field.switch',
 		'main.core',
+		'ui.fonts.opensans',
 		'landing.loc',
 	],
 	'skip_core' => false,

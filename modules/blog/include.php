@@ -1,5 +1,4 @@
-<?
-global $DBType;
+<?php
 
 IncludeModuleLangFile(__FILE__);
 
@@ -66,20 +65,20 @@ $GLOBALS["AR_BLOG_POST_RESERVED_CODES"] = Array("admin", "users", "index", "grou
 CModule::AddAutoloadClasses(
 	"blog",
 	array(
-		"CBlog" => $DBType."/blog.php",
-		"CBlogCandidate" => $DBType."/blog_candid.php",
-		"CBlogGroup" => $DBType."/blog_group.php",
-		"CBlogImage" => $DBType."/blog_image.php",
-		"CBlogPost" => $DBType."/blog_post.php",
-		"CBlogCategory" => $DBType."/blog_category.php",
-		"CBlogComment" => $DBType."/blog_comment.php",
-		"CBlogUser" => $DBType."/blog_user.php",
-		"CBlogUserGroup" => $DBType."/blog_user_group.php",
-		"CBlogTrackback" => $DBType."/blog_trackback.php",
-		"CBlogUserGroupPerms" => $DBType."/blog_user_group_perms.php",
-		"CBlogSitePath" => $DBType."/blog_site_path.php",
+		"CBlog" => "mysql/blog.php",
+		"CBlogCandidate" => "mysql/blog_candid.php",
+		"CBlogGroup" => "mysql/blog_group.php",
+		"CBlogImage" => "mysql/blog_image.php",
+		"CBlogPost" => "mysql/blog_post.php",
+		"CBlogCategory" => "mysql/blog_category.php",
+		"CBlogComment" => "mysql/blog_comment.php",
+		"CBlogUser" => "mysql/blog_user.php",
+		"CBlogUserGroup" => "mysql/blog_user_group.php",
+		"CBlogTrackback" => "mysql/blog_trackback.php",
+		"CBlogUserGroupPerms" => "mysql/blog_user_group_perms.php",
+		"CBlogSitePath" => "mysql/blog_site_path.php",
 		"CBlogSmile" => "general/smile.php",
-		"CBlogPostCategory" => $DBType."/blog_post_category.php",
+		"CBlogPostCategory" => "mysql/blog_post_category.php",
 
 		"CBlogSearch" => "general/blog_search.php",
 		"CBlogSoNetPost" => "general/sonet.php",
@@ -87,9 +86,8 @@ CModule::AddAutoloadClasses(
 		"CBlogTools" => "general/functions.php",
 		"CBlogMetaWeblog" => "general/blog_metaweblog.php",
 		
-		"CRatingsComponentsBlog" => $DBType."/ratings_components.php",
+		"CRatingsComponentsBlog" => "mysql/ratings_components.php",
 		"CBlogNotifySchema" => "general/blog_notify_schema.php",
 		"CBlogUserOptions" => "general/blog_post_param.php",
 	)
 );
-?>

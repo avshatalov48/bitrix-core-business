@@ -63,6 +63,7 @@ if ($detailUrl)
 			'LABEL_PROP_POSITION' => 'top-left',
 			'DISCOUNT_PERCENT_POSITION' => 'bottom-right',
 			'SHOW_SECTIONS' => '',
+			'BASKET_URL' => '#system_order',
 
 			// computed then same for both
 			'IBLOCK_ID' => $classBlock->get('IBLOCK_ID'),

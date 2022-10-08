@@ -164,18 +164,6 @@ class CLearnAccess implements ILearnAccessInterface
 		$this->userId = self::StrictlyCastToInteger ($in_userId);
 	}
 
-
-	// prevent clone of object
-	private function __clone()
-	{
-	}
-
-
-	// prevent wakeup
-	private function __wakeup()
-	{
-	}
-
 	/**
 	 * @param $in_userId
 	 * @return CLearnAccess

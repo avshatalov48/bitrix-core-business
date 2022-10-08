@@ -19,7 +19,7 @@
 }
 
 .landing-ui-component-list-item-text {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	flex-grow: 1;
 	max-width: calc(100% - 70px);
 }

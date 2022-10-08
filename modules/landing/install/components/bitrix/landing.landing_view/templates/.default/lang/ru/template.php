@@ -41,6 +41,7 @@ $MESS['LANDING_TPL_BUY_RENEW'] = 'Пожалуйста, #LINK1#продлите 
 $MESS['LANDING_WAIT_WHILE_CREATING'] = 'Пожалуйста, подождите, ваш сайт скоро опубликуется...';
 $MESS['LANDING_WAIT_WHILE_CREATING_FORCE'] = 'Перейти на сайт';
 $MESS['LANDING_FORM_EDITOR_SHARE_BUTTON'] = 'Поделиться';
+$MESS['LANDING_FORM_FEATURES'] = 'Возможности формы';
 $MESS['LANDING_PREVIEW_MOBILE_TITLE'] = 'Открыть на мобильном устройстве';
 $MESS['LANDING_PREVIEW_MOBILE_TEXT'] = 'Наведите камеру телефона на QR-код, чтобы открыть сайт';
 $MESS['LANDING_PREVIEW_MOBILE_NEW_TAB'] = 'Открыть в новой вкладке';

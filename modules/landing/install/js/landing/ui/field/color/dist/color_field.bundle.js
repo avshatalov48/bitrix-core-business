@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_field_basefield,main_popup,main_core_events,landing_backend,landing_pageobject,main_core) {
+(function (exports,landing_ui_field_basefield,main_popup,ui_fonts_opensans,ui_designTokens,main_core_events,landing_backend,landing_pageobject,main_core) {
 	'use strict';
 
 	const matcher = /^rgba? ?\((\d{1,3})[, ]+(\d{1,3})[, ]+(\d{1,3})([, ]+([\d\.]{1,5}))?\)$/i;
@@ -2858,10 +2858,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    if (!main_core.Type.isUndefined(styleNode)) {
 	      let oldClass;
 	      let activeControl;
+	      const node = styleNode.getNode();
 
-	      if (styleNode.hasOwnProperty('currentTarget')) {
+	      if (node.length > 0) {
 	        items.forEach(item => {
-	          if (main_core.Dom.hasClass(styleNode.currentTarget, item.value)) {
+	          if (main_core.Dom.hasClass(node[0], item.value)) {
 	            oldClass = item.value;
 	          }
 	        });
@@ -3801,26 +3802,22 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	}
 
-	function stringToRGB(str) {
-	  const regRGB = /\d{1,3}(\.\d+)?/g;
-	  const rgb = str.match(regRGB);
-	  const r = rgb[0] ? rgb[0] : null;
-	  const g = rgb[1] ? rgb[1] : null;
-	  const b = rgb[2] ? rgb[2] : null;
-	  const a = rgb[3] ? rgb[3] : 1;
+	function rgbaStringToRgbString(str) {
+	  const regRgba = /\d{1,3}(\.\d+)?/g;
+	  const rgba = str.match(regRgba);
+	  const r = rgba[0] ? rgba[0] : null;
+	  const g = rgba[1] ? rgba[1] : null;
+	  const b = rgba[2] ? rgba[2] : null;
 
 	  if (r === null || g === null || b === null) {
-	    return false;
+	    return null;
 	  }
 
-	  const rgbFormat = 'rgb(' + r + ',' + g + ',' + b + ')';
-	  return {
-	    r: r,
-	    g: g,
-	    b: b,
-	    a: a,
-	    rgb: rgbFormat
-	  };
+	  return createRgbString(r, g, b);
+	}
+
+	function createRgbString(r, g, b) {
+	  return 'rgb(' + r + ',' + g + ',' + b + ')';
 	}
 
 	let _$h = t => t,
@@ -3831,7 +3828,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.setEventNamespace('BX.Landing.UI.Field.Processor.Bg');
 	    this.styleNode = options.styleNode;
 	    this.parentVariableName = this.variableName;
-	    this.variableName = [this.parentVariableName, Bg.BG_URL_VAR, Bg.BG_URL_2X_VAR, Bg.BG_OVERLAY_VAR, Bg.BG_SIZE_VAR, Bg.BG_ATTACHMENT_VAR, Bg.BG_IMAGE];
+	    this.variableName = [this.parentVariableName, Bg.BG_URL_VAR, Bg.BG_URL_2X_VAR, Bg.BG_OVERLAY_VAR, Bg.BG_SIZE_VAR, Bg.BG_ATTACHMENT_VAR];
 	    this.parentClassName = this.className;
 	    this.className = 'g-bg-image';
 	    this.image = new Image(options);
@@ -3878,7 +3875,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    this.activeControl = this.image;
 	    this.image.setActive();
 	    this.modifyStyleNode(this.styleNode);
-	    this.onChange();
 	  }
 
 	  onOverlayChange(event) {
@@ -3900,12 +3896,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }
 
 	    this.modifyStyleNode(this.styleNode);
-	    this.onChange();
 	  }
 
 	  onOverlayOpacityChange() {
 	    this.modifyStyleNode(this.styleNode);
-	    this.onChange();
 	  }
 
 	  onOverlayColorChange(event) {
@@ -4085,7 +4079,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }
 
 	  modifyStyleNode(styleNode) {
-	    main_core.Dom.style(styleNode.currentTarget, Bg.BG_IMAGE, '');
+	    main_core.Dom.style(styleNode.getNode()[0], Bg.BG_IMAGE, '');
+	    this.onChange();
 	  }
 
 	  prepareProcessorValue(processorValue, defaultValue) {
@@ -4118,12 +4113,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          processorValue[Bg.BG_URL_2X_VAR] = defaultValue[Bg.BG_IMAGE];
 	        }
 
-	        const computedStyleNode = getComputedStyle(this.styleNode.currentTarget, ':after');
+	        const computedStyleNode = getComputedStyle(this.styleNode.getNode()[0], ':after');
 	        processorValue[Bg.BG_OVERLAY_VAR] = computedStyleNode.backgroundColor;
-	        const currentColorRGB = stringToRGB(computedStyleNode.backgroundColor);
-	        const primaryColorRGB = stringToRGB(computedStyleNode.getPropertyValue('--primary-opacity-0'));
+	        const currentColorRgb = rgbaStringToRgbString(computedStyleNode.backgroundColor);
+	        const primaryColorRgb = rgbaStringToRgbString(computedStyleNode.getPropertyValue('--primary-opacity-0'));
 
-	        if (currentColorRGB !== false && primaryColorRGB !== false && currentColorRGB.rgb === primaryColorRGB.rgb) {
+	        if (currentColorRgb !== null && primaryColorRgb !== null && currentColorRgb === primaryColorRgb) {
 	          processorValue['isPrimaryBasedColor'] = true;
 	        }
 	      }
@@ -4475,6 +4470,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    return this.processor.getVariableName();
 	  }
 
+	  prepareInlineProperties(props) {
+	    props.push('background-image');
+	    return props;
+	  }
+
 	  getComputedProperties() {
 	    return this.processor.getProperty();
 	  }
@@ -4502,7 +4502,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  setValue(value) {
 	    let processorValue = null; // now for multiple properties get just last value. Maybe, need object-like values
 
-	    this.getInlineProperties().forEach(prop => {
+	    this.prepareInlineProperties(this.getInlineProperties()).forEach(prop => {
 	      if (prop in value && !this.processor.isNullValue(value[prop])) {
 	        if (!main_core.Type.isObject(processorValue)) {
 	          processorValue = {};
@@ -4541,5 +4541,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.ColorField = ColorField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX.Main,BX.Event,BX.Landing,BX.Landing,BX));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX.Main,BX,BX,BX.Event,BX.Landing,BX.Landing,BX));
 //# sourceMappingURL=color_field.bundle.js.map

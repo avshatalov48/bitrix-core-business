@@ -21,6 +21,7 @@ return [
 		'landing.ui.panel.formsettingspanel',
 		'crm.form.client',
 		'ui.userfieldfactory',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

@@ -76,6 +76,10 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      return false;
 	    }
 
+	    if (params.lines) {
+	      return false;
+	    }
+
 	    let collection = this.store.state.messages.collection[params.chatId];
 
 	    if (!collection) {
@@ -583,6 +587,12 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	      return false;
 	    }
 
+	    const currentUserId = this.store.state.application.common.userId;
+
+	    if (currentUserId && params.userInChat[params.chatId] && !params.userInChat[params.chatId].includes(currentUserId)) {
+	      return false;
+	    }
+
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleMessageAdd', params);
 	    const newRecentItem = {
 	      id: params.dialogId,
@@ -605,6 +615,21 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	        id: params.dialogId,
 	        liked: false
 	      });
+	    }
+
+	    const {
+	      senderId
+	    } = params.message;
+	    const usersModel = this.store.state.users;
+
+	    if (usersModel != null && usersModel.botList[senderId] && usersModel.botList[senderId].type === 'human') {
+	      const {
+	        text
+	      } = params.message;
+	      setTimeout(() => {
+	        this.store.dispatch('recent/set', newRecentItem);
+	      }, this.getWaitTimeForHumanBot(text));
+	      return;
 	    }
 
 	    this.store.dispatch('recent/set', newRecentItem);
@@ -665,6 +690,24 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    this.handleReadMessageOpponent(params);
 	  }
 
+	  handleUnreadMessageOpponent(params) {
+	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleUnreadMessageOpponent', params);
+	    const recentItem = this.store.getters['recent/get'](params.dialogId);
+
+	    if (!recentItem) {
+	      return false;
+	    }
+
+	    this.store.dispatch('recent/update', {
+	      id: params.dialogId,
+	      fields: {
+	        message: { ...recentItem.message,
+	          status: im_v2_const.MessageStatus.received
+	        }
+	      }
+	    });
+	  }
+
 	  handleMessageLike(params) {
 	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleMessageLike', params);
 	    const recentItem = this.store.getters['recent/get'](params.dialogId);
@@ -703,6 +746,20 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    }
 
 	    this.store.dispatch('recent/pin', {
+	      id: params.dialogId,
+	      action: params.active
+	    });
+	  }
+
+	  handleChatUnread(params) {
+	    im_v2_lib_logger.Logger.warn('RecentPullHandler: handleChatUnread', params);
+	    const recentItem = this.store.getters['recent/get'](params.dialogId);
+
+	    if (!recentItem) {
+	      return false;
+	    }
+
+	    this.store.dispatch('recent/unread', {
 	      id: params.dialogId,
 	      action: params.active
 	    });
@@ -775,6 +832,19 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	        userId
 	      });
 	    }
+	  }
+
+	  getWaitTimeForHumanBot(text) {
+	    const INITIAL_WAIT = 1000;
+	    const WAIT_PER_WORD = 300;
+	    const WAIT_LIMIT = 5000;
+	    let waitTime = text.split(' ').length * WAIT_PER_WORD + INITIAL_WAIT;
+
+	    if (waitTime > WAIT_LIMIT) {
+	      waitTime = WAIT_LIMIT;
+	    }
+
+	    return waitTime;
 	  }
 
 	}

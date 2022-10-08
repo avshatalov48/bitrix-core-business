@@ -44,7 +44,7 @@
 }
 
 .sender-message-tester-text-bold {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .sender-message-tester-destination-wrap, .sender-message-tester-tags-wrap {
@@ -72,7 +72,7 @@
 	padding: 0 30px 0 13px;
 	height: 30px;
 	border-radius: 1px;
-	font: bold 13px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 13px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	overflow: hidden;
 	vertical-align: middle;
 	z-index: 2;

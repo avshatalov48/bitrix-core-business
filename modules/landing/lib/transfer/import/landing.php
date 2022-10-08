@@ -393,6 +393,10 @@ class Landing
 				\Bitrix\Landing\Block::clearRepositoryCache();
 			}
 			self::saveDataToBlock($blockInstance, $block);
+			if ($blockFields['CONTENT'] ?? null)
+			{
+				$blockInstance->saveContent($blockFields['CONTENT'], $block['designed'] ?? false);
+			}
 			$blockInstance->save();
 			// if block is favorite
 			if (intval($block['meta']['LID'] ?? -1) === 0)
@@ -684,6 +688,19 @@ class Landing
 			$data['ADDITIONAL_FIELDS']['METAOG_DESCRIPTION'] = $additional['description'];
 			$data['ADDITIONAL_FIELDS']['METAMAIN_DESCRIPTION'] = $additional['description'];
 		}
+
+		//default widget value
+		$buttons = \Bitrix\Landing\Hook\Page\B24button::getButtons();
+		$buttonKeys = array_keys($buttons);
+		if (!empty($buttonKeys))
+		{
+			$data['ADDITIONAL_FIELDS']['B24BUTTON_CODE'] = $buttonKeys[0];
+		}
+		else
+		{
+			$data['ADDITIONAL_FIELDS']['B24BUTTON_CODE'] = 'N';
+		}
+		$data['ADDITIONAL_FIELDS']['B24BUTTON_USE'] = 'N';
 
 		return $data;
 	}

@@ -270,11 +270,11 @@ Class blog extends CModule
 
 	function InstallDB($install_wizard = true)
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 
 		if (!$DB->Query("SELECT 'x' FROM b_blog_user_group", true))
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/install/".$DBType."/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/install/mysql/install.sql");
 			COption::SetOptionString("blog", "socNetNewPerms", "Y");
 		}
 
@@ -335,7 +335,7 @@ Class blog extends CModule
 
 	function UnInstallDB($arParams = Array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		{
 			if ($DB->TableExists("b_blog_smile") || $DB->TableExists("B_BLOG_SMILE"))
@@ -344,7 +344,7 @@ Class blog extends CModule
 				$DB->Query("DROP TABLE b_blog_smile");
 				$DB->Query("DROP TABLE b_blog_smile_lang");
 			}
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/install/".$DBType."/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/install/mysql/uninstall.sql");
 
 			if (!empty($errors))
 			{

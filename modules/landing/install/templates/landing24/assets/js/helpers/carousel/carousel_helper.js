@@ -22,8 +22,8 @@
 	{
 		action = action ? action : BX.Landing.SliderHelper.ACTION_INIT;
 
-		var relativeSelector = BX.Landing.SliderHelper.makeCarouselRelativeSelector(event);
-		var sliders = [].slice.call(event.block.querySelectorAll(relativeSelector));
+		const relativeSelector = BX.Landing.SliderHelper.makeCarouselRelativeSelector(event);
+		const sliders = [].slice.call(event.block.querySelectorAll(relativeSelector));
 		sliders.forEach(function (sliderNode)
 		{
 			BX.Landing.SliderHelper.applySettings(sliderNode, event.data);
@@ -51,8 +51,8 @@
 
 	BX.Landing.SliderHelper.destroy = function (event)
 	{
-		var relativeSelector = BX.Landing.SliderHelper.makeCarouselRelativeSelector(event);
-		var sliders = [].slice.call(event.block.querySelectorAll(relativeSelector));
+		const relativeSelector = BX.Landing.SliderHelper.makeCarouselRelativeSelector(event);
+		const sliders = [].slice.call(event.block.querySelectorAll(relativeSelector));
 		sliders.forEach(function (sliderNode)
 		{
 			if (BX.Landing.SliderHelper.isSliderActive(sliderNode))
@@ -72,7 +72,7 @@
 	BX.Landing.SliderHelper.initBase = function (sliderNode)
 	{
 		// some classes conflict with slider markup - remove them
-		var excludeClasses = $(sliderNode).data('init-classes-exclude');
+		const excludeClasses = $(sliderNode).data('init-classes-exclude');
 		if (excludeClasses && BX.type.isArray(excludeClasses))
 		{
 			excludeClasses.forEach(function (excludeClass)
@@ -84,30 +84,13 @@
 			})
 		}
 
-		var config = {accessibility: false};
+		let config = {accessibility: false};
 		// in editor mode infinity scroll will be create cloned slides - we not need them
 		if (BX.Landing.getMode() === 'edit')
 		{
 			config.infinite = false;
 		}
 		$.HSCore.components.HSCarousel.init(sliderNode, config);
-	};
-
-	BX.Landing.SliderHelper.destroy = function (event)
-	{
-		var relativeSelector = BX.Landing.SliderHelper.makeCarouselRelativeSelector(event);
-		var sliders = [].slice.call(event.block.querySelectorAll(relativeSelector));
-		sliders.forEach(function (sliderNode)
-		{
-			if (BX.Landing.SliderHelper.isSliderActive(sliderNode))
-			{
-				// save current slide number
-				sliderNode.slickCurrentSlide = $(sliderNode).slick("slickCurrentSlide");
-				$(sliderNode).slick('unslick');
-			}
-		});
-
-		BX.Landing.SliderHelper.saveSelection(event);
 	};
 
 	/**
@@ -122,12 +105,12 @@
 	BX.Landing.SliderHelper.makeCarouselRelativeSelector = function (event, carouselClass)
 	{
 		carouselClass = carouselClass || BX.Landing.SliderHelper.CAROUSEL_CLASS;
-		var carouselSelectors = [];
+		let carouselSelectors = [];
 
 		if (event.block)
 		{
 			// event may fire on nodes or on card or on selector of deleted card.
-			var eventNodes = [];
+			let eventNodes = [];
 			if (event.card)
 			{
 				//card may be outside of the slider (when undo). Find same cards by selector
@@ -145,7 +128,7 @@
 			// fore each event node find parent and take his selector
 			eventNodes.forEach(function (node)
 			{
-				var currCarousel = BX.findParent(node, {className: carouselClass}),
+				let currCarousel = BX.findParent(node, {className: carouselClass}),
 					currSelector = '';
 				if (currCarousel)
 				{
@@ -187,7 +170,7 @@
 		{
 			nodes = [nodes];
 		}
-		var result = false;
+		let result = false;
 		nodes.forEach(function (node)
 		{
 			if (BX.hasClass(node, BX.Landing.SliderHelper.ACTIVE_CLASS))
@@ -216,14 +199,14 @@
 
 	BX.Landing.SliderHelper.setSelection = function (event)
 	{
-		var savedRange = event.block.savedRange;
+		let savedRange = event.block.savedRange;
 		if (savedRange)
 		{
-			var range = document.createRange();
+			let range = document.createRange();
 			range.setStart(savedRange.sCont, savedRange.sOffset);
 			range.setEnd(savedRange.eCont, savedRange.eOffset);
 
-			var sel = window.getSelection();
+			let sel = window.getSelection();
 			sel.removeAllRanges();
 			sel.addRange(range);
 		}
@@ -358,7 +341,7 @@
 		return !!BX.Landing.SliderHelper.editorEnableFlag;
 	}
 
-	BX.Landing.SliderHelper.applySettings = function(sliderNode, data) {
+	BX.Landing.SliderHelper.applySettings = function(sliderNode) {
 		BX.Landing.SliderHelper.setAutoplay(sliderNode);
 		BX.Landing.SliderHelper.setAutoplaySpeed(sliderNode);
 		BX.Landing.SliderHelper.setPauseOnHover(sliderNode);

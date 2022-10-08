@@ -50,12 +50,6 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	 * @param Payment $payment
 	 * @param Request|null $request
 	 * @return ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	public function initiatePay(Payment $payment, Request $request = null): ServiceResult
 	{
@@ -106,12 +100,6 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	 * @param Payment $payment
 	 * @param array $paymentTokenData
 	 * @return array
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private function getTemplateParams(Payment $payment, array $paymentTokenData): array
 	{
@@ -154,11 +142,6 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	/**
 	 * @param Payment $payment
 	 * @return ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private function createPaymentToken(Payment $payment): ServiceResult
 	{
@@ -214,11 +197,6 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	/**
 	 * @param Payment $payment
 	 * @return ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
 	 */
 	private function getBePaidPayment(Payment $payment): ServiceResult
 	{
@@ -253,11 +231,6 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	 * @param Payment $payment
 	 * @param $refundableSum
 	 * @return ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
 	 */
 	public function refund(Payment $payment, $refundableSum): ServiceResult
 	{
@@ -314,11 +287,6 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	 * @param array $params
 	 * @param array $headers
 	 * @return ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
 	 */
 	private function send(string $method, string $url, array $params = [], array $headers = []): ServiceResult
 	{
@@ -413,11 +381,6 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	 * @param Payment $payment
 	 * @param Request $request
 	 * @return ServiceResult
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
 	 */
 	public function processRequest(Payment $payment, Request $request): ServiceResult
 	{
@@ -480,10 +443,6 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	 * @param Payment $payment
 	 * @param $sum
 	 * @return bool
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectException
 	 */
 	private function isSumCorrect(Payment $payment, $sum): bool
 	{
@@ -543,11 +502,6 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	/**
 	 * @param Payment $payment
 	 * @return mixed
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	private function getPaymentDescription(Payment $payment)
 	{
@@ -725,7 +679,6 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	/**
 	 * @param array $data
 	 * @return mixed
-	 * @throws Main\ArgumentException
 	 */
 	private static function encode(array $data)
 	{

@@ -428,7 +428,7 @@ class CMailYandex2
 		$data .= '--' . $boundary . "--\r\n";
 
 		$http->setHeader('Content-type', 'multipart/form-data; boundary='.$boundary);
-		$http->setHeader('Content-length', CUtil::binStrlen($data));
+		$http->setHeader('Content-length', strlen($data));
 
 		$response = $http->post('https://pddimp.yandex.ru/api2/admin/domain/logo/set', $data);
 		$result   = json_decode($response, true);

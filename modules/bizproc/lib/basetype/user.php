@@ -221,6 +221,7 @@ HTML;
 
 		$renderResult = parent::renderControl($fieldType, $field, $valueString, $allowSelection, $renderMode);
 		$renderResult .= static::renderControlSelector($field, null, false, '', $fieldType);
+
 		return $renderResult;
 	}
 
@@ -261,9 +262,9 @@ HTML;
 		$value = parent::extractValue($fieldType, $field, $request);
 		$result = null;
 
-		if (is_string($value) && $value <> '')
+		if (is_string($value) && $value !== '')
 		{
-			$errors = array();
+			$errors = [];
 			$result = \CBPHelper::usersStringToArray($value, $fieldType->getDocumentType(), $errors);
 			if (sizeof($errors) > 0)
 			{
@@ -367,5 +368,46 @@ HTML;
 		}
 
 		return \Bitrix\UI\EntitySelector\Dialog::getSelectedItems($preselectedItems, $options)->toArray();
+	}
+
+	public static function validateValueSingle($value, FieldType $fieldType)
+	{
+		$value = static::toSingleValue($fieldType, $value);
+
+		$value = trim($value);
+
+		$isUser = (mb_strpos($value, 'user_') !== false);
+		if ($isUser)
+		{
+			return $value;
+		}
+
+		$isGroup = (mb_strpos($value, 'group_') !== false);
+		if ($isGroup)
+		{
+			return $value;
+		}
+
+		$isNumber = preg_match('#^[0-9]+$#', $value);
+		if ($isNumber)
+		{
+			return $value;
+		}
+
+		$isDocumentGroup = Automation\Helper::isDocumentUserGroup($value, $fieldType->getDocumentType());
+		if ($isDocumentGroup)
+		{
+			return $value;
+		}
+
+		return null;
+	}
+
+	public static function validateValueMultiple($value, FieldType $fieldType): array
+	{
+		$value = parent::validateValueMultiple($value, $fieldType);
+		$value = array_filter($value, fn($v) => (!is_null($v)));
+
+		return array_unique($value);
 	}
 }

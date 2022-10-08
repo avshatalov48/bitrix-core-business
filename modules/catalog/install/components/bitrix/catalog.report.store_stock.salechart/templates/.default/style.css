@@ -5,7 +5,7 @@
 
 .catalog-report-store-stock-card-subtitle {
 	/*display: block;*/
-	font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #A8ADB4;
 	opacity: .84;
 }
@@ -138,12 +138,12 @@
 .catalog-report-store-stock-modal-subtitle {
 	display: block;
 	margin: 0 0 2px 0;
-	font: 11px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #A8ADB4;
 	opacity: .84;
 }
 .catalog-report-store-stock-modal-main .catalog-report-store-stock-card-subtitle {
-	font: 11px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 .catalog-report-store-stock-modal-main {}
 .catalog-report-store-stock-modal-content {

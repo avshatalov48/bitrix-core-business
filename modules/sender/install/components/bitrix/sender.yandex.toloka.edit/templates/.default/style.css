@@ -307,7 +307,7 @@ textarea.sender-toloka-input
 }
 
 .sender-toloka-field-box-text-bold {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .sender-toloka-field-box-content {
@@ -374,7 +374,7 @@ textarea.sender-toloka-input
 .sender-toloka-field-box-link {
 	display: inline-block;
 	border-bottom: 1px dashed rgba(0,99,198,.49);
-	font: bold 14px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 14px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2066B0;
 	transition: border-bottom .3s;
 	cursor: pointer;
@@ -516,7 +516,7 @@ textarea.sender-toloka-input
 
 .sender-toloka-field-box-entity-text-bold {
 	display: inline-block;
-	font: bold 14px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 14px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 }
 
@@ -647,7 +647,7 @@ textarea.sender-toloka-input
 .sender-toloka-field-social-name {
 	display: inline-block;
 
-	font: bold 14px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 14px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2066B0;
 	overflow: hidden;
 	white-space: nowrap;
@@ -707,7 +707,8 @@ textarea.sender-toloka-input
 }
 
 .sender-toloka-field-social-list .sender-toloka-field-social-name {
-	font: 700 15px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: 15px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .sender-toloka-field-social-name.sender-toloka-field-social-name-text {
@@ -907,7 +908,7 @@ textarea.sender-toloka-input
 	padding: 0 25px;
 	font-size: 16px;
 	color: #535c69;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .sender-toloka-group-title-reload {
@@ -1000,7 +1001,7 @@ textarea.sender-toloka-input
 	color: #80868e;
 	text-decoration: none;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	position: relative;
 	cursor: pointer;
 }
@@ -1129,7 +1130,7 @@ textarea.sender-toloka-input
 	line-height: 36px;
 	font-size: 15px;
 	color: #000;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 0 30px;
 	position: relative;
 	cursor: pointer;
@@ -1274,7 +1275,7 @@ textarea.sender-toloka-input
 
 .sender-toloka-popup-text {
 	font-size: 16px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 20px;
 	color: #535c69;
 	width: 450px;
@@ -1413,7 +1414,7 @@ textarea.sender-toloka-input
 .sender-toloka-connect-table {
 	display: block;
 	overflow: hidden;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 12px;
 }
 
@@ -1515,7 +1516,7 @@ textarea.sender-toloka-input
 }
 
 .sender-toloka-wrapper-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 0 0 12px 0;
 }
 
@@ -1584,7 +1585,7 @@ textarea.sender-toloka-input
 	line-height: 36px;
 	font-size: 15px;
 	color: #000;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	padding: 0 15px;
 	position: relative;
 	cursor: pointer;
@@ -1616,7 +1617,7 @@ textarea.sender-toloka-input
 	color: #fff;
 	text-decoration: none;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	position: relative;
 	cursor: pointer;
 }
@@ -1639,7 +1640,7 @@ textarea.sender-toloka-input
 	background: #eef2f5;
 	color: #4a74a5;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	position: relative;
 	padding: 0 0 0 40px;
 }
@@ -1791,7 +1792,7 @@ textarea.sender-toloka-input
 }
 
 .sender-toloka-public-link-settings-inner-upload-description-item {
-	font: bold 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font: var(--ui-font-weight-bold) 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #535c69;
 }
 
@@ -1829,7 +1830,7 @@ span.sender-toloka-public-link-inner-copy-button-item {
 	background: #eef2f5;
 	color: #4a74a5;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	position: relative;
 	padding: 0 0 0 40px;
 }

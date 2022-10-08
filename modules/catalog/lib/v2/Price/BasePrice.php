@@ -37,7 +37,7 @@ abstract class BasePrice extends BaseEntity
 
 	public function hasPrice(): bool
 	{
-		return $this->hasField('PRICE');
+		return $this->hasField('PRICE') && is_numeric($this->getField('PRICE'));
 	}
 
 	public function getPrice(): ?float

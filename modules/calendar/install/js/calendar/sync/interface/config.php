@@ -8,7 +8,10 @@ return [
 	'css' => 'dist/syncinterface.bundle.css',
 	'js' => 'dist/syncinterface.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 		'calendar.sync.manager',
+		'calendar.entry',
 		'ui.tilegrid',
 		'ui.forms',
 		'main.core.events',

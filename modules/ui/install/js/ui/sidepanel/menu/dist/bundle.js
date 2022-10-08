@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_core_events,main_core) {
+(function (exports,ui_fonts_opensans,main_popup,main_core_events,main_core) {
 	'use strict';
 
 	var _templateObject;
@@ -103,6 +103,42 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      return item;
+	    }
+	  }, {
+	    key: "get",
+	    value: function get(id) {
+	      return this.list().filter(function (item) {
+	        return item.getId() === id;
+	      })[0];
+	    }
+	  }, {
+	    key: "change",
+	    value: function change(id, options) {
+	      var foundItem = this.list().find(function (item) {
+	        return item.getId() === id;
+	      });
+
+	      if (foundItem) {
+	        foundItem.change(options);
+	        return foundItem;
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "remove",
+	    value: function remove(id) {
+	      var foundItem = this.list().find(function (item) {
+	        return item.getId() === id;
+	      });
+
+	      if (foundItem) {
+	        this.emit('change');
+	        babelHelpers.classPrivateFieldSet(this, _list, this.list().filter(function (otherItem) {
+	          return otherItem !== foundItem;
+	        }));
+	        foundItem.remove();
+	      }
 	    }
 	  }, {
 	    key: "setItems",
@@ -224,9 +260,13 @@ this.BX.UI = this.BX.UI || {};
 
 	var _node$1 = /*#__PURE__*/new WeakMap();
 
+	var _actions = /*#__PURE__*/new WeakMap();
+
 	var _emitChange = /*#__PURE__*/new WeakSet();
 
 	var _handleClick = /*#__PURE__*/new WeakSet();
+
+	var _showActionMenu = /*#__PURE__*/new WeakSet();
 
 	var Item = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Item, _EventEmitter);
@@ -235,7 +275,9 @@ this.BX.UI = this.BX.UI || {};
 	    var _this;
 
 	    babelHelpers.classCallCheck(this, Item);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Item).call(this));
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Item).call(this, options));
+
+	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _showActionMenu);
 
 	    _classPrivateMethodInitSpec$1(babelHelpers.assertThisInitialized(_this), _handleClick);
 
@@ -276,11 +318,16 @@ this.BX.UI = this.BX.UI || {};
 	      value: void 0
 	    });
 
+	    _classPrivateFieldInitSpec$1(babelHelpers.assertThisInitialized(_this), _actions, {
+	      writable: true,
+	      value: void 0
+	    });
+
 	    _this.setEventNamespace('ui:sidepanel:menu:item');
 
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _collection, new Collection());
 
-	    _this.setLabel(options.label).setActive(options.active).setNotice(options.notice).setId(options.id).setItems(options.items).setClickHandler(options.onclick);
+	    _this.setLabel(options.label).setActive(options.active).setNotice(options.notice).setId(options.id).setItems(options.items).setClickHandler(options.onclick).setActions(options.actions);
 
 	    babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _collection).subscribe('sync:active', function () {
 	      return _this.emit('sync:active');
@@ -354,6 +401,13 @@ this.BX.UI = this.BX.UI || {};
 	      return this;
 	    }
 	  }, {
+	    key: "setActions",
+	    value: function setActions() {
+	      var actions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+	      babelHelpers.classPrivateFieldSet(this, _actions, actions);
+	      return this;
+	    }
+	  }, {
 	    key: "setItems",
 	    value: function setItems() {
 	      var items = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
@@ -394,6 +448,48 @@ this.BX.UI = this.BX.UI || {};
 	      return babelHelpers.classPrivateFieldGet(this, _notice);
 	    }
 	  }, {
+	    key: "hasActions",
+	    value: function hasActions() {
+	      return babelHelpers.classPrivateFieldGet(this, _actions).length > 0;
+	    }
+	  }, {
+	    key: "change",
+	    value: function change(options) {
+	      if (!main_core.Type.isUndefined(options.label)) {
+	        this.setLabel(options.label);
+	      }
+
+	      if (!main_core.Type.isUndefined(options.active)) {
+	        this.setActive(options.active);
+	      }
+
+	      if (!main_core.Type.isUndefined(options.notice)) {
+	        this.setNotice(options.notice);
+	      }
+
+	      if (!main_core.Type.isUndefined(options.id)) {
+	        this.setId(options.id);
+	      }
+
+	      if (!main_core.Type.isUndefined(options.items)) {
+	        this.setItems(options.items);
+	      }
+
+	      if (!main_core.Type.isUndefined(options.onclick)) {
+	        this.setClickHandler(options.onclick);
+	      }
+
+	      if (!main_core.Type.isUndefined(options.actions)) {
+	        this.setActions(options.actions);
+	      }
+	    }
+	  }, {
+	    key: "remove",
+	    value: function remove() {
+	      main_core.Dom.remove(babelHelpers.classPrivateFieldGet(this, _node$1));
+	      babelHelpers.classPrivateFieldSet(this, _node$1, null);
+	    }
+	  }, {
 	    key: "render",
 	    value: function render() {
 	      var isEmpty = babelHelpers.classPrivateFieldGet(this, _collection).isEmpty();
@@ -408,10 +504,14 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      var actionText = main_core.Loc.getMessage('UI_SIDEPANEL_MENU_JS_' + (this.isActive() ? 'COLLAPSE' : 'EXPAND'));
-	      babelHelpers.classPrivateFieldSet(this, _node$1, main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<li class=\"ui-sidepanel-menu-item ", "\">\n\t\t\t\t<a\n\t\t\t\t\tclass=\"ui-sidepanel-menu-link\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t<div class=\"ui-sidepanel-menu-link-text\">", "</div>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</a>\n\t\t\t</li>\n\t\t"])), classes.join(' '), _classPrivateMethodGet$1(this, _handleClick, _handleClick2).bind(this), main_core.Tag.safe(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["", ""])), babelHelpers.classPrivateFieldGet(this, _label)), main_core.Tag.safe(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["", ""])), babelHelpers.classPrivateFieldGet(this, _label)), !isEmpty ? "<div class=\"ui-sidepanel-toggle-btn\">".concat(actionText, "</div>") : '', babelHelpers.classPrivateFieldGet(this, _notice) ? '<span class="ui-sidepanel-menu-notice-icon"></span>' : ''));
+	      babelHelpers.classPrivateFieldSet(this, _node$1, main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<li class=\"ui-sidepanel-menu-item ", "\">\n\t\t\t\t<a\n\t\t\t\t\tclass=\"ui-sidepanel-menu-link\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t<div class=\"ui-sidepanel-menu-link-text\">", "</div>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</a>\n\t\t\t</li>\n\t\t"])), classes.join(' '), _classPrivateMethodGet$1(this, _handleClick, _handleClick2).bind(this), main_core.Tag.safe(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["", ""])), babelHelpers.classPrivateFieldGet(this, _label)), main_core.Tag.safe(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["", ""])), babelHelpers.classPrivateFieldGet(this, _label)), !isEmpty ? "<div class=\"ui-sidepanel-toggle-btn\">".concat(actionText, "</div>") : '', babelHelpers.classPrivateFieldGet(this, _notice) ? '<span class="ui-sidepanel-menu-notice-icon"></span>' : '', this.hasActions() ? '<span class="ui-sidepanel-menu-action-icon ui-btn ui-btn-link ui-btn-icon-edit"></span>' : ''));
+
+	      if (this.hasActions()) {
+	        main_core.Event.bind(babelHelpers.classPrivateFieldGet(this, _node$1).querySelector('.ui-sidepanel-menu-action-icon'), 'click', _classPrivateMethodGet$1(this, _showActionMenu, _showActionMenu2).bind(this));
+	      }
 
 	      if (!babelHelpers.classPrivateFieldGet(this, _collection).isEmpty()) {
-	        babelHelpers.classPrivateFieldGet(this, _node$1).appendChild(babelHelpers.classPrivateFieldGet(this, _collection).render());
+	        main_core.Dom.append(babelHelpers.classPrivateFieldGet(this, _collection).render(), babelHelpers.classPrivateFieldGet(this, _node$1));
 	      }
 
 	      return babelHelpers.classPrivateFieldGet(this, _node$1);
@@ -441,6 +541,44 @@ this.BX.UI = this.BX.UI || {};
 	  if (main_core.Type.isFunction(babelHelpers.classPrivateFieldGet(this, _onclick))) {
 	    babelHelpers.classPrivateFieldGet(this, _onclick).apply(this);
 	  }
+	}
+
+	function _showActionMenu2(event) {
+	  var _this2 = this;
+
+	  event.preventDefault();
+	  event.stopPropagation();
+
+	  if (this.actionsMenu) {
+	    this.actionsMenu.getPopupWindow().close();
+	    return;
+	  }
+
+	  var targetIcon = event.currentTarget;
+	  main_core.Dom.addClass(targetIcon, '--hover');
+	  main_core.Dom.addClass(targetIcon.parentNode, '--hover');
+	  this.actionsMenu = new main_popup.Menu({
+	    id: "ui-sidepanel-menu-item-actions-".concat(this.getId()),
+	    bindElement: targetIcon
+	  });
+	  babelHelpers.classPrivateFieldGet(this, _actions).forEach(function (action) {
+	    _this2.actionsMenu.addMenuItem({
+	      text: action.label,
+	      onclick: function onclick(event, menuItem) {
+	        menuItem.getMenuWindow().close();
+	        action.onclick(_this2);
+	      }
+	    });
+	  });
+	  this.actionsMenu.getPopupWindow().subscribe('onClose', function () {
+	    main_core.Dom.removeClass(targetIcon, '--hover');
+	    main_core.Dom.removeClass(targetIcon.parentNode, '--hover');
+
+	    _this2.actionsMenu.destroy();
+
+	    _this2.actionsMenu = null;
+	  });
+	  this.actionsMenu.show();
 	}
 
 	var _templateObject$2;
@@ -501,5 +639,5 @@ this.BX.UI = this.BX.UI || {};
 	exports.Item = Item;
 	exports.Menu = Menu;
 
-}((this.BX.UI.SidePanel = this.BX.UI.SidePanel || {}),BX.Event,BX));
+}((this.BX.UI.SidePanel = this.BX.UI.SidePanel || {}),BX,BX.Main,BX.Event,BX));
 //# sourceMappingURL=bundle.js.map

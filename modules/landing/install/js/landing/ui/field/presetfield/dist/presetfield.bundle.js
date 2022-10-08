@@ -1,38 +1,10 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_field_basefield,main_core,landing_loc) {
+(function (exports,ui_designTokens,landing_ui_field_basefield,main_core,landing_loc) {
 	'use strict';
 
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-preset-link\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span class=\"landing-ui-field-preset-icon landing-ui-field-preset-icon-default\"></span>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-preset-layout\">\n\t\t\t\t\t<div class=\"landing-ui-field-preset-left\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-ui-field-preset-right\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject, _templateObject2, _templateObject3;
 	/**
 	 * @memberOf BX.Landing.UI.Field
 	 */
@@ -68,14 +40,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject(), _this2.getIcon(), _this2.header, _this2.getLink());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-preset-layout\">\n\t\t\t\t\t<div class=\"landing-ui-field-preset-left\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-ui-field-preset-right\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), _this2.getIcon(), _this2.header, _this2.getLink());
 	      });
 	    }
 	  }, {
 	    key: "getIcon",
 	    value: function getIcon() {
 	      return this.cache.remember('icon', function () {
-	        return main_core.Tag.render(_templateObject2());
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<span class=\"landing-ui-field-preset-icon landing-ui-field-preset-icon-default\"></span>"])));
 	      });
 	    }
 	  }, {
@@ -89,7 +61,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('link', function () {
-	        return main_core.Tag.render(_templateObject3(), _this3.onLinkClick, landing_loc.Loc.getMessage('LANDING_PRESET_DEFAULT_CASE_TITLE'));
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-preset-link\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this3.onLinkClick, landing_loc.Loc.getMessage('LANDING_PRESET_DEFAULT_CASE_TITLE'));
 	      });
 	    }
 	  }, {
@@ -109,5 +81,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.PresetField = PresetField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX,BX.Landing));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Landing.UI.Field,BX,BX.Landing));
 //# sourceMappingURL=presetfield.bundle.js.map

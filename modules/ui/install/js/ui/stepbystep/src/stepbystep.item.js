@@ -92,8 +92,7 @@ export default class StepByStepItem extends EventEmitter
 			this.layout.container = Tag.render`
 				<div class="ui-stepbystep__section-item">
 					<div class="ui-stepbystep__section-item--counter">
-						<div class="ui-stepbystep__section-item--counter-number 
-							${this.counterClass} ${this.isFirst} ${this.isLast}">
+						<div class="ui-stepbystep__section-item--counter-number ${this.isFirst} ${this.isLast}">
 							<span>${this.number}</span>
 						</div>
 					</div>

@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import {EventEmitter} from 'main.core.events';
 import {mapState} from 'ui.vue3.vuex';
 
@@ -7,8 +9,8 @@ import {RecentService} from 'im.v2.provider.service';
 import {RecentLoadingState} from 'im.v2.component.elements';
 import {RecentMenu} from 'im.v2.lib.menu';
 
-import {RecentItem} from './component/recent-item';
-import {ActiveCall} from './component/active-call';
+import {RecentItem} from './components/recent-item';
+import {ActiveCall} from './components/active-call';
 
 import {SettingsManager} from './settings-manager';
 import {BroadcastManager} from './broadcast-manager';
@@ -251,9 +253,9 @@ export const RecentList = {
 			const fourHours = 60000*60*4;
 			const day = 60000*60*24;
 			this.birthdayCheckTimeout = setTimeout(() => {
-				this.recentService.loadFirstPage();
+				this.recentService.loadFirstPage({ignorePreloadedItems: true});
 				this.birthdayCheckInterval = setInterval(() => {
-					this.recentService.loadFirstPage();
+					this.recentService.loadFirstPage({ignorePreloadedItems: true});
 				}, day);
 			}, Utils.date.getTimeToNextMidnight() + fourHours);
 		},

@@ -19,7 +19,7 @@ class CGoogleMessage extends CPushMessage
 	{
 		$data = $this->getPayload();
 		$batch = "Content-type: application/json\r\n";
-		$batch .= "Content-length: " . \Bitrix\Main\Text\BinaryString::getLength($data) . "\r\n";
+		$batch .= "Content-length: " . strlen($data) . "\r\n";
 		$batch .= "\r\n";
 		$batch .= $data;
 
@@ -47,7 +47,7 @@ class CGoogleMessage extends CPushMessage
 
 	public function strippedPayload($data): string {
 		$jsonPayload = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
-		$payloadLength = \Bitrix\Main\Text\BinaryString::getLength($jsonPayload);
+		$payloadLength = strlen($jsonPayload);
 		if ($payloadLength > self::DEFAULT_PAYLOAD_MAXIMUM_SIZE)
 		{
 			$text = $this->text;
@@ -57,12 +57,12 @@ class CGoogleMessage extends CPushMessage
 				$useSenderText = true;
 				$text = $this->customProperties["senderMessage"];
 			}
-			$maxTextLength = $nTextLen = \Bitrix\Main\Text\BinaryString::getLength($text) - ($payloadLength - self::DEFAULT_PAYLOAD_MAXIMUM_SIZE);
+			$maxTextLength = $nTextLen = strlen($text) - ($payloadLength - self::DEFAULT_PAYLOAD_MAXIMUM_SIZE);
 			if ($maxTextLength <= 0)
 			{
 				return false;
 			}
-			while (\Bitrix\Main\Text\BinaryString::getLength($text = mb_substr($text, 0, --$nTextLen)) > $maxTextLength) ;
+			while (strlen($text = mb_substr($text, 0, --$nTextLen)) > $maxTextLength) ;
 			if($useSenderText)
 			{
 				$this->setCustomProperty("senderMessage", $text);

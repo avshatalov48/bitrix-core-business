@@ -4,8 +4,6 @@
 import {InterfaceTemplate} from './interfacetemplate';
 import {Dom, Loc, Tag} from "main.core";
 import ConnectionControls from "../controls/connectioncontrols";
-import StatusBlock from "../controls/statusblock";
-
 
 export class CaldavInterfaceTemplate extends InterfaceTemplate
 {
@@ -55,18 +53,7 @@ export class CaldavInterfaceTemplate extends InterfaceTemplate
 		});
 		const formBlock = formObject.getWrapper();
 		const form = formObject.getForm();
-		const button = formObject.getDisconnectButton();
-		const buttonWrapper = formObject.getButtonWrapper();
 		const bodyHeader = this.getContentActiveBodyHeader();
-
-		button.addEventListener('click', (event) => {
-			Dom.addClass(button, ['ui-btn-clock', 'ui-btn-disabled']);
-			event.preventDefault();
-			this.sendRequestRemoveConnection(this.connection.getId());
-		});
-
-		Dom.append(button, buttonWrapper);
-		Dom.append(buttonWrapper, form);
 		Dom.append(form, formBlock);
 
 		return Tag.render`
@@ -75,22 +62,10 @@ export class CaldavInterfaceTemplate extends InterfaceTemplate
 		`;
 	}
 
-	sendRequestEditConnection(form, options)
-	{
-		BX.ajax.runAction('calendar.api.calendarajax.editConnection', {
-			data: {
-				form: new FormData(form),
-				connectionId: options.connectionId,
-			}
-		}).then(() => {
-			BX.reload();
-		});
-	}
-
 	sendRequestAddConnection(form)
 	{
 		const fd = new FormData(form);
-		BX.ajax.runAction('calendar.api.calendarajax.addConnection', {
+		BX.ajax.runAction('calendar.api.syncajax.addConnection', {
 			data: {
 				name: fd.get('name'),
 				server: fd.get('server'),

@@ -6,6 +6,9 @@ import {FieldsChange} from './fieldschange';
 import {Editor} from './editor';
 import {CommentEditor} from './commenteditor';
 
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 /**
  * @memberOf BX.UI
  */

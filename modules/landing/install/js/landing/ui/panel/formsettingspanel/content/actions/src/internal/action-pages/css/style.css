@@ -59,7 +59,7 @@
 
 .landing-ui-field-action-pages-page-header,
 .landing-ui-field-action-pages-page-footer {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 11px;
 	color: #333333;
 	text-align: right;
@@ -87,7 +87,7 @@
 
 .landing-ui-field-action-pages-page-button,
 .landing-ui-field-action-pages-page-text {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 15px;
 	color: #333333;
 	line-height: 19px;
@@ -114,7 +114,7 @@
 }
 
 .landing-ui-field-action-pages-page-title {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	color: #525C69;
 	line-height: 33px;

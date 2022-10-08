@@ -11,6 +11,7 @@ $MESS["VOTE_ERROR_SAME_DATE_VOTE_IS_ALREADY_EXISTS"] = "Даты опроса п
 $MESS["VOTE_ERROR_DATE_VOTE_IS_WRONG"] = "Дата активности опроса некорректна.";
 $MESS["VOTE_ERROR_DATE_VOTE_IS_EMPTY"] = "Дата активности опроса не может быть пустой.";
 $MESS["VOTE_IS_NOT_ACTIVE"] = "Опрос неактивен.";
+$MESS["VOTE_IS_OCCUPIED"] = "Опрос в процессе голосования. Повторите попытку позже. ";
 $MESS["VOTE_ERROR_BY_USER_DATE_REGISTER"] = "Вы зарегистрировались после начала опроса, поэтому не можете принимать в нем участие.";
 $MESS["VOTE_GUEST"] = "Гость";
 $MESS["VOTE_GUESTS"] = "Гостей";

@@ -39,11 +39,13 @@ abstract class BaseForm
 	public const PRICE_FIELD_PREFIX = 'CATALOG_GROUP_';
 	public const CURRENCY_FIELD_PREFIX = 'CATALOG_CURRENCY_';
 	public const MORE_PHOTO = 'MORE_PHOTO';
+	public const NOT_SELECTED_VAT_ID_VALUE = 'D';
 
 	private const USER_TYPE_METHOD = 'GetUIEntityEditorProperty';
 	private const USER_TYPE_GET_VIEW_METHOD = 'GetUIEntityEditorPropertyViewHtml';
 	private const USER_TYPE_GET_EDIT_METHOD = 'GetUIEntityEditorPropertyEditHtml';
 	private const USER_TYPE_FORMAT_VALUE_METHOD = 'getFormattedValue';
+
 
 	protected const CONTROL_NAME_WITH_CODE = 'name-code';
 	protected const CONTROL_IBLOCK_SECTION = 'iblock_section';
@@ -693,9 +695,48 @@ abstract class BaseForm
 		return array_values($config);
 	}
 
+	/**
+	 * @return array
+	 */
+	public function getHiddenFields(): array
+	{
+		$hiddenFields = [];
+
+		if ($this->isQuantityTraceSettingDisabled())
+		{
+			$hiddenFields[] = 'QUANTITY_TRACE';
+		}
+
+		return $hiddenFields;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isQuantityTraceSettingDisabled(): bool
+	{
+		$isQuantityTraceExplicitlyDisabled = $this->entity->getField('QUANTITY_TRACE') === 'N';
+		$isWithOrdersMode = Loader::includeModule('crm') && \CCrmSaleHelper::isWithOrdersMode();
+		$isInventoryManagementUsed = UseStore::isUsed();
+
+		return (!$isWithOrdersMode && !$isInventoryManagementUsed)
+			|| ($isInventoryManagementUsed && !$isQuantityTraceExplicitlyDisabled);
+	}
+
 	protected function collectFieldConfigs(): array
 	{
 		$leftWidth = 30;
+
+		$catalogParameters = [
+			['name' => 'QUANTITY_TRACE'],
+			['name' => 'CAN_BUY_ZERO'],
+			['name' => 'SUBSCRIBE'],
+		];
+
+		if ($this->isQuantityTraceSettingDisabled())
+		{
+			array_shift($catalogParameters);
+		}
 
 		return [
 			'left' => [
@@ -738,11 +779,7 @@ abstract class BaseForm
 						'name' => 'catalog_parameters',
 						'title' => Loc::getMessage('CATALOG_C_F_STORE_SECTION_TITLE'),
 						'type' => 'section',
-						'elements' => [
-							['name' => 'QUANTITY_TRACE'],
-							['name' => 'CAN_BUY_ZERO'],
-							['name' => 'SUBSCRIBE'],
-						],
+						'elements' => $catalogParameters,
 						'data' => [
 							'isRemovable' => false,
 						],
@@ -892,25 +929,27 @@ abstract class BaseForm
 			}
 			elseif ($fieldName === 'VAT_ID')
 			{
+				$defaultVat = $this->getDefaultVat();
+				$description['defaultValue'] = $defaultVat['ID'];
+
 				$vatList[] = [
-					'VALUE' => 'D',
-					'NAME' => Loc::getMessage(
-						'CATALOG_C_F_DEFAULT',
-						['#VALUE#' => Loc::getMessage('CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED')]
-					),
+					'VALUE' => $defaultVat['ID'],
+					'NAME' => $defaultVat['NAME'],
 				];
 
-				$iblockId = $this->entity->getIblockId();
-				$iblockData = \CCatalog::GetByID($iblockId);
+				if ($defaultVat['ID'] !== self::NOT_SELECTED_VAT_ID_VALUE && !Loader::includeModule('bitrix24'))
+				{
+					$vatList[] = [
+						'VALUE' => self::NOT_SELECTED_VAT_ID_VALUE,
+						'NAME' => Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED"),
+					];
+				}
 
 				foreach ($this->getVats() as $vat)
 				{
-					if ($vat['ID'] === $iblockData['VAT_ID'])
+					if ($vat['RATE'] === $defaultVat['RATE'] && $vat['EXCLUDE_VAT'] === $defaultVat['EXCLUDE_VAT'])
 					{
-						$vatList[0]['NAME'] = Loc::getMessage(
-							'CATALOG_C_F_DEFAULT',
-							['#VALUE#' => htmlspecialcharsbx($vat['NAME'])]
-						);
+						continue;
 					}
 
 					$vatList[] = [
@@ -1932,9 +1971,9 @@ abstract class BaseForm
 			}
 		}
 
-		if ($field['originalName'] === 'VAT_ID' && $value === null)
+		if ($field['originalName'] === 'VAT_ID' && $value === null && !$this->entity->isNew())
 		{
-			$value = 'D';
+			$value = self::NOT_SELECTED_VAT_ID_VALUE;
 		}
 
 		if (($field['originalName'] === 'ACTIVE_FROM' || $field['originalName'] === 'ACTIVE_TO')
@@ -2047,12 +2086,45 @@ abstract class BaseForm
 		if ($vats === null)
 		{
 			$vats = \Bitrix\Catalog\VatTable::getList([
-				'select' => ['ID', 'NAME'],
+				'select' => ['ID', 'NAME', 'RATE', 'EXCLUDE_VAT'],
 				'filter' => ['=ACTIVE' => 'Y'],
 			])->fetchAll();
 		}
 
 		return $vats;
+	}
+
+	protected function getDefaultVat(): array
+	{
+		$emptyVat = null;
+		$iblockVatId = $this->entity->getIblockInfo()->getVatId();
+
+		foreach ($this->getVats() as $vat)
+		{
+			if ($vat['EXCLUDE_VAT'] === 'Y')
+			{
+				$emptyVat = $vat;
+			}
+
+			if ((int)$vat['ID'] === $iblockVatId)
+			{
+				$vat['NAME'] = Loc::getMessage(
+					"CATALOG_C_F_DEFAULT",
+					['#VALUE#' => htmlspecialcharsbx($vat['NAME'])]
+				);
+				return $vat;
+			}
+		}
+
+		return [
+			'ID' => self::NOT_SELECTED_VAT_ID_VALUE,
+			'RATE' => null,
+			'EXCLUDE_VAT' => null,
+			'NAME' => Loc::getMessage(
+				"CATALOG_C_F_DEFAULT",
+				['#VALUE#' => Loc::getMessage("CATALOG_PRODUCT_CARD_VARIATION_GRID_NOT_SELECTED")]
+			)
+		];
 	}
 
 	protected function getCustomControlParameters(string $fieldName): array

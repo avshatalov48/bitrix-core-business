@@ -8,7 +8,7 @@
 .catalog-no-access-subtitle {
 	color: #868d96;
 	margin-bottom: 18px;
-	font: 14px/18px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .catalog-no-access {

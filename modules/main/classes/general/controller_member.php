@@ -1574,7 +1574,7 @@ class CControllerTools
 {
 	public static function PackFileArchive($path)
 	{
-		include_once(dirname(__FILE__) . '/tar_gz.php');
+		include_once(__DIR__ . '/tar_gz.php');
 
 		if (file_exists($path))
 		{
@@ -1605,7 +1605,7 @@ class CControllerTools
 
 		if(file_put_contents($arcname, $strfile) !== false)
 		{
-			include_once(dirname(__FILE__) . '/tar_gz.php');
+			include_once(__DIR__ . '/tar_gz.php');
 			$ob = new CArchiver($arcname);
 
 			CheckDirPath($_SERVER['DOCUMENT_ROOT'].$path_to);

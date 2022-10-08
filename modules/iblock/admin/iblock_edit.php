@@ -501,6 +501,8 @@ $arCellAttr = array(4,5,6,9,10);
 $bBizproc = Loader::includeModule('bizproc');
 $bCatalog = Loader::includeModule('catalog');
 
+$canUseYandexMarket = $bCatalog && \Bitrix\Catalog\Config\Feature::isCanUseYandexExport();
+
 $arIBTYPE = CIBlockType::GetByIDLang($type, LANGUAGE_ID);
 
 if($arIBTYPE!==false):
@@ -885,10 +887,13 @@ if(
 				{
 					if (('Y' == $IS_CATALOG) || ('Y' == $SUBSCRIPTION))
 					{
-						if (!isset($YANDEX_EXPORT) || ('Y' != $YANDEX_EXPORT && 'N' != $YANDEX_EXPORT))
+						if ($canUseYandexMarket)
 						{
-							$bVarsFromForm = true;
-							$strWarning .= GetMessage('IB_E_OF_ERR_YANDEX_EXPORT').'<br>';
+							if (!isset($YANDEX_EXPORT) || ('Y' != $YANDEX_EXPORT && 'N' != $YANDEX_EXPORT))
+							{
+								$bVarsFromForm = true;
+								$strWarning .= GetMessage('IB_E_OF_ERR_YANDEX_EXPORT').'<br>';
+							}
 						}
 						if (!isset($VAT_ID))
 						{
@@ -4293,13 +4298,22 @@ if($bTab3):
 			<input type="text" name="RSS_FILE_DAYS"  size="20" maxlength="40" value="<?echo $str_RSS_FILE_DAYS?>">
 		</td>
 	</tr>
-	<tr>
-		<td><label for="RSS_YANDEX_ACTIVE"><?echo GetMessage("IB_E_RSS_YANDEX_ACTIVE")?></label></td>
-		<td>
-			<input type="hidden" name="RSS_YANDEX_ACTIVE" value="N">
-			<input type="checkbox" id="RSS_YANDEX_ACTIVE" name="RSS_YANDEX_ACTIVE" value="Y"<?if($str_RSS_YANDEX_ACTIVE=="Y")echo " checked"?>>
-		</td>
-	</tr>
+
+	<?php
+	if ($canUseYandexMarket)
+	{
+		?>
+		<tr>
+			<td><label for="RSS_YANDEX_ACTIVE"><?echo GetMessage("IB_E_RSS_YANDEX_ACTIVE")?></label></td>
+			<td>
+				<input type="hidden" name="RSS_YANDEX_ACTIVE" value="N">
+				<input type="checkbox" id="RSS_YANDEX_ACTIVE" name="RSS_YANDEX_ACTIVE" value="Y"<?if($str_RSS_YANDEX_ACTIVE=="Y")echo " checked"?>>
+			</td>
+		</tr>
+		<?php
+	}
+	?>
+
 	<tr class="heading">
 		<td colspan="2"><?echo GetMessage("IB_E_RSS_TITLE")?>:</td>
 	</tr>
@@ -4448,13 +4462,22 @@ if ($bCatalog)
 	{
 		?><input type="hidden" id="IS_CONTENT_N" name="SUBSCRIPTION" value="N"><?
 	}
-	?><tr>
-		<td  width="40%"><label for="YANDEX_EXPORT_Y"><?echo GetMessage("IB_E_YANDEX_EXPORT")?></label></td>
-		<td width="60%">
-			<input type="hidden" id="YANDEX_EXPORT_N" name="YANDEX_EXPORT" value="N">
-			<input type="checkbox" id="YANDEX_EXPORT_Y" name="YANDEX_EXPORT" value="Y"<?if('Y' == $str_YANDEX_EXPORT)echo " checked"?> <? if ('Y' != $str_IS_CATALOG) echo 'disabled="disabled"'; ?>>
-		</td>
-	</tr>
+	?>
+
+	<?php
+	if ($canUseYandexMarket)
+	{
+		?>
+		<tr>
+			<td  width="40%"><label for="YANDEX_EXPORT_Y"><?echo GetMessage("IB_E_YANDEX_EXPORT")?></label></td>
+			<td width="60%">
+				<input type="hidden" id="YANDEX_EXPORT_N" name="YANDEX_EXPORT" value="N">
+				<input type="checkbox" id="YANDEX_EXPORT_Y" name="YANDEX_EXPORT" value="Y"<?if('Y' == $str_YANDEX_EXPORT)echo " checked"?> <? if ('Y' != $str_IS_CATALOG) echo 'disabled="disabled"'; ?>>
+			</td>
+		</tr>
+		<?php
+	}
+	?>
 	<tr>
 		<td  width="40%"><label for="VAT_ID"><?echo GetMessage("IB_E_VAT_ID")?></label></td>
 		<td width="60%"><?

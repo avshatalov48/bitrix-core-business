@@ -16,6 +16,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 }
 
 Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 	'popup',
 	'ui',
 	'resize_observer',
@@ -28,7 +30,6 @@ Extension::load([
 	'ui.cnt',
 	'ui.label',
 	'ui.layout-form',
-	'ui.design-tokens',
 ]);
 
 global $APPLICATION;
@@ -135,6 +136,16 @@ if (!$arParams["ALLOW_HORIZONTAL_SCROLL"])
 if ($arParams["ALLOW_ROWS_SORT"])
 {
 	$gridClasses[] = 'main-grid-rows-sort-enable';
+}
+
+if ($arParams["HIDE_TOP_BORDER_RADIUS"])
+{
+	$gridClasses[] = '--hide-top-border-radius';
+}
+
+if ($arParams["HIDE_BOTTOM_BORDER_RADIUS"])
+{
+	$gridClasses[] = '--hide-bottom-border-radius';
 }
 
 $emptyFooter =

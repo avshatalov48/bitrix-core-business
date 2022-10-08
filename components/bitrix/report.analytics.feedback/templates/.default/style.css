@@ -1,7 +1,8 @@
 .report-analytic-feedback-title-container
 {
 	margin-bottom: 25px;
-	font: 24px 'OpenSans-Light',"Helvetica Neue",Arial,Helvetica,sans-serif;
+	font: 24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .report-analytic-feedback-container

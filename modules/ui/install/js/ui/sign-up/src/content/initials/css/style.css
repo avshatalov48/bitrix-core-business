@@ -1,0 +1,34 @@
+.ui-sign-up-initials-form {
+	display: flex;
+	width: 100%;
+	margin-top: 10px;
+}
+
+.ui-sign-up-initials-form-left {
+	flex-grow: 1;
+	margin-right: 13px;
+}
+
+.ui-sign-up-initials-form-left .ui-ctl {
+	width: 100%;
+}
+
+.ui-sign-up-initials-form-right {
+	width: 104px;
+}
+
+.ui-sign-up-initials-form-label {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #828B95;
+	margin-bottom: 6px;
+	padding-left: 1px;
+}
+
+.ui-sign-up-initials-preview {
+	height: 60px;
+	border-radius: 14px;
+	border: 1px dashed #B8BFC9;
+	margin-top: 17px;
+	margin-bottom: 14px;
+}

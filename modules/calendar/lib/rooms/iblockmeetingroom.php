@@ -153,10 +153,10 @@ class IBlockMeetingRoom
 	 *
 	 * @return int
 	 */
-	public static function reserveMeetingRoom(array $params): int
+	public static function reserveMeetingRoom(array $params)
 	{
 		$tst = MakeTimeStamp($params['dateTo']);
-		if (date('H:i', $tst) == '00:00')
+		if (date('H:i', $tst) === '00:00')
 		{
 			$params['dateTo'] = CIBlockFormatProperties::DateFormat(
 				\CCalendar::DFormat(true),
@@ -219,7 +219,7 @@ class IBlockMeetingRoom
 		if ($res->Fetch())
 		{
 			$iBlockElem = new CIBlockElement;
-			$iBlockElem->Delete($params['mrevid']);
+			$iBlockElem::Delete($params['mrevid']);
 		}
 		
 		// Hack: reserve meeting calendar based on old calendar's cache
@@ -313,8 +313,10 @@ class IBlockMeetingRoom
 		];
 		
 		if ($params['mrevid_old'] > 0)
+		{
 			$filter['!=ID'] = $params['mrevid_old'];
-		
+		}
+
 		$dbElements = CIBlockElement::GetList(
 			['DATE_ACTIVE_FROM' => 'ASC'],
 			$filter,
@@ -329,15 +331,15 @@ class IBlockMeetingRoom
 		
 		include_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/intranet.reserve_meeting/init.php');
 		$periodicElements = __IRM_SearchPeriodic($fromDateTime, $toDateTime, $params['RMiblockId'], $params['mrid']);
-		
-		for ($i = 0, $l = count($periodicElements); $i < $l; $i++)
+
+		foreach ($periodicElements as $element)
 		{
-			if (!$params['mrevid_old'] || $periodicElements[$i]['ID'] != $params['mrevid_old'])
+			if (!$params['mrevid_old'] || (int)$element['ID'] !== (int)$params['mrevid_old'])
 			{
 				return 'reserved';
 			}
 		}
-		
+
 		return true;
 	}
 }

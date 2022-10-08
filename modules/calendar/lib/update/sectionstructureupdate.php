@@ -49,12 +49,20 @@ final class SectionStructureUpdate extends Stepper
 			if ($entry = $r->Fetch())
 			{
 				$newStatus['lastEventId'] = $entry['ID'];
-				$DB->Query('UPDATE b_calendar_event CE
-					INNER JOIN b_calendar_event_sect CES ON CE.ID = CES.EVENT_ID
-					SET CE.SECTION_ID = CES.SECT_ID
-					WHERE CE.SECTION_ID is null and CE.ID < '.(intval($entry['ID']) + $BATCH_SIZE),
-					false,
-					"File: ".__FILE__."<br>Line: ".__LINE__);
+				if ((int)$status['lastEventId'] === (int)$newStatus['lastEventId'])
+				{
+					return self::FINISH_EXECUTION;
+				}
+				else
+				{
+					$DB->Query('UPDATE b_calendar_event CE
+						INNER JOIN b_calendar_event_sect CES ON CE.ID = CES.EVENT_ID
+						SET CE.SECTION_ID = CES.SECT_ID
+						WHERE CE.SECTION_ID is null and CE.ID < '.(intval($entry['ID']) + $BATCH_SIZE),
+						false,
+						"File: ".__FILE__."<br>Line: ".__LINE__
+					);
+				}
 
 				$newStatus['steps'] = $newStatus['count'] - self::getTotalCount();
 

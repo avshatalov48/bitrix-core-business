@@ -9,6 +9,8 @@
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');
 $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.blog.blog/templates/.default/style.css');
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+
 if($arResult["FATAL_ERROR_MESSAGE"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FATAL_ERROR_MESSAGE"]?></span><br /><br /><?

@@ -8,6 +8,7 @@ use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
 use Bitrix\Bizproc\Automation\Target\BaseTarget;
 use Bitrix\Main\InvalidOperationException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Bizproc\Runtime\Starter\Context;
 
 Loc::loadMessages(__FILE__);
 
@@ -205,12 +206,22 @@ class Runtime
 	 * @return void
 	 * @throws InvalidOperationException
 	 */
-	public function onDocumentAdd()
+	public function onDocumentAdd(?Context $context = null)
 	{
 		$preGeneratedWorkflowId = \CBPRuntime::generateWorkflowId();
-		if ($this->isDebug())
+		$isManualAdd = $context && $context->isManualOperation();
+
+		if (!$isManualAdd && $this->isDebug(true))
 		{
 			$debugSession = Bizproc\Debugger\Session\Manager::getActiveSession();
+
+			if ($debugSession->isBeforeDebuggerStartState())
+			{
+				$debugSession->addDocument($this->getTarget()->getDocumentId());
+
+				return;
+			}
+
 			$debugSession->addWorkflowContext($preGeneratedWorkflowId, []);
 
 			$status = $this->getTarget()->getDocumentStatus();
@@ -234,6 +245,12 @@ class Runtime
 		if ($this->isDebug())
 		{
 			$debugSession = Bizproc\Debugger\Session\Manager::getActiveSession();
+
+			if ($debugSession->isBeforeDebuggerStartState())
+			{
+				return;
+			}
+
 			$debugSession->addWorkflowContext($preGeneratedWorkflowId, []);
 
 			$status = $this->getTarget()->getDocumentStatus();
@@ -264,12 +281,29 @@ class Runtime
 		return null;
 	}
 
-	protected function isDebug()
+	protected function isDebug(bool $isOnDocumentAdd = false): bool
 	{
 		$debugSession = Bizproc\Debugger\Session\Manager::getActiveSession();
-		$documentId = $this->getTarget()->getComplexDocumentId();
+		if (!$debugSession)
+		{
+			return false;
+		}
 
-		return $debugSession && $debugSession->isFixedDocument($documentId);
+		$documentType = $this->getTarget()->getDocumentType();
+		if (!$debugSession->isStartedInDocumentType($documentType))
+		{
+			return false;
+		}
+
+		$documentId = $this->getTarget()->getComplexDocumentId();
+		if (!$isOnDocumentAdd || $debugSession->isExperimentalMode() || $debugSession->isFixed())
+		{
+			return $debugSession->isSessionDocument($documentId);
+		}
+
+		$documentCategoryId = $this->getTarget()->getDocumentCategory();
+
+		return $documentCategoryId === $debugSession->getDocumentCategoryId();
 	}
 
 	protected function onDocumentStatusChangedDebug(?string $workflowId, string $status)
@@ -303,6 +337,12 @@ class Runtime
 	{
 		if ($this->isDebug() && $changes)
 		{
+			$debugSession = Bizproc\Debugger\Session\Manager::getActiveSession();
+			if ($debugSession->isBeforeDebuggerStartState())
+			{
+				return;
+			}
+
 			$target = $this->getTarget();
 
 			if ($target->getDocumentCategoryCode() && in_array($target->getDocumentCategoryCode(), $changes))

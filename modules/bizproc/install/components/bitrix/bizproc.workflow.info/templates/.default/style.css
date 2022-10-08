@@ -162,13 +162,14 @@
 }
 
 .bp-tabs-block {
-	border-bottom: 1px solid #c6cdd3;
 	min-height: 42px;
 }
 
 .bp-tab {
 	background-color: #eef2f4;
-	border-radius: 2px 2px 0 0;
+	border-radius: var(--ui-border-radius-xs, 2px);
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
 	color: #535c69;
 	cursor: pointer;
 	display: inline-block;
@@ -203,7 +204,8 @@
 	padding: 15px;
 	display: none;
 	border: 1px solid #c6cdd3;
-	border-top: none;
+	border-radius: var(--ui-border-radius-sm, 2px);
+	border-top-left-radius: 0;
 }
 .bp-tab-content.active {
 	display: block;

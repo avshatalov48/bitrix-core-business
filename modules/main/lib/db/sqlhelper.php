@@ -69,7 +69,7 @@ abstract class SqlHelper
 			$quotedIdentifier = str_replace([$this->getLeftQuote(), $this->getRightQuote()], '', $identifier);
 
 			// shield [[database.]tablename.]columnname
-			if (mb_strpos($quotedIdentifier, '.') !== false)
+			if (strpos($quotedIdentifier, '.') !== false)
 			{
 				$quotedIdentifier = str_replace('.', $this->getRightQuote() . '.' . $this->getLeftQuote(), $quotedIdentifier);
 			}
@@ -688,5 +688,16 @@ abstract class SqlHelper
 	public function getDescendingOrder()
 	{
 		return 'DESC';
+	}
+
+	/**
+	 * @param string $field
+	 * @param string $value
+	 * @return string
+	 */
+	public function getConditionalAssignment(string $field, string $value): string
+	{
+		// should be overridden
+		return $this->convertToDbString($value);
 	}
 }

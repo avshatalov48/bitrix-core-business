@@ -18,6 +18,7 @@ use Bitrix\Main\Web\Json;
 use Bitrix\UI\Util;
 
 Extension::load([
+	'ui.design-tokens',
 	'ui.common',
 	'ui.notification',
 	'ui.dialogs.messagebox',

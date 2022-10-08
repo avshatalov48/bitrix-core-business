@@ -1,5 +1,4 @@
 import {Loc, Tag, Text, Type, Dom} from 'main.core';
-import {TrackingType} from "./types";
 import {DelayInterval, DelayIntervalSelector, TrackingEntry} from "bizproc.automation";
 import AutomationLogView from "../views/automation-log";
 import {Helper} from "../helper";
@@ -77,7 +76,7 @@ export default class RobotLog
 
 	renderTrack(track: TrackingEntry): void
 	{
-		const excludedTypes = [TrackingType.ExecuteActivity, TrackingType.AttachedEntity];
+		const excludedTypes = [TrackingEntry.EXECUTE_ACTIVITY_TYPE, TrackingEntry.ATTACHED_ENTITY_TYPE];
 		if (excludedTypes.includes(track.type))
 		{
 			return;
@@ -189,7 +188,7 @@ export default class RobotLog
 	{
 		this.#isPauseRendered = true;
 
-		const excludedTypes = [TrackingType.CloseActivity];
+		const excludedTypes = [TrackingEntry.CLOSE_ACTIVITY_TYPE];
 
 		// ignore
 		if (excludedTypes.includes(track.type))
@@ -198,7 +197,7 @@ export default class RobotLog
 		}
 
 		// delay Interval
-		if (track.type === TrackingType.DebugAutomation)
+		if (track.type === TrackingEntry.DEBUG_AUTOMATION_TYPE)
 		{
 			const node = this.#getCurrentRobotNode(track);
 			const note = JSON.parse(track.note);
@@ -255,7 +254,7 @@ export default class RobotLog
 	// region Condition
 	#renderCondition(track: TrackingEntry): void
 	{
-		const excludedTypes = [TrackingType.CloseActivity];
+		const excludedTypes = [TrackingEntry.CLOSE_ACTIVITY_TYPE];
 
 		// ignore
 		if (excludedTypes.includes(track.type))
@@ -263,7 +262,7 @@ export default class RobotLog
 			return;
 		}
 
-		if (track.type === TrackingType.DebugAutomation)
+		if (track.type === TrackingEntry.DEBUG_AUTOMATION_TYPE)
 		{
 			const node = this.#getCurrentRobotNode(track);
 
@@ -354,7 +353,7 @@ export default class RobotLog
 	// region Activity
 	#renderActivity(track: TrackingEntry): void
 	{
-		if (track.type === TrackingType.CloseActivity)
+		if (track.type === TrackingEntry.CLOSE_ACTIVITY_TYPE)
 		{
 			if (this.#isActivityBodyRendered === false)
 			{
@@ -393,18 +392,18 @@ export default class RobotLog
 
 	#renderNote(track: TrackingEntry): HTMLDivElement
 	{
-		if ([TrackingType.DebugAutomation, TrackingType.Debug].includes(track.type))
+		if ([TrackingEntry.DEBUG_AUTOMATION_TYPE, TrackingEntry.DEBUG_ACTIVITY_TYPE].includes(track.type))
 		{
 			return this.#renderDebugNote(track);
 		}
 
-		if ([TrackingType.DebugLink].includes(track.type))
+		if ([TrackingEntry.DEBUG_LINK_TYPE].includes(track.type))
 		{
 			return this.#renderDebugLink(track);
 		}
 
 		const colorBox =
-			[TrackingType.CancelActivity, TrackingType.FaultActivity, TrackingType.Error].includes(track.type)
+			[TrackingEntry.CANCEL_ACTIVITY_TYPE, TrackingEntry.FAULT_ACTIVITY_TYPE, TrackingEntry.ERROR_ACTIVITY_TYPE].includes(track.type)
 				? 'bizproc-debugger-automation__log-color-box --red'
 				: ''
 		;

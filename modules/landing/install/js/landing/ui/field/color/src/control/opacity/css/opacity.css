@@ -96,7 +96,7 @@
 }
 
 .landing-ui-field-color-opacity-range-output-input {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 15px;
 	text-align: center;
 	color: #000000;

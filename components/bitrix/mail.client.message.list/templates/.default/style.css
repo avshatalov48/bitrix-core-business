@@ -173,7 +173,8 @@
 
 .mail-badge-item {
 	display: inline-block;
-	font: 12px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	transition: color .3s;
 	color: #525c69;
 }
@@ -187,7 +188,8 @@
 	display: flex;
 	align-items: center;
 	padding: 0 1px 0 13px;
-	font: 14px/19px 'OpenSans-Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font: 14px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	text-transform: initial;
 	justify-content: space-between;
 	max-width: 240px;
@@ -266,7 +268,8 @@
 	display: flex;
 	margin: 0;
 	max-width: 100%;
-	font: 21px 'OpenSans-SemiBold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 21px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -295,7 +298,8 @@
 	margin: 7px 0 7px 10px;
 	padding: 10px 11px;
 	background-color: #fff8d5;
-	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	border-radius: var(--ui-border-radius-md);
 }
 
 .mail-home-error-box .error-box-hint {
@@ -337,6 +341,7 @@
 .mail-msg-list-grid {
 	min-width: 800px;
 	position: relative;
+	min-height: 100%;
 }
 
 .main-grid-cell-head.mail-msg-list-subject-cell-head {
@@ -406,13 +411,13 @@
 }
 
 .mail-msg-list-cell-unseen {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-semi-bold);
 }
 
 .mail-msg-list-subject {
 	max-width: 100%;
 	font-size: 14px;
-	color: #000;
+	color: #333;
 	text-overflow: ellipsis;
 	overflow: hidden;
 }
@@ -422,11 +427,16 @@
 }
 
 .mail-msg-from-title {
-	color: #000;
+	color: #333;
+	font-size: 14px;
 	margin-left: 4px;
 	max-width: 100%;
 	text-overflow: ellipsis;
 	overflow: hidden;
+}
+
+.mail-msg-list-cell-unseen .mail-msg-list-subject {
+	color: var(--ui-color-link-primary-base);
 }
 
 .mail-bindings-field-popup-wrapper {
@@ -578,13 +588,14 @@
 	bottom: 0;
 	left: 0;
 	right: 0;
-	min-height: 711px;
+	min-height: 400px;
 	background: #fbfcfc;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	z-index: 99;
 	transition: opacity .2s linear;
+	border-radius: var(--ui-border-radius-md);
 }
 
 .mail-msg-list-grid-loader--hide {
@@ -610,7 +621,8 @@
 
 .main-grid-cell-content a.ui-btn {
 	--ui-btn-size-xs: 22px;
-	font: 12px 'OpenSans-SemiBold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	border-color: transparent;
 }
 

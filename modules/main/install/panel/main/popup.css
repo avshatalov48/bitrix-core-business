@@ -12,7 +12,7 @@
 	vertical-align:baseline;
 	text-decoration: none;
 	color:#000;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	line-height: normal;
 	font-weight: normal;
 	font-variant: normal;
@@ -26,7 +26,7 @@
 	background-color: #fff;
 	-webkit-box-shadow: 0 18px 37px 6px rgba(16,39,53,.69);
 	box-shadow: 0 18px 37px 6px rgba(16,39,53,.69);
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size:13px;
 	position: absolute;
 	overflow: hidden;
@@ -42,7 +42,7 @@
 .bx-core-adm-dialog textarea {font-size:13px;}
 .bx-core-adm-dialog table {font-size:13px;}
 .bx-core-adm-dialog td {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	letter-spacing:normal;
 	list-style:none;
 	text-align: left;
@@ -52,7 +52,6 @@
 	visibility:visible;
 	white-space: normal;
 	word-spacing:normal;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 	line-height: normal;
 	font-weight: normal;
 	font-variant: normal;
@@ -145,7 +144,7 @@
 	border: none !important;
 	color: #1C53A2 !important;
 	font-size: 13px !important;
-	font-weight: bold !important;
+	font-weight: var(--ui-font-weight-bold) !important;
 	margin: 0 7px 0 0 !important;
 	padding: 10px 25px 10px !important;
 	text-shadow: 0 1px #FFFFFF !important;
@@ -194,7 +193,7 @@
 	visibility:visible;
 	white-space: normal;
 	word-spacing:normal;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	line-height: normal;
 	font-weight: normal;
 	font-variant: normal;
@@ -212,7 +211,7 @@
 	visibility:visible;
 	white-space: normal;
 	word-spacing:normal;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	line-height: normal;
 	font-weight: normal;
 	font-variant: normal;
@@ -257,7 +256,7 @@
 .bx-core-adm-dialog .bx-core-adm-dialog-head-block p {margin: 0;}
 
 .bx-core-adm-dialog .bx-core-adm-dialog-head-block .title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 	margin: 0 0 5px;
 }
@@ -365,7 +364,7 @@
 	white-space: normal;
 	word-spacing:normal;
 	vertical-align:baseline;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	line-height: normal;
 	font-weight: normal;
 	font-variant: normal;
@@ -477,9 +476,9 @@
 	height: 28px;
 	line-height: 26px;
 
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-shadow: 0 1px rgba(0, 0, 0, 0.5);
 	white-space: nowrap;
 	overflow: hidden;
@@ -698,7 +697,7 @@
 	background-color:#E0E8EA !important;
 	color: #4B6267;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bx-core-adm-dialog .section > td {

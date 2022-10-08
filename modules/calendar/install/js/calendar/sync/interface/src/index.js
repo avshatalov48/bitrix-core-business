@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
 import "./css/syncinterface.css";
 import SyncPanel from "./syncpanel";
 import SyncPanelUnit from "./syncpanelunit";
@@ -17,6 +19,8 @@ import AndroidTemplate from "./itemstemplate/androidtemplate";
 import IphoneTemplate from "./itemstemplate/iphonetemplate";
 import IcalSyncPopup from "./controls/icalsyncpopup";
 import AfterSyncTour from "./controls/aftersynctour";
+import GoogleSyncWizard from "./syncwizard/googlesyncwizard";
+import IcloudAuthDialog from "./controls/icloudauthdialog";
 
 export {
 	SyncPanel,
@@ -36,5 +40,7 @@ export {
 	AndroidTemplate,
 	IcalSyncPopup,
 	AfterSyncTour,
-	Office365template
+	GoogleSyncWizard,
+	Office365template,
+	IcloudAuthDialog
 };

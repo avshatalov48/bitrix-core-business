@@ -2,7 +2,7 @@
     padding: 15px 15px 20px;
     background-color: rgb(255, 255, 255);
     color: rgb(131, 133, 134);
-    font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .social-group-copy-name {
@@ -14,7 +14,8 @@
 .social-group-copy-name-title {
 	color: #333;
     overflow: hidden;
-	font: 19px/32px OpenSans-Regular, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 19px/32px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	height: 32px;
 }
 .social-group-copy-name-title input {
@@ -23,7 +24,8 @@
     height: 32px;
     outline: none;
 	color: #333;
-    font: 19px/32px OpenSans-Regular, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 19px/32px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 .social-group-copy-name-title .ui-ctl-element {
 	padding: 0;
@@ -60,7 +62,7 @@
 
 .social-group-copy-description-area {
 	padding: 14px 0;
-	font: 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 }
 
@@ -70,7 +72,7 @@
 	padding: 0;
 	outline: none;
 	border: none;
-	font: 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
     resize: none;
 }
@@ -79,7 +81,7 @@
     border: none;
     outline: none;
 	color: #333;
-	font: 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 div.social-group-copy-description {
@@ -114,7 +116,7 @@ div.social-group-copy-description {
 .social-group-copy-fields-item-name {
     padding-right: 10px;
     color: rgb(93, 101, 117);
-    font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 .social-group-copy-ui-ctl-element {
 	width: 100%;
@@ -134,7 +136,7 @@ div.social-group-copy-description {
 .social-group-copy-link-upload .webform-small-button.webform-button-replace {
     height: 16px;
     background: transparent;
-    font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     color: #525C69;
     white-space: nowrap;
     transition: border-bottom .3s ease;
@@ -261,7 +263,7 @@ div.social-group-copy-description {
     float: left;
     padding-left: 26px;
     color: rgb(94, 102, 117);
-    font-weight: bold;
+    font-weight: var(--ui-font-weight-bold);
     cursor: pointer;
     overflow: hidden;
 }
@@ -349,7 +351,7 @@ div.social-group-copy-description {
 .social-group-copy-options-item-name {
 	display: block;
 	margin-right: 15px;
-    font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: #525c69;
 	line-height: 26px;

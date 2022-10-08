@@ -94,7 +94,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          bindElement: _this4.getButton(),
 	          targetContainer: _this4.getLayout(),
 	          autoHide: true,
+	          maxHeight: 250,
 	          items: _this4.options.variables.map(function (variable) {
+	            if (variable.delimiter) {
+	              return {
+	                delimiter: true
+	              };
+	            }
+
 	            return {
 	              text: variable.name,
 	              onclick: function onclick() {

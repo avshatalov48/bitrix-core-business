@@ -10,6 +10,22 @@ use Bitrix\Main,
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class CatalogViewedProductTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_CatalogViewedProduct_Query query()
+ * @method static EO_CatalogViewedProduct_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_CatalogViewedProduct_Result getById($id)
+ * @method static EO_CatalogViewedProduct_Result getList(array $parameters = [])
+ * @method static EO_CatalogViewedProduct_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_CatalogViewedProduct createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_CatalogViewedProduct_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_CatalogViewedProduct wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_CatalogViewedProduct_Collection wakeUpCollection($rows)
+ */
 class CatalogViewedProductTable extends Main\Entity\DataManager
 {
 	/**

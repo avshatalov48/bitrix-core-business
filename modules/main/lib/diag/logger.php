@@ -33,21 +33,24 @@ abstract class Logger extends Log\AbstractLogger
 	/** @var LogFormatterInterface */
 	protected $formatter;
 
-	protected function interpolate($message, array $context = [])
+	protected array $context;
+	protected string $message;
+
+	protected function interpolate()
 	{
-		if (!isset($context['date']))
+		if (!isset($this->context['date']))
 		{
-			$context['date'] = new Type\DateTime();
+			$this->context['date'] = new Type\DateTime();
 		}
 
-		if (!isset($context['host']))
+		if (!isset($this->context['host']))
 		{
-			$context['host'] = $_SERVER['HTTP_HOST'];
+			$this->context['host'] = $_SERVER['HTTP_HOST'];
 		}
 
 		$formatter = $this->getFormatter();
 
-		return $formatter->format($message, $context);
+		return $formatter->format($this->message, $this->context);
 	}
 
 	/**
@@ -71,8 +74,11 @@ abstract class Logger extends Log\AbstractLogger
 			return;
 		}
 
+		$this->context = $context;
+		$this->message = $message;
+
 		// The message MAY contain placeholders which implementors MAY replace with values from the context array.
-		$message = $this->interpolate($message, $context);
+		$message = $this->interpolate();
 
 		if ($message != '')
 		{

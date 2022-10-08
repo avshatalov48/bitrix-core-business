@@ -1334,7 +1334,7 @@
 					if (act === "DELETE")
 					{
 						BX.hide(container);
-						this.comments.delete(id[1]);
+						this.comments.delete(id.toString());
 						BX.onCustomEvent(window, "OnUCommentWasDeleted", [this.ENTITY_XML_ID, [this.ENTITY_XML_ID, id], data]);
 					}
 					else if (act !== "EDIT" && !!data["message"])

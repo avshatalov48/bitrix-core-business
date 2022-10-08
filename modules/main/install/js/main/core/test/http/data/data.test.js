@@ -11,9 +11,6 @@ describe('core/http/data', () => {
 			const file = new File(['foo'], 'foo.txt', {
 				type: 'text/plain',
 			});
-			const blob = new Blob(['foo'], {
-				type: 'text/plain',
-			});
 
 			const source = {
 				prop1: {
@@ -25,7 +22,6 @@ describe('core/http/data', () => {
 					key3: [1, 2, 3],
 					key4: now,
 					key5: file,
-					key6: blob,
 				},
 				prop2: [
 					1,
@@ -40,11 +36,9 @@ describe('core/http/data', () => {
 				],
 				prop3: now,
 				prop4: file,
-				prop5: blob,
 				prop6: [
 					now,
 					file,
-					blob,
 				]
 			};
 
@@ -57,7 +51,6 @@ describe('core/http/data', () => {
 				['prop1[key3][2]', '3'],
 				['prop1[key4]', now.toISOString()],
 				['prop1[key5]', file],
-				['prop1[key6]', blob],
 				['prop2[0]', '1'],
 				['prop2[1][key1]', 'key1Value'],
 				['prop2[1][key2]', 'key2Value'],
@@ -65,10 +58,8 @@ describe('core/http/data', () => {
 				['prop2[2][1]', '2'],
 				['prop3', now.toISOString()],
 				['prop4', file],
-				['prop5', blob],
 				['prop6[0]', now.toISOString()],
 				['prop6[1]', file],
-				['prop6[2]', blob],
 			];
 
 			const fd = Http.Data.convertObjectToFormData(source);

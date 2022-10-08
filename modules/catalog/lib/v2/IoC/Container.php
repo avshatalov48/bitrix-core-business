@@ -68,11 +68,17 @@ final class Container implements ContainerContract
 		if ($this->isLocked())
 		{
 			throw new NotSupportedException(
-				"Dependency {{$dependency}} cannot be injected after resolving container dependencies. Try this before resolving."
+				"Dependency {{$dependency}} cannot be injected after resolving container dependencies.
+				 Try this before resolving."
 			);
 		}
 
 		$this->dependencies[$id] = $dependency;
+
+		if (!isset($this->dependencies[$dependency]) && class_exists($dependency))
+		{
+			$this->dependencies[$dependency] = $dependency;
+		}
 
 		unset($this->entities[$id]);
 

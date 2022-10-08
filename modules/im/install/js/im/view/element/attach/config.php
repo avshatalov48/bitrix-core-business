@@ -13,6 +13,7 @@ return [
 	],
 	'rel' => [
 		'main.polyfill.core',
+		'ui.design-tokens',
 		'ui.icons.disk',
 		'ui.vue.directives.lazyload',
 		'im.model',

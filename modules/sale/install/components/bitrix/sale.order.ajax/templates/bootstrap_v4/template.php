@@ -278,6 +278,7 @@ switch (LANGUAGE_ID)
 		$locale = 'en-US'; break;
 }
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 $this->addExternalJs($templateFolder.'/order_ajax.js');
 \Bitrix\Sale\PropertyValueCollection::initJs();
 $this->addExternalJs($templateFolder.'/script.js');

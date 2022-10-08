@@ -5,8 +5,7 @@ class Version
 {
 	private const VERSIONS = [
 		0 => null,
-		// todo: This is for podborki, now is no need
-		// 1 => \Bitrix\Landing\Site\Update\ChatSales::class,
+		1 => \Bitrix\Landing\Site\Update\ChatSales::class,
 	];
 
 	protected static $process = false;
@@ -19,9 +18,6 @@ class Version
 	 */
 	public static function update(int $siteId, ?int $version = 0): void
 	{
-		// todo: This is for podborki, now is no need
-		return;
-
 		if (self::$process)
 		{
 			return;

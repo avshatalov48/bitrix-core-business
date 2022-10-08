@@ -23,7 +23,20 @@ use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_StoreDocumentBarcode_Query query()
+ * @method static EO_StoreDocumentBarcode_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_StoreDocumentBarcode_Result getById($id)
+ * @method static EO_StoreDocumentBarcode_Result getList(array $parameters = [])
+ * @method static EO_StoreDocumentBarcode_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_StoreDocumentBarcode createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_StoreDocumentBarcode_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_StoreDocumentBarcode wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_StoreDocumentBarcode_Collection wakeUpCollection($rows)
+ */
 
 class StoreDocumentBarcodeTable extends DataManager
 {

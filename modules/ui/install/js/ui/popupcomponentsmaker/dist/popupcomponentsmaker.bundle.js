@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core_events,main_loader,main_core,main_popup) {
+(function (exports,main_popup,main_core_events,main_core,main_loader) {
 	'use strict';
 
 	var _templateObject;
@@ -95,7 +95,7 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.layout.container) {
-	        this.layout.container = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-qr-popupcomponentmaker__content--section-item\">", "</div>\n\t\t\t"])), this.getContent());
+	        this.layout.container = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-popupcomponentmaker__content--section-item\">", "</div>\n\t\t\t"])), this.getContent());
 
 	        if (this.backgroundColor) {
 	          this.layout.container.style.backgroundColor = this.backgroundColor;
@@ -130,18 +130,22 @@ this.BX = this.BX || {};
 
 	var _templateObject$1, _templateObject2, _templateObject3;
 	var PopupComponentsMaker = /*#__PURE__*/function () {
-	  function PopupComponentsMaker() {
-	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	  function PopupComponentsMaker(_ref) {
+	    var id = _ref.id,
+	        target = _ref.target,
+	        content = _ref.content,
+	        width = _ref.width,
+	        cacheable = _ref.cacheable;
 	    babelHelpers.classCallCheck(this, PopupComponentsMaker);
-	    this.id = main_core.Type.isString(options.id) ? options.id : null;
-	    this.target = main_core.Type.isElementNode(options.target) ? options.target : null;
-	    this.content = options.content || null;
+	    this.id = main_core.Type.isString(id) ? id : null;
+	    this.target = main_core.Type.isElementNode(target) ? target : null;
+	    this.content = content || null;
 	    this.contentWrapper = null;
 	    this.popup = null;
 	    this.loader = null;
 	    this.items = [];
-	    this.width = main_core.Type.isNumber(options.width) ? options.width : null;
-	    this.cacheable = main_core.Type.isBoolean(options.cacheable) ? options.cacheable : true;
+	    this.width = main_core.Type.isNumber(width) ? width : null;
+	    this.cacheable = main_core.Type.isBoolean(cacheable) ? cacheable : true;
 	  }
 
 	  babelHelpers.createClass(PopupComponentsMaker, [{
@@ -171,8 +175,7 @@ this.BX = this.BX || {};
 	        var popupWidth = this.width ? this.width : 350;
 	        var popupId = this.id ? this.id + '-popup' : null;
 	        this.popup = new main_popup.Popup(popupId, this.target, {
-	          className: 'ui-qr-popupcomponentmaker',
-	          // background: 'transparent',
+	          className: 'ui-popupcomponentmaker',
 	          contentBackground: 'transparent',
 	          angle: {
 	            offset: popupWidth / 2 - 16
@@ -206,7 +209,7 @@ this.BX = this.BX || {};
 	      var _this = this;
 
 	      if (!this.contentWrapper) {
-	        this.contentWrapper = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-qr-popupcomponentmaker__content\"></div>\n\t\t\t"])));
+	        this.contentWrapper = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-popupcomponentmaker__content\"></div>\n\t\t\t"])));
 
 	        if (!this.content) {
 	          return;
@@ -228,7 +231,7 @@ this.BX = this.BX || {};
 	          }
 
 	          if (main_core.Type.isArray(item === null || item === void 0 ? void 0 : item.html)) {
-	            var innerSection = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<div class=\"ui-qr-popupcomponentmaker__content--section-item --flex-column --transparent\"></div>\n\t\t\t\t\t"])));
+	            var innerSection = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<div class=\"ui-popupcomponentmaker__content--section-item --flex-column --transparent\"></div>\n\t\t\t\t\t"])));
 	            item.html.map(function (itemObj) {
 	              var _itemObj$html;
 
@@ -286,7 +289,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getSection",
 	    value: function getSection() {
-	      return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-qr-popupcomponentmaker__content--section\"></div>\n\t\t"])));
+	      return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-popupcomponentmaker__content--section\"></div>\n\t\t"])));
 	    }
 	  }, {
 	    key: "show",
@@ -308,5 +311,5 @@ this.BX = this.BX || {};
 
 	exports.PopupComponentsMaker = PopupComponentsMaker;
 
-}((this.BX.UI = this.BX.UI || {}),BX.Event,BX,BX,BX.Main));
+}((this.BX.UI = this.BX.UI || {}),BX.Main,BX.Event,BX,BX));
 //# sourceMappingURL=popupcomponentsmaker.bundle.js.map

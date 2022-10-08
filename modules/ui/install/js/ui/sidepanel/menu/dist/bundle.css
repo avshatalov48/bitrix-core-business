@@ -43,7 +43,8 @@
 	margin: 3px 0;
 	padding: 0 9px 0 29px;
 	height: 36px;
-	font: 15px/36px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/36px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #505a68;
 	text-decoration: none;
 	-webkit-transition: color .17s;
@@ -84,7 +85,8 @@
 	text-align: right;
 	overflow: hidden;
 	padding: 0;
-	font: bold 9px/12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 9px/12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #aeb4bb;
 	text-transform: uppercase;
 	-webkit-transition: color .3s, max-width .3s linear;
@@ -101,6 +103,31 @@
 	background: -webkit-gradient(linear, right top, left bottom, color-stop(0, rgba(227, 232, 235, 0)), color-stop(10%, rgba(227, 232, 235, 0.7)), color-stop(20%, #e3e8eb), to(#e3e8eb));
 	background: -o-linear-gradient(top right, rgba(227, 232, 235, 0) 0, rgba(227, 232, 235, 0.7) 10%, #e3e8eb 20%, #e3e8eb 100%);
 	background: linear-gradient(top right, rgba(227, 232, 235, 0) 0, rgba(227, 232, 235, 0.7) 10%, #e3e8eb 20%, #e3e8eb 100%);
+}
+
+.ui-sidepanel-menu-link.--hover,
+.ui-sidepanel-submenu-link.--hover {
+	background-color: #e3e8eb;
+	color: #505a68;
+	text-decoration: none;
+}
+
+.ui-sidepanel-menu-action-icon {
+	max-width: 0;
+	overflow: hidden;
+	-webkit-transition: max-width .0s linear;
+	-o-transition: max-width .0s linear;
+	transition: max-width .0s linear;
+	opacity: .6;
+	margin-left: auto;
+}
+
+.ui-sidepanel-menu-action-icon.--hover {
+	max-width: 100%;
+}
+
+.ui-sidepanel-menu-link:hover .ui-sidepanel-menu-action-icon {
+	max-width: 100%;
 }
 
 .ui-sidepanel-toggle-btn:hover {
@@ -129,7 +156,8 @@
 	padding: 0 8px 0 11px;
 	border-radius: 18px;
 	background-color: rgba(94, 102, 117, .76);
-	font: 15px/25px 'OpenSans-SemiBold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/25px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #fff;
 }
 
@@ -166,7 +194,8 @@
 
 .ui-sidepanel-menu-disable-active-state.ui-sidepanel-menu-link .ui-sidepanel-menu-link-text {
 	background-color: transparent;
-	font: 15px/36px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/36px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #505a68;
 }
 
@@ -186,7 +215,8 @@
 	content: 'new';
 	position: absolute;
 	left: 3px;
-	font: 7px/11px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 7px/11px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #2fc6f6;
 	text-transform: uppercase;
 }
@@ -201,7 +231,8 @@
 
 .ui-sidepanel-submenu-active .ui-sidepanel-badge-new:before {
 	left: 4px;
-	font: 7px/13px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 7px/13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .ui-sidepanel-counter {
@@ -211,7 +242,8 @@
 	height: 18px;
 	border-radius: 10px;
 	background-color: #d5dbdf;
-	font: 11px/17px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #717a84;
 	text-align: center;
 }
@@ -230,7 +262,8 @@
 	padding: 0 9px 0 15px;
 	margin: 0 45px;
 	height: 36px;
-	font: 14px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525c69;
 	-webkit-transition: opacity .3s;
 	-o-transition: opacity .3s;
@@ -286,7 +319,8 @@
 	border: none;
 	border-bottom: 1px solid #dcdcdc;
 	background: transparent;
-	font: 15px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #505a68;
 	outline: none;
 }

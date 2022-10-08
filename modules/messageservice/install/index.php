@@ -51,6 +51,7 @@ Class messageservice extends CModule
 		COption::SetOptionString("messageservice", "clean_up_period", "14");
 
 		CAgent::AddAgent('\Bitrix\MessageService\Queue::cleanUpAgent();',"messageservice", "Y", 86400);
+		CAgent::AddAgent('\Bitrix\MessageService\IncomingMessage::cleanUpAgent();', 'messageservice', 'Y', 86400);
 
 		if (CModule::IncludeModule('messageservice'))
 		{

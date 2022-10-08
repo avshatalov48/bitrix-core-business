@@ -1060,7 +1060,7 @@ class CSocNetLog extends CAllSocNetLog
 			$bWhereStarted = true;
 		}
 
-		if ($arSqls["SUBSCRIBE"] <> '')
+		if (isset($arSqls["SUBSCRIBE"]) && $arSqls["SUBSCRIBE"] <> '')
 		{
 			$strSql .= ($bWhereStarted ? " AND " : " WHERE ")."(".$arSqls["SUBSCRIBE"].") ";
 		}

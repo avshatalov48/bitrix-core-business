@@ -40,6 +40,7 @@ export const RestMethod = Object.freeze({
 	imRecentGet: 'im.recent.get',
 	imRecentList: 'im.recent.list',
 	imRecentPin: 'im.recent.pin',
+	imRecentUnread: 'im.recent.unread',
 
 	imCallGetCallLimits: 'im.call.getCallLimits',
 

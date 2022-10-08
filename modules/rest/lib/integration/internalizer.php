@@ -147,6 +147,48 @@ final class Internalizer extends ModificationFieldsBase
 		return $arguments;
 	}
 
+	private function canonicalize($arguments)
+	{
+		$name = $this->getName();
+		/** @var Controller $controller */
+		$controller = $this->getController();
+		$view = $this->getView($controller);
+
+		if($name == 'add')
+		{
+			$fields = $arguments['fields'];
+			if(!empty($fields))
+				$arguments['fields'] = $view->canonicalizeFieldsAdd($fields);
+		}
+		elseif ($name == 'update')
+		{
+			$fields = $arguments['fields'];
+			if(!empty($fields))
+				$arguments['fields'] = $view->canonicalizeFieldsUpdate($fields);
+		}
+		elseif ($name == 'list')
+		{
+			$fields = $view->canonicalizeFieldsList([
+				'select'=>$arguments['select'],
+				'filter'=>$arguments['filter'],
+				'order'=>$arguments['order'],
+			]);
+
+			$arguments['select'] = $fields['select'];
+			$arguments['filter'] = $fields['filter'];
+			$arguments['order'] = $fields['order'];
+		}
+		elseif ($name == 'getfields'){}
+		elseif ($name == 'get'){}
+		elseif ($name == 'delete'){}
+		else
+		{
+			$arguments = $view->canonicalizeArguments($name, $arguments);
+		}
+
+		return $arguments;
+	}
+
 	protected function check($arguments)
 	{
 		$r = new Result();

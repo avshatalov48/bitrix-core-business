@@ -55,7 +55,7 @@
 
 		"link": {
 			"primary": {
-				"base": { "value": "{color.palette.orange.60}" }
+				"base": { "value": "#2066B0" }
 			}
 		},
 

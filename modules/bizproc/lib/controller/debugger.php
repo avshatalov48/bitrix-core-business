@@ -25,11 +25,21 @@ class Debugger extends Base
 			return null;
 		}
 
-		[$documentId, $documentType] = $this->getActiveDocument($session);
+		$isBeforeDebuggerStartState = $session->isBeforeDebuggerStartState();
 
-		if (!$documentId)
+		if ($isBeforeDebuggerStartState)
 		{
-			return null;
+			$documentId = null;
+			$documentType = $session->getParameterDocumentType();
+		}
+		else
+		{
+			[$documentId, $documentType] = $this->getActiveDocument($session);
+
+			if (!$documentId)
+			{
+				return null;
+			}
 		}
 
 		$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
@@ -37,11 +47,10 @@ class Debugger extends Base
 		$target = $documentService->createAutomationTarget($documentType);
 
 		$target->setDocumentId($documentId);
-		$status = $target->getDocumentStatus();
-		$statusList = $target->getDocumentStatusList($target->getDocumentCategory());
+		[$status, $statusList] = $this->getStatus($target, $session);
 
 		$template = new Template($documentType, $status);
-		$documentFields = $this->getDocumentFields($documentType);
+		$documentFields = $isBeforeDebuggerStartState ? [] : $this->getDocumentFields($documentType);
 
 		$triggers = $target->getTriggers(array_keys($statusList));
 		$target->prepareTriggersToShow($triggers);
@@ -60,19 +69,27 @@ class Debugger extends Base
 			$workflowEvents = $workflow->getDebugEventIds();
 		}
 
+		$documentCategoryId =
+			$isBeforeDebuggerStartState
+				? $session->getDocumentCategoryId()
+				: $target->getDocumentCategory()
+		;
+
+		$documentValues =
+			$isBeforeDebuggerStartState
+				? []
+				: $this->getDocumentValues($documentType, $target->getComplexDocumentId(), $documentFields)
+		;
+
 		return [
 			'triggers' => $triggers,
 			'template' => Automation\Component\Base::getTemplateViewData($template->toArray(), $documentType),
 			'documentId' => $documentId,
 			'documentStatus' => $status,
 			'statusList' => array_values($statusList),
-			'documentCategoryId' => $target->getDocumentCategory(),
+			'documentCategoryId' => $documentCategoryId,
 			'documentFields' => array_values($documentFields),
-			'documentValues' => $this->getDocumentValues(
-				$documentType,
-				$target->getComplexDocumentId(),
-				$documentFields
-			),
+			'documentValues' => $documentValues,
 			'workflowId' => $workflowId,
 			'workflowStatus' => $workflowStatus,
 			'workflowEvents' => $workflowEvents,
@@ -220,7 +237,7 @@ class Debugger extends Base
 			return null;
 		}
 
-		if (!$session->hasWorkflow($workflowId))
+		if (!$session->hasWorkflow($workflowId) || !WorkflowInstanceTable::exists($workflowId))
 		{
 			$this->addError(new Error(Loc::getMessage('BIZPROC_CONTROLLER_DEBUGGER_NO_WORKFLOW')));
 
@@ -259,7 +276,7 @@ class Debugger extends Base
 			return null;
 		}
 
-		$result = $session->finish();
+		$result = Manager::finishSession($session);
 		if (!$result->isSuccess())
 		{
 			$this->addErrors($result->getErrors());
@@ -359,6 +376,21 @@ class Debugger extends Base
 		return [$document->getDocumentId(), $session->getParameterDocumentType()];
 	}
 
+	private function getStatus(Automation\Target\BaseTarget $target, Session $session): array
+	{
+		$isBeforeDebuggerStartState = $session->isBeforeDebuggerStartState();
+
+		if ($isBeforeDebuggerStartState)
+		{
+			$statusList = $target->getDocumentStatusList($session->getDocumentCategoryId());
+			$status = array_key_first($statusList);
+
+			return [$status, $statusList];
+		}
+
+		return [$target->getDocumentStatus(), $target->getDocumentStatusList($target->getDocumentCategory())];
+	}
+
 	private function isDocumentExists(array $documentId): bool
 	{
 		$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
@@ -400,10 +432,10 @@ class Debugger extends Base
 		$session = $result->getObject();
 		if ($session->getMode() === \Bitrix\Bizproc\Debugger\Session\Mode::EXPERIMENTAL)
 		{
-			$documentId = self::createExperimentalDocument($documentType, $documentCategoryId);
+			$documentId = $this->createExperimentalDocument($documentType, $documentCategoryId);
 			if (!$documentId)
 			{
-				$session->finish();
+				Manager::finishSession($session);
 				$this->addError(new Error(Loc::getMessage('BIZPROC_CONTROLLER_DEBUGGER_NO_DOCUMENT')));
 
 				return null;
@@ -468,6 +500,30 @@ class Debugger extends Base
 		];
 	}
 
+	public function removeSessionDocumentAction(array $documentIds = []): ?array
+	{
+		$session = $this->getSession();
+
+		if (!$session)
+		{
+			return null;
+		}
+
+		$documents = clone($session->getDocuments());
+
+		foreach ($documents as $document)
+		{
+			if (in_array($document->getDocumentId(), $documentIds, true))
+			{
+				$session->removeFromDocuments($document);
+			}
+		}
+
+		return [
+			'session' => $session,
+		];
+	}
+
 	public function loadRobotsByWorkflowIdAction(string $sessionId, string $workflowId): ?array
 	{
 		$userId = (int)$this->getCurrentUser()->getId();
@@ -495,6 +551,7 @@ class Debugger extends Base
 		}
 
 		$robots = [];
+
 		foreach ($session->getWorkflowContexts() as $context)
 		{
 			if ($context->getWorkflowId() !== $workflowId)
@@ -502,7 +559,8 @@ class Debugger extends Base
 				continue;
 			}
 
-			$robots = $context->fillTemplateShards()->getRobotData();
+			$templateShards = $context->fillTemplateShards();
+			$robots = $templateShards ? $templateShards->getRobotData() : [];
 			break;
 		}
 

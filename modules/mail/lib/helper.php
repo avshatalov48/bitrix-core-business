@@ -431,7 +431,9 @@ class Helper
 		$order = 'ASC',
 		$filter =
 		[
-			'!=MESSAGE_UID.IS_OLD' => 'Y'
+			'!=MESSAGE_UID.IS_OLD' => 'Y',
+			'==MESSAGE_UID.DELETE_TIME' => 0,
+			'!@MESSAGE_UID.IS_OLD' => ['M', 'R'],
 		]
 	)
 	{
@@ -525,6 +527,18 @@ class Helper
 		{
 			Internals\MailCounterTable::add(array_merge($rowValue,$keyRow));
 		};
+
+		\CPullWatch::addToStack(
+			'mail_mailbox_' .$mailboxId,
+			[
+				'module_id' => 'mail',
+				'params' => [
+					'mailboxId' => $mailboxId,
+				],
+				'command' => 'counters_updated',
+			]
+		);
+		\Bitrix\Pull\Event::send();
 	}
 
 	public static function updateMailboxUnseenCounter($mailboxId)

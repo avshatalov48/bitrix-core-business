@@ -23,6 +23,11 @@ if(!CBXFeatures::IsFeatureEnabled('SaleAccounts'))
 	return;
 }
 
+$isWithOrdersMode = (
+	Loader::includeModule('crm')
+	&& !CCrmSaleHelper::isWithOrdersMode()
+) ? false : true;
+
 ClearVars();
 
 /*****************************************************************************/
@@ -557,11 +562,14 @@ while ($arBuyers = $resultUsersList->Fetch())
 		{
 			$addOrderUrl = "/shop/orders/details/0/?USER_ID=".$userId."&SITE_ID=".$val["ID"]."&lang=".LANGUAGE_ID;
 		}
-		$arActions[] = array(
-			"ICON" => "view",
-			"TEXT" => GetMessage("BUYER_SUB_ACTION_ORDER")." [".$val["ID"]."]",
-			"LINK" => $addOrderUrl,
-		);
+		if (!$publicMode || $isWithOrdersMode)
+		{
+			$arActions[] = array(
+				"ICON" => "view",
+				"TEXT" => GetMessage("BUYER_SUB_ACTION_ORDER")." [".$val["ID"]."]",
+				"LINK" => $addOrderUrl,
+			);
+		}
 	}
 
 	$row->AddActions($arActions);

@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main;
+
 IncludeModuleLangFile(__FILE__);
 if(!method_exists($USER, "CanDoOperation"))
 	return false;
@@ -14,17 +17,21 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 
 		function __fileman_mnu_gen($bLogical, $bFullList, $site, $path, $sShowOnly, $arSiteDirs=Array(), $bCountOnly = false, $arSitesDR_= Array(), $siteList = Array())
 		{
-			global $APPLICATION, $USER, $DB, $MESS;
+			global $USER;
 			global $__tmppath;
 			global $_fileman_menu_dist_dr;
 			$aMenu = Array();
-			if(count($siteList) <= 0)
+			if (empty($siteList))
 			{
-				$dbSitesList = CSite::GetList("lendir", "desc");
+				$dbSitesList = Main\SiteTable::getList([
+					'select' => ['*', 'ID'],
+					'order' => ['DOC_ROOT_LENGTH' => 'DESC', 'DIR_LENGTH' => 'ASC'],
+					'cache' => ['ttl' => 86400],
+				]);
 				$siteList = array();
-				while ($arSite = $dbSitesList->GetNext())
+				while ($arSite = $dbSitesList->fetch(new Main\Text\HtmlConverter()))
 				{
-					if ($arSite['DOC_ROOT'] == CSite::GetSiteDocRoot($site) || $arSite['DOC_ROOT'] == '')
+					if ($arSite['DOC_ROOT'] == Main\SiteTable::getDocumentRoot($site) || $arSite['DOC_ROOT'] == '')
 					{
 						$siteList[] = array(
 							'ID' => $arSite['ID'],
@@ -43,8 +50,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 				return Array();
 
 			$arFldrs = Array();
-			$DOC_ROOT = CSite::GetSiteDocRoot($site);
-			$foldersExists = false;
+			$DOC_ROOT = Main\SiteTable::getDocumentRoot($site);
 
 			$dir = $io->GetDirectory($DOC_ROOT.$path);
 			$arChildren = $dir->GetChildren();
@@ -163,8 +169,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 
 		function __check_folder($site, $path)
 		{
-			$DOC_ROOT = CSite::GetSiteDocRoot($site);
-			$foldersExists = false;
+			$DOC_ROOT = Main\SiteTable::getDocumentRoot($site);
 
 			$io = CBXVirtualIo::GetInstance();
 			$dir = $io->GetDirectory($DOC_ROOT.$path);
@@ -183,7 +188,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 		{
 			$sShowOnly = false;
 			$bFullList = false;
-			$site = $_REQUEST['site'];
+			$site = $_REQUEST['site'] ?? '';
 
 			if(method_exists($oMenu, "IsSectionActive") && $oMenu->IsSectionActive("menu_fileman_site_".$arSites["ID"]."_"))
 				$sShowOnly = rtrim($arSites["DIR"], "/");
@@ -234,7 +239,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 	global $_fileman_menu_dist_dr;
 	global $__tmppath;
 
-	$__tmppath = $_REQUEST['path'];
+	$__tmppath = $_REQUEST['path'] ?? '';
 	switch($GLOBALS["APPLICATION"]->GetCurPage())
 	{
 		case "/bitrix/admin/fileman_file_edit.php":
@@ -271,9 +276,14 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 	$arSites = Array();
 	$arSitesDR = Array();
 	$arSitesDR_ = Array();
-	$dbSitesList = CSite::GetList();
-	while($arSites = $dbSitesList->GetNext())
+	$dbSitesList = Main\SiteTable::getList([
+		'select' => ['*', 'ID'],
+		'order' => ['SORT' => 'ASC'],
+		'cache' => ['ttl' => 86400],
+	]);
+	while($arSites = $dbSitesList->fetch(new Main\Text\HtmlConverter()))
 	{
+		$arSites["ABS_DOC_ROOT"] = (trim($arSites["DOC_ROOT"]) == "" ? $_SERVER["DOCUMENT_ROOT"] : Rel2Abs($_SERVER["DOCUMENT_ROOT"], $arSites["DOC_ROOT"]));
 		$arSite[] = $arSites;
 		$arSiteDirs[rtrim($arSites["DIR"], "/")] = true;
 		$arSitesDR_[$arSites["ABS_DOC_ROOT"].rtrim($arSites["DIR"], "/")] = $arSites["ID"];
@@ -308,7 +318,7 @@ if($USER->CanDoOperation('fileman_view_file_structure'))
 				}
 				elseif(isset($_REQUEST['path']))
 				{
-					if($k == CSite::GetSiteDocRoot($site))
+					if ($k == Main\SiteTable::getDocumentRoot($site))
 					{
 						$sShowOnly = rtrim($_REQUEST['path'], "/");
 						$bFullList = true;
@@ -493,4 +503,3 @@ if (CSticker::CanDoOperation('sticker_view'))
 }
 
 return $aMenu;
-?>

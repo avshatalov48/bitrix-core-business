@@ -518,4 +518,16 @@ abstract class MysqlCommonSqlHelper extends SqlHelper
 			$sql
 		);
 	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getConditionalAssignment(string $field, string $value): string
+	{
+		$field = $this->quote($field);
+		$value = $this->convertToDbString($value);
+		$hash = $this->convertToDbString(sha1($value));
+
+		return "IF(SHA1({$field}) = {$hash}, {$field}, {$value})";
+	}
 }

@@ -1,5 +1,5 @@
 .landing-ui-field {
-	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin-bottom: 17px;
 	font-weight: normal;
 }
@@ -27,7 +27,7 @@
 	color: #000000;
 	line-height: 21px;
 	border: 1px #C6CDD3 solid;
-	border-radius: 2px;
+	border-radius: var(--ui-field-border-radius, 2px);
 	padding: 7px 10px;
 	min-height: 38px;
 	box-sizing: border-box;
@@ -50,7 +50,7 @@
 }
 
 .landing-ui-field-description {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 12px;
 	line-height: 16px;
 	margin-bottom: 16px;

@@ -1,9 +1,8 @@
-<?
+<?php
+
 namespace Bitrix\Main\Service\GeoIp;
 
 use Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
 
 /**
  * Class Extension
@@ -26,7 +25,7 @@ class Extension extends Base
 	 */
 	public function getDescription()
 	{
-		return Loc::getMessage('MAIN_SRV_GEOIP_EXT_DESCRIPTION');
+		return Loc::getMessage('MAIN_SRV_GEOIP_EXT_DESCRIPTION') . '<br>' . Loc::getMessage("main_srv_geoip_ext_unsupported");
 	}
 
 	/**

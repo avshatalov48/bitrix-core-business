@@ -118,9 +118,11 @@ abstract class UserModel
 				$signature = (new AccessCode($row['ACCESS_CODE']))->getSignature();
 				if ($signature)
 				{
-					$this->accessCodes[] = $signature;
+					$this->accessCodes[$signature] = $signature;
 				}
 			}
+
+			$this->accessCodes = array_values($this->accessCodes);
 
 			// add employee access code
 			if (!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))

@@ -1,4 +1,5 @@
-<?
+<?php
+
 /**
  * Bitrix Framework
  * @package bitrix
@@ -15,6 +16,8 @@
  * @global CAdminMainChain $adminChain
  * @global string $SiteExpireDate
  */
+
+use Bitrix\Main\Web\Uri;
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
@@ -48,15 +51,11 @@ if($bShowAdminMenu && class_exists("CUserOptions"))
 }
 
 if (!defined('ADMIN_SECTION_LOAD_AUTH') || !ADMIN_SECTION_LOAD_AUTH):
-	$direction = "";
-	$direct = CLanguage::GetByID(LANGUAGE_ID);
-	$arDirect = $direct->Fetch();
-	if($arDirect["DIRECTION"] == "N")
-		$direction = ' dir="rtl"';
 
+	$direction = \Bitrix\Main\Context::getCurrent()->getCulture()->getDirection() ? '' : ' dir="rtl"';
 ?>
 <!DOCTYPE html>
-<html<?=$aUserOpt['fix'] == 'on' ? ' class="adm-header-fixed"' : ''?><?=$direction?>>
+<html<?=$aUserOpt['fix'] == 'on' ? ' class="adm-header-fixed"' : ''?><?= $direction ?>>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=<?=htmlspecialcharsbx(LANG_CHARSET)?>">
 <meta name="viewport" content="initial-scale=1.0, width=device-width">
@@ -292,7 +291,10 @@ if ($curPage != "/bitrix/admin/index.php")
 	{
 		if ($isSidePanel)
 		{
-			$requestUri = CHTTP::urlDeleteParams($_SERVER["REQUEST_URI"], array("IFRAME", "IFRAME_TYPE"));
+			$requestUri = (new Uri($_SERVER["REQUEST_URI"]))
+				->deleteParams(["IFRAME", "IFRAME_TYPE"])
+				->getUri()
+			;
 			$currentFavId = CFavorites::getIDByUrl($requestUri);
 		}
 		else

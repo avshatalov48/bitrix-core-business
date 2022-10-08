@@ -37,8 +37,17 @@ class CSearchLanguage
 						//Then module class
 						$strDirName = $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/tools/".$sLang;
 						$strFileName = $strDirName."/language.php";
-						if(file_exists($strFileName))
-							@include($strFileName);
+						if (file_exists($strFileName))
+						{
+							if (\Bitrix\Main\Localization\Translation::allowConvertEncoding())
+							{
+								\Bitrix\Main\Localization\StreamConverter::include($strFileName, $sLang);
+							}
+							else
+							{
+								@include($strFileName);
+							}
+						}
 						if(!class_exists($class_name))
 						{
 							$class_name = "CSearchLanguage";

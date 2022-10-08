@@ -153,7 +153,7 @@ div.bx-popup-form .bx-width0 {width:0% !important;}
 
 div.bx-popup-form div.bx-popup-buttons {letter-spacing:normal !important; font-variant:normal !important; font-style:normal !important; text-indent:0 !important; word-spacing:normal !important; text-align:center !important; padding:10px; overflow: hidden; white-space: nowrap; background:#D5DAE9 url(public/popup/bottom_gradient.gif) bottom repeat-x;}
 div.bx-popup-form div.bx-popup-title {background-color:#23468A; background-image:url(images/calendar/title_bg.gif); background-repeat:repeat-x; background-position:left top;}
-div.bx-popup-form div.bx-popup-title td.bx-title-text {font-size:11px !important; font-weight:bold !important; color:#EEF1F7 !important; padding:3px !important; cursor:move !important; vertical-align:top !important; overflow: hidden !important; white-space: nowrap !important; line-height:normal !important; }
+div.bx-popup-form div.bx-popup-title td.bx-title-text {font-size:11px !important; font-weight:var(--ui-font-weight-bold) !important; color:#EEF1F7 !important; padding:3px !important; cursor:move !important; vertical-align:top !important; overflow: hidden !important; white-space: nowrap !important; line-height:normal !important; }
 div.bx-popup-form a.bx-popup-close {display:block; width:13px; height:13px; background-image:url(images/calendar/close.gif); overflow:hidden; margin:3px; background-repeat:no-repeat; background-position:top left;}
 div.bx-popup-form a.bx-popup-sign {display:block; width:11px; height:11px; overflow:hidden; margin-right:3px; background-repeat:no-repeat; background-position:top left;}
 div.bx-popup-form a.bx-popup-minus {background-image:url(public/components/form/minus.gif);}
@@ -256,7 +256,7 @@ td.popupmenu div.popupitemover {margin:0px; border:1px solid #AEB6C2; background
 td.popupmenu div.popupitem td.gutter {width:22px !important;}
 td.popupmenu div.popupitem td.arrow {width:10px !important; background:transparent url(images/menu_arrow.gif) 2px center no-repeat !important;}
 td.popupmenu div.popupitem td.item {padding:3px 7px 3px 9px !important; font-family:Verdana,Arial,sans-serif; font-size:11px !important; white-space:nowrap !important; color:black !important; line-height:normal !important; font-weight:normal !important;}
-td.popupmenu div.popupitem td.default {font-weight:bold !important; line-height:normal !important;}
+td.popupmenu div.popupitem td.default {font-weight:var(--ui-font-weight-bold) !important; line-height:normal !important;}
 td.popupmenu div.popupitem td.disabled {color:#939393 !important;}
 td.popupmenu div.popupseparator {margin:1px 0px 1px 30px; background-color:#B6B6B6; height:1px; overflow:hidden;}
 td.popupmenu div.popupitem div.icon {width:22px; height:20px; background-position:center; background-repeat:no-repeat;}
@@ -365,7 +365,7 @@ table.edit-tab {border:1px solid #B8C1DD !important; border-top:none !important;
 table.edit-tab td {background-color:#F8F9FC !important; padding:0px 0px 2px 0px !important;}
 
 /* Tab controls*/
-table.edit-tabs table {font-size:11px !important; font-weight:bold !important; color:#555556; line-height:normal !important;}
+table.edit-tabs table {font-size:11px !important; font-weight:var(--ui-font-weight-bold) !important; color:#555556; line-height:normal !important;}
 table.edit-tabs td {white-space:nowrap !important; border-bottom:1px solid #B8C1DD !important; padding:0px !important;}
 table.edit-tabs td.tab-container {border:none !important; cursor:pointer !important; cursor: hand !important;}
 table.edit-tabs td.tab-container-selected, table.edit-tabs td.tab-container-disabled {border:none !important; cursor:default !important;}
@@ -394,16 +394,16 @@ div.editor_dialog td {padding:0px !important; font-size:11px !important; line-he
 div.editor_dialog div.content {height:100%; overflow:hidden;}
 /*title*/
 div.editor_dialog div.title {background-color:#23468A; background-image:url(images/fileman/editor_dialog/title_bg.gif); background-repeat:repeat-x; background-position:left top; border-bottom:1px solid #A9A9A9;}
-div.editor_dialog div.title td.title-text {font-size:11px !important; font-weight:bold !important; color:#EEF1F7 !important; padding:3px !important; cursor:move !important; vertical-align:top !important; line-height:normal !important;}
+div.editor_dialog div.title td.title-text {font-size:11px !important; font-weight:var(--ui-font-weight-bold) !important; color:#EEF1F7 !important; padding:3px !important; cursor:move !important; vertical-align:top !important; line-height:normal !important;}
 div.editor_dialog a.close {display:block; width:13px; height:13px; background-image:url(images/fileman/editor_dialog/close.gif); overflow:hidden; margin:3px; background-repeat:no-repeat; background-position:center;}
-tr.heading_dialog td {color:#525355 !important; text-align:center !important; font-weight:bold !important; background-color:#E0E4F1 !important; line-height:normal !important;}
+tr.heading_dialog td {color:#525355 !important; text-align:center !important; font-weight:var(--ui-font-weight-bold) !important; background-color:#E0E4F1 !important; line-height:normal !important;}
 table.dialogprops tr td {padding: 5px 0px 5px 0px !important;}
 
 
 /* Authorization form */
 form.bx-admin-auth-form {height:100%;}
 div.bx-auth-form {margin:0; padding:8px 0; width:100%; height:100%; background-color:#F9FAFD; box-sizing:border-box; -moz-box-sizing:border-box; -webkit-box-sizing:border-box;}
-div.bx-auth-form div.bx-auth-header {font-weight:bold; padding:0px 3px 8px 3px; margin:0px; background-image:url(images/dots_auth.gif); background-position:left bottom; background-repeat:repeat-x; line-height:normal;}
+div.bx-auth-form div.bx-auth-header {font-weight:var(--ui-font-weight-bold); padding:0px 3px 8px 3px; margin:0px; background-image:url(images/dots_auth.gif); background-position:left bottom; background-repeat:repeat-x; line-height:normal;}
 div.bx-auth-form div.bx-auth-footer {padding:4px 3px 0px 3px; margin:0px; background-image:url(images/dots_auth.gif); background-position:left top; background-repeat:repeat-x;}
 div.bx-auth-form div.bx-auth-footer p {margin:6px 0px 0px 0px;}
 div.bx-auth-form div.bx-auth-picture {float:left; width:105px; height:120px; margin:0px; background-image:url(images/auth_pict.gif); background-position:center; background-repeat:no-repeat;}
@@ -475,23 +475,23 @@ img.bxfm-unlinked{background: url(/bitrix/themes/.default/icons/fileman/unlink.g
 
 /* bootstrap fixes */
 .adm-workarea * {
-     box-sizing:     content-box; 
+     box-sizing:     content-box;
     -moz-box-sizing: content-box;
-     -webkit-box-sizing: content-box; 
+     -webkit-box-sizing: content-box;
 }
 .adm-workarea .adm-select,
 .adm-workarea .form-button,
 .adm-workarea .adm-btn,
-.adm-workarea input[type=button], 
-.adm-workarea input[type=submit], 
-.adm-workarea input[type=reset], 
-.adm-workarea input[type=file]::-webkit-file-upload-button, 
-.adm-workarea button, 
-.adm-workarea select, 
-.adm-workarea textarea { 
-    box-sizing: border-box; 
-    -moz-box-sizing: border-box; 
-    -webkit-box-sizing: border-box; 
+.adm-workarea input[type=button],
+.adm-workarea input[type=submit],
+.adm-workarea input[type=reset],
+.adm-workarea input[type=file]::-webkit-file-upload-button,
+.adm-workarea button,
+.adm-workarea select,
+.adm-workarea textarea {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
 .adm-workarea .adm-btn:hover,
 .adm-workarea input[type="button"]:hover,
@@ -499,7 +499,7 @@ img.bxfm-unlinked{background: url(/bitrix/themes/.default/icons/fileman/unlink.g
 .adm-workarea input[type="submit"]:hover {
     text-decoration: none;
 }
-.adm-workarea label { 
-    font-weight: normal; 
-    margin-bottom: 0px; 
+.adm-workarea label {
+    font-weight: normal;
+    margin-bottom: 0px;
 }

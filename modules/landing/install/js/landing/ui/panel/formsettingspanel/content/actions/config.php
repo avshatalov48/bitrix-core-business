@@ -14,6 +14,7 @@ return [
 		'main.core.events',
 		'landing.ui.field.presetfield',
 		'landing.ui.field.textfield',
+		'ui.design-tokens',
 		'landing.ui.field.basefield',
 		'landing.ui.component.internal',
 		'landing.ui.card.messagecard',

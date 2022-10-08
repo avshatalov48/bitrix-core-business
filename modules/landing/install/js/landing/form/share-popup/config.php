@@ -10,10 +10,12 @@ return [
 	'rel' => [
 		'main.core',
 		'main.core.events',
-		'main.popup',
+		'landing.features-popup',
+		'landing.loc',
+		'landing.pageobject',
 		'landing.env',
 		'crm.form.embed',
-		'landing.pageobject',
+		'ui.feedback.form',
 	],
 	'skip_core' => false,
 ];

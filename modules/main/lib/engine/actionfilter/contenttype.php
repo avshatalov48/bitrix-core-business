@@ -53,7 +53,8 @@ final class ContentType extends Base
 		switch ($this->getRequestContentType())
 		{
 			case self::JSON:
-				$this->setActionSourceParametersToMap(new Engine\JsonPayload());
+				$jsonPayload = new Engine\JsonPayload();
+				$this->setActionSourceParametersToMap($jsonPayload);
 				break;
 		}
 

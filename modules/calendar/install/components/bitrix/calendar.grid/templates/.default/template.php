@@ -2,9 +2,13 @@
 <?
 use \Bitrix\Main\Localization\Loc;
 
-Bitrix\Main\UI\Extension::load("ui.icons.b24");
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ui.icons.b24',
+]);
 
-$APPLICATION->SetPageProperty('BodyClass', $APPLICATION->GetPageProperty('BodyClass').' pagetitle-toolbar-field-view calendar-pagetitle-view');
+$APPLICATION->SetPageProperty('BodyClass', $APPLICATION->GetPageProperty('BodyClass').' pagetitle-toolbar-field-view calendar-pagetitle-view no-background');
 
 $isBitrix24Template = (SITE_TEMPLATE_ID === "bitrix24");
 if($isBitrix24Template)
@@ -213,33 +217,3 @@ else
 	}
 }
 ?>
-
-<?$spotlight = new \Bitrix\Main\UI\Spotlight("CALENDAR_NEW_ROOM");?>
-<?if(!$spotlight->isViewed(CCalendar::GetCurUserId()))
-{
-	CJSCore::init("spotlight");
-	?>
-	<script type="text/javascript">
-		BX.ready(function ()
-		{
-			var target = BX("top_menu_id_calendar_menu_rooms");
-			if (target)
-			{
-				target =  target.querySelector(".main-buttons-item-link");
-			}
-			if (target && BX.type.isDomNode(target))
-			{
-				setTimeout(function(){
-					var calendarRoomSpotlight = new BX.SpotLight({
-						targetElement: target,
-						targetVertex: "middle-center",
-						content: '<?=Loc::getMessage('EC_CALENDAR_SPOTLIGHT_ROOMS')?>',
-						id: "CALENDAR_NEW_ROOM",
-						autoSave: true
-					});
-					calendarRoomSpotlight.show();
-				}, 2000);
-			}
-		});
-	</script>
-<? }?>

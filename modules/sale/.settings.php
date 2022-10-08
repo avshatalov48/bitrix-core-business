@@ -29,6 +29,9 @@ return array(
 			'sale.reservation.settings' => [
 				'className' => \Bitrix\Sale\Reservation\Configuration\ReservationSettingsService::class,
 			],
+			'sale.paysystem.manager' => [
+				'className' => \Bitrix\Sale\PaySystem\Manager::class
+			],
 		],
 	],
 );

@@ -1,9 +1,11 @@
 <?php
+
 namespace Bitrix\Main\Web;
 
-use \Bitrix\Main\Application;
-use \Bitrix\Main\Text\Encoding;
-use \Bitrix\Main\ArgumentException;
+use Bitrix\Main\Application;
+use Bitrix\Main\Text\Encoding;
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Context;
 
 class Json
 {
@@ -16,7 +18,7 @@ class Json
 	 * @param null $options Bitmasked options. Default is JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT.
 	 *
 	 * @return mixed
-	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws ArgumentException
 	 * @see json_encode
 	 */
 	public static function encode($data, $options = null)
@@ -45,7 +47,7 @@ class Json
 	 * @param string $data The json string being decoded.
 	 *
 	 * @return mixed
-	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws ArgumentException
 	 * @see json_decode
 	 */
 	public static function decode($data)
@@ -98,7 +100,9 @@ class Json
 	 */
 	protected static function convertData($data)
 	{
-		return Encoding::convertEncoding($data, SITE_CHARSET, 'UTF-8');
+		$culture = Context::getCurrent()->getCulture();
+
+		return Encoding::convertEncoding($data, $culture->getCharset(), 'UTF-8');
 	}
 
 	/**
@@ -109,7 +113,9 @@ class Json
 	 */
 	protected static function unConvertData($data)
 	{
-		return Encoding::convertEncoding($data, 'UTF-8', SITE_CHARSET);
+		$culture = Context::getCurrent()->getCulture();
+
+		return Encoding::convertEncoding($data, 'UTF-8', $culture->getCharset());
 	}
 
 	/**
@@ -118,7 +124,7 @@ class Json
 	 * @param integer $options Bitmasked options. When JSON_PARTIAL_OUTPUT_ON_ERROR passed no exception is raised.
 	 *
 	 * @return void
-	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws ArgumentException
 	 */
 	protected static function checkException($options = 0)
 	{
@@ -134,16 +140,7 @@ class Json
 			return;
 		}
 
-		if (function_exists('json_last_error_msg'))
-		{
-			// Must be available on PHP >= 5.5.0
-			$message = sprintf('%s [%d]', json_last_error_msg(), $e);
-		}
-		else
-		{
-			$message = $e;
-		}
-
+		$message = sprintf('%s [%d]', json_last_error_msg(), $e);
 		self::throwException($message);
 	}
 
@@ -153,7 +150,7 @@ class Json
 	 * @param string $e Exception message.
 	 *
 	 * @return void
-	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws ArgumentException
 	 */
 	protected static function throwException($e)
 	{

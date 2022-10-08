@@ -3,7 +3,8 @@
 	color: #4a4a4a;
 	margin: 10px 0 13px;
 	padding-bottom: 23px;
-	font: 17px/23px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 17px/23px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .landing-domain-block-info {
@@ -15,7 +16,8 @@
 }
 
 .landing-domain-block-info-title {
-	font: 21px/28px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 21px/28px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #333;
 	padding-left: 46px;
 	position: relative;
@@ -99,7 +101,7 @@
 	font-size: 15px;
 	line-height: 21px;
 	color: #000;
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	margin-bottom: 16px;
 }
 
@@ -163,7 +165,7 @@
 }
 
 .landing-domain-block-postfix {
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	margin-left: 10px;
 }
 
@@ -235,7 +237,8 @@
 }
 
 .landing-domain-state-title {
-	font: 37px/43px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 37px/43px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #525c69;
 	max-width: 400px;
 	margin: 0 auto 70px;
@@ -248,7 +251,8 @@
 }
 
 .landing-domain-state-info-text {
-	font: 16px/22px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 16px/22px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #525c69;
 }
 
@@ -328,7 +332,8 @@
 
 .landing-domain-state-free-text {
 	color: #333;
-	font: 17px/22px "OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 17px/22px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .landing-domain-state-free .landing-domain-state-title {

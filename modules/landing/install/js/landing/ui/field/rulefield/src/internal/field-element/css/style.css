@@ -33,7 +33,7 @@
 
 .landing-ui-field-element-text-action .landing-ui-field-dropdown-inline .landing-ui-field-header,
 .landing-ui-field-element-text-action .landing-ui-field-dropdown-inline .landing-ui-field-input {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	opacity: 0.5;
 	font-size: 14px;
 	color: #333333;
@@ -41,7 +41,7 @@
 }
 
 .landing-ui-field-element-text-title {
-	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 15px;
 	color: #333333;
 	line-height: 20px;

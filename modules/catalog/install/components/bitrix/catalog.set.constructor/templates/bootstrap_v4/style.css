@@ -13,7 +13,7 @@
 	margin-top: 10px;
 	padding-bottom: 20px;
 	border-bottom: 1px solid #e0e0e0;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px;
 }
 
@@ -155,7 +155,7 @@
 	border-radius: 2px;
 	text-align: center;
 	white-space: nowrap;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 1.5;
 }
 
@@ -238,7 +238,7 @@
 	border-radius: 3px;
 	background: #dedede;
 	vertical-align: middle;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 28px;
 }
 
@@ -347,5 +347,5 @@
 
 .catalog-set-constructor-slider-item-price-new {
 	display: block;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }

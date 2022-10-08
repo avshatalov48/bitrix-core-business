@@ -16,6 +16,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 
 \Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
 	'main.rating',
 ]);
 
@@ -45,7 +46,7 @@ $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/rating.vote/templates/
 		}
 		?><div
 			 id="bx-ilike-count-<?=htmlspecialcharsbx($arResult['VOTE_ID'])?>"
-			 data-myreaction="<?=htmlspecialcharsbx($arParams['USER_REACTION'])?>"
+			 data-myreaction="<?=htmlspecialcharsbx($arParams['USER_REACTION'] ?? '')?>"
 			 class="<?= implode(' ', $classList) ?>"
 			 <?=(
 			 	$arResult['COMMENT'] !== 'Y'

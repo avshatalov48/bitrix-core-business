@@ -26,7 +26,7 @@
     max-width: 85px;
     border: none;
     height: 20px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     font-size: 14px;
     color: #333;
     text-transform: uppercase;

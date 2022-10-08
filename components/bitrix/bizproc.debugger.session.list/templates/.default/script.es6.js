@@ -34,7 +34,7 @@ class DebuggerSessionList
 
 	createSession()
 	{
-		Manager.Instance.openDebuggerStartPage(this.documentSigned).then();
+		Manager.Instance.openDebuggerStartPage(this.documentSigned, {analyticsStartType: 'session_list'}).then();
 	}
 
 	showSession(sessionId: string)

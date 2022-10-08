@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Main\Service\GeoIp;
 
 use Bitrix\Main;
@@ -6,8 +7,6 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
 
 /**
  * Class SypexGeo
@@ -122,8 +121,8 @@ final class SypexGeo extends Base
 		$dataResult = new Result;
 		$geoData = new Data();
 
-		$geoData->ip = $ip;
 		$geoData->lang = $lang = $lang <> '' ? $lang : 'en';
+
 		$key = !empty($this->config['KEY']) ? $this->config['KEY'] : '';
 		$res = $this->sendRequest($ip, $key);
 

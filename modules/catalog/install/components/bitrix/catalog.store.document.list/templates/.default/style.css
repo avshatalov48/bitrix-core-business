@@ -116,3 +116,10 @@
 	align-items: center;
 	margin: 0 7px;
 }
+
+@media (min-width: 1500px) {
+	.ui-alert.catalog-store-document-list--alert {
+		margin: 0 auto;
+		max-width: 600px;
+	}
+}

@@ -1,1225 +1,2147 @@
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
-(function (exports,calendar_controls,calendar_sectioninterface,main_core,main_core_events,ui_entitySelector,calendar_util) {
+(function (exports,calendar_sectioninterface,main_core_events,calendar_controls,main_core,calendar_util,ui_entitySelector) {
 	'use strict';
 
-	var ReserveButton = /*#__PURE__*/function (_AddButton) {
-	  babelHelpers.inherits(ReserveButton, _AddButton);
-
-	  function ReserveButton() {
-	    var _this;
-
-	    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	    babelHelpers.classCallCheck(this, ReserveButton);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ReserveButton).call(this, params));
-
-	    _this.setEventNamespace('BX.Calendar.Rooms.ReserveButton');
-
-	    _this.zIndex = params.zIndex || 3200;
-	    _this.popupId = params.id || 'add-button-' + Math.round(Math.random() * 10000);
-	    _this.showTasks = params.showTasks;
-	    _this.addEntryHandler = main_core.Type.isFunction(params.addEntry) ? params.addEntry : null;
-	    _this.addTaskHandler = main_core.Type.isFunction(params.addTask) ? params.addTask : null;
-
-	    _this.create();
-
-	    return _this;
+	class ReserveButton extends calendar_controls.AddButton {
+	  constructor(params = {}) {
+	    super(params);
+	    this.setEventNamespace('BX.Calendar.Rooms.ReserveButton');
+	    this.zIndex = params.zIndex || 3200;
+	    this.popupId = params.id || 'add-button-' + Math.round(Math.random() * 10000);
+	    this.showTasks = params.showTasks;
+	    this.addEntryHandler = main_core.Type.isFunction(params.addEntry) ? params.addEntry : null;
+	    this.addTaskHandler = main_core.Type.isFunction(params.addTask) ? params.addTask : null;
+	    this.create();
 	  }
 
-	  babelHelpers.createClass(ReserveButton, [{
-	    key: "create",
-	    value: function create() {
-	      this.DOM.wrap = main_core.Dom.create('button', {
-	        props: {
-	          className: 'ui-btn ui-btn-success',
-	          type: 'button'
-	        },
-	        html: main_core.Loc.getMessage('EC_RESERVE'),
-	        events: {
-	          click: this.addEntry.bind(this)
-	        }
-	      });
+	  create() {
+	    this.DOM.wrap = main_core.Dom.create('button', {
+	      props: {
+	        className: 'ui-btn ui-btn-success',
+	        type: 'button'
+	      },
+	      html: main_core.Loc.getMessage('EC_RESERVE'),
+	      events: {
+	        click: this.addEntry.bind(this)
+	      }
+	    });
+	  }
+
+	}
+
+	let _ = t => t,
+	    _t,
+	    _t2,
+	    _t3,
+	    _t4;
+	class EditForm extends main_core_events.EventEmitter {
+	  constructor(options = {}) {
+	    super();
+	    this.DOM = {};
+	    this.isCreated = false;
+	    this.setEventNamespace('BX.Calendar.SectionInterface.EditForm');
+	    this.DOM.outerWrap = options.wrap;
+	    this.sectionAccessTasks = options.sectionAccessTasks;
+	    this.sectionManager = options.sectionManager;
+	    this.closeCallback = options.closeCallback;
+	    this.BX = calendar_util.Util.getBX();
+	    this.keyHandlerBinded = this.keyHandler.bind(this);
+	  }
+
+	  show(params = {}) {
+	    this.section = params.section;
+	    this.create();
+	    this.showAccess = params.showAccess !== false;
+	    this.allowChangeName = params.allowChangeName !== false;
+
+	    if (this.showAccess) {
+	      this.DOM.accessLink.style.display = '';
+	      this.DOM.accessWrap.style.display = '';
+	    } else {
+	      this.DOM.accessLink.style.display = 'none';
+	      this.DOM.accessWrap.style.display = 'none';
 	    }
-	  }]);
-	  return ReserveButton;
-	}(calendar_controls.AddButton);
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
-	var EditForm = /*#__PURE__*/function (_EventEmitter) {
-	  babelHelpers.inherits(EditForm, _EventEmitter);
+	    main_core.Event.bind(document, 'keydown', this.keyHandlerBinded);
+	    main_core.Dom.addClass(this.DOM.outerWrap, 'show');
 
-	  function EditForm() {
-	    var _this2;
-
-	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	    babelHelpers.classCallCheck(this, EditForm);
-	    _this2 = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(EditForm).call(this));
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "DOM", {});
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this2), "isCreated", false);
-
-	    _this2.setEventNamespace('BX.Calendar.SectionInterface.EditForm');
-
-	    _this2.DOM.outerWrap = options.wrap;
-	    _this2.sectionAccessTasks = options.sectionAccessTasks;
-	    _this2.sectionManager = options.sectionManager;
-	    _this2.closeCallback = options.closeCallback;
-	    _this2.BX = calendar_util.Util.getBX();
-	    _this2.keyHandlerBinded = _this2.keyHandler.bind(babelHelpers.assertThisInitialized(_this2));
-	    return _this2;
-	  }
-
-	  babelHelpers.createClass(EditForm, [{
-	    key: "show",
-	    value: function show() {
-	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      this.section = params.section;
-	      this.create();
-	      this.showAccess = params.showAccess !== false;
-
-	      if (this.showAccess) {
-	        this.DOM.accessLink.style.display = '';
-	        this.DOM.accessWrap.style.display = '';
-	      } else {
-	        this.DOM.accessLink.style.display = 'none';
-	        this.DOM.accessWrap.style.display = 'none';
+	    if (params.section) {
+	      if (params.section.color) {
+	        this.setColor(params.section.color);
 	      }
 
-	      main_core.Event.bind(document, 'keydown', this.keyHandlerBinded);
-	      main_core.Dom.addClass(this.DOM.outerWrap, 'show');
+	      this.setAccess(params.section.access || params.section.data.ACCESS || {});
 
-	      if (params.section) {
-	        if (params.section.color) {
-	          this.setColor(params.section.color);
-	        }
-
-	        this.setAccess(params.section.access || params.section.data.ACCESS || {});
-
-	        if (params.section.name) {
-	          this.DOM.sectionTitleInput.value = params.section.name;
-	        }
+	      if (params.section.name) {
+	        this.DOM.sectionTitleInput.value = params.section.name;
 	      }
+	    }
 
+	    if (this.allowChangeName) {
 	      BX.focus(this.DOM.sectionTitleInput);
 
 	      if (this.DOM.sectionTitleInput.value !== '') {
 	        this.DOM.sectionTitleInput.select();
 	      }
-
-	      this.isOpenedState = true;
+	    } else {
+	      main_core.Dom.addClass(this.DOM.sectionTitleInput, '--disabled');
+	      this.DOM.sectionTitleInput.disabled = true;
 	    }
-	  }, {
-	    key: "close",
-	    value: function close() {
-	      this.isOpenedState = false;
-	      main_core.Event.unbind(document, 'keydown', this.keyHandlerBinded);
-	      main_core.Dom.removeClass(this.DOM.outerWrap, 'show');
 
-	      if (main_core.Type.isFunction(this.closeCallback)) {
-	        this.closeCallback();
-	      }
+	    this.isOpenedState = true;
+	  }
+
+	  close() {
+	    this.isOpenedState = false;
+	    main_core.Event.unbind(document, 'keydown', this.keyHandlerBinded);
+	    main_core.Dom.removeClass(this.DOM.outerWrap, 'show');
+
+	    if (main_core.Type.isFunction(this.closeCallback)) {
+	      this.closeCallback();
 	    }
-	  }, {
-	    key: "isOpened",
-	    value: function isOpened() {
-	      return this.isOpenedState;
-	    }
-	  }, {
-	    key: "create",
-	    value: function create() {
-	      this.wrap = this.DOM.outerWrap.querySelector('.calendar-form-content');
+	  }
 
-	      if (this.wrap) {
-	        main_core.Dom.clean(this.wrap);
-	      } else {
-	        this.wrap = this.DOM.outerWrap.appendChild(main_core.Dom.create('DIV', {
-	          props: {
-	            className: 'calendar-form-content'
-	          }
-	        }));
-	      }
+	  isOpened() {
+	    return this.isOpenedState;
+	  }
 
-	      this.DOM.formFieldsWrap = this.wrap.appendChild(main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-list-slider-widget-content'
-	        }
-	      })).appendChild(main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-list-slider-widget-content-block'
-	        }
-	      })); // Title
+	  create() {
+	    this.wrap = this.DOM.outerWrap.querySelector('.calendar-form-content');
 
-	      this.DOM.sectionTitleInput = this.DOM.formFieldsWrap.appendChild(main_core.Dom.create('DIV', {
+	    if (this.wrap) {
+	      main_core.Dom.clean(this.wrap);
+	    } else {
+	      this.wrap = this.DOM.outerWrap.appendChild(main_core.Dom.create('DIV', {
 	        props: {
-	          className: 'calendar-field-container calendar-field-container-string'
-	        }
-	      })).appendChild(main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-field-block'
-	        }
-	      })).appendChild(main_core.Dom.create('INPUT', {
-	        attrs: {
-	          type: 'text',
-	          placeholder: main_core.Loc.getMessage('EC_SEC_SLIDER_SECTION_TITLE')
-	        },
-	        props: {
-	          className: 'calendar-field calendar-field-string'
+	          className: 'calendar-form-content'
 	        }
 	      }));
-	      this.DOM.optionsWrap = this.DOM.formFieldsWrap.appendChild(main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-list-slider-new-calendar-options-container'
-	        }
-	      }));
-	      this.initSectionColorSelector();
-	      this.initAccessController(); // Buttons
+	    }
 
-	      this.buttonsWrap = this.DOM.formFieldsWrap.appendChild(main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-list-slider-btn-container'
-	        }
-	      }));
-	      this.saveBtn = new BX.UI.Button({
-	        text: main_core.Loc.getMessage('EC_SEC_SLIDER_SAVE'),
-	        className: 'ui-btn ui-btn-success',
-	        events: {
-	          click: this.save.bind(this)
-	        }
-	      });
-	      this.saveBtn.renderTo(this.buttonsWrap);
-	      new BX.UI.Button({
-	        text: main_core.Loc.getMessage('EC_SEC_SLIDER_CANCEL'),
-	        className: 'ui-btn ui-btn-link',
-	        events: {
-	          click: this.checkClose.bind(this)
-	        }
-	      }).renderTo(this.buttonsWrap);
-	      this.isCreated = true;
-	    }
-	  }, {
-	    key: "keyHandler",
-	    value: function keyHandler(e) {
-	      if (e.keyCode === calendar_util.Util.getKeyCode('escape')) {
-	        this.checkClose();
-	      } else if (e.keyCode === calendar_util.Util.getKeyCode('enter')) {
-	        this.save();
+	    this.DOM.formFieldsWrap = this.wrap.appendChild(main_core.Dom.create('DIV', {
+	      props: {
+	        className: 'calendar-list-slider-widget-content'
 	      }
+	    })).appendChild(main_core.Dom.create('DIV', {
+	      props: {
+	        className: 'calendar-list-slider-widget-content-block'
+	      }
+	    })); // Title
+
+	    this.DOM.sectionTitleInput = this.DOM.formFieldsWrap.appendChild(main_core.Dom.create('DIV', {
+	      props: {
+	        className: 'calendar-field-container calendar-field-container-string'
+	      }
+	    })).appendChild(main_core.Dom.create('DIV', {
+	      props: {
+	        className: 'calendar-field-block'
+	      }
+	    })).appendChild(main_core.Dom.create('INPUT', {
+	      attrs: {
+	        type: 'text',
+	        placeholder: main_core.Loc.getMessage('EC_SEC_SLIDER_SECTION_TITLE')
+	      },
+	      props: {
+	        className: 'calendar-field calendar-field-string'
+	      }
+	    }));
+	    this.DOM.optionsWrap = this.DOM.formFieldsWrap.appendChild(main_core.Dom.create('DIV', {
+	      props: {
+	        className: 'calendar-list-slider-new-calendar-options-container'
+	      }
+	    }));
+	    this.initSectionColorSelector();
+	    this.initAccessController(); // Buttons
+
+	    this.buttonsWrap = this.DOM.formFieldsWrap.appendChild(main_core.Dom.create('DIV', {
+	      props: {
+	        className: 'calendar-list-slider-btn-container'
+	      }
+	    }));
+	    this.saveBtn = new BX.UI.Button({
+	      text: main_core.Loc.getMessage('EC_SEC_SLIDER_SAVE'),
+	      className: 'ui-btn ui-btn-success',
+	      events: {
+	        click: this.save.bind(this)
+	      }
+	    });
+	    this.saveBtn.renderTo(this.buttonsWrap);
+	    new BX.UI.Button({
+	      text: main_core.Loc.getMessage('EC_SEC_SLIDER_CANCEL'),
+	      className: 'ui-btn ui-btn-link',
+	      events: {
+	        click: this.checkClose.bind(this)
+	      }
+	    }).renderTo(this.buttonsWrap);
+	    this.isCreated = true;
+	  }
+
+	  keyHandler(e) {
+	    if (e.keyCode === calendar_util.Util.getKeyCode('escape')) {
+	      this.checkClose();
+	    } else if (e.keyCode === calendar_util.Util.getKeyCode('enter')) {
+	      this.save();
 	    }
-	  }, {
-	    key: "checkClose",
-	    value: function checkClose() {
+	  }
+
+	  checkClose() {
+	    this.close();
+	  }
+
+	  save() {
+	    this.saveBtn.setWaiting(true);
+	    this.sectionManager.saveSection(this.DOM.sectionTitleInput.value, this.color, this.access, {
+	      section: this.section
+	    }).then(() => {
+	      this.saveBtn.setWaiting(false);
 	      this.close();
-	    }
-	  }, {
-	    key: "save",
-	    value: function save() {
-	      var _this3 = this;
+	    });
+	  }
 
-	      this.saveBtn.setWaiting(true);
-	      this.sectionManager.saveSection(this.DOM.sectionTitleInput.value, this.color, this.access, {
-	        section: this.section
-	      }).then(function () {
-	        _this3.saveBtn.setWaiting(false);
-
-	        _this3.close();
-	      });
-	    }
-	  }, {
-	    key: "initSectionColorSelector",
-	    value: function initSectionColorSelector() {
-	      this.DOM.colorContWrap = this.DOM.optionsWrap.appendChild(main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-list-slider-new-calendar-option-color'
-	        },
-	        html: main_core.Loc.getMessage('EC_SEC_SLIDER_COLOR')
-	      }));
-	      this.colorIcon = this.DOM.colorContWrap.appendChild(main_core.Dom.create('SPAN', {
-	        props: {
-	          className: 'calendar-list-slider-new-calendar-option-color-selected'
-	        }
-	      }));
-	      this.colorChangeLink = this.DOM.colorContWrap.appendChild(main_core.Dom.create('SPAN', {
-	        props: {
-	          className: 'calendar-list-slider-new-calendar-option-color-change'
-	        },
-	        html: main_core.Loc.getMessage('EC_SEC_SLIDER_CHANGE')
-	      }));
-	      main_core.Event.bind(this.colorIcon, 'click', this.showSimplePicker.bind(this));
-	      main_core.Event.bind(this.colorChangeLink, 'click', this.showSimplePicker.bind(this));
-	    }
-	  }, {
-	    key: "showSimplePicker",
-	    value: function showSimplePicker(value) {
-	      var colors = main_core.Runtime.clone(calendar_util.Util.getDefaultColorList(), true);
-	      var innerCont = main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-simple-color-wrap calendar-field-container-colorpicker-square'
-	        }
-	      });
-	      var colorWrap = innerCont.appendChild(main_core.Dom.create('DIV', {
-	        events: {
-	          click: BX.delegate(this.simplePickerClick, this)
-	        }
-	      }));
-	      var moreLinkWrap = innerCont.appendChild(main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-simple-color-more-link-wrap'
-	        }
-	      }));
-	      var moreLink = moreLinkWrap.appendChild(main_core.Dom.create('SPAN', {
-	        props: {
-	          className: 'calendar-simple-color-more-link'
-	        },
-	        html: main_core.Loc.getMessage('EC_COLOR'),
-	        events: {
-	          click: BX.delegate(this.showFullPicker, this)
-	        }
-	      }));
-	      this.simplePickerColorWrap = colorWrap;
-	      this.colors = [];
-
-	      if (!colors.includes(this.color)) {
-	        colors.push(this.color);
+	  initSectionColorSelector() {
+	    this.DOM.colorContWrap = this.DOM.optionsWrap.appendChild(main_core.Dom.create('DIV', {
+	      props: {
+	        className: 'calendar-list-slider-new-calendar-option-color'
+	      },
+	      html: main_core.Loc.getMessage('EC_SEC_SLIDER_COLOR')
+	    }));
+	    this.colorIcon = this.DOM.colorContWrap.appendChild(main_core.Dom.create('SPAN', {
+	      props: {
+	        className: 'calendar-list-slider-new-calendar-option-color-selected'
 	      }
+	    }));
+	    this.colorChangeLink = this.DOM.colorContWrap.appendChild(main_core.Dom.create('SPAN', {
+	      props: {
+	        className: 'calendar-list-slider-new-calendar-option-color-change'
+	      },
+	      html: main_core.Loc.getMessage('EC_SEC_SLIDER_CHANGE')
+	    }));
+	    main_core.Event.bind(this.colorIcon, 'click', this.showSimplePicker.bind(this));
+	    main_core.Event.bind(this.colorChangeLink, 'click', this.showSimplePicker.bind(this));
+	  }
 
-	      for (var i = 0; i < colors.length; i++) {
-	        this.colors.push({
-	          color: colors[i],
-	          node: colorWrap.appendChild(main_core.Dom.create('SPAN', {
-	            props: {
-	              className: 'calendar-field-colorpicker-color-item'
-	            },
-	            style: {
-	              backgroundColor: colors[i]
-	            },
-	            attrs: {
-	              'data-bx-calendar-color': colors[i]
-	            },
-	            html: '<span class="calendar-field-colorpicker-color"></span>'
-	          }))
-	        });
+	  showSimplePicker(value) {
+	    const colors = main_core.Runtime.clone(calendar_util.Util.getDefaultColorList(), true);
+	    const innerCont = main_core.Dom.create('DIV', {
+	      props: {
+	        className: 'calendar-simple-color-wrap calendar-field-container-colorpicker-square'
 	      }
+	    });
+	    const colorWrap = innerCont.appendChild(main_core.Dom.create('DIV', {
+	      events: {
+	        click: BX.delegate(this.simplePickerClick, this)
+	      }
+	    }));
+	    const moreLinkWrap = innerCont.appendChild(main_core.Dom.create('DIV', {
+	      props: {
+	        className: 'calendar-simple-color-more-link-wrap'
+	      }
+	    }));
+	    const moreLink = moreLinkWrap.appendChild(main_core.Dom.create('SPAN', {
+	      props: {
+	        className: 'calendar-simple-color-more-link'
+	      },
+	      html: main_core.Loc.getMessage('EC_COLOR'),
+	      events: {
+	        click: BX.delegate(this.showFullPicker, this)
+	      }
+	    }));
+	    this.simplePickerColorWrap = colorWrap;
+	    this.colors = [];
 
-	      this.lastActiveNode = this.colors[BX.util.array_search(this.color, colors) || 0].node;
-	      main_core.Dom.addClass(this.lastActiveNode, 'active');
-	      this.simpleColorPopup = BX.PopupWindowManager.create("simple-color-popup-" + calendar_util.Util.getRandomInt(), this.colorIcon, {
-	        //zIndex: this.zIndex,
-	        autoHide: true,
-	        closeByEsc: true,
-	        offsetTop: 0,
-	        offsetLeft: 9,
-	        lightShadow: true,
-	        content: innerCont,
-	        cacheable: false
-	      });
-	      this.simpleColorPopup.setAngle({
-	        offset: 10
-	      });
-	      this.simpleColorPopup.show(true);
+	    if (!colors.includes(this.color)) {
+	      colors.push(this.color);
 	    }
-	  }, {
-	    key: "simplePickerClick",
-	    value: function simplePickerClick(e) {
-	      var target = calendar_util.Util.findTargetNode(e.target || e.srcElement, this.DOM.outerWrap);
+
+	    for (let i = 0; i < colors.length; i++) {
+	      this.colors.push({
+	        color: colors[i],
+	        node: colorWrap.appendChild(main_core.Dom.create('SPAN', {
+	          props: {
+	            className: 'calendar-field-colorpicker-color-item'
+	          },
+	          style: {
+	            backgroundColor: colors[i]
+	          },
+	          attrs: {
+	            'data-bx-calendar-color': colors[i]
+	          },
+	          html: '<span class="calendar-field-colorpicker-color"></span>'
+	        }))
+	      });
+	    }
+
+	    this.lastActiveNode = this.colors[BX.util.array_search(this.color, colors) || 0].node;
+	    main_core.Dom.addClass(this.lastActiveNode, 'active');
+	    this.simpleColorPopup = BX.PopupWindowManager.create("simple-color-popup-" + calendar_util.Util.getRandomInt(), this.colorIcon, {
+	      //zIndex: this.zIndex,
+	      autoHide: true,
+	      closeByEsc: true,
+	      offsetTop: 0,
+	      offsetLeft: 9,
+	      lightShadow: true,
+	      content: innerCont,
+	      cacheable: false
+	    });
+	    this.simpleColorPopup.setAngle({
+	      offset: 10
+	    });
+	    this.simpleColorPopup.show(true);
+	  }
+
+	  simplePickerClick(e) {
+	    const target = calendar_util.Util.findTargetNode(e.target || e.srcElement, this.DOM.outerWrap);
+
+	    if (main_core.Type.isElementNode(target)) {
+	      const value = target.getAttribute('data-bx-calendar-color');
+
+	      if (value !== null) {
+	        if (this.lastActiveNode) {
+	          main_core.Dom.removeClass(this.lastActiveNode, 'active');
+	        }
+
+	        main_core.Dom.addClass(target, 'active');
+	        this.lastActiveNode = target;
+	        this.setColor(value);
+	      }
+	    }
+	  }
+
+	  showFullPicker() {
+	    if (this.simpleColorPopup) {
+	      this.simpleColorPopup.close();
+	    }
+
+	    if (!this.fullColorPicker) {
+	      this.fullColorPicker = new BX.ColorPicker({
+	        bindElement: this.colorIcon,
+	        onColorSelected: BX.delegate(function (color) {
+	          this.setColor(color);
+	        }, this),
+	        popupOptions: {
+	          cacheable: false,
+	          zIndex: this.zIndex,
+	          events: {
+	            onPopupClose: BX.delegate(function () {}, this)
+	          }
+	        }
+	      });
+	    }
+
+	    this.fullColorPicker.open();
+	  }
+
+	  setColor(value) {
+	    this.colorIcon.style.backgroundColor = value;
+	    this.color = value;
+	  }
+
+	  setAccess(value) {
+	    let rowsCount = 0;
+
+	    for (let code in value) {
+	      if (value.hasOwnProperty(code)) {
+	        rowsCount++;
+	      }
+	    }
+
+	    this.accessRowsCount = rowsCount;
+	    this.access = value;
+
+	    for (let code in value) {
+	      if (value.hasOwnProperty(code)) {
+	        this.insertAccessRow(calendar_util.Util.getAccessName(code), code, value[code]);
+	      }
+	    }
+
+	    this.checkAccessTableHeight();
+	  }
+
+	  initAccessController() {
+	    this.buildAccessController();
+
+	    if (this.sectionManager && this.sectionManager.calendarType === 'group') {
+	      this.initDialogGroup();
+	    } else {
+	      this.initDialogStandard();
+	    }
+
+	    this.initAccessSelectorPopup();
+	  }
+
+	  initAccessSelectorPopup() {
+	    main_core.Event.bind(this.DOM.accessWrap, 'click', e => {
+	      const target = calendar_util.Util.findTargetNode(e.target || e.srcElement, this.DOM.outerWrap);
 
 	      if (main_core.Type.isElementNode(target)) {
-	        var value = target.getAttribute('data-bx-calendar-color');
+	        if (target.getAttribute('data-bx-calendar-access-selector') !== null) {
+	          // show selector
+	          const code = target.getAttribute('data-bx-calendar-access-selector');
 
-	        if (value !== null) {
-	          if (this.lastActiveNode) {
-	            main_core.Dom.removeClass(this.lastActiveNode, 'active');
+	          if (this.accessControls[code]) {
+	            this.showAccessSelectorPopup({
+	              node: this.accessControls[code].removeIcon,
+	              setValueCallback: value => {
+	                if (this.accessTasks[value] && this.accessControls[code]) {
+	                  this.accessControls[code].valueNode.innerHTML = main_core.Text.encode(this.accessTasks[value].title);
+	                  this.access[code] = value;
+	                }
+	              }
+	            });
 	          }
+	        } else if (target.getAttribute('data-bx-calendar-access-remove') !== null) {
+	          const code = target.getAttribute('data-bx-calendar-access-remove');
 
-	          main_core.Dom.addClass(target, 'active');
-	          this.lastActiveNode = target;
-	          this.setColor(value);
-	        }
-	      }
-	    }
-	  }, {
-	    key: "showFullPicker",
-	    value: function showFullPicker() {
-	      if (this.simpleColorPopup) {
-	        this.simpleColorPopup.close();
-	      }
-
-	      if (!this.fullColorPicker) {
-	        this.fullColorPicker = new BX.ColorPicker({
-	          bindElement: this.colorIcon,
-	          onColorSelected: BX.delegate(function (color) {
-	            this.setColor(color);
-	          }, this),
-	          popupOptions: {
-	            cacheable: false,
-	            zIndex: this.zIndex,
-	            events: {
-	              onPopupClose: BX.delegate(function () {}, this)
-	            }
+	          if (this.accessControls[code]) {
+	            main_core.Dom.remove(this.accessControls[code].rowNode);
+	            this.accessControls[code] = null;
+	            delete this.access[code];
 	          }
-	        });
-	      }
-
-	      this.fullColorPicker.open();
-	    }
-	  }, {
-	    key: "setColor",
-	    value: function setColor(value) {
-	      this.colorIcon.style.backgroundColor = value;
-	      this.color = value;
-	    }
-	  }, {
-	    key: "setAccess",
-	    value: function setAccess(value) {
-	      var rowsCount = 0;
-
-	      for (var code in value) {
-	        if (value.hasOwnProperty(code)) {
-	          rowsCount++;
 	        }
 	      }
+	    });
+	  }
 
-	      this.accessRowsCount = rowsCount;
-	      this.access = value;
-
-	      for (var _code in value) {
-	        if (value.hasOwnProperty(_code)) {
-	          this.insertAccessRow(calendar_util.Util.getAccessName(_code), _code, value[_code]);
-	        }
+	  buildAccessController() {
+	    this.DOM.accessLink = this.DOM.optionsWrap.appendChild(main_core.Tag.render(_t || (_t = _`<div class="calendar-list-slider-new-calendar-option-more">${0}</div>`), main_core.Loc.getMessage('EC_SEC_SLIDER_ACCESS')));
+	    this.DOM.accessWrap = this.DOM.formFieldsWrap.appendChild(main_core.Tag.render(_t2 || (_t2 = _`
+				<div class="calendar-list-slider-access-container">
+					<div class="calendar-list-slider-access-inner-wrap">
+						${0}
+					</div>
+					<div class="calendar-list-slider-new-calendar-options-container">
+						${0}
+					</div>
+				</div>`), this.DOM.accessTable = main_core.Tag.render(_t3 || (_t3 = _`
+							<table class="calendar-section-slider-access-table"></table>
+						`)), this.DOM.accessButton = main_core.Tag.render(_t4 || (_t4 = _`
+							<span class="calendar-list-slider-new-calendar-option-add">
+								${0}
+							</span>`), main_core.Loc.getMessage('EC_SEC_SLIDER_ACCESS_ADD'))));
+	    this.accessControls = {};
+	    this.accessTasks = this.sectionAccessTasks;
+	    main_core.Event.bind(this.DOM.accessLink, 'click', () => {
+	      if (main_core.Dom.hasClass(this.DOM.accessWrap, 'shown')) {
+	        main_core.Dom.removeClass(this.DOM.accessWrap, 'shown');
+	      } else {
+	        main_core.Dom.addClass(this.DOM.accessWrap, 'shown');
 	      }
 
 	      this.checkAccessTableHeight();
-	    }
-	  }, {
-	    key: "initAccessController",
-	    value: function initAccessController() {
-	      this.buildAccessController();
-
-	      if (this.sectionManager && this.sectionManager.calendarType === 'group') {
-	        this.initDialogGroup();
-	      } else {
-	        this.initDialogStandard();
-	      }
-
-	      this.initAccessSelectorPopup();
-	    }
-	  }, {
-	    key: "initAccessSelectorPopup",
-	    value: function initAccessSelectorPopup() {
-	      var _this4 = this;
-
-	      main_core.Event.bind(this.DOM.accessWrap, 'click', function (e) {
-	        var target = calendar_util.Util.findTargetNode(e.target || e.srcElement, _this4.DOM.outerWrap);
-
-	        if (main_core.Type.isElementNode(target)) {
-	          if (target.getAttribute('data-bx-calendar-access-selector') !== null) {
-	            // show selector
-	            var code = target.getAttribute('data-bx-calendar-access-selector');
-
-	            if (_this4.accessControls[code]) {
-	              _this4.showAccessSelectorPopup({
-	                node: _this4.accessControls[code].removeIcon,
-	                setValueCallback: function setValueCallback(value) {
-	                  if (_this4.accessTasks[value] && _this4.accessControls[code]) {
-	                    _this4.accessControls[code].valueNode.innerHTML = main_core.Text.encode(_this4.accessTasks[value].title);
-	                    _this4.access[code] = value;
-	                  }
-	                }
-	              });
-	            }
-	          } else if (target.getAttribute('data-bx-calendar-access-remove') !== null) {
-	            var _code2 = target.getAttribute('data-bx-calendar-access-remove');
-
-	            if (_this4.accessControls[_code2]) {
-	              main_core.Dom.remove(_this4.accessControls[_code2].rowNode);
-	              _this4.accessControls[_code2] = null;
-	              delete _this4.access[_code2];
-	            }
-	          }
-	        }
-	      });
-	    }
-	  }, {
-	    key: "buildAccessController",
-	    value: function buildAccessController() {
-	      var _this5 = this;
-
-	      this.DOM.accessLink = this.DOM.optionsWrap.appendChild(main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"calendar-list-slider-new-calendar-option-more\">", "</div>"])), main_core.Loc.getMessage('EC_SEC_SLIDER_ACCESS')));
-	      this.DOM.accessWrap = this.DOM.formFieldsWrap.appendChild(main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-list-slider-access-container\">\n\t\t\t\t\t<div class=\"calendar-list-slider-access-inner-wrap\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"calendar-list-slider-new-calendar-options-container\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>"])), this.DOM.accessTable = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<table class=\"calendar-section-slider-access-table\"></table>\n\t\t\t\t\t\t"]))), this.DOM.accessButton = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t\t<span class=\"calendar-list-slider-new-calendar-option-add\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>"])), main_core.Loc.getMessage('EC_SEC_SLIDER_ACCESS_ADD'))));
-	      this.accessControls = {};
-	      this.accessTasks = this.sectionAccessTasks;
-	      main_core.Event.bind(this.DOM.accessLink, 'click', function () {
-	        if (main_core.Dom.hasClass(_this5.DOM.accessWrap, 'shown')) {
-	          main_core.Dom.removeClass(_this5.DOM.accessWrap, 'shown');
-	        } else {
-	          main_core.Dom.addClass(_this5.DOM.accessWrap, 'shown');
-	        }
-
-	        _this5.checkAccessTableHeight();
-	      });
-	    }
-	  }, {
-	    key: "initDialogStandard",
-	    value: function initDialogStandard() {
-	      var _this6 = this;
-
-	      main_core.Event.bind(this.DOM.accessButton, 'click', function () {
-	        _this6.entitySelectorDialog = new ui_entitySelector.Dialog({
-	          targetNode: _this6.DOM.accessButton,
-	          context: 'CALENDAR',
-	          preselectedItems: [],
-	          enableSearch: true,
-	          events: {
-	            'Item:onSelect': _this6.handleEntitySelectorChanges.bind(_this6),
-	            'Item:onDeselect': _this6.handleEntitySelectorChanges.bind(_this6)
-	          },
-	          popupOptions: {
-	            targetContainer: document.body
-	          },
-	          entities: [{
-	            id: 'user'
-	          }, {
-	            id: 'project'
-	          }, {
-	            id: 'department',
-	            options: {
-	              selectMode: 'usersAndDepartments'
-	            }
-	          }, {
-	            id: 'meta-user',
-	            options: {
-	              'all-users': true
-	            }
-	          }]
-	        });
-
-	        _this6.entitySelectorDialog.show();
-	      });
-	    }
-	  }, {
-	    key: "initDialogGroup",
-	    value: function initDialogGroup() {
-	      var _this7 = this;
-
-	      main_core.Event.bind(this.DOM.accessButton, 'click', function () {
-	        _this7.entitySelectorDialog = new ui_entitySelector.Dialog({
-	          targetNode: _this7.DOM.accessButton,
-	          context: 'CALENDAR',
-	          preselectedItems: [],
-	          enableSearch: true,
-	          events: {
-	            'Item:onSelect': _this7.handleEntitySelectorChanges.bind(_this7),
-	            'Item:onDeselect': _this7.handleEntitySelectorChanges.bind(_this7)
-	          },
-	          popupOptions: {
-	            targetContainer: document.body
-	          },
-	          entities: [{
-	            id: 'user'
-	          }, {
-	            id: 'department',
-	            options: {
-	              selectMode: 'usersAndDepartments'
-	            }
-	          }, {
-	            id: 'meta-user',
-	            options: {
-	              'all-users': true
-	            }
-	          }],
-	          tabs: [{
-	            id: 'groupAccess',
-	            title: _this7.sectionManager.ownerName
-	          }],
-	          items: [{
-	            id: 'SG' + _this7.sectionManager.ownerId + '_' + 'A',
-	            entityId: 'group',
-	            tabs: 'groupAccess',
-	            title: main_core.Loc.getMessage('EC_ACCESS_GROUP_ADMIN')
-	          }, {
-	            id: 'SG' + _this7.sectionManager.ownerId + '_' + 'E',
-	            entityId: 'group',
-	            tabs: 'groupAccess',
-	            title: main_core.Loc.getMessage('EC_ACCESS_GROUP_MODERATORS')
-	          }, {
-	            id: 'SG' + _this7.sectionManager.ownerId + '_' + 'K',
-	            entityId: 'group',
-	            tabs: 'groupAccess',
-	            title: main_core.Loc.getMessage('EC_ACCESS_GROUP_MEMBERS')
-	          }]
-	        });
-
-	        _this7.entitySelectorDialog.show();
-	      });
-	    }
-	  }, {
-	    key: "handleEntitySelectorChanges",
-	    value: function handleEntitySelectorChanges() {
-	      var _this8 = this;
-
-	      var entityList = this.entitySelectorDialog.getSelectedItems();
-	      this.entitySelectorDialog.hide();
-
-	      if (main_core.Type.isArray(entityList)) {
-	        entityList.forEach(function (entity) {
-	          var title;
-
-	          if (entity.entityId === 'group') {
-	            title = _this8.sectionManager.ownerName + ': ' + entity.title.text;
-	          } else {
-	            title = entity.title.text;
-	          }
-
-	          var code = calendar_util.Util.convertEntityToAccessCode(entity);
-	          calendar_util.Util.setAccessName(code, title);
-
-	          _this8.insertAccessRow(title, code);
-	        });
-	      }
-
-	      main_core.Runtime.debounce(function () {
-	        _this8.entitySelectorDialog.destroy();
-	      }, 400)();
-	    } // todo: refactor it
-
-	  }, {
-	    key: "insertAccessRow",
-	    value: function insertAccessRow(title, code, value) {
-	      if (!this.accessControls[code]) {
-	        if (value === undefined) {
-	          for (var taskId in this.sectionAccessTasks) {
-	            if (this.sectionAccessTasks.hasOwnProperty(taskId) && this.sectionAccessTasks[taskId].name === 'calendar_view') {
-	              value = taskId;
-	              break;
-	            }
-	          }
-	        }
-
-	        var rowNode = main_core.Dom.adjust(this.DOM.accessTable.insertRow(-1), {
-	          props: {
-	            className: 'calendar-section-slider-access-table-row'
-	          }
-	        }),
-	            titleNode = main_core.Dom.adjust(rowNode.insertCell(-1), {
-	          props: {
-	            className: 'calendar-section-slider-access-table-cell'
-	          },
-	          html: '<span class="calendar-section-slider-access-title">' + main_core.Text.encode(title) + ':</span>'
-	        }),
-	            valueCell = main_core.Dom.adjust(rowNode.insertCell(-1), {
-	          props: {
-	            className: 'calendar-section-slider-access-table-cell'
-	          },
-	          attrs: {
-	            'data-bx-calendar-access-selector': code
-	          }
-	        }),
-	            selectNode = valueCell.appendChild(main_core.Dom.create('SPAN', {
-	          props: {
-	            className: 'calendar-section-slider-access-container'
-	          }
-	        })),
-	            valueNode = selectNode.appendChild(main_core.Dom.create('SPAN', {
-	          text: this.accessTasks[value] ? this.accessTasks[value].title : '',
-	          props: {
-	            className: 'calendar-section-slider-access-value'
-	          }
-	        })),
-	            removeIcon = selectNode.appendChild(main_core.Dom.create('SPAN', {
-	          props: {
-	            className: 'calendar-section-slider-access-remove'
-	          },
-	          attrs: {
-	            'data-bx-calendar-access-remove': code
-	          }
-	        }));
-	        this.access[code] = value;
-	        this.accessControls[code] = {
-	          rowNode: rowNode,
-	          titleNode: titleNode,
-	          valueNode: valueNode,
-	          removeIcon: removeIcon
-	        };
-	      }
-	    }
-	  }, {
-	    key: "checkAccessTableHeight",
-	    value: function checkAccessTableHeight() {
-	      var _this9 = this;
-
-	      if (this.checkTableTimeout) {
-	        this.checkTableTimeout = clearTimeout(this.checkTableTimeout);
-	      }
-
-	      this.checkTableTimeout = setTimeout(function () {
-	        if (main_core.Dom.hasClass(_this9.DOM.accessWrap, 'shown')) {
-	          if (_this9.DOM.accessWrap.offsetHeight - _this9.DOM.accessTable.offsetHeight < 36) {
-	            _this9.DOM.accessWrap.style.maxHeight = parseInt(_this9.DOM.accessTable.offsetHeight) + 100 + 'px';
-	          }
-	        } else {
-	          _this9.DOM.accessWrap.style.maxHeight = '';
-	        }
-	      }, 300);
-	    }
-	  }, {
-	    key: "showAccessSelectorPopup",
-	    value: function showAccessSelectorPopup(params) {
-	      if (this.accessPopupMenu && this.accessPopupMenu.popupWindow && this.accessPopupMenu.popupWindow.isShown()) {
-	        return this.accessPopupMenu.close();
-	      }
-
-	      var _this = this;
-
-	      var menuItems = [];
-
-	      for (var taskId in this.accessTasks) {
-	        if (this.accessTasks.hasOwnProperty(taskId)) {
-	          menuItems.push({
-	            text: this.accessTasks[taskId].title,
-	            onclick: function (value) {
-	              return function () {
-	                params.setValueCallback(value);
-
-	                _this.accessPopupMenu.close();
-	              };
-	            }(taskId)
-	          });
-	        }
-	      }
-
-	      this.accessPopupMenu = this.BX.PopupMenu.create('section-access-popup' + calendar_util.Util.randomInt(), params.node, menuItems, {
-	        closeByEsc: true,
-	        autoHide: true,
-	        offsetTop: -5,
-	        offsetLeft: 0,
-	        angle: true,
-	        cacheable: false
-	      });
-	      this.accessPopupMenu.show();
-	    }
-	  }]);
-	  return EditForm;
-	}(main_core_events.EventEmitter);
-
-	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12;
-	var EditFormRoom = /*#__PURE__*/function (_EditForm) {
-	  babelHelpers.inherits(EditFormRoom, _EditForm);
-
-	  function EditFormRoom() {
-	    var _this;
-
-	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	    babelHelpers.classCallCheck(this, EditFormRoom);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(EditFormRoom).call(this, options));
-
-	    _this.setEventNamespace('BX.Calendar.Rooms.EditFormRoom');
-
-	    _this.DOM.outerWrap = options.wrap;
-	    _this.roomsManager = options.roomsManager;
-	    _this.capacityNumbers = [3, 5, 7, 10, 25];
-	    _this.zIndex = options.zIndex || 3100;
-	    _this.closeCallback = options.closeCallback;
-	    _this.BX = calendar_util.Util.getBX();
-	    _this.keyHandlerBinded = _this.keyHandler.bind(babelHelpers.assertThisInitialized(_this));
-	    return _this;
+	    });
 	  }
 
-	  babelHelpers.createClass(EditFormRoom, [{
-	    key: "show",
-	    value: function show() {
-	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      this.actionType = params.actionType;
-	      this.room = params.room;
-	      this.create();
-	      this.showAccess = params.showAccess !== false;
-
-	      if (this.showAccess) {
-	        main_core.Dom.style(this.DOM.accessLink, 'display', null);
-	        main_core.Dom.style(this.DOM.accessWrap, 'display', null);
-	      } else {
-	        main_core.Dom.style(this.DOM.accessLink, 'display', 'none');
-	        main_core.Dom.style(this.DOM.accessWrap, 'display', 'none');
-	      }
-
-	      main_core.Event.bind(document, 'keydown', this.keyHandlerBinded);
-	      main_core.Dom.addClass(this.DOM.outerWrap, 'show');
-
-	      if (params.room) {
-	        if (params.room.color) {
-	          this.setColor(params.room.color);
-	        }
-
-	        this.setAccess(params.room.access || params.room.data.ACCESS || {});
-
-	        if (params.room.name) {
-	          this.DOM.roomsTitleInput.value = params.room.name;
-	        }
-
-	        if (params.room.capacity) {
-	          this.DOM.roomsCapacityInput.value = params.room.capacity;
-	        }
-	      }
-
-	      BX.focus(this.DOM.roomsTitleInput);
-
-	      if (this.DOM.roomsTitleInput.value !== '') {
-	        this.DOM.roomsTitleInput.select();
-	      }
-
-	      this.isOpenedState = true;
-	    }
-	  }, {
-	    key: "create",
-	    value: function create() {
-	      this.wrap = this.DOM.outerWrap.querySelector('.calendar-form-content');
-
-	      if (this.wrap) {
-	        main_core.Dom.clean(this.wrap);
-	      } else {
-	        this.wrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-form-content\"></div>\n\t\t\t\t"]))));
-	      }
-
-	      this.DOM.formFieldsWrap = this.wrap.appendChild(main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-list-slider-widget-content\"></div>\n\t\t\t"])))).appendChild(main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-list-slider-widget-content-block\"></div>"])))); // Title
-
-	      this.DOM.roomsTitleInput = this.DOM.formFieldsWrap.appendChild(main_core.Tag.render(_templateObject4$1 || (_templateObject4$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-container calendar-field-container-string\"></div>"])))).appendChild(main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\"></div>"])))).appendChild(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input type=\"text\" placeholder=\"", "\" \n\t\t\tclass=\"calendar-field calendar-field-string\"/>"])), main_core.Loc.getMessage('EC_SEC_SLIDER_SECTION_TITLE'))); //Capacity
-
-	      this.DOM.roomsCapacityInput = this.DOM.formFieldsWrap.appendChild(main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-container calendar-field-container-string\"></div>"])))).appendChild(main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-field-block\"></div>"])))).appendChild(main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class =\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</span>\t\n\t\t\t\t\t</div>\t\t\t\t\t\t\n\t\t\t\t\t"])), main_core.Loc.getMessage('EC_SEC_SLIDER_SECTION_CAPACITY'))).appendChild(main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<input type=\"number\" class=\"calendar-field calendar-field-number\" placeholder=\"0\"/>"]))));
-	      this.DOM.optionsWrap = this.DOM.formFieldsWrap.appendChild(main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-list-slider-new-calendar-options-container\"></div>"]))));
-	      this.initSectionColorSelector();
-	      this.initAccessController(); // Buttons
-
-	      this.buttonsWrap = this.DOM.formFieldsWrap.appendChild(main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-list-slider-btn-container\"></div>"]))));
-
-	      if (this.actionType === 'createRoom') {
-	        this.saveBtn = new BX.UI.Button({
-	          text: main_core.Loc.getMessage('EC_SEC_SLIDER_SAVE'),
-	          className: 'ui-btn ui-btn-success',
-	          events: {
-	            click: this.createRoom.bind(this)
-	          }
-	        });
-	        this.saveBtn.renderTo(this.buttonsWrap);
-	      } else if (this.actionType === 'updateRoom') {
-	        this.saveBtn = new BX.UI.Button({
-	          text: main_core.Loc.getMessage('EC_SEC_SLIDER_SAVE'),
-	          className: 'ui-btn ui-btn-success',
-	          events: {
-	            click: this.updateRoom.bind(this)
-	          }
-	        });
-	        this.saveBtn.renderTo(this.buttonsWrap);
-	      }
-
-	      new BX.UI.Button({
-	        text: main_core.Loc.getMessage('EC_SEC_SLIDER_CANCEL'),
-	        className: 'ui-btn ui-btn-link',
+	  initDialogStandard() {
+	    main_core.Event.bind(this.DOM.accessButton, 'click', () => {
+	      this.entitySelectorDialog = new ui_entitySelector.Dialog({
+	        targetNode: this.DOM.accessButton,
+	        context: 'CALENDAR',
+	        preselectedItems: [],
+	        enableSearch: true,
 	        events: {
-	          click: this.checkClose.bind(this)
+	          'Item:onSelect': this.handleEntitySelectorChanges.bind(this),
+	          'Item:onDeselect': this.handleEntitySelectorChanges.bind(this)
+	        },
+	        popupOptions: {
+	          targetContainer: document.body
+	        },
+	        entities: [{
+	          id: 'user'
+	        }, {
+	          id: 'project'
+	        }, {
+	          id: 'department',
+	          options: {
+	            selectMode: 'usersAndDepartments'
+	          }
+	        }, {
+	          id: 'meta-user',
+	          options: {
+	            'all-users': true
+	          }
+	        }]
+	      });
+	      this.entitySelectorDialog.show();
+	    });
+	  }
+
+	  initDialogGroup() {
+	    main_core.Event.bind(this.DOM.accessButton, 'click', () => {
+	      this.entitySelectorDialog = new ui_entitySelector.Dialog({
+	        targetNode: this.DOM.accessButton,
+	        context: 'CALENDAR',
+	        preselectedItems: [],
+	        enableSearch: true,
+	        events: {
+	          'Item:onSelect': this.handleEntitySelectorChanges.bind(this),
+	          'Item:onDeselect': this.handleEntitySelectorChanges.bind(this)
+	        },
+	        popupOptions: {
+	          targetContainer: document.body
+	        },
+	        entities: [{
+	          id: 'user'
+	        }, {
+	          id: 'department',
+	          options: {
+	            selectMode: 'usersAndDepartments'
+	          }
+	        }, {
+	          id: 'meta-user',
+	          options: {
+	            'all-users': true
+	          }
+	        }],
+	        tabs: [{
+	          id: 'groupAccess',
+	          title: this.sectionManager.ownerName
+	        }],
+	        items: [{
+	          id: 'SG' + this.sectionManager.ownerId + '_' + 'A',
+	          entityId: 'group',
+	          tabs: 'groupAccess',
+	          title: main_core.Loc.getMessage('EC_ACCESS_GROUP_ADMIN')
+	        }, {
+	          id: 'SG' + this.sectionManager.ownerId + '_' + 'E',
+	          entityId: 'group',
+	          tabs: 'groupAccess',
+	          title: main_core.Loc.getMessage('EC_ACCESS_GROUP_MODERATORS')
+	        }, {
+	          id: 'SG' + this.sectionManager.ownerId + '_' + 'K',
+	          entityId: 'group',
+	          tabs: 'groupAccess',
+	          title: main_core.Loc.getMessage('EC_ACCESS_GROUP_MEMBERS')
+	        }]
+	      });
+	      this.entitySelectorDialog.show();
+	    });
+	  }
+
+	  handleEntitySelectorChanges() {
+	    const entityList = this.entitySelectorDialog.getSelectedItems();
+	    this.entitySelectorDialog.hide();
+
+	    if (main_core.Type.isArray(entityList)) {
+	      entityList.forEach(entity => {
+	        let title;
+
+	        if (entity.entityId === 'group') {
+	          title = this.sectionManager.ownerName + ': ' + entity.title.text;
+	        } else {
+	          title = entity.title.text;
 	        }
-	      }).renderTo(this.buttonsWrap);
-	      this.isCreated = true;
-	    }
-	  }, {
-	    key: "createRoom",
-	    value: function createRoom() {
-	      var _this2 = this;
 
-	      this.saveBtn.setWaiting(true);
-	      this.roomsManager.createRoom({
-	        name: this.DOM.roomsTitleInput.value,
-	        capacity: this.DOM.roomsCapacityInput.value,
-	        color: this.color,
-	        access: this.access
-	      }).then(function () {
-	        _this2.saveBtn.setWaiting(false);
-
-	        _this2.close();
+	        const code = calendar_util.Util.convertEntityToAccessCode(entity);
+	        calendar_util.Util.setAccessName(code, title);
+	        this.insertAccessRow(title, code);
 	      });
 	    }
-	  }, {
-	    key: "initAccessController",
-	    value: function initAccessController() {
-	      this.buildAccessController();
-	      this.initDialogStandard();
-	      this.initAccessSelectorPopup();
-	    }
-	  }, {
-	    key: "updateRoom",
-	    value: function updateRoom() {
-	      var _this3 = this;
 
-	      this.saveBtn.setWaiting(true);
-	      this.roomsManager.updateRoom({
-	        id: this.room.id,
-	        location_id: this.room.location_id,
-	        name: this.DOM.roomsTitleInput.value,
-	        capacity: this.DOM.roomsCapacityInput.value,
-	        color: this.color,
-	        access: this.access
-	      }).then(function () {
-	        _this3.saveBtn.setWaiting(false);
+	    main_core.Runtime.debounce(() => {
+	      this.entitySelectorDialog.destroy();
+	    }, 400)();
+	  } // todo: refactor it
 
-	        _this3.close();
-	      });
+
+	  insertAccessRow(title, code, value) {
+	    if (!this.accessControls[code]) {
+	      if (value === undefined) {
+	        for (let taskId in this.sectionAccessTasks) {
+	          if (this.sectionAccessTasks.hasOwnProperty(taskId) && this.sectionAccessTasks[taskId].name === 'calendar_view') {
+	            value = taskId;
+	            break;
+	          }
+	        }
+	      }
+
+	      const rowNode = main_core.Dom.adjust(this.DOM.accessTable.insertRow(-1), {
+	        props: {
+	          className: 'calendar-section-slider-access-table-row'
+	        }
+	      }),
+	            titleNode = main_core.Dom.adjust(rowNode.insertCell(-1), {
+	        props: {
+	          className: 'calendar-section-slider-access-table-cell'
+	        },
+	        html: '<span class="calendar-section-slider-access-title">' + main_core.Text.encode(title) + ':</span>'
+	      }),
+	            valueCell = main_core.Dom.adjust(rowNode.insertCell(-1), {
+	        props: {
+	          className: 'calendar-section-slider-access-table-cell'
+	        },
+	        attrs: {
+	          'data-bx-calendar-access-selector': code
+	        }
+	      }),
+	            selectNode = valueCell.appendChild(main_core.Dom.create('SPAN', {
+	        props: {
+	          className: 'calendar-section-slider-access-container'
+	        }
+	      })),
+	            valueNode = selectNode.appendChild(main_core.Dom.create('SPAN', {
+	        text: this.accessTasks[value] ? this.accessTasks[value].title : '',
+	        props: {
+	          className: 'calendar-section-slider-access-value'
+	        }
+	      })),
+	            removeIcon = selectNode.appendChild(main_core.Dom.create('SPAN', {
+	        props: {
+	          className: 'calendar-section-slider-access-remove'
+	        },
+	        attrs: {
+	          'data-bx-calendar-access-remove': code
+	        }
+	      }));
+	      this.access[code] = value;
+	      this.accessControls[code] = {
+	        rowNode: rowNode,
+	        titleNode: titleNode,
+	        valueNode: valueNode,
+	        removeIcon: removeIcon
+	      };
 	    }
-	  }, {
-	    key: "keyHandler",
-	    value: function keyHandler(e) {
-	      if (e.keyCode === calendar_util.Util.getKeyCode('escape')) {
-	        this.checkClose();
-	      } else if (e.keyCode === calendar_util.Util.getKeyCode('enter') && this.actionType === 'createRoom') {
-	        this.createRoom();
-	      } else if (e.keyCode === calendar_util.Util.getKeyCode('enter') && this.actionType === 'updateRoom') {
-	        this.updateRoom();
+	  }
+
+	  checkAccessTableHeight() {
+	    if (this.checkTableTimeout) {
+	      this.checkTableTimeout = clearTimeout(this.checkTableTimeout);
+	    }
+
+	    this.checkTableTimeout = setTimeout(() => {
+	      if (main_core.Dom.hasClass(this.DOM.accessWrap, 'shown')) {
+	        if (this.DOM.accessWrap.offsetHeight - this.DOM.accessTable.offsetHeight < 36) {
+	          this.DOM.accessWrap.style.maxHeight = parseInt(this.DOM.accessTable.offsetHeight) + 100 + 'px';
+	        }
+	      } else {
+	        this.DOM.accessWrap.style.maxHeight = '';
+	      }
+	    }, 300);
+	  }
+
+	  showAccessSelectorPopup(params) {
+	    if (this.accessPopupMenu && this.accessPopupMenu.popupWindow && this.accessPopupMenu.popupWindow.isShown()) {
+	      return this.accessPopupMenu.close();
+	    }
+
+	    const _this = this;
+
+	    const menuItems = [];
+
+	    for (let taskId in this.accessTasks) {
+	      if (this.accessTasks.hasOwnProperty(taskId)) {
+	        menuItems.push({
+	          text: this.accessTasks[taskId].title,
+	          onclick: function (value) {
+	            return function () {
+	              params.setValueCallback(value);
+
+	              _this.accessPopupMenu.close();
+	            };
+	          }(taskId)
+	        });
 	      }
 	    }
-	  }]);
-	  return EditFormRoom;
-	}(EditForm);
 
-	var _templateObject$2, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$1, _templateObject6$1, _templateObject7$1, _templateObject8$1, _templateObject9$1, _templateObject10$1, _templateObject11$1, _templateObject12$1, _templateObject13;
-	var RoomsInterface = /*#__PURE__*/function (_SectionInterface) {
-	  babelHelpers.inherits(RoomsInterface, _SectionInterface);
+	    this.accessPopupMenu = this.BX.PopupMenu.create('section-access-popup' + calendar_util.Util.randomInt(), params.node, menuItems, {
+	      closeByEsc: true,
+	      autoHide: true,
+	      offsetTop: -5,
+	      offsetLeft: 0,
+	      angle: true,
+	      cacheable: false
+	    });
+	    this.accessPopupMenu.show();
+	  }
 
-	  function RoomsInterface(_ref) {
-	    var _this;
+	}
 
-	    var calendarContext = _ref.calendarContext,
-	        readonly = _ref.readonly,
-	        roomsManager = _ref.roomsManager,
-	        _ref$isConfigureList = _ref.isConfigureList,
-	        isConfigureList = _ref$isConfigureList === void 0 ? false : _ref$isConfigureList;
-	    babelHelpers.classCallCheck(this, RoomsInterface);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(RoomsInterface).call(this, {
-	      calendarContext: calendarContext,
-	      readonly: readonly,
-	      roomsManager: roomsManager
-	    }));
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "SLIDER_WIDTH", 400);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "SLIDER_DURATION", 80);
-	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "sliderId", "calendar:rooms-slider");
+	let _$1 = t => t,
+	    _t$1,
+	    _t2$1,
+	    _t3$1,
+	    _t4$1,
+	    _t5,
+	    _t6,
+	    _t7,
+	    _t8;
+	class EditFormRoom extends EditForm {
+	  constructor(options = {}) {
+	    super(options);
+	    this.setEventNamespace('BX.Calendar.Rooms.EditFormRoom');
+	    this.DOM.outerWrap = options.wrap;
+	    this.roomsManager = options.roomsManager;
+	    this.categoryManager = options.categoryManager;
+	    this.capacityNumbers = [3, 5, 7, 10, 25];
+	    this.zIndex = options.zIndex || 3100;
+	    this.closeCallback = options.closeCallback;
+	    this.BX = calendar_util.Util.getBX();
+	    this.keyHandlerBinded = this.keyHandler.bind(this);
+	    this.freezeButtonsCallback = options.freezeButtonsCallback;
+	  }
 
-	    _this.setEventNamespace('BX.Calendar.RoomsInterface');
+	  show(params = {}) {
+	    this.setParams(params);
+	    this.create();
 
-	    _this.roomsManager = roomsManager;
-	    _this.isConfigureList = isConfigureList;
-	    _this.calendarContext = calendarContext;
-	    _this.readonly = readonly;
-	    _this.BX = calendar_util.Util.getBX();
-	    _this.sliderOnClose = _this.hide.bind(babelHelpers.assertThisInitialized(_this));
-	    _this.deleteRoomHandlerBinded = _this.deleteRoomHandler.bind(babelHelpers.assertThisInitialized(_this));
-	    _this.refreshRoomListBinded = _this.refreshRoomList.bind(babelHelpers.assertThisInitialized(_this));
+	    if (this.showAccess) {
+	      main_core.Dom.style(this.DOM.accessLink, 'display', null);
+	      main_core.Dom.style(this.DOM.accessWrap, 'display', null);
+	    } else {
+	      main_core.Dom.style(this.DOM.accessLink, 'display', 'none');
+	      main_core.Dom.style(this.DOM.accessWrap, 'display', 'none');
+	    }
 
-	    if (_this.calendarContext !== null) {
-	      if (_this.calendarContext.util.config.accessNames) {
+	    main_core.Event.bind(document, 'keydown', this.keyHandlerBinded);
+	    main_core.Dom.addClass(this.DOM.outerWrap, 'show');
+
+	    if (this.room) {
+	      this.setInputValues(this.room);
+	    }
+
+	    this.setFocusOnInput();
+	    this.isOpenedState = true;
+	  }
+
+	  setParams(params) {
+	    this.actionType = params.actionType;
+	    this.room = params.room;
+	    this.showAccess = params.showAccess !== false;
+	  }
+
+	  setInputValues(room) {
+	    if (room.color) {
+	      this.setColor(room.color);
+	    }
+
+	    this.setAccess(room.access || room.data.ACCESS || {});
+
+	    if (room.name) {
+	      this.DOM.roomsTitleInput.value = room.name;
+	    }
+
+	    if (this.room.capacity) {
+	      this.DOM.roomsCapacityInput.value = room.capacity;
+	    }
+	  }
+
+	  setFocusOnInput() {
+	    BX.focus(this.DOM.roomsTitleInput);
+
+	    if (this.DOM.roomsTitleInput.value !== '') {
+	      this.DOM.roomsTitleInput.select();
+	    }
+	  }
+
+	  create() {
+	    this.wrap = this.getSliderContentWrap();
+	    this.DOM.formFieldsWrap = this.getFormFieldsWrap(this.wrap);
+	    this.DOM.roomsTitleInput = this.createTitleInput(this.DOM.formFieldsWrap);
+	    this.DOM.roomsCapacityInput = this.createCapacityInput(this.DOM.formFieldsWrap);
+	    this.DOM.categorySelect = this.DOM.formFieldsWrap.appendChild(this.renderCategorySelector());
+	    this.createBottomOptions(this.DOM.formFieldsWrap);
+	    this.createButtons(this.DOM.formFieldsWrap);
+	    this.isCreated = true;
+	  }
+
+	  getSliderContentWrap() {
+	    let sliderContentWrap = this.DOM.outerWrap.querySelector('.calendar-form-content');
+
+	    if (sliderContentWrap) {
+	      main_core.Dom.clean(sliderContentWrap);
+	    } else {
+	      sliderContentWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t$1 || (_t$1 = _$1`
+					<div class="calendar-form-content"></div>
+				`)));
+	    }
+
+	    return sliderContentWrap;
+	  }
+
+	  getFormFieldsWrap(wrap) {
+	    return wrap.appendChild(main_core.Tag.render(_t2$1 || (_t2$1 = _$1`
+				<div class="calendar-list-slider-widget-content"></div>
+			`))).appendChild(main_core.Tag.render(_t3$1 || (_t3$1 = _$1`
+				<div class="calendar-list-slider-widget-content-block"></div>
+			`)));
+	  }
+
+	  createTitleInput(wrap) {
+	    return wrap.appendChild(main_core.Tag.render(_t4$1 || (_t4$1 = _$1`
+				<div class="calendar-field-container calendar-field-container-string">
+					<div class="calendar-field-block">
+						<input type="text" placeholder="${0}" 
+							class="calendar-field calendar-field-string"
+						/>
+					</div>
+				</div>
+		`), main_core.Loc.getMessage('EC_SEC_SLIDER_SECTION_TITLE'))).querySelector('.calendar-field');
+	  }
+
+	  createCapacityInput(wrap) {
+	    return wrap.appendChild(main_core.Tag.render(_t5 || (_t5 = _$1`
+				<div class="calendar-field-container calendar-field-container-string">
+					<div class="calendar-field-block">
+						<div class ="calendar-list-slider-card-widget-title" style="margin-bottom: 0">
+							<span class="calendar-list-slider-card-widget-title-text">
+								${0}
+							</span>
+							<input type="number" class="calendar-field calendar-field-number" placeholder="0"/>
+						</div>
+					</div>
+				</div>
+		`), main_core.Loc.getMessage('EC_SEC_SLIDER_SECTION_CAPACITY'))).querySelector('.calendar-field');
+	  }
+
+	  renderCategorySelector() {
+	    const categorySelector = this.renderCategorySelectorWrap();
+	    this.categoryTagSelector = this.createCategoryTagSelector();
+	    this.categoryTagSelector.renderTo(categorySelector.querySelector('.calendar-list-slider-card-widget-title'));
+
+	    if (this.categoryTagSelector.isRendered()) {
+	      this.onAfterCategorySelectorRender();
+	    }
+
+	    return categorySelector;
+	  }
+
+	  renderCategorySelectorWrap() {
+	    return main_core.Tag.render(_t6 || (_t6 = _$1`
+					<div class="calendar-field-container calendar-field-container-string">
+						<div class="calendar-field-block">
+							<div class ="calendar-list-slider-card-widget-title">
+								<span class="calendar-list-slider-card-widget-title-text">
+									${0}
+								</span>
+							</div>
+						</div>
+					</div>
+		`), main_core.Loc.getMessage('EC_SEC_SLIDER_ROOM_CATEGORY'));
+	  }
+
+	  createCategoryTagSelector() {
+	    let preparedCategories = [];
+	    preparedCategories = this.prepareCategoriesForDialog(this.categoryManager.getCategories());
+	    this.selectedCategory = null;
+
+	    if (this.room && this.room.categoryId) {
+	      this.selectedCategory = this.prepareCategoriesForDialog([this.categoryManager.getCategory(this.room.categoryId)]);
+	    }
+
+	    return new ui_entitySelector.TagSelector({
+	      placeholder: main_core.Loc.getMessage('EC_SEC_SLIDER_CATEGORY_SELECTOR_PLACEHOLDER'),
+	      textBoxWidth: 320,
+	      multiple: false,
+	      events: {
+	        onTagAdd: () => {
+	          const itemsContainer = this.categoryTagSelector.getItemsContainer();
+	          main_core.Dom.addClass(itemsContainer, 'calendar-room-form-category-selector-container-with-change-button');
+	        },
+	        onTagRemove: () => {
+	          const itemsContainer = this.categoryTagSelector.getItemsContainer();
+	          main_core.Dom.removeClass(itemsContainer, 'calendar-room-form-category-selector-container-with-change-button');
+	        }
+	      },
+	      dialogOptions: {
+	        context: 'CALENDAR_CONTEXT',
+	        width: 315,
+	        height: 280,
+	        compactView: true,
+	        showAvatars: false,
+	        dropdownMode: true,
+	        tabs: [{
+	          id: 'category',
+	          title: 'categories',
+	          itemOrder: {
+	            title: 'asc'
+	          },
+	          icon: 'none'
+	        }],
+	        items: preparedCategories,
+	        selectedItems: this.selectedCategory
+	      }
+	    });
+	  }
+
+	  onAfterCategorySelectorRender() {
+	    //make avatar containers in input smaller and hide tab icon
+	    main_core.Dom.addClass(this.categoryTagSelector.getDialog().getContainer(), 'calendar-room-form-category-selector-dialog'); //make entity selector input style similar to other inputs in room slider
+
+	    main_core.Dom.addClass(this.categoryTagSelector.getOuterContainer(), 'calendar-field-tag-selector-outer-container');
+	    main_core.Dom.addClass(this.categoryTagSelector.getTextBox(), 'calendar-field-tag-selector-text-box');
+
+	    if (this.selectedCategory !== null) {
+	      const itemsContainer = this.categoryTagSelector.getItemsContainer();
+	      main_core.Dom.addClass(itemsContainer, 'calendar-room-form-category-selector-container-with-change-button');
+	    }
+	  }
+
+	  createBottomOptions(wrap) {
+	    this.DOM.optionsWrap = wrap.appendChild(main_core.Tag.render(_t7 || (_t7 = _$1`
+			<div class="calendar-list-slider-new-calendar-options-container"></div>`)));
+	    this.initSectionColorSelector();
+	    this.initAccessController();
+	  }
+
+	  createButtons(wrap) {
+	    this.buttonsWrap = wrap.appendChild(main_core.Tag.render(_t8 || (_t8 = _$1`
+				<div class="calendar-list-slider-btn-container"></div>
+			`)));
+
+	    if (this.actionType === 'createRoom') {
+	      this.renderCreateButton(this.buttonsWrap);
+	    } else if (this.actionType === 'updateRoom') {
+	      this.renderUpdateButton(this.buttonsWrap);
+	    }
+
+	    this.renderCancelButton(this.buttonsWrap);
+	  }
+
+	  renderCreateButton(wrap) {
+	    this.saveBtn = new BX.UI.Button({
+	      text: main_core.Loc.getMessage('EC_SEC_SLIDER_SAVE'),
+	      className: 'ui-btn ui-btn-success',
+	      events: {
+	        click: this.createRoom.bind(this)
+	      }
+	    });
+	    this.saveBtn.renderTo(wrap);
+	  }
+
+	  renderUpdateButton(wrap) {
+	    this.saveBtn = new BX.UI.Button({
+	      text: main_core.Loc.getMessage('EC_SEC_SLIDER_SAVE'),
+	      className: 'ui-btn ui-btn-success',
+	      events: {
+	        click: this.updateRoom.bind(this)
+	      }
+	    });
+	    this.saveBtn.renderTo(wrap);
+	  }
+
+	  renderCancelButton(wrap) {
+	    new BX.UI.Button({
+	      text: main_core.Loc.getMessage('EC_SEC_SLIDER_CANCEL'),
+	      className: 'ui-btn ui-btn-link',
+	      events: {
+	        click: this.checkClose.bind(this)
+	      }
+	    }).renderTo(wrap);
+	  }
+
+	  createRoom() {
+	    if (this.freezeButtonsCallback) {
+	      this.freezeButtonsCallback();
+	    }
+
+	    this.saveBtn.setWaiting(true);
+	    this.roomsManager.createRoom({
+	      name: this.DOM.roomsTitleInput.value,
+	      capacity: this.DOM.roomsCapacityInput.value,
+	      color: this.color,
+	      access: this.access,
+	      categoryId: this.getSelectedCategory()
+	    }).then(() => {
+	      this.saveBtn.setWaiting(false);
+	      this.close();
+	    });
+	  }
+
+	  initAccessController() {
+	    this.buildAccessController();
+	    this.initDialogStandard();
+	    this.initAccessSelectorPopup();
+	  }
+
+	  updateRoom() {
+	    if (this.freezeButtonsCallback) {
+	      this.freezeButtonsCallback();
+	    }
+
+	    this.saveBtn.setWaiting(true);
+	    this.roomsManager.updateRoom({
+	      id: this.room.id,
+	      location_id: this.room.location_id,
+	      name: this.DOM.roomsTitleInput.value,
+	      capacity: this.DOM.roomsCapacityInput.value,
+	      color: this.color,
+	      access: this.access,
+	      categoryId: this.getSelectedCategory()
+	    }).then(() => {
+	      this.saveBtn.setWaiting(false);
+	      this.close();
+	    });
+	  }
+
+	  keyHandler(e) {
+	    if (this.categoryTagSelector.getDialog().isOpen()) {
+	      return;
+	    }
+
+	    if (e.keyCode === calendar_util.Util.getKeyCode('escape')) {
+	      this.checkClose();
+	    } else if (e.keyCode === calendar_util.Util.getKeyCode('enter') && this.actionType === 'createRoom') {
+	      this.createRoom();
+	    } else if (e.keyCode === calendar_util.Util.getKeyCode('enter') && this.actionType === 'updateRoom') {
+	      this.updateRoom();
+	    }
+	  }
+
+	  prepareCategoriesForDialog(categories) {
+	    return categories.map(category => {
+	      return {
+	        id: category.id,
+	        entityId: 'category',
+	        title: category.name,
+	        tabs: 'category'
+	      };
+	    });
+	  }
+
+	  getSelectedCategory() {
+	    const item = this.categoryTagSelector.getDialog().getSelectedItems()[0];
+	    return item ? item.id : null;
+	  }
+
+	}
+
+	let _$2 = t => t,
+	    _t$2,
+	    _t2$2,
+	    _t3$2,
+	    _t4$2,
+	    _t5$1,
+	    _t6$1;
+	class EditFormCategory extends EditForm {
+	  constructor(options = {}) {
+	    super(options);
+	    this.setEventNamespace('BX.Calendar.Rooms.EditFormCategory');
+	    this.DOM.outerWrap = options.wrap;
+	    this.categoryManager = options.categoryManager;
+	    this.zIndex = options.zIndex || 3100;
+	    this.closeCallback = options.closeCallback;
+	    this.BX = calendar_util.Util.getBX();
+	    this.keyHandlerBinded = this.keyHandler.bind(this);
+	    this.preparedSelectedRooms = [];
+	    this.freezeButtonsCallback = options.freezeButtonsCallback;
+	  }
+
+	  show(params = {}) {
+	    this.setParams(params);
+
+	    if (this.category && this.category.rooms) {
+	      this.preparedSelectedRooms = this.prepareRoomsForDialog(this.category.rooms);
+	    }
+
+	    this.create();
+	    main_core.Event.bind(document, 'keydown', this.keyHandlerBinded);
+	    main_core.Dom.addClass(this.DOM.outerWrap, 'show');
+
+	    if (this.category) {
+	      this.setInputValues(this.category);
+	    }
+
+	    this.setFocusOnInput();
+	    this.isOpenedState = true;
+	  }
+
+	  setParams(params) {
+	    this.actionType = params.actionType;
+	    this.category = params.category;
+	  }
+
+	  setInputValues() {
+	    if (this.category.name) {
+	      this.DOM.categoryTitleInput.value = this.category.name;
+	    }
+	  }
+
+	  setFocusOnInput() {
+	    BX.focus(this.DOM.categoryTitleInput);
+
+	    if (this.DOM.categoryTitleInput.value !== '') {
+	      this.DOM.categoryTitleInput.select();
+	    }
+	  }
+
+	  create(params) {
+	    this.wrap = this.getSliderContentWrap();
+	    this.DOM.formFieldsWrap = this.getFormFieldsWrap(this.wrap);
+	    this.DOM.categoryTitleInput = this.createTitleInput(this.DOM.formFieldsWrap);
+	    this.DOM.locationSelector = this.DOM.formFieldsWrap.appendChild(this.renderRoomSelector());
+	    this.createButtons(this.DOM.formFieldsWrap);
+	    this.isCreated = true;
+	  }
+
+	  getSliderContentWrap() {
+	    let sliderContentWrap = this.DOM.outerWrap.querySelector('.calendar-form-content');
+
+	    if (sliderContentWrap) {
+	      main_core.Dom.clean(sliderContentWrap);
+	    } else {
+	      sliderContentWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t$2 || (_t$2 = _$2`
+					<div class="calendar-form-content"></div>
+				`)));
+	    }
+
+	    return sliderContentWrap;
+	  }
+
+	  getFormFieldsWrap(wrap) {
+	    return wrap.appendChild(main_core.Tag.render(_t2$2 || (_t2$2 = _$2`
+				<div class="calendar-list-slider-widget-content"></div>
+			`))).appendChild(main_core.Tag.render(_t3$2 || (_t3$2 = _$2`
+				<div class="calendar-list-slider-widget-content-block"></div>
+			`)));
+	  }
+
+	  createTitleInput(wrap) {
+	    return wrap.appendChild(main_core.Tag.render(_t4$2 || (_t4$2 = _$2`
+				<div class="calendar-field-container calendar-field-container-string">
+					<div class="calendar-field-block">
+						<input type="text" placeholder="${0}" 
+							class="calendar-field calendar-field-string"
+						/>
+					</div>
+				</div>
+		`), main_core.Loc.getMessage('EC_SEC_SLIDER_SECTION_TITLE'))).querySelector('.calendar-field');
+	  }
+
+	  renderRoomSelector() {
+	    const roomSelector = this.renderRoomSelectorWrap();
+	    this.roomTagSelector = this.createRoomTagSelector();
+	    this.roomTagSelector.renderTo(roomSelector.querySelector('.calendar-list-slider-card-widget-title'));
+
+	    if (this.roomTagSelector.isRendered()) {
+	      this.onAfterRoomSelectorRender();
+	    }
+
+	    return roomSelector;
+	  }
+
+	  renderRoomSelectorWrap() {
+	    return main_core.Tag.render(_t5$1 || (_t5$1 = _$2`
+				<div class="calendar-field-container calendar-field-container-string">
+					<div class="calendar-field-block" >
+						<div class ="calendar-list-slider-card-widget-title" style="border: none">
+							<span class="calendar-list-slider-card-widget-title-text">
+								${0}
+							</span>
+						</div>
+					</div>
+				</div>
+		`), main_core.Loc.getMessage('EC_SEC_SLIDER_ROOM_SELECTOR'));
+	  }
+
+	  createRoomTagSelector() {
+	    return new ui_entitySelector.TagSelector({
+	      placeholder: main_core.Loc.getMessage('EC_SEC_SLIDER_ROOM_SELECTOR_PLACEHOLDER'),
+	      textBoxWidth: 320,
+	      dialogOptions: {
+	        context: 'CALENDAR_CONTEXT',
+	        width: 315,
+	        height: 280,
+	        compactView: true,
+	        showAvatars: true,
+	        dropdownMode: true,
+	        preload: true,
+	        entities: [{
+	          id: 'room',
+	          dynamicLoad: true,
+	          filters: [{
+	            id: 'calendar.roomFilter'
+	          }]
+	        }],
+	        selectedItems: this.preparedSelectedRooms,
+	        tabs: [{
+	          id: 'room',
+	          title: 'rooms',
+	          itemOrder: {
+	            title: 'asc'
+	          },
+	          icon: 'none'
+	        }]
+	      }
+	    });
+	  }
+
+	  onAfterRoomSelectorRender() {
+	    //make avatar containers in input smaller and hide tab icon
+	    main_core.Dom.addClass(this.roomTagSelector.getDialog().getContainer(), 'calendar-category-form-room-selector-dialog');
+	    main_core.Dom.addClass(this.roomTagSelector.getContainer(), 'calendar-category-form-room-tag-selector'); //make entity selector input style similar to other inputs in room slider
+
+	    main_core.Dom.addClass(this.roomTagSelector.getOuterContainer(), 'calendar-field-tag-selector-outer-container');
+	    main_core.Dom.addClass(this.roomTagSelector.getTextBox(), 'calendar-field-tag-selector-text-box');
+	  }
+
+	  createButtons(wrap) {
+	    this.buttonsWrap = wrap.appendChild(main_core.Tag.render(_t6$1 || (_t6$1 = _$2`
+				<div class="calendar-list-slider-btn-container"></div>
+			`)));
+
+	    if (this.actionType === 'createCategory') {
+	      this.renderCreateButton(this.buttonsWrap);
+	    } else if (this.actionType === 'updateCategory') {
+	      this.renderUpdateButton(this.buttonsWrap);
+	    }
+
+	    this.renderCancelButton(this.buttonsWrap);
+	  }
+
+	  renderCreateButton(wrap) {
+	    this.saveBtn = new BX.UI.Button({
+	      text: main_core.Loc.getMessage('EC_SEC_SLIDER_SAVE'),
+	      className: 'ui-btn ui-btn-success',
+	      events: {
+	        click: this.createCategory.bind(this)
+	      }
+	    });
+	    this.saveBtn.renderTo(wrap);
+	  }
+
+	  renderUpdateButton(wrap) {
+	    this.saveBtn = new BX.UI.Button({
+	      text: main_core.Loc.getMessage('EC_SEC_SLIDER_SAVE'),
+	      className: 'ui-btn ui-btn-success',
+	      events: {
+	        click: this.updateCategory.bind(this)
+	      }
+	    });
+	    this.saveBtn.renderTo(wrap);
+	  }
+
+	  renderCancelButton(wrap) {
+	    new BX.UI.Button({
+	      text: main_core.Loc.getMessage('EC_SEC_SLIDER_CANCEL'),
+	      className: 'ui-btn ui-btn-link',
+	      events: {
+	        click: this.checkClose.bind(this)
+	      }
+	    }).renderTo(wrap);
+	  }
+
+	  createCategory() {
+	    if (this.freezeButtonsCallback) {
+	      this.freezeButtonsCallback();
+	    }
+
+	    this.saveBtn.setWaiting(true);
+	    const selectedRooms = this.getSelectedRooms();
+	    this.categoryManager.createCategory({
+	      name: this.DOM.categoryTitleInput.value,
+	      rooms: selectedRooms
+	    }).then(() => {
+	      this.saveBtn.setWaiting(false);
+	      this.close();
+	    });
+	  }
+
+	  updateCategory() {
+	    if (this.freezeButtonsCallback) {
+	      this.freezeButtonsCallback();
+	    }
+
+	    const newSelectedRooms = this.prepareRoomsBeforeUpdate(this.getSelectedRooms());
+	    const oldSelectedRooms = this.prepareRoomsBeforeUpdate(this.preparedSelectedRooms);
+	    const toAddCategory = newSelectedRooms.filter(x => !oldSelectedRooms.includes(x));
+	    const toRemoveCategory = oldSelectedRooms.filter(x => !newSelectedRooms.includes(x));
+	    this.saveBtn.setWaiting(true);
+	    this.categoryManager.updateCategory({
+	      toAddCategory,
+	      toRemoveCategory,
+	      id: this.category.id,
+	      name: this.DOM.categoryTitleInput.value
+	    }).then(() => {
+	      this.saveBtn.setWaiting(false);
+	      this.close();
+	    });
+	  }
+
+	  getSelectedRooms() {
+	    const items = this.roomTagSelector.getDialog().getSelectedItems();
+	    const rooms = [];
+	    items.map(item => rooms.push(item.id));
+	    return rooms;
+	  }
+
+	  keyHandler(e) {
+	    if (this.roomTagSelector.getDialog().isOpen()) {
+	      return;
+	    }
+
+	    if (e.keyCode === calendar_util.Util.getKeyCode('escape')) {
+	      this.checkClose();
+	    } else if (e.keyCode === calendar_util.Util.getKeyCode('enter') && this.actionType === 'createCategory') {
+	      this.createCategory();
+	    } else if (e.keyCode === calendar_util.Util.getKeyCode('enter') && this.actionType === 'updateCategory') {
+	      this.updateCategory();
+	    }
+	  }
+
+	  prepareRoomsForDialog(rooms) {
+	    return rooms.map(room => {
+	      return {
+	        id: room.id,
+	        entityId: 'room',
+	        title: room.name,
+	        avatarOptions: {
+	          'bgColor': room.color,
+	          'bgSize': '22px',
+	          'bgImage': 'none'
+	        },
+	        tabs: 'room'
+	      };
+	    });
+	  }
+
+	  prepareRoomsBeforeUpdate(rooms) {
+	    if (!rooms) {
+	      return [];
+	    }
+
+	    return rooms.map(room => {
+	      if (room.id) {
+	        return parseInt(room.id, 10);
+	      }
+
+	      return parseInt(room, 10);
+	    });
+	  }
+
+	}
+
+	let _$3 = t => t,
+	    _t$3,
+	    _t2$3,
+	    _t3$3,
+	    _t4$3,
+	    _t5$2,
+	    _t6$2,
+	    _t7$1,
+	    _t8$1,
+	    _t9,
+	    _t10,
+	    _t11,
+	    _t12,
+	    _t13,
+	    _t14,
+	    _t15,
+	    _t16,
+	    _t17,
+	    _t18;
+	class RoomsInterface extends calendar_sectioninterface.SectionInterface {
+	  constructor({
+	    calendarContext,
+	    readonly,
+	    roomsManager,
+	    categoryManager,
+	    isConfigureList = false
+	  }) {
+	    super({
+	      calendarContext,
+	      readonly,
+	      roomsManager
+	    });
+	    this.SLIDER_WIDTH = 400;
+	    this.SLIDER_DURATION = 80;
+	    this.sliderId = "calendar:rooms-slider";
+	    this.CATEGORY_ROOMS_SHOWN_ALL = 0;
+	    this.CATEGORY_ROOMS_SHOWN_SOME = 1;
+	    this.CATEGORY_ROOMS_SHOWN_NONE = 2;
+	    this.setEventNamespace('BX.Calendar.RoomsInterface');
+	    this.roomsManager = roomsManager;
+	    this.categoryManager = categoryManager;
+	    this.isConfigureList = isConfigureList;
+	    this.calendarContext = calendarContext;
+	    this.readonly = readonly;
+	    this.BX = calendar_util.Util.getBX();
+	    this.sliderOnClose = this.hide.bind(this);
+	    this.deleteRoomHandlerBinded = this.deleteRoomHandler.bind(this);
+	    this.refreshRoomsBinded = this.refreshRooms.bind(this);
+	    this.refreshCategoriesBinded = this.refreshCategories.bind(this);
+
+	    if (this.calendarContext !== null) {
+	      if (this.calendarContext.util.config.accessNames) {
 	        var _this$calendarContext, _this$calendarContext2, _this$calendarContext3;
 
-	        calendar_util.Util.setAccessNames((_this$calendarContext = _this.calendarContext) === null || _this$calendarContext === void 0 ? void 0 : (_this$calendarContext2 = _this$calendarContext.util) === null || _this$calendarContext2 === void 0 ? void 0 : (_this$calendarContext3 = _this$calendarContext2.config) === null || _this$calendarContext3 === void 0 ? void 0 : _this$calendarContext3.accessNames);
+	        calendar_util.Util.setAccessNames((_this$calendarContext = this.calendarContext) == null ? void 0 : (_this$calendarContext2 = _this$calendarContext.util) == null ? void 0 : (_this$calendarContext3 = _this$calendarContext2.config) == null ? void 0 : _this$calendarContext3.accessNames);
 	      }
 	    }
 
-	    return _this;
+	    this.setRoomsFromManager();
+	    this.setCategoriesFromManager();
 	  }
 
-	  babelHelpers.createClass(RoomsInterface, [{
-	    key: "addEventEmitterSubscriptions",
-	    value: function addEventEmitterSubscriptions() {
-	      calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms:create', this.refreshRoomListBinded);
-	      calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms:update', this.refreshRoomListBinded);
-	      calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms:delete', this.deleteRoomHandlerBinded);
-	      calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms:pull-create', this.refreshRoomListBinded);
-	      calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms:pull-update', this.refreshRoomListBinded);
-	      calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms:pull-delete', this.deleteRoomHandlerBinded);
+	  addEventEmitterSubscriptions() {
+	    calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms:create', this.refreshRoomsBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms:update', this.refreshRoomsBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms:delete', this.deleteRoomHandlerBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms:pull-create', this.refreshRoomsBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms:pull-update', this.refreshRoomsBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms:pull-delete', this.deleteRoomHandlerBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms.Categories:create', this.refreshCategoriesBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms.Categories:update', this.refreshCategoriesBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms.Categories:delete', this.refreshCategoriesBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms.Categories:pull-create', this.refreshCategoriesBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms.Categories:pull-update', this.refreshCategoriesBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.subscribe('BX.Calendar.Rooms.Categories:pull-delete', this.refreshCategoriesBinded);
+	  }
+
+	  destroyEventEmitterSubscriptions() {
+	    calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms:create', this.refreshRoomsBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms:update', this.refreshRoomsBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms:delete', this.deleteRoomHandlerBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms:pull-create', this.refreshRoomsBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms:pull-update', this.refreshRoomsBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms:pull-delete', this.deleteRoomHandlerBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms.Categories:create', this.refreshCategoriesBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms.Categories:update', this.refreshCategoriesBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms.Categories:delete', this.refreshCategoriesBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms.Categories:pull-create', this.refreshCategoriesBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms.Categories:pull-update', this.refreshCategoriesBinded);
+	    calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms.Categories:pull-delete', this.refreshCategoriesBinded);
+	  }
+
+	  createContent() {
+	    this.DOM.outerWrap = this.renderOuterWrap();
+	    this.DOM.titleWrap = this.DOM.outerWrap.appendChild(this.renderTitleWrap());
+
+	    if (!this.readonly) {
+	      // #1. Controls
+	      this.DOM.addButton = this.DOM.titleWrap.appendChild(this.renderAddButton()); // #2. Forms
+
+	      this.DOM.roomFormWrap = this.DOM.outerWrap.appendChild(this.renderRoomFormWrap());
 	    }
-	  }, {
-	    key: "destroyEventEmitterSubscriptions",
-	    value: function destroyEventEmitterSubscriptions() {
-	      calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms:create', this.refreshRoomListBinded);
-	      calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms:update', this.refreshRoomListBinded);
-	      calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms:delete', this.deleteRoomHandlerBinded);
-	      calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms:pull-create', this.refreshRoomListBinded);
-	      calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms:pull-update', this.refreshRoomListBinded);
-	      calendar_util.Util.getBX().Event.EventEmitter.unsubscribe('BX.Calendar.Rooms:pull-delete', this.deleteRoomHandlerBinded);
-	    }
-	  }, {
-	    key: "createContent",
-	    value: function createContent() {
-	      this.DOM.outerWrap = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"calendar-list-slider-wrap\"></div>\n\t\t"])));
-	      this.DOM.titleWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject2$2 || (_templateObject2$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"calendar-list-slider-title-container\">\n\t\t\t\t\t<div class=\"calendar-list-slider-title\">", "</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('EC_SECTION_ROOMS')));
 
-	      if (!this.readonly) {
-	        // #1. Controls
-	        this.createAddButton(); // #2. Forms
+	    this.createRoomBlocks();
+	    return this.DOM.outerWrap;
+	  }
 
-	        this.DOM.roomFormWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject3$2 || (_templateObject3$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget calendar-list-slider-form-wrap\">\n\t\t\t\t\t\t<div class=\"calendar-list-slider-card-widget-title\">\n\t\t\t\t\t\t\t<span class=\"calendar-list-slider-card-widget-title-text\">", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t"])), main_core.Loc.getMessage('EC_SEC_SLIDER_NEW_ROOM')));
-	      }
+	  renderOuterWrap() {
+	    return main_core.Tag.render(_t$3 || (_t$3 = _$3`
+				<div class="calendar-list-slider-wrap"></div>
+			`));
+	  }
 
-	      this.createRoomList();
-	      return this.DOM.outerWrap;
-	    }
-	  }, {
-	    key: "createAddButton",
-	    value: function createAddButton() {
-	      //add button in slider list of meeting rooms
-	      this.actionType = 'createRoom';
-	      var addButtonOuter = this.DOM.titleWrap.appendChild(main_core.Tag.render(_templateObject4$2 || (_templateObject4$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-btn-light-border\" style=\"margin-right: 0\"></span>\n\t\t\t"]))));
-	      this.DOM.addButton = addButtonOuter.appendChild(main_core.Tag.render(_templateObject5$1 || (_templateObject5$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-btn\" onclick=\"", "\">", "</span>\n\t\t\t"])), this.showEditRoomForm.bind(this), main_core.Loc.getMessage('EC_ADD')));
-	    }
-	  }, {
-	    key: "createRoomList",
-	    value: function createRoomList() {
-	      this.sliderRoom = this.roomsManager.getRooms(); // title = Loc.getMessage('EC_SEC_SLIDER_TYPE_ROOM_LIST');
+	  renderTitleWrap() {
+	    return main_core.Tag.render(_t2$3 || (_t2$3 = _$3`
+				<div class="calendar-list-slider-title-container">
+					<div class="calendar-list-slider-title">${0}</div>
+				</div>
+			`), main_core.Loc.getMessage('EC_SECTION_ROOMS'));
+	  }
 
-	      if (this.DOM.roomListWrap) {
-	        main_core.Dom.clean(this.DOM.roomListWrap);
-	        main_core.Dom.adjust(this.DOM.roomListWrap, {
-	          props: {
-	            className: 'calendar-list-slider-card-widget'
-	          }
-	        });
-	      } else {
-	        this.DOM.roomListWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_templateObject6$1 || (_templateObject6$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-list-slider-card-widget\">\n\t\t\t\t\t</div>\n\t\t\t\t"]))));
-	      }
+	  renderAddButton() {
+	    return main_core.Tag.render(_t3$3 || (_t3$3 = _$3`
+				<span class="ui-btn-split ui-btn-light-border" style="margin-right: 0">
+					<span class="ui-btn-main" onclick="${0}">
+						${0}
+					</span>
+					<span id = "add-menu-button" class="ui-btn-menu" onclick="${0}"></span>
+				</span>
+		`), this.showEditRoomForm.bind(this), main_core.Loc.getMessage('EC_ADD'), this.showAddMenu.bind(this));
+	  }
 
-	      this.createRoomBlock({
-	        wrap: this.DOM.roomListWrap,
-	        roomList: this.sliderRoom.filter(function (room) {
-	          return room.belongsToView() || room.isPseudo();
-	        })
-	      });
-	    }
-	  }, {
-	    key: "showEditRoomForm",
-	    value: function showEditRoomForm() {
-	      var _this2 = this;
+	  renderRoomFormWrap() {
+	    return main_core.Tag.render(_t4$3 || (_t4$3 = _$3`
+				<div class="calendar-list-slider-card-widget calendar-list-slider-form-wrap">
+					<div class="calendar-list-slider-card-widget-title">
+						<span class="calendar-list-slider-card-widget-title-text">${0}</span>
+					</div>
+				</div>
+		`), main_core.Loc.getMessage('EC_SEC_SLIDER_NEW_ROOM'));
+	  }
 
-	      var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	  showAddMenu() {
+	    const menuButtons = this.createAddMenuButtons();
 
-	      if (typeof params.actionType === 'undefined') {
-	        params.actionType = 'createRoom';
-	      }
-
-	      this.closeForms();
-	      var formTitleNode = this.DOM.roomFormWrap.querySelector('.calendar-list-slider-card-widget-title-text');
-	      this.editSectionForm = new EditFormRoom({
-	        wrap: this.DOM.roomFormWrap,
-	        sectionAccessTasks: this.roomsManager.getSectionAccessTasks(),
-	        roomsManager: this.roomsManager,
-	        closeCallback: function closeCallback() {
-	          _this2.allowSliderClose();
-	        }
-	      });
-	      var showAccessControl = true;
-
-	      if (params.room && params.room.id) {
-	        formTitleNode.innerHTML = main_core.Loc.getMessage('EC_SEC_SLIDER_EDIT_SECTION_ROOM');
-	        showAccessControl = params.room.canDo('access');
-	      } else {
-	        formTitleNode.innerHTML = main_core.Loc.getMessage('EC_SEC_SLIDER_NEW_ROOM');
-	      }
-
-	      this.editSectionForm.show({
-	        showAccess: showAccessControl,
-	        room: params.room || {
-	          color: calendar_util.Util.getRandomColor(),
-	          access: this.roomsManager.getDefaultSectionAccess()
-	        },
-	        actionType: params.actionType
+	    if (menuButtons && menuButtons.length > 0) {
+	      this.addRoomMenu = this.createAddMenu(menuButtons);
+	      this.addRoomMenu.popupWindow.show();
+	      this.addRoomMenu.popupWindow.subscribe('onClose', () => {
+	        this.allowSliderClose();
 	      });
 	      this.denySliderClose();
 	    }
-	  }, {
-	    key: "showRoomMenu",
-	    value: function showRoomMenu(room, menuItemNode) {
-	      var _this3 = this;
+	  }
 
-	      var menuItems = [];
-	      var itemNode = menuItemNode.closest('[data-bx-calendar-section]') || menuItemNode.closest('[ data-bx-calendar-section-without-action]');
-
-	      if (main_core.Type.isElementNode(itemNode)) {
-	        main_core.Dom.addClass(itemNode, 'active');
+	  createAddMenuButtons() {
+	    const menuButtons = [];
+	    menuButtons.push({
+	      text: main_core.Loc.getMessage('EC_ADD_LOCATION'),
+	      onclick: () => {
+	        this.addRoomMenu.close();
+	        this.showEditRoomForm();
 	      }
-
-	      if (room.canDo('view_time') && !this.isConfigureList) {
-	        menuItems.push({
-	          text: main_core.Loc.getMessage('EC_SEC_LEAVE_ONE_ROOM'),
-	          onclick: function onclick() {
-	            _this3.roomActionMenu.close();
-
-	            _this3.showOnlyOneSection(room, _this3.roomsManager.rooms);
-	          }
-	        });
+	    });
+	    menuButtons.push({
+	      text: main_core.Loc.getMessage('EC_ADD_CATEGORY'),
+	      onclick: () => {
+	        this.addRoomMenu.close();
+	        this.showEditCategoryForm();
 	      }
+	    });
+	    return menuButtons;
+	  }
 
-	      if (!this.readonly && room.canDo('edit_section')) {
-	        menuItems.push({
-	          text: main_core.Loc.getMessage('EC_SEC_EDIT'),
-	          onclick: function onclick() {
-	            _this3.roomActionMenu.close();
+	  createAddMenu(menuButtons) {
+	    const params = {
+	      offsetLeft: 20,
+	      closeByEsc: true,
+	      angle: {
+	        position: 'top'
+	      },
+	      autoHide: true,
+	      offsetTop: 0,
+	      cacheable: false
+	    };
+	    return new BX.PopupMenuWindow('add-menu-form-' + calendar_util.Util.getRandomInt(), BX("add-menu-button"), menuButtons, params);
+	  }
 
-	            _this3.showEditRoomForm({
-	              room: room,
-	              actionType: 'updateRoom'
-	            });
-	          }
-	        });
-	      }
+	  createRoomBlocks() {
+	    this.setBlocksWrap();
 
-	      if (room.canDo('edit_section') && room.belongsToView()) {
-	        menuItems.push({
-	          text: main_core.Loc.getMessage('EC_SEC_DELETE'),
-	          onclick: function onclick() {
-	            _this3.roomActionMenu.close();
-
-	            _this3.deleteRoom(room);
-	          }
-	        });
-	      }
-
-	      if (menuItems && menuItems.length > 0) {
-	        this.roomActionMenu = top.BX.PopupMenu.create('section-menu-' + calendar_util.Util.getRandomInt(), menuItemNode, menuItems, {
-	          closeByEsc: true,
-	          autoHide: true,
-	          zIndex: this.zIndex,
-	          offsetTop: 0,
-	          offsetLeft: 9,
-	          angle: true,
-	          cacheable: false
-	        });
-	        this.roomActionMenu.show();
-	        this.roomActionMenu.popupWindow.subscribe('onClose', function () {
-	          if (main_core.Type.isElementNode(itemNode)) {
-	            main_core.Dom.removeClass(itemNode, 'active');
-	          }
-
-	          _this3.allowSliderClose();
-	        });
-	        this.denySliderClose();
-	      } else {
-	        main_core.Dom.removeClass(itemNode, 'active');
-	      }
-	    }
-	  }, {
-	    key: "refreshRoomList",
-	    value: function refreshRoomList() {
-	      this.createRoomList();
-	    }
-	  }, {
-	    key: "createRoomBlock",
-	    value: function createRoomBlock(_ref2) {
-	      var _this4 = this;
-
-	      var wrap = _ref2.wrap,
-	          roomList = _ref2.roomList;
-
-	      if (main_core.Type.isArray(roomList)) {
-	        var listWrap = wrap.appendChild(main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-list-slider-widget-content\"></div>\n\t\t\t\t"])))).appendChild(main_core.Tag.render(_templateObject8$1 || (_templateObject8$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-list-slider-widget-content-block\"></div>\n\t\t\t\t\t"])))).appendChild(main_core.Tag.render(_templateObject9$1 || (_templateObject9$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<ul class=\"calendar-list-slider-container\"></ul>\n\t\t\t\t\t"]))));
-	        main_core.Event.bind(listWrap, 'click', this.roomClickHandler.bind(this));
-	        roomList.forEach(function (room) {
-	          if (!room.DOM) {
-	            room.DOM = {};
-	          }
-
-	          var roomId = room.id;
-	          var li;
-	          var checkbox;
-
-	          if (_this4.isConfigureList) {
-	            li = listWrap.appendChild(main_core.Tag.render(_templateObject10$1 || (_templateObject10$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<li class=\"calendar-list-slider-item\"  data-bx-calendar-section-without-action=\"", "\"></li>\n\t\t\t\t\t"])), roomId));
-	            checkbox = li.appendChild(main_core.Dom.create('DIV', {
-	              props: {
-	                className: 'calendar-field-select-icon'
-	              },
-	              style: {
-	                backgroundColor: room.color
-	              }
-	            }));
-	          } else {
-	            li = listWrap.appendChild(main_core.Tag.render(_templateObject11$1 || (_templateObject11$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<li class=\"calendar-list-slider-item\" data-bx-calendar-section=\"", "\"></li>\n\t\t\t\t\t"])), roomId));
-	            checkbox = li.appendChild(main_core.Dom.create('DIV', {
-	              props: {
-	                className: 'calendar-list-slider-item-checkbox' + (room.isShown() ? ' calendar-list-slider-item-checkbox-checked' : '')
-	              },
-	              style: {
-	                backgroundColor: room.color
-	              }
-	            }));
-	          }
-
-	          var title = li.appendChild(main_core.Tag.render(_templateObject12$1 || (_templateObject12$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-list-slider-item-name\" title=\"", "\">", "</div>\n\t\t\t\t\t"])), BX.util.htmlspecialchars(room.name), BX.util.htmlspecialchars(room.name)));
-	          room.DOM.item = li;
-	          room.DOM.checkbox = checkbox;
-	          room.DOM.title = title;
-	          room.DOM.actionCont = li.appendChild(main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class=\"calendar-list-slider-item-actions-container\" data-bx-calendar-section-menu=\"", "\">\n\t\t\t\t\t\t<span class=\"calendar-list-slider-item-context-menu\"></span>\n\t\t\t\t\t</div>\n\t\t\t\t"])), roomId));
-	        });
-	      }
-	    }
-	  }, {
-	    key: "roomClickHandler",
-	    value: function roomClickHandler(e) {
-	      var target = calendar_util.Util.findTargetNode(e.target || e.srcElement, this.DOM.outerWrap);
-
-	      if (target && target.getAttribute) {
-	        if (target.getAttribute('data-bx-calendar-section-menu') !== null) {
-	          var roomId = target.getAttribute('data-bx-calendar-section-menu');
-	          this.showRoomMenu(this.roomsManager.getRoom(roomId), target);
-	        } else if (target.getAttribute('data-bx-calendar-section') !== null) {
-	          var _roomId = target.getAttribute('data-bx-calendar-section');
-
-	          this.switchSection(this.roomsManager.getRoom(_roomId));
+	    if (main_core.Type.isArray(this.rooms) || main_core.Type.isObject(this.categories)) {
+	      this.categories['categories'].forEach(category => {
+	        if (category.rooms.length !== 0) {
+	          this.createCategoryBlock(category, this.createBlockWrap(this.DOM.blocksWrap));
 	        }
-	      }
-	    }
-	  }, {
-	    key: "findCheckBoxNodes",
-	    value: function findCheckBoxNodes(id) {
-	      return this.DOM.roomListWrap.querySelectorAll('.calendar-list-slider-item[data-bx-calendar-section=\'' + id + '\'] .calendar-list-slider-item-checkbox');
-	    }
-	  }, {
-	    key: "destroy",
-	    value: function destroy(event) {
-	      if (event && event.getSlider && event.getSlider().getUrl() === this.sliderId) {
-	        this.destroyEventEmitterSubscriptions();
-	        BX.removeCustomEvent('SidePanel.Slider:onCloseComplete', BX.proxy(this.destroy, this));
-	        BX.SidePanel.Instance.destroy(this.sliderId);
-	        delete this.DOM.roomListWrap;
+	      });
 
-	        if (this.roomActionMenu) {
+	      if (this.categories['default'].length > 0) {
+	        let defaultBlockWrap = this.createBlockWrap(this.DOM.blocksWrap);
+	        this.categories['default'].forEach(room => this.createRoomBlock(room, defaultBlockWrap));
+	      }
+
+	      this.categories['categories'].forEach(category => {
+	        if (category.rooms.length === 0 && this.categoryManager.canDo('edit')) {
+	          this.createCategoryBlock(category, this.createBlockWrap(this.DOM.blocksWrap));
+	        }
+	      });
+	    }
+
+	    if (this.isFrozen()) {
+	      this.unfreezeButtons();
+	    }
+	  }
+
+	  setRoomsFromManager() {
+	    this.rooms = this.roomsManager.getRooms().filter(function (room) {
+	      return room.belongsToView() || room.isPseudo();
+	    });
+	  }
+
+	  setCategoriesFromManager() {
+	    this.categories = this.categoryManager.getCategoriesWithRooms(this.rooms);
+	  }
+
+	  setBlocksWrap() {
+	    if (this.DOM.blocksWrap) {
+	      main_core.Dom.clean(this.DOM.blocksWrap);
+	      main_core.Dom.adjust(this.DOM.blocksWrap, {
+	        props: {
+	          className: ''
+	        }
+	      });
+	    } else {
+	      this.DOM.blocksWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t5$2 || (_t5$2 = _$3`
+					<div></div>
+				`)));
+	    }
+	  }
+
+	  showEditRoomForm(params = {}) {
+	    if (typeof params.actionType === 'undefined') {
+	      params.actionType = 'createRoom';
+	    }
+
+	    this.closeForms();
+	    const formTitleNode = this.DOM.roomFormWrap.querySelector('.calendar-list-slider-card-widget-title-text');
+	    this.editSectionForm = new EditFormRoom({
+	      wrap: this.DOM.roomFormWrap,
+	      sectionAccessTasks: this.roomsManager.getSectionAccessTasks(),
+	      roomsManager: this.roomsManager,
+	      categoryManager: this.categoryManager,
+	      freezeButtonsCallback: this.freezeButtons.bind(this),
+	      closeCallback: () => {
+	        this.allowSliderClose();
+	      }
+	    });
+	    let showAccess = true;
+
+	    if (params.room && params.room.id) {
+	      formTitleNode.innerHTML = main_core.Loc.getMessage('EC_SEC_SLIDER_EDIT_SECTION_ROOM');
+	      showAccess = params.room.canDo('access');
+	    } else {
+	      formTitleNode.innerHTML = main_core.Loc.getMessage('EC_SEC_SLIDER_NEW_ROOM');
+	    }
+
+	    this.editSectionForm.show({
+	      showAccess,
+	      room: params.room || {
+	        color: calendar_util.Util.getRandomColor(),
+	        access: this.roomsManager.getDefaultSectionAccess()
+	      },
+	      actionType: params.actionType
+	    });
+	    this.denySliderClose();
+	  }
+
+	  showEditCategoryForm(params = {}) {
+	    if (typeof params.actionType === 'undefined') {
+	      params.actionType = 'createCategory';
+	    }
+
+	    this.closeForms();
+	    const formTitleNode = this.DOM.roomFormWrap.querySelector('.calendar-list-slider-card-widget-title-text');
+	    this.editSectionForm = new EditFormCategory({
+	      wrap: this.DOM.roomFormWrap,
+	      sectionAccessTasks: this.roomsManager.getSectionAccessTasks(),
+	      categoryManager: this.categoryManager,
+	      freezeButtonsCallback: this.freezeButtons.bind(this),
+	      closeCallback: () => {
+	        this.allowSliderClose();
+	      }
+	    });
+
+	    if (params.category && params.category.id) {
+	      formTitleNode.innerHTML = main_core.Loc.getMessage('EC_SEC_SLIDER_EDIT_ROOM_CATEGORY');
+	    } else {
+	      formTitleNode.innerHTML = main_core.Loc.getMessage('EC_SEC_SLIDER_NEW_CATEGORY');
+	    }
+
+	    this.editSectionForm.show({
+	      category: params.category || {},
+	      actionType: params.actionType
+	    });
+	    this.denySliderClose();
+	  }
+
+	  showRoomMenu(room, menuItemNode) {
+	    const itemNode = menuItemNode.closest('[data-bx-calendar-section]') || menuItemNode.closest('[ data-bx-calendar-section-without-action]');
+
+	    if (main_core.Type.isElementNode(itemNode)) {
+	      main_core.Dom.addClass(itemNode, 'active');
+	    }
+
+	    const menuItems = this.createRoomMenuButtons(room);
+
+	    if (menuItems && menuItems.length > 0) {
+	      this.roomActionMenu = this.createRoomMenu(menuItems, menuItemNode);
+	      this.roomActionMenu.show();
+	      this.roomActionMenu.popupWindow.subscribe('onClose', () => {
+	        if (main_core.Type.isElementNode(itemNode)) {
+	          main_core.Dom.removeClass(itemNode, 'active');
+	        }
+
+	        this.allowSliderClose();
+	      });
+	      this.denySliderClose();
+	    } else {
+	      main_core.Dom.removeClass(itemNode, 'active');
+	    }
+	  }
+
+	  createRoomMenuButtons(room) {
+	    const menuItems = [];
+
+	    if (room.canDo('view_time') && !this.isConfigureList) {
+	      menuItems.push({
+	        text: main_core.Loc.getMessage('EC_SEC_LEAVE_ONE_ROOM'),
+	        onclick: () => {
 	          this.roomActionMenu.close();
+	          this.showOnlyOneSection(room, this.roomsManager.rooms);
+	          this.updateAllCategoriesCheckboxState();
+	        }
+	      });
+	    }
+
+	    if (!this.readonly && room.canDo('edit_section')) {
+	      menuItems.push({
+	        text: main_core.Loc.getMessage('EC_SEC_EDIT'),
+	        onclick: () => {
+	          this.roomActionMenu.close();
+	          this.showEditRoomForm({
+	            room: room,
+	            actionType: 'updateRoom'
+	          });
+	        }
+	      });
+	    }
+
+	    if (room.canDo('edit_section') && room.belongsToView()) {
+	      menuItems.push({
+	        text: main_core.Loc.getMessage('EC_SEC_DELETE'),
+	        onclick: () => {
+	          this.roomActionMenu.close();
+	          this.deleteRoom(room);
+	        }
+	      });
+	    }
+
+	    return menuItems;
+	  }
+
+	  createRoomMenu(menuItems, menuItemNode) {
+	    const params = {
+	      closeByEsc: true,
+	      autoHide: true,
+	      zIndex: this.zIndex,
+	      offsetTop: 0,
+	      offsetLeft: 9,
+	      angle: true,
+	      cacheable: false
+	    };
+	    return top.BX.PopupMenu.create('section-menu-' + calendar_util.Util.getRandomInt(), menuItemNode, menuItems, params);
+	  }
+
+	  refreshRooms() {
+	    this.setRoomsFromManager();
+	    this.setCategoriesFromManager();
+	    this.createRoomBlocks();
+	  }
+
+	  refreshCategories() {
+	    this.roomsManager.reloadRoomsFromDatabase().then(this.refreshRoomsBinded);
+	  }
+
+	  createBlockWrap(wrap) {
+	    const listWrap = wrap.appendChild(main_core.Tag.render(_t6$2 || (_t6$2 = _$3`
+					<div class="calendar-list-slider-card-widget calendar-list-slider-category-widget">
+						<div class="calendar-list-slider-widget-content">
+							<div class="calendar-list-slider-widget-content-block">
+								<ul class="calendar-list-slider-container"></ul>
+							</div>
+						</div>
+					</div>
+				`))).querySelector('.calendar-list-slider-container');
+	    main_core.Event.bind(listWrap, 'click', this.roomClickHandler.bind(this));
+	    return listWrap;
+	  }
+
+	  createCategoryBlock(category, listWrap) {
+	    if (!category.DOM) {
+	      category.DOM = {};
+	    }
+
+	    category.DOM.item = listWrap.appendChild(this.renderCategoryBlockWrap(category));
+	    const categoryRooms = this.categoryManager.getCategoryRooms(category, this.rooms);
+
+	    if (!this.isConfigureList && categoryRooms.length) {
+	      category.setCheckboxStatus(this.determineCategoryCheckboxStatus(category, categoryRooms));
+	      category.DOM.checkbox = category.DOM.item.appendChild(this.renderCategoryBlockCheckbox(category, categoryRooms));
+	    }
+
+	    category.DOM.title = category.DOM.item.appendChild(this.renderCategoryBlockTitle(category));
+
+	    if (this.categoryManager.canDo('edit') || category.rooms.length > 0) {
+	      category.DOM.actionCont = category.DOM.item.appendChild(this.renderCategoryBlockActionsContainer(category));
+	    }
+
+	    this.createCategoryBlockContent(category, listWrap);
+	    return category;
+	  }
+
+	  renderCategoryBlockWrap(category) {
+	    if (this.isConfigureList) {
+	      return main_core.Tag.render(_t7$1 || (_t7$1 = _$3`
+					<li class="calendar-list-slider-item-category"
+						data-bx-calendar-category-without-action="${0}"
+					>
+					</li>
+				`), category.id);
+	    }
+
+	    return main_core.Tag.render(_t8$1 || (_t8$1 = _$3`
+					<li class="calendar-list-slider-item-category" data-bx-calendar-category="${0}"></li>
+		`), category.id);
+	  }
+
+	  renderCategoryBlockCheckbox(category) {
+	    let checkboxStyle = '';
+
+	    if (category.checkboxStatus === this.CATEGORY_ROOMS_SHOWN_ALL) {
+	      checkboxStyle = 'calendar-list-slider-item-checkbox-checked';
+	    } else if (category.checkboxStatus === this.CATEGORY_ROOMS_SHOWN_SOME) {
+	      checkboxStyle = 'calendar-list-slider-item-checkbox-indeterminate';
+	    }
+
+	    return main_core.Tag.render(_t9 || (_t9 = _$3`
+					<div class="calendar-title-checkbox calendar-list-slider-item-checkbox
+						${0}" style="background-color: #a5abb2"
+					>
+					</div>
+		`), checkboxStyle);
+	  }
+
+	  renderCategoryBlockActionsContainer(category) {
+	    return main_core.Tag.render(_t10 || (_t10 = _$3`
+					<div class="calendar-list-slider-item-actions-container
+					calendar-list-slider-item-context-menu-category-wrap" 
+						data-bx-calendar-category-menu="${0}"
+					>
+						<span class="calendar-list-slider-item-context-menu
+							calendar-list-slider-item-context-menu-category"
+						>
+						</span>
+					</div>
+		`), category.id);
+	  }
+
+	  renderCategoryBlockTitle(category) {
+	    return main_core.Tag.render(_t11 || (_t11 = _$3`
+				<div class="calendar-list-slider-card-widget-title-text calendar-list-slider-item-category-text" 
+					title="${0}"
+				>
+					${0}
+				</div>
+		`), main_core.Text.encode(category.name), main_core.Text.encode(category.name));
+	  }
+
+	  createCategoryBlockContent(category, wrap) {
+	    if (category.rooms.length) {
+	      category.rooms.forEach(room => this.createRoomBlock(room, wrap));
+	    } else {
+	      wrap.appendChild(main_core.Tag.render(_t12 || (_t12 = _$3`
+					<li class="calendar-list-slider-card-widget-title-text">${0}</li>
+				`), main_core.Loc.getMessage('EC_CATEGORY_EMPTY')));
+	    }
+	  }
+
+	  createRoomBlock(room, listWrap) {
+	    if (!room.DOM) {
+	      room.DOM = {};
+	    }
+
+	    room.DOM.item = listWrap.appendChild(this.renderRoomBlockWrap(room));
+	    room.DOM.checkbox = room.DOM.item.appendChild(this.renderRoomBlockCheckbox(room));
+	    room.DOM.title = room.DOM.item.appendChild(this.renderRoomBlockTitle(room));
+	    room.DOM.actionCont = room.DOM.item.appendChild(this.renderRoomBlockActionsContainer(room));
+	    return room;
+	  }
+
+	  renderRoomBlockWrap(room) {
+	    if (this.isConfigureList) {
+	      return main_core.Tag.render(_t13 || (_t13 = _$3`
+					<li class="calendar-list-slider-item"  data-bx-calendar-section-without-action="${0}"></li>
+			`), room.id);
+	    }
+
+	    return main_core.Tag.render(_t14 || (_t14 = _$3`
+					<li class="calendar-list-slider-item" data-bx-calendar-section="${0}"></li>
+		`), room.id);
+	  }
+
+	  renderRoomBlockCheckbox(room) {
+	    if (this.isConfigureList) {
+	      return main_core.Tag.render(_t15 || (_t15 = _$3`
+					<div class="calendar-field-select-icon" style="background-color: ${0}"></div>
+			`), room.color);
+	    }
+
+	    return main_core.Tag.render(_t16 || (_t16 = _$3`
+				<div class="calendar-list-slider-item-checkbox 
+					${0}" 
+					style="background-color: ${0}"
+				>
+				</div>
+		`), room.isShown() ? 'calendar-list-slider-item-checkbox-checked' : '', room.color);
+	  }
+
+	  renderRoomBlockTitle(room) {
+	    return main_core.Tag.render(_t17 || (_t17 = _$3`
+				<div class="calendar-list-slider-item-name" title="${0}">
+					${0}
+				</div>
+		`), main_core.Text.encode(room.name), main_core.Text.encode(room.name));
+	  }
+
+	  renderRoomBlockActionsContainer(room) {
+	    return main_core.Tag.render(_t18 || (_t18 = _$3`
+				<div class="calendar-list-slider-item-actions-container" data-bx-calendar-section-menu="${0}">
+					<span class="calendar-list-slider-item-context-menu"></span>
+				</div>
+		`), room.id);
+	  }
+
+	  roomClickHandler(e) {
+	    const target = calendar_util.Util.findTargetNode(e.target || e.srcElement, this.DOM.outerWrap);
+
+	    if (target && target.getAttribute) {
+	      if (target.getAttribute('data-bx-calendar-category') !== null) {
+	        const category = this.categoryManager.getCategory(parseInt(target.getAttribute('data-bx-calendar-category'), 10));
+
+	        if (category && category.rooms.length > 0) {
+	          this.switchCategory(category, this.rooms);
+	        }
+	      } else if (target.getAttribute('data-bx-calendar-category-menu') !== null) {
+	        let categoryId = target.getAttribute('data-bx-calendar-category-menu');
+	        this.showCategoryMenu(this.categoryManager.getCategory(categoryId), target);
+	      } else if (target.getAttribute('data-bx-calendar-section-menu') !== null) {
+	        let roomId = target.getAttribute('data-bx-calendar-section-menu');
+	        this.showRoomMenu(this.roomsManager.getRoom(roomId), target);
+	      } else if (target.getAttribute('data-bx-calendar-section') !== null) {
+	        let roomId = target.getAttribute('data-bx-calendar-section');
+	        const room = this.roomsManager.getRoom(roomId);
+	        this.switchSection(room);
+	        this.updateCategoryCheckboxState(this.categoryManager.getCategory(room.categoryId));
+	      }
+	    }
+	  }
+
+	  setRoomsForCategory(categoryId) {
+	    this.categoryManager.unsetCategoryRooms(categoryId);
+	    const rooms = this.roomsManager.getRooms();
+	    const categoryManager = this.categoryManager;
+	    rooms.forEach(function (room) {
+	      if (room.categoryId === categoryId) {
+	        categoryManager.getCategory(categoryId).addRoom(room);
+	      }
+	    }, this);
+	  }
+
+	  showOnlyOneCategory(category, sections) {
+	    for (let curSection of sections) {
+	      if (curSection.categoryId === category.id) {
+	        this.switchOnSection(curSection);
+	      } else {
+	        this.switchOffSection(curSection);
+	      }
+	    }
+
+	    this.updateAllCategoriesCheckboxState();
+	    this.calendarContext.reload();
+	  }
+
+	  showCategoryMenu(category, menuItemNode) {
+	    this.setRoomsForCategory(category.id);
+	    const menuItems = this.createCategoryMenuButtons(category);
+
+	    if (menuItems && menuItems.length > 0) {
+	      this.categoryActionMenu = this.createCategoryMenu(menuItems, menuItemNode);
+	      this.categoryActionMenu.show();
+	      this.categoryActionMenu.popupWindow.subscribe('onClose', () => {
+	        this.allowSliderClose();
+	      });
+	      this.denySliderClose();
+	    }
+	  }
+
+	  createCategoryMenuButtons(category) {
+	    const menuItems = [];
+
+	    if (this.categoryManager.canDo('view') && !this.isConfigureList && category.rooms.length > 0) {
+	      menuItems.push({
+	        text: main_core.Loc.getMessage('EC_SEC_LEAVE_ONE_ROOM'),
+	        onclick: () => {
+	          this.categoryActionMenu.close();
+	          this.showOnlyOneCategory(category, this.roomsManager.rooms);
+	        }
+	      });
+	    }
+
+	    if (!this.readonly && this.categoryManager.canDo('edit')) {
+	      menuItems.push({
+	        text: main_core.Loc.getMessage('EC_SEC_EDIT'),
+	        onclick: () => {
+	          this.categoryActionMenu.close();
+	          this.showEditCategoryForm({
+	            category: category,
+	            actionType: 'updateCategory'
+	          });
+	        }
+	      });
+	    }
+
+	    if (this.categoryManager.canDo('edit')) {
+	      menuItems.push({
+	        text: main_core.Loc.getMessage('EC_SEC_DELETE'),
+	        onclick: () => {
+	          this.categoryActionMenu.close();
+	          this.freezeButtons();
+	          this.categoryManager.deleteCategory(category.id, this.unfreezeButtons.bind(this));
+	        }
+	      });
+	    }
+
+	    return menuItems;
+	  }
+
+	  createCategoryMenu(menuItems, menuItemNode) {
+	    const params = {
+	      closeByEsc: true,
+	      autoHide: true,
+	      zIndex: this.zIndex,
+	      offsetTop: 0,
+	      offsetLeft: 9,
+	      angle: true,
+	      cacheable: false
+	    };
+	    return top.BX.PopupMenu.create('category-menu-' + calendar_util.Util.getRandomInt(), menuItemNode, menuItems, params);
+	  }
+
+	  findCheckBoxNodes(id) {
+	    return this.DOM.blocksWrap.querySelectorAll('.calendar-list-slider-item[data-bx-calendar-section=\'' + id + '\'] .calendar-list-slider-item-checkbox');
+	  }
+
+	  destroy(event) {
+	    if (event && event.getSlider && event.getSlider().getUrl() === this.sliderId) {
+	      this.destroyEventEmitterSubscriptions();
+	      BX.removeCustomEvent('SidePanel.Slider:onCloseComplete', BX.proxy(this.destroy, this));
+	      BX.SidePanel.Instance.destroy(this.sliderId);
+	      delete this.DOM.blocksWrap;
+
+	      if (this.roomActionMenu) {
+	        this.roomActionMenu.close();
+	      }
+	    }
+	  }
+
+	  deleteRoomHandler(event) {
+	    if (event && event instanceof calendar_util.Util.getBX().Event.BaseEvent) {
+	      const data = event.getData();
+	      const deleteID = parseInt(data.id);
+	      this.rooms.forEach((room, index) => {
+	        if (parseInt(room.id) === deleteID && room.DOM && room.DOM.item) {
+	          main_core.Dom.addClass(room.DOM.item, 'calendar-list-slider-item-disappearing');
+	          setTimeout(() => {
+	            main_core.Dom.clean(room.DOM.item, true);
+	            this.rooms.splice(index, 1);
+	          }, 300);
+	        }
+	      }, this);
+	      this.closeForms();
+	    }
+
+	    this.refreshRooms();
+	  }
+
+	  deleteRoom(room) {
+	    this.roomsManager.deleteRoom(room.id, room.location_id);
+	  }
+
+	  freezeButtons() {
+	    main_core.Dom.addClass(this.DOM.outerWrap, 'calendar-content-locked');
+	  }
+
+	  unfreezeButtons() {
+	    main_core.Dom.removeClass(this.DOM.outerWrap, 'calendar-content-locked');
+	  }
+
+	  isFrozen() {
+	    return main_core.Dom.hasClass(this.DOM.outerWrap, 'calendar-content-locked');
+	  }
+
+	  updateCategoryCheckboxState(category) {
+	    if (!category) {
+	      return;
+	    }
+
+	    const updatedCategoryCheckboxStatus = this.determineCategoryCheckboxStatus(category, this.roomsManager.rooms);
+
+	    if (category.checkboxStatus !== updatedCategoryCheckboxStatus) {
+	      category.setCheckboxStatus(updatedCategoryCheckboxStatus);
+	      this.setCategoryCheckboxState(this.findCategoryCheckBoxNode(category.id), updatedCategoryCheckboxStatus);
+	    }
+	  }
+
+	  determineCategoryCheckboxStatus(category, rooms) {
+	    let hasEnabled = false;
+	    let hasDisabled = false;
+	    rooms.forEach(room => {
+	      if (room.categoryId === category.id) {
+	        if (room.isShown() && !hasEnabled) {
+	          hasEnabled = true;
+	        }
+
+	        if (!room.isShown() && !hasDisabled) {
+	          hasDisabled = true;
 	        }
 	      }
+	    });
+
+	    if (hasEnabled && hasDisabled) {
+	      return this.CATEGORY_ROOMS_SHOWN_SOME;
 	    }
-	  }, {
-	    key: "deleteRoomHandler",
-	    value: function deleteRoomHandler(event) {
-	      var _this5 = this;
 
-	      if (event && event instanceof calendar_util.Util.getBX().Event.BaseEvent) {
-	        var data = event.getData();
-	        var deleteID = parseInt(data.id);
-	        this.sliderRoom.forEach(function (room, index) {
-	          if (parseInt(room.id) === deleteID && room.DOM && room.DOM.item) {
-	            main_core.Dom.addClass(room.DOM.item, 'calendar-list-slider-item-disappearing');
-	            setTimeout(function () {
-	              main_core.Dom.clean(room.DOM.item, true);
+	    if (hasEnabled) {
+	      return this.CATEGORY_ROOMS_SHOWN_ALL;
+	    }
 
-	              _this5.sliderRoom.splice(index, 1);
-	            }, 300);
-	          }
-	        }, this);
-	        this.closeForms();
+	    return this.CATEGORY_ROOMS_SHOWN_NONE;
+	  }
+
+	  switchCategory(category, rooms) {
+	    const checkboxNode = this.findCategoryCheckBoxNode(category.id);
+
+	    switch (category.checkboxStatus) {
+	      case this.CATEGORY_ROOMS_SHOWN_SOME:
+	      case this.CATEGORY_ROOMS_SHOWN_NONE:
+	        this.switchOnCategoryRooms(category.id, rooms);
+	        this.setCategoryCheckboxState(checkboxNode, this.CATEGORY_ROOMS_SHOWN_ALL);
+	        category.setCheckboxStatus(this.CATEGORY_ROOMS_SHOWN_ALL);
+	        break;
+
+	      case this.CATEGORY_ROOMS_SHOWN_ALL:
+	        this.switchOffCategoryRooms(category.id, rooms);
+	        this.setCategoryCheckboxState(checkboxNode, this.CATEGORY_ROOMS_SHOWN_NONE);
+	        category.setCheckboxStatus(this.CATEGORY_ROOMS_SHOWN_NONE);
+	        break;
+
+	      default:
+	        break;
+	    }
+
+	    this.calendarContext.reload();
+	  }
+
+	  setCategoryCheckboxState(checkboxNode, checkboxStatus) {
+	    main_core.Dom.removeClass(checkboxNode, 'calendar-list-slider-item-checkbox-checked');
+	    main_core.Dom.removeClass(checkboxNode, 'calendar-list-slider-item-checkbox-indeterminate');
+
+	    switch (checkboxStatus) {
+	      case this.CATEGORY_ROOMS_SHOWN_SOME:
+	        main_core.Dom.addClass(checkboxNode, 'calendar-list-slider-item-checkbox-indeterminate');
+	        break;
+
+	      case this.CATEGORY_ROOMS_SHOWN_ALL:
+	        main_core.Dom.addClass(checkboxNode, 'calendar-list-slider-item-checkbox-checked');
+	        break;
+
+	      default:
+	        break;
+	    }
+	  }
+
+	  findCategoryCheckBoxNode(id) {
+	    return this.DOM.outerWrap.querySelector('.calendar-list-slider-item-category[data-bx-calendar-category=\'' + id + '\'] .calendar-list-slider-item-checkbox');
+	  }
+
+	  switchOnCategoryRooms(categoryId, rooms) {
+	    rooms.forEach(room => {
+	      if (room.categoryId === categoryId && !room.isShown()) {
+	        this.switchOnSection(room);
 	      }
-	    }
-	  }, {
-	    key: "deleteRoom",
-	    value: function deleteRoom(room) {
-	      this.roomsManager.deleteRoom(room.id, room.location_id);
-	    }
-	  }]);
-	  return RoomsInterface;
-	}(calendar_sectioninterface.SectionInterface);
+	    });
+	  }
+
+	  switchOffCategoryRooms(categoryId, rooms) {
+	    rooms.forEach(room => {
+	      if (room.categoryId === categoryId && room.isShown()) {
+	        this.switchOffSection(room);
+	      }
+	    });
+	  }
+
+	  updateAllCategoriesCheckboxState() {
+	    this.categoryManager.getCategories().forEach(category => this.updateCategoryCheckboxState(category));
+	  }
+
+	}
 
 	exports.ReserveButton = ReserveButton;
 	exports.RoomsInterface = RoomsInterface;
 	exports.EditFormRoom = EditFormRoom;
 
-}((this.BX.Calendar.Rooms = this.BX.Calendar.Rooms || {}),BX.Calendar.Controls,BX.Calendar,BX,BX.Event,BX.UI.EntitySelector,BX.Calendar));
+}((this.BX.Calendar.Rooms = this.BX.Calendar.Rooms || {}),BX.Calendar,BX.Event,BX.Calendar.Controls,BX,BX.Calendar,BX.UI.EntitySelector));
 //# sourceMappingURL=rooms.bundle.js.map

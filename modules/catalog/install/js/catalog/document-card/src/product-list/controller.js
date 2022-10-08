@@ -18,6 +18,14 @@ export default class ProductListController extends BX.UI.EntityEditorController
 		EventEmitter.subscribe(this._editor, 'onControlChanged', this.onEditorControlChange.bind(this));
 		EventEmitter.subscribe('DocumentProductListController', this._setProductListHandler);
 		EventEmitter.subscribe('onEntityDetailsTabShow', this._tabShowHandler);
+		EventEmitter.subscribe('BX.UI.EntityEditorList:onItemSelect', (event) => {
+			const [field, params] = event.data;
+
+			if (field?.getId() === 'TOTAL_WITH_CURRENCY')
+			{
+				this.changeCurrency(params.item.value);
+			}
+		});
 	}
 
 	handleSetProductList(event)
@@ -150,13 +158,18 @@ export default class ProductListController extends BX.UI.EntityEditorController
 		const [field, params] = event.getData();
 		if (field instanceof BX.UI.EntityEditorMoney && params?.fieldName === 'CURRENCY')
 		{
-			this._currencyId = params?.fieldValue;
+			this.changeCurrency(params.fieldValue);
+		}
+	}
 
-			if (this.productList && this._currencyId)
-			{
-				this.productList.changeCurrencyId(this._currencyId);
-				this.markAsChanged();
-			}
+	changeCurrency(currencyValue)
+	{
+		this._currencyId = currencyValue;
+
+		if (this.productList && this._currencyId)
+		{
+			this.productList.changeCurrencyId(this._currencyId);
+			this.markAsChanged();
 		}
 	}
 
@@ -177,7 +190,11 @@ export default class ProductListController extends BX.UI.EntityEditorController
 			totalData.totalCost,
 		);
 
-		this._editor.getControlById('TOTAL_WITH_CURRENCY').refreshLayout();
+		const totalCurrencyControl = this._editor.getControlById('TOTAL_WITH_CURRENCY');
+		if (totalCurrencyControl instanceof BX.UI.EntityEditorMoney)
+		{
+			totalCurrencyControl.refreshLayout();
+		}
 	}
 
 	validateProductList()

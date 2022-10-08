@@ -9,6 +9,7 @@ use Bitrix\Main\Web\Json;
 /** @var array $arResult*/
 /** @var array $arParams*/
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 ?>
 
 <?php $this->SetViewTarget($arResult['VIEW_TARGET']) ?>

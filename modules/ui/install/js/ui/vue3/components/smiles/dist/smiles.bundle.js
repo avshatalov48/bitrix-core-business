@@ -3269,5 +3269,5 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 
 	exports.Smiles = Smiles;
 
-}((this.BX.Vue3.Components = this.BX.Vue3.Components || {}),BX.Vue3.Directives,BX.Vue3,BX,BX));
+}((this.BX.Vue3.Components = this.BX.Vue3.Components || {}),BX.Vue3.Directives,BX.Vue3,BX.Dexie3,BX));
 //# sourceMappingURL=smiles.bundle.js.map

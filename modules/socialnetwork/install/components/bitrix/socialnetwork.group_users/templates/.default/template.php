@@ -1,5 +1,11 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
+
 if($arResult["FatalError"] <> '')
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
@@ -45,7 +51,7 @@ else
 			null,
 			array("HIDE_ICONS" => "Y")
 		);
-			
+
 		$strOnClick = "if (BX.SGCP) { BX.SGCP.ShowForm('invite', '".$popupName."', event); } else { return false;}";
 		?><?
 
@@ -56,11 +62,11 @@ else
 			<div class="sonet-add-user-button-clear"></div>
 		</div><?
 	endif;
-	
+
 	if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"] || $arResult["CurrentUserPerms"]["UserCanModerateGroup"]):
 		?><form method="post" name="form1" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data"><?
 	endif;
-	
+
 	if ($arResult["NAV_STRING"] <> ''):
 		?><?=$arResult["NAV_STRING"]?><br /><br /><?
 	endif;
@@ -79,15 +85,15 @@ else
 			<div class="bx-links-container"><?
 			if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"]):
 				?><script>
-					var arUsers = []; 
+					var arUsers = [];
 					var bx_owner_menu = new PopupMenu('bx_owner_menu');
-					
+
 					function ShowOwnerMenu(el)
 					{
 						if (arUsers.length > 0)
 						{
 							var items = [];
-		
+
 							for (var i = 0; i < arUsers.length; i++)
 							{
 								items[i] = {
@@ -96,7 +102,7 @@ else
 									ONCLICK: 'SetOwner(' + arUsers[i].ID + ')'
 								}
 							}
-	
+
 							bx_owner_menu.ShowMenu(el, items);
 						}
 					}
@@ -112,18 +118,18 @@ else
 				<a href="javascript:void(0)" class="bx-owner-link" id="bx_owner_link" onclick="ShowOwnerMenu(this);" style="display: none;"><span><?echo GetMessage('SONET_C25_T_OWNER')?></span></a><?
 			endif;
 			?></div>
-				
+
 			<table width="100%" border="0" class="sonet-user-profile-friend-box">
 			<tr>
 				<td align="left" valign="top">
 				<?
 				$ind = 0;
-				$ind_row = 0;					
-				
+				$ind_row = 0;
+
 				$colcnt = 2;
 				$cnt = count($arResult["Users"]["List"]);
 				$rowcnt = intval(round($cnt / $colcnt));
-				
+
 				foreach ($arResult["Users"]["List"] as $friend)
 				{
 					if ($ind_row >= $rowcnt)
@@ -131,9 +137,9 @@ else
 						echo "</td><td align=\"left\" valign=\"top\" width=\"".intval(100 / $colcnt)."%\">";
 						$ind_row = 0;
 					}
-						
+
 					?><div class="user-div"><?
-					
+
 					if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"] || $arResult["CurrentUserPerms"]["UserCanModerateGroup"])
 					{
 						?><table cellspacing="0" cellpadding="0" border="0" class="sonet-user-profile-friend-user">
@@ -150,13 +156,13 @@ else
 						$strUserDesc = GetMessage("SONET_C100_MODERATOR");
 					else
 						$strUserDesc = "";
-							
+
 					$APPLICATION->IncludeComponent("bitrix:main.user.link",
 						'',
 						array(
 							"ID" => $friend["USER_ID"],
 							"HTML_ID" => "group_users_".$friend["USER_ID"],
-							"DESCRIPTION" => $strUserDesc,								
+							"DESCRIPTION" => $strUserDesc,
 							"NAME" => htmlspecialcharsback($friend["USER_NAME"]),
 							"LAST_NAME" => htmlspecialcharsback($friend["USER_LAST_NAME"]),
 							"SECOND_NAME" => htmlspecialcharsback($friend["USER_SECOND_NAME"]),
@@ -175,10 +181,10 @@ else
 							"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 							"PATH_TO_CONPANY_DEPARTMENT" => $arParams["~PATH_TO_CONPANY_DEPARTMENT"],
 						),
-						false, 
+						false,
 						array("HIDE_ICONS" => "Y")
 					);
-						
+
 					if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"] || $arResult["CurrentUserPerms"]["UserCanModerateGroup"])
 					{
 							?></td>
@@ -190,7 +196,7 @@ else
 					$ind_row++;
 					?></div><?
 					if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"]):
-						?><script>arUsers[arUsers.length] = {ID:<?echo $friend["USER_ID"]?>,NAME:'<?echo CUtil::JSEscape(htmlspecialcharsback($friend["USER_NAME_FORMATTED"]))?>',CURRENT:<?echo $friend["IS_OWNER"] ? 'true' : 'false'?>}</script><?	
+						?><script>arUsers[arUsers.length] = {ID:<?echo $friend["USER_ID"]?>,NAME:'<?echo CUtil::JSEscape(htmlspecialcharsback($friend["USER_NAME_FORMATTED"]))?>',CURRENT:<?echo $friend["IS_OWNER"] ? 'true' : 'false'?>}</script><?
 					endif;
 				}
 				?></td>
@@ -199,7 +205,7 @@ else
 		}
 		else
 			echo GetMessage("SONET_C25_T_EMPTY");
-			
+
 		if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"]):
 			?><a href="<?= $arResult["Urls"]["GroupMods"] ?>"><?= GetMessage("SONET_C25_T_EDIT_MOD") ?></a><?
 		endif;
@@ -211,7 +217,7 @@ else
 	if ($arResult["NAV_STRING"] <> ''):
 		?><br><?=$arResult["NAV_STRING"]?><br /><br /><?
 	endif;
-	
+
 	if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"] || $arResult["CurrentUserPerms"]["UserCanModerateGroup"]):
 		?><br />
 		<input type="hidden" name="max_count" value="<?= $ind ?>">
@@ -220,12 +226,12 @@ else
 			?><input type="submit" name="save" value="<?= GetMessage("SONET_C25_T_SAVE") ?>"><?
 			?><input type="submit" name="exclude" value="<?= GetMessage("SONET_C25_T_EXCLUDE") ?>"><?
 		endif;
-		
+
 		if ($arParams["GROUP_USE_BAN"] != "N" && (!CModule::IncludeModule('extranet') || !CExtranet::IsExtranetSite())):
 			?><input type="submit" name="ban" value="<?= GetMessage("SONET_C25_T_BAN") ?>"><?
 		endif;
 	?></form><?
 	endif;
-	
+
 }
 ?>

@@ -49,7 +49,7 @@
 
 .main-user-consent-edit-title {
 	margin: 0 0 5px 0;
-	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #535C69;
 }
 
@@ -77,7 +77,7 @@
 }
 
 .main-user-consent-edit-fields-field-view {
-	font: 18px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+	font: 18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #000;
 }
 
@@ -96,12 +96,12 @@
 	padding: 14px 20px;
 	border-radius: 3px;
 	background: #FFFDE1;
-	font: 13px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #8B7B60;
 }
 
 .main-user-consent-edit-link-tune {
-	font: bold 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	text-transform: lowercase;
 	cursor: pointer;
 	text-decoration: none;

@@ -29,7 +29,7 @@ export class ErrorCollection
 	{
 		if (this.errors.has(code))
 		{
-			this.errors.delete(code, text);
+			this.errors.delete(code);
 		}
 		this.model.onErrorCollectionChange();
 

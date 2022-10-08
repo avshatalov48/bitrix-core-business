@@ -87,6 +87,7 @@ return [
 		$pathJS . '/ui/field/font_field.js',
 		$pathJS . '/ui/field/html_field.js',
 		$pathJS . '/ui/field/embed_field.js',
+		$pathJS . '/ui/field/embed_bg_field.js',
 		$pathJS . '/ui/field/date_field.js',
 		$pathJS . '/ui/field/block_source_field.js',
 		$pathJS . '/ui/field/dynamic_image_field.js',
@@ -125,7 +126,7 @@ return [
 		$pathJS . '/mediaservice/facebook_video_embed_service.js',
 		$pathJS . '/mediaservice/service_factory.js',
 		$pathJS . '/error_manager.js',
-		$pathJS . '/external/webfontloader/webfontloader.js',
+		$pathJS . '/external/webfontloader/webfontloader_landing.js',
 	],
 	'css' => [
 		$pathCSS . '/landing_master.css',
@@ -186,6 +187,8 @@ return [
 	],
 	'rel' => [
 		'main.core',
+		'ui.fonts.opensans',
+		'ui.design-tokens',
 		'main.polyfill.intersectionobserver',
 		'main.polyfill.customevent',
 		'ui.buttons',

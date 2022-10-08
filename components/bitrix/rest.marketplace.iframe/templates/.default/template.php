@@ -15,7 +15,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CUser $USER
  */
 
-\CJSCore::Init(array("sidepanel"));
+\CJSCore::Init(array("sidepanel", "ui.fonts.opensans"));
 ?>
 <!DOCTYPE html>
 <html>

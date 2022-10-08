@@ -18,8 +18,15 @@ use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Rest\Marketplace\Url;
 $portalZoneId = (Loader::includeModule('bitrix24')) ? (CBitrix24::getPortalZone()) : 'ru';
 \Bitrix\Main\Loader::includeModule('ui');
-\Bitrix\Main\UI\Extension::load(array("ui.tilegrid", "ui.buttons"));
-\CJSCore::init(["sidepanel"], "loader");
+
+\Bitrix\Main\UI\Extension::load([
+	"ui.design-tokens",
+	"ui.fonts.opensans",
+	"ui.tilegrid",
+	"ui.buttons",
+	"sidepanel",
+	"loader",
+]);
 
 $arResult['SLIDER'] = \CRestUtil::isSlider();
 

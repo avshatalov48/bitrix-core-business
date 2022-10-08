@@ -44,6 +44,7 @@ import CustomButton from './compatibility/custombutton';
 
 import { Reflection } from 'main.core';
 
+import 'ui.design-tokens';
 import 'ui.fonts.opensans';
 import './css/popup.css';
 

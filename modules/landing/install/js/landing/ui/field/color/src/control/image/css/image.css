@@ -15,7 +15,7 @@
 }
 
 .landing-ui-field-color-image-size .landing-ui-field-header {
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin-bottom: 0;
 	color: rgba(82, 92, 105, .7);
 }
@@ -31,6 +31,6 @@
 }
 
 .landing-ui-field-color-image-attachment .landing-ui-field-checkbox-item-label {
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	color: rgba(82, 92, 105, .7) !important;
 }

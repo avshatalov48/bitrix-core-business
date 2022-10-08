@@ -276,7 +276,6 @@ $MESS["COUNTRY_236"] = "Montenegro";
 $MESS["MAIN_MAILTO"] = "Send message";
 $MESS["MAIN_F_TIMESTAMP"] = "Modified";
 $MESS["AJAX_WAIT"] = "Loading...";
-$MESS["HTTP_CLIENT_ERROR_CONNECT"] = "Error connecting to %HOST%:%PORT%. Error code: \"%ERRNO%\", error description: \"%ERRSTR%\"";
 $MESS["TOOLS_TRIAL_EXP"] = "Trial period of the product has expired. You can purchase the full version of the product on the site <a href=\"https://www.bitrix24.com/prices/self-hosted.php\">www.bitrix24.com</a>.";
 $MESS["expire_mess1"] = "<font class=\"tablebodytext\"><font color=\"#FF0000\">
 		Trial period of the product has expired.

@@ -34,6 +34,12 @@ class BotProvider extends BaseProvider
 		{
 			$this->options['fillDialog'] = $options['fillDialog'];
 		}
+
+		$this->options['fillDialogWithDefaultValues'] = true;
+		if (isset($options['fillDialogWithDefaultValues']) && is_bool($options['fillDialogWithDefaultValues']))
+		{
+			$this->options['fillDialogWithDefaultValues'] = $options['fillDialogWithDefaultValues'];
+		}
 	}
 
 	public function isAvailable(): bool
@@ -303,6 +309,18 @@ class BotProvider extends BaseProvider
 	{
 		if (!$this->shouldFillDialog())
 		{
+			return;
+		}
+
+		if (!$this->getOption('fillDialogWithDefaultValues', true))
+		{
+			$recentBots = new EO_User_Collection();
+			$recentItems = $dialog->getRecentItems()->getEntityItems('im-bot');
+			$recentIds = array_map('intval', array_keys($recentItems));
+			$this->fillRecentBots($recentBots, $recentIds, new EO_User_Collection());
+
+			$dialog->addRecentItems($this->makeBotItems($recentBots));
+
 			return;
 		}
 

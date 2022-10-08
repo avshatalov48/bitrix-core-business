@@ -13,6 +13,8 @@ if (!\Bitrix\Sale\Configuration::isCanUsePersonalization())
 
 IncludeModuleLangFile(__FILE__);
 
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+
 // Page header
 $APPLICATION->SetTitle(GetMessage('BIGDATA_PERSONALIZATION'));
 
@@ -67,7 +69,8 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 	box-sizing:border-box;
 	width:33%;
 	padding-right:40px;
-	font-family:'Open Sans','Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	text-align: center;
 	font-size: 16px;
 	padding-top: 22px;
@@ -79,7 +82,8 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 	box-sizing:border-box;
 	width:34%;
 	padding:22px 20px 0;
-	font-family:'Open Sans','Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	text-align: center;
 	font-size: 16px;
 	/*padding-top: 25px;*/
@@ -91,7 +95,8 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 	box-sizing:border-box;
 	width:33%;
 	padding-left:40px;
-	font-family:'Open Sans','Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	text-align: center;
 	font-size: 16px;
 	padding-top: 22px;
@@ -111,10 +116,12 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 	vertical-align: middle;
 	font-size: 24px;
 	text-align: center;
-	font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 .adm-c-bigdata-activate-content{
-	font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	padding: 30px;
 	background: #fff;
 }
@@ -122,9 +129,8 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 	list-style: none;
 }
 .adm-c-bigdata-activate-content-task-list li{
-	font-size: 18px;
-	font-family: 'Open Sans', "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-weight: 300;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	margin-bottom: 14px;
 	display: block;
 	position: relative;
@@ -178,7 +184,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 	vertical-align: middle;
 	font-size: 18px;
 	text-decoration: none;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
 	text-shadow:0 1px 1px #789d1c;
 }

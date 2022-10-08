@@ -1,0 +1,349 @@
+.ui-tile-uploader {
+	position: relative;
+}
+
+.ui-tile-uploader-items {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.ui-tile-uploader-item {
+	position: relative;
+	display: inline-block;
+	width: 120px;
+	height: 122px;
+	padding: 4px;
+	box-sizing: border-box;
+	margin-right: 20px;
+	margin-bottom: 24px;
+	border-radius: 12px;
+
+	background-color: #fff;
+	transition: box-shadow .3s, top .3s;
+	cursor: pointer;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+	will-change: top;
+}
+
+.ui-tile-uploader-item:hover {
+	box-shadow: 0 5px 6px 0 rgba(0, 0, 0, .22);
+	/*top: -1px;*/
+}
+
+.ui-tile-uploader-item-leave-active {
+	transition: opacity .2s;
+}
+
+.ui-tile-uploader-item-leave-to {
+	opacity: 0;
+}
+
+.ui-tile-uploader-item--uploading {
+	--ui-tile-uploader-item-state-bgcolor: rgba(47, 198, 246, 0.95);
+	--ui-tile-uploader-item-status-color: #fff;
+	--ui-tile-uploader-item-content-bgcolor: rgba(255, 255, 255, 0.2);
+	--ui-tile-uploader-item-state-desc-color: rgba(255, 255, 255, 0.7);
+}
+
+.ui-tile-uploader-item--load-failed,
+.ui-tile-uploader-item--upload-failed {
+	--ui-tile-uploader-item-state-bgcolor: rgba(255, 87, 82, .95);
+	--ui-tile-uploader-item-status-color: #fff;
+	--ui-tile-uploader-item-state-icon-image: url(images/state-failed.svg);
+	--ui-tile-uploader-item-state-icon-opacity: 0.7;
+	--ui-tile-uploader-item-content-bgcolor: rgba(255, 87, 82, .2);
+	--ui-tile-uploader-item-state-desc-color: rgba(255, 255, 255, 0.8);
+	--ui-tile-uploader-item-preview-overlay-opacity: 0;
+}
+
+.ui-tile-uploader-item--added,
+.ui-tile-uploader-item--loading,
+.ui-tile-uploader-item--pending {
+	--ui-tile-uploader-item-state-bgcolor: #e7e8e8;
+	--ui-tile-uploader-item-status-color: #525c69;
+	--ui-tile-uploader-item-state-icon-image: url(images/state-waiting.svg);
+	--ui-tile-uploader-item-state-icon-opacity: 1;
+	--ui-tile-uploader-item-content-bgcolor: rgba(255, 255, 255, .5);
+	--ui-tile-uploader-item-state-desc-color: rgba(82, 92, 105, 0.8);
+
+	--ui-tile-uploader-item-state-remove-image: url(images/remove-dark.svg);
+	--ui-tile-uploader-item-state-remove-opacity: 0.2;
+	--ui-tile-uploader-item-state-remove-opacity-hover: 0.8;
+}
+
+.ui-tile-uploader-item--load-failed,
+.ui-tile-uploader-item--upload-failed,
+.ui-tile-uploader-item--uploading {
+	--ui-tile-uploader-item-state-remove-image: url(images/remove-light.svg);
+	--ui-tile-uploader-item-state-remove-opacity: 0.4;
+	--ui-tile-uploader-item-state-remove-opacity-hover: 1;
+}
+
+.ui-tile-uploader-item--complete {
+	--ui-tile-uploader-item-preview-overlay: none;
+}
+
+.ui-tile-uploader-item-content {
+	display: flex;
+	flex-direction: column;
+	border-radius: 8px;
+	width: 100%;
+	height: 100%;
+	position: relative;
+	background-color: var(--ui-tile-uploader-item-content-bgcolor);
+}
+
+.ui-tile-uploader-item-state {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 29px;
+	border-radius: 8px 8px 0 0;
+	z-index: 10;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	background-color: var(--ui-tile-uploader-item-state-bgcolor);
+}
+
+.ui-tile-uploader-item-state-icon,
+.ui-tile-uploader-item-loader {
+	position: absolute;
+	left: 6px;
+	top: 5px;
+	width: 18px;
+	height: 18px;
+
+	background-image: var(--ui-tile-uploader-item-state-icon-image);
+	opacity: var(--ui-tile-uploader-item-state-icon-opacity);
+}
+
+.ui-tile-uploader-item-state-icon {
+	background-image: var(--ui-tile-uploader-item-state-icon-image);
+	background-repeat: no-repeat;
+	background-position: center;
+	opacity: var(--ui-tile-uploader-item-state-icon-opacity);
+}
+
+.ui-tile-uploader-item-status {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	position: absolute;
+	left: 28px;
+	top: 0;
+	right: 20px;
+	bottom: 0;
+
+}
+
+.ui-tile-uploader-item-status-name {
+	font-size: 12px;
+	line-height: 12px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	min-width: 100%;
+	color: var(--ui-tile-uploader-item-status-color);
+}
+
+.ui-tile-uploader-item-state-desc {
+	font-size: 9px;
+	line-height: 9px;
+	white-space: nowrap;
+	overflow: hidden;
+	min-width: 100%;
+	text-overflow: ellipsis;
+	color: var(--ui-tile-uploader-item-state-desc-color);
+}
+
+.ui-tile-uploader-item-state-remove {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 27px;
+	background-image: var(--ui-tile-uploader-item-state-remove-image);
+	background-repeat: no-repeat;
+	background-position: center;
+	opacity: var(--ui-tile-uploader-item-state-remove-opacity);
+	cursor: pointer;
+	transition: opacity 300ms;
+	z-index: 1;
+}
+
+.ui-tile-uploader-item-state-remove:hover {
+	opacity: var(--ui-tile-uploader-item-state-remove-opacity-hover);
+}
+
+.ui-tile-uploader-item-preview {
+	flex: 1;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+.ui-tile-uploader-item-preview:before {
+	display: var(--ui-tile-uploader-item-preview-overlay, block);
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	border-radius: 8px;
+	background-color: #fff;
+	opacity: var(--ui-tile-uploader-item-preview-overlay-opacity, 0.7);
+	z-index: 1;
+}
+
+.ui-tile-uploader-item-image {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 100%;
+	border-radius: 8px;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+}
+
+.ui-tile-uploader-item-image-default:before {
+	content: '';
+	position: absolute;
+	left: 12px;
+	right: 12px;
+	top: 38px;
+	bottom: 6px;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center bottom;
+	background-image: url(images/image-default-preview.svg);
+	opacity: 0.3;
+}
+
+.ui-tile-uploader-item-name-box {
+	display: flex;
+	align-items: center;
+	height: 44px;
+}
+
+.ui-tile-uploader-item.--image .ui-tile-uploader-item-name-box {
+	height: auto;
+}
+
+.ui-tile-uploader-item-name {
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	height: auto;
+	max-height: 44px;
+	padding: 6px 6px 3px 6px;
+	color: #525c69;
+	line-height: 13px;
+	box-sizing: border-box;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: rgba(82,92,105,.8);
+	overflow: hidden;
+	max-width: 100%;
+	width: 100%;
+	word-break: break-all;
+	text-align: center;
+}
+
+.ui-tile-uploader-item-name-extension {
+	color: #a8adb4;
+}
+
+.ui-tile-uploader-item-file-icon {
+	width: 36px;
+	height: 42px;
+	margin: 20px auto 13px auto;
+}
+
+.ui-tile-uploader-item-file-default {
+	position: absolute;
+	left: 50%;
+	top: 47px;
+	transform: translateX(-50%);
+}
+
+.ui-tile-uploader-item-actions {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+	display: flex;
+	align-items: center;
+	padding: 0 4px;
+	border-radius: 0 14px 0 8px;
+	background-color: #fff;
+	z-index: 4;
+}
+
+.ui-tile-uploader-item-menu {
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	background-position: center;
+	background-repeat: no-repeat;
+	transition: opacity .3s;
+	opacity: .5;
+	cursor: pointer;
+	z-index: 1;
+}
+
+.ui-tile-uploader-item-remove {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	height: 25px;
+	left: -4px;
+	top: -4px;
+	border-radius: 14px 0 8px 0;
+	background-color: #fff;
+	cursor: pointer;
+	z-index: 1;
+	right: auto;
+	width: 0;
+	pointer-events: none;
+	box-sizing: border-box;
+	overflow: hidden;
+	transition: width .3s;
+}
+
+.ui-tile-uploader-item:hover .ui-tile-uploader-item-remove {
+	width: 32px;
+	pointer-events: auto;
+}
+
+.ui-tile-uploader-item-remove:before {
+	display: inline-block;
+	width: 11px;
+	height: 11px;
+	margin-top: 4px;
+	background-position: center;
+	background-repeat: no-repeat;
+	content: '';
+	background-image: url(images/remove-dark.svg);
+	opacity: 0;
+	transition: opacity .3s;
+}
+
+.ui-tile-uploader-item:hover .ui-tile-uploader-item-remove:before {
+	opacity: 0.5;
+}
+
+.ui-tile-uploader-item:hover .ui-tile-uploader-item-remove:hover:before {
+	opacity: .9;
+}
+
+.ui-tile-uploader-item-menu {
+	background-image: url(images/menu.svg);
+	opacity: .4;
+	transition: opacity .3s;
+}
+
+.ui-tile-uploader-item-menu:hover {
+	opacity: .9;
+}

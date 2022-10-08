@@ -1,4 +1,4 @@
-import { Type } from 'main.core';
+import { Type, Runtime } from 'main.core';
 
 export class UserOptions
 {
@@ -7,6 +7,11 @@ export class UserOptions
 	constructor(options: Object<string, any>)
 	{
 		this.#options = options;
+	}
+
+	clone(): this
+	{
+		return new UserOptions(Runtime.clone(this.#options));
 	}
 
 	set(category: string, key: string, value: any): UserOptions

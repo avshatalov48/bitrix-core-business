@@ -73,12 +73,16 @@ abstract class Request
 		return $this->requestedPage;
 	}
 
+	/**
+	 * Retuns the current directory with a trailing slash (/).
+	 * @return string
+	 */
 	public function getRequestedPageDirectory()
 	{
 		if ($this->requestedPageDirectory === null)
 		{
 			$requestedPage = $this->getRequestedPage();
-			$this->requestedPageDirectory = IO\Path::getDirectory($requestedPage);
+			$this->requestedPageDirectory = IO\Path::getDirectory($requestedPage) . '/';
 		}
 		return $this->requestedPageDirectory;
 	}

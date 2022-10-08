@@ -1,6 +1,6 @@
 import StepByStepItem from './stepbystep.item';
 import { Tag, Dom } from 'main.core';
-
+import 'ui.fonts.opensans';
 
 
 export class StepByStep

@@ -119,4 +119,6 @@ $MESS["main_user_edit_policy_title"] = "Групповые политики бе
 $MESS["main_user_edit_policy_field"] = "Политики безопасности";
 $MESS["main_user_edit_policy_yes"] = "Да";
 $MESS["main_user_edit_policy_no"] = "Нет";
+$MESS['main_user_edit_devices'] = 'Устройства';
+$MESS['main_user_edit_devices_title'] = 'Устройства и история входов';
 ?>

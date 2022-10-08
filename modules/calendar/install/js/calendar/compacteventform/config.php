@@ -15,7 +15,6 @@ return [
 		'calendar.controls',
 		'calendar.entry',
 		'calendar.sectionmanager',
-		'calendar.sync.interface',
 	],
 	'skip_core' => false,
 ];

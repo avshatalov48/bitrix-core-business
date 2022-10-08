@@ -13,7 +13,7 @@
  * @global CAdminPage $adminPage
  */
 
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 define("HELP_FILE", "settings/settings/settings.php");
 
 if(!$USER->CanDoOperation('view_other_settings') && !$USER->CanDoOperation('edit_other_settings'))

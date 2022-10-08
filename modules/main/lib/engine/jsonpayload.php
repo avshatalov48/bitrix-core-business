@@ -1,8 +1,9 @@
 <?php
+
 namespace Bitrix\Main\Engine;
 
+use Bitrix\Main\Context;
 use Bitrix\Main\HttpRequest;
-use Bitrix\Main\Web\Json;
 
 /**
  * Class JsonPayload
@@ -11,18 +12,27 @@ use Bitrix\Main\Web\Json;
 final class JsonPayload
 {
 	/**
-	 * Get data.
+	 * Returns decoded data from JSON (proactive filter applied).
 	 *
-	 * @return array|mixed
-	 * @throws \Bitrix\Main\ArgumentException
+	 * @return array
 	 */
 	public function getData()
 	{
-		return Json::decode($this->getRaw());
+		return $this->getDataList()->toArray();
 	}
 
 	/**
-	 * Get raw data.
+	 * Returns decoded data from JSON as a ParameterDictionary object, including raw data.
+	 *
+	 * @return \Bitrix\Main\Type\ParameterDictionary
+	 */
+	public function getDataList()
+	{
+		return Context::getCurrent()->getRequest()->getJsonList();
+	}
+
+	/**
+	 * Get raw data from php://input.
 	 *
 	 * @return bool|string
 	 */

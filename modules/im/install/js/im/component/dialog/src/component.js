@@ -7,6 +7,9 @@
  * @copyright 2001-2021 Bitrix
  */
 
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 import {BitrixVue} from "ui.vue";
 
 import {Logger} from "im.lib.logger";

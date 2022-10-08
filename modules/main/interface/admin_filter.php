@@ -6,6 +6,8 @@
  * @copyright 2001-2016 Bitrix
  */
 
+use Bitrix\Main\Web\Uri;
+
 class CAdminFilter
 {
 	public 	$id;
@@ -722,7 +724,10 @@ class CAdminFilter
 		//making filter tabs draggable
 		if($this->url)
 		{
-			$registerUrl = CHTTP::urlDeleteParams($this->url, array("adm_filter_applied", "adm_filter_preset"));
+			$registerUrl = (new Uri($this->url))
+				->deleteParams(["adm_filter_applied", "adm_filter_preset"])
+				->getUri()
+			;
 
 			foreach($this->arItems as $filter_id => $filter)
 			{
@@ -731,7 +736,9 @@ class CAdminFilter
 				if(isset($filter["PRESET_ID"]))
 					$arParamsAdd["adm_filter_preset"] = $filter["PRESET_ID"];
 
-				$filterUrl = CHTTP::urlAddParams($registerUrl, $arParamsAdd, array("encode","skip_empty"));
+				$filterUrl = (new Uri($registerUrl))
+					->addParams($arParamsAdd)
+					->getUri();
 
 				echo "
 					if(BX.adminMenu && BX.adminMenu.registerItem) // todo: find true reason in sliders.

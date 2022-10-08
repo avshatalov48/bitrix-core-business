@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
 
 /**
@@ -73,6 +73,12 @@ if($USER->CanDoOperation('edit_php') || $USER->CanDoOperation('view_all_users') 
 			"text" => GetMessage("MAIN_MENU_PROFILE_HISTORY"),
 			"url" => "profile_history.php?lang=".LANGUAGE_ID,
 			"title" => GetMessage("MAIN_MENU_PROFILE_HISTORY_TITLE"),
+		);
+		$array_user_items[] = array(
+			"text" => GetMessage('main_admin_menu_devices'),
+			"url" => "user_devices.php?lang=".LANGUAGE_ID,
+			"more_url" => array("user_devices_history.php"),
+			"title" => GetMessage('main_admin_menu_devices_title'),
 		);
 	}
 

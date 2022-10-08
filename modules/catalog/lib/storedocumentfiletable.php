@@ -19,7 +19,20 @@ use Bitrix\Main\ORM\Fields\Relations\Reference;
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_StoreDocumentFile_Query query()
+ * @method static EO_StoreDocumentFile_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_StoreDocumentFile_Result getById($id)
+ * @method static EO_StoreDocumentFile_Result getList(array $parameters = [])
+ * @method static EO_StoreDocumentFile_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_StoreDocumentFile createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_StoreDocumentFile_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_StoreDocumentFile wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_StoreDocumentFile_Collection wakeUpCollection($rows)
+ */
 
 class StoreDocumentFileTable extends DataManager
 {

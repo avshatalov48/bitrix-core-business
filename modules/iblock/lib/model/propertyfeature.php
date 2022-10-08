@@ -50,6 +50,7 @@ class PropertyFeature
 			return $result;
 		}
 
+		$resultIds = [];
 		foreach ($features as $row)
 		{
 			$row['PROPERTY_ID'] = $propertyId;
@@ -59,9 +60,12 @@ class PropertyFeature
 				$result->addErrors($internalResult->getErrors());
 				return $result;
 			}
+
+			$resultIds[] = $internalResult->getId();
 		}
 		unset($internalResult, $row);
 
+		$result->setData($resultIds);
 		return $result;
 	}
 

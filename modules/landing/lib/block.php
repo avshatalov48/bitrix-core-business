@@ -12,7 +12,7 @@ use \Bitrix\Landing\Assets;
 use \Bitrix\Landing\Block\Cache;
 use \Bitrix\Landing\Restriction;
 use \Bitrix\Landing\Node\Type as NodeType;
-use \Bitrix\Landing\Node;
+use \Bitrix\Landing\Node\Img;
 use \Bitrix\Landing\PublicAction\Utils as UtilsAction;
 
 Loc::loadMessages(__FILE__);
@@ -2802,6 +2802,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						? 'block' . $this->parentId
 						: 'b' . $this->id;
 				}
+				$autoPublicationEnabled = Site\Type::isPublicScope() && \CUserOptions::getOption('landing', 'auto_publication', 'Y') === 'Y';
 				echo '<script type="text/javascript">'
 						. 'BX.ready(function(){'
 							. 'if (typeof BX.Landing.Block !== "undefined")'
@@ -2817,7 +2818,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 										. 'designed: ' . ($this->designed ? 'true' : 'false')  . ', '
 										. 'active: ' . ($this->active ? 'true' : 'false')  . ', '
 										. 'allowedByTariff: ' . ($this->allowedByTariff ? 'true' : 'false')  . ', '
-										. 'autoPublicationEnabled: ' . ((\CUserOptions::getOption('landing', 'auto_publication', 'Y') === 'Y') ? 'true' : 'false')  . ', '
+										. 'autoPublicationEnabled: ' . ($autoPublicationEnabled ? 'true' : 'false')  . ', '
 										. 'anchor: ' . '"' . \CUtil::jsEscape($anchor) . '"' . ', '
 										. 'access: ' . '"' . $this->access . '"' . ', '
 					 					. 'dynamicParams: ' . Json::encode($this->dynamicParams) . ','
@@ -2878,9 +2879,9 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 		elseif ($this->active || $params['force_unactive'])
 		{
 			// @todo make better
-			static $sysPages = null;
+			static $sysPagesSites = [];
 
-			if ($sysPages === null)
+			if (!array_key_exists($this->siteId, $sysPagesSites))
 			{
 				$sysPages = array();
 				foreach (Syspage::get($this->siteId) as $syspage)
@@ -2911,7 +2912,11 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 						}
 					}
 				}
+
+				$sysPagesSites[$this->siteId] = $sysPages;
 			}
+
+			$sysPages = $sysPagesSites[$this->siteId];
 
 			$sysPages['@' . Connector\Disk::FILE_MASK_HREF . '@i'] = str_replace(
 				'#fileId#', '$1',
@@ -4216,11 +4221,7 @@ class Block extends \Bitrix\Landing\Internals\BaseTable
 			}
 			if ($node['type'] === 'img')
 			{
-				$isStyleImgNode = \Bitrix\Landing\Node\Img::isStyleImgNode($this, $node);
-				if ($isStyleImgNode)
-				{
-					$node['type'] = 'styleimg';
-				}
+				$node = Img::prepareNode($node, $this);
 			}
 			if ($isFind)
 			{

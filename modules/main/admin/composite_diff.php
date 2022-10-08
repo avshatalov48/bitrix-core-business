@@ -10,7 +10,7 @@ use Bitrix\Main\Localization\Loc;
  * @global \CMain $APPLICATION
  */
 
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/prolog.php");
 
 if (!$USER->canDoOperation("view_other_settings"))

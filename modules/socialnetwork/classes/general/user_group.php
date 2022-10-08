@@ -2344,21 +2344,6 @@ class CAllSocNetUserToGroup
 				return false;
 			}
 		}
-		else
-		{
-			if ($e = $APPLICATION->GetException())
-			{
-				$errorMessage = $e->GetString();
-			}
-			if ($errorMessage === '')
-			{
-				$errorMessage = Loc::getMessage('SONET_UG_ERROR_CANNOT_GET_CURRENT_OWNER_RELATION');
-			}
-
-			$APPLICATION->ThrowException($errorMessage, "ERROR_GET_USER2GROUP");
-			$DB->Rollback();
-			return false;
-		}
 
 		CSocNetUserToGroup::__SpeedFileDelete($groupFields["OWNER_ID"]);
 

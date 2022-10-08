@@ -128,7 +128,8 @@
 	min-width: 75px;
 	border: 3px solid #F7F9FA;
 	border-radius: 64px;
-	font: bold 11px/24px 'Open Sans', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #fff;
 	text-align: center;
 	background: #3BC8F5;
@@ -232,7 +233,7 @@
 .main-file-input-tab-avatar-desc-container {
 	margin: 0 auto;
 	max-width: 110px;
-	font: 15px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(83,92,105,.5);
 	text-align: center;
 }
@@ -279,7 +280,7 @@
 .main-file-input-upload-link {
 	display: inline-block;
 	margin: 0 0 12px 0;
-	font: bold 18px/23px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 18px/23px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #1169C3;
 	border-bottom: 1px solid rgba(17,105,195,.5);
 	-webkit-transition: border-bottom .3s;
@@ -296,7 +297,7 @@
 }
 
 .main-file-input-upload-desc {
-	font: 12px/14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(82,92,104,.5);
 }
 
@@ -306,7 +307,7 @@
 	left: 50%;
 	-webkit-transform: translate(-50%,0);
 	transform: translate(-50%,0);
-	font: italic 12px/14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: italic 12px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(82,92,104,.5);
 	text-align: center;
 }
@@ -327,7 +328,7 @@
 	height: 38px;
 	border-radius: 2px 2px 0 0;
 	background: rgba(82,92,104,.07);
-	font: bold 13px/38px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: var(--ui-font-weight-bold) 13px/38px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	cursor: pointer;
 }
 

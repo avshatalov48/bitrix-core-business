@@ -102,7 +102,29 @@ CModule::AddAutoloadClasses(
 	)
 );
 
-$jsCoreRel = array('im_desktop_utils', 'resize_observer', 'im_common', 'im_phone_call_view', 'im.lib.localstorage', 'clipboard', 'sidepanel', 'loader', 'ui.notification', 'ui.alerts', 'ui.vue', 'ui.buttons', 'ui.switcher', 'ui.hint', 'im.application.notifications', 'im.v2.application.left-panel', 'im.v2.application.sidebar');
+$jsCoreRel = [
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ui.fonts.roboto',
+	'im_desktop_utils',
+	'resize_observer',
+	'im_common',
+	'im_phone_call_view',
+	'im.lib.localstorage',
+	'clipboard',
+	'sidepanel',
+	'loader',
+	'ui.notification',
+	'ui.alerts',
+	'ui.vue',
+	'ui.buttons',
+	'ui.switcher',
+	'ui.hint',
+	'im.application.notifications',
+	'im.v2.application.left-panel',
+	'im.v2.application.sidebar',
+];
+
 $jsCoreRelMobile = array('im_common', 'uploader', 'mobile.pull.client');
 if (IsModuleInstalled('voximplant'))
 {
@@ -173,14 +195,14 @@ CJSCore::RegisterExt('im_common', array(
 	'js' => '/bitrix/js/im/common.js',
 	'css' => ['/bitrix/js/im/css/common.css', '/bitrix/js/im/css/dark_im.css'],
 	'lang' => '/bitrix/modules/im/js_common.php',
-	'rel' => array('ls', 'ajax', 'date', 'fx', 'user', 'rest.client', 'phone_number', 'loader', 'ui.viewer', 'main.md5', 'im.debug', 'ui.notification')
+	'rel' => array('ui.design-tokens', 'ls', 'ajax', 'date', 'fx', 'user', 'rest.client', 'phone_number', 'loader', 'ui.viewer', 'main.md5', 'im.debug', 'ui.notification')
 ));
 
 CJSCore::RegisterExt('im_phone_call_view', array(
 	'js' => '/bitrix/js/im/phone_call_view.js',
 	'css' => array('/bitrix/js/im/css/phone_call_view.css', '/bitrix/components/bitrix/crm.card.show/templates/.default/style.css'),
 	'lang' => '/bitrix/modules/im/js_phone_call_view.php',
-	'rel' => array('applayout', 'crm_form_loader', 'phone_number')
+	'rel' => array('ui.design-tokens', 'applayout', 'crm_form_loader', 'phone_number')
 ));
 
 CJSCore::RegisterExt('im_web', array(
@@ -261,7 +283,7 @@ CJSCore::RegisterExt('im_window', array(
 	'js' => '/bitrix/js/im/window.js',
 	'css' => '/bitrix/js/im/css/window.css',
 	'lang' => '/bitrix/modules/im/js_window.php',
-	'rel' => Array('popup', 'fx', 'json', 'translit', 'im.component.conference.conference-create', 'ui.alerts'),
+	'rel' => Array('ui.design-tokens', 'popup', 'fx', 'json', 'translit', 'im.component.conference.conference-create', 'ui.alerts'),
 ));
 
 CJSCore::RegisterExt('im_desktop', array(

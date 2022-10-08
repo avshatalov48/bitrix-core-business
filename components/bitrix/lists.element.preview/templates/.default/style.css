@@ -1,11 +1,11 @@
 .list-element-preview {
-	font: 13px/19px "Helvetica Neue",Helvetica,Arial,sans-serif
+	font: 13px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica))
 }
 
 .list-element-preview-header {
 	height: 52px;
 	position: relative;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .list-element-preview-header-title {
@@ -31,7 +31,7 @@
 .list-element-preview-info { font-size: 0.9em; width: 100%; max-width: 450px;}
 .list-element-preview-info td { padding: 4px 0 0 4px;}
 .list-element-preview-info td:nth-child(2) { padding-right: 10px;}
-.list-element-preview-info td:nth-child(odd) { font-weight: bold;}
+.list-element-preview-info td:nth-child(odd) { font-weight: var(--ui-font-weight-bold);}
 .list-element-preview-info-spacer { border-top: #e4e4e4 1px solid;}
 .list-element-preview-info-priority-0, .list-element-preview-info-priority-low { color: #4d4d4d; }
 .list-element-preview-info-priority-1, .list-element-preview-info-priority-middle { color: #25990a;}

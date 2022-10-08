@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/alert.bundle.js',
 	'rel' => [
 		'main.core',
+		'ui.design-tokens',
 	],
 	'skip_core' => false,
 ];

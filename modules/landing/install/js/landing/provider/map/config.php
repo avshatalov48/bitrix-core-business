@@ -11,6 +11,7 @@ return [
 		'main.core.events',
 		'landing.collection.basecollection',
 		'main.core',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

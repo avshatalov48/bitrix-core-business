@@ -27,6 +27,7 @@ export class EditForm extends EventEmitter
 		this.section = params.section;
 		this.create();
 		this.showAccess = params.showAccess !== false;
+		this.allowChangeName = params.allowChangeName !== false;
 		if (this.showAccess)
 		{
 			this.DOM.accessLink.style.display = '';
@@ -56,10 +57,18 @@ export class EditForm extends EventEmitter
 			}
 		}
 
-		BX.focus(this.DOM.sectionTitleInput);
-		if (this.DOM.sectionTitleInput.value !== '')
+		if (this.allowChangeName)
 		{
-			this.DOM.sectionTitleInput.select();
+			BX.focus(this.DOM.sectionTitleInput);
+			if (this.DOM.sectionTitleInput.value !== '')
+			{
+				this.DOM.sectionTitleInput.select();
+			}
+		}
+		else
+		{
+			Dom.addClass(this.DOM.sectionTitleInput, '--disabled');
+			this.DOM.sectionTitleInput.disabled = true;
 		}
 
 		this.isOpenedState = true;

@@ -10,7 +10,13 @@ class Application extends Controller
 {
 	public function installAction($code, $version = false, $checkHash = false, $installHash = false, $from = null)
 	{
-		return Marketplace\Application::install($code, $version, $checkHash, $installHash, $from);
+		$result = Marketplace\Application::install($code, $version, $checkHash, $installHash, $from);
+		if ($result['errorDescription'])
+		{
+			$result['error_description'] = $result['errorDescription'];
+		}
+
+		return $result;
 	}
 
 	public function uninstallAction($code, $clean = 'N', $from = null)

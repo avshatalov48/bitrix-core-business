@@ -151,6 +151,10 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 		}
 		else
 		{
+			// TODO: remove this hack after refactoring \CAdminUiList::AddAdminContextMenu
+			$publicFlag = $productCardEnabled
+				|| $builderId === Catalog\Url\InventoryBuilder::TYPE_ID // hack for inventory documents
+			;
 			if ($arCatalog['CATALOG'] == 'Y')
 			{
 				$arParams[self::$strMainPrefix.self::TAB_KEY] = self::TAB_CATALOG;
@@ -160,7 +164,7 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 					'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_PROD_TITLE'),
 					'ID' => 'create_new_product_button_' . $gridId,
 					'LINK' => $urlBuilder->getElementDetailUrl(0, $arParams),
-					'PUBLIC' => $productCardEnabled, // TODO: remove this hack after refactoring \CAdminUiList::AddAdminContextMenu
+					'PUBLIC' => $publicFlag, // TODO: remove this hack after refactoring \CAdminUiList::AddAdminContextMenu
 					'SHOW_TITLE' => true
 				);
 
@@ -173,6 +177,7 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 							'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_SKU'),
 							'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_SKU_TITLE'),
 							'LINK' => $urlBuilder->getElementDetailUrl(0, $arParams),
+							'PUBLIC' => $publicFlag, // TODO: remove this hack after refactoring \CAdminUiList::AddAdminContextMenu
 							'SHOW_TITLE' => true
 						);
 					}
@@ -185,6 +190,7 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 								'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_SET'),
 								'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_SET_TITLE'),
 								'LINK' => $urlBuilder->getElementDetailUrl(0, $arParams),
+								'PUBLIC' => $publicFlag, // TODO: remove this hack after refactoring \CAdminUiList::AddAdminContextMenu
 								'SHOW_TITLE' => true
 							);
 						}
@@ -193,6 +199,7 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 							'TEXT' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_GROUP'),
 							'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_GROUP_TITLE'),
 							'LINK' => $urlBuilder->getElementDetailUrl(0, $arParams),
+							'PUBLIC' => $publicFlag, // TODO: remove this hack after refactoring \CAdminUiList::AddAdminContextMenu
 							'SHOW_TITLE' => true
 						);
 					}
@@ -231,7 +238,7 @@ class CCatalogAdminTools extends CCatalogAdminToolsAll
 					'TITLE' => Loc::getMessage('BT_CAT_ADM_TOOLS_ADD_SKU_TITLE'),
 					'ID' => 'create_new_product_button_' . $gridId,
 					'LINK' => $urlBuilder->getElementDetailUrl(0, $arParams),
-					'PUBLIC' => $productCardEnabled, // TODO: remove this hack after refactoring \CAdminUiList::AddAdminContextMenu
+					'PUBLIC' => $publicFlag, // TODO: remove this hack after refactoring \CAdminUiList::AddAdminContextMenu
 					'SHOW_TITLE' => true
 				);
 			}

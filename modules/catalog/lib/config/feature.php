@@ -23,6 +23,8 @@ final class Feature
 	private const COMMON_PRODUCT_PROCESSING = 'catalog_common_product_processing';
 	private const PRODUCT_LIMIT = 'catalog_product_limit';
 
+	private const LANDING_PRODUCT_LIMIT_VARIABLE = 'landing_product_limit';
+
 	/** @var null|bool sign of the presence of Bitrix24 */
 	private static $bitrix24Included = null;
 
@@ -64,6 +66,20 @@ final class Feature
 
 	private static $helpCodesCounter = 0;
 	private static $initUi = false;
+
+	/**
+	 * @return int
+	 */
+	public static function getLandingProductLimit(): int
+	{
+		$result = 0;
+		if (self::isBitrix24())
+		{
+			$result = (int)Bitrix24\Feature::getVariable(self::LANDING_PRODUCT_LIMIT_VARIABLE);
+		}
+
+		return $result;
+	}
 
 	/**
 	 * Returns true if product sets are allowed.

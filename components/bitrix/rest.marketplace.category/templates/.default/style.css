@@ -40,7 +40,8 @@
 }
 
 .mp-slider-view .ui-sidepanel-menu-link-text-counter {
-	font: 12px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525C69;
 	letter-spacing: -0.28px;
 	opacity: .5;
@@ -67,7 +68,8 @@
 	margin-bottom: 9px;
 	color: #525c69;
 	font-size: 21px;
-	font-family: "OpenSans-Light", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .mp-container { margin-bottom: 28px; }
@@ -152,7 +154,8 @@
 	white-space: nowrap;
 	max-height: 19px;
 	color: #333;
-	font: 14px/17px "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	font: 14px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	cursor: pointer;
 }
 
@@ -168,8 +171,8 @@
 	color: #828b95;
 	max-height: 30px;
 	text-overflow: ellipsis;
-	line-height: 15px;
-	font: 10px/15px "OpenSans-SemiBold", sans-serif;
+	font: 10px/15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .mp-item-developer-full {
@@ -207,13 +210,15 @@
 .mp-item-fb-content .mp-item-title {
 	margin-bottom: 5px;
 	max-height: 23px;
-	font: 17px/21px "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	font: 17px/21px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #fff;
 }
 
 .mp-item-fb-content .mp-item-developer {
 	margin-bottom: 6px;
-	font: 11px "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font: 11px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #fff;
 }
 
@@ -298,7 +303,7 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-size: 13px;
-	font-family: "Helvetica Neue", Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-box-flex: 1;
 	-ms-flex: 1;
 	flex: 1;
@@ -326,7 +331,8 @@
 	border-radius: 7px;
 	color: #fff;
 	vertical-align: middle;
-	font: 8px/15px "OpenSans-Bold", sans-serif;
+	font: 8px/15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 .mp-item-status-item:first-child { margin-right: 0; }
@@ -381,7 +387,8 @@
 	padding: 0 0 0 6px;
 	height: 13px;
 	background-color: #ff5752;
-	font: 8px/12px "OpenSans-Bold", "Helvetica Neue", Arial, sans-serif;
+	font: 8px/12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #fff;
 	text-transform: uppercase;
 	box-shadow: 0 1px 0 0 rgba(0,0,0,.07);
@@ -450,7 +457,8 @@
 	display: inline-block;
 	margin: 0 8px 0 0;
 	white-space: nowrap;
-	font: 30px "OpenSans-Light", "Helvetica Neue", Arial, sans-serif;
+	font: 30px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #2FC6F6;
 	letter-spacing: -0.69px;
 }
@@ -458,11 +466,13 @@
 .mp-head-status-plus {
 	display: inline-block;
 	color: #2Fc6F6;
-	font: 30px "OpenSans-Light", "Helvetica Neue", Arial, sans-serif;
+	font: 30px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .mp-head-status-text {
-	font: 12px "OpenSans-Regular", "Helvetica Neue", Arial, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #525c69;
 	letter-spacing: -0.28px;
 	opacity: .81;
@@ -495,7 +505,8 @@
 .rest-marketplace-error-wrapper {
 	flex: 1;
 	margin: 0 20px;
-	font-family: "OpenSans-Light", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #525c69;
 	text-align: center;
 }
@@ -527,7 +538,8 @@
 	color: #0063c6;
 	border-bottom: 1px dashed rgba(0,99,198,.5);
 	text-decoration: none;
-	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .rest-marketplace-error-links a:hover,
@@ -542,7 +554,7 @@
 
 .rest-marketplace-error-info {
 	opacity: 0.69;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: rgba(82,92,105,69);
 	line-height: 18px;
@@ -696,7 +708,7 @@
 }
 
 .rest-marketplace-error-popup-content {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	color: #535c69;
 	line-height: 17px;
@@ -721,7 +733,7 @@
 	border: 1px solid #c6cdd3;
 	border-radius: 2px;
 	resize: none;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	color: #535c69;
 	line-height: 17px;
@@ -748,7 +760,7 @@
 	padding: 0 22px 0 0;
 	cursor: pointer;
 	color: #a6acb3;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 }
 

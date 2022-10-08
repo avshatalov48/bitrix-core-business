@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 return [
+	'old_id' => 13,
 	'code' => 'store-chats-dark/catalog_header',
 	'name' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_CATALOG_HEADER-NAME'),
 	'description' => NULL,
@@ -27,7 +28,7 @@ return [
 			'nodes' => [
 				'.landing-block-node-title' => [
 					0 => [
-						'href' => '#landing@landing[store-chats-dark/catalog]',
+						'href' => '#',
 						'target' => '_self',
 					],
 				],

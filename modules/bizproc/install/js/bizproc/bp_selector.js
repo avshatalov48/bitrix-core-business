@@ -624,6 +624,10 @@
 				text: 'swirl',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_SWIRL_DESCRIPTION'),
 				value: '{{=swirl()}}'
+			},{
+				text: 'getdocumenturl',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_GETDOCUMENTURL_DESCRIPTION'),
+				value: '{{=getdocumenturl()}}'
 			}], query)
 		});
 

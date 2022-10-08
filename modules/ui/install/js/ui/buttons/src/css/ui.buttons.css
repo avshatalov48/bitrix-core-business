@@ -86,7 +86,8 @@
 	text-decoration: none;
 	text-transform: uppercase;
 	white-space: nowrap;
-	font: var(--ui-btn-font-size)/calc(var(--ui-btn-height) - 2px) "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-btn-font-size)/calc(var(--ui-btn-height) - 2px) var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
@@ -552,9 +553,9 @@ a.ui-btn-split:focus,
 .ui-btn-no-caps,
 .ui-btn-no-caps .ui-btn-main {
 	text-transform: none;
-	font-weight: 500;
 	font-size: calc(var(--ui-btn-font-size) + 2px);
-	font-family: "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 
@@ -573,8 +574,8 @@ a.ui-btn-split:focus,
 	background-color: #f34829;
 	color: #fff;
 	vertical-align: middle;
-	font: 11px/19px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-style: normal;
+	font: 11px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .ui-btn-text + .ui-btn-counter { margin-left: 12px; }
@@ -732,7 +733,7 @@ a.ui-btn-split:focus,
 .ui-link,
 *.ui-link:hover {
 	cursor: pointer;
-	font: 13px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/22px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: var(--ui-link-color);
 	transition: 250ms linear color, 250ms linear border-color;
 }

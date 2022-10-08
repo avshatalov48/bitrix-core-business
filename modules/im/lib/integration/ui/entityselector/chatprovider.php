@@ -4,14 +4,14 @@ namespace Bitrix\Im\Integration\UI\EntitySelector;
 use Bitrix\Im\Chat;
 use Bitrix\Im\Model\ChatIndexTable;
 use Bitrix\Im\Model\ChatTable;
-use Bitrix\Im\Model\EO_Chat;
-use Bitrix\Im\Model\EO_Chat_Collection;
 use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\User;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Filter;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Main\Search\Content;
 use Bitrix\UI\EntitySelector\BaseProvider;
 use Bitrix\UI\EntitySelector\Dialog;
 use Bitrix\UI\EntitySelector\Item;
@@ -21,14 +21,23 @@ class ChatProvider extends BaseProvider
 {
 	protected const ENTITY_ID = 'im-chat';
 
-	protected const SEARCHABLE_CHAT_TYPES = [
-		Chat::TYPE_GROUP,
-		Chat::TYPE_OPEN_LINE,
-		Chat::TYPE_OPEN,
-	];
-
 	protected const MAX_CHATS_IN_SAMPLE = 100;
 	protected const MAX_CHATS_IN_RECENT_TAB = 50;
+
+
+	protected static function getSearchableChatTypes(): array
+	{
+		return [
+			Chat::TYPE_GROUP,
+			Chat::TYPE_OPEN_LINE,
+			Chat::TYPE_OPEN,
+		];
+	}
+
+	protected static function getEntityId(): string
+	{
+		return 'im-chat';
+	}
 
 	public function __construct(array $options = [])
 	{
@@ -38,7 +47,7 @@ class ChatProvider extends BaseProvider
 		{
 			foreach ($options['searchableChatTypes'] as $chatType)
 			{
-				if (in_array($chatType, self::SEARCHABLE_CHAT_TYPES, true))
+				if (in_array($chatType, static::getSearchableChatTypes(), true))
 				{
 					$this->options['searchableChatTypes'][] = $chatType;
 				}
@@ -49,6 +58,12 @@ class ChatProvider extends BaseProvider
 		if (isset($options['fillDialog']) && is_bool($options['fillDialog']))
 		{
 			$this->options['fillDialog'] = $options['fillDialog'];
+		}
+
+		$this->options['fillDialogWithDefaultValues'] = true;
+		if (isset($options['fillDialogWithDefaultValues']) && is_bool($options['fillDialogWithDefaultValues']))
+		{
+			$this->options['fillDialogWithDefaultValues'] = $options['fillDialogWithDefaultValues'];
 		}
 	}
 
@@ -61,10 +76,10 @@ class ChatProvider extends BaseProvider
 	{
 		$items = $this->getChatItems([
 			'searchQuery' => $searchQuery->getQuery(),
-			'limit' => self::MAX_CHATS_IN_SAMPLE
+			'limit' => static::MAX_CHATS_IN_SAMPLE
 		]);
 
-		$isLimitExceeded = self::MAX_CHATS_IN_SAMPLE <= count($items);
+		$isLimitExceeded = static::MAX_CHATS_IN_SAMPLE <= count($items);
 		$isTooSmallToken = mb_strlen($searchQuery->getQuery()) < Filter\Helper::getMinTokenSize();
 		if ($isLimitExceeded || $isTooSmallToken)
 		{
@@ -96,44 +111,53 @@ class ChatProvider extends BaseProvider
 		return $this->makeChatItems($this->getChatCollection($options), $options);
 	}
 
-	public function makeChatItems(EO_Chat_Collection $chats, array $options = []): array
+	public function makeChatItems(array $chats, array $options = []): array
 	{
-		return self::makeItems($chats, array_merge($this->getOptions(), $options));
+		return static::makeItems($chats, array_merge($this->getOptions(), $options));
 	}
 
-	public function getChatCollection(array $options = []): EO_Chat_Collection
+	public function getChatCollection(array $options = []): array
 	{
 		$options = array_merge($this->getOptions(), $options);
 
-		return self::getChats($options);
+		return static::getChats($options);
 	}
 
-	public static function getChats(array $options = []): EO_Chat_Collection
+	public static function getChats(array $options = []): array
 	{
-		$chats = new EO_Chat_Collection();
-
-		if (!isset($options['searchableChatTypes']) || !is_array($options['searchableChatTypes']))
+		if (isset($options['chatIds']) && is_array($options['chatIds']))
 		{
-			return $chats;
+			return static::getChatsByIds($options);
 		}
 
-		global $USER;
-		$currentUserId = $USER->getId();
+		$groupChatAndOpenLineIds = static::getChatIds($options, [Chat::TYPE_GROUP, Chat::TYPE_OPEN_LINE]);
+		$openChatIds = static::getChatIds($options, [Chat::TYPE_OPEN]);
+		$options['chatIds'] = array_merge($groupChatAndOpenLineIds, $openChatIds);
+
+		return static::getChatsByIds($options);
+	}
+
+	private static function getChatsByIds(array $options = []): array
+	{
+		if (empty($options['chatIds']))
+		{
+			return [];
+		}
+
+		$currentUserId = User::getInstance()->getId();
 
 		$query = ChatTable::query();
-
-		$query->addSelect('*');
-		$query->addSelect('RELATION.*');
-		$query->addSelect('ALIAS.*');
-
-		$query->registerRuntimeField(
-			'CHAT_INDEX',
-			new Reference(
-				'CHAT_INDEX',
-				ChatIndexTable::class,
-				Join::on('this.ID', 'ref.CHAT_ID'),
-			)
-		);
+		$query
+			->addSelect('*')
+			->addSelect('RELATION.USER_ID', 'RELATION_USER_ID')
+			->addSelect('RELATION.NOTIFY_BLOCK', 'RELATION_NOTIFY_BLOCK')
+			->addSelect('RELATION.COUNTER', 'RELATION_COUNTER')
+			->addSelect('RELATION.START_COUNTER', 'RELATION_START_COUNTER')
+			->addSelect('RELATION.LAST_ID', 'RELATION_LAST_ID')
+			->addSelect('RELATION.STATUS', 'RELATION_STATUS')
+			->addSelect('RELATION.UNREAD_ID', 'RELATION_UNREAD_ID')
+			->addSelect('ALIAS.ALIAS', 'ALIAS_NAME')
+		;
 
 		$query->registerRuntimeField(
 			'RELATION',
@@ -144,31 +168,104 @@ class ChatProvider extends BaseProvider
 					->where('ref.USER_ID', $currentUserId),
 			)
 		);
+		$query->whereIn('ID', $options['chatIds']);
+		$query->where(Query::filter()
+			->logic('or')
+			->where(Query::filter()
+				->logic('and')
+				->where('TYPE','O')
+				->where('USER_COUNT', '>', 0)
+			)
+			->where('RELATION.USER_ID', $currentUserId)
+		);
 
-		$filter = Query::filter()->logic('or');
+		if (isset($options['order']) && is_array($options['order']))
+		{
+			$query->setOrder($options['order']);
+		}
+		else
+		{
+			$query->setOrder(['LAST_MESSAGE_ID' => 'DESC']);
+		}
 
-		if (self::shouldSearchChatType(Chat::TYPE_GROUP, $options))
+		$query->setLimit($options['limit']);
+
+		return $query->exec()->fetchAll();
+	}
+
+	private static function getChatIds(array $options, array $chatTypes): array
+	{
+		if (!isset($options['searchableChatTypes']) || !is_array($options['searchableChatTypes']))
+		{
+			return [];
+		}
+
+		$currentUserId = User::getInstance()->getId();
+
+		$query = ChatTable::query();
+		$query->addSelect('ID');
+
+		$searchQuery = $options['searchQuery'] ?? '';
+		if (self::isValidSearchQuery($searchQuery))
+		{
+			$query->registerRuntimeField(
+				'CHAT_INDEX',
+				new Reference(
+					'CHAT_INDEX',
+					ChatIndexTable::class,
+					Join::on('this.ID', 'ref.CHAT_ID'),
+					['join_type' => Join::TYPE_INNER]
+				)
+			);
+		}
+
+		$relationJoinType = Join::TYPE_INNER;
+		if (
+			count($chatTypes) === 1
+			&& in_array(Chat::TYPE_OPEN, $chatTypes, true)
+			&& static::shouldSearchChatType(Chat::TYPE_OPEN, $options)
+		)
+		{
+			$relationJoinType = Join::TYPE_LEFT;
+		}
+		$query->registerRuntimeField(
+			'RELATION',
+			new Reference(
+				'RELATION',
+				RelationTable::class,
+				Join::on('this.ID', 'ref.CHAT_ID')->where('ref.USER_ID', $currentUserId),
+				['join_type' => $relationJoinType]
+			)
+		);
+
+		if (self::isValidSearchQuery($searchQuery))
+		{
+			$filter = Query::filter()->logic('and');
+			static::addFilterBySearchQuery($filter, $searchQuery);
+			$query->where($filter);
+		}
+
+		$chatTypesFilter = Query::filter()->logic('or');
+		if (
+			static::shouldSearchChatType(Chat::TYPE_GROUP, $options)
+			&& in_array(Chat::TYPE_GROUP, $chatTypes, true)
+		)
 		{
 			$groupChatFilter =
 				Query::filter()
 					->logic('and')
 					->where('TYPE', '=', Chat::TYPE_GROUP)
+					->where('ENTITY_TYPE', '!=', 'SUPPORT24_QUESTION')
 					->where('RELATION.USER_ID', '=', $currentUserId)
 			;
 
-			if (isset($options['searchQuery']) && $options['searchQuery'] !== '')
-			{
-				$groupChatFilter->whereLike('CHAT_INDEX.SEARCH_TITLE', $options['searchQuery'] . '%');
-			}
-
-			$filter->where($groupChatFilter);
-		}
-		else
-		{
-			$query->where('TYPE', '!=', Chat::TYPE_GROUP);
+			$chatTypesFilter->where($groupChatFilter);
 		}
 
-		if (self::shouldSearchChatType(Chat::TYPE_OPEN_LINE, $options))
+		if (
+			static::shouldSearchChatType(Chat::TYPE_OPEN_LINE, $options)
+			&& in_array(Chat::TYPE_OPEN_LINE, $chatTypes, true)
+		)
 		{
 			$openLineFilter =
 				Query::filter()
@@ -177,19 +274,13 @@ class ChatProvider extends BaseProvider
 					->where('RELATION.USER_ID', '=', $currentUserId)
 			;
 
-			if (isset($options['searchQuery']) && $options['searchQuery'] !== '')
-			{
-				$openLineFilter->whereLike('CHAT_INDEX.SEARCH_TITLE', $options['searchQuery'] . '%');
-			}
-
-			$filter->where($openLineFilter);
-		}
-		else
-		{
-			$query->where('TYPE', '!=', Chat::TYPE_OPEN_LINE);
+			$chatTypesFilter->where($openLineFilter);
 		}
 
-		if (self::shouldSearchChatType(Chat::TYPE_OPEN, $options))
+		if (
+			static::shouldSearchChatType(Chat::TYPE_OPEN, $options)
+			&& in_array(Chat::TYPE_OPEN, $chatTypes, true)
+		)
 		{
 			$channelFilter =
 				Query::filter()
@@ -197,19 +288,9 @@ class ChatProvider extends BaseProvider
 					->where('TYPE', '=', Chat::TYPE_OPEN)
 			;
 
-			if (isset($options['searchQuery']) && $options['searchQuery'] !== '')
-			{
-				$channelFilter->whereLike('CHAT_INDEX.SEARCH_TITLE', $options['searchQuery'] . '%');
-			}
-
-			$filter->where($channelFilter);
+			$chatTypesFilter->where($channelFilter);
 		}
-		else
-		{
-			$query->where('TYPE', '!=', Chat::TYPE_OPEN);
-		}
-
-		$query->where($filter);
+		$query->where($chatTypesFilter);
 
 		if (isset($options['chatIds']) && is_array($options['chatIds']))
 		{
@@ -227,30 +308,36 @@ class ChatProvider extends BaseProvider
 
 		$query->setLimit($options['limit']);
 
-		return $query->exec()->fetchCollection();
+		$chatIdList = [];
+		foreach ($query->exec() as $chat)
+		{
+			$chatIdList[] = $chat['ID'];
+		}
+
+		return $chatIdList;
 	}
 
-	public static function makeItems(EO_Chat_Collection $chats, array $options = []): array
+	public static function makeItems(array $chats, array $options = []): array
 	{
 		$result = [];
 		foreach ($chats as $chat)
 		{
-			$result[] = self::makeItem($chat, $options);
+			$result[] = static::makeItem($chat, $options);
 		}
 
 		return $result;
 	}
 
-	public static function makeItem(EO_Chat $chat, array $options = []): Item
+	public static function makeItem(array $chat, array $options = []): Item
 	{
 		return new Item([
-			'id' => $chat->getId(),
-			'entityId' => self::ENTITY_ID,
+			'id' => (int)$chat['ID'],
+			'entityId' => static::getEntityId(),
 			'entityType' => Helper\Chat::getSelectorEntityType($chat),
-			'title' => $chat->getTitle(),
-			'avatar' => \CIMChat::GetAvatarImage($chat->getAvatar(), 200, false),
+			'title' => $chat['TITLE'],
+			'avatar' => \CIMChat::GetAvatarImage($chat['AVATAR'], 200, false),
 			'customData' => [
-				'imChat' => Chat::formatChatData($chat->collectValues()),
+				'imChat' => Chat::formatChatData($chat),
 			],
 		]);
 	}
@@ -289,45 +376,58 @@ class ChatProvider extends BaseProvider
 			return;
 		}
 
+		if (!$this->getOption('fillDialogWithDefaultValues', true))
+		{
+			$recentChats = [];
+			$recentItems = $dialog->getRecentItems()->getEntityItems(static::getEntityId());
+			$recentIds = array_map('intval', array_keys($recentItems));
+			$recentChats = $this->fillRecentChats($recentChats, $recentIds, []);
+
+			$dialog->addRecentItems($this->makeChatItems($recentChats));
+
+			return;
+		}
+
 		// Preload chats ('doSearch' method has to have the same filter).
 		$preloadedChats = $this->getPreloadedChatsCollection();
-		$recentChats = new EO_Chat_Collection();
+		$recentChats = [];
 
 		// Recent Items
-		$recentItems = $dialog->getRecentItems()->getEntityItems(static::ENTITY_ID);
+		$recentItems = $dialog->getRecentItems()->getEntityItems(static::getEntityId());
 		$recentIds = array_map('intval', array_keys($recentItems));
-		$this->fillRecentChats($recentChats, $recentIds, $preloadedChats);
+		$recentChats = $this->fillRecentChats($recentChats, $recentIds, $preloadedChats);
 
 		// Global Recent Items
-		if ($recentChats->count() < self::MAX_CHATS_IN_RECENT_TAB)
+		if (count($recentChats) < self::MAX_CHATS_IN_RECENT_TAB)
 		{
-			$recentGlobalItems = $dialog->getGlobalRecentItems()->getEntityItems(static::ENTITY_ID);
+			$recentGlobalItems = $dialog->getGlobalRecentItems()->getEntityItems(static::getEntityId());
 			$recentGlobalIds = [];
 
 			if (!empty($recentGlobalItems))
 			{
 				$recentGlobalIds = array_map('intval', array_keys($recentGlobalItems));
-				$recentGlobalIds = array_values(array_diff($recentGlobalIds, $recentChats->getIdList()));
+				$recentChatsIdList = array_column($recentChats, 'ID');
+				$recentGlobalIds = array_values(array_diff($recentGlobalIds, $recentChatsIdList));
 				$recentGlobalIds = array_slice(
 					$recentGlobalIds,
 					0,
-					self::MAX_CHATS_IN_RECENT_TAB - $recentChats->count()
+					self::MAX_CHATS_IN_RECENT_TAB - count($recentChats)
 				);
 			}
 
-			$this->fillRecentChats($recentChats, $recentGlobalIds, $preloadedChats);
+			$recentChats = $this->fillRecentChats($recentChats, $recentGlobalIds, $preloadedChats);
 		}
 
 		// The rest of preloaded chats
 		foreach ($preloadedChats as $preloadedChat)
 		{
-			$recentChats->add($preloadedChat);
+			$recentChats[] = $preloadedChat;
 		}
 
 		$dialog->addRecentItems($this->makeChatItems($recentChats));
 	}
 
-	protected function getPreloadedChatsCollection(): EO_Chat_Collection
+	protected function getPreloadedChatsCollection(): array
 	{
 		return $this->getChatCollection([
 			'order' => ['ID' => 'DESC'],
@@ -335,34 +435,90 @@ class ChatProvider extends BaseProvider
 		]);
 	}
 
-	private function fillRecentChats(
-		EO_Chat_Collection $recentChats,
-		array $recentIds,
-		EO_Chat_Collection $preloadedChats
-	): void
+	private function fillRecentChats(array $recentChats, array $recentIds, array $preloadedChats): array
 	{
 		if (count($recentIds) < 1)
 		{
-			return;
+			return [];
 		}
 
-		$chatIds = array_values(array_diff($recentIds, $preloadedChats->getIdList()));
+		$chatIds = array_values(array_diff($recentIds, array_column($preloadedChats, 'ID')));
 		if (!empty($chatIds))
 		{
 			$chats = $this->getChatCollection(['chatIds' => $chatIds]);
 			foreach ($chats as $chat)
 			{
-				$preloadedChats->add($chat);
+				$preloadedChats[] = $chat;
 			}
 		}
 
 		foreach ($recentIds as $recentId)
 		{
-			$chat = $preloadedChats->getByPrimary($recentId);
+			$chat = $preloadedChats[$recentId];
 			if ($chat)
 			{
-				$recentChats->add($chat);
+				$recentChats[] = $chat;
 			}
 		}
+
+		return $recentChats;
+	}
+
+	protected static function isFulltextIndexExist(): bool
+	{
+		$isFulltextIndexExist =	Option::get('im', 'search_title_fulltext_index_created', 'N') === 'Y';
+
+		if ($isFulltextIndexExist)
+		{
+			return true;
+		}
+
+		$connection = \Bitrix\Main\Application::getConnection();
+		$result = $connection->query("SHOW INDEX FROM b_im_chat_index where Index_type = 'FULLTEXT' and Column_name = 'SEARCH_TITLE'");
+
+		if ($result->fetch())
+		{
+			Option::set('im', 'search_title_fulltext_index_created', 'Y');
+
+			return true;
+		}
+
+		return false;
+	}
+
+	protected static function addFilterBySearchQuery(Filter\ConditionTree $filter, string $searchQuery): void
+	{
+		$searchQuery = trim($searchQuery);
+
+		if (empty($searchQuery) || mb_strlen($searchQuery) < Filter\Helper::getMinTokenSize())
+		{
+			return;
+		}
+
+		if (!static::isFulltextIndexExist())
+		{
+			$filter->whereLike('CHAT_INDEX.SEARCH_TITLE', $searchQuery . '%');
+
+			return;
+		}
+
+		$searchText = Filter\Helper::matchAgainstWildcard(Content::prepareStringToken($searchQuery));
+		$filter->whereMatch('CHAT_INDEX.SEARCH_TITLE', $searchText);
+	}
+
+	private static function isValidSearchQuery(string $searchQuery): bool
+	{
+		$searchQuery = trim($searchQuery);
+		if ($searchQuery === '')
+		{
+			return false;
+		}
+
+		if (mb_strlen($searchQuery) < Filter\Helper::getMinTokenSize())
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

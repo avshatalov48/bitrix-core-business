@@ -4,6 +4,7 @@ use Bitrix\Main\UI;
 
 $APPLICATION->AddHeadScript("/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/script.js");
 UI\Extension::load([
+	'ui.design-tokens',
 	'socialnetwork.livefeed'
 ]);
 
@@ -81,8 +82,8 @@ if(
 		?>
 		<?
 		$APPLICATION->IncludeComponent(
-				"bitrix:socialnetwork.blog.post", 
-				"", 
+				"bitrix:socialnetwork.blog.post",
+				"",
 				Array(
 						"FROM_LOG"				=> "Y",
 						"POST_VAR"				=> $arParams["POST_VAR"],
@@ -95,9 +96,9 @@ if(
 						"PATH_TO_POST_EDIT"		=> $arParams["PATH_TO_POST_EDIT"],
 						"PATH_TO_USER"			=> $arParams["PATH_TO_USER"],
 						"PATH_TO_GROUP"			=> $arParams["PATH_TO_GROUP"],
-						"PATH_TO_SMILE" 		=> $arParams["PATH_TO_BLOG_SMILE"], 
+						"PATH_TO_SMILE" 		=> $arParams["PATH_TO_BLOG_SMILE"],
 						"PATH_TO_MESSAGES_CHAT" => $arResult["PATH_TO_MESSAGES_CHAT"],
-						"SET_NAV_CHAIN" 		=> "N", 
+						"SET_NAV_CHAIN" 		=> "N",
 						"SET_TITLE"				=> "N",
 						"POST_PROPERTY"			=> $arParams["POST_PROPERTY"],
 						"DATE_TIME_FORMAT"		=> $arParams["DATE_TIME_FORMAT"],
@@ -126,7 +127,7 @@ if(
 						"BLOG_NO_URL_IN_COMMENTS_AUTHORITY" => $arParams["BLOG_NO_URL_IN_COMMENTS_AUTHORITY"],
 						"SELECTOR_VERSION"		=> 2
 					),
-				$component 
+				$component
 			);
 		?>
 		<?

@@ -7,7 +7,7 @@
 	-webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
 	border-radius: 2px;
-	font: 16px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+	font: 16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #eb314b;
 	text-align: center;
 	min-width: 400px;
@@ -101,7 +101,7 @@
 	height: 38px;
 	outline: none;
 	margin: 0 20px 0 0;
-	font: 13px "HelveticaNeue", Arial, Helvetica, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2010.97%206.86%22%3E%3Cpolygon%20points%3D%225.49%204.11%201.37%200%200%201.37%204.8%206.17%205.49%206.86%2010.97%201.37%209.6%200%205.49%204.11%22%20fill%3D%22%23535c69%22/%3E%3C/svg%3E');
 	background-position: right 10px center;
 	background-repeat: no-repeat;
@@ -239,7 +239,7 @@
 	text-overflow: ellipsis;
 	font-size: 14px;
 	color: #0b66c3;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	cursor: pointer;
 	text-decoration: none;
 }
@@ -360,7 +360,7 @@
 
 .crm-ads-rtg-input-label {
 	margin: 0 0 6px 0;
-	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #80868E;
 	text-align: left;
 }
@@ -374,7 +374,7 @@
 	-webkit-box-shadow: inset 0 0 0 1px #C6CDD3;
 	box-shadow: inset 0 0 0 1px #C6CDD3;
 	border-radius: 2px;
-	font: 15px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #333;
 	background: #fff;
 	box-sizing: border-box;
@@ -481,21 +481,22 @@
 .crm-ads-rtg-field-main-subtitle {
 	display: block;
 	margin: 0 0 14px 0;
-	font: 22px/22px "OpenSans-Light", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 22px/22px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: #333;
 }
 
 .crm-ads-rtg-field-box-subtitle {
 	display: block;
 	margin: 0 0 10px 0;
-	font: 14px/22px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px/22px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #828B95;
 }
 
 .crm-ads-rtg-field-box-subtitle-darken {
 	display: block;
 	margin: 0 0 15px 0;
-	font: 14px/24px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525C69;
 }
 
@@ -518,7 +519,7 @@
 .crm-ads-rtg-field-box-subtitle.subtitle-permissions {
 	display: inline;
 	margin: 0 0 10px 0;
-	font: 16px/24px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 16px/24px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #828B95;
 }
 
@@ -607,7 +608,7 @@
 
 .crm-ads-new-campaign-item-run-desc .ui-link:hover {
 	cursor: pointer;
-	font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));;
 	color: var(--ui-link-color);
 }
 /* step-by-step form*/
@@ -619,7 +620,8 @@
 .crm-ads-new-campaign {
 	background: #e6eaed;
 	padding: 22px 19px 19px;
-	font-family: "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .crm-ads-new-campaign-title {
@@ -689,7 +691,8 @@
 .crm-ads-new-campaign-item-number-text {
 	z-index: 9;
 	text-align: center;
-	font: 16px/31px "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font: 16px/31px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #fff;
 }
 
@@ -732,7 +735,7 @@
 
 .crm-ads-new-campaign-item-desc {
 	color: #a8adb4;
-	font: 14px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .crm-ads-new-campaign-item-arrow {
@@ -920,7 +923,8 @@
 .crm-ads-new-campaign-item-option-label {
 	display: inline-block;
 	vertical-align: top;
-	font: 11px/17px "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 11px/17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #b1b5bb;
 	background: #f1f1f3;
 	border: 1px solid transparent;
@@ -931,13 +935,14 @@
 
 .crm-ads-new-campaign-item-option-subtitle {
 	color: #333;
-	font: 15px/19px "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	margin-bottom: 12px;
 }
 
 .crm-ads-new-campaign-item-option-text {
 	color: #858C96;
-	font: 13px/17px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	padding-bottom: 6px;
 }
 
@@ -961,7 +966,8 @@
 	padding: 0 11px 12px 0;
 	border-bottom: 1px solid #edeef0;
 	color: #535c69;
-	font: 700 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .crm-ads-new-campaign-item-option-notice {
@@ -1029,18 +1035,20 @@
 }
 
 .crm-ads-new-campaign-item-rub {
-	font-family: "rubleBitrix", "OpenSans-Regular", Arial, sans-serif;
+	font-family: "rubleBitrix", var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .crm-ads-new-campaign-item-option-price {
 	color: #333;
 	margin-top: auto;
-	font: 15px/19px "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .crm-ads-new-campaign-item-geo {
 	color: #525c69;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .crm-ads-new-campaign-item-geo-subject {
@@ -1091,7 +1099,7 @@
 .crm-ads-new-campaign-item-total-info {
 	max-width: 500px;
 	color: #525c69;
-	font: 14px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin-right: 25px;
 }
 
@@ -1117,7 +1125,7 @@
 
 .crm-ads-new-campaign-item-total-title {
 	color: #3c4043;
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	margin-bottom: 10px;
 }
 
@@ -1133,7 +1141,7 @@
 }
 
 .crm-ads-new-campaign-item-total-block:last-child {
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .crm-ads-new-campaign-item-total-preview-img {
@@ -1155,7 +1163,8 @@
 .crm-ads-new-campaign-item-total-preview-text {
 	background: #d2000d;
 	color: #fff;
-	font: 12px/16px "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	padding: 10px 17px 9px;
 	position: relative;
 	border-bottom: 1px solid rgba(255, 255, 255, .5);
@@ -1205,7 +1214,7 @@
 	color: #7d808c;
 	opacity: .6;
 	margin: 0;
-	font: 11px/15px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: 11px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }
 
 .crm-ads-new-campaign-item-run-desc a {
@@ -1250,7 +1259,7 @@
 
 .crm-ads-new-campaign-item-expert-title, .crm-ads-new-campaign-item-expert-subtitle {
 	color: #858c96;
-	font: 13px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin-bottom: 8px;
 }
 
@@ -1259,14 +1268,16 @@
 }
 
 .crm-ads-new-campaign-item-expert-value {
-	font: 15px/19px "OpenSans-Semibold", Helvetica, Arial, sans-serif;
+	font: 15px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .crm-ads-new-campaign-item-expert-change {
 	position: absolute;
 	top: 14px;
 	right: 16px;
-	font: 13px/18px "OpenSans-Semibold", Helvetica, Arial, sans-serif;
+	font: 13px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	text-transform: uppercase;
 	cursor: pointer;
 	padding-right: 19px;
@@ -1325,7 +1336,8 @@
 	cursor: pointer;
 	padding: 2px 11px 4px 34px;
 	position: relative;
-	font: 13px/18px "OpenSans-Semibold", Helvetica, Arial, sans-serif;
+	font: 13px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .crm-ads-new-campaign-item-expert-btn + .crm-ads-new-campaign-item-expert-btn {
@@ -1356,7 +1368,7 @@
 .crm-ads-new-campaign-item-runner-title {
 	color: #525c69;
 	margin-bottom: 10px;
-	font: 14px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .crm-ads-new-campaign-item-runner-block {
@@ -1368,12 +1380,14 @@
 
 .crm-ads-new-campaign-item-runner-label {
 	color: #333;
-	font: 17px/19px "OpenSans-Semibold", Helvetica, Arial, sans-serif;
+	font: 17px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .crm-ads-new-campaign-item-runner-desc {
 	color: #858d96;
-	font: 10px/14px "OpenSans-Semibold", Helvetica, Arial, sans-serif;
+	font: 10px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .crm-ads-new-campaign-item-runner-input {
@@ -1569,13 +1583,13 @@
 }
 
 .crm-ads-new-campaign-expert-item--selected .crm-ads-new-campaign-expert-item {
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .crm-ads-new-campaign-expert-desc {
 	opacity: .4;
 	color: #3c4043;
-	font: 12px/16px 'HelveticaNeue', Helvetica, Arial, sans-serif;
+	font: 12px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin-top: 8px;
 }
 
@@ -1622,7 +1636,7 @@
 	display: flex;
 	align-items: flex-end;
 	padding: 21px 27px 31px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 }
 
 .crm-ads-new-campaign-item-content-account + .crm-ads-new-campaign-item-content-account {
@@ -1645,13 +1659,13 @@
 .crm-ads-new-campaign-item-content-currency {
 	background: #e5f9ff;
 	margin: 10px 0 0 113px;
-	font: 13px/16px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: 13px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	padding: 22px 28px 27px;
 }
 
 .crm-ads-new-campaign-item-content-currency-title {
 	color: #80868E;
-	font-weight: 700;
+	font-weight: var(--ui-font-weight-bold);
 	margin-bottom: 6px;
 }
 
@@ -1710,7 +1724,7 @@
 
 .crm-ads-new-campaign-expert-label {
 	color: #A8ADB4;
-	font: 13px/18px "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+	font: 13px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
 	margin-bottom: 4px;
 	display: inline-block;
 }
@@ -1724,7 +1738,8 @@
 .crm-ads-new-campaign-expert-btn-value {
 	background: #d2000d;
 	color: #fff;
-	font: 12px/16px "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	padding: 10px 17px 9px;
 	position: relative;
 	border-bottom-left-radius: 3px;

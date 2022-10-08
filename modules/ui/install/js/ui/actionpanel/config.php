@@ -14,5 +14,6 @@ return [
 	"bundle_css" => "ui_actionpanel",
 	'rel' => [
 		'ui.design-tokens',
+		'ui.fonts.opensans',
 	],
 ];

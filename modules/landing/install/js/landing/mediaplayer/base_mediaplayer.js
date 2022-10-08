@@ -3,24 +3,30 @@
 
 	BX.namespace("BX.Landing.MediaPlayer");
 
-	var getQueryParameters = BX.Landing.Utils.getQueryParams;
+	const getQueryParameters = BX.Landing.Utils.getQueryParams;
+	const isFunction = BX.Landing.Utils.isFunction;
 
 	/**
 	 * Implements base base interface
 	 * @param {HTMLIFrameElement} iframe
+	 * @param {Object} additionalParameters - additional params for player
 	 * @constructor
 	 */
-	BX.Landing.MediaPlayer.BasePlayer = function(iframe)
+	BX.Landing.MediaPlayer.BasePlayer = function(iframe, additionalParameters)
 	{
 		this.iframe = iframe;
 		this.parameters = getQueryParameters(iframe.src);
-
+		Object.assign(this.parameters, additionalParameters);
 		Object.keys(this.parameters).forEach(function(key) {
 			if (!isNaN(parseFloat(this.parameters[key])))
 			{
 				this.parameters[key] = parseFloat(this.parameters[key]);
 			}
 		}, this);
+		this.onPlayerReady = isFunction(additionalParameters.onPlayerReadyHandler)
+			? additionalParameters.onPlayerReadyHandler
+			: () => {}
+		;
 	};
 
 	BX.Landing.MediaPlayer.BasePlayer.prototype = {

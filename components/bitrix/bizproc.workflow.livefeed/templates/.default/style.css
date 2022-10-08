@@ -1,6 +1,6 @@
 .bp-title {
 	font-size: 17px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #000;
 	vertical-align: top;
 }
@@ -17,7 +17,7 @@
 
 .bp-title-desc .bold {
 	color: #000;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bp-title-desc-icon {
@@ -68,7 +68,7 @@
 	color: #0063c6;
 	font-size: 14px;
 	line-height: 17px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	border-bottom: 1px solid transparent;
 	-webkit-transition: border-bottom-color 0.2s linear;
 	transition: border-bottom-color 0.2s linear;
@@ -142,7 +142,7 @@
 	position: relative;
 	padding: 15px 20px 50px;
 	background: #e8f9fe;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-sm, 2px);
 	color: #000;
 	font-size: 13px;
 	padding-bottom: 15px;
@@ -158,7 +158,7 @@ table.bx-edit-table {
 }
 
 .bp-task-block-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	display: block;
 	margin-bottom: 15px;
 }
@@ -169,7 +169,7 @@ table.bx-edit-table {
 	position: absolute;
 	left: 260px;
 	top: -21px;
-	border: 21px solid transparent;	
+	border: 21px solid transparent;
 	border-bottom: 21px solid #ebf8fc;
 	border-top: 0;
 	width: 0;

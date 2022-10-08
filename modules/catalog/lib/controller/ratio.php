@@ -13,14 +13,9 @@ use Bitrix\Main\UI\PageNavigation;
 final class Ratio extends Controller
 {
 	//region Actions
-	public function getFieldsAction()
+	public function getFieldsAction(): array
 	{
-		$view = $this->getViewManager()
-			->getView($this);
-
-		return ['RATIO'=>$view->prepareFieldInfos(
-			$view->getFields()
-		)];
+		return ['RATIO' => $this->getViewFields()];
 	}
 
 	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)

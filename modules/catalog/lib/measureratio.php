@@ -22,9 +22,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_MeasureRatio_Query query()
- * @method static EO_MeasureRatio_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_MeasureRatio_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_MeasureRatio_Result getById($id)
- * @method static EO_MeasureRatio_Result getList(array $parameters = array())
+ * @method static EO_MeasureRatio_Result getList(array $parameters = [])
  * @method static EO_MeasureRatio_Entity getEntity()
  * @method static \Bitrix\Catalog\EO_MeasureRatio createObject($setDefaultValues = true)
  * @method static \Bitrix\Catalog\EO_MeasureRatio_Collection createCollection()

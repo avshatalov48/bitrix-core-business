@@ -1,3 +1,6 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 import { BitrixVue } from "ui.vue";
 import "ui.forms";
 import { Menu } from "main.popup";

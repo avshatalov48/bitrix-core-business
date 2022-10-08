@@ -22,13 +22,13 @@ class Vk extends Platform
 	private $accessToken;
 	private $api = array();
 	private $executer = array();
-	
+
 	const OAUTH_URL = "https://oauth.vk.com/authorize";
 	const TOKEN_URL = "https://oauth.vk.com/access_token";
 	const VK_URL = 'https://vk.com/';
 	const VK_URL__MARKET_PREFIX = 'market-';
 	const VK_URL__ALBUM_PREFIX = '?section=album_';
-	
+
 	const GROUP_GET_STEP = 1000;
 	const MAX_EXECUTION_ITEMS = 25;
 	const MAX_ALBUMS = 100;
@@ -38,27 +38,27 @@ class Vk extends Platform
 	const MAX_PHOTOS_IN_PRODUCT = 4;
 	const MAX_PHOTOS_IN_ALBUM = 1;
 	const MAX_VK_CATEGORIES = 1000;
-	
+
 	const MIN_ALBUM_PHOTO_WIDTH = 1280;
 	const MIN_ALBUM_PHOTO_HEIGHT = 720;
 	const MAX_ALBUM_PHOTO_SIZES_SUM = 14000;        //sum height and width
 	const MAX_ALBUM_PHOTO_SIZE = 52428800;    //Bites
 	const MAX_ALBUM_RATIO_V = 0.25;	// width / height
 	const MAX_ALBUM_RATIO_H = 3;
-	
+
 	const MIN_PRODUCT_PHOTO_WIDTH = 400;
 	const MIN_PRODUCT_PHOTO_HEIGHT = 400;
 	const MAX_PRODUCT_PHOTO_SIZES_SUM = 14000;        //sum height and width
 	const MAX_PRODUCT_PHOTO_SIZE = 52428800;    //Bites
 	const MAX_PRODUCT_RATIO_V = 0.1;	// width / height
 	const MAX_PRODUCT_RATIO_H = 10;
-	
+
 	const DEFAULT_TIMELIMIT = 40;    //seconds
 	const DEFAULT_EXECUTION_ITEMS = 6;
-	
+
 	const VERY_DEFAULT_VK_CATEGORY = 1;    //very very default, not true, but only for preserve errors
 	const VK_CATEGORY_TO_CHANGE = -1;    //category "change category"
-	
+
 	/**
 	 * Return singltone object of VK
 	 *
@@ -69,7 +69,7 @@ class Vk extends Platform
 	{
 		return parent::getInstanceByCode(self::TRADING_PLATFORM_CODE);
 	}
-	
+
 	/**
 	 * Get settings from profiles table. If passed esportId - return only one item
 	 *
@@ -82,7 +82,7 @@ class Vk extends Platform
 		$filter = array();
 		if ($exportId)
 			$filter["=ID"] = $exportId;
-		
+
 		$settings = array();
 		$profiles = ExportProfileTable::getList(array('filter' => $filter));
 		while ($profile = $profiles->fetch())
@@ -99,10 +99,10 @@ class Vk extends Platform
 //		only one profile if required
 		if ($exportId)
 			$settings = $settings[$exportId];
-		
+
 		return $settings;
 	}
-	
+
 	/**
 	 * Formatted export profile settings and save them in own table.
 	 *
@@ -115,20 +115,20 @@ class Vk extends Platform
 	{
 		$exportId = isset($settings['EXPORT_ID']) ? $settings['EXPORT_ID'] : NULL;
 		$settings = $settings['SETTINGS'];
-		
+
 		$settingsToSave = array();
 		if (isset($settings["DESCRIPTION"]))
 			$settingsToSave["DESCRIPTION"] = $settings["DESCRIPTION"];
-		
+
 		if (isset($settings["VK_SETTINGS"]))
 			$settingsToSave["VK_SETTINGS"] = $settings["VK_SETTINGS"];
-		
+
 		if (isset($settings["EXPORT_SETTINGS"]))
 			$settingsToSave["EXPORT_SETTINGS"] = $settings["EXPORT_SETTINGS"];
-		
+
 		if (isset($settings["OAUTH"]))
 			$settingsToSave["OAUTH"] = $settings["OAUTH"];
-		
+
 		if (isset($settings["PROCESS"]))
 			$settingsToSave["PROCESS"] = $settings["PROCESS"];
 
@@ -137,7 +137,7 @@ class Vk extends Platform
 		if ($exportId && array_key_exists($exportId, $settingsExists))
 		{
 			$resUpdate = ExportProfileTable::update($exportId, $settingsToSave);
-			
+
 			return $resUpdate->isSuccess() && $resUpdate->getAffectedRowsCount();
 		}
 		else
@@ -149,11 +149,11 @@ class Vk extends Platform
 			else
 				return false;
 		}
-		
-		
+
+
 	}
-	
-	
+
+
 	/**
 	 * Sets Vk active.
 	 * @return bool
@@ -163,10 +163,10 @@ class Vk extends Platform
 	{
 		if ($this->isActive())
 			return true;
-		
+
 		return parent::setActive();
 	}
-	
+
 	/**
 	 * Sets Vk inactive.
 	 * @return bool
@@ -175,10 +175,10 @@ class Vk extends Platform
 	{
 		if (!$this->isActive())
 			return true;
-		
+
 		return parent::unsetActive();
 	}
-	
+
 	/**
 	 * Installs all necessary stuff for Vk.
 	 * @return bool
@@ -210,10 +210,10 @@ class Vk extends Platform
 		{
 			self::createSectionFieldVkImage($iblock["IBLOCK_ID"]);
 		}
-		
+
 		return $tptAddRes->isSuccess();
 	}
-	
+
 	/**
 	 * Clear all items related with VK - settings, agents, mapping
 	 *
@@ -234,8 +234,8 @@ class Vk extends Platform
 //		unset active, delete from TP table, unset instance
 		parent::uninstall();
 	}
-	
-	
+
+
 	/**
 	 * Remove one export profile. If it last profile - uninstall all VK-platform
 	 *
@@ -248,7 +248,7 @@ class Vk extends Platform
 		$resDel = ExportProfileTable::delete($exportId);
 
 //		uninstall vk-categories update agent
-		$vkCategories = new VkCategories($exportId);
+		$vkCategories = new VkCategories((int)$exportId);
 		$vkCategories->deleteAgent();
 
 //		clear log
@@ -261,11 +261,11 @@ class Vk extends Platform
 		{
 			$this->uninstall();
 		}
-		
+
 		return $resDel;
 	}
-	
-	
+
+
 	/**
 	 * Create user field in catalog iblock
 	 *
@@ -297,11 +297,11 @@ class Vk extends Platform
 				$result['VALUE'] = $ibp->LAST_ERROR;
 			}
 		}
-		
+
 		return $result;
 	}
-	
-	
+
+
 	/**
 	 * Check existing user field in section by code
 	 *
@@ -317,14 +317,14 @@ class Vk extends Platform
 				'CODE' => $code,
 			)
 		);
-		
+
 		if ($existPropId = $existingProps->Fetch())
 			return $existPropId['ID'];
 		else
 			return false;
 	}
-	
-	
+
+
 	/**
 	 * Delete field for VK-image from sections
 	 *
@@ -336,12 +336,12 @@ class Vk extends Platform
 //		delete property with values
 		if ($propertyId = self::checkExistingCatalogField($iblockId, self::createCodeForSectionFieldVkImage($iblockId)))
 			return \CIBlockProperty::Delete($propertyId);
-		
+
 		else
 			return false;
 	}
-	
-	
+
+
 	/**
 	 * Create field for VK-image from sections
 	 *
@@ -361,11 +361,11 @@ class Vk extends Platform
 			'HINT' => Loc::getMessage('PROP_VK_IMAGES__HINT'),
 			'FILE_TYPE' => 'jpg, jpeg, bmp, gif, png',
 		);
-		
+
 		return self::createCatalogField($properties);
 	}
-	
-	
+
+
 	/**
 	 * Create code for field for VK-image from sections
 	 *
@@ -376,8 +376,8 @@ class Vk extends Platform
 	{
 		return 'PHOTOS_FOR_VK_' . $iblockId;
 	}
-	
-	
+
+
 	/**
 	 * Get VK-group ID from settings
 	 *
@@ -388,17 +388,17 @@ class Vk extends Platform
 	{
 		$settings = $this->getSettings($exportId);
 		$groupId = false;
-		
+
 		if (isset($settings["VK_SETTINGS"]["GROUP_ID"]))
 		{
 			$groupId = $settings["VK_SETTINGS"]["GROUP_ID"];
 			$groupId = mb_substr($groupId, 0, 1) == '-' ? $groupId : '-'.$groupId;
 		}
-		
+
 		return $groupId;
 	}
-	
-	
+
+
 	/**
 	 * Return param Agressive_export
 	 *
@@ -408,15 +408,15 @@ class Vk extends Platform
 	public function isAgressiveExport($exportId)
 	{
 		$settings = $this->getSettings($exportId);
-		
+
 		if (isset($settings["EXPORT_SETTINGS"]["AGRESSIVE"]) && $settings["EXPORT_SETTINGS"]["AGRESSIVE"])
 			return true;
 		else
 			return false;
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Return ore create new API object
 	 *
@@ -427,11 +427,11 @@ class Vk extends Platform
 	{
 		if (!isset($this->api[$exportId]))
 			$this->api[$exportId] = new Api($this->getAccessToken($exportId), $exportId);
-		
+
 		return $this->api[$exportId];
 	}
-	
-	
+
+
 	/**
 	 * Return ore create new executer object
 	 *
@@ -442,11 +442,11 @@ class Vk extends Platform
 	{
 		if (!isset($this->executer[$exportId]))
 			$this->executer[$exportId] = new Executer($this->getApi($exportId));
-		
+
 		return $this->executer[$exportId];
 	}
-	
-	
+
+
 	/**
 	 * Return access token from settings
 	 *
@@ -458,17 +458,17 @@ class Vk extends Platform
 		if (!isset($this->accessToken[$exportId]))
 		{
 			$settings = $this->getSettings();
-			
+
 			if (isset($settings[$exportId]["OAUTH"]["ACCESS_TOKEN"]))
 				$this->accessToken[$exportId] = $settings[$exportId]["OAUTH"]["ACCESS_TOKEN"];
 			else
 				throw new ArgumentNullException('accessToken');
 		}
-		
+
 		return $this->accessToken[$exportId];
 	}
-	
-	
+
+
 	/**
 	 * Return list of all possible exports type
 	 *
@@ -486,8 +486,8 @@ class Vk extends Platform
 			'ALL',
 		);
 	}
-	
-	
+
+
 	/**
 	 * Log events to system log & sends error to email.
 	 * @param int $level Log level of event.
@@ -504,11 +504,11 @@ class Vk extends Platform
 		$this->logger->setLevel($logLevel);
 
 //		todo: maybe we need email reporting of fatal errors
-		
+
 		return $this->addLogRecord($level, $type, $itemId, $description);
 	}
-	
-	
+
+
 	/**
 	 * Change params and set ACTIVE flag to one export profile
 	 *
@@ -517,7 +517,7 @@ class Vk extends Platform
 	public function changeActiveById($exportId)
 	{
 		$settings = $this->getSettings($exportId);
-		
+
 		if (
 			(isset($settings["VK_SETTINGS"]["GROUP_ID"]) && !empty($settings["VK_SETTINGS"]["GROUP_ID"])) &&
 			(isset($settings["VK_SETTINGS"]["APP_ID"]) && $settings["VK_SETTINGS"]["APP_ID"]) &&
@@ -528,10 +528,10 @@ class Vk extends Platform
 			$this->setActiveById($exportId);
 		else
 			$this->unsetActiveById($exportId);
-		
+
 	}
-	
-	
+
+
 	/**
 	 * Set ACTIVE flag to one export profile
 	 *
@@ -547,11 +547,11 @@ class Vk extends Platform
 //		if we set active to one profile - all platform is active
 		if (!parent::isActive())
 			parent::setActive();
-		
+
 		return $this->saveSettings(array('SETTINGS' => $settings, 'EXPORT_ID' => $exportId));
 	}
-	
-	
+
+
 	/**
 	 * Unset ACTIVE flag to one export profile
 	 *
@@ -575,15 +575,15 @@ class Vk extends Platform
 //		if no one profile is active - unactive all platform
 		if (!$bActiveAll)
 			$this->unsetActive();
-		
+
 		if (isset($settings[$exportId]) && is_array($settings[$exportId]))
 			return $this->saveSettings(array('SETTINGS' => $settings[$exportId], 'EXPORT_ID' => $exportId));
-		
+
 		else
 			return false;
 	}
-	
-	
+
+
 	/**
 	 * Return value of ACTIVE flag to one export profile
 	 *
@@ -593,14 +593,14 @@ class Vk extends Platform
 	public function isActiveById($exportId)
 	{
 		$settings = $this->getSettings($exportId);
-		
+
 		if (isset($settings["EXPORT_SETTINGS"]["ACTIVE"]) && $settings["EXPORT_SETTINGS"]["ACTIVE"] == "Y")
 			return true;
 		else
 			return false;
 	}
-	
-	
+
+
 	/**
 	 * Create URL for link to authorize in VK Oauth server
 	 *
@@ -612,24 +612,24 @@ class Vk extends Platform
 	{
 		$settings = $this->getSettings();
 		$urlParams = array();
-		
+
 		if (isset($settings[$exportId]["VK_SETTINGS"]["APP_ID"]) && !empty($settings[$exportId]["VK_SETTINGS"]["APP_ID"]))
 			$urlParams['client_id'] = $settings[$exportId]["VK_SETTINGS"]["APP_ID"];
 		else return false;
-		
+
 		if (!empty($redirectUrl))
 			$urlParams['redirect_uri'] = self::formatRedirectUrl($redirectUrl);
 		else return false;
-		
+
 		$urlParams["display"] = "page";
 		$urlParams["scope"] = self::getScope(array("market", "photos", "offline", "wall", "docs", "groups"));
 		$urlParams["response_type"] = "code";
 		$urlParams["v"] = Api::$apiVersion;
-		
+
 		return self::OAUTH_URL . "?" . http_build_query($urlParams);
 	}
-	
-	
+
+
 	/**
 	 * Create link to getting access token
 	 *
@@ -642,27 +642,27 @@ class Vk extends Platform
 	{
 		$settings = $this->getSettings($exportId);
 		$urlParams = array();
-		
+
 		if (isset($settings["VK_SETTINGS"]["APP_ID"]) && !empty($settings["VK_SETTINGS"]["APP_ID"]))
 			$urlParams['client_id'] = $settings["VK_SETTINGS"]["APP_ID"];
 		else return false;
-		
+
 		if (isset($settings["VK_SETTINGS"]["SECRET"]) && !empty($settings["VK_SETTINGS"]["SECRET"]))
 			$urlParams['client_secret'] = $settings["VK_SETTINGS"]["SECRET"];
 		else return false;
-		
+
 		if (!empty($redirectUrl))
 			$urlParams['redirect_uri'] = self::formatRedirectUrl($redirectUrl);
 		else return false;
-		
+
 		if (!empty($code))
 			$urlParams['code'] = $code;
 		else return false;
-		
+
 		return self::TOKEN_URL . "?" . http_build_query($urlParams);
 	}
-	
-	
+
+
 	/**
 	 * Decoding url and adding protocol
 	 *
@@ -673,11 +673,11 @@ class Vk extends Platform
 	{
 		$protocol = \CMain::IsHTTPS() ? "https://" : "http://";
 		$redirectUrl = $protocol . urldecode($redirectUrl);
-		
+
 		return $redirectUrl;
 	}
-	
-	
+
+
 	/**
 	 * Return array of permissions to authorize in VK
 	 *
@@ -709,16 +709,16 @@ class Vk extends Platform
 			"offline" => 65536,
 		);
 		$scope = 0;
-		
+
 		foreach ($params as $param)
 		{
 			if (isset($scopes[$param]))
 				$scope += $scopes[$param];
 		}
-		
+
 		return $scope;
 	}
-	
+
 	/**
 	 * Get timelimit from settings
 	 * @param $exportId
@@ -727,13 +727,13 @@ class Vk extends Platform
 	public function getTimelimit($exportId)
 	{
 		$settings = $this->getSettings($exportId);
-		
+
 		if (isset($settings["EXPORT_SETTINGS"]["TIMELIMIT"]))
 			return $settings["EXPORT_SETTINGS"]["TIMELIMIT"];
 		else
 			return false;
 	}
-	
+
 	/**
 	 * Get max item count to export
 	 * @param $exportId
@@ -743,13 +743,13 @@ class Vk extends Platform
 	{
 		$settings = $this->getSettings();
 		$settings = $settings[$exportId];
-		
+
 		if (isset($settings["EXPORT_SETTINGS"]["COUNT_ITEMS"]))
 			return $settings["EXPORT_SETTINGS"]["COUNT_ITEMS"];
 		else
 			return false;
 	}
-	
+
 	/**
 	 * Return true if set option "Use rich log". Else return false.
 	 * Rich log white more information about export, need for debug unknown errors.
@@ -760,25 +760,25 @@ class Vk extends Platform
 	public function getRichLog($exportId)
 	{
 		$settings = $this->getSettings($exportId);
-		
+
 		if (isset($settings["EXPORT_SETTINGS"]["RICH_LOG"]) && $settings["EXPORT_SETTINGS"]["RICH_LOG"])
 			return true;
 		else
 			return false;
 	}
-	
-	
+
+
 	public function getAvailableFlag($exportId)
 	{
 		$settings = $this->getSettings($exportId);
-		
+
 		if (isset($settings["EXPORT_SETTINGS"]["ONLY_AVAILABLE_FLAG"]) && !$settings["EXPORT_SETTINGS"]["ONLY_AVAILABLE_FLAG"])
 			return false;
 		else
 			return true;
 	}
-	
-	
+
+
 	/**
 	 * Return array of existings profiles IDs
 	 *
@@ -794,7 +794,7 @@ class Vk extends Platform
 				'select' => array('ID', 'DESCRIPTION', 'EXPORT_SETTINGS'),
 			)
 		);
-		
+
 		while ($export = $resExports->fetch())
 		{
 			if ($onlyActive && $export["EXPORT_SETTINGS"]["ACTIVE"] != "Y")
@@ -805,11 +805,11 @@ class Vk extends Platform
 					'DESC' => $export['DESCRIPTION'],
 				);
 		}
-		
+
 		return $exportIds;
 	}
-	
-	
+
+
 	/**
 	 * Error types for event log
 	 *
@@ -818,7 +818,7 @@ class Vk extends Platform
 	public static function OnEventLogGetAuditTypes()
 	{
 		$prefix = 'VK: ';
-		
+
 		$result = array(
 			"VK_PROCESS__START" => Loc::getMessage("SALE_VK_PROCESS__START"),
 			"VK_PROCESS__TIMELIMIT" => Loc::getMessage("SALE_VK_PROCESS__TIMELIMIT"),
@@ -831,14 +831,14 @@ class Vk extends Platform
 			"VK_FEED__FEED_FINISH_OK" => Loc::getMessage("SALE_VK_FEED_FINISH_OK"),
 			"VK_FEED__FEED_ALBUM_PART_FINISH" => Loc::getMessage("SALE_VK_FEED_ALBUM_PART_FINISH"),
 		);
-		
+
 		array_walk($result, function (&$value, $key, $prefix)
 		{
 			$value = $prefix . $value;
 		},
 			$prefix
 		);
-		
+
 		return $result;
 	}
 }

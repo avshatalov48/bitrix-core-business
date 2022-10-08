@@ -12,5 +12,8 @@ return [
 		"/bitrix/js/ui/notification/ui.notification.center.js",
 	],
 	"bundle_js" => "ui_notification",
-	"bundle_css" => "ui_notification"
+	"bundle_css" => "ui_notification",
+	"rel" => [
+		"ui.design-tokens",
+	],
 ];

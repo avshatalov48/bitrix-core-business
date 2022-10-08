@@ -3,7 +3,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\Localization\Loc;
 
-CJSCore::Init(["sidepanel", "ui.design-tokens"]);
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'sidepanel',
+]);
+
 /** @var array $arParams */
 /** @var array $arResult */
 ?>

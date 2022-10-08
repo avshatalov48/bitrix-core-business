@@ -748,6 +748,13 @@ class CSearch extends CAllSearch
 			{
 				$lang = $CACHE_SITE_LANGS[$site]["LANGUAGE_ID"];
 
+				$dbTitle = [];
+				$rs = $DB->Query("select WORD, POS from b_search_content_title where SEARCH_CONTENT_ID = ".$ID." and SITE_ID='".$sql_site."'");
+				while ($ar = $rs->Fetch())
+				{
+					$dbTitle[$ar["WORD"]] = intval($ar["POS"]);
+				}
+
 				$arTitle = stemming_split($sTitle, $lang);
 				if (!empty($arTitle))
 				{
@@ -761,17 +768,35 @@ class CSearch extends CAllSearch
 					$strSqlSuffix = "";
 					foreach ($arTitle as $word => $pos)
 					{
-						$strSqlValues .= ",\n(".$ID.", '".$sql_site."', '".$DB->ForSql($word)."', ".$pos.")";
-						if (mb_strlen($strSqlValues) > $maxValuesLen)
+						if (isset($dbTitle[$word]) && $dbTitle[$word] === $pos)
 						{
-							$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
-							$strSqlValues = "";
+							//Already in the db
+							unset($dbTitle[$word]);
+						}
+						else
+						{
+							//New value
+							$strSqlValues .= ",\n(".$ID.", '".$sql_site."', '".$DB->ForSql($word)."', ".$pos.")";
+							if (mb_strlen($strSqlValues) > $maxValuesLen)
+							{
+								$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+								$strSqlValues = "";
+							}
 						}
 					}
 					if ($strSqlValues <> '')
 					{
 						$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
 						$strSqlValues = "";
+					}
+					//Delete obsolete db values
+					foreach ($dbTitle as $word => $pos)
+					{
+						$DB->Query("
+							delete from b_search_content_title
+							where SEARCH_CONTENT_ID = ".$ID." and SITE_ID='".$sql_site."'
+							and WORD = '".$DB->ForSql($word)."' and POS = ".$pos."
+						");
 					}
 				}
 			}

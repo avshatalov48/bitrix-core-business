@@ -1,8 +1,12 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 import {Type, Event, Text, Tag, Dom, Cache, Runtime} from 'main.core';
 import {EventEmitter} from 'main.core.events';
 import {Env} from 'landing.env';
 import typeof {BaseField} from 'landing.ui.field.basefield';
 import type BaseFormOptions from './internal/type';
+
 import './css/style.css';
 
 export type {

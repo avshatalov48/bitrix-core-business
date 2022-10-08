@@ -1799,6 +1799,30 @@ class CAllRatings
 	{
 		global $USER;
 
+		static $beforeListHandlers;
+		if (!isset($beforeListHandlers))
+		{
+			$beforeListHandlers = GetModuleEvents("main", "OnBeforeGetVoteList", true);
+		}
+
+		foreach ($beforeListHandlers as $arEvent)
+		{
+			$arEventResult = ExecuteModuleEventEx($arEvent, array($arParam));
+			if (
+				is_array($arEventResult)
+				&& array_key_exists('RESULT', $arEventResult)
+				&& !$arEventResult['RESULT']
+			)
+			{
+				return array(
+					'items_all' => 0,
+					'items_page' => 0,
+					'items' => [],
+					'reactions' => [],
+				);
+			}
+		}
+
 		$reactionResult = self::GetRatingVoteReaction($arParam);
 		$cnt = $reactionResult['items_all'];
 		$cntReactions = $reactionResult['reactions'];
@@ -1929,6 +1953,32 @@ class CAllRatings
 						}
 					}
 				}
+			}
+		}
+
+		static $afterListHandlers;
+		if (!isset($afterListHandlers))
+		{
+			$afterListHandlers = GetModuleEvents("main", "OnAfterGetVoteList", true);
+		}
+
+		foreach ($afterListHandlers as $arEvent)
+		{
+			$arEventResult = ExecuteModuleEventEx(
+				$arEvent,
+				[
+					'param' => $arParam,
+					'items' => $arVoteList,
+				]
+			);
+
+			if (
+				is_array($arEventResult)
+				&& array_key_exists('ITEMS', $arEventResult)
+				&& is_array($arEventResult['ITEMS'])
+			)
+			{
+				$arVoteList = array_intersect($arVoteList, $arEventResult['ITEMS']);
 			}
 		}
 

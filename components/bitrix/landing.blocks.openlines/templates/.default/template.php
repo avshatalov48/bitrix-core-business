@@ -37,9 +37,25 @@ if (!empty($arParams['ERRORS']))
 
 foreach ($arParams['WIDGETS'] as $widget) :?>
 	<?php if (is_array($widget['show']) && isset($widget['show']['url'])): ?>
-		<a class="<?= $widget['classList'] ?> g-pointer-events-none--edit-mode" target="_blank" href="<?= $widget['show']['url'] ?>">
-			<?= $widget['title'] ?>
-		</a>
+		<?php if (is_array($widget['show']['url'])): ?>
+			<?php if ($arParams['IS_MOBILE']): ?>
+				<a class="<?= $widget['classList'] ?> g-pointer-events-none--edit-mode" target="_blank" href="<?= $widget['show']['url']['mobile'] ?>">
+					<?= $widget['title'] ?>
+				</a>
+			<?php else: ?>
+				<div
+					class="g-cursor-pointer g-pointer-events-none--edit-mode <?= $widget['classList'] ?>"
+					target="_blank"
+					onclick="<?= $widget['show']['js']['desktop'] ?>"
+				>
+					<?= $widget['title'] ?>
+				</div>
+			<?php endif; ?>
+		<?php else: ?>
+			<a class="<?= $widget['classList'] ?> g-pointer-events-none--edit-mode" target="_blank" href="<?= $widget['show']['url'] ?>">
+				<?= $widget['title'] ?>
+			</a>
+		<?php endif; ?>
 
 	<?php else: ?>
 		<div

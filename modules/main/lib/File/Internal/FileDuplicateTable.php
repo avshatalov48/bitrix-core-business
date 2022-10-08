@@ -28,6 +28,8 @@ use Bitrix\Main\ORM\Fields;
  */
 class FileDuplicateTable extends Data\DataManager
 {
+	use Data\Internal\MergeTrait;
+
 	public static function getTableName()
 	{
 		return 'b_file_duplicate';
@@ -52,23 +54,6 @@ class FileDuplicateTable extends Data\DataManager
 	}
 
 	/**
-	 * @param array $insertFields
-	 * @param array $updateFields
-	 */
-	public static function merge(array $insertFields, array $updateFields)
-	{
-		$conn = static::getEntity()->getConnection();
-
-		$keyFields = ["DUPLICATE_ID", "ORIGINAL_ID"];
-
-		$sql = $conn->getSqlHelper()->prepareMerge(static::getTableName(), $keyFields, $insertFields, $updateFields);
-
-		$conn->queryExecute(current($sql));
-
-		static::getEntity()->cleanCache();
-	}
-
-	/**
 	 * @param int $originalId
 	 */
 	public static function markDeleted($originalId)
@@ -83,6 +68,6 @@ class FileDuplicateTable extends Data\DataManager
 			where ORIGINAL_ID = {$originalId} and ORIGINAL_DELETED = 'N'
 		");
 
-		static::getEntity()->cleanCache();
+		static::cleanCache();
 	}
 }

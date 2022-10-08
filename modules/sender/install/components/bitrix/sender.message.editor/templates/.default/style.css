@@ -30,7 +30,7 @@
 	float: left;
 	padding-left: 26px;
 	color: rgb(94, 102, 117);
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	cursor: pointer;
 }
 

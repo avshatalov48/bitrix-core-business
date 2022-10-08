@@ -83,18 +83,18 @@
 	background: #f42c2c;
 	color: #fff;
 	text-align: center;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 23px;
 	line-height: 74px;
 }
 
 .catalog-top-banner-stick.short {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 18px;
 }
 
 .catalog-top-banner-stick.average {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 13px;
 }
 
@@ -146,7 +146,8 @@
 	margin-bottom: 25px;
 	max-height: 160px;
 	color: #658790;
-	font: 400 13px/19px "OpenSans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/19px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 /**/
@@ -194,7 +195,7 @@
 .catalog-top-banner-price {
 	padding: 0 10px 0 0;
 	vertical-align: middle;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 18px;
 }
 
@@ -203,7 +204,7 @@
 	padding: 5px 10px 0 0;
 	color: #496771;
 	text-decoration: line-through;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 14px;
 }
 
@@ -221,7 +222,7 @@
 	background: #f3f3f3;
 	text-align: left;
 	white-space: normal;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 12px;
 	line-height: normal;
 }

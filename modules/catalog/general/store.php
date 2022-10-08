@@ -103,42 +103,9 @@ class CAllCatalogStore
 			return false;
 		}
 
-		if ($action == 'ADD')
+		if (array_key_exists('IMAGE_ID', $arFields))
 		{
-			$arFields['IMAGE_ID'] = (int)$arFields['IMAGE_ID'];
-			if ($arFields['IMAGE_ID'] <= 0)
-			{
-				$arFields['IMAGE_ID'] = false;
-			}
-
-			$arFields['LOCATION_ID'] = (int)$arFields['LOCATION_ID'];
-			if ($arFields['LOCATION_ID'] <= 0)
-			{
-				$arFields['LOCATION_ID'] = false;
-			}
-		}
-
-		if ($action == 'UPDATE')
-		{
-			if (array_key_exists('IMAGE_ID', $arFields))
-			{
-				if ($arFields['IMAGE_ID'] === null || $arFields['IMAGE_ID'] === 'null' || $arFields['IMAGE_ID'] === false)
-				{
-					$arFields['IMAGE_ID'] = false;
-				}
-				elseif (is_string($arFields['IMAGE_ID']) || is_int($arFields['IMAGE_ID']))
-				{
-					$arFields['IMAGE_ID'] = (int)$arFields['IMAGE_ID'];
-					if ($arFields['IMAGE_ID'] <= 0)
-					{
-						unset($arFields['IMAGE_ID']);
-					}
-				}
-				else
-				{
-					unset($arFields['IMAGE_ID']);
-				}
-			}
+			self::prepareImage($arFields, 'IMAGE_ID');
 		}
 
 		if(isset($arFields["ISSUING_CENTER"]) && ($arFields["ISSUING_CENTER"]) !== 'Y')
@@ -149,7 +116,7 @@ class CAllCatalogStore
 		{
 			$arFields["SHIPPING_CENTER"] = 'N';
 		}
-		if(isset($arFields["SITE_ID"]) && ($arFields["SITE_ID"]) === '0')
+		if(isset($arFields["SITE_ID"]) && ($arFields["SITE_ID"] === '0' || $arFields["SITE_ID"] === ''))
 		{
 			$arFields["SITE_ID"] = false;
 		}
@@ -165,12 +132,83 @@ class CAllCatalogStore
 		return true;
 	}
 
+	private static function prepareImage(array &$fields, $fieldName): void
+	{
+		if (
+			$fields[$fieldName] === null
+			|| $fields[$fieldName] === 'null'
+			|| $fields[$fieldName] === ''
+			|| $fields[$fieldName] === false
+		)
+		{
+			$fields[$fieldName] = false;
+		}
+		elseif (
+			is_string($fields[$fieldName])
+			|| is_int($fields[$fieldName])
+		)
+		{
+			$fields[$fieldName] = (int)$fields[$fieldName];
+			if ($fields[$fieldName] <= 0)
+			{
+				unset($fields[$fieldName]);
+			}
+		}
+		elseif (is_array($fields[$fieldName]))
+		{
+			self::prepareImageArray($fields, $fieldName);
+		}
+		else
+		{
+			unset($fields[$fieldName]);
+		}
+	}
+
+	private static function prepareImageArray(array &$fields, $fieldName): void
+	{
+		if (empty($fields[$fieldName]))
+		{
+			unset($fields[$fieldName]);
+
+			return;
+		}
+
+		if (!isset($fields[$fieldName]['name']) && !isset($fields[$fieldName]['del']))
+		{
+			unset($fields[$fieldName]);
+
+			return;
+		}
+
+		$fields[$fieldName]['MODULE_ID'] = 'catalog';
+	}
+
 	public static function Update($id, $arFields)
 	{
 		global $DB;
 		$id = (int)$id;
 		if ($id <= 0)
 			return false;
+
+		$store = Catalog\StoreTable::getRow([
+			'select' => [
+				'ID',
+				'IMAGE_ID',
+				'ACTIVE',
+			],
+			'filter' => [
+				'=ID' => $id,
+			]
+		]);
+		if (empty($store))
+		{
+			return false;
+		}
+
+		if ($store['IMAGE_ID'] !== null)
+		{
+			$store['IMAGE_ID'] = (int)$store['IMAGE_ID'];
+		}
 
 		foreach (GetModuleEvents("catalog", "OnBeforeCatalogStoreUpdate", true) as $arEvent)
 		{
@@ -181,6 +219,18 @@ class CAllCatalogStore
 		if (!self::CheckFields('UPDATE', $arFields))
 			return false;
 
+		if (isset($arFields['IMAGE_ID']))
+		{
+			if (is_array($arFields['IMAGE_ID']))
+			{
+				$arFields['IMAGE_ID']['old_file'] = $store['IMAGE_ID'];
+				CFile::SaveForDB($arFields, 'IMAGE_ID', 'catalog');
+			}
+			elseif ($store['IMAGE_ID'] !== null)
+			{
+				CFile::Delete($store['IMAGE_ID']);
+			}
+		}
 		$strUpdate = $DB->PrepareUpdate("b_catalog_store", $arFields);
 
 		$bNeedConversion = false;
@@ -188,13 +238,7 @@ class CAllCatalogStore
 		{
 			if (isset($arFields['ACTIVE']))
 			{
-				$row = Catalog\StoreTable::getList(array(
-					'select' => array('ACTIVE'),
-					'filter' => array('=ID' => $id)
-				))->fetch();
-				if (!empty($row))
-					$bNeedConversion = ($row['ACTIVE'] != $arFields['ACTIVE']);
-				unset($row);
+				$bNeedConversion = ($store['ACTIVE'] !== $arFields['ACTIVE']);
 			}
 
 			$strSql = "update b_catalog_store set ".$strUpdate." where ID = ".$id;
@@ -202,7 +246,7 @@ class CAllCatalogStore
 				return false;
 			CCatalogStoreControlUtil::clearStoreName($id);
 
-			Catalog\StoreTable::getEntity()->cleanCache();
+			Catalog\StoreTable::cleanCache();
 		}
 
 		if($bNeedConversion)
@@ -219,9 +263,28 @@ class CAllCatalogStore
 	public static function Delete($id)
 	{
 		global $DB, $USER_FIELD_MANAGER;
-		$id = intval($id);
-		if($id > 0)
+		$id = (int)$id;
+		if ($id > 0)
 		{
+			$store = Catalog\StoreTable::getRow([
+				'select' => [
+					'ID',
+					'IMAGE_ID'
+				],
+				'filter' => [
+					'=ID' => $id,
+				]
+			]);
+			if (empty($store))
+			{
+				return false;
+			}
+
+			if ($store['IMAGE_ID'] !== null)
+			{
+				$store['IMAGE_ID'] = (int)$store['IMAGE_ID'];
+			}
+
 			foreach (GetModuleEvents("catalog", "OnBeforeCatalogStoreDelete", true) as $arEvent)
 			{
 				if(ExecuteModuleEventEx($arEvent, array($id))===false)
@@ -237,10 +300,14 @@ class CAllCatalogStore
 
 			$DB->Query("delete from b_catalog_store_product where STORE_ID = ".$id, true);
 			$DB->Query("delete from b_catalog_store where ID = ".$id, true);
+			if ($store['IMAGE_ID'] !== null)
+			{
+				CFile::Delete($store['IMAGE_ID']);
+			}
 
 			$USER_FIELD_MANAGER->Delete(Catalog\StoreTable::getUfId(), $id);
 
-			Catalog\StoreTable::getEntity()->cleanCache();
+			Catalog\StoreTable::cleanCache();
 
 			foreach(GetModuleEvents("catalog", "OnCatalogStoreDelete", true) as $arEvent)
 				ExecuteModuleEventEx($arEvent, array($id));

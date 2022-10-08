@@ -1,5 +1,10 @@
-<?
-\Bitrix\Main\UI\Extension::load("ui.icons");
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load(["ui.icons", "ui.fonts.opensans"]);
 $bodyClass = $APPLICATION->GetPageProperty('BodyClass');
 $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') . ' no-background no-all-paddings pagetitle-toolbar-field-view ');
 

@@ -1,9 +1,12 @@
 import {Tag, Dom, Cache} from 'main.core';
+import {EventEmitter} from 'main.core.events';
 
-export class Ears
+export class Ears extends EventEmitter
 {
 	constructor(options)
 	{
+		super(...arguments);
+		this.setEventNamespace('BX.UI.Ears');
 		this.container = options.container;
 		this.smallSize = options.smallSize || null;
 		this.noScrollbar = options.noScrollbar ? options.noScrollbar : false;
@@ -32,7 +35,8 @@ export class Ears
 		this.getRightEar().addEventListener('mouseup', this.scrollRight.bind(this));
 	}
 
-	init() {
+	init(): this
+	{
 		this.setWrapper();
 		this.bindEvents();
 
@@ -46,6 +50,7 @@ export class Ears
 				activeItem ? this.scrollToActiveItem(activeItem) : null;
 			}
 		}, 600);
+		return this;
 	}
 
 	scrollToActiveItem(activeItem)
@@ -149,7 +154,14 @@ export class Ears
 	scrollLeft() {
 		this.stopScroll('right');
 
+		let previous = this.container.scrollLeft;
 		this.container.scrollLeft -= 10;
+		this.emit('onEarsAreMoved');
+		if (this.container.scrollLeft <= 0 && previous > 0)
+		{
+			this.emit('onEarsAreHidden');
+		}
+
 		this.setDelay();
 		this.scrollInterval = setInterval(
 			this.scrollLeft.bind(this),
@@ -162,6 +174,12 @@ export class Ears
 		this.stopScroll('left');
 
 		this.container.scrollLeft += 10;
+		this.emit('onEarsAreMoved');
+		if (this.container.scrollLeft <= 10)
+		{
+			this.emit('onEarsAreShown');
+		}
+
 		this.setDelay();
 		this.scrollInterval = setInterval(
 			this.scrollRight.bind(this),

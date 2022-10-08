@@ -1,3 +1,4 @@
+import 'ui.design-tokens';
 import './datepick.variables.css';
 import {VueDatePick} from './vue-date-pick/vueDatePick.js';
 import {Loc} from 'main.core';

@@ -1,8 +1,9 @@
 // @flow
 'use strict';
 
-import {Loc} from "main.core";
+import { Loc, Tag } from "main.core";
 import MobileInterfaceTemplate from "./mobileinterfacetemplate";
+import { Util } from 'calendar.util';
 
 export default class IphoneTemplate extends MobileInterfaceTemplate
 {
@@ -22,5 +23,30 @@ export default class IphoneTemplate extends MobileInterfaceTemplate
 			connection: connection,
 			popupWithUpdateButton: false,
 		});
+
+		this.warningText = Loc.getMessage('CAL_SYNC_WARNING_IPHONE_AND_MAC');
+		this.warningButtonText = Loc.getMessage('CALENDAR_CONNECT_ICLOUD');
+	}
+
+	handleWarningButtonClick()
+	{
+		BX.SidePanel.Instance.getOpenSliders().forEach(slider =>
+		{
+			if (['calendar:auxiliary-sync-slider', 'calendar:item-sync-connect-iphone'].includes(slider.getUrl()))
+			{
+				slider.close();
+			}
+		});
+
+		const calendarContext = Util.getCalendarContext();
+		if (calendarContext)
+		{
+			calendarContext
+				.syncInterface
+				.getIcloudProvider()
+				.getInterfaceUnit()
+				.getConnectionTemplate()
+				.handleConnectButton();
+		}
 	}
 }

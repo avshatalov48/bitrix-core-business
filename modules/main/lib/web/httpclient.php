@@ -1140,10 +1140,10 @@ class HttpClient implements Log\LoggerAwareInterface
 					$this->status = intval($find[1]);
 				}
 			}
-			elseif(mb_strpos($header, ':') !== false)
+			elseif(strpos($header, ':') !== false)
 			{
 				[$headerName, $headerValue] = explode(':', $header, 2);
-				if(mb_strtolower($headerName) == 'set-cookie')
+				if(strtolower($headerName) == 'set-cookie')
 				{
 					$this->responseCookies->addFromString($headerValue);
 				}

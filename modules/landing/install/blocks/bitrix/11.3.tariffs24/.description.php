@@ -11,6 +11,7 @@ return [
 		'name' => Loc::getMessage('BLOCK_11_3_NAME'),
 		'section' => ['tariffs'],
 		'namespace' => 'bitrix',
+		'dynamic' => false,
 		'only_for_license' => 'nfr',
 	],
 	'nodes' => [

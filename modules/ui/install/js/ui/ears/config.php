@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/ears.bundle.js',
 	'rel' => [
 		'main.core',
+		'main.core.events',
 	],
 	'skip_core' => false,
 ];

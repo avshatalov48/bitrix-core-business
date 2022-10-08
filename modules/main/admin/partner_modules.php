@@ -12,7 +12,7 @@
  * @global CMain $APPLICATION
  * @global CDatabase $DB
  */
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client_partner.php");
 define("HELP_FILE", "settings/module_admin.php");
 

@@ -14,6 +14,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CMain $APPLICATION
  * @global CUser $USER
  */
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
 
 if($arParams['IS_SLIDER'])
 {

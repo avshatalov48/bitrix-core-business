@@ -90,93 +90,98 @@ while ($site = $sitesQueryObject->fetch())
 	$listSite[$site["LID"]] = $site["NAME"]." [".$site["LID"]."]";
 }
 
-$filterFields = array(
-	array(
-		"id" => "ID",
-		"name" => "ID",
-		"type" => "number",
-		"filterable" => "=",
-		"default" => true
+$allowedShippingCenter = \CCatalogStoreControlUtil::isAllowShowShippingCenter();
+
+$filterFields = [];
+$filterFields[] = array(
+	"id" => "ID",
+	"name" => "ID",
+	"type" => "number",
+	"filterable" => "=",
+	"default" => true,
+);
+$filterFields[] = array(
+	"id" => "SITE_ID",
+	"name" => Loc::getMessage("STORE_SITE_ID"),
+	"type" => "list",
+	"items" => $listSite,
+	"filterable" => "",
+);
+$filterFields[] = array(
+	"id" => "ACTIVE",
+	"name" => Loc::getMessage("STORE_ACTIVE"),
+	"type" => "list",
+	"items" => array(
+		"Y" => Loc::getMessage("BX_CATALOG_STORE_LIST_FILTER_YES_VALUE"),
+		"N" => Loc::getMessage("BX_CATALOG_STORE_LIST_FILTER_NO_VALUE"),
 	),
-	array(
-		"id" => "SITE_ID",
-		"name" => Loc::getMessage("STORE_SITE_ID"),
-		"type" => "list",
-		"items" => $listSite,
-		"filterable" => ""
-	),
-	array(
-		"id" => "ACTIVE",
-		"name" => Loc::getMessage("STORE_ACTIVE"),
-		"type" => "list",
-		"items" => array(
-			"Y" => Loc::getMessage("BX_CATALOG_STORE_LIST_FILTER_YES_VALUE"),
-			"N" => Loc::getMessage("BX_CATALOG_STORE_LIST_FILTER_NO_VALUE")
-		),
-		"filterable" => "="
-	),
-	[
-		'id' => 'IS_DEFAULT',
-		'name' => Loc::getMessage('BX_CATALOG_STORE_LIST_FIELD_IS_DEFAULT'),
-		'type' => 'list',
-		'items' => [
-			'Y' => Loc::getMessage('BX_CATALOG_STORE_LIST_FILTER_YES_VALUE'),
-			'N' => Loc::getMessage('BX_CATALOG_STORE_LIST_FILTER_NO_VALUE'),
-		],
-		'filterable' => '=',
+	"filterable" => "=",
+);
+$filterFields[] = [
+	'id' => 'IS_DEFAULT',
+	'name' => Loc::getMessage('BX_CATALOG_STORE_LIST_FIELD_IS_DEFAULT'),
+	'type' => 'list',
+	'items' => [
+		'Y' => Loc::getMessage('BX_CATALOG_STORE_LIST_FILTER_YES_VALUE'),
+		'N' => Loc::getMessage('BX_CATALOG_STORE_LIST_FILTER_NO_VALUE'),
 	],
-	array(
-		"id" => "TITLE",
-		"name" => Loc::getMessage("TITLE"),
-		"filterable" => "%",
-		"quickSearch" => "%"
+	'filterable' => '=',
+];
+$filterFields[] = array(
+	"id" => "TITLE",
+	"name" => Loc::getMessage("TITLE"),
+	"filterable" => "%",
+	"quickSearch" => "%",
+);
+$filterFields[] = array(
+	"id" => "CODE",
+	"name" => Loc::getMessage("STORE_CODE"),
+	"filterable" => "=",
+);
+$filterFields[] = array(
+	"id" => "XML_ID",
+	"name" => Loc::getMessage("STORE_XML_ID"),
+	"filterable" => "=",
+);
+$filterFields[] = array(
+	"id" => "ISSUING_CENTER",
+	"name" => Loc::getMessage("ISSUING_CENTER"),
+	"type" => "list",
+	"items" => array(
+		"Y" => Loc::getMessage("BX_CATALOG_STORE_LIST_FILTER_YES_VALUE"),
+		"N" => Loc::getMessage("BX_CATALOG_STORE_LIST_FILTER_NO_VALUE"),
 	),
-	array(
-		"id" => "CODE",
-		"name" => Loc::getMessage("STORE_CODE"),
-		"filterable" => "="
-	),
-	array(
-		"id" => "XML_ID",
-		"name" => Loc::getMessage("STORE_XML_ID"),
-		"filterable" => "="
-	),
-	array(
-		"id" => "ISSUING_CENTER",
-		"name" => Loc::getMessage("ISSUING_CENTER"),
-		"type" => "list",
-		"items" => array(
-			"Y" => Loc::getMessage("BX_CATALOG_STORE_LIST_FILTER_YES_VALUE"),
-			"N" => Loc::getMessage("BX_CATALOG_STORE_LIST_FILTER_NO_VALUE")
-		),
-		"filterable" => "="
-	),
-	array(
+	"filterable" => "=",
+);
+if ($allowedShippingCenter)
+{
+	$filterFields[] = [
 		"id" => "SHIPPING_CENTER",
 		"name" => Loc::getMessage("SHIPPING_CENTER"),
 		"type" => "list",
-		"items" => array(
+		"items" => [
 			"Y" => Loc::getMessage("BX_CATALOG_STORE_LIST_FILTER_YES_VALUE"),
-			"N" => Loc::getMessage("BX_CATALOG_STORE_LIST_FILTER_NO_VALUE")
-		),
-		"filterable" => "="
-	),
-	array(
-		"id" => "ADDRESS",
-		"name" => Loc::getMessage("ADDRESS"),
-		"filterable" => "%"
-	),
-	array(
-		"id" => "PHONE",
-		"name" => Loc::getMessage("PHONE"),
-		"filterable" => "%"
-	),
-	array(
-		"id" => "EMAIL",
-		"name" => "E-mail",
-		"filterable" => "%"
-	),
+			"N" => Loc::getMessage("BX_CATALOG_STORE_LIST_FILTER_NO_VALUE"),
+		],
+		"filterable" => "=",
+	];
+}
+$filterFields[] = array(
+	"id" => "ADDRESS",
+	"name" => Loc::getMessage("ADDRESS"),
+	"filterable" => "%",
 );
+$filterFields[] = array(
+	"id" => "PHONE",
+	"name" => Loc::getMessage("PHONE"),
+	"filterable" => "%",
+);
+$filterFields[] = array(
+	"id" => "EMAIL",
+	"name" => "E-mail",
+	"filterable" => "%",
+);
+
 $USER_FIELD_MANAGER->AdminListAddFilterFieldsV2($entityId, $filterFields);
 
 $filter = array();
@@ -501,12 +506,15 @@ $arSelect = array(
 	"SORT",
 	"EMAIL",
 	"ISSUING_CENTER",
-	"SHIPPING_CENTER",
 	"SITE_ID",
 	"CODE",
 	"IS_DEFAULT",
 	"UF_*"
 );
+if ($allowedShippingCenter)
+{
+	$arSelect[] = "SHIPPING_CENTER";
+}
 
 global $by, $order;
 if (!isset($by))
@@ -520,139 +528,141 @@ $dbResultList = new CAdminUiResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
 $lAdmin->SetNavigationParams($dbResultList, array("BASE_LINK" => $selfFolderUrl."cat_store_list.php"));
 
-$headers = array(
-	array(
-		"id" => "ID",
-		"content" => "ID",
-		"sort" => "ID",
-		"default" => true
-	),
-	array(
-		"id" => "SORT",
-		"content" => Loc::getMessage("CSTORE_SORT"),
-		"sort" => "SORT",
-		"default" => true
-	),
-	array(
-		"id" => "TITLE",
-		"content" => Loc::getMessage("TITLE"),
-		"sort" => "TITLE",
-		"default" => true
-	),
-	array(
-		"id" => "ACTIVE",
-		"content" => Loc::getMessage("STORE_ACTIVE"),
-		"sort" => "ACTIVE",
-		"default" => true
-	),
-	[
-		'id' => 'IS_DEFAULT',
-		'content' => Loc::getMessage('BX_CATALOG_STORE_LIST_FIELD_IS_DEFAULT'),
-		'sort' => 'IS_DEFAULT',
-		'default' => true,
-	],
-	array(
-		"id" => "ADDRESS",
-		"content" => Loc::getMessage("ADDRESS"),
-		"sort" => "",
-		"default" => true
-	),
-	array(
-		"id" => "IMAGE_ID",
-		"content" => Loc::getMessage("STORE_IMAGE"),
-		"sort" => "",
-		"default" => false
-	),
-	array(
-		"id" => "DESCRIPTION",
-		"content" => Loc::getMessage("DESCRIPTION"),
-		"sort" => "",
-		"default" => true
-	),
-	array(
-		"id" => "GPS_N",
-		"content" => Loc::getMessage("GPS_N"),
-		"sort" => "GPS_N",
-		"default" => false
-	),
-	array(
-		"id" => "GPS_S",
-		"content" => Loc::getMessage("GPS_S"),
-		"sort" => "GPS_S",
-		"default" => false
-	),
-	array(
-		"id" => "PHONE",
-		"content" => Loc::getMessage("PHONE"),
-		"sort" => "",
-		"default" => true
-	),
-	array(
-		"id" => "SCHEDULE",
-		"content" => Loc::getMessage("SCHEDULE"),
-		"sort" => "",
-		"default" => true
-	),
-	array(
-		"id" => "DATE_MODIFY",
-		"content" => Loc::getMessage("DATE_MODIFY"),
-		"sort" => "DATE_MODIFY",
-		"default" => true
-	),
-	array(
-		"id" => "MODIFIED_BY",
-		"content" => Loc::getMessage("MODIFIED_BY"),
-		"sort" => "MODIFIED_BY",
-		"default" => true
-	),
-	array(
-		"id" => "DATE_CREATE",
-		"content" => Loc::getMessage("DATE_CREATE"),
-		"sort" => "DATE_CREATE",
-		"default" => false
-	),
-	array(
-		"id" => "USER_ID",
-		"content" => Loc::getMessage("USER_ID"),
-		"sort" => "USER_ID",
-		"default" => false
-	),
-	array(
-		"id" => "EMAIL",
-		"content" => "E-mail",
-		"sort" => "EMAIL",
-		"default" => false
-	),
-	array(
-		"id" => "ISSUING_CENTER",
-		"content" => Loc::getMessage("ISSUING_CENTER"),
-		"sort" => "ISSUING_CENTER",
-		"default" => false
-	),
-	array(
+$headers = [];
+$headers[] = array(
+	"id" => "ID",
+	"content" => "ID",
+	"sort" => "ID",
+	"default" => true,
+);
+$headers[] = array(
+	"id" => "SORT",
+	"content" => Loc::getMessage("CSTORE_SORT"),
+	"sort" => "SORT",
+	"default" => true,
+);
+$headers[] = array(
+	"id" => "TITLE",
+	"content" => Loc::getMessage("TITLE"),
+	"sort" => "TITLE",
+	"default" => true,
+);
+$headers[] = array(
+	"id" => "ACTIVE",
+	"content" => Loc::getMessage("STORE_ACTIVE"),
+	"sort" => "ACTIVE",
+	"default" => true,
+);
+$headers[] = [
+	'id' => 'IS_DEFAULT',
+	'content' => Loc::getMessage('BX_CATALOG_STORE_LIST_FIELD_IS_DEFAULT'),
+	'sort' => 'IS_DEFAULT',
+	'default' => true,
+];
+$headers[] = array(
+	"id" => "ADDRESS",
+	"content" => Loc::getMessage("ADDRESS"),
+	"sort" => "",
+	"default" => true,
+);
+$headers[] = array(
+	"id" => "IMAGE_ID",
+	"content" => Loc::getMessage("STORE_IMAGE"),
+	"sort" => "",
+	"default" => false,
+);
+$headers[] = array(
+	"id" => "DESCRIPTION",
+	"content" => Loc::getMessage("DESCRIPTION"),
+	"sort" => "",
+	"default" => true,
+);
+$headers[] = array(
+	"id" => "GPS_N",
+	"content" => Loc::getMessage("GPS_N"),
+	"sort" => "GPS_N",
+	"default" => false,
+);
+$headers[] = array(
+	"id" => "GPS_S",
+	"content" => Loc::getMessage("GPS_S"),
+	"sort" => "GPS_S",
+	"default" => false,
+);
+$headers[] = array(
+	"id" => "PHONE",
+	"content" => Loc::getMessage("PHONE"),
+	"sort" => "",
+	"default" => true,
+);
+$headers[] = array(
+	"id" => "SCHEDULE",
+	"content" => Loc::getMessage("SCHEDULE"),
+	"sort" => "",
+	"default" => true,
+);
+$headers[] = array(
+	"id" => "DATE_MODIFY",
+	"content" => Loc::getMessage("DATE_MODIFY"),
+	"sort" => "DATE_MODIFY",
+	"default" => true,
+);
+$headers[] = array(
+	"id" => "MODIFIED_BY",
+	"content" => Loc::getMessage("MODIFIED_BY"),
+	"sort" => "MODIFIED_BY",
+	"default" => true,
+);
+$headers[] = array(
+	"id" => "DATE_CREATE",
+	"content" => Loc::getMessage("DATE_CREATE"),
+	"sort" => "DATE_CREATE",
+	"default" => false,
+);
+$headers[] = array(
+	"id" => "USER_ID",
+	"content" => Loc::getMessage("USER_ID"),
+	"sort" => "USER_ID",
+	"default" => false,
+);
+$headers[] = array(
+	"id" => "EMAIL",
+	"content" => "E-mail",
+	"sort" => "EMAIL",
+	"default" => false,
+);
+$headers[] = array(
+	"id" => "ISSUING_CENTER",
+	"content" => Loc::getMessage("ISSUING_CENTER"),
+	"sort" => "ISSUING_CENTER",
+	"default" => false,
+);
+if ($allowedShippingCenter)
+{
+	$headers[] = [
 		"id" => "SHIPPING_CENTER",
 		"content" => Loc::getMessage("SHIPPING_CENTER"),
 		"sort" => "SHIPPING_CENTER",
-		"default" => false
-	),
-	array(
-		"id" => "SITE_ID",
-		"content" => Loc::getMessage("STORE_SITE_ID"),
-		"sort" => "SITE_ID",
-		"default" => true
-	),
-	array(
-		"id" => "CODE",
-		"content" => Loc::getMessage("STORE_CODE"),
-		"sort" => "CODE",
-		"default" => false
-	),
-	array(
-		"id" => "XML_ID",
-		"content" => Loc::getMessage("STORE_XML_ID"),
-		"sort" => "XML_ID",
-		"default" => false
-	)
+		"default" => false,
+	];
+}
+$headers[] = array(
+	"id" => "SITE_ID",
+	"content" => Loc::getMessage("STORE_SITE_ID"),
+	"sort" => "SITE_ID",
+	"default" => true,
+);
+$headers[] = array(
+	"id" => "CODE",
+	"content" => Loc::getMessage("STORE_CODE"),
+	"sort" => "CODE",
+	"default" => false
+);
+$headers[] = array(
+	"id" => "XML_ID",
+	"content" => Loc::getMessage("STORE_XML_ID"),
+	"sort" => "XML_ID",
+	"default" => false
 );
 
 $USER_FIELD_MANAGER->AdminListAddHeaders($entityId, $headers);
@@ -688,6 +698,10 @@ if(!in_array('ID', $arSelectFields))
 	$arSelectFields[] = 'ID';
 
 $arSelectFieldsMap = array_merge($arSelectFieldsMap, array_fill_keys($arSelectFields, true));
+if (!$allowedShippingCenter)
+{
+	$arSelectFieldsMap['SHIPPING_CENTER'] = false;
+}
 
 $arUserList = array();
 $arUserID = array();
@@ -756,8 +770,13 @@ while ($arRes = $dbResultList->Fetch())
 			$row->AddInputField("CODE");
 		if($arSelectFieldsMap['TITLE'])
 			$row->AddInputField("TITLE");
-		if($arSelectFieldsMap['ACTIVE'])
-			$row->AddCheckField("ACTIVE");
+		if ($arSelectFieldsMap['ACTIVE'])
+		{
+			$row->AddCheckField(
+				'ACTIVE',
+				($arRes['IS_DEFAULT'] === 'Y' ? false : [])
+			);
+		}
 		if($arSelectFieldsMap['ISSUING_CENTER'])
 			$row->AddCheckField("ISSUING_CENTER");
 		if($arSelectFieldsMap['SHIPPING_CENTER'])

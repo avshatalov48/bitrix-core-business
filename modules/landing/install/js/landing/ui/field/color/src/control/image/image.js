@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import {BaseEvent} from 'main.core.events';
 import {Dom, Tag, Type, Loc, Text} from 'main.core';
 

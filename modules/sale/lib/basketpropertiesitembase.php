@@ -223,32 +223,26 @@ abstract class BasketPropertyItemBase extends Internals\CollectableEntity
 			if ($value instanceof Main\Entity\StringField)
 			{
 				$fieldName = $value->getName();
-				if (array_key_exists($fieldName, $fields))
+				if (!empty($fields[$fieldName]) && mb_strlen($fields[$fieldName]) > $value->getSize())
 				{
-					if (array_key_exists($fieldName, $fields))
+					if ($fieldName === 'NAME')
 					{
-						if (!empty($fields[$fieldName]) && mb_strlen($fields[$fieldName]) > $value->getSize())
-						{
-							if ($fieldName === 'NAME')
-							{
-								$propertyName = mb_substr($propertyName, 0, 50)."...";
-							}
-
-							$result->addError(
-								new ResultWarning(
-									Loc::getMessage(
-										"SALE_BASKET_ITEM_PROPERTY_MAX_LENGTH_ERROR",
-										array(
-											"#PROPERTY_NAME#" => $propertyName,
-											"#FIELD_TITLE#" => $fieldName,
-											"#MAX_LENGTH#" => $value->getSize()
-										)
-									),
-									'SALE_BASKET_ITEM_PROPERTY_MAX_LENGTH_ERROR'
-								)
-							);
-						}
+						$propertyName = mb_substr($propertyName, 0, 50)."...";
 					}
+
+					$result->addError(
+						new ResultWarning(
+							Loc::getMessage(
+								"SALE_BASKET_ITEM_PROPERTY_MAX_LENGTH_ERROR",
+								array(
+									"#PROPERTY_NAME#" => $propertyName,
+									"#FIELD_TITLE#" => $fieldName,
+									"#MAX_LENGTH#" => $value->getSize()
+								)
+							),
+							'SALE_BASKET_ITEM_PROPERTY_MAX_LENGTH_ERROR'
+						)
+					);
 				}
 			}
 		}

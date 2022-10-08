@@ -39,7 +39,7 @@ trait EntityFabric
 				if ($object === $this)
 				{
 					unset(self::$repo[__CLASS__][$key]);
-					AddMessage2Log("Object: ".__CLASS__." $key were destroyed.");
+// AddMessage2Log("Object: ".__CLASS__." $key were destroyed.");
 					return;
 				}
 			}

@@ -13,18 +13,21 @@ use Bitrix\Main\Entity;
  * DO NOT WRITE ANYTHING BELOW THIS
  *
  * <<< ORMENTITYANNOTATION
- * @method static EO_Event_Query query()
- * @method static EO_Event_Result getByPrimary($primary, array $parameters = array())
- * @method static EO_Event_Result getById($id)
- * @method static EO_Event_Result getList(array $parameters = array())
- * @method static EO_Event_Entity getEntity()
- * @method static \Bitrix\Calendar\Internals\EO_Event createObject($setDefaultValues = true)
- * @method static \Bitrix\Calendar\Internals\EO_Event_Collection createCollection()
- * @method static \Bitrix\Calendar\Internals\EO_Event wakeUpObject($row)
- * @method static \Bitrix\Calendar\Internals\EO_Event_Collection wakeUpCollection($rows)
+ * @method static EO_CalendarLog_Query query()
+ * @method static EO_CalendarLog_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_CalendarLog_Result getById($id)
+ * @method static EO_CalendarLog_Result getList(array $parameters = [])
+ * @method static EO_CalendarLog_Entity getEntity()
+ * @method static \Bitrix\Calendar\Internals\EO_CalendarLog createObject($setDefaultValues = true)
+ * @method static \Bitrix\Calendar\Internals\EO_CalendarLog_Collection createCollection()
+ * @method static \Bitrix\Calendar\Internals\EO_CalendarLog wakeUpObject($row)
+ * @method static \Bitrix\Calendar\Internals\EO_CalendarLog_Collection wakeUpCollection($rows)
  */
 class CalendarLogTable extends Main\Entity\DataManager
 {
+	/**
+	 * @return string
+	 */
 	public static function getFilePath()
 	{
 		return __FILE__;

@@ -13,15 +13,9 @@ use Bitrix\Rest\Integration\View\Base;
 final class Catalog extends Controller
 {
 	//region Actions
-	public function getFieldsAction()
+	public function getFieldsAction(): array
 	{
-		/** @var Base $view */
-		$view = $this->getViewManager()
-			->getView($this);
-
-		return ['CATALOG'=>$view->prepareFieldInfos(
-			$view->getFields()
-		)];
+		return ['CATALOG' => $this->getViewFields()];
 	}
 
 	public function isOffersAction($id)

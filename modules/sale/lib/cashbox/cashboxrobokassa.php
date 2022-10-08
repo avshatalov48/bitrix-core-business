@@ -191,7 +191,7 @@ class CashboxRobokassa extends CashboxPaySystem
 	{
 		return [
 			'merchantId' => $this->getPaySystemSetting($payment, 'ROBOXCHANGE_SHOPLOGIN'),
-			'id' => $this->getPaySystemSetting($payment, 'PAYMENT_ID'),
+			'id' => $payment->getId(),
 		];
 	}
 
@@ -380,7 +380,7 @@ class CashboxRobokassa extends CashboxPaySystem
 	 */
 	private static function encode(array $data)
 	{
-		return Main\Web\Json::encode($data, JSON_UNESCAPED_UNICODE);
+		return Main\Web\Json::encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 	}
 
 	/**

@@ -2,12 +2,12 @@
 
 use Bitrix\Main\UI;
 
-UI\Extension::load("ui.tooltip");
+UI\Extension::load(["ui.design-tokens", "ui.tooltip"]);
 
-if (IsModuleInstalled("im")) 
-{ 
-	$APPLICATION->IncludeComponent("bitrix:im.messenger", "", Array(), null, array("HIDE_ICONS" => "Y")); 
-	return; 
+if (IsModuleInstalled("im"))
+{
+	$APPLICATION->IncludeComponent("bitrix:im.messenger", "", Array(), null, array("HIDE_ICONS" => "Y"));
+	return;
 }
 
 CAjax::Init();
@@ -29,7 +29,7 @@ $APPLICATION->IncludeComponent("bitrix:main.user.link",
 		"PATH_TO_CONPANY_DEPARTMENT" => $arParams["~PATH_TO_CONPANY_DEPARTMENT"],
 		"AJAX_ONLY" => "Y",
 	),
-	false, 
+	false,
 	array("HIDE_ICONS" => "Y")
 );
 
@@ -99,7 +99,7 @@ $ajax_page = $APPLICATION->GetCurPageParam("", array("bxajaxid", "logout"));
 		sonetDynevNfier_7xx: '<?=CUtil::JSEscape(GetMessage("SONET_C2_NFIER_MESSAGES_7xx"))?>',
 		sonetDynevNfier_8xx: '<?=CUtil::JSEscape(GetMessage("SONET_C2_NFIER_MESSAGES_8xx"))?>',
 		sonetDynevNfier_9xx: '<?=CUtil::JSEscape(GetMessage("SONET_C2_NFIER_MESSAGES_9xx"))?>'
-	});	
+	});
 //-->
 </script><?
 

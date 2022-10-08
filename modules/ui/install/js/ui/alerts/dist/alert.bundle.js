@@ -33,9 +33,11 @@ this.BX = this.BX || {};
 	  babelHelpers.classCallCheck(this, AlertIcon);
 	};
 
+	babelHelpers.defineProperty(AlertIcon, "NONE", '');
 	babelHelpers.defineProperty(AlertIcon, "INFO", 'ui-alert-icon-info');
 	babelHelpers.defineProperty(AlertIcon, "WARNING", 'ui-alert-icon-warning');
 	babelHelpers.defineProperty(AlertIcon, "DANGER", 'ui-alert-icon-danger');
+	babelHelpers.defineProperty(AlertIcon, "FORBIDDEN", 'ui-alert-icon-forbidden');
 
 	var _templateObject;
 

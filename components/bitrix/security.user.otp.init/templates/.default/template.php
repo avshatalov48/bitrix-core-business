@@ -1,9 +1,17 @@
 <?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
 	die();
+}
 
-CJSCore::Init(array('qrcode', 'ajax', 'popup'));
-\Bitrix\Main\UI\Extension::load("ui.common");
+\Bitrix\Main\UI\Extension::load([
+	"ui.design-tokens",
+	"ui.fonts.opensans",
+	"ui.common",
+	'qrcode',
+	'ajax',
+	'popup',
+]);
 
 /**
  * @var array $arParams

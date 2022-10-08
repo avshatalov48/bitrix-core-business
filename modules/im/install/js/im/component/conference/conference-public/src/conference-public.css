@@ -80,7 +80,7 @@
     max-height: 100%;
     flex-grow: 1;
     padding: 15px 0 15px 15px;
-    font-family: "Helvetica Neue", Helvetica, sans-serif;
+    font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 /*************/
@@ -110,7 +110,8 @@
 }
 
 .bx-im-component-call-user-list-loader-text {
-    font: 12px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
     color: #FFF;
     opacity: 0.5;
 }
@@ -131,7 +132,8 @@
 }
 
 .bx-im-component-call-user-list-category-text {
-    font: 12px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
     color: #FFF;
     opacity: 0.7;
     text-transform: uppercase;
@@ -139,7 +141,8 @@
 }
 
 .bx-im-component-call-user-list-category-counter {
-    font: 12px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
     color: #FFF;
     opacity: 0.3;
 }
@@ -228,7 +231,8 @@
 .bx-im-component-call-user-list-introduce-yourself-text {
     display: flex;
     align-items: center;
-    font: 12px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
     line-height: 14px;
     color: #FFF;
 }
@@ -243,7 +247,7 @@
 .bx-im-component-call-user-list-item-current-user {
     margin-left: 5px;
     font-style: italic;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bx-im-component-call-user-list-item-name {
@@ -252,14 +256,16 @@
     white-space: nowrap;
     padding-top: 1px;
 	user-select: all;
-    font: 14px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
     color: #FFF;
     opacity: 0.9;
     line-height: 20px;
 }
 
 .bx-im-component-call-user-list-item-name-subtitle {
-    font: 12px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
     opacity: 0.5;
 }
 
@@ -499,7 +505,8 @@
 .bx-im-component-call-right-header-title {
 	flex-grow: 1;
 	text-align: left;
-	font: 14px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
     opacity: 0.9;
 }
 
@@ -511,7 +518,7 @@
 
 .bx-im-component-call-right-header-all-chats-title {
     text-transform: lowercase;
-    font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
     color: #FFF;
     opacity: 0.7;
     margin-right: 8px;
@@ -528,7 +535,8 @@
     border-radius: 8px;
     background: #F54819;
     line-height: 16px;
-    font: 10px 'OpenSans-Bold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 10px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
     color: #FFF;
 }
 
@@ -609,7 +617,7 @@
 }
 
 .bx-im-component-call-textarea-guest-title {
-	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #535c69;
 	margin-bottom: 15px;
 }
@@ -631,7 +639,7 @@
 	text-align: left;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font: 400 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .bx-im-component-call-textarea-guest-button {
@@ -646,7 +654,8 @@
 	background: #9ac60e;
 	color: #fff;
 	text-transform: uppercase;
-	font: 13px/45px 'OpenSans-Bold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/45px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
@@ -744,7 +753,8 @@
 
 .bx-im-component-call-check-devices-camera-no-video-text {
 	color: rgba(255,255,255,0.5);
-	font: 14px "Open Sans", Arial, sans-serif;
+	font: 14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .bx-im-component-call-check-devices-camera-video-container {
@@ -865,7 +875,7 @@
 	left: 50%;
 	transform: translate(-50%, -50%);
 	text-align: center;
-	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #535c69;
 
 	display: flex;
@@ -911,7 +921,8 @@
 	border-radius: 3px;
 	background: rgba(0,0,0,.3);
 	color: #D8D8D8;
-	font: 18px "Open Sans", Arial, sans-serif;
+	font: 18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	opacity: 80%;
 }
 
@@ -937,7 +948,8 @@
 }
 
 .bx-im-component-call-info-title {
-	font: 24px "Open Sans", Arial, sans-serif;
+	font: 24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #D8D8D8;
 	margin-bottom: 10px;
 	overflow-x: hidden;
@@ -945,13 +957,15 @@
 }
 
 .bx-im-component-call-info-speakers {
-    color: #D8D8D8;
-    font: 18px "Open Sans", Arial, sans-serif;
-    margin-bottom: 10px;
+	color: #d8d8d8;
+	font: 18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+	margin-bottom: 10px;
 }
 
 .bx-im-component-call-info-date {
-	font: 17px "Open Sans", Arial, sans-serif;
+	font: 17px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #D8D8D8;
 	opacity: 50%;
 	margin-bottom: 18px;
@@ -960,7 +974,8 @@
 .bx-im-component-call-info-status {
 	padding: 5px 10px;
 	border-radius: 100px;
-	font: 13px "Open Sans", Arial, sans-serif;
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .bx-im-component-call-info-status-not-active {
@@ -1053,13 +1068,13 @@
 }
 
 .bx-im-component-call-password-title-text {
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #D8D8D8;
 }
 
 .bx-im-component-call-password-error {
 	margin-bottom: 10px;
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #ff5752;
 }
 
@@ -1087,7 +1102,8 @@
 
 .bx-im-component-call-permissions-text {
 	color: #D8D8D8;
-	font: 18px "Open Sans", Arial, sans-serif;
+	font: 18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	margin-bottom: 30px;
 }
 
@@ -1106,7 +1122,7 @@
 }
 
 .bx-im-component-call-intranet-name-title {
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #D8D8D8;
 	margin-bottom: 16px;
 }
@@ -1142,9 +1158,9 @@
 }
 
 .bx-im-component-call-intranet-name-text {
-	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #D8D8D8;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	flex-grow: 0;
 	white-space: nowrap;
 	overflow: hidden;
@@ -1152,7 +1168,7 @@
 }
 
 .bx-im-component-call-intranet-name-logout {
-	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(255,255,255,0.5);
 	cursor: pointer;
 	margin-right: 3px;
@@ -1182,7 +1198,7 @@
 }
 
 .bx-im-component-call-guest-name-text {
-	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #000;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -1223,13 +1239,15 @@
 
 .bx-im-component-call-wait-title {
 	color: #D8D8D8;
-	font: 16px "Open Sans", Arial, sans-serif;
+	font: 16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	margin-bottom: 7px;
 }
 
 .bx-im-component-call-wait-user-counter {
 	color: #D8D8D8;
-	font: 13px "Open Sans", Arial, sans-serif;
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	opacity: 50%;
 }
 
@@ -1256,13 +1274,14 @@
 
 .bx-im-component-call-error-text {
 	color: #D8D8D8;
-	font: 18px "Open Sans", Arial, sans-serif;
+	font: 18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .bx-im-component-call-error-action-link {
 	display: block;
 	margin-top: 5px;
-	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2FC6F6;
 	border-bottom: 1px dashed #2FC6F6;
 	cursor: pointer;
@@ -1272,7 +1291,7 @@
 .bx-im-component-call-error-more-link {
 	display: inline-block;
 	margin-top: 30px;
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #9B9B9B;
 	border-bottom: 1px dashed #9B9B9B;
 	cursor: pointer;
@@ -1544,7 +1563,8 @@
 }
 
 .bx-im-component-call-orientation-disabled-text {
-	font: 300 24px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #fff;
 	letter-spacing: -.23px;
 	opacity: .6;

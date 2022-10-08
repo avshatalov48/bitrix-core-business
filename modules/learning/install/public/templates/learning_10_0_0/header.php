@@ -19,22 +19,6 @@
 <?$APPLICATION->ShowHeadScripts();?>
 <?$APPLICATION->ShowHeadStrings();?>
 
-<script type="text/javascript">
-function ShowSwf(sSwfPath, width1, height1)
-{
-	var scroll = 'no';
-	var top=0, left=0;
-	if(width1 > screen.width-10 || height1 > screen.height-28)
-		scroll = 'yes';
-	if(height1 < screen.height-28)
-		top = Math.floor((screen.height - height1)/2-14);
-	if(width1 < screen.width-10)
-		left = Math.floor((screen.width - width1)/2);
-	width = Math.min(width1, screen.width-10);
-	height = Math.min(height1, screen.height-28);
-	window.open('<?=SITE_TEMPLATE_PATH."/js/swfpg.php"?>?width='+width1+'&height='+height1+'&img='+sSwfPath,'','scrollbars='+scroll+',resizable=yes, width='+width+',height='+height+',left='+left+',top='+top);
-}
-</script>
 <script type="text/javascript" src="<?=SITE_TEMPLATE_PATH."/js/imgshw.js"?>"></script>
 </head>
 

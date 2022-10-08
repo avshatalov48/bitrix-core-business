@@ -1,8 +1,6 @@
-<?
-IncludeModuleLangFile(__FILE__);
+<?php
 
-class CBPArgumentException
-	extends Exception
+class CBPArgumentException extends Exception
 {
 	private $paramName = "";
 
@@ -12,7 +10,7 @@ class CBPArgumentException
 		$this->paramName = $paramName;
 	}
 
-	public function GetParamName()
+	public function getParamName()
 	{
 		return $this->paramName;
 	}
@@ -53,7 +51,7 @@ class CBPArgumentOutOfRangeException
 		$this->actualValue = $actualValue;
 	}
 
-	public function GetActualValue()
+	public function getActualValue()
 	{
 		return $this->actualValue;
 	}
@@ -80,7 +78,7 @@ class CBPArgumentTypeException
 		$this->correctType = $correctType;
 	}
 
-	public function GetCorrectType()
+	public function getCorrectType()
 	{
 		return $this->correctType;
 	}

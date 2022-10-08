@@ -430,7 +430,7 @@ abstract class BasePreset
 	{
 		return self::AVAILABLE_STATE_ALLOW;
 	}
-	
+
 	public function getAvailableHelpLink(): ?array
 	{
 		return null;
@@ -553,7 +553,6 @@ abstract class BasePreset
 			'PRIORITY' => $state->get('discount_priority'),
 			'LAST_DISCOUNT' => $state->get('discount_last_discount'),
 			'LAST_LEVEL_DISCOUNT' => $state->get('discount_last_level_discount'),
-			'XML_ID' => '',
 			'USER_GROUPS' => $userGroups,
 		);
 	}

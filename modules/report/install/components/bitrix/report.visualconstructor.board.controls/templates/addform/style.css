@@ -5,13 +5,13 @@
 .report-visualconstructor-add-header-container {
     display: flex;
     align-items: center;
-    margin: 0 0 22px 0;
+    margin: 0 0 12px 0;
 }
 
 .report-visualconstructor-add-title-container {
-    font: 24px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
-
 
 .report-visualconstructor-view-miniatures-wrapper {
     height: 199px;
@@ -54,10 +54,15 @@
 }
 
 .report-create-title-inner {
-	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 18px;
 	color: #6d7985;
 	line-height: 25px;
+}
+
+.report-visualconstructor-view-miniatures-category-wrap {
+	margin-bottom: 25px;
 }
 
 .report-visualconstructor-view-miniatures-category-title {
@@ -71,11 +76,13 @@
 }
 
 .report-visualconstructor-view-miniatures-category-title-name {
-    font: 18px/24px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 18px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .report-visualconstructor-view-miniatures-category-value {
-    font: 13px/24px 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 13px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
     color: rgba(128,134,142,.82);
 }
 
@@ -102,6 +109,7 @@
     box-shadow: 0 1px 2px 0 rgba(0,0,0,.15);
     box-sizing: border-box;
     cursor: pointer;
+	border-radius: var(--report-miniature-item-border-radius, var(--ui-border-radius-md));
 }
 
 .report-visualconstructor-view-miniature-item:hover {
@@ -126,7 +134,8 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    font: 13px/20px 'OpenSans-SemiBold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 13px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
     padding: 0 0 10px 0;
     margin: 0 0 25px 0;
     border-bottom: 1px solid rgba(216,216,216,.35);
@@ -158,7 +167,8 @@
 .report-visualconstructor-view-miniature-text {
     height: 31px;
     max-width: 250px;
-    font: 11px/15px 'OpenSans-SemiBold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font: 11px/15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
     color: #828B95;
     text-align: left;
     text-overflow: ellipsis;

@@ -843,9 +843,10 @@ export class Main extends EventEmitter
 	 * @param {addBlockResponse} res
 	 * @param {boolean} [preventHistory = false]
 	 * @param {boolean} [withoutAnimation = false]
+	 * @param {boolean} [insertBefore = false]
 	 * @return {Promise<T>}
 	 */
-	addBlock(res, preventHistory, withoutAnimation)
+	addBlock(res, preventHistory, withoutAnimation, insertBefore = false)
 	{
 		if (this.lastBlocks)
 		{
@@ -885,6 +886,7 @@ export class Main extends EventEmitter
 								currentBlock: id,
 								lid,
 								code: blockRes.manifest.code,
+								insertBefore: Text.toBoolean(insertBefore),
 							},
 						}),
 					);
@@ -951,7 +953,7 @@ export class Main extends EventEmitter
 			})
 			.then((res) => {
 				res.manifest.codeOriginal = blockCode;
-				const p = this.addBlock(res, preventHistory, false);
+				const p = this.addBlock(res, preventHistory, false, this.insertBefore);
 				this.insertBefore = false;
 				this.adjustEmptyAreas();
 				void this.hideBlockLoader();

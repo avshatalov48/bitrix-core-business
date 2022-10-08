@@ -69,6 +69,7 @@ elseif (\CModule::IncludeModule('tasks'))
 				'HIDE_OWNER_IN_TITLE' => $arParams['HIDE_OWNER_IN_TITLE'],
 				"PREORDER" => array('STATUS_COMPLETE' => 'asc')
 			),
+			'USE_PADDING' => false,
 			"POPUP_COMPONENT_PARENT" => $component
 		)
 	);

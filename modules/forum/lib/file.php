@@ -167,7 +167,11 @@ class File
 				"select" => ["FILE_ID"],
 				"filter" => [
 					"FORUM_ID" => $params["FORUM_ID"] ?: $forum->getId(),
-					"TOPIC_ID" => $params["TOPIC_ID"],
+					[
+						"LOGIC" => "OR",
+						["TOPIC_ID" => $params["TOPIC_ID"]],
+						["TOPIC_ID" => null],
+					],
 					"MESSAGE_ID" => $params["MESSAGE_ID"],
 					"FILE_ID" => $existingFiles
 				] + ($params["MESSAGE_ID"] > 0 ? [] : ["USER_ID" => $params["USER_ID"]]),

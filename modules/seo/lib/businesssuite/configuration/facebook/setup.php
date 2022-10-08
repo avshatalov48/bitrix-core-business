@@ -151,7 +151,7 @@ final class Setup implements IConfig
 	}
 
 	/**
-	 * @return IConfig|null
+	 * @return IConfig|static|null
 	 */
 	public static function load(): ?IConfig
 	{

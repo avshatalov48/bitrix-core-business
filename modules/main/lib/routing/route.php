@@ -8,7 +8,7 @@
 
 namespace Bitrix\Main\Routing;
 
-use Bitrix\Main\Type\ParameterDictionary;
+use Bitrix\Main\Type\Dictionary;
 
 /**
  * @package    bitrix
@@ -28,7 +28,7 @@ class Route
 	/** @var array [name => pattern] Defined by compile() */
 	protected $parameters;
 
-	/** @var ParameterDictionary Set by router->match() */
+	/** @var Dictionary Set by router->match() */
 	protected $parametersValues;
 
 	/** @var callable */
@@ -76,13 +76,13 @@ class Route
 	}
 
 	/**
-	 * @return ParameterDictionary
+	 * @return Dictionary
 	 */
 	public function getParametersValues()
 	{
 		if ($this->parametersValues === null)
 		{
-			$this->parametersValues = new ParameterDictionary;
+			$this->parametersValues = new Dictionary();
 		}
 
 		return $this->parametersValues;

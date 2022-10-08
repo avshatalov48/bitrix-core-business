@@ -8,7 +8,8 @@ export { CalendarSection };
 export class SectionManager
 {
 	static newEntrySectionId = null;
-	static RELOAD_DELAY = 500;
+	static EXTERNAL_TYPE_LOCAL = 'local';
+	static RELOAD_DELAY = 1000;
 
 	constructor(data, config)
 	{
@@ -116,12 +117,7 @@ export class SectionManager
 		}
 		else if (params.command === 'edit_section')
 		{
-			this.reloadData().then(() => {
-				Util.getBX().Event.EventEmitter.emit(
-					'BX.Calendar.Section:pull-edit'
-				);
-			});
-
+			this.reloadDataDebounce();
 			Util.getBX().Event.EventEmitter.emit('BX.Calendar:doRefresh');
 		}
 		else
@@ -132,30 +128,25 @@ export class SectionManager
 
 	reloadData()
 	{
-		return new Promise(resolve => {
-			BX.ajax.runAction('calendar.api.calendarajax.getSectionList', {
-					data: {
-						'type': this.calendarType,
-						'ownerId': this.ownerId
+		BX.ajax.runAction('calendar.api.calendarajax.getSectionList', {
+				data: {
+					'type': this.calendarType,
+					'ownerId': this.ownerId
+				}
+			})
+			.then(response => {
+					this.setSections(response.data.sections || []);
+					this.sortSections();
+					if (response.data.config)
+					{
+						this.setConfig(config);
 					}
-				})
-				.then((response) => {
-						this.setSections(response.data.sections || []);
-						if (response.data.config)
-						{
-							this.setConfig(config);
-						}
-						this.addTaskSection();
-
-						resolve(response.data);
-					},
-					// Failure
-					(response) => {
-						//this.calendar.displayError(response.errors);
-						resolve(response.data);
-					}
-				);
-		});
+					this.addTaskSection();
+					Util.getBX().Event.EventEmitter.emit(
+						'BX.Calendar.Section:pull-reload-data'
+					);
+				}
+			);
 	}
 
 	getSections()
@@ -236,7 +227,6 @@ export class SectionManager
 			}
 
 			const isCustomization = params.section.id && params.section.isPseudo();
-
 			BX.ajax.runAction('calendar.api.calendarajax.editCalendarSection', {
 					data: {
 						analyticsLabel: {
@@ -250,7 +240,8 @@ export class SectionManager
 						color: color,
 						access: access || null,
 						userId: this.userId,
-						customization: isCustomization ? 'Y' : 'N'
+						customization: isCustomization ? 'Y' : 'N',
+						external_type: params?.section?.id ? params.section.getExternalType() : 'local'
 					}
 				})
 				.then(
@@ -264,6 +255,7 @@ export class SectionManager
 						const sectionList = response.data.sectionList || [];
 						this.setSections(sectionList);
 						this.sortSections();
+						this.addTaskSection();
 
 						Util.getBX().Event.EventEmitter.emit(
 							'BX.Calendar.Section:edit',
@@ -594,5 +586,33 @@ export class SectionManager
 				}
 			}
 		}
+	}
+
+	static getSectionExternalConnection(section, sectionExternalType): any
+	{
+		const calendarContext = Util.getCalendarContext();
+		const linkList = section.getConnectionLinks();
+
+		let provider = undefined;
+		let connection = undefined;
+		let connectionId = linkList.length
+			? parseInt(linkList[0].id)
+			: parseInt(section.data.CAL_DAV_CON, 10)
+		;
+
+		if (connectionId && calendarContext.syncInterface)
+		{
+			[provider, connection] = calendarContext.syncInterface.getProviderById(connectionId);
+
+			if (
+				connection
+				&& (!linkList.length || connection.getType() === sectionExternalType)
+			)
+			{
+				return connection;
+			}
+		}
+
+		return null;
 	}
 }

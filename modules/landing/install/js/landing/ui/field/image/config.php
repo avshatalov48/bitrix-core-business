@@ -16,6 +16,7 @@ return [
 		'landing.imageuploader',
 		'landing.ui.button.basebutton',
 		'landing.imageeditor',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

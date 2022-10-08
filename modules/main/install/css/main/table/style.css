@@ -1,5 +1,5 @@
 .table-blue {
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: #000;
 	width: 100%;
@@ -60,7 +60,7 @@
 
 .table-blue-td-name {
 	padding: 8px 10px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .table-blue-td-param {
@@ -90,7 +90,7 @@
 	margin: -8px 0;
 	border: 1px solid #e7e8ea;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	cursor: pointer;
 	position: relative;
 	min-width: 200px;
@@ -115,7 +115,7 @@
 
 .table-blue-select option {
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #666;
 }
 

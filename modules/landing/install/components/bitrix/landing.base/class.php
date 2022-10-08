@@ -16,6 +16,7 @@ use \Bitrix\Main\Entity;
 use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\Service\GeoIp;
 use \Bitrix\Main\UI\PageNavigation;
+use Bitrix\UI\Fonts;
 
 class LandingBaseComponent extends \CBitrixComponent
 {
@@ -1143,18 +1144,14 @@ class LandingBaseComponent extends \CBitrixComponent
 	 */
 	protected function getSpecialTypeSiteByLanding(Landing $landing): ?string
 	{
-		$specialType = null;
 		$meta = $landing->getMeta();
 
 		if ($meta['SITE_SPECIAL'] === 'Y')
 		{
-			if (preg_match('#^/' . Site\Type::PSEUDO_SCOPE_CODE_FORMS . '[\d]*/$#', $meta['SITE_CODE']))
-			{
-				$specialType = \Bitrix\Landing\Site\Type::PSEUDO_SCOPE_CODE_FORMS;
-			}
+			return Site\Type::getSiteTypeForms($meta['SITE_CODE']);
 		}
 
-		return $specialType;
+		return null;
 	}
 
 	/**
@@ -1299,6 +1296,21 @@ class LandingBaseComponent extends \CBitrixComponent
 			}
 			\Bitrix\Landing\Rights::setGlobalOn();
 		}
+	}
+
+	/**
+	 * Get js-string for adding var with url for google fonts proxy
+	 * @return void
+	 */
+	public function getFontProxyUrlScript(): string
+	{
+		$domain = 'fonts.googleapis.com';
+		if (Loader::includeModule('ui'))
+		{
+			$domain = Fonts\Proxy::resolveDomain(Manager::getZone());
+		}
+
+		return "<script>window.fontsProxyUrl = '{$domain}';</script>";
 	}
 
 	/**

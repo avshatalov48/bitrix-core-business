@@ -212,7 +212,8 @@
 	padding: 0 7px;
 	background: var(--graphite_alpha_15);
 	border-radius: 8px;
-	font: 11px/16px "OpenSans-SemiBold", Helvetica, Arial, sans-serif;
+	font: 11px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: var(--graphite);
 }
 

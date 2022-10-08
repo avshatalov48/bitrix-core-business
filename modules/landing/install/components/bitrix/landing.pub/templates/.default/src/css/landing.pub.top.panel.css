@@ -58,7 +58,8 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	display: inline-block;
-	font-family: "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .landing-pub-top-panel-chain-separator {
@@ -88,6 +89,7 @@
 	left: 50%;
 	color: #535c69;
 	font-size: 19px;
-	font-family: "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	transform: translateX(-38%) translateY(-50%);
 }

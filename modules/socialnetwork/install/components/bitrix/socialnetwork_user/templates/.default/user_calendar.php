@@ -53,7 +53,8 @@ if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_USER, $ownerId, "calendar"))
 					'PATH_TO_USER_TASK' => $arResult["PATH_TO_USER_TASKS_TASK"],
 					'PATH_TO_GROUP_TASK' => $arResult["PATH_TO_GROUP_TASKS_TASK"]
 				),
-				"POPUP_COMPONENT_PARENT" => $component
+				"POPUP_COMPONENT_PARENT" => $component,
+				'USE_PADDING' => false,
 			)
 		);
 	}

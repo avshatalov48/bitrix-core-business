@@ -28,7 +28,7 @@ $arParams['SECTIONS'] = CCalendar::GetSectionList(array(
 	'OWNER_ID' => $arParams['CUR_USER']
 ));
 
-if (empty($arParams['SECTIONS']))
+if (empty($arParams['SECTIONS']) || !CCalendarSect::containsLocalSection($arParams['SECTIONS'], $arParams['OWNER_TYPE']))
 {
 	$defCalendar = CCalendarSect::CreateDefault(array(
 		'type' => $arParams['OWNER_TYPE'],

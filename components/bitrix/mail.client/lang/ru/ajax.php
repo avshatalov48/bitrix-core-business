@@ -6,5 +6,4 @@ $MESS["MAIL_MESSAGE_BAD_SENDER"] = "Недопустимый отправите�
 $MESS["MAIL_MESSAGE_TO_MANY_RECIPIENTS"] = "Получателей не может быть больше 10";
 $MESS['MAIL_CLIENT_ACTIVITY_CREATE_ERROR'] = "При сохранении письма в CRM произошла ошибка";
 $MESS['MAIL_CLIENT_ACTIVITY_COMMUNICATIONS_EMPTY_ERROR'] = "Укажите получателей для сохранения письма в CRM";
-$MESS['MAIL_CLIENT_ACTIVITY_PERMISSION_DENIED_ERROR'] = "Недостаточно прав для сохранения письма в CRM";
 

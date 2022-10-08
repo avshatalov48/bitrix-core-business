@@ -11,7 +11,7 @@ return [
 		'main.core',
 		'ui.buttons',
 		'ui.forms',
-		'ui.design-tokens',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

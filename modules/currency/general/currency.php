@@ -194,11 +194,7 @@ class CAllCurrency
 				{
 					if (empty($settings) || !is_array($settings))
 						continue;
-					$langAction = 'ADD';
-					if ($ACTION == 'UPDATE')
-					{
-						$langAction = (CCurrencyLang::isExistCurrencyLanguage($currency, $lang) ? 'UPDATE' : 'ADD');
-					}
+					$langAction = (CCurrencyLang::isExistCurrencyLanguage($currency, $lang) ? 'UPDATE' : 'ADD');
 					$checkLang = CCurrencyLang::checkFields($langAction, $settings, $currency, $lang, true);
 					$settings['CURRENCY'] = $currency;
 					$settings['LID'] = $lang;

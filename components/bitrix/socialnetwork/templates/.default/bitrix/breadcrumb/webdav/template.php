@@ -2,7 +2,7 @@
 //delayed function must return a string
 if(empty($arResult))
 	return "";
-$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LANGUAGE_ID."/template.php")));
+$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/lang/".LANGUAGE_ID."/template.php")));
 __IncludeLang($file);
 
 $strReturn = '<div class="wd-breadcrumb-navigation"><span class="wd-breadcrumb-navigation-header">'.GetMessage("WD_PATH").'</span>';

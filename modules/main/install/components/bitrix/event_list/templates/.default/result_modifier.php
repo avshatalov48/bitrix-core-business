@@ -8,7 +8,7 @@ if (
 		|| $arParams["SUBSCRIBE_ONLY"] != "Y"
 )
 {
-	__IncludeLang(dirname(__FILE__)."/lang/".LANGUAGE_ID."/result_modifier.php");	
+	__IncludeLang(__DIR__."/lang/".LANGUAGE_ID."/result_modifier.php");
 
 	$arResult["DATE_FILTER"] = array(
 		""			=> GetMessage("EVENT_LIST_DATE_FILTER_NO_NO_NO_1"),

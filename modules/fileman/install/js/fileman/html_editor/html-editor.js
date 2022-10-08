@@ -119,6 +119,11 @@
 			iframe.style.height = '100%';
 
 			// Views:
+			if (this.config.content)
+			{
+				this.dom.textareaCont.style.opacity = 0;
+				this.dom.iframeCont.style.opacity = 0;
+			}
 			// 1. TextareaView
 			this.textareaView = new BXEditorTextareaView(this, this.dom.textarea, this.dom.textareaCont);
 			// 2. IframeView
@@ -531,7 +536,7 @@
 				if (doc && doc.body)
 				{
 					minHeight = doc.body.parentNode.offsetHeight - padding * 2;
-					
+
 					if (minHeight <= 20)
 					{
 						setTimeout(BX.proxy(this.CheckBodyHeight, this), 300);
@@ -951,10 +956,17 @@
 			{
 				var htmlFromBbCode = this.bbParser.Parse(value);
 				this.iframeView.SetValue(htmlFromBbCode, bParse);
+				if (htmlFromBbCode !== value || htmlFromBbCode.indexOf('[') < 0)
+				{
+					this.dom.textareaCont.style.opacity = 1;
+					this.dom.iframeCont.style.opacity = 1;
+				}
 			}
 			else
 			{
 				this.iframeView.SetValue(value, bParse);
+				this.dom.textareaCont.style.opacity = 1;
+				this.dom.iframeCont.style.opacity = 1;
 			}
 
 			this.textareaView.SetValue(value, false);
@@ -1014,22 +1026,19 @@
 
 		Expand: function(bExpand)
 		{
-			if (bExpand == undefined)
+			if (!bExpand)
 			{
 				bExpand = !this.expanded;
 			}
+			this.expanded = bExpand;
 
-			var
-				_this = this,
-				innerSize = BX.GetWindowInnerSize(document),
-				startWidth, startHeight, startTop, startLeft,
-				endWidth, endHeight, endTop, endLeft;
+			const innerSize = BX.GetWindowInnerSize(document);
+			let startWidth, startHeight, startTop, startLeft, endWidth, endHeight, endTop, endLeft;
 
 			if (bExpand)
 			{
-				var
-					scrollPos = BX.GetWindowScrollPos(document),
-					pos = BX.pos(this.dom.cont);
+				const scrollPos = BX.GetWindowScrollPos(document);
+				const pos = this.dom.cont.getBoundingClientRect();
 
 				startWidth = this.dom.cont.offsetWidth;
 				startHeight = this.dom.cont.offsetHeight;
@@ -1037,8 +1046,8 @@
 				startLeft = pos.left;
 				endWidth = innerSize.innerWidth;
 				endHeight = innerSize.innerHeight;
-				endTop = scrollPos.scrollTop;
-				endLeft = scrollPos.scrollLeft;
+				endTop = 0;
+				endLeft = 0;
 
 				this.savedSize = {
 					width: startWidth,
@@ -1050,38 +1059,64 @@
 					configWidth: this.config.width,
 					configHeight: this.config.height
 				};
-
+				this.savedStyle = {
+					position: this.dom.cont.style.position,
+					zIndex: this.dom.cont.style.zIndex
+				};
 				this.config.width = endWidth;
 				this.config.height = endHeight;
 
-				BX.addClass(this.dom.cont, 'bx-html-editor-absolute');
-				this._bodyOverflow = document.body.style.overflow;
-				document.body.style.overflow = "hidden";
-
-				// Create dummie div
+				//dummy element to keep place for the editor
 				this.dummieDiv = BX.create('DIV');
 				this.dummieDiv.style.width = startWidth + 'px';
 				this.dummieDiv.style.height = startHeight + 'px';
 				this.dom.cont.parentNode.insertBefore(this.dummieDiv, this.dom.cont);
-				document.body.appendChild(this.dom.cont);
+
+				//fix parent styles for correct positioning
+				this.savedParentOpacity = [];
+				let parent = this.dom.cont.parentNode;
+				while (parent && parent !== document) {
+					if (parseInt(window.getComputedStyle(parent).getPropertyValue('opacity')) < 1)
+					{
+						let opacity = '';
+						if (parseInt(parent.style.opacity) < 1)
+						{
+							opacity = parent.style.opacity;
+						}
+						this.savedParentOpacity.push({
+							parent: parent,
+							opacity: opacity
+						})
+						parent.style.opacity = '1';
+					}
+					//zIndex of fixed elements cannot be greater than the relative parent element has
+					if (window.getComputedStyle(parent).getPropertyValue('position') === 'relative'
+						&& parseInt(window.getComputedStyle(parent).getPropertyValue('z-index')) > 0)
+					{
+						parent.style.position = 'static';
+					}
+					//will-change property (it is experimental) breaks positioning, so we also disable this
+					if (window.getComputedStyle(parent).getPropertyValue('will-change').includes('height'))
+					{
+						parent.style.willChange = 'unset';
+					}
+					parent = parent.parentNode;
+				}
+
+				this.dom.cont.style.setProperty('background', 'white', 'important');
+				this.dom.cont.style.position = 'fixed';
+				this.dom.cont.style.zIndex = 999;
 
 				BX.addCustomEvent(this, 'OnIframeKeydown', BX.proxy(this.CheckEscCollapse, this));
 				BX.bind(document.body, "keydown", BX.proxy(this.CheckEscCollapse, this));
 				BX.bind(window, "scroll", BX.proxy(this.PreventScroll, this));
-
-				if (BX.ZIndexManager)
-				{
-					BX.ZIndexManager.register(this.dom.cont);
-					BX.ZIndexManager.addStack(this.dom.cont);
-					BX.ZIndexManager.bringToFront(this.dom.cont);
-				}
 			}
 			else
 			{
 				startWidth = this.dom.cont.offsetWidth;
 				startHeight = this.dom.cont.offsetHeight;
-				startTop = this.savedSize.scrollTop;
-				startLeft = this.savedSize.scrollLeft;
+				startTop = 0;
+				startLeft = 0;
 				endWidth = this.savedSize.width;
 				endHeight = this.savedSize.height;
 				endTop = this.savedSize.top;
@@ -1097,10 +1132,10 @@
 			this.dom.cont.style.top = startTop + 'px';
 			this.dom.cont.style.left = startLeft + 'px';
 
-			var content = this.content;
+			var _this = this;
 
 			this.expandAnimation = new BX.easing({
-				duration : 300,
+				duration: 300,
 				start : {
 					height: startHeight,
 					width: startWidth,
@@ -1120,36 +1155,50 @@
 					_this.dom.cont.style.height = state.height + 'px';
 					_this.dom.cont.style.top = state.top + 'px';
 					_this.dom.cont.style.left = state.left + 'px';
-					_this.ResizeSceleton(state.width.toString(), state.height.toString());
+					_this.ResizeSceleton(state.width, state.height);
 				},
 				complete : function()
 				{
-					_this.expandAnimation = null;
+					_this.dom.cont.style.width = endWidth + 'px';
+					_this.dom.cont.style.height = endHeight + 'px';
+					_this.dom.cont.style.top = endTop + 'px';
+					_this.dom.cont.style.left = endLeft + 'px';
+
 					if (!bExpand)
 					{
-						_this.util.ReplaceNode(_this.dummieDiv, _this.dom.cont);
-						_this.dummieDiv = null;
+						let parent = _this.dom.cont.parentNode;
+						while (parent && parent !== document) {
+							if (window.getComputedStyle(parent).getPropertyValue('position') === 'relative'
+								&& parseInt(window.getComputedStyle(parent).getPropertyValue('z-index')) > 0)
+							{
+								parent.style.position = '';
+							}
+							if (parent.style.willChange === 'unset')
+							{
+								parent.style.willChange = '';
+							}
+							parent = parent.parentNode;
+						}
+						for (const parentOpacity of _this.savedParentOpacity)
+						{
+							parentOpacity.parent.style.opacity = parentOpacity.opacity;
+						}
+						_this.dummieDiv.remove();
+						_this.dom.cont.style.position = _this.savedStyle.position;
+						_this.dom.cont.style.zIndex = _this.savedStyle.zIndex;
 						_this.dom.cont.style.width = '';
 						_this.dom.cont.style.height = '';
 						_this.dom.cont.style.top = '';
 						_this.dom.cont.style.left = '';
-						BX.removeClass(_this.dom.cont, 'bx-html-editor-absolute');
-						if (BX.ZIndexManager)
-						{
-							BX.ZIndexManager.unregister(_this.dom.cont);
-						}
-						_this.dom.cont.style.removeProperty('z-index');
-						document.body.style.overflow = _this._bodyOverflow;
 						_this.config.width = _this.savedSize.configWidth;
 						_this.config.height = _this.savedSize.configHeight;
-						_this.ResizeSceleton();
 					}
-					setTimeout(function(){_this.CheckAndReInit(content)}, 10);
+					_this.ResizeSceleton();
+					_this.CheckAndReInit();
 				}
 			});
 
 			this.expandAnimation.animate();
-			this.expanded = bExpand;
 		},
 
 		CheckEscCollapse: function(e, keyCode, command, selectedNode)
@@ -2818,7 +2867,7 @@
 					}
 				}
 
-				if (_this.pasteCheckItteration == 1)
+				if (_this.pasteCheckItteration === 1)
 					setTimeout(function(){checkImages(images);}, 500);
 				else if (_this.pasteCheckItteration < 15)
 					setTimeout(function(){checkImages(images);}, 1000);
@@ -2849,7 +2898,6 @@
 						var blob = item.getAsFile();
 						if (blob)
 						{
-
 							var reader = new FileReader();
 							reader.readAsDataURL(blob);
 							reader.onload = function (event)
@@ -2903,10 +2951,15 @@
 
 		CheckImage: function(image, unbind)
 		{
-			if (image && image.getAttribute)
+			if (image && image.complete && image.naturalHeight !== 0)
 			{
-				var src = image.getAttribute('src');
-				if (src.indexOf('data:image/') !== -1)
+				if (image.src.indexOf('blob:http') !== -1)
+				{
+					image.src = this.GetImageBase64(image);
+					image.title = '';
+				}
+
+				if (image.src.indexOf('data:image/') !== -1)
 				{
 					this.HandleImageDataUri(image);
 				}
@@ -2916,6 +2969,21 @@
 					BX.unbind(image, 'load', BX.proxy(this.CheckImage, this));
 				}
 			}
+		},
+
+		GetImageBase64: function(image) {
+			const canvas = document.createElement("canvas");
+			let width = image.width;
+			let height = image.height;
+			if (width > 1440)
+			{
+				height = height*1440/width;
+				width = 1440;
+			}
+			canvas.width = width;
+			canvas.height = height;
+			canvas.getContext("2d").drawImage(image, 0, 0, width, height);
+			return canvas.toDataURL("image/jpeg", 0.7); //compress image to 70% quality
 		},
 
 		HandleImageDataUri: function(image)
@@ -3214,12 +3282,78 @@
 				headHtml += '<style type="text/css" data-bx-template-style="Y">' + cssText + '</style>';
 			}
 
+			const primaryFont = BX.Dom.style(this.editor.dom.cont, '--ui-font-family-primary');
+			const fallbackFont = BX.Dom.style(this.editor.dom.cont, '--ui-font-family-helvetica');
+			const currentFont = BX.Type.isStringFilled(primaryFont) ? primaryFont : fallbackFont;
+
+			if (BX.Type.isStringFilled(currentFont))
+			{
+				headHtml += `<style>body { font-family: ${currentFont}; }</style>`;
+			}
+
+			// other design tokens
+			if (BX.Type.isElementNode(this.editor.dom.cont))
+			{
+				const prefixes = ['--ui-font-', '--ui-border'];
+				const tokens = this.getDesignTokens(this.editor.dom.cont.ownerDocument, prefixes);
+
+				let tokenStyles = '';
+				tokens.forEach(token => {
+					tokenStyles += `${token}: ${BX.Dom.style(this.editor.dom.cont, token)};\n`;
+				});
+
+				if (tokenStyles.length > 0)
+				{
+					headHtml += `<style>:root { ${tokenStyles} }</style>`;
+				}
+			}
+
+			if (BX.Type.isStringFilled(this.editor.config.fontSize))
+			{
+				headHtml += `<style>body { font-size: ${this.editor.config.fontSize}; }</style>`;
+			}
+
 			if (this.editor.iframeCssText && this.editor.iframeCssText.length > 0)
 			{
 				headHtml += '<style type="text/css">' + this.editor.iframeCssText + '</style>';
 			}
 
 			return '<!DOCTYPE html><html><head>' + headHtml + '</head><body' + bodyParams + '></body></html>';
+		},
+
+		getDesignTokens: function(doc, prefixes)
+		{
+			const sheets =
+				Array.from(doc.styleSheets)
+					.filter(sheet => {
+						return sheet.href === null || sheet.href.startsWith(doc.defaultView.location.origin);
+					}
+				)
+			;
+
+			const vars = new Set();
+			sheets.forEach(sheet => {
+				try
+				{
+					const cssRules = Array.from(sheet.cssRules);
+					cssRules.forEach(rule => {
+						if (rule.selectorText === ":root")
+						{
+							const styles = Array.from(rule.style);
+							styles.forEach(name => {
+								if (prefixes.some(prefix => name.startsWith(prefix)))
+								{
+									vars.add(name);
+								}
+							});
+						}
+					});
+				}
+				catch (e)
+				{}
+			});
+
+			return Array.from(vars);
 		},
 
 		/**

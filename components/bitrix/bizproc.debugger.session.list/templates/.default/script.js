@@ -30,7 +30,9 @@
 	  }, {
 	    key: "createSession",
 	    value: function createSession() {
-	      bizproc_debugger.Manager.Instance.openDebuggerStartPage(this.documentSigned).then();
+	      bizproc_debugger.Manager.Instance.openDebuggerStartPage(this.documentSigned, {
+	        analyticsStartType: 'session_list'
+	      }).then();
 	    }
 	  }, {
 	    key: "showSession",
@@ -103,5 +105,5 @@
 
 	namespace.DebuggerSessionList = DebuggerSessionList;
 
-}((this.window = this.window || {}),BX,BX.UI,BX.Bizproc));
+}((this.window = this.window || {}),BX,BX.UI,BX.Bizproc.Debugger));
 //# sourceMappingURL=script.js.map

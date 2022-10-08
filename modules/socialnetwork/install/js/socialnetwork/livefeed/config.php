@@ -34,6 +34,7 @@ return [
 		'socialnetwork.commentaux',
 		'intranet.control-button',
 		'tasks.result',
+		'ui.design-tokens',
 	],
 	'skip_core' => false,
 ];

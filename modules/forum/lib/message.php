@@ -6,6 +6,7 @@ use Bitrix\Main;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\ORM\Data\Result;
 use Bitrix\Main\ORM\EntityError;
 use Bitrix\Main\ORM\Event;
@@ -792,19 +793,11 @@ class Message extends Internals\Entity
 			"AUTHOR_ID" => $fields["AUTHOR_ID"],
 			"AUTHOR_NAME" => $fields["AUTHOR_NAME"],
 			"AUTHOR_EMAIL" => $fields["AUTHOR_EMAIL"],
-			"AUTHOR_IP" => "<no address>",
-			"AUTHOR_REAL_IP" => "<no address>",
-			"GUEST_ID" => $_SESSION["SESS_GUEST_ID"]
+			"AUTHOR_IP" => $fields["AUTHOR_IP"] ?? null,
+			"AUTHOR_REAL_IP" =>  $fields["AUTHOR_REAL_IP"] ?? null,
+			"GUEST_ID" =>  $fields["GUEST_ID"] ?? null,
 		];
-		if ($realIp = Main\Service\GeoIp\Manager::getRealIp())
-		{
-			$data["AUTHOR_IP"] = $realIp;
-			$data["AUTHOR_REAL_IP"] = $realIp;
-			if (Main\Config\Option::get("forum", "FORUM_GETHOSTBYADDR", "N") == "Y")
-			{
-				$data["AUTHOR_REAL_IP"] = @gethostbyaddr($realIp);
-			}
-		}
+
 		if (!empty(array_diff_key($fields, $data)))
 		{
 			global $USER_FIELD_MANAGER;

@@ -272,3 +272,5 @@ $MESS['LANDING_ACTIONS_MESSAGE_HEADER_type3'] = 'Отправить снова';
 $MESS['LANDING_ACTIONS_MESSAGE_DESCRIPTION_type3'] = 'Менеджер, у которого нет доступа к CRM, может наполнять её с помощью кнопки «Заполнить снова». Форма автоматически очищает заполненные поля, поэтому старые данные не будут мешать вводу новых';
 
 $MESS['LANDING_FORM_EXPERT_MODE_SWITCHER_LABEL'] = 'Экспертный режим';
+
+$MESS['LANDING_FORM_HISTORY_DISABLED_HINT'] = 'Кнопки доступны при редактировании дизайна страницы с формой';

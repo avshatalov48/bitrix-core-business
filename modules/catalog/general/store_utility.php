@@ -293,13 +293,100 @@ class CCatalogStoreControlUtil
 					{
 						$result[$fieldId] = [];
 					}
-					$result[$fieldId][$rowId] = [
-						'DEL' => $value,
+					if (
+						isset($result[$fieldId][$rowId])
+						&& isset($result[$fieldId][$rowId]['FILE_ID'])
+					)
+					{
+						$result[$fieldId][$rowId]['DEL'] = $value;
+					}
+					else
+					{
+						$result[$fieldId][$rowId] = [
+							'DEL' => $value,
+						];
+					}
+				}
+			}
+		}
+
+		return (!empty($result) ? $result : null);
+	}
+
+	/**
+	 * Returns single files from \Bitrix\Main\UI\FileInput control.
+	 *
+	 * @param \Bitrix\Main\HttpRequest $request
+	 * @param array $fieldList
+	 * @return array|null
+	 */
+	public static function getFilesFromPost(\Bitrix\Main\HttpRequest $request, array $fieldList): ?array
+	{
+		if (empty($fieldList))
+		{
+			return null;
+		}
+
+		$result = [];
+		$requestFields = $request->getPostList();
+		foreach ($fieldList as $fieldId)
+		{
+			if (!is_string($fieldId) || $fieldId === '')
+			{
+				continue;
+			}
+			if (isset($requestFields[$fieldId]))
+			{
+				$value = $requestFields[$fieldId];
+
+				$fileRow = [];
+				if (is_array($value))
+				{
+					$fileRow['FILE_UPLOAD'] = \CIBlock::makeFileArray(
+						$value
+					);
+				}
+				elseif (is_string($value))
+				{
+					$parsed = [];
+					if (preg_match('/^[0-9]+$/', $value, $parsed))
+					{
+						$fileRow['FILE_ID'] = (int)$value;
+					}
+				}
+
+				if (!empty($fileRow))
+				{
+					$result[$fieldId] = $fileRow;
+				}
+			}
+
+			$deleteFieldId = $fieldId . '_del';
+			if (isset($requestFields[$deleteFieldId]) && $requestFields[$deleteFieldId] === 'Y')
+			{
+				if (isset($result[$fieldId]) && isset($result[$fieldId]['FILE_ID']))
+				{
+					$result[$fieldId]['DEL'] = 'Y';
+				}
+				else
+				{
+					$result[$fieldId] = [
+						'DEL' => 'Y',
 					];
 				}
 			}
 		}
 
 		return (!empty($result) ? $result : null);
+	}
+
+	public static function isAllowShowShippingCenter(): bool
+	{
+		if (\Bitrix\Main\ModuleManager::isModuleInstalled('crm'))
+		{
+			return false;
+		}
+
+		return \Bitrix\Main\Config\Option::get('catalog', 'show_store_shipping_center') === 'Y';
 	}
 }

@@ -29,7 +29,7 @@ this.BX = this.BX || {};
 	    key: "removeError",
 	    value: function removeError(code) {
 	      if (this.errors.has(code)) {
-	        this.errors.delete(code, text);
+	        this.errors["delete"](code);
 	      }
 
 	      this.model.onErrorCollectionChange();
@@ -153,6 +153,9 @@ this.BX = this.BX || {};
 	  return ImageCollection;
 	}();
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var FieldCollection = /*#__PURE__*/function () {
 	  function FieldCollection() {
 	    var model = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -209,7 +212,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "removeFromChanged",
 	    value: function removeFromChanged(fieldName) {
-	      this.changedFields.delete(fieldName);
+	      this.changedFields["delete"](fieldName);
 	      return this;
 	    }
 	  }, {
@@ -223,7 +226,7 @@ this.BX = this.BX || {};
 	          changedFieldValues[key] = value;
 	        }
 	      });
-	      return babelHelpers.objectSpread({}, changedFieldValues);
+	      return _objectSpread({}, changedFieldValues);
 	    }
 	  }, {
 	    key: "getChangedValues",
@@ -232,7 +235,7 @@ this.BX = this.BX || {};
 	      this.changedFields.forEach(function (value, key) {
 	        changedFieldValues[key] = value;
 	      });
-	      return babelHelpers.objectSpread({}, changedFieldValues);
+	      return _objectSpread({}, changedFieldValues);
 	    }
 	  }, {
 	    key: "initFields",
@@ -732,7 +735,7 @@ this.BX = this.BX || {};
 	        ajaxResult.then(function (event) {
 	          babelHelpers.classPrivateFieldGet(_this2, _fieldCollection).clearChanged(savingFieldNames);
 	          resolve(event);
-	        }).catch(reject);
+	        })["catch"](reject);
 	      });
 	    }
 	  }, {

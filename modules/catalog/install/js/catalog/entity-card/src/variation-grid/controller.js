@@ -87,6 +87,7 @@ export default class VariationGridController extends BX.UI.EntityEditorControlle
 			);
 		}
 
+		BX.Main.gridManager.destroy(this.getGridId());
 		this.subscribeToFormSubmit();
 		super.onAfterSave();
 	}
@@ -330,7 +331,5 @@ export default class VariationGridController extends BX.UI.EntityEditorControlle
 		eventArgs.options.data[skuGridName] = skuGridData;
 
 		this.areaHeight = this.getGridControl().getWrapper().offsetHeight;
-
-		BX.Main.gridManager.destroy(this.getGridId());
 	}
 }

@@ -1320,8 +1320,10 @@ class LandingPubComponent extends LandingBaseComponent
 					}
 				}
 
+				$event->setParameter('outputContent', $outputContent);
+
 				return $outputContent;
-			}
+			},
 		);
 	}
 

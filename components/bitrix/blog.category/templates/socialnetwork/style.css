@@ -1,6 +1,6 @@
 .blog-category-add, .blog-category-edit, .blog-category-delete {
-	display:block; 
-	background-repeat:no-repeat; 
+	display:block;
+	background-repeat:no-repeat;
 	align:absmiddle;
 	width:18px;
 	height:18px;
@@ -24,7 +24,7 @@ table.blog-category
 	width:300px;
 	background-color:#FFFFFF;
 	border-collapse:collapse;
-	color: #000000; 
+	color: #000000;
 	font-size:100%;
 }
 
@@ -54,8 +54,8 @@ table.blog-category td
 	border: none;
 	color: #2e2e2e;
 	font-size: 15px;
-	font-weight: normal;
-	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	margin-top: 3px;
 	height: 20px;
 	padding: 0;

@@ -262,7 +262,19 @@ class MfmsRu extends Sender\BaseConfigurable
 			}
 		}
 
+		$result->setHttpRequest(new MessageService\DTO\Request([
+			'method' => HttpClient::HTTP_GET,
+			'uri' => $url,
+			'headers' => method_exists($httpClient, 'getRequestHeaders') ? $httpClient->getRequestHeaders()->toArray() : [],
+		]));
+		$result->setHttpResponse(new MessageService\DTO\Response([
+			'statusCode' => $httpClient->getStatus(),
+			'headers' => $httpClient->getHeaders()->toArray(),
+			'body' => $answer,
+			'error' => Sender\Util::getHttpClientErrorString($httpClient)
+		]));
 		$result->setData(explode(';', $answer));
+
 		return $result;
 	}
 }

@@ -10,6 +10,7 @@ $darkClass = \CIMSettings::GetSetting(CIMSettings::SETTINGS, 'isCurrentThemeDark
 	<link href="<?=CUtil::GetAdditionalFileURL(SITE_TEMPLATE_PATH."/template_styles.css")?>" type="text/css" rel="stylesheet" />
 	<?
 	\Bitrix\Main\UI\Extension::load([
+		'ui.design-tokens',
 		'sidepanel',
 		'intranet.sidepanel.bindings',
 		'intranet.sidepanel.external',

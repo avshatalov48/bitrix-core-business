@@ -8,8 +8,8 @@
 
 define("NOT_CHECK_PERMISSIONS", true);
 define("SKIP_SITE_CLOSE", true);
-require_once(dirname(__FILE__)."/../include/prolog_before.php");
-require_once(dirname(__FILE__)."/../classes/general/controller_member.php");
+require_once(__DIR__."/../include/prolog_before.php");
+require_once(__DIR__."/../classes/general/controller_member.php");
 IncludeModuleLangFile(__FILE__);
 
 $skip_handler = false;
@@ -287,7 +287,7 @@ if($oRequest->Internal())
 }
 else
 {
-	require_once(dirname(__FILE__)."/../include/prolog_after.php");
+	require_once(__DIR__."/../include/prolog_after.php");
 	if($oResponse->OK())
 	{
 		echo $oResponse->text;
@@ -298,7 +298,7 @@ else
 		if($_SERVER['HTTP_REFERER'] <> '')
 			echo '<br>'.'<a href="'.htmlspecialcharsbx($_SERVER['HTTP_REFERER']).'">'.GetMessage("MAIN_ADM_CONTROLLER_BACK_URL").'</a>';
 	}
-	require_once(dirname(__FILE__)."/../include/epilog.php");
+	require_once(__DIR__."/../include/epilog.php");
 }
 
 //echo '<HR>c='.$c."<hR>";

@@ -16,7 +16,8 @@ $APPLICATION->setPageProperty('BodyClass', 'no-background');
 
 \Bitrix\Main\Loader::includeModule('ui');
 \Bitrix\Main\UI\Extension::load([
-	'ui.progressbar'
+	'ui.progressbar',
+	'ui.fonts.opensans',
 ]);
 
 $uriSelect = new \Bitrix\Main\Web\Uri($arResult['CUR_URI']);

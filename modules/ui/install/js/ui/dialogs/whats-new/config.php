@@ -11,6 +11,7 @@ return [
 		'main.core.events',
 		'main.popup',
 		'main.core',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

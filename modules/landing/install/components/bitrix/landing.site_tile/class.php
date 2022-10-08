@@ -10,6 +10,7 @@ use Bitrix\Landing\Manager;
 use Bitrix\Landing\Restriction;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\Date;
+use \Bitrix\Landing\Rights;
 
 Loc::loadMessages(__FILE__);
 
@@ -278,7 +279,8 @@ class LandingSiteTileComponent extends LandingBaseComponent
 					'settings' => $item['ACCESS_SETTINGS'] === 'Y',
 					'publication' => $item['ACCESS_PUBLICATION'] === 'Y',
 					'delete' => $item['ACCESS_DELETE'] === 'Y',
-					'site_new' => $item['ACCESS_SITE_NEW'] === 'Y'
+					'site_new' => $item['ACCESS_SITE_NEW'] === 'Y',
+					'export' => $item['ACCESS_EXPORT'] === 'Y',
 				]
 			];
 		}

@@ -5,6 +5,9 @@ namespace Bitrix\Catalog\v2;
 use Bitrix\Catalog\v2\Fields\FieldStorage;
 use Bitrix\Catalog\v2\Fields\TypeCasters\MapTypeCaster;
 use Bitrix\Catalog\v2\Fields\TypeCasters\NullTypeCaster;
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlException;
+use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 
 /**
@@ -196,7 +199,28 @@ abstract class BaseEntity
 			return $parent->save();
 		}
 
-		return $this->saveInternal();
+		$connection = Application::getConnection();
+		try
+		{
+			$connection->startTransaction();
+			$result = $this->saveInternal();
+			if ($result->isSuccess())
+			{
+				$connection->commitTransaction();
+			}
+			else
+			{
+				$connection->rollbackTransaction();
+			}
+		}
+		catch (SqlException $exception)
+		{
+			$result = new Result();
+			$connection->rollbackTransaction();
+			$result->addError(new Error($exception->getMessage()));
+		}
+
+		return $result;
 	}
 
 	protected function getFieldsMap(): ?array

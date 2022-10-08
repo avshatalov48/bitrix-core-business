@@ -1,0 +1,751 @@
+<?php
+
+namespace Bitrix\Calendar\Sync\Office365;
+
+use Bitrix\Calendar;
+use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Core\Event\Event;
+use Bitrix\Calendar\Sync\Entities\SyncEvent;
+use Bitrix\Calendar\Sync\Connection\EventConnection;
+use Bitrix\Calendar\Sync\Connection\SectionConnection;
+use Bitrix\Calendar\Sync\Internals\ContextInterface;
+use Bitrix\Calendar\Sync\Internals\HasContextTrait;
+use Bitrix\Calendar\Sync\Managers\EventManagerInterface;
+use Bitrix\Calendar\Sync\Util\EventContext;
+use Bitrix\Calendar\Sync\Office365\Converter\EventConverter;
+use Bitrix\Calendar\Sync\Office365\Dto\EventDto;
+use Bitrix\Calendar\Sync\Util\Context;
+use Bitrix\Calendar\Sync\Office365;
+use Bitrix\Calendar\Sync\Util\Result;
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\ArgumentNullException;
+use Bitrix\Main\Error;
+use Bitrix\Main\ObjectException;
+use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\SystemException;
+use Bitrix\Main\Type\Date;
+use Bitrix\Main\Type\DateTime;
+use DateTimeZone;
+use Generator;
+
+class EventManager extends AbstractManager implements EventManagerInterface
+{
+	use HasContextTrait;
+
+	private Helper $helper;
+
+	/**
+	 * @var ?EventConverter
+	 */
+	private ?EventConverter $eventConverter;
+
+	/**
+	 * @param Office365\Office365Context $context
+	 */
+	public function __construct(ContextInterface $context)
+	{
+		$this->context = $context;
+		$this->helper = $context->getHelper();
+		parent::__construct($context->getConnection());
+	}
+
+	/**
+	 * @param Event $event
+	 * @param EventContext $context
+	 *
+	 * @return Result
+	 *
+	 * @throws ArgumentException
+	 * @throws Core\Base\BaseException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws Calendar\Sync\Exceptions\NotFoundException
+	 */
+	public function create(Core\Event\Event $event, EventContext $context): Result
+	{
+		$dto = $this->getEventConverter()->eventToDto($event);
+
+		$dto = $this->getService()->createEvent($dto, $context->getSectionConnection()->getVendorSectionId());
+		$result = new Result();
+		$result->setData($this->prepareResultData($dto));
+
+		return $result;
+	}
+
+	/**
+	 * @param Event $event
+	 * @param EventContext $context
+	 *
+	 * @return Result
+	 * @throws ArgumentException
+	 * @throws Calendar\Sync\Exceptions\ApiException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public function update(Core\Event\Event $event, EventContext $context): Result
+	{
+		$dto = $this->getEventConverter()->eventToDto($event);
+		$this->enrichVendorData($dto, $context->getEventConnection());
+
+		$dto = $this->getService()->updateEvent($context->getEventConnection()->getVendorEventId(), $dto);
+		$result = new Result();
+		$result->setData($this->prepareResultData($dto));
+
+		return $result;
+	}
+
+	/**
+	 * @param Event $event
+	 * @param EventContext $context
+	 *
+	 * @return Result
+	 * @throws Calendar\Sync\Exceptions\ApiException
+	 */
+	public function delete(Core\Event\Event $event, EventContext $context): Result
+	{
+		$this->getService()->deleteEvent($context->getEventConnection()->getVendorEventId());
+
+		return new Result();
+	}
+
+	/**
+	 * @param Event $event
+	 * @param EventContext $context
+	 *
+	 * @return Result
+	 * @throws ArgumentException
+	 * @throws Calendar\Sync\Exceptions\ApiException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public function createInstance(Core\Event\Event $event, EventContext $context): Result
+	{
+		if (
+			$event->getOriginalDateFrom()
+			&& $event->getOriginalDateFrom()->format('Ymd') !== $event->getStart()->format('Ymd')
+		)
+		{
+			return $this->moveInstance($event, $context);
+		}
+
+		$result = new Result();
+		$masterLink = $context->getEventConnection();
+
+		if ($instance = $this->getInstanceForDay($masterLink->getVendorEventId(), $event->getStart()->getDate()))
+		{
+			$dto = $this->getService()->updateEvent(
+				$instance->id,
+				$this->getEventConverter()->eventToDto($event),
+			);
+			$result->setData($this->prepareResultData($dto));
+		}
+		else
+		{
+			$result->addError(new Error("Instances for event not found", 404));
+		}
+
+		return $result;
+	}
+
+	private function prepareResultData(EventDto $dto)
+	{
+		return [
+			'dto' => $dto,
+			'event' => [
+				'id' => $dto->id,
+				'version' => $dto->changeKey,
+				'etag' => $dto->etag,
+				'recurrence' => $dto->seriesMasterId ?? null,
+				'data' => $this->prepareCustomData($dto),
+			],
+		];
+	}
+
+	/**
+	 * @param Event $event
+	 * @param EventContext $context
+	 *
+	 * @return Result
+	 * @throws ArgumentException
+	 * @throws Calendar\Sync\Exceptions\ApiException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public function updateInstance(Event $event, EventContext $context): Result
+	{
+		$eventLink = $context->sync['instanceLink'];
+		if ($eventLink)
+		{
+			$eventContext = (new EventContext())
+				->setSectionConnection($context->getSectionConnection())
+				->setEventConnection($eventLink)
+			;
+			return $this->update($event, $eventContext);
+		}
+
+		return (new Result())->addError(new Error('Not found link for instance'));
+	}
+
+	/**
+	 * @param Event $event
+	 * @param EventContext $context
+	 *
+	 * @return Result
+	 *
+	 * @throws ArgumentException
+	 * @throws Calendar\Sync\Exceptions\ApiException
+	 * @throws Calendar\Sync\Exceptions\ConflictException
+	 * @throws Calendar\Sync\Exceptions\NotFoundException
+	 * @throws ArgumentNullException
+	 */
+	public function deleteInstance(Event $event, EventContext $context): Result
+	{
+		$result = new Result();
+		$masterEventLink = $context->getEventConnection();
+		$excludeDate = new DateTime(
+			$context->sync['excludeDate']->getDate()->format('Ymd 000000'),
+			'Ymd His',
+			$event->getStartTimeZone()->getTimeZone()
+		);
+
+		if ($instance = $this->getInstanceForDay($masterEventLink->getVendorEventId(), $excludeDate))
+		{
+			$this->getService()->deleteEvent(
+				$instance->id,
+			);
+		}
+		else
+		{
+			$result->addError(new Error("Instances for event not found", 404));
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param Event $event
+	 * @param EventContext $context
+	 *
+	 * @return Result
+	 *
+	 * @throws ArgumentException
+	 * @throws ArgumentNullException
+	 * @throws Calendar\Sync\Exceptions\ApiException
+	 * @throws Calendar\Sync\Exceptions\ConflictException
+	 * @throws Calendar\Sync\Exceptions\NotFoundException
+	 */
+	private function moveInstance(Event $event, EventContext $context): Result
+	{
+		$result = new Result();
+		$masterLink = $context->getEventConnection();
+		$instance = $this->getInstanceForDay(
+			$masterLink->getVendorEventId(),
+			$event->getOriginalDateFrom()->getDate()
+		);
+		if ($instance)
+		{
+			$dto = $this->getService()->updateEvent(
+				$instance->id,
+				$this->getEventConverter()->eventToDto($event),
+			);
+			$result->setData($this->prepareResultData($dto));
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param SectionConnection $sectionLink
+	 *
+	 * @return Generator|array
+	 *
+	 * @throws Calendar\Sync\Exceptions\ApiException
+	 * @throws ObjectException
+	 *
+	 * @deprecated use Sync\Office365\IncomingManager::getEvents()
+	 */
+	public function fetchSectionEvents(SectionConnection $sectionLink): Generator
+	{
+		foreach ($this->getService()->getCalendarDelta($sectionLink) as $deltaData)
+		{
+			$data = [];
+			if (!empty($deltaData[Helper::EVENT_TYPES['deleted']]))
+			{
+				/** @var EventDto $dto */
+				$dto = $deltaData[Helper::EVENT_TYPES['deleted']];
+				$data[] = [
+					'type' => 'deleted',
+					'id' => $dto->id,
+					'version' => $dto->changeKey,
+					'etag' => $dto->etag,
+				];
+
+
+//				$this->processEventInstance($deltaData[Helper::EVENT_TYPES['deleted']], $sectionLink);
+			}
+			elseif (!empty($deltaData[Helper::EVENT_TYPES['single']]))
+			{
+				/** @var EventDto $dto */
+				$dto = $deltaData[Helper::EVENT_TYPES['single']];
+				$data[] = [
+					'type' => 'single',
+					'event' => $this->context->getConverter()
+						->convertEvent($dto, $sectionLink->getSection()),
+					'id' => $dto->id,
+					'version' => $dto->changeKey,
+					'etag' => $dto->etag,
+					'data' => $this->prepareCustomData($dto),
+				];
+			}
+			elseif (!empty($deltaData[Helper::EVENT_TYPES['series']]))
+			{
+				$data = $this->prepareSeries($deltaData, $sectionLink);
+
+			}
+			// there are simple instances of serie yet. But they are not needed.
+
+			if ($data)
+			{
+				yield $data;
+			}
+		}
+	}
+
+	/**
+	 * @param SyncEvent $recurrenceEvent
+	 * @param SectionConnection $sectionConnection
+	 * @param Context $context
+	 *
+	 * @return Result
+	 *
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public function saveRecurrence(
+		SyncEvent $recurrenceEvent,
+		SectionConnection $sectionConnection,
+		Context $context
+	): Result
+	{
+		$result = new Result();
+
+		if ($recurrenceEvent->getEventConnection())
+		{
+			try
+			{
+				$masterResult = $this->updateRecurrenceInstance($recurrenceEvent, $context);
+			}
+			catch(Calendar\Sync\Exceptions\NotFoundException $e)
+			{
+				$this->getEventConnectionMapper()->delete($recurrenceEvent->getEventConnection());
+				$recurrenceEvent->setEventConnection(null);
+				return $this->saveRecurrence($recurrenceEvent, $sectionConnection, $context);
+			}
+		}
+		else
+		{
+			$masterResult = $this->createRecurrenceInstance($recurrenceEvent, $sectionConnection, $context);
+		}
+
+		if (!$masterResult->isSuccess())
+		{
+			$result->addErrors($masterResult->getErrors());
+			return $result;
+		}
+
+		if ($recurrenceEvent->getEventConnection())
+		{
+			$recurrenceEvent->getEventConnection()
+				->setLastSyncStatus(Calendar\Sync\Dictionary::SYNC_STATUS['success']);
+		}
+		$recurrenceEvent
+			->setAction(Calendar\Sync\Dictionary::SYNC_STATUS['success']);
+
+		$excludes = $this->getExcludedDatesCollection($recurrenceEvent);
+		if ($recurrenceEvent->getInstanceMap())
+		{
+			/** @var SyncEvent $instance */
+			foreach ($recurrenceEvent->getInstanceMap()->getCollection() as $instance)
+			{
+				if ($instance->getEventConnection())
+				{
+					try
+					{
+						$instanceResult = $this->updateRecurrenceInstance($instance, $context, $recurrenceEvent->getEventConnection());
+					}
+					catch(Calendar\Sync\Exceptions\NotFoundException $e)
+					{
+						$this->getEventConnectionMapper()->delete($instance->getEventConnection());
+						$instance->setEventConnection(null);
+						$instanceResult = $this->createRecurrenceInstance(
+							$instance,
+							$sectionConnection,
+							$context,
+							$recurrenceEvent->getEventConnection()
+						);
+					}
+				}
+				else
+				{
+					$instanceResult = $this->createRecurrenceInstance(
+						$instance,
+						$sectionConnection,
+						$context,
+						$recurrenceEvent->getEventConnection()
+					);
+				}
+				$excludes->removeDateFromCollection($instance->getEvent()->getOriginalDateFrom());
+				if ($instance->getEvent()->getStart()->format('Ymd')
+					!== $instance->getEvent()->getOriginalDateFrom()->format('Ymd'))
+				{
+					$excludes->removeDateFromCollection($instance->getEvent()->getStart());
+				}
+				if (!$result->isSuccess())
+				{
+					$result->addErrors($instanceResult->getErrors());
+				}
+				if ($instance->getEventConnection())
+				{
+					$instance->getEventConnection()->setLastSyncStatus(Calendar\Sync\Dictionary::SYNC_STATUS['success']);
+				}
+			}
+		}
+
+		if ($excludes->count() > 0)
+		{
+			$context = (new EventContext())->setEventConnection($recurrenceEvent->getEventConnection());
+			/** @var Date $excludedDate */
+			foreach ($excludes as $excludedDate)
+			{
+				$context->add('sync', 'excludeDate', $excludedDate);
+				$this->deleteInstance($recurrenceEvent->getEvent(), $context);
+			}
+		}
+
+		return $result;
+	}
+
+	private function getEventConnectionMapper()
+	{
+		static $mapper = null;
+		if ($mapper === null)
+		{
+			$mapper = new Core\Mappers\EventConnection();
+		}
+		return $mapper;
+	}
+
+	/**
+	 * @param SyncEvent $recurrenceEvent
+	 * @param SectionConnection $sectionConnection
+	 * @param Context $context
+	 *
+	 * @return Result
+	 *
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public function createRecurrence(
+		SyncEvent $recurrenceEvent,
+		SectionConnection $sectionConnection,
+		Context $context
+	): Result
+	{
+		return $this->saveRecurrence($recurrenceEvent, $sectionConnection, $context);
+	}
+
+	/**
+	 * @param SyncEvent $recurrenceEvent
+	 * @param SectionConnection $sectionConnection
+	 * @param Context $context
+	 *
+	 * @return Result
+	 *
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public function updateRecurrence(
+		SyncEvent $recurrenceEvent,
+		SectionConnection $sectionConnection,
+		Context $context
+	): Result
+	{
+		return $this->saveRecurrence($recurrenceEvent, $sectionConnection, $context);
+	}
+
+	/**
+	 * @param $deltaData
+	 * @param SectionConnection $sectionLink
+	 *
+	 * @return void
+	 *
+	 * @throws ObjectException
+	 */
+	private function prepareSeries($deltaData, SectionConnection $sectionLink): array
+	{
+		$result = [];
+		/** @var EventDto $masterDto */
+		$masterDto    = $deltaData[Helper::EVENT_TYPES['series']];
+		/** @var EventDto[] $exceptionList */
+		$exceptionList = $deltaData[Helper::EVENT_TYPES['exception']] ?? [];
+
+		$masterEvent = $this->context->getConverter()->convertEvent($masterDto, $sectionLink->getSection());
+
+		if (!empty($exceptionList)) {
+			$exceptionsDates = array_map(function (EventDto $exception) {
+				return (new DateTime(
+					$exception->start->dateTime,
+					$this->helper::TIME_FORMAT_LONG,
+					new DateTimeZone($exception->start->timeZone),
+					))->format('d.m.Y');
+				}, $exceptionList
+			);
+
+			$excludeCollection = new Core\Event\Properties\ExcludedDatesCollection($exceptionsDates);
+			$masterEvent->setExcludedDateCollection($excludeCollection);
+		}
+
+		$result[] = [
+			'type' => 'master',
+			'id' => $masterDto->id,
+			'event' => $masterEvent,
+			'version' => $masterDto->changeKey,
+			'etag' => $masterDto->etag,
+			'data' => $this->prepareCustomData($masterDto),
+		];
+
+		foreach ($exceptionList as $exception) {
+			$event = $this->context->getConverter()->convertEvent($exception, $sectionLink->getSection());
+			$result[] = [
+				'type' => 'exception',
+				'event' => $event,
+				'id' => $exception->id,
+				'version' => $exception->changeKey,
+				'etag' => $exception->etag,
+				'recurrence' => $exception->seriesMasterId,
+				'data' => $this->prepareCustomData($exception),
+			];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param string $eventId
+	 * @param Date $dayStart
+	 *
+	 * @return EventDto|null
+	 * @throws Calendar\Sync\Exceptions\ApiException
+	 */
+	private function getInstanceForDay(string $eventId, Date $dayStart): ? EventDto
+	{
+		$dateFrom = clone $dayStart;
+		if ($dateFrom instanceof DateTime)
+		{
+			$dateFrom->setTime(0,0);
+		}
+		$dateTo = clone $dateFrom;
+		$dateTo->add('1 day');
+
+		$instances = $this->getService()->getEventInstances([
+			'filter' => [
+				'event_id' => $eventId,
+				'from' => $dateFrom->format('c'), //($this->helper::TIME_FORMAT_LONG),
+				'to' => $dateTo->format('c'), //($this->helper::TIME_FORMAT_LONG),
+			],
+		]);
+
+		return $instances ? $instances[0] : null;
+	}
+
+	/**
+	 * @return EventConverter
+	 */
+	private function getEventConverter(): EventConverter
+	{
+		if (empty($this->eventConverter))
+		{
+			$this->eventConverter = new EventConverter();
+		}
+
+		return $this->eventConverter;
+	}
+
+	/**
+	 * @return VendorSyncService
+	 */
+	private function getService(): VendorSyncService
+	{
+		return $this->context->getVendorSyncService();
+	}
+
+	/**
+	 * @param EventDto $dto
+	 *
+	 * @return array
+	 * @deprecated see Sync\Office365\IncomingManager::prepareCustomData()
+	 */
+	private function prepareCustomData(EventDto $dto): array
+	{
+		$result = [];
+		if (!empty($dto->location))
+		{
+			$result['location'] = $dto->location->toArray(true);
+		}
+		if (!empty($dto->locations))
+		{
+			foreach ($dto->locations as $location)
+			{
+				$result['locations'][] = $location->toArray(true);
+			}
+		}
+
+		if (!empty($dto->attendees))
+		{
+			$result['attendees'] = [];
+			foreach ($dto->attendees as $attendee)
+			{
+				$result['attendees'][] = $attendee->toArray(true);
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param EventDto $dto
+	 * @param EventConnection $link
+	 *
+	 * @return void
+	 */
+	private function enrichVendorData(EventDto $dto, EventConnection $link)
+	{
+		// TODO: add info about attendees, locations and any others
+	}
+
+	/**
+	 * @param SyncEvent $syncEvent
+	 * @param SectionConnection $sectionConnection
+	 * @param Context $context
+	 * @param EventConnection|null $masterLink
+	 *
+	 * @return Result
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	private function createRecurrenceInstance(
+		SyncEvent $syncEvent,
+		SectionConnection $sectionConnection,
+		Context $context,
+		EventConnection $masterLink = null
+	): Result
+	{
+		try
+		{
+			$eventContext = new EventContext();
+			$eventContext->merge($context);
+			if ($masterLink)
+			{
+				$eventContext->setEventConnection($masterLink);
+				$result = $this->createInstance($syncEvent->getEvent(), $eventContext);
+			}
+			else
+			{
+				$eventContext->setSectionConnection($sectionConnection);
+				$result = $this->create($syncEvent->getEvent(), $eventContext);
+			}
+			if ($result->isSuccess())
+			{
+				if (!$syncEvent->getEvent()->isDeleted())
+				{
+					$link = (new EventConnection())
+						->setEvent($syncEvent->getEvent())
+						->setConnection($sectionConnection->getConnection())
+						->setVersion($syncEvent->getEvent()->getVersion())
+						->setVendorEventId($result->getData()['event']['id'])
+						->setEntityTag($result->getData()['event']['etag'])
+						->setVendorVersionId($result->getData()['event']['version'])
+						->setRecurrenceId($result->getData()['event']['recurrence'] ?? null)
+						->setLastSyncStatus(Calendar\Sync\Dictionary::SYNC_STATUS['success'])
+					;
+					$syncEvent
+						->setEventConnection($link)
+						->setAction(Calendar\Sync\Dictionary::SYNC_STATUS['success']);
+
+				}
+				else
+				{
+					$syncEvent->setAction(Calendar\Sync\Dictionary::SYNC_EVENT_ACTION['delete']);
+				}
+			}
+
+			return $result;
+		}
+		catch (Core\Base\BaseException $e)
+		{
+		    return (new Result())->addError(new Error($e->getMessage()));
+		}
+	}
+
+	/**
+	 * @param SyncEvent $syncEvent
+	 * @param Context $context
+	 * @param EventConnection|null $masterLink
+	 *
+	 * @return Result
+	 *
+	 * @throws ArgumentException
+	 * @throws Calendar\Sync\Exceptions\ApiException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	private function updateRecurrenceInstance(
+		SyncEvent $syncEvent,
+		Context $context,
+		EventConnection $masterLink = null
+	): Result
+	{
+		$eventContext = new EventContext();
+		$eventContext->merge($context);
+		if ($masterLink)
+		{
+			$eventContext->setEventConnection($masterLink);
+			$result = $this->updateInstance($syncEvent->getEvent(), $eventContext);
+		}
+		else
+		{
+			$eventContext->setEventConnection($syncEvent->getEventConnection());
+			$result = $this->update($syncEvent->getEvent(), $eventContext);
+		}
+		if ($result->isSuccess())
+		{
+			$syncEvent->getEventConnection()
+				->setEntityTag($result->getData()['event']['etag'])
+				->setVendorVersionId($result->getData()['event']['version'])
+			;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param SyncEvent $recurrenceEvent
+	 *
+	 * @return Core\Event\Properties\ExcludedDatesCollection
+	 */
+	private function getExcludedDatesCollection(SyncEvent $recurrenceEvent): Core\Event\Properties\ExcludedDatesCollection
+	{
+		$excludes = new Core\Event\Properties\ExcludedDatesCollection();
+
+		/** @var Core\Base\Date $item */
+		foreach ($recurrenceEvent->getEvent()->getExcludedDateCollection() as $item)
+		{
+			$excludes->add($item);
+		}
+		return $excludes;
+	}
+}

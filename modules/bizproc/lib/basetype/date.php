@@ -461,6 +461,13 @@ class Date extends Base
 			{
 			}
 		}
+		else if ($value instanceof Type\Date)
+		{
+			return (static::getType() === FieldType::DATE)
+				? Value\Date::fromSystemObject($value)
+				: Value\DateTime::fromSystemObject($value);
+		}
+
 		return $value;
 	}
 

@@ -10,7 +10,7 @@
 		this.contClassName = '';
 		this.isBuilt = false;
 		this.animateClass = 'calendar-grid-animate';
-		this.collapseOffHours = this.util.getUserOption('collapseOffHours', 'Y') === 'Y';
+		this.isCollapsedOffHours = this.util.getUserOption('collapseOffHours', 'Y') === 'Y';
 		this.hotkey = null;
 
 		this.entries = [];
@@ -248,6 +248,7 @@
 			else
 			{
 				BX.Calendar.EntryManager.openEditSlider({
+					calendarContext: this.util.calendarContext,
 					entry: params.entry,
 					type: this.calendar.util.type,
 					isLocationCalendar: false,
@@ -274,7 +275,7 @@
 				{
 					BX.SidePanel.Instance.open(this.calendar.util.getViewTaskPath(params.entry.id), {loader: "task-new-loader"});
 				}
-				else
+				else if (!this.calendar.dragDrop.isDragging)
 				{
 					this.showCompactViewForm(params);
 				}
@@ -321,6 +322,45 @@
 			if (uniqueId && this.entriesIndex[uniqueId] !== undefined && this.entries[this.entriesIndex[uniqueId]])
 				return this.entries[this.entriesIndex[uniqueId]];
 			return false;
+		},
+
+		getRealEntry: function(entry)
+		{
+			if (!entry)
+			{
+				return null;
+			}
+			for (const realEntry of this.entries)
+			{
+				if (realEntry.uid === entry.uid)
+				{
+					return realEntry;
+				}
+			}
+			for (const realEntry of this.entries)
+			{
+				if (realEntry.data.RELATIONS)
+				{
+					const id = entry.uid.split("|")[0];
+					const date = entry.uid.split("|")[1];
+					if (realEntry.data.RELATIONS.COMMENT_XML_ID === 'EVENT_' + id + '_' + date)
+					{
+						return realEntry;
+					}
+				}
+			}
+			for (const realEntry of this.entries)
+			{
+				if (realEntry.data.RELATIONS)
+				{
+					const id = entry.uid.split("|")[0];
+					if (realEntry.data.RELATIONS.COMMENT_XML_ID === 'EVENT_' + id)
+					{
+						return realEntry;
+					}
+				}
+			}
+			return null;
 		},
 
 		selectEntryPart: function(params, color)
@@ -433,6 +473,7 @@
 			entrieList.sort(this.calendar.entryController.sort);
 
 			var taskWrap, eventsWrap;
+			let tasksTitle, eventsTitle;
 			entrieList.forEach(function(entryItem)
 			{
 				if (entryItem.entry)
@@ -441,7 +482,13 @@
 					{
 						if (!taskWrap)
 						{
-							innerCont.appendChild(BX.create('DIV', {props: {className: 'calendar-event-title'}, text: BX.message('EC_ENTRIES_TASKS')}));
+							const time = entryItem.entry.from.getTime();
+							tasksTitle = BX.create('DIV', {
+								props: { className: 'calendar-event-title' },
+								attrs: { 'data-bx-calendar-date': time },
+								text: BX.message('EC_ENTRIES_TASKS') + ', ' + BX.date.format('d F', time / 1000)
+							});
+							innerCont.appendChild(tasksTitle);
 							taskWrap = innerCont.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block'}}));
 						}
 
@@ -456,7 +503,13 @@
 					{
 						if (!eventsWrap)
 						{
-							innerCont.appendChild(BX.create('DIV', {props: {className: 'calendar-event-title'}, text: BX.message('EC_ENTRIES_EVENTS')}));
+							const time = entryItem.entry.from.getTime();
+							eventsTitle = BX.create('DIV', {
+								props: { className: 'calendar-event-title' },
+								attrs: { 'data-bx-calendar-date': time },
+								text: BX.message('EC_ENTRIES_EVENTS') + ', ' + BX.date.format('d F', time / 1000)
+							});
+							innerCont.appendChild(eventsTitle);
 							eventsWrap = innerCont.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block'}}));
 						}
 
@@ -470,20 +523,32 @@
 				}
 			}, this);
 
-
 			popup = BX.PopupWindowManager.create(this.calendar.id + "-all-events-popup", params.day.hiddenStorage,
 				{
 					autoHide: true,
 					closeByEsc: true,
 					offsetTop: -2,
-					offsetLeft: this.getDayWidth() / 2 + 4,
+					offsetLeft: 0,
 					lightShadow: true,
 					content: innerCont
 				});
 
-			popup.setAngle({offset: 118});
+			popup.setAngle({offset: 2 * this.getDayWidth() / 3});
 			popup.show(true);
 			this.allEventsPopup = popup;
+
+			if (tasksTitle)
+			{
+				tasksTitle.addEventListener('click', () => {
+					popup.destroy();
+				});
+			}
+			if (eventsTitle)
+			{
+				eventsTitle.addEventListener('click', () => {
+					popup.destroy();
+				});
+			}
 
 			BX.addCustomEvent(popup, 'onPopupClose', function()
 			{

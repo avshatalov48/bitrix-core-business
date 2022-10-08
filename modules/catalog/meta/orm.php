@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Catalog\CatalogIblockTable:catalog/lib/catalogiblock.php:20fab4f33fe0599b6fa2bde60f321ab6 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\CatalogIblockTable:catalog\lib\catalogiblock.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_CatalogIblock
@@ -202,7 +202,579 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_CatalogIblock_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\DiscountTable:catalog/lib/discount.php:1c1e13a48c5c2154ee9b0658ad7afe5d */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\CatalogViewedProductTable:catalog\lib\catalogviewedproduct.php */
+namespace Bitrix\Catalog {
+	/**
+	 * EO_CatalogViewedProduct
+	 * @see \Bitrix\Catalog\CatalogViewedProductTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getFuserId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setFuserId(\int|\Bitrix\Main\DB\SqlExpression $fuserId)
+	 * @method bool hasFuserId()
+	 * @method bool isFuserIdFilled()
+	 * @method bool isFuserIdChanged()
+	 * @method \int remindActualFuserId()
+	 * @method \int requireFuserId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetFuserId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetFuserId()
+	 * @method \int fillFuserId()
+	 * @method \Bitrix\Main\Type\DateTime getDateVisit()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setDateVisit(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateVisit)
+	 * @method bool hasDateVisit()
+	 * @method bool isDateVisitFilled()
+	 * @method bool isDateVisitChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateVisit()
+	 * @method \Bitrix\Main\Type\DateTime requireDateVisit()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetDateVisit()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetDateVisit()
+	 * @method \Bitrix\Main\Type\DateTime fillDateVisit()
+	 * @method \int getProductId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setProductId(\int|\Bitrix\Main\DB\SqlExpression $productId)
+	 * @method bool hasProductId()
+	 * @method bool isProductIdFilled()
+	 * @method bool isProductIdChanged()
+	 * @method \int remindActualProductId()
+	 * @method \int requireProductId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetProductId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetProductId()
+	 * @method \int fillProductId()
+	 * @method \int getElementId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setElementId(\int|\Bitrix\Main\DB\SqlExpression $elementId)
+	 * @method bool hasElementId()
+	 * @method bool isElementIdFilled()
+	 * @method bool isElementIdChanged()
+	 * @method \int remindActualElementId()
+	 * @method \int requireElementId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetElementId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetElementId()
+	 * @method \int fillElementId()
+	 * @method \string getSiteId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
+	 * @method bool hasSiteId()
+	 * @method bool isSiteIdFilled()
+	 * @method bool isSiteIdChanged()
+	 * @method \string remindActualSiteId()
+	 * @method \string requireSiteId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetSiteId()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetSiteId()
+	 * @method \string fillSiteId()
+	 * @method \int getViewCount()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setViewCount(\int|\Bitrix\Main\DB\SqlExpression $viewCount)
+	 * @method bool hasViewCount()
+	 * @method bool isViewCountFilled()
+	 * @method bool isViewCountChanged()
+	 * @method \int remindActualViewCount()
+	 * @method \int requireViewCount()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetViewCount()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetViewCount()
+	 * @method \int fillViewCount()
+	 * @method \string getRecommendation()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setRecommendation(\string|\Bitrix\Main\DB\SqlExpression $recommendation)
+	 * @method bool hasRecommendation()
+	 * @method bool isRecommendationFilled()
+	 * @method bool isRecommendationChanged()
+	 * @method \string remindActualRecommendation()
+	 * @method \string requireRecommendation()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetRecommendation()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetRecommendation()
+	 * @method \string fillRecommendation()
+	 * @method \Bitrix\Iblock\EO_Element getElement()
+	 * @method \Bitrix\Iblock\EO_Element remindActualElement()
+	 * @method \Bitrix\Iblock\EO_Element requireElement()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setElement(\Bitrix\Iblock\EO_Element $object)
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetElement()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetElement()
+	 * @method bool hasElement()
+	 * @method bool isElementFilled()
+	 * @method bool isElementChanged()
+	 * @method \Bitrix\Iblock\EO_Element fillElement()
+	 * @method \Bitrix\Sale\Internals\EO_Product getProduct()
+	 * @method \Bitrix\Sale\Internals\EO_Product remindActualProduct()
+	 * @method \Bitrix\Sale\Internals\EO_Product requireProduct()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setProduct(\Bitrix\Sale\Internals\EO_Product $object)
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetProduct()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetProduct()
+	 * @method bool hasProduct()
+	 * @method bool isProductFilled()
+	 * @method bool isProductChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Product fillProduct()
+	 * @method \Bitrix\Iblock\EO_Element getParentElement()
+	 * @method \Bitrix\Iblock\EO_Element remindActualParentElement()
+	 * @method \Bitrix\Iblock\EO_Element requireParentElement()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setParentElement(\Bitrix\Iblock\EO_Element $object)
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetParentElement()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetParentElement()
+	 * @method bool hasParentElement()
+	 * @method bool isParentElementFilled()
+	 * @method bool isParentElementChanged()
+	 * @method \Bitrix\Iblock\EO_Element fillParentElement()
+	 * @method \Bitrix\Sale\Internals\EO_Fuser getFuser()
+	 * @method \Bitrix\Sale\Internals\EO_Fuser remindActualFuser()
+	 * @method \Bitrix\Sale\Internals\EO_Fuser requireFuser()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct setFuser(\Bitrix\Sale\Internals\EO_Fuser $object)
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct resetFuser()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unsetFuser()
+	 * @method bool hasFuser()
+	 * @method bool isFuserFilled()
+	 * @method bool isFuserChanged()
+	 * @method \Bitrix\Sale\Internals\EO_Fuser fillFuser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct set($fieldName, $value)
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct reset($fieldName)
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\EO_CatalogViewedProduct wakeUp($data)
+	 */
+	class EO_CatalogViewedProduct {
+		/* @var \Bitrix\Catalog\CatalogViewedProductTable */
+		static public $dataClass = '\Bitrix\Catalog\CatalogViewedProductTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * EO_CatalogViewedProduct_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getFuserIdList()
+	 * @method \int[] fillFuserId()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateVisitList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateVisit()
+	 * @method \int[] getProductIdList()
+	 * @method \int[] fillProductId()
+	 * @method \int[] getElementIdList()
+	 * @method \int[] fillElementId()
+	 * @method \string[] getSiteIdList()
+	 * @method \string[] fillSiteId()
+	 * @method \int[] getViewCountList()
+	 * @method \int[] fillViewCount()
+	 * @method \string[] getRecommendationList()
+	 * @method \string[] fillRecommendation()
+	 * @method \Bitrix\Iblock\EO_Element[] getElementList()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection getElementCollection()
+	 * @method \Bitrix\Iblock\EO_Element_Collection fillElement()
+	 * @method \Bitrix\Sale\Internals\EO_Product[] getProductList()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection getProductCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Product_Collection fillProduct()
+	 * @method \Bitrix\Iblock\EO_Element[] getParentElementList()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection getParentElementCollection()
+	 * @method \Bitrix\Iblock\EO_Element_Collection fillParentElement()
+	 * @method \Bitrix\Sale\Internals\EO_Fuser[] getFuserList()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection getFuserCollection()
+	 * @method \Bitrix\Sale\Internals\EO_Fuser_Collection fillFuser()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\EO_CatalogViewedProduct $object)
+	 * @method bool has(\Bitrix\Catalog\EO_CatalogViewedProduct $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct getByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\EO_CatalogViewedProduct $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\EO_CatalogViewedProduct_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_CatalogViewedProduct_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\CatalogViewedProductTable */
+		static public $dataClass = '\Bitrix\Catalog\CatalogViewedProductTable';
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_CatalogViewedProduct_Result exec()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct fetchObject()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_CatalogViewedProduct_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct fetchObject()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection fetchCollection()
+	 */
+	class EO_CatalogViewedProduct_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection createCollection()
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct wakeUpObject($row)
+	 * @method \Bitrix\Catalog\EO_CatalogViewedProduct_Collection wakeUpCollection($rows)
+	 */
+	class EO_CatalogViewedProduct_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\ContractorTable:catalog\lib\contractortable.php */
+namespace Bitrix\Catalog {
+	/**
+	 * EO_Contractor
+	 * @see \Bitrix\Catalog\ContractorTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\EO_Contractor setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getPersonType()
+	 * @method \Bitrix\Catalog\EO_Contractor setPersonType(\string|\Bitrix\Main\DB\SqlExpression $personType)
+	 * @method bool hasPersonType()
+	 * @method bool isPersonTypeFilled()
+	 * @method bool isPersonTypeChanged()
+	 * @method \string remindActualPersonType()
+	 * @method \string requirePersonType()
+	 * @method \Bitrix\Catalog\EO_Contractor resetPersonType()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetPersonType()
+	 * @method \string fillPersonType()
+	 * @method \string getPersonName()
+	 * @method \Bitrix\Catalog\EO_Contractor setPersonName(\string|\Bitrix\Main\DB\SqlExpression $personName)
+	 * @method bool hasPersonName()
+	 * @method bool isPersonNameFilled()
+	 * @method bool isPersonNameChanged()
+	 * @method \string remindActualPersonName()
+	 * @method \string requirePersonName()
+	 * @method \Bitrix\Catalog\EO_Contractor resetPersonName()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetPersonName()
+	 * @method \string fillPersonName()
+	 * @method \string getPersonLastname()
+	 * @method \Bitrix\Catalog\EO_Contractor setPersonLastname(\string|\Bitrix\Main\DB\SqlExpression $personLastname)
+	 * @method bool hasPersonLastname()
+	 * @method bool isPersonLastnameFilled()
+	 * @method bool isPersonLastnameChanged()
+	 * @method \string remindActualPersonLastname()
+	 * @method \string requirePersonLastname()
+	 * @method \Bitrix\Catalog\EO_Contractor resetPersonLastname()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetPersonLastname()
+	 * @method \string fillPersonLastname()
+	 * @method \string getPersonMiddlename()
+	 * @method \Bitrix\Catalog\EO_Contractor setPersonMiddlename(\string|\Bitrix\Main\DB\SqlExpression $personMiddlename)
+	 * @method bool hasPersonMiddlename()
+	 * @method bool isPersonMiddlenameFilled()
+	 * @method bool isPersonMiddlenameChanged()
+	 * @method \string remindActualPersonMiddlename()
+	 * @method \string requirePersonMiddlename()
+	 * @method \Bitrix\Catalog\EO_Contractor resetPersonMiddlename()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetPersonMiddlename()
+	 * @method \string fillPersonMiddlename()
+	 * @method \string getEmail()
+	 * @method \Bitrix\Catalog\EO_Contractor setEmail(\string|\Bitrix\Main\DB\SqlExpression $email)
+	 * @method bool hasEmail()
+	 * @method bool isEmailFilled()
+	 * @method bool isEmailChanged()
+	 * @method \string remindActualEmail()
+	 * @method \string requireEmail()
+	 * @method \Bitrix\Catalog\EO_Contractor resetEmail()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetEmail()
+	 * @method \string fillEmail()
+	 * @method \string getPhone()
+	 * @method \Bitrix\Catalog\EO_Contractor setPhone(\string|\Bitrix\Main\DB\SqlExpression $phone)
+	 * @method bool hasPhone()
+	 * @method bool isPhoneFilled()
+	 * @method bool isPhoneChanged()
+	 * @method \string remindActualPhone()
+	 * @method \string requirePhone()
+	 * @method \Bitrix\Catalog\EO_Contractor resetPhone()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetPhone()
+	 * @method \string fillPhone()
+	 * @method \string getPostIndex()
+	 * @method \Bitrix\Catalog\EO_Contractor setPostIndex(\string|\Bitrix\Main\DB\SqlExpression $postIndex)
+	 * @method bool hasPostIndex()
+	 * @method bool isPostIndexFilled()
+	 * @method bool isPostIndexChanged()
+	 * @method \string remindActualPostIndex()
+	 * @method \string requirePostIndex()
+	 * @method \Bitrix\Catalog\EO_Contractor resetPostIndex()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetPostIndex()
+	 * @method \string fillPostIndex()
+	 * @method \string getCountry()
+	 * @method \Bitrix\Catalog\EO_Contractor setCountry(\string|\Bitrix\Main\DB\SqlExpression $country)
+	 * @method bool hasCountry()
+	 * @method bool isCountryFilled()
+	 * @method bool isCountryChanged()
+	 * @method \string remindActualCountry()
+	 * @method \string requireCountry()
+	 * @method \Bitrix\Catalog\EO_Contractor resetCountry()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetCountry()
+	 * @method \string fillCountry()
+	 * @method \string getCity()
+	 * @method \Bitrix\Catalog\EO_Contractor setCity(\string|\Bitrix\Main\DB\SqlExpression $city)
+	 * @method bool hasCity()
+	 * @method bool isCityFilled()
+	 * @method bool isCityChanged()
+	 * @method \string remindActualCity()
+	 * @method \string requireCity()
+	 * @method \Bitrix\Catalog\EO_Contractor resetCity()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetCity()
+	 * @method \string fillCity()
+	 * @method \string getCompany()
+	 * @method \Bitrix\Catalog\EO_Contractor setCompany(\string|\Bitrix\Main\DB\SqlExpression $company)
+	 * @method bool hasCompany()
+	 * @method bool isCompanyFilled()
+	 * @method bool isCompanyChanged()
+	 * @method \string remindActualCompany()
+	 * @method \string requireCompany()
+	 * @method \Bitrix\Catalog\EO_Contractor resetCompany()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetCompany()
+	 * @method \string fillCompany()
+	 * @method \string getInn()
+	 * @method \Bitrix\Catalog\EO_Contractor setInn(\string|\Bitrix\Main\DB\SqlExpression $inn)
+	 * @method bool hasInn()
+	 * @method bool isInnFilled()
+	 * @method bool isInnChanged()
+	 * @method \string remindActualInn()
+	 * @method \string requireInn()
+	 * @method \Bitrix\Catalog\EO_Contractor resetInn()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetInn()
+	 * @method \string fillInn()
+	 * @method \string getKpp()
+	 * @method \Bitrix\Catalog\EO_Contractor setKpp(\string|\Bitrix\Main\DB\SqlExpression $kpp)
+	 * @method bool hasKpp()
+	 * @method bool isKppFilled()
+	 * @method bool isKppChanged()
+	 * @method \string remindActualKpp()
+	 * @method \string requireKpp()
+	 * @method \Bitrix\Catalog\EO_Contractor resetKpp()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetKpp()
+	 * @method \string fillKpp()
+	 * @method \string getAddress()
+	 * @method \Bitrix\Catalog\EO_Contractor setAddress(\string|\Bitrix\Main\DB\SqlExpression $address)
+	 * @method bool hasAddress()
+	 * @method bool isAddressFilled()
+	 * @method bool isAddressChanged()
+	 * @method \string remindActualAddress()
+	 * @method \string requireAddress()
+	 * @method \Bitrix\Catalog\EO_Contractor resetAddress()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetAddress()
+	 * @method \string fillAddress()
+	 * @method \Bitrix\Main\Type\DateTime getDateModify()
+	 * @method \Bitrix\Catalog\EO_Contractor setDateModify(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateModify)
+	 * @method bool hasDateModify()
+	 * @method bool isDateModifyFilled()
+	 * @method bool isDateModifyChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateModify()
+	 * @method \Bitrix\Main\Type\DateTime requireDateModify()
+	 * @method \Bitrix\Catalog\EO_Contractor resetDateModify()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetDateModify()
+	 * @method \Bitrix\Main\Type\DateTime fillDateModify()
+	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
+	 * @method \Bitrix\Catalog\EO_Contractor setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
+	 * @method bool hasDateCreate()
+	 * @method bool isDateCreateFilled()
+	 * @method bool isDateCreateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
+	 * @method \Bitrix\Catalog\EO_Contractor resetDateCreate()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
+	 * @method \int getCreatedBy()
+	 * @method \Bitrix\Catalog\EO_Contractor setCreatedBy(\int|\Bitrix\Main\DB\SqlExpression $createdBy)
+	 * @method bool hasCreatedBy()
+	 * @method bool isCreatedByFilled()
+	 * @method bool isCreatedByChanged()
+	 * @method \int remindActualCreatedBy()
+	 * @method \int requireCreatedBy()
+	 * @method \Bitrix\Catalog\EO_Contractor resetCreatedBy()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetCreatedBy()
+	 * @method \int fillCreatedBy()
+	 * @method \int getModifiedBy()
+	 * @method \Bitrix\Catalog\EO_Contractor setModifiedBy(\int|\Bitrix\Main\DB\SqlExpression $modifiedBy)
+	 * @method bool hasModifiedBy()
+	 * @method bool isModifiedByFilled()
+	 * @method bool isModifiedByChanged()
+	 * @method \int remindActualModifiedBy()
+	 * @method \int requireModifiedBy()
+	 * @method \Bitrix\Catalog\EO_Contractor resetModifiedBy()
+	 * @method \Bitrix\Catalog\EO_Contractor unsetModifiedBy()
+	 * @method \int fillModifiedBy()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\EO_Contractor set($fieldName, $value)
+	 * @method \Bitrix\Catalog\EO_Contractor reset($fieldName)
+	 * @method \Bitrix\Catalog\EO_Contractor unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\EO_Contractor wakeUp($data)
+	 */
+	class EO_Contractor {
+		/* @var \Bitrix\Catalog\ContractorTable */
+		static public $dataClass = '\Bitrix\Catalog\ContractorTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * EO_Contractor_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getPersonTypeList()
+	 * @method \string[] fillPersonType()
+	 * @method \string[] getPersonNameList()
+	 * @method \string[] fillPersonName()
+	 * @method \string[] getPersonLastnameList()
+	 * @method \string[] fillPersonLastname()
+	 * @method \string[] getPersonMiddlenameList()
+	 * @method \string[] fillPersonMiddlename()
+	 * @method \string[] getEmailList()
+	 * @method \string[] fillEmail()
+	 * @method \string[] getPhoneList()
+	 * @method \string[] fillPhone()
+	 * @method \string[] getPostIndexList()
+	 * @method \string[] fillPostIndex()
+	 * @method \string[] getCountryList()
+	 * @method \string[] fillCountry()
+	 * @method \string[] getCityList()
+	 * @method \string[] fillCity()
+	 * @method \string[] getCompanyList()
+	 * @method \string[] fillCompany()
+	 * @method \string[] getInnList()
+	 * @method \string[] fillInn()
+	 * @method \string[] getKppList()
+	 * @method \string[] fillKpp()
+	 * @method \string[] getAddressList()
+	 * @method \string[] fillAddress()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateModifyList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateModify()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
+	 * @method \int[] getCreatedByList()
+	 * @method \int[] fillCreatedBy()
+	 * @method \int[] getModifiedByList()
+	 * @method \int[] fillModifiedBy()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\EO_Contractor $object)
+	 * @method bool has(\Bitrix\Catalog\EO_Contractor $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_Contractor getByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_Contractor[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\EO_Contractor $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\EO_Contractor_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\EO_Contractor current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_Contractor_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\ContractorTable */
+		static public $dataClass = '\Bitrix\Catalog\ContractorTable';
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Contractor_Result exec()
+	 * @method \Bitrix\Catalog\EO_Contractor fetchObject()
+	 * @method \Bitrix\Catalog\EO_Contractor_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Contractor_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\EO_Contractor fetchObject()
+	 * @method \Bitrix\Catalog\EO_Contractor_Collection fetchCollection()
+	 */
+	class EO_Contractor_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\EO_Contractor createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\EO_Contractor_Collection createCollection()
+	 * @method \Bitrix\Catalog\EO_Contractor wakeUpObject($row)
+	 * @method \Bitrix\Catalog\EO_Contractor_Collection wakeUpCollection($rows)
+	 */
+	class EO_Contractor_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\DiscountTable:catalog\lib\discount.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Discount
@@ -753,7 +1325,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_Discount_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\DiscountCouponTable:catalog/lib/discountcoupon.php:2f773ff0329bb26fa1b311de68db5b29 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\DiscountCouponTable:catalog\lib\discountcoupon.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_DiscountCoupon
@@ -1028,7 +1600,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_DiscountCoupon_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\DiscountEntityTable:catalog/lib/discountentity.php:38a962e3caa1bd7a0b03c30b890fa73e */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\DiscountEntityTable:catalog\lib\discountentity.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_DiscountEntity
@@ -1241,7 +1813,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_DiscountEntity_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\DiscountModuleTable:catalog/lib/discountmodule.php:ef9e47d341e00c2b062d44f8793b3221 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\DiscountModuleTable:catalog\lib\discountmodule.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_DiscountModule
@@ -1381,7 +1953,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_DiscountModule_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\DiscountRestrictionTable:catalog/lib/discountrestriction.php:1a7f56a0d5ea04228c62f772ce7b9b37 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\DiscountRestrictionTable:catalog\lib\discountrestriction.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_DiscountRestriction
@@ -1558,7 +2130,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_DiscountRestriction_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\ExtraTable:catalog/lib/extra.php:1d016f0e49fa5b775f3b13b917b2de3d */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\ExtraTable:catalog\lib\extra.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Extra
@@ -1698,7 +2270,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_Extra_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\GroupTable:catalog/lib/group.php:8cffa5e66e665413b04cb2a322702388 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\GroupTable:catalog\lib\group.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Group
@@ -1962,7 +2534,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_Group_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\GroupAccessTable:catalog/lib/groupaccess.php:aff4a9e3b6b685265d61728c0c7e0901 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\GroupAccessTable:catalog\lib\groupaccess.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_GroupAccess
@@ -2127,7 +2699,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_GroupAccess_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\GroupLangTable:catalog/lib/grouplang.php:f0440afe2926fe8f5def9e3d78116787 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\GroupLangTable:catalog\lib\grouplang.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_GroupLang
@@ -2292,7 +2864,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_GroupLang_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\MeasureTable:catalog/lib/measure.php:29c5f747fc2c5335cca11d3649cea220 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\MeasureTable:catalog\lib\measure.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Measure
@@ -2480,7 +3052,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_Measure_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\MeasureRatioTable:catalog/lib/measureratio.php:f2f47a13886acc5dee717d879ad4fdb0 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\MeasureRatioTable:catalog\lib\measureratio.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_MeasureRatio
@@ -2645,7 +3217,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_MeasureRatio_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\PriceTable:catalog/lib/price.php:7e7d54965c4949e4f8fc804a4d19f440 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\PriceTable:catalog\lib\price.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Price
@@ -2920,7 +3492,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_Price_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\ProductTable:catalog/lib/product.php:cbfdb028c2e9b035b5e807446543980a */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\ProductTable:catalog\lib\product.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Product
@@ -3435,7 +4007,183 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_Product_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\ProductGroupAccessTable:catalog/lib/productgroupaccess.php:59cddddc6266db955bce8bb9fa019b1f */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\ProductCompilationTable:catalog\lib\productcompilationtable.php */
+namespace Bitrix\Catalog {
+	/**
+	 * EO_ProductCompilation
+	 * @see \Bitrix\Catalog\ProductCompilationTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getDealId()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation setDealId(\int|\Bitrix\Main\DB\SqlExpression $dealId)
+	 * @method bool hasDealId()
+	 * @method bool isDealIdFilled()
+	 * @method bool isDealIdChanged()
+	 * @method \int remindActualDealId()
+	 * @method \int requireDealId()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation resetDealId()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation unsetDealId()
+	 * @method \int fillDealId()
+	 * @method \string getProductIds()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation setProductIds(\string|\Bitrix\Main\DB\SqlExpression $productIds)
+	 * @method bool hasProductIds()
+	 * @method bool isProductIdsFilled()
+	 * @method bool isProductIdsChanged()
+	 * @method \string remindActualProductIds()
+	 * @method \string requireProductIds()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation resetProductIds()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation unsetProductIds()
+	 * @method \string fillProductIds()
+	 * @method \Bitrix\Main\Type\DateTime getCreationDate()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation setCreationDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $creationDate)
+	 * @method bool hasCreationDate()
+	 * @method bool isCreationDateFilled()
+	 * @method bool isCreationDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualCreationDate()
+	 * @method \Bitrix\Main\Type\DateTime requireCreationDate()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation resetCreationDate()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation unsetCreationDate()
+	 * @method \Bitrix\Main\Type\DateTime fillCreationDate()
+	 * @method \int getChatId()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation setChatId(\int|\Bitrix\Main\DB\SqlExpression $chatId)
+	 * @method bool hasChatId()
+	 * @method bool isChatIdFilled()
+	 * @method bool isChatIdChanged()
+	 * @method \int remindActualChatId()
+	 * @method \int requireChatId()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation resetChatId()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation unsetChatId()
+	 * @method \int fillChatId()
+	 * @method \int getQueueId()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation setQueueId(\int|\Bitrix\Main\DB\SqlExpression $queueId)
+	 * @method bool hasQueueId()
+	 * @method bool isQueueIdFilled()
+	 * @method bool isQueueIdChanged()
+	 * @method \int remindActualQueueId()
+	 * @method \int requireQueueId()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation resetQueueId()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation unsetQueueId()
+	 * @method \int fillQueueId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\EO_ProductCompilation set($fieldName, $value)
+	 * @method \Bitrix\Catalog\EO_ProductCompilation reset($fieldName)
+	 * @method \Bitrix\Catalog\EO_ProductCompilation unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\EO_ProductCompilation wakeUp($data)
+	 */
+	class EO_ProductCompilation {
+		/* @var \Bitrix\Catalog\ProductCompilationTable */
+		static public $dataClass = '\Bitrix\Catalog\ProductCompilationTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * EO_ProductCompilation_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getDealIdList()
+	 * @method \int[] fillDealId()
+	 * @method \string[] getProductIdsList()
+	 * @method \string[] fillProductIds()
+	 * @method \Bitrix\Main\Type\DateTime[] getCreationDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillCreationDate()
+	 * @method \int[] getChatIdList()
+	 * @method \int[] fillChatId()
+	 * @method \int[] getQueueIdList()
+	 * @method \int[] fillQueueId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\EO_ProductCompilation $object)
+	 * @method bool has(\Bitrix\Catalog\EO_ProductCompilation $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_ProductCompilation getByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_ProductCompilation[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\EO_ProductCompilation $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\EO_ProductCompilation_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\EO_ProductCompilation current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_ProductCompilation_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\ProductCompilationTable */
+		static public $dataClass = '\Bitrix\Catalog\ProductCompilationTable';
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_ProductCompilation_Result exec()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation fetchObject()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_ProductCompilation_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\EO_ProductCompilation fetchObject()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation_Collection fetchCollection()
+	 */
+	class EO_ProductCompilation_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\EO_ProductCompilation createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\EO_ProductCompilation_Collection createCollection()
+	 * @method \Bitrix\Catalog\EO_ProductCompilation wakeUpObject($row)
+	 * @method \Bitrix\Catalog\EO_ProductCompilation_Collection wakeUpCollection($rows)
+	 */
+	class EO_ProductCompilation_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\ProductGroupAccessTable:catalog\lib\productgroupaccess.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_ProductGroupAccess
@@ -3612,7 +4360,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_ProductGroupAccess_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\RoundingTable:catalog/lib/rounding.php:5c99f1f1254286d39a84ca43c5ffce72 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\RoundingTable:catalog\lib\rounding.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Rounding
@@ -3850,7 +4598,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_Rounding_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\StoreTable:catalog/lib/store.php:c03ee8cfb7e33c976dff5055beb6b9bf */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\StoreTable:catalog\lib\store.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Store
@@ -3974,6 +4722,16 @@ namespace Bitrix\Catalog {
 	 * @method \Bitrix\Catalog\EO_Store resetUserId()
 	 * @method \Bitrix\Catalog\EO_Store unsetUserId()
 	 * @method \int fillUserId()
+	 * @method \Bitrix\Main\EO_User getCreatedByUser()
+	 * @method \Bitrix\Main\EO_User remindActualCreatedByUser()
+	 * @method \Bitrix\Main\EO_User requireCreatedByUser()
+	 * @method \Bitrix\Catalog\EO_Store setCreatedByUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Catalog\EO_Store resetCreatedByUser()
+	 * @method \Bitrix\Catalog\EO_Store unsetCreatedByUser()
+	 * @method bool hasCreatedByUser()
+	 * @method bool isCreatedByUserFilled()
+	 * @method bool isCreatedByUserChanged()
+	 * @method \Bitrix\Main\EO_User fillCreatedByUser()
 	 * @method \int getModifiedBy()
 	 * @method \Bitrix\Catalog\EO_Store setModifiedBy(\int|\Bitrix\Main\DB\SqlExpression $modifiedBy)
 	 * @method bool hasModifiedBy()
@@ -3984,6 +4742,16 @@ namespace Bitrix\Catalog {
 	 * @method \Bitrix\Catalog\EO_Store resetModifiedBy()
 	 * @method \Bitrix\Catalog\EO_Store unsetModifiedBy()
 	 * @method \int fillModifiedBy()
+	 * @method \Bitrix\Main\EO_User getModifiedByUser()
+	 * @method \Bitrix\Main\EO_User remindActualModifiedByUser()
+	 * @method \Bitrix\Main\EO_User requireModifiedByUser()
+	 * @method \Bitrix\Catalog\EO_Store setModifiedByUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Catalog\EO_Store resetModifiedByUser()
+	 * @method \Bitrix\Catalog\EO_Store unsetModifiedByUser()
+	 * @method bool hasModifiedByUser()
+	 * @method bool isModifiedByUserFilled()
+	 * @method bool isModifiedByUserChanged()
+	 * @method \Bitrix\Main\EO_User fillModifiedByUser()
 	 * @method \string getPhone()
 	 * @method \Bitrix\Catalog\EO_Store setPhone(\string|\Bitrix\Main\DB\SqlExpression $phone)
 	 * @method bool hasPhone()
@@ -4074,6 +4842,16 @@ namespace Bitrix\Catalog {
 	 * @method \Bitrix\Catalog\EO_Store resetCode()
 	 * @method \Bitrix\Catalog\EO_Store unsetCode()
 	 * @method \string fillCode()
+	 * @method \string getIsDefault()
+	 * @method \Bitrix\Catalog\EO_Store setIsDefault(\string|\Bitrix\Main\DB\SqlExpression $isDefault)
+	 * @method bool hasIsDefault()
+	 * @method bool isIsDefaultFilled()
+	 * @method bool isIsDefaultChanged()
+	 * @method \string remindActualIsDefault()
+	 * @method \string requireIsDefault()
+	 * @method \Bitrix\Catalog\EO_Store resetIsDefault()
+	 * @method \Bitrix\Catalog\EO_Store unsetIsDefault()
+	 * @method \string fillIsDefault()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -4140,8 +4918,14 @@ namespace Bitrix\Catalog {
 	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
 	 * @method \int[] getUserIdList()
 	 * @method \int[] fillUserId()
+	 * @method \Bitrix\Main\EO_User[] getCreatedByUserList()
+	 * @method \Bitrix\Catalog\EO_Store_Collection getCreatedByUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillCreatedByUser()
 	 * @method \int[] getModifiedByList()
 	 * @method \int[] fillModifiedBy()
+	 * @method \Bitrix\Main\EO_User[] getModifiedByUserList()
+	 * @method \Bitrix\Catalog\EO_Store_Collection getModifiedByUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillModifiedByUser()
 	 * @method \string[] getPhoneList()
 	 * @method \string[] fillPhone()
 	 * @method \string[] getScheduleList()
@@ -4160,6 +4944,8 @@ namespace Bitrix\Catalog {
 	 * @method \string[] fillSiteId()
 	 * @method \string[] getCodeList()
 	 * @method \string[] fillCode()
+	 * @method \string[] getIsDefaultList()
+	 * @method \string[] fillIsDefault()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -4218,7 +5004,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_Store_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\StoreBarcodeTable:catalog/lib/storebarcode.php:0953b75c0b2e0f43558707cbf872ef94 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\StoreBarcodeTable:catalog\lib\storebarcode.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_StoreBarcode
@@ -4482,7 +5268,1083 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_StoreBarcode_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\StoreProductTable:catalog/lib/storeproduct.php:8611b753cecbdb7143f43c86e04d7a1f */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\StoreDocumentBarcodeTable:catalog\lib\storedocumentbarcodetable.php */
+namespace Bitrix\Catalog {
+	/**
+	 * EO_StoreDocumentBarcode
+	 * @see \Bitrix\Catalog\StoreDocumentBarcodeTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getDocId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode setDocId(\int|\Bitrix\Main\DB\SqlExpression $docId)
+	 * @method bool hasDocId()
+	 * @method bool isDocIdFilled()
+	 * @method bool isDocIdChanged()
+	 * @method \int remindActualDocId()
+	 * @method \int requireDocId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode resetDocId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode unsetDocId()
+	 * @method \int fillDocId()
+	 * @method \int getDocElementId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode setDocElementId(\int|\Bitrix\Main\DB\SqlExpression $docElementId)
+	 * @method bool hasDocElementId()
+	 * @method bool isDocElementIdFilled()
+	 * @method bool isDocElementIdChanged()
+	 * @method \int remindActualDocElementId()
+	 * @method \int requireDocElementId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode resetDocElementId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode unsetDocElementId()
+	 * @method \int fillDocElementId()
+	 * @method \string getBarcode()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode setBarcode(\string|\Bitrix\Main\DB\SqlExpression $barcode)
+	 * @method bool hasBarcode()
+	 * @method bool isBarcodeFilled()
+	 * @method bool isBarcodeChanged()
+	 * @method \string remindActualBarcode()
+	 * @method \string requireBarcode()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode resetBarcode()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode unsetBarcode()
+	 * @method \string fillBarcode()
+	 * @method \Bitrix\Catalog\EO_StoreDocument getDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocument remindActualDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocument requireDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode setDocument(\Bitrix\Catalog\EO_StoreDocument $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode resetDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode unsetDocument()
+	 * @method bool hasDocument()
+	 * @method bool isDocumentFilled()
+	 * @method bool isDocumentChanged()
+	 * @method \Bitrix\Catalog\EO_StoreDocument fillDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement getDocumentElement()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement remindActualDocumentElement()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement requireDocumentElement()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode setDocumentElement(\Bitrix\Catalog\EO_StoreDocumentElement $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode resetDocumentElement()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode unsetDocumentElement()
+	 * @method bool hasDocumentElement()
+	 * @method bool isDocumentElementFilled()
+	 * @method bool isDocumentElementChanged()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement fillDocumentElement()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode set($fieldName, $value)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode reset($fieldName)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\EO_StoreDocumentBarcode wakeUp($data)
+	 */
+	class EO_StoreDocumentBarcode {
+		/* @var \Bitrix\Catalog\StoreDocumentBarcodeTable */
+		static public $dataClass = '\Bitrix\Catalog\StoreDocumentBarcodeTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * EO_StoreDocumentBarcode_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getDocIdList()
+	 * @method \int[] fillDocId()
+	 * @method \int[] getDocElementIdList()
+	 * @method \int[] fillDocElementId()
+	 * @method \string[] getBarcodeList()
+	 * @method \string[] fillBarcode()
+	 * @method \Bitrix\Catalog\EO_StoreDocument[] getDocumentList()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode_Collection getDocumentCollection()
+	 * @method \Bitrix\Catalog\EO_StoreDocument_Collection fillDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement[] getDocumentElementList()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode_Collection getDocumentElementCollection()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection fillDocumentElement()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\EO_StoreDocumentBarcode $object)
+	 * @method bool has(\Bitrix\Catalog\EO_StoreDocumentBarcode $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode getByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\EO_StoreDocumentBarcode $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\EO_StoreDocumentBarcode_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_StoreDocumentBarcode_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\StoreDocumentBarcodeTable */
+		static public $dataClass = '\Bitrix\Catalog\StoreDocumentBarcodeTable';
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_StoreDocumentBarcode_Result exec()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode fetchObject()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_StoreDocumentBarcode_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode fetchObject()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode_Collection fetchCollection()
+	 */
+	class EO_StoreDocumentBarcode_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode_Collection createCollection()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode wakeUpObject($row)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentBarcode_Collection wakeUpCollection($rows)
+	 */
+	class EO_StoreDocumentBarcode_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\StoreDocumentElementTable:catalog\lib\storedocumentelementtable.php */
+namespace Bitrix\Catalog {
+	/**
+	 * EO_StoreDocumentElement
+	 * @see \Bitrix\Catalog\StoreDocumentElementTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getDocId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setDocId(\int|\Bitrix\Main\DB\SqlExpression $docId)
+	 * @method bool hasDocId()
+	 * @method bool isDocIdFilled()
+	 * @method bool isDocIdChanged()
+	 * @method \int remindActualDocId()
+	 * @method \int requireDocId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetDocId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetDocId()
+	 * @method \int fillDocId()
+	 * @method \int getStoreFrom()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setStoreFrom(\int|\Bitrix\Main\DB\SqlExpression $storeFrom)
+	 * @method bool hasStoreFrom()
+	 * @method bool isStoreFromFilled()
+	 * @method bool isStoreFromChanged()
+	 * @method \int remindActualStoreFrom()
+	 * @method \int requireStoreFrom()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetStoreFrom()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetStoreFrom()
+	 * @method \int fillStoreFrom()
+	 * @method \int getStoreTo()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setStoreTo(\int|\Bitrix\Main\DB\SqlExpression $storeTo)
+	 * @method bool hasStoreTo()
+	 * @method bool isStoreToFilled()
+	 * @method bool isStoreToChanged()
+	 * @method \int remindActualStoreTo()
+	 * @method \int requireStoreTo()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetStoreTo()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetStoreTo()
+	 * @method \int fillStoreTo()
+	 * @method \int getElementId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setElementId(\int|\Bitrix\Main\DB\SqlExpression $elementId)
+	 * @method bool hasElementId()
+	 * @method bool isElementIdFilled()
+	 * @method bool isElementIdChanged()
+	 * @method \int remindActualElementId()
+	 * @method \int requireElementId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetElementId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetElementId()
+	 * @method \int fillElementId()
+	 * @method \float getAmount()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setAmount(\float|\Bitrix\Main\DB\SqlExpression $amount)
+	 * @method bool hasAmount()
+	 * @method bool isAmountFilled()
+	 * @method bool isAmountChanged()
+	 * @method \float remindActualAmount()
+	 * @method \float requireAmount()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetAmount()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetAmount()
+	 * @method \float fillAmount()
+	 * @method \int getPurchasingPrice()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setPurchasingPrice(\int|\Bitrix\Main\DB\SqlExpression $purchasingPrice)
+	 * @method bool hasPurchasingPrice()
+	 * @method bool isPurchasingPriceFilled()
+	 * @method bool isPurchasingPriceChanged()
+	 * @method \int remindActualPurchasingPrice()
+	 * @method \int requirePurchasingPrice()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetPurchasingPrice()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetPurchasingPrice()
+	 * @method \int fillPurchasingPrice()
+	 * @method \int getBasePrice()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setBasePrice(\int|\Bitrix\Main\DB\SqlExpression $basePrice)
+	 * @method bool hasBasePrice()
+	 * @method bool isBasePriceFilled()
+	 * @method bool isBasePriceChanged()
+	 * @method \int remindActualBasePrice()
+	 * @method \int requireBasePrice()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetBasePrice()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetBasePrice()
+	 * @method \int fillBasePrice()
+	 * @method \float getBasePriceExtra()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setBasePriceExtra(\float|\Bitrix\Main\DB\SqlExpression $basePriceExtra)
+	 * @method bool hasBasePriceExtra()
+	 * @method bool isBasePriceExtraFilled()
+	 * @method bool isBasePriceExtraChanged()
+	 * @method \float remindActualBasePriceExtra()
+	 * @method \float requireBasePriceExtra()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetBasePriceExtra()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetBasePriceExtra()
+	 * @method \float fillBasePriceExtra()
+	 * @method \string getBasePriceExtraRate()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setBasePriceExtraRate(\string|\Bitrix\Main\DB\SqlExpression $basePriceExtraRate)
+	 * @method bool hasBasePriceExtraRate()
+	 * @method bool isBasePriceExtraRateFilled()
+	 * @method bool isBasePriceExtraRateChanged()
+	 * @method \string remindActualBasePriceExtraRate()
+	 * @method \string requireBasePriceExtraRate()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetBasePriceExtraRate()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetBasePriceExtraRate()
+	 * @method \string fillBasePriceExtraRate()
+	 * @method \Bitrix\Iblock\EO_Element getElement()
+	 * @method \Bitrix\Iblock\EO_Element remindActualElement()
+	 * @method \Bitrix\Iblock\EO_Element requireElement()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setElement(\Bitrix\Iblock\EO_Element $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetElement()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetElement()
+	 * @method bool hasElement()
+	 * @method bool isElementFilled()
+	 * @method bool isElementChanged()
+	 * @method \Bitrix\Iblock\EO_Element fillElement()
+	 * @method \Bitrix\Catalog\EO_Product getProduct()
+	 * @method \Bitrix\Catalog\EO_Product remindActualProduct()
+	 * @method \Bitrix\Catalog\EO_Product requireProduct()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setProduct(\Bitrix\Catalog\EO_Product $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetProduct()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetProduct()
+	 * @method bool hasProduct()
+	 * @method bool isProductFilled()
+	 * @method bool isProductChanged()
+	 * @method \Bitrix\Catalog\EO_Product fillProduct()
+	 * @method \Bitrix\Catalog\EO_StoreDocument getDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocument remindActualDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocument requireDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setDocument(\Bitrix\Catalog\EO_StoreDocument $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetDocument()
+	 * @method bool hasDocument()
+	 * @method bool isDocumentFilled()
+	 * @method bool isDocumentChanged()
+	 * @method \Bitrix\Catalog\EO_StoreDocument fillDocument()
+	 * @method \Bitrix\Catalog\EO_Store getStoreFromRef()
+	 * @method \Bitrix\Catalog\EO_Store remindActualStoreFromRef()
+	 * @method \Bitrix\Catalog\EO_Store requireStoreFromRef()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setStoreFromRef(\Bitrix\Catalog\EO_Store $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetStoreFromRef()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetStoreFromRef()
+	 * @method bool hasStoreFromRef()
+	 * @method bool isStoreFromRefFilled()
+	 * @method bool isStoreFromRefChanged()
+	 * @method \Bitrix\Catalog\EO_Store fillStoreFromRef()
+	 * @method \Bitrix\Catalog\EO_Store getStoreToRef()
+	 * @method \Bitrix\Catalog\EO_Store remindActualStoreToRef()
+	 * @method \Bitrix\Catalog\EO_Store requireStoreToRef()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement setStoreToRef(\Bitrix\Catalog\EO_Store $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement resetStoreToRef()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unsetStoreToRef()
+	 * @method bool hasStoreToRef()
+	 * @method bool isStoreToRefFilled()
+	 * @method bool isStoreToRefChanged()
+	 * @method \Bitrix\Catalog\EO_Store fillStoreToRef()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement set($fieldName, $value)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement reset($fieldName)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\EO_StoreDocumentElement wakeUp($data)
+	 */
+	class EO_StoreDocumentElement {
+		/* @var \Bitrix\Catalog\StoreDocumentElementTable */
+		static public $dataClass = '\Bitrix\Catalog\StoreDocumentElementTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * EO_StoreDocumentElement_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getDocIdList()
+	 * @method \int[] fillDocId()
+	 * @method \int[] getStoreFromList()
+	 * @method \int[] fillStoreFrom()
+	 * @method \int[] getStoreToList()
+	 * @method \int[] fillStoreTo()
+	 * @method \int[] getElementIdList()
+	 * @method \int[] fillElementId()
+	 * @method \float[] getAmountList()
+	 * @method \float[] fillAmount()
+	 * @method \int[] getPurchasingPriceList()
+	 * @method \int[] fillPurchasingPrice()
+	 * @method \int[] getBasePriceList()
+	 * @method \int[] fillBasePrice()
+	 * @method \float[] getBasePriceExtraList()
+	 * @method \float[] fillBasePriceExtra()
+	 * @method \string[] getBasePriceExtraRateList()
+	 * @method \string[] fillBasePriceExtraRate()
+	 * @method \Bitrix\Iblock\EO_Element[] getElementList()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection getElementCollection()
+	 * @method \Bitrix\Iblock\EO_Element_Collection fillElement()
+	 * @method \Bitrix\Catalog\EO_Product[] getProductList()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection getProductCollection()
+	 * @method \Bitrix\Catalog\EO_Product_Collection fillProduct()
+	 * @method \Bitrix\Catalog\EO_StoreDocument[] getDocumentList()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection getDocumentCollection()
+	 * @method \Bitrix\Catalog\EO_StoreDocument_Collection fillDocument()
+	 * @method \Bitrix\Catalog\EO_Store[] getStoreFromRefList()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection getStoreFromRefCollection()
+	 * @method \Bitrix\Catalog\EO_Store_Collection fillStoreFromRef()
+	 * @method \Bitrix\Catalog\EO_Store[] getStoreToRefList()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection getStoreToRefCollection()
+	 * @method \Bitrix\Catalog\EO_Store_Collection fillStoreToRef()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\EO_StoreDocumentElement $object)
+	 * @method bool has(\Bitrix\Catalog\EO_StoreDocumentElement $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement getByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\EO_StoreDocumentElement $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\EO_StoreDocumentElement_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_StoreDocumentElement_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\StoreDocumentElementTable */
+		static public $dataClass = '\Bitrix\Catalog\StoreDocumentElementTable';
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_StoreDocumentElement_Result exec()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement fetchObject()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_StoreDocumentElement_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement fetchObject()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection fetchCollection()
+	 */
+	class EO_StoreDocumentElement_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection createCollection()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement wakeUpObject($row)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection wakeUpCollection($rows)
+	 */
+	class EO_StoreDocumentElement_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\StoreDocumentFileTable:catalog\lib\storedocumentfiletable.php */
+namespace Bitrix\Catalog {
+	/**
+	 * EO_StoreDocumentFile
+	 * @see \Bitrix\Catalog\StoreDocumentFileTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \Bitrix\Catalog\EO_StoreDocument getDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocument remindActualDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocument requireDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile setDocument(\Bitrix\Catalog\EO_StoreDocument $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile resetDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile unsetDocument()
+	 * @method bool hasDocument()
+	 * @method bool isDocumentFilled()
+	 * @method bool isDocumentChanged()
+	 * @method \Bitrix\Catalog\EO_StoreDocument fillDocument()
+	 * @method \int getDocumentId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile setDocumentId(\int|\Bitrix\Main\DB\SqlExpression $documentId)
+	 * @method bool hasDocumentId()
+	 * @method bool isDocumentIdFilled()
+	 * @method bool isDocumentIdChanged()
+	 * @method \int remindActualDocumentId()
+	 * @method \int requireDocumentId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile resetDocumentId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile unsetDocumentId()
+	 * @method \int fillDocumentId()
+	 * @method \Bitrix\Main\EO_File getFile()
+	 * @method \Bitrix\Main\EO_File remindActualFile()
+	 * @method \Bitrix\Main\EO_File requireFile()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile setFile(\Bitrix\Main\EO_File $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile resetFile()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile unsetFile()
+	 * @method bool hasFile()
+	 * @method bool isFileFilled()
+	 * @method bool isFileChanged()
+	 * @method \Bitrix\Main\EO_File fillFile()
+	 * @method \int getFileId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile setFileId(\int|\Bitrix\Main\DB\SqlExpression $fileId)
+	 * @method bool hasFileId()
+	 * @method bool isFileIdFilled()
+	 * @method bool isFileIdChanged()
+	 * @method \int remindActualFileId()
+	 * @method \int requireFileId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile resetFileId()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile unsetFileId()
+	 * @method \int fillFileId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile set($fieldName, $value)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile reset($fieldName)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\EO_StoreDocumentFile wakeUp($data)
+	 */
+	class EO_StoreDocumentFile {
+		/* @var \Bitrix\Catalog\StoreDocumentFileTable */
+		static public $dataClass = '\Bitrix\Catalog\StoreDocumentFileTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * EO_StoreDocumentFile_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \Bitrix\Catalog\EO_StoreDocument[] getDocumentList()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile_Collection getDocumentCollection()
+	 * @method \Bitrix\Catalog\EO_StoreDocument_Collection fillDocument()
+	 * @method \int[] getDocumentIdList()
+	 * @method \int[] fillDocumentId()
+	 * @method \Bitrix\Main\EO_File[] getFileList()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile_Collection getFileCollection()
+	 * @method \Bitrix\Main\EO_File_Collection fillFile()
+	 * @method \int[] getFileIdList()
+	 * @method \int[] fillFileId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\EO_StoreDocumentFile $object)
+	 * @method bool has(\Bitrix\Catalog\EO_StoreDocumentFile $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile getByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\EO_StoreDocumentFile $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\EO_StoreDocumentFile_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_StoreDocumentFile_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\StoreDocumentFileTable */
+		static public $dataClass = '\Bitrix\Catalog\StoreDocumentFileTable';
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_StoreDocumentFile_Result exec()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile fetchObject()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_StoreDocumentFile_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile fetchObject()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile_Collection fetchCollection()
+	 */
+	class EO_StoreDocumentFile_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile_Collection createCollection()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile wakeUpObject($row)
+	 * @method \Bitrix\Catalog\EO_StoreDocumentFile_Collection wakeUpCollection($rows)
+	 */
+	class EO_StoreDocumentFile_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\StoreDocumentTable:catalog\lib\storedocumenttable.php */
+namespace Bitrix\Catalog {
+	/**
+	 * EO_StoreDocument
+	 * @see \Bitrix\Catalog\StoreDocumentTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getTitle()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setTitle(\string|\Bitrix\Main\DB\SqlExpression $title)
+	 * @method bool hasTitle()
+	 * @method bool isTitleFilled()
+	 * @method bool isTitleChanged()
+	 * @method \string remindActualTitle()
+	 * @method \string requireTitle()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetTitle()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetTitle()
+	 * @method \string fillTitle()
+	 * @method \string getDocType()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setDocType(\string|\Bitrix\Main\DB\SqlExpression $docType)
+	 * @method bool hasDocType()
+	 * @method bool isDocTypeFilled()
+	 * @method bool isDocTypeChanged()
+	 * @method \string remindActualDocType()
+	 * @method \string requireDocType()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetDocType()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetDocType()
+	 * @method \string fillDocType()
+	 * @method \string getDocNumber()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setDocNumber(\string|\Bitrix\Main\DB\SqlExpression $docNumber)
+	 * @method bool hasDocNumber()
+	 * @method bool isDocNumberFilled()
+	 * @method bool isDocNumberChanged()
+	 * @method \string remindActualDocNumber()
+	 * @method \string requireDocNumber()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetDocNumber()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetDocNumber()
+	 * @method \string fillDocNumber()
+	 * @method \string getSiteId()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setSiteId(\string|\Bitrix\Main\DB\SqlExpression $siteId)
+	 * @method bool hasSiteId()
+	 * @method bool isSiteIdFilled()
+	 * @method bool isSiteIdChanged()
+	 * @method \string remindActualSiteId()
+	 * @method \string requireSiteId()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetSiteId()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetSiteId()
+	 * @method \string fillSiteId()
+	 * @method \Bitrix\Catalog\EO_Contractor getContractor()
+	 * @method \Bitrix\Catalog\EO_Contractor remindActualContractor()
+	 * @method \Bitrix\Catalog\EO_Contractor requireContractor()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setContractor(\Bitrix\Catalog\EO_Contractor $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetContractor()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetContractor()
+	 * @method bool hasContractor()
+	 * @method bool isContractorFilled()
+	 * @method bool isContractorChanged()
+	 * @method \Bitrix\Catalog\EO_Contractor fillContractor()
+	 * @method \int getContractorId()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setContractorId(\int|\Bitrix\Main\DB\SqlExpression $contractorId)
+	 * @method bool hasContractorId()
+	 * @method bool isContractorIdFilled()
+	 * @method bool isContractorIdChanged()
+	 * @method \int remindActualContractorId()
+	 * @method \int requireContractorId()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetContractorId()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetContractorId()
+	 * @method \int fillContractorId()
+	 * @method \Bitrix\Main\Type\DateTime getDateModify()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setDateModify(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateModify)
+	 * @method bool hasDateModify()
+	 * @method bool isDateModifyFilled()
+	 * @method bool isDateModifyChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateModify()
+	 * @method \Bitrix\Main\Type\DateTime requireDateModify()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetDateModify()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetDateModify()
+	 * @method \Bitrix\Main\Type\DateTime fillDateModify()
+	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
+	 * @method bool hasDateCreate()
+	 * @method bool isDateCreateFilled()
+	 * @method bool isDateCreateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetDateCreate()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
+	 * @method \int getCreatedBy()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setCreatedBy(\int|\Bitrix\Main\DB\SqlExpression $createdBy)
+	 * @method bool hasCreatedBy()
+	 * @method bool isCreatedByFilled()
+	 * @method bool isCreatedByChanged()
+	 * @method \int remindActualCreatedBy()
+	 * @method \int requireCreatedBy()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetCreatedBy()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetCreatedBy()
+	 * @method \int fillCreatedBy()
+	 * @method \Bitrix\Main\EO_User getCreatedByUser()
+	 * @method \Bitrix\Main\EO_User remindActualCreatedByUser()
+	 * @method \Bitrix\Main\EO_User requireCreatedByUser()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setCreatedByUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetCreatedByUser()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetCreatedByUser()
+	 * @method bool hasCreatedByUser()
+	 * @method bool isCreatedByUserFilled()
+	 * @method bool isCreatedByUserChanged()
+	 * @method \Bitrix\Main\EO_User fillCreatedByUser()
+	 * @method \int getModifiedBy()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setModifiedBy(\int|\Bitrix\Main\DB\SqlExpression $modifiedBy)
+	 * @method bool hasModifiedBy()
+	 * @method bool isModifiedByFilled()
+	 * @method bool isModifiedByChanged()
+	 * @method \int remindActualModifiedBy()
+	 * @method \int requireModifiedBy()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetModifiedBy()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetModifiedBy()
+	 * @method \int fillModifiedBy()
+	 * @method \Bitrix\Main\EO_User getModifiedByUser()
+	 * @method \Bitrix\Main\EO_User remindActualModifiedByUser()
+	 * @method \Bitrix\Main\EO_User requireModifiedByUser()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setModifiedByUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetModifiedByUser()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetModifiedByUser()
+	 * @method bool hasModifiedByUser()
+	 * @method bool isModifiedByUserFilled()
+	 * @method bool isModifiedByUserChanged()
+	 * @method \Bitrix\Main\EO_User fillModifiedByUser()
+	 * @method \int getResponsibleId()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setResponsibleId(\int|\Bitrix\Main\DB\SqlExpression $responsibleId)
+	 * @method bool hasResponsibleId()
+	 * @method bool isResponsibleIdFilled()
+	 * @method bool isResponsibleIdChanged()
+	 * @method \int remindActualResponsibleId()
+	 * @method \int requireResponsibleId()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetResponsibleId()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetResponsibleId()
+	 * @method \int fillResponsibleId()
+	 * @method \Bitrix\Main\EO_User getResponsible()
+	 * @method \Bitrix\Main\EO_User remindActualResponsible()
+	 * @method \Bitrix\Main\EO_User requireResponsible()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setResponsible(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetResponsible()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetResponsible()
+	 * @method bool hasResponsible()
+	 * @method bool isResponsibleFilled()
+	 * @method bool isResponsibleChanged()
+	 * @method \Bitrix\Main\EO_User fillResponsible()
+	 * @method \string getCurrency()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setCurrency(\string|\Bitrix\Main\DB\SqlExpression $currency)
+	 * @method bool hasCurrency()
+	 * @method bool isCurrencyFilled()
+	 * @method bool isCurrencyChanged()
+	 * @method \string remindActualCurrency()
+	 * @method \string requireCurrency()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetCurrency()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetCurrency()
+	 * @method \string fillCurrency()
+	 * @method \boolean getStatus()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setStatus(\boolean|\Bitrix\Main\DB\SqlExpression $status)
+	 * @method bool hasStatus()
+	 * @method bool isStatusFilled()
+	 * @method bool isStatusChanged()
+	 * @method \boolean remindActualStatus()
+	 * @method \boolean requireStatus()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetStatus()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetStatus()
+	 * @method \boolean fillStatus()
+	 * @method \boolean getWasCancelled()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setWasCancelled(\boolean|\Bitrix\Main\DB\SqlExpression $wasCancelled)
+	 * @method bool hasWasCancelled()
+	 * @method bool isWasCancelledFilled()
+	 * @method bool isWasCancelledChanged()
+	 * @method \boolean remindActualWasCancelled()
+	 * @method \boolean requireWasCancelled()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetWasCancelled()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetWasCancelled()
+	 * @method \boolean fillWasCancelled()
+	 * @method \Bitrix\Main\Type\DateTime getDateStatus()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setDateStatus(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateStatus)
+	 * @method bool hasDateStatus()
+	 * @method bool isDateStatusFilled()
+	 * @method bool isDateStatusChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateStatus()
+	 * @method \Bitrix\Main\Type\DateTime requireDateStatus()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetDateStatus()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetDateStatus()
+	 * @method \Bitrix\Main\Type\DateTime fillDateStatus()
+	 * @method \Bitrix\Main\Type\DateTime getDateDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setDateDocument(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateDocument)
+	 * @method bool hasDateDocument()
+	 * @method bool isDateDocumentFilled()
+	 * @method bool isDateDocumentChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateDocument()
+	 * @method \Bitrix\Main\Type\DateTime requireDateDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetDateDocument()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetDateDocument()
+	 * @method \Bitrix\Main\Type\DateTime fillDateDocument()
+	 * @method \int getStatusBy()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setStatusBy(\int|\Bitrix\Main\DB\SqlExpression $statusBy)
+	 * @method bool hasStatusBy()
+	 * @method bool isStatusByFilled()
+	 * @method bool isStatusByChanged()
+	 * @method \int remindActualStatusBy()
+	 * @method \int requireStatusBy()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetStatusBy()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetStatusBy()
+	 * @method \int fillStatusBy()
+	 * @method \Bitrix\Main\EO_User getStatusByUser()
+	 * @method \Bitrix\Main\EO_User remindActualStatusByUser()
+	 * @method \Bitrix\Main\EO_User requireStatusByUser()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setStatusByUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetStatusByUser()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetStatusByUser()
+	 * @method bool hasStatusByUser()
+	 * @method bool isStatusByUserFilled()
+	 * @method bool isStatusByUserChanged()
+	 * @method \Bitrix\Main\EO_User fillStatusByUser()
+	 * @method \float getTotal()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setTotal(\float|\Bitrix\Main\DB\SqlExpression $total)
+	 * @method bool hasTotal()
+	 * @method bool isTotalFilled()
+	 * @method bool isTotalChanged()
+	 * @method \float remindActualTotal()
+	 * @method \float requireTotal()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetTotal()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetTotal()
+	 * @method \float fillTotal()
+	 * @method \string getCommentary()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setCommentary(\string|\Bitrix\Main\DB\SqlExpression $commentary)
+	 * @method bool hasCommentary()
+	 * @method bool isCommentaryFilled()
+	 * @method bool isCommentaryChanged()
+	 * @method \string remindActualCommentary()
+	 * @method \string requireCommentary()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetCommentary()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetCommentary()
+	 * @method \string fillCommentary()
+	 * @method \Bitrix\Main\Type\DateTime getItemsOrderDate()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setItemsOrderDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $itemsOrderDate)
+	 * @method bool hasItemsOrderDate()
+	 * @method bool isItemsOrderDateFilled()
+	 * @method bool isItemsOrderDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualItemsOrderDate()
+	 * @method \Bitrix\Main\Type\DateTime requireItemsOrderDate()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetItemsOrderDate()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetItemsOrderDate()
+	 * @method \Bitrix\Main\Type\DateTime fillItemsOrderDate()
+	 * @method \Bitrix\Main\Type\DateTime getItemsReceivedDate()
+	 * @method \Bitrix\Catalog\EO_StoreDocument setItemsReceivedDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $itemsReceivedDate)
+	 * @method bool hasItemsReceivedDate()
+	 * @method bool isItemsReceivedDateFilled()
+	 * @method bool isItemsReceivedDateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualItemsReceivedDate()
+	 * @method \Bitrix\Main\Type\DateTime requireItemsReceivedDate()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetItemsReceivedDate()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetItemsReceivedDate()
+	 * @method \Bitrix\Main\Type\DateTime fillItemsReceivedDate()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection getElements()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection requireElements()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection fillElements()
+	 * @method bool hasElements()
+	 * @method bool isElementsFilled()
+	 * @method bool isElementsChanged()
+	 * @method void addToElements(\Bitrix\Catalog\EO_StoreDocumentElement $storeDocumentElement)
+	 * @method void removeFromElements(\Bitrix\Catalog\EO_StoreDocumentElement $storeDocumentElement)
+	 * @method void removeAllElements()
+	 * @method \Bitrix\Catalog\EO_StoreDocument resetElements()
+	 * @method \Bitrix\Catalog\EO_StoreDocument unsetElements()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\EO_StoreDocument set($fieldName, $value)
+	 * @method \Bitrix\Catalog\EO_StoreDocument reset($fieldName)
+	 * @method \Bitrix\Catalog\EO_StoreDocument unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\EO_StoreDocument wakeUp($data)
+	 */
+	class EO_StoreDocument {
+		/* @var \Bitrix\Catalog\StoreDocumentTable */
+		static public $dataClass = '\Bitrix\Catalog\StoreDocumentTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * EO_StoreDocument_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getTitleList()
+	 * @method \string[] fillTitle()
+	 * @method \string[] getDocTypeList()
+	 * @method \string[] fillDocType()
+	 * @method \string[] getDocNumberList()
+	 * @method \string[] fillDocNumber()
+	 * @method \string[] getSiteIdList()
+	 * @method \string[] fillSiteId()
+	 * @method \Bitrix\Catalog\EO_Contractor[] getContractorList()
+	 * @method \Bitrix\Catalog\EO_StoreDocument_Collection getContractorCollection()
+	 * @method \Bitrix\Catalog\EO_Contractor_Collection fillContractor()
+	 * @method \int[] getContractorIdList()
+	 * @method \int[] fillContractorId()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateModifyList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateModify()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
+	 * @method \int[] getCreatedByList()
+	 * @method \int[] fillCreatedBy()
+	 * @method \Bitrix\Main\EO_User[] getCreatedByUserList()
+	 * @method \Bitrix\Catalog\EO_StoreDocument_Collection getCreatedByUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillCreatedByUser()
+	 * @method \int[] getModifiedByList()
+	 * @method \int[] fillModifiedBy()
+	 * @method \Bitrix\Main\EO_User[] getModifiedByUserList()
+	 * @method \Bitrix\Catalog\EO_StoreDocument_Collection getModifiedByUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillModifiedByUser()
+	 * @method \int[] getResponsibleIdList()
+	 * @method \int[] fillResponsibleId()
+	 * @method \Bitrix\Main\EO_User[] getResponsibleList()
+	 * @method \Bitrix\Catalog\EO_StoreDocument_Collection getResponsibleCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillResponsible()
+	 * @method \string[] getCurrencyList()
+	 * @method \string[] fillCurrency()
+	 * @method \boolean[] getStatusList()
+	 * @method \boolean[] fillStatus()
+	 * @method \boolean[] getWasCancelledList()
+	 * @method \boolean[] fillWasCancelled()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateStatusList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateStatus()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateDocumentList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateDocument()
+	 * @method \int[] getStatusByList()
+	 * @method \int[] fillStatusBy()
+	 * @method \Bitrix\Main\EO_User[] getStatusByUserList()
+	 * @method \Bitrix\Catalog\EO_StoreDocument_Collection getStatusByUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillStatusByUser()
+	 * @method \float[] getTotalList()
+	 * @method \float[] fillTotal()
+	 * @method \string[] getCommentaryList()
+	 * @method \string[] fillCommentary()
+	 * @method \Bitrix\Main\Type\DateTime[] getItemsOrderDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillItemsOrderDate()
+	 * @method \Bitrix\Main\Type\DateTime[] getItemsReceivedDateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillItemsReceivedDate()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection[] getElementsList()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection getElementsCollection()
+	 * @method \Bitrix\Catalog\EO_StoreDocumentElement_Collection fillElements()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\EO_StoreDocument $object)
+	 * @method bool has(\Bitrix\Catalog\EO_StoreDocument $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_StoreDocument getByPrimary($primary)
+	 * @method \Bitrix\Catalog\EO_StoreDocument[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\EO_StoreDocument $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\EO_StoreDocument_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\EO_StoreDocument current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_StoreDocument_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\StoreDocumentTable */
+		static public $dataClass = '\Bitrix\Catalog\StoreDocumentTable';
+	}
+}
+namespace Bitrix\Catalog {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_StoreDocument_Result exec()
+	 * @method \Bitrix\Catalog\EO_StoreDocument fetchObject()
+	 * @method \Bitrix\Catalog\EO_StoreDocument_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @see \Bitrix\Catalog\StoreDocumentTable::withProduct()
+	 * @method EO_StoreDocument_Query withProduct($productId)
+	 * @see \Bitrix\Catalog\StoreDocumentTable::withProductList()
+	 * @method EO_StoreDocument_Query withProductList($productIds)
+	 * @see \Bitrix\Catalog\StoreDocumentTable::withStore()
+	 * @method EO_StoreDocument_Query withStore($storeId)
+	 * @see \Bitrix\Catalog\StoreDocumentTable::withStoreList()
+	 * @method EO_StoreDocument_Query withStoreList($storeIds)
+	 */
+	class EO_StoreDocument_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\EO_StoreDocument fetchObject()
+	 * @method \Bitrix\Catalog\EO_StoreDocument_Collection fetchCollection()
+	 */
+	class EO_StoreDocument_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\EO_StoreDocument createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\EO_StoreDocument_Collection createCollection()
+	 * @method \Bitrix\Catalog\EO_StoreDocument wakeUpObject($row)
+	 * @method \Bitrix\Catalog\EO_StoreDocument_Collection wakeUpCollection($rows)
+	 */
+	class EO_StoreDocument_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\StoreProductTable:catalog\lib\storeproduct.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_StoreProduct
@@ -4526,6 +6388,16 @@ namespace Bitrix\Catalog {
 	 * @method \Bitrix\Catalog\EO_StoreProduct resetAmount()
 	 * @method \Bitrix\Catalog\EO_StoreProduct unsetAmount()
 	 * @method \float fillAmount()
+	 * @method \float getQuantityReserved()
+	 * @method \Bitrix\Catalog\EO_StoreProduct setQuantityReserved(\float|\Bitrix\Main\DB\SqlExpression $quantityReserved)
+	 * @method bool hasQuantityReserved()
+	 * @method bool isQuantityReservedFilled()
+	 * @method bool isQuantityReservedChanged()
+	 * @method \float remindActualQuantityReserved()
+	 * @method \float requireQuantityReserved()
+	 * @method \Bitrix\Catalog\EO_StoreProduct resetQuantityReserved()
+	 * @method \Bitrix\Catalog\EO_StoreProduct unsetQuantityReserved()
+	 * @method \float fillQuantityReserved()
 	 * @method \Bitrix\Catalog\EO_Store getStore()
 	 * @method \Bitrix\Catalog\EO_Store remindActualStore()
 	 * @method \Bitrix\Catalog\EO_Store requireStore()
@@ -4596,6 +6468,8 @@ namespace Bitrix\Catalog {
 	 * @method \int[] fillProductId()
 	 * @method \float[] getAmountList()
 	 * @method \float[] fillAmount()
+	 * @method \float[] getQuantityReservedList()
+	 * @method \float[] fillQuantityReserved()
 	 * @method \Bitrix\Catalog\EO_Store[] getStoreList()
 	 * @method \Bitrix\Catalog\EO_StoreProduct_Collection getStoreCollection()
 	 * @method \Bitrix\Catalog\EO_Store_Collection fillStore()
@@ -4660,7 +6534,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_StoreProduct_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\SubscribeTable:catalog/lib/subscribe.php:57f671d2406abd89157cd57025d60514 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\SubscribeTable:catalog\lib\subscribe.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Subscribe
@@ -4923,7 +6797,7 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_Subscribe_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\SubscribeAccessTable:catalog/lib/subscribeaccess.php:c9b325ad4e2613d9517eaef478c93573 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\SubscribeAccessTable:catalog\lib\subscribeaccess.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_SubscribeAccess
@@ -5088,7 +6962,299 @@ namespace Bitrix\Catalog {
 	 */
 	class EO_SubscribeAccess_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Catalog\VatTable:catalog/lib/vat.php:3efbca6ce0929133b02f949722d08245 */
+/* ORMENTITYANNOTATION:Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductTable:catalog\lib\v2\Integration\Seo\Entity\ExportedProductTable.php */
+namespace Bitrix\Catalog\v2\Integration\Seo\Entity {
+	/**
+	 * ExportedProduct
+	 * @see \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getProductId()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct setProductId(\int|\Bitrix\Main\DB\SqlExpression $productId)
+	 * @method bool hasProductId()
+	 * @method bool isProductIdFilled()
+	 * @method bool isProductIdChanged()
+	 * @method \int remindActualProductId()
+	 * @method \int requireProductId()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct resetProductId()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct unsetProductId()
+	 * @method \int fillProductId()
+	 * @method \string getServiceId()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct setServiceId(\string|\Bitrix\Main\DB\SqlExpression $serviceId)
+	 * @method bool hasServiceId()
+	 * @method bool isServiceIdFilled()
+	 * @method bool isServiceIdChanged()
+	 * @method \string remindActualServiceId()
+	 * @method \string requireServiceId()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct resetServiceId()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct unsetServiceId()
+	 * @method \string fillServiceId()
+	 * @method \Bitrix\Main\Type\DateTime getTimestampX()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct setTimestampX(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $timestampX)
+	 * @method bool hasTimestampX()
+	 * @method bool isTimestampXFilled()
+	 * @method bool isTimestampXChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualTimestampX()
+	 * @method \Bitrix\Main\Type\DateTime requireTimestampX()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct resetTimestampX()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct unsetTimestampX()
+	 * @method \Bitrix\Main\Type\DateTime fillTimestampX()
+	 * @method \string getError()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct setError(\string|\Bitrix\Main\DB\SqlExpression $error)
+	 * @method bool hasError()
+	 * @method bool isErrorFilled()
+	 * @method bool isErrorChanged()
+	 * @method \string remindActualError()
+	 * @method \string requireError()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct resetError()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct unsetError()
+	 * @method \string fillError()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct set($fieldName, $value)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct reset($fieldName)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct wakeUp($data)
+	 */
+	class EO_ExportedProduct {
+		/* @var \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductTable */
+		static public $dataClass = '\Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog\v2\Integration\Seo\Entity {
+	/**
+	 * ExportedProductCollection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getProductIdList()
+	 * @method \int[] fillProductId()
+	 * @method \string[] getServiceIdList()
+	 * @method \string[] fillServiceId()
+	 * @method \Bitrix\Main\Type\DateTime[] getTimestampXList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillTimestampX()
+	 * @method \string[] getErrorList()
+	 * @method \string[] fillError()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct $object)
+	 * @method bool has(\Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct getByPrimary($primary)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductCollection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_ExportedProduct_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductTable */
+		static public $dataClass = '\Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductTable';
+	}
+}
+namespace Bitrix\Catalog\v2\Integration\Seo\Entity {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_ExportedProduct_Result exec()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct fetchObject()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductCollection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_ExportedProduct_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct fetchObject()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductCollection fetchCollection()
+	 */
+	class EO_ExportedProduct_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductCollection createCollection()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProduct wakeUpObject($row)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductCollection wakeUpCollection($rows)
+	 */
+	class EO_ExportedProduct_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductQueueTable:catalog\lib\v2\Integration\Seo\Entity\ExportedProductQueueTable.php */
+namespace Bitrix\Catalog\v2\Integration\Seo\Entity {
+	/**
+	 * EO_ExportedProductQueue
+	 * @see \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductQueueTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getQueueId()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue setQueueId(\int|\Bitrix\Main\DB\SqlExpression $queueId)
+	 * @method bool hasQueueId()
+	 * @method bool isQueueIdFilled()
+	 * @method bool isQueueIdChanged()
+	 * @method \string getProductIds()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue setProductIds(\string|\Bitrix\Main\DB\SqlExpression $productIds)
+	 * @method bool hasProductIds()
+	 * @method bool isProductIdsFilled()
+	 * @method bool isProductIdsChanged()
+	 * @method \string remindActualProductIds()
+	 * @method \string requireProductIds()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue resetProductIds()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue unsetProductIds()
+	 * @method \string fillProductIds()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue set($fieldName, $value)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue reset($fieldName)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue wakeUp($data)
+	 */
+	class EO_ExportedProductQueue {
+		/* @var \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductQueueTable */
+		static public $dataClass = '\Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductQueueTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog\v2\Integration\Seo\Entity {
+	/**
+	 * EO_ExportedProductQueue_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getQueueIdList()
+	 * @method \string[] getProductIdsList()
+	 * @method \string[] fillProductIds()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue $object)
+	 * @method bool has(\Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue getByPrimary($primary)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_ExportedProductQueue_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductQueueTable */
+		static public $dataClass = '\Bitrix\Catalog\v2\Integration\Seo\Entity\ExportedProductQueueTable';
+	}
+}
+namespace Bitrix\Catalog\v2\Integration\Seo\Entity {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_ExportedProductQueue_Result exec()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue fetchObject()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_ExportedProductQueue_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue fetchObject()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue_Collection fetchCollection()
+	 */
+	class EO_ExportedProductQueue_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue_Collection createCollection()
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue wakeUpObject($row)
+	 * @method \Bitrix\Catalog\v2\Integration\Seo\Entity\EO_ExportedProductQueue_Collection wakeUpCollection($rows)
+	 */
+	class EO_ExportedProductQueue_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\VatTable:catalog\lib\vat.php */
 namespace Bitrix\Catalog {
 	/**
 	 * EO_Vat

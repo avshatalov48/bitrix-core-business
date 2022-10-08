@@ -10,7 +10,7 @@
 
 .ui-form-label {
 	display: block;
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(82, 92, 105, .85);
 	flex-shrink: 0;
 	margin-bottom: 10px;
@@ -57,6 +57,7 @@
 .ui-form-section {
 	background-color: #f8f9fa;
 	margin-bottom: 0;
+	border-radius: var(--ui-form-section-border-radius);
 }
 
 .ui-form-section > .ui-form-row {

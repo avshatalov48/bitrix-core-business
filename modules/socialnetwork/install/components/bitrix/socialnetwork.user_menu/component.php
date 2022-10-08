@@ -256,7 +256,7 @@ else
 		$arResult["CanView"]["forum"] = (array_key_exists("forum", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "forum", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 		$arResult["CanView"]["content_search"] = (array_key_exists("search", $arResult["ActiveFeatures"]) && CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_USER, $arResult["User"]["ID"], "search", "view", CSocNetUser::IsCurrentUserModuleAdmin()));
 
-		$arResult["Title"]["blog"] = ((array_key_exists("blog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["blog"] <> '') ? $arResult["ActiveFeatures"]["blog"] : GetMessage("SONET_UM_STREAM"));
+		$arResult["Title"]["blog"] = ((array_key_exists("blog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["blog"] <> '') ? $arResult["ActiveFeatures"]["blog"] : GetMessage("SONET_UM_STREAM_NEWS"));
 		$arResult["Title"]["microblog"] = ((array_key_exists("microblog", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["microblog"] <> '') ? $arResult["ActiveFeatures"]["microblog"] : GetMessage("SONET_UM_MICROBLOG"));
 		$arResult["Title"]["photo"] = ((array_key_exists("photo", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["photo"] <> '') ? $arResult["ActiveFeatures"]["photo"] : GetMessage("SONET_UM_PHOTO"));
 		$arResult["Title"]["forum"] = ((array_key_exists("forum", $arResult["ActiveFeatures"]) && $arResult["ActiveFeatures"]["forum"] <> '') ? $arResult["ActiveFeatures"]["forum"] : GetMessage("SONET_UM_FORUM"));

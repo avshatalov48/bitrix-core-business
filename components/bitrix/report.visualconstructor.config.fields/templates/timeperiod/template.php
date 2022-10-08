@@ -23,7 +23,7 @@ $yearValue = !empty($configurationValue['year']) ? $configurationValue['year'] :
 $quarterValue = !empty($configurationValue['quarter']) ? $configurationValue['quarter'] : $field->getCurrentQuarter();
 $monthValue = !empty($configurationValue['month']) ? $configurationValue['month'] : $field->getCurrentMonth();
 
-
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
 ?>
 <div class="report-configuration-item report-configuration-item-inline report-configuration-time-period-item">
 	<?php if ($field->isDisplayLabel()): ?>

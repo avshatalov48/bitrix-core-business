@@ -6,7 +6,7 @@
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 define("HELP_FILE", "favorites/favorite_admin.php");
 
 if(!$USER->CanDoOperation('edit_own_profile') && !$USER->CanDoOperation('edit_other_settings') && !$USER->CanDoOperation('view_other_settings'))

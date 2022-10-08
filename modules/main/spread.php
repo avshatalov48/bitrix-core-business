@@ -57,8 +57,6 @@ if (isset($_GET['k']) && isset($_GET['s']) && is_string($_GET['k']) && is_string
 						$kernelSession["SESS_AUTH"] = [];
 						unset($kernelSession["SESS_AUTH"]);
 						unset($kernelSession["SESS_OPERATIONS"]);
-						unset($kernelSession["MODULE_PERMISSIONS"]);
-						unset($kernelSession["SESS_PWD_HASH_TESTED"]);
 					}
 				}
 			}

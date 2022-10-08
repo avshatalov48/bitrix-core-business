@@ -1,50 +1,122 @@
-import { Type } from "main.core";
-import { EventEmitter, BaseEvent } from "main.core.events";
+import { Type, Runtime } from "main.core";
+import { BaseContext } from "./base-context";
+import { Document, UserOptions, Tracker } from "bizproc.automation";
 
-export class Context extends EventEmitter
+export class Context extends BaseContext
 {
-	#values: Object<string, any>;
+	constructor(props: {
+		document: Document,
+		signedDocument: string,
+		ajaxUrl: string,
+		availableRobots?: Array<Object>,
+		availableTriggers?: Array<Object>,
+		canManage?: boolean,
+		canEdit?: boolean,
+		userOptions?: UserOptions,
+		tracker?: Tracker,
 
-	constructor(defaultValue: Object<string, any>)
+		bizprocEditorUrl?: string,
+		constantsEditorUrl?: string,
+		parametersEditorUrl?: string,
+
+		marketplaceRobotCategory?: string,
+	})
 	{
-		super();
+		super(props);
+	}
 
-		this.setEventNamespace('BX.Bizproc.Automation.Context');
-		if (Type.isPlainObject(defaultValue))
+	clone(): this
+	{
+		// TODO - clone Tracker object when the corresponding method appears
+		return (new Context(Runtime.clone(this.getValues())))
+			.set('document', this.document.clone())
+			.set('userOptions', this.userOptions?.clone())
+		;
+	}
+
+	get document(): ?Document
+	{
+		return this.get('document');
+	}
+
+	get signedDocument(): string
+	{
+		return this.get('signedDocument') ?? '';
+	}
+
+	get ajaxUrl(): string
+	{
+		return this.get('ajaxUrl') ?? '';
+	}
+
+	get availableRobots(): Array<Object>
+	{
+		const availableRobots = this.get('availableRobots');
+		if (Type.isArray(availableRobots))
 		{
-			this.#values = defaultValue;
+			return availableRobots;
 		}
+
+		return [];
 	}
 
-
-	set(name: string, value: any): this
+	get availableTriggers(): Array<Object>
 	{
-		const isValueChanged = this.has(name);
-		this.#values[name] = value;
-		this.emit(isValueChanged ? 'valueChanged' : 'valueAdded', {name, value})
+		const availableTriggers = this.get('availableTriggers');
+		if (Type.isArray(availableTriggers))
+		{
+			return availableTriggers;
+		}
 
-		return this;
+		return [];
 	}
 
-	get(name: string): any
+	get canManage(): boolean
 	{
-		return this.#values[name];
+		const canManage = this.get('canManage');
+
+		return Type.isBoolean(canManage) && canManage;
 	}
 
-	has(name: string): boolean
+	get canEdit(): boolean
 	{
-		return this.#values.hasOwnProperty(name);
+		const canEdit = this.get('canEdit');
+
+		return Type.isBoolean(canEdit) && canEdit;
 	}
 
-	subsribeValueChanges(name: string, listener: (BaseEvent) => void): this
+	get userOptions(): ?UserOptions
 	{
-		this.subscribe('valueChanged', (event) => {
-			if (event.data.name === name)
-			{
-				listener(event);
-			}
-		});
+		return this.get('userOptions');
+	}
 
-		return this;
+	get tracker(): ?Tracker
+	{
+		return this.get('tracker');
+	}
+
+	set tracker(tracker: Tracker)
+	{
+		this.set('tracker', tracker);
+	}
+
+	get bizprocEditorUrl(): ?string
+	{
+		return this.get('bizprocEditorUrl');
+	}
+
+	get constantsEditorUrl(): ?string
+	{
+		return this.get('constantsEditorUrl');
+	}
+
+	get parametersEditorUrl(): ?string
+	{
+		return this.get('parametersEditorUrl');
+	}
+
+	getAvailableTrigger(code: string): ?Object
+	{
+		return this.availableTriggers.find(trigger => trigger['CODE'] === code);
 	}
 }

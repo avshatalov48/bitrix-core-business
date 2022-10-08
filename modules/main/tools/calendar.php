@@ -7,7 +7,7 @@ if(isset($_GET["admin_section"]) && $_GET["admin_section"] == "Y")
 else
 	define("BX_PUBLIC_TOOLS", true);
 
-require_once(dirname(__FILE__)."/../include/prolog_before.php");
+require_once(__DIR__."/../include/prolog_before.php");
 IncludeModuleLangFile(__FILE__);
 
 $sDocPath = $APPLICATION->GetCurPage();

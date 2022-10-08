@@ -98,6 +98,38 @@ export class Collection extends EventEmitter
 		return item;
 	}
 
+	get(id: number | string): ?Item
+	{
+		return this.list().filter(item => item.getId() === id)[0];
+	}
+
+	change(id: number | string, options: ItemOptions): ?Item
+	{
+		const foundItem = this.list().find((item: Item) => item.getId() === id);
+
+		if (foundItem)
+		{
+			foundItem.change(options);
+
+			return foundItem;
+		}
+
+		return null;
+	}
+
+	remove(id: number | string)
+	{
+		const foundItem = this.list().find((item: Item) => item.getId() === id);
+		if (foundItem)
+		{
+			this.emit('change');
+
+			this.#list = this.list().filter(otherItem => otherItem !== foundItem);
+
+			foundItem.remove();
+		}
+	}
+
 	setItems(items: Array<ItemOptions> = []): Collection
 	{
 		this.#list = items.map(itemOptions => this.#addSilent(itemOptions));

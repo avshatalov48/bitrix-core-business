@@ -1,8 +1,12 @@
 import { Tag } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 import { Item } from './item.js';
+
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
 import './css/ui-wrappermenu.css';
 import './css/style.css';
+
 
 export class DirectoryMenu
 {
@@ -10,7 +14,7 @@ export class DirectoryMenu
 	#menu = Tag.render`<ul class="ui-mail-left-directory-menu"></ul>`;
 	#directoryCounters = new Map();
 	#items = new Map();
-	#systemDirs =[];
+	#systemDirs = [];
 
 	getActiveDir()
 	{
@@ -58,20 +62,6 @@ export class DirectoryMenu
 		this.clearActiveMenuButtons();
 		this.setActiveDir(path);
 		this.setFilterDir(path);
-	}
-
-	checkDirectoryForExistence(checkPath)
-	{
-		for (let i = 0; i < this.#directoryCounters.length; i++)
-		{
-			const directory = this.#directoryCounters[i];
-			const path = directory['path'];
-			if(checkPath === path)
-			{
-				return true;
-			}
-		}
-		return false;
 	}
 
 	buildMenu(firstBuild = false)
@@ -171,11 +161,8 @@ export class DirectoryMenu
 
 			let dir = BX.Mail.Home.Counters.getDirPath(this.filter.getFilterFieldsValues()['DIR']);
 
-			if(this.checkDirectoryForExistence(dir))
-			{
-				EventEmitter.emit('BX.DirectoryMenu:onChangeFilter', new BaseEvent({ data: { directory: dir } }));
-				this.setDirectory(dir)
-			}
+			EventEmitter.emit('BX.DirectoryMenu:onChangeFilter', new BaseEvent({ data: { directory: dir } }));
+			this.setDirectory(dir)
 		});
 
 		this.#directoryCounters = config['dirsWithUnseenMailCounters'];

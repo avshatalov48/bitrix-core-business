@@ -457,8 +457,8 @@ if((isset($fields["CLASS_NAME"]) && $fields["CLASS_NAME"] <> '') || $parentServi
 			{
 				$fields["NAME"] = $service->getName();
 				$fields["DESCRIPTION"] = $service->getDescription();
-				$fields["LOGOTIP"] = $service->getLogotip();
 			}
+			$fields["LOGOTIP"] = $service->getLogotip();
 
 			if($fields["NAME"] == '')
 				$fields["NAME"] = $service->getClassTitle();

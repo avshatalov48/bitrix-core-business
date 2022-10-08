@@ -38,6 +38,13 @@ export class RecentPullHandler
 		{
 			return false;
 		}
+
+		const currentUserId = this.store.state.application.common.userId;
+		if (currentUserId && params.userInChat[params.chatId] && !params.userInChat[params.chatId].includes(currentUserId))
+		{
+			return false;
+		}
+
 		Logger.warn('RecentPullHandler: handleMessageAdd', params);
 		const newRecentItem = {
 			id: params.dialogId,
@@ -62,6 +69,18 @@ export class RecentPullHandler
 				id: params.dialogId,
 				liked: false
 			});
+		}
+
+		const {senderId} = params.message;
+		const usersModel = this.store.state.users;
+		if (usersModel?.botList[senderId] && usersModel.botList[senderId].type === 'human')
+		{
+			const {text} = params.message;
+			setTimeout(() => {
+				this.store.dispatch('recent/set', newRecentItem);
+			}, this.getWaitTimeForHumanBot(text));
+
+			return;
 		}
 
 		this.store.dispatch('recent/set', newRecentItem);
@@ -125,6 +144,23 @@ export class RecentPullHandler
 		this.handleReadMessageOpponent(params);
 	}
 
+	handleUnreadMessageOpponent(params)
+	{
+		Logger.warn('RecentPullHandler: handleUnreadMessageOpponent', params);
+		const recentItem = this.store.getters['recent/get'](params.dialogId);
+		if (!recentItem)
+		{
+			return false;
+		}
+
+		this.store.dispatch('recent/update', {
+			id: params.dialogId,
+			fields: {
+				message: {...recentItem.message, status: MessageStatus.received}
+			}
+		});
+	}
+
 	handleMessageLike(params)
 	{
 		Logger.warn('RecentPullHandler: handleMessageLike', params);
@@ -165,6 +201,21 @@ export class RecentPullHandler
 		}
 
 		this.store.dispatch('recent/pin', {
+			id: params.dialogId,
+			action: params.active
+		});
+	}
+
+	handleChatUnread(params)
+	{
+		Logger.warn('RecentPullHandler: handleChatUnread', params);
+		const recentItem = this.store.getters['recent/get'](params.dialogId);
+		if (!recentItem)
+		{
+			return false;
+		}
+
+		this.store.dispatch('recent/unread', {
 			id: params.dialogId,
 			action: params.active
 		});
@@ -237,5 +288,20 @@ export class RecentPullHandler
 			console.warn('NO SUCH USER, NEED REQUEST FOR -', userId);
 			EventEmitter.emit(EventType.recent.requestUser, {userId});
 		}
+	}
+
+	getWaitTimeForHumanBot(text)
+	{
+		const INITIAL_WAIT = 1000;
+		const WAIT_PER_WORD = 300;
+		const WAIT_LIMIT = 5000;
+
+		let waitTime = (text.split(' ').length * WAIT_PER_WORD) + INITIAL_WAIT;
+		if (waitTime > WAIT_LIMIT)
+		{
+			waitTime = WAIT_LIMIT;
+		}
+
+		return waitTime;
 	}
 }

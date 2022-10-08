@@ -9,21 +9,108 @@ use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Bitrix\Main\UI\PageNavigation;
+use Bitrix\Rest\Event\EventBindInterface;
 
-final class RoundingRule extends Controller
+final class RoundingRule extends Controller implements EventBindInterface
 {
-	//region Actions
-	public function getFieldsAction()
-	{
-		$view = $this->getViewManager()
-			->getView($this);
+	use PriceTypeRights;
 
-		return ['ROUNDING_RULE'=>$view->prepareFieldInfos(
-			$view->getFields()
-		)];
+	//region Actions
+
+	/**
+	 * @param array $fields
+	 * @return array|null
+	 */
+	public function addAction(array $fields): ?array
+	{
+		$checkFieldsResult = $this->checkFields($fields);
+		if (!$checkFieldsResult->isSuccess())
+		{
+			$this->addErrors($checkFieldsResult->getErrors());
+			return null;
+		}
+
+		$addResult = RoundingTable::add($fields);
+		if (!$addResult->isSuccess())
+		{
+			$this->addErrors($addResult->getErrors());
+			return null;
+		}
+
+		return ['ROUNDING_RULE' => $this->get($addResult->getId())];
 	}
 
-	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
+	/**
+	 * @param int $id
+	 * @param array $fields
+	 * @return array|null
+	 */
+	public function updateAction(int $id, array $fields): ?array
+	{
+		$existsResult = $this->exists($id);
+		if (!$existsResult->isSuccess())
+		{
+			$this->addErrors($existsResult->getErrors());
+			return null;
+		}
+
+		$checkFieldsResult = $this->checkFields($fields);
+		if (!$checkFieldsResult->isSuccess())
+		{
+			$this->addErrors($checkFieldsResult->getErrors());
+			return null;
+		}
+
+		$updateResult = RoundingTable::update($id, $fields);
+		if (!$updateResult)
+		{
+			$this->addErrors($updateResult->getErrors());
+			return null;
+		}
+
+		return ['ROUNDING_RULE' => $this->get($id)];
+	}
+
+	/**
+	 * @param int $id
+	 * @return bool|null
+	 */
+	public function deleteAction(int $id): ?bool
+	{
+		$existsResult = $this->exists($id);
+		if (!$existsResult->isSuccess())
+		{
+			$this->addErrors($existsResult->getErrors());
+			return null;
+		}
+
+		$deleteResult = RoundingTable::delete($id);
+		if (!$deleteResult)
+		{
+			$this->addErrors($deleteResult->getErrors());
+			return null;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getFieldsAction(): array
+	{
+		return ['ROUNDING_RULE' => $this->getViewFields()];
+	}
+
+	/**
+	 * @param array $select
+	 * @param array $filter
+	 * @param array $order
+	 * @param PageNavigation $pageNavigation
+	 * @return Page
+	 * @noinspection PhpOptionalBeforeRequiredParametersInspection
+	 */
+	public function listAction($select = [], $filter = [], $order = [], PageNavigation $pageNavigation): Page
 	{
 		return new Page('ROUNDING_RULES',
 			$this->getList($select, $filter, $order, $pageNavigation),
@@ -31,12 +118,16 @@ final class RoundingRule extends Controller
 		);
 	}
 
-	public function getAction($id)
+	/**
+	 * @param $id
+	 * @return array|null
+	 */
+	public function getAction($id): ?array
 	{
 		$r = $this->exists($id);
-		if($r->isSuccess())
+		if ($r->isSuccess())
 		{
-			return ['ROUNDING_RULE'=>$this->get($id)];
+			return ['ROUNDING_RULE' => $this->get($id)];
 		}
 		else
 		{
@@ -46,42 +137,62 @@ final class RoundingRule extends Controller
 	}
 	//endregion
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function exists($id)
 	{
 		$r = new Result();
-		if(isset($this->get($id)['ID']) == false)
-			$r->addError(new Error('Rounding is not exists'));
+		if (isset($this->get($id)['ID']) == false)
+		{
+			$r->addError(new Error('Rounding does not exist'));
+		}
 
 		return $r;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	protected function getEntityTable()
 	{
 		return new RoundingTable();
 	}
 
-	protected function checkModifyPermissionEntity()
+	/**
+	 * @param array $fields
+	 * @return Result
+	 */
+	private function checkFields(array $fields): Result
 	{
-		$r = $this->checkReadPermissionEntity();
-		if($r->isSuccess())
+		$result = new Result();
+
+		if (array_key_exists('ROUND_TYPE', $fields))
 		{
-			if (!static::getGlobalUser()->CanDoOperation('catalog_group'))
+			if (!in_array($fields['ROUND_TYPE'], RoundingTable::getRoundTypes()))
 			{
-				$r->addError(new Error('Access Denied', 200040300020));
+				$result->addError(
+					new Error(
+						'Invalid rounding type provided. The available values are: '
+						. implode(', ', RoundingTable::getRoundTypes())
+					)
+				);
 			}
 		}
 
-		return $r;
-	}
-
-	protected function checkReadPermissionEntity()
-	{
-		$r = new Result();
-
-		if (!(static::getGlobalUser()->CanDoOperation('catalog_read') || static::getGlobalUser()->CanDoOperation('catalog_group')))
+		if (array_key_exists('ROUND_PRECISION', $fields))
 		{
-			$r->addError(new Error('Access Denied', 200040300010));
+			if (!in_array($fields['ROUND_PRECISION'], RoundingTable::getPresetRoundingValues()))
+			{
+				$result->addError(
+					new Error(
+						'Invalid rounding precision provided. The available values are: '
+						. implode(', ', RoundingTable::getPresetRoundingValues())
+					)
+				);
+			}
 		}
-		return $r;
+
+		return $result;
 	}
 }

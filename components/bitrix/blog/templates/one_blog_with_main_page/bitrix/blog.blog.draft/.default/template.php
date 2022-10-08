@@ -1,5 +1,11 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
+
 if(!empty($arResult["OK_MESSAGE"]))
 {
 	foreach($arResult["OK_MESSAGE"] as $v)
@@ -96,4 +102,4 @@ elseif(is_array($arResult["POST"]) && count($arResult["POST"])>0)
 }
 else
 	echo GetMessage("B_B_DRAFT_NO_MES");
-?>	
+?>

@@ -75,7 +75,7 @@ export class Tracker
 					{
 						const isRobotRunning = (robotEntry.status === TrackingStatus.RUNNING);
 						const isWorkflowCompleted =
-							(robotEntry.workflowStatus === WorkflowStatus.COMPLETED_WORKFLOW_STATUS)
+							(robotEntry.workflowStatus === WorkflowStatus.COMPLETED)
 						;
 						const isCurrentStatus = (this.#document.getCurrentStatusId() === statusId);
 

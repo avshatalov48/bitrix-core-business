@@ -13,6 +13,7 @@ return [
 		'landing.loc',
 		'landing.ui.card.basecard',
 		'landing.ui.card.iconoptionscard',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

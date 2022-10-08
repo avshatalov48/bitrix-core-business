@@ -140,5 +140,6 @@ $MESS["main_menu_sms_templates"] = "Шаблоны СМС";
 $MESS["main_menu_sms_templates_title"] = "Шаблоны СМС-сообщений";
 $MESS["MAIN_MENU_SMTP_CONFIG"] = "Настройки SMTP";
 $MESS["MAIN_MENU_SMTP_CONFIG_TITLE"] = "Настройки SMTP";
-
+$MESS['main_admin_menu_devices'] = 'Устройства пользователей';
+$MESS['main_admin_menu_devices_title'] = 'Список устройств пользователей';
 ?>

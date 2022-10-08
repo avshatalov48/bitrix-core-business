@@ -36,8 +36,7 @@ CREATE TABLE b_im_chat_index
 (
 	CHAT_ID int(11) not null,
 	SEARCH_CONTENT mediumtext null,
-	SEARCH_TITLE varchar(255) null,
-	SEARCH_USERS mediumtext null,
+	SEARCH_TITLE varchar(511) null,
 	PRIMARY KEY (CHAT_ID),
 	KEY IX_IM_CHAT_INDEX_1 (SEARCH_TITLE)
 );

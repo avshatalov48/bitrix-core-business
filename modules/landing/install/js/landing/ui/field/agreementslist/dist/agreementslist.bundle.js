@@ -1,48 +1,14 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,main_popup,landing_ui_field_basefield,ui_draganddrop_draggable,landing_ui_field_radiobuttonfield,landing_ui_form_formsettingsform,crm_form_client,landing_ui_component_listitem,landing_ui_component_actionpanel,main_core_events,main_loader,landing_backend,landing_ui_panel_formsettingspanel) {
+(function (exports,ui_designTokens,main_core,main_popup,landing_ui_field_basefield,ui_draganddrop_draggable,landing_ui_field_radiobuttonfield,landing_ui_form_formsettingsform,crm_form_client,landing_ui_component_listitem,landing_ui_component_actionpanel,main_core_events,main_loader,landing_backend,landing_ui_panel_formsettingspanel) {
 	'use strict';
 
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"landing-ui-field-agreements-list-actions-button\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"]);
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
 
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"landing-ui-field-agreements-list-actions-button\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-agreements-list-actions-container\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-agreements-list-container\"></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	/**
 	 * @memberOf BX.Landing.UI.Field
@@ -139,7 +105,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getListContainer",
 	    value: function getListContainer() {
 	      return this.cache.remember('listContainer', function () {
-	        return main_core.Tag.render(_templateObject());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-agreements-list-container\"></div>"])));
 	      });
 	    }
 	  }, {
@@ -148,7 +114,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('actionsContainer', function () {
-	        return main_core.Tag.render(_templateObject2(), _this3.getSelectAgreementButton(), _this3.getCreateAgreementButton());
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-agreements-list-actions-container\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this3.getSelectAgreementButton(), _this3.getCreateAgreementButton());
 	      });
 	    }
 	  }, {
@@ -157,7 +123,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this4 = this;
 
 	      return this.cache.remember('selectAgreementButton', function () {
-	        return main_core.Tag.render(_templateObject3(), _this4.onSelectAgreementClick, main_core.Loc.getMessage('LANDING_AGREEMENT_LIST_SELECT_BUTTON_LABEL'));
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"landing-ui-field-agreements-list-actions-button\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), _this4.onSelectAgreementClick, main_core.Loc.getMessage('LANDING_AGREEMENT_LIST_SELECT_BUTTON_LABEL'));
 	      });
 	    }
 	  }, {
@@ -166,7 +132,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this5 = this;
 
 	      return this.cache.remember('createAgreementButton', function () {
-	        return main_core.Tag.render(_templateObject4(), _this5.onCreateAgreementClick, main_core.Loc.getMessage('LANDING_AGREEMENT_LIST_CREATE_BUTTON_LABEL'));
+	        return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"landing-ui-field-agreements-list-actions-button\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), _this5.onCreateAgreementClick, main_core.Loc.getMessage('LANDING_AGREEMENT_LIST_CREATE_BUTTON_LABEL'));
 	      });
 	    }
 	  }, {
@@ -222,7 +188,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var agreementsMenu = this.getAgreementsMenu();
 	      agreementsMenu.close();
 	      agreementsMenu.destroy();
-	      this.cache.delete('agreementsMenu');
+	      this.cache["delete"]('agreementsMenu');
 	    } // eslint-disable-next-line class-methods-use-this
 
 	  }, {
@@ -518,7 +484,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	              });
 
 	              if (resultAgreement) {
-	                _this9.addItem(babelHelpers.objectSpread({}, resultAgreement, {
+	                _this9.addItem(_objectSpread(_objectSpread({}, resultAgreement), {}, {
 	                  checked: agreement.checked,
 	                  required: agreement.required
 	                }));
@@ -585,5 +551,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.AgreementsList = AgreementsList;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Main,BX.Landing.UI.Field,BX.UI.DragAndDrop,BX.Landing.UI.Field,BX.Landing.UI.Form,BX.Crm.Form,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Event,BX,BX.Landing,BX.Landing.UI.Panel));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX,BX.Main,BX.Landing.UI.Field,BX.UI.DragAndDrop,BX.Landing.UI.Field,BX.Landing.UI.Form,BX.Crm.Form,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Event,BX,BX.Landing,BX.Landing.UI.Panel));
 //# sourceMappingURL=agreementslist.bundle.js.map

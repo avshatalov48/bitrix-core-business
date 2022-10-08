@@ -11,6 +11,7 @@ return [
 		'main.core',
 		'landing.ui.card.basecard',
 		'landing.loc',
+		'ui.fonts.opensans',
 		'landing.ui.panel.iconpanel',
 	],
 	'skip_core' => false,

@@ -3429,7 +3429,7 @@ class CAllIBlockElement
 				else
 					$arFields["SEARCHABLE_CONTENT"] .= "\r\n".$arFields["DETAIL_TEXT"];
 			}
-			$arFields["SEARCHABLE_CONTENT"] = ToUpper($arFields["SEARCHABLE_CONTENT"]);
+			$arFields["SEARCHABLE_CONTENT"] = mb_strtoupper($arFields["SEARCHABLE_CONTENT"]);
 		}
 
 		if(!$this->CheckFields($arFields) || $strWarning != '')
@@ -3621,7 +3621,7 @@ class CAllIBlockElement
 
 			$Result = $ID;
 			$arFields["ID"] = &$ID;
-			$_SESSION["SESS_RECOUNT_DB"] = "Y";
+			CDiskQuota::recalculateDb();
 			self::$elementIblock[$ID] = $arIBlock['ID'];
 		}
 
@@ -3862,9 +3862,10 @@ class CAllIBlockElement
 			{
 				$err = "";
 				$err_id = false;
-				if($ex = $APPLICATION->GetException())
+				$ex = $APPLICATION->GetException();
+				if (is_object($ex))
 				{
-					$err .= ($err? ': ': '').$ex->GetString();
+					$err = $ex->GetString();
 					$err_id = $ex->GetID();
 				}
 				$APPLICATION->throwException($err, $err_id);
@@ -3955,7 +3956,7 @@ class CAllIBlockElement
 				static $arDelCache = array();
 				if(!is_set($arDelCache, $zr["IBLOCK_ID"]))
 				{
-					$arDelCache[$zr["IBLOCK_ID"]] = false;
+					$arDelCache[$zr["IBLOCK_ID"]] = [];
 					$db_ps = $DB->Query("SELECT ID,IBLOCK_ID,VERSION,MULTIPLE FROM b_iblock_property WHERE PROPERTY_TYPE='E' AND (LINK_IBLOCK_ID=".$zr["IBLOCK_ID"]." OR LINK_IBLOCK_ID=0 OR LINK_IBLOCK_ID IS NULL)");
 					while($ar_ps = $db_ps->Fetch())
 					{
@@ -4066,7 +4067,7 @@ class CAllIBlockElement
 			}
 		}
 		/************* QUOTA *************/
-		$_SESSION["SESS_RECOUNT_DB"] = "Y";
+		CDiskQuota::recalculateDb();
 		/************* QUOTA *************/
 		return true;
 	}
@@ -4822,7 +4823,7 @@ class CAllIBlockElement
 	{
 		global $DB;
 		$ID = (int)$ID;
-		$res = false;
+
 		$sectionId = (int)$sectionId;
 		if ($sectionId > 0)
 		{
@@ -4879,6 +4880,8 @@ class CAllIBlockElement
 			{
 				$oldInSections = $res["IN_SECTIONS"];
 				$newInSections = ($res["C"] > 0? "Y": "N");
+				$oldSectionId = (int)$res["IBLOCK_SECTION_ID"];
+				$newSectionId = (int)$res["MIN_IBLOCK_SECTION_ID"];
 
 				$arIBlock = CIBlock::GetArrayByID($res["IBLOCK_ID"]);
 				if (
@@ -4886,18 +4889,29 @@ class CAllIBlockElement
 					&& $oldInSections === $newInSections
 				)
 				{
-					//We'll keep IBLOCK_SECTION_ID
-					return;
+					$res2 = $DB->Query("
+						SELECT
+							SE.IBLOCK_SECTION_ID
+						FROM
+							b_iblock_section_element SE
+						WHERE
+							SE.IBLOCK_ELEMENT_ID = ".$ID."
+							AND SE.IBLOCK_SECTION_ID = ".$oldSectionId."
+							AND SE.ADDITIONAL_PROPERTY_ID IS NULL
+					");
+					$res2 = $res2->Fetch();
+					if ($res2)
+					{
+						//We'll keep IBLOCK_SECTION_ID
+						return;
+					}
 				}
-
-				$oldSectionId = (int)$res["IBLOCK_SECTION_ID"];
-				$newSectionId = (int)$res["MIN_IBLOCK_SECTION_ID"];
 			}
 			else
 			{
 				//No such element
 				$oldInSections = "";
-				$newInSections = ($res["C"] > 0? "Y": "N");
+				$newInSections = "N";
 				$oldSectionId = 0;
 				$newSectionId = 0;
 			}
@@ -5534,7 +5548,10 @@ class CAllIBlockElement
 		$propertyIterator = Iblock\PropertyTable::getList(array(
 			'select' => $selectFields,
 			'filter' => $propertyListFilter,
-			'order' => array('SORT'=>'ASC', 'ID'=>'ASC')
+			'order' => array('SORT'=>'ASC', 'ID'=>'ASC'),
+			'cache' => array(
+				'ttl' => 86400,
+			),
 		));
 		while ($property = $propertyIterator->fetch())
 		{
@@ -6941,7 +6958,7 @@ class CAllIBlockElement
 			}
 		}
 		/****************************** QUOTA ******************************/
-		$_SESSION["SESS_RECOUNT_DB"] = "Y";
+		CDiskQuota::recalculateDb();
 		/****************************** QUOTA ******************************/
 
 		foreach (GetModuleEvents("iblock", "OnAfterIBlockElementSetPropertyValuesEx", true) as $arEvent)
@@ -7116,7 +7133,6 @@ class CAllIBlockElement
 		if (!empty($properties))
 		{
 			$connection = Main\Application::getConnection();
-			$helper = $connection->getSqlHelper();
 			if ($iblock["VERSION"] == Iblock\IblockTable::PROPERTY_STORAGE_COMMON)
 			{
 				$iterator = $connection->query("

@@ -23,7 +23,8 @@
 	display: block;
 	padding: 0 8px;
 	margin-bottom: 20px;
-	font-family: "OpenSans-Light", Arial, "Helvetica Neue", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	font-size: 24px;
 	color: #333;
 	line-height: 32px;
@@ -222,7 +223,8 @@
 	margin: 0 6px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font-family: "OpenSans-Regular", Arial, "Helvetica Neue", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 14px;
 	color: #333;
 	letter-spacing: 0;
@@ -259,7 +261,7 @@
 
 .ui-access-rights-column-item-text-link {
 	display: inline-block;
-	font-family: "Helvetica Neue", HelveticaNeue, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	color: #80868e;
 	padding: 1px 0;
@@ -293,7 +295,8 @@
 	border-radius: 2px;
 	background: #fff;
 	border: none;
-	font-family: "OpenSans-Regular", Arial, "Helvetica Neue", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 15px;
 	line-height: 22px;
 	color: #333;
@@ -415,7 +418,7 @@
 	display: inline-block;
 	position: relative;
 	padding: 5px 0 1px 0;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	color: #9b9b9b;
 	border-bottom: 1px dashed rgba(155,155,155,.4);
@@ -575,7 +578,8 @@ div.ui-access-rights-members-item-new:last-of-type {
 .ui-access-rights-popup-toggler-title-item {
 	display: inline-block;
 	vertical-align: top;
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 11px;
 	color: #828b95;
 	line-height: 35px;
@@ -620,7 +624,7 @@ div.ui-access-rights-members-item-new:last-of-type {
 .ui-access-rights-popup-toggler-content-item {
 	display: flex;
 	margin-bottom: 5px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	background: rgba(82,92,105,.0);
 	border-radius: 2px;
 	transition: .1s;
@@ -678,7 +682,7 @@ div.ui-access-rights-members-item-new:last-of-type {
 .ui-access-rights-popup-toggler-footer-link {
 	display: inline-block;
 	margin-left: 13px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	color: #2066b0;
 	line-height: 20px;

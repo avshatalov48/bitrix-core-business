@@ -11,6 +11,7 @@ if ($arParams["UI_FILTER"])
 	$arParams["USE_POPUP"] = true;
 }
 
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
 ?>
 
 <?if(!empty($arResult['ERRORS']['FATAL'])):?>
@@ -21,7 +22,6 @@ if ($arParams["UI_FILTER"])
 
 <?else:?>
 
-	<?CJSCore::Init();?>
 	<?$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_widget.js')?>
 	<?$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_etc.js')?>
 	<?$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/sale/core_ui_autocomplete.js');?>

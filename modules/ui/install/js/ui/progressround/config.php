@@ -8,6 +8,7 @@ return [
 	'css' => 'ui.progressround.css',
 	'js' => 'dist/progressround.bundle.js',
 	'rel' => [
+		'ui.fonts.opensans',
 		'main.core',
 	],
 	'skip_core' => false,

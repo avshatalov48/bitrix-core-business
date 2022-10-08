@@ -129,6 +129,65 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	}
 
+	class UnreadManager {
+	  constructor($Bitrix) {
+	    this.store = null;
+	    this.restClient = null;
+	    this.store = $Bitrix.Data.get('controller').store;
+	    this.restClient = $Bitrix.RestClient.get();
+	  }
+
+	  readDialog(dialogId) {
+	    let queryParams;
+	    const dialog = this.store.getters['dialogues/get'](dialogId, true);
+
+	    if (dialog.counter > 0) {
+	      queryParams = {
+	        'DIALOG_ID': dialogId
+	      };
+	      this.restClient.callMethod(im_v2_const.RestMethod.imDialogRead, queryParams).catch(error => {
+	        console.error('Im.RecentList: error reading chat', error);
+	      });
+	      return;
+	    }
+
+	    this.store.dispatch('recent/unread', {
+	      id: dialogId,
+	      action: false
+	    });
+	    queryParams = {
+	      'DIALOG_ID': dialogId,
+	      'ACTION': 'N'
+	    };
+	    this.restClient.callMethod(im_v2_const.RestMethod.imRecentUnread, queryParams).catch(error => {
+	      console.error('Im.RecentList: error reading chat', error);
+	      this.store.dispatch('recent/unread', {
+	        id: dialogId,
+	        action: true
+	      });
+	    });
+	  }
+
+	  unreadDialog(dialogId) {
+	    this.store.dispatch('recent/unread', {
+	      id: dialogId,
+	      action: true
+	    });
+	    const queryParams = {
+	      'DIALOG_ID': dialogId,
+	      'ACTION': 'Y'
+	    };
+	    this.restClient.callMethod(im_v2_const.RestMethod.imRecentUnread, queryParams).catch(error => {
+	      console.error('Im.RecentList: error unreading chat', error);
+	      this.store.dispatch('recent/unread', {
+	        id: dialogId,
+	        action: false
+	      });
+	    });
+	  }
+
+	}
+
 	class MuteManager {
 	  constructor($Bitrix) {
 	    this.store = null;
@@ -272,10 +331,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  constructor($Bitrix) {
 	    super($Bitrix);
 	    this.pinManager = null;
+	    this.unreadManager = null;
 	    this.muteManager = null;
 	    this.callHelper = null;
 	    this.id = 'im-recent-context-menu';
 	    this.pinManager = new PinManager($Bitrix);
+	    this.unreadManager = new UnreadManager($Bitrix);
 	    this.muteManager = new MuteManager($Bitrix);
 	    this.callHelper = new CallHelper($Bitrix);
 	  }
@@ -297,7 +358,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.getInviteItems();
 	    }
 
-	    return [this.getSendMessageItem(), this.getPinMessageItem(), this.getMuteItem(), this.getCallItem(), this.getHistoryItem(), this.getOpenProfileItem(), this.getHideItem(), this.getLeaveItem()];
+	    return [this.getSendMessageItem(), this.getUnreadMessageItem(), this.getPinMessageItem(), this.getMuteItem(), this.getCallItem(), this.getHistoryItem(), this.getOpenProfileItem(), this.getHideItem(), this.getLeaveItem()];
 	  }
 
 	  getSendMessageItem() {
@@ -310,6 +371,28 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	          user: this.store.getters['users/get'](this.context.dialogId, true),
 	          target
 	        });
+	        this.menuInstance.close();
+	      }.bind(this)
+	    };
+	  }
+
+	  getUnreadMessageItem() {
+	    let isUnreaded = this.context.unread;
+
+	    if (!isUnreaded) {
+	      const dialog = this.store.getters['dialogues/get'](this.context.dialogId, true);
+	      isUnreaded = dialog.counter > 0;
+	    }
+
+	    return {
+	      text: isUnreaded ? main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_READ') : main_core.Loc.getMessage('IM_RECENT_CONTEXT_MENU_UNREAD'),
+	      onclick: function () {
+	        if (isUnreaded) {
+	          this.unreadManager.readDialog(this.context.dialogId);
+	        } else {
+	          this.unreadManager.unreadDialog(this.context.dialogId);
+	        }
+
 	        this.menuInstance.close();
 	      }.bind(this)
 	    };

@@ -2,6 +2,7 @@ import {BaseButton} from "landing.ui.button.basebutton";
 import {Dom} from 'main.core';
 import {Label, LabelColor, LabelSize} from 'ui.label';
 
+import 'ui.fonts.opensans';
 import './css/action_button.css';
 
 /**

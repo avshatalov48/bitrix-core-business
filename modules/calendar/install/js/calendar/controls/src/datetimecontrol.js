@@ -7,9 +7,11 @@ import {EventEmitter, BaseEvent} from 'main.core.events';
 export class DateTimeControl extends EventEmitter
 {
 	DATE_INPUT_WIDTH = 110;
-	TIME_INPUT_WIDTH = 70;
-	MODIFIED_TIME_INPUT_WIDTH = 80;
+	TIME_INPUT_WIDTH = 90;
 	zIndex = 4200;
+
+	from = null;
+	to = null;
 
 	constructor(uid, options = {showTimezone: true})
 	{
@@ -50,7 +52,7 @@ export class DateTimeControl extends EventEmitter
 			}
 
 			this.DOM.fromTime = this.DOM.leftInnerWrap.appendChild(Tag.render`
-				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${this.TIME_INPUT_WIDTH}px;"/>
+				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${this.TIME_INPUT_WIDTH}px; max-width: ${this.TIME_INPUT_WIDTH}px;"/>
 			`);
 			if (this.inlineEditMode)
 			{
@@ -62,7 +64,7 @@ export class DateTimeControl extends EventEmitter
 			this.DOM.rightInnerWrap = this.DOM.outerWrap.appendChild(Tag.render`<div class="calendar-field-block calendar-field-block-right"></div>`);
 
 			this.DOM.toTime = this.DOM.rightInnerWrap.appendChild(Tag.render`
-				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${this.TIME_INPUT_WIDTH}px;"/>
+				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${this.TIME_INPUT_WIDTH}px; max-width: ${this.TIME_INPUT_WIDTH}px;"/>
 			`);
 			if (this.inlineEditMode)
 			{
@@ -118,13 +120,15 @@ export class DateTimeControl extends EventEmitter
 		this.DOM.fromDate.value = Util.formatDate(value.from);
 		this.DOM.toDate.value = Util.formatDate(value.to);
 
-		this.lastDateValue = value.from;
-
-		this.fromTimeControl.setValue(value.from);
-		this.toTimeControl.setValue(value.to);
-
 		this.DOM.fromTime.value = Util.formatTime(value.from);
 		this.DOM.toTime.value = Util.formatTime(value.to);
+
+		const parsedFromTime = Util.parseTime(this.DOM.fromTime.value);
+		const parsedToTime = Util.parseTime(this.DOM.toTime.value);
+		this.fromMinutes = parsedFromTime.h * 60 + parsedFromTime.m;
+		this.toMinutes = parsedToTime.h * 60 + parsedToTime.m;
+
+		this.updateTimePeriod();
 
 		if (this.inlineEditMode)
 		{
@@ -189,6 +193,35 @@ export class DateTimeControl extends EventEmitter
 		this.value = value;
 
 		this.handleFullDayChange();
+	}
+
+	updateTimePeriod()
+	{
+		this.from = this.getFrom();
+		this.to = this.getTo();
+		this.fromTimeControl.highlightValue(this.from);
+		this.toTimeControl.highlightValue(this.to);
+		this.updateToTimeDurationHints();
+	}
+
+	getFrom()
+	{
+		return this.getDateWithTime(this.DOM.fromDate.value, this.fromMinutes);
+	}
+
+	getTo()
+	{
+		return this.getDateWithTime(this.DOM.toDate.value, this.toMinutes);
+	}
+
+	getDateWithTime(date, minutes)
+	{
+		const parsedDate = Util.parseDate(date);
+		if (!parsedDate)
+		{
+			return null;
+		}
+		return new Date(parsedDate.getTime() + minutes * 60 * 1000);
 	}
 
 	getValue()
@@ -307,6 +340,16 @@ export class DateTimeControl extends EventEmitter
 				calendarControl._current_layer = null;
 				calendarControl._layers = {};
 			}
+			if (calendarControl.popup_month)
+			{
+				calendarControl.popup_month.destroy();
+				calendarControl.popup_month = null;
+			}
+			if (calendarControl.popup_year)
+			{
+				calendarControl.popup_year.destroy();
+				calendarControl.popup_year = null;
+			}
 			calendarControl.Show({node: target.parentNode, field: target, bTime: false});
 			BX.onCustomEvent(window, 'onCalendarControlChildPopupShown');
 
@@ -319,95 +362,111 @@ export class DateTimeControl extends EventEmitter
 		}
 	}
 
-	static inputCalendarClosePopupHandler(e)
+	static inputCalendarClosePopupHandler()
 	{
 		BX.onCustomEvent(window, 'onCalendarControlChildPopupClosed');
 	}
 
 	handleDateFromChange()
 	{
-		let
-			fromTime = Util.parseTime(this.DOM.fromTime.value),
-			toTime = Util.parseTime(this.DOM.toTime.value),
-			fromDate = Util.parseDate(this.DOM.fromDate.value),
-			toDate = Util.parseDate(this.DOM.toDate.value);
-
-		if (this.lastDateValue)
+		if (!this.getFrom())
 		{
-			if (this.DOM.fullDay.checked && this.lastDateValue)
-			{
-				this.lastDateValue.setHours(0, 0, 0);
-			}
-			else
-			{
-				if (fromDate && fromTime)
-				{
-					fromDate.setHours(fromTime.h, fromTime.m, 0);
-				}
-
-				if (toDate && toTime)
-				{
-					toDate.setHours(toTime.h, toTime.m, 0);
-				}
-			}
-
-			if (fromDate && this.lastDateValue)
-			{
-				toDate = new Date(fromDate.getTime()
-					+ ((toDate.getTime() - this.lastDateValue.getTime()) || 3600000));
-
-				if (toDate)
-				{
-					this.DOM.toDate.value = Util.formatDate(toDate);
-				}
-			}
+			this.DOM.fromDate.value = Util.formatDate(this.from.getTime());
+			return;
 		}
-		this.lastDateValue = fromDate;
+		this.DOM.fromDate.value = Util.formatDate(this.getFrom());
 
-		this.handleValueChange();
-	}
-
-	handleTimeFromChange()
-	{
-		let
-			fromTime = Util.parseTime(this.DOM.fromTime.value),
-			toTime = Util.parseTime(this.DOM.toTime.value),
-			fromDate = Util.parseDate(this.DOM.fromDate.value),
-			toDate = Util.parseDate(this.DOM.toDate.value);
-
-		if (fromDate && fromTime)
+		const difference = this.getFrom().getTime() - this.from.getTime();
+		const yearDuration = 1000 * 60 * 60 * 24 * 365;
+		if (Math.abs(difference) > yearDuration)
 		{
-			fromDate.setHours(fromTime.h, fromTime.m, 0);
+			this.DOM.fromDate.value = Util.formatDate(this.from.getTime());
+			return;
 		}
 
-		if (toDate && toTime)
-		{
-			toDate.setHours(toTime.h, toTime.m, 0);
-		}
+		this.DOM.toDate.value = Util.formatDate(this.to.getTime() + difference);
 
-		if (this.lastDateValue)
-		{
-			let newToDate = new Date(
-				Util.getTimeRounded(fromDate) +
-				Util.getTimeRounded(toDate)
-				- Util.getTimeRounded(this.lastDateValue)
-			);
-			this.DOM.toTime.value = Util.formatTime(newToDate);
-			this.DOM.toDate.value = Util.formatDate(newToDate);
-		}
-
-		this.lastDateValue = fromDate;
 		this.handleValueChange();
 	}
 
 	handleDateToChange()
 	{
+		if (!this.getTo())
+		{
+			this.DOM.toDate.value = Util.formatDate(this.to.getTime());
+			return;
+		}
+		this.DOM.toDate.value = Util.formatDate(this.getTo());
+
+		const difference = Math.abs(this.to.getTime() - this.getTo().getTime());
+		const yearDuration = 1000 * 60 * 60 * 24 * 365;
+		if (difference > yearDuration)
+		{
+			this.DOM.toDate.value = Util.formatDate(this.to.getTime());
+			return;
+		}
+
+		if (this.getTo() < this.getFrom())
+		{
+			this.DOM.toDate.value = this.DOM.fromDate.value;
+			this.DOM.toTime.value = this.DOM.fromTime.value;
+			this.toMinutes = this.getMinutesFromFormattedTime(this.DOM.toTime.value);
+		}
 		this.handleValueChange();
 	}
 
-	handleTimeToChange()
+	handleTimeFromChange(inputValue, dataValue)
 	{
+		if (this.isIncorrectTimeValue(inputValue))
+		{
+			this.DOM.fromTime.value = Util.formatTime(this.from);
+		}
+		else
+		{
+			this.fromMinutes = dataValue ?? this.getMinutesFromFormattedTime(inputValue);
+			this.DOM.fromTime.value = Util.formatTime(this.getFrom());
+		}
+
+		if (this.getTo())
+		{
+			const difference = this.getFrom().getTime() - this.from.getTime();
+			this.toMinutes = this.toMinutes + difference / (60 * 1000);
+		}
+
 		this.handleValueChange();
+	}
+
+	handleTimeToChange(inputValue, dataValue)
+	{
+		if (this.isIncorrectTimeValue(inputValue))
+		{
+			this.DOM.toTime.value = Util.formatTime(this.to);
+		}
+		else
+		{
+			this.toMinutes = dataValue ?? this.getMinutesFromFormattedTime(inputValue);
+			this.DOM.toTime.value = Util.formatTime(this.getTo());
+		}
+
+		if (this.getTo() < this.getFrom())
+		{
+			const difference = this.getTo().getTime() - this.to.getTime();
+			this.fromMinutes = this.fromMinutes + difference / (60 * 1000);
+			const newFromDate = new Date(this.from.getTime() + difference);
+			this.DOM.fromTime.value = Util.formatTime(newFromDate);
+			this.DOM.fromDate.value = Util.formatDate(newFromDate);
+		}
+
+		this.handleValueChange();
+	}
+
+	isIncorrectTimeValue(timeValue)
+	{
+		if (BX.isAmPmMode())
+		{
+			return timeValue === '';
+		}
+		return timeValue === '' || (timeValue[0] !== '0' && Util.parseTime(timeValue).h === 0);
 	}
 
 	handleFullDayChange()
@@ -441,12 +500,29 @@ export class DateTimeControl extends EventEmitter
 
 	handleValueChange()
 	{
+		this.setValue({ from: this.getFrom(), to: this.getTo() });
 		this.emit('onChange', new BaseEvent({data: {value: this.getValue()}}));
+	}
+
+	updateToTimeDurationHints()
+	{
+		this.toTimeControl.updateDurationHints(
+			this.DOM.fromTime.value,
+			this.DOM.toTime.value,
+			this.DOM.fromDate.value,
+			this.DOM.toDate.value
+		);
 	}
 
 	getFullDayValue()
 	{
 		return !!this.DOM.fullDay.checked;
+	}
+
+	getMinutesFromFormattedTime(time)
+	{
+		const parsedTime = Util.parseTime(time);
+		return parsedTime.h * 60 + parsedTime.m;
 	}
 
 	switchTimezone(showTimezone)

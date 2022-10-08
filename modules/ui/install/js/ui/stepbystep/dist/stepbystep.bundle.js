@@ -70,7 +70,7 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.layout.container) {
-	        this.layout.container = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-stepbystep__section-item\">\n\t\t\t\t\t<div class=\"ui-stepbystep__section-item--counter\">\n\t\t\t\t\t\t<div class=\"ui-stepbystep__section-item--counter-number \n\t\t\t\t\t\t\t", " ", " ", "\">\n\t\t\t\t\t\t\t<span>", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-stepbystep__section-item--information\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.counterClass, this.isFirst, this.isLast, this.number, this.getHeader(), this.getContent());
+	        this.layout.container = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-stepbystep__section-item\">\n\t\t\t\t\t<div class=\"ui-stepbystep__section-item--counter\">\n\t\t\t\t\t\t<div class=\"ui-stepbystep__section-item--counter-number ", " ", "\">\n\t\t\t\t\t\t\t<span>", "</span>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-stepbystep__section-item--information\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.isFirst, this.isLast, this.number, this.getHeader(), this.getContent());
 
 	        if (this.backgroundColor) {
 	          this.layout.container.style.backgroundColor = this.backgroundColor;

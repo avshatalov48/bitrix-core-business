@@ -84,6 +84,7 @@ class Property
 		if(!Loader::includeModule('crm'))
 			return '';
 
+		\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 		Asset::getInstance()->addCss('/bitrix/js/crm/css/crm.css');
 		Asset::getInstance()->addJs('/bitrix/js/crm/crm.js');
 

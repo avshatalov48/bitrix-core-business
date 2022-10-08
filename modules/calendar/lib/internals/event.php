@@ -14,9 +14,9 @@ use Bitrix\Main\Entity;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Event_Query query()
- * @method static EO_Event_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Event_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Event_Result getById($id)
- * @method static EO_Event_Result getList(array $parameters = array())
+ * @method static EO_Event_Result getList(array $parameters = [])
  * @method static EO_Event_Entity getEntity()
  * @method static \Bitrix\Calendar\Internals\EO_Event createObject($setDefaultValues = true)
  * @method static \Bitrix\Calendar\Internals\EO_Event_Collection createCollection()
@@ -39,6 +39,7 @@ class EventTable extends Main\Entity\DataManager
 	 * Returns entity map definition.
 	 *
 	 * @return array
+	 * @throws Main\SystemException
 	 */
 	public static function getMap()
 	{
@@ -169,6 +170,9 @@ class EventTable extends Main\Entity\DataManager
 			new Entity\StringField('DAV_XML_ID', array(
 				'validation' => array(__CLASS__, 'validateDavXmlId'),
 				'title' => Loc::getMessage('SECTION_ENTITY_DAV_XML_ID_FIELD'),
+			)),
+			new Entity\StringField('CAL_DAV_LABEL', array(
+				'title' => Loc::getMessage('SECTION_ENTITY_CAL_DAV_LABEL_FIELD'),
 			)),
 			new Entity\StringField('DAV_EXCH_LABEL', array(
 				'validation' => array(__CLASS__, 'validateDavExchLabel'),

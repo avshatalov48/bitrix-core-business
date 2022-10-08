@@ -1,0 +1,301 @@
+.location-map-wrapper {
+	width: 600px;
+	position: relative;
+}
+
+.location-map-container {
+	height: 450px;
+	position: relative;
+	margin-bottom: 7px;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	align-items: stretch;
+	overflow: hidden;
+}
+
+.location-map-inner {
+	width: 600px;
+	height: 450px;
+	position: relative;
+	margin-bottom: 7px;
+}
+
+.location-map-frame {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.location-map-photo-container {
+	margin: 0 ;
+	width: 160px;
+	min-width: 160px;
+	position: relative;
+	display: none;
+}
+
+.location-map-photo-inner {
+	overflow: hidden;
+	left: 10px;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	position: absolute;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	-webkit-box-pack: start;
+	-ms-flex-pack: start;
+	justify-content: flex-start;
+}
+
+.location-map-photo-item-block {
+	padding: 0;
+	display: block;
+	position: relative;
+	width: 150px;
+	margin-bottom: 11px;
+	flex: 1 1 auto;
+	overflow: hidden;
+}
+
+.location-map-photo-inner .location-map-photo-item-block:last-child {
+	margin-bottom: 0;
+}
+
+.location-map-photo-item-block-image-block-inner {
+	position: absolute;
+	width: 0;
+	padding-left: 100%;
+	display: block;
+	box-sizing: border-box;
+	top: 0;
+	bottom: 0;
+	max-height: 100px;
+}
+
+.location-map-item-photo-image {
+	background: transparent no-repeat center;
+	background-size: cover;
+	overflow: hidden;
+	border-radius: 2px;
+	display: block;
+	position: absolute;
+	right: 0;
+	left: 0;
+	top: 0;
+	bottom: 0;
+}
+
+.location-map-item-description {
+	position: absolute;
+	bottom: 10px;
+	left: 13px;
+	right: 13px;
+	z-index: 1;
+}
+
+.location-map-item-description span,
+.location-map-item-description a,
+.location-map-item-description strong {
+	color: #fff;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-size: 14px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	display: block;
+	text-shadow: 1px 1px 1px rgba(0, 0, 0, .3);
+}
+
+/*.location-map-photo-item-block:first-child {margin-left: 0;}*/
+.location-map-address-container {
+	line-height: 16px;
+	padding: 8px 0;
+	vertical-align: middle;
+	display: flex;
+	justify-content: flex-start;
+	align-items: flex-start;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-pack: start;
+	-ms-flex-pack: start;
+	-webkit-box-align: start;
+	-ms-flex-align: start;
+}
+
+.location-map-address-icon {
+	width: 11px;
+	height: 16px;
+	display: inline-block;
+	content: '';
+	margin-right: 8px;
+	vertical-align: middle;
+	background: url(images/location.min.svg) center no-repeat;
+	min-width: 11px;
+}
+
+.location-map-address-text {
+	font: 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #4a4a4a;
+	vertical-align: middle;
+	display: inline;
+}
+
+.location-map-address-third-party-warning {
+	font: 10px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #4a4a4a;
+	vertical-align: middle;
+	display: inline;
+}
+
+.location-map-popup-item--info {
+	display: flex !important;
+	height: 46px !important;
+	align-items: center;
+	margin-bottom: -8px;
+	background-color: rgba(47,198,246,.1) !important;
+	cursor: default !important;
+}
+
+.location-map-popup-item--info-left {
+	flex:1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.location-map-popup-item--text {
+	font-size: 14px;
+	color: #525c69;
+}
+
+.location-map-popup-item--info .menu-popup-item-icon {
+	display: inline-block;
+	height: 46px;
+	width: 10px;
+	margin-right: 9px;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%0A%3Csvg%20width%3D%2210px%22%20height%3D%2213px%22%20viewBox%3D%220%200%2010%2013%22%20version%3D%221.1%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20xmlns%3Axlink%3D%22http%3A//www.w3.org/1999/xlink%22%3E%0A%20%20%20%20%3C%21--%20Generator%3A%20Sketch%2059.1%20%2886144%29%20-%20https%3A//sketch.com%20--%3E%0A%20%20%20%20%3Ctitle%3EIcon%3C/title%3E%0A%20%20%20%20%3Cdesc%3ECreated%20with%20Sketch.%3C/desc%3E%0A%20%20%20%20%3Cg%20id%3D%22%u043D%u0430-%u0432%u0435%u0440%u0441%u0442%u043A%u0443%22%20stroke%3D%22none%22%20stroke-width%3D%221%22%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%0A%20%20%20%20%20%20%20%20%3Cg%20id%3D%2203---%u0441%u043C%u0435%u043D%u0438%u043B%u0438-%u0433%u043E%u0440%u043E%u0434%22%20transform%3D%22translate%28-436.000000%2C%20-1052.000000%29%22%20fill%3D%22%23525C69%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22001%22%20transform%3D%22translate%28335.000000%2C%20739.000000%29%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22Group-5%22%20transform%3D%22translate%2886.033936%2C%20202.205566%29%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cg%20id%3D%22Icon%22%20transform%3D%22translate%2815.000000%2C%20111.000000%29%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cpolygon%20transform%3D%22translate%284.995749%2C%206.400000%29%20rotate%28-90.000000%29%20translate%28-4.995749%2C%20-6.400000%29%20%22%20points%3D%225.62255677%202.96886338%208.36843321%205.71473982%20-1%205.71473982%20-1%207.08518187%208.36843321%207.08518187%205.62255677%209.83105831%206.59149846%2010.8%2010.9914985%206.4%206.59149846%202%22%3E%3C/polygon%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%20%20%20%20%3C/g%3E%0A%20%20%20%20%3C/g%3E%0A%3C/svg%3E') center 15px no-repeat;
+}
+
+.location-map-popup-item--info .menu-popup-item-text {
+	flex: 1;
+	width: auto;
+	margin: 0;
+	padding: 0;
+	display: inline;
+}
+
+.location-map-popup-item--show-on-map {
+	display: inline-block;
+	color: #2066b0;
+	margin: 0 15px 0 10px;
+	cursor: pointer !important;
+	white-space: nowrap;
+}
+
+.location-map-popup-item--show-on-map:before {
+	content: '';
+	display: inline-block;
+	vertical-align: top;
+	width: 13px;
+	height: 14px;
+	margin: 1px 8px 0 0;
+	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2213%22%20height%3D%2213%22%20viewBox%3D%220%200%2013%2013%22%3E%0A%20%20%3Cpath%20fill%3D%22%23327FD0%22%20fill-rule%3D%22evenodd%22%20d%3D%22M9.02669613%2C7.77324203%20L10.7798185%2C7.77424606%20C11.0946135%2C7.77424606%2011.3769164%2C7.96492759%2011.4900142%2C8.25394791%20L12.9489841%2C11.9823313%20C13.0999843%2C12.368211%2012.9044288%2C12.8014563%2012.5121985%2C12.9500118%20C12.4249562%2C12.9830544%2012.3322723%2C13%2012.2387883%2C13%20L0.76100662%2C13%20C0.340714269%2C13%200%2C12.6648022%200%2C12.2513147%20C0%2C12.1577973%200.017808759%2C12.0651076%200.0525046877%2C11.9780422%20L1.5382822%2C8.24965881%20C1.65255986%2C7.96289248%201.93369737%2C7.77424606%202.24678413%2C7.77424606%20L3.8225761%2C7.77300135%20C4.18940412%2C8.33541675%204.60893731%2C8.91805568%205.08117567%2C9.52091813%20L5.37084331%2C9.88506243%20L5.60556996%2C10.1724606%20L5.67852916%2C10.2522234%20C6.05964515%2C10.6285864%206.67614444%2C10.6672259%207.10427739%2C10.3250096%20C7.16324986%2C10.2778716%207.21692743%2C10.2246622%207.26439387%2C10.1662898%20C7.94575055%2C9.3283827%208.53318463%2C8.53070012%209.02669613%2C7.77324203%20Z%20M6.43963922%2C0%20C8.21226073%2C0%209.63669123%2C1.40081876%209.63669123%2C3.14528895%20C9.63669123%2C4.54066633%208.76745199%2C6.30831523%207.02897351%2C8.44823567%20C6.99493841%2C8.49013001%206.95642615%2C8.52830519%206.91409989%2C8.56210384%20C6.61287714%2C8.80263833%206.18134611%2C8.77937735%205.90841367%2C8.52186789%20L5.84365189%2C8.45262744%20L5.64741291%2C8.21159276%20C4.04419578%2C6.21523918%203.24258721%2C4.52647125%203.24258721%2C3.14528895%20C3.24258721%2C1.40081876%204.6670177%2C0%206.43963922%2C0%20Z%20M6.43963922%2C1.71496338%20C5.62551951%2C1.71496338%204.98633231%2C2.34435055%204.98633231%2C3.14473999%20C4.98633231%2C3.94567839%205.62607751%2C4.5745166%206.43963922%2C4.5745166%20C7.25321488%2C4.5745166%207.89294613%2C3.94566467%207.89294613%2C3.14473999%20C7.89294613%2C2.34380159%207.25320093%2C1.71496338%206.43963922%2C1.71496338%20Z%22/%3E%0A%3C/svg%3E%0A') center no-repeat;
+}
+
+.location-widget-prompt-menu {
+	width: 100%;
+}
+
+.location-widget-prompt-menu .menu-popup .menu-popup-no-icon {
+	min-height: 36px;
+	height: auto;
+}
+
+.location-widget-prompt-menu .menu-popup-no-icon .menu-popup-item-text {
+	white-space: normal;
+	line-height: 18px;
+	padding: 8px 15px 6px;
+}
+
+.location-map-address-changed.hidden {
+	opacity: 0;
+}
+
+.location-map-address-changed {
+	position: absolute;
+	bottom: 103px;
+	background: rgba(255, 255, 255, .8);
+	color: #000;
+	display: flex;
+	align-items: center;
+	padding: 8px 14px 8px 11px;
+	border-radius: 2px;
+	left: 9px;
+	right: 58px;
+	opacity: 1;
+	justify-content: space-between;
+	z-index: 400;
+	-webkit-transition: opacity 500ms;
+	transition: opacity 500ms;
+}
+
+.location-map-address-changed--dark {
+	background: rgba(0, 0, 0, 0.07);
+}
+
+.location-map-address-changed-title {
+	font: 12px/14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
+}
+
+.location-map-address-changed-text {
+	font: 400 13px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+}
+
+.location-map-address-changed-btn {
+	position: relative;
+	color: #fff;
+	border-radius: 2px;
+	background: #B0B4BA;
+	border: none;
+	outline: none;
+	font: 12px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
+	padding: 6px 13px 7px 34px;
+	cursor: pointer;
+}
+
+.location-map-address-changed-btn:before {
+	content: '';
+	position: absolute;
+	left: 9px;
+	top: 6px;
+	width: 19px;
+	height: 16px;
+	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2219%22%20height%3D%2217%22%3E%3Cpath%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22%20d%3D%22M8.75.621v1.543c.428.063.842.168%201.238.312L8.62%203.845a4.615%204.615%200%2010.016%209.094L10%2014.303c-.4.147-.818.254-1.251.317v1.525H6.917V14.62A6.299%206.299%200%20011.604%209.3H.07V7.467h1.535a6.299%206.299%200%20015.311-5.303V.621H8.75zm3.5%203.316l1.203%201.203-2.386%202.384h7.29v1.701h-7.29l2.386%202.384-1.203%201.203-4.44-4.437%204.44-4.438z%22/%3E%3C/svg%3E) no-repeat center;
+}
+
+.location-map-address-apply-btn {
+	position: relative;
+	color: #fff;
+	border-radius: 2px;
+	background: #B0B4BA;
+	border: none;
+	outline: none;
+	font: 12px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
+	padding: 6px 13px 7px 13px;
+	cursor: pointer;
+}

@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,ui_progressbar,main_core_events,main_popup,ui_alerts,ui_buttons,main_core) {
+(function (exports,ui_designTokens,ui_progressbar,main_core_events,main_popup,ui_alerts,ui_buttons,main_core) {
 	'use strict';
 
 	/**
@@ -2599,5 +2599,5 @@ this.BX.UI = this.BX.UI || {};
 	exports.Dialog = Dialog;
 	exports.DialogEvent = DialogEvent;
 
-}((this.BX.UI.StepProcessing = this.BX.UI.StepProcessing || {}),BX.UI,BX.Event,BX.Main,BX.UI,BX.UI,BX));
+}((this.BX.UI.StepProcessing = this.BX.UI.StepProcessing || {}),BX,BX.UI,BX.Event,BX.Main,BX.UI,BX.UI,BX));
 //# sourceMappingURL=process.bundle.js.map

@@ -38,7 +38,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.onMapClickHandler = main_core.Type.isFunction(options.onMapClick) ? options.onMapClick : () => {};
 	    this.onAddMarkerHandler = main_core.Type.isFunction(options.onAddMarker) ? options.onAddMarker : () => {};
 	    this.onApiLoadedHandler = main_core.Type.isFunction(options.onApiLoaded) ? options.onApiLoaded : () => {};
-	    this.onInitHandler = main_core.Type.isFunction(options.onProviderInit) ? options.onProviderInit : this.init;
+	    this.onInitHandler = main_core.Type.isFunction(options.onProviderInit) ? options.onProviderInit : () => {};
 	    this.options = options;
 	    this.mapOptions = this.prepareMapOptions(options.mapOptions);
 	    this.mapContainer = options.mapContainer;
@@ -168,6 +168,18 @@ this.BX.Landing = this.BX.Landing || {};
 
 
 	  init() {
+	    this.onInitHandler();
+	    this.emit('onInit');
+	  }
+	  /**
+	   * Pass new options and reinit map
+	   * @param options
+	   */
+
+
+	  reinit(options) {
+	    // todo: add options type and validation
+	    this.options = options;
 	    this.emit('onInit');
 	  }
 	  /**
@@ -1049,6 +1061,7 @@ this.BX.Landing = this.BX.Landing || {};
 	class GoogleMap extends BaseProvider {
 	  constructor(options) {
 	    super(options);
+	    this.setEventNamespace('BX.Landing.Provider.Map.GoogleMap');
 	    this.code = 'google';
 	    this.themes = themes;
 	  }
@@ -1079,7 +1092,7 @@ this.BX.Landing = this.BX.Landing || {};
 	      streetViewControl: main_core.Type.isBoolean(opts.streetViewControl) ? opts.streetViewControl : true,
 	      rotateControl: main_core.Type.isBoolean(opts.rotateControl) ? opts.rotateControl : true,
 	      fullscreenControl: main_core.Type.isBoolean(opts.fullscreenControl) ? opts.fullscreenControl : true,
-	      styles: (opts.theme && opts.theme in this.themes ? this.themes[opts.theme] : []).concat(roads[opts.roads] || [], landmarks[opts.landmarks] || [], labels[opts.labels] || [])
+	      styles: this.getStylesFromOptions(opts)
 	    });
 
 	    if (this.mapOptions.markers) {
@@ -1096,6 +1109,17 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.mapInstance.addListener("zoom_changed", this.onChange);
 	    this.mapInstance.addListener("click", this.onMapClickHandler);
 	    super.init();
+	  }
+
+	  reinit(options) {
+	    this.mapInstance.setOptions({
+	      styles: this.getStylesFromOptions(options)
+	    });
+	    super.reinit();
+	  }
+
+	  getStylesFromOptions(options) {
+	    return (options.theme && options.theme in this.themes ? this.themes[options.theme] : []).concat(roads[options.roads] || [], landmarks[options.landmarks] || [], labels[options.labels] || []);
 	  }
 	  /**
 	   * Check is provider API was loaded
@@ -1208,6 +1232,7 @@ this.BX.Landing = this.BX.Landing || {};
 	class YandexMap extends BaseProvider {
 	  constructor(options) {
 	    super(options);
+	    this.setEventNamespace('BX.Landing.Provider.Map.YandexMap');
 	    this.code = 'yandex';
 	  }
 	  /**
@@ -1216,14 +1241,13 @@ this.BX.Landing = this.BX.Landing || {};
 
 
 	  init() {
-	    const opts = this.options;
 	    const controls = ['zoomControl', 'fullscreenControl', 'typeSelector', 'routeButtonControl'];
 
-	    if (opts.fullscreenControl === false) {
+	    if (this.options.fullscreenControl === false) {
 	      controls.splice(controls.indexOf('fullscreenControl'), 1);
 	    }
 
-	    if (opts.mapTypeControl === false) {
+	    if (this.options.mapTypeControl === false) {
 	      controls.splice(controls.indexOf('typeSelector'), 1);
 	      controls.splice(controls.indexOf('routeButtonControl'), 1);
 	    }
@@ -1231,7 +1255,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.mapInstance = new ymaps.Map(this.mapContainer, {
 	      center: this.convertPointIn(this.mapOptions.center),
 	      zoom: this.mapOptions.zoom,
-	      behaviors: opts.zoomControl === false ? ['drag'] : ['default'],
+	      behaviors: this.options.zoomControl === false ? ['drag'] : ['default'],
 	      controls: controls
 	    });
 	    this.mapInstance.events.add('click', event => {
@@ -1253,6 +1277,10 @@ this.BX.Landing = this.BX.Landing || {};
 	    }
 
 	    super.init();
+	  }
+
+	  reinit(options) {
+	    super.reinit(); // Yandex has't changes yet. If some settings will be added later - need implement reinit
 	  }
 	  /**
 	   * Check is provider API was loaded
@@ -1338,6 +1366,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    }
 
 	    this.markers.add(item);
+	    this.onChange();
 	  }
 
 	  onMarkerClick(item) {// Yandex will do everything himself
@@ -1427,7 +1456,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    const provider = new Map.PROVIDERS[providerCode](options);
 
 	    if (provider.isApiLoaded()) {
-	      provider.onInitHandler();
+	      provider.init();
 	    } else {
 	      if (!main_core.Type.isArray(Map.scheduled[provider.getCode()])) {
 	        Map.scheduled[provider.getCode()] = [];
@@ -1442,7 +1471,7 @@ this.BX.Landing = this.BX.Landing || {};
 	  static onApiLoaded(providerCode) {
 	    if (main_core.Type.isArray(Map.scheduled[providerCode])) {
 	      Map.scheduled[providerCode].forEach(provider => {
-	        provider.onInitHandler();
+	        provider.init();
 	      });
 	    }
 	  }

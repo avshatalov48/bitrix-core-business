@@ -3,7 +3,9 @@
     align-items: center;
     padding: 0 15px;
     height: 38px;
-    border-radius: 2px 2px 0 0;
+	border-radius: var(--ui-border-radius-sm, 2px);
+	border-bottom-right-radius: 0;
+	border-bottom-left-radius: 0;
 }
 
 .report-configuration-head .report-configuration-row {

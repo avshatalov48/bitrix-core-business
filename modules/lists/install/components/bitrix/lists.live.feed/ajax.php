@@ -1470,6 +1470,7 @@ class LiveFeedAjaxController extends Controller
 						{
 							if($field['TYPE'] == 'S:ECrm')
 							{
+								\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 								Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/js/crm/css/crm.css');
 								Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/crm/crm.js');
 							}

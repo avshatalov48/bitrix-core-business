@@ -1,6 +1,7 @@
 <?php
 $MESS["LANDING_FORM_EDITOR_SHARE_BUTTON"] = "Embedding options";
 $MESS["LANDING_FORM_EDITOR_TOP_PANEL_SETTINGS"] = "Settings";
+$MESS["LANDING_FORM_FEATURES"] = "Form features";
 $MESS["LANDING_PAGE_STATUS_PUBLIC"] = "Published";
 $MESS["LANDING_PAGE_STATUS_PUBLIC_NOW"] = "Published just now";
 $MESS["LANDING_PAGE_STATUS_UPDATED_NOW_ORIG"] = "Updated just now";

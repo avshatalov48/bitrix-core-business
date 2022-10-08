@@ -4,6 +4,8 @@ namespace Bitrix\Socialnetwork\Livefeed;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\Emoji;
+use Bitrix\Socialnetwork\Helper\Mention;
 
 Loc::loadMessages(__FILE__);
 
@@ -31,76 +33,96 @@ final class BlogComment extends Provider
 	{
 		$commentId = $this->entityId;
 
+		if ($commentId <= 0 || !Loader::includeModule('blog'))
+		{
+			return;
+		}
+
+		$res = \CBlogComment::getList(
+			[],
+			['ID' => $commentId],
+			false,
+			false,
+			[
+				'ID',
+				'BLOG_ID',
+				'POST_ID',
+				'PARENT_ID',
+				'AUTHOR_ID',
+				'AUTHOR_NAME',
+				'AUTHOR_EMAIL',
+				'AUTHOR_IP',
+			 	'AUTHOR_IP1',
+				'TITLE',
+				'POST_TEXT',
+				'SHARE_DEST',
+				'PUBLISH_STATUS',
+			]
+		);
 		if (
-			$commentId > 0
-			&& Loader::includeModule('blog')
+			!($comment = $res->fetch())
+			|| (
+				$comment['PUBLISH_STATUS'] === BLOG_PUBLISH_STATUS_READY
+				&& !$this->isCurrentUserAdmin()
+			)
 		)
 		{
-			$res = \CBlogComment::getList(
-				array(),
-				array(
-					"ID" => $commentId
-				),
-				false,
-				false,
-				array("ID", "BLOG_ID", "POST_ID", "PARENT_ID", "AUTHOR_ID", "AUTHOR_NAME", "AUTHOR_EMAIL", "AUTHOR_IP", "AUTHOR_IP1", "TITLE", "POST_TEXT", "SHARE_DEST")
-			);
-
-			$comment = $res->fetch();
-			if (!$comment)
-			{
-				return;
-			}
-
-			$res = \CBlogPost::getList(
-				array(),
-				array(
-					"ID" => $comment["POST_ID"]
-				)
-			);
-
-			$post = $res->fetch();
-			if (!$post)
-			{
-				return;
-			}
-
-			$checkAccess = ($this->getOption('checkAccess') !== false);
-			if (
-				$checkAccess
-				&& !BlogPost::canRead([
-					'POST' => $post
-				])
-			)
-			{
-				return;
-			}
-
-			if (!empty($post['DETAIL_TEXT']))
-			{
-				$post['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::decode($post['DETAIL_TEXT']);
-			}
-
-			$this->setSourceFields(array_merge($comment, array("POST" => $post)));
-			$this->setSourceDescription(htmlspecialcharsback($comment['POST_TEXT']));
-
-			$title = htmlspecialcharsback($comment['POST_TEXT']);
-			$title = \Bitrix\Socialnetwork\Helper\Mention::clear($title);
-
-			$p = new \blogTextParser();
-			$title = $p->convert($title, false);
-			$title = preg_replace([
-				"/\n+/is".BX_UTF_PCRE_MODIFIER,
-				"/\s+/is".BX_UTF_PCRE_MODIFIER,
-				"/&nbsp;+/is".BX_UTF_PCRE_MODIFIER
-			], " ", \blogTextParser::killAllTags($title));
-
-			$this->setSourceTitle(truncateText($title, 100));
-			$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
-			$this->setSourceDiskObjects($this->getDiskObjects($commentId, $this->cloneDiskObjects));
-			$this->setSourceOriginalText($comment['POST_TEXT']);
-			$this->setSourceAuxData($comment);
+			return;
 		}
+
+		$res = \CBlogPost::getList([], ['ID' => $comment['POST_ID']]);
+		if (!($post = $res->fetch()))
+		{
+			return;
+		}
+
+		if (
+			$this->getOption('checkAccess') !== false
+			&& !BlogPost::canRead(['POST' => $post])
+		)
+		{
+			return;
+		}
+
+		if (!empty($post['DETAIL_TEXT']))
+		{
+			$post['DETAIL_TEXT'] = Emoji::decode($post['DETAIL_TEXT']);
+		}
+
+		$this->setSourceFields(array_merge($comment, ['POST' => $post]));
+		$this->setSourceDescription(htmlspecialcharsback($comment['POST_TEXT']));
+
+		$title = htmlspecialcharsback($comment['POST_TEXT']);
+		$title = Mention::clear($title);
+		$title = (new \blogTextParser())->convert($title, false);
+		$title = preg_replace(
+			[
+				"/\n+/is" . BX_UTF_PCRE_MODIFIER,
+				"/\s+/is" . BX_UTF_PCRE_MODIFIER,
+				"/&nbsp;+/is" . BX_UTF_PCRE_MODIFIER
+			],
+			" ",
+			\blogTextParser::killAllTags($title)
+		);
+
+		$this->setSourceTitle(truncateText($title, 100));
+		$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects());
+		$this->setSourceDiskObjects($this->getDiskObjects($commentId, $this->cloneDiskObjects));
+		$this->setSourceOriginalText($comment['POST_TEXT']);
+		$this->setSourceAuxData($comment);
+	}
+
+	private function isCurrentUserAdmin(): bool
+	{
+		global $USER;
+
+		return
+			$USER->isAdmin()
+			|| (
+				Loader::includeModule('bitrix24')
+				&& \CBitrix24::isPortalAdmin((int)$USER->GetId())
+			)
+		;
 	}
 
 	protected function getAttachedDiskObjects($clone = false)

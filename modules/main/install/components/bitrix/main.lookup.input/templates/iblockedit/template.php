@@ -8,6 +8,8 @@
  */
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+use Bitrix\Main\Context;
+
 if ((defined('BX_PUBLIC_MODE')) && (1 == BX_PUBLIC_MODE))
 {
 	$APPLICATION->SetAdditionalCSS($this->GetFolder().'/style.css');
@@ -66,15 +68,21 @@ else
 	?><input autocomplete="off" type="text" name="<?=$textarea_id?>" id="<?=$textarea_id?>" value="<? echo ($boolStringValue ? htmlspecialcharsbx($arParams['INPUT_VALUE_STRING']) : '');?>" class="mli-field <?=$mliFieldClass?>" /><?
 }
 ?></div><?
+
+$request = Context::getCurrent()->getRequest();
+
 $arAjaxParams = array(
 	"IBLOCK_ID" => $arParams["IBLOCK_ID"],
 	'WITHOUT_IBLOCK' => $arParams['WITHOUT_IBLOCK'],
 	"lang" => LANGUAGE_ID,
-	"site" => SITE_ID,
-	"admin" => (defined('ADMIN_SECTION') && ADMIN_SECTION === true ? 'Y' : 'N'),
+	"admin" => ($request->isAdminSection() ? 'Y' : 'N'),
 	'TYPE' => $arParams['TYPE'],
 	'RESULT_COUNT' => $arParams['RESULT_COUNT']
 );
+if (!$request->isAdminSection())
+{
+	$arAjaxParams["site"] = SITE_ID;
+}
 if ($arParams['BAN_SYM'] != '')
 {
 	$arAjaxParams['BAN_SYM'] = $arParams['BAN_SYM'];

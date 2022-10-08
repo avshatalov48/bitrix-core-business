@@ -1,10 +1,22 @@
 <?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
 
 \Bitrix\Main\Loader::includeModule('report');
-\Bitrix\Main\UI\Extension::load('report.js.dashboard');
-\Bitrix\Main\UI\Extension::load('report_visual_constructor');
-\Bitrix\Main\UI\Extension::load('loader');
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'report.js.dashboard',
+	'report_visual_constructor',
+	'loader',
+]);
+
 $APPLICATION->SetTitle($arResult['ANALYTIC_BOARD_TITLE']);
+
+$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
+$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass.' ' : '') . 'no-background');
 
 $isBitrix24Template = SITE_TEMPLATE_ID === "bitrix24";
 if ($isBitrix24Template)

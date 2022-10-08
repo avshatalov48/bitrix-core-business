@@ -180,7 +180,7 @@ li.catalog-entity-section-tab-disabled:hover .catalog-entity-section-tab-link {
 	width: 100%;
 	background-color: #fae5e8;
 	color: #d0011b;
-	font: 400 14px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 400 14px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .catalog-dictionary-item {

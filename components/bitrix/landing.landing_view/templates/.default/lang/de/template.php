@@ -1,6 +1,7 @@
 <?php
 $MESS["LANDING_FORM_EDITOR_SHARE_BUTTON"] = "Eingebettete Optionen";
 $MESS["LANDING_FORM_EDITOR_TOP_PANEL_SETTINGS"] = "Einstellungen";
+$MESS["LANDING_FORM_FEATURES"] = "Formularfunktionen";
 $MESS["LANDING_PAGE_STATUS_PUBLIC"] = "Veröffentlicht";
 $MESS["LANDING_PAGE_STATUS_PUBLIC_NOW"] = "Gerade eben veröffentlicht";
 $MESS["LANDING_PAGE_STATUS_UPDATED_NOW_ORIG"] = "Gerade eben aktualisiert";

@@ -9,7 +9,7 @@ div#bxfd_selected_element_preview {background-color: #B6B6B8 !important;}
 .fd_input {background-color: #F4F4F4; width: 100%; font-size:12px !important;}
 table.fd_tab_title {border-collapse: collapse; border-width: 0px; width:95% !important; padding:0px !important;}
 table.fd_tab_title td {padding:5px !important;}
-table.fd_tab_title td.title {color:#494949 !important; font-family:Arial,helvetica,sans-serif !important; font-size:12px !important; font-weight:bold !important; padding:5px 0px !important; width:100% !important; }
+table.fd_tab_title td.title {color:#494949 !important; font-family:Arial,helvetica,sans-serif !important; font-size:12px !important; font-weight:var(--ui-font-weight-bold) !important; padding:5px 0px !important; width:100% !important; }
 table.fd_tab_title td.delimiter {background-image: url(/bitrix/images/main/file_dialog/title_dot.gif) !important; background-position:left top !important; background-repeat:repeat-x !important; height:5px !important; padding:0px !important; }
 #BX_file_dialog  div.site_selector_div span{color: #666633 !important; margin: 3px 1px 1px 1px !important;}
 
@@ -69,9 +69,9 @@ div.editor_dialog td {padding:0px !important; font-size:11px !important;}
 div.editor_dialog div.content {height:100%; overflow:hidden;}
 /*title*/
 div.editor_dialog div.title {background-color:#23468A; background-image:url(images/fileman/editor_dialog/title_bg.gif); background-repeat:repeat-x; background-position:left top; border-bottom:1px solid #A9A9A9;}
-div.editor_dialog div.title td.title-text {font-size:11px !important; font-weight:bold !important; color:#EEF1F7 !important; padding:3px !important; cursor:move !important; vertical-align:top !important;}
+div.editor_dialog div.title td.title-text {font-size:11px !important; font-weight:var(--ui-font-weight-bold) !important; color:#EEF1F7 !important; padding:3px !important; cursor:move !important; vertical-align:top !important;}
 div.editor_dialog a.close {display:block; width:13px; height:13px; background-image:url(images/fileman/editor_dialog/close.gif); overflow:hidden; margin:3px; background-repeat:no-repeat; background-position:center;}
-tr.heading_dialog td {color:#525355 !important; text-align:center !important; font-weight:bold !important; background-color:#E0E4F1 !important;}
+tr.heading_dialog td {color:#525355 !important; text-align:center !important; font-weight:var(--ui-font-weight-bold) !important; background-color:#E0E4F1 !important;}
 table.dialogprops tr td {padding: 5px 0px 5px 0px !important;}
 
 td.popupmenu {border:1px solid #B6B6B6 !important; padding:1px !important; background-color:#FCFCFC !important; background-image:url(/bitrix/themes/.default/images/menu_gutter.gif) !important; background-repeat:repeat-y !important;}
@@ -79,7 +79,7 @@ td.popupmenu div.popupitem {width:100% !important; margin:1px !important; cursor
 td.popupmenu div.popupitemover {margin:0px !important; border:1px solid #AEB6C2 !important; background-color:#CEDAEE !important;}
 td.popupmenu div.popupitem td.gutter {width: 22px !important;}
 td.popupmenu div.popupitem td.item {padding:3px 5px 3px 9px !important; font-size:11px !important; white-space: nowrap !important;}
-td.popupmenu div.popupitem td.default {font-weight:bold !important;}
+td.popupmenu div.popupitem td.default {font-weight:var(--ui-font-weight-bold) !important;}
 td.popupmenu div.popupitem td.disabled {color:#939393 !important;}
 td.popupmenu div.popupseparator {margin:1px 0px 1px 30px; background-color:#B6B6B6; height:1px; overflow:hidden;}
 td.popupmenu div.popupitem div.icon {width:22px; height:20px; background-position:center; background-repeat:no-repeat;}

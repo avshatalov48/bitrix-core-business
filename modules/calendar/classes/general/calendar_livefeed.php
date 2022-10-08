@@ -215,6 +215,11 @@ class CCalendarLiveFeed
 				else
 				{
 					$commentXmlId = CCalendarEvent::GetEventCommentXmlId($calendarEvent);
+
+					if (!$arLog['PARAMS'])
+					{
+						$arLog['PARAMS'] = [];
+					}
 					$arLog['PARAMS']['COMMENT_XML_ID'] = $commentXmlId;
 					CSocNetLog::Update($arFields['LOG_ID'], ['PARAMS' => serialize($arLog['PARAMS'])]);
 				}
@@ -845,7 +850,8 @@ class CCalendarLiveFeed
 					"SITE_ID" => SITE_ID,
 					"SOURCE_ID" => $eventId,
 					"ENABLE_COMMENTS" => "Y",
-					"CALLBACK_FUNC" => false
+					"CALLBACK_FUNC" => false,
+					"PARAMS" => $arFields['RELATIONS'] ?? '',
 				));
 
 				$newlogId = CSocNetLog::Add($arSoFields, false);
@@ -859,6 +865,27 @@ class CCalendarLiveFeed
 					"FOR_ALL_ACCESS" => false,
 					"SEND_TO_AUTHOR" => "N"
 				));
+
+				if ($arFields['RELATIONS'] && Loader::includeModule('forum'))
+				{
+					$commentsXmlId = CCalendarEvent::GetEventCommentXmlId($arFields);
+					$calendarSettings = CCalendar::GetSettings();
+					$forumID = $calendarSettings['forum_id'];
+
+					CForumTopic::Add([
+						'TITLE' => $commentsXmlId,
+						'TAGS' => '',
+						'MESSAGE' => $commentsXmlId,
+						'AUTHOR_ID' => 0,
+						'AUTHOR_NAME' => 'SYSTEM',
+						'FORUM_ID' => $forumID,
+						'USER_START_ID' => 0,
+						'USER_START_NAME' => 'SYSTEM',
+						'LAST_POSTER_NAME' => 'SYSTEM',
+						'XML_ID' => $commentsXmlId,
+						'APPROVED' => 'Y',
+					]);
+				}
 
 				foreach ($unfolowersList as $value)
 				{

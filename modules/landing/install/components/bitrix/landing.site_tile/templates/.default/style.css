@@ -54,9 +54,6 @@
 	--red: rgba(255,87,82,1);
 	--gray: rgba(51,51,51,1);
 	--dark-grey: rgba(32,32,32,1);
-
-	--font_os_regular: "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	--font_os_semibold: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .landing-sites {
@@ -153,7 +150,8 @@
 	        box-sizing: border-box;
 	background: var(--white_alpha_88);
 	border-radius: 24px;
-	font-family: var(--font_os_regular);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 14px;
 	color: var(--graphite);
 	-webkit-filter: brightness(1);
@@ -232,7 +230,8 @@
 	display: inline-block;
 	padding-right: 0;
 	vertical-align: top;
-	font-family: var(--font_os_regular);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	line-height: 28px;
 	font-size: 14px;
 	color: var(--white);
@@ -297,7 +296,8 @@
 	-webkit-box-shadow: 0 2px 6px 0 rgba(0,0,0,0.11);
 	        box-shadow: 0 2px 6px 0 rgba(0,0,0,0.11);
 	border-radius: 36px;
-	font-family: var(--font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 16px;
 	color: var(--white_alpha_90);
 	white-space: nowrap;
@@ -362,7 +362,8 @@
 	line-height: 31px;
 	padding: 0 13px 0 16px;
 	background: var(--blue);
-	font-family: var(--font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 12px;
 	color: var(--white);
 	cursor: pointer;
@@ -434,7 +435,8 @@
 	    -ms-flex-align: center;
 	        align-items: center;
 	height: 68px;
-	font-family: var(--font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 12px;
 	color: var(--graphite_alpha_78);
 	line-height: 12px;
@@ -495,7 +497,8 @@
 	height: 56px;
 	margin-bottom: 13px;
 	padding: 0 16px;
-	font-family: var(--font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .landing-sites__container.--auto-height {
@@ -517,7 +520,8 @@
 }
 
 .landing-sites__container.--domain {
-	font-family: var(--font_os_regular);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: var(--graphite_alpha_87);
 }
 
@@ -582,7 +586,8 @@
 	text-overflow: ellipsis;
 	background: var(--graphite_alpha_15);
 	border: none;
-	font-family: var(--font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	line-height: 21px;
 	font-size: 15px;
 	color: var(--graphite_alpha_80);
@@ -621,7 +626,8 @@
 }
 
 .landing-sites__container.--domain .landing-sites__title-input {
-	font-family: var(--font_os_regular);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .landing-sites__title-edit {
@@ -1029,8 +1035,8 @@
 	height: 64px;
 	padding-right: 10px;
 	border-bottom: 1px solid var(--graphite_alpha_10);
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-weight: bold;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 16px;
 	line-height: 20px;
 	color: var(--graphite);
@@ -1062,7 +1068,7 @@
 
 .landing-sites__popup-text {
 	display: block;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: var(--gray);
 	text-align: center;
@@ -1084,7 +1090,8 @@
 	background: var(--blue);
 	border-radius: 100%;
 	text-align: center;
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 10px;
 	color: var(--white);
 }
@@ -1135,7 +1142,7 @@
 .landing-sites__popup-copy {
 	height: 18px;
 	line-height: 18px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: var(--graphite);
 	cursor: pointer;
@@ -1303,7 +1310,8 @@
 	-webkit-box-orient: vertical;
 	line-clamp: 2;
 	box-orient: vertical;
-	font-family: var(--font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 16px;
 	color: var(--white);
 }
@@ -1319,7 +1327,8 @@
 	margin-right: -16px;
 	padding: 0 12px 0 7px;
 	border-radius: 13px;
-	font-family: var(--font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 13px;
 	color: var(--white);
 	cursor: pointer;
@@ -1529,7 +1538,8 @@
 	white-space: nowrap;
 	-o-text-overflow: ellipsis;
 	   text-overflow: ellipsis;
-	font-family: var(--font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 14px;
 }
 
@@ -1546,7 +1556,8 @@
 	-webkit-box-flex: 1;
 	    -ms-flex: 1;
 	        flex: 1;
-	font-family: var(--font_os_regular);;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 13px;
 }
 
@@ -1563,7 +1574,8 @@
 	background: var(--white_alpha_07);
 	border: 1px solid var(--white_alpha_25);
 	border-radius: 13px;
-	font-family: var(--font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 13px;
 	color: var(--white);
 	-webkit-box-sizing: border-box;
@@ -1682,7 +1694,8 @@
 }
 
 .landing-sites__scroller-text {
-	font-family: var(--font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 15px;
 	color: var(--white_alpha_90);
 	-webkit-transition: .2s;
@@ -1732,14 +1745,16 @@
 
 .landing-sites__item-marketing--title {
 	padding: 35px 0 20px 0;
-	font-family: var(--font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 16px;
 	color: var(--gray);
 }
 
 .landing-sites__item-marketing--text {
 	margin: 0 30px 30px 30px;
-	font-family: var(--font_os_regular);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 14px;
 	color: var(--gray);
 	text-align: center;
@@ -1808,7 +1823,8 @@
 }
 
 .landing-sites__grid-empty--info-block-title {
-	font-family: "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	padding-left: 15%;
 }
 
@@ -1840,7 +1856,8 @@
 	line-height: 48px;
 	margin-bottom: 20px;
 
-	/*font-family: OpenSans-Regular;*/
+	/*font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);*/
 	/*font-size: 25px;*/
 	/*color: #202020;*/
 	/*letter-spacing: 0;*/
@@ -1853,7 +1870,8 @@
 }
 
 .landing-sites__grid-empty--list-item {
-	font-family: 'OpenSans-Regular', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	position: relative;
 	list-style-type: none;
 	display: -webkit-box;
@@ -1936,7 +1954,8 @@
 	padding: 0 90px 0 75px;
 	border: 2px dashed var(--graphite_alpha_30);
 	border-radius: 3px;
-	font-family: 'OpenSans-Light', Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 	color: var(--graphite_alpha_70);
 	font-size: 22px;
 	text-decoration: none;

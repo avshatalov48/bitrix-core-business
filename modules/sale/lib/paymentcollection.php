@@ -471,7 +471,9 @@ class PaymentCollection extends Internals\EntityCollection
 			}
 
 			if (isset($itemsFromDb[$payment->getId()]))
+			{
 				unset($itemsFromDb[$payment->getId()]);
+			}
 		}
 
 		foreach ($itemsFromDb as $k => $v)

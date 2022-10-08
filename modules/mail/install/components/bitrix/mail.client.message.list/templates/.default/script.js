@@ -403,12 +403,21 @@
 	  }, {
 	    key: "sendCounterUpdateEvent",
 	    value: function sendCounterUpdateEvent(counters) {
+	      if (counters === undefined) {
+	        counters = this.counters;
+	      }
+
+	      if (counters.length === 0) {
+	        return;
+	      }
+
 	      var event = new main_core_events.BaseEvent({
 	        data: {
 	          counters: counters,
 	          hidden: this.hiddenCountersForTotalCounter,
 	          selectedDirectory: this.selectedDirectory,
-	          name: this.getName()
+	          name: this.getName(),
+	          total: this.getTotalCounter()
 	        }
 	      });
 	      main_core_events.EventEmitter.emit('BX.Mail.Home:updatingCounters', event);
@@ -455,6 +464,7 @@
 	    this.userInterfaceManager.resetGridSelection = this.resetGridSelection.bind(this);
 	    this.userInterfaceManager.isSelectedRowsHaveClass = this.isSelectedRowsHaveClass.bind(this);
 	    this.userInterfaceManager.getGridInstance = this.getGridInstance.bind(this);
+	    this.userInterfaceManager.updateCountersFromBackend = this.updateCountersFromBackend.bind(this);
 	    this.cache = {};
 	    this.addEventHandlers();
 	    BX.Mail.Client.Message.List[options.id] = this;
@@ -773,11 +783,15 @@
 	      } else {
 	        BX.Mail.Home.Grid.hideRowByIds(selectedIds);
 	        var unseenRowsIdsCount = this.filterRowsByClassName('mail-msg-list-cell-unseen', selectedIds).length;
-	        BX.Mail.Home.Counters.updateCounters([{
-	          name: this.getCurrentFolder(),
-	          lower: true,
-	          count: unseenRowsIdsCount
-	        }]);
+
+	        if (this.getCurrentFolder() !== '') {
+	          BX.Mail.Home.Counters.updateCounters([{
+	            name: this.getCurrentFolder(),
+	            lower: true,
+	            count: unseenRowsIdsCount
+	          }]);
+	        }
+
 	        this.runAction('delete', options, function () {
 	          return BX.Mail.Home.Grid.reloadTable();
 	        });
@@ -834,15 +848,19 @@
 
 	      BX.Mail.Home.Grid.hideRowByIds(selectedIds);
 	      var unseenRowsIdsCount = this.filterRowsByClassName('mail-msg-list-cell-unseen', selectedIds).length;
-	      BX.Mail.Home.Counters.updateCounters([{
-	        name: toFolderByName,
-	        increase: true,
-	        count: unseenRowsIdsCount
-	      }, {
-	        name: this.getCurrentFolder(),
-	        lower: true,
-	        count: unseenRowsIdsCount
-	      }]);
+
+	      if (this.getCurrentFolder() !== '') {
+	        BX.Mail.Home.Counters.updateCounters([{
+	          name: toFolderByName,
+	          increase: true,
+	          count: unseenRowsIdsCount
+	        }, {
+	          name: this.getCurrentFolder(),
+	          lower: true,
+	          count: unseenRowsIdsCount
+	        }]);
+	      }
+
 	      this.runAction('moveToFolder', {
 	        keepRows: true,
 	        ids: idsForMoving,
@@ -905,22 +923,24 @@
 	        var oldMessagesCount = actionName !== 'markAsSeen' ? this.isSelectedRowsHaveClass('mail-msg-list-cell-old') : 0;
 	        var countMessages = resultIds.length - oldMessagesCount;
 
-	        if (actionName === 'markAsSeen') {
-	          if ('all' === id) {
-	            countMessages = BX.Mail.Home.Counters.getCounter(currentFolder) - oldMessagesCount;
-	          }
+	        if (this.getCurrentFolder() !== '') {
+	          if (actionName === 'markAsSeen') {
+	            if ('all' === id) {
+	              countMessages = BX.Mail.Home.Counters.getCounter(currentFolder) - oldMessagesCount;
+	            }
 
-	          BX.Mail.Home.Counters.updateCounters([{
-	            name: currentFolder,
-	            lower: true,
-	            count: countMessages
-	          }]);
-	        } else {
-	          BX.Mail.Home.Counters.updateCounters([{
-	            name: currentFolder,
-	            increase: true,
-	            count: countMessages
-	          }]);
+	            BX.Mail.Home.Counters.updateCounters([{
+	              name: currentFolder,
+	              lower: true,
+	              count: countMessages
+	            }]);
+	          } else {
+	            BX.Mail.Home.Counters.updateCounters([{
+	              name: currentFolder,
+	              increase: true,
+	              count: countMessages
+	            }]);
+	          }
 	        }
 
 	        if (id === undefined) {
@@ -940,7 +960,9 @@
 	            'groupCount': selected.length,
 	            'bindings': this.getRowsBindings(id ? [this.getGridInstance().getRows().getById(id)] : selected)
 	          },
-	          onSuccess: false
+	          onSuccess: function () {
+	            this.updateCountersFromBackend();
+	          }.bind(this)
 	        });
 	        return true;
 	      };
@@ -988,26 +1010,28 @@
 	      BX.Mail.Home.Grid.hideRowByIds(selectedIds);
 	      var unseenRowsIdsCount = this.filterRowsByClassName('mail-msg-list-cell-unseen', selectedIds).length;
 
-	      if (actionName === 'markAsSpam') {
-	        BX.Mail.Home.Counters.updateCounters([{
-	          name: this.userInterfaceManager.spamDir,
-	          increase: true,
-	          count: unseenRowsIdsCount
-	        }, {
-	          name: this.getCurrentFolder(),
-	          lower: true,
-	          count: unseenRowsIdsCount
-	        }]);
-	      } else {
-	        BX.Mail.Home.Counters.updateCounters([{
-	          name: this.userInterfaceManager.spamDir,
-	          lower: true,
-	          count: unseenRowsIdsCount
-	        }, {
-	          name: this.userInterfaceManager.inboxDir,
-	          increase: true,
-	          count: unseenRowsIdsCount
-	        }]);
+	      if (this.getCurrentFolder() !== '') {
+	        if (actionName === 'markAsSpam') {
+	          BX.Mail.Home.Counters.updateCounters([{
+	            name: this.userInterfaceManager.spamDir,
+	            increase: true,
+	            count: unseenRowsIdsCount
+	          }, {
+	            name: this.getCurrentFolder(),
+	            lower: true,
+	            count: unseenRowsIdsCount
+	          }]);
+	        } else {
+	          BX.Mail.Home.Counters.updateCounters([{
+	            name: this.userInterfaceManager.spamDir,
+	            lower: true,
+	            count: unseenRowsIdsCount
+	          }, {
+	            name: this.userInterfaceManager.inboxDir,
+	            increase: true,
+	            count: unseenRowsIdsCount
+	          }]);
+	        }
 	      }
 
 	      this.runAction(actionName, options, function () {
@@ -1126,6 +1150,20 @@
 	      });
 	    }
 	  }, {
+	    key: "updateCountersFromBackend",
+	    value: function updateCountersFromBackend() {
+	      if (this.getCurrentFolder() === '') {
+	        BX.ajax.runComponentAction('bitrix:mail.client.message.list', 'getDirsWithUnseenMailCounters', {
+	          mode: 'class',
+	          data: {
+	            mailboxId: this.mailboxId
+	          }
+	        }).then(function (response) {
+	          BX.Mail.Home.Counters.setCounters(response.data);
+	        });
+	      }
+	    }
+	  }, {
 	    key: "runAction",
 	    value: function runAction(actionName, options, actionOnSuccess) {
 	      options = options ? options : {};
@@ -1168,6 +1206,8 @@
 	        if (options.onSuccess === false) {
 	          return;
 	        }
+
+	        this.updateCountersFromBackend();
 
 	        if (options.onSuccess && typeof options.onSuccess === "function") {
 	          options.onSuccess.bind(this, selectedIds, options.successParams)();

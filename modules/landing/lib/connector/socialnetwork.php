@@ -221,7 +221,7 @@ class SocialNetwork
 			$asset = \Bitrix\Main\Page\Asset::getInstance();
 			$asset->addString(
 				$asset->insertJs(
-					'BX.ready(function(){BX.SidePanel.Instance.open(\'' . $url . '\');});',
+					'BX.ready(function(){BX.SidePanel.Instance.open(\'' . \CUtil::jsEscape($url) . '\');});',
 			 		'',
 		 			true
 				)

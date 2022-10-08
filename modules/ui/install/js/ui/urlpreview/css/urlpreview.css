@@ -1,9 +1,9 @@
 .blog-post-preview {
-	font: 13px/19px "Helvetica Neue",Helvetica,Arial,sans-serif
+	font: 13px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica))
 }
 
 .blog-post-preview-header-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .blog-post-preview-header-icon {
@@ -19,12 +19,12 @@
 
 
 .event-preview {
-	font: 13px/19px "Helvetica Neue",Helvetica,Arial,sans-serif
+	font: 13px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica))
 }
 
 .event-preview-header {
 	position: relative;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin: 0 0 8px 5px;
 }
 
@@ -102,12 +102,12 @@
 
 
 .task-preview {
-	font: 13px/19px "Helvetica Neue",Helvetica,Arial,sans-serif
+	font: 13px/19px var(--ui-font-family-primary, var(--ui-font-family-helvetica))
 }
 
 .task-preview-header {
 	position: relative;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin: 0 0 8px 5px;
 }
 

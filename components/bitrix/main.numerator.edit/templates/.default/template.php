@@ -7,7 +7,13 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main\Numerator\Numerator;
 use Bitrix\Main\Localization\Loc;
 
-\Bitrix\Main\UI\Extension::load(['ui.alerts','ui.buttons','ui.buttons.icons','ui.hint']);
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.alerts',
+	'ui.buttons',
+	'ui.buttons.icons',
+	'ui.hint',
+]);
 
 if ($arResult['IS_SLIDER'])
 {

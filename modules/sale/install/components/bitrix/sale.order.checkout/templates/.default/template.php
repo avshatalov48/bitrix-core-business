@@ -82,6 +82,7 @@ $options['common']['siteId'] = $scheme['siteId'];
 $options['common']['personTypeId'] = $scheme['personTypeId'];
 $options['common']['tradingPlatformId'] = $model['tradingPlatformId'];
 $options['option']['signedParameters'] = $component->getSignedParameters();
+$options['option']['showReturnButton'] = $arParams['SHOW_RETURN_BUTTON'];
 
 $containerId = 'sale-order-checkout-form';
 ?>

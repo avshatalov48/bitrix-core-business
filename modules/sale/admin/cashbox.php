@@ -17,6 +17,7 @@ $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 if ($publicMode)
 {
+	\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 	Page\Asset::getInstance()->addCss("/bitrix/themes/.default/sale.css");
 }
 

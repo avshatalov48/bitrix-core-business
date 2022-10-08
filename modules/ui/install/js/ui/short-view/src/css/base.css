@@ -15,7 +15,8 @@
 .tasks-scrum__switcher--container {
 	display: inline-flex;
 	border-radius: 16px;
-	font: 14px/14px "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font: 14px/14px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	padding: 8px 10px 8px 16px;
 	position: relative;
 }

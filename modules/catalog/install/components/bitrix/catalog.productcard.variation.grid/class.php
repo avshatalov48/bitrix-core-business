@@ -145,6 +145,8 @@ class CatalogProductVariationGridComponent
 								{
 									$sku->getMeasureRatioCollection()->setDefault($measureRatio->getRatio());
 								}
+
+								$sku->getImageCollection()->setValues($copyItem->getImageCollection()->toArray());
 							}
 
 							if (!empty($copyItemMap))
@@ -180,6 +182,11 @@ class CatalogProductVariationGridComponent
 	public function isNewProduct(): bool
 	{
 		return $this->getProduct()->isNew();
+	}
+
+	public function isSimpleProduct(): bool
+	{
+		return $this->getProduct()->isSimple();
 	}
 
 	protected function checkModules(): bool
@@ -350,6 +357,7 @@ class CatalogProductVariationGridComponent
 		$this->getDefaultVariationRowForm();
 		$this->arResult['CAN_HAVE_SKU'] = $this->canHaveSku();
 		$this->arResult['PROPERTY_MODIFY_LINK'] = $this->getPropertyModifyLink();
+		$this->arResult['PROPERTY_COPY_LINK'] = $this->getProductCopyLink();
 		$this->arResult['GRID'] = $this->getGridData();
 		$this->arResult['STORE_AMOUNT'] = $this->getStoreAmount();
 		$this->arResult['IS_SHOWED_STORE_RESERVE'] = \Bitrix\Catalog\Config\State::isShowedStoreReserve();
@@ -441,11 +449,21 @@ class CatalogProductVariationGridComponent
 		return null;
 	}
 
+	protected function getProductCopyLink(): string
+	{
+		return str_replace(
+			['#IBLOCK_ID#', '#COPY_PRODUCT_ID#'],
+			[$this->getIblockId(), $this->getProductId()],
+			$this->arParams['PATH_TO']['PRODUCT_COPY_DETAILS']
+		);
+	}
+
 	protected function getGridRows(): array
 	{
 		$rows = [];
-
-		foreach ($this->getProduct()->loadSkuCollection() as $sku)
+		$skuCollection = $this->getProduct()->loadSkuCollection();
+		$skuCount = $skuCollection->count();
+		foreach ($skuCollection as $sku)
 		{
 			if ($this->arParams['VARIATION_ID_LIST'] && !in_array($sku->getId(), $this->arParams['VARIATION_ID_LIST'], true))
 			{
@@ -476,13 +494,16 @@ class CatalogProductVariationGridComponent
 					'href' => $this->getVariationLink($skuId),
 					'default' => false,
 				];
-				$actions[] = [
-					'iconclass' => 'delete',
-					'title' => Loc::getMessage('CATALOG_PRODUCT_CARD_GRID_MENU_DELETE_TITLE'),
-					'text' => Loc::getMessage('CATALOG_PRODUCT_CARD_GRID_MENU_DELETE_TITLE'),
-					'onclick' => "BX.Catalog.VariationGrid.Instance.removeRowFromGrid({$skuId});",
-					'default' => false,
-				];
+				if ($skuCount > 1)
+				{
+					$actions[] = [
+						'iconclass' => 'delete',
+						'title' => Loc::getMessage('CATALOG_PRODUCT_CARD_GRID_MENU_DELETE_TITLE'),
+						'text' => Loc::getMessage('CATALOG_PRODUCT_CARD_GRID_MENU_DELETE_TITLE'),
+						'onclick' => "BX.Catalog.VariationGrid.Instance.removeRowFromGrid({$skuId});",
+						'default' => false,
+					];
+				}
 			}
 
 			$rows[] = [

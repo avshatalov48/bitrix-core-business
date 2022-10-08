@@ -1,4 +1,4 @@
-table.sonet-message-form  
+table.sonet-message-form
 {
 	width: 100%;
 	border: 1px solid #ABC4D0;
@@ -35,7 +35,7 @@ table.sonet-message-form-smile tbody td, table.sonet-message-form-smile td
 
 .required-field
 {
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	color:#FF0000;
 }
 
@@ -64,7 +64,7 @@ div.sonet-cntnr-user-request-group { margin-bottom: 2em; }
 
 .sonet-user-request-group-message-text {
 	position: relative;
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: #80868e;
 	border: 1px solid #c6cdd3;

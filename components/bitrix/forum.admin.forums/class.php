@@ -194,7 +194,11 @@ class CForumAdminMessages extends \CBitrixComponent
 				{
 					$this->errorCollection->add([new \Bitrix\Main\Error(Loc::getMessage("FORUM_ERROR_EDIT_PERMISSION", ["#id#" => $forum->getId(), "#name#" => $forum["NAME"]]))]);
 				}
-				else if (!\CForumNew::Update($forum->getId(), $fields))
+				else if (!\CForumNew::Update($forum->getId(), array_filter(
+					$fields,
+					function($itemKey) { return strpos($itemKey, '~') !== false; },
+					ARRAY_FILTER_USE_KEY))
+				)
 				{
 					$this->errorCollection->add([new \Bitrix\Main\Error(($ex = $APPLICATION->GetException()) ? $ex->GetString() : Loc::getMessage("FORUM_ERROR_EDIT_UNKNOWN", ["#id#" => $forum->getId(), "#name#" => $forum["NAME"]]))]);
 				}

@@ -1,3 +1,6 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 import {Dom, Tag} from 'main.core';
 import {BaseField} from 'landing.ui.field.basefield';
 import {Loc} from 'landing.loc';

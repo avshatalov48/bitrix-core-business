@@ -3,6 +3,7 @@ import {BaseProvider} from './base_provider';
 import {GoogleMap} from './google_map';
 import {YandexMap} from './yandex_map';
 
+import 'ui.fonts.opensans';
 import './css/style.css'
 
 
@@ -50,7 +51,7 @@ export class Map
 		const provider = new (Map.PROVIDERS[providerCode])(options);
 		if (provider.isApiLoaded())
 		{
-			provider.onInitHandler();
+			provider.init();
 		}
 		else
 		{
@@ -71,7 +72,7 @@ export class Map
 		{
 			Map.scheduled[providerCode].forEach(provider =>
 			{
-				provider.onInitHandler();
+				provider.init();
 			});
 		}
 	}

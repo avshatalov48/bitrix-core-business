@@ -1,22 +1,31 @@
 this.BX = this.BX || {};
-(function (exports,main_core) {
+(function (exports,main_core,main_core_events) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3;
-	var Ears = /*#__PURE__*/function () {
+	var Ears = /*#__PURE__*/function (_EventEmitter) {
+	  babelHelpers.inherits(Ears, _EventEmitter);
+
 	  function Ears(options) {
+	    var _this;
+
 	    babelHelpers.classCallCheck(this, Ears);
-	    this.container = options.container;
-	    this.smallSize = options.smallSize || null;
-	    this.noScrollbar = options.noScrollbar ? options.noScrollbar : false;
-	    this.className = options.className ? options.className : null;
-	    this.wrapper = null;
-	    this.leftEar = null;
-	    this.rightEar = null;
-	    this.parentContainer = this.container.parentNode;
-	    this.delay = 6;
-	    this.scrollTimeout = null;
-	    this.cache = new main_core.Cache.MemoryCache();
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Ears).apply(this, arguments));
+
+	    _this.setEventNamespace('BX.UI.Ears');
+
+	    _this.container = options.container;
+	    _this.smallSize = options.smallSize || null;
+	    _this.noScrollbar = options.noScrollbar ? options.noScrollbar : false;
+	    _this.className = options.className ? options.className : null;
+	    _this.wrapper = null;
+	    _this.leftEar = null;
+	    _this.rightEar = null;
+	    _this.parentContainer = _this.container.parentNode;
+	    _this.delay = 6;
+	    _this.scrollTimeout = null;
+	    _this.cache = new main_core.Cache.MemoryCache();
+	    return _this;
 	  }
 
 	  babelHelpers.createClass(Ears, [{
@@ -36,39 +45,40 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "init",
 	    value: function init() {
-	      var _this = this;
+	      var _this2 = this;
 
 	      this.setWrapper();
 	      this.bindEvents();
 	      setTimeout(function () {
-	        if (_this.container.scrollWidth > _this.container.offsetWidth) {
-	          _this.toggleRightEar();
+	        if (_this2.container.scrollWidth > _this2.container.offsetWidth) {
+	          _this2.toggleRightEar();
 
-	          var activeItem = _this.container.querySelector('[data-role="ui-ears-active"]');
+	          var activeItem = _this2.container.querySelector('[data-role="ui-ears-active"]');
 
-	          activeItem ? _this.scrollToActiveItem(activeItem) : null;
+	          activeItem ? _this2.scrollToActiveItem(activeItem) : null;
 	        }
 	      }, 600);
+	      return this;
 	    }
 	  }, {
 	    key: "scrollToActiveItem",
 	    value: function scrollToActiveItem(activeItem) {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      var scrollToPoint = activeItem.offsetLeft - (this.container.offsetWidth / 2 - activeItem.offsetWidth / 2);
 	      var scrollWidth = 0;
 	      var interval = setInterval(function () {
-	        if (scrollWidth >= scrollToPoint || scrollWidth + _this2.container.offsetWidth >= _this2.container.scrollWidth) {
+	        if (scrollWidth >= scrollToPoint || scrollWidth + _this3.container.offsetWidth >= _this3.container.scrollWidth) {
 	          clearInterval(interval);
 	        }
 
-	        _this2.container.scrollLeft = scrollWidth += 10;
+	        _this3.container.scrollLeft = scrollWidth += 10;
 	      }, 10);
 	    }
 	  }, {
 	    key: "onWheel",
 	    value: function onWheel(event) {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      if (event.deltaY < 0 || event.deltaX > 0) {
 	        this.scrollRight();
@@ -78,7 +88,7 @@ this.BX = this.BX || {};
 
 	      clearTimeout(this.scrollTimeout);
 	      this.scrollTimeout = setTimeout(function () {
-	        return _this3.stopScroll();
+	        return _this4.stopScroll();
 	      }, 150);
 	    }
 	  }, {
@@ -95,10 +105,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getWrapper",
 	    value: function getWrapper() {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      return this.cache.remember('wrapper', function () {
-	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='ui-ears-wrapper ", " ", "'>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), _this4.smallSize ? ' ui-ears-wrapper-sm' : '', _this4.className ? _this4.className : '', _this4.getLeftEar(), _this4.getRightEar(), _this4.container);
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<div class='ui-ears-wrapper ", " ", "'>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t"])), _this5.smallSize ? ' ui-ears-wrapper-sm' : '', _this5.className ? _this5.className : '', _this5.getLeftEar(), _this5.getRightEar(), _this5.container);
 	      });
 	    }
 	  }, {
@@ -143,7 +153,14 @@ this.BX = this.BX || {};
 	    key: "scrollLeft",
 	    value: function scrollLeft() {
 	      this.stopScroll('right');
+	      var previous = this.container.scrollLeft;
 	      this.container.scrollLeft -= 10;
+	      this.emit('onEarsAreMoved');
+
+	      if (this.container.scrollLeft <= 0 && previous > 0) {
+	        this.emit('onEarsAreHidden');
+	      }
+
 	      this.setDelay();
 	      this.scrollInterval = setInterval(this.scrollLeft.bind(this), this.delay);
 	      this.left = true;
@@ -153,6 +170,12 @@ this.BX = this.BX || {};
 	    value: function scrollRight() {
 	      this.stopScroll('left');
 	      this.container.scrollLeft += 10;
+	      this.emit('onEarsAreMoved');
+
+	      if (this.container.scrollLeft <= 10) {
+	        this.emit('onEarsAreShown');
+	      }
+
 	      this.setDelay();
 	      this.scrollInterval = setInterval(this.scrollRight.bind(this), this.delay);
 	      this.right = true;
@@ -205,9 +228,9 @@ this.BX = this.BX || {};
 	    }
 	  }]);
 	  return Ears;
-	}();
+	}(main_core_events.EventEmitter);
 
 	exports.Ears = Ears;
 
-}((this.BX.UI = this.BX.UI || {}),BX));
+}((this.BX.UI = this.BX.UI || {}),BX,BX.Event));
 //# sourceMappingURL=ears.bundle.js.map

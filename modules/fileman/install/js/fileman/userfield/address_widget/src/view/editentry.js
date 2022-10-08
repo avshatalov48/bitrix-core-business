@@ -1,6 +1,6 @@
 import {Address as AddressWidget, AutocompleteFeature, Factory, State} from "location.widget";
 import {Address as AddressEntity, AddressStringConverter, AddressType, ControlMode, Format} from "location.core";
-import {Dom, Event, Tag, Loc} from "main.core";
+import {Dom, Event, Tag, Loc, Text} from "main.core";
 import type {EditEntryProps} from "./editentryprops";
 import {EventEmitter} from "main.core.events";
 
@@ -239,10 +239,19 @@ export class EditEntry extends EventEmitter
 	getInitialAddressFieldValue(): string
 	{
 		let inputValue =  '';
-		// for compatibility with the format used before the switch to location module's addresses
-		if (this.#address?.id === 0)
+
+		if (this.#address?.id == 0)
 		{
-			inputValue = `${this.#address.getFieldValue(AddressType.ADDRESS_LINE_2)}|${this.#address.latitude};${this.#address.longitude}`;
+			if (this.#address.location)
+			{
+				// JSON has probably been passed as the component's value; we need to create a new address
+				inputValue = Text.encode(this.#address.toJson());
+			}
+			else
+			{
+				// for compatibility with the format used before the switch to location module's addresses
+				inputValue = `${this.#address.getFieldValue(AddressType.ADDRESS_LINE_2)}|${this.#address.latitude};${this.#address.longitude}`;
+			}
 		}
 		else if (this.#address?.id > 0)
 		{

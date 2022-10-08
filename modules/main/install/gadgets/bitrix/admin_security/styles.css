@@ -79,8 +79,8 @@
 	margin-right: 10px;
 	font-size: 50px;
 	line-height: 47px;
-	font-family: Helvetica,Arial,sans-serif;
-	font-weight: bold;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
 
 }
 .bx-gadgets-security .bx-gadgets-title2 {color: #98cded; text-shadow: 0 -1px 0 #235483;}

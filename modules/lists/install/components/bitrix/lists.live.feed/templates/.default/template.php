@@ -15,13 +15,18 @@
 use Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Page\Asset;
 
-CJSCore::Init(['lists', 'ui.design-tokens']);
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'lists',
+]);
 
 Asset::getInstance()->addJs('/bitrix/components/bitrix/ui.tile.selector/templates/.default/script.js');
 Asset::getInstance()->addCss('/bitrix/components/bitrix/ui.tile.selector/templates/.default/style.css');
 Asset::getInstance()->addJs('/bitrix/components/bitrix/intranet.user.selector.new/templates/.default/users.js');
 Asset::getInstance()->addCss('/bitrix/components/bitrix/intranet.user.selector.new/templates/.default/style.css');
 Asset::getInstance()->addJs('/bitrix/components/bitrix/crm.field.element/templates/main.edit/script.js');
+Asset::getInstance()->addJs('/bitrix/components/bitrix/main.user.selector/templates/.default/script.js');
 
 Asset::getInstance()->addJs($this->GetFolder().'/right.js');
 ?>

@@ -1,7 +1,7 @@
 
 .sonet-groups-content-wrap {
 	padding-top: 0;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .sonet-groups-content-wrap.no-groups {
@@ -16,7 +16,8 @@
 	color: #38404a;
 	vertical-align: top;
 	text-transform: uppercase;
-	font: 12px "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .template-bitrix24 .sonet-groups-content-sort-container {
@@ -182,7 +183,8 @@
 	color: #333;
 	text-decoration: none;
 	font-size: 18px;
-	font-family: "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	transition: 250ms linear all;
 }
 
@@ -191,7 +193,8 @@
 .sonet-sidebar .sonet-groups-group-link {
 	color: #515c69;
 	font-size: 14px;
-	font-family: "OpenSans-Semibold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .sonet-sidebar .sonet-groups-group-link:hover { color: #333; }
@@ -270,7 +273,7 @@
 .sonet-groups-sidebar-content {
 	color: #535c69;
 	font-size: 13px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	padding-bottom: 10px;
 }
 
@@ -289,7 +292,8 @@
 	color: #fff;
 	text-transform: uppercase;
 	font-size: 12px;
-	font-family: "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	line-height: 40px;
 }
 
@@ -332,7 +336,8 @@
 	background-size: 80px auto;
 	color: #edeef0;
 	font-size: 50px;
-	font-family: "OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .sonet-groups-list-container { min-height: 300px; }

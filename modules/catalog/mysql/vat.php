@@ -1,71 +1,38 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/vat.php");
 
 class CCatalogVat extends CAllCatalogVat
 {
-	public static function Add($arFields)
-	{
-		global $DB;
-
-		if (!CCatalogVat::CheckFields('ADD', $arFields))
-			return false;
-
-		$arInsert = $DB->PrepareInsert("b_catalog_vat", $arFields);
-
-		$strSql = "INSERT INTO b_catalog_vat(".$arInsert[0].") VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$ID = intval($DB->LastID());
-
-		return $ID;
-	}
-
-	public static function Update($ID, $arFields)
-	{
-		global $DB;
-
-		$ID = intval($ID);
-		if (0 >= $ID)
-			return false;
-
-		if (!CCatalogVat::CheckFields('UPDATE', $arFields, $ID))
-			return false;
-
-		$strUpdate = $DB->PrepareUpdate("b_catalog_vat", $arFields);
-		if (!empty($strUpdate))
-		{
-			$strSql = "UPDATE b_catalog_vat SET ".$strUpdate." WHERE ID = ".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		}
-
-		return $ID;
-	}
-
-	public static function Delete($ID)
-	{
-		global $DB;
-		$ID = intval($ID);
-		if (0 >= $ID)
-			return false;
-		$DB->Query("DELETE FROM b_catalog_vat WHERE ID=".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		return true;
-	}
-
 	public static function GetListEx($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
 
-		if (empty($arSelectFields))
-			$arSelectFields = array('ID', 'TIMESTAMP_X', 'ACTIVE', 'C_SORT', 'NAME', 'RATE');
+		if (empty($arSelectFields) || !is_array($arSelectFields))
+		{
+			$arSelectFields = [
+				'ID',
+				'TIMESTAMP_X',
+				'ACTIVE',
+				'C_SORT',
+				'NAME',
+				'RATE',
+				'EXCLUDE_VAT',
+				'XML_ID',
+			];
+		}
 
-		$arFields = array(
-			'ID' => array("FIELD" => "CV.ID", "TYPE" => "int"),
-			'TIMESTAMP_X' => array("FIELD" => "CV.TIMESTAMP_X", "TYPE" => "datetime"),
-			'ACTIVE' => array("FIELD" => "CV.ACTIVE", "TYPE" => "char"),
-			'C_SORT' => array("FIELD" => "CV.C_SORT", "TYPE" => "int"),
-			'SORT' => array("FIELD" => "CV.C_SORT", "TYPE" => "int"),
-			'NAME' => array("FIELD" => "CV.NAME", "TYPE" => "string"),
-			'RATE' => array("FIELD" => "CV.RATE", "TYPE" => "double"),
-		);
+		$arFields = [
+			'ID' => ["FIELD" => "CV.ID", "TYPE" => "int"],
+			'TIMESTAMP_X' => ["FIELD" => "CV.TIMESTAMP_X", "TYPE" => "datetime"],
+			'ACTIVE' => ["FIELD" => "CV.ACTIVE", "TYPE" => "char"],
+			'C_SORT' => ["FIELD" => "CV.C_SORT", "TYPE" => "int"],
+			'SORT' => ["FIELD" => "CV.C_SORT", "TYPE" => "int"],
+			'NAME' => ["FIELD" => "CV.NAME", "TYPE" => "string"],
+			'RATE' => ["FIELD" => "CV.RATE", "TYPE" => "double"],
+			'EXCLUDE_VAT' => ["FIELD" => "CV.EXCLUDE_VAT", "TYPE" => "char"],
+			'XML_ID' => ["FIELD" => "CV.XML_ID", "TYPE" => "string"],
+		];
 
 		$arSqls = CCatalog::PrepareSql($arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields);
 

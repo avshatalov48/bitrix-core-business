@@ -8,8 +8,10 @@
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
+use Bitrix\Main;
 use Bitrix\Main\HttpResponse;
 use Bitrix\Main\Application;
+use Bitrix\Main\Web\Uri;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -572,8 +574,9 @@ class CAdminSidePanelHelper extends CAdminAjaxHelper
 			{
 				if (mb_strpos("publicSidePanel",$dataToForm["reloadUrl"]) === false)
 				{
-					$dataToForm["reloadUrl"] = CHTTP::urlAddParams(
-						$dataToForm["reloadUrl"], array("publicSidePanel" => "Y"));
+					$dataToForm["reloadUrl"] = (new Uri($dataToForm["reloadUrl"]))
+						->addParams(["publicSidePanel" => "Y"])
+						->getUri();
 				}
 			}
 		}
@@ -592,16 +595,16 @@ class CAdminSidePanelHelper extends CAdminAjaxHelper
 	{
 		if ($this->isSidePanelRequest())
 		{
-			$redirectUrl = CHTTP::urlAddParams($redirectUrl, array(
+			$uri = (new Uri($redirectUrl))->addParams([
 				"IFRAME" => "Y",
 				"IFRAME_TYPE" => "SIDE_SLIDER",
-				"sidePanelAction" => $type)
-			);
+				"sidePanelAction" => $type
+			]);
 			if ($this->isPublicSidePanel())
 			{
-				$redirectUrl = CHTTP::urlAddParams($redirectUrl, array("publicSidePanel" => "Y"));
+				$uri->addParams(["publicSidePanel" => "Y"]);
 			}
-			LocalRedirect($redirectUrl);
+			LocalRedirect($uri->getUri());
 		}
 	}
 
@@ -648,7 +651,7 @@ class CAdminSidePanelHelper extends CAdminAjaxHelper
 			{
 				$params["publicSidePanel"] = "Y";
 			}
-			return \CHTTP::urlAddParams($url, $params);
+			return (new Uri($url))->addParams($params)->getUri();
 		}
 		else
 		{
@@ -2094,26 +2097,35 @@ class CAdminResult extends CDBResult
 	 */
 	public static function GetNavSize($table_id=false, $nPageSize=20)
 	{
-		/** @global CMain $APPLICATION */
 		global $NavNum, $APPLICATION;
 
 		if (!isset($NavNum))
 			$NavNum = 0;
 
-		$bSess = (CPageOption::GetOptionString("main", "nav_page_in_session", "Y")=="Y");
 		if(is_array($nPageSize))
 			$sNavID = $nPageSize["sNavID"];
-		$unique = md5((isset($sNavID)? $sNavID : $APPLICATION->GetCurPage()));
 
-		if(isset($_REQUEST["SIZEN_".($NavNum+1)]))
+		$inSession = (CPageOption::GetOptionString("main", "nav_page_in_session", "Y") == "Y");
+
+		if ($inSession)
+		{
+			$localStorage = Main\Application::getInstance()->getLocalSession('navigation');
+			$session = $localStorage->getData();
+
+			$unique = md5($sNavID ?? $APPLICATION->GetCurPage()) . "PAGE_SIZE_" . ($NavNum + 1);
+		}
+
+		if (isset($_REQUEST["SIZEN_".($NavNum+1)]))
 		{
 			$nSize = (int)$_REQUEST["SIZEN_".($NavNum+1)];
-			if($bSess)
-				\Bitrix\Main\Application::getInstance()->getSession()["NAV_PAGE_SIZE"][$unique] = $nSize;
+			if ($inSession)
+			{
+				$localStorage->set($unique, $nSize);
+			}
 		}
-		elseif($bSess && isset(\Bitrix\Main\Application::getInstance()->getSession()["NAV_PAGE_SIZE"][$unique]))
+		elseif ($inSession && isset($session[$unique]))
 		{
-			$nSize = \Bitrix\Main\Application::getInstance()->getSession()["NAV_PAGE_SIZE"][$unique];
+			$nSize = $session[$unique];
 		}
 		else
 		{

@@ -1,5 +1,11 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
+
 if($arResult["FatalError"] <> '')
 {
 	?>
@@ -14,7 +20,7 @@ else
 		<span class='errortext'><?=$arResult["ErrorMessage"]?></span><br /><br />
 		<?
 	}
-	?>	
+	?>
 
 	<?if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"]):?>
 		<form method="post" name="form1" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data">
@@ -36,15 +42,15 @@ else
 					<div class="bx-links-container"><?
 					if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"]):
 						?><script>
-							var arUsers = []; 
+							var arUsers = [];
 							var bx_owner_menu = new PopupMenu('bx_owner_menu');
-							
+
 							function ShowOwnerMenu(el)
 							{
 								if (arUsers.length > 0)
 								{
 									var items = [];
-				
+
 									for (var i = 0; i < arUsers.length; i++)
 									{
 										items[i] = {
@@ -53,7 +59,7 @@ else
 											ONCLICK: 'SetOwner(' + arUsers[i].ID + ')'
 										}
 									}
-			
+
 									bx_owner_menu.ShowMenu(el, items);
 								}
 							}
@@ -69,14 +75,14 @@ else
 						<a href="javascript:void(0)" class="bx-owner-link" id="bx_owner_link" onclick="ShowOwnerMenu(this);" style="display: none;"><span><?echo GetMessage('SONET_C10_T_OWNER')?></span></a><?
 					endif;
 					?></div>
-			
+
 					<table width="100%" border="0" class="sonet-user-profile-friend-box">
 					<tr>
-						<td align="left" valign="top">					
+						<td align="left" valign="top">
 					<?
 					$ind = 0;
 					$ind_row = 0;
-					
+
 					$colcnt = 2;
 					$cnt = count($arResult["Moderators"]["List"]);
 					$rowcnt = intval(round($cnt / $colcnt));
@@ -90,7 +96,7 @@ else
 						}
 
 						?><div class="user-div"><?
-						
+
 						if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"])
 						{
 							?>
@@ -110,7 +116,7 @@ else
 						if ($friend["USER_ID"] == $arResult["Group"]["OWNER_ID"])
 							$strUserDesc = GetMessage("SONET_C10_OWNER");
 						else
-							$strUserDesc = "";						
+							$strUserDesc = "";
 
 						$APPLICATION->IncludeComponent("bitrix:main.user.link",
 							'',
@@ -136,7 +142,7 @@ else
 								"SHOW_LOGIN" => $arParams["SHOW_LOGIN"],
 								"PATH_TO_CONPANY_DEPARTMENT" => $arParams["~PATH_TO_CONPANY_DEPARTMENT"],
 							),
-							false, 
+							false,
 							array("HIDE_ICONS" => "Y")
 						);
 
@@ -150,11 +156,11 @@ else
 						}
 
 						$ind++;
-						$ind_row++;						
+						$ind_row++;
 						?></div><?
 						if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"]):
-							?><script>arUsers[arUsers.length] = {ID:<?echo $friend["USER_ID"]?>,NAME:'<?echo CUtil::JSEscape(htmlspecialcharsback($friend["USER_NAME_FORMATTED"]))?>',CURRENT:<?echo $friend["IS_OWNER"] ? 'true' : 'false'?>}</script><?	
-						endif;						
+							?><script>arUsers[arUsers.length] = {ID:<?echo $friend["USER_ID"]?>,NAME:'<?echo CUtil::JSEscape(htmlspecialcharsback($friend["USER_NAME_FORMATTED"]))?>',CURRENT:<?echo $friend["IS_OWNER"] ? 'true' : 'false'?>}</script><?
+						endif;
 					}
 					?>
 						</td>

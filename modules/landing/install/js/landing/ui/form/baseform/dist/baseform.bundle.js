@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,main_core_events,landing_env) {
+(function (exports,ui_designTokens,ui_fonts_opensans,main_core,main_core_events,landing_env) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9;
@@ -286,5 +286,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.BaseForm = BaseForm;
 
-}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX,BX.Event,BX.Landing));
+}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX,BX,BX,BX.Event,BX.Landing));
 //# sourceMappingURL=baseform.bundle.js.map

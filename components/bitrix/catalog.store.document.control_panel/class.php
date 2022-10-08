@@ -149,6 +149,7 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 		if (
 			Main\Loader::includeModule('crm')
 			&& !\CCrmSaleHelper::isWithOrdersMode()
+			&& CCrmSaleHelper::isShopAccess('admin')
 		)
 		{
 			Main\UI\Extension::load(['crm.config.catalog']);
@@ -191,6 +192,19 @@ class CatalogStoreDocumentControlPanelComponent extends \CBitrixComponent
 			'IS_ACTIVE' => $url === $requestUrl,
 			'IS_DISABLED' => true,
 		];
+
+		if (Main\Loader::includeModule('rest'))
+		{
+			$url = '/marketplace/?tag[0]=migrator&tag[1]=inventory';
+			$buttons[] = [
+				'ID' => 'transfer_data',
+				'TEXT' => Loc::getMessage('STORE_DOCUMENTS_TRANSFER_DATA_TITLE'),
+				'URL' => $url,
+				'SORT' => 100,
+				'IS_ACTIVE' => $url === $requestUrl,
+				'IS_DISABLED' => true,
+			];
+		}
 
 		return $buttons;
 	}

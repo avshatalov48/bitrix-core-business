@@ -31,6 +31,7 @@ export type FormOption = {
 	buttonsPosition: FormElementPosition,
 	visibleBlocks: Array<FormInputCode>,
 	validationCodes: Array<FormErrorCode>,
+	requiredFields: Array<FormErrorCode>,
 	editableFields: Array<FormInputCode>,
 	urlBuilderContext: string,
 	hideUnselectedProperties: boolean,
@@ -40,4 +41,10 @@ export type FormOption = {
 	isCatalogPriceEditEnabled: boolean,
 	isCatalogPriceSaveEnabled: boolean,
 	fieldHints: {},
+	facebookFailProducts?: Array,
+	isAllowedFacebookRegion: boolean,
+	ownerId: ?number,
+	ownerTypeId: ?number,
+	dialogId: ?string,
+	sessionId: ?number,
 }

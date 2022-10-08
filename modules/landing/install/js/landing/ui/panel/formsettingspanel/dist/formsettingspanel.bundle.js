@@ -1,14 +1,28 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_panel_basepresetpanel,landing_pageobject,landing_loc,main_core,landing_backend,main_loader,crm_form_client,ui_buttons,landing_env,landing_ui_panel_stylepanel,ui_dialogs_messagebox,ui_alerts,landing_ui_button_sidebarbutton,ui_tour,landing_ui_panel_fieldspanel) {
+(function (exports,landing_ui_panel_basepresetpanel,landing_pageobject,landing_loc,main_core,landing_backend,main_loader,crm_form_client,ui_buttons,landing_env,landing_ui_panel_stylepanel,ui_dialogs_messagebox,ui_alerts,landing_ui_button_sidebarbutton,ui_tour,landing_ui_panel_fieldspanel,bitrix24_phoneverify) {
 	'use strict';
 
-	var _templateObject, _templateObject2;
+	var _templateObject, _templateObject2, _templateObject3;
 
-	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _phoneDoesntVerifiedResponseCode = /*#__PURE__*/new WeakMap();
+
+	var _isPhoneValidationError = /*#__PURE__*/new WeakSet();
+
+	var _showPhoneVerifySlider = /*#__PURE__*/new WeakSet();
 
 	/**
 	 * @memberOf BX.Landing.UI.Panel
@@ -34,6 +48,17 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    babelHelpers.classCallCheck(this, FormSettingsPanel);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(FormSettingsPanel).call(this));
+
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _showPhoneVerifySlider);
+
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _isPhoneValidationError);
+
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "adjustActionsPanels", false);
+
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _phoneDoesntVerifiedResponseCode, {
+	      writable: true,
+	      value: 'PHONE_NOT_VERIFIED'
+	    });
 
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel');
 
@@ -522,20 +547,63 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var editorWindow = landing_pageobject.PageObject.getEditorWindow();
 	      main_core.Dom.addClass(editorWindow.document.body, 'landing-ui-hide-action-panels-form');
 	      void landing_ui_panel_stylepanel.StylePanel.getInstance().hide();
+	      this.disableHistory();
 	      return babelHelpers.get(babelHelpers.getPrototypeOf(FormSettingsPanel.prototype), "show", this).call(this, options).then(function () {
 	        setTimeout(function () {
-	          _this10.getCurrentBlock().node.scrollIntoView({
-	            behavior: 'smooth'
-	          });
+	          var y = _this10.getCurrentBlock().node.offsetTop;
+
+	          landing_pageobject.PageObject.getEditorWindow().scrollTo(0, y);
 	        }, 300);
 	        return Promise.resolve(true);
 	      });
 	    }
 	  }, {
+	    key: "getHistoryHint",
+	    value: function getHistoryHint() {
+	      return this.cache.remember('historyHint', function () {
+	        var layout = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"landing-ui-history-hint\"\n\t\t\t\t\tdata-hint=\"", "\"\n\t\t\t\t\tdata-hint-no-icon\n\t\t\t\t></span>\n\t\t\t"])), main_core.Text.encode(landing_loc.Loc.getMessage('LANDING_FORM_HISTORY_DISABLED_HINT')));
+	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        rootWindow.BX.UI.Hint.initNode(layout);
+	        return layout;
+	      });
+	    }
+	  }, {
+	    key: "disableHistory",
+	    value: function disableHistory() {
+	      var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	      var TopPanel = rootWindow.BX.Landing.UI.Panel.Top;
+
+	      if (TopPanel) {
+	        var _TopPanel$getInstance = TopPanel.getInstance(),
+	            undoButton = _TopPanel$getInstance.undoButton,
+	            redoButton = _TopPanel$getInstance.redoButton;
+
+	        main_core.Dom.addClass(undoButton, 'landing-ui-disabled-from-form');
+	        main_core.Dom.addClass(redoButton, 'landing-ui-disabled-from-form');
+	        main_core.Dom.append(this.getHistoryHint(), undoButton.parentElement);
+	      }
+	    }
+	  }, {
+	    key: "enableHistory",
+	    value: function enableHistory() {
+	      var rootWindow = landing_pageobject.PageObject.getRootWindow();
+	      var TopPanel = rootWindow.BX.Landing.UI.Panel.Top;
+
+	      if (TopPanel) {
+	        var _TopPanel$getInstance2 = TopPanel.getInstance(),
+	            undoButton = _TopPanel$getInstance2.undoButton,
+	            redoButton = _TopPanel$getInstance2.redoButton;
+
+	        main_core.Dom.removeClass(undoButton, 'landing-ui-disabled-from-form');
+	        main_core.Dom.removeClass(redoButton, 'landing-ui-disabled-from-form');
+	        main_core.Dom.remove(this.getHistoryHint());
+	      }
+	    }
+	  }, {
 	    key: "getAccessError",
 	    value: function getAccessError() {
 	      return this.cache.remember('accessErrorMessage', function () {
-	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-access-error-message\">\n\t\t\t\t\t<div class=\"landing-ui-access-error-message-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), landing_loc.Loc.getMessage('LANDING_CRM_ACCESS_ERROR_MESSAGE'));
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-access-error-message\">\n\t\t\t\t\t<div class=\"landing-ui-access-error-message-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), landing_loc.Loc.getMessage('LANDING_CRM_ACCESS_ERROR_MESSAGE'));
 	      });
 	    } // eslint-disable-next-line class-methods-use-this
 
@@ -1194,14 +1262,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            }
 	          })["catch"](function (errors) {
 	            if (main_core.Type.isArrayFilled(errors)) {
-	              var errorMessage = errors.map(function (item) {
-	                return main_core.Text.encode(item.message);
-	              }).join('<br><br>');
+	              if (_classPrivateMethodGet(_this20, _isPhoneValidationError, _isPhoneValidationError2).call(_this20, errors)) {
+	                _classPrivateMethodGet(_this20, _showPhoneVerifySlider, _showPhoneVerifySlider2).call(_this20);
+	              } else {
+	                var errorMessage = errors.map(function (item) {
+	                  return main_core.Text.encode(item.message);
+	                }).join('<br><br>');
 
-	              var errorAlert = _this20.getErrorAlert();
+	                var errorAlert = _this20.getErrorAlert();
 
-	              errorAlert.setMessage(errorMessage);
-	              errorAlert.show();
+	                errorAlert.setMessage(errorMessage);
+	                errorAlert.show();
+	              }
 	            } else {
 	              var _rootWindow2 = landing_pageobject.PageObject.getRootWindow();
 
@@ -1257,6 +1329,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function hide() {
 	      var editorWindow = landing_pageobject.PageObject.getEditorWindow();
 	      main_core.Dom.removeClass(editorWindow.document.body, 'landing-ui-hide-action-panels-form');
+	      this.enableHistory();
 	      return babelHelpers.get(babelHelpers.getPrototypeOf(FormSettingsPanel.prototype), "hide", this).call(this);
 	    }
 	  }, {
@@ -1283,7 +1356,21 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return FormSettingsPanel;
 	}(landing_ui_panel_basepresetpanel.BasePresetPanel);
 
+	function _isPhoneValidationError2(errors) {
+	  var _this21 = this;
+
+	  return errors.some(function (error) {
+	    return error.code === babelHelpers.classPrivateFieldGet(_this21, _phoneDoesntVerifiedResponseCode);
+	  });
+	}
+
+	function _showPhoneVerifySlider2() {
+	  if (main_core.Type.isObject(bitrix24_phoneverify.PhoneVerify)) {
+	    bitrix24_phoneverify.PhoneVerify.setVerified(false).showSlider();
+	  }
+	}
+
 	exports.FormSettingsPanel = FormSettingsPanel;
 
-}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX.Landing.UI.Panel,BX.Landing,BX.Landing,BX,BX.Landing,BX,BX.Crm.Form,BX.UI,BX.Landing,BX.Landing.UI.Panel,BX.UI.Dialogs,BX.UI,BX.Landing.UI.Button,BX.UI.Tour,BX.Landing.UI.Panel));
+}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX.Landing.UI.Panel,BX.Landing,BX.Landing,BX,BX.Landing,BX,BX.Crm.Form,BX.UI,BX.Landing,BX.Landing.UI.Panel,BX.UI.Dialogs,BX.UI,BX.Landing.UI.Button,BX.UI.Tour,BX.Landing.UI.Panel,BX.Bitrix24));
 //# sourceMappingURL=formsettingspanel.bundle.js.map

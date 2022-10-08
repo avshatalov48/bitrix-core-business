@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main\Application;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
 
@@ -65,10 +66,7 @@ class CAllSocNetUser
 
 	public static function OnAfterUserLogout(&$arParams)
 	{
-		if (array_key_exists("SONET_ADMIN", $_SESSION))
-		{
-			unset($_SESSION["SONET_ADMIN"]);
-		}
+		\CSocNetUser::DisableModuleAdmin();
 	}
 
 	public static function OnAfterUserUpdate(&$arFields)
@@ -172,6 +170,33 @@ class CAllSocNetUser
 		return (COption::GetOptionString("socialnetwork", "allow_frields_friends", "Y") == "Y");
 	}
 
+	/**
+	 * Tells true if the current user enabled module admin mode.
+	 * @return bool
+	 */
+	public static function IsEnabledModuleAdmin(): bool
+	{
+		return isset(Application::getInstance()->getKernelSession()['SONET_ADMIN']);
+	}
+
+	/**
+	 * Enables module admin mode for the current user.
+	 * @return void
+	 */
+	public static function EnableModuleAdmin(): void
+	{
+		Application::getInstance()->getKernelSession()['SONET_ADMIN'] = 'Y';
+	}
+
+	/**
+	 * Disables module admin mode for the current user.
+	 * @return void
+	 */
+	public static function DisableModuleAdmin(): void
+	{
+		unset(Application::getInstance()->getKernelSession()['SONET_ADMIN']);
+	}
+
 	public static function IsCurrentUserModuleAdmin($site_id = SITE_ID, $bUseSession = true)
 	{
 		global $APPLICATION, $USER;
@@ -231,7 +256,7 @@ class CAllSocNetUser
 			$result
 			&& (
 				!$bUseSession
-				|| isset($_SESSION["SONET_ADMIN"])
+				|| CSocNetUser::IsEnabledModuleAdmin()
 			)
 		);
 

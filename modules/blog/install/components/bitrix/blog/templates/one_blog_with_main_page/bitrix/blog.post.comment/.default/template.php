@@ -1,6 +1,9 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
-CUtil::InitJSCore(array("ajax"));
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ajax',
+]);
 
 include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/script.php");
 if($arResult["MESSAGE"] <> '')
@@ -233,7 +236,7 @@ else
 								"LOGIN" => $comment["arUser"]["~LOGIN"],
 								"NAME_LIST_FORMATTED" => "",
 							);
-							
+
 						if($comment["urlToBlog"] <> '')
 						{
 							?>
@@ -380,7 +383,7 @@ else
 				</table>
 						<?
 						if($errorComment == '' && $_POST["parentId"]==$comment["ID"] && $_POST["preview"] <> '')
-						{							
+						{
 							?><div style="border:1px solid red"><?
 								$commentPreview = Array(
 										"ID" => "preview",
@@ -393,7 +396,7 @@ else
 							?></div><?
 						}
 						if($errorComment <> '' && intval($_POST["parentId"])==$comment["ID"] && $bCanUserComment===true)
-						{							
+						{
 							?><span class='errortext'><?=$errorComment?></span><?
 						}
 						?>
@@ -470,13 +473,13 @@ else
 		$postTitle = "";
 		if($arParams["NOT_USE_COMMENT_TITLE"] != "Y")
 			$postTitle = "RE: ".CUtil::JSEscape($arResult["Post"]["TITLE"]);
-		
+
 		?>
 		<div align="center" class="blog-comment-text"><a name="comment"></a><a href="javascript:void(0)" onclick="return showComment('0', '<?=$postTitle?>')"><b><?=GetMessage("B_B_MS_ADD_COMMENT")?></b></a><br /></div>
 		<a name="0"></a>
 		<?
 		if($arResult["COMMENT_ERROR"] == '' && mb_strlen($_POST["parentId"]) < 2 && intval($_POST["parentId"])==0 && $_POST["preview"] <> '')
-		{							
+		{
 			?><div style="border:1px solid red"><?
 				$commentPreview = Array(
 						"ID" => "preview",
@@ -537,7 +540,7 @@ else
 		<div align="center" class="blog-comment-text"><a href="#comments" onclick="return showComment('00', '<?=$postTitle?>')"><b><?=GetMessage("B_B_MS_ADD_COMMENT")?></b></a><br /></div><a name="00"></a>
 		<?
 		if($arResult["COMMENT_ERROR"] == '' && $_POST["parentId"] == "00" && mb_strlen($_POST["parentId"]) > 1 && $_POST["preview"] <> '')
-		{							
+		{
 			?><div style="border:1px solid red"><?
 				$commentPreview = Array(
 						"ID" => "preview",
@@ -549,7 +552,7 @@ else
 				ShowComment($commentPreview, 0, 30, false, $arResult["User"], $arResult["use_captcha"], $arResult["CanUserComment"], $arResult["COMMENT_ERROR"], $arParams);
 			?></div><?
 		}
-		
+
 		if($arResult["COMMENT_ERROR"] <> '' && $_POST["parentId"] == "00" && mb_strlen($_POST["parentId"]) > 1)
 		{
 			?>

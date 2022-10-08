@@ -435,7 +435,19 @@ class CRestConfigurationExportComponent extends CBitrixComponent implements Cont
 					$fileName = !is_array($item['FILE_NAME']) ? (string) $item['FILE_NAME'] : '';
 					if ($fileName <> '')
 					{
-						$structure->saveContent($code, $fileName, $item['CONTENT']);
+						$saveResult = $structure->saveContent($code, $fileName, $item['CONTENT']);
+						if (is_array($saveResult))
+						{
+							foreach ($saveResult as $error)
+							{
+								$item['ERROR_EXCEPTION'][] = $error;
+							}
+						}
+					}
+
+					if ($item['ERROR_EXCEPTION'])
+					{
+						$result['exception'] = $item['ERROR_EXCEPTION'];
 					}
 					if ($item['ERROR_MESSAGES'])
 					{

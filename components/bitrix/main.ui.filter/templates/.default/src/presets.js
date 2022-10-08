@@ -530,6 +530,8 @@ export class Presets
 
 		this.parent.getSearch().updatePreset(preset);
 		this.updatePresetFields(preset, noValues);
+
+		BX.onCustomEvent('BX.Main.Filter:onApplyPreset', [presetId]);
 	}
 
 

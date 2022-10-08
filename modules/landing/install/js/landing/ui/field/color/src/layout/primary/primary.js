@@ -3,6 +3,7 @@ import {Cache, Tag, Event, Dom, Loc} from 'main.core';
 
 import ColorValue from "../../color_value";
 
+import 'ui.fonts.opensans';
 import './css/primary.css';
 
 export default class Primary extends EventEmitter

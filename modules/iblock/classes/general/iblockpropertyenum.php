@@ -132,6 +132,9 @@ class CIBlockPropertyEnum
 		if(CACHED_b_iblock_property_enum !== false)
 			$GLOBALS["CACHE_MANAGER"]->CleanDir("b_iblock_property_enum");
 
+		$allowedKeys = ["PROPERTY_ID", "VALUE", "DEF", "SORT", "XML_ID", "TMP_ID"];
+		$arFields = array_intersect_key($arFields, array_flip($allowedKeys));
+
 		if(is_set($arFields, "DEF") && $arFields["DEF"]!="Y")
 			$arFields["DEF"]="N";
 
@@ -140,9 +143,6 @@ class CIBlockPropertyEnum
 
 		if(!is_set($arFields, "XML_ID"))
 			$arFields["XML_ID"] = md5(uniqid("", true));
-
-
-		unset($arFields["ID"]);
 
 		$ID = $DB->Add("b_iblock_property_enum", $arFields);
 

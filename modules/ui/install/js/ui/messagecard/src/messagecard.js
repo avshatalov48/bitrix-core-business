@@ -1,6 +1,8 @@
 import {Cache, Dom, Tag, Type} from 'main.core';
 import {BaseCard} from './basecard';
 
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
 import './css/messagecard.css';
 
 export class MessageCard extends BaseCard

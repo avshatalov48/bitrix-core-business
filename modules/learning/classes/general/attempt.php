@@ -675,7 +675,7 @@ abstract class CAllTestAttempt
 
 	public static function CreateAttemptQuestions($ATTEMPT_ID)
 	{
-		global $APPLICATION, $DB, $DBType;
+		global $APPLICATION, $DB;
 
 		$ATTEMPT_ID = intval($ATTEMPT_ID);
 
@@ -844,26 +844,12 @@ abstract class CAllTestAttempt
 			$strSql = '';
 			if ($rsQuestions)
 			{
-				if ($DBType === 'oracle')
-				{
-					while ($arQuestion = $rsQuestions->fetch())
-					{
-						$strSql .= " \nINTO b_learn_test_result (ATTEMPT_ID, QUESTION_ID) "
-							. "VALUES (" . $ATTEMPT_ID . ", " . (int) $arQuestion['QUESTION_ID'] . ")";
-					}
+				$arSqlSubstrings = array();
+				while ($arQuestion = $rsQuestions->fetch())
+					$arSqlSubstrings[] = "(" . $ATTEMPT_ID . ", " . $arQuestion['QUESTION_ID'] . ")";
 
-					if ($strSql !== '')
-						$strSql = "INSERT ALL " . $strSql . " \nSELECT 1 FROM DUAL";
-				}
-				else
-				{
-					$arSqlSubstrings = array();
-					while ($arQuestion = $rsQuestions->fetch())
-						$arSqlSubstrings[] = "(" . $ATTEMPT_ID . ", " . $arQuestion['QUESTION_ID'] . ")";
-
-					if ( ! empty($arSqlSubstrings) )
-						$strSql = "INSERT INTO b_learn_test_result (ATTEMPT_ID, QUESTION_ID) VALUES " . implode(",\n", $arSqlSubstrings);
-				}
+				if ( ! empty($arSqlSubstrings) )
+					$strSql = "INSERT INTO b_learn_test_result (ATTEMPT_ID, QUESTION_ID) VALUES " . implode(",\n", $arSqlSubstrings);
 
 				if ($strSql !== '')
 				{
@@ -891,42 +877,16 @@ abstract class CAllTestAttempt
 
 			$clauseAllChildsLessons = CLearnHelper::SQLClauseForAllSubLessons ($courseLessonId);
 
-			if ($DBType === 'mysql')
-			{
-				$strSql =
-				"SELECT Q.ID AS QUESTION_ID
-				FROM b_learn_lesson L
-				INNER JOIN b_learn_question Q ON L.ID = Q.LESSON_ID
-				WHERE (L.ID IN (" . $clauseAllChildsLessons . ") OR (L.ID = " . ($courseLessonId + 0) . ") )
-				AND Q.ACTIVE = 'Y' "
-				. ($arTest["INCLUDE_SELF_TEST"] != "Y" ? "AND Q.SELF = 'N' " : "").
-				"ORDER BY " . ($arTest["RANDOM_QUESTIONS"] == "Y" ? CTest::GetRandFunction() : "L.SORT, Q.SORT, L.ID ").
-				($arTest["QUESTIONS_AMOUNT"] > 0 ? "LIMIT " . ($arTest["QUESTIONS_AMOUNT"] + 0) : "");
+			$strSql =
+			"SELECT Q.ID AS QUESTION_ID
+			FROM b_learn_lesson L
+			INNER JOIN b_learn_question Q ON L.ID = Q.LESSON_ID
+			WHERE (L.ID IN (" . $clauseAllChildsLessons . ") OR (L.ID = " . ($courseLessonId + 0) . ") )
+			AND Q.ACTIVE = 'Y' "
+			. ($arTest["INCLUDE_SELF_TEST"] != "Y" ? "AND Q.SELF = 'N' " : "").
+			"ORDER BY " . ($arTest["RANDOM_QUESTIONS"] == "Y" ? CTest::GetRandFunction() : "L.SORT, Q.SORT, L.ID ").
+			($arTest["QUESTIONS_AMOUNT"] > 0 ? "LIMIT " . ($arTest["QUESTIONS_AMOUNT"] + 0) : "");
 
-			}
-			elseif ($DBType === 'mssql')
-			{
-				$strSql =
-				"SELECT " . ($arTest["QUESTIONS_AMOUNT"] > 0 ? "TOP " . ($arTest["QUESTIONS_AMOUNT"] + 0) . " " :"") . " Q.ID AS QUESTION_ID
-				FROM b_learn_lesson L
-				INNER JOIN b_learn_question Q ON L.ID = Q.LESSON_ID
-				WHERE (L.ID IN (" . $clauseAllChildsLessons . ") OR (L.ID = " . ($courseLessonId + 0) . ") )
-				AND Q.ACTIVE = 'Y' "
-				. ($arTest["INCLUDE_SELF_TEST"] != "Y" ? "AND Q.SELF = 'N' " : "").
-				"ORDER BY ".($arTest["RANDOM_QUESTIONS"] == "Y" ? CTest::GetRandFunction() : "L.SORT, Q.SORT, L.ID");
-			}
-			else	// oracle
-			{
-				$strSql =
-				"SELECT Q.ID AS QUESTION_ID
-				FROM b_learn_lesson L
-				INNER JOIN b_learn_question Q ON L.ID = Q.LESSON_ID
-				WHERE (L.ID IN (" . $clauseAllChildsLessons . ") OR (L.ID = " . ($courseLessonId + 0) . ") )
-				AND Q.ACTIVE = 'Y' "
-				. ($arTest["QUESTIONS_AMOUNT"] > 0 ? "AND ROWNUM <= ".$arTest["QUESTIONS_AMOUNT"]." " :"").
-				($arTest["INCLUDE_SELF_TEST"] != "Y" ? "AND Q.SELF = 'N' " : "").
-				"ORDER BY ".($arTest["RANDOM_QUESTIONS"] == "Y" ? CTest::GetRandFunction() : "L.SORT, Q.SORT, L.ID");
-			}
 
 			$success = false;
 			$rsQuestions = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
@@ -934,26 +894,12 @@ abstract class CAllTestAttempt
 			$strSql = '';
 			if ($rsQuestions)
 			{
-				if ($DBType === 'oracle')
-				{
-					while ($arQuestion = $rsQuestions->fetch())
-					{
-						$strSql .= " \nINTO b_learn_test_result (ATTEMPT_ID, QUESTION_ID) "
-							. "VALUES (" . $ATTEMPT_ID . ", " . (int) $arQuestion['QUESTION_ID'] . ")";
-					}
+				$arSqlSubstrings = array();
+				while ($arQuestion = $rsQuestions->fetch())
+					$arSqlSubstrings[] = "(" . $ATTEMPT_ID . ", " . $arQuestion['QUESTION_ID'] . ")";
 
-					if ($strSql !== '')
-						$strSql = "INSERT ALL " . $strSql . " \nSELECT 1 FROM DUAL";
-				}
-				else
-				{
-					$arSqlSubstrings = array();
-					while ($arQuestion = $rsQuestions->fetch())
-						$arSqlSubstrings[] = "(" . $ATTEMPT_ID . ", " . $arQuestion['QUESTION_ID'] . ")";
-
-					if ( ! empty($arSqlSubstrings) )
-						$strSql = "INSERT INTO b_learn_test_result (ATTEMPT_ID, QUESTION_ID) VALUES " . implode(",\n", $arSqlSubstrings);
-				}
+				if ( ! empty($arSqlSubstrings) )
+					$strSql = "INSERT INTO b_learn_test_result (ATTEMPT_ID, QUESTION_ID) VALUES " . implode(",\n", $arSqlSubstrings);
 
 				if ($strSql !== '')
 				{

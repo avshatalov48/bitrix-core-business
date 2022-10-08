@@ -2,6 +2,7 @@ import {Dom, Tag} from 'main.core';
 import {BaseButton} from 'landing.ui.button.basebutton';
 import {Loc} from 'landing.loc';
 
+import 'ui.fonts.opensans';
 import './css/sidebar_button.css';
 
 /**

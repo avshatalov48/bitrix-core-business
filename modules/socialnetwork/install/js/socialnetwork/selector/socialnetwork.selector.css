@@ -5,12 +5,12 @@
 .bx-lm-element-sonetgroups .bx-finder-box-item-t7-name,
 .bx-lm-element-projects .bx-finder-box-item-t7-name {
 	color: #2A747E;
-	font-weight: bold
+	font-weight: var(--ui-font-weight-bold)
 }
 
 .bx-lm-element-groups .bx-finder-box-item-t7-name {
 	color: #688617;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bx-lm-element-sonetgroups.bx-lm-element-extranet .bx-finder-box-item-t7-name,
@@ -73,7 +73,7 @@
 .bx-ui-selector.bx-feed-email-popup .bx-feed-email-title {
 	color: #525c68;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin: 7px 0 12px;
 }
 
@@ -88,7 +88,7 @@
 
 .bx-ui-selector.bx-feed-email-popup .bx-feed-email-crm-contact {
 	padding-top: 10px;
-	font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	vertical-align: middle;
 }
 

@@ -134,7 +134,7 @@ class OrderBuyer
 					</tr>
 					<tr>
 						<td class="adm-detail-content-cell-l">'.Loc::getMessage("SALE_ORDER_BUYER_PAYER_TYPE").':</td>
-						<td class="adm-detail-content-cell-r">'.$buyersList[$data["PERSON_TYPE_ID"]].
+						<td class="adm-detail-content-cell-r">'.htmlspecialcharsbx($buyersList[$data["PERSON_TYPE_ID"]]).
 						'</td>
 					</tr>
 					</tbody>
@@ -224,7 +224,7 @@ class OrderBuyer
 			$result[$siteId] = array();
 			$dbPersonType = \CSalePersonType::GetList(array("SORT" => "ASC", "NAME" => "ASC"), array("ACTIVE" => "Y", "LID"=> $siteId));
 
-			while ($personType = $dbPersonType->GetNext())
+			while ($personType = $dbPersonType->Fetch())
 				$result[$siteId][$personType["ID"]] = $personType["NAME"]." [".$personType["ID"]."]";
 		}
 

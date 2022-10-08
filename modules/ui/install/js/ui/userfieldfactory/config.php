@@ -8,8 +8,10 @@ return [
 	'css' => '/bitrix/js/ui/userfieldfactory/src/userfieldfactory.css',
 	'js' => '/bitrix/js/ui/userfieldfactory/dist/userfieldfactory.bundle.js',
 	'rel' => [
-		'main.popup',
 		'main.core',
+		'ui.design-tokens',
+		'ui.fonts.opensans',
+		'main.popup',
 		'sidepanel',
 		'ui.userfield',
 	],

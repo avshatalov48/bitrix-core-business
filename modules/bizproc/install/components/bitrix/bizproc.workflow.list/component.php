@@ -83,7 +83,7 @@ elseif ($_REQUEST['action'] == 'delete')
 	CBPDocument::DeleteWorkflowTemplate($_REQUEST['ID'], $documentType, $arErrorsTmp);
 	if (empty($arErrorsTmp))
 	{	
-		$url = (!empty($_REQUEST["back_url"]) ? $_REQUEST["back_url"] : $APPLICATION->GetCurPageParam("", array("action", "sessid", "ID")));
+		$url = (!empty($_REQUEST["back_url"]) ? $_REQUEST["back_url"] : $APPLICATION->GetCurPageParam("", ["action", "sessid", "ID", 'bxajaxid']));
 		LocalRedirect($url);
 	}
 	elseif (!empty($arErrorsTmp))

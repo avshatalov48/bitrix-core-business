@@ -543,7 +543,7 @@ class Message
 				// @TODO: Main\Text\BinaryString::getSubstring()
 				$pattern = preg_replace(
 					array('/.+/', '/\n/'), array('.+', '\n'),
-					array(\CUtil::binSubstr($data, 0, $matches['head'][1]), $matches['head'][0])
+					array(substr($data, 0, $matches['head'][1]), $matches['head'][0])
 				);
 
 				return preg_replace_callback(
@@ -567,7 +567,7 @@ class Message
 				// @TODO: Main\Text\BinaryString::getSubstring()
 				$pattern = preg_replace(
 					array('/.+/', '/\n/'), array('.+', '\n'),
-					array(\CUtil::binSubstr($data, 0, $matches['head'][1]), $matches['head'][0])
+					array(substr($data, 0, $matches['head'][1]), $matches['head'][0])
 				);
 
 				return preg_replace_callback(

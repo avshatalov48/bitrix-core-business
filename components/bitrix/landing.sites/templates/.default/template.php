@@ -50,9 +50,16 @@ Manager::setPageView(
 	'BodyClass',
 	'no-all-paddings landing-tile no-background'
 );
+
 \Bitrix\Main\UI\Extension::load([
-	'sidepanel', 'landing_master', 'action_dialog', 'ui.buttons', 'ui.design-tokens'
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'sidepanel',
+	'landing_master',
+	'action_dialog',
+	'ui.buttons',
 ]);
+
 \Bitrix\Main\Page\Asset::getInstance()->addCSS(
 	'/bitrix/components/bitrix/landing.site_edit/templates/.default/landing-forms.css'
 );
@@ -120,6 +127,39 @@ if ($arResult['EXPORT_DISABLED'] === 'Y')
 								sitePath = sitePath.replace(replace[0], replace[1]);
 							});
 
+							if (
+								event.data.from !== undefined
+								&& typeof BX.Landing.Metrika !== 'undefined'
+							)
+							{
+								var appCode = event.data.from.match(/app_code:(.*)=?:title/i);
+								var title = event.data.from.match(/title:(.*)=?:preview_url/iu);
+								var previewUrl = event.data.from.match(/preview_url:(.*)/i);
+								if (
+									appCode !== null
+									&& appCode.length > 1
+									&& title !== null
+									&& title.length > 1
+									&& previewUrl !== null
+									&& previewUrl.length > 1
+								)
+								{
+									var metrikaValue =
+										sitePath
+										+ '?action=templateCreated&app_code='
+										+ appCode[1]
+										+ '&title='
+										+ title[1]
+										+ '&preview_url='
+										+ previewUrl[1];
+									var metrika = new BX.Landing.Metrika(true);
+									metrika.sendLabel(
+										null,
+										'templateCreated',
+										metrikaValue
+									);
+								}
+							}
 							gotoSiteButton.setAttribute('href', sitePath);
 							window.location.href = sitePath;
 						}
@@ -241,6 +281,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 			$arResult['EXPORT_DISABLED'] === 'Y'
 			? [
 				'text' => $component->getMessageType('LANDING_TPL_ACTION_EXPORT'),
+				'access' => 'export',
 				'onclick' => 'landingExportDisabled();'
 			]
 			: [
@@ -420,6 +461,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 									editSite: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlEdit)) ?>',
 									editSiteDesign: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlEditDesign)) ?>',
 								 	exportSite: '<?= htmlspecialcharsbx(CUtil::jsEscape($item['EXPORT_URI'])) ?>',
+								 	isExportSiteDisabled: <?= ($item['ACCESS_EXPORT'] !== 'Y') ? 'true' : 'false' ?>,
 									publicPage: '#',
 								 	isActive: <?= ($item['ACTIVE'] === 'Y') ? 'true' : 'false' ?>,
 								 	isDeleted: <?= ($item['DELETED'] === 'Y') ? 'true' : 'false' ?>,
@@ -815,7 +857,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 				params.exportSite
 					? {
 						text: '<?= CUtil::jsEscape($component->getMessageType('LANDING_TPL_ACTION_EXPORT'));?>',
-						disabled: params.isDeleted,
+						disabled: params.isExportSiteDisabled,
 						<?if ($arResult['EXPORT_DISABLED'] == 'Y'):?>
 						onclick: function(event)
 						{

@@ -9,3 +9,4 @@ $MESS["MAIN_SRV_GEOIP_EXT_DB_ISP"] = 'Интернет-провайдеры';
 $MESS["MAIN_SRV_GEOIP_EXT_DB_ASN"] = 'Автономные системы';
 $MESS["MAIN_SRV_GEOIP_EXT_DB_AVIALABLE"] = 'Доступные базы данных';
 $MESS["MAIN_SRV_GEOIP_EXT_NOT_REQ"] = 'Дополнительных настроек не требуется';
+$MESS["main_srv_geoip_ext_unsupported"] = "Внимание! Данный формат устарел и более не поддерживается.";

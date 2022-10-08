@@ -1,5 +1,5 @@
 <?
-require_once(dirname(__FILE__)."/../bx_root.php");
+require_once(__DIR__."/../bx_root.php");
 
 define("START_EXEC_PROLOG_BEFORE_1", microtime(true));
 $GLOBALS["BX_STATE"] = "PB";
@@ -31,7 +31,7 @@ if (!defined('PUBLIC_MODE') || PUBLIC_MODE !== 1)
 	}
 }
 
-require_once(dirname(__FILE__)."/../include.php");
+require_once(__DIR__."/../include.php");
 if(!headers_sent())
 	header("Content-type: text/html; charset=".LANG_CHARSET);
 

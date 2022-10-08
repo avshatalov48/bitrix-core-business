@@ -6,7 +6,7 @@
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/general/update_client.php");
 
 if(!$USER->CanDoOperation('view_other_settings'))
@@ -34,14 +34,14 @@ if (!isset($queryUrl[$region]))
 	$queryUrl[$region] = $queryUrl['ru'];
 
 $domain = $queryUrl[$region];
+$partner_id = COption::GetOptionString("main", "~PARAM_PARTNER_ID");
 
-if(!in_array($region, array("ru", "ua")) || intval(COption::GetOptionString("main", "~PARAM_PARTNER_ID")) <= 0)
+if(intval($partner_id) <= 0)
 {
 	LocalRedirect($domain."/key_update.php?license_key=".$lkeySign."&tobasket=y&lang=".LANGUAGE_ID, true);
 }
 else
 {
-	$partner_id = COption::GetOptionString("main", "~PARAM_PARTNER_ID");
 	$lkid = 0;
 	?>
 	<div  class="bx-gadgetsadm-list-table-layout">

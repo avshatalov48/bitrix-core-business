@@ -1,6 +1,9 @@
-<?
+<?php
+
 namespace Bitrix\Main\Update;
-use Bitrix\Main\HttpApplication;
+
+use \Bitrix\Main;
+use \Bitrix\Main\HttpApplication;
 use \Bitrix\Main\Web\Json;
 use \Bitrix\Main\Config\Option;
 use \Bitrix\Main\Context;
@@ -313,7 +316,7 @@ HTML;
 					1,
 					"",
 					"Y",
-					\ConvertTimeStamp(time() + $delay, "FULL"),
+					date(Main\Type\Date::convertFormatToPhp(\CSite::GetDateFormat("FULL")), time() + $delay),
 					100,
 					false,
 					false
@@ -324,7 +327,15 @@ HTML;
 		else
 		{
 			global $DB;
-			$name = $DB->ForSql($className.'::execAgent('.(empty($withArguments) ? '' : call_user_func_array([$className, "makeArguments"], [$withArguments])).');', 2000);
+			$arguments = '';
+			if (!empty($withArguments))
+			{
+				$arguments = class_exists($className)
+					? call_user_func_array([$className, "makeArguments"], [$withArguments])
+						: self::makeArguments($withArguments)
+				;
+			}
+			$name = $DB->ForSql($className.'::execAgent('.$arguments.');', 2000);
 			$className = $DB->ForSql($className);
 			$moduleId = $DB->ForSql($moduleId);
 			if (!(($agent = $DB->Query("SELECT ID FROM b_agent WHERE MODULE_ID='".$moduleId."' AND NAME = '".$name."' AND USER_ID IS NULL")->Fetch()) && $agent))

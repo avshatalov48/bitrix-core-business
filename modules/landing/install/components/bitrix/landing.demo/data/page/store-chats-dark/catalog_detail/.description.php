@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 return [
+	'old_id' => 11,
 	'code' => 'store-chats-dark/catalog_detail',
 	'name' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DETAIL-NAME'),
 	'description' => NULL,
@@ -44,19 +45,6 @@ return [
 		],
 	],
 	'items' => [
-		// 0 => [
-		// 	'code' => '52.5.link_back',
-		// 	'nodes' => [
-		// 		'.landing-block-node-title' => [
-		// 			0 => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DETAIL-BACK'),
-		// 		],
-		// 	],
-		// 	'style' => [
-		// 		'#wrapper' => [
-		// 			0 => 'landing-block g-bg-white l-d-xs-none l-d-md-none',
-		// 		],
-		// 	],
-		// ],
 		1 => [
 			'code' => '27.3.one_col_fix_title',
 			'nodes' => [
@@ -75,6 +63,7 @@ return [
 		],
 		2 => [
 			'code' => 'store.catalog.detail_store_v3',
+			'access' => 'W',
 			'cards' => [],
 			'nodes' => [],
 			'style' => [],

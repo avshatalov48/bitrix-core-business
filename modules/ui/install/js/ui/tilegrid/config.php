@@ -14,5 +14,8 @@ return array(
 		"/bitrix/js/ui/tilegrid/dragdrop.js"
 	),
 	"bundle_js" => "ui_tilegrid",
-	"bundle_css" => "ui_tilegrid"
+	"bundle_css" => "ui_tilegrid",
+	"rel" => [
+		"ui.design-tokens",
+	],
 );

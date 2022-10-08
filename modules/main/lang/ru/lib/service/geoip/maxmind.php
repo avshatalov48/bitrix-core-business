@@ -5,4 +5,5 @@ $MESS["MAIN_SRV_GEOIP_MM_DESCRIPTION"] = "Основанная в 2002 году,
 $MESS["MAIN_SRV_GEOIP_MM_SETT_EMPTY"] = "Не заполнены поля  идентификатор пользователя и/или лицензионный ключ в настройках обработчика";
 $MESS["MAIN_SRV_GEOIP_MM_F_USER_ID"] = "Идентификатор пользователя";
 $MESS["MAIN_SRV_GEOIP_MM_F_LICENSE_KEY"] = "Лицензионный ключ";
+$MESS["main_geoip_mm_service"] = "Используемый веб-сервис";
 ?>

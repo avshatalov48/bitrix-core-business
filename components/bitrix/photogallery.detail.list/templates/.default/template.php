@@ -50,7 +50,6 @@ else
 
 	if ($GLOBALS['USER']->IsAuthorized())
 	{
-		require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 		$arTemplateParams = CUserOptions::GetOption('photogallery', 'template');
 		$arTemplateParams = (!is_array($arTemplateParams) ? array() : $arTemplateParams);
 		$arParams["TEMPLATE"] = $arTemplateParams['template'];
@@ -113,7 +112,7 @@ $_REQUEST["items"] = (is_array($_REQUEST["items"]) ? $_REQUEST["items"] : array(
 /********************************************************************
 				Actions
 ********************************************************************/
-include_once(str_replace(array("\\", "//"), "/", dirname(__FILE__)."/template_".$sTemplateName.".php"));
+include_once(str_replace(array("\\", "//"), "/", __DIR__."/template_".$sTemplateName.".php"));
 /********************************************************************
 				/Actions
 ********************************************************************/
@@ -147,7 +146,7 @@ phpVars.bitrix_sessid = '<?=bitrix_sessid()?>';
 <div class="photo-controls photo-controls-photo-top">
 	<ul class="photo-controls">
 <?
-	include_once(str_replace(array("\\", "//"), "/", dirname(__FILE__)."/template_resizer.php"));
+	include_once(str_replace(array("\\", "//"), "/", __DIR__."/template_resizer.php"));
 	if (empty($arParams["~TEMPLATE"]))
 	{
 ?>

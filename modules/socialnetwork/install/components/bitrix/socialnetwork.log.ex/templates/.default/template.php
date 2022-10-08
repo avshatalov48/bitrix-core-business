@@ -46,12 +46,20 @@ elseif (
 	}
 }
 
-CUtil::InitJSCore(array("ajax", "window", "tooltip", "popup", "fx", "viewer", "content_view", "clipboard"));
 UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ajax',
+	'window',
+	'tooltip',
+	'popup',
+	'fx',
+	'viewer',
+	'content_view',
+	'clipboard',
 	'socialnetwork.livefeed',
 	'socialnetwork.commentaux',
 	'tasks.comment-action-controller',
-	'ui.design-tokens',
 ]);
 
 Asset::getInstance()->setUnique('PAGE', 'live_feed_v2'.($arParams["IS_CRM"] !== "Y" ? "" : "_crm"));
@@ -97,7 +105,7 @@ if (
 
 $stub = '
 <div class="feed-stub">
-<svg style="display: block" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="100%" height="230">
+<svg class="feed-stub-svg" style="display: block" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="100%" height="230">
 	<svg>
 		<rect class="feed-stub-rect" width="100%" height="230" y="0" fill="#fff" />
 	</svg>

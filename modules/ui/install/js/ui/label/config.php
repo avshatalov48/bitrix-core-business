@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/label.bundle.js',
 	'rel' => [
 		'main.core',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

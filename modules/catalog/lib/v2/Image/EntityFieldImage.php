@@ -14,8 +14,6 @@ use Bitrix\Catalog\v2\BaseEntity;
  */
 abstract class EntityFieldImage extends BaseImage
 {
-	public const CODE = '';
-
 	public function setFileStructure(array $fileFields): BaseImage
 	{
 		parent::setFileStructure($fileFields);

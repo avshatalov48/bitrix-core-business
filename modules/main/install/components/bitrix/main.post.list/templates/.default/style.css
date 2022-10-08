@@ -306,8 +306,8 @@ a.feed-time.feed-com-time:hover {
 
 .feed-com-name {
 	border-bottom: 1px solid transparent;
-	font-size: 13px;
-	font-weight: bold;
+	font-size: var(--ui-font-size-md, 13px);
+	font-weight: var(--ui-font-weight-bold);
 	text-decoration: none;
 	display: inline-block;
 	margin-right: 7px;
@@ -321,13 +321,13 @@ a.feed-time.feed-com-time:hover {
 
 .feed-com-text {
 	clear: both;
-	font-size: 13px;
-	line-height: 18px;
+	font-size: var(--ui-font-size-md, 13px);
+	line-height: var(--ui-font-line-height-md, 18px);
 	margin-right: -21px;
 	overflow: hidden;
 	/*padding-top: 2px;*/
 	position: relative;
-	color: #333;
+	color: #151515;
 }
 
 .feed-com-block-uf .feed-com-text {
@@ -352,6 +352,7 @@ a.feed-time.feed-com-time:hover {
 .feed-com-text-inner-inner {
 	/*word-break: break-word;*/
 	overflow-x: auto;
+	overflow-y: inherit;
 }
 
 .feed-com-text-inner-inner .bx-smile {
@@ -599,7 +600,7 @@ div.feed-com-avatar-Y { background: none; }
 	box-shadow: inset 0 1px 2px rgba(185, 185, 185, .5);
 	color: #474747;
 	font-size: 13px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .feed-com-footer {

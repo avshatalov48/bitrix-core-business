@@ -681,6 +681,10 @@ return $iblockIds;
 		$result .= '<option value="0">' . Loc::getMessage("SALE_CATALOG_VK_MAIN_ALBUM") . '</option>';
 		foreach ($iblockIds as $iblockId)
 		{
+			if (!isset($sectionsTree[$iblockId]))
+			{
+				continue;
+			}
 			$iblock = \CIBlock::GetByID($iblockId)->GetNext();
 
 			$result .= '<option disabled value="-1">'.

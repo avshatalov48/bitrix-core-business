@@ -68,9 +68,28 @@ export default class DefaultValues extends ContentWrapper
 			const {properties} = this.options.dictionary;
 			if (Type.isPlainObject(properties) && Type.isArrayFilled(properties.list))
 			{
-				return properties.list.map((item) => {
-					return {name: item.name, value: item.id};
-				});
+				return properties.list
+					.map((item) => {
+						return {name: item.name, value: item.id};
+					})
+					.concat([{delimiter: true}])
+					.concat(
+						this.options.formOptions.data.fields
+							.filter(field => {
+								return [
+									'phone', 'email', 'date',
+									'datetime', 'double', 'integer',
+									'lastname', 'name', 'secondname',
+									'string', 'text', 'money',
+								].includes(field.type);
+							})
+							.map(field => {
+								return {
+									name: field.label,
+									value: `%${field.name.toLowerCase()}%`,
+								};
+							})
+					);
 			}
 
 			return [];

@@ -44,16 +44,20 @@ class FileType extends BaseType
 	 */
 	public static function prepareSettings(array $userField): array
 	{
-		$size = (int)$userField['SETTINGS']['SIZE'];
+		$size = (int)($userField['SETTINGS']['SIZE'] ?? 0);
 		$resultExtensions = [];
 
-		if(is_array($userField['SETTINGS']['EXTENSIONS']))
+		$extensions = [];
+		if (isset($userField['SETTINGS']['EXTENSIONS']))
 		{
-			$extensions = $userField['SETTINGS']['EXTENSIONS'];
-		}
-		else
-		{
-			$extensions = explode(',', $userField['SETTINGS']['EXTENSIONS']);
+			if(is_array($userField['SETTINGS']['EXTENSIONS']))
+			{
+				$extensions = $userField['SETTINGS']['EXTENSIONS'];
+			}
+			else
+			{
+				$extensions = explode(',', $userField['SETTINGS']['EXTENSIONS']);
+			}
 		}
 
 		foreach($extensions as $key => $extension)
@@ -73,14 +77,14 @@ class FileType extends BaseType
 			}
 		}
 
-		$targetBlank = ($userField['SETTINGS']['TARGET_BLANK'] === 'N' ? 'N' : 'Y');
+		$targetBlank = (($userField['SETTINGS']['TARGET_BLANK'] ?? 'Y') === 'N' ? 'N' : 'Y');
 
 		return [
 			'SIZE' => ($size <= 1 ? 20 : ($size > 255 ? 225 : $size)),
-			'LIST_WIDTH' => (int)$userField['SETTINGS']['LIST_WIDTH'],
-			'LIST_HEIGHT' => (int)$userField['SETTINGS']['LIST_HEIGHT'],
-			'MAX_SHOW_SIZE' => (int)$userField['SETTINGS']['MAX_SHOW_SIZE'],
-			'MAX_ALLOWED_SIZE' => (int)$userField['SETTINGS']['MAX_ALLOWED_SIZE'],
+			'LIST_WIDTH' => (int)($userField['SETTINGS']['LIST_WIDTH'] ?? 0),
+			'LIST_HEIGHT' => (int)($userField['SETTINGS']['LIST_HEIGHT'] ?? 0),
+			'MAX_SHOW_SIZE' => (int)($userField['SETTINGS']['MAX_SHOW_SIZE'] ?? 0),
+			'MAX_ALLOWED_SIZE' => (int)($userField['SETTINGS']['MAX_ALLOWED_SIZE'] ?? 0),
 			'EXTENSIONS' => $resultExtensions,
 			'TARGET_BLANK' => $targetBlank
 		];

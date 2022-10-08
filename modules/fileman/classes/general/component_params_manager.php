@@ -14,6 +14,7 @@ class CComponentParamsManager
 	{
 		global $APPLICATION;
 
+		\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
 		$APPLICATION->AddHeadScript('/bitrix/js/fileman/comp_params_manager/component_params_manager.js');
 		$APPLICATION->SetAdditionalCss('/bitrix/js/fileman/comp_params_manager/component_params_manager.css');
 

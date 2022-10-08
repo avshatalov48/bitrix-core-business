@@ -13,7 +13,7 @@ export class UserPlannerSelector extends EventEmitter
 	static EDIT_MODE = 'edit';
 	static MAX_USER_COUNT = 8; // 8
 	static MAX_USER_COUNT_DISPLAY = 10; // 10
-	static PLANNER_WIDTH = 450;
+	static PLANNER_WIDTH = 500;
 	zIndex = 4200;
 	readOnlyMode = true;
 	meetingNotifyValue = true;
@@ -170,8 +170,8 @@ export class UserPlannerSelector extends EventEmitter
 		}
 		this.refreshPlannerStateDebounce();
 
-
-		if (BX?.Intranet?.ControlButton
+		if (
+			BX?.Intranet?.ControlButton
 			&& this.DOM.videocallWrap
 			&& this.entryId
 			&& this.entry.getCurrentStatus() !== false
@@ -211,6 +211,9 @@ export class UserPlannerSelector extends EventEmitter
 	handleUserSelectorChanges()
 	{
 		this.showPlanner();
+		const dateTime = this.getDateTime();
+		this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
+
 		this.setEntityList(this.userSelectorDialog.getSelectedItems().map((item) => {
 			return {
 				entityId: item.entityId,
@@ -264,8 +267,6 @@ export class UserPlannerSelector extends EventEmitter
 
 		this.runPlannerDataRequest({
 			entityList: entityList,
-			from: Util.formatDate(dateTime.from.getTime() - Util.getDayLength() * 3),
-			to: Util.formatDate(dateTime.to.getTime() + Util.getDayLength() * 10),
 			timezone: dateTime.timezoneFrom,
 			location: this.getLocationValue(),
 			entryId: this.entryId
@@ -295,6 +296,15 @@ export class UserPlannerSelector extends EventEmitter
 					const from = this.getDateTime().from;
 					const to = this.getDateTime().to;
 					const preparedData = this.preparedDataAccessibility(response.data.accessibility[this.ownerId]);
+
+					if (!this.planner.currentFromDate)
+					{
+						this.planner.currentFromDate = from;
+					}
+					if (!this.planner.currentToDate)
+					{
+						this.planner.currentToDate = to;
+					}
 
 					const item = this.planner.checkTimePeriod(from, to, preparedData);
 					if (
@@ -339,8 +349,6 @@ export class UserPlannerSelector extends EventEmitter
 			let dateTime = this.getDateTime();
 			this.loadPlannerData({
 				entityList: this.getEntityList(),
-				from: Util.formatDate(dateTime.from.getTime() - Util.getDayLength() * 3),
-				to: Util.formatDate(dateTime.to.getTime() + Util.getDayLength() * 10),
 				timezone: dateTime.timezoneFrom,
 				location: this.getLocationValue(),
 				entryId: this.entryId,
@@ -377,18 +385,9 @@ export class UserPlannerSelector extends EventEmitter
 						}
 
 						this.planner.hideLoader();
-						let dateTime = this.getDateTime();
 						this.planner.update(
 							response.data.entries,
 							this.loadedAccessibilityData
-						);
-						this.planner.updateSelector(
-							dateTime.from,
-							dateTime.to,
-							dateTime.fullDay,
-							{
-								focus: params.focusSelector !== false
-							}
 						);
 
 						resolve(response);
@@ -400,6 +399,15 @@ export class UserPlannerSelector extends EventEmitter
 
 	runPlannerDataRequest(params)
 	{
+		let dateTime = this.getDateTime();
+		this.planner.updateSelector(
+			dateTime.from,
+			dateTime.to,
+			dateTime.fullDay,
+			{
+				focus: false
+			}
+		);
 		return this.BX.ajax.runAction('calendar.api.calendarajax.updatePlanner', {
 			data: {
 				entryId: params.entryId || 0,
@@ -407,8 +415,8 @@ export class UserPlannerSelector extends EventEmitter
 				ownerId: this.ownerId,
 				type: this.type,
 				entityList: params.entityList || [],
-				dateFrom: params.from || '',
-				dateTo: params.to || '',
+				dateFrom: Util.formatDate(this.planner.scaleDateFrom),
+				dateTo: Util.formatDate(this.planner.scaleDateTo),
 				timezone: params.timezone || '',
 				location: params.location || '',
 				entries: params.entrieIds || false,
@@ -423,6 +431,18 @@ export class UserPlannerSelector extends EventEmitter
 		if (this.planner && updatePlaner)
 		{
 			this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
+		}
+		else if (this.planner)
+		{
+			let fromHours = parseInt(dateTime.from.getHours()) + Math.floor(dateTime.from.getMinutes() / 60);
+			let toHours = parseInt(dateTime.to.getHours()) + Math.floor(dateTime.to.getMinutes() / 60);
+			if (
+				(fromHours !== 0 && fromHours <= this.planner.shownScaleTimeFrom)
+				|| (toHours !== 0  && toHours !== 23 && toHours + 1 >= this.planner.shownScaleTimeTo)
+			)
+			{
+				this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
+			}
 		}
 	}
 
@@ -487,9 +507,11 @@ export class UserPlannerSelector extends EventEmitter
 			Dom.hide(this.DOM.moreLink);
 		}
 
-		if (this.hasExternalEmailUsers(attendees)
+		if (
+			this.hasExternalEmailUsers(attendees)
 			&& this.isPlannerDisplayed()
-			&& !this.isReadOnly())
+			&& !this.isReadOnly()
+		)
 		{
 			this.showHideGuestsOption();
 		}
@@ -647,8 +669,6 @@ export class UserPlannerSelector extends EventEmitter
 				const dateTime = this.getDateTime();
 				this.loadPlannerData({
 					entityList: this.getEntityList(),
-					from: Util.formatDate(data.dateFrom),
-					to: Util.formatDate(data.dateTo),
 					timezone: dateTime.timezoneFrom,
 					location: this.getLocationValue(),
 					entryId: this.entryId,

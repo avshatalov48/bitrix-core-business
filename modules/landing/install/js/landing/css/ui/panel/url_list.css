@@ -44,7 +44,7 @@
 }
 
 .landing-ui-card-form-preview .landing-ui-card-header {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c68;
 	font-size: 16px;
 }

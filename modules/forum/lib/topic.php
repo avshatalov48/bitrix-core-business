@@ -502,6 +502,10 @@ class Topic extends \Bitrix\Forum\Internals\Entity
 				"AUTHOR_ID" => $author["ID"],
 				"AUTHOR_NAME" => $author["NAME"],
 				"AUTHOR_EMAIL" => $fields["AUTHOR_EMAIL"],
+
+				"AUTHOR_IP" => $fields["AUTHOR_IP"] ?? null,
+				"AUTHOR_REAL_IP" =>  $fields["AUTHOR_REAL_IP"] ?? null,
+				"GUEST_ID" =>  $fields["GUEST_ID"] ?? null,
 			);
 
 			$messageData += array_intersect_key($fields, $USER_FIELD_MANAGER->getUserFields(MessageTable::getUfId()));

@@ -37,7 +37,8 @@
 
 .landing-error-page-title {
 	margin-bottom: 62px;
-	font: 37px/52px 'OpenSans-Light', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 37px/52px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .landing-error-page-img {

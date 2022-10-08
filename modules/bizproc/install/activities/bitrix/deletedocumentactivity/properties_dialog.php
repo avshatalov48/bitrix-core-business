@@ -11,7 +11,12 @@ foreach ($dialog->getMap() as $fieldId => $field): ?>
 	<tr>
 		<td align="right" width="40%"><?= htmlspecialcharsbx($field['Name']) ?>:</td>
 		<td width="60%">
-			<?= $dialog->renderFieldControl($field) ?>
+			<?= $dialog->renderFieldControl(
+				$field,
+				null,
+				false,
+				\Bitrix\Bizproc\FieldType::RENDER_MODE_DESIGNER
+			) ?>
 		</td>
 	</tr>
 <?php endforeach;

@@ -7,13 +7,28 @@ namespace Bitrix\Calendar\Sync\Google;
 use Bitrix\Main\Loader;
 use Bitrix\Fileman\UserField\Types\AddressType;
 use Bitrix\Main\Config\Option;
+use DateTimeInterface;
 
 class Helper
 {
+	public const DEFAULT_HTTPS_PORT = 443;
 	public const GOOGLE_ACCOUNT_TYPE_CALDAV= 'caldav_google_oauth';
 	public const GOOGLE_ACCOUNT_TYPE_API = 'google_api_oauth';
-	public const GOOGLE_SERVER_PATH_V3 = 'https://www.googleapis.com/calendar/v3';
-	public const GOOGLE_SERVER_PATH_V2 = 'https://apidata.googleusercontent.com/caldav/v2/';
+	public const HTTP_SCHEME_DEFAULT = 'https';
+	public const HTTP_SCHEME_SEPARATOR = '://';
+	public const GOOGLE_API_URL = 'www.googleapis.com';
+	public const GOOGLE_CALDAV_URL = 'apidata.googleusercontent.com';
+	public const GOOGLE_API_V3_URI = '/calendar/v3';
+	public const GOOGLE_API_V2_URI = '/calendar/v2/';
+	public const GOOGLE_SERVER_PATH_V3 = self::HTTP_SCHEME_DEFAULT . self::HTTP_SCHEME_SEPARATOR . self::GOOGLE_API_URL . self::GOOGLE_API_V3_URI;
+	public const GOOGLE_SERVER_PATH_V2 = self::HTTP_SCHEME_DEFAULT . self::HTTP_SCHEME_SEPARATOR . self::GOOGLE_CALDAV_URL . self::GOOGLE_API_V2_URI;
+	public const DATE_TIME_FORMAT = DateTimeInterface::ATOM;
+	public const DATE_TIME_FORMAT_WITH_MICROSECONDS = 'Y-m-d\TH:i:s\.vP';
+	public const DATE_TIME_FORMAT_RFC_3339 = 'Y-m-d\TH:i:s\Z';
+	public const DATE_TIME_FORMAT_WITH_UTC_TIMEZONE = 'Ymd\THis\Z';
+	public const DATE_FORMAT = 'Y-m-d';
+	public const VERSION_DIFFERENCE = 1;
+	public const END_OF_TIME = "01.01.2038";
 
 	/**
 	 * @param $accountType
@@ -29,9 +44,17 @@ class Helper
 		return !empty($errorText) && preg_match("/^(\[410\] Resource has been deleted)/i", $errorText);
 	}
 
-	public static function isNotFoundError(string $errorText = null): bool
+	public function isNotFoundError(string $errorText = null): bool
 	{
 		return !empty($errorText) && preg_match("/^\[(404)\][a-z0-9 _]*/i", $errorText);
+	}
+
+	public function isNotValidSyncTokenError(string $errorText = null): bool
+	{
+		return !empty($errorText) &&
+			(preg_match("/^(\[410\] The requested minimum modification time lies too far in the past.)/i", $errorText)
+			|| preg_match("/^(\[410\] Sync token is no longer valid, a full sync is required.)/i", $errorText))
+			;
 	}
 
 	/**

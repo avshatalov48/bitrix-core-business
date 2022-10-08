@@ -7,7 +7,6 @@ $MESS["SALE_HPS_ROBOXCHANGE_COUNTRY_CODE_OPTION_RU"] = "Russia";
 $MESS["SALE_HPS_ROBOXCHANGE_DESCRIPTION_MAIN"] = "<a href='https://partner.robokassa.ru/Reg/Register?culture=ru' target='_blank'>Connect to Robokassa</a>";
 $MESS["SALE_HPS_ROBOXCHANGE_EMAIL_USER"] = "E-mail";
 $MESS["SALE_HPS_ROBOXCHANGE_ORDERDESCR"] = "Order description";
-$MESS["SALE_HPS_ROBOXCHANGE_PAYMENT_ID"] = "Payment #";
 $MESS["SALE_HPS_ROBOXCHANGE_SHOPLOGIN"] = "Shop login";
 $MESS["SALE_HPS_ROBOXCHANGE_SHOPPASSWORD"] = "Shop password";
 $MESS["SALE_HPS_ROBOXCHANGE_SHOPPASSWORD2"] = "Shop password #2";

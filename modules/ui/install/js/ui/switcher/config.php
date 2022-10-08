@@ -8,4 +8,5 @@ return [
 	"css" => "/bitrix/js/ui/switcher/ui.switcher.css",
 	"js" => "/bitrix/js/ui/switcher/ui.switcher.js",
 	"lang" => "/bitrix/modules/ui/install/ui.switcher.php",
+	"rel" => ["ui.fonts.opensans"],
 ];

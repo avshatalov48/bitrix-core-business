@@ -5,7 +5,7 @@ abstract class CBPCompositeActivity extends CBPActivity
 	protected $arActivities = array();
 	protected $readOnlyData = [];
 
-	public function SetWorkflow(CBPWorkflow $workflow)
+	public function setWorkflow(CBPWorkflow $workflow)
 	{
 		parent::SetWorkflow($workflow);
 		foreach ($this->arActivities as $activity)
@@ -61,7 +61,7 @@ abstract class CBPCompositeActivity extends CBPActivity
 		return $result;
 	}
 
-	protected function ReInitialize()
+	protected function reInitialize()
 	{
 		parent::ReInitialize();
 		/** @var CBPActivity $activity */
@@ -69,12 +69,12 @@ abstract class CBPCompositeActivity extends CBPActivity
 			$activity->ReInitialize();
 	}
 
-	public function CollectNestedActivities()
+	public function collectNestedActivities()
 	{
 		return $this->arActivities;
 	}
 
-	public function FixUpParentChildRelationship(CBPActivity $nestedActivity)
+	public function fixUpParentChildRelationship(CBPActivity $nestedActivity)
 	{
 		parent::FixUpParentChildRelationship($nestedActivity);
 
@@ -84,24 +84,24 @@ abstract class CBPCompositeActivity extends CBPActivity
 		$this->arActivities[] = $nestedActivity;
 	}
 
-	protected function ClearNestedActivities()
+	protected function clearNestedActivities()
 	{
 		$this->arActivities = array();
 	}
 
-	public function Initialize()
+	public function initialize()
 	{
 		foreach ($this->arActivities as $activity)
 			$this->workflow->InitializeActivity($activity);
 	}
 
-	public function Finalize()
+	public function finalize()
 	{
 		foreach ($this->arActivities as $activity)
 			$this->workflow->FinalizeActivity($activity);
 	}
 
-	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
+	public static function validateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
 	{
 		return parent::ValidateProperties($arTestProperties, $user);
 	}

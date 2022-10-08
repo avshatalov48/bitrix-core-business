@@ -12,6 +12,8 @@ return [
 		'./dist/dialog.bundle.css',
 	],
 	'rel' => [
+		'ui.fonts.opensans',
+		'ui.design-tokens',
 		'im.view.message',
 		'im.lib.utils',
 		'im.lib.animation',

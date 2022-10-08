@@ -1,7 +1,6 @@
 /**
  * @bxjs_lang_path template.php
  */
-top.window.autoPublicationEnabled = true;
 
 (function() {
 
@@ -1094,24 +1093,14 @@ top.window.autoPublicationEnabled = true;
 		{
 			event.preventDefault();
 
-			var editorOptions = BX.Landing.Env.getInstance().getOptions();
-			if (
-				BX.Type.isPlainObject(editorOptions.formEditorData)
-				&& BX.Type.isPlainObject(editorOptions.formEditorData.formOptions)
-			)
+			if (!this.formSharePopup)
 			{
-				var formId = editorOptions.formEditorData.formOptions.id;
-				BX.Crm.Form.Embed.open(formId);
+				this.formSharePopup = new BX.Landing.Form.SharePopup({
+					bindElement: event.currentTarget,
+				});
 			}
 
-			// if (!this.formSharePopup)
-			// {
-			// 	this.formSharePopup = new BX.Landing.Form.SharePopup({
-			// 		bindElement: event.currentTarget,
-			// 	});
-			// }
-			//
-			// this.formSharePopup.show();
+			this.formSharePopup.show();
 		},
 
 		getErrorClickHandler: function(errorCode)

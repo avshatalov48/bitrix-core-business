@@ -6,6 +6,7 @@ $MESS["CALENDAR_EVENT_DO_VIEW"] = "Посмотреть";
 $MESS["CALENDAR_EVENT_DO_ADD"] = "Создать";
 $MESS["CALENDAR_EVENT_DO_SAVE"] = "Сохранить";
 $MESS["CALENDAR_EVENT_DO_CANCEL"] = "Отменить";
+$MESS["CALENDAR_EVENT_DO_RELEASE"] = "Отменить бронирование";
 $MESS["CALENDAR_EVENT_DO_OPEN"] = "Открыть";
 $MESS["CALENDAR_EVENT_DO_OPEN_PARENT"] = "Посмотреть событие";
 $MESS["CALENDAR_EVENT_WAITING_CONVERSION"] = "Происходит конвертация";
@@ -23,4 +24,5 @@ $MESS["EC_BUSY_USERS_CLOSE"] = "Отменить и закрыть";
 $MESS["CALENDAR_DELETE_EVENT_NOTIFICATION"] = "Событие удалено";
 $MESS["CALENDAR_UPDATE"] = "Обновление";
 $MESS["CALENDAR_UPDATE_PROGRESS"] = "Выполняется обновление";
+$MESS["CALENDAR_RELEASE_LOCATION_NOTIFICATION"] = "Бронь на переговорную комнату успешно отменена";
 ?>

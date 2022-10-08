@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_field_basefield,landing_ui_component_actionpanel,main_core,main_core_events,landing_ui_component_internal,landing_ui_component_iconbutton,landing_loc,ui_draganddrop_draggable,landing_pageobject,landing_ui_field_textfield,main_popup) {
+(function (exports,ui_fonts_opensans,landing_ui_field_basefield,landing_ui_component_actionpanel,ui_designTokens,main_core,main_core_events,landing_ui_component_internal,landing_ui_component_iconbutton,landing_loc,ui_draganddrop_draggable,landing_pageobject,landing_ui_field_textfield,main_popup) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3;
@@ -920,5 +920,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.RuleField = RuleField;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX.Landing.UI.Field,BX.Landing.UI.Component,BX,BX.Event,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Landing,BX.UI.DragAndDrop,BX.Landing,BX.Landing.UI.Field,BX.Main));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Landing.UI.Field,BX.Landing.UI.Component,BX,BX,BX.Event,BX.Landing.UI.Component,BX.Landing.UI.Component,BX.Landing,BX.UI.DragAndDrop,BX.Landing,BX.Landing.UI.Field,BX.Main));
 //# sourceMappingURL=rulefield.bundle.js.map

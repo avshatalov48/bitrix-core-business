@@ -37,7 +37,7 @@ if ($arResult['ERRORS'])
 }
 
 // load extensions
-$extensions = [];
+$extensions = ['ui.fonts.opensans'];
 if (
 	$arParams['SHOW_EDIT_PANEL'] == 'Y' ||
 	!$landing->getDomainId()// wiki mode

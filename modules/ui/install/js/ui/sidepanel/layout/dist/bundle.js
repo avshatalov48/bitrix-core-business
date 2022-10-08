@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,sidepanel,main_core,ui_buttons,ui_sidepanel_menu,main_core_events) {
+(function (exports,ui_fonts_opensans,sidepanel,main_core,main_core_events,ui_buttons,ui_sidepanel_menu) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11;
@@ -54,6 +54,8 @@ this.BX.UI = this.BX.UI || {};
 
 	var _getScrollWidth = /*#__PURE__*/new WeakSet();
 
+	var _adjustFooter = /*#__PURE__*/new WeakSet();
+
 	var _onMenuItemClick = /*#__PURE__*/new WeakSet();
 
 	var Layout = /*#__PURE__*/function () {
@@ -66,6 +68,15 @@ this.BX.UI = this.BX.UI || {};
 	        return new Layout(options).render();
 	      });
 	    }
+	  }, {
+	    key: "createLayout",
+	    value: function createLayout() {
+	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	      options = prepareOptions(options);
+	      return top.BX.Runtime.loadExtension(options.extensions).then(function () {
+	        return new Layout(options);
+	      });
+	    }
 	  }]);
 
 	  function Layout() {
@@ -75,6 +86,8 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classCallCheck(this, Layout);
 
 	    _classPrivateMethodInitSpec(this, _onMenuItemClick);
+
+	    _classPrivateMethodInitSpec(this, _adjustFooter);
 
 	    _classPrivateMethodInitSpec(this, _getScrollWidth);
 
@@ -124,6 +137,11 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      return babelHelpers.classPrivateFieldGet(this, _container);
+	    }
+	  }, {
+	    key: "getMenu",
+	    value: function getMenu() {
+	      return babelHelpers.classPrivateFieldGet(this, _menu);
 	    }
 	  }, {
 	    key: "getFooterContainer",
@@ -274,10 +292,16 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "afterRender",
 	    value: function afterRender() {
-	      var parentSet = this.getContainer().parentNode;
+	      _classPrivateMethodGet(this, _adjustFooter, _adjustFooter2).call(this);
 
-	      if (parentSet.scrollWidth > parentSet.offsetWidth) {
-	        this.getFooterContainer().style.setProperty('bottom', _classPrivateMethodGet(this, _getScrollWidth, _getScrollWidth2).call(this) + 'px');
+	      var resizeHandler = main_core.Runtime.throttle(_classPrivateMethodGet(this, _adjustFooter, _adjustFooter2), 300, this);
+	      main_core.Event.bind(window, "resize", resizeHandler);
+	      var topSlider = SidePanel.Instance.getTopSlider();
+
+	      if (topSlider) {
+	        main_core_events.EventEmitter.subscribeOnce(topSlider, 'SidePanel.Slider:onDestroy', function () {
+	          main_core.Event.unbind(window, "resize", resizeHandler);
+	        });
 	      }
 	    }
 	  }]);
@@ -290,6 +314,16 @@ this.BX.UI = this.BX.UI || {};
 	  var scrollWidth = div.offsetWidth - div.clientWidth;
 	  main_core.Dom.remove(div);
 	  return scrollWidth;
+	}
+
+	function _adjustFooter2() {
+	  var parentSet = this.getContainer().parentNode;
+
+	  if (parentSet.scrollWidth > parentSet.offsetWidth) {
+	    main_core.Dom.style(this.getFooterContainer(), 'bottom', _classPrivateMethodGet(this, _getScrollWidth, _getScrollWidth2).call(this) + 'px');
+	  } else {
+	    main_core.Dom.style(this.getFooterContainer(), 'bottom', 0);
+	  }
 	}
 
 	function _onMenuItemClick2(item) {
@@ -316,5 +350,5 @@ this.BX.UI = this.BX.UI || {};
 
 	exports.Layout = Layout;
 
-}((this.BX.UI.SidePanel = this.BX.UI.SidePanel || {}),BX,BX,BX.UI,BX.UI.SidePanel,BX.Event));
+}((this.BX.UI.SidePanel = this.BX.UI.SidePanel || {}),BX,BX,BX,BX.Event,BX.UI,BX.UI.SidePanel));
 //# sourceMappingURL=bundle.js.map

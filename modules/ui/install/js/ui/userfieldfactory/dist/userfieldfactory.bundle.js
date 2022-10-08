@@ -52,8 +52,8 @@ this.BX.UI = this.BX.UI || {};
 	          defaultTitle: main_core.Loc.getMessage('UI_USERFIELD_FACTORY_UF_DATETIME_LABEL')
 	        },
 	        address: {
-	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ADDRESS_TITLE"),
-	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ADDRESS_LEGEND")
+	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ADDRESS_TITLE_2"),
+	          description: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_ADDRESS_LEGEND_2")
 	        },
 	        url: {
 	          title: main_core.Loc.getMessage("UI_USERFIELD_FACTORY_UF_URL_TITLE"),

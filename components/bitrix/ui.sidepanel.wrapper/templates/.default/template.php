@@ -16,7 +16,14 @@ use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 CJSCore::Init();
 $this->addExternalCss($this->GetFolder() . '/template.css');
 $this->addExternalJs($this->GetFolder() . '/template.js');
-\Bitrix\Main\UI\Extension::load([ 'sidepanel', 'ui.common', 'ui.fonts.opensans', 'ui.design-tokens' ]);
+
+\Bitrix\Main\UI\Extension::load([
+	'sidepanel',
+	'ui.common',
+	'ui.fonts.opensans',
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+]);
 
 ?><!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?=LANGUAGE_ID ?>" lang="<?=LANGUAGE_ID ?>">
@@ -127,7 +134,7 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 			return '';
 		})
 	?>
-	<div id="ui-page-slider-content">
+	<div id="ui-page-slider-content" class="ui-side-panel-content">
 		<div class="pagetitle-above"><?php
 			$APPLICATION->ShowViewContent("above_pagetitle");
 			if ($arParams['USE_TOP_MENU'])
@@ -141,6 +148,7 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 			}
 
 		?></div>
+		<div class="ui-side-panel-toolbar<?if (!$arParams['USE_UI_TOOLBAR_MARGIN']):?> --no-margin<?endif?>">
 		<?php
 		if (!isset($arParams['USE_UI_TOOLBAR']) || $arParams['USE_UI_TOOLBAR'] !== 'Y')
 		{
@@ -177,6 +185,7 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 			]);
 		}
 		?>
+		</div>
 		<div class="ui-side-panel-wrap-below"><?php $APPLICATION->ShowViewContent("below_pagetitle")?></div>
 
 		<div class="ui-page-slider-workarea">

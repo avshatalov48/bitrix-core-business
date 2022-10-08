@@ -11,13 +11,13 @@ $pathTemplate24 = getLocalPath($pathTemplate24);
 $pathCSS = '/bitrix/js/landing/css';
 $pathLang = BX_ROOT . '/modules/landing/lang/' . LANGUAGE_ID;
 
-$jsConfig = array(
-	'landing_master' => array(
-		'rel' => array(
+$jsConfig = [
+	'landing_master' => [
+		'rel' => [
 			'landing.master',
 			'landing_icon_fonts',
-		),
-	),
+		],
+	],
 
 	'landing_note' => [
 		'js' => [
@@ -32,7 +32,6 @@ $jsConfig = array(
 
 	'mediaplayer' => [
 		'js' => [
-			'https://www.youtube.com/iframe_api',
 			$pathJS . '/mediaplayer/base_mediaplayer.js',
 			$pathJS . '/mediaplayer/youtube_mediaplayer.js',
 			$pathJS . '/mediaplayer/mediaplayer_factory.js',
@@ -50,25 +49,25 @@ $jsConfig = array(
 		'rel' => ['mediaplayer', 'loader']
 	],
 
-	'polyfill' => array(
-		'js' => array(
+	'polyfill' => [
+		'js' => [
 			$pathJS . '/polyfill.js',
-		)
-	),
+		]
+	],
 
-	'action_dialog' => array(
-		'js' => array(
+	'action_dialog' => [
+		'js' => [
 			$pathJS . '/ui/tool/action_dialog.js'
-		),
-		'css' => array(
+		],
+		'css' => [
 			$pathCSS . '/ui/tool/action_dialog.css',
-		),
-		'rel' => array(
+		],
+		'rel' => [
 			'polyfill',
 			'popup'
-		),
+		],
 		'lang' => $pathLang . '/js/action_dialog.php'
-	),
+	],
 
 	'landing_public' => [
 		'js' => [
@@ -85,16 +84,16 @@ $jsConfig = array(
 		],
 	],
 
-	'landing_event_tracker' => array(
-		'js' => array(
+	'landing_event_tracker' => [
+		'js' => [
 			$pathJS . '/event-tracker/event-tracker.js',
 			$pathJS . '/event-tracker/services/base-service.js',
 			$pathJS . '/event-tracker/services/google-analytics-service.js'
-		),
+		],
 		'rel' => [
 			'landing.utils',
 		],
-	),
+	],
 
 	// vendors scripts for ALL blocks, included always
 	'landing_core' => [
@@ -112,6 +111,7 @@ $jsConfig = array(
 			'main.core',
 			'main.polyfill.intersectionobserver',
 			'landing.utils',
+			'ui.fonts.opensans',
 		],
 	],
 
@@ -121,6 +121,9 @@ $jsConfig = array(
 			$pathTemplate24 . '/assets/css/custom-grid.css',
 			$pathTemplate24 . '/theme.css',
 			$pathCSS . '/landing_public.css',
+		],
+		'rel' => [
+			'ui.fonts.opensans',
 		],
 	],
 
@@ -148,14 +151,14 @@ $jsConfig = array(
 		'rel' => ['mediaplayer', 'landing_fancybox'],
 	],
 
-	'landing_upper' => array(
-		'js' => array(
+	'landing_upper' => [
+		'js' => [
 			$pathTemplate24 . '/assets/js/helpers/upper_init.js',
-		),
-	),
+		],
+	],
 
-	'landing_icon_fonts' => array(
-		'css' => array(
+	'landing_icon_fonts' => [
+		'css' => [
 			$pathTemplate24 . '/assets/vendor/icon/et-icon/style.css',
 			$pathTemplate24 . '/assets/vendor/icon/et-icon/content.css',
 			$pathTemplate24 . '/assets/vendor/icon/hs-icon/style.css',
@@ -204,8 +207,8 @@ $jsConfig = array(
 			$pathTemplate24 . '/assets/vendor/icon/fa6/v4-shims.css',
 			$pathTemplate24 . '/assets/vendor/icon/fab/style.css',
 			$pathTemplate24 . '/assets/vendor/icon/fab/content.css',
-		),
-	),
+		],
+	],
 
 	'landing_menu' => [
 		'js' => [
@@ -247,12 +250,12 @@ $jsConfig = array(
 		'rel' => ['landing_core'],
 	],
 
-	'landing_form' => array(
-		'js' => array(
+	'landing_form' => [
+		'js' => [
 			$pathTemplate24 . '/assets/js/helpers/form_init.js',
-		),
+		],
 		'lang' => $pathLang . '/js/webform_alerts.php',
-	),
+	],
 
 	'landing_gallery_cards' => [
 		'js' => [
@@ -261,51 +264,51 @@ $jsConfig = array(
 		'rel' => ['landing_core', 'landing_fancybox'],
 	],
 
-	'landing_chat' => array(
-		'js' => array(
+	'landing_chat' => [
+		'js' => [
 			$pathTemplate24 . '/assets/js/helpers/chat_init.js',
-		)
-	),
+		]
+	],
 
-	'landing_carousel' => array(
-		'js' => array(
+	'landing_carousel' => [
+		'js' => [
 			$pathTemplate24 . '/assets/vendor/slick-carousel/slick/slick_landing.js',
 			$pathTemplate24 . '/assets/js/components/hs.core_landing.js',
 			$pathTemplate24 . '/assets/js/components/hs.carousel.js',
 			$pathTemplate24 . '/assets/js/helpers/carousel/carousel_helper.js',
 			$pathTemplate24 . '/assets/js/helpers/carousel/base_carousel_init.js',
-		),
-		'css' => array(
+		],
+		'css' => [
 			$pathTemplate24 . '/assets/vendor/slick-carousel/slick/slick.css',
 			$pathTemplate24 . '/assets/vendor/slick-carousel/slick/landing-slick.css',
-		),
+		],
 		'rel' => ['landing_core','landing_jquery'],
-	),
+],
 
-	'landing_countdown' => array(
-		'js' => array(
+	'landing_countdown' => [
+		'js' => [
 			$pathTemplate24 . '/assets/vendor/jquery.countdown/jquery.countdown_landing.js',
 			$pathTemplate24 . '/assets/js/components/hs.core_landing.js',
 			$pathTemplate24 . '/assets/js/components/hs.countdown.js',
 			$pathTemplate24 . '/assets/js/helpers/countdown_init.js',
-		),
+		],
 		'rel' => ['landing_core', 'landing_jquery'],
-	),
+],
 
-	'landing_google_maps_new' => array(
-		'rel' => array(
+	'landing_google_maps_new' => [
+		'rel' => [
 			'landing_map'
-		)
-	),
+		]
+	],
 
-	'landing_map' => array(
-		'js' => array(
+	'landing_map' => [
+		'js' => [
 			$pathTemplate24 . '/assets/js/helpers/map_init.js'
-		),
-		'rel' => array(
+		],
+		'rel' => [
 			'landing.provider.map'
-		)
-	),
+		]
+	],
 
 	'landing_lazyload' => [
 		'js' => [
@@ -324,6 +327,12 @@ $jsConfig = array(
 		],
 	],
 
+	'landing_backlinks' => [
+		'js' => [
+			$pathTemplate24 . '/assets/js/helpers/backlinks/backlinks.js',
+		],
+	],
+
 	// todo: not used? can del?
 	// 'landing_bootstrap_modal' => array(
 	// 	'js' => array(
@@ -332,7 +341,7 @@ $jsConfig = array(
 	// 	),
 	// 	'rel' => ['landing_core','landing_jquery'],
 	// ),
-);
+];
 
 
 foreach ($jsConfig as $code => $ext)

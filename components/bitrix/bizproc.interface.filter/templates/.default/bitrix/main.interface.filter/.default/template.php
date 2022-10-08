@@ -1,6 +1,16 @@
 <?php
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)die();
-CJSCore::Init(array('popup', 'date', 'ui.fonts.opensans'));
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'popup',
+	'date',
+]);
+
 
 $presets = isset($arParams['~FILTER_PRESETS']) ? $arParams['~FILTER_PRESETS'] : array();
 $savedItems = isset($arResult['OPTIONS'])

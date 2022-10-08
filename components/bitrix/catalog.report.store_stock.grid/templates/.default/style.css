@@ -1,5 +1,5 @@
 tr[data-id="overallTotal"] {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 tr[data-id="overallTotal"] td {

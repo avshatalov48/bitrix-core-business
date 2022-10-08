@@ -1,58 +1,14 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,main_core_events,landing_loc,landing_ui_form_baseform,landing_ui_component_iconbutton,landing_ui_component_internal) {
+(function (exports,ui_designTokens,main_core,main_core_events,landing_loc,landing_ui_form_baseform,landing_ui_component_iconbutton,landing_ui_component_internal) {
 	'use strict';
 
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"landing-ui-component-list-item\" \n\t\t\t\t\tdata-id=\"", "\"\n\t\t\t\t\tdata-type=\"", "\"\n\t\t\t\t\tdata-style=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
 
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-list-item-body\"></div>\n\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-list-item-header\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-ui-component-list-item-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-ui-component-list-item-actions\">\n\t\t\t\t\t\t<div class=\"landing-ui-component-list-item-actions-custom\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-list-item-text-description\">", "</div>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-list-item-text-title\">", "</div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var ListItem = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(ListItem, _EventEmitter);
 
@@ -69,7 +25,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.onEditButtonClick = _this.onEditButtonClick.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.onRemoveButtonClick = _this.onRemoveButtonClick.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.onFormChange = _this.onFormChange.bind(babelHelpers.assertThisInitialized(_this));
-	    _this.options = babelHelpers.objectSpread({}, options);
+	    _this.options = _objectSpread({}, options);
 	    _this.cache = new main_core.Cache.MemoryCache();
 
 	    if (main_core.Type.isDomNode(_this.options.appendTo)) {
@@ -131,7 +87,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('titleLayout', function () {
-	        return main_core.Tag.render(_templateObject(), main_core.Text.encode(_this2.options.title));
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-list-item-text-title\">", "</div>\n\t\t\t"])), main_core.Text.encode(_this2.options.title));
 	      });
 	    }
 	  }, {
@@ -150,7 +106,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('descriptionLayout', function () {
-	        return main_core.Tag.render(_templateObject2(), main_core.Text.encode(_this3.options.description));
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-list-item-text-description\">", "</div>\n\t\t\t"])), main_core.Text.encode(_this3.options.description));
 	      });
 	    }
 	  }, {
@@ -219,7 +175,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this6 = this;
 
 	      return this.cache.remember('headerLayout', function () {
-	        return main_core.Tag.render(_templateObject3(), _this6.options.draggable ? _this6.getDragButtonLayout() : '', _this6.getTitleLayout(), _this6.getDescriptionLayout(), _this6.getActionsButtons().map(function (button) {
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-list-item-header\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"landing-ui-component-list-item-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"landing-ui-component-list-item-actions\">\n\t\t\t\t\t\t<div class=\"landing-ui-component-list-item-actions-custom\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), _this6.options.draggable ? _this6.getDragButtonLayout() : '', _this6.getTitleLayout(), _this6.getDescriptionLayout(), _this6.getActionsButtons().map(function (button) {
 	          return button.getLayout();
 	        }), _this6.options.editable ? _this6.getEditButtonLayout() : '', _this6.options.removable ? _this6.getRemoveButtonLayout() : '');
 	      });
@@ -228,7 +184,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getBodyLayout",
 	    value: function getBodyLayout() {
 	      return this.cache.remember('bodyLayout', function () {
-	        return main_core.Tag.render(_templateObject4());
+	        return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-component-list-item-body\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
@@ -237,7 +193,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this7 = this;
 
 	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject5(), _this7.options.id, _this7.options.type, _this7.options.isSeparator ? 'separator' : 'item', _this7.getHeaderLayout(), _this7.getBodyLayout());
+	        return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"landing-ui-component-list-item\" \n\t\t\t\t\tdata-id=\"", "\"\n\t\t\t\t\tdata-type=\"", "\"\n\t\t\t\t\tdata-style=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this7.options.id, _this7.options.type, _this7.options.isSeparator ? 'separator' : 'item', _this7.getHeaderLayout(), _this7.getBodyLayout());
 	      });
 	    }
 	  }, {
@@ -319,5 +275,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.ListItem = ListItem;
 
-}((this.BX.Landing.UI.Component = this.BX.Landing.UI.Component || {}),BX,BX.Event,BX.Landing,BX.Landing.UI.Form,BX.Landing.UI.Component,BX.Landing.UI.Component));
+}((this.BX.Landing.UI.Component = this.BX.Landing.UI.Component || {}),BX,BX,BX.Event,BX.Landing,BX.Landing.UI.Form,BX.Landing.UI.Component,BX.Landing.UI.Component));
 //# sourceMappingURL=listitem.bundle.js.map

@@ -66,8 +66,12 @@ class IncomingInvitationReplyHandler extends IncomingInvitationHandler
 		$localEvent = Helper::getEventByUId($this->component->getEvent()->getUid());
 		if (!is_null($localEvent))
 		{
-			$user = Helper::getUserById((int) $localEvent['OWNER_ID']);
-			if (!is_null($attendeeStatus = $this->getAttendeeStatus($user['EMAIL'])))
+			$user = Helper::getUserById((int)$localEvent['OWNER_ID']);
+			if (
+				$user
+				&& $user['EMAIL']
+				&& !is_null($attendeeStatus = $this->getAttendeeStatus($user['EMAIL']))
+			)
 			{
 				$this->sendNotificationGuestReaction($localEvent, $attendeeStatus);
 				$this->handleStatus = true;

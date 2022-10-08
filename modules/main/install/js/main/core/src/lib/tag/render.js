@@ -1,163 +1,46 @@
 import Type from '../type';
-import Dom from '../dom';
-import Event from '../event';
+import parse from './internal/parse';
+import renderNode from './internal/render-node';
 
-type renderResult = HTMLDocument | HTMLElement | Element;
-
-const handlers = new Map();
-const children = new Map();
-const getUid = (() => {
-	let incremental = 0;
-	return () => {
-		incremental += 1;
-		return incremental;
-	};
-})();
-
-function bindAll(element, handlersMap: Map)
+export default function render(sections: Array<string>, ...substitutions: Array<any>): HTMLElement | Array<HTMLElement>
 {
-	handlersMap.forEach((handler, key) => {
-		const currentElement = element.querySelector(`[${key}]`);
-
-		if (currentElement)
-		{
-			currentElement.removeAttribute(key);
-			const event = key.replace(/-(.*)/, '');
-			Event.bind(currentElement, event, handler);
-			handlers.delete(key);
-		}
-	});
-}
-
-function replaceChild(element, childrenMap: Map)
-{
-	childrenMap.forEach((item, id) => {
-		const currentElement = element.getElementById(id);
-
-		if (currentElement)
-		{
-			Dom.replace(currentElement, item);
-			children.delete(id);
-		}
-	});
-}
-
-export default function render(sections: string[], ...substitutions: string[]): renderResult
-{
-	const eventAttrRe = /[ |\t]on(\w+)="$/;
-	const uselessSymbolsRe = /[\r\n\t]/g;
-
-	const html = substitutions
+	const html = sections
 		.reduce((acc, item, index) => {
-			let preparedAcc = acc;
-
-			// Process event handlers
-			const matches = acc.match(eventAttrRe);
-
-			if (matches && Type.isFunction(item))
+			if (index > 0)
 			{
-				const eventName = matches[1].replace(/=['|"]/, '');
-				const attrName = `${eventName}-${getUid()}`;
-				const attribute = `${attrName}="`;
-				preparedAcc = preparedAcc.replace(eventAttrRe, ` ${attribute}`);
-				handlers.set(attrName, item);
-				preparedAcc += (
-					sections[index + 1]
-						.replace(uselessSymbolsRe, ' ')
-						.replace(/  +/g, ' ')
-				);
-				return preparedAcc;
+				const substitution = substitutions[index - 1];
+				if (Type.isString(substitution) || Type.isNumber(substitution))
+				{
+					return `${acc}${substitution}${item}`;
+				}
+
+				return `${acc}{{uid${index}}}${item}`;
 			}
 
-			// Process element
-			if (Type.isDomNode(item))
-			{
-				const childKey = `tmp___${getUid()}`;
-				children.set(childKey, item);
-				preparedAcc += `<span id="${childKey}"> </span>`;
-				preparedAcc += sections[index + 1];
-				return preparedAcc;
-			}
+			return acc;
+		}, sections[0])
+		.replace(/^[\r\n\t\s]+/gm, '')
+		.replace(/>[\n]+/g, '>')
+		.replace(/[}][\n]+/g, '}');
 
-			// Process array
-			if (Type.isArray(item))
-			{
-				[...item].forEach((currentElement) => {
-					if (Type.isDomNode(currentElement))
-					{
-						const childKey = `tmp___${getUid()}`;
-						children.set(childKey, currentElement);
-						preparedAcc += `<span id="${childKey}"> </span>`;
-					}
-				});
+	const ast = parse(html);
 
-				preparedAcc += sections[index + 1];
-
-				return preparedAcc;
-			}
-
-			return preparedAcc + item + sections[index + 1];
-		}, sections[0]);
-
-	const lowercaseHtml = html.trim().toLowerCase();
-	if (
-		lowercaseHtml.startsWith('<!doctype')
-		|| lowercaseHtml.startsWith('<html')
-	)
+	if (ast.length === 1)
 	{
-		const doc = document.implementation.createHTMLDocument('');
-		doc.documentElement.innerHTML = html;
-		replaceChild(doc, children);
-		bindAll(doc, handlers);
-		handlers.clear();
-		return doc;
-	}
-
-	const parser = new DOMParser();
-	const parsedDocument = parser.parseFromString(html, 'text/html');
-
-	replaceChild(parsedDocument, children);
-	bindAll(parsedDocument, handlers);
-
-	if (
-		parsedDocument.head.children.length
-		&& parsedDocument.body.children.length
-	)
-	{
-		return parsedDocument;
-	}
-
-	if (parsedDocument.body.children.length === 1)
-	{
-		const [el] = parsedDocument.body.children;
-		Dom.remove(el);
-		return el;
-	}
-
-	if (parsedDocument.body.children.length > 1)
-	{
-		return [...parsedDocument.body.children].map((item) => {
-			Dom.remove(item);
-			return item;
+		return renderNode({
+			node: ast[0],
+			substitutions,
 		});
 	}
 
-	if (parsedDocument.body.children.length === 0)
+	if (ast.length > 1)
 	{
-		if (parsedDocument.head.children.length === 1)
-		{
-			const [el] = parsedDocument.head.children;
-			Dom.remove(el);
-			return el;
-		}
-
-		if (parsedDocument.head.children.length > 1)
-		{
-			return [...parsedDocument.head.children].map((item) => {
-				Dom.remove(item);
-				return item;
+		return ast.map((node) => {
+			return renderNode({
+				node,
+				substitutions,
 			});
-		}
+		});
 	}
 
 	return false;

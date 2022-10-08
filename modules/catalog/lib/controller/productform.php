@@ -66,7 +66,7 @@ class ProductForm extends Engine\Controller
 			'filter' => [
 				'=IBLOCK_ID' => $iblockId,
 				'=ACTIVE' => 'Y',
-				'=CODE' => 'BRAND_REF',
+				'=CODE' => 'BRAND_FOR_FACEBOOK',
 			],
 			'limit' => 1,
 		])

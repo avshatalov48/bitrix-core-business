@@ -112,7 +112,8 @@
 	color: #000;
 	vertical-align: middle;
 	font-size: 16px;
-	font-family: "Open Sans", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	line-height: 18px;
 	transition: all .3s ease;
 }
@@ -412,7 +413,7 @@
 	padding-right: 10px;
 	color: #000;
 	vertical-align: top;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 13px;
 }
 
@@ -493,7 +494,7 @@
 	text-transform: uppercase;
 	white-space: nowrap;
 	letter-spacing: -0.5px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px
 }
 
@@ -556,7 +557,7 @@
 
 .bx-soa-pickup-subTitle {
 	padding-bottom: 10px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px;
 }
 
@@ -580,7 +581,7 @@
 	padding-left: 15px;
 	min-height: 17px;
 	color: #25495e;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 17px;
 }
 
@@ -629,7 +630,7 @@
 
 .bx-soa-pickup-list-item.bx-selected .bx-soa-pickup-l-item-btn.no-image { padding-left: 20px; }
 
-.bx-soa-pickup-l-item-name { font-weight: bold; }
+.bx-soa-pickup-l-item-name { font-weight: var(--ui-font-weight-bold); }
 
 .bx-soa-pickup-l-item-img {
 	position: absolute;
@@ -689,7 +690,7 @@
 
 .bx-soa-cart-total .bx-soa-cart-total-line:nth-child(2) { border-color: #bfbfbf; }
 
-.bx-soa-cart-total .bx-soa-cart-total-line:first-child .bx-soa-cart-t { font-weight: bold; }
+.bx-soa-cart-total .bx-soa-cart-total-line:first-child .bx-soa-cart-t { font-weight: var(--ui-font-weight-bold); }
 
 .bx-soa-cart-total .bx-soa-cart-total-line-total {
 	padding-top: 25px;
@@ -704,7 +705,7 @@
 	text-align: right;
 }
 
-.bx-soa-cart-total .bx-soa-cart-total-line-total .bx-soa-cart-t { font-weight: bold; }
+.bx-soa-cart-total .bx-soa-cart-total-line-total .bx-soa-cart-t { font-weight: var(--ui-font-weight-bold); }
 
 .bx-soa-cart-total .bx-soa-cart-total-line-total .bx-soa-cart-d { font-size: 28px; }
 
@@ -943,7 +944,7 @@
 
 /* AUTH */
 .bx-soa h3.bx-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px;
 }
 
@@ -1112,12 +1113,12 @@ input[type=checkbox].bx-soa-pp-company-checkbox {
 }
 
 .bx-soa-pp-company-title {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 19px;
 }
 
 .bx-soa-pp-company-subTitle {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px;
 }
 
@@ -1310,7 +1311,7 @@ hr.bxe-light {
 
 .bxe-aleft-title {
 	padding-bottom: 5px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .alert-success {

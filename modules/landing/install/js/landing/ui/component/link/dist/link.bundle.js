@@ -1,18 +1,14 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,main_core_events,landing_ui_component_internal) {
+(function (exports,ui_designTokens,main_core,main_core_events,landing_ui_component_internal) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<", "\n\t\t\t\t\tclass=\"landing-ui-component-link landing-ui-component-link-color-", "\"\n\t\t\t\t\tonclick=\"", "\">", "</", ">\n\t\t\t"]);
+	var _templateObject;
 
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	var Colors = function Colors() {
 	  babelHelpers.classCallCheck(this, Colors);
@@ -39,7 +35,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    _this.subscribeFromOptions(landing_ui_component_internal.fetchEventsFromOptions(options));
 
-	    _this.options = babelHelpers.objectSpread({}, defaultOptions, options);
+	    _this.options = _objectSpread(_objectSpread({}, defaultOptions), options);
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    return _this;
 	  }
@@ -61,7 +57,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return this.cache.remember('layout', function () {
 	        var tag = _this3.getTag();
 
-	        var element = main_core.Tag.render(_templateObject(), tag, _this3.options.color, _this3.onClick.bind(_this3), _this3.options.text, tag);
+	        var element = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<", "\n\t\t\t\t\tclass=\"landing-ui-component-link landing-ui-component-link-color-", "\"\n\t\t\t\t\tonclick=\"", "\">", "</", ">\n\t\t\t"])), tag, _this3.options.color, _this3.onClick.bind(_this3), _this3.options.text, tag);
 
 	        if (tag === 'a') {
 	          main_core.Dom.attr(element, 'href', _this3.options.href);
@@ -92,5 +88,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.Link = Link;
 
-}((this.BX.Landing.UI.Component = this.BX.Landing.UI.Component || {}),BX,BX.Event,BX.Landing.UI.Component));
+}((this.BX.Landing.UI.Component = this.BX.Landing.UI.Component || {}),BX,BX,BX.Event,BX.Landing.UI.Component));
 //# sourceMappingURL=link.bundle.js.map

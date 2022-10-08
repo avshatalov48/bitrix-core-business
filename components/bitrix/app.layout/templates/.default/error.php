@@ -37,7 +37,7 @@ if($arParams['IS_SLIDER'])
 }
 
 Loader::includeModule('ui');
-Extension::load('ui.common');
+Extension::load(['ui.common', 'ui.fonts.opensans']);
 
 Loc::loadMessages(__FILE__);
 $arResult['ERROR_TITLE'] = ($arResult['ERROR_TITLE']) ?: Loc::getMessage("REST_APP_LAYOUT_ERROR_TITLE_DEFAULT");

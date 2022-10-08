@@ -204,7 +204,7 @@
 	padding-bottom: 14px;
 	font-style: normal;
 	color: #545C68;
-	font: bold 16px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: var(--ui-font-weight-bold) 16px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	text-align: center;
 	margin: 22px 26px 0;
 	border-bottom: 1px solid #C6CDD3;
@@ -233,7 +233,7 @@
 	margin: 17px auto 10px auto;
 	padding: 0 30px 10px;
 	max-width: 373px;
-	font: 15px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 15px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c69;
 	text-align: center;
 }

@@ -7,6 +7,7 @@
  * @copyright 2001-2021 Bitrix
  */
 
+import 'ui.fonts.opensans';
 import "./socialvideo.css";
 import 'main.polyfill.intersectionobserver';
 import {lazyload } from 'ui.vue3.directives.lazyload';

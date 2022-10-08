@@ -1,4 +1,5 @@
 <?php
+
 define("NOT_CHECK_PERMISSIONS", true);
 define("STOP_STATISTICS", true);
 define("NO_KEEP_STATISTIC", "Y");
@@ -7,9 +8,13 @@ define("DisableEventsCheck", true);
 
 $siteId = '';
 if (isset($_REQUEST['site_id']) && is_string($_REQUEST['site_id']))
+{
 	$siteId = mb_substr(preg_replace('/[^a-z0-9_]/i', '', $_REQUEST['site_id']), 0, 2);
+}
+if ($siteId)
+{
 
-if (!$siteId)
+}
 	define('SITE_ID', $siteId);
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
@@ -266,6 +271,10 @@ switch ($action)
 			if (!$template)
 			{
 				$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType, $templateData['DOCUMENT_STATUS']);
+			}
+			elseif ($template->getDocumentType() !== $documentType)
+			{
+				$sendError('Incorrect template id');
 			}
 
 			if (empty($templateData['IS_EXTERNAL_MODIFIED']))

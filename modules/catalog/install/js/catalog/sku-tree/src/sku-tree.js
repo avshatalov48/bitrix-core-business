@@ -1,6 +1,7 @@
 import {Tag, Type, Text, Dom, ajax} from 'main.core';
-import SkuProperty from './sku-property';
+import 'ui.design-tokens';
 import './sku-tree.css';
+import SkuProperty from './sku-property';
 import {EventEmitter} from 'main.core.events';
 import 'ui.forms';
 import 'ui.buttons';

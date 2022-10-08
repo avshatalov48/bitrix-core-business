@@ -8,7 +8,8 @@
 	font-size: 21px;
 	padding: 21px 0 21px 5px;
 	color: #525c69;
-	font-family: "OpenSans-Light", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .mp-slider-wrap {
@@ -62,13 +63,13 @@
 
 
 .mp-detail-main-controls-offer {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 16px;
 	line-height: 12px;
 	color: #525C69;
 }
 .mp-detail-main-controls-description {
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	line-height: 12px;
 	color: #525C69;
@@ -84,14 +85,15 @@
 	padding: 6px 0;
 	font-size: 28px;
 	color: #333;
-	font-family: "OpenSans-Regular", sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	line-height: 35px;
 }
 
 .mp-detail-main-description {
 	display: block;
 	overflow: hidden;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: rgba(83,92,105,.8);
 	max-height: 36px;
@@ -145,7 +147,7 @@
 	border-top-right-radius: 0;
 	border-top-left-radius: 0;
 	margin-bottom: 10px;
-	font-family: "Helvetica Neue", Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 0;
 	white-space: nowrap;
 }
@@ -309,7 +311,8 @@
 	font-size: 14px;
 	color: #535c69;
 	transition: .2s;
-	font-family: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	cursor: pointer;
 }
 
@@ -332,7 +335,7 @@
 
 .mp-detail-content-wrapper {
 	display: block;
-	font-family: Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	line-height: 20px;
 }
@@ -347,7 +350,8 @@
 	font-size: 20px;
 	line-height: 24px;
 	margin-bottom: 12px;
-	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .mp-detail-content-version-desc {
@@ -370,8 +374,8 @@
 
 .mp-detail-main-controls-price {
 	font-size: 16px !important;
-	font-family: Helvetica, Arial, sans-serif !important;
-	font-weight: bold !important;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important;
+	font-weight: var(--ui-font-weight-bold) !important;
 	cursor: auto !important;
 	color: #525c69;
 	padding-left: 12px !important;
@@ -465,7 +469,8 @@
 	vertical-align: middle;
 	padding: 0 6px;
 	color: #ccc;
-	font-family: "OpenSans-Regular", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 13px;
 	text-transform: none;
 }

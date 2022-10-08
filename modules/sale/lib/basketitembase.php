@@ -11,6 +11,7 @@ use Bitrix\Main;
 use Bitrix\Main\Localization;
 use Bitrix\Sale\Basket\RefreshFactory;
 use Bitrix\Sale\Internals;
+use Bitrix\Sale\Tax\VatCalculator;
 
 Localization\Loc::loadMessages(__FILE__);
 
@@ -131,6 +132,7 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 			"MODULE" => $moduleId,
 			"BASE_PRICE" => 0,
 			"CAN_BUY" => 'Y',
+			"VAT_RATE" => null,
 			"CUSTOM_PRICE" => 'N',
 			"PRODUCT_ID" => $productId,
 			'XML_ID' => static::generateXmlId(),
@@ -887,16 +889,14 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	 */
 	public function getVat()
 	{
-		$vatRate = $this->getVatRate();
-		if ($vatRate == 0)
-			return 0;
+		$calculator = new VatCalculator((float)$this->getVatRate());
+		$vat = $calculator->calc(
+			$this->getPrice(),
+			$this->isVatInPrice(),
+			false
+		);
 
-		if ($this->isVatInPrice())
-			$vat = PriceMaths::roundPrecision(($this->getPrice() * $this->getQuantity() * $vatRate / ($vatRate + 1)));
-		else
-			$vat = PriceMaths::roundPrecision(($this->getPrice() * $this->getQuantity() * $vatRate));
-
-		return $vat;
+		return PriceMaths::roundPrecision($vat * $this->getQuantity());
 	}
 
 	/**
@@ -1029,6 +1029,30 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	public function getCurrency()
 	{
 		return $this->getField('CURRENCY');
+	}
+
+	/**
+	 * Change basket item currency.
+	 *
+	 * @param string $currency
+	 *
+	 * @return Main\Result
+	 */
+	public function changeCurrency(string $currency): Main\Result
+	{
+		$result = new Main\Result();
+
+		$oldCurrency = $this->getCurrency();
+		if ($oldCurrency === $currency)
+		{
+			return $result;
+		}
+
+		$result->addErrors(
+			$this->setField('CURRENCY', $currency)->getErrors()
+		);
+
+		return $result;
 	}
 
 	/**

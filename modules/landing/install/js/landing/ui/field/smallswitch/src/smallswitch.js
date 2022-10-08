@@ -1,6 +1,7 @@
 import {Switch} from 'landing.ui.field.switch';
 import {Dom} from 'main.core';
 
+import 'ui.fonts.opensans';
 import './css/style.css';
 import {Loc} from 'landing.loc';
 

@@ -1,4 +1,5 @@
 import {Event, Dom} from "main.core";
+import 'ui.design-tokens';
 import 'ui.forms';
 import {EventEmitter} from 'main.core.events';
 

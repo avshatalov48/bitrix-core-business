@@ -271,7 +271,7 @@ class HighloadBlock extends Base
 
 		if (!empty($block['TITLES']) && is_array($block['TITLES']))
 		{
-			Highload\HighloadBlockLangTable::delete($block['ID']);
+			self::deleteStorageTitle($block);
 			foreach ($block['TITLES'] as $languageId => $title)
 			{
 				Highload\HighloadBlockLangTable::add([
@@ -281,6 +281,29 @@ class HighloadBlock extends Base
 				]);
 			}
 		}
+	}
+
+	private static function deleteStorageTitle(array $block): void
+	{
+		// because HighloadBlockLangTable primary key list was changed
+		$entity = Highload\HighloadBlockLangTable::getEntity();
+		if (in_array('LID', $entity->getPrimaryArray(), true))
+		{
+			foreach (array_keys($block['TITLES']) as $languageId)
+			{
+				Highload\HighloadBlockLangTable::delete([
+					'ID' => $block['ID'],
+					'LID' => $languageId,
+				]);
+			}
+		}
+		else
+		{
+			Highload\HighloadBlockLangTable::delete([
+				'ID' => $block['ID'],
+			]);
+		}
+		unset($entity);
 	}
 
 	/**

@@ -16,6 +16,7 @@ abstract class EntityCollection
 	protected $isClone = false;
 
 	protected $anyItemDeleted = false;
+	protected $anyItemAdded = false;
 
 	/**
 	 * EntityCollection constructor.
@@ -90,6 +91,7 @@ abstract class EntityCollection
 		$item->setInternalIndex($index);
 
 		$this->collection[$index] = $item;
+		$this->setAnyItemAdded(true);
 
 		$eventManager = Main\EventManager::getInstance();
 		$eventsList = $eventManager->findEventHandlers('sale', 'OnCollectionAddItem');
@@ -342,7 +344,7 @@ abstract class EntityCollection
 			}
 		}
 
-		return $this->isAnyItemDeleted();
+		return $this->isAnyItemDeleted() || $this->isAnyItemAdded();
 	}
 
 	/**
@@ -378,6 +380,24 @@ abstract class EntityCollection
 	protected function setAnyItemDeleted($value)
 	{
 		return $this->anyItemDeleted = ($value === true);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAnyItemAdded()
+	{
+		return $this->anyItemAdded;
+	}
+
+	/**
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	protected function setAnyItemAdded($value)
+	{
+		return $this->anyItemAdded = ($value === true);
 	}
 
 	/**

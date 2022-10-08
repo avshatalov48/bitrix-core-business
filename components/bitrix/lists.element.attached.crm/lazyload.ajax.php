@@ -107,19 +107,45 @@ if (isset($_REQUEST["download"]) && $_REQUEST["download"] === "y")
 	completeLazyLoad();
 }
 
-$componentData = isset($_REQUEST['PARAMS']) && is_array($_REQUEST['PARAMS']) ? $_REQUEST['PARAMS'] : array();
-$componentParams = isset($componentData['params']) && is_array($componentData['params']) ?
-	$componentData['params'] : array();
+$requestParams = (
+	isset($_REQUEST['PARAMS']) && is_array($_REQUEST['PARAMS'])
+		? $_REQUEST['PARAMS']
+		: []
+);
+$params = (
+	isset($requestParams['params']) && is_array($requestParams['params'])
+		? $requestParams['params']
+		: []
+);
 
 global $APPLICATION;
 Header('Content-Type: text/html; charset='.LANG_CHARSET);
 $APPLICATION->ShowAjaxHead();
 
-$APPLICATION->IncludeComponent('bitrix:lists.element.attached.crm',
-	isset($componentData['template']) ? $componentData['template'] : '',
+$componentParams = [];
+if (isset($params['ENTITY_ID']))
+{
+	$componentParams['ENTITY_ID'] = $params['ENTITY_ID'];
+}
+if (isset($params['ENTITY_TYPE']))
+{
+	$componentParams['ENTITY_TYPE'] = $params['ENTITY_TYPE'];
+}
+if (isset($params['TAB_ID']))
+{
+	$componentParams['TAB_ID'] = $params['TAB_ID'];
+}
+if (isset($params['IBLOCK_ID']))
+{
+	$componentParams['IBLOCK_ID'] = $params['IBLOCK_ID'];
+}
+
+$APPLICATION->IncludeComponent(
+	'bitrix:lists.element.attached.crm',
+	'',
 	$componentParams,
 	false,
-	array('HIDE_ICONS' => 'Y')
+	['HIDE_ICONS' => 'Y']
 );
 
 completeLazyLoad();

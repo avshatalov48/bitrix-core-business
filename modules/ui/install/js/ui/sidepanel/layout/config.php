@@ -8,11 +8,12 @@ return [
 	'css' => 'dist/bundle.css',
 	'js' => 'dist/bundle.js',
 	'rel' => [
+		'ui.fonts.opensans',
 		'sidepanel',
 		'main.core',
+		'main.core.events',
 		'ui.buttons',
 		'ui.sidepanel.menu',
-		'main.core.events',
 	],
 	'skip_core' => false,
 ];

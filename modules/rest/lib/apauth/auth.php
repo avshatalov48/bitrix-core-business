@@ -11,6 +11,7 @@ namespace Bitrix\Rest\APAuth;
 use Bitrix\Main\Authentication\ApplicationManager;
 use Bitrix\Main\Authentication\ApplicationPasswordTable;
 use Bitrix\Main\Context;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UserTable;
 use Bitrix\Rest\Engine\Access;
@@ -85,7 +86,19 @@ class Auth
 				{
 					$tokenInfo['scope'] = implode(',', static::getPasswordScope($tokenInfo['password_id']));
 
-					if(!\CRestUtil::makeAuth($tokenInfo))
+					global $USER;
+					if ($USER instanceof \CUser && $USER->isAuthorized())
+					{
+						if ((int)$USER->GetID() !== (int)$tokenInfo['user_id'])
+						{
+							$tokenInfo = [
+								'error' => 'authorization_error',
+								'error_description' => Loc::getMessage('REST_AP_AUTH_ERROR_LOGOUT_BEFORE'),
+							];
+							$error = true;
+						}
+					}
+					elseif (!\CRestUtil::makeAuth($tokenInfo))
 					{
 						$tokenInfo = array('error' => 'authorization_error', 'error_description' => 'Unable to authorize user');
 						$error = true;

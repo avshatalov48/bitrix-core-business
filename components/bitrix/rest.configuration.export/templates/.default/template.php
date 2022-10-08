@@ -17,7 +17,14 @@ use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
-Extension::load(["ui.buttons", "ui.common", "ui.progressbar"]);
+
+Extension::load([
+	"ui.design-tokens",
+	"ui.fonts.opensans",
+	"ui.buttons",
+	"ui.common",
+	"ui.progressbar",
+]);
 
 $containerId = 'rest-configuration-export';
 ?>

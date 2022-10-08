@@ -54,6 +54,11 @@ if($isBitrix24Template)
 }
 elseif(!IsModuleInstalled("intranet"))
 {
+	\Bitrix\Main\UI\Extension::load([
+		'ui.design-tokens',
+		'ui.fonts.opensans',
+	]);
+
 	$APPLICATION->SetAdditionalCSS("/bitrix/js/lists/css/intranet-common.css");
 }
 ?>
@@ -290,7 +295,11 @@ if (
 						"id" => "BIZPROC_STATE".$bizProcIndex,
 						"name" => GetMessage("CT_BLEE_BIZPROC_STATE"),
 						"type" => "label",
-						"value" => ($arDocumentState["STATE_TITLE"] <> ''? $arDocumentState["STATE_TITLE"] : $arDocumentState["STATE_NAME"]),
+						"value" => (
+							$arDocumentState["STATE_TITLE"] <> ''
+								? htmlspecialcharsbx($arDocumentState["STATE_TITLE"])
+								: htmlspecialcharsbx($arDocumentState["STATE_NAME"])
+						),
 					);
 				}
 			}
@@ -350,7 +359,7 @@ if (
 				{
 					$listTemplateId = array();
 					$listTemplateId[$templateId]['ID'] = $templateId;
-					$listTemplateId[$templateId]['NAME'] = $arDocumentState["TEMPLATE_NAME"];
+					$listTemplateId[$templateId]['NAME'] = htmlspecialcharsbx($arDocumentState["TEMPLATE_NAME"]);
 					$arTab2Fields[] = array(
 						"id" => "BIZPROC_CONSTANTS".$bizProcIndex,
 						"name" => GetMessage("CT_BLEE_BIZPROC_CONSTANTS_LABLE"),

@@ -40,7 +40,7 @@
 	font-size: 15px;
 	color: #4b6266;
 	text-shadow: 0 1px 0 #fff;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 36px;
 	padding: 0 16px;
 	margin: 0 -20px 25px;
@@ -92,7 +92,7 @@
 }
 
 .adm-fileinput-setting-table .adm-fileinput-setting-table-hint {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .adm-detail-content-table tr .adm-fileinput-table-td-title {
@@ -100,7 +100,7 @@
 	text-align: right;
 	padding-right: 20px;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .adm-fileinput-btn-panel .adm-fileinput-mode {
@@ -268,7 +268,7 @@ span.adm-btn.add-file-popup-btn {
 .adm-fileinput-area .adm-fileinput-drag-area-hint {
 	display: none;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #aebac3;
 	text-align: center;
 	margin-top: 29px;
@@ -395,7 +395,7 @@ ol.adm-fileinput-presets li {
 .adm-fileinput-item-add {
 	float: right;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #2b7bbc;
 	text-decoration: none;
 	margin-bottom: 10px;
@@ -530,7 +530,7 @@ div.adm-fileinput-item span.container-doc-title {
 	display: block;
 	padding: 0 10px;
 	font-size: 12px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	color: #333434;
 	line-height: 15px;
 	margin: 10px 0 7px;
@@ -723,7 +723,7 @@ div.bx-drag-over div.adm-fileinput-item:before {
 
 .adm-fileinput-drag-area-popup-title {
 	display: block;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px;
 	margin-bottom: 15px;
 }
@@ -825,7 +825,7 @@ div.bx-drag-over div.adm-fileinput-item:before {
 .adm-photoeditor-buttons-panel-save {
 	float: right;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	line-height: 27px;
 	color: #2b7bbc;
 	padding: 0 17px 0 14px;
@@ -981,7 +981,7 @@ div.bx-drag-over div.adm-fileinput-item:before {
 	color: #3f4b54;
 	display: inline-block;
 	font-size: 13px;
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	line-height: 23px;
 	text-shadow: 0 1px #fff;
 	outline: none;
@@ -2112,7 +2112,7 @@ select::-ms-expand {
 	outline: none;
 	border: 1px solid #d1d8dc;
 	box-shadow: inset 0 2px 5px 0 rgba(0,0,0,0.15);
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	display: inline-block;
 	vertical-align: middle;
 }
@@ -2151,7 +2151,7 @@ select::-ms-expand {
 	height: 33px;
 	background: url(../images/fileinput/fileinput-sprite.png) no-repeat 0 -405px;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	text-align: center;
 	line-height: 27px;
 	color: #000;

@@ -945,6 +945,18 @@ export class Row
 		this.setField('BASE_PRICE', value);
 		this.addActionProductChange();
 		this.addActionUpdateTotal();
+
+		this.updateRowTotalPrice();
+	}
+
+	updateRowTotalPrice()
+	{
+		const field = this.getEditor().getSettingValue('totalCalculationSumField', 'PURCHASING_PRICE');
+		let value = this.getAmount() * this.getField(field, 0);
+		value = Math.max(value, 0);
+
+		this.setField('TOTAL_PRICE', value);
+		this.updateUiField('TOTAL_PRICE', value.toFixed(this.getPricePrecision()));
 	}
 
 	updateProductStoreValues()
@@ -1016,6 +1028,8 @@ export class Row
 		this.setField('PURCHASING_PRICE', value);
 		this.addActionProductChange();
 		this.addActionUpdateTotal();
+
+		this.updateRowTotalPrice();
 	}
 
 	setAmount(value, mode = MODE_SET)
@@ -1031,6 +1045,8 @@ export class Row
 			this.setField('AMOUNT', value);
 			this.addActionProductChange();
 			this.addActionUpdateTotal();
+
+			this.updateRowTotalPrice();
 		}
 	}
 
@@ -1256,6 +1272,7 @@ export class Row
 			case 'MEASURE_CODE':
 			case 'BASE_PRICE':
 			case 'PURCHASING_PRICE':
+			case 'TOTAL_PRICE':
 				result = field;
 				break;
 		}
@@ -1265,7 +1282,8 @@ export class Row
 
 	getUiFieldType(field)
 	{
-		if (field === 'BASE_PRICE' || field === 'PURCHASING_PRICE')
+		const moneyFields = ['BASE_PRICE', 'PURCHASING_PRICE', 'TOTAL_PRICE'];
+		if (moneyFields.includes(field))
 		{
 			const column = this.getEditor()?.getColumnInfo(field);
 			if (column?.editable?.TYPE === 'MONEY')

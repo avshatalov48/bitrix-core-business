@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CP_BCSL_IBLOCK_TYPE"] = "Тип инфоблока";
 $MESS["CP_BCSL_IBLOCK_ID"] = "Инфоблок";
 $MESS["CP_BCSL_SECTION_URL"] = "URL, ведущий на страницу с содержимым раздела";
@@ -6,6 +6,8 @@ $MESS["CP_BCSL_SECTION_ID"] = "ID раздела";
 $MESS["CP_BCSL_SECTION_CODE"] = "Код раздела";
 $MESS["CP_BCSL_COUNT_ELEMENTS"] = "Показывать количество элементов в разделе";
 $MESS["CP_BCSL_COUNT_ELEMENTS_FILTER"] = "Показывать количество";
+$MESS["CP_BCSL_ADDITIONAL_COUNT_ELEMENTS_FILTER"] = "Дополнительный фильтр для подсчета количества элементов в разделе";
+$MESS["CP_BCSL_HIDE_SECTIONS_WITH_ZERO_COUNT_ELEMENTS"] = "Скрывать разделы с нулевым количеством элементов";
 $MESS["CP_BCSL_TOP_DEPTH"] = "Максимальная отображаемая глубина разделов";
 $MESS["CP_BCSL_ADD_SECTIONS_CHAIN"] = "Включать раздел в цепочку навигации";
 $MESS["CP_BCSL_CACHE_GROUPS"] = "Учитывать права доступа";
@@ -27,4 +29,3 @@ $MESS["CACHE_TYPE_TIP"] = "<i>Авто</i>: действует при включ
 $MESS["CACHE_TIME_TIP"] = "Поле служит для указания времени кеширования в секундах.";
 $MESS["COUNT_ELEMENTS_TIP"] = "Показывать количество элементов в разделе";
 $MESS["TOP_DEPTH_TIP"] = "Число определяет количество отображаемых уровней вложенности разделов каталога.";
-?>

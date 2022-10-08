@@ -13,6 +13,8 @@ $intCount = count($arResult['ITEMS']);
 $strAllWidth = 100*$intCount;
 $arRowIDs = array();
 $strContID = 'js_catalog_top_banner_s'.$this->randString();
+
+\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
 ?>
 <div class="catalog-top-banner mb-4 <? echo $templateData['TEMPLATE_CLASS']; ?>" id="<? echo $strContID; ?>">
 	<div class="catalog-top-banner-slider" style="width:<? echo $strAllWidth; ?>%;">

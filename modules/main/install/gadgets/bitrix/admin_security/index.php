@@ -6,6 +6,7 @@ global $APPLICATION;
 /** @global CUser $USER */
 global $USER;
 
+\Bitrix\Main\UI\Extension::load('ui.design-tokens');
 $APPLICATION->SetAdditionalCSS('/bitrix/gadgets/bitrix/admin_security/styles.css');
 
 $aGlobalOpt = CUserOptions::GetOption("global", "settings", array());

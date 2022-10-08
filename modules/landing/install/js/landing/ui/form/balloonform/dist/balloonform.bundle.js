@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,landing_ui_form_baseform,main_core) {
+(function (exports,ui_designTokens,landing_ui_form_baseform,main_core) {
 	'use strict';
 
 	/**
@@ -26,5 +26,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.BalloonForm = BalloonForm;
 
-}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX.Landing.UI.Form,BX));
+}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX,BX.Landing.UI.Form,BX));
 //# sourceMappingURL=balloonform.bundle.js.map

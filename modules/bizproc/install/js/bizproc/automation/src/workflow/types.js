@@ -1,8 +1,8 @@
 export class WorkflowStatus
 {
-	static CREATED_WORKFLOW_STATUS = 0;
-	static RUNNING_WORKFLOW_STATUS = 1;
-	static COMPLETED_WORKFLOW_STATUS = 2;
-	static SUSPENDED_WORKFLOW_STATUS = 3;
-	static TERMINATED_WORKFLOW_STATUS = 4;
+	static CREATED = 0;
+	static RUNNING = 1;
+	static COMPLETED = 2;
+	static SUSPENDED = 3;
+	static TERMINATED = 4;
 }

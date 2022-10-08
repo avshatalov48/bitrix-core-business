@@ -1,4 +1,4 @@
-(function (exports,main_polyfill_intersectionobserver,ui_vue,main_core_events) {
+(function (exports,ui_fonts_opensans,main_polyfill_intersectionobserver,ui_vue,main_core_events) {
 	'use strict';
 
 	/**
@@ -397,5 +397,5 @@
 	  template: "\n\t\t<div :class=\"['ui-vue-audioplayer-container', {\n\t\t\t\t'ui-vue-audioplayer-container-dark': isDark,\n\t\t\t\t'ui-vue-audioplayer-container-mobile': isMobile,\n\t\t\t}]\" ref=\"body\">\n\t\t\t<div class=\"ui-vue-audioplayer-controls-container\">\n\t\t\t\t<button :class=\"['ui-vue-audioplayer-control', {\n\t\t\t\t\t'ui-vue-audioplayer-control-loader': loading,\n\t\t\t\t\t'ui-vue-audioplayer-control-play': !loading && state !== State.play,\n\t\t\t\t\t'ui-vue-audioplayer-control-pause': !loading && state === State.play,\n\t\t\t\t}]\" @click=\"clickToButton\"></button>\n\t\t\t</div>\n\t\t\t<div class=\"ui-vue-audioplayer-timeline-container\">\n\t\t\t\t<div class=\"ui-vue-audioplayer-track-container\" @click=\"setPosition\" ref=\"track\">\n\t\t\t\t\t<div class=\"ui-vue-audioplayer-track-mask\"></div>\n\t\t\t\t\t<div class=\"ui-vue-audioplayer-track\" :style=\"progressPosition\"></div>\n\t\t\t\t\t<div class=\"ui-vue-audioplayer-track-seek\" :style=\"seekPosition\"></div>\n\t\t\t\t\t<div class=\"ui-vue-audioplayer-track-event\" @mousemove=\"seeking\"></div>\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-vue-audioplayer-timers-container\">\n\t\t\t\t\t<div class=\"ui-vue-audioplayer-time-current\">{{labelTime}}</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<audio v-if=\"src\" :src=\"src\" class=\"ui-vue-audioplayer-source\" ref=\"source\" :preload=\"preload\"\n\t\t\t\t@abort=\"audioEventRouter('abort', $event)\"\n\t\t\t\t@error=\"audioEventRouter('error', $event)\"\n\t\t\t\t@suspend=\"audioEventRouter('suspend', $event)\"\n\t\t\t\t@canplay=\"audioEventRouter('canplay', $event)\"\n\t\t\t\t@canplaythrough=\"audioEventRouter('canplaythrough', $event)\"\n\t\t\t\t@durationchange=\"audioEventRouter('durationchange', $event)\"\n\t\t\t\t@loadeddata=\"audioEventRouter('loadeddata', $event)\"\n\t\t\t\t@loadedmetadata=\"audioEventRouter('loadedmetadata', $event)\"\n\t\t\t\t@timeupdate=\"audioEventRouter('timeupdate', $event)\"\n\t\t\t\t@play=\"audioEventRouter('play', $event)\"\n\t\t\t\t@playing=\"audioEventRouter('playing', $event)\"\n\t\t\t\t@pause=\"audioEventRouter('pause', $event)\"\n\t\t\t></audio>\n\t\t</div>\n\t"
 	});
 
-}((this.window = this.window || {}),BX,BX,BX.Event));
+}((this.window = this.window || {}),BX,BX,BX,BX.Event));
 //# sourceMappingURL=audioplayer.bundle.js.map

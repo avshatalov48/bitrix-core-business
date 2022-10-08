@@ -17,8 +17,15 @@ $bodyClass = $APPLICATION->getPageProperty('BodyClass');
 $APPLICATION->setPageProperty('BodyClass', ($bodyClass ? $bodyClass . ' ' : '') . 'no-background');
 
 \Bitrix\Main\UI\Extension::load([
-	'ui.buttons', 'ui.forms', 'ui.tilegrid',
-	'loader', 'sidepanel', 'main.qrcode', 'ui.confetti'
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ui.buttons',
+	'ui.forms',
+	'ui.tilegrid',
+	'loader',
+	'sidepanel',
+	'main.qrcode',
+	'ui.confetti',
 ]);
 
 if ($arResult['ERRORS'])

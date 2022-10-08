@@ -152,9 +152,9 @@ $GLOBALS['APPLICATION']->SetAdditionalCSS($sTemplateDir.'styles/additional.css?'
 $GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/main/utils.js");
 $GLOBALS['APPLICATION']->AddHeadScript("/bitrix/components/bitrix/forum.interface/templates/.default/script.js");
 
-$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/".LANGUAGE_ID."/result_modifier.php")));
+$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/lang/".LANGUAGE_ID."/result_modifier.php")));
 if (!file_exists($file))
-	$file = trim(preg_replace("'[\\\\/]+'", "/", (dirname(__FILE__)."/lang/en/result_modifier.php")));
+	$file = trim(preg_replace("'[\\\\/]+'", "/", (__DIR__."/lang/en/result_modifier.php")));
 if(file_exists($file)):
 	global $MESS;
 	include_once($file);

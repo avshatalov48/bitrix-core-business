@@ -1,7 +1,8 @@
 .bx-filter {
 	width: 100%;
 	min-width: 220px;
-	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	margin-bottom: 20px;
 }
 .bx-filter .bx-filter-section {
@@ -168,7 +169,7 @@ COLOR
 }
 .bx-filter .bx-ui-slider-part span {
 	font-size: 11px;
-	/*font-weight: bold;*/
+	/*font-weight: var(--ui-font-weight-bold);*/
 
 	position: absolute;
 	top: -16px;
@@ -428,7 +429,7 @@ COLOR
 	background: #f3f8fa;
 }
 /*
-*	Checkbox / Radio 
+*	Checkbox / Radio
 *
 */
 
@@ -440,7 +441,7 @@ COLOR
 	text-align: left;
 }
 /*
-* 	BTN 
+* 	BTN
 *
 */
 
@@ -544,7 +545,7 @@ COLOR
 }
 .bx-filter span.bx-spm {
 	font-size: 18px;
-	/*font-weight:bold;*/
+	/*font-weight:var(--ui-font-weight-bold);*/
 
 	line-height: 23px;
 	display: inline-block;
@@ -645,7 +646,7 @@ COLOR
 	border-color: transparent;
 }
 /*
-*	BTN result and reset 
+*	BTN result and reset
 *
 */
 

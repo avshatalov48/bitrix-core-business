@@ -17,19 +17,19 @@ export class Planner extends EventEmitter
 	};
 	scaleTypes = ['15min','30min','1hour', '2hour', '1day'];
 	savedScaleType = null;
-	SCALE_OFFSET_BEFORE = 3;  // in days
-	SCALE_OFFSET_AFTER = 10;  // in days
+	SCALE_OFFSET_BEFORE = 0;  // in days
+	SCALE_OFFSET_AFTER = 13;  // in days
 	EXPAND_OFFSET = 3; // in days
 	EXPAND_DELAY = 2000; // ms
 	REBUILD_DELAY = 100;
-	maxTimelineSize =  20;
-	MIN_ENTRY_ROWS =  3;
+	maxTimelineSize = 300;
+	MIN_ENTRY_ROWS = 3;
 	MAX_ENTRY_ROWS = 300;
 	width = 700;
 	height = 84;
 	minWidth = 700;
 	minHeight = 84;
-	workTime = [9, 18];
+	workTime = [8, 18];
 	scrollStep = 10;
 	shown = false;
 	built = false;
@@ -37,7 +37,7 @@ export class Planner extends EventEmitter
 	shownScaleTimeFrom = 24;
 	shownScaleTimeTo = 0;
 	timelineCellWidthOrig = false;
-	proposeTimeLimit = 60; // in days
+	proposeTimeLimit = 14; // in days
 	expandTimelineDelay = 600;
 	limitScaleSizeMode = false;
 	useAnimation = true;
@@ -45,7 +45,7 @@ export class Planner extends EventEmitter
 	entriesIndex = new Map();
 	solidStatus = false;
 
-	constructor(params = {}, initialUpdateParams = null)
+	constructor(params = {})
 	{
 		super();
 		this.setEventNamespace('BX.Calendar.Planner');
@@ -60,7 +60,7 @@ export class Planner extends EventEmitter
 		this.setConfig(params);
 	}
 
-	show(options = {animation: false})
+	show()
 	{
 		let animation = false;
 
@@ -69,7 +69,6 @@ export class Planner extends EventEmitter
 			this.hideAnimation.stop();
 			this.hideAnimation = null;
 		}
-
 
 		if (!this.isBuilt())
 		{
@@ -124,8 +123,11 @@ export class Planner extends EventEmitter
 				step: (state) => {this.DOM.wrap.style.height = state.height + 'px';},
 				complete: () => {
 					if (parseInt(this.DOM.wrap.style.height) < this.height)
+					{
 						this.DOM.wrap.style.height = this.height + 'px';
+					}
 					this.showAnimation = null;
+					this.selector.focus();
 				}
 			});
 			this.showAnimation.animate();
@@ -334,6 +336,9 @@ export class Planner extends EventEmitter
 
 	extendScaleTime(fromTime, toTime)
 	{
+		const savedTimeFrom = this.shownScaleTimeFrom;
+		const savedTimeTo = this.shownScaleTimeTo;
+
 		if (fromTime !== false && !isNaN(parseInt(fromTime)))
 		{
 			this.shownScaleTimeFrom = Math.min(parseInt(fromTime), this.shownScaleTimeFrom, 23);
@@ -341,7 +346,7 @@ export class Planner extends EventEmitter
 
 			if (this.scaleDateFrom)
 			{
-				this.scaleDateFrom.setHours(this.shownScaleTimeFrom, 0,0,0);
+				this.scaleDateFrom.setHours(this.shownScaleTimeFrom, 0, 0 ,0);
 			}
 		}
 
@@ -352,13 +357,35 @@ export class Planner extends EventEmitter
 
 			if (this.scaleDateTo)
 			{
-				this.scaleDateTo.setHours(this.shownScaleTimeTo, 0,0,0);
+				this.scaleDateTo.setHours(this.shownScaleTimeTo, 0, 0, 0);
 			}
 		}
 
-		this.rebuildDebounce();
+		if ((this.shownScaleTimeTo - this.shownScaleTimeFrom) % 2 !== 0)
+		{
+			this.shownScaleTimeTo++;
+			if (this.shownScaleTimeTo > 24)
+			{
+				this.shownScaleTimeFrom--;
+			}
+		}
 
-		//this.checkSelectorPosition = this.shownScaleTimeFrom !== 0 || this.shownScaleTimeTo !== 24;
+		if (fromTime === false && toTime !== false)
+		{
+			setTimeout(() => {
+				this.extendTimelineToRight(savedTimeTo, this.shownScaleTimeTo);
+			}, 200);
+		}
+		if (fromTime !== false && toTime === false)
+		{
+			setTimeout(() => {
+				this.extendTimelineToLeft(this.shownScaleTimeFrom, savedTimeFrom);
+			}, 200);
+		}
+		if (fromTime !== false && toTime !== false)
+		{
+			this.rebuildDebounce();
+		}
 	}
 
 	adjustCellWidth()
@@ -457,8 +484,13 @@ export class Planner extends EventEmitter
 			this.lock();
 		}
 
+		// overflow-y: hidden;
+		this.DOM.timelineVerticalConstraint = this.DOM.timelineFixedWrap.appendChild(Tag.render`
+			<div class="calendar-planner-timeline-constraint"></div>
+		`);
+
 		// Movable cont - used to move scale and data containers easy and at the same time
-		this.DOM.timelineInnerWrap = this.DOM.timelineFixedWrap.appendChild(Tag.render`
+		this.DOM.timelineInnerWrap = this.DOM.timelineVerticalConstraint.appendChild(Tag.render`
 			<div class="calendar-planner-timeline-inner-wrapper" data-bx-planner-meta="timeline"></div>
 		`);
 
@@ -481,9 +513,10 @@ export class Planner extends EventEmitter
 		// Selector
 		this.selector = new Selector({
 			selectMode: this.selectMode,
-			timelineWrap: this.DOM.timelineFixedWrap,
+			timelineWrap: this.DOM.timelineVerticalConstraint,
 			getPosByDate: this.getPosByDate.bind(this),
 			getDateByPos: this.getDateByPos.bind(this),
+			getEvents: this.getAllEvents.bind(this),
 			getPosDateMap: () => {
 				return this.posDateMap;
 			},
@@ -652,7 +685,7 @@ export class Planner extends EventEmitter
 					this.rebuild();
 					if (this.selector)
 					{
-						this.selector.focus(false, 300);
+						this.selector.focus(true, 300);
 					}
 				}
 				else
@@ -670,6 +703,172 @@ export class Planner extends EventEmitter
 	rebuildDebounce(timeout = this.REBUILD_DELAY)
 	{
 		Runtime.debounce(this.rebuild, timeout, this)();
+	}
+
+	extendTimelineToLeft(extendedTimeFrom, extendedTimeTo)
+	{
+		this.extendTimeline(extendedTimeFrom, extendedTimeTo);
+	}
+
+	extendTimelineToRight(extendedTimeFrom, extendedTimeTo)
+	{
+		this.extendTimeline(extendedTimeFrom, extendedTimeTo, true)
+	}
+
+	extendTimeline(extendedTimeFrom, extendedTimeTo, isToRight = false)
+	{
+		if (!this.DOM.timelineScaleWrap)
+		{
+			return;
+		}
+		const isToLeft = !isToRight;
+		const dayNodeList = this.DOM.timelineScaleWrap.querySelectorAll('.calendar-planner-time-day');
+		const dayCount = dayNodeList.length;
+		const nodeCountInDay = this.scaleData.length / dayCount;
+		const extendCount = extendedTimeTo - extendedTimeFrom;
+
+		let cellsInsertedOnLeftCount = 0;
+		const insertedNodes = [];
+		let pivotScaleDatumOfDayIndex = isToRight ? nodeCountInDay - 1 : 0;
+
+		for (const dayNode of dayNodeList)
+		{
+			const pivotNodeOfDay = isToLeft
+				? dayNode.children[0]
+				: dayNode.querySelector('.calendar-planner-timeline-border');
+			if (isToLeft)
+			{
+				this.scaleData[pivotScaleDatumOfDayIndex].dayStart = false;
+			}
+
+			const daystamp = this.scaleData[pivotScaleDatumOfDayIndex].daystamp;
+			let toTimestamp, fromTimestamp;
+			if (isToLeft)
+			{
+				toTimestamp = this.scaleData[pivotScaleDatumOfDayIndex].timestamp / 1000;
+				fromTimestamp = toTimestamp - 3600 * extendCount;
+			}
+			else
+			{
+				fromTimestamp = this.scaleData[pivotScaleDatumOfDayIndex].timestamp / 1000 + this.scaleSize;
+				toTimestamp = fromTimestamp + 3600 * extendCount;
+				if (new Date(fromTimestamp * 1000).getHours() !== extendedTimeFrom)
+				{
+					return;
+				}
+			}
+
+			for (let insertedTimestamp = fromTimestamp, i = 0; insertedTimestamp < toTimestamp; insertedTimestamp += this.scaleSize, i++)
+			{
+				const title = BX.date.format('i', insertedTimestamp) === '00'
+					? BX.date.format(this.SCALE_TIME_FORMAT, insertedTimestamp)
+					: '';
+				if (insertedTimestamp < this.currentFromDate.getTime() / 1000 - (isToLeft ? 3600 * 12 : 0))
+				{
+					cellsInsertedOnLeftCount++;
+				}
+				let animationClass = 'expand-width-no-animation';
+				if (
+					(
+						isToLeft
+						&& insertedTimestamp > this.currentFromDate.getTime() / 1000 - 3600 * 12
+						&& insertedTimestamp < this.currentFromDate.getTime() / 1000 + 3600 * 12
+					)
+					||
+					(
+						isToRight
+						&& insertedTimestamp > this.currentFromDate.getTime() / 1000
+						&& insertedTimestamp < this.currentFromDate.getTime() / 1000 + 3600 * 24
+					)
+				)
+				{
+					animationClass = 'expand-width-0-40';
+				}
+
+				const insertedCell = BX.create('DIV', {
+					props: {
+						className: 'calendar-planner-time-hour-item' + ' ' + animationClass,
+					},
+					style: {
+						width: this.timelineCellWidth + 'px',
+						minWidth: this.timelineCellWidth + 'px'
+					},
+					html: '<i>' + title + '</i>'
+				});
+				insertedNodes.push(insertedCell);
+				dayNode.insertBefore(insertedCell, pivotNodeOfDay);
+
+				const insertedScaleDatum = {
+					daystamp: daystamp,
+					timestamp: insertedTimestamp * 1000,
+					value: insertedTimestamp * 1000,
+					title: title,
+					dayStart: isToLeft && i === 0,
+					cell: insertedCell
+				};
+				this.scaleData.splice(i + pivotScaleDatumOfDayIndex + (isToRight ? 1 : 0), 0, insertedScaleDatum);
+			}
+			if (isToLeft)
+			{
+				pivotNodeOfDay.classList.remove('calendar-planner-day-start');
+				dayNode.children[0].classList.add('calendar-planner-day-start');
+			}
+			pivotScaleDatumOfDayIndex += nodeCountInDay + extendCount * 3600 / this.scaleSize;
+		}
+
+		// set scroll for timeline to compensate width of static inserted cells
+		const scroll = this.DOM.timelineVerticalConstraint.scrollLeft;
+		this.DOM.timelineVerticalConstraint.scrollLeft = scroll + cellsInsertedOnLeftCount * this.timelineCellWidth;
+
+		// get accessibility events for animation
+		const midnight = new Date(this.currentFromDate.getTime());
+		midnight.setHours(0,0,0,0);
+		if (isToRight)
+		{
+			midnight.setDate(midnight.getDate() + 1);
+		}
+		const visibleEvents = this.getVisibleEvents();
+		const animatedEvents = this.getEventsAfter(visibleEvents, midnight);
+		this.update(this.entries, this.accessibility);
+
+		// update selector and visible events position during the css animation
+		new BX.easing({
+			duration: 200,
+			start: {},
+			finish: {},
+			transition: BX.easing.makeEaseOut(BX.easing.transitions.linear),
+			step: () => {
+				this.selector.update();
+				for (const event of animatedEvents)
+				{
+					event.node.style.left = this.getPosByDate(new Date(event.fromTimestamp)) + 'px';
+				}
+			},
+			complete: () => {
+				for (const node of insertedNodes)
+				{
+					node.classList.remove('expand-width-no-animation');
+					node.classList.remove('expand-width-0-40');
+				}
+				this.updateTimelineAfterExtend();
+			}
+		}).animate();
+	}
+
+	updateTimelineAfterExtend()
+	{
+		let mapDatePosRes = this.mapDatePos();
+		this.posDateMap = mapDatePosRes.posDateMap;
+		const timelineOffset = this.DOM.timelineScaleWrap.offsetWidth;
+		this.DOM.timelineInnerWrap.style.width = timelineOffset + 'px';
+		this.DOM.entrieListWrap.style.top = (parseInt(this.DOM.timelineDataWrap.offsetTop) + 10) + 'px';
+		this.lastTimelineKey = this.getTimelineShownKey();
+		this.checkRebuildTimeout(timelineOffset);
+		this.update(this.entries, this.accessibility);
+		this.adjustHeight();
+		this.resizePlannerWidth(this.width);
+		this.selector.update();
+		this.clearCacheTime();
 	}
 
 	rebuild(params = {})
@@ -838,7 +1037,7 @@ export class Planner extends EventEmitter
 			}
 		}
 
-		if (!hidden)
+		if (!hidden && from.getTime() < this.scaleDateTo)
 		{
 			let
 				fromPos = this.getPosByDate(from),
@@ -1135,6 +1334,7 @@ export class Planner extends EventEmitter
 	bindEventHandlers()
 	{
 		Event.bind(this.DOM.wrap, 'click', this.handleClick.bind(this));
+		Event.bind(this.DOM.wrap, 'contextmenu', this.handleClick.bind(this));
 		Event.bind(this.DOM.wrap, 'mousedown', this.handleMousedown.bind(this));
 		Event.bind(document, 'mousemove', this.handleMousemove.bind(this));
 		Event.bind(document, 'mouseup', this.handleMouseup.bind(this));
@@ -1153,6 +1353,8 @@ export class Planner extends EventEmitter
 		{
 			e = window.event;
 		}
+		e.preventDefault();
+		const isRightClick = e.which === 3;
 
 		this.clickMousePos = this.getMousePos(e);
 		let
@@ -1193,16 +1395,29 @@ export class Planner extends EventEmitter
 
 			if (timeline && !selector && Math.abs(this.clickMousePos.x - this.mouseDownMousePos.x) < accuracyMouse && Math.abs(this.clickMousePos.y - this.mouseDownMousePos.y) < accuracyMouse)
 			{
-				let left = this.clickMousePos.x - BX.pos(this.DOM.timelineFixedWrap).left + this.DOM.timelineFixedWrap.scrollLeft;
-
-				if (this.clickSelectorScaleAccuracy !== this.accuracy)
+				const left = this.clickMousePos.x - BX.pos(this.DOM.timelineFixedWrap).left + this.DOM.timelineVerticalConstraint.scrollLeft;
+				const mapDatePosRes = this.mapDatePos(this.clickSelectorScaleAccuracy);
+				let selectedDateFrom = this.getDateByPos(left, false, mapDatePosRes.posDateMap);
+				if (!selectedDateFrom)
 				{
-					let mapDatePosRes = this.mapDatePos(this.clickSelectorScaleAccuracy);
-					let dateFrom = this.getDateByPos(left, false, mapDatePosRes.posDateMap);
-					left = this.getPosByDate(dateFrom);
+					return;
 				}
+				const selectorTimeLength = this.currentToDate - this.currentFromDate;
+				let selectedDateTo = new Date(selectedDateFrom.getTime() + selectorTimeLength);
 
-				this.selector.transit({toX: left});
+				if (isRightClick)
+				{
+					selectedDateFrom = new Date(selectedDateFrom.getTime() - selectorTimeLength);
+					selectedDateTo = new Date(selectedDateTo.getTime() - selectorTimeLength);
+				}
+				this.currentFromDate = selectedDateFrom;
+				this.currentToDate = selectedDateTo;
+
+				this.selector.transit({
+					toX: this.getPosByDate(selectedDateFrom),
+					leftDate: selectedDateFrom,
+					rightDate: selectedDateTo
+				});
 			}
 		}
 	}
@@ -1302,8 +1517,8 @@ export class Planner extends EventEmitter
 				const delta = e.deltaY || e.detail || e.wheelDelta;
 				if (Math.abs(delta) > 0)
 				{
-					this.DOM.timelineFixedWrap.scrollLeft = Math.max(
-						this.DOM.timelineFixedWrap.scrollLeft + Math.round(delta / 3),
+					this.DOM.timelineVerticalConstraint.scrollLeft = Math.max(
+						this.DOM.timelineVerticalConstraint.scrollLeft + Math.round(delta / 3),
 						0
 					);
 					this.checkTimelineScroll();
@@ -1316,18 +1531,20 @@ export class Planner extends EventEmitter
 	checkTimelineScroll()
 	{
 		const minScroll = this.scrollStep;
-		const maxScroll = this.DOM.timelineFixedWrap.scrollWidth
+		const maxScroll = this.DOM.timelineVerticalConstraint.scrollWidth
 							- this.DOM.timelineFixedWrap.offsetWidth
 							- this.scrollStep;
 
 		// Check and expand only if it is visible
 		if (this.DOM.timelineFixedWrap.offsetWidth > 0)
 		{
-			if (this.DOM.timelineFixedWrap.scrollLeft <= minScroll)
+			const today = new Date();
+			today.setHours(this.scaleDateFrom.getHours(), 0, 0, 0);
+			if ((this.DOM.timelineVerticalConstraint.scrollLeft <= minScroll) && (this.scaleDateFrom.getTime() > today.getTime()))
 			{
 				this.expandTimelineDirection = 'past';
 			}
-			else if (this.DOM.timelineFixedWrap.scrollLeft >= maxScroll)
+			if (this.DOM.timelineVerticalConstraint.scrollLeft >= maxScroll)
 			{
 				this.expandTimelineDirection = 'future';
 			}
@@ -1346,11 +1563,11 @@ export class Planner extends EventEmitter
 	startScrollTimeline()
 	{
 		this.timelineIsDraged = true;
-		this.timelineStartScrollLeft = this.DOM.timelineFixedWrap.scrollLeft;
+		this.timelineStartScrollLeft = this.DOM.timelineVerticalConstraint.scrollLeft;
 	}
 	scrollTimeline(x)
 	{
-		this.DOM.timelineFixedWrap.scrollLeft = Math.max(this.timelineStartScrollLeft - x, 0);
+		this.DOM.timelineVerticalConstraint.scrollLeft = Math.max(this.timelineStartScrollLeft - x, 0);
 	}
 	endScrollTimeline()
 	{
@@ -1499,6 +1716,17 @@ export class Planner extends EventEmitter
 					(!this.scaleData[i + 1] || this.scaleData[i + 1].dayStart))
 				{
 					datePosMap[xj + '_end'] = tsj;
+				}
+			}
+
+			if (i + 1 < this.scaleData.length && this.scaleData[i + 1].dayStart)
+			{
+				const borderStart = xi + cellWidth;
+				const borderEnd = parseInt(this.scaleData[i + 1].cell.offsetLeft);
+				const borderTimestamp = tsi + scaleSize;
+				for (let borderX = borderStart; borderX < borderEnd; borderX++)
+				{
+					posDateMap[borderX] = borderTimestamp;
 				}
 			}
 		}
@@ -1658,10 +1886,17 @@ export class Planner extends EventEmitter
 		if (!scaleDateTo)
 			scaleDateTo = this.scaleDateTo;
 
+		let oldScaleDateFrom;
 		if (this.expandTimelineDirection === 'past')
 		{
-			let oldScaleDateFrom = new Date(this.scaleDateFrom.getTime());
+			oldScaleDateFrom = new Date(this.scaleDateFrom.getTime());
 			this.scaleDateFrom = new Date(scaleDateFrom.getTime() - Util.getDayLength()  * this.EXPAND_OFFSET);
+			const today = new Date();
+			today.setHours(this.scaleDateFrom.getHours(), 0, 0, 0);
+			if (this.scaleDateFrom.getTime() < today)
+			{
+				this.scaleDateFrom = today;
+			}
 
 			loadedTimelineSize = (this.scaleDateTo.getTime() - this.scaleDateFrom.getTime()) / Util.getDayLength();
 			if (loadedTimelineSize > this.maxTimelineSize)
@@ -1671,12 +1906,11 @@ export class Planner extends EventEmitter
 				this.loadedDataTo = this.scaleDateTo;
 				this.limitScaleSizeMode = true;
 			}
-			scrollLeft = this.getPosByDate(oldScaleDateFrom);
 		}
 		else if (this.expandTimelineDirection === 'future')
 		{
 			let oldDateTo = this.scaleDateTo;
-			scrollLeft = this.DOM.timelineFixedWrap.scrollLeft;
+			scrollLeft = this.DOM.timelineVerticalConstraint.scrollLeft;
 			this.scaleDateTo = new Date(scaleDateTo.getTime() + Util.getDayLength() * this.EXPAND_OFFSET);
 			loadedTimelineSize = (this.scaleDateTo.getTime() - this.scaleDateFrom.getTime()) / Util.getDayLength();
 
@@ -1688,7 +1922,7 @@ export class Planner extends EventEmitter
 
 				scrollLeft = this.getPosByDate(oldDateTo) - this.DOM.timelineFixedWrap.offsetWidth;
 				setTimeout(() => {
-					this.DOM.timelineFixedWrap.scrollLeft = this.getPosByDate(oldDateTo) - this.DOM.timelineFixedWrap.offsetWidth;
+					this.DOM.timelineVerticalConstraint.scrollLeft = this.getPosByDate(oldDateTo) - this.DOM.timelineFixedWrap.offsetWidth;
 				}, 10);
 
 				this.limitScaleSizeMode = true;
@@ -1712,15 +1946,63 @@ export class Planner extends EventEmitter
 			} }));
 
 		this.rebuild({
-			updateSelector: false
+			updateSelector: true
 		});
 
-		if (scrollLeft !== undefined)
+		if (this.expandTimelineDirection === 'past')
 		{
-			this.DOM.timelineFixedWrap.scrollLeft = scrollLeft;
+			scrollLeft = this.getPosByDate(oldScaleDateFrom);
+			this.DOM.timelineVerticalConstraint.scrollLeft = scrollLeft;
+			this.DOM.timelineVerticalConstraint.scrollTo({
+				left: scrollLeft - 50,
+				behavior: 'smooth'
+			});
+		}
+		else if (scrollLeft !== undefined)
+		{
+			this.DOM.timelineVerticalConstraint.scrollLeft = scrollLeft;
 		}
 
 		this.expandTimelineDirection = null;
+	}
+
+	getVisibleEvents()
+	{
+		const visibleEvents = [];
+
+		const timelineFromPosition = this.DOM.timelineVerticalConstraint.scrollLeft;
+		const timelineToPosition = timelineFromPosition + this.DOM.timelineFixedWrap.offsetWidth;
+
+		for (const index in this.accessibility)
+		{
+			for (const event of this.accessibility[index])
+			{
+				const eventFromPosition = this.getPosByDate(new Date(event.fromTimestamp));
+				const eventToPosition = this.getPosByDate(new Date(event.toTimestamp));
+				if (
+					this.doSegmentsIntersect(eventFromPosition, eventToPosition, timelineFromPosition, timelineToPosition)
+					&& event.node
+				)
+				{
+					visibleEvents.push(event);
+				}
+			}
+		}
+
+		return visibleEvents;
+	}
+
+	getEventsAfter(events, timestamp)
+	{
+		const eventsAfter = [];
+		for (const event of events)
+		{
+			if (event.fromTimestamp >= timestamp)
+			{
+				eventsAfter.push(event);
+			}
+		}
+		return eventsAfter;
 	}
 
 	update(entries = [], accessibility = {})
@@ -1879,18 +2161,18 @@ export class Planner extends EventEmitter
 				}
 				else
 				{
-					let
-						timeFrom = parseInt(from.getHours()) + Math.floor(from.getMinutes() / 60),
-						timeTo = parseInt(to.getHours()) + Math.ceil(to.getMinutes() / 60);
+					let timeFrom = parseInt(from.getHours()) + Math.floor(from.getMinutes() / 60);
+					let timeTo = parseInt(to.getHours()) + Math.ceil(to.getMinutes() / 60);
+					let scale = 2;
 
-					if (timeFrom < this.shownScaleTimeFrom)
+					if (timeFrom <= this.shownScaleTimeFrom)
 					{
-						this.extendScaleTime(timeFrom, false);
+						this.extendScaleTime(timeFrom - scale, false);
 					}
 
-					if (timeTo > this.shownScaleTimeTo)
+					if (timeTo + 1 >= this.shownScaleTimeTo)
 					{
-						this.extendScaleTime(false, timeTo);
+						this.extendScaleTime(false, timeTo + scale);
 					}
 				}
 			}
@@ -1903,16 +2185,33 @@ export class Planner extends EventEmitter
 				this.expandTimeline(from, to);
 			}
 
+			this.currentFromDate = from;
+			this.currentToDate = to;
+			if (!this.selector)
+			{
+				return;
+			}
+
+			if (from.getTime() < this.scaleDateFrom.getTime())
+			{
+				this.selector.update({
+					from: from,
+					to: to,
+					fullDay: fullDay,
+					focus: options.focus !== false
+				});
+				return;
+			}
+
 			this.selector.update({
 				from: from,
 				to: to,
-				fullDay: fullDay,
-				focus: options.focus !== false
+				fullDay: fullDay
 			});
 
 			if (options.focus !== false)
 			{
-				this.selector.focus(false, 300);
+				this.selector.focus(true, 300);
 			}
 		}
 	}
@@ -1923,7 +2222,32 @@ export class Planner extends EventEmitter
 		{
 			let data = event.getData();
 			this.emit('onDateChange', new BaseEvent({data: data}));
+			this.currentFromDate = data.dateFrom;
+			this.currentToDate = data.dateTo;
+
+			if (this.currentToDate.getHours() < this.shownScaleTimeFrom
+				&& !(this.currentToDate.getHours() === 0 && this.currentToDate.getMinutes() === 0))
+			{
+				this.extendScaleTime(this.currentToDate.getHours(), false);
+			}
 		}
+	}
+
+	getAllEvents()
+	{
+		const events = [];
+		for (const entryId in this.accessibility)
+		{
+			if (!this.accessibility.hasOwnProperty(entryId) || !Type.isArray(this.accessibility[entryId]))
+			{
+				continue;
+			}
+			for (const event of this.accessibility[entryId])
+			{
+				events.push(event)
+			}
+		}
+		return events;
 	}
 
 	doCheckSelectorStatus(event)
@@ -1934,6 +2258,10 @@ export class Planner extends EventEmitter
 			this.clearCacheTime();
 			const selectorStatus = this.checkTimePeriod(data.dateFrom, data.dateTo) === true;
 			this.selector.setSelectorStatus(selectorStatus);
+			if (this.selector.isDragged())
+			{
+				this.hideProposeControl();
+			}
 			if (selectorStatus)
 			{
 				Dom.removeClass(this.DOM.mainWrap, 'calendar-planner-selector-warning');
@@ -1942,7 +2270,10 @@ export class Planner extends EventEmitter
 			else
 			{
 				Dom.addClass(this.DOM.mainWrap, 'calendar-planner-selector-warning');
-				this.showProposeControl();
+				if (!this.selector.isDragged())
+				{
+					this.showProposeControl();
+				}
 			}
 		}
 	}
@@ -1982,20 +2313,20 @@ export class Planner extends EventEmitter
 		}
 		data.sort(function(a, b){return a.fromTimestamp - b.fromTimestamp});
 
-		let
-			ts = curTimestamp,
-			checkRes,
-			dateFrom, dateTo, timeTo, timeFrom;
-
+		let ts = curTimestamp;
 		while (true)
 		{
-			dateFrom = new Date(ts);
-			dateTo = new Date(ts + duration);
+			let dateFrom = new Date(ts);
+			let dateTo = new Date(ts + duration);
 
 			if (!this.isOneDayScale())
 			{
-				timeFrom = parseInt(dateFrom.getHours()) + dateFrom.getMinutes() / 60;
-				timeTo = parseInt(dateTo.getHours()) + dateTo.getMinutes() / 60;
+				let timeFrom = parseInt(dateFrom.getHours() + dateFrom.getMinutes() / 60);
+				let timeTo = parseInt(dateTo.getHours() + dateTo.getMinutes() / 60);
+				if (timeTo === 0)
+				{
+					timeTo = 24;
+				}
 
 				if (timeFrom <= this.shownScaleTimeFrom)
 				{
@@ -2019,7 +2350,7 @@ export class Planner extends EventEmitter
 				dateTo.setHours(0, 0, 0, 0);
 			}
 
-			checkRes = this.checkTimePeriod(dateFrom, dateTo, data);
+			const checkRes = this.checkTimePeriod(dateFrom, dateTo, data);
 
 			if (checkRes === true)
 			{
@@ -2033,19 +2364,8 @@ export class Planner extends EventEmitter
 					}
 					else if (params.checkedFuture !== true)
 					{
-						let scrollLeft = this.DOM.timelineFixedWrap.scrollLeft;
 						this.scaleDateTo = new Date(this.scaleDateTo.getTime() + Util.getDayLength() * this.proposeTimeLimit);
-						this.rebuild();
-						this.DOM.timelineFixedWrap.scrollLeft = scrollLeft;
-
-						let
-							entry,
-							entrieIds = [];
-						for (i = 0; i < this.entries.length; i++)
-						{
-							entry = this.entries[i];
-							entrieIds.push(entry.id);
-						}
+						this.expandTimeline(this.scaleDateFrom, this.scaleDateTo);
 					}
 				}
 				else
@@ -2085,6 +2405,22 @@ export class Planner extends EventEmitter
 
 	checkTimePeriod(fromDate, toDate, data)
 	{
+		if (!this.currentFromDate)
+		{
+			return true;
+		}
+
+		const timelineFrom = new Date();
+		timelineFrom.setHours(this.shownScaleTimeFrom, 0, 0, 0);
+		if (this.fullDayMode)
+		{
+			timelineFrom.setHours(0, 0, 0, 0);
+		}
+		if (fromDate && fromDate.getTime() < timelineFrom.getTime())
+		{
+			return true;
+		}
+
 		let result = true;
 		let entry;
 
@@ -2436,5 +2772,12 @@ export class Planner extends EventEmitter
 
 		Dom.addClass(this.DOM.timelineFixedWrap, '--lock');
 		this.DOM.timelineFixedWrap.appendChild(this.DOM.lockScreen);
+	}
+
+	doSegmentsIntersect(x1, x2, y1, y2)
+	{
+		return (x1 >= y1 && x1 <= y2)
+			|| (x2 >= y1 && x2 <= y2)
+			|| (x1 <= y1 && x2 >= y2);
 	}
 }

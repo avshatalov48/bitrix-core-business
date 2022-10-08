@@ -433,4 +433,25 @@ final class ApplePay
 			mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
 		);
 	}
+
+	/**
+	 * The pay system is apple pay.
+	 *
+	 * @param array $paySystem fields on `PaySystemActionTable` entity.
+	 *
+	 * @return bool
+	 */
+	public static function isApplePaySystem(array $paySystem): bool
+	{
+		/**
+		 * @var \Sale\Handlers\PaySystem\AdyenHandler $className
+		 */
+		[$className] = Manager::includeHandler('adyen');
+
+		return
+			isset($paySystem['ACTION_FILE'], $paySystem['PS_MODE'])
+			&& $paySystem['ACTION_FILE'] === Manager::getFolderFromClassName($className)
+			&& $paySystem['PS_MODE'] === $className::PAYMENT_METHOD_APPLE_PAY
+		;
+	}
 }

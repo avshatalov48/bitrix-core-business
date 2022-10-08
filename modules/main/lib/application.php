@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2012 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
 namespace Bitrix\Main;
 
@@ -29,10 +29,9 @@ abstract class Application
 	/**
 	 * @var Application
 	 */
-	protected static $instance = null;
+	protected static $instance;
 
-	protected $isBasicKernelInitialized = false;
-	protected $isExtendedKernelInitialized = false;
+	protected bool $initialized = false;
 
 	/**
 	 * Execution context.
@@ -87,19 +86,24 @@ abstract class Application
 	 */
 	protected function __construct()
 	{
+		ServiceLocator::getInstance()->registerByGlobalSettings();
 		$this->backgroundJobs = new \SplPriorityQueue();
+		$this->initializeExceptionHandler();
+		$this->initializeCache();
+		$this->createDatabaseConnection();
 	}
 
 	/**
 	 * Returns current instance of the Application.
 	 *
-	 * @return Application
+	 * @return Application | HttpApplication
 	 */
 	public static function getInstance()
 	{
 		if (!isset(static::$instance))
+		{
 			static::$instance = new static();
-
+		}
 		return static::$instance;
 	}
 
@@ -112,18 +116,11 @@ abstract class Application
 	}
 
 	/**
-	 * Does minimally possible kernel initialization.
+	 * @deprecated
+	 * Does nothing, will be removed soon.
 	 */
 	public function initializeBasicKernel()
 	{
-		if ($this->isBasicKernelInitialized)
-			return;
-		$this->isBasicKernelInitialized = true;
-
-		ServiceLocator::getInstance()->registerByGlobalSettings();
-		$this->initializeExceptionHandler();
-		$this->initializeCache();
-		$this->createDatabaseConnection();
 	}
 
 	/**
@@ -133,13 +130,15 @@ abstract class Application
 	 */
 	public function initializeExtendedKernel(array $params)
 	{
-		if ($this->isExtendedKernelInitialized)
-			return;
-		$this->isExtendedKernelInitialized = true;
-
-		$this->initializeSessions();
 		$this->initializeContext($params);
-		$this->initializeSessionLocalStorage();
+
+		if (!$this->initialized)
+		{
+			$this->initializeSessions();
+			$this->initializeSessionLocalStorage();
+
+			$this->initialized = true;
+		}
 	}
 
 	private function initializeSessions()
@@ -226,7 +225,7 @@ abstract class Application
 	/**
 	 * Runs controller and its action and sends response to the output.
 	 *
-	 * It's a stub method and we can't mark it as abstract because there is compatibility.
+	 * It's a stub method, and we can't mark it as abstract because there is compatibility.
 	 * @return void
 	 */
 	public function run()
@@ -325,7 +324,7 @@ abstract class Application
 	 *			'assertion_throws_exception' => true,       // assertion throws exception
 	 *			'assertion_error_type' => 256,
 	 *			'log' => array(
-	 *              'class_name' => 'MyLog',        // custom log class, must extends ExceptionHandlerLog; can be omited, in this case default Diag\FileExceptionHandlerLog will be used
+	 *              'class_name' => 'MyLog',        // custom log class, must extend ExceptionHandlerLog; can be omited, in this case default Diag\FileExceptionHandlerLog will be used
 	 *              'extension' => 'MyLogExt',      // php extension, is used only with 'class_name'
 	 *              'required_file' => 'modules/mylog.module/mylog.php'     // included file, is used only with 'class_name'
 	 *				'settings' => array(        // any settings for 'class_name'
@@ -442,7 +441,7 @@ abstract class Application
 		$show_cache_stat = "";
 		if (isset($_GET["show_cache_stat"]))
 		{
-			$show_cache_stat = (mb_strtoupper($_GET["show_cache_stat"]) == "Y" ? "Y" : "");
+			$show_cache_stat = (strtoupper($_GET["show_cache_stat"]) == "Y" ? "Y" : "");
 			@setcookie("show_cache_stat", $show_cache_stat, false, "/");
 		}
 		elseif (isset($_COOKIE["show_cache_stat"]))
@@ -478,7 +477,7 @@ abstract class Application
 	/**
 	 * Returns context of the current request.
 	 *
-	 * @return Context
+	 * @return Context | HttpContext
 	 */
 	public function getContext()
 	{
@@ -653,7 +652,7 @@ abstract class Application
 				return $personalRoot = $server->getPersonalRoot();
 		}
 
-		return isset($_SERVER["BX_PERSONAL_ROOT"]) ? $_SERVER["BX_PERSONAL_ROOT"] : "/bitrix";
+		return $_SERVER["BX_PERSONAL_ROOT"] ?? '/bitrix';
 	}
 
 	/**
@@ -703,7 +702,7 @@ abstract class Application
 				$jobs[] = $job;
 			}
 
-			//do jobs
+			//do job
 			foreach ($jobs as $job)
 			{
 				try
@@ -724,8 +723,12 @@ abstract class Application
 		}
 	}
 
-	public function isExtendedKernelInitialized(): bool
+	/**
+	 * Returns true if the application is fully initialized.
+	 * @return bool
+	 */
+	public function isInitialized()
 	{
-		return (bool)$this->isExtendedKernelInitialized;
+		return $this->initialized;
 	}
 }

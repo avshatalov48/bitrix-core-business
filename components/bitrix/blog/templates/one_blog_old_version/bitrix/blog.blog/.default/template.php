@@ -1,5 +1,11 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
+
 if(!empty($arResult["OK_MESSAGE"]))
 {
 	foreach($arResult["OK_MESSAGE"] as $v)
@@ -73,11 +79,11 @@ if(is_array($arResult["POST"]) && count($arResult["POST"])>0)
 						<td>
 
 								<?$APPLICATION->IncludeComponent(
-									"bitrix:system.field.view", 
-									$arPostField["USER_TYPE"]["USER_TYPE_ID"], 
+									"bitrix:system.field.view",
+									$arPostField["USER_TYPE"]["USER_TYPE_ID"],
 									array("arUserField" => $arPostField), null, array("HIDE_ICONS"=>"Y"));?>
 						</td>
-					</tr>			
+					</tr>
 					<?endif;?>
 					<?endforeach;?>
 					</table>
@@ -87,7 +93,7 @@ if(is_array($arResult["POST"]) && count($arResult["POST"])>0)
 					<td colspan="2"><div class="blog-line"></div></td>
 				</tr>
 				<tr>
-					<td align="left">						
+					<td align="left">
 						<?
 						if(!empty($CurPost["CATEGORY"]))
 						{
@@ -122,4 +128,4 @@ if(is_array($arResult["POST"]) && count($arResult["POST"])>0)
 }
 elseif(!empty($arResult["BLOG"]))
 	echo GetMessage("BLOG_BLOG_BLOG_NO_AVAIBLE_MES");
-?>	
+?>

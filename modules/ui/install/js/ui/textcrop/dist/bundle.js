@@ -11,8 +11,10 @@ this.BX = this.BX || {};
 	    this.resize = options.resize || false;
 	    this.text = null;
 	    this.rowHeight = null;
-	    this.$wrapper = null;
-	    this.$basicBlock = null;
+	    this.layout = {
+	      wrapper: null,
+	      basicBlock: null
+	    };
 	  }
 
 	  babelHelpers.createClass(TextCrop, [{
@@ -27,20 +29,20 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getWrapper",
 	    value: function getWrapper() {
-	      if (!this.$wrapper) {
-	        this.$wrapper = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div>", "</div>\n\t\t\t"])), this.getText());
+	      if (!this.layout.wrapper) {
+	        this.layout.wrapper = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div>", "</div>\n\t\t\t"])), this.getText());
 	      }
 
-	      return this.$wrapper;
+	      return this.layout.wrapper;
 	    }
 	  }, {
 	    key: "getBasicBlock",
 	    value: function getBasicBlock() {
-	      if (!this.$basicBlock) {
-	        this.$basicBlock = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div>a</div>\n\t\t\t"])));
+	      if (!this.layout.basicBlock) {
+	        this.layout.basicBlock = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div>a</div>\n\t\t\t"])));
 	      }
 
-	      return this.$basicBlock;
+	      return this.layout.basicBlock;
 	    }
 	  }, {
 	    key: "getRowHeight",
@@ -50,7 +52,7 @@ this.BX = this.BX || {};
 
 	        if (styleAtt.lineHeight === 'normal') {
 	          var firstHeight = this.getWrapper().offsetHeight;
-	          this.$wrapper.appendChild(this.getBasicBlock());
+	          this.layout.wrapper.appendChild(this.getBasicBlock());
 	          var secondHeight = this.getWrapper().offsetHeight;
 	          this.getBasicBlock().remove();
 	          this.rowHeight = secondHeight - firstHeight;
@@ -64,8 +66,19 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "cropResize",
 	    value: function cropResize() {
+	      var _this = this;
+
 	      if (this.resize) {
-	        window.addEventListener('resize', BX.delegate(this.init, this));
+	        var timer;
+	        window.addEventListener('resize', function () {
+	          if (!timer) {
+	            timer = setTimeout(function () {
+	              _this.init();
+
+	              clearTimeout(timer);
+	            }, 100);
+	          }
+	        });
 	      }
 	    }
 	  }, {
@@ -82,7 +95,7 @@ this.BX = this.BX || {};
 
 	      this.getText();
 	      this.target.innerText = '';
-	      this.$wrapper = '';
+	      this.layout.wrapper = '';
 	      this.target.appendChild(this.getWrapper());
 	      var rowHeight = this.getRowHeight();
 	      var cropText = '';
@@ -92,8 +105,8 @@ this.BX = this.BX || {};
 	        this.target.setAttribute('title', this.getText());
 
 	        while (this.getWrapper().offsetHeight / parseInt(rowHeight) > this.rows) {
-	          cropText = this.$wrapper.textContent.substring(0, this.$wrapper.textContent.length - 4);
-	          this.$wrapper.innerHTML = cropText + '...';
+	          cropText = this.layout.wrapper.textContent.substring(0, this.layout.wrapper.textContent.length - 4);
+	          this.layout.wrapper.innerHTML = cropText + '...';
 	        }
 	      }
 

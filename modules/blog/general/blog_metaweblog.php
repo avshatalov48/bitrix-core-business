@@ -464,7 +464,7 @@ class CBlogMetaWeblog
 					if(($TEMP_FILE_NAME <> '') && ($fp = fopen($TEMP_FILE_NAME, "ab")))
 					{
 						$result = fwrite($fp, $arImageInfo["bits"]);
-						if($result !== CUtil::BinStrlen($arImageInfo["bits"]))
+						if($result !== strlen($arImageInfo["bits"]))
 						{
 							return '<fault>
 									<value>

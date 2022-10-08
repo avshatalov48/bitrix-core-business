@@ -23,13 +23,13 @@ abstract class OAuth
 
 		if (is_null($knownServices))
 		{
-			$knownServices = array(
+			$knownServices = [
 				OAuth\Google::getServiceName(),
 				OAuth\LiveId::getServiceName(),
 				OAuth\Yandex::getServiceName(),
 				OAuth\Mailru::getServiceName(),
 				OAuth\Office365::getServiceName(),
-			);
+			];
 		}
 
 		return $knownServices;
@@ -264,25 +264,16 @@ abstract class OAuth
 	 * @param boolean $final Skip Bitrix24 proxy.
 	 * @return string
 	 */
-	public function getRedirect($final = true)
+	public function getRedirect(bool $final = true): string
 	{
-		return isModuleInstalled('bitrix24') && !$final
-			? $this->getControllerUrl() . '/redirect.php'
-			: $this->getHostUrl() . '/bitrix/tools/mail_oauth.php';
-	}
-
-	public function getHostUrl()
-	{
-		$request = Main\Context::getCurrent()->getRequest();
-
-		$uri = new Main\Web\Uri(sprintf(
-			'%s://%s:%u',
-			$request->isHttps() ? 'https' : 'http',
-			$request->getHttpHost(),
-			Main\Context::getCurrent()->getServer()->getServerPort()
-		));
-
-		return rtrim($uri->getLocator(), '/');
+		if(isModuleInstalled('bitrix24') && !$final)
+		{
+			return $this->getControllerUrl() . '/redirect.php';
+		}
+		else
+		{
+			return Main\Engine\UrlManager::getInstance()->getHostUrl().'/bitrix/tools/mail_oauth.php';
+		}
 	}
 
 	/**
@@ -294,15 +285,13 @@ abstract class OAuth
 	{
 		global $APPLICATION;
 
-		\CSocServAuthManager::setUniqueKey();
-
 		if (isModuleInstalled('bitrix24'))
 		{
 			$state = sprintf(
 				'%s?%s',
 				$this->getRedirect(),
 				http_build_query(array(
-					'check_key' => $_SESSION['UNIQUE_KEY'],
+					'check_key' => \CSocServAuthManager::getUniqueKey(),
 					'dummy' => 'https://dummy.bitrix24.com/',
 					'state' => rawurlencode(http_build_query(array(
 						'service' => $this->service,
@@ -314,7 +303,7 @@ abstract class OAuth
 		else
 		{
 			$state = http_build_query(array(
-				'check_key' => $_SESSION['UNIQUE_KEY'],
+				'check_key' => \CSocServAuthManager::getUniqueKey(),
 				'service' => $this->service,
 				'uid' => $this->storedUid,
 			));

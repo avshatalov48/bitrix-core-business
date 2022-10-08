@@ -31,18 +31,20 @@ class Task
 			return $result;
 		}
 
-		if (
+		if ($event->getParameter('isRealView'))
+		{
 			$liveFeedEntity = Provider::init([
 				'ENTITY_TYPE' => Provider::DATA_ENTITY_TYPE_TASKS_TASK,
 				'ENTITY_ID' => $taskId,
-			])
-		)
-		{
-			$liveFeedEntity->setContentView(['user_id' => $userId]);
-			self::updateUserCounter([
-				'userId' => $userId,
-				'logId' => $liveFeedEntity->getLogId(),
 			]);
+			if ($liveFeedEntity)
+			{
+				$liveFeedEntity->setContentView(['user_id' => $userId]);
+				self::updateUserCounter([
+					'userId' => $userId,
+					'logId' => $liveFeedEntity->getLogId(),
+				]);
+			}
 		}
 
 		return new EventResult(EventResult::SUCCESS, [], 'socialnetwork');

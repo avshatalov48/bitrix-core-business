@@ -384,8 +384,29 @@
 		View.prototype.setTitle.apply(this, [BX.date.format('f', viewRangeDate.getTime() / 1000) + ', #GRAY_START#' + viewRangeDate.getFullYear() + '#GRAY_END#']);
 	};
 
+	MonthView.prototype.setDraggedEntry = function(entry)
+	{
+		if (!entry)
+		{
+			this.draggedEntry = null;
+		}
+		else
+		{
+			this.draggedEntry = this.entries.find(e => e.id === entry.id);
+			for (const key in this.draggedEntry.parts)
+			{
+				this.draggedEntry.parts[key].params.wrapNode.style.transition = 'none';
+				this.draggedEntry.parts[key].params.wrapNode.style.opacity = '0.3';
+			}
+		}
+	};
+
 	MonthView.prototype.displayEntries = function(params)
 	{
+		if (this.draggedEntry)
+		{
+			return;
+		}
 		var
 			prevElement,
 			element,
@@ -399,8 +420,7 @@
 
 		if (params.reloadEntries !== false)
 		{
-			// Get list of entries
-			this.entries = this.entryController.getList({
+			const entries = this.entryController.getList({
 				showLoader: !!(this.entries && !this.entries.length),
 				startDate: new Date(viewRange.start.getFullYear(), viewRange.start.getMonth(), 1),
 				finishDate: new Date(viewRange.end.getFullYear(), viewRange.end.getMonth() + 1, 1),
@@ -408,10 +428,19 @@
 				finishCallback: BX.proxy(this.displayEntries, this)
 			});
 
-			if (this.entries === false)
+			if (!entries)
 			{
 				return;
 			}
+
+			if (entries !== false)
+			{
+				this.entries = entries;
+			}
+		}
+		if (!this.entries)
+		{
+			return;
 		}
 
 		// Clean holders
@@ -489,6 +518,16 @@
 		for (i = 0; i < partsStorage.length; i++)
 		{
 			this.displayEntryPiece(partsStorage[i]);
+		}
+
+		if (this.draggedEntry)
+		{
+			this.draggedEntry = this.entries.find(e => e.id === this.draggedEntry.id);
+			for (const key in this.draggedEntry.parts)
+			{
+				this.draggedEntry.parts[key].params.wrapNode.style.transition = 'none';
+				this.draggedEntry.parts[key].params.wrapNode.style.opacity = '0.3';
+			}
 		}
 
 		// Final arrangement on the grid

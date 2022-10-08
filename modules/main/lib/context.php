@@ -1,11 +1,15 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2012 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
+
 namespace Bitrix\Main;
+
+use Bitrix\Main\Localization;
 
 /**
  * Context of current request.
@@ -24,16 +28,16 @@ class Context
 	/** @var Server */
 	protected $server;
 
-	/** @var string */
-	private $language;
+	/** @var Localization\EO_Language */
+	protected $language;
 
-	/** @var string */
-	private $site;
+	/** @var EO_Site */
+	protected $site;
 
 	/** @var Environment */
 	protected $env;
 
-	/** @var \Bitrix\Main\Context\Culture */
+	/** @var Context\Culture */
 	protected $culture;
 
 	/** @var array */
@@ -55,9 +59,9 @@ class Context
 	 * @param Request $request
 	 * @param Response $response
 	 * @param Server $server
-	 * @param Environment $env
+	 * @param array $params
 	 */
-	public function initialize(Request $request, Response $response = null, Server $server, array $params = array())
+	public function initialize(Request $request, Response $response, Server $server, array $params = [])
 	{
 		$this->request = $request;
 		$this->response = $response;
@@ -68,14 +72,16 @@ class Context
 	public function getEnvironment()
 	{
 		if ($this->env === null)
-			$this->env = new Environment($this->params["env"]);
+		{
+			$this->env = new Environment($this->params['env']);
+		}
 		return $this->env;
 	}
 
 	/**
 	 * Returns response object of the context.
 	 *
-	 * @return HttpResponse
+	 * @return Response | HttpResponse
 	 */
 	public function getResponse()
 	{
@@ -86,17 +92,18 @@ class Context
 	 * Sets response of the context.
 	 *
 	 * @param Response $response Response.
-	 * @return void
+	 * @return $this
 	 */
 	public function setResponse(Response $response)
 	{
 		$this->response = $response;
+		return $this;
 	}
 
 	/**
 	 * Returns request object of the context.
 	 *
-	 * @return HttpRequest
+	 * @return Request | HttpRequest
 	 */
 	public function getRequest()
 	{
@@ -126,21 +133,33 @@ class Context
 	/**
 	 * Returns culture of the context.
 	 *
-	 * @return \Bitrix\Main\Context\Culture
+	 * @return Context\Culture
 	 */
 	public function getCulture()
 	{
 		if ($this->culture === null)
+		{
 			$this->culture = new Context\Culture();
+		}
 		return $this->culture;
 	}
 
 	/**
-	 * Returns current language (en, ru)
+	 * Returns current language ID (en, ru).
 	 *
-	 * @return string
+	 * @return string | null
 	 */
 	public function getLanguage()
+	{
+		return $this->language ? $this->language->getLid() : null;
+	}
+
+	/**
+	 * Returns current language object.
+	 *
+	 * @return Localization\EO_Language | null
+	 */
+	public function getLanguageObject(): ?Localization\EO_Language
 	{
 		return $this->language;
 	}
@@ -152,6 +171,16 @@ class Context
 	 */
 	public function getSite()
 	{
+		return $this->site ? $this->site->getLid() : null;
+	}
+
+	/**
+	 * Returns current language object.
+	 *
+	 * @return EO_Site | null
+	 */
+	public function getSiteObject(): ?EO_Site
+	{
 		return $this->site;
 	}
 
@@ -159,30 +188,52 @@ class Context
 	 * Sets culture of the context.
 	 *
 	 * @param \Bitrix\Main\Context\Culture $culture
+	 * @return $this
 	 */
 	public function setCulture(Context\Culture $culture)
 	{
 		$this->culture = $culture;
+		return $this;
 	}
 
 	/**
 	 * Sets language of the context.
 	 *
-	 * @param string $language
+	 * @param string | Localization\EO_Language $language
+	 * @return $this
 	 */
 	public function setLanguage($language)
 	{
-		$this->language = $language;
+		if ($language instanceof Localization\EO_Language)
+		{
+			$this->language = $language;
+		}
+		else
+		{
+			$this->language = Localization\LanguageTable::wakeUpObject($language);
+			$this->language->fill(ORM\Fields\FieldTypeMask::SCALAR | ORM\Fields\FieldTypeMask::EXPRESSION);
+		}
+		return $this;
 	}
 
 	/**
 	 * Sets site of the context.
 	 *
-	 * @param string $site
+	 * @param string | EO_Site $site
+	 * @return $this
 	 */
 	public function setSite($site)
 	{
-		$this->site = $site;
+		if ($site instanceof EO_Site)
+		{
+			$this->site = $site;
+		}
+		else
+		{
+			$this->site = SiteTable::wakeUpObject($site);
+			$this->site->fill(ORM\Fields\FieldTypeMask::SCALAR | ORM\Fields\FieldTypeMask::EXPRESSION);
+		}
+		return $this;
 	}
 
 	/**
@@ -193,7 +244,12 @@ class Context
 	 */
 	public static function getCurrent()
 	{
-		$application = Application::getInstance();
-		return $application->getContext();
+		if (Application::hasInstance())
+		{
+			$application = Application::getInstance();
+			return $application->getContext();
+		}
+
+		return null;
 	}
 }

@@ -61,7 +61,8 @@
 }
 
 .ui-vue-socialvideo-time-current {
-	font: 11px/21px "SF UI Text", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 11px/21px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #fff;
 	text-shadow: 0 0 1px #000, 0 0 1px #fff;
 	background-repeat: no-repeat;

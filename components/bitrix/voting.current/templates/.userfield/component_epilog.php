@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" &&
 	}
 }
 
-CJSCore::Init(array('ajax', 'popup'));
+CJSCore::Init(array('ajax', 'popup', 'ui.fonts.opensans'));
 $GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/rating.vote/templates/like/popup.css');
 
 $uid = $this->params["uid"];

@@ -110,6 +110,10 @@ class CAllPullStack
 			return false;
 
 		$arChannel = CPullChannel::GetChannelShared($channelType);
+		if (!$arChannel)
+		{
+			return false;
+		}
 		return self::AddByChannel($arChannel['CHANNEL_ID'], $arMessage);
 	}
 

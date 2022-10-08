@@ -8,3 +8,6 @@ DROP TABLE if exists b_calendar_push;
 DROP TABLE if exists b_calendar_resource;
 DROP TABLE if exists b_calendar_location;
 DROP TABLE if exists b_calendar_log;
+DROP TABLE if exists b_calendar_section_connection;
+DROP TABLE if exists b_calendar_event_connection;
+DROP TABLE if exists b_calendar_room_category;

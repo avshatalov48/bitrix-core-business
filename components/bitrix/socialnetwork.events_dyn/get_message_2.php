@@ -71,8 +71,6 @@ if(CModule::IncludeModule("socialnetwork"))
 	$arParams["PATH_TO_GROUP"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["gp"]));
 	$arParams["PATH_TO_MESSAGE_FORM_MESS"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["mpm"]));
 
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
-
 	if (trim($_REQUEST["nt"]) <> '')
 		$arParams["NAME_TEMPLATE"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["nt"]));
 	else

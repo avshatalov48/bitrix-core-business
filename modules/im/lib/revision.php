@@ -6,16 +6,17 @@ class Revision
 	/**
 	 * Web Api revision
 	 *
-	 * @filesource synchronize im/install/js/im/im.js:17
+	 * @filesource synchronize im/install/js/im/im.js:38
 	 */
 	const WEB = 130;
 
 	/**
 	 * Mobile Api revision
 	 *
-	 * @filesource synchronize mobile/install/components/bitrix/mobile.jscomponent/jscomponents/im.recent/component.js:6
-	 * @filesource synchronize mobile/install/components/bitrix/mobile.webcomponent/webcomponents/im.dialog/bundle/component/js/component.js:3
-	 * @filesource synchronize mobile/install/components/bitrix/mobile.webcomponent/webcomponents/im.dialog/bundle/component/js/mobile_dialog.js:22
+	 * @filesource synchronize immobile/install/mobileapp/immobile/components/im/im.recent/component.js:9
+	 * @filesource synchronize immobile/install/mobileapp/immobile/components/im/messenger/component.js:1
+	 * @filesource synchronize immobile/install/components/bitrix/immobile.webcomponent/webcomponents/im.dialog/bundle/component/src/component.js:3
+	 * @filesource synchronize immobile/install/components/bitrix/immobile.webcomponent/webcomponents/im.dialog/bundle/component/src/mobile_dialog.js:22
 	 */
 	const MOBILE = 19;
 

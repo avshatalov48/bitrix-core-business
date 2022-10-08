@@ -1,9 +1,6 @@
 .ui-qr-authorization__popup-scope {
 	--gray: 	rgba(51,51,51,1);
 	--green: 	rgba(142,187,0,1);
-
-	--font_helvetica: 	"Helvetica Neue", Helvetica Neue, Helvetica, Arial, sans-serif;
-	--font_os_regular: 	"OpenSans-Regular", "Helvetica Neue", Helvetica Neue, Helvetica, Arial, sans-serif;
 }
 
 .ui-qr-authorization__popup {
@@ -148,14 +145,15 @@
 
 .ui-qr-authorization__popup-title {
 	margin-bottom: 15px;
-	font-family: var(--font_os_regular);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 26px;
 	line-height: 36px;
 	color: var(--gray);
 }
 
 .ui-qr-authorization__popup-text {
-	font-family: var(--font_helvetica);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	line-height: 20px;
 	color: var(--gray);
@@ -172,8 +170,8 @@
 }
 
 .ui-qr-authorization__popup-bottom--title {
-	font-family: var(--font_helvetica);
-	font-weight: bold;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 15px;
 	color: var(--gray);
 }
@@ -186,7 +184,7 @@
 	top: 50%;
 	right: 0;
 	transform: translateY(-50%);
-	font-family: var(--font_helvetica);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: #858c96;
 	line-height: 20px;

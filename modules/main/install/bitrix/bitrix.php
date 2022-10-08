@@ -1,10 +1,13 @@
 #!/usr/bin/php
 <?php
 
-$pwdFilePath = bx_cli_absolute_path(getcwd().DIRECTORY_SEPARATOR.$_SERVER['SCRIPT_NAME']);
-$_SERVER["DOCUMENT_ROOT"] = realpath(dirname(dirname($pwdFilePath)));
+if (php_sapi_name() == "cli")
+{
+	$pwdFilePath = bx_cli_absolute_path(getcwd() . DIRECTORY_SEPARATOR . $_SERVER['SCRIPT_NAME']);
+	$_SERVER["DOCUMENT_ROOT"] = realpath(dirname(dirname($pwdFilePath)));
 
-require_once($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/main/cli/bitrix.php');
+	require_once($_SERVER["DOCUMENT_ROOT"] . '/bitrix/modules/main/cli/bitrix.php');
+}
 
 /**
  * Works as realpath(), but ignores symlinks

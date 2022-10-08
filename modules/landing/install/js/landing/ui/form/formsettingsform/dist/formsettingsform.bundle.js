@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,landing_ui_form_baseform,landing_ui_field_smallswitch,main_core_events,landing_ui_component_link,landing_ui_component_internal) {
+(function (exports,ui_designTokens,ui_fonts_opensans,main_core,landing_ui_form_baseform,landing_ui_field_smallswitch,main_core_events,landing_ui_component_link,landing_ui_component_internal) {
 	'use strict';
 
 	var _templateObject;
@@ -164,5 +164,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.FormSettingsForm = FormSettingsForm;
 
-}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX,BX.Landing.UI.Form,BX.Landing.UI.Field,BX.Event,BX.Landing.UI.Component,BX.Landing.UI.Component));
+}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX,BX,BX,BX.Landing.UI.Form,BX.Landing.UI.Field,BX.Event,BX.Landing.UI.Component,BX.Landing.UI.Component));
 //# sourceMappingURL=formsettingsform.bundle.js.map

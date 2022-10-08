@@ -12,7 +12,7 @@ export class TrackingEntryBuilder
 		title: '',
 		datetime: '',
 		note: '',
-		workflowStatus: WorkflowStatus.CREATED_WORKFLOW_STATUS,
+		workflowStatus: WorkflowStatus.CREATED,
 	};
 	#entrySettings: Object<string, string | number>;
 

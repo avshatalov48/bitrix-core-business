@@ -16,4 +16,5 @@ export type ButtonOptions = BaseButtonOptions & {
 	noCaps?: boolean,
 	round?: boolean,
 	dropdown?: boolean,
+	dependOnTheme?: boolean,
 };

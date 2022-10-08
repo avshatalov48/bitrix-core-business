@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Uri;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 if($this->InitComponentTemplate())
@@ -64,7 +67,7 @@ if(!is_array($arParams["HANDLERS"]))
 }
 
 $arResult["BOOKMARKS"] = array();
-$arResult["PAGE_URL"] = CHTTP::URN2URI($arParams["PAGE_URL"]);
+$arResult["PAGE_URL"] = (new Uri($arParams["PAGE_URL"]))->toAbsolute()->getUri();
 $arResult["PAGE_TITLE"] = $arParams["PAGE_TITLE"];
 
 foreach ($arResult["HANDLERS_ALL"] as $name => $arHandler)

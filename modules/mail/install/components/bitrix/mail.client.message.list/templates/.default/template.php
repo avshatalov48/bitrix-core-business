@@ -11,6 +11,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 \Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
 	"mail.client",
 	"mail.messagegrid",
 	"mail.avatar",
@@ -18,11 +20,14 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	"ui.progressbar",
 	'ui.info-helper',
 	'mail.secretary',
-	'ui.design-tokens',
+	'ui.buttons',
+	'ui.buttons.icons',
+	'ui.alerts',
+	'ui.dialogs.messagebox',
+	'ui.hint',
+	'ui.icons.service',
 ]);
 
-Main\UI\Extension::load(['ui.buttons', 'ui.buttons.icons', 'ui.alerts', 'ui.dialogs.messagebox', 'ui.hint']);
-Main\UI\Extension::load("ui.icons.service");
 $APPLICATION->SetAdditionalCSS("/bitrix/css/main/font-awesome.css");
 
 Main\Page\Asset::getInstance()->addJS('/bitrix/components/bitrix/mail.client.message.list/templates/.default/user-interface-manager.js');
@@ -39,11 +44,12 @@ $filterOptions = [
 	'FILTER_PRESETS' => $arResult['FILTER_PRESETS'],
 	'RESET_TO_DEFAULT_MODE' => true,
 	'VALUE_REQUIRED' => true,
-	'THEME' => Theme::LIGHT,
+	'THEME' => Theme::MUTED,
 	'CONFIG' => [
 		'AUTOFOCUS' => false
 	],
 ];
+
 $unseenCountInCurrentMailbox = 0;
 $unseenCountInOtherMailboxes = 0;
 
@@ -126,31 +132,49 @@ $createPath = \CHTTP::urlAddParams(
 	array('id' => $arResult['MAILBOX']['ID'])
 );
 
+$disabledMailSettings = $USER->getId() != $arResult['MAILBOX']['USER_ID'] && !$USER->isAdmin() && !$USER->canDoOperation('bitrix24_config');
+
 $settingsMenu = [
 	[
-		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_SETTINGS_LINK'),
+		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_BLACKLIST_LINK'),
 		'className' => '',
-		'href' => htmlspecialcharsbx($configPath),
-		'disabled' => $USER->getId() != $arResult['MAILBOX']['USER_ID'] && !$USER->isAdmin() && !$USER->canDoOperation('bitrix24_config'),
-	],
-	/*[
-		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_MANAGEMENT'),
-		'className' => '',
-		'onclick' => 'BX.Mail.Home.Grid.openGridSettingsWindow()',
-	],*/
-	[
-		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_SIGNATURE_LINK'),
-		'href' => htmlspecialcharsbx($arParams['PATH_TO_MAIL_SIGNATURES']),
+		'href' => htmlspecialcharsbx($arParams['PATH_TO_MAIL_BLACKLIST']),
 	],
 	[
 		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_ADDRESSBOOK_LINK'),
 		'href' => htmlspecialcharsbx($arParams['PATH_TO_MAIL_ADDRESSBOOK']),
 	],
 	[
-		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_BLACKLIST_LINK'),
-		'className' => '',
-		'href' => htmlspecialcharsbx($arParams['PATH_TO_MAIL_BLACKLIST']),
+		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_SIGNATURE_LINK'),
+		'href' => htmlspecialcharsbx($arParams['PATH_TO_MAIL_SIGNATURES']),
 	],
+	[
+		'delimiter' => true,
+	],
+	[
+		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_INTEGRATION_WITH_CRM'),
+		'className' => '',
+		'href' => htmlspecialcharsbx($configPath).'#configcrm',
+		'disabled' => ($disabledMailSettings || !$arResult['userHasCrmActivityPermission']),
+	],
+	[
+		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_SETTINGS_LINK'),
+		'className' => '',
+		'href' => htmlspecialcharsbx($configPath),
+		'disabled' => $disabledMailSettings,
+	],
+	[
+		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_LINK'),
+		'className' => '',
+		'href' => htmlspecialcharsbx($arResult['MAILBOX']['LINK']),
+		'target' => "_blank",
+		'disabled' => empty($arResult['MAILBOX']['LINK']),
+	],
+	/*[
+		'text' => Loc::getMessage('MAIL_MESSAGE_LIST_COLUMN_MANAGEMENT'),
+		'className' => '',
+		'onclick' => 'BX.Mail.Home.Grid.openGridSettingsWindow()',
+	],*/
 ];
 
 $this->setViewTarget('mail-msg-counter-panel');
@@ -216,14 +240,6 @@ $this->endViewTarget();
 					</div>
 				</div>
 			</div>
-			<div class="ui-mail-left-menu-underscore"></div>
-			<? if (!empty($arResult['MAILBOX']['LINK'])): ?>
-				<div>
-					<a class="ui-btn ui-btn-themes ui-btn-xs ui-btn-light-border ui-btn-round ui-btn-no-caps mail-go-to-mail"
-					   href="<?=htmlspecialcharsbx($arResult['MAILBOX']['LINK']) ?>" target="_blank"><?=Loc::getMessage('MAIL_MESSAGE_LIST_LINK') ?>
-					</a>
-				</div>
-			<? endif ?>
 	<?$this->endViewTarget();
 
 	$this->setViewTarget('above_pagetitle'); ?>
@@ -573,7 +589,6 @@ $actionPanelActionButtons = array_merge($actionPanelActionButtons, [
 		Mail.Counters.setHiddenCountersForTotalCounter(<?= Main\Web\Json::encode($arResult['invisibleDirsToCounters']) ?>);
 
 		var client = new BX.Mail.Client.Mailer({
-			startDir: '<?= CUtil::JSEscape($arResult['defaultDir']) ?>',
 			mailboxId: <?= intval($arResult['MAILBOX']['ID']) ?>,
 			filterId: '<?= $arResult['FILTER_ID'] ?>',
 			syncAvailable: '<?= \Bitrix\Mail\Helper\LicenseManager::isSyncAvailable() ?>',
@@ -701,7 +716,6 @@ $APPLICATION->includeComponent(
 	BX.message({
 		DEFAULT_DIR: '<?= CUtil::JSEscape($arResult['defaultDir']) ?>',
 		MESSAGES_ALREADY_EXIST_IN_FOLDER : '<?= Loc::getMessage('MESSAGES_ALREADY_EXIST_IN_FOLDER') ?>',
-		MAIL_CLIENT_ACTIVITY_PERMISSION_DENIED_ERROR: '<?=\CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_ACTIVITY_PERMISSION_DENIED_ERROR')) ?>',
 		MAILBOX_LINK: '<?= CUtil::JSEscape($arResult['MAILBOX']['LINK'])?>',
 		MAIL_MESSAGE_GRID_ID: '<?= CUtil::JSEscape($arResult['GRID_ID'])?>',
 		INTERFACE_MAIL_CHECK_ALL: '<?=Loc::getMessage('INTERFACE_MAIL_CHECK_ALL')?>',
@@ -743,23 +757,26 @@ $APPLICATION->includeComponent(
 	{
 		var Mail = BX.Mail.Home;
 		Mail.Grid.setGridId('<?= CUtil::JSEscape($arResult['GRID_ID'])?>');
+		var mailboxId = Number(<?= intval($arResult['MAILBOX']['ID']) ?>);
 
 		BX.addCustomEvent("onPullEvent-mail", BX.delegate(function(command, params){
-			if (Mail.Grid.getCountDisplayed() < numberOfRowsPerPage && mailMessageList.getCurrentFolder() === params.dir && command ==='new_message_is_synchronized')
+			if (Mail.Grid.getCountDisplayed() < numberOfRowsPerPage && command === 'new_message_is_synchronized' && mailboxId === Number(params.mailboxId) && mailMessageList.getCurrentFolder() === params.dir)
 			{
 				BX.ajax.runComponentAction('bitrix:mail.client.message.list', 'syncMailCounters',
 					{
 						mode: 'class',
-						data: {
-						mailboxId: <?= intval($arResult['MAILBOX']['ID']) ?>,
-					}
+						data:
+						{
+							mailboxId: <?= intval($arResult['MAILBOX']['ID']) ?>,
+						}
 				});
 				Mail.Grid.reloadTable();
 			}
-		}, this));
-
-		BX.addCustomEvent("onPullEvent-mail", BX.delegate(function(command, params){
-			if (command ==='counters_is_synchronized')
+			else if (command ==='counters_updated' && mailboxId === Number(params.mailboxId))
+			{
+				mailMessageList.updateCountersFromBackend();
+			}
+			else if (command ==='counters_is_synchronized')
 			{
 				const data = params.dirs || {};
 				BX.Mail.Home.Counters.setCounters(data);

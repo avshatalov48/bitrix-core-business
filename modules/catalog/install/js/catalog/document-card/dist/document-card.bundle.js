@@ -24,6 +24,15 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    main_core_events.EventEmitter.subscribe(_this._editor, 'onControlChanged', _this.onEditorControlChange.bind(babelHelpers.assertThisInitialized(_this)));
 	    main_core_events.EventEmitter.subscribe('DocumentProductListController', _this._setProductListHandler);
 	    main_core_events.EventEmitter.subscribe('onEntityDetailsTabShow', _this._tabShowHandler);
+	    main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorList:onItemSelect', function (event) {
+	      var _event$data = babelHelpers.slicedToArray(event.data, 2),
+	          field = _event$data[0],
+	          params = _event$data[1];
+
+	      if ((field === null || field === void 0 ? void 0 : field.getId()) === 'TOTAL_WITH_CURRENCY') {
+	        _this.changeCurrency(params.item.value);
+	      }
+	    });
 	    return _this;
 	  }
 
@@ -155,12 +164,17 @@ this.BX.Catalog = this.BX.Catalog || {};
 	          params = _event$getData4[1];
 
 	      if (field instanceof BX.UI.EntityEditorMoney && (params === null || params === void 0 ? void 0 : params.fieldName) === 'CURRENCY') {
-	        this._currencyId = params === null || params === void 0 ? void 0 : params.fieldValue;
+	        this.changeCurrency(params.fieldValue);
+	      }
+	    }
+	  }, {
+	    key: "changeCurrency",
+	    value: function changeCurrency(currencyValue) {
+	      this._currencyId = currencyValue;
 
-	        if (this.productList && this._currencyId) {
-	          this.productList.changeCurrencyId(this._currencyId);
-	          this.markAsChanged();
-	        }
+	      if (this.productList && this._currencyId) {
+	        this.productList.changeCurrencyId(this._currencyId);
+	        this.markAsChanged();
 	      }
 	    }
 	  }, {
@@ -172,7 +186,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 
 	      this._model.setField('TOTAL', totalData.totalCost);
 
-	      this._editor.getControlById('TOTAL_WITH_CURRENCY').refreshLayout();
+	      var totalCurrencyControl = this._editor.getControlById('TOTAL_WITH_CURRENCY');
+
+	      if (totalCurrencyControl instanceof BX.UI.EntityEditorMoney) {
+	        totalCurrencyControl.refreshLayout();
+	      }
 	    }
 	  }, {
 	    key: "validateProductList",

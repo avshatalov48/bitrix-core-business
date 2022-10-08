@@ -6,7 +6,7 @@ CJSCore::RegisterExt('report', array(
 	'js' => '/bitrix/js/report/js/report.js',
 	'css' => '/bitrix/js/report/css/report.css',
 	'lang' => BX_ROOT.'/modules/report/lang/'.LANGUAGE_ID.'/install/js/report.php',
-	'rel' => array('core', 'popup', 'json', 'ajax')
+	'rel' => array('ui.design-tokens', 'ui.fonts.opensans', 'core', 'popup', 'json', 'ajax')
 ));
 
 CJSCore::RegisterExt('report_visual_constructor', array(
@@ -38,3 +38,4 @@ CJSCore::RegisterExt('report_visual_constructor', array(
 ));
 
 \Bitrix\Main\Page\Asset::getInstance()->addJsKernelInfo("report", array("/bitrix/js/report/js/report.js"));
+

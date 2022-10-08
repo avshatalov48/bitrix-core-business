@@ -1,13 +1,13 @@
-<?
+<?php
 
 namespace Bitrix\Main\UI\EntitySelector;
 
 use Bitrix\Main;
 use Bitrix\Main\Application;
+use Bitrix\Main\ORM\Data;
 use Bitrix\Main\ORM\Fields;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
-use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UserTable;
 
@@ -27,8 +27,10 @@ use Bitrix\Main\UserTable;
  * @method static \Bitrix\Main\UI\EntitySelector\EO_EntityUsage wakeUpObject($row)
  * @method static \Bitrix\Main\UI\EntitySelector\EO_EntityUsage_Collection wakeUpCollection($rows)
  */
-class EntityUsageTable extends Main\Entity\DataManager
+class EntityUsageTable extends Data\DataManager
 {
+	use Data\Internal\DeleteByFilterTrait;
+
 	/**
 	 * @inheritdoc
 	 */
@@ -216,19 +218,5 @@ class EntityUsageTable extends Main\Entity\DataManager
 		}
 
 		return true;
-	}
-
-	public static function deleteByFilter(array $filter)
-	{
-		$entity = static::getEntity();
-		$sqlTableName = static::getTableName();
-		$sqlHelper = $entity->getConnection()->getSqlHelper();
-
-		$where = Query::buildFilterSql($entity, $filter);
-		if ($where !== '')
-		{
-			$sql = "DELETE FROM {$sqlHelper->quote($sqlTableName)} WHERE ".$where;
-			$entity->getConnection()->queryExecute($sql);
-		}
 	}
 }

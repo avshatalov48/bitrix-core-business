@@ -1,5 +1,6 @@
-import {Tag, Type, Loc} from 'main.core';
+import {Tag, Type, Loc, Event, Dom} from 'main.core';
 import {EventEmitter} from 'main.core.events';
+import {Menu} from 'main.popup';
 
 import {Collection} from './collection.js';
 
@@ -10,7 +11,14 @@ export type ItemOptions = {
 	onclick: ?Function;
 	id: ?string;
 	items: ?Array<ItemOptions>;
+	actions?: Array<ActionOptions>
 };
+
+type ActionOptions = {
+	id: number | string;
+	label: string,
+	onclick: Function;
+}
 
 export class Item extends EventEmitter
 {
@@ -21,10 +29,12 @@ export class Item extends EventEmitter
 	#onclick: ?Function;
 	#collection: Collection;
 	#node: HTMLElement;
+	#actions: Array<ActionOptions>
 
 	constructor(options: ItemOptions)
 	{
-		super();
+		super(options);
+
 		this.setEventNamespace('ui:sidepanel:menu:item');
 
 		this.#collection = new Collection();
@@ -34,6 +44,7 @@ export class Item extends EventEmitter
 			.setId(options.id)
 			.setItems(options.items)
 			.setClickHandler(options.onclick)
+			.setActions(options.actions)
 		;
 
 		this.#collection.subscribe('sync:active', () => this.emit('sync:active'));
@@ -91,6 +102,13 @@ export class Item extends EventEmitter
 		return this;
 	}
 
+	setActions(actions: Array<ActionOptions> = []): Item
+	{
+		this.#actions = actions;
+
+		return this;
+	}
+
 	setItems(items: Array<ItemOptions> = []): Item
 	{
 		this.#collection.setItems(items || []);
@@ -128,6 +146,56 @@ export class Item extends EventEmitter
 		return this.#notice;
 	}
 
+	hasActions(): boolean
+	{
+		return this.#actions.length > 0;
+	}
+
+	change(options: ItemOptions)
+	{
+		if (!Type.isUndefined(options.label))
+		{
+			this.setLabel(options.label);
+		}
+
+		if (!Type.isUndefined(options.active))
+		{
+			this.setActive(options.active);
+		}
+
+		if (!Type.isUndefined(options.notice))
+		{
+			this.setNotice(options.notice);
+		}
+
+		if (!Type.isUndefined(options.id))
+		{
+			this.setId(options.id);
+		}
+
+		if (!Type.isUndefined(options.items))
+		{
+			this.setItems(options.items);
+		}
+
+		if (!Type.isUndefined(options.onclick))
+		{
+			this.setClickHandler(options.onclick);
+		}
+
+		if (!Type.isUndefined(options.actions))
+		{
+			this.setActions(options.actions);
+		}
+	}
+
+	remove()
+	{
+		Dom.remove(this.#node);
+
+		this.#node = null;
+	}
+
 	#emitChange(data = {}, type: string = null): void
 	{
 		this.emit('change', data);
@@ -148,6 +216,51 @@ export class Item extends EventEmitter
 		{
 			this.#onclick.apply(this);
 		}
+	}
+
+	#showActionMenu(event: Event)
+	{
+		event.preventDefault();
+		event.stopPropagation();
+
+		if (this.actionsMenu)
+		{
+			this.actionsMenu.getPopupWindow().close();
+
+			return;
+		}
+
+		const targetIcon: HTMLElement = event.currentTarget;
+
+		Dom.addClass(targetIcon, '--hover');
+		Dom.addClass(targetIcon.parentNode, '--hover');
+
+		this.actionsMenu = new Menu({
+			id: `ui-sidepanel-menu-item-actions-${this.getId()}`,
+			bindElement: targetIcon
+		});
+
+		this.#actions.forEach((action: ActionOptions) => {
+			this.actionsMenu.addMenuItem({
+				text: action.label,
+				onclick: (event, menuItem) => {
+					menuItem.getMenuWindow().close();
+					action.onclick(this);
+				}
+			});
+		});
+
+		this.actionsMenu.getPopupWindow()
+			.subscribe('onClose', () => {
+				Dom.removeClass(targetIcon, '--hover');
+				Dom.removeClass(targetIcon.parentNode, '--hover');
+
+				this.actionsMenu.destroy();
+				this.actionsMenu = null;
+			})
+		;
+
+		this.actionsMenu.show();
 	}
 
 	render(): HTMLElement
@@ -178,14 +291,27 @@ export class Item extends EventEmitter
 					<div class="ui-sidepanel-menu-link-text">${Tag.safe`${this.#label}`}</div>
 					${!isEmpty ? `<div class="ui-sidepanel-toggle-btn">${actionText}</div>` : ''}
 					${this.#notice ? '<span class="ui-sidepanel-menu-notice-icon"></span>' : ''}
+					${
+						this.hasActions()
+							? '<span class="ui-sidepanel-menu-action-icon ui-btn ui-btn-link ui-btn-icon-edit"></span>'
+							: ''
+					}
 				</a>
 			</li>
 		`;
 
+		if (this.hasActions())
+		{
+			Event.bind(
+				this.#node.querySelector('.ui-sidepanel-menu-action-icon'),
+				'click',
+				this.#showActionMenu.bind(this)
+			);
+		}
 
 		if (!this.#collection.isEmpty())
 		{
-			this.#node.appendChild(this.#collection.render());
+			Dom.append(this.#collection.render(), this.#node);
 		}
 
 		return this.#node;

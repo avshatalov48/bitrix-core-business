@@ -13,6 +13,7 @@ return [
 		'landing.ui.panel.basepresetpanel',
 		'landing.ui.field.accordionfield',
 		'landing.ui.card.messagecard',
+		'ui.design-tokens',
 		'main.core',
 	],
 	'skip_core' => false,

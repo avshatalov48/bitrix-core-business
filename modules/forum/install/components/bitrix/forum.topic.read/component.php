@@ -7,7 +7,7 @@
  * @param string $componentName
  * @param CBitrixComponent $this
  */
-$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/functions.php");
+$path = str_replace(array("\\", "//"), "/", __DIR__."/functions.php");
 include_once($path);
 $arUserGroups = $USER->GetUserGroupArray();
 /********************************************************************
@@ -311,7 +311,7 @@ ForumSetReadTopic($arParams["FID"], $arParams["TID"]);
 /********************************************************************
 				Action
 ********************************************************************/
-$path = str_replace(array("\\", "//"), "/", dirname(__FILE__)."/action.php");
+$path = str_replace(array("\\", "//"), "/", __DIR__."/action.php");
 include($path);
 if ($arParams["AJAX_CALL"] == "Y")
 {

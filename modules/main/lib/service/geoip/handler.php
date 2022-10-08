@@ -1,9 +1,9 @@
 <?php
+
 namespace Bitrix\Main\Service\GeoIp;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
 
 /**
  * Class HandlerTable
@@ -92,5 +92,11 @@ class HandlerTable extends Entity\DataManager
 		return array(
 			new Entity\Validator\Length(null, 255),
 		);
+	}
+
+	public static function cleanCache(): void
+	{
+		parent::cleanCache();
+		Manager::cleanCache();
 	}
 }

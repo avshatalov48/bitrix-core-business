@@ -20,7 +20,6 @@ return [
 		'main.core.events',
 		'calendar.planner',
 		'ui.entity-selector',
-		'calendar.sync.interface',
 		'calendar.roomsmanager',
 	],
 	'skip_core' => false,

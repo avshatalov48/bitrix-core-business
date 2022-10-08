@@ -1,8 +1,11 @@
 <?php
 namespace Bitrix\Landing\Hook\Page;
 
-use \Bitrix\Landing\Field;
+use Bitrix\Landing\Field;
+use Bitrix\Landing\Manager;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\UI;
 
 class Fonts extends \Bitrix\Landing\Hook\Page
 {
@@ -105,69 +108,6 @@ class Fonts extends \Bitrix\Landing\Hook\Page
 	}
 
 	/**
-	 * Outputs default font.
-	 * @param string $code Font code.
-	 * @return string
-	 */
-	public static function outputDefaultFont(string $code): string
-	{
-		if (isset(self::DEFAULT_FONTS[$code]))
-		{
-			$fontUrl = self::DEFAULT_FONTS[$code]['url'];
-
-			return '<link 
-						rel="preload" 
-						as="style" 
-						onload="this.removeAttribute(\'onload\');this.rel=\'stylesheet\'" 
-						data-font="' . $code . '" 
-						data-protected="true" 
-						href="' . $fontUrl . '">
-					<noscript>
-						<link
-							rel="stylesheet" 
-							data-font="' . $code . '" 
-							data-protected="true" 
-							href="' . $fontUrl . '">
-					</noscript>';
-		}
-
-		return '';
-	}
-
-	/**
-	 * Sets fonts data to the page.
-	 * @param array $fonts Fonts data ([fontCode => fontStyle]).
-	 * @return void
-	 */
-	protected function outputFonts(array $fonts): void
-	{
-		$setFonts = [];
-
-		foreach (self::$setFonts as $fontCode => $foo)
-		{
-			if (isset($fonts[$fontCode]))
-			{
-				unset(self::$setFonts[$fontCode]);
-				$setFonts[] = $fonts[$fontCode];
-			}
-		}
-
-		// set default fonts
-		foreach (self::$setFonts as $fontCode => $foo)
-		{
-			$setFonts[] = self::outputDefaultFont($fontCode);
-		}
-
-		if ($setFonts)
-		{
-			\Bitrix\Landing\Manager::setPageView(
-				'BeforeHeadClose',
-				implode('', $setFonts)
-			);
-		}
-	}
-
-	/**
 	 * Exec hook.
 	 * @return void
 	 */
@@ -196,5 +136,89 @@ class Fonts extends \Bitrix\Landing\Hook\Page
 			$fonts = array_combine($matches[2], $matches[1]);
 		}
 		$this->outputFonts($fonts);
+	}
+
+	/**
+	 * Sets fonts data to the page.
+	 * @param array $fonts Fonts data ([fontCode => fontStyle]).
+	 * @return void
+	 */
+	protected function outputFonts(array $fonts): void
+	{
+		$setFonts = [];
+
+		foreach (self::$setFonts as $fontCode => $foo)
+		{
+			if (isset($fonts[$fontCode]))
+			{
+				unset(self::$setFonts[$fontCode]);
+				$setFonts[] = self::proxyFontUrl($fonts[$fontCode]);
+			}
+		}
+
+		// set default fonts
+		foreach (self::$setFonts as $fontCode => $foo)
+		{
+			$setFonts[] = self::outputDefaultFont($fontCode);
+		}
+
+		if ($setFonts)
+		{
+			Manager::setPageView(
+				'BeforeHeadClose',
+				implode('', $setFonts)
+			);
+		}
+	}
+
+	/**
+	 * Outputs default font.
+	 * @param string $code Font code.
+	 * @return string
+	 */
+	public static function outputDefaultFont(string $code): string
+	{
+		if (isset(self::DEFAULT_FONTS[$code]))
+		{
+			$fontUrl = self::DEFAULT_FONTS[$code]['url'];
+			$fontUrl = self::proxyFontUrl($fontUrl);
+
+			return '<link 
+						rel="preload" 
+						as="style" 
+						onload="this.removeAttribute(\'onload\');this.rel=\'stylesheet\'" 
+						data-font="' . $code . '" 
+						data-protected="true" 
+						href="' . $fontUrl . '">
+					<noscript>
+						<link
+							rel="stylesheet" 
+							data-font="' . $code . '" 
+							data-protected="true" 
+							href="' . $fontUrl . '">
+					</noscript>';
+		}
+
+		return '';
+	}
+
+	/**
+	 * Proxy font url to bitrix servers
+	 * @param string $fontString - string of font with link, noscript or other tags
+	 * @return string
+	 */
+	protected static function proxyFontUrl(string $fontString): string
+	{
+		$defaultDomain = 'fonts.googleapis.com';
+		$proxyDomain = $defaultDomain;
+		if (Loader::includeModule('ui'))
+		{
+			$proxyDomain = UI\Fonts\Proxy::resolveDomain(Manager::getZone());
+		}
+
+		return ($defaultDomain !== $proxyDomain)
+			? str_replace($defaultDomain, $proxyDomain, $fontString)
+			: $fontString
+		;
 	}
 }

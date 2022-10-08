@@ -15,6 +15,8 @@
 	<?
 	}
 
+	\Bitrix\Main\UI\Extension::load(['ui.design-tokens', 'ui.fonts.opensans']);
+
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/js/report/css/report.css');
 	$GLOBALS['APPLICATION']->AddHeadScript('/bitrix/js/report/construct.js');
 
@@ -497,9 +499,7 @@ AAAAElFTkSuQmCC") no-repeat scroll 0 0 transparent;
 <div class="reports-preview-table-report" id="reports-preview-table-report">
 	<span class="reports-prev-table-title"><?=GetMessage('REPORT_SCHEME_PREVIEW')?></span>
 
-	<div class="reports-list">
-		<div class="reports-list-left-corner"></div>
-		<div class="reports-list-right-corner"></div>
+	<div class="reports-list-preview">
 		<table cellspacing="0" class="report-list-table">
 			<tr>
 				<th></th>

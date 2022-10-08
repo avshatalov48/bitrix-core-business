@@ -16,3 +16,18 @@
 	min-width: 200px;
 	flex: 1 1 auto;
 }
+
+.mail-addressbook-list-grid .main-grid-cell.main-grid-cell-left .main-grid-cell-content {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin: 16px 4px;
+}
+
+.mail-addressbook-list-grid .main-grid-row-action-button
+{
+	margin-top: 10px;
+}
+
+.mail-addressbook-list-grid .main-grid-checkbox{
+	margin-top: 12px;
+}

@@ -11,7 +11,7 @@ require_once($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/main/include/prolog_befo
 
 Loader::includeModule('sale');
 
-require_once(dirname(__FILE__).'/class.php');
+require_once(__DIR__.'/class.php');
 
 $result = true;
 $errors = array();

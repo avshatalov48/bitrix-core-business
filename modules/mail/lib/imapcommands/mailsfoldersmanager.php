@@ -147,17 +147,17 @@ class MailsFoldersManager extends SyncInternalManager
 		return $this->deleteMessages($messagesToDelete, $this->mailbox);
 	}
 
-	private function processMoving($messagesToMove, $folderToName)
+	private function processMoving($messagesToMove, $destinationDirectory)
 	{
 		if (!$messagesToMove)
 		{
 			return new Main\Result();
 		}
-		$result = $this->moveMailsByImap($messagesToMove, $folderToName);
+		$result = $this->moveMailsByImap($messagesToMove, $destinationDirectory);
 		if ($result->isSuccess())
 		{
-			$this->repository->updateMessageFieldsAfterMove($this->messages, $folderToName, $this->mailbox);
-			$this->imapSyncMovedMessages($messagesToMove, $folderToName);
+			$this->repository->updateMessageFieldsAfterMove($this->messages, $destinationDirectory, $this->mailbox);
+			$this->imapSyncMovedMessages($messagesToMove, $destinationDirectory);
 			return (new Main\Result())->setData($messagesToMove);
 		}
 		else

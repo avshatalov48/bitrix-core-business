@@ -12,6 +12,7 @@ import {FormSettingsPanel} from 'landing.ui.panel.formsettingspanel';
 import {FormClient} from 'crm.form.client';
 import 'ui.userfieldfactory';
 
+import 'ui.fonts.opensans';
 import './css/style.css';
 
 type CrmField = {

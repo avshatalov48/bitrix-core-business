@@ -467,7 +467,7 @@ class CDeliveryRUSSIANPOST
 	{
 		if (defined('DELIVERY_RUSSIANPOST_WRITE_LOG') && DELIVERY_RUSSIANPOST_WRITE_LOG === 1)
 		{
-			$fp = fopen(dirname(__FILE__)."/russianpost.log", "a");
+			$fp = fopen(__DIR__."/russianpost.log", "a");
 			fwrite($fp, "\r\n==========================================\r\n");
 			fwrite($fp, $data);
 			fclose($fp);

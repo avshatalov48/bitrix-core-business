@@ -86,7 +86,10 @@ class Helper
 	public static function getIcalTemplateRRule(array $rrule = null, array $params = null): string
 	{
 		$res = '';
-
+		if ($rrule['BYDAY'])
+		{
+			$rrule['BYDAY'] = \CCalendarEvent::sortByDay($rrule['BYDAY']);
+		}
 		switch($rrule['FREQ'])
 		{
 			case 'DAILY':

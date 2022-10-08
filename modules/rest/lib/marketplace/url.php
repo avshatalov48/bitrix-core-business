@@ -39,7 +39,7 @@ namespace Bitrix\Rest\Marketplace\Urls
 
 		final public static function getInstance()
 		{
-			if (null === static::$instance[static::class])
+			if (!array_key_exists(static::class, static::$instance))
 			{
 				static::$instance[static::class] = new static();
 			}
@@ -95,15 +95,16 @@ namespace Bitrix\Rest\Marketplace\Urls
 		{
 			if (null === self::$localDir)
 			{
-				$siteId = SITE_ID;
 				self::$localDir = \Bitrix\Main\IO\Path::DIRECTORY_SEPARATOR;
-				if (($site = \CSite::getById($siteId)->fetch()) && !empty($site["DIR"]))
+				$site = \Bitrix\Main\Context::getCurrent()->getSiteObject();
+				if ($site && $site->getDir() != '')
 				{
-					$path = [\Bitrix\Main\SiteTable::getDocumentRoot($siteId), $site["DIR"], $this->directory];
+					$siteId = $site->getLid();
+					$path = [\Bitrix\Main\SiteTable::getDocumentRoot($siteId), $site->getDir(), $this->directory];
 					$dir = new \Bitrix\Main\IO\Directory(\Bitrix\Main\IO\Path::combine($path), $siteId);
 					if ($dir->isExists())
 					{
-						self::$localDir = \Bitrix\Main\IO\Path::combine([self::$localDir, $site["DIR"]]);
+						self::$localDir = \Bitrix\Main\IO\Path::combine([self::$localDir, $site->getDir()]);
 					}
 				}
 			}
@@ -138,18 +139,31 @@ namespace Bitrix\Rest\Marketplace\Urls
 			"list" => "installed/",
 			"detail" => "detail/#ID#/",
 			"category" => "category/#ID#/",
+			"category_placement" => "?placement=#CODE#",
 			"placement_view" => "view/#APP#/",
 			"placement" => "placement/#PLACEMENT_ID#/",
 			"booklet" => "booklet/#CODE#/"
 		];
 
-		public function getCategoryUrl($id = null)
+		public function getCategoryUrl($id = null, $from = '')
 		{
 			if ($id === null)
 			{
-				return $this->getReplacedId($this->pages["index"]);
+				$url = $this->getReplacedId($this->pages['index']);
 			}
-			return $this->getReplacedId($this->pages["category"], $id);
+			else
+			{
+				$url = $this->getReplacedId($this->pages['category'], $id);
+			}
+
+			return $this->addUrlFrom($url, $from);
+		}
+
+		public function getCategoryByPlacement($code, $from = '')
+		{
+			$url = $this->getReplaced($this->pages['category_placement'], '#CODE#', $code);
+
+			return $this->addUrlFrom($url, $from);
 		}
 
 		public function getSubscriptionBuyUrl()
@@ -170,6 +184,10 @@ namespace Bitrix\Rest\Marketplace\Urls
 				elseif ($region === 'ua')
 				{
 					$result = 'https://www.bitrix.ua/buy/products/b24.php?subscr=y';
+				}
+				elseif ($region === 'by')
+				{
+					$result = 'https://www.1c-bitrix.by/buy/products/b24.php?subscr=y';
 				}
 			}
 
@@ -457,9 +475,14 @@ namespace Bitrix\Rest\Marketplace
 
 	class Url
 	{
-		public static function getCategoryUrl($id = null)
+		public static function getCategoryUrl($id = null, $from = '')
 		{
-			return MarketplaceUrls::getInstance()->getCategoryUrl($id);
+			return MarketplaceUrls::getInstance()->getCategoryUrl($id, $from);
+		}
+
+		public static function getCategoryByPlacement($code, $from = '')
+		{
+			return MarketplaceUrls::getInstance()->getCategoryByPlacement($code, $from);
 		}
 
 		public static function getApplicationDetailUrl($id = null, $from = '')

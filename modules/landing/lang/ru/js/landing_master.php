@@ -410,10 +410,11 @@ $MESS['LANDING_LINK_PLACEHOLDER_NEW_PAGE'] = 'Новая страница';
 $MESS['LANDING_LINK_NEW_PAGE_LABEL'] = 'НОВАЯ';
 $MESS['LANDING_LINK_NEW_PAGE_SAVE_BUTTON_LABEL'] = 'Создать';
 
-$MESS['LANDING_EMBED_FIELD_DESCRIPTION'] = 'Пример: https://www.youtube.com/watch?v=q4d8g9Dn3ww';
+$MESS['LANDING_EMBED_BG_FIELD_DESCRIPTION'] = 'Допускаются только полные или короткие ссылки на видео с&nbsp;сервисов Youtube и VK видео';
+$MESS['LANDING_EMBED_NOT_BG_FIELD_DESCRIPTION'] = 'Допускаются только полные или короткие ссылки на видео с&nbsp;сервисов Youtube, VK видео, RuTube или Vimeo';
 $MESS['LANDING_EMBED_FIELD_PLACEHOLDER'] = 'Ссылка на видео';
 $MESS['LANDING_EMBED_ERROR_TEXT'] = 'Укажите ссылку на страницу с видео. Код и другие способы вставки не поддерживаются.';
-$MESS['LANDING_EMBED_ERROR_WRONG_SOURCE_TEXT_2'] = 'Некорректная ссылка. Допускаются только полные или короткие ссылки на видео с сервисов Youtube, VK видео, RuTube или Vimeo.';
+$MESS['LANDING_EMBED_ERROR_WRONG_SOURCE_TEXT_ALL'] = 'Некорректная ссылка';
 
 $MESS['LANDING_SHOW_FORM_EDITOR'] = 'Настроить форму';
 

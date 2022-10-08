@@ -9,7 +9,7 @@
 	height: 393px;
 	padding: 0 10px;
 	overflow: hidden;
-	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	white-space: nowrap;
 	width: 840px;
 }
@@ -58,12 +58,12 @@
 }
 
 a.access-provider-button {
-	font: 12px Arial;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	display: block;
 	border-radius: var(--ui-border-radius-2xs, 3px);
 	padding: 4px 7px;
 	text-decoration: none;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	outline: none;
 	line-height: 18px;
 }

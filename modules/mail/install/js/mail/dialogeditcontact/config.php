@@ -11,7 +11,9 @@ return [
 		'main.core',
 		'mail.sidepanelwrapper',
 		'ui.dialogs.messagebox',
+		'mail.avatar',
 		'ui.forms',
+		'ui.alerts',
 	],
 	'skip_core' => false,
 ];

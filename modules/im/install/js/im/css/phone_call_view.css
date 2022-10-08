@@ -121,7 +121,8 @@
 	padding: 5px 10px;
 }
 .im-phone-call-wrapper-fixed-user-name {
-	font: 18px/24px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 18px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: #fff;
 }
 
@@ -130,7 +131,8 @@
 }
 
 .im-phone-call-wrapper-fixed-user-item{
-	font: 12px/18px "OpenSans-Regular", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: rgba(255,255,255,.6);;
 }
 /*ARROW*/
@@ -179,7 +181,7 @@
 
 /* BADGES */
 .im-phone-calling-process-status {
-	font: 18px/21px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 18px/21px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #fff;
 	margin: 0;
 	text-align: center;
@@ -189,13 +191,13 @@
 .im-phone-call-status-description{ padding:6px ;}
 .im-phone-call-status-description-item{
 	text-align: center;
-	font: 13px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 13px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #fff;
 }
 .im-phone-call-status-timer{ padding:6px ;}
 .im-phone-call-status-timer-item{
 	text-align: center;
-	font: 11px/12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #C3C6C9;
 }
 
@@ -209,7 +211,8 @@
 	-ms-flex-flow: row wrap;
 	flex-flow: row wrap;
 	padding: 18px 20px;
-	font: 10px/12px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 10px/12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #fff;
 	text-transform: uppercase;
 }
@@ -424,7 +427,8 @@
 	border-radius: 33px;
 	box-sizing: border-box;
 	vertical-align: middle;
-	font: 12px/36px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px/36px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #fff;
 	text-transform: uppercase;
 	-webkit-transition: background 300ms linear;
@@ -680,8 +684,8 @@
 	font-size: 14px;
 	line-height: 16px;
 	vertical-align: middle;
-	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-weight:600;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color:#525c68;
 	cursor: pointer;
 	max-width: 120px;
@@ -769,9 +773,9 @@
 	margin-left:20px;
 	border-radius:2px;
 	text-transform: uppercase;
-	font-weight:600;
 	width:calc(100% - 20px);
-	font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size:11px;
 	color:#525c68;
 	cursor: pointer;
@@ -889,7 +893,7 @@
 	display: inline-block;
 	margin: 0 0 4px 0;
 	border-bottom: 1px solid transparent;
-	font: 13px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #0b66c3;
 	text-align: left;
 	-webkit-transition: border-bottom .3s;
@@ -923,7 +927,7 @@
 
 .im-phone-call-list-item-customer-info {
 	opacity: .8;
-	font: 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c68;
 	text-align: left;
 	margin-bottom: 3px;
@@ -945,7 +949,7 @@
 			transform: translateY(-50%);
 	color: #1058D0;
 	font-size:12px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	padding-right: 10px;
 	background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2IiBoZWlnaHQ9IjMiIHZpZXdCb3g9IjAgMCA2IDMiPiAgPHBvbHlnb24gZmlsbD0iIzUyNUM2OCIgZmlsbC1vcGFjaXR5PSIuNSIgZmlsbC1ydWxlPSJldmVub2RkIiBwb2ludHM9IjM4OCAxNjQgMzkxIDE2NyAzODUgMTY3IiB0cmFuc2Zvcm09Im1hdHJpeCgxIDAgMCAtMSAtMzg1IDE2NykiLz48L3N2Zz4=) no-repeat center right;
 	z-index: 2;
@@ -987,7 +991,7 @@
 	color: #c1c3c8;
 	cursor: pointer;
 	display: inline-block;
-	font: 12px "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin-bottom: 6px;
 	margin-left: 12px;
 	transition: all 0.3s ease 0s;
@@ -1065,7 +1069,7 @@
 
 /* FOLDED CALL CARD */
 .im-phone-call-font-s {
-	font: 11px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(255, 255, 255, .7);
 }
 .im-phone-call-wrapper.im-phone-call-wrapper-fixed.im-phone-call-panel {
@@ -1087,7 +1091,7 @@
 	border-bottom: 1px solid rgba(78, 88, 101, .59);
 	border-radius: 2px 2px 0 0;
 	background: #29303a;
-	font: 15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #fff;
 	-webkit-transition: top .3s;
 	transition: top .3s;
@@ -1125,7 +1129,7 @@
 	align-items: center;
 	margin: 0 0 5px 16px;
 	width: 100%;
-	font: 14px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #fff;
 }
 
@@ -1225,7 +1229,7 @@
 	-webkit-border-radius: 23px;
 	-moz-border-radius: 23px;
 	border-radius: 23px;
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 }
 
 .im-phone-call-panel-mini-buttons {
@@ -1247,7 +1251,8 @@
 	color: #fff;
 	font-size: 12px;
 	line-height: 31px;
-	font-family: "OpenSans-Bold", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	padding: 0 17px;
 	margin: 0 0 0 5px;
 	text-transform: uppercase;
@@ -1309,7 +1314,7 @@
 	border: 1px solid rgba(255,255,255,.34);
 	border-radius: 1px;
 	background: rgba(244,245,246,.13);
-	font: 12px/15px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: rgba(255,255,255,.6);
 	box-sizing: border-box;
 	outline: none;
@@ -1375,7 +1380,7 @@
 
 /* QUALITY GRADE POPUP */
 .im-phone-popup-rating {
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	padding: 8px 15px;
 	max-width: 112px;
 	box-shadow: 0 -6px 21px 0 rgba(83,92,105,0.2);
@@ -1502,7 +1507,7 @@
 	cursor: pointer;
 	color: #fff;
 	font-size: 13px;
-	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	-webkit-transition: .1s;
 	-o-transition: .1s;
 	transition: .1s;

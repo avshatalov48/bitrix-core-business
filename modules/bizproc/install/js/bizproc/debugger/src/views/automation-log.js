@@ -6,7 +6,6 @@ import {Helper} from "../helper";
 import {BaseEvent} from "main.core.events";
 import TriggerLog from "../tracker/trigger-log";
 import 'ui.fonts.robotomono';
-import {TrackingType} from "../tracker/types";
 
 export default class AutomationLogView
 {
@@ -31,6 +30,12 @@ export default class AutomationLogView
 	#shouldScrollToBottom: boolean = false;
 	#shouldLoadPreviousLog: boolean = false;
 
+	#onTrackAddedHandler: Function;
+	#onChangeTabHandler: Function;
+	#onSessionFinishedHandler: Function;
+	#autoScrollHandler: Function;
+	#scrollAnimationId;
+
 	constructor(debuggerInstance: Automation)
 	{
 		this.#debuggerInstance = debuggerInstance;
@@ -41,10 +46,14 @@ export default class AutomationLogView
 
 		if (this.debugger.session.isActive())
 		{
-			this.debugger.subscribe('onWorkflowTrackAdded', this.onTrackAdded.bind(this));
-			this.debugger.getMainView().subscribe('onChangeTab', this.#onChangeTab.bind(this));
+			this.#onTrackAddedHandler = this.onTrackAdded.bind(this);
+			this.debugger.subscribe('onWorkflowTrackAdded', this.#onTrackAddedHandler);
 
-			this.debugger.session.subscribe('onFinished', this.#onSessionFinished.bind(this));
+			this.#onChangeTabHandler = this.#onChangeTab.bind(this);
+			this.debugger.getMainView().subscribe('onChangeTab', this.#onChangeTabHandler);
+
+			this.#onSessionFinishedHandler = this.#onSessionFinished.bind(this);
+			this.debugger.session.subscribeOnce('onFinished', this.#onSessionFinishedHandler);
 		}
 	}
 
@@ -224,6 +233,8 @@ export default class AutomationLogView
 		if (Type.isUndefined(track))
 		{
 			this.#isRendering = false;
+			this.#askScrollToBottom();
+			this.#bindAutoScroll(this.#shouldScrollToBottom)
 
 			return;
 		}
@@ -419,7 +430,9 @@ export default class AutomationLogView
 	addTrack(track: TrackingEntry): void {
 		if (!this.#isRendering)
 		{
-			return this.renderTrack(track);
+			this.renderTrack(track);
+			this.#askScrollToBottom();
+			return;
 		}
 
 		this.#poolTrack.push(track);
@@ -454,7 +467,7 @@ export default class AutomationLogView
 				(new TriggerLog(this)).addTrack(track).render();
 				this.#trackId = track.id;
 			}
-			else if (track.name === 'Template' && track.type === TrackingType.ExecuteActivity)
+			else if (track.name === 'Template' && track.type === TrackingEntry.EXECUTE_ACTIVITY_TYPE)
 			{
 				if (Type.isUndefined(this.#poolWorkflowRobots[track.workflowId]) && this.#isRendering === false)
 				{
@@ -463,7 +476,7 @@ export default class AutomationLogView
 					this.#loadWorkflowRobotsByWorkflowId(track);
 				}
 			}
-			else if (track.name === 'Template' && track.type === TrackingType.CloseActivity)
+			else if (track.name === 'Template' && track.type === TrackingEntry.CLOSE_ACTIVITY_TYPE)
 			{
 				this.#clearWorkflowRobots(track.workflowId);
 			}
@@ -483,12 +496,7 @@ export default class AutomationLogView
 		if (event.getData().tab === 'log')
 		{
 			this.collapseInfoResults();
-
-			if (this.#shouldScrollToBottom)
-			{
-				this.#scrollToBottom();
-				this.#shouldScrollToBottom = false; // scroll once
-			}
+			this.#askScrollToBottom();
 		}
 	}
 
@@ -529,9 +537,109 @@ export default class AutomationLogView
 		return this;
 	}
 
+	#bindAutoScroll(state: boolean)
+	{
+		if (!this.logNode.parentNode)
+		{
+			return;
+		}
+
+		const scrollNode = this.logNode.parentNode;
+
+		if (state)
+		{
+			this.#autoScrollHandler = () => {
+				if (this.#scrollAnimationId)
+				{
+					return;
+				}
+				const scrollMax = scrollNode.scrollHeight - scrollNode.clientHeight;
+
+				this.#shouldScrollToBottom = (
+					scrollNode.scrollTop >= scrollMax - this.constructor.#NUMBER_OF_LINES_TO_SHOW_IN_PIXELS
+				);
+			}
+
+			Event.bind(scrollNode, 'scroll', this.#autoScrollHandler);
+		}
+		else if (this.#autoScrollHandler)
+		{
+			Event.unbind(scrollNode, 'scroll', this.#autoScrollHandler);
+		}
+	}
+
 	#scrollToBottom()
 	{
-		this.logNode.parentNode.scrollTop = this.logNode.parentNode?.scrollHeight;
+		if (!this.logNode.parentNode)
+		{
+			return;
+		}
+
+		const scrollNode = this.logNode.parentNode;
+
+		const from = scrollNode.scrollTop;
+		const to = scrollNode.scrollHeight - scrollNode.clientHeight;
+
+		this.#animateScroll(scrollNode, from, to);
+	}
+
+	#animateScroll(element, start, end)
+	{
+		this.#cancelAnimateScroll();
+
+		const increment = 20;
+		const duration = 500;
+
+		const diff = end - start;
+		let currentPosition = 0;
+
+		const requestFrame = (
+			window.requestAnimationFrame
+			|| window.webkitRequestAnimationFrame
+			|| window.mozRequestAnimationFrame
+			|| function(callback){return window.setTimeout(callback, 1000 / 60);}
+		);
+
+		const animateScroll = () =>
+		{
+			currentPosition += increment;
+
+			element.scrollTop = easeInOutQuad(currentPosition, start, diff, duration);
+			if (currentPosition < duration)
+			{
+				this.#scrollAnimationId = requestFrame(animateScroll);
+			}
+			else
+			{
+				this.#scrollAnimationId = null;
+			}
+		};
+
+		return animateScroll();
+	}
+
+	#cancelAnimateScroll()
+	{
+		if (this.#scrollAnimationId)
+		{
+			const cancelFrame = (
+				window.cancelAnimationFrame
+				|| window.webkitCancelAnimationFrame
+				|| window.mozCancelAnimationFrame
+				|| function(id){clearTimeout(id)}
+			);
+
+			cancelFrame(this.#scrollAnimationId);
+			this.#scrollAnimationId = null;
+		}
+	}
+
+	#askScrollToBottom(): this
+	{
+		if (this.#shouldScrollToBottom)
+		{
+			this.#scrollToBottom();
+		}
 	}
 
 	// endregion
@@ -544,7 +652,21 @@ export default class AutomationLogView
 
 	#onSessionFinished()
 	{
-		this.debugger.unsubscribe('onWorkflowTrackAdded', this.onTrackAdded.bind(this));
-		this.debugger.getMainView().unsubscribe('onChangeTab', this.#onChangeTab.bind(this));
+		this.debugger.unsubscribe('onWorkflowTrackAdded', this.#onTrackAddedHandler);
+		this.debugger.getMainView().unsubscribe('onChangeTab', this.#onChangeTabHandler);
 	}
 }
+
+const easeInOutQuad = function (current, start, diff, duration)
+{
+	current /= duration/2;
+
+	if (current < 1)
+	{
+		return diff / 2 * current * current + start;
+	}
+
+	current--;
+
+	return -diff/2 * (current*(current-2) - 1) + start;
+};

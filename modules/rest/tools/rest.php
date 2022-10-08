@@ -28,6 +28,10 @@ if($request->isPost() && check_bitrix_sessid() && \Bitrix\Main\Loader::includeMo
 			$from = $request['from'] ?? null;
 
 			$result = Application::install($code, $version, $checkHash, $installHash, $from);
+			if ($result['errorDescription'])
+			{
+				$result['error_description'] = $result['errorDescription'];
+			}
 		break;
 
 		case 'uninstall':

@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/process.bundle.css',
 	'js' => 'dist/process.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
 		'ui.progressbar',
 		'main.core.events',
 		'main.popup',

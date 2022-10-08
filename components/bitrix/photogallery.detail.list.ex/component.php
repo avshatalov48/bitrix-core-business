@@ -376,7 +376,7 @@ $cache = new CPHPCache;
 				Actions
 ********************************************************************/
 if (isset($_REQUEST["photo_list_action"]) && $_REQUEST["photo_list_action"] != "")
-	include(str_replace(array("\\", "//"), "/", dirname(__FILE__)."/action.php"));
+	include(str_replace(array("\\", "//"), "/", __DIR__."/action.php"));
 /********************************************************************
 				/Actions
 ********************************************************************/
@@ -404,7 +404,6 @@ if (!empty($arParams["ADDITIONAL_SIGHTS"]))
 	{
 		if ($GLOBALS["USER"]->IsAuthorized())
 		{
-			require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 			$arTemplateParams = CUserOptions::GetOption('photogallery', 'template');
 			$arTemplateParams = (!is_array($arTemplateParams) ? array() : $arTemplateParams);
 			$arParams["PICTURES_SIGHT"] = $arTemplateParams['sight'];

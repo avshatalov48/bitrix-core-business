@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use \Bitrix\Main\Localization\Loc;
 
 return array(
+	'old_id' => 9,
 	'code' => 'store-chats-dark/webform',
 	'name' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-WEBFORM-NAME'),
 	'description' => Loc::getMessage('LANDING_DEMO_STORE_CHATS_DARK-WEBFORM-DESC'),

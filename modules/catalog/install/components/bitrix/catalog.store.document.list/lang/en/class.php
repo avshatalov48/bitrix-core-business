@@ -17,6 +17,8 @@ $MESS["DOCUMENT_LIST_DOC_TYPE_M"] = "Transfer";
 $MESS["DOCUMENT_LIST_DOC_TYPE_S"] = "Stock adjustment";
 $MESS["DOCUMENT_LIST_DOC_TYPE_W"] = "Sales orders";
 $MESS["DOCUMENT_LIST_EMPTY_STORE_TITLE"] = "<Untitled>";
+$MESS["DOCUMENT_LIST_ERR_ACCESS_DENIED_BOX"] = "You do not have permission to access Inventory Management. Please contact your Bitrix24 administrator to get access. <a href=\"https://training.bitrix24.com/support/training/course/index.php?COURSE_ID=178&LESSON_ID=25118\" target=\"_blank\">Learn more</a> ";
+$MESS["DOCUMENT_LIST_ERR_ACCESS_DENIED_CLOUD"] = "You do not have permission to access Inventory Management. Please contact your Bitrix24 administrator to get access. The administrator will have to assign you the Manager role in the CRM settings. <a onclick=\"top.BX.Helper.show('redirect=detail&code=15955386')\" style=\"cursor: pointer; \">Learn more</a>";
 $MESS["DOCUMENT_LIST_NO_VIEW_RIGHTS_ERROR"] = "Insufficient permissions to view inventory object list.";
 $MESS["DOCUMENT_LIST_SELECT_GROUP_ACTION"] = "Select action";
 $MESS["DOCUMENT_LIST_STATUS_CANCELLED"] = "Canceled";

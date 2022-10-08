@@ -18,7 +18,7 @@ class BasketItem
 {
 	private const DISCOUNT_TYPE_MONETARY = 1;
 	private const DISCOUNT_TYPE_PERCENTAGE = 2;
-	private const BRAND_PROPERTY_CODE = 'BRAND_REF';
+	private const BRAND_PROPERTY_CODE = 'BRAND_FOR_FACEBOOK';
 
 	private $fields;
 	private $detailUrlType;
@@ -232,13 +232,24 @@ class BasketItem
 			return;
 		}
 
-		$formattedValues = $this->getFormattedProperty($property);
-		if ($formattedValues !== null && !empty($formattedValues['PROPERTY_VALUES']))
+		$userType = \CIBlockProperty::GetUserType($property->getUserType());
+		$userTypeMethod = $userType['GetUIEntityEditorProperty'];
+		$propertySettings = $property->getSettings();
+		$propertyValues = $property->getPropertyValueCollection()->getValues();
+		$description = $userTypeMethod($propertySettings, $propertyValues);
+		$propertyBrandItems = $description['data']['items'];
+
+		$selectedBrandItems = [];
+
+		foreach ($propertyBrandItems as $propertyBrandItem)
 		{
-			$this->fields['brands'] = array_unique(
-				array_column($formattedValues['PROPERTY_VALUES'], 'VALUE')
-			);
+			if (in_array($propertyBrandItem['VALUE'], $propertyValues, true))
+			{
+				$selectedBrandItems[] = $propertyBrandItem;
+			}
 		}
+
+		$this->fields['brands'] = $selectedBrandItems;
 	}
 
 	private function getFormattedProperty(Property $property): ?array
@@ -393,6 +404,14 @@ class BasketItem
 	public function setQuantity(float $value): self
 	{
 		$this->fields['quantity'] = $value;
+
+		return $this;
+	}
+
+	public function setId(string $value): self
+	{
+		$this->id = $value;
+		$this->fields['innerId'] = $value;
 
 		return $this;
 	}

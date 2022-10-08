@@ -1,5 +1,9 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Uri;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+
 IncludeModuleLangFile(__FILE__);
 
 if($_GET["back_url_pub"] <> "" && !is_array($_GET["back_url_pub"]) && mb_strpos($_GET["back_url_pub"], "/") === 0)
@@ -432,21 +436,20 @@ if ($USER->IsAuthorized()):
 	if(LANGUAGE_ID == "ru")
 	{
 		CJSCore::Init(array('helper'));
-		$helpUrl = CHTTP::urlAddParams('https://helpdesk.bitrix24.ru/widget2/dev/', array(
-				"url" => urlencode("https://".$_SERVER["HTTP_HOST"].$APPLICATION->GetCurPageParam()),
-				"user_id" => $USER->GetID(),
-				"is_admin" => $USER->IsAdmin() ? 1 : 0,
-				"help_url" => urlencode("http://dev.1c-bitrix.ru/user_help/".$section.(defined("HELP_FILE") && mb_strpos(HELP_FILE, '/') !== false?  HELP_FILE : $module."/".$page))
-			)
-		);
-		$frameOpenUrl = CHTTP::urlAddParams($helpUrl, array(
-				"action" => "open",
-			)
-		);
-		$frameCloseUrl = CHTTP::urlAddParams($helpUrl, array(
-				"action" => "close",
-			)
-		);
+		$helpUrl = (new Uri('https://helpdesk.bitrix24.ru/widget2/dev/'))->addParams([
+			"url" => "https://".$_SERVER["HTTP_HOST"].$APPLICATION->GetCurPageParam(),
+			"user_id" => $USER->GetID(),
+			"is_admin" => $USER->IsAdmin() ? 1 : 0,
+			"help_url" => "http://dev.1c-bitrix.ru/user_help/".$section.(defined("HELP_FILE") && mb_strpos(HELP_FILE, '/') !== false?  HELP_FILE : $module."/".$page),
+		]);
+
+		$frameOpenUrl = (clone $helpUrl)->addParams([
+			"action" => "open",
+		])->getUri();
+
+		$frameCloseUrl = (clone $helpUrl)->addParams([
+			"action" => "close",
+		])->getUri();
 		?>
 		<span class="adm-header-help-btn" id="bx_top_panel_button_helper" <?if (!isset($helperHeroOption["show"])):?>onclick="BX.userOptions.save('main', 'helper_hero_admin',  'show', 'Y');"<?endif?>>
 		   <span class="adm-header-help-btn-icon"></span>

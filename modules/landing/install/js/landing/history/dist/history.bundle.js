@@ -205,6 +205,7 @@ this.BX = this.BX || {};
 	      landing.currentBlock = block;
 	      return landing_pageobject.PageObject.getInstance().view().then(function (iframe) {
 	        landing.currentArea = iframe.contentDocument.body.querySelector("[data-landing=\"".concat(entry[state].lid, "\"]"));
+	        landing.insertBefore = entry[state].insertBefore;
 	        return landing.onAddBlock(entry[state].code, entry.block, true);
 	      });
 	    });
@@ -275,7 +276,7 @@ this.BX = this.BX || {};
 	    }
 
 	    return highlight$8(card.node);
-	  }).catch(function () {});
+	  })["catch"](function () {});
 	}
 
 	var _BX$Landing$Utils$9 = BX.Landing.Utils,
@@ -633,7 +634,7 @@ this.BX = this.BX || {};
 	    history.position = Math.min(main_core.Text.toNumber(landingData.position), history.stack.length - 1);
 	    history.state = landingData.state;
 	    return history;
-	  }).catch(function () {
+	  })["catch"](function () {
 	    return history;
 	  });
 	}
@@ -748,7 +749,7 @@ this.BX = this.BX || {};
 	        return command[state](entry).then(function () {
 	          history.commandState = RESOLVED;
 	          return history;
-	        }).catch(function () {
+	        })["catch"](function () {
 	          history.commandState = RESOLVED;
 	          return offset(history, offsetValue);
 	        });
@@ -976,7 +977,7 @@ this.BX = this.BX || {};
 	        }
 
 	        return Promise.reject();
-	      }).then(onUpdate).catch(function () {});
+	      }).then(onUpdate)["catch"](function () {});
 	    }
 	    /**
 	     * Handles storage event

@@ -7,6 +7,7 @@
  * @copyright 2001-2019 Bitrix
  */
 
+import 'ui.design-tokens';
 import "./status.css";
 import {BitrixVue} from "ui.vue";
 import {PullClient} from "pull.client";

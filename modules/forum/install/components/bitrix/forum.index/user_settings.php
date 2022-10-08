@@ -18,7 +18,6 @@ if(!function_exists("__UnEscape"))
 array_walk($_REQUEST, '__UnEscape');
 if ($GLOBALS["USER"]->IsAuthorized())
 {
-	require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/classes/".mb_strtolower($GLOBALS["DB"]->type)."/favorites.php");
 	$arGroup = CUserOptions::GetOption("forum", "GroupHidden", "");
 	$arGroup = (CheckSerializedData($arGroup) ? @unserialize($arGroup, ["allowed_classes" => false]) : array());
 

@@ -1,23 +1,23 @@
-import { Validation } from 'main.core';
-import { Tag } from 'main.core';
-import { Text } from 'main.core';
-import { Loc } from 'main.core';
+import { Tag, Loc, Validation } from 'main.core';
 import { SidePanelWrapper } from 'mail.sidepanelwrapper';
 import { MessageBox } from 'ui.dialogs.messagebox';
+import { Avatar } from 'mail.avatar';
+
 import './css/style.css';
 import '/bitrix/js/ui/forms/ui.forms.css';
 import 'ui.forms';
+import 'ui.alerts';
 
 export class DialogEditContact
 {
 	static getCheckedFields(contentElement)
 	{
 		const emailItem = contentElement.querySelector('[data-role="email-container"]');
-		const emailInput = emailItem.querySelector('[data-role="input"]');
+		const emailInput = emailItem.querySelector('[data-role="input-field"]');
 		const email = emailInput.value;
 
 		const nameItem = contentElement.querySelector('[data-role="name-container"]');
-		const nameInput = nameItem.querySelector('[data-role="input"]');
+		const nameInput = nameItem.querySelector('[data-role="input-field"]');
 		let name = nameInput.value;
 
 		let fieldsAreFilledCorrectly = true;
@@ -26,7 +26,7 @@ export class DialogEditContact
 		if (!Validation.isEmail(email))
 		{
 			fieldsAreFilledCorrectly = false;
-			emailItem.showError();
+			emailItem.showError(0);
 		}
 		else if (name.length < 1)
 		{
@@ -93,9 +93,16 @@ export class DialogEditContact
 
 	static saveContact(name, email, id)
 	{
+		const data = Avatar.getAvatarData({
+			fullName: name,
+			email: email,
+		});
+
 		let contactData = {
 			NAME: name,
 			EMAIL: email,
+			COLOR: data['color'],
+			INITIALS: data['abbreviation'],
 		};
 
 		if (id !== undefined)
@@ -110,65 +117,104 @@ export class DialogEditContact
 		});
 	}
 
-	static showError(item = this)
+	static showError(id=0)
 	{
-		let errorTitle = item.querySelector('[data-role="error-title"]');
-		errorTitle.style.display = 'block';
+		this.emailInputWrapper.classList.add('ui-ctl-danger');
+		BX.show(this.errorTitle[id]);
 	}
 
-	static hideError(item = this)
+	static hideError(id= 'all')
 	{
-		let errorTitle = item.querySelector('[data-role="error-title"]');
-		errorTitle.style.display = 'none';
+		this.emailInputWrapper.classList.remove('ui-ctl-danger');
+		if(id === 'all'){
+			this.errorTitle.forEach(element => {
+				BX.hide(element)
+			});
+			return;
+		}
+		BX.hide(this.errorTitle[id]);
 	}
 
-	static openDialog(titleText, contactConfig = {})
+	static openDialog(titleText, contactConfig = {
+		contactID: 'new'
+	})
 	{
-		let currentEmail = "";
-		let currentName = "";
+		const sliderId = 'dialogEditContact_' + contactConfig['contactID'];
+
+		let currentEmail = '';
+		let currentName = '';
+		let disablingEmailInputClass = '';
+		let disablingEmailInputAttribute = '';
 
 		if (contactConfig['contactData'] !== undefined)
 		{
-			currentName = Text.encode(contactConfig['contactData']['name']);
-			currentEmail = Text.encode(contactConfig['contactData']['email']);
+			currentName = contactConfig['contactData']['name'];
+			currentEmail = contactConfig['contactData']['email'];
+			disablingEmailInputClass = 'ui-ctl-disabled';
+			disablingEmailInputAttribute = 'disabled';
 		}
 
-		let content = Tag.render`
-			<div>
-				<div data-role="name-container" class="mail-addressbook-dialogeditcontact-item">
-					<label class="mail-addressbook-dialogeditcontact-lable">${Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_NAME_TITLE")}
-						<div id="mail-addressbook-dialogeditcontact-contact-email-container" class="ui-ctl ui-ctl-textbox mail-addressbook-dialogeditcontact-field">
-							<input data-role = "input" value="${currentName}" class="ui-ctl-element" placeholder="">
-						</div>
-					</label>
-					<div data-role = "error-title" class="mail-addressbook-dialogeditcontact-contact-error"></div>
-				</div>
-				<div data-role="email-container" class="mail-addressbook-dialogeditcontact-item">
-					<label class="mail-addressbook-dialogeditcontact-lable">${Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_EMAIL_TITLE")}
-						<div id="mail-addressbook-dialogeditcontact-contact-email-container" class="ui-ctl ui-ctl-textbox mail-addressbook-dialogeditcontact-field">
-							<input data-role = "input" value="${currentEmail}" class="ui-ctl-element" placeholder="info@example.com">
-						</div>
-					</label>
-					<div data-role = "error-title" class="mail-addressbook-dialogeditcontact-contact-error">${Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_EMAIL_ERROR")}</div>			
-				</div>
-			</div>`;
+		const emailInput = Tag.render`<input data-role="input-field" type="text" class="ui-ctl-element" value="" placeholder="info@example.com"  ${disablingEmailInputAttribute}>`;
+		const emailInputWrapper = Tag.render`<div class="ui-ctl ui-ctl-textbox ui-ctl-w100 ${disablingEmailInputClass}">
+			${emailInput}
+		</div>`;
+		emailInput.value = currentEmail;
 
-		let emailItem = content.querySelector('[data-role="email-container"]');
+		const errorTitleEmailIsIncorrect = Tag.render`<div class="ui-alert ui-alert-danger mail-addressbook-error-box">
+			<span class="ui-alert-message">${Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_EMAIL_ERROR")}</span>
+		</div>`;
+
+		const errorTitleEmailIsAlreadyExists = Tag.render`<div class="ui-alert ui-alert-danger mail-addressbook-error-box">
+			<span class="ui-alert-message">${Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_EMAIL_ERROR_EMAIL_IS_ALREADY_EXISTS")}</span>
+			<br>
+		</div>`;
+
+		const openEditSliderBtn = errorTitleEmailIsAlreadyExists.querySelector('[data-role="contact-email"]')
+
+		const emailItem = Tag.render`<div data-role="email-container" class="mail-addressbook-dialogeditcontact-item">
+			<label class="mail-addressbook-dialogeditcontact-lable">${Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_EMAIL_TITLE")}
+				<div id="mail-addressbook-dialogeditcontact-contact-email-container" class="ui-ctl ui-ctl-textbox mail-addressbook-dialogeditcontact-field">
+					${emailInputWrapper}
+				</div>
+			</label>
+			${errorTitleEmailIsIncorrect}
+			${errorTitleEmailIsAlreadyExists}
+		</div>`;
+
+		const nameInput = Tag.render`<input data-role="input-field" type="text" class="ui-ctl-element" value="" placeholder="">`;
+		const nameInputWrapper = Tag.render`<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
+			${nameInput}
+		</div>`;
+		nameInput.value = currentName;
+
+		const nameItem = Tag.render`<div data-role="name-container" class="mail-addressbook-dialogeditcontact-item">
+			<label class="mail-addressbook-dialogeditcontact-lable">${Loc.getMessage("MAIL_DIALOG_EDIT_CONTACT_NAME_TITLE")}
+				<div id="mail-addressbook-dialogeditcontact-contact-email-container" class="ui-ctl ui-ctl-textbox mail-addressbook-dialogeditcontact-field">
+					${nameInputWrapper}
+				</div>
+			</label>
+		</div>`;
+
+		let content = Tag.render`
+		<div>
+			${nameItem}
+			${emailItem}
+		</div>`;
+
+		emailItem.errorTitle = [
+			errorTitleEmailIsIncorrect,
+			errorTitleEmailIsAlreadyExists
+		];
+
+		emailItem.emailInputWrapper = emailInputWrapper;
 		emailItem.showError = this.showError;
 		emailItem.hideError = this.hideError;
+		emailItem.hideError();
 
-		let nameItem = content.querySelector('[data-role="name-container"]');
-		nameItem.showError = this.showError;
-		nameItem.hideError = this.hideError;
-
-		let emailInput = emailItem.querySelector('[data-role="input"]');
 		emailInput.oninput = () => emailItem.hideError();
 
-		let nameInput = nameItem.querySelector('[data-role="input"]');
-		nameInput.oninput = () => nameItem.hideError();
-
 		SidePanelWrapper.open({
-			id: 'dialogEditContact',
+			id: sliderId,
 			titleText: titleText,
 			footerIsActive: true,
 			content: content,
@@ -184,9 +230,30 @@ export class DialogEditContact
 					{
 						eventObject.setClocking(true);
 
-						this.saveContact(checkedFields['name'], checkedFields['email'], contactConfig['contactID']).then(() => {
+						this.saveContact(checkedFields['name'], checkedFields['email'], contactConfig['contactID']).then((response) => {
+							BX.SidePanel.Instance.postMessageAll(sliderId, 'dialogEditContact::reloadList', {});
 							BX.SidePanel.Instance.close();
-							BX.SidePanel.Instance.postMessageAll('mail:side-panel', 'dialogEditContact::reloadList', {});
+						}).catch((response) => {
+							const message = response.errors.pop().message.pop();
+							if(message['ID'])
+							{
+								eventObject.setClocking(false);
+								openEditSliderBtn.onclick = () => {
+									this.openEditDialog({
+										contactID: Number(message['ID']),
+										contactData: {
+											name: message['NAME'],
+											email: message['EMAIL'],
+										},
+									})
+								};
+								emailItem.showError(1);
+							}
+							else
+							{
+								BX.SidePanel.Instance.postMessageAll(sliderId, 'dialogEditContact::reloadList', {});
+								BX.SidePanel.Instance.close();
+							}
 						});
 					}
 				},

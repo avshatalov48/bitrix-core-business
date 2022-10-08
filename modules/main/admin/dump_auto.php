@@ -21,7 +21,7 @@ if(!$USER->CanDoOperation('edit_php'))
 if(!defined("START_EXEC_TIME"))
 	define("START_EXEC_TIME", microtime(true));
 
-IncludeModuleLangFile(dirname(__FILE__).'/dump.php');
+IncludeModuleLangFile(__DIR__.'/dump.php');
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/backup.php");
 $strBXError = '';

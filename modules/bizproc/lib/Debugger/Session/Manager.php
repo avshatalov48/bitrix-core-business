@@ -13,6 +13,9 @@ class Manager
 	public const ERROR_INCORRECT_MODE = 'INCORRECT DEBUGGER MODE';
 	public const ERROR_DEBUGGER_ALREADY_STARTED = 'DEBUGGER IS ALREADY STARTED';
 
+	private static ?Session $activeSession = null;
+	private static bool $isActiveSessionChecked = false;
+
 	private static function getList(array $filter = []): ?Session
 	{
 		return DebuggerSessionTable::getList([
@@ -23,12 +26,28 @@ class Manager
 
 	public static function getActiveSession(): ?Session
 	{
-		return static::getList(['=ACTIVE' => 'Y']);
+		if (!self::$isActiveSessionChecked)
+		{
+			self::setActiveSession(static::getList(['=ACTIVE' => 'Y']));
+		}
+
+		return self::$activeSession;
 	}
 
 	public static function getSessionById(string $sessionId): ?Session
 	{
-		return static::getList(['=ID' => $sessionId]);
+		if (self::$activeSession && self::$activeSession->getId() === $sessionId)
+		{
+			return self::$activeSession;
+		}
+
+		$session = static::getList(['=ID' => $sessionId]);
+		if ($session && $session->isActive())
+		{
+			self::setActiveSession($session);
+		}
+
+		return $session;
 	}
 
 	public static function startSession(array $parameterDocumentType, int $mode, int $userId, int $categoryId = 0)
@@ -50,12 +69,8 @@ class Manager
 			->setStartedBy($userId)
 			//->setStartedDate(new \Bitrix\Main\Type\DateTime())
 			->setActive(true)
+			->setDocumentCategoryId($categoryId)
 		;
-
-		if ($categoryId > 0)
-		{
-			$session->setDocumentCategoryId($categoryId);
-		}
 
 		$activeSession = self::getActiveSession();
 		if ($activeSession)
@@ -65,8 +80,30 @@ class Manager
 				['session' => $activeSession]
 			);
 		}
+		self::clearStaticCache();
 
-		return $session->save();
+		$result = $session->save();
+		if ($result->isSuccess())
+		{
+			/** @var Session $sessionFromResult */
+			$sessionFromResult = $result->getObject();
+			$sessionFromResult->fillWorkflowContexts();
+			$sessionFromResult->fillDocuments();
+			self::setActiveSession($sessionFromResult);
+		}
+
+		return $result;
+	}
+
+	public static function finishSession(Session $session)
+	{
+		$result = $session->finish();
+		if ($result->isSuccess())
+		{
+			self::clearStaticCache();
+		}
+
+		return $result;
 	}
 
 	public static function canUserStartSession(int $userId, array $parameterDocumentType): bool
@@ -197,5 +234,17 @@ class Manager
 			$documentType[0] === 'crm'
 			&& $documentType[2] === 'DEAL'
 		);
+	}
+
+	private static function setActiveSession(?Session $activeSession)
+	{
+		self::$activeSession = $activeSession;
+		self::$isActiveSessionChecked = true;
+	}
+
+	private static function clearStaticCache()
+	{
+		self::$activeSession = null;
+		self::$isActiveSessionChecked = false;
 	}
 }

@@ -16,7 +16,7 @@ if (!CModule::IncludeModule('learning'))
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/prolog.php");
 Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__);
-Bitrix\Main\Localization\Loc::loadLanguageFile(dirname(__FILE__)."/learn_question_edit.php");
+Bitrix\Main\Localization\Loc::loadLanguageFile(__DIR__."/learn_question_edit.php");
 
 
 

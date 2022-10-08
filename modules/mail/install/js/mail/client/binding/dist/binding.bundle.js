@@ -5,6 +5,10 @@ this.BX.Mail = this.BX.Mail || {};
 
 	var _templateObject;
 
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
 
 	function _classCheckPrivateStaticFieldDescriptor(descriptor, action) { if (descriptor === undefined) { throw new TypeError("attempted to " + action + " private static field before its declaration"); } }
@@ -83,67 +87,67 @@ this.BX.Mail = this.BX.Mail || {};
 	    };
 	    babelHelpers.classCallCheck(this, Item);
 
-	    _text.set(this, {
+	    _classPrivateFieldInitSpec(this, _text, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _active.set(this, {
+	    _classPrivateFieldInitSpec(this, _active, {
 	      writable: true,
 	      value: false
 	    });
 
-	    _id.set(this, {
+	    _classPrivateFieldInitSpec(this, _id, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _href.set(this, {
+	    _classPrivateFieldInitSpec(this, _href, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _bindingType.set(this, {
+	    _classPrivateFieldInitSpec(this, _bindingType, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _wait.set(this, {
+	    _classPrivateFieldInitSpec(this, _wait, {
 	      writable: true,
 	      value: false
 	    });
 
-	    _node.set(this, {
+	    _classPrivateFieldInitSpec(this, _node, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _messageId.set(this, {
+	    _classPrivateFieldInitSpec(this, _messageId, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _messageSimpleId.set(this, {
+	    _classPrivateFieldInitSpec(this, _messageSimpleId, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _createHref.set(this, {
+	    _classPrivateFieldInitSpec(this, _createHref, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _waitCSSClassName.set(this, {
+	    _classPrivateFieldInitSpec(this, _waitCSSClassName, {
 	      writable: true,
 	      value: 'ui-btn-wait'
 	    });
 
-	    _errorType.set(this, {
+	    _classPrivateFieldInitSpec(this, _errorType, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _phrases.set(this, {
+	    _classPrivateFieldInitSpec(this, _phrases, {
 	      writable: true,
 	      value: {
 	        'crm': 'MAIL_BINDING_CRM_',
@@ -154,7 +158,7 @@ this.BX.Mail = this.BX.Mail || {};
 	      }
 	    });
 
-	    _phrasesFull.set(this, {
+	    _classPrivateFieldInitSpec(this, _phrasesFull, {
 	      writable: true,
 	      value: {
 	        'crm': 'MAIL_BINDING_CRM_TITLE',
@@ -165,7 +169,7 @@ this.BX.Mail = this.BX.Mail || {};
 	      }
 	    });
 
-	    _classes.set(this, {
+	    _classPrivateFieldInitSpec(this, _classes, {
 	      writable: true,
 	      value: {
 	        'crm': 'mail-binding-crm',
@@ -365,6 +369,10 @@ this.BX.Mail = this.BX.Mail || {};
 	  }
 	};
 
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	var _mailboxId = /*#__PURE__*/new WeakMap();
 
 	var _selectors = /*#__PURE__*/new WeakMap();
@@ -382,12 +390,12 @@ this.BX.Mail = this.BX.Mail || {};
 
 	    babelHelpers.classCallCheck(this, Binding);
 
-	    _mailboxId.set(this, {
+	    _classPrivateFieldInitSpec$1(this, _mailboxId, {
 	      writable: true,
 	      value: void 0
 	    });
 
-	    _selectors.set(this, {
+	    _classPrivateFieldInitSpec$1(this, _selectors, {
 	      writable: true,
 	      value: {
 	        CRM_ACTIVITY: '.mail-binding-crm',

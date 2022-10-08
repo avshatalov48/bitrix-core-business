@@ -4,11 +4,11 @@
 \Bitrix\Main\Loader::includeModule('socialnetwork');
 
 \Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
 	'ui.viewer',
 	'ui.tooltip',
 	'socnetlogdest',
 	'bp_user_selector',
-	'ui.design-tokens',
 ]);
 
 $cmpId = RandString();

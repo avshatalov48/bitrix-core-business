@@ -9,23 +9,23 @@ final class LazySessionStart implements \ArrayAccess
 {
 	private static $instance;
 
-	public static function register()
+	public static function register(): void
 	{
-		if (static::$instance)
+		if (self::$instance)
 		{
 			throw new InvalidOperationException("LazySessionStart was already registered.");
 		}
 
-		// It's very important to make link to object LazySessionStart,
+		// It's very important to make a reference to the LazySessionStart object,
 		// because when somebody uses $_SESSION['d'] += $value;
-		// it converts to: offsetGet & offsetSet. But php destroys
-		// object because it'll be last reference and offsetSet crashes.
-		$_SESSION = static::$instance = new static();
+		// it converts to: offsetGet & offsetSet. But PHP destroys
+		// the object because it'll be the last reference and offsetSet crashes.
+		$_SESSION = self::$instance = new self();
 	}
 
-	protected function start()
+	protected function start(): void
 	{
-		if ($this->isSessionAlreadyClosed() && headers_sent())
+		if ($this->isSessionAlreadyClosed() && !Application::getInstance()->getSession()->isAccessible())
 		{
 			$this->writeToLogError(
 				new \RuntimeException(

@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Bizproc\Workflow\Template\Packer;
 
 use Bitrix\Bizproc\Workflow\Template\Entity\WorkflowTemplateTable;
@@ -205,7 +206,7 @@ class Bpt extends BasePacker
 		return $conditions;
 	}
 
-	private static function ConvertValueCharset($s, $direction)
+	private static function convertValueCharset($s, $direction)
 	{
 		if ("utf-8" == mb_strtolower(LANG_CHARSET))
 			return $s;
@@ -225,7 +226,7 @@ class Bpt extends BasePacker
 		return $s;
 	}
 
-	private static function ConvertArrayCharset($value, $direction = self::DIRECTION_EXPORT)
+	private static function convertArrayCharset($value, $direction = self::DIRECTION_EXPORT)
 	{
 		if (is_array($value))
 		{

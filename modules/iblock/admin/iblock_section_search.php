@@ -3,6 +3,10 @@
 /** @global CUser $USER */
 /** @global CDatabase $DB */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
+
+use Bitrix\Main\Loader;
+use Bitrix\Catalog;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 CModule::IncludeModule("iblock");
 IncludeModuleLangFile(__FILE__);
@@ -359,6 +363,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 			"ACTION"=>"javascript:SelEl('".($get_xml_id? $f_XML_ID: $f_ID)."', '".htmlspecialcharsbx($jsPath.htmlspecialcharsbx(CUtil::JSEscape($arRes["NAME"]), ENT_QUOTES)).$nameSeparator."')",
 		),
 	));
+	unset($row);
 }
 
 $lAdmin->AddFooter(
@@ -588,8 +593,34 @@ if (!$iblockFix)
 	$iblockFilter = array(
 		'MIN_PERMISSION' => 'S'
 	);
+
+	$hideIblockList = [];
 	if ($hideIblockId > 0)
-		$iblockFilter['!ID'] = $hideIblockId;
+	{
+		$hideIblockList[] = $hideIblockId;
+	}
+	if ($boolDiscount && Loader::includeModule('catalog'))
+	{
+		$iterator = Catalog\CatalogIblockTable::getList([
+			'select'=> [
+				'IBLOCK_ID',
+			],
+			'filter' => [
+				'!=PRODUCT_IBLOCK_ID' => 0,
+			]
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$hideIblockList[] = (int)$row['IBLOCK_ID'];
+		}
+		unset($row, $iterator);
+	}
+
+	if (!empty($hideIblockList))
+	{
+		$iblockFilter['!ID'] = $hideIblockList;
+	}
+	unset($hideIblockList);
 	?><tr>
 		<td><b><?echo GetMessage("IBLOCK_SECSEARCH_IBLOCK")?></b></td>
 		<td><?echo GetIBlockDropDownListEx(

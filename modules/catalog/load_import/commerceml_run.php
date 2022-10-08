@@ -401,7 +401,7 @@ $activateFileData = (isset($activateFileData) && 'Y' == $activateFileData ? 'Y' 
 
 global $nameUTF;
 $nameUTF = array();
-include(dirname(__FILE__).'/ru/commerceml_run_name.php');
+include(__DIR__.'/ru/commerceml_run_name.php');
 if (!isset($nameUTF) || !is_array($nameUTF) || empty($nameUTF))
 	$strImportErrorMessage .= GetMessage('CAT_ADM_CML1_IMP_ERR_NAMEUTF').'<br>';
 
@@ -873,7 +873,7 @@ if ('' === $strImportErrorMessage)
 
 	global $arCurrencies;
 	$arCurrencies = array();
-	include(dirname(__FILE__).'/ru/commerceml_run_cur.php');
+	include(__DIR__.'/ru/commerceml_run_cur.php');
 	if (!isset($arCurrencies) || !is_array($arCurrencies) || empty($arCurrencies))
 		$strImportErrorMessage .= GetMessage('CAT_ADM_CML1_IMP_ERR_CMLCUR').'<br>';
 

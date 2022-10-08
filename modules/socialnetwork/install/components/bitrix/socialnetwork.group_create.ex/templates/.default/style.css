@@ -1,10 +1,4 @@
 .socialnetwork-group-create-ex__scope {
-	--font_os_light: 	"OpenSans-Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	--font_os_regular: 	"OpenSans-Regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	--font_os_semibold: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	--font_os_bold: 	"OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	--font_helvetica:	"Helvetica Neue", Helvetica, Arial, sans-serif;
-
 	--white: rgba(255,255,255,1);
 	--white_alpha_10: rgba(255,255,255,.1);
 	--white_alpha_15: rgba(255,255,255,.15);
@@ -42,6 +36,7 @@
 body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 	padding: 15px 15px 20px;
 	background-color: #fff;
+	border-radius: var(--ui-border-radius-sm);
 }
 
 .socialnetwork-group-create-ex__text {
@@ -129,7 +124,8 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 .socialnetwork-group-create-ex__head--container {
 	flex: 1;
 	padding-right: var(--padding-space);
-	font-family: var(--font_os_light);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
 }
 
 .socialnetwork-group-create-ex__head--title {
@@ -172,7 +168,8 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 	padding-right: 32px;
 	position: relative;
 	vertical-align: top;
-	font-family: var(--font_os_bold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	font-size: 14px;
 	line-height: 25px;
 	color: var(--graphite_alpha_50);
@@ -234,7 +231,8 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 	display: block;
 	max-width: 520px;
 	margin-bottom: 22px;
-	font-family: var(--font_os_regular);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	font-size: 19px;
 	color: var(--blue);
 	line-height: 24px;
@@ -363,12 +361,13 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 .socialnetwork-group-create-ex__group-selector--title {
 	position: relative;
 	margin-bottom: 7px;
-	font: 18px/16px var(--font_os_semibold);
+	font: 18px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: var(--gray);
 }
 
 .socialnetwork-group-create-ex__group-selector--description {
-	font: 14px/18px var(--font_helvetica);
+	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #646f86;
 }
 
@@ -384,7 +383,8 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 	padding: 0 5px;
 	background: var(--gray);
 	opacity: .8;
-	font-family: var( --font_os_semibold);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: var( --white);
 	font-size: 10px;
 	border-radius: 8px;
@@ -487,7 +487,7 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 .socialnetwork-group-create-ex__project-logo--title,
 .socialnetwork-group-create-ex__project-background--title {
 	margin-bottom: 20px;
-	font: 14px/20px var(--font_helvetica);
+	font: 14px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: var(--graphite);
 }
 
@@ -499,7 +499,8 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 	margin: 0;
 	padding: 0 10px;
 	background: rgba(0,0,0,.5);
-	font: 11px/26px var(--font_os_regular);
+	font: 11px/26px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: var(--white);
 	white-space: nowrap;
 	overflow: hidden;
@@ -770,7 +771,7 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 	text-align: left;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-	font: 400 14px var(--font_helvetica);
+	font: 400 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	transition: border .3s ease, background-color .3s ease, color .3s ease, padding .3s ease;
 	flex: 1;
 	appearance: none;
@@ -795,7 +796,7 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 	display: flex;
 	align-items: center;
 	padding: 0 0 7px;
-	font: 13px/18px var(--font_helvetica);
+	font: 13px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	color: var(--graphite);
 	line-height: 17px;
@@ -812,8 +813,8 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 }
 
 .ui-ctl-label-text.--bold {
-	font: 13px/16px var(--font_helvetica);
-	font-weight: bold;
+	font: 13px/16px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
 	color: #000;
 }
 
@@ -839,7 +840,7 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 	padding: 0 10px;
 	border-radius: 2px;
 	box-sizing: border-box;
-	font-family: var(--font_helvetica);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 11px;
 	color: var(--graphite);
 	cursor: pointer;

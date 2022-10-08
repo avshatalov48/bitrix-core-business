@@ -1,18 +1,18 @@
 /* Personal Messages */
-.pm-messages-notification { 
-	display: inline-block; 
-	position:absolute; 
-	z-index:500; 
-	height:26px; 
+.pm-messages-notification {
+	display: inline-block;
+	position:absolute;
+	z-index:500;
+	height:26px;
 	cursor:pointer;
 }
-.pm-messages-alert { 
+.pm-messages-alert {
 	left:600px;
 }
 
 .pm-messages-notification span, .pm-messages-notification a {display:inline-block; height: 26px; vertical-align:top;}
 .pm-messages-notification-left, .pm-messages-notification-right {  width: 3px;  }
-.pm-messages-notification-text { white-space: nowrap; color: #fff; padding:0 20px 0 7px; font: bold 12px/22px Verdana, Tahoma, sans-serif;}
+.pm-messages-notification-text { white-space: nowrap; color: #fff; padding:0 20px 0 7px; font: var(--ui-font-weight-bold) 12px/22px Verdana, Tahoma, sans-serif;}
 .pm-messages-notification-text-text { padding-left:5px;}
 .pm-messages-notification-close, .pm-messages-notification-close span { width:20px; cursor:pointer; }
 
@@ -21,7 +21,7 @@
 .pm-messages-notification .pm-messages-notification-right { background: url(images/pm-messages-sprite.png) no-repeat -3px 0; }
 .pm-messages-notification .pm-messages-notification-close { background: url(images/pm-messages-sprite.png) repeat-x 0 -26px; }
 .pm-messages-notification .pm-messages-notification-close span { background: url(images/pm-messages-sprite.png) no-repeat -159px 0; }
-.pm-messages-notification .pm-messages-notification-close:hover span { background: url(images/pm-messages-sprite.png) no-repeat -134px 0;} 
+.pm-messages-notification .pm-messages-notification-close:hover span { background: url(images/pm-messages-sprite.png) no-repeat -134px 0;}
 
 
 .pm-messages-alert .pm-messages-notification-left { background: url(images/pm-messages-sprite.png) no-repeat -19px 0; }
@@ -74,8 +74,8 @@
 .pm-messages-box-bottom-center { margin: 0 8px; height:9px; background:url(images/pm-messages-sprite.png) repeat-x 0 -91px;}
 
 .pm-messages-box-title { height: 26px; background: #e0efda;  padding: 0 0 0 14px; position:relative;}
-.pm-messages-box-alert .pm-messages-box-title { background: #fbf3c2; } 
-.pm-messages-box-title span { color: #000 !important; font: normal normal normal 15px/25px Arial, Helvetica, sans-serif !important; height:26px; display:block; margin:0 27px 0 0; cursor:move;}
+.pm-messages-box-alert .pm-messages-box-title { background: #fbf3c2; }
+.pm-messages-box-title span { color: #000 !important; font: normal normal normal 15px/25px var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important; height:26px; display:block; margin:0 27px 0 0; cursor:move;}
 .pm-messages-box-title a { width: 26px; height: 26px; position:absolute; top:0; right:0; background:url(images/pm-messages-sprite.png) -98px 2px no-repeat; outline:none; cursor:pointer;}
 
 .pm-messages-box-profile { margin: 7px 14px 1px 14px; overflow:hidden; position:relative; border-bottom: 1px solid #e2e2e2; padding:0 0 7px 0; zoom:1;}
@@ -107,11 +107,11 @@
 .pm-messages-box-larr:hover, .pm-messages-box-rarr:hover { background-color: #eee;}
 .pm-messages-box-paging i { margin:0 3px 0 6px;}
 .pm-messages-box-paging b { margin:0 6px 0 3px;}
-.pm-messages-box-paging i { color:#0069c4 !important; font-weight:bold !important;}
+.pm-messages-box-paging i { color:#0069c4 !important; font-weight:var(--ui-font-weight-bold) !important;}
 .pm-messages-box-paging span, .pm-messages-box-paging b { color: #a1a1a1 !important;}
 
 .pm-messages-box-buttons label { font: normal normal normal 11px/normal Verdana, Tahoma, sans-serif !important; color:#999 !important; vertical-align:middle; margin: 0 3px 0 3px;}
-.pm-messages-box-buttons input { vertical-align:middle; font: normal normal normal 13px/normal Arial, Helvetica, sans-serif !important; margin: 0 0 0 10px;}
+.pm-messages-box-buttons input { vertical-align:middle; font: normal normal normal 13px/normal var(--ui-font-family-primary, var(--ui-font-family-helvetica)) !important; margin: 0 0 0 10px;}
 
 * html .pm-messages-box { background:none; }
 * html .pm-messages-box-inner { border: 2px solid #d1d1d1;}

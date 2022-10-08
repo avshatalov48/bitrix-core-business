@@ -3817,7 +3817,8 @@
 								undo: {
 									currentBlock: prevBlock ? prevBlock.id : null,
 									lid: this.lid,
-									code: this.manifest.code
+									code: this.manifest.code,
+									insertBefore: prevBlock ? false : true
 								},
 								redo: ""
 							})

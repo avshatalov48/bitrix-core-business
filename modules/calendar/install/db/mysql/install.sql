@@ -189,14 +189,57 @@ create table b_calendar_location
   SECTION_ID int not null,
   NECESSITY char(1) default 'N',
   CAPACITY int default 0,
+  CATEGORY_ID int default null,
   PRIMARY KEY(ID),
   INDEX ix_location_section(SECTION_ID)
 );
 
-create table `b_calendar_log`
+create table b_calendar_log
 (
   ID int not null auto_increment,
   TIMESTAMP_X TIMESTAMP NOT NULL DEFAULT current_timestamp,
   MESSAGE TEXT NULL,
   PRIMARY KEY(ID)
-)
+);
+
+create table b_calendar_section_connection
+(
+	ID int NOT NULL AUTO_INCREMENT,
+	SECTION_ID int NOT NULL,
+	CONNECTION_ID int NOT NULL,
+	VENDOR_SECTION_ID varchar(255) NOT NULL,
+	SYNC_TOKEN text,
+	PAGE_TOKEN text,
+	ACTIVE char(1) DEFAULT 'Y',
+	LAST_SYNC_DATE datetime DEFAULT NULL,
+	LAST_SYNC_STATUS varchar(10) DEFAULT NULL,
+	VERSION_ID varchar(255) DEFAULT NULL,
+	IS_PRIMARY char(1) DEFAULT 'N',
+	PRIMARY KEY (ID),
+	INDEX ix_cal_section_con_section_id (SECTION_ID),
+	INDEX ix_cal_section_con_connection_id (CONNECTION_ID)
+);
+
+create table b_calendar_event_connection
+(
+	ID int NOT NULL AUTO_INCREMENT,
+	EVENT_ID int NOT NULL,
+	CONNECTION_ID int NOT NULL,
+	VENDOR_EVENT_ID varchar(255) DEFAULT NULL,
+	SYNC_STATUS varchar(20) DEFAULT NULL,
+	RETRY_COUNT int DEFAULT 0 COMMENT 'Retry count of sending event to vendor, if sync status is not success',
+	ENTITY_TAG varchar(255) DEFAULT NULL COMMENT 'Version of vendor event',
+	VERSION varchar(255) DEFAULT NULL COMMENT 'Version of internal event',
+	VENDOR_VERSION_ID varchar(255) DEFAULT NULL,
+	RECURRENCE_ID varchar(255) DEFAULT NULL,
+	DATA text DEFAULT NULL,
+	PRIMARY KEY (ID),
+	INDEX ix_cal_event_con_event_id (EVENT_ID),
+	INDEX ix_cal_event_con_connection_id (CONNECTION_ID)
+);
+
+CREATE TABLE b_calendar_room_category (
+	ID int NOT NULL AUTO_INCREMENT,
+	NAME  varchar(255) NULL,
+	PRIMARY KEY (ID)
+);

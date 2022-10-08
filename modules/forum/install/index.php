@@ -179,7 +179,7 @@ class forum extends CModule
 		
 		if (!$GLOBALS["DB"]->Query("SELECT 'x' FROM b_forum", true))
 		{
-			$this->errors = $GLOBALS["DB"]->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/".$GLOBALS["DBType"]."/install.sql");
+			$this->errors = $GLOBALS["DB"]->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/mysql/install.sql");
 			
 			if($this->errors !== false)
 			{
@@ -238,7 +238,7 @@ class forum extends CModule
 			$db_res = $GLOBALS["DB"]->Query("SELECT ID FROM b_forum_pm_folder WHERE USER_ID IS NULL OR USER_ID <= 0");
 			if (!($db_res && $res = $db_res->Fetch()))
 			{
-				$this->errors = $GLOBALS["DB"]->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/".$GLOBALS["DBType"]."/install2.sql");
+				$this->errors = $GLOBALS["DB"]->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/mysql/install2.sql");
 			}
 		}
 		if ($arInstall["INSTALL_FILTER"] == "Y")
@@ -261,8 +261,8 @@ class forum extends CModule
 					GROUP BY FD.ID", True);
 					if (!($tmp_res_q && ($res = $tmp_res_q->Fetch())))
 					{
-						if(file_exists(	$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/".$GLOBALS["DBType"]."/".$site["LID"]."/".$site["LID"].".sql"))
-							$this->errors = $GLOBALS["DB"]->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/".$GLOBALS["DBType"]."/".$site["LID"]."/".$site["LID"].".sql");
+						if(file_exists(	$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/mysql/".$site["LID"]."/".$site["LID"].".sql"))
+							$this->errors = $GLOBALS["DB"]->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/mysql/".$site["LID"]."/".$site["LID"].".sql");
 					}
 					if ($site["LID"] == "ru")
 					{
@@ -310,21 +310,11 @@ class forum extends CModule
 				CFile::Delete($res["ID"]);
 			if ($DB->TableExists("b_forum_smile") || $DB->TableExists("B_FORUM_SMILE"))
 			{
-				if ($DB->type == "ORACLE")
-				{
-					$DB->Query("DROP TABLE B_FORUM_SMILE CASCADE CONSTRAINTS");
-					$DB->Query("DROP SEQUENCE sq_B_FORUM_SMILE");
-					$DB->Query("DROP TABLE B_FORUM_SMILE_LANG CASCADE CONSTRAINTS");
-					$DB->Query("DROP SEQUENCE SQ_B_FORUM_SMILE_LANG");
-				}
-				else
-				{
-					$DB->Query("DELETE FROM b_forum_smile");
-					$DB->Query("DROP TABLE b_forum_smile");
-					$DB->Query("DROP TABLE b_forum_smile_lang");
-				}
+				$DB->Query("DELETE FROM b_forum_smile");
+				$DB->Query("DROP TABLE b_forum_smile");
+				$DB->Query("DROP TABLE b_forum_smile_lang");
 			}
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/".$GLOBALS["DBType"]."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/mysql/uninstall.sql");
 		}
 		if(!empty($this->errors))
 		{

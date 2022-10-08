@@ -31,4 +31,5 @@ abstract class Icon
 	public const DISK = "ui-btn-icon-disk";
 	public const DONE = "ui-btn-icon-done";
 	public const REMOVE = "ui-btn-icon-remove";
+	public const FUNNEL = "ui-btn-icon-funnel";
 }

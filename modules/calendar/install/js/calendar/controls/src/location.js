@@ -1,5 +1,6 @@
 import { Tag, Type, Loc, Dom, Event, Text} from 'main.core';
-import { RoomsManager } from 'calendar.roomsmanager';
+import { RoomsManager, RoomsSection } from 'calendar.roomsmanager';
+import { CategoryManager } from 'calendar.categorymanager';
 import { Util } from 'calendar.util';
 
 export class Location
@@ -34,11 +35,15 @@ export class Location
 			this.default = this.setDefaultRoom(params.locationList) || '';
 		}
 		this.create();
-		this.setViewMode(params.viewMode === true)
+		this.setViewMode(params.viewMode === true);
+		this.processValue();
+		this.setCategoryManager();
+		this.setValuesDebounced = BX.debounce(this.setValues.bind(this), 70);
 	}
 
 	create()
 	{
+		this.DOM.wrapNode.style.display = 'flex';
 		this.DOM.inputWrap = this.DOM.wrapNode.appendChild(Tag.render`
 			<div class="calendar-field-block"></div>
 		`)
@@ -51,11 +56,17 @@ export class Location
 		if (this.inlineEditModeEnabled)
 		{
 			this.DOM.inlineEditLinkWrap = this.DOM.wrapNode.appendChild(Tag.render`
-				<div class="calendar-field-place-link">${this.DOM.inlineEditLink = Tag.render`
+				<div class="calendar-field-place-link calendar-location-readonly">${this.DOM.inlineEditLink = Tag.render`
 					<span class="calendar-text-link">${Loc.getMessage('EC_REMIND1_ADD')}</span>`}
 				</div>`);
 			this.DOM.inputWrap.style.display = 'none';
-			Event.bind(this.DOM.inlineEditLinkWrap, 'click', this.displayInlineEditControls.bind(this));
+			Event.bind(
+				this.DOM.inlineEditLinkWrap, 'click',
+				() => {
+					this.displayInlineEditControls();
+					this.selectContol.showPopup();
+				}
+			);
 		}
 
 		if (this.disabled)
@@ -74,7 +85,10 @@ export class Location
 		this.DOM.input = this.DOM.inputWrap.appendChild(Dom.create('INPUT', {
 			attrs: {
 				name: this.params.inputName || '',
-				placeholder: Loc.getMessage('EC_LOCATION_PLACEHOLDER'),
+				placeholder: this.disabled
+					? Loc.getMessage('EC_LOCATION_PLACEHOLDER_LOCKED')
+					: Loc.getMessage('EC_LOCATION_PLACEHOLDER')
+				,
 				type: 'text',
 				autocomplete: this.disabled ? 'on' : 'off',
 			},
@@ -83,17 +97,31 @@ export class Location
 			},
 			style: {
 				paddingRight: 25 + 'px',
+				maxWidth: 300 + 'px',
 			}
 		}));
 	}
 
 	setValues()
 	{
+		this.addLocationRemoveButton();
+
+		if (!this.categoryManagerFromDB)
+		{
+			this.setValuesDebounced?.();
+			return;
+		}
+		this.prohibitClick();
+
 		let
 			menuItemList = [],
 			selectedIndex = false,
 			meetingRooms = Location.getMeetingRoomList(),
 			locationList = Location.getLocationList();
+
+		const roomList = this.createRoomList(locationList);
+
+		this.categoriesWithRooms = this?.categoryManagerFromDB?.getCategoriesWithRooms(roomList);
 
 		if (Type.isArray(meetingRooms))
 		{
@@ -122,33 +150,50 @@ export class Location
 			}
 		}
 
-		if (Type.isArray(locationList))
-		{
-			if (locationList.length)
-			{
-				locationList.forEach(function(room)
-				{
-					room.ID = parseInt(room.ID);
-					room.LOCATION_ID = parseInt(room.LOCATION_ID);
-					menuItemList.push({
-						ID: room.ID,
-						LOCATION_ID: room.LOCATION_ID,
-						label: room.NAME,
-						capacity: parseInt(room.CAPACITY) || 0,
-						color: room.COLOR,
-						reserved: room.reserved || false,
-						labelRaw: room.NAME,
-						labelCapacity: this.getCapacityMessage(room.CAPACITY),
-						value: room.ID,
-						type: 'calendar'
-					});
+		const pushRoomToItemList = (room) => {
+			room.id = parseInt(room.id);
+			room.location_id = parseInt(room.location_id);
+			menuItemList.push({
+				ID: room.id,
+				LOCATION_ID: room.location_id,
+				label: room.name,
+				capacity: parseInt(room.capacity) || 0,
+				color: room.color,
+				reserved: room.reserved || false,
+				labelRaw: room.name,
+				labelCapacity: this.getCapacityMessage(room.capacity),
+				value: room.id,
+				type: 'calendar'
+			});
 
-					if (this.value.type === 'calendar'
-						&& parseInt(this.value.value) === parseInt(room.ID))
+			if (this.value.type === 'calendar'
+				&& parseInt(this.value.value) === parseInt(room.id))
+			{
+				selectedIndex = menuItemList.length - 1;
+			}
+		};
+//TODO think about delimiter draw
+		if (Type.isObject(this.categoriesWithRooms))
+		{
+			if (this.categoriesWithRooms.categories.length || this.categoriesWithRooms.default.length)
+			{
+				this.categoriesWithRooms.categories.forEach((category) => {
+					if(category.rooms.length)
 					{
-						selectedIndex = menuItemList.length - 1;
+						menuItemList.push({text: category.name, delimiter: true});
+						category.rooms.forEach((room) => pushRoomToItemList(room), this);
 					}
-				}, this);
+				});
+
+				if(this.categoriesWithRooms.default.length)
+				{
+					menuItemList.push({
+						text:"\0",
+						className: 'calendar-popup-window-delimiter-default-category',
+						delimiter: true,
+					});
+					this.categoriesWithRooms.default.forEach((room) => pushRoomToItemList(room), this);
+				}
 
 				if (this.locationAccess)
 				{
@@ -173,30 +218,13 @@ export class Location
 			}
 		}
 
-		if (this.value)
-		{
-			this.DOM.input.value = this.value.str || '';
-			if (this.value.type &&
-				(this.value.str === this.getTextLocation(this.value) ||
-					this.getTextLocation(this.value) === Loc.getMessage('EC_LOCATION_EMPTY')))
-			{
-				this.DOM.input.value = '';
-				this.value = '';
-			}
-			for (const locationListElement of Location.locationList)
-			{
-				if (parseInt(locationListElement.ID) === this.value.room_id)
-				{
-					Location.setCurrentCapacity(parseInt(locationListElement.CAPACITY));
-					break;
-				}
-			}
-		}
-
 		if (this.selectContol)
 		{
 			this.selectContol.destroy();
 		}
+
+		this.processValue();
+
 
 		this.selectContol = new BX.Calendar.Controls.SelectInput({
 			input: this.DOM.input,
@@ -219,13 +247,97 @@ export class Location
 						break;
 					}
 				}
-
 				if (Type.isFunction(this.params.onChangeCallback))
 				{
 					this.params.onChangeCallback();
 				}
+				if (this.value.text === '')
+				{
+					this.removeLocationRemoveButton();
+				}
+				this.addLocationRemoveButton();
+				this.allowClick();
 			}, this)
 		});
+		this.allowClick();
+	}
+
+	processValue()
+	{
+		if (this.value)
+		{
+			this.DOM.input.value = this.value.str || '';
+			if (this.value.type &&
+				(this.value.str === this.getTextLocation(this.value) ||
+					this.getTextLocation(this.value) === Loc.getMessage('EC_LOCATION_EMPTY')))
+			{
+				this.DOM.input.value = '';
+				this.value = '';
+			}
+			for (const locationListElement of Location.locationList)
+			{
+				if (parseInt(locationListElement.ID) === this.value.room_id)
+				{
+					Location.setCurrentCapacity(parseInt(locationListElement.CAPACITY));
+					break;
+				}
+			}
+		}
+	}
+
+	setValuesDebounce()
+	{
+		this.setCategoryManager();
+
+		this.setValuesDebounced();
+	}
+
+	removeValue()
+	{
+		this.setValue(false, false);
+		this.selectContol.onChangeCallback();
+		this.removeLocationRemoveButton();
+	}
+
+	removeLocationRemoveButton()
+	{
+		if(this.DOM.inputWrap.contains(this.DOM.removeLocationButton))
+		{
+			this.DOM.inputWrap.removeChild(this.DOM.removeLocationButton);
+		}
+		else if(this.DOM.wrapNode.contains(this.DOM.removeLocationButton))
+		{
+			this.DOM.wrapNode.removeChild(this.DOM.removeLocationButton);
+		}
+
+		this.DOM.removeLocationButton = null;
+		if(Type.isDomNode(this.DOM.inlineEditLink))
+		{
+			this.displayInlineEditControls();
+		}
+	}
+
+	addLocationRemoveButton()
+	{
+		let wrap = this.DOM.inputWrap;
+		if(this.DOM?.inlineEditLinkWrap?.style.display === '')
+		{
+			wrap = this.DOM.wrapNode;
+		}
+
+		if(
+			(this.value.value || this.value.str || this.value.text)
+			&& !this.viewMode
+			&& !this.DOM.removeLocationButton
+			&& this.value.text !== ''
+		)
+		{
+			this.DOM.removeLocationButton = wrap.appendChild(Tag.render`
+				<span class="calendar-location-clear-btn-wrap calendar-location-readonly">
+					<span class="calendar-location-clear-btn-text">${Loc.getMessage('EC_LOCATION_CLEAR_INPUT')}</span>
+				</span>`);
+			Event.bind(this.DOM.removeLocationButton, 'click', this.removeValue.bind(this));
+		}
 	}
 
 	setViewMode(viewMode)
@@ -252,7 +364,7 @@ export class Location
 			Util.initHintNode(this.DOM.alertIconLocation);
 		}
 		setTimeout(() => {
-			this.DOM.inputWrap.appendChild(this.DOM.alertIconLocation)
+			this.DOM.input.after(this.DOM.alertIconLocation)
 		}, 200);
 	}
 
@@ -337,8 +449,8 @@ export class Location
 					}
 				}
 			}
-			
-			this.setValues();
+
+			this.setValuesDebounce();
 		});
 	}
 	
@@ -405,12 +517,8 @@ export class Location
 	
 	loadRoomSlider()
 	{
-		if (!this.roomsManagerFromDB)
-		{
-			this.getRoomsManager()
-				.then(this.getRoomsManagerData()
-			);
-		}
+		this.setRoomsManager();
+		this.setCategoryManager();
 	}
 	
 	openRoomsSlider()
@@ -424,6 +532,7 @@ export class Location
 							calendarContext: null,
 							readonly: false,
 							roomsManager: this.roomsManagerFromDB,
+							categoryManager: this.categoryManagerFromDB,
 							isConfigureList: true
 						}
 					);
@@ -457,7 +566,7 @@ export class Location
 		return this.value;
 	}
 
-	setValue(value)
+	setValue(value, debounced = true)
 	{
 		if (Type.isPlainObject(value))
 		{
@@ -470,12 +579,23 @@ export class Location
 			this.value = Location.parseStringValue(value);
 		}
 
-		this.setValues();
+		if (debounced)
+		{
+			this.setValuesDebounce();
+		}
+		else
+		{
+			this.setValues();
+		}
 
 		if (this.inlineEditModeEnabled)
 		{
 			let textLocation = this.getTextLocation(this.value);
 			this.DOM.inlineEditLink.innerHTML = Text.encode(textLocation || Loc.getMessage('EC_REMIND1_ADD'));
+			if(textLocation)
+			{
+				this.addLocationRemoveButton();
+			}
 		}
 	}
 
@@ -632,6 +752,7 @@ export class Location
 	{
 		this.DOM.inlineEditLinkWrap.style.display = 'none';
 		this.DOM.inputWrap.style.display = '';
+		this.addLocationRemoveButton();
 	}
 
 	setDefaultRoom(locationList)
@@ -740,7 +861,107 @@ export class Location
 				);
 		});
 	}
-	
+
+	createRoomList(locationList)
+	{
+		return locationList.map((location) => {
+			return new RoomsSection(location);
+		});
+	}
+
+	setRoomsManager()
+	{
+		if (!this.roomsManagerFromDB)
+		{
+			this.getRoomsManager()
+				.then(
+					this.getRoomsManagerData()
+				);
+		}
+	}
+
+	getCategoryManager()
+	{
+		return new Promise((resolve) => {
+			const bx = BX.Calendar.Util.getBX();
+			const extensionName = 'calendar.categorymanager';
+			bx.Runtime.loadExtension(extensionName)
+				.then(() =>
+					{
+						if (bx.Calendar.CategoryManager)
+						{
+							resolve(bx.Calendar.CategoryManager);
+						}
+						else
+						{
+							console.error('Extension ' + extensionName + ' not found');
+							resolve(bx.Calendar.CategoryManager);
+						}
+					}
+				);
+		});
+	}
+
+	getCategoryManagerData()
+	{
+		return new Promise((resolve) => {
+			BX.ajax.runAction('calendar.api.locationajax.getCategoryManagerData')
+				.then((response) => {
+						this.categoryManagerFromDB = new CategoryManager(
+							{
+								categories: response.data.categories,
+							},
+							{
+								perm: response.data.permissions,
+								locationContext: this //for updating list of locations in event creation menu
+							}
+						);
+						resolve(response.data);
+					},
+					// Failure
+					(response) => {
+						console.error('Extension not found');
+						resolve(response.data);
+					}
+				);
+		});
+	}
+
+	setCategoryManager()
+	{
+		if(!this.categoryManagerFromDB)
+		{
+			this.getCategoryManager()
+				.then(
+					this.getCategoryManagerData()
+				);
+		}
+	}
+
+	prohibitClick()
+	{
+		if(this.DOM.inlineEditLinkWrap && !Dom.hasClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly'))
+		{
+			Dom.addClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly');
+		}
+		if(this.DOM.removeLocationButton && !Dom.hasClass(this.DOM.removeLocationButton, 'calendar-location-readonly'))
+		{
+			Dom.addClass(this.DOM.removeLocationButton, 'calendar-location-readonly');
+		}
+	}
+
+	allowClick()
+	{
+		if(this.DOM.inlineEditLinkWrap && Dom.hasClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly'))
+		{
+			Dom.removeClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly');
+		}
+		if(this.DOM.removeLocationButton && Dom.hasClass(this.DOM.removeLocationButton, 'calendar-location-readonly'))
+		{
+			Dom.removeClass(this.DOM.removeLocationButton, 'calendar-location-readonly');
+		}
+	}
+
 	static getDateInFormat(date)
 	{
 		return ('0' + date.getDate()).slice(-2) + '.'

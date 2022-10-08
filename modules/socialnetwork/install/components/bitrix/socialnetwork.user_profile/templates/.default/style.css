@@ -14,7 +14,7 @@ table.sonet-user-profile-friends thead td, table.sonet-user-profile-friends th, 
 {
 	background-color:#f2f2ea;
 	/*text-align:left;*/
-	font-weight:bold;
+	font-weight:var(--ui-font-weight-bold);
 	font-size:12px;
 	background-image:none;
 	border:1px solid #C4C4C3;
@@ -111,7 +111,7 @@ table.sonet-user-profile-groups ul{margin:0 0 12px 6px; padding-left:10px; list-
 	border: 1px solid #d9dbde;
 	height: 40px;
 	font-size: 14px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	line-height: 40px;
 	margin-left: -10px;
 	max-width: 220px;

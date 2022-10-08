@@ -200,12 +200,12 @@ class CAllSQLWhere
 				if(!isset($this->fields[$key]) && is_array($arField) && $arField["FIELD_NAME"] <> '')
 				{
 					$ar = array();
-					$ar["TABLE_ALIAS"] = $arField["TABLE_ALIAS"];
+					$ar["TABLE_ALIAS"] = $arField["TABLE_ALIAS"] ?? '';
 					$ar["FIELD_NAME"] = $arField["FIELD_NAME"];
-					$ar["FIELD_TYPE"] = $arField["FIELD_TYPE"];
+					$ar["FIELD_TYPE"] = $arField["FIELD_TYPE"] ?? '';
 					$ar["USER_TYPE_ID"] = $arField["USER_TYPE_ID"] ?? '';
 					$ar["MULTIPLE"] = $arField["MULTIPLE"] ?? "N";
-					$ar["JOIN"] = $arField["JOIN"];
+					$ar["JOIN"] = $arField["JOIN"] ?? '';
 					if(isset($arField["LEFT_JOIN"]))
 						$ar["LEFT_JOIN"] = $arField["LEFT_JOIN"];
 					if(isset($arField["CALLBACK"]))
@@ -246,7 +246,7 @@ class CAllSQLWhere
 	{
 		$all_operations = array_flip(self::$operations);
 
-		return $all_operations[$code];
+		return $all_operations[$code] ?? null;
 	}
 
 	public function GetQuery($arFilter)

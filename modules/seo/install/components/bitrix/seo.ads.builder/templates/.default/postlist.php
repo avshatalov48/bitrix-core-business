@@ -5,14 +5,16 @@ use Bitrix\Main\Localization\Loc;
 $bodyClass = $APPLICATION->GetPageProperty("BodyClass");
 $APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "") . "no-all-paddings no-background");
 \Bitrix\Main\UI\Extension::load([
+	"ui.design-tokens",
+	"ui.fonts.opensans",
 	"ui.buttons",
 	"ui.icons",
 	"ui.progressbar",
 	"ui.sidepanel-content",
 	"ui.sidepanel.layout",
 	"seo.seoadbuilder",
+	"loader",
 ]);
-\CJSCore::Init("loader");
 
 \Bitrix\Main\Page\Asset::getInstance()->addCss($this->GetFolder().'/postlist.css');
 \Bitrix\Main\Page\Asset::getInstance()->addCss($this->GetFolder().'/configurator.css');

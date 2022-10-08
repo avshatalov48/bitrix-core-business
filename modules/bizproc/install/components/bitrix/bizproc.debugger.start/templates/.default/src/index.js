@@ -21,6 +21,7 @@ class DebuggerStartComponent
 		if (this.#activeSession)
 		{
 			this.#disableButtons();
+			this.#setActiveSessionHint();
 		}
 		else
 		{
@@ -32,6 +33,7 @@ class DebuggerStartComponent
 	{
 		const buttons = {};
 		buttons[Mode.experimental.id] = document.getElementById('bizproc-debugger-start-experimental-element');
+		buttons[Mode.interception.id] = document.getElementById('bizproc-debugger-start-interception-element');
 
 		return buttons;
 	}
@@ -41,7 +43,6 @@ class DebuggerStartComponent
 		const buttons = this.buttons;
 		Object.keys(buttons).forEach(key => {
 			Dom.addClass(buttons[key], 'ui-btn-disabled');
-			Dom.attr(buttons[key],'title', Text.encode(this.#activeSession?.shortDescription));
 		});
 	}
 
@@ -50,6 +51,22 @@ class DebuggerStartComponent
 		const buttons = this.buttons;
 		Object.keys(buttons).forEach(key => {
 			Dom.removeClass(buttons[key], 'ui-btn-disabled');
+		});
+	}
+
+	#setActiveSessionHint()
+	{
+		if (!this.#activeSession)
+		{
+			return;
+		}
+
+		const buttons = this.buttons;
+		Object.keys(buttons).forEach(key => {
+			Dom.attr(buttons[key], 'data-hint', Text.encode(this.#activeSession.shortDescription));
+			Dom.attr(buttons[key], 'data-hint-no-icon', 'y');
+
+			BX.UI.Hint.init(BX(buttons[key].id).parentElement);
 		});
 	}
 
@@ -71,7 +88,7 @@ class DebuggerStartComponent
 				Dom.addClass(btn, 'ui-btn-wait');
 
 				const {Manager} = exports;
-				Manager.Instance.startSession(this.#documentSigned, modeId)
+				Manager.Instance.startSession(this.#documentSigned, Text.toInteger(modeId))
 					.then(
 						() => {
 							this.#enableButtons();

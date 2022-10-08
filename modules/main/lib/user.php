@@ -443,7 +443,6 @@ class UserTable extends DataManager
 	{
 		$text = implode(' ', [
 			$fields['NAME'],
-			$fields['SECOND_NAME'],
 			$fields['LAST_NAME'],
 			$fields['WORK_POSITION'],
 		]);

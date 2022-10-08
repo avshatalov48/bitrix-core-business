@@ -19,6 +19,7 @@ $MESS["MAIN_RATING_TEXT_LIKE_N"] = "Не нравится";
 $MESS["MAIN_RATING_TEXT_LIKE_D"] = "Это нравится";
 $MESS["MAIN_DEFAULT_SITE_NAME"] = "Сайт по умолчанию";
 $MESS["MAIN_DEFAULT_LANGUAGE_NAME"] = "Russian";
+$MESS["MAIN_DEFAULT_LANGUAGE_CODE"] = "ru";
 $MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_DATE"] = "DD.MM.YYYY";
 $MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_DATETIME"] = "DD.MM.YYYY HH:MI:SS";
 $MESS["MAIN_DEFAULT_LANGUAGE_FORMAT_NAME"] = "#NAME# #LAST_NAME#";
@@ -308,4 +309,34 @@ ID пользователя: #USER_ID#
 Логин: #LOGIN#
 
 Сообщение создано автоматически.";
+$MESS['MAIN_INSTALL_EVENT_TYPE_NEW_DEVICE_LOGIN'] = 'Вход с нового устройства';
+$MESS['MAIN_INSTALL_EVENT_TYPE_NEW_DEVICE_LOGIN_DESC'] = '#USER_ID# - ID пользователя
+#EMAIL# - Email пользователя
+#LOGIN# - Логин пользователя
+#NAME# - Имя пользователя
+#LAST_NAME# - Фамилия пользователя
+#DEVICE# - Устройство
+#BROWSER# - Браузер
+#PLATFORM# - Платформа
+#USER_AGENT# - User agent
+#IP# - IP-адрес
+#DATE# - Дата
+#COUNTRY# - Страна
+#REGION# - Регион
+#CITY# - Город
+#LOCATION# - Объединенные город, регион, страна
+';
+$MESS['MAIN_INSTALL_EVENT_MESSAGE_NEW_DEVICE_LOGIN'] = 'Здравствуйте, #NAME#,
+
+Новое устройство авторизовалось под вашим логином #LOGIN#.
+ 
+Устройство: #DEVICE# 
+Браузер: #BROWSER#
+Платформа: #PLATFORM#
+Местоположение: #LOCATION# (может быть неточным)
+Дата: #DATE#
+
+Если вы не знаете, кто это был, рекомендуем немедленно сменить пароль.
+';
+$MESS['MAIN_INSTALL_EVENT_MESSAGE_NEW_DEVICE_LOGIN_SUBJECT'] = 'Вход с нового устройства';
 ?>

@@ -215,16 +215,18 @@ class Cache
 	{
 		global $USER;
 
-		$kernelSession = null;
-		$application = \Bitrix\Main\Application::getInstance();
-		if ($application->isExtendedKernelInitialized())
+		$application = Main\Application::getInstance();
+
+		if (!$application->isInitialized())
 		{
-			 $kernelSession = $application->getKernelSession();
+			return false;
 		}
+
+		$kernelSession = $application->getKernelSession();
 
 		if (isset(static::$clearCacheSession) || isset(static::$clearCache))
 		{
-			if (is_object($USER) && $USER->CanDoOperation('cache_control'))
+			if ($USER instanceof \CUser && $USER->CanDoOperation('cache_control'))
 			{
 				if (isset(static::$clearCacheSession))
 				{

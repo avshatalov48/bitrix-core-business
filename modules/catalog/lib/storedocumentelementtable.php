@@ -30,7 +30,20 @@ use Bitrix\Main\ORM\Fields\Relations\Reference;
  * </ul>
  *
  * @package Bitrix\Catalog
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_StoreDocumentElement_Query query()
+ * @method static EO_StoreDocumentElement_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_StoreDocumentElement_Result getById($id)
+ * @method static EO_StoreDocumentElement_Result getList(array $parameters = [])
+ * @method static EO_StoreDocumentElement_Entity getEntity()
+ * @method static \Bitrix\Catalog\EO_StoreDocumentElement createObject($setDefaultValues = true)
+ * @method static \Bitrix\Catalog\EO_StoreDocumentElement_Collection createCollection()
+ * @method static \Bitrix\Catalog\EO_StoreDocumentElement wakeUpObject($row)
+ * @method static \Bitrix\Catalog\EO_StoreDocumentElement_Collection wakeUpCollection($rows)
+ */
 
 class StoreDocumentElementTable extends DataManager
 {

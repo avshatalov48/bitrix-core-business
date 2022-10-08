@@ -1,3 +1,6 @@
+import 'ui.design-tokens';
+import 'ui.fonts.opensans';
+
 import {Tag, Text, Dom, Event, Type, Cache, Loc} from 'main.core';
 import {BaseEvent, EventEmitter} from 'main.core.events';
 import {Popup, PopupManager} from 'main.popup';
@@ -5,6 +8,7 @@ import {Popup, PopupManager} from 'main.popup';
 import ColorValue from '../../color_value';
 import GradientValue from '../../gradient_value';
 import Generator from "./generator";
+
 import './css/preset_collection.css';
 import {PresetOptions} from "./types/preset-options";
 import Preset from "./preset";

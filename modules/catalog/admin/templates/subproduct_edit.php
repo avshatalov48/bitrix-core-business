@@ -1,9 +1,19 @@
-<?
+<?php
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
+/** @var bool $bSubCopy */
+/** @var bool $bVarsFromForm */
+/** @var int $IBLOCK_ID */
+/** @var int $ID */
 use Bitrix\Main;
+use Bitrix\Main\Loader;
 use Bitrix\Currency;
 use Bitrix\Catalog;
+
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 
 if (
 	isset($urlBuilderId)
@@ -27,7 +37,7 @@ else
 	$publicMode = defined("SELF_FOLDER_URL");
 }
 
-$isCloud = \Bitrix\Main\Loader::includeModule('bitrix24');
+$isCloud = Loader::includeModule('bitrix24');
 
 if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_price') || $USER->CanDoOperation('catalog_view'))
 {
@@ -59,9 +69,6 @@ if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_pric
 	$availCanBuyZero = COption::GetOptionString("catalog", "default_can_buy_zero");
 	$strGlobalSubscribe = COption::GetOptionString("catalog", "default_subscribe");
 
-	$IBLOCK_ID = intval($IBLOCK_ID);
-	if ($IBLOCK_ID <= 0)
-		return;
 	$arCatalog = CCatalog::GetByID($IBLOCK_ID);
 	$PRODUCT_ID = (0 < $ID ? CIBlockElement::GetRealElement($ID) : 0);
 	$arBaseProduct = CCatalogProduct::GetByID($PRODUCT_ID);
@@ -87,7 +94,7 @@ if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_pric
 	}
 
 	$subscribeEnabled = $arBaseProduct["SUBSCRIBE"] == 'Y';
-	$activitySubscribeTab = $PRODUCT_ID > 0 && !$bCopy && $subscribeEnabled;
+	$activitySubscribeTab = $PRODUCT_ID > 0 && !$bSubCopy && $subscribeEnabled;
 
 	$arExtraList = array();
 	$l = CExtra::GetList(array("NAME" => "ASC"));
@@ -97,12 +104,12 @@ if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_pric
 	}
 	?>
 <tr class="heading">
-<td colspan="2"><?
+<td colspan="2"><?php
 	echo GetMessage("IBLOCK_TCATALOG");
 	if ($bReadOnly) echo " ".GetMessage("IBLOCK_TREADONLY");
 	?>
 <script type="text/javascript">
-var bReadOnly = <? echo ($bReadOnly ? 'true' : 'false'); ?>;
+var bReadOnly = <?= ($bReadOnly ? 'true' : 'false'); ?>;
 
 function getElementSubForm()
 {
@@ -193,7 +200,7 @@ function editSubBarCode()
 	{
 		if (obEditSubBarCode.checked)
 		{
-			if (confirm('<? echo GetMessageJS("CAT_BARCODE_EDIT_CONFIRM"); ?>'))
+			if (confirm('<?= GetMessageJS("CAT_BARCODE_EDIT_CONFIRM"); ?>'))
 			{
 				obSubBarCode.disabled = false;
 			}
@@ -250,7 +257,7 @@ function toggleSubPriceType()
 </tr>
 <tr>
 	<td valign="top" colspan="2">
-		<?
+		<?php
 		$aTabs1 = array();
 		$aTabs1[] = array("DIV" => "subcat_edit1", "TAB" => GetMessage("C2IT_PRICES"), "TITLE" => GetMessage("C2IT_PRICES_D"));
 
@@ -517,7 +524,7 @@ else
 	<tr id="tr_SUB_BASE_PRICE" style="display: <? echo ($bUseExtendedPrice ? 'none' : 'table-row'); ?>;">
 		<td width="40%">
 			<?
-			$arBaseGroup = CCatalogGroup::GetBaseGroup();
+			$arBaseGroup = Catalog\GroupTable::getBasePriceType();
 			$arBasePrice = CPrice::GetBasePrice(
 				$PRODUCT_ID,
 				$arPriceBoundaries[0]["FROM"],
@@ -798,6 +805,7 @@ else
 		</td>
 		<td width="60%">
 			<?
+			$str_CAT_BASE_CURRENCY = '';
 			if ($arBasePrice)
 				$str_CAT_BASE_CURRENCY = $arBasePrice["CURRENCY"];
 			if ($bVarsFromForm)
@@ -2212,7 +2220,7 @@ function HideNotice()
 				<td colspan="2"><?echo GetMessage("C2IT_UF_FIELDS")?></td>
 				</tr><?
 
-				foreach ($arUserFields as $FIELD_NAME => $arUserField)
+				foreach ($arUserFields as $fieldName => $arUserField)
 				{
 
 					echo $userFieldManager->GetEditFormHTML(
@@ -2221,7 +2229,7 @@ function HideNotice()
 						$arUserField
 					);
 				}
-				unset($FIELD_NAME, $arUserField);
+				unset($fieldName, $arUserField);
 			}
 			unset($arUserFields);
 			unset($userFieldManager);
@@ -2380,7 +2388,7 @@ SetSubFieldsStyle('subcatalog_properties_table');
 		{
 			$showDiscountUrl = $bDiscount;
 			$discountUrl = $selfFolderUrl.'cat_discount_edit.php?ID=';
-			if (Main\ModuleManager::isModuleInstalled('sale') && (string)Main\Config\Option::get('sale', 'use_sale_discount_only') == 'Y')
+			if (Main\ModuleManager::isModuleInstalled('sale') && Main\Config\Option::get('sale', 'use_sale_discount_only') == 'Y')
 			{
 				$showDiscountUrl = ($APPLICATION->GetGroupRight('sale') >= 'W');
 				$discountUrl = $selfFolderUrl.'sale_discount_edit.php?ID=';
@@ -2465,7 +2473,7 @@ SetSubFieldsStyle('subcatalog_properties_table');
 		if ($storeCount > 0)
 		{
 			$storeIds = array_keys($storeLink);
-			if (!$bCopy)
+			if (!$bSubCopy)
 			{
 				$select = [
 					'STORE_ID',

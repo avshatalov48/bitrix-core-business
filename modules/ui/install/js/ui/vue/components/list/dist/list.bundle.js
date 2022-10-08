@@ -1,4 +1,4 @@
-(function (exports,ui_vue) {
+(function (exports,ui_designTokens,ui_vue) {
 	'use strict';
 
 	/**
@@ -240,5 +240,5 @@
 	  template: "\n\t\t<div :class=\"wrapperStyle\" @scroll=\"onScroll\">\n\t\t\t<template v-for=\"section in sections\">\n\t\t\t\t<div v-if=\"sections.length > 1 && sectionedList[section].length > 0 && showSectionNames\" class=\"bx-vue-list-section\">{{ section }}</div>\n\t\t\t\t<div\n\t\t\t\t\tv-for=\"listItem in sectionedList[section]\"\n\t\t\t\t\t:key=\"listItem.id\"\n\t\t\t\t\t@click=\"onClick($event, listItem.id)\"\n\t\t\t\t\t@click.right=\"onRightClick($event, listItem.id)\"\n\t\t\t\t\t:data-id=\"listItem.id\"\n\t\t\t\t>\n\t\t\t\t\t<component :is=\"elementComponent\" :rawListItem=\"listItem\" :itemTypes=\"itemTypes\" @dblclick=\"onDoubleClick\"/>\n\t\t\t\t</div>\n\t\t\t</template>\n\t\t</div>\n\t"
 	});
 
-}((this.window = this.window || {}),BX));
+}((this.window = this.window || {}),BX,BX));
 //# sourceMappingURL=list.bundle.js.map

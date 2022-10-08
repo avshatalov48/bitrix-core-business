@@ -53,7 +53,7 @@ div.bx-auth-services a {display:inline-block; margin:1px; padding:4px 4px 4px 4p
 div.bx-auth-services a:hover {margin: 0; border:1px solid #D9D9D9; text-decoration: none !important;}
 div.bx-auth-services a.bx-ss-selected {margin: 0; border:1px solid #D9D9D9; background-color:#EBEBEB;}
 div.bx-auth-services i {display:inline-block; margin: 0; margin-right:4px; vertical-align:middle; cursor:pointer;}
-div.bx-auth-services b {vertical-align:middle; font-weight:bold; font-size:12px; font-family:Tahoma,Verdana,Arial,sans-serif;}
+div.bx-auth-services b {vertical-align:middle; font-weight:var(--ui-font-weight-bold); font-size:12px; font-family:Tahoma,Verdana,Arial,sans-serif;}
 
 div.bx-auth-service-form {color:black; background-color:#EEEEEE; border-bottom:solid 1px #D6D6D6; margin-top:1px; padding:8px; vertical-align:middle; font-size:12px;}
 div.bx-auth-service-form span, div.bx-auth-service-form input { vertical-align:middle;}
@@ -78,7 +78,7 @@ div.bx-auth-form {width: 510px !important;}
 
 textarea.ss-text-for-message-default {width: 300px; height: 130px; color:grey;  font-weight:lighter;}
 textarea.ss-text-for-message {margin-top: 5px;}
-td.bx-ss-soc-serv { font: bold 12px/15px "Helvetica Neue",Helvetica,Arial,sans-serif; }
+td.bx-ss-soc-serv { font: var(--ui-font-weight-bold) 12px/15px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); }
 td.bx-ss-soc-serv i{ vertical-align:-25%;}
 
 div.bx-taimen-socserv-div {padding-bottom: 9px; padding-left: 50px; }

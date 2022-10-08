@@ -22,8 +22,10 @@
 		data.textOnly = true;
 		var content = data.content;
 		data.content = content.source || content.src;
-		data.placeholder = BX.Landing.Loc.getMessage('LANDING_EMBED_FIELD_PLACEHOLDER');
-		data.description = "<span class='landing-ui-anchor-preview'>"+BX.Landing.Loc.getMessage('LANDING_EMBED_FIELD_DESCRIPTION')+"</span>";
+		data.placeholder = BX.Landing.Loc.getMessage('LANDING_EMBED_NOT_BG_FIELD_DESCRIPTION');
+		data.description =
+			data.description
+			|| "<span class='landing-ui-anchor-preview'>"+BX.Landing.Loc.getMessage('LANDING_EMBED_NOT_BG_FIELD_DESCRIPTION')+"</span>";
 
 		BX.Landing.UI.Field.Text.apply(this, arguments);
 
@@ -34,7 +36,7 @@
 		});
 
 		this.error = BX.Landing.UI.Field.BaseField.createDescription(
-			BX.Landing.Loc.getMessage("LANDING_EMBED_ERROR_WRONG_SOURCE_TEXT_2")
+			BX.Landing.Loc.getMessage("LANDING_EMBED_ERROR_WRONG_SOURCE_TEXT_ALL")
 		);
 
 		BX.Dom.addClass(this.error, 'landing-ui-error');

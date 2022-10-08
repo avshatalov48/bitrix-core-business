@@ -3,8 +3,9 @@
 use Bitrix\Main\Localization\Loc;
 
 \Bitrix\Main\UI\Extension::load([
-	'ui.info-helper',
 	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ui.info-helper',
 ]);
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
@@ -33,7 +34,7 @@ if (!$arResult['CAN_CONNECT_NEW_MAILBOX'])
 		<div class="mail-add-services">
 			<div class="mail-add-list">
 				<? foreach ($arParams['SERVICES'] as $settings): ?>
-					<? if ($settings['type'] != 'imap') continue; ?>
+					<? if ($settings['type'] != 'imap' && $settings['ACTIVE'] !== 'N') continue; ?>
 					<a class="mail-add-item"
 						<? if ($arResult['CAN_CONNECT_NEW_MAILBOX']): ?>
 							href="<?=htmlspecialcharsbx(\CHTTP::urlAddParams($newPath, array('id' => $settings['id']))) ?>"

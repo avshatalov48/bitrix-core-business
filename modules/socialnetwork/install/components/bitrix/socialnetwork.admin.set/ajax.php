@@ -39,10 +39,10 @@ if (check_bitrix_sessid())
 	{
 		if ($_POST["ACTION"] == "SET")
 		{
-			if (isset($_SESSION["SONET_ADMIN"]))
-				unset($_SESSION["SONET_ADMIN"]);
+			if (CSocNetUser::IsEnabledModuleAdmin())
+				\CSocNetUser::DisableModuleAdmin();
 			else
-				$_SESSION["SONET_ADMIN"] = "Y";
+				\CSocNetUser::EnableModuleAdmin();
 		}
 		echo CUtil::PhpToJsObject(Array('SUCCESS' => 'Y'));
 	}

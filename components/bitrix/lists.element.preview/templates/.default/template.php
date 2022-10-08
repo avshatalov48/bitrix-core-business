@@ -3,6 +3,7 @@
 /** @var array $arParams */
 /** @var array $arResult */
 
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens']);
 ?>
 
 <div class="list-element-preview">

@@ -988,46 +988,64 @@ abstract class CAllDBResult
 		$SHOWALL_NAME = "SHOWALL_".($NavNum+1);
 
 		global ${$PAGEN_NAME}, ${$SHOWALL_NAME};
-		$md5Path = md5((isset($sNavID)? $sNavID: $APPLICATION->GetCurPage()));
 
 		if($iNumPage === false)
-			$PAGEN = ${$PAGEN_NAME};
+			$PAGEN = ${$PAGEN_NAME} ?? 0;
 		else
 			$PAGEN = $iNumPage;
 
+		$PAGEN = (int)$PAGEN;
 		$SHOWALL = ${$SHOWALL_NAME};
 
-		$SESS_PAGEN = $md5Path."SESS_PAGEN_".($NavNum+1);
-		$SESS_ALL = $md5Path."SESS_ALL_".($NavNum+1);
-		if(intval($PAGEN) <= 0)
+		$inSession = (CPageOption::GetOptionString("main", "nav_page_in_session", "Y") == "Y");
+
+		if ($inSession)
 		{
-			if(CPageOption::GetOptionString("main", "nav_page_in_session", "Y")=="Y" && intval(\Bitrix\Main\Application::getInstance()->getSession()[$SESS_PAGEN])>0)
-				$PAGEN = \Bitrix\Main\Application::getInstance()->getSession()[$SESS_PAGEN];
-			elseif($bDescPageNumbering === true)
+			$md5Path = md5($sNavID ?? $APPLICATION->GetCurPage());
+			$SESS_PAGEN = $md5Path . "SESS_PAGEN_" . ($NavNum+1);
+			$SESS_ALL = $md5Path . "SESS_ALL_" . ($NavNum+1);
+
+			$localStorage = Main\Application::getInstance()->getLocalSession('navigation');
+			$session = $localStorage->getData();
+		}
+
+		if ($PAGEN <= 0)
+		{
+			if ($inSession && isset($session[$SESS_PAGEN]) && $session[$SESS_PAGEN] > 0)
+			{
+				$PAGEN = $session[$SESS_PAGEN];
+			}
+			elseif ($bDescPageNumbering === true)
+			{
 				$PAGEN = 0;
+			}
 			else
+			{
 				$PAGEN = 1;
+			}
 		}
 
 		//Number of records on a page
 		$SIZEN = $nPageSize;
-		if(intval($SIZEN) < 1)
+		if($SIZEN < 1)
+		{
 			$SIZEN = 10;
+		}
 
 		//Show all records
-		$SHOW_ALL = ($bShowAll? (isset($SHOWALL) ? ($SHOWALL == 1) : (CPageOption::GetOptionString("main", "nav_page_in_session", "Y")=="Y" && \Bitrix\Main\Application::getInstance()->getSession()[$SESS_ALL] == 1)) : false);
+		$SHOW_ALL = ($bShowAll && (isset($SHOWALL) ? ($SHOWALL == 1) : ($inSession && isset($session[$SESS_ALL]) && $session[$SESS_ALL] == 1)));
 
 		//$NavShowAll comes from $nPageSize array
 		$res = array(
-			"PAGEN"=>$PAGEN,
-			"SIZEN"=>$SIZEN,
-			"SHOW_ALL"=>(isset($NavShowAll)? $NavShowAll : $SHOW_ALL),
+			"PAGEN" => $PAGEN,
+			"SIZEN" => $SIZEN,
+			"SHOW_ALL" => ($NavShowAll ?? $SHOW_ALL),
 		);
 
-		if(CPageOption::GetOptionString("main", "nav_page_in_session", "Y")=="Y")
+		if ($inSession)
 		{
-			\Bitrix\Main\Application::getInstance()->getSession()[$SESS_PAGEN] = $PAGEN;
-			\Bitrix\Main\Application::getInstance()->getSession()[$SESS_ALL] = $SHOW_ALL;
+			$localStorage->set($SESS_PAGEN, $PAGEN);
+			$localStorage->set($SESS_ALL, $SHOW_ALL);
 			$res["SESS_PAGEN"] = $SESS_PAGEN;
 			$res["SESS_ALL"] = $SESS_ALL;
 		}
@@ -1090,20 +1108,8 @@ abstract class CAllDBResult
 			if($this->NavRecordCount % $this->NavPageSize > 0)
 				$this->NavPageCount++;
 
-			$this->NavPageNomer =
-				($this->PAGEN < 1 || $this->PAGEN > $this->NavPageCount
-				?
-					(CPageOption::GetOptionString("main", "nav_page_in_session", "Y")!="Y"
-						|| \Bitrix\Main\Application::getInstance()->getSession()[$this->SESS_PAGEN] < 1
-						|| \Bitrix\Main\Application::getInstance()->getSession()[$this->SESS_PAGEN] > $this->NavPageCount
-					?
-						1
-					:
-						\Bitrix\Main\Application::getInstance()->getSession()[$this->SESS_PAGEN]
-					)
-				:
-					$this->PAGEN
-				);
+			$useSession = (CPageOption::GetOptionString("main", "nav_page_in_session", "Y") == "Y");
+			$this->calculatePageNumber(1, $useSession);
 
 			$NavFirstRecordShow = $this->NavPageSize*($this->NavPageNomer-1);
 			$NavLastRecordShow = $this->NavPageSize*$this->NavPageNomer;
@@ -1113,6 +1119,39 @@ abstract class CAllDBResult
 		else
 		{
 			$this->DBNavStart();
+		}
+	}
+
+	protected function calculatePageNumber(int $defaultNumber = 1, bool $useSession = true, bool $checkOutOfRange = false)
+	{
+		$correct = false;
+		if ($this->PAGEN > 0 && $this->PAGEN <= $this->NavPageCount)
+		{
+			$this->NavPageNomer = $this->PAGEN;
+			$correct = true;
+		}
+		elseif ($useSession && $this->SESS_PAGEN)
+		{
+			$localStorage = Main\Application::getInstance()->getLocalSession('navigation');
+			$session = $localStorage->getData();
+
+			if ($session[$this->SESS_PAGEN] > 0 && $session[$this->SESS_PAGEN] <= $this->NavPageCount)
+			{
+				$this->NavPageNomer = $session[$this->SESS_PAGEN];
+				$correct = true;
+			}
+		}
+
+		if (!$correct)
+		{
+			if ($checkOutOfRange !== true)
+			{
+				$this->NavPageNomer = $defaultNumber;
+			}
+			else
+			{
+				$this->NavPageNomer = null;
+			}
 		}
 	}
 

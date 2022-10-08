@@ -11,7 +11,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 global $APPLICATION;
 
-Loc::loadMessages(dirname(__FILE__).'/template.php');
+Loc::loadMessages(__DIR__.'/template.php');
 $GLOBALS['APPLICATION']->SetTitle(Loc::getMessage('REPORT_LIST'));
 
 \Bitrix\Main\Loader::includeModule('ui');
@@ -32,7 +32,7 @@ $APPLICATION->IncludeComponent("bitrix:ui.info.helper", "", []);
 				crm: 'limit_crm_tasks_constructor_reports',
 				tasks: 'limit_tasks_constructor_reports'
 			};
-			var sliderCode = (<?=($arResult['HELPER_CLASS'] === 'CTasksReportHelper')?> ? codes.tasks : codes.crm);
+			var sliderCode = (<?= (int)($arResult['HELPER_CLASS'] === 'CTasksReportHelper') ?> ? codes.tasks : codes.crm);
 
 			BX.UI.InfoHelper.show(sliderCode);
 		}

@@ -32,6 +32,8 @@ $MESS['LANDING_TPL_CAPTION'] = 'Название';
 $MESS['LANDING_ALERT_CONTENT_RELOADED'] = 'Вы не сохранили изменения, форма будет перезагружена.';
 
 //hint in rights
+$MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_MENU24'] = 'Доступны права только на просмотр контента раздела. Если вы закрываете сотруднику доступ к просмотру, настройка остальных прав нецелесообразна.';
+$MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_KNOWLEDGE_MENU24'] = 'Доступны права только на просмотр контента раздела. Если вы закрываете сотруднику доступ к просмотру, настройка остальных прав нецелесообразна.';
 $MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_ADMIN'] = 'Доступны все права, в том числе изменение ролей и прав доступа сотрудников';
 $MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_UNEXPORTABLE'] = 'Доступны права на экспорт сайтов для дальнейшего свободного использования';
 $MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_KNOWLEDGE_ADMIN'] = 'Доступны все права, в том числе изменение ролей и прав доступа сотрудников';

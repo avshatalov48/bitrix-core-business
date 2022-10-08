@@ -14,7 +14,6 @@ export class SelectInput
 		this.onChangeCallback = params.onChangeCallback || null;
 		this.zIndex = params.zIndex || 1200;
 		this.disabled = params.disabled;
-		this.minWidth = params.minWidth || 0;
 
 		this.setValue({
 			value: params.value,
@@ -31,7 +30,7 @@ export class SelectInput
 		if (this.onChangeCallback)
 		{
 			BX.bind(this.input, 'change', this.onChangeCallback);
-			BX.bind(this.input, 'keyup', this.onChangeCallback);
+			// BX.bind(this.input, 'keyup', this.onChangeCallback);
 		}
 
 		if (this.values)
@@ -51,6 +50,11 @@ export class SelectInput
 		{
 			this.input.value = this.values[this.currentValueIndex].label;
 		}
+	}
+
+	setValueList(valueList)
+	{
+		this.values = valueList;
 	}
 
 	getInputValue()
@@ -78,7 +82,9 @@ export class SelectInput
 			else
 			{
 				if (this.currentValue && this.values[i]
-					&& this.values[i].value === this.currentValue.value)
+					&& i > 0
+					&& this.currentValue.value >= this.values[i-1].value
+					&& this.currentValue.value <= this.values[i].value)
 				{
 					ind = j;
 				}
@@ -132,17 +138,19 @@ export class SelectInput
 				}
 				else
 				{
+					const hint = this.values[i].hint ? ' ' + this.values[i].hint :  '';
 					menuItems.push({
 						id: this.values[i].value,
-						text: this.values[i].label,
+						html: this.values[i].label + hint,
 						title: this.values[i].label,
+						className: "menu-popup-no-icon" + (this.values[i].selected ? ' calendar-menu-popup-time-selected' : ''),
 						onclick: this.values[i].callback || (function (value, label)
 						{
 							return function ()
 							{
 								_this.input.value = label;
 								_this.popupMenu.close();
-								_this.onChange();
+								_this.onChange(value);
 							}
 						})(this.values[i].value, this.values[i].labelRaw || this.values[i].label)
 					});
@@ -164,7 +172,12 @@ export class SelectInput
 			}
 		);
 
-		this.popupMenu.popupWindow.setWidth(Math.max(this.input.offsetWidth + 2, this.minWidth));
+		if (!BX.browser.IsFirefox())
+		{
+			this.popupMenu.popupWindow.setMinWidth(this.input.offsetWidth + 2);
+		}
+
+		this.popupMenu.popupWindow.setMaxWidth(300);
 
 		let menuContainer = this.popupMenu.layout.menuContainer;
 		BX.addClass(this.popupMenu.layout.menuContainer, 'calendar-select-popup');
@@ -174,7 +187,7 @@ export class SelectInput
 
 		if (menuItem && menuItem.layout)
 		{
-			menuContainer.scrollTop = menuItem.layout.item.offsetTop - menuItem.layout.item.offsetHeight;
+			menuContainer.scrollTop = menuItem.layout.item.offsetTop - menuItem.layout.item.offsetHeight - 36 * 3;
 		}
 
 		let popupMenuItems = this.popupMenu.menuItems;
@@ -242,13 +255,13 @@ export class SelectInput
 		setTimeout(BX.delegate(this.closePopup, this), 50);
 	}
 
-	onChange()
+	onChange(value)
 	{
-		var val = this.input.value;
-		BX.onCustomEvent(this, 'onSelectInputChanged', [this, val]);
+		var inputValue = this.input.value;
+		BX.onCustomEvent(this, 'onSelectInputChanged', [this, inputValue]);
 		if (BX.type.isFunction(this.onChangeCallback))
 		{
-			this.onChangeCallback({value: val});
+			this.onChangeCallback({value: inputValue, dataValue: value});
 		}
 	}
 

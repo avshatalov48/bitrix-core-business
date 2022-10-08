@@ -13,7 +13,7 @@ Loader::registerAutoLoadClasses(
 		"CComponentUtil" => "classes/general/component_util.php",
 		"CControllerClient" => "classes/general/controller_member.php",
 		"PHPParser" => "classes/general/php_parser.php",
-		"CDiskQuota" => "classes/mysql/quota.php",
+		"CDiskQuota" => "classes/general/quota.php",
 		"CEventLog" => "classes/general/event_log.php",
 		"CEventMain" => "classes/general/event_log.php",
 		"CAdminFileDialog" => "classes/general/file_dialog.php",

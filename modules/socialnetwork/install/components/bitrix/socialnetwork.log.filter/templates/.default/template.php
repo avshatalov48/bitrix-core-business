@@ -17,7 +17,11 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
 use Bitrix\Socialnetwork\LogViewTable;
 
-UI\Extension::load("ui.buttons");
+UI\Extension::load([
+	"ui.design-tokens",
+	"ui.fonts.opensans",
+	"ui.buttons",
+]);
 
 if(SITE_TEMPLATE_ID === 'bitrix24')
 {
@@ -496,7 +500,7 @@ if (SITE_TEMPLATE_ID === "bitrix24")
 	$this->SetViewTarget('inside_pagetitle', 0);
 	$filterID = ($arParams["FILTER_ID"] ?? 'LIVEFEED');
 
-	?><div class="pagetitle-container pagetitle-flexible-space" style="overflow: hidden;flex-shrink: 0;" id="<?=htmlspecialcharsbx($filterID)?>_filter_container"><div id="<?=htmlspecialcharsbx($filterID)?>_filter_container_max" class="pagetitle-container-max pagetitle-container-max-rounded"><?php
+	?><div class="pagetitle-container pagetitle-flexible-space" style="overflow: hidden;" id="<?=htmlspecialcharsbx($filterID)?>_filter_container"><div id="<?=htmlspecialcharsbx($filterID)?>_filter_container_max" class="pagetitle-container-max pagetitle-container-max-rounded"><?php
 	$APPLICATION->IncludeComponent(
 		'bitrix:main.ui.filter',
 		'',

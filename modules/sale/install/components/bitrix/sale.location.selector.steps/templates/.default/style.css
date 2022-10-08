@@ -33,7 +33,7 @@
 	box-shadow: none !important;
 
 	color: #000;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 14px;
 	height: 33px;
 	width: 100%;

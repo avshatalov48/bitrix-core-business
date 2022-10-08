@@ -30,9 +30,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Rounding_Query query()
- * @method static EO_Rounding_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Rounding_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Rounding_Result getById($id)
- * @method static EO_Rounding_Result getList(array $parameters = array())
+ * @method static EO_Rounding_Result getList(array $parameters = [])
  * @method static EO_Rounding_Entity getEntity()
  * @method static \Bitrix\Catalog\EO_Rounding createObject($setDefaultValues = true)
  * @method static \Bitrix\Catalog\EO_Rounding_Collection createCollection()
@@ -355,6 +355,38 @@ class RoundingTable extends Main\Entity\DataManager
 			self::ROUND_UP,
 			self::ROUND_DOWN
 		);
+	}
+
+	/**
+	 * Get preset rounding precision values for public interfaces and
+	 * all kinds of validations
+	 *
+	 * @return array
+	 */
+	public static function getPresetRoundingValues(): array
+	{
+		return [
+			0.0001,
+			0.001,
+			0.005,
+			0.01,
+			0.02,
+			0.05,
+			0.1,
+			0.2,
+			0.5,
+			1,
+			2,
+			5,
+			10,
+			20,
+			50,
+			100,
+			200,
+			500,
+			1000,
+			5000
+		];
 	}
 
 	/**

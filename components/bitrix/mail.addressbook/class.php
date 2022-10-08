@@ -16,21 +16,21 @@ use Bitrix\Mail\Internals\MailContactTable;
  */
 class AddressBookComponent extends CBitrixComponent implements Controllerable
 {
-	public function configureActions()
+	public function configureActions(): array
 	{
 		return [];
 	}
 
 	protected $rowsCount = 20;
 
-	private function getRowsCount()
+	private function getRowsCount(): int
 	{
 		return $this->rowsCount;
 	}
 
 	protected $gridId = 'MAIL_ADDRESSBOOK_LIST';
 
-	private function canEdit()
+	private function canEdit(): bool
 	{
 		global $USER;
 		if (!(is_object($USER) && $USER->IsAuthorized()))
@@ -38,10 +38,10 @@ class AddressBookComponent extends CBitrixComponent implements Controllerable
 			return false;
 		}
 
-		return (bool)($USER->isAdmin() || $USER->canDoOperation('bitrix24_config'));
+		return true;
 	}
 
-	private function getDataFilter()
+	private function getDataFilter(): array
 	{
 		$filterOptions = new Filter\Options($this->gridId);
 		$requestFilter = $filterOptions->getFilter($this->arResult['FILTER']);

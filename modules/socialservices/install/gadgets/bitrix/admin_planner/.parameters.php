@@ -5,7 +5,7 @@ $arParameters = Array(
 			"PORTAL_URI"=> Array(
 				"NAME" => GetMessage("GD_PROFILE_PORTAL_URI"),
 				"TYPE" => "STRING",
-				"DEFAULT" => ".bitrix24.ru",
+				"DEFAULT" => ".bitrix24.com",
 			),
 			"APP_ID"=> Array(
 				"NAME" => GetMessage("GD_PROFILE_APP_ID"),

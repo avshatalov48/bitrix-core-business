@@ -1,1 +1,1 @@
-.filter{padding:0 19px;margin-bottom:15px;background:#fff}.filter .main-ui-filter-search{border:1px solid #c6cdd3}
+.filter{padding:0 19px;margin-bottom:15px;background:#fff;border-radius:var(--ui-border-radius-md)}.filter .main-ui-filter-search{border:1px solid #c6cdd3}

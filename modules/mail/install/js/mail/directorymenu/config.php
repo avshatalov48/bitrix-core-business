@@ -10,6 +10,8 @@ return [
 	'rel' => [
 		'main.core.events',
 		'main.core',
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 	],
 	'skip_core' => false,
 ];

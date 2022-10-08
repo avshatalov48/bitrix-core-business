@@ -770,7 +770,7 @@ final class State
 	{
 		$result = [
 			'COUNT' => 0,
-			'LIMIT' => (int)Main\Config\Option::get('catalog', 'landing_product_limit'),
+			'LIMIT' => Feature::getLandingProductLimit(),
 			'MESSAGE_ID' => 'CATALOG_STATE_ERR_PRODUCT_LIMIT'
 		];
 		if ($result['LIMIT'] === 0)

@@ -2,6 +2,11 @@
 $MESS["C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON"] = "add new value";
 $MESS["C_PVG_CREATE_VARIATION"] = "Add variant";
 $MESS["C_PVG_CREATE_VARIATION_PROPERTY"] = "Create variant property";
+$MESS["C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_CLOSE"] = "Close";
+$MESS["C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_COPY"] = "Copy product";
+$MESS["C_PVG_SIMPLE_PRODUCT_POPUP_DOC_LINK_INFO"] = "Learn more";
+$MESS["C_PVG_SIMPLE_PRODUCT_POPUP_TEXT"] = "Create a new catalog product, or click #COPY_BUTTON_NAME# to clone the product and its properties to a new product entry where you will be able to add variants to it. #LINK_INFO#";
+$MESS["C_PVG_SIMPLE_PRODUCT_POPUP_TITLE"] = "Cannot add variants to the product because it was created as simple.";
 $MESS["C_PVG_STORE_ADD_NEW_BARCODE"] = "Add barcode";
 $MESS["C_PVG_STORE_ADD_ONE_MORE_BARCODE"] = "Add more";
 $MESS["C_PVG_STORE_AMOUNT_POPUP_AMOUNT"] = "Available";

@@ -20,10 +20,11 @@ use Bitrix\Main\UI\Extension;
 
 Extension::load(
 	[
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 		'ui.buttons',
 		'ui.alerts',
 		'ui.viewer',
-		'ui.design-tokens',
 	]
 );
 

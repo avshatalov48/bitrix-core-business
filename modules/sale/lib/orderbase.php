@@ -246,13 +246,14 @@ abstract class OrderBase extends Internals\Entity
 	/**
 	 * Load order object by id
 	 *
-	 * @param $id
+	 * @param int $id
 	 * @return null|static
 	 * @throws Main\ArgumentNullException
 	 */
 	public static function load($id)
 	{
-		if ((int)$id <= 0)
+		$id = (int)$id;
+		if ($id <= 0)
 		{
 			throw new Main\ArgumentNullException("id");
 		}
@@ -818,6 +819,38 @@ abstract class OrderBase extends Internals\Entity
 	public function getCurrency()
 	{
 		return $this->getField('CURRENCY');
+	}
+
+	/**
+	 * Change order currency.
+	 *
+	 * @param string $currency
+	 *
+	 * @return Main\Result
+	 */
+	public function changeCurrency(string $currency): Main\Result
+	{
+		$result = new Main\Result();
+
+		if ($this->getCurrency() === $currency)
+		{
+			return $result;
+		}
+
+		$this->setFieldNoDemand('CURRENCY', $currency);
+
+		foreach ($this->getBasket() as $basketItem)
+		{
+			/**
+			 * @var BasketItem $basketItem
+			 */
+
+			$result->addErrors(
+				$basketItem->changeCurrency($currency)->getErrors()
+			);
+		}
+
+		return $result;
 	}
 
 	/**

@@ -40,6 +40,8 @@ if (!function_exists("__GroupRightsShowRow"))
 
 	function __GetGroupRight($module_id, $groupID, $site_id_tmp, $arSites, $arGROUPS)
 	{
+		global $APPLICATION;
+
 		static $arRightsAll = array();
 		static $bInit = false;
 
@@ -60,7 +62,7 @@ if (!function_exists("__GroupRightsShowRow"))
 
 			if (!empty($arGroupId))
 			{
-				$arRightsAll = $GLOBALS["APPLICATION"]->GetUserRightArray($module_id, $arGroupId);
+				$arRightsAll = $APPLICATION->GetUserRightArray($module_id, $arGroupId);
 			}
 
 			$bInit = true;

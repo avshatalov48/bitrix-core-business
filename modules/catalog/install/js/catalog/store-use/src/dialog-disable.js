@@ -1,4 +1,5 @@
 import {Loc, Type, Text, Tag, ajax} from 'main.core';
+import 'ui.design-tokens';
 import {Popup} from "main.popup";
 import {Button} from "ui.buttons";
 import {EventEmitter} from "main.core.events";
@@ -12,21 +13,7 @@ export class DialogDisable
 {
 	popup()
 	{
-		ajax.runAction(
-			'catalog.config.conductedDocumentsExist',
-			{}
-		).then(response => {
-			const documentsExist = response.data;
-
-			if (documentsExist)
-			{
-				this.conductedDocumentsPopup();
-			}
-			else
-			{
-				this.disablePopup();
-			}
-		});
+		this.disablePopup();
 	}
 
 	disablePopup()
@@ -69,41 +56,6 @@ export class DialogDisable
 						<h3>${Loc.getMessage('CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE')}</h3>
 						<div class="catalog-warehouse-master-clear-popup-text">${Text.encode(Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_7'))}
 						<br>${Text.encode(Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_8'))}<div>
-					</div>
-				`;
-	}
-
-	conductedDocumentsPopup()
-	{
-		const popup = new BX.Main.Popup(null, null, {
-			events: {
-				onPopupClose: () => {
-					popup.destroy();
-				}
-			},
-			content: this.getConductedDocumentsPopupContent(),
-			maxWidth: 500,
-			overlay: true,
-			buttons: [
-				new BX.UI.Button({
-					text : Loc.getMessage('CAT_WAREHOUSE_MASTER_CLEAR_CLOSE'),
-					color: BX.UI.Button.Color.PRIMARY,
-					onclick: () => {
-						popup.close();
-						EventEmitter.emit(EventType.popup.disableCancel, {});
-					}
-				}),
-			]
-		});
-		popup.show();
-	}
-
-	getConductedDocumentsPopupContent()
-	{
-		return Tag.render`
-					<div class='catalog-warehouse-master-clear-popup-content'>
-						<h3>${Loc.getMessage('CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_POPUP_TITLE')}</h3>
-						<div class="catalog-warehouse-master-clear-popup-text">${Loc.getMessage('CAT_WAREHOUSE_MASTER_CLEAR_CONDUCTED_DOCUMENTS_EXIST')}<div>
 					</div>
 				`;
 	}

@@ -29,4 +29,7 @@ return [
 			],
 		],
 	],
+	'assets' => [
+		'ext' => ['landing_backlinks'],
+	],
 ];

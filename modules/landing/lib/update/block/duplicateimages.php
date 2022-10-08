@@ -190,7 +190,11 @@ class DuplicateImages
 				BlockTable::update($block['ID'], [
 					'CONTENT' => str_replace($oldPath, $newPath, $block['CONTENT'])
 				]);
-				$sitesToUpdate[] = (int)$block['LANDING_INTERNALS_BLOCK_LANDING_SITE_ID'];
+				$siteId = (int)$block['LANDING_INTERNALS_BLOCK_LANDING_SITE_ID'];
+				if ($siteId && $siteId > 0)
+				{
+					$sitesToUpdate[] = $siteId;
+				}
 			}
 		}
 

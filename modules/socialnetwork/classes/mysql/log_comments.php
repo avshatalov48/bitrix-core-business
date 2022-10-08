@@ -609,12 +609,14 @@ class CSocNetLogComments extends CAllSocNetLogComments
 
 		$arSqls = CSocNetGroup::PrepareSql($arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields, $obUserFieldsSql);
 
+		$strSqlUFFilter = '';
 		$r = $obUserFieldsSql->GetFilter();
 		if($r <> '')
 			$strSqlUFFilter = " (".$r.") ";
 
 		$arSqls["RIGHTS"] = "";
 		$arSqls["CRM_RIGHTS"] = "";
+		$arSqls["SUBSCRIBE"] = "";
 
 		if (
 			!empty($arParams)

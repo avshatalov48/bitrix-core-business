@@ -8,6 +8,8 @@ return [
 	'css' => 'dist/formsettingsform.bundle.css',
 	'js' => 'dist/formsettingsform.bundle.js',
 	'rel' => [
+		'ui.design-tokens',
+		'ui.fonts.opensans',
 		'main.core',
 		'landing.ui.form.baseform',
 		'landing.ui.field.smallswitch',

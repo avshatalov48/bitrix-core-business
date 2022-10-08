@@ -25,6 +25,7 @@ class EntityCard extends BaseCard
 		super(id, settings);
 
 		this.cardSettings = settings.cardSettings || [];
+		this.hiddenFields = settings.hiddenFields || [];
 		this.feedbackUrl = settings.feedbackUrl || '';
 		this.variationGridId = settings.variationGridId;
 		this.productStoreGridId = settings.productStoreGridId || null;
@@ -36,6 +37,8 @@ class EntityCard extends BaseCard
 		this.componentSignedParams = settings.componentSignedParams || null;
 
 		this.isSimpleProduct = settings.isSimpleProduct || false;
+		this.isWithOrdersMode = settings.isWithOrdersMode || false;
+		this.isInventoryManagementUsed = settings.isInventoryManagementUsed || false;
 
 		this.registerFieldsFactory();
 		this.registerControllersFactory();

@@ -1,0 +1,7 @@
+.ui-sign-up-footer {
+	display: flex;
+	justify-content: center;
+	margin-top: 3px;
+	padding-top: 26px;
+	border-top: 1px rgba(82, 92, 105, 0.08) solid;
+}

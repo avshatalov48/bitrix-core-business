@@ -11,6 +11,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
 
 UI\Extension::load([
+	'ui.design-tokens',
 	'ui.buttons',
 	'ui.alerts',
 	'socialnetwork.common',
@@ -116,7 +117,7 @@ else
 						<?if ($event["EventType"] == "GroupRequest"):?>
 							<?= GetMessage("SONET_C39_T_USER") ?>
 							<?
-							
+
 							$APPLICATION->IncludeComponent("bitrix:main.user.link",
 								'',
 								array(
@@ -143,7 +144,7 @@ else
 								false,
 								array("HIDE_ICONS" => "Y")
 							);
-							
+
 							?>
 							<?= GetMessage("SONET_C39_T_INVITE") ?>:<br /><br />
 							<?= $event["Event"]["MESSAGE"]; ?><br /><br />
@@ -162,7 +163,7 @@ else
 		</div>
 		<br /><br />
 		<?
-	}	
+	}
 	else
 	{
 		?>

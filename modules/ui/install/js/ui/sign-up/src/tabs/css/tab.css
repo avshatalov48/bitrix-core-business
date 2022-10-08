@@ -1,0 +1,76 @@
+.ui-sign-up-tabs-tab-header {
+	background-color: #F5F7F8;
+	width: 100%;
+	padding-top: 7px;
+	padding-left: 6px;
+	padding-right: 6px;
+	padding-bottom: 5px;
+	border: 1px solid #D4DCE0;
+	cursor: pointer;
+}
+
+.ui-sign-up-tabs-tab-header + .ui-sign-up-tabs-tab-header {
+	border-left: none;
+}
+
+.ui-sign-up-tabs-tab-header:first-child {
+	border-top-left-radius: 9px;
+	border-bottom-left-radius: 9px;
+}
+
+.ui-sign-up-tabs-tab-header:last-child {
+	border-top-right-radius: 9px;
+	border-bottom-right-radius: 9px;
+}
+
+
+.ui-sign-up-tabs-tab-header-text,
+.ui-sign-up-tabs-tab-header-icon {
+	text-align: center;
+}
+
+.ui-sign-up-tabs-tab-header-text {
+	font-size: 11.5px;
+	color: #828B95;
+	position: relative;
+	top: -2px;
+	line-height: 13px;
+}
+
+.ui-sign-up-tabs-tab-header-icon span {
+	display: inline-block;
+	background-repeat: no-repeat;
+	background-position: center;
+	width: 20px;
+	height: 16px;
+}
+
+.ui-sign-up-tabs-tab-header-active {
+	position: relative;
+	background: #E1F3F9;
+}
+
+.ui-sign-up-tabs-tab-header-active::before {
+	position: absolute;
+	content: '';
+	display: block;
+	top: -1px;
+	bottom: -1px;
+	left: -1px;
+	right: -1px;
+	border: 1px #2FC6F6 solid;
+}
+
+.ui-sign-up-tabs-tab-header-active:first-child:before {
+	border-top-left-radius: 9px;
+	border-bottom-left-radius: 9px;
+}
+
+.ui-sign-up-tabs-tab-header-active:last-child:before {
+	border-top-right-radius: 9px;
+	border-bottom-right-radius: 9px;
+}
+
+.ui-sign-up-tabs-tab-header-active .ui-sign-up-tabs-tab-header-text {
+	color: #333333;
+}

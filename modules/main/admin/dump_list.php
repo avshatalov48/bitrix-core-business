@@ -11,7 +11,7 @@ define("HELP_FILE", "utilities/dump_list.php");
 if(!$USER->CanDoOperation('edit_php'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-IncludeModuleLangFile(dirname(__FILE__).'/dump.php');
+IncludeModuleLangFile(__DIR__.'/dump.php');
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/backup.php");
 $strBXError = '';

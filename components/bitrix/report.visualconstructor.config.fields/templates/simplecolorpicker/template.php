@@ -9,7 +9,8 @@ $events = $arResult['CONFIGURATION_FIELD_EVENTS'];
 $fieldName = $field->getName();
 $behaviours = $arResult['CONFIGURATION_FIELD_BEHAVIOURS'];
 $id = $field->getId();
-\CJSCore::init("color_picker");
+
+\Bitrix\Main\UI\Extension::load(['ui.design-tokens', 'color_picker']);
 ?>
 <div class="report-configuration-item report-configuration-simple-colorpicker-item <?= $field->isPickerFieldHidden() ? 'report-configuration-simple-colorpicker-item-hidden' : '' ?>">
 	<div class="report-configuration-col-content">

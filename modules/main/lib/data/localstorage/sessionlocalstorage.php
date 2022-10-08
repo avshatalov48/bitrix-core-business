@@ -1,19 +1,16 @@
 <?php
 namespace Bitrix\Main\Data\LocalStorage;
 
-use Exception;
-use Traversable;
-
 final class SessionLocalStorage implements \ArrayAccess, \Countable, \IteratorAggregate
 {
-	/** @var array */
-	private $data = [];
-	/** @var string */
-	private $uniqueName;
+	private array $data = [];
+	private string $uniqueName;
+	private string $name;
 
-	public function __construct(string $uniqueName)
+	public function __construct(string $uniqueName, string $name)
 	{
 		$this->uniqueName = $uniqueName;
+		$this->name = $name;
 	}
 
 	/**
@@ -22,6 +19,25 @@ final class SessionLocalStorage implements \ArrayAccess, \Countable, \IteratorAg
 	public function getUniqueName(): string
 	{
 		return $this->uniqueName;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getName(): string
+	{
+		return $this->name;
+	}
+
+	/**
+	 * @param string $uniqueName
+	 * @return SessionLocalStorage
+	 */
+	public function setUniqueName(string $uniqueName): self
+	{
+		$this->uniqueName = $uniqueName;
+
+		return $this;
 	}
 
 	/**

@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500');
-
 :root {
 	--view-height: 100vh;
 }
@@ -196,7 +194,8 @@
 }
 
 .bx-messenger-call-window-buttons-block .bx-messenger-call-window-button-text {
-	font: 12px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	text-transform: uppercase;
 	vertical-align: middle;
 }
@@ -403,7 +402,8 @@
 }
 
 .bx-messenger-videocall-top-button-text {
-	font: 11px/12px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #FFFFFF;
 	opacity: .7;
 	margin-left: 4px;
@@ -411,7 +411,8 @@
 }
 
 .bx-messenger-videocall-top-button-text.protected {
-	font: 9px/10px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 9px/10px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: rgba(32, 222, 130, .6);
 }
 
@@ -484,7 +485,8 @@
 	opacity: .07;
 }
 .bx-messenger-videocall-top-participants-text,.bx-messenger-videocall-top-participants-text-count {
-	font: 11px/12px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #2FC6F6;
 	opacity: .8;
 	padding: 0 0 1px 7px;
@@ -643,7 +645,8 @@
 	background-size: contain;
 }
 .bx-messenger-videocall-user-panel-button-text {
-	font: 11px/12px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #4F5966;
 	margin: 0 5px;
 }
@@ -843,7 +846,8 @@
 }
 
 .bx-messenger-videocall-panel-text {
-	font: 11px/11px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/11px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #FFFFFF;
 	opacity: .5;
 	transition: all .1s linear;
@@ -953,7 +957,8 @@
 	position: absolute;
 	right: -6px;
 	top: -5px;
-	font: 11px/16px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/16px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	height: 16px;
 	color: #FFFFFF;
 	background-color: #F54819;
@@ -1584,7 +1589,8 @@
 .bx-messenger-videocall-user-introduce-yourself-text {
     display: flex;
     align-items: center;
-    font: 12px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
     line-height: 14px;
     color: #FFF;
 }
@@ -1600,7 +1606,8 @@
 }
 
 .bx-messenger-videocall-user-list-small .bx-messenger-videocall-user-introduce-yourself-text {
-    font: 10px "OpenSans-Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 10px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 }
 
 @keyframes introduce-yourself-animation {
@@ -1631,7 +1638,7 @@
 
 .bx-videocall-mobile-rename-slider-title {
 	box-sizing: border-box;
-	font: 20px 'Roboto', sans-serif;;
+	font: 20px var(--ui-font-family-primary, var(--ui-font-family-roboto));
 	color: #333333;
 	margin-bottom: 28px;
 }
@@ -1645,7 +1652,7 @@
 	border: 2px solid #00ACE3;
 	outline: none;
 	border-radius: 3px;
-	font: 20px 'Roboto', sans-serif;
+	font: 20px var(--ui-font-family-primary, var(--ui-font-family-roboto));
 	color: #333333;
 }
 
@@ -1705,7 +1712,8 @@
 }
 
 .bx-messenger-videocall-user-name {
-	font: 12px/12px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 12px/12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: rgba(255, 255, 255, .89);
 	white-space: nowrap;
 	margin: 0 7px 0 5px;
@@ -1766,7 +1774,8 @@
 }
 
 .bx-messenger-videocall-user-status-text {
-	font: 10px/13px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 10px/13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: rgba(255,255,255,.5);
 
 	position: absolute;
@@ -2082,7 +2091,8 @@
 	top: 33px;
 	color: #FFFFFF;
 	background-color: rgba(51, 51, 51, .8);
-	font: 17px/23px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 17px/23px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	padding: 3px 14px;
 	border-radius: 16px;
 	opacity: 0;
@@ -2177,8 +2187,8 @@
 .bx-messenger-audiocall-user-name {
 	margin: 20px auto;
 	width: 530px;
-	/*font: 29px/34px "Helvetica Neue", Arial, Helvetica, sans-serif;*/
-	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	/*font: 29px/34px var(--ui-font-family-primary, var(--ui-font-family-helvetica));*/
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
@@ -2449,7 +2459,7 @@
 
 .bx-messenger-videocall-fullscreen-mobile .bx-messenger-videocall-panel-text {
 	display: inline;
-	font: 11px/12px 'Roboto', sans-serif;
+	font: 11px/12px var(--ui-font-family-primary, var(--ui-font-family-roboto));
 	margin: auto auto 4px;
 	font-weight: 500;
 	opacity: .7;
@@ -2575,12 +2585,12 @@
 }
 
 .bx-messenger-videocall-fullscreen-mobile .bx-call-view-floor-request-notification-text-container {
-	font: 12px/14px "Roboto", sans-serif;
+	font: 12px/14px var(--ui-font-family-primary, var(--ui-font-family-roboto));
 	margin-right: 10px;
 }
 
 .bx-messenger-videocall-fullscreen-mobile .bx-call-view-floor-request-notification-text-name {
-	font: 12px/14px "Roboto", sans-serif;
+	font: 12px/14px var(--ui-font-family-primary, var(--ui-font-family-roboto));
 	font-weight: 500;
 }
 
@@ -2629,7 +2639,7 @@
 	display: inline-block;
 	height: 37px;
 	margin-left: 10px;
-	font-family: 'Roboto', sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-roboto));
 	min-width: 100px;
 }
 
@@ -2719,7 +2729,8 @@
 	flex-shrink: 0;
 	border-radius: 12px;
 	height: 24px;
-	font: 11px/20px "OpenSans-Bold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 11px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-bold, 700);
 	color: #fff;
 	margin-left: 11px;
 	padding: 2px 8px 2px 3px;
@@ -2795,7 +2806,7 @@ display: inline-block;
 }
 
 .bx-messenger-videocall-top-participants-mobile-text {
-	font: 17px/20px 'Roboto', sans-serif;
+	font: 17px/20px var(--ui-font-family-primary, var(--ui-font-family-roboto));
 	margin-left: 8px;
 	color: white;
 }
@@ -2903,7 +2914,7 @@ display: inline-block;
 }
 
 .bx-videocall-mobile-menu-header {
-	font: 18px/21px 'Roboto', sans-serif;
+	font: 18px/21px var(--ui-font-family-primary, var(--ui-font-family-roboto));
 	font-weight: 500;
 	color: #333333;
 	margin: 2px auto 11px 20px;
@@ -2952,7 +2963,7 @@ display: inline-block;
 }
 
 .bx-videocall-mobile-menu-item-content {
-	font: 18px/27px 'Roboto', sans-serif;
+	font: 18px/27px var(--ui-font-family-primary, var(--ui-font-family-roboto));
 	padding: 13px 0;
 	color: #333333;
 	display: flex;
@@ -3144,8 +3155,8 @@ display: inline-block;
 }
 
 .bx-call-view-device-selector-device-text{
-	font: 14px/17px "Helvetica Neue", Arial, Helvetica, sans-serif;
-	font-weight: bold;
+	font: 14px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-weight: var(--ui-font-weight-bold);
 	color: #333333;
 }
 
@@ -3177,7 +3188,7 @@ display: inline-block;
 }
 
 .bx-call-view-device-selector-menu-item-text{
-	font: 14px/18px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525C69;
 	margin: 8px 0;
 }
@@ -3205,13 +3216,13 @@ display: inline-block;
 }
 
 .bx-call-view-device-selector-bottom-item-label {
-	font: 14px/18px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525C69;
 	margin: 0 8px;
 	cursor: pointer;
 }
 .bx-call-view-device-selector-bottom-item-action {
-	font: 14px/18px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 14px/18px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2067B0;
 	border-bottom: 1px dashed #2067B0;
 	margin: 0 8px;
@@ -3282,13 +3293,15 @@ display: inline-block;
 }
 
 .bx-call-view-floor-request-notification-text-container {
-	font: 10px/11px "OpenSans", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 10px/11px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 	color: rgba(255, 255, 255, .7);
 	text-align: center;
 }
 
 .bx-call-view-floor-request-notification-text-name {
-	font: 10px/11px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 10px/11px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: rgba(255, 255, 255, .89);
 }
 
@@ -3377,12 +3390,12 @@ display: inline-block;
 }
 
 .bx-call-view-popup-call-hint-text {
-	font: 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 14px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: white;
 }
 
 .bx-call-view-popup-call-hint-text-hotkey {
-	font: 12px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #a5a8ab;
 }
 
@@ -3465,7 +3478,8 @@ display: inline-block;
 }
 
 .bx-call-view-popup-web-screenshare-text {
-    font: 12px "OpenSans-SemiBold", "Helvetica Neue", Arial, Helvetica, sans-serif;;
+    font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
     /*margin-right: 15px;*/
     line-height: 26px;
 }

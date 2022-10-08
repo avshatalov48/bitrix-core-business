@@ -35,9 +35,6 @@
 .bx-lists-alert-popup {
 	background-color: #fffcde !important;
 	border: 1px solid #f0f0f0 !important;
-	border-radius: 3px !important;
-	-webkit-box-shadow: 0 19px 24px rgba(88, 112, 118, 0.17) !important;
-	box-shadow: 0 19px 24px rgba(88, 112, 118, 0.17) !important;
 }
 
 .lists-list-row-count-wrapper a {

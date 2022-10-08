@@ -1,3 +1,5 @@
+import 'ui.design-tokens';
+
 import {Cache, Tag, Type, Dom} from 'main.core';
 import {EventEmitter} from 'main.core.events';
 import {fetchEventsFromOptions} from 'landing.ui.component.internal';

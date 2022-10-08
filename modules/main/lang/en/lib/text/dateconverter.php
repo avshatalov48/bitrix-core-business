@@ -1,5 +1,5 @@
-<?
-$MESS["MAIN_TDC_METRIC_1_1"] = "in a day";
+<?php
+$MESS["MAIN_TDC_METRIC_1_1"] = "day after tomorrow";
 $MESS["MAIN_TDC_METRIC_1_2"] = "tomorrow";
 $MESS["MAIN_TDC_METRIC_1_3"] = "today";
 $MESS["MAIN_TDC_METRIC_1_4"] = "yesterday";
@@ -10,7 +10,6 @@ $MESS["MAIN_TDC_METRIC_1_8"] = "BXT2DMETRICSKIP";
 $MESS["MAIN_TDC_METRIC_1_9"] = "week";
 $MESS["MAIN_TDC_METRIC_1_10"] = "weekend";
 $MESS["MAIN_TDC_METRIC_1_11"] = "month";
-
 $MESS["MAIN_TDC_METRIC_2_1"] = "monday";
 $MESS["MAIN_TDC_METRIC_2_2"] = "tuesday";
 $MESS["MAIN_TDC_METRIC_2_3"] = "wednesday";
@@ -21,25 +20,21 @@ $MESS["MAIN_TDC_METRIC_2_7"] = "friday";
 $MESS["MAIN_TDC_METRIC_2_8"] = "saturday";
 $MESS["MAIN_TDC_METRIC_2_9"] = "sunday";
 $MESS["MAIN_TDC_METRIC_2_10"] = "BXT2DMETRICSKIP";
-
 $MESS["MAIN_TDC_METRIC_3_1"] = "before";
 $MESS["MAIN_TDC_METRIC_3_2"] = "after";
 $MESS["MAIN_TDC_METRIC_3_3"] = "next";
-$MESS["MAIN_TDC_METRIC_3_4"] = "previous";
+$MESS["MAIN_TDC_METRIC_3_4"] = "last";
 $MESS["MAIN_TDC_METRIC_3_5"] = "end";
 $MESS["MAIN_TDC_METRIC_3_6"] = "BXT2DMETRICSKIP";
 $MESS["MAIN_TDC_METRIC_3_7"] = "middle";
-$MESS["MAIN_TDC_METRIC_3_8"] = "start";
+$MESS["MAIN_TDC_METRIC_3_8"] = "beginning";
 $MESS["MAIN_TDC_METRIC_3_9"] = "this";
 $MESS["MAIN_TDC_METRIC_3_10"] = "BXT2DMETRICSKIP";
-
 $MESS["MAIN_TDC_METRIC_4_1"] = "MM/DD/YYYY";
 $MESS["MAIN_TDC_METRIC_4_2"] = "MM/DD/YY";
 $MESS["MAIN_TDC_METRIC_4_3"] = "MM/DD";
-
 $MESS["MAIN_TDC_METRIC_5_1"] = "morning";
-$MESS["MAIN_TDC_METRIC_5_2"] = "lunch";
+$MESS["MAIN_TDC_METRIC_5_2"] = "afternoon";
 $MESS["MAIN_TDC_METRIC_5_3"] = "BXT2DMETRICSKIP";
-$MESS["MAIN_TDC_METRIC_5_4"] = "workday";
+$MESS["MAIN_TDC_METRIC_5_4"] = "during the day";
 $MESS["MAIN_TDC_METRIC_5_5"] = "evening";
-?>

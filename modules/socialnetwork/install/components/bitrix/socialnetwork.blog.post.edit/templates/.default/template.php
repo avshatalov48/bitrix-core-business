@@ -25,13 +25,12 @@ use Bitrix\Main\Web\Json;
 
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
 
-$APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');
-$APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.blog.blog/templates/.default/style.css');
 $arParams["FORM_ID"] = "blogPostForm";
 $jsObjName = "oPostFormLHE_".$arParams["FORM_ID"];
 $id = "idPostFormLHE_".$arParams["FORM_ID"];
 
 $extensionsList = [
+	'ui.design-tokens',
 	'main.popup',
 	'sidepanel',
 	'videorecorder',
@@ -56,6 +55,9 @@ if (in_array('lists', $arResult['tabs'], true))
 }
 
 UI\Extension::load($extensionsList);
+
+$APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.log.ex/templates/.default/style.css');
+$APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/socialnetwork.blog.blog/templates/.default/style.css');
 
 if ($arResult["delete_blog_post"] === "Y")
 {
@@ -646,10 +648,9 @@ HTML;
 							"LHE" => [
 								"id" => $id,
 								"documentCSS" => "body {color:#434343;}",
-								"iframeCss" => "html body {font-size: 14px!important; line-height: 20px!important;}",
+								"iframeCss" => "html body { line-height: 20px!important;}",
 								"ctrlEnterHandler" => "submitBlogPostForm",
 								"jsObjName" => $jsObjName,
-								"fontFamily" => "'Helvetica Neue', Helvetica, Arial, sans-serif",
 								"fontSize" => "14px",
 								"bInitByJS" => (!$arResult['bVarsFromForm'] && $arParams["TOP_TABS_VISIBLE"] === "Y")
 							],
@@ -1096,11 +1097,11 @@ HTML;
 						$scriptFunc[$val["NAME"]] = $onclick;
 						if ($val["CLEAR_CANCEL"] === "Y")
 						{
-							?><button class="ui-btn ui-btn-lg ui-btn-link" id="blog-submit-button-<?= $val["NAME"] ?>"><?= $val["TEXT"] ?></button><?php
+							?><span class="ui-btn ui-btn-lg ui-btn-link" id="blog-submit-button-<?= $val["NAME"] ?>"><?= $val["TEXT"] ?></span><?php
 						}
 						else
 						{
-							?><button class="ui-btn ui-btn-lg ui-btn-primary" id="blog-submit-button-<?= $val["NAME"] ?>"><?= $val["TEXT"] ?></button><?php
+							?><span class="ui-btn ui-btn-lg ui-btn-primary" id="blog-submit-button-<?= $val["NAME"] ?>"><?= $val["TEXT"] ?></span><?php
 						}
 					}
 					if (!empty($scriptFunc))

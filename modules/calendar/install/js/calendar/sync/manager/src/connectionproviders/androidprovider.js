@@ -15,9 +15,9 @@ export class AndroidProvider extends ConnectionProvider
 			viewClassification: 'mobile',
 			templateClass: 'BX.Calendar.Sync.Interface.AndroidTemplate',
 		});
-		this.syncTimestamp = options.syncInfo.syncTimestamp;
 		this.connectionName = Loc.getMessage('CALENDAR_TITLE_ANDROID');
 
+		this.setSyncDate(options.syncInfo.syncOffset);
 		this.setConnections();
 	}
 }

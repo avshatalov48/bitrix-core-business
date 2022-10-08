@@ -18,9 +18,6 @@ use Bitrix\Catalog\v2\Sku\SkuRepositoryContract;
 use Bitrix\Main\Event;
 use Bitrix\Main\ORM;
 use Bitrix\Main\Result;
-use Bitrix\Main\Error;
-use Bitrix\Main\DB\SqlException;
-use Bitrix\Main\Application;
 
 /**
  * Class BaseProduct
@@ -255,36 +252,5 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 		}
 
 		return parent::setField($name, $value);
-	}
-
-	/**
-	 * @return Result
-	 * @throws \Bitrix\Main\DB\SqlQueryException
-	 */
-	public function save(): Result
-	{
-		$result = new Result();
-		
-		$connection = Application::getConnection();
-		try
-		{
-			$connection->startTransaction();
-			$result = parent::save();
-			if ($result->isSuccess())
-			{
-				$connection->commitTransaction();
-			}
-			else
-			{
-				$connection->rollbackTransaction();
-			}
-		}
-		catch (SqlException $exception)
-		{
-			$connection->rollbackTransaction();
-			$result->addError(new Error($exception->getMessage()));
-		}
-
-		return $result;
 	}
 }

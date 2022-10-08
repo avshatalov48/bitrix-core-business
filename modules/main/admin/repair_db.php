@@ -10,7 +10,7 @@
  * @global CDatabase $DB
  */
 
-require_once(dirname(__FILE__)."/../include/prolog_admin_before.php");
+require_once(__DIR__."/../include/prolog_admin_before.php");
 define("HELP_FILE", "utilities/repair_db.php");
 IncludeModuleLangFile(__FILE__);
 
@@ -216,7 +216,7 @@ elseif(isset($_REQUEST["table_name"]) && check_bitrix_sessid())
 else
 {
 	$APPLICATION->SetTitle(GetMessage("RDB_REPAIR_DATABASE"));
-	require_once(dirname(__FILE__)."/../include/prolog_admin_after.php");
+	require_once(__DIR__."/../include/prolog_admin_after.php");
 	if($DB->type == "MYSQL")
 	{
 		if($_REQUEST["check_tables"]=="Y" && check_bitrix_sessid())
@@ -419,5 +419,5 @@ else
 			"TYPE" => "ERROR",
 		));
 	}
-	require_once(dirname(__FILE__)."/../include/epilog_admin.php");
+	require_once(__DIR__."/../include/epilog_admin.php");
 }

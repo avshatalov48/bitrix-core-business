@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Main\Service\GeoIp;
 
 use Bitrix\Main;
@@ -33,10 +34,11 @@ class Result extends Main\Result
 
 	/**
 	 * @param Data $geoData
+	 * @return $this
 	 */
 	public function setGeoData(Data $geoData)
 	{
 		$this->geoData = $geoData;
+		return $this;
 	}
 }
-

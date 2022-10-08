@@ -6,7 +6,7 @@ global $APPLICATION;
 
 $APPLICATION->restartBuffer();
 
-\CJSCore::init('sidepanel');
+\Bitrix\Main\UI\Extension::load(['sidepanel', 'ui.fonts.opensans']);
 
 ?><!DOCTYPE html>
 <html>

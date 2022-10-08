@@ -46,7 +46,7 @@
 	align-items: center;
 	margin: 0 29px 0 0;
 	height: 27px;
-	font: 13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #515E68;
 	text-align: left;
 	transition: opacity .3s;
@@ -68,7 +68,8 @@
 .main-post-form-toolbar-button .ui-counter-inner {
 	padding: 0 4px;
 	min-width: 15px;
-	font: bold 8px/var(--ui-counter-current-size) "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 8px/var(--ui-counter-current-size) var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .main-post-form-toolbar-button[data-bx-button-status="active"] {
@@ -111,7 +112,7 @@
 	background-position: center left;
 	margin-top: 0;
 	padding-left: 23px;
-	font: 13px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 13px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #525c69;
 }
 
@@ -468,7 +469,7 @@ html.bx-ios.bx-ios-fix-frame-focus, html.bx-ios.bx-ios-fix-frame-focus iframe, .
 }
 
 .feed-add-post-dnd-text {
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 18px;
 	color: rgba(83,92,105,0.7);
 }
@@ -553,7 +554,7 @@ html.bx-ios.bx-ios-fix-frame-focus, html.bx-ios.bx-ios-fix-frame-focus iframe, .
 	border-radius: var(--ui-border-radius-3xs, 1px);
 	font-size: 13px;
 	display: inline-block;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	margin: 0 6px 6px 0;
 	height: 30px;
 	line-height: 29px;
@@ -704,7 +705,7 @@ html.bx-ios.bx-ios-fix-frame-focus, html.bx-ios.bx-ios-fix-frame-focus iframe, .
 	color: #555;
 	display: inline-block;
 	font-size: 12px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	margin: 0 7px 7px 0;
 	height: 30px;
 	min-width: 108px;
@@ -719,7 +720,7 @@ html.bx-ios.bx-ios-fix-frame-focus, html.bx-ios.bx-ios-fix-frame-focus iframe, .
 	color: #2067b0;
 	cursor: pointer;
 	display: inline-block;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	font-size: 13px;
 	margin: 7px 7px 7px 18px;
 	line-height: 17px;
@@ -795,7 +796,7 @@ html.bx-ios.bx-ios-fix-frame-focus, html.bx-ios.bx-ios-fix-frame-focus iframe, .
 	border-radius: 1px;
 	display: inline-block;
 	font-size: 13px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 	height: 30px;
 	line-height: 29px;
 	margin: 0 7px 7px 0;

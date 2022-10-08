@@ -7,6 +7,7 @@
  * @copyright 2001-2019 Bitrix
  */
 
+import 'ui.design-tokens';
 import './body.css';
 import 'im.view.element.media';
 import 'im.view.element.attach';

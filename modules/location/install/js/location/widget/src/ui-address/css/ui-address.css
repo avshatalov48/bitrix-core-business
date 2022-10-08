@@ -1,0 +1,22 @@
+.location-search-control-block {
+	flex: 1;
+	padding-bottom: 15px;
+}
+
+.location-fields-control-block{
+	height: 0;
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 1s;
+	-webkit-transition: max-height 1s;
+	padding-left: 15px;
+}
+
+.location-fields-control-block.visible{
+	height: auto;
+	max-height: 10000px;
+	background: #F6F6F7;
+	border: none;
+	padding: 15px 20px;
+	margin-top: 10px;
+}

@@ -111,8 +111,8 @@ public function __construct($orientation='P', $unit='mm', $size='A4')
 		if(mb_substr($this->fontpath,-1,mb_strlen($this->fontpath,'8bit'),'8bit')!='/' && mb_substr($this->fontpath,-1,mb_strlen($this->fontpath,'8bit'),'8bit')!='\\')
 			$this->fontpath .= '/';
 	}
-	elseif(is_dir(dirname(__FILE__).'/font'))
-		$this->fontpath = dirname(__FILE__).'/font/';
+	elseif(is_dir(__DIR__.'/font'))
+		$this->fontpath = __DIR__.'/font/';
 	else
 		$this->fontpath = '';
 	// Core fonts
@@ -504,7 +504,7 @@ function AddFont($family, $style='', $file='', $uni=false)
 		}
 		if (!isset($type) ||  !isset($name) || $originalsize != $ttfstat['size']) {
 			$ttffile = $ttffilename;
-			require_once(dirname(__FILE__).'/ttfonts.php');
+			require_once(__DIR__.'/ttfonts.php');
 			$ttf = new TTFontFile();
 			$ttf->getMetrics($ttffile);
 			$cw = $ttf->charWidths;
@@ -1884,7 +1884,7 @@ function _putfonts()
 		// TrueType embedded SUBSETS or FULL
 		else if ($type=='TTF') {
 			$this->fonts[$k]['n']=$this->n+1;
-			require_once(dirname(__FILE__).'/ttfonts.php');
+			require_once(__DIR__.'/ttfonts.php');
 			$ttf = new TTFontFile();
 			$fontname = 'MPDFAA'.'+'.$font['name'];
 			$subset = $font['subset'];

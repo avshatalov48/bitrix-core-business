@@ -89,5 +89,5 @@ switch($_REQUEST['mode'])
 
 header('Content-Type: application/json');
 echo \Bitrix\Main\Web\Json::encode(array_values(array_filter($elements)));
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php');
-die();
+
+CMain::FinalActions();

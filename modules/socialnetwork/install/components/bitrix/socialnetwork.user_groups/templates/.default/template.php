@@ -12,14 +12,16 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Update\Stepper;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI;
 
 \Bitrix\Main\UI\Extension::load([
-	'socialnetwork.common',
+	'ui.design-tokens',
 	'ui.fonts.opensans',
+	'socialnetwork.common',
 	'ui.icons.b24',
 ]);
 
@@ -220,10 +222,10 @@ else
 
 		if (
 			!$arResult["AJAX_CALL"]
-			&& SITE_TEMPLATE_ID == "bitrix24"
+			&& SITE_TEMPLATE_ID === "bitrix24"
 			&& (
 				(
-					ModuleManager::isModuleInstalled('bitrix24')
+					Loader::includeModule('bitrix24')
 					&& \CBitrix24::isPortalAdmin($USER->getId())
 				)
 				|| (

@@ -1,4 +1,4 @@
-import { Type, Event, Loc, Dom, Text, Reflection, Uri } from "main.core";
+import { Type, Event, Loc, Dom, Text, Reflection, Uri, ajax } from "main.core";
 import { MenuManager } from "main.popup";
 import { EventEmitter } from "main.core.events";
 import { ViewMode } from "./view-mode";
@@ -787,7 +787,7 @@ export class TriggerManager extends EventEmitter
 		const titleBar = trigger.draft ? this.createChangeTriggerTitleBar(title, trigger.documentStatus) : null;
 
 		const self = this;
-		const popup = new BX.PopupWindow(BX.Bizproc.Helper.generateUniqueId(), null, {
+		const popup = new BX.PopupWindow(Helper.generateUniqueId(), null, {
 			titleBar: titleBar || title,
 			content: form,
 			closeIcon: true,
@@ -864,6 +864,15 @@ export class TriggerManager extends EventEmitter
 								self.#triggers.push(trigger);
 								self.insertTriggerNode(trigger.getStatusId(), trigger.node)
 							}
+
+							//analytics
+							ajax.runAction(
+								'bizproc.analytics.push',
+								{
+									analyticsLabel: `automation_trigger${trigger.draft ? '_draft' : ''}_save_${trigger.getCode().toLowerCase()}`
+								}
+							);
+
 							delete trigger.draft;
 
 							trigger.reInit();
@@ -887,6 +896,14 @@ export class TriggerManager extends EventEmitter
 
 		Designer.getInstance().getTriggerSettingsDialog().popup = popup;
 		popup.show();
+
+		//analytics
+		ajax.runAction(
+			'bizproc.analytics.push',
+			{
+				analyticsLabel: `automation_trigger${trigger.draft ? '_draft' : ''}_settings_${trigger.getCode().toLowerCase()}`
+			}
+		);
 	}
 
 	createChangeTriggerTitleBar(title, statusId)

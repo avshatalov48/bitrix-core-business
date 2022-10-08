@@ -24,7 +24,7 @@
 	color: #535353;
 	float: left;
 	font-size: 14px;
-	font-weight: bold;
+	font-weight: var(--ui-font-weight-bold);
 }
 
 .bxu-edit-cls {
@@ -71,7 +71,7 @@
 	display: block;
 	margin-left: -1px;
 	height: 31px;
-	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	font-size: 13px;
 	padding: 0 5px;
 	width: 95%;
@@ -164,7 +164,7 @@
 }
 
 .bxu-edit-footer .webform-small-button-text {
-	font-weight: bold !important;
+	font-weight: var(--ui-font-weight-bold) !important;
 }
 
 .webform-small-button-disable .webform-small-button-text {

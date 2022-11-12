@@ -166,6 +166,7 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 			var hint = BX.prop.getString(this._settings, "hint", "");
 			var title = BX.prop.getString(this._settings, "title", "");
 			var originalTitle = BX.prop.getString(this._settings, "originalTitle", "");
+			var lockText = BX.prop.getString(this._settings, 'lockText', '');
 
 			if(title !== "" && originalTitle === "")
 			{
@@ -179,6 +180,7 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 			this._hint = hint;
 			this._title = title;
 			this._originalTitle = originalTitle;
+			this._lockText = lockText;
 			//endregion
 
 			this._optionFlags = BX.prop.getInteger(this._settings, "optionFlags", 0);
@@ -223,6 +225,10 @@ if(typeof BX.UI.EntitySchemeElement === "undefined")
 		getHint: function()
 		{
 			return this._hint;
+		},
+		getLockText: function ()
+		{
+			return this._lockText;
 		},
 		getTitle: function()
 		{

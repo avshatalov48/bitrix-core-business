@@ -399,7 +399,7 @@ class TranslateEditComponent extends Translate\ComponentBase
 		// from request
 		$path = $this->request->get($inpName);
 
-		if (!empty($path) && !preg_match("#\.\.[\\/]#".BX_UTF_PCRE_MODIFIER, $path))
+		if (!empty($path) && !preg_match("#\.\.[\\/]#".\BX_UTF_PCRE_MODIFIER, $path))
 		{
 			$path = Translate\IO\Path::normalize($path);
 			if (Translate\Permission::isAllowPath($path))

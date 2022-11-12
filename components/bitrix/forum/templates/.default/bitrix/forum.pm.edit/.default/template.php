@@ -193,7 +193,7 @@ $arParams["FORM_ID"] = "REPLIER";
 					'content' => (isset($arResult['POST_VALUES']["~POST_MESSAGE"]) ? $arResult['POST_VALUES']["~POST_MESSAGE"] : $arResult['POST_VALUES']["POST_MESSAGE"]),
 					'fontSize' => '14px',
 					'iframeCss' =>
-						'.bx-spoiler {border:1px solid #C0C0C0;background-color:#fff4ca;padding: 4px 4px 4px 24px;color:#373737;border-radius:2px;min-height:1em;margin: 0;}'.
+						'.bx-spoiler {border:1px solid #cecece;background-color:#f6f6f6;padding: 8px 8px 8px 24px;color:#373737;border-radius:var(--ui-border-radius-sm, 2px);min-height:1em;margin: 0;}'.
 						(is_array($arParams["LHE"]) && isset($arParams["LHE"]["iframeCss"]) ? $arParams["LHE"]["iframeCss"] : ""),
 				)
 			);

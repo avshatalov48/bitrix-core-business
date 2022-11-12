@@ -18,7 +18,7 @@ class Path
 	{
 		$modifier = Translate\Config::isUtfMode() ? 'u' : '';
 
-		return preg_replace("#[\\\\\\/]+#".$modifier, self::DIRECTORY_SEPARATOR, $path);
+		return \preg_replace("#[\\\\\\/]+#".$modifier, self::DIRECTORY_SEPARATOR, $path);
 	}
 
 	/**
@@ -32,7 +32,7 @@ class Path
 	{
 		$modifier = Translate\Config::isUtfMode() ? 'u' : '';
 
-		return preg_replace("#\.\.+[\/\\\]+#i".$modifier, '', $path);
+		return \preg_replace("#\.\.+[\/\\\]+#i".$modifier, '', $path);
 	}
 
 
@@ -47,21 +47,21 @@ class Path
 	public static function isLangDir($path, $additionalCheck = false)
 	{
 		$modifier = Translate\Config::isUtfMode() ? 'u' : '';
-		if (preg_match("#/lang/([^/]*?)(/|\$)#".$modifier, $path, $match))
+		if (\preg_match("#/lang/([^/]*?)(/|\$)#".$modifier, $path, $match))
 		{
 			foreach (Translate\IGNORE_LANG_NAMES as $check)
 			{
-				if (mb_strpos($path, '/lang/'.$match[1].'/'.$check.'/') !== false)
+				if (\mb_strpos($path, '/lang/'.$match[1].'/'.$check.'/') !== false)
 				{
 					return false;
 				}
 			}
 			if ($additionalCheck)
 			{
-				$arr = explode(self::DIRECTORY_SEPARATOR, $path);
-				$langKey = array_search('lang', $arr) + 1;
+				$arr = \explode(self::DIRECTORY_SEPARATOR, $path);
+				$langKey = \array_search('lang', $arr) + 1;
 
-				return array_key_exists($langKey, $arr) && $arr[$langKey] <> '';
+				return \array_key_exists($langKey, $arr) && $arr[$langKey] <> '';
 			}
 
 			return true;
@@ -79,8 +79,8 @@ class Path
 	 */
 	public static function extractLangId($path)
 	{
-		$arr = explode(self::DIRECTORY_SEPARATOR, $path);
-		$pos = array_search('lang', $arr);
+		$arr = \explode(self::DIRECTORY_SEPARATOR, $path);
+		$pos = \array_search('lang', $arr);
 		if ($pos !== false && !empty($arr[$pos + 1]))
 		{
 			return $arr[$pos + 1];
@@ -101,7 +101,7 @@ class Path
 	{
 		$modifier = Translate\Config::isUtfMode() ? 'u' : '';
 
-		return preg_replace("#^(.*?/lang/)([^/]*?)(/|$)#".$modifier, "\\1$langId\\3", $path);
+		return \preg_replace("#^(.*?/lang/)([^/]*?)(/|$)#".$modifier, "\\1$langId\\3", $path);
 	}
 
 
@@ -120,22 +120,22 @@ class Path
 		{
 			if (empty($defLangs))
 			{
-				$defLangs = array_unique(array_merge(
+				$defLangs = \array_unique(\array_merge(
 					Translate\Config::getDefaultLanguages(),
 					Translate\Config::getEnabledLanguages()
 				));
 			}
 			$langs = $defLangs;
 		}
-		$arr = explode(self::DIRECTORY_SEPARATOR, $path);
-		if (in_array('lang', $arr))
+		$arr = \explode(self::DIRECTORY_SEPARATOR, $path);
+		if (\in_array('lang', $arr))
 		{
-			$langKey = array_search('lang', $arr) + 1;
-			if (in_array($arr[$langKey], $langs))
+			$langKey = \array_search('lang', $arr) + 1;
+			if (\in_array($arr[$langKey], $langs))
 			{
 				unset($arr[$langKey]);
 			}
-			$path = implode(self::DIRECTORY_SEPARATOR, $arr);
+			$path = \implode(self::DIRECTORY_SEPARATOR, $arr);
 		}
 
 		return $path;
@@ -154,8 +154,8 @@ class Path
 	{
 		$pathTemp = self::removeLangId($path, $langs);
 
-		$arr = explode('/', $pathTemp);
-		if (in_array('lang', $arr))
+		$arr = \explode('/', $pathTemp);
+		if (\in_array('lang', $arr))
 		{
 			$arr1 = array();
 			foreach($arr as $d)
@@ -166,7 +166,7 @@ class Path
 					$arr1[] = $langId;
 				}
 			}
-			$path = implode('/', $arr1);
+			$path = \implode('/', $arr1);
 		}
 
 		return $path;
@@ -182,7 +182,7 @@ class Path
 	public static function checkCreatePath($path)
 	{
 		$path = self::normalize($path);
-		$path = rtrim($path, self::DIRECTORY_SEPARATOR);
+		$path = \rtrim($path, self::DIRECTORY_SEPARATOR);
 
 		if($path == '')
 		{
@@ -190,11 +190,11 @@ class Path
 			return true;
 		}
 
-		if(!file_exists($path))
+		if (!\file_exists($path))
 		{
-			return mkdir($path, BX_DIR_PERMISSIONS, true);
+			return \mkdir($path, \BX_DIR_PERMISSIONS, true);
 		}
 
-		return is_dir($path);
+		return \is_dir($path);
 	}
 }

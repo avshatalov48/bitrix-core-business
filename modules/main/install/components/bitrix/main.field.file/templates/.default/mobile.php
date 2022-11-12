@@ -6,7 +6,7 @@ use Bitrix\Main\Text\HtmlFilter;
 
 foreach($arResult['value'] as $fileInfo)
 {
-	if(\CFile::IsImage($fileInfo['SRC'], $fileInfo['CONTENT_TYPE']))
+	if(\CFile::IsImage($fileInfo['ORIGINAL_NAME'], $fileInfo['CONTENT_TYPE']))
 	{
 		print CFile::ShowImage(
 			$fileInfo,

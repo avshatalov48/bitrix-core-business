@@ -46,6 +46,11 @@ class SetDefaultValueStepper extends Stepper
 			return $this->firstRun($option);
 		}
 
+		if (empty($option['count']))
+		{
+			return self::FINISH_EXECUTION;
+		}
+
 		// processing
 		$defaultValues = $this->getDefaultValues();
 		if (!$defaultValues)
@@ -55,11 +60,8 @@ class SetDefaultValueStepper extends Stepper
 
 		$lastId = (int)($option['last_id'] ?? 0);
 		$products = $this->getProductsWithEmptyValue($lastId);
-		if ($products->getSelectedRowsCount() === 0)
-		{
-			return self::FINISH_EXECUTION;
-		}
-		$option['steps'] += $products->getSelectedRowsCount();
+
+		$stepCount = 0;
 
 		$db = Application::getConnection();
 		try
@@ -79,6 +81,7 @@ class SetDefaultValueStepper extends Stepper
 					]
 				);
 				$lastId = $productId;
+				$stepCount++;
 			}
 
 			$db->commitTransaction();
@@ -90,9 +93,13 @@ class SetDefaultValueStepper extends Stepper
 			throw $e;
 		}
 
-		$option['last_id'] = $lastId;
+		if ($stepCount === 0)
+		{
+			return self::FINISH_EXECUTION;
+		}
 
-		unset($userFieldManager);
+		$option['steps'] += $stepCount;
+		$option['last_id'] = $lastId;
 
 		return self::CONTINUE_EXECUTION;
 	}
@@ -118,7 +125,18 @@ class SetDefaultValueStepper extends Stepper
 			return self::FINISH_EXECUTION;
 		}
 
-		$option['count'] = $this->getProductsToBeProcessedTotalCount();
+		if (!$this->isNotEmptyProducts())
+		{
+			return self::FINISH_EXECUTION;
+		}
+
+		$count = $this->getProductsToBeProcessedTotalCount();
+		if ($count === 0)
+		{
+			return self::FINISH_EXECUTION;
+		}
+
+		$option['count'] = $count;
 		$option['title'] = self::getTitle();
 		$option['is_started'] = true;
 		$option['last_id'] = null;
@@ -160,7 +178,7 @@ class SetDefaultValueStepper extends Stepper
 		LEFT JOIN b_uts_product ON b_catalog_product.id = b_uts_product.value_id
 		WHERE b_catalog_product.TYPE in ({$typeIds})
 		AND b_uts_product.UF_PRODUCT_MAPPING IS NULL {$where}
-		ORDER BY b_catalog_product.id ASC
+		" . ($isCountSelect ? "" : "ORDER BY b_catalog_product.id ASC") . "
 		");
 	}
 
@@ -190,6 +208,15 @@ class SetDefaultValueStepper extends Stepper
 		return (int)Application::getConnection()->queryScalar($sql);
 	}
 
+	private function isNotEmptyProducts(): bool
+	{
+		return ProductTable::getRow([
+			'select' => [
+				'ID',
+			]
+		]) !== null;
+	}
+
 	/**
 	 * Default values for filling.
 	 *
@@ -210,5 +237,54 @@ class SetDefaultValueStepper extends Stepper
 		);
 
 		return $values;
+	}
+
+	public static function clearAbandonedSteppersAgent(): string
+	{
+		$option = \Bitrix\Main\Config\Option::get(
+			'main.stepper.catalog',
+			__CLASS__,
+			null,
+			''
+		);
+		$needRemove = false;
+		if ($option !== null)
+		{
+			if ($option === '')
+			{
+				$needRemove = true;
+			}
+			if (!CheckSerializedData($option))
+			{
+				$needRemove = true;
+			}
+			else
+			{
+				$option = unserialize($option, ['allowed_classes' => false]);
+				if (empty($option) || !is_array($option))
+				{
+					$needRemove = true;
+				}
+				else
+				{
+					if (empty($option['count']))
+					{
+						$needRemove = true;
+					}
+				}
+			}
+		}
+
+		if ($needRemove)
+		{
+			\Bitrix\Main\Config\Option::delete(
+				'main.stepper.catalog',
+				[
+					'name' => __CLASS__
+				]
+			);
+		}
+
+		return '';
 	}
 }

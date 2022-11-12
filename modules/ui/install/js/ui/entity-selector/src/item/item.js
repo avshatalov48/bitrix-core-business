@@ -599,6 +599,13 @@ export default class Item
 		if (Type.isBoolean(flag))
 		{
 			this.hidden = flag;
+
+			if (this.isRendered())
+			{
+				this.getNodes().forEach((node: ItemNode) => {
+					node.setHidden(flag);
+				});
+			}
 		}
 	}
 

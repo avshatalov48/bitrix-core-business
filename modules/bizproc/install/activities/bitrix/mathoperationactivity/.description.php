@@ -5,9 +5,11 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Localization\Loc;
+
 $arActivityDescription = [
-	'NAME' => GetMessage('BPMOA_DESCR_NAME'),
-	'DESCRIPTION' => GetMessage('BPMOA_DESCR_DESCR'),
+	'NAME' => Loc::getMessage('BPMOA_DESCR_NAME_1'),
+	'DESCRIPTION' => Loc::getMessage('BPMOA_DESCR_DESCR_1'),
 	'TYPE' => ['activity', 'robot_activity'],
 	'CLASS' => 'MathOperationActivity',
 	'JSCLASS' => 'BizProcActivity',
@@ -15,7 +17,8 @@ $arActivityDescription = [
 		'ID' => 'other',
 	],
 	'ROBOT_SETTINGS' => [
-		'TITLE' => GetMessage('BPMOA_DESCR_ROBOT_TITLE'),
 		'CATEGORY' => 'employee',
+		'GROUP' => ['modificationData'],
+		'SORT' => 5100,
 	],
 ];

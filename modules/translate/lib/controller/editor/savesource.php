@@ -23,13 +23,20 @@ class SaveSource
 		Loc::loadLanguageFile(__DIR__. '/operation.php');
 		Loc::loadLanguageFile(__FILE__);
 
-		$result = array();
+		$result = [];
 		if (empty($file))
 		{
 			$this->addError(new Main\Error(Loc::getMessage('TR_EDIT_FILE_PATH_ERROR')));
 			return $result;
 		}
-		if (!Translate\IO\Path::isLangDir($file, true) || (mb_substr($file, -4) !== '.php'))
+		$normalized = Main\IO\Path::normalize($file);
+		if ($normalized != $file)
+		{
+			$this->addError(new Main\Error(Loc::getMessage('TR_EDIT_FILE_WRONG_NAME')));
+			return $result;
+		}
+		$file = $normalized;
+		if (!Translate\IO\Path::isLangDir($file, true) || (\mb_substr($file, -4) !== '.php'))
 		{
 			$this->addError(new Main\Error(Loc::getMessage('TR_EDIT_ERROR_FILE_NOT_LANG', array('#FILE#' => $file))));
 			return $result;
@@ -48,18 +55,18 @@ class SaveSource
 
 		// languages to update
 		$languagesToUpdateTmp = $request->getPost('LANGS');
-		if ($languagesToUpdateTmp !== null && is_array($languagesToUpdateTmp) && count($languagesToUpdateTmp) > 0)
+		if ($languagesToUpdateTmp !== null && \is_array($languagesToUpdateTmp) && \count($languagesToUpdateTmp) > 0)
 		{
-			$languagesToUpdate = array_intersect($languagesToUpdateTmp, $enabledLanguagesList);
+			$languagesToUpdate = \array_intersect($languagesToUpdateTmp, $enabledLanguagesList);
 		}
 		unset($languagesToUpdateTmp);
 
 		$currentEncoding = Main\Localization\Translation::getCurrentEncoding();
-		$documentRoot = rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
+		$documentRoot = \rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
 
 		foreach ($enabledLanguagesList as $langId)
 		{
-			if (!in_array($langId, $languagesToUpdate))
+			if (!\in_array($langId, $languagesToUpdate))
 			{
 				continue;
 			}
@@ -86,7 +93,7 @@ class SaveSource
 
 			$fileSrcForSave = $request->getPost('SRC_'. $langId);
 
-			if (empty($fileSrcForSave) || !is_string($fileSrcForSave))
+			if (empty($fileSrcForSave) || !\is_string($fileSrcForSave))
 			{
 				$this->addError(new Main\Error(Loc::getMessage('TR_EDIT_PARAM_ERROR')));
 				continue;

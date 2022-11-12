@@ -153,7 +153,7 @@ class SqlTracker implements \Iterator
 		if ($this->logFilePath)
 		{
 			$application = Application::getInstance();
-			if ($application->isInitialized())
+			if ($application->isInitialized() && $application->getKernelSession()->isStarted())
 			{
 				$sessionId = $application->getKernelSession()->getId();
 			}

@@ -244,7 +244,7 @@
 					return true;
 				}
 
-				var tmplNode = document.querySelector('script[data-bx-template]');
+				var tmplNode = document.querySelector('div[data-bx-template]');
 				if (!tmplNode)
 				{
 					return false;

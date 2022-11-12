@@ -64,6 +64,28 @@ abstract class EntityDataProvider extends DataProvider
 			];
 		}
 
+		$isEnableAllUsers = isset($params['isEnableAllUsers']) && $params['isEnableAllUsers'] === true;
+		$isEnableOtherUsers = isset($params['isEnableOtherUsers']) && $params['isEnableOtherUsers'] === true;
+
+		if ($isEnableAllUsers || $isEnableOtherUsers)
+		{
+			$metaUser = [
+				'id' => 'meta-user',
+				'options' => [],
+			];
+
+			if ($isEnableAllUsers)
+			{
+				$metaUser['options']['all-users'] = true;
+			}
+			if ($isEnableOtherUsers)
+			{
+				$metaUser['options']['other-users'] = true;
+			}
+
+			$entities[] = $metaUser;
+		}
+
 		return [
 			'params' => [
 				'multiple' => 'Y',

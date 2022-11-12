@@ -1526,6 +1526,28 @@ EOS;
 		return false;
 	}
 
+	public function onDebugSessionDocumentStatusChanged(array $parameterDocumentId, int $userId, string $status)
+	{
+		[$moduleId, $entity, $documentId] = CBPHelper::ParseDocumentId($parameterDocumentId);
+
+		if (!\Bitrix\Bizproc\Debugger\Session\DocumentStatus::isStatus($status) || $userId <= 0)
+		{
+			return;
+		}
+
+		if ($moduleId)
+		{
+			CModule::IncludeModule($moduleId);
+		}
+
+		if (class_exists($entity) && method_exists($entity,'onDebugSessionDocumentStatusChanged'))
+		{
+			return call_user_func_array([$entity, 'onDebugSessionDocumentStatusChanged'], [$documentId, $userId, $status]);
+		}
+
+		return;
+	}
+
 	public function createAutomationTarget($parameterDocumentType)
 	{
 		[$moduleId, $entity, $documentType] = CBPHelper::ParseDocumentId($parameterDocumentType);
@@ -1538,7 +1560,8 @@ EOS;
 		if (class_exists($entity) && method_exists($entity, "createAutomationTarget"))
 		{
 			/** @var \Bitrix\Bizproc\Automation\Target\BaseTarget $target */
-			$target = call_user_func_array(array($entity, "createAutomationTarget"), array($documentType));
+			$target = call_user_func_array([$entity, "createAutomationTarget"], [$documentType]);
+
 			return $target;
 		}
 

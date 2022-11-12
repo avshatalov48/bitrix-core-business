@@ -124,8 +124,12 @@ class DatetimeField extends DateField
 		}
 		catch (ArgumentTypeException $e)
 		{
+			$exceptionMsg = $this->entity
+				? "Type error in `{$this->name}` of `{$this->entity->getFullName()}`"
+				: "Type error in `{$this->name}`";
+
 			throw new ArgumentException(
-				"Type error in `{$this->name}` of `{$this->entity->getFullName()}`: ".$e->getMessage()
+				"{$exceptionMsg}: {$e->getMessage()}"
 			);
 		}
 	}

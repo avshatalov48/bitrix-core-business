@@ -37,11 +37,11 @@ class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess
 	 */
 	public function __construct($param = null)
 	{
-		if (is_array($param))
+		if (\is_array($param))
 		{
 			$this->params = $param;
 		}
-		elseif (is_int($param) && (int)$param > 0)
+		elseif (\is_int($param) && (int)$param > 0)
 		{
 			$this->restore((int)$param);
 		}
@@ -99,7 +99,7 @@ class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess
 		if (isset($this->params[$code]))
 		{
 			unset($this->params[$code]);
-			$this->iterateCodes = array_keys($this->params);
+			$this->iterateCodes = \array_keys($this->params);
 		}
 	}
 
@@ -157,7 +157,7 @@ class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess
 	public function rewind()
 	{
 		$this->iteratePosition = 0;
-		$this->iterateCodes = array_keys($this->params);
+		$this->iterateCodes = \array_keys($this->params);
 	}
 
 	//endregion
@@ -170,7 +170,7 @@ class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess
 	 */
 	public function serialize()
 	{
-		return serialize($this->params);
+		return \serialize($this->params);
 	}
 
 	/**
@@ -181,8 +181,8 @@ class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess
 	{
 		if (!empty($data))
 		{
-			$deserialized = unserialize($data, ['allowed_classes' => false]);
-			if (is_array($deserialized))
+			$deserialized = \unserialize($data, ['allowed_classes' => false]);
+			if (\is_array($deserialized))
 			{
 				$this->params = $deserialized;
 			}
@@ -318,7 +318,7 @@ class Filter implements \Iterator, \Countable, \Serializable, \ArrayAccess
 	 */
 	public function count()
 	{
-		return is_array($this->params) ? count($this->params) : 0;
+		return \is_array($this->params) ? \count($this->params) : 0;
 	}
 
 	//endregion

@@ -607,6 +607,14 @@ input.ui-entity-editor-header-title-text {
 	width: 50%;
 }
 
+.field-item.date input,
+.field-item.datetime input {
+	max-width: 100%;
+	padding-right: 30px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 .field-item input,
 .field-item select,
 .field-item textarea,
@@ -1309,6 +1317,110 @@ input.ui-entity-editor-header-title-text {
 
 /*endregion*/
 
+/*region Editor - Products summary*/
+
+.ui-entity-editor-product-summary-container {
+	width: 100%;
+}
+
+.ui-entity-editor-product-summary-empty-list-container {
+	border: 1px dotted #82A9D3;
+	padding: 10px;
+	border-radius: var(--ui-field-border-radius, 2px);
+	cursor: pointer;
+}
+
+.ui-enitity-editor-product-summary-tab-link,
+.ui-entity-editor-product-summary-empty-list-title {
+	cursor: pointer;
+	display: block;
+	font: 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #2066B0;
+}
+
+.ui-enitity-editor-product-summary-total-info {
+	display: block;
+	font: 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #000000;
+}
+
+.ui-entity-editor-product-list-container {
+	margin-top: 10px;
+	margin-bottom: 0;
+	padding: 0;
+	border: 1px solid transparent;
+	background-color: rgba(230, 234, 240, 0.42);
+	border-radius: 7px;
+
+	transition: max-height 500ms ease;
+	overflow: hidden;
+}
+
+.ui-entity-editor-product-row-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: start;
+	align-items: center;
+	margin: 15px 15px;
+}
+
+
+.ui-enitity-editor-product-photo {
+	display: block;
+	width: 37px;
+	height: 37px;
+	border-radius: 50%;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='37' height='37'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cpath fill='%23D8D8D8' d='M18.5 0C28.717 0 37 8.283 37 18.5S28.717 37 18.5 37 0 28.717 0 18.5 8.283 0 18.5 0zm0 1C8.835 1 1 8.835 1 18.5S8.835 36 18.5 36 36 28.165 36 18.5 28.165 1 18.5 1z'/%3E%3Cpath fill='%23828B95' d='M12 10h13a2 2 0 012 2v13a2 2 0 01-2 2H12a2 2 0 01-2-2V12a2 2 0 012-2zm0 15h13v-1l-3.466-4-1.734 2-4.334-5L12 21v4zm9.5-9a1.5 1.5 0 100-3 1.5 1.5 0 000 3z'/%3E%3C/g%3E%3C/svg%3E");
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.ui-entity-editor-product-title-link {
+	font: 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #0B4B85;
+	cursor: pointer;
+}
+
+.ui-entity-editor-product-title {
+	font: 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #000000;
+}
+
+.ui-enitity-editor-product-info {
+	margin-left: 10px;
+}
+
+.ui-enitity-editor-product-details {
+	font: 12px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.ui-entity-editor-product-details-properties {
+	margin-right: 8px;
+	color: #525C69;
+}
+
+.ui-entity-editor-product-details-price {
+	color: #333333;
+}
+
+.ui-entity-editor-product-list-more-button {
+	display: inline-block;
+	border-bottom: 1px dashed rgba(130,139,149,.4);
+	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #80868e;
+	transition: border-bottom .3s;
+	cursor: pointer;
+	margin-top: 5px;
+}
+
+.ui-entity-editor-product-list-more-button:hover {
+	border-bottom: 1px dashed transparent;
+	color: #80868e;
+}
+
+/*endregion*/
+
 /*region Popup New Field*/
 .ui-entity-editor-popup-create-field-popup {
 	position: relative;
@@ -1938,4 +2050,9 @@ input.ui-entity-editor-header-title-text {
 	padding: 10px 11px;
 }
 
+.ui-btn.ui-btn-link.ui-btn-icon-lock.ui-btn-icon-lock-entity-editor-title {
+	width: 20px;
+	height: 20px;
+	margin-top: -6px;
+}
 /*endregion*/

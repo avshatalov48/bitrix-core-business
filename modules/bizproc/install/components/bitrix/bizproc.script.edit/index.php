@@ -13,13 +13,14 @@ if ($_REQUEST['IFRAME'] == 'Y' && $_REQUEST['IFRAME_TYPE'] == 'SIDE_SLIDER')
 	$APPLICATION->IncludeComponent(
 		'bitrix:ui.sidepanel.wrapper',
 		'',
-		array(
+		[
+			'USE_UI_TOOLBAR' => 'Y',
 			'POPUP_COMPONENT_NAME' => 'bitrix:bizproc.script.edit',
 			'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 			'POPUP_COMPONENT_PARAMS' => $cmpParams,
 			'USE_PADDING' => false,
 			//'PLAIN_VIEW' => true,
-		)
+		]
 	);
 }
 else

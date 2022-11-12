@@ -454,7 +454,7 @@
 			{
 				roles[field['id']] = {
 					id: field['id'],
-					entityId: field.entityId || 'bpuserroles',
+					entityId: field.entityId ? String(field.entityId).toLowerCase() : 'bpuserroles',
 					title: field.title || field.name,
 					tabs: field.tabs || 'bpuserroles',
 					sort: field.sort,

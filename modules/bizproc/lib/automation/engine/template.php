@@ -389,6 +389,8 @@ class Template
 		if (!$errors->isEmpty())
 		{
 			$result->addErrors($errors->getValues());
+
+			return $result;
 		}
 
 		$this->setRobots($robots);

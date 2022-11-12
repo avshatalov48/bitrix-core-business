@@ -5,6 +5,7 @@ import {Content} from '../content';
 import {CanvasWrapper} from '../../canvas-wrapper/canvas-wrapper';
 
 import './css/style.css';
+import {MessageBox} from 'ui.dialogs.messagebox';
 
 export class PhotoContent extends Content
 {
@@ -60,6 +61,15 @@ export class PhotoContent extends Content
 		const [file: File] = event.target.files;
 		if (Type.isFile(file))
 		{
+			if (
+				!Type.isStringFilled(file.type)
+				|| !file.type.startsWith('image')
+			)
+			{
+				MessageBox.alert(Loc.getMessage('UI_SIGN_UP_BAD_IMAGE_FORMAT_ALERT_MESSAGE'));
+				return false;
+			}
+
 			Dom.replace(this.getButtonsLayout(), this.getPreviewLayout());
 
 			void this.getCanvas().renderImage(file);

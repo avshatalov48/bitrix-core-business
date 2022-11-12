@@ -1,0 +1,12 @@
+.bizproc-automation-tour-guide-list {
+	padding: 0 0 0 25px;
+	margin: 0;
+}
+
+.bizproc-automation-tour-guide-list-item{
+	line-height: 25px;
+}
+
+.bizproc-automation-tour-guide-list-item + .bizproc-automation-tour-guide-list-item{
+	margin-top: 15px;
+}

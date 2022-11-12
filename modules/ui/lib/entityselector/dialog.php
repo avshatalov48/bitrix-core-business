@@ -32,6 +32,12 @@ class Dialog implements \JsonSerializable
 	protected $context;
 
 	/** @var string */
+	protected $header;
+
+	/** @var array */
+	protected $headerOptions;
+
+	/** @var string */
 	protected $footer;
 
 	/** @var array */
@@ -145,6 +151,25 @@ class Dialog implements \JsonSerializable
 		{
 			$this->addRecentItem($item);
 		}
+	}
+
+	public function setHeader(string $header, array $options = [])
+	{
+		if (strlen($header) > 0)
+		{
+			$this->header = $header;
+			$this->headerOptions = $options;
+		}
+	}
+
+	public function getHeader(): ?string
+	{
+		return $this->header;
+	}
+
+	public function getHeaderOptions(): ?array
+	{
+		return $this->headerOptions;
 	}
 
 	public function setFooter(string $footer, array $options = [])
@@ -681,6 +706,12 @@ class Dialog implements \JsonSerializable
 			'tabs' => array_values($this->getTabs()),
 			'entities' => array_values($this->getEntities()),
 		];
+
+		if ($this->getHeader())
+		{
+			$json['header'] = $this->getHeader();
+			$json['headerOptions'] = $this->getHeaderOptions();
+		}
 
 		if ($this->getFooter())
 		{

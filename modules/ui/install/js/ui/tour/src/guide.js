@@ -1,10 +1,16 @@
 import { Type, Dom, Reflection, Event, Tag, Text, userOptions, Loc } from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import { Popup, PopupWindowButton } from 'main.popup';
+import { EventEmitter } from 'main.core.events';
+import { Step } from './step.js';
+import GuideConditionColor from './guide-condition-color';
 
-import {Step} from './step.js';
+import 'ui.design-tokens';
+import './style.css';
 
 export class Guide extends Event.EventEmitter
 {
+	static ConditionColor = GuideConditionColor;
+
 	constructor(options = {})
 	{
 		super(options);
@@ -50,7 +56,7 @@ export class Guide extends Event.EventEmitter
 		this.currentStepIndex = 0;
 		this.targetPos = null;
 		this.clickOnBackBtn = false;
-		this.helper = BX.Helper;
+		this.helper = top.BX.Helper;
 
 		this.finalStep = options.finalStep || false;
 		this.finalText = options.finalText || "";
@@ -216,9 +222,12 @@ export class Guide extends Event.EventEmitter
 			Dom.removeClass(this.layout.element, "ui-tour-overlay-element-opacity");
 		}
 
-		setTimeout(function() {
-			this.layout.backBtn.style.display = "block";
-		}.bind(this), 10);
+		if (this.layout.backBtn)
+		{
+			setTimeout(function() {
+				this.layout.backBtn.style.display = "block";
+			}.bind(this), 10);
+		}
 
 		this.setOverlayElementForm();
 
@@ -419,12 +428,15 @@ export class Guide extends Event.EventEmitter
 
 		if(this.onEvents)
 		{
+			const bindElement = this.getCurrentStep()
+				? this.getCurrentStep().getTarget()
+				: window;
+			const popupWidth = this.onEvents ? 280 : 420;
+
 			offsetTop = 0;
-			offsetLeft = -50;
-			angleOffset = 120;
+			offsetLeft = -(popupWidth / 2) + (bindElement.offsetWidth / 2) + 40;
+			angleOffset = (popupWidth / 2) - 15;
 		}
-		
-		// console.log("this.target", this.getCurrentStep().getTarget());
 
 		let bindElement = this.getCurrentStep().getTarget();
 
@@ -582,12 +594,30 @@ export class Guide extends Event.EventEmitter
 	{
 		if (!this.popup)
 		{
-			let bindElement = window;
-
-			if(this.getCurrentStep())
-				bindElement = this.getCurrentStep().getTarget();
+			let bindElement = this.getCurrentStep()
+				? this.getCurrentStep().getTarget()
+				: window;
 
 			let className = 'popup-window-ui-tour popup-window-ui-tour-opacity';
+
+			if (this.getCurrentStep().getCondition())
+			{
+				if (Type.isString(this.getCurrentStep().getCondition()))
+				{
+					className = className + ' --condition-' + this.getCurrentStep().getCondition().toLowerCase();
+				}
+
+				if (Type.isObject(this.getCurrentStep().getCondition()))
+				{
+					className = className + ' --condition-' + this.getCurrentStep().getCondition()?.color.toLowerCase();
+				}
+
+				if (this.getCurrentStep().getCondition()?.top !== false)
+				{
+					className = className + ' --condition';
+				}
+			}
+
 			this.onEvents
 				? className = className + ' popup-window-ui-tour-animate'
 				: null;
@@ -597,7 +627,7 @@ export class Guide extends Event.EventEmitter
 			if(this.getCurrentStep() && this.getCurrentStep().getButtons().length > 0)
 			{
 				this.getCurrentStep().getButtons().forEach((item)=> {
-					buttons.push(new BX.PopupWindowButton({
+					buttons.push(new PopupWindowButton({
 						text: item.text,
 						className: 'ui-btn ui-btn-sm ui-btn-primary ui-btn-round',
 						events: {
@@ -607,16 +637,17 @@ export class Guide extends Event.EventEmitter
 				})
 			}
 
-			this.popup = new BX.PopupWindow({
+			const popupWidth = this.onEvents ? 280 : 420;
+
+			this.popup = new Popup({
 				content: this.getContent(),
 				bindElement: bindElement,
 				className: className,
 				autoHide: this.onEvents ? false : true,
 				offsetTop: 15,
-				offsetLeft: 30,
-				maxWidth: this.onEvents ? 280 : 420,
-				minWidth: this.onEvents ? 280 : 420,
+				width: popupWidth,
 				closeIcon: true,
+				noAllPaddings: true,
 				bindOptions: {
 					forceTop: true,
 					forceLeft: true,
@@ -632,6 +663,35 @@ export class Guide extends Event.EventEmitter
 				},
 				buttons: buttons
 			});
+
+			const conditionNodeTop = Tag.render`
+				<div class="ui-tour-popup-condition-top">
+					<div class="ui-tour-popup-condition-angle"></div>
+				</div>
+			`;
+
+			const conditionNodeBottom = Tag.render`
+				<div class="ui-tour-popup-condition-bottom"></div>
+			`;
+
+			if (Type.isString(this.getCurrentStep().getCondition()))
+			{
+				Dom.append(conditionNodeTop, this.popup.getContentContainer());
+			}
+
+			if (Type.isObject(this.getCurrentStep().getCondition()))
+			{
+				if (this.getCurrentStep().getCondition()?.top !== false)
+				{
+					Dom.append(conditionNodeTop, this.popup.getContentContainer());
+				}
+
+			}
+
+			if (this.getCurrentStep().getCondition()?.bottom !== false)
+			{
+				Dom.append(conditionNodeBottom, this.popup.getContentContainer());
+			}
 		}
 
 		return this.popup;
@@ -733,7 +793,9 @@ export class Guide extends Event.EventEmitter
 		event.preventDefault();
 
 		if(!this.helper)
-			this.helper = BX.Helper;
+		{
+			this.helper = top.BX.Helper;
+		}
 
 		this.helper.show("redirect=detail&code=" + this.getCurrentStep().getArticle());
 
@@ -975,7 +1037,7 @@ export class Guide extends Event.EventEmitter
 	 */
 	getFinalPopup()
 	{
-		this.popup = new BX.PopupWindow({
+		this.popup = new Popup({
 			content: this.getFinalContent(),
 			className: 'popup-window-ui-tour-final',
 			offsetTop: this.onEvents ? 0 : 15,

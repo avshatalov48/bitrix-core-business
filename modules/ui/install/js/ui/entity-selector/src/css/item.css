@@ -20,6 +20,10 @@
 	/*content-visibility: visible;*/
 }
 
+.ui-selector-item-box.--hidden {
+	display: none;
+}
+
 .ui-selector-item {
 	min-height: 44px;
 	cursor: pointer;

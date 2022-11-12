@@ -8,16 +8,68 @@
 
 namespace Bitrix\Main\UI\AccessRights\Entity;
 
-
 interface AccessRightEntityInterface
 {
-
+	/**
+	 * @param int $id entity id
+	 */
 	public function __construct(int $id);
-	public function getMetaData(): array;
-	public function getId(): int;
-	public function getType(): string;
-	public function getUrl(): string;
-	public function getName(): string;
-	public function getAvatar(int $width, int $height): ?string;
 
+	/**
+	 * Meta data for entity.
+	 *
+	 * @return array in format:
+	 * ```php
+	 * [
+	 * 		'type' => ...
+	 * 		'id' => ...
+	 * 		'name' => ...
+	 * 		'url' => ...
+	 * 		'avatar' => ...
+	 * ]
+	 * ```
+	 */
+	public function getMetaData(): array;
+
+	/**
+	 * Entity id.
+	 *
+	 * @return int
+	 */
+	public function getId(): int;
+
+	/**
+	 * Entity type.
+	 *
+	 * Returns access code.
+	 *
+	 * @see Bitrix\Main\Access\AccessCode `TYPE_*` constants.
+	 *
+	 * @return string
+	 */
+	public function getType(): string;
+
+	/**
+	 * Url to entity detail page.
+	 *
+	 * @return string
+	 */
+	public function getUrl(): string;
+
+	/**
+	 * Entity name.
+	 *
+	 * @return string
+	 */
+	public function getName(): string;
+
+	/**
+	 * URL to avatar image.
+	 *
+	 * @param int $width
+	 * @param int $height
+	 *
+	 * @return string|null
+	 */
+	public function getAvatar(int $width, int $height): ?string;
 }

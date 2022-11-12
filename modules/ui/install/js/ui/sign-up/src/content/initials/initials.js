@@ -23,7 +23,7 @@ export class InitialsContent extends Content
 			...document.fonts,
 		];
 		const comforterBrushFonts = allFonts.filter((font) => {
-			return font.family === 'Comforter Brush';
+			return String(font.family).includes('Comforter Brush');
 		});
 
 		return Promise.all(comforterBrushFonts.map((font) => font.load()));

@@ -700,6 +700,7 @@ final class Product extends Base
 			'S:map_google',
 			'S:employee',
 			'S:ECrm',
+			'E:EAutocomplete',
 			'E:SKU',
 			'S:ElementXmlID',
 			//TODO: support types
@@ -708,7 +709,6 @@ final class Product extends Base
 			//'G:SectionAuto',
 			//'S:TopicID',
 			//'S:FileMan',
-			//'E:EAutocomplete',
 			//'S:DiskFile',
 		];
 	}

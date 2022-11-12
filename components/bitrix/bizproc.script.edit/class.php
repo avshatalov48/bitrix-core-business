@@ -29,6 +29,8 @@ class BizprocScriptEditComponent extends \CBitrixComponent
 	{
 		global $APPLICATION;
 
+		\Bitrix\UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
+
 		if (!Main\Loader::includeModule('bizproc'))
 		{
 			return false;
@@ -39,7 +41,19 @@ class BizprocScriptEditComponent extends \CBitrixComponent
 
 		if ($this->arParams['SET_TITLE'] === 'Y')
 		{
+			$helpButton = \Bitrix\UI\Buttons\CreateButton::create([
+				'text' => Main\Localization\Loc::getMessage('BP_SCR_ED_CMP_HELP_BUTTON_TITLE'),
+				'color' => \Bitrix\UI\Buttons\Color::LIGHT_BORDER,
+				'dataset' => [
+					'toolbar-collapsed-icon' => \Bitrix\UI\Buttons\Icon::INFO,
+				],
+				'click' => new \Bitrix\UI\Buttons\JsCode(
+					"top.BX.Helper.show('redirect=detail&code=13281632');",
+				),
+			]);
+
 			$APPLICATION->SetTitle(GetMessage($isNew? "BP_SCR_ED_CMP_TITLE_NEW" : "BP_SCR_ED_CMP_TITLE"));
+			\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($helpButton, \Bitrix\UI\Toolbar\ButtonLocation::AFTER_TITLE);
 		}
 
 		if ($isNew && empty($this->arParams['DOCUMENT_TYPE']))

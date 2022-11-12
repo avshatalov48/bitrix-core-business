@@ -13,9 +13,10 @@ return [
 		'main.popup',
 		'main.core.events',
 		'bizproc.automation',
-		'main.core',
 		'ui.design-tokens',
 		'ui.fonts.opensans',
+		'main.core',
+		'ui.tour',
 	],
 	'skip_core' => false,
 ];

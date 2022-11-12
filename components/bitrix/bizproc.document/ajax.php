@@ -3,19 +3,23 @@
 use Bitrix\Bizproc;
 
 define('NO_KEEP_STATISTIC', 'Y');
-define('NO_AGENT_STATISTIC','Y');
+define('NO_AGENT_STATISTIC', 'Y');
 define('NO_AGENT_CHECK', true);
 define('PUBLIC_AJAX_MODE', true);
 define('DisableEventsCheck', true);
 
-$siteID = isset($_REQUEST['site'])? mb_substr(preg_replace('/[^a-z0-9_]/i', '', $_REQUEST['site']), 0, 2) : '';
-if($siteID !== '')
+$siteID =
+	isset($_REQUEST['site'])
+		? mb_substr(preg_replace('/[^a-z0-9_]/i', '', $_REQUEST['site']), 0, 2)
+		: ''
+;
+if ($siteID !== '')
 {
 	define('SITE_ID', $siteID);
 }
 
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php');
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -35,24 +39,26 @@ $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
 $action = $request->getPost('ajax_action');
 
 if (empty($action))
+{
 	die('Unknown action!');
+}
 
 $APPLICATION->ShowAjaxHead();
 $action = mb_strtoupper($action);
 
-$writeResponse = function(\Bitrix\Main\Result $data)
+$writeResponse = function (\Bitrix\Main\Result $data)
 {
 	$errors = $data->getErrorMessages();
 	$data = $data->getData();
 
-	$result = array('data' => $data, 'errors' => $errors);
+	$result = ['data' => $data, 'errors' => $errors];
 	$result['success'] = count($errors) === 0;
-	if(!defined('PUBLIC_AJAX_MODE'))
+	if (!defined('PUBLIC_AJAX_MODE'))
 	{
 		define('PUBLIC_AJAX_MODE', true);
 	}
 	$GLOBALS['APPLICATION']->RestartBuffer();
-	Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
+	Header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
 
 	echo \Bitrix\Main\Web\Json::encode($result);
 	\Bitrix\Main\Application::getInstance()->end();
@@ -65,7 +71,7 @@ $sendData = function (array $data) use ($writeResponse)
 	$writeResponse($result);
 };
 
-$sendError = function($error) use ($writeResponse)
+$sendError = function ($error) use ($writeResponse)
 {
 	$result = new \Bitrix\Main\Result();
 	$errors = (array)$error;
@@ -79,7 +85,7 @@ $sendError = function($error) use ($writeResponse)
 
 $getDocumentStates = function ($documentId) use ($user)
 {
-	$workflows = array();
+	$workflows = [];
 	$states = CBPDocument::getActiveStates($documentId);
 
 	$userId = $user->GetID();
@@ -87,15 +93,17 @@ $getDocumentStates = function ($documentId) use ($user)
 
 	foreach ($states as $state)
 	{
-		if (!CBPDocument::CanUserOperateDocument(
-			CBPCanUserOperateOperation::ViewWorkflow,
-			$userId,
-			$documentId,
-			array(
-				"DocumentStates" => $states,
-				"WorkflowId" => $state["ID"]
+		if (
+			!CBPDocument::CanUserOperateDocument(
+				CBPCanUserOperateOperation::ViewWorkflow,
+				$userId,
+				$documentId,
+				[
+					"DocumentStates" => $states,
+					"WorkflowId" => $state["ID"],
+				]
 			)
-		))
+		)
 		{
 			continue;
 		}
@@ -140,7 +148,7 @@ $getCompletedStates = function ($documentId, int $offset = 0, array $ids = null)
 		'filter' => $filter,
 		'limit' => $size,
 		'offset' => $offset,
-		'order' => ['MODIFIED' => 'DESC']
+		'order' => ['MODIFIED' => 'DESC'],
 	])->fetchAll();
 
 	foreach ($rows as $state)
@@ -161,8 +169,8 @@ if (!$moduleId || !$entity || !$paramDocumentType || !$paramDocumentId)
 	$sendError('Invalid request data');
 }
 
-$documentType = array($moduleId, $entity, $paramDocumentType);
-$documentId = array($moduleId, $entity, $paramDocumentId);
+$documentType = [$moduleId, $entity, $paramDocumentType];
+$documentId = [$moduleId, $entity, $paramDocumentId];
 
 $documentStates = CBPDocument::getActiveStates($documentId);
 
@@ -173,7 +181,7 @@ switch ($action)
 			CBPCanUserOperateOperation::CreateWorkflow,
 			$user->GetID(),
 			$documentId,
-			array("DocumentStates" => $documentStates)
+			["DocumentStates" => $documentStates]
 		);
 
 		$workflowId = $request->getPost('workflow_id');
@@ -193,10 +201,10 @@ switch ($action)
 			}
 			else
 			{
-				$sendData(array(
+				$sendData([
 					'killed' => true,
-					'workflows' => $getDocumentStates($documentId)
-				));
+					'workflows' => $getDocumentStates($documentId),
+				]);
 			}
 		}
 		break;
@@ -206,7 +214,7 @@ switch ($action)
 			CBPCanUserOperateOperation::StartWorkflow,
 			$user->GetID(),
 			$documentId,
-			array("DocumentStates" => $documentStates)
+			["DocumentStates" => $documentStates]
 		);
 
 		$workflowId = $request->getPost('workflow_id');
@@ -225,11 +233,11 @@ switch ($action)
 			}
 			else
 			{
-				$sendData(array(
+				$sendData([
 					'terminated' => true,
 					'completedWorkflows' => $getCompletedStates($documentId, 0, [$workflowId]),
-					'workflows' => $getDocumentStates($documentId)
-				));
+					'workflows' => $getDocumentStates($documentId),
+				]);
 			}
 		}
 		break;
@@ -239,7 +247,7 @@ switch ($action)
 			CBPCanUserOperateOperation::ViewWorkflow,
 			$user->GetID(),
 			$documentId,
-			array("DocumentStates" => $documentStates)
+			['DocumentStates' => $documentStates]
 		);
 		if (!$canView)
 		{
@@ -247,15 +255,15 @@ switch ($action)
 		}
 		else
 		{
-			$errors = array();
+			$errors = [];
 			$events = $request->getPost('events');
 			foreach ($events as $workflowId => $event)
 			{
-				$errorTmp = array();
+				$errorTmp = [];
 				CBPDocument::SendExternalEvent(
 					$workflowId,
 					$event,
-					array("Groups" => $user->getUserGroupArray(), "User" => $user->getId()),
+					["Groups" => $user->getUserGroupArray(), "User" => $user->getId()],
 					$errorTmp
 				);
 
@@ -263,7 +271,7 @@ switch ($action)
 				{
 					foreach ($errorTmp as $e)
 					{
-						$errors[] = $e["message"];
+						$errors[] = $e['message'];
 					}
 				}
 			}
@@ -274,11 +282,11 @@ switch ($action)
 			}
 			else
 			{
-				$sendData(array(
+				$sendData([
 					'events_sent' => true,
 					'completedWorkflows' => $getCompletedStates($documentId, 0, array_keys($events)),
-					'workflows' => $getDocumentStates($documentId)
-				));
+					'workflows' => $getDocumentStates($documentId),
+				]);
 			}
 		}
 
@@ -289,7 +297,7 @@ switch ($action)
 			CBPCanUserOperateOperation::ViewWorkflow,
 			$user->GetID(),
 			$documentId,
-			array("DocumentStates" => $documentStates)
+			["DocumentStates" => $documentStates]
 		);
 		if (!$canView)
 		{
@@ -297,9 +305,9 @@ switch ($action)
 		}
 		else
 		{
-			$sendData(array(
-				'workflows' => $getDocumentStates($documentId)
-			));
+			$sendData([
+				'workflows' => $getDocumentStates($documentId),
+			]);
 		}
 		break;
 
@@ -308,7 +316,7 @@ switch ($action)
 			CBPCanUserOperateOperation::ViewWorkflow,
 			$user->GetID(),
 			$documentId,
-			array("DocumentStates" => $documentStates)
+			["DocumentStates" => $documentStates]
 		);
 		if (!$canView)
 		{
@@ -316,34 +324,33 @@ switch ($action)
 		}
 		else
 		{
-			$sendData(array(
-				'workflows' => $getCompletedStates($documentId, (int)$request->getPost('offset'))
-			));
+			$sendData([
+				'workflows' => $getCompletedStates($documentId, (int)$request->getPost('offset')),
+			]);
 		}
 		break;
 
-		case 'GET_COMPLETED_WORKFLOW':
+	case 'GET_COMPLETED_WORKFLOW':
 
-			$id = $request->getPost('workflowId');
-			$canView = CBPDocument::CanUserOperateDocument(
-				CBPCanUserOperateOperation::ViewWorkflow,
-				$user->GetID(),
-				$documentId,
-				array("DocumentStates" => $documentStates)
-			);
-			if (!$canView || !$id)
-			{
-				$sendError('Access Denied');
-			}
-			else
-			{
-
-				$sendData(array(
-					'workflow' => current(
-						$getCompletedStates($documentId, 0, [$id])
-					)
-				));
-			}
-			break;
+		$id = $request->getPost('workflowId');
+		$canView = CBPDocument::CanUserOperateDocument(
+			CBPCanUserOperateOperation::ViewWorkflow,
+			$user->GetID(),
+			$documentId,
+			["DocumentStates" => $documentStates]
+		);
+		if (!$canView || !$id)
+		{
+			$sendError('Access Denied');
+		}
+		else
+		{
+			$sendData([
+				'workflow' => current(
+					$getCompletedStates($documentId, 0, [$id])
+				),
+			]);
+		}
+		break;
 }
 $sendError('Unknown action!');

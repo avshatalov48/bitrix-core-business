@@ -12,6 +12,12 @@
 	margin-bottom: 0 !important;
 }
 
+@media (max-width: 1000px) {
+	.ui-page-slider-wrapper.bizpoc-automation-body .automation-base {
+		min-width: auto;
+	}
+}
+
 .automation-base-script-mode {
 	width: auto;
 	min-width: auto;
@@ -353,7 +359,7 @@
 	left: 0;
 	width: 34px;
 	height: 34px;
-	border-radius: 50%;
+	border-radius: var(--ui-border-radius-circle, 50%);
 	background-color: rgba(82, 92, 105, .1);
 	background-image: url("data:image/svg+xml,%3Csvg width='19' height='17' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='m15.375 4.763 1.007-3.382a.867.867 0 0 0-.194-.836.844.844 0 0 0-1.433.34l-.862 2.902a9.134 9.134 0 0 0-8.556.01L4.471.884A.848.848 0 0 0 3.41.31a.861.861 0 0 0-.567 1.071l1.01 3.395a9.686 9.686 0 0 0-3.58 7.559c0 5.306 4.184 4.004 9.35 4.004 5.165 0 9.35 1.302 9.35-4.004a9.676 9.676 0 0 0-3.599-7.572Zm-5.76 6.85c-3.687 0-6.678.388-6.678-1.193s2.99-2.865 6.678-2.865c3.687 0 6.682 1.283 6.682 2.865 0 1.582-2.99 1.194-6.682 1.194ZM6.56 8.74a1.022 1.022 0 0 0-.823 1.13c.064.537.53.93 1.065.898.534-.032.951-.48.951-1.021A1.112 1.112 0 0 0 6.561 8.74Zm5.284 1.132c.066.537.533.93 1.067.897a1.02 1.02 0 0 0 .951-1.022 1.112 1.112 0 0 0-1.198-1.007 1.023 1.023 0 0 0-.82 1.132Z' fill='%236A737F'/%3E%3C/svg%3E");
 	background-position: center 8px;
@@ -755,7 +761,7 @@
 	align-items: center;
 	justify-content: space-between;
 	margin: 0 0 6px 0;
-	border-radius: 3px;
+	border-radius: var(--ui-border-radius-md, 3px);
 }
 
 .bizproc-automation-robot-container::after {
@@ -795,7 +801,7 @@
 	width: 100%;
 	height: 100%;
 	background: rgba(119,222,255,.35);
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-md, 2px) var(--ui-border-radius-md, 2px) 0 var(--ui-border-radius-2xs, 2px);
 	z-index: 99;
 	pointer-events: none;
 }
@@ -1874,9 +1880,9 @@
 	background: #82868c;
 	opacity: .6;
 	box-shadow: 6px 0 0 #82868c, 12px 0 0 #82868c;
-	-webkit-border-radius:50%;
-	-moz-border-radius:50%;
-	border-radius:50%;
+	-webkit-border-radius: var(--ui-border-radius-circle, 50%);
+	-moz-border-radius: var(--ui-border-radius-circle, 50%);
+	border-radius: var(--ui-border-radius-circle, 50%);
 	-webkit-transition: .1s;
 	-moz-transition: .1s;
 	transition: .1s;

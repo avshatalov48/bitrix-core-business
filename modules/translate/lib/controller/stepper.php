@@ -49,7 +49,7 @@ trait Stepper
 			$this->processToken = $this->getController()->getRequest()->get('PROCESS_TOKEN');
 
 			$progressData = $this->getProgressParameters();
-			if (count($progressData) > 0)
+			if (\count($progressData) > 0)
 			{
 				$this->isNewProcess = (empty($progressData['processToken']) || $progressData['processToken'] !== $this->processToken);
 				if (!$this->isNewProcess)
@@ -67,7 +67,7 @@ trait Stepper
 			$this->addError(new Main\Error('Process token is not specified.'));
 		}
 
-		return count($this->getErrors()) === 0;
+		return \count($this->getErrors()) === 0;
 	}
 
 	/**
@@ -78,7 +78,7 @@ trait Stepper
 	 *
 	 * @return array|Main\Engine\Response\AjaxJson
 	 */
-	protected function performStep($action, array $params = array())
+	protected function performStep($action, array $params = [])
 	{
 		if ($this->isNewProcess)
 		{
@@ -97,13 +97,13 @@ trait Stepper
 		{
 			$result = $action->call($this, $params);
 		}
-		elseif (is_callable($action))
+		elseif (\is_callable($action))
 		{
-			$result = call_user_func($action, $params);
+			$result = \call_user_func($action, $params);
 		}
-		elseif (is_string($action) && is_callable(array($this, $action)))
+		elseif (\is_string($action) && \is_callable(array($this, $action)))
 		{
-			$result = call_user_func(array($this, $action), $params);
+			$result = \call_user_func(array($this, $action), $params);
 		}
 		else
 		{
@@ -194,7 +194,7 @@ trait Stepper
 	 */
 	public function startTimer()
 	{
-		$this->instanceTimer()->startTimer((int)START_EXEC_TIME);
+		$this->instanceTimer()->startTimer((int)\START_EXEC_TIME);
 	}
 
 	/**

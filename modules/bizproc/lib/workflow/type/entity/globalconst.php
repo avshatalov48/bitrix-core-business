@@ -98,7 +98,7 @@ class GlobalConstTable extends Main\ORM\Data\DataManager
 
 		// PROPERTY_SETTINGS ?
 		$fields = [
-			'NAME' => $property['Name'],
+			'NAME' => trim($property['Name']),
 			'DESCRIPTION' => $property['Description'],
 			'PROPERTY_TYPE' => $property['Type'],
 			'IS_REQUIRED' => $property['Required'] ? 'Y' : 'N',

@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core_events,ui_forms,ui_fonts_comforterBrush,main_core,ui_buttons,main_popup) {
+(function (exports,main_core_events,ui_forms,ui_fonts_comforterBrush,main_core,ui_buttons,main_popup,ui_dialogs_messagebox) {
 	'use strict';
 
 	let _ = t => t,
@@ -420,7 +420,7 @@ this.BX = this.BX || {};
 	  forceLoadFonts() {
 	    const allFonts = [...document.fonts];
 	    const comforterBrushFonts = allFonts.filter(font => {
-	      return font.family === 'Comforter Brush';
+	      return String(font.family).includes('Comforter Brush');
 	    });
 	    return Promise.all(comforterBrushFonts.map(font => font.load()));
 	  }
@@ -699,6 +699,11 @@ this.BX = this.BX || {};
 	    const [file] = event.target.files;
 
 	    if (main_core.Type.isFile(file)) {
+	      if (!main_core.Type.isStringFilled(file.type) || !file.type.startsWith('image')) {
+	        ui_dialogs_messagebox.MessageBox.alert(main_core.Loc.getMessage('UI_SIGN_UP_BAD_IMAGE_FORMAT_ALERT_MESSAGE'));
+	        return false;
+	      }
+
 	      main_core.Dom.replace(this.getButtonsLayout(), this.getPreviewLayout());
 	      void this.getCanvas().renderImage(file);
 	    }
@@ -913,5 +918,5 @@ this.BX = this.BX || {};
 
 	exports.SignUp = SignUp;
 
-}((this.BX.UI = this.BX.UI || {}),BX.Event,BX,BX,BX,BX.UI,BX.Main));
+}((this.BX.UI = this.BX.UI || {}),BX.Event,BX,BX,BX,BX.UI,BX.Main,BX.UI.Dialogs));
 //# sourceMappingURL=sign-up.bundle.js.map

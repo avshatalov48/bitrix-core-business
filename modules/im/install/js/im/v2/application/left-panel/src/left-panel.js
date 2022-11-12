@@ -1,5 +1,5 @@
 import {Core} from 'im.v2.application.core';
-import {LeftPanel as LeftPanelComponent} from 'im.v2.component.left-panel';
+import {LeftPanel as LeftPanelComponent} from 'im.v2.component.old-chat-embedding.left-panel';
 import {RecentPullHandler} from 'im.v2.provider.pull';
 import {PullHandlers} from 'im.v2.const';
 

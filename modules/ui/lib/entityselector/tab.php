@@ -17,6 +17,15 @@ class Tab implements \JsonSerializable
 	protected $stubOptions;
 
 	/** @var string */
+	protected $header;
+
+	/** @var array */
+	protected $headerOptions;
+
+	/** @var bool */
+	protected $showDefaultHeader = true;
+
+	/** @var string */
 	protected $footer;
 
 	/** @var array */
@@ -101,6 +110,22 @@ class Tab implements \JsonSerializable
 		if (!empty($options['stubOptions']) && is_array($options['stubOptions']))
 		{
 			$this->setStubOptions($options['stubOptions']);
+		}
+
+		if (isset($options['header']) && is_string($options['header']))
+		{
+			$headerOptions =
+				isset($options['headerOptions']) && is_array($options['headerOptions'])
+					? $options['headerOptions']
+					: []
+			;
+
+			$this->setFooter($options['header'], $headerOptions);
+		}
+
+		if (isset($options['showDefaultHeader']) && is_bool($options['showDefaultHeader']))
+		{
+			$this->showDefaultHeader = $options['showDefaultHeader'];
 		}
 
 		if (isset($options['footer']) && is_string($options['footer']))
@@ -249,6 +274,46 @@ class Tab implements \JsonSerializable
 		return $this->stubOptions;
 	}
 
+	public function setHeader(string $header, array $options = []): self
+	{
+		if (strlen($header) > 0)
+		{
+			$this->header = $header;
+			$this->headerOptions = $options;
+		}
+
+		return $this;
+	}
+
+	public function getHeader(): ?string
+	{
+		return $this->header;
+	}
+
+	public function getHeaderOptions(): ?array
+	{
+		return $this->headerOptions;
+	}
+
+	public function canShowDefaultHeader(): bool
+	{
+		return $this->showDefaultHeader;
+	}
+
+	public function enableDefaultHeader(): self
+	{
+		$this->showDefaultHeader = true;
+
+		return $this;
+	}
+
+	public function disableDefaultHeader(): self
+	{
+		$this->showDefaultHeader = false;
+
+		return $this;
+	}
+
 	public function setFooter(string $footer, array $options = []): self
 	{
 		if (strlen($footer) > 0)
@@ -322,6 +387,17 @@ class Tab implements \JsonSerializable
 		if ($this->getStubOptions() !== null)
 		{
 			$json['stubOptions'] = $this->getStubOptions();
+		}
+
+		if ($this->getHeader())
+		{
+			$json['header'] = $this->getHeader();
+			$json['headerOptions'] = $this->getHeaderOptions();
+		}
+
+		if (!$this->canShowDefaultHeader())
+		{
+			$json['showDefaultHeader'] = false;
 		}
 
 		if ($this->getFooter())

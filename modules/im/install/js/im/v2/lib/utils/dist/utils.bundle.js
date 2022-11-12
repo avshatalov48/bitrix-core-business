@@ -262,7 +262,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      text = text.replace(/\[CHAT=([0-9]{1,})](.*?)\[\/CHAT]/ig, '$2');
 	      text = text.replace(/\[SEND(?:=(?:.+?))?\](.+?)?\[\/SEND]/ig, '$1');
 	      text = text.replace(/\[PUT(?:=(?:.+?))?\](.+?)?\[\/PUT]/ig, '$1');
-	      text = text.replace(/\[CALL=([0-9]{1,})](.*?)\[\/CALL]/ig, '$2');
+	      text = text.replace(/\[CALL=(.*?)](.*?)\[\/CALL\]/ig, '$2');
 	      text = text.replace(/\[PCH=([0-9]{1,})](.*?)\[\/PCH]/ig, '$2');
 	      text = text.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1');
 	      text = text.replace(/<span.*?title="([^"]*)".*?>.*?<\/span>/ig, '($1)');

@@ -129,7 +129,9 @@ class CatalogProductVariationDetailsComponent
 		if ($sanitizer === null)
 		{
 			$sanitizer = new \CBXSanitizer;
+			
 			$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
+			$sanitizer->ApplyDoubleEncode(false);
 		}
 
 		return $sanitizer->sanitizeHtml($html);

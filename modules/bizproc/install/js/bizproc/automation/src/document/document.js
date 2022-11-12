@@ -135,4 +135,9 @@ export class Document
 
 		return this;
 	}
+
+	get statusList(): ?Array<Object>
+	{
+		return this.#statusList;
+	}
 }

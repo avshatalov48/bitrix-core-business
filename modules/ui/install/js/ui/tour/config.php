@@ -5,10 +5,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'css' => '/bitrix/js/ui/tour/ui.tour.css',
-	'js' => '/bitrix/js/ui/tour/dist/tour.bundle.js',
+	'css' => 'dist/tour.bundle.css',
+	'js' => 'dist/tour.bundle.js',
 	'rel' => [
+		'main.popup',
 		'main.core.events',
+		'ui.design-tokens',
 		'main.core',
 	],
 	'skip_core' => false,

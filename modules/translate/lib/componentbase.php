@@ -159,7 +159,7 @@ abstract class ComponentBase
 	 */
 	protected function checkMysqlConfig()
 	{
-		$majorVersion = (int)mb_substr(\Bitrix\Main\Application::getConnection()->getVersion()[0], 0, 1);
+		$majorVersion = (int)\mb_substr(\Bitrix\Main\Application::getConnection()->getVersion()[0], 0, 1);
 
 		if ($majorVersion >= 8)
 		{
@@ -222,13 +222,13 @@ abstract class ComponentBase
 	 */
 	protected function rearrangeLanguages($languageList, $currentLangId)
 	{
-		$inx = array_search($currentLangId, $languageList, true);
+		$inx = \array_search($currentLangId, $languageList, true);
 		if ($inx !== false)
 		{
 			unset($languageList[$inx]);
 		}
 
-		array_unshift($languageList, $currentLangId);
+		\array_unshift($languageList, $currentLangId);
 
 		return $languageList;
 	}
@@ -340,7 +340,7 @@ abstract class ComponentBase
 			{
 				foreach ($initPaths as $initPath)
 				{
-					if (mb_strpos($path, $initPath) === 0)
+					if (\mb_strpos($path, $initPath) === 0)
 					{
 						$home = $initPath;
 						break;
@@ -450,7 +450,6 @@ abstract class ComponentBase
 		echo Main\Web\Json::encode($response);
 
 		\CMain::finalActions();
-		die;
 	}
 
 	/**
@@ -461,10 +460,10 @@ abstract class ComponentBase
 	 */
 	protected function clearSavedOptions($category, $nameMask)
 	{
-		$res = \CUserOptions::GetList(false,['CATEGORY' => $category, 'USER_ID' => $this->getUser()->getId(), 'NAME_MASK' => $nameMask]);
+		$res = \CUserOptions::getList(false,['CATEGORY' => $category, 'USER_ID' => $this->getUser()->getId(), 'NAME_MASK' => $nameMask]);
 		while ($opt = $res->fetch())
 		{
-			\CUserOptions::DeleteOption($category, $opt['NAME']);
+			\CUserOptions::deleteOption($category, $opt['NAME']);
 		}
 	}
 
@@ -480,17 +479,17 @@ abstract class ComponentBase
 		static $pathBackCache = array();;
 		if (!isset($pathBackCache[$path]))
 		{
-			$pathBack = dirname($path);
-			$slash = explode('/', $pathBack);
-			if (is_array($slash))
+			$pathBack = \dirname($path);
+			$slash = \explode('/', $pathBack);
+			if (\is_array($slash))
 			{
 				$slashTmp = $slash;
-				$langKey = array_search('lang', $slash) + 1;
+				$langKey = \array_search('lang', $slash) + 1;
 				unset($slashTmp[$langKey]);
-				if ($langKey == count($slash) - 1)
+				if ($langKey == \count($slash) - 1)
 				{
 					unset($slash[$langKey]);
-					$pathBack = implode('/', $slash);
+					$pathBack = \implode('/', $slash);
 				}
 			}
 			$pathBackCache[$path] = $pathBack;
@@ -508,17 +507,17 @@ abstract class ComponentBase
 	 */
 	protected function generateChainLinks($path)
 	{
-		static $chainCache = array();
+		static $chainCache = [];
 		if (!isset($chainCache[$path]))
 		{
 			$params =& $this->getParams();
 			$chain = array();
-			$slash = explode('/', dirname($path));
-			if (is_array($slash))
+			$slash = \explode('/', \dirname($path));
+			if (\is_array($slash))
 			{
-				$langKey = array_search('lang', $slash) + 1;
+				$langKey = \array_search('lang', $slash) + 1;
 				$slash[$langKey] = $params['CURRENT_LANG'];
-				if ($langKey == count($slash) - 1)
+				if ($langKey == \count($slash) - 1)
 				{
 					unset($slash[$langKey]);
 				}
@@ -539,13 +538,13 @@ abstract class ComponentBase
 					}
 					else
 					{
-						$pathList[] = htmlspecialcharsbx($dir);
+						$pathList[] = \htmlspecialcharsbx($dir);
 						$chain[] = array(
 							'link' => $params['LIST_PATH'].
 											'?lang='.$params['CURRENT_LANG'].
 											'&tabId='.$this->tabId.
-											'&path=/'.implode('/', $pathList).'/',
-							'title' => htmlspecialcharsbx($dir)
+											'&path=/'.\implode('/', $pathList).'/',
+							'title' => \htmlspecialcharsbx($dir)
 						);
 					}
 				}

@@ -32,6 +32,7 @@
 		this.order = params["order"]; // message sort direction DESC || ASC
 		this.mid = parseInt(params["mid"]); // last messageId
 		this.operationIds = [];
+		this.canCheckVisibleComments = true;
 
 		this.status = "ready";
 		this.msg = (this.node.navigation ? this.node.navigation.innerHTML : "");
@@ -1593,6 +1594,10 @@
 			}
 		},
 		checkVisibleComments : function(screenPosition) {
+			if (!this.canCheckVisibleComments)
+			{
+				return;
+			}
 			var keys = this.getVisibleCommentIds(this.unreadComments, screenPosition);
 			var key;
 			while (key = keys.shift())

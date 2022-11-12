@@ -41,6 +41,7 @@ $MESS["IM_CALL_MIC_MUTED_WHILE_TALKING"] = "We can't hear you. Please check the 
 $MESS["IM_CALL_MIC_MUTED_WHILE_TALKING_FOLDED_CALL_HOTKEY"] = "Press <b>#HOTKEY#</b> to unmute microphone";
 $MESS["IM_CALL_MIC_MUTED_WHILE_TALKING_HOTKEY"] = "Hold <b>Space</b> key down to temporarily unmute yourself";
 $MESS["IM_CALL_PIN"] = "Pin";
+$MESS["IM_CALL_RATE_CALL"] = "Rate your call quality";
 $MESS["IM_CALL_RECORD_NAME"] = "#CHAT_TITLE# - Call #CALL_ID# - #DATE#";
 $MESS["IM_CALL_ROOM_DESCRIPTION"] = "Room ##ROOM_ID# (#PARTICIPANTS_LIST#)";
 $MESS["IM_CALL_ROOM_DETAILS"] = "Details";

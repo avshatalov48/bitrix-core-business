@@ -371,7 +371,7 @@ if (
 				}
 			}
 
-			$arEvents = CBPDocument::GetAllowableEvents($GLOBALS["USER"]->GetID(), $arCurrentUserGroups, $arDocumentState);
+			$arEvents = CBPDocument::GetAllowableEvents($GLOBALS["USER"]->GetID(), $arCurrentUserGroups, $arDocumentState, true);
 			if(count($arEvents))
 			{
 				$html = '';

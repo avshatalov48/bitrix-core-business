@@ -38,7 +38,7 @@ Class statistic extends CModule
 
 	function InstallDB($arParams = array())
 	{
-		global $DBType, $APPLICATION;
+		global $APPLICATION;
 
 		$node_id = $arParams["DATABASE"] <> ''? intval($arParams["DATABASE"]): false;
 
@@ -62,7 +62,7 @@ Class statistic extends CModule
 
 		if($no_tables == "Y")
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/mysql/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -183,7 +183,7 @@ Class statistic extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $DBType, $APPLICATION;
+		global $APPLICATION;
 
 		$DB = CDatabase::GetModuleConnection('statistic', true);
 
@@ -193,7 +193,7 @@ Class statistic extends CModule
 		{
 			if(!array_key_exists("savedata", $arParams) || ($arParams["savedata"] != "Y"))
 			{
-				$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+				$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/install/db/mysql/uninstall.sql");
 				COption::RemoveOption("main","INSTALL_STATISTIC_TABLES");
 
 				$db_res = $GLOBALS["DB"]->Query("SELECT ID FROM b_file WHERE MODULE_ID = 'statistic'");

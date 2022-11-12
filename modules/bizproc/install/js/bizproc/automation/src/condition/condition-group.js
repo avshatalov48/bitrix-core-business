@@ -27,7 +27,7 @@ export class ConditionGroup
 
 	constructor(params: ?Object)
 	{
-		this.#type = ConditionGroup.CONDITION_TYPE.field;
+		this.#type = ConditionGroup.CONDITION_TYPE.Field;
 		this.#items = [];
 
 		if (Type.isPlainObject(params))

@@ -162,7 +162,7 @@ class CIMSettings
 			$newFormatSettings = [];
 			if ($type === self::NOTIFY)
 			{
-				$newFormatSettings = self::convertNotifySettingsToNewFormat($value);
+				$newFormatSettings = self::convertNotifySettingsToNewFormat($value, false);
 			}
 			if ($type === self::SETTINGS)
 			{
@@ -546,7 +546,7 @@ class CIMSettings
 		return true;
 	}
 
-	private static function convertNotifySettingsToNewFormat(array $settings): array
+	private static function convertNotifySettingsToNewFormat(array $settings, $needReplace = true): array
 	{
 		$defaultSettings = Notification::getDefaultSettings();
 
@@ -583,7 +583,10 @@ class CIMSettings
 		}
 		$newSettings = Notification::decodeSettings($newFormatSettings);
 
-		return array_replace_recursive($defaultSettings, $newSettings);
+		return $needReplace
+			? array_replace_recursive($defaultSettings, $newSettings)
+			: $newSettings
+		;
 	}
 
 	public static function convertNotifySettingsToOldFormat(array $settings): array

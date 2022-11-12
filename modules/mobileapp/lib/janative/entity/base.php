@@ -24,7 +24,7 @@ abstract class Base
 	private $config;
 
 
-	private function getConfig(): ?array {
+	protected function getConfig(): ?array {
 		if ($this->config == null) {
 			$this->config = [];
 			$file = new File("$this->path/deps.php");
@@ -41,15 +41,18 @@ abstract class Base
 		return $this->config;
 	}
 
-	public function getModificationTime()
+	public function getModificationMarker()
 	{
+		if (defined("JN_DEV_RELOAD")) {
+			return "1.0";
+		}
 		if(static::$modificationDates[$this->name])
 		{
 			return static::$modificationDates[$this->name];
 		}
 
 		$file = new File("{$this->path}/{$this->baseFileName}.js");
-		$dates = [$file->getModificationTime()];
+		$marks = [Utils::getFileHash($file)];
 		$langDirectory = new Directory("{$this->path}/lang/");
 		if ($langDirectory->isExists())
 		{
@@ -59,14 +62,21 @@ abstract class Base
 				if ($lang->isDirectory())
 				{
 					$langFile = new File($lang->getPath()."/{$this->baseFileName}.php");
-					if($langFile->isExists())
-						$dates[] = $langFile->getModificationTime();
+					$marks[] = Utils::getFileHash($langFile);
 				}
 			}
 		}
 
-		$value = max($dates);
-		$this->onBeforeModificationDateSave($value);
+		$this->onBeforeModificationMarkerSave($marks);
+		if (count($marks) == 1)
+		{
+			$value = $marks[0];
+		}
+		else
+		{
+			$value = md5(implode("/", $marks));
+		}
+
 		static::$modificationDates[$this->name] = $value;
 
 		return $value;
@@ -74,9 +84,9 @@ abstract class Base
 
 	public function getDependencies()
 	{
-		if (!array_key_exists($this->name, static::$dependencies))
+		if (!isset(static::$dependencies[$this->name]))
 		{
-			static::$dependencies[$this->name] = $this->resolveDependencies();
+			static::$dependencies[$this->name] = array_values($this->resolveDependencies());
 		}
 
 		return static::$dependencies[$this->name];
@@ -104,9 +114,11 @@ abstract class Base
 	{
 		$config = $this->getConfig();
 		$list = [];
+		$result = [];
 		if (is_array($config))
 		{
-			if (array_keys($config) !== range(0, count($config) - 1)) {
+			if (array_keys($config) !== range(0, count($config) - 1))
+			{
 				if(array_key_exists('extensions', $config)) {
 					$list = $config['extensions'];
 				}
@@ -116,18 +128,24 @@ abstract class Base
 				$list = $config;
 			}
 		}
+		if (!empty($list)) {
+			foreach ($list as $ext) {
+				$result[] = Base::expandDependency($ext);
+			}
 
-		return array_reduce(
-			$list,
-			function ($result, $ext) {
-				return array_merge($result,  Base::expandDependency($ext));
-			}, []);
+			if (!empty($result))
+			{
+				$result = array_merge(...$result);
+			}
+		}
+
+		return $result;
 	}
 
 	protected function getBundleFiles(): array {
 		$config = $this->getConfig();
 		$list = [];
-		if (array_key_exists("bundle", $config)) {
+		if (isset($config["bundle"])) {
 			$list = array_map(function ($file) {
 				$path = Path::normalize($this->path."/$file");
 				if (Path::getExtension($path) !== "js") {
@@ -147,7 +165,7 @@ abstract class Base
 		if (is_array($config))
 		{
 			if (array_keys($config) !== range(0, count($config) - 1)) {
-				if (array_key_exists('components', $config)) {
+				if (isset($config['components'])) {
 					if (is_array($config['components'])) {
 						return $config['components'];
 					}
@@ -178,7 +196,7 @@ abstract class Base
 			return [];
 		}
 
-		if (array_key_exists($ext, self::$expandedDependencies))
+		if ( isset(self::$expandedDependencies[$ext]))
 		{
 			return self::$expandedDependencies[$ext];
 		}
@@ -187,7 +205,7 @@ abstract class Base
 		$relativeExtDir = $ext;
 
 
-		if(mb_strpos($ext, "*") == (mb_strlen($ext) - 1))
+		if(mb_strpos($ext, "*") === (mb_strlen($ext) - 1))
 		{
 			$relativeExtDir = str_replace(["/*", "*"], "", $ext);
 			$findChildren = true;
@@ -198,7 +216,7 @@ abstract class Base
 		{
 			$dir = new Directory($absolutePath);
 			$items = $dir->getChildren();
-			for ($i = 0; $i < count($items); $i++)
+			for ($i = 0, $l = count($items); $i < $l; $i++)
 			{
 				/** @var Directory $entry **/
 				$entry = $items[$i];
@@ -211,6 +229,7 @@ abstract class Base
 						$result[] = $extensionFile->getPath();
 					}
 
+					$l += count($toAdd);
 					$items = array_merge($items, $toAdd);
 				}
 			}
@@ -233,7 +252,7 @@ abstract class Base
 	public function getLangDefinitionExpression()
 	{
 		$langPhrases = $this->getLangMessages();
-		if (count($langPhrases) > 0)
+		if (!empty($langPhrases))
 		{
 			$jsonLangMessages = Utils::jsonEncode($langPhrases, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
 			return <<<JS
@@ -244,7 +263,7 @@ JS;
 		return "";
 	}
 
-	abstract protected function onBeforeModificationDateSave(&$value);
+	abstract protected function onBeforeModificationMarkerSave(array &$value);
 	abstract protected function resolveDependencies();
 
 

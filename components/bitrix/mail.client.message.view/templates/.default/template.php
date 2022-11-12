@@ -12,6 +12,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	'ui.design-tokens',
 	'ui.fonts.opensans',
 	'ui.icons.b24',
+	'ui.alerts',
 ]);
 
 $bodyClass = $APPLICATION->getPageProperty('BodyClass', false);

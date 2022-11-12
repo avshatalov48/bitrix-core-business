@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Bizproc = this.BX.Bizproc || {};
-(function (exports,ui_entitySelector,main_popup,main_core_events,bizproc_automation,main_core) {
+(function (exports,ui_entitySelector,main_popup,main_core_events,bizproc_automation,ui_designTokens,ui_fonts_opensans,main_core,ui_tour) {
 	'use strict';
 
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
@@ -503,7 +503,16 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "getStatusId",
 	    value: function getStatusId() {
-	      return babelHelpers.classPrivateFieldGet(this, _data)['DOCUMENT_STATUS'] || '';
+	      return String(babelHelpers.classPrivateFieldGet(this, _data)['DOCUMENT_STATUS'] || '');
+	    }
+	  }, {
+	    key: "getStatus",
+	    value: function getStatus() {
+	      var _this2 = this;
+
+	      return bizproc_automation.getGlobalContext().document.statusList.find(function (status) {
+	        return String(status.STATUS_ID) === _this2.getStatusId();
+	      });
 	    }
 	  }, {
 	    key: "getCode",
@@ -627,6 +636,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	      if (this.getLogStatus() === bizproc_automation.TrackingStatus.COMPLETED) {
 	        containerClass += ' --complete';
+	      } else if (this.draft) {
+	        containerClass += ' --draft';
 	      }
 
 	      var div = main_core.Dom.create('DIV', {
@@ -912,10 +923,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "getReturnProperties",
 	    value: function getReturnProperties() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      var triggerData = bizproc_automation.getGlobalContext().availableTriggers.find(function (trigger) {
-	        return trigger['CODE'] === _this2.getCode();
+	        return trigger['CODE'] === _this3.getCode();
 	      });
 	      return triggerData && main_core.Type.isArray(triggerData.RETURN) ? triggerData.RETURN : [];
 	    }
@@ -1200,8 +1211,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	var _listNodes = /*#__PURE__*/new WeakMap();
 
-	var _buttonsNodes = /*#__PURE__*/new WeakMap();
-
 	var _modified = /*#__PURE__*/new WeakMap();
 
 	var TriggerManager = /*#__PURE__*/function (_EventEmitter) {
@@ -1243,11 +1252,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      value: void 0
 	    });
 
-	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _buttonsNodes, {
-	      writable: true,
-	      value: void 0
-	    });
-
 	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _modified, {
 	      writable: true,
 	      value: void 0
@@ -1270,9 +1274,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      babelHelpers.classPrivateFieldSet(this, _triggersData, main_core.Type.isArray(data.TRIGGERS) ? data.TRIGGERS : []);
 	      babelHelpers.classPrivateFieldSet(this, _columnNodes, document.querySelectorAll('[data-type="column-trigger"]'));
 	      babelHelpers.classPrivateFieldSet(this, _listNodes, babelHelpers.classPrivateFieldGet(this, _triggersContainerNode).querySelectorAll('[data-role="trigger-list"]'));
-	      babelHelpers.classPrivateFieldSet(this, _buttonsNodes, babelHelpers.classPrivateFieldGet(this, _triggersContainerNode).querySelectorAll('[data-role="trigger-buttons"]'));
 	      babelHelpers.classPrivateFieldSet(this, _modified, false);
-	      this.initButtons();
 	      this.initTriggers();
 	      this.markModified(false); //register DD
 
@@ -1292,12 +1294,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      babelHelpers.classPrivateFieldGet(this, _listNodes).forEach(function (node) {
 	        return main_core.Dom.clean(node);
 	      });
-	      babelHelpers.classPrivateFieldGet(this, _buttonsNodes).forEach(function (node) {
-	        return main_core.Dom.clean(node);
-	      });
 	      babelHelpers.classPrivateFieldSet(this, _triggersData, main_core.Type.isArray(data.TRIGGERS) ? data.TRIGGERS : []);
 	      this.initTriggers();
-	      this.initButtons();
 	      this.markModified(false);
 	    }
 	  }, {
@@ -1352,17 +1350,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      });
 	    }
 	  }, {
-	    key: "initButtons",
-	    value: function initButtons() {
-	      var _this4 = this;
-
-	      if (babelHelpers.classPrivateFieldGet(this, _viewMode$1).isEdit()) {
-	        babelHelpers.classPrivateFieldGet(this, _buttonsNodes).forEach(function (node) {
-	          return _this4.createAddButton(node);
-	        });
-	      }
-	    }
-	  }, {
 	    key: "enableManageMode",
 	    value: function enableManageMode() {
 	      babelHelpers.classPrivateFieldSet(this, _viewMode$1, ViewMode.manage());
@@ -1387,145 +1374,12 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      });
 	    }
 	  }, {
-	    key: "createAddButton",
-	    value: function createAddButton(containerNode) {
-	      var self = this;
-	      var div = main_core.Dom.create('span', {
-	        events: {
-	          click: function click(event) {
-	            if (!self.canEdit()) {
-	              HelpHint.showNoPermissionsHint(this);
-	            } else if (!babelHelpers.classPrivateFieldGet(self, _viewMode$1).isManage()) {
-	              self.onAddButtonClick(this);
-	            }
-	          }
-	        },
-	        attrs: {
-	          className: 'bizproc-automation-btn-add',
-	          'data-status-id': containerNode.getAttribute('data-status-id')
-	        },
-	        children: [main_core.Dom.create('span', {
-	          attrs: {
-	            className: 'bizproc-automation-btn-add-text'
-	          },
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ADD')
-	        })]
-	      });
-	      containerNode.appendChild(div);
-	    }
-	  }, {
-	    key: "onAddButtonClick",
-	    value: function onAddButtonClick(button, context) {
-	      var _this5 = this;
-
-	      var self = this;
-
-	      var onMenuClick = function onMenuClick(event, item) {
-	        self.addTrigger(item.triggerData, function (trigger) {
-	          this.openTriggerSettingsDialog(trigger, context);
-	        });
-	        this.popupWindow.close();
-	      };
-
-	      var menuItems = [];
-	      bizproc_automation.getGlobalContext().availableTriggers.forEach(function (availableTrigger) {
-	        if (availableTrigger.CODE === 'APP') {
-	          menuItems.push(_this5.createAppTriggerMenuItem(button.getAttribute('data-status-id'), availableTrigger));
-	        } else {
-	          menuItems.push({
-	            text: availableTrigger.NAME,
-	            triggerData: {
-	              DOCUMENT_STATUS: button.getAttribute('data-status-id') || context.statusId,
-	              CODE: availableTrigger.CODE
-	            },
-	            onclick: onMenuClick
-	          });
-	        }
-	      });
-	      main_popup.MenuManager.show(Helper.generateUniqueId(), button, menuItems, {
-	        autoHide: true,
-	        offsetLeft: main_core.Dom.getPosition(button)['width'] / 2,
-	        angle: {
-	          position: 'top',
-	          offset: 0
-	        },
-	        events: {
-	          onPopupClose: function onPopupClose() {
-	            this.destroy();
-	          }
-	        }
-	      });
-	    }
-	  }, {
-	    key: "onChangeTriggerClick",
-	    value: function onChangeTriggerClick(statusId, event) {
-	      this.onAddButtonClick(event.target, {
-	        changeTrigger: true,
-	        statusId: statusId
-	      });
-	    }
-	  }, {
-	    key: "createAppTriggerMenuItem",
-	    value: function createAppTriggerMenuItem(status, triggerData) {
-	      var self = this;
-
-	      var onMenuClick = function onMenuClick(e, item) {
-	        self.addTrigger(item.triggerData, function (trigger) {
-	          this.openTriggerSettingsDialog(trigger);
-	        });
-	        this.getRootMenuWindow().close();
-	      };
-
-	      var menuItems = [];
-
-	      for (var i = 0; i < triggerData['APP_LIST'].length; ++i) {
-	        var item = triggerData['APP_LIST'][i];
-	        var itemName = '[' + item['APP_NAME'] + '] ' + item['NAME'];
-	        menuItems.push({
-	          text: main_core.Text.encode(itemName),
-	          triggerData: {
-	            DOCUMENT_STATUS: status,
-	            NAME: itemName,
-	            CODE: triggerData.CODE,
-	            APPLY_RULES: {
-	              APP_ID: item['APP_ID'],
-	              CODE: item['CODE']
-	            }
-	          },
-	          onclick: onMenuClick
-	        });
-	      }
-
-	      if (main_core.Reflection.getClass('BX.rest.Marketplace')) {
-	        if (menuItems.length) {
-	          menuItems.push({
-	            delimiter: true
-	          });
-	        }
-
-	        menuItems.push({
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
-	          onclick: function onclick() {
-	            BX.rest.Marketplace.open({
-	              PLACEMENT: bizproc_automation.getGlobalContext().get('marketplaceRobotCategory')
-	            });
-	            this.getRootMenuWindow().close();
-	          }
-	        });
-	      }
-
-	      return {
-	        text: triggerData.NAME,
-	        items: menuItems
-	      };
-	    }
-	  }, {
 	    key: "addTrigger",
 	    value: function addTrigger(triggerData, callback) {
 	      var trigger = new Trigger();
+	      trigger.draft = true;
 	      trigger.init(triggerData, babelHelpers.classPrivateFieldGet(this, _viewMode$1));
 	      this.subscribeTriggerEvents(trigger);
-	      trigger.draft = true;
 
 	      if (callback) {
 	        callback.call(this, trigger);
@@ -1569,6 +1423,12 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      babelHelpers.classPrivateFieldGet(this, _triggersContainerNode).querySelectorAll('.bizproc-automation-trigger-item-wrapper').forEach(function (node) {
 	        main_core.Dom.removeClass(node, 'bizproc-automation-trigger-item-wrapper-draggable');
 	      });
+	    }
+	  }, {
+	    key: "insertTrigger",
+	    value: function insertTrigger(trigger) {
+	      babelHelpers.classPrivateFieldGet(this, _triggers).push(trigger);
+	      this.markModified(true);
 	    }
 	  }, {
 	    key: "insertTriggerNode",
@@ -1644,7 +1504,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "openTriggerSettingsDialog",
 	    value: function openTriggerSettingsDialog(trigger, context) {
-	      var _this6 = this;
+	      var _this4 = this;
 
 	      if (Designer.getInstance().getTriggerSettingsDialog()) {
 	        if (context && context.changeTrigger) {
@@ -1670,7 +1530,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        },
 	        events: {
 	          click: function click(event) {
-	            return _this6.emit('TriggerManager:onHelpClick', event);
+	            return _this4.emit('TriggerManager:onHelpClick', event);
 	          }
 	        }
 	      });
@@ -2020,10 +1880,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        trigger: trigger,
 	        form: form
 	      });
-	      var titleBar = trigger.draft ? this.createChangeTriggerTitleBar(title, trigger.documentStatus) : null;
 	      var self = this;
 	      var popup = new BX.PopupWindow(Helper.generateUniqueId(), null, {
-	        titleBar: titleBar || title,
+	        titleBar: title,
 	        content: form,
 	        closeIcon: true,
 	        offsetLeft: 0,
@@ -2099,10 +1958,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	                trigger.setExecuteBy(formData['data']['execute_by']);
 	              }
 
-	              if (trigger.draft) {
-	                babelHelpers.classPrivateFieldGet(self, _triggers).push(trigger);
-	                self.insertTriggerNode(trigger.getStatusId(), trigger.node);
-	              } //analytics
+	              if (trigger.draft) ; //analytics
 
 
 	              main_core.ajax.runAction('bizproc.analytics.push', {
@@ -2130,26 +1986,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      main_core.ajax.runAction('bizproc.analytics.push', {
 	        analyticsLabel: "automation_trigger".concat(trigger.draft ? '_draft' : '', "_settings_").concat(trigger.getCode().toLowerCase())
 	      });
-	    }
-	  }, {
-	    key: "createChangeTriggerTitleBar",
-	    value: function createChangeTriggerTitleBar(title, statusId) {
-	      return {
-	        content: main_core.Dom.create('div', {
-	          props: {
-	            className: 'popup-window-titlebar-text bizproc-automation-popup-titlebar-with-link'
-	          },
-	          children: [document.createTextNode(title), main_core.Dom.create('span', {
-	            props: {
-	              className: 'bizproc-automation-popup-titlebar-link'
-	            },
-	            text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHANGE_TRIGGER'),
-	            events: {
-	              click: this.onChangeTriggerClick.bind(this, statusId)
-	            }
-	          })]
-	        })
-	      };
 	    }
 	  }, {
 	    key: "renderConditionSettings",
@@ -2519,6 +2355,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    key: "title",
 	    get: function get() {
 	      return babelHelpers.classPrivateFieldGet(this, _title);
+	    }
+	  }, {
+	    key: "statusList",
+	    get: function get() {
+	      return babelHelpers.classPrivateFieldGet(this, _statusList);
 	    }
 	  }]);
 	  return Document;
@@ -3580,8 +3421,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	      var robotData = _objectSpread({
 	        Name: Robot.generateName(),
-	        Delay: this.getDelayInterval().clone(),
-	        Condition: this.getCondition().clone()
+	        Delay: this.getDelayInterval().serialize(),
+	        Condition: this.getCondition().serialize()
 	      }, BX.clone(babelHelpers.classPrivateFieldGet(this, _data$1)));
 
 	      clonedRobot.init(robotData, babelHelpers.classPrivateFieldGet(this, _viewMode$2));
@@ -3633,6 +3474,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "destroy",
 	    value: function destroy() {
+	      main_core.Dom.remove(babelHelpers.classPrivateFieldGet(this, _node$1));
 	      this.emit('Robot:destroyed');
 	    }
 	  }, {
@@ -3780,6 +3622,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	      if (babelHelpers.classPrivateFieldGet(this, _viewMode$2).isEdit() && this.canEdit()) {
 	        wrapperClass += ' bizproc-automation-robot-container-wrapper-draggable';
+	      }
+
+	      if (this.draft) {
+	        containerClass += ' --draft';
 	      }
 
 	      var targetLabel = main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_TO');
@@ -3991,7 +3837,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      if (!this.canEdit()) {
 	        HelpHint.showNoPermissionsHint(button);
 	      } else if (!babelHelpers.classPrivateFieldGet(this, _viewMode$2).isManage()) {
-	        babelHelpers.classPrivateFieldGet(this, _template).openRobotSettingsDialog(this);
+	        var _babelHelpers$classPr;
+
+	        babelHelpers.classPrivateFieldGet(this, _template).openRobotSettingsDialog(this, (_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _data$1).DialogContext) !== null && _babelHelpers$classPr !== void 0 ? _babelHelpers$classPr : null);
 	      }
 	    }
 	  }, {
@@ -4130,6 +3978,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function serialize() {
 	      var result = BX.clone(babelHelpers.classPrivateFieldGet(this, _data$1));
 	      delete result['viewData'];
+	      delete result['DialogContext'];
 	      result.Delay = babelHelpers.classPrivateFieldGet(this, _delay).serialize();
 	      result.Condition = babelHelpers.classPrivateFieldGet(this, _condition$1).serialize();
 	      return result;
@@ -4344,7 +4193,9 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	      var hasAdditionalResultProperties = function hasAdditionalResultProperties() {
 	        return main_core.Type.isArray(description['ADDITIONAL_RESULT']) && description['ADDITIONAL_RESULT'].some(function (addProperty) {
-	          return Object.values(props[addProperty].length > 0);
+	          var _props$addProperty;
+
+	          return Object.values((_props$addProperty = props[addProperty]) !== null && _props$addProperty !== void 0 ? _props$addProperty : []).length > 0;
 	        });
 	      };
 
@@ -4713,8 +4564,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	var _buttonsNode = /*#__PURE__*/new WeakMap();
 
-	var _topButtonsNode = /*#__PURE__*/new WeakMap();
-
 	var _robots = /*#__PURE__*/new WeakMap();
 
 	var _data$2 = /*#__PURE__*/new WeakMap();
@@ -4787,11 +4636,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      value: void 0
 	    });
 
-	    _classPrivateFieldInitSpec$d(babelHelpers.assertThisInitialized(_this), _topButtonsNode, {
-	      writable: true,
-	      value: void 0
-	    });
-
 	    _classPrivateFieldInitSpec$d(babelHelpers.assertThisInitialized(_this), _robots, {
 	      writable: true,
 	      value: void 0
@@ -4847,10 +4691,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        babelHelpers.classPrivateFieldSet(this, _templateNode, babelHelpers.classPrivateFieldGet(this, _templateContainerNode).querySelector('[data-role="automation-template"][data-status-id="' + babelHelpers.classPrivateFieldGet(this, _data$2).DOCUMENT_STATUS + '"]'));
 	        babelHelpers.classPrivateFieldSet(this, _listNode, babelHelpers.classPrivateFieldGet(this, _templateNode).querySelector('[data-role="robot-list"]'));
 	        babelHelpers.classPrivateFieldSet(this, _buttonsNode, babelHelpers.classPrivateFieldGet(this, _templateNode).querySelector('[data-role="buttons"]'));
-	        babelHelpers.classPrivateFieldSet(this, _topButtonsNode, babelHelpers.classPrivateFieldGet(this, _templateNode).querySelector('[data-role="top-buttons"]'));
 	        this.initRobots();
 	        this.initButtons();
-	        this.updateTopButtonsVisibility();
 
 	        if (!this.isExternalModified() && this.canEdit()) {
 	          //register DD
@@ -4865,7 +4707,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function reInit(data, viewMode) {
 	      main_core.Dom.clean(babelHelpers.classPrivateFieldGet(this, _listNode));
 	      main_core.Dom.clean(babelHelpers.classPrivateFieldGet(this, _buttonsNode));
-	      main_core.Dom.clean(babelHelpers.classPrivateFieldGet(this, _topButtonsNode));
 	      this.destroy();
 	      this.init(data, viewMode);
 	    }
@@ -4931,6 +4772,15 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      return babelHelpers.classPrivateFieldGet(this, _data$2).DOCUMENT_STATUS;
 	    }
 	  }, {
+	    key: "getStatus",
+	    value: function getStatus() {
+	      var _this2 = this;
+
+	      return babelHelpers.classPrivateFieldGet(this, _context).document.statusList.find(function (status) {
+	        return String(status.STATUS_ID) === _this2.getStatusId();
+	      });
+	    }
+	  }, {
 	    key: "getTemplateId",
 	    value: function getTemplateId() {
 	      var id = parseInt(babelHelpers.classPrivateFieldGet(this, _data$2).ID);
@@ -4941,15 +4791,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    value: function initButtons() {
 	      if (this.isExternalModified()) {
 	        this.createExternalLocker();
-	      } else if (babelHelpers.classPrivateFieldGet(this, _viewMode$3).isEdit()) {
-	        this.createAddButton();
-
-	        if (this.getTemplateId() > 0) {
-	          this.createConstantsEditButton();
-	          this.createParametersEditButton();
-	          this.createExternalEditTemplateButton();
-	          this.createManageModeButton();
-	        }
+	      } else if (babelHelpers.classPrivateFieldGet(this, _viewMode$3).isEdit() && this.getTemplateId() > 0) {
+	        this.createConstantsEditButton();
+	        this.createParametersEditButton();
+	        this.createExternalEditTemplateButton();
+	        this.createManageModeButton();
 	      }
 	    }
 	  }, {
@@ -5010,55 +4856,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      babelHelpers.classPrivateFieldGet(this, _templateNode).querySelectorAll('.bizproc-automation-robot-container-wrapper').forEach(function (node) {
 	        main_core.Dom.removeClass(node, 'bizproc-automation-robot-container-wrapper-draggable');
 	      });
-	    }
-	  }, {
-	    key: "createAddButton",
-	    value: function createAddButton() {
-	      var _this2 = this;
-
-	      var anchor = function anchor() {
-	        return main_core.Dom.create('span', {
-	          events: {
-	            click: function click(event) {
-	              if (!_this2.canEdit()) {
-	                HelpHint.showNoPermissionsHint(event.target);
-	              } else if (!babelHelpers.classPrivateFieldGet(_this2, _viewMode$3).isManage()) {
-	                _this2.onAddButtonClick(event.target);
-	              }
-	            }
-	          },
-	          attrs: {
-	            className: 'bizproc-automation-robot-btn-add'
-	          },
-	          children: [main_core.Dom.create('span', {
-	            attrs: {
-	              className: 'bizproc-automation-btn-add-text'
-	            },
-	            text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ADD')
-	          })]
-	        });
-	      };
-
-	      if (babelHelpers.classPrivateFieldGet(this, _topButtonsNode)) {
-	        babelHelpers.classPrivateFieldGet(this, _topButtonsNode).appendChild(anchor());
-	      }
-
-	      if (babelHelpers.classPrivateFieldGet(this, _buttonsNode)) {
-	        babelHelpers.classPrivateFieldGet(this, _buttonsNode).appendChild(anchor());
-	      }
-	    }
-	  }, {
-	    key: "updateTopButtonsVisibility",
-	    value: function updateTopButtonsVisibility() {
-	      if (babelHelpers.classPrivateFieldGet(this, _topButtonsNode)) {
-	        var fn = babelHelpers.classPrivateFieldGet(this, _robots) && babelHelpers.classPrivateFieldGet(this, _robots).length < 1 ? 'hide' : 'show';
-
-	        if (this.isExternalModified()) {
-	          fn = 'show';
-	        }
-
-	        BX[fn](babelHelpers.classPrivateFieldGet(this, _topButtonsNode));
-	      }
 	    }
 	  }, {
 	    key: "createExternalEditTemplateButton",
@@ -5184,14 +4981,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "createExternalLocker",
 	    value: function createExternalLocker() {
-	      if (babelHelpers.classPrivateFieldGet(this, _topButtonsNode)) {
-	        babelHelpers.classPrivateFieldGet(this, _topButtonsNode).appendChild(main_core.Dom.create('span', {
-	          attrs: {
-	            className: 'bizproc-automation-robot-btn-prohibit'
-	          }
-	        }));
-	      }
-
 	      var div = main_core.Dom.create("div", {
 	        attrs: {
 	          className: "bizproc-automation-robot-container"
@@ -5267,148 +5056,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      }
 	    }
 	  }, {
-	    key: "onAddButtonClick",
-	    value: function onAddButtonClick(button, context) {
-	      var menuItems = {
-	        employee: [],
-	        client: [],
-	        ads: [],
-	        other: []
-	      };
-	      var availableRobots = babelHelpers.classPrivateFieldGet(this, _context).availableRobots;
-
-	      if (!main_core.Type.isPlainObject(context)) {
-	        context = {};
-	      }
-
-	      var self = this;
-
-	      var menuItemClickHandler = function menuItemClickHandler(event, item) {
-	        var robotData = BX.clone(item.robotData);
-
-	        if (robotData['ROBOT_SETTINGS'] && robotData['ROBOT_SETTINGS']['TITLE_CATEGORY'] && robotData['ROBOT_SETTINGS']['TITLE_CATEGORY'][item.category]) {
-	          robotData['NAME'] = robotData['ROBOT_SETTINGS']['TITLE_CATEGORY'][item.category];
-	        } else if (robotData['ROBOT_SETTINGS'] && robotData['ROBOT_SETTINGS']['TITLE']) {
-	          robotData['NAME'] = robotData['ROBOT_SETTINGS']['TITLE'];
-	        }
-
-	        self.addRobot(robotData, function (robot) {
-	          context.ADD_MENU_CATEGORY = item.category;
-	          this.openRobotSettingsDialog(robot, context);
-	        });
-	        this.getRootMenuWindow().close();
-	      };
-
-	      for (var i = 0; i < availableRobots.length; ++i) {
-	        if (availableRobots[i]['EXCLUDED']) {
-	          continue;
-	        }
-
-	        var settings = main_core.Type.isPlainObject(availableRobots[i]['ROBOT_SETTINGS']) ? availableRobots[i]['ROBOT_SETTINGS'] : {};
-	        var title = availableRobots[i].NAME;
-
-	        if (settings['TITLE']) {
-	          title = settings['TITLE'];
-	        }
-
-	        var categories = [];
-
-	        if (settings['CATEGORY']) {
-	          categories = main_core.Type.isArray(settings['CATEGORY']) ? settings['CATEGORY'] : [settings['CATEGORY']];
-	        }
-
-	        if (!categories.length) {
-	          categories.push('other');
-	        }
-
-	        for (var j = 0; j < categories.length; ++j) {
-	          if (!menuItems[categories[j]]) {
-	            continue;
-	          }
-
-	          menuItems[categories[j]].push({
-	            text: title,
-	            robotData: availableRobots[i],
-	            category: categories[j],
-	            onclick: menuItemClickHandler
-	          });
-	        }
-	      }
-
-	      if (menuItems['other'].length > 0) {
-	        menuItems['other'].push({
-	          delimiter: true
-	        });
-	      }
-
-	      if (main_core.Reflection.getClass('BX.rest.Marketplace')) {
-	        menuItems['other'].push({
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
-	          onclick: function onclick() {
-	            BX.rest.Marketplace.open({}, babelHelpers.classPrivateFieldGet(this, _context).get('marketplaceRobotCategory'));
-	            this.getRootMenuWindow().close();
-	          }
-	        });
-	      } else {
-	        menuItems['other'].push({
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
-	          href: '/marketplace/category/%category%/'.replace('%category%', babelHelpers.classPrivateFieldGet(this, _context).get('marketplaceRobotCategory')),
-	          target: '_blank'
-	        });
-	      }
-
-	      var menuId = button.getAttribute('data-menu-id');
-
-	      if (!menuId) {
-	        menuId = Helper.generateUniqueId();
-	        button.setAttribute('data-menu-id', menuId);
-	      }
-
-	      var rootMenuItems = [];
-
-	      if (menuItems['employee'].length > 0) {
-	        rootMenuItems.push({
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_EMPLOYEE'),
-	          items: menuItems['employee']
-	        });
-	      }
-
-	      if (menuItems['client'].length > 0) {
-	        rootMenuItems.push({
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_CLIENT'),
-	          items: menuItems['client']
-	        });
-	      }
-
-	      if (menuItems['ads'].length > 0) {
-	        rootMenuItems.push({
-	          text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_ADS'),
-	          items: menuItems['ads']
-	        });
-	      }
-
-	      rootMenuItems.push({
-	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER'),
-	        items: menuItems['other']
-	      });
-	      main_popup.MenuManager.show(menuId, button, rootMenuItems, {
-	        autoHide: true,
-	        offsetLeft: BX.pos(button)['width'] / 2,
-	        angle: {
-	          position: 'top',
-	          offset: 0
-	        },
-	        maxHeight: 550
-	      });
-	    }
-	  }, {
-	    key: "onChangeRobotClick",
-	    value: function onChangeRobotClick(event) {
-	      this.onAddButtonClick(event.target, {
-	        changeRobot: true
-	      });
-	    }
-	  }, {
 	    key: "onExternalEditTemplateButtonClick",
 	    value: function onExternalEditTemplateButtonClick(button) {
 	      if (!this.canEdit()) {
@@ -5456,7 +5103,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        Type: robotData['CLASS'],
 	        Properties: {
 	          Title: robotData['NAME']
-	        }
+	        },
+	        DialogContext: robotData['DIALOG_CONTEXT']
 	      };
 
 	      if (babelHelpers.classPrivateFieldGet(this, _robots).length > 0) {
@@ -5468,8 +5116,13 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        }
 	      }
 
-	      robot.init(initData, babelHelpers.classPrivateFieldGet(this, _viewMode$3));
 	      robot.draft = true;
+	      robot.init(initData, babelHelpers.classPrivateFieldGet(this, _viewMode$3));
+	      this.insertRobot(robot);
+	      this.insertRobotNode(robot.node);
+	      this.emit('Template:robot:add', {
+	        robot: robot
+	      });
 
 	      if (callback) {
 	        callback.call(this, robot);
@@ -5519,7 +5172,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      }
 
 	      this.markModified();
-	      this.updateTopButtonsVisibility();
 	    }
 	  }, {
 	    key: "insertRobotNode",
@@ -5529,8 +5181,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      } else {
 	        babelHelpers.classPrivateFieldGet(this, _listNode).appendChild(robotNode);
 	      }
-
-	      this.updateTopButtonsVisibility();
 	    }
 	  }, {
 	    key: "openRobotSettingsDialog",
@@ -5629,17 +5279,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          popupWidth = popupMinWidth;
 	        }
 	      }
-
-	      var titleBar;
 	      var robotTitle = robot.hasTitle() ? robot.getTitle() : main_core.Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SETTINGS_TITLE');
-
-	      if (robot.draft) {
-	        titleBar = this.createChangeRobotTitleBar(robotTitle);
-	      }
-
 	      var me = this;
 	      var popup = new BX.PopupWindow(Helper.generateUniqueId(), null, {
-	        titleBar: titleBar || robotTitle,
+	        titleBar: robotTitle,
 	        content: form,
 	        closeIcon: true,
 	        width: popupWidth,
@@ -5705,26 +5348,6 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      });
 	      bizproc_automation.Designer.getInstance().getRobotSettingsDialog().popup = popup;
 	      popup.show();
-	    }
-	  }, {
-	    key: "createChangeRobotTitleBar",
-	    value: function createChangeRobotTitleBar(title) {
-	      return {
-	        content: BX.Dom.create('div', {
-	          props: {
-	            className: 'popup-window-titlebar-text bizproc-automation-popup-titlebar-with-link'
-	          },
-	          children: [document.createTextNode(title), main_core.Dom.create('span', {
-	            props: {
-	              className: 'bizproc-automation-popup-titlebar-link'
-	            },
-	            text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHANGE_ROBOT'),
-	            events: {
-	              click: this.onChangeRobotClick.bind(this)
-	            }
-	          })]
-	        })
-	      };
 	    }
 	  }, {
 	    key: "initRobotSettingsControls",
@@ -5796,13 +5419,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	          control.onFieldSelect(_this6.addParameter(fieldProperty));
 	        });
+	        control.subscribe('onOpenFieldMenu', function (event) {
+	          return _this6.onOpenMenu(event, robot);
+	        });
 	        control.subscribe('onOpenMenu', function (event) {
-	          _classPrivateMethodGet$1(_this6, _addRobotReturnFieldsToSelector, _addRobotReturnFieldsToSelector2).call(_this6, event, robot);
-
-	          _this6.emit('Template:onSelectorMenuOpen', _objectSpread$1({
-	            template: _this6,
-	            robot: robot
-	          }, event.getData()));
+	          return _this6.onOpenMenu(event, robot);
 	        });
 	      }
 
@@ -6004,13 +5625,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      var conditionGroup = robot.getCondition();
 	      this.conditionSelector = new bizproc_automation.ConditionGroupSelector(conditionGroup, {
 	        fields: babelHelpers.classPrivateFieldGet(this, _context).document.getFields(),
+	        onOpenFieldMenu: function onOpenFieldMenu(event) {
+	          return _this7.onOpenMenu(event, robot);
+	        },
 	        onOpenMenu: function onOpenMenu(event) {
-	          _classPrivateMethodGet$1(_this7, _addRobotReturnFieldsToSelector, _addRobotReturnFieldsToSelector2).call(_this7, event, robot);
-
-	          _this7.emit('Template:onSelectorMenuOpen', _objectSpread$1({
-	            template: _this7,
-	            robot: robot
-	          }, event.getData()));
+	          return _this7.onOpenMenu(event, robot);
 	        }
 	      });
 	      return main_core.Dom.create("div", {
@@ -6029,6 +5648,16 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          }), this.conditionSelector.createNode()]
 	        })]
 	      });
+	    }
+	  }, {
+	    key: "onOpenMenu",
+	    value: function onOpenMenu(event, robot) {
+	      _classPrivateMethodGet$1(this, _addRobotReturnFieldsToSelector, _addRobotReturnFieldsToSelector2).call(this, event, robot);
+
+	      this.emit('Template:onSelectorMenuOpen', _objectSpread$1({
+	        template: this,
+	        robot: robot
+	      }, event.getData()));
 	    }
 	  }, {
 	    key: "setConditionSettingsFromForm",
@@ -6103,11 +5732,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	            _this8.setConditionSettingsFromForm(formData['data'], robot);
 
-	            if (robot.draft) {
-	              babelHelpers.classPrivateFieldGet(_this8, _robots).push(robot);
-
-	              _this8.insertRobotNode(robot.node);
-	            }
+	            if (robot.draft) ;
 
 	            robot.draft = false;
 	            robot.reInit();
@@ -6681,7 +6306,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      value: void 0
 	    });
 
-	    babelHelpers.classPrivateFieldSet(this, _type$2, ConditionGroup.CONDITION_TYPE.field);
+	    babelHelpers.classPrivateFieldSet(this, _type$2, ConditionGroup.CONDITION_TYPE.Field);
 	    babelHelpers.classPrivateFieldSet(this, _items, []);
 
 	    if (main_core.Type.isPlainObject(params)) {
@@ -6820,6 +6445,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	var _fieldPrefix = /*#__PURE__*/new WeakMap();
 
+	var _rootGroupTitle = /*#__PURE__*/new WeakMap();
+
+	var _onOpenFieldMenu = /*#__PURE__*/new WeakMap();
+
 	var _onOpenMenu = /*#__PURE__*/new WeakMap();
 
 	var ConditionSelector = /*#__PURE__*/function () {
@@ -6842,6 +6471,16 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    });
 
 	    _classPrivateFieldInitSpec$g(this, _fieldPrefix, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _classPrivateFieldInitSpec$g(this, _rootGroupTitle, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _classPrivateFieldInitSpec$g(this, _onOpenFieldMenu, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -6872,6 +6511,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        babelHelpers.classPrivateFieldSet(this, _fieldPrefix, options.fieldPrefix);
 	      }
 
+	      babelHelpers.classPrivateFieldSet(this, _rootGroupTitle, options.rootGroupTitle);
+	      babelHelpers.classPrivateFieldSet(this, _onOpenFieldMenu, options.onOpenFieldMenu);
 	      babelHelpers.classPrivateFieldSet(this, _onOpenMenu, options.onOpenMenu);
 	    }
 	  }
@@ -7148,8 +6789,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          condition: babelHelpers.classPrivateFieldGet(this, _condition$2)
 	        });
 
-	        if (main_core.Type.isFunction(babelHelpers.classPrivateFieldGet(this, _onOpenMenu))) {
-	          this.fieldDialog.subscribe('onOpenMenu', babelHelpers.classPrivateFieldGet(this, _onOpenMenu));
+	        if (main_core.Type.isFunction(babelHelpers.classPrivateFieldGet(this, _onOpenFieldMenu))) {
+	          this.fieldDialog.subscribe('onOpenMenu', babelHelpers.classPrivateFieldGet(this, _onOpenFieldMenu));
 	        }
 
 	        this.fieldDialog.subscribe('change', function (event) {
@@ -7341,10 +6982,32 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  }, {
 	    key: "createValueNode",
 	    value: function createValueNode(docField, value) {
+	      var _this = this;
+
 	      var docType = bizproc_automation.Designer.getInstance().component ? bizproc_automation.Designer.getInstance().component.document.getRawType() : bizproc_automation.getGlobalContext().document.getRawType();
 	      var field = BX.clone(docField);
 	      field.Multiple = false;
-	      return BX.Bizproc.FieldType.renderControl(docType, field, babelHelpers.classPrivateFieldGet(this, _fieldPrefix) + 'value', value);
+	      var valueNodes = BX.Bizproc.FieldType.renderControlPublic(docType, field, babelHelpers.classPrivateFieldGet(this, _fieldPrefix) + 'value', value, false);
+	      valueNodes.querySelectorAll('[data-role]').forEach(function (node) {
+	        var _babelHelpers$classPr;
+
+	        var selector = bizproc_automation.SelectorManager.createSelectorByRole(node.dataset.role, {
+	          context: new bizproc_automation.SelectorContext({
+	            fields: bizproc_automation.getGlobalContext().document.getFields(),
+	            useSwitcherMenu: false,
+	            rootGroupTitle: (_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(_this, _rootGroupTitle)) !== null && _babelHelpers$classPr !== void 0 ? _babelHelpers$classPr : bizproc_automation.getGlobalContext().document.title
+	          })
+	        });
+
+	        if (selector) {
+	          if (main_core.Type.isFunction(babelHelpers.classPrivateFieldGet(_this, _onOpenMenu))) {
+	            selector.subscribe('onOpenMenu', babelHelpers.classPrivateFieldGet(_this, _onOpenMenu));
+	          }
+
+	          selector.renderTo(node);
+	        }
+	      });
+	      return valueNodes;
 	    }
 	  }, {
 	    key: "createOperatorNode",
@@ -7415,7 +7078,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	var _itemSelectors = /*#__PURE__*/new WeakMap();
 
+	var _onOpenFieldMenu$1 = /*#__PURE__*/new WeakMap();
+
 	var _onOpenMenu$1 = /*#__PURE__*/new WeakMap();
+
+	var _rootGroupTitle$1 = /*#__PURE__*/new WeakMap();
 
 	var ConditionGroupSelector = /*#__PURE__*/function () {
 	  function ConditionGroupSelector(conditionGroup, options) {
@@ -7441,7 +7108,17 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      value: void 0
 	    });
 
+	    _classPrivateFieldInitSpec$h(this, _onOpenFieldMenu$1, {
+	      writable: true,
+	      value: void 0
+	    });
+
 	    _classPrivateFieldInitSpec$h(this, _onOpenMenu$1, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    _classPrivateFieldInitSpec$h(this, _rootGroupTitle$1, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -7460,6 +7137,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        babelHelpers.classPrivateFieldSet(this, _fieldPrefix$1, options.fieldPrefix);
 	      }
 
+	      babelHelpers.classPrivateFieldSet(this, _rootGroupTitle$1, options.rootGroupTitle);
+	      babelHelpers.classPrivateFieldSet(this, _onOpenFieldMenu$1, options.onOpenFieldMenu);
 	      babelHelpers.classPrivateFieldSet(this, _onOpenMenu$1, options.onOpenMenu);
 	    }
 	  }
@@ -7475,6 +7154,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          fields: fields,
 	          joiner: item[1],
 	          fieldPrefix: babelHelpers.classPrivateFieldGet(me, _fieldPrefix$1),
+	          rootGroupTitle: babelHelpers.classPrivateFieldGet(this, _rootGroupTitle$1),
+	          onOpenFieldMenu: babelHelpers.classPrivateFieldGet(this, _onOpenFieldMenu$1),
 	          onOpenMenu: babelHelpers.classPrivateFieldGet(this, _onOpenMenu$1)
 	        });
 	        babelHelpers.classPrivateFieldGet(this, _itemSelectors).push(conditionSelector);
@@ -7504,6 +7185,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      var conditionSelector = new ConditionSelector(new bizproc_automation.Condition({}, babelHelpers.classPrivateFieldGet(this, _conditionGroup)), {
 	        fields: babelHelpers.classPrivateFieldGet(this, _fields$2),
 	        fieldPrefix: babelHelpers.classPrivateFieldGet(this, _fieldPrefix$1),
+	        rootGroupTitle: babelHelpers.classPrivateFieldGet(this, _rootGroupTitle$1),
+	        onOpenFieldMenu: babelHelpers.classPrivateFieldGet(this, _onOpenFieldMenu$1),
 	        onOpenMenu: babelHelpers.classPrivateFieldGet(this, _onOpenMenu$1)
 	      });
 	      babelHelpers.classPrivateFieldGet(this, _itemSelectors).push(conditionSelector);
@@ -7771,11 +7454,12 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      this.getFields().forEach(function (field) {
 	        var groupKey = field.Id.indexOf('.') < 0 ? 'ROOT' : field.Id.split('.')[0];
 	        var groupName = '';
+	        var fieldName = field.Name;
 
 	        if (field.Name && groupKey !== 'ROOT' && field.Name.indexOf(': ') >= 0) {
 	          var names = field.Name.split(': ');
 	          groupName = names.shift();
-	          field.Name = names.join(': ');
+	          fieldName = names.join(': ');
 	        }
 
 	        if (field['Id'].indexOf('ASSIGNED_BY_') === 0 && field['Id'] !== 'ASSIGNED_BY_ID' && field['Id'] !== 'ASSIGNED_BY_PRINTABLE') {
@@ -7784,7 +7468,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          var _names = field.Name.split(' ');
 
 	          groupName = _names.shift();
-	          field.Name = _names.join(' ').replace('(', '').replace(')', '');
+	          fieldName = _names.join(' ').replace('(', '').replace(')', '');
 	        }
 
 	        if (!_this3.hasGroup(groupKey)) {
@@ -7797,7 +7481,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	        _this3.addGroupItem(groupKey, {
 	          id: field.SystemExpression,
-	          title: field.Name || field.Id,
+	          title: fieldName || field.Id,
 	          customData: {
 	            field: field
 	          }
@@ -10005,6 +9689,360 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  return Context;
 	}(BaseContext);
 
+	function _classPrivateFieldInitSpec$p(obj, privateMap, value) { _checkPrivateRedeclaration$p(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$p(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	var _guide = /*#__PURE__*/new WeakMap();
+
+	var BeginningGuide = /*#__PURE__*/function () {
+	  function BeginningGuide(options) {
+	    babelHelpers.classCallCheck(this, BeginningGuide);
+
+	    _classPrivateFieldInitSpec$p(this, _guide, {
+	      writable: true,
+	      value: void 0
+	    });
+
+	    babelHelpers.classPrivateFieldSet(this, _guide, new ui_tour.Guide({
+	      steps: [{
+	        target: options.target,
+	        title: main_core.Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_BEGINNING_TITLE'),
+	        text: main_core.Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_BEGINNING_SUBTITLE'),
+	        article: '16547606',
+	        condition: {
+	          top: true,
+	          bottom: false,
+	          color: 'primary'
+	        },
+	        position: 'bottom'
+	      }],
+	      onEvents: true
+	    }));
+	    babelHelpers.classPrivateFieldGet(this, _guide).getPopup().setAutoHide(true);
+	  }
+
+	  babelHelpers.createClass(BeginningGuide, [{
+	    key: "start",
+	    value: function start() {
+	      babelHelpers.classPrivateFieldGet(this, _guide).showNextStep();
+	    }
+	  }]);
+	  return BeginningGuide;
+	}();
+
+	function _createForOfIteratorHelper$6(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray$6(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+	function _unsupportedIterableToArray$6(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray$6(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray$6(o, minLen); }
+
+	function _arrayLikeToArray$6(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+	function _classPrivateMethodInitSpec$8(obj, privateSet) { _checkPrivateRedeclaration$q(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec$q(obj, privateMap, value) { _checkPrivateRedeclaration$q(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$q(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classStaticPrivateMethodGet$2(receiver, classConstructor, method) { _classCheckPrivateStaticAccess$5(receiver, classConstructor); return method; }
+
+	function _classCheckPrivateStaticAccess$5(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+
+	function _classPrivateMethodGet$8(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _isShownRobotGuide = /*#__PURE__*/new WeakMap();
+
+	var _isShownTriggerGuide = /*#__PURE__*/new WeakMap();
+
+	var _isShownSupportingRobotGuide = /*#__PURE__*/new WeakMap();
+
+	var _showRobotGuide = /*#__PURE__*/new WeakMap();
+
+	var _showTriggerGuide = /*#__PURE__*/new WeakMap();
+
+	var _showSupportingRobotGuide = /*#__PURE__*/new WeakMap();
+
+	var _guideTargets = /*#__PURE__*/new WeakMap();
+
+	var _resolveShowGuides = /*#__PURE__*/new WeakSet();
+
+	var _getGuide = /*#__PURE__*/new WeakSet();
+
+	var _getRobotGuide = /*#__PURE__*/new WeakSet();
+
+	var _getTriggerGuide = /*#__PURE__*/new WeakSet();
+
+	var _getSupportingRobotGuide = /*#__PURE__*/new WeakSet();
+
+	var AutomationGuide = /*#__PURE__*/function () {
+	  function AutomationGuide(options) {
+	    babelHelpers.classCallCheck(this, AutomationGuide);
+
+	    _classPrivateMethodInitSpec$8(this, _getSupportingRobotGuide);
+
+	    _classPrivateMethodInitSpec$8(this, _getTriggerGuide);
+
+	    _classPrivateMethodInitSpec$8(this, _getRobotGuide);
+
+	    _classPrivateMethodInitSpec$8(this, _getGuide);
+
+	    _classPrivateMethodInitSpec$8(this, _resolveShowGuides);
+
+	    _classPrivateFieldInitSpec$q(this, _isShownRobotGuide, {
+	      writable: true,
+	      value: true
+	    });
+
+	    _classPrivateFieldInitSpec$q(this, _isShownTriggerGuide, {
+	      writable: true,
+	      value: true
+	    });
+
+	    _classPrivateFieldInitSpec$q(this, _isShownSupportingRobotGuide, {
+	      writable: true,
+	      value: false
+	    });
+
+	    _classPrivateFieldInitSpec$q(this, _showRobotGuide, {
+	      writable: true,
+	      value: false
+	    });
+
+	    _classPrivateFieldInitSpec$q(this, _showTriggerGuide, {
+	      writable: true,
+	      value: false
+	    });
+
+	    _classPrivateFieldInitSpec$q(this, _showSupportingRobotGuide, {
+	      writable: true,
+	      value: false
+	    });
+
+	    _classPrivateFieldInitSpec$q(this, _guideTargets, {
+	      writable: true,
+	      value: {}
+	    });
+
+	    if (main_core.Type.isBoolean(options.isShownRobotGuide)) {
+	      babelHelpers.classPrivateFieldSet(this, _isShownRobotGuide, options.isShownRobotGuide);
+	    }
+
+	    if (main_core.Type.isBoolean(options.isShownTriggerGuide)) {
+	      babelHelpers.classPrivateFieldSet(this, _isShownTriggerGuide, options.isShownTriggerGuide);
+	    }
+	  }
+
+	  babelHelpers.createClass(AutomationGuide, [{
+	    key: "setShowRobotGuide",
+	    value: function setShowRobotGuide(show, target) {
+	      babelHelpers.classPrivateFieldSet(this, _showRobotGuide, show);
+
+	      if (show) {
+	        babelHelpers.classPrivateFieldGet(this, _guideTargets)['robot'] = target !== null && target !== void 0 ? target : null;
+	      }
+	    }
+	  }, {
+	    key: "setShowTriggerGuide",
+	    value: function setShowTriggerGuide(show, target) {
+	      babelHelpers.classPrivateFieldSet(this, _showTriggerGuide, show);
+
+	      if (show) {
+	        babelHelpers.classPrivateFieldGet(this, _guideTargets)['trigger'] = target !== null && target !== void 0 ? target : null;
+	      }
+	    }
+	  }, {
+	    key: "setShowSupportingRobotGuide",
+	    value: function setShowSupportingRobotGuide(show, target) {
+	      babelHelpers.classPrivateFieldSet(this, _showSupportingRobotGuide, show);
+
+	      if (show) {
+	        babelHelpers.classPrivateFieldGet(this, _guideTargets)['supportingRobot'] = target !== null && target !== void 0 ? target : null;
+	      }
+	    }
+	  }, {
+	    key: "start",
+	    value: function start() {
+	      _classPrivateMethodGet$8(this, _resolveShowGuides, _resolveShowGuides2).call(this);
+
+	      var guide = _classPrivateMethodGet$8(this, _getGuide, _getGuide2).call(this);
+
+	      if (guide) {
+	        var bindElement = guide.getCurrentStep().target;
+
+	        if (main_core.Type.isDomNode(bindElement) && document.body.contains(bindElement)) {
+	          guide.showNextStep();
+	        }
+	      }
+	    }
+	  }, {
+	    key: "isShownRobotGuide",
+	    get: function get() {
+	      return babelHelpers.classPrivateFieldGet(this, _isShownRobotGuide);
+	    }
+	  }, {
+	    key: "isShownTriggerGuide",
+	    get: function get() {
+	      return babelHelpers.classPrivateFieldGet(this, _isShownTriggerGuide);
+	    }
+	  }]);
+	  return AutomationGuide;
+	}();
+
+	function _resolveShowGuides2() {
+	  // settings
+	  if (babelHelpers.classPrivateFieldGet(this, _isShownTriggerGuide)) {
+	    babelHelpers.classPrivateFieldSet(this, _showTriggerGuide, false);
+	  }
+
+	  if (babelHelpers.classPrivateFieldGet(this, _isShownSupportingRobotGuide)) {
+	    babelHelpers.classPrivateFieldSet(this, _showSupportingRobotGuide, false);
+	    babelHelpers.classPrivateFieldSet(this, _isShownRobotGuide, true);
+	  }
+
+	  if (babelHelpers.classPrivateFieldGet(this, _isShownRobotGuide)) {
+	    babelHelpers.classPrivateFieldSet(this, _showRobotGuide, false);
+	  } // logic
+
+
+	  if (babelHelpers.classPrivateFieldGet(this, _showSupportingRobotGuide)) {
+	    babelHelpers.classPrivateFieldSet(this, _isShownRobotGuide, true);
+	  }
+	}
+
+	function _getGuide2() {
+	  var guide = null;
+
+	  if (babelHelpers.classPrivateFieldGet(this, _showSupportingRobotGuide)) {
+	    if (main_core.Type.isDomNode(babelHelpers.classPrivateFieldGet(this, _guideTargets)['supportingRobot'])) {
+	      guide = _classPrivateMethodGet$8(this, _getSupportingRobotGuide, _getSupportingRobotGuide2).call(this);
+	      guide.getPopup().setAutoHide(true);
+	    }
+
+	    return guide;
+	  }
+
+	  if (babelHelpers.classPrivateFieldGet(this, _showTriggerGuide)) {
+	    if (main_core.Type.isDomNode(babelHelpers.classPrivateFieldGet(this, _guideTargets)['trigger'])) {
+	      guide = _classPrivateMethodGet$8(this, _getTriggerGuide, _getTriggerGuide2).call(this);
+	      guide.getPopup().setAutoHide(true);
+	    }
+
+	    return guide;
+	  }
+
+	  if (babelHelpers.classPrivateFieldGet(this, _showRobotGuide)) {
+	    if (main_core.Type.isDomNode(babelHelpers.classPrivateFieldGet(this, _guideTargets)['robot'])) {
+	      guide = _classPrivateMethodGet$8(this, _getRobotGuide, _getRobotGuide2).call(this);
+	      guide.getPopup().setAutoHide(true);
+	    }
+
+	    return guide;
+	  }
+
+	  return guide;
+	}
+
+	function _getRobotGuide2() {
+	  var _this = this;
+
+	  var _this$constructor;
+
+	  return new ui_tour.Guide({
+	    steps: [{
+	      target: babelHelpers.classPrivateFieldGet(this, _guideTargets)['robot'],
+	      title: main_core.Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_ROBOT_TITLE'),
+	      text: _classStaticPrivateMethodGet$2(_this$constructor = this.constructor, AutomationGuide, _getText).call(_this$constructor, [main_core.Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_ROBOT_SUBTITLE_1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_ROBOT_SUBTITLE_2')]),
+	      article: '16547618',
+	      condition: {
+	        top: false,
+	        bottom: true,
+	        color: 'primary'
+	      },
+	      position: 'top',
+	      events: {
+	        'onShow': function onShow() {
+	          babelHelpers.classPrivateFieldSet(_this, _isShownRobotGuide, true);
+	        }
+	      }
+	    }],
+	    onEvents: true
+	  });
+	}
+
+	function _getTriggerGuide2() {
+	  var _this2 = this;
+
+	  var _this$constructor2;
+
+	  return new ui_tour.Guide({
+	    steps: [{
+	      target: babelHelpers.classPrivateFieldGet(this, _guideTargets)['trigger'],
+	      title: main_core.Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_TRIGGER_TITLE'),
+	      text: _classStaticPrivateMethodGet$2(_this$constructor2 = this.constructor, AutomationGuide, _getText).call(_this$constructor2, [main_core.Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_TRIGGER_SUBTITLE_1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_TRIGGER_SUBTITLE_2')]),
+	      article: '16547632',
+	      condition: {
+	        top: false,
+	        bottom: true,
+	        color: 'primary'
+	      },
+	      position: 'top',
+	      events: {
+	        'onShow': function onShow() {
+	          babelHelpers.classPrivateFieldSet(_this2, _isShownTriggerGuide, true);
+	        }
+	      }
+	    }],
+	    onEvents: true
+	  });
+	}
+
+	function _getSupportingRobotGuide2() {
+	  var _this3 = this;
+
+	  var _this$constructor3;
+
+	  return new ui_tour.Guide({
+	    steps: [{
+	      target: babelHelpers.classPrivateFieldGet(this, _guideTargets)['supportingRobot'],
+	      title: main_core.Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_SUPPORTING_ROBOT_TITLE'),
+	      text: _classStaticPrivateMethodGet$2(_this$constructor3 = this.constructor, AutomationGuide, _getText).call(_this$constructor3, [main_core.Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_SUPPORTING_ROBOT_SUBTITLE_1'), main_core.Loc.getMessage('BIZPROC_AUTOMATION_TOUR_GUIDE_SUPPORTING_ROBOT_SUBTITLE_2')]),
+	      article: '16547644',
+	      condition: {
+	        top: false,
+	        bottom: true,
+	        color: 'primary'
+	      },
+	      position: 'top',
+	      events: {
+	        'onShow': function onShow() {
+	          babelHelpers.classPrivateFieldSet(_this3, _isShownSupportingRobotGuide, true);
+	        }
+	      }
+	    }],
+	    onEvents: true
+	  });
+	}
+
+	function _getText(subtitles) {
+	  var text = "<ul class=\"bizproc-automation-tour-guide-list\">";
+
+	  var _iterator = _createForOfIteratorHelper$6(subtitles),
+	      _step;
+
+	  try {
+	    for (_iterator.s(); !(_step = _iterator.n()).done;) {
+	      var subtitle = _step.value;
+	      text += "<li class=\"bizproc-automation-tour-guide-list-item\"> ".concat(main_core.Text.encode(subtitle), " </li>");
+	    }
+	  } catch (err) {
+	    _iterator.e(err);
+	  } finally {
+	    _iterator.f();
+	  }
+
+	  text += "</ul>";
+	  return text;
+	}
+
 	var contextInstance;
 	function getGlobalContext() {
 	  if (contextInstance instanceof Context) {
@@ -10060,6 +10098,8 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	exports.HelpHint = HelpHint;
 	exports.SelectorContext = SelectorContext;
 	exports.Helper = Helper;
+	exports.BeginningGuide = BeginningGuide;
+	exports.AutomationGuide = AutomationGuide;
 	exports.RobotEntry = RobotEntry;
 	exports.TriggerEntry = TriggerEntry;
 	exports.TrackingEntryBuilder = TrackingEntryBuilder;
@@ -10068,5 +10108,5 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	exports.Tracker = Tracker;
 	exports.WorkflowStatus = WorkflowStatus;
 
-}((this.BX.Bizproc.Automation = this.BX.Bizproc.Automation || {}),BX.UI.EntitySelector,BX.Main,BX.Event,BX.Bizproc.Automation,BX));
+}((this.BX.Bizproc.Automation = this.BX.Bizproc.Automation || {}),BX.UI.EntitySelector,BX.Main,BX.Event,BX.Bizproc.Automation,BX,BX,BX,BX.UI.Tour));
 //# sourceMappingURL=automation.bundle.js.map

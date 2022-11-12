@@ -726,6 +726,7 @@ class CBitrixComponent
 				"Cannot find '#NAME#' template with page '#PAGE#'"
 			));
 		}
+		$this->__template->__component = null;
 	}
 	/**
 	 * Function initializes the template of the component. Returns true on success.

@@ -14,6 +14,7 @@ return [
 		'main.core',
 		'ui.buttons',
 		'main.popup',
+		'ui.dialogs.messagebox',
 	],
 	'skip_core' => false,
 ];

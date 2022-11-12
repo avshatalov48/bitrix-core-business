@@ -763,7 +763,7 @@ class CatalogStoreDocumentDetailComponent extends CBitrixComponent implements Co
 				Main\Type\Collection::normalizeArrayValuesByInt($fileList, false);
 				foreach ($fileList as $id)
 				{
-					$result[$id] = $id;
+					$result[$id] = (string)$id;
 				}
 			}
 

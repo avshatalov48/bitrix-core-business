@@ -62,7 +62,7 @@ class CollectLangPath
 			$path = Translate\Config::getDefaultPath();
 		}
 
-		$path = '/'. trim($path, '/.\\');
+		$path = '/'. \trim($path, '/.\\');
 
 		// List of files and folders
 		if ($this->isNewProcess)
@@ -71,9 +71,9 @@ class CollectLangPath
 
 			if (!empty($pathList))
 			{
-				$pathList = preg_split("/[\r\n]+/", $pathList);
-				array_walk($pathList, 'trim');
-				$pathList = array_unique(array_filter($pathList));
+				$pathList = \preg_split("/[\r\n]+/", $pathList);
+				\array_walk($pathList, 'trim');
+				$pathList = \array_unique(\array_filter($pathList));
 			}
 
 			if (empty($pathList))
@@ -97,7 +97,7 @@ class CollectLangPath
 					}
 				}
 
-				if (mb_substr($testPath, -4) === '.php')
+				if (\mb_substr($testPath, -4) === '.php')
 				{
 					if (!Translate\IO\Path::isLangDir($testPath))
 					{
@@ -116,9 +116,9 @@ class CollectLangPath
 			}
 
 			$languages = $this->controller->getRequest()->get('languages');
-			if (is_array($languages) && !in_array('all', $languages))
+			if (\is_array($languages) && !\in_array('all', $languages))
 			{
-				$languages = array_intersect($languages, Translate\Config::getEnabledLanguages());
+				$languages = \array_intersect($languages, Translate\Config::getEnabledLanguages());
 				if (!empty($languages))
 				{
 					$this->languages = $languages;
@@ -143,7 +143,7 @@ class CollectLangPath
 
 		$processedItemCount = 0;
 
-		for ($pos = ((int)$this->seekOffset > 0 ? (int)$this->seekOffset : 0), $total = count($this->pathList); $pos < $total; $pos ++)
+		for ($pos = ((int)$this->seekOffset > 0 ? (int)$this->seekOffset : 0), $total = \count($this->pathList); $pos < $total; $pos ++)
 		{
 			$filter = new Translate\Filter();
 
@@ -153,7 +153,7 @@ class CollectLangPath
 			}
 
 			$testPath = $this->pathList[$pos];
-			if (preg_match("#(.+/lang)(/?\w*)#", $testPath, $matches))
+			if (\preg_match("#(.+/lang)(/?\w*)#", $testPath, $matches))
 			{
 				$filter->path = $matches[1];
 				$indexer->purge($filter);
@@ -192,7 +192,7 @@ class CollectLangPath
 			}
 
 			// check user abortion
-			if (connection_status() !== CONNECTION_NORMAL)
+			if (\connection_status() !== \CONNECTION_NORMAL)
 			{
 				throw new Main\SystemException('Process has been broken course user aborted connection.');
 			}

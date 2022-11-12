@@ -15,7 +15,7 @@ export default class DefaultFooter extends BaseFooter
 		this.setContent(this.getOption('content'));
 	}
 
-	render()
+	render(): HTMLElement
 	{
 		const container = Tag.render`
 			<div>
@@ -37,7 +37,7 @@ export default class DefaultFooter extends BaseFooter
 		return this.content;
 	}
 
-	setContent(content: string | HTMLElement | HTMLElement[])
+	setContent(content: string | HTMLElement | HTMLElement[]): void
 	{
 		if (Type.isStringFilled(content) || Type.isDomNode(content) || Type.isArrayFilled(content))
 		{

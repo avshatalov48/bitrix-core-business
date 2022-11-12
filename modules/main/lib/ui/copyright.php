@@ -825,6 +825,12 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setCopyright("Copyright (c) 2013-2020 by MaxMind, Inc.")
 				->setProductUrl('https://github.com/maxmind/GeoIP2-php')
 				->setLicence(static::LICENCE_APACHE2),
+
+			// mobileapp/mobile/extensions/bitrix/utils/url/punycode.js
+			(new static("Punycode.js"))
+				->setCopyright("Copyright Mathias Bynens <https://mathiasbynens.be/>")
+				->setProductUrl('https://github.com/mathiasbynens/punycode.js')
+				->setLicence(static::LICENCE_MIT),
 		];
 	}
 }

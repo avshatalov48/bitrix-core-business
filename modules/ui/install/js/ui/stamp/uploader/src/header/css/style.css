@@ -1,0 +1,60 @@
+.ui-stamp-uploader-header {
+	background-color: #ffffff;
+	min-height: 70px;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 14px;
+	padding-bottom: 14px;
+	border-radius: 8px;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+}
+
+.ui-stamp-uploader-mode-inline .ui-stamp-uploader-header {
+	background: #F5F7F8;
+	border-radius: 8px;
+}
+
+.ui-stamp-uploader-header-icon {
+	position: relative;
+	background-color: #B8C0C9;
+	width: 42px;
+	height: 42px;
+	border-radius: 42px;
+}
+
+.ui-stamp-uploader-header-icon-image {
+	background-image: url("images/icon.svg");
+	background-repeat: no-repeat;
+	background-position: center center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.ui-stamp-uploader-header-text {
+	margin-left: 14px;
+}
+
+.ui-stamp-uploader-header-text-label {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	line-height: 17px;
+	color: #A8ADB4;
+}
+
+.ui-stamp-uploader-header-text-value {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.ui-stamp-uploader-header-text-value span,
+.ui-stamp-uploader-header-text-value span:hover {
+	font-size: 16px;
+}
+
+.ui-stamp-uploader-header-action {
+	margin-left: auto;
+}

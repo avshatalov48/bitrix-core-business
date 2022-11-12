@@ -14,6 +14,7 @@ use Bitrix\Main\GroupTable;
 
 class Group extends EntityBase
 {
+	private static $modelsCache = [];
 
 	public function getType(): string
 	{
@@ -43,7 +44,25 @@ class Group extends EntityBase
 	{
 		if (!$this->model)
 		{
-			$this->model = GroupTable::getById($this->id)->fetchObject();
+			if (array_key_exists($this->id, self::$modelsCache))
+			{
+				$this->model = self::$modelsCache[$this->id];
+			}
+			else
+			{
+				$this->model = GroupTable::getList([
+					'select' => [
+						'ID',
+						'NAME',
+					],
+					'filter' => [
+						'=ID' => $this->id,
+					],
+					'limit' => 1,
+				])->fetchObject();
+
+				self::$modelsCache[$this->id] = $this->model;
+			}
 		}
 	}
 }

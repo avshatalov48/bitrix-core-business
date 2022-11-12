@@ -16,6 +16,9 @@
 	--ui-counter-bg-color-white: #fff;
 	--ui-counter-bg-color-theme: rgba(82, 92, 105, .15);
 	--ui-counter-bg-color-dark: rgba(255, 255, 255, .19);
+	/*border color*/
+	--ui-counter-current-border-color: transparent;
+	--ui-counter-border-color-light: #fff;
 }
 
 :root .bitrix24-light-theme {
@@ -29,9 +32,10 @@
 	padding: 0;
 	border-radius: calc(var(--ui-counter-current-size) / 2);
 	background-color: var(--ui-counter-current-bg-color);
+	border: 1px solid var(--ui-counter-current-border-color);
 	overflow: hidden;
 	position: relative;
-	height: var(--ui-counter-current-size);
+	height: calc(var(--ui-counter-current-size) - 2px);
 }
 
 .ui-counter-inner {
@@ -39,9 +43,9 @@
 	position: relative;
 	color: #fff;
 	vertical-align: middle;
-	min-width: var(--ui-counter-current-size)x;
+	min-width: var(--ui-counter-current-size);
 	box-sizing: border-box;
-	padding: 0 5px;
+	padding: 0 4px;
 	font: var(--ui-counter-font-weight) var(--ui-counter-font-size)/var(--ui-counter-current-size) var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-regular, 400);
 }
@@ -167,3 +171,7 @@
 }
 
 /*endregion*/
+
+.ui-counter-border {
+	--ui-counter-current-border-color: var(--ui-counter-border-color-light);
+}

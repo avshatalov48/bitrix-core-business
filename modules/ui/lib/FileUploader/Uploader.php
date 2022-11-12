@@ -4,6 +4,7 @@ namespace Bitrix\UI\FileUploader;
 
 use Bitrix\Main\Engine\UrlManager;
 use Bitrix\Main\Error;
+use Bitrix\Main\ORM\Objectify\State;
 use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Web\Json;
 
@@ -134,7 +135,7 @@ class Uploader
 		if (!$uploadResult->isSuccess())
 		{
 			$tempFile = $uploadResult->getTempFile();
-			if ($tempFile !== null)
+			if ($tempFile !== null && $tempFile->state !== State::DELETED)
 			{
 				$tempFile->delete();
 			}

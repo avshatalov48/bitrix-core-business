@@ -136,4 +136,14 @@ class BaseAction extends Main\Engine\Action
 
 		return $result;
 	}
+
+	protected function filterBasketFieldsOnAdd(array $basketFields): array
+	{
+		return (new Sale\Rest\Entity\BasketItem())->internalizeFieldsAdd($basketFields);
+	}
+
+	protected function filterBasketFieldsOnUpdate(array $basketFields): array
+	{
+		return (new Sale\Rest\Entity\BasketItem())->internalizeFieldsUpdate($basketFields);
+	}
 }

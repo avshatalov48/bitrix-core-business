@@ -34,7 +34,8 @@ this.BX = this.BX || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (!this.linkContainer) {
-	        this.linkContainer = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-nav-panel__item\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), this.title ? this.getTitle() : '');
+	        var id = this.id ? "id=\"ui-nav-panel-item-".concat(this.id, "\"") : '';
+	        this.linkContainer = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div ", " class=\"ui-nav-panel__item\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), id, this.title ? this.getTitle() : '');
 	        this.active ? this.activate() : this.inactivate();
 	        this.setEvents();
 	      }

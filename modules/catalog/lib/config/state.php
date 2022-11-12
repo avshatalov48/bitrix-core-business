@@ -834,6 +834,6 @@ final class State
 			return false;
 		}
 
-		return Main\Config\Option::get('catalog', 'product_card_slider_enabled', 'Y') === 'Y';
+		return Main\Config\Option::get('catalog', 'product_card_slider_enabled') === 'Y';
 	}
 }

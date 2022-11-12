@@ -93,6 +93,9 @@ final class Document extends Base
 			'TITLE' => [
 				'TYPE' => DataType::TYPE_STRING,
 			],
+			'DOC_NUMBER' => [
+				'TYPE' => DataType::TYPE_STRING,
+			],
 		];
 	}
 

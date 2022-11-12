@@ -1,4 +1,4 @@
-import {Type} from 'main.core';
+import {Type, Loc} from 'main.core';
 import {EventEmitter} from 'main.core.events';
 import {Logger} from 'im.v2.lib.logger';
 import {ChatTypes, MessageStatus, EventType} from 'im.v2.const';
@@ -99,7 +99,7 @@ export class RecentPullHandler
 		let text = params.textOriginal;
 		if (command === 'messageDelete')
 		{
-			text = params.text;
+			text = Loc.getMessage('IM_PULL_RECENT_MESSAGE_DELETED');
 		}
 
 		this.store.dispatch('recent/update', {

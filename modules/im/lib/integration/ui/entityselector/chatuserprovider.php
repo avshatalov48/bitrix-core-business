@@ -53,6 +53,13 @@ class ChatUserProvider extends ChatProvider
 		{
 			return [];
 		}
+		
+		$options['order'] ??= ['LAST_MESSAGE_ID' => 'DESC'];
+		$chatIdList = static::getChatIdList($options['searchQuery'], $chatTypeList, $options['order']);
+		if (empty($chatIdList))
+		{
+			return [];
+		}
 
 		$query = ChatTable::query();
 		$query
@@ -66,7 +73,6 @@ class ChatUserProvider extends ChatProvider
 			->addSelect('RELATION.UNREAD_ID', 'RELATION_UNREAD_ID')
 			->addSelect('ALIAS.ALIAS', 'ALIAS_NAME')
 		;
-
 		$query->registerRuntimeField(
 			'RELATION',
 			new Reference(
@@ -78,16 +84,38 @@ class ChatUserProvider extends ChatProvider
 		);
 
 		$query->where('RELATION.USER_ID', User::getInstance()->getId());
-
-		$subQuery = static::getSubQuery($chatTypeList, $options['searchQuery']);
-		$query->whereIn('RELATION.CHAT_ID', $subQuery);
-
-		$options['order'] ??= ['LAST_MESSAGE_ID' => 'DESC'];
+		$query->whereIn('ID', $chatIdList);
 		$query->setOrder($options['order']);
-
-		$query->setLimit($options['limit']);
+		$query->setLimit(static::MAX_CHATS_IN_SAMPLE);
 
 		return $query->fetchAll();
+	}
+
+	protected static function getChatIdList(string $searchQuery, array $chatTypeList, array $order): array
+	{
+		$query = ChatTable::query();
+		$query->addSelect('ID');
+		$query->registerRuntimeField(
+			'RELATION',
+			new Reference(
+				'RELATION',
+				RelationTable::class,
+				Join::on('this.ID', 'ref.CHAT_ID'),
+				['join_type' => Join::TYPE_INNER]
+			)
+		);
+		$query->where('RELATION.USER_ID', User::getInstance()->getId());
+		$query->whereIn('RELATION.CHAT_ID', static::getSubQuery($chatTypeList, $searchQuery));
+		$query->setOrder($order);
+		$query->setLimit(static::MAX_CHATS_IN_SAMPLE);
+
+		$chatIdList = [];
+		foreach ($query->exec() as $row)
+		{
+			$chatIdList[] = (int)$row['ID'];
+		}
+
+		return $chatIdList;
 	}
 
 	protected static function getSearchableChatTypes(): array

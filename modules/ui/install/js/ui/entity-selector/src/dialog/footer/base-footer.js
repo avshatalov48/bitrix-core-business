@@ -64,7 +64,7 @@ export default class BaseFooter
 		return null;
 	}
 
-	getContainer()
+	getContainer(): HTMLElement
 	{
 		if (this.container === null)
 		{

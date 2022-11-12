@@ -5228,15 +5228,15 @@
 		}
 
 		// vox low quality temporary workaround
-
-		if (this.incomingVideoConstraints.width >= 320 && this.incomingVideoConstraints.width <= 640)
-		{
-			this.incomingVideoConstraints.width = 640;
-		}
-		if (this.incomingVideoConstraints.height >= 180 && this.incomingVideoConstraints.height <= 360)
-		{
-			this.incomingVideoConstraints.height = 360;
-		}
+		// (disabled to test quality)
+		// if (this.incomingVideoConstraints.width >= 320 && this.incomingVideoConstraints.width <= 640)
+		// {
+		// 	this.incomingVideoConstraints.width = 640;
+		// }
+		// if (this.incomingVideoConstraints.height >= 180 && this.incomingVideoConstraints.height <= 360)
+		// {
+		// 	this.incomingVideoConstraints.height = 360;
+		// }
 
 		this.videoRenderer.requestVideoSize(this.incomingVideoConstraints.width, this.incomingVideoConstraints.height);
 	};
@@ -5946,7 +5946,6 @@
 	{
 		this.releaseStream();
 		clearInterval(this.checkAspectInterval);
-		clearInterval(this.checkResolutionInterval);
 	};
 
 	var CallUserMobile = function(config)

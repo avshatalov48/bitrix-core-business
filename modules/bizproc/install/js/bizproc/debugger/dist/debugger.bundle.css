@@ -204,6 +204,7 @@
 	display: flex;
 	align-items: center;
 	flex-shrink: 0;
+	width: calc(100% - 5px);
 	height: var(--height);
 	padding: 0 25px 0 10px;
 	margin-right: 3px;
@@ -236,7 +237,7 @@
 }
 
 .bizproc-debugger-automation__status--bg {
-	width: calc(100% - 5px);
+	width: 99%;
 	height: var(--height);
 	border-radius: var(--border-radius);
 	position: absolute;
@@ -256,8 +257,9 @@
 	border-left-color: inherit;
 	position: absolute;
 	left: 100%;
-	top: 50%;
-	transform: translate(0, -50%);
+	/*top: 50%;*/
+	/*transform: translate(0, -50%);*/
+	top:  calc(var(--border-radius) - 1px);
 }
 
 .bizproc-debugger-automation__main-robots--main-content {
@@ -873,7 +875,7 @@
 	display: flex;
 	align-items: center;
 	overflow: hidden;
-	padding: 1px;
+	padding: 1px 5px 1px 1px;
 }
 
 .bizproc-debugger-automation__status--robot-change-arrow {

@@ -276,7 +276,7 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 	<?php
 	}
 	?>
-	<div class="feed-add-post-buttons" id="lhe_buttons_<?=$arParams["FORM_ID"]?>">
+	<div class="feed-add-post-buttons --no-wrap" id="lhe_buttons_<?=$arParams["FORM_ID"]?>">
 		<button class="ui-btn ui-btn-sm ui-btn-primary" id="lhe_button_submit_<?=$arParams["FORM_ID"]?>"><?=GetMessage("MPF_BUTTON_SEND")?></button>
 		<button class="ui-btn ui-btn-sm ui-btn-link" id="lhe_button_cancel_<?=$arParams["FORM_ID"]?>"><?=GetMessage("MPF_BUTTON_CANCEL")?></button>
 

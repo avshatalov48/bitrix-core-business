@@ -41,13 +41,7 @@ class CallUser
 	 */
 	public function getState()
 	{
-		switch ($this->state)
-		{
-			case static::STATE_READY:
-				return $this->isSeenRecently() ? static::STATE_READY : static::STATE_IDLE;
-			default:
-				return $this->state;
-		}
+		return $this->isSeenRecently() ? $this->state : static::STATE_IDLE;
 	}
 
 	public function isSeenRecently()
@@ -63,7 +57,12 @@ class CallUser
 
 	public function updateState($state)
 	{
-		$this->update(['STATE' => $state]);
+		$fields = ['STATE' => $state];
+		if ($state === self::STATE_CALLING)
+		{
+			$fields['LAST_SEEN'] = new DateTime();
+		}
+		$this->update($fields);
 	}
 
 	/**

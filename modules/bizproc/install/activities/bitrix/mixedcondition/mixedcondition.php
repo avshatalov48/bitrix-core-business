@@ -31,13 +31,16 @@ class CBPMixedCondition extends CBPActivityCondition
 		foreach ($this->condition as $cond)
 		{
 			[$property, $value] = $ownerActivity->getRuntimeProperty($cond['object'], $cond['field'], $rootActivity);
+			$fieldTypeObject = $this->getFieldTypeObject($rootActivity, $property);
+
+			$conditionValue = ($property && $cond['value']) ? self::additionalExtractValue($fieldTypeObject, $cond['value']) : $cond['value'];
 
 			$items[] = [
 				'joiner' => $this->getJoiner($cond),
 				'operator' => $cond['operator'],
 				'valueToCheck' => $value,
-				'fieldType' => $this->getFieldTypeObject($rootActivity, $property),
-				'value' => $property ? $rootActivity->ParseValue($cond['value'], $property['Type']) : null,
+				'fieldType' => $fieldTypeObject,
+				'value' => $property ? $rootActivity->ParseValue($conditionValue, $property['Type']) : null,
 				'fieldName' => $property['Name'] ?? $cond['field'],
 			];
 		}
@@ -282,5 +285,19 @@ class CBPMixedCondition extends CBPActivityCondition
 	protected function getJoiner($condition): int
 	{
 		return empty($condition['joiner']) ? static::CONDITION_JOINER_AND : static::CONDITION_JOINER_OR;
+	}
+
+	private static function additionalExtractValue(Bizproc\FieldType $fieldType, $value)
+	{
+		if ($fieldType->getType() === 'user' && is_string($value))
+		{
+			if (strpos($value, '[') !== false || strpos($value, '{') !== false)
+			{
+				$errors = [];
+				$value = \CBPHelper::UsersStringToArray($value, $fieldType->getDocumentType(), $errors);
+			}
+		}
+
+		return $value;
 	}
 }

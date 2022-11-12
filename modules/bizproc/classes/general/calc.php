@@ -69,6 +69,7 @@ class CBPCalc
 		'firstvalue'=> ['args' => true, 'func' => 'FunctionFirstValue'],
 		'swirl' => ['args' => true, 'func' => 'FunctionSwirl'],
 		'getdocumenturl' => ['args' => true, 'func' => 'FunctionGetDocumentUrl'],
+		'trim' => ['args' => true, 'func' => 'functionTrim'],
 	];
 
 	// Allowable errors
@@ -1518,6 +1519,30 @@ class CBPCalc
 		return mb_strtoupper($firstChar) . $otherChars;
 	}
 
+	private function functionTrim($args)
+	{
+		$array = $this->ArrgsToArray($args);
+		if (empty($array))
+		{
+			return null;
+		}
+
+		$result = [];
+		foreach ($array as $str)
+		{
+			if (is_scalar($str) || (is_object($str) && method_exists($str, '__toString')))
+			{
+				$result[] = trim((string)$str);
+
+				continue;
+			}
+
+			return null;
+		}
+
+		return count($result) > 1 ? $result : $result[0];
+	}
+
 	/* Complex values */
 
 	private function functionMerge($args)
@@ -1563,7 +1588,7 @@ class CBPCalc
 		return array_merge(array_slice($ar, 1), [$ar[0]]);
 	}
 
-	private function FunctionGetDocumentUrl($args)
+	private function functionGetDocumentUrl($args)
 	{
 		$ar = $this->ArrgsToArray($args);
 		$format = array_shift($ar);

@@ -174,6 +174,7 @@ class Manager
 
     /**
      * @throws FileNotFoundException
+	 * @return array<Component>
      */
     public static function getAvailableComponents(): ?array
     {
@@ -186,7 +187,8 @@ class Manager
      * @throws FileNotFoundException
      */
     public static function getComponentByName($name): ?Component {
-        $components = self::fetchComponents();
+		$name = str_replace("bitrix:", "", $name);
+		$components = self::fetchComponents();
         if (array_key_exists($name, $components)) {
 			return $components[$name];
         }

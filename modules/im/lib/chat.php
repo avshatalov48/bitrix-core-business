@@ -500,7 +500,8 @@ class Chat
 
 		if (isset($options['FIRST_ID']))
 		{
-			$order = array();
+			$orderId = [];
+			$orderResult = [];
 
 			if ($chatData['RELATION_START_ID'] > 0 && intval($options['FIRST_ID']) < $chatData['RELATION_START_ID'])
 			{
@@ -517,7 +518,8 @@ class Chat
 		else
 		{
 			$fileSort = 'DESC';
-			$order = Array('CHAT_ID' => 'ASC', 'ID' => 'DESC');
+			$orderId = Array('CHAT_ID' => 'ASC', 'ID' => 'DESC');
+			$orderResult = Array('ID' => 'DESC');
 
 			if ($chatData['RELATION_START_ID'] > 0)
 			{
@@ -531,6 +533,28 @@ class Chat
 		}
 
 		$orm = \Bitrix\Im\Model\MessageTable::getList(array(
+			'select' => ['ID'],
+			'filter' => $filter,
+			'order' => $orderId,
+			'limit' => $limit
+		));
+		$ids = array_map(fn ($item) => $item['ID'], $orm->fetchAll());
+		if (empty($ids))
+		{
+			$result = [
+				'CHAT_ID' => (int)$chatId,
+				'MESSAGES' => [],
+				'USERS' => [],
+				'FILES' => [],
+			];
+			if ($options['JSON'])
+			{
+				$result = array_change_key_case($result, CASE_LOWER);
+			}
+			return $result;
+		}
+
+		$orm = \Bitrix\Im\Model\MessageTable::getList(array(
 			'select' => [
 				'ID', 'AUTHOR_ID', 'DATE_CREATE', 'NOTIFY_EVENT', 'MESSAGE',
 				'USER_LAST_ACTIVITY_DATE' => 'AUTHOR.LAST_ACTIVITY_DATE',
@@ -539,9 +563,8 @@ class Chat
 				'USER_DESKTOP_LAST_DATE' => 'STATUS.DESKTOP_LAST_DATE',
 				'MESSAGE_UUID' => 'UUID.UUID',
 			],
-			'filter' => $filter,
-			'order' => $order,
-			'limit' => $limit
+			'filter' => ['=ID' => $ids],
+			'order' => $orderResult,
 		));
 
 		$users = Array();

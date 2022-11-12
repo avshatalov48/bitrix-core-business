@@ -42,7 +42,7 @@ class UserFieldAccessController extends BaseAccessController
 
 		if (!$ruleName || !class_exists($ruleName))
 		{
-			throw new UnknownActionException('Unknown action '. $action);
+			throw new UnknownActionException($action);
 		}
 
 		return (new $ruleName($this))->executeMass($items, $params);

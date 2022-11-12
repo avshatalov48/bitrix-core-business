@@ -14,10 +14,6 @@ export default class FieldsFactory
 
 	factory(type, controlId, settings)
 	{
-		if (type === 'product_row_summary')
-		{
-			return new ProductRowSummary(controlId, settings);
-		}
 		if (type === 'contractor')
 		{
 			return new Contractor(controlId, settings);

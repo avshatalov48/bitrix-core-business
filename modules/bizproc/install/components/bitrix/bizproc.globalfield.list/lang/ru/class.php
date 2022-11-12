@@ -9,6 +9,7 @@ $MESS['BIZPROC_GLOBALFIELDS_LIST_ERR_CANT_READ_CONSTANT'] = 'Доступ к п�
 $MESS['BIZPROC_GLOBALFIELDS_LIST_TITLE_VARIABLE'] = 'Переменные';
 $MESS['BIZPROC_GLOBALFIELDS_LIST_TITLE_CONSTANT'] = 'Константы';
 
+$MESS['BIZPROC_GLOBALFIELDS_LIST_CREATE_BUTTON'] = 'Создать';
 $MESS['BIZPROC_GLOBALFIELDS_LIST_CREATE_VARIABLE'] = 'Создать переменную';
 $MESS['BIZPROC_GLOBALFIELDS_LIST_CREATE_CONSTANT'] = 'Создать константу';
 

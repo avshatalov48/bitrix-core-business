@@ -36,34 +36,34 @@ trait BulkOperation
 			static::$tableFields = $connection->getTableFields($tableName);
 		}
 
-		$columns0 = array_keys($rows[0]);
+		$columns0 = \array_keys($rows[0]);
 		$columns = [];
 		foreach ($columns0 as $c)
 		{
-			$columns[$c] = $sqlHelper->quote(mb_strtoupper($c));
+			$columns[$c] = $sqlHelper->quote(\mb_strtoupper($c));
 		}
 
-		$sqlValues = array();
+		$sqlValues = [];
 		foreach ($rows as $data)
 		{
 			foreach ($data as $columnName => $value)
 			{
 				$data[$columnName] = $sqlHelper->convertToDb($value, static::$tableFields[$columnName]);
 			}
-			$sqlValues[] = '('.implode(', ', $data).')';
+			$sqlValues[] = '('.\implode(', ', $data).')';
 		}
 		unset($data);
 
-		$sql = "INSERT INTO {$tableName} (".implode(', ', $columns).") VALUES ".implode(', ', $sqlValues);
+		$sql = "INSERT INTO {$tableName} (".\implode(', ', $columns).") VALUES ".\implode(', ', $sqlValues);
 
 		$checkPrimary = false;
 		if (!empty($primary))
 		{
-			if (!is_array($primary))
+			if (!\is_array($primary))
 			{
 				$primary = array($primary);
 			}
-			if (count(array_intersect($primary, $columns0)) > 0)
+			if (\count(\array_intersect($primary, $columns0)) > 0)
 			{
 				$checkPrimary = true;
 			}
@@ -71,11 +71,11 @@ trait BulkOperation
 		if ($checkPrimary)
 		{
 			$sqlUpdate = array();
-			foreach (array_diff($columns0, $primary) as $columnName)
+			foreach (\array_diff($columns0, $primary) as $columnName)
 			{
 				$sqlUpdate[] = "{$columns[$columnName]} = VALUES({$columns[$columnName]})";
 			}
-			$sql .= " ON DUPLICATE KEY UPDATE ".implode(', ', $sqlUpdate);
+			$sql .= " ON DUPLICATE KEY UPDATE ".\implode(', ', $sqlUpdate);
 		}
 
 		$connection->queryExecute($sql);
@@ -110,7 +110,7 @@ trait BulkOperation
 				$hasSubQuery = false;
 				foreach ($filter as $field => $value)
 				{
-					if (mb_strpos($field, '.') !== false)
+					if (\mb_strpos($field, '.') !== false)
 					{
 						$hasSubQuery = true;
 						break;
@@ -158,7 +158,7 @@ trait BulkOperation
 			$hasSubQuery = false;
 			foreach ($filter as $field => $value)
 			{
-				if (mb_strpos($field, '.') !== false)
+				if (\mb_strpos($field, '.') !== false)
 				{
 					$hasSubQuery = true;
 					break;
@@ -210,13 +210,13 @@ trait BulkOperation
 				continue;
 			}
 			$operator = '=';
-			if (!is_numeric($key))
+			if (!\is_numeric($key))
 			{
-				if (preg_match("/^([=<>!@%]+)([^=<>!@%]+)$/", $key, $parts))
+				if (\preg_match("/^([=<>!@%]+)([^=<>!@%]+)$/", $key, $parts))
 				{
-					list(, $operator, $key) = $parts;
+					[, $operator, $key] = $parts;
 				}
-				if (is_array($val) && !isset($val['LOGIC']))
+				if (\is_array($val) && !isset($val['LOGIC']))
 				{
 					if ($operator === '=')
 					{
@@ -248,12 +248,12 @@ trait BulkOperation
 
 				case '@':
 				{
-					if (is_array($val) && count($val) > 0)
+					if (\is_array($val) && \count($val) > 0)
 					{
-						$val = array_map(array($sqlHelper, 'forSql'), $val);
-						$where[] = "$key IN('".implode("', '", $val)."')";
+						$val = \array_map(array($sqlHelper, 'forSql'), $val);
+						$where[] = "$key IN('".\implode("', '", $val)."')";
 					}
-					elseif (is_string($val) && $val <> '')
+					elseif (\is_string($val) && $val <> '')
 					{
 						$where[] = "$key IN(".$val.')';
 					}
@@ -262,12 +262,12 @@ trait BulkOperation
 
 				case '!@':
 				{
-					if (is_array($val) && count($val) > 0)
+					if (\is_array($val) && \count($val) > 0)
 					{
-						$val = array_map(array($sqlHelper, 'forSql'), $val);
-						$where[] = "$key NOT IN('".implode("', '", $val)."')";
+						$val = \array_map(array($sqlHelper, 'forSql'), $val);
+						$where[] = "$key NOT IN('".\implode("', '", $val)."')";
 					}
-					elseif (is_string($val) && $val <> '')
+					elseif (\is_string($val) && $val <> '')
 					{
 						$where[] = "$key NOT IN(".$val.')';
 					}
@@ -276,7 +276,7 @@ trait BulkOperation
 
 				default:
 				{
-					if (is_array($val))// && isset($val['LOGIC']))// && $val['LOGIC'] === 'OR')// OR condition
+					if (\is_array($val))
 					{
 						$subLogic = 'AND';
 						if (isset($val['LOGIC']) && $val['LOGIC'] === 'OR')
@@ -285,15 +285,13 @@ trait BulkOperation
 							unset($val['LOGIC']);
 						}
 
-						//$val = array_pop($val);
-
 						$condition = array();
 						foreach ($val as $k => $v)
 						{
 							$subOperator = '=';
-							if (preg_match("/^([=<>!@%]+)([^=<>!@%]+)$/", $k, $parts))
+							if (\preg_match("/^([=<>!@%]+)([^=<>!@%]+)$/", $k, $parts))
 							{
-								list(, $subOperator, $k) = $parts;
+								[, $subOperator, $k] = $parts;
 							}
 							if (isset($filterAlias[$k]))
 							{
@@ -314,7 +312,7 @@ trait BulkOperation
 									$condition[] = "$k $subOperator '".$sqlHelper->forSql($v)."'";
 							}
 						}
-						$where[] = '('.implode(" $subLogic ", $condition).')';
+						$where[] = '('.\implode(" $subLogic ", $condition).')';
 					}
 					else
 					{
@@ -326,9 +324,9 @@ trait BulkOperation
 		}
 
 		$whereSql = '';
-		if (count($where))
+		if (\count($where))
 		{
-			$whereSql = ' AND '. implode(" $logic ", $where);
+			$whereSql = ' AND '. \implode(" $logic ", $where);
 		}
 
 		return $whereSql;

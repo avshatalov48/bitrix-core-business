@@ -51,7 +51,19 @@ class Session extends Entity\EO_DebuggerSession
 		//$this->killWorkflows();
 		$this->terminateWorkflows();
 
-		return $this->save();
+		$result = $this->save();
+		if ($result->isSuccess() && $this->isFixed())
+		{
+			$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+
+			$documentService->onDebugSessionDocumentStatusChanged(
+				$this->getFixedDocument()->getParameterDocumentId(),
+				$this->getStartedBy(),
+				DocumentStatus::FINISHED
+			);
+		}
+
+		return $result;
 	}
 
 	public function deleteAll(): Result
@@ -169,17 +181,40 @@ class Session extends Entity\EO_DebuggerSession
 
 		$this->addToDocuments($document);
 
-		return $this->save();
+		$result = $this->save();
+		if ($result->isSuccess() && $this->getMode() === Mode::INTERCEPTION)
+		{
+			$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+			$parameterDocumentId = $this->getParameterDocumentType();
+			$parameterDocumentId[2] = $documentId;
+
+			$documentService->onDebugSessionDocumentStatusChanged(
+				$parameterDocumentId,
+				$this->getStartedBy(),
+				DocumentStatus::INTERCEPTED
+			);
+		}
+
+		return $result;
 	}
 
 	public function removeFromDocuments(\Bitrix\Bizproc\Debugger\Session\Document $debuggerSessionDocument): void
 	{
 		$documentId = $debuggerSessionDocument->getDocumentId();
+		$parameterDocumentId = $this->getParameterDocumentType();
+		$parameterDocumentId[2] = $documentId;
 
 		parent::removeFromDocuments($debuggerSessionDocument);
 		$debuggerSessionDocument->delete();
 
 		$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+
+		$documentService->onDebugSessionDocumentStatusChanged(
+			$parameterDocumentId,
+			$this->getStartedBy(),
+			DocumentStatus::REMOVED
+		);
+
 		/** @var \Bitrix\Bizproc\Automation\Target\BaseTarget $target */
 		$target = $documentService->createAutomationTarget($this->getParameterDocumentType());
 		$target->setDocumentId($documentId);
@@ -242,15 +277,27 @@ class Session extends Entity\EO_DebuggerSession
 
 		if ($this->getMode() === Mode::EXPERIMENTAL)
 		{
-			$result = $this->addDocument($documentId);
-			if ($result->isSuccess())
+			$addDocumentResult = $this->addDocument($documentId);
+			if ($addDocumentResult->isSuccess())
 			{
 				$this->setFixed(true);
 
-				return $this->save();
+				$result = $this->save();
+				if ($result->isSuccess())
+				{
+					$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+
+					$documentService->onDebugSessionDocumentStatusChanged(
+						$this->getFixedDocument()->getParameterDocumentId(),
+						$this->getStartedBy(),
+						DocumentStatus::IN_DEBUG
+					);
+				}
+
+				return $result;
 			}
 
-			return $result;
+			return $addDocumentResult;
 		}
 
 		$documents = clone($this->getDocuments());
@@ -281,7 +328,19 @@ class Session extends Entity\EO_DebuggerSession
 			$this->removeFromDocuments($document);
 		}
 
-		return $this->save();
+		$result = $this->save();
+		if ($result->isSuccess())
+		{
+			$documentService = \CBPRuntime::GetRuntime(true)->getDocumentService();
+
+			$documentService->onDebugSessionDocumentStatusChanged(
+				$this->getFixedDocument()->getParameterDocumentId(),
+				$this->getStartedBy(),
+				DocumentStatus::IN_DEBUG
+			);
+		}
+
+		return $result;
 	}
 
 	public function isActive(): bool
@@ -523,7 +582,7 @@ class Session extends Entity\EO_DebuggerSession
 		if ($code === static::ERROR_UNKNOWN_DOCUMENT_ID)
 		{
 			return new \Bitrix\Main\Error(
-				Loc::getMessage('BIZPROC_DEBUGGER_SESSION_ERROR_UNKNOWN_DOCUMENT_ID'),
+				Loc::getMessage('BIZPROC_DEBUGGER_SESSION_ERROR_UNKNOWN_DOCUMENT_ID_1'),
 				self::ERROR_UNKNOWN_DOCUMENT_ID
 			);
 		}

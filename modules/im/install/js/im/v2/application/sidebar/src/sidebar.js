@@ -1,5 +1,5 @@
 import {Core} from 'im.v2.application.core';
-import {RecentList as RecentListComponent} from 'im.v2.component.recent-list';
+import {RecentList as RecentListComponent} from 'im.v2.component.old-chat-embedding.recent-list';
 import {RecentPullHandler} from 'im.v2.provider.pull';
 import {PullHandlers} from 'im.v2.const';
 

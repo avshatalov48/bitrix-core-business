@@ -7,6 +7,8 @@
 # mailto:admin@bitrixsoft.com				#
 #############################################
 
+use Bitrix\Vote;
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllVoteQuestion
@@ -42,15 +44,22 @@ class CAllVoteQuestion
 					"text" => GetMessage("VOTE_FORGOT_VOTE_ID"));
 			endif;
 		}
-		if (is_set($arFields, "QUESTION") || $ACTION == "ADD")
+
+		if (isset($arFields["QUESTION"]) || $ACTION == "ADD")
 		{
 			$arFields["QUESTION"] = trim($arFields["QUESTION"]);
-			if (empty($arFields["QUESTION"])):
-				$aMsg[] = array(
-					"id" => "QUESTION",
-					"text" => GetMessage("VOTE_FORGOT_QUESTION"));
-			endif;
+
+			global $USER;
+			if (!$USER || $USER->CanDoOperation('edit_php') !== true)
+			{
+				$arFields["QUESTION"] = Vote\Inner\Sanitizer::cleanText($arFields["QUESTION"]);
+			}
+			if ($arFields["QUESTION"] === "")
+			{
+				$aMsg[] = ["id" => "QUESTION", "text" => GetMessage("VOTE_FORGOT_QUESTION")];
+			}
 		}
+
 		if (is_set($arFields, "IMAGE_ID") && $arFields["IMAGE_ID"]["name"] == '' && $arFields["IMAGE_ID"]["del"] == '')
 		{
 			unset($arFields["IMAGE_ID"]);

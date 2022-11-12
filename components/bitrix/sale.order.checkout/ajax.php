@@ -124,21 +124,6 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 	public function configureActions()
 	{
 		return [
-			'addbasketitem' => [
-				'-prefilters' => [
-					Main\Engine\ActionFilter\Authentication::class,
-				],
-			],
-			'deleteBasketItem' => [
-				'-prefilters' => [
-					Main\Engine\ActionFilter\Authentication::class,
-				],
-			],
-			'updateBasketItem' => [
-				'-prefilters' => [
-					Main\Engine\ActionFilter\Authentication::class,
-				],
-			],
 			'paymentPay' => [
 				'-prefilters' => [
 					Main\Engine\ActionFilter\Authentication::class,
@@ -221,82 +206,6 @@ class SaleOrderCheckoutAjaxController extends Main\Engine\Controller
 		}
 
 		return $properties;
-	}
-
-	/**
-	 * @deprecated
-	 * @see \SaleOrderCheckoutAjaxController::recalculateBasketAction
-	 *
-	 * @param array $fields
-	 * @return array|null
-	 * @example BX.ajax.runComponentAction('bitrix:sale.order.checkout', 'addBasketItem', { mode: 'ajax', data: { fields: { ... }}});
-	 */
-	public function addBasketItemAction(array $fields): ?array
-	{
-		$action = new Sale\Controller\Action\Entity\AddBasketItemAction($this->actionName, $this, $this->config);
-
-		$fields['FUSER_ID'] = Sale\Fuser::getId();
-
-		$result = $action->run($fields);
-
-		$errors = $action->getErrors();
-		if ($errors)
-		{
-			$this->addError(new Main\Error(Main\Localization\Loc::getMessage('SOC_ADD_BASKET_ITEM')));
-			return null;
-		}
-
-		$basketItems = [$result];
-		$result = $this->fillBasketItems($basketItems);
-
-		return $result[0];
-	}
-
-	/**
-	 * @deprecated
-	 * @see \SaleOrderCheckoutAjaxController::recalculateBasketAction
-	 *
-	 * @param int $id
-	 * @example BX.ajax.runComponentAction('bitrix:sale.order.checkout', 'deleteBasketItem', { mode: 'ajax', data: { id: ""}});
-	 */
-	public function deleteBasketItemAction(int $id)
-	{
-		$action = new Sale\Controller\Action\Entity\DeleteBasketItemAction($this->actionName, $this, $this->config);
-		$action->run($id);
-
-		$errors = $action->getErrors();
-		if ($errors)
-		{
-			$this->addError(new Main\Error(Main\Localization\Loc::getMessage('SOC_DELETE_BASKET_ITEM')));
-		}
-	}
-
-	/**
-	 * @deprecated
-	 * @see \SaleOrderCheckoutAjaxController::recalculateBasketAction
-	 *
-	 * @param int $id
-	 * @param array $fields
-	 * @return array|null
-	 * @example BX.ajax.runComponentAction('bitrix:sale.order.checkout', 'updateBasketItem', { mode: 'ajax', data: { id: "", fields: { ... }}});
-	 */
-	public function updateBasketItemAction(int $id, array $fields): ?array
-	{
-		$action = new Sale\Controller\Action\Entity\UpdateBasketItemAction($this->actionName, $this, $this->config);
-
-		$result = $action->run($id, $fields);
-
-		$errors = $action->getErrors();
-		if ($errors)
-		{
-			$this->addError(new Main\Error(Main\Localization\Loc::getMessage('SOC_UPDATE_BASKET_ITEM')));
-			return null;
-		}
-
-		$basketItems = [$result];
-		$result = $this->fillBasketItems($basketItems);
-
-		return $result[0];
 	}
 
 	/**

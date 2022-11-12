@@ -30,7 +30,7 @@ $component = $this->getComponent();
 ?>
 <?php $this->SetViewTarget('pagetitle') ?>
 <div class="ui-btn-container">
-	<button class="ui-btn ui-btn-light-border">
+	<button class="ui-btn ui-btn-light-border" onclick="top.BX.Helper.show('redirect=detail&code=14922900');">
 		<?=Loc::getMessage('BIZPROC_AUTOMATION_SCHEME_HELP_BUTTON')?>
 	</button>
 </div>

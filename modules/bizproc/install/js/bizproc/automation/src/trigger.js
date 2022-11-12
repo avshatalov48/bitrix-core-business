@@ -88,7 +88,12 @@ export class Trigger extends EventEmitter
 
 	getStatusId(): string
 	{
-		return this.#data['DOCUMENT_STATUS'] || '';
+		return String(this.#data['DOCUMENT_STATUS'] || '');
+	}
+
+	getStatus(): ?object
+	{
+		return getGlobalContext().document.statusList.find(status => String(status.STATUS_ID) === this.getStatusId());
 	}
 
 	getCode(): string
@@ -218,6 +223,10 @@ export class Trigger extends EventEmitter
 		if (this.getLogStatus() === TrackingStatus.COMPLETED)
 		{
 			containerClass += ' --complete';
+		}
+		else if (this.draft)
+		{
+			containerClass += ' --draft';
 		}
 
 		const div = Dom.create('DIV', {

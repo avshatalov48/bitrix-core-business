@@ -555,7 +555,7 @@ class CVulnScanner
 						if(!is_file($try_file)) // && strpos($try_file, $this->arParams['path'] !== 0))
 						{
 							$try_file = dirname($this->current_file).'/'.$inc_file;
-
+							$try_file = str_replace('//', '/', $try_file);
 						}
 
 						//not including bitrix core, too hard:(
@@ -573,6 +573,7 @@ class CVulnScanner
 
 									$tokens_count = count($this->tokens);
 									$this->current_file = & realpath($try_file);
+									$this->file_history[] = $try_file;
 
 									$this->comment = str_replace(realpath(trim($this->arParams['path'])), '', realpath(trim($try_file))).' ';
 								}

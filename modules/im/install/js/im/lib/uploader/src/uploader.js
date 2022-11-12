@@ -2,6 +2,7 @@ import { FileSender } from './filesender';
 import { EventEmitter } from "main.core.events";
 import type { UploaderTask } from './uploader-task';
 import type { UploaderResultTask } from "./uploader-result-task";
+import {Type} from 'main.core.minimal';
 
 export class Uploader extends EventEmitter
 {
@@ -252,6 +253,11 @@ export class Uploader extends EventEmitter
 
 	calculateChunkSize(taskChunkSize: number): number
 	{
+		if (Type.isUndefined(this.isCloud)) // widget case
+		{
+			return taskChunkSize;
+		}
+
 		let chunk = 0;
 		if (taskChunkSize)
 		{

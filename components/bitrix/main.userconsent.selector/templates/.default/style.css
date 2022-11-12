@@ -9,7 +9,6 @@
 	border-radius: var(--main-user-consent-selector-block-border-radius, var(--ui-border-radius-sm, 2px));
 	background: rgba(83,92,105,.07);
 	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	text-transform: lowercase;
 }
 
 .main-user-consent-selector-block-name {

@@ -1941,7 +1941,8 @@ class CIMRestService extends IRestService
 						: (!empty($result['APP_NAME_DEFAULT'])
 							? $result['APP_NAME_DEFAULT']
 							: $result['CODE']
-						);
+						)
+					;
 
 					$arParams['MESSAGE'] = "[b]".$moduleName."[/b]\n".$arParams['MESSAGE'];
 				}
@@ -2473,7 +2474,13 @@ class CIMRestService extends IRestService
 			{
 				$result = \Bitrix\Rest\AppTable::getList(array('filter' => array('=CLIENT_ID' => $clientId)));
 				$result = $result->fetch();
-				$moduleName = isset($result['APP_NAME'])? $result['APP_NAME']: $result['CODE'];
+				$moduleName = !empty($result['APP_NAME'])
+					? $result['APP_NAME']
+					: (!empty($result['APP_NAME_DEFAULT'])
+						? $result['APP_NAME_DEFAULT']
+						: $result['CODE']
+					)
+				;
 				$message = $moduleName."#BR#".$arParams['MESSAGE'];
 
 				if (!empty($arParams['MESSAGE_OUT']))
@@ -3090,11 +3097,11 @@ class CIMRestService extends IRestService
 
 		return [
 			'folder' => [
-				'id' => $result['FOLDER']->getId(),
+				'id' => (int)$result['FOLDER']->getId(),
 				'name' => $result['FOLDER']->getName()
 			],
 			'file' => [
-				'id' => $result['FILE']->getId(),
+				'id' => (int)$result['FILE']->getId(),
 				'name' => $result['FILE']->getName()
 			],
 		];

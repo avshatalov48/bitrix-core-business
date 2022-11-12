@@ -135,12 +135,12 @@ class CBPHelper
 		$strUsers = trim($strUsers);
 		if ($strUsers == '')
 		{
-			return ($callbackFunction != null) ? array(array(), array()) : array();
+			return ($callbackFunction != null) ? [[], []] : [];
 		}
 
 		if (CBPActivity::isExpression($strUsers))
 		{
-			return ($callbackFunction != null) ? array(array($strUsers), array()) : array($strUsers);
+			return ($callbackFunction != null) ? [[$strUsers], []] : [$strUsers];
 		}
 
 		$arUsers = [];
@@ -162,10 +162,10 @@ class CBPHelper
 		{
 			$bCorrectUser = false;
 			$bNotFoundUser = true;
-			if (preg_match(CBPActivity::ValuePattern, $user, $arMatches))
+			if (CBPActivity::isExpression($user))
 			{
 				$bCorrectUser = true;
-				$arResult[] = $arMatches[0];
+				$arResult[] = $user;
 			}
 			else
 			{
@@ -192,7 +192,7 @@ class CBPHelper
 				elseif (preg_match('#\[([A-Z]{1,}[0-9A-Z_]+)\]#i', $user, $arMatches))
 				{
 					$bCorrectUser = true;
-					$arResult[] = "group_".mb_strtolower($arMatches[1]);
+					$arResult[] = 'group_' . mb_strtolower($arMatches[1]);
 				}
 				else
 				{
@@ -201,19 +201,23 @@ class CBPHelper
 					if ($cnt == 1)
 					{
 						$bCorrectUser = true;
-						$arResult[] = "user_".$ar[0];
+						$arResult[] = 'user_' . $ar[0];
 					}
 					elseif ($cnt > 1)
 					{
 						$bNotFoundUser = false;
-						$arErrors[] = array(
-							"code" => "Ambiguous",
-							"message" => str_replace("#USER#", htmlspecialcharsbx($user), GetMessage("BPCGHLP_AMBIGUOUS_USER")),
-						);
+						$arErrors[] = [
+							'code' => 'Ambiguous',
+							'message' => str_replace(
+								'#USER#',
+								htmlspecialcharsbx($user),
+								GetMessage('BPCGHLP_AMBIGUOUS_USER')
+							),
+						];
 					}
 					elseif ($callbackFunction != null)
 					{
-						$s = call_user_func_array($callbackFunction, array($user));
+						$s = call_user_func_array($callbackFunction, [$user]);
 						if ($s != null)
 						{
 							$arResultAlt[] = $s;
@@ -227,15 +231,19 @@ class CBPHelper
 			{
 				if ($bNotFoundUser)
 				{
-					$arErrors[] = array(
-						"code" => "NotFound",
-						"message" => str_replace("#USER#", htmlspecialcharsbx($user), GetMessage("BPCGHLP_INVALID_USER")),
-					);
+					$arErrors[] = [
+						'code' => 'NotFound',
+						'message' => str_replace(
+							'#USER#',
+							htmlspecialcharsbx($user),
+							GetMessage('BPCGHLP_INVALID_USER')
+						),
+					];
 				}
 			}
 		}
 
-		return ($callbackFunction != null) ? array($arResult, $arResultAlt) : $arResult;
+		return ($callbackFunction != null) ? [$arResult, $arResultAlt] : $arResult;
 	}
 
 	private static function searchUserByName($user)

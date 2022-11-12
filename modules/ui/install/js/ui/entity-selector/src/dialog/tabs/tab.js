@@ -3,10 +3,12 @@ import ItemNode from '../../item/item-node';
 import Dialog from '../dialog';
 import BaseStub from './base-stub';
 import DefaultStub from './default-stub';
+import BaseHeader from '../header/base-header';
 import BaseFooter from '../footer/base-footer';
 import TextNode from '../../common/text-node';
 
 import type { TabLabelState, TabLabelStates, TabOptions } from './tab-options';
+import type { HeaderContent, HeaderOptions } from '../header/header-content';
 import type { FooterContent, FooterOptions } from '../footer/footer-content';
 import type { TextNodeOptions } from '../../common/text-node-options';
 
@@ -34,6 +36,8 @@ export default class Tab
 
 	itemMaxDepth: number = 5;
 
+	header: BaseHeader = null;
+	showDefaultHeader = true;
 	footer: BaseFooter = null;
 	showDefaultFooter = true;
 	showAvatars: ?boolean = null;
@@ -50,6 +54,7 @@ export default class Tab
 
 		this.setDialog(dialog);
 		this.id = options.id;
+		this.showDefaultHeader = options.showDefaultHeader !== false;
 		this.showDefaultFooter = options.showDefaultFooter !== false;
 
 		this.rootNode = new ItemNode(null, { itemOrder: options.itemOrder });
@@ -62,6 +67,7 @@ export default class Tab
 		this.setTextColor(options.textColor);
 		this.setBgColor(options.bgColor);
 		this.setStub(options.stub, options.stubOptions);
+		this.setHeader(options.header, options.headerOptions);
 		this.setFooter(options.footer, options.footerOptions);
 		this.setShowAvatars(options.showAvatars);
 	}
@@ -114,6 +120,56 @@ export default class Tab
 		}
 
 		this.stub = instance;
+	}
+
+	getHeader(): ?BaseHeader
+	{
+		return this.header;
+	}
+
+	setHeader(headerContent: ?HeaderContent, headerOptions?: HeaderOptions)
+	{
+		/** @var {BaseHeader} */
+		let header = null;
+		if (headerContent !== null)
+		{
+			header = Dialog.createHeader(this, headerContent, headerOptions);
+			if (header === null)
+			{
+				return;
+			}
+		}
+
+		if (this.isRendered() && this.getHeader() !== null)
+		{
+			Dom.remove(this.getHeader().getContainer());
+			this.getDialog().adjustHeader();
+		}
+
+		this.header = header;
+
+		if (this.isRendered())
+		{
+			this.getDialog().appendHeader(header);
+			this.getDialog().adjustHeader();
+		}
+	}
+
+	canShowDefaultHeader(): boolean
+	{
+		return this.showDefaultHeader;
+	}
+
+	enableDefaultHeader(): void
+	{
+		this.showDefaultHeader = true;
+		this.getDialog().adjustHeader();
+	}
+
+	disableDefaultHeader(): void
+	{
+		this.showDefaultHeader = false;
+		this.getDialog().adjustHeader();
 	}
 
 	getFooter(): ?BaseFooter
@@ -473,6 +529,11 @@ export default class Tab
 			this.renderLabel();
 		}
 
+		if (this.getHeader())
+		{
+			this.getHeader().show();
+		}
+
 		if (this.getFooter())
 		{
 			this.getFooter().show();
@@ -502,6 +563,11 @@ export default class Tab
 		if (this.isVisible())
 		{
 			this.renderLabel();
+		}
+
+		if (this.getHeader())
+		{
+			this.getHeader().hide();
 		}
 
 		if (this.getFooter())

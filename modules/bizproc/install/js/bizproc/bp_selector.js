@@ -628,6 +628,10 @@
 				text: 'getdocumenturl',
 				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_GETDOCUMENTURL_DESCRIPTION'),
 				value: '{{=getdocumenturl()}}'
+			}, {
+				text: 'trim',
+				description: BX.message('BIZPROC_JS_BP_SELECTOR_FUNCTION_TRIM_DESCRIPTION'),
+				value: '{{=trim()}}'
 			}], query)
 		});
 

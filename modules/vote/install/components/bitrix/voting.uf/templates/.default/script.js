@@ -68,17 +68,17 @@
 			}
 		};
 		d.prototype = {
-			buttons : {
-				showVoteForm : null,
-				showResults : null,
-				actVoting : null,
-				stopOrResume : null,
-				exportXls : null
+			buttons: {
+				showVoteForm: null,
+				showResults: null,
+				actVoting: null,
+				stopOrResume: null,
+				exportXls: null
 			},
-			params : {
+			params: {
 			},
-			url : actionUrl,
-			showVoteForm : function(e) {
+			url: actionUrl,
+			showVoteForm: function(e) {
 				if (this.node.getAttribute("data-bx-vote-lamp") == "green")
 				{
 					var f = BX.proxy(function(data) {
@@ -89,18 +89,18 @@
 						ff = BX.proxy(function(error) {
 						this.node.setAttribute("data-bx-vote-form", "shown");
 					}, this);
-					this.send({ action : "getBallot" }, e.target, f, ff);
+					this.send({ action: "getBallot" }, e.target, f, ff);
 				}
 				BX.eventCancelBubble(e);
 				return BX.PreventDefault(e);
 			},
-			showResults : function(e) {
+			showResults: function(e) {
 				this.node.setAttribute("data-bx-vote-result", (this.node.getAttribute("data-bx-vote-result") == "shown" ? "hidden" : "shown"));
 				BX.eventCancelBubble(e);
 				return BX.PreventDefault(e);
 			},
-			stopOrResume : function (e) {
-				this.send({ action : this.node.getAttribute("data-bx-vote-lamp") == "red" ? "resume" : "stop" }, e.target, BX.proxy(function(data) {
+			stopOrResume: function (e) {
+				this.send({ action: this.node.getAttribute("data-bx-vote-lamp") == "red" ? "resume": "stop" }, e.target, BX.proxy(function(data) {
 					if (data["action"] == "stop")
 					{
 						this.node.setAttribute("data-bx-vote-result", "shown");
@@ -120,12 +120,12 @@
 				BX.eventCancelBubble(e);
 				return BX.PreventDefault(e);
 			},
-			exportXls : function (e) {
+			exportXls: function (e) {
 				BX.eventCancelBubble(e);
-				top.location.href = BX.util.add_url_param(this.url, {action : "exportXls", attachId : this.id, sessid : BX.bitrix_sessid()});
+				top.location.href = BX.util.add_url_param(this.url, {action: "exportXls", attachId: this.id, sessid: BX.bitrix_sessid()});
 				return BX.PreventDefault(e);
 			},
-			actVoting : function(e) {
+			actVoting: function(e) {
 				var data = BX.ajax.prepareForm(this.form).data;
 				data["action"] = "vote";
 				this.send(data, e.target, BX.proxy(function(data) {
@@ -138,13 +138,13 @@
 				BX.eventCancelBubble(e);
 				return BX.PreventDefault(e);
 			},
-			send : function(data, el, success, fail) {
+			send: function(data, el, success, fail) {
 				BX.addClass(el, "ui-btn-clock");
 				data["sessid"] = BX.bitrix_sessid();
 				data["attachId"] = this.id;
 				BX.ajax({
 					method: 'POST',
-					url: BX.util.add_url_param(this.url, {action : data["action"], attachId : this.id}),
+					url: BX.util.add_url_param(this.url, {action: data["action"], attachId: this.id}),
 					data: data,
 					dataType: 'json',
 					onsuccess: BX.proxy(function(data) {
@@ -170,7 +170,7 @@
 					}, this)
 				});
 			},
-			adjustBallot : function(attachment, event) {
+			adjustBallot: function(attachment, event) {
 				var q, a, e, i, j, es, qu, an, v,
 					attach = attachment["QUESTIONS"],
 					ballot = event["ballot"],
@@ -229,7 +229,7 @@
 					}
 				}
 			},
-			adjustResults : function(attachment) {
+			adjustResults: function(attachment) {
 				var questions = attachment["QUESTIONS"];
 				BX.onCustomEvent(this.node, 'OnBeforeChangeData');
 				var question, answer, i, q, per, n;
@@ -237,19 +237,19 @@
 				{
 					if (questions.hasOwnProperty(q))
 					{
-						question = BX.findChild(this.node, {"attr" : {"id" : "question" + q}}, true);
+						question = BX.findChild(this.node, {"attr": {"id": "question" + q}}, true);
 						if (question)
 						{
 							for (i in questions[q]["ANSWERS"])
 							{
 								if (questions[q]["ANSWERS"].hasOwnProperty(i))
 								{
-									answer = BX.findChild(question, {"attr" : {"data-bx-vote-answer" : i}}, true);
+									answer = BX.findChild(question, {"attr": {"data-bx-vote-answer": i}}, true);
 									if (!!answer)
 									{
 										per = parseInt(questions[q]["ANSWERS"][i]["PERCENT"]);
 										per = (isNaN(per) ? 0 : per);
-										n = BX.findChild(answer, {attribute : {"data-bx-vote-result" : "counter"}}, true);
+										n = BX.findChild(answer, {attribute: {"data-bx-vote-result" : "counter"}}, true);
 										BX.adjust(n, {"html" : questions[q]["ANSWERS"][i]["COUNTER"] + ""});
 										delete n["VOTED_USER_OBJ"];
 										BX.adjust(BX.findChild(answer, {"tagName" : "SPAN", attribute : {"data-bx-vote-result" : "percent"}}, true),
@@ -266,12 +266,13 @@
 				BX.adjust(n, {"html" : attachment["COUNTER"] + ""});
 				BX.onCustomEvent(this.controller, 'OnAfterChangeData');
 			},
-			checkUsers : function() {
-				var node = BX(BX.proxy_context),
-					obj = null;
-				if (node && parseInt(node.innerHTML) > 0 && node.hasAttribute("data-bx-vote-answer"))
+			checkUsers : function(event)
+			{
+				var node = event ? BX(event.currentTarget) : null;
+				if (node.hasAttribute("data-bx-vote-answer"))
 				{
-					if (!node.VOTED_USER_OBJ)
+					if (!node['VOTED_USER_OBJ'])
+					{
 						node.VOTED_USER_OBJ = new BVotedUser(
 							node.getAttribute("data-bx-vote-answer"),
 							node,
@@ -279,9 +280,10 @@
 								nameTemplate : this.params["nameTemplate"],
 								urlTemplate : this.params["urlTemplate"],
 								attachId : this.id
-							});
-					obj = node.VOTED_USER_OBJ;
-					obj.click();
+							}
+						);
+					}
+					node.VOTED_USER_OBJ.click();
 				}
 			},
 			checkMobileUsers : function(e) {
@@ -329,348 +331,262 @@
 		return d;
 	})();
 
-	var BVotedUser = (function(){
-		var d = function(answerId, node, params) {
-			this.id = 'vote-' + answerId + new Date().getTime();
+	var BVotedUser = (function()
+	{
+		var d = function(answerId, target, params)
+		{
+			this.id = ['vote', answerId, new Date().getTime()].join('-');
 			this.answerId = answerId;
-			this.node = node;
-			this.setStatus("ready");
+			this.node = target;
+			this.status = 'ready';
 			this.iNumPage = 0;
+
 			this.urlTemplate = params["urlTemplate"];
 			this.nameTemplate = params["nameTemplate"];
 			this.attachId = params["attachId"];
 			this.data = [];
 			this.queue = [];
 			this.popup = null;
+			this.popupScrollCheck = this.popupScrollCheck.bind(this);
 		};
+
 		d.prototype = {
-			url : actionUrl,
-			click : function() {
-				if (parseInt(this.node.innerHTML) > 0)
-				{
-					this.show();
-					if (this.data.length > 0)
-						this.make();
-					this.send();
-				}
-			},
-			init : function(e) {
-				var node = BX.proxy_context;
-				if (!!node.timeoutOver)
-				{
-					clearTimeout(node.timeoutOver);
-					node.timeoutOver = false;
-				}
-				if (e.type == 'mouseover')
-				{
-					node.timeoutOver = setTimeout(BX.proxy(function()
-					{
-						this.get(node);
-						if (this.popup)
-						{
-							BX.bind(
-								this.popup.popupContainer,
-								'mouseout',
-								BX.proxy(
-									function()
-									{
-										this.popup.timeoutOut = setTimeout(
-											BX.proxy(
-												function()
-												{
-													if (this.node == node && !!this.popup)
-													{
-														this.popup.close();
-													}
-												}, this),
-											400
-										);
-									},
-									this
-								)
-							);
-							BX.bind(
-								this.popup.popupContainer,
-								'mouseover' ,
-								BX.proxy(
-									function()
-									{
-										if (this.popup.timeoutOut)
-											clearTimeout(this.popup.timeoutOut);
-									},
-									this
-								)
-							);
-						}
-					}, this), 400);
-				}
-			},
-			make : function() {
-				if (!this.popup)
-					return true;
-				var data = this.data,
-					needToCheckData = (this.getStatus() != "done"),
-					res1 = (this.popup && this.popup.contentContainer ? this.popup.contentContainer : BX('popup-window-content-bx-vote-popup-cont-' + this.id)),
-					node = false,
-					res = false,
-					i;
-				if (this.popup.isNew)
-				{
-					node = BX.create("SPAN", {
-							props : {className : "bx-ilike-popup"},
-							children : [
-								BX.create("SPAN", {
-									props : {className: "bx-ilike-bottom_scroll"}
-								})
-							]
-						}
-					);
-					res = BX.create("SPAN", {
-						props : {className : "bx-ilike-wrap-block"},
-						children : [
-							node
-						]
-					});
-				}
-				else
-				{
-					node = BX.findChild(this.popup.contentContainer, {className : "bx-ilike-popup"}, true);
-				}
-				if (node && data.length > 0)
-				{
-					var avatarNode = null;
-					for (i=0; i< data.length; i++)
-					{
-						if (!BX.findChild(node, {tag : "A", attr : {id : ("a" + this.answerId + "u" + data[i]['ID'])}}, true))
-						{
-							if (BX.type.isNotEmptyString(data[i]['PHOTO_SRC']))
-							{
-								avatarNode = BX.create("IMG", {
-									attrs: {src: data[i]['PHOTO_SRC']},
-									props: {className: "bx-ilike-popup-avatar-img"}
-								});
-							}
-							else
-							{
-								avatarNode = BX.create("IMG", {
-									attrs: {src: '/bitrix/images/main/blank.gif'},
-									props: {className: "bx-ilike-popup-avatar-img bx-ilike-popup-avatar-img-default"}
-								});
-							}
-
-							if (
-								data[i]['ID'] !== "HIDDEN"
-								&& this.urlTemplate
-							)
-							{
-								node.appendChild(
-									BX.create("A", {
-										attrs : {id : ("a" + this.answerId + "u" + data[i]['ID'])},
-										props: {
-											href: this.urlTemplate.replace(/#(USER_ID|ID)#/i, data[i]['ID']),
-											target: "_blank",
-											className: "bx-ilike-popup-img" + (!!data[i]['TYPE'] ? " bx-ilike-popup-img-" + data[i]['TYPE'] : "")
-										},
-										text: "",
-										children: [
-											BX.create("SPAN", {
-													props: {className: "bx-ilike-popup-avatar-new"},
-													children: [
-														avatarNode,
-														BX.create("SPAN", {
-															props: {className: "bx-ilike-popup-avatar-status-icon"}
-														})
-													]
-												}
-											),
-											BX.create("SPAN", {
-													props: {className: "bx-ilike-popup-name-new"},
-													html : data[i]['FULL_NAME']
-												}
-											)
-										]
-									})
-								);
-							}
-							else
-							{
-								node.appendChild(
-									BX.create("SPAN", {
-										props: {
-											className: "bx-ilike-popup-img"
-										},
-										text: "",
-										children: [
-											BX.create("SPAN", {
-													props: {className: "bx-ilike-popup-avatar-new"},
-													children: [
-														avatarNode,
-														BX.create("SPAN", {
-															props: {className: "bx-ilike-popup-avatar-status-icon"}
-														})
-													]
-												}
-											),
-											BX.create("SPAN", {
-													props: {className: "bx-ilike-popup-name-new"},
-													html : data[i]['FULL_NAME']
-												}
-											)
-										]
-									})
-								);
-							}
-						}
-					}
-				}
-				if (this.popup.isNew)
-				{
-					this.popup.isNew = false;
-					if (res1)
-					{
-						try
-						{
-							res1.removeChild(res1.firstChild);
-						}
-						catch(e)
-						{
-
-						}
-						res1.appendChild(res);
-					}
-				}
-
-				this.adjustWindow();
-				if (needToCheckData)
-					this.popupScroll();
-				return true;
-			},
-			makeError : function(errors) {
-				if (!this.popup)
-					return true;
-				var res1 = (this.popup && this.popup.contentContainer ? this.popup.contentContainer : BX('popup-window-content-bx-vote-popup-cont-' + this.id)),
-					text = "";
-				if (BX.type.isArray(errors))
-				{
-					for(var i = 0; i < errors.length; i++)
-					{
-						text += errors[i].message;
-					}
-				}
-				if (res1)
-				{
-					res1.innerHTML = '<div class="bx-vote-popup-error-block">' + (text == "" ? BX.message("VOTE_ERROR_DEFAULT") : text) + '</div>';
-				}
-				this.adjustWindow();
-				return true;
-			},
-			show : function() {
-				if (this.popup != null)
-					this.popup.close();
-
-				if (this.popup == null)
-				{
-					this.popup = new BX.PopupWindow('bx-vote-popup-cont-' + this.id, this.node, {
-						lightShadow : true,
-						offsetTop: -2,
-						offsetLeft: 3,
-						autoHide: true,
-						closeByEsc: true,
-						bindOptions: {position: "top"},
-						events : {
-							onPopupClose : function() { this.destroy() },
-							onPopupDestroy : BX.proxy(function() { this.popup = null; }, this)
-						},
-						content : BX.create("SPAN", { props: {className: "bx-ilike-wait"}})
-					});
-
-					this.popup.isNew = true;
-					this.popup.show();
-				}
-				this.popup.setAngle({position:'bottom'});
-				this.adjustWindow();
-			},
-			adjustWindow : function() {
-				if (this.popup != null)
-				{
-					this.popup.bindOptions.forceBindPosition = true;
-					this.popup.adjustPosition();
-					this.popup.bindOptions.forceBindPosition = false;
-				}
-			},
-			popupScroll : function() {
-				if (this.popup)
-				{
-					var res = BX.findChild(this.popup.contentContainer, {"className" : "bx-ilike-popup"}, true);
-					BX.bind(res, 'scroll' , BX.proxy(this.popupScrollCheck, this));
-				}
-			},
-			popupScrollCheck : function() {
-				var res = BX.proxy_context;
-				if (res.scrollTop > (res.scrollHeight - res.offsetHeight) / 1.5)
-				{
-					BX.unbind(res, 'scroll' , BX.proxy(this.popupScrollCheck, this));
-					this.send();
-				}
-			},
-			getStatus : function()
+			url: actionUrl,
+			click: function()
 			{
-				return this.status;
-			},
-			setStatus : function(status)
-			{
-				this.status = status;
-			},
-			send : function() {
-				if (this.getStatus() !== "ready")
+				var votersCount = parseInt(this.node.innerHTML);
+				if (votersCount > 0)
 				{
-					if (this.getStatus() == "busy")
-						this.queue.push(BX.proxy(this.send, this));
+					this.showPopup()
+						.then(() => {
+							if (this.data.length > 0)
+							{
+								this.buildVoters(this.data);
+							}
+						})
+					;
+				}
+			},
+
+			buildVoters: function(items)
+			{
+				var popupContainer = this.popup ? this.popup.getPopupContainer() : null;
+				if (popupContainer === null)
+				{
 					return;
 				}
 
-				this.setStatus("busy");
+				var container = popupContainer.querySelector('.bx-ilike-popup');
+				popupContainer.querySelector('.bx-ilike-wrap-block').removeAttribute('style');
+				var changed = false;
+				items.forEach((voter) => {
+					var voterId = BX.util.htmlspecialchars(voter['ID']);
+					var voterName = BX.util.htmlspecialchars(voter['FULL_NAME']);
+					var voterPhoto = BX.type.isNotEmptyString(voter['PHOTO_SRC']) ?
+						BX.util.htmlspecialchars(voter['PHOTO_SRC']) : null;
+					var voterType = BX.type.isNotEmptyString(voter['TYPE']) ?
+						BX.util.htmlspecialchars(voter['TYPE']) : null;
+
+					var answerId = ["a", this.answerId,  "u", voterId].join('');
+					if (container.querySelector('a#' + answerId) === null)
+					{
+						var html = [
+							'<span class="bx-ilike-popup-avatar-new">',
+								'<img src="', (voterPhoto ?? '/bitrix/images/main/blank.gif'),
+									'" class="bx-ilike-popup-avatar-img', (voterPhoto ? '' : ' bx-ilike-popup-avatar-img-default'),
+								'" />',
+								'<span class="bx-ilike-popup-avatar-status-icon"></span>',
+							'</span>',
+							'<span class="bx-ilike-popup-name-new">', voterName, '</span>'
+						].join('');
+
+						container.appendChild(
+							BX.create(voter['ID'] !== "HIDDEN" && this.urlTemplate ? "A" : "SPAN", {
+								attrs: {id: answerId},
+								props: {
+									href: this.urlTemplate.replace(/#(USER_ID|ID)#/i, voterId),
+									target: "_blank",
+									className: "bx-ilike-popup-img" + (voterType ? " bx-ilike-popup-img-" + voterType : "")
+								},
+								html: html,
+							})
+						);
+					}
+					changed = true;
+				});
+
+				if (changed)
+				{
+					this.popup.adjustPosition({forceBindPosition: true});
+					this.popupScrollCheck({currentTarget: container});
+				}
+			},
+
+			makeError: function(errors)
+			{
+				var contentContainer = this.popup ? this.popup.getPopupContainer() : null;
+				if (contentContainer === null)
+				{
+					return;
+				}
+
+				var text = (errors || [{message: BX.message("VOTE_ERROR_DEFAULT")}]).map((item) => {
+					return item.message;
+				}).join('');
+				contentContainer.innerHTML = '<div class="bx-vote-popup-error-block">' + text + '</div>';
+				this.popup.adjustPosition({forceBindPosition: true});
+			},
+
+			showPopup: function()
+			{
+				return new Promise((resolve) => {
+					var popup = this.getPopup();
+					popup.show();
+					popup.setAngle({position:'bottom'});
+					popup.adjustPosition({forceBindPosition: true});
+					resolve(popup);
+				})
+			},
+
+			getPopup: function()
+			{
+				if (this.popup)
+				{
+					return this.popup;
+				}
+
+				this.popup = new BX.PopupWindow('bx-vote-popup-cont-' + this.id, this.node, {
+					lightShadow: true,
+					offsetTop: -2,
+					offsetLeft: 3,
+					autoHide: true,
+					closeByEsc: true,
+					cacheable: false,
+					bindOptions: {position: "top"},
+					content: [
+						'<span class="bx-ilike-wrap-block" style="display: none;">' +
+							'<span class="bx-ilike-popup"><span class="bx-ilike-bottom_scroll"></span></span>' +
+						'</span>',
+						'<span class="bx-ilike-wait"></span>'
+					].join(''),
+					events: {
+						onFirstShow: () => {
+							this.send();
+							BX.bind(
+								this.popup.contentContainer.querySelector('.bx-ilike-popup'),
+								'scroll' ,
+								this.popupScrollCheck
+							)
+						},
+						onClose: () => {
+							this.popup = null;
+						}
+					}
+				});
+				return this.popup;
+			},
+
+			popupScrollCheck: function()
+			{
+				var container = this.popup ? this.popup.contentContainer : null;
+				if (container === null)
+				{
+					return;
+				}
+
+				var res = container.querySelector('.bx-ilike-popup');
+				if (
+					(res.scrollTop > (res.scrollHeight - res.offsetHeight) / 1.5)
+					||
+					container.offsetHeight > res.offsetHeight
+				)
+				{
+					this.send();
+				}
+			},
+
+			send: function()
+			{
+				if (this.status !== 'ready')
+				{
+					if (this.status === 'busy')
+					{
+						this.queue.push(this.send.bind(this));
+					}
+					else if (this.status === 'done')
+					{
+						this.finalize();
+					}
+					return;
+				}
+
+				this.status = 'busy';
 
 				BX.ajax({
-					url: BX.util.add_url_param(this.url, {action : "getVoted", attachId : this.attachId, answerId : this.answerId}),
+					url: BX.util.add_url_param(this.url, {action: "getVoted", attachId: this.attachId, answerId: this.answerId}),
 					method: 'POST',
 					dataType: 'json',
 					data: {
-						iNumPage : (++this.iNumPage),
-						nameTemplate : this.nameTemplate,
+						iNumPage: (++this.iNumPage),
+						nameTemplate: this.nameTemplate,
 						sessid: BX.bitrix_sessid()
 					},
-					onsuccess: BX.proxy(function(data) {
-						if (data && data.status == "success")
+					onsuccess: function(data)
+					{
+						if (data && data.status === "success")
 						{
 							data = data.data;
-							if (data["statusPage"] == "done" || data.items.length <= 0)
-								this.setStatus("done");
-							else
-								this.setStatus("ready");
-							for(var res = 0; res < data.items.length; res++)
-								this.data.push(data.items[res]);
-							this.make();
 
-							if (this.queue.length > 0)
+							this.buildVoters(data.items);
+							this.data = this.data.concat(data.items);
+
+							if (data["statusPage"] === "done" || data.items.length <= 0)
 							{
+								this.status = 'done';
+								this.finalize();
+							}
+							else
+							{
+								this.status = 'ready';
 								var f = this.queue.shift();
-								this.queue = [];
-								if (BX.type.isFunction(f))
-									f();
+								if (f)
+								{
+									f.call(this);
+								}
 							}
 						}
 						else
 						{
-							this.setStatus("error");
+							this.status = 'error';
 							this.makeError(data.errors);
+							this.finalize();
 						}
-					}, this),
-					onfailure: BX.proxy(function() {
-						this.setStatus("error");
+					}.bind(this),
+					onfailure: function()
+					{
+						this.status = 'error';
 						this.makeError();
-					}, this)
+						this.finalize();
+					}.bind(this)
 				});
+			},
+
+			finalize: function()
+			{
+				this.queue = [];
+				var popupContainer = this.popup ? this.popup.getPopupContainer() : null;
+				if (popupContainer === null)
+				{
+					return;
+				}
+
+				popupContainer.querySelector('.bx-ilike-wait').style.display = "none";
+
+				BX.unbind(
+					popupContainer.querySelector('.bx-ilike-popup'),
+					'scroll' ,
+					this.popupScrollCheck
+				);
 			}
 		};
 		return d;

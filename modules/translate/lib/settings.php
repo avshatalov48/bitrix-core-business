@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php
 
 namespace Bitrix\Translate;
 
@@ -43,7 +43,7 @@ class Settings
 		}
 
 		$file = null;
-		if (mb_substr($fullPath, -5) === '/lang' || mb_substr($fullPath, -6) === '/lang/')
+		if (\mb_substr($fullPath, -5) === '/lang' || \mb_substr($fullPath, -6) === '/lang/')
 		{
 			$file = new static($fullPath. '/'. self::FILE_NAME);
 		}
@@ -108,7 +108,7 @@ class Settings
 			$options = $this->options['*'];
 		}
 
-		if (preg_match("#^(.*?/lang/)([^/]+)/+(.+)#".(Translate\Config::isUtfMode() ? 'u' : ''), $langPath, $parts))
+		if (\preg_match("#^(.*?/lang/)([^/]+)/+(.+)#".(Translate\Config::isUtfMode() ? 'u' : ''), $langPath, $parts))
 		{
 			$langPath = $parts[3];
 		}
@@ -119,9 +119,9 @@ class Settings
 		}
 		else
 		{
-			if (mb_strpos($langPath, '/') !== false)
+			if (\mb_strpos($langPath, '/') !== false)
 			{
-				$parts = explode('/', $langPath);
+				$parts = \explode('/', $langPath);
 				$path = '';
 				foreach ($parts as $part)
 				{
@@ -160,11 +160,11 @@ class Settings
 
 		$options = include $this->getPhysicalPath();
 
-		if (is_array($options) && count($options) > 0)
+		if (\is_array($options) && \count($options) > 0)
 		{
 			$this->options = $options;
-			$this->optionCodes = array_keys($options);
-			$this->optionsCount = count($options);
+			$this->optionCodes = \array_keys($options);
+			$this->optionsCount = \count($options);
 		}
 
 		return true;
@@ -182,11 +182,11 @@ class Settings
 		$content = '';
 		if ($this->count() > 0)
 		{
-			$content = var_export($this->options, true);
-			$content = preg_replace("/^[ ]{6}(.*)/m", "\t\t\t$1", $content);
-			$content = preg_replace("/^[ ]{4}(.*)/m", "\t\t$1", $content);
-			$content = preg_replace("/^[ ]{2}(.*)/m", "\t$1", $content);
-			$content = str_replace(["\r\n", "\r"], ["\n", ''], $content);
+			$content = \var_export($this->options, true);
+			$content = \preg_replace("/^[ ]{6}(.*)/m", "\t\t\t$1", $content);
+			$content = \preg_replace("/^[ ]{4}(.*)/m", "\t\t$1", $content);
+			$content = \preg_replace("/^[ ]{2}(.*)/m", "\t$1", $content);
+			$content = \str_replace(["\r\n", "\r"], ["\n", ''], $content);
 		}
 
 		\set_error_handler(
@@ -336,7 +336,7 @@ class Settings
 	public function rewind(): void
 	{
 		$this->dataPosition = 0;
-		$this->optionCodes = array_keys($this->options);
+		$this->optionCodes = \array_keys($this->options);
 	}
 
 	//endregion
@@ -354,17 +354,17 @@ class Settings
 	{
 		if ($this->optionsCount === null)
 		{
-			if ($this->options !== null && count($this->options) > 0)
+			if ($this->options !== null && \count($this->options) > 0)
 			{
-				$this->optionsCount = count($this->options);
+				$this->optionsCount = \count($this->options);
 			}
 			elseif ($allowDirectFileAccess)
 			{
 				$options = include $this->getPhysicalPath();
 
-				if (is_array($options) && count($options) > 0)
+				if (\is_array($options) && \count($options) > 0)
 				{
-					$this->optionsCount = count($options);
+					$this->optionsCount = \count($options);
 				}
 			}
 		}

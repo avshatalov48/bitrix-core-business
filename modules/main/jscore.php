@@ -133,10 +133,7 @@ $arJSCoreConfig = array(
 		'rel' => array('ui.dexie','ajax', 'ls', 'fx')
 	),
 	'avatar_editor' => array(
-		'js' => $pathJS.'/core_avatar_editor.js',
-		'css' => $pathCSS.'/core_avatar_editor.css',
-		'lang' => $pathLang.'/js_core_avatar_editor.php',
-		'rel' => array('ui.design-tokens', 'ui.fonts.opensans', 'canvas', 'popup', 'dd', 'uploader', 'webrtc', ),
+		'rel' => array('ui.avatar-editor'),
 	),
 	'canvas' => array(
 		'js' => $pathJS.'/core_canvas.js',

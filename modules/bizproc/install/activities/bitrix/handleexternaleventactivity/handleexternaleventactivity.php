@@ -1,238 +1,301 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
 
 class CBPHandleExternalEventActivity
 	extends CBPActivity
 	implements IBPEventActivity, IBPActivityExternalEventListener, IBPEventDrivenActivity
 {
-	private $isInEventActivityMode = false;
+	private bool $isInEventActivityMode = false;
 
 	public function __construct($name)
 	{
 		parent::__construct($name);
-		$this->arProperties = array("Title" => "", "Permission" => array(), "SenderUserId" => null);
+		$this->arProperties = [
+			'Title' => '',
+			'Permission' => [],
+			'SenderUserId' => null
+		];
 
-		$this->SetPropertiesTypes(array(
-			'SenderUserId' => array(
-				'Type' => 'user'
-			)
-		));
+		$this->setPropertiesTypes([
+			'SenderUserId' => [
+				'Type' => 'user',
+			],
+		]);
 	}
 
-	public function Subscribe(IBPActivityExternalEventListener $eventHandler)
+	public function subscribe(IBPActivityExternalEventListener $eventHandler)
 	{
-		if ($eventHandler == null)
-			throw new Exception("eventHandler");
-
 		$this->isInEventActivityMode = true;
 
-		$v = array();
+		$v = [];
 		$arPermissionTmp = $this->Permission;
 		if (is_array($arPermissionTmp))
+		{
 			foreach ($arPermissionTmp as $val)
-				$v[] = (mb_strpos($val, "{=") === 0 ? $val : "{=user:".$val."}");
+			{
+				$v[] = (mb_strpos($val, '{=') === 0 ? $val : '{=user:' . $val . '}');
+			}
+		}
 
 		if (count($v) > 0)
-			$this->WriteToTrackingService(str_replace(array("#EVENT#", "#VAL#"), array($this->name, implode(", ", $v)), GetMessage("BPHEEA_TRACK")));
+		{
+			$this->writeToTrackingService(str_replace(
+				['#EVENT#', '#VAL#'], [$this->name, implode(', ', $v)],
+				Loc::getMessage('BPHEEA_TRACK'))
+			);
+		}
 
-		$stateService = $this->workflow->GetService("StateService");
-		$stateService->AddStateParameter(
-			$this->GetWorkflowInstanceId(),
-			array(
-				"NAME" => $this->name,
-				"TITLE" => $this->Title,
-				"PERMISSION" => $this->Permission,
-			)
+		$stateService = $this->workflow->getService('StateService');
+		$stateService->addStateParameter(
+			$this->getWorkflowInstanceId(),
+			[
+				'NAME' => $this->name,
+				'TITLE' => $this->Title,
+				'PERMISSION' => $this->Permission,
+			]
 		);
 
-		$this->workflow->AddEventHandler($this->name, $eventHandler);
+		$this->workflow->addEventHandler($this->name, $eventHandler);
 	}
 
-	public function Unsubscribe(IBPActivityExternalEventListener $eventHandler)
+	public function unsubscribe(IBPActivityExternalEventListener $eventHandler)
 	{
-		if ($eventHandler == null)
-			throw new Exception("eventHandler");
+		$stateService = $this->workflow->getService('StateService');
+		$stateService->deleteStateParameter($this->getWorkflowInstanceId(), $this->name);
 
-		$stateService = $this->workflow->GetService("StateService");
-		$stateService->DeleteStateParameter($this->GetWorkflowInstanceId(), $this->name);
-
-		$this->workflow->RemoveEventHandler($this->name, $eventHandler);
+		$this->workflow->removeEventHandler($this->name, $eventHandler);
 	}
 
-	public function Execute()
+	public function execute()
 	{
 		if ($this->isInEventActivityMode)
+		{
 			return CBPActivityExecutionStatus::Closed;
+		}
 
-		$this->Subscribe($this);
+		$this->subscribe($this);
 
 		$this->isInEventActivityMode = false;
+
 		return CBPActivityExecutionStatus::Executing;
 	}
 
-	public function Cancel()
+	public function cancel()
 	{
 		if (!$this->isInEventActivityMode)
-			$this->Unsubscribe($this);
+		{
+			$this->unsubscribe($this);
+		}
 
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	public function OnExternalEvent($arEventParameters = array())
+	public function onExternalEvent($arEventParameters = [])
 	{
 		if ($this->onExternalEventHandler($arEventParameters))
 		{
-			$this->Unsubscribe($this);
-			$this->workflow->CloseActivity($this);
+			$this->unsubscribe($this);
+			$this->workflow->closeActivity($this);
 		}
 	}
 
-	public function OnExternalDrivenEvent($arEventParameters = array())
+	public function OnExternalDrivenEvent($arEventParameters = [])
 	{
 		return $this->onExternalEventHandler($arEventParameters);
 	}
 
-	private function onExternalEventHandler($arEventParameters = array())
+	private function onExternalEventHandler($arEventParameters = [])
 	{
 		if (count($this->Permission) > 0)
 		{
-			$arSenderGroups = (array_key_exists("Groups", $arEventParameters) ? $arEventParameters["Groups"] : array());
+			$arSenderGroups = (array_key_exists('Groups', $arEventParameters) ? $arEventParameters['Groups'] : []);
 			if (!is_array($arSenderGroups))
-				$arSenderGroups = array($arSenderGroups);
-			if (array_key_exists("User", $arEventParameters))
-				$arSenderGroups[] = "user_".$arEventParameters["User"];
+			{
+				$arSenderGroups = [$arSenderGroups];
+			}
+			if (array_key_exists('User', $arEventParameters))
+			{
+				$arSenderGroups[] = 'user_' . $arEventParameters['User'];
+				$arSenderGroups = array_merge($arSenderGroups, CBPHelper::getUserExtendedGroups($arEventParameters['User']));
+			}
 			if (count($arSenderGroups) <= 0)
-				return;
+			{
+				return false;
+			}
 
 			$bHavePerms = false;
 
-			$cnti = count($this->Permission);
-			$cntj = count($arSenderGroups);
-			for ($i = 0; $i < $cnti; $i++)
+			$intersect = array_intersect($this->Permission, $arSenderGroups);
+			if (count($intersect) > 0)
 			{
-				for ($j = 0; $j < $cntj; $j++)
-				{
-					if ($this->Permission[$i] == $arSenderGroups[$j])
-					{
-						$bHavePerms = true;
-						break 2;
-					}
-				}
+				$bHavePerms = true;
 			}
 
 			if (!$bHavePerms)
-				return;
+			{
+				return false;
+			}
 		}
 
 		if ($this->executionStatus != CBPActivityExecutionStatus::Closed)
 		{
-			if (array_key_exists("User", $arEventParameters))
-				$this->SenderUserId = "user_".$arEventParameters["User"];
+			if (array_key_exists('User', $arEventParameters))
+			{
+				$this->SenderUserId = 'user_' . $arEventParameters['User'];
+			}
 
 			return true;
 		}
+
+		return false;
 	}
 
-	public function OnStateExternalEvent($arEventParameters = array())
+	public function OnStateExternalEvent($arEventParameters = [])
 	{
-		if ($this->executionStatus != CBPActivityExecutionStatus::Closed && array_key_exists("User", $arEventParameters))
+		if (
+			$this->executionStatus != CBPActivityExecutionStatus::Closed
+			&& array_key_exists('User', $arEventParameters)
+		)
 		{
-			$this->SenderUserId = "user_".$arEventParameters["User"];
+			$this->SenderUserId = 'user_' . $arEventParameters['User'];
 		}
 	}
 
-	public static function ValidateProperties($arTestProperties = array(), CBPWorkflowTemplateUser $user = null)
+	public static function validateProperties($arTestProperties = [], CBPWorkflowTemplateUser $user = null)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
-		return array_merge($arErrors, parent::ValidateProperties($arTestProperties, $user));
+		return array_merge($arErrors, parent::validateProperties($arTestProperties, $user));
 	}
 
-	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters, $arWorkflowVariables, $arCurrentValues = null, $formName = "")
+	public static function getPropertiesDialog(
+		$documentType,
+		$activityName,
+		$arWorkflowTemplate,
+		$arWorkflowParameters,
+		$arWorkflowVariables,
+		$arCurrentValues = null,
+		$formName = ''
+	)
 	{
-		$runtime = CBPRuntime::GetRuntime();
+		$runtime = CBPRuntime::getRuntime();
 
 		$currentParent = &CBPWorkflowTemplateLoader::FindParentActivityByName($arWorkflowTemplate, $activityName);
 
 		$c = count($currentParent['Children']);
-		$allowSetStatus = ($c == 1 || $currentParent['Children'][$c - 1]["Type"] == 'SetStateActivity');
+		$allowSetStatus = ($c == 1 || $currentParent['Children'][$c - 1]['Type'] == 'SetStateActivity');
 
 		if (!is_array($arCurrentValues))
 		{
-			$arCurrentValues = array();
+			$arCurrentValues = [];
 
 			$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-			if (is_array($arCurrentActivity["Properties"]) && array_key_exists("Permission", $arCurrentActivity["Properties"]))
+			if (
+				is_array($arCurrentActivity['Properties'])
+				&& array_key_exists('Permission', $arCurrentActivity['Properties'])
+			)
 			{
-				$arCurrentValues["permission"] = CBPHelper::UsersArrayToString(
-					$arCurrentActivity["Properties"]["Permission"],
+				$arCurrentValues['permission'] = CBPHelper::usersArrayToString(
+					$arCurrentActivity['Properties']['Permission'],
 					$arWorkflowTemplate,
 					$documentType
 				);
 			}
 
-			if ($c > 1 && $currentParent['Children'][$c - 1]["Type"] == 'SetStateActivity')
-				$arCurrentValues["setstate"] = $currentParent['Children'][$c - 1]["Properties"]["TargetStateName"];
+			if ($c > 1 && $currentParent['Children'][$c - 1]['Type'] == 'SetStateActivity')
+			{
+				$arCurrentValues['setstate'] = $currentParent['Children'][$c - 1]['Properties']['TargetStateName'];
+			}
 		}
 
-		$arStates = array();
+		$arStates = [];
 		if ($allowSetStatus)
-			$arStates = CBPWorkflowTemplateLoader::GetStatesOfTemplate($arWorkflowTemplate);
+		{
+			$arStates = CBPWorkflowTemplateLoader::getStatesOfTemplate($arWorkflowTemplate);
+		}
 
-		return $runtime->ExecuteResourceFile(
+		return $runtime->executeResourceFile(
 			__FILE__,
-			"properties_dialog.php",
-			array(
-				"arCurrentValues" => $arCurrentValues,
-				"formName" => $formName,
-				"allowSetStatus" => $allowSetStatus,
-				"arStates" => $arStates,
-			)
+			'properties_dialog.php',
+			[
+				'arCurrentValues' => $arCurrentValues,
+				'formName' => $formName,
+				'allowSetStatus' => $allowSetStatus,
+				'arStates' => $arStates,
+			]
 		);
 	}
 
-	public static function GetPropertiesDialogValues($documentType, $activityName, &$arWorkflowTemplate, &$arWorkflowParameters, &$arWorkflowVariables, $arCurrentValues, &$arErrors)
+	public static function getPropertiesDialogValues(
+		$documentType,
+		$activityName,
+		&$arWorkflowTemplate,
+		&$arWorkflowParameters,
+		&$arWorkflowVariables,
+		$arCurrentValues,
+		&$arErrors
+	)
 	{
-		$arErrors = array();
+		$arErrors = [];
 
-		$runtime = CBPRuntime::GetRuntime();
+		$runtime = CBPRuntime::getRuntime();
 
-		$arProperties = array();
+		$arProperties = [];
 
-		$arProperties["Permission"] = CBPHelper::UsersStringToArray($arCurrentValues["permission"], $documentType, $arErrors);
+		$arProperties['Permission'] = CBPHelper::usersStringToArray(
+			$arCurrentValues['permission'],
+			$documentType,
+			$arErrors
+		);
 		if (count($arErrors) > 0)
+		{
 			return false;
+		}
 
-		$arErrors = self::ValidateProperties($arProperties, new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser));
+		$arErrors = self::validateProperties(
+			$arProperties,
+			new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser)
+		);
 		if (count($arErrors) > 0)
+		{
 			return false;
+		}
 
 		$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
-		$arCurrentActivity["Properties"] = $arProperties;
+		$arCurrentActivity['Properties'] = $arProperties;
 		$currentParent = &CBPWorkflowTemplateLoader::FindParentActivityByName($arWorkflowTemplate, $activityName);
 
 		$c = count($currentParent['Children']);
 		if ($c == 1)
 		{
-			if ($arCurrentValues["setstate"] != '')
+			if ($arCurrentValues['setstate'] != '')
 			{
-				$currentParent['Children'][] = array(
+				$currentParent['Children'][] = [
 					'Type' => 'SetStateActivity',
 					'Name' => md5(uniqid(mt_rand(), true)),
-					'Properties' => array('TargetStateName' => $arCurrentValues["setstate"]),
-					'Children' => array()
-				);
+					'Properties' => ['TargetStateName' => $arCurrentValues['setstate']],
+					'Children' => [],
+				];
 			}
 		}
-		elseif ($currentParent['Children'][$c - 1]["Type"] == 'SetStateActivity')
+		elseif ($currentParent['Children'][$c - 1]['Type'] == 'SetStateActivity')
 		{
-			if ($arCurrentValues["setstate"] != '')
-				$currentParent['Children'][$c - 1]["Properties"]['TargetStateName'] = $arCurrentValues["setstate"];
+			if ($arCurrentValues['setstate'] != '')
+			{
+				$currentParent['Children'][$c - 1]['Properties']['TargetStateName'] = $arCurrentValues['setstate'];
+			}
 			else
+			{
 				unset($currentParent['Children'][$c - 1]);
+			}
 		}
 
 		return true;
 	}
 }
-?>

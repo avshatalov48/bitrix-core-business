@@ -50,7 +50,7 @@ class FileIndexCollection
 	{
 		if (isset($filter, $filter->path))
 		{
-			$relPath = '/'. trim($filter->path, '/');
+			$relPath = '/'. \trim($filter->path, '/');
 			$relPath = Translate\IO\Path::replaceLangId($relPath, '#LANG_ID#');
 
 			$topPathRes = Index\Internals\PathIndexTable::getList([
@@ -102,13 +102,13 @@ class FileIndexCollection
 			$relPath = Translate\Config::getDefaultPath();
 		}
 
-		$relPath = '/'. trim($relPath, '/');
+		$relPath = '/'. \trim($relPath, '/');
 		$relPath = Translate\IO\Path::replaceLangId($relPath, '#LANG_ID#');
 
 		$this->checkLanguages = self::$enabledLanguages;
 		if (isset($filter, $filter->langId))
 		{
-			$this->checkLanguages = array_intersect($filter->langId, $this->checkLanguages);
+			$this->checkLanguages = \array_intersect($filter->langId, $this->checkLanguages);
 		}
 
 
@@ -152,7 +152,7 @@ class FileIndexCollection
 			{
 				$pathIdPortion[] = $lastPathId = (int)$pathRow['ID'];
 				$pathPortion[$lastPathId] = $pathRow['PATH'];
-				if (count($pathIdPortion) >= 100)
+				if (\count($pathIdPortion) >= 100)
 				{
 					break;
 				}
@@ -187,7 +187,7 @@ class FileIndexCollection
 			{
 				foreach ($this->checkLanguages as $langId)
 				{
-					$fullPath = self::$documentRoot. str_replace('#LANG_ID#', $langId, $path);
+					$fullPath = self::$documentRoot. \str_replace('#LANG_ID#', $langId, $path);
 					$fullPath = Main\Localization\Translation::convertLangPath($fullPath, $langId);
 
 					if (self::$verbose)
@@ -195,7 +195,7 @@ class FileIndexCollection
 						echo "Lang file: {$fullPath}\n";
 					}
 
-					if (!file_exists($fullPath))
+					if (!\file_exists($fullPath))
 					{
 						if (isset($indexFileCache[$pathId][$langId]))
 						{
@@ -215,17 +215,17 @@ class FileIndexCollection
 					}
 				}
 			}
-			if (count($fileData) > 0)
+			if (\count($fileData) > 0)
 			{
 				Index\Internals\FileIndexTable::bulkAdd($fileData);
 			}
 
-			if (count($nonexistentFiles) > 0)
+			if (\count($nonexistentFiles) > 0)
 			{
 				Index\Internals\FileIndexTable::purge(new Translate\Filter(['fileId' => $nonexistentFiles]), true);
 			}
 
-			$processedItemCount += count($pathIdPortion);
+			$processedItemCount += \count($pathIdPortion);
 
 			if ($timer !== null && $timer->hasTimeLimitReached())
 			{

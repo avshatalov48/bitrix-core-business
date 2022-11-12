@@ -113,7 +113,7 @@ class Comment
 	public function saveFiles(int $id, array $files): bool
 	{
 		$manager = $this->getUserFieldManager();
-		if($manager)
+		if ($manager instanceof \CUserTypeManager)
 		{
 			$data = [
 				$this->filesUserFieldName => $files,

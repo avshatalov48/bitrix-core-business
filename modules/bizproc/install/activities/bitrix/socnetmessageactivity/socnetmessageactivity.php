@@ -52,7 +52,7 @@ class CBPSocNetMessageActivity extends CBPActivity
 			"MESSAGE" => $messageText,
 			'NOTIFY_MODULE' => 'bizproc',
 			'NOTIFY_EVENT' => 'activity',
-			'PUSH_MESSAGE' => $messageText,
+			'PUSH_MESSAGE' => $this->getPushText($messageText),
 		);
 		$ar = array();
 		foreach ($arMessageUserTo as $userTo)
@@ -87,6 +87,17 @@ class CBPSocNetMessageActivity extends CBPActivity
 		}
 
 		return $messageText;
+	}
+
+	private function getPushText(string $htmlMessage): string
+	{
+		$text = mb_substr(HTMLToTxt($htmlMessage, '', [], 0), 0, 200);
+		if (mb_strlen($text) === 200)
+		{
+			$text .= '...';
+		}
+
+		return $text;
 	}
 
 	private function sendRobotMessage()
@@ -129,7 +140,7 @@ class CBPSocNetMessageActivity extends CBPActivity
 			'NOTIFY_TAG' => 'ROBOT|'.implode('|', array_map('mb_strtoupper', $documentId))	.'|'.$tagSalt,
 			'NOTIFY_MODULE' => 'bizproc',
 			'NOTIFY_EVENT' => 'activity',
-			'PUSH_MESSAGE' => $messageText,
+			'PUSH_MESSAGE' => $this->getPushText($messageText),
 		);
 
 		if ($arMessageUserFrom)

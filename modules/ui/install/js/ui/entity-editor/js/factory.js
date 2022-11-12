@@ -153,6 +153,10 @@ if(typeof BX.UI.EntityEditorControlFactory === "undefined")
 			{
 				return BX.UI.EntityEditorIncludedArea.create(controlId, settings);
 			}
+			else if(type === "product_row_summary")
+			{
+				return BX.UI.EntityEditorProductRowSummary.create(controlId, settings);
+			}
 
 			for(var name in this.methods)
 			{

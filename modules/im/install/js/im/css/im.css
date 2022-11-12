@@ -1762,7 +1762,7 @@
 	text-decoration: none;
 }
 .bx-messenger-panel-title-link:hover { text-decoration: underline; color:#181818 }
-.bx-messenger-panel-title-position { font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #a2a2a2; font-style: italic; margin-left: 8px; }
+.bx-messenger-panel-title-position { font: 12px var(--ui-font-family-primary, var(--ui-font-family-helvetica)); color: #a2a2a2; font-style: italic; }
 .bx-messenger-user-extranet {
 	color:#ca7b00!important;
 	background-image: url(data:image/svg+xml,%3Csvg%20width%3D%2226%22%20height%3D%2226%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M13%200C5.82%200%200%205.82%200%2013s5.82%2013%2013%2013%2013-5.82%2013-13S20.18%200%2013%200zM4.287%2020.453c-.033.028-.179.139-.36.272A11.858%2011.858%200%20011.084%2013c0-.554.038-1.104.112-1.645.68.881%201.427%202.073%201.684%202.43.419.582.885%201.155%201.292%201.747.685.997%201.4%202.362%201.037%203.602-.157.533-.506.965-.923%201.319zm13.729-9.65c.412%201.616%201.5%202.357%203.265%202.223.837-.063.783%202.176.249%203.1-.661%201.145-.49%202.505-1.115%203.647-.394.72-1.064%201.255-1.593%201.87-.663.77-1.406%201.513-2.511%201.418-.729-.063-1.032-.87-1.174-1.445-.236-.953-.436-2.404-.6-4.353-.685-1.481-1.802-1.996-3.35-1.544-2.323.678-2.796-1.121-2.861-2.833-.158-4.22%203.392-4.665%203.803-4.591.59.105%202.32.403%202.755.643%201.471.812%202.978-.308%202.86-.901-.118-.592-3.776-1.444-5.072-1.537-1.297-.092-1.417.369-1.773-.022-.287-.316-.022-.817.18-1.082%201.431-1.886%203.817-2.342%205.835-3.324.031-.015.078-.124.133-.283a11.88%2011.88%200%20014.38%202.786%2011.881%2011.881%200%20012.915%204.757c-.43.254.427-.088-1.824.436-1.5.349-3.001.694-4.502%201.035z%22%20fill%3D%22%23D79125%22%20fill-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E);
@@ -5120,7 +5120,7 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 	opacity: 1!important;
 }
 .bx-messenger-textarea-file-active .bx-messenger-textarea-file-popup { display: block; }
-.bx-messenger-textarea-file-popup-input { position: absolute; width: 100%; height: 33px; cursor: pointer;}
+.bx-messenger-textarea-file-popup-input { position: absolute; width: calc(100% + 30px); height: 33px; cursor: pointer; top: -33px; left: -15px;}
 .bx-messenger-textarea-file-popup {display: none; position: absolute;background: none repeat scroll 0 0 #fff;border: 1px solid; border-color: #cbdbde #ccdade #c7d6da #c9d7dc;border-radius: 3px;box-shadow: 0 11px 25px rgba(88, 112, 118, 0.17), -1px 1px rgba(255, 255, 255, 0.75) inset;z-index: 200;margin-top: -70px;margin-left: 0;}
 .bx-messenger-textarea-file-popup-short { margin-top: -43px; }
 .bx-messenger-textarea-file-popup-arrow {background: url("./../images/im-sprite-v37.png") no-repeat scroll -150px -1147px;height: 15px;position: absolute;width: 30px;margin-left: -2px;}
@@ -5193,17 +5193,37 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 #bx-messenger-popup-settings .popup-window-titlebar-close-icon { top: 6px }
 
 .bx-messenger-settings-tabs { height: 39px;vertical-align: top; overflow: hidden; margin-bottom: -1px; }
-.bx-messenger-settings-tab {border: 1px solid #f2f5f6;text-decoration: none;display:inline-block;height: 31px;margin: 5px 4px 0 0;background-color: #f2f5f6;font: 13px/32px var(--ui-font-family-primary, var(--ui-font-family-helvetica));color: #81878f;padding: 0 18px;text-shadow: -1px 1px 1px rgba(255, 255, 255, 0.8);
+
+.bx-messenger-settings-tab {
+	border: 1px solid #f2f5f6;
+	text-decoration: none;
+	display: inline-block;
+	height: 31px;
+	margin: 5px 4px 0 0;
+	background-color: #f2f5f6;
+	font: 13px/32px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #81878f;
+	padding: 0 18px;
+	text-shadow: -1px 1px 1px rgba(255, 255, 255, 0.8);
 	vertical-align: top;cursor: pointer;
 	border-bottom-color: transparent;
+	border-radius: var(--ui-border-radius-sm);
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 }
 .bx-messenger-settings-tab-active {height: 35px;margin: 4px 4px 0 0;background: #ffffff;color: #565c67;line-height: 34px;border-bottom: 0;cursor: default;
 	border-color: #d2d4d4 #d2d4d4 #d2d4d4;
 	border-top-color: #baced4;
 	position: relative;
 }
-.bx-messenger-settings-contents { border: 1px solid #d2d4d4;
-	color: #010101}
+
+.bx-messenger-settings-contents {
+	border: 1px solid #d2d4d4;
+	color: #010101;
+	border-radius: var(--ui-border-radius-sm);
+	border-top-left-radius: 0;
+}
+
 .bx-messenger-settings-content { padding: 20px 17px; width: 100%; overflow:auto; overflow-x: hidden;display: none; box-sizing: border-box;}
 .bx-messenger-custom-scroll .bx-messenger-settings-content { padding-right: 3px }
 .bx-messenger-settings-content-active { display: block }

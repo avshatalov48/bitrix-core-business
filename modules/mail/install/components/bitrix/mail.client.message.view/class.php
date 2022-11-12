@@ -623,6 +623,26 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 			}
 		}
 
+		if (
+			(isset($message['OPTIONS']['isEmptyBody']) && $message['OPTIONS']['isEmptyBody'] === 'Y')
+			|| empty($message['BODY_HTML'])
+		)
+		{
+			$message['isSyncError'] = true;
+			$mailBoxQuery = Mail\MailboxTable::getById($message['MAILBOX_ID']);
+			if ($mailBox = $mailBoxQuery->fetchObject())
+			{
+				if ($link = $mailBox->getLink())
+				{
+					$message['hideFastReplyPanel'] = true;
+					$message['hideMailControlPanel'] = true;
+					$uri = new Main\Web\Uri($link);
+					$message['MAILBOX']['HOST'] = $uri->getHost();
+					$message['MAILBOX']['URI'] = $uri->getUri();
+				}
+			}
+		}
+
 		$binds = array();
 		foreach ((array) $message['BIND'] as $item)
 		{

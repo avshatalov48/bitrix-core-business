@@ -94,13 +94,16 @@ class CatalogContractorList extends CBitrixComponent
 		$listFilter = $this->getListFilter();
 		$select = ['*'];
 
-		$list = ContractorTable::getList([
+		$dbResult = ContractorTable::getList([
 			'order' => $gridSort['sort'],
 			'offset' => $pageNavigation->getOffset(),
 			'limit' => $pageNavigation->getLimit(),
 			'filter' => $listFilter,
 			'select' => $select,
-		])->fetchAll();
+			'count_total' => true,
+		]);
+
+		$list = $dbResult->fetchAll();
 
 		foreach($list as $item)
 		{
@@ -112,7 +115,7 @@ class CatalogContractorList extends CBitrixComponent
 			];
 		}
 
-		$totalCount = $this->getTotalCount();
+		$totalCount = $dbResult->getCount();
 
 		$pageNavigation->setRecordCount($totalCount);
 		$result['NAV_PARAM_NAME'] = $this->navParamName;
@@ -148,19 +151,6 @@ class CatalogContractorList extends CBitrixComponent
 		];
 
 		return $result;
-	}
-
-	private function getTotalCount(): int
-	{
-		$count = ContractorTable::getList([
-			'select' => ['CNT'],
-			'filter' => $this->getListFilter(),
-			'runtime' => [
-				new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(*)')
-			],
-		])->fetch()['CNT'];
-
-		return (int)$count;
 	}
 
 	private function getItemColumns($item)

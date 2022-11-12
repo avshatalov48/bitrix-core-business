@@ -109,7 +109,7 @@
 
 
 	<!--[if !mso]><!-->
-	<link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap" rel="stylesheet" type="text/css"><!--<![endif]-->
+	<link href="https://%FONTS_PROXY_DOMAIN%/css?family=Open+Sans:400,700&display=swap" rel="stylesheet" type="text/css"><!--<![endif]-->
 
 </head>
 

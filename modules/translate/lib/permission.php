@@ -36,7 +36,7 @@ class Permission
 		$allowPath = false;
 		foreach ($initFolders as $oneFolder)
 		{
-			if (mb_strpos($path, $oneFolder) === 0)
+			if (\mb_strpos($path, $oneFolder) === 0)
 			{
 				$allowPath = true;
 				break;
@@ -55,7 +55,7 @@ class Permission
 	 */
 	public static function canEditSource($checkUser)
 	{
-		if($checkUser instanceof \CUser || $checkUser instanceof Main\Engine\CurrentUser)
+		if ($checkUser instanceof \CUser || $checkUser instanceof Main\Engine\CurrentUser)
 		{
 			return $checkUser->canDoOperation('edit_php');
 		}
@@ -73,28 +73,12 @@ class Permission
 	 */
 	public static function isAdmin($checkUser)
 	{
-		if(!($checkUser instanceof \CUser) && !($checkUser instanceof Main\Engine\CurrentUser))
+		if (!($checkUser instanceof \CUser) && !($checkUser instanceof Main\Engine\CurrentUser))
 		{
 			return false;
 		}
 
-		if($checkUser->isAdmin())
-		{
-			return true;
-		}
-
-		try
-		{
-			if(\Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24') && \Bitrix\Main\Loader::includeModule('bitrix24'))
-			{
-				return \CBitrix24::isPortalAdmin($checkUser->getId());
-			}
-		}
-		catch(\Exception $e)
-		{
-		}
-
-		return false;
+		return $checkUser->isAdmin();
 	}
 
 
@@ -107,7 +91,7 @@ class Permission
 	 */
 	public static function canView($checkUser)
 	{
-		if(!($checkUser instanceof \CUser) && !($checkUser instanceof Main\Engine\CurrentUser))
+		if (!($checkUser instanceof \CUser) && !($checkUser instanceof Main\Engine\CurrentUser))
 		{
 			return false;
 		}
@@ -138,7 +122,7 @@ class Permission
 	 */
 	public static function canEdit($checkUser)
 	{
-		if(!($checkUser instanceof \CUser) && !($checkUser instanceof Main\Engine\CurrentUser))
+		if (!($checkUser instanceof \CUser) && !($checkUser instanceof Main\Engine\CurrentUser))
 		{
 			return false;
 		}

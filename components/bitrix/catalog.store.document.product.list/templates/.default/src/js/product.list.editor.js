@@ -44,6 +44,7 @@ export class Editor
 
 	onSaveHandler = this.handleOnSave.bind(this);
 	onEditorSubmit = this.handleEditorSubmit.bind(this);
+	onFocusToProductList = this.handleProductListFocus.bind(this);
 	onBeforeGridRequestHandler = this.handleOnBeforeGridRequest.bind(this);
 	onGridUpdatedHandler = this.handleOnGridUpdated.bind(this);
 	onGridRowMovedHandler = this.handleOnGridRowMoved.bind(this);
@@ -170,6 +171,7 @@ export class Editor
 	{
 		EventEmitter.subscribe('BX.UI.EntityEditor:onSave', this.onSaveHandler);
 		EventEmitter.subscribe('BX.UI.EntityEditorAjax:onSubmit', this.onEditorSubmit);
+		EventEmitter.subscribe('onFocusToProductList', this.onFocusToProductList);
 		EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
 		EventEmitter.subscribe('Grid::updated', this.onGridUpdatedHandler);
 		EventEmitter.subscribe('Grid::rowMoved', this.onGridRowMovedHandler);
@@ -272,6 +274,31 @@ export class Editor
 
 	handleEditorSubmit(event: BaseEvent)
 	{
+	}
+
+	handleProductListFocus(event: BaseEvent)
+	{
+		if (this.isReadOnly())
+		{
+			return;
+		}
+
+		let listHaveEmptyRows = false;
+
+		for (const product of this.products)
+		{
+			if (product.isEmptyRow())
+			{
+				listHaveEmptyRows = true;
+				this.focusProductSelector(product.fields['ROW_ID']);
+				break;
+			}
+		}
+
+		if (!listHaveEmptyRows)
+		{
+			this.handleProductRowAdd();
+		}
 	}
 
 	onInnerCancel()

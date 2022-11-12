@@ -1,5 +1,6 @@
 {
 	"color": {
+		"type": "color",
 		"primary": { "value": "{color.palette.blue.50}" },
 		"on-primary": { "value": "{color.palette.white.base}" },
 		"primary-alt": { "value": "{color.palette.green.50}" },
@@ -78,7 +79,8 @@
 			"brown": { "value": "#AE914B" },
 			"green": { "value": "#29AD49" },
 			"turquoise": { "value": "#05B5AB" },
-			"purple": { "value": "#A77BDE" }
+			"purple": { "value": "#A77BDE" },
+			"yellow": { "value": "#FEF3B8" }
 		},
 
 		"overlay": {

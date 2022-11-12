@@ -33,7 +33,7 @@ export class CustomCrmActionPanel
 	{
 		this.#actionPanel.appendItem({
 			id: 'fix_entity',
-			text: Loc.getMessage('BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FIX_DEAL_ACTION'),
+			text: Loc.getMessage('BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FIX_DEAL_ACTION_1'),
 			onclick: this.fixEntityAction.bind(this)
 		});
 
@@ -95,7 +95,7 @@ export class CustomCrmActionPanel
 				Manager.Instance.requireSetFilter(this.#debuggerInstance.session, true);
 				if (this.#debuggerInstance.settings.get('popup-collapsed'))
 				{
-					this.#debuggerInstance.getMainView().handleCollapse();
+					this.#debuggerInstance.getMainView().showExpanded();
 				}
 			},
 			(response) => {
@@ -104,10 +104,10 @@ export class CustomCrmActionPanel
 		);
 	}
 
-	#getRemoveEntityActionText()
+	#getRemoveEntityActionText(): string
 	{
 		return `
-			<span>${Text.encode(Loc.getMessage('BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_REMOVE_DEAL_ACTION'))}</span>
+			<span>${Text.encode(Loc.getMessage('BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_REMOVE_DEAL_ACTION_1'))}</span>
 		`;
 	}
 

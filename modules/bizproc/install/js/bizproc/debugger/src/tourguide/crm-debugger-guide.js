@@ -75,6 +75,7 @@ export class CrmDebuggerGuide extends EventEmitter
 					{
 						nextGuide.start();
 					}
+					this.emit('onStageGuideStepClose');
 				}.bind(this),
 			},
 		});
@@ -103,7 +104,7 @@ export class CrmDebuggerGuide extends EventEmitter
 		}
 
 		const filterApi = filter.getApi();
-		const guideTarget = filterApi?.parent?.getPopupBindElement();
+		const guideTarget = filterApi?.parent?.getPopupBindElement()?.firstElementChild;
 
 		if (!guideTarget)
 		{
@@ -123,6 +124,7 @@ export class CrmDebuggerGuide extends EventEmitter
 					{
 						nextGuide.start();
 					}
+					this.emit('onFilterGuideStepClose');
 				}.bind(this),
 			}
 		});

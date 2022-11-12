@@ -127,7 +127,7 @@ class Apply
 
 			//  encoding
 			$encoding = $this->controller->getRequest()->get('encoding');
-			if ($encoding !== null && in_array($encoding, self::$allowedEncodings))
+			if ($encoding !== null && \in_array($encoding, self::$allowedEncodings))
 			{
 				$this->encoding = $encoding;
 			}
@@ -157,7 +157,7 @@ class Apply
 						$encodingOut = Main\Localization\Translation::getCurrentEncoding();
 					}
 				}
-				$this->convertEncoding = (mb_strtolower($encodingIn) !== mb_strtolower($encodingOut));
+				$this->convertEncoding = (\mb_strtolower($encodingIn) !== \mb_strtolower($encodingOut));
 				$this->encodingIn = $encodingIn;
 				$this->encodingOut = $encodingOut;
 			}
@@ -219,14 +219,14 @@ class Apply
 
 		if (!empty($this->seekPath))
 		{
-			$this->seekAncestors = array();
-			$arr = explode('/', str_replace($this->sourceFolderPath, '', $this->seekPath));
-			array_pop($arr);//last file
-			$parts = array();
+			$this->seekAncestors = [];
+			$arr = \explode('/', \str_replace($this->sourceFolderPath, '', $this->seekPath));
+			\array_pop($arr);//last file
+			$parts = [];
 			foreach ($arr as $part)
 			{
 				$parts[] = $part;
-				$this->seekAncestors[] = $this->sourceFolderPath. implode('/', $parts);
+				$this->seekAncestors[] = $this->sourceFolderPath. \implode('/', $parts);
 			}
 		}
 
@@ -234,14 +234,14 @@ class Apply
 		{
 			foreach ($filePaths as $langFilePath => $fullPath)
 			{
-				$targetFolder = new Main\IO\Directory($this->targetFolderPath. dirname($langFilePath));
+				$targetFolder = new Main\IO\Directory($this->targetFolderPath. \dirname($langFilePath));
 				if (!$targetFolder->isExists())
 				{
 					$targetFolder->create();
 				}
 
 				$source = new Main\IO\File($fullPath);
-				$target = new Main\IO\File($targetFolder->getPhysicalPath(). '/'. basename($langFilePath));
+				$target = new Main\IO\File($targetFolder->getPhysicalPath(). '/'. \basename($langFilePath));
 				if ($target->isExists())
 				{
 					$target->markWritable();
@@ -252,14 +252,14 @@ class Apply
 					if ($this->convertEncoding)
 					{
 						$content = $source->getContents();
-						$content = str_replace(array("\r\n", "\r"), array("\n", "\n"), $content);
+						$content = \str_replace(array("\r\n", "\r"), array("\n", "\n"), $content);
 
 						$content = Main\Text\Encoding::convertEncoding($content, $this->encodingIn, $this->encodingOut);
 						$target->putContents($content);
 					}
 					else
 					{
-						if (function_exists('error_clear_last'))
+						if (\function_exists('error_clear_last'))
 						{
 							\error_clear_last();
 						}
@@ -279,7 +279,7 @@ class Apply
 				}
 
 				// check user abortion
-				if (connection_status() !== CONNECTION_NORMAL)
+				if (\connection_status() !== \CONNECTION_NORMAL)
 				{
 					throw new Main\SystemException('Process has been broken course user aborted connection.');
 				}
@@ -333,8 +333,8 @@ class Apply
 		$files = [];
 		$folders = [];
 
-		$tmpFolderFullPath = Translate\IO\Path::tidy(rtrim($tmpFolderFullPath, '/'));
-		$langFolderRelPath = str_replace($this->sourceFolderPath, '', $tmpFolderFullPath);
+		$tmpFolderFullPath = Translate\IO\Path::tidy(\rtrim($tmpFolderFullPath, '/'));
+		$langFolderRelPath = \str_replace($this->sourceFolderPath, '', $tmpFolderFullPath);
 
 		$childrenList = Translate\IO\FileSystemHelper::getFileList($tmpFolderFullPath);
 		if (!empty($childrenList))
@@ -352,13 +352,13 @@ class Apply
 					$this->seekAncestors = null;
 				}
 
-				$name = basename($fullPath);
-				if (in_array($name, Translate\IGNORE_FS_NAMES))
+				$name = \basename($fullPath);
+				if (\in_array($name, Translate\IGNORE_FS_NAMES))
 				{
 					continue;
 				}
 
-				if ((mb_substr($name, -4) === '.php') && is_file($fullPath))
+				if ((\mb_substr($name, -4) === '.php') && \is_file($fullPath))
 				{
 					$files[$langFolderRelPath.'/'.$name] = $fullPath;
 				}
@@ -371,15 +371,15 @@ class Apply
 		{
 			foreach ($childrenList as $fullPath)
 			{
-				$name = basename($fullPath);
-				if (in_array($name, Translate\IGNORE_FS_NAMES))
+				$name = \basename($fullPath);
+				if (\in_array($name, Translate\IGNORE_FS_NAMES))
 				{
 					continue;
 				}
 
 				if (!empty($this->seekPath))
 				{
-					if (in_array($fullPath, $this->seekAncestors))
+					if (\in_array($fullPath, $this->seekAncestors))
 					{
 						foreach ($this->lookThroughTmpFolder($fullPath) as $subFiles)// go deeper
 						{
@@ -389,14 +389,14 @@ class Apply
 					continue;
 				}
 
-				if (!is_dir($fullPath))
+				if (!\is_dir($fullPath))
 				{
 					continue;
 				}
 
 				$relPath = $langFolderRelPath.'/'.$name;
 
-				if (in_array($relPath, Translate\IGNORE_BX_NAMES))
+				if (\in_array($relPath, Translate\IGNORE_BX_NAMES))
 				{
 					continue;
 				}
@@ -405,12 +405,12 @@ class Apply
 			}
 		}
 
-		if (count($files) > 0)
+		if (\count($files) > 0)
 		{
 			yield $files;
 		}
 
-		if (count($folders) > 0)
+		if (\count($folders) > 0)
 		{
 			foreach ($folders as $subFolderPath)
 			{

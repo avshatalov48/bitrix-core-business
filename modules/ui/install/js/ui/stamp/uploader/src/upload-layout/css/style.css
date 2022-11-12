@@ -1,0 +1,11 @@
+.ui-stamp-uploader-upload-layout {
+	position: relative;
+	background: rgba(255, 255, 255, 0.6);
+	border-radius: 8px;
+	padding: 20px;
+	margin-top: 12px;
+}
+
+.ui-stamp-uploader-mode-inline .ui-stamp-uploader-upload-layout {
+	padding-top: 0;
+}

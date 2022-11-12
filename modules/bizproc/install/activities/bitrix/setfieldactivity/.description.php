@@ -1,22 +1,33 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
 
-$arActivityDescription = array(
-	"NAME" => GetMessage("BPSFA_DESCR_NAME"),
-	"DESCRIPTION" => GetMessage("BPSFA_DESCR_DESCR"),
-	"TYPE" => array("activity", "robot_activity"),
-	"CLASS" => "SetFieldActivity",
-	"JSCLASS" => "BizProcActivity",
-	"CATEGORY" => array(
-		"ID" => "document",
-	),
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
+
+$arActivityDescription = [
+	'NAME' => Loc::getMessage('BPSFA_DESCR_NAME'),
+	'DESCRIPTION' => Loc::getMessage('BPSFA_DESCR_DESCR_1'),
+	'TYPE' => ['activity', 'robot_activity'],
+	'CLASS' => 'SetFieldActivity',
+	'JSCLASS' => 'BizProcActivity',
+	'CATEGORY' => [
+		'ID' => 'document',
+	],
 	'FILTER' => [
 		'EXCLUDE' => [
-			['tasks']
-		]
+			['tasks'],
+		],
 	],
-	'ROBOT_SETTINGS' => array(
-		'TITLE' => GetMessage('BPSFA_DESCR_ROBOT_TITLE_1'),
-		'CATEGORY' => 'employee'
-	)
-);
+	'ROBOT_SETTINGS' => [
+		'TITLE' => Loc::getMessage('BPSFA_DESCR_ROBOT_TITLE_2'),
+		'CATEGORY' => 'employee',
+		'GROUP' => ['elementControl'],
+		'ASSOCIATED_TRIGGERS' => [
+			'FIELD_CHANGED' => 1,
+		],
+		'SORT' => 2400,
+	],
+];

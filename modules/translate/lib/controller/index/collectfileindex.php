@@ -49,12 +49,12 @@ class CollectFileIndex
 			$path = Translate\Config::getDefaultPath();
 		}
 
-		if (preg_match("#(.+\/lang)(\/?\w*)#", $path, $matches))
+		if (\preg_match("#(.+\/lang)(\/?\w*)#", $path, $matches))
 		{
 			$path = $matches[1];
 		}
 
-		$path = '/'. trim($path, '/.\\');
+		$path = '/'. \trim($path, '/.\\');
 
 		// skip indexing if index exists
 		if (Main\Context::getCurrent()->getRequest()->get('checkIndexExists') === 'Y')
@@ -74,9 +74,9 @@ class CollectFileIndex
 		if ($this->isNewProcess)
 		{
 			$languages = $this->controller->getRequest()->get('languages');
-			if (is_array($languages) && !in_array('all', $languages))
+			if (\is_array($languages) && !\in_array('all', $languages))
 			{
-				$languages = array_intersect($languages, Translate\Config::getEnabledLanguages());
+				$languages = \array_intersect($languages, Translate\Config::getEnabledLanguages());
 				if (!empty($languages))
 				{
 					$this->languages = $languages;
@@ -124,7 +124,7 @@ class CollectFileIndex
 	 */
 	private function runIndexing(array $params)
 	{
-		$path = rtrim($params['path'], '/');
+		$path = \rtrim($params['path'], '/');
 
 		$seek = new Translate\Filter();
 		if (!empty($this->seekPathId))

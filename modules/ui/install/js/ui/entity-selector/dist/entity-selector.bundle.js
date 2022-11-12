@@ -540,16 +540,18 @@ this.BX.UI = this.BX.UI || {};
 
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
 
-	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-
 	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
 
 	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
+
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var RenderMode = function RenderMode() {
 	  babelHelpers.classCallCheck(this, RenderMode);
 	};
 	babelHelpers.defineProperty(RenderMode, "PARTIAL", 'partial');
 	babelHelpers.defineProperty(RenderMode, "OVERRIDE", 'override');
+
+	var _setHidden = /*#__PURE__*/new WeakSet();
 
 	var _makeEllipsisTitle = /*#__PURE__*/new WeakSet();
 
@@ -559,6 +561,8 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classCallCheck(this, ItemNode);
 
 	    _classPrivateMethodInitSpec(this, _makeEllipsisTitle);
+
+	    _classPrivateMethodInitSpec(this, _setHidden);
 
 	    babelHelpers.defineProperty(this, "item", null);
 	    babelHelpers.defineProperty(this, "tab", null);
@@ -586,6 +590,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "textColor", null);
 	    babelHelpers.defineProperty(this, "badges", null);
 	    babelHelpers.defineProperty(this, "badgesOptions", {});
+	    babelHelpers.defineProperty(this, "hidden", false);
 	    babelHelpers.defineProperty(this, "highlights", []);
 	    babelHelpers.defineProperty(this, "renderWithDebounce", main_core.Runtime.debounce(this.render, 50, this));
 	    var options = main_core.Type.isPlainObject(nodeOptions) ? nodeOptions : {};
@@ -1183,6 +1188,17 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.removeClass(this.getOuterContainer(), ['ui-selector-item-box-has-children', 'ui-selector-item-box-max-depth']);
 	      }
 
+	      if (this.hasChildren()) {
+	        var hasVisibleChild = this.getChildren().getAll().some(function (child) {
+	          return child.isHidden() !== true;
+	        });
+
+	        if (!hasVisibleChild) {
+	          _classPrivateMethodGet(this, _setHidden, _setHidden2).call(this, true);
+	        }
+	      }
+
+	      this.toggleVisibility();
 	      this.highlight();
 	      this.renderChildren(appendChildren);
 
@@ -1277,6 +1293,63 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getRenderMode",
 	    value: function getRenderMode() {
 	      return this.renderMode;
+	    }
+	  }, {
+	    key: "isHidden",
+	    value: function isHidden() {
+	      return this.hidden === true || this.getItem().isHidden() === true;
+	    }
+	  }, {
+	    key: "setHidden",
+	    value: function setHidden(flag) {
+	      if (!main_core.Type.isBoolean(flag) || this.isRoot()) {
+	        return;
+	      }
+
+	      _classPrivateMethodGet(this, _setHidden, _setHidden2).call(this, flag);
+
+	      if (this.isRendered()) {
+	        this.toggleVisibility();
+	        var parentNode = this.getParentNode();
+	        var isHidden = this.isHidden();
+
+	        while (parentNode.isRoot() === false) {
+	          if (isHidden) {
+	            var hasVisibleChild = parentNode.getChildren().getAll().some(function (child) {
+	              return child.isHidden() !== true;
+	            });
+
+	            if (!hasVisibleChild) {
+	              var _parentNode;
+
+	              _classPrivateMethodGet(_parentNode = parentNode, _setHidden, _setHidden2).call(_parentNode, true);
+	            }
+
+	            parentNode.toggleVisibility();
+	          } else {
+	            var _parentNode2;
+
+	            _classPrivateMethodGet(_parentNode2 = parentNode, _setHidden, _setHidden2).call(_parentNode2, false);
+
+	            parentNode.toggleVisibility();
+
+	            if (parentNode.isHidden()) {
+	              break;
+	            }
+	          }
+
+	          parentNode = parentNode.getParentNode();
+	        }
+	      }
+	    }
+	  }, {
+	    key: "toggleVisibility",
+	    value: function toggleVisibility() {
+	      if (this.isHidden()) {
+	        main_core.Dom.addClass(this.getOuterContainer(), '--hidden');
+	      } else if (this.getOuterContainer().classList.contains('--hidden')) {
+	        main_core.Dom.removeClass(this.getOuterContainer(), '--hidden');
+	      }
 	    }
 	  }, {
 	    key: "getTitle",
@@ -1877,6 +1950,12 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return ItemNode;
 	}();
+
+	function _setHidden2(flag) {
+	  if (main_core.Type.isBoolean(flag) && !this.isRoot()) {
+	    this.hidden = flag;
+	  }
+	}
 
 	function _makeEllipsisTitle2() {
 	  var _this19 = this;
@@ -3307,6 +3386,12 @@ this.BX.UI = this.BX.UI || {};
 	    value: function setHidden(flag) {
 	      if (main_core.Type.isBoolean(flag)) {
 	        this.hidden = flag;
+
+	        if (this.isRendered()) {
+	          this.getNodes().forEach(function (node) {
+	            node.setHidden(flag);
+	          });
+	        }
 	      }
 	    }
 	  }, {
@@ -3685,6 +3770,83 @@ this.BX.UI = this.BX.UI || {};
 
 	var _templateObject$2;
 
+	var BaseHeader = /*#__PURE__*/function () {
+	  function BaseHeader(context, options) {
+	    babelHelpers.classCallCheck(this, BaseHeader);
+	    babelHelpers.defineProperty(this, "dialog", null);
+	    babelHelpers.defineProperty(this, "tab", null);
+	    babelHelpers.defineProperty(this, "container", null);
+	    babelHelpers.defineProperty(this, "cache", new main_core.Cache.MemoryCache());
+	    this.options = main_core.Type.isPlainObject(options) ? options : {};
+
+	    if (context instanceof Dialog) {
+	      this.dialog = context;
+	    } else {
+	      this.tab = context;
+	      this.dialog = this.tab.getDialog();
+	    }
+	  }
+
+	  babelHelpers.createClass(BaseHeader, [{
+	    key: "getDialog",
+	    value: function getDialog() {
+	      return this.dialog;
+	    }
+	  }, {
+	    key: "getTab",
+	    value: function getTab() {
+	      return this.tab;
+	    }
+	  }, {
+	    key: "show",
+	    value: function show() {
+	      main_core.Dom.addClass(this.getContainer(), 'ui-selector-header--show');
+	    }
+	  }, {
+	    key: "hide",
+	    value: function hide() {
+	      main_core.Dom.removeClass(this.getContainer(), 'ui-selector-header--show');
+	    }
+	  }, {
+	    key: "getOptions",
+	    value: function getOptions() {
+	      return this.options;
+	    }
+	  }, {
+	    key: "getOption",
+	    value: function getOption(option, defaultValue) {
+	      if (!main_core.Type.isUndefined(this.options[option])) {
+	        return this.options[option];
+	      } else if (!main_core.Type.isUndefined(defaultValue)) {
+	        return defaultValue;
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "getContainer",
+	    value: function getContainer() {
+	      if (this.container === null) {
+	        this.container = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-header\">", "</div>\n\t\t\t"])), this.render());
+	      }
+
+	      return this.container;
+	    }
+	    /**
+	     * @abstract
+	     */
+
+	  }, {
+	    key: "render",
+	    value: function render() {
+	      throw new Error('You must implement render() method.');
+	    }
+	  }]);
+	  return BaseHeader;
+	}();
+
+	var _templateObject$3;
+
 	var BaseFooter = /*#__PURE__*/function () {
 	  function BaseFooter(context, options) {
 	    babelHelpers.classCallCheck(this, BaseFooter);
@@ -3742,7 +3904,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getContainer",
 	    value: function getContainer() {
 	      if (this.container === null) {
-	        this.container = main_core.Tag.render(_templateObject$2 || (_templateObject$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer\">", "</div>\n\t\t\t"])), this.render());
+	        this.container = main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer\">", "</div>\n\t\t\t"])), this.render());
 	      }
 
 	      return this.container;
@@ -3760,7 +3922,7 @@ this.BX.UI = this.BX.UI || {};
 	  return BaseFooter;
 	}();
 
-	var _templateObject$3, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5;
+	var _templateObject$4, _templateObject2$1, _templateObject3$1, _templateObject4$1, _templateObject5;
 
 	/**
 	 * @memberof BX.UI.EntitySelector
@@ -3782,6 +3944,8 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(this, "textColor", {});
 	    babelHelpers.defineProperty(this, "bgColor", {});
 	    babelHelpers.defineProperty(this, "itemMaxDepth", 5);
+	    babelHelpers.defineProperty(this, "header", null);
+	    babelHelpers.defineProperty(this, "showDefaultHeader", true);
 	    babelHelpers.defineProperty(this, "footer", null);
 	    babelHelpers.defineProperty(this, "showDefaultFooter", true);
 	    babelHelpers.defineProperty(this, "showAvatars", null);
@@ -3794,6 +3958,7 @@ this.BX.UI = this.BX.UI || {};
 
 	    this.setDialog(dialog);
 	    this.id = options.id;
+	    this.showDefaultHeader = options.showDefaultHeader !== false;
 	    this.showDefaultFooter = options.showDefaultFooter !== false;
 	    this.rootNode = new ItemNode(null, {
 	      itemOrder: options.itemOrder
@@ -3806,6 +3971,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.setTextColor(options.textColor);
 	    this.setBgColor(options.bgColor);
 	    this.setStub(options.stub, options.stubOptions);
+	    this.setHeader(options.header, options.headerOptions);
 	    this.setFooter(options.footer, options.footerOptions);
 	    this.setShowAvatars(options.showAvatars);
 	  }
@@ -3858,6 +4024,54 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      this.stub = instance;
+	    }
+	  }, {
+	    key: "getHeader",
+	    value: function getHeader() {
+	      return this.header;
+	    }
+	  }, {
+	    key: "setHeader",
+	    value: function setHeader(headerContent, headerOptions) {
+	      /** @var {BaseHeader} */
+	      var header = null;
+
+	      if (headerContent !== null) {
+	        header = Dialog.createHeader(this, headerContent, headerOptions);
+
+	        if (header === null) {
+	          return;
+	        }
+	      }
+
+	      if (this.isRendered() && this.getHeader() !== null) {
+	        main_core.Dom.remove(this.getHeader().getContainer());
+	        this.getDialog().adjustHeader();
+	      }
+
+	      this.header = header;
+
+	      if (this.isRendered()) {
+	        this.getDialog().appendHeader(header);
+	        this.getDialog().adjustHeader();
+	      }
+	    }
+	  }, {
+	    key: "canShowDefaultHeader",
+	    value: function canShowDefaultHeader() {
+	      return this.showDefaultHeader;
+	    }
+	  }, {
+	    key: "enableDefaultHeader",
+	    value: function enableDefaultHeader() {
+	      this.showDefaultHeader = true;
+	      this.getDialog().adjustHeader();
+	    }
+	  }, {
+	    key: "disableDefaultHeader",
+	    value: function disableDefaultHeader() {
+	      this.showDefaultHeader = false;
+	      this.getDialog().adjustHeader();
 	    }
 	  }, {
 	    key: "getFooter",
@@ -4060,7 +4274,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this = this;
 
 	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$3 || (_templateObject$3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-content\">", "</div>\n\t\t\t"])), _this.getItemsContainer());
+	        return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-content\">", "</div>\n\t\t\t"])), _this.getItemsContainer());
 	      });
 	    }
 	  }, {
@@ -4179,6 +4393,10 @@ this.BX.UI = this.BX.UI || {};
 	        this.renderLabel();
 	      }
 
+	      if (this.getHeader()) {
+	        this.getHeader().show();
+	      }
+
 	      if (this.getFooter()) {
 	        this.getFooter().show();
 	      }
@@ -4208,6 +4426,10 @@ this.BX.UI = this.BX.UI || {};
 
 	      if (this.isVisible()) {
 	        this.renderLabel();
+	      }
+
+	      if (this.getHeader()) {
+	        this.getHeader().hide();
 	      }
 
 	      if (this.getFooter()) {
@@ -4286,7 +4508,7 @@ this.BX.UI = this.BX.UI || {};
 	  return Tab;
 	}();
 
-	var _templateObject$4, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$1, _templateObject6;
+	var _templateObject$5, _templateObject2$2, _templateObject3$2, _templateObject4$2, _templateObject5$1, _templateObject6;
 
 	var TagItem = /*#__PURE__*/function () {
 	  function TagItem(itemOptions) {
@@ -4602,7 +4824,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$4 || (_templateObject$4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-item ui-tag-selector-tag\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), _this2.getContentContainer(), _this2.getRemoveIcon());
+	        return main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-item ui-tag-selector-tag\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>"])), _this2.getContentContainer(), _this2.getRemoveIcon());
 	      });
 	    }
 	  }, {
@@ -4713,7 +4935,7 @@ this.BX.UI = this.BX.UI || {};
 	  return TagItem;
 	}();
 
-	var _templateObject$5, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1, _templateObject7;
+	var _templateObject$6, _templateObject2$3, _templateObject3$3, _templateObject4$3, _templateObject5$2, _templateObject6$1, _templateObject7;
 
 	/**
 	 * @memberof BX.UI.EntitySelector
@@ -5087,7 +5309,7 @@ this.BX.UI = this.BX.UI || {};
 	      return this.cache.remember('outer-container', function () {
 	        var className = _this6.isReadonly() ? ' ui-tag-selector-container-readonly' : '';
 	        className += _this6.isLocked() ? ' ui-tag-selector-container-locked' : '';
-	        return main_core.Tag.render(_templateObject$5 || (_templateObject$5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-outer-container", "\">", "</div>\n\t\t\t"])), className, _this6.getContainer());
+	        return main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tag-selector-outer-container", "\">", "</div>\n\t\t\t"])), className, _this6.getContainer());
 	      });
 	    }
 	  }, {
@@ -6015,7 +6237,50 @@ this.BX.UI = this.BX.UI || {};
 	  return SliderIntegration;
 	}();
 
-	var _templateObject$6;
+	var _templateObject$7;
+
+	var DefaultHeader = /*#__PURE__*/function (_BaseHeader) {
+	  babelHelpers.inherits(DefaultHeader, _BaseHeader);
+
+	  function DefaultHeader(context, options) {
+	    var _this;
+
+	    babelHelpers.classCallCheck(this, DefaultHeader);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DefaultHeader).call(this, context, options));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "content", null);
+
+	    _this.setContent(_this.getOption('content'));
+
+	    return _this;
+	  }
+
+	  babelHelpers.createClass(DefaultHeader, [{
+	    key: "render",
+	    value: function render() {
+	      var container = main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getContent() ? this.getContent() : '');
+	      var className = this.getOption('containerClass', 'ui-selector-header-default');
+	      var containerStyles = this.getOption('containerStyles', {});
+	      main_core.Dom.addClass(container, className);
+	      main_core.Dom.style(container, containerStyles);
+	      return container;
+	    }
+	  }, {
+	    key: "getContent",
+	    value: function getContent() {
+	      return this.content;
+	    }
+	  }, {
+	    key: "setContent",
+	    value: function setContent(content) {
+	      if (main_core.Type.isStringFilled(content) || main_core.Type.isDomNode(content) || main_core.Type.isArrayFilled(content)) {
+	        this.content = content;
+	      }
+	    }
+	  }]);
+	  return DefaultHeader;
+	}(BaseHeader);
+
+	var _templateObject$8;
 
 	var DefaultFooter = /*#__PURE__*/function (_BaseFooter) {
 	  babelHelpers.inherits(DefaultFooter, _BaseFooter);
@@ -6035,7 +6300,7 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(DefaultFooter, [{
 	    key: "render",
 	    value: function render() {
-	      var container = main_core.Tag.render(_templateObject$6 || (_templateObject$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getContent() ? this.getContent() : '');
+	      var container = main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div>\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getContent() ? this.getContent() : '');
 	      var className = this.getOption('containerClass', 'ui-selector-footer-default');
 	      var containerStyles = this.getOption('containerStyles', {});
 	      main_core.Dom.addClass(container, className);
@@ -6338,7 +6603,7 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchQuery;
 	}();
 
-	var _templateObject$7, _templateObject2$4, _templateObject3$4, _templateObject4$4, _templateObject5$3;
+	var _templateObject$9, _templateObject2$4, _templateObject3$4, _templateObject4$4, _templateObject5$3;
 
 	var SearchLoader = /*#__PURE__*/function () {
 	  function SearchLoader(tab) {
@@ -6372,7 +6637,7 @@ this.BX.UI = this.BX.UI || {};
 	      var _this = this;
 
 	      return this.cache.remember('container', function () {
-	        return main_core.Tag.render(_templateObject$7 || (_templateObject$7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this.getBoxContainer(), _this.getSpacerContainer());
+	        return main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-search-loader\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this.getBoxContainer(), _this.getSpacerContainer());
 	      });
 	    }
 	  }, {
@@ -6439,7 +6704,7 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchLoader;
 	}();
 
-	var _templateObject$8, _templateObject2$5, _templateObject3$5, _templateObject4$5;
+	var _templateObject$a, _templateObject2$5, _templateObject3$5, _templateObject4$5;
 
 	var SearchTabFooter = /*#__PURE__*/function (_BaseFooter) {
 	  babelHelpers.inherits(SearchTabFooter, _BaseFooter);
@@ -6465,7 +6730,7 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.createClass(SearchTabFooter, [{
 	    key: "render",
 	    value: function render() {
-	      return main_core.Tag.render(_templateObject$8 || (_templateObject$8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-selector-search-footer\" onclick=\"", "\">\n\t\t\t\t<div class=\"ui-selector-search-footer-box\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-selector-search-footer-cmd\">", "</div>\n\t\t\t</div>\n\t\t"])), this.handleClick.bind(this), this.getLabelContainer(), this.getQueryContainer(), this.getLoaderContainer(), main_core.Browser.isMac() ? '&#8984;+Enter' : 'Ctrl+Enter');
+	      return main_core.Tag.render(_templateObject$a || (_templateObject$a = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"ui-selector-search-footer\" onclick=\"", "\">\n\t\t\t\t<div class=\"ui-selector-search-footer-box\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-selector-search-footer-cmd\">", "</div>\n\t\t\t</div>\n\t\t"])), this.handleClick.bind(this), this.getLabelContainer(), this.getQueryContainer(), this.getLoaderContainer(), main_core.Browser.isMac() ? '&#8984;+Enter' : 'Ctrl+Enter');
 	    }
 	  }, {
 	    key: "getLoader",
@@ -6900,7 +7165,7 @@ this.BX.UI = this.BX.UI || {};
 	  return SearchTab;
 	}(Tab);
 
-	var _templateObject$9, _templateObject2$6, _templateObject3$6, _templateObject4$6, _templateObject5$4, _templateObject6$2;
+	var _templateObject$b, _templateObject2$6, _templateObject3$6, _templateObject4$6, _templateObject5$4, _templateObject6$2, _templateObject7$1;
 
 	var LoadState = function LoadState() {
 	  babelHelpers.classCallCheck(this, LoadState);
@@ -6982,6 +7247,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "saveRecentItemsWithDebounce", main_core.Runtime.debounce(_this.saveRecentItems, 2000, babelHelpers.assertThisInitialized(_this)));
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "recentItemsToSave", []);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "navigation", null);
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "header", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "footer", null);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "popupOptions", {});
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "focusOnFirst", true);
@@ -7445,6 +7711,7 @@ this.BX.UI = this.BX.UI || {};
 	        this.focusOnFirstNode();
 	      }
 
+	      this.adjustHeader();
 	      this.adjustFooter();
 	      return newActiveTab;
 	    }
@@ -7459,6 +7726,10 @@ this.BX.UI = this.BX.UI || {};
 	      tab.renderContainer();
 	      main_core.Dom.append(tab.getLabelContainer(), this.getLabelsContainer());
 	      main_core.Dom.append(tab.getContainer(), this.getTabContentsContainer());
+
+	      if (tab.getHeader()) {
+	        main_core.Dom.append(tab.getHeader().getContainer(), this.getHeaderContainer());
+	      }
 
 	      if (tab.getFooter()) {
 	        main_core.Dom.append(tab.getFooter().getContainer(), this.getFooterContainer());
@@ -7573,6 +7844,10 @@ this.BX.UI = this.BX.UI || {};
 	      main_core.Dom.remove(tab.getLabelContainer(), this.getLabelsContainer());
 	      main_core.Dom.remove(tab.getContainer(), this.getTabContentsContainer());
 
+	      if (tab.getHeader()) {
+	        main_core.Dom.remove(tab.getHeader().getContainer(), this.getHeaderContainer());
+	      }
+
 	      if (tab.getFooter()) {
 	        main_core.Dom.remove(tab.getFooter().getContainer(), this.getFooterContainer());
 	      }
@@ -7632,6 +7907,94 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	      }
 	    }
+	  }, {
+	    key: "getHeader",
+	    value: function getHeader() {
+	      return this.header;
+	    }
+	  }, {
+	    key: "getActiveHeader",
+	    value: function getActiveHeader() {
+	      if (!this.getActiveTab()) {
+	        return null;
+	      }
+
+	      if (this.getActiveTab().getHeader()) {
+	        return this.getActiveTab().getHeader();
+	      }
+
+	      return this.getHeader() && this.getActiveTab().canShowDefaultHeader() ? this.getHeader() : null;
+	    }
+	    /**
+	     * @internal
+	     */
+
+	  }, {
+	    key: "adjustHeader",
+	    value: function adjustHeader() {
+	      if (!this.getActiveTab()) {
+	        return;
+	      }
+
+	      if (this.getActiveTab().getHeader()) {
+	        if (this.getHeader()) {
+	          this.getHeader().hide();
+	        }
+
+	        this.getActiveTab().getHeader().show();
+	      } else {
+	        if (this.getHeader()) {
+	          if (this.getActiveTab().canShowDefaultHeader()) {
+	            this.getHeader().show();
+	          } else {
+	            this.getHeader().hide();
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: "setHeader",
+	    value: function setHeader(headerContent, headerOptions) {
+	      /** @var {BaseHeader} */
+	      var header = null;
+
+	      if (headerContent !== null) {
+	        header = this.constructor.createHeader(this, headerContent, headerOptions);
+
+	        if (header === null) {
+	          return null;
+	        }
+	      }
+
+	      if (this.isRendered() && this.getHeader() !== null) {
+	        main_core.Dom.remove(this.getHeader().getContainer());
+	        this.adjustHeader();
+	      }
+
+	      this.header = header;
+
+	      if (this.isRendered()) {
+	        this.appendHeader(header);
+	        this.adjustHeader();
+	      }
+
+	      return header;
+	    }
+	    /**
+	     * @internal
+	     */
+
+	  }, {
+	    key: "appendHeader",
+	    value: function appendHeader(header) {
+	      if (header instanceof BaseHeader) {
+	        main_core.Dom.append(header.getContainer(), this.getHeaderContainer());
+	      }
+	    }
+	    /**
+	     * @internal
+	     */
+
 	  }, {
 	    key: "getFooter",
 	    value: function getFooter() {
@@ -8070,6 +8433,7 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	      }
 
+	      this.setHeader(options.header, options.headerOptions);
 	      this.setFooter(options.footer, options.footerOptions);
 	    }
 	  }, {
@@ -8234,13 +8598,13 @@ this.BX.UI = this.BX.UI || {};
 	        var searchContainer = '';
 
 	        if (_this8.getTagSelectorMode() === TagSelectorMode.INSIDE) {
-	          searchContainer = main_core.Tag.render(_templateObject$9 || (_templateObject$9 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search\"></div>"])));
+	          searchContainer = main_core.Tag.render(_templateObject$b || (_templateObject$b = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-search\"></div>"])));
 
 	          _this8.getTagSelector().renderTo(searchContainer);
 	        }
 
 	        var className = _this8.isCompactView() ? ' ui-selector-dialog--compact-view' : '';
-	        return main_core.Tag.render(_templateObject2$6 || (_templateObject2$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-dialog", "\" \n\t\t\t\t\tstyle=\"width:", "px; height:", "px;\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), className, _this8.getWidth(), _this8.getHeight(), searchContainer, _this8.getTabsContainer(), _this8.getFooterContainer());
+	        return main_core.Tag.render(_templateObject2$6 || (_templateObject2$6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"ui-selector-dialog", "\" \n\t\t\t\t\tstyle=\"width:", "px; height:", "px;\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), className, _this8.getWidth(), _this8.getHeight(), _this8.getHeaderContainer(), searchContainer, _this8.getTabsContainer(), _this8.getFooterContainer());
 	      });
 	    }
 	  }, {
@@ -8269,14 +8633,25 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    }
 	  }, {
-	    key: "getFooterContainer",
-	    value: function getFooterContainer() {
+	    key: "getHeaderContainer",
+	    value: function getHeaderContainer() {
 	      var _this11 = this;
 
-	      return this.cache.remember('footer', function () {
-	        var footer = _this11.getFooter() && _this11.getFooter().getContainer();
+	      return this.cache.remember('header', function () {
+	        var header = _this11.getHeader() && _this11.getHeader().getContainer();
 
-	        return main_core.Tag.render(_templateObject6$2 || (_templateObject6$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer-container\">", "</div>\n\t\t\t"])), footer ? footer : '');
+	        return main_core.Tag.render(_templateObject6$2 || (_templateObject6$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-header-container\">", "</div>\n\t\t\t"])), header ? header : '');
+	      });
+	    }
+	  }, {
+	    key: "getFooterContainer",
+	    value: function getFooterContainer() {
+	      var _this12 = this;
+
+	      return this.cache.remember('footer', function () {
+	        var footer = _this12.getFooter() && _this12.getFooter().getContainer();
+
+	        return main_core.Tag.render(_templateObject7$1 || (_templateObject7$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-footer-container\">", "</div>\n\t\t\t"])), footer ? footer : '');
 	      });
 	    }
 	  }, {
@@ -8317,15 +8692,15 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "hasRecentItems",
 	    value: function hasRecentItems() {
-	      var _this12 = this;
+	      var _this13 = this;
 
 	      return new Promise(function (resolve, reject) {
 	        main_core.ajax.runAction('ui.entityselector.load', {
 	          json: {
-	            dialog: _this12.getAjaxJson()
+	            dialog: _this13.getAjaxJson()
 	          },
 	          getParameters: {
-	            context: _this12.getContext()
+	            context: _this13.getContext()
 	          }
 	        }).then(function (response) {
 	          resolve(response.data && response.data.dialog && main_core.Type.isArrayFilled(response.data.dialog.recentItems));
@@ -8337,7 +8712,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "load",
 	    value: function load() {
-	      var _this13 = this;
+	      var _this14 = this;
 
 	      if (this.loadState !== LoadState.UNSENT || !this.hasDynamicLoad()) {
 	        return;
@@ -8348,8 +8723,8 @@ this.BX.UI = this.BX.UI || {};
 	      }
 
 	      setTimeout(function () {
-	        if (_this13.isLoading()) {
-	          _this13.showLoader();
+	        if (_this14.isLoading()) {
+	          _this14.showLoader();
 	        }
 	      }, 400);
 	      this.loadState = LoadState.LOADING;
@@ -8362,20 +8737,20 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      }).then(function (response) {
 	        if (response && response.data && main_core.Type.isPlainObject(response.data.dialog)) {
-	          _this13.loadState = LoadState.DONE;
+	          _this14.loadState = LoadState.DONE;
 	          var entities = main_core.Type.isArrayFilled(response.data.dialog.entities) ? response.data.dialog.entities : [];
 	          entities.forEach(function (entityOptions) {
-	            var entity = _this13.getEntity(entityOptions.id);
+	            var entity = _this14.getEntity(entityOptions.id);
 
 	            if (entity) {
 	              entity.setDynamicSearch(entityOptions.dynamicSearch);
 	            }
 	          });
 
-	          _this13.setOptions(response.data.dialog);
+	          _this14.setOptions(response.data.dialog);
 
-	          _this13.getPreselectedItems().forEach(function (preselectedItem) {
-	            var item = _this13.getItem(preselectedItem);
+	          _this14.getPreselectedItems().forEach(function (preselectedItem) {
+	            var item = _this14.getItem(preselectedItem);
 
 	            if (item) {
 	              item.select(true);
@@ -8391,7 +8766,7 @@ this.BX.UI = this.BX.UI || {};
 	            if (main_core.Type.isArray(itemsOptions)) {
 	              itemsOptions.forEach(function (itemOptions) {
 	                if (itemOptions.nodeOptions) {
-	                  var item = _this13.getItem(itemOptions);
+	                  var item = _this14.getItem(itemOptions);
 
 	                  if (item) {
 	                    nodeOptionsMap.set(item, itemOptions.nodeOptions);
@@ -8401,52 +8776,52 @@ this.BX.UI = this.BX.UI || {};
 	            }
 
 	            var items = recentItems.map(function (recentItem) {
-	              var item = _this13.getItem(recentItem);
+	              var item = _this14.getItem(recentItem);
 
 	              return [item, nodeOptionsMap.get(item)];
 	            });
 
-	            _this13.getRecentTab().getRootNode().addItems(items);
+	            _this14.getRecentTab().getRootNode().addItems(items);
 	          }
 
-	          if (!_this13.getRecentTab().getRootNode().hasChildren() && _this13.getRecentTab().getStub()) {
-	            _this13.getRecentTab().getStub().show();
+	          if (!_this14.getRecentTab().getRootNode().hasChildren() && _this14.getRecentTab().getStub()) {
+	            _this14.getRecentTab().getStub().show();
 	          }
 
-	          if (_this13.getTagSelector()) {
-	            _this13.getTagSelector().unlock();
+	          if (_this14.getTagSelector()) {
+	            _this14.getTagSelector().unlock();
 	          }
 
-	          if (_this13.isRendered()) {
-	            if (_this13.isDropdownMode() && _this13.getActiveTab() === _this13.getRecentTab()) {
-	              _this13.selectFirstTab();
-	            } else if (!_this13.getActiveTab()) {
-	              _this13.selectFirstTab();
+	          if (_this14.isRendered()) {
+	            if (_this14.isDropdownMode() && _this14.getActiveTab() === _this14.getRecentTab()) {
+	              _this14.selectFirstTab();
+	            } else if (!_this14.getActiveTab()) {
+	              _this14.selectFirstTab();
 	            }
 	          }
 
-	          _this13.focusSearch();
+	          _this14.focusSearch();
 
-	          _this13.destroyLoader();
+	          _this14.destroyLoader();
 
-	          if (_this13.shouldFocusOnFirst()) {
-	            _this13.focusOnFirstNode();
+	          if (_this14.shouldFocusOnFirst()) {
+	            _this14.focusOnFirstNode();
 	          }
 
-	          _this13.emit('onLoad');
+	          _this14.emit('onLoad');
 	        }
 	      })["catch"](function (error) {
-	        _this13.loadState = LoadState.UNSENT;
+	        _this14.loadState = LoadState.UNSENT;
 
-	        if (_this13.getTagSelector()) {
-	          _this13.getTagSelector().unlock();
+	        if (_this14.getTagSelector()) {
+	          _this14.getTagSelector().unlock();
 	        }
 
-	        _this13.focusSearch();
+	        _this14.focusSearch();
 
-	        _this13.destroyLoader();
+	        _this14.destroyLoader();
 
-	        _this13.emit('onLoadError', {
+	        _this14.emit('onLoadError', {
 	          error: error
 	        });
 
@@ -8591,7 +8966,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "adjustByTagSelector",
 	    value: function adjustByTagSelector() {
-	      var _this14 = this;
+	      var _this15 = this;
 
 	      if (this.getTagSelectorMode() === TagSelectorMode.OUTSIDE) {
 	        this.adjustPosition();
@@ -8605,7 +8980,7 @@ this.BX.UI = this.BX.UI || {};
 	          if (offset !== 0) {
 	            var height = this.getHeight();
 	            this.setHeight(height + offset).then(function () {
-	              _this14.adjustPosition();
+	              _this15.adjustPosition();
 	            });
 	          }
 	        }
@@ -8679,12 +9054,12 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handlePopupFirstShow",
 	    value: function handlePopupFirstShow() {
-	      var _this15 = this;
+	      var _this16 = this;
 
 	      this.emit('onFirstShow');
 	      requestAnimationFrame(function () {
 	        requestAnimationFrame(function () {
-	          main_core.Dom.addClass(_this15.getPopup().getPopupContainer(), 'ui-selector-popup-container');
+	          main_core.Dom.addClass(_this16.getPopup().getPopupContainer(), 'ui-selector-popup-container');
 	        });
 	      });
 	      this.observeTabOverlapping();
@@ -8724,17 +9099,15 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "observeTabOverlapping",
 	    value: function observeTabOverlapping() {
-	      var _this16 = this;
+	      var _this17 = this;
 
 	      this.disconnectTabOverlapping();
 	      this.overlappingObserver = new MutationObserver(function () {
-	        if (_this16.getTabs().some(function (tab) {
-	          return tab.isVisible();
-	        })) {
-	          var left = parseInt(_this16.getPopup().getPopupContainer().style.left, 10);
+	        if (_this17.getLabelsContainer().offsetWidth > 0) {
+	          var left = parseInt(_this17.getPopup().getPopupContainer().style.left, 10);
 
-	          if (left < _this16.getMinLabelWidth()) {
-	            main_core.Dom.style(_this16.getPopup().getPopupContainer(), 'left', "".concat(_this16.getMinLabelWidth(), "px"));
+	          if (left < _this17.getMinLabelWidth()) {
+	            main_core.Dom.style(_this17.getPopup().getPopupContainer(), 'left', "".concat(_this17.getMinLabelWidth(), "px"));
 	          }
 	        }
 	      });
@@ -8789,7 +9162,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleLabelsMouseEnter",
 	    value: function handleLabelsMouseEnter() {
-	      var _this17 = this;
+	      var _this18 = this;
 
 	      var rect = main_core.Dom.getRelativePosition(this.getLabelsContainer(), this.getPopup().getTargetContainer());
 	      var freeSpace = rect.right;
@@ -8799,8 +9172,8 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
 	        main_core.Dom.style(this.getLabelsContainer(), 'max-width', "".concat(Math.min(freeSpace, this.getMaxLabelWidth()), "px"));
 	        Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(function () {
-	          main_core.Dom.removeClass(_this17.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-	          main_core.Dom.addClass(_this17.getLabelsContainer(), 'ui-selector-tab-labels--active');
+	          main_core.Dom.removeClass(_this18.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+	          main_core.Dom.addClass(_this18.getLabelsContainer(), 'ui-selector-tab-labels--active');
 	        });
 	      } else {
 	        main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
@@ -8813,13 +9186,13 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleLabelsMouseLeave",
 	    value: function handleLabelsMouseLeave() {
-	      var _this18 = this;
+	      var _this19 = this;
 
 	      main_core.Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
 	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
 	      main_core.Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
 	      Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(function () {
-	        main_core.Dom.removeClass(_this18.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+	        main_core.Dom.removeClass(_this19.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
 	      });
 	      main_core.Dom.style(this.getLabelsContainer(), 'max-width', null);
 	    }
@@ -8861,6 +9234,39 @@ this.BX.UI = this.BX.UI || {};
 	      };
 	    }
 	  }], [{
+	    key: "createHeader",
+	    value: function createHeader(context, headerContent, headerOptions) {
+	      if (!main_core.Type.isStringFilled(headerContent) && !main_core.Type.isArrayFilled(headerContent) && !main_core.Type.isDomNode(headerContent) && !main_core.Type.isFunction(headerContent)) {
+	        return null;
+	      }
+	      /** @var {BaseHeader} */
+
+
+	      var header = null;
+	      var options = main_core.Type.isPlainObject(headerOptions) ? headerOptions : {};
+
+	      if (main_core.Type.isFunction(headerContent) || main_core.Type.isString(headerContent)) {
+	        var className = main_core.Type.isString(headerContent) ? main_core.Reflection.getClass(headerContent) : headerContent;
+
+	        if (main_core.Type.isFunction(className)) {
+	          header = new className(context, options);
+
+	          if (!(header instanceof BaseHeader)) {
+	            console.error('EntitySelector: header is not an instance of BaseHeader.');
+	            header = null;
+	          }
+	        }
+	      }
+
+	      if (headerContent !== null && !header) {
+	        header = new DefaultHeader(context, Object.assign({}, options, {
+	          content: headerContent
+	        }));
+	      }
+
+	      return header;
+	    }
+	  }, {
 	    key: "createFooter",
 	    value: function createFooter(context, footerContent, footerOptions) {
 	      if (!main_core.Type.isStringFilled(footerContent) && !main_core.Type.isArrayFilled(footerContent) && !main_core.Type.isDomNode(footerContent) && !main_core.Type.isFunction(footerContent)) {
@@ -8903,6 +9309,8 @@ this.BX.UI = this.BX.UI || {};
 	  Tab: Tab,
 	  Entity: Entity,
 	  TagSelector: TagSelector,
+	  BaseHeader: BaseHeader,
+	  DefaultHeader: DefaultHeader,
 	  BaseFooter: BaseFooter,
 	  DefaultFooter: DefaultFooter,
 	  BaseStub: BaseStub,
@@ -8915,6 +9323,8 @@ this.BX.UI = this.BX.UI || {};
 	exports.Tab = Tab;
 	exports.Entity = Entity;
 	exports.TagSelector = TagSelector;
+	exports.BaseHeader = BaseHeader;
+	exports.DefaultHeader = DefaultHeader;
 	exports.BaseFooter = BaseFooter;
 	exports.DefaultFooter = DefaultFooter;
 	exports.BaseStub = BaseStub;

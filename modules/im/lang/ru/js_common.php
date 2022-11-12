@@ -336,6 +336,7 @@ $MESS["IM_CALL_ROOM_WRONG_ROOM"] = "Нет, я в другом помещени�
 $MESS["IM_CALL_ROOM_MIC_TAKEN_BY"] = "Звук и микрофон переданы #USER_NAME#";
 $MESS["IM_CALL_ROOM_MIC_TAKEN_FROM"] = "Вы забрали звук и микрофон у #USER_NAME#";
 $MESS["IM_CALL_ROOM_DETAILS"] = "Подробнее";
+$MESS["IM_CALL_RATE_CALL"] = "Оцените качество прошедшего звонка";
 $MESS["IM_PHONE_CALL_VOICE_FROM"] = "Звонок от #PHONE#";
 $MESS["IM_PHONE_CALL_TO_PHONE"] = "поступил на номер #PHONE#";
 $MESS["IM_PHONE_CALL_TRANSFER"] = "Звонок с #PHONE# (переадресован)";

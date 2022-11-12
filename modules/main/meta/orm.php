@@ -3835,6 +3835,146 @@ namespace Bitrix\Main\File\Internal {
 	 */
 	class EO_FileHash_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+/* ORMENTITYANNOTATION:Bitrix\Main\File\Internal\FileVersionTable:main/lib/file/internal/fileversiontable.php */
+namespace Bitrix\Main\File\Internal {
+	/**
+	 * EO_FileVersion
+	 * @see \Bitrix\Main\File\Internal\FileVersionTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getOriginalId()
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion setOriginalId(\int|\Bitrix\Main\DB\SqlExpression $originalId)
+	 * @method bool hasOriginalId()
+	 * @method bool isOriginalIdFilled()
+	 * @method bool isOriginalIdChanged()
+	 * @method \int getVersionId()
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion setVersionId(\int|\Bitrix\Main\DB\SqlExpression $versionId)
+	 * @method bool hasVersionId()
+	 * @method bool isVersionIdFilled()
+	 * @method bool isVersionIdChanged()
+	 * @method \int remindActualVersionId()
+	 * @method \int requireVersionId()
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion resetVersionId()
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion unsetVersionId()
+	 * @method \int fillVersionId()
+	 * @method array getMeta()
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion setMeta(array|\Bitrix\Main\DB\SqlExpression $meta)
+	 * @method bool hasMeta()
+	 * @method bool isMetaFilled()
+	 * @method bool isMetaChanged()
+	 * @method array remindActualMeta()
+	 * @method array requireMeta()
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion resetMeta()
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion unsetMeta()
+	 * @method array fillMeta()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion set($fieldName, $value)
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion reset($fieldName)
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Main\File\Internal\EO_FileVersion wakeUp($data)
+	 */
+	class EO_FileVersion {
+		/* @var \Bitrix\Main\File\Internal\FileVersionTable */
+		static public $dataClass = '\Bitrix\Main\File\Internal\FileVersionTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Main\File\Internal {
+	/**
+	 * EO_FileVersion_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getOriginalIdList()
+	 * @method \int[] getVersionIdList()
+	 * @method \int[] fillVersionId()
+	 * @method array[] getMetaList()
+	 * @method array[] fillMeta()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Main\File\Internal\EO_FileVersion $object)
+	 * @method bool has(\Bitrix\Main\File\Internal\EO_FileVersion $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion getByPrimary($primary)
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion[] getAll()
+	 * @method bool remove(\Bitrix\Main\File\Internal\EO_FileVersion $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Main\File\Internal\EO_FileVersion_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_FileVersion_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Main\File\Internal\FileVersionTable */
+		static public $dataClass = '\Bitrix\Main\File\Internal\FileVersionTable';
+	}
+}
+namespace Bitrix\Main\File\Internal {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_FileVersion_Result exec()
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion fetchObject()
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_FileVersion_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion fetchObject()
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion_Collection fetchCollection()
+	 */
+	class EO_FileVersion_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion createObject($setDefaultValues = true)
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion_Collection createCollection()
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion wakeUpObject($row)
+	 * @method \Bitrix\Main\File\Internal\EO_FileVersion_Collection wakeUpCollection($rows)
+	 */
+	class EO_FileVersion_Entity extends \Bitrix\Main\ORM\Entity {}
+}
 /* ORMENTITYANNOTATION:Bitrix\Main\FileTable:main/lib/file.php */
 namespace Bitrix\Main {
 	/**

@@ -77,7 +77,7 @@ foreach ($arParams['LIST'] as $item):
 			$button['visible'] = isset($button['visible']) ? (bool) $button['visible'] : true;
 
 			if ($button['type'] == 'list'):
-				$button['class'] = $button['class'] ?: 'ui-btn-primary ui-btn-dropdown'
+				$button['class'] = $button['class'] ?: 'sender-ui-btn ui-btn-success ui-btn-dropdown'
 			?>
 				<div id="<?=htmlspecialcharsbx($button['id'])?>"
 					class="ui-btn <?=htmlspecialcharsbx($button['class'])?>"
@@ -118,7 +118,7 @@ foreach ($arParams['LIST'] as $item):
 				><?=htmlspecialcharsbx($button['caption'])?></span>
 			<?
 			elseif ($button['type'] == 'add'):
-				$button['class'] = $button['class'] ?: 'ui-btn-primary ui-btn-icon-add';
+				$button['class'] = $button['class'] ?: 'sender-ui-btn ui-btn-success';
 			?>
 				<a id="<?=htmlspecialcharsbx($button['id'])?>"
 					href="<?=htmlspecialcharsbx($button['href'])?>"

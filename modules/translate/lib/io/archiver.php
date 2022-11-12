@@ -49,14 +49,14 @@ class Archiver
 	 */
 	public static function libAvailable()
 	{
-		return (extension_loaded('zlib') || function_exists('gzcompress'));
+		return (\extension_loaded('zlib') || \function_exists('gzcompress'));
 	}
 
 	/**
 	 * Defines packing/unpacking options.
 	 *
 	 * @param array $options An array with the options' names and their values.
-	 * @see \CArchiver::SetOptions()
+	 * @see \CArchiver::setOptions()
 	 *
 	 * @return void
 	 */
@@ -120,7 +120,7 @@ class Archiver
 				if ($this instanceof \CArchiver)
 				{
 					/** @noinspection */
-					return count($this->lastFile) + ($this->tempres == "continue" ? 1 : 0);
+					return \count($this->lastFile) + ($this->tempres == "continue" ? 1 : 0);
 				}
 				return -1;
 			},
@@ -182,7 +182,7 @@ class Archiver
 					}
 					if ($result)
 					{
-						return count($listDetail);
+						return \count($listDetail);
 					}
 				}
 				return -1;
@@ -197,7 +197,7 @@ class Archiver
 		if ($res < 0)
 		{
 			$errors = $this->archive->getErrors();
-			if (count($errors) > 0)
+			if (\count($errors) > 0)
 			{
 				foreach ($errors as $errorMessage)
 				{

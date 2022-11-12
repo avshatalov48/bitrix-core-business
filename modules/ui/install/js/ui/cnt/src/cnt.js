@@ -8,6 +8,7 @@ type CounterOptions = {
 	value: number;
 	maxValue: number;
 	color: CounterColor;
+	border: boolean;
 	size: string;
 };
 
@@ -27,6 +28,7 @@ export default class Counter
 		this.maxValue = Type.isNumber(this.options.maxValue) ? this.options.maxValue : 99;
 		this.size = Type.isString(this.options.size) ? this.options.size : BX.UI.Counter.Size.MEDIUM;
 		this.color = Type.isString(this.options.color) ? this.options.color : BX.UI.Counter.Color.PRIMARY;
+		this.border = Type.isBoolean(this.options.border) ? this.options.border : false;
 	}
 
 	//region Parameters
@@ -42,7 +44,7 @@ export default class Counter
 
 	getValue(): number
 	{
-		if (this.value < this.maxValue)
+		if (this.value <= this.maxValue)
 		{
 			return this.value;
 		}
@@ -65,6 +67,11 @@ export default class Counter
 	getMaxValue(): number
 	{
 		return this.maxValue;
+	}
+
+	isBorder(): boolean
+	{
+		return this.border;
 	}
 
 	setColor(color: CounterColor): this
@@ -104,6 +111,40 @@ export default class Counter
 		}
 
 		return this;
+	}
+
+	setBorder(border: boolean): this
+	{
+		if (!Type.isBoolean(border))
+		{
+			console.warn('Parameter "border" is not boolean');
+			return this;
+		}
+
+		this.border = border;
+		const borderedCounterClassname = this.#getBorderClassname(border);
+
+		if (border)
+		{
+			Dom.addClass(this.container, borderedCounterClassname);
+		} else
+		{
+			Dom.removeClass(this.container, borderedCounterClassname);
+		}
+
+		return this;
+	}
+
+	#getBorderClassname(border: boolean): string
+	{
+		if (border)
+		{
+			return 'ui-counter-border';
+		}
+		else
+		{
+			return '';
+		}
 	}
 
 	//endregion
@@ -207,6 +248,7 @@ export default class Counter
 
 			this.setSize(this.size);
 			this.setColor(this.color);
+			this.setBorder(this.border);
 		}
 
 		return this.container;

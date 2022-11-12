@@ -302,9 +302,8 @@ class CAllUserCounter
 			$helper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
 
 			$strSQL = "
-				SELECT pc.CHANNEL_ID, pc.CHANNEL_TYPE, uc.USER_ID, uc.SITE_ID, uc.CODE, uc.CNT
+				SELECT uc.USER_ID as CHANNEL_ID, 'private' as CHANNEL_TYPE, uc.USER_ID, uc.SITE_ID, uc.CODE, uc.CNT
 				FROM b_user_counter uc
-				INNER JOIN b_pull_channel pc ON pc.USER_ID = uc.USER_ID
 				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('" . implode("', '", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime('(-3600)')."
 				WHERE TAG = '".$DB->ForSQL($tag)."' AND CODE = '".$DB->ForSQL($code)."'
 				AND (SITE_ID = '".$site_id."' OR SITE_ID = '" . self::ALL_SITES . "')";
@@ -394,9 +393,8 @@ class CAllUserCounter
 
 			$helper = \Bitrix\Main\Application::getConnection()->getSqlHelper();
 			$strSQL = "
-				SELECT pc.CHANNEL_ID, pc.CHANNEL_TYPE, uc.USER_ID, uc.SITE_ID, uc.CODE, uc.CNT
+				SELECT uc.USER_ID as CHANNEL_ID, 'private' as CHANNEL_TYPE, uc.USER_ID, uc.SITE_ID, uc.CODE, uc.CNT
 				FROM b_user_counter uc
-				INNER JOIN b_pull_channel pc ON pc.USER_ID = uc.USER_ID
 				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('" . implode("', '", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > ".$helper->addSecondsToDateTime('(-3600)')."
 				WHERE uc.USER_ID = " . (int)$user_id
 				.(

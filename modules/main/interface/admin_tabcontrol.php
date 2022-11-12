@@ -320,7 +320,7 @@ echo '
 
 		if($aParams !== false)
 		{
-			$aParams["ajaxMode"] = (isset($aParams["ajaxMode"]) ? $aParams["ajaxMode"] : true);
+			$aParams["ajaxMode"] = ($aParams["ajaxMode"] ?? true);
 
 			if (!$this->isShownSidePanelFields)
 			{
@@ -334,7 +334,7 @@ echo '
 					echo '<input type="hidden" name="from_module" value="'.htmlspecialcharsbx($_REQUEST['from_module']).'" />';
 				}
 
-				if(is_array($aParams['buttons']))
+				if (isset($aParams['buttons']) && is_array($aParams['buttons']))
 				{
 					echo '
 <input type="hidden" name="bxpublic" value="Y" />
@@ -355,24 +355,34 @@ echo '
 			}
 			else
 			{
+				$aParams['btnSave'] = $aParams['btnSave'] ?? true;
+				$aParams['btnApply'] = $aParams['btnApply'] ?? true;
+				$aParams['btnCancel'] = $aParams['btnCancel'] ?? true;
+				$aParams['btnSaveAndAdd'] = $aParams['btnSaveAndAdd'] ?? false;
+
+				$disable = isset($aParams['disabled']) && $aParams['disabled'] === true
+					? ' disabled data-btn-disabled="Y"'
+					: ''
+				;
+
 				if($aParams["btnSave"] !== false)
 				{
-					echo '<input'.($aParams["disabled"] === true? " disabled":"").' type="submit" name="save" value="'.GetMessage("admin_lib_edit_save").'" title="'.GetMessage("admin_lib_edit_save_title").$hkInst->GetTitle("Edit_Save_Button").'" class="adm-btn-save" />';
+					echo '<input' . $disable .' type="submit" name="save" value="'.GetMessage("admin_lib_edit_save").'" title="'.GetMessage("admin_lib_edit_save_title").$hkInst->GetTitle("Edit_Save_Button").'" class="adm-btn-save" />';
 					echo $hkInst->PrintJSExecs($hkInst->GetCodeByClassName("Edit_Save_Button"));
 				}
 				if($aParams["btnApply"] !== false)
 				{
-					echo '<input'.($aParams["disabled"] === true? " disabled":"").' type="submit" name="apply" value="'.GetMessage("admin_lib_edit_apply").'" title="'.GetMessage("admin_lib_edit_apply_title").$hkInst->GetTitle("Edit_Apply_Button").'" />';
+					echo '<input' . $disable .' type="submit" name="apply" value="'.GetMessage("admin_lib_edit_apply").'" title="'.GetMessage("admin_lib_edit_apply_title").$hkInst->GetTitle("Edit_Apply_Button").'" />';
 					echo $hkInst->PrintJSExecs($hkInst->GetCodeByClassName("Edit_Apply_Button"));
 				}
 				if($aParams["btnCancel"] !== false && $aParams["back_url"] <> '' && !preg_match('/(javascript|data)[\s\0-\13]*:/i', $aParams["back_url"]))
 				{
-					echo '<input type="button" value="'.GetMessage("admin_lib_edit_cancel").'" name="cancel" onClick="top.window.location=\''.htmlspecialcharsbx(CUtil::addslashes($aParams["back_url"])).'\'" title="'.GetMessage("admin_lib_edit_cancel_title").$hkInst->GetTitle("Edit_Cancel_Button").'" />';
+					echo '<input' . $disable . ' type="button" value="'.GetMessage("admin_lib_edit_cancel").'" name="cancel" onClick="top.window.location=\''.htmlspecialcharsbx(CUtil::addslashes($aParams["back_url"])).'\'" title="'.GetMessage("admin_lib_edit_cancel_title").$hkInst->GetTitle("Edit_Cancel_Button").'" />';
 					echo $hkInst->PrintJSExecs($hkInst->GetCodeByClassName("Edit_Cancel_Button"));
 				}
 				if($aParams["btnSaveAndAdd"] === true)
 				{
-					echo '<input'.($aParams["disabled"] === true? " disabled":"").' type="submit" name="save_and_add" value="'.GetMessage("admin_lib_edit_save_and_add").'" title="'.GetMessage("admin_lib_edit_save_and_add_title").$hkInst->GetTitle("Edit_Save_And_Add_Button").'" class="adm-btn-add" />';
+					echo '<input' . $disable . ' type="submit" name="save_and_add" value="'.GetMessage("admin_lib_edit_save_and_add").'" title="'.GetMessage("admin_lib_edit_save_and_add_title").$hkInst->GetTitle("Edit_Save_And_Add_Button").'" class="adm-btn-add" />';
 					echo $hkInst->PrintJSExecs($hkInst->GetCodeByClassName("Edit_Save_And_Add_Button"));
 				}
 			}
@@ -381,19 +391,29 @@ echo '
 
 	protected function getAjaxButtons(array $params)
 	{
-		$htmlAjaxButtons = "";
+		$htmlAjaxButtons = '';
+
+		$params['btnSave'] = $params['btnSave'] ?? true;
+		$params['btnApply'] = $params['btnApply'] ?? true;
+		$params['btnCancel'] = $params['btnCancel'] ?? true;
+		$params['btnSaveAndAdd'] = $params['btnSaveAndAdd'] ?? false;
+
+		$disable = isset($params['disabled']) && $params['disabled'] === true
+			? ' disabled data-btn-disabled="Y"'
+			: ''
+		;
 
 		if ($params["btnSave"] !== false)
 		{
-			$htmlAjaxButtons .= '<input type="button" name="save" value="'.GetMessage("admin_lib_edit_save").'" title="'.GetMessage("admin_lib_edit_save_title").'" class="adm-btn-save">';
+			$htmlAjaxButtons .= '<input' . $disable . ' type="button" name="save" value="' . GetMessage("admin_lib_edit_save").'" title="'.GetMessage("admin_lib_edit_save_title").'" class="adm-btn-save">';
 		}
 		if ($params["btnApply"] !== false)
 		{
-			$htmlAjaxButtons .= '<input type="button" name="apply" value="'.GetMessage("admin_lib_edit_apply").'" title="'.GetMessage("admin_lib_edit_apply_title").'">';
+			$htmlAjaxButtons .= '<input' . $disable . ' type="button" name="apply" value="'.GetMessage("admin_lib_edit_apply").'" title="'.GetMessage("admin_lib_edit_apply_title").'">';
 		}
 		if ($params["btnCancel"] !== false)
 		{
-			$htmlAjaxButtons .= '<input type="button" name="cancel" value="'.GetMessage("admin_lib_edit_cancel").'" title="'.GetMessage("admin_lib_edit_cancel_title").'">';
+			$htmlAjaxButtons .= '<input' . $disable . ' type="button" name="cancel" value="'.GetMessage("admin_lib_edit_cancel").'" title="'.GetMessage("admin_lib_edit_cancel_title").'">';
 		}
 		if ($params["btnSaveAndAdd"] === true)
 		{
@@ -404,11 +424,11 @@ echo '
 			;
 			if ($addUrl <> '' && !preg_match('/(javascript|data)[\s\0-\13]*:/i', $addUrl))
 			{
-				$htmlAjaxButtons .= '<input type="button" name="save_and_add" value="'.GetMessage("admin_lib_edit_save_and_add").'" title="'.GetMessage("admin_lib_edit_save_and_add_title").'" class="adm-btn-add"  data-url="'.htmlspecialcharsbx(CUtil::addslashes($addUrl)).'">';
+				$htmlAjaxButtons .= '<input' . $disable . ' type="button" name="save_and_add" value="'.GetMessage("admin_lib_edit_save_and_add").'" title="'.GetMessage("admin_lib_edit_save_and_add_title").'" class="adm-btn-add"  data-url="'.htmlspecialcharsbx(CUtil::addslashes($addUrl)).'">';
 			}
 			else
 			{
-				$htmlAjaxButtons .= '<input type="button" name="save_and_add" value="'.GetMessage("admin_lib_edit_save_and_add").'" title="'.GetMessage("admin_lib_edit_save_and_add_title").'" class="adm-btn-add">';
+				$htmlAjaxButtons .= '<input' . $disable . ' type="button" name="save_and_add" value="'.GetMessage("admin_lib_edit_save_and_add").'" title="'.GetMessage("admin_lib_edit_save_and_add_title").'" class="adm-btn-add">';
 			}
 		}
 

@@ -1,22 +1,23 @@
 <?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
 return [
-	"css" => "/bitrix/js/ui/accessrights/css/style.css",
-	"js" => [
-		"/bitrix/js/ui/accessrights/grid.js",
-		"/bitrix/js/ui/accessrights/section.js",
-		"/bitrix/js/ui/accessrights/column.js",
-		"/bitrix/js/ui/accessrights/column.item.js",
+	'css' => 'src/style.css',
+	'js' => 'dist/accessrights.bundle.js',
+	'rel' => [
+		'main.loader',
+		'ui.notification',
+		'ui.switcher',
+		'main.popup',
+		'main.core.events',
+		'ui.entity-selector',
+		'main.core',
+		'ui.hint',
+		'ui.fonts.opensans',
+		'ui.design-tokens',
 	],
-	"bundle_js" => "ui_accessrights",
-	"bundle_css" => "ui_accessrights",
-	"rel" => [
-		"ui.switcher",
-		"ui.design-tokens",
-		"ui.fonts.opensans",
-	],
+	'skip_core' => false,
 ];

@@ -183,6 +183,9 @@ return [
 					'itemOptions' => [
 						'all-users' => [
 							'avatar' => '/bitrix/js/socialnetwork/entity-selector/src/images/meta-user-all.svg',
+						],
+						'other-users' => [
+							'avatar' => '/bitrix/js/socialnetwork/entity-selector/src/images/meta-user-other.svg',
 						]
 					],
 					'tagOptions' => [
@@ -190,7 +193,12 @@ return [
 							'textColor' => '#5f6670',
 							'bgColor' => '#dbf087',
 							'avatar' => ''
-						]
+						],
+						'other-users' => [
+							'textColor' => '#5f6670',
+							'bgColor' => '#dbf087',
+							'avatar' => ''
+						],
 					]
 				]
 			],

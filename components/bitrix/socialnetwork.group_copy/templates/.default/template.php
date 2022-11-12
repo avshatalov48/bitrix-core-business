@@ -22,6 +22,7 @@ Extension::load([
 	"ui.notification",
 	"ui.alerts",
 	"date",
+	'uploader',
 ]);
 
 CJSCore::init(["date"]);

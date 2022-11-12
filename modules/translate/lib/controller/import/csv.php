@@ -96,6 +96,7 @@ class Csv
 	 * Initializes controller.
 	 *
 	 * @return void
+	 * @throws Main\ArgumentException
 	 */
 	protected function init()
 	{
@@ -116,11 +117,11 @@ class Csv
 
 		//  encoding
 		$enc = $this->request->get('encodingIn');
-		if ($enc !== null && in_array(mb_strtolower($enc), Translate\Config::getAllowedEncodings()))
+		if ($enc !== null && \in_array(\mb_strtolower($enc), Translate\Config::getAllowedEncodings()))
 		{
-			$this->encodingIn = mb_strtolower($enc);
+			$this->encodingIn = \mb_strtolower($enc);
 		}
-		elseif (isset($params['encodingIn']) && in_array($params['encodingIn'], Translate\Config::getAllowedEncodings()))
+		elseif (isset($params['encodingIn']) && \in_array($params['encodingIn'], Translate\Config::getAllowedEncodings()))
 		{
 			$this->encodingIn = $params['encodingIn'];
 		}
@@ -129,7 +130,7 @@ class Csv
 		$updateMethod = $this->request->get('updateMethod');
 		if ($updateMethod !== null)
 		{
-			if (in_array($updateMethod, [self::METHOD_ADD_ONLY, self::METHOD_UPDATE_ONLY, self::METHOD_ADD_UPDATE]))
+			if (\in_array($updateMethod, [self::METHOD_ADD_ONLY, self::METHOD_UPDATE_ONLY, self::METHOD_ADD_UPDATE]))
 			{
 				$this->updateMethod = $updateMethod;
 			}
@@ -177,7 +178,7 @@ class Csv
 
 		$result = $action->run(true);
 
-		if (count($action->getErrors()) > 0)
+		if (\count($action->getErrors()) > 0)
 		{
 			$this->addErrors($action->getErrors());
 		}
@@ -254,7 +255,7 @@ class Csv
 
 		$result = $action->run(true);
 
-		if (count($action->getErrors()) > 0)
+		if (\count($action->getErrors()) > 0)
 		{
 			$this->addErrors($action->getErrors());
 		}
@@ -293,14 +294,14 @@ class Csv
 		$result = array();
 		$success = false;
 		if (
-			isset($_FILES['csvFile'], $_FILES['csvFile']['tmp_name']) &&
-			($_FILES['csvFile']['error'] == 0) &&
-			file_exists($_FILES['csvFile']['tmp_name'])
+			isset($_FILES['csvFile'], $_FILES['csvFile']['tmp_name'])
+			&& ($_FILES['csvFile']['error'] == 0)
+			&& \file_exists($_FILES['csvFile']['tmp_name'])
 		)
 		{
 			if (
-				(filesize($_FILES['csvFile']['tmp_name']) > 0) &&
-				(mb_substr($_FILES['csvFile']['name'], -4) === '.csv')
+				(\filesize($_FILES['csvFile']['tmp_name']) > 0)
+				&& (\mb_substr($_FILES['csvFile']['name'], -4) === '.csv')
 			)
 			{
 				if ($this->moveUploadedFile($_FILES['csvFile'], '.csv'))
@@ -342,13 +343,13 @@ class Csv
 	private function moveUploadedFile($postedFile, $suffix = '.csv', $timeToLive = 3)
 	{
 		if (
-			isset($postedFile['tmp_name']) &&
-			file_exists($postedFile['tmp_name'])
+			isset($postedFile['tmp_name'])
+			&& \file_exists($postedFile['tmp_name'])
 		)
 		{
 			/** @var Translate\IO\CsvFile $csvFile */
 			$tmpFile = Translate\IO\CsvFile::generateTemporalFile('translate', $suffix, $timeToLive);
-			if (@copy($postedFile['tmp_name'], $tmpFile->getPhysicalPath()))
+			if (@\copy($postedFile['tmp_name'], $tmpFile->getPhysicalPath()))
 			{
 				$this->csvFilePath = $tmpFile->getPhysicalPath();
 				return true;
@@ -383,6 +384,7 @@ class Csv
 	 * @param int $tabId Id of session storage.
 	 *
 	 * @return array
+	 * @throws Main\ArgumentException
 	 */
 	public function purgeAction($tabId)
 	{

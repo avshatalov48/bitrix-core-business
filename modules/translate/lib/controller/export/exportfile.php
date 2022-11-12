@@ -35,7 +35,7 @@ class ExportFile
 	 */
 	public function run($path = '', $runBefore = false)
 	{
-		if (empty($path) || !preg_match("#(.+\/lang)(\/?\w*)#", $path, $matches))
+		if (empty($path) || !\preg_match("#(.+\/lang)(\/?\w*)#", $path, $matches))
 		{
 			$this->addError(new Main\Error(Loc::getMessage('TR_EXPORT_EMPTY_PATH_LIST')));
 
@@ -70,7 +70,7 @@ class ExportFile
 			$langRelPath = Translate\IO\Path::replaceLangId($path, $langId);
 			$langFullPath = Translate\IO\Path::tidy(self::$documentRoot.'/'.$langRelPath);
 
-			if (self::$useTranslationRepository && in_array($langId, self::$translationRepositoryLanguages))
+			if (self::$useTranslationRepository && \in_array($langId, self::$translationRepositoryLanguages))
 			{
 				$langFullPath = Main\Localization\Translation::convertLangPath($langFullPath, $langId);
 			}
@@ -81,7 +81,7 @@ class ExportFile
 		$rows = $this->mergeLangFiles($langFilePath, $fullPaths, $this->collectUntranslated);
 		foreach ($rows as $row)
 		{
-			$csvFile->put(array_values($row));
+			$csvFile->put(\array_values($row));
 			$this->exportedPhraseCount ++;
 		}
 

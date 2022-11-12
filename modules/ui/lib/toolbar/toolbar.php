@@ -12,6 +12,7 @@ class Toolbar
 	private $filter;
 	private $beforeTitleHtml;
 	private $afterTitleHtml;
+	private $underTitleHtml;
 	private $titleMinWidth;
 	private $titleMaxWidth;
 	private $favoriteStar = true;
@@ -186,6 +187,16 @@ class Toolbar
 	public function getAfterTitleHtml(): ?string
 	{
 		return $this->afterTitleHtml;
+	}
+
+	public function addUnderTitleHtml(string $html)
+	{
+		$this->underTitleHtml = $html;
+	}
+
+	public function getUnderTitleHtml(): ?string
+	{
+		return $this->underTitleHtml;
 	}
 
 	public function addRightCustomHtml(string $html)

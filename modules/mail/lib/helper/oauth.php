@@ -165,11 +165,11 @@ abstract class OAuth
 			{
 				case 'google':
 					$oauthClient = new \CSocServGoogleOAuth($key);
-					$oauthClient->getUrl('modal', array('https://mail.google.com/'));
+					$oauthClient->getEntityOAuth()->addScope('https://mail.google.com/');
 					break;
 				case 'liveid':
 					$oauthClient = new \CSocServLiveIDOAuth($key);
-					$oauthClient->getUrl('modal', array('wl.imap', 'wl.offline_access'));
+					$oauthClient->getEntityOAuth()->addScope(['wl.imap', 'wl.offline_access']);
 					break;
 			}
 

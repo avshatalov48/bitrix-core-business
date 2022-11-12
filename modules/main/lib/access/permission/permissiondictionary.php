@@ -19,9 +19,9 @@ abstract class PermissionDictionary
 
 	public const DELIMITER = '.';
 
-	public const
-		TYPE_TOGGLER = 'toggler',
-		TYPE_VARIABLES = 'variables';
+	public const TYPE_TOGGLER = 'toggler';
+	public const TYPE_VARIABLES = 'variables';
+	public const TYPE_MULTIVARIABLES = 'multivariables';
 
 	public const HINT_PREFIX = 'HINT_';
 

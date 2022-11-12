@@ -397,7 +397,7 @@ this.BX = this.BX || {};
 	        case 'class':
 	        case 'className':
 	          if (main_core.Type.isString(params[property])) {
-	            if (main_core.Dom.hasClass(params[property].trim())) {
+	            if (!main_core.Dom.hasClass(object, params[property].trim())) {
 	              return false;
 	            }
 	          } else if (params[property] instanceof RegExp) {

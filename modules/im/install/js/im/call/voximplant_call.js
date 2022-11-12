@@ -288,6 +288,13 @@
 			{
 				console.log("onMediaReceived: ", e);
 				this.runCallback(BX.Call.Event.onRemoteMediaReceived, e);
+				if (e.kind === 'video')
+				{
+					this.runCallback(BX.Call.Event.onUserVideoPaused, {
+						userId: userId,
+						videoPaused: false
+					});
+				}
 			}.bind(this),
 			onMediaRemoved: function(e)
 			{
@@ -834,14 +841,16 @@
 		{
 			this.signaling.sendAnswer();
 		}
-		this.attachToConference({joinAsViewer: joinAsViewer}).then(function ()
+		this.attachToConference({joinAsViewer: joinAsViewer}).then(() =>
 		{
 			this.log("Attached to conference");
 			this.state = BX.Call.State.Connected;
 			this.runCallback(BX.Call.Event.onJoin, {
 				local: true
 			});
-		}.bind(this)).catch(this.onFatalError.bind(this));
+		}).catch((err) => {
+			this.onFatalError(err);
+		});
 	};
 
 	BX.Call.VoximplantCall.prototype.decline = function(code)
@@ -978,7 +987,7 @@
 							number: "bx_conf_" + self.id,
 							video: {sendVideo: self.videoEnabled, receiveVideo: true},
 							simulcast: (self.getUserCount() > MAX_USERS_WITHOUT_SIMULCAST),
-							simulcastProfileName: 'b24',
+							// simulcastProfileName: 'b24',
 							customData: JSON.stringify({
 								cameraState: self.videoEnabled,
 							})
@@ -2567,7 +2576,7 @@
 
 	var transformVoxStats = function(s, voximplantCall)
 	{
-		var result = {
+		let result = {
 			connection: s.connection,
 			outboundAudio: [],
 			outboundVideo: [],
@@ -2575,7 +2584,7 @@
 			inboundVideo: [],
 		}
 
-		var endpoints = {};
+		let endpoints = {};
 		if (voximplantCall.getEndpoints)
 		{
 			voximplantCall.getEndpoints().forEach(endpoint => endpoints[endpoint.id] = endpoint)
@@ -2585,8 +2594,7 @@
 		{
 			result.connection.timestamp = Date.now();
 		}
-		var stat
-		for (trackId in s.outbound)
+		for (let trackId in s.outbound)
 		{
 			if (!s.outbound.hasOwnProperty(trackId))
 			{
@@ -2595,7 +2603,7 @@
 			var statGroup = s.outbound[trackId];
 			for (var i = 0; i < statGroup.length; i ++)
 			{
-				stat = statGroup[i];
+				let stat = statGroup[i];
 				stat.trackId = trackId;
 				if ('audioLevel' in stat)
 				{
@@ -2607,13 +2615,13 @@
 				}
 			}
 		}
-		for (trackId in s.inbound)
+		for (let trackId in s.inbound)
 		{
 			if (!s.inbound.hasOwnProperty(trackId))
 			{
 				continue;
 			}
-			stat = s.inbound[trackId];
+			let stat = s.inbound[trackId];
 			if (!('endpoint' in stat))
 			{
 				continue;

@@ -58,13 +58,16 @@ class CAllStatistics extends CKeepStatistics
 			return;
 		}
 
-		if ($_GET["show_link_stat"]=="Y")
+		if (isset($_GET["show_link_stat"]))
 		{
-			$_SESSION["SHOW_LINK_STAT"] = "Y";
-		}
-		elseif ($_GET["show_link_stat"]=="N")
-		{
-			$_SESSION["SHOW_LINK_STAT"] = "N";
+			if ($_GET["show_link_stat"]=="Y")
+			{
+				$_SESSION["SHOW_LINK_STAT"] = "Y";
+			}
+			elseif ($_GET["show_link_stat"]=="N")
+			{
+				$_SESSION["SHOW_LINK_STAT"] = "N";
+			}
 		}
 
 		$STAT_RIGHT = $APPLICATION->GetGroupRight("statistic");
@@ -684,7 +687,10 @@ class CAllStatistics extends CKeepStatistics
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		// если это начало сессии
-		if (intval($_SESSION["SESS_SESSION_ID"])<=0 && intval($_SESSION["SESS_ADV_ID"])<=0)
+		if (
+			(!isset($_SESSION["SESS_SESSION_ID"]) || intval($_SESSION["SESS_SESSION_ID"])<=0)
+			&& (!isset($_SESSION["SESS_ADV_ID"]) || intval($_SESSION["SESS_ADV_ID"])<=0)
+		)
 		{
 			$arrADV = array(); // массив рекламных кампаний
 
@@ -774,7 +780,7 @@ class CAllStatistics extends CKeepStatistics
 			}
 		}
 		if (intval($_SESSION["SESS_ADV_ID"])>0) $_SESSION["SESS_LAST_ADV_ID"] = $_SESSION["SESS_ADV_ID"];
-		$_SESSION["SESS_LAST_ADV_ID"] = intval($_SESSION["SESS_LAST_ADV_ID"]);
+		$_SESSION["SESS_LAST_ADV_ID"] = intval($_SESSION["SESS_LAST_ADV_ID"] ?? 0);
 	}
 
 	///////////////////////////////////////////////////////////////////
@@ -802,14 +808,14 @@ class CAllStatistics extends CKeepStatistics
 		$ERROR_404 = (defined("ERROR_404") && ERROR_404=="Y") ? "Y" : "N";
 		$REPAIR_COOKIE_GUEST = "N";
 		if (!isset($_SESSION["SESS_GUEST_NEW"])) $_SESSION["SESS_GUEST_NEW"] = "N";
-		$_SESSION["SESS_GUEST_ID"] = intval($_SESSION["SESS_GUEST_ID"]);
+		$_SESSION["SESS_GUEST_ID"] = intval($_SESSION["SESS_GUEST_ID"] ?? 0);
 
 		$COOKIE_ADV = "";
 		$COOKIE_GUEST_ID = intval($APPLICATION->get_cookie("GUEST_ID"));
 		if($COOKIE_GUEST_ID==0) $COOKIE_GUEST_ID = intval($_SESSION["SESS_GUEST_ID"]);
 
 		// если сессия только открылась
-		if (intval($_SESSION["SESS_SESSION_ID"])<=0)
+		if (!isset($_SESSION["SESS_SESSION_ID"]) || intval($_SESSION["SESS_SESSION_ID"])<=0)
 		{
 			// выбираем из базы параметры гостя
 			$q = CGuest::GetLastByID($COOKIE_GUEST_ID);

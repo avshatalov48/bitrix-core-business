@@ -256,7 +256,10 @@ class Manager
 			{
 				foreach (['SITE', 'MAIL', 'XMPP', 'PUSH'] as $type)
 				{
-					$disableType = $eventSchema['DISABLED'][$type];
+					if ($eventSchema['DISABLED'][$type])
+					{
+						continue;
+					}
 
 					$notifySettings[$moduleId]['NOTIFY'][$eventName][$type] =
 						!$send[$type]

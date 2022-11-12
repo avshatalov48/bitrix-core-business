@@ -22,7 +22,7 @@ class PathIndex
 	 */
 	public static function loadByPath($path)
 	{
-		$path = '/'. trim($path, '/');
+		$path = '/'. \trim($path, '/');
 		$path = Translate\IO\Path::replaceLangId($path, '#LANG_ID#');
 
 		/** @var Translate\Index\PathIndex $indexPath */
@@ -56,8 +56,8 @@ class PathIndex
 	 */
 	public function detectModuleId()
 	{
-		$arr = explode('/', $this->getPath());
-		$pos = array_search('modules', $arr);
+		$arr = \explode('/', $this->getPath());
+		$pos = \array_search('modules', $arr);
 		if ($pos !== false)
 		{
 			if ($arr[$pos - 1] === 'bitrix' && !empty($arr[$pos + 1]))
@@ -88,7 +88,7 @@ class PathIndex
 		foreach (Translate\ASSIGNMENT_TYPES as $testEntry)
 		{
 			$testPath = '/bitrix/'. $testEntry;
-			if (mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
+			if (\mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
 			{
 				return $testEntry;
 			}
@@ -112,7 +112,7 @@ class PathIndex
 				// /bitrix/modules/[moduleName]/install/gadgets/bitrix/[gadgetName]
 				// /bitrix/modules/[moduleName]/install/js/[moduleName]/[smth]
 				$testPath = '/bitrix/modules/'.$moduleName.'/install/'. $testEntry;
-				if (mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
+				if (\mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
 				{
 					return $testEntry;
 				}
@@ -120,32 +120,32 @@ class PathIndex
 				{
 					// /bitrix/modules/[moduleName]/install/public/templates/[templateName]
 					$testPath = '/bitrix/modules/'.$moduleName.'/install/public/'. $testEntry;
-					if (mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
+					if (\mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
 					{
 						return $testEntry;
 					}
 				}
 				// /bitrix/modules/[moduleName]/install/bitrix/templates/[templateName]
 				$testPath = '/bitrix/modules/'.$moduleName.'/install/bitrix/'. $testEntry;
-				if (mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
+				if (\mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
 				{
 					return $testEntry;
 				}
 				// /bitrix/modules/[moduleName]/install/public/templates/[templateName]
 				/*$testPath = '/bitrix/modules/'.$moduleName.'/install/public/'. $testEntry;
-				if (mb_strpos($path, $testPath. '/') === 0 || $path == $testPath)
+				if (\mb_strpos($path, $testPath. '/') === 0 || $path == $testPath)
 				{
 					return $testEntry;
 				}*/
 				// /bitrix/modules/[moduleName]/lang/#LANG_ID#/[smth]
 				$testPath = '/bitrix/modules/'.$moduleName.'/lang/#LANG_ID#/'. $testEntry;
-				if (mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
+				if (\mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
 				{
 					return $testEntry;
 				}
 				// /bitrix/modules/[moduleName]/lang/#LANG_ID#/install/[smth]
 				$testPath = '/bitrix/modules/'.$moduleName.'/lang/#LANG_ID#/install/'. $testEntry;
-				if (mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
+				if (\mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
 				{
 					return $testEntry;
 				}
@@ -153,7 +153,7 @@ class PathIndex
 				// /bitrix/modules/[moduleName]/handlers/delivery/[smth]
 				// /bitrix/modules/[moduleName]/handlers/paysystem/[smth]
 				$testPath = '/bitrix/modules/'.$moduleName.'/handlers/'. $testEntry;
-				if (mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
+				if (\mb_strpos($path, $testPath.'/') === 0 || $path == $testPath)
 				{
 					return $testEntry;
 				}

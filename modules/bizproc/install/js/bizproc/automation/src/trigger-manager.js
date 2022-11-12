@@ -16,7 +16,6 @@ export class TriggerManager extends EventEmitter
 	#triggersData: Array<Object<string, any>>;
 	#columnNodes: NodeList;
 	#listNodes: NodeList;
-	#buttonsNodes: NodeList;
 	#modified: boolean;
 
 	constructor(triggersContainerNode: HTMLElement)
@@ -38,9 +37,7 @@ export class TriggerManager extends EventEmitter
 		this.#triggersData = Type.isArray(data.TRIGGERS) ? data.TRIGGERS : [];
 		this.#columnNodes = document.querySelectorAll('[data-type="column-trigger"]');
 		this.#listNodes = this.#triggersContainerNode.querySelectorAll('[data-role="trigger-list"]');
-		this.#buttonsNodes = this.#triggersContainerNode.querySelectorAll('[data-role="trigger-buttons"]');
 		this.#modified = false;
-		this.initButtons();
 		this.initTriggers();
 
 		this.markModified(false);
@@ -64,12 +61,10 @@ export class TriggerManager extends EventEmitter
 
 		this.#viewMode = viewMode || ViewMode.none();
 		this.#listNodes.forEach(node => Dom.clean(node));
-		this.#buttonsNodes.forEach(node => Dom.clean(node));
 
 		this.#triggersData = Type.isArray(data.TRIGGERS) ? data.TRIGGERS : [];
 
 		this.initTriggers();
-		this.initButtons();
 
 		this.markModified(false);
 	}
@@ -112,14 +107,6 @@ export class TriggerManager extends EventEmitter
 		this.#triggers.forEach(trigger => trigger.onSearch(event));
 	}
 
-	initButtons()
-	{
-		if (this.#viewMode.isEdit())
-		{
-			this.#buttonsNodes.forEach(node => this.createAddButton(node));
-		}
-	}
-
 	enableManageMode()
 	{
 		this.#viewMode = ViewMode.manage();
@@ -138,160 +125,12 @@ export class TriggerManager extends EventEmitter
 		this.#triggers.forEach(trigger => Dom.removeClass(trigger.node, '--locked-node'));
 	}
 
-	createAddButton(containerNode: HTMLElement)
-	{
-		const self = this;
-		const div = Dom.create('span', {
-			events: {
-				click(event)
-				{
-					if (!self.canEdit())
-					{
-						HelpHint.showNoPermissionsHint(this);
-					}
-					else if (!self.#viewMode.isManage())
-					{
-						self.onAddButtonClick(this);
-					}
-				}
-			},
-			attrs: {
-				className: 'bizproc-automation-btn-add',
-				'data-status-id': containerNode.getAttribute('data-status-id'),
-			},
-			children: [
-				Dom.create('span', {
-					attrs: {
-						className: 'bizproc-automation-btn-add-text',
-					},
-					text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_ADD'),
-				})
-			]
-		});
-
-		containerNode.appendChild(div);
-	}
-
-	onAddButtonClick(button: HTMLElement, context: Object<string, any>)
-	{
-		const self = this;
-		const onMenuClick = function(event, item)
-		{
-			self.addTrigger(item.triggerData, function(trigger)
-			{
-				this.openTriggerSettingsDialog(trigger, context);
-			});
-
-			this.popupWindow.close();
-		};
-
-		const menuItems = [];
-		getGlobalContext().availableTriggers.forEach((availableTrigger) => {
-			if (availableTrigger.CODE === 'APP')
-			{
-				menuItems.push(this.createAppTriggerMenuItem(
-					button.getAttribute('data-status-id'),
-					availableTrigger,
-				));
-			}
-			else
-			{
-				menuItems.push({
-					text: availableTrigger.NAME,
-					triggerData: {
-						DOCUMENT_STATUS: button.getAttribute('data-status-id') || context.statusId,
-						CODE: availableTrigger.CODE
-					},
-					onclick: onMenuClick
-				});
-			}
-		});
-
-		MenuManager.show(
-			Helper.generateUniqueId(),
-			button,
-			menuItems,
-			{
-				autoHide: true,
-				offsetLeft: (Dom.getPosition(button)['width'] / 2),
-				angle: { position: 'top', offset: 0 },
-				events : {
-					onPopupClose()
-					{
-						this.destroy();
-					}
-				}
-			}
-		);
-	}
-
-	onChangeTriggerClick(statusId: string, event)
-	{
-		this.onAddButtonClick(event.target, {changeTrigger: true, statusId: statusId});
-	}
-
-	createAppTriggerMenuItem(status, triggerData)
-	{
-		const self = this;
-		const onMenuClick = function(e, item)
-		{
-			self.addTrigger(item.triggerData, function(trigger)
-			{
-				this.openTriggerSettingsDialog(trigger);
-			});
-
-			this.getRootMenuWindow().close();
-		};
-
-		const menuItems = [];
-		for (let i = 0; i < triggerData['APP_LIST'].length; ++i)
-		{
-			const item = triggerData['APP_LIST'][i];
-			const itemName = '[' + item['APP_NAME'] + '] ' + item['NAME'];
-			menuItems.push({
-				text: Text.encode(itemName),
-				triggerData: {
-					DOCUMENT_STATUS: status,
-					NAME: itemName,
-					CODE: triggerData.CODE,
-					APPLY_RULES: {
-						APP_ID: item['APP_ID'],
-						CODE: item['CODE']
-					}
-				},
-				onclick: onMenuClick
-			});
-		}
-
-		if (Reflection.getClass('BX.rest.Marketplace'))
-		{
-			if (menuItems.length)
-			{
-				menuItems.push({ delimiter: true });
-			}
-
-			menuItems.push({
-				text: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
-				onclick: function()
-				{
-					BX.rest.Marketplace.open({PLACEMENT: getGlobalContext().get('marketplaceRobotCategory')});
-					this.getRootMenuWindow().close();
-				}
-			});
-		}
-
-		return {
-			text: triggerData.NAME,
-			items: menuItems
-		}
-	}
-
 	addTrigger(triggerData: ?Object<string, any>, callback)
 	{
 		const trigger = new Trigger();
+		trigger.draft = true;
 		trigger.init(triggerData, this.#viewMode);
 		this.subscribeTriggerEvents(trigger);
-		trigger.draft = true;
 		if (callback)
 		{
 			callback.call(this, trigger);
@@ -337,6 +176,12 @@ export class TriggerManager extends EventEmitter
 		this.#triggersContainerNode.querySelectorAll('.bizproc-automation-trigger-item-wrapper').forEach((node) => {
 			Dom.removeClass(node, 'bizproc-automation-trigger-item-wrapper-draggable');
 		});
+	}
+
+	insertTrigger(trigger)
+	{
+		this.#triggers.push(trigger);
+		this.markModified(true);
 	}
 
 	insertTriggerNode(documentStatus: string, triggerNode)
@@ -784,11 +629,9 @@ export class TriggerManager extends EventEmitter
 			form: form
 		});
 
-		const titleBar = trigger.draft ? this.createChangeTriggerTitleBar(title, trigger.documentStatus) : null;
-
 		const self = this;
 		const popup = new BX.PopupWindow(Helper.generateUniqueId(), null, {
-			titleBar: titleBar || title,
+			titleBar: title,
 			content: form,
 			closeIcon: true,
 			offsetLeft: 0,
@@ -861,8 +704,10 @@ export class TriggerManager extends EventEmitter
 
 							if (trigger.draft)
 							{
-								self.#triggers.push(trigger);
-								self.insertTriggerNode(trigger.getStatusId(), trigger.node)
+								// remove orange/yellow color
+
+								//self.#triggers.push(trigger);
+								//self.insertTriggerNode(trigger.getStatusId(), trigger.node)
 							}
 
 							//analytics
@@ -904,29 +749,6 @@ export class TriggerManager extends EventEmitter
 				analyticsLabel: `automation_trigger${trigger.draft ? '_draft' : ''}_settings_${trigger.getCode().toLowerCase()}`
 			}
 		);
-	}
-
-	createChangeTriggerTitleBar(title, statusId)
-	{
-		return {
-			content: Dom.create('div', {
-				props: {
-					className: 'popup-window-titlebar-text bizproc-automation-popup-titlebar-with-link'
-				},
-				children: [
-					document.createTextNode(title),
-					Dom.create('span', {
-						props: {
-							className: 'bizproc-automation-popup-titlebar-link'
-						},
-						text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHANGE_TRIGGER'),
-						events: {
-							click: this.onChangeTriggerClick.bind(this, statusId)
-						}
-					})
-				]
-			})
-		};
 	}
 
 	renderConditionSettings(trigger: Trigger)

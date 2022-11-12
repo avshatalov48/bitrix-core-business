@@ -48,7 +48,7 @@ class PathIndexCollection
 	 */
 	private static function configure()
 	{
-		self::$documentRoot = rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
+		self::$documentRoot = \rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
 
 		self::$enabledLanguages = Translate\Config::getEnabledLanguages();
 		self::$availableLanguages = Translate\Config::getAvailableLanguages();
@@ -57,10 +57,10 @@ class PathIndexCollection
 		if (self::$useTranslationRepository)
 		{
 			self::$translationRepositoryLanguages = Translate\Config::getTranslationRepositoryLanguages();
-			self::$translationRepositoryRoot = rtrim(Main\Localization\Translation::getTranslationRepositoryPath(), '/');
+			self::$translationRepositoryRoot = \rtrim(Main\Localization\Translation::getTranslationRepositoryPath(), '/');
 
 			// only active languages
-			self::$translationEnabledLanguages = array_intersect(self::$translationRepositoryLanguages, self::$enabledLanguages);
+			self::$translationEnabledLanguages = \array_intersect(self::$translationRepositoryLanguages, self::$enabledLanguages);
 		}
 	}
 
@@ -75,7 +75,7 @@ class PathIndexCollection
 	{
 		if (isset($filter, $filter->path))
 		{
-			$relPath = '/'. trim($filter->path, '/');
+			$relPath = '/'. \trim($filter->path, '/');
 			$totalItems = (int)Index\Internals\PathLangTable::getCount(array('=%PATH' => $relPath .'%'));
 		}
 		else
@@ -107,14 +107,14 @@ class PathIndexCollection
 		{
 			$relPath = Translate\Config::getDefaultPath();
 		}
-		$relPath = '/'. trim($relPath, '/');
+		$relPath = '/'. \trim($relPath, '/');
 
 		if (self::$useTranslationRepository)
 		{
 			$this->checkLanguages = self::$translationEnabledLanguages;
 			if (isset($filter, $filter->langId))
 			{
-				$this->checkLanguages = array_intersect($filter->langId, $this->checkLanguages);
+				$this->checkLanguages = \array_intersect($filter->langId, $this->checkLanguages);
 			}
 		}
 
@@ -192,7 +192,7 @@ class PathIndexCollection
 		/**
 		 * @param string $parentFullPath Full real path of the parent folder.
 		 * @param string $parentRelPath Relative project path of the parent folder.
-		 * @param int $parent The Id of of the parent folder index record.
+		 * @param int $parentId The Id of of the parent folder index record.
 		 * @param bool $isParentLang The flag that is parent folder is language folder.
 		 * @param string $parentLangId The lang Id of the parent folder.
 		 * @param int $depthLevel Current depth level.
@@ -225,16 +225,16 @@ class PathIndexCollection
 					{
 						foreach ($childrenList as $fullPath)
 						{
-							$name = basename($fullPath);
-							if (in_array($name, Translate\IGNORE_FS_NAMES))
+							$name = \basename($fullPath);
+							if (\in_array($name, Translate\IGNORE_FS_NAMES))
 							{
 								continue;
 							}
-							if (mb_substr($name, -4) !== '.php')
+							if (\mb_substr($name, -4) !== '.php')
 							{
 								continue;
 							}
-							if (!is_file($fullPath))
+							if (!\is_file($fullPath))
 							{
 								continue;
 							}
@@ -268,7 +268,7 @@ class PathIndexCollection
 									$settings = $langSettings->getOptions($relPath);
 									if (!empty($settings[Translate\Settings::OPTION_LANGUAGES]))
 									{
-										$nodeData['OBLIGATORY_LANGS'] = implode(',', $settings[Translate\Settings::OPTION_LANGUAGES]);
+										$nodeData['OBLIGATORY_LANGS'] = \implode(',', $settings[Translate\Settings::OPTION_LANGUAGES]);
 									}
 								}
 
@@ -296,16 +296,16 @@ class PathIndexCollection
 					$childrenList = array();
 				}
 
-				if ($parentLangId === null && basename($parentFullPath) === 'lang')
+				if ($parentLangId === null && \basename($parentFullPath) === 'lang')
 				{
 					foreach ($childrenList as $i => $fullPath)
 					{
-						$name = basename($fullPath);
-						if (in_array($name, Translate\IGNORE_FS_NAMES))
+						$name = \basename($fullPath);
+						if (\in_array($name, Translate\IGNORE_FS_NAMES))
 						{
 							unset($childrenList[$i]);
 						}
-						if (!in_array($name, self::$enabledLanguages))
+						if (!\in_array($name, self::$enabledLanguages))
 						{
 							unset($childrenList[$i]);
 						}
@@ -317,7 +317,7 @@ class PathIndexCollection
 						foreach ($this->checkLanguages as $langId)
 						{
 							$fullPathLang = Main\Localization\Translation::convertLangPath($parentFullPath.'/'.$langId, $langId);
-							if (file_exists($fullPathLang))
+							if (\file_exists($fullPathLang))
 							{
 								$childrenList[] = $fullPathLang;
 							}
@@ -328,34 +328,34 @@ class PathIndexCollection
 
 				if (!empty($childrenList))
 				{
-					$ignoreDev = implode('|', Translate\IGNORE_MODULE_NAMES);
+					$ignoreDev = \implode('|', Translate\IGNORE_MODULE_NAMES);
 					foreach ($childrenList as $fullPath)
 					{
-						$name = basename($fullPath);
-						if (in_array($name, Translate\IGNORE_FS_NAMES))
+						$name = \basename($fullPath);
+						if (\in_array($name, Translate\IGNORE_FS_NAMES))
 						{
 							continue;
 						}
 
 						$relPath = $parentRelPath . '/'. $name;
 
-						if (!is_dir($fullPath))
+						if (!\is_dir($fullPath))
 						{
 							continue;
 						}
 
-						if (in_array($relPath, Translate\IGNORE_BX_NAMES))
+						if (\in_array($relPath, Translate\IGNORE_BX_NAMES))
 						{
 							continue;
 						}
 
 						// /bitrix/modules/[smth]/dev/
-						if (preg_match("#^bitrix/modules/[^/]+/({$ignoreDev})$#", trim($relPath, '/')))
+						if (\preg_match("#^bitrix/modules/[^/]+/({$ignoreDev})$#", \trim($relPath, '/')))
 						{
 							continue;
 						}
 
-						if ($isParentLang && in_array($name, Translate\IGNORE_LANG_NAMES))
+						if ($isParentLang && \in_array($name, Translate\IGNORE_LANG_NAMES))
 						{
 							continue;
 						}
@@ -363,10 +363,10 @@ class PathIndexCollection
 						$isLang = $isParentLang || ($name === 'lang');
 						if ($isLang)
 						{
-							if (in_array($name, self::$availableLanguages))
+							if (\in_array($name, self::$availableLanguages))
 							{
 								// only active languages
-								if (!in_array($name, self::$enabledLanguages))
+								if (!\in_array($name, self::$enabledLanguages))
 								{
 									continue;
 								}
@@ -403,7 +403,7 @@ class PathIndexCollection
 								$settings = $langSettings->getOptions($relPath);
 								if (!empty($settings[Translate\Settings::OPTION_LANGUAGES]))
 								{
-									$nodeData['OBLIGATORY_LANGS'] = implode(',', $settings[Translate\Settings::OPTION_LANGUAGES]);
+									$nodeData['OBLIGATORY_LANGS'] = \implode(',', $settings[Translate\Settings::OPTION_LANGUAGES]);
 								}
 							}
 
@@ -443,7 +443,7 @@ class PathIndexCollection
 			if (!empty($settings) && !empty($settings[Translate\Settings::OPTION_LANGUAGES]))
 			{
 				Index\Internals\PathIndexTable::bulkUpdate(
-					['OBLIGATORY_LANGS' => implode(',', $settings[Translate\Settings::OPTION_LANGUAGES])],
+					['OBLIGATORY_LANGS' => \implode(',', $settings[Translate\Settings::OPTION_LANGUAGES])],
 					[
 						'LOGIC' => 'OR',
 						'=PATH' => $relPath,
@@ -453,11 +453,11 @@ class PathIndexCollection
 			}
 			foreach ($langSettings as $settingPath => $settings)
 			{
-				if (strpos($settingPath, '*') !== false && $settingPath !== '*' && !empty($settings['languages']))
+				if (\strpos($settingPath, '*') !== false && $settingPath !== '*' && !empty($settings['languages']))
 				{
-					$settingPath = str_replace('*', '', $settingPath);
+					$settingPath = \str_replace('*', '', $settingPath);
 					Index\Internals\PathIndexTable::bulkUpdate(
-						['OBLIGATORY_LANGS' => implode(',', $settings[Translate\Settings::OPTION_LANGUAGES])],
+						['OBLIGATORY_LANGS' => \implode(',', $settings[Translate\Settings::OPTION_LANGUAGES])],
 						[
 							'LOGIC' => 'OR',
 							'=PATH' => $relPath .'/#LANG_ID#/'. $settingPath,
@@ -468,16 +468,15 @@ class PathIndexCollection
 			}
 			foreach ($langSettings as $settingPath => $settings)
 			{
-				if (mb_substr($settingPath, -4) === '.php' && !empty($settings[Translate\Settings::OPTION_LANGUAGES]))
+				if (\mb_substr($settingPath, -4) === '.php' && !empty($settings[Translate\Settings::OPTION_LANGUAGES]))
 				{
 					Index\Internals\PathIndexTable::bulkUpdate(
-						['OBLIGATORY_LANGS' => implode(',', $settings[Translate\Settings::OPTION_LANGUAGES])],
+						['OBLIGATORY_LANGS' => \implode(',', $settings[Translate\Settings::OPTION_LANGUAGES])],
 						['=PATH' => $relPath .'/#LANG_ID#/'. $settingPath]
 					);
 				}
 			}
 		}
-
 
 		return $processedItemCount;
 	}
@@ -498,10 +497,10 @@ class PathIndexCollection
 			return $this->ancestorsPaths[$path];
 		}
 
-		$pathParts = explode('/', trim($path, '/'));
+		$pathParts = \explode('/', \trim($path, '/'));
 
 		$searchPath = '';
-		$ancestorsPathSearch = array();
+		$ancestorsPathSearch = [];
 		foreach ($pathParts as $part)
 		{
 			$searchPath .= '/'. $part;
@@ -556,7 +555,7 @@ class PathIndexCollection
 				'PARENT_ID' => $searchParentId,
 				'DEPTH_LEVEL' => $searchDepthLevel,
 				'IS_LANG' => $isLang ? 'Y' : 'N',
-				'IS_DIR' => (mb_substr($part, -4) === '.php' ? 'N' : 'Y'),
+				'IS_DIR' => (\mb_substr($part, -4) === '.php' ? 'N' : 'Y'),
 			);
 
 			$pathInx = Index\Internals\PathIndexTable::add($nodeData);
@@ -646,7 +645,7 @@ class PathIndexCollection
 			}
 		}
 
-		return array_reverse($result, true);
+		return \array_reverse($result, true);
 	}
 
 	/**
@@ -762,10 +761,10 @@ class PathIndexCollection
 			]);
 			if ($path = $pathStartRes->fetchObject())
 			{
-				$relPathParts = explode('/', trim($path->getPath(), '/'));
+				$relPathParts = \explode('/', \trim($path->getPath(), '/'));
 
 				// /bitrix/modules/[smth]/
-				if (count($relPathParts) >= 3 && $relPathParts[0] == 'bitrix' && $relPathParts[1] == 'modules')
+				if (\count($relPathParts) >= 3 && $relPathParts[0] == 'bitrix' && $relPathParts[1] == 'modules')
 				{
 					$moduleId = $path->detectModuleId();
 					if ($moduleId !== null)

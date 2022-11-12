@@ -1,5 +1,9 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 ?>
 
 <?= $javascriptFunctions ?>
@@ -68,13 +72,17 @@ function BPRIANewParam()
 
 function BPRIAToHiddens(ob, name)
 {
-	if (typeof ob == "object")
+	if (typeof ob == 'object')
 	{
-		var s = "";
+		var s = '';
 		for (var k in ob)
-			s += BPRIAToHiddens(ob[k], name + "[" + k + "]");
+		{
+			s += BPRIAToHiddens(ob[k], name + '[' + encodeURIComponent(k) + ']');
+		}
+
 		return s;
 	}
+
 	return '<input type="hidden" name="' + objFields.HtmlSpecialChars(name) + '" value="' + objFields.HtmlSpecialChars(ob) + '">';
 }
 
@@ -513,10 +521,10 @@ $renderField = function(array $field, bool $allowSelection) use($dialog)
 			<td align="right" width="40%" class="adm-detail-content-cell-l"><span class="adm-required-field"><?= GetMessage("BPSFA_PD_F_TYPE") ?>:</span></td>
 			<td width="60%" class="adm-detail-content-cell-r">
 				<select name="fri_type" id="id_fri_type" onchange="BPRIASwitchTypeControl(this.options[this.selectedIndex].value)">
-					<?
+					<?php
 					foreach ($arFieldTypes as $k => $v)
 					{
-						?><option value="<?= $k ?>"><?= $v["Name"] ?></option><?
+						?><option value="<?= $k ?>"><?= $v["Name"] ?></option><?php
 					}
 					?>
 				</select>

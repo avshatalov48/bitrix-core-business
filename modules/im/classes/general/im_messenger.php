@@ -2719,6 +2719,14 @@ class CIMMessenger
 				CUserOptions::SetOption('im', 'MacLastActivityDate', $timestamp, false, $userId);
 			}
 		}
+		elseif ($deviceType === IM_DESKTOP_LINUX)
+		{
+			$lastTimestamp = (int)CUserOptions::GetOption('im', 'LinuxLastActivityDate', -1, $userId);
+			if ($lastTimestamp+86400*30 < time())
+			{
+				CUserOptions::SetOption('im', 'LinuxLastActivityDate', $timestamp, false, $userId);
+			}
+		}
 		else
 		{
 			$lastTimestamp = (int)CUserOptions::GetOption('im', 'WindowsLastActivityDate', -1, $userId);
@@ -2927,6 +2935,10 @@ class CIMMessenger
 		elseif (mb_strpos(mb_strtolower($userAgent), "macintosh") !== false)
 		{
 			$deviceType = IM_DESKTOP_MAC;
+		}
+		elseif (mb_strpos(mb_strtolower($userAgent), "linux") !== false)
+		{
+			$deviceType = IM_DESKTOP_LINUX;
 		}
 
 		$time = time();

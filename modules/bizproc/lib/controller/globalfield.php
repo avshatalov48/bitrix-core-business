@@ -133,6 +133,7 @@ class GlobalField extends Base
 			return ['error' => $error[0]['message']];
 		}
 		$property['Default'] = $value ?? '';
+		$property['Name'] = trim($property['Name']);
 
 		$userId = (int)($this->getCurrentUser()->getId());
 		$result = \Bitrix\Bizproc\Workflow\Type\GlobalVar::upsert($variableId, $property, $userId);
@@ -168,6 +169,7 @@ class GlobalField extends Base
 			return ['error' => $error[0]['message']];
 		}
 		$property['Default'] = $value ?? '';
+		$property['Name'] = trim($property['Name']);
 
 		$userId = (int)($this->getCurrentUser()->getId());
 		$result = \Bitrix\Bizproc\Workflow\Type\GlobalConst::upsert($constantId, $property, $userId);

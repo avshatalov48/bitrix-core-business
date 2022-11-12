@@ -19,7 +19,7 @@ use Bitrix\Main\Text\HtmlFilter;
 			<?php
 
 			$isImage = false;
-			if(\CFile::IsImage($fileInfo['SRC'], $fileInfo['CONTENT_TYPE']))
+			if(\CFile::IsImage($fileInfo['ORIGINAL_NAME'], $fileInfo['CONTENT_TYPE']))
 			{
 				$isImage = true;
 			}

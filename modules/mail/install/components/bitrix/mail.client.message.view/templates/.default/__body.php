@@ -223,22 +223,43 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 			</div>
 		</span>
 	</div>
-	<div class="mail-msg-view-control-wrapper">
-		<div class="mail-msg-view-control-block">
-			<div class="mail-msg-view-control mail-msg-view-control-reply js-msg-view-control-reply"><?=Loc::getMessage('MAIL_MESSAGE_BTN_REPLY') ?></div>
-			<div class="mail-msg-view-control mail-msg-view-control-replyall js-msg-view-control-replyall"><?=Loc::getMessage('MAIL_MESSAGE_BTN_REPLY_All') ?></div>
-			<div class="mail-msg-view-control mail-msg-view-control-forward js-msg-view-control-forward"><?=Loc::getMessage('MAIL_MESSAGE_BTN_FWD') ?></div>
-			<? if ($message['__access_level'] == 'full'): ?>
-				<div class="mail-msg-view-control mail-msg-view-control-skip js-msg-view-control-skip"
-					<? if (!preg_grep('/CRM_ACTIVITY-\d+/', $message['BIND']) || !$isCrmEnabled): ?> style="display: none; "<? endif ?>><?=Loc::getMessage('MAIL_MESSAGE_BTN_SKIP') ?></div>
-				<? if (!$message['__is_outcome'] && !$message['isSpam']): ?>
-					<div class="mail-msg-view-control mail-msg-view-control-spam js-msg-view-control-spam"><?=Loc::getMessage('MAIL_MESSAGE_BTN_SPAM') ?></div>
+
+	<? if (!$message['hideMailControlPanel']): ?>
+		<div class="mail-msg-view-control-wrapper">
+			<div class="mail-msg-view-control-block">
+				<div class="mail-msg-view-control mail-msg-view-control-reply js-msg-view-control-reply"><?=Loc::getMessage('MAIL_MESSAGE_BTN_REPLY') ?></div>
+				<div class="mail-msg-view-control mail-msg-view-control-replyall js-msg-view-control-replyall"><?=Loc::getMessage('MAIL_MESSAGE_BTN_REPLY_All') ?></div>
+				<div class="mail-msg-view-control mail-msg-view-control-forward js-msg-view-control-forward"><?=Loc::getMessage('MAIL_MESSAGE_BTN_FWD') ?></div>
+				<? if ($message['__access_level'] == 'full'): ?>
+					<div class="mail-msg-view-control mail-msg-view-control-skip js-msg-view-control-skip"
+						<? if (!preg_grep('/CRM_ACTIVITY-\d+/', $message['BIND']) || !$isCrmEnabled): ?> style="display: none; "<? endif ?>><?=Loc::getMessage('MAIL_MESSAGE_BTN_SKIP') ?></div>
+					<? if (!$message['__is_outcome'] && !$message['isSpam']): ?>
+						<div class="mail-msg-view-control mail-msg-view-control-spam js-msg-view-control-spam"><?=Loc::getMessage('MAIL_MESSAGE_BTN_SPAM') ?></div>
+					<? endif ?>
+					<div class="mail-msg-view-control mail-msg-view-control-delete js-msg-view-control-delete"
+						<? if ($message['isTrash']): ?> data-is-trash="true" <? endif; ?>><?=Loc::getMessage('MAIL_MESSAGE_BTN_DEL') ?></div>
 				<? endif ?>
-				<div class="mail-msg-view-control mail-msg-view-control-delete js-msg-view-control-delete"
-					<? if ($message['isTrash']): ?> data-is-trash="true" <? endif; ?>><?=Loc::getMessage('MAIL_MESSAGE_BTN_DEL') ?></div>
-			<? endif ?>
+			</div>
 		</div>
-	</div>
+	<? endif; ?>
+
+	<? if ($message['isSyncError']):?>
+		<div class="ui-alert ui-alert-warning mail-message-alert-warning">
+		<span class="ui-alert-message">
+			<? if (
+				isset($message['MAILBOX'])
+				&& isset($message['MAILBOX']['URI'])
+				&& isset($message['MAILBOX']['HOST'])
+			):?>
+				<?=Loc::getMessage('MAIL_MESSAGE_WARNING_GO_TO_MAILBOX', [
+					'#LINK#' => "<a href='". htmlspecialcharsbx($message['MAILBOX']['URI']) ."' target='_blank'>" . htmlspecialcharsbx($message['MAILBOX']['HOST']) . "</a>"
+				])?>
+			<? else: ?>
+				<?=Loc::getMessage('MAIL_MESSAGE_WARNING_SYNC_ERROR');?>
+			<? endif; ?>
+		</span>
+		</div>
+	<? endif; ?>
 	<div id="mail_msg_<?=$message['ID'] ?>_body" class="mail-msg-view-body"></div>
 </div>
 
@@ -324,12 +345,15 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 	</div>
 <? endif ?>
 
-<div class="mail-msg-view-reply-panel mail-msg-view-border-bottom js-msg-view-reply-panel">
-	<div class="ui-icon ui-icon-common-user mail-msg-userpic">
-		<i <? if (!empty($arResult['USER_IMAGE'])): ?> style="background: url('<?=htmlspecialcharsbx($arResult['USER_IMAGE']) ?>'); background-size: 23px 23px; "<? endif ?>></i>
+
+<? if (!$message['hideFastReplyPanel']):?>
+	<div class="mail-msg-view-reply-panel mail-msg-view-border-bottom js-msg-view-reply-panel">
+		<div class="ui-icon ui-icon-common-user mail-msg-userpic">
+			<i <? if (!empty($arResult['USER_IMAGE'])): ?> style="background: url('<?=htmlspecialcharsbx($arResult['USER_IMAGE']) ?>'); background-size: 23px 23px; "<? endif ?>></i>
+		</div>
+		<div class="mail-msg-view-reply-panel-text"><?=Loc::getMessage('MAIL_MESSAGE_REPLY_Q') ?></div>
 	</div>
-	<div class="mail-msg-view-reply-panel-text"><?=Loc::getMessage('MAIL_MESSAGE_REPLY_Q') ?></div>
-</div>
+<? endif; ?>
 
 <? $messageHtml = trim($message['BODY_HTML']) ? $message['BODY_HTML'] : preg_replace('/(\s*(\r\n|\n|\r))+/', '<br>', htmlspecialcharsbx($message['BODY'])); ?>
 

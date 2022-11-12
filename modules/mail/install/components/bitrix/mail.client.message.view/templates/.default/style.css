@@ -899,3 +899,8 @@
 	font-size: 15px;
 	color: #333;
 }
+
+.ui-alert-warning.mail-message-alert-warning {
+	margin-bottom: 0;
+	border-radius: 0;
+}

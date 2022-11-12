@@ -359,6 +359,7 @@ h3.bx-otp-wrap-container-title{
     color:#535b69;
     border:none;
 	border-radius: var(--ui-field-border-radius, 2px);
+	white-space: nowrap;
 }
 
 .bx-otp-btn.wait{

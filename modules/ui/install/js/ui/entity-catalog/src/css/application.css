@@ -1,0 +1,26 @@
+.ui-entity-catalog__scope {
+	--entity-catalog__gray_lighter: rgba(245,247,248,1);
+	--entity-catalog__gray_light: rgba(237,238,240,1)
+}
+
+.ui-entity-catalog__main-separator {
+	background: #e1e2e4;
+	width: calc(100% - 34px);
+	height: 1px;
+	margin: 34px 20px 27px;
+	border: none;
+}
+
+.ui-entity-catalog__main {
+	display: flex;
+	max-height: 100%;
+	height: 100%;
+	min-height: 555px;
+	box-sizing: border-box;
+}
+
+
+.ui-entity-catalog__titlebar_search {
+	flex-shrink: 0;
+	margin-left: auto;
+}

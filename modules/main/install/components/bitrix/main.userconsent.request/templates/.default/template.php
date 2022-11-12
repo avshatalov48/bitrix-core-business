@@ -33,7 +33,7 @@ else
 	<input type="checkbox" value="Y" <?=($arParams['IS_CHECKED'] ? 'checked' : '')?> name="<?=htmlspecialcharsbx($arParams['INPUT_NAME'])?>">
 	<span class="<?=$linkClassName?>"><?=$label?></span>
 </label>
-<script type="text/html" data-bx-template="main-user-consent-request-loader">
+<div data-bx-template="main-user-consent-request-loader" style="display: none;">
 	<div class="main-user-consent-request-popup">
 		<div class="main-user-consent-request-popup-cont">
 			<div data-bx-head="" class="main-user-consent-request-popup-header"></div>
@@ -59,4 +59,4 @@ else
 			</div>
 		</div>
 	</div>
-</script>
+</div>

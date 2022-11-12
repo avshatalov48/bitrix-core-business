@@ -76,13 +76,13 @@ class ImportCsv
 			}
 		}
 
-		self::$documentRoot = rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
+		self::$documentRoot = \rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
 
 		self::$enabledLanguages = Translate\Config::getEnabledLanguages();
 
 		foreach (self::$enabledLanguages as $languageId)
 		{
-			self::$sourceEncoding[$languageId] = mb_strtolower(Main\Localization\Translation::getSourceEncoding($languageId));
+			self::$sourceEncoding[$languageId] = \mb_strtolower(Main\Localization\Translation::getSourceEncoding($languageId));
 		}
 
 		parent::__construct($name, $controller, $config);
@@ -203,9 +203,9 @@ class ImportCsv
 				}
 
 				if (
-					!is_array($csvRow) ||
+					!\is_array($csvRow) ||
 					empty($csvRow) ||
-					(count($csvRow) == 1 && ($csvRow[0] === null || $csvRow[0] === ''))
+					(\count($csvRow) == 1 && ($csvRow[0] === null || $csvRow[0] === ''))
 				)
 				{
 					continue;
@@ -268,7 +268,7 @@ class ImportCsv
 					$checked = true;
 					if ($encodingOut === 'utf-8')
 					{
-						$validPhrase = preg_replace("/[^\x01-\x7F]/", '', $phrase);// remove ASCII characters
+						$validPhrase = \preg_replace("/[^\x01-\x7F]/", '', $phrase);// remove ASCII characters
 						if ($validPhrase !== $phrase)
 						{
 							$checked = Translate\Text\StringHelper::validateUtf8OctetSequences($phrase);
@@ -362,7 +362,7 @@ class ImportCsv
 							}
 						}
 					}
-					if (count($this->getErrors()) > 0)
+					if (\count($this->getErrors()) > 0)
 					{
 						continue;
 					}
@@ -423,7 +423,7 @@ class ImportCsv
 						// sort phrases by key
 						if (Translate\Config::needToSortPhrases())
 						{
-							if (in_array($languageId, Translate\Config::getNonSortPhraseLanguages()) === false)
+							if (\in_array($languageId, Translate\Config::getNonSortPhraseLanguages()) === false)
 							{
 								$langFile->sortPhrases();
 							}
@@ -507,10 +507,10 @@ class ImportCsv
 			$this->csvFile->moveFirst();
 			$rowHead = $this->csvFile->fetch();
 			if (
-				!is_array($rowHead) ||
-				empty($rowHead) ||
-				empty($rowHead[0]) ||
-				(count($rowHead) < 3)
+				!\is_array($rowHead)
+				|| empty($rowHead)
+				|| empty($rowHead[0])
+				|| (\count($rowHead) < 3)
 			)
 			{
 				continue;
@@ -520,10 +520,10 @@ class ImportCsv
 		}
 
 		if (
-			!is_array($rowHead) ||
-			empty($rowHead) ||
-			empty($rowHead[0]) ||
-			(count($rowHead) < 3)
+			!is_array($rowHead)
+			|| empty($rowHead)
+			|| empty($rowHead[0])
+			|| (count($rowHead) < 3)
 		)
 		{
 			$this->addError(new Main\Error(Loc::getMessage('TR_IMPORT_ERR_EMPTY_FIRST_ROW')));

@@ -8,6 +8,7 @@ return [
 	"css" => 'dist/counterpanel.bundle.css',
 	'js' => 'dist/counterpanel.bundle.js',
 	'rel' => [
+		'main.popup',
 		'main.core',
 		'ui.cnt',
 		'main.core.events',

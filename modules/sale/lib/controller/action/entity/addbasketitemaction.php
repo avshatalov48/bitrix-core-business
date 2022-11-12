@@ -88,6 +88,8 @@ final class AddBasketItemAction extends BaseAction
 
 		$basket = $this->getBasketByFuserId($fuserId, $siteId);
 
+		$product = $this->prepareBasketFields($product);
+
 		$addProductToBasketResult = Catalog\Product\Basket::addProductToBasket($basket, $product, ['SITE_ID' => $siteId], $options);
 		if ($addProductToBasketResult->isSuccess())
 		{
@@ -142,5 +144,15 @@ final class AddBasketItemAction extends BaseAction
 		/** @var Sale\Basket $basketClassName */
 		$basketClassName = $registry->getBasketClassName();
 		return $basketClassName::loadItemsForFUser($fuserId, $siteId);
+	}
+
+	private function prepareBasketFields(array $fields): array
+	{
+		$fields = $this->filterBasketFieldsOnAdd($fields);
+
+		$fields['MODULE'] = 'catalog';
+		$fields['PRODUCT_PROVIDER_CLASS'] = Catalog\Product\Basket::getDefaultProviderName();
+
+		return $fields;
 	}
 }

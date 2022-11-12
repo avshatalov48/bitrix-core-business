@@ -2998,6 +2998,11 @@
 
 			var errorMessage;
 
+			if (e.name == "VoxConnectionError" || e.name == "AuthResult")
+			{
+				BX.Call.Util.reportConnectionResult(e.call.id, false);
+			}
+
 			if (e.name == "AuthResult" || errorCode == "AUTHORIZE_ERROR")
 			{
 				errorMessage = BX.message("IM_CALL_ERROR_AUTHORIZATION");
@@ -3176,7 +3181,12 @@
 		{
 			if (e.local)
 			{
-				// self answer, no nothing
+				// self answer
+				if (this.currentCall && (this.currentCall instanceof BX.Call.VoximplantCall))
+				{
+					BX.Call.Util.reportConnectionResult(this.currentCall.id, true);
+				}
+
 				return;
 			}
 			// remote answer, stop ringing and hide incoming cal notification
@@ -3217,6 +3227,7 @@
 
 		_onCallLeave: function (e)
 		{
+			console.log("_onCallLeave", e);
 			if (!e.local && this.currentCall && this.currentCall.ready)
 			{
 				this.log(new Error("received remote leave with active call!"));
@@ -3232,13 +3243,15 @@
 			this.docCreatedForCurrentCall = false;
 			var showFeedback = false;
 			var callDetails;
+			let chatId;
 
-			if (this.currentCall)
+			if (this.currentCall && this.currentCall.associatedEntity)
 			{
 				this.removeVideoStrategy();
 				this.removeCallEvents();
 
-				showFeedback = this.currentCall.wasConnected;
+				chatId = this.currentCall.associatedEntity.id;
+				showFeedback = this.currentCall.wasConnected ;
 				callDetails = {
 					id: this.currentCall.id,
 					provider: this.currentCall.provider,
@@ -3301,6 +3314,19 @@
 			if (showFeedback)
 			{
 				//this.showFeedbackPopup(callDetails);
+				this.lastCallDetails = callDetails;
+				if (BXIM.messenger.currentTab)
+				{
+					BX.MessengerCommon.drawMessage(chatId, {
+						'id': 'call' + callDetails.id,
+						'chatId': BXIM.messenger.getChatId(),
+						'senderId': 0,
+						'recipientId': BXIM.messenger.currentTab,
+						'date': new Date(),
+						'text': '<span class="bx-messenger-ajax" onclick="BXIM.callController.showFeedbackPopup();">' + BX.message('IM_CALL_RATE_CALL') + '</span>',
+						'params': {}
+					});
+				}
 			}
 		},
 
@@ -4210,16 +4236,48 @@
 			this.webScreenSharePopup.show();
 		},
 
-		showFeedbackPopup: function (callDetails)
+		showFeedbackPopup: function(callDetails)
+		{
+			if (!callDetails)
+			{
+				if (this.lastCallDetails)
+				{
+					callDetails = this.lastCallDetails;
+				}
+				else
+				{
+					console.error('Could not show feedback without call')
+				}
+			}
+
+			BX.loadExt('ui.feedback.form').then(() => {
+				BX.UI.Feedback.Form.open({
+					id: 'call_feedback_' + Math.random(),
+					forms: [
+						{zones: ['ru'], id: 406, sec: '9lhjhn', lang: 'ru'},
+					],
+					presets: {
+						call_id: callDetails.id || 0,
+						call_amount: callDetails.userCount || 0,
+					},
+				});
+			})
+		},
+
+		showFeedbackPopup_: function (callDetails)
 		{
 			if (this.feedbackPopup)
 			{
 				return;
 			}
+			if (!callDetails)
+			{
+				callDetails = this.lastCallDetails;
+			}
 			var darkMode = !!BX.MessengerTheme.isDark();
 			if (!BX.type.isPlainObject(callDetails))
 			{
-				callDetails = {};
+				return;
 			}
 
 			BX.loadExt('im.component.call-feedback').then(function ()

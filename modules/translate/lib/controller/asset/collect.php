@@ -168,12 +168,12 @@ class Collect
 					$this->encoding = $encodingOut = 'utf-8';
 				}
 
-				$this->convertEncoding = (mb_strtolower($encodingIn) !== mb_strtolower($encodingOut));
+				$this->convertEncoding = (\mb_strtolower($encodingIn) !== \mb_strtolower($encodingOut));
 			}
 
 			// assembly date
 			$assemblyDate = $this->controller->getRequest()->get('assemblyDate');
-			if ($assemblyDate !== null && preg_replace("/[\D]+/", "", $assemblyDate) && mb_strlen($assemblyDate) == 8)
+			if ($assemblyDate !== null && \preg_replace("/[\D]+/", "", $assemblyDate) && \mb_strlen($assemblyDate) == 8)
 			{
 				$this->assemblyDate = $assemblyDate;
 			}
@@ -219,9 +219,9 @@ class Collect
 			if (!$this->hasErrors())
 			{
 				$fileDateMarkFullPath = $this->tmpFolderPath.
-										str_replace('#LANG_ID#', $this->languageId, Translate\SUPD_LANG_DATE_MARK);
+					\str_replace('#LANG_ID#', $this->languageId, Translate\SUPD_LANG_DATE_MARK);
 
-				Translate\IO\Path::checkCreatePath(dirname($fileDateMarkFullPath));
+				Translate\IO\Path::checkCreatePath(\dirname($fileDateMarkFullPath));
 
 				$fileDateMark = new Main\IO\File($fileDateMarkFullPath);
 				if ($fileDateMark->putContents($assemblyDate) === false)
@@ -311,19 +311,19 @@ class Collect
 			{
 				foreach ($filePaths as $langFilePath => $fullPath)
 				{
-					$targetFolder = new Main\IO\Directory($this->tmpFolderPath. dirname($langFilePath));
+					$targetFolder = new Main\IO\Directory($this->tmpFolderPath. \dirname($langFilePath));
 					if (!$targetFolder->isExists())
 					{
 						$targetFolder->create();
 					}
 
 					$source = new Main\IO\File($fullPath);
-					$target = new Main\IO\File($targetFolder->getPhysicalPath(). '/'. basename($langFilePath));
+					$target = new Main\IO\File($targetFolder->getPhysicalPath(). '/'. \basename($langFilePath));
 
 					try
 					{
 						$content = $source->getContents();
-						$content = str_replace(array("\r\n", "\r"), array("\n", "\n"), $content);
+						$content = \str_replace(array("\r\n", "\r"), array("\n", "\n"), $content);
 
 						if ($this->convertEncoding)
 						{
@@ -339,7 +339,7 @@ class Collect
 					}
 
 					// check user abortion
-					if (connection_status() !== CONNECTION_NORMAL)
+					if (\connection_status() !== \CONNECTION_NORMAL)
 					{
 						throw new Main\SystemException('Process has been broken course user aborted connection.');
 					}
@@ -373,7 +373,7 @@ class Collect
 
 			$messagePlaceholders = array(
 				'#TOTAL_FILES#' => $this->totalFileCount,
-				'#LANG#' => mb_strtoupper($this->languageId),
+				'#LANG#' => \mb_strtoupper($this->languageId),
 				'#PATH#' => '~tmp~',
 			);
 			$result['SUMMARY'] = Loc::getMessage('TR_LANGUAGE_COLLECTED_FOLDER', $messagePlaceholders);
@@ -397,9 +397,9 @@ class Collect
 
 		$langFolderFullPath = Translate\IO\Path::tidy(self::$documentRoot.'/'.$langFolderRelPath);
 
-		$storeFolderRelPath = str_replace(Grabber::START_PATH, '', $langFolderRelPath);
+		$storeFolderRelPath = \str_replace(Grabber::START_PATH, '', $langFolderRelPath);
 
-		if (self::$useTranslationRepository && in_array($this->languageId, self::$translationRepositoryLanguages))
+		if (self::$useTranslationRepository && \in_array($this->languageId, self::$translationRepositoryLanguages))
 		{
 			$langFolderFullPath = Main\Localization\Translation::convertLangPath($langFolderFullPath, $this->languageId);
 		}
@@ -409,13 +409,13 @@ class Collect
 		{
 			foreach ($childrenList as $fullPath)
 			{
-				$name = basename($fullPath);
-				if (in_array($name, Translate\IGNORE_FS_NAMES))
+				$name = \basename($fullPath);
+				if (\in_array($name, Translate\IGNORE_FS_NAMES))
 				{
 					continue;
 				}
 
-				if ((mb_substr($name, -4) === '.php') && is_file($fullPath))
+				if ((\mb_substr($name, -4) === '.php') && \is_file($fullPath))
 				{
 					$files[$storeFolderRelPath.'/'.$name] = $fullPath;
 				}
@@ -426,34 +426,34 @@ class Collect
 		$childrenList = Translate\IO\FileSystemHelper::getFolderList($langFolderFullPath);
 		if (!empty($childrenList))
 		{
-			$ignoreDev = implode('|', Translate\IGNORE_MODULE_NAMES);
+			$ignoreDev = \implode('|', Translate\IGNORE_MODULE_NAMES);
 			foreach ($childrenList as $fullPath)
 			{
-				$name = basename($fullPath);
-				if (in_array($name, Translate\IGNORE_FS_NAMES))
+				$name = \basename($fullPath);
+				if (\in_array($name, Translate\IGNORE_FS_NAMES))
 				{
 					continue;
 				}
 
 				$relPath = $langFolderRelPath.'/'.$name;
 
-				if (!is_dir($fullPath))
+				if (!\is_dir($fullPath))
 				{
 					continue;
 				}
 
-				if (in_array($relPath, Translate\IGNORE_BX_NAMES))
+				if (\in_array($relPath, Translate\IGNORE_BX_NAMES))
 				{
 					continue;
 				}
 
 				// /bitrix/modules/[smth]/dev/
-				if (preg_match("#^bitrix/modules/[^/]+/({$ignoreDev})#", trim($relPath, '/')))
+				if (\preg_match("#^bitrix/modules/[^/]+/({$ignoreDev})#", \trim($relPath, '/')))
 				{
 					continue;
 				}
 
-				if (in_array($name, Translate\IGNORE_LANG_NAMES))
+				if (\in_array($name, Translate\IGNORE_LANG_NAMES))
 				{
 					continue;
 				}
@@ -462,12 +462,12 @@ class Collect
 			}
 		}
 
-		if (count($files) > 0)
+		if (\count($files) > 0)
 		{
 			yield $files;
 		}
 
-		if (count($folders) > 0)
+		if (\count($folders) > 0)
 		{
 			foreach ($folders as $subFolderPath)
 			{

@@ -295,6 +295,24 @@ class CIMNotify
 		CTimeZone::Disable();
 		while ($arResRelation = $dbResRelation->Fetch())
 		{
+			$orm = \Bitrix\Im\Model\MessageTable::getList(array(
+				'select' => ['ID'],
+				'filter' => [
+					'=CHAT_ID' => intval($arResRelation['CHAT_ID']),
+					'>ID' => $arResRelation['LAST_SEND_ID'],
+				],
+				'order' => [
+					'CHAT_ID' => 'ASC',
+					'ID' => 'DESC'
+				],
+				'limit' => 200
+			));
+			$ids = array_map(fn ($item) => $item['ID'], $orm->fetchAll());
+			if (empty($ids))
+			{
+				continue;
+			}
+
 			$strSql ="
 				SELECT
 					M.ID,
@@ -318,10 +336,9 @@ class CIMNotify
 					U2.EXTERNAL_AUTH_ID FROM_EXTERNAL_AUTH_ID
 				FROM b_im_message M
 				LEFT JOIN b_user U2 ON U2.ID = M.AUTHOR_ID
-				WHERE M.ID > ".intval($arResRelation['LAST_SEND_ID'])." AND M.CHAT_ID = ".intval($arResRelation['CHAT_ID'])."
+				WHERE M.ID IN (".implode(", ", $ids).")
 				ORDER BY M.ID DESC
 			";
-			$strSql = $DB->TopSql($strSql, 200);
 			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
 
 			while ($arRes = $dbRes->Fetch())

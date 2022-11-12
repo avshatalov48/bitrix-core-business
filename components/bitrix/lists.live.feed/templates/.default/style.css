@@ -158,10 +158,10 @@
 	width: 30%;
 	font-size: 14px;
 	line-height: 22px;
-	font-weight: var(--ui-font-weight-bold);
-	color: #000;
+	font-weight: var(--ui-font-weight-semi-bold);
+	color: #333;
 	text-align: right;
-	padding-right: 30px !important;
+	padding-right: 10px !important;
 }
 .bx-lists-table-content tr td {
 	padding: 6px 0px;
@@ -197,6 +197,7 @@
 	padding: 0 8px;
 	line-height: 36px;
 	border: 1px solid #c6cdd3;
+	border-radius: var(--ui-field-border-radius);
 	margin: 0;
 	color: #535c69;
 	outline: none;

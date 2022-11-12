@@ -1,0 +1,78 @@
+.ui-stamp-uploader-status {
+	position: absolute;
+	background: #FFFFFF;
+	height: 278px;
+	z-index: 99;
+	border: 1px solid #2FC6F6;
+	border-radius: 6px;
+	top: 20px;
+	left: 20px;
+	right: 20px;
+	pointer-events: none;
+	opacity: 0;
+	transition: all 200ms ease;
+}
+
+.ui-stamp-uploader-mode-inline .ui-stamp-uploader-status {
+	height: 146px;
+	top: 0;
+	left: 0;
+	right: 0;
+}
+
+.ui-stamp-uploader-status-show {
+	opacity: 1;
+	pointer-events: all;
+}
+
+.ui-stamp-uploader-upload-status {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 100%;
+}
+
+.ui-stamp-uploader-upload-status-text,
+.ui-stamp-uploader-upload-status-percent,
+.ui-stamp-uploader-upload-status-size {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	line-height: 14px;
+	text-align: center;
+	color: #525C69;
+	margin-bottom: 5px;
+}
+
+.ui-stamp-uploader-upload-status-size {
+	font-size: 10px;
+	opacity: .5;
+}
+
+.ui-stamp-uploader-preparing-status {
+	background: rgba(255, 255, 255, 0.9);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	width: 166px;
+	height: 39px;
+	left: 50%;
+	top: 50%;
+	transform: translate3d(-50%, -50%, 0);
+	border-radius: 30px;
+	filter: drop-shadow(0px 4px 16px rgba(0, 0, 0, 0.18));
+}
+
+.ui-stamp-uploader-preparing-status-icon {
+	background: url("images/preparing-icon.svg") center center no-repeat;
+	width: 19px;
+	height: 19px;
+	margin-right: 7px;
+}
+
+.ui-stamp-uploader-preparing-status-text {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	color: #525C69;
+}

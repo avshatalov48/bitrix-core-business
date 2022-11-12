@@ -56,8 +56,8 @@ class IndexCommand extends Console\Command\Command
 
 		if ($vn)
 		{
-			$startTime = getmicrotime();
-			$memoryBefore = memory_get_usage();
+			$startTime = \microtime(true);
+			$memoryBefore = \memory_get_usage();
 			$output->writeln('--------Translate::index-----------');
 			$output->writeln("Indexing path: {$path}");
 		}
@@ -79,7 +79,7 @@ class IndexCommand extends Console\Command\Command
 
 		if ($vn)
 		{
-			$time = round(getmicrotime() - $startTime, 2);
+			$time = round(\microtime(true) - $startTime, 2);
 			$output->writeln("\tdone\t{$time}sec");
 			$output->write("PathLangCollection::collect..");
 		}
@@ -88,7 +88,7 @@ class IndexCommand extends Console\Command\Command
 
 		if ($vn)
 		{
-			$time = round(getmicrotime() - $startTime, 2);
+			$time = \round(\microtime(true) - $startTime, 2);
 			$output->writeln("\tdone\t{$time}sec");
 		}
 
@@ -104,7 +104,7 @@ class IndexCommand extends Console\Command\Command
 		$pathIndex->purge($filt)->unvalidate($filt);
 		if ($vn)
 		{
-			$time = round(getmicrotime() - $startTime, 2);
+			$time = \round(\microtime(true) - $startTime, 2);
 			$output->writeln("\tdone\t{$time}sec");
 			$output->write("PathIndexCollection::collect..");
 		}
@@ -113,7 +113,7 @@ class IndexCommand extends Console\Command\Command
 
 		if ($vn)
 		{
-			$time = round(getmicrotime() - $startTime, 2);
+			$time = \round(\microtime(true) - $startTime, 2);
 			$output->writeln("\tdone\t{$time}sec");
 		}
 
@@ -130,7 +130,7 @@ class IndexCommand extends Console\Command\Command
 
 		if ($vn)
 		{
-			$time = round(getmicrotime() - $startTime, 2);
+			$time = \round(\microtime(true) - $startTime, 2);
 			$output->writeln("\tdone\t{$time}sec");
 		}
 
@@ -149,13 +149,13 @@ class IndexCommand extends Console\Command\Command
 		if ($vn)
 		{
 			// summary stats
-			$time = round(getmicrotime() - $startTime, 2);
+			$time = \round(\microtime(true) - $startTime, 2);
 			$output->writeln("\tdone\t{$time}sec");
 
-			$memoryAfter = memory_get_usage();
+			$memoryAfter = \memory_get_usage();
 			$memoryDiff = $memoryAfter - $memoryBefore;
-			$output->writeln('Memory usage: '.(round($memoryAfter/1024/1024, 1)).'M (+'.(round($memoryDiff/1024/1024, 1)).'M)');
-			$output->writeln('Memory peak usage: '.(round(memory_get_peak_usage()/1024/1024, 1)).'M');
+			$output->writeln('Memory usage: '.(\round($memoryAfter/1024/1024, 1)).'M (+'.(\round($memoryDiff/1024/1024, 1)).'M)');
+			$output->writeln('Memory peak usage: '.(\round(\memory_get_peak_usage()/1024/1024, 1)).'M');
 		}
 
 		return 0;

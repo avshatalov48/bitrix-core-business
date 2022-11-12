@@ -1,0 +1,44 @@
+[data-bx-role="bodies"] [data-bx-role="tab-body"] {
+	display: none;
+}
+[data-bx-role="bodies"] [data-bx-role="tab-body"][data-bx-active="Y"] {
+	display: block;
+}
+
+[data-bx-role="headers"] [data-bx-name="canvas"],
+[data-bx-role="headers"] [data-bx-name="file"],
+[data-bx-role="headers"] [data-bx-name="camera"],
+[data-bx-role="headers"] [data-bx-name="file"] {
+}
+[data-bx-role="bodies"] [data-bx-name="canvas"],
+[data-bx-role="bodies"] [data-bx-name="file"],
+[data-bx-role="bodies"] [data-bx-name="camera"],
+[data-bx-role="bodies"] [data-bx-name="file"] {
+}
+
+[data-bx-canvas-load-status='errored'] [data-bx-role="canvas-zooming"],
+[data-bx-canvas-load-status='isnotset'] [data-bx-role="canvas-zooming"],
+[data-bx-canvas-load-status='loading'] [data-bx-role="canvas-zooming"],
+[data-bx-role="canvas-error"],
+[data-bx-role="canvas-loader"],
+[data-bx-role="canvas-holder"],
+[data-bx-role="unset-canvas-mask"]
+{
+	display: none;
+}
+[data-bx-canvas-load-status='errored'] [data-bx-role="canvas-error"],
+[data-bx-canvas-load-status='isnotset'] [data-bx-role="canvas-holder"],
+[data-bx-canvas-load-status='loading'] [data-bx-role="canvas-loader"],
+
+[data-badge-is-set='Y'] [data-bx-role="unset-canvas-mask"] {
+	display: block;
+}
+
+[data-bx-role="mask-item-menu-pointer"] {
+	z-index: 2;
+}
+
+[data-bx-canvas-load-status='isnotset'][data-bx-upload-tab-available='Y'][data-bx-camera-tab-available='N'] [data-bx-role="button-back"],
+[data-bx-canvas-load-status][data-bx-camera-tab-available='N'] [data-bx-role="button-add-picture"][data-bx-id="snap-picture"] {
+	display: none;
+}

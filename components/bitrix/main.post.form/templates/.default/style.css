@@ -497,6 +497,15 @@ html.bx-ios.bx-ios-fix-frame-focus, html.bx-ios.bx-ios-fix-frame-focus iframe, .
 .feed-add-post-buttons {
 	display: none;
 }
+
+.feed-add-post-buttons.--no-wrap {
+	white-space: nowrap;
+}
+
+.feed-add-post-buttons.--no-wrap > * {
+	white-space: normal;
+}
+
 /*endregion*/
 /*region Destination and Tags */
 .feed-add-post-destination-block,

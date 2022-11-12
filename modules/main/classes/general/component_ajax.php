@@ -407,47 +407,52 @@ class CComponentAjax
 		$arData = preg_split('/(<form([^>]*)>)/i'.BX_UTF_PCRE_MODIFIER, $data, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 		$bDataChanged = false;
-		for ($key = 0, $l = count($arData); $key < $l; $key++)
+		if (is_array($arData))
 		{
-			if ($key % 3 != 0)
+			for ($key = 0, $l = count($arData); $key < $l; $key++)
 			{
-				$arIgnoreAttributes = array('target');
-				$bIgnore = false;
-				foreach ($arIgnoreAttributes as $attr)
+				if ($key % 3 != 0)
 				{
-					if (mb_strpos($arData[$key], $attr.'="') !== false)
+					$arIgnoreAttributes = array('target');
+					$bIgnore = false;
+					foreach ($arIgnoreAttributes as $attr)
 					{
-						$bIgnore = true;
-						break;
+						if (mb_strpos($arData[$key], $attr.'="') !== false)
+						{
+							$bIgnore = true;
+							break;
+						}
 					}
+
+					if (!$bIgnore)
+					{
+						preg_match_all('/action=(["\']{1})(.*?)\1/i', $arData[$key], $arAction);
+						$url = $arAction[2][0];
+
+						if ($url === '' || $this->__isAjaxURL($url) || $this->__isAjaxURL(urldecode($url)))
+						{
+							$arData[$key] = CAjax::GetForm($arData[$key+1], 'comp_'.$this->componentID, $this->componentID, true, $this->bShadow);
+						}
+						else
+						{
+							$new_url = str_replace(CAjax::GetSessionParam($this->componentID), '', $url);
+							$arData[$key] = str_replace($url, $new_url, $arData[$key]);
+						}
+
+						$bDataChanged = true;
+					}
+
+					unset($arData[$key+1]);
+					$key++;
 				}
 
-				if (!$bIgnore)
-				{
-					preg_match_all('/action=(["\']{1})(.*?)\1/i', $arData[$key], $arAction);
-					$url = $arAction[2][0];
-
-					if ($url === '' || $this->__isAjaxURL($url) || $this->__isAjaxURL(urldecode($url)))
-					{
-						$arData[$key] = CAjax::GetForm($arData[$key+1], 'comp_'.$this->componentID, $this->componentID, true, $this->bShadow);
-					}
-					else
-					{
-						$new_url = str_replace(CAjax::GetSessionParam($this->componentID), '', $url);
-						$arData[$key] = str_replace($url, $new_url, $arData[$key]);
-					}
-
-					$bDataChanged = true;
-				}
-
-				unset($arData[$key+1]);
-				$key++;
 			}
-
 		}
 
 		if ($bDataChanged)
+		{
 			$data = implode('', $arData);
+		}
 	}
 
 	function __prepareScripts(&$data)

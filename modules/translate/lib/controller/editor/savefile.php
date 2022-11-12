@@ -29,7 +29,14 @@ class SaveFile
 			$this->addError(new Main\Error(Loc::getMessage('TR_EDIT_FILE_PATH_ERROR')));
 			return $result;
 		}
-		if (!Translate\IO\Path::isLangDir($file, true) || (mb_substr($file, -4) !== '.php'))
+		$normalized = Main\IO\Path::normalize($file);
+		if ($normalized != $file)
+		{
+			$this->addError(new Main\Error(Loc::getMessage('TR_EDIT_FILE_WRONG_NAME')));
+			return $result;
+		}
+		$file = $normalized;
+		if (!Translate\IO\Path::isLangDir($file, true) || (\mb_substr($file, -4) !== '.php'))
 		{
 			$this->addError(new Main\Error(Loc::getMessage('TR_EDIT_ERROR_FILE_NOT_LANG', array('#FILE#' => $file))));
 			return $result;
@@ -67,7 +74,7 @@ class SaveFile
 
 		// codes to drop
 		$phraseIdsToDropTmp = $request->getPost('DROP');
-		if ($phraseIdsToDropTmp !== null && is_array($phraseIdsToDropTmp) && count($phraseIdsToDropTmp) > 0)
+		if ($phraseIdsToDropTmp !== null && \is_array($phraseIdsToDropTmp) && \count($phraseIdsToDropTmp) > 0)
 		{
 			$phraseIdsToDrop = $phraseIdsToDropTmp;
 			$languagesToDrop = $enabledLanguagesList;
@@ -76,7 +83,7 @@ class SaveFile
 
 		// codes to update
 		$phraseIdsToUpdateTmp = $request->getPost('KEYS');
-		if ($phraseIdsToUpdateTmp !== null && is_array($phraseIdsToUpdateTmp) && count($phraseIdsToUpdateTmp) > 0)
+		if ($phraseIdsToUpdateTmp !== null && \is_array($phraseIdsToUpdateTmp) && \count($phraseIdsToUpdateTmp) > 0)
 		{
 			$phraseIdsToUpdate = $phraseIdsToUpdateTmp;
 		}
@@ -84,9 +91,9 @@ class SaveFile
 
 		// languages to update
 		$languagesToUpdateTmp = $request->getPost('LANGS');
-		if ($languagesToUpdateTmp !== null && is_array($languagesToUpdateTmp) && count($languagesToUpdateTmp) > 0)
+		if ($languagesToUpdateTmp !== null && \is_array($languagesToUpdateTmp) && \count($languagesToUpdateTmp) > 0)
 		{
-			$languagesToUpdate = array_intersect($languagesToUpdateTmp, $enabledLanguagesList);
+			$languagesToUpdate = \array_intersect($languagesToUpdateTmp, $enabledLanguagesList);
 		}
 		unset($languagesToUpdateTmp);
 
@@ -104,13 +111,13 @@ class SaveFile
 
 		$documentRoot = rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
 
-		$result['DROPPED'] = array();
-		$result['UPDATED'] = array();
-		$result['CLEANED'] = array();
+		$result['DROPPED'] = [];
+		$result['UPDATED'] = [];
+		$result['CLEANED'] = [];
 
 		foreach ($enabledLanguagesList as $langId)
 		{
-			if (!in_array($langId, $languagesToUpdate) && !in_array($langId, $languagesToDrop))
+			if (!\in_array($langId, $languagesToUpdate) && !\in_array($langId, $languagesToDrop))
 			{
 				continue;
 			}
@@ -124,12 +131,12 @@ class SaveFile
 
 
 			// update and drop
-			if (in_array($langId, $languagesToUpdate))
+			if (\in_array($langId, $languagesToUpdate))
 			{
 				$langFile->setOperatingEncoding($currentEncoding);
 			}
 			// just drop
-			elseif (in_array($langId, $languagesToDrop))
+			elseif (\in_array($langId, $languagesToDrop))
 			{
 				$langFile->setOperatingEncoding(Main\Localization\Translation::getSourceEncoding($langId));
 			}
@@ -147,7 +154,7 @@ class SaveFile
 					}
 				}
 			}
-			if (count($this->getErrors()) > 0)
+			if (\count($this->getErrors()) > 0)
 			{
 				continue;
 			}
@@ -155,7 +162,7 @@ class SaveFile
 			$hasDataToUpdate = false;
 
 			// drop phrases
-			if (in_array($langId, $languagesToDrop))
+			if (\in_array($langId, $languagesToDrop))
 			{
 				foreach ($phraseIdsToDrop as $phraseId)
 				{
@@ -164,7 +171,7 @@ class SaveFile
 						unset($langFile[$phraseId]);
 
 						$hasDataToUpdate = true;
-						if (!in_array($phraseId, $result['DROPPED']))
+						if (!\in_array($phraseId, $result['DROPPED']))
 						{
 							$result['DROPPED'][] = $phraseId;
 						}
@@ -173,12 +180,12 @@ class SaveFile
 			}
 
 			// set phrases
-			if (in_array($langId, $languagesToUpdate) && $isEncodingCompatible($langId))
+			if (\in_array($langId, $languagesToUpdate) && $isEncodingCompatible($langId))
 			{
 				foreach ($phraseIdsToUpdate as $phraseId)
 				{
 					// has been deleted
-					if (in_array($phraseId, $phraseIdsToDrop))
+					if (\in_array($phraseId, $phraseIdsToDrop))
 					{
 						continue;
 					}
@@ -198,7 +205,7 @@ class SaveFile
 							$langFile[$phraseId] = $inpValue;
 
 							$hasDataToUpdate = true;
-							if (!in_array($fldName, $result['UPDATED']))
+							if (!\in_array($fldName, $result['UPDATED']))
 							{
 								$result['UPDATED'][] = $fldName;
 							}
@@ -210,7 +217,7 @@ class SaveFile
 						unset($langFile[$phraseId]);
 
 						$hasDataToUpdate = true;
-						if (!in_array($fldName, $result['CLEANED']))
+						if (!\in_array($fldName, $result['CLEANED']))
 						{
 							$result['CLEANED'][] = $fldName;
 						}
@@ -262,7 +269,8 @@ class SaveFile
 	{
 		return
 			(!empty($prefix) ? $prefix. '_' : '').
-			str_replace(['.', '-'], '_', $phraseId).
-			(!empty($suffix) ? '_'.$suffix : '');
+			\str_replace(['.', '-'], '_', $phraseId).
+			(!empty($suffix) ? '_'.$suffix : '')
+		;
 	}
 }

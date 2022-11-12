@@ -2096,6 +2096,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    babelHelpers.defineProperty(this, "showSettingsPopupHandler", this.handleShowSettingsPopup.bind(this));
 	    babelHelpers.defineProperty(this, "onSaveHandler", this.handleOnSave.bind(this));
 	    babelHelpers.defineProperty(this, "onEditorSubmit", this.handleEditorSubmit.bind(this));
+	    babelHelpers.defineProperty(this, "onFocusToProductList", this.handleProductListFocus.bind(this));
 	    babelHelpers.defineProperty(this, "onBeforeGridRequestHandler", this.handleOnBeforeGridRequest.bind(this));
 	    babelHelpers.defineProperty(this, "onGridUpdatedHandler", this.handleOnGridUpdated.bind(this));
 	    babelHelpers.defineProperty(this, "onGridRowMovedHandler", this.handleOnGridRowMoved.bind(this));
@@ -2184,6 +2185,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    value: function subscribeCustomEvents() {
 	      main_core_events.EventEmitter.subscribe('BX.UI.EntityEditor:onSave', this.onSaveHandler);
 	      main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorAjax:onSubmit', this.onEditorSubmit);
+	      main_core_events.EventEmitter.subscribe('onFocusToProductList', this.onFocusToProductList);
 	      main_core_events.EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
 	      main_core_events.EventEmitter.subscribe('Grid::updated', this.onGridUpdatedHandler);
 	      main_core_events.EventEmitter.subscribe('Grid::rowMoved', this.onGridRowMovedHandler);
@@ -2302,6 +2304,38 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  }, {
 	    key: "handleEditorSubmit",
 	    value: function handleEditorSubmit(event) {}
+	  }, {
+	    key: "handleProductListFocus",
+	    value: function handleProductListFocus(event) {
+	      if (this.isReadOnly()) {
+	        return;
+	      }
+
+	      var listHaveEmptyRows = false;
+
+	      var _iterator3 = _createForOfIteratorHelper$1(this.products),
+	          _step3;
+
+	      try {
+	        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+	          var product = _step3.value;
+
+	          if (product.isEmptyRow()) {
+	            listHaveEmptyRows = true;
+	            this.focusProductSelector(product.fields['ROW_ID']);
+	            break;
+	          }
+	        }
+	      } catch (err) {
+	        _iterator3.e(err);
+	      } finally {
+	        _iterator3.f();
+	      }
+
+	      if (!listHaveEmptyRows) {
+	        this.handleProductRowAdd();
+	      }
+	    }
 	  }, {
 	    key: "onInnerCancel",
 	    value: function onInnerCancel() {
@@ -3009,21 +3043,21 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    value: function initProducts() {
 	      var list = this.getSettingValue('items', []);
 
-	      var _iterator3 = _createForOfIteratorHelper$1(list),
-	          _step3;
+	      var _iterator4 = _createForOfIteratorHelper$1(list),
+	          _step4;
 
 	      try {
-	        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-	          var item = _step3.value;
+	        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+	          var item = _step4.value;
 
 	          var fields = _objectSpread$1({}, item.fields);
 
 	          this.products.push(new Row(item.rowId, fields, this.getSettingValue('rowSettings', {}), this));
 	        }
 	      } catch (err) {
-	        _iterator3.e(err);
+	        _iterator4.e(err);
 	      } finally {
-	        _iterator3.f();
+	        _iterator4.f();
 	      }
 
 	      this.numerateRows();
@@ -3484,12 +3518,12 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        return;
 	      }
 
-	      var _iterator4 = _createForOfIteratorHelper$1(actions),
-	          _step4;
+	      var _iterator5 = _createForOfIteratorHelper$1(actions),
+	          _step5;
 
 	      try {
-	        for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-	          var item = _step4.value;
+	        for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
+	          var item = _step5.value;
 
 	          if (!main_core.Type.isPlainObject(item) || !main_core.Type.isStringFilled(item.type)) {
 	            continue;
@@ -3510,9 +3544,9 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	          }
 	        }
 	      } catch (err) {
-	        _iterator4.e(err);
+	        _iterator5.e(err);
 	      } finally {
-	        _iterator4.f();
+	        _iterator5.f();
 	      }
 	    }
 	  }, {
@@ -3555,18 +3589,18 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 
 	      this.updateFieldForList = item.field;
 
-	      var _iterator5 = _createForOfIteratorHelper$1(this.products),
-	          _step5;
+	      var _iterator6 = _createForOfIteratorHelper$1(this.products),
+	          _step6;
 
 	      try {
-	        for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-	          var row = _step5.value;
+	        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
+	          var row = _step6.value;
 	          row.updateFieldByName(item.field, item.value);
 	        }
 	      } catch (err) {
-	        _iterator5.e(err);
+	        _iterator6.e(err);
 	      } finally {
-	        _iterator5.f();
+	        _iterator6.f();
 	      }
 
 	      this.updateFieldForList = null;
@@ -3597,18 +3631,18 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      var fields = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 	      var productFields = [];
 
-	      var _iterator6 = _createForOfIteratorHelper$1(this.products),
-	          _step6;
+	      var _iterator7 = _createForOfIteratorHelper$1(this.products),
+	          _step7;
 
 	      try {
-	        for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-	          var item = _step6.value;
+	        for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
+	          var item = _step7.value;
 	          productFields.push(item.getFields(fields));
 	        }
 	      } catch (err) {
-	        _iterator6.e(err);
+	        _iterator7.e(err);
 	      } finally {
-	        _iterator6.f();
+	        _iterator7.f();
 	      }
 
 	      return productFields;
@@ -3842,12 +3876,12 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        var firstProductRowNode = this.products[0].getNode();
 	        var addictedNodes = [];
 
-	        var _iterator7 = _createForOfIteratorHelper$1(addictedFields),
-	            _step7;
+	        var _iterator8 = _createForOfIteratorHelper$1(addictedFields),
+	            _step8;
 
 	        try {
-	          for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-	            var _fieldName = _step7.value;
+	          for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
+	            var _fieldName = _step8.value;
 
 	            var _fieldNode = firstProductRowNode.querySelector("[data-name=\"".concat(_fieldName, "\"]"));
 
@@ -3856,9 +3890,9 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	            }
 	          }
 	        } catch (err) {
-	          _iterator7.e(err);
+	          _iterator8.e(err);
 	        } finally {
-	          _iterator7.f();
+	          _iterator8.f();
 	        }
 
 	        var fieldNode = firstProductRowNode.querySelector("[data-name=\"".concat(fieldName, "\"]"));

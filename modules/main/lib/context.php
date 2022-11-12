@@ -133,14 +133,10 @@ class Context
 	/**
 	 * Returns culture of the context.
 	 *
-	 * @return Context\Culture
+	 * @return Context\Culture | null
 	 */
 	public function getCulture()
 	{
-		if ($this->culture === null)
-		{
-			$this->culture = new Context\Culture();
-		}
 		return $this->culture;
 	}
 

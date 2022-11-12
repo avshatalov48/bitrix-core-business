@@ -26,6 +26,7 @@ export class Step extends Event.EventEmitter
 		this.cursorMode = options.cursorMode || false;
 		this.targetEvent = options.targetEvent || null;
 		this.buttons = options.buttons || [];
+		this.condition = options.condition || null;
 
 		const events = Type.isPlainObject(options.events) ? options.events : {};
 
@@ -39,6 +40,11 @@ export class Step extends Event.EventEmitter
 				});
 			}
 		}
+	}
+
+	getCondition()
+	{
+		return this.condition;
 	}
 
 	getTarget()

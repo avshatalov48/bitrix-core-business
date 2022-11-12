@@ -96,13 +96,15 @@ class CatalogStoreAdminList extends CBitrixComponent
 		$listFilter = $this->getListFilter();
 		$select = array_merge(['*'], $this->getUserSelectColumns($this->getUserReferenceColumns()));
 
-		$list = StoreTable::getList([
+		$dbResult = StoreTable::getList([
 			'order' => $gridSort['sort'],
 			'offset' => $pageNavigation->getOffset(),
 			'limit' => $pageNavigation->getLimit(),
 			'filter' => $listFilter,
 			'select' => $select,
-		])->fetchAll();
+			'count_total' => true,
+		]);
+		$list = $dbResult->fetchAll();
 
 		foreach($list as $item)
 		{
@@ -114,7 +116,7 @@ class CatalogStoreAdminList extends CBitrixComponent
 			];
 		}
 
-		$totalCount = $this->getTotalCount();
+		$totalCount = $dbResult->getCount();
 
 		$pageNavigation->setRecordCount($totalCount);
 		$result['NAV_PARAM_NAME'] = $this->navParamName;
@@ -150,19 +152,6 @@ class CatalogStoreAdminList extends CBitrixComponent
 		];
 
 		return $result;
-	}
-
-	private function getTotalCount(): int
-	{
-		$count = StoreTable::getList([
-			'select' => ['CNT'],
-			'filter' => $this->getListFilter(),
-			'runtime' => [
-				new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(*)')
-			],
-		])->fetch()['CNT'];
-
-		return (int)$count;
 	}
 
 	private function getUserReferenceColumns()

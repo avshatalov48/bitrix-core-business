@@ -34,7 +34,7 @@ export class FilterGuide
 
 	start()
 	{
-		this.guide.getPopup().setWidth(365); //some magic ^_^
+		this.guide.getPopup().setWidth(365);
 		this.guide.showNextStep();
 	}
 

@@ -8,26 +8,42 @@ use Bitrix\UI\Toolbar\Manager;
 /**
  * Class Toolbar
  * @package Bitrix\UI\Toolbar\Facade
+ * @method static getId();
+ * @see \Bitrix\UI\Toolbar\Toolbar::getId
  * @method static addButton($button, $location = ButtonLocation::RIGHT);
  * @see \Bitrix\UI\Toolbar\Toolbar::addButton
- * @method static addFilter($options = []);
- * @see \Bitrix\UI\Toolbar\Toolbar::addFilter
+ * @method static deleteButtons(\Closure $closure)
+ * @see \Bitrix\UI\Toolbar\Toolbar::deleteButtons
+ * @method static shuffleButtons(\Closure $closure, $buttonLocation)
+ * @see \Bitrix\UI\Toolbar\Toolbar::shuffleButtons
  * @method static hasFavoriteStar();
  * @see \Bitrix\UI\Toolbar\Toolbar::hasFavoriteStar
  * @method static addFavoriteStar();
  * @see \Bitrix\UI\Toolbar\Toolbar::addFavoriteStar
  * @method static deleteFavoriteStar();
  * @see \Bitrix\UI\Toolbar\Toolbar::deleteFavoriteStar
- * @method static getId();
- * @see \Bitrix\UI\Toolbar\Toolbar::getId
+ * @method static addFilter($options = []);
+ * @see \Bitrix\UI\Toolbar\Toolbar::addFilter
  * @method static getFilter();
  * @see \Bitrix\UI\Toolbar\Toolbar::getFilter
+ * @method static addBeforeTitleHtml(string $html);
+ * @see \Bitrix\UI\Toolbar\Toolbar::addBeforeTitleHtml
  * @method static getBeforeTitleHtml();
  * @see \Bitrix\UI\Toolbar\Toolbar::getBeforeTitleHtml
+ * @method static addAfterTitleHtml(string $html)
+ * @see \Bitrix\UI\Toolbar\Toolbar::addAfterTitleHtml
  * @method static getAfterTitleHtml();
  * @see \Bitrix\UI\Toolbar\Toolbar::getAfterTitleHtml
+ *  * @method static addUnderTitleHtml(string $html)
+ * @see \Bitrix\UI\Toolbar\Toolbar::addUnderTitleHtml
+ * @method static getUnderTitleHtml();
+ * @see \Bitrix\UI\Toolbar\Toolbar::getUnderTitleHtml
+ * @method static addRightCustomHtml(string $html);
+ * @see \Bitrix\UI\Toolbar\Toolbar::addRightCustomHtml
  * @method static getRightCustomHtml();
  * @see \Bitrix\UI\Toolbar\Toolbar::getRightCustomHtml
+ * @method static getButtons()
+ * @see \Bitrix\UI\Toolbar\Toolbar::getButtons
  * @method static renderAfterTitleButtons();
  * @see \Bitrix\UI\Toolbar\Toolbar::renderAfterTitleButtons
  * @method static renderRightButtons();
@@ -44,12 +60,6 @@ use Bitrix\UI\Toolbar\Manager;
  * @see \Bitrix\UI\Toolbar\Toolbar::setTitleMaxWidth
  * @method static getTitleMaxWidth();
  * @see \Bitrix\UI\Toolbar\Toolbar::getTitleMaxWidth
- * @method static deleteButtons(\Closure $closure)
- * @see \Bitrix\UI\Toolbar\Toolbar::deleteButtons
- * @method static shuffleButtons(\Closure $closure, $buttonLocation)
- * @see \Bitrix\UI\Toolbar\Toolbar::shuffleButtons
- * @method static getButtons()
- * @see \Bitrix\UI\Toolbar\Toolbar::getButtons
  */
 final class Toolbar
 {

@@ -29,8 +29,6 @@ import { Context } from './context/context';
 
 export { Helper } from './helper';
 
-import { Reflection } from "main.core";
-
 import 'ui.design-tokens';
 import 'ui.fonts.opensans';
 import './css/style.css'
@@ -39,6 +37,9 @@ export {
 	TemplatesScheme,
 	Context,
 }
+
+export { BeginningGuide } from './tourguide/beginning-guide';
+export { AutomationGuide } from './tourguide/automation-guide';
 
 let contextInstance: ?Context;
 

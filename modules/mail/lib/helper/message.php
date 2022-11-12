@@ -679,6 +679,12 @@ class Message
 					$html = '<div></div>';
 				}
 
+				if (mb_strlen($text) > \CMailMessage::MAX_LENGTH_MESSAGE_BODY)
+				{
+
+					[$text, $html] = \CMailMessage::prepareLongMessage($text, $html);
+				}
+
 				\CMailMessage::update(
 					$message['MESSAGE_ID'],
 					[

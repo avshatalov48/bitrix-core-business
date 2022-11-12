@@ -76,8 +76,15 @@ export default class AutomationMainView extends EventEmitter
 
 	showExpanded()
 	{
-		this.debugger.settings.set('popup-collapsed', false);
-		this.show();
+		if (!this.#getPopup().isShown())
+		{
+			this.debugger.settings.set('popup-collapsed', false);
+			this.show();
+
+			return;
+		}
+
+		this.#handleCollapse();
 	}
 
 	showCollapsed()
@@ -171,7 +178,7 @@ export default class AutomationMainView extends EventEmitter
 					${document.createTextNode(Loc.getMessage('BIZPROC_DEBUGGER_AUTOMATION_POPUP_TITLE'))}
 					<div 
 						class="bizproc-debugger-automation__titlebar--button-collapse" 
-						onclick="${this.handleCollapse.bind(this)}"
+						onclick="${this.#handleCollapse.bind(this)}"
 					></div>
 					<span 
 						class=" popup-window-close-icon 
@@ -184,7 +191,7 @@ export default class AutomationMainView extends EventEmitter
 		};
 	}
 
-	handleCollapse()
+	#handleCollapse()
 	{
 		const node = this.#getPopup().getPopupContainer();
 		const collapsed = Dom.hasClass(node, '--collapse');
@@ -684,10 +691,13 @@ export default class AutomationMainView extends EventEmitter
 		const color = this.#getDocumentStatusColor();
 		const title = Text.encode(this.#getDocumentStatusTitle());
 
-		//class --robot-change
-		//onclick="${this.#handleShowStages.bind(this)}"
 		return Tag.render`
-			<div class="bizproc-debugger-automation__status ---robot-change ${Helper.getBgColorAdditionalClass(color)}" data-role="document-status" title="${title}">
+			<div 
+				class="bizproc-debugger-automation__status --robot-change ${Helper.getBgColorAdditionalClass(color)}"
+				data-role="document-status"
+				title="${title}"
+				onclick="${this.#handleShowStages.bind(this)}"
+			>
 				<div class="bizproc-debugger-automation__status--title" data-role="document-status-title">
 					${title}
 				</div>

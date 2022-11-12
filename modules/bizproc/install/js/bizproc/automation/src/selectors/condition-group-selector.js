@@ -11,7 +11,9 @@ export class ConditionGroupSelector
 	#fields: Array<Object>;
 	#fieldPrefix: string;
 	#itemSelectors: Array<ConditionSelector>;
+	#onOpenFieldMenu: ?(BaseEvent) => void;
 	#onOpenMenu: ?(BaseEvent) => void;
+	#rootGroupTitle: ?string;
 
 	constructor(conditionGroup: ConditionGroup, options: Object)
 	{
@@ -31,6 +33,8 @@ export class ConditionGroupSelector
 				this.#fieldPrefix = options.fieldPrefix;
 			}
 
+			this.#rootGroupTitle = options.rootGroupTitle
+			this.#onOpenFieldMenu = options.onOpenFieldMenu;
 			this.#onOpenMenu = options.onOpenMenu;
 		}
 	}
@@ -47,6 +51,8 @@ export class ConditionGroupSelector
 				fields: fields,
 				joiner: item[1],
 				fieldPrefix: me.#fieldPrefix,
+				rootGroupTitle: this.#rootGroupTitle,
+				onOpenFieldMenu: this.#onOpenFieldMenu,
 				onOpenMenu: this.#onOpenMenu,
 			});
 
@@ -76,6 +82,8 @@ export class ConditionGroupSelector
 		const conditionSelector = new ConditionSelector(new Condition({}, this.#conditionGroup), {
 			fields: this.#fields,
 			fieldPrefix: this.#fieldPrefix,
+			rootGroupTitle: this.#rootGroupTitle,
+			onOpenFieldMenu: this.#onOpenFieldMenu,
 			onOpenMenu: this.#onOpenMenu,
 		});
 		this.#itemSelectors.push(conditionSelector);

@@ -1,5 +1,6 @@
 {
 	"space": {
+		"type": "spacing",
 		"stack": {
 			"none": { "value": "0" },
 			"3xs": { "value": "2px" },

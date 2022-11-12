@@ -177,6 +177,11 @@ class Random
 	{
 		$backup = null;
 
+		if ($length <= 0)
+		{
+			$length = 1;
+		}
+
 		if (static::isOpensslAvailable())
 		{
 			$bytes = openssl_random_pseudo_bytes($length, $strong);
@@ -241,7 +246,7 @@ class Random
 
 		return hash('sha512', $bytes, true);
 	}
-	
+
 	/**
 	 * Checks OpenSSL available
 	 *

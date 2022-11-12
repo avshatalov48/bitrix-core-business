@@ -10,6 +10,8 @@ import TagSelector from '../tag-selector/tag-selector';
 import Navigation from './navigation';
 import SliderIntegration from './integration/slider-integration';
 import Animation from '../common/animation';
+import BaseHeader from './header/base-header';
+import DefaultHeader from './header/default-header';
 import BaseFooter from './footer/base-footer';
 import DefaultFooter from './footer/default-footer';
 
@@ -23,6 +25,7 @@ import type { ItemOptions } from '../item/item-options';
 import type { EntityOptions } from '../entity/entity-options';
 import type { ItemId } from '../item/item-id';
 import type { PopupOptions } from 'main.popup';
+import type { HeaderOptions, HeaderContent } from './header/header-content';
 import type { FooterOptions, FooterContent } from './footer/footer-content';
 import type { ItemNodeOptions } from '../item/item-node-options';
 
@@ -99,6 +102,7 @@ export default class Dialog extends EventEmitter
 	recentItemsToSave = [];
 
 	navigation: Navigation = null;
+	header: BaseHeader = null;
 	footer: BaseFooter = null;
 	popupOptions: PopupOptions = {};
 
@@ -582,6 +586,7 @@ export default class Dialog extends EventEmitter
 			this.focusOnFirstNode();
 		}
 
+		this.adjustHeader();
 		this.adjustFooter();
 
 		return newActiveTab;
@@ -597,6 +602,11 @@ export default class Dialog extends EventEmitter
 
 		Dom.append(tab.getLabelContainer(), this.getLabelsContainer());
 		Dom.append(tab.getContainer(), this.getTabContentsContainer());
+
+		if (tab.getHeader())
+		{
+			Dom.append(tab.getHeader().getContainer(), this.getHeaderContainer());
+		}
 
 		if (tab.getFooter())
 		{
@@ -718,6 +728,11 @@ export default class Dialog extends EventEmitter
 		Dom.remove(tab.getLabelContainer(), this.getLabelsContainer());
 		Dom.remove(tab.getContainer(), this.getTabContentsContainer());
 
+		if (tab.getHeader())
+		{
+			Dom.remove(tab.getHeader().getContainer(), this.getHeaderContainer());
+		}
+
 		if (tab.getFooter())
 		{
 			Dom.remove(tab.getFooter().getContainer(), this.getFooterContainer());
@@ -779,6 +794,143 @@ export default class Dialog extends EventEmitter
 				this.removeItem(item);
 			});
 		}
+	}
+
+	getHeader(): ?BaseHeader
+	{
+		return this.header;
+	}
+
+	getActiveHeader(): ?BaseHeader
+	{
+		if (!this.getActiveTab())
+		{
+			return null;
+		}
+
+		if (this.getActiveTab().getHeader())
+		{
+			return this.getActiveTab().getHeader();
+		}
+
+		return this.getHeader() && this.getActiveTab().canShowDefaultHeader() ? this.getHeader() : null;
+	}
+
+	/**
+	 * @internal
+	 */
+	adjustHeader(): void
+	{
+		if (!this.getActiveTab())
+		{
+			return;
+		}
+
+		if (this.getActiveTab().getHeader())
+		{
+			if (this.getHeader())
+			{
+				this.getHeader().hide();
+			}
+
+			this.getActiveTab().getHeader().show();
+		}
+		else
+		{
+			if (this.getHeader())
+			{
+				if (this.getActiveTab().canShowDefaultHeader())
+				{
+					this.getHeader().show();
+				}
+				else
+				{
+					this.getHeader().hide();
+				}
+			}
+		}
+	}
+
+	setHeader(headerContent: ?HeaderContent, headerOptions?: HeaderOptions): ?BaseHeader
+	{
+		/** @var {BaseHeader} */
+		let header = null;
+		if (headerContent !== null)
+		{
+			header = this.constructor.createHeader(this, headerContent, headerOptions);
+			if (header === null)
+			{
+				return null;
+			}
+		}
+
+		if (this.isRendered() && this.getHeader() !== null)
+		{
+			Dom.remove(this.getHeader().getContainer());
+			this.adjustHeader();
+		}
+
+		this.header = header;
+
+		if (this.isRendered())
+		{
+			this.appendHeader(header);
+			this.adjustHeader();
+		}
+
+		return header;
+	}
+
+	/**
+	 * @internal
+	 */
+	appendHeader(header: BaseHeader): void
+	{
+		if (header instanceof BaseHeader)
+		{
+			Dom.append(header.getContainer(), this.getHeaderContainer());
+		}
+	}
+
+	/**
+	 * @internal
+	 */
+	static createHeader(context: Dialog | Tab, headerContent: HeaderContent, headerOptions?: HeaderOptions): ?BaseHeader
+	{
+		if (
+			!Type.isStringFilled(headerContent) &&
+			!Type.isArrayFilled(headerContent) &&
+			!Type.isDomNode(headerContent) &&
+			!Type.isFunction(headerContent)
+		)
+		{
+			return null;
+		}
+
+		/** @var {BaseHeader} */
+		let header = null;
+		const options = Type.isPlainObject(headerOptions) ? headerOptions : {};
+
+		if (Type.isFunction(headerContent) || Type.isString(headerContent))
+		{
+			const className = Type.isString(headerContent) ? Reflection.getClass(headerContent) : headerContent;
+			if (Type.isFunction(className))
+			{
+				header = new className(context, options);
+				if (!(header instanceof BaseHeader))
+				{
+					console.error('EntitySelector: header is not an instance of BaseHeader.');
+					header = null;
+				}
+			}
+		}
+
+		if (headerContent !== null && !header)
+		{
+			header = new DefaultHeader(context, Object.assign({}, options, { content: headerContent }));
+		}
+
+		return header;
 	}
 
 	getFooter(): ?BaseFooter
@@ -1289,6 +1441,7 @@ export default class Dialog extends EventEmitter
 			});
 		}
 
+		this.setHeader(options.header, options.headerOptions);
 		this.setFooter(options.footer, options.footerOptions);
 	}
 
@@ -1475,6 +1628,7 @@ export default class Dialog extends EventEmitter
 					class="ui-selector-dialog${className}" 
 					style="width:${this.getWidth()}px; height:${this.getHeight()}px;"
 				>
+					${this.getHeaderContainer()}
 					${searchContainer}
 					${this.getTabsContainer()}
 					${this.getFooterContainer()}
@@ -1511,6 +1665,17 @@ export default class Dialog extends EventEmitter
 					onmouseenter="${this.handleLabelsMouseEnter.bind(this)}"
 					onmouseleave="${this.handleLabelsMouseLeave.bind(this)}"
 				></div>
+			`;
+		});
+	}
+
+	getHeaderContainer(): HTMLElement
+	{
+		return this.cache.remember('header', () => {
+			const header = this.getHeader() && this.getHeader().getContainer();
+
+			return Tag.render`
+				<div class="ui-selector-header-container">${header ? header : ''}</div>
 			`;
 		});
 	}
@@ -2002,7 +2167,7 @@ export default class Dialog extends EventEmitter
 		this.disconnectTabOverlapping();
 
 		this.overlappingObserver = new MutationObserver(() => {
-			if (this.getTabs().some((tab: Tab) => tab.isVisible()))
+			if (this.getLabelsContainer().offsetWidth > 0)
 			{
 				const left = parseInt(this.getPopup().getPopupContainer().style.left, 10);
 				if (left < this.getMinLabelWidth())

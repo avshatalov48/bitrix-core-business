@@ -646,7 +646,7 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	    let text = params.textOriginal;
 
 	    if (command === 'messageDelete') {
-	      text = params.text;
+	      text = main_core.Loc.getMessage('IM_PULL_RECENT_MESSAGE_DELETED');
 	    }
 
 	    this.store.dispatch('recent/update', {

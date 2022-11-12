@@ -192,9 +192,9 @@ class IndexCsv
 			}
 
 			if (
-				!is_array($csvRow) ||
+				!\is_array($csvRow) ||
 				empty($csvRow) ||
-				(count($csvRow) == 1 && ($csvRow[0] === null || $csvRow[0] === ''))
+				(\count($csvRow) == 1 && ($csvRow[0] === null || $csvRow[0] === ''))
 			)
 			{
 				continue;
@@ -291,10 +291,10 @@ class IndexCsv
 			$this->csvFile->moveFirst();
 			$rowHead = $this->csvFile->fetch();
 			if (
-				!is_array($rowHead) ||
+				!\is_array($rowHead) ||
 				empty($rowHead) ||
 				empty($rowHead[0]) ||
-				(count($rowHead) < 3)
+				(\count($rowHead) < 3)
 			)
 			{
 				continue;
@@ -304,17 +304,17 @@ class IndexCsv
 		}
 
 		if (
-			!is_array($rowHead) ||
+			!\is_array($rowHead) ||
 			empty($rowHead) ||
 			empty($rowHead[0]) ||
-			(count($rowHead) < 3)
+			(\count($rowHead) < 3)
 		)
 		{
 			return false;
 		}
 
 		$this->languageList = self::$enabledLanguages;
-		$this->columnList = array_flip($rowHead);
+		$this->columnList = \array_flip($rowHead);
 		foreach ($this->languageList as $keyLang => $langID)
 		{
 			if (!isset($this->columnList[$langID]))

@@ -1297,6 +1297,8 @@ class CMailMessageDBResult extends CDBResult
 ///////////////////////////////////////////////////////////////////////////////////
 class CAllMailMessage
 {
+	public const MAX_LENGTH_MESSAGE_BODY = 200000;
+
 	public static function GetList($arOrder = Array(), $arFilter = Array(), $bCnt = false)
 	{
 		global $DB;
@@ -1685,6 +1687,11 @@ class CAllMailMessage
 		$message_body = &$bodyText;
 		$arMessageParts = &$attachments;
 
+		if (self::isLongMessageBody($message_body))
+		{
+			[$message_body, $message_body_html] = self::prepareLongMessage($message_body, $message_body_html);
+		}
+
 		$arFields = array(
 			"MAILBOX_ID" => $mailbox_id,
 			"HEADER" => $obHeader->strHeader,
@@ -1704,6 +1711,11 @@ class CAllMailMessage
 				'attachments' => count($arMessageParts),
 			),
 		);
+
+		if (empty($message_body) || empty($message_body_html))
+		{
+			$arFields['OPTIONS']['isEmptyBody'] = 'Y';
+		}
 
 		$inReplyTo = trim($obHeader->GetHeader("IN-REPLY-TO"), " <>");
 
@@ -2316,6 +2328,204 @@ class CAllMailMessage
 		}
 
 		return $ID;
+	}
+
+	/**
+	 * @param string|null $messageBody
+	 * @return bool
+	 */
+	private static function isLongMessageBody(?string &$messageBody): bool
+	{
+		if (!$messageBody)
+		{
+			return false;
+		}
+
+		return mb_strlen($messageBody) > self::MAX_LENGTH_MESSAGE_BODY;
+	}
+
+	/**
+	 * @param string|null $messageBodyHtml
+	 * @param string|null $messageBody
+	 * @return string
+	 */
+	private static function getClearBody(string $body): string
+	{
+		// get <body> inner html if exists
+		$innerBody = trim(preg_replace('/(.*?<body[^>]*>)(.*?)(<\/body>.*)/is', '$2', $body));
+		$body = $innerBody ?: $body;
+
+		// modify links to text version
+		$body = preg_replace_callback(
+			"%<a[^>]*?href=(['\"])(?<href>[^\1]*?)(?1)[^>]*?>(?<text>.*?)<\/a>%ims",
+			function ($matches)
+			{
+				$href = $matches['href'];
+				$text = trim($matches['text']);
+				if (!$href)
+				{
+					return $matches[0];
+				}
+				$text = strip_tags($text);
+				return ($text ? "$text:" : '') ."\n$href\n";
+			},
+			$body
+		);
+
+		// change <br> to new line
+		$body = preg_replace('/\<br(\s*)?\/?\>/i', "\n", $body);
+
+		$body = preg_replace('|(<style[^>]*>)(.*?)(<\/style>)|isU', '', $body);
+		$body = preg_replace('|(<script[^>]*>)(.*?)(<\/script>)|isU', '', $body);
+
+		// remove tags
+		$body = strip_tags($body);
+
+		// format text to the left side
+		$lines = [];
+		foreach (explode("\n", trim($body)) as $line)
+		{
+			$lines[] = trim($line);
+		}
+
+		// remove redundant new lines
+		$body = preg_replace("/[\\n]{2,}/", "\n\n", implode("\n", $lines));
+
+		// remove redundant spaces
+		$body = preg_replace("/[ \\t]{2,}/", "  ", $body);
+
+		// decode html-entities
+		return html_entity_decode($body);
+	}
+
+	/**
+	 * @param string $body
+	 * @return string[]
+	 */
+	protected static function getTextHtmlBlock(string &$body): array
+	{
+		$messageBody = '';
+		$messageBodyHtml = '';
+
+		$boundaryMatches = [];
+		preg_match('/content-type: multipart\/mixed; [\s\n\t]*boundary=\"(?<boundary>[\w+-]+)\"/i', $body, $boundaryMatches);
+		if (is_string($boundaryMatches['boundary']))
+		{
+			$parts = explode('--'. $boundaryMatches['boundary'][0], $body);
+			if (count($parts) > 1)
+			{
+				foreach ($parts as $part)
+				{
+					preg_match('/content-type: (?<contentType>text\/[html|plain]+); *charset="(?<charset>\w+-\d)"/i', $part, $contentTypeMatches);
+					if (isset($contentTypeMatches['contentType']))
+					{
+						preg_match('/content-transfer-encoding: (?<encode>[\w]+)/i', $part, $encodeMatches);
+
+						$partBody = self::getPartBody($part);
+						if ($partBody === null)
+						{
+							continue;
+						}
+
+						if ($encodeMatches['encode'] === 'base64')
+						{
+							$partBody = base64_decode($partBody);
+						}
+
+						if ($contentTypeMatches['contentType'] === 'text/plain')
+						{
+							$messageBody = $partBody;
+						}
+
+						if ($contentTypeMatches['contentType'] === 'text/html')
+						{
+							$messageBodyHtml = $partBody;
+						}
+					}
+				}
+			}
+		}
+
+		return [$messageBody, $messageBodyHtml];
+	}
+
+	/**
+	 * @param $messageBody
+	 * @param $messageBodyHtml
+	 * @return array
+	 */
+	public static function prepareLongMessage(&$messageBody, &$messageBodyHtml): array
+	{
+		if (mb_stripos($messageBody, '--- Below this line is a copy of the message'))
+		{
+			$mainBodyHtml = $mainBody = explode('--- Below this line is a copy of the message', $messageBody)[0];
+		}
+		elseif (mb_stripos($messageBodyHtml, htmlspecialcharsbx('<blockquote>')))
+		{
+			$mainBody = $mainBodyHtml = self::cutBlockHtmlQuote($messageBodyHtml);
+		}
+		elseif (mb_stripos($messageBody, '<blockquote>'))
+		{
+			$mainBody = $mainBodyHtml = self::cutBlockQuote($messageBody);
+		}
+		else
+		{
+			[$mainBody, $mainBodyHtml] = self::getTextHtmlBlock($messageBody);
+		}
+
+		$mainBody = self::getClearBody($mainBody);
+
+		return [$mainBody, $mainBodyHtml];
+	}
+
+	/**
+	 * @param $part
+	 * @return string
+	 */
+	protected static function getPartBody(&$part): ?string
+	{
+		$itemParts = explode("\r\n\r\n", $part);
+		if (!is_array($itemParts) && (count($itemParts) < 2))
+		{
+			$itemParts = explode("\n\n", $part);
+		}
+
+		if (!is_array($itemParts) && (count($itemParts) < 2))
+		{
+			$itemParts = explode("\r\n\n\r\n", $part);
+		}
+
+		if (!is_array($itemParts) && (count($itemParts) < 2))
+		{
+			$itemParts = explode("\n\n\n", $part);
+		}
+
+		if (is_array($itemParts) && (count($itemParts) >= 2))
+		{
+			return $itemParts[1];
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param $messageBodyHtml
+	 * @return array|string|string[]|null
+	 */
+	private static function cutBlockQuote(&$messageBodyHtml)
+	{
+		return preg_replace('|(<blockquote>)(.*?)(<\/blockquote>)|isU', '', $messageBodyHtml);
+	}
+
+	/**
+	 * @param $messageBodyHtml
+	 * @return string
+	 */
+	private static function cutBlockHtmlQuote(&$messageBodyHtml): string
+	{
+		$messageBody = htmlspecialcharsback($messageBodyHtml);
+
+		return htmlspecialcharsbx(self::cutBlockQuote($messageBody));
 	}
 }
 

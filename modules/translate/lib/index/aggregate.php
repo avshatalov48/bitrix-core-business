@@ -49,10 +49,10 @@ class Aggregate
 		{
 			$languages = $params['LANGUAGES'];
 		}
-		usort($languages, function ($langId) use ($currentLanguage) {
+		\usort($languages, function ($langId) use ($currentLanguage) {
 			return $langId === $currentLanguage ? 0 : 1;
 		});
-		$languageUpperKeys = array_combine($languages, array_map('mb_strtoupper', $languages));
+		$languageUpperKeys = \array_combine($languages, \array_map('mb_strtoupper', $languages));
 
 		foreach ($languageUpperKeys as $langId => $alias)
 		{
@@ -115,18 +115,18 @@ class Aggregate
 		{
 			$languages = $params['LANGUAGES'];
 		}
-		usort($languages, function ($langId) use ($currentLanguage) {
+		\usort($languages, function ($langId) use ($currentLanguage) {
 			return $langId === $currentLanguage ? 0 : 1;
 		});
 
-		$className .= "_". implode('', $languages);
+		$className .= "_". \implode('', $languages);
 
 		if (!empty($params['PATH_LIST']))
 		{
-			$className .= "_". md5(implode('', $params['PATH_LIST']));
+			$className .= "_". \md5(\implode('', $params['PATH_LIST']));
 		}
 
-		$languageUpperKeys = array_combine($languages, array_map('mb_strtoupper', $languages));
+		$languageUpperKeys = \array_combine($languages, \array_map('mb_strtoupper', $languages));
 
 		if (!isset(self::$entities[$className]))
 		{

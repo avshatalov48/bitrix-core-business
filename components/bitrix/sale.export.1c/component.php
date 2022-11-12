@@ -418,43 +418,32 @@ else
 		if($_SESSION["BX_CML2_EXPORT"]["zip"] <> '')
 		{
 			$file_name = $_SESSION["BX_CML2_EXPORT"]["zip"];
+			$dir_name = mb_substr($file_name, 0, mb_strrpos($file_name, "/") + 1);
 
-			if(function_exists("zip_open"))
+			if (mb_strlen($dir_name) <= mb_strlen($_SERVER["DOCUMENT_ROOT"]))
 			{
-				$dir_name = mb_substr($file_name, 0, mb_strrpos($file_name, "/") + 1);
-				if(mb_strlen($dir_name) <= mb_strlen($_SERVER["DOCUMENT_ROOT"]))
-					return false;
+				return false;
+			}
 
-				$hZip = zip_open($file_name);
-				if($hZip)
+			/** @var IBXArchive $oArchiver */
+			$oArchiver = CBXArchive::GetArchive($file_name, "ZIP");
+			if ($oArchiver instanceof IBXArchive)
+			{
+				$rArchiver = $oArchiver->Unpack($dir_name);
+
+				if ($rArchiver)
 				{
-					while($entry = zip_read($hZip))
-					{
-						$entry_name = zip_entry_name($entry);
-						//Check for directory
-						if(zip_entry_filesize($entry))
-						{
-							$ABS_FILE_NAME = $dir_name.$entry_name;
-							$file_name = $dir_name.$entry_name;
-							CheckDirPath($file_name);
-							$fout = fopen($file_name, "wb");
-							if($fout)
-							{
-								while($data = zip_entry_read($entry, 102400))
-								{
-									$result = fwrite($fout, $data);
-									if($result !== (function_exists("mb_strlen")? mb_strlen($data, 'latin1') : mb_strlen($data)))
-										return false;
-								}
-							}
-						}
-						zip_entry_close($entry);
-					}
-					zip_close($hZip);
+					$ABS_FILE_NAME = current($rArchiver)['filename'];
+				}
+				else
+				{
+					echo "error\n".GetMessage("CC_BSC1_UNZIP_ERROR");
 				}
 			}
 			else
-				echo "error\n".GetMessage("CC_BSC1_UNZIP_ERROR");
+			{
+				return false;
+			}
 		}
 
 		$new_file_name = $ABS_FILE_NAME;
@@ -531,9 +520,9 @@ else
 	elseif($_GET["mode"] == "import" && $_SESSION["BX_CML2_EXPORT"]["zip"] && mb_strlen($_SESSION["BX_CML2_EXPORT"]["zip"]) > 1)
 	{
 		if(!array_key_exists("last_zip_entry", $_SESSION["BX_CML2_EXPORT"]))
-			$_SESSION["BX_CML2_EXPORT"]["last_zip_entry"] = "";
+			$_SESSION["BX_CML2_EXPORT"]["last_zip_entry"] = -1;
 
-		$result = CSaleExport::UnZip($_SESSION["BX_CML2_EXPORT"]["zip"], $_SESSION["BX_CML2_EXPORT"]["last_zip_entry"]);
+		$result = CSaleExport::safetyUnZip($_SESSION["BX_CML2_EXPORT"]["zip"], $_SESSION["BX_CML2_EXPORT"]["last_zip_entry"]);
 		if($result===false)
 		{
 			echo "failure\n".GetMessage("CC_BSC1_ZIP_ERROR");

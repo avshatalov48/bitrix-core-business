@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_core_events,main_core) {
+(function (exports,main_popup,main_core_events,ui_designTokens,main_core) {
 	'use strict';
 
 	var Step = /*#__PURE__*/function (_Event$EventEmitter) {
@@ -28,6 +28,7 @@ this.BX.UI = this.BX.UI || {};
 	    _this.cursorMode = options.cursorMode || false;
 	    _this.targetEvent = options.targetEvent || null;
 	    _this.buttons = options.buttons || [];
+	    _this.condition = options.condition || null;
 	    var events = main_core.Type.isPlainObject(options.events) ? options.events : {};
 
 	    var _loop = function _loop(eventName) {
@@ -48,6 +49,11 @@ this.BX.UI = this.BX.UI || {};
 	  }
 
 	  babelHelpers.createClass(Step, [{
+	    key: "getCondition",
+	    value: function getCondition() {
+	      return this.condition;
+	    }
+	  }, {
 	    key: "getTarget",
 	    value: function getTarget() {
 	      if (main_core.Type.isString(this.target) && this.target !== '') {
@@ -146,7 +152,18 @@ this.BX.UI = this.BX.UI || {};
 	  return Step;
 	}(main_core.Event.EventEmitter);
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15;
+	/**
+	 * @namespace {BX.UI}
+	 */
+	var GuideConditionColor = function GuideConditionColor() {
+	  babelHelpers.classCallCheck(this, GuideConditionColor);
+	};
+
+	babelHelpers.defineProperty(GuideConditionColor, "WARNING", '--condition-warning');
+	babelHelpers.defineProperty(GuideConditionColor, "ALERT", '--condition-alert');
+	babelHelpers.defineProperty(GuideConditionColor, "PRIMARY", '--condition-primary');
+
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15, _templateObject16, _templateObject17;
 	var Guide = /*#__PURE__*/function (_Event$EventEmitter) {
 	  babelHelpers.inherits(Guide, _Event$EventEmitter);
 
@@ -197,7 +214,7 @@ this.BX.UI = this.BX.UI || {};
 	    _this.currentStepIndex = 0;
 	    _this.targetPos = null;
 	    _this.clickOnBackBtn = false;
-	    _this.helper = BX.Helper;
+	    _this.helper = top.BX.Helper;
 	    _this.finalStep = options.finalStep || false;
 	    _this.finalText = options.finalText || "";
 	    _this.finalTitle = options.finalTitle || "";
@@ -358,9 +375,12 @@ this.BX.UI = this.BX.UI || {};
 	        main_core.Dom.removeClass(this.layout.element, "ui-tour-overlay-element-opacity");
 	      }
 
-	      setTimeout(function () {
-	        this.layout.backBtn.style.display = "block";
-	      }.bind(this), 10);
+	      if (this.layout.backBtn) {
+	        setTimeout(function () {
+	          this.layout.backBtn.style.display = "block";
+	        }.bind(this), 10);
+	      }
+
 	      this.setOverlayElementForm();
 
 	      if (this.getCurrentStep()) {
@@ -543,11 +563,14 @@ this.BX.UI = this.BX.UI || {};
 	        }
 
 	      if (this.onEvents) {
-	        offsetTop = 0;
-	        offsetLeft = -50;
-	        angleOffset = 120;
-	      } // console.log("this.target", this.getCurrentStep().getTarget());
+	        var _bindElement = this.getCurrentStep() ? this.getCurrentStep().getTarget() : window;
 
+	        var _popupWidth = this.onEvents ? 280 : 420;
+
+	        offsetTop = 0;
+	        offsetLeft = -(_popupWidth / 2) + _bindElement.offsetWidth / 2 + 40;
+	        angleOffset = _popupWidth / 2 - 15;
+	      }
 
 	      var bindElement = this.getCurrentStep().getTarget();
 	      if (this.getCurrentStep().getPosition() === 'center') bindElement = window;
@@ -684,15 +707,35 @@ this.BX.UI = this.BX.UI || {};
 	      var _this3 = this;
 
 	      if (!this.popup) {
-	        var bindElement = window;
-	        if (this.getCurrentStep()) bindElement = this.getCurrentStep().getTarget();
+	        var _this$getCurrentStep$4;
+
+	        var bindElement = this.getCurrentStep() ? this.getCurrentStep().getTarget() : window;
 	        var className = 'popup-window-ui-tour popup-window-ui-tour-opacity';
+
+	        if (this.getCurrentStep().getCondition()) {
+	          var _this$getCurrentStep$2;
+
+	          if (main_core.Type.isString(this.getCurrentStep().getCondition())) {
+	            className = className + ' --condition-' + this.getCurrentStep().getCondition().toLowerCase();
+	          }
+
+	          if (main_core.Type.isObject(this.getCurrentStep().getCondition())) {
+	            var _this$getCurrentStep$;
+
+	            className = className + ' --condition-' + ((_this$getCurrentStep$ = this.getCurrentStep().getCondition()) === null || _this$getCurrentStep$ === void 0 ? void 0 : _this$getCurrentStep$.color.toLowerCase());
+	          }
+
+	          if (((_this$getCurrentStep$2 = this.getCurrentStep().getCondition()) === null || _this$getCurrentStep$2 === void 0 ? void 0 : _this$getCurrentStep$2.top) !== false) {
+	            className = className + ' --condition';
+	          }
+	        }
+
 	        this.onEvents ? className = className + ' popup-window-ui-tour-animate' : null;
 	        var buttons = [];
 
 	        if (this.getCurrentStep() && this.getCurrentStep().getButtons().length > 0) {
 	          this.getCurrentStep().getButtons().forEach(function (item) {
-	            buttons.push(new BX.PopupWindowButton({
+	            buttons.push(new main_popup.PopupWindowButton({
 	              text: item.text,
 	              className: 'ui-btn ui-btn-sm ui-btn-primary ui-btn-round',
 	              events: {
@@ -702,16 +745,16 @@ this.BX.UI = this.BX.UI || {};
 	          });
 	        }
 
-	        this.popup = new BX.PopupWindow({
+	        var popupWidth = this.onEvents ? 280 : 420;
+	        this.popup = new main_popup.Popup({
 	          content: this.getContent(),
 	          bindElement: bindElement,
 	          className: className,
 	          autoHide: this.onEvents ? false : true,
 	          offsetTop: 15,
-	          offsetLeft: 30,
-	          maxWidth: this.onEvents ? 280 : 420,
-	          minWidth: this.onEvents ? 280 : 420,
+	          width: popupWidth,
 	          closeIcon: true,
+	          noAllPaddings: true,
 	          bindOptions: {
 	            forceTop: true,
 	            forceLeft: true,
@@ -726,6 +769,24 @@ this.BX.UI = this.BX.UI || {};
 	          },
 	          buttons: buttons
 	        });
+	        var conditionNodeTop = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-condition-top\">\n\t\t\t\t\t<div class=\"ui-tour-popup-condition-angle\"></div>\n\t\t\t\t</div>\n\t\t\t"])));
+	        var conditionNodeBottom = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-condition-bottom\"></div>\n\t\t\t"])));
+
+	        if (main_core.Type.isString(this.getCurrentStep().getCondition())) {
+	          main_core.Dom.append(conditionNodeTop, this.popup.getContentContainer());
+	        }
+
+	        if (main_core.Type.isObject(this.getCurrentStep().getCondition())) {
+	          var _this$getCurrentStep$3;
+
+	          if (((_this$getCurrentStep$3 = this.getCurrentStep().getCondition()) === null || _this$getCurrentStep$3 === void 0 ? void 0 : _this$getCurrentStep$3.top) !== false) {
+	            main_core.Dom.append(conditionNodeTop, this.popup.getContentContainer());
+	          }
+	        }
+
+	        if (((_this$getCurrentStep$4 = this.getCurrentStep().getCondition()) === null || _this$getCurrentStep$4 === void 0 ? void 0 : _this$getCurrentStep$4.bottom) !== false) {
+	          main_core.Dom.append(conditionNodeBottom, this.popup.getContentContainer());
+	        }
 	      }
 
 	      return this.popup;
@@ -744,7 +805,7 @@ this.BX.UI = this.BX.UI || {};
 	          linkNode = this.getLink();
 	        }
 
-	        this.layout.content = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup ", " ", "\" >\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-tour-popup-content\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-tour-popup-footer\">\n\t\t\t\t\t\t<div class=\"ui-tour-popup-index\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.simpleMode ? 'ui-tour-popup-simple' : '', this.onEvents ? 'ui-tour-popup-events' : '', this.getTitle(), this.getText(), linkNode, linkNode, this.onEvents ? '' : this.getCounterItems(), this.onEvents ? '' : this.getCurrentCounter(), this.onEvents ? '' : this.getBtnContainer());
+	        this.layout.content = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup ", " ", "\" >\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-tour-popup-content\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"ui-tour-popup-footer\">\n\t\t\t\t\t\t<div class=\"ui-tour-popup-index\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.simpleMode ? 'ui-tour-popup-simple' : '', this.onEvents ? 'ui-tour-popup-events' : '', this.getTitle(), this.getText(), linkNode, linkNode, this.onEvents ? '' : this.getCounterItems(), this.onEvents ? '' : this.getCurrentCounter(), this.onEvents ? '' : this.getBtnContainer());
 	      }
 
 	      return this.layout.content;
@@ -801,7 +862,11 @@ this.BX.UI = this.BX.UI || {};
 	      var _this4 = this;
 
 	      event.preventDefault();
-	      if (!this.helper) this.helper = BX.Helper;
+
+	      if (!this.helper) {
+	        this.helper = top.BX.Helper;
+	      }
+
 	      this.helper.show("redirect=detail&code=" + this.getCurrentStep().getArticle());
 
 	      if (this.onEvent) {
@@ -819,7 +884,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getTitle",
 	    value: function getTitle() {
 	      if (this.layout.title === null) {
-	        this.layout.title = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-title\"></div>\n\t\t\t"])));
+	        this.layout.title = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-title\"></div>\n\t\t\t"])));
 	      }
 
 	      return this.layout.title;
@@ -832,7 +897,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getText",
 	    value: function getText() {
 	      if (this.layout.text === null) {
-	        this.layout.text = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-text\"></div>\n\t\t\t"])));
+	        this.layout.text = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-text\"></div>\n\t\t\t"])));
 	      }
 
 	      return this.layout.text;
@@ -845,7 +910,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getLink",
 	    value: function getLink() {
 	      if (!this.layout.link) {
-	        this.layout.link = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a target=\"_blank\" href=\"\" class=\"ui-tour-popup-link\">\n\t\t\t\t\t", "\n\t\t\t\t</a>\n\t\t\t"])), main_core.Loc.getMessage("JS_UI_TOUR_LINK"));
+	        this.layout.link = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<a target=\"_blank\" href=\"\" class=\"ui-tour-popup-link\">\n\t\t\t\t\t", "\n\t\t\t\t</a>\n\t\t\t"])), main_core.Loc.getMessage("JS_UI_TOUR_LINK"));
 	      }
 
 	      return this.layout.link;
@@ -858,7 +923,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCurrentCounter",
 	    value: function getCurrentCounter() {
 	      if (this.layout.currentCounter === null) {
-	        this.layout.currentCounter = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tour-popup-counter\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), main_core.Loc.getMessage("JS_UI_TOUR_STEP_INDEX_TEXT").replace('#NUMBER#', this.currentStepIndex + 1).replace('#NUMBER_TOTAL#', this.steps.length));
+	        this.layout.currentCounter = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tour-popup-counter\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t"])), main_core.Loc.getMessage("JS_UI_TOUR_STEP_INDEX_TEXT").replace('#NUMBER#', this.currentStepIndex + 1).replace('#NUMBER_TOTAL#', this.steps.length));
 	      }
 
 	      return this.layout.currentCounter;
@@ -871,9 +936,9 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getBtnContainer",
 	    value: function getBtnContainer() {
 	      if (this.layout.btnContainer === null) {
-	        this.layout.btnContainer = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-btn-block\"></div>\n\t\t\t"])));
-	        this.layout.nextBtn = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button id=\"next\" class=\"ui-tour-popup-btn-next\">\n\t\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"])), this.simpleMode ? main_core.Loc.getMessage("JS_UI_TOUR_BUTTON_SIMPLE") : main_core.Loc.getMessage("JS_UI_TOUR_BUTTON"));
-	        this.layout.backBtn = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button id=\"back\" class=\"ui-tour-popup-btn-back\">\n\t\t\t\t</button>\n\t\t\t"])));
+	        this.layout.btnContainer = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup-btn-block\"></div>\n\t\t\t"])));
+	        this.layout.nextBtn = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button id=\"next\" class=\"ui-tour-popup-btn-next\">\n\t\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"])), this.simpleMode ? main_core.Loc.getMessage("JS_UI_TOUR_BUTTON_SIMPLE") : main_core.Loc.getMessage("JS_UI_TOUR_BUTTON"));
+	        this.layout.backBtn = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button id=\"back\" class=\"ui-tour-popup-btn-back\">\n\t\t\t\t</button>\n\t\t\t"])));
 	        main_core.Dom.append(this.layout.backBtn, this.layout.btnContainer);
 	        main_core.Dom.append(this.layout.nextBtn, this.layout.btnContainer);
 	        main_core.Event.bind(this.layout.nextBtn, "click", this.handleClickOnNextBtn.bind(this));
@@ -886,13 +951,13 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCounterItems",
 	    value: function getCounterItems() {
 	      if (this.layout.counter === null) {
-	        this.layout.counter = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tour-popup-index-items\">\n\t\t\t\t</span>\n\t\t\t"])));
+	        this.layout.counter = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tour-popup-index-items\">\n\t\t\t\t</span>\n\t\t\t"])));
 	      }
 
 	      this.layout.counterItems = [];
 
 	      for (var i = 0; i < this.steps.length; i++) {
-	        var currentStepIndex = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tour-popup-index-item\">\n\t\t\t\t</span>\n\t\t\t"])));
+	        var currentStepIndex = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-tour-popup-index-item\">\n\t\t\t\t</span>\n\t\t\t"])));
 	        this.layout.counterItems.push(currentStepIndex);
 	        main_core.Dom.append(currentStepIndex, this.layout.counter);
 	      }
@@ -990,7 +1055,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getFinalPopup",
 	    value: function getFinalPopup() {
-	      this.popup = new BX.PopupWindow({
+	      this.popup = new main_popup.Popup({
 	        content: this.getFinalContent(),
 	        className: 'popup-window-ui-tour-final',
 	        offsetTop: this.onEvents ? 0 : 15,
@@ -1004,7 +1069,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getFinalContent",
 	    value: function getFinalContent() {
 	      if (!this.layout.finalContent) {
-	        this.layout.finalContent = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup\">\n\t\t\t\t\t<div class=\"ui-tour-popup-title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-tour-popup-content\">\n\t\t\t\t\t\t<div class=\"ui-tour-popup-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-tour-popup-footer-btn\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.finalTitle, this.finalText, this.getFinalBtn());
+	        this.layout.finalContent = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-popup\">\n\t\t\t\t\t<div class=\"ui-tour-popup-title\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-tour-popup-content\">\n\t\t\t\t\t\t<div class=\"ui-tour-popup-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t\t<div class=\"ui-tour-popup-footer-btn\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.finalTitle, this.finalText, this.getFinalBtn());
 	      }
 
 	      return this.layout.finalContent;
@@ -1016,11 +1081,11 @@ this.BX.UI = this.BX.UI || {};
 
 	      if (this.buttons !== "") {
 	        for (var i = 0; i < this.buttons.length; i++) {
-	          var btn = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"", "\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.buttons[i]["class"], this.buttons[i].events.click, this.buttons[i].text);
+	          var btn = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<button class=\"", "\" onclick=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t\t</button>\n\t\t\t\t"])), this.buttons[i]["class"], this.buttons[i].events.click, this.buttons[i].text);
 	          buttons.push(btn);
 	        }
 	      } else {
-	        var _btn = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button class=\"ui-btn ui-btn-sm ui-btn-primary ui-btn-round\" onclick=\"", "\">\n\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"])), this.close.bind(this), main_core.Loc.getMessage("JS_UI_TOUR_BUTTON_CLOSE"));
+	        var _btn = main_core.Tag.render(_templateObject16 || (_templateObject16 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button class=\"ui-btn ui-btn-sm ui-btn-primary ui-btn-round\" onclick=\"", "\">\n\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"])), this.close.bind(this), main_core.Loc.getMessage("JS_UI_TOUR_BUTTON_CLOSE"));
 
 	        buttons.push(_btn);
 	      }
@@ -1061,7 +1126,7 @@ this.BX.UI = this.BX.UI || {};
 	    key: "getCursor",
 	    value: function getCursor() {
 	      if (!this.layout.cursor) {
-	        this.layout.cursor = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-cursor\"></div>\n\t\t\t"])));
+	        this.layout.cursor = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-cursor\"></div>\n\t\t\t"])));
 	        main_core.Event.bind(this.layout.cursor, 'transitionend', function () {
 	          this.getCurrentStep().initTargetEvent();
 	        }.bind(this));
@@ -1108,6 +1173,7 @@ this.BX.UI = this.BX.UI || {};
 	  }]);
 	  return Guide;
 	}(main_core.Event.EventEmitter);
+	babelHelpers.defineProperty(Guide, "ConditionColor", GuideConditionColor);
 
 	var Manager = /*#__PURE__*/function () {
 	  function Manager() {
@@ -1210,5 +1276,5 @@ this.BX.UI = this.BX.UI || {};
 	exports.Step = Step;
 	exports.Manager = manager;
 
-}((this.BX.UI.Tour = this.BX.UI.Tour || {}),BX.Event,BX));
+}((this.BX.UI.Tour = this.BX.UI.Tour || {}),BX.Main,BX.Event,BX,BX));
 //# sourceMappingURL=tour.bundle.js.map

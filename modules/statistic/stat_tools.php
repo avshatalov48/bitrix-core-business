@@ -4,8 +4,8 @@ IncludeModuleLangFile(__FILE__);
 // fix HTTP_REFERER, r1, r2 for  google ads
 function __GoogleAd($set_new_adv=false, $r1=false, $r2=false, $s="http://pagead2.googlesyndication.com/")
 {
-	if (intval($_SESSION["SESS_SESSION_ID"])<=0 &&
-		$_SERVER["HTTP_REFERER"] <> '' &&
+	if ((!isset($_SESSION["SESS_SESSION_ID"]) || intval($_SESSION["SESS_SESSION_ID"])<=0) &&
+		isset($_SERVER["HTTP_REFERER"]) && $_SERVER["HTTP_REFERER"] <> '' &&
 		strncmp($s, $_SERVER["HTTP_REFERER"], mb_strlen($s))==0)
 	{
 		$arr = parse_url($_SERVER["HTTP_REFERER"]);
@@ -107,7 +107,7 @@ function __SetReferer($referer, $syn)
 {
 	stat_session_register($referer);
 	global $$referer;
-	if ($_SESSION[$referer] == '')
+	if (!isset($_SESSION[$referer]) || $_SESSION[$referer] == '')
 	{
 		$_SESSION[$referer] = $$referer;
 		$arr=explode(",",COption::GetOptionString("statistic", $syn));
@@ -280,11 +280,14 @@ function __GetPage($page=false, $with_imp_params=true, $curdir=false)
 		$ar = @parse_url("".$page."");
 
 		$arVars = array();
-		parse_str($ar["query"], $arVars);
-		foreach($arVars as $key => $value)
+		if (isset($ar["query"]))
 		{
-			$key = str_replace("amp;", "", $key);
-			$arVars[$key] = $value;
+			parse_str($ar["query"], $arVars);
+			foreach($arVars as $key => $value)
+			{
+				$key = str_replace("amp;", "", $key);
+				$arVars[$key] = $value;
+			}
 		}
 
 		$i = 0;

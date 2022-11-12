@@ -210,3 +210,6 @@ $MESS["INTERFACE_MAIL_CHECK_ALL"] = "Отметить все/снять отме
 $MESS["MAIL_READ_ALL_BUTTON"] = "Прочитать всё";
 
 $MESS["MAIL_MESSAGE_LIST_COLUMN_ICAL"] = "Приглашение на мероприятие";
+
+$MESS["MAIL_MESSAGE_WARNING_GO_TO_MAILBOX"] = "Ошибка синхронизации. Открыть письмо в #LINK#";
+$MESS["MAIL_MESSAGE_WARNING_SYNC_ERROR"] = "Ошибка синхронизации";

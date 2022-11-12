@@ -109,8 +109,8 @@ export class Robot extends EventEmitter
 
 		const robotData = {
 			Name: Robot.generateName(),
-			Delay: this.getDelayInterval().clone(),
-			Condition: this.getCondition().clone(),
+			Delay: this.getDelayInterval().serialize(),
+			Condition: this.getCondition().serialize(),
 			...BX.clone(this.#data)
 		};
 		clonedRobot.init(robotData, this.#viewMode);
@@ -164,6 +164,7 @@ export class Robot extends EventEmitter
 
 	destroy()
 	{
+		Dom.remove(this.#node);
 		this.emit('Robot:destroyed');
 	}
 
@@ -323,6 +324,10 @@ export class Robot extends EventEmitter
 		if (this.#viewMode.isEdit() && this.canEdit())
 		{
 			wrapperClass += ' bizproc-automation-robot-container-wrapper-draggable';
+		}
+		if (this.draft)
+		{
+			containerClass += ' --draft';
 		}
 
 		const targetLabel = Loc.getMessage('BIZPROC_AUTOMATION_CMP_TO');
@@ -581,7 +586,7 @@ export class Robot extends EventEmitter
 		}
 		else if (!this.#viewMode.isManage())
 		{
-			this.#template.openRobotSettingsDialog(this);
+			this.#template.openRobotSettingsDialog(this, this.#data.DialogContext ?? null);
 		}
 	}
 
@@ -738,6 +743,7 @@ export class Robot extends EventEmitter
 	{
 		const result = BX.clone(this.#data);
 		delete result['viewData'];
+		delete result['DialogContext'];
 		result.Delay = this.#delay.serialize();
 		result.Condition = this.#condition.serialize();
 
@@ -976,7 +982,7 @@ export class Robot extends EventEmitter
 
 		const hasAdditionalResultProperties = () => (
 			Type.isArray(description['ADDITIONAL_RESULT'])
-			&& description['ADDITIONAL_RESULT'].some(addProperty => Object.values(props[addProperty].length > 0))
+			&& description['ADDITIONAL_RESULT'].some(addProperty => Object.values(props[addProperty] ?? []).length > 0)
 		);
 
 		return hasReturnProperties() || hasAdditionalResultProperties();

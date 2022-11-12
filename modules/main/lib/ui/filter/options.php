@@ -21,6 +21,7 @@ class Options
 	protected $useCommonPresets;
 	protected $commonPresetsId;
 	protected $request;
+	protected ?string $currentFilterPresetId = null;
 
 	const DEFAULT_FILTER = "default_filter";
 	const TMP_FILTER = "tmp_filter";
@@ -551,7 +552,7 @@ class Options
 	 */
 	public function getCurrentFilterId()
 	{
-		$sessionFilterId = $this->getSessionFilterId();
+		$sessionFilterId = ($this->getCurrentFilterPresetId() ?? $this->getSessionFilterId());
 		$defaultFilterId = $this->getDefaultFilterId();
 		return !empty($sessionFilterId) ? $sessionFilterId : $defaultFilterId;
 	}
@@ -753,7 +754,6 @@ class Options
 	{
 		return $presetId === self::DEFAULT_FILTER;
 	}
-
 
 	/**
 	 * Gets current filter values
@@ -1780,5 +1780,23 @@ class Options
 		}
 
 		return $fields;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getCurrentFilterPresetId(): ?string
+	{
+		return $this->currentFilterPresetId;
+	}
+
+	/**
+	 * @param string|null $presetId
+	 * @return Options
+	 */
+	public function setCurrentFilterPresetId(?string $presetId): Options
+	{
+		$this->currentFilterPresetId = $presetId;
+		return $this;
 	}
 }

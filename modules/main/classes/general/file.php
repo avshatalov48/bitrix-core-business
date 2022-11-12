@@ -30,10 +30,12 @@ class CAllFile
 
 class CFile extends CAllFile
 {
-	const DELETE_NONE = 0x00;
-	const DELETE_FILE = 0x01;
-	const DELETE_DB = 0x02;
-	const DELETE_ALL = 0x03;
+	protected const CACHE_DIR = 'b_file';
+
+	protected const DELETE_NONE = 0x00;
+	protected const DELETE_FILE = 0x01;
+	protected const DELETE_DB = 0x02;
+	protected const DELETE_ALL = 0x03;
 
 	public static function SaveForDB(&$arFields, $field, $strSavePath)
 	{
@@ -702,7 +704,7 @@ class CFile extends CAllFile
 
 		$conn = Main\Application::getConnection();
 
-		$res = static::GetByID($ID);
+		$res = static::GetByID($ID, true);
 
 		if($res = $res->Fetch())
 		{
@@ -749,15 +751,22 @@ class CFile extends CAllFile
 				}
 
 				foreach(GetModuleEvents("main", "OnPhysicalFileDelete", true) as $arEvent)
+				{
 					ExecuteModuleEventEx($arEvent, array($res));
+				}
 			}
 
 			if($delete & self::DELETE_DB)
 			{
 				foreach(GetModuleEvents("main", "OnFileDelete", true) as $arEvent)
+				{
 					ExecuteModuleEventEx($arEvent, array($res));
+				}
 
 				Internal\FileHashTable::delete($ID);
+
+				// recursion inside
+				static::processVersions($ID);
 
 				$conn->query("DELETE FROM b_file WHERE ID = {$ID}");
 
@@ -860,6 +869,52 @@ class CFile extends CAllFile
 	}
 
 	/**
+	 * Adds information about a version of a file.
+	 * @param int $originalId Original file ID.
+	 * @param int $versionId Version file ID.
+	 * @param array $metaData The version peculiarities.
+	 */
+	public static function AddVersion($originalId, $versionId, $metaData = [])
+	{
+		$result =  Internal\FileVersionTable::add([
+				'ORIGINAL_ID' => $originalId,
+				'VERSION_ID' => $versionId,
+			] + (empty($metaData) ? [] : [
+				'META' => $metaData
+			]));
+
+		static::CleanCache($originalId);
+
+		return $result;
+	}
+
+	protected static function processVersions($ID)
+	{
+		// check if the file is something's version
+		$original = Internal\FileVersionTable::query()
+			->addSelect('*')
+			->where('VERSION_ID', $ID)
+			->fetch()
+		;
+		if ($original)
+		{
+			Internal\FileVersionTable::delete(['ORIGINAL_ID' => $original['ORIGINAL_ID']]);
+			static::CleanCache($original['ORIGINAL_ID']);
+		}
+
+		// check if the file has versions
+		$versions = Internal\FileVersionTable::query()
+			->addSelect('*')
+			->where('ORIGINAL_ID', $ID)
+			->exec()
+		;
+		while ($version = $versions->fetch())
+		{
+			static::Delete($version['VERSION_ID']);
+		}
+	}
+
+	/**
 	 * @deprecated Use CFile::Delete()
 	 * @param $ID
 	 */
@@ -868,115 +923,158 @@ class CFile extends CAllFile
 		static::Delete($ID);
 	}
 
-	public static function CleanCache($ID)
+	public static function CleanCache($fileId)
 	{
 		if (CACHED_b_file !== false)
 		{
-			$bucket_size = intval(CACHED_b_file_bucket_size);
+			$bucket_size = (int)CACHED_b_file_bucket_size;
 			if ($bucket_size <= 0)
 			{
 				$bucket_size = 10;
 			}
 
-			$bucket = intval($ID/$bucket_size);
-			$cache = Bitrix\Main\Application::getInstance()->getManagedCache();
-			$cache->clean("b_file0".$bucket, "b_file");
-			$cache->clean("b_file1".$bucket, "b_file");
+			$bucket = (int)($fileId / $bucket_size);
+
+			$cache = Main\Application::getInstance()->getManagedCache();
+
+			$cache->clean(self::CACHE_DIR . '01' . $bucket, self::CACHE_DIR);
+			$cache->clean(self::CACHE_DIR . '11' . $bucket, self::CACHE_DIR);
+			$cache->clean(self::CACHE_DIR . '00' . $bucket, self::CACHE_DIR);
+			$cache->clean(self::CACHE_DIR . '10' . $bucket, self::CACHE_DIR);
 		}
 	}
 
-	public static function GetFromCache($fileID)
+	public static function GetFromCache($fileId, $realId = false)
 	{
-		$cache = Bitrix\Main\Application::getInstance()->getManagedCache();
+		global $DB;
 
-		$bucket_size = intval(CACHED_b_file_bucket_size);
-		if ($bucket_size <= 0)
+		$cache = Main\Application::getInstance()->getManagedCache();
+
+		$bucketSize = (int)CACHED_b_file_bucket_size;
+		if ($bucketSize <= 0)
 		{
-			$bucket_size = 10;
+			$bucketSize = 10;
 		}
 
-		$bucket = intval($fileID/$bucket_size);
-		$cache_id = "b_file".intval(CMain::IsHTTPS()).$bucket;
+		$bucket = (int)($fileId / $bucketSize);
+		$https = (int)Main\Context::getCurrent()->getRequest()->isHttps();
+		$cacheId = self::CACHE_DIR . $https . (int)$realId . $bucket;
 
-		if($cache->read(CACHED_b_file, $cache_id, "b_file"))
+		if ($cache->read(CACHED_b_file, $cacheId, self::CACHE_DIR))
 		{
-			$files = $cache->get($cache_id);
-			if (!isset($files[$fileID]))
+			$files = $cache->get($cacheId);
+
+			if (!isset($files[$fileId]))
 			{
+				// the trail of an incomplete bucket
 				if (!is_array($files))
 				{
 					$files = [];
 				}
 
-				if ($file = Bitrix\Main\FileTable::getById($fileID)->fetch())
+				if ($file = static::GetFromDb($fileId, $realId)->Fetch())
 				{
-					$file["~src"] = '';
-					foreach (GetModuleEvents("main", "OnGetFileSRC", true) as $arEvent)
-					{
-						$file["~src"] = ExecuteModuleEventEx($arEvent, array($file));
-						if ($file["~src"])
-						{
-							break;
-						}
-					}
-
-					$files[$file["ID"]] = $file;
-					static::CleanCache($fileID);
+					$files[$fileId] = $file;
+					static::CleanCache($fileId);
 				}
 			}
 		}
 		else
 		{
 			$files = [];
-			$rs = Bitrix\Main\FileTable::getList([
-				'select' => ['*'],
-				'filter' => [
-					'>=ID' => ($bucket * $bucket_size),
-					'<=ID' => (($bucket+1) * $bucket_size-1),
-				]
-			]);
+
+			$minId = $bucket * $bucketSize;
+			$maxId = ($bucket + 1) * $bucketSize - 1;
+
+			$sql = "
+				SELECT f.*, 
+					{$DB->DateToCharFunction("f.TIMESTAMP_X")} as TIMESTAMP_X, 
+					'' as VERSION_ORIGINAL_ID, '' as META
+				FROM b_file f
+				WHERE f.ID >= {$minId} 
+					AND f.ID <= {$maxId} 
+			";
+
+			if ($realId !== true)
+			{
+				$sql .= "
+					UNION
+					SELECT f.*, 
+						{$DB->DateToCharFunction("f.TIMESTAMP_X")} as TIMESTAMP_X, 
+						fv.ORIGINAL_ID as VERSION_ORIGINAL_ID, fv.META as META
+					FROM b_file f
+						INNER JOIN b_file_version fv ON fv.VERSION_ID = f.ID 
+					WHERE fv.ORIGINAL_ID >= {$minId} 
+						AND fv.ORIGINAL_ID <= {$maxId}
+					ORDER BY ID
+				";
+			}
+
+			$rs = $DB->Query($sql);
 
 			while ($file = $rs->fetch())
 			{
-				$file["~src"] = '';
-				foreach (GetModuleEvents("main", "OnGetFileSRC", true) as $arEvent)
-				{
-					$file["~src"] = ExecuteModuleEventEx($arEvent, array($file));
-					if ($file["~src"])
-					{
-						break;
-					}
-				}
-
-				$files[$file["ID"]] = $file;
+				$originalId = ($file['VERSION_ORIGINAL_ID'] ?: $file["ID"]);
+				$files[$originalId] = $file;
 			}
 
-			$cache->setImmediate($cache_id, $files);
-		}
+			// store SRC in cache
+			foreach ($files as $id => $file)
+			{
+				$files[$id]['SRC'] = static::GetFileSRC($file);
+			}
 
+			$cache->setImmediate($cacheId, $files);
+		}
 		return $files;
 	}
 
-	public static function GetByID($FILE_ID)
+	public static function GetByID($fileId, $realId = false)
 	{
-		global $DB;
-		$FILE_ID = intval($FILE_ID);
+		$fileId = (int)$fileId;
 
-		if(CACHED_b_file===false)
+		if (CACHED_b_file === false)
 		{
-			$strSql = "
-				SELECT f.*, {$DB->DateToCharFunction("f.TIMESTAMP_X")} as TIMESTAMP_X
-				FROM b_file f
-				WHERE f.ID = {$FILE_ID}";
-			$z = $DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+			$result = static::GetFromDb($fileId, $realId);
 		}
 		else
 		{
-			$arFiles = static::GetFromCache($FILE_ID);
-			$z = new CDBResult;
-			$z->InitFromArray(array_key_exists($FILE_ID, $arFiles)? array($arFiles[$FILE_ID]) : array());
+			$files = static::GetFromCache($fileId, $realId);
+
+			$result = new CDBResult;
+			$result->InitFromArray(isset($files[$fileId]) ? [$files[$fileId]] : []);
 		}
-		return $z;
+		return $result;
+	}
+
+	protected static function GetFromDb($fileId, $realId)
+	{
+		global $DB;
+
+		$strSql = "
+			SELECT f.*, 
+				{$DB->DateToCharFunction("f.TIMESTAMP_X")} as TIMESTAMP_X,
+				'' as VERSION_ORIGINAL_ID, '' as META
+			FROM b_file f
+			WHERE f.ID = {$fileId}
+		";
+
+		if ($realId !== true)
+		{
+			$strSql .= "
+				UNION
+				SELECT f.*,
+					{$DB->DateToCharFunction("f.TIMESTAMP_X")} as TIMESTAMP_X,
+					fv.ORIGINAL_ID as VERSION_ORIGINAL_ID, fv.META as META
+				FROM b_file f
+					INNER JOIN b_file_version fv ON fv.VERSION_ID = f.ID 
+				WHERE fv.ORIGINAL_ID = {$fileId} 
+				ORDER BY ID DESC
+				LIMIT 1
+			";
+		}
+
+		return $DB->Query($strSql);
 	}
 
 	public static function GetList($arOrder = array(), $arFilter = array())
@@ -984,7 +1082,7 @@ class CFile extends CAllFile
 		global $DB;
 		$arSqlSearch = array();
 		$arSqlOrder = array();
-		$strSqlSearch = $strSqlOrder = "";
+		$strSqlSearch = "";
 
 		if(is_array($arFilter))
 		{
@@ -1070,64 +1168,55 @@ class CFile extends CAllFile
 		return $res;
 	}
 
-	public static function GetFileSRC($arFile, $upload_dir = false, $external = true)
+	public static function GetFileSRC($file, $uploadDir = false, $external = true)
 	{
 		$src = '';
-		if($external)
+		if ($external)
 		{
-			foreach(GetModuleEvents("main", "OnGetFileSRC", true) as $arEvent)
+			foreach(GetModuleEvents('main', 'OnGetFileSRC', true) as $event)
 			{
-				$src = ExecuteModuleEventEx($arEvent, array($arFile));
-				if($src)
+				$src = ExecuteModuleEventEx($event, [$file]);
+				if ($src)
+				{
 					break;
+				}
 			}
 		}
 
-		if(!$src)
+		if (!$src)
 		{
-			if($upload_dir === false)
-				$upload_dir = COption::GetOptionString("main", "upload_dir", "upload");
+			if ($uploadDir === false)
+			{
+				$uploadDir = COption::GetOptionString('main', 'upload_dir', 'upload');
+			}
 
-			$src = "/".$upload_dir."/".$arFile["SUBDIR"]."/".$arFile["FILE_NAME"];
+			$src = '/' . $uploadDir . '/' . $file['SUBDIR'] . '/' . $file['FILE_NAME'];
 
-			$src = str_replace("//", "/", $src);
-			if(defined("BX_IMG_SERVER"))
-				$src = BX_IMG_SERVER.$src;
+			$src = str_replace('//', '/', $src);
+
+			if (defined("BX_IMG_SERVER"))
+			{
+				$src = BX_IMG_SERVER . $src;
+			}
 		}
 
 		return $src;
 	}
 
-	public static function GetFileArray($FILE_ID, $upload_dir = false)
+	public static function GetFileArray($fileId, $uploadDir = false)
 	{
-		if(!is_array($FILE_ID) && intval($FILE_ID) > 0)
+		if (!is_array($fileId) && intval($fileId) > 0)
 		{
-			if(CACHED_b_file===false)
-			{
-				$res = static::GetByID($FILE_ID);
-				$arFile = $res->Fetch();
-			}
-			else
-			{
-				$res = static::GetFromCache($FILE_ID);
-				$arFile = $res[$FILE_ID];
-			}
+			$file = static::GetByID($fileId)->Fetch();
 
-			if($arFile)
+			if ($file)
 			{
-				if(array_key_exists("~src", $arFile))
+				if (!isset($file['SRC']) || $uploadDir !== false)
 				{
-					if($arFile["~src"])
-						$arFile["SRC"] = $arFile["~src"];
-					else
-						$arFile["SRC"] = static::GetFileSRC($arFile, $upload_dir, false/*It is known file is local*/);
-				}
-				else
-				{
-					$arFile["SRC"] = static::GetFileSRC($arFile, $upload_dir);
+					$file['SRC'] = static::GetFileSRC($file, $uploadDir);
 				}
 
-				return $arFile;
+				return $file;
 			}
 		}
 		return false;
@@ -2064,9 +2153,10 @@ function ImgShw(ID, width, height, alt)
 				$from = "/".COption::GetOptionString("main", "upload_dir", "upload")."/".$old_subdir;
 				$to = "/".COption::GetOptionString("main", "upload_dir", "upload")."/".$new_subdir;
 				CopyDirFiles($_SERVER["DOCUMENT_ROOT"].$from, $_SERVER["DOCUMENT_ROOT"].$to, true, true, true);
+
 				//Reset All b_file cache
-				$cache = Bitrix\Main\Application::getInstance()->getManagedCache();
-				$cache->cleanDir("b_file");
+				$cache = Main\Application::getInstance()->getManagedCache();
+				$cache->cleanDir(self::CACHE_DIR);
 			}
 		}
 	}

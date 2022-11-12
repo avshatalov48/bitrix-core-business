@@ -524,8 +524,6 @@ class CIMHistory
 
 	function SearchChatMessage($searchText, $chatId, $bTimeZone = true)
 	{
-		global $DB;
-
 		$chatId = intval($chatId);
 		$searchText = trim($searchText);
 
@@ -535,64 +533,28 @@ class CIMHistory
 			return false;
 		}
 
-		$ormChat = IM\Model\ChatTable::getById($chatId);
-		if (!($chatData = $ormChat->fetch()))
+		if (!\Bitrix\Im\Dialog::hasAccess('chat'.$chatId, $this->user_id))
 		{
 			return false;
 		}
 
-		$crmEntityType = null;
-		$crmEntityId = null;
-		if ($chatData['TYPE'] == IM_MESSAGE_OPEN_LINE && \Bitrix\Main\Loader::includeModule('imopenlines'))
-		{
-			$explodeData = explode('|', $chatData['ENTITY_DATA_1']);
-			$crmEntityType = ($explodeData[0] == 'Y') ? $explodeData[1] : null;
-			$crmEntityId = ($explodeData[0] == 'Y') ? intval($explodeData[2]) : null;
-		}
+		$where = Array(
+			'=CHAT_ID' => $chatId,
+			'*%MESSAGE' => $searchText,
+		);
 
-		if (
-			$chatData['TYPE'] == IM_MESSAGE_OPEN_LINE
-			&& \Bitrix\Main\Loader::includeModule('imopenlines')
-			&& \Bitrix\ImOpenLines\Config::canJoin($chatId, $crmEntityType, $crmEntityId)
-		)
+		if($this->checkFullText($searchText))
 		{
 			$where = Array(
 				'=CHAT_ID' => $chatId,
-				'*%MESSAGE' => $searchText,
+				'*INDEX.SEARCH_CONTENT' => \Bitrix\Main\Search\Content::prepareStringToken($searchText),
 			);
-
-			if($this->checkFullText($searchText))
-			{
-				$where = Array(
-					'=CHAT_ID' => $chatId,
-					'*INDEX.SEARCH_CONTENT' => \Bitrix\Main\Search\Content::prepareStringToken($searchText),
-				);
-			}
 		}
-		else
+
+		$ar = \CIMChat::GetRelationById($chatId, $this->user_id);
+		if ($ar && $ar['START_ID'] > 0)
 		{
-			$where = Array(
-				'=RELATION.USER_ID' => $this->user_id,
-				'=RELATION.CHAT_ID' => $chatId,
-				'!=RELATION.MESSAGE_TYPE' => IM_MESSAGE_PRIVATE,
-				'*%MESSAGE' => $searchText,
-			);
-
-			if ($this->checkFullText($searchText))
-			{
-				$where = Array(
-					'=RELATION.USER_ID' => $this->user_id,
-					'=RELATION.CHAT_ID' => $chatId,
-					'!=RELATION.MESSAGE_TYPE' => IM_MESSAGE_PRIVATE,
-					'*INDEX.SEARCH_CONTENT' => \Bitrix\Main\Search\Content::prepareStringToken($searchText),
-				);
-			}
-
-			$ar = \CIMChat::GetRelationById($chatId, $this->user_id);
-			if ($ar && $ar['START_ID'] > 0)
-			{
-				$where['>=ID'] = intval($ar['START_ID']);
-			}
+			$where['>=ID'] = intval($ar['START_ID']);
 		}
 
 		$orm = \Bitrix\Im\Model\MessageTable::getList(
@@ -629,6 +591,7 @@ class CIMHistory
 			$usersMessage[$arRes['CHAT_ID']][] = $arRes['ID'];
 			$arMessageId[] = $arRes['ID'];
 		}
+
 		$params = CIMMessageParam::Get($arMessageId);
 		$arFiles = Array();
 		foreach ($params as $messageId => $param)

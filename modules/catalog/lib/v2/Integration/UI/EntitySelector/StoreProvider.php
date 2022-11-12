@@ -208,7 +208,7 @@ class StoreProvider extends BaseProvider
 			return null;
 		}
 
-		return Tools::getImageSrc($file, true) ?: null;
+		return Tools::getImageSrc($file, false) ?: null;
 	}
 
 	private function makeItem($store): Item

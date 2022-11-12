@@ -2,7 +2,7 @@ import {Type, Reflection} from 'main.core';
 import Automation from "./automation";
 import Session from './session/session';
 import {CommandHandler} from "./pull/command-handler";
-import Settings from "./settings";
+import { Settings } from 'bizproc.local-settings';
 import {Mode} from "./session/mode";
 import {CrmDebuggerGuide} from "./tourguide/crm-debugger-guide";
 
@@ -88,7 +88,12 @@ export default class Manager
 
 		if (debuggerInstance)
 		{
-			const initialShowState = session.isExperimentalMode() ? 'showExpanded' : 'showCollapsed';
+			let initialShowState = debuggerInstance.session.isExperimentalMode() ? 'showExpanded' : 'showCollapsed';
+			if (!this.#isFilterGuideShown())
+			{
+				initialShowState = 'showCollapsed';
+			}
+
 			debuggerInstance.getMainView()[isFirstShow ? initialShowState : 'show']();
 
 			return debuggerInstance;
@@ -101,21 +106,23 @@ export default class Manager
 	{
 		const guide = new CrmDebuggerGuide({
 			grid: Reflection.getClass('BX.CRM.Kanban.Grid') ? BX.CRM.Kanban.Grid.getInstance() : null,
-			showFilterStep: (this.#settings.get('filter-guide-shown') !== true),
-			showStageStep: (this.#settings.get('stage-guide-shown') !== true) && debuggerInstance.session.isInterceptionMode(),
+			showFilterStep: !this.#isFilterGuideShown(),
+			showStageStep: !this.#isStageGuideShown() && debuggerInstance.session.isInterceptionMode(),
 			reserveFilterIds: this.#getFilterIds(debuggerInstance.session),
 		});
 
-		guide.subscribe(
-			'onFilterGuideStepShow', (function () {
-				this.#settings.set('filter-guide-shown', true)
-			}).bind(this)
-		);
-		guide.subscribe(
-			'onStageGuideStepShow', (function () {
-				this.#settings.set('stage-guide-shown', true)
-			}).bind(this)
-		);
+		guide.subscribe('onFilterGuideStepShow', this.#setFilterGuideShown.bind(this, true));
+		guide.subscribe('onStageGuideStepShow', this.#setStageGuideShown.bind(this, true));
+		guide.subscribe('onFilterGuideStepClose', () => {
+			if (
+				debuggerInstance.session
+				&& debuggerInstance.session.isExperimentalMode()
+				&& (debuggerInstance.settings.get('popup-collapsed') === true)
+			)
+			{
+				debuggerInstance.getMainView().showExpanded();
+			}
+		});
 
 		guide.start();
 	}
@@ -202,6 +209,26 @@ export default class Manager
 		}
 
 		return [`${filterId}_C_${categoryId}`];
+	}
+
+	#isFilterGuideShown(): boolean
+	{
+		return (this.#settings.get('filter-guide-shown') === true);
+	}
+
+	#isStageGuideShown(): boolean
+	{
+		return (this.#settings.get('stage-guide-shown') === true);
+	}
+
+	#setFilterGuideShown(shown = true)
+	{
+		this.#settings.set('filter-guide-shown', shown);
+	}
+
+	#setStageGuideShown(shown = true)
+	{
+		this.#settings.set('stage-guide-shown', shown);
 	}
 
 	createAutomationDebugger(parameters = {}): Automation

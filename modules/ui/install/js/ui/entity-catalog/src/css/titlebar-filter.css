@@ -1,0 +1,51 @@
+.ui-entity-catalog__titlebar_btn-filter:hover::before {
+	opacity: 1;
+}
+
+.ui-entity-catalog__titlebar_btn-filter::after {
+	content: '';
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	z-index: 1;
+	display: block;
+	width: 7px;
+	height: 7px;
+	border-radius: var(--ui-border-radius-circle, 50%);
+	border: 2px solid #ffffff;
+	background-color: var(--ui-color-primary, #2fc6f6);
+	opacity: 0;
+	pointer-events: none;
+}
+
+.ui-entity-catalog__titlebar_btn-filter.--active::after {
+	opacity: 1;
+}
+
+.ui-entity-catalog__filter-block_selected {
+	width: 24px;
+	flex-shrink: 0;
+	margin-left: auto;
+	background: url(../images/ui-entity-catalog--selected.svg) center no-repeat;
+}
+
+
+.ui-entity-catalog__titlebar_btn-filter {
+	position: relative;
+	width: 40px;
+	height: 40px;
+	cursor: pointer;
+}
+
+.ui-entity-catalog__titlebar_btn-filter::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	opacity: 0.7;
+	background: url(../images/ui-entity-catalog--filter-icon.svg) center no-repeat;
+	pointer-events: none;
+	transition: .2s;
+}

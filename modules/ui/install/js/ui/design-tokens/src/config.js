@@ -4,11 +4,23 @@ const { fileHeader, sortByReference, createPropertyFormatter } = StyleDictionary
 
 const Color = require('tinycolor2');
 
+const fontWeights = {
+	100: 'Thin',
+	200: 'Extra Light',
+	300: 'Light',
+	400: 'Regular',
+	500: 'Medium',
+	600: 'Semi Bold',
+	700: 'Bold',
+	800: 'Extra Bold',
+	900: 'Black',
+	950: 'Extra Black',
+};
+
 module.exports = {
 	source: ['*.json'],
 	transform: {
-		shadow: {
-			name: 'shadow/css',
+		'css/shadow': {
 			type: 'value',
 			matcher: (prop) => {
 				return prop.attributes.category === 'shadow';
@@ -19,11 +31,10 @@ module.exports = {
 				//shadowColor.setAlpha(alpha);
 				//shadowColor.toRgbString();
 
-				return `${x}px ${y}px ${blur}px ${spread}px ${shadowColor}`
+				return `${x}px ${y}px ${blur}px ${spread}px ${color}`
 			},
 		},
 		'rgb-color-value': {
-			name: 'rgb-color-value',
 			type: 'value',
 			matcher: (prop) => {
 				return prop.attributes.category === 'color';
@@ -45,18 +56,67 @@ module.exports = {
 				}
 			},
 		},
+		'figma/font-weight': {
+			type: 'value',
+			matcher: (prop) => {
+				return prop.attributes.category === 'font' && prop.attributes.type === 'weight';
+			},
+			transformer: (token) => {
+				return fontWeights[token.value];
+			},
+		},
+		'figma/letter-spacing': {
+			type: 'value',
+			matcher: (prop) => {
+				return prop.attributes.category === 'text' && prop.attributes.type === 'letter-spacing';
+			},
+			transformer: (token) => {
+				const value = parseFloat(token.value);
+				if (isNaN(value))
+				{
+					return token.value;
+				}
+
+				return (value * 100) + '%';
+			},
+		},
+		'figma/line-height': {
+			type: 'value',
+			matcher: (prop) => {
+				return prop.attributes.category === 'font' && prop.attributes.type === 'line-height';
+			},
+			transformer: (token) => {
+				const value = parseFloat(token.value);
+				if (isNaN(value))
+				{
+					return token.value;
+				}
+
+				return (value * 100) + '%';
+			},
+		},
+
 	},
 	transformGroup: {
-		'ui-design-tokens': [
+		'css-design-tokens': [
 			'attribute/cti',
 			'name/cti/kebab',
 			'time/seconds',
 			'content/icon',
-			'rgb-color-value'
-		]
+			'css/shadow',
+			'rgb-color-value',
+		],
+		'figma-design-tokens': [
+			'attribute/cti',
+			'name/cti/kebab',
+			'rgb-color-value',
+			'figma/line-height',
+			'figma/font-weight',
+			'figma/letter-spacing',
+		],
 	},
 	format: {
-		myFormat: ({dictionary, file, options={}}) => {
+		cssFormat: ({dictionary, file, options={}}) => {
 			const selector = options.selector ? options.selector : `:root`;
 			const { outputReferences } = options;
 			const formatProperty = createPropertyFormatter({
@@ -131,21 +191,121 @@ module.exports = {
 
 			return result;
 		},
+		figmaFormat: ({dictionary}) => {
+			const minifyDictionary = (obj) => {
+				if (typeof obj !== 'object' || Array.isArray(obj))
+				{
+					return obj;
+				}
 
+				const result = {};
+				if (obj.hasOwnProperty('ignoreFigma'))
+				{
+					return null;
+				}
+				else if (obj.hasOwnProperty('value'))
+				{
+					if (obj.figmaValue)
+					{
+						return { value: obj.figmaValue };
+					}
+					else
+					{
+						const value = /\{.+\}/.test(obj.original.value) ? obj.original.value : obj.value;
+
+						return { value };
+					}
+				}
+				else
+				{
+					for (const name in obj)
+					{
+						if (obj.hasOwnProperty(name))
+						{
+							const value = minifyDictionary(obj[name]);
+							if (value !== null)
+							{
+								result[name] = minifyDictionary(obj[name]);
+							}
+						}
+					}
+				}
+
+				return result;
+			}
+			const toCamelCase = (str) => {
+				const regex = /[-_\s]+(.)?/g;
+				if (!regex.test(str))
+				{
+					return str.match(/^[A-Z]+$/) ? str.toLowerCase() : str[0].toLowerCase() + str.slice(1);
+				}
+
+				str = str.toLowerCase();
+				str = str.replace(regex, (match, letter) => {
+					return letter ? letter.toUpperCase() : '';
+				});
+
+				return str[0].toLowerCase() + str.substr(1);
+			}
+
+			const typo = { type: 'typography' };
+			const typography = dictionary.tokens.typography;
+			Object.keys(typography).forEach(category => {
+				typo[category] = {};
+				Object.keys(typography[category]).forEach((item) => {;
+					const complexValue = {};
+					const props = typography[category][item];
+					Object.keys(props).forEach(prop => {
+						const propData = props[prop];
+						complexValue[toCamelCase(prop)] = propData.original.value;
+					});
+
+					typo[category][item] = { value: complexValue };
+				});
+			});
+
+			const result = minifyDictionary(dictionary.tokens);
+			result.typography = typo;
+
+			return JSON.stringify({ Bitrix24: result }, null, '\t');
+		},
 	},
 	platforms: {
 		css: {
-			transformGroup: 'ui-design-tokens',
+			transformGroup: 'css-design-tokens',
 			prefix: 'ui',
 			buildPath: '../dist/',
 			outputReferences: true,
 			files: [
 				{
 					destination: 'ui.design-tokens.css',
-					format: 'myFormat',
+					format: 'cssFormat',
 					options: {
 						outputReferences: true,
 					},
+				}
+			],
+		},
+		figma: {
+			transformGroup: 'figma-design-tokens',
+			buildPath: '../dist/',
+			outputReferences: true,
+			files: [
+				{
+					destination: 'figma-tokens.json',
+					format: 'figmaFormat',
+					/*filter: (token) => {
+						if (
+							token.attributes.category === 'text'
+							&& token.attributes.type === 'decoration'
+							&& token.attributes.item === 'style'
+						)
+						{
+							return false;
+						}
+
+						return true;
+					}*/
 				}
 			],
 		},

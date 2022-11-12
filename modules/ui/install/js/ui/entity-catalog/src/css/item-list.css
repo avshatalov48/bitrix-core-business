@@ -1,0 +1,10 @@
+.ui-entity-catalog__options {
+	box-sizing: border-box;
+	border-radius: var(--ui-border-radius-md, 10px);
+	background-color: var(--ui-color-background-primary, #ffffff);
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+	font-size: var(--ui-font-size-sm, 13px);
+	line-height: var(--ui-font-line-height-md, 1.4);
+	color: var(--ui-color-text-secondary, #525c69);
+}

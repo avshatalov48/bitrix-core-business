@@ -1064,8 +1064,14 @@ class CAdminUiList extends CAdminList
 								$value = htmlspecialcharsex(GetMessage("admin_lib_list_no"));
 							break;
 						case "select":
-							if ($field["edit"]["values"][$value])
+							if (isset($field["edit"]["values"][$value]))
+							{
 								$value = htmlspecialcharsex($field["edit"]["values"][$value]);
+							}
+							elseif (isset($field["view"]["values"][$value]))
+							{
+								$value = htmlspecialcharsex($field["view"]["values"][$value]);
+							}
 							break;
 						case "file":
 							$value = $value ? CFileInput::Show("fileInput_".$value, $value,

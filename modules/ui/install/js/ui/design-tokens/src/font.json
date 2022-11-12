@@ -1,11 +1,22 @@
 {
 	"font": {
 		"family": {
-			"system": { "value": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Ubuntu, \"Helvetica Neue\", Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'" },
-			"system-mono": { "value": "ui-monospace, SFMono-Regular, \"SF Mono\", Consolas, \"Liberation Mono\", Menlo, monospace" },
-			"helvetica": { "value": "\"Helvetica Neue\", Helvetica, Arial, sans-serif" }
+			"type": "fontFamilies",
+			"system": {
+				"value": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Ubuntu, \"Helvetica Neue\", Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'",
+				"figmaValue": "SF Pro Text"
+			},
+			"system-mono": {
+				"value": "ui-monospace, SFMono-Regular, \"SF Mono\", Consolas, \"Liberation Mono\", Menlo, monospace",
+				"figmaValue": "SF Mono"
+			},
+			"helvetica": {
+				"value": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
+				"figmaValue": "Helvetica Neue"
+			}
 		},
 		"weight": {
+			"type": "fontWeights",
 			"thin": { "value":  100 },
 			"extra-light": { "value":  200 },
 			"light": { "value":  300 },
@@ -19,6 +30,7 @@
 			"extra-black": { "value":  950 }
 		},
 		"size": {
+			"type": "fontSizes",
 			"7xs": { "value":  "7px" },
 			"6xs": { "value":  "8px" },
 			"5xs": { "value":  "9px" },
@@ -35,6 +47,7 @@
 			"5xl": { "value":  "28px" }
 		},
 		"line-height": {
+			"type": "lineHeights",
 			"reset": { "value":  1 },
 			"3xs": { "value":  1.2 },
 			"2xs": { "value":  1.3 },

@@ -170,7 +170,12 @@ export class RecentService
 			}
 			else if (item.user.id)
 			{
-				result.dialogues.push(this.prepareChatForUser(item));
+				const existingRecentItem = this.store.getters['recent/get'](item.user.id);
+				// we should not update real chat with "default" chat data
+				if (!existingRecentItem || !item.options.default_user_record)
+				{
+					result.dialogues.push(this.prepareChatForUser(item));
+				}
 			}
 
 			// recent

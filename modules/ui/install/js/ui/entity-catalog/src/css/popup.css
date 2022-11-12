@@ -1,0 +1,50 @@
+.ui-entity-catalog-popup-titlebar {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	min-height: 66px;
+	padding: 0 50px 0 25px;
+	position: relative;
+	font: 18px/57px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
+	color: var(--bizproc-debugger__gray_dark);
+}
+
+.ui-entity-catalog__scope .popup-window-titlebar {
+	position: relative;
+	height: auto;
+}
+
+.ui-entity-catalog__scope .popup-window-titlebar::after {
+	content: '';
+	display: block;
+	width: 100%;
+	height: 5px;
+	background: linear-gradient(180deg, #000000 0%, rgba(0, 0, 0, 0.508016) 41.51%, rgba(0, 0, 0, 0.0001) 100%);
+	opacity: 0.08;
+	position: absolute;
+	top: 100%;
+	left: 0;
+	z-index: 1;
+}
+
+.ui-entity-catalog__scope .popup-window-close-icon {
+	opacity: 0.7;
+}
+
+.ui-entity-catalog__scope .popup-window-close-icon::after {
+	width: 14px;
+	height: 14px;
+	background-image: url("data:image/svg+xml,%3Csvg width='12' height='13' viewBox='0 0 12 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9.8995 1.1967C10.29 0.806175 10.9232 0.806175 11.3137 1.1967C11.7042 1.58722 11.7042 2.22039 11.3137 2.61091L2.12132 11.8033C1.7308 12.1938 1.09763 12.1938 0.707109 11.8033C0.316585 11.4128 0.316585 10.7796 0.707109 10.3891L9.8995 1.1967Z' fill='%23535c68'/%3E%3Cpath d='M0.707107 2.61058C0.316582 2.22005 0.316582 1.58689 0.707107 1.19636C1.09763 0.80584 1.7308 0.80584 2.12132 1.19636L11.3137 10.3888C11.7042 10.7793 11.7042 11.4124 11.3137 11.803C10.9232 12.1935 10.29 12.1935 9.8995 11.803L0.707107 2.61058Z' fill='%23535c68'/%3E%3C/svg%3E%0A");
+}
+
+.ui-entity-catalog__scope .popup-window-content {
+	border-top-right-radius: 0;
+	border-top-left-radius: 0;
+}
+
+.ui-entity-catalog__scope .popup-window-titlebar-close-icon {
+	right: 18px;
+	top: 49%;
+	transform: translate(0px, -50%);
+}

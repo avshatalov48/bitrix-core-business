@@ -150,11 +150,11 @@ class Csv
 		// languages
 		$enabledLanguages = Translate\Config::getEnabledLanguages();
 		$languages = $this->request->get('languages');
-		if (is_array($languages) && !in_array('all', $languages))
+		if (\is_array($languages) && !\in_array('all', $languages))
 		{
-			$languages = array_intersect($languages, $enabledLanguages);
-			$sortLang = array_flip($enabledLanguages);
-			usort(
+			$languages = \array_intersect($languages, $enabledLanguages);
+			$sortLang = \array_flip($enabledLanguages);
+			\usort(
 				$languages,
 				function ($a, $b) use ($sortLang)
 				{
@@ -196,7 +196,7 @@ class Csv
 
 		$result = $action->run($path, true);
 
-		if (count($action->getErrors()) > 0)
+		if (\count($action->getErrors()) > 0)
 		{
 			$this->addErrors($action->getErrors());
 		}
@@ -213,7 +213,7 @@ class Csv
 
 				$messagePlaceholders = array(
 					'#TOTAL_PHRASES#' => $result['TOTAL_PHRASES'],
-					'#FILE_SIZE_FORMAT#' => \CFile::FormatSize($fileProperties['fileSize']),
+					'#FILE_SIZE_FORMAT#' => \CFile::formatSize($fileProperties['fileSize']),
 				);
 
 				if ($action->hasProcessCompleted())
@@ -237,7 +237,7 @@ class Csv
 
 			$messagePlaceholders = array(
 				'#TOTAL_PHRASES#' => $result['TOTAL_PHRASES'],
-				'#FILE_SIZE_FORMAT#' => \CFile::FormatSize($fileProperties['fileSize']),
+				'#FILE_SIZE_FORMAT#' => \CFile::formatSize($fileProperties['fileSize']),
 			);
 
 			$result['SUMMARY'] =
@@ -306,7 +306,7 @@ class Csv
 		}
 
 		// VI. Single file
-		if (preg_match("/\.php$/", $path))
+		if (\preg_match("/\.php$/", $path))
 		{
 			$nextAction = self::ACTION_EXPORT_FILE;
 			$exporterClass = ExportFile::class;

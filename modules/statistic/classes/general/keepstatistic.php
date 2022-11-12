@@ -75,7 +75,7 @@ class CKeepStatistics
 		if(defined("STOP_STATISTICS")) $GO = false;
 		if($HANDLE_CALL) $GO = true;
 
-		if($GO && $_SESSION["SESS_NO_KEEP_STATISTIC"]!="Y" && !defined("NO_KEEP_STATISTIC"))
+		if($GO && (!isset($_SESSION["SESS_NO_KEEP_STATISTIC"]) || $_SESSION["SESS_NO_KEEP_STATISTIC"]!="Y") && !defined("NO_KEEP_STATISTIC"))
 		{
 			$GLOBALS["DB"]->StartUsingMasterOnly();
 			if(CStatistics::CheckSkip())
@@ -132,7 +132,7 @@ class CKeepStatistics
 			$STOP_LIST_ID = intval($STOP_LIST_ID);
 			if ($ERROR_404=="Y") init_get_params($APPLICATION->GetCurUri());
 
-			$IS_USER_AUTHORIZED = (intval($_SESSION["SESS_LAST_USER_ID"])>0 && is_object($USER) && $USER->IsAuthorized()) ? "Y" : "N";
+			$IS_USER_AUTHORIZED = (isset($_SESSION["SESS_LAST_USER_ID"]) && intval($_SESSION["SESS_LAST_USER_ID"])>0 && is_object($USER) && $USER->IsAuthorized()) ? "Y" : "N";
 
 			stat_session_register("SESS_SEARCHER_ID");
 			stat_session_register("SESS_SEARCHER_NAME");
@@ -170,7 +170,7 @@ class CKeepStatistics
 			if (!$BLOCK_ACTIVITY)
 			{
 				//Check if searcher was not deleted from searchers list
-				if (intval($_SESSION["SESS_SEARCHER_ID"]) > 0)
+				if (isset($_SESSION["SESS_SEARCHER_ID"]) && intval($_SESSION["SESS_SEARCHER_ID"]) > 0)
 				{
 					$strSql = "
 						SELECT ID
@@ -183,7 +183,7 @@ class CKeepStatistics
 				}
 
 				// We did not check for searcher
-				if($_SESSION["SESS_SEARCHER_ID"] == '')
+				if(!isset($_SESSION["SESS_SEARCHER_ID"]) || $_SESSION["SESS_SEARCHER_ID"] == '')
 				{
 					// is it searcher hit?
 					$strSql = "
@@ -209,7 +209,7 @@ class CKeepStatistics
 						//Here was warning "A session is active. You cannot change the session module's ini settings at this time."
 						//@ini_set("url_rewriter.tags", "");
 					}
-					$_SESSION["SESS_SEARCHER_ID"] = intval($_SESSION["SESS_SEARCHER_ID"]);
+					$_SESSION["SESS_SEARCHER_ID"] = intval($_SESSION["SESS_SEARCHER_ID"] ?? 0);
 				}
 
 				/************************************************
@@ -301,7 +301,7 @@ class CKeepStatistics
 							Country detection
 					************************************************/
 
-					if($_SESSION["SESS_COUNTRY_ID"] == '')
+					if(!isset($_SESSION["SESS_COUNTRY_ID"]) || $_SESSION["SESS_COUNTRY_ID"] == '')
 					{
 						$obCity = new CCity;
 						$_SESSION["SESS_COUNTRY_ID"] = $obCity->GetCountryCode();
@@ -339,7 +339,7 @@ class CKeepStatistics
 							Session section
 					************************************************/
 
-					$_SESSION["SESS_SESSION_ID"] = intval($_SESSION["SESS_SESSION_ID"]);
+					$_SESSION["SESS_SESSION_ID"] = intval($_SESSION["SESS_SESSION_ID"] ?? 0);
 
 					//session already exists
 					if($_SESSION["SESS_SESSION_ID"] > 0)
@@ -997,7 +997,7 @@ class CKeepStatistics
 						Переменные хранящие параметры предыдущей страницы
 					*******************************************************/
 
-					$_SESSION["SESS_HTTP_REFERER"] = $_SESSION["SESS_LAST_URI"];
+					$_SESSION["SESS_HTTP_REFERER"] = $_SESSION["SESS_LAST_URI"] ?? '';
 					$_SESSION["SESS_LAST_PROTOCOL"] = $CURRENT_PROTOCOL;
 					$_SESSION["SESS_LAST_PORT"] = $CURRENT_PORT;
 					$_SESSION["SESS_LAST_HOST"] = $CURRENT_HOST;
@@ -1094,7 +1094,7 @@ echo '<html>
 	{
 		global $APPLICATION;
 		// if there is no session ID
-		if(intval($_SESSION["SESS_SESSION_ID"]) <= 0)
+		if(!isset($_SESSION["SESS_SESSION_ID"]) || intval($_SESSION["SESS_SESSION_ID"]) <= 0)
 		{
 			if(COption::GetOptionString("statistic", "SAVE_SESSION_DATA") == "Y")
 			{
@@ -1201,7 +1201,7 @@ echo '<html>
 		$DB_now_date = $DB->GetNowDate();
 		$STEPS = intval(COption::GetOptionString("statistic", "MAX_PATH_STEPS"));
 
-		if($_SESSION["SESS_LAST_PAGE"]==$CURRENT_PAGE)
+		if(isset($_SESSION["SESS_LAST_PAGE"]) && $_SESSION["SESS_LAST_PAGE"] == $CURRENT_PAGE)
 			return;
 
 		$COUNTER_ABNORMAL = 0; // счетчик показывающий сколько раз прошли по данному пути без поддержки HTTP_REFERER
@@ -1249,6 +1249,18 @@ echo '<html>
 		$rsPREV_PATH = $DB->Query($strSql,false,"File: ".__FILE__."<br>Line: ".__LINE__);
 		$arPREV_PATH = $rsPREV_PATH->Fetch();
 
+		if (!$arPREV_PATH)
+		{
+			$arPREV_PATH = [
+				"PATH_ID" => '',
+				"PATH_PAGES" => '',
+				"PATH_STEPS" => '',
+				"PATH_FIRST_PAGE" => '',
+				"PATH_LAST_PAGE" => '',
+				"IS_LAST_PAGE" => '',
+			];
+		}
+
 		$arrUpdate404_1 = array();
 		$arrUpdate404_2 = array();
 
@@ -1295,12 +1307,7 @@ echo '<html>
 			}
 		}
 
-		if($DB->type == "ORACLE")
-			$sql_CURRENT_PATH_PAGES = $DB->ForSql($CURRENT_PATH_PAGES, 2000);
-		elseif($DB->type == "MSSQL")
-			$sql_CURRENT_PATH_PAGES = $DB->ForSql($CURRENT_PATH_PAGES, 7000);
-		else
-			$sql_CURRENT_PATH_PAGES = $DB->ForSql($CURRENT_PATH_PAGES);
+		$sql_CURRENT_PATH_PAGES = $DB->ForSql($CURRENT_PATH_PAGES);
 
 		$sql_FIRST_PAGE_SITE_ID = $FIRST_PAGE_SITE_ID <> '' ? "'".$DB->ForSql($FIRST_PAGE_SITE_ID,2)."'" : "null";
 
@@ -1448,13 +1455,13 @@ echo '<html>
 		$enter_counter = ($SESSION_NEW=="Y") ? 1 : 0;
 		if ($CURRENT_DIR <> '' && $CURRENT_PAGE <> '')
 		{
-			$LAST_DIR_ID = intval($_SESSION["SESS_LAST_DIR_ID"]);
-			$LAST_PAGE_ID = intval($_SESSION["SESS_LAST_PAGE_ID"]);
+			$LAST_DIR_ID = intval($_SESSION["SESS_LAST_DIR_ID"] ?? 0);
+			$LAST_PAGE_ID = intval($_SESSION["SESS_LAST_PAGE_ID"] ?? 0);
 			$CURRENT_DIR_ID = 0;
 			$CURRENT_PAGE_ID = 0;
 			$exit_dir_counter = 0; // счетчик точки выхода для раздела
 			$exit_page_counter = 0; // счетчик точки выхода для страницы
-			if ($_SESSION["SESS_LAST_DIR"]!=$CURRENT_DIR || $_SESSION["SESS_LAST_PAGE"]!=$CURRENT_PAGE)
+			if (!isset($_SESSION["SESS_LAST_DIR"]) || $_SESSION["SESS_LAST_DIR"] != $CURRENT_DIR || !isset($_SESSION["SESS_LAST_PAGE"]) || $_SESSION["SESS_LAST_PAGE"] != $CURRENT_PAGE)
 			{
 				$strSql = "
 					SELECT

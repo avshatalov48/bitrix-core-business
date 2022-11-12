@@ -139,19 +139,19 @@ class Grabber
 		$success = false;
 		if (
 			isset($_FILES, $_FILES['tarFile'], $_FILES['tarFile']['tmp_name']) &&
-			($_FILES['tarFile']['error'] == UPLOAD_ERR_OK) &&
-			file_exists($_FILES['tarFile']['tmp_name'])
+			($_FILES['tarFile']['error'] == \UPLOAD_ERR_OK) &&
+			\file_exists($_FILES['tarFile']['tmp_name'])
 		)
 		{
 			if (
-				(filesize($_FILES['tarFile']['tmp_name']) > 0) &&
+				(\filesize($_FILES['tarFile']['tmp_name']) > 0) &&
 				(
-					mb_substr($_FILES['tarFile']['name'], -7) === '.tar.gz' ||
-					mb_substr($_FILES['tarFile']['name'], -4) === '.tar'
+					\mb_substr($_FILES['tarFile']['name'], -7) === '.tar.gz' ||
+					\mb_substr($_FILES['tarFile']['name'], -4) === '.tar'
 				)
 			)
 			{
-				if (mb_substr($_FILES['tarFile']['name'], -7) === '.tar.gz')
+				if (\mb_substr($_FILES['tarFile']['name'], -7) === '.tar.gz')
 				{
 					$suffix = '.tar.gz';
 				}
@@ -177,7 +177,7 @@ class Grabber
 			{
 				$this->addError(
 					new Main\Error(Loc::getMessage('TR_ERROR_UPLOAD_SIZE', [
-						'#SIZE#' => \CFile::FormatSize(self::getMaxUploadSize())
+						'#SIZE#' => \CFile::formatSize(self::getMaxUploadSize())
 					]))
 				);
 			}
@@ -212,12 +212,12 @@ class Grabber
 	{
 		if (
 			isset($postedFile['tmp_name']) &&
-			file_exists($postedFile['tmp_name'])
+			\file_exists($postedFile['tmp_name'])
 		)
 		{
 			/** @var Translate\IO\File $tmpFile */
 			$tmpFile = Translate\IO\File::generateTemporalFile('translate', $suffix, $timeToLive);
-			if (@copy($postedFile['tmp_name'], $tmpFile->getPhysicalPath()))
+			if (@\copy($postedFile['tmp_name'], $tmpFile->getPhysicalPath()))
 			{
 				$this->archiveFileType = $suffix;
 				$this->archiveFilePath = $tmpFile->getPhysicalPath();
@@ -308,7 +308,7 @@ class Grabber
 
 		$cancelingAction = $this->request->get('cancelingAction');
 		$summary =
-			in_array($cancelingAction, [self::ACTION_COLLECT, self::ACTION_PACK]) ?
+			\in_array($cancelingAction, [self::ACTION_COLLECT, self::ACTION_PACK]) ?
 				Loc::getMessage('TR_EXPORT_ACTION_CANCELED') :
 				Loc::getMessage('TR_IMPORT_ACTION_CANCELED')
 		;
@@ -369,10 +369,10 @@ class Grabber
 		static $maxUploadSize = -1;
 		if ($maxUploadSize < 0)
 		{
-			$maxUploadSize = min(
+			$maxUploadSize = \min(
 				\CUtil::unformat('32M'),
-				\CUtil::unformat(ini_get('post_max_size')),
-				\CUtil::unformat(ini_get('upload_max_filesize'))
+				\CUtil::unformat(\ini_get('post_max_size')),
+				\CUtil::unformat(\ini_get('upload_max_filesize'))
 			);
 		}
 

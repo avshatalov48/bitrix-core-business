@@ -40,6 +40,7 @@ $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_STRTOUPPER_DESCRIPTION"] = "Makes a strin
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_SUBSTR_DESCRIPTION"] = "Get substring (substr)";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_SWIRL_DESCRIPTION"] = "Moves the first value of a multiple field to the end";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_TOUSERDATE_DESCRIPTION"] = "Converts server time to user time";
+$MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_TRIM_DESCRIPTION"] = "Strips whitespace from the beginning and end of the string.";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_UCFIRST_DESCRIPTION"] = "Makes the first character of a string uppercase";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_UCWORDS_DESCRIPTION"] = "Makes the first character of each word in a string uppercase";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_URLENCODE_DESCRIPTION"] = "URL-encodes a specified string";

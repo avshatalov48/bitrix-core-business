@@ -29,7 +29,7 @@ class PhraseIndexCollection
 	{
 		if (isset($filter, $filter->path))
 		{
-			$relPath = '/'. trim($filter->path, '/');
+			$relPath = '/'. \trim($filter->path, '/');
 			$relPath = Translate\IO\Path::replaceLangId($relPath, '#LANG_ID#');
 
 			$topPathRes = Index\Internals\PathIndexTable::getList([
@@ -44,7 +44,7 @@ class PhraseIndexCollection
 			$checkLanguages = Translate\Config::getEnabledLanguages();
 			if (isset($filter, $filter->langId))
 			{
-				$checkLanguages = array_intersect($filter->langId, $checkLanguages);
+				$checkLanguages = \array_intersect($filter->langId, $checkLanguages);
 			}
 
 			$fileFilter = array(
@@ -83,13 +83,13 @@ class PhraseIndexCollection
 			$relPath = Translate\Config::getDefaultPath();
 		}
 
-		$relPath = '/'. trim($relPath, '/');
+		$relPath = '/'. \trim($relPath, '/');
 		$relPath = Translate\IO\Path::replaceLangId($relPath, '#LANG_ID#');
 
 		$checkLanguages = Translate\Config::getEnabledLanguages();
 		if (isset($filter, $filter->langId))
 		{
-			$checkLanguages = array_intersect($filter->langId, $checkLanguages);
+			$checkLanguages = \array_intersect($filter->langId, $checkLanguages);
 		}
 
 		$topPathRes = Index\Internals\PathIndexTable::getList([
@@ -143,7 +143,7 @@ class PhraseIndexCollection
 			while ($pathRow = $fileListRes->fetch())
 			{
 				$filePortion[] = $pathRow;
-				if (count($filePortion) >= 5)
+				if (\count($filePortion) >= 5)
 				{
 					break;
 				}
@@ -153,10 +153,10 @@ class PhraseIndexCollection
 				break;
 			}
 
-			$fileData = array();
-			$phraseData = array();
-			$pathIdPortion = array();
-			$nonexistentFiles = array();
+			$fileData = [];
+			$phraseData = [];
+			$pathIdPortion = [];
+			$nonexistentFiles = [];
 
 			foreach ($filePortion as $indexFile)
 			{
@@ -164,21 +164,21 @@ class PhraseIndexCollection
 				$pathIdPortion[] = $lastPathId = $pathId;
 
 				$fileIds = [];
-				foreach (explode("\n", $indexFile['FILE_IDS']) as $v)
+				foreach (\explode("\n", $indexFile['FILE_IDS']) as $v)
 				{
 					$fileIds[] = (int)$v;
 				}
 
 				$langIds = [];
-				foreach (explode("\n", $indexFile['LANG_IDS']) as $v)
+				foreach (\explode("\n", $indexFile['LANG_IDS']) as $v)
 				{
-					$langIds[] = trim($v);
+					$langIds[] = \trim($v);
 				}
 
 				$filePaths = [];
-				foreach (explode("\n", $indexFile['FULL_PATHS']) as $v)
+				foreach (\explode("\n", $indexFile['FULL_PATHS']) as $v)
 				{
-					$filePaths[] = trim($v);
+					$filePaths[] = \trim($v);
 				}
 
 
@@ -222,18 +222,18 @@ class PhraseIndexCollection
 					}
 				}
 
-				$processedItemCount += count($fileIds);
+				$processedItemCount += \count($fileIds);
 			}
 
 			Index\Internals\PhraseIndexTable::bulkDelete(['=PATH_ID' => $pathIdPortion, '=LANG_ID' => $checkLanguages]);
 
-			if (count($nonexistentFiles) > 0)
+			if (\count($nonexistentFiles) > 0)
 			{
 				Index\Internals\FileDiffTable::bulkDelete(['=FILE_ID' => $nonexistentFiles]);
 				Index\Internals\PhraseIndexTable::bulkDelete(['=FILE_ID' => $nonexistentFiles]);
 				Index\Internals\FileIndexTable::bulkDelete(['=ID' => $nonexistentFiles]);
 			}
-			if (count($phraseData) > 0)
+			if (\count($phraseData) > 0)
 			{
 				Index\Internals\FileIndexTable::bulkAdd($fileData, 'ID');
 				Index\Internals\PhraseIndexTable::bulkAdd($phraseData);
@@ -261,7 +261,7 @@ class PhraseIndexCollection
 				['INDEXED' => 'Y', 'INDEXED_TIME' => new Main\Type\DateTime()],
 				[
 					'=IS_DIR' => 'Y',
-				 	'=DESCENDANTS.PARENT_ID' => $topPath['ID'],//ancestor
+					'=DESCENDANTS.PARENT_ID' => $topPath['ID'],//ancestor
 				]
 			);
 		}

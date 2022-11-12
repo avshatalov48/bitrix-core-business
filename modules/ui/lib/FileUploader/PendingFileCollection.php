@@ -19,6 +19,19 @@ class PendingFileCollection implements \IteratorAggregate
 		return $this->files[$tempFileId] ?? null;
 	}
 
+	public function getByFileId(int $fileId): ?PendingFile
+	{
+		foreach ($this->files as $file)
+		{
+			if ($file->getFileId() === $fileId)
+			{
+				return $file;
+			}
+		}
+
+		return null;
+	}
+
 	/**
 	 * @return int[]
 	 */

@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Bizproc = this.BX.Bizproc || {};
-(function (exports,main_core,ui_dialogs_messagebox,bizproc_debugger) {
+(function (exports,main_core,ui_dialogs_messagebox,bizproc_debugger,ui_buttons) {
 	'use strict';
 
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
@@ -16,23 +16,41 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 
 	var _activeSession = /*#__PURE__*/new WeakMap();
 
+	var _currentUserId = /*#__PURE__*/new WeakMap();
+
 	var _disableButtons = /*#__PURE__*/new WeakSet();
 
 	var _enableButtons = /*#__PURE__*/new WeakSet();
 
 	var _setActiveSessionHint = /*#__PURE__*/new WeakSet();
 
+	var _renderFinishSessionButton = /*#__PURE__*/new WeakSet();
+
 	var _initEvents = /*#__PURE__*/new WeakSet();
 
 	var _onStartSessionClick = /*#__PURE__*/new WeakSet();
+
+	var _onFinishSessionClick = /*#__PURE__*/new WeakSet();
+
+	var _onAfterFinishSession = /*#__PURE__*/new WeakSet();
+
+	var _reject = /*#__PURE__*/new WeakSet();
 
 	var DebuggerStartComponent = /*#__PURE__*/function () {
 	  function DebuggerStartComponent(options) {
 	    babelHelpers.classCallCheck(this, DebuggerStartComponent);
 
+	    _classPrivateMethodInitSpec(this, _reject);
+
+	    _classPrivateMethodInitSpec(this, _onAfterFinishSession);
+
+	    _classPrivateMethodInitSpec(this, _onFinishSessionClick);
+
 	    _classPrivateMethodInitSpec(this, _onStartSessionClick);
 
 	    _classPrivateMethodInitSpec(this, _initEvents);
+
+	    _classPrivateMethodInitSpec(this, _renderFinishSessionButton);
 
 	    _classPrivateMethodInitSpec(this, _setActiveSessionHint);
 
@@ -50,8 +68,14 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      value: null
 	    });
 
+	    _classPrivateFieldInitSpec(this, _currentUserId, {
+	      writable: true,
+	      value: null
+	    });
+
 	    babelHelpers.classPrivateFieldSet(this, _documentSigned, options.documentSigned);
 	    babelHelpers.classPrivateFieldSet(this, _activeSession, options.activeSession ? new bizproc_debugger.Session(options.activeSession) : null);
+	    babelHelpers.classPrivateFieldSet(this, _currentUserId, main_core.Text.toInteger(options.currentUserId));
 	  }
 
 	  babelHelpers.createClass(DebuggerStartComponent, [{
@@ -61,6 +85,10 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	        _classPrivateMethodGet(this, _disableButtons, _disableButtons2).call(this);
 
 	        _classPrivateMethodGet(this, _setActiveSessionHint, _setActiveSessionHint2).call(this);
+
+	        if (babelHelpers.classPrivateFieldGet(this, _currentUserId) === babelHelpers.classPrivateFieldGet(this, _activeSession).startedBy) {
+	          _classPrivateMethodGet(this, _renderFinishSessionButton, _renderFinishSessionButton2).call(this);
+	        }
 	      } else {
 	        _classPrivateMethodGet(this, _initEvents, _initEvents2).call(this);
 	      }
@@ -88,6 +116,7 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	  var buttons = this.buttons;
 	  Object.keys(buttons).forEach(function (key) {
 	    main_core.Dom.removeClass(buttons[key], 'ui-btn-disabled');
+	    main_core.Dom.attr(buttons[key], 'disabled', null);
 	  });
 	}
 
@@ -104,6 +133,26 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	    main_core.Dom.attr(buttons[key], 'data-hint-no-icon', 'y');
 	    BX.UI.Hint.init(BX(buttons[key].id).parentElement);
 	  });
+	}
+
+	function _renderFinishSessionButton2() {
+	  var buttons = this.buttons;
+	  var mode = babelHelpers.classPrivateFieldGet(this, _activeSession).modeId;
+
+	  if (buttons[mode]) {
+	    var buttonId = buttons[mode].id;
+	    var button = new ui_buttons.Button({
+	      props: {
+	        id: buttonId
+	      },
+	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
+	      size: ui_buttons.ButtonSize.SMALL,
+	      text: main_core.Loc.getMessage('BIZPROC_DEBUGGER_START_TEMPLATE_FINISH'),
+	      round: true,
+	      onclick: _classPrivateMethodGet(this, _onFinishSessionClick, _onFinishSessionClick2).bind(this)
+	    });
+	    main_core.Dom.replace(buttons[mode], button.render());
+	  }
 	}
 
 	function _initEvents2() {
@@ -131,25 +180,72 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	      BX.SidePanel.Instance.closeAll();
 	      return true;
 	    }, function (response) {
-	      if (main_core.Type.isArrayFilled(response.errors)) {
-	        var message = '';
-	        response.errors.forEach(function (error) {
-	          message = message + '\n' + error.message;
-	        });
-	        ui_dialogs_messagebox.MessageBox.alert(message, function () {
-	          _classPrivateMethodGet(_this3, _enableButtons, _enableButtons2).call(_this3);
+	      _classPrivateMethodGet(_this3, _reject, _reject2).call(_this3, response, function () {
+	        _classPrivateMethodGet(_this3, _enableButtons, _enableButtons2).call(_this3);
 
-	          main_core.Dom.removeClass(btn, 'ui-btn-wait');
-	          return true;
-	        });
-	      }
-
-	      return true;
+	        main_core.Dom.removeClass(btn, 'ui-btn-wait');
+	        return true;
+	      });
 	    });
 	  });
 	}
 
+	function _onFinishSessionClick2(button) {
+	  var _this4 = this;
+
+	  button.setDisabled(true);
+	  button.setWaiting(true);
+
+	  if (top.BX.Bizproc.Debugger) {
+	    top.BX.Bizproc.Debugger.Manager.Instance.finishSession(babelHelpers.classPrivateFieldGet(this, _activeSession)).then(_classPrivateMethodGet(this, _onAfterFinishSession, _onAfterFinishSession2).bind(this), function (response) {
+	      _classPrivateMethodGet(_this4, _reject, _reject2).call(_this4, response, function () {
+	        button.setDisabled(false);
+	        button.setWaiting(false);
+	        return true;
+	      });
+	    });
+	  } else {
+	    babelHelpers.classPrivateFieldGet(this, _activeSession).finish().then(_classPrivateMethodGet(this, _onAfterFinishSession, _onAfterFinishSession2).bind(this), function (response) {
+	      _classPrivateMethodGet(_this4, _reject, _reject2).call(_this4, response, function () {
+	        button.setDisabled(false);
+	        button.setWaiting(false);
+	        return true;
+	      });
+	    });
+	  }
+	}
+
+	function _onAfterFinishSession2() {
+	  var buttons = this.buttons;
+	  var mode = babelHelpers.classPrivateFieldGet(this, _activeSession).modeId;
+	  var buttonId = buttons[mode].id;
+
+	  _classPrivateMethodGet(this, _enableButtons, _enableButtons2).call(this);
+
+	  babelHelpers.classPrivateFieldSet(this, _activeSession, null);
+	  main_core.Dom.replace(buttons[mode], new ui_buttons.Button({
+	    props: {
+	      id: buttonId
+	    },
+	    color: ui_buttons.ButtonColor.SUCCESS,
+	    size: ui_buttons.ButtonSize.SMALL,
+	    text: main_core.Loc.getMessage('BIZPROC_DEBUGGER_START_TEMPLATE_START'),
+	    round: true
+	  }).render());
+	  this.init();
+	}
+
+	function _reject2(response, onAfterCloseAlert) {
+	  if (main_core.Type.isArrayFilled(response.errors)) {
+	    var message = '';
+	    response.errors.forEach(function (error) {
+	      message = message + '\n' + error.message;
+	    });
+	    ui_dialogs_messagebox.MessageBox.alert(message, onAfterCloseAlert);
+	  }
+	}
+
 	namespace.DebuggerStartComponent = DebuggerStartComponent;
 
-}((this.BX.Bizproc.Component = this.BX.Bizproc.Component || {}),BX,BX.UI.Dialogs,BX.Bizproc.Debugger));
+}((this.BX.Bizproc.Component = this.BX.Bizproc.Component || {}),BX,BX.UI.Dialogs,BX.Bizproc.Debugger,BX.UI));
 //# sourceMappingURL=script.js.map

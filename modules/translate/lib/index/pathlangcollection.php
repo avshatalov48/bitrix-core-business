@@ -41,7 +41,7 @@ class PathLangCollection
 	 */
 	private static function configure()
 	{
-		self::$documentRoot = rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
+		self::$documentRoot = \rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
 
 		self::$enabledLanguages = Translate\Config::getEnabledLanguages();
 
@@ -49,10 +49,10 @@ class PathLangCollection
 		if (self::$useTranslationRepository)
 		{
 			self::$translationRepositoryLanguages = Translate\Config::getTranslationRepositoryLanguages();
-			self::$translationRepositoryRoot = rtrim(Localization\Translation::getTranslationRepositoryPath(), '/');
+			self::$translationRepositoryRoot = \rtrim(Localization\Translation::getTranslationRepositoryPath(), '/');
 
 			// only active languages
-			self::$translationEnabledLanguages = array_intersect(self::$translationRepositoryLanguages, self::$enabledLanguages);
+			self::$translationEnabledLanguages = \array_intersect(self::$translationRepositoryLanguages, self::$enabledLanguages);
 		}
 	}
 
@@ -69,7 +69,7 @@ class PathLangCollection
 
 		if (!empty($relPath))
 		{
-			$relPath = '/'. trim($relPath, '/');
+			$relPath = '/'. \trim($relPath, '/');
 			$totalItems = (int)Index\Internals\PathLangTable::getCount(array('=%PATH' => $relPath .'%'));
 		}
 		else
@@ -101,10 +101,10 @@ class PathLangCollection
 		{
 			$relPath = Translate\Config::getDefaultPath();
 		}
-		$relPath = '/'. trim($relPath, '/');
+		$relPath = '/'. \trim($relPath, '/');
 
 		// If it is lang folder, do nothing
-		if (basename($relPath) == 'lang')
+		if (\basename($relPath) == 'lang')
 		{
 			Index\Internals\PathLangTable::add(['PATH' => $relPath]);
 
@@ -114,7 +114,7 @@ class PathLangCollection
 		$seekAncestors = [];
 		if (isset($seek, $seek->path))
 		{
-			$seekAncestors = explode('/', trim($seek->path, '/'));
+			$seekAncestors = \explode('/', \trim($seek->path, '/'));
 			$seek->lookForSeek = true;
 		}
 
@@ -123,11 +123,11 @@ class PathLangCollection
 			$checkLanguages = self::$translationEnabledLanguages;
 			if (isset($filter, $filter->langId))
 			{
-				$checkLanguages = array_intersect($filter->langId, $checkLanguages);
+				$checkLanguages = \array_intersect($filter->langId, $checkLanguages);
 			}
 		}
 
-		$pathDepthLevel = count(explode('/', trim($relPath, '/'))) - 1;
+		$pathDepthLevel = \count(\explode('/', \trim($relPath, '/'))) - 1;
 
 		$cache = [];
 		$processedItemCount = 0;
@@ -141,14 +141,14 @@ class PathLangCollection
 		$lookForLangDirectory = function ($startRoot, $relPath, $depthLevel, $isTop = false)
 			use (&$lookForLangDirectory, &$cache, $checkLanguages, &$seek, $seekAncestors, &$processedItemCount)
 		{
-			$childrenList = array();
+			$childrenList = [];
 
 			$mergeChildrenList = function($childrenList0, $langId = '') use (&$childrenList)
 			{
 				foreach ($childrenList0 as $childPath)
 				{
-					$name = basename($childPath);
-					if (in_array($name, Translate\IGNORE_FS_NAMES))
+					$name = \basename($childPath);
+					if (\in_array($name, Translate\IGNORE_FS_NAMES))
 					{
 						continue;
 					}
@@ -159,7 +159,7 @@ class PathLangCollection
 
 					if (self::$useTranslationRepository && $langId != '')
 					{
-						$childPath = str_replace(
+						$childPath = \str_replace(
 							self::$translationRepositoryRoot. '/'. $langId,
 							self::$documentRoot. '/bitrix/modules',
 							$childPath
@@ -186,22 +186,22 @@ class PathLangCollection
 
 			if (!empty($childrenList))
 			{
-				$ignoreDev = implode('|', Translate\IGNORE_MODULE_NAMES);
+				$ignoreDev = \implode('|', Translate\IGNORE_MODULE_NAMES);
 				foreach ($childrenList as $childPath)
 				{
-					$name = basename($childPath);
-					$relChildPath = str_replace($startRoot, '', $childPath);
+					$name = \basename($childPath);
+					$relChildPath = \str_replace($startRoot, '', $childPath);
 
-					if (in_array($name, Translate\IGNORE_FS_NAMES))
+					if (\in_array($name, Translate\IGNORE_FS_NAMES))
 					{
 						continue;
 					}
-					if (in_array($relChildPath, Translate\IGNORE_BX_NAMES))
+					if (\in_array($relChildPath, Translate\IGNORE_BX_NAMES))
 					{
 						continue;
 					}
 					// /bitrix/modules/[smth]/dev/
-					if (preg_match("#/bitrix/modules/[^/]+/({$ignoreDev})$#", $relChildPath))
+					if (\preg_match("#/bitrix/modules/[^/]+/({$ignoreDev})$#", $relChildPath))
 					{
 						continue;
 					}
@@ -239,10 +239,10 @@ class PathLangCollection
 							'PATH' => $relChildPath,
 						);
 
-						if (count($cache) >= 50)
+						if (\count($cache) >= 50)
 						{
 							Index\Internals\PathLangTable::bulkAdd($cache);
-							$processedItemCount += count($cache);
+							$processedItemCount += \count($cache);
 							$cache = [];
 						}
 					}
@@ -261,10 +261,10 @@ class PathLangCollection
 				}
 			}
 
-			if ($isTop && count($cache) > 0)
+			if ($isTop && \count($cache) > 0)
 			{
 				Index\Internals\PathLangTable::bulkAdd($cache);
-				$processedItemCount += count($cache);
+				$processedItemCount += \count($cache);
 				$cache = [];
 			}
 		};
@@ -287,16 +287,16 @@ class PathLangCollection
 				}
 			}
 			// check user abortion
-			if (connection_status() !== CONNECTION_NORMAL)
+			if (\connection_status() !== \CONNECTION_NORMAL)
 			{
 				throw new Main\SystemException('Process has been broken course user aborted connection.');
 			}
 		}
 
-		if (count($cache) > 0)
+		if (\count($cache) > 0)
 		{
 			Index\Internals\PathLangTable::bulkAdd($cache);
-			$processedItemCount += count($cache);
+			$processedItemCount += \count($cache);
 		}
 
 		return $processedItemCount;

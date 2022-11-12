@@ -29,6 +29,7 @@
 	 * Hint manager.
 	 *
 	 * @param {object} [parameters] - Parameters.
+	 * @param {string} [parameters.id] - Id hint instance and id popup window.
 	 * @param {string} [parameters.attributeName] - Name of hint attribute.
 	 * @param {string} [parameters.attributeInitName] - Name of init hint attribute.
 	 * @param {string} [parameters.classNameIcon]
@@ -42,6 +43,11 @@
 	{
 		parameters = parameters || {};
 		this.id = 'ui-hint-popup-' + (+new Date());
+
+		if (parameters.id)
+		{
+			this.id = parameters.id;
+		}
 		if (parameters.attributeName)
 		{
 			this.attributeName = parameters.attributeName;

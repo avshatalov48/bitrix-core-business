@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
-(function (exports,main_core_events) {
+(function (exports,main_core_events,main_core_minimal) {
 	'use strict';
 
 	var FileSender = /*#__PURE__*/function () {
@@ -450,6 +450,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	  }, {
 	    key: "calculateChunkSize",
 	    value: function calculateChunkSize(taskChunkSize) {
+	      if (main_core_minimal.Type.isUndefined(this.isCloud)) // widget case
+	        {
+	          return taskChunkSize;
+	        }
+
 	      var chunk = 0;
 
 	      if (taskChunkSize) {
@@ -637,5 +642,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	exports.Uploader = Uploader;
 
-}((this.BX.Messenger.Lib = this.BX.Messenger.Lib || {}),BX.Event));
+}((this.BX.Messenger.Lib = this.BX.Messenger.Lib || {}),BX.Event,BX));
 //# sourceMappingURL=uploader.bundle.js.map

@@ -57,6 +57,7 @@ export default class ItemNode
 	textColor: ?string = null;
 	badges: ItemBadgeOptions[] = null;
 	badgesOptions: BadgesOptions = {};
+	hidden: boolean = false;
 
 	highlights: MatchField[] = [];
 
@@ -733,8 +734,20 @@ export default class ItemNode
 			);
 		}
 
-		this.highlight();
+		if (this.hasChildren())
+		{
+			const hasVisibleChild = this.getChildren().getAll().some((child: ItemNode) => {
+				return child.isHidden() !== true;
+			});
 
+			if (!hasVisibleChild)
+			{
+				this.#setHidden(true);
+			}
+		}
+
+		this.toggleVisibility();
+		this.highlight();
 		this.renderChildren(appendChildren);
 
 		if (this.isAutoOpen())
@@ -836,6 +849,76 @@ export default class ItemNode
 	getRenderMode(): RenderMode
 	{
 		return this.renderMode;
+	}
+
+	isHidden(): boolean
+	{
+		return this.hidden === true || this.getItem().isHidden() === true;
+	}
+
+	setHidden(flag: boolean): void
+	{
+		if (!Type.isBoolean(flag) || this.isRoot())
+		{
+			return;
+		}
+
+		this.#setHidden(flag);
+
+		if (this.isRendered())
+		{
+			this.toggleVisibility();
+
+			let parentNode = this.getParentNode();
+			const isHidden = this.isHidden();
+			while (parentNode.isRoot() === false)
+			{
+				if (isHidden)
+				{
+					const hasVisibleChild = parentNode.getChildren().getAll().some((child: ItemNode) => {
+						return child.isHidden() !== true;
+					});
+
+					if (!hasVisibleChild)
+					{
+						parentNode.#setHidden(true);
+					}
+
+					parentNode.toggleVisibility();
+				}
+				else
+				{
+					parentNode.#setHidden(false);
+					parentNode.toggleVisibility();
+					if (parentNode.isHidden())
+					{
+						break;
+					}
+				}
+
+				parentNode = parentNode.getParentNode();
+			}
+		}
+	}
+
+	#setHidden(flag: boolean): void
+	{
+		if (Type.isBoolean(flag) && !this.isRoot())
+		{
+			this.hidden = flag;
+		}
+	}
+
+	toggleVisibility(): boolean
+	{
+		if (this.isHidden())
+		{
+			Dom.addClass(this.getOuterContainer(), '--hidden');
+		}
+		else if (this.getOuterContainer().classList.contains('--hidden'))
+		{
+			Dom.removeClass(this.getOuterContainer(), '--hidden');
+		}
 	}
 
 	getTitle(): string

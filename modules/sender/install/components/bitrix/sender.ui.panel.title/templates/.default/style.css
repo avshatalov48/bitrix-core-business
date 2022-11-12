@@ -14,6 +14,10 @@
 	font-size: 13px;
 }
 
+.sender-ui-btn {
+	margin-right: 12px;
+}
+
 .sender-add-template-label,
 .sender-add-template-checkbox {
 	cursor: pointer;

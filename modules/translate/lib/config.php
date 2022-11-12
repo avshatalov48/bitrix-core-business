@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php
 
 namespace Bitrix\Translate;
 
@@ -113,7 +113,7 @@ final class Config
 				$mess = Loc::loadLanguageFile(__FILE__, 'en');
 			}
 		}
-		$encTitle = Loc::getMessage('TRANSLATE_ENCODING_'.mb_strtoupper(str_replace('-', '_', $encoding)));
+		$encTitle = Loc::getMessage('TRANSLATE_ENCODING_'.\mb_strtoupper(\str_replace('-', '_', $encoding)));
 		if (!empty($encTitle))
 		{
 			$encTitle .= " ($encoding)";
@@ -177,7 +177,7 @@ final class Config
 			]);
 			while ($row = $iterator->fetch())
 			{
-				$cultureEncoding[mb_strtolower($row['CODE'])] = mb_strtolower($row['CHARSET']);
+				$cultureEncoding[\mb_strtolower($row['CODE'])] = \mb_strtolower($row['CHARSET']);
 			}
 		}
 
@@ -246,7 +246,7 @@ final class Config
 	{
 		static $cache = [];
 		
-		$cacheId = implode('-', $languageIds);
+		$cacheId = \implode('-', $languageIds);
 		if (!isset($cache[$cacheId]))
 		{
 			$cache[$cacheId] = [];
@@ -279,7 +279,7 @@ final class Config
 		static $languages;
 		if ($languages === null)
 		{
-			$languages = array_unique(array_merge(
+			$languages = \array_unique(\array_merge(
 				self::getAvailableDefaultLanguages(),
 				self::getTranslationRepositoryLanguages()
 			));
@@ -303,7 +303,7 @@ final class Config
 			foreach ($langDirList->getChildren() as $langDir)
 			{
 				$langId = $langDir->getName();
-				if (in_array($langId, Translate\IGNORE_FS_NAMES, true) || !$langDir->isDirectory())
+				if (\in_array($langId, Translate\IGNORE_FS_NAMES, true) || !$langDir->isDirectory())
 				{
 					continue;
 				}
@@ -331,7 +331,7 @@ final class Config
 				foreach ($langDirList->getChildren() as $langDir)
 				{
 					$langId = $langDir->getName();
-					if (in_array($langId, Translate\IGNORE_FS_NAMES, true) || !$langDir->isDirectory())
+					if (\in_array($langId, Translate\IGNORE_FS_NAMES, true) || !$langDir->isDirectory())
 					{
 						continue;
 					}
@@ -360,13 +360,13 @@ final class Config
 				self::OPTION_INIT_FOLDERS,
 				Translate\Config::getModuleDefault(Translate\Config::OPTION_INIT_FOLDERS)
 			);
-			$folders = explode(',', trim($folders));
+			$folders = \explode(',', \trim($folders));
 			foreach ($folders as $oneFolder)
 			{
 				if (!empty($oneFolder))
 				{
 					$oneFolder = Translate\IO\Path::normalize($oneFolder);
-					$initFolders[] = '/'.ltrim($oneFolder, '/');
+					$initFolders[] = '/'.\ltrim($oneFolder, '/');
 				}
 			}
 		}
@@ -384,7 +384,7 @@ final class Config
 		static $defaultPath;
 		if ($defaultPath === null)
 		{
-			$folders = explode(',', self::getModuleDefault(self::OPTION_INIT_FOLDERS));
+			$folders = \explode(',', self::getModuleDefault(self::OPTION_INIT_FOLDERS));
 			$defaultPath = $folders[0];
 		}
 
@@ -422,11 +422,11 @@ final class Config
 			$confOption = Main\Config\Option::get('translate', self::OPTION_BACKUP_FOLDER, '');
 			if (!empty($confOption))
 			{
-				if (mb_strpos($confOption, '/') === 0)
+				if (\mb_strpos($confOption, '/') === 0)
 				{
 					$backupFolder = $confOption;
 				}
-				elseif (strncasecmp(PHP_OS, 'WIN', 3) === 0 && preg_match("#^[a-z]{1}:/#i", $confOption))
+				elseif (\strncasecmp(\PHP_OS, 'WIN', 3) === 0 && \preg_match("#^[a-z]{1}:/#i", $confOption))
 				{
 					$backupFolder = $confOption;
 				}
@@ -481,7 +481,7 @@ final class Config
 			$nonSortPhraseLanguages = Main\Config\Option::get('translate', self::OPTION_DONT_SORT_LANGUAGES, $def);
 			if (!is_array($nonSortPhraseLanguages))
 			{
-				$nonSortPhraseLanguages = explode(',', $nonSortPhraseLanguages);
+				$nonSortPhraseLanguages = \explode(',', $nonSortPhraseLanguages);
 			}
 		}
 
@@ -502,7 +502,7 @@ final class Config
 			$confOption = Main\Config\Option::get('translate', self::OPTION_EXPORT_FOLDER, '');
 			if (!empty($confOption))
 			{
-				if (mb_strpos($confOption, Main\Application::getDocumentRoot()) === 0)
+				if (\mb_strpos($confOption, Main\Application::getDocumentRoot()) === 0)
 				{
 					$exportFolder = $confOption;
 				}

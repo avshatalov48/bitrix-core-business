@@ -23,7 +23,7 @@ class Panel
 		 */
 		global $APPLICATION, $USER;
 
-		if (!$USER instanceof \CUser || !$USER->IsAuthorized())
+		if (!$USER instanceof \CUser || !$USER->isAuthorized())
 		{
 			return;
 		}
@@ -45,7 +45,7 @@ class Panel
 				$checked = ($_SESSION['SHOW_LANG_FILES'] == 'Y');
 			}
 
-			$url = $APPLICATION->GetCurPageParam('show_lang_files='.$cmd, array('show_lang_files'));
+			$url = $APPLICATION->getCurPageParam('show_lang_files='.$cmd, array('show_lang_files'));
 			$menu = array(
 				array(
 					'TEXT' => Loc::getMessage('TRANSLATE_SHOW_LANG_FILES_TEXT'),
@@ -65,7 +65,7 @@ class Panel
 				);
 			}
 
-			$APPLICATION->AddPanelButton(array(
+			$APPLICATION->addPanelButton(array(
 				'HREF' => '',
 				'ID' => 'translate',
 				'ICON' => 'bx-panel-translate-icon',
@@ -95,7 +95,7 @@ class Panel
 		 */
 		global $APPLICATION, $USER;
 
-		if (!$USER instanceof \CUser || !$USER->IsAuthorized())
+		if (!$USER instanceof \CUser || !$USER->isAuthorized())
 		{
 			return;
 		}
@@ -120,10 +120,10 @@ class Panel
 
 		$searchString = $request->get('srchlngfil');
 
-		\CJSCore::Init('admin_interface');
+		\CJSCore::init('admin_interface');
 		if (!defined("ADMIN_SECTION"))
 		{
-			$APPLICATION->SetAdditionalCSS('/bitrix/themes/.default/pubstyles.css');
+			$APPLICATION->setAdditionalCSS('/bitrix/themes/.default/pubstyles.css');
 		}
 
 		$popup = new \CJSPopupOnPage();
@@ -143,7 +143,7 @@ class Panel
 		{
 			?>
 			<p>
-				<input type="text" size="50" class="typeinput" name="srchlngfil" value="<?= htmlspecialcharsbx($searchString) ?>">
+				<input type="text" size="50" class="typeinput" name="srchlngfil" value="<?= \htmlspecialcharsbx($searchString) ?>">
 				<input type="submit" class="button" value="OK">
 			</p>
 			<?
@@ -162,7 +162,7 @@ class Panel
 				$includedLangFiles = Loc::getIncludedFiles();
 				if (!empty($includedLangFiles))
 				{
-					$includedLangFiles = array_values($includedLangFiles);
+					$includedLangFiles = \array_values($includedLangFiles);
 				}
 				$lowPriorityLangFiles = array();
 				$highPriorityLangFiles = array();
@@ -170,12 +170,12 @@ class Panel
 				{
 					$langFile = Main\IO\Path::normalize($langFile);
 
-					if (Localization\Translation::useTranslationRepository() && in_array(LANGUAGE_ID, Translate\Config::getTranslationRepositoryLanguages()))
+					if (Localization\Translation::useTranslationRepository() && \in_array(\LANGUAGE_ID, Translate\Config::getTranslationRepositoryLanguages()))
 					{
-						if (mb_strpos($langFile, Localization\Translation::getTranslationRepositoryPath()) === 0)
+						if (\mb_strpos($langFile, Localization\Translation::getTranslationRepositoryPath()) === 0)
 						{
-							$langFile = str_replace(
-								Localization\Translation::getTranslationRepositoryPath().'/'.LANGUAGE_ID.'/',
+							$langFile = \str_replace(
+								Localization\Translation::getTranslationRepositoryPath().'/'.\LANGUAGE_ID.'/',
 								'/bitrix/modules/',
 								$langFile
 							);
@@ -183,18 +183,18 @@ class Panel
 					}
 					if (Localization\Translation::getDeveloperRepositoryPath() !== null)
 					{
-						if (mb_strpos($langFile, Localization\Translation::getDeveloperRepositoryPath()) === 0)
+						if (\mb_strpos($langFile, Localization\Translation::getDeveloperRepositoryPath()) === 0)
 						{
-							$langFile = str_replace(
+							$langFile = \str_replace(
 								Localization\Translation::getDeveloperRepositoryPath(). '/',
 								'/bitrix/modules/',
 								$langFile
 							);
 						}
 					}
-					if (mb_strpos($langFile, Main\Application::getDocumentRoot()) === 0)
+					if (\mb_strpos($langFile, Main\Application::getDocumentRoot()) === 0)
 					{
-						$langFile = str_replace(
+						$langFile = \str_replace(
 							Main\Application::getDocumentRoot(). '/',
 							'/',
 							$langFile
@@ -206,15 +206,15 @@ class Panel
 					}
 
 					if(
-						(mb_strpos($langFile, "/menu") !== false) ||
-						(mb_strpos($langFile, "/classes") !== false) ||
-						(mb_strpos($langFile, "tools.") !== false) ||
-						(mb_strpos($langFile, "/include.") !== false) ||
-						(mb_strpos($langFile, "menu_template.php") !== false) ||
-						(mb_strpos($langFile, ".menu.") !== false) ||
-						(mb_strpos($langFile, "/top_panel.php") !== false) ||
-						(mb_strpos($langFile, "prolog_main_admin.php") !== false) ||
-						(mb_strpos($_SERVER["REQUEST_URI"], "/iblock_") === false && mb_strpos($langFile, "/modules/iblock/lang/")!==false)
+						(\mb_strpos($langFile, "/menu") !== false) ||
+						(\mb_strpos($langFile, "/classes") !== false) ||
+						(\mb_strpos($langFile, "tools.") !== false) ||
+						(\mb_strpos($langFile, "/include.") !== false) ||
+						(\mb_strpos($langFile, "menu_template.php") !== false) ||
+						(\mb_strpos($langFile, ".menu.") !== false) ||
+						(\mb_strpos($langFile, "/top_panel.php") !== false) ||
+						(\mb_strpos($langFile, "prolog_main_admin.php") !== false) ||
+						(\mb_strpos($_SERVER["REQUEST_URI"], "/iblock_") === false && \mb_strpos($langFile, "/modules/iblock/lang/")!==false)
 					)
 					{
 						$lowPriorityLangFiles[] = $langFile;
@@ -226,19 +226,19 @@ class Panel
 				}
 
 
-				$lowPriorityLangFiles = array_unique($lowPriorityLangFiles);
-				$highPriorityLangFiles = array_unique($highPriorityLangFiles);
+				$lowPriorityLangFiles = \array_unique($lowPriorityLangFiles);
+				$highPriorityLangFiles = \array_unique($highPriorityLangFiles);
 
-				asort($lowPriorityLangFiles);
-				reset($lowPriorityLangFiles);
+				\asort($lowPriorityLangFiles);
+				\reset($lowPriorityLangFiles);
 
-				$highPriorityLangFiles = array_reverse($highPriorityLangFiles, true);
+				$highPriorityLangFiles = \array_reverse($highPriorityLangFiles, true);
 
-				$includedLangFiles = array_merge($highPriorityLangFiles, $lowPriorityLangFiles);
+				$includedLangFiles = \array_merge($highPriorityLangFiles, $lowPriorityLangFiles);
 
 				if ($searchString !== null)
 				{
-					$lookForCode = preg_match("/[a-z1-9_]+/i", $searchString);
+					$lookForCode = \preg_match("/[a-z1-9_]+/i", $searchString);
 				}
 
 				foreach ($includedLangFiles as $langFile)
@@ -249,24 +249,24 @@ class Panel
 					{
 						$found = false;
 
-						$filePath = Localization\Translation::convertLangPath($_SERVER["DOCUMENT_ROOT"]. $langFile, LANGUAGE_ID);
-						if (file_exists($filePath))
+						$filePath = Localization\Translation::convertLangPath($_SERVER["DOCUMENT_ROOT"]. $langFile, \LANGUAGE_ID);
+						if (\file_exists($filePath))
 						{
-							$filePath = str_replace('/lang/'.LANGUAGE_ID.'/', '/', $langFile);
-							$messages = Loc::loadLanguageFile($_SERVER["DOCUMENT_ROOT"]. $filePath, LANGUAGE_ID);
+							$filePath = \str_replace('/lang/'.\LANGUAGE_ID.'/', '/', $langFile);
+							$messages = Loc::loadLanguageFile($_SERVER["DOCUMENT_ROOT"]. $filePath, \LANGUAGE_ID);
 
 							$stf = "";
 							foreach ($messages as $code => $phrase)
 							{
 								if (
-									$lookForCode && mb_strpos($code, $searchString) !== false ||
-									mb_strpos($phrase, $searchString) !== false
+									$lookForCode && \mb_strpos($code, $searchString) !== false ||
+									\mb_strpos($phrase, $searchString) !== false
 								)
 								{
 									$found = true;
-									$highlight = "&highlight=". preg_replace("/[^a-z1-9_]+/i", '', $code);
-									$stf .= '<a href="/bitrix/admin/translate_edit.php?lang='.LANGUAGE_ID.'&file='.$langFile. $highlight.'">'.
-											htmlspecialcharsbx($phrase).
+									$highlight = "&highlight=". \preg_replace("/[^a-z1-9_]+/i", '', $code);
+									$stf .= '<a href="/bitrix/admin/translate_edit.php?lang='.\LANGUAGE_ID.'&file='.$langFile. $highlight.'">'.
+											\htmlspecialcharsbx($phrase).
 											'</a><br> ';
 								}
 							}
@@ -278,7 +278,7 @@ class Panel
 					}
 					?>
 					<tr>
-						<td><a href="/bitrix/admin/translate_edit.php?lang=<?= LANGUAGE_ID ?>&file=<?= $langFile ?>"><?= $langFile ?></a></td>
+						<td><a href="/bitrix/admin/translate_edit.php?lang=<?= \LANGUAGE_ID ?>&file=<?= $langFile ?>"><?= $langFile ?></a></td>
 						<td><?= $stf ?></td>
 					</tr>
 					<?

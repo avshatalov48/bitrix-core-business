@@ -2535,7 +2535,7 @@
 
 	BX.Call.PlainCall.Peer.prototype._onPeerConnectionSignalingStateChange = function(e)
 	{
-		this.log("User " + this.id + " PC signalingState: " + this.peerConnection.signalingState);
+		this.log("User " + this.userId + " PC signalingState: " + this.peerConnection.signalingState);
 		if (this.peerConnection.signalingState === "stable")
 		{
 			this._updateTracksDebounced();

@@ -154,12 +154,8 @@
 }
 
 .ui-toolbar-subtitle {
-	display: none;
-	align-items: center;
-}
-
-.ui-toolbar-subtitle-show .ui-toolbar-subtitle {
 	display: flex;
+	align-items: center;
 }
 
 .ui-toolbar-subtitle-item {

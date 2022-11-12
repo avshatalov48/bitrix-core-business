@@ -85,18 +85,17 @@ class DateTime extends Date
 	 */
 	public function toString(Context\Culture $culture = null)
 	{
-		if(\CTimeZone::Enabled() && $this->userTimeEnabled)
+		if ($this->userTimeEnabled && \CTimeZone::Enabled())
 		{
 			$userTime = clone $this;
 			$userTime->toUserTime();
 
 			$format = static::getFormat($culture);
+
 			return $userTime->format($format);
 		}
-		else
-		{
-			return parent::toString($culture);
-		}
+
+		return parent::toString($culture);
 	}
 
 	/**

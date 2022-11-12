@@ -1627,6 +1627,7 @@ else if ($_POST['IM_GET_EXTERNAL_DATA'] == 'Y')
 						"bitrix:player",
 						"",
 						Array(
+							"PROVIDER" => "sound",
 							"PLAYER_TYPE" => "flv",
 							"CHECK_FILE" => "N",
 							"USE_PLAYLIST" => "N",

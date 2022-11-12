@@ -6,6 +6,7 @@ use Bitrix\Fileman\UserField\Types\AddressType;
 
 $text = '';
 $first = true;
+$hideCoordinates = !empty($arParams['additionalParameters']['hideCoordinates']);
 
 foreach($arResult['value'] as $value)
 {
@@ -29,8 +30,9 @@ foreach($arResult['value'] as $value)
 	$first = false;
 
 	$text .= (
-	$coords != ''
-		? sprintf('%s (%s)', $descr, join(', ', $coords)) : $descr
+	!$hideCoordinates && $coords != ''
+		? sprintf('%s (%s)', $descr, join(', ', $coords))
+		: $descr
 	);
 }
 

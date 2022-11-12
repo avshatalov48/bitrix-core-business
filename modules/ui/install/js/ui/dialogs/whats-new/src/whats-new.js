@@ -124,9 +124,7 @@ export default class WhatsNew extends EventEmitter
 						${this.getNextBtn()} 
 						<div class="ui-whats-new-slide-inner">${this.getSliderBox()}</div>  
 					</div> 
-					<div class="ui-whats-new-bullet-box" onclick="${this.#handleBulletClick.bind(this)}">${
-						this.#slides.map(slide => slide.getBullet())
-					}</div>
+					${this.getBulletBox()}
 					<div class="ui-whats-new-close-btn" onclick="${this.hide.bind(this)}"></div>
 				</div>
 			`;
@@ -168,6 +166,15 @@ export default class WhatsNew extends EventEmitter
 		});
 	}
 
+	getBulletBox(): ?HTMLElement
+	{
+		return this.#cache.remember('bulletBox', () => {
+			return this.isMoreThan1Slide() ? Tag.render`<div class="ui-whats-new-bullet-box" onclick="${this.#handleBulletClick.bind(this)}">${
+				this.#slides.map(slide => slide.getBullet())
+			}</div>` : null;
+		});
+	}
+
 	getPrevBtn(): HTMLElement
 	{
 		return this.#cache.remember('prevBtn', () => {
@@ -190,6 +197,11 @@ export default class WhatsNew extends EventEmitter
 				</div>
 			`;
 		});
+	}
+
+	isMoreThan1Slide(): boolean
+	{
+		return (this.#slides.length > 1);
 	}
 
 	show(): void
@@ -274,7 +286,12 @@ export default class WhatsNew extends EventEmitter
 		this.#position = position;
 
 		// Ears
-		if (!this.infinityLoop)
+		if (!this.isMoreThan1Slide())
+		{
+			Dom.addClass(this.getPrevBtn(), '--hide');
+			Dom.addClass(this.getNextBtn(), '--hide');
+		}
+		else if (!this.infinityLoop)
 		{
 			if (position === firstPosition)
 			{

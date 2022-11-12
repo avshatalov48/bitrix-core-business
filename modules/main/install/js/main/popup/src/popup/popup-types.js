@@ -39,6 +39,7 @@ export type PopupOptions = {
 	compatibleMode?: boolean,
 	bindOnResize?: boolean,
 	targetContainer?: HTMLElement,
+	isScrollBlock?: boolean,
 
 	//Compatibility
 	noAllPaddings?: boolean,

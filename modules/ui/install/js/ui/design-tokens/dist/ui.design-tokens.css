@@ -1,9 +1,28 @@
 /**
  * Do not edit directly
- * Generated on Thu, 11 Aug 2022 11:32:53 GMT
+ * Generated on Wed, 21 Sep 2022 12:05:39 GMT
  */
 
 :root {
+  --ui-text-letter-spacing-auto: auto;
+  --ui-text-letter-spacing-neg-3: -0.01em;
+  --ui-text-letter-spacing-neg-2: -0.02em;
+  --ui-text-letter-spacing-neg-1: -0.03em;
+  --ui-text-letter-spacing-3: 0.15em;
+  --ui-text-letter-spacing-2: 0.1em;
+  --ui-text-letter-spacing-1: 0.025em;
+  --ui-text-decoration-style-dashed: dashed;
+  --ui-text-decoration-style-wavy: wavy;
+  --ui-text-decoration-style-dotted: dotted;
+  --ui-text-decoration-style-double: double;
+  --ui-text-decoration-style-solid: solid;
+  --ui-text-decoration-line-overline: overline;
+  --ui-text-decoration-line-line-through: line-through;
+  --ui-text-decoration-line-underline: underline;
+  --ui-text-transform-lowercase: lowercase;
+  --ui-text-transform-uppercase: uppercase;
+  --ui-text-transform-capitalize: capitalize;
+  --ui-text-transform-none: none;
   --ui-space-inset-8xl: 72px;
   --ui-space-inset-7xl: 64px;
   --ui-space-inset-6xl: 48px;
@@ -92,6 +111,54 @@
   --ui-size-2xs: 4px;
   --ui-size-3xs: 2px;
   --ui-size-none: 0;
+  --ui-shadow-left-4xl: -16px 0px 24px 0px rgba(0, 0, 0, 0.11);
+  --ui-shadow-left-3xl: -12px 0px 17px 0px rgba(0, 0, 0, 0.1);
+  --ui-shadow-left-2xl: -8px 0px 10px 0px rgba(0, 0, 0, 0.1);
+  --ui-shadow-left-xl: -6px 0px 10px 0px rgba(0, 0, 0, 0.1);
+  --ui-shadow-left-l: -4px 0px 5px 0px rgba(0, 0, 0, 0.08);
+  --ui-shadow-left-m: -3px 0px 4px 0px rgba(0, 0, 0, 0.08);
+  --ui-shadow-left-s: -2px 0px 4px 0px rgba(0, 0, 0, 0.08);
+  --ui-shadow-left-xs: -2px 0px 2px 0px rgba(0, 0, 0, 0.07);
+  --ui-shadow-left-2xs: -1px 0px 2px 0px rgba(0, 0, 0, 0.06);
+  --ui-shadow-bottom-4xl: 0px 16px 24px 0px rgba(0, 0, 0, 0.11);
+  --ui-shadow-bottom-3xl: 0px 12px 17px 0px rgba(0, 0, 0, 0.1);
+  --ui-shadow-bottom-2xl: 0px 8px 10px 0px rgba(0, 0, 0, 0.1);
+  --ui-shadow-bottom-xl: 0px 6px 10px 0px rgba(0, 0, 0, 0.1);
+  --ui-shadow-bottom-l: 0px 4px 5px 0px rgba(0, 0, 0, 0.08);
+  --ui-shadow-bottom-m: 0px 3px 4px 0px rgba(0, 0, 0, 0.08);
+  --ui-shadow-bottom-s: 0px 2px 4px 0px rgba(0, 0, 0, 0.08);
+  --ui-shadow-bottom-xs: 0px 2px 2px 0px rgba(0, 0, 0, 0.07);
+  --ui-shadow-bottom-2xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.06);
+  --ui-shadow-right-4xl: 16px 0px 24px 0px rgba(0, 0, 0, 0.11);
+  --ui-shadow-right-3xl: 12px 0px 17px 0px rgba(0, 0, 0, 0.1);
+  --ui-shadow-right-2xl: 8px 0px 10px 0px rgba(0, 0, 0, 0.1);
+  --ui-shadow-right-xl: 6px 0px 10px 0px rgba(0, 0, 0, 0.1);
+  --ui-shadow-right-l: 4px 0px 5px 0px rgba(0, 0, 0, 0.08);
+  --ui-shadow-right-m: 3px 0px 4px 0px rgba(0, 0, 0, 0.08);
+  --ui-shadow-right-s: 2px 0px 4px 0px rgba(0, 0, 0, 0.08);
+  --ui-shadow-right-xs: 2px 0px 2px 0px rgba(0, 0, 0, 0.07);
+  --ui-shadow-right-2xs: 1px 0px 2px 0px rgba(0, 0, 0, 0.06);
+  --ui-shadow-top-4xl: 0px -16px 24px 0px rgba(0, 0, 0, 0.11);
+  --ui-shadow-top-3xl: 0px -12px 17px 0px rgba(0, 0, 0, 0.1);
+  --ui-shadow-top-2xl: 0px -8px 10px 0px rgba(0, 0, 0, 0.1);
+  --ui-shadow-top-xl: 0px -6px 10px 0px rgba(0, 0, 0, 0.1);
+  --ui-shadow-top-l: 0px -4px 5px 0px rgba(0, 0, 0, 0.08);
+  --ui-shadow-top-m: 0px -3px 4px 0px rgba(0, 0, 0, 0.08);
+  --ui-shadow-top-s: 0px -2px 4px 0px rgba(0, 0, 0, 0.08);
+  --ui-shadow-top-xs: 0px -2px 2px 0px rgba(0, 0, 0, 0.07);
+  --ui-shadow-top-2xs: 0px -1px 2px 0px rgba(0, 0, 0, 0.06);
+  --ui-opacity-none: 0;
+  --ui-opacity-full: 1;
+  --ui-opacity-90: 0.9;
+  --ui-opacity-80: 0.8;
+  --ui-opacity-70: 0.7;
+  --ui-opacity-60: 0.6;
+  --ui-opacity-50: 0.5;
+  --ui-opacity-40: 0.4;
+  --ui-opacity-30: 0.3;
+  --ui-opacity-20: 0.2;
+  --ui-opacity-10: 0.1;
+  --ui-opacity-5: 0.05;
   --ui-font-line-height-3xl: 2;
   --ui-font-line-height-2xl: 1.75;
   --ui-font-line-height-xl: 1.62;
@@ -244,6 +311,8 @@
   --ui-color-palette-black-solid: #000000;
   --ui-color-palette-black-solid-rgb: 0, 0, 0;
   --ui-color-overlay-base: rgba(255, 255, 255, 0.5);
+  --ui-color-accent-yellow: #fef3b8;
+  --ui-color-accent-yellow-rgb: 254, 243, 184;
   --ui-color-accent-purple: #a77bde;
   --ui-color-accent-purple-rgb: 167, 123, 222;
   --ui-color-accent-turquoise: #05b5ab;

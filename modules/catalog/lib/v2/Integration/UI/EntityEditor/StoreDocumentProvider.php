@@ -5,16 +5,14 @@ namespace Bitrix\Catalog\v2\Integration\UI\EntityEditor;
 use Bitrix\Catalog\ContractorTable;
 use Bitrix\Catalog\StoreDocumentFileTable;
 use Bitrix\Catalog\StoreDocumentTable;
+use Bitrix\Catalog\v2\Integration\UI\EntityEditor\Product\StoreDocumentProductPositionRepository;
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Currency\CurrencyTable;
 use Bitrix\Main;
 use Bitrix\Main\Engine\CurrentUser;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserTable;
-use Bitrix\Sale\PriceMaths;
 use Bitrix\UI\EntityEditor\BaseProvider;
-use CCatalogStoreDocsElement;
 use CCurrencyLang;
 
 class StoreDocumentProvider extends BaseProvider
@@ -167,7 +165,22 @@ class StoreDocumentProvider extends BaseProvider
 				'editable' => true,
 				'required' => true,
 			],
-			$this->getTotalInfoControl(),
+			array_merge(
+				[
+					'name' => 'TOTAL_WITH_CURRENCY',
+					'editable' => in_array(
+						$this->getDocumentType(),
+						[
+							StoreDocumentTable::TYPE_ARRIVAL,
+							StoreDocumentTable::TYPE_STORE_ADJUSTMENT
+						],
+						true
+					),
+				],
+				$this->isNewDocument()
+					? $this->getTotalInfoControlForNewDocument()
+					: $this->getTotalInfoControlForExistingDocument()
+			),
 			[
 				'name' => 'DATE_MODIFY',
 				'title' => static::getFieldTitle('DATE_MODIFY'),
@@ -198,54 +211,42 @@ class StoreDocumentProvider extends BaseProvider
 			],
 			[
 				'name' => 'DOCUMENT_PRODUCTS',
-				'title' => Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_FIELD_DOCUMENT_PRODUCTS_'
-					. $this->getDocumentType())
-					?: Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_FIELD_DOCUMENT_PRODUCTS'),
+				'title' => Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_FIELD_DOCUMENT_PRODUCTS_2'),
 				'type' => 'product_row_summary',
 				'editable' => false,
 			],
 		];
 	}
 
-	protected function getTotalInfoControl(): array
+	protected function getTotalInfoControlForNewDocument(): array
 	{
-		$result = [
-			'name' => 'TOTAL_WITH_CURRENCY',
-			'editable' => in_array($this->getDocumentType(), [StoreDocumentTable::TYPE_ARRIVAL, StoreDocumentTable::TYPE_STORE_ADJUSTMENT]),
-		];
-
-		if ($this->isNewDocument())
-		{
-			return array_merge(
-				$result,
-				[
-					'title' => static::getFieldTitle('CURRENCY'),
-					'type' => 'list',
-					'data' => [
-						'items' => $this->prepareCurrencyList(),
-					]
-				],
-			);
-		}
-
-		return array_merge(
-			$result,
-			[
-				'title' => static::getFieldTitle('TOTAL_WITH_CURRENCY'),
-				'type' => 'money',
-				'data' => [
-					'largeFormat' => true,
-					'affectedFields' => ['CURRENCY', 'TOTAL'],
-					'amount' => 'TOTAL',
-					'currency' => [
-						'name' => 'CURRENCY',
-						'items' => $this->prepareCurrencyList(),
-					],
-					'formatted' => 'FORMATTED_TOTAL',
-					'formattedWithCurrency' => 'FORMATTED_TOTAL_WITH_CURRENCY',
-				],
+		return [
+			'title' => static::getFieldTitle('CURRENCY'),
+			'type' => 'list',
+			'data' => [
+				'items' => $this->prepareCurrencyList(),
 			]
-		);
+		];
+	}
+
+	protected function getTotalInfoControlForExistingDocument(): array
+	{
+		return [
+			'title' => static::getFieldTitle('TOTAL_WITH_CURRENCY'),
+			'type' => 'money',
+			'data' => [
+				'largeFormat' => true,
+				'affectedFields' => ['CURRENCY', 'TOTAL'],
+				'amount' => 'TOTAL',
+				'amountReadOnly' => true,
+				'currency' => [
+					'name' => 'CURRENCY',
+					'items' => $this->prepareCurrencyList(),
+				],
+				'formatted' => 'FORMATTED_TOTAL',
+				'formattedWithCurrency' => 'FORMATTED_TOTAL_WITH_CURRENCY',
+			],
+		];
 	}
 
 	protected function getDocumentSpecificFields(): array
@@ -581,49 +582,44 @@ class StoreDocumentProvider extends BaseProvider
 
 	protected function getDocumentProductsPreview(array $document): array
 	{
-		if (!Loader::includeModule('sale'))
+		$documentProductSummaryInfo = $this->getProductSummaryInfo($document);
+		$documentProductSummaryInfo['isReadOnly'] = $this->isReadOnly();
+
+		return $documentProductSummaryInfo;
+	}
+
+	private function getProductSummaryInfo(array $document): array
+	{
+		$isNewDocument = $document['ID'] === null;
+		if ($isNewDocument)
 		{
-			return [];
-		}
-
-		$documentProducts = [];
-		if (!$this->isNewDocument())
-		{
-			$documentProductsRes = CCatalogStoreDocsElement::getList(
-				['ID' => 'ASC'],
-				['DOC_ID' => $this->getDocumentId()],
-				false,
-				false,
-				['ELEMENT_ID', 'ELEMENT_NAME', 'AMOUNT', 'PURCHASING_PRICE', 'BASE_PRICE']
-			);
-
-			while ($elementRow = $documentProductsRes->Fetch())
-			{
-				$documentProducts[] = $elementRow;
-			}
-		}
-
-		$result = [
-			'count' => count($documentProducts),
-			'total' => [
-				'amount' => $document['TOTAL'],
-				'currency' => $document['CURRENCY'],
-			],
-			'items' => [],
-		];
-
-		$priceType = 'PURCHASING_PRICE';
-
-		foreach ($documentProducts as $product)
-		{
-			$productSum = PriceMaths::roundPrecision((float)$product[$priceType] * (float)$product['AMOUNT']);
-			$result['items'][] = [
-				'PRODUCT_NAME' => $product['ELEMENT_NAME'],
-				'SUM' => CCurrencyLang::CurrencyFormat($productSum, $document['CURRENCY']),
+			return [
+				'count' => 0,
+				'total' => \CCurrencyLang::CurrencyFormat(0, $document['CURRENCY']),
+				'totalRaw' => [
+					'amount' => 0,
+					'currency' => $document['CURRENCY'],
+				],
+				'items' => [],
 			];
 		}
 
-		return $result;
+		$storeDocumentProductPositionRepository = StoreDocumentProductPositionRepository::getInstance();
+		$productPositionList = $storeDocumentProductPositionRepository->getList($document['ID']);
+		foreach ($productPositionList as &$productPosition)
+		{
+			$productPosition['SUM'] = \CCurrencyLang::CurrencyFormat($productPosition['SUM'], $document['CURRENCY']);
+		}
+
+		return [
+			'count' => $storeDocumentProductPositionRepository->getCount($document['ID']),
+			'total' => \CCurrencyLang::CurrencyFormat($document['TOTAL'], $document['CURRENCY']),
+			'totalRaw' => [
+				'amount' => $document['TOTAL'],
+				'currency' => $document['CURRENCY'],
+			],
+			'items' => $productPositionList,
+		];
 	}
 
 	protected function getAdditionalDocumentData(array $document): array
@@ -761,22 +757,43 @@ class StoreDocumentProvider extends BaseProvider
 		return isset($this->document['STATUS']) && $this->document['STATUS'] === 'Y';
 	}
 
+	/**
+	 * @return array
+	 */
 	protected function prepareCurrencyList(): array
 	{
 		$result = [];
+
 		$existingCurrencies = CurrencyTable::getList([
-			'select' => ['CURRENCY', 'FULL_NAME' => 'CURRENT_LANG_FORMAT.FULL_NAME', 'SORT'],
-			'order' => ['BASE' => 'DESC', 'SORT' => 'ASC', 'CURRENCY' => 'ASC'],
+			'select' => [
+				'CURRENCY',
+				'FULL_NAME' => 'CURRENT_LANG_FORMAT.FULL_NAME',
+				'SORT',
+			],
+			'order' => [
+				'BASE' => 'DESC',
+				'SORT' => 'ASC',
+				'CURRENCY' => 'ASC',
+			],
 		])->fetchAll();
 		foreach ($existingCurrencies as $currency)
 		{
-			$result[] = [
-				'NAME' => $currency['FULL_NAME'],
-				'VALUE' => $currency['CURRENCY'],
-			];
+			$result[] = $this->prepareCurrencyListItem($currency);
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param array $currency
+	 * @return array
+	 */
+	protected function prepareCurrencyListItem(array $currency): array
+	{
+		return [
+			'NAME' => $currency['FULL_NAME'],
+			'VALUE' => $currency['CURRENCY'],
+		];
 	}
 
 	public static function getFieldTitle($fieldName)

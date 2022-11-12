@@ -243,7 +243,7 @@ elseif($arResult["FORM_DATA"]["TYPE"] == "PREVIEW_PICTURE")
 	);
 	$arTab1Fields[] = array(
 		"id" => "DEFAULT_VALUE[SCALE]",
-		"name" => GetMessage("CT_BLFE_FIELD_PICTURE_SCALE"),
+		"name" => GetMessage("CT_BLFE_FIELD_PICTURE_SCALE_1"),
 		"type" => "checkbox",
 		"value" => isset($arResult["FORM_DATA"]["DEFAULT_VALUE"]["SCALE"]) ? $arResult["FORM_DATA"]["DEFAULT_VALUE"]["SCALE"] : '',
 	);
@@ -299,7 +299,7 @@ elseif($arResult["FORM_DATA"]["TYPE"] == "DETAIL_PICTURE")
 {
 	$arTab1Fields[] = array(
 		"id" => "DEFAULT_VALUE[SCALE]",
-		"name" => GetMessage("CT_BLFE_FIELD_PICTURE_SCALE"),
+		"name" => GetMessage("CT_BLFE_FIELD_PICTURE_SCALE_1"),
 		"type" => "checkbox",
 		"value" => isset($arResult["FORM_DATA"]["DEFAULT_VALUE"]["SCALE"]) ? $arResult["FORM_DATA"]["DEFAULT_VALUE"]["SCALE"] : '',
 	);

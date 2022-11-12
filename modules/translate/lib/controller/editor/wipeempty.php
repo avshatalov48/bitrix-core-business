@@ -51,9 +51,9 @@ class WipeEmpty
 	{
 		if ($this->isNewProcess)
 		{
-			$pathList = preg_split("/[\r\n]+/", $pathList);
-			array_walk($pathList, 'trim');
-			$pathList = array_unique(array_filter($pathList));
+			$pathList = \preg_split("/[\r\n]+/", $pathList);
+			\array_walk($pathList, 'trim');
+			$pathList = \array_unique(\array_filter($pathList));
 
 			if (empty($pathList))
 			{
@@ -66,7 +66,7 @@ class WipeEmpty
 
 			foreach ($pathList as $testPath)
 			{
-				if (mb_substr($testPath, -4) === '.php')
+				if (\mb_substr($testPath, -4) === '.php')
 				{
 					if (Translate\IO\Path::isLangDir($testPath))
 					{
@@ -89,8 +89,8 @@ class WipeEmpty
 						$pathFilter = array();
 						$pathFilter[] = array(
 							'LOGIC' => 'OR',
-							'=PATH' => rtrim($testPath, '/'),
-							'=%PATH' => rtrim($testPath, '/'). '/%'
+							'=PATH' => \rtrim($testPath, '/'),
+							'=%PATH' => \rtrim($testPath, '/'). '/%'
 						);
 						$pathLangRes = Index\Internals\PathLangTable::getList(array(
 							'filter' => $pathFilter,
@@ -105,7 +105,7 @@ class WipeEmpty
 				}
 			}
 
-			$this->totalItems = count($this->pathList);
+			$this->totalItems = \count($this->pathList);
 			$this->processedItems = 0;
 
 			if ($this->totalItems == 0)
@@ -139,7 +139,7 @@ class WipeEmpty
 			$isOk = true;
 
 			// file
-			if (mb_substr($testPath, -4) === '.php')
+			if (\mb_substr($testPath, -4) === '.php')
 			{
 				$testPath = Translate\IO\Path::replaceLangId($testPath, '#LANG_ID#');
 
@@ -163,7 +163,7 @@ class WipeEmpty
 			// folder
 			else
 			{
-				if (mb_substr($testPath, -5) === '/lang')
+				if (\mb_substr($testPath, -5) === '/lang')
 				{
 					$testPath .= '/#LANG_ID#';
 				}

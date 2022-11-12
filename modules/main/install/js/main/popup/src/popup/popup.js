@@ -155,6 +155,7 @@ export default class Popup extends EventEmitter
 		this.titleBar = null;
 		this.bindOptions = typeof (params.bindOptions) === 'object' ? params.bindOptions : {};
 		this.autoHide = params.autoHide === true;
+		this.isScrollBlock = params.isScrollBlock === true;
 		this.autoHideHandler = Type.isFunction(params.autoHideHandler) ? params.autoHideHandler : null;
 		this.handleAutoHide = this.handleAutoHide.bind(this);
 		this.handleOverlayClick = this.handleOverlayClick.bind(this);
@@ -1463,6 +1464,16 @@ export default class Popup extends EventEmitter
 		return this.zIndexComponent;
 	}
 
+	#disableScroll()
+	{
+		Dom.addClass(document.body, 'popup-no-scroll');
+	}
+
+	#enableScroll()
+	{
+		Dom.removeClass(document.body, 'popup-no-scroll')
+	}
+
 	show(): void
 	{
 		if (this.isShown() || this.isDestroyed())
@@ -1513,6 +1524,11 @@ export default class Popup extends EventEmitter
 		{
 			this.bindAutoHide();
 		}
+
+		if (this.isScrollBlock)
+		{
+			this.#disableScroll();
+		}
 	}
 
 	close(): void
@@ -1527,6 +1543,11 @@ export default class Popup extends EventEmitter
 		if (this.isDestroyed())
 		{
 			return;
+		}
+
+		if (this.isScrollBlock)
+		{
+			this.#enableScroll();
 		}
 
 		this.animateClosing(() => {
@@ -1691,6 +1712,11 @@ export default class Popup extends EventEmitter
 		if (this.destroyed)
 		{
 			return;
+		}
+
+		if (this.isScrollBlock)
+		{
+			this.#enableScroll();
 		}
 
 		this.destroyed = true;

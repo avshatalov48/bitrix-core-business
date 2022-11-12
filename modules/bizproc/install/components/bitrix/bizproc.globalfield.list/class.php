@@ -80,21 +80,7 @@ class BizprocGlobalFieldListComponent extends CBitrixComponent implements \Bitri
 		}
 	}
 
-	private function getTitleCreateButton(): ?string
-	{
-		if ($this->mode === self::VAR_MODE)
-		{
-			return \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_GLOBALFIELDS_LIST_CREATE_VARIABLE');
-		}
-		elseif ($this->mode === self::CONST_MODE)
-		{
-			return \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_GLOBALFIELDS_LIST_CREATE_CONSTANT');
-		}
-		else
-		{
-			return '';
-		}
-	}
+
 
 	private function getGridColumnNameTitle(): ?string
 	{
@@ -273,7 +259,7 @@ HTML;
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterParams);
 
 		$createButton = \Bitrix\UI\Buttons\CreateButton::create([
-			'text' => $this->getTitleCreateButton(),
+			'text' => \Bitrix\Main\Localization\Loc::getMessage('BIZPROC_GLOBALFIELDS_LIST_CREATE_BUTTON'),
 			'color' => \Bitrix\UI\Buttons\Color::SUCCESS,
 			'dataset' => [
 				'toolbar-collapsed-icon' => \Bitrix\UI\Buttons\Icon::ADD,

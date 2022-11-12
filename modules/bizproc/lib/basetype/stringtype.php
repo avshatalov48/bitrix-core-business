@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Bizproc\BaseType;
 
 use Bitrix\Main;
@@ -33,6 +34,7 @@ class StringType extends Base
 			reset($value);
 			$value = current($value);
 		}
+
 		return $value;
 	}
 
@@ -50,11 +52,11 @@ class StringType extends Base
 		{
 			case FieldType::BOOL:
 				$value = mb_strtolower((string)$value);
-				$value = in_array($value, array('y', 'yes', 'true', '1')) ? 'Y' : 'N';
+				$value = in_array($value, ['y', 'yes', 'true', '1']) ? 'Y' : 'N';
 				break;
 			case FieldType::DATE:
 			case FieldType::DATETIME:
-				$value = (string) $value;
+				$value = (string)$value;
 
 				if (Bizproc\BaseType\Value\DateTime::isSerialized($value))
 				{
@@ -66,7 +68,10 @@ class StringType extends Base
 					$format = ($type == FieldType::DATE) ? \FORMAT_DATE : \FORMAT_DATETIME;
 					if (\CheckDateTime($value, $format))
 					{
-						$value = date(Main\Type\Date::convertFormatToPhp($format), \CBPHelper::makeTimestamp($value, $format));
+						$value = date(
+							Main\Type\Date::convertFormatToPhp($format),
+							\CBPHelper::makeTimestamp($value, $format)
+						);
 					}
 					else
 					{
@@ -84,11 +89,12 @@ class StringType extends Base
 				break;
 			case FieldType::STRING:
 			case FieldType::TEXT:
-				$value = (string) $value;
+				$value = (string)$value;
 				break;
 			case FieldType::USER:
 				$value = trim($value);
-				if (mb_strpos($value, 'user_') === false
+				if (
+					mb_strpos($value, 'user_') === false
 					&& mb_strpos($value, 'group_') === false
 					&& !preg_match('#^[0-9]+$#', $value)
 				)
@@ -105,12 +111,13 @@ class StringType extends Base
 
 	/**
 	 * Return conversion map for current type.
+	 *
 	 * @return array Map.
 	 */
 	public static function getConversionMap()
 	{
-		return array(
-			array(
+		return [
+			[
 				FieldType::BOOL,
 				FieldType::DATE,
 				FieldType::DATETIME,
@@ -118,9 +125,9 @@ class StringType extends Base
 				FieldType::INT,
 				FieldType::STRING,
 				FieldType::TEXT,
-				FieldType::USER
-			)
-		);
+				FieldType::USER,
+			],
+		];
 	}
 
 	/**
@@ -137,6 +144,7 @@ class StringType extends Base
 		{
 			return static::renderControlSelector($field, $value, 'combine', '', $fieldType);
 		}
+
 		return parent::renderControl($fieldType, $field, $value, $allowSelection, $renderMode);
 	}
 
@@ -160,6 +168,7 @@ class StringType extends Base
 	public static function renderControlSingle(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
 	{
 		$value = static::toSingleValue($fieldType, $value);
+
 		return static::renderControl($fieldType, $field, $value, $allowSelection, $renderMode);
 	}
 
@@ -171,15 +180,25 @@ class StringType extends Base
 	 * @param int $renderMode Control render mode.
 	 * @return string
 	 */
-	public static function renderControlMultiple(FieldType $fieldType, array $field, $value, $allowSelection, $renderMode)
+	public static function renderControlMultiple(
+		FieldType $fieldType,
+		array $field,
+		$value,
+		$allowSelection,
+		$renderMode
+	)
 	{
 		if (!is_array($value) || is_array($value) && \CBPHelper::isAssociativeArray($value))
-			$value = array($value);
+		{
+			$value = [$value];
+		}
 
 		if (empty($value))
+		{
 			$value[] = null;
+		}
 
-		$controls = array();
+		$controls = [];
 
 		foreach ($value as $k => $v)
 		{
@@ -206,4 +225,25 @@ class StringType extends Base
 		return $renderResult;
 	}
 
+	public static function mergeValue(FieldType $fieldType, array $baseValue, $appendValue): array
+	{
+		if (\CBPHelper::isEmptyValue($baseValue))
+		{
+			return (array)$appendValue;
+		}
+
+		if (!is_array($appendValue))
+		{
+			$baseValue[] = $appendValue;
+
+			return $baseValue;
+		}
+
+		if (!\CBPHelper::isAssociativeArray($baseValue) && !\CBPHelper::isAssociativeArray($appendValue))
+		{
+			return array_values(array_merge($baseValue, $appendValue));
+		}
+
+		return $baseValue + $appendValue;
+	}
 }

@@ -68,7 +68,7 @@ if($arResult['DEAL_CATEGORIES'])
 	);
 }
 ?>
-<span id="<?=$componentId?>>">
+<div class="sender-config-role-container" id="<?=$componentId?>">
 
 <div id="bx-sender-role-main"></div>
 <?php

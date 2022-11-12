@@ -20,7 +20,10 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'b
 	'bp_user_selector',
 	'bp_field_type',
 	'dnd',
+	'ls',
+	'bizproc.local-settings',
 	'bizproc.automation',
+	'bizproc.automation.robot-selector',
 	'bizproc.globals',
 	'bizproc.debugger',
 	'sidepanel',
@@ -164,7 +167,7 @@ endif;
 			</div>
 			<div class="automation-base-button" data-role="automation-base-toolbar">
 				<button
-					class="ui-btn ui-btn-success ui-btn-dropdown ui-btn-themes <?php if (!$arResult['CAN_EDIT']):?> ui-btn-disabled<?php endif?>"
+					class="ui-btn ui-btn-success ui-btn-themes <?php if (!$arResult['CAN_EDIT']):?> ui-btn-disabled<?php endif?>"
 					<?php if ($arResult['CAN_EDIT']):?>data-role="automation-btn-create"<?php endif?>
 					>
 					<?=$getMessage('BIZPROC_AUTOMATION_CMP_CREATE')?>
@@ -202,8 +205,18 @@ endif;
 					<div class="bizproc-automation-status-bg" style="background-color: <?='#'.$color?>">
 						<span class="bizproc-automation-status-title-right" style="background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2213%22%20height%3D%2232%22%20viewBox%3D%220%200%2013%2032%22%3E%3Cpath%20fill%3D%22%23<?=$color?>%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200h3c2.8%200%204%203%204%203l6%2013-6%2013s-1.06%203-4%203H0V0z%22/%3E%3C/svg%3E); background-color: transparent !important;"></span>
 					</div>
+					<div style="padding-top: 12px">
+						<div class="bizproc-automation-robot-btn-block" data-role="add-button-container" data-status-id="<?=htmlspecialcharsbx($statusId)?>"></div>
+					</div>
 				</div>
 				<?php endforeach; else:?>
+					<?php if ($arResult['STATUSES']): ?>
+					<div class="bizproc-automation-status-list-item">
+						<div style="padding-top: 12px">
+							<div class="bizproc-automation-robot-btn-block" data-role="add-button-container" data-status-id="<?=htmlspecialcharsbx(array_key_first($arResult['STATUSES']))?>"></div>
+						</div>
+					</div>
+					<?php endif; ?>
 					<div class="bizproc-automation-status-list-item"></div>
 				<?php endif;?>
 				<a href="<?=htmlspecialcharsbx($arResult['STATUSES_EDIT_URL'])?>"
@@ -224,7 +237,6 @@ endif;
 			<div class="bizproc-automation-status-list">
 			<?php foreach (array_keys($arResult['STATUSES']) as $statusId):?>
 				<div class="bizproc-automation-status-list-item" data-type="column-trigger">
-					<div data-role="trigger-buttons" data-status-id="<?=htmlspecialcharsbx($statusId)?>" class="bizproc-automation-robot-btn-block"></div>
 					<div data-role="trigger-list" class="bizproc-automation-trigger-list" data-status-id="<?=htmlspecialcharsbx($statusId)?>"></div>
 				</div>
 			<?php endforeach;?>
@@ -242,7 +254,6 @@ endif;
 			<div class="bizproc-automation-status-list">
 				<?php foreach (array_keys($arResult['STATUSES']) as $statusId):?>
 					<div class="bizproc-automation-status-list-item" data-type="column-robot" data-role="automation-template" data-status-id="<?=htmlspecialcharsbx($statusId)?>">
-						<div data-role="top-buttons" class="bizproc-automation-robot-btn-block"></div>
 						<div data-role="robot-list" class="bizproc-automation-robot-list" data-status-id="<?=htmlspecialcharsbx($statusId)?>"></div>
 						<div data-role="buttons" class="bizproc-automation-robot-btn-block"></div>
 					</div>
@@ -323,7 +334,7 @@ endif;
 					'IS_EMBEDDED' => $arResult['IS_EMBEDDED'],
 					'SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING' => $arResult['SHOW_TEMPLATE_PROPERTIES_MENU_ON_SELECTING'],
 
-					'MARKETPLACE_ROBOT_CATEGORY' => $arParams['MARKETPLACE_ROBOT_CATEGORY'],
+					'MARKETPLACE_ROBOT_CATEGORY' => 'crm_bots', //$arParams['MARKETPLACE_ROBOT_CATEGORY'],
 					'MARKETPLACE_TRIGGER_PLACEMENT' => $arParams['MARKETPLACE_TRIGGER_PLACEMENT'],
 					'ROBOTS_LIMIT' => $robotsLimit,
 

@@ -1,4 +1,4 @@
-<?
+<?php
 define("BX_SKIP_USER_LIMIT_CHECK", true);
 if (isset($_GET['alias']))
 {

@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'main.polyfill.core',
 		'main.core.events',
+		'main.core.minimal',
 	],
 	'skip_core' => true,
 	'lang_additional' => array(

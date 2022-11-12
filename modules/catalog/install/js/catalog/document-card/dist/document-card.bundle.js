@@ -210,6 +210,16 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return ProductListController;
 	}(BX.UI.EntityEditorController);
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _subscribeToEvents = /*#__PURE__*/new WeakSet();
+
+	var _subscribeToProductRowSummaryEvents = /*#__PURE__*/new WeakSet();
+
 	var DocumentCardController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
 	  babelHelpers.inherits(DocumentCardController, _BX$UI$EntityEditorCo);
 
@@ -219,6 +229,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    babelHelpers.classCallCheck(this, DocumentCardController);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DocumentCardController).call(this));
 
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _subscribeToProductRowSummaryEvents);
+
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _subscribeToEvents);
+
 	    _this.initialize(id, settings);
 
 	    _this._model.lockField('TOTAL');
@@ -227,6 +241,11 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }
 
 	  babelHelpers.createClass(DocumentCardController, [{
+	    key: "doInitialize",
+	    value: function doInitialize() {
+	      _classPrivateMethodGet(this, _subscribeToEvents, _subscribeToEvents2).call(this);
+	    }
+	  }, {
 	    key: "onAfterSave",
 	    value: function onAfterSave() {
 	      babelHelpers.get(babelHelpers.getPrototypeOf(DocumentCardController.prototype), "onAfterSave", this).call(this);
@@ -243,6 +262,26 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }]);
 	  return DocumentCardController;
 	}(BX.UI.EntityEditorController);
+
+	function _subscribeToEvents2() {
+	  _classPrivateMethodGet(this, _subscribeToProductRowSummaryEvents, _subscribeToProductRowSummaryEvents2).call(this);
+	}
+
+	function _subscribeToProductRowSummaryEvents2() {
+	  main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorProductRowSummary:onDetailProductListLinkClick', function () {
+	    main_core_events.EventEmitter.emit('BX.Catalog.EntityCard.TabManager:onOpenTab', {
+	      tabId: 'tab_products'
+	    });
+	  });
+	  main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorProductRowSummary:onAddNewRowInProductList', function () {
+	    main_core_events.EventEmitter.emit('BX.Catalog.EntityCard.TabManager:onOpenTab', {
+	      tabId: 'tab_products'
+	    });
+	    setTimeout(function () {
+	      main_core_events.EventEmitter.emit('onFocusToProductList');
+	    }, 500);
+	  });
+	}
 
 	var ControllersFactory = /*#__PURE__*/function () {
 	  function ControllersFactory() {
@@ -340,6 +379,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }]);
 	  return ModelFactory;
 	}();
+
+	/**
+	 * @deprecated Use BX.UI.EntityEditorProductRowSummary instead
+	 */
 
 	var ProductRowSummary = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
 	  babelHelpers.inherits(ProductRowSummary, _BX$UI$EntityEditorFi);
@@ -831,10 +874,6 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  babelHelpers.createClass(FieldsFactory, [{
 	    key: "factory",
 	    value: function factory(type, controlId, settings) {
-	      if (type === 'product_row_summary') {
-	        return new ProductRowSummary(controlId, settings);
-	      }
-
 	      if (type === 'contractor') {
 	        return new Contractor(controlId, settings);
 	      }

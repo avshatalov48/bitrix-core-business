@@ -136,6 +136,10 @@ BX.UI.ActionPanel.prototype =
 		{
 			this.appendMoreBlock();
 		}
+		else if (this.layout.more)
+		{
+			this.removeMoreBlock()
+		}
 	},
 
 	buildItem: function(options)

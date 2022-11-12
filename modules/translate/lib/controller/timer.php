@@ -41,7 +41,7 @@ class Timer implements Translate\Controller\ITimeLimit
 		}
 		else
 		{
-			$this->startTime = time();
+			$this->startTime = \time();
 		}
 
 		return $this;
@@ -56,7 +56,7 @@ class Timer implements Translate\Controller\ITimeLimit
 	{
 		if ($this->timeLimit > 0 && $this->startTime > 0)
 		{
-			if ((time() - $this->startTime) >= $this->timeLimit)
+			if ((\time() - $this->startTime) >= $this->timeLimit)
 			{
 				return true;
 			}

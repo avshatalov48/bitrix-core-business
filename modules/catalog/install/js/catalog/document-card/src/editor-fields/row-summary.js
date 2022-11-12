@@ -2,6 +2,9 @@ import {Loc} from 'main.core';
 import {EventEmitter} from "main.core.events";
 import {CurrencyCore} from "currency.currency-core";
 
+/**
+ * @deprecated Use BX.UI.EntityEditorProductRowSummary instead
+ */
 export default class ProductRowSummary extends BX.UI.EntityEditorField
 {
 	constructor(id, settings)

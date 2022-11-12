@@ -84,9 +84,8 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 						<label class="main-mail-form-field-from-copy">
 							<span class="main-mail-form-field-spacer-25"></span>
 							<input class="main-mail-form-field-from-copy-checkbox" type="checkbox"
-								name="<?=htmlspecialcharsbx($field['copy']) ?>" value="Y" id="<?=$htmlFieldId ?>_copy"
-								<? if (\CUserOptions::getOption('main.mail.form', 'copy_to_sender', true)): ?> checked<? endif ?>><!--
-							--><span class="main-mail-form-field-title main-mail-form-field-from-copy-text"><?=getMessage('MAIN_MAIL_FORM_FROM_FIELD_COPY') ?></span>
+								name="<?=htmlspecialcharsbx($field['copy']) ?>" value="Y" id="<?=$htmlFieldId ?>_copy">
+							<span class="main-mail-form-field-title main-mail-form-field-from-copy-text"><?=getMessage('MAIN_MAIL_FORM_FROM_FIELD_COPY') ?></span>
 						</label>
 					<? endif ?>
 				</td>

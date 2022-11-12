@@ -10,6 +10,7 @@ namespace Bitrix\Sender\Preset\Templates;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\UI;
 
 Loc::loadMessages(__FILE__);
 
@@ -47,8 +48,9 @@ class Consent
 				'%APPROVE%',
 				'%REJECT%',
 				'%CONSENT_FOOTER%',
+				'%FONTS_PROXY_DOMAIN%',
 				'#SENDER_CONSENT_APPLY#',
-				'#SENDER_CONSENT_REJECT#'
+				'#SENDER_CONSENT_REJECT#',
 			),
 			array(
 				Loc::getMessage('SENDER_PRESET_TEMPLATE_CONSENT_SUBJECT'),
@@ -56,6 +58,7 @@ class Consent
 				Loc::getMessage('SENDER_PRESET_TEMPLATE_CONSENT_APPROVE'),
 				Loc::getMessage('SENDER_PRESET_TEMPLATE_CONSENT_REJECT'),
                 $replace['CONSENT_FOOTER'],
+				UI\Fonts\Proxy::resolveDomain(),
                 $replace['APPLY_URL'],
                 $replace['REJECT_URL'],
 			),

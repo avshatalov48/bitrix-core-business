@@ -1,0 +1,15 @@
+.ui-stamp-uploader-action-panel {
+	display: flex;
+	justify-content: center;
+	padding-top: 20px;
+}
+
+.ui-stamp-uploader-crop-button {
+	background: url("images/crop-icon.svg") left center no-repeat;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #BDC1C6;
+	font-size: 15px;
+	line-height: 18px;
+	cursor: pointer;
+	padding-left: 22px;
+}

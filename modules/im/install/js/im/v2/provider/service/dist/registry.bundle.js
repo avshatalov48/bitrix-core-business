@@ -165,7 +165,11 @@ this.BX.Messenger.v2.Provider = this.BX.Messenger.v2.Provider || {};
 	          result.dialogues.push(this.prepareChatForAdditionalUser(item.user));
 	        }
 	      } else if (item.user.id) {
-	        result.dialogues.push(this.prepareChatForUser(item));
+	        const existingRecentItem = this.store.getters['recent/get'](item.user.id); // we should not update real chat with "default" chat data
+
+	        if (!existingRecentItem || !item.options.default_user_record) {
+	          result.dialogues.push(this.prepareChatForUser(item));
+	        }
 	      } // recent
 
 

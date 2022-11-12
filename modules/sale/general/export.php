@@ -1285,6 +1285,65 @@ class CSaleExport
 		return self::$arResultStat;
 	}
 
+	public static function safetyUnZip($file_name, $last_inx = null, $interval = 0)
+	{
+		$start_time = time();
+		$dir_name = mb_substr($file_name, 0, mb_strrpos($file_name, '/') + 1);
+
+		if (mb_strlen($dir_name) <= mb_strlen($_SERVER['DOCUMENT_ROOT']))
+		{
+			return false;
+		}
+
+		/** @var CZip $oArchiver */
+		$oArchiver = CBXArchive::GetArchive($file_name, 'ZIP');
+		if ($oArchiver instanceof IBXArchive)
+		{
+			$entries = $oArchiver->GetProperties()['nb'];
+
+			for ($inx = 0; $inx < $entries; $inx++)
+			{
+				//Skip from last step
+				if (is_null($last_inx) === false)
+				{
+					if ((int)$last_inx >= $inx)
+					{
+						continue;
+					}
+				}
+
+				$oArchiver->SetOptions([
+					'RULE' => [
+						'by_index' => [
+							[
+								'start' => $inx,
+								'end' => $inx,
+							]
+						]
+					]
+				]);
+
+				$rArchiver = $oArchiver->Unpack($dir_name);
+				if (!$rArchiver)
+				{
+					return false;
+				}
+
+				//Jump to next step
+				if($interval > 0 && (time() - $start_time) > ($interval))
+				{
+					return $inx;
+				}
+			}
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	public static function UnZip($file_name, $last_zip_entry = "", $interval = 0)
 	{
 		global $APPLICATION;

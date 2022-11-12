@@ -27,7 +27,7 @@ CUtil::InitJSCore([
 ?>
 
 <?php $this->SetViewTarget('inside_pagetitle') ?>
-	<button class="ui-btn ui-btn-light-border" disabled>
+	<button class="ui-btn ui-btn-light-border" onclick="top.BX.Helper.show('redirect=detail&code=14922854');">
 		<?= GetMessage('BIZPROC_GLOBALFIELD_EDIT_TMP_HEPL') ?>
 	</button>
 <?php $this->EndViewTarget() ?>

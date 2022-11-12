@@ -1,0 +1,35 @@
+.ui-stamp-uploader-message {
+	background: #FFFFFF;
+	border-radius: 8px;
+	padding: 22px;
+	margin-bottom: 12px;
+	display: flex;
+}
+
+.ui-stamp-uploader-message-icon {
+	background: url("images/stamp-icon.svg") center center no-repeat;
+	min-width: 68px;
+	height: 68px;
+}
+
+.ui-stamp-uploader-message-text {
+	margin-left: 20px;
+}
+
+.ui-stamp-uploader-message-text-header {
+	font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-style: normal;
+	font-weight: 300;
+	font-size: 28px;
+	line-height: 38px;
+	color: #202020;
+}
+
+.ui-stamp-uploader-message-text-description {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-style: normal;
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 21px;
+	color: #525C69;
+}

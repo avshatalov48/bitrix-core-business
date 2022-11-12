@@ -1,7 +1,16 @@
-import { Condition, ConditionGroup, Designer, getGlobalContext, InlineSelectorCondition, SelectorContext } from 'bizproc.automation';
+import {
+	Condition,
+	ConditionGroup,
+	Designer,
+	getGlobalContext,
+	InlineSelectorCondition,
+	SelectorContext,
+	SelectorManager,
+} from 'bizproc.automation';
 import { Dom, Type, Event, Loc, Runtime } from 'main.core';
 
 import type { ConditionSelectorOptions } from './types';
+import { BaseEvent } from 'main.core.events';
 
 export class ConditionSelector
 {
@@ -9,7 +18,9 @@ export class ConditionSelector
 	#fields: Array<Object>;
 	#joiner: string;
 	#fieldPrefix: string;
-	#onOpenMenu;
+	#rootGroupTitle: ?string;
+	#onOpenFieldMenu: ?(BaseEvent) => void;
+	#onOpenMenu: ?(BaseEvent) => void;
 
 	node: ?HTMLElement;
 	objectNode: ?HTMLElement;
@@ -47,6 +58,8 @@ export class ConditionSelector
 				this.#fieldPrefix = options.fieldPrefix;
 			}
 
+			this.#rootGroupTitle = options.rootGroupTitle;
+			this.#onOpenFieldMenu = options.onOpenFieldMenu;
 			this.#onOpenMenu = options.onOpenMenu;
 		}
 	}
@@ -379,9 +392,9 @@ export class ConditionSelector
 				condition: this.#condition,
 			});
 
-			if (Type.isFunction(this.#onOpenMenu))
+			if (Type.isFunction(this.#onOpenFieldMenu))
 			{
-				this.fieldDialog.subscribe('onOpenMenu', this.#onOpenMenu);
+				this.fieldDialog.subscribe('onOpenMenu', this.#onOpenFieldMenu);
 			}
 
 			this.fieldDialog.subscribe('change', (event) => {
@@ -603,12 +616,34 @@ export class ConditionSelector
 		const field = BX.clone(docField);
 		field.Multiple = false;
 
-		return BX.Bizproc.FieldType.renderControl(
+		const valueNodes = BX.Bizproc.FieldType.renderControlPublic(
 			docType,
 			field,
 			this.#fieldPrefix + 'value',
-			value
+			value,
+			false
 		);
+
+		valueNodes.querySelectorAll('[data-role]').forEach((node) => {
+			const selector = SelectorManager.createSelectorByRole(node.dataset.role, {
+				context: new SelectorContext({
+					fields: getGlobalContext().document.getFields(),
+					useSwitcherMenu: false,
+					rootGroupTitle: this.#rootGroupTitle ?? getGlobalContext().document.title,
+				})
+			});
+
+			if (selector)
+			{
+				if (Type.isFunction(this.#onOpenMenu))
+				{
+					selector.subscribe('onOpenMenu', this.#onOpenMenu);
+				}
+				selector.renderTo(node);
+			}
+		});
+
+		return valueNodes;
 	}
 
 	createOperatorNode(field, valueWrapper)

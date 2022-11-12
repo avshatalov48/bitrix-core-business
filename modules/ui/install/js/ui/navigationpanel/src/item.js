@@ -32,8 +32,9 @@ export default class NavigationItem
 	{
 		if (!this.linkContainer)
 		{
+			const id = this.id ? `id="ui-nav-panel-item-${this.id}"` : '';
 			this.linkContainer = Tag.render`
-				<div class="ui-nav-panel__item">
+				<div ${id} class="ui-nav-panel__item">
 					${this.title ? this.getTitle() : ''}
 				</div>
 			`;

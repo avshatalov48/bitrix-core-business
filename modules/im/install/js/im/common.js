@@ -1012,7 +1012,7 @@
 			text = text.replace(/\[ATTACH=([0-9]{1,})\]/ig, function(whole, rating) {return '['+BX.message('IM_F_ATTACH')+'] ';});
 			text = text.replace(/\[USER=([0-9]{1,})\](.*?)\[\/USER\]/ig, '$2');
 			text = text.replace(/\[CHAT=([0-9]{1,})\](.*?)\[\/CHAT\]/ig, '$2');
-			text = text.replace(/\[CALL=([0-9]{1,})\](.*?)\[\/CALL\]/ig, '$2');
+			text = text.replace(/\[CALL=(.*?)](.*?)\[\/CALL\]/ig, '$2');
 			text = text.replace(/\[PCH=([0-9]{1,})\](.*?)\[\/PCH\]/ig, '$2');
 			text = text.replace(/<img.*?data-code="([^"]*)".*?>/ig, '$1');
 			text = text.replace(/<span.*?title="([^"]*)".*?>.*?<\/span>/ig, '($1)');
@@ -1514,7 +1514,7 @@
 		{
 			textNew = callback(clipboardTextArea.value);
 		}
-		else
+		else if (typeof (callback) != 'undefined')
 		{
 			textNew = callback.toString();
 		}
@@ -2946,7 +2946,7 @@
 				this.BXIM.messenger.hideNewRecent();
 				return;
 			}
-			else if (this.isPage())
+			else
 			{
 				this.BXIM.messenger.showNewRecent();
 			}

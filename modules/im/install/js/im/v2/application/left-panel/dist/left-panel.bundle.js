@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_application_core,im_v2_component_leftPanel,im_v2_provider_pull,im_v2_const) {
+(function (exports,im_v2_application_core,im_v2_component_oldChatEmbedding_leftPanel,im_v2_provider_pull,im_v2_const) {
 	'use strict';
 
 	var _applicationName = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("applicationName");
@@ -60,7 +60,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      name: babelHelpers.classPrivateFieldLooseBase(this, _applicationName)[_applicationName],
 	      el: node,
 	      components: {
-	        LeftPanelComponent: im_v2_component_leftPanel.LeftPanel
+	        LeftPanelComponent: im_v2_component_oldChatEmbedding_leftPanel.LeftPanel
 	      },
 	      template: `<LeftPanelComponent />`
 	    }).then(vue => {

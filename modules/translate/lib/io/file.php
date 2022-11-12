@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php
 
 namespace Bitrix\Translate\IO;
 
@@ -24,11 +24,11 @@ class File
 	 */
 	public static function generateTemporalFile(string $prefix, string $suffix = '.tmp', int $timeToLive = 3): self
 	{
-		$tempDir = \CTempFile::GetDirectoryName($timeToLive, array($prefix, uniqid($prefix, true)));
+		$tempDir = \CTempFile::getDirectoryName($timeToLive, array($prefix, \uniqid($prefix, true)));
 		Path::checkCreatePath($tempDir.'/');
 
-		$hash = str_pad(dechex(crc32($tempDir)), 8, '0', STR_PAD_LEFT);
-		$fileName = uniqid($hash. '_', false). $suffix;
+		$hash = \str_pad(\dechex(\crc32($tempDir)), 8, '0', STR_PAD_LEFT);
+		$fileName = \uniqid($hash. '_', false). $suffix;
 
 		return new static($tempDir. $fileName);
 	}
@@ -70,12 +70,12 @@ class File
 	 */
 	public function read(int $length): string
 	{
-		if (feof($this->filePointer))
+		if (\feof($this->filePointer))
 		{
 			return '';
 		}
 
-		return fread($this->filePointer, $length);
+		return \fread($this->filePointer, $length);
 	}
 
 	/**
@@ -89,12 +89,12 @@ class File
 	 */
 	public function write(string $content): int
 	{
-		if (!is_resource($this->filePointer))
+		if (!\is_resource($this->filePointer))
 		{
 			throw new Main\IO\FileNotOpenedException($this->getPath());
 		}
 
-		$length = fwrite($this->filePointer, $content);
+		$length = \fwrite($this->filePointer, $content);
 		if ($length === false)
 		{
 			throw new Main\IO\IoException("Cannot write file");
@@ -111,9 +111,9 @@ class File
 	 */
 	public function close(): void
 	{
-		if (!is_resource($this->filePointer))
+		if (!\is_resource($this->filePointer))
 		{
-			@fflush($this->filePointer);
+			@\fflush($this->filePointer);
 		}
 
 		parent::close();

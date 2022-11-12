@@ -110,7 +110,9 @@ class CBPReviewActivity
 		if (!is_array($arUsersTmp))
 			$arUsersTmp = array($arUsersTmp);
 
-		$this->WriteToTrackingService(str_replace("#VAL#", "{=user:".implode("}, {=user:", $arUsersTmp)."}", GetMessage("BPAR_ACT_TRACK2")));
+		$this->WriteToTrackingService(
+			GetMessage("BPAR_ACT_TRACK3", ['#VAL#' => "{=user:".implode("}, {=user:", $arUsersTmp)."}"])
+		);
 
 		$arUsers = CBPHelper::ExtractUsers($arUsersTmp, $documentId, false);
 

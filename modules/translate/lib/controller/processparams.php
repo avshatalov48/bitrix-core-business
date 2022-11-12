@@ -12,7 +12,7 @@ use Bitrix\Translate;
 trait ProcessParams
 {
 	/** @var string[] */
-	protected $fieldToStoreInProcess = array();
+	protected $fieldToStoreInProcess = [];
 
 	/**
 	 * Returns progress option name
@@ -32,7 +32,7 @@ trait ProcessParams
 			$settingId = static::SETTING_ID;
 		}
 
-		$classId = str_replace(array('_', '\\'), '', static::class);
+		$classId = \str_replace(array('_', '\\'), '', static::class);
 
 		$id = "{$settingId}/{$classId}";
 
@@ -53,9 +53,9 @@ trait ProcessParams
 	 */
 	public function keepField($fieldName)
 	{
-		if (is_array($fieldName))
+		if (\is_array($fieldName))
 		{
-			$this->fieldToStoreInProcess = array_merge($this->fieldToStoreInProcess, $fieldName);
+			$this->fieldToStoreInProcess = \array_merge($this->fieldToStoreInProcess, $fieldName);
 		}
 		else
 		{
@@ -72,10 +72,10 @@ trait ProcessParams
 	 */
 	public function restoreProgressParameters()
 	{
-		if (count($this->fieldToStoreInProcess) > 0)
+		if (\count($this->fieldToStoreInProcess) > 0)
 		{
 			$progressData = $this->getProgressParameters();
-			if (count($progressData) > 0)
+			if (\count($progressData) > 0)
 			{
 				foreach ($this->fieldToStoreInProcess as $fieldName)
 				{
@@ -98,19 +98,19 @@ trait ProcessParams
 	public function saveProgressParameters()
 	{
 		// store state
-		$progressData = array();
+		$progressData = [];
 		foreach ($this->fieldToStoreInProcess as $fieldName)
 		{
 			$progressData[$fieldName] = $this->{$fieldName};
 		}
 
-		$optName = explode('/', $this->getProgressParameterOptionName());
+		$optName = \explode('/', $this->getProgressParameterOptionName());
 		$storage =& $_SESSION;
-		for ($d = 0, $depth = count($optName); $d < $depth; $d++)
+		for ($d = 0, $depth = \count($optName); $d < $depth; $d++)
 		{
 			if (!isset($storage[$optName[$d]]))
 			{
-				$storage[$optName[$d]] = array();
+				$storage[$optName[$d]] = [];
 			}
 			$storage =& $storage[$optName[$d]];
 		}
@@ -127,13 +127,13 @@ trait ProcessParams
 	 */
 	public function getProgressParameters()
 	{
-		$optName = explode('/', $this->getProgressParameterOptionName());
+		$optName = \explode('/', $this->getProgressParameterOptionName());
 		$storage =& $_SESSION;
-		for ($d = 0, $depth = count($optName); $d < $depth; $d++)
+		for ($d = 0, $depth = \count($optName); $d < $depth; $d++)
 		{
 			if (!isset($storage[$optName[$d]]))
 			{
-				return array();
+				return [];
 			}
 			$storage =& $storage[$optName[$d]];
 		}
@@ -148,9 +148,9 @@ trait ProcessParams
 	 */
 	public function clearProgressParameters()
 	{
-		$optName = explode('/', $this->getProgressParameterOptionName());
+		$optName = \explode('/', $this->getProgressParameterOptionName());
 		$storage =& $_SESSION;
-		for ($d = 0, $depth = count($optName); $d < $depth; $d++)
+		for ($d = 0, $depth = \count($optName); $d < $depth; $d++)
 		{
 			if (!isset($storage[$optName[$d]]))
 			{

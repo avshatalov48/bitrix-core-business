@@ -24,12 +24,12 @@ class InfoHelper
 		];
 	}
 
-	public static function getUrl()
+	public static function getUrl(string $url = "/widget2/show/code/")
 	{
 		global $USER;
 
 		$isBitrix24Cloud = Loader::includeModule("bitrix24");
-		$notifyUrl = Util::getHelpdeskUrl()."/widget2/show/code/";
+		$notifyUrl = Util::getHelpdeskUrl().$url;
 		$host = self::getHostName();
 
 		$parameters = [

@@ -119,32 +119,36 @@ class BizprocDocument extends CIBlockDocument
 	{
 		$documentId = intval($documentId);
 		if ($documentId <= 0)
+		{
 			throw new CBPArgumentNullException('documentId');
+		}
 
-		$result = array();
-		$element = array();
-		$elementProperty = array();
+		$result = [];
+		$element = [];
+		$elementProperty = [];
 
-		$queryElement = CIBlockElement::getList(array(),
-			array('ID' => $documentId, 'SHOW_NEW'=>'Y', 'SHOW_HISTORY' => 'Y'));
-		while($queryResult= $queryElement->fetch())
+		$queryElement = CIBlockElement::getList(
+			[],
+			['ID' => $documentId, 'SHOW_NEW' => 'Y', 'SHOW_HISTORY' => 'Y']
+		);
+		while ($queryResult = $queryElement->fetch())
 		{
 			$element = $queryResult;
 			$queryProperty = CIBlockElement::getProperty(
 				$queryResult['IBLOCK_ID'],
 				$queryResult['ID'],
-				array('sort'=>'asc', 'id'=>'asc', 'enum_sort'=>'asc', 'value_id'=>'asc'),
-				array('ACTIVE'=>'Y', 'EMPTY'=>'N')
+				['sort' => 'asc', 'id' => 'asc', 'enum_sort' => 'asc', 'value_id' => 'asc'],
+				['ACTIVE' => 'Y', 'EMPTY' => 'N']
 			);
-			while($property = $queryProperty->fetch())
+			while ($property = $queryProperty->fetch())
 			{
-				$propertyKey = 'PROPERTY_'.$property['ID'];
-				if($property['MULTIPLE'] == 'Y')
+				$propertyKey = 'PROPERTY_' . $property['ID'];
+				if ($property['MULTIPLE'] == 'Y')
 				{
-					if(!array_key_exists($propertyKey, $elementProperty))
+					if (!array_key_exists($propertyKey, $elementProperty))
 					{
 						$elementProperty[$propertyKey] = $property;
-						$elementProperty[$propertyKey]['VALUE'] = array();
+						$elementProperty[$propertyKey]['VALUE'] = [];
 					}
 					$elementProperty[$propertyKey]['VALUE'][] = $property['VALUE'];
 				}
@@ -155,84 +159,113 @@ class BizprocDocument extends CIBlockDocument
 			}
 		}
 
-		foreach($element as $fieldId => $fieldValue)
+		foreach ($element as $fieldId => $fieldValue)
 		{
 			$result[$fieldId] = $fieldValue;
-			if (in_array($fieldId, array('MODIFIED_BY', 'CREATED_BY')))
+			if (in_array($fieldId, ['MODIFIED_BY', 'CREATED_BY']))
 			{
-				$result[$fieldId] = 'user_'.$fieldValue;
-				$result[$fieldId.'_PRINTABLE'] = $element[($fieldId == 'MODIFIED_BY')
-					? 'USER_NAME' : 'CREATED_USER_NAME'];
+				$result[$fieldId] = 'user_' . $fieldValue;
+				$result[$fieldId . '_PRINTABLE'] =
+					$element[($fieldId == 'MODIFIED_BY')
+						? 'USER_NAME'
+						: 'CREATED_USER_NAME']
+				;
 			}
-			elseif (in_array($fieldId, array('PREVIEW_TEXT', 'DETAIL_TEXT')))
+			elseif (in_array($fieldId, ['PREVIEW_TEXT', 'DETAIL_TEXT']))
 			{
-				if ($element[$fieldId.'_TYPE'] == 'html')
+				if ($element[$fieldId . '_TYPE'] == 'html')
+				{
 					$result[$fieldId] = HTMLToTxt($fieldValue);
+				}
 			}
 		}
-		foreach($elementProperty as $propertyId => $property)
+		foreach ($elementProperty as $propertyId => $property)
 		{
-			if(trim($property['CODE']) <> '')
-				$propertyId = $property['CODE'];
-			else
-				$propertyId = $property['ID'];
-
-			if(!empty($property['USER_TYPE']))
+			if (trim($property['CODE']) <> '')
 			{
-				if ($property['USER_TYPE'] == 'UserID' || $property['USER_TYPE'] == 'employee' &&
-					(COption::getOptionString('bizproc', 'employee_compatible_mode', 'N') != 'Y'))
+				$propertyId = $property['CODE'];
+			}
+			else
+			{
+				$propertyId = $property['ID'];
+			}
+
+			if (!empty($property['USER_TYPE']))
+			{
+				if (
+					$property['USER_TYPE'] == 'UserID'
+					|| $property['USER_TYPE'] == 'employee'
+					&& (COption::getOptionString('bizproc', 'employee_compatible_mode', 'N') != 'Y')
+				)
 				{
-					if(empty($property['VALUE']))
+					if (empty($property['VALUE']))
+					{
 						continue;
-					if(!is_array($property['VALUE']))
-						$property['VALUE'] = array($property['VALUE']);
+					}
+					if (!is_array($property['VALUE']))
+					{
+						$property['VALUE'] = [$property['VALUE']];
+					}
 
 					$listUsers = implode(' | ', $property['VALUE']);
-					$userQuery = CUser::getList('ID', 'ASC',
-						array('ID' => $listUsers) ,
-						array('FIELDS' => array('ID' ,'LOGIN', 'NAME', 'LAST_NAME')));
-					while($user = $userQuery->fetch())
+					$userQuery = CUser::getList(
+						'ID',
+						'ASC',
+						['ID' => $listUsers],
+						[
+							'FIELDS' => ['ID', 'LOGIN', 'NAME', 'LAST_NAME'],
+						]
+					);
+					while ($user = $userQuery->fetch())
 					{
-						if($property['MULTIPLE'] == 'Y')
+						if ($property['MULTIPLE'] == 'Y')
 						{
-							$result = self::setArray($result, 'PROPERTY_'.$propertyId);
-							$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
-							$result['PROPERTY_'.$propertyId][] = 'user_'.intval($user['ID']);
-							$result['PROPERTY_'.$propertyId.'_PRINTABLE'][] = '('.$user['LOGIN'].')'.
-								(($user['NAME'] <> '' || $user['LAST_NAME'] <> '') ? ' ' : '').$user['NAME'].
-								(($user['NAME'] <> '' && $user['LAST_NAME'] <> '') ? ' ' : '').$user['LAST_NAME'];
+							$result = self::setArray($result, 'PROPERTY_' . $propertyId);
+							$result = self::setArray($result, 'PROPERTY_' . $propertyId . '_PRINTABLE');
+							$result['PROPERTY_' . $propertyId][] = 'user_' . intval($user['ID']);
+							$result['PROPERTY_' . $propertyId . '_PRINTABLE'][] = '(' . $user['LOGIN'] . ')' .
+								(($user['NAME'] <> '' || $user['LAST_NAME'] <> '') ? ' ' : '') . $user['NAME'] .
+								(($user['NAME'] <> '' && $user['LAST_NAME'] <> '') ? ' ' : '') . $user['LAST_NAME'];
 						}
 						else
 						{
-							$result['PROPERTY_'.$propertyId] = 'user_'.intval($user['ID']);
-							$result['PROPERTY_'.$propertyId.'_PRINTABLE'] = '('.$user['LOGIN'].')'.
-								(($user['NAME'] <> '' || $user['LAST_NAME'] <> '') ? ' ' : '').$user['NAME'].
-								(($user['NAME'] <> '' && $user['LAST_NAME'] <> '') ? ' ' : '').$user['LAST_NAME'];
+							$result['PROPERTY_' . $propertyId] = 'user_' . intval($user['ID']);
+							$result['PROPERTY_' . $propertyId . '_PRINTABLE'] = '(' . $user['LOGIN'] . ')' .
+								(($user['NAME'] <> '' || $user['LAST_NAME'] <> '') ? ' ' : '') . $user['NAME'] .
+								(($user['NAME'] <> '' && $user['LAST_NAME'] <> '') ? ' ' : '') . $user['LAST_NAME'];
 						}
 					}
 				}
-				elseif($property['USER_TYPE'] == 'DiskFile')
+				elseif ($property['USER_TYPE'] == 'DiskFile')
 				{
 					$diskValues = current($property['VALUE']);
 					$userType = \CIBlockProperty::getUserType($property['USER_TYPE']);
-					if(is_array($diskValues))
+					if (is_array($diskValues))
 					{
-						$result = self::setArray($result, 'PROPERTY_'.$propertyId);
-						$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
-						foreach($diskValues as $attachedId)
+						$result = self::setArray($result, 'PROPERTY_' . $propertyId);
+						$result = self::setArray($result, 'PROPERTY_' . $propertyId . '_PRINTABLE');
+						foreach ($diskValues as $attachedId)
 						{
 							$fileId = null;
 							if (array_key_exists('GetObjectId', $userType))
-								$fileId = call_user_func_array($userType['GetObjectId'], array($attachedId));
-							if(!$fileId)
+							{
+								$fileId = call_user_func_array($userType['GetObjectId'], [$attachedId]);
+							}
+							if (!$fileId)
+							{
 								continue;
+							}
 							$printableUrl = '';
 							if (array_key_exists('GetUrlAttachedFileElement', $userType))
-								$printableUrl = call_user_func_array($userType['GetUrlAttachedFileElement'],
-									array($documentId, $fileId));
+							{
+								$printableUrl = call_user_func_array(
+									$userType['GetUrlAttachedFileElement'],
+									[$documentId, $fileId]
+								);
+							}
 
-							$result['PROPERTY_'.$propertyId][$attachedId] = $fileId;
-							$result['PROPERTY_'.$propertyId.'_PRINTABLE'][$attachedId] = $printableUrl;
+							$result['PROPERTY_' . $propertyId][$attachedId] = $fileId;
+							$result['PROPERTY_' . $propertyId . '_PRINTABLE'][$attachedId] = $printableUrl;
 						}
 					}
 					else
@@ -240,129 +273,137 @@ class BizprocDocument extends CIBlockDocument
 						continue;
 					}
 				}
-				elseif($property['USER_TYPE'] == 'HTML')
+				elseif ($property['USER_TYPE'] == 'HTML')
 				{
-					if(\CBPHelper::isAssociativeArray($property['VALUE']))
+					if (\CBPHelper::isAssociativeArray($property['VALUE']))
 					{
-						if($property['VALUE']['TYPE'] == 'HTML')
+						if ($property['VALUE']['TYPE'] == 'HTML')
 						{
-							$result['PROPERTY_'.$propertyId] = HTMLToTxt($property['VALUE']['TEXT']);
+							$result['PROPERTY_' . $propertyId] = HTMLToTxt($property['VALUE']['TEXT']);
 						}
 						else
 						{
-							$result['PROPERTY_'.$propertyId] = $property['VALUE']['TEXT'];
+							$result['PROPERTY_' . $propertyId] = $property['VALUE']['TEXT'];
 						}
 					}
 					else
 					{
-						$result = self::setArray($result, 'PROPERTY_'.$propertyId);
-						foreach($property['VALUE'] as $htmlValue)
+						$result = self::setArray($result, 'PROPERTY_' . $propertyId);
+						foreach ($property['VALUE'] as $htmlValue)
 						{
-							if($htmlValue['TYPE'] == 'HTML')
+							if ($htmlValue['TYPE'] == 'HTML')
 							{
-								$result['PROPERTY_'.$propertyId][] = HTMLToTxt($htmlValue['TEXT']);
+								$result['PROPERTY_' . $propertyId][] = HTMLToTxt($htmlValue['TEXT']);
 							}
 							else
 							{
-								$result['PROPERTY_'.$propertyId][] = $htmlValue['TEXT'];
+								$result['PROPERTY_' . $propertyId][] = $htmlValue['TEXT'];
 							}
 						}
 					}
 				}
-				elseif($property['USER_TYPE'] == 'Money')
+				elseif ($property['USER_TYPE'] == 'Money')
 				{
 					$userType = \CIBlockProperty::getUserType($property['USER_TYPE']);
-					if(is_array($property['VALUE']))
+					if (is_array($property['VALUE']))
 					{
-						$result = self::setArray($result, 'PROPERTY_'.$propertyId);
-						$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
-						foreach($property['VALUE'] as $moneyValue)
+						$result = self::setArray($result, 'PROPERTY_' . $propertyId);
+						$result = self::setArray($result, 'PROPERTY_' . $propertyId . '_PRINTABLE');
+						foreach ($property['VALUE'] as $moneyValue)
 						{
-							$result['PROPERTY_'.$propertyId][] = $moneyValue;
-							if(array_key_exists('GetPublicViewHTML', $userType))
+							$result['PROPERTY_' . $propertyId][] = $moneyValue;
+							if (array_key_exists('GetPublicViewHTML', $userType))
 							{
-								$result['PROPERTY_'.$propertyId.'_PRINTABLE'][] = call_user_func_array(
+								$result['PROPERTY_' . $propertyId . '_PRINTABLE'][] = call_user_func_array(
 									$userType['GetPublicViewHTML'],
-									array($property, array('VALUE' => $moneyValue), array())
+									[$property, ['VALUE' => $moneyValue], []]
 								);
 							}
 						}
 					}
 					else
 					{
-						$result['PROPERTY_'.$propertyId] = $property['VALUE'];
-						if(array_key_exists('GetPublicViewHTML', $userType))
+						$result['PROPERTY_' . $propertyId] = $property['VALUE'];
+						if (array_key_exists('GetPublicViewHTML', $userType))
 						{
-							$result['PROPERTY_'.$propertyId.'_PRINTABLE'] = call_user_func_array(
+							$result['PROPERTY_' . $propertyId . '_PRINTABLE'] = call_user_func_array(
 								$userType['GetPublicViewHTML'],
-								array($property, array('VALUE' => $property['VALUE']), array())
+								[$property, ['VALUE' => $property['VALUE']], []]
 							);
 						}
 					}
 				}
 				else
 				{
-					$result['PROPERTY_'.$propertyId] = $property['VALUE'];
+					$result['PROPERTY_' . $propertyId] = $property['VALUE'];
 				}
 			}
 			elseif ($property['PROPERTY_TYPE'] == 'L')
 			{
-				$result = self::setArray($result, 'PROPERTY_'.$propertyId);
+				$result = self::setArray($result, 'PROPERTY_' . $propertyId);
 				//$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
-				$propertyArray = array();
-				$propertyKeyArray = array();
-				if(!is_array($property['VALUE']))
-					$property['VALUE'] = array($property['VALUE']);
-				foreach($property['VALUE'] as $enumId)
+				$propertyArray = [];
+				$propertyKeyArray = [];
+				if (!is_array($property['VALUE']))
+				{
+					$property['VALUE'] = [$property['VALUE']];
+				}
+				foreach ($property['VALUE'] as $enumId)
 				{
 					$enumsObject = CIBlockProperty::getPropertyEnum(
 						$property['ID'],
-						array('SORT' => 'asc'),
-						array('ID' => $enumId)
+						['SORT' => 'asc'],
+						['ID' => $enumId]
 					);
-					while($enums = $enumsObject->fetch())
+					while ($enums = $enumsObject->fetch())
 					{
 						$propertyArray[] = $enums['VALUE'];
 						$propertyKeyArray[] = $enums['XML_ID'];
 					}
 				}
 				for ($i = 0, $cnt = count($propertyArray); $i < $cnt; $i++)
-					$result['PROPERTY_'.$propertyId][$propertyKeyArray[$i]] = $propertyArray[$i];
+				{
+					$result['PROPERTY_' . $propertyId][$propertyKeyArray[$i]] = $propertyArray[$i];
+				}
 			}
 			elseif ($property['PROPERTY_TYPE'] == 'F')
 			{
-				$result = self::setArray($result, 'PROPERTY_'.$propertyId);
-				$result = self::setArray($result, 'PROPERTY_'.$propertyId.'_PRINTABLE');
+				$result = self::setArray($result, 'PROPERTY_' . $propertyId);
+				$result = self::setArray($result, 'PROPERTY_' . $propertyId . '_PRINTABLE');
 				$propertyArray = $property['VALUE'];
 				if (!is_array($propertyArray))
-					$propertyArray = array($propertyArray);
+				{
+					$propertyArray = [$propertyArray];
+				}
 
 				foreach ($propertyArray as $v)
 				{
 					$fileArray = \CFile::getFileArray($v);
 					if ($fileArray)
 					{
-						$result['PROPERTY_'.$propertyId][] = intval($v);
-						$result['PROPERTY_'.$propertyId.'_PRINTABLE'][] =
-							"[url=/bitrix/tools/bizproc_show_file.php?f=".
-							urlencode($fileArray["FILE_NAME"])."&i=".$v."&h=".md5($fileArray["SUBDIR"])."]".
-							htmlspecialcharsbx($fileArray["ORIGINAL_NAME"])."[/url]";
+						$result['PROPERTY_' . $propertyId][] = intval($v);
+						$result['PROPERTY_' . $propertyId . '_PRINTABLE'][] =
+							"[url=/bitrix/tools/bizproc_show_file.php?f=" .
+							urlencode($fileArray["FILE_NAME"]) . "&i=" . $v . "&h=" . md5($fileArray["SUBDIR"]) . "]" .
+							htmlspecialcharsbx($fileArray["ORIGINAL_NAME"]) . "[/url]";
 					}
 				}
 			}
 			else
 			{
-				$result['PROPERTY_'.$propertyId] = $property['VALUE'];
+				$result['PROPERTY_' . $propertyId] = $property['VALUE'];
 			}
 		}
 
-		if(!empty($result))
+		if (!empty($result))
 		{
 			$documentFields = static::getDocumentFields(static::getDocumentType($documentId));
 			foreach ($documentFields as $fieldKey => $field)
 			{
 				if (!array_key_exists($fieldKey, $result))
+				{
 					$result[$fieldKey] = null;
+				}
 			}
 		}
 
@@ -1207,49 +1248,62 @@ class BizprocDocument extends CIBlockDocument
 	{
 		$documentId = intval($documentId);
 		if ($documentId <= 0)
-			throw new CBPArgumentNullException("documentId");
+		{
+			throw new CBPArgumentNullException('documentId');
+		}
 
 		CIBlockElement::WF_CleanUpHistoryCopies($documentId, 0);
 
-		$arFieldsPropertyValues = array();
+		$arFieldsPropertyValues = [];
 
 		$dbResult = CIBlockElement::GetList(
-			array(),
-			array("ID" => $documentId, "SHOW_NEW" => "Y", "SHOW_HISTORY" => "Y"),
+			[],
+			['ID' => $documentId, 'SHOW_NEW' => 'Y', 'SHOW_HISTORY' => 'Y'],
 			false, false,
-			array("ID", "IBLOCK_ID")
+			['ID', 'IBLOCK_ID']
 		);
 		$arResult = $dbResult->Fetch();
 		if (!$arResult)
-			throw new Exception("Element is not found");
+		{
+			throw new Exception('Element is not found');
+		}
 
-		$arDocumentFields = self::GetDocumentFields("iblock_".$arResult["IBLOCK_ID"]);
+		$arDocumentFields = self::GetDocumentFields('iblock_' . $arResult['IBLOCK_ID']);
 
 		$arKeys = array_keys($arFields);
 		foreach ($arKeys as $key)
 		{
 			if (!array_key_exists($key, $arDocumentFields))
-				continue;
-
-			$arFields[$key] = (is_array($arFields[$key]) && !CBPHelper::IsAssociativeArray($arFields[$key])) ?
-				$arFields[$key] : array($arFields[$key]);
-			$realKey = ((mb_substr($key, 0, mb_strlen("PROPERTY_")) == "PROPERTY_")?
-				mb_substr($key, mb_strlen("PROPERTY_")) : $key);
-
-			if ($arDocumentFields[$key]["Type"] == "user")
 			{
-				$ar = array();
+				continue;
+			}
+
+			$arFields[$key] =
+				(is_array($arFields[$key]) && !CBPHelper::IsAssociativeArray($arFields[$key]))
+					? $arFields[$key]
+					: [$arFields[$key]];
+			$realKey = (
+			(mb_substr($key, 0, mb_strlen('PROPERTY_')) == 'PROPERTY_')
+				? mb_substr($key, mb_strlen('PROPERTY_'))
+				: $key
+			);
+
+			if ($arDocumentFields[$key]['Type'] == 'user')
+			{
+				$ar = [];
 				foreach ($arFields[$key] as $v1)
 				{
-					if (mb_substr($v1, 0, mb_strlen("user_")) == "user_")
+					if (mb_substr($v1, 0, mb_strlen('user_')) == 'user_')
 					{
-						$ar[] = mb_substr($v1, mb_strlen("user_"));
+						$ar[] = mb_substr($v1, mb_strlen('user_'));
 					}
 					else
 					{
 						$a1 = self::GetUsersFromUserGroup($v1, $documentId);
 						foreach ($a1 as $a11)
+						{
 							$ar[] = $a11;
+						}
 					}
 				}
 				if (!empty($ar))
@@ -1259,24 +1313,26 @@ class BizprocDocument extends CIBlockDocument
 
 				$arFields[$key] = $ar;
 			}
-			elseif ($arDocumentFields[$key]["Type"] == "select")
+			elseif ($arDocumentFields[$key]['Type'] == 'select')
 			{
-				$arV = array();
+				$arV = [];
 				$db = CIBlockProperty::GetPropertyEnum(
 					$realKey,
 					false,
-					array("IBLOCK_ID" => $arResult["IBLOCK_ID"])
+					['IBLOCK_ID' => $arResult['IBLOCK_ID']]
 				);
 				while ($ar = $db->GetNext())
-					$arV[$ar["XML_ID"]] = $ar["ID"];
+				{
+					$arV[$ar['XML_ID']] = $ar['ID'];
+				}
 
-				$listValue = array();
+				$listValue = [];
 				foreach ($arFields[$key] as &$value)
 				{
-					if(is_array($value) && CBPHelper::isAssociativeArray($value))
+					if (is_array($value) && CBPHelper::isAssociativeArray($value))
 					{
 						$listXmlId = array_keys($value);
-						foreach($listXmlId as $xmlId)
+						foreach ($listXmlId as $xmlId)
 						{
 							$listValue[] = $arV[$xmlId];
 						}
@@ -1284,55 +1340,67 @@ class BizprocDocument extends CIBlockDocument
 					else
 					{
 						if (array_key_exists($value, $arV))
+						{
 							$value = $arV[$value];
+						}
 					}
 				}
-				if(!empty($listValue))
+				if (!empty($listValue))
 				{
 					$arFields[$key] = $listValue;
 				}
 			}
-			elseif ($arDocumentFields[$key]["Type"] == "file")
+			elseif ($arDocumentFields[$key]['Type'] == 'file')
 			{
-				$files = array();
+				$files = [];
 				foreach ($arFields[$key] as $value)
 				{
 					if (is_array($value))
 					{
-						foreach($value as $file)
+						foreach ($value as $file)
 						{
 							$makeFileArray = CFile::MakeFileArray($file);
-							if($makeFileArray)
+							if ($makeFileArray)
+							{
 								$files[] = $makeFileArray;
+							}
 						}
 					}
 					else
 					{
 						$makeFileArray = CFile::MakeFileArray($value);
-						if($makeFileArray)
+						if ($makeFileArray)
+						{
 							$files[] = $makeFileArray;
+						}
 					}
 				}
-				if($files)
+				if ($files)
+				{
 					$arFields[$key] = $files;
+				}
 				else
-					$arFields[$key] = array(array('del' => 'Y'));
+				{
+					$arFields[$key] = [['del' => 'Y']];
+				}
 			}
-			elseif($arDocumentFields[$key]["Type"] == "S:DiskFile")
+			elseif ($arDocumentFields[$key]['Type'] == 'S:DiskFile')
 			{
 				foreach ($arFields[$key] as &$value)
 				{
-					if(!empty($value))
+					if (!empty($value))
 					{
-						$value = "n".$value;
+						$value = 'n' . $value;
 					}
 				}
-				$arFields[$key] = array("VALUE" => $arFields[$key], "DESCRIPTION" => "workflow");
+				$arFields[$key] = ['VALUE' => $arFields[$key], 'DESCRIPTION' => 'workflow'];
 			}
-			elseif ($arDocumentFields[$key]["Type"] == "S:HTML")
+			elseif ($arDocumentFields[$key]['Type'] == 'S:HTML')
 			{
 				foreach ($arFields[$key] as &$value)
-					$value = array("VALUE" => $value);
+				{
+					$value = ['VALUE' => $value];
+				}
 			}
 
 			unset($value);
@@ -1353,37 +1421,45 @@ class BizprocDocument extends CIBlockDocument
 			if (mb_substr($key, 0, mb_strlen("PROPERTY_")) == "PROPERTY_")
 			{
 				$realKey = mb_substr($key, mb_strlen("PROPERTY_"));
-				$arFieldsPropertyValues[$realKey] = (is_array($arFields[$key]) &&
-					!CBPHelper::IsAssociativeArray($arFields[$key])) ? $arFields[$key] : array($arFields[$key]);
-				if(empty($arFieldsPropertyValues[$realKey]))
-					$arFieldsPropertyValues[$realKey] = array(null);
+				$arFieldsPropertyValues[$realKey] = (is_array($arFields[$key])
+					&& !CBPHelper::IsAssociativeArray($arFields[$key])) ? $arFields[$key] : [$arFields[$key]];
+				if (empty($arFieldsPropertyValues[$realKey]))
+					$arFieldsPropertyValues[$realKey] = [null];
 				unset($arFields[$key]);
 			}
 		}
 
 		if (count($arFieldsPropertyValues) > 0)
-			$arFields["PROPERTY_VALUES"] = $arFieldsPropertyValues;
+		{
+			$arFields['PROPERTY_VALUES'] = $arFieldsPropertyValues;
+		}
 
 		$iblockElement = new CIBlockElement();
-		if (isset($arFields["PROPERTY_VALUES"]) && count($arFields["PROPERTY_VALUES"]) > 0)
-			$iblockElement->SetPropertyValuesEx($documentId, $arResult["IBLOCK_ID"], $arFields["PROPERTY_VALUES"]);
+		if (isset($arFields['PROPERTY_VALUES']) && count($arFields['PROPERTY_VALUES']) > 0)
+		{
+			$iblockElement->SetPropertyValuesEx($documentId, $arResult['IBLOCK_ID'], $arFields['PROPERTY_VALUES']);
+		}
 
-		UnSet($arFields["PROPERTY_VALUES"]);
+		unset($arFields['PROPERTY_VALUES']);
 		$res = $iblockElement->Update($documentId, $arFields, false, true, true);
 		if (!$res)
+		{
 			throw new Exception($iblockElement->LAST_ERROR);
+		}
 
 		if ($arFields['BP_PUBLISHED'] === 'Y')
 		{
 			self::publishDocument($documentId);
 		}
-		else if ($arFields['BP_PUBLISHED'] === 'N')
+		elseif ($arFields['BP_PUBLISHED'] === 'N')
 		{
 			self::unpublishDocument($documentId);
 		}
 
-		if (CModule::includeModule("lists"))
-			CLists::rebuildSeachableContentForElement($arResult["IBLOCK_ID"], $documentId);
+		if (CModule::includeModule('lists'))
+		{
+			CLists::rebuildSeachableContentForElement($arResult['IBLOCK_ID'], $documentId);
+		}
 	}
 
 	public static function onTaskChange($documentId, $taskId, $taskData, $status)

@@ -51,7 +51,7 @@ class File
 	 */
 	public static function instantiateByPath($path)
 	{
-		if (empty($path) || !is_string($path) || (mb_substr($path, -4) !== '.php') || !preg_match("#.+/lang/[a-z]{2}/.+\.php$#", $path))
+		if (empty($path) || !\is_string($path) || (\mb_substr($path, -4) !== '.php') || !\preg_match("#.+/lang/[a-z]{2}/.+\.php$#", $path))
 		{
 			throw new Main\ArgumentException("Parameter 'path' has a wrong value");
 		}
@@ -219,7 +219,7 @@ class File
 	 */
 	public function lint(
 		$content = '',
-		$validTokens = array(T_OPEN_TAG, T_CLOSE_TAG, T_WHITESPACE, T_CONSTANT_ENCAPSED_STRING, T_VARIABLE, T_COMMENT, T_DOC_COMMENT),
+		$validTokens = array(\T_OPEN_TAG, \T_CLOSE_TAG, \T_WHITESPACE, \T_CONSTANT_ENCAPSED_STRING, \T_VARIABLE, \T_COMMENT, \T_DOC_COMMENT),
 		$validChars = array('[', ']', ';', '=')
 	)
 	{
@@ -232,40 +232,40 @@ class File
 				$content = $this->getContents();
 			}
 		}
-		if (empty($content) || !is_string($content))
+		if (empty($content) || !\is_string($content))
 		{
 			$this->addError(new Main\Error("Parse Error: Empty content"));
 			return $isValid;
 		}
 
-		$tokens = token_get_all($content);
+		$tokens = \token_get_all($content);
 
 		$line = $tokens[0][2] || 1;
-		if (!is_array($tokens[0]) || $tokens[0][0] !== T_OPEN_TAG)
+		if (!is_array($tokens[0]) || $tokens[0][0] !== \T_OPEN_TAG)
 		{
-			$this->addError(new Main\Error("Parse Error: Wrong open tag ".token_name($tokens[0][0])." '{$tokens[0][1]}' at line {$line}"));
+			$this->addError(new Main\Error("Parse Error: Wrong open tag ".\token_name($tokens[0][0])." '{$tokens[0][1]}' at line {$line}"));
 		}
 		else
 		{
 			$isValid = true;
 			foreach ($tokens as $token)
 			{
-				if (is_array($token))
+				if (\is_array($token))
 				{
 					$line = $token[2];
 					if (
-						!in_array($token[0], $validTokens) ||
-						($token[0] === T_VARIABLE && $token[1] != '$MESS')
+						!\in_array($token[0], $validTokens) ||
+						($token[0] === \T_VARIABLE && $token[1] != '$MESS')
 					)
 					{
-						$this->addError(new Main\Error("Parse Error: Wrong token ". token_name($token[0]). " '{$token[1]}' at line {$line}"));
+						$this->addError(new Main\Error("Parse Error: Wrong token ". \token_name($token[0]). " '{$token[1]}' at line {$line}"));
 						$isValid = false;
 						break;
 					}
 				}
-				elseif (is_string($token))
+				elseif (\is_string($token))
 				{
-					if (!in_array($token, $validChars))
+					if (!\in_array($token, $validChars))
 					{
 						$line ++;
 						$this->addError(new Main\Error("Parse Error: Expected character '{$token}' at line {$line}"));
@@ -281,7 +281,7 @@ class File
 
 	// endregion
 
-	//region Load & Save
+	//region Load
 
 	/**
 	 * Loads language file for operate.
@@ -311,7 +311,7 @@ class File
 		$content = $this->getContents();
 		if (
 			empty($content)
-			|| !is_string($content)
+			|| !\is_string($content)
 			|| $content === '<?'
 			|| $content === '<?php'
 		)
@@ -323,18 +323,18 @@ class File
 		// encoding
 		$targetEncoding = $this->getOperatingEncoding();
 		$sourceEncoding = $this->getSourceEncoding();
-		$convertEncoding = (mb_strtolower($targetEncoding) != mb_strtolower($sourceEncoding));
+		$convertEncoding = (\mb_strtolower($targetEncoding) != \mb_strtolower($sourceEncoding));
 		if ($convertEncoding)
 		{
 			$path = Main\Localization\Translation::convertLangPath($this->getPhysicalPath(), $this->getLangId());
 
 			if (Main\Localization\Translation::getDeveloperRepositoryPath() !== null)
 			{
-				$convertEncoding = (stripos($path, Main\Localization\Translation::getDeveloperRepositoryPath()) === 0);
+				$convertEncoding = (\stripos($path, Main\Localization\Translation::getDeveloperRepositoryPath()) === 0);
 			}
 			if (!$convertEncoding && Main\Localization\Translation::useTranslationRepository())
 			{
-				$convertEncoding = (stripos($path, Main\Localization\Translation::getTranslationRepositoryPath()) === 0);
+				$convertEncoding = (\stripos($path, Main\Localization\Translation::getTranslationRepositoryPath()) === 0);
 			}
 		}
 
@@ -352,7 +352,7 @@ class File
 			return $MESS;
 		})();
 
-		if (is_array($messages) && count($messages) > 0)
+		if (\is_array($messages) && \count($messages) > 0)
 		{
 			foreach ($messages as $phraseId => $phrase)
 			{
@@ -398,7 +398,7 @@ class File
 		$content = $this->getContents();
 		if (
 			empty($content)
-			|| !is_string($content)
+			|| !\is_string($content)
 			|| $content === '<?'
 			|| $content === '<?php'
 		)
@@ -409,11 +409,11 @@ class File
 
 		$is = function ($token, $type, $value = null)
 		{
-			if (is_string($token))
+			if (\is_string($token))
 			{
 				return $token === $type;
 			}
-			if (is_array($token))
+			if (\is_array($token))
 			{
 				if ($token[0] === $type)
 				{
@@ -427,21 +427,21 @@ class File
 			return false;
 		};
 
-		$tokens = token_get_all($content);
+		$tokens = \token_get_all($content);
 
 		$hasPhraseDefinition = false;
 		foreach ($tokens as $inx => $token)
 		{
-			if ($is($token, T_WHITESPACE))
+			if ($is($token, \T_WHITESPACE))
 			{
 				unset($tokens[$inx]);
 				continue;
 			}
-			if (!$hasPhraseDefinition && $is($token, T_VARIABLE, '$MESS'))
+			if (!$hasPhraseDefinition && $is($token, \T_VARIABLE, '$MESS'))
 			{
 				$hasPhraseDefinition = true;
 			}
-			//if (is_array($token))$tokens[$inx][] = token_name($token[0]);
+			//if (is_array($token))$tokens[$inx][] = \token_name($token[0]);
 		}
 
 		if (!$hasPhraseDefinition)
@@ -450,35 +450,35 @@ class File
 			return false;
 		}
 
-		array_splice($tokens, 0, 0);
+		\array_splice($tokens, 0, 0);
 
 		$addPhrase = function ($phraseId, $phraseParts, $isHeredoc = false)
 		{
 			if ($phraseId != '')
 			{
-				$len = mb_strlen($phraseId, $this->getOperatingEncoding());
-				$phraseId = mb_substr($phraseId, 1, $len - 2, $this->getOperatingEncoding());// strip trailing quotes
-				$phraseId = str_replace("\\\\", "\\", $phraseId);// strip slashes in code
+				$len = \mb_strlen($phraseId, $this->getOperatingEncoding());
+				$phraseId = \mb_substr($phraseId, 1, $len - 2, $this->getOperatingEncoding());// strip trailing quotes
+				$phraseId = \str_replace("\\\\", "\\", $phraseId);// strip slashes in code
 
-				$enclosure = $isHeredoc ? '<<<' : mb_substr($phraseParts[0], 0, 1);// what quote
+				$enclosure = $isHeredoc ? '<<<' : \mb_substr($phraseParts[0], 0, 1);// what quote
 
 				$phrase = '';
 				if ($isHeredoc)
 				{
 					$part = $phraseParts[0];
-					$len = mb_strlen($part, $this->getOperatingEncoding());
-					$phrase = mb_substr($part, 0, $len - 1, $this->getOperatingEncoding());// strip final \n
+					$len = \mb_strlen($part, $this->getOperatingEncoding());
+					$phrase = \mb_substr($part, 0, $len - 1, $this->getOperatingEncoding());// strip final \n
 				}
 				else
 				{
 					foreach ($phraseParts as $part)
 					{
-						$enclosure = mb_substr($part, 0, 1);// what quote
+						$enclosure = \mb_substr($part, 0, 1);// what quote
 						// strip trailing quotes
 						if ($enclosure === '"' || $enclosure === "'")
 						{
-							$len = mb_strlen($part, $this->getOperatingEncoding());
-							$part = mb_substr($part, 1, $len - 2, $this->getOperatingEncoding());
+							$len = \mb_strlen($part, $this->getOperatingEncoding());
+							$part = \mb_substr($part, 1, $len - 2, $this->getOperatingEncoding());
 						}
 						//$part = StringHelper::unescapePhp($part, $enclosure);
 						$phrase .= $part;
@@ -503,7 +503,7 @@ class File
 
 		foreach ($tokens as $inx => &$token)
 		{
-			if (!$startPhrase && $is($token, T_VARIABLE, '$MESS'))
+			if (!$startPhrase && $is($token, \T_VARIABLE, '$MESS'))
 			{
 				$startPhrase = true;
 			}
@@ -526,20 +526,20 @@ class File
 				{
 					$endPhrase = true;
 				}
-				elseif ($is($token, T_CLOSE_TAG))
+				elseif ($is($token, \T_CLOSE_TAG))
 				{
 					$endPhrase = true;
 				}
-				elseif ($is($token, T_START_HEREDOC))
+				elseif ($is($token, \T_START_HEREDOC))
 				{
 					$isHeredoc = true;
 				}
 
 				if (
 					$inPhrase
-					&& $is($token, T_VARIABLE, '$MESS')
+					&& $is($token, \T_VARIABLE, '$MESS')
 					&& $is($tokens[$inx + 1], '[')
-					&& $is($tokens[$inx + 2], T_CONSTANT_ENCAPSED_STRING)
+					&& $is($tokens[$inx + 2], \T_CONSTANT_ENCAPSED_STRING)
 				)
 				{
 					$clonePhraseId = $tokens[$inx + 2][1];
@@ -548,7 +548,7 @@ class File
 					$endPhrase = true;
 				}
 
-				if ($is($token, T_CONSTANT_ENCAPSED_STRING) || $is($token, T_ENCAPSED_AND_WHITESPACE))
+				if ($is($token, \T_CONSTANT_ENCAPSED_STRING) || $is($token, \T_ENCAPSED_AND_WHITESPACE))
 				{
 					if ($inPhrase)
 					{
@@ -576,7 +576,7 @@ class File
 			}
 
 			// todo: Handle here developer's comment from file
-			// T_COMMENT T_DOC_COMMENT
+			// \T_COMMENT T_DOC_COMMENT
 		}
 
 		if ($startPhrase)
@@ -589,13 +589,14 @@ class File
 
 	//endregion
 
-	//region Load & Save
+	//region Save
 
 	/**
 	 * Save changes or create new file.
 	 *
 	 * @return boolean
 	 * @throws Main\IO\IoException
+	 * @throws Main\SystemException
 	 */
 	public function save()
 	{
@@ -609,18 +610,18 @@ class File
 		// encoding
 		$operatingEncoding = $this->getOperatingEncoding();
 		$sourceEncoding = $this->getSourceEncoding();
-		$convertEncoding = (mb_strtolower($operatingEncoding) != mb_strtolower($sourceEncoding));
+		$convertEncoding = (\mb_strtolower($operatingEncoding) != \mb_strtolower($sourceEncoding));
 		if ($convertEncoding)
 		{
 			$path = Main\Localization\Translation::convertLangPath($this->getPhysicalPath(), $this->getLangId());
 
 			if (Main\Localization\Translation::getDeveloperRepositoryPath() !== null)
 			{
-				$convertEncoding = (stripos($path, Main\Localization\Translation::getDeveloperRepositoryPath()) === 0);
+				$convertEncoding = (\stripos($path, Main\Localization\Translation::getDeveloperRepositoryPath()) === 0);
 			}
 			if (!$convertEncoding && Main\Localization\Translation::useTranslationRepository())
 			{
-				$convertEncoding = (stripos($path, Main\Localization\Translation::getTranslationRepositoryPath()) === 0);
+				$convertEncoding = (\stripos($path, Main\Localization\Translation::getTranslationRepositoryPath()) === 0);
 			}
 		}
 
@@ -632,7 +633,7 @@ class File
 				// remove empty
 				continue;
 			}
-			$phrase = str_replace(["\r\n", "\r"], ["\n", ''], $phrase);
+			$phrase = \str_replace(["\r\n", "\r"], ["\n", ''], $phrase);
 			if ($convertEncoding)
 			{
 				$phrase = Main\Text\Encoding::convertEncoding($phrase, $operatingEncoding, $sourceEncoding);
@@ -642,17 +643,30 @@ class File
 			{
 				$enclosure = $this->messageEnclosure[$phraseId];// preserve origin quote
 			}
-			$row = '$MESS["'. StringHelper::escapePhp($phraseId, '"', "\\\\"). '"] = ';
 
+			$phraseId = StringHelper::escapePhp($phraseId, '"', "\\\\");
+			if (StringHelper::hasPhpTokens($phraseId, '"'))
+			{
+				$this->addError(new Main\Error("Phrase code contains php tokens"));
+				return false;
+			}
+
+			$phrase = StringHelper::escapePhp($phrase, $enclosure);
+			if (StringHelper::hasPhpTokens($phrase, $enclosure))
+			{
+				$this->addError(new Main\Error("Phrase contains php tokens"));
+				return false;
+			}
+
+			$row = '$MESS["'. $phraseId. '"] = ';
 			if ($enclosure === '<<<')
 			{
-				$row .= "<<<HTML\n". StringHelper::escapePhp($phrase, $enclosure). "\nHTML";
+				$row .= "<<<HTML\n". $phrase. "\nHTML";
 			}
 			else
 			{
-				$row .= $enclosure. StringHelper::escapePhp($phrase, $enclosure). $enclosure;
+				$row .= $enclosure. $phrase. $enclosure;
 			}
-
 			$content .= "\n". $row. ';';
 		}
 		unset($phraseId, $phrase, $row);
@@ -709,7 +723,7 @@ class File
 		$parentFolder = $this->getDirectory();
 		while (true)
 		{
-			if ($parentFolder->isExists() && count($parentFolder->getChildren()) > 0)
+			if ($parentFolder->isExists() && \count($parentFolder->getChildren()) > 0)
 			{
 				$ret = false;
 				break;
@@ -750,9 +764,9 @@ class File
 
 		if (Main\Localization\Translation::useTranslationRepository() && in_array($langId, Translate\Config::getTranslationRepositoryLanguages()))
 		{
-			if (mb_strpos($langFile, Main\Localization\Translation::getTranslationRepositoryPath()) === 0)
+			if (\mb_strpos($langFile, Main\Localization\Translation::getTranslationRepositoryPath()) === 0)
 			{
-				$langFile = str_replace(
+				$langFile = \str_replace(
 					Main\Localization\Translation::getTranslationRepositoryPath(). '/',
 					'',
 					$langFile
@@ -761,46 +775,46 @@ class File
 		}
 		if (Main\Localization\Translation::getDeveloperRepositoryPath() !== null)
 		{
-			if (mb_strpos($langFile, Main\Localization\Translation::getDeveloperRepositoryPath()) === 0)
+			if (\mb_strpos($langFile, Main\Localization\Translation::getDeveloperRepositoryPath()) === 0)
 			{
-				$langFile = str_replace(
+				$langFile = \str_replace(
 					Main\Localization\Translation::getDeveloperRepositoryPath(). '/',
 					'',
 					$langFile
 				);
 			}
 		}
-		if (mb_strpos($langFile, Main\Application::getDocumentRoot()) === 0)
+		if (\mb_strpos($langFile, Main\Application::getDocumentRoot()) === 0)
 		{
-			$langFile = str_replace(
+			$langFile = \str_replace(
 				Main\Application::getDocumentRoot(). '/',
 				'',
 				$langFile
 			);
 		}
 
-		$backupFolder = Translate\Config::getBackupFolder(). '/'. dirname($langFile). '/';
+		$backupFolder = Translate\Config::getBackupFolder(). '/'. \dirname($langFile). '/';
 		if (!Translate\IO\Path::checkCreatePath($backupFolder))
 		{
 			$this->addError(new Main\Error("Couldn't create backup path '{$backupFolder}'"));
 			return false;
 		}
 
-		$sourceFilename = basename($langFile);
-		$prefix = date('YmdHi');
+		$sourceFilename = \basename($langFile);
+		$prefix = \date('YmdHi');
 		$endpointBackupFilename = $prefix. '_'. $sourceFilename;
-		if (file_exists($backupFolder. $endpointBackupFilename))
+		if (\file_exists($backupFolder. $endpointBackupFilename))
 		{
 			$i = 1;
-			while (file_exists($backupFolder. '/'. $endpointBackupFilename))
+			while (\file_exists($backupFolder. '/'. $endpointBackupFilename))
 			{
 				$i ++;
 				$endpointBackupFilename = $prefix. '_'. $i. '_'. $sourceFilename;
 			}
 		}
 
-		$isSuccessfull = (bool) @copy($fullPath, $backupFolder. '/'. $endpointBackupFilename);
-		@chmod($backupFolder. '/'. $endpointBackupFilename, BX_FILE_PERMISSIONS);
+		$isSuccessfull = (bool) @\copy($fullPath, $backupFolder. '/'. $endpointBackupFilename);
+		@\chmod($backupFolder. '/'. $endpointBackupFilename, \BX_FILE_PERMISSIONS);
 
 		if (!$isSuccessfull)
 		{
@@ -870,7 +884,7 @@ class File
 
 			Index\Internals\PhraseIndexTable::purge(new Translate\Filter(['fileId' => $this->fileIndex->getId()]));
 
-			if (count($phraseData) > 0)
+			if (\count($phraseData) > 0)
 			{
 				Index\Internals\PhraseIndexTable::bulkAdd($phraseData);
 			}
@@ -994,7 +1008,7 @@ class File
 		{
 			unset($this->messages[$code]);
 			$this->messagesCount --;
-			if (($i = array_search($code, $this->messageCodes)) !== false)
+			if (($i = \array_search($code, $this->messageCodes)) !== false)
 			{
 				unset($this->messageCodes[$i]);
 			}
@@ -1029,7 +1043,23 @@ class File
 	 */
 	public function getCodes()
 	{
-		return is_array($this->messages) ? array_keys($this->messages) : [];
+		return \is_array($this->messages) ? \array_keys($this->messages) : [];
+	}
+
+	/**
+	 * Returns preserved origin quote.
+	 * @param string $phraseId
+	 * @return string
+	 */
+	public function getEnclosure(string $phraseId): string
+	{
+		$enclosure = '"';
+		if (isset($this->messageEnclosure[$phraseId]))
+		{
+			$enclosure = $this->messageEnclosure[$phraseId];
+		}
+
+		return $enclosure;
 	}
 
 	//endregion
@@ -1045,7 +1075,7 @@ class File
 	{
 		$code = $this->messageCodes[$this->dataPosition];
 
-		if (!isset($this->messages[$code]) || !is_string($this->messages[$code]) || (empty($this->messages[$code]) && $this->messages[$code] !== '0'))
+		if (!isset($this->messages[$code]) || !\is_string($this->messages[$code]) || (empty($this->messages[$code]) && $this->messages[$code] !== '0'))
 		{
 			return null;
 		}
@@ -1091,7 +1121,7 @@ class File
 	public function rewind()
 	{
 		$this->dataPosition = 0;
-		$this->messageCodes = array_keys($this->messages);
+		$this->messageCodes = \array_keys($this->messages);
 	}
 
 	//endregion
@@ -1109,18 +1139,18 @@ class File
 	{
 		if ($this->messagesCount === null)
 		{
-			if ($this->messages !== null && count($this->messages) > 0)
+			if ($this->messages !== null && \count($this->messages) > 0)
 			{
-				$this->messagesCount = count($this->messages);
+				$this->messagesCount = \count($this->messages);
 			}
 			elseif ($allowDirectFileAccess)
 			{
 				$MESS = array();
 				include $this->getPhysicalPath();
 
-				if (is_array($MESS) && count($MESS) > 0)
+				if (\is_array($MESS) && \count($MESS) > 0)
 				{
-					$this->messagesCount = count($MESS);
+					$this->messagesCount = \count($MESS);
 				}
 			}
 		}
@@ -1141,7 +1171,7 @@ class File
 	{
 		$data = parent::getContents();
 
-		if (is_string($data))
+		if (\is_string($data))
 		{
 			// encoding
 			$targetEncoding = $this->getOperatingEncoding();
@@ -1210,7 +1240,7 @@ class File
 	 */
 	public function countExcess(self $ethalon)
 	{
-		return (int)count(array_diff($this->getCodes(), $ethalon->getCodes()));
+		return (int)\count(\array_diff($this->getCodes(), $ethalon->getCodes()));
 	}
 
 	/**
@@ -1222,7 +1252,7 @@ class File
 	 */
 	public function countDeficiency(self $ethalon)
 	{
-		return (int)count(array_diff($ethalon->getCodes(), $this->getCodes()));
+		return (int)\count(\array_diff($ethalon->getCodes(), $this->getCodes()));
 	}
 
 	//endregion

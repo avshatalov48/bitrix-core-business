@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\Loader;
 
@@ -68,6 +68,7 @@ define("IM_CHECK_DELETE", 'delete');
 
 define("IM_DESKTOP_WINDOWS", 'windows');
 define("IM_DESKTOP_MAC", 'mac');
+define("IM_DESKTOP_LINUX", 'linux');
 
 define("IM_NOTIFY_FEATURE_SITE", "site");
 define("IM_NOTIFY_FEATURE_XMPP", "xmpp");
@@ -260,6 +261,7 @@ CJSCore::RegisterExt('im_page', array(
 				'call_collect_stats' => COption::GetOptionString('im', 'collect_call_stats', 'N'),
 				'call_docs_status' => \Bitrix\Im\Integration\Disk\Documents::getDocumentsInCallStatus(),
 				'call_resumes_status' => \Bitrix\Im\Integration\Disk\Documents::getResumesOfCallStatus(),
+				'call_allow_feedback' => \Bitrix\Im\Call\Call::isFeedbackAllowed() ? 'Y' : 'N',
 				'jitsi_server' => COption::GetOptionString('im', 'jitsi_server'),
 			)
 		);
@@ -338,4 +340,4 @@ CJSCore::RegisterExt('im_call', [
 
 $GLOBALS["APPLICATION"]->AddJSKernelInfo('im', array_merge(['/bitrix/js/im/common.js', '/bitrix/js/im/window.js'], $jsIm));
 $GLOBALS["APPLICATION"]->AddCSSKernelInfo('im', array('/bitrix/js/im/css/common.css', '/bitrix/js/im/css/dark_im.css', '/bitrix/js/im/css/window.css', '/bitrix/js/im/css/im.css', '/bitrix/js/im/css/call/view.css', '/bitrix/js/im/css/call/sidebar.css', '/bitrix/js/im/css/call/promo-popup.css'));
-?>
+

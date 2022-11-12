@@ -1,18 +1,26 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
 
-$arActivityDescription = array(
-	"NAME" => GetMessage("BPSNMA_DESCR_NAME"),
-	"DESCRIPTION" => GetMessage("BPSNMA_DESCR_DESCR"),
-	"TYPE" => array('activity', 'robot_activity'),
-	"CLASS" => "SocNetMessageActivity",
-	"JSCLASS" => "BizProcActivity",
-	"CATEGORY" => array(
-		"ID" => "interaction",
-	),
-	'ROBOT_SETTINGS' => array(
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
+
+$arActivityDescription = [
+	'NAME' => Loc::getMessage('BPSNMA_DESCR_NAME'),
+	'DESCRIPTION' => Loc::getMessage('BPSNMA_DESCR_DESCR_1'),
+	'TYPE' => ['activity', 'robot_activity'],
+	'CLASS' => 'SocNetMessageActivity',
+	'JSCLASS' => 'BizProcActivity',
+	'CATEGORY' => [
+		'ID' => 'interaction',
+	],
+	'ROBOT_SETTINGS' => [
 		'CATEGORY' => 'employee',
-		'TITLE' => GetMessage('BPSNMA_DESCR_ROBOT_TITLE'),
-		'RESPONSIBLE_PROPERTY' => 'MessageUserTo'
-	),
-);
+		'TITLE' => Loc::getMessage('BPSNMA_DESCR_ROBOT_TITLE_1'),
+		'RESPONSIBLE_PROPERTY' => 'MessageUserTo',
+		'GROUP' => ['informingEmployee'],
+		'SORT' => 700,
+	],
+];

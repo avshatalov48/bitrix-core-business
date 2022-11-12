@@ -182,14 +182,14 @@ class ApplyPublic
 
 		if (!empty($this->seekPath))
 		{
-			$this->seekAncestors = array();
-			$arr = explode('/', str_replace($this->sourceFolderPath, '', $this->seekPath));
-			array_pop($arr);//last file
-			$parts = array();
+			$this->seekAncestors = [];
+			$arr = \explode('/', \str_replace($this->sourceFolderPath, '', $this->seekPath));
+			\array_pop($arr);//last file
+			$parts = [];
 			foreach ($arr as $part)
 			{
 				$parts[] = $part;
-				$this->seekAncestors[] = $this->sourceFolderPath. implode('/', $parts);
+				$this->seekAncestors[] = $this->sourceFolderPath. \implode('/', $parts);
 			}
 		}
 
@@ -197,7 +197,7 @@ class ApplyPublic
 		foreach ($sourceDirectory->getChildren() as $entry)
 		{
 			$moduleName = $entry->getName();
-			if (in_array($moduleName, Translate\IGNORE_FS_NAMES) || !$entry->isDirectory())
+			if (\in_array($moduleName, Translate\IGNORE_FS_NAMES) || !$entry->isDirectory())
 			{
 				continue;
 			}
@@ -224,7 +224,7 @@ class ApplyPublic
 				$sourceFolder = new Main\IO\Directory($entry->getPhysicalPath(). $typeSourcePath);
 				if ($sourceFolder->isExists())
 				{
-					$targetFolderPath = str_replace('#BX_ROOT#', self::$documentRoot. ''. BX_ROOT, self::TARGET_FOLDERS[$type]);
+					$targetFolderPath = \str_replace('#BX_ROOT#', self::$documentRoot. ''. \BX_ROOT, self::TARGET_FOLDERS[$type]);
 
 					foreach ($this->lookThroughTmpFolder($sourceFolder->getPhysicalPath()) as $filePaths)
 					{
@@ -232,7 +232,7 @@ class ApplyPublic
 						{
 							$targetPath =
 								$targetFolderPath .'/'.
-								str_replace($moduleName. $typeSourcePath .'/', '', dirname($langFilePath));
+								\str_replace($moduleName. $typeSourcePath .'/', '', \dirname($langFilePath));
 
 							$targetFolder = new Main\IO\Directory($targetPath);
 							if (!$targetFolder->isExists())
@@ -240,14 +240,14 @@ class ApplyPublic
 								$targetFolder->create();
 							}
 
-							$moduleSourcePath = self::$documentRoot. ''. BX_ROOT. '/modules/'. $langFilePath;
+							$moduleSourcePath = self::$documentRoot. ''. \BX_ROOT. '/modules/'. $langFilePath;
 							$source = new Main\IO\File($moduleSourcePath);
 							if (!$source->isExists())
 							{
 								continue;
 							}
 
-							$target = new Main\IO\File($targetFolder->getPhysicalPath(). '/'. basename($langFilePath));
+							$target = new Main\IO\File($targetFolder->getPhysicalPath(). '/'. \basename($langFilePath));
 							if ($target->isExists())
 							{
 								$target->markWritable();
@@ -255,7 +255,7 @@ class ApplyPublic
 
 							try
 							{
-								if (function_exists('error_clear_last'))
+								if (\function_exists('error_clear_last'))
 								{
 									\error_clear_last();
 								}
@@ -285,7 +285,7 @@ class ApplyPublic
 				}
 
 				// check user abortion
-				if (connection_status() !== CONNECTION_NORMAL)
+				if (\connection_status() !== \CONNECTION_NORMAL)
 				{
 					throw new Main\SystemException('Process has been broken course user aborted connection.');
 				}
@@ -323,8 +323,8 @@ class ApplyPublic
 		$files = [];
 		$folders = [];
 
-		$tmpFolderFullPath = Translate\IO\Path::tidy(rtrim($tmpFolderFullPath, '/'));
-		$langFolderRelPath = str_replace($this->sourceFolderPath, '', $tmpFolderFullPath);
+		$tmpFolderFullPath = Translate\IO\Path::tidy(\rtrim($tmpFolderFullPath, '/'));
+		$langFolderRelPath = \str_replace($this->sourceFolderPath, '', $tmpFolderFullPath);
 
 		$childrenList = Translate\IO\FileSystemHelper::getFileList($tmpFolderFullPath);
 		if (!empty($childrenList))
@@ -342,13 +342,13 @@ class ApplyPublic
 					$this->seekAncestors = null;
 				}
 
-				$name = basename($fullPath);
-				if (in_array($name, Translate\IGNORE_FS_NAMES))
+				$name = \basename($fullPath);
+				if (\in_array($name, Translate\IGNORE_FS_NAMES))
 				{
 					continue;
 				}
 
-				if ((mb_substr($name, -4) === '.php') && is_file($fullPath))
+				if ((\mb_substr($name, -4) === '.php') && \is_file($fullPath))
 				{
 					$files[$langFolderRelPath.'/'.$name] = $fullPath;
 				}
@@ -361,15 +361,15 @@ class ApplyPublic
 		{
 			foreach ($childrenList as $fullPath)
 			{
-				$name = basename($fullPath);
-				if (in_array($name, Translate\IGNORE_FS_NAMES))
+				$name = \basename($fullPath);
+				if (\in_array($name, Translate\IGNORE_FS_NAMES))
 				{
 					continue;
 				}
 
 				if (!empty($this->seekPath))
 				{
-					if (in_array($fullPath, $this->seekAncestors))
+					if (\in_array($fullPath, $this->seekAncestors))
 					{
 						foreach ($this->lookThroughTmpFolder($fullPath) as $subFiles)// go deeper
 						{
@@ -379,14 +379,14 @@ class ApplyPublic
 					continue;
 				}
 
-				if (!is_dir($fullPath))
+				if (!\is_dir($fullPath))
 				{
 					continue;
 				}
 
 				$relPath = $langFolderRelPath.'/'.$name;
 
-				if (in_array($relPath, Translate\IGNORE_BX_NAMES))
+				if (\in_array($relPath, Translate\IGNORE_BX_NAMES))
 				{
 					continue;
 				}
@@ -395,12 +395,12 @@ class ApplyPublic
 			}
 		}
 
-		if (count($files) > 0)
+		if (\count($files) > 0)
 		{
 			yield $files;
 		}
 
-		if (count($folders) > 0)
+		if (\count($folders) > 0)
 		{
 			foreach ($folders as $subFolderPath)
 			{

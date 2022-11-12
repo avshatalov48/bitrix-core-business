@@ -254,12 +254,13 @@ export class InlineSelector extends EventEmitter
 		this.getFields().forEach((field) => {
 			let groupKey = field.Id.indexOf('.') < 0 ? 'ROOT' : field.Id.split('.')[0];
 			let groupName = '';
+			let fieldName = field.Name;
 
 			if (field.Name && groupKey !== 'ROOT' && field.Name.indexOf(': ') >= 0)
 			{
 				const names = field.Name.split(': ');
 				groupName = names.shift();
-				field.Name = names.join(': ');
+				fieldName = names.join(': ');
 			}
 
 			if (
@@ -271,7 +272,7 @@ export class InlineSelector extends EventEmitter
 				groupKey = 'ASSIGNED_BY';
 				const names = field.Name.split(' ');
 				groupName = names.shift();
-				field.Name = names.join(' ').replace('(', '').replace(')', '');
+				fieldName = names.join(' ').replace('(', '').replace(')', '');
 			}
 
 			if (!this.hasGroup(groupKey))
@@ -285,7 +286,7 @@ export class InlineSelector extends EventEmitter
 
 			this.addGroupItem(groupKey, {
 				id: field.SystemExpression,
-				title: field.Name || field.Id,
+				title: fieldName || field.Id,
 				customData: {field},
 			});
 		});

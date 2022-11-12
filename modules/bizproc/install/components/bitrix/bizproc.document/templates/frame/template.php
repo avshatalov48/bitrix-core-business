@@ -16,22 +16,22 @@ CJSCore::Init('bp_starter');
 	'ui.fonts.opensans',
 ]);
 
-if (!empty($arResult["ERROR_MESSAGE"])):
-	ShowError($arResult["ERROR_MESSAGE"]);
+if (!empty($arResult['ERROR_MESSAGE'])):
+	ShowError($arResult['ERROR_MESSAGE']);
 endif;
 
-$arDocumentStates = $arResult["DOCUMENT_STATES"];
+$arDocumentStates = $arResult['DOCUMENT_STATES'];
 $isLazyLoad = isset($arParams['LAZYLOAD']) && $arParams['LAZYLOAD'] === 'Y';
 
 ?>
 <div class="bizproc-page-document" data-role="bizproc-document-base">
-<?if ($arParams["StartWorkflowPermission"] == "Y"):?>
+<?php if ($arParams['StartWorkflowPermission'] === 'Y'): ?>
 	<div>
 		<button class="ui-btn ui-btn-dropdown ui-btn-primary" data-role="start-button">
-			<?= GetMessage("IBEL_BIZPROC_START") ?>
+			<?= GetMessage('IBEL_BIZPROC_START') ?>
 		</button>
 	</div>
-<?endif;?>
+<?php endif;?>
 
 <?php if ($isLazyLoad): ?>
 	<h2 class="bizproc-document-section-title"><?= GetMessage('IBEL_BIZPROC_ACTIVE_WORKFLOWS') ?></h2>
@@ -39,29 +39,33 @@ $isLazyLoad = isset($arParams['LAZYLOAD']) && $arParams['LAZYLOAD'] === 'Y';
 <form action="" method="POST" data-role="form">
 	<?=bitrix_sessid_post()?>
 <ul class="bizproc-document-list bizproc-document-workflow-list-item" data-role="workflows-list">
-<?
-$workflows = array();
+<?php
+$workflows = [];
 
 foreach ($arDocumentStates as $arDocumentState)
 {
 	if (intval($arDocumentState["WORKFLOW_STATUS"]) < 0):
 		continue;
-	elseif (!CBPDocument::CanUserOperateDocument(
-		CBPCanUserOperateOperation::ViewWorkflow,
-		$GLOBALS["USER"]->GetID(),
-		$arParams["DOCUMENT_ID"],
-		array(
-			"DocumentStates" => $arDocumentStates,
-			"WorkflowId" => $arDocumentState["ID"]))):
+	elseif (
+		!CBPDocument::CanUserOperateDocument(
+			CBPCanUserOperateOperation::ViewWorkflow,
+			$GLOBALS['USER']->GetID(),
+			$arParams['DOCUMENT_ID'],
+			[
+				'DocumentStates' => $arDocumentStates,
+				'WorkflowId' => $arDocumentState['ID'],
+			]
+		)
+	):
 		continue;
 	endif;
 
-	$arTasks = CBPDocument::GetUserTasksForWorkflow($USER->GetID(), $arDocumentState["ID"]);
-	$arEvents = CBPDocument::GetAllowableEvents($USER->GetID(), $arParams["USER_GROUPS"], $arDocumentState);
+	$arTasks = CBPDocument::GetUserTasksForWorkflow($USER->GetID(), $arDocumentState['ID']);
+	$arEvents = CBPDocument::GetAllowableEvents($USER->GetID(), $arParams['USER_GROUPS'], $arDocumentState, true);
 
 	$arDocumentState['EVENTS'] = $arEvents;
 	$arDocumentState['TASKS'] = $arTasks;
-	$arDocumentState['STATE_MODIFIED_FORMATTED'] = FormatDateFromDB($arDocumentState["STATE_MODIFIED"]);
+	$arDocumentState['STATE_MODIFIED_FORMATTED'] = FormatDateFromDB($arDocumentState['STATE_MODIFIED']);
 
 	$workflows[] = $arDocumentState;
 }
@@ -161,7 +165,7 @@ foreach ($arDocumentStates as $arDocumentState)
 		});
 
 		var baseNode = document.querySelector('[data-role="bizproc-document-base"]');
-		var config = <?=\Bitrix\Main\Web\Json::encode(array(
+		var config = <?=\Bitrix\Main\Web\Json::encode([
 			'serviceUrl' => '/bitrix/components/bitrix/bizproc.document/ajax.php',
 			'moduleId' => $arParams["DOCUMENT_ID"][0],
 			'entity' => $arParams["DOCUMENT_ID"][1],
@@ -169,7 +173,7 @@ foreach ($arDocumentStates as $arDocumentState)
 			'documentType' => $arParams["DOCUMENT_TYPE"][2],
 			'canTerminate' => $arParams["StartWorkflowPermission"] == "Y",
 			'canKill' => $arParams["DropWorkflowPermission"] == "Y",
-		))?>;
+		])?>;
 		var workflows = <?=\Bitrix\Main\Web\Json::encode($workflows)?>;
 
 		if (baseNode)

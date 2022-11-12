@@ -1,0 +1,13 @@
+.ui-entity-catalog__menu {
+	position: relative;
+	z-index: 2;
+	margin: 0;
+	padding: 0;
+	list-style: none outside none;
+	border-radius: var(--ui-border-radius-sm, 8px);
+	overflow: hidden;
+}
+
+.ui-entity-catalog__menu:not(.ui-entity-catalog__menu:first-of-type) {
+	margin-top: 14px;
+}

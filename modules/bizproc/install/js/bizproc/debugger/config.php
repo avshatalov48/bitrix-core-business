@@ -23,6 +23,7 @@ return [
 		'bizproc.automation',
 		'bizproc.debugger',
 		'pull.client',
+		'bizproc.local-settings',
 		'main.core.events',
 		'main.core',
 		'ui.tour',

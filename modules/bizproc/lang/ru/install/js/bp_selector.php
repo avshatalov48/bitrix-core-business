@@ -54,3 +54,4 @@ $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_SHUFFLE_DESCRIPTION"] = "Перемеши
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_FIRSTVALUE_DESCRIPTION"] = "Возвращает первое значение множественного поля";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_SWIRL_DESCRIPTION"] = "Перемещает первое значение множественного поля в конец";
 $MESS["BIZPROC_JS_BP_SELECTOR_FUNCTION_GETDOCUMENTURL_DESCRIPTION"] = "Возвращает ссылку на текущий документ";
+$MESS['BIZPROC_JS_BP_SELECTOR_FUNCTION_TRIM_DESCRIPTION'] = 'Удаляет пробелы из начала и конца строки';

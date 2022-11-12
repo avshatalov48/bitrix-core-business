@@ -67,6 +67,7 @@ html {
 .no-background .ui-side-panel-wrap-workarea {
 	background-color: transparent !important;
 	opacity: unset;
+	border-radius: unset;
 }
 
 .ui-slider-page {

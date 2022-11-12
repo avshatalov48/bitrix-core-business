@@ -1,26 +1,32 @@
 <?php
 
-use Bitrix\Main;
-use Bitrix\Rest;
-
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
-$arActivityDescription = array(
-	"NAME" => GetMessage("BPWHA_DESCR_NAME"),
-	"DESCRIPTION" => GetMessage("BPWHA_DESCR_DESCR"),
-	"TYPE" => array('activity', 'robot_activity'),
-	"CLASS" => "WebHookActivity",
-	"JSCLASS" => "BizProcActivity",
-	"CATEGORY" => array(
-		"ID" => "other",
-	),
-	"ROBOT_SETTINGS" => array(
-		'CATEGORY' => 'other'
-	),
-);
+use Bitrix\Main;
+use Bitrix\Rest;
+use Bitrix\Main\Localization\Loc;
+
+$arActivityDescription = [
+	'NAME' => Loc::getMessage('BPWHA_DESCR_NAME_1'),
+	'DESCRIPTION' => Loc::getMessage('BPWHA_DESCR_DESCR_1'),
+	'TYPE' => ['activity', 'robot_activity'],
+	'CLASS' => 'WebHookActivity',
+	'JSCLASS' => 'BizProcActivity',
+	'CATEGORY' => [
+		'ID' => 'other',
+	],
+	'ROBOT_SETTINGS' => [
+		'CATEGORY' => 'other',
+		'GROUP' => ['other'],
+		'ASSOCIATED_TRIGGERS' => [
+			'WEBHOOK' => 1,
+		],
+		'SORT' => 4000,
+	],
+];
 
 if (
 	!Main\Loader::includeModule('rest')

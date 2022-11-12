@@ -54,9 +54,9 @@ class CleanEthalon
 	{
 		if ($this->isNewProcess)
 		{
-			$pathList = preg_split("/[\r\n]+/", $pathList);
-			array_walk($pathList, 'trim');
-			$pathList = array_unique(array_filter($pathList));
+			$pathList = \preg_split("/[\r\n]+/", $pathList);
+			\array_walk($pathList, 'trim');
+			$pathList = \array_unique(\array_filter($pathList));
 
 			if (empty($pathList))
 			{
@@ -69,7 +69,7 @@ class CleanEthalon
 
 			foreach ($pathList as $testPath)
 			{
-				if (mb_substr($testPath, -4) === '.php')
+				if (\mb_substr($testPath, -4) === '.php')
 				{
 					if (Translate\IO\Path::isLangDir($testPath))
 					{
@@ -89,11 +89,11 @@ class CleanEthalon
 					else
 					{
 						// load lang folders
-						$pathFilter = array();
+						$pathFilter = [];
 						$pathFilter[] = array(
 							'LOGIC' => 'OR',
-							'=PATH' => rtrim($testPath, '/'),
-							'=%PATH' => rtrim($testPath, '/'). '/%'
+							'=PATH' => \rtrim($testPath, '/'),
+							'=%PATH' => \rtrim($testPath, '/'). '/%'
 						);
 						$pathLangRes = Index\Internals\PathLangTable::getList(array(
 							'filter' => $pathFilter,
@@ -108,7 +108,7 @@ class CleanEthalon
 				}
 			}
 
-			$this->totalItems = count($this->pathList);
+			$this->totalItems = \count($this->pathList);
 			$this->processedItems = 0;
 
 			if ($this->totalItems == 0)
@@ -135,12 +135,12 @@ class CleanEthalon
 	private function runClearing()
 	{
 		$processedItemCount = 0;
-		for ($pos = ((int)$this->seekOffset > 0 ? (int)$this->seekOffset : 0), $total = count($this->pathList); $pos < $total; $pos ++)
+		for ($pos = ((int)$this->seekOffset > 0 ? (int)$this->seekOffset : 0), $total = \count($this->pathList); $pos < $total; $pos ++)
 		{
 			$testPath = $this->pathList[$pos];
 
 			// file
-			if (mb_substr($testPath, -4) === '.php')
+			if (\mb_substr($testPath, -4) === '.php')
 			{
 				$this->cleanLangFile($testPath);
 			}
@@ -148,7 +148,7 @@ class CleanEthalon
 			// folder
 			else
 			{
-				if (mb_substr($testPath, -5) === '/lang')
+				if (\mb_substr($testPath, -5) === '/lang')
 				{
 					$testPath .= '/#LANG_ID#';
 				}

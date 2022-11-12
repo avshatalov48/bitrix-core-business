@@ -153,6 +153,12 @@ this.BX = this.BX || {};
 	}(main_core_events.BaseEvent);
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9;
+
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var aliases = {
 	  onPopupWindowInit: {
 	    namespace: 'BX.Main.Popup',
@@ -224,6 +230,10 @@ this.BX = this.BX || {};
 	 * @memberof BX.Main
 	 */
 
+	var _disableScroll = /*#__PURE__*/new WeakSet();
+
+	var _enableScroll = /*#__PURE__*/new WeakSet();
+
 	var Popup = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Popup, _EventEmitter);
 	  babelHelpers.createClass(Popup, null, [{
@@ -263,6 +273,10 @@ this.BX = this.BX || {};
 
 	    babelHelpers.classCallCheck(this, Popup);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Popup).call(this));
+
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _enableScroll);
+
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _disableScroll);
 
 	    _this.setEventNamespace('BX.Main.Popup');
 
@@ -313,6 +327,7 @@ this.BX = this.BX || {};
 	    _this.titleBar = null;
 	    _this.bindOptions = babelHelpers["typeof"](params.bindOptions) === 'object' ? params.bindOptions : {};
 	    _this.autoHide = params.autoHide === true;
+	    _this.isScrollBlock = params.isScrollBlock === true;
 	    _this.autoHideHandler = main_core.Type.isFunction(params.autoHideHandler) ? params.autoHideHandler : null;
 	    _this.handleAutoHide = _this.handleAutoHide.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.handleOverlayClick = _this.handleOverlayClick.bind(babelHelpers.assertThisInitialized(_this));
@@ -1494,6 +1509,10 @@ this.BX = this.BX || {};
 	      } else {
 	        this.bindAutoHide();
 	      }
+
+	      if (this.isScrollBlock) {
+	        _classPrivateMethodGet(this, _disableScroll, _disableScroll2).call(this);
+	      }
 	    }
 	  }, {
 	    key: "close",
@@ -1510,6 +1529,10 @@ this.BX = this.BX || {};
 
 	      if (this.isDestroyed()) {
 	        return;
+	      }
+
+	      if (this.isScrollBlock) {
+	        _classPrivateMethodGet(this, _enableScroll, _enableScroll2).call(this);
 	      }
 
 	      this.animateClosing(function () {
@@ -1645,6 +1668,10 @@ this.BX = this.BX || {};
 
 	      if (this.destroyed) {
 	        return;
+	      }
+
+	      if (this.isScrollBlock) {
+	        _classPrivateMethodGet(this, _enableScroll, _enableScroll2).call(this);
 	      }
 
 	      this.destroyed = true;
@@ -2032,6 +2059,14 @@ this.BX = this.BX || {};
 	  }]);
 	  return Popup;
 	}(main_core_events.EventEmitter);
+
+	function _disableScroll2() {
+	  main_core.Dom.addClass(document.body, 'popup-no-scroll');
+	}
+
+	function _enableScroll2() {
+	  main_core.Dom.removeClass(document.body, 'popup-no-scroll');
+	}
 
 	babelHelpers.defineProperty(Popup, "options", {});
 	babelHelpers.defineProperty(Popup, "defaultOptions", {

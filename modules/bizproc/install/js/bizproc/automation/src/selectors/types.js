@@ -26,5 +26,7 @@ export type ConditionSelectorOptions = {
 	fields: Array<object>,
 	joiner: string,
 	fieldPrefix: string,
+	rootGroupTitle: ?string,
+	onOpenFieldMenu?: (BaseEvent) => void,
 	onOpenMenu?: (BaseEvent) => void,
 }

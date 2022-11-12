@@ -7,6 +7,8 @@
 # mailto:admin@bitrixsoft.com				#
 #############################################
 
+use Bitrix\Vote;
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllVoteAnswer
@@ -20,6 +22,7 @@ class CAllVoteAnswer
 	public static function CheckFields($ACTION, &$arFields, $ID = 0)
 	{
 		global $APPLICATION;
+		global $USER;
 		$aMsg = array();
 		$ID = intval($ID);
 		$ACTION = ($ID > 0 && $ACTION == "UPDATE" ? "UPDATE" : "ADD");
@@ -33,16 +36,18 @@ class CAllVoteAnswer
 					"text" => GetMessage("VOTE_FORGOT_QUESTION_ID"));
 			endif;
 		endif;
-		
-		if (is_set($arFields, "MESSAGE") || $ACTION == "ADD"):
-			//$arFields["MESSAGE"] = trim($arFields["MESSAGE"]);
-			$arFields["MESSAGE"] = ($arFields["MESSAGE"] != ' ') ? trim($arFields["MESSAGE"]):' ';
-			if ($arFields["MESSAGE"] == ''):
-				$aMsg[] = array(
-					"id" => "MESSAGE", 
-					"text" => GetMessage("VOTE_FORGOT_MESSAGE"));
-			endif;
-		endif;
+
+		if (isset($arFields["MESSAGE"]) || $ACTION == "ADD")
+		{
+			if (!$USER || $USER->CanDoOperation('edit_php') !== true)
+			{
+				$arFields["MESSAGE"] = Vote\Inner\Sanitizer::cleanText($arFields["MESSAGE"]);
+			}
+			if ($arFields["MESSAGE"] === "")
+			{
+				$aMsg[] = ["id" => "MESSAGE", "text" => GetMessage("VOTE_FORGOT_MESSAGE")];
+			}
+		}
 
 		if (array_key_exists("IMAGE_ID", $arFields))
 		{
@@ -73,8 +78,14 @@ class CAllVoteAnswer
 		if (is_set($arFields, "FIELD_TYPE") || $ACTION == "ADD") $arFields["FIELD_TYPE"] = intval($arFields["FIELD_TYPE"]);
 		if (is_set($arFields, "FIELD_WIDTH") || $ACTION == "ADD") $arFields["FIELD_WIDTH"] = intval($arFields["FIELD_WIDTH"]);
 		if (is_set($arFields, "FIELD_HEIGHT") || $ACTION == "ADD") $arFields["FIELD_HEIGHT"] = intval($arFields["FIELD_HEIGHT"]);
-		
-		if (is_set($arFields, "FIELD_PARAM") || $ACTION == "ADD") $arFields["FIELD_PARAM"] = mb_substr(trim($arFields["FIELD_PARAM"]), 0, 255)?: "";
+
+		if (isset($arFields["FIELD_PARAM"]))
+		{
+			$arFields["FIELD_PARAM"] = ((!$USER || $USER->CanDoOperation('edit_php') !== true)
+				? '' : trim($arFields["FIELD_PARAM"]))
+			;
+		}
+
 		if (is_set($arFields, "COLOR") || $ACTION == "ADD") $arFields["COLOR"] = mb_substr(trim($arFields["COLOR"]), 0, 7)?: "";
 		
 		if(!empty($aMsg))

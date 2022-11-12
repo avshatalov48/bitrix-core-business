@@ -54,9 +54,9 @@ class ExportFileList
 
 		// part of the path after /lang/
 		$subPath = '';
-		if (preg_match("#(.+/lang)(/?\w*)#", $path, $matches))
+		if (\preg_match("#(.+/lang)(/?\w*)#", $path, $matches))
 		{
-			if (preg_match("#(.+/lang/[^/]+/?)(.*)$#", $path, $subMatches))
+			if (\preg_match("#(.+/lang/[^/]+/?)(.*)$#", $path, $subMatches))
 			{
 				$subPath = $subMatches[2];
 			}
@@ -103,8 +103,8 @@ class ExportFileList
 	 */
 	private function runExporting(array $params)
 	{
-		$path = rtrim($params['path'], '/');
-		$subPath = trim($params['subPath'], '/');
+		$path = \rtrim($params['path'], '/');
+		$subPath = \trim($params['subPath'], '/');
 
 		$csvFile = new Translate\IO\CsvFile($this->exportFilePath);
 		$this->configureExportCsvFile($csvFile);

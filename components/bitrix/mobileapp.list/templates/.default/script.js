@@ -26,7 +26,8 @@ __MobileAppList.prototype.getItemsHtml = function(arItem, insertToBottom)
 
 	postData = {
 		ajax_mode: 'Y',
-		items: arItem
+		items: arItem,
+		sessid: BX.bitrix_sessid()
 	};
 
 	app.showPopupLoader({"text":"getting items html"});

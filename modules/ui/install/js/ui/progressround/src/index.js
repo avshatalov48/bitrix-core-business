@@ -7,6 +7,8 @@ import ProgressRoundStatus from './progressround-status';
 
 export {
 	ProgressRound,
+	ProgressRoundColor,
+	ProgressRoundStatus
 };
 
 const UI = Reflection.namespace('BX.UI');

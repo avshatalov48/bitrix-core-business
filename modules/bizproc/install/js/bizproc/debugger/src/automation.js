@@ -3,7 +3,7 @@ import Session from './session/session';
 import {ajax, Loc, Type, Text, Reflection} from "main.core";
 import {BaseEvent, EventEmitter} from "main.core.events";
 import AutomationLogView from "./views/automation-log";
-import Settings from "./settings";
+import { Settings } from 'bizproc.local-settings';
 import {MessageBox, MessageBoxButtons} from "ui.dialogs.messagebox";
 import {Manager} from "./index";
 import { setGlobalContext, getGlobalContext, Context, Document, WorkflowStatus } from 'bizproc.automation';

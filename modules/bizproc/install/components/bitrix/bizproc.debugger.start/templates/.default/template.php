@@ -93,9 +93,15 @@ $activeSessionData = $activeSession ? $activeSession->toArray() : null;
 <script>
 	BX.ready(function()
 	{
+		BX.message({
+			'BIZPROC_DEBUGGER_START_TEMPLATE_FINISH': '<?= GetMessageJS('BIPZROC_DEBUGGER_START_TEMPLATE_FINISH') ?>',
+			'BIZPROC_DEBUGGER_START_TEMPLATE_START': '<?= GetMessageJS('BIPZROC_DEBUGGER_START_TEMPLATE_START') ?>'
+		});
+
 		const component =  new BX.Bizproc.Component.DebuggerStartComponent({
 			documentSigned: <?= CUtil::PhpToJSObject($arResult['documentSigned']) ?>,
-			activeSession: <?= CUtil::PhpToJSObject($activeSessionData) ?>
+			activeSession: <?= CUtil::PhpToJSObject($activeSessionData) ?>,
+			currentUserId: "<?= CUtil::JSEscape($arResult['currentUserId'])?>",
 		});
 
 		component.init();

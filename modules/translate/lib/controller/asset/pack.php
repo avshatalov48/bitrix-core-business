@@ -63,7 +63,7 @@ class Pack
 
 		parent::__construct($name, $controller, $config);
 
-		self::$documentRoot = rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
+		self::$documentRoot = \rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
 	}
 
 	/**
@@ -191,8 +191,8 @@ class Pack
 
 				$messagePlaceholders = array(
 					'#TOTAL_FILES#' => $this->processedItems,
-					'#FILE_SIZE_FORMAT#' => \CFile::FormatSize($this->downloadParams['fileSize']),
-					'#LANG#' => mb_strtoupper($this->languageId),
+					'#FILE_SIZE_FORMAT#' => \CFile::formatSize($this->downloadParams['fileSize']),
+					'#LANG#' => \mb_strtoupper($this->languageId),
 					'#FILE_PATH#' => $this->archiveFileName,
 					'#LINK#' => $result['DOWNLOAD_LINK'],
 				);

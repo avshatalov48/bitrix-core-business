@@ -51,6 +51,7 @@ class BizprocDebuggerStartComponent extends CBitrixComponent
 		$this->arResult = [
 			'activeSession' => \Bitrix\Bizproc\Debugger\Session\Manager::getActiveSession(),
 			'documentSigned' => $this->arParams['~DOCUMENT_SIGNED'],
+			'currentUserId' => (int)(\Bitrix\Main\Engine\CurrentUser::get()->getId()),
 		];
 
 		return $this->includeComponentTemplate();

@@ -349,7 +349,7 @@ $APPLICATION->IncludeComponent(
 $filterLayout = ob_get_clean();
 
 $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' => array(
-	array('type' => 'filter', 'content' => $filterLayout),
+
 	array('type' => 'buttons', 'list' => [
 		$arParams['CAN_EDIT']
 			?
@@ -362,6 +362,7 @@ $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' 
 			:
 			null
 	]),
+	array('type' => 'filter', 'content' => $filterLayout),
 )));
 
 

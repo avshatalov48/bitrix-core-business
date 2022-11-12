@@ -30,13 +30,13 @@ if($mobileAction != '')
 	switch ($mobileAction)
 	{
 		case "checkout": //this is authorization checkout, !do not delete!
-			include(dirname(__FILE__)."/actions/checkout.php");
+			include(__DIR__."/actions/checkout.php");
 			break;
 		case "logout":
-			include(dirname(__FILE__)."/actions/logout.php");
+			include(__DIR__."/actions/logout.php");
 			break;
 		case "save_device_token":
-			include(dirname(__FILE__)."/actions/save_device_token.php");
+			include(__DIR__."/actions/save_device_token.php");
 			break;
 	}
 

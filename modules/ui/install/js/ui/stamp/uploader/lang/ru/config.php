@@ -1,0 +1,19 @@
+<?php
+$MESS['UI_STAMP_UPLOADER_HEADER_TITLE'] = 'Печать для:';
+$MESS['UI_STAMP_UPLOADER_HEADER_CHANGE_CONTACT_BUTTON_LABEL'] = 'Сменить';
+$MESS['UI_STAMP_UPLOADER_DROPZONE_HEADER'] = 'Загрузите изображение печати';
+$MESS['UI_STAMP_UPLOADER_DROPZONE_TEXT'] = 'Можно просто перетащить файлы сюда';
+$MESS['UI_STAMP_UPLOADER_CROP_BUTTON_LABEL'] = 'Обрезать';
+$MESS['UI_STAMP_UPLOADER_UPLOAD_STATUS_TEXT'] = 'Загрузка файла';
+$MESS['UI_STAMP_UPLOADER_UPLOAD_STATUS_PERCENT'] = '{{number}} %';
+$MESS['UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE'] = '{{number}} {{text}}';
+$MESS['UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE_B'] = 'Б';
+$MESS['UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE_KB'] = 'Кб';
+$MESS['UI_STAMP_UPLOADER_UPLOAD_STATUS_SIZE_MB'] = 'Мб';
+$MESS['UI_STAMP_UPLOADER_PREPARING_STATUS'] = 'Обрабатываем';
+$MESS['UI_STAMP_UPLOADER_SLIDER_MESSAGE_TITLE'] = 'Печать';
+$MESS['UI_STAMP_UPLOADER_SLIDER_MESSAGE_DESCRIPTION'] = 'Загрузите изображение печати один раз и используйте при подписании других документов. Изображение автоматически обработается искусственным интеллектом.';
+$MESS['UI_STAMP_UPLOADER_PREVIEW_TITLE'] = 'Нажмите, чтобы загрузить другое изображение';
+$MESS['UI_STAMP_UPLOADER_TAKE_PHOTO_BUTTON_LABEL'] = 'Сделать фото телефоном';
+$MESS['UI_STAMP_UPLOADER_SELECT_PHOTO_BUTTON_LABEL'] = 'Загрузить фото';
+$MESS['UI_STAMP_UPLOADER_SAVE_BUTTON_LABEL'] = 'Сохранить';

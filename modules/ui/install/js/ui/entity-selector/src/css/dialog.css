@@ -51,11 +51,32 @@
 	}
 }
 
+.ui-selector-header-container {
+	font-size: 14px;
+}
+
+.ui-selector-header {
+	display: none;
+}
+
+.ui-selector-header--show {
+	display: block;
+}
+
+.ui-selector-header-default {
+	align-items: center;
+	display: flex;
+	height: 52px;
+	margin: 0 17px 0 20px;
+	overflow: hidden;
+	white-space: nowrap;
+	color: #525c69;
+	border-bottom: 1px solid rgba(82, 92, 105, 0.1);
+}
 
 .ui-selector-footer-container {
 
 }
-
 
 .ui-selector-footer {
 	display: none;

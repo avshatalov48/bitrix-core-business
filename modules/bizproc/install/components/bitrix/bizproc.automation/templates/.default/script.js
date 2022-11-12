@@ -78,16 +78,22 @@
 			this.initSelectors();
 			this.fixTitleColors();
 
+			this.initRobotSelector();
+
 			if (!this.embeddedMode)
 			{
-				window.onbeforeunload = function()
+				window.onbeforeunload = () =>
 				{
-					if (me.templateManager.needSave() || me.triggerManager.needSave())
+					if (this.isNeedSave())
 					{
 						return BX.message('BIZPROC_AUTOMATION_CMP_NEED_SAVE');
 					}
 				};
 			}
+		},
+		isNeedSave: function()
+		{
+			return this.templateManager.needSave() || this.triggerManager.needSave();
 		},
 		initData: function()
 		{
@@ -464,6 +470,11 @@
 		},
 		initButtons: function()
 		{
+			if (BX.Bizproc.Automation.ViewMode.fromRaw(this.viewMode).isEdit())
+			{
+				this.initAddButtons();
+			}
+
 			var buttonsNode = this.node.querySelector('[data-role="automation-buttons"]');
 
 			if (buttonsNode)
@@ -472,6 +483,48 @@
 				this.bindCancelButton();
 			}
 			this.bindCreationButton();
+		},
+		initAddButtons: function () {
+			const addButtonNodes = this.node.querySelectorAll('[data-role="add-button-container"]');
+			const self = this;
+
+			addButtonNodes.forEach(function (node)
+			{
+				const template = self.templateManager.getTemplateByStatusId(node.dataset.statusId);
+				if (!template)
+				{
+					return;
+				}
+
+				const btnAddNode = BX.Dom.create('span', {
+					events: {
+						click: () => {
+							if (self.canEdit())
+							{
+								self.robotSelector.setStageId(node.dataset.statusId);
+								self.robotSelector.show();
+							}
+							else
+							{
+								BX.Bizproc.Automation.HelpHint.showNoPermissionsHint(btnAddNode);
+							}
+						}
+					},
+					attrs: {
+						className: 'bizproc-automation-robot-btn-add',
+					},
+					children: [
+						BX.Dom.create('span', {
+							attrs: {
+								className: 'bizproc-automation-btn-add-text',
+							},
+							text: BX.Loc.getMessage('BIZPROC_AUTOMATION_CMP_ADD')
+						})
+					]
+				});
+
+				BX.Dom.append(btnAddNode, node);
+			});
 		},
 		initButtonsPosition: function()
 		{
@@ -696,78 +749,27 @@
 		},
 		bindCreationButton: function()
 		{
-			var me = this, button = this.node.querySelector('[data-role="automation-btn-create"]');
+			const me = this;
+			const button = this.node.querySelector('[data-role="automation-btn-create"]');
 
 			if (button)
 			{
 				if (me.canEdit())
 				{
-					BX.bind(button, 'click', function(e)
-					{
-						e.preventDefault();
-
-						if (me.viewMode === Component.ViewMode.View)
-						{
-							me.changeViewMode(Component.ViewMode.Edit);
-						}
-
-						var items = [
-							{
-								text: BX.message('BIZPROC_AUTOMATION_CMP_CREATE_ROBOT'),
-								onclick: function(e) {
-									this.popupWindow.close();
-
-									var robotData = BX.clone(
-										me.templateManager.getRobotDescription('SocNetMessageActivity')
-									);
-
-									if (robotData['ROBOT_SETTINGS'] && robotData['ROBOT_SETTINGS']['TITLE'])
-									{
-										robotData['NAME'] = robotData['ROBOT_SETTINGS']['TITLE'];
-									}
-
-									var template = me.templateManager.templates[0];
-
-									template.addRobot(robotData, function(robot)
-									{
-										this.openRobotSettingsDialog(robot);
-									});
-								}
-							}
-						];
-
-						if (BX.type.isArray(me.data.AVAILABLE_TRIGGERS) && me.data.AVAILABLE_TRIGGERS.length)
-						{
-							items.push({
-								text: BX.message('BIZPROC_AUTOMATION_CMP_CREATE_TRIGGER'),
-								onclick: function(e) {
-									this.popupWindow.close();
-
-									me.triggerManager.addTrigger(
-										{
-											DOCUMENT_STATUS: me.document.getSortedStatusId(0),
-											CODE: me.data.AVAILABLE_TRIGGERS[0].CODE
-										}, function(trigger)
-										{
-											this.openTriggerSettingsDialog(trigger);
-										}
-									);
-								}
-							});
-						}
-
-						BX.PopupMenu.show(
-							BX.Bizproc.Automation.Helper.generateUniqueId(),
-							button,
-							items,
-							{
-								autoHide: true,
-								offsetLeft: (BX.pos(button)['width'] / 2),
-								angle: true
-							}
-						);
-
+					BX.bind(button, 'click', () => {
+						this.robotSelector.setStageId(this.templateManager.templates[0].getStatusId());
+						this.robotSelector.show();
 					});
+
+					const settings = new BX.Bizproc.LocalSettings.Settings('aut-cmp');
+					if (settings.get('beginning-guide-shown') !== true)
+					{
+						(new BX.Bizproc.Automation.BeginningGuide({
+							target: button,
+						})).start();
+					}
+
+					settings.set('beginning-guide-shown', true);
 				}
 			}
 		},
@@ -903,7 +905,7 @@
 		},
 		changeViewMode: function(mode, silent)
 		{
-			if (!silent && (this.templateManager.needSave() || this.triggerManager.needSave()))
+			if (!silent && this.isNeedSave())
 			{
 				alert(BX.message('BIZPROC_AUTOMATION_CMP_NEED_SAVE'));
 				return;
@@ -920,7 +922,7 @@
 		},
 		enableManageMode: function (status)
 		{
-			if (!this.templateManager.needSave() && !this.triggerManager.needSave())
+			if (!this.isNeedSave())
 			{
 				this.viewMode = Component.ViewMode.Manage;
 				this.templateManager.enableManageMode(status);
@@ -937,6 +939,7 @@
 		{
 			modified = modified !== false;
 
+			const addingRobots = this.robotSelector && this.robotSelector.isShown();
 			var buttonsNode = this.node.querySelector('[data-role="automation-buttons"]');
 
 			if (!buttonsNode)
@@ -946,7 +949,10 @@
 
 			if (modified && this.canEdit() && this.viewMode === Component.ViewMode.Edit)
 			{
-				BX.show(buttonsNode);
+				if (!addingRobots)
+				{
+					BX.show(buttonsNode);
+				}
 			}
 			else
 			{
@@ -1073,6 +1079,195 @@
 		getDocumentFields: function ()
 		{
 			return this.document.getFields();
+		},
+
+		initRobotSelector()
+		{
+			if (!this.robotSelector)
+			{
+				const self = this;
+				const settings = new BX.Bizproc.LocalSettings.Settings('aut-cmp');
+
+				const automationGuide = new BX.Bizproc.Automation.AutomationGuide({
+					isShownRobotGuide: settings.get('robot-guide-shown') === true,
+					isShownTriggerGuide: settings.get('trigger-guide-shown') === true,
+				});
+
+				this.robotSelector = new BX.Bizproc.Automation.RobotSelector({
+					context: BX.Bizproc.Automation.getGlobalContext(),
+					stageId: this.templateManager.templates[0].getStatusId(),
+					events: {
+						robotSelected: (event) => {
+							if (!this.canEdit())
+							{
+								return;
+							}
+
+							const item = event.getData().item;
+							const stageId = event.getData().stageId;
+							const robotData = BX.Runtime.clone(item.customData.robotData);
+							const originalEvent = event.getData().originalEvent;
+
+							robotData.NAME = item.title;
+							robotData.DIALOG_CONTEXT = {addMenuGroup: item.groupIds[0]};
+
+							const template = this.templateManager.getTemplateByStatusId(stageId);
+							if (!template)
+							{
+								return;
+							}
+
+							if (!template.isExternalModified())
+							{
+								template.addRobot(robotData, (robot) => {
+									const setShowRobotGuide =
+										BX.Type.isBoolean(robotData['ROBOT_SETTINGS']['IS_SUPPORTING_ROBOT'])
+											? 'setShowSupportingRobotGuide'
+											: 'setShowRobotGuide'
+									;
+									automationGuide[setShowRobotGuide](true, robot.node);
+
+									this.notifyAboutNewRobot(template, robot);
+
+									if (originalEvent.ctrlKey || originalEvent.metaKey)
+									{
+										self.robotSelector.close();
+										template.openRobotSettingsDialog(robot);
+									}
+								});
+							}
+							else
+							{
+								this.showNotification({
+									content: BX.message('BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_STAGE_TEXT')
+								});
+							}
+						},
+						triggerSelected: (event) => {
+							if (!this.canEdit())
+							{
+								return;
+							}
+
+							const item = event.getData().item;
+							const stageId = event.getData().stageId;
+							const triggerData = BX.Runtime.clone(item.customData.triggerData);
+							const originalEvent = event.getData().originalEvent;
+
+							triggerData['DOCUMENT_STATUS'] = stageId;
+
+							this.triggerManager.addTrigger(triggerData, (trigger) => {
+								trigger.setName(item.title);
+								this.triggerManager.insertTriggerNode(stageId, trigger.node);
+								this.triggerManager.insertTrigger(trigger);
+
+								automationGuide.setShowTriggerGuide(true, trigger.node);
+
+								this.notifyAboutNewTrigger(trigger);
+
+								if (originalEvent.ctrlKey || originalEvent.metaKey)
+								{
+									self.robotSelector.close();
+									this.triggerManager.openTriggerSettingsDialog(trigger);
+								}
+							});
+						},
+						onAfterShow: () => {
+							BX.Dom.addClass(this.node, 'automation-base-blocked');
+						},
+						onAfterClose: () => {
+							BX.Dom.removeClass(this.node, 'automation-base-blocked');
+							if (this.isNeedSave())
+							{
+								this.markModified();
+							}
+
+							automationGuide.start();
+							settings.set('robot-guide-shown', automationGuide.isShownRobotGuide);
+							settings.set('trigger-guide-shown', automationGuide.isShownTriggerGuide);
+						}
+					}
+				});
+			}
+		},
+		notifyAboutNewRobot(template, robot)
+		{
+			const status = template.getStatus() ?? {};
+
+			const context = BX.Bizproc.Automation.getGlobalContext();
+			let messageId = 'BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_ROBOT_ADDED';
+			if (context.document.statusList.length > 1)
+			{
+				messageId += '_ON_STAGE';
+			}
+
+			this.showNotification({
+				content: BX.Loc.getMessage(
+					messageId,
+					{
+						'#ROBOT_NAME#': BX.Text.encode(robot.getTitle()),
+						'#STAGE_NAME#': BX.Text.encode(status.NAME || status.TITLE)
+					}
+				),
+				actions: [
+					{
+						title: BX.Loc.getMessage('JS_CORE_WINDOW_CANCEL'),
+						events: {
+							click: function (event, baloon)
+							{
+								event.preventDefault();
+								template.deleteRobot(robot);
+								robot.destroy();
+
+								baloon.close();
+							}
+						},
+					}
+				],
+			});
+		},
+		notifyAboutNewTrigger(trigger)
+		{
+			const self = this;
+			const status = trigger.getStatus() ?? {};
+
+			const context = BX.Bizproc.Automation.getGlobalContext();
+			let messageId = 'BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_TRIGGER_ADDED';
+			if (context.document.statusList.length > 1)
+			{
+				messageId += '_ON_STAGE';
+			}
+
+			this.showNotification({
+				content: BX.Loc.getMessage(
+					messageId,
+					{
+						'#TRIGGER_NAME#': BX.Text.encode(trigger.getName()),
+						'#STAGE_NAME#': BX.Text.encode(status.NAME || status.TITLE)
+					}
+				),
+				actions: [
+					{
+						title: BX.Loc.getMessage('JS_CORE_WINDOW_CANCEL'),
+						events: {
+							click: function (event, baloon)
+							{
+								event.preventDefault();
+								self.triggerManager.deleteTrigger(trigger);
+								BX.Dom.remove(trigger.node);
+
+								baloon.close();
+							}
+						}
+					}
+				]
+			});
+		},
+		showNotification(notificationOptions)
+		{
+			const defaultSettings = {autoHideDelay: 3000};
+
+			BX.UI.Notification.Center.notify(Object.assign(defaultSettings, notificationOptions));
 		},
 	};
 

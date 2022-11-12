@@ -51,7 +51,7 @@ $containerId = 'sender-start-container';
 	<? if (!empty($arResult['MESSAGES']['MARKETING']['TILES'])): ?>
 		<div class="sender-start-block">
 			<div class="sender-start-title">
-				<?= Loc::getMessage('SENDER_START_CREATE_AD') ?>
+				<?= Loc::getMessage('SENDER_START_CREATE_NEW_AD') ?>
 			</div>
 			<? $APPLICATION->IncludeComponent("bitrix:ui.tile.list", "", [
 				'ID' => 'sender-start-marketing',

@@ -19,6 +19,19 @@ interface AccessibleController
 
 	public function getUser(): AccessibleUser;
 
+	/**
+	 * Get filter for entity.
+	 *
+	 * The filter contains conditions that allow the user to see only what is available to him according to the granted rights.
+	 *
+	 * @param string $action
+	 * @param string $entityName recommended to use the name of the tablet class.
+	 * @param mixed $params
+	 *
+	 * @return array|null is filter not available - return null.
+	 */
+	public function getEntityFilter(string $action, string $entityName, $params = null): ?array;
+
 	public function checkByItemId(string $action, int $itemId = null, $params = null): bool;
 
 	public function check(string $action, AccessibleItem $item = null, $params = null): bool;

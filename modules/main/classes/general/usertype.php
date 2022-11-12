@@ -33,6 +33,7 @@ CModule::AddAutoloadClasses(
 		"CUserTypeFile" => "classes/general/usertypefile.php",
 		"CUserTypeEnum" => "classes/general/usertypeenum.php",
 		"CUserTypeIBlockSection" => "classes/general/usertypesection.php",
+		"CIBlockSectionEnum" => "classes/general/usertypesection.php",
 		"CUserTypeIBlockElement" => "classes/general/usertypeelement.php",
 		"CUserTypeStringFormatted" => "classes/general/usertypestrfmt.php",
 		"CUserTypeUrl" => "classes/general/usertypeurl.php",

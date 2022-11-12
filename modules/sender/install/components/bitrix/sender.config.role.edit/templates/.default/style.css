@@ -35,3 +35,7 @@
 .bx-sender-letter-field-input {
 	width: 100%;
 }
+
+.sender-config-role-container {
+	display: block!important;
+}

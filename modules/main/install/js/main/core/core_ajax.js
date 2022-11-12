@@ -35,7 +35,6 @@ other parameters:
 any of the default parameters can be overridden. defaults can be changed by BX.ajax.Setup() - for all further requests!
 */
 	},
-	ajax_session = null,
 	loadedScripts = {},
 	loadedScriptsQueue = [],
 	r = {
@@ -338,7 +337,7 @@ BX.ajax.getHostPort = function(protocol, host)
 	return "";
 };
 
-BX.ajax.__prepareOnload = function(scripts)
+BX.ajax.__prepareOnload = function(scripts, ajax_session)
 {
 	if (scripts.length > 0)
 	{
@@ -357,7 +356,7 @@ BX.ajax.__prepareOnload = function(scripts)
 	BX.CaptureEvents(window, 'load');
 };
 
-BX.ajax.__runOnload = function()
+BX.ajax.__runOnload = function(ajax_session)
 {
 	if (null != BX.ajax['onload_' + ajax_session])
 	{
@@ -447,31 +446,27 @@ BX.ajax.processRequestData = function(data, config)
 		break;
 	}
 
-	var bSessionCreated = false;
-	if (null == ajax_session)
+	if (styles.length > 0)
+	{
+		BX.loadCSS(styles);
+	}
+
+	let ajax_session = null;
+	if (config.emulateOnload)
 	{
 		ajax_session = parseInt(Math.random() * 1000000);
-		bSessionCreated = true;
+		BX.ajax.__prepareOnload(scripts, ajax_session);
 	}
 
-	if (styles.length > 0)
-		BX.loadCSS(styles);
-
-	if (config.emulateOnload)
-			BX.ajax.__prepareOnload(scripts);
-
-	var cb = BX.DoNothing;
-	if(config.emulateOnload || bSessionCreated)
+	const cb = BX.defer(function()
 	{
-		cb = BX.defer(function()
+		if (config.emulateOnload)
 		{
-			if (config.emulateOnload)
-				BX.ajax.__runOnload();
-			if (bSessionCreated)
-				ajax_session = null;
-			BX.onCustomEvent(config.xhr, 'onAjaxSuccessFinish', [config]);
-		});
-	}
+			BX.ajax.__runOnload(ajax_session);
+		}
+
+		BX.onCustomEvent(config.xhr, 'onAjaxSuccessFinish', [config]);
+	});
 
 	try
 	{

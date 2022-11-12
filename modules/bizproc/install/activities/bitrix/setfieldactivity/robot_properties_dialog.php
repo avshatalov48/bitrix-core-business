@@ -42,11 +42,6 @@ if ($dialog->getContext()['DOCUMENT_CATEGORY_ID'])
 
 			propertyType = documentFields[fieldId]['Type'];
 
-			if (propertyType === 'file')
-			{
-				continue;
-			}
-
 			menuItems.push({
 				text: BX.util.htmlspecialchars(documentFields[fieldId]['Name']),
 				fieldId: fieldId,

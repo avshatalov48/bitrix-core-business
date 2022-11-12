@@ -17,7 +17,17 @@ use Bitrix\Main\Web\Uri;
 
 class User extends EntityBase
 {
+	private const SELECT_FIELDS = [
+		'ID',
+		'NAME',
+		'LAST_NAME',
+		'LOGIN',
+		'PERSONAL_PHOTO',
+		'UF_DEPARTMENT',
+	];
+
 	private $isIntranetUser;
+	private static $modelsCache = [];
 
 	public function getType(): string
 	{
@@ -28,9 +38,9 @@ class User extends EntityBase
 	{
 		if ($this->model)
 		{
-			return (!empty($this->model->getName()) || !empty($this->model->getName()))
-				? $this->model->getName() . ' ' . $this->model->getLastName()
-				: $this->model->getLogin();
+			$name = trim($this->model->getName() . ' ' . $this->model->getLastName());
+
+			return $name ?: $this->model->getLogin();
 		}
 		return '';
 	}
@@ -70,7 +80,22 @@ class User extends EntityBase
 	{
 		if (!$this->model)
 		{
-			$this->model = UserTable::getById($this->id)->fetchObject();
+			if (array_key_exists($this->id, self::$modelsCache))
+			{
+				$this->model = self::$modelsCache[$this->id];
+			}
+			else
+			{
+				$this->model = UserTable::getList([
+					'select' => self::SELECT_FIELDS,
+					'filter' => [
+						'=ID' => $this->id,
+					],
+					'limit' => 1,
+				])->fetchObject();
+
+				self::$modelsCache[$this->id] = $this->model;
+			}
 		}
 	}
 
@@ -81,32 +106,39 @@ class User extends EntityBase
 
 	private function isIntranetUser()
 	{
-		if($this->isIntranetUser !== null)
+		if (isset($this->isIntranetUser))
 		{
 			return $this->isIntranetUser;
 		}
 
 		$this->isIntranetUser = false;
-		if(!Loader::includeModule('intranet'))
+
+		if ($this->model && Loader::includeModule('intranet'))
 		{
-			return false;
-		}
-		$queryUser = \CUser::getList(
-			'ID',
-			'ASC',
-			array(
-				'ID_EQUAL_EXACT' => $this->id,
-			),
-			array(
-				'FIELDS' => array('ID', 'EXTERNAL_AUTH_ID'),
-				'SELECT' => array('UF_DEPARTMENT', 'UF_USER_CRM_ENTITY'),
-			)
-		);
-		if ($user = $queryUser->fetch())
-		{
-			$this->isIntranetUser = !empty($user['UF_DEPARTMENT'][0]);
+			$this->isIntranetUser = !empty($this->model->getUfDepartment());
 		}
 
 		return $this->isIntranetUser;
+	}
+
+	/**
+	 * Preload user models.
+	 *
+	 * If you need to get information about many users, you need to use this method first.
+	 *
+	 * @param array $filter for `\Bitrix\Main\UserTable` tablet.
+	 *
+	 * @return void
+	 */
+	public static function preLoadModels(array $filter): void
+	{
+		$rows = UserTable::getList([
+			'select' => self::SELECT_FIELDS,
+			'filter' => $filter,
+		]);
+		while ($row = $rows->fetchObject())
+		{
+			self::$modelsCache[$row->getId()] = $row;
+		}
 	}
 }

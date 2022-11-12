@@ -779,10 +779,18 @@ class Command
 						$loadRestLang = true;
 						if ($row['BOT_ID'] <= 0 && $row['APP_ID'])
 						{
-							$res = \CBitrix24App::getList(array(), array('APP_ID' => $row['APP_ID']));
+							$res = \Bitrix\Rest\AppTable::getList([
+								'filter' => array('=CLIENT_ID' => $row['APP_ID']),
+							]);
 							if ($app = $res->fetch())
 							{
-								$row['CATEGORY'] = isset($app['APP_NAME'])? $app['APP_NAME']: $app['CODE'];
+								$row['CATEGORY'] = !empty($app['APP_NAME'])
+									? $app['APP_NAME']
+									: (!empty($app['APP_NAME_DEFAULT'])
+										? $app['APP_NAME_DEFAULT']
+										: $app['CODE']
+									)
+								;
 							}
 						}
 					}

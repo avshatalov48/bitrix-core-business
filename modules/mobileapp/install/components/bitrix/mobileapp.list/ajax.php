@@ -8,7 +8,7 @@ define('NO_LANG_FILES', true);
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
-if(!isset($_REQUEST["items"]) || !is_array($_REQUEST["items"]))
+if(!isset($_REQUEST["items"]) || !is_array($_REQUEST["items"]) || !check_bitrix_sessid())
 	die(false);
 
 $arParams = array(

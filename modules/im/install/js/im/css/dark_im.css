@@ -310,6 +310,16 @@
 .popup-window-dark .bx-messenger-popup-menu-item-text {
 	color: #fff;
 }
+
+.popup-window-dark .menu-popup-item-text {
+	color: #ececec;
+}
+
+.popup-window-dark .menu-popup-item-text:hover {
+	color: #ececec;
+	background-color: #4a4a4a;
+}
+
 .bx-messenger-dark .bx-messenger-popup-menu-item:hover,
 .popup-window-dark .bx-messenger-popup-menu-item:hover {
 	background-color: #4a4a4a;

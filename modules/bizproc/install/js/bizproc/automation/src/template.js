@@ -1,5 +1,4 @@
-import {Type, Dom, Loc, Reflection, Event, Runtime, Uri} from 'main.core';
-import { MenuManager } from 'main.popup';
+import {Type, Dom, Loc, Event, Runtime, Uri} from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import {
 	Context,
@@ -38,7 +37,6 @@ export class Template extends EventEmitter
 	#templateNode: ?Element;
 	#listNode: Element | undefined;
 	#buttonsNode: Element | undefined;
-	#topButtonsNode: Element | undefined;
 
 	#robots: Array<Robot>;
 	#data: Object;
@@ -103,11 +101,9 @@ export class Template extends EventEmitter
 			);
 			this.#listNode = this.#templateNode.querySelector('[data-role="robot-list"]');
 			this.#buttonsNode = this.#templateNode.querySelector('[data-role="buttons"]');
-			this.#topButtonsNode = this.#templateNode.querySelector('[data-role="top-buttons"]');
 
 			this.initRobots();
 			this.initButtons();
-			this.updateTopButtonsVisibility();
 
 			if (!this.isExternalModified() && this.canEdit())
 			{
@@ -125,7 +121,6 @@ export class Template extends EventEmitter
 	{
 		Dom.clean(this.#listNode);
 		Dom.clean(this.#buttonsNode);
-		Dom.clean(this.#topButtonsNode);
 
 		this.destroy();
 		this.init(data, viewMode);
@@ -210,6 +205,11 @@ export class Template extends EventEmitter
 		return this.#data.DOCUMENT_STATUS;
 	}
 
+	getStatus(): ?object
+	{
+		return this.#context.document.statusList.find(status => String(status.STATUS_ID) === this.getStatusId());
+	}
+
 	getTemplateId()
 	{
 		const id = parseInt(this.#data.ID);
@@ -223,17 +223,12 @@ export class Template extends EventEmitter
 		{
 			this.createExternalLocker();
 		}
-		else if (this.#viewMode.isEdit())
+		else if (this.#viewMode.isEdit() && this.getTemplateId() > 0)
 		{
-			this.createAddButton();
-
-			if (this.getTemplateId() > 0)
-			{
-				this.createConstantsEditButton();
-				this.createParametersEditButton();
-				this.createExternalEditTemplateButton();
-				this.createManageModeButton();
-			}
+			this.createConstantsEditButton();
+			this.createParametersEditButton();
+			this.createExternalEditTemplateButton();
+			this.createManageModeButton();
 		}
 	}
 
@@ -296,60 +291,6 @@ export class Template extends EventEmitter
 		this.#templateNode.querySelectorAll('.bizproc-automation-robot-container-wrapper').forEach(node => {
 			Dom.removeClass(node, 'bizproc-automation-robot-container-wrapper-draggable');
 		});
-	}
-
-	createAddButton()
-	{
-		const anchor = () => Dom.create('span', {
-			events: {
-				click: event => {
-					if (!this.canEdit())
-					{
-						HelpHint.showNoPermissionsHint(event.target);
-					}
-					else if (!this.#viewMode.isManage())
-					{
-						this.onAddButtonClick(event.target);
-					}
-				}
-			},
-			attrs: {
-				className: 'bizproc-automation-robot-btn-add'
-			},
-			children: [
-				Dom.create('span', {
-					attrs: {
-						className: 'bizproc-automation-btn-add-text',
-					},
-					text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_ADD'),
-				})
-			]
-		});
-
-		if (this.#topButtonsNode)
-		{
-			this.#topButtonsNode.appendChild(anchor());
-		}
-
-		if (this.#buttonsNode)
-		{
-			this.#buttonsNode.appendChild(anchor());
-		}
-	}
-
-	updateTopButtonsVisibility()
-	{
-		if (this.#topButtonsNode)
-		{
-			let fn = (this.#robots && this.#robots.length < 1) ? 'hide' : 'show';
-
-			if (this.isExternalModified())
-			{
-				fn = 'show';
-			}
-
-			BX[fn](this.#topButtonsNode);
-		}
 	}
 
 	createExternalEditTemplateButton(): undefined | boolean
@@ -487,15 +428,6 @@ export class Template extends EventEmitter
 
 	createExternalLocker()
 	{
-		if (this.#topButtonsNode)
-		{
-			this.#topButtonsNode.appendChild(
-				Dom.create('span', {
-					attrs: { className: 'bizproc-automation-robot-btn-prohibit' }
-				})
-			);
-		}
-
 		const div = Dom.create("div", {
 			attrs: {
 				className: "bizproc-automation-robot-container"
@@ -579,172 +511,6 @@ export class Template extends EventEmitter
 		}
 	}
 
-	onAddButtonClick(button, context)
-	{
-		const menuItems = {
-			employee: [],
-			client: [],
-			ads: [],
-			other: []
-		};
-		const availableRobots = this.#context.availableRobots;
-
-		if (!Type.isPlainObject(context))
-		{
-			context = {};
-		}
-
-		const self = this;
-		const menuItemClickHandler = function (event, item)
-		{
-			const robotData = BX.clone(item.robotData);
-
-			if (
-				robotData['ROBOT_SETTINGS']
-				&& robotData['ROBOT_SETTINGS']['TITLE_CATEGORY']
-				&& robotData['ROBOT_SETTINGS']['TITLE_CATEGORY'][item.category]
-			)
-			{
-				robotData['NAME'] = robotData['ROBOT_SETTINGS']['TITLE_CATEGORY'][item.category];
-			}
-			else if (robotData['ROBOT_SETTINGS'] && robotData['ROBOT_SETTINGS']['TITLE'])
-			{
-				robotData['NAME'] = robotData['ROBOT_SETTINGS']['TITLE'];
-			}
-
-			self.addRobot(robotData, function(robot)
-			{
-				context.ADD_MENU_CATEGORY = item.category;
-				this.openRobotSettingsDialog(robot, context);
-			});
-
-			this.getRootMenuWindow().close();
-		};
-
-		for (let i = 0; i < availableRobots.length; ++i)
-		{
-			if (availableRobots[i]['EXCLUDED'])
-			{
-				continue;
-			}
-			const settings =
-				Type.isPlainObject(availableRobots[i]['ROBOT_SETTINGS'])
-					? availableRobots[i]['ROBOT_SETTINGS']
-					: {}
-			;
-
-			let title = availableRobots[i].NAME;
-			if (settings['TITLE'])
-			{
-				title = settings['TITLE'];
-			}
-
-			let categories = [];
-			if (settings['CATEGORY'])
-			{
-				categories = Type.isArray(settings['CATEGORY']) ? settings['CATEGORY'] : [settings['CATEGORY']];
-			}
-
-			if (!categories.length)
-			{
-				categories.push('other');
-			}
-
-			for (let j = 0; j < categories.length; ++j)
-			{
-				if (!menuItems[categories[j]])
-				{
-					continue;
-				}
-
-				menuItems[categories[j]].push({
-					text: title,
-					robotData: availableRobots[i],
-					category: categories[j],
-					onclick: menuItemClickHandler,
-				});
-			}
-		}
-
-		if (menuItems['other'].length > 0)
-		{
-			menuItems['other'].push({delimiter: true});
-		}
-
-		if (Reflection.getClass('BX.rest.Marketplace'))
-		{
-			menuItems['other'].push({
-				text: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
-				onclick()
-				{
-					BX.rest.Marketplace.open({}, this.#context.get('marketplaceRobotCategory'));
-					this.getRootMenuWindow().close();
-				},
-			});
-		}
-		else
-		{
-			menuItems['other'].push({
-				text: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER_MARKETPLACE_2'),
-				href:
-					'/marketplace/category/%category%/'
-						.replace('%category%', this.#context.get('marketplaceRobotCategory')),
-				target: '_blank'
-			});
-		}
-
-		let menuId = button.getAttribute('data-menu-id');
-		if (!menuId)
-		{
-			menuId = Helper.generateUniqueId();
-			button.setAttribute('data-menu-id', menuId);
-		}
-
-		const rootMenuItems = [];
-		if (menuItems['employee'].length > 0)
-		{
-			rootMenuItems.push({
-				text: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_EMPLOYEE'),
-				items: menuItems['employee']
-			});
-		}
-		if (menuItems['client'].length > 0)
-		{
-			rootMenuItems.push({
-				text: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_CLIENT'),
-				items: menuItems['client']
-			});
-		}
-		if (menuItems['ads'].length > 0)
-		{
-			rootMenuItems.push({
-				text: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_ADS'),
-				items: menuItems['ads']
-			});
-		}
-		rootMenuItems.push({
-			text: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_CATEGORY_OTHER'),
-			items: menuItems['other']
-		});
-
-		MenuManager.show(
-			menuId,
-			button,
-			rootMenuItems,
-			{
-				autoHide: true,
-				offsetLeft: (BX.pos(button)['width'] / 2),
-				angle: { position: 'top', offset: 0 },
-				maxHeight: 550
-			}
-		);
-	}
-
-	onChangeRobotClick(event)
-	{
-		this.onAddButtonClick(event.target, {changeRobot: true});
-	}
-
 	onExternalEditTemplateButtonClick(button)
 	{
 		if (!this.canEdit())
@@ -795,7 +561,8 @@ export class Template extends EventEmitter
 			Type: robotData['CLASS'],
 			Properties: {
 				Title: robotData['NAME']
-			}
+			},
+			DialogContext: robotData['DIALOG_CONTEXT'],
 		};
 
 		if (this.#robots.length > 0)
@@ -808,8 +575,13 @@ export class Template extends EventEmitter
 			}
 		}
 
-		robot.init(initData, this.#viewMode);
 		robot.draft = true;
+		robot.init(initData, this.#viewMode);
+
+		this.insertRobot(robot);
+		this.insertRobotNode(robot.node);
+		this.emit('Template:robot:add', {robot});
+
 		if (callback)
 		{
 			callback.call(this, robot);
@@ -869,7 +641,6 @@ export class Template extends EventEmitter
 		}
 
 		this.markModified();
-		this.updateTopButtonsVisibility();
 	}
 
 	insertRobotNode(robotNode, beforeNode)
@@ -882,8 +653,6 @@ export class Template extends EventEmitter
 		{
 			this.#listNode.appendChild(robotNode);
 		}
-
-		this.updateTopButtonsVisibility();
 	}
 
 	openRobotSettingsDialog(robot: Robot, context?: Object, saveCallback: (Robot) => void)
@@ -1003,11 +772,6 @@ export class Template extends EventEmitter
 				: Loc.getMessage('BIZPROC_AUTOMATION_ROBOT_SETTINGS_TITLE')
 		;
 
-		if (robot.draft)
-		{
-			titleBar = this.createChangeRobotTitleBar(robotTitle);
-		}
-
 		const me = this;
 		const popup = new BX.PopupWindow(Helper.generateUniqueId(), null, {
 			titleBar: titleBar || robotTitle,
@@ -1083,29 +847,6 @@ export class Template extends EventEmitter
 		popup.show();
 	}
 
-	createChangeRobotTitleBar(title)
-	{
-		return {
-			content: BX.Dom.create('div', {
-			props: {
-				className: 'popup-window-titlebar-text bizproc-automation-popup-titlebar-with-link'
-			},
-			children: [
-				document.createTextNode(title),
-				Dom.create('span', {
-					props: {
-						className: 'bizproc-automation-popup-titlebar-link'
-					},
-					text: Loc.getMessage('BIZPROC_AUTOMATION_CMP_CHANGE_ROBOT'),
-					events: {
-						click: this.onChangeRobotClick.bind(this)
-					}
-				}),
-			]
-			})
-		};
-	}
-
 	initRobotSettingsControls(robot, node)
 	{
 		if (!Type.isArray(this.robotSettingsControls))
@@ -1176,18 +917,8 @@ export class Template extends EventEmitter
 				const {fieldProperty} = event.getData();
 				control.onFieldSelect(this.addParameter(fieldProperty));
 			});
-			control.subscribe('onOpenMenu', (event) => {
-				this.#addRobotReturnFieldsToSelector(event, robot);
-
-				this.emit(
-					'Template:onSelectorMenuOpen',
-					{
-						template: this,
-						robot,
-						...event.getData()
-					}
-				);
-			});
+			control.subscribe('onOpenFieldMenu', (event) => this.onOpenMenu(event, robot));
+			control.subscribe('onOpenMenu', (event) => this.onOpenMenu(event, robot));
 		}
 
 		BX.UI.Hint.init(controlNode);
@@ -1501,18 +1232,8 @@ export class Template extends EventEmitter
 		const conditionGroup = robot.getCondition();
 		this.conditionSelector = new ConditionGroupSelector(conditionGroup, {
 			fields: this.#context.document.getFields(),
-			onOpenMenu: (event) => {
-				this.#addRobotReturnFieldsToSelector(event, robot);
-
-				this.emit(
-					'Template:onSelectorMenuOpen',
-					{
-						template: this,
-						robot,
-						...event.getData()
-					}
-				);
-			},
+			onOpenFieldMenu: (event) => this.onOpenMenu(event, robot),
+			onOpenMenu: (event) => this.onOpenMenu(event, robot),
 		});
 
 		return Dom.create("div", {
@@ -1530,6 +1251,20 @@ export class Template extends EventEmitter
 				})
 			]
 		});
+	}
+
+	onOpenMenu(event: BaseEvent, robot: Robot): void
+	{
+		this.#addRobotReturnFieldsToSelector(event, robot);
+
+		this.emit(
+			'Template:onSelectorMenuOpen',
+			{
+				template: this,
+				robot,
+				...event.getData()
+			}
+		);
 	}
 
 	setConditionSettingsFromForm(formFields, robot)
@@ -1605,8 +1340,10 @@ export class Template extends EventEmitter
 
 					if (robot.draft)
 					{
-						this.#robots.push(robot);
-						this.insertRobotNode(robot.node);
+						// remove yellow/orange color
+
+						//this.#robots.push(robot);
+						//this.insertRobotNode(robot.node);
 					}
 					robot.draft = false;
 

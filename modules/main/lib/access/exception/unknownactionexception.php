@@ -10,5 +10,11 @@ namespace Bitrix\Main\Access\Exception;
 
 class UnknownActionException extends AccessException
 {
-
+	/**
+	 * @param string $actionName
+	 */
+	public function __construct(string $actionName)
+	{
+		parent::__construct("Unknown action {$actionName}");
+	}
 }

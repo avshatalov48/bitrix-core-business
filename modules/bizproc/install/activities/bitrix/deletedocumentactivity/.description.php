@@ -1,22 +1,30 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
 
-$arActivityDescription = array(
-	"NAME" => GetMessage("BPDDA_DESCR_NAME"),
-	"DESCRIPTION" => GetMessage("BPDDA_DESCR_DESCR"),
-	"TYPE" => array("activity", "robot_activity"),
-	"CLASS" => "DeleteDocumentActivity",
-	"JSCLASS" => "BizProcActivity",
-	"CATEGORY" => array(
-		"ID" => "document",
-	),
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
+
+$arActivityDescription = [
+	'NAME' => Loc::getMessage('BPDDA_DESCR_NAME'),
+	'DESCRIPTION' => Loc::getMessage('BPDDA_DESCR_DESCR_1'),
+	'TYPE' => ['activity', 'robot_activity'],
+	'CLASS' => 'DeleteDocumentActivity',
+	'JSCLASS' => 'BizProcActivity',
+	'CATEGORY' => [
+		'ID' => 'document',
+	],
 	'FILTER' => [
 		'EXCLUDE' => [
-			['tasks']
-		]
+			['tasks'],
+		],
 	],
-	'ROBOT_SETTINGS' => array(
+	'ROBOT_SETTINGS' => [
 		'CATEGORY' => 'employee',
-		'TITLE' => GetMessage('BPDDA_DESCR_ROBOT_TITLE')
-	),
-);
+		'TITLE' => Loc::getMessage('BPDDA_DESCR_ROBOT_TITLE_1'),
+		'GROUP' => ['elementControl'],
+		'SORT' => 2900,
+	],
+];

@@ -117,9 +117,11 @@ class CatalogReportStoreStockProductsGridComponent extends \Bitrix\Catalog\Compo
 			'offset' => $pageNavigation->getOffset(),
 			'order' => $gridSort['sort'],
 			'limit' => $pageNavigation->getLimit(),
+			'count_total' => true,
 		];
 
-		$productData = StoreProductTable::getList($queryParams)->fetchAll();
+		$dbResult = StoreProductTable::getList($queryParams);
+		$productData = $dbResult->fetchAll();
 		if ($productData)
 		{
 			$this->catalogData = $this->loadCatalog(array_column($productData, 'PRODUCT_ID'));
@@ -139,7 +141,7 @@ class CatalogReportStoreStockProductsGridComponent extends \Bitrix\Catalog\Compo
 			$result['STUB']['title'] = Loc::getMessage('STORE_STOCK_PRODUCTS_REPORT_NO_PRODUCTS');
 		}
 
-		$totalCount = $this->getTotalCount();
+		$totalCount = $dbResult->getCount();
 
 		$pageNavigation->setRecordCount($totalCount);
 		$result['NAV_PARAM_NAME'] = $this->navParamName;
@@ -256,11 +258,6 @@ class CatalogReportStoreStockProductsGridComponent extends \Bitrix\Catalog\Compo
 	private function checkDocumentReadRights(): bool
 	{
 		return \Bitrix\Main\Engine\CurrentUser::get()->canDoOperation('catalog_read');
-	}
-
-	private function getTotalCount(): int
-	{
-		return StoreProductTable::getCount($this->getListFilter());
 	}
 
 	private function getListFilter(): array

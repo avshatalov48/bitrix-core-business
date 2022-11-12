@@ -135,7 +135,6 @@ class Element extends Controller
 	): Page
 	{
 		$filter['@DOCUMENT.DOC_TYPE'] = array_keys(Catalog\Controller\Document::getAvailableRestDocumentTypes());
-		AddMessage2Log($filter);
 
 		return new Page(
 			'DOCUMENT_ELEMENTS',

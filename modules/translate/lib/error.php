@@ -1,11 +1,11 @@
-<?php declare(strict_types = 1);
+<?php
 
 namespace Bitrix\Translate;
 
 use Bitrix\Main;
 
 /**
- * @implements Translate\IErrorable
+ * @implements \Bitrix\Translate\IErrorable
  */
 trait Error
 {

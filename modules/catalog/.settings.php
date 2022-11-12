@@ -79,6 +79,12 @@ return [
 		],
 		'readonly' => true,
 	],
+	'ui.uploader' => [
+		'value' => [
+			'allowUseControllers' => true,
+		],
+		'readonly' => true,
+	],
 	'services' => [
 		'value' => [
 			'catalog.integration.pullmanager' => [

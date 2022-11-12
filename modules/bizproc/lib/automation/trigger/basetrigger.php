@@ -166,6 +166,18 @@ class BaseTrigger
 			'NAME' => static::getName(),
 			'CODE' => static::getCode(),
 			'RETURN' => static::getReturnProperties(),
+			'DESCRIPTION' => static::getDescription(),
+			'GROUP' => static::getGroup(),
 		];
+	}
+
+	public static function getDescription(): string
+	{
+		return '';
+	}
+
+	public static function getGroup(): array
+	{
+		return [];
 	}
 }

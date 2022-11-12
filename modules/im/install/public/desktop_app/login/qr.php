@@ -106,7 +106,6 @@ if (empty($mark) || empty($account))
 }
 
 $code = md5($mark . $account);
-
 $orm = ApplicationPasswordTable::getList([
 	'select' => ['ID'],
 	'filter' => [

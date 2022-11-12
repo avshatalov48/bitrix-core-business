@@ -173,7 +173,11 @@ class PullManager
 			{
 				$mobileItem = new Item($document);
 				$preparedMobileItem = $mobileItem->prepareItem();
-				$items[$key]['mobileData'] = $preparedMobileItem['data'];
+				$items[$key]['mobileData'] = (
+					is_array($preparedMobileItem) // @todo For compatibility. Delete after exiting dto in the mobile.
+						? $preparedMobileItem['data']
+						: $preparedMobileItem->data
+				);
 
 				/*
 				 * Because we not have the realtime on desktop, I temporarily remove the raw data

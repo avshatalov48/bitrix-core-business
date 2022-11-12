@@ -1562,7 +1562,12 @@
 	      }
 
 	      this.toggleValue(value);
-	      BX.firstChild(this.dropdown).innerText = this.getValueText();
+
+	      if (this.dropdown.dataset['htmlEntity'] === 'true') {
+	        BX.firstChild(this.dropdown).innerHTML = this.getValueText();
+	      } else {
+	        BX.firstChild(this.dropdown).innerText = this.getValueText();
+	      }
 	    },
 	    selectItem: function selectItem(node) {
 	      var self = this;

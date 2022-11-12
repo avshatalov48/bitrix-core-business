@@ -88,7 +88,7 @@ abstract class ExportAction
 			}
 		}
 
-		self::$documentRoot = rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
+		self::$documentRoot = \rtrim(Translate\IO\Path::tidy(Main\Application::getDocumentRoot()), '/');
 
 		self::$useTranslationRepository = Main\Localization\Translation::useTranslationRepository();
 		if (self::$useTranslationRepository)
@@ -124,8 +124,8 @@ abstract class ExportAction
 					// clear .csv files older than 3 hours
 					return (
 						$entry->isFile() &&
-						preg_match("#.+_([0-9]+)\.csv$#", $entry->getName(), $matches) &&
-						(time() - (int)$matches[1] > 3 * 3600)
+						\preg_match("#.+_([0-9]+)\.csv$#", $entry->getName(), $matches) &&
+						(\time() - (int)$matches[1] > 3 * 3600)
 					);
 				});
 			}
@@ -134,7 +134,7 @@ abstract class ExportAction
 				$tempDir->create();
 			}
 
-			$fileName = preg_replace("#(.+)\.csv$#", "$1_".time().'.csv',  $exportFileName);
+			$fileName = \preg_replace("#(.+)\.csv$#", "$1_".\time().'.csv',  $exportFileName);
 
 			$csvFile = new Translate\IO\CsvFile($tempDir->getPhysicalPath() .'/'. $fileName);
 		}
@@ -199,7 +199,7 @@ abstract class ExportAction
 	 */
 	protected function generateExportFileName($path, $languages)
 	{
-		return trim(str_replace(['.php', '/'], ['', '_'], $path), '_').'_'.implode('_', $languages).'.csv';
+		return \trim(\str_replace(['.php', '/'], ['', '_'], $path), '_').'_'.\implode('_', $languages).'.csv';
 	}
 
 	/**
@@ -237,7 +237,7 @@ abstract class ExportAction
 			$rowLang0[$langId] = '';
 		}
 
-		$filterByCode = is_array($filterByCodeList) && (count($filterByCodeList) > 0);
+		$filterByCode = \is_array($filterByCodeList) && (\count($filterByCodeList) > 0);
 
 		foreach ($this->languages as $langId)
 		{
@@ -271,14 +271,14 @@ abstract class ExportAction
 			{
 				if ($filterByCode)
 				{
-					if (!in_array($code, $filterByCodeList))
+					if (!\in_array($code, $filterByCodeList))
 					{
 						continue;
 					}
 				}
 				if (!isset($mergedContent[$code]))
 				{
-					$mergedContent[$code] = array_merge(array('file' => $langFilePath, 'key' => $code), $rowLang0);
+					$mergedContent[$code] = \array_merge(array('file' => $langFilePath, 'key' => $code), $rowLang0);
 				}
 				$mergedContent[$code][$langId] = $phrase;
 			}
@@ -308,7 +308,7 @@ abstract class ExportAction
 					$isObligatory = true;
 					if ($hasObligatorySetting)
 					{
-						$isObligatory = in_array($langId, $langSettings[Translate\Settings::OPTION_LANGUAGES]);
+						$isObligatory = \in_array($langId, $langSettings[Translate\Settings::OPTION_LANGUAGES]);
 					}
 					if (empty($phr) && ($phr !== '0') && $isObligatory)
 					{
@@ -340,7 +340,7 @@ abstract class ExportAction
 			$langFolderRelPath = Translate\IO\Path::replaceLangId($langPath, $langId);
 			$langFolderFullPath = Translate\IO\Path::tidy(self::$documentRoot.'/'.$langFolderRelPath);
 
-			if (self::$useTranslationRepository && in_array($langId, self::$translationRepositoryLanguages))
+			if (self::$useTranslationRepository && \in_array($langId, self::$translationRepositoryLanguages))
 			{
 				$langFolderFullPath = Main\Localization\Translation::convertLangPath($langFolderFullPath, $langId);
 			}
@@ -350,13 +350,13 @@ abstract class ExportAction
 			{
 				foreach ($childrenList as $fullPath)
 				{
-					$name = basename($fullPath);
-					if (in_array($name, Translate\IGNORE_FS_NAMES))
+					$name = \basename($fullPath);
+					if (\in_array($name, Translate\IGNORE_FS_NAMES))
 					{
 						continue;
 					}
 
-					if ((mb_substr($name, -4) === '.php') && is_file($fullPath))
+					if ((\mb_substr($name, -4) === '.php') && \is_file($fullPath))
 					{
 						$files[$langPath.'/'.$name][$langId] = $fullPath;
 					}
@@ -367,34 +367,34 @@ abstract class ExportAction
 			$childrenList = Translate\IO\FileSystemHelper::getFolderList($langFolderFullPath);
 			if (!empty($childrenList))
 			{
-				$ignoreDev = implode('|', Translate\IGNORE_MODULE_NAMES);
+				$ignoreDev = \implode('|', Translate\IGNORE_MODULE_NAMES);
 				foreach ($childrenList as $fullPath)
 				{
-					$name = basename($fullPath);
-					if (in_array($name, Translate\IGNORE_FS_NAMES))
+					$name = \basename($fullPath);
+					if (\in_array($name, Translate\IGNORE_FS_NAMES))
 					{
 						continue;
 					}
 
 					$relPath = $langFolderRelPath.'/'.$name;
 
-					if (!is_dir($fullPath))
+					if (!\is_dir($fullPath))
 					{
 						continue;
 					}
 
-					if (in_array($relPath, Translate\IGNORE_BX_NAMES))
+					if (\in_array($relPath, Translate\IGNORE_BX_NAMES))
 					{
 						continue;
 					}
 
 					// /bitrix/modules/[smth]/dev/
-					if (preg_match("#^bitrix/modules/[^/]+/({$ignoreDev})$#", trim($relPath, '/')))
+					if (\preg_match("#^bitrix/modules/[^/]+/({$ignoreDev})$#", \trim($relPath, '/')))
 					{
 						continue;
 					}
 
-					if (in_array($name, Translate\IGNORE_LANG_NAMES))
+					if (\in_array($name, Translate\IGNORE_LANG_NAMES))
 					{
 						continue;
 					}
@@ -404,12 +404,12 @@ abstract class ExportAction
 			}
 		}
 
-		if (count($files) > 0)
+		if (\count($files) > 0)
 		{
 			yield $files;
 		}
 
-		if (count($folders) > 0)
+		if (\count($folders) > 0)
 		{
 			foreach ($folders as $subFolderPath)
 			{

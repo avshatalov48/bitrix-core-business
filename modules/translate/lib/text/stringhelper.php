@@ -37,10 +37,10 @@ class StringHelper
 			{
 				$encoding = Main\Localization\Translation::getCurrentEncoding();
 			}
-			return mb_strlen($str, $encoding);
+			return \mb_strlen($str, $encoding);
 		}
 
-		return strlen($str);
+		return \strlen($str);
 	}
 
 	/**
@@ -59,10 +59,10 @@ class StringHelper
 			{
 				$encoding = Main\Localization\Translation::getCurrentEncoding();
 			}
-			return mb_substr($str, $start, $length, $encoding);
+			return \mb_substr($str, $start, $length, $encoding);
 		}
 
-		return substr($str, $start, $length);
+		return \substr($str, $start, $length);
 	}
 
 	/**
@@ -75,16 +75,16 @@ class StringHelper
 	 */
 	public static function getPosition($haystack, $needle, $offset = 0, $encoding = null)
 	{
-		if (function_exists('mb_strpos'))
+		if (\function_exists('mb_strpos'))
 		{
 			if (empty($encoding))
 			{
 				$encoding = Main\Localization\Translation::getCurrentEncoding();
 			}
-			return mb_strpos($haystack, $needle, $offset, $encoding);
+			return \mb_strpos($haystack, $needle, $offset, $encoding);
 		}
 
-		return strpos($haystack, $needle, $offset);
+		return \strpos($haystack, $needle, $offset);
 	}
 
 	/**
@@ -95,16 +95,16 @@ class StringHelper
 	 */
 	public static function changeCaseToLower($str, $encoding = null)
 	{
-		if (function_exists('mb_strtolower'))
+		if (\function_exists('mb_strtolower'))
 		{
 			if (empty($encoding))
 			{
 				$encoding = Main\Localization\Translation::getCurrentEncoding();
 			}
-			return mb_strtolower($str, $encoding);
+			return \mb_strtolower($str, $encoding);
 		}
 
-		return mb_strtolower($str);
+		return \mb_strtolower($str);
 	}
 
 	/**
@@ -115,16 +115,16 @@ class StringHelper
 	 */
 	public static function changeCaseToUpper($str, $encoding = null)
 	{
-		if (function_exists('mb_strtoupper'))
+		if (\function_exists('mb_strtoupper'))
 		{
 			if (empty($encoding))
 			{
 				$encoding = Main\Localization\Translation::getCurrentEncoding();
 			}
-			return mb_strtoupper($str, $encoding);
+			return \mb_strtoupper($str, $encoding);
 		}
 
-		return mb_strtoupper($str);
+		return \mb_strtoupper($str);
 	}
 
 	/**
@@ -140,7 +140,7 @@ class StringHelper
 		{
 			$encoding = Main\Localization\Translation::getCurrentEncoding();
 		}
-		return htmlspecialchars($string, $flags, $encoding, true);
+		return \htmlspecialchars($string, $flags, $encoding, true);
 	}
 
 	/**
@@ -167,28 +167,33 @@ class StringHelper
 	 *
 	 * @return string
 	 */
-	public static function escapePhp($str, $enclosure = '"', $additional = '')
+	public static function escapePhp($str, $enclosure = '"', $additional = ''): string
 	{
+		$w = '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*';
 		//Lookaround negative lookbehind (?<!ASD)
 		if ($enclosure === "'")
 		{
-			$str = preg_replace("/((?<![\\\\])['{$additional}]{1})/", "\\\\$1", $str);
+			$str = \preg_replace("/((?<![\\\\])['{$additional}]{1})/", "\\\\$1", $str);
 			// \${end of str} -> \\
-			$str = preg_replace("/((?<![\\\\])\\\\)$/", "\\\\$1", $str);
+			$str = \preg_replace("/((?<![\\\\])\\\\)$/", "\\\\$1", $str);
 		}
 		elseif ($enclosure === '"')
 		{
 			// " -> \"
-			$str = preg_replace("/((?<![\\\\])[\"{$additional}]{1})/", "\\\\$1", $str);
+			$str = \preg_replace("/((?<![\\\\])[\"{$additional}]{1})/", "\\\\$1", $str);
 			// $x -> \$x
-			$str = preg_replace("/((?<![\\\\])[\$]{1}\w)/", "\\\\$1", $str);
+			$str = \preg_replace("/((?<![\\\\])[\$]{1}$w)/", "\\\\$1", $str);
+			// ${ -> \${
+			$str = \preg_replace("/((?<![\\\\])[\$]{1}\s*\{)/", "\\\\$1", $str);
 			// \${end of str} -> \\
-			$str = preg_replace("/((?<![\\\\])\\\\)$/", "\\\\$1", $str);
+			$str = \preg_replace("/((?<![\\\\])\\\\)$/", "\\\\$1", $str);
 		}
 		elseif ($enclosure === '<<<')
 		{
 			// $x -> \$x
-			$str = preg_replace("/((?<![\\\\])[\$]{1}\w)/", "\\\\$1", $str);
+			$str = \preg_replace("/((?<![\\\\])[\$]{1}$w)/", "\\\\$1", $str);
+			// ${ -> \${
+			$str = \preg_replace("/((?<![\\\\])[\$]{1}\s*\{)/", "\\\\$1", $str);
 		}
 
 		return $str;
@@ -202,7 +207,7 @@ class StringHelper
 	 *
 	 * @return string
 	 */
-	public static function unescapePhp($str, $enclosure = '"')
+	public static function unescapePhp($str, $enclosure = '"'): string
 	{
 		//Lookaround positive lookbehind (?<=ASD)
 		// (?<=[\\]+)['\"\\\$]{1}
@@ -218,6 +223,62 @@ class StringHelper
 			$to = ["\$", "\""];
 		}
 
-		return str_replace($from, $to, $str);
+		return \str_replace($from, $to, $str);
+	}
+
+	/**
+	 * Validate phrase for php tokens.
+	 * @param string $str
+	 * @param string $enclosure
+	 * @return bool
+	 */
+	public static function hasPhpTokens($str, $enclosure = '"'): bool
+	{
+		$result = false;
+		if (!empty($str) && is_string($str))
+		{
+			if ($enclosure == '<<<')
+			{
+				$validTokens = [\T_CONSTANT_ENCAPSED_STRING, \T_START_HEREDOC, \T_ENCAPSED_AND_WHITESPACE, \T_END_HEREDOC];
+				$validChars = [];
+				$tokens = \token_get_all('<'. "?php \$MESS = <<<'HTML'\n".  $str. "\nHTML;");
+			}
+			else
+			{
+				$validTokens = [\T_CONSTANT_ENCAPSED_STRING];
+				$validChars = [$enclosure];
+				$tokens = \token_get_all('<'. '?php $MESS = '. $enclosure. $str. $enclosure . ';');
+			}
+			$cnt = count($tokens);
+			if ($cnt <= 5 || $cnt > 10)
+			{
+				return true;
+			}
+
+			for ($inx = 5, $cnt--; $inx < $cnt ; $inx++)
+			{
+				$token = $tokens[$inx];
+				if (is_array($token))
+				{
+					$token[] = \token_name($token[0]);
+					if (!in_array($token[0], $validTokens))
+					{
+						$result = true;
+						break;
+					}
+				}
+				elseif (is_string($token))
+				{
+					if (!in_array($token, $validChars))
+					{
+						$result = true;
+						break;
+					}
+				}
+
+			}
+		}
+
+		return $result;
 	}
 }

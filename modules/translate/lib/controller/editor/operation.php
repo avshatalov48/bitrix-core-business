@@ -55,7 +55,7 @@ class Operation
 		// sort phrases by key
 		if (Translate\Config::needToSortPhrases())
 		{
-			if (in_array($langFile->getLangId(), Translate\Config::getNonSortPhraseLanguages()) === false)
+			if (\in_array($langFile->getLangId(), Translate\Config::getNonSortPhraseLanguages()) === false)
 			{
 				$langFile->sortPhrases();
 			}
@@ -196,13 +196,13 @@ class Operation
 			{
 				foreach ($childrenList as $fullPath)
 				{
-					$name = basename($fullPath);
-					if (in_array($name, Translate\IGNORE_FS_NAMES))
+					$name = \basename($fullPath);
+					if (\in_array($name, Translate\IGNORE_FS_NAMES))
 					{
 						continue;
 					}
 
-					if ((mb_substr($name, -4) === '.php') && is_file($fullPath))
+					if ((\mb_substr($name, -4) === '.php') && \is_file($fullPath))
 					{
 						$files[$langPath.'/'.$name][$langId] = $fullPath;
 					}
@@ -213,34 +213,34 @@ class Operation
 			$childrenList = Translate\IO\FileSystemHelper::getFolderList($langFolderFullPath);
 			if (!empty($childrenList))
 			{
-				$ignoreDev = implode('|', Translate\IGNORE_MODULE_NAMES);
+				$ignoreDev = \implode('|', Translate\IGNORE_MODULE_NAMES);
 				foreach ($childrenList as $fullPath)
 				{
-					$name = basename($fullPath);
-					if (in_array($name, Translate\IGNORE_FS_NAMES))
+					$name = \basename($fullPath);
+					if (\in_array($name, Translate\IGNORE_FS_NAMES))
 					{
 						continue;
 					}
 
 					$relPath = $langFolderRelPath.'/'.$name;
 
-					if (!is_dir($fullPath))
+					if (!\is_dir($fullPath))
 					{
 						continue;
 					}
 
-					if (in_array($relPath, Translate\IGNORE_BX_NAMES))
+					if (\in_array($relPath, Translate\IGNORE_BX_NAMES))
 					{
 						continue;
 					}
 
 					// /bitrix/modules/[smth]/dev/
-					if (preg_match("#^bitrix/modules/[^/]+/({$ignoreDev})$#", trim($relPath, '/')))
+					if (\preg_match("#^bitrix/modules/[^/]+/({$ignoreDev})$#", \trim($relPath, '/')))
 					{
 						continue;
 					}
 
-					if (in_array($name, Translate\IGNORE_LANG_NAMES))
+					if (\in_array($name, Translate\IGNORE_LANG_NAMES))
 					{
 						continue;
 					}
@@ -250,12 +250,12 @@ class Operation
 			}
 		}
 
-		if (count($files) > 0)
+		if (\count($files) > 0)
 		{
 			yield $files;
 		}
 
-		if (count($folders) > 0)
+		if (\count($folders) > 0)
 		{
 			foreach ($folders as $subFolderPath)
 			{

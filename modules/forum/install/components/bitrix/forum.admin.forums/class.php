@@ -196,7 +196,7 @@ class CForumAdminMessages extends \CBitrixComponent
 				}
 				else if (!\CForumNew::Update($forum->getId(), array_filter(
 					$fields,
-					function($itemKey) { return strpos($itemKey, '~') !== false; },
+					function($itemKey) { return strpos($itemKey, '~') === false; },
 					ARRAY_FILTER_USE_KEY))
 				)
 				{

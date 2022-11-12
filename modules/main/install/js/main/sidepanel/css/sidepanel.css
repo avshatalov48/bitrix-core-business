@@ -92,7 +92,8 @@
 }
 
 .side-panel-label-icon-box {
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
 	width: 34px;
 	height: 38px;
 	vertical-align: top;
@@ -101,13 +102,13 @@
 }
 
 .side-panel-label-icon {
+	display: flex;
+	align-items: center;
 	position: relative;
 	width: 22px;
 	height: 22px;
-	margin-top: 6px;
-	margin-left: 7px;
+	margin-left: 9px;
 	background-color: transparent;
-	border: 2px solid transparent;
 	border-radius: 50%;
 	transition: all 300ms ease;
 	background-repeat: no-repeat;
@@ -115,7 +116,12 @@
 	box-sizing: content-box;
 }
 
-.side-panel-label-icon-close {
+.side-panel-label-icon-close:before {
+	display: block;
+	content: '';
+	width: 12px;
+	height: 12px;
+	margin-left: 5px;
 	background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3e%3cpath fill='%23FFF' fill-rule='evenodd' d='M11.381 1.746L7.138 5.988l4.248 4.249-1.151 1.152L5.986 7.14l-4.242 4.244-1.147-1.146L4.84 5.994.592 1.747 1.744.595l4.248 4.247L10.235.6z'/%3e%3c/svg%3e");
 	opacity: 0.85;
 }
@@ -139,7 +145,7 @@
 	opacity: 0.4;
 }
 
-.side-panel-label:hover .side-panel-label-icon {
+.side-panel-label:hover .side-panel-label-icon:before {
 	opacity: 1;
 }
 

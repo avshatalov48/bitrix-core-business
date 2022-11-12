@@ -446,6 +446,15 @@
 	border-left-color: #9dcf00;
 }
 
+.bizproc-automation-trigger-item.--draft .bizproc-automation-trigger-item-wrapper {
+	background: #fffeef;;
+}
+
+.bizproc-automation-trigger-item.--draft::after {
+	border-left-color: #efe7a2;
+	background: #faf7c9;
+}
+
 .bizproc-automation-trigger-item.--search-mismatch {
 	opacity: .1;
 }
@@ -2287,6 +2296,15 @@
 	background: #feffdb;
 }
 
+.bizproc-automation-robot-container.--draft .bizproc-automation-robot-container-wrapper {
+	background: #fffeef;
+}
+
+.bizproc-automation-robot-container.--draft::after {
+	border-left-color: #efe7a2;
+	background: #faf7c9;
+}
+
 .bizproc-automation-robot-container.--denied .bizproc-automation-robot-btn-delete {
 	width: 18px;
 	height: 15px;
@@ -2300,3 +2318,16 @@
 }
 
 
+
+.bizproc-automation-tour-guide-list {
+	padding: 0 0 0 25px;
+	margin: 0;
+}
+
+.bizproc-automation-tour-guide-list-item{
+	line-height: 25px;
+}
+
+.bizproc-automation-tour-guide-list-item + .bizproc-automation-tour-guide-list-item{
+	margin-top: 15px;
+}

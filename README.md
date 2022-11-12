@@ -42,4 +42,5 @@
 * [Ядро "1С-Битрикс24" Корпоративный портал. Каталог /modules/](https://github.com/avshatalov48/bitrix24-core-corp/)
 * [Скачать "1С-Битрикс: Управление сайтом"](https://www.1c-bitrix.ru/download/cms.php)
 * [Регистрация пробных версий продуктов и решений «1С-Битрикс»](https://www.1c-bitrix.ru/bsm_register.php)
+* [Плагин "Bitrix Autocomplete" для PHPStorm](https://plugins.jetbrains.com/plugin/16460-bitrix-autocomplete)
 * [bxApiDocs](https://github.com/matiaspub/bxApiDocs/)

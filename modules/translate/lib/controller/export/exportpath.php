@@ -64,9 +64,9 @@ class ExportPath
 		{
 			$pathList = $this->controller->getRequest()->get('pathList');
 
-			$pathList = preg_split("/[\r\n]+/", $pathList);
-			array_walk($pathList, 'trim');
-			$pathList = array_unique(array_filter($pathList));
+			$pathList = \preg_split("/[\r\n]+/", $pathList);
+			\array_walk($pathList, 'trim');
+			$pathList = \array_unique(\array_filter($pathList));
 			if (empty($pathList))
 			{
 				$this->addError(new Main\Error(Loc::getMessage('TR_EXPORT_EMPTY_PATH_LIST')));
@@ -78,7 +78,7 @@ class ExportPath
 
 			foreach ($pathList as $testPath)
 			{
-				if (mb_substr($testPath, -4) === '.php')
+				if (\mb_substr($testPath, -4) === '.php')
 				{
 					if (Translate\IO\Path::isLangDir($testPath))
 					{
@@ -95,12 +95,12 @@ class ExportPath
 			$codeList = $this->controller->getRequest()->get('codeList');
 			if (!empty($codeList))
 			{
-				$codeList = preg_split("/[\r\n]+/", $codeList);
-				array_walk($codeList, 'trim');
-				$this->codeList = array_unique(array_filter($codeList));
+				$codeList = \preg_split("/[\r\n]+/", $codeList);
+				\array_walk($codeList, 'trim');
+				$this->codeList = \array_unique(\array_filter($codeList));
 			}
 
-			$this->totalItems = count($this->pathList);
+			$this->totalItems = \count($this->pathList);
 			$this->processedItems = 0;
 
 			if ($this->totalItems > 0)
@@ -139,7 +139,7 @@ class ExportPath
 		$fileCodeList = [];
 		foreach ($filterCodeList as $pathCode)
 		{
-			[$path, $code] = explode('::', $pathCode);
+			[$path, $code] = \explode('::', $pathCode);
 			if ($path && $code)
 			{
 				$langFilePath = Translate\IO\Path::replaceLangId($path, '#LANG_ID#');
@@ -151,12 +151,12 @@ class ExportPath
 			}
 		}
 
-		for ($pos = ((int)$this->seekOffset > 0 ? (int)$this->seekOffset : 0), $total = count($this->pathList); $pos < $total; $pos ++)
+		for ($pos = ((int)$this->seekOffset > 0 ? (int)$this->seekOffset : 0), $total = \count($this->pathList); $pos < $total; $pos ++)
 		{
 			$exportingPath = $this->pathList[$pos];
 
 			// file
-			if (mb_substr($exportingPath, -4) === '.php')
+			if (\mb_substr($exportingPath, -4) === '.php')
 			{
 				$langFilePath = Translate\IO\Path::replaceLangId($exportingPath, '#LANG_ID#');
 
@@ -166,7 +166,7 @@ class ExportPath
 					$langRelPath = Translate\IO\Path::replaceLangId($exportingPath, $langId);
 					$langFullPath = Translate\IO\Path::tidy(self::$documentRoot.'/'.$langRelPath);
 
-					if (self::$useTranslationRepository && in_array($langId, self::$translationRepositoryLanguages))
+					if (self::$useTranslationRepository && \in_array($langId, self::$translationRepositoryLanguages))
 					{
 						$langFullPath = Main\Localization\Translation::convertLangPath($langFullPath, $langId);
 					}
@@ -177,7 +177,7 @@ class ExportPath
 				$rows = $this->mergeLangFiles($langFilePath, $fullPaths, $this->collectUntranslated, $fileCodeList[$langFilePath]);
 				foreach ($rows as $row)
 				{
-					$csvFile->put(array_values($row));
+					$csvFile->put(\array_values($row));
 					$this->exportedPhraseCount ++;
 				}
 			}
@@ -186,11 +186,11 @@ class ExportPath
 			else
 			{
 				$exportingPath = Translate\IO\Path::tidy($exportingPath. '/');
-				if (preg_match("#(.+/lang)(/?\w*)#", $exportingPath, $matches))
+				if (\preg_match("#(.+/lang)(/?\w*)#", $exportingPath, $matches))
 				{
 					$lookForLangPath = $matches[1];
 					$lookForLangSubPath = '';
-					if (preg_match("#(.+/lang/[^/]+/?)(.*)$#", $exportingPath, $subMatches))
+					if (\preg_match("#(.+/lang/[^/]+/?)(.*)$#", $exportingPath, $subMatches))
 					{
 						$lookForLangSubPath = $subMatches[2];
 					}
@@ -222,7 +222,7 @@ class ExportPath
 					$lookThroughPath = $pathLang['PATH']. '/#LANG_ID#';
 					if (!empty($lookForLangSubPath))
 					{
-						$lookThroughPath .= '/'. trim($lookForLangSubPath, '/');
+						$lookThroughPath .= '/'. \trim($lookForLangSubPath, '/');
 					}
 					foreach ($this->lookThroughLangFolder($lookThroughPath) as $filePaths)
 					{
@@ -231,7 +231,7 @@ class ExportPath
 							$rows = $this->mergeLangFiles($langFilePath, $fullPaths, $this->collectUntranslated, $fileCodeList[$langFilePath]);
 							foreach ($rows as $row)
 							{
-								$csvFile->put(array_values($row));
+								$csvFile->put(\array_values($row));
 								$this->exportedPhraseCount ++;
 							}
 						}

@@ -166,7 +166,7 @@ if (!empty($arResult['GRID_DATA']))
 	{
 		if (!empty($search))
 		{
-			$modifier = ($case ? '' : 'i').BX_UTF_PCRE_MODIFIER;
+			$modifier = ($case ? '' : 'i').\BX_UTF_PCRE_MODIFIER;
 			$search = preg_quote($search, '/');
 			return preg_replace('/('.$search.')/'.$modifier, "{$startTag}\\1{$endTag}", $value);
 		}
@@ -177,7 +177,7 @@ if (!empty($arResult['GRID_DATA']))
 	{
 		if (!empty($search) && !empty($value))
 		{
-			$modifier = ($case ? '' : 'i').BX_UTF_PCRE_MODIFIER;
+			$modifier = ($case ? '' : 'i').\BX_UTF_PCRE_MODIFIER;
 			$search = preg_quote($search, '/');
 			if (preg_match('/[\s]+/', $search))
 			{

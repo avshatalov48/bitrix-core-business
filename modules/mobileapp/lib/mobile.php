@@ -103,6 +103,15 @@ class Mobile
 			self::$platform = $_REQUEST["emulate_platform"];
 		}
 
+		if ($mobileTZ = $APPLICATION->get_cookie("TZ", "MOBILE")) {
+			$tz = $APPLICATION->get_cookie("TZ");
+			if ($tz != $mobileTZ) {
+				$cookie = new \Bitrix\Main\Web\Cookie("TZ", $mobileTZ, time() + 60 * 60 * 24 * 30 * 12);
+				\Bitrix\Main\Context::getCurrent()->getResponse()->addCookie($cookie);
+			}
+
+		}
+
 		if (array_key_exists("MOBILE_API_VERSION", $_COOKIE))
 		{
 			self::$apiVersion = $_COOKIE["MOBILE_API_VERSION"];

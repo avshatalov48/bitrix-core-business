@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php
 
 namespace Bitrix\Translate\IO;
 
@@ -117,7 +117,7 @@ class CsvFile
 	{
 		$this->open($mode);
 
-		if (is_resource($this->filePointer))
+		if (\is_resource($this->filePointer))
 		{
 			if ($mode === Main\IO\FileStreamOpenMode::WRITE)
 			{
@@ -182,7 +182,7 @@ class CsvFile
 	 */
 	protected function getStringByteLength(string $data): int
 	{
-		return mb_strlen($data, '8bit');
+		return \mb_strlen($data, '8bit');
 	}
 
 	/**
@@ -233,7 +233,7 @@ class CsvFile
 	 */
 	public function setFieldDelimiter(string $fieldDelimiter = self::DELIMITER_TZP): self
 	{
-		$this->fieldDelimiter = (mb_strlen($fieldDelimiter) > 1? mb_substr($fieldDelimiter, 0, 1) : $fieldDelimiter);
+		$this->fieldDelimiter = (\mb_strlen($fieldDelimiter) > 1 ? \mb_substr($fieldDelimiter, 0, 1) : $fieldDelimiter);
 
 		return $this;
 	}
@@ -284,7 +284,7 @@ class CsvFile
 	public function setWidthMap(array $mapFields): self
 	{
 		$this->widthMap = [];
-		for ($i = 0, $n = count($mapFields); $i < $n; $i++)
+		for ($i = 0, $n = \count($mapFields); $i < $n; $i++)
 		{
 			$this->widthMap[$i] = (int)$mapFields[$i];
 		}
@@ -567,7 +567,7 @@ class CsvFile
 		if ($this->fieldsType == self::FIELDS_TYPE_WITH_DELIMITER)
 		{
 			$content = '';
-			for ($i = 0, $n = count($fields); $i < $n; $i++)
+			for ($i = 0, $n = \count($fields); $i < $n; $i++)
 			{
 				if ($i>0)
 				{
@@ -582,9 +582,9 @@ class CsvFile
 				{
 					$fields[$i] = '';
 				}
-				elseif (preg_match("#[\"\n\r]+#".BX_UTF_PCRE_MODIFIER, $fields[$i]))
+				elseif (\preg_match("#[\"\n\r]+#".\BX_UTF_PCRE_MODIFIER, $fields[$i]))
 				{
-					$fields[$i] = str_replace("\"", "\"\"", $fields[$i]);
+					$fields[$i] = \str_replace("\"", "\"\"", $fields[$i]);
 					//$fields[$i] = str_replace("\\", "\\\\", $fields[$i]);
 				}
 				$content .= "\"";

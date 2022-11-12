@@ -1,17 +1,26 @@
-<?
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+use Bitrix\Main\Localization\Loc;
 
 $arActivityDescription = [
-	'NAME'              => GetMessage('BPGLDA_DESCR_NAME'),
-	'DESCRIPTION'       => GetMessage('BPGLDA_DESCR_DESCR'),
-	'TYPE'              => ['activity', 'robot_activity'],
-	'CLASS'             => 'GetListsDocumentActivity',
-	'JSCLASS'           => 'BizProcActivity',
-	'CATEGORY'          => [
+	'NAME' => Loc::getMessage('BPGLDA_DESCR_NAME_1'),
+	'DESCRIPTION' => Loc::getMessage('BPGLDA_DESCR_DESCR_1'),
+	'TYPE' => ['activity', 'robot_activity'],
+	'CLASS' => 'GetListsDocumentActivity',
+	'JSCLASS' => 'BizProcActivity',
+	'CATEGORY' => [
 		'ID' => 'document',
 	],
 	'ADDITIONAL_RESULT' => ['FieldsMap'],
-	'ROBOT_SETTINGS'    => [
-		'CATEGORY' => 'employee'
-	]
+	'ROBOT_SETTINGS' => [
+		'CATEGORY' => 'employee',
+		'GROUP' => ['modificationData'],
+		'SORT' => 5000,
+		'IS_SUPPORTING_ROBOT' => true,
+	],
 ];

@@ -16,7 +16,7 @@ use Bitrix\Main\Text\HtmlFilter;
 			{
 				continue;
 			}
-			if(\CFile::IsImage($fileInfo['SRC'], $fileInfo['CONTENT_TYPE']))
+			if(\CFile::IsImage($fileInfo['ORIGINAL_NAME'], $fileInfo['CONTENT_TYPE']))
 			{
 				print CFile::ShowImage(
 					$fileInfo,

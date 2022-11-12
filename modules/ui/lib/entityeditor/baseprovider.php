@@ -8,6 +8,7 @@ abstract class BaseProvider
 	{
 		return [
 			'GUID' => $this->getGUID(),
+			'CONFIG_ID' => $this->getConfigId(),
 			'ENTITY_ID' => $this->getEntityId(),
 			'ENTITY_TYPE_NAME' => $this->getEntityTypeName(),
 			'ENTITY_FIELDS' => $this->getEntityFields(),
@@ -15,10 +16,16 @@ abstract class BaseProvider
 			'ENTITY_DATA' => $this->getEntityData(),
 			'ENTITY_CONTROLLERS' => $this->getEntityControllers(),
 			'READ_ONLY' => $this->isReadOnly(),
+			'ENTITY_CONFIG_EDITABLE' => $this->isEntityConfigEditable(),
 		];
 	}
 
 	abstract public function getGUID(): string;
+
+	public function getConfigId(): ?string
+	{
+		return null;
+	}
 
 	abstract public function getEntityId(): ?int;
 
@@ -38,5 +45,10 @@ abstract class BaseProvider
 	public function isReadOnly(): bool
 	{
 		return false;
+	}
+
+	public function isEntityConfigEditable(): bool
+	{
+		return true;
 	}
 }

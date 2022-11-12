@@ -66,7 +66,9 @@ $MESS['BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_1'] = 'Сейчас актив�
 $MESS['BIZPROC_JS_DEBUGGER_FILTER_TOUR_TEXT_LINE_2'] = 'Чтобы увидеть свои сделки, измените фильтр на [b]Сделки в работе[/b] или [b]Мои сделки[/b]';
 
 $MESS['BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FIX_DEAL_ACTION'] = 'Добавить сделку в отладчик';
+$MESS['BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FIX_DEAL_ACTION_1'] = 'Добавить сделку в отладчик';
 $MESS['BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_REMOVE_DEAL_ACTION'] = 'Убрать сделку из отладки';
+$MESS['BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_REMOVE_DEAL_ACTION_1'] = 'Убрать сделку из отладки';
 $MESS['BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FINISH_DEBUG_ACTION'] = 'Завершить отладку';
 $MESS['BIZPROC_JS_DEBUGGER_ACTION_PANEL_CRM_FIX_DEAL_COUNT_ERROR_TITLE'] = 'Вы можете выбрать для отладки только одну сделку';
 

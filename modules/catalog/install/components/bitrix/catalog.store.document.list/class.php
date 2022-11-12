@@ -235,7 +235,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			$query->withStoreList($filteredStores);
 		}
 		$list = $query->fetchAll();
-		$totalCount = $this->getTotalCount();
+		$totalCount = $query->queryCountTotal();
 		if($totalCount > 0)
 		{
 			$this->getDocumentStores(array_column($list, 'ID'));
@@ -736,34 +736,6 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return "<div class='documents-grid-username-wrapper'>"
 			."<a class='documents-grid-username' href='/company/personal/user/{$userId}/'>{$userNameElement}</a>"
 			."</div>";
-	}
-
-	private function getTotalCount()
-	{
-		$listFilter = $this->getListFilter();
-		$filteredProducts = [];
-		if (!empty($listFilter['PRODUCTS']))
-		{
-			$filteredProducts = $listFilter['PRODUCTS'];
-			unset($listFilter['PRODUCTS']);
-		}
-		$filteredStores = [];
-		if (!empty($listFilter['STORES']))
-		{
-			$filteredStores = $listFilter['STORES'];
-			unset($listFilter['STORES']);
-		}
-		$query = StoreDocumentTable::query()
-			->setFilter($listFilter);
-		if (!empty($filteredProducts))
-		{
-			$query->withProductList($filteredProducts);
-		}
-		if (!empty($filteredStores))
-		{
-			$query->withStoreList($filteredStores);
-		}
-		return (int)$query->queryCountTotal();
 	}
 
 	private function getTotalCountWithoutUserFilter()

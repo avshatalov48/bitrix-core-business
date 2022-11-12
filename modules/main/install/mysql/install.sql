@@ -396,6 +396,15 @@ CREATE TABLE b_file_hash
 	index ix_file_hash_size_hash(FILE_SIZE, FILE_HASH)
 );
 
+CREATE TABLE b_file_version
+(
+	ORIGINAL_ID int not null,
+	VERSION_ID int not null,
+	META text null,
+	primary key (ORIGINAL_ID),
+	unique index ux_file_version_version(VERSION_ID)
+);
+
 CREATE TABLE b_file_preview
 (
 	ID INT not null auto_increment,

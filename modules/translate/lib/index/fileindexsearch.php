@@ -13,11 +13,10 @@ class FileIndexSearch
 	 *
 	 * @param array $params Orm type params for the query.
 	 * @return Main\ORM\Query\Query
-	 * @throws Main\SystemException
 	 */
 	public static function query($params = [])
 	{
-		list($select, $runtime, $filter) = self::processParams($params);
+		[$select, $runtime, $filter] = self::processParams($params);
 
 		/** @var \Bitrix\Main\ORM\Entity $entity */
 		$entity = Index\Internals\PathIndexTable::getEntity();
@@ -35,11 +34,10 @@ class FileIndexSearch
 	 *
 	 * @param array $filterIn Filter params.
 	 * @return int
-	 * @throws Main\SystemException
 	 */
 	public static function getCount($filterIn)
 	{
-		list($select, $runtime, $filter) = self::processParams(['filter' => $filterIn]);
+		[$select, $runtime, $filter] = self::processParams(['filter' => $filterIn]);
 
 		/** @var \Bitrix\Main\ORM\Entity $entity */
 		$entity = Index\Internals\PathIndexTable::getEntity();
@@ -65,14 +63,13 @@ class FileIndexSearch
 	 *
 	 * @param array $params Orm type params for the query.
 	 * @return Main\ORM\Query\Result
-	 * @throws Main\SystemException
 	 */
 	public static function getList($params)
 	{
-		list($select, $runtime, $filter) = self::processParams($params);
+		[$select, $runtime, $filter] = self::processParams($params);
 
 		$executeParams = array(
-			'select' => array_merge(
+			'select' => \array_merge(
 				[
 					'PATH_ID' => 'ID',
 					'PATH' => 'PATH',
@@ -112,15 +109,13 @@ class FileIndexSearch
 	 *
 	 * @param array $params Orm type params for the query.
 	 * @return array
-	 * @throws Main\ArgumentException
-	 * @throws Main\SystemException
 	 */
 	private static function processParams($params)
 	{
-		$select = $runtime = $filterIn = $filterOut = array();
+		$select = $runtime = $filterIn = $filterOut = [];
 		if (isset($params['filter']))
 		{
-			if (is_object($params['filter']))
+			if (\is_object($params['filter']))
 			{
 				$filterIn = clone $params['filter'];
 			}
@@ -131,13 +126,13 @@ class FileIndexSearch
 		}
 
 		$enabledLanguages = Translate\Config::getEnabledLanguages();
-		$languageUpperKeys = array_combine($enabledLanguages, array_map('mb_strtoupper', $enabledLanguages));
+		$languageUpperKeys = \array_combine($enabledLanguages, \array_map('mb_strtoupper', $enabledLanguages));
 
 		$selectedLanguages = array();
 		foreach ($languageUpperKeys as $langId => $langUpper)
 		{
 			$alias = "{$langUpper}_LANG";
-			if (isset($params['select']) && in_array($alias, $params['select']))
+			if (isset($params['select']) && \in_array($alias, $params['select']))
 			{
 				$selectedLanguages[] = $langId;
 			}
@@ -169,7 +164,7 @@ class FileIndexSearch
 		foreach ($languageUpperKeys as $langId => $langUpper)
 		{
 			if (
-				!in_array($langId, $selectedLanguages) &&
+				!\in_array($langId, $selectedLanguages) &&
 				!Main\Localization\Translation::isDefaultTranslationLang($langId)
 			)
 			{
@@ -258,29 +253,29 @@ class FileIndexSearch
 		};
 		$trimSlash = static function(&$val)
 		{
-			if (mb_substr($val, -4) === '.php')
+			if (\mb_substr($val, -4) === '.php')
 			{
-				$val = '/'. trim($val, '/');
+				$val = '/'. \trim($val, '/');
 			}
 			else
 			{
-				$val = '/'. trim($val, '/'). '/%';
+				$val = '/'. \trim($val, '/'). '/%';
 			}
 		};
 
 		if (!empty($filterIn['INCLUDE_PATHS']))
 		{
-			$pathIncludes = preg_split("/[\r\n\t,; ]+/".BX_UTF_PCRE_MODIFIER, $filterIn['INCLUDE_PATHS']);
-			$pathIncludes = array_filter($pathIncludes);
-			if (count($pathIncludes) > 0)
+			$pathIncludes = \preg_split("/[\r\n\t,; ]+/".\BX_UTF_PCRE_MODIFIER, $filterIn['INCLUDE_PATHS']);
+			$pathIncludes = \array_filter($pathIncludes);
+			if (\count($pathIncludes) > 0)
 			{
-				$pathPathIncludes = array();
-				$pathNameIncludes = array();
+				$pathPathIncludes = [];
+				$pathNameIncludes = [];
 				foreach ($pathIncludes as $testPath)
 				{
-					if (!empty($testPath) && trim($testPath) !== '')
+					if (!empty($testPath) && \trim($testPath) !== '')
 					{
-						if (mb_strpos($testPath, '/') === false)
+						if (\mb_strpos($testPath, '/') === false)
 						{
 							$pathNameIncludes[] = $testPath;
 						}
@@ -290,30 +285,30 @@ class FileIndexSearch
 						}
 					}
 				}
-				if (count($pathNameIncludes) > 0 && count($pathPathIncludes) > 0)
+				if (\count($pathNameIncludes) > 0 && \count($pathPathIncludes) > 0)
 				{
-					array_walk($pathNameIncludes, $replaceLangId);
-					array_walk($pathPathIncludes, $replaceLangId);
-					array_walk($pathPathIncludes, $trimSlash);
+					\array_walk($pathNameIncludes, $replaceLangId);
+					\array_walk($pathPathIncludes, $replaceLangId);
+					\array_walk($pathPathIncludes, $trimSlash);
 					$filterOut[] = array(
 						'LOGIC' => 'OR',
 						'%=NAME' => $pathNameIncludes,
 						'%=PATH' => $pathPathIncludes,
 					);
 				}
-				elseif (count($pathNameIncludes) > 0)
+				elseif (\count($pathNameIncludes) > 0)
 				{
-					array_walk($pathNameIncludes, $replaceLangId);
+					\array_walk($pathNameIncludes, $replaceLangId);
 					$filterOut[] = array(
 						'LOGIC' => 'OR',
 						'%=NAME' => $pathNameIncludes,
 						'%=PATH' => $pathNameIncludes,
 					);
 				}
-				elseif (count($pathPathIncludes) > 0)
+				elseif (\count($pathPathIncludes) > 0)
 				{
-					array_walk($pathPathIncludes, $replaceLangId);
-					array_walk($pathPathIncludes, $trimSlash);
+					\array_walk($pathPathIncludes, $replaceLangId);
+					\array_walk($pathPathIncludes, $trimSlash);
 					$filterOut['%=PATH'] = $pathPathIncludes;
 				}
 			}
@@ -321,17 +316,17 @@ class FileIndexSearch
 		}
 		if (!empty($filterIn['EXCLUDE_PATHS']))
 		{
-			$pathExcludes = preg_split("/[\r\n\t,; ]+/".BX_UTF_PCRE_MODIFIER, $filterIn['EXCLUDE_PATHS']);
-			$pathExcludes = array_filter($pathExcludes);
-			if (count($pathExcludes) > 0)
+			$pathExcludes = \preg_split("/[\r\n\t,; ]+/".\BX_UTF_PCRE_MODIFIER, $filterIn['EXCLUDE_PATHS']);
+			$pathExcludes = \array_filter($pathExcludes);
+			if (\count($pathExcludes) > 0)
 			{
-				$pathPathExcludes = array();
-				$pathNameExcludes = array();
+				$pathPathExcludes = [];
+				$pathNameExcludes = [];
 				foreach ($pathExcludes as $testPath)
 				{
-					if (!empty($testPath) && trim($testPath) !== '')
+					if (!empty($testPath) && \trim($testPath) !== '')
 					{
-						if (mb_strpos($testPath, '/') === false)
+						if (\mb_strpos($testPath, '/') === false)
 						{
 							$pathNameExcludes[] = $testPath;
 						}
@@ -341,30 +336,30 @@ class FileIndexSearch
 						}
 					}
 				}
-				if (count($pathNameExcludes) > 0 && count($pathPathExcludes) > 0)
+				if (\count($pathNameExcludes) > 0 && \count($pathPathExcludes) > 0)
 				{
-					array_walk($pathNameExcludes, $replaceLangId);
-					array_walk($pathPathExcludes, $replaceLangId);
-					array_walk($pathPathExcludes, $trimSlash);
+					\array_walk($pathNameExcludes, $replaceLangId);
+					\array_walk($pathPathExcludes, $replaceLangId);
+					\array_walk($pathPathExcludes, $trimSlash);
 					$filterOut[] = array(
 						'LOGIC' => 'AND',
 						'!=%NAME' => $pathNameExcludes,
 						'!=%PATH' => $pathPathExcludes,
 					);
 				}
-				elseif (count($pathNameExcludes) > 0)
+				elseif (\count($pathNameExcludes) > 0)
 				{
-					array_walk($pathNameExcludes, $replaceLangId);
+					\array_walk($pathNameExcludes, $replaceLangId);
 					$filterOut[] = array(
 						'LOGIC' => 'AND',
 						'!=%NAME' => $pathNameExcludes,
 						'!=%PATH' => $pathNameExcludes,
 					);
 				}
-				elseif (count($pathPathExcludes) > 0)
+				elseif (\count($pathPathExcludes) > 0)
 				{
-					array_walk($pathPathExcludes, $replaceLangId);
-					array_walk($pathPathExcludes, $trimSlash);
+					\array_walk($pathPathExcludes, $replaceLangId);
+					\array_walk($pathPathExcludes, $trimSlash);
 					$filterOut["!=%PATH"] = $pathPathExcludes;
 				}
 			}
@@ -392,7 +387,7 @@ class FileIndexSearch
 
 		foreach ($filterIn as $key => $value)
 		{
-			if (in_array($key, ['tabId', 'FILTER_ID', 'PRESET_ID', 'FILTER_APPLIED', 'FIND']))
+			if (\in_array($key, ['tabId', 'FILTER_ID', 'PRESET_ID', 'FILTER_APPLIED', 'FIND']))
 			{
 				continue;
 			}

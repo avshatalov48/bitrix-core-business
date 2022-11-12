@@ -170,7 +170,7 @@ class Call
 	 *  - another user in ready or calling state
 	 * @return bool
 	 */
-	public function hasActiveUsers()
+	public function hasActiveUsers(bool $strict = true)
 	{
 		$this->loadUsers();
 		$states = [];
@@ -180,7 +180,7 @@ class Call
 			$userState = $user->getState();
 			$states[$userState] = isset($states[$userState]) ? $states[$userState] + 1 : 1;
 		}
-		if($this->type == static::TYPE_PERMANENT)
+		if($this->type == static::TYPE_PERMANENT || !$strict)
 		{
 			 return $states[CallUser::STATE_READY] >= 1;
 		}
@@ -524,6 +524,16 @@ class Call
 		AddEventToStatFile("im","im_call_finish", $this->id, $finishStatus, "status", 0);
 	}
 
+	public static function isFeedbackAllowed(): bool
+	{
+		if (Loader::includeModule('bitrix24'))
+		{
+			return \CBitrix24::getPortalZone() == 'ru';
+		}
+
+		return Option::get('im', 'allow_call_feedback', 'N') === 'Y';
+	}
+
 	public function getMaxUsers()
 	{
 		if ($this->provider == static::PROVIDER_VOXIMPLANT)
@@ -671,7 +681,8 @@ class Call
 			->where("PROVIDER", $provider)
 			->where("ENTITY_TYPE", $entityType)
 			->whereNull("END_DATE")
-			->setOrder(["ID" => "DESC"]);
+			->setOrder(["ID" => "DESC"])
+			->setLimit(1);
 
 		if ($entityType === EntityType::CHAT && strpos($entityId, "chat") !== 0)
 		{
@@ -682,6 +693,7 @@ class Call
 		{
 			$query->where("ENTITY_ID", $entityId);
 		}
+
 		$callFields = $query->exec()->fetch();
 
 		if(!$callFields)
@@ -690,7 +702,7 @@ class Call
 		}
 
 		$instance = static::createWithArray($callFields);
-		if($instance->hasActiveUsers())
+		if($instance->hasActiveUsers(false))
 		{
 			return $instance;
 		}

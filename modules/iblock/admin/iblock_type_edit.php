@@ -48,6 +48,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid(
 		$arFields["LANG"][$ar["LID"]] = $LANG_FIELDS[$ar["LID"]];
 
 	$obBlocktype = new CIBlockType;
+	$DB->StartTransaction();
 	if($ID <> '')
 		$res = $obBlocktype->Update($ID, $arFields);
 	else

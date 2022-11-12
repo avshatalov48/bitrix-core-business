@@ -67,20 +67,6 @@
 			button.disabled = true;
 			button.offsetHeight; // hack to show loader
 
-			for (var i = 0, copyChecked = -1; i < this.fields.length; i++)
-			{
-				if (this.fields[i].params.copy)
-				{
-					copyChecked = Math.max(copyChecked, BX(this.fields[i].fieldId+'_copy').checked);
-				}
-			}
-
-			if (copyChecked >= 0)
-			{
-				BX.userOptions.save('main.mail.form', 'copy_to_sender', null, copyChecked);
-				BX.userOptions.send();
-			}
-
 			if (this.options.submitAjax)
 			{
 				BX.ajax.submitAjax(this.htmlForm, {

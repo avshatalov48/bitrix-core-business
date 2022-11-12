@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php
 
 namespace Bitrix\Translate\IO;
 
@@ -33,7 +33,7 @@ class Directory
 	 */
 	public static function generateTemporalDirectory(string $prefix, int $timeToLive = 3): self
 	{
-		$tempDirPath = \CTempFile::GetDirectoryName($timeToLive, array($prefix, uniqid($prefix, true)));
+		$tempDirPath = \CTempFile::getDirectoryName($timeToLive, array($prefix, \uniqid($prefix, true)));
 		$tempDir = new static($tempDirPath);
 		if (!$tempDir->isExists())
 		{
@@ -65,7 +65,7 @@ class Directory
 		string $targetEncoding = ''
 	): bool
 	{
-		if (mb_strpos($target->getPhysicalPath(), $this->getPhysicalPath()) === 0)
+		if (\mb_strpos($target->getPhysicalPath(), $this->getPhysicalPath()) === 0)
 		{
 			$this->addError(new Main\Error('Destination is inside in the source folder.'));
 
@@ -130,7 +130,7 @@ class Directory
 				try
 				{
 					$content = $entry->getContents();
-					$content = str_replace(array("\r\n", "\r"), array("\n", "\n"), $content);
+					$content = \str_replace(array("\r\n", "\r"), array("\n", "\n"), $content);
 
 					if ($convertEncoding)
 					{
@@ -194,7 +194,7 @@ class Directory
 			if (
 				!$dir instanceof Main\IO\Directory ||
 				!$dir->isDirectory() ||
-				in_array($dirName, Translate\IGNORE_FS_NAMES, true)
+				\in_array($dirName, Translate\IGNORE_FS_NAMES, true)
 			)
 			{
 				continue;
@@ -247,12 +247,13 @@ class Directory
 		return $retFlag;
 	}
 
-
 	/**
 	 * Wipes folder out of children.
 	 *
 	 * @param \Closure|null $filter Filter function.
 	 * @return bool
+	 * @throws Main\IO\FileNotFoundException
+	 * @throws Main\IO\InvalidPathException
 	 */
 	public function wipe(?\Closure $filter = null): bool
 	{
@@ -286,7 +287,7 @@ class Directory
 		}
 		if ($result)
 		{
-			clearstatcache();
+			\clearstatcache();
 		}
 
 		return $result;

@@ -1483,8 +1483,11 @@ abstract class CBPActivity
 				|| preg_match(static::ValuePattern, $text)
 				|| preg_match(self::ValueSimplePattern, $text)
 			)
+			{
 				return true;
+			}
 		}
+
 		return false;
 	}
 

@@ -871,6 +871,11 @@ HTML;
 
 	public static function validateValueMultiple($value, FieldType $fieldType): array
 	{
+		if (!is_array($value))
+		{
+			$value = [$value];
+		}
+
 		foreach ($value as $k => $v)
 		{
 			$value[$k] = static::validateValueSingle($v, $fieldType);

@@ -11,11 +11,19 @@ namespace Bitrix\Main\Access;
 use Bitrix\Main\Access\Event\Event;
 use Bitrix\Main\Access\Event\EventDictionary;
 use Bitrix\Main\Access\Exception\UnknownActionException;
+use Bitrix\Main\Access\Filter\Factory\FilterControllerFactory;
+use Bitrix\Main\Access\Filter\FilterFactory;
+use Bitrix\Main\Access\Rule\Factory\RuleControllerFactory;
+use Bitrix\Main\Access\Rule\RuleFactory;
 use Bitrix\Main\Access\User\AccessibleUser;
+use Bitrix\Main\Engine\CurrentUser;
 
 abstract class BaseAccessController
 	implements AccessibleController
 {
+	/**
+	 * @deprecated use ::$ruleFactory property
+	 */
 	protected const RULE_SUFFIX = 'Rule';
 
 	protected static $register = [];
@@ -23,13 +31,22 @@ abstract class BaseAccessController
 	/* @var AccessibleUser $user */
 	protected $user;
 
+	protected RuleFactory $ruleFactory;
+
+	protected FilterFactory $filterFactory;
+
 	public static function getInstance($userId)
 	{
-		if (!array_key_exists($userId, static::$register))
+		if (!isset(static::$register[static::class][$userId]))
 		{
 			static::$register[static::class][$userId] = new static($userId);
 		}
 		return static::$register[static::class][$userId];
+	}
+
+	public static function getCurrent(): self
+	{
+		return static::getInstance(CurrentUser::get()->getId());
 	}
 
 	public static function can($userId, string $action, $itemId = null, $params = null): bool
@@ -44,6 +61,8 @@ abstract class BaseAccessController
 	public function __construct(int $userId)
 	{
 		$this->user = $this->loadUser($userId);
+		$this->ruleFactory = new RuleControllerFactory();
+		$this->filterFactory = new FilterControllerFactory();
 	}
 
 	public function getUser(): AccessibleUser
@@ -59,11 +78,10 @@ abstract class BaseAccessController
 
 	public function check(string $action, AccessibleItem $item = null, $params = null): bool
 	{
-		$ruleName = $this->getRuleName($action);
-
-		if (!$ruleName || !class_exists($ruleName))
+		$rule = $this->ruleFactory->createFromAction($action, $this);
+		if (!$rule)
 		{
-			throw new UnknownActionException('Unknown action '. $action);
+			throw new UnknownActionException($action);
 		}
 
 		$event = $this->sendEvent(EventDictionary::EVENT_ON_BEFORE_CHECK, $action, $item, $params);
@@ -74,7 +92,7 @@ abstract class BaseAccessController
 			return $isAccess;
 		}
 
-		$isAccess = (new $ruleName($this))->execute($item, $params);
+		$isAccess = $rule->execute($item, $params);
 
 		$event = $this->sendEvent(EventDictionary::EVENT_ON_AFTER_CHECK, $action, $item, $params, $isAccess);
 
@@ -109,6 +127,9 @@ abstract class BaseAccessController
 
 	abstract protected function loadUser(int $userId): AccessibleUser;
 
+	/**
+	 * @deprecated use ::$ruleFactory property
+	 */
 	protected function getRuleName(string $action): ?string
 	{
 		$action = explode('_', $action);
@@ -118,6 +139,9 @@ abstract class BaseAccessController
 		return $this->getRuleNamespace() . implode($action) . static::RULE_SUFFIX;
 	}
 
+	/**
+	 * @deprecated use ::$ruleFactory property
+	 */
 	protected function getRuleNamespace(): string
 	{
 		$class = new \ReflectionClass($this);
@@ -141,5 +165,22 @@ abstract class BaseAccessController
 		$event->send();
 
 		return $event;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getEntityFilter(string $action, string $entityName, $params = null): ?array
+	{
+		$filter = $this->filterFactory->createFromAction($action, $this);
+		if (!$filter)
+		{
+			return null;
+		}
+
+		$params = (array)($params ?? []);
+		$params['action'] = $action;
+
+		return $filter->getFilter($entityName, $params);
 	}
 }

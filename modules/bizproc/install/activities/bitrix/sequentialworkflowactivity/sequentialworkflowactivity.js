@@ -59,9 +59,20 @@ SequentialWorkflowActivity = function()
 		}
 	};
 
+	ob.UpdateButtonPanel = function()
+	{
+		if (BX.UI.ButtonPanel && BX.UI.ButtonPanel.pinner)
+		{
+			BX.UI.ButtonPanel.pinner.onChange();
+		}
+	};
+
 	ob.DrawSequenceActivity = ob.Draw;
 	ob.Draw = function (div)
 	{
+		requestAnimationFrame(() => {
+			ob.UpdateButtonPanel();
+		});
 		if(!window.dlgSnippetsSettings)
 		{
 			window.dlgSnippetsSettings = new BX.CDialog({
@@ -177,6 +188,9 @@ SequentialWorkflowActivity = function()
 		divGroup.swftoolboxid = ind;
 		divGroup.onclick = function (e) 
 		{
+			requestAnimationFrame(() => {
+				ob.UpdateButtonPanel();
+			});
 			if(this.className=='swftoolboxgroupclosed')
 			{
 				this.className = 'swftoolboxgroupopened';
@@ -416,6 +430,9 @@ SequentialWorkflowActivity = function()
 	ob.RemoveResourcesSequenceActivity = ob.RemoveResources;
 	ob.RemoveResources = function ()
 	{
+		requestAnimationFrame(() => {
+			ob.UpdateButtonPanel();
+		});
 		if(ob.hSnippid1)
 		{
 			DragNDrop.RemoveHandler('ondragging', ob.hSnippid1);

@@ -236,7 +236,8 @@ this.BX.UI = this.BX.UI || {};
 	    _t4$1,
 	    _t5$1,
 	    _t6,
-	    _t7;
+	    _t7,
+	    _t8;
 
 	var _popup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popup");
 
@@ -414,10 +415,10 @@ this.BX.UI = this.BX.UI || {};
 						${0} 
 						<div class="ui-whats-new-slide-inner">${0}</div>  
 					</div> 
-					<div class="ui-whats-new-bullet-box" onclick="${0}">${0}</div>
+					${0}
 					<div class="ui-whats-new-close-btn" onclick="${0}"></div>
 				</div>
-			`), this.getHeadContainer(), this.getPrevBtn(), this.getNextBtn(), this.getSliderBox(), babelHelpers.classPrivateFieldLooseBase(this, _handleBulletClick)[_handleBulletClick].bind(this), babelHelpers.classPrivateFieldLooseBase(this, _slides)[_slides].map(slide => slide.getBullet()), this.hide.bind(this));
+			`), this.getHeadContainer(), this.getPrevBtn(), this.getNextBtn(), this.getSliderBox(), this.getBulletBox(), this.hide.bind(this));
 	    });
 	  }
 
@@ -450,9 +451,15 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	  }
 
+	  getBulletBox() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _cache$1)[_cache$1].remember('bulletBox', () => {
+	      return this.isMoreThan1Slide() ? main_core.Tag.render(_t6 || (_t6 = _$1`<div class="ui-whats-new-bullet-box" onclick="${0}">${0}</div>`), babelHelpers.classPrivateFieldLooseBase(this, _handleBulletClick)[_handleBulletClick].bind(this), babelHelpers.classPrivateFieldLooseBase(this, _slides)[_slides].map(slide => slide.getBullet())) : null;
+	    });
+	  }
+
 	  getPrevBtn() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _cache$1)[_cache$1].remember('prevBtn', () => {
-	      return main_core.Tag.render(_t6 || (_t6 = _$1`
+	      return main_core.Tag.render(_t7 || (_t7 = _$1`
 				<div 
 					class="ui-whats-new-slide-btn --btn-prev" 
 					onclick="${0}">
@@ -462,13 +469,17 @@ this.BX.UI = this.BX.UI || {};
 
 	  getNextBtn() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _cache$1)[_cache$1].remember('nextBtn', () => {
-	      return main_core.Tag.render(_t7 || (_t7 = _$1`
+	      return main_core.Tag.render(_t8 || (_t8 = _$1`
 				<div 
 					class="ui-whats-new-slide-btn --btn-next" 
 					onclick="${0}">
 				</div>
 			`), this.selectNextSlide.bind(this));
 	    });
+	  }
+
+	  isMoreThan1Slide() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _slides)[_slides].length > 1;
 	  }
 
 	  show() {
@@ -541,7 +552,10 @@ this.BX.UI = this.BX.UI || {};
 
 	    babelHelpers.classPrivateFieldLooseBase(this, _position)[_position] = position; // Ears
 
-	    if (!this.infinityLoop) {
+	    if (!this.isMoreThan1Slide()) {
+	      main_core.Dom.addClass(this.getPrevBtn(), '--hide');
+	      main_core.Dom.addClass(this.getNextBtn(), '--hide');
+	    } else if (!this.infinityLoop) {
 	      if (position === firstPosition) {
 	        main_core.Dom.addClass(this.getPrevBtn(), '--hide');
 	        main_core.Dom.removeClass(this.getNextBtn(), '--hide');

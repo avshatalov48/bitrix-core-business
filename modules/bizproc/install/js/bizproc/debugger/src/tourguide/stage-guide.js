@@ -11,7 +11,7 @@ export class StageGuide
 					target: options.target,
 					title: Loc.getMessage('BIZPROC_JS_DEBUGGER_STAGE_TOUR_TITLE'),
 					text: StageGuide.#getText(),
-					//article: 'limit_office_bp_designer', // todo: replace,
+					article: '16483018',
 					events: options.events ?? {},
 					condition: {
 						top: true,
@@ -26,7 +26,7 @@ export class StageGuide
 
 	start()
 	{
-		this.guide.getPopup().setWidth(330); //some magic ^_^
+		this.guide.getPopup().setWidth(330);
 		this.guide.showNextStep();
 	}
 

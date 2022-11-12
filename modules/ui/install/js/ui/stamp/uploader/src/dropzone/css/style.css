@@ -1,0 +1,31 @@
+.ui-stamp-uploader-dropzone {
+	background: #FFFFFF;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 278px;
+	border: 1px dashed #2FC6F6;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.ui-stamp-uploader-dropzone-icon {
+	background: url("images/icon.svg") center center no-repeat;
+	width: 68px;
+	height: 68px;
+}
+
+.ui-stamp-uploader-dropzone-header {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525C69;
+	font-size: 12px;
+	line-height: 14px;
+}
+
+.ui-stamp-uploader-dropzone-text {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #525C69;
+	font-size: 10px;
+	line-height: 21px;
+}

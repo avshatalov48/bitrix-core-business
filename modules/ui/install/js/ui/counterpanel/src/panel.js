@@ -1,4 +1,5 @@
 import { Dom, Tag, Type } from 'main.core';
+import { PopupMenuWindow } from 'main.popup';
 import CounterItem from './item';
 import 'ui.fonts.opensans';
 import './style.css';
@@ -8,34 +9,43 @@ export default class CounterPanel
 	constructor(options: {
 		target: HTMLElement,
 		items: Array,
-		multiselect: Boolean
+		multiselect: Boolean,
+		title: String
 	})
 	{
 		this.target = Type.isDomNode(options.target) ? options.target : null;
 		this.items = Type.isArray(options.items) ? options.items : [];
 		this.multiselect = Type.isBoolean(options.multiselect) ? options.multiselect : null;
+		this.title = Type.isStringFilled(options.title) ? options.title : null;
 		this.container = null;
 		this.keys = [];
+		this.hasParent = [];
+		this.childKeys = [];
 	}
 
 	#adjustData()
 	{
-		this.items = this.items.map((item) => {
-
+		this.items = this.items.map(item => {
+			item.panel = this;
 			this.keys.push(item.id);
+			if (item.parentId)
+			{
+				this.hasParent.push(item.parentId);
+			}
+			return new CounterItem(item);
+		});
 
-			return new CounterItem({
-				id: item.id ? item.id : null,
-				title: item.title ? item.title : null,
-				value: Type.isNumber(item.value) ? parseInt(item.value, 10) : null,
-				cross: item.cross ? item.cross : null,
-				color: item.color ? item.color : null,
-				eventsForActive: item.eventsForActive ? item.eventsForActive : null,
-				eventsForUnActive: item.eventsForUnActive ? item.eventsForUnActive : null,
-				panel: this,
-				separator: item.separator,
-				locked: item.locked ? item.locked : null
-			});
+		this.hasParent.forEach(item => {
+			let index = this.keys.indexOf(item);
+			this.items[index].parent = true;
+		});
+
+		this.items.map(item => {
+			if (item.parentId)
+			{
+				let index = this.keys.indexOf(item.parentId);
+				this.items[index].items.push(item.id);
+			}
 		});
 	}
 
@@ -62,8 +72,16 @@ export default class CounterPanel
 	{
 		if (!this.container)
 		{
+			let myHead = '';
+			if (this.title)
+			{
+				myHead = Tag.render`
+					<div class="ui-counter-panel__item-head">${this.title}</div>
+				`;
+			}
+
 			this.container = Tag.render`
-				<div class="ui-counter-panel ui-counter-panel__scope"></div>
+				<div class="ui-counter-panel ui-counter-panel__scope">${myHead}</div>
 			`;
 		}
 
@@ -77,16 +95,64 @@ export default class CounterPanel
 			this.items.map((item, key) => {
 				if (item instanceof CounterItem)
 				{
-					this.#getContainer().appendChild(item.getContainer());
-
-					if (
-						this.items.length !== key + 1
-						&& this.items.length > 1
-					)
+					if (!item.hasParentId())
 					{
-						this.#getContainer().appendChild(Tag.render`
-							<div class="ui-counter-panel__item-separator ${!item.getSeparator() ? '--invisible' : ''}"></div>
-						`);
+						this.#getContainer().appendChild(item.getContainer());
+
+						if (
+							this.items.length !== key + 1
+							&& this.items.length > 1
+						)
+						{
+							this.#getContainer().appendChild(Tag.render`
+								<div class="ui-counter-panel__item-separator ${!item.getSeparator() ? '--invisible' : ''}"></div>
+							`);
+						}
+					}
+
+					if (item.parent)
+					{
+						item.getContainer().addEventListener('click', () => {
+							const itemsArr = [];
+							item.getItems().forEach(item => {
+								const itemCounter = this.getItemById(item);
+								let test = {
+									html: itemCounter.getContainerMenu(),
+									className: `ui-counter-panel__popup-item menu-popup-no-icon ${itemCounter.isActive ? '--active' : ''}`,
+									onclick: () => {
+										itemCounter.isActive
+											? itemCounter.deactivate()
+											: itemCounter.activate();
+									}
+								}
+								itemsArr.push(test);
+							});
+
+							const popup = new PopupMenuWindow({
+								className: 'ui-counter-panel__popup ui-counter-panel__scope',
+								bindElement: item.getArrowDropdown(),
+								autoHide: true,
+								closeByEsc : true,
+								items: itemsArr,
+								angle: true,
+								offsetLeft: 6,
+								offsetTop: -7,
+								animation: 'fading-slide',
+								events: {
+									onPopupShow: () => {
+										item.getContainer().classList.add('--hover');
+										item.getContainer().classList.add('--pointer-events-none');
+									},
+									onPopupClose: () => {
+										item.getContainer().classList.remove('--hover');
+										item.getContainer().classList.remove('--pointer-events-none');
+										popup.destroy();
+									}
+								}
+							});
+
+							popup.show();
+						});
 					}
 				}
 			});

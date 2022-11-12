@@ -25,7 +25,7 @@ abstract class Controller extends Main\Engine\Controller
 				$this->addError(new Main\Error('Translate module not installed'));
 			}
 
-			return count($this->getErrors()) === 0;
+			return \count($this->getErrors()) === 0;
 		}
 
 		return true;

@@ -59,6 +59,7 @@ $MESS["BIZPROC_AUTOMATION_CMP_WORK_TIME"] = "только рабочее вре�
 $MESS["BIZPROC_AUTOMATION_CMP_LOCAL_TIME"] = "локальное время";
 $MESS["BIZPROC_AUTOMATION_CMP_CHOOSE"] = "выбрать";
 $MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_TEXT"] = "Настройка роботов возможна только в дизайнере Бизнес-процессов";
+$MESS["BIZPROC_AUTOMATION_CMP_EXTERNAL_EDIT_STAGE_TEXT"] = "Настройка роботов на данной стадии возможна только в дизайнере Бизнес-процессов";
 $MESS["BIZPROC_AUTOMATION_CMP_NEED_SAVE"] = "Имеются несохраненные изменения";
 $MESS["BIZPROC_AUTOMATION_CMP_DAY1"] = "день";
 $MESS["BIZPROC_AUTOMATION_CMP_DAY2"] = "дня";
@@ -152,3 +153,8 @@ $MESS['BIZPROC_AUTOMATION_RIGHTS_ERROR'] = 'У вас недостаточно �
 $MESS['BIZPOC_AUTOMATION_NO_ROBOT_SELECTED'] = 'Не выбрано ни одного робота';
 
 $MESS['BIZPROC_AUTOMATION_BROKEN_LINK_MESSAGE_ERROR'] = 'В роботе используются отсутствующие или недоступные поля/переменные/константы.';
+
+$MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_ROBOT_ADDED'] = 'Добавлен новый робот: "#ROBOT_NAME#"';
+$MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_ROBOT_ADDED_ON_STAGE'] = 'Добавлен новый робот: "#ROBOT_NAME#" на стадию "#STAGE_NAME#"';
+$MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_TRIGGER_ADDED'] = 'Добавлен новый триггер: "#TRIGGER_NAME#"';
+$MESS['BIZPROC_AUTOMATION_ROBOT_SELECTOR_NEW_TRIGGER_ADDED_ON_STAGE'] = 'Добавлен новый триггер: "#TRIGGER_NAME#" на стадию "#STAGE_NAME#"';

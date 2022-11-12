@@ -12,6 +12,7 @@ use Bitrix\Catalog\v2\Image\DetailImage;
 use Bitrix\Catalog\v2\Image\MorePhotoImage;
 use Bitrix\Catalog\v2\Image\PreviewImage;
 use Bitrix\Catalog\v2\Integration\JS\ProductForm\BasketBuilder;
+use Bitrix\Catalog\UI\FileUploader\ProductController;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Catalog\v2\Product\BaseProduct;
 use Bitrix\Catalog\v2\Sku\BaseSku;
@@ -29,9 +30,15 @@ use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Loader;
 use Bitrix\UI\EntitySelector\Dialog;
+use Bitrix\UI\FileUploader\PendingFile;
+use Bitrix\UI\FileUploader\PendingFileCollection;
+use Bitrix\UI\FileUploader\Uploader;
 
 class ProductSelector extends JsonController
 {
+	private ?Uploader $uploader = null;
+	private ?PendingFileCollection $pendingFileCollection = null;
+
 	public function configureActions()
 	{
 		return [
@@ -645,14 +652,20 @@ class ProductSelector extends JsonController
 		$property = $entity->getPropertyCollection()->findByCode(MorePhotoImage::CODE);
 		foreach ($imageValues as $key => $newImage)
 		{
-			$newImage = $this->prepareMorePhotoValue($newImage);
+			$newImage = $this->prepareMorePhotoValue($newImage, $entity);
 			if (empty($newImage))
 			{
 				continue;
 			}
 
-			if (!$property)
+			if (!$property || !$property->isActive())
 			{
+				if (empty($previewPicture))
+				{
+					$previewPicture = $newImage;
+					continue;
+				}
+
 				$detailPicture = $newImage;
 				break;
 			}
@@ -691,16 +704,21 @@ class ProductSelector extends JsonController
 			return [];
 		}
 
-		$productImageField = new ImageInput($entity);
+		$this->commitPendingCollection();
 
-		return $productImageField->getFormattedField();
+		return (new ImageInput($entity))->getFormattedField();
 	}
 
-	private function prepareMorePhotoValue($imageValue)
+	private function prepareMorePhotoValue($imageValue, BaseIblockElementEntity $entity)
 	{
 		if (empty($imageValue))
 		{
 			return null;
+		}
+
+		if (!empty($imageValue['token']))
+		{
+			return $this->prepareMorePhotoValueByToken($imageValue, $entity);
 		}
 
 		if (is_string($imageValue))
@@ -747,6 +765,72 @@ class ProductSelector extends JsonController
 		}
 
 		return null;
+	}
+
+	private function prepareMorePhotoValueByToken(array $image, BaseIblockElementEntity $entity): ?array
+	{
+		$token = $image['token'] ?? null;
+		if (empty($token))
+		{
+			return null;
+		}
+
+		$fileId = $this->getFileIdByToken($token, $entity);
+		if ($fileId)
+		{
+			return \CIBlock::makeFileArray($fileId, false, null, ['allow_file_id' => true]);
+		}
+
+		return null;
+	}
+
+	private function getFileIdByToken(string $token, BaseIblockElementEntity $entity): ?int
+	{
+		$uploader = $this->getUploader($entity);
+		$pendingFile = $uploader->getPendingFiles([$token])->get($token);
+
+		if ($pendingFile && $pendingFile->isValid())
+		{
+			$this->addPendingFileToCollection($pendingFile);
+
+			return $pendingFile->getFileId();
+		}
+
+		return null;
+	}
+
+	private function getUploader(BaseIblockElementEntity $entity): Uploader
+	{
+		if ($this->uploader === null)
+		{
+			$fileController = new ProductController([
+				'productId' => $entity->getId(),
+			]);
+
+			$this->uploader = (new Uploader($fileController));
+		}
+
+		return $this->uploader;
+	}
+
+	private function addPendingFileToCollection(PendingFile $pendingFile): void
+	{
+		$this->getPendingFilesCollection()->add($pendingFile);
+	}
+
+	private function commitPendingCollection(): void
+	{
+		$this->getPendingFilesCollection()->makePersistent();
+	}
+
+	private function getPendingFilesCollection(): PendingFileCollection
+	{
+		if ($this->pendingFileCollection === null)
+		{
+			$this->pendingFileCollection = new PendingFileCollection();
+		}
+
+		return $this->pendingFileCollection;
 	}
 
 	private function saveSku(BaseSku $sku, array $fields = [], array $oldFields = []): Result
@@ -846,16 +930,20 @@ class ProductSelector extends JsonController
 			}
 		}
 
+		/** @var BaseProduct $parentProduct */
+		$parentProduct = $sku->getParent();
+
 		if (isset($fields['BRANDS']) && is_array($fields['BRANDS']))
 		{
-			$product = $sku->getParent();
-			if ($product)
-			{
-				$product->getPropertyCollection()->setValues(['BRAND_FOR_FACEBOOK' => $fields['BRANDS']]);
-			}
+			$parentProduct->getPropertyCollection()->setValues(['BRAND_FOR_FACEBOOK' => $fields['BRANDS']]);
 		}
 
-		return $sku->getParent()->save();
+		if (isset($fields['IBLOCK_SECTION_ID']))
+		{
+			$parentProduct->setField('IBLOCK_SECTION_ID', $fields['IBLOCK_SECTION_ID']);
+		}
+
+		return $parentProduct->save();
 	}
 
 	private function getMeasureIdByCode(string $code): ?int

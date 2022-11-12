@@ -314,6 +314,11 @@ abstract class BaseActivity extends \CBPActivity
 	{
 		$errors = [];
 
+		if (!static::checkModules())
+		{
+			return $errors;
+		}
+
 		foreach (static::getPropertiesDialogMap() as $propertyKey => $fieldProperties)
 		{
 			if(

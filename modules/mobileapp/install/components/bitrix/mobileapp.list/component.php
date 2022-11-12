@@ -35,6 +35,16 @@ function sanitizeInputData(&$item, $key, $Sanitizer)
 {
 	if($key === 'DETAIL_LINK')
 	{
+		$urlObject = parse_url($item);
+		$host = $urlObject["host"];
+		if ($host)
+		{
+			$origin = parse_url("https://" .$_SERVER["HTTP_HOST"]);
+			if ($origin["host"] !== $urlObject["host"])
+			{
+				$item = "";
+			}
+		}
 		$linkItem = '<a href="'.$item.'">test</a>';
 		if($linkItem != $Sanitizer->SanitizeHtml($linkItem))
 			$item = '';

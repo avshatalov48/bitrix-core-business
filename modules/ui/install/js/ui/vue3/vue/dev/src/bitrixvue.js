@@ -423,7 +423,7 @@ class BitrixVue
 				case 'className':
 					if (Type.isString(params[property]))
 					{
-						if (Dom.hasClass(params[property].trim()))
+						if (!Dom.hasClass(object, params[property].trim()))
 						{
 							return false;
 						}

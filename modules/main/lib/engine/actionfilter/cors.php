@@ -6,16 +6,16 @@ use Bitrix\Main;
 
 /**
  * Class Cors
- * Set headers for CORS .
+ * Set headers for CORS.
  * @package Bitrix\Main\Engine\ActionFilter
  */
 final class Cors extends Base
 {
 	/** @var string|null */
-	private $origin;
+	private ?string $origin;
 
 	/** @var bool */
-	private $credentials;
+	private bool $credentials;
 
 	/**
 	 * Constructor.
@@ -31,22 +31,36 @@ final class Cors extends Base
 		parent::__construct();
 	}
 
-	/**
-	 * Handler of event `onBeforeAction`.
-	 *
-	 * @param Main\Event $event Event.
-	 * return void
-	 */
-	public function onAfterAction(Main\Event $event)
+	public function onBeforeAction(Main\Event $event): void
 	{
-		$response = Main\Context::getCurrent()->getResponse();
-		$origin = $this->origin ?: Main\Context::getCurrent()->getRequest()->getHeader('Origin');
+		$this->setCorsHeaders();
+	}
+
+	public function onAfterAction(Main\Event $event): void
+	{
+		$this->setCorsHeaders();
+	}
+
+	private function setCorsHeaders(): void
+	{
+		$context = Main\Context::getCurrent();
+		if (!$context)
+		{
+			return;
+		}
+
+		$response = $context->getResponse();
+		$origin = $this->origin ?: $context->getRequest()->getHeader('Origin');
 		if ($origin && $response instanceof Main\HttpResponse)
 		{
-			$response->addHeader('Access-Control-Allow-Origin', $origin);
-			if ($this->credentials)
+			$currentHttpHeaders = $response->getHeaders();
+			if (!$currentHttpHeaders->get('Access-Control-Allow-Origin'))
 			{
-				$response->addHeader('Access-Control-Allow-Credentials', 'true');
+				$currentHttpHeaders->add('Access-Control-Allow-Origin', $origin);
+			}
+			if ($this->credentials && !$currentHttpHeaders->get('Access-Control-Allow-Credentials'))
+			{
+				$currentHttpHeaders->add('Access-Control-Allow-Credentials', 'true');
 			}
 		}
 	}

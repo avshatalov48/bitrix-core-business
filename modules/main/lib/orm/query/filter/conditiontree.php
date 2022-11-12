@@ -38,6 +38,9 @@ class ConditionTree
 	 */
 	protected $logic;
 
+	/** @var RandomSequence For temporary identifiers (field names) */
+	protected static RandomSequence $randomSequence;
+
 	const LOGIC_OR = 'or';
 
 	const LOGIC_AND = 'and';
@@ -446,7 +449,7 @@ class ConditionTree
 	public function whereExpr($expr, $arguments)
 	{
 		// get random field name
-		$randomSequence = new RandomSequence('orm.filter.expr');
+		$randomSequence = static::getRandomSequence();
 		$tmpName = 'TMP_'.$randomSequence->randString(10);
 
 		// set boolean expression
@@ -717,6 +720,19 @@ class ConditionTree
 		}
 
 		$this->conditions = $newConditions;
+	}
+
+	/**
+	 * @return RandomSequence
+	 */
+	protected static function getRandomSequence(): RandomSequence
+	{
+		if (!isset(static::$randomSequence))
+		{
+			static::$randomSequence = new RandomSequence('orm.filter.expr');
+		}
+
+		return static::$randomSequence;
 	}
 
 	/**

@@ -635,7 +635,7 @@ class Notify
 		$ormParams = [
 			'select' => ['ID'],
 			'filter' => ['=CHAT_ID' => $this->chatId],
-			'order' => ['ID' => 'DESC'],
+			'order' => ['DATE_CREATE' => 'DESC', 'ID' => 'DESC'],
 			'limit' => 1,
 		];
 

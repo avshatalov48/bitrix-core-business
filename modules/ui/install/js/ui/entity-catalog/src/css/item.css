@@ -1,0 +1,35 @@
+.ui-entity-catalog__option {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px 17px 19px;
+	cursor: pointer;
+}
+
+.ui-entity-catalog__option:not(.ui-entity-catalog__option:first-child) {
+	border-top: 1px solid rgba(130,139,149,.2);
+}
+
+.ui-entity-catalog__option-info_name {
+	font-weight: var(--ui-font-weight-semi-bold, 600);
+	font-size: var(--ui-font-size-xl, 16px);
+	color: var(--ui-color-text-primary, #333333);
+}
+
+.ui-entity-catalog__option-info_description {
+	margin-top: 6px;
+	opacity: 0.7;
+}
+
+.ui-entity-catalog__option:hover .ui-entity-catalog__btn {
+	background: var(--ui-color-primary, #2fc6f6);
+	color: var(--ui-color-background-primary, #ffffff);
+}
+
+.ui-entity-catalog__option-info_label {
+	margin-left: 10px;
+	font-weight: var(--ui-font-weight-regular, 400);
+	font-size: var(--ui-font-size-md, 14px);
+	line-height: var(--ui-font-line-height-xl, 1.62);
+	opacity: 0.4;
+}

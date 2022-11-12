@@ -114,6 +114,18 @@ $APPLICATION->IncludeComponent(
 $filterLayout = ob_get_clean();
 
 $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' => array(
+	$arParams['LIST_ID'] ? null : array('type' => 'buttons', 'list' => [
+		$arParams['CAN_EDIT']
+			?
+			[
+				'type' => 'add',
+				'id' => 'SENDER_BUTTON_ADD',
+				'caption' => Loc::getMessage('SENDER_CONTACT_LIST_BTN_ADD'),
+				'href' => $arParams['PATH_TO_IMPORT']
+			]
+			:
+			null
+	]),
 	array('type' => 'filter', 'content' => $filterLayout),
 	$arParams['LIST_ID'] ? null : array('type' => 'buttons', 'list' => [
 		$arParams['SHOW_SETS']
@@ -130,17 +142,7 @@ $APPLICATION->IncludeComponent("bitrix:sender.ui.panel.title", "", array('LIST' 
 		[
 			'type' => 'settings',
 			'items' => ['import']
-		],
-		$arParams['CAN_EDIT']
-			?
-			[
-				'type' => 'add',
-				'id' => 'SENDER_BUTTON_ADD',
-				'caption' => Loc::getMessage('SENDER_CONTACT_LIST_BTN_ADD'),
-				'href' => $arParams['PATH_TO_IMPORT']
-			]
-			:
-			null
+		]
 	])),
 ));
 

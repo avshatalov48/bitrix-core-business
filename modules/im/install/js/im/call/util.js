@@ -357,6 +357,11 @@
 			return BX.message('call_server_enabled') === 'Y'
 		},
 
+		isFeedbackAllowed: function()
+		{
+			return BX.message('call_allow_feedback') === 'Y'
+		},
+
 		shouldCollectStats: function()
 		{
 			return BX.message('call_collect_stats') === 'Y'
@@ -469,6 +474,16 @@
 
 			sdpLines[videoLineIndex] = sortVideoLine(sdpLines[videoLineIndex], codecRtpMaps, options);
 			return sdpLines.join("\n");
+		},
+
+		reportConnectionResult: function(callId, connectionResult)
+		{
+			BX.ajax.runAction("im.call.reportConnection", {
+				data: {
+					callId: callId,
+					connectionResult: connectionResult
+				}
+			})
 		},
 
 		sendTelemetryEvent: function(options)

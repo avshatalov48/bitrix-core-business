@@ -113,12 +113,19 @@ describe('Upload Controller', () => {
 				},
 				events: {
 					'File:onUploadProgress': handleProgress,
-					'File:onError': () => {
-
+					'File:onError': (event) => {
+						done(event.getData().error);
 					},
 					'File:onComplete': () => {
-						assert.equal(handleProgress.callCount, 6, 'onProgress Count');
-						done();
+						try
+						{
+							assert.equal(handleProgress.callCount, 6, 'onProgress Count');
+							done();
+						}
+						catch (exception)
+						{
+							done(exception);
+						}
 					}
 				}
 			});

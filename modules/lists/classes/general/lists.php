@@ -1525,7 +1525,11 @@ class CLists
 									if($unserialize)
 										$value = $unserialize;
 								}
-								if (is_array($value) && trim($value["TEXT"]) <> '')
+								if (
+									is_array($value)
+									&& !empty($value['TEXT'])
+									&& is_string($value['TEXT'])
+								)
 								{
 									if (isset($value["TYPE"]))
 									{

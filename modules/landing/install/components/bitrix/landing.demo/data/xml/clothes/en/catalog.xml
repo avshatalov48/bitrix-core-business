@@ -2,7 +2,7 @@
 <CommerceInformation SchemaVersion="2.021" CreationDate="2018-06-15T08:23:22">
 	<Metadata>
 		<Id>FUTURE-1C-CATALOG</Id>
-		<Title>CRM Trade catalog</Title>
+		<Title>CRM product catalog</Title>
 		<Properties>
 			<Property>
 				<Id>CML2_ACTIVE</Id>
@@ -507,7 +507,7 @@
 	<OffersList>
 		<Id>FUTURE-1C-CATALOG</Id>
 		<MetadataId>FUTURE-1C-CATALOG</MetadataId>
-		<Title>CRM Trade catalog</Title>
+		<Title>CRM product catalog</Title>
 		<BitrixCode>CRM_PRODUCT_CATALOG</BitrixCode>
 		<BitrixSort>500</BitrixSort>
 		<BitrixURLCanonical></BitrixURLCanonical>

@@ -4,9 +4,9 @@ import DocumentCardController from "./card/controller";
 
 export default class ControllersFactory
 {
-	constructor()
+	constructor(eventName)
 	{
-		EventEmitter.subscribe('BX.UI.EntityEditorControllerFactory:onInitialize', (event: BaseEvent) => {
+		EventEmitter.subscribe(eventName, (event: BaseEvent) => {
 			const [, eventArgs] = event.getCompatData();
 			eventArgs.methods['entityCard'] = this.factory.bind(this);
 		});
@@ -19,7 +19,7 @@ export default class ControllersFactory
 			return new DocumentCardController(controlId, settings);
 		}
 
-		if (type === 'product_list')
+		if (type === 'catalog_store_document_product_list')
 		{
 			return new ProductListController(controlId, settings);
 		}

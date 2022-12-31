@@ -77,6 +77,7 @@ class SenderStartComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 			Integration\Seo\Ads\MessageBase::CODE_ADS_VK => 'ui-icon-service-vk',
 			Integration\Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_FB => 'ui-icon-service-fb',
 			Integration\Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_VK => 'ui-icon-service-vk',
+			Integration\Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_YANDEX => 'ui-icon-service-ya-direct',
 			Integration\Crm\ReturnCustomer\MessageBase::CODE_RC_DEAL => 'ui-icon-service-deal',
 			Integration\Crm\ReturnCustomer\MessageBase::CODE_RC_LEAD => 'ui-icon-service-lead',
 			Message\iBase::CODE_TOLOKA => 'ui-icon-service-ya-toloka',

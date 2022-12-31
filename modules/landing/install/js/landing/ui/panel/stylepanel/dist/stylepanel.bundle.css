@@ -23,6 +23,10 @@
 }
 
 .landing-ui-panel-style .landing-ui-panel-content-body {
+	height: 100vh !important;
+}
+
+.landing-ui-panel-style .landing-ui-panel-content-body:not(.landing-ui-panel-content-body_long) {
 	height: calc(100vh - 198px) !important;
 }
 

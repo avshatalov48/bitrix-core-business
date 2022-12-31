@@ -1,5 +1,8 @@
 <?
+
 use Bitrix\Main,
+	Bitrix\Catalog\Access\ActionDictionary,
+	Bitrix\Catalog\Access\AccessController,
 	Bitrix\Main\Localization,
 	Bitrix\Main\Loader,
 	Bitrix\Catalog,
@@ -12,10 +15,15 @@ $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."cat_group_admin.php?lang=".LANGUAGE_ID;
 $listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
 
-if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_group')))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 Loader::includeModule('catalog');
-$bReadOnly = !$USER->CanDoOperation('catalog_group');
+
+$accessController = AccessController::getCurrent();
+if (!($accessController->check(ActionDictionary::ACTION_CATALOG_READ) || $accessController->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT)))
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
+
+$bReadOnly = !$accessController->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT);
 
 if ($ex = $APPLICATION->GetException())
 {
@@ -45,6 +53,8 @@ if (Catalog\Config\State::isExceededPriceTypeLimit())
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
+
+$isCrmPublicSide = $adminSidePanelHelper->isPublicSidePanel() && Loader::includeModule('crm');
 
 $arLangList = array();
 $iterator = Localization\LanguageTable::getList([
@@ -89,6 +99,8 @@ if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && ($save <> '' || $appl
 {
 	$adminSidePanelHelper->decodeUriComponent();
 
+	$isNewRecord = $ID <= 0;
+
 	$arGroupID = array();
 	if (!empty($_POST['USER_GROUP']) && is_array($_POST['USER_GROUP']))
 	{
@@ -117,32 +129,47 @@ if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && ($save <> '' || $appl
 		unset($intValue);
 	}
 
-	if ($adminSidePanelHelper->isPublicSidePanel() && Loader::includeModule('crm'))
+	// in CRM user cannot select user groups
+	if ($isCrmPublicSide)
 	{
-		$groupUserBuyList = [];
-		$groupUserList = [];
-
-		$iterator = Catalog\GroupAccessTable::getList([
-			'select' => ['GROUP_ID', 'ACCESS']
-		]);
-		while ($row = $iterator->fetch())
+		if ($isNewRecord)
 		{
-			$row['GROUP_ID'] = (int)$row['GROUP_ID'];
-			if ($row['ACCESS'] === Catalog\GroupAccessTable::ACCESS_BUY)
+			$arGroupID = array_column($arUserGroupList, 'ID');
+			$arGroupBuyID = array_column($arUserGroupList, 'ID');
+
+			if ($arGroupID || $arGroupBuyID)
 			{
-				$groupUserBuyList[] = $row['GROUP_ID'];
-			}
-			else
-			{
-				$groupUserList[] = $row['GROUP_ID'];
+				$groupUserBuyList = [];
+				$groupUserList = [];
+
+				$iterator = Catalog\GroupAccessTable::getList([
+					'select' => ['GROUP_ID', 'ACCESS']
+				]);
+				while ($row = $iterator->fetch())
+				{
+					$row['GROUP_ID'] = (int)$row['GROUP_ID'];
+					if ($row['ACCESS'] === Catalog\GroupAccessTable::ACCESS_BUY)
+					{
+						$groupUserBuyList[] = $row['GROUP_ID'];
+					}
+					else
+					{
+						$groupUserList[] = $row['GROUP_ID'];
+					}
+				}
+				unset($row, $iterator);
+
+				$arGroupID = Order\BuyerGroup::prepareGroupIds($groupUserList, $arGroupID);
+				$arGroupBuyID = Order\BuyerGroup::prepareGroupIds($groupUserBuyList, $arGroupBuyID);
+
+				unset($groupUserBuyList, $groupUserList);
 			}
 		}
-		unset($row, $iterator);
-
-		$arGroupID = Order\BuyerGroup::prepareGroupIds($groupUserList, $arGroupID);
-		$arGroupBuyID = Order\BuyerGroup::prepareGroupIds($groupUserBuyList, $arGroupBuyID);
-
-		unset($groupUserBuyList, $groupUserList);
+		else
+		{
+			$arGroupID = null;
+			$arGroupBuyID = null;
+		}
 	}
 
 	$arUserLang = array();
@@ -157,20 +184,28 @@ if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && ($save <> '' || $appl
 		'BASE' => (isset($_POST['BASE']) && 'Y' == $_POST['BASE'] ? 'Y' : 'N'),
 		'SORT' => intval(isset($_POST['SORT']) ? $_POST['SORT'] : 100),
 		'XML_ID' => (isset($_POST['XML_ID']) ? $_POST['XML_ID'] : ''),
-		'USER_GROUP' => $arGroupID,
-		'USER_GROUP_BUY' => $arGroupBuyID,
 		'USER_LANG' => $arUserLang,
 	);
 
-	$DB->StartTransaction();
-	if (0 < $ID)
+	if (isset($arGroupID))
 	{
-		$bVarsFromForm = !CCatalogGroup::Update($ID, $arFields);
+		$arFields['USER_GROUP'] = $arGroupID;
 	}
-	else
+
+	if (isset($arGroupBuyID))
+	{
+		$arFields['USER_GROUP_BUY'] = $arGroupBuyID;
+	}
+
+	$DB->StartTransaction();
+	if ($isNewRecord)
 	{
 		$ID = CCatalogGroup::Add($arFields);
 		$bVarsFromForm = (!(0 < intval($ID)));
+	}
+	else
+	{
+		$bVarsFromForm = !CCatalogGroup::Update($ID, $arFields);
 	}
 
 	if (!$bVarsFromForm)
@@ -189,7 +224,7 @@ if (!$bReadOnly && 'POST' == $_SERVER['REQUEST_METHOD'] && ($save <> '' || $appl
 			}
 			elseif ($apply <> '')
 			{
-				$applyUrl = $selfFolderUrl."cat_group_edit.php?lang=".$lang."&ID=".$ID;
+				$applyUrl = $selfFolderUrl."cat_group_edit.php?lang=".LANGUAGE_ID."&ID=".$ID;
 				$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
 				LocalRedirect($applyUrl);
 			}
@@ -354,7 +389,7 @@ $tabControl->BeginNextTab();
 		{
 			?>
 			<input type="hidden" name="BASE" value="N" />
-			<input type="checkbox" id="ch_BASE" name="BASE" value="Y" <? echo ('Y' == $arCatalogGroup['BASE'] ? 'checked' : ''); ?>/>
+			<input type="checkbox" id="ch_BASE" name="BASE" value="Y" <?= ($arCatalogGroup['BASE'] === 'Y' ? 'checked' : ''); ?> <?=($bReadOnly) ? " disabled" : ""?>/>
 			<?
 		}
 		else
@@ -378,33 +413,45 @@ $tabControl->BeginNextTab();
 	</tr>
 	<tr>
 		<td width="40%"><?echo GetMessage("BT_CAT_GROUP_EDIT_FIELDS_XML_ID"); ?></td>
-		<td width="60%"><input type="text" name="XML_ID" value="<? echo htmlspecialcharsbx($arCatalogGroup['XML_ID']); ?>"></td>
+		<td width="60%">
+			<input type="text" name="XML_ID" value="<?= htmlspecialcharsbx($arCatalogGroup['XML_ID']); ?>" <?=($bReadOnly) ? " disabled" : ""?>>
+		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
 		<td width="40%"><?echo GetMessage("CODE") ?></td>
-		<td width="60%"><input type="text" name="NAME" value="<? echo htmlspecialcharsbx($arCatalogGroup['NAME']); ?>"></td>
+		<td width="60%">
+			<input type="text" name="NAME" value="<?= htmlspecialcharsbx($arCatalogGroup['NAME']); ?>" <?=($bReadOnly) ? " disabled" : ""?>>
+		</td>
 	</tr>
 	<tr>
 		<td width="40%"><?echo GetMessage("SORT2") ?></td>
-		<td width="60%"><input type="text" name="SORT" value="<? echo intval($arCatalogGroup['SORT']); ?>"></td>
+		<td width="60%">
+			<input type="text" name="SORT" value="<?= (int)($arCatalogGroup['SORT']); ?>" <?=($bReadOnly) ? " disabled" : ""?>>
+		</td>
 	</tr>
 	<?
-	foreach ($arLangList as &$arOneLang)
+	foreach ($arLangList as $arOneLang)
 	{
 		?><tr>
 			<td width="40%"><?echo GetMessage("NAME") ?> (<?=htmlspecialcharsbx($arOneLang['NAME']); ?>):</td>
-			<td width="60%"><input type="text" name="NAME_LANG[<?=htmlspecialcharsbx($arOneLang['LID']); ?>]" value="<?=htmlspecialcharsbx(isset($arGroupLangList[$arOneLang['LID']]) ? $arGroupLangList[$arOneLang['LID']] : ''); ?>"></td>
+			<td width="60%">
+				<input type="text" name="NAME_LANG[<?=htmlspecialcharsbx($arOneLang['LID']); ?>]" value="<?=htmlspecialcharsbx(isset($arGroupLangList[$arOneLang['LID']]) ? $arGroupLangList[$arOneLang['LID']] : ''); ?>" <?=($bReadOnly) ? " disabled" : ""?>>
+			</td>
 		</tr><?
 	}
 	if (isset($arOneLang))
 		unset($arOneLang);
+	?>
+
+	<?php
+	if (!$isCrmPublicSide):
 	?>
 	<tr class="adm-detail-required-field">
 		<td valign="top" width="40%">
 			<?echo GetMessage('CAT_GROUPS');?>
 		</td>
 		<td width="60%">
-			<select name="USER_GROUP[]" multiple size="8">
+			<select name="USER_GROUP[]" multiple size="8" <?=($bReadOnly) ? " disabled" : ""?>>
 			<?
 			foreach ($arUserGroupList as &$arOneGroup)
 			{
@@ -421,7 +468,7 @@ $tabControl->BeginNextTab();
 			<?echo GetMessage('CAT_GROUPS_BUY');?>
 		</td>
 		<td width="60%">
-			<select name="USER_GROUP_BUY[]" multiple size="8">
+			<select name="USER_GROUP_BUY[]" multiple size="8" <?=($bReadOnly) ? " disabled" : ""?>>
 			<?
 			foreach ($arUserGroupList as &$arOneGroup)
 			{
@@ -433,9 +480,15 @@ $tabControl->BeginNextTab();
 			</select>
 		</td>
 	</tr>
+	<?php
+	endif;
+	?>
 <?
 $tabControl->EndTab();
-$tabControl->Buttons(array("disabled" => $bReadOnly, "back_url" => $listUrl));
+if (!$bReadOnly)
+{
+	$tabControl->Buttons(array("back_url" => $listUrl));
+}
 $tabControl->End();
 ?>
 </form>

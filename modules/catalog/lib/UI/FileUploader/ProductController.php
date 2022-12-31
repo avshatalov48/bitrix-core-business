@@ -2,6 +2,8 @@
 
 namespace Bitrix\Catalog\UI\FileUploader;
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\v2\Image\MorePhotoImage;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Iblock\PropertyTable;
@@ -67,9 +69,7 @@ class ProductController extends UploaderController
 
 	public function isAvailable(): bool
 	{
-		$user = CurrentUser::get();
-
-		return $user->canDoOperation('catalog_read') || $user->canDoOperation('catalog_view');
+		return AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ);
 	}
 
 	public function getConfiguration(): Configuration
@@ -108,7 +108,7 @@ class ProductController extends UploaderController
 
 	public function canUpload(): bool
 	{
-		return CurrentUser::get()->canDoOperation('catalog_store');
+		return CurrentUser::get()->canDoOperation(ActionDictionary::ACTION_STORE_VIEW);
 	}
 
 	public function verifyFileOwner(FileOwnershipCollection $files): void

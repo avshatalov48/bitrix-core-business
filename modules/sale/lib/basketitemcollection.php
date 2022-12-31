@@ -149,15 +149,21 @@ abstract class BasketItemCollection extends Internals\EntityCollection
 	 */
 	public function getItemById($id)
 	{
+		$id = (int)$id;
+
 		if ($id <= 0)
+		{
 			return null;
+		}
 
 		/** @var BasketItemBase $basketItem */
 		foreach ($this->collection as $basketItem)
 		{
 			$item = $basketItem->findItemById($id);
 			if ($item !== null)
+			{
 				return $item;
+			}
 		}
 
 		return null;

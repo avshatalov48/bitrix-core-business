@@ -119,7 +119,7 @@ export class ProductSearchInput
 	getNameInput(): HTMLInputElement
 	{
 		return this.cache.remember('nameInput', () => {
-			return Tag.render`
+			const input = Tag.render`
 				<input type="text"
 					class="ui-ctl-element ui-ctl-textbox"
 					autocomplete="off"
@@ -130,6 +130,14 @@ export class ProductSearchInput
 					onchange="${this.handleNameInputHiddenChange.bind(this)}"
 				>
 			`;
+
+			if (this.selector.getConfig('SELECTOR_INPUT_DISABLED', false))
+			{
+				Dom.addClass(input, 'ui-ctl-disabled');
+				input.setAttribute('disabled', true);
+			}
+
+			return input;
 		});
 	}
 
@@ -296,12 +304,14 @@ export class ProductSearchInput
 			{
 				params.footer = ProductCreationLimitedFooter;
 			}
-			else if (this.model && this.model.isSaveable() && this.model.isCatalogExisted())
+			else if (this.model && this.model.isCatalogExisted())
 			{
 				params.footer = ProductSearchSelectorFooter;
 				params.footerOptions = {
 					inputName: this.inputName,
+					allowEditItem: this.isAllowedEditProduct(),
 					allowCreateItem: this.isAllowedCreateProduct(),
+					errorAdminHint: settingsCollection.get('errorAdminHint'),
 					creationLabel: Loc.getMessage('CATALOG_SELECTOR_SEARCH_POPUP_FOOTER_CREATE'),
 					currentValue: this.getValue(),
 				};
@@ -327,7 +337,7 @@ export class ProductSearchInput
 			this.selector.setConfig('EXIST_DIALOG_ITEMS', true);
 			return;
 		}
-		
+
 		// is null, that not send ajax
 		this.selector.setConfig('EXIST_DIALOG_ITEMS', false);
 
@@ -350,7 +360,12 @@ export class ProductSearchInput
 
 	isAllowedCreateProduct(): boolean
 	{
-		return this.selector.getConfig('IS_ALLOWED_CREATION_PRODUCT', true);
+		return this.selector.getConfig('IS_ALLOWED_CREATION_PRODUCT', true) && this.selector.checkProductAddRights();
+	}
+
+	isAllowedEditProduct(): boolean
+	{
+		return this.selector.checkProductEditRights();
 	}
 
 	handleNameInputKeyDown(event: KeyboardEvent): void
@@ -529,7 +544,7 @@ export class ProductSearchInput
 					dialog.setPreselectedItems([this.selector.getModel().getSkuId()]);
 					dialog.getRecentTab().getRootNode().addItem(this.loadedSelectedItem);
 					dialog.selectFirstTab();
-					dialog.getFooter().hide();
+					dialog.getFooter()?.hide();
 				}
 				else
 				{
@@ -538,7 +553,7 @@ export class ProductSearchInput
 			});
 
 		dialog.getPopup().show();
-		dialog.getFooter().hide();
+		dialog.getFooter()?.hide();
 	}
 
 	#loadPreselectedItems()
@@ -597,9 +612,15 @@ export class ProductSearchInput
 		)
 		{
 			dialog.hide();
+
 			return;
 		}
 
+		this.showItems();
+	}
+
+	showItems()
+	{
 		if (this.getFilledValue() === '')
 		{
 			this.#showPreselectedItems();
@@ -655,7 +676,7 @@ export class ProductSearchInput
 				{
 					this.model.getErrorCollection().setError(
 						SelectorErrorCode.NOT_SELECTED_PRODUCT,
-						Loc.getMessage('CATALOG_SELECTOR_SELECTED_PRODUCT_TITLE')
+						this.selector.getEmptySelectErrorMessage()
 					);
 
 					this.selector.layoutErrors();

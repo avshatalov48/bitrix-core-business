@@ -1444,6 +1444,7 @@ else
 								|| in_array((int)$arComment['EVENT']['ID'], $arParams['UNREAD_COMMENTS_ID_LIST'], true)
 							)
 						);
+
 						$arRecords[$commentId] = [
 							"ID" => $commentId,
 							'NEW' => ($isNew ? 'Y' : 'N'),

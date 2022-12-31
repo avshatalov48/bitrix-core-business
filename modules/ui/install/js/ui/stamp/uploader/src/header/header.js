@@ -43,7 +43,7 @@ export default class Header
 		return this.cache.remember('valueLayout', () => {
 			return Tag.render`
 				<div class="ui-stamp-uploader-header-text-value">
-					<span class="ui-link">${Text.encode(this.getOptions().contact.label)}</span>
+					<span title="${Text.encode(this.getOptions().contact.label)}">${Text.encode(this.getOptions().contact.label)}</span>
 				</div>
 			`;
 		});

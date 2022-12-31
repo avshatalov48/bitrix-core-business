@@ -262,12 +262,15 @@ class FirstSchemeBuilder extends Builder
 					$shipmentItem = $newShipmentItemCollection->createItem($basketItemsMap[$basketItemId]);
 					$shipmentItem->setFieldsNoDemand($oldItemStore);
 					$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
-					/** @var Sale\ShipmentItemStore $itemStore */
-					$itemStore = $shipmentItemStoreCollection->createItem($basketItemsMap[$basketItemId]);
-					$oldBasketBarcodeData = $itemsStoreMap[$basketItemId][$oldItemStore['ID']];
-					if (is_array($oldBasketBarcodeData) && empty($oldBasketBarcodeData))
+					if ($shipmentItemStoreCollection)
 					{
-						$itemStore->setFieldsNoDemand($oldBasketBarcodeData);
+						/** @var Sale\ShipmentItemStore $itemStore */
+						$itemStore = $shipmentItemStoreCollection->createItem($basketItemsMap[$basketItemId]);
+						$oldBasketBarcodeData = $itemsStoreMap[$basketItemId][$oldItemStore['ID']];
+						if (is_array($oldBasketBarcodeData) && empty($oldBasketBarcodeData))
+						{
+							$itemStore->setFieldsNoDemand($oldBasketBarcodeData);
+						}
 					}
 				}
 			}

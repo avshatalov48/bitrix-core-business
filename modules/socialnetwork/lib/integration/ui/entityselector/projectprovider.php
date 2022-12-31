@@ -823,7 +823,7 @@ class ProjectProvider extends BaseProvider
 
 	public static function canCreateProject(): bool
 	{
-		return \Bitrix\Socialnetwork\Helper\Workgroup::canCreate();
+		return \Bitrix\Socialnetwork\Helper\Workgroup\Access::canCreate();
 	}
 
 	private function fillRecentTab(Dialog $dialog, EO_Workgroup_Collection $projects): void

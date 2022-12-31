@@ -1,25 +1,33 @@
-<?
+<?php
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
+
 use Bitrix\Main,
 	Bitrix\Main\Loader,
+	Bitrix\Catalog\Access\AccessController,
+	Bitrix\Catalog\Access\ActionDictionary,
 	Bitrix\Main\Localization\Loc;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 $module_id = "catalog";
 
-if ($USER->CanDoOperation('catalog_read')) :
+Loc::loadMessages(__FILE__);
+if (!Loader::includeModule('catalog'))
+{
+	CAdminMessage::ShowMessage(GetMessage("CAT_1C_CATALOG_MODULE_IS_EMPTY"));
+	\Bitrix\Main\Application::getInstance()->end();
+}
+
+if (AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)) :
 
 	if ($ex = $APPLICATION->GetException())
 	{
 		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 		ShowError($ex->GetString());
 		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-		die();
+		\Bitrix\Main\Application::getInstance()->end();
 	}
-
-	Loc::loadMessages(__FILE__);
 
 	if (Loader::includeModule('iblock')):
 

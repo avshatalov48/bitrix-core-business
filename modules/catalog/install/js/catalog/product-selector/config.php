@@ -1,6 +1,8 @@
 <?php
 
 use Bitrix\Catalog\StoreDocumentTable;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -74,5 +76,10 @@ return [
 		'isEnabledQrAuth' => $isEnabledQrAuth,
 		'isShowedBarcodeSpotlightInfo' => $isShowedBarcodeSpotlightInfo,
 		'isAllowedShowBarcodeSpotlightInfo' => $isAllowedShowBarcodeSpotlightInfo,
+		'errorAdminHint' =>
+			Loader::includeModule('bitrix24')
+				? Loc::getMessage('CATALOG_SELECTOR_SEARCH_POPUP_DISABLED_ADMIN_B4_HINT')
+				: Loc::getMessage('CATALOG_SELECTOR_SEARCH_POPUP_DISABLED_ADMIN_HINT')
+		,
 	],
 ];

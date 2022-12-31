@@ -104,11 +104,6 @@
 		);
 	};
 
-	BX.Main.grid.isNeedResourcesReady = function(container)
-	{
-		return BX.hasClass(container, 'main-grid-load-animation');
-	};
-
 	BX.Main.grid.prototype = {
 		init: function(containerId, arParams, userOptions, userOptionsActions, userOptionsHandlerUrl, panelActions, panelTypes, editorTypes, messageTypes)
 		{
@@ -547,6 +542,8 @@
 
 						self.getRows().reset();
 						var bodyRows = this.getBodyRows();
+
+						self.getUpdater().updateContainer(this.getContainer());
 						self.getUpdater().updateHeadRows(this.getHeadRows());
 						self.getUpdater().updateBodyRows(bodyRows);
 						self.getUpdater().updateFootRows(this.getFootRows());
@@ -856,6 +853,8 @@
 				BX.onCustomEvent(window, 'BX.Main.Grid:onBeforeReload', [self]);
 				self.getRows().reset();
 				bodyRows = this.getBodyRows();
+
+				self.getUpdater().updateContainer(this.getContainer());
 				self.getUpdater().updateHeadRows(this.getHeadRows());
 				self.getUpdater().updateBodyRows(bodyRows);
 				self.getUpdater().updateFootRows(this.getFootRows());

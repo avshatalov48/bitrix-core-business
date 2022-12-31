@@ -1178,6 +1178,21 @@
 	    return this.response;
 	  };
 	  /**
+	   * Returns a grid container
+	   * @return {?Element}
+	   */
+
+
+	  BX.Grid.Data.prototype.getContainer = function () {
+	    var className = this.getParent().settings.get('classContainer');
+
+	    if (BX.Dom.hasClass(this.getResponse(), className)) {
+	      return this.getResponse();
+	    }
+
+	    return BX.Grid.Utils.getByClass(this.getResponse(), className, true);
+	  };
+	  /**
 	   * Gets head rows of grid from server response
 	   * @return {?HTMLTableRowElement[]}
 	   */
@@ -2214,6 +2229,17 @@
 	          panelNode.appendChild(panelChild);
 	        }
 	      }
+	    }
+	  };
+	  /**
+	   * Updates a grid container
+	   * @param {?HTMLElement} container
+	   */
+
+
+	  BX.Grid.Updater.prototype.updateContainer = function (container) {
+	    if (BX.Type.isDomNode(container)) {
+	      this.getParent().getContainer().className = container.className;
 	    }
 	  };
 	})();
@@ -8114,10 +8140,6 @@
 	    this.init(containerId, arParams, userOptions, userOptionsActions, userOptionsHandlerUrl, panelActions, panelTypes, editorTypes, messageTypes);
 	  };
 
-	  BX.Main.grid.isNeedResourcesReady = function (container) {
-	    return BX.hasClass(container, 'main-grid-load-animation');
-	  };
-
 	  BX.Main.grid.prototype = {
 	    init: function init(containerId, arParams, userOptions, userOptionsActions, userOptionsHandlerUrl, panelActions, panelTypes, editorTypes, messageTypes) {
 	      this.baseUrl = window.location.pathname + window.location.search;
@@ -8464,6 +8486,7 @@
 
 	          self.getRows().reset();
 	          var bodyRows = this.getBodyRows();
+	          self.getUpdater().updateContainer(this.getContainer());
 	          self.getUpdater().updateHeadRows(this.getHeadRows());
 	          self.getUpdater().updateBodyRows(bodyRows);
 	          self.getUpdater().updateFootRows(this.getFootRows());
@@ -8708,6 +8731,7 @@
 	        BX.onCustomEvent(window, 'BX.Main.Grid:onBeforeReload', [self]);
 	        self.getRows().reset();
 	        bodyRows = this.getBodyRows();
+	        self.getUpdater().updateContainer(this.getContainer());
 	        self.getUpdater().updateHeadRows(this.getHeadRows());
 	        self.getUpdater().updateBodyRows(bodyRows);
 	        self.getUpdater().updateFootRows(this.getFootRows());

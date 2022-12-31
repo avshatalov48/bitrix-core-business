@@ -375,6 +375,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST["apply"]) || isset($_P
 	if ($property['TYPE'] == 'ENUM')
 	{
 		$index = 0;
+		$variantCodes = [];
 		foreach ($variants as $row)
 		{
 			++ $index;
@@ -385,6 +386,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && (isset($_POST["apply"]) || isset($_P
 			else
 			{
 				$hasError = false;
+				if (in_array($row['VALUE'], $variantCodes, true))
+				{
+					$errors[] = Loc::getMessage('INPUT_ENUM_NOT_UNIQUE_CODES');
+					$hasError = true;
+				}
+				else
+				{
+					$variantCodes[] = $row['VALUE'];
+				}
 				foreach ($variantSettings as $name => $input)
 					if ($error = Input\Manager::getError($input, $row[$name]))
 					{

@@ -14,7 +14,7 @@ return [
 	'cards' => [
 		'.landing-block-card' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_FAQ_6_CARD'),
-			'label' => ['.landing-block-node-title'],
+			'label' => ['.landing-block-node-card-title'],
 		],
 	],
 	'nodes' => [

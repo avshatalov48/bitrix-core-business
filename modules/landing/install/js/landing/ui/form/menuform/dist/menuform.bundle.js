@@ -1,28 +1,14 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports, main_core, landing_loc, landing_env, landing_main, landing_ui_form_baseform, landing_ui_form_menuitemform, ui_draganddrop_draggable) {
+(function (exports,main_core,landing_loc,landing_env,landing_main,landing_ui_form_baseform,landing_ui_form_menuitemform,ui_draganddrop_draggable) {
 	'use strict';
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-menu-add\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
+	var _templateObject, _templateObject2;
 
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button \n\t\t\t\t\tclass=\"ui-btn ui-btn-sm ui-btn-light-border ui-btn-icon-add ui-btn-round landing-ui-form-menu-add-button\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	/**
 	 * @memberOf BX.Landing.UI.Form
 	 */
@@ -100,7 +86,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          if (currentDepth === parentDepth + 1) {
 	            var form = _this2.forms.getByLayout(current);
 
-	            acc.push(babelHelpers.objectSpread({}, form.serialize(), {
+	            acc.push(_objectSpread(_objectSpread({}, form.serialize()), {}, {
 	              children: getChildren(current)
 	            }));
 	          }
@@ -113,7 +99,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        if (_this2.draggable.getElementDepth(element) === 0) {
 	          var form = _this2.forms.getByLayout(element);
 
-	          acc.push(babelHelpers.objectSpread({}, form.serialize(), {
+	          acc.push(_objectSpread(_objectSpread({}, form.serialize()), {}, {
 	            children: getChildren(element)
 	          }));
 	        }
@@ -131,10 +117,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        target: '_blank',
 	        href: ['KNOWLEDGE', 'GROUP'].includes(pageType) ? '#landing0' : ''
 	      };
-	      var allowedTypes = [BX.Landing.UI.Field.LinkURL.TYPE_BLOCK, BX.Landing.UI.Field.LinkURL.TYPE_PAGE, BX.Landing.UI.Field.LinkURL.TYPE_CRM_FORM, BX.Landing.UI.Field.LinkURL.TYPE_CRM_PHONE];
+	      var allowedTypes = [BX.Landing.UI.Field.LinkUrl.TYPE_BLOCK, BX.Landing.UI.Field.LinkUrl.TYPE_PAGE, BX.Landing.UI.Field.LinkUrl.TYPE_CRM_FORM, BX.Landing.UI.Field.LinkUrl.TYPE_CRM_PHONE];
 
 	      if (pageType === 'STORE') {
-	        allowedTypes.push(BX.Landing.UI.Field.LinkURL.TYPE_CATALOG);
+	        allowedTypes.push(BX.Landing.UI.Field.LinkUrl.TYPE_CATALOG);
 	      }
 
 	      var field = new BX.Landing.UI.Field.Link({
@@ -176,7 +162,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('addButton', function () {
-	        return main_core.Tag.render(_templateObject(), _this3.onAddButtonClick.bind(_this3), landing_loc.Loc.getMessage('LANDING_ADD_MENU_ITEM'));
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<button \n\t\t\t\t\tclass=\"ui-btn ui-btn-sm ui-btn-light-border ui-btn-icon-add ui-btn-round landing-ui-form-menu-add-button\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t</button>\n\t\t\t"])), _this3.onAddButtonClick.bind(_this3), landing_loc.Loc.getMessage('LANDING_ADD_MENU_ITEM'));
 	      });
 	    }
 	  }, {
@@ -185,7 +171,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this4 = this;
 
 	      return this.cache.remember('addItemLayout', function () {
-	        return main_core.Tag.render(_templateObject2(), _this4.getAddButton());
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-form-menu-add\">\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this4.getAddButton());
 	      });
 	    }
 	  }]);
@@ -194,5 +180,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.MenuForm = MenuForm;
 
-}(this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}, BX, BX.Landing, BX.Landing, BX.Landing, BX.Landing.UI.Form, BX.Landing.UI.Form, BX.UI.DragAndDrop));
+}((this.BX.Landing.UI.Form = this.BX.Landing.UI.Form || {}),BX,BX.Landing,BX.Landing,BX.Landing,BX.Landing.UI.Form,BX.Landing.UI.Form,BX.UI.DragAndDrop));
 //# sourceMappingURL=menuform.bundle.js.map

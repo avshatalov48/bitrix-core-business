@@ -13,6 +13,7 @@ export class PhotoContent extends Content
 	{
 		super(options);
 		this.setEventNamespace('BX.UI.SignUp.Content.PhotoContent');
+		this.subscribeFromOptions(options?.events);
 	}
 
 	getTakePhotoButton(): Button
@@ -72,18 +73,24 @@ export class PhotoContent extends Content
 
 			Dom.replace(this.getButtonsLayout(), this.getPreviewLayout());
 
-			void this.getCanvas().renderImage(file);
+			this.getCanvas()
+				.renderImage(file)
+				.then(() => {
+					this.emit('onChange');
+				});
 		}
 	}
 
 	getButtonsLayout(): HTMLDivElement
 	{
 		return this.cache.remember('buttonsLayout', () => {
+			// const takePhotoLayout = Tag.render`
+			// 	<div class="ui-sign-up-content-photo-button-wrapper">
+			// 		${this.getOptions().mode !== 'desktop' ? this.getTakePhotoButton().render() : ''}
+			// 	</div>
+			// `;
 			return Tag.render`
 				<div class="ui-sign-up-content-photo-buttons">
-					<div class="ui-sign-up-content-photo-button-wrapper">
-						${this.getOptions().mode !== 'desktop' ? this.getTakePhotoButton().render() : ''}
-					</div>
 					<div class="ui-sign-up-content-photo-button-wrapper">
 						${this.getUploadPhoto().render()}
 					</div>

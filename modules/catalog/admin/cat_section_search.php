@@ -3,14 +3,23 @@
 /** @global CUser $USER */
 /** @global CDatabase $DB */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
+
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 
 global $APPLICATION, $USER, $DB, $USER_FIELD_MANAGER;
 
-if (!$USER->CanDoOperation('catalog_read') && !$USER->CanDoOperation('catalog_view'))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 CModule::IncludeModule("catalog");
+if (
+	!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
+	&& !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_VIEW)
+)
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
 
 IncludeModuleLangFile(__FILE__);
 

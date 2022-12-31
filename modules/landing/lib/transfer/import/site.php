@@ -1,8 +1,12 @@
 <?php
 namespace Bitrix\Landing\Transfer\Import;
 
+use Bitrix\Landing\Hook\Page\Copyright;
+use Bitrix\Landing\Hook\Page\B24button;
+use Bitrix\Landing\Rights;
 use \Bitrix\Landing\Site as SiteCore;
 use \Bitrix\Landing\Landing as LandingCore;
+use Bitrix\Landing\Site\Type;
 use \Bitrix\Landing\Transfer\AppConfiguration;
 use \Bitrix\Landing\Block;
 use \Bitrix\Landing\File;
@@ -163,7 +167,7 @@ class Site
 
 		if ($userId)
 		{
-			\Bitrix\Landing\Rights::setContextUserId($userId);
+			Rights::setContextUserId($userId);
 		}
 
 		$data = $content['~DATA'];
@@ -183,15 +187,10 @@ class Site
 		// site import
 		if (!$isPageImport)
 		{
-			if (!isset($data['TYPE']))
-			{
-				$data['TYPE'] = 'PAGE';
-			}
-			\Bitrix\Landing\Site\Type::setScope($data['TYPE']);
-			if ($additional)
-			{
-				$data = self::prepareAdditionalFields($data, $additional);
-			}
+			$data = self::prepareData($data);
+			$data = self::prepareAdditionalFields($data, $additional);
+
+			Type::setScope($data['TYPE']);
 			$res = self::importSite($data, $structure);
 			if ($res->isSuccess())
 			{
@@ -248,31 +247,49 @@ class Site
 	}
 
 	/**
-	 * Prepare hooks and settings by additional fields
-	 * @param $data - base params
-	 * @param $additional - additional data
+	 * Prepare site data, set some fields to default values
+	 * @param array $data
 	 * @return array
 	 */
-	protected static function prepareAdditionalFields(array $data, array $additional): array
+	protected static function prepareData(array $data): array
 	{
-		if ($color = $additional['theme'])
+		if (!isset($data['TYPE']))
 		{
+			$data['TYPE'] = 'PAGE';
+		}
+
+		$data['LANG'] = Manager::getZone();
+
+		return $data;
+	}
+
+	/**
+	 * Prepare hooks and settings by additional fields
+	 * @param array $data - base params
+	 * @param array|null $additional - additional data
+	 * @return array
+	 */
+	protected static function prepareAdditionalFields(array $data, ?array $additional): array
+	{
+		if ($additional && $additional['theme'])
+		{
+			$color = $additional['theme'];
 			if ($color[0] !== '#')
 			{
-				$color = '#'.$color;
+				$color = '#' . $color;
 			}
 			$data['ADDITIONAL_FIELDS']['THEME_COLOR'] = $color;
 			unset($data['ADDITIONAL_FIELDS']['THEME_CODE']);
 			$data['ADDITIONAL_FIELDS']['THEME_USE'] = 'Y';
 		}
 
-		if ($additional['title'])
+		if ($additional && $additional['title'])
 		{
 			$data['TITLE'] = $additional['title'];
 		}
 
 		//default widget value
-		$buttons = \Bitrix\Landing\Hook\Page\B24button::getButtons();
+		$buttons = B24button::getButtons();
 		$buttonKeys = array_keys($buttons);
 		if (!empty($buttonKeys))
 		{
@@ -281,6 +298,17 @@ class Site
 		else
 		{
 			$data['ADDITIONAL_FIELDS']['B24BUTTON_CODE'] = 'N';
+		}
+		//default site boost
+		$data['ADDITIONAL_FIELDS']['SPEED_USE_WEBPACK'] = 'Y';
+		$data['ADDITIONAL_FIELDS']['SPEED_USE_LAZY'] = 'Y';
+		//default powered by b24
+		$data['ADDITIONAL_FIELDS']['COPYRIGHT_SHOW'] = 'Y';
+		$data['ADDITIONAL_FIELDS']['COPYRIGHT_CODE'] = Copyright::getRandomPhraseId();
+		//default cookie
+		if (in_array(Manager::getZone(), ['es', 'de', 'fr', 'it', 'pl', 'uk']))
+		{
+			$data['ADDITIONAL_FIELDS']['COOKIES_USE'] = 'Y';
 		}
 
 		return $data;
@@ -421,12 +449,12 @@ class Site
 
 		if ($userId)
 		{
-			\Bitrix\Landing\Rights::setContextUserId($userId);
+			Rights::setContextUserId($userId);
 		}
 
 		if (isset($ratio['LANDING']))
 		{
-			\Bitrix\Landing\Rights::setGlobalOff();
+			Rights::setGlobalOff();
 			$siteType = $ratio['LANDING']['TYPE'];
 			$siteId = $ratio['LANDING']['SITE_ID'];
 			$blocks = $ratio['LANDING']['BLOCKS'];
@@ -466,7 +494,7 @@ class Site
 				}
 			}
 
-				\Bitrix\Landing\Site\Type::setScope($siteType);
+			Type::setScope($siteType);
 			if ($blocksPending)
 			{
 				self::linkingPendingBlocks($blocksPending, [
@@ -620,7 +648,7 @@ class Site
 			//set default additional fields for page
 			self::setAdditionalPageFields($mainPageId, $additional);
 
-			\Bitrix\Landing\Rights::setGlobalOn();
+			Rights::setGlobalOn();
 
 			// link for "go to site" button
 			$linkAttrs = [
@@ -693,7 +721,7 @@ class Site
 			];
 		}
 
-		\Bitrix\Landing\Rights::setGlobalOn();
+		Rights::setGlobalOn();
 
 		return [];
 	}

@@ -323,16 +323,16 @@
 		 */
 		onRequiredLinkClick: function(element)
 		{
-			var href = element.getAttribute('href');
+			const href = element.getAttribute('href');
 
 			if (href.substr(0, 1) !== '#')
 			{
 				window.open(href, '_top');
 			}
 
-			var linkTpl = href.substr(1);
-			var urlParams = {};
-			var linkTplAnchor = '';
+			let linkTpl = href.substr(1);
+			const urlParams = {};
+			let linkTplAnchor = '';
 
 			if (linkTpl.indexOf('@') > 0)
 			{
@@ -341,20 +341,17 @@
 			}
 			linkTpl = linkTpl.toUpperCase();
 
-			if (linkTpl === 'PAGE_URL_CATALOG_EDIT')
-			{
-				linkTpl = 'PAGE_URL_SITE_EDIT';
-				urlParams.tpl = 'catalog';
-			}
+			const pageUrl = 'PAGE_URL_LANDING_SETTINGS';
+			urlParams.PAGE = linkTpl.replace('PAGE_URL_', '');
 
 			if (
-				typeof landingParams[linkTpl] !== 'undefined' &&
+				typeof landingParams[pageUrl] !== 'undefined' &&
 				typeof BX.SidePanel !== 'undefined'
 			)
 			{
 				BX.SidePanel.Instance.open(
 					BX.util.add_url_param(
-						landingParams[linkTpl],
+						landingParams[pageUrl],
 						urlParams
 					) +
 					(linkTplAnchor ? '#' + linkTplAnchor : ''),
@@ -388,9 +385,6 @@
 			{
 				var oPopupPublication = null;
 				var oPopupError = null;
-				var landingBtnClass = (!this.rights.public) ?
-					"landing-popup-publication-content-autopub-btn ui-btn ui-btn-round ui-btn-no-caps ui-btn-shadow ui-btn-icon-lock ui-btn-light landing-popup-btn-disabled " :
-					"landing-popup-publication-content-autopub-btn ui-btn ui-btn-round ui-btn-no-caps ui-btn-shadow ui-btn-success";
 				BX('landing-popup-publication-btn').addEventListener(
 					'click',
 					function()
@@ -398,14 +392,17 @@
 						var landingId = this.id,
 							popupPublicationContent;
 
-						if (this.getErrorMessageBlock())
+						const errorMsgBlock = this.getErrorMessageBlock();
+
+						if (errorMsgBlock)
 						{
+							const errorCode = BX('landing-popup-publication-error-area').getAttribute('data-error');
+							const clickHandler = this.getErrorClickHandler(errorCode);
+
 							popupPublicationContent = BX.create('div', {
 								props: { className: 'landing-popup-publication-content 1' },
 								children: [
-
-									this.getErrorMessageBlock(),
-
+									errorMsgBlock,
 									BX.create('form', {
 										props: { className: 'landing-popup-publication-content-block-gray landing-popup-publication-content-center landing-popup-publication-content-block-gray-disabled' },
 										attrs: {
@@ -421,13 +418,32 @@
 													value: BX.message('bitrix_sessid')
 												}
 											}),
-											BX.create('button', {
-												props: { className: "landing-popup-publication-content-autopub-btn ui-btn ui-btn-round ui-btn-no-caps ui-btn-shadow ui-btn-icon-lock ui-btn-light landing-popup-btn-disabled " },
-												attrs: {
-													type: 'submit',
-													disabled: true,
+											BX.create('div', {
+												props: {
+													className: "landing-popup-publication-content-autopub-btn-container"
 												},
-												text: BX.message('LANDING_PUBLICATION_SUBMIT')
+												children: [
+													BX.create('button', {
+														props: {
+															className: "landing-popup-publication-content-autopub-btn ui-btn ui-btn-round ui-btn-no-caps ui-btn-shadow ui-btn-icon-lock ui-btn-light landing-popup-btn-disabled"
+														},
+														attrs: {
+															type: 'submit',
+															disabled: true,
+														},
+														text: BX.message('LANDING_PUBLICATION_SUBMIT')
+													}),
+													BX.create('div', {
+														props: {
+															className: "landing-popup-publication-content-autopub-btn-clicker"
+														},
+														events:
+															clickHandler
+																? {click: clickHandler}
+																: null
+														,
+													})
+												],
 											})
 										]
 									}),
@@ -484,16 +500,19 @@
 																		actionType: 'json'
 																	},
 																	dataType: 'json',
-																	onsuccess: function(data)
-																	{
+																	onsuccess: data => {
 																		BX.removeClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-error");
 																		if (this.checked)
 																		{
 																			BX.addClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-auto");
+																			BX.addClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-loader");
 																			BX.addClass(document.body.querySelector(".landing-popup-publication-content-autopub-icon"), "landing-ui-panel-top-pub-btn-auto");
 																			BX.Landing.Backend.getInstance()
 																				.action('Landing::publication', {
 																					lid: landingId
+																				})
+																				.then(() => {
+																					BX.removeClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-loader");
 																				})
 																		}
 																		else
@@ -501,7 +520,7 @@
 																			BX.removeClass(BX('landing-popup-publication-btn'), "landing-ui-panel-top-pub-btn-auto");
 																			BX.removeClass(document.body.querySelector(".landing-popup-publication-content-autopub-icon"), "landing-ui-panel-top-pub-btn-auto");
 																		}
-																	}.bind(this)
+																	}
 																});
 															}
 														}
@@ -547,7 +566,7 @@
 														}
 													}),
 													BX.create('button', {
-														props: { className: "landing-popup-publication-content-autopub-btn ui-btn ui-btn-round ui-btn-no-caps ui-btn-shadow ui-btn-light" },
+														props: { className: "landing-popup-publication-content-preview-btn ui-btn ui-btn-round ui-btn-no-caps ui-btn-shadow ui-btn-light" },
 														attrs: {
 															type: 'submit',
 														},
@@ -641,6 +660,10 @@
 							{
 								if (this.storeEnabled)
 								{
+									BX.Landing.Backend.getInstance()
+										.action('Landing::publication', {
+											lid: this.id
+										});
 									BX.Landing.Backend.getInstance()
 										.action('Site::publication', {
 											id: this.siteId
@@ -1416,21 +1439,18 @@
 			if (this.blockId || this.fullPublication)
 			{
 				setTimeout(function() {
-					var action = (this.fullPublication || this.pageIsUnActive) ? 'Landing::publication' : 'Block::publication';
+					BX.addClass(this.getStatusArea(), "landing-ui-panel-top-pub-btn-loader")
+					const action = (this.fullPublication || this.pageIsUnActive) ? 'Landing::publication' : 'Block::publication';
 					BX.Landing.Backend.getInstance()
 						.action(action, {
 							block: this.blockId,
 							lid: this.landingId
 						})
 
-						.then(function(response) {
-							BX.addClass(this.getStatusArea(), "landing-ui-panel-top-pub-btn-loader")
+						.then(response => {
 							this.pageIsUnActive = false ;
-							setTimeout(function(){
-								this.setSuccess();
-							}.bind(this), 1000);
-
-						}.bind(this))
+							this.setSuccess();
+						})
 
 						.catch(function(response) {
 							if (

@@ -32,6 +32,7 @@ class ActionDictionary
 	const ACTION_ADS_FB_INSTAGRAM_EDIT  = 'ads_fb_instagram_edit';
 	const ACTION_ADS_LOOK_ALIKE_VK_EDIT = 'ads_look_alike_vk_edit';
 	const ACTION_ADS_LOOK_ALIKE_FB_EDIT = 'ads_look_alike_fb_edit';
+	public const ACTION_ADS_LOOK_ALIKE_YANDEX_EDIT = 'ads_look_alike_ya_edit';
 	const ACTION_ADS_PAUSE_START_STOP   = 'ads_pause_start_stop';
 	const ACTION_ADS_CLIENT_VIEW        = 'ads_client_view';
 	const ACTION_ADS_CONNECT_CABINET    = 'ads_connect_cabinet';
@@ -90,6 +91,7 @@ class ActionDictionary
 			self::ACTION_ADS_MARKETING_INSTAGRAM_EDIT => PermissionDictionary::ADS_MARKETING_INSTAGRAM_EDIT,
 			self::ACTION_ADS_FB_INSTAGRAM_EDIT        => PermissionDictionary::ADS_FB_INSTAGRAM_EDIT,
 			self::ACTION_ADS_LOOK_ALIKE_VK_EDIT       => PermissionDictionary::ADS_LOOK_ALIKE_VK_EDIT,
+			self::ACTION_ADS_LOOK_ALIKE_YANDEX_EDIT   => PermissionDictionary::ADS_LOOK_ALIKE_YA_EDIT,
 			self::ACTION_ADS_LOOK_ALIKE_FB_EDIT       => PermissionDictionary::ADS_LOOK_ALIKE_FB_EDIT,
 			self::ACTION_ADS_CLIENT_VIEW              => PermissionDictionary::ADS_CLIENT_VIEW,
 			self::ACTION_ADS_CONNECT_CABINET          => PermissionDictionary::ADS_CONNECT_CABINET,
@@ -138,6 +140,7 @@ class ActionDictionary
 			self::ACTION_ADS_MARKETING_FB_EDIT        => Permission::ACTION_MODIFY,
 			self::ACTION_ADS_FB_INSTAGRAM_EDIT        => Permission::ACTION_MODIFY,
 			self::ACTION_ADS_LOOK_ALIKE_VK_EDIT       => Permission::ACTION_MODIFY,
+			self::ACTION_ADS_LOOK_ALIKE_YANDEX_EDIT   => Permission::ACTION_MODIFY,
 			self::ACTION_ADS_LOOK_ALIKE_FB_EDIT       => Permission::ACTION_MODIFY,
 			self::ACTION_SEGMENT_EDIT                 => Permission::ACTION_MODIFY,
 			self::ACTION_SEGMENT_VIEW                 => Permission::ACTION_VIEW,

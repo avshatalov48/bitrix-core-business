@@ -1,11 +1,12 @@
 <?php
 namespace Bitrix\Catalog\Controller;
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Component\PresetHandler;
 use Bitrix\Catalog\Component\UseStore;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Main\Engine\Action;
-use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\Result;
@@ -82,7 +83,7 @@ final class Config extends \Bitrix\Main\Engine\Controller
 	protected function checkReadPermissionEntity($name, $arguments=[])
 	{
 		$r = new Result();
-		if (!CurrentUser::get()->canDoOperation(Controller::CATALOG_READ))
+		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ))
 		{
 			$r->addError(new Error('Access denied!', 200040300010));
 		}
@@ -92,7 +93,7 @@ final class Config extends \Bitrix\Main\Engine\Controller
 	protected function checkModifyPermissionEntity($name, $arguments=[]): Result
 	{
 		$r = new Result();
-		if (!CurrentUser::get()->canDoOperation(Controller::CATALOG_STORE))
+		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_VIEW))
 		{
 			$r->addError(new Error('Access denied!', 200040300011));
 		}

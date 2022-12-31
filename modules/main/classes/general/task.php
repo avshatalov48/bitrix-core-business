@@ -413,8 +413,10 @@ class CAllTask
 		{
 			while($r = $z->Fetch())
 			{
-				if (!is_array($arr[$r['MODULE_ID']]))
+				if (!isset($arr[$r['MODULE_ID']]) || !is_array($arr[$r['MODULE_ID']]))
+				{
 					$arr[$r['MODULE_ID']] = array('reference_id'=>array(),'reference'=>array());
+				}
 
 				$arr[$r['MODULE_ID']]['reference_id'][] = $r['ID'];
 				$arr[$r['MODULE_ID']]['reference'][] = '['.($r['LETTER'] ? $r['LETTER'] : '..').'] '.static::GetLangTitle($r['NAME'], $r['MODULE_ID']);

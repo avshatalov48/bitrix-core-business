@@ -5,10 +5,12 @@ define('STOP_STATISTICS', true);
 define('NO_AGENT_CHECK', true);
 define('PUBLIC_AJAX_MODE', true);
 
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Main\Loader,
-	Bitrix\Catalog;
+	Bitrix\Catalog,
+	Bitrix\Catalog\Access\AccessController;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 
@@ -16,7 +18,15 @@ Loc::loadMessages(__FILE__);
 
 $error = false;
 $errorMessage = '';
-if(!$USER->canDoOperation('catalog_read') && !$USER->canDoOperation('catalog_view'))
+if(!Loader::includeModule('catalog'))
+{
+	$error = true;
+	$errorMessage = Loc::getMessage('CSD_MODULE_NOT_INSTALLED', array('#NAME#' => 'catalog'));
+}
+if(
+	!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
+	&& !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_VIEW)
+)
 {
 	$error = true;
 	$errorMessage = Loc::getMessage('CSD_ACCESS_DENIED');
@@ -25,11 +35,6 @@ if(!check_bitrix_sessid())
 {
 	$error = true;
 	$errorMessage = Loc::getMessage('CSD_INCORRECT_SESSION');
-}
-if(!Loader::includeModule('catalog'))
-{
-	$error = true;
-	$errorMessage = Loc::getMessage('CSD_MODULE_NOT_INSTALLED', array('#NAME#' => 'catalog'));
 }
 if($error)
 {

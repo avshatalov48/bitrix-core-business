@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CATALOG_STATE_ERR_PRODUCT_IN_SECTION_LIMIT"] = "Once the section is moved, the number of products to use in the landing pages will reach #COUNT#. You will exceed the maximum number of products allowed in the landing pages (#LIMIT#).";
 $MESS["CATALOG_STATE_ERR_PRODUCT_LIMIT"] = "Maximum number of products allowed exceeded. Products found in the catalog - #COUNT# (limit allowed - #LIMIT#).";
-?>
+$MESS["CATALOG_STATE_ERR_PRODUCT_LIMIT_1"] = "This section is configured to display its products on the landing page. You have reached the maximum number of such products allowed on your current plan. You can create a product in a different section provided the latter is not linked to a landing page, or unpublish a product in this section to make room for the new one. Your catalog currently includes #COUNT# displayable products, with a maximum of #LIMIT#.";

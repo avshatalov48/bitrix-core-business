@@ -293,6 +293,31 @@ $result = [
 		],
 	],
 
+	'discord' => [
+		'name' => '<span class="fab fa-discord g-pr-5"></span>  Discord',
+		'html' => '<li 
+					class="landing-block-node-list-item col g-pl-0 g-pr-0 g-pt-0 g-pb-0 g-min-width-110 list-inline-item g-mr-0"
+					data-card-preset="discord">
+			<a
+				class="landing-block-node-list-item-link d-block g-py-15 g-px-30 g-color-white text-center g-bg-discord g-bg-discord--hover"
+				href="https://discord.com/"
+				target="_blank">
+				<i class="landing-block-node-list-item-icon fab fa-discord"></i>
+			</a>
+		</li>',
+		'disallow' => ['.landing-block-node-list-item-icon'],
+		'values' => [
+			'.landing-block-node-list-item-link' => [
+				'href' => 'https://discord.com/',
+				'target' => '_blank',
+			],
+			'.landing-block-node-list-item-icon' => [
+				'type' => 'icon',
+				'classList' => ['fab', 'fa-discord'],
+			],
+		],
+	],
+
 	'wechat' => [
 		'name' => '<span class="fab fa-weixin g-pr-5"></span>  Wechat',
 		'html' => '<li 

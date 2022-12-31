@@ -432,11 +432,6 @@ export class Editor extends EventEmitter
 		return new Promise((resolve, reject) => {
 			this.#canvasMaster.getBlob()
 				.then(({blob}) =>{
-					if (!this.#canvasMask)
-					{
-						return resolve({blob});
-					}
-
 					const loader = CanvasLoader.getInstance();
 					loader[hiddenCanvas] = loader[hiddenCanvas] ?? document.createElement('canvas');
 					const canvas = loader[hiddenCanvas];
@@ -446,14 +441,20 @@ export class Editor extends EventEmitter
 					canvas
 						.getContext('2d')
 						.drawImage(loader.getCanvas(), 0, 0);
+
+					if (!this.#canvasMask)
+					{
+						return resolve({blob, canvas});
+					}
+
 					this
 						.#canvasMask
 						.applyAndPack(canvas)
 						.then((maskedBlob: Blob, maskId: Number) => {
-							resolve({blob, maskedBlob, maskId});
+							resolve({blob, maskedBlob, maskId, canvas});
 						})
 						.catch(() => {
-							resolve({blob});
+							resolve({blob, canvas});
 						})
 				})
 				.catch((error) => {

@@ -2,6 +2,8 @@
 
 namespace Bitrix\Catalog\Controller;
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Component\ImageInput;
 use Bitrix\Catalog\MeasureTable;
 use Bitrix\Catalog\ProductTable;
@@ -38,6 +40,17 @@ class ProductSelector extends JsonController
 {
 	private ?Uploader $uploader = null;
 	private ?PendingFileCollection $pendingFileCollection = null;
+	private AccessController $accessController;
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function init()
+	{
+		parent::init();
+
+		$this->accessController = AccessController::getCurrent();
+	}
 
 	public function configureActions()
 	{
@@ -68,8 +81,15 @@ class ProductSelector extends JsonController
 
 	protected function processBeforeAction(Action $action)
 	{
-		global $USER;
-		if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_view'))
+		if ($action->getName() === 'getSkuTreeProperties')
+		{
+			return true;
+		}
+
+		if (
+			$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+			|| $this->accessController->check(ActionDictionary::ACTION_CATALOG_VIEW)
+		)
 		{
 			return parent::processBeforeAction($action);
 		}
@@ -390,11 +410,10 @@ class ProductSelector extends JsonController
 
 	public function createProductAction(array $fields): ?array
 	{
-		global $USER;
 		$iblockId = (int)$fields['IBLOCK_ID'];
 		if (
 			!\CIBlockSectionRights::UserHasRightTo($iblockId, 0, 'section_element_bind')
-			|| !$USER->CanDoOperation('catalog_price')
+			|| !$this->accessController->check(ActionDictionary::ACTION_PRODUCT_ADD)
 		)
 		{
 			$this->addError(new Error(Loc::getMessage('PRODUCT_SELECTOR_ERROR_NO_PERMISSIONS_FOR_CREATION')));
@@ -504,6 +523,11 @@ class ProductSelector extends JsonController
 			}
 		}
 
+		if (!$this->accessController->check(ActionDictionary::ACTION_PRICE_EDIT))
+		{
+			unset($fields['PRICE']);
+		}
+
 		$product->setFields($fields);
 		if ($fields['MEASURE'] > 0)
 		{
@@ -568,16 +592,22 @@ class ProductSelector extends JsonController
 		/** @var BaseProduct $parentProduct */
 		$parentProduct = $sku->getParent();
 
-		global $USER;
 		if (
-			!\CIBlockElementRights::UserHasRightTo($parentProduct->getIblockId(), $parentProduct->getId(), 'element_edit')
-			|| !\CIBlockElementRights::UserHasRightTo($parentProduct->getIblockId(), $parentProduct->getId(), 'element_edit_price')
-			|| !$USER->CanDoOperation('catalog_price')
+			!$this->accessController->check(ActionDictionary::ACTION_PRODUCT_EDIT)
+			|| !\CIBlockElementRights::UserHasRightTo($parentProduct->getIblockId(), $parentProduct->getId(), 'element_edit')
 		)
 		{
 			$this->addError(new Error(Loc::getMessage('PRODUCT_SELECTOR_ERROR_NO_PERMISSIONS_FOR_UPDATE')));
 
 			return null;
+		}
+
+		if (
+			!$this->accessController->check(ActionDictionary::ACTION_PRICE_EDIT)
+			|| !\CIBlockElementRights::UserHasRightTo($parentProduct->getIblockId(), $parentProduct->getId(), 'element_edit_price')
+		)
+		{
+			unset($updateFields['PRICES']);
 		}
 
 		$result = $this->saveSku($sku, $updateFields, $oldFields);
@@ -600,11 +630,9 @@ class ProductSelector extends JsonController
 
 	public function saveMorePhotoAction(int $productId, int $variationId, int $iblockId, array $imageValues): ?array
 	{
-		global $USER;
 		if (
-			!\CIBlockElementRights::UserHasRightTo($iblockId, $productId, 'element_edit')
-			|| !\CIBlockElementRights::UserHasRightTo($iblockId, $productId, 'element_edit_price')
-			|| !$USER->CanDoOperation('catalog_price')
+			!$this->accessController->check(ActionDictionary::ACTION_PRODUCT_EDIT)
+			|| !\CIBlockElementRights::UserHasRightTo($iblockId, $productId, 'element_edit')
 		)
 		{
 			$this->addError(new Error(Loc::getMessage('PRODUCT_SELECTOR_ERROR_NO_PERMISSIONS_FOR_UPDATE')));
@@ -850,6 +878,9 @@ class ProductSelector extends JsonController
 			$fields['MEASURE'] = $this->getMeasureIdByCode($fields['MEASURE_CODE']);
 		}
 
+		$sectionId = $fields['IBLOCK_SECTION_ID'];
+		unset($fields['IBLOCK_SECTION_ID']);
+
 		$sku->setFields($fields);
 
 		if (!empty($fields['PRICES']) && is_array($fields['PRICES']))
@@ -938,12 +969,57 @@ class ProductSelector extends JsonController
 			$parentProduct->getPropertyCollection()->setValues(['BRAND_FOR_FACEBOOK' => $fields['BRANDS']]);
 		}
 
-		if (isset($fields['IBLOCK_SECTION_ID']))
+		if (isset($sectionId))
 		{
-			$parentProduct->setField('IBLOCK_SECTION_ID', $fields['IBLOCK_SECTION_ID']);
+			$parentProduct->setField('IBLOCK_SECTION_ID', $sectionId);
+		}
+
+		if (
+			isset($fields['NAME'])
+			&& $parentProduct->getSkuCollection()->count() === 1
+		)
+		{
+			$this->changeProductName($parentProduct, $fields['NAME']);
 		}
 
 		return $parentProduct->save();
+	}
+
+	private function changeProductName(BaseProduct $parentProduct, string $newName): void
+	{
+		$skuTreeEntity = ServiceContainer::make('sku.tree', [
+			'iblockId' => $parentProduct->getIblockId(),
+		]);
+		$skuTree = $skuTreeEntity->load([$parentProduct->getId()]);
+		if (empty($skuTree))
+		{
+			$parentProduct->setField('NAME', $newName);
+
+			return;
+		}
+
+		$skuTreeElement = reset($skuTree);
+		$existingValues = $skuTreeElement['EXISTING_VALUES'] ?? null;
+		if (!$existingValues)
+		{
+			$parentProduct->setField('NAME', $newName);
+
+			return;
+		}
+
+		$hasFilledProperty = false;
+		foreach ($existingValues as $existingValue)
+		{
+			$hasFilledProperty = $existingValue[0] !== 0;
+			if ($hasFilledProperty)
+			{
+				break;
+			}
+		}
+		if (!$hasFilledProperty)
+		{
+			$parentProduct->setField('NAME', $newName);
+		}
 	}
 
 	private function getMeasureIdByCode(string $code): ?int

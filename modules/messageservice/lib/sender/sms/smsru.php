@@ -211,7 +211,7 @@ class SmsRu extends Sender\BaseConfigurable
 
 		$params = array(
 			'to' => $messageFields['MESSAGE_TO'],
-			'text' => $messageFields['MESSAGE_BODY'],
+			'text' => $this->prepareMessageBodyForSend($messageFields['MESSAGE_BODY']),
 			'embed_id' => $this->getOption('embed_id')
 		);
 
@@ -357,8 +357,8 @@ class SmsRu extends Sender\BaseConfigurable
 		$url = 'https://sms.ru/'.$method;
 
 		$httpClient = new HttpClient(array(
-			"socketTimeout" => 10,
-			"streamTimeout" => 30,
+			"socketTimeout" => $this->socketTimeout,
+			"streamTimeout" => $this->streamTimeout,
 			"waitResponse" => true,
 		));
 		$httpClient->setHeader('User-Agent', 'Bitrix24');

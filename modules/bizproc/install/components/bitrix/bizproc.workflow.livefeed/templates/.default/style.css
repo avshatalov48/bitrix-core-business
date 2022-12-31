@@ -121,8 +121,13 @@
 	height: auto;
 }
 
-.bp-post .bp-btn-panel .bp-button:hover {
+.bp-post .bp-btn-panel .bp-button:hover,
+.bp-post .bp-btn-panel .ui-btn:hover {
 	border-bottom: 1px solid transparent;
+}
+
+.bp-post .bp-btn-panel .ui-btn {
+	margin: 3px;
 }
 
 .bp-post .bp-status,

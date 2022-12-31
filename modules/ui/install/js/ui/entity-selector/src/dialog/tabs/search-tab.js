@@ -123,7 +123,7 @@ export default class SearchTab extends Tab
 			const matchSortA = a.getSort();
 			const matchSortB = b.getSort();
 
-			if (matchSortA !== null && matchSortB !== null)
+			if (matchSortA !== null && matchSortB !== null && matchSortA !== matchSortB)
 			{
 				return matchSortA - matchSortB;
 			}
@@ -291,6 +291,8 @@ export default class SearchTab extends Tab
 				{
 					this.removeCacheQuery(searchQuery);
 					this.toggleEmptyResult();
+					this.getDialog().emit('SearchTab:onLoad', { searchTab: this });
+
 					return;
 				}
 
@@ -325,6 +327,8 @@ export default class SearchTab extends Tab
 				}
 
 				this.toggleEmptyResult();
+
+				this.getDialog().emit('SearchTab:onLoad', { searchTab: this });
 			})
 			.catch((error) => {
 				this.removeCacheQuery(searchQuery);

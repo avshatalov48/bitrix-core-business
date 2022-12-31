@@ -98,7 +98,7 @@ if ($id > 0 && $request->getRequestMethod() !== 'POST')
 	);
 
 	$service = PaySystem\Manager::getObjectById($id);
-	if ($service->isSupportPrintCheck())
+	if ($service && $service->isSupportPrintCheck())
 	{
 		/** @var Sale\Cashbox\CashboxPaySystem $cashboxClass */
 		$cashboxClass = $service->getCashboxClass();
@@ -404,7 +404,7 @@ if ($server->getRequestMethod() == "POST"
 			if ($request->get('CASHBOX'))
 			{
 				$service = PaySystem\Manager::getObjectById($id);
-				if ($service->isSupportPrintCheck())
+				if ($service && $service->isSupportPrintCheck())
 				{
 					require_once $documentRoot."/bitrix/modules/sale/admin/pay_system_cashbox_edit.php";
 				}

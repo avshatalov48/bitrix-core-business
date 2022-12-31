@@ -12,6 +12,7 @@ return array(
 		'section' => array('store'),
 		'type' => 'null',
 		'html' => false,
+		'namespace' => 'bitrix',
 	),
 	'nodes' => array(),
 );

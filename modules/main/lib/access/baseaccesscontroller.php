@@ -44,11 +44,6 @@ abstract class BaseAccessController
 		return static::$register[static::class][$userId];
 	}
 
-	public static function getCurrent(): self
-	{
-		return static::getInstance(CurrentUser::get()->getId());
-	}
-
 	public static function can($userId, string $action, $itemId = null, $params = null): bool
 	{
 		$userId = (int) $userId;

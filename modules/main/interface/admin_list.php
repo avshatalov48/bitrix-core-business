@@ -939,8 +939,18 @@ class CAdminList
 							$val = htmlspecialcharsex(GetMessage("admin_lib_list_no"));
 						break;
 					case "select":
-						if($field["edit"]["values"][$val])
+						if (isset($field["edit"]["values"][$val]))
+						{
 							$val = htmlspecialcharsex($field["edit"]["values"][$val]);
+						}
+						elseif (isset($field["view"]["values"][$val]))
+						{
+							$val = htmlspecialcharsex($field["view"]["values"][$val]);
+						}
+						else
+						{
+							$val = htmlspecialcharsex($val);
+						}
 						break;
 					case "file":
 						$arFile = CFile::GetFileArray($val);
@@ -1724,10 +1734,18 @@ class CAdminListRow
 								$val = htmlspecialcharsex(GetMessage("admin_lib_list_no"));
 							break;
 						case "select":
-							if($field["edit"]["values"][$val])
+							if (isset($field["edit"]["values"][$val]))
+							{
 								$val = htmlspecialcharsex($field["edit"]["values"][$val]);
+							}
+							elseif (isset($field["view"]["values"][$val]))
+							{
+								$val = htmlspecialcharsex($field["view"]["values"][$val]);
+							}
 							else
+							{
 								$val = htmlspecialcharsex($val);
+							}
 							break;
 						case "file":
 							if ($val > 0)

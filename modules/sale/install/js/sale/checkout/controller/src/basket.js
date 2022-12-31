@@ -1,5 +1,11 @@
 import { ajax } from 'main.core';
-import { Pool, Timer, Basket as Lib } from 'sale.checkout.lib'
+import {
+	Pool,
+	Timer,
+	Basket as Lib,
+	Product as ProductLib,
+} from 'sale.checkout.lib'
+
 import {
     Application as ApplicationConst,
     RestMethod as RestMethodConst,
@@ -305,10 +311,22 @@ export class Basket
             quantity = ratio;
         }
 
-        if (available > 0 && quantity > available)
-        {
-            quantity = available;
-        }
+		if (ProductLib.isService(fields))
+		{
+			// for services
+			// do nothing
+		}
+		else
+		{
+			// for products
+			if (ProductLib.isLimitedQuantity(fields))
+			{
+				if (available > 0 && quantity > available)
+				{
+					quantity = available;
+				}
+			}
+		}
 
         quantity = Lib.toFixed(quantity, ratio, available)
 
@@ -334,15 +352,27 @@ export class Basket
 
         quantity = quantity + ratio;
 
-        if(Lib.isValueFloat(quantity))
+        if (Lib.isValueFloat(quantity))
         {
             quantity = Lib.roundFloatValue(quantity)
         }
 
-        if (available > 0 && quantity > available)
-        {
-            quantity = available;
-        }
+        if (ProductLib.isService(fields))
+		{
+			// for services
+			// do nothing
+		}
+        else
+		{
+			// for products
+			if (ProductLib.isLimitedQuantity(fields))
+			{
+				if (available > 0 && quantity > available)
+				{
+					quantity = available;
+				}
+			}
+		}
 
         quantity = Lib.toFixed(quantity, ratio, available)
 
@@ -379,10 +409,22 @@ export class Basket
             quantity = ratio;
         }
 
-        if (available > 0 && quantity > available)
-        {
-            quantity = available;
-        }
+		if (ProductLib.isService(fields))
+		{
+			// for services
+			// do nothing
+		}
+		else
+		{
+			// for products
+			if (ProductLib.isLimitedQuantity(fields))
+			{
+				if (available > 0 && quantity > available)
+				{
+					quantity = available;
+				}
+			}
+		}
 
         quantity = Lib.toFixed(quantity, ratio, available)
 

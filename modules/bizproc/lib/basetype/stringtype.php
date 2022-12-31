@@ -31,11 +31,20 @@ class StringType extends Base
 	{
 		if (is_array($value))
 		{
-			reset($value);
-			$value = current($value);
+			$value = current(\CBPHelper::makeArrayFlat($value));
 		}
 
 		return $value;
+	}
+
+	public static function externalizeValue(FieldType $fieldType, $context, $value)
+	{
+		if (is_array($value))
+		{
+			return (string)current(\CBPHelper::makeArrayFlat($value));
+		}
+
+		return parent::externalizeValue($fieldType, $context, $value);
 	}
 
 	/**

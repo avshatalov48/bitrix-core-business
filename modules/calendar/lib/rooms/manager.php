@@ -162,7 +162,7 @@ class Manager
 				'NECESSITY',
 	            'CAPACITY',
 				'SECTION_ID',
-				'CATEGORY_ID' => 'CATEGORY_ID',
+				'CATEGORY_ID',
 				'NAME' => 'SECTION.NAME',
 				'COLOR' => 'SECTION.COLOR',
 				'OWNER_ID' => 'SECTION.OWNER_ID',
@@ -207,13 +207,13 @@ class Manager
 
 	/**
 	 * @param int $id
-	 *
+	 * @param array $params
 	 * @return array
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function getRoomById(int $id): array
+	public static function getRoomById(int $id, array $params = []): array
 	{
 		$roomQuery = LocationTable::query()
 			->setSelect([
@@ -249,7 +249,13 @@ class Manager
 			\CCalendarSect::HandlePermission($room);
 		}
 
-		return \CCalendarSect::GetSectionPermission($result);
+		$applyPermission = $params['checkPermission'] ?? true;
+		if ($applyPermission !== false)
+		{
+			return \CCalendarSect::GetSectionPermission($result);
+		}
+
+		return [...$result];
 	}
 
 	/**
@@ -259,14 +265,15 @@ class Manager
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
+	 * @throws \Bitrix\Main\LoaderException
 	 */
 	public static function reserveRoom(array $params = []): ?int
 	{
-		$roomList = self::getRoomById((int)$params['room_id']);
+		$roomList = self::getRoomById((int)$params['room_id'], ['checkPermission' => $params['checkPermission']]);
 
 		if (!$roomList || empty($roomList[0])
 			|| empty($roomList[0]['NAME'])
-			|| !$roomList[0]['PERM']['view_full'])
+			|| (!$roomList[0]['PERM']['view_full'] && $params['checkPermission'] !== false))
 		{
 			return null;
 		}
@@ -276,21 +283,27 @@ class Manager
 		$userId = $params['parentParams']['userId']
 			??  $params['parentParams']['arFields']['userId'];
 
+		$arFields = [
+			'ID' => $params['room_event_id'],
+			'SECTIONS' => $params['room_id'],
+			'DATE_FROM' => $params['parentParams']['arFields']['DATE_FROM'],
+			'DATE_TO' => $params['parentParams']['arFields']['DATE_TO'],
+			'TZ_FROM' => $params['parentParams']['arFields']['TZ_FROM'],
+			'TZ_TO' => $params['parentParams']['arFields']['TZ_TO'],
+			'SKIP_TIME' => $params['parentParams']['arFields']['SKIP_TIME'],
+			'RRULE' => $params['parentParams']['arFields']['RRULE'],
+			'EXDATE' => $params['parentParams']['arFields']['EXDATE'],
+		];
+
+		if (!$params['room_event_id'])
+		{
+			$arFields['CREATED_BY'] = $createdBy;
+			$arFields['NAME'] = \CCalendar::GetUserName($userId);
+			$arFields['CAL_TYPE'] = self::TYPE;
+		}
+
 		return \CCalendarEvent::Edit([
-			'arFields' => [
-				'ID' => $params['room_event_id'],
-				'CAL_TYPE' => self::TYPE,
-				'SECTIONS' => $params['room_id'],
-				'DATE_FROM' => $params['parentParams']['arFields']['DATE_FROM'],
-				'DATE_TO' => $params['parentParams']['arFields']['DATE_TO'],
-				'TZ_FROM' => $params['parentParams']['arFields']['TZ_FROM'],
-				'TZ_TO' => $params['parentParams']['arFields']['TZ_TO'],
-				'SKIP_TIME' => $params['parentParams']['arFields']['SKIP_TIME'],
-				'NAME' => \CCalendar::GetUserName($userId),
-				'RRULE' => $params['parentParams']['arFields']['RRULE'],
-				'EXDATE' => $params['parentParams']['arFields']['EXDATE'],
-				'CREATED_BY' => $createdBy
-			],
+			'arFields' => $arFields,
 		]);
 	}
 
@@ -300,10 +313,11 @@ class Manager
 	 * Cancel booking of room
 	 *
 	 * @return Manager
+	 * @throws \Bitrix\Main\ObjectException
 	 */
 	public function cancelBooking(array $params = []): Manager
 	{
-		if(!empty($this->getError()))
+		if($this->getError() !== null)
 		{
 			return $this;
 		}
@@ -340,7 +354,7 @@ class Manager
 		return $this;
 	}
 
-	private function sendCancelBookingNotification(array $params)
+	private function sendCancelBookingNotification(array $params): void
 	{
 		$section = \CCalendarSect::GetById($params['section_id']);
 		$userId = \CCalendar::GetCurUserId();

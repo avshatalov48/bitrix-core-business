@@ -11,6 +11,7 @@ import {ConferenceFieldState, ConferenceStateType, ConferenceErrorCode, Conferen
 import {ChatTypes, RecentSection, MessageStatus, RecentCallStatus, RecentSettings, RecentSettingsMap, UserStatus} from './recent';
 import {NotificationTypesCodes} from './notification';
 import {ChatOption} from './chat-option';
+import {DesktopFeature} from './desktop';
 
 export {
 	DateFormat,
@@ -25,5 +26,6 @@ export {
 	ConferenceFieldState, ConferenceStateType, ConferenceErrorCode, ConferenceRightPanelMode, ConferenceUserState,
 	ChatTypes, RecentSection, MessageStatus, RecentCallStatus, RecentSettings, RecentSettingsMap, UserStatus,
 	NotificationTypesCodes,
-	ChatOption
+	ChatOption,
+	DesktopFeature
 };

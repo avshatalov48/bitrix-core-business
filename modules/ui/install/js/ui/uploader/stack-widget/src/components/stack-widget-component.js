@@ -1,11 +1,8 @@
 import { Text, Loc } from 'main.core';
-import { Popup } from 'main.popup';
+import { Popup, PopupOptions } from 'main.popup';
 import { CloseButton } from 'ui.buttons';
 
-import { BitrixVue } from 'ui.vue';
-import { MountingPortal } from 'ui.vue.portal';
-
-import { FileStatus, FileOrigin, UploaderStatus } from 'ui.uploader.core';
+import { FileStatus, FileOrigin, UploaderStatus, VueUploaderComponent } from 'ui.uploader.core';
 import { TileList, ErrorPopup, DragOverMixin } from 'ui.uploader.tile-widget';
 
 import { StackUpload } from './stack-upload';
@@ -17,7 +14,12 @@ import type { BaseEvent } from 'main.core.events';
 
 const isItemLoading = item => item.status === FileStatus.LOADING;
 
-export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-widget', {
+/**
+ * @memberof BX.UI.Uploader
+ */
+export const StackWidgetComponent = {
+	name: 'StackWidget',
+	extends: VueUploaderComponent,
 	components: {
 		TileList,
 		ErrorPopup,
@@ -25,38 +27,27 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 		StackLoad,
 		StackPreview,
 		StackDropArea,
-		MountingPortal,
 	},
 	mixins: [
 		DragOverMixin,
 	],
-	props: {
-		items: {
-			type: Array,
-			default: [],
-		},
-	},
-	data()
-	{
-		return {
-			popup: null,
-			popupContentId: '',
-			queueItems: [],
-			enableAnimation: true,
-			dragMode: false,
-			uploaderError: null,
-		}
-	},
+	data: () => ({
+		popupContentId: null,
+		queueItems: [],
+		enableAnimation: true,
+		dragMode: false,
+		isMounted: false,
+	}),
 	computed: {
-		containerClasses()
+		containerClasses(): Array
 		{
 			return [
 				{
-					'--multiple': this.$root.multiple,
-					'--only-images': this.$root.acceptOnlyImages,
+					'--multiple': this.uploader.isMultiple(),
+					'--only-images': this.uploader.shouldAcceptOnlyImages(),
 					'--many-items': this.items.length > 1,
 				},
-				`--${this.$root.widget.size}`
+				`--${this.widgetOptions.size}`
 			];
 		},
 		currentComponent()
@@ -116,7 +107,7 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 
 			return null;
 		},
-		errorsCount()
+		errorsCount(): number
 		{
 			return this.items.reduce((errors, item) => {
 				if (item.status === FileStatus.LOAD_FAILED || item.status === FileStatus.UPLOAD_FAILED)
@@ -129,7 +120,7 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 				}
 			}, 0);
 		},
-		errorPopupOptions()
+		errorPopupOptions(): PopupOptions
 		{
 			return {
 				bindElement: this.$refs.item,
@@ -144,10 +135,10 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 				padding: this.uploaderError === null ? 10 : 20,
 				closeIcon: this.uploaderError !== null,
 			};
-		}
+		},
 	},
 	watch: {
-		currentComponent(newValue, oldValue)
+		currentComponent(newValue, oldValue): void
 		{
 			if (this.dragOver)
 			{
@@ -167,17 +158,21 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 				this.enableAnimation = true;
 			}
 		},
-		items()
-		{
-			if (this.items.length === 0 && this.popup)
-			{
-				this.popup.close();
-			}
+		items: {
+			handler() {
+				if (this.items.length === 0 && this.popup)
+				{
+					this.popup.close();
+				}
+			},
+			deep: true,
 		}
 	},
 	created()
 	{
-		this.$Bitrix.eventEmitter.subscribe('Uploader:onUploadStart', () => {
+		this.popup = null;
+
+		this.adapter.subscribe('Uploader:onUploadStart', () => {
 			this.items.forEach(item => {
 				if (item.origin === FileOrigin.CLIENT && item.queued !== true)
 				{
@@ -187,13 +182,13 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 			})
 		});
 
-		this.$Bitrix.eventEmitter.subscribe('Uploader:onUploadComplete', () => {
+		this.adapter.subscribe('Uploader:onUploadComplete', () => {
 			this.queueItems = [];
 		});
 
-		this.$Bitrix.eventEmitter.subscribe('Item:onAdd', (event: BaseEvent) => {
+		this.adapter.subscribe('Item:onAdd', (event: BaseEvent) => {
 			this.uploaderError = null;
-			if (this.$root.getUploader().getStatus() === UploaderStatus.STARTED)
+			if (this.uploader.getStatus() === UploaderStatus.STARTED)
 			{
 				const item = event.getData().item;
 				item.queued = true;
@@ -201,7 +196,7 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 			}
 		});
 
-		this.$Bitrix.eventEmitter.subscribe('Item:onRemove', (event: BaseEvent) => {
+		this.adapter.subscribe('Item:onRemove', (event: BaseEvent) => {
 			this.uploaderError = null;
 			const item = event.getData().item;
 			const position = this.queueItems.indexOf(item);
@@ -210,14 +205,11 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 				this.queueItems.splice(position, 1);
 			}
 		});
-
-		this.$Bitrix.eventEmitter.subscribe('Uploader:onError', (event: BaseEvent) => {
-			this.uploaderError = event.getData().error;
-		});
 	},
 	mounted()
 	{
-		this.$root.getUploader().assignBrowse(this.$refs['add-button']);
+		this.uploader.assignBrowse(this.$refs['add-button']);
+		this.isMounted = true;
 	},
 	methods: {
 		showPopup()
@@ -225,7 +217,7 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 			if (!this.popup)
 			{
 				const id = 'stack-uploader-' + Text.getRandom().toLowerCase();
-				const popup = new Popup({
+				this.popup = new Popup({
 					width: 750,
 					height: 400,
 					draggable: true,
@@ -238,7 +230,10 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 					minWidth: 450,
 					minHeight: 300,
 					events: {
-						onDestroy: () => this.popup = null,
+						onDestroy: () => {
+							this.popup = null;
+							this.popupContentId = null;
+						},
 					},
 					buttons: [
 						new CloseButton({ onclick: () => this.popup.close() }),
@@ -246,7 +241,6 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 				});
 
 				this.popupContentId = `#${id}`;
-				this.popup = popup;
 			}
 
 			this.popup.show();
@@ -257,7 +251,7 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 			this.queueItems = [];
 
 			items.forEach(item => {
-				this.$root.getWidget().remove(item.id);
+				this.uploader.removeFile(item.id);
 			});
 		},
 		handlePopupDestroy(error)
@@ -271,11 +265,15 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 	// language=Vue
 	template: `
 		<div class="ui-uploader-stack-widget" :class="containerClasses" v-drop>
-			<mounting-portal v-if="popup" :mount-to="popupContentId" append>
+			<Teleport v-if="popupContentId !== null" :to="popupContentId">
 				<TileList :items="items" />
-			</mounting-portal>
+			</Teleport>
 			<div class="ui-uploader-stack-item" ref="item">
-				<transition name="ui-uploader-stack-item" mode="out-in" :css="enableAnimation">
+				<transition
+					:leave-active-class="enableAnimation ? 'ui-uploader-stack-item-leave-active' : ''" 
+					:leave-to-class="enableAnimation ? 'ui-uploader-stack-item-leave-to' : ''" 
+					mode="out-in"
+				>
 					<keep-alive>
 						<component
 							:is="currentComponent"
@@ -286,13 +284,13 @@ export const StackWidgetComponent = BitrixVue.localComponent('ui.uploader.stack-
 					</keep-alive>
 				</transition>
 			</div>
-			<div v-if="$root.multiple" ref="add-button" class="ui-uploader-stack-add-btn"></div>
-			<ErrorPopup
-				v-if="error !== null"
-				:error="error"
-				:popup-options="errorPopupOptions"
-				@onDestroy="handlePopupDestroy"
-			/>
+			<div v-if="uploader.isMultiple()" ref="add-button" class="ui-uploader-stack-add-btn"></div>
 		</div>
+		<ErrorPopup
+			v-if="error !== null && isMounted"
+			:error="error"
+			:popup-options="errorPopupOptions"
+			@onDestroy="handlePopupDestroy"
+		/>
 	`
-});
+};

@@ -159,9 +159,10 @@ class CCloudStorageService_Yandex extends CCloudStorageService_S3
 	/**
 	 * @param array[string]string $arBucket
 	 * @param mixed $arFile
+	 * @param boolean $encoded
 	 * @return string
 	*/
-	function GetFileSRC($arBucket, $arFile)
+	function GetFileSRC($arBucket, $arFile, $encoded = true)
 	{
 		$proto = CMain::IsHTTPS()? "https": "http";
 

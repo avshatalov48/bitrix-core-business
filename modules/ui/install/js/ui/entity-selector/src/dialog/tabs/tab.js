@@ -6,6 +6,7 @@ import DefaultStub from './default-stub';
 import BaseHeader from '../header/base-header';
 import BaseFooter from '../footer/base-footer';
 import TextNode from '../../common/text-node';
+import encodeUrl from '../../common/encode-url';
 
 import type { TabLabelState, TabLabelStates, TabOptions } from './tab-options';
 import type { HeaderContent, HeaderOptions } from '../header/header-content';
@@ -448,7 +449,7 @@ export default class Tab
 		Dom.style(this.getLabelContainer(), 'background-color', this.getPropertyByCurrentState('bgColor'));
 
 		const icon = this.getPropertyByCurrentState('icon');
-		Dom.style(this.getIconContainer(), 'background-image', icon ? `url('${icon}')` : null);
+		Dom.style(this.getIconContainer(), 'background-image', icon ? `url('${encodeUrl(icon)}')` : null);
 
 		const titleNode = this.getTitleNode();
 		if (titleNode)

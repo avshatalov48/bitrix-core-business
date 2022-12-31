@@ -855,7 +855,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          itemOrder: {
 	            title: 'asc'
 	          },
-	          icon: 'none'
+	          icon: 'none',
+	          stubOptions: {
+	            title: main_core.Loc.getMessage('EC_SEC_SLIDER_CATEGORY_SELECTOR_STUB')
+	          }
 	        }],
 	        items: preparedCategories,
 	        selectedItems: this.selectedCategory
@@ -1137,6 +1140,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return new ui_entitySelector.TagSelector({
 	      placeholder: main_core.Loc.getMessage('EC_SEC_SLIDER_ROOM_SELECTOR_PLACEHOLDER'),
 	      textBoxWidth: 320,
+	      addButtonCaption: main_core.Loc.getMessage('EC_SEC_SLIDER_ROOM_SELECTOR_ADD_BUTTON_CAPTION'),
+	      addButtonCaptionMore: main_core.Loc.getMessage('EC_SEC_SLIDER_ROOM_SELECTOR_ADD_BUTTON_CAPTION_MORE'),
 	      dialogOptions: {
 	        context: 'CALENDAR_CONTEXT',
 	        width: 315,
@@ -1159,7 +1164,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          itemOrder: {
 	            title: 'asc'
 	          },
-	          icon: 'none'
+	          icon: 'none',
+	          stubOptions: {
+	            title: main_core.Loc.getMessage('EC_SEC_SLIDER_ROOM_SELECTOR_STUB')
+	          }
 	        }]
 	      }
 	    });

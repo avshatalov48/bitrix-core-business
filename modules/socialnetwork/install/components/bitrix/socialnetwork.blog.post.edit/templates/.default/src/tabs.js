@@ -702,18 +702,19 @@ export default class PostFormTabs extends EventEmitter
 				},
 			}).then((response) => {
 
-				Runtime.html(null, response.data.asset.join(' ')).then(() => {
-
-					Runtime.html(contentContainer, response.data.html).then(() => {
+				Runtime.html(contentContainer, response.data.html)
+					.then(() => {
 						this.clickDisabled = false;
 						this.closeWait(contentContainer);
 						this.endAnimation();
 
-						EventEmitter.emit(document.getElementById('divlivefeed_task_form'), 'OnShowLHE', new BaseEvent({
-							compatData: [ 'justShow' ]
-						}));
-					});
-				});
+						EventEmitter.emit(
+							document.getElementById('divlivefeed_task_form'),
+							'OnShowLHE',
+							new BaseEvent({compatData: ['justShow']})
+						);
+					})
+				;
 
 				Dom.adjust(content, {
 					style: {

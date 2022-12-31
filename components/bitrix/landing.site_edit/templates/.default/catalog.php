@@ -143,17 +143,27 @@ else
 										value="<?= (int)$field->getValue() ?>"
 									>
 									<script type="text/javascript">
-										const fieldSection = new BX.Landing.UI.Field.LinkURL({
+										const fieldSection = new BX.Landing.UI.Field.LinkUrl({
 											title: "",
 											textOnly: true,
 											disableCustomURL: true,
 											disallowType: true,
 											allowedTypes: [
-												BX.Landing.UI.Field.LinkURL.TYPE_CATALOG
+												BX.Landing.UI.Field.LinkUrl.TYPE_CATALOG
 											],
 											allowedCatalogEntityTypes: [
 												BX.Landing.UI.Panel.Catalog.TYPE_CATALOG_SECTION
 											],
+											typeData: {
+												button : {
+													'className': 'fa fa-chevron-right',
+													'text': '',
+													'action': BX.Landing.UI.Field.LinkUrl.TYPE_CATALOG_SECTION,
+												},
+												hideInput : false,
+												contentEditable : false,
+											},
+											settingMode: true,
 											content: "<?= $field->getValue() ? '#catalogSection' . (int)$field->getValue() : '' ?>",
 											onValueChange: function()
 											{

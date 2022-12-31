@@ -4,17 +4,53 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 global $APPLICATION;
 global $DB;
 global $USER;
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\v2\Contractor\Provider\Manager;
+
+/**
+ * @var CAdminPage $adminPage
+ * @var CAdminSidePanelHelper $adminSidePanelHelper
+ */
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."cat_contractor_list.php?lang=".LANGUAGE_ID;
 $listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
 
-if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_store')))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 CModule::IncludeModule("catalog");
-$bReadOnly = !$USER->CanDoOperation('catalog_store');
+
+$publicMode = $adminPage->publicMode || $adminSidePanelHelper->isPublicSidePanel();
+$accessController = AccessController::getCurrent();
+
+if ($publicMode)
+{
+	$hasAccess = $accessController->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS);
+	$bReadOnly = false;
+}
+else
+{
+	$hasAccess =
+		$accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+		|| $accessController->check(ActionDictionary::ACTION_STORE_VIEW)
+	;
+	$bReadOnly = !$accessController->check(ActionDictionary::ACTION_STORE_VIEW);
+}
+
+if (!$hasAccess)
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
+
+if (Manager::getActiveProvider())
+{
+	LocalRedirect($listUrl);
+}
 
 if ($ex = $APPLICATION->GetException())
 {
@@ -218,15 +254,15 @@ $context->Show();
 		}
 
 	</script>
-	<?
-	$actionUrl = $APPLICATION->GetCurPage();
-	$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
+<?
+$actionUrl = $APPLICATION->GetCurPage();
+$actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 
-	$juridicalHideCss = $str_PERSON_TYPE === CONTRACTOR_INDIVIDUAL
-		? 'style="display: none;"'
-		: ''
-	;
-	?>
+$juridicalHideCss = $str_PERSON_TYPE === CONTRACTOR_INDIVIDUAL
+	? 'style="display: none;"'
+	: ''
+;
+?>
 	<form enctype="multipart/form-data" method="POST" action="<?=$actionUrl?>" name="contractor_edit">
 		<?echo GetFilterHiddens("filter_");?>
 		<input type="hidden" name="Update" value="Y">
@@ -270,7 +306,7 @@ $context->Show();
 					{
 						?><option value="<?=htmlspecialcharsbx($typeId); ?>"<?=($str_PERSON_TYPE === $typeId ? ' selected' : ''); ?>><?=htmlspecialcharsbx($item); ?></option><?
 					}
-				?></select>
+					?></select>
 			</td>
 		</tr>
 
@@ -298,11 +334,11 @@ $context->Show();
 		<tr class="adm-detail-required-field">
 			<td> <span id="title_span">
 			<?
-					if($str_PERSON_TYPE == CONTRACTOR_JURIDICAL)
-						echo GetMessage("CONTRACTOR_TITLE_JURIDICAL");
-					else
-						echo GetMessage("CONTRACTOR_TITLE");
-					?>:</span></td>
+			if($str_PERSON_TYPE == CONTRACTOR_JURIDICAL)
+				echo GetMessage("CONTRACTOR_TITLE_JURIDICAL");
+			else
+				echo GetMessage("CONTRACTOR_TITLE");
+			?>:</span></td>
 			<td>
 				<input type="text" name="PERSON_NAME" id="BREAK_LAST_NAME" size="50" value="<?=$str_PERSON_NAME?>" />
 			</td>

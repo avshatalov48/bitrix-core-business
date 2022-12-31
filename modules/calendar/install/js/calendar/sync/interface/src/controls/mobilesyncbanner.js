@@ -1,8 +1,8 @@
 // @flow
 'use strict';
-import {Type, Tag, Loc, Runtime, Dom} from 'main.core';
-import {Util} from "calendar.util";
-import {Popup} from 'main.popup';
+import { Type, Tag, Loc, Runtime, Dom } from 'main.core';
+import { Util } from "calendar.util";
+import { Popup } from 'main.popup';
 
 export default class MobileSyncBanner
 {
@@ -18,6 +18,10 @@ export default class MobileSyncBanner
 	{
 		this.type = options.type;
 		this.helpDeskCode = options.helpDeskCode || '11828176';
+		this.alreadyConnectedToNew = this.type === 'android'
+		 	? Util.isGoogleConnected()
+			: Util.isIcloudConnected()
+		;
 	}
 
 	show()
@@ -55,20 +59,8 @@ export default class MobileSyncBanner
 				</div>
 				<div class="calendar-sync-slider-content">
 					<img class="calendar-sync-slider-phone-img" src="/bitrix/images/calendar/sync/qr-background.svg" alt="">
-					<div class="calendar-sync-slider-qr">
-						<div class="${this.QRCODE_WRAP_CLASS}">${Util.getLoader(this.QRCODE_SIZE)}</div>
-						<span class="calendar-sync-slider-logo"></span>
-					</div>
-					<div class="calendar-sync-slider-instruction">
-						<!--<div class="calendar-sync-slider-instruction-subtitle"></div>-->
-						<div class="calendar-sync-slider-instruction-title">${Loc.getMessage('SYNC_MOBILE_NOTICE_HOW_TO')} ${this.type !== 'iphone' ? Tag.render `<span class="calendar-notice-mobile-banner" data-hint="${Loc.getMessage('CAL_ANDROID_QR_CODE_HINT')}" data-hint-no-icon="Y"></span>` : ''}</div>
-						<div class="calendar-sync-slider-instruction-notice">${Loc.getMessage('SYNC_MOBILE_NOTICE')}</div>
-						<a href="javascript:void(0);" 
-								onclick="BX.Helper.show('redirect=detail&code=' + ${this.getHelpdeskCode()},{zIndex:3100,}); event.preventDefault();" 
-								class="ui-btn ui-btn-success ui-btn-round">
-							${Loc.getMessage('SYNC_MOBILE_ABOUT_BTN')}
-						</a>
-					</div>
+					${this.getQrContainer()}
+					${this.getInstructionContainer()}
 				</div>
 			</div>
 		`;
@@ -76,6 +68,72 @@ export default class MobileSyncBanner
 		Util.initHintNode(this.DOM.container.querySelector('.calendar-notice-mobile-banner'));
 
 		return this.DOM.container;
+	}
+
+	getQrContainer()
+	{
+		if (!this.DOM.qrContainer)
+		{
+			this.DOM.qrContainer = Tag.render`
+				<div class="calendar-sync-slider-qr">
+					<div class="${this.QRCODE_WRAP_CLASS}">${Util.getLoader(this.QRCODE_SIZE)}</div>
+					<span class="calendar-sync-slider-logo"></span>
+				</div>
+			`;
+		}
+
+		return this.DOM.qrContainer;
+	}
+
+	getInstructionContainer()
+	{
+		if (!this.DOM.instructionContainer)
+		{
+			this.DOM.instructionContainer = Tag.render`
+				<div class="calendar-sync-slider-instruction">
+					<!--<div class="calendar-sync-slider-instruction-subtitle"></div>-->
+					${this.getInstructionTextContainer()}
+					<div class="calendar-sync-slider-instruction-notice">${Loc.getMessage('SYNC_MOBILE_NOTICE')}</div>
+					<a href="javascript:void(0);" 
+							onclick="BX.Helper.show('redirect=detail&code=' + ${this.getHelpdeskCode()},{zIndex:3100,}); event.preventDefault();" 
+							class="ui-btn ui-btn-success ui-btn-round">
+						${Loc.getMessage('SYNC_MOBILE_ABOUT_BTN')}
+					</a>
+				</div>
+			`;
+		}
+
+		return this.DOM.instructionContainer;
+	}
+
+	getInstructionTextContainer()
+	{
+		if (!this.DOM.instructionTextContainer)
+		{
+			this.DOM.instructionTextContainer = Tag.render`
+				<div class="calendar-sync-slider-instruction-title">
+					${Loc.getMessage('SYNC_MOBILE_NOTICE_HOW_TO') + ' '} 
+					${this.type !== 'iphone' ? this.getAndroidHintIcon() : ''}
+				</div>
+			`;
+		}
+
+		return this.DOM.instructionTextContainer;
+	}
+
+	getAndroidHintIcon()
+	{
+		if (!this.DOM.androidHintIcon)
+		{
+			this.DOM.androidHintIcon = Tag.render`
+			<span 
+				class="calendar-notice-mobile-banner" 
+				data-hint="${Loc.getMessage('CAL_ANDROID_QR_CODE_HINT')}" 
+				data-hint-no-icon="Y">
+			</span>`;
+		}
+
+		return this.DOM.androidHintIcon;
 	}
 
 	getInnerContainer()

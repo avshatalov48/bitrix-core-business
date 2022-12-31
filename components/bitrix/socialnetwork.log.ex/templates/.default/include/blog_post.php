@@ -75,10 +75,10 @@ $arComponentParams = [
 	"IS_UNREAD" => $is_unread,
 	"MARK_NEW_COMMENTS" => (
 		$USER->isAuthorized()
-		&& $arResult["COUNTER_TYPE"] === "**"
-		&& $arResult["SHOW_UNREAD"] === "Y"
-			? "Y"
-			: "N"
+			&& $arResult["COUNTER_TYPE"] === "**"
+			&& $arResult["SHOW_UNREAD"] === "Y"
+				? "Y"
+				: "N"
 	),
 	"IS_HIDDEN" => false,
 	"LAST_LOG_TS" => ($arResult["LAST_LOG_TS"] + $arResult["TZ_OFFSET"]),

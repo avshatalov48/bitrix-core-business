@@ -1,4 +1,5 @@
-<? if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 /**
  * @var string $componentPath
@@ -49,7 +50,7 @@ $arThemesList = array(
 	'red' => GetMessage('CP_BCS_TPL_THEME_RED'),
 	'yellow' => GetMessage('CP_BCS_TPL_THEME_YELLOW')
 );
-$dir = trim(preg_replace("'[\\\\/]+'", '/', dirname(__FILE__).'/themes/'));
+$dir = trim(preg_replace("'[\\\\/]+'", '/', __DIR__.'/themes/'));
 if (is_dir($dir))
 {
 	foreach ($arThemesList as $themeID => $themeName)
@@ -568,6 +569,13 @@ $arTemplateParameters['MESS_NOT_AVAILABLE'] = array(
 	'TYPE' => 'STRING',
 	'DEFAULT' => GetMessage('CP_BCS_TPL_MESS_NOT_AVAILABLE_DEFAULT')
 );
+$arTemplateParameters['MESS_NOT_AVAILABLE_SERVICE'] = [
+	'PARENT' => 'VISUAL',
+	'NAME' => GetMessage('CP_BCS_TPL_MESS_NOT_AVAILABLE_SERVICE'),
+	'TYPE' => 'STRING',
+	'DEFAULT' => GetMessage('CP_BCS_TPL_MESS_NOT_AVAILABLE_SERVICE_DEFAULT'),
+];
+
 $arTemplateParameters['RCM_TYPE'] = array(
 	'PARENT' => 'BIG_DATA_SETTINGS',
 	'NAME' => GetMessage('CP_BCS_TPL_TYPE_TITLE'),

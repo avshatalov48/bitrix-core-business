@@ -1,8 +1,7 @@
-import {Dom, Type} from 'main.core';
+import {Dom, Type, Runtime} from 'main.core';
 import {Loc} from 'landing.loc';
 import {Main} from 'landing.main'
 import {TextField} from 'landing.ui.field.textfield';
-import {IconPanel} from 'landing.ui.panel.iconpanel';
 import {ImageUploader} from 'landing.imageuploader';
 import {BaseButton} from 'landing.ui.button.basebutton';
 import {ImageEditor} from 'landing.imageeditor';
@@ -40,7 +39,7 @@ export class Image extends TextField
 		this.fileInput.addEventListener("change", this.onFileInputChange.bind(this));
 
 		this.linkInput = Image.createLinkInput();
-		this.linkInput.onInputHandler = this.onLinkInput.bind(this);
+		this.linkInput.onInputHandler = Runtime.debounce(this.onLinkInput.bind(this), 777);
 
 		this.dropzone = Image.createDropzone(this.selector);
 		this.dropzone.hidden = true;
@@ -160,35 +159,12 @@ export class Image extends TextField
 			contentRoot: this.contentRoot,
 		});
 
-		this.urlCheckbox = Dom.create("input", {
-			props: {type: "checkbox"},
-			attrs: {style: "margin-left: 4px;"},
-		});
-
-		function onCheckboxChange(checkbox, layout)
+		this.isDisabledUrl = this.content.url && this.content.url.enabled === false;
+		if (this.isDisabledUrl)
 		{
-			if (checkbox.checked)
-			{
-				layout.querySelector(".landing-ui-field-link-right").classList.remove("landing-ui-disabled");
-				layout.querySelector(".landing-ui-field-link-url-grid").classList.remove("landing-ui-disabled");
-			}
-			else
-			{
-				layout.querySelector(".landing-ui-field-link-right").classList.add("landing-ui-disabled");
-				layout.querySelector(".landing-ui-field-link-url-grid").classList.add("landing-ui-disabled");
-			}
+			this.content.url.href = '';
 		}
 
-		this.urlCheckbox.addEventListener('change', function ()
-		{
-			onCheckboxChange(this.urlCheckbox, this.url.layout);
-		}.bind(this));
-
-		this.urlCheckbox.checked = this.content.url && this.content.url.enabled;
-
-		onCheckboxChange(this.urlCheckbox, this.url.layout);
-
-		this.url.hrefInput.header.appendChild(this.urlCheckbox);
 		this.url.left.hidden = true;
 
 		this.makeAsLinkWrapper.appendChild(this.url.layout);
@@ -214,6 +190,7 @@ export class Image extends TextField
 			additionalParams: {context: 'imageeditor'},
 			dimensions: this.dimensions,
 			sizes: ['1x', '2x'],
+			allowSvg: Main.getInstance().options.allow_svg === true,
 		});
 
 		this.adjustEditButtonState();
@@ -617,13 +594,12 @@ export class Image extends TextField
 
 	onLinkInput(value)
 	{
-		var tmpImage = Dom.create("img");
+		const tmpImage = Dom.create("img");
 		tmpImage.src = value;
-		tmpImage.onload = function ()
-		{
+		tmpImage.onload = () => {
 			this.showPreview();
 			this.setValue({src: value, src2x: value});
-		}.bind(this);
+		};
 	}
 
 	showLoader()
@@ -828,7 +804,7 @@ export class Image extends TextField
 			value.classList = this.classList;
 		}
 
-		value.url = Object.assign({}, this.url.getValue(), {enabled: this.urlCheckbox.checked});
+		value.url = Object.assign({}, this.url.getValue(), {enabled: true});
 
 		return value;
 	}
@@ -886,9 +862,14 @@ export class Image extends TextField
 			&& file.type.includes('png')
 		);
 
+		const isSvg = (
+			Type.isStringFilled(file.type)
+			&& file.type.includes('svg')
+		);
+
 		const checkSize = new Promise(function (resolve)
 		{
-			let sizes = isPng ? ['2x'] : ['1x', '2x'];
+			let sizes = (isPng || isSvg) ? ['2x'] : ['1x', '2x'];
 
 			if (this.create2xByDefault === false)
 			{
@@ -907,7 +888,7 @@ export class Image extends TextField
 						) === false
 					)
 					{
-						sizes = isPng ? ['2x'] : ['1x'];
+						sizes = (isPng || isSvg) ? ['2x'] : ['1x'];
 					}
 
 					resolve(sizes);
@@ -933,7 +914,7 @@ export class Image extends TextField
 						return allowedSizes;
 					}
 
-					return isPng ? ['2x'] : ['1x', '2x'];
+					return (isPng || isSvg) ? ['2x'] : ['1x', '2x'];
 				}.bind(this))();
 
 				return this.uploader

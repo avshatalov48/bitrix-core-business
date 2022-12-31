@@ -86,7 +86,7 @@ class Form
 	protected static function replaceFormMarkers(string $content): string
 	{
 		$replace = preg_replace_callback(
-			'/(?<pre><a[^>]+href=|data-b24form=)["\']#crmForm(?<type>Inline|Popup)(?<id>[\d]+)["\']/i',
+			'/(?<pre><a[^>]+href=|data-b24form=)["\'](form:)?#crmForm(?<type>Inline|Popup)(?<id>[\d]+)["\']/i',
 			static function ($matches)
 			{
 				if (
@@ -121,7 +121,43 @@ class Form
 			$content
 		);
 
-		return $replace ?? $content;
+		$replace = $replace ?? $content;
+
+		//replace link to form in data-pseudo-url
+		$replace = preg_replace_callback(
+			'/(?<pre><img|<i.*)data-pseudo-url="{.*(form:)?#crmForm(?<type>Inline|Popup)(?<id>[\d]+).*}"(?<pre2>.*>)/i',
+			static function ($matches)
+			{
+				if (
+					!(int)$matches['id']
+					|| !($form = self::getFormById((int)$matches['id']))
+				)
+				{
+					return $matches[0];
+				}
+
+				if (strtolower($matches['type']) === 'popup')
+				{
+					$script = "<script data-b24-form=\"click/{$matches['id']}/{$form['SECURITY_CODE']}\" data-skip-moving=\"true\">
+								(function(w,d,u){
+									var s=d.createElement('script');s.async=true;s.src=u+'?'+(Date.now()/180000|0);
+									var h=d.getElementsByTagName('script')[0];h.parentNode.insertBefore(s,h);
+								})(window,document,'{$form['URL']}');
+							</script>";
+
+					//add class g-cursor-pointer
+					preg_match_all('/(class="[^"]*)/i', $matches['pre'], $matchesPre);
+					$matches['pre'] = str_replace($matchesPre[1][0], $matchesPre[1][0]. ' g-cursor-pointer', $matches['pre']);
+
+					return $script . $matches['pre'] . ' '. $matches['pre2'];
+				}
+
+				return $matches[0];
+			},
+			$replace
+		);
+
+		return $replace;
 	}
 
 	/**
@@ -202,7 +238,7 @@ class Form
 
 	protected static function getFormsForPortal(array $filter = []): array
 	{
-		$res = Webform\Internals\FormTable::getList(
+		$res = Webform\Internals\FormTable::getDefaultTypeList(
 			[
 				'select' => self::AVAILABLE_FORM_FIELDS,
 				'filter' => $filter,

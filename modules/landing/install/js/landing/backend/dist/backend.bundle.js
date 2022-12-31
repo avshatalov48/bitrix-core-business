@@ -2,6 +2,9 @@ this.BX = this.BX || {};
 (function (exports,main_core,landing_env) {
 	'use strict';
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var additionalRequestCompleted = true;
 	/**
 	 * @memberOf BX.Landing
@@ -78,13 +81,13 @@ this.BX = this.BX || {};
 	      var requestBody = {
 	        sessid: main_core.Loc.getMessage('bitrix_sessid'),
 	        action: uploadParams.action || _action.replace('Landing\\Block', 'Block'),
-	        data: babelHelpers.objectSpread({}, data, {
+	        data: _objectSpread(_objectSpread({}, data), {}, {
 	          uploadParams: uploadParams,
 	          lid: data.lid || this.getLandingId()
 	        })
 	      };
 	      var uri = new main_core.Uri(this.getControllerUrl());
-	      uri.setQueryParams(babelHelpers.objectSpread({
+	      uri.setQueryParams(_objectSpread({
 	        action: requestBody.action
 	      }, queryParams));
 	      return Backend.request({
@@ -104,9 +107,9 @@ this.BX = this.BX || {};
 	        }*/
 
 	        return response.result;
-	      }).catch(function (err) {
+	      })["catch"](function (err) {
 	        if (requestBody.action !== 'Landing::downBlock' && requestBody.action !== 'Landing::upBlock') {
-	          if (requestBody.action !== 'Block::getById' && requestBody.action !== 'Block::publication' && requestBody.action !== 'Landing::move' && requestBody.action !== 'Landing::copy' && requestBody.action !== 'Landing::publication' && requestBody.action !== 'Site::publication' && requestBody.action !== 'Site::moveFolder' && requestBody.action !== 'Site::markDelete') {
+	          if (requestBody.action !== 'Block::getById' && requestBody.action !== 'Block::publication' && requestBody.action !== 'Landing::move' && requestBody.action !== 'Landing::copy' && requestBody.action !== 'Landing::publication' && requestBody.action !== 'Site::publication' && requestBody.action !== 'Site::moveFolder' && requestBody.action !== 'Site::markDelete' && requestBody.action !== 'Vk::getVideoInfo') {
 	            var error = main_core.Type.isString(err) ? {
 	              type: 'error'
 	            } : err;
@@ -134,7 +137,7 @@ this.BX = this.BX || {};
 	        batch: data
 	      };
 	      var uri = new main_core.Uri(this.getControllerUrl());
-	      uri.setQueryParams(babelHelpers.objectSpread({
+	      uri.setQueryParams(_objectSpread({
 	        action: requestBody.action
 	      }, queryParams));
 	      return Backend.request({
@@ -151,7 +154,7 @@ this.BX = this.BX || {};
 	        }*/
 
 	        return response;
-	      }).catch(function (err) {
+	      })["catch"](function (err) {
 	        if (requestBody.action !== 'Landing::downBlock' && requestBody.action !== 'Landing::upBlock') {
 	          if (requestBody.action !== 'Block::getById') {
 	            var error = main_core.Type.isString(err) ? {
@@ -208,7 +211,7 @@ this.BX = this.BX || {};
 	        data: formData
 	      }).then(function (response) {
 	        return response.result;
-	      }).catch(function (err) {
+	      })["catch"](function (err) {
 	        var error = main_core.Type.isString(err) ? {
 	          type: 'error'
 	        } : err;
@@ -504,10 +507,10 @@ this.BX = this.BX || {};
 	        return sourceResponse;
 	      }
 
-	      return babelHelpers.objectSpread({
+	      return _objectSpread(_objectSpread({
 	        result: null,
 	        type: type
-	      }, sourceResponse, {
+	      }, sourceResponse), {}, {
 	        status: xhr.status,
 	        authorized: xhr.getResponseHeader('X-Bitrix-Ajax-Status') !== 'Authorize'
 	      });
@@ -532,16 +535,18 @@ this.BX = this.BX || {};
 	            if (main_core.Type.isStringFilled(response.sessid) && main_core.Loc.getMessage('bitrix_sessid') !== response.sessid && additionalRequestCompleted) {
 	              main_core.Loc.setMessage('bitrix_sessid', response.sessid);
 	              additionalRequestCompleted = false;
-	              var newData = babelHelpers.objectSpread({}, data, {
+
+	              var newData = _objectSpread(_objectSpread({}, data), {}, {
 	                sessid: main_core.Loc.getMessage('bitrix_sessid')
 	              });
+
 	              Backend.request({
 	                url: url,
 	                data: newData
 	              }).then(function (newResponse) {
 	                additionalRequestCompleted = true;
 	                resolve(newResponse);
-	              }).catch(function (newResponse) {
+	              })["catch"](function (newResponse) {
 	                additionalRequestCompleted = true;
 	                reject(newResponse);
 	              });
@@ -554,7 +559,12 @@ this.BX = this.BX || {};
 	            }
 
 	            if (response.type === 'error' || response.authorized === false) {
-	              reject(response);
+	              if (response.authorized === false) {
+	                top.window.location.reload();
+	              } else {
+	                reject(response);
+	              }
+
 	              return;
 	            }
 
@@ -562,7 +572,7 @@ this.BX = this.BX || {};
 	          },
 	          onfailure: function onfailure(sourceResponse) {
 	            if (sourceResponse === 'auth') {
-	              reject(Backend.makeResponse(xhr));
+	              top.window.location.reload();
 	            } else {
 	              reject(Backend.makeResponse(xhr, sourceResponse));
 	            }

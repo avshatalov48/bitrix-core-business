@@ -25,13 +25,18 @@ class SenderEditInvitation extends SenderInvitation
 	}
 
 	/**
-	 * @return array[]
+	 * @return array|array[]
 	 * @throws ObjectException
 	 */
 	protected function getContent(): array
 	{
 		$attachmentManager = new AttachmentEditManager($this->event);
 		$this->uid = $attachmentManager->getUid();
+
+		if (!$this->uid)
+		{
+			return [];
+		}
 
 		return [[
 			'CONTENT' => Encoding::convertEncoding($attachmentManager->getContent(), SITE_CHARSET, "utf-8"),

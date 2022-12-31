@@ -1,4 +1,4 @@
-import {Cache, Dom, Tag, Type, Event} from 'main.core';
+import {Cache, Dom, Tag, Type, Event, Text} from 'main.core';
 import type {CanvasWrapperOptions} from '../types/canvas-wrapper-options';
 
 export class CanvasWrapper
@@ -86,12 +86,21 @@ export class CanvasWrapper
 
 		const canvas = this.getLayout();
 		const context = canvas.getContext('2d');
+		context.font = '34px Comforter Brush';
 
 		this.clear();
 
 		const ratio = this.getDevicePixelRatio();
+		const maxTextWidth = canvas.width - 20;
+		let fontSize = Text.toNumber(context.font);
+		while (fontSize > 1 && context.measureText(preparedText).width * ratio > maxTextWidth)
+		{
+			fontSize -= 1;
+			context.font = `${fontSize}px Comforter Brush`;
+		}
+
 		const textWidth = context.measureText(preparedText).width * ratio;
-		context.fillText(preparedText, (canvas.width - textWidth) / (2 * ratio), 40);
+		context.fillText(preparedText, (canvas.width - textWidth) / (2 * ratio), 34);
 	}
 
 	static #loadImage(file: File | Blob): Promise<HTMLImageElement>

@@ -275,18 +275,13 @@ class UsageStatTable extends Main\Entity\DataManager
 
 	public static function logLanding($clientId, $type, $count = 1)
 	{
-		$entityKey = static::getEntityKey(
+		static::incrementByCount(
 			UsageEntityTable::ENTITY_TYPE_APPLICATION,
 			$clientId,
 			UsageEntityTable::SUB_ENTITY_TYPE_LANDING,
-			$type
+			$type,
+			$count
 		);
-		if (!isset(static::$data[$entityKey]))
-		{
-			static::$data[$entityKey] = 0;
-		}
-		static::$data[$entityKey] += (int)$count;
-
 	}
 
 	/**
@@ -297,12 +292,29 @@ class UsageStatTable extends Main\Entity\DataManager
 	 */
 	public static function logLandingKnowledge($clientId, string $type, int $count = 1)
 	{
-		$entityKey = static::getEntityKey(
+		static::incrementByCount(
 			UsageEntityTable::ENTITY_TYPE_APPLICATION,
 			$clientId,
 			UsageEntityTable::SUB_ENTITY_TYPE_LANDING_KNOWLEDGE,
-			$type
+			$type,
+			$count
 		);
+	}
+
+	public static function logUserInterface($clientId, string $type, int $count = 1)
+	{
+		static::incrementByCount(
+			UsageEntityTable::ENTITY_TYPE_APPLICATION,
+			$clientId,
+			UsageEntityTable::SUB_ENTITY_TYPE_UI,
+			$type,
+			$count
+		);
+	}
+
+	protected static function incrementByCount($entityType, $entityId, $subEntityType, $subEntityName, int $count)
+	{
+		$entityKey = static::getEntityKey($entityType, $entityId, $subEntityType, $subEntityName);
 		if (!isset(static::$data[$entityKey]))
 		{
 			static::$data[$entityKey] = 0;

@@ -1,3 +1,4 @@
+import {Type} from 'main.core';
 import {EventEmitter} from 'main.core.events';
 
 class Filter
@@ -6,19 +7,9 @@ class Filter
 	{
 		this.filterId = options.filterId;
 		this.filterManager = BX.Main.filterManager.getById(this.filterId);
+		this.countersManager = options.countersManager;
 
-		this.bindEvents();
 		setTimeout(this.updateFields.bind(this), 100);
-	}
-
-	bindEvents()
-	{
-		EventEmitter.subscribe('BX.Main.Filter:apply', this.onFilterApply.bind(this));
-	}
-
-	onFilterApply()
-	{
-		this.updateFields();
 	}
 
 	updateFields()
@@ -30,11 +21,33 @@ class Filter
 		}
 
 		this.presetId = filterManager.getPreset().getCurrentPresetId();
+		this.fields = filterManager.getFilterFieldsValues();
+
+		this.countersManager.activateCountersByFilter();
 	}
 
 	isFilteredByPresetId(presetId)
 	{
 		return (presetId === this.presetId);
+	}
+
+	isFilteredByFields(filterFields)
+	{
+		let result = false;
+		let breakNeeded = false;
+
+		Object.entries(filterFields).map(([ field, value]) => {
+			if (!breakNeeded && !Type.isUndefined(this.fields[field]))
+			{
+				result = (this.fields[field] === value);
+				if (!result)
+				{
+					breakNeeded = true;
+				}
+			}
+		});
+
+		return result;
 	}
 
 	getFilter()

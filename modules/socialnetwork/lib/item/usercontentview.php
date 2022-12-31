@@ -358,13 +358,13 @@ class UserContentView
 					{
 						$hasPermissions = true;
 						if (
-							$save
-							&& isset($val['checkAccess'])
+							isset($val['checkAccess'])
 							&& $val['checkAccess'] === true
 						)
 						{
 							$provider->setOption('checkAccess', true);
 							$provider->initSourceFields();
+
 							if (empty($provider->getSourceFields()))
 							{
 								$hasPermissions = false;

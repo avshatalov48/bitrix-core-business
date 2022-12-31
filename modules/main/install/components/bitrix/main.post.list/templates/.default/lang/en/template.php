@@ -11,6 +11,7 @@ $MESS["BPC_MES_CREATE_TASK"] = "Create task";
 $MESS["BPC_MES_CREATE_TASK_RESULT"] = "Mark as task status summary";
 $MESS["BPC_MES_DELETE"] = "Delete";
 $MESS["BPC_MES_DELETE_POST_CONFIRM"] = "Are you sure you want to delete the comment?";
+$MESS["BPC_MES_DELETE_TASK_RESULT"] = "Delete status summary";
 $MESS["BPC_MES_EDIT"] = "Edit";
 $MESS["BPC_MES_HIDE"] = "Hide";
 $MESS["BPC_MES_REMOVE_TASK_RESULT"] = "Unmark as task status summary";

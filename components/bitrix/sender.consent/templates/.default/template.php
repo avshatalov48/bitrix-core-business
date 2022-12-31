@@ -29,9 +29,9 @@ use Bitrix\Main\Localization\Loc;
 	<body>
 <?endif;?>
 <div class="sender-message-done">
-	<div class="sender-message-mailing-icon"></div>
-	<div class="ui-title-1"><?=Loc::getMessage('SENDER_CONSENT_DEFAULT_TITLE')?></div>
-	<div class="ui-title-3"
+	<div class="sender-message-mailing-icon<?=($arResult['METHOD'] === 'apply') ? '' : ' --error'?>"></div>
+<!--	<div class="ui-title-1">--><?//=Loc::getMessage('SENDER_CONSENT_DEFAULT_TITLE')?><!--</div>-->
+	<div class="ui-title-1"
 	>			<?if($arResult['SUCCESS']):?>
 			<?=$arResult['METHOD'] === 'apply'? Loc::getMessage('SENDER_CONSENT_APPLY') : Loc::getMessage('SENDER_CONSENT_REJECT')?>
 		<?elseif(!empty($arResult["ERROR"])):?>

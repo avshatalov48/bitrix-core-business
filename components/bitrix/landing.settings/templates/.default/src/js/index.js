@@ -18,6 +18,7 @@ export class LandingSettings
 	pages: {
 		[code: string]: PageOption
 	};
+	currentPage: PageOption;
 	container: HTMLDivElement;
 	links: [HTMLAnchorElement];
 	saveButton: HTMLButtonElement;
@@ -44,13 +45,17 @@ export class LandingSettings
 		// pages
 		this.pages = options.pages;
 		this.container = document.getElementById(options.containerId);
-		this.loader = new Loader({target: this.container});
+
 		for (let page in this.pages)
 		{
 			this.pages[page].container = Tag.render`<div class="landing-settings-page-container"></div>`;
 			Dom.append(this.pages[page].container, this.container);
 		}
 		this.loadingPages = [];
+
+		this.loaderContainer = Tag.render`<div class="landing-settings-loader-container"></div>`;
+		Dom.insertAfter(this.loaderContainer, this.container);
+		this.loader = new Loader({target: this.loaderContainer});
 
 		// links
 		this.links = document.getElementById(options.menuId).querySelectorAll('li a');
@@ -84,6 +89,18 @@ export class LandingSettings
 		Event.bind(this.saveButton, 'click', this.onSave);
 	}
 
+	showLoader()
+	{
+		this.loader.show();
+		Dom.show(this.loaderContainer);
+	}
+
+	hideLoader()
+	{
+		this.loader.hide();
+		Dom.hide(this.loaderContainer);
+	}
+
 	onLinkClick(link: HTMLAnchorElement)
 	{
 		if (link.dataset.page)
@@ -114,42 +131,52 @@ export class LandingSettings
 		}
 	}
 
-	onPageChange(page: string)
+	onPageChange(pageId: string)
 	{
-		const currPage = this.pages[page];
-		if (currPage)
+		const pageToLoad = this.pages[pageId];
+		if (pageToLoad)
 		{
-			if (currPage.container.childNodes.length === 0)
+			if (pageToLoad.container.childNodes.length === 0)
 			{
-				this.loader.show();
-				this.loadingPages.push(page);
-				Ajax.get(currPage.link, result =>
+				this.showLoader();
+				this.loadingPages.push(pageId);
+				Ajax.get(pageToLoad.link, result =>
 				{
-					currPage.container.innerHTML = result;
-					this.loadingPages.splice(this.loadingPages.indexOf(page), 1);
+					pageToLoad.container.innerHTML = result;
+					this.loadingPages.splice(this.loadingPages.indexOf(pageId), 1);
 					if (this.loadingPages.length === 0)
 					{
-						this.loader.hide();
+						this.hideLoader();
 					}
-					const form = currPage.container.querySelector('form.landing-form');
+					const form = pageToLoad.container.querySelector('form.landing-form');
 					if (form)
 					{
-						currPage.form = form;
+						pageToLoad.form = form;
 					}
+
+					if (this.currentPage)
+					{
+						this.currentPage.container.hidden = true;
+					}
+					this.currentPage = pageToLoad;
+					this.currentPage.container.hidden = false;
 				});
 			}
-
-			for (let page in this.pages)
+			else
 			{
-				this.pages[page].container.hidden = true;
+				if (this.currentPage)
+				{
+					this.currentPage.container.hidden = true;
+				}
+				this.currentPage = pageToLoad;
+				this.currentPage.container.hidden = false;
 			}
-			currPage.container.hidden = false;
 		}
 	}
 
 	onSave()
 	{
-		this.loader.show()
+		this.showLoader()
 
 		const submits = [];
 		for (let page in this.pages)
@@ -179,7 +206,7 @@ export class LandingSettings
 				{
 					top.window['landingSettingsSaved'] = true;
 					top.BX.onCustomEvent('BX.Landing.Filter:apply');
-					this.loader.hide()
+					this.hideLoader();
 					top.window.location.reload();
 					BX.SidePanel.Instance.close();
 				}

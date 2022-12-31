@@ -10,7 +10,7 @@
 #landing-design-form .ui-ctl-w100,
 #landing-site-design-form .ui-ctl-w100
 {
-	max-width: 300px !important;
+	max-width: 250px !important;
 }
 
 #landing-design-form .ui-form-row {
@@ -79,14 +79,11 @@
 	width: 300px;
 }
 
-
-
-
 .landing-template-palette {
 	display: flex;
 	flex-wrap: wrap;
 	padding-right: 6px;
-	width: 60%;
+	width: 70%;
 }
 
 .landing-template-palette-item {
@@ -155,6 +152,7 @@
 	align-self: center;
 	padding: 0;
 	line-height: 21px;
+	cursor: default;
 }
 
 .landing-design-form {
@@ -163,4 +161,22 @@
 
 .cursor-pointer {
 	cursor: pointer;
+}
+
+.landing-design-form input,
+.landing-design-form select{
+	cursor: pointer;
+}
+
+@media (max-width: 1120px) {
+	.landing-design-form .ui-form-section > .ui-form-row > .ui-form-label {
+		width: 100px !important;
+	}
+	.landing-design-form .ui-form-content {
+		width: 40%;
+	}
+	.landing-design-form .landing-design-preview-wrap {
+		overflow: scroll;
+		height: 95%;
+	}
 }

@@ -1,27 +1,37 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,ui_progressround,main_popup,ui_vue,ui_icons_generator,main_core,main_core_events,ui_uploader_core) {
+(function (exports,ui_progressround,main_popup,ui_icons_generator,main_core,main_core_events,ui_uploader_core) {
 	'use strict';
 
-	const DropArea = ui_vue.BitrixVue.localComponent('drop-area', {
+	const DropArea = {
+	  inject: ['uploader'],
+
 	  mounted() {
-	    this.$root.getUploader().assignBrowse(this.$refs.dropArea);
+	    this.uploader.assignBrowse(this.$refs.dropArea);
 	  },
 
+	  computed: {
+	    dropLabel() {
+	      return main_core.Loc.getMessage('TILE_UPLOADER_DROP_FILES_HERE');
+	    }
+
+	  },
 	  // language=Vue
 	  template: `
 		<div class="ui-tile-uploader-drop-area" ref="dropArea">
 			<div class="ui-tile-uploader-drop-box">
-				<label class="ui-tile-uploader-drop-label">{{
-					$Bitrix.Loc.getMessage('TILE_UPLOADER_DROP_FILES_HERE')
-				}}</label>
+				<label class="ui-tile-uploader-drop-label">{{dropLabel}}</label>
 				<!--<div class="ui-tile-uploader-settings"></div>-->
 			</div>
 		</div>
 	`
-	});
+	};
 
-	const UploadLoader = ui_vue.BitrixVue.localComponent('tile-uploader.uploader-loader', {
+	/**
+	 * @memberof BX.UI.Uploader
+	 */
+
+	const UploadLoader = {
 	  props: {
 	    progress: {
 	      type: Number,
@@ -47,12 +57,6 @@ this.BX.UI = this.BX.UI || {};
 	      type: Boolean,
 	      default: true
 	    }
-	  },
-
-	  data() {
-	    return {
-	      loader: null
-	    };
 	  },
 
 	  mounted() {
@@ -89,9 +93,12 @@ this.BX.UI = this.BX.UI || {};
 
 	  },
 	  template: `<span ref="container"></span>`
-	});
+	};
 
-	const ErrorPopup = ui_vue.BitrixVue.localComponent('ui.uploader.error-popup', {
+	/**
+	 * @memberof BX.UI.Uploader
+	 */
+	const ErrorPopup = {
 	  props: {
 	    error: {
 	      type: [Object, String]
@@ -109,13 +116,7 @@ this.BX.UI = this.BX.UI || {};
 
 	    }
 	  },
-
-	  data() {
-	    return {
-	      errorPopup: null
-	    };
-	  },
-
+	  emits: ['onDestroy'],
 	  watch: {
 	    error(newValue) {
 	      if (this.errorPopup) {
@@ -128,6 +129,10 @@ this.BX.UI = this.BX.UI || {};
 
 	  },
 
+	  created() {
+	    this.errorPopup = null;
+	  },
+
 	  mounted() {
 	    if (this.error) {
 	      this.errorPopup = this.createPopup(this.error);
@@ -135,7 +140,7 @@ this.BX.UI = this.BX.UI || {};
 	    }
 	  },
 
-	  beforeDestroy() {
+	  beforeUnmount() {
 	    if (this.errorPopup) {
 	      this.errorPopup.destroy();
 	      this.errorPopup = null;
@@ -147,7 +152,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (main_core.Type.isStringFilled(error)) {
 	        return error;
 	      } else if (main_core.Type.isObject(error)) {
-	        return error.getMessage() + '<br>' + error.getDescription();
+	        return error.message + '<br>' + error.description;
 	      }
 
 	      return '';
@@ -205,9 +210,13 @@ this.BX.UI = this.BX.UI || {};
 
 	  },
 	  template: '<span></span>'
-	});
+	};
 
-	const FileIconComponent = ui_vue.BitrixVue.localComponent('ui.uploader.file-icon', {
+	/**
+	 * @memberof BX.UI.Uploader
+	 */
+
+	const FileIconComponent = {
 	  props: {
 	    name: {
 	      type: String
@@ -235,14 +244,15 @@ this.BX.UI = this.BX.UI || {};
 	  },
 
 	  template: '<span></span>'
-	});
+	};
 
-	const TileItem = ui_vue.BitrixVue.localComponent('tile', {
+	const TileItem = {
 	  components: {
 	    UploadLoader,
 	    ErrorPopup,
 	    FileIconComponent
 	  },
+	  inject: ['uploader'],
 	  props: {
 	    item: {
 	      type: Object,
@@ -253,7 +263,6 @@ this.BX.UI = this.BX.UI || {};
 	  data() {
 	    return {
 	      tileId: 'tile-uploader-' + main_core.Text.getRandom().toLowerCase(),
-	      menu: null,
 	      showError: false
 	    };
 	  },
@@ -301,7 +310,7 @@ this.BX.UI = this.BX.UI || {};
 	      const nameWithoutExtension = nameParts.join('.');
 
 	      if (nameWithoutExtension.length > 27) {
-	        return nameWithoutExtension.substr(0, 20) + '...' + nameWithoutExtension.substr(-5);
+	        return nameWithoutExtension.substr(0, 17) + '...' + nameWithoutExtension.substr(-5);
 	      }
 
 	      return nameWithoutExtension;
@@ -309,7 +318,11 @@ this.BX.UI = this.BX.UI || {};
 
 	  },
 
-	  beforeDestroy() {
+	  created() {
+	    this.menu = null;
+	  },
+
+	  beforeUnmount() {
 	    if (this.menu) {
 	      this.menu.destroy();
 	      this.menu = null;
@@ -318,8 +331,7 @@ this.BX.UI = this.BX.UI || {};
 
 	  methods: {
 	    remove() {
-	      const widget = this.$root.getWidget();
-	      widget.remove(this.item.id);
+	      this.uploader.removeFile(this.item.id);
 	    },
 
 	    handleMouseEnter(item) {
@@ -422,9 +434,13 @@ this.BX.UI = this.BX.UI || {};
 		</div>
 	</transition>
 	`
-	});
+	};
 
-	const TileList = ui_vue.BitrixVue.localComponent('tile-list', {
+	/**
+	 * @memberof BX.UI.Uploader
+	 */
+
+	const TileList = {
 	  components: {
 	    TileItem
 	  },
@@ -440,19 +456,23 @@ this.BX.UI = this.BX.UI || {};
 			<TileItem v-for="item in items" :key="item.id" :item="item" />
 		</div>
 	`
-	});
+	};
+
+	/**
+	 * @memberof BX.UI.Uploader
+	 */
 
 	const DragOverMixin = {
 	  directives: {
 	    drop: {
-	      bind(el, binding, vnode) {
+	      beforeMount(el, binding, vnode) {
 	        function addClass() {
-	          vnode.context.dragOver = true;
+	          binding.instance.dragOver = true;
 	          el.classList.add('--drag-over');
 	        }
 
 	        function removeClass() {
-	          vnode.context.dragOver = false;
+	          binding.instance.dragOver = false;
 	          el.classList.remove('--drag-over');
 	        }
 
@@ -476,8 +496,8 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	      },
 
-	      unbind(el, binding, vnode) {
-	        vnode.context.dragOver = false;
+	      unmounted(el, binding, vnode) {
+	        binding.instance.dragOver = false;
 	        main_core.Event.unbindAll(el, 'dragenter');
 	        main_core.Event.unbindAll(el, 'dragleave');
 	        main_core.Event.unbindAll(el, 'drop');
@@ -494,23 +514,23 @@ this.BX.UI = this.BX.UI || {};
 
 	};
 
-	const TileWidgetComponent = ui_vue.BitrixVue.localComponent('tile-uploader', {
+	/**
+	 * @memberof BX.UI.Uploader
+	 */
+
+	const TileWidgetComponent = {
+	  name: 'TileWidget',
+	  extends: ui_uploader_core.VueUploaderComponent,
 	  components: {
 	    DropArea,
 	    TileList,
 	    ErrorPopup
 	  },
 	  mixins: [DragOverMixin],
-	  props: {
-	    items: {
-	      type: Array,
-	      default: []
-	    }
-	  },
 
 	  data() {
 	    return {
-	      uploaderError: null
+	      isMounted: false
 	    };
 	  },
 
@@ -533,31 +553,30 @@ this.BX.UI = this.BX.UI || {};
 	  },
 
 	  created() {
-	    this.$Bitrix.eventEmitter.subscribe('Uploader:onError', event => {
-	      this.uploaderError = event.getData().error;
-	    });
-	    this.$Bitrix.eventEmitter.subscribe('Item:onAdd', event => {
+	    this.adapter.subscribe('Item:onAdd', event => {
 	      this.uploaderError = null;
 	    });
-	    this.$Bitrix.eventEmitter.subscribe('Item:onRemove', event => {
+	    this.adapter.subscribe('Item:onRemove', event => {
 	      this.uploaderError = null;
 	    });
 	  },
 
 	  mounted() {
-	    this.$root.getUploader().assignDropzone(this.$refs.container);
+	    this.uploader.assignDropzone(this.$refs.container);
+	    this.isMounted = true;
 	  },
 
+	  methods: {
+	    handlePopupDestroy(error) {
+	      if (this.uploaderError === error) {
+	        this.uploaderError = null;
+	      }
+	    }
+
+	  },
 	  // language=Vue
 	  template: `
 		<div class="ui-tile-uploader" ref="container" v-drop>
-			<ErrorPopup 
-				v-if="uploaderError"
-				:alignArrow="false"
-				:error="uploaderError"
-				:popup-options="errorPopupOptions" 
-				@onDestroy="uploaderError = null" 
-			/>
 			<template v-if="items.length === 0">
 				<DropArea />
 			</template>
@@ -566,31 +585,39 @@ this.BX.UI = this.BX.UI || {};
 				<DropArea />
 			</template>
 		</div>
+		<ErrorPopup
+			v-if="uploaderError && isMounted"
+			:alignArrow="false"
+			:error="uploaderError"
+			:popup-options="errorPopupOptions"
+			@onDestroy="handlePopupDestroy"
+		/>
 	`
-	});
+	};
 
 	/**
 	 * @memberof BX.UI.Uploader
 	 */
 
-	class TileWidget extends ui_uploader_core.VueUploader {
+	class TileWidget extends ui_uploader_core.VueUploaderWidget {
 	  constructor(uploaderOptions, tileWidgetOptions) {
-	    super(uploaderOptions);
 	    const widgetOptions = main_core.Type.isPlainObject(tileWidgetOptions) ? Object.assign({}, tileWidgetOptions) : {};
+	    super(uploaderOptions, widgetOptions);
 	  }
 
-	  getRootComponentId() {
+	  getRootComponent() {
 	    return TileWidgetComponent;
 	  }
 
 	}
 
 	exports.TileWidget = TileWidget;
+	exports.TileWidgetComponent = TileWidgetComponent;
 	exports.TileList = TileList;
 	exports.FileIcon = FileIconComponent;
 	exports.ErrorPopup = ErrorPopup;
 	exports.UploadLoader = UploadLoader;
 	exports.DragOverMixin = DragOverMixin;
 
-}((this.BX.UI.Uploader = this.BX.UI.Uploader || {}),BX.UI,BX.Main,BX,BX.UI.Icons.Generator,BX,BX.Event,BX.UI.Uploader));
+}((this.BX.UI.Uploader = this.BX.UI.Uploader || {}),BX.UI,BX.Main,BX.UI.Icons.Generator,BX,BX.Event,BX.UI.Uploader));
 //# sourceMappingURL=ui.uploader.tile-widget.bundle.js.map

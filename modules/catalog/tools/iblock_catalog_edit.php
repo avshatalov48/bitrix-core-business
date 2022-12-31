@@ -1,27 +1,29 @@
 <?
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
+
 use Bitrix\Main,
 	Bitrix\Main\Loader,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Iblock,
 	Bitrix\Catalog,
-	Bitrix\Catalog\Helpers\Admin\CatalogEdit;
+	Bitrix\Catalog\Helpers\Admin\CatalogEdit,
+	Bitrix\Catalog\Access\ActionDictionary,
+	Bitrix\Catalog\Access\AccessController;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 
 Loc::loadMessages(__FILE__);
 
-$readOnly = !$USER->CanDoOperation('catalog_settings');
-if ($readOnly && !$USER->CanDoOperation('catalog_read'))
+Loader::includeModule('catalog');
+$readOnly = !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS);
+if ($readOnly && !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ))
 {
 	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 	ShowError(Loc::getMessage('BX_CATALOG_SETTINGS_ACCESS_DENIED'));
 	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
 	die();
 }
-
-Loader::includeModule('catalog');
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/iblock/classes/general/subelement.php');
 

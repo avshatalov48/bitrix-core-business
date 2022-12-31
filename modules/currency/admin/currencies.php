@@ -1,4 +1,4 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
 use Bitrix\Main\Loader;
@@ -27,33 +27,23 @@ $adminList = new CAdminList($adminListTableID, $adminSort);
 $filter = array();
 $filterFields = array();
 
-if (!isset($by))
-	$by = 'SORT';
-if (!isset($order))
-	$order = 'ASC';
-$by = mb_strtoupper($by);
-$order = mb_strtoupper($order);
+$by = mb_strtoupper($adminSort->getField());
+$order = mb_strtoupper($adminSort->getOrder());
 
 if ($adminList->EditAction() && $CURRENCY_RIGHT == "W")
 {
-	if (isset($FIELDS) && is_array($FIELDS))
+	foreach ($adminList->GetEditFields() as $ID => $arFields)
 	{
-		foreach ($FIELDS as $ID => $arFields)
+		$ID = Currency\CurrencyManager::checkCurrencyID($ID);
+		if ($ID === false)
+			continue;
+
+		if (!CCurrency::Update($ID, $arFields))
 		{
-			$ID = Currency\CurrencyManager::checkCurrencyID($ID);
-			if ($ID === false)
-				continue;
-
-			if (!$adminList->IsUpdated($ID))
-				continue;
-
-			if (!CCurrency::Update($ID, $arFields))
-			{
-				if ($ex = $APPLICATION->GetException())
-					$adminList->AddUpdateError(GetMessage("CURRENCY_SAVE_ERR", array("#ID#" => $ID, "#ERROR_TEXT#" => $ex->GetString())), $ID);
-				else
-					$adminList->AddUpdateError(GetMessage("CURRENCY_SAVE_ERR2", array("#ID#"=>$ID)), $ID);
-			}
+			if ($ex = $APPLICATION->GetException())
+				$adminList->AddUpdateError(GetMessage("CURRENCY_SAVE_ERR", array("#ID#" => $ID, "#ERROR_TEXT#" => $ex->GetString())), $ID);
+			else
+				$adminList->AddUpdateError(GetMessage("CURRENCY_SAVE_ERR2", array("#ID#"=>$ID)), $ID);
 		}
 	}
 }
@@ -173,7 +163,7 @@ $selectFieldsMap = array_merge($selectFieldsMap, $selectFields);
 
 $usePageNavigation = true;
 $navyParams = array();
-if (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel')
+if ($adminList->isExportMode())
 {
 	$usePageNavigation = false;
 }
@@ -211,6 +201,7 @@ if ($usePageNavigation)
 	$getListParams['offset'] = $navyParams['SIZEN']*($navyParams['PAGEN']-1);
 }
 $totalPages = 0;
+$totalCount = 0;
 if ($usePageNavigation)
 {
 	$countQuery = new Main\Entity\Query(Currency\CurrencyTable::getEntity());

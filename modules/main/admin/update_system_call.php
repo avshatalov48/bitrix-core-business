@@ -284,7 +284,7 @@ elseif ($queryType == "L")
 		if (isset($arStepUpdateInfo["DATA"]["#"]["ITEM"]))
 		{
 			for ($i = 0, $cnt = count($arStepUpdateInfo["DATA"]["#"]["ITEM"]); $i < $cnt; $i++)
-				$arItemsUpdated[$arStepUpdateInfo["DATA"]["#"]["ITEM"][$i]["@"]["NAME"]] = $arStepUpdateInfo["DATA"]["#"]["ITEM"][$i]["@"]["VALUE"];
+				$arItemsUpdated[$arStepUpdateInfo["DATA"]["#"]["ITEM"][$i]["@"]["ID"]] = $arStepUpdateInfo["DATA"]["#"]["ITEM"][$i]["@"]["NAME"];
 		}
 	}
 
@@ -377,8 +377,8 @@ elseif ($queryType == "L")
 				$bFirst = True;
 				foreach ($arItemsUpdated as $key => $value)
 				{
-					CUpdateClient::AddMessage2Log("Updated: ".$key.(($value <> '') ? "(".$value.")" : ""), "UPD_SUCCESS");
-					echo ($bFirst ? "" : ", ").$key.(($value <> '') ? "(".$value.")" : "");
+					CUpdateClient::AddMessage2Log("Updated: ".$key.(($value <> '') ? " (".$value.")" : ""), "UPD_SUCCESS");
+					echo ($bFirst ? "" : ", ").$key.(($value <> '') ? " (".$value.")" : "");
 					$bFirst = False;
 				}
 

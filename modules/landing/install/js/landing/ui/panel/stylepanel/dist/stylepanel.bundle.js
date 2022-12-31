@@ -168,6 +168,19 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        return _this5;
 	      });
 	    }
+	  }, {
+	    key: "prepareFooter",
+	    value: function prepareFooter() {
+	      var isMultiSelector = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+	      if (isMultiSelector) {
+	        this.footer.hidden = false;
+	        main_core.Dom.removeClass(this.body, 'landing-ui-panel-content-body_long');
+	      } else {
+	        this.footer.hidden = true;
+	        main_core.Dom.addClass(this.body, 'landing-ui-panel-content-body_long');
+	      }
+	    }
 	  }], [{
 	    key: "getInstance",
 	    value: function getInstance() {

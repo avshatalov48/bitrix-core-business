@@ -1,4 +1,8 @@
-<?
+<?php
+
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 IncludeModuleLangFile(__FILE__);
@@ -14,14 +18,17 @@ define('B_ADMIN_SUBCOUPONS_LIST',true);
 global $APPLICATION;
 global $USER;
 
-if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_discount')))
+CModule::IncludeModule("catalog");
+
+$accessController = AccessController::getCurrent();
+if (!($accessController->check(ActionDictionary::ACTION_CATALOG_READ) || $accessController->check(ActionDictionary::ACTION_PRODUCT_DISCOUNT_SET)))
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }
-CModule::IncludeModule("catalog");
-$boolCouponsReadOnly = !$USER->CanDoOperation('catalog_discount');
+
+$boolCouponsReadOnly = !$accessController->check(ActionDictionary::ACTION_PRODUCT_DISCOUNT_SET);
 
 $strSubTMP_ID = intval($_REQUEST['TMP_ID']);
 

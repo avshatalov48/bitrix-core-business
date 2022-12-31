@@ -37,7 +37,8 @@ $MESS['DOCUMENT_LIST_ACTION_CANCEL_TITLE'] = 'Отменить проведен�
 $MESS['DOCUMENT_LIST_ACTION_CANCEL_TEXT'] = 'Отменить проведение';
 $MESS['DOCUMENT_LIST_ACTION_DELETE_TITLE'] = 'Удалить документ';
 $MESS['DOCUMENT_LIST_ACTION_DELETE_TEXT'] = 'Удалить';
-$MESS['DOCUMENT_LIST_ADD_DOCUMENT_BUTTON'] = 'Добавить';
+$MESS['DOCUMENT_LIST_ADD_DOCUMENT_BUTTON_2'] = 'Создать';
+$MESS['DOCUMENT_LIST_ADD_DOCUMENT_BUTTON_DISABLE_HINT'] = 'Недостаточно прав для создания документа';
 $MESS['DOCUMENT_LIST_SELECT_GROUP_ACTION'] = 'Выберите действие';
 $MESS['DOCUMENT_LIST_CONDUCT_GROUP_ACTION'] = 'Провести';
 $MESS['DOCUMENT_LIST_CANCEL_GROUP_ACTION'] = 'Отменить проведение';
@@ -45,3 +46,4 @@ $MESS['DOCUMENT_LIST_NO_VIEW_RIGHTS_ERROR'] = 'Недостаточно прав
 $MESS["DOCUMENT_LIST_EMPTY_STORE_TITLE"] = "<Без названия>";
 $MESS['DOCUMENT_LIST_ERR_ACCESS_DENIED_CLOUD'] = "У вас недостаточно прав на доступ к Складскому учёту. Для предоставления прав обратитесь к Администратору Битрикс24. Администратору необходимо назначить вам роль менеджера в разделе настроек CRM. Подробная информация находится в <a onclick=\"top.BX.Helper.show('redirect=detail&code=15955386')\" style=\"cursor: pointer; \">статье Поддержки24</a>.";
 $MESS['DOCUMENT_LIST_ERR_ACCESS_DENIED_BOX'] = "У вас недостаточно прав на доступ к Складскому учёту. Для предоставления прав обратитесь к Администратору портала. Подробная информация находится в <a href=\"https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=48&LESSON_ID=25010\" target=\"_blank\">статье учебного курса Администратор сервиса Битрикс24</a>.";
+$MESS['DOCUMENT_LIST_ERR_ACCESS_DENIED'] = "Недостаточно прав для просмотра раздела #DOCUMENT_TYPE_NAME#";

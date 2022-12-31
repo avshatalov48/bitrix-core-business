@@ -3,11 +3,14 @@
 /** @global CMain $APPLICATION */
 /** @global array $FIELDS */
 /** @global CDatabase $DB */
+
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 
@@ -24,7 +27,10 @@ $APPLICATION->setTitle(Loc::getMessage('PSL_PAGE_TITLE'));
 $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
-if(!$USER->canDoOperation('catalog_read') && !$USER->canDoOperation('catalog_view'))
+if (
+	!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
+	&& !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_VIEW)
+)
 {
 	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 	ShowError(Loc::getMessage('PSL_ACCESS_DENIED'));

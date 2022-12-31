@@ -16,7 +16,7 @@ class Menu implements Preset
 
 	public function disable()
 	{
-		Option::delete('intranet', ['name' => 'left_menu_crm_store_menu']);
+		Option::set('intranet', 'left_menu_crm_store_menu', 'N');
 
 		$this->clearCache();
 	}

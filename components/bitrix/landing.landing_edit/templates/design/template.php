@@ -328,6 +328,7 @@ if ($arParams['SUCCESS_SAVE'])
 									$template->showField($pageFields['THEMEFONTS_COLOR'], [
 										'title' => true,
 										'needWrapper' => true,
+										'readonly' => true,
 									]);
 									?>
 									<script type="text/javascript">
@@ -348,6 +349,7 @@ if ($arParams['SUCCESS_SAVE'])
 									$template->showField($pageFields['THEMEFONTS_CODE'], [
 										'title' => true,
 										'needWrapper' => true,
+										'readonly' => true,
 									]);
 								}
 								if (isset($pageFields['THEMEFONTS_SIZE']))
@@ -379,6 +381,7 @@ if ($arParams['SUCCESS_SAVE'])
 									<?php $template->showField($pageFields['THEMEFONTS_COLOR_H'], [
 										'title' => true,
 										'needWrapper' => true,
+										'readonly' => true,
 									]); ?>
 									<script type="text/javascript">
 										var paramsColorH = {
@@ -398,6 +401,7 @@ if ($arParams['SUCCESS_SAVE'])
 									$template->showField($pageFields['THEMEFONTS_CODE_H'], [
 										'title' => true,
 										'needWrapper' => true,
+										'readonly' => true,
 									]);
 								}
 								if (isset($pageFields['THEMEFONTS_FONT_WEIGHT_H']))
@@ -465,6 +469,7 @@ if ($arParams['SUCCESS_SAVE'])
 									<?php $template->showField($pageFields['BACKGROUND_COLOR'], [
 										'title' => true,
 										'needWrapper' => true,
+										'readonly' => true,
 									]); ?>
 									<script type="text/javascript">
 										var paramsBgColor = {

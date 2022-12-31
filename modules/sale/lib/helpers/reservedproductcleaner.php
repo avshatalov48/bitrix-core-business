@@ -7,6 +7,7 @@ use Bitrix\Main\ORM;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Update\Stepper;
 use Bitrix\Sale;
+use Bitrix\Sale\ReserveQuantityCollection;
 
 class ReservedProductCleaner extends Stepper
 {
@@ -104,7 +105,14 @@ class ReservedProductCleaner extends Stepper
 
 					foreach ($reserveIds as $reserveId)
 					{
-						$reserve = $basketItem->getReserveQuantityCollection()->getItemById($reserveId);
+						/** @var ReserveQuantityCollection $reserveCollection */
+						$reserveCollection = $basketItem->getReserveQuantityCollection();
+						if (!$reserveCollection)
+						{
+							continue;
+						}
+
+						$reserve = $reserveCollection->getItemById($reserveId);
 						if (!$reserve)
 						{
 							continue;

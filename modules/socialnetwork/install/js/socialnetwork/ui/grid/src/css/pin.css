@@ -1,0 +1,3 @@
+.sonet-ui-grid-row-pinned td:not([style*="background-color"]) {
+	background-color: whitesmoke !important;
+}

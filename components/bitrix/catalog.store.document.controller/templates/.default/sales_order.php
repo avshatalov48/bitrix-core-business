@@ -26,6 +26,8 @@ if (!Main\Loader::includeModule('crm'))
 	return;
 }
 
+\CBitrixComponent::includeComponentClass('bitrix:crm.store.document.list');
+
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',
@@ -39,7 +41,7 @@ $APPLICATION->IncludeComponent(
 			'CONTEXT' => $request->get('context') ?? [],
 			'PRESELECTED_PRODUCT_ID' => $preselectedProductId,
 		],
-		'RELOAD_GRID_AFTER_SAVE' => ($request->get('context') || $request->get('documentId')) ? false : 'all',
+		'RELOAD_GRID_AFTER_SAVE' => \CrmStoreDocumentListComponent::getGridId(),
 		'USE_UI_TOOLBAR' => 'Y',
 		'PAGE_MODE' => false,
 		'PAGE_MODE_OFF_BACK_URL' => '/shop/documents/sales_order/',

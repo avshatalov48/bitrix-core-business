@@ -1,4 +1,5 @@
 <?php
+$MESS["IBLOCK_NO_VAT_TITLE"] = "Tax excluded";
 $MESS["IBLOCK_XML2_AMOUNT"] = "Amount";
 $MESS["IBLOCK_XML2_ANONS"] = "Anons";
 $MESS["IBLOCK_XML2_ARTICLE"] = "Article";
@@ -10,6 +11,7 @@ $MESS["IBLOCK_XML2_BASE_UNITS"] = "UnitsOfMeasurement";
 $MESS["IBLOCK_XML2_BASE_UNIT_ADD_ERROR"] = "Error creating a new unit of measurement (unit code: #CODE#).";
 $MESS["IBLOCK_XML2_BASE_UNIT_NAME"] = "Base unit";
 $MESS["IBLOCK_XML2_BX_ACTIVE"] = "BitrixActive";
+$MESS["IBLOCK_XML2_BX_API_CODE"] = "BitrixAPISymCode";
 $MESS["IBLOCK_XML2_BX_CANONICAL_URL"] = "BitrixURLCanonical";
 $MESS["IBLOCK_XML2_BX_CODE"] = "BitrixCode";
 $MESS["IBLOCK_XML2_BX_COLUMNS"] = "BitrixColumns";

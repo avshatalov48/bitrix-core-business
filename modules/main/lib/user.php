@@ -348,6 +348,7 @@ class UserTable extends DataManager
 			'shop',
 			'call',
 			'document_editor',
+			'calendar_sharing',
 		];
 
 		return $types;

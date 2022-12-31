@@ -1,13 +1,20 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Currency\UserField\Types\MoneyType;
 
+/**
+ * @var $arResult array
+ */
 $value = $arResult['value'];
 
 $text = '';
 $first = true;
+
 foreach($value as $res)
 {
 	if(!$first)
@@ -31,6 +38,11 @@ foreach($value as $res)
 	);
 
 	$currentValue = \CCurrencyLang::applyTemplate($currentValue, $format['FORMAT_STRING']);
+	$renderContext = ($arParams['additionalParameters']['renderContext'] ?? null);
+	if ($renderContext === 'export')
+	{
+		$currentValue = html_entity_decode($currentValue, ENT_NOQUOTES, LANG_CHARSET);
+	}
 
 	$text .= $currentValue;
 }

@@ -68,6 +68,12 @@
 	color: #80868e;
 }
 
+.crm-ads-rtg-popup-settings-title-with-hint {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
 .crm-ads-rtg-popup-chk {
 	display: inline-block;
 	vertical-align: middle;
@@ -473,4 +479,26 @@
 	font-size: 14px;
 	color: rgba(0,0,0,.54);
 	letter-spacing: .22px;
+}
+
+.crm-ads-rtg-range-input-wrapper {
+	display: flex;
+	flex-direction: column;
+	width: max-content;
+}
+
+.crm-ads-rtg-range-input-desc {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	color: #525c69;
+	margin: 0 3px;
+}
+
+.crm-ads-rtg-range-input {
+	width: 400px;
+}
+
+#audience-selector-btn {
+	padding-right: 10px;
 }

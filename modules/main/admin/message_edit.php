@@ -81,30 +81,33 @@ if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '')&& $isAdmin && check_
 
 	$em = new CEventMessage;
 	$arFields = array(
-		"ACTIVE"		    => $ACTIVE,
-		"EVENT_NAME"	    => $EVENT_NAME,
-		"LID"			    => $LID,
-		"EMAIL_FROM"	    => $EMAIL_FROM,
-		"EMAIL_TO"		    => $EMAIL_TO,
-		"BCC"			    => $BCC,
-		"CC"			    => $CC,
-		"REPLY_TO"		    => $REPLY_TO,
-		"IN_REPLY_TO"	    => $IN_REPLY_TO,
-		"PRIORITY"		    => $PRIORITY,
-		"FIELD1_NAME"	    => $FIELD1_NAME,
-		"FIELD1_VALUE"	    => $FIELD1_VALUE,
-		"FIELD2_NAME"	    => $FIELD2_NAME,
-		"FIELD2_VALUE"	    => $FIELD2_VALUE,
-		"SUBJECT"		    => $SUBJECT,
-		"MESSAGE"		    => $MESSAGE,
-		"BODY_TYPE"		    => $BODY_TYPE,
-		"SITE_TEMPLATE_ID"	=> $SITE_TEMPLATE_ID,
+		"ACTIVE" => $ACTIVE,
+		"TIMESTAMP_X" => new \Bitrix\Main\Type\DateTime(),
+		"EVENT_NAME" => $EVENT_NAME,
+		"LID" => $LID,
+		"EMAIL_FROM" => $EMAIL_FROM,
+		"EMAIL_TO" => $EMAIL_TO,
+		"BCC" => $BCC,
+		"CC" => $CC,
+		"REPLY_TO" => $REPLY_TO,
+		"IN_REPLY_TO" => $IN_REPLY_TO,
+		"PRIORITY" => $PRIORITY,
+		"FIELD1_NAME" => $FIELD1_NAME,
+		"FIELD1_VALUE" => $FIELD1_VALUE,
+		"FIELD2_NAME" => $FIELD2_NAME,
+		"FIELD2_VALUE" => $FIELD2_VALUE,
+		"SUBJECT" => $SUBJECT,
+		"MESSAGE" => $MESSAGE,
+		"BODY_TYPE" => $BODY_TYPE,
+		"SITE_TEMPLATE_ID" => $SITE_TEMPLATE_ID,
 		"ADDITIONAL_FIELD" => $ADDITIONAL_FIELD,
 		"LANGUAGE_ID" => $_POST["LANGUAGE_ID"],
 	);
 
 	if($ID>0 && $COPY_ID<=0)
+	{
 		$res = $em->Update($ID, $arFields);
+	}
 	else
 	{
 		$ID = $em->Add($arFields);

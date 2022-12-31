@@ -15,7 +15,7 @@ use Bitrix\Main\IO\Path;
 
 CUtil::JSPostUnescape();
 
-Loc::loadMessages(dirname(__FILE__).'/../include.php');
+Loc::loadMessages(__DIR__.'/../include.php');
 
 $engine = new Engine\Yandex();
 

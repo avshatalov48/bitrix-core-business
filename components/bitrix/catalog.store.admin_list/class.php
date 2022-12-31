@@ -6,6 +6,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\Permission\PermissionDictionary;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
@@ -27,18 +30,19 @@ class CatalogStoreAdminList extends CBitrixComponent
 	/** @var \Bitrix\Main\Filter\Filter $filter */
 	private $filter;
 
-	public function onPrepareComponentParams($arParams)
+	/** @var AccessController */
+	private $accessController;
+
+	public function __construct($component = null)
 	{
-		if (!isset($arParams['PATH_TO']))
-		{
-			$arParams['PATH_TO'] = [];
-		}
-		return parent::onPrepareComponentParams($arParams);
+		parent::__construct($component);
+
+		$this->accessController = AccessController::getCurrent();
 	}
 
 	public function executeComponent()
 	{
-		if (!$this->checkDocumentReadRights())
+		if (!$this->checkStoreAccessRights())
 		{
 			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('STORE_LIST_NO_VIEW_RIGHTS_ERROR');
 			$this->includeComponentTemplate();
@@ -52,7 +56,7 @@ class CatalogStoreAdminList extends CBitrixComponent
 		$this->arResult['GRID'] = $this->prepareGrid();
 		$this->prepareToolbar();
 
-		$this->arResult['PATH_TO'] = $this->arParams['PATH_TO'];
+		$this->arResult['PATH_TO'] = $this->arParams['PATH_TO'] ?? [];
 		$this->arResult['TARIFF_HELP_LINK'] = Catalog\Config\Feature::getMultiStoresHelpLink();
 
 		$this->includeComponentTemplate();
@@ -96,27 +100,27 @@ class CatalogStoreAdminList extends CBitrixComponent
 		$listFilter = $this->getListFilter();
 		$select = array_merge(['*'], $this->getUserSelectColumns($this->getUserReferenceColumns()));
 
-		$dbResult = StoreTable::getList([
+		$list = StoreTable::getList([
 			'order' => $gridSort['sort'],
 			'offset' => $pageNavigation->getOffset(),
 			'limit' => $pageNavigation->getLimit(),
 			'filter' => $listFilter,
 			'select' => $select,
-			'count_total' => true,
-		]);
-		$list = $dbResult->fetchAll();
+		])->fetchAll();
 
+		$isEditable = $this->checkStoreModifyRights();
 		foreach($list as $item)
 		{
 			$result['ROWS'][] = [
 				'id' => $item['ID'],
 				'data' => $item,
+				'editable' => $isEditable,
 				'columns' => $this->getItemColumns($item),
-				'actions' => $this->getItemActions($item),
+				'actions' => $this->getItemActions($item, $isEditable),
 			];
 		}
 
-		$totalCount = $dbResult->getCount();
+		$totalCount = $this->getTotalCount();
 
 		$pageNavigation->setRecordCount($totalCount);
 		$result['NAV_PARAM_NAME'] = $this->navParamName;
@@ -131,7 +135,6 @@ class CatalogStoreAdminList extends CBitrixComponent
 		$result['AJAX_ID'] = \CAjax::GetComponentID('bitrix:main.ui.grid', '', '');
 		$result['SHOW_PAGINATION'] = $totalCount > 0;
 		$result['SHOW_NAVIGATION_PANEL'] = true;
-		$result['NAV_PARAM_NAME'] = 'page';
 		$result['SHOW_PAGESIZE'] = true;
 		$result['PAGE_SIZES'] = [['NAME' => 10, 'VALUE' => '10'], ['NAME' => 20, 'VALUE' => '20'], ['NAME' => 50, 'VALUE' => '50']];
 		$result['SHOW_ROW_CHECKBOXES'] = true;
@@ -152,6 +155,11 @@ class CatalogStoreAdminList extends CBitrixComponent
 		];
 
 		return $result;
+	}
+
+	private function getTotalCount(): int
+	{
+		return StoreTable::getCount($this->getListFilter());
 	}
 
 	private function getUserReferenceColumns()
@@ -217,71 +225,76 @@ class CatalogStoreAdminList extends CBitrixComponent
 		return $columns;
 	}
 
-	private function getItemActions($item)
+	private function getItemActions($item, bool $isEditable): array
 	{
+		$gridId = htmlspecialcharsbx(self::GRID_ID);
+
 		$actions = [
 			[
-				'TITLE' => Loc::getMessage('STORE_LIST_ACTION_OPEN_TITLE'),
-				'TEXT' => Loc::getMessage('STORE_LIST_ACTION_OPEN_TEXT'),
+				'TITLE' => Loc::getMessage('STORE_LIST_ACTION_OPEN_TITLE_2'),
+				'TEXT' => Loc::getMessage('STORE_LIST_ACTION_OPEN_TEXT_2'),
 				'ONCLICK' => "openStoreSlider({$item['ID']})",
 				'DEFAULT' => true,
 			],
 		];
 
-		$activatePostParams = CUtil::PhpToJSObject([
-			'action' => 'activate',
-			'storeId' => $item['ID'],
-		]);
-		$activateAction = [
-			'TITLE' => Loc::getMessage('STORE_LIST_ACTION_ACTIVATE_TITLE'),
-			'TEXT' => Loc::getMessage('STORE_LIST_ACTION_ACTIVATE_TEXT'),
-			'ONCLICK' => "BX.Main.gridManager.getInstanceById('catalog_store').reloadTable('POST', $activatePostParams)",
-		];
-
-		if ($item['IS_DEFAULT'] !== 'Y')
+		if ($isEditable)
 		{
-			if ($item['ACTIVE'] !== 'Y')
+			$activatePostParams = CUtil::PhpToJSObject([
+				'action' => 'activate',
+				'storeId' => $item['ID'],
+			]);
+			$activateAction = [
+				'TITLE' => Loc::getMessage('STORE_LIST_ACTION_ACTIVATE_TITLE'),
+				'TEXT' => Loc::getMessage('STORE_LIST_ACTION_ACTIVATE_TEXT'),
+				'ONCLICK' => "BX.Main.gridManager.getInstanceById('{$gridId}').reloadTable('POST', $activatePostParams)",
+			];
+
+			if ($item['IS_DEFAULT'] !== 'Y')
 			{
-				$actions[] = $activateAction;
-			}
-			else
-			{
-				$deactivatePostParams = CUtil::PhpToJSObject([
-					'action' => 'deactivate',
+				if ($item['ACTIVE'] !== 'Y')
+				{
+					$actions[] = $activateAction;
+				}
+				else
+				{
+					$deactivatePostParams = CUtil::PhpToJSObject([
+						'action' => 'deactivate',
+						'storeId' => $item['ID'],
+					]);
+					$actions[] = [
+						'TITLE' => Loc::getMessage('STORE_LIST_ACTION_DEACTIVATE_TITLE'),
+						'TEXT' => Loc::getMessage('STORE_LIST_ACTION_DEACTIVATE_TEXT'),
+						'ONCLICK' => "BX.Main.gridManager.getInstanceById('{$gridId}').reloadTable('POST', $deactivatePostParams)",
+					];
+				}
+
+				$setAsDefaultPostParams = CUtil::PhpToJSObject([
+					'action' => 'setdefault',
 					'storeId' => $item['ID'],
 				]);
 				$actions[] = [
-					'TITLE' => Loc::getMessage('STORE_LIST_ACTION_DEACTIVATE_TITLE'),
-					'TEXT' => Loc::getMessage('STORE_LIST_ACTION_DEACTIVATE_TEXT'),
-					'ONCLICK' => "BX.Main.gridManager.getInstanceById('catalog_store').reloadTable('POST', $deactivatePostParams)",
+					'TITLE' => Loc::getMessage('STORE_LIST_ACTION_SET_AS_DEFAULT_TITLE'),
+					'TEXT' => Loc::getMessage('STORE_LIST_ACTION_SET_AS_DEFAULT_TEXT'),
+					'ONCLICK' => "BX.Main.gridManager.getInstanceById('{$gridId}').reloadTable('POST', $setAsDefaultPostParams)",
+				];
+
+				$deletePostParams = CUtil::PhpToJSObject([
+					'action' => 'delete',
+					'storeId' => $item['ID'],
+				]);
+				$actions[] = [
+					'TITLE' => Loc::getMessage('STORE_LIST_ACTION_DELETE_TITLE'),
+					'TEXT' => Loc::getMessage('STORE_LIST_ACTION_DELETE_TEXT'),
+					'ONCLICK' => "if (confirm('" . CUtil::JSEscape(Loc::getMessage('STORE_LIST_ACTION_DELETE_CONFIRM')) . "')) BX.Main.gridManager.getInstanceById('{$gridId}').reloadTable('POST', $deletePostParams)",
 				];
 			}
-
-			$setAsDefaultPostParams = CUtil::PhpToJSObject([
-				'action' => 'setdefault',
-				'storeId' => $item['ID'],
-			]);
-			$actions[] = [
-				'TITLE' => Loc::getMessage('STORE_LIST_ACTION_SET_AS_DEFAULT_TITLE'),
-				'TEXT' => Loc::getMessage('STORE_LIST_ACTION_SET_AS_DEFAULT_TEXT'),
-				'ONCLICK' => "BX.Main.gridManager.getInstanceById('catalog_store').reloadTable('POST', $setAsDefaultPostParams)",
-			];
-
-			$deletePostParams = CUtil::PhpToJSObject([
-				'action' => 'delete',
-				'storeId' => $item['ID'],
-			]);
-			$actions[] = [
-				'TITLE' => Loc::getMessage('STORE_LIST_ACTION_DELETE_TITLE'),
-				'TEXT' => Loc::getMessage('STORE_LIST_ACTION_DELETE_TEXT'),
-				'ONCLICK' => "if (confirm('" . CUtil::JSEscape(Loc::getMessage('STORE_LIST_ACTION_DELETE_CONFIRM')) . "')) BX.Main.gridManager.getInstanceById('catalog_store').reloadTable('POST', $deletePostParams)",
-			];
-		}
-		else
-		{
-			if ($item['ACTIVE'] !== 'Y')
+			else
 			{
-				$actions[] = $activateAction;
+				if ($item['ACTIVE'] !== 'Y')
+				{
+					$actions[] = $activateAction;
+				}
 			}
 		}
 
@@ -297,37 +310,55 @@ class CatalogStoreAdminList extends CBitrixComponent
 			'FILTER_PRESETS' => [],
 			'ENABLE_LABEL' => true,
 			'THEME' => Bitrix\Main\UI\Filter\Theme::LIGHT,
+			'CONFIG' => [
+				'AUTOFOCUS' => false,
+			]
 		];
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterOptions);
 
-		$buttonConfig = null;
-		if (Catalog\Config\State::isAllowedNewStore())
+		$button = null;
+		if ($this->checkStoreModifyRights())
 		{
-			$buttonConfig = [
-				'onclick' => 'openStoreCreation',
-			];
+			$buttonConfig = null;
+			if (Catalog\Config\State::isAllowedNewStore())
+			{
+				$buttonConfig = [
+					'onclick' => 'openStoreCreation',
+				];
+			}
+			else
+			{
+				$helpLink = Catalog\Config\Feature::getMultiStoresHelpLink();
+				if (!empty($helpLink))
+				{
+					\Bitrix\Main\Loader::includeModule('ui');
+					\Bitrix\Main\UI\Extension::load(['ui.info-helper']);
+					$buttonConfig = [
+						'click' => 'openTariffHelp',
+					];
+				}
+				unset($helpLink);
+			}
+
+			if ($buttonConfig)
+			{
+				$buttonConfig['text'] = Loc::getMessage('STORE_LIST_ADD_STORE_BUTTON');
+				$buttonConfig['color'] = \Bitrix\UI\Buttons\Color::PRIMARY;
+				$button = \Bitrix\UI\Buttons\CreateButton::create($buttonConfig);
+			}
 		}
 		else
 		{
-			$helpLink = Catalog\Config\Feature::getMultiStoresHelpLink();
-			if (!empty($helpLink))
-			{
-				\Bitrix\Main\Loader::includeModule('ui');
-				\Bitrix\Main\UI\Extension::load(['ui.info-helper']);
-				$buttonConfig = [
-					'click' => 'openTariffHelp',
-				];
-			}
-			unset($helpLink);
+			$button = \Bitrix\UI\Buttons\LockedButton::create([
+				'text' => Loc::getMessage('STORE_LIST_ADD_STORE_BUTTON'),
+				'hint' => Loc::getMessage('STORE_LIST_ADD_STORE_BUTTON_DENIED_HINT'),
+				'color' => \Bitrix\UI\Buttons\Color::PRIMARY,
+			]);
 		}
-		if (!empty($buttonConfig))
+
+		if ($button)
 		{
-			$buttonConfig['text'] = Loc::getMessage('STORE_LIST_ADD_STORE_BUTTON');
-			$buttonConfig['color'] = \Bitrix\UI\Buttons\Color::PRIMARY;
-			\Bitrix\UI\Toolbar\Facade\Toolbar::addButton(
-				\Bitrix\UI\Buttons\CreateButton::create($buttonConfig),
-				\Bitrix\UI\Toolbar\ButtonLocation::AFTER_TITLE
-			);
+			\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($button, \Bitrix\UI\Toolbar\ButtonLocation::AFTER_TITLE);
 		}
 	}
 
@@ -387,14 +418,19 @@ class CatalogStoreAdminList extends CBitrixComponent
 			$filter['TITLE'] = '%' . $searchString . '%';
 		}
 
+		$allowedStores = $this->accessController->getPermissionValue(ActionDictionary::ACTION_STORE_VIEW) ?? [];
+		if (!in_array(PermissionDictionary::VALUE_VARIATION_ALL, $allowedStores, true))
+		{
+			$filter['=ID'] = $allowedStores;
+		}
+
 		return $filter;
 	}
 
 	private function processAction()
 	{
 		$this->arResult['ERROR_MESSAGES'] = [];
-
-		if (!$this->checkDocumentWriteRights())
+		if (!$this->checkStoreAccessRights())
 		{
 			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('STORE_LIST_NO_VIEW_RIGHTS_ERROR');
 			$this->endResponseWithErrors();
@@ -420,6 +456,13 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 	private function processSingleAction($action)
 	{
+		if (!$this->checkStoreModifyRights())
+		{
+			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('STORE_LIST_NO_VIEW_RIGHTS_ERROR');
+
+			return;
+		}
+
 		if ($action === 'delete')
 		{
 			$storeId = $this->request->get('storeId');
@@ -605,6 +648,13 @@ class CatalogStoreAdminList extends CBitrixComponent
 
 	private function processGroupAction($action)
 	{
+		if (!$this->checkStoreModifyRights())
+		{
+			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('STORE_LIST_NO_VIEW_RIGHTS_ERROR');
+
+			return;
+		}
+
 		if ($action === 'delete' && is_array($this->request->get('ID')))
 		{
 			global $APPLICATION;
@@ -649,13 +699,17 @@ class CatalogStoreAdminList extends CBitrixComponent
 		CMain::FinalActions(Json::encode(['messages' => $messages]));
 	}
 
-	private function checkDocumentReadRights(): bool
+	private function checkStoreAccessRights(): bool
 	{
-		return \Bitrix\Main\Engine\CurrentUser::get()->canDoOperation('catalog_read');
+		return
+			$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+			&& $this->accessController->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS)
+			&& $this->accessController->check(ActionDictionary::ACTION_STORE_VIEW)
+		;
 	}
 
-	private function checkDocumentWriteRights(): bool
+	private function checkStoreModifyRights(): bool
 	{
-		return \Bitrix\Main\Engine\CurrentUser::get()->canDoOperation('catalog_store');
+		return AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_MODIFY);
 	}
 }

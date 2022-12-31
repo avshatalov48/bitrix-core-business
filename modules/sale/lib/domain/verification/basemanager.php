@@ -36,7 +36,7 @@ abstract class BaseManager
 		$siteList = [];
 
 		$res = Main\SiteTable::getList([
-			"select" => ["ID" => "LID", "NAME", "SERVER_NAME"],
+			"select" => ["ID", "NAME", "SERVER_NAME"],
 			"filter" => [
 				"ACTIVE" => "Y"
 			]

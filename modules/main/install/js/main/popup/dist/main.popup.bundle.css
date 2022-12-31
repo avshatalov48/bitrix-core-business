@@ -1,7 +1,3 @@
-body.popup-no-scroll {
-	overflow: hidden;
-}
-
 .popup-window {
 	background-color: #fff;
 	-webkit-box-shadow: 0 7px 21px rgba(83, 92, 105, .12), 0 -1px 6px 0 rgba(83, 92, 105, .06);
@@ -24,15 +20,19 @@ body.popup-no-scroll {
 	will-change: opacity;
 }
 
+.popup-window-disable-scroll {
+	overflow: hidden;
+}
+
+.popup-window.--fixed {
+	position: fixed !important;
+}
+
 /* A super hack for legacy code which directly reads and writes popupContainer.style.display */
 .popup-window[style*="block"] {
 	display: -webkit-box !important;
 	display: -ms-flexbox !important;
 	display: flex !important;
-}
-
-.bx-ie .popup-window[style*="block"] {
-	display: block !important;
 }
 
 .popup-window.popup-window-with-titlebar {

@@ -35,6 +35,11 @@ BX.Sale.Admin.OrderBasket = function (params)
 	this.canSendUpdateQuantityRequest = true;
 	this.lastChangedQuantity = false;
 
+	/**
+	 * \Bitrix\Sale\BasketItem::TYPE_SERVICE
+	 * @type {number}
+	 */
+	this.productTypeService = 2;
 
 	if(params.iblocksSkuParams)
 	{
@@ -1199,6 +1204,11 @@ BX.Sale.Admin.OrderBasket.prototype.onProductRowMouseOver = function(rowNode)
 BX.Sale.Admin.OrderBasket.prototype.onProductRowMouseOut = function(rowNode)
 {
 	BX.removeClass(rowNode, "tr_hover");
+};
+
+BX.Sale.Admin.OrderBasket.prototype.isServiceProduct = function(product)
+{
+	return product.TYPE && parseInt(product.TYPE) === this.productTypeService;
 };
 
 /*

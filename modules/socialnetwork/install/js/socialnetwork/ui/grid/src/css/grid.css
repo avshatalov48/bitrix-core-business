@@ -1,0 +1,8 @@
+.sonet-ui-grid-row-highlighted {
+	animation: highlightRow 900ms ease;
+	z-index: 9999;
+}
+
+.sonet-ui-grid-row-highlighted td:not([style*="background-color"]) {
+	animation: highlightRowTd 900ms ease;
+}

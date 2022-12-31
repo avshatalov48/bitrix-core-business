@@ -204,45 +204,44 @@ class CTimeZone
 
 		try //possible DateTimeZone incorrect timezone
 		{
-			$autoTimeZone = '';
 			$timeZone = '';
-			$factOffset = 0;
+
 			if ($USER_ID !== null)
 			{
 				$dbUser = CUser::GetList('id', 'asc', ['ID_EQUAL_EXACT' => $USER_ID], ['FIELDS' => ['AUTO_TIME_ZONE', 'TIME_ZONE', 'TIME_ZONE_OFFSET']]);
 				if (($arUser = $dbUser->Fetch()))
 				{
-					$autoTimeZone = trim($arUser["AUTO_TIME_ZONE"]);
+					if (self::IsAutoTimeZone(trim($arUser["AUTO_TIME_ZONE"])))
+					{
+						// can't detect auto timezone for a non-current user, return actual offset from the DB
+						return intval($arUser["TIME_ZONE_OFFSET"]);
+					}
 					$timeZone = $arUser["TIME_ZONE"];
-					$factOffset = intval($arUser["TIME_ZONE_OFFSET"]);
 				}
 			}
 			elseif (is_object($USER))
 			{
-				$autoTimeZone = trim($USER->GetParam("AUTO_TIME_ZONE"));
-				$timeZone = $USER->GetParam("TIME_ZONE");
-			}
-
-			if (self::IsAutoTimeZone($autoTimeZone))
-			{
-				if (($cookie = static::getTzCookie()) !== null)
+				// current user
+				if (self::IsAutoTimeZone(trim($USER->GetParam("AUTO_TIME_ZONE"))))
 				{
-					$timeZone = $cookie;
+					if (($cookie = static::getTzCookie()) !== null)
+					{
+						// auto time zone from the cookie
+						$timeZone = $cookie;
+					}
+					elseif (($cookie = static::GetCookieValue()) !== null)
+					{
+						//auto time offset from old cookie - deprecated
+						$localOffset = (new DateTime())->getOffset();
+						$userOffset = -($cookie) * 60;
+
+						return $userOffset - $localOffset;
+					}
 				}
-				elseif (($cookie = static::GetCookieValue()) !== null)
+				else
 				{
-					//auto time zone from old cookie - deprecated
-					$localTime = new DateTime();
-					$localOffset = $localTime->getOffset();
-
-					$userOffset = -($cookie) * 60;
-
-					return $userOffset - $localOffset;
-				}
-				elseif (is_object($USER))
-				{
-					//auto time zone from the session, set on Authorize
-					return intval($USER->GetParam("TIME_ZONE_OFFSET"));
+					// user set time zone manually
+					$timeZone = $USER->GetParam("TIME_ZONE");
 				}
 			}
 
@@ -254,28 +253,18 @@ class CTimeZone
 
 			if ($timeZone != '')
 			{
-				$localTime = new DateTime();
-				$localOffset = $localTime->getOffset();
+				$localOffset = (new DateTime())->getOffset();
 
 				$userTime = new DateTime(null, new DateTimeZone($timeZone));
 				$userOffset = $userTime->getOffset();
 
 				return $userOffset - $localOffset;
 			}
-			else
-			{
-				if ($USER_ID !== null)
-				{
-					//auto time zone from DB
-					return $factOffset;
-				}
-
-				return 0;
-			}
 		}
 		catch(Exception $e)
 		{
-			return 0;
 		}
+
+		return 0;
 	}
 }

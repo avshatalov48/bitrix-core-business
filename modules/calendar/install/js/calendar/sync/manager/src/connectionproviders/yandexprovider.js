@@ -19,6 +19,10 @@ export class YandexProvider extends CaldavConnection
 		this.connectionName = Loc.getMessage('CALENDAR_TITLE_YANDEX');
 		this.connectionsSyncInfo = options.connections;
 
+		if (options.connections && options.connections[0] && options.connections[0].syncInfo)
+		{
+			this.setSyncDate(options.connections[0].syncInfo.syncOffset);
+		}
 		this.setConnections();
 	}
 }

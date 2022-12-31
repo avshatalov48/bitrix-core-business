@@ -9,6 +9,7 @@ import {
 	Basket as BasketModel,
 	Payment as PaymentModel,
 	Property as PropertyModel,
+	Variant as VariantModel,
 	Application as ApplicationModel,
 	Consent as ConsentModel,
 	PaySystem as PaySystemModel } from 'sale.checkout.model'
@@ -20,7 +21,7 @@ export class Application
 	constructor(options= {} )
 	{
 		this.wrapper = Tag.render`<div class=""></div>`;
-		
+
 		this.init()
 			.then(() => this.prepareParams({options}))
 			.then(() => {
@@ -57,12 +58,12 @@ export class Application
 	initStore()
 	{
 		const builder = new VuexBuilder();
-		
+
 		let contextVariablesBasket =
 			{
 				product: this.options.product
 			};
-		
+
 		let contextVariablesApp =
 			{
 				path: this.options.path,
@@ -70,13 +71,14 @@ export class Application
 				option: this.options.option,
 				messages: this.options.messages
 			};
-		
+
 		contextVariablesApp.path.location = Url.getCurrentUrl()
-		
+
 		return builder
 			.addModel(OrderModel.create())
 			.addModel(BasketModel.create().setVariables(contextVariablesBasket))
 			.addModel(PropertyModel.create())
+			.addModel(VariantModel.create())
 			.addModel(PaymentModel.create())
 			.addModel(CheckModel.create())
 			.addModel(PaySystemModel.create())
@@ -101,7 +103,7 @@ export class Application
 		this.controller = new Controller({
 			store: this.store
 		});
-		
+
 		return new Promise((resolve) => resolve());
 	}
 
@@ -113,7 +115,7 @@ export class Application
 		return new Promise((resolve) =>
 		{
 			const context = this;
-			
+
 			this.templateEngine = BitrixVue.createApp({
 				store: this.store,
 				data: {
@@ -138,13 +140,14 @@ export class Application
 							currency: this.options.currency,
 							discount: this.options.discount,
 							property: this.options.property,
+							variant: this.options.variant,
 							consent: this.options.consent,
 							consentStatus: this.options.consentStatus
 						}
 					}
-					
+
 					data.stage = this.options.stage;
-					
+
 					context.setModelData(data);
 				},
 				mounted()
@@ -176,14 +179,14 @@ export class Application
 			this.store.dispatch('application/setStage', {stage: data.stage});
 		}
 		//endregion
-		
+
 		//region: order model
 		if (Type.isObject(data.order))
 		{
 			this.store.dispatch('order/set', data.order);
 		}
 		//endregion
-		
+
 		//region: basket model
 		if (Type.isObject(data.basket))
 		{
@@ -191,28 +194,37 @@ export class Application
 				this.store.dispatch('basket/changeItem', {index, fields});
 			});
 		}
-		
+
 		if (Type.isString(data.currency))
 		{
 			this.store.dispatch('basket/setCurrency', {currency: data.currency});
 		}
-		
+
 		if (Type.isObject(data.discount))
 		{
 			this.store.dispatch('basket/setDiscount', data.discount);
 		}
-		
+
 		if (Type.isObject(data.total))
 		{
 			this.store.dispatch('basket/setTotal', data.total);
 		}
 		//endregion
-		
+
 		//region: property model
 		if (Type.isObject(data.property))
 		{
 			data.property.forEach((fields, index) => {
 				this.store.dispatch('property/changeItem', {index, fields});
+			});
+		}
+		//endregion
+
+		//region: variant model
+		if (Type.isObject(data.variant))
+		{
+			data.variant.forEach((fields, index) => {
+				this.store.dispatch('property-variant/changeItem', {index, fields});
 			});
 		}
 		//endregion
@@ -234,7 +246,7 @@ export class Application
 			});
 		}
 		//endregion
-		
+
 		// region: paySystem model
 		if (Type.isObject(data.paySystem))
 		{
@@ -243,19 +255,19 @@ export class Application
 			});
 		}
 		//endregion
-		
+
 		//region: consent
 		if (Type.isString(data.consentStatus))
 		{
 			this.store.dispatch('consent/setStatus', data.consentStatus);
 		}
-		
+
 		if (Type.isObject(data.consent))
 		{
 			this.store.dispatch('consent/set', data.consent);
 		}
 		//endregion
-		
+
 		// region: errors
 		if (Type.isObject(data.errors))
 		{

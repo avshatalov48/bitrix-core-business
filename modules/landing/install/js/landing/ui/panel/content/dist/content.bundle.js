@@ -334,6 +334,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          main_core.Dom.addClass(document.body, 'landing-ui-hide-action-panels');
 	        }
 
+	        main_core.Dom.addClass(document.body, "landing-ui-action-panels-disable-scrollbar");
 	        void BX.Landing.Utils.Show(this.overlay);
 	        return BX.Landing.Utils.Show(this.layout).then(function () {
 	          _this4.state = 'shown';
@@ -352,6 +353,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          main_core.Dom.removeClass(document.body, 'landing-ui-hide-action-panels');
 	        }
 
+	        main_core.Dom.removeClass(document.body, "landing-ui-action-panels-disable-scrollbar");
 	        void BX.Landing.Utils.Hide(this.overlay);
 	        return BX.Landing.Utils.Hide(this.layout).then(function () {
 	          _this5.state = 'hidden';
@@ -392,6 +394,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "clearSidebar",
 	    value: function clearSidebar() {
 	      main_core.Dom.clean(this.sidebar);
+	      this.sidebarButtons = new BX.Landing.UI.Collection.ButtonCollection();
 	    }
 	  }, {
 	    key: "setTitle",

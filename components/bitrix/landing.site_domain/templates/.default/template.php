@@ -278,6 +278,26 @@ if (isset($menuItems[$tab]))
 		return;
 	}
 	?>
+	<script>
+		BX.ready(function()
+		{
+			BX.message({
+				LANDING_TPL_ERROR_DOMAIN_EXIST: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_EXIST')) ?>',
+				LANDING_TPL_ERROR_DOMAIN_EXIST_DELETED: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_EXIST_DELETED')) ?>',
+				LANDING_TPL_ERROR_DOMAIN_EMPTY: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_EMPTY')) ?>',
+				LANDING_TPL_ERROR_DOMAIN_WRONG_NAME: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_WRONG_NAME')) ?>',
+				LANDING_TPL_ERROR_DOMAIN_WRONG_LENGTH: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_WRONG_LENGTH')) ?>',
+				LANDING_TPL_ERROR_DOMAIN_WRONG_SYMBOL_COMBINATIONS: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_WRONG_SYMBOL_COMBINATIONS')) ?>',
+				LANDING_TPL_ERROR_DOMAIN_WRONG_DOMAIN_LEVEL: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_WRONG_DOMAIN_LEVEL')) ?>',
+				LANDING_TPL_DOMAIN_LENGTH_LIMIT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_DOMAIN_LENGTH_LIMIT')) ?>',
+				LANDING_TPL_ALERT_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ALERT_TITLE')) ?>',
+				LANDING_TPL_DOMAIN_AVAILABLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_DOMAIN_AVAILABLE')) ?>',
+				LANDING_TPL_ERROR_DOMAIN_INCORRECT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_INCORRECT')) ?>',
+				LANDING_TPL_ERROR_DOMAIN_CHECK_DASH: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_CHECK_DASH')) ?>',
+				LANDING_TPL_ERROR_DOMAIN_CHECK: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_CHECK', ['#TLD#' => strtolower($arResult['TLD'][0])])) ?>'
+			});
+		});
+	</script>
 	<form action="<?= \htmlspecialcharsbx($uriSave->getUri());?>" method="post" class="ui-form landing-form-gray-padding">
 		<input type="hidden" name="action" value="save<?= $tab;?>">
 		<?= bitrix_sessid_post();?>
@@ -285,20 +305,5 @@ if (isset($menuItems[$tab]))
 		include $tab . '.php';
 		?>
 	</form>
-	<script>
-		BX.ready(function()
-		{
-			BX.message({
-				LANDING_TPL_ERROR_DOMAIN_EXIST: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_EXIST'));?>',
-				LANDING_TPL_ERROR_DOMAIN_EXIST_DELETED: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_EXIST_DELETED'));?>',
-				LANDING_TPL_ERROR_DOMAIN_EMPTY: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_EMPTY'));?>',
-				LANDING_TPL_ALERT_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ALERT_TITLE'));?>',
-				LANDING_TPL_DOMAIN_AVAILABLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_DOMAIN_AVAILABLE'));?>',
-				LANDING_TPL_ERROR_DOMAIN_INCORRECT: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_INCORRECT'));?>',
-				LANDING_TPL_ERROR_DOMAIN_CHECK_DASH: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_CHECK_DASH'));?>',
-				LANDING_TPL_ERROR_DOMAIN_CHECK: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ERROR_DOMAIN_CHECK', ['#TLD#' => strtolower($arResult['TLD'][0])]));?>'
-			});
-		});
-	</script>
 	<?
 }

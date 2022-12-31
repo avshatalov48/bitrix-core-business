@@ -1,4 +1,8 @@
 <?php
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_PRODUCT_CREATION_HINT"] = "Sie haben nicht genügend Rechte, um ein Produkt im Katalog zu erstellen.";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_PURCHASING_PRICE_HINT"] = "Sie haben nicht genügend Rechte, um den Kaufpreis anzuzeigen.";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_STORE_HINT"] = "Sie haben nicht genügend Rechte, um auf das Ziellager des Produkts zuzugreifen. Bitte wenden Sie sich an Ihre Vorgesetzten oder an Ihren Administrator, um den Zugriff gewährt zu bekommen.";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_TEXT"] = "Sie haben nicht genügend Rechte.";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ADD_PRODUCT"] = "Zeile hinzufügen";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_ADD_PRODUCT_TITLE"] = "Suchen oder ein neues Produkt erstellen";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_BARCODE_SETTING_PRODUCT"] = "Einstellungen beim Einscannen";
@@ -7,7 +11,7 @@ $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_COPY_ACTION"] = "Kopieren";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_CREATE_PRODUCT"] = "Produkt erstellen";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_CREATE_PRODUCT_TITLE"] = "Einen neuen Produktkatalog erstellen";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_DELETE_ACTION"] = "Löschen";
-$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT"] = "Geben Sie die Menge der im Lager eingetroffenen Waren an, damit der Wareneingang funktioniert";
+$MESS["CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT_2"] = "Geben Sie die Produktmenge ein, um das Bestandselement zu verarbeiten";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_IS_EMPTY"] = "Geben Sie mindestens ein Produkt ein";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_NEGATIVE_PRICE_NOTICE"] = "Preis kann nicht negativ sein.";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_SETTING_DISABLED"] = "Parameter \"#NAME#\" deaktiviert.";

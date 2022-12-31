@@ -7,9 +7,9 @@ use Bitrix\Main\Entity\Query;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Numerator\Generator\Contract\UserConfigurable;
 use Bitrix\Main\Numerator\Generator\Contract\DynamicConfigurable;
 use Bitrix\Main\Numerator\Generator\Contract\Sequenceable;
+use Bitrix\Main\Numerator\Generator\Contract\UserConfigurable;
 use Bitrix\Main\Numerator\Generator\NumberGenerator;
 use Bitrix\Main\Numerator\Model\NumeratorSequenceTable;
 use Bitrix\Main\Numerator\Model\NumeratorTable;
@@ -29,6 +29,7 @@ class Numerator
 	private $name;
 	/** @var NumberGenerator[] */
 	private $generators = [];
+	private $code;
 	private $id;
 
 	const NUMERATOR_DEFAULT_TYPE = 'DEFAULT';
@@ -324,6 +325,7 @@ class Numerator
 	{
 		$settingsToStore = $this->getSettings();
 		$result = NumeratorTable::saveNumerator($this->id, [
+			'CODE' => $this->code,
 			'NAME' => $this->name,
 			'TEMPLATE' => $this->template,
 			'TYPE' => $this->type ? $this->type : static::NUMERATOR_DEFAULT_TYPE,
@@ -378,6 +380,22 @@ class Numerator
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * @param $code
+	 * @param $source
+	 * @return static|null
+	 */
+	public static function loadByCode($code, $source = null)
+	{
+		$id = NumeratorTable::getIdByCode($code);
+		if ($id === null)
+		{
+			return null;
+		}
+
+		return self::load($id, $source);
 	}
 
 	/**
@@ -482,6 +500,7 @@ class Numerator
 				'name' => $this->name,
 				'template' => $this->template,
 				'id' => $this->id,
+				'code' => $this->code,
 				'type' => $this->type,
 			],
 		];
@@ -529,6 +548,16 @@ class Numerator
 		if (isset($config[static::getType()]['idFromDb']))
 		{
 			$this->id = $config[static::getType()]['idFromDb'];
+		}
+		if (array_key_exists('code', $config[static::getType()]))
+		{
+			$code = $config[static::getType()]['code'];
+			if (is_string($code))
+			{
+				$code = trim($code);
+			}
+
+			$this->code = (is_string($code) && !empty($code)) ? $code : null;
 		}
 		return $result;
 	}
@@ -670,6 +699,29 @@ class Numerator
 		}
 		$numeratorBaseConfig = $numeratorConfig[static::getType()];
 
+		if (isset($numeratorBaseConfig['code']))
+		{
+			if (is_string($numeratorBaseConfig['code']) && !empty($numeratorBaseConfig['code']))
+			{
+				$idWithSameCode = NumeratorTable::getIdByCode($numeratorBaseConfig['code']);
+				if ($idWithSameCode !== null)
+				{
+					$id = (int)($numeratorBaseConfig['idFromDb'] ?? null);
+					if ($id <= 0 || $idWithSameCode !== $id)
+					{
+						$result->addError(new Error('Another numerator with same code already exists'));
+					}
+				}
+			}
+			elseif (is_string($numeratorBaseConfig['code']) && empty($numeratorBaseConfig['code']))
+			{
+				$result->addError(new Error('Numerator code should be a non-empty string, if it is provided'));
+			}
+			else
+			{
+				$result->addError(new Error('Numerator code should be a string'));
+			}
+		}
 		if (!(isset($numeratorBaseConfig['name']) && $numeratorBaseConfig['name']))
 		{
 			$result->addError(new Error(Loc::getMessage('NUMERATOR_VALIDATE_NAME_IS_REQUIRED')));

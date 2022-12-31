@@ -1,5 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
+this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 (function (exports,main_core_events,im_v2_component_oldChatEmbedding_recentList,im_v2_component_oldChatEmbedding_search,im_v2_const) {
 	'use strict';
 
@@ -69,5 +70,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	exports.LeftPanel = LeftPanel;
 
-}((this.BX.Messenger.v2 = this.BX.Messenger.v2 || {}),BX.Event,BX.Messenger.v2,BX.Messenger.v2,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.ComponentLegacy = this.BX.Messenger.v2.ComponentLegacy || {}),BX.Event,BX.Messenger.v2.ComponentLegacy,BX.Messenger.v2.ComponentLegacy,BX.Messenger.v2.Const));
 //# sourceMappingURL=left-panel.bundle.js.map

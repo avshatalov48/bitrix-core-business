@@ -350,7 +350,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	   */
 
 
-	  getElementState() {
+	  getElementState(params = {}) {
 	    return {};
 	  }
 	  /**

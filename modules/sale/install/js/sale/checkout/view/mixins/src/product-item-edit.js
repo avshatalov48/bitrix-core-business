@@ -10,7 +10,8 @@ export default {
 		{
 			hasSkyTree()
 			{
-				return Object.keys(this.item.sku.tree).length > 0;
+				let tree = this.item.sku.tree.SELECTED_VALUES ?? {};
+				return Object.keys(tree).length > 0;
 			},
 			hasProps()
 			{

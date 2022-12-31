@@ -86,6 +86,7 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  },
 	  methods: {
 	    click: function click() {
+	      document.body.style.overflowY = '';
 	      main_core_events.EventEmitter.emit(sale_checkout_const.EventType.basket.backdropClose, {
 	        index: this.index
 	      });

@@ -57,13 +57,18 @@ class ReserveQuantity extends Internals\CollectableEntity
 	 * @throws Main\ArgumentException
 	 * @throws Main\SystemException
 	 */
-	public static function create(ReserveQuantityCollection $collection) : ReserveQuantity
+	public static function create(ReserveQuantityCollection $collection): ReserveQuantity
 	{
+		$basketItem = $collection->getBasketItem();
+		if (!$basketItem->isReservableItem())
+		{
+			throw new Main\SystemException('Basket item is not available for reservation');
+		}
+
 		$fields = [
 			'STORE_ID' => Configuration::getDefaultStoreId()
 		];
 
-		$basketItem = $collection->getBasketItem();
 		if ($basketItem->getId() > 0)
 		{
 			$fields['BASKET_ID'] = $basketItem->getId();

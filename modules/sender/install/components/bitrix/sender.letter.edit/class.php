@@ -15,7 +15,6 @@ use Bitrix\Sender\Access\Map\MailingAction;
 use Bitrix\Sender\Entity;
 use Bitrix\Sender\Integration;
 use Bitrix\Sender\Internals\PostFiles;
-use Bitrix\Sender\Internals\SqlBatch;
 use Bitrix\Sender\Message;
 use Bitrix\Sender\Security;
 use Bitrix\Sender\Templates;
@@ -52,7 +51,7 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 	protected function initParams()
 	{
 		$this->arParams['ID'] = isset($this->arParams['ID']) ? (int) $this->arParams['ID'] : 0;
-		$this->arParams['ID'] = $this->arParams['ID'] ? $this->arParams['ID'] : (int) $this->request->get('ID');
+		$this->arParams['ID'] = $this->arParams['ID'] ?: (int)$this->request->get('ID');
 		$this->arParams['IS_OUTSIDE'] = isset($this->arParams['IS_OUTSIDE']) ? (bool) $this->arParams['IS_OUTSIDE'] : $this->request->get('isOutside') === 'Y';
 
 		$this->arParams['IFRAME'] = isset($this->arParams['IFRAME'])
@@ -89,7 +88,7 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 		}
 
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
-		$this->arParams['SHOW_SEGMENT_COUNTERS'] = isset($this->arParams['SHOW_SEGMENT_COUNTERS']) ? $this->arParams['SHOW_SEGMENT_COUNTERS'] : true;
+		$this->arParams['SHOW_SEGMENT_COUNTERS'] = $this->arParams['SHOW_SEGMENT_COUNTERS'] ?? true;
 		$this->arParams['CHECK_ON_STATIC'] = $this->arParams['CHECK_ON_STATIC'] ?? false;
 
 		$map = MailingAction::getMap();
@@ -106,7 +105,11 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 										);
 
 		$this->arParams['IS_TRIGGER'] = isset($this->arParams['IS_TRIGGER']) ? (bool) $this->arParams['IS_TRIGGER'] : false;
-		$this->arParams['SHOW_SEGMENTS'] = isset($this->arParams['SHOW_SEGMENTS']) ? (bool) $this->arParams['SHOW_SEGMENTS'] : true;
+		$this->arParams['SHOW_SEGMENTS'] =
+			isset($this->arParams['SHOW_SEGMENTS'])
+				? (bool) $this->arParams['SHOW_SEGMENTS']
+				: true
+		;
 		$this->arParams['GOTO_URI_AFTER_SAVE'] = isset($this->arParams['GOTO_URI_AFTER_SAVE'])
 			?
 			$this->arParams['GOTO_URI_AFTER_SAVE']
@@ -599,6 +602,11 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 		$this->arResult['IS_SAVED'] = $this->request->get('IS_SAVED') == 'Y';
 		$this->arResult['IS_AVAILABLE']  = $this->letter->getMessage()->isAvailable();
 
+		if ($this->arParams['SHOW_SEGMENTS'])
+		{
+			$this->arParams['SHOW_SEGMENTS'] = $this->needShowSegmentsByMessageCode($this->arResult['MESSAGE_CODE']);
+		}
+
 		return true;
 	}
 
@@ -699,5 +707,10 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 	public function getViewAction()
 	{
 		return ActionDictionary::ACTION_MAILING_VIEW;
+	}
+
+	protected function needShowSegmentsByMessageCode(string $messageCode): bool
+	{
+		return $messageCode !== Integration\Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_YANDEX;
 	}
 }

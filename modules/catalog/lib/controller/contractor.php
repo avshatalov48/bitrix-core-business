@@ -4,12 +4,14 @@ namespace Bitrix\Catalog\Controller;
 
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 
 class Contractor extends \Bitrix\Main\Engine\Controller
 {
 	public function createContractorAction(array $fields)
 	{
-		if (!CurrentUser::get()->canDoOperation('catalog_store'))
+		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_VIEW))
 		{
 			$this->addError(new Error('Access denied!'));
 

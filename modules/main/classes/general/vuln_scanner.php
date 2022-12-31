@@ -1630,7 +1630,7 @@ class CVulnScanner
 			if(($find = self::searchSimilarVuln($output, $i)) !== false)
 			{
 				$output[$find]->additional_text .= '<div class="checklist-vulnscan-dangerous-is-here">';
-				$output[$find]->additional_text .= $this->highlightLine($output[$i]->line, $output[$i]->tokens, key($output[$i]->tainted_vars), $output[$i]->comment);
+				$output[$find]->additional_text .= $this->highlightLine($output[$i]->line, $output[$i]->tokens, $output[$i]->tainted_vars, $output[$i]->comment);
 				$output[$find]->additional_text .= '</div>';
 				unset($output[$i]);
 			}

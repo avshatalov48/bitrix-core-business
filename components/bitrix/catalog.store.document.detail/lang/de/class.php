@@ -14,6 +14,8 @@ $MESS["CATALOG_STORE_DOCUMENT_DETAIL_INCORRECT_VALUE"] = "Der Wert von \"#FIELD_
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_VIEW_RIGHTS_ERROR"] = "Sie haben nicht genügend Rechte, um das Element anzuzeigen";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_WRITE_RIGHTS_ERROR"] = "Sie haben nicht genügend Rechte, um das Element zu speichern";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_SAVE_ERROR"] = "Fehler beim Speichern des Elements";
+$MESS["CATALOG_STORE_DOCUMENT_ELEMENT_STORE_ACCESS_DENIED"] = "Sie haben nicht genügend Rechte, um auf dieses Lager zum Speichern der Elemente für \"#PRODUCT_NAME#\" zuzugreifen.";
+$MESS["CATALOG_STORE_DOCUMENT_ERR_ACCESS_DENIED"] = "Sie haben nicht genügend Rechte, um den Bereich Bestandsverwaltung anzuzeigen.";
 $MESS["CATALOG_STORE_DOCUMENT_ERR_ACCESS_DENIED_BOX"] = "Sie haben nicht genügend Rechte, um auf die Bestandsverwaltung zuzugreifen. Bitte wenden Sie sich an Ihren Bitrix24 Administrator, um den Zugriff zu bekommen. <a href=\"https://training.bitrix24.com/support/training/course/index.php?COURSE_ID=178&LESSON_ID=25118\" target=\"_blank\">Mehr</a>";
 $MESS["CATALOG_STORE_DOCUMENT_ERR_ACCESS_DENIED_CLOUD"] = "Sie haben nicht genügend Rechte, um auf die Bestandsverwaltung zuzugreifen. Bitte wenden Sie sich an Ihren Bitrix24 Administrator, um den Zugriff zu bekommen. Der Administrator wird Ihnen die Manager-Rolle in den CRM-Einstellungen zuweisen müssen. <a onclick=\"top.BX.Helper.show('redirect=detail&code=15955386')\" style=\"cursor: pointer; \">Mehr</a>";
 $MESS["CATALOG_STORE_DOCUMENT_NO_PRODUCT"] = "Sie müssen ein Produkt auswählen oder erstellen, um das Bestandselement zu speichern.";

@@ -486,7 +486,7 @@ $arParams['UF'] = $UF;
 								<div class="calendar-options-item-name js-calendar-field-name"><?= Loc::getMessage('EC_EDIT_SLIDER_LOCATION_COLUMN')?></div>
 							</div>
 							<div class="calendar-options-item-column-right">
-								<div class="calendar-options-item-column-one">
+								<div class="calendar-options-item-column-one calendar-options-item-column-location">
 									<div class="calendar-field-container calendar-field-container-select" id="<?=$id?>_location_wrap"></div>
 								</div>
 							</div>

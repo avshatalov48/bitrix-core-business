@@ -293,7 +293,7 @@ class CSocServZoom extends CSocServAuth
 			window.close();
 		</script>
 		<?php
-		die();
+		CMain::FinalActions();
 	}
 
 	public function setUser($userId)

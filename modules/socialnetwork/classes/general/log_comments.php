@@ -624,7 +624,7 @@ class CAllSocNetLogComments
 		}
 
 		if (!(
-			$arLogComment["EVENT_ID"] == "tasks_comment"
+			$arLogComment["EVENT_ID"] === "tasks_comment"
 			&& !\Bitrix\Socialnetwork\ComponentHelper::checkLivefeedTasksAllowed()
 		))
 		{
@@ -637,7 +637,12 @@ class CAllSocNetLogComments
 							"TYPE" => "LC",
 							"FOR_ALL_ACCESS" => $bHasAccessAll
 						)
-					)
+					),
+					true,
+					[
+						'SET_ENTITY' => 'Y',
+						'SET_ENTRY' => 'Y',
+					]
 				);
 			}
 			else // for all, mysql only
@@ -654,7 +659,9 @@ class CAllSocNetLogComments
 					),
 					false, // sendpull
 					array(
-						"TAG_SET" => $tag
+						"TAG_SET" => $tag,
+						'SET_ENTITY' => 'Y',
+						'SET_ENTRY' => 'Y',
 					)
 				);
 
@@ -668,7 +675,9 @@ class CAllSocNetLogComments
 					),
 					true, // sendpull
 					array(
-						"TAG_CHECK" => $tag
+						"TAG_CHECK" => $tag,
+						'SET_ENTITY' => 'Y',
+						'SET_ENTRY' => 'Y',
 					)
 				);
 			}

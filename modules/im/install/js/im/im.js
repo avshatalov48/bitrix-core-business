@@ -242,6 +242,7 @@ BX.IM = function(domNode, params)
 	//this.telephonyController = new BX.IM.TelephonyController()
 
 	this.callController = new BX.Call.Controller({
+		init: this.init,
 		messenger: null
 	});
 
@@ -2190,8 +2191,29 @@ BX.IM.prototype.showHardwareSettings = function()
 
 		if ((opener||top).BX.Call.Hardware.BackgroundDialog.isAvailable())
 		{
+			var buttonBlock = BX.create('div', {
+				props: {className: "bx-messenger-settings-hardware-camera-image-button-block"}
+			});
+
+			if ((opener||top).BX.Call.Hardware.BackgroundDialog.isMaskAvailable())
+			{
+				var maskButton = BX.create('div', {
+					props: {className: "bx-messenger-settings-hardware-camera-image-button-mask"},
+					children: [
+						BX.create('div', {props: {className: "bx-messenger-videocall-user-panel-button-icon mask"}}),
+						BX.create('div', {props: {className: "bx-messenger-videocall-user-panel-button-text"}, text: BX.message("IM_CALL_CHANGE_MASK")}),
+					],
+					events: {
+						click: function() {
+							(opener||top).BX.Call.Hardware.BackgroundDialog.open({'tab': 'mask'});
+						}
+					}
+				});
+				buttonBlock.appendChild(maskButton);
+			}
+
 			var backgroundButton = BX.create('div', {
-				props: {className: "bx-messenger-settings-hardware-camera-image-button"},
+				props: {className: "bx-messenger-settings-hardware-camera-image-button-background"},
 				children: [
 					BX.create('div', {props: {className: "bx-messenger-videocall-user-panel-button-icon background"}}),
 					BX.create('div', {props: {className: "bx-messenger-videocall-user-panel-button-text"}, text: BX.message("IM_CALL_CHANGE_BACKGROUND")}),
@@ -2202,7 +2224,9 @@ BX.IM.prototype.showHardwareSettings = function()
 					}
 				}
 			});
-			elements.cameraImage.appendChild(backgroundButton);
+			buttonBlock.appendChild(backgroundButton);
+
+			elements.cameraImage.appendChild(buttonBlock);
 		}
 
 		if (BX.Call.Hardware.enableMirroring)
@@ -2319,6 +2343,12 @@ BX.IM.prototype.showHardwareSettings = function()
 				constraints.video = {deviceId: {exact: self.webrtc.defaultCamera}};
 			else
 				constraints.video = true;
+		}
+
+		if (constraints.video)
+		{
+			constraints.video.width = {ideal: 1280};
+			constraints.video.height = {ideal: 720};
 		}
 
 		if (!supportedDevices.audioInput && !supportedDevices.videoInput)
@@ -5171,7 +5201,7 @@ BX.MessengerNotify.prototype.createNotify = function(notify, popup)
 		element = BX.create("div", {attrs : {'data-notifyId' : notify.id, 'data-notifyType' : notify.type, 'data-link' : notify.link}, props : { className: "bx-notifier-item bx-notifier-item-"+notify.id+" "+itemNew}, children : [
 			BX.create('span', {props : { className : "bx-notifier-item-content" }, children : [
 				BX.create('span', {props : { className : "bx-notifier-item-avatar" }, children : [
-					BX.create('span', {props : { className : "bx-notifier-item-avatar-img"+(BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? " bx-notifier-item-avatar-img-default": "") }, attrs : {style: (BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? 'background-color: '+notify.userColor: 'background: url(\''+notify.userAvatar+'\'); background-size: cover;')}})
+					BX.create('span', {props : { className : "bx-notifier-item-avatar-img"+(BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? " bx-notifier-item-avatar-img-default": "") }, attrs : {style: (BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? 'background-color: '+notify.userColor: 'background: url(\''+encodeURI(notify.userAvatar)+'\'); background-size: cover;')}})
 				]}),
 				!canConfirmDelete? BX.create("span", {props : { className: "bx-notifier-item-delete bx-notifier-item-delete-fake"}}): BX.create("a", {attrs : {href : '#', 'data-notifyId' : notify.id, 'data-notifyType' : notify.type, title: BX.message('IM_NOTIFY_DELETE_1')}, props : { className: "bx-notifier-item-delete"}}),
 				BX.create('span', {props : { className : "bx-notifier-item-date" }, html: BX.MessengerCommon.formatDate(notify.date)}),
@@ -5187,7 +5217,7 @@ BX.MessengerNotify.prototype.createNotify = function(notify, popup)
 		element = BX.create("div", {attrs : {'data-notifyId' : notify.id, 'data-notifyType' : notify.type, 'data-link' : notify.link}, props : { className: "bx-notifier-item bx-notifier-item-"+notify.id+" "+itemNew}, children : [
 			BX.create('span', {props : { className : "bx-notifier-item-content" }, children : [
 				BX.create('span', {props : { className : "bx-notifier-item-avatar" }, children : [
-					BX.create('span', {props : { className : "bx-notifier-item-avatar-img"+(BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? " bx-notifier-item-avatar-img-default": "") },attrs : {style: (BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? 'background-color: '+notify.userColor: 'background: url(\''+notify.userAvatar+'\'); background-size: cover;')}})
+					BX.create('span', {props : { className : "bx-notifier-item-avatar-img"+(BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? " bx-notifier-item-avatar-img-default": "") },attrs : {style: (BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? 'background-color: '+notify.userColor: 'background: url(\''+encodeURI(notify.userAvatar)+'\'); background-size: cover;')}})
 				]}),
 				BX.create("a", {attrs : {href : '#', 'data-notifyId' : notify.id, 'data-notifyType' : notify.type, title: BX.message('IM_NOTIFY_DELETE_1')}, props : { className: "bx-notifier-item-delete"}}),
 				BX.create('span', {props : { className : "bx-notifier-item-date" }, html: BX.MessengerCommon.formatDate(notify.date)}),
@@ -5204,7 +5234,7 @@ BX.MessengerNotify.prototype.createNotify = function(notify, popup)
 			BX.create('span', {props : { className : "bx-notifier-item-content" }, children : [
 				BX.create('span', {props : { className : "bx-notifier-item-avatar-group" }, children : [
 					BX.create('span', {props : { className : "bx-notifier-item-avatar" }, children : [
-						BX.create('span', {props : { className : "bx-notifier-item-avatar-img"+(BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? " bx-notifier-item-avatar-img-default": "") },attrs : {style: (BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? 'background-color: '+notify.userColor: 'background: url(\''+notify.userAvatar+'\'); background-size: cover;')}})
+						BX.create('span', {props : { className : "bx-notifier-item-avatar-img"+(BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? " bx-notifier-item-avatar-img-default": "") },attrs : {style: (BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? 'background-color: '+notify.userColor: 'background: url(\''+encodeURI(notify.userAvatar)+'\'); background-size: cover;')}})
 					]})
 				]}),
 				BX.create("a", {attrs : {href : '#', 'data-notifyId' : notify.id, 'data-group' : 'Y', 'data-notifyType' : notify.type, title: BX.message('IM_NOTIFY_DELETE_1')}, props : { className: "bx-notifier-item-delete"}}),
@@ -5221,7 +5251,7 @@ BX.MessengerNotify.prototype.createNotify = function(notify, popup)
 		element = BX.create("div", {attrs : {'data-notifyId' : notify.id, 'data-notifyType' : notify.type, 'data-link' : notify.link}, props : { className: "bx-notifier-item bx-notifier-item-"+notify.id+" "+itemNew}, children : [
 			BX.create('span', {props : { className : "bx-notifier-item-content" }, children : [
 				BX.create('span', {props : { className : "bx-notifier-item-avatar" }, children : [
-					BX.create('span', {props : { className : "bx-notifier-item-avatar-img bx-notifier-item-avatar-img-default-2" },attrs : {style: (BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? 'background-color: '+notify.userColor: 'background: url(\''+notify.userAvatar+'\'); background-size: cover;')}})
+					BX.create('span', {props : { className : "bx-notifier-item-avatar-img bx-notifier-item-avatar-img-default-2" },attrs : {style: (BX.MessengerCommon.isBlankAvatar(notify.userAvatar)? 'background-color: '+notify.userColor: 'background: url(\''+encodeURI(notify.userAvatar)+'\'); background-size: cover;')}})
 				]}),
 				BX.create("a", {attrs : {href : '#', 'data-notifyId' : notify.id, 'data-notifyType' : notify.type, title: BX.message('IM_NOTIFY_DELETE_1')}, props : { className: "bx-notifier-item-delete"}}),
 				BX.create('span', {props : { className : "bx-notifier-item-date" }, html: BX.MessengerCommon.formatDate(notify.date)}),
@@ -16788,7 +16818,7 @@ BX.MessengerChat.prototype.newMessage = function(send)
 			}
 			else
 			{
-				var avatarStyle = BX.MessengerCommon.isBlankAvatar(this.users[senderId].avatar)? 'background-color: '+this.users[senderId].color: 'background: url(\''+this.users[senderId].avatar+'\'); background-size: cover;';
+				var avatarStyle = BX.MessengerCommon.isBlankAvatar(this.users[senderId].avatar)? 'background-color: '+this.users[senderId].color: 'background: url(\''+encodeURI(this.users[senderId].avatar)+'\'); background-size: cover;';
 			}
 			var element = BX.create("div", {attrs : { 'data-userId' : isChat? recipientId: senderId, 'data-messageId' : k}, props : { className: "bx-notifier-item bx-notifier-item-"+k+" "}, children : [
 				BX.create('span', {props : { className : "bx-notifier-item-content" }, children : [
@@ -17029,7 +17059,7 @@ BX.MessengerChat.prototype.showNotifyBlock = function(messageParams)
 	}
 	else
 	{
-		var avatarStyle = BX.MessengerCommon.isBlankAvatar(this.users[senderId].avatar)? 'background-color: '+this.users[senderId].color: 'background: url(\''+this.users[senderId].color+'\'); background-size: cover;';
+		var avatarStyle = BX.MessengerCommon.isBlankAvatar(this.users[senderId].avatar)? 'background-color: '+this.users[senderId].color: 'background: url(\''+encodeURI(this.users[senderId].avatar)+'\'); background-size: cover;';
 	}
 
 	var notifyHtmlNode = BX.create("div", {
@@ -17929,17 +17959,80 @@ BX.MessengerChat.prototype.linesCreateLead = function()
 		BX.MessengerCommon.linesCreateLead(chatId);
 	}
 }
+
+BX.MessengerChat.prototype.getOpenLineSettings = function(chatId)
+{
+	if (typeof(BX.MessengerCommon.BXIM.messenger.openlines.settings) !== 'undefined')
+	{
+		var session = BX.MessengerCommon.linesGetSession(this.chat[chatId]);
+		if (
+			session
+			&& typeof(session.lineId) !== 'undefined'
+			&& typeof(BX.MessengerCommon.BXIM.messenger.openlines.settings[session.lineId]) !== 'undefined'
+		)
+		{
+			return BX.MessengerCommon.BXIM.messenger.openlines.settings[session.lineId];
+		}
+	}
+
+	return {};
+}
+
 BX.MessengerChat.prototype.linesCloseDialog = function()
 {
 	var chatId = this.getChatId();
+	var openLinesSettings = this.getOpenLineSettings(chatId);
 
-	BX.MessengerCommon.linesCloseDialog(chatId, true);
+	if (typeof(openLinesSettings.confirm_close) === 'undefined' || openLinesSettings.confirm_close !== 'Y')
+	{
+		BX.MessengerCommon.linesCloseDialog(chatId, true);
+	}
+	else
+	{
+		this.BXIM.openConfirm(BX.message('IM_DIALOG_CLOSE_CONFIRM'), [
+			new BX.PopupWindowButton({
+				text : BX.message('IM_DIALOG_CLOSE_YES'),
+				className : "popup-window-button-decline",
+				events : { click : function() {
+						BX.MessengerCommon.linesCloseDialog(chatId, true);
+						this.popupWindow.close();
+					} }
+			}),
+			new BX.PopupWindowButton({
+				text : BX.message('IM_M_CHAT_BTN_CANCEL'),
+				className : "popup-window-button",
+				events : { click : function() { this.popupWindow.close(); } }
+			})
+		], true);
+	}
 }
-BX.MessengerChat.prototype.linesMarkAsSpam = function()
+BX.MessengerChat.prototype.linesMarkAsSpam = function(confirmClose)
 {
 	var chatId = this.getChatId();
+	var openLinesSettings = this.getOpenLineSettings(chatId);
 
-	BX.MessengerCommon.linesMarkAsSpam(chatId);
+	if (typeof(openLinesSettings.confirm_close) === 'undefined' || openLinesSettings.confirm_close !== 'Y')
+	{
+		BX.MessengerCommon.linesMarkAsSpam(chatId);
+	}
+	else
+	{
+		this.BXIM.openConfirm(BX.message('IM_DIALOG_SPAM_CONFIRM'), [
+			new BX.PopupWindowButton({
+				text : BX.message('IM_DIALOG_CLOSE_YES'),
+				className : "popup-window-button-decline",
+				events : { click : function() {
+						BX.MessengerCommon.linesMarkAsSpam(chatId);
+						this.popupWindow.close();
+					} }
+			}),
+			new BX.PopupWindowButton({
+				text : BX.message('IM_M_CHAT_BTN_CANCEL'),
+				className : "popup-window-button",
+				events : { click : function() { this.popupWindow.close(); } }
+			})
+		], true);
+	}
 }
 BX.MessengerChat.prototype.linesInterceptSession = function()
 {
@@ -19027,15 +19120,18 @@ BX.IM.Desktop = function(BXIM, params)
 		{
 			if (command == 'user_counter' && params[BX.message('SITE_ID')])
 			{
-				var countersToCheck = ['**', 'tasks_total', 'calendar'];
+				var countersToCheck = [/^\*\*/, '^tasks_total$', '^calendar$'];
 				var countersToUpdate = {};
 
-				countersToCheck.forEach(function(counter) {
-					if (params[BX.message('SITE_ID')].hasOwnProperty(counter))
-					{
-						countersToUpdate[counter] = parseInt(params[BX.message('SITE_ID')][counter]);
-					}
-				});
+				for (const counterCode in params[BX.message('SITE_ID')])
+				{
+					countersToCheck.map(pattern => {
+						if (counterCode.match(pattern))
+						{
+							countersToUpdate[counterCode] = parseInt(params[BX.message('SITE_ID')][counterCode]);
+						}
+					});
+				}
 
 				if (Object.keys(countersToUpdate).length > 0)
 				{
@@ -26799,7 +26895,6 @@ var MessengerPromo = function()
 	this.promo = {
 		'im:video:01042020:web': BX.message('IM_PROMO_VIDEO_01042020_WEB'),
 		'ol:crmform:17092021:web': BX.message('IM_PROMO_CRMFORM_17092021_WEB'),
-		'im:call-document:16102021:web': '',
 		'imbot:support24:25112021:web': BX.message('IM_PROMO_SUPPORT24_QUESTIONS_25112021_WEB'),
 	};
 	this.promoActive = {};
@@ -26831,11 +26926,6 @@ MessengerPromo.prototype.showConfirm = function(id)
 		return false;
 	}
 
-	if (typeof this.promo[id] !== 'string')
-	{
-		return false;
-	}
-
 	var buttonNode = [
 		new BX.PopupWindowButton({
 			text : BX.message('IM_NOTIFY_CONFIRM_CLOSE'),
@@ -26846,7 +26936,7 @@ MessengerPromo.prototype.showConfirm = function(id)
 		})
 	];
 
-	var text = this.promo[id].split('#BR#').join('<br>');
+	var text = this.promo[id]? this.promo[id].split('#BR#').join('<br>'): '';
 
 	this.BXIM.openConfirm(text, buttonNode);
 	this.read(id);
@@ -26862,12 +26952,7 @@ MessengerPromo.prototype.show = function(id, bind, bindOptions)
 		return false;
 	}
 
-	if (typeof this.promo[id] !== 'string')
-	{
-		return false;
-	}
-
-	var text = this.promo[id].split('#BR#').join('<br>');
+	var text = this.promo[id]? this.promo[id].split('#BR#').join('<br>'): '';
 
 	bindOptions = bindOptions || {};
 	if (typeof bindOptions.angleDarkMode === 'undefined')
@@ -26889,11 +26974,6 @@ MessengerPromo.prototype.show = function(id, bind, bindOptions)
 
 MessengerPromo.prototype.needToShow = function(id)
 {
-	if (typeof this.promo[id] !== 'string')
-    {
-        return false;
-    }
-
 	if (!this.promoActive[id])
     {
         return false;
@@ -26996,14 +27076,14 @@ MessengerLimit.prototype.disableExtensions = function()
 	{
 		if (this.isActive('call_blur_background'))
 		{
-			BX.desktop.setBackgroundImage('', 'none');
+			BX.desktop.setCallBackground('', 'none');
 		}
 		return true;
 	}
 
 	if (this.isActive('call_background'))
 	{
-		BX.desktop.setBackgroundImage('', 'none');
+		BX.desktop.setCallBackground('', 'none');
 	}
 
 	return true;

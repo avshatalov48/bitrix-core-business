@@ -781,11 +781,11 @@ class Query
 				{
 					$columnField = $chain->getLastElement()->getValue();
 
-					trigger_error(sprintf(
+					throw new SystemException(sprintf(
 						'Private field %s.%s is restricted in query, use Query::enablePrivateFields() to allow it',
 						$columnField->getEntity()->getDataClass(),
 						$columnField->getName()
-					), E_USER_WARNING);
+					));
 				}
 			}
 		}

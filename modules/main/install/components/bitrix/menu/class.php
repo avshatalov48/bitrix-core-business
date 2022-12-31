@@ -141,14 +141,12 @@ class CBitrixMenuComponent extends CBitrixComponent
 
 	public function getMenuString($type = "left")
 	{
-		/** @var CMenuCustom*/
-		global $BX_MENU_CUSTOM;
 		global $APPLICATION;
 
 		$sReturn = "";
 		if ($APPLICATION->buffer_manual)
 		{
-			$arMenuCustom = $BX_MENU_CUSTOM->GetItems($type);
+			$arMenuCustom = CMenuCustom::getInstance()->GetItems($type);
 			if (is_array($arMenuCustom))
 				$this->arResult = array_merge($this->arResult, $arMenuCustom);
 

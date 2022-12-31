@@ -54,6 +54,8 @@ if ($documentType === 'sales_order')
 }
 else
 {
+	echo $arResult['CONTRACTORS_MIGRATION_PROGRESS'];
+
 	if ($component->isIframeMode())
 	{
 		$APPLICATION->IncludeComponent(

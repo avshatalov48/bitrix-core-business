@@ -20,17 +20,17 @@ class SenderRequestInvitation extends SenderInvitation
 	 */
 	protected function getContent(): array
 	{
-			$attachmentManager = new AttachmentRequestManager($this->event);
-			$this->uid = $attachmentManager->getUid();
+		$attachmentManager = new AttachmentRequestManager($this->event);
+		$this->uid = $attachmentManager->getUid();
 
-			return [[
-				'CONTENT' => Encoding::convertEncoding($attachmentManager->getContent(), SITE_CHARSET, "utf-8"),
-				'CONTENT_TYPE' => self::CONTENT_TYPE,
-				'METHOD' => mb_strtolower(self::METHOD),
-				'CHARSET' => self::CHARSET,
-				'NAME' => self::ATTACHMENT_NAME,
-				'ID' => Helper::getUniqId(),
-			]];
+		return [[
+			'CONTENT' => Encoding::convertEncoding($attachmentManager->getContent(), SITE_CHARSET, "utf-8"),
+			'CONTENT_TYPE' => self::CONTENT_TYPE,
+			'METHOD' => mb_strtolower(self::METHOD),
+			'CHARSET' => self::CHARSET,
+			'NAME' => self::ATTACHMENT_NAME,
+			'ID' => Helper::getUniqId(),
+		]];
 	}
 
 	/**

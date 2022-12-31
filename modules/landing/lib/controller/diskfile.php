@@ -52,8 +52,12 @@ class DiskFile extends Controller
 
 		\Bitrix\Landing\Site\Type::setScope($scope);
 		$needed = '"' . Connector\Disk::FILE_PREFIX_HREF . $fileId . '"';
+		$needed2 = '"' . Connector\Disk::FILE_NEW_PREFIX_HREF . $fileId . '"';
 
-		return \Bitrix\Landing\Block::isContains($blockId, $needed);
+		return (
+			\Bitrix\Landing\Block::isContains($blockId, $needed)
+			|| \Bitrix\Landing\Block::isContains($blockId, $needed2)
+		);
 	}
 
 	/**
@@ -80,7 +84,7 @@ class DiskFile extends Controller
 	}
 
 	/**
-	 * Returns file info fir viewer after check permissions.
+	 * Returns file info for viewer after check permissions.
 	 *
 	 * @param string $scope Scope code (site type).
 	 * @param int $blockId Block id.
@@ -103,5 +107,16 @@ class DiskFile extends Controller
 
 		$this->addError(new Error('Access denied.'));
 		return null;
+	}
+
+	/**
+	 * Returns raw file info.
+	 *
+	 * @param int $fileId File id.
+	 * @return array|null
+	 */
+	public function infoAction(int $fileId): ?array
+	{
+		return \Bitrix\Landing\Connector\Disk::getFileInfo($fileId);
 	}
 }

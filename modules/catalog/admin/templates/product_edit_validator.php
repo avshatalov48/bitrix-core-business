@@ -1,42 +1,74 @@
-<?
+<?php
+
 /** @global CUser $USER */
-/** @global int $ID */
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog;
+/** @var int $IBLOCK_ID */
+/** @var int $MENU_SECTION_ID */
+/** @var int $ID */
+/** @var string $strWarning */
+/** @var bool $bCopy */
 
-if ($USER->CanDoOperation('catalog_price'))
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+
+$IBLOCK_ID = (int)($IBLOCK_ID);
+if (0 >= $IBLOCK_ID)
 {
-	$IBLOCK_ID = intval($IBLOCK_ID);
-	if (0 >= $IBLOCK_ID)
-		return;
-	$MENU_SECTION_ID = intval($MENU_SECTION_ID);
-	$ID = (int)$ID;
-	$PRODUCT_ID = (0 < $ID ? CIBlockElement::GetRealElement($ID) : 0);
+	return;
+}
+$MENU_SECTION_ID = (int)($MENU_SECTION_ID);
+$ID = (int)$ID;
+$PRODUCT_ID = (0 < $ID ? CIBlockElement::GetRealElement($ID) : 0);
 
-	$boolPriceRights = ($PRODUCT_ID > 0
-		? CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $PRODUCT_ID, "element_edit_price")
-		: CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $MENU_SECTION_ID, "element_edit_price")
-	);
+$accessController = AccessController::getCurrent();
+
+$iblockEditProduct = ($PRODUCT_ID > 0 && !$bCopy
+	? CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $PRODUCT_ID, 'element_edit_price')
+	: CIBlockSectionRights::UserHasRightTo($IBLOCK_ID, $MENU_SECTION_ID, 'element_edit_price')
+);
+
+$allowEdit = false;
+if ($iblockEditProduct)
+{
+	$allowEdit = $PRODUCT_ID > 0 && !$bCopy
+		? $accessController->check(ActionDictionary::ACTION_PRODUCT_EDIT)
+		: $accessController->check(ActionDictionary::ACTION_PRODUCT_ADD)
+	;
+}
+$allowEditPrices = $allowEdit
+	&& $accessController->check(ActionDictionary::ACTION_PRICE_EDIT)
+;
+
+if ($allowEdit)
+{
+	$CAT_VAT_ID = (int)($_POST['CAT_VAT_ID'] ?? 0);
+	$CAT_VAT_INCLUDED = ($_POST['CAT_VAT_INCLUDED'] ?? 'N');
+	if ($CAT_VAT_INCLUDED !== 'Y')
+	{
+		$CAT_VAT_INCLUDED = 'N';
+	}
+}
+
+if ($allowEditPrices)
+{
 	$enableQuantityRanges = Catalog\Config\Feature::isPriceQuantityRangesEnabled();
 
-	if ($boolPriceRights)
+	if ($iblockEditProduct)
 	{
 		Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/templates/product_edit_action.php');
 
 		$arCatalogBasePrices = array();
 		$arCatalogPrices = array();
 
-		$CAT_ROW_COUNTER = intval($CAT_ROW_COUNTER);
+		$CAT_ROW_COUNTER = (int)($_POST['CAT_ROW_COUNTER'] ?? 0);
 		if ($CAT_ROW_COUNTER < 0)
 			$strWarning .= Loc::getMessage("C2IT_INTERNAL_ERROR")."<br>";
 
-		$arCatalogBaseGroup = CCatalogGroup::GetBaseGroup();
+		$arCatalogBaseGroup = Catalog\GroupTable::getBasePriceType();
 		if (!$arCatalogBaseGroup)
 			$strWarning .= Loc::getMessage("C2IT_NO_BASE_TYPE")."<br>";
-
-		$CAT_VAT_ID = intval($CAT_VAT_ID);
-		$CAT_VAT_INCLUDED = !isset($CAT_VAT_INCLUDED) || $CAT_VAT_INCLUDED == 'N' ? 'N' : 'Y';
 
 		if ($enableQuantityRanges)
 			$bUseExtForm = (isset($_POST['price_useextform']) && $_POST['price_useextform'] == 'Y');

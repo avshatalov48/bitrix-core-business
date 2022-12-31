@@ -67,7 +67,8 @@ abstract class EventBuilder implements Builder
 			->setOwner($this->getOwner())
 			->setMeetingDescription($this->getMeetingDescription())
 			->setVersion($this->getVersion())
-			->setEventType($this->getEventType())
+			->setCalendarType($this->getCalendarType())
+			->setSpecialLabel($this->getSpecialLabel())
 			->setUid($this->getUid())
 			->setIsActive($this->isActive())
 			->setIsDeleted($this->isDeleted())
@@ -363,7 +364,12 @@ abstract class EventBuilder implements Builder
 	/**
 	 * @return string|null
 	 */
-	abstract protected function getEventType(): ?string;
+	abstract protected function getCalendarType(): ?string;
+
+	/**
+	 * @return string|null
+	 */
+	abstract protected function getSpecialLabel(): ?string;
 
 	/**
 	 * @return string|null

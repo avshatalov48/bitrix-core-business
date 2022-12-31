@@ -144,17 +144,19 @@ $filterFields = array(
 		"type" => "date",
 		"default" => true
 	),
-	...[
-		$shouldHideOrderEntities
-			? []
-			: [
+	...(
+	$shouldHideOrderEntities
+		? []
+		: [
+		[
 			"id" => "ORDER_ID",
 			"name" => GetMessage("SALE_F_ORDER_ID"),
 			"type" => "number",
 			"filterable" => "",
 			"quickSearch" => ""
 		]
-	],
+	]
+	),
 	array(
 		"id" => "STATUS",
 		"name" => GetMessage("SALE_CASHBOX_STATUS"),
@@ -208,21 +210,21 @@ $dbResultList->NavStart();
 $headers = array(
 	array("id" => "ID", "content" => GetMessage("SALE_CASHBOX_ID"), "sort" => "ID", "default" => true),
 	array("id" => "CHECK_TYPE", "content" => GetMessage("SALE_CASHBOX_CHECK_TYPE"), "sort" => "TYPE", "default" => true),
-	...[
-		$shouldHideOrderEntities
-			? [
-			"id" => "ENTITY_ID",
-			"content" => GetMessage("SALE_CASHBOX_ENTITY_ID_SOURCE"),
-			"sort" => "ORDER_ID",
-			"default" => true
-		]
-			: [
-			"id" => "ORDER_ID",
-			"content" => GetMessage("SALE_CASHBOX_ORDER_ID"),
-			"sort" => "ORDER_ID",
-			"default" => true
-		]
-	],
+	(
+	$shouldHideOrderEntities
+		? [
+		"id" => "ENTITY_ID",
+		"content" => GetMessage("SALE_CASHBOX_ENTITY_ID_SOURCE"),
+		"sort" => "ORDER_ID",
+		"default" => true
+	]
+		: [
+		"id" => "ORDER_ID",
+		"content" => GetMessage("SALE_CASHBOX_ORDER_ID"),
+		"sort" => "ORDER_ID",
+		"default" => true
+	]
+	),
 	array("id" => "CASHBOX_ID", "content" => GetMessage("SALE_CASHBOX_CASHBOX_ID"), "sort" => "CASHBOX_ID", "default" => true),
 	array("id" => "DATE_CREATE", "content" => GetMessage("SALE_CASHBOX_DATE_CREATE"), "sort" => "DATE_CREATE", "default" => true),
 	array("id" => "SUM", "content" => GetMessage("SALE_CASHBOX_SUM"), "sort" => "SUM", "default" => true),

@@ -367,11 +367,25 @@ export class EditFieldController
 				.appendChild(Dom.create('SPAN', {props: {className: 'calendar-resourcebook-content-block-title-text'}, text: userSelectorTitle}));
 			this.DOM.userListWrap = this.DOM.userSelectorWrap.appendChild(Dom.create("div", {props: {className: "calendar-resourcebook-content-block-control custom-field-item"}}));
 
+			let itemsSelected = {};
+			if (this.params.value && Type.isArray(this.params.value.ENTRIES))
+			{
+				this.params.value.ENTRIES.forEach(function(entry)
+				{
+					if (entry.TYPE === 'user')
+					{
+						const userKey = 'U' + parseInt(entry.RESOURCE_ID);
+						itemsSelected[userKey] = 'users';
+					}
+				});
+			}
+
 			this.userSelector = new UserSelectorFieldEditControl({
 				wrapNode: this.DOM.userListWrap,
 				socnetDestination: ResourcebookingUserfield.getSocnetDestination(),
 				addMessage: Loc.getMessage('USER_TYPE_RESOURCE_SELECT_USER'),
-				checkLimitCallback: this.checkResourceCountLimit.bind(this)
+				checkLimitCallback: this.checkResourceCountLimit.bind(this),
+				itemsSelected: itemsSelected,
 			});
 
 			BX.addCustomEvent('OnResourceBookDestinationAddNewItem', this.triggerUpdatePlanner.bind(this));

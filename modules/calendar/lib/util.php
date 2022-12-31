@@ -605,7 +605,7 @@ class Util
 					{
 						$path = $pathList[$siteId]['path_to_group_calendar'];
 					}
-					else
+					else if (!empty($pathList[$siteId]['path_to_type_' . $type]))
 					{
 						$path = $pathList[$siteId]['path_to_type_' . $type];
 					}

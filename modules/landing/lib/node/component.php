@@ -208,8 +208,20 @@ class Component extends \Bitrix\Landing\Node
 
 		// detect all components in text
 		$components = \PHPParser::parseScript($block->getContent());
+		$classBlock = $block->getBlockClass();
 		foreach ($components as $component)
 		{
+			foreach ($component['DATA']['PARAMS'] as $key => $param)
+			{
+				if (
+					is_string($param)
+					&& stripos($param, '={$classBlock->get') !== false
+					&& $value = $classBlock->get($key)
+				)
+				{
+					$component['DATA']['PARAMS'][$key] = $value;
+				}
+			}
 			$componentName = $manifest['code'];
 			// when found what need, get actually params from text and props description from component
 			if ($component['DATA']['COMPONENT_NAME'] == $componentName)

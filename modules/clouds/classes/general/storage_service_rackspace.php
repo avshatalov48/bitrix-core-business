@@ -267,7 +267,13 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 		return ($this->status == 201)/*Created*/ || ($this->status == 202) /*Accepted*/;
 	}
 
-	function GetFileSRC($arBucket, $arFile)
+	/**
+	 * @param array[string]string $arBucket
+	 * @param mixed $arFile
+	 * @param boolean $encoded
+	 * @return string
+	*/
+	function GetFileSRC($arBucket, $arFile, $encoded = true)
 	{
 		global $APPLICATION;
 
@@ -324,7 +330,14 @@ class CCloudStorageService_RackSpaceCloudFiles extends CCloudStorageService_Open
 				$URI = $arBucket["PREFIX"]."/".$URI;
 		}
 
-		return $host."/".CCloudUtil::URLEncode($URI, "UTF-8");
+		if ($encoded)
+		{
+			return $host."/".CCloudUtil::URLEncode($URI, "UTF-8", true);
+		}
+		else
+		{
+			return $host."/".$URI;
+		}
 	}
 }
 ?>

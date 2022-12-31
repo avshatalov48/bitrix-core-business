@@ -7,7 +7,7 @@ use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 use Bitrix\Calendar\Core\Event\Properties\Remind;
 use Bitrix\Calendar\Rooms;
-use Bitrix\Calendar\Sync\Util\AttendeesDescription;
+use Bitrix\Calendar\Sync\Util\EventDescription;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Loader;
 use Bitrix\Main\SystemException;
@@ -124,7 +124,7 @@ class EventBuilder
 			$content['PRIORITY'] = 5;
 		}
 
-		$content['DESCRIPTION'] = AttendeesDescription::makeDescription($event);
+		$content['DESCRIPTION'] = $this->prepareDescription($event);
 		if (!$content['DESCRIPTION'])
 		{
 			unset($content['DESCRIPTION']);
@@ -150,6 +150,16 @@ class EventBuilder
 		$this->prepareOuterParams($data, $content);
 
 		return $content;
+	}
+
+	/**
+	 * @param Event $event
+	 *
+	 * @return string
+	 */
+	private function prepareDescription(Event $event): string
+	{
+		return (new EventDescription())->prepareForExport($event);
 	}
 
 	/**

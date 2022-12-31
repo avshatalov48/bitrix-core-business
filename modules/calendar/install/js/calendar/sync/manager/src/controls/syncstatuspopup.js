@@ -108,23 +108,32 @@ export default class SyncStatusPopup extends EventEmitter
 		return this.popup;
 	}
 
-	getFormattedTime(timestamp)
+	getFormattedTime(date)
 	{
-		if (Type.isDate(timestamp))
+		const now = new Date();
+		let timestamp = date;
+		if (Type.isDate(date))
 		{
-			timestamp = timestamp.getTime() / 1000;
+			timestamp = Math.round(date.getTime() / 1000);
+			let secondsAgo = parseInt((now - date) / 1000);
+			if (secondsAgo < 60)
+			{
+				return Loc.getMessage('CAL_JUST');
+			}
 		}
 
-		return BX.date.format([
-			["tommorow", "tommorow, H:i:s"],
-			["s" , Loc.getMessage('CAL_JUST')],
-			["i" , "iago"],
-			["H", "Hago"],
-			["d", "dago"],
-			["m100", "mago"],
-			["m", "mago"],
-			["-", ""]
-		], timestamp);
+		return BX.date.format(
+			[
+				["tommorow", "tommorow, H:i:s"],
+				["i" , "iago"],
+				["H", "Hago"],
+				["d", "dago"],
+				["m100", "mago"],
+				["m", "mago"],
+				["-", ""]
+			],
+			timestamp
+		);
 	}
 
 	getSyncElement(options)

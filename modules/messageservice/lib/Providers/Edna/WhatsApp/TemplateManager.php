@@ -4,6 +4,8 @@ namespace Bitrix\MessageService\Providers\Edna\WhatsApp;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Web\Json;
+use Bitrix\MessageService\Providers\Constants\InternalOption;
+use Bitrix\MessageService\Providers\Edna\EdnaRu;
 
 class TemplateManager extends \Bitrix\MessageService\Providers\Base\TemplateManager
 {
@@ -52,7 +54,7 @@ class TemplateManager extends \Bitrix\MessageService\Providers\Base\TemplateMana
 		{
 			$messageTemplateDecoded = Json::decode($templateData);
 			$messageTemplateDecoded =
-				$this->emoji->convertEmojiInTemplate($messageTemplateDecoded, Constants::EMOJI_ENCODE);
+				$this->emoji->convertEmojiInTemplate($messageTemplateDecoded, InternalOption::EMOJI_ENCODE);
 		}
 		catch (\Bitrix\Main\ArgumentException $e)
 		{

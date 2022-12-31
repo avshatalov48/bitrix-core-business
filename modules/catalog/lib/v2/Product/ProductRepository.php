@@ -47,6 +47,7 @@ class ProductRepository extends BaseIblockElementRepository implements ProductRe
 			ProductTable::TYPE_PRODUCT,
 			ProductTable::TYPE_SKU,
 			ProductTable::TYPE_EMPTY_SKU,
+			ProductTable::TYPE_SERVICE,
 		];
 
 		return $filter;

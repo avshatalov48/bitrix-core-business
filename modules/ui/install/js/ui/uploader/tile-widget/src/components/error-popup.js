@@ -1,9 +1,11 @@
-import { BitrixVue } from 'ui.vue';
 import { Popup } from 'main.popup';
 import { Type } from 'main.core';
 import type { UploaderError } from 'ui.uploader.core';
 
-export const ErrorPopup = BitrixVue.localComponent('ui.uploader.error-popup', {
+/**
+ * @memberof BX.UI.Uploader
+ */
+export const ErrorPopup = {
 	props: {
 		error: {
 			type: [Object, String],
@@ -20,12 +22,7 @@ export const ErrorPopup = BitrixVue.localComponent('ui.uploader.error-popup', {
 			}
 		},
 	},
-	data()
-	{
-		return {
-			errorPopup: null,
-		};
-	},
+	emits: ['onDestroy'],
 	watch: {
 		error(newValue)
 		{
@@ -38,6 +35,10 @@ export const ErrorPopup = BitrixVue.localComponent('ui.uploader.error-popup', {
 			this.errorPopup.show();
 		}
 	},
+	created()
+	{
+		this.errorPopup = null;
+	},
 	mounted()
 	{
 		if (this.error)
@@ -46,7 +47,7 @@ export const ErrorPopup = BitrixVue.localComponent('ui.uploader.error-popup', {
 			this.errorPopup.show();
 		}
 	},
-	beforeDestroy()
+	beforeUnmount()
 	{
 		if (this.errorPopup)
 		{
@@ -63,7 +64,7 @@ export const ErrorPopup = BitrixVue.localComponent('ui.uploader.error-popup', {
 			}
 			else if (Type.isObject(error))
 			{
-				return error.getMessage() + '<br>' + error.getDescription();
+				return error.message + '<br>' + error.description;
 			}
 
 			return '';
@@ -123,4 +124,4 @@ export const ErrorPopup = BitrixVue.localComponent('ui.uploader.error-popup', {
 		}
 	},
 	template: '<span></span>',
-});
+};

@@ -2,14 +2,29 @@
 
 namespace Bitrix\Catalog\Controller;
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\StoreProductTable;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\Engine\JsonController;
+use Bitrix\Main\Error;
 
 class StoreSelector extends JsonController
 {
+	private AccessController $accessController;
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function init()
+	{
+		parent::init();
+
+		$this->accessController = AccessController::getCurrent();
+	}
+
 	protected function getDefaultPreFilters()
 	{
 		return array_merge(
@@ -23,11 +38,15 @@ class StoreSelector extends JsonController
 
 	protected function processBeforeAction(Action $action)
 	{
-		global $USER;
-		if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_view'))
+		if (
+			$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+			|| $this->accessController->check(ActionDictionary::ACTION_CATALOG_VIEW)
+		)
 		{
 			return parent::processBeforeAction($action);
 		}
+
+		$this->addError(new Error('Access denied'));
 
 		return false;
 	}
@@ -58,10 +77,21 @@ class StoreSelector extends JsonController
 			return [];
 		}
 
+		$filter = [
+			'=PRODUCT_ID' => $productId,
+		];
+
+		$accessFilter = $this->accessController->getEntityFilter(
+			ActionDictionary::ACTION_STORE_VIEW,
+			StoreProductTable::class
+		);
+		if ($accessFilter)
+		{
+			$filter[] = $accessFilter;
+		}
+
 		$storeAmounts = StoreProductTable::getList([
-			'filter' => [
-				'=PRODUCT_ID' => $productId,
-			],
+			'filter' => $filter,
 			'select' => [
 				'AMOUNT',
 				'QUANTITY_RESERVED',
@@ -75,6 +105,12 @@ class StoreSelector extends JsonController
 
 	public function createStoreAction(string $name): ?array
 	{
+		if (!$this->accessController->check(ActionDictionary::ACTION_STORE_MODIFY))
+		{
+			$this->addError(new Error('Access denied'));
+			return null;
+		}
+
 		$result = StoreTable::add([
 			'TITLE' => $name,
 			'ADDRESS' => $name,

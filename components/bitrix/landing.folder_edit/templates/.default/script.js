@@ -200,10 +200,10 @@ this.BX.Landing = this.BX.Landing || {};
 	};
 
 	function _initSelector2() {
-	  babelHelpers.classPrivateFieldSet(this, _linkUrlSelector, new BX.Landing.UI.Field.LinkURL({
+	  babelHelpers.classPrivateFieldSet(this, _linkUrlSelector, new BX.Landing.UI.Field.LinkUrl({
 	    title: null,
 	    content: null,
-	    allowedTypes: [BX.Landing.UI.Field.LinkURL.TYPE_PAGE],
+	    allowedTypes: [BX.Landing.UI.Field.LinkUrl.TYPE_PAGE],
 	    options: {
 	      siteId: babelHelpers.classPrivateFieldGet(this, _siteId),
 	      currentSiteOnly: true,
@@ -255,7 +255,15 @@ this.BX.Landing = this.BX.Landing || {};
 	}
 
 	function _onSelect2(title) {
-	  var id = babelHelpers.classPrivateFieldGet(this, _linkUrlSelector).getValue().substr(8);
+	  var id;
+	  var linkUrlSelectorValue = babelHelpers.classPrivateFieldGet(this, _linkUrlSelector).getValue();
+
+	  if (linkUrlSelectorValue.startsWith('page:')) {
+	    id = linkUrlSelectorValue.substr(13);
+	  } else {
+	    id = linkUrlSelectorValue.substr(8);
+	  }
+
 	  var path = babelHelpers.classPrivateFieldGet(this, _pathToLandingEdit).replace('#landing_edit#', id);
 	  babelHelpers.classPrivateFieldGet(this, _selectorPageLink).text = title;
 	  babelHelpers.classPrivateFieldGet(this, _selectorPageLink).setAttribute('href', path);

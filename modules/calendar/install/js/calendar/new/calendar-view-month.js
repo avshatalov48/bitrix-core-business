@@ -41,9 +41,14 @@
 		this.buildDaysGrid();
 
 		if (this.calendar.navCalendar)
+		{
 			this.calendar.navCalendar.hide();
+		}
 
-		this.displayEntries();
+		this.loadEntries().then(entries => {
+			this.entries = entries;
+			this.displayEntries();
+		});
 		this.calendar.initialViewShow = false;
 	};
 
@@ -82,7 +87,10 @@
 				BX.removeClass(this.grid, this.animateClass);
 
 				// Display loaded entries for new view range
-				this.displayEntries();
+				this.loadEntries().then(entries => {
+					this.entries = entries;
+					this.displayEntries();
+				});
 			}, this), 400);
 		}, this), 0);
 	};
@@ -117,7 +125,10 @@
 				BX.removeClass(this.grid, this.animateClass);
 
 				// Display loaded entries for new view range
-				this.displayEntries();
+				this.loadEntries().then(entries => {
+					this.entries = entries;
+					this.displayEntries();
+				});
 			}, this), 400);
 		}, this), 0);
 	};
@@ -401,7 +412,22 @@
 		}
 	};
 
-	MonthView.prototype.displayEntries = function(params)
+	MonthView.prototype.loadEntries = function()
+	{
+		return new Promise((resolve) => {
+			const viewRange = this.calendar.getDisplayedViewRange();
+			this.entryController.getList({
+				showLoader: (this.entries && !this.entries.length),
+				startDate: new Date(viewRange.start.getFullYear(), viewRange.start.getMonth(), 1),
+				finishDate: new Date(viewRange.end.getFullYear(), viewRange.end.getMonth() + 1, 1),
+				viewRange: viewRange,
+			}).then((entries) => {
+				resolve(entries);
+			});
+		});
+	};
+
+	MonthView.prototype.displayEntries = function()
 	{
 		if (this.draggedEntry)
 		{
@@ -412,36 +438,9 @@
 			element,
 			i, j, entry, part, dayPos, entryPart, day, entryStarted,
 			partsStorage = [],
-			entryDisplayed, showHiddenLink,
-			viewRange = this.calendar.getDisplayedViewRange();
+			entryDisplayed, showHiddenLink;
 
-		if (!params)
-			params = {};
-
-		if (params.reloadEntries !== false)
-		{
-			const entries = this.entryController.getList({
-				showLoader: !!(this.entries && !this.entries.length),
-				startDate: new Date(viewRange.start.getFullYear(), viewRange.start.getMonth(), 1),
-				finishDate: new Date(viewRange.end.getFullYear(), viewRange.end.getMonth() + 1, 1),
-				viewRange: viewRange,
-				finishCallback: BX.proxy(this.displayEntries, this)
-			});
-
-			if (!entries)
-			{
-				return;
-			}
-
-			if (entries !== false)
-			{
-				this.entries = entries;
-			}
-		}
-		if (!this.entries)
-		{
-			return;
-		}
+		this.entries = this.getUndeletedEntries();
 
 		// Clean holders
 		this.entryHolders.forEach(function(holder)

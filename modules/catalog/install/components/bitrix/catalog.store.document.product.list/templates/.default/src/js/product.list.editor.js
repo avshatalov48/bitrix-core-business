@@ -10,9 +10,25 @@ import ProductListController from "catalog.document-card";
 import {ProductModel} from "catalog.product-model";
 import {FieldHintManager} from "./field.hint.manager";
 import {Guide} from "ui.tour";
+import "ui.hint";
 
 const GRID_TEMPLATE_ROW = 'template_0';
 const DEFAULT_PRECISION: number = 2;
+
+const isEmptyObject = function(obj): boolean
+{
+	if (!Type.isPlainObject(obj))
+	{
+		return false;
+	}
+
+	for (const key in obj)
+	{
+		return false;
+	}
+
+	return true;
+};
 
 export class Editor
 {
@@ -85,6 +101,15 @@ export class Editor
 		this.#initSupportCustomRowActions();
 		this.subscribeDomEvents();
 		this.subscribeCustomEvents();
+
+		this
+			.getContainer()
+			.querySelectorAll('.catalog-document-product-list-add-block')
+			.forEach((buttonBlock) => {
+				BX.UI.Hint.init(buttonBlock);
+			})
+		;
+
 	}
 
 	subscribeDomEvents()
@@ -101,13 +126,16 @@ export class Editor
 				);
 			});
 
-			container.querySelectorAll('[data-role="product-list-create-button"]').forEach((addButton) => {
-				Event.bind(
-					addButton,
-					'click',
-					this.productRowCreateHandler
-				);
-			});
+			if (this.getSettingValue('enabledCreateProductButton', true))
+			{
+				container.querySelectorAll('[data-role="product-list-create-button"]').forEach((addButton) => {
+					Event.bind(
+						addButton,
+						'click',
+						this.productRowCreateHandler
+					);
+				});
+			}
 
 			container.querySelectorAll('[data-role="product-list-settings-button"]').forEach((configButton) => {
 				Event.bind(
@@ -186,6 +214,7 @@ export class Editor
 	{
 		EventEmitter.unsubscribe('BX.UI.EntityEditor:onSave', this.onSaveHandler);
 		EventEmitter.unsubscribe('BX.UI.EntityEditorAjax:onSubmit', this.onEditorSubmit);
+		EventEmitter.unsubscribe('onFocusToProductList', this.onFocusToProductList);
 		EventEmitter.unsubscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
 		EventEmitter.unsubscribe('Grid::updated', this.onGridUpdatedHandler);
 		EventEmitter.unsubscribe('Grid::rowMoved', this.onGridRowMovedHandler);
@@ -204,7 +233,7 @@ export class Editor
 			return;
 		}
 
-		for (let product of this.products)
+		for (const product of this.products)
 		{
 			if (product.getBarcodeSelector()?.searchInput?.getNameInput() === document.activeElement)
 			{
@@ -214,7 +243,7 @@ export class Editor
 			}
 		}
 
-		for (let product of this.products)
+		for (const product of this.products)
 		{
 			if (
 				product.getBarcodeSelector()?.searchInput?.getNameInput().value === ''
@@ -454,7 +483,11 @@ export class Editor
 		// Cannot use editSelected because checkboxes have been removed
 		const rows = this.getGrid().getRows().getRows();
 		rows.forEach((current) => {
-			if (!current.isHeadChild() && !current.isTemplate())
+			if (
+				!current.isHeadChild()
+				&& !current.isTemplate()
+				&& !isEmptyObject(current.getEditData())
+			)
 			{
 				current.edit();
 			}
@@ -1024,6 +1057,26 @@ export class Editor
 		});
 	}
 
+	getGridColumnIndexes()
+	{
+		return this.cache.remember('getGridColumnIndexes', () => {
+			let result = {};
+
+			const columns = this.getGrid().getHead().querySelectorAll('.main-grid-cell-head');
+			for (let i = 0; i < columns.length; i++) {
+				const node = columns[i];
+				const columnName = node.dataset.name;
+
+				if (columnName)
+				{
+					result[columnName] = i;
+				}
+			}
+
+			return result;
+		});
+	}
+
 	initGridData()
 	{
 		const gridEditData = this.getSettingValue('templateGridEditData', null);
@@ -1420,6 +1473,8 @@ export class Editor
 			productRow.updateProductStoreValues();
 
 			productRow.initHandlersForSelectors();
+			productRow.layoutStoreSelector(productRow.getSettingValue('storeHeaderMap', {}));
+			productRow.layoutBarcode();
 			productRow.executeExternalActions();
 			this.getGrid().tableUnfade();
 		}
@@ -1534,6 +1589,7 @@ export class Editor
 			'STORE_TO_RESERVED',
 			'STORE_TO_TITLE',
 			'TOTAL_PRICE',
+			'TYPE',
 		];
 	}
 
@@ -1858,6 +1914,15 @@ export class Editor
 		this.setSettingValue('showBarcodeQrAuth',false);
 	}
 
+	enableSendBarcodeMobilePush(): void
+	{
+		this.products.forEach((product) => {
+			product.getBarcodeSelector()?.setConfig('IS_INSTALLED_MOBILE_APP', true);
+		})
+
+		this.setSettingValue('isInstalledMobileApp', true);
+	}
+
 	validate(): Array
 	{
 		if (this.getProductCount() === 0)
@@ -1874,23 +1939,27 @@ export class Editor
 		return errorsArray;
 	}
 
-	showFieldTourHint(fieldName: string, tourData: Object, endTourHandler: Function, addictedFields: Array<string> = []): void
+	showFieldTourHint(fieldName: string, tourData: Object, endTourHandler: Function, addictedFields: Array<string> = [], rowId: string = ''): void
 	{
 		if (this.products.length > 0)
 		{
-			const firstProductRowNode = this.products[0].getNode();
+			let productNode = this.products[0].getNode();
+			if (this.getProductByRowId(rowId))
+			{
+				productNode = this.getProductByRowId(rowId).getNode();
+			}
 
 			const addictedNodes = [];
 			for (const fieldName of addictedFields)
 			{
-				const fieldNode = firstProductRowNode.querySelector(`[data-name="${fieldName}"]`);
+				const fieldNode = productNode.querySelector(`[data-name="${fieldName}"]`);
 				if (fieldNode !== null)
 				{
 					addictedNodes.push(fieldNode);
 				}
 			}
 
-			const fieldNode = firstProductRowNode.querySelector(`[data-name="${fieldName}"]`);
+			const fieldNode = productNode.querySelector(`[data-name="${fieldName}"]`);
 
 			if (fieldNode !== null)
 			{
@@ -1902,5 +1971,10 @@ export class Editor
 	getActiveHint(): Guide|null
 	{
 		return this.#fieldHintManager.getActiveHint();
+	}
+
+	getRestrictedProductTypes(): Array
+	{
+		return this.getSettingValue('restrictedProductTypes', []);
 	}
 }

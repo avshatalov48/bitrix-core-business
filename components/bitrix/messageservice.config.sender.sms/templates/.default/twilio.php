@@ -5,6 +5,7 @@ global $APPLICATION;
 \Bitrix\Main\UI\Extension::load([
 	'ui.design-tokens',
 	'ui.fonts.opensans',
+	'ui.dialogs.messagebox',
 	'popup',
 ]);
 
@@ -191,7 +192,7 @@ if ($sender->isRegistered())
 					{
 						if (!response.success)
 						{
-							alert(response.errors[0]);
+							BX.UI.Dialogs.MessageBox.alert(response.errors[0]);
 						}
 						else
 						{

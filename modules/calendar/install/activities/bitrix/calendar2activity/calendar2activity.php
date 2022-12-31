@@ -36,11 +36,14 @@ class CBPCalendar2Activity extends CBPActivity
 
 		$fromTs = CCalendar::Timestamp($this->CalendarFrom);
 		$toTs = $this->CalendarTo == '' ? $fromTs : CCalendar::Timestamp($this->CalendarTo);
+		$calendarType = $this->getCalendarType();
+		$calendarName = $this->getCalendarName();
+		$calendarDescription = $this->getCalendarDescription();
 
 		$arFields = [
-			"CAL_TYPE" => !$this->CalendarType ? 'user' : $this->CalendarType,
-			"NAME" => trim($this->CalendarName) == '' ? GetMessage('EC_DEFAULT_EVENT_NAME') : $this->CalendarName,
-			"DESCRIPTION" => $this->CalendarDesrc,
+			"CAL_TYPE" => $calendarType,
+			"NAME" => $calendarName ?: GetMessage('EC_DEFAULT_EVENT_NAME'),
+			"DESCRIPTION" => $calendarDescription,
 			"SKIP_TIME" => date('H:i', $fromTs) == '00:00' && date('H:i', $toTs) == '00:00',
 			"IS_MEETING" => false,
 			"RRULE" => false,
@@ -222,5 +225,50 @@ class CBPCalendar2Activity extends CBPActivity
 		$arCurrentActivity["Properties"] = $arProperties;
 
 		return true;
+	}
+
+	private function getCalendarType(): string
+	{
+		$calendarType = $this->CalendarType;
+		if (is_array($calendarType))
+		{
+			$calendarType = current(\CBPHelper::makeArrayFlat($calendarType));
+		}
+		$types = ['user', 'company_calendar', 'group', 'resource', 'location'];
+
+		if (in_array($calendarType, $types, true))
+		{
+			return $calendarType;
+		}
+
+		return 'user';
+	}
+
+	/**
+	 * @return mixed|string|null
+	 */
+	private function getCalendarName(): string
+	{
+		$name = $this->CalendarName;
+		if (is_array($name))
+		{
+			$name = current(\CBPHelper::makeArrayFlat($name));
+		}
+
+		return trim((string)$name);
+	}
+
+	/**
+	 * @return mixed|null
+	 */
+	private function getCalendarDescription()
+	{
+		$description = $this->CalendarDesrc;
+		if (is_array($description))
+		{
+			$description = current(\CBPHelper::makeArrayFlat($description));
+		}
+
+		return trim((string)$description);
 	}
 }

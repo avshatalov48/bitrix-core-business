@@ -9,6 +9,7 @@ namespace Bitrix\Sale;
 
 use Bitrix\Currency;
 use Bitrix\Main;
+use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Type;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Internals;
@@ -827,6 +828,8 @@ abstract class OrderBase extends Internals\Entity
 	 * @param string $currency
 	 *
 	 * @return Main\Result
+	 *
+	 * @throws ArgumentNullException if currency empty
 	 */
 	public function changeCurrency(string $currency): Main\Result
 	{
@@ -835,6 +838,10 @@ abstract class OrderBase extends Internals\Entity
 		if ($this->getCurrency() === $currency)
 		{
 			return $result;
+		}
+		elseif (empty($currency))
+		{
+			throw new ArgumentNullException('currency');
 		}
 
 		$this->setFieldNoDemand('CURRENCY', $currency);

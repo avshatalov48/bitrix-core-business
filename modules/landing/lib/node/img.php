@@ -53,8 +53,8 @@ class Img extends \Bitrix\Landing\Node
 			if (isset($value['url']))
 			{
 				$url = is_array($value['url'])
-						? json_encode($value['url'])
-						: $value['url'];
+					? json_encode($value['url'])
+					: $value['url'];
 			}
 			else
 			{
@@ -98,7 +98,7 @@ class Img extends \Bitrix\Landing\Node
 					{
 						// and one two additional bg
 						$newStyles = [
-							"background-image: url('{$src}');"
+							"background-image: url('{$src}');",
 						];
 						if ($src2x)
 						{
@@ -106,7 +106,7 @@ class Img extends \Bitrix\Landing\Node
 								$newStyles,
 								[
 									"background-image: -webkit-image-set(url('{$src}') 1x, url('{$src2x}') 2x);",
-									"background-image: image-set(url('{$src}') 1x, url('{$src2x}') 2x);"
+									"background-image: image-set(url('{$src}') 1x, url('{$src2x}') 2x);",
 								]
 							);
 						}
@@ -137,15 +137,15 @@ class Img extends \Bitrix\Landing\Node
 					if ($isLazy)
 					{
 						$resultList[$pos]->setAttribute('data-lazy-bg', 'Y');
-						if($lazyOrigSrc = $value['lazyOrigSrc'])
+						if ($lazyOrigSrc = $value['lazyOrigSrc'])
 						{
 							$resultList[$pos]->setAttribute('data-src', $lazyOrigSrc);
 						}
-						if($lazyOrigSrc2x = $value['lazyOrigSrc2x'])
+						if ($lazyOrigSrc2x = $value['lazyOrigSrc2x'])
 						{
 							$resultList[$pos]->setAttribute('data-src2x', $lazyOrigSrc2x);
 						}
-						if($lazyOrigStyle = $value['lazyOrigStyle'])
+						if ($lazyOrigStyle = $value['lazyOrigStyle'])
 						{
 							$resultList[$pos]->setAttribute('data-style', $lazyOrigStyle);
 						}
@@ -165,32 +165,32 @@ class Img extends \Bitrix\Landing\Node
 					}
 
 					// for lazyload
-					if($isLazy)
+					if ($isLazy)
 					{
 						$resultList[$pos]->setAttribute('data-lazy-img', 'Y');
 						$resultList[$pos]->setAttribute('loading', 'lazy');
-						if($lazyOrigSrc = $value['lazyOrigSrc'])
+						if ($lazyOrigSrc = $value['lazyOrigSrc'])
 						{
 							$resultList[$pos]->setAttribute('data-src', $lazyOrigSrc);
 						}
-						if($lazyOrigSrcset = $value['lazyOrigSrcset'])
+						if ($lazyOrigSrcset = $value['lazyOrigSrcset'])
 						{
 							$resultList[$pos]->setAttribute('data-srcset', $lazyOrigSrcset);
 						}
 					}
 				}
-				if ($id)
-				{
-					$resultList[$pos]->setAttribute('data-fileid', $id);
-				}
-				if ($id2x)
-				{
-					$resultList[$pos]->setAttribute('data-fileid2x', $id2x);
-				}
-				if ($url)
-				{
-					$resultList[$pos]->setAttribute('data-pseudo-url', $url);
-				}
+				$id
+					? $resultList[$pos]->setAttribute('data-fileid', $id)
+					: $resultList[$pos]->removeAttribute('data-fileid')
+				;
+				$id2x
+					? $resultList[$pos]->setAttribute('data-fileid2x', $id2x)
+					: $resultList[$pos]->removeAttribute('data-fileid2x')
+				;
+				$url
+					? $resultList[$pos]->setAttribute('data-pseudo-url', $url)
+					: $resultList[$pos]->removeAttribute('data-pseudo-url')
+				;
 			}
 		}
 	}
@@ -254,21 +254,21 @@ class Img extends \Bitrix\Landing\Node
 					}
 
 					// for lazyload
-					if(
+					if (
 						($isLazy = $res->getAttribute('data-lazy-bg'))
 						&& $isLazy === 'Y'
 					)
 					{
 						$data[$pos]['isLazy'] = 'Y';
-						if($lazyOrigSrc = $res->getAttribute('data-src'))
+						if ($lazyOrigSrc = $res->getAttribute('data-src'))
 						{
 							$data[$pos]['lazyOrigSrc'] = $lazyOrigSrc;
 						}
-						if($lazyOrigSrc2x = $res->getAttribute('data-src2x'))
+						if ($lazyOrigSrc2x = $res->getAttribute('data-src2x'))
 						{
 							$data[$pos]['lazyOrigSrc2x'] = $lazyOrigSrc2x;
 						}
-						if($lazyOrigStyle = $res->getAttribute('data-style'))
+						if ($lazyOrigStyle = $res->getAttribute('data-style'))
 						{
 							$data[$pos]['lazyOrigStyle'] = $lazyOrigStyle;
 						}
@@ -314,17 +314,23 @@ class Img extends \Bitrix\Landing\Node
 					}
 				}
 			}
-			$dataAtrs = [
-				'data-pseudo-url' => 'url',
-				'data-fileid' => 'id',
-				'data-fileid2x' => 'id2x',
-			];
-			foreach ($dataAtrs as $codeFrom => $codeTo)
+
+			if ($val = $res->getAttribute('data-pseudo-url'))
 			{
-				if ($val = $res->getAttribute($codeFrom))
-				{
-					$data[$pos][$codeTo] = $val;
-				}
+				$data[$pos]['url'] = $val;
+			}
+
+			if ($val = $res->getAttribute('data-fileid'))
+			{
+				$data[$pos]['id'] = $val;
+			}
+
+			if (
+				(isset($data[$pos]['src2x']) || isset($data[$pos]['lazyOrigSrc2x']))
+				&& ($val = $res->getAttribute('data-fileid2x'))
+			)
+			{
+				$data[$pos]['id2x'] = $val;
 			}
 		}
 
@@ -382,6 +388,7 @@ class Img extends \Bitrix\Landing\Node
 				$node['handler'] = StyleImg::getHandlerJS();
 			}
 		}
+
 		return $node;
 	}
 }

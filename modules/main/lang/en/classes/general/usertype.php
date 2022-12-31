@@ -14,11 +14,4 @@ $MESS["USER_TYPE_TABLE_CREATION_ERROR"] = "An error occurred while creating the 
 $MESS["USER_TYPE_ADD_ERROR"] = "An error occurred while trying to add #FIELD_NAME# to entity #ENTITY_ID#.";
 $MESS["USER_TYPE_UPDATE_ERROR"] = "Error editing #FIELD_NAME# for #ENTITY_ID# object.";
 $MESS["USER_TYPE_DELETE_ERROR"] = "Error deleting #FIELD_NAME# for #ENTITY_ID# object.";
-$MESS["USER_TYPE_PROP_ADD"] = "Add";
-$MESS["USER_TYPE_EDIT_TAB"] = "Custom Fields";
-$MESS["USER_TYPE_EDIT_TAB_TITLE"] = "Custom Fields";
-$MESS["USER_TYPE_EDIT_TAB_HREF"] = "Customize";
-$MESS["USER_TYPE_FIELD_VALUE_IS_MISSING"] = "The required field #FIELD_NAME# is missing.";
-$MESS["USER_TYPE_XML_ID_UNIQ"] = "List element with XML_ID=#XML_ID# already exists.";
-$MESS["MAIN_EDIT"] = "Modify";
 ?>

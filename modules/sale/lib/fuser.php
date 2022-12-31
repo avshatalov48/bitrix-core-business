@@ -8,6 +8,7 @@
 namespace Bitrix\Sale;
 
 use Bitrix\Main;
+use Bitrix\Main\Application;
 use Bitrix\Sale\Internals;
 use Bitrix\Main\Localization\Loc;
 
@@ -62,11 +63,22 @@ class Fuser
 	protected static function updateSession($id)
 	{
 		\CSaleUser::updateSessionSaleUserID();
-		if ((string)Main\Config\Option::get('sale', 'encode_fuser_id') != 'Y' && isset($_SESSION['SALE_USER_ID']))
-			$_SESSION['SALE_USER_ID'] = (int)$_SESSION['SALE_USER_ID'];
 
-		if (!isset($_SESSION['SALE_USER_ID']) || (string)$_SESSION['SALE_USER_ID'] == '' || $_SESSION['SALE_USER_ID'] === 0)
-			$_SESSION['SALE_USER_ID'] = $id;
+		$session = Application::getInstance()->getSession();
+		if (!$session->isAccessible())
+		{
+			return;
+		}
+
+		if (isset($session['SALE_USER_ID']) && Main\Config\Option::get('sale', 'encode_fuser_id') !== 'Y')
+		{
+			$session['SALE_USER_ID'] = (int)$session['SALE_USER_ID'];
+		}
+
+		if (!isset($session['SALE_USER_ID']) || empty($session['SALE_USER_ID']))
+		{
+			$session['SALE_USER_ID'] = $id;
+		}
 	}
 
 	/**

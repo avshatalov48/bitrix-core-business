@@ -1,13 +1,30 @@
 import { Type, Loc, Dom, Runtime, pos, GetWindowSize } from 'main.core';
 import { EventEmitter } from 'main.core.events'
+import {Lottie} from 'ui.lottie';
 
 import { RatingManager } from './manager';
 import { RatingLike } from './like';
 import { ListPopup } from './listpopup';
+import likeAnimatedEmojiData from '../animations/em_01.json';
+import laughAnimatedEmojiData from '../animations/em_02.json';
+import wonderAnimatedEmojiData from '../animations/em_03.json';
+import cryAnimatedEmojiData from '../animations/em_04.json';
+import angryAnimatedEmojiData from '../animations/em_05.json';
+import facepalmAnimatedEmojiData from '../animations/em_06.json';
+import kissAnimatedEmojiData from '../animations/em_07.json';
 
 export class RatingRender
 {
 	static reactionsList = [ 'like', 'kiss', 'laugh', 'wonder', 'cry', 'angry', 'facepalm' ];
+	static reactionsAnimationData = {
+		like: likeAnimatedEmojiData,
+		kiss: kissAnimatedEmojiData,
+		laugh: laughAnimatedEmojiData,
+		wonder: wonderAnimatedEmojiData,
+		cry: cryAnimatedEmojiData,
+		angry: angryAnimatedEmojiData,
+		facepalm: facepalmAnimatedEmojiData,
+	}
 	static popupCurrentReaction = false;
 	static popupPagesList = [];
 	static popupSizeInitialized = false;
@@ -285,11 +302,21 @@ export class RatingRender
 							newValue = reactionCount + 1;
 						}
 
-						if (newValue > 0)
+						if (newValue > 0 && newValue > reactionCount)
 						{
 							elementsNew.push({
 								reaction: reactionValue,
 								count: newValue,
+								animate: {
+									type: 'pop',
+								},
+							});
+						}
+						else if (newValue > 0)
+						{
+							elementsNew.push({
+								reaction: reactionValue,
+								count: reactionCount,
 								animate: false,
 							});
 						}
@@ -430,13 +457,16 @@ export class RatingRender
 
 			const classList = [
 				'feed-post-emoji-icon-item',
-				`feed-post-emoji-icon-${element.reaction}`,
 				`feed-post-emoji-icon-item-${(i+1)}`,
 			];
 
-			if (element.animate)
+			if (element?.animate)
 			{
-				if (i >= 1)
+				if (element.animate?.type === 'pop')
+				{
+					classList.push('feed-post-emoji-animation-pop');
+				}
+				else if (i >= 1)
 				{
 					classList.push('feed-post-emoji-icon-animate');
 				}
@@ -446,7 +476,7 @@ export class RatingRender
 				}
 			}
 
-			container.appendChild(Dom.create('span', {
+			const emojiContainer = Dom.create('div', {
 				props: {
 					id: `bx-ilike-result-reaction-${element.reaction}-${likeId}`,
 					className: classList.join(' '),
@@ -458,7 +488,27 @@ export class RatingRender
 					title: Loc.getMessage(`RATING_LIKE_EMOTION_${element.reaction.toUpperCase()}_CALC`),
 				},
 				events: reactionEvents,
-			}));
+			});
+
+			const animation = Lottie.loadAnimation({
+				animationData: this.reactionsAnimationData[element.reaction],
+				container: emojiContainer,
+				loop: false,
+				autoplay: false,
+				renderer: 'svg',
+				rendererSettings: {
+					viewBoxOnly: true,
+				}
+			});
+
+			if (Boolean(element.animate))
+			{
+				setTimeout(() => {
+					animation.play();
+				}, 200);
+			}
+
+			container.appendChild(emojiContainer);
 
 			reactionsData[element.reaction] = element.count;
 		});
@@ -485,17 +535,25 @@ export class RatingRender
 		{
 			const reactionsNodesList = [];
 
-			this.reactionsList.forEach((currentEmotion) => {
+			this.reactionsList.forEach((currentEmotion, index) => {
 
-				reactionsNodesList.push(Dom.create('div', {
+				const emojiItem = Dom.create('div', {
 					props: {
-						className: `feed-post-emoji-icon-item feed-post-emoji-icon-${currentEmotion}`,
+						className: `feed-post-emoji-icon-item`,
 					},
 					attrs: {
 						'data-reaction': currentEmotion,
 						title: Loc.getMessage(`RATING_LIKE_EMOTION_${currentEmotion.toUpperCase()}_CALC`),
 					},
-				}));
+				});
+
+				Lottie.loadAnimation({
+					renderer: 'svg',
+					container: emojiItem,
+					animationData: this.reactionsAnimationData[currentEmotion],
+				});
+
+				reactionsNodesList.push(emojiItem);
 			});
 
 			this.reactionsPopup = Dom.create('div', {
@@ -607,7 +665,7 @@ export class RatingRender
 					opacity: 0,
 				},
 				finish: {
-					width: 305,
+					width: 300,
 					left: (bindElementPosition.left + (bindElementPosition.width / 2) - 133),
 					top: (bindElementPosition.top + deltaY - 5),
 					borderRadius: 50,
@@ -808,6 +866,8 @@ export class RatingRender
 				this.reactionsPopup.classList.remove('feed-post-emoji-popup-active-final');
 				this.reactionsPopup.classList.remove('feed-post-emoji-popup-active-final-item');
 				this.reactionsPopupMobileEnableScroll();
+				Dom.remove(this.reactionsPopup);
+				this.reactionsPopup = null;
 			}
 			else
 			{
@@ -841,6 +901,8 @@ export class RatingRender
 						this.reactionsPopup.classList.remove('feed-post-emoji-popup-active');
 						this.reactionsPopup.classList.remove('feed-post-emoji-popup-active-final');
 						this.reactionsPopup.classList.remove('feed-post-emoji-popup-active-final-item');
+						Dom.remove(this.reactionsPopup);
+						this.reactionsPopup = null;
 					},
 				});
 
@@ -903,23 +965,17 @@ export class RatingRender
 
 	static reactionsPopupMobileGetHoverNode(x, y)
 	{
-		let reactionNode = null;
-		let userReaction = null;
-		let result = null;
+		const nodeAboveFinger = document.elementFromPoint(x, (y + this.touchMoveDeltaY - this.touchScrollTop));
+		const nodeBelowFinger = document.elementFromPoint(x, (y - this.touchScrollTop));
 
-		if (
-			(
-				(reactionNode = document.elementFromPoint(x, (y + this.touchMoveDeltaY - this.touchScrollTop))) // icon above/below a finger
-				|| (reactionNode = document.elementFromPoint(x, (y - this.touchScrollTop))) // icon is under a finger
-			)
-			&& (userReaction = reactionNode.getAttribute('data-reaction'))
-			&& Type.isStringFilled(userReaction)
-		)
-		{
-			result = reactionNode;
-		}
+		const iconNodeAboveFinger = nodeAboveFinger?.closest('[data-reaction]');
+		const iconNodeBelowFinger = nodeBelowFinger?.closest('[data-reaction]');
 
-		return result;
+		const reactionNode = iconNodeAboveFinger || iconNodeBelowFinger;
+
+		const userReaction = reactionNode?.getAttribute('data-reaction');
+
+		return Type.isStringFilled(userReaction) ? reactionNode : null;
 	}
 
 	static reactionsPopupMobileAddHover(reactionNode)
@@ -959,6 +1015,10 @@ export class RatingRender
 	static reactionsPopupMobileDisableScroll()
 	{
 		document.addEventListener('touchmove', this.touchMoveScrollListener, { passive: false });
+		if (app)
+		{
+			app.exec('disableTabScrolling');
+		}
 		EventEmitter.emit('onPullDownDisable');
 
 		if (!Type.isNull(this.mobileOverlay))
@@ -1327,7 +1387,7 @@ export class RatingRender
 						style: (
 							Type.isStringFilled(item.PHOTO_SRC)
 								? {
-									'background-image': `url("${item.PHOTO_SRC}")`,
+									'background-image': `url("${encodeURI(item.PHOTO_SRC)}")`,
 								}
 								: {}
 						)
@@ -1453,7 +1513,7 @@ export class RatingRender
 			{
 				avatarNode = Dom.create('img', {
 					attrs: {
-						src: item.PHOTO_SRC,
+						src: encodeURI(item.PHOTO_SRC),
 					},
 					props: {
 						className: 'bx-ilike-popup-avatar-img',

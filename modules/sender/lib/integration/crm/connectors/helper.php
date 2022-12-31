@@ -818,6 +818,6 @@ class Helper
 
 	public static function isCrmSaleEnabled()
 	{
-		return Loader::includeModule("sale") && (Option::get("crm", "crm_shop_enabled", "N") != 'N');
+		return Loader::includeModule("sale");
 	}
 }

@@ -1,0 +1,23 @@
+.ui-entity-catalog__empty-content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+}
+
+.ui-entity-catalog__empty-content_icon {
+	margin-right: 27px;
+}
+
+.ui-entity-catalog__empty-content_text {
+	position: relative;
+	margin-top: 14px;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+	font-size: var(--ui-font-size-xl, 16px);
+	line-height: var(--ui-font-line-height-xl, 1.62);
+	text-align: center;
+	color: var(--ui-color-base-60, #959ca4);
+	max-width: calc(100% - 186px);
+}

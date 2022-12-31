@@ -29,10 +29,8 @@ class Knowledge extends Scope
 		{
 			return '/mobile/knowledge/';
 		}
-		else
-		{
-			return '/knowledge/';
-		}
+
+		return '/knowledge/';
 	}
 
 	/**

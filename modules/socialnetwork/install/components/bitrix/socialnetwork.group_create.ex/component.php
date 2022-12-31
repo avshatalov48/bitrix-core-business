@@ -174,7 +174,7 @@ else
 	{
 		if ($arParams["GROUP_ID"] <= 0)
 		{
-			if (!\Bitrix\Socialnetwork\Helper\Workgroup::canCreate([
+			if (!\Bitrix\Socialnetwork\Helper\Workgroup\Access::canCreate([
 				'siteId' => $this->getSiteId(),
 			]))
 			{
@@ -183,7 +183,7 @@ else
 		}
 		elseif (
 			empty($errorMessage)
-			&& !\Bitrix\Socialnetwork\Helper\Workgroup::canUpdate([
+			&& !\Bitrix\Socialnetwork\Helper\Workgroup\Access::canUpdate([
 				'groupId' => $arParams['GROUP_ID'],
 			])
 		)
@@ -1383,10 +1383,17 @@ else
 
 											if ($relationFields['INITIATED_BY_TYPE'] === UserToGroupTable::INITIATED_BY_USER)
 											{
-												Helper\Workgroup::acceptIncomingRequest([
-													'groupId' => $arResult['GROUP_ID'],
-													'userId' => $user_id,
-												]);
+												try
+												{
+													Helper\Workgroup::acceptIncomingRequest([
+														'groupId' => $arResult['GROUP_ID'],
+														'userId' => $user_id,
+													]);
+												}
+												catch(\Exception $e)
+												{
+													$warningMessage[] = $e->getMessage();
+												}
 											}
 											else
 											{

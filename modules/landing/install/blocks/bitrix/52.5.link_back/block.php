@@ -1,4 +1,4 @@
-<section class="landing-block g-bg-white">
+<section class="landing-block g-bg-white u-block-border-none">
 	<div class="container d-flex">
 		<a
 			class="js-link-back g-text-decoration-none--hover g-flex-centered g-color-black-opacity-0_5 g-color-black--hover g-pt-20 g-pb-0"

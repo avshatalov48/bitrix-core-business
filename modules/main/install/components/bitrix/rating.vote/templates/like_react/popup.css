@@ -25,8 +25,7 @@
 	user-select: none;
 }
 
-.bx-firefox .bx-ilike-wrap-block-react .bx-ilike-popup,
-.bx-ie .bx-ilike-wrap-block-react .bx-ilike-popup {
+.bx-firefox .bx-ilike-wrap-block-react .bx-ilike-popup {
 	min-width: 220px;
 }
 

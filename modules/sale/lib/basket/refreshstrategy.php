@@ -25,6 +25,15 @@ abstract class RefreshStrategy extends BaseRefreshStrategy
 			unset($fields['ITEMS']);
 		}
 
+		/**
+		 * Adds quantity which purchased
+		 */
+		if (isset($fields['QUANTITY']))
+		{
+			$delta = $item->getQuantity() - $item->getNotPurchasedQuantity();
+			$fields['QUANTITY'] += max($delta, 0);
+		}
+
 		$result = parent::applyRefreshResult($item, $fields);
 		if ($result->isSuccess())
 		{

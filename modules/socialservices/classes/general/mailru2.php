@@ -242,7 +242,7 @@ class CSocServMailRu2 extends CSocServAuth
 			window.close();
 		</script>
 		<?
-		die();
+		CMain::FinalActions();
 	}
 
 	public function setUser($userId)

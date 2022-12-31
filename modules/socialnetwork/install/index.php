@@ -183,6 +183,9 @@ Class socialnetwork extends CModule
 		$eventManager->registerEventHandler('main', 'OnUISelectorEntitiesGetList', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UISelector\Handler', 'OnUISelectorEntitiesGetList');
 		$eventManager->registerEventHandler('main', 'OnUISelectorGetProviderByEntityType', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UISelector\Handler', 'OnUISelectorGetProviderByEntityType');
 		$eventManager->registerEventHandler('main', 'OnBuildFilterFactoryMethods', 'socialnetwork', '\Bitrix\Socialnetwork\Filter\FactorySocialnetwork', 'onBuildFilterFactoryMethods');
+		$eventManager->registerEventHandler('main', 'onUserCounterGetValuesFromDb', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UserCounter', 'onUserCounterGetValuesFromDb');
+		$eventManager->registerEventHandler('main', 'onUserCounterProcessCategory', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UserCounter', 'onUserCounterProcessCategory');
+		$eventManager->registerEventHandler('main', 'onUserCounterClean', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UserCounter', 'onUserCounterClean');
 
 		$eventManager->registerEventHandler('tasks', 'onTaskUpdateViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Tasks\Task', 'onTaskUpdateViewed');
 		$eventManager->registerEventHandler('calendar', 'onViewEvent', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Calendar\CalendarEvent', 'onViewEvent');
@@ -418,6 +421,9 @@ Class socialnetwork extends CModule
 		$eventManager->unregisterEventHandler('main', 'OnUISelectorEntitiesGetList', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UISelector\Handler', 'OnUISelectorEntitiesGetList');
 		$eventManager->unregisterEventHandler('main', 'OnUISelectorGetProviderByEntityType', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UISelector\Handler', 'OnUISelectorGetProviderByEntityType');
 		$eventManager->unregisterEventHandler('main', 'OnBuildFilterFactoryMethods', 'socialnetwork', '\Bitrix\Socialnetwork\Filter\FactorySocialnetwork', 'onBuildFilterFactoryMethods');
+		$eventManager->unregisterEventHandler('main', 'onUserCounterGetValuesFromDb', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UserCounter', 'onUserCounterGetValuesFromDb');
+		$eventManager->unregisterEventHandler('main', 'onUserCounterProcessCategory', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UserCounter', 'onUserCounterProcessCategory');
+		$eventManager->unregisterEventHandler('main', 'onUserCounterClean', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\UserCounter', 'onUserCounterClean');
 
 		$eventManager->unregisterEventHandler('tasks', 'onTaskUpdateViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Tasks\Task', 'onTaskUpdateViewed');
 		$eventManager->unregisterEventHandler('calendar', 'onViewEvent', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Calendar\CalendarEvent', 'onViewEvent');

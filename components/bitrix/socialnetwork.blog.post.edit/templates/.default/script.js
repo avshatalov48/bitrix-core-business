@@ -939,18 +939,16 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	            }
 	          }
 	        }).then(function (response) {
-	          main_core.Runtime.html(null, response.data.asset.join(' ')).then(function () {
-	            main_core.Runtime.html(contentContainer, response.data.html).then(function () {
-	              _this6.clickDisabled = false;
+	          main_core.Runtime.html(contentContainer, response.data.html).then(function () {
+	            _this6.clickDisabled = false;
 
-	              _this6.closeWait(contentContainer);
+	            _this6.closeWait(contentContainer);
 
-	              _this6.endAnimation();
+	            _this6.endAnimation();
 
-	              main_core_events.EventEmitter.emit(document.getElementById('divlivefeed_task_form'), 'OnShowLHE', new main_core_events.BaseEvent({
-	                compatData: ['justShow']
-	              }));
-	            });
+	            main_core_events.EventEmitter.emit(document.getElementById('divlivefeed_task_form'), 'OnShowLHE', new main_core_events.BaseEvent({
+	              compatData: ['justShow']
+	            }));
 	          });
 	          main_core.Dom.adjust(content, {
 	            style: {
@@ -1650,7 +1648,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    PostFormEditor.setInstance(formID, babelHelpers.assertThisInitialized(_this));
 	    window['setBlogPostFormSubmitted'] = _this.setBlogPostFormSubmitted.bind(babelHelpers.assertThisInitialized(_this));
 	    window['submitBlogPostForm'] = _this.submitBlogPostForm.bind(babelHelpers.assertThisInitialized(_this));
-	    console.log('constructor');
 	    return _this;
 	  }
 
@@ -1845,7 +1842,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        });
 
 	        if (submitButton) {
-	          console.log('add');
 	          submitButton.classList.add('ui-btn-clock');
 	          this.disabled = true;
 	          window.addEventListener('beforeunload', function (event) {

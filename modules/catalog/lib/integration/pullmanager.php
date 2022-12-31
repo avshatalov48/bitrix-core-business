@@ -6,7 +6,8 @@ use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
-use Bitrix\Mobile\Integration\Catalog\EntityEditor\StoreDocumentProvider;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Mobile\Integration\Catalog\StoreDocumentList\Item;
 use Bitrix\Pull\Event;
 use Bitrix\Pull\Model\WatchTable;
@@ -54,7 +55,7 @@ class PullManager
 	{
 		try
 		{
-			return Loader::includeModule('pull');
+			return Loader::includeModule('catalog') && Loader::includeModule('pull');
 		}
 		catch(LoaderException $exception)
 		{
@@ -260,13 +261,12 @@ class PullManager
 	 */
 	protected function filterUserIdsWhoCanViewItem(array $items, array $userIds): array
 	{
-		global $USER;
 		$result = [];
 
 		foreach($userIds as $userId)
 		{
 			$userId = (int)$userId;
-			if($userId > 0 && $USER->CanDoOperation('catalog_read', $userId))
+			if ($userId > 0 && AccessController::getInstance($userId)->check(ActionDictionary::ACTION_CATALOG_READ))
 			{
 				$result[$userId] = $userId;
 			}

@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Landing\Connector;
 
+use \Bitrix\Landing\Rights;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\Binding;
 use \Bitrix\Intranet\Binding\Menu;
@@ -21,22 +22,28 @@ class Intranet
 	 */
 	protected static function getMenuItemBind(string $bindCode): array
 	{
-		return [
-			[
+		$setItems = [];
+		if (Rights::hasAdditionalRight('extension', null, false, true))
+		{
+			$setItems[] = [
 				'id' => 'landing_bind',
 				'system' => true,
 				'text' => Loc::getMessage('LANDING_CONNECTOR_INTRANET_MENU_BIND_TITLE'),
 				'onclick' => 'BX.SidePanel.Instance.open(\'' . SITE_DIR . self::PATH_SERVICE_LIST .
-							 '?menuId=' . $bindCode . '\', {allowChangeHistory: false});'
-			],
-			[
-				'id' => 'landing_create',
-				'system' => true,
-				'text' => Loc::getMessage('LANDING_CONNECTOR_INTRANET_MENU_BIND_CREATE_TITLE'),
-				'onclick' => 'BX.SidePanel.Instance.open(\'' . SITE_DIR . self::PATH_SERVICE_LIST .
-							 '?menuId=' . $bindCode . '&create=Y\', {allowChangeHistory: false});'
-			]
-		];
+					'?menuId=' . $bindCode . '\', {allowChangeHistory: false});'
+			];
+			if (Rights::hasAdditionalRight('create', null, false, true))
+			{
+				$setItems[] = [
+					'id' => 'landing_create',
+					'system' => true,
+					'text' => Loc::getMessage('LANDING_CONNECTOR_INTRANET_MENU_BIND_CREATE_TITLE'),
+					'onclick' => 'BX.SidePanel.Instance.open(\'' . SITE_DIR . self::PATH_SERVICE_LIST .
+						'?menuId=' . $bindCode . '&create=Y\', {allowChangeHistory: false});'
+				];
+			}
+		}
+		return $setItems;
 	}
 
 	/**
@@ -116,7 +123,7 @@ class Intranet
 					$menuItems,
 					self::getMenuItemBind($bindingCode)
 				);
-				if (isset($bindings[$bindingCode]))
+				if (isset($bindings[$bindingCode]) && Rights::hasAdditionalRight('extension', null, false, true))
 				{
 					$menuItems[] = [
 						'id' => 'landing_unbind',

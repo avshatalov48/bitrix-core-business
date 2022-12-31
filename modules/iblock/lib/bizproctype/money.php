@@ -22,12 +22,15 @@ if (Loader::requireModule('bizproc'))
 			if(!$currentCurrency)
 				return intval($currentValue) ? $currentValue : '';
 
-			if(CurrencyManager::isCurrencyExist($currentCurrency))
+			if (
+				CurrencyManager::isCurrencyExist($currentCurrency)
+				&& filter_var($currentValue, FILTER_VALIDATE_INT|FILTER_VALIDATE_FLOAT) !== false
+			)
 			{
 				$format = \CCurrencyLang::getCurrencyFormat($currentCurrency);
 				$separators = \CCurrencyLang::getSeparators();
 				$thousandsSep = $separators[$format['THOUSANDS_VARIANT']];
-				$currentValue = number_format($currentValue, $format['DECIMALS'], $format['DEC_POINT'], $thousandsSep);
+				$currentValue = number_format((float)$currentValue, $format['DECIMALS'], $format['DEC_POINT'], $thousandsSep);
 				if($format['THOUSANDS_VARIANT'] == \CCurrencyLang::SEP_NBSPACE)
 					$currentValue = str_replace(' ', '&nbsp;', $currentValue);
 				return preg_replace('/(^|[^&])#/', '${1}'.$currentValue, $format['FORMAT_STRING']);

@@ -266,8 +266,6 @@
 .bx-im-fullscreen-closing .bx-desktop-placeholder { -webkit-animation: imFullscreenClose .2s 1; animation: imFullscreenClose .2s 1; }
 .bx-im-fullscreen-closing.bx-im-fullscreen-popup { -webkit-animation: imOpacityTo0 .3s 1; animation: imOpacityTo0 .3s 1;  }
 
-.bx-ie11 .bx-desktop-tab-counter { margin-left: 20px; }
-
 @-webkit-keyframes imFullscreenShow {0% { opacity: 0 } 20% { opacity: 0; }100% { opacity: 1;}}
 @keyframes imFullscreenShow {0% { opacity: 0 } 20% { opacity: 0; }100% { opacity: 1;}}
 

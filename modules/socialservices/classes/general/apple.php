@@ -251,7 +251,6 @@ class CSocServApple extends CSocServAuth
 			$url .= ((strpos($url, "?") === false) ? '?' : '&') . "current_fieldset=SOCSERV";
 		}
 		LocalRedirect($url);
-		die();
 	}
 
 	public function setUser($userId)

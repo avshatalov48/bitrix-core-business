@@ -8,6 +8,7 @@ use Bitrix\Im\Common;
 use Bitrix\Im\Model\AliasTable;
 use Bitrix\Im\Model\ConferenceUserRoleTable;
 use Bitrix\Im\Model\RelationTable;
+use Bitrix\Im\Settings;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DB\ArrayResult;
 use Bitrix\Main\Entity;
@@ -334,6 +335,16 @@ class Conference
 	{
 		$result = new Result();
 
+		if (!static::isEnvironmentConfigured())
+		{
+			return $result->addError(
+				new Error(
+					Loc::getMessage('IM_CALL_CONFERENCE_ERROR_ENVIRONMENT_CONFIG'),
+					'ENVIRONMENT_CONFIG_ERROR'
+				)
+			);
+		}
+
 		$validationResult = static::validateFields($fields);
 		if (!$validationResult->isSuccess())
 		{
@@ -343,7 +354,12 @@ class Conference
 
 		if (!isset($fields['ID']))
 		{
-			return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_ID_NOT_PROVIDED')));
+			return $result->addError(
+				new Error(
+					Loc::getMessage('IM_CALL_CONFERENCE_ERROR_ID_NOT_PROVIDED'),
+					'CONFERENCE_ID_EMPTY'
+				)
+			);
 		}
 
 		$updateData = $this->getChangedFields($updateData);
@@ -352,6 +368,11 @@ class Conference
 			return $result;
 		}
 		$updateData['ID'] = $fields['ID'];
+
+		if (!isset($fields['PASSWORD']))
+		{
+			unset($updateData['VIDEOCONF']['PASSWORD']);
+		}
 
 		global $USER;
 		$chat = new \CIMChat($USER->GetID());
@@ -363,7 +384,12 @@ class Conference
 
 			if (!$renameResult)
 			{
-				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_RENAMING_CHAT')));
+				return $result->addError(
+					new Error(
+						Loc::getMessage('IM_CALL_CONFERENCE_ERROR_RENAMING_CHAT'),
+						'CONFERENCE_RENAMING_ERROR'
+					)
+				);
 			}
 
 			$this->chatName = $updateData['TITLE'];
@@ -384,7 +410,12 @@ class Conference
 
 			if ($newUserCount > $userLimit)
 			{
-				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_MAX_USERS')));
+				return $result->addError(
+					new Error(
+						Loc::getMessage('IM_CALL_CONFERENCE_ERROR_MAX_USERS'),
+						'USER_LIMIT_ERROR'
+					)
+				);
 			}
 
 			foreach ($updateData['NEW_USERS'] as $newUser)
@@ -393,7 +424,12 @@ class Conference
 
 				if (!$addingResult)
 				{
-					return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_ADDING_USERS')));
+					return $result->addError(
+						new Error(
+							Loc::getMessage('IM_CALL_CONFERENCE_ERROR_ADDING_USERS'),
+							'ADDING_USER_ERROR'
+						)
+					);
 				}
 			}
 		}
@@ -407,7 +443,12 @@ class Conference
 
 				if (!$addingResult)
 				{
-					return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_DELETING_USERS')));
+					return $result->addError(
+						new Error(
+							Loc::getMessage('IM_CALL_CONFERENCE_ERROR_DELETING_USERS'),
+							'DELETING_USER_ERROR'
+						)
+					);
 				}
 			}
 		}
@@ -547,18 +588,18 @@ class Conference
 			$validatedFields['TITLE'] = $fields['TITLE'];
 		}
 
-		if (
-			isset($fields['PASSWORD'], $fields['PASSWORD_NEEDED'])
-			&& $fields['PASSWORD_NEEDED'] === true
-			&& is_string($fields['PASSWORD'])
-			&& $fields['PASSWORD'] !== ''
-		)
+		if (isset($fields['PASSWORD']) && is_string($fields['PASSWORD']) && $fields['PASSWORD'] !== '')
 		{
 			$fields['PASSWORD'] = trim($fields['PASSWORD']);
 
 			if (strlen($fields['PASSWORD']) < 3)
 			{
-				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_PASSWORD_LENGTH_NEW')));
+				return $result->addError(
+					new Error(
+						Loc::getMessage('IM_CALL_CONFERENCE_ERROR_PASSWORD_LENGTH_NEW'),
+						'PASSWORD_SHORT_ERROR'
+					)
+				);
 			}
 
 			$validatedFields['VIDEOCONF']['PASSWORD'] = $fields['PASSWORD'];
@@ -574,7 +615,12 @@ class Conference
 
 			if (strlen($fields['INVITATION']) > 255)
 			{
-				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_INVITATION_LENGTH')));
+				return $result->addError(
+					new Error(
+						Loc::getMessage('IM_CALL_CONFERENCE_ERROR_INVITATION_LENGTH'),
+						'INVITATION_LONG_ERROR'
+					)
+				);
 			}
 
 			$validatedFields['VIDEOCONF']['INVITATION'] = $fields['INVITATION'];
@@ -589,16 +635,26 @@ class Conference
 			}
 		}
 
-		if (isset($fields['BROADCAST_MODE']) && is_bool($fields['BROADCAST_MODE']) && $fields['BROADCAST_MODE'] === true)
+		if (isset($fields['BROADCAST_MODE']) && $fields['BROADCAST_MODE'] === true && Settings::isBroadcastingEnabled())
 		{
 			if (count($fields['PRESENTERS']) === 0)
 			{
-				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_NO_PRESENTERS')));
+				return $result->addError(
+					new Error(
+						Loc::getMessage('IM_CALL_CONFERENCE_ERROR_NO_PRESENTERS'),
+						'PRESENTERS_EMPTY_ERROR'
+					)
+				);
 			}
 
 			if (count($fields['PRESENTERS']) > self::PRESENTERS_LIMIT)
 			{
-				return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_TOO_MANY_PRESENTERS')));
+				return $result->addError(
+					new Error(
+						Loc::getMessage('IM_CALL_CONFERENCE_ERROR_TOO_MANY_PRESENTERS'),
+						'PRESENTERS_TOO_MANY_ERROR'
+					)
+				);
 			}
 
 			$validatedFields['VIDEOCONF']['IS_BROADCAST'] = 'Y';
@@ -616,7 +672,26 @@ class Conference
 
 		if (isset($fields['ALIAS_DATA']))
 		{
-			$validatedFields['VIDEOCONF']['ALIAS_DATA'] = $fields['ALIAS_DATA'];
+			if (static::isAliasCorrect($fields['ALIAS_DATA']))
+			{
+				$validatedFields['VIDEOCONF']['ALIAS_DATA'] = $fields['ALIAS_DATA'];
+			}
+			else
+			{
+				return $result->addError(
+					new Error(
+						Loc::getMessage('IM_CALL_CONFERENCE_ERROR_ALIAS'),
+						'WRONG_ALIAS_ERROR'
+					)
+				);
+			}
+		}
+		else
+		{
+			$validatedFields['VIDEOCONF']['ALIAS_DATA'] = Alias::addUnique([
+				"ENTITY_TYPE" => Alias::ENTITY_TYPE_VIDEOCONF,
+				"ENTITY_ID" => 0
+			]);
 		}
 
 		$result->setData(['FIELDS' => $validatedFields]);
@@ -627,6 +702,16 @@ class Conference
 	public static function add(array $fields = []): Result
 	{
 		$result = new Result();
+
+		if (!static::isEnvironmentConfigured())
+		{
+			return $result->addError(
+				new Error(
+					Loc::getMessage('IM_CALL_CONFERENCE_ERROR_ENVIRONMENT_CONFIG'),
+					'ENVIRONMENT_CONFIG_ERROR'
+				)
+			);
+		}
 
 		$validationResult = static::validateFields($fields);
 		if (!$validationResult->isSuccess())
@@ -654,7 +739,12 @@ class Conference
 
 		if (!$chatId)
 		{
-			return $result->addError(new Error(Loc::getMessage('IM_CALL_CONFERENCE_ERROR_CREATING')));
+			return $result->addError(
+				new Error(
+					Loc::getMessage('IM_CALL_CONFERENCE_ERROR_CREATING'),
+					'CREATION_ERROR'
+				)
+			);
 		}
 
 		$result->setData(['CHAT_ID' => $chatId, 'ALIAS_DATA' => $addData['VIDEOCONF']['ALIAS_DATA']]);
@@ -781,5 +871,19 @@ class Conference
 		);
 
 		return '\Bitrix\Im\Call\Conference::removeTemporaryAliases();';
+	}
+
+	private static function isAliasCorrect($aliasData): bool
+	{
+		return isset($aliasData['ID'], $aliasData['ALIAS']) && Alias::getByIdAndCode($aliasData['ID'], $aliasData['ALIAS']);
+	}
+
+	private static function isEnvironmentConfigured(): bool
+	{
+		return (
+			\Bitrix\Main\Loader::includeModule('pull')
+			&& \CPullOptions::GetPublishWebEnabled()
+			&& \Bitrix\Im\Call\Call::isCallServerEnabled()
+		);
 	}
 }

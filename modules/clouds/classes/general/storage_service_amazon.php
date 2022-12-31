@@ -198,9 +198,10 @@ class CCloudStorageService_AmazonS3 extends CCloudStorageService_S3
 	/**
 	 * @param array[string]string $arBucket
 	 * @param mixed $arFile
+	 * @param boolean $encoded
 	 * @return string
 	*/
-	function GetFileSRC($arBucket, $arFile)
+	function GetFileSRC($arBucket, $arFile, $encoded = true)
 	{
 		$proto = CMain::IsHTTPS()? "https": "http";
 
@@ -248,6 +249,13 @@ class CCloudStorageService_AmazonS3 extends CCloudStorageService_S3
 			$URI = $pref."/".$URI;
 		}
 
-		return $proto."://$host/".CCloudUtil::URLEncode($URI, "UTF-8", true);
+		if ($encoded)
+		{
+			return $proto."://$host/".CCloudUtil::URLEncode($URI, "UTF-8", true);
+		}
+		else
+		{
+			return $proto."://$host/".$URI;
+		}
 	}
 }

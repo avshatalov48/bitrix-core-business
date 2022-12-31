@@ -8,3 +8,4 @@ $MESS["DDCT_DEDUCTION_SHIPMENT_QUANTITY_NOT_ENOUGH"] = "The quantity of \"#PRODU
 $MESS["DDCT_DEDUCTION_STORE_EMPTY_ERROR"] = "Cannot ship #PRODUCT_NAME# (##PRODUCT_ID#) because it is not in stock at the warehouse(s)";
 $MESS["DDCT_DEDUCTION_STORE_ERROR"] = "No warehouse selected to ship product #PRODUCT_NAME# (##PRODUCT_ID#)";
 $MESS["SALE_PROVIDER_PRODUCT_NOT_AVAILABLE"] = "#PRODUCT_NAME# (##PRODUCT_ID#) is out of stock.";
+$MESS["SALE_PROVIDER_PRODUCT_SERVICE_NOT_AVAILABLE"] = "Service #PRODUCT_NAME# (##PRODUCT_ID#) is not available.";

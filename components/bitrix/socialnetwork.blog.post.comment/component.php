@@ -54,9 +54,9 @@ $arResult["bTasksAvailable"] = (
 );
 
 $arParams["ID"] = (
-	preg_match("/^[1-9][0-9]*\$/", trim($arParams['ID']))
-		? (int)$arParams['ID']
-		: preg_replace("/[^a-zA-Z0-9_-]/i", '', $arParams['~ID'])
+preg_match("/^[1-9][0-9]*\$/", trim($arParams['ID']))
+	? (int)$arParams['ID']
+	: preg_replace("/[^a-zA-Z0-9_-]/i", '', $arParams['~ID'])
 );
 
 $arParams["BLOG_URL"] = preg_replace("/[^a-zA-Z0-9_-]/i", "", $arParams["BLOG_URL"]);
@@ -74,13 +74,13 @@ foreach ($arParams["GROUP_ID"] as $k => $v)
 }
 
 $arParams["CACHE_TIME"] = (
-	$arParams["CACHE_TYPE"] === "Y"
-	|| (
-		$arParams["CACHE_TYPE"] === "A"
-		&& Option::get('main', 'component_cache_on', 'Y') === 'Y'
-	)
-		? (int)$arParams["CACHE_TIME"]
-		: 0
+$arParams["CACHE_TYPE"] === "Y"
+|| (
+	$arParams["CACHE_TYPE"] === "A"
+	&& Option::get('main', 'component_cache_on', 'Y') === 'Y'
+)
+	? (int)$arParams["CACHE_TIME"]
+	: 0
 );
 
 if ($arParams["BLOG_VAR"] == '')
@@ -109,9 +109,9 @@ if ($arParams["COMMENT_ID_VAR"] == '')
 }
 
 $pagen = (
-	(int)$_GET[$arParams["NAV_PAGE_VAR"]] > 0
-		? (int)$_REQUEST[$arParams["NAV_PAGE_VAR"]]
-		: 1
+(int)$_GET[$arParams["NAV_PAGE_VAR"]] > 0
+	? (int)$_REQUEST[$arParams["NAV_PAGE_VAR"]]
+	: 1
 );
 
 $arResult["TZ_OFFSET"] = CTimeZone::GetOffset();
@@ -119,17 +119,17 @@ $arResult["TZ_OFFSET"] = CTimeZone::GetOffset();
 if ((int)$_REQUEST["LAST_LOG_TS"] > 0)
 {
 	$timeZoneOffset = (
-		(
-			isset($_REQUEST['AJAX_CALL'])
-			&& $_REQUEST['AJAX_CALL'] === 'Y'
-		)
-		|| (
-			isset($_REQUEST['empty_get_comments'])
-			&& $_REQUEST['empty_get_comments'] === 'Y'
+	(
+		isset($_REQUEST['AJAX_CALL'])
+		&& $_REQUEST['AJAX_CALL'] === 'Y'
+	)
+	|| (
+		isset($_REQUEST['empty_get_comments'])
+		&& $_REQUEST['empty_get_comments'] === 'Y'
 
-		)
-			? $arResult["TZ_OFFSET"]
-			: 0
+	)
+		? $arResult["TZ_OFFSET"]
+		: 0
 	);
 
 	$arParams["LAST_LOG_TS"] = (int)$_REQUEST["LAST_LOG_TS"] + $timeZoneOffset; // next mobile livefeed page or get_empty_comments
@@ -336,9 +336,9 @@ if (
 else
 {
 	$arResult["PostPerm"] = (
-		(string)$arParams["POST_DATA"]["perms"] === ''
-			? CBlogPost::GetSocNetPostPerms($arParams["ID"])
-			: $arParams["POST_DATA"]["perms"]
+	(string)$arParams["POST_DATA"]["perms"] === ''
+		? CBlogPost::GetSocNetPostPerms($arParams["ID"])
+		: $arParams["POST_DATA"]["perms"]
 	);
 
 	if ($arResult["PostPerm"] > Permissions::DENY)
@@ -1133,7 +1133,7 @@ if (
 								$arPSR = CBlogPost::GetSocnetPerms($arPost["ID"]);
 								if (!empty($arPSR['SG']))
 								{
-									foreach ($arPSR['SG'] as $key => $arCodes)
+									foreach ($arPSR['SG'] as $arCodes)
 									{
 										$arPostCodes = array_merge($arPostCodes, $arCodes);
 									}
@@ -2203,9 +2203,9 @@ if (
 				else
 				{
 					$comment_date_create_ts = (
-						isset($v1["DATE_CREATE_TS"])
-							? ($v1["DATE_CREATE_TS"] + $arResult["TZ_OFFSET"])
-							: MakeTimeStamp($v1["DATE_CREATE"])
+					isset($v1["DATE_CREATE_TS"])
+						? ($v1["DATE_CREATE_TS"] + $arResult["TZ_OFFSET"])
+						: MakeTimeStamp($v1["DATE_CREATE"])
 					);
 
 					if (

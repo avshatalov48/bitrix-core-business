@@ -44,7 +44,7 @@
 					What is Tasks & projects?
 				</h4>
 				<div class="landing-block-faq-hidden g-pa-15 g-border-color" style="--border-color:var(--primary);">
-					Set tasks, receive work reports, and manage projects online with the ultimate “get things done” tool from Bitrix24.
+					Set tasks, receive work reports, and manage projects online with the ultimate 'get things done' tool from Bitrix24.
 				</div>
 			</div>
 		</div>

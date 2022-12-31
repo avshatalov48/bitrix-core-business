@@ -1446,25 +1446,25 @@ class CSiteCheckerTest
 		}
 
 		if (COption::GetOptionString("im", "turn_server_self") == 'Y')
-			$host = COption::GetOptionString("im", "turn_server");
-		else
-			$host = 'turn.calls.bitrix24.com';
-		$port = 40001;
-
-		if (!$res = $this->ConnectToHost($host, $port))
-			$res = $this->ConnectToHost('udp://'.$host, $port);
-
-		$strRes = "";
-		if ($res)
 		{
-			stream_set_timeout($res, 5);
-			fwrite($res, "\r\n");
-			$strRes = fgets($res, 1024);
-			fclose($res);
+			$host = COption::GetOptionString("im", "turn_server");
+		}
+		else
+		{
+			$host = 'turn.calls.bitrix24.com';
+		}
+		$port = 3478;
+
+		if (!($res = $this->ConnectToHost($host, $port)))
+		{
+			$res = $this->ConnectToHost('udp://'.$host, $port);
 		}
 
-		if (false !== strpos($strRes, "OK"))
+		if ($res)
+		{
+			fclose($res);
 			return $this->Result(true, GetMessage("MAIN_SC_AVAIL"));
+		}
 		return $this->Result(null, GetMessage("MAIN_SC_NOT_AVAIL"));
 	}
 

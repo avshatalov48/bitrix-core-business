@@ -3,6 +3,7 @@ import Entity from '../entity/entity';
 import TextNode from '../common/text-node';
 import Animation from '../common/animation';
 import TypeUtils from '../common/type-utils';
+import encodeUrl from '../common/encode-url';
 
 import type TagSelector from './tag-selector';
 import type { TagItemOptions } from './tag-item-options';
@@ -320,7 +321,7 @@ export default class TagItem
 		const bgImage = this.getAvatarOption('bgImage');
 		if (Type.isStringFilled(avatar))
 		{
-			Dom.style(this.getAvatarContainer(), 'background-image', `url('${avatar}')`);
+			Dom.style(this.getAvatarContainer(), 'background-image', `url('${encodeUrl(avatar)}')`);
 		}
 		else
 		{

@@ -142,8 +142,14 @@ if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bit
 
 		foreach($arTypes as $type)
 		{
-			if (!in_array($type['XML_ID'], $_REQUEST['denied_superpose_types']))
+			if (
+				isset($_REQUEST['denied_superpose_types'])
+				&& is_array($_REQUEST['denied_superpose_types'])
+				&& !in_array($type['XML_ID'], $_REQUEST['denied_superpose_types'])
+			)
+			{
 				$SET['denied_superpose_types'][] = $type['XML_ID'];
+			}
 		}
 
 		$CUR_SET = CCalendar::GetSettings(array('getDefaultForEmpty' => false));

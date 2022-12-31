@@ -85,7 +85,8 @@
 				postfix: this.postfix,
 				onChange: options.onChange,
 				onReset: options.onReset,
-				help: options.help
+				help: options.help,
+				attrKey: options.attrKey
 			}
 
 			if (options.type === "slider" || options.type === "range-slider")

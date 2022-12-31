@@ -90,13 +90,15 @@ if ($createStore)
 else
 {
 	$uriSelect = new Uri($arResult['CUR_URI']);
+	preg_match('/preview.bitrix24.site\/pub\/site\/(\d+)/i', $template['PREVIEW_URL'], $matches);
+	$previewId = $matches[1];
 	$uriSelect->addParams([
 		'action' => 'select',
 		'no_redirect' => ($request->get('no_redirect') === 'Y') ? 'Y' : 'N',
 		'param' => $template['DATA']['parent'] ?? $template['ID'],
 		'app_code' => $template['APP_CODE'],
 		'title' => $template['TITLE'],
-		'preview_url' => $template['PREVIEW_URL'],
+		'preview_id' => $previewId,
 		'sessid' => bitrix_sessid()
 	]);
 }
@@ -314,8 +316,9 @@ else
 		disableStoreRedirect: <?= ($arParams['DISABLE_REDIRECT'] === 'Y') ? 'true' : 'false' ?>,
 		zipInstallPath: '<?=$template['ZIP_ID'] ? Url::getConfigurationImportZipUrl($template['ZIP_ID']) : '' ?>',
 		siteId: <?= ($arParams['SITE_ID'] > 0) ? $arParams['SITE_ID'] : 0 ?>,
-		langId: "<?=is_string($arParams['LANG_ID']) ? $arParams['LANG_ID'] : ''?>",
-		adminSection: <?=$arParams['ADMIN_SECTION'] === 'Y' ? 'true' : 'false'?>,
+		langId: "<?= is_string($arParams['LANG_ID']) ? $arParams['LANG_ID'] : ''?>",
+		folderId: <?= ($arResult['FOLDER_ID'] && $arResult['FOLDER_ID'] > 0) ? $arResult['FOLDER_ID'] : 0 ?>,
+		adminSection: <?= $arParams['ADMIN_SECTION'] === 'Y' ? 'true' : 'false'?>,
 	});
 	var previewBlock = document.querySelector(".landing-template-preview-info");
 

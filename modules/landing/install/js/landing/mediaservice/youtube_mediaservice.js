@@ -11,9 +11,9 @@
 		BX.Landing.MediaService.BaseMediaService.apply(this, arguments);
 
 		this.matcher = BX.Landing.Utils.Matchers.youtube;
-		this.embedURL = "//www.youtube.com/embed/$4";
-		this.previewURL = "//img.youtube.com/vi/$4/sddefault.jpg";
-		this.idPlace = 4;
+		this.embedURL = "//www.youtube.com/embed/$6";
+		this.previewURL = "//img.youtube.com/vi/$6/sddefault.jpg";
+		this.idPlace = 6;
 		this.params = {
 			autoplay: 0,
 			controls: 1,
@@ -54,12 +54,13 @@
 						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_AUTOPLAY"),
 						description: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_AUTOPLAY_DESC_NEW"),
 						selector: "autoplay",
-						content: parseInt(settings.autoplay),
+						content: !this.isBgVideoMode ? parseInt(settings.autoplay) : 1,
 						items: [
 							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
 							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 0},
 						],
-						onChange: onAutoplayChange
+						onChange: !this.isBgVideoMode ? onAutoplayChange : () => {},
+						disabled: this.isBgVideoMode,
 					})
 				);
 
@@ -86,24 +87,25 @@
 				var muteField = new BX.Landing.UI.Field.Dropdown({
 					title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_SOUND"),
 					selector: "mute",
-					content: parseInt(settings.mute),
+					content: !this.isBgVideoMode ? parseInt(settings.mute) : 1,
 					items: [
 						{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 0},
 						{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 1}
-					]
+					],
+					disabled: this.isBgVideoMode,
 				});
 				this.form.addField(muteField);
-				onAutoplayChange(parseInt(settings.autoplay));
 
 				this.form.addField(
 					new BX.Landing.UI.Field.Dropdown({
 						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_CONTROLS"),
 						selector: "controls",
-						content: parseInt(settings.controls),
+						content: !this.isBgVideoMode ? parseInt(settings.controls) : 0,
 						items: [
 							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
 							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
-						]
+						],
+						disabled: this.isBgVideoMode,
 					})
 				);
 
@@ -111,11 +113,12 @@
 					new BX.Landing.UI.Field.Dropdown({
 						title: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_LOOP"),
 						selector: "loop",
-						content: parseInt(settings.loop),
+						content: !this.isBgVideoMode ? parseInt(settings.loop) : 1,
 						items: [
 							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_YES"), value: 1},
 							{name: BX.Landing.Loc.getMessage("LANDING_CONTENT_URL_MEDIA_NO"), value: 0}
-						]
+						],
+						disabled: this.isBgVideoMode,
 					})
 				);
 
@@ -127,6 +130,12 @@
 					placeholder: "40"
 				});
 				this.form.addField(start);
+
+				// first autoplay and mute init
+				if (!this.isBgVideoMode)
+				{
+					onAutoplayChange(parseInt(settings.autoplay));
+				}
 			}
 
 			return this.form;

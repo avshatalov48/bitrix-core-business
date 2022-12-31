@@ -7,7 +7,8 @@ define('DisableEventsCheck', true);
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
 use Bitrix\Catalog\StoreDocumentFileTable;
-use Bitrix\Main\Context;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
 
 if (!\Bitrix\Main\Loader::includeModule('catalog'))
 {
@@ -25,15 +26,22 @@ global $APPLICATION;
 $action = $_POST['ACTION'];
 if ($action === 'SAVE')
 {
-	$documentId = $_POST['ACTION_ENTITY_ID'];
-	$title = $_POST['TITLE'];
-	if (!$title)
+	$documentId = $_POST['ACTION_ENTITY_ID'] ?? null;
+	$title = $_POST['TITLE'] ?? null;
+	$responsibleId = $_POST['RESPONSIBLE_ID'] ?? null;
+	$fields = [];
+	if ($title)
+	{
+		$fields['TITLE'] = $title;
+	}
+	if ($responsibleId)
+	{
+		$fields['RESPONSIBLE_ID'] = $responsibleId;
+	}
+	if (empty($fields))
 	{
 		return;
 	}
-	$fields = [
-		'TITLE' => $title,
-	];
 	CCatalogDocs::update($documentId, $fields);
 }
 elseif ($action === 'GET_FORMATTED_SUM')
@@ -58,7 +66,7 @@ elseif ($action === 'GET_FORMATTED_SUM')
 }
 elseif($action === 'RENDER_IMAGE_INPUT')
 {
-	if (!\Bitrix\Main\Engine\CurrentUser::get()->canDoOperation('catalog_read'))
+	if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ))
 	{
 		return;
 	}
@@ -96,6 +104,12 @@ elseif($action === 'RENDER_IMAGE_INPUT')
 			),
 		);
 	}
+}
+
+$contractorsProvider = Bitrix\Catalog\v2\Contractor\Provider\Manager::getActiveProvider();
+if ($contractorsProvider)
+{
+	$contractorsProvider::processDocumentCardAjaxActions($action);
 }
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php');

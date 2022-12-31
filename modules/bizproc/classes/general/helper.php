@@ -866,18 +866,24 @@ class CBPHelper
 			$entity = $parameterDocumentId[0];
 		}
 
-		$moduleId = trim($moduleId);
-
-		if (!is_array($documentId))
+		if (is_scalar($moduleId))
+		{
+			$moduleId = trim($moduleId);
+		}
+		if (is_scalar($entity))
+		{
+			$entity = trim($entity);
+		}
+		if (is_scalar($documentId))
 		{
 			$documentId = trim($documentId);
 		}
+
 		if ($documentId === '')
 		{
 			throw new CBPArgumentNullException("documentId");
 		}
 
-		$entity = trim($entity);
 		if ($entity === '')
 		{
 			throw new CBPArgumentNullException("entity");

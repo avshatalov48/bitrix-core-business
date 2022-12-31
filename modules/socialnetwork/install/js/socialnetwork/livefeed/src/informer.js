@@ -62,33 +62,33 @@ class Informer
 
 		EventEmitter.subscribe('onPullEvent-main', (event: BaseEvent) =>
 		{
-			const [ command, params ] = event.getData();
+			const [ command, eventParams ] = event.getData();
 
 			if (
 				command !== 'user_counter'
-				|| !params[this.currentSiteId]
-				|| !params[this.currentSiteId][this.currentCounterType]
+				|| !eventParams[this.currentSiteId]
+				|| !eventParams[this.currentSiteId][this.currentCounterType]
 			)
 			{
 				return;
 			}
 
-			this.changeCounter(Runtime.clone(params[this.currentSiteId][this.currentCounterType]));
+			this.changeCounter(Runtime.clone(eventParams[this.currentSiteId][this.currentCounterType]));
 		});
 
 		EventEmitter.subscribe('onImUpdateCounter', (event: BaseEvent) =>
 		{
-			const [ arCount ] = event.getData();
+			const [ counterData ] = event.getData();
 
 			if (
-				!Type.isObjectLike(arCount)
-				|| Type.isUndefined(arCount[this.currentCounterType])
+				!Type.isObjectLike(counterData)
+				|| Type.isUndefined(counterData[this.currentCounterType])
 			)
 			{
 				return;
 			}
 
-			this.changeCounter(arCount[this.currentCounterType]);
+			this.changeCounter(counterData[this.currentCounterType]);
 		});
 
 		EventEmitter.subscribe('OnUCCommentWasRead', (event: BaseEvent) =>

@@ -25,7 +25,8 @@ Loc::loadMessages(__FILE__);
  */
 class BasketItem extends BasketItemBase
 {
-	const TYPE_SET = 1;
+	public const TYPE_SET = 1;
+	public const TYPE_SERVICE = 2;
 
 	/** @var BundleCollection */
 	private $bundleCollection = null;
@@ -56,10 +57,13 @@ class BasketItem extends BasketItemBase
 		}
 
 		$reserveCollection = $this->getReserveQuantityCollection();
-		$r = $reserveCollection->save();
-		if (!$r->isSuccess())
+		if ($reserveCollection)
 		{
-			return $result->addErrors($r->getErrors());
+			$r = $reserveCollection->save();
+			if (!$r->isSuccess())
+			{
+				return $result->addErrors($r->getErrors());
+			}
 		}
 
 		if ($this->isBundleParent())
@@ -321,11 +325,19 @@ class BasketItem extends BasketItemBase
 						&& $shipment->isShipped()
 					)
 					{
+						$messageCode = 'SALE_BASKET_ITEM_REMOVE_IMPOSSIBLE_BECAUSE_SHIPPED';
+						if ($this->isService())
+						{
+							$messageCode = 'SALE_BASKET_ITEM_REMOVE_IMPOSSIBLE_BECAUSE_SERVICE_SHIPPED';
+						}
+
 						$result->addError(
 							new ResultError(
 								Loc::getMessage(
-									'SALE_BASKET_ITEM_REMOVE_IMPOSSIBLE_BECAUSE_SHIPPED',
-									['#PRODUCT_NAME#' => $this->getField('NAME')]
+									$messageCode,
+									[
+										'#PRODUCT_NAME#' => $this->getField('NAME'),
+									]
 								),
 								'SALE_BASKET_ITEM_REMOVE_IMPOSSIBLE_BECAUSE_SHIPPED'
 							)
@@ -374,13 +386,18 @@ class BasketItem extends BasketItemBase
 			}
 		}
 
-		/** @var ReserveQuantity $reserve */
-		foreach ($this->getReserveQuantityCollection() as $reserve)
+		/** @var ReserveQuantityCollection $reserveQuantityCollection */
+		$reserveQuantityCollection = $this->getReserveQuantityCollection();
+		if ($reserveQuantityCollection)
 		{
-			$r = $reserve->delete();
-			if (!$r->isSuccess())
+			/** @var ReserveQuantity $reserve */
+			foreach ($reserveQuantityCollection as $reserve)
 			{
-				$result->addErrors($r->getErrors());
+				$r = $reserve->delete();
+				if (!$r->isSuccess())
+				{
+					$result->addErrors($r->getErrors());
+				}
 			}
 		}
 
@@ -388,7 +405,8 @@ class BasketItem extends BasketItemBase
 	}
 
 	/**
-	 * @return ReserveQuantityCollection
+	 * @return ReserveQuantityCollection|null
+	 *
 	 * @throws Main\ArgumentException
 	 * @throws Main\ArgumentTypeException
 	 * @throws Main\NotImplementedException
@@ -396,6 +414,11 @@ class BasketItem extends BasketItemBase
 	 */
 	public function getReserveQuantityCollection()
 	{
+		if (!$this->isReservableItem())
+		{
+			return null;
+		}
+
 		if ($this->reserveQuantityCollection === null)
 		{
 			$registry = Registry::getInstance(static::getRegistryType());
@@ -888,7 +911,10 @@ class BasketItem extends BasketItemBase
 		if ($isChanged === false)
 		{
 			$reserveCollection = $this->getReserveQuantityCollection();
-			$isChanged = $reserveCollection->isChanged();
+			if ($reserveCollection)
+			{
+				$isChanged = $reserveCollection->isChanged();
+			}
 		}
 
 		return $isChanged;
@@ -1143,7 +1169,13 @@ class BasketItem extends BasketItemBase
 	 */
 	public function getReservedQuantity()
 	{
-		return $this->getReserveQuantityCollection()->getQuantity();
+		$reserveQuantityCollection = $this->getReserveQuantityCollection();
+		return $reserveQuantityCollection ? $reserveQuantityCollection->getQuantity() : 0;
+	}
+
+	public function isReservableItem(): bool
+	{
+		return !$this->isBundleParent() && !$this->isService();
 	}
 
 	/**
@@ -1163,4 +1195,11 @@ class BasketItem extends BasketItemBase
 		return $quantity;
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function isService(): bool
+	{
+		return (int)$this->getField('TYPE') === static::TYPE_SERVICE;
+	}
 }

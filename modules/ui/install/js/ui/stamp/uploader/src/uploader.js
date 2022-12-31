@@ -1,6 +1,7 @@
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Type, Cache, Tag, Dom, Reflection, Loc} from 'main.core';
 import {Uploader as FileUploader, UploaderFile} from 'ui.uploader.core';
+import 'ui.dialogs.messagebox';
 import {Layout} from 'ui.sidepanel.layout';
 import {Button} from 'ui.buttons';
 import Header from './header/header';
@@ -56,12 +57,13 @@ export class Uploader extends EventEmitter
 			const previewLayout = this.getPreview().getLayout();
 			const fileSelectButtonLayout = this.getFileSelect().getLayout();
 			return new FileUploader({
-				acceptOnlyImages: true,
 				controller: this.getOptions().controller.upload,
+				assignAsFile: true,
 				browseElement: [
 					dropzoneLayout,
 					previewLayout,
 					fileSelectButtonLayout,
+					this.getHiddenInput(),
 				],
 				dropElement: [
 					dropzoneLayout,
@@ -70,21 +72,25 @@ export class Uploader extends EventEmitter
 				imagePreviewHeight: 556,
 				imagePreviewWidth: 1000,
 				autoUpload: false,
+				acceptedFileTypes: ['image/png', 'image/jpeg'],
 				events: {
 					'File:onAdd': (event: BaseEvent) => {
-						const {file} = event.getData();
+						const {file, error} = event.getData();
 
-						this.getPreview().show(URL.createObjectURL(file.clientPreview));
-						this.setUploaderFile(file);
-
-						if (this.getMode() === Uploader.Mode.SLIDER)
+						if (Type.isNil(error))
 						{
-							this.getSliderButtons().saveButton.setDisabled(false);
-						}
+							this.getPreview().show(file.getClientPreviewUrl());
+							this.setUploaderFile(file);
 
-						if (this.getMode() === Uploader.Mode.INLINE)
-						{
-							this.getInlineSaveButton().setDisabled(false);
+							if (this.getMode() === Uploader.Mode.SLIDER)
+							{
+								this.getSliderButtons().saveButton.setDisabled(false);
+							}
+
+							if (this.getMode() === Uploader.Mode.INLINE)
+							{
+								this.getInlineSaveButton().setDisabled(false);
+							}
 						}
 					},
 					'File:onUploadProgress': (event: BaseEvent) => {
@@ -94,6 +100,14 @@ export class Uploader extends EventEmitter
 							percent: progress,
 							size: (file.getSize() / 100) * progress,
 						});
+					},
+					'File:onError': function(event: BaseEvent) {
+						const {error} = event.getData();
+						const TopMessageBox = Reflection.getClass('top.BX.UI.Dialogs.MessageBox');
+						if (!Type.isNil(TopMessageBox))
+						{
+							TopMessageBox.alert(error.getMessage());
+						}
 					},
 				},
 			});
@@ -187,7 +201,7 @@ export class Uploader extends EventEmitter
 
 						return this.getDropzone();
 					})(),
-					this.getActionPanel(),
+					// this.getActionPanel(),
 					this.getStatus(),
 					this.getPreview(),
 				],
@@ -244,7 +258,17 @@ export class Uploader extends EventEmitter
 				
 						return '';
 					})()}
+					${this.getHiddenInput()}
 				</div>
+			`;
+		});
+	}
+
+	getHiddenInput(): HTMLInputElement
+	{
+		return this.cache.remember('hiddenInput', () => {
+			return Tag.render`
+				<input type="file" name="STAMP_UPLOADER_INPUT" hidden>
 			`;
 		});
 	}
@@ -266,7 +290,8 @@ export class Uploader extends EventEmitter
 				this.getPreview().hide();
 				this.getStatus().showUploadStatus({reset: true});
 				file.upload();
-				file.uploadController.subscribeOnce('onUpload', (event: BaseEvent) => {
+				const uploadController = Type.isFunction(file.getUploadController) ? file.getUploadController() : file.uploadController;
+				uploadController.subscribeOnce('onUpload', (event: BaseEvent) => {
 					resolve(event.getData().fileInfo);
 				});
 			}

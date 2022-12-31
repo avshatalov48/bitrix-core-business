@@ -25,6 +25,7 @@ export class TrackingGroupsForm extends TrackingUsersForm
 
 		this.groupTagSelector = new TagSelector({
 			dialogOptions: {
+				width: 320,
 				context: 'CALENDAR',
 				preselectedItems: this.trackingGroupIdList.map((id) => {
 					return ['project', id];
@@ -103,5 +104,24 @@ export class TrackingGroupsForm extends TrackingUsersForm
 					Util.displayError(response.errors);
 				}
 			);
+	}
+
+	getSelectedSections()
+	{
+		const sections = [];
+		this.superposedSections.forEach((section) => {
+			if (
+				this.interfaceType === 'groups'
+				&& section.type === 'group'
+				&& this.trackingGroupIdList
+				&& !this.trackingGroupIdList.includes(section.ownerId)
+			)
+			{
+				return;
+			}
+			sections.push(parseInt(section.id));
+		}, this);
+
+		return sections;
 	}
 }

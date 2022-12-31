@@ -14,7 +14,9 @@ $APPLICATION->IncludeComponent(
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => [
 			'STORE_ID' => (int)$request->get('storeId'),
+			'INCOMING_FILTER' => $request->getPost('filter') ?? [],
 			'BUILDER_CONTEXT' => \Bitrix\Catalog\Url\InventoryBuilder::TYPE_ID,
+			'OPENED_FROM_REPORT' => (bool)$request->getPost('openedFromReport'),
 		],
 		'USE_UI_TOOLBAR' => 'N',
 	]

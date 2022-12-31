@@ -37,6 +37,13 @@ type PullOptions = {
     skipCheckRevision?: boolean,
 };
 
+type JsonRpcRequest = {
+    jsonrpc?: string,
+    method: string,
+    params: string,
+    id: string
+}
+
 declare class PullCommandHandler {
     getModuleId(): string;
     getSubscriptionType(): SubscriptionType;

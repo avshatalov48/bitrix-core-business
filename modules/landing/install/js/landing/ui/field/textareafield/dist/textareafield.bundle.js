@@ -4,15 +4,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,landing_ui_field_basefield) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<textarea class=\"landing-ui-field-input\">", "</textarea>\n\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	var TextareaField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(TextareaField, _BaseField);
 
@@ -42,7 +34,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  babelHelpers.createClass(TextareaField, [{
 	    key: "createInput",
 	    value: function createInput() {
-	      return main_core.Tag.render(_templateObject(), this.content);
+	      return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<textarea class=\"landing-ui-field-input\">", "</textarea>\n\t\t"])), this.content);
 	    } // eslint-disable-next-line class-methods-use-this
 
 	  }, {

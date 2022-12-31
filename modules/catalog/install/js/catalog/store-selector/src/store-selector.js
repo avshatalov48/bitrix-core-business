@@ -21,6 +21,7 @@ export class StoreSelector extends EventEmitter
 	searchInput: ?StoreSearchInput;
 
 	#storeInfo: Map = new Map();
+	#model: ?ProductModel;
 
 	static getById(id: string): ?StoreSelector
 	{
@@ -39,22 +40,32 @@ export class StoreSelector extends EventEmitter
 
 		this.setMode(options.mode);
 
-		if (options.model instanceof ProductModel && options.model.getField(options.inputFieldId) > 0)
-		{
-			this.#storeInfo.set('id', options.model.getField(options.inputFieldId));
-			const name =
-				Type.isStringFilled(options.model.getField(options.inputFieldTitle))
-					? options.model.getField(options.inputFieldTitle)
-					: ''
-			;
+		const settingsCollection = Extension.getSettings('catalog.store-selector');
 
-			this.setProductId(options.model.getSkuId());
-			this.#storeInfo.set('title', name);
+		if (options.model instanceof ProductModel)
+		{
+			if (!options.model.isCatalogExisted())
+			{
+				this.#storeInfo.set('id', settingsCollection.get('defaultStoreId'));
+				this.#storeInfo.set('title', settingsCollection.get('defaultStoreName'));
+			}
+			else if (options.model.getField(options.inputFieldId) > 0)
+			{
+				this.#storeInfo.set('id', options.model.getField(options.inputFieldId));
+				const name =
+					Type.isStringFilled(options.model.getField(options.inputFieldTitle))
+						? options.model.getField(options.inputFieldTitle)
+						: ''
+				;
+
+				this.setProductId(options.model.getSkuId());
+				this.#storeInfo.set('title', name);
+			}
+
+			this.#model = options.model;
 		}
 		else
 		{
-			const settingsCollection = Extension.getSettings('catalog.store-selector');
-
 			this.#storeInfo.set('id', settingsCollection.get('defaultStoreId'));
 			this.#storeInfo.set('title', settingsCollection.get('defaultStoreName'));
 		}
@@ -62,6 +73,8 @@ export class StoreSelector extends EventEmitter
 		this.searchInput = new StoreSearchInput(this.id, {
 			selector: this,
 			inputName: this.options.inputFieldTitle,
+			allowCreateItem: this.options.allowCreateItem || settingsCollection.get('allowCreateItem'),
+			disableByRights: settingsCollection.get('disableByRights'),
 		});
 
 		// this.setDetailPath(this.getConfig('DETAIL_PATH'));

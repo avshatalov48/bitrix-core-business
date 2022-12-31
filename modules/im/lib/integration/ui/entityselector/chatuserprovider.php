@@ -7,6 +7,7 @@ use Bitrix\Im\Model\ChatTable;
 use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\User;
 use Bitrix\Main\Loader;
+use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Filter;
 use Bitrix\Main\ORM\Query\Join;
@@ -75,12 +76,11 @@ class ChatUserProvider extends ChatProvider
 		;
 		$query->registerRuntimeField(
 			'RELATION',
-			new Reference(
+			(new Reference(
 				'RELATION',
 				RelationTable::class,
 				Join::on('this.ID', 'ref.CHAT_ID'),
-				['join_type' => Join::TYPE_INNER]
-			)
+			))->configureJoinType(Join::TYPE_INNER)
 		);
 
 		$query->where('RELATION.USER_ID', User::getInstance()->getId());
@@ -95,17 +95,26 @@ class ChatUserProvider extends ChatProvider
 	{
 		$query = ChatTable::query();
 		$query->addSelect('ID');
+
 		$query->registerRuntimeField(
 			'RELATION',
-			new Reference(
+			(new Reference(
 				'RELATION',
 				RelationTable::class,
 				Join::on('this.ID', 'ref.CHAT_ID'),
-				['join_type' => Join::TYPE_INNER]
-			)
+			))->configureJoinType(Join::TYPE_INNER)
 		);
+
+		$query->registerRuntimeField(
+			'CHAT_SEARCH',
+			(new Reference(
+				'CHAT_SEARCH',
+				static::getDerivedTableEntity($chatTypeList, $searchQuery),
+				Join::on('this.ID', 'ref.CHAT_ID')
+			))->configureJoinType(Join::TYPE_INNER)
+		);
+
 		$query->where('RELATION.USER_ID', User::getInstance()->getId());
-		$query->whereIn('RELATION.CHAT_ID', static::getSubQuery($chatTypeList, $searchQuery));
 		$query->setOrder($order);
 		$query->setLimit(static::MAX_CHATS_IN_SAMPLE);
 
@@ -145,41 +154,46 @@ class ChatUserProvider extends ChatProvider
 		$filter->whereMatch('USER_INDEX.SEARCH_USER_CONTENT', $searchText);
 	}
 
-	private static function getSubQuery($chatTypeList, $searchQuery)
+	private static function getDerivedTableEntity(array $chatTypeList, string $searchQuery): Entity
 	{
-		$subQuery = RelationTable::query();
+		$derivedTableQuery = self::getDerivedTableQuery($chatTypeList, $searchQuery);
 
-		$subQuery->addSelect('CHAT_ID');
+		return Entity::getInstanceByQuery($derivedTableQuery);
+	}
 
-		$subQuery->registerRuntimeField(
+	private static function getDerivedTableQuery(array $chatTypeList, string $searchQuery): Query
+	{
+		$query = RelationTable::query();
+
+		$query->addSelect('CHAT_ID');
+
+		$query->registerRuntimeField(
 			'USER',
-			new Reference(
+			(new Reference(
 				'USER',
 				UserTable::class,
 				Join::on('this.USER_ID', 'ref.ID'),
-				['join_type' => Join::TYPE_INNER]
-			)
+			))->configureJoinType(Join::TYPE_INNER)
 		);
-		$subQuery->registerRuntimeField(
+		$query->registerRuntimeField(
 			'USER_INDEX',
-			new Reference(
+			(new Reference(
 				'USER_INDEX',
 				UserIndexTable::class,
 				Join::on('this.USER_ID', 'ref.USER_ID'),
-				['join_type' => Join::TYPE_INNER]
-			)
+			))->configureJoinType(Join::TYPE_INNER)
 		);
 
-		$subQuery->whereIn('MESSAGE_TYPE', $chatTypeList);
-		$subQuery->where('USER.IS_REAL_USER', 'Y');
+		$query->whereIn('MESSAGE_TYPE', $chatTypeList);
+		$query->where('USER.IS_REAL_USER', 'Y');
 
 		$matchFilter = Query::filter();
 		static::addFilterBySearchQuery($matchFilter, $searchQuery);
-		$subQuery->where($matchFilter);
+		$query->where($matchFilter);
 
-		$subQuery->addGroup('CHAT_ID');
+		$query->addGroup('CHAT_ID');
 
-		return $subQuery;
+		return $query;
 	}
 
 }

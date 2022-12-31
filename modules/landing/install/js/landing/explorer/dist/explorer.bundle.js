@@ -41,8 +41,12 @@ this.BX = this.BX || {};
 	    }
 	  }, {
 	    key: "getSiteList",
-	    value: function getSiteList(data, onClick) {
+	    value: function getSiteList(data, onClick, siteType) {
 	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<ul class=\"landing-site-selector-list\">\n\t\t\t\t", "\n\t\t\t</ul>\n\t\t"])), data.map(function (item) {
+	        if (siteType !== 'SMN' && item.TYPE !== siteType) {
+	          return;
+	        }
+
 	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t\t<li class=\"landing-site-selector-item\" data-explorer-depth=\"0\" data-explorer-siteId=\"", "\" onclick=\"", "\">\n\t\t\t\t\t\t\t<span class=\"ui-icon ui-icon-file-folder\"><i></i></span>\n\t\t\t\t\t\t\t<span class=\"landing-site-selector-item-value\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</li>\n\t\t\t\t\t"])), item.ID, function () {
 	          return onClick(item.ID);
 	        }, main_core.Text.encode(item.TITLE));
@@ -194,6 +198,7 @@ this.BX = this.BX || {};
 	            action = 'Site::moveFolder';
 	            data = {
 	              folderId: entityId,
+	              toSiteId: _this2.currentSiteId,
 	              toFolderId: _this2.currentFolderId
 	            };
 	            break;
@@ -209,9 +214,8 @@ this.BX = this.BX || {};
 	            window.location.reload();
 	          }, 500);
 	        })["catch"](function (reason) {
-	          _this2.errorAlert(reason.result);
+	          _this2.errorAlert(reason.result); //return Promise.reject(reason);
 
-	          return Promise.reject(reason);
 	        });
 	      }), ExplorerUI.getCancelButton(function () {
 	        _this2.popupWindow.close();
@@ -278,7 +282,7 @@ this.BX = this.BX || {};
 	  }, {
 	    type: this.type
 	  }).then(function (result) {
-	    _this4.popupWindow.setContent(ExplorerUI.getSiteList(result, _classPrivateMethodGet(_this4, _clickSite, _clickSite2).bind(_this4)));
+	    _this4.popupWindow.setContent(ExplorerUI.getSiteList(result, _classPrivateMethodGet(_this4, _clickSite, _clickSite2).bind(_this4), _this4.type));
 
 	    _this4.popupWindow.adjustPosition();
 

@@ -33,6 +33,7 @@ if ($arResult['IS_NEW_ORDER'])
 		'currency' => $scheme['currency'],
 		'discount' => $scheme['discount'],
 		'property' => $scheme['properties'],
+		'variant' => $scheme['variants'],
 		'paySystem' => $scheme['paySystems'],
 	];
 
@@ -66,6 +67,7 @@ else
 		'currency' => $scheme['currency'],
 		'discount' => $scheme['discount'],
 		'property' => $scheme['properties'],
+		'variant' => $scheme['variants'],
 		'hash' => $scheme['order']['hash'],
 		'accountNumber' => $scheme['order']['accountNumber'],
 		'paySystem' => $scheme['paySystems'],
@@ -102,29 +104,6 @@ $containerId = 'sale-order-checkout-form';
 
 			let form = new BX.Sale.Checkout.Application(<?= \Bitrix\Main\Web\Json::encode($options)?>);
 			document.getElementById('<?= $containerId ?>').appendChild(form.layout());
-
-			function isOverflown(element) {
-				return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
-			}
-
-			// let el = document.querySelectorAll('.checkout-item-price-block');
-			//
-			// for (var i = 0; i < el.length; i++)
-			// {
-			// 	let item = el[i];
-			// 	let fontSize = parseInt(item.style.fontSize);
-			// 	for (let i = fontSize; i >= 0; i--)
-			// 	{
-			// 		let overflow = isOverflown(item);
-			// 		if (overflow)
-			// 		{
-			// 			fontSize--;
-			// 			item.style.fontSize = fontSize + "px";
-			// 		}
-			// 		console.log('el:',item);
-			// 	}
-			// 	console.log('item:', item);
-			// }
 		});
 	</script>
 </div>

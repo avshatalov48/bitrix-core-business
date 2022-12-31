@@ -1,9 +1,9 @@
 import { Loc } from 'main.core';
-
-import { BitrixVue } from 'ui.vue';
 import { StackWidgetSize } from 'ui.uploader.stack-widget';
 
-export const StackDropArea = BitrixVue.localComponent('ui.uploader.stack-widget.stack-drop-area', {
+export const StackDropArea = {
+	name: 'StackDropArea',
+	inject: ['uploader', 'widgetOptions'],
 	data()
 	{
 		return {
@@ -12,11 +12,11 @@ export const StackDropArea = BitrixVue.localComponent('ui.uploader.stack-widget.
 	},
 	computed: {
 		StackWidgetSize: () => StackWidgetSize,
-		uploadFileTitle()
+		uploadFileTitle(): string
 		{
-			if (this.$root.acceptOnlyImages)
+			if (this.uploader.shouldAcceptOnlyImages())
 			{
-				if (this.$root.multiple)
+				if (this.uploader.isMultiple())
 				{
 					return Loc.getMessage('STACK_WIDGET_UPLOAD_IMAGES');
 				}
@@ -27,7 +27,7 @@ export const StackDropArea = BitrixVue.localComponent('ui.uploader.stack-widget.
 			}
 			else
 			{
-				if (this.$root.multiple)
+				if (this.uploader.isMultiple())
 				{
 					return Loc.getMessage('STACK_WIDGET_UPLOAD_FILES');
 				}
@@ -37,9 +37,9 @@ export const StackDropArea = BitrixVue.localComponent('ui.uploader.stack-widget.
 				}
 			}
 		},
-		dragFileHint()
+		dragFileHint(): string
 		{
-			if (this.$root.multiple)
+			if (this.uploader.isMultiple())
 			{
 				return Loc.getMessage('STACK_WIDGET_DRAG_FILES_HINT');
 			}
@@ -51,8 +51,8 @@ export const StackDropArea = BitrixVue.localComponent('ui.uploader.stack-widget.
 	},
 	mounted()
 	{
-		this.$root.getUploader().assignDropzone(this.$refs.container);
-		this.$root.getUploader().assignBrowse(this.$refs.container);
+		this.uploader.assignDropzone(this.$refs.container);
+		this.uploader.assignBrowse(this.$refs.container);
 	},
 	// language=Vue
 	template: `
@@ -67,14 +67,14 @@ export const StackDropArea = BitrixVue.localComponent('ui.uploader.stack-widget.
 			<div class="ui-uploader-stack-drop-area-content">
 				<div class="ui-uploader-stack-drop-area-icon"></div>
 				<div
-					v-if="[StackWidgetSize.LARGE, StackWidgetSize.MEDIUM].includes($root.widget.size)"
+					v-if="[StackWidgetSize.LARGE, StackWidgetSize.MEDIUM].includes(widgetOptions.size)"
 					class="ui-uploader-stack-drop-area-title"
 				>{{ uploadFileTitle }}</div>
 				<div
-					v-if="$root.widget.size === StackWidgetSize.LARGE"
+					v-if="widgetOptions.size === StackWidgetSize.LARGE"
 					class="ui-uploader-stack-drop-area-hint"
 				>{{ dragFileHint }}</div>
 			</div>
 		</div>
 	`,
-});
+};

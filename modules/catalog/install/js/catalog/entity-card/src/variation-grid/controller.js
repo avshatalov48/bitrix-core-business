@@ -1,5 +1,5 @@
 import {type BaseEvent, EventEmitter} from 'main.core.events';
-import {Dom, Reflection, Type} from 'main.core';
+import {Dom, Reflection, Type, Uri} from 'main.core';
 
 export default class VariationGridController extends BX.UI.EntityEditorController
 {
@@ -70,7 +70,6 @@ export default class VariationGridController extends BX.UI.EntityEditorControlle
 		super.rollback();
 		this.checkEditorToolbar();
 		this.unsubscribeGridEvents();
-
 		BX.Main.gridManager.destroy(this.getGridId());
 	}
 
@@ -130,7 +129,6 @@ export default class VariationGridController extends BX.UI.EntityEditorControlle
 		}
 
 		EventEmitter.unsubscribeAll('BX.Main.grid:paramsUpdated');
-		this.getGrid()?.destroy();
 	}
 
 	ajaxSuccessHandler(event: BaseEvent)
@@ -190,9 +188,31 @@ export default class VariationGridController extends BX.UI.EntityEditorControlle
 			return;
 		}
 
+		let url = eventArgs.url;
+		if (url)
+		{
+			const params = (new Uri(url)).getQueryParams();
+			url = new Uri(this.getReloadUrl());
+
+			if (params)
+			{
+				for (const key in params) {
+					if (Object.hasOwnProperty.call(params, key)) {
+						url.setQueryParam(key, params[key])
+					}
+				}
+			}
+
+			url = url.toString();
+		}
+		else
+		{
+			url = this.getReloadUrl();
+		}
+
 		eventArgs.sessid = BX.bitrix_sessid();
 		eventArgs.method = 'POST';
-		eventArgs.url = this.getReloadUrl();
+		eventArgs.url = url;
 		eventArgs.data = {
 			...eventArgs.data,
 			signedParameters: this.getSignedParameters()

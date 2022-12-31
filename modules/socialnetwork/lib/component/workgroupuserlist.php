@@ -6,6 +6,7 @@ use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Error;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\Helper;
+use Bitrix\Socialnetwork\Item\Workgroup\AccessManager;
 
 class WorkgroupUserList extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract\Controllerable, \Bitrix\Main\Errorable
 {
@@ -88,61 +89,47 @@ class WorkgroupUserList extends \CBitrixComponent implements \Bitrix\Main\Engine
 			self::AVAILABLE_ACTION_VIEW_PROFILE,
 		];
 
-		$relation = $params['RELATION'];
 		$groupId = (int)$params['GROUP_ID'];
+		$group = $params['GROUP'];
+		$currentUserRelation = $params['CURRENT_RELATION'];
+		$relation = $params['RELATION'];
 
-		if (Helper\Workgroup::canSetOwner([
-			'relation' => $relation,
-			'groupId' => $groupId,
-		]))
+		$accessManager = new AccessManager(
+			$group,
+			$relation,
+			$currentUserRelation,
+		);
+
+		if ($accessManager->canSetOwner())
 		{
 			$result[] = self::AVAILABLE_ACTION_SET_OWNER;
 		}
 
-		if (Helper\Workgroup::canSetScrumMaster([
-			'userId' => $relation->getUser()->getId(),
-			'groupId' => $groupId,
-		]))
+		if ($accessManager->canSetScrumMaster())
 		{
 			$result[] = self::AVAILABLE_ACTION_SET_SCRUM_MASTER;
 		}
 
-		if (Helper\Workgroup::canSetModerator([
-			'relation' => $relation,
-			'groupId' => $groupId,
-		]))
+		if ($accessManager->canSetModerator())
 		{
 			$result[] = self::AVAILABLE_ACTION_SET_MODERATOR;
 		}
-		elseif (Helper\Workgroup::canRemoveModerator([
-			'relation' => $relation,
-			'groupId' => $groupId,
-		]))
+		elseif ($accessManager->canRemoveModerator())
 		{
 			$result[] = self::AVAILABLE_ACTION_REMOVE_MODERATOR;
 		}
 
-		$canDeleteOutgoingRequest = Helper\Workgroup::canDeleteOutgoingRequest([
-			'relation' => $relation,
-			'groupId' => $groupId,
-		]);
-
-		if ($canDeleteOutgoingRequest)
+		$canDeleteOutgoingRequest = $accessManager->canDeleteOutgoingRequest();
+		if ($accessManager->canDeleteOutgoingRequest())
 		{
 			$result[] = self::AVAILABLE_ACTION_DELETE_OUTGOING_REQUEST;
 		}
-		elseif (Helper\Workgroup::canExclude([
-			'relation' => $relation,
-			'groupId' => $groupId,
-		]))
+		elseif ($accessManager->canExclude())
 		{
 			$result[] = self::AVAILABLE_ACTION_EXCLUDE;
 		}
 
-		if (Helper\Workgroup::canProcessIncomingRequest([
-			'relation' => $relation,
-			'groupId' => $groupId,
-		]))
+		if ($accessManager->canProcessIncomingRequest())
 		{
 			$result[] = self::AVAILABLE_ACTION_PROCESS_INCOMING_REQUEST;
 		}
@@ -156,10 +143,7 @@ class WorkgroupUserList extends \CBitrixComponent implements \Bitrix\Main\Engine
 			$result[] = self::AVAILABLE_ACTION_REINVITE;
 		}
 
-		if (Helper\Workgroup::canDeleteIncomingRequest([
-			'relation' => $relation,
-			'groupId' => $groupId,
-		]))
+		if ($accessManager->canDeleteIncomingRequest())
 		{
 			$result[] = self::AVAILABLE_ACTION_DELETE_INCOMING_REQUEST;
 		}

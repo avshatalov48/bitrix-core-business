@@ -287,7 +287,7 @@ class CBPRestActivity extends CBPActivity implements
 			return;
 
 		$this->WriteToTrackingService(
-			!empty($eventParameters['LOG_MESSAGE'])
+			!empty($eventParameters['LOG_MESSAGE']) && is_string($eventParameters['LOG_MESSAGE'])
 				? $eventParameters['LOG_MESSAGE']
 				: Loc::getMessage('BPRA_DEFAULT_LOG_MESSAGE')
 		);

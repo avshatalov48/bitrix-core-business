@@ -19,3 +19,5 @@ $MESS['DOCUMENT_CREATED_BY_NAME'] = 'Кем создан';
 $MESS['DOCUMENT_MODIFIED_BY_NAME'] = 'Кем изменён';
 $MESS['DOCUMENT_TYPE_A'] = 'Приход';
 $MESS['DOCUMENT_TYPE_S'] = 'Оприходование';
+$MESS['DOCUMENT_CONTRACTOR_CRM_COMPANY_ID_NAME'] = 'Поставщик: компания';
+$MESS['DOCUMENT_CONTRACTOR_CRM_CONTACT_ID_NAME'] = 'Поставщик: контакт';

@@ -34,7 +34,7 @@ class AccessController extends BaseAccessController
 
 		if (!$ruleName || !class_exists($ruleName))
 		{
-			throw new UnknownActionException('Unknown action '.$action);
+			throw new UnknownActionException($action);
 		}
 
 		$event    = $this->sendEvent(EventDictionary::EVENT_ON_BEFORE_CHECK, $action, null, $params);

@@ -1,6 +1,6 @@
 /**
  * Do not edit directly
- * Generated on Wed, 21 Sep 2022 12:05:39 GMT
+ * Generated on Fri, 11 Nov 2022 07:59:19 GMT
  */
 
 :root {
@@ -198,10 +198,12 @@
   --ui-font-family-system: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
   --ui-color-palette-beige-base: #fdfae1;
   --ui-color-palette-beige-base-rgb: 253, 250, 225;
-  --ui-color-palette-gray-03: #f8f9fa;
-  --ui-color-palette-gray-03-rgb: 248, 249, 250;
-  --ui-color-palette-gray-04: #f3f5f7;
-  --ui-color-palette-gray-04-rgb: 243, 245, 247;
+  --ui-color-palette-gray-02: #f8fafb;
+  --ui-color-palette-gray-02-rgb: 248, 250, 251;
+  --ui-color-palette-gray-03: #f5f7f8;
+  --ui-color-palette-gray-03-rgb: 245, 247, 248;
+  --ui-color-palette-gray-04: #f1f4f6;
+  --ui-color-palette-gray-04-rgb: 241, 244, 246;
   --ui-color-palette-gray-05: #eef2f4;
   --ui-color-palette-gray-05-rgb: 238, 242, 244;
   --ui-color-palette-gray-90: #525c69;
@@ -216,10 +218,14 @@
   --ui-color-palette-gray-50-rgb: 168, 173, 180;
   --ui-color-palette-gray-40: #bdc1c6;
   --ui-color-palette-gray-40-rgb: 189, 193, 198;
+  --ui-color-palette-gray-35: #c9ccd0;
+  --ui-color-palette-gray-35-rgb: 201, 204, 208;
   --ui-color-palette-gray-30: #d5d7db;
   --ui-color-palette-gray-30-rgb: 213, 215, 219;
   --ui-color-palette-gray-20: #dfe0e3;
   --ui-color-palette-gray-20-rgb: 223, 224, 227;
+  --ui-color-palette-gray-15: #e6e7e9;
+  --ui-color-palette-gray-15-rgb: 230, 231, 233;
   --ui-color-palette-gray-10: #edeef0;
   --ui-color-palette-gray-10-rgb: 237, 238, 240;
   --ui-color-palette-red-solid: #f0371b;
@@ -236,10 +242,14 @@
   --ui-color-palette-red-60-rgb: 244, 67, 62;
   --ui-color-palette-red-50: #ff5752;
   --ui-color-palette-red-50-rgb: 255, 87, 82;
+  --ui-color-palette-red-45: #ff7c78;
+  --ui-color-palette-red-45-rgb: 255, 124, 120;
   --ui-color-palette-red-40: #ff9a97;
   --ui-color-palette-red-40-rgb: 255, 154, 151;
   --ui-color-palette-red-30: #ffcdcc;
   --ui-color-palette-red-30-rgb: 255, 205, 204;
+  --ui-color-palette-red-25: #ffdcdb;
+  --ui-color-palette-red-25-rgb: 255, 220, 219;
   --ui-color-palette-red-20: #ffe8e8;
   --ui-color-palette-red-20-rgb: 255, 232, 232;
   --ui-color-palette-red-10: #fff8f8;
@@ -260,6 +270,8 @@
   --ui-color-palette-orange-40-rgb: 255, 195, 77;
   --ui-color-palette-orange-30: #ffe1a6;
   --ui-color-palette-orange-30-rgb: 255, 225, 166;
+  --ui-color-palette-orange-25: #ffe9be;
+  --ui-color-palette-orange-25-rgb: 255, 233, 190;
   --ui-color-palette-orange-20: #fff1d6;
   --ui-color-palette-orange-20-rgb: 255, 241, 214;
   --ui-color-palette-orange-10: #fffaf0;
@@ -274,34 +286,44 @@
   --ui-color-palette-green-70-rgb: 127, 168, 0;
   --ui-color-palette-green-60: #8dbb00;
   --ui-color-palette-green-60-rgb: 141, 187, 0;
+  --ui-color-palette-green-55: #9dcf00;
+  --ui-color-palette-green-55-rgb: 157, 207, 0;
   --ui-color-palette-green-50: #9dcf00;
   --ui-color-palette-green-50-rgb: 157, 207, 0;
   --ui-color-palette-green-40: #bbde4d;
   --ui-color-palette-green-40-rgb: 187, 222, 77;
+  --ui-color-palette-green-35: #cfe780;
+  --ui-color-palette-green-35-rgb: 207, 231, 128;
   --ui-color-palette-green-30: #e2f1b3;
   --ui-color-palette-green-30-rgb: 226, 241, 179;
+  --ui-color-palette-green-25: #faf6c3;
+  --ui-color-palette-green-25-rgb: 250, 246, 195;
   --ui-color-palette-green-20: #f1fbd0;
   --ui-color-palette-green-20-rgb: 241, 251, 208;
   --ui-color-palette-green-10: #fafded;
   --ui-color-palette-green-10-rgb: 250, 253, 237;
   --ui-color-palette-blue-95: #004f69;
   --ui-color-palette-blue-95-rgb: 0, 79, 105;
-  --ui-color-palette-blue-90: #006382;
-  --ui-color-palette-blue-90-rgb: 0, 99, 130;
-  --ui-color-palette-blue-80: #02779c;
-  --ui-color-palette-blue-80-rgb: 2, 119, 156;
-  --ui-color-palette-blue-70: #058cb7;
-  --ui-color-palette-blue-70-rgb: 5, 140, 183;
-  --ui-color-palette-blue-60: #1aa9d6;
-  --ui-color-palette-blue-60-rgb: 26, 169, 214;
+  --ui-color-palette-blue-90: #006484;
+  --ui-color-palette-blue-90-rgb: 0, 100, 132;
+  --ui-color-palette-blue-80: #00789e;
+  --ui-color-palette-blue-80-rgb: 0, 120, 158;
+  --ui-color-palette-blue-70: #008dba;
+  --ui-color-palette-blue-70-rgb: 0, 141, 186;
+  --ui-color-palette-blue-60: #11a9d9;
+  --ui-color-palette-blue-60-rgb: 17, 169, 217;
   --ui-color-palette-blue-50: #2fc6f6;
   --ui-color-palette-blue-50-rgb: 47, 198, 246;
-  --ui-color-palette-blue-40: #7edcf9;
-  --ui-color-palette-blue-40-rgb: 126, 220, 249;
-  --ui-color-palette-blue-30: #c1eefd;
-  --ui-color-palette-blue-30-rgb: 193, 238, 253;
+  --ui-color-palette-blue-40: #7fdefc;
+  --ui-color-palette-blue-40-rgb: 127, 222, 252;
+  --ui-color-palette-blue-30: #c3f0ff;
+  --ui-color-palette-blue-30-rgb: 195, 240, 255;
+  --ui-color-palette-blue-25: #d3f4ff;
+  --ui-color-palette-blue-25-rgb: 211, 244, 255;
   --ui-color-palette-blue-20: #e5f9ff;
   --ui-color-palette-blue-20-rgb: 229, 249, 255;
+  --ui-color-palette-blue-15: #ecfafe;
+  --ui-color-palette-blue-15-rgb: 236, 250, 254;
   --ui-color-palette-blue-10: #f4fcfe;
   --ui-color-palette-blue-10-rgb: 244, 252, 254;
   --ui-color-palette-white-base: #ffffff;
@@ -409,6 +431,8 @@
   --ui-color-base-04-rgb: var(--ui-color-palette-gray-04-rgb);
   --ui-color-base-03: var(--ui-color-palette-gray-03);
   --ui-color-base-03-rgb: var(--ui-color-palette-gray-03-rgb);
+  --ui-color-base-02: var(--ui-color-palette-gray-02);
+  --ui-color-base-02-rgb: var(--ui-color-palette-gray-02-rgb);
   --ui-color-base-90: var(--ui-color-palette-gray-90);
   --ui-color-base-90-rgb: var(--ui-color-palette-gray-90-rgb);
   --ui-color-base-80: var(--ui-color-palette-gray-80);
@@ -421,10 +445,14 @@
   --ui-color-base-50-rgb: var(--ui-color-palette-gray-50-rgb);
   --ui-color-base-40: var(--ui-color-palette-gray-40);
   --ui-color-base-40-rgb: var(--ui-color-palette-gray-40-rgb);
+  --ui-color-base-35: var(--ui-color-palette-gray-35);
+  --ui-color-base-35-rgb: var(--ui-color-palette-gray-35-rgb);
   --ui-color-base-30: var(--ui-color-palette-gray-30);
   --ui-color-base-30-rgb: var(--ui-color-palette-gray-30-rgb);
   --ui-color-base-20: var(--ui-color-palette-gray-20);
   --ui-color-base-20-rgb: var(--ui-color-palette-gray-20-rgb);
+  --ui-color-base-15: var(--ui-color-palette-gray-15);
+  --ui-color-base-15-rgb: var(--ui-color-palette-gray-15-rgb);
   --ui-color-base-10: var(--ui-color-palette-gray-10);
   --ui-color-base-10-rgb: var(--ui-color-palette-gray-10-rgb);
   --ui-color-background-note: var(--ui-color-palette-beige-base);

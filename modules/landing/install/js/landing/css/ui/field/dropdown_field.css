@@ -13,7 +13,7 @@
 	content: '';
 	width: 8px;
 	height: 8px;
-	right: 10px;
+	right: 7px;
 	top: 50%;
 	left: auto;
 	transform: translate3d(-50%, -50%, 0) rotate(135deg);

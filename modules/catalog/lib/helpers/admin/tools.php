@@ -3,6 +3,8 @@ namespace Bitrix\Catalog\Helpers\Admin;
 
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc,
+	Bitrix\Catalog\Access\ActionDictionary,
+	Bitrix\Catalog\Access\AccessController,
 	Bitrix\Catalog;
 
 Loc::loadMessages(__FILE__);
@@ -22,17 +24,20 @@ class Tools
 	 */
 	public static function getPriceTypeLinkList()
 	{
-		global $USER, $adminPage, $adminSidePanelHelper;
+		global $adminPage, $adminSidePanelHelper;
 
 		$selfFolderUrl = $adminPage->getSelfFolderUrl();
 
 		$result = array();
 		/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
-		if (!($USER->canDoOperation('catalog_read') || $USER->canDoOperation('catalog_group')))
+		if (!(AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ) || AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT)))
+		{
 			return $result;
+		}
+
 		/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
 		$priceTypeLinkTitle = Main\Text\HtmlFilter::encode(
-			$USER->canDoOperation('catalog_group')
+			AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT)
 			? Loc::getMessage('CATALOG_HELPERS_ADMIN_TOOLS_MESS_PRICE_TYPE_EDIT_TITLE')
 			: Loc::getMessage('CATALOG_HELPERS_ADMIN_TOOLS_MESS_PRICE_TYPE_VIEW_TITLE')
 		);

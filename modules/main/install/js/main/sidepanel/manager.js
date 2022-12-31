@@ -12,6 +12,7 @@
  * @property {boolean} [printable=true]
  * @property {boolean} [allowChangeHistory=true]
  * @property {boolean} [allowChangeTitle]
+ * @property {boolean} [hideControls=false]
  * @property {string} [requestMethod]
  * @property {object} [requestParams]
  * @property {string} [loader]
@@ -215,6 +216,15 @@ BX.SidePanel.Manager.prototype =
 			}
 
 			slider.setOffset(offset);
+
+			if (topSlider && topSlider.getCustomRightBoundary() !== null)
+			{
+				const rightBoundary = slider.calculateRightBoundary();
+				if (rightBoundary > topSlider.getCustomRightBoundary())
+				{
+					slider.setCustomRightBoundary(topSlider.getCustomRightBoundary());
+				}
+			}
 
 			BX.addCustomEvent(slider, "SidePanel.Slider:onOpenStart", this.handleSliderOpenStart);
 			BX.addCustomEvent(slider, "SidePanel.Slider:onBeforeOpenComplete", this.handleSliderOpenComplete);

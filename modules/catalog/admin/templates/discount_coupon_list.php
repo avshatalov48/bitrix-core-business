@@ -1,5 +1,8 @@
 <?
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 
@@ -56,8 +59,10 @@ $arFilter = array(
 	"DISCOUNT_ID" => $intDiscountID,
 );
 
-if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_discount')))
+if (!(AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ) || AccessController::getCurrent()->check(ActionDictionary::ACTION_PRODUCT_DISCOUNT_SET)))
+{
 	return '';
+}
 
 $boolCouponsReadOnly = (isset($boolCouponsReadOnly) && false === $boolCouponsReadOnly ? false : true);
 

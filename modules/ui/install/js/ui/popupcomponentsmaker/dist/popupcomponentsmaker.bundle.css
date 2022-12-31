@@ -187,6 +187,15 @@
 	padding: 0 11px;
 }
 
+.ui-qr-popupcomponentmaker__btn.--vertical {
+	padding: 17px 11px;
+	text-align: center;
+	font-size: var(--ui-font-size-3xs);
+	font-weight: normal;
+	border-radius: var(--ui-border-radius-sm);
+	border-color: rgba(var(--ui-color-primary-rgb), 0.4);;
+}
+
 .ui-popupcomponentmaker__btn.--disabled,
 .ui-qr-popupcomponentmaker__btn.--disabled {
 	opacity: 0.4;

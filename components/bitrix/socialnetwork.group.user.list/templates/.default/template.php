@@ -83,8 +83,8 @@ if ($arResult['GROUP_PERMS']['UserCanModifyGroup'])
 			'ENTITY_ID' => (int)$arParams['GROUP_ID'],
 			'GRID_ID' => $arResult['GRID_ID'],
 			'COUNTERS' => [
-				'workgroup_requests_out',
-				'workgroup_requests_in',
+				CounterDictionary::COUNTER_WORKGROUP_REQUESTS_OUT,
+				CounterDictionary::COUNTER_WORKGROUP_REQUESTS_IN,
 			],
 			'CURRENT_COUNTER' => $arResult['CURRENT_COUNTER'],
 			'ROLE' => $arResult['GROUP_PERMS']['UserRole'],

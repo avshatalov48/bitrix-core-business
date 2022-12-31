@@ -602,7 +602,6 @@
 }
 .bx-im-users-wrap .bx-messenger-cl-item-load { padding-top: 8px; padding-bottom: 8px; }
 .bx-im-users-wrap .bx-messenger-cl-item-load-text { display: none; }
-.bx-ie11 .bx-messenger-cl-item-load:before, .bx-ie11 .bx-messenger-cl-item-search:before { display: none; }
 
 .bx-messenger-cl-item-search {
 	margin-top: 15px;
@@ -3351,8 +3350,6 @@
 }
 .bx-messenger-connection-status-text-reload-hotkey { font-size: 11px; }
 .bx-messenger-connection-status-online .bx-messenger-connection-status-text-reload { display: none; }
-.bx-ie .bx-messenger-connection-status { position: absolute;}
-.bx-ie .bx-messenger-connection-status-wrap { min-width: 533px;}
 
 .bx-messenger-body-panel-title { background-color: #f8f8f9; border-bottom: 1px solid #e5e5e5; padding: 9px 14px 9px; }
 .bx-messenger-body-panel-title-name { font-size: 16px;  margin-top: -2px; }
@@ -3462,8 +3459,6 @@
 .bx-messenger-connection-status-show + .bx-messenger-editform-show .bx-messenger-editform-wrap { padding-top: 43px; }
 .bx-messenger-call .bx-messenger-connection-status-show + .bx-messenger-editform-show .bx-messenger-editform-wrap { padding-top: 90px; }
 .bx-messenger-call .bx-messenger-editform-wrap { padding-top: 60px; }
-.bx-ie .bx-messenger-editform { position: absolute;}
-.bx-ie .bx-messenger-editform-wrap { min-width: 533px;}
 
 .bx-messenger-smile { margin: -1px -4px -5px; text-align: center; }
 .bx-messenger-smile-gallery {
@@ -5296,12 +5291,27 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 	-webkit-transform: rotateY(180deg);
 	-moz-transform:rotateY(180deg);
 }
-.bx-messenger-settings-hardware-camera-image-button {
+.bx-messenger-settings-hardware-camera-image-button-block {
 	position: absolute;
 	right: 9px;
 	top: 9px;
 	z-index: 10;
-	display: flex;
+}
+.bx-messenger-settings-hardware-camera-image-button-mask {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(180deg, #AFECFF -0.69%, #E3F8FF 100.23%);
+	mix-blend-mode: normal;
+	height: 23px;
+	min-width: 16px;
+	padding: 0 6px;
+	margin-left: 5px;
+	border-radius: 11px;
+	cursor: pointer;
+}
+.bx-messenger-settings-hardware-camera-image-button-background {
+	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	background-color: #ffffff;
@@ -5312,6 +5322,7 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 	margin-left: 5px;
 	border-radius: 11px;
 	cursor: pointer;
+	vertical-align: top;
 }
 .bx-messenger-settings-level-meter-container {}
 .bx-messenger-settings-level-meter-mask {display: inline-block; height: 14px; width: 100%; background-color: #f2f5f6; border-radius: 3px; overflow: hidden;}
@@ -5475,12 +5486,6 @@ span.bx-notifier-popup-avatar-extranet { color:#ca7b00!important; }
 .bx-messenger-mic-test-buttons > button {padding: 5px; margin: 5px;}
 
 /* QUIRKS MODE */
-.bx-ie8 .bx-messenger-chat-guest .bx-messenger-content-item-like { display: none; }
-.bx-ie8 .bx-notifier-answer-progress {display:none;}
-.bx-ie8 .bx-messenger-mark .popup-window-button:after,
-.bx-ie8 .bx-messenger-mark .popup-window-button:before { content: normal!important; }
-.bx-ie8 .bx-messenger-cl-search-wrap .bx-messenger-input { position: absolute; margin-top: 17px; }
-.bx-ie8 .bx-messenger-cl-panel-status-wrap { float: left; }
 .bx-quirks .bx-messenger-box-contact { float: left; position:relative; display:none; }
 .bx-quirks .bx-messenger-box-dialog { float: right; margin: 0!important; padding-left: 254px; }
 .bx-quirks .bx-messenger-box-extra { float: right;}

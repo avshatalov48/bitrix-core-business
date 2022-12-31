@@ -22,7 +22,7 @@ BitrixVue.component('sale-checkout-view-successful-property_list', {
 		getPropertiesShort()
 		{
 			const properties = [];
-			
+
 			for (let propertyId in this.items)
 			{
 				if (Type.isStringFilled(this.items[propertyId].value))
@@ -30,7 +30,7 @@ BitrixVue.component('sale-checkout-view-successful-property_list', {
 					properties.push(this.items[propertyId].value);
 				}
 			}
-			
+
 			return properties.join(', ');
 		}
 	},

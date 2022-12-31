@@ -2,6 +2,9 @@
 
 namespace Bitrix\Catalog\Component;
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\Permission\PermissionDictionary;
 use Bitrix\Catalog\Config;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Catalog\ProductTable;
@@ -70,17 +73,27 @@ class StoreAmount
 	{
 		if (!isset($this->storesCount))
 		{
+			$filter = [
+				'=PRODUCT_ID' => $this->getVariationIds(),
+				[
+					'LOGIC' => 'OR',
+					'!=AMOUNT' => 0,
+					'!=QUANTITY_RESERVED' => 0,
+				],
+				'=STORE.ACTIVE' => 'Y',
+			];
+
+			$filter = array_merge(
+				$filter,
+				AccessController::getCurrent()->getEntityFilter(
+					ActionDictionary::ACTION_STORE_VIEW,
+					StoreProductTable::class
+				)
+			);
+
 			$this->storesCount = StoreProductTable::getList([
 				'select' => ['CNT'],
-				'filter' => [
-					'=PRODUCT_ID' => $this->getVariationIds(),
-					[
-						'LOGIC' => 'OR',
-						'!=AMOUNT' => 0,
-						'!=QUANTITY_RESERVED' => 0,
-					],
-					'=STORE.ACTIVE' => 'Y',
-				],
+				'filter' => $filter,
 				'runtime' => [
 					new \Bitrix\Main\Entity\ExpressionField('CNT', 'COUNT(DISTINCT(STORE_ID))')
 				],
@@ -98,13 +111,22 @@ class StoreAmount
 		$limit = $params['limit'] ?? null;
 
 		$variationIds = $this->getVariationIds();
+		$filter = [
+			'=PRODUCT_ID' => $variationIds,
+			'=STORE.ACTIVE' => 'Y',
+		];
+
+		$filter = array_merge(
+			$filter,
+			AccessController::getCurrent()->getEntityFilter(
+				ActionDictionary::ACTION_STORE_VIEW,
+				StoreProductTable::class
+			)
+		);
 
 		$storeProductData = StoreProductTable::getList([
 			'select' => ['SID_DISTINCT'],
-			'filter' => [
-				'=PRODUCT_ID' => $variationIds,
-				'=STORE.ACTIVE' => 'Y',
-			],
+			'filter' => $filter,
 			'runtime' => [
 				new \Bitrix\Main\Entity\ExpressionField('SID_DISTINCT', 'DISTINCT(STORE_ID)'),
 			],
@@ -214,20 +236,18 @@ class StoreAmount
 	{
 		if (count($storeIds) > 0)
 		{
-			$storesInfo = StoreTable::getList([
-				'select' => ['ID', 'TITLE'],
-				'filter' => [
-					'=ID' => $storeIds,
-					'ACTIVE' => 'Y',
-				],
-			])->fetchAll();
+			return StoreTable::getList([
+					'select' => ['ID', 'TITLE'],
+					'filter' => [
+						'=ID' => $storeIds,
+						'ACTIVE' => 'Y',
+					],
+				])
+				->fetchAll()
+			;
+		}
 
-			return $storesInfo;
-		}
-		else
-		{
-			return [];
-		}
+		return [];
 	}
 
 	protected function getVariationsData(array $variationIds): array
@@ -388,6 +408,19 @@ class StoreAmount
 	{
 		$products = [];
 
+		$filter = [
+			'=PRODUCT_ID' => $variationIds,
+			'=STORE.ACTIVE' => 'Y',
+		];
+
+		$filter = array_merge(
+			$filter,
+			AccessController::getCurrent()->getEntityFilter(
+				ActionDictionary::ACTION_STORE_VIEW,
+				StoreProductTable::class
+			)
+		);
+
 		$commonProductData = StoreProductTable::getList([
 			'select' => [
 				'PRODUCT_ID',
@@ -396,10 +429,7 @@ class StoreAmount
 				'CURRENCY' => 'PRODUCT.PURCHASING_CURRENCY',
 				'QUANTITY_COMMON',
 			],
-			'filter' => [
-				'=PRODUCT_ID' => $variationIds,
-				'=STORE.ACTIVE' => 'Y',
-			],
+			'filter' => $filter,
 			'group' => ['PRODUCT_ID'],
 			'runtime' => [
 				new Entity\ExpressionField('QUANTITY_COMMON', 'SUM(AMOUNT)'),

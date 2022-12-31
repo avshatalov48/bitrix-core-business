@@ -14,7 +14,7 @@ Loc::loadMessages(
  * @var StoreSalesCenterOrderDetails $classBlock
  */
 ?>
-<section class="landing-block">
+<section class="landing-block u-block-border-none">
 	<div class="container g-font-size-13">
 		<?php if (\Bitrix\Landing\Landing::getEditMode()): ?>
 

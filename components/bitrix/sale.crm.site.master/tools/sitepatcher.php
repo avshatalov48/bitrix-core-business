@@ -1483,12 +1483,4 @@ class SitePatcher
 
 		return true;
 	}
-
-	/**
-	 * @throws Main\ArgumentOutOfRangeException
-	 */
-	public static function crmShopEnable()
-	{
-		Option::set("crm", "crm_shop_enabled", "Y");
-	}
 }

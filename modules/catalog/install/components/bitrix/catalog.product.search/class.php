@@ -1,10 +1,12 @@
 <?php
 
+use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\ActionDictionary;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
@@ -198,8 +200,8 @@ class ProductSearchComponent extends \CBitrixComponent
 
 	public function executeComponent()
 	{
-		$this->checkAccess();
 		$this->loadModules();
+		$this->checkAccess();
 		$this->checkIblockAccess();
 
 		if (!empty($_REQUEST['action']) && $_REQUEST['action'] == 'open_section')
@@ -250,12 +252,13 @@ class ProductSearchComponent extends \CBitrixComponent
 
 	protected function checkAccess(): bool
 	{
-		global $USER, $APPLICATION;
+		global $APPLICATION;
 
 		if (!$this->checkPermissions)
 			return true;
 
-		if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_view')))
+		$accessController = AccessController::getCurrent();
+		if (!($accessController->check(ActionDictionary::ACTION_CATALOG_READ) || $accessController->check(ActionDictionary::ACTION_CATALOG_VIEW)))
 		{
 			$APPLICATION->AuthForm(Loc::getMessage('ACCESS_DENIED'));
 			return false;
@@ -1450,7 +1453,9 @@ class ProductSearchComponent extends \CBitrixComponent
 		);
 		//TODO: remove this hack for store docs after refactoring
 		if ($this->getCaller() == 'storeDocs')
-			$arFilter['!TYPE'] = Catalog\ProductTable::TYPE_SET;
+		{
+			$arFilter['!=TYPE'] = Catalog\ProductTable::getStoreDocumentRestrictedProductTypes();
+		}
 
 		if ($arFilter['ACTIVE'] == '*')
 			unset($arFilter['ACTIVE']);

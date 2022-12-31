@@ -312,39 +312,39 @@
 
 		addApiTokenListener: function(params)
 		{
-			window.addEventListener(
-				"message",
-				function(event)
-				{
-					if (event.origin == window.location.origin
-						|| event.origin == 'http://www.1c-bitrix.ru.smn'
-						|| event.origin == 'http://www.1c-bitrix.ru'
-					)
+				window.addEventListener(
+					"message",
+					function(event)
 					{
-						var tokenArea = BX("SALE_EBAY_SETTINGS_API_TOKEN"),
-							tokenExpInp = BX("SALE_EBAY_SETTINGS_API_TOKEN_EXP"),
-							data = JSON.parse(event.data);
-
-						if(!data.messageType || data.messageType != "API_TOKEN")
-							return;
-
-						if(tokenExpInp && data.API_TOKEN_EXP)
-							tokenExpInp.value = decodeURIComponent(data.API_TOKEN_EXP);
-
-						if(tokenArea && data.API_TOKEN)
+						if (event.origin == window.location.origin
+							|| event.origin == 'http://www.1c-bitrix.ru.smn'
+							|| event.origin == 'http://www.1c-bitrix.ru'
+						)
 						{
-							tokenArea.value = decodeURIComponent(data.API_TOKEN);
-							event.source.postMessage("MESSAGE_RECEIVED", event.origin);
-							alert(params.messageOk);
+							var tokenArea = BX("SALE_EBAY_SETTINGS_API_TOKEN"),
+								tokenExpInp = BX("SALE_EBAY_SETTINGS_API_TOKEN_EXP"),
+								data = JSON.parse(event.data);
+
+							if(!data.messageType || data.messageType != "API_TOKEN")
+								return;
+
+							if(tokenExpInp && data.API_TOKEN_EXP)
+								tokenExpInp.value = decodeURIComponent(data.API_TOKEN_EXP);
+
+							if(tokenArea && data.API_TOKEN)
+							{
+								tokenArea.value = decodeURIComponent(data.API_TOKEN);
+								event.source.postMessage("MESSAGE_RECEIVED", event.origin);
+								alert(params.messageOk);
+							}
+							else
+							{
+								alert(params.messageError);
+							}
 						}
-						else
-						{
-							alert(params.messageError);
-						}
-					}
-				},
-				false
-			);
+					},
+					false
+				);
 		}
 	};
 

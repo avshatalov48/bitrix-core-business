@@ -44,7 +44,7 @@ if (in_array($this->getPageName(), ['site_domain', 'site_domain_switch', 'site_c
 	return;
 }
 
-Loc::loadMessages(dirname(__FILE__) . '/template.php');
+Loc::loadMessages(__DIR__ . '/template.php');
 
 \Bitrix\Main\UI\Extension::load(['ajax', 'landing_master']);
 $disableFrame = $this->getPageName() == 'landing_view';
@@ -137,13 +137,9 @@ elseif (in_array($this->getPageName(), array('template', 'site_show')))
 	}
 	else if ($arResult['ACCESS_SITE_NEW'] == 'Y')
 	{
-		$title = Loc::getMessage('LANDING_TPL_ADD_SITE_' . $arParams['TYPE']);
+		$title = Loc::getMessage('LANDING_TPL_ADD_SITE_2');
 		$link = $arParams['PAGE_URL_SITE_EDIT'];
 		$link = str_replace('#site_edit#', 0, $link);
-		if (!$title)
-		{
-			$title = Loc::getMessage('LANDING_TPL_ADD_SITE');
-		}
 	}
 
 	$folderId = $request->get($arParams['ACTION_FOLDER']);

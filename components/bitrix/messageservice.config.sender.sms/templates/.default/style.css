@@ -102,7 +102,7 @@
 	position: relative;
 	padding: 28px 40px 17px;
 	border: 2px solid #3bc8f5;
-	border-radius: 4px;
+	border-radius: var(--ui-border-radius-md, 4px);
 	margin-bottom: 39px;
 }
 

@@ -203,7 +203,7 @@ class CSocServOdnoklassniki extends CSocServAuth
 
 		echo $JSScript;
 
-		die();
+		CMain::FinalActions();
 	}
 
 	public static function SendUserFeed($userId, $message)

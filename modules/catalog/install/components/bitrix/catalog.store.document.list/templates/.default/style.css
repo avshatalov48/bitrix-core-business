@@ -117,6 +117,12 @@
 	margin: 0 7px;
 }
 
+.add-document-button {
+	font-size: 14px;
+	font-weight: 600;
+	text-transform: none;
+}
+
 @media (min-width: 1500px) {
 	.ui-alert.catalog-store-document-list--alert {
 		margin: 0 auto;

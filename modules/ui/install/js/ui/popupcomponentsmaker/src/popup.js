@@ -1,12 +1,13 @@
-import { Type, Tag } from 'main.core';
-import { Popup } from 'main.popup';
+import {Type, Tag, Dom} from 'main.core';
+import {Popup} from 'main.popup';
 
 import PopupComponentsMakerItem from './popup.item';
 
 import 'ui.fonts.opensans';
 import 'ui.design-tokens';
+import './style.css';
 
-export class PopupComponentsMaker
+class PopupComponentsMaker
 {
 	constructor({ id, target, content, width, cacheable })
 	{
@@ -104,6 +105,15 @@ export class PopupComponentsMaker
 						? sectionNode.style.marginBottom = item.marginBottom + 'px'
 						: null;
 				}
+				if (item?.className)
+				{
+					Dom.addClass(sectionNode, item.className);
+				}
+
+				if (item?.attrs)
+				{
+					Dom.adjust(sectionNode, {attrs: item.attrs});
+				}
 
 				if (Type.isDomNode(item?.html))
 				{
@@ -198,3 +208,4 @@ export class PopupComponentsMaker
 		this.getPopup().close();
 	}
 }
+export {PopupComponentsMakerItem, PopupComponentsMaker};

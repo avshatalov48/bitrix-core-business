@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,main_core,landing_loc,landing_main,landing_ui_field_textfield,landing_ui_panel_iconpanel,landing_imageuploader,landing_ui_button_basebutton,landing_imageeditor) {
+(function (exports,main_core,landing_loc,landing_main,landing_ui_field_textfield,landing_imageuploader,landing_ui_button_basebutton,landing_imageeditor) {
 	'use strict';
 
 	var Image = /*#__PURE__*/function (_TextField) {
@@ -36,7 +36,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.fileInput.addEventListener("change", _this.onFileInputChange.bind(babelHelpers.assertThisInitialized(_this)));
 
 	    _this.linkInput = Image.createLinkInput();
-	    _this.linkInput.onInputHandler = _this.onLinkInput.bind(babelHelpers.assertThisInitialized(_this));
+	    _this.linkInput.onInputHandler = main_core.Runtime.debounce(_this.onLinkInput.bind(babelHelpers.assertThisInitialized(_this)), 777);
 	    _this.dropzone = Image.createDropzone(_this.selector);
 	    _this.dropzone.hidden = true;
 
@@ -174,33 +174,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      },
 	      contentRoot: _this.contentRoot
 	    });
-	    _this.urlCheckbox = main_core.Dom.create("input", {
-	      props: {
-	        type: "checkbox"
-	      },
-	      attrs: {
-	        style: "margin-left: 4px;"
-	      }
-	    });
+	    _this.isDisabledUrl = _this.content.url && _this.content.url.enabled === false;
 
-	    function onCheckboxChange(checkbox, layout) {
-	      if (checkbox.checked) {
-	        layout.querySelector(".landing-ui-field-link-right").classList.remove("landing-ui-disabled");
-	        layout.querySelector(".landing-ui-field-link-url-grid").classList.remove("landing-ui-disabled");
-	      } else {
-	        layout.querySelector(".landing-ui-field-link-right").classList.add("landing-ui-disabled");
-	        layout.querySelector(".landing-ui-field-link-url-grid").classList.add("landing-ui-disabled");
-	      }
+	    if (_this.isDisabledUrl) {
+	      _this.content.url.href = '';
 	    }
-
-	    _this.urlCheckbox.addEventListener('change', function () {
-	      onCheckboxChange(this.urlCheckbox, this.url.layout);
-	    }.bind(babelHelpers.assertThisInitialized(_this)));
-
-	    _this.urlCheckbox.checked = _this.content.url && _this.content.url.enabled;
-	    onCheckboxChange(_this.urlCheckbox, _this.url.layout);
-
-	    _this.url.hrefInput.header.appendChild(_this.urlCheckbox);
 
 	    _this.url.left.hidden = true;
 
@@ -225,7 +203,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        context: 'imageeditor'
 	      },
 	      dimensions: _this.dimensions,
-	      sizes: ['1x', '2x']
+	      sizes: ['1x', '2x'],
+	      allowSvg: landing_main.Main.getInstance().options.allow_svg === true
 	    });
 
 	    _this.adjustEditButtonState();
@@ -435,16 +414,19 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onLinkInput",
 	    value: function onLinkInput(value) {
+	      var _this2 = this;
+
 	      var tmpImage = main_core.Dom.create("img");
 	      tmpImage.src = value;
 
 	      tmpImage.onload = function () {
-	        this.showPreview();
-	        this.setValue({
+	        _this2.showPreview();
+
+	        _this2.setValue({
 	          src: value,
 	          src2x: value
 	        });
-	      }.bind(this);
+	      };
 	    }
 	  }, {
 	    key: "showLoader",
@@ -646,7 +628,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 
 	      value.url = Object.assign({}, this.url.getValue(), {
-	        enabled: this.urlCheckbox.checked
+	        enabled: true
 	      });
 	      return value;
 	    }
@@ -692,8 +674,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	      this.showLoader();
 	      var isPng = main_core.Type.isStringFilled(file.type) && file.type.includes('png');
+	      var isSvg = main_core.Type.isStringFilled(file.type) && file.type.includes('svg');
 	      var checkSize = new Promise(function (resolve) {
-	        var sizes = isPng ? ['2x'] : ['1x', '2x'];
+	        var sizes = isPng || isSvg ? ['2x'] : ['1x', '2x'];
 
 	        if (this.create2xByDefault === false) {
 	          var image = document.createElement('img');
@@ -704,7 +687,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            URL.revokeObjectURL(objectUrl);
 
 	            if ((this.width >= dimensions.width || this.height >= dimensions.height || this.width >= dimensions.maxWidth || this.height >= dimensions.maxHeight) === false) {
-	              sizes = isPng ? ['2x'] : ['1x'];
+	              sizes = isPng || isSvg ? ['2x'] : ['1x'];
 	            }
 
 	            resolve(sizes);
@@ -721,7 +704,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            return allowedSizes;
 	          }
 
-	          return isPng ? ['2x'] : ['1x', '2x'];
+	          return isPng || isSvg ? ['2x'] : ['1x', '2x'];
 	        }.bind(this)();
 
 	        return this.uploader.setSizes(sizes).upload(file, additionalParams).then(function (result) {
@@ -946,5 +929,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.Image = Image;
 
-}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Landing,BX.Landing,BX.Landing.UI.Field,BX.Landing.UI.Panel,BX.Landing,BX.Landing.UI.Button,BX.Landing));
+}((this.BX.Landing.UI.Field = this.BX.Landing.UI.Field || {}),BX,BX.Landing,BX.Landing,BX.Landing.UI.Field,BX.Landing,BX.Landing.UI.Button,BX.Landing));
 //# sourceMappingURL=image.bundle.js.map

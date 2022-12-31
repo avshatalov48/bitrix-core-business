@@ -54,6 +54,17 @@
 	color: #8f959e;
 }
 
+.calendar-active-status-node-carousel {
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.calendar-active-status-node-phrase {
+	display: inline-block;
+	transition: 300ms transform ease;
+	text-transform:	uppercase;
+}
+
 .calendar-sync-status-info {
 	padding: 5px 13px;
 	text-transform: uppercase;
@@ -425,7 +436,8 @@
 
 /* mobile slider */
 
-.calendar-sync-slider-section {
+.calendar-sync-slider-section,
+.calendar-sync-slider-section-warning {
 	background: #fff;
 	display: flex;
 	padding: 30px 20px 30px 25px;
@@ -433,14 +445,17 @@
 }
 
 .calendar-sync-slider-section-warning {
-	display: flex;
-	padding: 30px 20px 30px 25px;
-	border-radius: var(--ui-border-radius-md);
+	padding: 15px 20px;
 	margin-top: 12px;
+	margin-bottom: 20px;
 }
 
 .calendar-sync-button {
 	margin-top: 12px;
+}
+
+.calendar-sync-button-warning {
+	margin: 10px auto auto auto;
 }
 
 .calendar-sync-slider-section-banner {
@@ -460,10 +475,6 @@
 	margin-top: 10px;
 }
 
-.calendar-sync-slider-section:last-child {
-	margin-bottom: 50px;
-}
-
 .calendar-sync-qr-popup-content .calendar-sync-slider-section:last-child {
 	margin-bottom: 0;
 }
@@ -477,6 +488,10 @@
 
 .calendar-sync-slider-section .calendar-sync-qr-popup-title {
 	display: none;
+}
+
+.calendar-sync-slider-section-flex-wrap {
+	flex-wrap: wrap;
 }
 
 .calendar-sync-slider-desc {
@@ -503,6 +518,10 @@
 	color: #525c69;
 	font-size: 14px;
 	line-height: 20px;
+}
+
+span.calendar-sync-slider-info-text {
+	margin-right: 0.5ch;
 }
 
 .calendar-sync-slider-info + .calendar-sync-slider-info {
@@ -544,6 +563,10 @@
 	font-weight: var(--ui-font-weight-bold, 700);
 	text-align: center;
 	box-sizing: border-box;
+}
+
+.calendar-sync-slider-header {
+	max-width: 370px;
 }
 
 .calendar-sync-slider-header-divide .calendar-sync-slider-subtitle {
@@ -619,7 +642,7 @@
 	padding: 6px 0 0 0;
 	width: 100%;
 	box-sizing: border-box;
-	border-radius: 2px;
+	border-radius: 10px;
 	position: relative;
 }
 
@@ -636,6 +659,7 @@
 }
 
 .calendar-sync-slider-section .calendar-sync-qr-popup-content {
+	margin-top: 20px;
 	width: 100%;
 }
 
@@ -680,7 +704,7 @@
 }
 
 .calendar-sync-slider-instruction-title {
-	font: 15px/21px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font: 14px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-semi-bold, 600);
 	color: #333;
 	width: 115px;
@@ -688,10 +712,10 @@
 }
 
 .calendar-sync-slider-instruction-subtitle {
-	font: 14px/20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font: 15px/21px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-bold, 700);
 	color: #2fc6f6;
-	margin-bottom: 20px;
+	margin-bottom: 5px;
 }
 
 .calendar-sync-slider-instruction-notice {
@@ -700,6 +724,10 @@
 	color: #adadad;
 	margin-bottom: 60px;
 	position: relative;
+}
+
+.calendar-sync-slider-section.calendar-sync-slider-section-col {
+	padding-left: 0;
 }
 
 .calendar-sync-slider-instruction-notice:after {
@@ -827,6 +855,7 @@
 
 .calendar-sync-slider-info-link {
 	border-bottom: 1px dashed rgba(39, 107, 179, .4);
+	cursor: pointer;
 }
 
 .calendar-sync-slider-info-link:hover {
@@ -1077,7 +1106,7 @@
 
 .calendar-sync__content-link {
 	display: inline-block;
-	font: 12px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font: 14px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-regular, 400);
 	color: var(--graphite_alpha_80);
 	border-bottom: 1px dashed var(--graphite_alpha_60);
@@ -1349,9 +1378,9 @@
 	overflow: hidden;
 	width: 39px;
 	height: 39px;
-	background: url(../image/calendar-sync__icon-dotted.svg) center no-repeat;
-	opacity: .7;
-	transition: .2s;
+	background: url(/bitrix/js/ui/buttons/icons/images/ui-setting-black.svg?v=1.1) center no-repeat;
+	opacity: .5;
+	transition: .3s;
 }
 
 .calendar-sync__calendar-item.--error .calendar-sync__calendar-item--more,
@@ -1940,4 +1969,20 @@
 .calendar-sync__alert-popup--text > i {
 	display: inline-block;
 	margin-top: 7px;
+}
+
+.calendar-sync__auth-popup--icon-adjust-password {
+	opacity: .78;
+	transition: 250ms linear opacity;
+	animation: ui-ctl-show-icon 500ms 1;
+	cursor: pointer;
+	background: url(../image/calendar-sync__icon-password-show.svg) no-repeat center;
+}
+
+.ui-ctl-after-icon:hover .calendar-sync__auth-popup--icon-adjust-password {
+	opacity: 1;
+}
+
+.calendar-sync__auth-popup--icon-adjust-password.--hide {
+	background-image: url(../image/calendar-sync__icon-password-hide.svg);
 }

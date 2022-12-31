@@ -5,6 +5,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/ge
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\Internals\Counter;
 use Bitrix\Socialnetwork\Util;
+use Bitrix\Socialnetwork\Internals\EventService;
 
 class CSocNetUserToGroup extends CAllSocNetUserToGroup
 {
@@ -60,6 +61,12 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			{
 				ExecuteModuleEventEx($arEvent, array($ID, &$arFields));
 			}
+
+			EventService\Service::addEvent(EventService\EventDictionary::EVENT_WORKGROUP_USER_ADD, [
+				'GROUP_ID' => $arFields['GROUP_ID'],
+				'USER_ID' => $arFields['USER_ID'],
+				'ROLE' => $arFields['ROLE'],
+			]);
 
 			if (
 				$arFields['INITIATED_BY_TYPE'] === SONET_INITIATED_BY_GROUP
@@ -152,6 +159,11 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			{
 				ExecuteModuleEventEx($arEvent, array($ID, $arFields, $arUser2GroupOld));
 			}
+
+			EventService\Service::addEvent(EventService\EventDictionary::EVENT_WORKGROUP_USER_UPDATE, [
+				'GROUP_ID' => $arUser2GroupOld['GROUP_ID'],
+				'USER_ID' => $arUser2GroupOld['USER_ID'],
+			]);
 
 			if (array_key_exists($arUser2GroupOld["USER_ID"]."_".$arUser2GroupOld["GROUP_ID"], self::$roleCache))
 			{

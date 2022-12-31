@@ -14,4 +14,5 @@ export type ProductOption = {
 	storeMap: {},
 	skuTree: {},
 	imageInfo: {},
+	productType?: number,
 }

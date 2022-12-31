@@ -214,10 +214,10 @@ this.BX = this.BX || {};
 	        }
 	      }
 
-	      if (currentFormat['DECIMALS'] > 0) {
-	        decPointPosition = formatValue.match(new RegExp('[' + currentFormat['DEC_POINT'] + ']'));
-	        decPointPosition = decPointPosition === null ? formatValue.length : decPointPosition.index;
+	      decPointPosition = formatValue.match(new RegExp('[' + currentFormat['DEC_POINT'] + ']'));
+	      decPointPosition = decPointPosition === null ? formatValue.length : decPointPosition.index;
 
+	      if (currentFormat['DECIMALS'] > 0) {
 	        while (formatValue.length - 1 - decPointPosition > currentFormat['DECIMALS']) {
 	          if (valueLength >= formatValue.length - 1) {
 	            valueLength--;
@@ -225,6 +225,8 @@ this.BX = this.BX || {};
 
 	          formatValue = formatValue.substr(0, formatValue.length - 1);
 	        }
+	      } else {
+	        formatValue = formatValue.substr(0, decPointPosition);
 	      }
 
 	      return formatValue;

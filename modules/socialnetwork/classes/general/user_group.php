@@ -12,6 +12,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\Internals\Counter;
+use Bitrix\Socialnetwork\Internals\EventService;
 
 Loc::loadMessages(__FILE__);
 
@@ -211,6 +212,11 @@ class CAllSocNetUserToGroup
 		{
 			ExecuteModuleEventEx($eventFields, [ $id, $relationFields ]);
 		}
+
+		EventService\Service::addEvent(EventService\EventDictionary::EVENT_WORKGROUP_USER_DELETE, [
+			'GROUP_ID' => $relationFields['GROUP_ID'],
+			'USER_ID' => $relationFields['USER_ID'],
+		]);
 
 		if (Loader::includeModule('im'))
 		{

@@ -711,7 +711,8 @@
 
 			return BX.util.array_values(baseValue);
 		}
-		else if (baseValue > 0)
+
+		if (baseValue > 0)
 		{
 			var deletedFieldName = field + '_del';
 
@@ -728,6 +729,8 @@
 
 			return baseValue;
 		}
+
+		return null;
 	};
 
 

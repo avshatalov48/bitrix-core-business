@@ -50,6 +50,10 @@ BX.rest.Marketplace = (function(){
 			BX.delegate(
 				function (result)
 				{
+					var isDoNothing = (
+						params.hasOwnProperty('DO_NOTHING')
+						&& (params['DO_NOTHING'] === 'Y' || params['DO_NOTHING'] === true)
+					);
 					if (!!result.error)
 					{
 						if (!!result.helperCode && result.helperCode !== '')
@@ -76,11 +80,11 @@ BX.rest.Marketplace = (function(){
 							);
 						}
 					}
-					else if (!!result.redirect && params['REDIRECT_PRIORITY'] === true)
+					else if (!isDoNothing && !!result.redirect && params['REDIRECT_PRIORITY'] === true)
 					{
 						top.location.href = result.redirect;
 					}
-					else if (!params.IFRAME)
+					else if (!isDoNothing && !params.IFRAME)
 					{
 						if (!!result.redirect)
 						{
@@ -112,17 +116,20 @@ BX.rest.Marketplace = (function(){
 							);
 						}
 
-						if (!!result.open)
+						if (!isDoNothing)
 						{
-							BX.SidePanel.Instance.reload();
-							top.BX.rest.AppLayout.openApplication(
-								result.id,
-								{}
-							);
-						}
-						else
-						{
-							BX.SidePanel.Instance.reload();
+							if (!!result.open)
+							{
+								BX.SidePanel.Instance.reload();
+								top.BX.rest.AppLayout.openApplication(
+									result.id,
+									{}
+								);
+							}
+							else
+							{
+								BX.SidePanel.Instance.reload();
+							}
 						}
 					}
 				},

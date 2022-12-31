@@ -9,3 +9,4 @@ $MESS['LANDING_CMP_PAR_BINDING_TYPE'] = 'Тип привязки';
 $MESS['LANDING_CMP_PAR_BINDING_TYPE_GROUP'] = 'Группа';
 $MESS['LANDING_CMP_PAR_BINDING_TYPE_MENU'] = 'Меню';
 $MESS['LANDING_CMP_PAR_BINDING_ID'] = 'Идентификатор привязки';
+$MESS['LANDING_CMP_PAR_SKIP_REMOTE'] = 'Не загружать шаблоны из Битрикс24.Маркет';

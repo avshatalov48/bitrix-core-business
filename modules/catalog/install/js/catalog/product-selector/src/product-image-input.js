@@ -56,11 +56,12 @@ export class ProductImageInput
 `		;
 
 		this.selector.getModel()?.getImageCollection().setEditInput(defaultInput);
+		this.selector.getModel()?.getImageCollection().setPreview(defaultInput);
 	}
 
 	isViewMode(): boolean
 	{
-		return this.selector && this.selector.isViewMode();
+		return this.selector && (this.selector.isViewMode() || !this.selector.model.isSaveable());
 	}
 
 	isEnabledLiveSaving(): boolean

@@ -79,7 +79,7 @@ export default class AuxiliarySyncPanel
 	{
 		return this.cache.remember('calendar-syncPanel-mainHeader', () => {
 			return Tag.render`
-				<span class="calendar-sync-header-text">${Loc.getMessage('SYNC_CALENDAR_HEADER')}</span>
+				<span class="calendar-sync-header-text">${Loc.getMessage('SYNC_CALENDAR_HEADER_NEW')}</span>
 			`;
 		});
 	}

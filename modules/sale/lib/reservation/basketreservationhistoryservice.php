@@ -23,7 +23,7 @@ class BasketReservationHistoryService
 	{
 		Loader::includeModule('catalog');
 	}
-	
+
 	/**
 	 * Rounding to the required accuracy within the service
 	 *
@@ -35,7 +35,7 @@ class BasketReservationHistoryService
 		$precision = 6;
 		return round($quantity, $precision, PHP_ROUND_HALF_DOWN);
 	}
-	
+
 	/**
 	 * Total reserved quantity by reservation history
 	 *
@@ -45,7 +45,7 @@ class BasketReservationHistoryService
 	public function getQuantityByReservation(int $reservationId): float
 	{
 		$total = 0.0;
-		
+
 		$rows = BasketReservationHistoryTable::getList([
 			'select' => [
 				'QUANTITY',
@@ -58,39 +58,38 @@ class BasketReservationHistoryService
 		{
 			$total += (float)$row['QUANTITY'];
 		}
-		
+
 		return $total;
 	}
-	
+
 	/**
 	 * The available amount to be debited based on the reservation history.
-	 * 
+	 *
 	 * @see example in `getAvailableCountForBasketItem` method
 	 *
-	 * @param int $orderId
+	 * @param array $basketItemFilter filter for `BasketTable` tablet.
+	 *
 	 * @return array in format `$ret[$productId][$storeId]; // avaiableQuantity`
 	 */
-	public function getAvailableCountForOrder(int $orderId): array
-	{		
+	public function getAvailableCountForBasketItems(array $basketItemFilter): array
+	{
 		$basketItems =
 			BasketTable::getList([
 				'select' => [
 					'ID',
 					'PRODUCT_ID',
 				],
-				'filter' => [
-					'=ORDER_ID' => $orderId,
-				],
+				'filter' => $basketItemFilter,
 			])
 			->fetchAll()
 		;
-		
+
 		$basket2productIds = array_column($basketItems, 'PRODUCT_ID', 'ID');
 		if (empty($basket2productIds))
 		{
 			return [];
 		}
-		
+
 		$calculator = new AvailableQuantityCalculator();
 
 		$rows = StoreProductTable::getList([
@@ -107,7 +106,7 @@ class BasketReservationHistoryService
 		{
 			$calculator->setStoreQuantity($row['STORE_ID'], $row['PRODUCT_ID'], $row['AMOUNT']);
 		}
-		
+
 		$reservationsRows = BasketReservationHistoryTable::getList([
 			'select' => [
 				'RESERVATION_ID',
@@ -123,7 +122,7 @@ class BasketReservationHistoryService
 				'DATE_RESERVE' => 'ASC',
 			],
 		]);
-		
+
 		foreach ($reservationsRows as $row)
 		{
 			$calculator->addReservationHistory(
@@ -133,26 +132,41 @@ class BasketReservationHistoryService
 				$row['QUANTITY']
 			);
 		}
-		
+
 		return $calculator->getQuantityForBatch($basket2productIds);
 	}
-	
+
 	/**
 	 * The available amount to be debited based on the reservation history.
-	 * 
+	 *
+	 * @see example in `getAvailableCountForBasketItem` method
+	 *
+	 * @param int $orderId
+	 * @return array in format `$ret[$productId][$storeId]; // avaiableQuantity`
+	 */
+	public function getAvailableCountForOrder(int $orderId): array
+	{
+		return $this->getAvailableCountForBasketItems([
+			'=ORDER_ID' => $orderId,
+		]);
+	}
+
+	/**
+	 * The available amount to be debited based on the reservation history.
+	 *
 	 * Example 1, there are 100pcs of product A in stock, then:
 	 * 1. Deal #1 - 80pcs reserved;
 	 * 2. Deal #2 - 40pcs reserved;
 	 * 3. Deal #1 - the reserve has been changed from 80pcs to 90pcs - in this situation,
 	 * another record with a reserve of 10pcs is added to the history.
-	 * 
+	 *
 	 * Thus, deal #1 can write off only 80pcs (because 10pcs were reserved after deal #2),
 	 * and deal #2 only 20pcs (because they were reserved after deal #1).
 	 *
 	 * Example 2, there are 100pcs of product A in stock, then:
 	 * 1. Deal #1 - 40pcs reserved;
 	 * 2. Deal #2 - 50pcs reserved;
-	 * 
+	 *
 	 * Thus, deal #1 can write off 50pcs (40 reserved + 10 non-reserved store balance),
 	 * and deal #2 60pcs (50 reserved + 10 non-reserved store balance).
 	 *
@@ -174,7 +188,7 @@ class BasketReservationHistoryService
 		{
 			return 0.0;
 		}
-		
+
 		$productId = (int)$basketItem['PRODUCT_ID'];
 		$storeQuantityRow = StoreProductTable::getRow([
 			'select' => [
@@ -189,10 +203,10 @@ class BasketReservationHistoryService
 		{
 			return 0.0;
 		}
-		
+
 		$calculator = new AvailableQuantityCalculator();
 		$calculator->setStoreQuantity($storeId, $productId, $storeQuantityRow['AMOUNT']);
-		
+
 		$reservationsRows = BasketReservationHistoryTable::getList([
 			'select' => [
 				'RESERVATION_ID',
@@ -216,21 +230,21 @@ class BasketReservationHistoryService
 				$row['QUANTITY']
 			);
 		}
-		
+
 		return $calculator->getQuantityForItem($productId, $basketId, $storeId);
 	}
-	
+
 	/**
 	 * Add history row
 	 *
-	 * @param array $fields 
+	 * @param array $fields
 	 * @return Result
 	 */
 	public function add(array $fields): Result
 	{
 		return BasketReservationHistoryTable::add($fields);
 	}
-	
+
 	/**
 	 * Add quantity to reservations history.
 	 *
@@ -246,7 +260,7 @@ class BasketReservationHistoryService
 			'QUANTITY' => $quantity,
 		]);
 	}
-	
+
 	/**
 	 * Add history row by reservation
 	 *
@@ -260,10 +274,10 @@ class BasketReservationHistoryService
 		{
 			throw new Exception('Reservation not found');
 		}
-		
+
 		return $this->addQuantity($reservationId, (float)$reservation['QUANTITY']);
 	}
-	
+
 	/**
 	 * Update history row
 	 *
@@ -275,7 +289,7 @@ class BasketReservationHistoryService
 	{
 		return BasketReservationHistoryTable::update($id, $fields);
 	}
-	
+
 	/**
 	 * Update history row by reservation
 	 *
@@ -289,18 +303,18 @@ class BasketReservationHistoryService
 		{
 			throw new Exception('Reservation not found');
 		}
-		
+
 		$reservationQuantity = $this->roundQuantity($reservation['QUANTITY']);
 		$historyQuantity = $this->roundQuantity($this->getQuantityByReservation($reservationId));
-		
+
 		if ($reservationQuantity !== $historyQuantity)
 		{
 			return $this->addQuantity($reservationId, $reservationQuantity - $historyQuantity);
 		}
-		
+
 		return new Result();
 	}
-	
+
 	/**
 	 * Delete history row
 	 *
@@ -311,10 +325,10 @@ class BasketReservationHistoryService
 	{
 		return BasketReservationHistoryTable::delete($id);
 	}
-	
+
 	/**
 	 * Delete history rows by reservation.
-	 * 
+	 *
 	 * All related rows will be deleted!
 	 *
 	 * @param int $reservationId
@@ -323,7 +337,7 @@ class BasketReservationHistoryService
 	public function deleteByReservation(int $reservationId): Result
 	{
 		$result = new DeleteResult();
-		
+
 		$rows = BasketReservationHistoryTable::getList([
 			'select' => [
 				'ID',
@@ -340,7 +354,7 @@ class BasketReservationHistoryService
 				$result->addError($err);
 			}
 		}
-		
+
 		return $result;
 	}
 }

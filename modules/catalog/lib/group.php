@@ -229,6 +229,10 @@ class GroupTable extends ORM\Data\DataManager
 		{
 			$row['ID'] = (int)$row['ID'];
 			$row['SORT'] = (int)$row['SORT'];
+			if ($row['NAME_LANG'] === '')
+			{
+				$row['NAME_LANG'] = null;
+			}
 
 			return $row;
 		}
@@ -278,6 +282,10 @@ class GroupTable extends ORM\Data\DataManager
 		{
 			$row['ID'] = (int)$row['ID'];
 			$row['SORT'] = (int)$row['SORT'];
+			if ($row['NAME_LANG'] === '')
+			{
+				$row['NAME_LANG'] = null;
+			}
 
 			$result[$row['ID']] = $row;
 		}

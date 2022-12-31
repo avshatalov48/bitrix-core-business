@@ -1,4 +1,2 @@
-<?
+<?php
 $MESS["CATALOG_C_F_SECTION_SELECTOR_TITLE"] = "Разделы";
-$MESS["BX_CATALOG_PRODUCT_USERFIELD_MESS_EMPTY_VALUE"] = "не выбрано";
-?>

@@ -1891,7 +1891,14 @@ class Asset
 
 		if (!array_key_exists($module, $this->moduleInfo['CSS']))
 		{
-			$this->moduleInfo['CSS'][$module] = ['MODULE_ID' => $module, 'FILES_INFO' => true];
+			$this->moduleInfo['CSS'][$module] = [
+				'MODULE_ID' => $module,
+				'BODY' => false,
+				'FILES_INFO' => true,
+				'IS_KERNEL' => true,
+				'DATA' => '',
+				'SKIP' => false
+			];
 		}
 
 		foreach ($css as $key)
@@ -1928,7 +1935,14 @@ class Asset
 
 		if (!array_key_exists($module, $this->moduleInfo['JS']))
 		{
-			$this->moduleInfo['JS'][$module] = ['MODULE_ID' => $module, 'FILES_INFO' => true, 'BODY' => false];
+			$this->moduleInfo['JS'][$module] = [
+				'MODULE_ID' => $module,
+				'BODY' => false,
+				'FILES_INFO' => true,
+				'IS_KERNEL' => true,
+				'DATA' => '',
+				'SKIP' => false
+			];
 		}
 
 		foreach ($js as $key)
@@ -2536,7 +2550,11 @@ class Asset
 		$len = strlen($content);
 		fclose($fh);
 
-		@unlink($filePath);
+		if (file_exists($filePath))
+		{
+			@unlink($filePath);
+		}
+
 		if ($written === $len)
 		{
 			$result = true;
@@ -2552,17 +2570,30 @@ class Asset
 					$writtenGz = @gzwrite ($gz, $content);
 					gzclose($gz);
 
-					@unlink($fnGz);
+					if (file_exists($fnGz))
+					{
+						@unlink($fnGz);
+					}
+
 					if ($writtenGz === $len)
 					{
 						rename($fnTmpGz, $fnGz);
 						@chmod($fnGz, BX_FILE_PERMISSIONS);
 					}
-					@unlink($fnTmpGz);
+
+					if (file_exists($fnTmpGz))
+					{
+						@unlink($fnTmpGz);
+					}
 				}
 			}
 		}
-		@unlink($fnTmp);
+
+		if (file_exists($fnTmp))
+		{
+			@unlink($fnTmp);
+		}
+
 		return $result;
 	}
 }

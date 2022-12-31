@@ -711,7 +711,13 @@
 
 				if(params.url) {
 					const { url, ...restParams } = params;
-					BX.MobileTools.resolveOpenFunction(url, restParams);
+					const func = BX.MobileTools.resolveOpenFunction(url, restParams);
+
+					if(func)
+					{
+						func();
+					}
+
 				}
 
 			},

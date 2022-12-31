@@ -240,6 +240,7 @@ class FileUploader extends Controller
 			{
 				$response = new Response\ResizedImage($imageData, 300, 300);
 				$response->setResizeType(BX_RESIZE_IMAGE_PROPORTIONAL);
+				$response->setCacheTime(86400);
 
 				return $response;
 			}

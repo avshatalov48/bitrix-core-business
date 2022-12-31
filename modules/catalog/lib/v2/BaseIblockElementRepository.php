@@ -165,6 +165,7 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 	{
 		$filter = $params['filter'] ?? [];
 		$order = $params['order'] ?? [];
+		$nav = $params['nav'] ?? false;
 
 		\CTimeZone::Disable();
 
@@ -181,7 +182,7 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 				$this->getAdditionalFilter()
 			),
 			false,
-			false,
+			$nav,
 			['*']
 		);
 		if ($detailUrlTemplate = $this->getDetailUrlTemplate())

@@ -208,7 +208,7 @@ if ($arParams['SUCCESS_SAVE'])
 					</div>
 				</div>
 			<?php elseif ($domain):?>
-			<div class="ui-form-row ui-form-row-middle-input">
+				<div class="ui-form-row ui-form-row-middle-input">
 					<div class="ui-form-label">
 						<div class="ui-ctl-label-text">
 							<?= $row['CODE']['TITLE']?>
@@ -216,23 +216,23 @@ if ($arParams['SUCCESS_SAVE'])
 					</div>
 					<div class="ui-form-content">
 						<div class="landing-domain">
-						<?php if (Manager::isB24()): ?>
-							<?php $puny = new CBXPunycode; ?>
-							<span class="landing-domain-name">
-								<span class="landing-domain-name-value"><?= $puny->decode($domain['DOMAIN']) ?></span>
-								<a href="<?= str_replace('__tab__', '', $uriDomain->getUri()) ?>" class="ui-title-input-btn ui-editing-pen landing-frame-btn"></a>
-							</span>
+							<?php if (Manager::isB24()): ?>
+								<?php $puny = new CBXPunycode; ?>
+								<span class="landing-domain-name">
+									<span class="landing-domain-name-value"><?= $puny->decode($domain['DOMAIN']) ?></span>
+									<a href="<?= str_replace('__tab__', '', $uriDomain->getUri()) ?>" class="ui-title-input-btn ui-editing-pen landing-frame-btn"></a>
+								</span>
 								<?php if (!Domain::getBitrix24Subdomain($domain['DOMAIN'])):?>
-								<?php if (Register::isDomainActive($domain['DOMAIN'])):?>
-									<div class="landing-domain-status landing-domain-status-active">
-										<div class="landing-domain-status-text"><?= Loc::getMessage('LANDING_TPL_DOMAIN_ACTIVATION_YES') ?></div>
-									</div>
-								<?php else:?>
-									<div class="landing-domain-status landing-domain-status-wait">
-										<div class="landing-domain-status-text"><?= Loc::getMessage('LANDING_TPL_DOMAIN_ACTIVATION_NO') ?></div>
-										<div class="landing-domain-status-notice"><?= Loc::getMessage('LANDING_TPL_DOMAIN_ACTIVATION_INFO') ?></div>
-									</div>
-								<?php endif;?>
+									<?php if (Register::isDomainActive($domain['DOMAIN'])):?>
+										<div class="landing-domain-status landing-domain-status-active">
+											<div class="landing-domain-status-text"><?= Loc::getMessage('LANDING_TPL_DOMAIN_ACTIVATION_YES') ?></div>
+										</div>
+									<?php else:?>
+										<div class="landing-domain-status landing-domain-status-wait">
+											<div class="landing-domain-status-text"><?= Loc::getMessage('LANDING_TPL_DOMAIN_ACTIVATION_NO') ?></div>
+											<div class="landing-domain-status-notice"><?= Loc::getMessage('LANDING_TPL_DOMAIN_ACTIVATION_INFO') ?></div>
+										</div>
+									<?php endif;?>
 								<?php elseif ($arResult['REGISTER']->enable()):?>
 									<div class="landing-domain-status landing-domain-status-configure">
 										<div class="landing-domain-status-title"><?= Loc::getMessage('LANDING_TPL_DOMAIN_FREE_TEXT') ?></div>
@@ -257,22 +257,22 @@ if ($arParams['SUCCESS_SAVE'])
 									</script>
 								<?php endif;?>
 
-						<?php else:?>
-							<div class="ui-ctl ui-ctl-after-icon ui-ctl-dropdown ui-ctl-w100">
-								<div class="ui-ctl-after ui-ctl-icon-angle "></div>
-								<select name="fields[DOMAIN_ID]" class="ui-ctl-element">
+							<?php else:?>
+								<div class="ui-ctl ui-ctl-after-icon ui-ctl-dropdown ui-ctl-w100">
+									<div class="ui-ctl-after ui-ctl-icon-angle "></div>
+									<select name="fields[DOMAIN_ID]" class="ui-ctl-element">
 										<?foreach ($arResult['DOMAINS'] as $item):?>
-										<option
-											value="<?= $item['ID']?>"
-											<?if ($item['ID'] == $row['DOMAIN_ID']['CURRENT']){?> selected="selected"<?}?>
-										>
+											<option
+												value="<?= $item['ID']?>"
+												<?if ($item['ID'] == $row['DOMAIN_ID']['CURRENT']){?> selected="selected"<?}?>
+											>
 												<?= htmlspecialcharsbx($item['DOMAIN']) ?>
 											</option>
 										<?php endforeach;?>
 									</select>
-							</div>
-						<?php endif;?>
-					</div>
+								</div>
+							<?php endif;?>
+						</div>
 					</div>
 				</div>
 			<?php endif;?>
@@ -501,7 +501,7 @@ if ($arParams['SUCCESS_SAVE'])
 							$gaCounterFields['GACOUNTER_CLICK_TYPE']->setValue('text');
 						}
 						?>
-						<div class="ui-form-row" id="<?= $fieldId ?>">
+						<div class="ui-form-row landing-form-gacounter" id="<?= $fieldId ?>">
 							<?php
 							$isLocked = $hooks['GACOUNTER']->isLocked();
 							?>
@@ -519,19 +519,23 @@ if ($arParams['SUCCESS_SAVE'])
 							</div>
 							<div class="ui-form-row-hidden">
 								<div class="ui-form-row">
+									<div class="ui-form-label">
+										<?= Loc::getMessage('LANDING_TPL_HOOK_METRIKA_COUNTER') ?>
+									</div>
 									<?php $template->showField($gaCounterFields['GACOUNTER_COUNTER']); ?>
 									<div class="ui-form-label landing-form-gacounter-send-js" data-form-row-hidden>
-										<label class="ui-ctl ui-ctl-checkbox">
-											<input type="checkbox" class="ui-ctl-element">
-											<div class="ui-ctl-label-text">
-												<?=$gaCounterFields['GACOUNTER_SEND_CLICK']->getLabel()?>
-											</div>
-										</label>
+										<?php $template->showField($gaCounterFields['GACOUNTER_SEND_CLICK'], ['title' => true]); ?>
 									</div>
 									<div class="ui-form-row-hidden">
 										<?php $template->showField($gaCounterFields['GACOUNTER_CLICK_TYPE']); ?>
 									</div>
 									<?php $template->showField($gaCounterFields['GACOUNTER_SEND_SHOW'], ['title' => true]); ?>
+								</div>
+								<div class="ui-form-row">
+									<div class="ui-form-label">
+										<?= Loc::getMessage('LANDING_TPL_HOOK_METRIKA_COUNTER_GA4') ?>
+									</div>
+									<?php $template->showField($gaCounterFields['GACOUNTER_COUNTER_GA4']); ?>
 								</div>
 							</div>
 						</div>
@@ -921,7 +925,7 @@ if ($arParams['SUCCESS_SAVE'])
 			<!--CSS block-->
 			<?php if (isset($hooks['CSSBLOCK'])): ?>
 				<?php $hookFields = $hooks['CSSBLOCK']->getPageFields(); ?>
-				<div class="ui-form-row landing-form-additional-row landing-form-row-cssblock" data-landing-additional-detail="public_html_disallowed">
+				<div class="ui-form-row landing-form-additional-row landing-form-row-cssblock" data-landing-additional-detail="css">
 					<div class="ui-form-label">
 						<div class="ui-ctl-label-text">
 							<?= $hooks['CSSBLOCK']->getTitle() ?>

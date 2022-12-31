@@ -1,4 +1,4 @@
-<section class="landing-block g-pt-30 g-pb-30">
+<section class="landing-block g-pt-30 g-pb-30 u-block-border-none">
 	<div class="container">
 		<article class="landing-block-card media g-mb-35 g-mb-0--last js-animation fadeInLeft">
 			<img class="landing-block-node-img d-flex u-shadow-v25 g-width-40 g-height-40 g-rounded-50x g-object-fit-cover mr-3"

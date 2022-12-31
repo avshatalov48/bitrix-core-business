@@ -95,21 +95,44 @@ class FileType extends BaseType
 		return '&nbsp;';
 	}
 
+	/**
+	 * @param array $userField
+	 * @param string|array $value
+	 * @return array
+	 */
 	public static function checkFields(array $userField, $value): array
 	{
-		$msg = [];
-
-		if(!is_array($value))
+		if(!is_array($value) && $value)
 		{
-			if($value)
+			$fileInfo = \CFile::GetFileArray($value);
+			if($fileInfo)
 			{
-				$fileInfo = \CFile::GetFileArray($value);
-				if($fileInfo)
-				{
-					$value = \CFile::MakeFileArray($fileInfo['SRC']);
-				}
+				$value = \CFile::MakeFileArray($fileInfo['SRC']);
 			}
 		}
+
+		$fieldName = HtmlFilter::encode(
+			empty($userField['EDIT_FORM_LABEL'])
+				? $userField['FIELD_NAME']
+				: $userField['EDIT_FORM_LABEL']
+		);
+
+		if(
+			is_array($value)
+			&& (!isset($value['tmp_name']) && !isset($value['old_id']))
+		)
+		{
+			return [
+				[
+					'id' => $userField['FIELD_NAME'],
+					'text' => Loc::getMessage('USER_TYPE_FILE_VALUE_IS_MULTIPLE', [
+						'#FIELD_NAME#' => $fieldName,
+					]),
+				],
+			];
+		}
+
+		$msg = [];
 
 		if(is_array($value))
 		{
@@ -123,10 +146,7 @@ class FileType extends BaseType
 					'id' => $userField['FIELD_NAME'],
 					'text' => Loc::getMessage('USER_TYPE_FILE_MAX_SIZE_ERROR',
 						[
-							'#FIELD_NAME#' => HtmlFilter::encode(
-								$userField['EDIT_FORM_LABEL'] <> ''
-									? $userField['EDIT_FORM_LABEL'] : $userField['FIELD_NAME']
-							),
+							'#FIELD_NAME#' => $fieldName,
 							'#MAX_ALLOWED_SIZE#' => $userField['SETTINGS']['MAX_ALLOWED_SIZE']
 						]
 					),
@@ -335,5 +355,10 @@ class FileType extends BaseType
 	public static function getPublicEditMultiple(array $userField, ?array $additionalParameters = []): string
 	{
 		return parent::getPublicEdit($userField, $additionalParameters);
+	}
+
+	public static function canUseArrayValueForSingleField(): bool
+	{
+		return true;
 	}
 }

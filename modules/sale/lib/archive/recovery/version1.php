@@ -199,12 +199,15 @@ class Version1 extends Base
 					$shipmentItem = $newShipmentItemCollection->createItem($basketItemsMap[$basketItemId]);
 					$shipmentItem->setFieldsNoDemand($oldItemStore);
 					$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
-					/** @var Sale\ShipmentItemStore $itemStore */
-					$itemStore = $shipmentItemStoreCollection->createItem($basketItemsMap[$basketItemId]);
-					$oldBasketBarcodeData = $archivedOrder['BASKET_ITEMS'][$basketItemId]['SHIPMENT_BARCODE_ITEMS'][$oldItemStore['ID']];
-					if (count($oldBasketBarcodeData))
+					if ($shipmentItemStoreCollection)
 					{
-						$itemStore->setFieldsNoDemand($oldBasketBarcodeData);
+						/** @var Sale\ShipmentItemStore $itemStore */
+						$itemStore = $shipmentItemStoreCollection->createItem($basketItemsMap[$basketItemId]);
+						$oldBasketBarcodeData = $archivedOrder['BASKET_ITEMS'][$basketItemId]['SHIPMENT_BARCODE_ITEMS'][$oldItemStore['ID']];
+						if (count($oldBasketBarcodeData))
+						{
+							$itemStore->setFieldsNoDemand($oldBasketBarcodeData);
+						}
 					}
 				}
 			}

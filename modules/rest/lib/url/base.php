@@ -8,16 +8,15 @@ class Base
 {
 	protected $directory = '';
 	protected $pages = [];
+	protected static $instance;
 
 	final public static function getInstance()
 	{
-		static $instance = null;
-
-		if (null === $instance)
+		if (!isset(static::$instance))
 		{
-			$instance = new static();
+			static::$instance = new static();
 		}
-		return $instance;
+		return static::$instance;
 	}
 
 	protected function getDir()

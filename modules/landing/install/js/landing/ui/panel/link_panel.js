@@ -130,13 +130,13 @@
 				BX.remove(form.header);
 
 				var allowedTypes = [
-					BX.Landing.UI.Field.LinkURL.TYPE_BLOCK,
-					BX.Landing.UI.Field.LinkURL.TYPE_PAGE
+					BX.Landing.UI.Field.LinkUrl.TYPE_BLOCK,
+					BX.Landing.UI.Field.LinkUrl.TYPE_PAGE
 				];
 
 				if (BX.Landing.Main.getInstance().options.params.type === 'STORE')
 				{
-					allowedTypes.push(BX.Landing.UI.Field.LinkURL.TYPE_CATALOG);
+					allowedTypes.push(BX.Landing.UI.Field.LinkUrl.TYPE_CATALOG);
 				}
 
 				this.field = new BX.Landing.UI.Field.Link({

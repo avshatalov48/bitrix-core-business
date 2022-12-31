@@ -542,9 +542,16 @@ class CAllIBlockSection
 		}
 
 		$ipropTemplates = new \Bitrix\Iblock\InheritedProperty\SectionTemplates($arFields["IBLOCK_ID"], 0);
-		if(is_set($arFields, "PICTURE"))
+		if (array_key_exists("PICTURE", $arFields))
 		{
-			if($arFields["PICTURE"]["name"] == '' && $arFields["PICTURE"]["del"] == '')
+			if (!is_array($arFields["PICTURE"]))
+			{
+				unset($arFields["PICTURE"]);
+			}
+			elseif (
+				(!isset($arFields["PICTURE"]["name"]) || $arFields["PICTURE"]["name"] === '')
+				&& (!isset($arFields["PICTURE"]["del"]) || $arFields["PICTURE"]["del"] === '')
+			)
 			{
 				unset($arFields["PICTURE"]);
 			}
@@ -560,9 +567,16 @@ class CAllIBlockSection
 			}
 		}
 
-		if(is_set($arFields, "DETAIL_PICTURE"))
+		if (array_key_exists("DETAIL_PICTURE", $arFields))
 		{
-			if($arFields["DETAIL_PICTURE"]["name"] == '' && $arFields["DETAIL_PICTURE"]["del"] == '')
+			if (!is_array($arFields["DETAIL_PICTURE"]))
+			{
+				unset($arFields["DETAIL_PICTURE"]);
+			}
+			elseif (
+				(!isset($arFields["DETAIL_PICTURE"]["name"]) || $arFields["DETAIL_PICTURE"]["name"] === '')
+				&& (!isset($arFields["DETAIL_PICTURE"]["del"]) || $arFields["DETAIL_PICTURE"]["del"] === '')
+			)
 			{
 				unset($arFields["DETAIL_PICTURE"]);
 			}
@@ -991,9 +1005,13 @@ class CAllIBlockSection
 		}
 
 		$ipropTemplates = new \Bitrix\Iblock\InheritedProperty\SectionTemplates($db_record["IBLOCK_ID"], $db_record["ID"]);
-		if(is_set($arFields, "PICTURE"))
+		if (array_key_exists("PICTURE", $arFields))
 		{
-			if (
+			if (!is_array($arFields["PICTURE"]))
+			{
+				unset($arFields["PICTURE"]);
+			}
+			elseif (
 				(!isset($arFields["PICTURE"]["name"]) || $arFields["PICTURE"]["name"] === '')
 				&& (!isset($arFields["PICTURE"]["del"]) || $arFields["PICTURE"]["del"] === '')
 				&& !array_key_exists("description", $arFields["PICTURE"])
@@ -1014,9 +1032,13 @@ class CAllIBlockSection
 			}
 		}
 
-		if(is_set($arFields, "DETAIL_PICTURE"))
+		if (array_key_exists("DETAIL_PICTURE", $arFields))
 		{
-			if (
+			if (!is_array($arFields["DETAIL_PICTURE"]))
+			{
+				unset($arFields["DETAIL_PICTURE"]);
+			}
+			elseif (
 				(!isset($arFields["DETAIL_PICTURE"]["name"]) || $arFields["DETAIL_PICTURE"]["name"] === '')
 				&& (!isset($arFields["DETAIL_PICTURE"]["del"]) || $arFields["DETAIL_PICTURE"]["del"] === '')
 				&& !array_key_exists("description", $arFields["DETAIL_PICTURE"])

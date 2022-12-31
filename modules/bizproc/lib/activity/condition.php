@@ -220,7 +220,7 @@ class Condition
 	{
 		$result = false;
 
-		foreach ($toCheck as $f)
+		foreach (\CBPHelper::makeArrayFlat($toCheck) as $f)
 		{
 			if (is_array($base))
 			{
@@ -249,7 +249,7 @@ class Condition
 			return count(array_diff($base, $toCheck)) === 0;
 		}
 
-		foreach ($base as $v)
+		foreach (\CBPHelper::makeArrayFlat($base) as $v)
 		{
 			foreach ($toCheck as $f)
 			{

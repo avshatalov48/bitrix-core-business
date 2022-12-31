@@ -321,7 +321,7 @@ Vue.component(config.templatePanelButtons,
 		},
 		getSettingItems()
 		{
-			return [
+			const items = [
 				// {
 				// 	id: 'taxIncludedOption',
 				// 	checked: (this.options.taxIncluded === 'Y'),
@@ -337,14 +337,22 @@ Vue.component(config.templatePanelButtons,
 				// 	checked: (this.options.showTaxBlock !== 'N'),
 				// 	title: this.localize.CATALOG_FORM_ADD_SHOW_TAXES_OPTION,
 				// },
-				{
-					id: 'warehouseOption',
-					checked: (this.options.warehouseOption),
-					disabled: (this.options.warehouseOption),
-					title: this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_OPTION,
-					hint: this.options.warehouseOption ? this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_HINT : '',
-				},
 			];
+
+			if (this.options.isCatalogSettingAccess)
+			{
+				items.push(
+					{
+						id: 'warehouseOption',
+						checked: (this.options.warehouseOption),
+						disabled: (this.options.warehouseOption),
+						title: this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_OPTION,
+						hint: this.options.warehouseOption ? this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_HINT : '',
+					}
+				);
+			}
+
+			return items;
 		},
 
 		prepareSettingsContent(): HTMLElement
@@ -405,6 +413,10 @@ Vue.component(config.templatePanelButtons,
 	},
 	computed:
 	{
+		hasAccessToCatalog()
+		{
+			return this.options.isCatalogAccess;
+		},
 		localize()
 		{
 			return Vue.getFilteredPhrases('CATALOG_');
@@ -420,6 +432,8 @@ Vue.component(config.templatePanelButtons,
 	mounted()
 	{
 		this.settings = this.getSettingItems();
+
+		BX.UI.Hint.init();
 	},
 	// language=Vue
 	template: `
@@ -427,7 +441,17 @@ Vue.component(config.templatePanelButtons,
 			<div class="catalog-pf-product-add">
 				<div class="catalog-pf-product-add-wrapper">
 					<span class="catalog-pf-product-add-link" @click="addBasketItemForm">{{localize.CATALOG_FORM_ADD_PRODUCT}}</span>
-					<span class="catalog-pf-product-add-link catalog-pf-product-add-link--gray" @click="showDialogProductSearch">{{localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG}}</span>
+					<span
+						v-if="hasAccessToCatalog"
+						class="catalog-pf-product-add-link catalog-pf-product-add-link--gray"
+						@click="showDialogProductSearch"
+					>{{localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG}}</span>
+					<span
+						v-else
+						class="catalog-pf-product-add-link catalog-pf-product-add-link--gray catalog-pf-product-add-link--disabled"
+						:data-hint="localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG_DENIED_HINT"
+						data-hint-no-icon
+					>{{localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG}}</span>
 				</div>
 				<div class="catalog-pf-product-configure-link" @click="showConfigPopup">{{localize.CATALOG_FORM_DISCOUNT_EDIT_PAGE_URL_TITLE}}</div>
 			</div>

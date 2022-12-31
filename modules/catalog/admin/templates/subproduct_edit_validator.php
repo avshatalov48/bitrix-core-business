@@ -1,43 +1,75 @@
-<?
+<?php
+
 /** @global CUser $USER */
-/** @global int $ID */
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog;
+/** @var int $IBLOCK_ID */
+/** @var int $MENU_SECTION_ID */
+/** @var int $ID */
+/** @var string $strWarning */
+/** @var bool $bSubCopy */
 
-if ($USER->CanDoOperation('catalog_price'))
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+
+$IBLOCK_ID = (int)($IBLOCK_ID);
+if ($IBLOCK_ID <= 0)
 {
-	$IBLOCK_ID = intval($IBLOCK_ID);
-	if ($IBLOCK_ID <= 0)
-		return;
-	$PRODUCT_ID = (0 < $ID ? CIBlockElement::GetRealElement($ID) : 0);
+	return;
+}
+$PRODUCT_ID = (0 < $ID ? CIBlockElement::GetRealElement($ID) : 0);
 
-	$boolPriceRights = ($PRODUCT_ID > 0
-		? CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $PRODUCT_ID, "element_edit_price")
-		: CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "element_edit_price")
-	);
+$accessController = AccessController::getCurrent();
+
+$iblockEditProduct = ($PRODUCT_ID > 0 && !$bSubCopy
+	? CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $PRODUCT_ID, 'element_edit_price')
+	: CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, 'element_edit_price')
+);
+
+$allowEdit = false;
+if ($iblockEditProduct)
+{
+	$allowEdit = $PRODUCT_ID > 0 && !$bSubCopy
+		? $accessController->check(ActionDictionary::ACTION_PRODUCT_EDIT)
+		: $accessController->check(ActionDictionary::ACTION_PRODUCT_ADD)
+	;
+}
+$allowEditPrices = $allowEdit
+	&& $accessController->check(ActionDictionary::ACTION_PRICE_EDIT)
+;
+
+if ($allowEdit)
+{
+	$SUBCAT_VAT_ID = (int)($_POST['SUBCAT_VAT_ID'] ?? 0);
+	$SUBCAT_VAT_INCLUDED = ($_POST['SUBCAT_VAT_INCLUDED'] ?? 'N');
+	if ($SUBCAT_VAT_INCLUDED !== 'Y')
+	{
+		$SUBCAT_VAT_INCLUDED = 'N';
+	}
+}
+
+if ($allowEditPrices)
+{
 	$enableQuantityRanges = Catalog\Config\Feature::isPriceQuantityRangesEnabled();
 
-	if ($boolPriceRights)
+	if ($iblockEditProduct)
 	{
 		Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/templates/product_edit_action.php');
 
 		$arCatalogBasePrices = array();
 		$arCatalogPrices = array();
 
-		$SUBCAT_ROW_COUNTER = intval($SUBCAT_ROW_COUNTER);
+		$SUBCAT_ROW_COUNTER = (int)($_POST['SUBCAT_ROW_COUNTER'] ?? 0);
 		if ($SUBCAT_ROW_COUNTER < 0)
 			$strWarning .= Loc::getMessage("C2IT_INTERNAL_ERROR")."<br>";
 
-		$arCatalogBaseGroup = CCatalogGroup::GetBaseGroup();
+		$arCatalogBaseGroup = Catalog\GroupTable::getBasePriceType();
 		if (!$arCatalogBaseGroup)
 			$strWarning .= Loc::getMessage("C2IT_NO_BASE_TYPE")."<br>";
 
-		$SUBCAT_VAT_ID = intval($SUBCAT_VAT_ID);
-		$SUBCAT_VAT_INCLUDED = !isset($SUBCAT_VAT_INCLUDED) || $SUBCAT_VAT_INCLUDED == 'N' ? 'N' : 'Y';
-
 		if ($enableQuantityRanges)
-			$bUseExtForm = (isset($_POST['subprice_useextform']) && $_POST['subprice_useextform'] == 'Y');
+			$bUseExtForm = (isset($_POST['subprice_useextform']) && $_POST['subprice_useextform'] === 'Y');
 		else
 			$bUseExtForm = false;
 		if (!$bUseExtForm)

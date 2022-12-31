@@ -270,7 +270,7 @@ class CCatalogSku extends CAllCatalogSku
 		return self::$arIBlockCache[$intIBlockID];
 	}
 
-	/*
+	/**
 	* @deprecated deprecated since catalog 15.0.1
 	* @see CCatalogSKU::getExistOffers()
 	*/

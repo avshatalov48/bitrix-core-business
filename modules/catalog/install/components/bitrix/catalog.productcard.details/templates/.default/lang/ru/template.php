@@ -9,3 +9,4 @@ $MESS["CPD_FEEDBACK_BUTTON"] = "Обратная связь";
 $MESS["CPD_QUANTITY_TRACE_NOTICE_TITLE"] = "Включение количественного учёта";
 $MESS["CPD_QUANTITY_TRACE_NOTICE"] = "Если вы сейчас включите Количественный учет, то выключить его будет нельзя, так как он нужен для правильной работы Складского учета";
 $MESS["CPD_QUANTITY_TRACE_ACCEPT"] = "Продолжить";
+$MESS["CPD_PRODUCT_TYPE_SELECTOR"] = "Тип товара: #PRODUCT_TYPE_NAME#";

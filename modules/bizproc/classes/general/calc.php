@@ -449,12 +449,12 @@ class CBPCalc
 
 	private function functionCeil($num)
 	{
-		return ceil($num);
+		return ceil((double)$num);
 	}
 
 	private function functionFloor($num)
 	{
-		return floor($num);
+		return floor((double)$num);
 	}
 
 	private function functionMin($args)
@@ -466,7 +466,8 @@ class CBPCalc
 			$arg = (float) $arg;
 
 		$args = $this->ArrgsToArray($args);
-		return min($args);
+
+		return $args ? min($args) : false;
 	}
 
 	private function functionMax($args)
@@ -478,7 +479,8 @@ class CBPCalc
 			$arg = (float) $arg;
 
 		$args = $this->ArrgsToArray($args);
-		return max($args);
+
+		return $args ? max($args) : false;
 	}
 
 	private function functionRand($args)
@@ -1312,17 +1314,16 @@ class CBPCalc
 
 		$ar = $this->ArrgsToArray($args);
 		$str = array_shift($ar);
-		$pos = array_shift($ar);
-		$len = array_shift($ar);
+		$pos = (int)array_shift($ar);
+		$len = (int)array_shift($ar);
 
 		if (($str == null) || ($str === ""))
 			return null;
 
-		if ($pos == null)
-			$pos = 0;
-
-		if ($len != null)
+		if ($len)
+		{
 			return mb_substr($str, $pos, $len);
+		}
 
 		return mb_substr($str, $pos);
 	}
@@ -1331,8 +1332,17 @@ class CBPCalc
 	{
 		$ar = $this->ArrgsToArray($args);
 		$haystack = (string)array_shift($ar);
+
+		if (empty($haystack))
+		{
+			return false;
+		}
+
+		$maxOffset = mb_strlen($haystack);
+		$minOffset = -1 * $maxOffset;
+
 		$needle = (string)array_shift($ar);
-		$offset = (int)array_shift($ar);
+		$offset = max($minOffset, min($maxOffset, (int)array_shift($ar)));
 
 		return mb_strpos($haystack, $needle, $offset);
 	}
@@ -1354,8 +1364,13 @@ class CBPCalc
 	private function functionImplode($args)
 	{
 		$ar = (array) $args;
-		$glue = array_shift($ar);
+		$glue = (string)array_shift($ar);
 		$pieces = \CBPHelper::MakeArrayFlat(array_shift($ar));
+
+		if (!$pieces)
+		{
+			return '';
+		}
 
 		return implode($glue, $pieces);
 	}
@@ -1371,7 +1386,12 @@ class CBPCalc
 			$str = reset($str);
 		}
 
-		if (!is_scalar($str))
+		if (is_array($delimiter))
+		{
+			$delimiter = reset($delimiter);
+		}
+
+		if (empty($delimiter) || !is_scalar($str) || !is_scalar($delimiter))
 		{
 			return null;
 		}

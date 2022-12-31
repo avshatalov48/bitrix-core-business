@@ -3,12 +3,22 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Iblock\UserField\Types\SectionType;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 
 /**
  * @var SectionUfComponent $component
  * @var array $arResult
  */
+
+if (!$arResult['hasAccessToCatalog'])
+{
+	$message = Loc::getMessage('IBLOCK_FIELD_SECTION_CATALOG_ACCESS_DENIED');
+	echo "<span class='field-wrap'>{$message}</span>";
+
+	return;
+}
+
 $component = $this->getComponent();
 ?>
 
@@ -122,7 +132,7 @@ $component = $this->getComponent();
 
 		BX.ready(function(){
 
-			var params = {$arResult['params']};			
+			var params = {$arResult['params']};
 
 			BX('{$arResult['controlNodeIdJs']}').appendChild(BX.decl({
 				block: '{$arResult['block']}',
@@ -132,7 +142,7 @@ $component = $this->getComponent();
 				params: params,
 				valueDelete: false
 			}));
-			
+
 			BX.addCustomEvent(
 				window,
 				'UI::Select::change',

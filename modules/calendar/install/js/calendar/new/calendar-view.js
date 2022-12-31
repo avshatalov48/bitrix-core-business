@@ -16,9 +16,33 @@
 		this.entries = [];
 		this.entriesIndex = {};
 		BX.addCustomEvent(this.calendar, 'viewOnClick', BX.proxy(this.handleClick, this));
+
+		this.deletedEntriesIds = [];
+		BX.addCustomEvent('BX.Calendar.Entry:beforeDelete', (data) => {
+			if (!data.recursionMode || (data.recursionMode === 'this' && data.entryData))
+			{
+				const uid = this.calendar.entryController.getUniqueId(data.entryData);
+				this.deletedEntriesIds.push(uid);
+			}
+		});
+		BX.addCustomEvent('BX.Calendar.Entry:cancelDelete', (data) => {
+			const uid = this.calendar.entryController.getUniqueId(data.entryData);
+			const index = this.deletedEntriesIds.indexOf(uid);
+			if (index !== -1)
+			{
+				this.deletedEntriesIds.splice(index, 1);
+			}
+		});
 	}
 
 	View.prototype = {
+		getUndeletedEntries: function()
+		{
+			return this.entries.filter(entry => {
+				return !this.deletedEntriesIds.find(uid => uid === entry.uid);
+			});
+		},
+
 		build: function()
 		{
 			this.viewCont = BX.create('DIV', {props: {className: this.contClassName}});
@@ -38,6 +62,14 @@
 		redraw: function()
 		{
 			this.displayEntries();
+		},
+
+		reload: function()
+		{
+			this.loadEntries().then(entries => {
+				this.entries = entries;
+				this.redraw();
+			});
 		},
 
 		hide: function()
@@ -99,7 +131,9 @@
 				{
 					container.removeAttribute('style');
 					if (callback && BX.type.isFunction(callback))
+					{
 						callback();
+					}
 				}
 			}).animate();
 		},
@@ -319,9 +353,13 @@
 
 		getEntryById: function(uniqueId)
 		{
-			if (uniqueId && this.entriesIndex[uniqueId] !== undefined && this.entries[this.entriesIndex[uniqueId]])
-				return this.entries[this.entriesIndex[uniqueId]];
-			return false;
+			const entry = this.entries.find(entry => entry.uid === uniqueId);
+			if (!entry)
+			{
+				return false;
+			}
+
+			return entry;
 		},
 
 		getRealEntry: function(entry)
@@ -482,11 +520,9 @@
 					{
 						if (!taskWrap)
 						{
-							const time = entryItem.entry.from.getTime();
 							tasksTitle = BX.create('DIV', {
 								props: { className: 'calendar-event-title' },
-								attrs: { 'data-bx-calendar-date': time },
-								text: BX.message('EC_ENTRIES_TASKS') + ', ' + BX.date.format('d F', time / 1000)
+								text: BX.message('EC_ENTRIES_TASKS')
 							});
 							innerCont.appendChild(tasksTitle);
 							taskWrap = innerCont.appendChild(BX.create('DIV', {props: {className: 'calendar-event-block'}}));
@@ -505,7 +541,7 @@
 						{
 							const time = entryItem.entry.from.getTime();
 							eventsTitle = BX.create('DIV', {
-								props: { className: 'calendar-event-title' },
+								props: { className: 'calendar-event-title calendar-event-title-button' },
 								attrs: { 'data-bx-calendar-date': time },
 								text: BX.message('EC_ENTRIES_EVENTS') + ', ' + BX.date.format('d F', time / 1000)
 							});
@@ -537,12 +573,6 @@
 			popup.show(true);
 			this.allEventsPopup = popup;
 
-			if (tasksTitle)
-			{
-				tasksTitle.addEventListener('click', () => {
-					popup.destroy();
-				});
-			}
 			if (eventsTitle)
 			{
 				eventsTitle.addEventListener('click', () => {
@@ -628,6 +658,11 @@
 		getHotkey: function()
 		{
 			return this.hotkey || null;
+		},
+
+		allowActions: function()
+		{
+			return !this.entryController.isAwaitingAnyResponses();
 		}
 	};
 

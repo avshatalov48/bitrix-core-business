@@ -1,3 +1,3 @@
 <?php
-define("SM_VERSION", "22.375.100");
-define("SM_VERSION_DATE", "2022-11-11 14:26:02"); // YYYY-MM-DD HH:MI:SS
+define("SM_VERSION","22.500.200");
+define("SM_VERSION_DATE","2022-12-28 13:25:00"); // YYYY-MM-DD HH:MI:SS

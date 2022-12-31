@@ -107,10 +107,13 @@ abstract class UserModel
 			{
 				return $this->accessCodes;
 			}
+
+			// mantis #0160102
 			$res = UserAccessTable::getList([
 				'select' => ['ACCESS_CODE'],
 				'filter' => [
-					'=USER_ID' => $this->userId
+					'=USER_ID' => $this->userId,
+					'!%ACCESS_CODE' => 'CHAT',
 				]
 			]);
 			foreach ($res as $row)
@@ -133,7 +136,7 @@ abstract class UserModel
             $user = UserTable::getList([
                 'select' => ['UF_DEPARTMENT'],
                 'filter' => [
-                    '=ID' => $this->userId
+                    '=ID' => $this->userId,
                 ],
                 'limit' => 1
             ])->fetch();

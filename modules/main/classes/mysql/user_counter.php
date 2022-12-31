@@ -397,10 +397,10 @@ class CUserCounter extends CAllUserCounter
 					WHERE
 						USER_ID = ".$user_id."
 						".(
-							count($site_id) == 1
-								? " AND SITE_ID = '".$site_id[0]."' "
-								: " AND SITE_ID IN (".$siteToDelete.") "
-						)."
+					count($site_id) == 1
+						? " AND SITE_ID = '".$site_id[0]."' "
+						: " AND SITE_ID IN (".$siteToDelete.") "
+					)."
 						AND CODE LIKE '".$DB->ForSQL($code)."L%'
 					";
 

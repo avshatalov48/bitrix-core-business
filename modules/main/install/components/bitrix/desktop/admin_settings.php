@@ -1,27 +1,25 @@
-<?
+<?php
 define("STOP_STATISTICS", true);
 define("BX_SECURITY_SHOW_MESSAGE", true);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
-include_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/desktop/include.php');
-
 CComponentUtil::__IncludeLang("/bitrix/components/bitrix/desktop/", "/admin_settings.php");
 
 if (
-	('POST' == $_SERVER['REQUEST_METHOD'])
-	&& (
-		false == isset($_REQUEST['save_desktop'])
-		&& (false == isset($_REQUEST['save_gadget']) || "Y" == $_REQUEST['refresh'])
-	)
+	$_SERVER['REQUEST_METHOD'] == 'POST'
+	&& !isset($_REQUEST['save_desktop'])
+	&& (!isset($_REQUEST['save_gadget']) || $_REQUEST['refresh'] == "Y")
 )
+{
 	CUtil::JSPostUnescape();
+}
 
 global $DB;
 global $APPLICATION;
 global $USER;
 
-if (false == check_bitrix_sessid() || !$USER->IsAuthorized())
+if (!check_bitrix_sessid() || !$USER->IsAuthorized())
 {
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_after.php");
@@ -30,6 +28,7 @@ if (false == check_bitrix_sessid() || !$USER->IsAuthorized())
 
 $arUserOptions = CUserOptions::GetOption("intranet", "~gadgets_admin_index", array(), false);
 
+$is_multiple = false;
 if (
 	($_SERVER['REQUEST_METHOD'] == "POST")
 	&& $_REQUEST['desktop_page'] !== false
@@ -364,4 +363,3 @@ elseif ($_POST["type"] == "gadget")
 		}
 	}
 }
-?>

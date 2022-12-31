@@ -25,7 +25,9 @@ final class SystemField
 	public const DESCRIPTION_MODE_FIELD_NAME = 'FIELD_NAME';
 	public const DESCRIPTION_MODE_UI_LIST = 'UI_ENTITY_LIST';
 	public const DESCRIPTION_MODE_UI_FORM_EDITOR = 'UI_FORM_EDITOR';
+	public const DESCRIPTION_MODE_UI_FIELDS = 'UI_FIELDS';
 	public const DESCRIPTION_MODE_FULL = 'FULL';
+	public const DESCRIPTION_MODE_CLASSNAME = 'CLASSNAME';
 
 	private static ?array $currentFieldSet = null;
 
@@ -294,6 +296,12 @@ final class SystemField
 						$result[] = [
 							'name' => $data['FIELD_NAME'],
 						];
+						break;
+					case self::DESCRIPTION_MODE_UI_FIELDS:
+						$result[] = $field::getUiDescription($restrictions);
+						break;
+					case self::DESCRIPTION_MODE_CLASSNAME:
+						$result[$data['FIELD_NAME']] = $field;
 						break;
 					case self::DESCRIPTION_MODE_FULL:
 					default:
@@ -644,5 +652,85 @@ final class SystemField
 		}
 
 		return $result;
+	}
+
+	public static function renderAdminEditForm(array $product, array $config): ?string
+	{
+		if (!isset($product['ID']) || !isset($product['IBLOCK_ID']) || !isset($product['TYPE']))
+		{
+			return null;
+		}
+		$product['IBLOCK_ID'] = (int)$product['IBLOCK_ID'];
+		if ($product['IBLOCK_ID'] <= 0)
+		{
+			return null;
+		}
+		$product['PRODUCT_ID'] = (int)($product['PRODUCT_ID'] ?? \CIBlockElement::GetRealElement($product['ID']));
+		$product['TYPE'] = (int)$product['TYPE'];
+
+		$config['FROM_FORM'] = $config['FROM_FORM'] ?? false;
+		$config['ALLOW_EDIT'] = $config['ALLOW_EDIT'] ?? true;
+
+		$systemFields = self::getFieldsByRestrictions(
+			[
+				'TYPE' => $product['TYPE'],
+				'IBLOCK_ID' => $product['IBLOCK_ID'],
+			],
+			[
+				'RESULT_MODE' => self::DESCRIPTION_MODE_CLASSNAME,
+			]
+		);
+		if (empty($systemFields))
+		{
+			return '';
+		}
+
+		$userFieldManager = Main\UserField\Internal\UserFieldHelper::getInstance()->getManager();
+		$userFields = $userFieldManager->GetUserFields(
+			Catalog\ProductTable::getUfId(),
+			$product['PRODUCT_ID'],
+			LANGUAGE_ID
+		);
+		if (empty($userFields))
+		{
+			return '';
+		}
+
+		$result = '';
+
+		/**
+		 * @var string $fieldName
+		 * @var Catalog\Product\SystemField\Base $className
+		 */
+		foreach ($systemFields as $fieldName => $className)
+		{
+			$row = $userFields[$fieldName];
+
+			$row['VALUE_ID'] = $product['PRODUCT_ID'];
+			$row['EDIT_FORM_LABEL'] = $row['EDIT_FORM_LABEL'] ?? $row['FIELD_NAME'];
+			if (!$config['ALLOW_EDIT'])
+			{
+				$row['EDIT_IN_LIST'] = 'N';
+			}
+
+			$html = $className::renderAdminFormControl($row, $product, $config);
+			if ($html !== null)
+			{
+				$result .= $html;
+			}
+		}
+		unset($row, $fieldName);
+
+		return $result;
+	}
+
+	public static function getUiDescriptions(array $restrictions): array
+	{
+		return self::getFieldsByRestrictions(
+			$restrictions,
+			[
+				'RESULT_MODE' => self::DESCRIPTION_MODE_UI_FIELDS,
+			]
+		);
 	}
 }

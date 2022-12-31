@@ -38,6 +38,7 @@ export default class Bg extends BgColor
 			Bg.BG_OVERLAY_VAR,
 			Bg.BG_SIZE_VAR,
 			Bg.BG_ATTACHMENT_VAR,
+			Bg.BG_IMAGE,
 		];
 		this.parentClassName = this.className;
 		this.className = 'g-bg-image';
@@ -355,9 +356,9 @@ export default class Bg extends BgColor
 				processorValue[Bg.BG_IMAGE] = '';
 				processorValue[Bg.BG_SIZE_VAR] = defaultBgImageSize;
 				processorValue[Bg.BG_ATTACHMENT_VAR] = defaultBgImageAttachment;
-				const regWebkitUrl = /-webkit-image-set\(url\(/i;
-				const searchWebkitUrl = defaultValue[Bg.BG_IMAGE].match(regWebkitUrl);
-				if (searchWebkitUrl !== null)
+				const regUrl = /image-set\(url\(/i;
+				const searchUrl = defaultValue[Bg.BG_IMAGE].match(regUrl);
+				if (searchUrl !== null)
 				{
 					const regSearchUrl = /"(https?:\/)?\/[\S]*"/gi;
 					const search = defaultValue[Bg.BG_IMAGE].match(regSearchUrl);

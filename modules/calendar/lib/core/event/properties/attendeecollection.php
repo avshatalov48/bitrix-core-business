@@ -77,6 +77,11 @@ class AttendeeCollection extends PropertyCollection
 		return $this;
 	}
 
+	public function getAttendeesCodes(): array
+	{
+		return $this->attendeesCodesCollection;
+	}
+
 	/**
 	 * @return void
 	 * @throws \Bitrix\Main\ArgumentException

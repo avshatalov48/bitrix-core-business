@@ -75,11 +75,22 @@ if ($arParams['TYPE'] == \Bitrix\Landing\Site\Type::SCOPE_CODE_GROUP)
 // feedback form
 if (
 	$lastPage && !$arResult['IS_DELETED'] &&
-	($arParams['TYPE'] === 'PAGE' || $arParams['TYPE'] === 'KNOWLEDGE') &&
+	($arParams['TYPE'] === 'PAGE' || $arParams['TYPE'] === 'KNOWLEDGE'  || $arParams['TYPE'] === 'STORE') &&
 	(!isset($arResult['LICENSE']) || $arResult['LICENSE'] != 'nfr')
 )
 {
-	$formCode = ($arParams['TYPE'] === 'KNOWLEDGE') ? 'knowledge' : 'developer';
+	if ($arParams['TYPE'] === 'KNOWLEDGE')
+	{
+		$formCode = 'knowledge';
+	}
+	else if ($arParams['TYPE'] === 'PAGE')
+	{
+		$formCode = 'developer';
+	}
+	else
+	{
+		$formCode = 'store';
+	}
 	?>
 	<div style="display: none">
 		<?$APPLICATION->includeComponent(
@@ -132,26 +143,24 @@ if ($arResult['EXPORT_DISABLED'] === 'Y')
 								&& typeof BX.Landing.Metrika !== 'undefined'
 							)
 							{
-								var appCode = event.data.from.match(/app_code:(.*)=?:title/i);
-								var title = event.data.from.match(/title:(.*)=?:preview_url/iu);
-								var previewUrl = event.data.from.match(/preview_url:(.*)/i);
+								var dataFrom = event.data.from.split('|');
+								var appCode = dataFrom[1];
+								var title = dataFrom[2];
+								var previewId = dataFrom[3];
 								if (
 									appCode !== null
-									&& appCode.length > 1
 									&& title !== null
-									&& title.length > 1
-									&& previewUrl !== null
-									&& previewUrl.length > 1
+									&& previewId !== null
 								)
 								{
 									var metrikaValue =
 										sitePath
 										+ '?action=templateCreated&app_code='
-										+ appCode[1]
+										+ appCode
 										+ '&title='
-										+ title[1]
-										+ '&preview_url='
-										+ previewUrl[1];
+										+ title
+										+ '&preview_id='
+										+ previewId;
 									var metrika = new BX.Landing.Metrika(true);
 									metrika.sendLabel(
 										null,
@@ -161,7 +170,7 @@ if ($arResult['EXPORT_DISABLED'] === 'Y')
 								}
 							}
 							gotoSiteButton.setAttribute('href', sitePath);
-							window.location.href = sitePath;
+							setTimeout(() => {window.location.href = sitePath}, 3000);
 						}
 					}
 				}
@@ -174,7 +183,7 @@ if ($arResult['EXPORT_DISABLED'] === 'Y')
 <?endif?>
 
 <?
-if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N') !== 'Y'))
+if ($arParams['TYPE'] !== 'KNOWLEDGE' && $arParams['TYPE'] !== 'GROUP' && $isCrm && (($arParams['OLD_TILE'] ?? 'N') !== 'Y'))
 {
 	if ($arParams['TYPE'] === 'STORE')
 	{
@@ -427,8 +436,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 		<?php foreach ($arResult['SITES'] as $item):
 
 			// actions / urls
-			$urlEdit = str_replace('#site_edit#', $item['ID'], $arParams['~PAGE_URL_SITE_EDIT']);
-			$urlEditDesign = str_replace('#site_edit#', $item['ID'], $arParams['~PAGE_URL_SITE_DESIGN']);
+			$urlSettings = str_replace('#site_edit#', $item['ID'], $arParams['~PAGE_URL_SITE_SETTINGS']);
 			$urlCreatePage = str_replace(array('#site_show#', '#landing_edit#'), array($item['ID'], 0), $arParams['~PAGE_URL_LANDING_EDIT']);
 			$urlView = str_replace('#site_show#', $item['ID'], $arParams['~PAGE_URL_SITE']);
 			$urlSwitchDomain = str_replace('#site_edit#', $item['ID'], $arParams['~PAGE_URL_SITE_DOMAIN_SWITCH']);
@@ -458,8 +466,7 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 									createPage: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlCreatePage)) ?>',
 									switchDomainPage: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlSwitchDomain)) ?>',
 									deleteSite: '#',
-									editSite: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlEdit)) ?>',
-									editSiteDesign: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlEditDesign)) ?>',
+									editSite: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlSettings)) ?>',
 								 	exportSite: '<?= htmlspecialcharsbx(CUtil::jsEscape($item['EXPORT_URI'])) ?>',
 								 	isExportSiteDisabled: <?= ($item['ACCESS_EXPORT'] !== 'Y') ? 'true' : 'false' ?>,
 									publicPage: '#',
@@ -542,7 +549,6 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 									 switchDomainPage: '',
 									 deleteSite: '',
 									 editSite: '/bitrix/admin/site_edit.php?lang=<?= LANGUAGE_ID;?>&amp;LID=<?= $item['LID'] ?>',
-									 editSiteDesign: '/bitrix/admin/site_edit.php?lang=<?= LANGUAGE_ID;?>&amp;LID=<?= $item['LID'] ?>',
 									 exportSite: '',
 									 publicPage: '',
 									 isActive: <?= ($item['ACTIVE'] == 'Y') ? 'true' : 'false' ?>,
@@ -634,11 +640,8 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 	)
 	{
 		var condition = [];
-		<?php if ($arParams['PAGE_URL_SITE_EDIT']):?>
-		condition.push('<?= str_replace(['#site_edit#', '?'], ['(\\\d+)', '\\\?'], CUtil::jsEscape($arParams['PAGE_URL_SITE_EDIT']));?>');
-		<?php endif; ?>
-		<?php if ($arParams['PAGE_URL_SITE_DESIGN']):?>
-		condition.push('<?= str_replace(['#site_edit#', '?'], ['(\\\d+)', '\\\?'], CUtil::jsEscape($arParams['PAGE_URL_SITE_DESIGN']))?>');
+		<?php if ($arParams['PAGE_URL_SITE_SETTINGS']):?>
+		condition.push('<?= str_replace(['#site_edit#', '?'], ['(\\\d+)', '\\\?'], CUtil::jsEscape($arParams['PAGE_URL_SITE_SETTINGS']))?>');
 		<?php endif; ?>
 		<?if ($arParams['PAGE_URL_LANDING_EDIT']):?>
 		condition.push('<?= str_replace(['#site_show#', '#landing_edit#', '?'], ['(\\\d+)', '(\\\d+)', '\\\?'], CUtil::jsEscape($arParams['PAGE_URL_LANDING_EDIT'])) ?>');
@@ -796,16 +799,6 @@ if ($arParams['TYPE'] !== 'KNOWLEDGE' && $isCrm && (($arParams['OLD_TILE'] ?? 'N
 				{
 					text: '<?= CUtil::jsEscape($component->getMessageType('LANDING_TPL_ACTION_EDIT'));?>',
 					href: params.editSite,
-					target: '_blank',
-					disabled: params.isDeleted || params.isSettingsDisabled,
-					onclick: function()
-					{
-						this.popupWindow.close();
-					}
-				},
-				{
-					text: '<?= CUtil::jsEscape($component->getMessageType('LANDING_TPL_ACTION_EDIT_DESIGN_2'))?>',
-					href: params.editSiteDesign,
 					target: '_blank',
 					disabled: params.isDeleted || params.isSettingsDisabled,
 					onclick: function()

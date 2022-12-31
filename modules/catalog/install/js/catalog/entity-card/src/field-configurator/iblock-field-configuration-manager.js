@@ -66,7 +66,7 @@ export default class IblockFieldConfigurationManager extends BX.UI.EntityConfigu
 
 	isCreationEnabled()
 	{
-		return true;
+		return this._editor?.isSectionEditEnabled() && !this._editor?.isReadOnly();
 	}
 
 	getCreationPageUrl(typeId)

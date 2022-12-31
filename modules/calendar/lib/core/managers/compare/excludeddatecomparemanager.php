@@ -41,8 +41,8 @@ class ExcludedDateCompareManager implements CompareManager
 	 */
 	public function __construct(?ExcludedDatesCollection $originalCollection, ?ExcludedDatesCollection $currentCollection)
 	{
-		$this->originalCollection = $originalCollection;
-		$this->currentCollection = $currentCollection;
+		$this->originalCollection = $originalCollection ?? new ExcludedDatesCollection([]);
+		$this->currentCollection = $currentCollection ?? new ExcludedDatesCollection([]);
 
 		$this->compare();
 	}

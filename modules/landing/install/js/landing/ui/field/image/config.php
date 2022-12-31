@@ -12,7 +12,6 @@ return [
 		'landing.loc',
 		'landing.main',
 		'landing.ui.field.textfield',
-		'landing.ui.panel.iconpanel',
 		'landing.imageuploader',
 		'landing.ui.button.basebutton',
 		'landing.imageeditor',

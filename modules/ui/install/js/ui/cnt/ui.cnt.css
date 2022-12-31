@@ -12,6 +12,7 @@
 	--ui-counter-bg-color-success: #9dcf00;
 	--ui-counter-bg-color-primary: #2fc6f6;
 	--ui-counter-bg-color-danger: #f54819;
+	--ui-counter-bg-color-warning: #FBAF16;
 	--ui-counter-bg-color-light: #fff;
 	--ui-counter-bg-color-white: #fff;
 	--ui-counter-bg-color-theme: rgba(82, 92, 105, .15);
@@ -60,6 +61,8 @@
 .ui-counter-danger { --ui-counter-current-bg-color: var(--ui-counter-bg-color-danger); }
 
 .ui-counter-success { --ui-counter-current-bg-color: var(--ui-counter-bg-color-success); }
+
+.ui-counter-warning { --ui-counter-current-bg-color: var(--ui-counter-bg-color-warning); }
 
 .ui-counter-light {
 	box-shadow: inset 0 0 0 1px rgba(168, 173, 180, .5);

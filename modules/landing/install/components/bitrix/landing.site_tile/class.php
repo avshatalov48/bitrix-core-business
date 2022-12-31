@@ -158,6 +158,7 @@ class LandingSiteTileComponent extends LandingBaseComponent
 
 			$item['ACTIVE'] = $item['ACTIVE'] ?? null;
 			$item['PREVIEW'] = $item['PREVIEW'] ?? null;
+			$item['CLOUD_PREVIEW'] = $item['CLOUD_PREVIEW'] ?? null;
 			$item['DOMAIN_NAME'] = $item['DOMAIN_NAME'] ?? null;
 			$item['PUBLIC_URL'] = $item['PUBLIC_URL'] ?? null;
 
@@ -262,6 +263,7 @@ class LandingSiteTileComponent extends LandingBaseComponent
 				'phone' => $this->getSitePhone($item['ID']),
 				'ordersCount' => $orderCounts[$item['ID']],
 				'preview' => $item['PREVIEW'] ?: '',
+				'cloudPreview' => $item['CLOUD_PREVIEW'] ?: '',
 				'published' => $published,
 				'deleted' => $deleted,
 				'domainStatus' => $domainStatus,

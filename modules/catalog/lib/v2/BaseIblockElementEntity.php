@@ -228,7 +228,13 @@ abstract class BaseIblockElementEntity extends BaseEntity implements HasProperty
 
 	public function isSimple(): bool
 	{
-		return $this->getType() === ProductTable::TYPE_PRODUCT;
+		$type = $this->getType();
+
+		return (
+			$type === ProductTable::TYPE_PRODUCT
+			|| $type === ProductTable::TYPE_SERVICE
+			|| $type === ProductTable::TYPE_EMPTY_SKU
+		);
 	}
 
 	public function setActive(bool $active): BaseEntity

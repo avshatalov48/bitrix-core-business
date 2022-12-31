@@ -89,7 +89,7 @@ class Favicon extends \Bitrix\Landing\Hook\Page
 		{
 			$icons = '';
 			// first simple favicons
-			$sizes = array('16x16', '32x32', '96x96');
+			$sizes = array('32x32', '16x16', '96x96');
 			foreach ($sizes as $size)
 			{
 				list($w, $h) = explode('x', $size);

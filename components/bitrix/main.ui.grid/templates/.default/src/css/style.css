@@ -109,7 +109,10 @@
 }
 
 .main-dropdown-item-selected .menu-popup-item-icon,
-.main-dropdown-item-not-selected .menu-popup-item-icon { width: 12px; }
+.main-dropdown-item-not-selected .menu-popup-item-icon {
+	min-width: 12px;
+	width: 12px;
+}
 
 .main-dropdown-item-selected .menu-popup-item-icon {
 	background: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2212%22%20height%3D%229%22%3E%3Cpath%20fill%3D%22%232066B0%22%20d%3D%22M1.36%203.446L4.013%206.1%2010.316%200l1.36%201.36-6.299%206.1-1.364%201.36-1.36-1.36L0%204.806z%22/%3E%3C/svg%3E) no-repeat center;
@@ -151,8 +154,6 @@
 .main-grid-cell-action + .main-grid-cell:not([class*="main-grid-column-color"]) .main-grid-cell-content {
 	margin-left: 3px;
 }
-
-.bx-ie .main-grid-interface-settings-icon { top: auto; }
 
 .main-grid-interface-settings-icon.main-grid-interface-settings-icon-active { opacity: 1; }
 
@@ -511,7 +512,7 @@ span.main-grid-cell-head-container { box-sizing: border-box; }
 	margin: 15px 16px 10px;
 	color: #535c69;
 	vertical-align: top;
-	font-size: 13px;
+	font-size: 14px;
 }
 
 .main-grid-cell-content {
@@ -2616,7 +2617,6 @@ label.main-grid-checkbox {
 .main-grid-load-animation {
 	display: table !important;
 	-webkit-animation: main-grid-load 10ms;
-	-o-animation: main-grid-load 10ms;
 	animation: main-grid-load 10ms;
 }
 

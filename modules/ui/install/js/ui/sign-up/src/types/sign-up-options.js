@@ -9,7 +9,7 @@ export type SignUpOptions = {
 		},
 	},
 	defaultState?: 'initials' | 'touch' | 'image',
-	mode: 'mobile',
+	mode: 'mobile' | 'desktop',
 	events?: {
 		onSaveClick?: (event: BaseEvent) => void,
 		onSaveClickAsync?: (event: BaseEvent) => Promise<any>,

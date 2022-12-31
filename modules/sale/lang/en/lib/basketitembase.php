@@ -6,4 +6,7 @@ $MESS["SALE_BASKET_AVAILABLE_FOR_PURCHASE_QUANTITY"] = "Quantity of \"#PRODUCT_N
 $MESS["SALE_BASKET_ITEM_ERR_CURRENCY_EMPTY"] = "Product currency is missing";
 $MESS["SALE_BASKET_ITEM_ERR_QUANTITY_ZERO"] = "Product \"#PRODUCT_NAME#\" quantity cannot be zero or less than zero";
 $MESS["SALE_BASKET_ITEM_NOT_UPDATED_BECAUSE_NOT_EXISTS"] = "The product \"#PRODUCT_NAME#\" was not updated because it had been deleted earlier.";
+$MESS["SALE_BASKET_ITEM_WRONG_AVAILABLE_QUANTITY_2"] = "Not enough stock of \"#PRODUCT_NAME#\"";
 $MESS["SALE_BASKET_ITEM_WRONG_PRICE"] = "Error getting the price for \"#PRODUCT_NAME#\"";
+$MESS["SALE_BASKET_PRODUCT_NOT_AVAILABLE"] = "\"#PRODUCT_NAME#\" is out of stock";
+$MESS["SALE_BASKET_SERVICE_NOT_AVAILABLE"] = "Service \"#PRODUCT_NAME#\" is not available";

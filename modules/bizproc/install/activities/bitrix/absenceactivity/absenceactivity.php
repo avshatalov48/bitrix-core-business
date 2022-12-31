@@ -54,7 +54,16 @@ class CBPAbsenceActivity
 		$name = $this->AbsenceName;
 		// if multiple or list element
 		if (is_array($name))
-			$name = implode(', ', $name);
+		{
+			$name = implode(', ', CBPHelper::makeArrayFlat($name));
+		}
+
+		$absenceDescription = $this->AbsenceDesrc;
+		// if multiple or list element
+		if (is_array($absenceDescription))
+		{
+			$absenceDescription = implode(', ', CBPHelper::makeArrayFlat($absenceDescription));
+		}
 
 		$activeFrom = $this->AbsenceFrom;
 		$activeTo = $this->AbsenceTo;
@@ -75,7 +84,7 @@ class CBPAbsenceActivity
 				'ACTIVE_FROM' => $activeFrom,
 				'ACTIVE_TO' => $activeTo,
 				"NAME" => $name,
-				"PREVIEW_TEXT" => $this->AbsenceDesrc,
+				"PREVIEW_TEXT" => $absenceDescription,
 				"PREVIEW_TEXT_TYPE" => "text",
 				"PROPERTY_VALUES" => array(
 					"USER" => $absenceUser,

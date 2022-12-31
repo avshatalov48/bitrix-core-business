@@ -2,6 +2,8 @@
 
 namespace Bitrix\Catalog\UI\FileUploader;
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\UI\FileUploader\FileOwnershipCollection;
 use Bitrix\UI\FileUploader\Configuration;
@@ -16,7 +18,7 @@ class DocumentController extends UploaderController
 
 	public function isAvailable(): bool
 	{
-		return CurrentUser::get()->canDoOperation('catalog_read');
+		return AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ);
 	}
 
 	public function getConfiguration(): Configuration
@@ -26,7 +28,7 @@ class DocumentController extends UploaderController
 
 	public function canUpload(): bool
 	{
-		return CurrentUser::get()->canDoOperation('catalog_store');
+		return AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_VIEW);
 	}
 
 	public function verifyFileOwner(FileOwnershipCollection $files): void

@@ -7,9 +7,14 @@
 		return;
 	}
 
-	var Events = {
+	const Events = {
 		onButtonClick: "CallNotification::onButtonClick"
 	};
+
+	const InternalEvents = {
+		setHasCamera: "CallNotification::setHasCamera",
+		contentReady: "CallNotification::contentReady"
+	}
 
 	/**
 	 *
@@ -39,6 +44,8 @@
 		this.callerColor = config.callerColor;
 		this.video = config.video;
 		this.hasCamera = config.hasCamera == true;
+		this.contentReady = false;
+		this.postponedEvents = [];
 
 		this.callbacks = {
 			onClose: BX.type.isFunction(config.onClose) ? config.onClose : BX.DoNothing,
@@ -47,9 +54,11 @@
 		};
 
 		this._onContentButtonClickHandler = this._onContentButtonClick.bind(this);
+		this._onContentReadyHandler = this._onContentReady.bind(this);
 		if(BX.desktop)
 		{
 			BX.desktop.addCustomEvent(Events.onButtonClick, this._onContentButtonClickHandler);
+			BX.desktop.addCustomEvent(InternalEvents.contentReady, this._onContentReadyHandler);
 		}
 	};
 
@@ -122,6 +131,37 @@
 		});
 	};
 
+	BX.Call.Notification.prototype.setHasCamera = function(hasCamera)
+	{
+		if (this.window)
+		{
+			// desktop; send event to the window
+			if (this.contentReady)
+			{
+				BX.desktop.onCustomEvent(InternalEvents.setHasCamera, [hasCamera]);
+			}
+			else
+			{
+				this.postponedEvents.push({
+					name: InternalEvents.setHasCamera,
+					params: [hasCamera]
+				})
+			}
+		}
+		else if (this.content)
+		{
+			this.content.setHasCamera(hasCamera)
+		}
+	};
+
+	BX.Call.Notification.prototype.sendPostponedEvents = function()
+	{
+		this.postponedEvents.forEach((event) => {
+			BX.desktop.onCustomEvent(event.name, event.params);
+		})
+		this.postponedEvents = [];
+	}
+
 	BX.Call.Notification.prototype.close = function()
 	{
 		if(this.popup)
@@ -160,6 +200,12 @@
 		this.callbacks.onButtonClick(e);
 	};
 
+	BX.Call.Notification.prototype._onContentReady = function()
+	{
+		this.contentReady = true;
+		this.sendPostponedEvents();
+	}
+
 	BX.Call.NotificationContent = function(config)
 	{
 		this.video = !!config.video;
@@ -171,7 +217,10 @@
 
 		this.elements = {
 			root: null,
-			avatar: null
+			avatar: null,
+			buttons: {
+				answerVideo: null
+			}
 		};
 
 		this.callbacks = {
@@ -179,6 +228,12 @@
 			onDestroy: BX.type.isFunction(config.onDestroy) ? config.onDestroy : BX.DoNothing,
 			onButtonClick: BX.type.isFunction(config.onButtonClick) ? config.onButtonClick : BX.DoNothing
 		};
+
+		if(BX.desktop)
+		{
+			BX.desktop.addCustomEvent(InternalEvents.setHasCamera, hasCamera => this.setHasCamera(hasCamera));
+			BX.desktop.onCustomEvent("main", InternalEvents.contentReady, []);
+		}
 	};
 
 	BX.Call.NotificationContent.prototype.render = function()
@@ -310,7 +365,7 @@
 										BX.create("div", {
 											props: {className: "bx-messenger-call-window-buttons-block"},
 											children: [
-												BX.create("div", {
+												this.elements.buttons.answerVideo = BX.create("div", {
 													props: {className: "bx-messenger-call-window-button" + (!this.hasCamera ? " bx-messenger-call-window-button-disabled" : "")},
 													children: [
 														BX.create("div", {
@@ -377,6 +432,15 @@
 		this.render();
 		document.body.appendChild(this.elements.root);
 		BX.desktop.setWindowPosition({X:STP_CENTER, Y:STP_VCENTER, Width: 351, Height: 510});
+	};
+
+	BX.Call.NotificationContent.prototype.setHasCamera = function(hasCamera)
+	{
+		this.hasCamera = !!hasCamera;
+		if (this.elements.buttons.answerVideo)
+		{
+			this.elements.buttons.answerVideo.classList.toggle("bx-messenger-call-window-button-disabled", !this.hasCamera);
+		}
 	};
 
 	BX.Call.NotificationContent.prototype._onAnswerButtonClick = function(e)

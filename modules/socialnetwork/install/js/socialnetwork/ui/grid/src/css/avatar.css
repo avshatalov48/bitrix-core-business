@@ -1,0 +1,25 @@
+.sonet-ui-grid-group-avatar {
+	display: inline-block;
+	margin-right: 8px;
+	min-width: 22px;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	overflow: hidden;
+}
+
+.sonet-ui-grid-group-avatar.sonet-common-workgroup-avatar {
+	margin: 0 8px 0 0;
+	background-size: 14px;
+}
+
+.sonet-ui-grid-group-avatar.sonet-common-workgroup-avatar.--folder {
+	background-position: center 4px;
+}
+
+.sonet-ui-grid-group-avatar.sonet-common-workgroup-avatar.--chart {
+	background-position: 5px 3px;
+}

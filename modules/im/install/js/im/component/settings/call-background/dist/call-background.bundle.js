@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core,im_lib_uploader,im_lib_utils,ui_infoHelper,ui_notification,ui_fonts_opensans,ui_vue,ui_progressbarjs_uploader,im_const) {
+(function (exports,main_core,im_lib_uploader,im_lib_utils,rest_client,ui_infoHelper,ui_notification,ui_fonts_opensans,ui_vue,ui_progressbarjs_uploader,im_const) {
 	'use strict';
 
 	/**
@@ -138,7 +138,7 @@ this.BX = this.BX || {};
 	      this.updateProgressbar();
 	    }
 	  },
-	  template: "\n\t\t<div :key=\"item.id\" @click=\"$emit('select')\" :class=\"['bx-im-settings-video-background-dialog-item', {'bx-im-settings-video-background-dialog-item-selected': selected, 'bx-im-settings-video-background-dialog-item-unsupported': !item.supported , 'bx-im-settings-video-background-dialog-item-loading': item.loading }]\" ref=\"container\">\n\t\t\t<div class=\"bx-im-settings-video-background-dialog-item-image\" :style=\"{backgroundImage: item.preview? 'url('+item.preview+')': ''}\"></div>\n\t\t\t<div v-if=\"item.supported && item.video\" class=\"bx-im-settings-video-background-dialog-item-video\"></div>\n\t\t\t<div v-if=\"!item.loading\" class=\"bx-im-settings-video-background-dialog-item-title\">\n\t\t\t\t<span class=\"bx-im-settings-video-background-dialog-item-title-text\">{{item.title}}</span>\n\t\t\t\t<div v-if=\"item.canRemove\" class=\"bx-im-settings-video-background-dialog-item-remove\" :title=\"localize.BX_IM_COMPONENT_SETTINGS_CALL_BG_REMOVE\" @click=\"$emit('remove')\"></div>\n\t\t\t</div>\n\t\t</div>\n\t"
+	  template: "\n\t\t<div :key=\"item.id\" @click=\"$emit('select')\" :class=\"['bx-im-settings-video-background-dialog-item', {'bx-im-settings-video-background-dialog-item-selected': selected, 'bx-im-settings-video-background-dialog-item-unsupported': !item.isSupported , 'bx-im-settings-video-background-dialog-item-loading': item.isLoading }]\" ref=\"container\">\n\t\t\t<div class=\"bx-im-settings-video-background-dialog-item-image\" :style=\"{backgroundImage: item.preview? 'url('+item.preview+')': ''}\"></div>\n\t\t\t<div v-if=\"item.isSupported && item.isVideo\" class=\"bx-im-settings-video-background-dialog-item-video\"></div>\n\t\t\t<div v-if=\"!item.isLoading\" class=\"bx-im-settings-video-background-dialog-item-title\">\n\t\t\t\t<span class=\"bx-im-settings-video-background-dialog-item-title-text\">{{item.title}}</span>\n\t\t\t\t<div v-if=\"item.canRemove\" class=\"bx-im-settings-video-background-dialog-item-remove\" :title=\"localize.BX_IM_COMPONENT_SETTINGS_CALL_BG_REMOVE\" @click=\"$emit('remove')\"></div>\n\t\t\t</div>\n\t\t</div>\n\t"
 	};
 
 	var ActionType = Object.freeze({
@@ -183,26 +183,26 @@ this.BX = this.BX || {};
 
 	    this.defaultValue = this.isDesktop ? window.BX.desktop.getBackgroundImage() : {
 	      id: ActionType.none,
-	      source: ''
+	      background: ''
 	    };
 	    this.selected = this.defaultValue.id;
 	    this.limit = {};
-	    main_core.ajax.runAction("im.call.getBackground", {}).then(function (response) {
+	    rest_client.rest.callMethod("im.v2.call.background.get").then(function (response) {
 	      _this.loading = false;
-	      _this.diskFolderId = response.data.diskFolderId;
-	      response.data.list["default"].forEach(function (element) {
-	        element.video = element.id.includes(':video');
-	        element.custom = false;
+	      _this.diskFolderId = response.data().upload.folderId;
+	      response.data().backgrounds["default"].forEach(function (element) {
+	        element.isVideo = element.id.includes(':video');
+	        element.isCustom = false;
 	        element.canRemove = false;
-	        element.supported = true;
+	        element.isSupported = true;
 
 	        _this.standard.push(element);
 	      });
-	      response.data.list.custom.forEach(function (element) {
-	        element.custom = true;
+	      response.data().backgrounds.custom.forEach(function (element) {
+	        element.isCustom = true;
 	        element.canRemove = true;
 
-	        if (element.supported) {
+	        if (element.isSupported) {
 	          element.title = main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_CUSTOM');
 	        } else {
 	          element.title = main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_UNSUPPORTED');
@@ -210,13 +210,13 @@ this.BX = this.BX || {};
 
 	        _this.custom.push(element);
 	      });
-	      response.data.limit.forEach(function (element) {
+	      response.data().limits.forEach(function (element) {
 	        _this.limit[element.id] = element;
 	      });
 
 	      if (_this.diskFolderId) {
 	        _this.actions = _this.actions.map(function (element) {
-	          element.supported = true;
+	          element.isSupported = true;
 	          return element;
 	        });
 	      } else {
@@ -227,7 +227,7 @@ this.BX = this.BX || {};
 
 	      if (!window.BX.UI.InfoHelper.isInited()) {
 	        window.BX.UI.InfoHelper.init({
-	          frameUrlTemplate: response.data.infohelper.frameUrlTemplate
+	          frameUrlTemplate: response.data().infoHelperParams.frameUrlTemplate
 	        });
 	      }
 
@@ -240,7 +240,7 @@ this.BX = this.BX || {};
 	    this.actions.push({
 	      id: ActionType.none,
 	      title: main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_ACTION_NONE'),
-	      source: ActionType.none
+	      background: ActionType.none
 	    });
 	    this.actions.push({
 	      id: ActionType.upload,
@@ -249,12 +249,12 @@ this.BX = this.BX || {};
 	    this.actions.push({
 	      id: ActionType.gaussianBlur,
 	      title: main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_ACTION_BLUR'),
-	      source: ActionType.gaussianBlur
+	      background: ActionType.gaussianBlur
 	    });
 	    this.actions.push({
 	      id: ActionType.blur,
 	      title: main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_ACTION_BLUR_MAX'),
-	      source: ActionType.blur
+	      background: ActionType.blur
 	    });
 	  },
 	  mounted: function mounted() {
@@ -301,14 +301,14 @@ this.BX = this.BX || {};
 
 	      _this2.custom.unshift({
 	        id: eventData.id,
-	        source: filePreview,
+	        background: filePreview,
 	        preview: filePreview,
 	        title: main_core.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_CUSTOM'),
-	        video: eventData.file.type.startsWith('video'),
-	        custom: true,
+	        isVideo: eventData.file.type.startsWith('video'),
+	        isCustom: true,
 	        canRemove: false,
-	        supported: true,
-	        loading: true,
+	        isSupported: true,
+	        isLoading: true,
 	        state: {
 	          progress: 0,
 	          status: im_const.FileStatus.upload,
@@ -342,19 +342,17 @@ this.BX = this.BX || {};
 
 	      element.id = eventData.result.data.file.id;
 
-	      if (element.video) {
-	        element.source = eventData.result.data.file.links.download;
+	      if (element.isVideo) {
+	        element.background = eventData.result.data.file.links.download;
 	      }
 
-	      element.loading = false;
+	      element.isLoading = false;
 	      element.canRemove = true;
 
 	      _this2.select(element);
 
-	      main_core.ajax.runAction('im.call.commitBackground', {
-	        data: {
-	          fileId: element.id
-	        }
+	      rest_client.rest.callMethod('im.v2.call.background.commit', {
+	        fileId: element.id
 	      });
 	    });
 	    this.uploader.subscribe('onUploadFileError', function (event) {
@@ -387,6 +385,13 @@ this.BX = this.BX || {};
 	    });
 	  },
 	  computed: {
+	    isMaskAvailable: function isMaskAvailable() {
+	      if (window.BX.getClass('BX.desktop')) {
+	        return window.BX.desktop.getApiVersion() >= 72;
+	      } else if (window.BX.getClass("BX.Messenger.Lib.Utils.platform")) {
+	        return window.BX.Messenger.Lib.Utils.platform.getDesktopVersion() >= 72;
+	      }
+	    },
 	    containerSize: function containerSize() {
 	      var result = {};
 
@@ -440,7 +445,7 @@ this.BX = this.BX || {};
 	        return false;
 	      }
 
-	      if (!element.supported || element.loading) {
+	      if (!element.isSupported || element.isLoading) {
 	        return false;
 	      }
 
@@ -452,7 +457,7 @@ this.BX = this.BX || {};
 	      this.selected = element.id;
 
 	      if (this.isDesktop) {
-	        window.BX.desktop.setBackgroundImage(element.id, element.source);
+	        window.BX.desktop.setCallBackground(element.id, element.background);
 	      }
 
 	      return true;
@@ -462,11 +467,11 @@ this.BX = this.BX || {};
 	        this.selected = ActionType.none;
 
 	        if (this.isDesktop) {
-	          window.BX.desktop.setBackgroundImage(ActionType.none, ActionType.none);
+	          window.BX.desktop.setCallBackground(ActionType.none, ActionType.none);
 	        }
 	      }
 
-	      if (element.loading) {
+	      if (element.isLoading) {
 	        this.uploader.deleteTask(element.id);
 	      } else {
 	        main_core.ajax.runAction('disk.api.file.delete', {
@@ -491,7 +496,7 @@ this.BX = this.BX || {};
 	      }
 
 	      if (this.isDesktop) {
-	        window.BX.desktop.setBackgroundImage(this.defaultValue.id, this.defaultValue.source).then(function () {
+	        window.BX.desktop.setCallBackground(this.defaultValue.id, this.defaultValue.background).then(function () {
 	          window.close();
 	        });
 	      } else {
@@ -507,5 +512,5 @@ this.BX = this.BX || {};
 	  template: "\n\t\t<div class=\"bx-im-settings-video-background-dialog\">\n\t\t\t<div class=\"bx-im-settings-video-background-dialog-inner\" :style=\"containerSize\">\n\t\t\t\t<div class=\"bx-im-settings-video-background-dialog-container\">\n\t\t\t\t\t<div class=\"bx-im-settings-video-background-upload-input\"><input type=\"file\" :accept=\"uploadTypes\" ref=\"uploadInput\"/></div>\n\t\t\t\t\t<template v-if=\"loading\">\n\t\t\t\t\t\t<div class=\"bx-im-settings-video-background-dialog-loader\">\n\t\t\t\t\t\t\t<svg class=\"bx-desktop-loader-circular\" viewBox=\"25 25 50 50\">\n\t\t\t\t\t\t\t\t<circle class=\"bx-desktop-loader-path\" cx=\"50\" cy=\"50\" r=\"20\" fill=\"none\" stroke-miterlimit=\"10\"/>\n\t\t\t\t\t\t\t</svg>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template>\n\t\t\t\t\t<template v-else>\n\t\t\t\t\t\t<div class=\"bx-im-settings-video-background-dialog-content\">\n\t\t\t\t\t\t<template v-for=\"(element in actions\">\n\t\t\t\t\t\t\t<div :key=\"element.id\" @click=\"select(element)\" :class=\"['bx-im-settings-video-background-dialog-item', 'bx-im-settings-video-background-dialog-action', 'bx-im-settings-video-background-dialog-action-'+element.id, {'bx-im-settings-video-background-dialog-item-selected': selected === element.id }]\">\n\t\t\t\t\t\t\t\t<div class=\"bx-im-settings-video-background-dialog-action-title\">{{element.title}}</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t<template v-for=\"(item in backgrounds\">\n\t\t\t\t\t\t\t<bx-im-component-settings-call-background-item \n\t\t\t\t\t\t\t\t:key=\"item.id\" \n\t\t\t\t\t\t\t\t:item=\"item\" \n\t\t\t\t\t\t\t\t:selected=\"selected === item.id\" \n\t\t\t\t\t\t\t\t@select=\"select(item)\" \n\t\t\t\t\t\t\t\t@cancel=\"remove(item)\"\n\t\t\t\t\t\t\t\t@remove=\"remove(item)\"\n\t\t\t\t\t\t\t/>\n\t\t\t\t\t\t</template>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</template>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t\t<div class=\"ui-btn-container ui-btn-container-center\">\n\t\t\t\t<button :class=\"['ui-btn', 'ui-btn-success', {'ui-btn-wait ui-btn-disabled': loading}]\" @click=\"save\">{{$Bitrix.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_SAVE')}}</button>\n\t\t\t\t<button class=\"ui-btn ui-btn-link\" @click=\"cancel\">{{$Bitrix.Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_CANCEL')}}</button>\n\t\t\t</div>\n\t\t</div>\n\t"
 	});
 
-}((this.BX.Messenger = this.BX.Messenger || {}),BX,BX.Messenger.Lib,BX.Messenger.Lib,BX,BX,BX,BX,BX.ProgressBarJs,BX.Messenger.Const));
+}((this.BX.Messenger = this.BX.Messenger || {}),BX,BX.Messenger.Lib,BX.Messenger.Lib,BX,BX,BX,BX,BX,BX.ProgressBarJs,BX.Messenger.Const));
 //# sourceMappingURL=call-background.bundle.js.map

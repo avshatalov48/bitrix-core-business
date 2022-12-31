@@ -292,7 +292,8 @@ class VendorSynchronization
 						if ($childToDelete)
 						{
 							$DB->Query("DELETE FROM b_calendar_event_connection 
-								WHERE ID IN (" . implode(',', $childToDelete) . ");
+								WHERE ID IN (" . implode(',', $childToDelete) . ")
+				            	AND CONNECTION_ID = '{$factory->getConnection()->getId()}';
 				            ");
 						}
 
@@ -362,7 +363,7 @@ class VendorSynchronization
 		{
 			$manager = $factory->getEventManager();
 			$masterLink = $this->getEventConnection($masterEvent);
-			if (empty($masterLink))
+			if ($masterLink === null)
 			{
 				// error of Transition period. This situation is impossible in regular mode.
 				$result->addError(new Error('Series master event does not have connection with vendor'));
@@ -400,7 +401,7 @@ class VendorSynchronization
 				;
 				if ($factory->getCode() !== Icloud\Helper::ACCOUNT_TYPE)
 				{
-					$eventLink->setEntityTag($result->getData()['event']['etag']);
+					$eventLink->setEntityTag($result->getData()['event']['etag'] ?? null);
 				}
 
 				$this->mapperFactory->getEventConnection()->create($eventLink);
@@ -461,6 +462,15 @@ class VendorSynchronization
 		{
 			$manager = $factory->getEventManager();
 			$masterLink = $this->getEventConnection($masterEvent);
+
+			if ($masterLink === null)
+			{
+				// error of Transition period. This situation is impossible in regular mode.
+				$result->addError(new Error('Series master event does not have connection with vendor'));
+
+				return $result;
+			}
+
 			$context
 				->setEventConnection($masterLink)
 				->add('sync', 'instanceLink', $eventLink)
@@ -475,9 +485,13 @@ class VendorSynchronization
 					->setVersion($event->getVersion())
 					->setVendorVersionId($result->getData()['event']['version'] ?? null)
 				;
+				if (!empty($result->getData()['event']['id']))
+				{
+					$eventLink->setVendorEventId($result->getData()['event']['id']);
+				}
 				if ($factory->getCode() !== Icloud\Helper::ACCOUNT_TYPE)
 				{
-					$eventLink->setEntityTag($result->getData()['event']['etag']);
+					$eventLink->setEntityTag($result->getData()['event']['etag'] ?? null);
 				}
 				$this->mapperFactory->getEventConnection()->update($eventLink);
 
@@ -572,19 +586,19 @@ class VendorSynchronization
 
 	/**
 	 * @param SyncEvent $recurrenceEvent
-	 * @param Context $context
+	 * @param EventContext $context
 	 *
 	 * @return Result
 	 * @throws Exception
 	 */
-	public function createRecurrence(SyncEvent $recurrenceEvent, Context $context): Result
+	public function createRecurrence(SyncEvent $recurrenceEvent, EventContext $context): Result
 	{
 		$mainResult = new Result();
 		$resultData = [];
 		$factory = $this->factory;
 		$manager = $factory->getEventManager();
 		/** @var SectionConnection $sectionLink */
-		$sectionLink = $context->sync['sectionLink'];
+		$sectionLink = $context->getSectionConnection();
 		if (!$sectionLink)
 		{
 			$mainResult->addError(new Error('Section connection not found'));
@@ -627,19 +641,19 @@ class VendorSynchronization
 
 	/**
 	 * @param SyncEvent $recurrenceEvent
-	 * @param Context $context
+	 * @param EventContext $context
 	 *
 	 * @return Result
 	 * @throws Exception
 	 */
-	public function updateRecurrence(SyncEvent $recurrenceEvent, Context $context): Result
+	public function updateRecurrence(SyncEvent $recurrenceEvent, EventContext $context): Result
 	{
 		$mainResult = new Result();
 		$resultData = [];
 		$factory = $this->factory;
 		$manager = $factory->getEventManager();
 		/** @var SectionConnection $sectionLink */
-		$sectionLink = $context->sync['sectionLink'];
+		$sectionLink = $context->getSectionConnection();
 		if (!$sectionLink)
 		{
 			$mainResult->addError(new Error('Section connection not found'));
@@ -674,10 +688,11 @@ class VendorSynchronization
 				if ($result->isSuccess())
 				{
 					$masterResult = $this->updateEventLink($recurrenceEvent);
+					$instanceResult = [];
 					/** @var SyncEvent $instance */
 					foreach ($recurrenceEvent->getInstanceMap()->getCollection() as $instance)
 					{
-						if ($instance->getEventConnection()->getId())
+						if ($instance->getEventConnection() && $instance->getEventConnection()->getId())
 						{
 							$instanceResult[] = $this->updateEventLink($instance);
 						}
@@ -1051,13 +1066,21 @@ class VendorSynchronization
 	 */
 	private function createEventLink(SyncEvent $syncEvent, int $connectionId): \Bitrix\Main\ORM\Data\AddResult
 	{
+		// TODO: change to mapper->create;
+		// $this->mapperFactory->getEventConnection()->create();
 		return EventConnectionTable::add([
 			'EVENT_ID' => $syncEvent->getEvent()->getId(),
 			'CONNECTION_ID' => $connectionId,
-			'VENDOR_EVENT_ID' => $syncEvent->getEventConnection()->getVendorEventId(),
+			'VENDOR_EVENT_ID' => $syncEvent->getEventConnection()
+				? $syncEvent->getEventConnection()->getVendorEventId()
+				: null
+			,
 			'SYNC_STATUS' => Dictionary::SYNC_STATUS['success'],
 			'VERSION' => $syncEvent->getEvent()->getVersion(),
-			'ENTITY_TAG' =>  $syncEvent->getEventConnection()->getEntityTag(),
+			'ENTITY_TAG' =>  $syncEvent->getEventConnection()
+				? $syncEvent->getEventConnection()->getEntityTag()
+				: null
+			,
 		]);
 	}
 
@@ -1067,13 +1090,10 @@ class VendorSynchronization
 	 * @return \Bitrix\Main\ORM\Data\UpdateResult
 	 * @throws Exception
 	 */
-	private function updateEventLink(SyncEvent $syncEvent): \Bitrix\Main\ORM\Data\UpdateResult
+	private function updateEventLink(SyncEvent $syncEvent): Result
 	{
-		return EventConnectionTable::update($syncEvent->getEventConnection()->getId(), [
-			'VENDOR_EVENT_ID' => $syncEvent->getEventConnection()->getVendorEventId(),
-			'ENTITY_TAG' => $syncEvent->getEventConnection()->getEntityTag(),
-			'SYNC_STATUS' => Dictionary::SYNC_STATUS['update'],
-			'VERSION' => $syncEvent->getEvent()->getVersion(),
-		]);
+		$newLink = $this->mapperFactory->getEventConnection()->update($syncEvent->getEventConnection());
+
+		return (new Result())->setData(['eventConnection' => $newLink]);
 	}
 }

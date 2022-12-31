@@ -1067,4 +1067,30 @@ class Block
 
 		return $result;
 	}
+
+	/**
+	 * Returns the username.
+	 * @param int $userId.
+	 * @return PublicActionResult
+	 */
+	public static function getUserNameById(int $userId): PublicActionResult
+	{
+		$res = \Bitrix\Main\UserTable::getList([
+			'select' => [
+				'NAME',
+				'LAST_NAME'
+			],
+			'filter' => [
+				'ID' => $userId
+			]]);
+		$row = $res->fetch();
+		$result = new PublicActionResult();
+		$result->setResult([
+			'NAME' => \CUser::formatName(
+				\CSite::getNameFormat(false),
+				$row, true, false
+			)
+		]);
+		return $result;
+	}
 }

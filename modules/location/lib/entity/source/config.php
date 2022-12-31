@@ -25,9 +25,9 @@ final class Config implements \IteratorAggregate
 
 	/**
 	 * @param string $code
-	 * @return mixed|null
+	 * @return ConfigItem|null
 	 */
-	public function getValue(string $code)
+	public function getItem(string $code): ?ConfigItem
 	{
 		foreach ($this->items as $item)
 		{
@@ -36,10 +36,25 @@ final class Config implements \IteratorAggregate
 				continue;
 			}
 
-			return $item->getValue();
+			return $item;
 		}
 
 		return null;
+	}
+
+	/**
+	 * @param string $code
+	 * @return mixed|null
+	 */
+	public function getValue(string $code)
+	{
+		$item = $this->getItem($code);
+		if (!$item)
+		{
+			return null;
+		}
+
+		return $item->getValue();
 	}
 
 	/**

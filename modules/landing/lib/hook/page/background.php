@@ -44,7 +44,8 @@ class Background extends \Bitrix\Landing\Hook\Page
 			)),
 			'POSITION' => new Field\Select('POSITION', array(
 				'title' => Loc::getMessage('LANDING_HOOK_BG_POSITION'),
-				'help' => Loc::getMessage('LANDING_HOOK_BG_POSITION_HELP_2'),
+				'help' => Loc::getMessage('LANDING_HOOK_BG_POSITION_HELP_3'),
+				'htmlHelp' => true,
 				'options' => array(
 					'center' => Loc::getMessage('LANDING_HOOK_BG_POSITION_CENTER_2'),
 					'repeat' => Loc::getMessage('LANDING_HOOK_BG_POSITION_REPEAT_2'),

@@ -31,7 +31,6 @@ export default class PostFormEditor extends EventEmitter
 
 		window['setBlogPostFormSubmitted'] = this.setBlogPostFormSubmitted.bind(this);
 		window['submitBlogPostForm'] = this.submitBlogPostForm.bind(this);
-		console.log('constructor');
 	}
 
 	init(formID, params)
@@ -259,7 +258,6 @@ export default class PostFormEditor extends EventEmitter
 
 			if (submitButton)
 			{
-				console.log('add');
 				submitButton.classList.add('ui-btn-clock');
 				this.disabled = true;
 

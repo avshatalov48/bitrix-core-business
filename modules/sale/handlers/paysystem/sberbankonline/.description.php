@@ -5,10 +5,6 @@ use Bitrix\Main\Loader,
 
 Loc::loadMessages(__FILE__);
 
-$description = array(
-	'MAIN' => Loc::getMessage('SALE_HPS_SBERBANK_DESCRIPTION_MAIN'),
-);
-
 $isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
 
 $licensePrefix = Loader::includeModule('bitrix24') ? \CBitrix24::getLicensePrefix() : '';

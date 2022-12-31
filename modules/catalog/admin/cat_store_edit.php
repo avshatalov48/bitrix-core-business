@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Main\Application;
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
@@ -27,15 +29,6 @@ $listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
 
 $currentUser = CurrentUser::get();
 
-if (!($currentUser->canDoOperation('catalog_read') || $currentUser->canDoOperation('catalog_store')))
-{
-	$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED"));
-}
-Loader::includeModule("catalog");
-$isCloud = ModuleManager::isModuleInstalled('bitrix24');
-
-$canModify = $currentUser->canDoOperation('catalog_store');
-
 $request = Context::getCurrent()->getRequest();
 if ($request->isAjaxRequest())
 {
@@ -47,6 +40,24 @@ if ($id < 0)
 {
 	$id = 0;
 }
+
+
+Loader::includeModule("catalog");
+/** @var AccessController $accessController */
+$accessController = AccessController::getCurrent();
+if (
+	!(
+		$accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+		|| $accessController->checkByValue(ActionDictionary::ACTION_STORE_MODIFY, $id)
+	)
+)
+{
+	$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED"));
+}
+
+$isCloud = ModuleManager::isModuleInstalled('bitrix24');
+
+$canModify = AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_MODIFY);
 
 if (!Catalog\Config\Feature::isMultiStoresEnabled())
 {
@@ -555,38 +566,20 @@ $userFieldUrl .= "&back_url=".urlencode($APPLICATION->GetCurPageParam('', array(
 		<td><?= Loc::getMessage("STORE_IMAGE")?>:</td>
 		<td>
 			<?php
-			$baseConfig = [
+			$fileConfig = [
 				'name' => 'IMAGE_ID',
 				'description' => false,
 				'allowUpload' => FileInput::UPLOAD_IMAGES,
 				'allowUploadExt' => '',
 				'maxCount' => 1,
+				'upload' => $canModify,
+				'medialib' => false,
+				'fileDialog' => $canModify,
+				'cloud' => false,
+				'delete' => $canModify,
 			];
-			if ($canModify)
-			{
-				$uploadConfig = [
-					'upload' => true,
-					'medialib' => false,
-					'fileDialog' => true,
-					'cloud' => false,
-					'delete' => true,
-				];
-			}
-			else
-			{
-				$uploadConfig = [
-					'upload' => false,
-					'medialib' => false,
-					'fileDialog' => false,
-					'cloud' => false,
-					'delete' => false,
-				];
-			}
 
-			$fileInput = FileInput::createInstance(
-				$baseConfig
-				+ $uploadConfig
-			);
+			$fileInput = FileInput::createInstance($fileConfig);
 			$showFiles = ['IMAGE_ID' => $fields['IMAGE_ID']];
 
 			echo $fileInput->show($showFiles, $bVarsFromForm);
@@ -619,7 +612,10 @@ $userFieldUrl .= "&back_url=".urlencode($APPLICATION->GetCurPageParam('', array(
 		}
 
 	$tabControl->EndTab();
-	$tabControl->Buttons(array("disabled" => !$canModify, "back_url" => $listUrl));
+	$tabControl->Buttons([
+		"disabled" => !$canModify,
+		"back_url" => $listUrl
+	]);
 	$tabControl->End();
 	?>
 </form>

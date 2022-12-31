@@ -371,6 +371,16 @@ if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Control
 					easing.animate();
 				}
 
+				if (window.FCList)
+				{
+					var FCListInstance = window.FCList.getInstance({
+						ENTITY_XML_ID: '<?=CUtil::JSEscape($arParams["ENTITY_XML_ID"])?>'
+					});
+					if (FCListInstance)
+					{
+						FCListInstance.registerComments();
+					}
+				}
 			});
 		}
 

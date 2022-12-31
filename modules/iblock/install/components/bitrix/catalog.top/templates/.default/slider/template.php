@@ -1,4 +1,8 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+use Bitrix\Catalog\ProductTable;
+
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -139,13 +143,23 @@ $strContID = 'cat_top_cont_'.$strRand;
 					);
 
 					$strObName = 'ob'.preg_replace("/[^a-zA-Z0-9_]/", "x", $strMainID);
+
+					if ($arResult['MODULES']['catalog'] && $item['PRODUCT']['TYPE'] === ProductTable::TYPE_SERVICE)
+					{
+						$messageNotAvailable = ($arParams['MESS_NOT_AVAILABLE_SERVICE'] ?: GetMessage('CT_BCT_TPL_MESS_PRODUCT_NOT_AVAILABLE_SERVICE'));
+					}
+					else
+					{
+						$messageNotAvailable = ($arParams['MESS_NOT_AVAILABLE'] ?: GetMessage('CT_BCT_TPL_MESS_PRODUCT_NOT_AVAILABLE'));
+					}
+
 					$productTitle = (
-					isset($arItem['IPROPERTY_VALUES']['ELEMENT_PAGE_TITLE'])&& $arItem['IPROPERTY_VALUES']['ELEMENT_PAGE_TITLE'] != ''
+						isset($arItem['IPROPERTY_VALUES']['ELEMENT_PAGE_TITLE'])&& $arItem['IPROPERTY_VALUES']['ELEMENT_PAGE_TITLE'] != ''
 						? $arItem['IPROPERTY_VALUES']['ELEMENT_PAGE_TITLE']
 						: $arItem['NAME']
 					);
 					$imgTitle = (
-					isset($arItem['IPROPERTY_VALUES']['ELEMENT_PREVIEW_PICTURE_FILE_TITLE']) && $arItem['IPROPERTY_VALUES']['ELEMENT_PREVIEW_PICTURE_FILE_TITLE'] != ''
+						isset($arItem['IPROPERTY_VALUES']['ELEMENT_PREVIEW_PICTURE_FILE_TITLE']) && $arItem['IPROPERTY_VALUES']['ELEMENT_PREVIEW_PICTURE_FILE_TITLE'] != ''
 						? $arItem['IPROPERTY_VALUES']['ELEMENT_PREVIEW_PICTURE_FILE_TITLE']
 						: $arItem['NAME']
 					);
@@ -280,11 +294,9 @@ $strContID = 'cat_top_cont_'.$strRand;
 									else
 									{
 										?>
-										<div id="<? echo $arItemIDs['NOT_AVAILABLE_MESS']; ?>" class="bx_catalog_item_controls_blockone"><span class="bx_notavailable">
-<?
-echo ('' != $arParams['MESS_NOT_AVAILABLE'] ? $arParams['MESS_NOT_AVAILABLE'] : GetMessage('CT_BCT_TPL_MESS_PRODUCT_NOT_AVAILABLE'));
-?>
-			</span></div>
+										<div id="<? echo $arItemIDs['NOT_AVAILABLE_MESS']; ?>" class="bx_catalog_item_controls_blockone"><span class="bx_notavailable"><?php
+											echo $messageNotAvailable;
+										?></span></div>
 										<?
 										if ($arParams['DISPLAY_COMPARE'] || $showSubscribeBtn)
 										{
@@ -464,11 +476,9 @@ echo ('' != $arParams['MESS_NOT_AVAILABLE'] ? $arParams['MESS_NOT_AVAILABLE'] : 
 										<?
 									}
 									?>
-									<div id="<? echo $arItemIDs['NOT_AVAILABLE_MESS']; ?>" class="bx_catalog_item_controls_blockone" style="display: <? echo ($canBuy ? 'none' : ''); ?>;"><span class="bx_notavailable">
-<?
-echo ('' != $arParams['MESS_NOT_AVAILABLE'] ? $arParams['MESS_NOT_AVAILABLE'] : GetMessage('CT_BCT_TPL_MESS_PRODUCT_NOT_AVAILABLE'));
-?>
-			</span></div>
+									<div id="<? echo $arItemIDs['NOT_AVAILABLE_MESS']; ?>" class="bx_catalog_item_controls_blockone" style="display: <? echo ($canBuy ? 'none' : ''); ?>;"><span class="bx_notavailable"><?php
+										echo $messageNotAvailable;
+									?></span></div>
 									<div id="<? echo $arItemIDs['BASKET_ACTIONS']; ?>" class="bx_catalog_item_controls_blocktwo" style="display: <? echo ($canBuy ? '' : 'none'); ?>;">
 										<a id="<? echo $arItemIDs['BUY_LINK']; ?>" class="bx_bt_button bx_medium" href="javascript:void(0)" rel="nofollow"><?
 											if ($arParams['ADD_TO_BASKET_ACTION'] == 'BUY')

@@ -17,6 +17,7 @@
 	margin-right: 20px;
 	margin-bottom: 24px;
 	border-radius: 12px;
+	overflow: hidden;
 
 	background-color: #fff;
 	transition: box-shadow .3s, top .3s;

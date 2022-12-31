@@ -112,6 +112,8 @@ class CIMRestService extends IRestService
 
 				'im.videoconf.share.change' => array('callback' => array(__CLASS__, 'videoconfShareChange'), 'options' => array('private' => true)),
 				'im.videoconf.password.check' => array('callback' => array(__CLASS__, 'videoconfPasswordCheck'), 'options' => array('private' => true)),
+				'im.videoconf.add' => array('callback' => array(__CLASS__, 'videoconfAdd'), 'options' => array('private' => true)),
+				'im.videoconf.update' => array('callback' => array(__CLASS__, 'videoconfUpdate'), 'options' => array('private' => true)),
 
 				'im.desktop.status.get' => array('callback' => array(__CLASS__, 'desktopStatusGet'), 'options' => array('private' => true)),
 				'im.desktop.page.open' => array('callback' => array(__CLASS__, 'desktopPageOpen'), 'options' => array('private' => true)),
@@ -2371,9 +2373,12 @@ class CIMRestService extends IRestService
 	{
 		$arParams = array_change_key_case($arParams, CASE_UPPER);
 
-		if ($server->getAuthType() == \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE)
+		if (
+			$server->getAuthType() != \Bitrix\Rest\OAuth\Auth::AUTH_TYPE
+			&& !self::isDebugEnabled()
+		)
 		{
-			throw new \Bitrix\Rest\RestException("Access for this method not allowed by session authorization.", "WRONG_AUTH_TYPE", \CRestServer::STATUS_WRONG_REQUEST);
+			throw new \Bitrix\Rest\RestException("Access for this method allowed only by OAuth authorization.", "WRONG_AUTH_TYPE", \CRestServer::STATUS_WRONG_REQUEST);
 		}
 
 		global $USER;
@@ -5600,9 +5605,13 @@ class CIMRestService extends IRestService
 
 	public static function mobileConfigGet($params, $n, \CRestServer $server)
 	{
-		if ($server->getAuthType() != \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE)
+		if (
+			$server->getAuthType() != \Bitrix\Rest\SessionAuth\Auth::AUTH_TYPE
+			&& !self::isDebugEnabled()
+		)
 		{
 			throw new \Bitrix\Rest\RestException("Get access to browser const available only for session authorization.", "WRONG_AUTH_TYPE", \CRestServer::STATUS_FORBIDDEN);
+
 		}
 
 		$config = Array();
@@ -6010,6 +6019,81 @@ class CIMRestService extends IRestService
 		return false;
 	}
 
+	public static function videoconfAdd($arParams, $n, CRestServer $server)
+	{
+		throw new \Bitrix\Rest\RestException('This method is not available', 'METHOD_NOT_AVAILABLE', CRestServer::STATUS_WRONG_REQUEST);
+
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+
+		if (
+			\Bitrix\Im\User::getInstance()->isExtranet()
+			|| \Bitrix\Im\User::getInstance()->isBot()
+		)
+		{
+			throw new Bitrix\Rest\RestException("Only intranet users have access to this method.", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$arParams['BROADCAST_MODE'] = ($arParams['BROADCAST_MODE'] ?? 'N') === 'Y';
+
+		$createResult = \Bitrix\Im\Call\Conference::add($arParams);
+
+		if (!$createResult->isSuccess())
+		{
+			$error = $createResult->getErrors()[0];
+			throw new Bitrix\Rest\RestException($error->getMessage(), $error->getCode(), CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		return [
+			'chatId' => $createResult->getData()['CHAT_ID'],
+			'alias' => $createResult->getData()['ALIAS_DATA']['ALIAS'],
+			'link' => $createResult->getData()['ALIAS_DATA']['LINK']
+		];
+	}
+
+	public static function videoconfUpdate($arParams, $n, CRestServer $server)
+	{
+		throw new \Bitrix\Rest\RestException('This method is not available', 'METHOD_NOT_AVAILABLE', CRestServer::STATUS_WRONG_REQUEST);
+
+		$arParams = array_change_key_case($arParams, CASE_UPPER);
+
+		if (
+			\Bitrix\Im\User::getInstance()->isExtranet()
+			|| \Bitrix\Im\User::getInstance()->isBot()
+		)
+		{
+			throw new Bitrix\Rest\RestException("Only intranet users have access to this method.", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$arParams['BROADCAST_MODE'] = ($arParams['BROADCAST_MODE'] ?? 'N') === 'Y';
+
+		if (!isset($arParams['ID']) || (int)$arParams['ID'] <= 0)
+		{
+			throw new Bitrix\Rest\RestException("Conference ID can't be empty", "CONFERENCE_ID_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		$conference = \Bitrix\Im\Call\Conference::getById((int)$arParams['ID']);
+
+		if (!$conference)
+		{
+			throw new Bitrix\Rest\RestException("Conference with such id not found.", "CONFERENCE_NOT_FOUND", CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		if (!$conference->canUserEdit(\Bitrix\Main\Engine\CurrentUser::get()->getId()))
+		{
+			throw new Bitrix\Rest\RestException("You can't edit the conference.", "ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
+		}
+
+		$updateResult = $conference->update($arParams);
+
+		if (!$updateResult->isSuccess())
+		{
+			$error = $updateResult->getErrors()[0];
+			throw new Bitrix\Rest\RestException($error->getMessage(), $error->getCode(), CRestServer::STATUS_WRONG_REQUEST);
+		}
+
+		return $updateResult->isSuccess();
+	}
+
 	public static function desktopStatusGet($params, $n, \CRestServer $server)
 	{
 		return [
@@ -6191,6 +6275,12 @@ class CIMRestService extends IRestService
 		{
 			return (\Bitrix\Main\Context::getCurrent()->getRequest()->isHttps() ? "https" : "http")."://".$_SERVER['SERVER_NAME'].(in_array($_SERVER['SERVER_PORT'], Array(80, 443))?'':':'.$_SERVER['SERVER_PORT']);
 		}
+	}
+
+	public static function isDebugEnabled()
+	{
+		$settings = \Bitrix\Main\Config\Configuration::getValue('im');
+		return $settings['rest_debug'] === true;
 	}
 }
 ?>

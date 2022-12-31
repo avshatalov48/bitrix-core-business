@@ -78,6 +78,7 @@
 					onClick: function()
 					{
 						this.scrollTo(form.layout);
+						this.highlightItem(form.layout);
 					}.bind(this)
 				});
 
@@ -96,6 +97,7 @@
 							event.preventDefault();
 							event.stopPropagation();
 							this.scrollTo(field.layout);
+							this.highlightItem(field.layout);
 						}.bind(this)
 					});
 					this.sidebarButtons.add(fieldButton);
@@ -134,6 +136,27 @@
 		compact: function(enable)
 		{
 			this.layout.classList[enable?"add":"remove"]("landing-ui-panel-content-edit-compact");
+		},
+
+		highlightItem: function(element)
+		{
+			var highlightClass = 'landing-ui-panel-highlight';
+			this.removeHighlights(this.layout, highlightClass);
+			BX.Dom.addClass(element, highlightClass);
+			setTimeout(() => {
+				BX.Dom.removeClass(element, highlightClass);
+			}, 1500);
+		},
+
+		removeHighlights: function(element, highlightClass)
+		{
+			var nodeList = element.querySelectorAll('.' + highlightClass);
+			if (nodeList.length >= 1)
+			{
+				nodeList.forEach(function(node) {
+					BX.Dom.removeClass(node, highlightClass);
+				});
+			}
 		},
 	};
 })();

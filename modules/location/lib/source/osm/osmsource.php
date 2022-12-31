@@ -142,7 +142,9 @@ final class OsmSource extends Source
 			return (string)LOCATION_OSM_MAP_SERVICE_URL;
 		}
 
-		return null;
+		return $this->getConfig()
+			? $this->getConfig()->getValue('MAP_SERVICE_URL')
+			: null;
 	}
 
 	/**
@@ -151,5 +153,16 @@ final class OsmSource extends Source
 	public function getOsmToken(): ?Token
 	{
 		return $this->tokenRequester->getToken();
+	}
+
+	public function isAvailable(): bool
+	{
+		$token = $this->tokenRequester->getToken();
+		if ($token)
+		{
+			return true;
+		}
+
+		return !$this->tokenRequester->hasLicenseIssues();
 	}
 }

@@ -2,11 +2,13 @@
 
 namespace Bitrix\Catalog\Product\SystemField;
 
-use Bitrix\Catalog\Grid\Panel\ProductGroupAction;
 use Bitrix\Main;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\LanguageTable;
-use Bitrix\Catalog;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
+use Bitrix\Catalog\Grid\Panel\ProductGroupAction;
+use Bitrix\UI;
 
 class MarkingCodeGroup extends Highloadblock
 {
@@ -17,6 +19,9 @@ class MarkingCodeGroup extends Highloadblock
 	public const TYPE_ID = Catalog\Product\SystemField\Type\HighloadBlock::class;
 
 	protected const VALUE_NAME_PREFIX = 'MARKING_CODE_GROUP_TYPE_';
+
+	protected const USE_PARENT_PRODUCT_VALUE = -1;
+	protected const USE_PARENT_PRODUCT_XML_VALUE = 'PARENT_MARKING_GROUP';
 
 	public static function getConfig(): ?array
 	{
@@ -249,7 +254,7 @@ class MarkingCodeGroup extends Highloadblock
 		}
 		$allowForOffers =
 			$catalog['CATALOG_TYPE'] === \CCatalogSku::TYPE_OFFERS
-			&& Main\Config\Option::get('catalog', 'use_offer_marking_code_group') === 'Y'
+			&& self::isUsedMarkingOffer()
 		;
 		if (
 			$catalog['CATALOG_TYPE'] !== \CCatalogSku::TYPE_CATALOG
@@ -269,13 +274,25 @@ class MarkingCodeGroup extends Highloadblock
 
 		$config = [
 			'USER_FIELD' => $field,
+			'VISUAL' => [
+				'LIST' => [
+					'ID' => $panel->getFormRowFieldId($field['FIELD_NAME']),
+					'NAME' => $panel->getFormRowFieldName($field['FIELD_NAME']),
+				],
+			],
 		];
-		$config['VISUAL'] = [
-			'LIST' => [
-				'ID' => $panel->getFormRowFieldId($field['FIELD_NAME']),
-				'NAME' => $panel->getFormRowFieldName($field['FIELD_NAME']),
-			]
-		];
+
+		if ($allowForOffers)
+		{
+			$config['ADDITIONAL_ITEMS'] = [
+				'LIST' => [
+					[
+						'VALUE' => self::USE_PARENT_PRODUCT_VALUE,
+						'NAME' => Loc::getMessage('MARKING_CODE_GROUP_MESS_USE_PARENT_PRODUCT_VALUE'),
+					],
+				]
+			];
+		}
 
 		return $config;
 	}
@@ -286,7 +303,7 @@ class MarkingCodeGroup extends Highloadblock
 			Catalog\ProductTable::TYPE_PRODUCT,
 			Catalog\ProductTable::TYPE_SKU,
 		];
-		if (Main\Config\Option::get('catalog', 'use_offer_marking_code_group') === 'Y')
+		if (self::isUsedMarkingOffer())
 		{
 			$result[] = Catalog\ProductTable::TYPE_OFFER;
 		}
@@ -398,47 +415,50 @@ class MarkingCodeGroup extends Highloadblock
 	private static function prepareValueForProvider(array $field, array $productRow): array
 	{
 		$value = $productRow[$field['XML_ID']];
-		if (self::isNeedParent($productRow))
-		{
-			$parentsList = \CCatalogSku::getProductList($productRow['ID']);
-			if (!empty($parentsList) && isset($parentsList[$productRow['ID']]))
-			{
-				$iterator = Catalog\ProductTable::getList([
-					'select' => [
-						'ID',
-						$field['FIELD_NAME']
-					],
-					'filter' => [
-						'=ID' => $parentsList[$productRow['ID']]['ID'],
-					]
-				]);
-				$parent = $iterator->fetch();
-				unset($iterator);
-				if (!empty($parent))
-				{
-					$value = $parent[$field['FIELD_NAME']] ?? $value;
-				}
-			}
-			unset($parentsList);
-		}
-
 		if ($value !== null)
 		{
-			$productRow[$field['XML_ID']] = self::getXmlIdById($field['SETTINGS']['HLBLOCK_ID'], (int)$value);
+			$value = (int)$value;
 		}
+		if (self::isNeedParent($productRow))
+		{
+			if (
+				!self::isUsedMarkingOffer()
+				|| $value === self::USE_PARENT_PRODUCT_VALUE
+			)
+			{
+				$productValue = self::getParentProductValue($productRow['ID'], $field);
+				if ($value === self::USE_PARENT_PRODUCT_VALUE)
+				{
+					$value = $productValue;
+				}
+				else
+				{
+					$value = $productValue ?? $value;
+				}
+			}
+		}
+
+		$productRow[$field['XML_ID']] = ($value !== null
+			? self::getXmlIdById($field['SETTINGS']['HLBLOCK_ID'], (int)$value)
+			: null
+		);
 
 		return $productRow;
 	}
 
 	private static function prepareValueForImport(array $field, array $productRow): array
 	{
-		if ($productRow[$field['XML_ID']] !== null)
+		$value = $productRow[$field['XML_ID']];
+		if ($value === self::USE_PARENT_PRODUCT_XML_VALUE)
 		{
-			$productRow[$field['FIELD_NAME']] = self::getIdByXmlId($field['SETTINGS']['HLBLOCK_ID'], $productRow[$field['XML_ID']]);
+			$productRow[$field['FIELD_NAME']] = self::USE_PARENT_PRODUCT_VALUE;
 		}
 		else
 		{
-			$productRow[$field['FIELD_NAME']] = null;
+			$productRow[$field['FIELD_NAME']] = ($value !== null
+				? self::getIdByXmlId($field['SETTINGS']['HLBLOCK_ID'], $value)
+				: null
+			);
 		}
 		unset($productRow[$field['XML_ID']]);
 
@@ -447,9 +467,21 @@ class MarkingCodeGroup extends Highloadblock
 
 	private static function prepareValueForExport(array $field, array $productRow): array
 	{
-		if ($productRow[$field['XML_ID']] !== null)
+		$value = $productRow[$field['XML_ID']];
+		if ($value !== null)
 		{
-			$productRow[$field['XML_ID']] = self::getXmlIdById($field['SETTINGS']['HLBLOCK_ID'], (int)$productRow[$field['XML_ID']]);
+			$value = (int)$value;
+		}
+		if ($value === self::USE_PARENT_PRODUCT_VALUE)
+		{
+			$productRow[$field['XML_ID']] = self::USE_PARENT_PRODUCT_XML_VALUE;
+		}
+		elseif ($value !== null)
+		{
+			$productRow[$field['XML_ID']] = self::getXmlIdById(
+				$field['SETTINGS']['HLBLOCK_ID'],
+				$value
+			);
 		}
 
 		return $productRow;
@@ -462,6 +494,35 @@ class MarkingCodeGroup extends Highloadblock
 			&& isset($productRow['TYPE'])
 			&& (int)$productRow['TYPE'] === Catalog\ProductTable::TYPE_OFFER
 		;
+	}
+
+	private static function isUsedMarkingOffer(): bool
+	{
+		return Option::get('catalog', 'use_offer_marking_code_group') === 'Y';
+	}
+
+	private static function getParentProductValue(int $id, $field): ?string
+	{
+		$result = null;
+		$parentsList = \CCatalogSku::getProductList($id);
+		if (!empty($parentsList) && isset($parentsList[$id]))
+		{
+			$row = Catalog\ProductTable::getRow([
+				'select' => [
+					'ID',
+					$field['FIELD_NAME'],
+				],
+				'filter' => [
+					'=ID' => $parentsList[$id]['ID'],
+				],
+			]);
+			if ($row !== null)
+			{
+				$result = $row[$field['FIELD_NAME']];
+			}
+		}
+
+		return $result;
 	}
 
 	protected static function afterLoadInternalModify(array $row): array
@@ -499,5 +560,76 @@ class MarkingCodeGroup extends Highloadblock
 			],
 			Catalog\Update\UiFormConfiguration::PARENT_SECTION_MAIN
 		);
+	}
+
+	public static function renderAdminFormControl(array $field, array $product, array $config): ?string
+	{
+		$result = parent::renderAdminFormControl($field, $product, $config);
+		if ($result !== null)
+		{
+			if ($product['TYPE'] === Catalog\ProductTable::TYPE_OFFER)
+			{
+				$parentSelected = (int)$field['VALUE'] === self::USE_PARENT_PRODUCT_VALUE;
+				$addOption = '<option value="' . self::USE_PARENT_PRODUCT_VALUE . '"'
+					. ($parentSelected ? ' selected' : '')
+					. '>' . htmlspecialcharsbx(Loc::getMessage('MARKING_CODE_GROUP_MESS_USE_PARENT_PRODUCT_VALUE'))
+					. '</option>'
+				;
+				if ($parentSelected)
+				{
+					$result = str_replace('selected', '', $result);
+				}
+				$index = strpos($result, '</option>');
+				if ($index !== false)
+				{
+					$index += 9; //  after first option
+					$result = substr($result, 0, $index)
+						. $addOption
+						. substr($result, $index)
+					;
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	protected static function getUiDescriptionInternal(array $description, array $userField, array $restrictions): ?array
+	{
+		$description['type'] = UI\EntityForm\Control\Type::LIST;
+
+		$config = [
+			'RESULT' => [
+				'RETURN_FIELD_ID' => 'Y',
+			],
+		];
+
+		if (
+			isset($restrictions['TYPE'])
+			&& $restrictions['TYPE'] === Catalog\ProductTable::TYPE_OFFER
+			&& self::isUsedMarkingOffer()
+		)
+		{
+			$config['ADDITIONAL_ITEMS'] = [
+				'LIST' => [
+					0 => [
+						'ID' => (string)self::USE_PARENT_PRODUCT_VALUE,
+						'VALUE' => (string)self::USE_PARENT_PRODUCT_VALUE,
+						'NAME' => Loc::getMessage('MARKING_CODE_GROUP_MESS_USE_PARENT_PRODUCT_VALUE'),
+					]
+				]
+			];
+		}
+
+		$items = Type\HighloadBlock::getItems($userField, $config);
+		if ($items !== null)
+		{
+			$description['data'] += [
+				'items' => $items
+			];
+		}
+		unset($items);
+
+		return $description;
 	}
 }

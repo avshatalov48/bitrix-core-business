@@ -39,6 +39,7 @@ class Counter
 	{
 		return $this->component;
 	}
+
 	protected function getProcessorInstance()
 	{
 		return $this->processorInstance;
@@ -48,6 +49,7 @@ class Counter
 	{
 		$this->emptyCounter = $value;
 	}
+
 	public function getEmptyCounter(): bool
 	{
 		return $this->emptyCounter;
@@ -57,11 +59,11 @@ class Counter
 	{
 		$params = $this->getComponent()->arParams;
 
-		$result['COUNTER_TYPE'] = '**';
+		$result['COUNTER_TYPE'] = \CUserCounter::LIVEFEED_CODE;
 
 		if ($params['GROUP_ID'] > 0)
 		{
-			$result['COUNTER_TYPE'] = 'SG'.$params['GROUP_ID'];
+			$result['COUNTER_TYPE'] = \CUserCounter::LIVEFEED_CODE . 'SG' . $params['GROUP_ID'];
 		}
 		elseif(
 			$params['IS_CRM'] === 'Y'
@@ -126,7 +128,7 @@ class Counter
 				executeModuleEventEx($eventFields, [ $result['COUNTER_TYPE'], (int)$result['LAST_LOG_TS'] ]);
 			}
 		}
-		else // set last date only
+		elseif (in_array($result['COUNTER_TYPE'], [ '**', 'CRM_**' ], true)) // set last date only
 		{
 			$pool = \Bitrix\Main\Application::getInstance()->getConnectionPool();
 			$pool->useMasterOnly(true);

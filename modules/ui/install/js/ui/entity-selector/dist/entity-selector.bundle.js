@@ -536,6 +536,20 @@ this.BX.UI = this.BX.UI || {};
 	  return Animation;
 	}();
 
+	var regexp = /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[\w\W]*?[^;])*),(.+)$/;
+
+	var isDataUri = function isDataUri(str) {
+	  return typeof str === 'string' ? str.match(regexp) : false;
+	};
+
+	function encodeUrl(url) {
+	  if (isDataUri(url)) {
+	    return url;
+	  }
+
+	  return encodeURI(url);
+	}
+
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
 
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
@@ -1127,7 +1141,7 @@ this.BX.UI = this.BX.UI || {};
 	      var avatar = this.getAvatar();
 
 	      if (main_core.Type.isStringFilled(avatar)) {
-	        this.getAvatarContainer().style.backgroundImage = "url('".concat(avatar, "')");
+	        this.getAvatarContainer().style.backgroundImage = "url('".concat(encodeUrl(avatar), "')");
 	      } else {
 	        var bgImage = this.getAvatarOption('bgImage');
 
@@ -3746,7 +3760,7 @@ this.BX.UI = this.BX.UI || {};
 	          iconOpacity = Math.min(100, Math.max(0, _this2.getOption('iconOpacity')));
 	        }
 
-	        var iconStyle = main_core.Type.isStringFilled(icon) ? "style=\"background-image: url('".concat(icon, "'); opacity: ").concat(iconOpacity / 100, ";\"") : '';
+	        var iconStyle = main_core.Type.isStringFilled(icon) ? "style=\"background-image: url('".concat(encodeUrl(icon), "'); opacity: ").concat(iconOpacity / 100, ";\"") : '';
 	        var arrow = _this2.getOption('arrow', false) && _this2.getTab().getDialog().getActiveFooter() !== null;
 	        return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-selector-tab-default-stub\">\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-icon\" ", "></div>\n\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-titles\">\n\t\t\t\t\t\t<div class=\"ui-selector-tab-default-stub-title\">", "</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), iconStyle, title, subtitle ? main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-default-stub-subtitle\">", "</div>"])), subtitle) : '', arrow ? main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["<div class=\"ui-selector-tab-default-stub-arrow\"></div>"]))) : '');
 	      });
@@ -4322,7 +4336,7 @@ this.BX.UI = this.BX.UI || {};
 	      main_core.Dom.style(this.getTitleContainer(), 'color', this.getPropertyByCurrentState('textColor'));
 	      main_core.Dom.style(this.getLabelContainer(), 'background-color', this.getPropertyByCurrentState('bgColor'));
 	      var icon = this.getPropertyByCurrentState('icon');
-	      main_core.Dom.style(this.getIconContainer(), 'background-image', icon ? "url('".concat(icon, "')") : null);
+	      main_core.Dom.style(this.getIconContainer(), 'background-image', icon ? "url('".concat(encodeUrl(icon), "')") : null);
 	      var titleNode = this.getTitleNode();
 
 	      if (titleNode) {
@@ -4782,7 +4796,7 @@ this.BX.UI = this.BX.UI || {};
 	      var bgImage = this.getAvatarOption('bgImage');
 
 	      if (main_core.Type.isStringFilled(avatar)) {
-	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', "url('".concat(avatar, "')"));
+	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', "url('".concat(encodeUrl(avatar), "')"));
 	      } else {
 	        main_core.Dom.style(this.getAvatarContainer(), 'background-image', bgImage);
 	      }
@@ -6956,7 +6970,7 @@ this.BX.UI = this.BX.UI || {};
 	        var matchSortA = a.getSort();
 	        var matchSortB = b.getSort();
 
-	        if (matchSortA !== null && matchSortB !== null) {
+	        if (matchSortA !== null && matchSortB !== null && matchSortA !== matchSortB) {
 	          return matchSortA - matchSortB;
 	        }
 
@@ -7097,6 +7111,10 @@ this.BX.UI = this.BX.UI || {};
 
 	          _this3.toggleEmptyResult();
 
+	          _this3.getDialog().emit('SearchTab:onLoad', {
+	            searchTab: _this3
+	          });
+
 	          return;
 	        }
 
@@ -7127,6 +7145,10 @@ this.BX.UI = this.BX.UI || {};
 	        }
 
 	        _this3.toggleEmptyResult();
+
+	        _this3.getDialog().emit('SearchTab:onLoad', {
+	          searchTab: _this3
+	        });
 	      })["catch"](function (error) {
 	        _this3.removeCacheQuery(searchQuery);
 
@@ -7271,7 +7293,11 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    }
 
-	    if (options.enableSearch === true) {
+	    if (options.tagSelector instanceof TagSelector) {
+	      _this.tagSelectorMode = TagSelectorMode.OUTSIDE;
+
+	      _this.setTagSelector(options.tagSelector);
+	    } else if (options.enableSearch === true) {
 	      var defaultOptions = {
 	        placeholder: main_core.Loc.getMessage('UI_TAG_SELECTOR_SEARCH_PLACEHOLDER'),
 	        maxHeight: 99,
@@ -7290,10 +7316,6 @@ this.BX.UI = this.BX.UI || {};
 	      _this.tagSelectorMode = TagSelectorMode.INSIDE;
 
 	      _this.setTagSelector(tagSelector);
-	    } else if (options.tagSelector instanceof TagSelector) {
-	      _this.tagSelectorMode = TagSelectorMode.OUTSIDE;
-
-	      _this.setTagSelector(options.tagSelector);
 	    }
 
 	    _this.setTargetNode(options.targetNode);

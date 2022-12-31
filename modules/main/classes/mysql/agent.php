@@ -46,7 +46,9 @@ class CAgent extends CAllAgent
 		{
 			$saved_time = $CACHE_MANAGER->Get($cache_id);
 			if (time() < $saved_time)
+			{
 				return "";
+			}
 		}
 
 		$strSql = "
@@ -64,14 +66,17 @@ class CAgent extends CAllAgent
 		if ($db_result_agents->Fetch())
 		{
 			if(!\Bitrix\Main\Application::getConnection()->lock('agent'))
+			{
 				return "";
+			}
 		}
 		else
 		{
 			if (CACHED_b_agent !== false)
 			{
-				$rs = $DB->Query("SELECT UNIX_TIMESTAMP(NEXT_EXEC)-UNIX_TIMESTAMP(NOW()) DATE_DIFF FROM b_agent WHERE ACTIVE = 'Y' ".$str_crontab." ORDER BY NEXT_EXEC ASC LIMIT 1");
+				$rs = $DB->Query("SELECT UNIX_TIMESTAMP(NEXT_EXEC)-UNIX_TIMESTAMP(NOW()) DATE_DIFF FROM b_agent WHERE ACTIVE = 'Y' ".$str_crontab." ORDER BY NEXT_EXEC LIMIT 1");
 				$ar = $rs->Fetch();
+
 				if (!$ar || $ar["DATE_DIFF"] < 0)
 					$date_diff = 0;
 				elseif ($ar["DATE_DIFF"] > CACHED_b_agent)
@@ -118,7 +123,7 @@ class CAgent extends CAllAgent
 		}
 		if ($ids <> '')
 		{
-			$strSql = "UPDATE b_agent SET DATE_CHECK = DATE_ADD(now(), INTERVAL 600 SECOND) WHERE ID IN (".$ids.")";
+			$strSql = "UPDATE b_agent SET DATE_CHECK = DATE_ADD(now(), INTERVAL " . self::LOCK_TIME. " SECOND) WHERE ID IN (".$ids.")";
 			$DB->Query($strSql);
 		}
 
@@ -128,13 +133,20 @@ class CAgent extends CAllAgent
 		$logFunction = (defined("BX_AGENTS_LOG_FUNCTION") && function_exists(BX_AGENTS_LOG_FUNCTION)? BX_AGENTS_LOG_FUNCTION : false);
 
 		ignore_user_abort(true);
+		$startTime = time();
 
-		for ($i = 0, $n = count($agents_array); $i < $n; $i++)
+		foreach ($agents_array as $arAgent)
 		{
-			$arAgent = $agents_array[$i];
+			if (time() - $startTime > self::LOCK_TIME - 30)
+			{
+				// locking time control; 30 seconds delta is for the possibly last agent
+				break;
+			}
 
 			if ($logFunction)
+			{
 				$logFunction($arAgent, "start");
+			}
 
 			if ($arAgent["MODULE_ID"] <> '' && $arAgent["MODULE_ID"]!="main")
 			{
@@ -165,7 +177,7 @@ class CAgent extends CAllAgent
 				$eval_result = "";
 				$e = eval("\$eval_result=".$arAgent["NAME"]);
 			}
-			catch (Exception $e)
+			catch (Throwable $e)
 			{
 				CTimeZone::Enable();
 
@@ -179,7 +191,9 @@ class CAgent extends CAllAgent
 			CTimeZone::Enable();
 
 			if ($logFunction)
+			{
 				$logFunction($arAgent, "finish", $eval_result, $e);
+			}
 
 			if ($e === false)
 			{
@@ -212,6 +226,7 @@ class CAgent extends CAllAgent
 			}
 			$DB->Query($strSql);
 		}
+
 		return null;
 	}
 }

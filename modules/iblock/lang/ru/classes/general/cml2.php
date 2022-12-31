@@ -28,6 +28,7 @@ $MESS["IBLOCK_XML2_BX_CANONICAL_URL"] = "БитриксURLКанонически
 $MESS["IBLOCK_XML2_BX_DEFAULT_VALUE"] = "БитриксЗначениеПоУмолчанию";
 $MESS["IBLOCK_XML2_BX_INDEX_SECTIONS"] = "БитриксИндексироватьРазделы";
 $MESS["IBLOCK_XML2_BX_INDEX_ELEMENTS"] = "БитриксИндексироватьЭлементы";
+$MESS["IBLOCK_XML2_BX_API_CODE"] = "БитриксСимвольныйКодAPI";
 $MESS["IBLOCK_XML2_BX_PICTURE"] = "БитриксКартинка";
 $MESS["IBLOCK_XML2_BX_DETAIL_PICTURE"] = "БитриксКартинкаДетальная";
 $MESS["IBLOCK_XML2_BX_CODE"] = "БитриксКод";
@@ -206,4 +207,5 @@ $MESS["IBLOCK_XML2_IBLOCK_CACHE_MODE_NORMAL"] = "сбрасывать после
 $MESS["IBLOCK_XML2_IBLOCK_CACHE_MODE_HIT"] = "сбрасывать в конце каждого шага импорта";
 $MESS["IBLOCK_XML2_IBLOCK_CACHE_MODE_FINAL"] = "сбрасывать после окончания импорта";
 $MESS["IBLOCK_XML2_IBLOCK_CACHE_MODE_FREEZE"] = "не сбрасывать";
+$MESS["IBLOCK_NO_VAT_TITLE"] = "Без НДС";
 ?>

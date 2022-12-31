@@ -4,15 +4,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,landing_ui_field_basefield,landing_ui_field_textfield,main_core) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-list-settings-item-container\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	var ListItem = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(ListItem, _BaseField);
 
@@ -53,7 +45,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject(), _this3.getTextField().getLayout(), _this3.getCheckboxField().getLayout());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-list-settings-item-container\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this3.getTextField().getLayout(), _this3.getCheckboxField().getLayout());
 	      });
 	    }
 	  }, {
@@ -110,15 +102,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return ListItem;
 	}(landing_ui_field_basefield.BaseField);
 
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-list-settings\"></div>\n\t\t"]);
+	var _templateObject$1;
 
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	/**
 	 * @memberOf BX.Landing.UI.Field
@@ -130,7 +118,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    var _this;
 
 	    babelHelpers.classCallCheck(this, ListSettingsField);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ListSettingsField).call(this, babelHelpers.objectSpread({}, options, {
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ListSettingsField).call(this, _objectSpread(_objectSpread({}, options), {}, {
 	      textOnly: true
 	    })));
 
@@ -149,7 +137,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  babelHelpers.createClass(ListSettingsField, [{
 	    key: "createInput",
 	    value: function createInput() {
-	      return main_core.Tag.render(_templateObject$1());
+	      return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-list-settings\"></div>\n\t\t"])));
 	    }
 	  }, {
 	    key: "addItem",

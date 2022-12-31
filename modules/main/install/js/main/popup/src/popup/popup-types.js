@@ -36,10 +36,11 @@ export type PopupOptions = {
 	contentColor?: 'white' | 'gray',
 	draggable?: boolean | { restrict: boolean },
 	darkMode?: boolean,
+	fixed?: boolean,
 	compatibleMode?: boolean,
 	bindOnResize?: boolean,
 	targetContainer?: HTMLElement,
-	isScrollBlock?: boolean,
+	disableScroll?: boolean,
 
 	//Compatibility
 	noAllPaddings?: boolean,

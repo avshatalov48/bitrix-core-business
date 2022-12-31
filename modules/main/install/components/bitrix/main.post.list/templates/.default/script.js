@@ -2088,7 +2088,6 @@
 		{
 			var taskId = +/\d+/.exec(entityXmlId);
 			var result = BX.Tasks.ResultManager.getInstance().getResult(taskId);
-
 			if (
 				result
 				&& result.context === 'task'
@@ -2097,7 +2096,7 @@
 			)
 			{
 				panels.push({
-					text : BX.message("BPC_MES_REMOVE_TASK_RESULT"),
+					text : BX.message("BPC_MES_DELETE_TASK_RESULT"),
 					onclick : function() {
 						BX.Tasks.ResultAction.getInstance().deleteFromComment(ID);
 						this.popupWindow.close();

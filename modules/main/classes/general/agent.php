@@ -11,6 +11,8 @@ Loc::loadMessages(__FILE__);
 
 class CAllAgent
 {
+	protected const LOCK_TIME = 600;
+
 	public static function AddAgent(
 		$name, // PHP function name
 		$module = "", // module

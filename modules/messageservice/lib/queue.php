@@ -6,7 +6,9 @@ use Bitrix\Main\Config;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
-use Bitrix\Main\Type;
+use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Main\Type\DateTime;
+use Bitrix\MessageService\Internal\Entity\MessageTable;
 use Bitrix\MessageService\Sender\Result\SendMessage;
 use Bitrix\MessageService\Sender\SmsManager;
 use Bitrix\Main\Localization\Loc;
@@ -62,13 +64,11 @@ class Queue
 	 */
 	public static function sendMessages()
 	{
-		$connection = Application::getConnection();
-		$lockTag = \CMain::getServerUniqID().'_b_messageservice_message';
-
-		$lockDb = $connection->query("SELECT GET_LOCK('".$lockTag."', 0) as L");
-		$lockRow = $lockDb->fetch();
-		if($lockRow["L"]=="0")
+		$lockTag = 'b_messageservice_message';
+		if (!Application::getConnection()->lock($lockTag))
+		{
 			return "";
+		}
 
 		$counts = Internal\Entity\MessageTable::getAllDailyCount();
 
@@ -78,24 +78,67 @@ class Queue
 			$limit = 5;
 		}
 
-		$now = date('Y-m-d H:i:s');
-		$nextDay = static::getNextExecTime();
+		$query =
+			MessageTable::query()
+				->addSelect('ID')
+				->addSelect('TYPE')
+				->addSelect('SENDER_ID')
+				->addSelect('AUTHOR_ID')
+				->addSelect('MESSAGE_FROM')
+				->addSelect('MESSAGE_TO')
+				->addSelect('MESSAGE_HEADERS')
+				->addSelect('MESSAGE_BODY')
+				->addSelect('EXTERNAL_ID')
+				->where(Query::filter()
+					->logic('or')
+					->where(Query::filter()
+						->logic('and')
+						->where('SUCCESS_EXEC', 'N')
+						->where(Query::filter()
+							->logic('or')
+							->where('NEXT_EXEC', '<', new DateTime())
+							->whereNull('NEXT_EXEC')
+						)
+					)
+					->where(Query::filter()
+						->logic('and')
+						->where('SUCCESS_EXEC', 'P')
+						->where('NEXT_EXEC', '<', (new DateTime())->add('-2 MINUTE'))
+					)
+				)
+				->addOrder('ID')
+				->setLimit($limit)
+		;
 
-		$strSql = "SELECT ID ,TYPE, SENDER_ID, AUTHOR_ID,
-			MESSAGE_FROM, MESSAGE_TO, MESSAGE_HEADERS, MESSAGE_BODY
-			FROM b_messageservice_message
-			WHERE SUCCESS_EXEC = 'N' AND (NEXT_EXEC < '{$now}' OR NEXT_EXEC IS NULL)
-			ORDER BY ID
-			LIMIT ".$limit;
-		$messagesResult = $connection->query($strSql);
-		while($messageFields = $messagesResult->fetch())
+		if (defined('BX_CLUSTER_GROUP'))
 		{
-			$messageFields['MESSAGE_HEADERS'] = unserialize($messageFields['MESSAGE_HEADERS'], ['allowed_classes' => false]);
+			$query->where('CLUSTER_GROUP', BX_CLUSTER_GROUP);
+		}
+		$messageFieldsList = $query->fetchAll();
+
+		if (!empty($messageFieldsList))
+		{
+			$idList = array_column($messageFieldsList, 'ID');
+			MessageTable::updateMulti(
+				$idList,
+				[
+					'SUCCESS_EXEC' => 'P',
+					'NEXT_EXEC' => (new DateTime())->add('+2 MINUTE'),
+				],
+				true
+			);
+		}
+
+		$nextDay = static::getNextExecTime();
+		foreach ($messageFieldsList as $messageFields)
+		{
 			$serviceId = $messageFields['SENDER_ID'] . ':' . $messageFields['MESSAGE_FROM'];
 			$message = Message::createFromFields($messageFields);
 
 			if (!isset($counts[$serviceId]))
+			{
 				$counts[$serviceId] = 0;
+			}
 
 			$sender = $message->getSender();
 			if ($sender)
@@ -126,14 +169,14 @@ class Queue
 				$message->update([
 					'STATUS_ID' => MessageStatus::EXCEPTION,
 					'SUCCESS_EXEC' => 'E',
-					'DATE_EXEC' => new Type\DateTime(),
+					'DATE_EXEC' => new DateTime(),
 					'EXEC_ERROR' => $e->getMessage(),
 				]);
 				break;
 			}
 		}
 
-		$connection->query("SELECT RELEASE_LOCK('".$lockTag."')");
+		Application::getConnection()->unlock($lockTag);
 		return null;
 	}
 
@@ -154,6 +197,8 @@ class Queue
 			}
 			else
 			{
+				$sender->setSocketTimeout(6);
+				$sender->setStreamTimeout(18);
 				$sendResult = $sender->sendMessage($messageFields);
 			}
 		}
@@ -174,11 +219,11 @@ class Queue
 	/**
 	 * Returns next date to exec message, if it will be deferred due to the send limits.
 	 *
-	 * @return Type\DateTime
+	 * @return DateTime
 	 */
-	private static function getNextExecTime(): Type\DateTime
+	private static function getNextExecTime(): DateTime
 	{
-		$nextDay = Type\DateTime::createFromTimestamp(time() + 86400);
+		$nextDay = DateTime::createFromTimestamp(time() + 86400);
 		$retryTime = Sender\Limitation::getRetryTime();
 		if (!$retryTime['auto'])
 		{

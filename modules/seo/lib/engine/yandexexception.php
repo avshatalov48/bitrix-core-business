@@ -5,7 +5,7 @@ use Bitrix\Main\Web;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 
-Loc::loadMessages(dirname(__FILE__).'/../../seo_search.php');
+Loc::loadMessages(__DIR__.'/../../seo_search.php');
 
 class YandexException
 	extends \Exception

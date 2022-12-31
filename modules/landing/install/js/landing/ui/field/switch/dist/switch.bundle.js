@@ -28,7 +28,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        className: 'landing-ui-field-switch-label'
 	      },
 	      attrs: {
-	        for: _this.id
+	        "for": _this.id
 	      },
 	      html: _this.title
 	    });

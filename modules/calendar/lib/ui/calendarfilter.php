@@ -2,9 +2,12 @@
 
 namespace Bitrix\Calendar\Ui;
 
+use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Main\Application;
+use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Query\Join;
 
 class CalendarFilter
 {
@@ -31,8 +34,11 @@ class CalendarFilter
 		];
 	}
 
-
 	/**
+	 * @param $type
+	 * @param $ownerId
+	 * @param $userId
+	 *
 	 * @return string
 	 */
 	public static function getFilterId($type, $ownerId, $userId): string
@@ -67,6 +73,8 @@ class CalendarFilter
 	}
 
 	/**
+	 * @param $type
+	 *
 	 * @return array
 	 */
 	public static function getPresets($type): array
@@ -146,7 +154,7 @@ class CalendarFilter
 			{
 				$result['fields']['MEETING_STATUS'] = $sqlHelper->forSql($value);
 			}
-			else if (in_array($key, $fieldNames))
+			else if (in_array($key, $fieldNames, true))
 			{
 				$result['fields'][$key] = $value;
 			}
@@ -286,12 +294,21 @@ class CalendarFilter
 			{
 				continue;
 			}
+
 			$result[] = (int)$section['ID'];
 		}
 		
 		return $result;
 	}
-	
+
+	/**
+	 * @param array $params
+	 *
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	public static function getFilterData(array $params): array
 	{
 		$connection = Application::getConnection();
@@ -318,20 +335,29 @@ class CalendarFilter
 		{
 			return self::getFilterCompanyData($type, $userId, $ownerId, $fields);
 		}
-		else
-		{
-			return self::getFilterUserData($type, $userId, $ownerId, $fields);
-		}
+
+		return self::getFilterUserData($type, $userId, $ownerId, $fields);
 	}
-	
+
+	/**
+	 * @param string $type
+	 * @param int $userId
+	 * @param int $ownerId
+	 * @param $fields
+	 *
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	private static function getFilterUserData(string $type, int $userId, int $ownerId, $fields): array
 	{
-		global $DB;
 		$counters = false;
 		$entries = [];
 		$filter = [
 			'OWNER_ID' => $ownerId,
-			'CAL_TYPE' => $type
+			'CAL_TYPE' => $type,
+			'ACTIVE_SECTION' => 'Y',
 		];
 		
 		if (isset($fields['fields']['IS_MEETING']))
@@ -352,7 +378,7 @@ class CalendarFilter
 				$filter['IS_MEETING'] = true;
 			}
 			
-			if ($fields['presetId'] == 'filter_calendar_meeting_status_q')
+			if ($fields['presetId'] === 'filter_calendar_meeting_status_q')
 			{
 				$filter['FROM_LIMIT'] = \CCalendar::Date(time(), false);
 				$filter['TO_LIMIT'] = \CCalendar::Date(time() + \CCalendar::DAY_LENGTH * 90, false);
@@ -384,19 +410,30 @@ class CalendarFilter
 		
 		if (isset($fields['fields']['ATTENDEES']))
 		{
-			$queryStr = "SELECT EV.ID FROM b_calendar_event AS EV
-				LEFT JOIN b_calendar_event AS SEC ON EV.PARENT_ID = SEC.PARENT_ID
-				WHERE EV.DELETED = 'N'
-				AND SEC.DELETED = 'N'
-				AND EV.CAL_TYPE = '" . $type . "'
-				AND EV.CREATED_BY = " . $userId . " ";
-			
-			$queryStr .= 'AND SEC.CREATED_BY IN (\''.implode('\',\'', $fields['fields']['ATTENDEES']).'\');';
-			$events = $DB->Query($queryStr);
-			while ($event = $events->Fetch())
+			$query = EventTable::query()
+				->setSelect(['ID'])
+				->registerRuntimeField(
+					'EVENT_SECOND',
+					new ReferenceField(
+						'EVENT_SECOND',
+						EventTable::getEntity(),
+						Join::on('ref.PARENT_ID', 'this.PARENT_ID'),
+						['join_type' => Join::TYPE_LEFT]
+					)
+				)
+				->where('DELETED', 'N')
+				->where('EVENT_SECOND.DELETED', 'N')
+				->where('CAL_TYPE', $type)
+				->where('CREATED_BY', $userId)
+				->whereIn('EVENT_SECOND.CREATED_BY', $fields['fields']['ATTENDEES'])
+				->exec()
+			;
+
+			while ($event = $query->fetch())
 			{
 				$filter['ID'][] = (int)$event['ID'];
 			}
+
 			$filter['ID'] = array_unique($filter['ID']);
 			$filter['IS_MEETING'] = true;
 		}
@@ -428,23 +465,42 @@ class CalendarFilter
 			'counters' => $counters
 		];
 	}
-	
+
+	/**
+	 * @param string $type
+	 * @param int $userId
+	 * @param int $ownerId
+	 * @param $fields
+	 *
+	 * @return array
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
 	private static function getFilterCompanyData(string $type, int $userId, int $ownerId, $fields): array
 	{
-		global $DB;
 		$filter = [
-			'CAL_TYPE' => $type
+			'CAL_TYPE' => $type,
+			'ACTIVE_SECTION' => 'Y',
 		];
 		$entries = [];
-		$createdBy = '';
 
-		$selectString = "SELECT EV.PARENT_ID FROM b_calendar_event AS EV
-			LEFT JOIN b_calendar_event AS SEC ON EV.ID = SEC.PARENT_ID ";
-		
-		$whereString = "WHERE EV.CAL_TYPE = '" . $type . "'
-			AND SEC.DELETED = 'N'
-			AND EV.DELETED = 'N' ";
-		
+		$query = EventTable::query()
+			->setSelect(['PARENT_ID'])
+			->registerRuntimeField(
+				'EVENT_SECOND',
+				new ReferenceField(
+					'EVENT_SECOND',
+					EventTable::getEntity(),
+					Join::on('ref.PARENT_ID', 'this.ID'),
+					['join_type' => Join::TYPE_LEFT]
+				)
+			)
+			->where('CAL_TYPE', $type)
+			->where('DELETED', 'N')
+			->where('EVENT_SECOND.DELETED', 'N')
+		;
+
 		if (isset($fields['fields']['IS_MEETING']) && $fields['fields']['IS_MEETING'])
 		{
 			$filter['IS_MEETING'] = $fields['fields']['IS_MEETING'] === 'Y';
@@ -452,49 +508,54 @@ class CalendarFilter
 		
 		if (isset($fields['fields']['MEETING_STATUS']) && $fields['fields']['MEETING_STATUS'])
 		{
-			$createdBy = 'AND SEC.CREATED_BY = ' . $userId . ' ' ;
+			$query->where('EVENT_SECOND.CREATED_BY', $userId);
 			if (
 				$fields['fields']['MEETING_STATUS'] === 'H'
 				&& !isset($fields['fields']['CREATED_BY'])
 			)
 			{
 				unset($filter['IS_MEETING']);
-				$whereString .= "AND SEC.MEETING_HOST = '" . $userId . "' ";
+				$query->where('EVENT_SECOND.MEETING_HOST', $userId);
 			}
 			else
 			{
-				$whereString .= "AND SEC.MEETING_STATUS = '" . $fields['fields']['MEETING_STATUS'] . "' ";
+				$query->where('EVENT_SECOND.MEETING_STATUS', $fields['fields']['MEETING_STATUS']);
 				$filter['IS_MEETING'] = true;
 			}
 		}
 		
 		if (isset($fields['fields']['CREATED_BY']) && is_array($fields['fields']['CREATED_BY']))
 		{
-			$whereString .= 'AND SEC.MEETING_HOST IN (\''.implode('\',\'', $fields['fields']['CREATED_BY']).'\') ';
+			$query->whereIn('EVENT_SECOND.MEETING_HOST', $fields['fields']['CREATED_BY']);
 		}
 		
 		if (isset($fields['fields']['SECTION_ID']) && is_array($fields['fields']['SECTION_ID']))
 		{
-			$whereString .= 'AND EV.SECTION_ID IN (\''.implode('\',\'', $fields['fields']['SECTION_ID']).'\') ';
+			$query->whereIn('SECTION_ID',  $fields['fields']['SECTION_ID']);
 		}
 		
 		if (isset($fields['fields']['ATTENDEES']) && is_array($fields['fields']['ATTENDEES']))
 		{
 			if (isset($fields['fields']['MEETING_STATUS']))
 			{
-				$selectString .= 'LEFT JOIN b_calendar_event AS TRI ON EV.ID = TRI.PARENT_ID ';
-				$whereString .= 'AND TRI.CREATED_BY IN (\''.implode('\',\'', $fields['fields']['ATTENDEES']).'\') ';
+				$query
+					->registerRuntimeField(
+					'EVENT_THIRD',
+					new ReferenceField(
+						'EVENT_THIRD',
+						EventTable::getEntity(),
+						Join::on('ref.PARENT_ID', 'this.ID'),
+						['join_type' => Join::TYPE_LEFT]
+					)
+				)
+					->whereIn('EVENT_THIRD.CREATED_BY', $fields['fields']['ATTENDEES'])
+				;
 			}
 			else
 			{
-				$createdBy = 'AND SEC.CREATED_BY IN (\''.implode('\',\'', $fields['fields']['ATTENDEES']).'\') ';
+				$query->whereIn('EVENT_SECOND.CREATED_BY', $fields['fields']['ATTENDEES']);
 			}
 			$filter['IS_MEETING'] = true;
-		}
-		
-		if ($createdBy)
-		{
-			$whereString .= $createdBy;
 		}
 		
 		if (isset($fields['search']) && $fields['search'])
@@ -503,12 +564,10 @@ class CalendarFilter
 		}
 		
 		[$filter, $parseRecursion] = self::filterByDate($fields, $filter);
-		
-		$whereString .= ';';
-		$queryStr = $selectString . $whereString;
-		
-		$events = $DB->Query($queryStr);
-		while ($event = $events->Fetch())
+
+		$eventsFromQuery = $query->exec();
+
+		while ($event = $eventsFromQuery->Fetch())
 		{
 			$filter['ID'][] = (int)$event['PARENT_ID'];
 		}
@@ -587,12 +646,11 @@ class CalendarFilter
 	 */
 	private static function applyAccessRestrictions(array $events): array
 	{
-		$eventsLength = count($events);
-		for ($i = 0; $i < $eventsLength; $i++)
+		foreach ($events as $i => $event)
 		{
 			if (
-				isset($events[$i]['IS_ACCESSIBLE_TO_USER'])
-				&& $events[$i]['IS_ACCESSIBLE_TO_USER'] === false
+				isset($event['IS_ACCESSIBLE_TO_USER'])
+				&& $event['IS_ACCESSIBLE_TO_USER'] === false
 			)
 			{
 				unset($events[$i]);

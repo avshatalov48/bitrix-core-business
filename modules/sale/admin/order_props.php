@@ -52,6 +52,7 @@ if ($lAdmin->EditAction() && $saleModulePermissions >= "W")
 		if (!$lAdmin->IsUpdated($ID))
 			continue;
 
+		$arFields = CSaleOrderPropsAdapter::convertNewToOld($arFields);
 		if (!CSaleOrderProps::Update($ID, $arFields))
 		{
 			if ($ex = $APPLICATION->GetException())

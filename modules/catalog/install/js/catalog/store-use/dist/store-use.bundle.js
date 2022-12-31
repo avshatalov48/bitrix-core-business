@@ -107,9 +107,15 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  var _data$preset;
 
 	  var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	  return {
+	  var analyticsData = {
 	    iME: 'inventoryManagementEnabled' + '_' + ((_data$preset = data.preset) === null || _data$preset === void 0 ? void 0 : _data$preset.sort().join('_'))
 	  };
+
+	  if (main_core.Type.isStringFilled(data.inventoryManagementSource)) {
+	    analyticsData.inventoryManagementSource = data.inventoryManagementSource;
+	  }
+
+	  return analyticsData;
 	}
 
 	var EventType = Object.freeze({
@@ -434,7 +440,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "getContent",
 	    value: function getContent() {
-	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-warehouse-master-clear-popup-content\">\n\t\t\t\t<h3>\n\t\t\t\t\t", "\n\t\t\t\t</h3>\t\n\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_10'), main_core.Text.encode(this.text), this.helpArticleId ? this.getHelpLink() : '');
+	      return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-warehouse-master-clear-popup-content\">\n\t\t\t\t<h3>\n\t\t\t\t\t", "\n\t\t\t\t</h3>\t\n\t\t\t\t<div class=\"catalog-warehouse-master-clear-popup-text\">\n\t\t\t\t\t", " \n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_10'), main_core.Text.encode(this.text), this.helpArticleId ? this.getHelpLink() : '');
 	    }
 	  }]);
 	  return DialogError;

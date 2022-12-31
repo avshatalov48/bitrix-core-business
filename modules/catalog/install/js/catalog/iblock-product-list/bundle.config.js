@@ -1,5 +1,6 @@
 module.exports = {
-	input: 'src/iblock-product-list.js',
+	input: 'src/index.js',
 	output: 'dist/iblock-product-list.bundle.js',
-	namespace: 'BX.Catalog'
+	namespace: 'BX.Catalog',
+	adjustConfigPhp: false
 };

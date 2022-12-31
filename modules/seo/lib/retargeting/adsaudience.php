@@ -4,6 +4,7 @@ namespace Bitrix\Seo\Retargeting;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
+use Bitrix\Seo\Retargeting\Audience\Status\AudienceStatusNormalizerFactory;
 
 /**
  * Class AdsAudience.
@@ -109,9 +110,15 @@ class AdsAudience
 	 *
 	 * @param string $type Type.
 	 * @param integer|null $accountId Account ID.
-	 * @return array
+	 * @return array<array{
+	 *     id: int,
+	 *     isSupportMultiTypeContacts: bool,
+	 *     supportedContactTypes: ?array<string>,
+	 *     status: string,
+	 *     name: string
+	 * }>
 	 */
-	public static function getAudiences($type, $accountId = null)
+	public static function getAudiences($type, $accountId = null): array
 	{
 		$result = array();
 
@@ -155,6 +162,25 @@ class AdsAudience
 		return $result;
 	}
 
+	public static function getAudienceWithNormalizedStatus($type, string $messageCode, $accountId = null): array
+	{
+		$audiences = static::getAudiences($type, $accountId);
+
+		$audienceService = Service::getAudience($type);
+		$audienceStatusNormalizer = AudienceStatusNormalizerFactory::build($audienceService::TYPE_CODE, $messageCode);
+
+		foreach ($audiences as &$audience)
+		{
+			$audienceStatus = $audience['status'];
+
+			$audience['normalizedStatus'] = $audienceStatusNormalizer->getNormalizedStatus($audienceStatus);
+			$audience['normalizedStatusMessage'] = $audienceStatusNormalizer->getNormalizedStatusTranslation($audienceStatus);
+			$audience['isEnabled'] = $audienceStatusNormalizer->isEnabled($audienceStatus);
+		}
+
+		return $audiences;
+	}
+
 	public static function getRegions($type)
 	{
 		$account = Service::getAccount($type);
@@ -187,6 +213,7 @@ class AdsAudience
 			$lookalikeAudienceParams = $audience->getLookalikeAudiencesParams();
 			$providers[$type]['IS_SUPPORT_LOOKALIKE_AUDIENCE'] =  !!$lookalikeAudienceParams;
 			$providers[$type]['LOOKALIKE_AUDIENCE_PARAMS'] = $lookalikeAudienceParams;
+			$providers[$type]['IS_SUPPORT_CREATE_LOOKALIKE_FROM_SEGMENTS'] = $audience::isSupportCreateLookalikeFromSegments();
 		}
 
 		return $providers;

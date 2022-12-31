@@ -1,8 +1,9 @@
 <?php
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Component\SkuTree;
 use Bitrix\Catalog\StoreTable;
-use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\StoreProductTable;
 use Bitrix\Catalog\v2\Product\Product;
 use Bitrix\Main\Engine\Contract\Controllerable;
@@ -12,7 +13,6 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UI\PageNavigation;
-use Bitrix\Main\Grid\Options;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Catalog\v2\Product\BaseProduct;
 use Bitrix\Main\ErrorCollection;
@@ -76,7 +76,10 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 
 	private function checkPermissions(): bool
 	{
-		return true;
+		return
+			AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
+			&& AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_VIEW)
+		;
 	}
 
 	private function checkProduct(): bool
@@ -107,6 +110,7 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 		$this->arResult['GRID'] = $this->getGridData();
 		$this->arResult['FILTER_PARAMS'] = $this->getFilterParams();
 		$this->arResult['TOTAL_DATA'] = $this->getTotalData();
+		$this->arResult['ALLOW_PURCHASING_PRICE'] = $this->allowPurchasingPrice();
 	}
 
 	private function placePageTitle(): void
@@ -255,10 +259,10 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 			'CURRENT_PAGE' => $this->getNavigation()->getCurrentPage(),
 			'SHOW_PAGESIZE' => true,
 			'PAGE_SIZES' => [
-				['NAME' => 5, 'VALUE' => 5],
-				['NAME' => 10, 'VALUE' => 10],
-				['NAME' => 20, 'VALUE' => 20],
-				['NAME' => 50, 'VALUE' => 50],
+				['NAME' => '5', 'VALUE' => '5'],
+				['NAME' => '10', 'VALUE' => '10'],
+				['NAME' => '20', 'VALUE' => '20'],
+				['NAME' => '50', 'VALUE' => '50'],
 			],
 			'DEFAULT_PAGE_SIZE' => self::DEFAULT_PAGE_SIZE,
 
@@ -281,12 +285,25 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 
 	private function getStores(): array
 	{
+		$filter = [
+			'ACTIVE' => 'Y',
+		];
+		$accessFilter = AccessController::getCurrent()->getEntityFilter(
+			ActionDictionary::ACTION_STORE_VIEW,
+			StoreTable::class
+		);
+		if ($accessFilter)
+		{
+			$filter = [
+				$filter,
+				$accessFilter,
+			];
+		}
+
 		$stores = StoreTable::getList([
 			'select' => ['ID', 'TITLE'],
-			'filter' => [
-				'ACTIVE' => 'Y',
-			]
-		])->fetchAll();
+			'filter' => $filter,
+		]);
 
 		$storesMap = [];
 		foreach ($stores as $store)
@@ -402,10 +419,17 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 		{
 			$storeProduct['AMOUNT'] = (float)$storeProduct['AMOUNT'];
 			$storeProduct['QUANTITY_RESERVED'] = (float)$storeProduct['QUANTITY_RESERVED'];
-			$storeTitle = $storeProduct['CATALOG_STORE_PRODUCT_STORE_TITLE']
-				? HtmlFilter::encode($storeProduct['CATALOG_STORE_PRODUCT_STORE_TITLE'])
-				: Loc::getMessage('STORE_LIST_DETAILS_STORE_TITLE_WITHOUT_NAME')
+			$storeTitle =
+				$storeProduct['CATALOG_STORE_PRODUCT_STORE_TITLE']
+					? HtmlFilter::encode($storeProduct['CATALOG_STORE_PRODUCT_STORE_TITLE'])
+					: Loc::getMessage('STORE_LIST_DETAILS_STORE_TITLE_WITHOUT_NAME')
 			;
+			$purchasingPrice =
+				$this->allowPurchasingPrice()
+					? $this->getFormattedPurchasingPrice($storeProduct['PRODUCT_ID'])
+					: '<purchasing-price />'
+			;
+
 			$rows[] = [
 				'data' => [
 					'STORE' => $storeTitle,
@@ -425,9 +449,7 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 						$storeProduct['PRODUCT_ID'],
 						$storeProduct['QUANTITY_RESERVED']
 					),
-					'PURCHASING_PRICE' => $this->getFormattedPurchasingPrice(
-						$storeProduct['PRODUCT_ID']
-					),
+					'PURCHASING_PRICE' => $purchasingPrice,
 				],
 			];
 		}
@@ -530,7 +552,24 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 		return $skuTreeItems[$this->getProduct()->getId()][$skuId];
 	}
 
-	private function getStoreFilter(): ?array
+	private function appendAccessFilter(array $filter): array
+	{
+		$accessFilter = AccessController::getCurrent()->getEntityFilter(
+			ActionDictionary::ACTION_STORE_VIEW,
+			StoreTable::class
+		);
+		if ($accessFilter)
+		{
+			$filter = [
+				$filter,
+				$accessFilter,
+			];
+		}
+
+		return $filter;
+	}
+
+	private function getStoreFilter(): array
 	{
 		$skuCollection = $this->getProduct()->getSkuCollection();
 		$skuIds = array_keys($skuCollection->toArray());
@@ -544,6 +583,17 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 				'!=QUANTITY_RESERVED' => '0',
 			],
 		];
+		$accessFilter = AccessController::getCurrent()->getEntityFilter(
+			ActionDictionary::ACTION_STORE_VIEW,
+			StoreProductTable::class
+		);
+		if ($accessFilter)
+		{
+			$filter = [
+				$filter,
+				$accessFilter,
+			];
+		}
 
 		$filteredStoreIds = $this->getFilterPresets()['STORE'];
 		if ($filteredStoreIds)
@@ -582,14 +632,30 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 		return $this->storeProductCount;
 	}
 
+	/**
+	 * Can view purchasing price.
+	 *
+	 * @return bool
+	 */
+	private function allowPurchasingPrice(): bool
+	{
+		return AccessController::getCurrent()->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW);
+	}
+
 	protected function getTotalData(): array
 	{
-		return [
+		$data = [
 			'QUANTITY_AVAILABLE' => $this->getHtmlTotalQuantities('QUANTITY_AVAILABLE'),
 			'QUANTITY_RESERVED' => $this->getHtmlTotalQuantities('QUANTITY_RESERVED'),
 			'QUANTITY_COMMON' => $this->getHtmlTotalQuantities('QUANTITY_COMMON'),
-			'PRICE' => $this->getHtmlTotalPrices(),
 		];
+
+		if ($this->allowPurchasingPrice())
+		{
+			$data['PRICE'] = $this->getHtmlTotalPrices();
+		}
+
+		return $data;
 	}
 
 	private function getHtmlTotalQuantities($quantitiesTypeName): string

@@ -223,7 +223,7 @@ class CAllIBlockProperty
 
 		CIBlock::clearIblockTagCache($arProperty["IBLOCK_ID"]);
 
-		Iblock\PropertyTable::getEntity()->cleanCache();
+		Iblock\PropertyTable::cleanCache();
 
 		$res = $DB->Query("DELETE FROM b_iblock_property WHERE ID=".$ID, true);
 
@@ -357,7 +357,7 @@ class CAllIBlockProperty
 					unset($featureResult);
 				}
 
-				Iblock\PropertyTable::getEntity()->cleanCache();
+				Iblock\PropertyTable::cleanCache();
 			}
 		}
 
@@ -596,7 +596,7 @@ class CAllIBlockProperty
 				unset($featureResult);
 			}
 
-			Iblock\PropertyTable::getEntity()->cleanCache();
+			Iblock\PropertyTable::cleanCache();
 
 			global $BX_IBLOCK_PROP_CACHE;
 			if (isset($arFields["IBLOCK_ID"]))

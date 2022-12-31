@@ -8,6 +8,7 @@ $MESS["BASE"] = "Базовый";
 $MESS["BASE_YES"] = "Да";
 $MESS["BASE_NO"] = "Нет";
 $MESS["EDIT_STATUS_ALT"] = "Изменить тип цен";
+$MESS["VIEW"] = "Открыть";
 $MESS["EDIT"] = "Изменить";
 $MESS["DELETE_STATUS_ALT"] = "Удалить тип цен";
 $MESS["DELETE"] = "Удалить";

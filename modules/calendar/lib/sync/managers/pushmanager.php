@@ -7,6 +7,7 @@ use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Mappers\Connection;
 use Bitrix\Calendar\Core\Mappers\SectionConnection;
 use Bitrix\Calendar\Internals\EO_Push;
+use Bitrix\Calendar\Internals\Mutex;
 use Bitrix\Calendar\Internals\PushTable;
 use Bitrix\Calendar\Sync\Builders\BuilderPushFromDM;
 use Bitrix\Calendar\Sync\Dictionary;
@@ -22,7 +23,6 @@ use Bitrix\Main\Error;
 use Bitrix\Main\ObjectException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\ObjectPropertyException;
-use Bitrix\Main\ORM\Data\UpdateResult;
 use Bitrix\Main\SystemException;
 use Exception;
 use Throwable;
@@ -277,6 +277,10 @@ class PushManager
 		{
 			try
 			{
+				if (!$this->lockConnection($sectionLink->getConnection(), 10))
+				{
+					return;
+				}
 				$syncSectionMap = new SyncSectionMap();
 				$syncSection = (new SyncSection())
 					->setSection($sectionLink->getSection())
@@ -296,7 +300,10 @@ class PushManager
 
 				$manager = new VendorDataExchangeManager($factory, $syncSectionMap);
 
-				$manager->importEvents();
+				$manager
+					->importEvents()
+					->updateConnection($sectionLink->getConnection());
+
 				$this->markPushSuccess($push, true);
 			}
 			catch(BaseException $e)
@@ -335,12 +342,17 @@ class PushManager
 			$connection,
 			new Sync\Util\Context()
 		);
-
-		$manager = new VendorDataExchangeManager(
-			$factory,
-			(new SyncSectionFactory())->getSyncSectionMapByFactory($factory)
-		);
-		$manager->importSections();
+		if ($factory)
+		{
+			$manager = new VendorDataExchangeManager(
+				$factory,
+				(new SyncSectionFactory())->getSyncSectionMapByFactory($factory)
+			);
+			$manager
+				->importSections()
+				->updateConnection($factory->getConnection())
+			;
+		}
 	}
 
 	/**
@@ -465,5 +477,38 @@ class PushManager
 				'NOT_PROCESSED' => Dictionary::PUSH_STATUS_PROCESS['unprocessed']
 			]
 		);
+	}
+
+	/**
+	 * @param Sync\Connection\Connection $connection
+	 *
+	 * @param int $time
+	 *
+	 * @return bool
+	 */
+	public function lockConnection(Sync\Connection\Connection $connection, int $time = 30): bool
+	{
+		return $this->getMutex($connection)->lock($time);
+	}
+
+	/**
+	 * @param Sync\Connection\Connection $connection
+	 *
+	 * @return bool
+	 */
+	public function unLockConnection(Sync\Connection\Connection $connection): bool
+	{
+		return $this->getMutex($connection)->unlock();
+	}
+
+	/**
+	 * @param Sync\Connection\Connection $connection
+	 *
+	 * @return Mutex
+	 */
+	private function getMutex(Sync\Connection\Connection $connection): Mutex
+	{
+		$key = 'lockPushForConnection_' . $connection->getId();
+		return new Mutex($key);
 	}
 }

@@ -5,7 +5,7 @@ import {Loc} from 'landing.loc';
 import {Dom, Runtime, Tag, Text, Type} from 'main.core';
 import {Draggable} from 'ui.draganddrop.draggable';
 import {FieldsPanel} from 'landing.ui.panel.fieldspanel';
-import {ListItem} from 'landing.ui.component.listitem';
+import {ListItem, type ListItemOptions} from 'landing.ui.component.listitem';
 import {ActionPanel} from 'landing.ui.component.actionpanel';
 import {TextField} from 'landing.ui.field.textfield';
 import {BaseEvent} from 'main.core.events';
@@ -15,14 +15,15 @@ import {ListSettingsField} from 'landing.ui.field.listsettingsfield';
 import {SeparatorPanel} from 'landing.ui.panel.separatorpanel';
 import {PageObject} from 'landing.pageobject';
 import {Loader} from 'main.loader';
-import type {ListItemOptions} from 'landing.ui.component.listitem';
 import {ProductField} from 'landing.ui.field.productfield';
 import 'calendar.resourcebookinguserfield';
 import 'socnetlogdest';
 import 'ui.hint';
+import {IconButton} from 'landing.ui.component.iconbutton';
+import {RequisiteSettingsField} from './internal/requisite-settings-field';
 
 import './css/style.css';
-import {IconButton} from 'landing.ui.component.iconbutton';
+
 
 export class FieldsListField extends BaseField
 {
@@ -533,6 +534,13 @@ export class FieldsListField extends BaseField
 					}
 				}
 
+				if (Type.isArray(value.requisite))
+				{
+					modifiedValue.requisite = {
+						presets: value.requisite,
+					};
+				}
+
 				return modifiedValue;
 			},
 		});
@@ -596,6 +604,17 @@ export class FieldsListField extends BaseField
 					title: Loc.getMessage('LANDING_FIELDS_ITEM_FORM_LABEL_FIELD_TITLE'),
 					content: field.label,
 					textOnly: true,
+				}),
+			);
+		}
+
+		if (field.type === 'rq')
+		{
+			fields.push(
+				new RequisiteSettingsField({
+					selector: 'requisite',
+					title: Loc.getMessage('LANDING_FIELDS_ITEM_REQUISITE_SETTINGS_LABEL'),
+					value: field.requisite.presets,
 				}),
 			);
 		}
@@ -710,7 +729,7 @@ export class FieldsListField extends BaseField
 			fields.push(this.createProductDefaultValueDropdown(field));
 		}
 
-		if (['list', 'radio'].includes(field.type) && field.editing.items.length > 0)
+		if (['list', 'radio', 'checkbox'].includes(field.type) && field.editing.items.length > 0)
 		{
 			const defaultValueField = this.createDefaultValueField(field);
 			const listSettingsField = new ListSettingsField({
@@ -928,6 +947,7 @@ export class FieldsListField extends BaseField
 			})
 			.show({
 				disabledFields: this.items.map((item) => item.options.id),
+				allowedTypes: this.#getFieldsPanelAllowedTypes(),
 			})
 			.then((selectedFields) => {
 				if (Type.isArrayFilled(selectedFields))
@@ -936,6 +956,27 @@ export class FieldsListField extends BaseField
 					this.onFieldsSelect(selectedFields);
 				}
 			});
+	}
+
+	#getFieldsPanelAllowedTypes(): Array<string>
+	{
+		return [
+			'list',
+			'string',
+			'checkbox',
+			'date',
+			'text',
+			'typed_string',
+			'file',
+			'datetime',
+			'integer',
+			'double',
+			'enumeration',
+			'url',
+			'money',
+			'boolean',
+			'resourcebooking',
+		];
 	}
 
 	onFieldsSelect(selectedFields: Array<string>)

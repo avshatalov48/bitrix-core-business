@@ -25,18 +25,18 @@ abstract class Audience extends BaseApiObject
 
 	protected $accountId;
 	protected $audienceId;
-	protected static $listRowMap = array(
+	protected static $listRowMap = [
 		'ID' => 'ID',
 		'NAME' => 'NAME',
 		'COUNT_VALID' => 'COUNT',
 		'COUNT_MATCHED' => 'COUNT',
-		'SUPPORTED_CONTACT_TYPES' => array(
+		'SUPPORTED_CONTACT_TYPES' => [
 			self::ENUM_CONTACT_TYPE_EMAIL,
 			self::ENUM_CONTACT_TYPE_PHONE,
 			self::ENUM_CONTACT_TYPE_IDFA_GAID,
 			self::ENUM_CONTACT_TYPE_INTERNAL_ID
-		),
-	);
+		],
+	];
 	protected $isQueueModeEnabled = false;
 	protected $isQueueAutoRemove = true;
 	protected $queueDaysAutoRemove = 7;
@@ -84,6 +84,11 @@ abstract class Audience extends BaseApiObject
 	}
 
 	public static function isSupportRemoveContacts()
+	{
+		return true;
+	}
+
+	public static function isSupportCreateLookalikeFromSegments(): bool
 	{
 		return true;
 	}

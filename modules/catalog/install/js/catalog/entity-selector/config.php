@@ -110,6 +110,26 @@ return [
 					],
 				],
 			],
+			[
+				'id' => 'store',
+				'options' => [
+					'itemOptions' => [
+						'default' => [
+							'avatar' => '/bitrix/js/catalog/entity-selector/src/images/store.svg',
+						],
+					],
+				]
+			],
+			[
+				'id' => 'dynamic',
+				'options' => [
+					'itemOptions' => [
+						'default' => [
+							'avatar' => '/bitrix/js/catalog/entity-selector/src/images/dynamic.svg',
+						],
+					],
+				]
+			]
 		],
 	],
 ];

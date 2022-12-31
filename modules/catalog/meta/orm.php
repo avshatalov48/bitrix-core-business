@@ -1,5 +1,425 @@
 <?php
 
+/* ORMENTITYANNOTATION:Bitrix\Catalog\Access\Permission\PermissionTable:catalog\lib\Access\Permission\PermissionTable.php */
+namespace Bitrix\Catalog\Access\Permission {
+	/**
+	 * Permission
+	 * @see \Bitrix\Catalog\Access\Permission\PermissionTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\Access\Permission\Permission setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getRoleId()
+	 * @method \Bitrix\Catalog\Access\Permission\Permission setRoleId(\int|\Bitrix\Main\DB\SqlExpression $roleId)
+	 * @method bool hasRoleId()
+	 * @method bool isRoleIdFilled()
+	 * @method bool isRoleIdChanged()
+	 * @method \int remindActualRoleId()
+	 * @method \int requireRoleId()
+	 * @method \Bitrix\Catalog\Access\Permission\Permission resetRoleId()
+	 * @method \Bitrix\Catalog\Access\Permission\Permission unsetRoleId()
+	 * @method \int fillRoleId()
+	 * @method \string getPermissionId()
+	 * @method \Bitrix\Catalog\Access\Permission\Permission setPermissionId(\string|\Bitrix\Main\DB\SqlExpression $permissionId)
+	 * @method bool hasPermissionId()
+	 * @method bool isPermissionIdFilled()
+	 * @method bool isPermissionIdChanged()
+	 * @method \string remindActualPermissionId()
+	 * @method \string requirePermissionId()
+	 * @method \Bitrix\Catalog\Access\Permission\Permission resetPermissionId()
+	 * @method \Bitrix\Catalog\Access\Permission\Permission unsetPermissionId()
+	 * @method \string fillPermissionId()
+	 * @method \int getValue()
+	 * @method \Bitrix\Catalog\Access\Permission\Permission setValue(\int|\Bitrix\Main\DB\SqlExpression $value)
+	 * @method bool hasValue()
+	 * @method bool isValueFilled()
+	 * @method bool isValueChanged()
+	 * @method \int remindActualValue()
+	 * @method \int requireValue()
+	 * @method \Bitrix\Catalog\Access\Permission\Permission resetValue()
+	 * @method \Bitrix\Catalog\Access\Permission\Permission unsetValue()
+	 * @method \int fillValue()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\Access\Permission\Permission set($fieldName, $value)
+	 * @method \Bitrix\Catalog\Access\Permission\Permission reset($fieldName)
+	 * @method \Bitrix\Catalog\Access\Permission\Permission unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\Access\Permission\Permission wakeUp($data)
+	 */
+	class EO_Permission {
+		/* @var \Bitrix\Catalog\Access\Permission\PermissionTable */
+		static public $dataClass = '\Bitrix\Catalog\Access\Permission\PermissionTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog\Access\Permission {
+	/**
+	 * EO_Permission_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getRoleIdList()
+	 * @method \int[] fillRoleId()
+	 * @method \string[] getPermissionIdList()
+	 * @method \string[] fillPermissionId()
+	 * @method \int[] getValueList()
+	 * @method \int[] fillValue()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\Access\Permission\Permission $object)
+	 * @method bool has(\Bitrix\Catalog\Access\Permission\Permission $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\Access\Permission\Permission getByPrimary($primary)
+	 * @method \Bitrix\Catalog\Access\Permission\Permission[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\Access\Permission\Permission $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\Access\Permission\EO_Permission_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\Access\Permission\Permission current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_Permission_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\Access\Permission\PermissionTable */
+		static public $dataClass = '\Bitrix\Catalog\Access\Permission\PermissionTable';
+	}
+}
+namespace Bitrix\Catalog\Access\Permission {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Permission_Result exec()
+	 * @method \Bitrix\Catalog\Access\Permission\Permission fetchObject()
+	 * @method \Bitrix\Catalog\Access\Permission\EO_Permission_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Permission_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\Access\Permission\Permission fetchObject()
+	 * @method \Bitrix\Catalog\Access\Permission\EO_Permission_Collection fetchCollection()
+	 */
+	class EO_Permission_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\Access\Permission\Permission createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\Access\Permission\EO_Permission_Collection createCollection()
+	 * @method \Bitrix\Catalog\Access\Permission\Permission wakeUpObject($row)
+	 * @method \Bitrix\Catalog\Access\Permission\EO_Permission_Collection wakeUpCollection($rows)
+	 */
+	class EO_Permission_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\Access\Role\RoleTable:catalog\lib\Access\Role\RoleTable.php */
+namespace Bitrix\Catalog\Access\Role {
+	/**
+	 * Role
+	 * @see \Bitrix\Catalog\Access\Role\RoleTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\Access\Role\Role setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getName()
+	 * @method \Bitrix\Catalog\Access\Role\Role setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method bool isNameChanged()
+	 * @method \string remindActualName()
+	 * @method \string requireName()
+	 * @method \Bitrix\Catalog\Access\Role\Role resetName()
+	 * @method \Bitrix\Catalog\Access\Role\Role unsetName()
+	 * @method \string fillName()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\Access\Role\Role set($fieldName, $value)
+	 * @method \Bitrix\Catalog\Access\Role\Role reset($fieldName)
+	 * @method \Bitrix\Catalog\Access\Role\Role unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\Access\Role\Role wakeUp($data)
+	 */
+	class EO_Role {
+		/* @var \Bitrix\Catalog\Access\Role\RoleTable */
+		static public $dataClass = '\Bitrix\Catalog\Access\Role\RoleTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog\Access\Role {
+	/**
+	 * EO_Role_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getNameList()
+	 * @method \string[] fillName()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\Access\Role\Role $object)
+	 * @method bool has(\Bitrix\Catalog\Access\Role\Role $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\Access\Role\Role getByPrimary($primary)
+	 * @method \Bitrix\Catalog\Access\Role\Role[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\Access\Role\Role $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\Access\Role\EO_Role_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\Access\Role\Role current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_Role_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\Access\Role\RoleTable */
+		static public $dataClass = '\Bitrix\Catalog\Access\Role\RoleTable';
+	}
+}
+namespace Bitrix\Catalog\Access\Role {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Role_Result exec()
+	 * @method \Bitrix\Catalog\Access\Role\Role fetchObject()
+	 * @method \Bitrix\Catalog\Access\Role\EO_Role_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Role_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\Access\Role\Role fetchObject()
+	 * @method \Bitrix\Catalog\Access\Role\EO_Role_Collection fetchCollection()
+	 */
+	class EO_Role_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\Access\Role\Role createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\Access\Role\EO_Role_Collection createCollection()
+	 * @method \Bitrix\Catalog\Access\Role\Role wakeUpObject($row)
+	 * @method \Bitrix\Catalog\Access\Role\EO_Role_Collection wakeUpCollection($rows)
+	 */
+	class EO_Role_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Catalog\Access\Role\RoleRelationTable:catalog\lib\Access\Role\RoleRelationTable.php */
+namespace Bitrix\Catalog\Access\Role {
+	/**
+	 * RoleRelation
+	 * @see \Bitrix\Catalog\Access\Role\RoleRelationTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getRoleId()
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation setRoleId(\int|\Bitrix\Main\DB\SqlExpression $roleId)
+	 * @method bool hasRoleId()
+	 * @method bool isRoleIdFilled()
+	 * @method bool isRoleIdChanged()
+	 * @method \int remindActualRoleId()
+	 * @method \int requireRoleId()
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation resetRoleId()
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation unsetRoleId()
+	 * @method \int fillRoleId()
+	 * @method \string getRelation()
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation setRelation(\string|\Bitrix\Main\DB\SqlExpression $relation)
+	 * @method bool hasRelation()
+	 * @method bool isRelationFilled()
+	 * @method bool isRelationChanged()
+	 * @method \string remindActualRelation()
+	 * @method \string requireRelation()
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation resetRelation()
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation unsetRelation()
+	 * @method \string fillRelation()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation set($fieldName, $value)
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation reset($fieldName)
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Catalog\Access\Role\RoleRelation wakeUp($data)
+	 */
+	class EO_RoleRelation {
+		/* @var \Bitrix\Catalog\Access\Role\RoleRelationTable */
+		static public $dataClass = '\Bitrix\Catalog\Access\Role\RoleRelationTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Catalog\Access\Role {
+	/**
+	 * EO_RoleRelation_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getRoleIdList()
+	 * @method \int[] fillRoleId()
+	 * @method \string[] getRelationList()
+	 * @method \string[] fillRelation()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Catalog\Access\Role\RoleRelation $object)
+	 * @method bool has(\Bitrix\Catalog\Access\Role\RoleRelation $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation getByPrimary($primary)
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation[] getAll()
+	 * @method bool remove(\Bitrix\Catalog\Access\Role\RoleRelation $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Catalog\Access\Role\EO_RoleRelation_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_RoleRelation_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Catalog\Access\Role\RoleRelationTable */
+		static public $dataClass = '\Bitrix\Catalog\Access\Role\RoleRelationTable';
+	}
+}
+namespace Bitrix\Catalog\Access\Role {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_RoleRelation_Result exec()
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation fetchObject()
+	 * @method \Bitrix\Catalog\Access\Role\EO_RoleRelation_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_RoleRelation_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation fetchObject()
+	 * @method \Bitrix\Catalog\Access\Role\EO_RoleRelation_Collection fetchCollection()
+	 */
+	class EO_RoleRelation_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation createObject($setDefaultValues = true)
+	 * @method \Bitrix\Catalog\Access\Role\EO_RoleRelation_Collection createCollection()
+	 * @method \Bitrix\Catalog\Access\Role\RoleRelation wakeUpObject($row)
+	 * @method \Bitrix\Catalog\Access\Role\EO_RoleRelation_Collection wakeUpCollection($rows)
+	 */
+	class EO_RoleRelation_Entity extends \Bitrix\Main\ORM\Entity {}
+}
 /* ORMENTITYANNOTATION:Bitrix\Catalog\CatalogIblockTable:catalog\lib\catalogiblock.php */
 namespace Bitrix\Catalog {
 	/**

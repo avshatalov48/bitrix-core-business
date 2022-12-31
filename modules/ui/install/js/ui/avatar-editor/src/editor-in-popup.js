@@ -99,7 +99,7 @@ export default class EditorInPopup extends Editor
 	apply()
 	{
 		this.packBlobAndMask()
-			.then(({blob, maskedBlob, maskId}) =>
+			.then(({blob, maskedBlob, maskId, canvas}) =>
 			{
 				if (blob instanceof Blob)
 				{
@@ -108,7 +108,7 @@ export default class EditorInPopup extends Editor
 						Backend.useRecently(maskId);
 					}
 					const ev = new BaseEvent({
-						compatData: [blob, maskedBlob],
+						compatData: [blob, canvas],
 						data: {blob, maskedBlob}
 					});
 					EventEmitter.emit(this, 'onApply', ev, {useGlobalNaming: true});

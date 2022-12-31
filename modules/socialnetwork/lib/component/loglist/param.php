@@ -430,8 +430,6 @@ class Param
 				{
 					$componentParams['SET_LOG_PAGE_CACHE'] = 'Y';
 					$componentParams['USE_FOLLOW'] = 'N';
-					$componentParams['SET_LOG_COUNTER'] = 'N';
-					$componentParams['SHOW_UNREAD'] = 'N';
 				}
 				elseif ($componentParams['TO_USER_ID'] > 0)
 				{

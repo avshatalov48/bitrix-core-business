@@ -1,0 +1,234 @@
+.landing-ui-field-link-wrapper {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.landing-ui-field-link-left {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.landing-ui-field-link-new-center {
+	flex-grow: 1;
+	width: 100%;
+	box-sizing: border-box;
+	padding-bottom: 0;
+}
+.landing-ui-field-link-new-center-select-action
+{
+	padding: 15px;
+	border: 2px solid red;
+}
+
+.landing-ui-field-link-center {
+	flex-grow: 1;
+	width: 100%;
+	box-sizing: border-box;
+	padding-bottom: 0;
+}
+
+.landing-ui-field-link-center .landing-ui-field-header {
+	margin-bottom: 8px;
+}
+
+.landing-ui-field-link-right {
+	width: 328px;
+	position: relative;
+}
+
+.landing-ui-field-link-wrapper .landing-ui-field-input {
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+/*.landing-ui-field-link-wrapper .landing-ui-field-input::after {*/
+/*	left: -500px;*/
+/*	right: -500px;*/
+/*}*/
+
+.landing-ui-field-dropdown-inline .landing-ui-field-input {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	color: #535C69;
+	min-height: auto;
+	width: auto;
+	display: inline-block;
+	padding-left: 0;
+}
+
+.landing-ui-field-link-media {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	color: rgba(245, 127, 23, 1);
+	line-height: 19px;
+	top: 5px;
+	right: 23px;
+	text-transform: lowercase;
+	background: #fafafa;
+	border: none;
+	position: absolute;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	transition: color 200ms ease;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+}
+
+.landing-ui-field-link-media::before {
+	background: #fafafa;
+	content: "";
+	position: absolute;
+	bottom: -10px;
+	left: 0;
+	right: 0;
+	top: 18px;
+	z-index: 0;
+}
+
+.landing-ui-field-link-media:hover {
+	background: #fafafa;
+	color: rgba(245, 127, 23, .6);
+}
+
+.landing-ui-field-link-media.landing-ui-disable,
+.landing-ui-field-link-media.landing-ui-disable * {
+	background: none;
+	color: rgba(128, 134, 142, .4)!important;
+}
+
+.landing-ui-field-link-media.landing-ui-disable::before {
+	display: none;
+}
+
+
+.landing-ui-field-link-media-help {
+	background: none!important;
+	position: absolute;
+	top: 5px;
+	right: 0;
+	font-size: 17px;
+	color: rgba(128, 134, 142, .4);
+	line-height: 0;
+	border: none;
+	padding-left: 0;
+	padding-right: 0;
+	width: 18px;
+	transition: color 300ms ease;
+}
+
+.landing-ui-field-link-media-help:hover {
+	color: rgba(128, 134, 142, .8);
+}
+
+.landing-ui-field-link-media-help * {
+	pointer-events: none;
+}
+
+
+.landing-ui-field-link-media-layout {
+	background: #fafafa;
+	padding: 15px;
+	border-radius: 2px;
+}
+
+.landing-ui-field-link-media-layout:empty {
+	padding: 0;
+	opacity: 0;
+}
+
+.landing-ui-field-link-media-layout .landing-ui-form {
+	margin-bottom: 0!important;
+}
+
+.landing-ui-field-link-media-help-popup-content {
+	width: 300px;
+}
+
+.landing-ui-field-link-media-help-popup {
+	opacity: 0;
+	transform: translateY(10%);
+}
+
+.landing-ui-field-link-media-help-popup.landing-ui-show {
+	animation: showHelp 200ms ease both;
+}
+
+.landing-ui-field-link-media-help-popup.landing-ui-hide {
+	visibility: visible;
+	animation: hideHelp 200ms ease both;
+}
+
+
+@keyframes showHelp {
+	0% {
+		opacity: 0;
+		transform: translateY(10%);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0%);
+	}
+}
+
+@keyframes hideHelp {
+	0% {
+		opacity: 1;
+		transform: translateY(0%);
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateY(10%);
+	}
+}
+
+
+.landing-ui-field-link-media-help-popup .popup-window-angly {
+	pointer-events: none;
+}
+
+.landing-ui-field-link-media-help-popup-content-title {
+	font-weight: bold;
+	padding-bottom: 6px;
+}
+
+.landing-ui-field-link-media-help-popup-content-content p {
+	margin-bottom: 0;
+}
+
+.landing-ui-field-link-media-help-popup-content-content p + p {
+	margin-top: 6px;
+}
+
+.landing-ui-disallow-type .landing-ui-field-link-url-grid-left {
+	display: none;
+}
+
+.landing-ui-field-edit-link,
+.landing-ui-field-edit-link a {
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	line-height: 14px;
+	padding-bottom: 15px;
+	color: #A9ADB2;
+}
+
+
+.landing-ui-field-edit-link a {
+	color: #A9ADB2;
+	border-bottom: 1px rgba(169, 173, 178, .65) solid;
+	padding: 0!important;
+	text-decoration: none;
+	transition: opacity 200ms ease;
+}
+
+.landing-ui-field-edit-link a:hover {
+	opacity: .45;
+	color: #A9ADB2;
+	text-decoration: none;
+}

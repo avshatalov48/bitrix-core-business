@@ -1,19 +1,22 @@
 import { Event } from 'main.core';
 
+/**
+ * @memberof BX.UI.Uploader
+ */
 export const DragOverMixin = {
 	directives: {
 		drop: {
-			bind(el, binding, vnode)
+			beforeMount(el, binding, vnode)
 			{
 				function addClass()
 				{
-					vnode.context.dragOver = true;
+					binding.instance.dragOver = true;
 					el.classList.add('--drag-over');
 				}
 
 				function removeClass()
 				{
-					vnode.context.dragOver = false;
+					binding.instance.dragOver = false;
 					el.classList.remove('--drag-over');
 				}
 
@@ -41,9 +44,9 @@ export const DragOverMixin = {
 				});
 			},
 
-			unbind(el, binding, vnode)
+			unmounted(el, binding, vnode)
 			{
-				vnode.context.dragOver = false;
+				binding.instance.dragOver = false;
 				Event.unbindAll(el, 'dragenter');
 				Event.unbindAll(el, 'dragleave');
 				Event.unbindAll(el, 'drop');

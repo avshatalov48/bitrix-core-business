@@ -6,7 +6,7 @@
 // region environment initialization
 if (!defined("UPDATE_SYSTEM_VERSION"))
 {
-	define("UPDATE_SYSTEM_VERSION", "22.100.0");
+	define("UPDATE_SYSTEM_VERSION", "22.500.0");
 }
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -326,9 +326,9 @@ elseif (($DB->type === "MSSQL") || ($DB->type === "ORACLE"))
 }
 
 $minPhpErrorVersion = "7.4.0";
-$minPhpWarningVersion = "";
-$minPhpWarningVersionBest = "";
-$minPhpWarningVersionDate = "";
+$minPhpWarningVersion = "8.0";
+$minPhpWarningVersionBest = "8.1";
+$minPhpWarningVersionDate = "2023-02-01";
 
 // if (date("Y-m-d") < "2019-03-01")
 // {
@@ -2021,7 +2021,6 @@ $tabControl->End();
 		div.id = "activate_float_div";
 		div.className = "settings-float-form";
 		div.style.position = 'absolute';
-		div.style.width = '650';
 
 		var txt = '<div class="title">';
 		txt += '<table cellspacing="0" width="100%">';
@@ -2040,7 +2039,7 @@ $tabControl->End();
 		txt += '<input type="hidden" name="lang" id="lang" VALUE="<?=LANGUAGE_ID?>">';
 		txt += '<table>';
 		txt += '<tr>';
-		txt += '	<td colspan="2"><div id="errorDiv" style="width:50%;"></div></td>';
+		txt += '	<td colspan="2"><div id="errorDiv"></div></td>';
 		txt += '</tr>';
 		txt += '	<tr>';
 		txt += '		<td width="50%"><span class="required">*</span><?= GetMessageJS("SUP_SUBA_RI_NAME") ?>:</td>';

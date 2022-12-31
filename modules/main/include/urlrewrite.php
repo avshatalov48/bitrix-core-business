@@ -173,11 +173,11 @@ if (!$uri->isPathTraversal())
 			// D7 response is not available here
 			if(stristr(php_sapi_name(), "cgi") !== false && (!defined("BX_HTTP_STATUS") || BX_HTTP_STATUS == false))
 			{
-				header("Status: 200");
+				header("Status: 200 OK");
 			}
 			else
 			{
-				header($_SERVER["SERVER_PROTOCOL"]." 200");
+				header($_SERVER["SERVER_PROTOCOL"]." 200 OK");
 			}
 
 			$_SERVER["REAL_FILE_PATH"] = $url;

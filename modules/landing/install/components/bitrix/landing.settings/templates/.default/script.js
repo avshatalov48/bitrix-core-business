@@ -3,7 +3,7 @@ this.BX.Landing = this.BX.Landing || {};
 (function (exports,main_core,main_loader) {
 	'use strict';
 
-	var _templateObject;
+	var _templateObject, _templateObject2;
 	var LandingSettings = /*#__PURE__*/function () {
 	  /**
 	   * Constructor.
@@ -17,16 +17,18 @@ this.BX.Landing = this.BX.Landing || {};
 
 	    this.pages = options.pages;
 	    this.container = document.getElementById(options.containerId);
-	    this.loader = new main_loader.Loader({
-	      target: this.container
-	    });
 
 	    for (var page in this.pages) {
 	      this.pages[page].container = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-settings-page-container\"></div>"])));
 	      main_core.Dom.append(this.pages[page].container, this.container);
 	    }
 
-	    this.loadingPages = []; // links
+	    this.loadingPages = [];
+	    this.loaderContainer = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-settings-loader-container\"></div>"])));
+	    main_core.Dom.insertAfter(this.loaderContainer, this.container);
+	    this.loader = new main_loader.Loader({
+	      target: this.loaderContainer
+	    }); // links
 
 	    this.links = document.getElementById(options.menuId).querySelectorAll('li a');
 	    var currentLink = this.links[0];
@@ -54,6 +56,18 @@ this.BX.Landing = this.BX.Landing || {};
 	  }
 
 	  babelHelpers.createClass(LandingSettings, [{
+	    key: "showLoader",
+	    value: function showLoader() {
+	      this.loader.show();
+	      main_core.Dom.show(this.loaderContainer);
+	    }
+	  }, {
+	    key: "hideLoader",
+	    value: function hideLoader() {
+	      this.loader.hide();
+	      main_core.Dom.hide(this.loaderContainer);
+	    }
+	  }, {
 	    key: "onLinkClick",
 	    value: function onLinkClick(link) {
 	      if (link.dataset.page) {
@@ -75,37 +89,45 @@ this.BX.Landing = this.BX.Landing || {};
 	    }
 	  }, {
 	    key: "onPageChange",
-	    value: function onPageChange(page) {
+	    value: function onPageChange(pageId) {
 	      var _this2 = this;
 
-	      var currPage = this.pages[page];
+	      var pageToLoad = this.pages[pageId];
 
-	      if (currPage) {
-	        if (currPage.container.childNodes.length === 0) {
-	          this.loader.show();
-	          this.loadingPages.push(page);
-	          main_core.ajax.get(currPage.link, function (result) {
-	            currPage.container.innerHTML = result;
+	      if (pageToLoad) {
+	        if (pageToLoad.container.childNodes.length === 0) {
+	          this.showLoader();
+	          this.loadingPages.push(pageId);
+	          main_core.ajax.get(pageToLoad.link, function (result) {
+	            pageToLoad.container.innerHTML = result;
 
-	            _this2.loadingPages.splice(_this2.loadingPages.indexOf(page), 1);
+	            _this2.loadingPages.splice(_this2.loadingPages.indexOf(pageId), 1);
 
 	            if (_this2.loadingPages.length === 0) {
-	              _this2.loader.hide();
+	              _this2.hideLoader();
 	            }
 
-	            var form = currPage.container.querySelector('form.landing-form');
+	            var form = pageToLoad.container.querySelector('form.landing-form');
 
 	            if (form) {
-	              currPage.form = form;
+	              pageToLoad.form = form;
 	            }
+
+	            if (_this2.currentPage) {
+	              _this2.currentPage.container.hidden = true;
+	            }
+
+	            _this2.currentPage = pageToLoad;
+	            _this2.currentPage.container.hidden = false;
 	          });
-	        }
+	        } else {
+	          if (this.currentPage) {
+	            this.currentPage.container.hidden = true;
+	          }
 
-	        for (var _page in this.pages) {
-	          this.pages[_page].container.hidden = true;
+	          this.currentPage = pageToLoad;
+	          this.currentPage.container.hidden = false;
 	        }
-
-	        currPage.container.hidden = false;
 	      }
 	    }
 	  }, {
@@ -113,7 +135,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function onSave() {
 	      var _this3 = this;
 
-	      this.loader.show();
+	      this.showLoader();
 	      var submits = [];
 
 	      for (var page in this.pages) {
@@ -140,7 +162,7 @@ this.BX.Landing = this.BX.Landing || {};
 	          top.window['landingSettingsSaved'] = true;
 	          top.BX.onCustomEvent('BX.Landing.Filter:apply');
 
-	          _this3.loader.hide();
+	          _this3.hideLoader();
 
 	          top.window.location.reload();
 	          BX.SidePanel.Instance.close();

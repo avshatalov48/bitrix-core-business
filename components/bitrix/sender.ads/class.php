@@ -21,10 +21,11 @@ class SenderAdsComponent extends Bitrix\Sender\Internals\CommonSenderComponent
 {
 	protected function initParams()
 	{
-		$this->arParams['SEF_MODE'] = isset($this->arParams['SEF_MODE']) ? $this->arParams['SEF_MODE'] : 'Y';
-		$this->arParams['SEF_FOLDER'] = isset($this->arParams['SEF_FOLDER']) ? $this->arParams['SEF_FOLDER'] : '';
-		$this->arParams['ELEMENT_ID'] = isset($this->arParams['ELEMENT_ID']) ? $this->arParams['ELEMENT_ID'] : $this->request->get('id');
-		$this->arParams['SHOW_CAMPAIGNS'] = isset($this->arParams['SHOW_CAMPAIGNS']) ? (bool) $this->arParams['SHOW_CAMPAIGNS'] : false;
+		$this->arParams['SEF_MODE'] = $this->arParams['SEF_MODE'] ?? 'Y';
+		$this->arParams['SEF_FOLDER'] = $this->arParams['SEF_FOLDER'] ?? '';
+		$this->arParams['ELEMENT_ID'] = $this->arParams['ELEMENT_ID'] ?? $this->request->get('id');
+		$this->arParams['SHOW_CAMPAIGNS'] = isset($this->arParams['SHOW_CAMPAIGNS'])
+			&& (bool)$this->arParams['SHOW_CAMPAIGNS'];
 
 		$this->arParams['IFRAME'] = isset($this->arParams['IFRAME']) ? $this->arParams['IFRAME'] : true;
 		$this->arResult['NAME_TEMPLATE'] = empty($this->arParams['NAME_TEMPLATE']) ? CSite::GetNameFormat(false) : str_replace(array("#NOBR#","#/NOBR#"), array("",""), $this->arParams["NAME_TEMPLATE"]);

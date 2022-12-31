@@ -1,4 +1,5 @@
-[data-name="variation_grid"] .ui-entity-editor-included-area-container-loader {
+[data-name="variation_grid"] .ui-entity-editor-included-area-container-loader,
+[data-name="service_grid"] .ui-entity-editor-included-area-container-loader {
 	background: url(images/skeleton.svg);
 	height: 500px;
 }
@@ -6,4 +7,45 @@
 .ui-btn.ui-btn-highlighted {
 	z-index: 140;
 	background-color: #fff;
+}
+
+.catalog-productcard-product-type-selector {
+	z-index: 130;
+	font-size: var(--ui-font-size-md, 14px) ;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+	line-height: var(--ui-font-line-height-md, 1.4);
+	margin-top: 3px;
+	padding-right: 20px;
+	position: relative;
+	cursor: pointer;
+}
+
+.catalog-productcard-product-type-selector:after {
+	content: '';
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	width: 5px;
+	height: 5px;
+	border: 2px solid;
+	border-top: none;
+	border-left: none;
+	transform: rotate(45deg);
+	opacity: 0.7;
+	transition: .2s;
+	cursor: pointer;
+}
+
+
+.catalog-productcard-product-type-selector-text {
+	z-index: 130;
+	border-bottom: var(--ui-border-width-thin, 1px) dashed;
+	position: relative;
+	transition: border-bottom-color 0.2s linear;
+}
+
+.catalog-productcard-product-type-selector:hover .catalog-productcard-product-type-selector-text {
+	border-bottom-color: transparent;
+	transition-duration: unset;
 }

@@ -106,7 +106,6 @@ CModule::AddAutoloadClasses(
 $jsCoreRel = [
 	'ui.design-tokens',
 	'ui.fonts.opensans',
-	'ui.fonts.roboto',
 	'im_desktop_utils',
 	'resize_observer',
 	'im_common',

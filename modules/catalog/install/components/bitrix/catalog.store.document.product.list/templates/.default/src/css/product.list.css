@@ -203,6 +203,10 @@
 	width: calc(100% - 80px);
 }
 
+.catalog-document-product-list-wrapper .catalog-product-edit[data-name="BARCODE_INFO"] .catalog-product-field-inner {
+	width: 100%;
+}
+
 .catalog-document-product-list-wrapper .catalog-product-field-no-image .catalog-product-field-inner,
 .catalog-document-product-list-wrapper .catalog-product-field-no-image .catalog-store-field-inner {
 	width: 100%;

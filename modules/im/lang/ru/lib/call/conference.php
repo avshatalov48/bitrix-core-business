@@ -14,4 +14,6 @@ $MESS["IM_CALL_CONFERENCE_ERROR_INVITATION_LENGTH"] = 'Приглашение н
 $MESS["IM_CALL_CONFERENCE_ERROR_CREATING"] = 'Произошла ошибка при создании конференции';
 $MESS["IM_CALL_CONFERENCE_ERROR_NO_PRESENTERS"] = 'Список спикеров не может быть пустым';
 $MESS["IM_CALL_CONFERENCE_ERROR_TOO_MANY_PRESENTERS"] = 'Вы выбрали слишком много спикеров';
+$MESS["IM_CALL_CONFERENCE_ERROR_ALIAS"] = 'Передан некорректный формат короткой ссылки';
+$MESS["IM_CALL_CONFERENCE_ERROR_ENVIRONMENT_CONFIG"] = 'Для использования конференций необходимо настроить окружение';
 ?>

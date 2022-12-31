@@ -46,6 +46,11 @@ export const RestMethod = Object.freeze({
 
 	imNotifyGet: 'im.notify.get',
 	imNotifySchemaGet: 'im.notify.schema.get',
+
+	imCallBackgroundGet: 'im.v2.Call.Background.get',
+	imCallBackgroundCommit: 'im.v2.Call.Background.commit',
+	imCallBackgroundDelete: 'im.v2.Call.Background.delete',
+	imCallMaskGet: 'im.v2.Call.Mask.get'
 });
 
 export const RestMethodHandler = Object.freeze({

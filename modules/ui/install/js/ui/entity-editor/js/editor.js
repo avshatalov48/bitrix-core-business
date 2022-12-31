@@ -616,16 +616,23 @@ if(typeof BX.UI.EntityEditor === "undefined")
 								dataType: "json",
 								processData : true,
 								onsuccess: (callbacks ? callbacks.onSuccess : null),
-								data:
+								data: Object.assign(
 									{
 										"ACTION": actionName,
-										"ACTION_ENTITY_TYPE": this._entityTypeName,
 										"ENABLE_REQUIRED_USER_FIELD_CHECK": BX.prop.getBoolean(options, "enableRequiredUserFieldCheck", false) ? 'Y' : 'N'
-									}
+									},
+									this.getAjaxFormConfigData()
+								)
 							}
 					}
 				);
 			}
+		},
+		getAjaxFormConfigData: function ()
+		{
+			return {
+				"ACTION_ENTITY_TYPE": this._entityTypeName
+			};
 		},
 		releaseAjaxForm: function()
 		{

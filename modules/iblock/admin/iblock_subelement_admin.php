@@ -4,6 +4,8 @@
 
 use Bitrix\Main;
 use Bitrix\Iblock;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 CModule::IncludeModule("iblock");
@@ -55,7 +57,7 @@ if (0 < $intSubIBlockID)
 	$arSubIBlock = CIBlock::GetArrayByID($intSubIBlockID);
 	if ($arSubIBlock)
 	{
-		$bBadBlock = !CIBlockRights::UserHasRightTo($intSubIBlockID, $intSubIBlockID, "iblock_admin_display");;
+		$bBadBlock = !CIBlockRights::UserHasRightTo($intSubIBlockID, $intSubIBlockID, "iblock_admin_display");
 	}
 }
 
@@ -89,8 +91,15 @@ if ($bCatalog)
 	{
 		die();
 	}
-	if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_price')))
+	if (
+		!(
+			AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
+			|| AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_EDIT)
+		)
+	)
+	{
 		$boolSubCatalog = false;
+	}
 }
 else
 {

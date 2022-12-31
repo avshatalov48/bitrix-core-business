@@ -495,6 +495,13 @@ class Price extends Entity
 	 */
 	protected static function runAddExternalActions($id, array $data): void
 	{
+		if ((int)$data['fields']['CATALOG_GROUP_ID'] === self::$basePriceType)
+		{
+			if (isset(self::$productPrices[$data['fields']['PRODUCT_ID']]))
+			{
+				unset(self::$productPrices[$data['fields']['PRODUCT_ID']]);
+			}
+		}
 		if (isset($data['actions']['RECOUNT_PRICES']))
 		{
 			self::recountPricesFromBase($id);
@@ -521,6 +528,13 @@ class Price extends Entity
 	protected static function runUpdateExternalActions($id, array $data): void
 	{
 		$price = self::getCacheItem($id);
+		if ((int)$price['CATALOG_GROUP_ID'] === self::$basePriceType)
+		{
+			if (isset(self::$productPrices[$price['PRODUCT_ID']]))
+			{
+				unset(self::$productPrices[$price['PRODUCT_ID']]);
+			}
+		}
 		if (isset($data['actions']['RECOUNT_PRICES']))
 		{
 			self::recountPricesFromBase($id);

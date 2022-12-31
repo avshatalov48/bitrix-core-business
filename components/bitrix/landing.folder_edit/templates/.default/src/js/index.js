@@ -37,7 +37,7 @@ export class FolderEdit
 	#selectorPreviewPictureWrapper: HTMLElement;
 	#pathToLandingEdit: string;
 	#pathToLandingCreate: string;
-	#linkUrlSelector: BX.Landing.UI.Field.LinkURL;
+	#linkUrlSelector: BX.Landing.UI.Field.LinkUrl;
 	#linkPictureSelector: BX.Landing.UI.Field.Image;
 	#ajaxPathLoadPreview: string = '/bitrix/services/main/ajax.php?action=landing.api.landing.getById&landingId=#id#';
 
@@ -73,11 +73,11 @@ export class FolderEdit
 
 	#initSelector()
 	{
-		this.#linkUrlSelector = new BX.Landing.UI.Field.LinkURL({
+		this.#linkUrlSelector = new BX.Landing.UI.Field.LinkUrl({
 			title: null,
 			content: null,
 			allowedTypes: [
-				BX.Landing.UI.Field.LinkURL.TYPE_PAGE
+				BX.Landing.UI.Field.LinkUrl.TYPE_PAGE
 			],
 			options: {
 				siteId: this.#siteId,
@@ -136,7 +136,16 @@ export class FolderEdit
 
 	#onSelect(title)
 	{
-		const id = this.#linkUrlSelector.getValue().substr(8);
+		let id;
+		const linkUrlSelectorValue = this.#linkUrlSelector.getValue();
+		if (linkUrlSelectorValue.startsWith('page:'))
+		{
+			id = linkUrlSelectorValue.substr(13);
+		}
+		else
+		{
+			id = linkUrlSelectorValue.substr(8);
+		}
 		const path = this.#pathToLandingEdit.replace('#landing_edit#', id);
 
 		this.#selectorPageLink.text = title;

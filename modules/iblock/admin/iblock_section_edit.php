@@ -232,6 +232,14 @@ if(
 		"DESCRIPTION_TYPE" => $_POST["DESCRIPTION_TYPE"],
 	);
 
+	if (Loader::includeModule('bitrix24'))
+	{
+		$sanitizer = new \CBXSanitizer();
+		$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
+		$sanitizer->ApplyDoubleEncode(false);
+		$arFields['DESCRIPTION'] = $sanitizer->SanitizeHtml(htmlspecialchars_decode($arFields['DESCRIPTION']));
+	}
+
 	if(isset($_POST["SECTION_PROPERTY"]) && is_array($_POST["SECTION_PROPERTY"]))
 	{
 		$arFields["SECTION_PROPERTY"] = array();
@@ -2073,7 +2081,7 @@ else
 	$bu = $selfFolderUrl.CIBlock::GetAdminSectionListLink($IBLOCK_ID, array('find_section_section'=>intval($find_section_section)));
 
 if ($adminSidePanelHelper->isSidePanelFrame()):
-	$tabControl->Buttons(array("disabled" => true));
+	$tabControl->Buttons(array("disabled" => false));
 elseif (!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1):
 	$tabControl->Buttons(array(
 		"disabled" => false,

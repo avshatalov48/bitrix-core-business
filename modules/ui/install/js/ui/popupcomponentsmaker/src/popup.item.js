@@ -13,10 +13,13 @@ export default class PopupComponentsMakerItem extends EventEmitter
 		this.flex = Type.isNumber(options?.flex) ? options.flex : null;
 		this.withoutBackground = Type.isBoolean(options?.withoutBackground) ? options.withoutBackground : null;
 		this.backgroundColor = Type.isString(options?.backgroundColor) ? options.backgroundColor : null;
+		this.backgroundImage = Type.isString(options?.backgroundImage) ? options.backgroundImage : null;
+
 		this.marginBottom = Type.isNumber(options?.marginBottom) ? options.marginBottom : null;
 		this.disabled = Type.isBoolean(options?.disabled) ? options.disabled : null;
 		this.overflow = Type.isBoolean(options?.overflow) ? options.overflow : null;
 		this.displayBlock = Type.isBoolean(options?.displayBlock) ? options.displayBlock : null;
+		this.attrs = Type.isPlainObject(options?.attrs) ? options.attrs : null;
 		this.layout = {
 			container: null
 		};
@@ -101,6 +104,10 @@ export default class PopupComponentsMakerItem extends EventEmitter
 			{
 				this.layout.container.style.backgroundColor = this.backgroundColor;
 			}
+			if (this.backgroundImage)
+			{
+				this.layout.container.style.backgroundImage = this.backgroundImage;
+			}
 
 			if (this.withoutBackground && !this.backgroundColor)
 			{
@@ -125,6 +132,11 @@ export default class PopupComponentsMakerItem extends EventEmitter
 			if (this.displayBlock)
 			{
 				this.layout.container.classList.add('--block');
+			}
+
+			if (this.attrs)
+			{
+				Dom.adjust(this.layout.container, {attrs: this.attrs});
 			}
 		}
 

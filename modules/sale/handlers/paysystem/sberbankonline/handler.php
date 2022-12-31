@@ -137,7 +137,7 @@ class SberbankOnlineHandler extends PaySystem\ServiceHandler implements PaySyste
 
 			$orderNumber = $orderStatusData['orderNumber'];
 			$orderNumber = explode(self::PAYMENT_DELIMITER, $orderNumber);
-			$params['ORDER_ATTEMPT_NUMBER'] = $orderNumber[1] ?? 0;
+			$params['ORDER_ATTEMPT_NUMBER'] = $orderNumber[2] ?? 0;
 
 			$result->setData($params);
 		}
@@ -296,8 +296,23 @@ class SberbankOnlineHandler extends PaySystem\ServiceHandler implements PaySyste
 	 */
 	protected static function isMyResponseExtended(Request $request, $paySystemId): bool
 	{
+		// bx_paysystem_code for compatibility
 		$bxPaySystemCode = (int)$request->get('bx_paysystem_code');
-		return (int)$paySystemId === $bxPaySystemCode;
+		if ($bxPaySystemCode)
+		{
+			return (int)$paySystemId === $bxPaySystemCode;
+		}
+
+		$orderNumber = $request->get('orderNumber');
+		if ($orderNumber)
+		{
+			$orderNumberPart = explode(self::PAYMENT_DELIMITER, $orderNumber);
+			$paySystemIdFromOrderNumber = (int)($orderNumberPart[1] ?? 0);
+
+			return (int)$paySystemId === $paySystemIdFromOrderNumber;
+		}
+
+		return false;
 	}
 
 	/**
@@ -524,20 +539,20 @@ class SberbankOnlineHandler extends PaySystem\ServiceHandler implements PaySyste
 
 		return [
 			'register.do' => [
-				self::TEST_URL => $testUrl.'rest/register.do',
-				self::ACTIVE_URL => $activeUrl.'rest/register.do',
+				self::TEST_URL => $testUrl . 'rest/register.do',
+				self::ACTIVE_URL => $activeUrl . 'rest/register.do',
 			],
 			'getOrderStatusExtended.do' => [
-				self::TEST_URL => $testUrl.'rest/getOrderStatusExtended.do',
-				self::ACTIVE_URL => $activeUrl.'rest/getOrderStatusExtended.do',
+				self::TEST_URL => $testUrl . 'rest/getOrderStatusExtended.do',
+				self::ACTIVE_URL => $activeUrl . 'rest/getOrderStatusExtended.do',
 			],
 			'refund.do' => [
-				self::TEST_URL => $testUrl.'rest/refund.do',
-				self::ACTIVE_URL => $activeUrl.'rest/refund.do',
+				self::TEST_URL => $testUrl . 'rest/refund.do',
+				self::ACTIVE_URL => $activeUrl . 'rest/refund.do',
 			],
 			'formUrl' => [
-				self::TEST_URL => $testUrl.'merchants/sbersafe_cardholder/payment_ru.html?mdOrder=',
-				self::ACTIVE_URL => $activeUrl.'merchants/sbersafe_cardholder/payment_ru.html?mdOrder=',
+				self::TEST_URL => $testUrl . 'merchants/sbersafe_sberid/payment_ru.html?mdOrder=',
+				self::ACTIVE_URL => $activeUrl . 'merchants/sbersafe_sberid/payment_ru.html?mdOrder=',
 			],
 		];
 	}
@@ -568,17 +583,13 @@ class SberbankOnlineHandler extends PaySystem\ServiceHandler implements PaySyste
 	protected function getRegisterOrderParams(Payment $payment, int $attempt): array
 	{
 		$jsonParams = [
+			// bx_paysystem_code for compatibility
 			'bx_paysystem_code' => $this->service->getField('ID'),
 			'bx_label' => $this->getLabelName(),
 		];
 
-		$orderNumber = $payment->getId();
-		if ($attempt)
-		{
-			$orderNumber .= self::PAYMENT_DELIMITER . $attempt;
-		}
 		$params = [
-			'orderNumber' => $orderNumber,
+			'orderNumber' => $this->getOrderNumber($payment, $attempt),
 			'amount' => (int)PriceMaths::roundPrecision($payment->getSum() * 100),
 			'returnUrl' => $this->getSuccessUrl($payment),
 			'failUrl' => $this->getFailUrl($payment),
@@ -595,6 +606,21 @@ class SberbankOnlineHandler extends PaySystem\ServiceHandler implements PaySyste
 		$params['description'] = $this->getOrderDescription($payment);
 
 		return $params;
+	}
+
+	private function getOrderNumber(Payment $payment, int $attempt): string
+	{
+		$orderNumberPart = [
+			$payment->getId(),
+			$payment->getPaymentSystemId(),
+		];
+
+		if ($attempt)
+		{
+			$orderNumberPart[] = $attempt;
+		}
+
+		return implode(self::PAYMENT_DELIMITER, $orderNumberPart);
 	}
 
 	/**

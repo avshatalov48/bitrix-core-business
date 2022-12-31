@@ -70,46 +70,47 @@ abstract class Mapper implements BaseMapperInterface
 	 * @return Core\Base\EntityInterface|Core\Event\Event|\Bitrix\Calendar\Sync\Connection\Connection|Core\Section\Section|\Bitrix\Calendar\Sync\Connection\SectionConnection|\Bitrix\Calendar\Sync\Connection\EventConnection
 	 *
 	 * @throws ArgumentException
-	 * @throws Core\Base\BaseException
 	 */
-	public function create(Core\Base\EntityInterface $entity, array $params = []): Core\Base\EntityInterface
+	public function create(
+		Core\Base\EntityInterface $entity,
+		array $params = []
+	): ?Core\Base\EntityInterface
 	{
-		if (!empty($entity->getId()))
+		if ($entity->getId())
 		{
-			throw new Core\Base\BaseException("Error: {$this->getEntityName()} with this ID has already created.", 409);
+			return null;
 		}
 
 		$resultEntity = $this->createEntity($entity, $params);
-		if (!empty($resultEntity->getId()))
+		if ($resultEntity && $resultEntity->getId())
 		{
 			$this->getCacheMap()->add($resultEntity, $resultEntity->getId());
 			return $resultEntity;
 		}
 
-		throw new Core\Base\BaseException('Error: entity has not ID');
+		return null;
 	}
 
 	/**
 	 * @param Core\Base\EntityInterface $entity
 	 * @param array $params
 	 * @return Core\Event\Event
-	 * @throws Core\Base\BaseException
 	 */
 	public function update(
 		Core\Base\EntityInterface $entity,
 		array $params = []
-	): object
+	): ?Core\Base\EntityInterface
 	{
 		$resultEntity = $this->updateEntity($entity, $params);
 
-		if (!empty($resultEntity->getId()))
+		if ($resultEntity && $resultEntity->getId())
 		{
 			$this->getCacheMap()->updateItem($resultEntity, $resultEntity->getId());
 
 			return $resultEntity;
 		}
 
-		throw new Core\Base\BaseException('Error: entity has not ID or not update entity');
+		return null;
 	}
 
 	/**
@@ -118,7 +119,10 @@ abstract class Mapper implements BaseMapperInterface
 	 *
 	 * @return object|null
 	 */
-	public function delete(Core\Base\EntityInterface $entity, array $params = ['softDelete' => true]): ?object
+	public function delete(
+		Core\Base\EntityInterface $entity,
+		array $params = ['softDelete' => true]
+	): ?Core\Base\EntityInterface
 	{
 		$resultEntity = $this->deleteEntity($entity, $params);
 		if ($resultEntity === null)
@@ -127,7 +131,8 @@ abstract class Mapper implements BaseMapperInterface
 
 			return null;
 		}
-		elseif (!empty($resultEntity->getId()))
+
+		if (!empty($resultEntity->getId()))
 		{
 			$this->getCacheMap()->updateItem($resultEntity, $resultEntity->getId());
 

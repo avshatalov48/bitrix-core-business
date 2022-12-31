@@ -619,6 +619,7 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonIcon, "DOWNLOAD", 'ui-btn-icon-download');
 	babelHelpers.defineProperty(ButtonIcon, "DOTS", 'ui-btn-icon-ui-btn-icon-dots');
 	babelHelpers.defineProperty(ButtonIcon, "DONE", 'ui-btn-icon-done');
+	babelHelpers.defineProperty(ButtonIcon, "CANCEL", 'ui-btn-icon-cancel');
 	babelHelpers.defineProperty(ButtonIcon, "DISK", 'ui-btn-icon-disk');
 	babelHelpers.defineProperty(ButtonIcon, "LOCK", 'ui-btn-icon-lock');
 	babelHelpers.defineProperty(ButtonIcon, "MAIL", 'ui-btn-icon-mail');
@@ -646,6 +647,8 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(ButtonIcon, "NOTE", 'ui-btn-icon-note');
 	babelHelpers.defineProperty(ButtonIcon, "SCRIPT", 'ui-btn-icon-script');
 	babelHelpers.defineProperty(ButtonIcon, "PRINT2", 'ui-btn-icon-print-2');
+	babelHelpers.defineProperty(ButtonIcon, "FUNNEL", 'ui-btn-icon-funnel');
+	babelHelpers.defineProperty(ButtonIcon, "FORWARD", 'ui-btn-icon-forward');
 
 	/**
 	 * @namespace {BX.UI}

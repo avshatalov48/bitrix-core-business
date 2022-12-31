@@ -2,7 +2,7 @@
 
 	if (typeof this.BX !== 'undefined' && typeof this.BX.Vue3 !== 'undefined')
 	{
-		var currentVersion = '3.2.31';
+		var currentVersion = '3.2.40';
 
 		if (this.BX.Vue3.version !== currentVersion)
 		{

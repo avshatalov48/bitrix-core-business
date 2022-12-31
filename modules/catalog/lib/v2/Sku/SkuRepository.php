@@ -66,6 +66,19 @@ class SkuRepository extends BaseIblockElementRepository implements SkuRepository
 	}
 
 	/**
+	 * Sku entities for product.
+	 *
+	 * @param BaseProduct $product
+	 * @param array $params parameters for `getList` method
+	 *
+	 * @return \Bitrix\Catalog\v2\Sku\Sku[]
+	 */
+	public function getEntitiesByProduct(BaseProduct $product, array $params): \Generator
+	{
+		return $this->getSkuIteratorForProduct($product, $params);
+	}
+
+	/**
 	 * @param \Bitrix\Catalog\v2\Product\BaseProduct $product
 	 * @return \Bitrix\Catalog\v2\Sku\SkuCollection|\Bitrix\Catalog\v2\Sku\BaseSku[]
 	 */
@@ -318,5 +331,25 @@ class SkuRepository extends BaseIblockElementRepository implements SkuRepository
 		}
 
 		return parent::setDetailUrlTemplate($template);
+	}
+
+	public function getCountByProductId(int $productId): int
+	{
+		$filter = [
+			'PROPERTY_' . $this->iblockInfo->getSkuPropertyId() => $productId,
+		];
+
+		return \CIBlockElement::GetList(
+			[],
+			array_merge(
+				[
+					// 'ACTIVE' => 'Y',
+					// 'ACTIVE_DATE' => 'Y',
+				],
+				$filter,
+				$this->getAdditionalFilter()
+			),
+			[]
+		);
 	}
 }

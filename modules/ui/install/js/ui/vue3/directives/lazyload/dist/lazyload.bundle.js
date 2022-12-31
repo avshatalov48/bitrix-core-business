@@ -111,6 +111,8 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	        state: 'error'
 	      });
 	      delete currentImage.lazyloadCallback;
+	    } else {
+	      currentImage.src = BLANK_IMAGE;
 	    }
 	  };
 
@@ -128,6 +130,10 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	  lazyloadObserver = new IntersectionObserver(function (entries, observer) {
 	    entries.forEach(function (entry) {
 	      const currentImage = entry.target;
+
+	      if (currentImage.classList.contains(ERROR)) {
+	        return true;
+	      }
 
 	      if (entry.isIntersecting) {
 	        if (currentImage.classList.contains(HIDDEN)) {

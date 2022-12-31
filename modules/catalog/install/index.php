@@ -476,13 +476,13 @@ class catalog extends CModule
 			'onCatalogWebhookHandler'
 		);
 
-		if ($this->bitrix24mode)
+		if (Main\Loader::includeModule('catalog'))
 		{
-			\Bitrix\Catalog\Compatible\EventCompatibility::unRegisterEvents();
-		}
-		else
-		{
-			if ($enableDeprecatedEvents)
+			if ($this->bitrix24mode)
+			{
+				\Bitrix\Catalog\Compatible\EventCompatibility::unRegisterEvents();
+			}
+			elseif ($enableDeprecatedEvents)
 			{
 				\Bitrix\Catalog\Compatible\EventCompatibility::unRegisterEvents();
 			}

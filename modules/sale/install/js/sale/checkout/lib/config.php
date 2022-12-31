@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/registry.bundle.js',
 	'rel' => [
 		'main.core',
+		'sale.checkout.const',
 	],
 	'skip_core' => false,
 ];

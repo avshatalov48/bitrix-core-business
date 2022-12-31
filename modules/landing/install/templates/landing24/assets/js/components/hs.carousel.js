@@ -74,9 +74,9 @@
 
 					//Setters
 					setSlidesToShow = $this.data('slides-show'),
+					dataSlick = JSON.parse(BX.data(el, 'slick')),
 					setSlidesToScroll = $this.data('slides-scroll'),
 					setAutoplay = $this.data('autoplay'),
-					setAnimation = $this.data('animation'),
 					setEasing = $this.data('easing'),
 					setFade = $this.data('fade'),
 					setSpeed = $this.data('speed'),
@@ -143,11 +143,16 @@
 					$($pagination[0].children[0]).addClass('slick-current');
 				});
 
+				var isEnableDots = dataSlick.dots !== false;
+				if (isEnableDots && pagiClasses === undefined)
+				{
+					isEnableDots = false;
+				}
+
 				$this.slick({
 					autoplay: setAutoplay ? true : false,
 					autoplaySpeed: setSpeed ? setSpeed : 3000,
-
-					cssEase: setAnimation ? setAnimation : 'ease',
+					cssEase: dataSlick.animation ? dataSlick.animation : 'ease',
 					easing: setEasing ? setEasing : 'linear',
 					fade: setFade ? true : false,
 
@@ -172,7 +177,7 @@
 					asNavFor: target ? target : false,
 					prevArrow: arrowsClasses ? $prevMarkup : false,
 					nextArrow: arrowsClasses ? $nextMarkup : false,
-					dots: pagiClasses ? true : false,
+					dots: isEnableDots,
 					dotsClass: 'js-pagination ' + pagiClasses,
 					adaptiveHeight: !!isAdaptiveHeight,
 					customPaging: function (slider, i) {

@@ -1814,12 +1814,13 @@ class CAllRatings
 				&& !$arEventResult['RESULT']
 			)
 			{
-				return array(
+				return [
 					'items_all' => 0,
 					'items_page' => 0,
 					'items' => [],
 					'reactions' => [],
-				);
+					'list_page' => (int) $arParam['LIST_PAGE'],
+				];
 			}
 		}
 
@@ -1986,7 +1987,8 @@ class CAllRatings
 			'items_all' => $cnt,
 			'items_page' => count($arVoteList),
 			'items' => $arVoteList,
-			'reactions' => $cntReactions
+			'reactions' => $cntReactions,
+			'list_page' => (int) $arParam['LIST_PAGE'],
 		);
 	}
 

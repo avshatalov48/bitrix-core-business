@@ -507,7 +507,15 @@
 		}
 		if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-animation') === 3)
 		{
-			dataSlickAttr.animation = 'fade';
+			dataSlickAttr.animation = '';
+			BX.Dom.attr(sliderNode, 'data-fade', 'true');
+		}
+		else
+		{
+			if (BX.Dom.attr(sliderNode.parentNode, 'data-slider-animation') !== null)
+			{
+				sliderNode.removeAttribute('data-fade');
+			}
 		}
 		BX.Dom.attr(sliderNode, 'data-slick', dataSlickAttr);
 	}

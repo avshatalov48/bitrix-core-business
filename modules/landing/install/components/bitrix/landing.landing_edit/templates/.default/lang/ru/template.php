@@ -31,3 +31,5 @@ $MESS['LANDING_FIELD_TITLE_METAOG_NAME_KNOWLEDGE'] = 'Вид богатой сс
 $MESS['LANDING_FIELD_TITLE_METAOG_NAME_GROUP'] = 'Вид богатой ссылки';
 $MESS['LANDING_TPL_ACTION_SETTINGS'] = 'Настроить';
 $MESS['LANDING_TPL_ACTION_INSTALL_B24'] = 'Установить модуль интеграции с Битрикс24';
+$MESS['LANDING_TPL_HOOK_METRIKA_COUNTER'] = 'Universal Analytics';
+$MESS['LANDING_TPL_HOOK_METRIKA_COUNTER_GA4'] = 'Google Analytics 4';

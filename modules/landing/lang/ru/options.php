@@ -9,5 +9,6 @@ $MESS['LANDING_OPT_PUB_PATH_HELP'] = 'Обратите внимание, по у
 $MESS['LANDING_OPT_OTHER'] = 'Прочие настройки';
 $MESS['LANDING_OPT_RIGHTS_EXTENDED_MODE'] = 'Расширенный режим прав';
 $MESS['LANDING_OPT_PUBLIC_HOOK_ON_SAVE'] = 'Автоматически переопубликовывать сайты и страницы при сохранении их измененных настроек';
+$MESS['LANDING_OPT_ALLOW_SVG_CONTENT'] = 'Разрешить загрузку SVG в контенте страниц';
 $MESS['LANDING_OPT_STRICT_VERIFICATION_UPDATE'] = 'Проверка точного соответствия данных до и после сохранения в редакторе';
 $MESS['LANDING_OPT_SOURCE_IBLOCKS'] = 'Инфоблоки для источников';

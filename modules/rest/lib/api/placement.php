@@ -15,6 +15,7 @@ use Bitrix\Rest\PlacementLangTable;
 use Bitrix\Rest\PlacementTable;
 use Bitrix\Rest\RestException;
 use Bitrix\Rest\Lang;
+use Bitrix\Main\ArgumentTypeException;
 
 class Placement extends \IRestService
 {
@@ -331,10 +332,15 @@ class Placement extends \IRestService
 
 		$params = array_change_key_case($params, CASE_UPPER);
 
+		if (!is_string($params['PLACEMENT']))
+		{
+			throw new ArgumentTypeException('PLACEMENT', 'string');
+		}
+
 		$placement = toUpper($params['PLACEMENT']);
 		$placementHandler = $params['HANDLER'];
 
-		if($placement == '')
+		if ($placement == '')
 		{
 			throw new ArgumentNullException("PLACEMENT");
 		}
@@ -343,7 +349,7 @@ class Placement extends \IRestService
 
 		$placementList = static::getPlacementList($server);
 
-		if(array_key_exists($placement, $placementList) && !$placementList[$placement]['private'])
+		if (array_key_exists($placement, $placementList) && !$placementList[$placement]['private'])
 		{
 			$appInfo = static::getApplicationInfo($server);
 

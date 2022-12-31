@@ -195,9 +195,14 @@ final class Provider
 		}
 
 		$shipmentItemList = [];
+		/** @var Sale\ShipmentItem $item */
 		foreach ($shipment->getShipmentItemCollection() as $item)
 		{
-			$shipmentItemList[] = $item;
+			$basketItem = $item->getBasketItem();
+			if ($basketItem->isReservableItem())
+			{
+				$shipmentItemList[] = $item;
+			}
 		}
 
 		return self::tryReserveShipmentItemArray($shipmentItemList, $context);
@@ -590,26 +595,31 @@ final class Provider
 			return [
 				$providerName => [
 					$productId => [
-						Sale\Configuration::getDefaultStoreId() => -$shipmentItem->getReservedQuantity()
-					]
-				]
+						Sale\Configuration::getDefaultStoreId() => -$shipmentItem->getReservedQuantity(),
+					],
+				],
 			];
 		}
 		else
 		{
 			$quantityByStore = [];
 
-			/** @var Sale\ShipmentItemStore $shipmentItemStore */
-			foreach ($shipmentItem->getShipmentItemStoreCollection() as $shipmentItemStore)
+			/** @var Sale\ShipmentItemStoreCollection $shipmentItemStoreCollection */
+			$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
+			if ($shipmentItemStoreCollection)
 			{
-				if (!isset($quantityByStore[$shipmentItemStore->getStoreId()]))
+				/** @var Sale\ShipmentItemStore $shipmentItemStore */
+				foreach ($shipmentItemStoreCollection as $shipmentItemStore)
 				{
-					$quantityByStore[$shipmentItemStore->getStoreId()] = 0;
+					if (!isset($quantityByStore[$shipmentItemStore->getStoreId()]))
+					{
+						$quantityByStore[$shipmentItemStore->getStoreId()] = 0;
+					}
+
+					$quantityByStore[$shipmentItemStore->getStoreId()] += $shipmentItemStore->getQuantity();
+
+					$quantity -= $shipmentItemStore->getQuantity();
 				}
-
-				$quantityByStore[$shipmentItemStore->getStoreId()] += $shipmentItemStore->getQuantity();
-
-				$quantity -= $shipmentItemStore->getQuantity();
 			}
 
 			if ($quantity)
@@ -626,8 +636,8 @@ final class Provider
 
 			return [
 				$providerName => [
-					$productId => $quantityByStore
-				]
+					$productId => $quantityByStore,
+				],
 			];
 		}
 	}
@@ -658,62 +668,74 @@ final class Provider
 				continue;
 			}
 
-			if ($shipmentItem->getReservedQuantity() == 0)
+			if ((int)$shipmentItem->getReservedQuantity() === 0)
 			{
 				continue;
 			}
 
 			$shipmentItemReserveQuantity = $shipmentItem->getReservedQuantity();
+
+			/** @var Sale\ReserveQuantityCollection $reserveCollection */
 			$reserveCollection = $basketItem->getReserveQuantityCollection();
-
-			/** @var Sale\ShipmentItemStore $itemStore */
-			foreach ($shipmentItem->getShipmentItemStoreCollection() as $itemStore)
+			if (!$reserveCollection)
 			{
-				if ($shipmentItemReserveQuantity == 0)
+				continue;
+			}
+
+			/** @var Sale\ShipmentItemStoreCollection $shipmentItemStoreCollection */
+			$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
+			if ($shipmentItemStoreCollection)
+			{
+				/** @var Sale\ShipmentItemStore $itemStore */
+				foreach ($shipmentItemStoreCollection as $itemStore)
 				{
-					break;
-				}
-
-				/** @var Sale\ReserveQuantity $reserve */
-				foreach ($reserveCollection as $reserve)
-				{
-					if ($reserve->getStoreId() !== $itemStore->getStoreId())
+					if ($shipmentItemReserveQuantity == 0)
 					{
-						continue;
+						break;
 					}
 
-					// try to guess reserved quantity on shipment item store
-					if ($shipmentItemReserveQuantity > $itemStore->getQuantity())
+					/** @var Sale\ReserveQuantity $reserve */
+					foreach ($reserveCollection as $reserve)
 					{
-						$reserveStoreQuantity =  $itemStore->getQuantity();
-					}
-					else
-					{
-						$reserveStoreQuantity =  $shipmentItemReserveQuantity;
-					}
+						if ($reserve->getStoreId() !== $itemStore->getStoreId())
+						{
+							continue;
+						}
 
-					if ($reserveStoreQuantity >= $reserve->getQuantity())
-					{
-						$poolQuantity = $reserve->getQuantity();
+						// try to guess reserved quantity on shipment item store
+						if ($shipmentItemReserveQuantity > $itemStore->getQuantity())
+						{
+							$reserveStoreQuantity =  $itemStore->getQuantity();
+						}
+						else
+						{
+							$reserveStoreQuantity =  $shipmentItemReserveQuantity;
+						}
 
-						$reserve->deleteNoDemand();
+						if ($reserveStoreQuantity >= $reserve->getQuantity())
+						{
+							$poolQuantity = $reserve->getQuantity();
+
+							$reserve->deleteNoDemand();
+						}
+						else
+						{
+							$poolQuantity = $reserveStoreQuantity;
+
+							$reserve->setFieldNoDemand('QUANTITY', $reserve->getQuantity() - $reserveStoreQuantity);
+						}
+
+						$shipmentItemReserveQuantity -= $reserveStoreQuantity;
+						$pool->addByStore(
+							PoolQuantity::POOL_RESERVE_TYPE,
+							$basketItem->getProductId(),
+							$itemStore->getStoreId(),
+							-$poolQuantity
+						);
 					}
-					else
-					{
-						$poolQuantity = $reserveStoreQuantity;
-
-						$reserve->setFieldNoDemand('QUANTITY', $reserve->getQuantity() - $reserveStoreQuantity);
-					}
-
-					$shipmentItemReserveQuantity -= $reserveStoreQuantity;
-					$pool->addByStore(
-						PoolQuantity::POOL_RESERVE_TYPE,
-						$basketItem->getProductId(),
-						$itemStore->getStoreId(),
-						-$poolQuantity
-					);
 				}
 			}
+
 
 			if ($shipmentItemReserveQuantity > 0)
 			{
@@ -768,7 +790,7 @@ final class Provider
 					Sale\Internals\ActionEntity::ACTION_ENTITY_SHIPMENT_COLLECTION_RESERVED_QUANTITY,
 					[
 						'METHOD' => 'Bitrix\Sale\Shipment::updateReservedFlag',
-						'PARAMS' => [$shipment]
+						'PARAMS' => [$shipment],
 					]
 				);
 			}
@@ -865,6 +887,17 @@ final class Provider
 		foreach ($shipmentItemList as $shipmentItem)
 		{
 			$basketItem = $shipmentItem->getBasketItem();
+			if (!$basketItem->isReservableItem())
+			{
+				continue;
+			}
+
+			/** @var Sale\ReserveQuantityCollection $reserveQuantityCollection */
+			$reserveQuantityCollection = $basketItem->getReserveQuantityCollection();
+			if (!$reserveQuantityCollection)
+			{
+				continue;
+			}
 
 			$productId = $basketItem->getProductId();
 
@@ -876,7 +909,7 @@ final class Provider
 			$reserve = null;
 
 			/** @var Sale\ReserveQuantity $item */
-			foreach ($basketItem->getReserveQuantityCollection() as $item)
+			foreach ($reserveQuantityCollection as $item)
 			{
 				if ($item->getStoreId() === $storeId)
 				{
@@ -887,7 +920,7 @@ final class Provider
 
 			if ($reserve === null)
 			{
-				$reserve = $basketItem->getReserveQuantityCollection()->create();
+				$reserve = $reserveQuantityCollection->create();
 				$reserve->setStoreId($storeId);
 			}
 
@@ -958,7 +991,7 @@ final class Provider
 				Sale\Internals\ActionEntity::ACTION_ENTITY_SHIPMENT_RESERVED_QUANTITY,
 				[
 					'METHOD' => 'Bitrix\Sale\Shipment::updateReservedFlag',
-					'PARAMS' => [$shipment]
+					'PARAMS' => [$shipment],
 				]
 			);
 		}
@@ -1123,8 +1156,14 @@ final class Provider
 
 		/** @var Sale\BasketItem $basketItem */
 		$basketItem = $shipmentItem->getBasketItem();
+		if (!$basketItem->isReservableItem())
+		{
+			return false;
+		}
 
-		if ($basketItem->isBundleParent())
+		/** @var Sale\ReserveQuantityCollection $reserveQuantityCollection */
+		$reserveQuantityCollection = $basketItem->getReserveQuantityCollection();
+		if (!$reserveQuantityCollection)
 		{
 			return false;
 		}
@@ -1132,47 +1171,53 @@ final class Provider
 		$reserveQuantityStoreList = [];
 
 		$countBarcode = 0;
-		/** @var Sale\ShipmentItemStore $shipmentItemStore */
-		foreach ($shipmentItem->getShipmentItemStoreCollection() as $shipmentItemStore)
+
+		/** @var Sale\ShipmentItemStoreCollection $shipmentItemStoreCollection */
+		$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
+		if ($shipmentItemStoreCollection)
 		{
-			$productId = $basketItem->getProductId();
-
-			$storeId = $shipmentItemStore->getStoreId();
-
-			if (!isset($reserveQuantityStoreList[$storeId]))
+			/** @var Sale\ShipmentItemStore $shipmentItemStore */
+			foreach ($shipmentItemStoreCollection as $shipmentItemStore)
 			{
-				$reserveQuantityStoreList[$storeId] = $basketItem->getReserveQuantityCollection()->getQuantityByStoreId($shipmentItemStore->getStoreId());
-			}
+				$productId = $basketItem->getProductId();
 
-			if (!isset($resultList[$storeId]))
-			{
-				$resultList[$storeId] = [
-					'PRODUCT_ID' => $productId,
-					'QUANTITY' => 0,
-					'RESERVED_QUANTITY' => 0,
-					'STORE_ID' => $storeId,
-					'IS_BARCODE_MULTI' => $basketItem->isBarcodeMulti(),
-					'BARCODE' => []
-				];
-			}
+				$storeId = $shipmentItemStore->getStoreId();
 
-			$barcodeId = ($shipmentItemStore->getId() > 0)? $shipmentItemStore->getId() : 'n'.$countBarcode;
-			$countBarcode++;
-			$resultList[$storeId]['QUANTITY'] += $basketItem->isBarcodeMulti()? 1 : $shipmentItemStore->getQuantity();
-			$resultList[$storeId]['BARCODE'][$barcodeId] = $shipmentItemStore->getBarcode();
-
-			if ($needUseReserve)
-			{
-				if ($reserveQuantityStoreList[$storeId] > $resultList[$storeId]['QUANTITY'])
+				if (!isset($reserveQuantityStoreList[$storeId]))
 				{
-					$resultList[$storeId]['RESERVED_QUANTITY'] = $resultList[$storeId]['QUANTITY'];
-				}
-				elseif ($reserveQuantityStoreList[$storeId] > 0)
-				{
-					$resultList[$storeId]['RESERVED_QUANTITY'] = $reserveQuantityStoreList[$storeId];
+					$reserveQuantityStoreList[$storeId] = $reserveQuantityCollection->getQuantityByStoreId($shipmentItemStore->getStoreId());
 				}
 
-				$reserveQuantityStoreList[$storeId] -= $resultList[$storeId]['RESERVED_QUANTITY'];
+				if (!isset($resultList[$storeId]))
+				{
+					$resultList[$storeId] = [
+						'PRODUCT_ID' => $productId,
+						'QUANTITY' => 0,
+						'RESERVED_QUANTITY' => 0,
+						'STORE_ID' => $storeId,
+						'IS_BARCODE_MULTI' => $basketItem->isBarcodeMulti(),
+						'BARCODE' => [],
+					];
+				}
+
+				$barcodeId = ($shipmentItemStore->getId() > 0)? $shipmentItemStore->getId() : 'n'.$countBarcode;
+				$countBarcode++;
+				$resultList[$storeId]['QUANTITY'] += $basketItem->isBarcodeMulti()? 1 : $shipmentItemStore->getQuantity();
+				$resultList[$storeId]['BARCODE'][$barcodeId] = $shipmentItemStore->getBarcode();
+
+				if ($needUseReserve)
+				{
+					if ($reserveQuantityStoreList[$storeId] > $resultList[$storeId]['QUANTITY'])
+					{
+						$resultList[$storeId]['RESERVED_QUANTITY'] = $resultList[$storeId]['QUANTITY'];
+					}
+					elseif ($reserveQuantityStoreList[$storeId] > 0)
+					{
+						$resultList[$storeId]['RESERVED_QUANTITY'] = $reserveQuantityStoreList[$storeId];
+					}
+
+					$reserveQuantityStoreList[$storeId] -= $resultList[$storeId]['RESERVED_QUANTITY'];
+				}
 			}
 		}
 

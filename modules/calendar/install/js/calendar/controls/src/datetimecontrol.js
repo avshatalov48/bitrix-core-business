@@ -271,9 +271,11 @@ export class DateTimeControl extends EventEmitter
 	{
 		Event.bind(this.DOM.fromDate, 'click', DateTimeControl.showInputCalendar);
 		Event.bind(this.DOM.fromDate, 'change', this.handleDateFromChange.bind(this));
-
 		Event.bind(this.DOM.toDate, 'click', DateTimeControl.showInputCalendar);
 		Event.bind(this.DOM.toDate, 'change', this.handleDateToChange.bind(this));
+
+		Event.bind(this.DOM.fromTime, 'input', this.handleTimeInput.bind(this));
+		Event.bind(this.DOM.toTime, 'input', this.handleTimeInput.bind(this));
 
 		Event.bind(this.DOM.fullDay, 'click', () => {
 			this.handleFullDayChange();
@@ -377,12 +379,6 @@ export class DateTimeControl extends EventEmitter
 		this.DOM.fromDate.value = Util.formatDate(this.getFrom());
 
 		const difference = this.getFrom().getTime() - this.from.getTime();
-		const yearDuration = 1000 * 60 * 60 * 24 * 365;
-		if (Math.abs(difference) > yearDuration)
-		{
-			this.DOM.fromDate.value = Util.formatDate(this.from.getTime());
-			return;
-		}
 
 		this.DOM.toDate.value = Util.formatDate(this.to.getTime() + difference);
 
@@ -399,11 +395,14 @@ export class DateTimeControl extends EventEmitter
 		this.DOM.toDate.value = Util.formatDate(this.getTo());
 
 		const difference = Math.abs(this.to.getTime() - this.getTo().getTime());
-		const yearDuration = 1000 * 60 * 60 * 24 * 365;
+		const yearDuration = 1000 * 60 * 60 * 24 * 300;
 		if (difference > yearDuration)
 		{
-			this.DOM.toDate.value = Util.formatDate(this.to.getTime());
-			return;
+			const duration = this.to.getTime() - this.from.getTime();
+			const toDate = Util.parseDate(this.DOM.toDate.value);
+			toDate.setHours(this.to.getHours(), this.to.getMinutes(), 0, 0);
+			const fromDate = new Date(toDate.getTime() - duration);
+			this.DOM.fromDate.value = Util.formatDate(fromDate);
 		}
 
 		if (this.getTo() < this.getFrom())
@@ -417,13 +416,15 @@ export class DateTimeControl extends EventEmitter
 
 	handleTimeFromChange(inputValue, dataValue)
 	{
-		if (this.isIncorrectTimeValue(inputValue))
+		this.handleTimeChange(this.DOM.fromTime);
+
+		if (this.isIncorrectTimeValue(this.DOM.fromTime.value))
 		{
 			this.DOM.fromTime.value = Util.formatTime(this.from);
 		}
 		else
 		{
-			this.fromMinutes = dataValue ?? this.getMinutesFromFormattedTime(inputValue);
+			this.fromMinutes = dataValue ?? this.getMinutesFromFormattedTime(this.DOM.fromTime.value);
 			this.DOM.fromTime.value = Util.formatTime(this.getFrom());
 		}
 
@@ -438,13 +439,15 @@ export class DateTimeControl extends EventEmitter
 
 	handleTimeToChange(inputValue, dataValue)
 	{
-		if (this.isIncorrectTimeValue(inputValue))
+		this.handleTimeChange(this.DOM.toTime);
+
+		if (this.isIncorrectTimeValue(this.DOM.toTime.value))
 		{
 			this.DOM.toTime.value = Util.formatTime(this.to);
 		}
 		else
 		{
-			this.toMinutes = dataValue ?? this.getMinutesFromFormattedTime(inputValue);
+			this.toMinutes = dataValue ?? this.getMinutesFromFormattedTime(this.DOM.toTime.value);
 			this.DOM.toTime.value = Util.formatTime(this.getTo());
 		}
 
@@ -467,6 +470,243 @@ export class DateTimeControl extends EventEmitter
 			return timeValue === '';
 		}
 		return timeValue === '' || (timeValue[0] !== '0' && Util.parseTime(timeValue).h === 0);
+	}
+
+	handleTimeChange(timeSelector)
+	{
+		if (timeSelector.value === '')
+		{
+			return;
+		}
+
+		let time = this.getMaskedTime(timeSelector.value);
+		time = this.beautifyTime(time);
+		if (BX.isAmPmMode())
+		{
+			let amPmSymbol = (timeSelector.value.toLowerCase().match(/[ap]/g) ?? []).pop();
+			if (!amPmSymbol)
+			{
+				const hour = parseInt(this.getMinutesAndHours(time).hours);
+				if (8 <= hour && hour <= 11)
+				{
+					amPmSymbol = 'a';
+				}
+				else
+				{
+					amPmSymbol = 'p';
+				}
+			}
+			if (amPmSymbol === 'a')
+			{
+				time += ' am';
+			}
+			if (amPmSymbol === 'p')
+			{
+				time += ' pm';
+			}
+		}
+		timeSelector.value = time;
+	}
+
+	handleTimeInput(e)
+	{
+		e.target.value = this.getMaskedTime(e.target.value, e.data, e.inputType === 'deleteContentBackward');
+	}
+
+	getMaskedTime(value, key, backspace = false)
+	{
+		if (backspace)
+		{
+			return value;
+		}
+
+		let time = '';
+		const { hours, minutes } = this.getMinutesAndHours(value, key);
+		if (hours && !minutes)
+		{
+			time = `${hours}`;
+			if (value.length - time.length === 1 || value.indexOf(':') !== -1)
+			{
+				time += ':';
+			}
+		}
+		if (hours && minutes)
+		{
+			time = `${hours}:${minutes}`;
+		}
+
+		if (BX.isAmPmMode() && this.clearTimeString(time) !== '')
+		{
+			const amPmSymbol = (value.toLowerCase().match(/[ap]/g) ?? []).pop();
+			if (amPmSymbol === 'a')
+			{
+				time = this.beautifyTime(time) + ' am';
+			}
+			if (amPmSymbol === 'p')
+			{
+				time = this.beautifyTime(time) + ' pm';
+			}
+		}
+
+		return time;
+	}
+
+	getMinutesAndHours(value, key)
+	{
+		let time = this.clearTimeString(value,  key);
+		let hours, minutes;
+		if (time.indexOf(':') !== -1)
+		{
+			hours = time.match(/[\d]*:/g)[0].slice(0, -1);
+			minutes = time.match(/:[\d]*/g)[0].slice(1);
+		}
+		else
+		{
+			const digits = (time.match(/\d/g) ?? []).splice(0,4).map(d => parseInt(d));
+			if (digits.length === 4 && digits[0] > this.getMaxHours() / 10)
+			{
+				digits.pop();
+			}
+			if (digits.length === 1)
+			{
+				hours = `${digits[0]}`;
+			}
+			if (digits.length === 2)
+			{
+				hours = `${digits[0]}${digits[1]}`;
+				if (parseInt(hours) > this.getMaxHours())
+				{
+					hours = `${digits[0]}`;
+					minutes = `${digits[1]}`;
+				}
+			}
+			if (digits.length === 3)
+			{
+				if (BX.isAmPmMode())
+				{
+					if (digits[0] >= 1)
+					{
+						hours = `${digits[0]}`;
+						minutes = `${digits[1]}${digits[2]}`;
+					}
+					else
+					{
+						hours = `${digits[0]}${digits[1]}`;
+						minutes = `${digits[2]}`;
+					}
+				}
+				else
+				{
+					if (parseInt(`${digits[0]}${digits[1]}`) < 24)
+					{
+						hours = `${digits[0]}${digits[1]}`;
+						minutes = `${digits[2]}`;
+					}
+					else
+					{
+						hours = `${digits[0]}`;
+						minutes = `${digits[1]}${digits[2]}`;
+					}
+				}
+			}
+			if (digits.length === 4)
+			{
+				hours = `${digits[0]}${digits[1]}`;
+				minutes = `${digits[2]}${digits[3]}`;
+			}
+		}
+
+		if (hours)
+		{
+			hours = this.formatHours(hours);
+		}
+		if (minutes)
+		{
+			minutes = this.formatMinutes(minutes);
+		}
+		return { hours, minutes };
+	}
+
+	clearTimeString(str, key)
+	{
+		let validatedTime = str.replace(/[ap]/g, '').replace(/\D/g, ':'); // remove a and p and replace not digits to :
+		validatedTime = validatedTime.replace(/:*/, ''); // remove everything before first digit
+
+		// leave only first :
+		const firstColonIndex = validatedTime.indexOf(':');
+		validatedTime = validatedTime.substr(0, firstColonIndex + 1) + validatedTime.slice(firstColonIndex + 1).replaceAll(':', '');
+
+		// leave not more than 2 hour digits and 2 minute digits
+		if (firstColonIndex !== -1)
+		{
+			const hours = this.formatHours(validatedTime.match(/[\d]*:/g)[0].slice(0, -1));
+			const minutes = validatedTime.match(/:[\d]*/g)[0].slice(1).slice(0, 3);
+			if (hours.length === 1 && minutes.length === 3 && !isNaN(parseInt(key)) && this.areTimeDigitsCorrect(`${hours}${minutes}`))
+			{
+				return `${hours}${minutes}`;
+			}
+			return `${hours}:${minutes}`;
+		}
+		return validatedTime.slice(0, 4);
+	}
+
+	areTimeDigitsCorrect(time)
+	{
+		const hh = time.slice(0, 2);
+		const mm = time.slice(2);
+		return this.formatHours(hh) === hh && this.formatMinutes(mm) === mm;
+	}
+
+	formatHours(str)
+	{
+		const firstDigit = str[0];
+		if (parseInt(firstDigit) > this.getMaxHours() / 10)
+		{
+			return `0${firstDigit}`;
+		}
+		if (parseInt(str) <= this.getMaxHours())
+		{
+			return `${firstDigit}${str[1] ?? ''}`;
+		}
+		return `${firstDigit}`;
+	}
+
+	formatMinutes(str)
+	{
+		const firstDigit = str[0];
+		if (firstDigit >= 6)
+		{
+			return `0${firstDigit}`;
+		}
+		return `${firstDigit}${str[1] ?? ''}`;
+	}
+
+	beautifyTime(time)
+	{
+		if (this.clearTimeString(time) === '')
+		{
+			return '';
+		}
+
+		if (time.indexOf(':') === -1)
+		{
+			time += ':00';
+		}
+		if (time.indexOf(':') === time.length - 1)
+		{
+			time += '00';
+		}
+
+		let { hours, minutes } = this.getMinutesAndHours(time);
+		hours = `0${hours}`.slice(-2);
+		minutes = `0${minutes}`.slice(-2);
+
+		return `${hours}:${minutes}`;
+	}
+
+	getMaxHours()
+	{
+		return BX.isAmPmMode() ? 12 : 24;
 	}
 
 	handleFullDayChange()

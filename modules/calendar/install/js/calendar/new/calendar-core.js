@@ -11,7 +11,7 @@
 		this.needForReload = false;
 		this.pullEventList = new Set();
 
-		if (this.util.isFilterEnabled())
+		if (this.util.isFilterEnabled() && config.filterId)
 		{
 			this.search = new BX.Calendar.Search(config.filterId, config.counters);
 		}
@@ -48,6 +48,8 @@
 
 		BX.Calendar.Util.setIphoneConnectionStatus(config.isIphoneConnected);
 		BX.Calendar.Util.setMacConnectionStatus(config.isMacConnected);
+		BX.Calendar.Util.setIcloudConnectionStatus(config.isIcloudConnected);
+		BX.Calendar.Util.setGoogleConnectionStatus(config.isGoogleConnected);
 
 		this.requests = {};
 		this.currentUser = config.user;
@@ -126,8 +128,7 @@
 						this.search.applyFilter();
 					}
 
-					this.searchCont = BX(this.id + '-search-container');
-					if (this.searchCont && this.util.isCountersEnabled())
+					if (this.search && this.util.getCounters())
 					{
 						this.buildCountersControl();
 					}
@@ -230,9 +231,9 @@
 					if (event instanceof BX.Event.BaseEvent)
 					{
 						var data = event.getData();
-						if (BX.Type.isObjectLike(data.counters) && this.search && this.util.isCountersEnabled())
+						if (BX.Type.isObjectLike(data.counters) && this.counters && this.util.getCounters())
 						{
-							this.search.setCountersValue(data.counters);
+							this.counters.setCountersValue(data.counters);
 						}
 
 						this.reload();
@@ -549,6 +550,13 @@
 						this.rightBlock.style.display = '';
 					}
 
+					if (view === 'day')
+					{
+						params.animation = params.animation
+							&& this.getDisplayedViewRange().start.getTime() <= params.newViewDate.getTime()
+							&& params.newViewDate.getTime() <= this.getDisplayedViewRange().end.getTime();
+					}
+
 					if (params.animation)
 					{
 						this.viewTransition.transit(params);
@@ -581,7 +589,6 @@
 				}
 			}
 		},
-
 		request: function(params)
 		{
 			if (!params.url)
@@ -661,7 +668,6 @@
 
 			return params;
 		},
-
 		cancelRequest: function(reqId)
 		{
 			if (this.requests[reqId] && this.requests[reqId].status === 'sent')
@@ -679,7 +685,6 @@
 
 			return {};
 		},
-
 		displayError: function(str, bReloadPage)
 		{
 			if (BX.type.isArray(str) && str.length > 0)
@@ -866,16 +871,15 @@
 		buildCountersControl: function()
 		{
 			this.countersCont = BX(this.id + '-counter-container');
-			if (!this.countersCont)
-			{
-				this.countersCont = this.mainCont.appendChild(BX.create('DIV', {
-					props: { className: 'calendar-counter-container' },
-					attrs: { id: this.id + '-counter-container' },
-				}));
-			}
-			BX.addClass(this.countersCont, 'calendar-counter');
 
-			this.search.updateCounters();
+			this.counters = new BX.Calendar.Counters({
+				search: this.search,
+				countersWrap: this.countersCont,
+				counters: this.util.getCounters(),
+				userId: this.currentUser.id
+			});
+
+			this.counters.init();
 		},
 
 		buildTopButtons: function()
@@ -1069,7 +1073,7 @@
 
 		refresh: function()
 		{
-			this.getView().redraw();
+			this.getView().reload();
 		},
 
 		reload: function(params)
@@ -1389,11 +1393,11 @@
 						{
 							if (
 								BX.Type.isObjectLike(response.data.counters)
-								&& this.search
-								&& this.util.isCountersEnabled()
+								&& this.counters
+								&& this.util.getCounters()
 							)
 							{
-								this.search.setCountersValue(response.data.counters);
+								this.counters.setCountersValue(response.data.counters);
 							}
 							resolve();
 						}.bind(this),

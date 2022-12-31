@@ -157,6 +157,8 @@ Class location extends CModule
 
 	public function installAreas()
 	{
+		\CTimeZone::Disable();
+
 		/**
 		 * @see \Bitrix\Location\Infrastructure\DataInstaller::installAreasAgent()
 		 */
@@ -169,6 +171,28 @@ Class location extends CModule
 			'Y',
 			\ConvertTimeStamp(time() + \CTimeZone::GetOffset() + 120, 'FULL')
 		);
+
+		\CTimeZone::Enable();
+	}
+
+	public function installConfigurer()
+	{
+		\CTimeZone::Disable();
+
+		/**
+		 * @see \Bitrix\Location\Source\Osm\Configurer::configure()
+		 */
+		CAgent::AddAgent(
+			"\\Bitrix\\Location\\Source\\Osm\\Configurer::configure();",
+			'location',
+			'N',
+			60,
+			'',
+			'Y',
+			\ConvertTimeStamp(time() + \CTimeZone::GetOffset() + 600, 'FULL')
+		);
+
+		\CTimeZone::Enable();
 	}
 
 	public function DoUninstall()
@@ -224,6 +248,7 @@ Class location extends CModule
 
 		$this->installSources();
 		$this->installAreas();
+		$this->installConfigurer();
 		$this->setDefaultFormatCode();
 
 		return true;

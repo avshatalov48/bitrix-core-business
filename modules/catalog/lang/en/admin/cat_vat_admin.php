@@ -20,6 +20,7 @@ $MESS["CVAT_RATE"] = "Rate";
 $MESS["CVAT_SORT"] = "Sort.";
 $MESS["CVAT_VAT_ACTIVATE"] = "Activate";
 $MESS["CVAT_VAT_DEACTIVATE"] = "Deactivate";
+$MESS["CVAT_VIEW_ALT"] = "Open";
 $MESS["CVAT_XML_ID"] = "External ID";
 $MESS["CVAT_YES"] = "active";
 $MESS["ERROR_DELETE_VAT"] = "Error deleting tax rate ##ID#";

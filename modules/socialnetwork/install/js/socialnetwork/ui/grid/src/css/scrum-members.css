@@ -1,0 +1,50 @@
+.sonet-ui-scrum-members-popup-label {
+	display: flex;
+	margin: 5px 0 8px 0;
+	text-align: center;
+}
+
+.sonet-ui-scrum-members-popup-label:before,
+.sonet-ui-scrum-members-popup-label:after {
+	display: block;
+	content: "";
+	flex: 1;
+	min-width: 15px;
+	position: relative;
+	top: 8px;
+	height: 1px;
+	background-color: #f0f1f2;
+}
+
+.sonet-ui-scrum-members-popup-label-text {
+	position: relative;
+	top: 2px;
+	padding: 0 12px;
+	background: #fff;
+	color: #b1b6bc;
+	font-size: 9px;
+	font-weight: var(--ui-font-weight-bold);
+	text-transform: uppercase;
+	white-space: nowrap;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+.sonet-ui-scrum-members-popup-name {
+	display: inline-block;
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-basis: 0;
+	padding-left: 6px;
+	max-width: 200px;
+	height: 15px;
+	color: #656365;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding-top: 1px;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	white-space: nowrap;
+	cursor: pointer;
+}

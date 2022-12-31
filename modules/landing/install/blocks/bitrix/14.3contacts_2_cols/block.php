@@ -7,7 +7,7 @@
 					<span class="landing-block-node-contact-icon-container d-block g-color-primary g-font-size-50 g-line-height-1 g-mb-20">
 						<i class="landing-block-node-contact-icon icon-envelope"></i>
 					</span>
-					<span class="landing-block-node-linkcontact-title landing-semantic-subtitle-medium d-block text-uppercase g-font-size-14 g-color-main g-mb-5">
+					<span class="landing-block-node-linkcontact-title landing-semantic-subtitle-medium d-block text-uppercase g-font-size-14 g-mb-5">
 						Email
 					</span>
 					<span class="landing-block-node-linkcontact-text landing-semantic-subtitle-small-primary g-text-decoration-none g-text-underline--hover g-font-size-14 g-font-weight-700">
@@ -21,7 +21,7 @@
 					<span class="landing-block-node-contact-icon-container d-block g-color-primary g-font-size-50 g-line-height-1 g-mb-20">
 						<i class="landing-block-node-contact-icon icon-earphones-alt"></i>
 					</span>
-					<span class="landing-block-node-contact-title landing-semantic-subtitle-medium d-block text-uppercase g-font-size-14 g-color-main g-mb-5">
+					<span class="landing-block-node-contact-title landing-semantic-subtitle-medium d-block text-uppercase g-font-size-14 g-mb-5">
 						Toll free
 					</span>
 					<span class="landing-block-node-contact-text landing-semantic-subtitle-small-primary g-text-decoration-none g-text-underline--hover g-font-size-14 g-font-weight-700 g-color-primary">

@@ -1,5 +1,4 @@
 <?php
-$MESS["SALE_HPS_SBERBANK_DESCRIPTION_MAIN"] = "Для смены статуса заказа настройте <a href='https://securepayments.sberbank.ru/wiki/doku.php/integration:api:callback:start' target='_blank'>Уведомления обратного вызова</a> c контрольной суммой и дополнительным параметром \"bx_paysystem_code\".";
 $MESS["SALE_HPS_SBERBANK"] = "Сбербанк";
 $MESS["SALE_HPS_SBERBANK_LOGIN"] = "Логин";
 $MESS["SALE_HPS_SBERBANK_LOGIN_DESC"] = "Логин";

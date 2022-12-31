@@ -8,13 +8,22 @@ define('PUBLIC_AJAX_MODE', true);
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Main\Loader,
-	Bitrix\Catalog;
+	Bitrix\Catalog,
+	Bitrix\Catalog\Access\ActionDictionary,
+	Bitrix\Catalog\Access\AccessController;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 
 Loc::loadMessages(__FILE__);
+if (!Loader::includeModule('catalog'))
+{
+	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
+	ShowError(Loc::getMessage('BX_CATALOG_REINDEX_REINDEX_ERRORS_MODULE_CATALOG_ABSENT'));
+	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
+	die();
+}
 
-if (!$USER->CanDoOperation('catalog_price'))
+if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_EDIT))
 {
 	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 	ShowError(Loc::getMessage('BX_CATALOG_REINDEX_ACCESS_DENIED'));
@@ -26,14 +35,6 @@ if (!check_bitrix_sessid())
 {
 	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 	ShowError(Loc::getMessage('BX_CATALOG_REINDEX_ERRORS_INCORRECT_SESSION'));
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
-	die();
-}
-
-if (!Loader::includeModule('catalog'))
-{
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
-	ShowError(Loc::getMessage('BX_CATALOG_REINDEX_REINDEX_ERRORS_MODULE_CATALOG_ABSENT'));
 	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
 	die();
 }

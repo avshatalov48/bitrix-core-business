@@ -1,0 +1,92 @@
+.stacked-bar-chart-popup {
+	/*position: absolute;*/
+	display: inline-block;
+	top: 350px;
+	padding: 15px 16px 1px 13px;
+	min-width: 157px;
+	border-left: 3px solid transparent;
+	background: #fff;
+	box-shadow: 0 6px 21px 0 rgba(83,92,105,.15);
+	box-sizing: border-box;
+}
+
+.stacked-bar-chart-popup-info-multiple {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+}
+.stacked-bar-chart-popup-info-multiple .stacked-bar-chart-popup-info-item:first-child {
+	border-right: 1px solid rgba(224,224,224,.6);
+	margin: 0 15px 0 0;
+	padding: 0 15px 0 0;
+}
+.stacked-bar-chart-popup-head {}
+.stacked-bar-chart-popup-title {
+	display: block;
+	margin: 0 0 17px 0;
+	padding: 0 0 12px 0;
+	border-bottom: 1px solid rgba(130,139,149,.19);
+	font: 13px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
+	color: #333;
+}
+.stacked-bar-chart-popup-title {
+	display: flex;
+	align-items: center;
+}
+
+.stacked-bar-chart-popup-info-subtitle {
+	display: block;
+	margin: 0 0 2px 0;
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #A8ADB4;
+	opacity: .84;
+}
+.stacked-bar-chart-popup-main .stacked-bar-chart-popup-info-subtitle {
+	font: 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+}
+.stacked-bar-chart-popup-main {}
+.stacked-bar-chart-popup-content {
+	display: flex;
+	align-items: center;
+}
+.stacked-bar-chart-popup-content,
+.stacked-bar-chart-popup-main .stacked-bar-chart-popup-info {
+	margin: 0 0 18px 0;
+}
+.stacked-bar-chart-popup-value {
+	font: 20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+}
+.stacked-bar-chart-popup-value-grey {
+	color: #828B95;
+}
+.stacked-bar-chart-popup-value-black {
+	color: #333;
+}
+.stacked-bar-chart-popup-arrow-right {
+	margin: 0 7px 0 11px;
+	color: #A8ADB4;
+}
+.stacked-bar-chart-popup-main .stacked-bar-chart-popup-info-price,
+.stacked-bar-chart-popup-main .stacked-bar-chart-popup-info-value-box {
+	margin: 0 30px 0 0;
+	font: 20px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+}
+.stacked-bar-chart-popup-main .stacked-bar-chart-popup-info-value-box {
+	margin: 0;
+}
+.stacked-bar-chart-popup-main .stacked-bar-chart-popup-info-price .stacked-bar-chart-popup-info-symbol,
+.stacked-bar-chart-popup-main .stacked-bar-chart-popup-info-value-box .stacked-bar-chart-popup-info-symbol {
+	font: 18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+}
+.stacked-bar-chart-popup-main .stacked-bar-chart-popup-info-percent {
+	font: 21px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+}
+.stacked-bar-chart-popup-main .stacked-bar-chart-popup-info-percent .stacked-bar-chart-popup-info-symbol {
+	font: 15px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+}

@@ -34,6 +34,11 @@ class Crm
 	 */
 	protected static function addNewCompany(string $title, string $phone): void
 	{
+		if (!Loader::includeModule('crm'))
+		{
+			return;
+		}
+
 		$company = new \CCrmCompany(false);
 		$fields = [
 			'TITLE' => $title,

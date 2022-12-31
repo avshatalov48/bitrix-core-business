@@ -401,6 +401,7 @@ class HttpClient implements Log\LoggerAwareInterface
 				if($this->redirectCount < $this->redirectMax)
 				{
 					$this->effectiveUrl = $location;
+					$this->requestHeaders->delete('Host');
 					if($this->status == 302 || $this->status == 303)
 					{
 						$this->queryMethod = self::HTTP_GET;
@@ -851,7 +852,7 @@ class HttpClient implements Log\LoggerAwareInterface
 
 		$request = $method." ".$path." HTTP/".$this->version."\r\n";
 
-		$this->setHeader("Host", $url->getHost());
+		$this->setHeader("Host", $url->getHost(), false);
 		$this->setHeader("Connection", "close", false);
 		$this->setHeader("Accept", "*/*", false);
 		$this->setHeader("Accept-Language", "en", false);

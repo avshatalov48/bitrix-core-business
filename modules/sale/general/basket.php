@@ -4,6 +4,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale;
 use Bitrix\Sale\DiscountCouponsManager;
 use Bitrix\Currency;
+use Bitrix\Main\Application;
 
 Loc::loadMessages(__FILE__);
 
@@ -3248,14 +3249,14 @@ class CAllSaleBasket
 							$basketItemFrom->getField('PRODUCT_ID'),
 							$basketItemFromProperties
 						);
-						
+
 						if (count($basketItems) === 1)
 						{
 							$basketItem = current($basketItems);
 							$basketItem->setField('QUANTITY', $basketItem->getQuantity() + $basketItemFrom->getQuantity());
 							$basketItemFrom->delete();
 						}
-						/* 
+						/*
 						 * if there is no such product in the 'toFUser' basket
 						 * or there are several of them, then add a new basket item with the same product.
 						 */
@@ -4053,12 +4054,19 @@ class CAllSaleUser
 	public static function UpdateSessionSaleUserID()
 	{
 		global $USER;
-		if (isset($_SESSION["SALE_USER_ID"]) && (string)$_SESSION["SALE_USER_ID"] !== "" && intval($_SESSION["SALE_USER_ID"])."|" != $_SESSION["SALE_USER_ID"]."|")
+
+		$session = Application::getInstance()->getSession();
+		if (!$session->isAccessible())
 		{
-			$arRes = CSaleUser::GetList(array("CODE" => $_SESSION["SALE_USER_ID"]));
+			return 0;
+		}
+
+		if (isset($session["SALE_USER_ID"]) && (string)$session["SALE_USER_ID"] !== "" && intval($session["SALE_USER_ID"])."|" != $session["SALE_USER_ID"]."|")
+		{
+			$arRes = CSaleUser::GetList(array("CODE" => $session["SALE_USER_ID"]));
 			if(!empty($arRes))
 			{
-				$_SESSION["SALE_USER_ID"] = $arRes['ID'];
+				$session["SALE_USER_ID"] = $arRes['ID'];
 				return $arRes['ID'];
 			}
 			else
@@ -4070,6 +4078,7 @@ class CAllSaleUser
 				}
 			}
 		}
+
 		return 0;
 	}
 

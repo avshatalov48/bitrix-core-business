@@ -4,25 +4,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,landing_ui_field_textfield,main_core,landing_ui_button_basebutton,main_popup,landing_pageobject) {
 	'use strict';
 
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"landing-ui-field-variables-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></div>\n\t\t\t"]);
+	var _templateObject, _templateObject2;
 
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field landing-ui-field-variables\">\n\t\t\t\t\t<div class=\"landing-ui-field-variables-left\">", "</div>\n\t\t\t\t\t<div class=\"landing-ui-field-variables-right\">", "</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var instances = Symbol('instances');
 	/**
 	 * @memberOf BX.Landing.UI.Field
@@ -35,7 +21,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    var _this;
 
 	    babelHelpers.classCallCheck(this, VariablesField);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(VariablesField).call(this, babelHelpers.objectSpread({}, options, {
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(VariablesField).call(this, _objectSpread(_objectSpread({}, options), {}, {
 	      textOnly: true
 	    })));
 
@@ -71,7 +57,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject(), _this2.input, _this2.getButton());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field landing-ui-field-variables\">\n\t\t\t\t\t<div class=\"landing-ui-field-variables-left\">", "</div>\n\t\t\t\t\t<div class=\"landing-ui-field-variables-right\">", "</div>\n\t\t\t\t</div>\n\t\t\t"])), _this2.input, _this2.getButton());
 	      });
 	    }
 	  }, {
@@ -80,7 +66,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('button', function () {
-	        return main_core.Tag.render(_templateObject2(), _this3.onButtonClick);
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"landing-ui-field-variables-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></div>\n\t\t\t"])), _this3.onButtonClick);
 	      });
 	    }
 	  }, {

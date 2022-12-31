@@ -1,8 +1,11 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
+
 use Bitrix\Main,
 	Bitrix\Main\Loader,
 	Bitrix\Main\Localization\Loc,
+	Bitrix\Catalog\Access\AccessController,
+	Bitrix\Catalog\Access\ActionDictionary,
 	Bitrix\Catalog;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
@@ -14,10 +17,15 @@ $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."cat_round_list.php?lang=".LANGUAGE_ID;
 $listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
 
-if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_group')))
-	$APPLICATION->AuthForm('');
 Loader::includeModule('catalog');
-$readOnly = !$USER->CanDoOperation('catalog_group');
+
+$accessController = AccessController::getCurrent();
+if (!($accessController->check(ActionDictionary::ACTION_CATALOG_READ) || $accessController->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT)))
+{
+	$APPLICATION->AuthForm('');
+}
+
+$readOnly = !$accessController->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT);
 
 $request = Main\Context::getCurrent()->getRequest();
 
@@ -106,7 +114,7 @@ if (
 		{
 			if ((string)$request->getPost('apply') != '')
 			{
-				$applyUrl = $selfFolderUrl."cat_round_edit.php?lang=".$lang."&ID=".$ruleId.'&'.$control->ActiveTabParam();
+				$applyUrl = $selfFolderUrl."cat_round_edit.php?lang=".LANGUAGE_ID."&ID=".$ruleId.'&'.$control->ActiveTabParam();
 				$applyUrl = $adminSidePanelHelper->setDefaultQueryParams($applyUrl);
 				LocalRedirect($applyUrl);
 			}

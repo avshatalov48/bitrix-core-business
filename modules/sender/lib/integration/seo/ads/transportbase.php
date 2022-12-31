@@ -19,13 +19,14 @@ use Bitrix\Seo\Retargeting;
  */
 class TransportBase implements Transport\iBase
 {
-	const CODE = self::CODE_UNDEFINED;
-	const CODE_ADS_VK = 'ads_vk';
-	const CODE_ADS_FB = 'ads_fb';
-	const CODE_ADS_YA = 'ads_ya';
-	const CODE_ADS_GA = 'ads_ga';
-	const CODE_ADS_LOOKALIKE_FB = 'ads_lookalike_fb';
-	const CODE_ADS_LOOKALIKE_VK = 'ads_lookalike_vk';
+	public const CODE = self::CODE_UNDEFINED;
+	public const CODE_ADS_VK = 'ads_vk';
+	public const CODE_ADS_FB = 'ads_fb';
+	public const CODE_ADS_YA = 'ads_ya';
+	public const CODE_ADS_GA = 'ads_ga';
+	public const CODE_ADS_LOOKALIKE_FB = 'ads_lookalike_fb';
+	public const CODE_ADS_LOOKALIKE_VK = 'ads_lookalike_vk';
+	public const CODE_ADS_LOOKALIKE_YANDEX = 'ads_lookalike_yandex';
 
 	/** @var Message\Configuration $configuration Configuration. */
 	protected $configuration;
@@ -176,7 +177,7 @@ class TransportBase implements Transport\iBase
 			}
 
 			$contacts[$adsContactType] = array($message->getRecipientCode());
-			static::addToAudience($clientId, $contacts);
+			$this->addToAudience($clientId, $contacts);
 		}
 
 		return $isSuccess;

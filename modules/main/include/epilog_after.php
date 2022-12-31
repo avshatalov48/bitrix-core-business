@@ -12,8 +12,11 @@ foreach(GetModuleEvents("main", "OnEpilog", true) as $arEvent)
 
 if (\Bitrix\Main\ModuleManager::isModuleInstalled('translate'))
 {
-	if(isset($_GET["show_lang_files"]) || isset(\Bitrix\Main\Application::getInstance()->getSession()["SHOW_LANG_FILES"]))
+	$session = \Bitrix\Main\Application::getInstance()->getSession();
+	if (isset($_GET["show_lang_files"]) || ($session->isAccessible() && isset($session["SHOW_LANG_FILES"])))
+	{
 		include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/interface/lang_files.php");
+	}
 }
 
 $canEditPHP = $USER->CanDoOperation('edit_php');

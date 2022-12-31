@@ -16,9 +16,9 @@ use Bitrix\Main\Entity;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_FeaturePerm_Query query()
- * @method static EO_FeaturePerm_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_FeaturePerm_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_FeaturePerm_Result getById($id)
- * @method static EO_FeaturePerm_Result getList(array $parameters = array())
+ * @method static EO_FeaturePerm_Result getList(array $parameters = [])
  * @method static EO_FeaturePerm_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\EO_FeaturePerm createObject($setDefaultValues = true)
  * @method static \Bitrix\Socialnetwork\EO_FeaturePerm_Collection createCollection()

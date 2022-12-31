@@ -90,7 +90,8 @@ if ($request->get('frameMode') === 'Y')
 			'TYPE' => $arParams['DEMO_TYPE'],//$arParams['TYPE'],
 			'PAGE_URL_BACK' => $arParams['PAGE_URL_SITE_SHOW'],
 			'SITE_ID' => $arResult['VARS']['site_show'],
-			'DONT_LEAVE_FRAME' => $arParams['EDIT_DONT_LEAVE_FRAME']
+			'DONT_LEAVE_FRAME' => $arParams['EDIT_DONT_LEAVE_FRAME'],
+			'ACTION_FOLDER' => $arParams['ACTION_FOLDER'],
 		),
 		$component
 	);?>

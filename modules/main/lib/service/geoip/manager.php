@@ -38,9 +38,9 @@ class Manager
     /** @var Log\LoggerInterface|null  */
     protected static $logger;
 
-	/**
-	 * Constant for parameters who information not available.
-	 */
+	/** @deprecated */
+	const INFO_NOT_AVAILABLE = null;
+
 	protected const CACHE_DIR = 'geoip_manager';
 
 	/**

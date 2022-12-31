@@ -268,21 +268,42 @@ final class MimeType
 
 	public static function isImage($mime)
 	{
+		// Attributes are possible: image/jpeg; charset=ISO-8859-1
+		$parts = explode(';', (string)$mime);
+		$mime = trim($parts[0]);
+
 		return preg_match('#^image/[a-z0-9.-]+$#i', $mime);
 	}
 
 	public static function normalize($contentType)
 	{
+		if (!is_string($contentType))
+		{
+			return 'application/octet-stream';
+		}
+
 		$ct = strtolower($contentType);
 		$ct = str_replace(array("\r", "\n", "\0"), "", $ct);
 
-		if (strpos($ct, "excel") !== false)
+		// We don't need attributes: image/jpeg; charset=ISO-8859-1
+		$parts = explode(';', $ct);
+		$ct = trim($parts[0]);
+
+		if ($ct == '')
+		{
+			$ct = 'application/octet-stream';
+		}
+		elseif (strpos($ct, "excel") !== false)
 		{
 			$ct = "application/vnd.ms-excel";
 		}
 		elseif (strpos($ct, "word") !== false && strpos($ct, "vnd.openxmlformats") === false)
 		{
 			$ct = "application/msword";
+		}
+		elseif ($ct == 'image/pjpeg' || $ct == 'image/jpg')
+		{
+			$ct = 'image/jpeg';
 		}
 
 		return $ct;

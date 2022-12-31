@@ -996,6 +996,11 @@ final class CSaleOrderPropsAdapter implements FetchAdapter
 
 	public function adapt(array $newProperty)
 	{
+		if (!isset($newProperty['TYPE']))
+		{
+			$newProperty['TYPE'] = 'STRING';
+		}
+
 		if(is_array($newProperty))
 		{
 			foreach($newProperty as $k => $v)
@@ -1037,70 +1042,79 @@ final class CSaleOrderPropsAdapter implements FetchAdapter
 		if (isset($property['REQUIRED']) && !empty($property['REQUIRED']))
 			$property['REQUIED'] = $property['REQUIRED'];
 
-		$settings = $property['SETTINGS'];
+		$settings = $property['SETTINGS'] ?? [];
 
-		switch ($property['TYPE'])
+		if (isset($property['TYPE']))
 		{
-			case 'STRING':
+			switch ($property['TYPE'])
+			{
+				case 'STRING':
 
-				if ($settings['MULTILINE'] == 'Y')
-				{
-					$property['TYPE'] = 'TEXTAREA';
-					$property['SIZE1'] = $settings['COLS'];
-					$property['SIZE2'] = $settings['ROWS'];
-				}
-				else
-				{
-					$property['TYPE'] = 'TEXT';
+					if ($settings['MULTILINE'] == 'Y')
+					{
+						$property['TYPE'] = 'TEXTAREA';
+						$property['SIZE1'] = $settings['COLS'];
+						$property['SIZE2'] = $settings['ROWS'];
+					}
+					else
+					{
+						$property['TYPE'] = 'TEXT';
+						$property['SIZE1'] = $settings['SIZE'];
+					}
+
+					break;
+
+				case 'NUMBER':
+
+					$property['TYPE'] = 'NUMBER';
+
+					break;
+
+				case 'Y/N':
+
+					$property['TYPE'] = 'CHECKBOX';
+
+					break;
+
+				case 'DATE':
+
+					$property['TYPE'] = 'DATE';
+
+					break;
+
+				case 'FILE':
+
+					$property['TYPE'] = 'FILE';
+
+					break;
+
+				case 'ENUM':
+
+					if ($property['MULTIPLE'] == 'Y')
+					{
+						$property['TYPE'] = 'MULTISELECT';
+						$property['SIZE1'] = $settings['SIZE'];
+					}
+					elseif ($settings['MULTIELEMENT'] == 'Y')
+					{
+						$property['TYPE'] = 'RADIO';
+					}
+					else
+					{
+						$property['TYPE'] = 'SELECT';
+						$property['SIZE1'] = $settings['SIZE'];
+					}
+
+					break;
+
+				case 'LOCATION':
+
 					$property['SIZE1'] = $settings['SIZE'];
-				}
 
-				break;
+					break;
 
-			case 'Y/N':
-
-				$property['TYPE'] = 'CHECKBOX';
-
-				break;
-
-			case 'DATE':
-
-				$property['TYPE'] = 'DATE';
-
-				break;
-
-			case 'FILE':
-
-				$property['TYPE'] = 'FILE';
-
-				break;
-
-			case 'ENUM':
-
-				if ($property['MULTIPLE'] == 'Y')
-				{
-					$property['TYPE'] = 'MULTISELECT';
-					$property['SIZE1'] = $settings['SIZE'];
-				}
-				elseif ($settings['MULTIELEMENT'] == 'Y')
-				{
-					$property['TYPE'] = 'RADIO';
-				}
-				else
-				{
-					$property['TYPE'] = 'SELECT';
-					$property['SIZE1'] = $settings['SIZE'];
-				}
-
-				break;
-
-			case 'LOCATION':
-
-				$property['SIZE1'] = $settings['SIZE'];
-
-				break;
-
-			default: $property['TYPE'] = 'TEXT';
+				default: $property['TYPE'] = 'TEXT';
+			}
 		}
 
 		return $property;

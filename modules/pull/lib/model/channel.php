@@ -2,6 +2,7 @@
 
 namespace Bitrix\Pull\Model;
 
+use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\DateTime;
 
 class Channel
@@ -13,7 +14,7 @@ class Channel
 	protected $type = \CPullChannel::TYPE_PRIVATE;
 	protected $dateCreate;
 
-	public static function createWithTag(string $tag)
+	public static function createWithTag(string $tag): Channel
 	{
 		$instance = new static();
 		$instance->privateId = \CPullChannel::GetNewChannelIdByTag($tag);
@@ -23,12 +24,51 @@ class Channel
 		return $instance;
 	}
 
-	public static function createRandom()
+	public static function createRandom(): Channel
 	{
 		$instance = new static();
 		$instance->privateId = \CPullChannel::GetNewChannelId();
 		$instance->publicId = \CPullChannel::GetNewChannelId('public');
 		$instance->dateCreate = new DateTime();
+
+		return $instance;
+	}
+
+	/**
+	 * Returns Channel instance, suitable for sending to the shared channel.
+	 * @return Channel
+	 * @throws SystemException
+	 */
+	public static function getShared(): Channel
+	{
+		$fields = \CPullChannel::GetShared();
+		if (!$fields)
+		{
+			throw new SystemException("Public channel is empty");
+		}
+
+		return static::createWithFields($fields);
+	}
+
+	public static function createWithFields(array $fields): Channel
+	{
+		$instance = new static();
+		if (isset($fields['CHANNEL_ID']))
+		{
+			$instance->privateId = $fields['CHANNEL_ID'];
+		}
+		if (isset($fields['CHANNEL_PUBLIC_ID']))
+		{
+			$instance->publicId = $fields['CHANNEL_PUBLIC_ID'];
+		}
+		if (isset($fields['CHANNEL_TYPE']))
+		{
+			$instance->type = $fields['CHANNEL_TYPE'];
+		}
+		if (isset($fields['CHANNEL_DT']))
+		{
+			$instance->dateCreate = DateTime::createFromTimestamp($fields['CHANNEL_DT']);
+		}
 
 		return $instance;
 	}

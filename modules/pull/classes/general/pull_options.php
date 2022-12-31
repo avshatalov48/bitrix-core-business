@@ -1,4 +1,4 @@
-<?
+<?php
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Config\Option;
 
@@ -215,10 +215,15 @@ class CPullOptions
 		return true;
 	}
 
-
 	public static function GetPublishUrl($channelId = "")
 	{
 		$url = COption::GetOptionString("pull", "path_to_publish", self::GetDefaultOption("path_to_publish"));
+		return $url;
+	}
+
+	public static function GetJsonRpcUrl()
+	{
+		$url = COption::GetOptionString("pull", "path_to_json_rpc", self::GetDefaultOption("path_to_json_rpc"));
 		return $url;
 	}
 
@@ -248,6 +253,16 @@ class CPullOptions
 			$path = self::GetDefaultOption('path_to_publish');
 		}
 		COption::SetOptionString("pull", "path_to_publish", $path);
+		return true;
+	}
+
+	public static function SetJsonRpcUrl($path = "")
+	{
+		if ($path == '')
+		{
+			$path = self::GetDefaultOption('path_to_json_rpc');
+		}
+		COption::SetOptionString("pull", "path_to_json_rpc", $path);
 		return true;
 	}
 
@@ -464,7 +479,7 @@ class CPullOptions
 
 	public static function GetConfigTimestamp()
 	{
-		return COption::GetOptionInt("pull", "config_timestamp");
+		return COption::GetOptionInt("pull", "config_timestamp", self::GetDefaultOption("config_timestamp"));
 	}
 
 	public static function GetMaxPayload()
@@ -517,7 +532,8 @@ class CPullOptions
 			'command' => 'config_expire',
 			'params' => Array()
 		);
-		CPullStack::AddBroadcast($arMessage);
+		CPullStack::AddShared($arMessage);
+		\Bitrix\Pull\Event::send();
 	}
 
 	public static function GetDefaultOption($optionName)

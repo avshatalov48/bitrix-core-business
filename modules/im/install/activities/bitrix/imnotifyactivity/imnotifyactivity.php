@@ -5,7 +5,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-class CBPIMNotifyActivity extends CBPActivity
+use Bitrix\Main\Localization\Loc;
+
+class CBPIMNotifyActivity extends \CBPActivity
 {
 	public function __construct($name)
 	{
@@ -22,24 +24,36 @@ class CBPIMNotifyActivity extends CBPActivity
 
 	public function Execute()
 	{
-		if (!CModule::IncludeModule("im"))
+		if (!\Bitrix\Main\Loader::includeModule("im"))
 		{
-			return CBPActivityExecutionStatus::Closed;
+			return \CBPActivityExecutionStatus::Closed;
 		}
 
 		$rootActivity = $this->GetRootActivity();
 		$documentId = $rootActivity->GetDocumentId();
 
-		$arMessageUserFrom = CBPHelper::ExtractUsers($this->MessageUserFrom, $documentId, true);
-		$arMessageUserTo = CBPHelper::ExtractUsers($this->MessageUserTo, $documentId, false);
+		$arMessageUserFrom = \CBPHelper::ExtractUsers($this->MessageUserFrom, $documentId, true);
+		$arMessageUserTo = \CBPHelper::ExtractUsers($this->MessageUserTo, $documentId, false);
+
+		$notifyMessage = $this->MessageSite;
+		if (is_array($notifyMessage))
+		{
+			$notifyMessage = implode(', ', \CBPHelper::MakeArrayFlat($notifyMessage));
+		}
+
+		$notifyMessageOut = $this->MessageOut;
+		if (is_array($notifyMessageOut))
+		{
+			$notifyMessageOut = implode(', ', \CBPHelper::MakeArrayFlat($notifyMessageOut));
+		}
 
 		$arMessageFields = [
-			"FROM_USER_ID" => $this->MessageType == IM_NOTIFY_SYSTEM ? 0 : $arMessageUserFrom,
-			"NOTIFY_TYPE" => intval($this->MessageType),
-			"NOTIFY_MESSAGE" => $this->MessageSite,
-			"NOTIFY_MESSAGE_OUT" => $this->MessageOut,
-			"NOTIFY_MODULE" => "bizproc",
-			"NOTIFY_EVENT" => "activity",
+			'FROM_USER_ID' => $this->MessageType == \IM_NOTIFY_SYSTEM ? 0 : $arMessageUserFrom,
+			'NOTIFY_TYPE' => (int)$this->MessageType,
+			'NOTIFY_MESSAGE' => (string)$notifyMessage,
+			'NOTIFY_MESSAGE_OUT' => (string)$notifyMessageOut,
+			'NOTIFY_MODULE' => 'bizproc',
+			'NOTIFY_EVENT' => 'activity',
 		];
 
 		$ar = [];
@@ -52,13 +66,13 @@ class CBPIMNotifyActivity extends CBPActivity
 
 			$ar[] = $userTo;
 			$arMessageFields["TO_USER_ID"] = $userTo;
-			CIMNotify::Add($arMessageFields);
+			\CIMNotify::Add($arMessageFields);
 		}
 
-		return CBPActivityExecutionStatus::Closed;
+		return \CBPActivityExecutionStatus::Closed;
 	}
 
-	public static function ValidateProperties($arTestProperties = [], CBPWorkflowTemplateUser $user = null)
+	public static function ValidateProperties($arTestProperties = [], \CBPWorkflowTemplateUser $user = null)
 	{
 		$arErrors = [];
 
@@ -67,7 +81,7 @@ class CBPIMNotifyActivity extends CBPActivity
 			$arErrors[] = [
 				"code" => "NotExist",
 				"parameter" => "MessageUserFrom",
-				"message" => GetMessage("BPIMNA_EMPTY_FROM"),
+				"message" => Loc::getMessage("BPIMNA_EMPTY_FROM"),
 			];
 		}
 		if (empty($arTestProperties['MessageUserTo']))
@@ -75,7 +89,7 @@ class CBPIMNotifyActivity extends CBPActivity
 			$arErrors[] = [
 				"code" => "NotExist",
 				"parameter" => "MessageUserTo",
-				"message" => GetMessage("BPIMNA_EMPTY_TO"),
+				"message" => Loc::getMessage("BPIMNA_EMPTY_TO"),
 			];
 		}
 		if (empty($arTestProperties['MessageSite']))
@@ -83,7 +97,7 @@ class CBPIMNotifyActivity extends CBPActivity
 			$arErrors[] = [
 				"code" => "NotExist",
 				"parameter" => "MessageText",
-				"message" => GetMessage("BPIMNA_EMPTY_MESSAGE"),
+				"message" => Loc::getMessage("BPIMNA_EMPTY_MESSAGE"),
 			];
 		}
 
@@ -93,7 +107,7 @@ class CBPIMNotifyActivity extends CBPActivity
 			$arErrors[] = [
 				"code" => "NotExist",
 				"parameter" => "MessageUserFrom",
-				"message" => GetMessage("BPIMNA_EMPTY_FROM"),
+				"message" => Loc::getMessage("BPIMNA_EMPTY_FROM"),
 			];
 		}
 
@@ -103,7 +117,7 @@ class CBPIMNotifyActivity extends CBPActivity
 	public static function GetPropertiesDialog($documentType, $activityName, $arWorkflowTemplate, $arWorkflowParameters,
 		$arWorkflowVariables, $arCurrentValues = null, $formName = "")
 	{
-		$runtime = CBPRuntime::GetRuntime();
+		$runtime = \CBPRuntime::GetRuntime();
 
 		$arMap = [
 			"MessageUserFrom" => "from_user_id",
@@ -124,7 +138,7 @@ class CBPIMNotifyActivity extends CBPActivity
 
 		if (!is_array($arCurrentValues))
 		{
-			$arCurrentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
+			$arCurrentActivity = &\CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
 			if (is_array($arCurrentActivity["Properties"]))
 			{
 				foreach ($arMap as $k => $v)
@@ -133,7 +147,7 @@ class CBPIMNotifyActivity extends CBPActivity
 					{
 						if ($k == "MessageUserFrom" || $k == "MessageUserTo")
 						{
-							$arCurrentValues[$arMap[$k]] = CBPHelper::UsersArrayToString($arCurrentActivity["Properties"][$k],
+							$arCurrentValues[$arMap[$k]] = \CBPHelper::UsersArrayToString($arCurrentActivity["Properties"][$k],
 								$arWorkflowTemplate, $documentType);
 						}
 						else
@@ -169,7 +183,7 @@ class CBPIMNotifyActivity extends CBPActivity
 			[
 				"arCurrentValues" => $arCurrentValues,
 				"formName" => $formName,
-				'user' => new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser),
+				'user' => new \CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser),
 			]
 		);
 	}
@@ -197,10 +211,10 @@ class CBPIMNotifyActivity extends CBPActivity
 			$properties[$value] = $arCurrentValues[$key];
 		}
 
-		$user = new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser);
+		$user = new \CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser);
 		if ($user->isAdmin())
 		{
-			$properties["MessageUserFrom"] = CBPHelper::UsersStringToArray(
+			$properties["MessageUserFrom"] = \CBPHelper::UsersStringToArray(
 				$arCurrentValues["from_user_id"],
 				$documentType,
 				$errors
@@ -215,7 +229,7 @@ class CBPIMNotifyActivity extends CBPActivity
 			$properties["MessageUserFrom"] = $user->getBizprocId();
 		}
 
-		$properties["MessageUserTo"] = CBPHelper::UsersStringToArray(
+		$properties["MessageUserTo"] = \CBPHelper::UsersStringToArray(
 			$arCurrentValues["to_user_id"],
 			$documentType,
 			$errors
@@ -227,14 +241,14 @@ class CBPIMNotifyActivity extends CBPActivity
 
 		$errors = self::ValidateProperties(
 			$properties,
-			new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser)
+			new \CBPWorkflowTemplateUser(\CBPWorkflowTemplateUser::CurrentUser)
 		);
 		if ($errors)
 		{
 			return false;
 		}
 
-		$currentActivity = &CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
+		$currentActivity = &\CBPWorkflowTemplateLoader::FindActivityByName($arWorkflowTemplate, $activityName);
 		$currentActivity["Properties"] = $properties;
 
 		return true;

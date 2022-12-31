@@ -208,6 +208,10 @@ class EventTable extends Main\Entity\DataManager
 				'validation' => array(__CLASS__, 'validateSyncStatus'),
 				'title' => Loc::getMessage('SECTION_ENTITY_SYNC_STATUS'),
 			)),
+			new Entity\StringField('EVENT_TYPE', array(
+				'validation' => array(__CLASS__, 'validateEventType'),
+				'title' => Loc::getMessage('SECTION_ENTITY_EVENT_TYPE'),
+			)),
 		);
 	}
 
@@ -232,6 +236,18 @@ class EventTable extends Main\Entity\DataManager
 	{
 		return array(
 			new Main\Entity\Validator\Length(null, 100),
+		);
+	}
+
+	/**
+	 * Returns validators for EVENT_TYPE field.
+	 *
+	 * @return array
+	 */
+	public static function validateEventType()
+	{
+		return array(
+			new Main\Entity\Validator\Length(null, 50),
 		);
 	}
 

@@ -179,7 +179,7 @@ export default class ActionsContent extends ContentWrapper
 		});
 	}
 
-	getSuccessLinkField(): BX.Landing.UI.Field.LinkURL
+	getSuccessLinkField(): BX.Landing.UI.Field.LinkUrl
 	{
 		return this.cache.remember('successLinkField', () => {
 			return new TextField({
@@ -192,7 +192,7 @@ export default class ActionsContent extends ContentWrapper
 		});
 	}
 
-	getFailureLinkField(): BX.Landing.UI.Field.LinkURL
+	getFailureLinkField(): BX.Landing.UI.Field.LinkUrl
 	{
 		return this.cache.remember('failureLinkField', () => {
 			return new TextField({
@@ -205,7 +205,7 @@ export default class ActionsContent extends ContentWrapper
 		});
 	}
 
-	getRefillCaptionField(): BX.Landing.UI.Field.LinkURL
+	getRefillCaptionField(): BX.Landing.UI.Field.LinkUrl
 	{
 		return this.cache.remember('refillCaptionFill', () => {
 			return new TextField({

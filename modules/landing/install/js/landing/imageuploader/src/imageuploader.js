@@ -49,6 +49,18 @@ export class ImageUploader
 			.all(
 				this.getDimensions()
 					.map((dimensions) => {
+
+						const isSvg = (
+							this.options.allowSvg
+							&& Type.isStringFilled(file.type)
+							&& file.type.includes('svg')
+						);
+
+						if (isSvg)
+						{
+							return file;
+						}
+
 						return ImageCompressor.compress(file, dimensions);
 					}),
 			)

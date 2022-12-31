@@ -2,9 +2,11 @@
 
 namespace Bitrix\Catalog\v2\Integration\UI\EntityEditor;
 
-use Bitrix\Catalog\ContractorTable;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\StoreDocumentFileTable;
 use Bitrix\Catalog\StoreDocumentTable;
+use Bitrix\Catalog\v2\Contractor;
 use Bitrix\Catalog\v2\Integration\UI\EntityEditor\Product\StoreDocumentProductPositionRepository;
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Currency\CurrencyTable;
@@ -25,10 +27,22 @@ class StoreDocumentProvider extends BaseProvider
 	protected $document;
 	protected $config;
 
+	/** @var Contractor\Provider\IProvider|null */
+	protected ?Contractor\Provider\IProvider $contractorsProvider;
+
 	private function __construct(array $documentFields, array $config = [])
 	{
 		$this->document = $documentFields;
 		$this->config = $config;
+		$this->contractorsProvider = Contractor\Provider\Manager::getActiveProvider();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getConfigId(): string
+	{
+		return 'store_document_details';
 	}
 
 	/**
@@ -83,7 +97,15 @@ class StoreDocumentProvider extends BaseProvider
 	{
 		if (!$this->isNewDocument())
 		{
-			$document = StoreDocumentTable::getById($this->getDocumentId())->fetch();
+			$document = StoreDocumentTable::getList([
+				'select' => [
+					'*',
+					'CONTRACTOR_REF_' => 'CONTRACTOR',
+				],
+				'filter' => [
+					'=ID' => $this->getDocumentId(),
+				],
+			])->fetch();
 
 			$this->document = $document ?: [];
 		}
@@ -273,16 +295,7 @@ class StoreDocumentProvider extends BaseProvider
 							'enableTime' => false,
 						],
 					],
-					[
-						'name' => 'CONTRACTOR_ID',
-						'title' => static::getFieldTitle('CONTRACTOR_ID'),
-						'type' => 'contractor',
-						'editable' => true,
-						'required' => true,
-						'data' => [
-							'contractorName' => 'CONTRACTOR_NAME',
-						],
-					],
+					$this->getContractorField(),
 					[
 						'name' => 'ITEMS_ORDER_DATE',
 						'title' => static::getFieldTitle('ITEMS_ORDER_DATE'),
@@ -365,40 +378,6 @@ class StoreDocumentProvider extends BaseProvider
 	{
 		return Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_TITLE_DEFAULT_NAME_'
 			. $this->getDocumentType(), ['%DOCUMENT_NUMBER%' => $documentNumber]);
-	}
-
-	protected function getContractorName(): string
-	{
-		if (!empty($this->config['data']))
-		{
-			$data = $this->config['data'];
-			if (!empty($data['CONTRACTOR_COMPANY']))
-			{
-				return $data['CONTRACTOR_COMPANY'];
-			}
-			if (!empty($data['CONTRACTOR_PERSON_NAME']))
-			{
-				return $data['CONTRACTOR_PERSON_NAME'];
-			}
-		}
-
-		$contractorId = $this->document['CONTRACTOR_ID'];
-		if (!$contractorId)
-		{
-			return '';
-		}
-
-		$contractor = ContractorTable::getById($contractorId)->fetch();
-		if ($contractor['COMPANY'])
-		{
-			return $contractor['COMPANY'];
-		}
-		if ($contractor['PERSON_NAME'])
-		{
-			return $contractor['PERSON_NAME'];
-		}
-
-		return '';
 	}
 
 	protected function getAdditionalFieldKeys($fields): array
@@ -556,12 +535,15 @@ class StoreDocumentProvider extends BaseProvider
 			$document['DOCUMENT_FILES'] = $this->getDocumentFiles($document);
 		}
 
-		$dateFields = ['DATE_DOCUMENT', 'ITEMS_ORDER_DATE', 'ITEMS_RECEIVED_DATE'];
-		foreach ($dateFields as $dateField)
+		if ($this->shouldPrepareDateFields())
 		{
-			if (isset($document[$dateField]) && $document[$dateField] instanceof Main\Type\DateTime)
+			$dateFields = ['DATE_DOCUMENT', 'ITEMS_ORDER_DATE', 'ITEMS_RECEIVED_DATE'];
+			foreach ($dateFields as $dateField)
 			{
-				$document[$dateField] = new Main\Type\Date($document[$dateField]);
+				if (isset($document[$dateField]) && $document[$dateField] instanceof Main\Type\DateTime)
+				{
+					$document[$dateField] = new Main\Type\Date($document[$dateField]);
+				}
 			}
 		}
 
@@ -645,7 +627,10 @@ class StoreDocumentProvider extends BaseProvider
 
 		$document['PATH_TO_USER_PROFILE'] = static::PATH_TO_USER_PROFILE;
 
-		$document['CONTRACTOR_NAME'] = $this->getContractorName();
+		if ($document['DOC_TYPE'] === StoreDocumentTable::TYPE_ARRIVAL)
+		{
+			$document = array_merge($document, $this->getContractorData($document));
+		}
 
 		$uniqueUserIds = array_filter(array_unique(array_values($userFields)));
 		if (!empty($uniqueUserIds) && empty($this->config['skipUsers']))
@@ -658,6 +643,56 @@ class StoreDocumentProvider extends BaseProvider
 		}
 
 		return $document;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getContractorField(): array
+	{
+		return [
+			'name' => 'CONTRACTOR_ID',
+			'title' => static::getFieldTitle('CONTRACTOR_ID'),
+			'type' => $this->contractorsProvider
+				? $this->contractorsProvider::getEditorFieldType()
+				: 'contractor',
+			'editable' => true,
+			'required' => true,
+			'data' => $this->contractorsProvider
+				? $this->contractorsProvider::getEditorFieldData()
+				: [
+					'contractorName' => 'CONTRACTOR_NAME',
+				],
+		];
+	}
+
+	/**
+	 * @param array $document
+	 * @return array
+	 */
+	protected function getContractorData(array $document): array
+	{
+		return $this->contractorsProvider
+			? $this->contractorsProvider::getEditorEntityData((int)$document['ID'])
+			: ['CONTRACTOR_NAME' => $this->getContractorName()];
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getContractorName(): string
+	{
+		if (!empty($this->document['CONTRACTOR_REF_COMPANY']))
+		{
+			return $this->document['CONTRACTOR_REF_COMPANY'];
+		}
+
+		if (!empty($this->document['CONTRACTOR_REF_PERSON_NAME']))
+		{
+			return $this->document['CONTRACTOR_REF_PERSON_NAME'];
+		}
+
+		return '';
 	}
 
 	protected function getUsersInfo(array $userIds): array
@@ -741,7 +776,7 @@ class StoreDocumentProvider extends BaseProvider
 		return [
 			[
 				'name' => 'PRODUCT_LIST_CONTROLLER',
-				'type' => 'product_list',
+				'type' => 'catalog_store_document_product_list',
 				'config' => [],
 			],
 			[
@@ -754,7 +789,26 @@ class StoreDocumentProvider extends BaseProvider
 
 	public function isReadOnly(): bool
 	{
-		return isset($this->document['STATUS']) && $this->document['STATUS'] === 'Y';
+		/** @var AccessController $accessController */
+		$accessController = AccessController::getCurrent();
+
+		return
+			!$accessController->checkByValue(
+				ActionDictionary::ACTION_STORE_DOCUMENT_MODIFY,
+				$this->getDocumentType()
+			)
+			|| (
+				isset($this->document['STATUS']) && $this->document['STATUS'] === 'Y'
+			)
+		;
+	}
+
+	public function isEntityConfigEditable(): bool
+	{
+		/** @var AccessController $accessController */
+		$accessController = AccessController::getCurrent();
+
+		return AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_DOCUMENT_CARD_EDIT);
 	}
 
 	/**
@@ -817,5 +871,10 @@ class StoreDocumentProvider extends BaseProvider
 			default:
 				return Loc::getMessage('CATALOG_STORE_DOCUMENT_DETAIL_FIELD_' . $fieldName);
 		}
+	}
+
+	protected function shouldPrepareDateFields(): bool
+	{
+		return true;
 	}
 }

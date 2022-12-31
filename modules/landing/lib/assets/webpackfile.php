@@ -2,12 +2,14 @@
 
 namespace Bitrix\Landing\Assets;
 
+use Bitrix\Landing\Agent;
 use Bitrix\Landing\File;
 use Bitrix\Landing\Site;
 use Bitrix\Landing\Manager;
 use Bitrix\Main;
 use Bitrix\Main\FileTable;
 use Bitrix\Main\Security\Random;
+use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\WebPacker;
 
 class WebpackFile
@@ -134,24 +136,32 @@ class WebpackFile
 				$this->fileId = $res->getId();
 				File::addToAsset($this->landingId, $this->fileId);
 
-				$file = \CFile::GetByID($this->fileId)->Fetch();
+				// tmp fixing agent for 149117
+				Agent::addUniqueAgent('checkFileExists', [$this->fileId], 86400, 60);
+
+				// dbg tmp log
+				$file = \CFile::getFileArray($this->fileId);
+				$request = new HttpClient(["redirect" => false,]);
+				$request->query(HttpClient::HTTP_HEAD, $file['SRC']);
+				if ($request->getStatus() !== 200)
+				{
+					\Bitrix\Landing\Debug::logToFile(
+						"[lndgdbg] afterBuildFile, create new {$this->fileId} for lid {$this->landingId} with ORIG_NAME {$file['ORIGINAL_NAME']} and it not exists"
+					);
+				}
 				$fileMsg = "File {$this->fileId} with NAME {$file['FILE_NAME']} and ORIG_NAME {$file['ORIGINAL_NAME']}";
 				$duplicateMsg = "Has no duplicates";
-
 				$original = \Bitrix\Main\File\Internal\FileDuplicateTable::query()
 					->addSelect("ORIGINAL_ID")
 					->where("DUPLICATE_ID", $this->fileId)
 					->fetch();
 				if ($original && $original['ORIGINAL_ID'])
 				{
-					$fileOrig = \CFile::GetByID((int)$original['ORIGINAL_ID'])->Fetch();
+					$fileOrig = \CFile::getFileArray((int)$original['ORIGINAL_ID']);
 					$duplicateMsg = "It is duplicate of orig {$original['ORIGINAL_ID']} with NAME {$fileOrig['FILE_NAME']} and ORIG_NAME {$fileOrig['ORIGINAL_NAME']}";
 				}
-
-				AddMessage2Log(
-					"[lndgdbg] afterBuildFile for lid {$this->landingId}. {$fileMsg}. {$duplicateMsg}.",
-					'landing',
-					7
+				\Bitrix\Landing\Debug::logToFile(
+					"[lndgdbg] afterBuildFile for lid {$this->landingId}. {$fileMsg}. {$duplicateMsg}."
 				);
 			}
 		}
@@ -170,10 +180,8 @@ class WebpackFile
 			$this->setFileName($file['ORIGINAL_NAME'] ?: $this->filename);
 		}
 
-		AddMessage2Log(
-			"[lndgdbg] configureFile for lid {$this->landingId}.",
-			'landing',
-			7
+		\Bitrix\Landing\Debug::logToFile(
+			"[lndgdbg] configureFile for lid {$this->landingId}."
 		);
 
 		$this->fileController->configureFile(
@@ -203,10 +211,9 @@ class WebpackFile
 					? 'and it MATCH with file.'
 					: 'and it NOT MATCH with file.'
 				;
-				AddMessage2Log(
-					"[lndgdbg] findExistFile for lid {$this->landingId}. {$msg}",
-					'landing',
-					7
+
+				\Bitrix\Landing\Debug::logToFile(
+					"[lndgdbg] findExistFile for lid {$this->landingId}. {$msg}"
 				);
 
 				if(

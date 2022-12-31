@@ -314,9 +314,9 @@ class CAllUserCounter
 			while ($row = $res->Fetch())
 			{
 				if (!(
-					$row['CHANNEL_TYPE'] === 'private' 
+					$row['CHANNEL_TYPE'] === 'private'
 					|| (
-						$row['CHANNEL_TYPE'] === 'shared' 
+						$row['CHANNEL_TYPE'] === 'shared'
 						&& (int)$row['USER_ID'] === 0
 					)
 				))
@@ -398,12 +398,12 @@ class CAllUserCounter
 				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('" . implode("', '", \Bitrix\Main\UserTable::getExternalUserTypes())."') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > ".$helper->addSecondsToDateTime('(-3600)')."
 				WHERE uc.USER_ID = " . (int)$user_id
 				.(
-					$code <> ''
+				$code <> ''
 					? (
-						$bMultiple
-						? " AND uc.CODE LIKE '".$DB->ForSQL($code)."%'"
-						: " AND uc.CODE = '".$DB->ForSQL($code)."'"
-					)
+				$bMultiple
+					? " AND uc.CODE LIKE '".$DB->ForSQL($code)."%'"
+					: " AND uc.CODE = '".$DB->ForSQL($code)."'"
+				)
 					: ""
 				)."
 			";
@@ -415,9 +415,9 @@ class CAllUserCounter
 				$key = ($code <> '' ? $code : $row['CODE']);
 
 				if (!(
-					$row['CHANNEL_TYPE'] === 'private' 
+					$row['CHANNEL_TYPE'] === 'private'
 					|| (
-						$row['CHANNEL_TYPE'] === 'shared' 
+						$row['CHANNEL_TYPE'] === 'shared'
 						&& (int)$row['USER_ID'] === 0
 					)
 				))
@@ -574,12 +574,12 @@ class CAllUserCounterPage
 {
 	protected static function setUserIdOption($value = false)
 	{
-//		\Bitrix\Main\Config\Option::set('main', 'user_counter_pull_page_start', $value);
+		//		\Bitrix\Main\Config\Option::set('main', 'user_counter_pull_page_start', $value);
 	}
 
 	protected static function getUserIdOption()
 	{
-//		return \Bitrix\Main\Config\Option::get('main', 'user_counter_pull_page_start', false);
+		//		return \Bitrix\Main\Config\Option::get('main', 'user_counter_pull_page_start', false);
 	}
 
 	public static function getPageSizeOption($defaultValue = 100)

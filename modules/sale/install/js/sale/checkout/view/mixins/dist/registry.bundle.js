@@ -72,7 +72,10 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
       },
       methods: {
         hasSkyTree: function hasSkyTree() {
-          return Object.keys(this.item.sku.tree).length > 0;
+          var _this$item$sku$tree$S;
+
+          var tree = (_this$item$sku$tree$S = this.item.sku.tree.SELECTED_VALUES) !== null && _this$item$sku$tree$S !== void 0 ? _this$item$sku$tree$S : {};
+          return Object.keys(tree).length > 0;
         },
         hasProps: function hasProps() {
           return this.item.props.length > 0;

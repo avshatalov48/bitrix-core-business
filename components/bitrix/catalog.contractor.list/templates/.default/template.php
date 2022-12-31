@@ -21,15 +21,18 @@ $APPLICATION->IncludeComponent(
 );
 $this->endViewTarget();
 
-if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES'])): ?>
-	<?php foreach($arResult['ERROR_MESSAGES'] as $error):?>
-		<div class="ui-alert ui-alert-danger" style="margin-bottom: 0px;">
-			<span class="ui-alert-message"><?= htmlspecialcharsbx($error) ?></span>
-		</div>
-	<?php endforeach;?>
-	<?php
+if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES']))
+{
+	$APPLICATION->IncludeComponent(
+		'bitrix:ui.info.error',
+		'',
+		[
+			'TITLE' => $arResult['ERROR_MESSAGES'][0],
+		]
+	);
+
 	return;
-endif;
+}
 
 $APPLICATION->IncludeComponent(
 	'bitrix:main.ui.grid',

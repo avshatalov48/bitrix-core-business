@@ -36,10 +36,8 @@ class Group extends Scope
 		{
 			return '/mobile/knowledge/group/';
 		}
-		else
-		{
-			return '/knowledge/group/';
-		}
+
+		return '/knowledge/group/';
 	}
 
 	/**

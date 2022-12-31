@@ -25,6 +25,7 @@ BX.SidePanel.Slider = function(url, options)
 	this.url = this.contentCallback ? url : this.refineUrl(url);
 
 	this.offset = null;
+	this.hideControls = options.hideControls === true;
 	this.width = BX.type.isNumber(options.width) ? options.width : null;
 	this.cacheable = options.cacheable !== false;
 	this.autoFocus = options.autoFocus !== false;
@@ -34,7 +35,9 @@ BX.SidePanel.Slider = function(url, options)
 	this.data = new BX.SidePanel.Dictionary(BX.type.isPlainObject(options.data) ? options.data : {});
 
 	this.customLeftBoundary = null;
+	this.customRightBoundary = null;
 	this.setCustomLeftBoundary(options.customLeftBoundary);
+	this.setCustomRightBoundary(options.customRightBoundary);
 
 	this.title = null;
 	this.setTitle(options.title);
@@ -778,7 +781,7 @@ BX.SidePanel.Slider.prototype =
 	 */
 	getMinLeftBoundary: function()
 	{
-		return 65;
+		return this.hideControls && this.getCustomLeftBoundary() !== null ? 0 : 65;
 	},
 
 	/**
@@ -811,6 +814,43 @@ BX.SidePanel.Slider.prototype =
 	getCustomLeftBoundary: function()
 	{
 		return this.customLeftBoundary;
+	},
+
+
+	/**
+	 * @public
+	 * @param {number} boundary
+	 */
+	setCustomRightBoundary: function(boundary)
+	{
+		if (BX.type.isNumber(boundary) || boundary === null)
+		{
+			this.customRightBoundary = boundary;
+		}
+	},
+
+	/**
+	 * @public
+	 * @return {number}
+	 */
+	getCustomRightBoundary: function()
+	{
+		return this.customRightBoundary;
+	},
+
+	/**
+	 * @protected
+	 * @return {number}
+	 */
+	calculateRightBoundary: function()
+	{
+		const customRightBoundary = this.getCustomRightBoundary();
+		if (customRightBoundary !== null)
+		{
+			return -window.pageXOffset + customRightBoundary;
+		}
+
+		return this.getRightBoundary();
 	},
 
 	/**
@@ -921,10 +961,11 @@ BX.SidePanel.Slider.prototype =
 
 		var height = isTopBoundaryVisible > 0 ? windowHeight - topBoundary + scrollTop : windowHeight;
 		var leftBoundary = this.getLeftBoundaryOffset();
+		var rightBoundary = this.calculateRightBoundary();
 
 		this.getOverlay().style.left = window.pageXOffset + "px";
 		this.getOverlay().style.top = topBoundary + "px";
-		this.getOverlay().style.right = this.getRightBoundary() + "px";
+		this.getOverlay().style.right = rightBoundary + "px";
 		this.getOverlay().style.height = height + "px";
 
 		this.getContainer().style.width = "calc(100% - " + leftBoundary + "px)";
@@ -1069,11 +1110,10 @@ BX.SidePanel.Slider.prototype =
 			props: {
 				className: "side-panel side-panel-container"
 			},
-			children: [
-				this.getContentContainer(),
-				this.getLabelsContainer(),
-				this.getPrintBtn()
-			]
+			children:
+				this.hideControls
+				? [this.getContentContainer()]
+				: [this.getContentContainer(), this.getLabelsContainer(), this.getPrintBtn()]
 		});
 
 		return this.layout.container;

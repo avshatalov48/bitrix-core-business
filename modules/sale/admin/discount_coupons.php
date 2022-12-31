@@ -1,11 +1,12 @@
-<?
+<?php
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 /** @global array $FIELDS */
-use Bitrix\Main,
-	Bitrix\Main\Loader,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Sale\Internals;
+
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\Internals;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
@@ -105,35 +106,34 @@ $adminList->AddFilter($filterFields, $filter);
 
 if (!$readOnly && $adminList->EditAction())
 {
-	if (isset($FIELDS) && is_array($FIELDS))
+	$conn = Main\Application::getConnection();
+	Internals\DiscountCouponTable::disableCheckCouponsUse();
+	foreach ($adminList->GetEditFields() as $couponID => $fields)
 	{
-		$conn = Main\Application::getConnection();
-		Internals\DiscountCouponTable::disableCheckCouponsUse();
-		foreach ($FIELDS as $couponID => $fields)
+		$couponID = (int)$couponID;
+		if ($couponID <= 0)
 		{
-			$couponID = (int)$couponID;
-			if ($couponID <= 0 || !$adminList->IsUpdated($couponID))
-				continue;
-
-			$conn->startTransaction();
-			$result = Internals\DiscountCouponTable::prepareCouponData($fields);
-			if ($result->isSuccess())
-				$result = Internals\DiscountCouponTable::update($couponID, $fields);
-
-			if ($result->isSuccess())
-			{
-				$conn->commitTransaction();
-			}
-			else
-			{
-				$conn->rollbackTransaction();
-				$adminList->AddUpdateError(implode('<br>', $result->getErrorMessages()), $couponID);
-			}
-			unset($result);
+			continue;
 		}
-		unset($fields, $couponID);
-		Internals\DiscountCouponTable::enableCheckCouponsUse();
+
+		$conn->startTransaction();
+		$result = Internals\DiscountCouponTable::prepareCouponData($fields);
+		if ($result->isSuccess())
+			$result = Internals\DiscountCouponTable::update($couponID, $fields);
+
+		if ($result->isSuccess())
+		{
+			$conn->commitTransaction();
+		}
+		else
+		{
+			$conn->rollbackTransaction();
+			$adminList->AddUpdateError(implode('<br>', $result->getErrorMessages()), $couponID);
+		}
+		unset($result);
 	}
+	unset($fields, $couponID);
+	Internals\DiscountCouponTable::enableCheckCouponsUse();
 }
 
 if (!$readOnly && ($listID = $adminList->GroupAction()))
@@ -336,13 +336,9 @@ $selectFields = array_fill_keys($adminList->GetVisibleHeaderColumns(), true);
 $selectFields['ID'] = true;
 $selectFields['ACTIVE'] = true;
 $selectFields['TYPE'] = true;
+$selectFields['USE_COUNT'] = true;
 $selectFieldsMap = array_fill_keys(array_keys($headerList), false);
 $selectFieldsMap = array_merge($selectFieldsMap, $selectFields);
-
-if (!isset($by))
-	$by = 'ID';
-if (!isset($order))
-	$order = 'ASC';
 
 $userList = array();
 $userIDs = array();
@@ -369,8 +365,6 @@ else
 	}
 }
 
-if ($selectFields['TYPE'])
-	$selectFields['USE_COUNT'] = true;
 if (isset($selectFields['DISCOUNT']))
 {
 	unset($selectFields['DISCOUNT']);
@@ -383,8 +377,8 @@ else
 	$selectFields = array_keys($selectFields);
 }
 
-global $by, $order;
-
+$by = $adminSort->getField();
+$order = $adminSort->getOrder();
 $getListParams = array(
 	'select' => $selectFields,
 	'filter' => $filter,
@@ -395,6 +389,7 @@ if ($usePageNavigation)
 	$getListParams['limit'] = $navyParams['SIZEN'];
 	$getListParams['offset'] = $navyParams['SIZEN']*($navyParams['PAGEN']-1);
 }
+$totalCount = 0;
 $totalPages = 0;
 if ($usePageNavigation)
 {
@@ -612,7 +607,6 @@ if (!empty($rowList) && ($selectFieldsMap['CREATED_BY'] || $selectFieldsMap['MOD
 				$userName = $userList[$row->arRes['USER_ID']];
 			$row->AddViewField('USER_ID', $userName);
 		}
-		unset($userName);
 	}
 	unset($row);
 }

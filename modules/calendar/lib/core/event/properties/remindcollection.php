@@ -183,4 +183,12 @@ class RemindCollection extends PropertyCollection
 
 		return $this;
 	}
+
+	/**
+	 * @return Date|null
+	 */
+	public function getEventStart(): ?Date
+	{
+		return $this->start;
+	}
 }

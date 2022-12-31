@@ -1,19 +1,36 @@
-<?
+<?php
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
+/** @global CDatabase $DB */
+
+use Bitrix\Main\Context;
+use Bitrix\Main\Loader;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-CModule::IncludeModule("iblock");
+Loader::includeModule('iblock');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/prolog.php");
 IncludeModuleLangFile(__FILE__);
 
+$request = Context::getCurrent()->getRequest();
+
 if(!$USER->IsAdmin())
+{
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
 
-if($back_url=='')
-	$back_url = '/bitrix/admin/iblock_type_admin.php?lang='.$lang;
+$back_url = (string)$request->get('back_url');
+if ($back_url === '')
+{
+	$back_url = '/bitrix/admin/iblock_type_admin.php?lang=' . LANGUAGE_ID;
+}
+$ID = (string)($request->get('ID') ?? '');
 
-$arIBTLang = Array();
+$arIBTLang = [];
 $l = CLanguage::GetList();
 while($ar = $l->GetNext())
-	$arIBTLang[]=$ar;
+{
+	$arIBTLang[] = $ar;
+}
 
 $strWarning = "";
 
@@ -33,24 +50,53 @@ $aTabs[] = array(
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
 $bVarsFromForm = false;
-if($_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid())
+$arFields = [];
+$langFields = [];
+if (
+	$request->isPost()
+	&& $request->getPost('Update') === 'Y'
+	&& check_bitrix_sessid()
+)
 {
-	$arFields = Array();
-	if($ID == '')
-		$arFields["ID"] = $NEW_ID;
-	$arFields["EDIT_FILE_BEFORE"] = $EDIT_FILE_BEFORE;
-	$arFields["EDIT_FILE_AFTER"] = $EDIT_FILE_AFTER;
-	$arFields["IN_RSS"] = $IN_RSS;
-	$arFields["SECTIONS"] = $SECTIONS;
-	$arFields["SORT"] = $_POST['SORT'];
-	$arFields["LANG"] = Array();
-	foreach($arIBTLang as $ar)
-		$arFields["LANG"][$ar["LID"]] = $LANG_FIELDS[$ar["LID"]];
+	if ($ID === '')
+	{
+		$arFields["ID"] = ($request->getPost('NEW_ID') ?? null);
+	}
+	$arFields["EDIT_FILE_BEFORE"] = ($request->getPost('EDIT_FILE_BEFORE') ?? '');
+	$arFields["EDIT_FILE_AFTER"] = ($request->getPost('EDIT_FILE_AFTER') ?? '');
+	$arFields["IN_RSS"] = ($request->getPost('IN_RSS') === 'Y' ? 'Y' : 'N');
+	$arFields["SECTIONS"] = ($request->getPost('SECTIONS') === 'N' ? 'N' : 'Y');
+	$arFields["SORT"] = (int)($request->getPost('SORT') ?? 500);
+
+	$rawLangFields = $request->getPost('LANG_FIELDS');
+	if (!empty($rawLangFields) && is_array($rawLangFields))
+	{
+		foreach($arIBTLang as $ar)
+		{
+			$langId = $ar['LID'];
+			if (!isset($rawLangFields[$langId]) || !is_array($rawLangFields[$langId]))
+			{
+				continue;
+			}
+			$row = $rawLangFields[$langId];
+			$langFields[$langId] = [
+				'NAME' => (string)($row['NAME'] ?? ''),
+				'SECTION_NAME' => (string)($row['SECTION_NAME'] ?? ''),
+				'ELEMENT_NAME' => (string)($row['ELEMENT_NAME'] ?? ''),
+			];
+		}
+	}
+	if (!empty($langFields))
+	{
+		$arFields['LANG'] = $langFields;
+	}
 
 	$obBlocktype = new CIBlockType;
 	$DB->StartTransaction();
-	if($ID <> '')
+	if ($ID <> '')
+	{
 		$res = $obBlocktype->Update($ID, $arFields);
+	}
 	else
 	{
 		$ID = $obBlocktype->Add($arFields);
@@ -59,20 +105,25 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid(
 
 	if(!$res)
 	{
-		$strWarning.= GetMessage("IBTYPE_E_SAVE_ERROR").": ".$obBlocktype->LAST_ERROR."";
+		$strWarning.= GetMessage("IBTYPE_E_SAVE_ERROR").": ".$obBlocktype->LAST_ERROR;
 		$DB->Rollback();
 		$bVarsFromForm = true;
 	}
 	else
 	{
 		$DB->Commit();
-		if($apply == '')
+		if ($request->getPost('apply') === null)
 		{
-			if($back_url <> '')
-				LocalRedirect("/".ltrim($back_url, "/"));
+			LocalRedirect("/".ltrim($back_url, "/"));
 		}
 		else
-			LocalRedirect($APPLICATION->GetCurPage()."?lang=".$lang."&ID=".UrlEncode($ID)."&".$tabControl->ActiveTabParam());
+		{
+			LocalRedirect($APPLICATION->GetCurPage()
+				. "?lang=" . LANGUAGE_ID
+				. "&ID=" . urlencode($ID)
+				. "&" . $tabControl->ActiveTabParam()
+			);
+		}
 	}
 }
 
@@ -86,15 +137,24 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 ClearVars("str_");
 $str_SECTIONS = "Y";
 $str_SORT = "500";
+$str_IN_RSS = 'N';
+$str_EDIT_FILE_BEFORE = '';
+$str_EDIT_FILE_AFTER = '';
 
 $result = CIBlockType::GetByID($ID);
 if(!$result->ExtractFields("str_"))
 	$ID='';
 
+$NEW_ID = '';
 if($bVarsFromForm)
 {
 	$DB->InitTableVarsForEdit("b_iblock_type", "", "str_");
-	$str_SECTIONS = $SECTIONS;
+	$str_SECTIONS = $arFields['SECTIONS'];
+	$str_SORT = $arFields['SORT'];
+	$str_IN_RSS = $arFields['IN_RSS'];
+	$str_EDIT_FILE_BEFORE = $arFields['EDIT_FILE_BEFORE'];
+	$str_EDIT_FILE_AFTER = $arFields['EDIT_FILE_AFTER'];
+	$NEW_ID = $arFields['ID'];
 }
 
 $aMenu = array(
@@ -126,29 +186,33 @@ if($ID <> '')
 
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
-?>
-<?CAdminMessage::ShowOldStyleError($strWarning);?>
-<form method="POST" id="form" name="form" action="iblock_type_edit.php?lang=<?echo LANG?>">
+
+CAdminMessage::ShowOldStyleError($strWarning);?>
+<form method="POST" id="form" name="form" action="iblock_type_edit.php?lang=<?= LANGUAGE_ID; ?>">
 <?=bitrix_sessid_post()?>
-<?echo GetFilterHiddens("find_");?>
+<?= GetFilterHiddens("find_");?>
 <input type="hidden" name="Update" value="Y">
-<input type="hidden" name="ID" value="<?echo $ID?>">
-<?if($back_url <> ''):?><input type="hidden" name="back_url" value="<?=htmlspecialcharsbx($back_url)?>"><?endif?>
-<?
+<input type="hidden" name="ID" value="<?= htmlspecialcharsbx($ID); ?>">
+<input type="hidden" name="back_url" value="<?= htmlspecialcharsbx($back_url); ?>">
+<?php
 	$tabControl->Begin();
 	$tabControl->BeginNextTab();
-?>
-	<?if($ID <> ''):?>
+
+	if($ID <> ''):?>
 	<tr>
-		<td><?echo GetMessage("IBTYPE_E_ID")?></td>
-		<td><?=$str_ID?></td>
+		<td><?= GetMessage("IBTYPE_E_ID")?></td>
+		<td><?= htmlspecialcharsbx($ID); ?></td>
 	</tr>
-	<?else:?>
+	<?php
+	else:
+	?>
 	<tr class="adm-detail-required-field">
-		<td><?echo GetMessage("IBTYPE_E_ID")?></td>
+		<td><?= GetMessage("IBTYPE_E_ID")?></td>
 		<td><input type="text" name="NEW_ID" size="50" maxlength="50" value="<?=htmlspecialcharsbx($NEW_ID)?>"></td>
 	</tr>
-	<?endif;?>
+	<?php
+	endif;
+	?>
 	<script>
 		function __Chk()
 		{
@@ -163,51 +227,72 @@ $context->Show();
 		}
 	</script>
 	<tr>
-		<td width="40%"><label for="SECTIONS"><?echo GetMessage("IBTYPE_E_SECTIONS")?></label></td>
-		<td width="60%"><input type="checkbox" id="SECTIONS" name="SECTIONS" value="Y"<?if($str_SECTIONS=="Y")echo " checked"?> onclick="__Chk()"></td>
+		<td width="40%"><label for="SECTIONS"><?= GetMessage("IBTYPE_E_SECTIONS")?></label></td>
+		<td width="60%">
+			<input type="hidden" id="SECTIONS_hidden" name="SECTIONS" value="N">
+			<input type="checkbox" id="SECTIONS" name="SECTIONS" value="Y"<?= ($str_SECTIONS === "Y" ? " checked" : ''); ?> onclick="__Chk()">
+		</td>
 	</tr>
 	<tr class="heading">
-		<td colspan="2"><?echo GetMessage("IBTYPE_E_LANGS")?></td>
+		<td colspan="2"><?= GetMessage("IBTYPE_E_LANGS")?></td>
 	</tr>
 	<tr>
 		<td colspan="2" align="center">
 			<table border="0" cellspacing="6" class="internal">
 				<tr class="heading">
-					<td><?echo GetMessage("IBTYPE_E_LANG");?></td>
-					<td><?echo GetMessage("IBTYPE_E_NAME");?></td>
-					<td><span id="SECTION_NAME_TITLE"><?echo GetMessage("IBTYPE_E_SECTIONS_LABEL");?></span></td>
-					<td><?echo GetMessage("IBTYPE_E_ELEMENTS");?></td>
+					<td><?= GetMessage("IBTYPE_E_LANG");?></td>
+					<td><?= GetMessage("IBTYPE_E_NAME");?></td>
+					<td><span id="SECTION_NAME_TITLE"><?= GetMessage("IBTYPE_E_SECTIONS_LABEL");?></span></td>
+					<td><?= GetMessage("IBTYPE_E_ELEMENTS");?></td>
 				</tr>
-				<?
-				foreach($arIBTLang as $ar):
+				<?php
+				foreach($arIBTLang as $ar)
+				{
 					if($bVarsFromForm)
-						$ibtypelang = $LANG_FIELDS[$ar["LID"]];
+					{
+						$ibtypelang = $langFields[$ar["LID"]] ?? [
+								'NAME' => '',
+								'SECTION_NAME' => '',
+								'ELEMENT_NAME' => '',
+							];
+					}
 					else
-						$ibtypelang = CIBlockType::GetByIDLang($str_ID, $ar["LID"], false);
+					{
+						$ibtypelang = CIBlockType::GetByIDLang($ID, $ar["LID"], false);
+						$ibtypelang['NAME'] = $ibtypelang['~NAME'];
+						$ibtypelang['SECTION_NAME'] = $ibtypelang['~SECTION_NAME'];
+						$ibtypelang['ELEMENT_NAME'] = $ibtypelang['~ELEMENT_NAME'];
+					}
 				?>
 				<tr>
-					<td><?echo $ar["NAME"]?>:</td>
-					<td><input type="text" name="LANG_FIELDS[<?echo $ar["LID"]?>][NAME]" size="20" maxlength="255" value="<?echo $ibtypelang["NAME"]?>"></td>
-					<td><input type="text" name="LANG_FIELDS[<?echo $ar["LID"]?>][SECTION_NAME]" size="20" maxlength="255" value="<?echo $ibtypelang["SECTION_NAME"]?>"></td>
-					<td><input type="text" name="LANG_FIELDS[<?echo $ar["LID"]?>][ELEMENT_NAME]" size="20" maxlength="255" value="<?echo $ibtypelang["ELEMENT_NAME"]?>"></td>
+					<td><?= $ar["NAME"]?>:</td>
+					<td><input type="text" name="LANG_FIELDS[<?= $ar["LID"]?>][NAME]" size="20" maxlength="255" value="<?= htmlspecialcharsbx($ibtypelang["NAME"])?>"></td>
+					<td><input type="text" name="LANG_FIELDS[<?= $ar["LID"]?>][SECTION_NAME]" size="20" maxlength="255" value="<?= htmlspecialcharsbx($ibtypelang["SECTION_NAME"])?>"></td>
+					<td><input type="text" name="LANG_FIELDS[<?= $ar["LID"]?>][ELEMENT_NAME]" size="20" maxlength="255" value="<?= htmlspecialcharsbx($ibtypelang["ELEMENT_NAME"])?>"></td>
 				</tr>
-				<?endforeach?>
+				<?php
+				}
+				?>
 			</table>
 		</td>
 	</tr>
 
-<?$tabControl->BeginNextTab();?>
+<?php
+	$tabControl->BeginNextTab();?>
 	<tr>
-		<td width="40%"><label for="IN_RSS"><?echo GetMessage("IBTYPE_E_USE_RSS")?>:</label></td>
-		<td width="60%"><input type="checkbox" id="IN_RSS" name="IN_RSS" value="Y"<?if($str_IN_RSS=="Y")echo " checked"?>></td>
+		<td width="40%"><label for="IN_RSS"><?= GetMessage("IBTYPE_E_USE_RSS")?>:</label></td>
+		<td width="60%">
+			<input type="hidden" id="IN_RSS_hidden" name="IN_RSS" value="N">
+			<input type="checkbox" id="IN_RSS" name="IN_RSS" value="Y"<?= ($str_IN_RSS === "Y" ? " checked" : '');?>>
+		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IBTYPE_E_SORT")?>:</td>
-		<td><input type="text" name="SORT" size="10"  maxlength="15" value="<?echo $str_SORT?>"></td>
+		<td><?= GetMessage("IBTYPE_E_SORT")?>:</td>
+		<td><input type="text" name="SORT" size="10"  maxlength="15" value="<?= htmlspecialcharsbx($str_SORT); ?>"></td>
 	</tr>
 	<tr>
 		<td>
-		<?
+		<?php
 		CAdminFileDialog::ShowScript
 		(
 			Array(
@@ -224,12 +309,12 @@ $context->Show();
 			)
 		);
 		?>
-		<?echo GetMessage("IBTYPE_E_FILE_BEFORE")?></td>
-		<td><input type="text" name="EDIT_FILE_BEFORE" size="50"  maxlength="255" value="<?echo $str_EDIT_FILE_BEFORE?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick()"></td>
+		<?= GetMessage("IBTYPE_E_FILE_BEFORE")?></td>
+		<td><input type="text" name="EDIT_FILE_BEFORE" size="50"  maxlength="255" value="<?= htmlspecialcharsbx($str_EDIT_FILE_BEFORE); ?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick()"></td>
 	</tr>
 	<tr>
 		<td>
-		<?
+		<?php
 		CAdminFileDialog::ShowScript
 		(
 			Array(
@@ -246,17 +331,14 @@ $context->Show();
 			)
 		);
 		?>
-		<?echo GetMessage("IBTYPE_E_FILE_AFTER")?></td>
-		<td><input type="text" name="EDIT_FILE_AFTER" size="50"  maxlength="255" value="<?echo $str_EDIT_FILE_AFTER?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick2()"></td>
+		<?= GetMessage("IBTYPE_E_FILE_AFTER")?></td>
+		<td><input type="text" name="EDIT_FILE_AFTER" size="50"  maxlength="255" value="<?= htmlspecialcharsbx($str_EDIT_FILE_AFTER); ?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick2()"></td>
 	</tr>
-
-
-<?
+<?php
 	$tabControl->Buttons(array("disabled"=>false, "back_url"=>$back_url));
 	$tabControl->End();
 ?>
 </form>
 <script>__Chk();</script>
-<?
+<?php
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
-?>

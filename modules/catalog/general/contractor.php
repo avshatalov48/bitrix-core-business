@@ -1,6 +1,8 @@
 <?php
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog\v2\Contractor;
+
 Loc::loadMessages(__FILE__);
 
 class CAllCatalogContractor
@@ -27,7 +29,14 @@ class CAllCatalogContractor
 
 	public static function update($id, $arFields)
 	{
-		global $DB;
+		global $DB, $APPLICATION;
+
+		if (Contractor\Provider\Manager::getActiveProvider())
+		{
+			$APPLICATION->throwException('This API has been deprecated and is no longer available');
+			return false;
+		}
+
 		$id = intval($id);
 
 		if(array_key_exists('DATE_CREATE', $arFields))
@@ -53,7 +62,14 @@ class CAllCatalogContractor
 
 	public static function delete($id)
 	{
-		global $DB;
+		global $DB, $APPLICATION;
+
+		if (Contractor\Provider\Manager::getActiveProvider())
+		{
+			$APPLICATION->throwException('This API has been deprecated and is no longer available');
+			return false;
+		}
+
 		$id = intval($id);
 		if($id > 0)
 		{

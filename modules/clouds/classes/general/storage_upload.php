@@ -84,6 +84,7 @@ class CCloudStorageUpload
 	function Start($bucket_id, $fileSize, $ContentType = 'binary/octet-stream', $tmpFileName = false)
 	{
 		global $DB;
+		global $APPLICATION;
 
 		if(is_object($bucket_id))
 			$obBucket = $bucket_id;
@@ -132,6 +133,18 @@ class CCloudStorageUpload
 
 				return $bAdded !== false;
 			}
+			else
+			{
+				$error = $obBucket->GetService()->formatError();
+				if ($error)
+				{
+					$APPLICATION->ThrowException($error);
+				}
+				else
+				{
+					$APPLICATION->ThrowException(GetMessage('CLO_STORAGE_UPLOAD_ERROR', array('#errno#'=>6)));
+				}
+			}
 		}
 
 		return false;
@@ -164,6 +177,15 @@ class CCloudStorageUpload
 				$arUploadInfo,
 				$data
 			);
+
+			if (!$bSuccess)
+			{
+				$error = $obBucket->GetService()->formatError();
+				if ($error)
+				{
+					$APPLICATION->ThrowException($error);
+				}
+			}
 
 			if (!$this->UpdateProgress($arUploadInfo, $bSuccess))
 			{
@@ -214,6 +236,15 @@ class CCloudStorageUpload
 				$part_no
 			);
 
+			if (!$bSuccess)
+			{
+				$error = $obBucket->GetService()->formatError();
+				if ($error)
+				{
+					$APPLICATION->ThrowException($error);
+				}
+			}
+
 			if (!$this->UpdateProgress($arUploadInfo, $bSuccess))
 			{
 				$APPLICATION->ThrowException(GetMessage('CLO_STORAGE_UPLOAD_ERROR', array('#errno#'=>5)));
@@ -231,6 +262,8 @@ class CCloudStorageUpload
 	*/
 	function Finish($obBucket = null)
 	{
+		global $APPLICATION;
+
 		if($this->isStarted())
 		{
 			$ar = $this->GetArray();
@@ -258,6 +291,14 @@ class CCloudStorageUpload
 				foreach(GetModuleEvents("clouds", "OnAfterCompleteMultipartUpload", true) as $arEvent)
 				{
 					ExecuteModuleEventEx($arEvent, array($obBucket, array("size" => $ar["FILE_SIZE"]), $this->_filePath));
+				}
+			}
+			else
+			{
+				$error = $obBucket->GetService()->formatError();
+				if ($error)
+				{
+					$APPLICATION->ThrowException($error);
 				}
 			}
 

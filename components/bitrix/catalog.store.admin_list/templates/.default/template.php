@@ -11,6 +11,9 @@ global $APPLICATION;
 
 $APPLICATION->SetTitle(Loc::getMessage('CATALOG_STORE_LIST_TITLE'));
 
+$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
+$APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'no-background');
+
 $this->setViewTarget('above_pagetitle');
 $APPLICATION->IncludeComponent(
 	'bitrix:catalog.store.document.control_panel',
@@ -21,15 +24,19 @@ $APPLICATION->IncludeComponent(
 );
 $this->endViewTarget();
 
-if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES'])): ?>
-	<?php foreach($arResult['ERROR_MESSAGES'] as $error):?>
-		<div class="ui-alert ui-alert-danger" style="margin-bottom: 0px;">
-			<span class="ui-alert-message"><?= htmlspecialcharsbx($error) ?></span>
-		</div>
-	<?php endforeach;?>
-	<?php
+if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES']))
+{
+	$APPLICATION->IncludeComponent(
+		'bitrix:ui.info.error',
+		'',
+		[
+			'TITLE' => $arResult['ERROR_MESSAGES'][0],
+			'DESCRIPTION' => Loc::getMessage('CATALOG_STORE_ADMIN_LIST_ACCESS_DENIED_DESCRIPTION'),
+		]
+	);
+
 	return;
-endif;
+}
 
 $APPLICATION->IncludeComponent(
 	'bitrix:main.ui.grid',
@@ -46,21 +53,18 @@ $APPLICATION->IncludeComponent(
 
 	function openStoreSlider(id = 0)
 	{
-		var url = '/shop/settings/cat_store_edit/?publicSidePanel=Y&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER';
-
-		if (id && parseInt(id))
-		{
-			url += '&ID=' + id;
-		}
+		var url = '/shop/documents-stores/details/'+parseInt(id)+'/';
 
 		BX.SidePanel.Instance.open(
 			url,
 			{
-				allowChangeHistory: false,
+				allowChangeHistory: true,
+				cacheable: false,
+				width: 500,
 				events: {
-					onDestroy: function(event)
+					onClose: function(event)
 					{
-						var grid = BX.Main.gridManager.getInstanceById('catalog_store');
+						var grid = BX.Main.gridManager.getInstanceById('<?= CUtil::JSEscape($arResult['GRID']['GRID_ID']) ?>');
 						if(grid)
 						{
 							grid.reload();
@@ -73,9 +77,7 @@ $APPLICATION->IncludeComponent(
 
 	function openTariffHelp()
 	{
-		var tariff = '<?php echo (!empty($arResult['TARIFF_HELP_LINK']['FEATURE_CODE'])
-			? CUtil::JSEscape($arResult['TARIFF_HELP_LINK']['FEATURE_CODE'])
-			: '' ); ?>';
+		var tariff = '<?= CUtil::JSEscape($arResult['TARIFF_HELP_LINK']['FEATURE_CODE'] ?? '') ?>';
 		if (tariff !== '')
 		{
 			BX.UI.InfoHelper.show(tariff);

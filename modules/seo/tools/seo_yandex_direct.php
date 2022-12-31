@@ -26,8 +26,8 @@ Loader::includeModule('socialservices');
 
 CUtil::JSPostUnescape();
 
-Loc::loadMessages(dirname(__FILE__).'/../include.php');
-Loc::loadMessages(dirname(__FILE__).'/../admin/seo_adv.php');
+Loc::loadMessages(__DIR__.'/../include.php');
+Loc::loadMessages(__DIR__.'/../admin/seo_adv.php');
 
 $action = isset($_REQUEST['action']) ? $_REQUEST["action"] : null;
 
@@ -377,7 +377,7 @@ if(isset($action) && !$bNeedAuth)
 							$campaignList[$campaign['ID']] = $campaign;
 						}
 
-						require(dirname(__FILE__)."/../admin/tab/seo_search_yandex_direct_list_link.php");
+						require(__DIR__."/../admin/tab/seo_search_yandex_direct_list_link.php");
 					}
 					elseif($_REQUEST['get_list_html'] == '2')
 					{
@@ -407,7 +407,7 @@ if(isset($action) && !$bNeedAuth)
 
 						$ID = $bannerId;
 
-						require(dirname(__FILE__)."/../admin/tab/seo_search_yandex_direct_list_banner.php");
+						require(__DIR__."/../admin/tab/seo_search_yandex_direct_list_banner.php");
 					}
 
 					$res['list_html'] = ob_get_contents();
@@ -923,7 +923,7 @@ if(isset($action) && !$bNeedAuth)
 							}
 
 							ob_start();
-							require(dirname(__FILE__)."/../admin/tab/seo_search_yandex_direct_stat.php");
+							require(__DIR__."/../admin/tab/seo_search_yandex_direct_stat.php");
 							$res = array('html' => ob_get_contents());
 							ob_end_clean();
 						}

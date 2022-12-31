@@ -1,4 +1,4 @@
-import {Cache, Dom, Loc, Tag, Type} from 'main.core';
+import {Cache, Dom, Loc, Tag, Type, Runtime} from 'main.core';
 import {EventEmitter} from 'main.core.events';
 import {Tabs} from './tabs/tabs';
 import {Footer} from './footer/footer';
@@ -25,12 +25,21 @@ export class SignUp extends EventEmitter
 {
 	cache = new Cache.MemoryCache();
 
+	static MIN_PIXELS_REQUIRED = 100;
+
 	constructor(options: SignUpOptions = {})
 	{
 		super();
 		this.setEventNamespace('BX.UI.SignUp');
 		this.subscribeFromOptions(options.events);
 		this.setOptions(options);
+
+		this.onChangeDebounced = Runtime.debounce(this.onChangeDebounced, 200, this);
+
+		if (!this.hasValue())
+		{
+			this.getFooter().getSaveButton().setDisabled(true);
+		}
 	}
 
 	setOptions(options: SignUpOptions)
@@ -88,14 +97,23 @@ export class SignUp extends EventEmitter
 	getInitialsContent(): InitialsContent
 	{
 		return this.cache.remember('initialsContent', () => {
-			return new InitialsContent();
+			return new InitialsContent({
+				events: {
+					onChange: this.onChangeDebounced,
+				},
+			});
 		});
 	}
 
 	getTouchContent(): TouchContent
 	{
 		return this.cache.remember('touchContent', () => {
-			return new TouchContent();
+			return new TouchContent({
+				mode: this.getOptions().mode,
+				events: {
+					onChange: this.onChangeDebounced,
+				},
+			});
 		});
 	}
 
@@ -104,6 +122,9 @@ export class SignUp extends EventEmitter
 		return this.cache.remember('photoContent', () => {
 			return new PhotoContent({
 				mode: this.getOptions().mode,
+				events: {
+					onChange: this.onChangeDebounced,
+				},
 			});
 		});
 	}
@@ -138,6 +159,31 @@ export class SignUp extends EventEmitter
 				],
 			});
 		});
+	}
+
+	getCanvas(): HTMLCanvasElement
+	{
+		return this.getTabs().getCurrentTab().getContent().getCanvas().getLayout();
+	}
+
+	onChangeDebounced()
+	{
+		this.getFooter().getSaveButton().setDisabled(!this.hasValue());
+	}
+
+	hasValue(): boolean
+	{
+		const canvas = this.getCanvas();
+		const context = canvas.getContext('2d');
+
+		const pixelBuffer = new Uint32Array(
+			context.getImageData(0, 0, canvas.width, canvas.height).data.buffer,
+		);
+
+		let pixelsCount = 0;
+		return pixelBuffer.some((color) => {
+			return color !== 0 && (pixelsCount++) > SignUp.MIN_PIXELS_REQUIRED;
+		})
 	}
 
 	async getValue(): Promise<File | Blob>

@@ -369,7 +369,7 @@ class CSocServGoogleOAuth extends CSocServAuth
 
 		echo $JSScript;
 
-		die();
+		CMain::FinalActions();
 	}
 
 	public function setUser($userId)

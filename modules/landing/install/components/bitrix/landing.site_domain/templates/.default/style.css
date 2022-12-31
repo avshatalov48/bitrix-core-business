@@ -73,12 +73,40 @@
 	margin-bottom: 5px;
 }
 
+.landing-domain-block-label .ui-hint {
+	vertical-align: middle;
+	margin-top: -3px;
+	margin-left: -3px;
+}
+
 .landing-domain-edit-check-btn {
 	margin-left: 12px;
 }
 
+#domain-edit-name {
+	padding-right: 150px;
+}
+
+#domain-edit-length {
+	position: absolute;
+	right: 11px;
+	top: 0;
+	z-index: 10;
+	height: var(--ui-field-size);
+	line-height: var(--ui-field-size);
+	font-size: 10px;
+	color: #a8adb4;
+}
+
+#domain-edit-loader[hidden],
+#domain-edit-message[hidden],
+#domain-edit-length[hidden]
+{
+	display: none !important;
+}
+
 .landing-domain-alert {
-	font-size: 15px;
+	font-size: 13px;
 	line-height: 21px;
 	margin: 4px 0 35px;
 }

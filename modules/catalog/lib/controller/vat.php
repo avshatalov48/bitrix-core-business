@@ -4,6 +4,7 @@
 namespace Bitrix\Catalog\Controller;
 
 
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\VatTable;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
@@ -167,13 +168,11 @@ final class Vat extends Controller
 	 */
 	protected function checkModifyPermissionEntity()
 	{
-		$r = $this->checkReadPermissionEntity();
-		if ($r->isSuccess())
+		$r = new Result();
+
+		if (!$this->accessController->check(ActionDictionary::ACTION_VAT_EDIT))
 		{
-			if (!static::getGlobalUser()->CanDoOperation(self::CATALOG_VAT))
-			{
-				$r->addError(new Error('Access Denied', 200040300020));
-			}
+			$r->addError(new Error('Access Denied', 200040300020));
 		}
 
 		return $r;
@@ -187,8 +186,8 @@ final class Vat extends Controller
 		$r = new Result();
 
 		if (
-			!static::getGlobalUser()->CanDoOperation(self::CATALOG_READ)
-			&& !static::getGlobalUser()->CanDoOperation(self::CATALOG_VAT)
+			!$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+			&& !$this->accessController->check(ActionDictionary::ACTION_VAT_EDIT)
 		)
 		{
 			$r->addError(new Error('Access Denied', 200040300010));

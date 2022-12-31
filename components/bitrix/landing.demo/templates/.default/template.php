@@ -7,6 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arResult */
 /** @var array $arParams */
 /** @var \LandingBaseComponent $component */
+/** @var string $templateFolder */
 /** @var \CMain $APPLICATION */
 
 use \Bitrix\Landing\Manager;
@@ -21,9 +22,6 @@ use \Bitrix\Main\ModuleManager;
 ]);
 
 Loc::loadMessages(__FILE__);
-Loc::loadMessages(
-	Manager::getDocRoot() . '/bitrix/components/bitrix/landing.demo/templates/.default/designed_by.php'
-);
 
 $context = \Bitrix\Main\Application::getInstance()->getContext();
 $request = $context->getRequest();
@@ -38,7 +36,11 @@ if ($arResult['ERRORS'])
 }
 
 // show message for license renew if need
-if (empty($arResult['DEMO']) && !isset($arResult['ERRORS']['ACCESS_DENIED']))
+if (
+	empty($arResult['DEMO'])
+	&& !isset($arResult['ERRORS']['ACCESS_DENIED'])
+	&& !$arResult['IS_SEARCH']
+)
 {
 	if (ModuleManager::isModuleInstalled('bitrix24'))
 	{
@@ -84,66 +86,127 @@ if ($arResult['FATAL'])
 }
 
 // title
-$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
-$APPLICATION->SetPageProperty(
-	'BodyClass',
-	($bodyClass ? $bodyClass.' ' : '') . 'no-all-paddings no-background landing-slider-frame-popup'
-);
-\Bitrix\Landing\Manager::setPageTitle(
-	Loc::getMessage('LANDING_TPL_TITLE')
-);
-
-if ($arParams['TYPE'] !== 'STORE')
+if (!$component->isAjax())
 {
-	$emptyTpl = ($arParams['TYPE'] === 'KNOWLEDGE' && !$arParams['SITE_ID'])
+	$bodyClass = $APPLICATION->GetPageProperty('BodyClass');
+	$APPLICATION->SetPageProperty(
+		'BodyClass',
+		($bodyClass ? $bodyClass . ' ' : '') . 'no-all-paddings no-background landing-slider-frame-popup'
+	);
+	\Bitrix\Landing\Manager::setPageTitle(
+		$component->getMessageType('LANDING_TPL_TITLE')
+	);
+
+	// additional assets
+	\CJSCore::Init(['popup', 'action_dialog', 'loader', 'sidepanel']);
+	Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.sites/templates/.default/style.css');
+	Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.sites/templates/.default/script.js');
+
+	// filter
+	if ($arParams['TYPE'] === 'PAGE')
+	{
+		ob_start();
+		?>
+		<div class="landing-filter-container">
+			<?php
+			$APPLICATION->IncludeComponent(
+				'bitrix:main.ui.filter',
+				'',
+				[
+					'FILTER_ID' => $arResult['FILTER_ID'],
+					'FILTER' => $arResult['FILTER_FIELDS'],
+					'FILTER_PRESETS' => $arResult['FILTER_PRESETS'],
+					'ENABLE_LABEL' => true,
+					'ENABLE_LIVE_SEARCH' => true,
+				],
+				$this->__component,
+				['HIDE_ICONS' => true]
+			);
+			?>
+			<script type="text/javascript">
+				BX.Landing.Component.Demo.ajaxPath = '<?=\CUtil::jsEscape($arResult['FILTER_URI'])?>';
+			</script>
+		</div>
+		<?php
+		$filter = ob_get_contents();
+		ob_end_clean();
+		$APPLICATION->addViewContent('title_actions', $filter);
+	}
+
+	// create empty button
+	if ($arParams['TYPE'] !== 'STORE')
+	{
+		$emptyTpl = ($arParams['TYPE'] === 'KNOWLEDGE' && !$arParams['SITE_ID'])
 			? 'empty-multipage/main'
 			: 'empty'
-	;
-	$emptyCreateUrl = $component->getUri(
-		['tpl' => $emptyTpl],
-		['select']
-	);
-	$createEmptyButton =
-		'<div 
-		class="ui-btn ui-btn-md ui-btn-light-border landing-template-pseudo-link"
-		data-href="' . $emptyCreateUrl . '"
-	>'
-		. Loc::getMessage("LANDING_TPL_CREATE_EMPTY")
-		. '</div>';
-	$APPLICATION->addViewContent('title_actions', $createEmptyButton);
+		;
+		$emptyCreateUrl = $component->getUri(
+			['tpl' => $emptyTpl],
+			['select']
+		);
+		$createEmptyButton =
+			'<div 
+				id="landing-demo-empty"
+				class="ui-btn ui-btn-md ui-btn-light-border landing-template-pseudo-link"
+				data-href="' . $emptyCreateUrl . '"
+			>'
+			. Loc::getMessage("LANDING_TPL_CREATE_EMPTY")
+			. '</div>';
+		$APPLICATION->addViewContent('title_actions', $createEmptyButton);
+	}
+	?>
+	<div style="display: none">
+		<?$APPLICATION->includeComponent(
+			'bitrix:ui.feedback.form',
+			'',
+			$component->getFeedbackParameters('demo')
+		);?>
+	</div>
+
+
+	<?php
 }
-
-// additional assets
-\CJSCore::Init(['popup', 'action_dialog', 'loader', 'sidepanel']);
-Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.sites/templates/.default/style.css');
-Asset::getInstance()->addJS('/bitrix/components/bitrix/landing.sites/templates/.default/script.js');
 ?>
-
-<div style="display: none">
-	<?$APPLICATION->includeComponent(
-		'bitrix:ui.feedback.form',
-		'',
-		$component->getFeedbackParameters('demo')
-	);?>
-</div>
 
 <div class="grid-tile-wrap" id="grid-tile-wrap">
 	<div class="grid-tile-inner" id="grid-tile-inner">
-
-		<?if ($arParams['TYPE'] == 'PAGE'):?>
+		<?php if (
+			$arParams['TYPE'] === 'PAGE'
+			&& (count($arResult['DEMO']) > 0)
+		): ?>
 			<span class="landing-item landing-item-contact" onclick="BX.fireEvent(BX('landing-feedback-demo-button'), 'click');">
 				<span class="landing-item-inner">
 					<span class="landing-item-contact-title"><?= Loc::getMessage('LANDING_TPL_FEEDBACK_TITLE');?></span>
 					<span class="landing-item-contact-icon"></span>
-					<span class="landing-item-contact-desc"><?= Loc::getMessage('LANDING_TPL_FEEDBACK_MESSAGE');?></span>
+					<span class="landing-item-contact-desc"><?= Loc::getMessage('LANDING_TPL_FEEDBACK_MESSAGE_2');?></span>
 					<span class="ui-btn ui-btn-sm ui-btn-round landing-item-contact-btn">
-						<?= Loc::getMessage('LANDING_TPL_FEEDBACK_SEND');?>
+						<?= Loc::getMessage('LANDING_TPL_FEEDBACK_SEND') ?>
 					</span>
 				</span>
 			</span>
-		<?endif;?>
-<?
-foreach ($arResult['DEMO'] as $item):
+		<?php elseif ($arResult['IS_SEARCH']): ?>
+			<div class="landing-demo-not-found">
+				<img
+					class="landing-demo-not-found-img"
+					src="<?= $templateFolder ?>/image/landing-search-icon.png"
+					alt="<?= Loc::getMessage('LANDING_TPL_NOT_FOUND_TITLE') ?>"
+				>
+				<div class="landing-demo-not-found-title">
+					<?= Loc::getMessage('LANDING_TPL_NOT_FOUND_TITLE') ?>
+				</div>
+				<div class="landing-demo-not-found-text">
+					<?= Loc::getMessage('LANDING_TPL_FEEDBACK_MESSAGE_2') ?>
+				</div>
+				<span
+					class="landing-demo-not-found-button ui-btn ui-btn-light-border"
+					onclick="BX.fireEvent(BX('landing-feedback-demo-button'), 'click');"
+				>
+					<?= Loc::getMessage('LANDING_TPL_NOT_FOUND_BUTTON') ?>
+				</span>
+			</div>
+		<?php endif; ?>
+<?php foreach ($arResult['DEMO'] as $item): ?>
+<?php
 	// empty is in top button, not need show in list
 	// skip chats
 	if (
@@ -156,23 +219,19 @@ foreach ($arResult['DEMO'] as $item):
 	}
 	// skip site group items
 	if (
-		isset($item['DATA']['site_group_item']) &&
-		$item['DATA']['site_group_item'] == 'Y'
+		isset($item['DATA']['site_group_item'])
+		&& $item['DATA']['site_group_item'] === 'Y'
 	)
 	{
 		continue;
 	}
 
-	$tpl = (
-		(
-			defined('SMN_SITE_ID') ||
-			!$arParams['SITE_ID']
-		)
-		&&
-		isset($item['DATA']['items'][0])
-	)
-		? $item['DATA']['items'][0]
-		: $item['ID'];
+	$isSmnSite = defined('SMN_SITE_ID') || !$arParams['SITE_ID'];
+	$tpl =
+		($isSmnSite && isset($item['DATA']['items'][0]))
+			? $item['DATA']['items'][0]
+			: $item['ID']
+	;
 
 	if ($item['ID'] === 'store_v3')
 	{
@@ -185,13 +244,9 @@ foreach ($arResult['DEMO'] as $item):
 			['select']
 		);
 	}
-	else if (isset($item['EXTERNAL_URL']['href']))
-	{
-		$previewUrl = $item['EXTERNAL_URL']['href'];
-	}
 	else
 	{
-		$previewUrl = '';
+		$previewUrl = $item['EXTERNAL_URL']['href'] ?? '';
 	}
 	?>
 	<?if ($item['AVAILABLE']):?>
@@ -222,24 +277,16 @@ foreach ($arResult['DEMO'] as $item):
 				<?endif;?>
 				<?php if ($item['LABELS']):?>
 					<span class="landing-item-label">
-						<?=$item['LABELS'][0]['TEXT']?>
+						<?=Loc::getMessage('LANDING_TPL_LABEL_SUBSCRIPTION')?>
+					</span>
+				<?php elseif($item['TYPE'] === 'PAGE'):?>
+					<span class="landing-item-label landing-item-label-free">
+						<?=Loc::getMessage('LANDING_TPL_LABEL_FREE')?>
 					</span>
 				<?php endif;?>
 			</span>
 
 			<div class="landing-item-bottom">
-				<?php if ($item['DESIGNED_BY']):?>
-					<a class="landing-item-designed"
-						href="<?= Loc::getMessage('LANDING_TPL_DESIGNED_BY_' . $item['DESIGNED_BY'] . '_URL')?>"
-						target="_blank"
-					>
-						<?php $name = Loc::getMessage('LANDING_TPL_DESIGNED_BY_' . $item['DESIGNED_BY'] . '_NAME'); ?>
-						<?= Loc::getMessage('LANDING_TPL_DESIGN_BY', [
-							'#DESIGNER#' => $name,
-						]);?>
-					</a>
-				<?php endif;?>
-
 				<?php if (trim($item['DESCRIPTION'])):?>
 					<span class="landing-item-description">
 						<span class="landing-item-desc-inner">
@@ -260,21 +307,24 @@ foreach ($arResult['DEMO'] as $item):
 	</div>
 </div>
 
-<?if ($arResult['NAVIGATION']->getPageCount() > 1):?>
-	<div class="<?= (defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? '' : 'landing-navigation';?>">
-		<?$APPLICATION->IncludeComponent(
+<?php if ($arResult['NAVIGATION']->getPageCount() > 1): ?>
+	<div
+		id="landing-demo-navigation"
+		class="<?= (defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? '' : 'landing-navigation' ?>"
+	>
+		<?php $APPLICATION->IncludeComponent(
 			'bitrix:main.pagenavigation',
 			'',
-			array(
+			[
 				'NAV_OBJECT' => $arResult['NAVIGATION'],
 				'SEF_MODE' => 'N',
-				'BASE_LINK' => $arResult['CUR_URI'] .
+				'BASE_LINK' => $arResult['NAV_URI'] .
 							   ((defined('ADMIN_SECTION') && ADMIN_SECTION === true) ? '&slider' : '')//@tmp bug #105866
-			),
+			],
 			false
 		);?>
 	</div>
-<?endif;?>
+<?php endif; ?>
 
 <?if (
 	Manager::isB24()

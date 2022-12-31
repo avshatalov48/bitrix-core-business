@@ -441,6 +441,12 @@ class Select extends Base
 			$keys = array_keys($value);
 			$value = isset($keys[0]) ? $keys[0] : null;
 		}
+
+		if (is_array($value))
+		{
+			$value = current(array_values($value));
+		}
+
 		return parent::formatValueSingle($fieldType, $value, $format);
 	}
 

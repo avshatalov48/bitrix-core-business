@@ -3,6 +3,7 @@
 namespace Bitrix\Catalog\Controller\Document;
 
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Controller\Controller;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\ActionFilter;
@@ -14,11 +15,9 @@ class Mode extends Engine\Controller
 	 */
 	public function statusAction(): ?string
 	{
-		$currentUser = Engine\CurrentUser::get();
-
 		if (
-			$currentUser->canDoOperation(Controller::CATALOG_STORE)
-			|| $currentUser->canDoOperation(Controller::CATALOG_READ)
+			AccessController::getCurrent()->check(Controller::CATALOG_STORE)
+			|| AccessController::getCurrent()->check(Controller::CATALOG_READ)
 		)
 		{
 			return Catalog\Config\State::isUsedInventoryManagement() ? 'Y' : 'N';

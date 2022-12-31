@@ -10,8 +10,8 @@ namespace Bitrix\Socialnetwork\Internals\Counter;
 
 class CounterStyle
 {
-	public const STYLE_RED = 'red';
-	public const STYLE_GREEN = 'green';
-	public const STYLE_YELLOW = 'yellow';
-	public const STYLE_GRAY = 'gray';
+	public const STYLE_RED = 'DANGER';
+	public const STYLE_GREEN = 'SUCCESS';
+	public const STYLE_YELLOW = 'WARNING';
+	public const STYLE_GRAY = 'GRAY';
 }

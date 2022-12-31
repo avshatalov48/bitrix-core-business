@@ -2,6 +2,8 @@
 	width: 40px;
 	height: 40px;
 	border: none;
+	padding: 17px 0 10px 0;
+	margin: 0;
 }
 
 .feed-post-emoji-popup-container.--mobile {

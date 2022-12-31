@@ -5,6 +5,7 @@ import GoogleMapController from './google-map/controller';
 import EmployeeController from './employee/controller';
 import BindingToCrmElementController from './binding-to-crm-element/controller';
 import FieldConfiguratorController from './field-configurator/controller';
+import ProductServiceGridController from "./product-service-grid/controller"
 
 export default class ControllersFactory
 {
@@ -46,6 +47,11 @@ export default class ControllersFactory
 		if (type === 'binding_to_crm_element')
 		{
 			return new BindingToCrmElementController(controlId, settings);
+		}
+
+		if (type === 'service_grid')
+		{
+			return new ProductServiceGridController(controlId, settings);
 		}
 
 		return null;

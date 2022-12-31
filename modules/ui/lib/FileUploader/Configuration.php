@@ -2,48 +2,70 @@
 
 namespace Bitrix\UI\FileUploader;
 
+use Bitrix\Main\Config\Ini;
+
 class Configuration
 {
-	protected ?int $maxFileSize = null;
-	protected ?int $minFileSize = null;
+	protected ?int $maxFileSize = 256 * 1024 * 1024;
+	protected int $minFileSize = 0;
 	protected array $acceptedFileTypes = [];
 	protected int $imageMinWidth = 1;
 	protected int $imageMinHeight = 1;
-	protected int $imageMaxWidth = 10000;
-	protected int $imageMaxHeight = 10000;
-	protected ?int $imageMaxFileSize = null;
-	protected ?int $imageMinFileSize = null;
+	protected int $imageMaxWidth = 7000;
+	protected int $imageMaxHeight = 7000;
+	protected ?int $imageMaxFileSize = 48 * 1024 * 1024;
+	protected int $imageMinFileSize = 0;
 	protected bool $ignoreUnknownImageTypes = false;
 
 	public function __construct(array $options = [])
 	{
-		if (isset($options['acceptOnlyImages']) && $options['acceptOnlyImages'] === true)
-		{
-			$this->acceptOnlyImages();
-		}
-
 		$optionNames = [
 			'maxFileSize',
 			'minFileSize',
-			'acceptedFileTypes',
 			'imageMinWidth',
 			'imageMinHeight',
 			'imageMaxWidth',
 			'imageMaxHeight',
 			'imageMaxFileSize',
 			'imageMinFileSize',
+			'acceptOnlyImages',
+			'acceptedFileTypes',
 			'ignoreUnknownImageTypes',
 		];
 
+		$globalSettings = static::getGlobalSettings();
+
 		foreach ($optionNames as $optionName)
 		{
+			$setter = 'set' . ucfirst($optionName);
 			if (array_key_exists($optionName, $options))
 			{
 				$optionValue = $options[$optionName];
-				$setter = 'set' . ucfirst($optionName);
+				$this->$setter($optionValue);
+			}
+			else if (array_key_exists($optionName, $globalSettings))
+			{
+				$optionValue = $globalSettings[$optionName];
+				if (is_string($optionValue) && preg_match('/FileSize/i', $optionName))
+				{
+					$optionValue = Ini::unformatInt($optionValue);
+				}
+
 				$this->$setter($optionValue);
 			}
 		}
+	}
+
+	public static function getGlobalSettings(): array
+	{
+		$settings = [];
+		$configuration = \Bitrix\Main\Config\Configuration::getValue('ui');
+		if (isset($configuration['uploader']['settings']) && is_array($configuration['uploader']['settings']))
+		{
+			$settings = $configuration['uploader']['settings'];
+		}
+
+		return $settings;
 	}
 
 	public function getMaxFileSize(): ?int
@@ -58,12 +80,12 @@ class Configuration
 		return $this;
 	}
 
-	public function getMinFileSize(): ?int
+	public function getMinFileSize(): int
 	{
 		return $this->minFileSize;
 	}
 
-	public function setMinFileSize(?int $minFileSize): self
+	public function setMinFileSize(int $minFileSize): self
 	{
 		$this->minFileSize = $minFileSize;
 
@@ -82,9 +104,9 @@ class Configuration
 		return $this;
 	}
 
-	public function acceptOnlyImages(): self
+	public function acceptOnlyImages($flag = true): self
 	{
-		$imageExtensions = static::getImageExtensions();
+		$imageExtensions = $flag ? static::getImageExtensions() : [];
 		$this->setAcceptedFileTypes($imageExtensions);
 
 		return $this;
@@ -159,12 +181,12 @@ class Configuration
 		return $this;
 	}
 
-	public function getImageMinFileSize(): ?int
+	public function getImageMinFileSize(): int
 	{
 		return $this->imageMinFileSize;
 	}
 
-	public function setImageMinFileSize(?int $imageMinFileSize): self
+	public function setImageMinFileSize(int $imageMinFileSize): self
 	{
 		$this->imageMinFileSize = $imageMinFileSize;
 

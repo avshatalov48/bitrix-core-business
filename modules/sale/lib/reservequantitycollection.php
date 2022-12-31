@@ -78,6 +78,11 @@ class ReserveQuantityCollection extends Internals\EntityCollection
 	 */
 	public static function load(BasketItemBase $basketItem) : self
 	{
+		if (!$basketItem->isReservableItem())
+		{
+			throw new Main\SystemException('Basket item is not available for reservation');
+		}
+
 		$collection = static::createCollectionObject();
 		$collection->setBasketItem($basketItem);
 

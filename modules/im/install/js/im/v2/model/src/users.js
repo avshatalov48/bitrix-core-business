@@ -337,6 +337,11 @@ export class UsersModel extends BuilderModel
 					});
 					state.collection[payload.id].isAbsent = false;
 				}
+				else if (Type.isDate(payload.fields.absent))
+				{
+					state.collection[payload.id].isAbsent = true;
+					this.addToAbsentList(payload.id);
+				}
 
 				state.collection[payload.id] = {...state.collection[payload.id], ...payload.fields};
 			},

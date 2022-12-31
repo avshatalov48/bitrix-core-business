@@ -22,7 +22,16 @@ class GaCounter extends \Bitrix\Landing\Hook\Page
 			)),
 			'COUNTER' => new Field\Text('COUNTER', array(
 				'title' => Loc::getMessage('LANDING_HOOK_GACOUNTER_COUNTER'),
-				'placeholder' => Loc::getMessage('LANDING_HOOK_GACOUNTER_PLACEHOLDER')
+				'placeholder' => Loc::getMessage('LANDING_HOOK_GACOUNTER_PLACEHOLDER_1')
+			)),
+			'COUNTER_GA4' => new Field\Text('COUNTER_GA4', array(
+				'title' => Loc::getMessage('LANDING_HOOK_GACOUNTER_COUNTER'),
+				'placeholder' => Loc::getMessage('LANDING_HOOK_GACOUNTER_PLACEHOLDER_2'),
+				'help' => $helpUrl
+					? '<a href="' . $helpUrl . '" target="_blank">' .
+							Loc::getMessage('LANDING_HOOK_DETAIL_HELP') .
+						'</a>'
+					: ''
 			)),
 			'SEND_CLICK' => new Field\Checkbox('SEND_CLICK', array(
 				'title' => Loc::getMessage('LANDING_HOOK_GACOUNTER_SEND_CLICK')
@@ -36,11 +45,6 @@ class GaCounter extends \Bitrix\Landing\Hook\Page
 			)),
 			'SEND_SHOW' => new Field\Checkbox('SEND_SHOW', array(
 				'title' => Loc::getMessage('LANDING_HOOK_GACOUNTER_SEND_SHOW'),
-				'help' => $helpUrl
-					? '<a href="' . $helpUrl . '" target="_blank">' .
-				  			Loc::getMessage('LANDING_HOOK_DETAIL_HELP') .
-					  '</a>'
-					: ''
 			))
 		);
 	}
@@ -109,7 +113,10 @@ class GaCounter extends \Bitrix\Landing\Hook\Page
 			return;
 		}
 
+		//Universal Analytics
 		$this->setCounter($this->fields['COUNTER']);
+		//Google Analytics 4
+		$this->setCounter($this->fields['COUNTER_GA4']);
 
 		// send analytics
 		$sendData = [];

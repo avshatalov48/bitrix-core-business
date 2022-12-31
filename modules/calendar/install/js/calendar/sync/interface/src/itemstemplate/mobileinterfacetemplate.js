@@ -1,7 +1,7 @@
 // @flow
 'use strict';
 
-import {Loc, Tag, Type} from "main.core";
+import {Loc, Tag, Type, Event, Dom} from "main.core";
 import {InterfaceTemplate} from "./interfacetemplate";
 import MobileSyncBanner from "../controls/mobilesyncbanner";
 import {Util} from "calendar.util";
@@ -28,10 +28,33 @@ export default class MobileInterfaceTemplate extends InterfaceTemplate
 		return Tag.render `
 			${this.getContentInfoBodyHeader()}
 			${this.getContentInfoWarning()}
-			<div class="calendar-sync-slider-section calendar-sync-slider-section-banner">
-				${this.getContentBodyConnect()}
-			</div>
 		`;
+	}
+
+	getContentInfoBodyHeaderHelper()
+	{
+		if (!this.headerHelper)
+		{
+			this.headerHelper = Tag.render`
+				<div class="calendar-sync-slider-info">
+					<span class="calendar-sync-slider-info-text">
+						<a class="calendar-sync-slider-info-link">
+							${Loc.getMessage('CAL_CONNECT_PHONE')}
+						</a>
+					</span>
+				</div>
+			`;
+
+			Event.bind(this.headerHelper, 'click', this.showMobileSyncBanner.bind(this));
+		}
+
+		return this.headerHelper;
+	}
+
+	showMobileSyncBanner()
+	{
+		this.headerHelper.style.display = 'none';
+		Dom.append(this.getContentBodyConnect(), this.infoBodyHeader);
 	}
 
 	getContentActiveBody()

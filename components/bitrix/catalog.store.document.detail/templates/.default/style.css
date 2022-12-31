@@ -79,6 +79,15 @@
 	color: lightgrey;
 }
 
+.catalog-entity-wrap-crm {
+	position: relative;
+	padding-bottom: 60px;
+}
+
+.catalog-entity-wrap-crm .ui-ctl-element::placeholder {
+	color: lightgrey;
+}
+
 .catalog-entity-section-product-loader {
 	background: url(images/skeleton.svg) no-repeat;
 	height: 446px;

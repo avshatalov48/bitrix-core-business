@@ -60,10 +60,10 @@ $arResult['ID'] = $EC->GetId();
 $arResult['CALENDAR'] = $EC;
 
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
-if (isset($request['action']))
+if (isset($request['action']) && $request['action'] === 'export')
 {
 	$arResult['IFRAME'] = $request['IFRAME'] == 'Y';
-	CCalendarRequest::Process($request['action'], $EC);
+	CCalendarRequest::Process($EC, $request['action']);
 }
 else
 {

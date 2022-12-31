@@ -210,6 +210,10 @@
 				delete value.text;
 			}
 
+			if (value.href.startsWith('selectActions:'))
+			{
+				value.href = '#';
+			}
 			return value;
 		},
 
@@ -227,20 +231,20 @@
 			if (!this.field)
 			{
 				var allowedTypes = [
-					BX.Landing.UI.Field.LinkURL.TYPE_BLOCK,
-					BX.Landing.UI.Field.LinkURL.TYPE_PAGE,
-					BX.Landing.UI.Field.LinkURL.TYPE_CRM_FORM,
-					BX.Landing.UI.Field.LinkURL.TYPE_CRM_PHONE
+					BX.Landing.UI.Field.LinkUrl.TYPE_BLOCK,
+					BX.Landing.UI.Field.LinkUrl.TYPE_PAGE,
+					BX.Landing.UI.Field.LinkUrl.TYPE_CRM_FORM,
+					BX.Landing.UI.Field.LinkUrl.TYPE_CRM_PHONE
 				];
 
 				if (BX.Landing.Main.getInstance().options.params.type === BX.Landing.Main.TYPE_STORE)
 				{
-					allowedTypes.push(BX.Landing.UI.Field.LinkURL.TYPE_CATALOG);
+					allowedTypes.push(BX.Landing.UI.Field.LinkUrl.TYPE_CATALOG);
 				}
 
 				if (BX.Landing.Main.getInstance().options.features.includes('diskFile'))
 				{
-					allowedTypes.push(BX.Landing.UI.Field.LinkURL.TYPE_DISK_FILE);
+					allowedTypes.push(BX.Landing.UI.Field.LinkUrl.TYPE_DISK_FILE);
 				}
 
 				this.field = new BX.Landing.UI.Field.Link({

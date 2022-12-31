@@ -1,5 +1,5 @@
 import {Menu} from 'main.popup';
-import { Runtime, Text, Type} from 'main.core';
+import {Loc, Runtime, Text, Type} from 'main.core';
 import {Vue} from "ui.vue";
 import {config} from "../../config";
 import {DiscountType} from "catalog.product-calculator";
@@ -22,6 +22,10 @@ Vue.component(config.templateFieldDiscount,
 	{
 		this.onInputDiscount = Runtime.debounce(this.onChangeDiscount, 500, this);
 		this.currencySymbol = this.options.currencySymbol;
+	},
+	mounted()
+	{
+		BX.UI.Hint.init();
 	},
 	methods:
 	{
@@ -100,19 +104,40 @@ Vue.component(config.templateFieldDiscount,
 		{
 			return Text.toNumber(this.discountType) === DiscountType.PERCENTAGE ? '%' : this.currencySymbol;
 		},
+		wrapperClasses()
+		{
+			return {
+				'catalog-pf-product-input-wrapper--disabled': !this.editable,
+			};
+		},
+		hintText()
+		{
+			if (!this.editable && !this.options?.isCatalogDiscountSetEnabled)
+			{
+				return Loc.getMessage('CATALOG_FORM_DISCOUNT_ACCESS_DENIED_HINT');
+			}
+
+			return null;
+		},
 	},
 	// language=Vue
 	template: `
-		<div class="catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--left">
+		<div
+			class="catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--left"
+			:class="wrapperClasses"
+			:data-hint="hintText"
+			data-hint-no-icon
+		>
 			<input class="catalog-pf-product-input catalog-pf-product-input--align-right catalog-pf-product-input--right"
-					v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
-					ref="discountInput" 
-					:value="getDiscountInputValue"
-					:v-model="discountRate"
-					@input="onInputDiscount"
-					placeholder="0"
-					:disabled="!editable">
-			<div class="catalog-pf-product-input-info catalog-pf-product-input-info--action" 
+				ref="discountInput"
+				v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
+				:value="getDiscountInputValue"
+				:v-model="discountRate"
+				@input="onInputDiscount"
+				placeholder="0"
+				:disabled="!editable"
+			/>
+			<div class="catalog-pf-product-input-info catalog-pf-product-input-info--action"
 				@click="showPopupMenu">
 				<span v-html="getDiscountSymbol"></span>
 			</div>

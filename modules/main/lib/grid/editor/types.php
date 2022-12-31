@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Main\Grid\Editor;
 
@@ -9,18 +9,17 @@ namespace Bitrix\Main\Grid\Editor;
  */
 class Types
 {
-	const DROPDOWN = "DROPDOWN";
-	const CHECKBOX = "CHECKBOX";
-	const TEXT = "TEXT";
-	const DATE = "DATE";
-	const NUMBER = "NUMBER";
-	const RANGE = "RANGE";
-	const TEXTAREA = "TEXTAREA";
-	const CUSTOM = "CUSTOM";
-	const IMAGE = "IMAGE";
-	const MONEY = "MONEY";
-	const MULTISELECT = "MULTISELECT";
-
+	public const DROPDOWN = 'DROPDOWN';
+	public const CHECKBOX = 'CHECKBOX';
+	public const TEXT = 'TEXT';
+	public const DATE = 'DATE';
+	public const NUMBER = 'NUMBER';
+	public const RANGE = 'RANGE';
+	public const TEXTAREA = 'TEXTAREA';
+	public const CUSTOM = 'CUSTOM';
+	public const IMAGE = 'IMAGE';
+	public const MONEY = 'MONEY';
+	public const MULTISELECT = 'MULTISELECT';
 
 	/**
 	 * Gets types list
@@ -29,6 +28,7 @@ class Types
 	public static function getList()
 	{
 		$reflection = new \ReflectionClass(__CLASS__);
+
 		return $reflection->getConstants();
 	}
 }

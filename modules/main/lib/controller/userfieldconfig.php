@@ -431,7 +431,7 @@ class UserFieldConfig extends Controller
 		{
 			if ($field['USER_TYPE_ID'] === 'enumeration')
 			{
-				$this->updateEnums($id, (array)$field['ENUM'], UserFieldTable::getFieldData($id)['ENUM']);
+				$this->updateEnums($id, (array)$field['ENUM'], (array)UserFieldTable::getFieldData($id)['ENUM']);
 			}
 
 			return [

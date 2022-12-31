@@ -294,7 +294,7 @@ export const FieldPlanner =
 							if (user.avatar)
 							{
 								return {
-									backgroundImage: `url('${user.avatar}')`
+									backgroundImage: `url('${encodeURI(user.avatar)}')`
 								};
 							}
 

@@ -242,7 +242,7 @@ export class Util
 
 	static getDefaultColorList()
 	{
-		return ['#86b100', '#0092cc', '#00afc7', '#da9100', '#00b38c', '#de2b24', '#bd7ac9', '#838fa0', '#ab7917', '#e97090'];
+		return ['#86b100', '#0092cc', '#00afc7', '#e89b06', '#00b38c', '#de2b24', '#bd7ac9', '#838fa0', '#c3612c', '#e97090'];
 	}
 
 	static findTargetNode(node, parentCont)
@@ -408,6 +408,8 @@ export class Util
 			let alertWrap = alert.getContainer();
 
 			wrap.appendChild(alertWrap);
+
+			return alertWrap;
 		}
 	}
 
@@ -800,5 +802,25 @@ export class Util
 	static isMacConnected()
 	{
 		return Util.macConnectionStatus;
+	}
+
+	static setIcloudConnectionStatus(value)
+	{
+		Util.icloudConnectionStatus = value;
+	}
+
+	static isIcloudConnected()
+	{
+		return Util.icloudConnectionStatus;
+	}
+
+	static setGoogleConnectionStatus(value)
+	{
+		Util.googleConnectionStatus = value;
+	}
+
+	static isGoogleConnected()
+	{
+		return Util.googleConnectionStatus;
 	}
 }

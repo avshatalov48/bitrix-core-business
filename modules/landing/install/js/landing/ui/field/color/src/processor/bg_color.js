@@ -109,7 +109,7 @@ export default class BgColor extends Color
 
 		this.activeControl = null;
 
-		if (Type.isNull(value))
+		if (Type.isNil(value))
 		{
 			// todo: set NULL for gradient or opacity?
 		}

@@ -8,6 +8,8 @@ use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog;
+use \Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/catalog/prolog.php');
@@ -17,18 +19,20 @@ global $adminPage;
 /** @global CAdminSidePanelHelper $adminSidePanelHelper */
 global $adminSidePanelHelper;
 
+CModule::IncludeModule("catalog");
+
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl . 'cat_vat_admin.php?lang=' . LANGUAGE_ID;
 $listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
 
 Loc::loadMessages(__FILE__);
-
-if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_vat')))
+$accessController = AccessController::getCurrent();
+if (!($accessController->check(ActionDictionary::ACTION_CATALOG_READ) || $accessController->check(ActionDictionary::ACTION_VAT_EDIT)))
 {
-	$APPLICATION->AuthForm(Loc::getMessage('CVAT_EDIT_ERR_ACCESS_DENIED'));
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 }
-Loader::includeModule('catalog');
-$bReadOnly = !$USER->CanDoOperation('catalog_vat');
+
+$bReadOnly = !$accessController->check(ActionDictionary::ACTION_VAT_EDIT);
 
 $request = Context::getCurrent()->getRequest();
 if ($request->isAjaxRequest())
@@ -306,20 +310,20 @@ $tabControl->BeginNextTab();
 	<tr class="adm-detail-required-field">
 		<td style="width: 40%;"><?= Loc::getMessage("CVAT_NAME") ?>:</td>
 		<td style="width: 60%;">
-			<input type="text" name="NAME" value="<?= htmlspecialcharsbx($fields['NAME']); ?>" size="30">
+			<input type="text" name="NAME" value="<?= htmlspecialcharsbx($fields['NAME']); ?>" size="30" <?=($bReadOnly) ? " disabled" : ""?>>
 		</td>
 	</tr>
 	<tr>
 		<td style="width: 40%;"><?= Loc::getMessage("CVAT_EDIT_FORM_FIELD_XML_ID") ?></td>
 		<td style="width: 60%;">
-			<input type="text" name="XML_ID" maxlength="255" value="<?= htmlspecialcharsbx($fields['XML_ID']); ?>" size="50">
+			<input type="text" name="XML_ID" maxlength="255" value="<?= htmlspecialcharsbx($fields['XML_ID']); ?>" size="50" <?=($bReadOnly) ? " disabled" : ""?>>
 		</td>
 	</tr>
 	<tr>
 		<td style="width: 40%;"><?= Loc::getMessage("CVAT_ACTIVE") ?>:</td>
 		<td style="width: 60%;">
 			<input type="hidden" name="ACTIVE" value="N">
-			<input type="checkbox" name="ACTIVE" value="Y"<?= ($fields['ACTIVE'] === 'Y' ? ' checked' : ''); ?>>
+			<input type="checkbox" name="ACTIVE" value="Y"<?= ($fields['ACTIVE'] === 'Y' ? ' checked' : ''); ?> <?=($bReadOnly) ? " disabled" : ""?>>
 		</td>
 	</tr>
 	<?php
@@ -329,7 +333,7 @@ $tabControl->BeginNextTab();
 		<td style="width: 40%;"><?= Loc::getMessage('CVAT_EDIT_FORM_FIELD_EXCLUDE_VAT'); ?></td>
 		<td style="width: 60%;">
 			<input type="hidden" name="EXCLUDE_VAT" value="N">
-			<input type="checkbox" id="EXCLUDE_VAT" name="EXCLUDE_VAT" value="Y"<?= ($isExcludeVat ? ' checked' : ''); ?>><br>
+			<input type="checkbox" id="EXCLUDE_VAT" name="EXCLUDE_VAT" value="Y"<?= ($isExcludeVat ? ' checked' : ''); ?> <?=($bReadOnly) ? " disabled" : ""?>><br>
 		</td>
 	<?php
 	endif;
@@ -344,7 +348,7 @@ $tabControl->BeginNextTab();
 			<?php
 			else:
 			?>
-				<input type="text" name="RATE" value="<?=htmlspecialcharsbx((string)$fields['RATE']); ?>" size="10">&nbsp;%
+				<input type="text" name="RATE" value="<?=htmlspecialcharsbx((string)$fields['RATE']); ?>" size="10" <?=($bReadOnly) ? " disabled" : ""?>>&nbsp;%
 			<?php
 			endif;
 			?>
@@ -353,16 +357,20 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td style="width: 40%;"><?= Loc::getMessage("CVAT_SORT") ?>:</td>
 		<td style="width: 60%;">
-			<input type="text" name="C_SORT" value="<?=htmlspecialcharsbx($fields['SORT']); ?>" size="5">
+			<input type="text" name="C_SORT" value="<?=htmlspecialcharsbx($fields['SORT']); ?>" size="5" <?=($bReadOnly) ? " disabled" : ""?>>
 		</td>
 	</tr>
 <?php
 $tabControl->EndTab();
 
-$tabControl->Buttons([
-	'disabled' => $bReadOnly,
-	'back_url' => $listUrl,
-]);
+if (!$bReadOnly)
+{
+	$tabControl->Buttons([
+		'disabled' => $bReadOnly,
+		'back_url' => $listUrl,
+	]);
+}
+
 $tabControl->End();
 ?>
 </form>

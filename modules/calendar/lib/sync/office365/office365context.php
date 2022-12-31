@@ -238,9 +238,19 @@ class Office365Context implements ContextInterface
 		}
 		else
 		{
-			if ($oAuthEntity->GetCurrentUser())
+			if ($checkUser = $oAuthEntity->GetCurrentUser())
 			{
-				throw new AuthException('Access token not recived', 401);
+				if (!empty($checkUser['access_token']))
+				{
+					$httpClient->setHeader('Authorization', 'Bearer ' . $checkUser['access_token']);
+					$httpClient->setHeader('Content-Type', 'application/json');
+					$httpClient->setHeader('Prefer', 'odata.maxpagesize=' . $this->getMaxPageSize());
+					$httpClient->setRedirect(false);
+				}
+				else
+				{
+					throw new AuthException('Access token not recived', 401);
+				}
 			}
 			else
 			{
@@ -249,7 +259,7 @@ class Office365Context implements ContextInterface
 				(new \Bitrix\Calendar\Core\Mappers\Connection())->update(
 					$this->getConnection()->setDeleted(true)
 				);
-				throw new RemoteAccountException('Office365 account not found', 401);
+				throw new RemoteAccountException('Office365 account not found', 403);
 			}
 		}
 		return $httpClient;

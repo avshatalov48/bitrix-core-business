@@ -50,9 +50,16 @@
 	max-height: 110px;
 }
 
-.catalog-product-edit .adm-fileinput-drag-area,
-.catalog-product-edit .adm-fileinput-wrapper-single .adm-fileinput-drag-area {
+.catalog-product-img .adm-fileinput-drag-area,
+.catalog-product-img .adm-fileinput-wrapper-single .adm-fileinput-drag-area {
+	min-height: auto;
 	background: #fff url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2215%22%20height%3D%2215%22%3E%3Cpath%20fill%3D%22%23A8ADB4%22%20fill-rule%3D%22evenodd%22%20d%3D%22M1.765%200h11.47C14.21%200%2015%20.79%2015%201.765v11.47C15%2014.21%2014.21%2015%2013.235%2015H1.765C.79%2015%200%2014.21%200%2013.235V1.765C0%20.79.79%200%201.765%200zm0%2013.235h11.47v-.882l-3.058-3.53-1.53%201.765-3.824-4.412-3.058%203.53v3.53zm9.264-7.94a1.324%201.324%200%20100-2.648%201.324%201.324%200%20000%202.647z%22%20opacity%3D%22.761%22/%3E%3C/svg%3E) no-repeat center;
+}
+
+.catalog-product-img .ui-image-input-img--disabled .adm-fileinput-drag-area,
+.catalog-product-img .ui-image-input-img--disabled .adm-fileinput-wrapper-single .adm-fileinput-drag-area {
+	border-color: #c6cdd3;
+	cursor: default;
 }
 
 .catalog-product-edit div.adm-fileinput-item div.adm-fileinput-item-preview {
@@ -84,6 +91,27 @@
 	width: 100px;
 	margin: 0;
 	display: block;
+}
+
+.catalog-product-edit .ui-image-input-img-block {
+	height: 39px;
+	margin: 2px 0;
+}
+
+.catalog-product-edit .ui-image-input-img {
+	object-fit: scale-down;
+	max-height: 39px;
+	max-width: 39px;
+}
+
+.catalog-product-edit .ui-image-input-img-block-empty .ui-image-input-img-block-inner {
+	padding-top: 0;
+}
+
+.catalog-product-edit .ui-image-input-img-block-empty .ui-image-input-img-item {
+	width: 39px;
+	height: 39px;
+	background-size: 50%;
 }
 
 .catalog-product-view .catalog-product-field-inner {

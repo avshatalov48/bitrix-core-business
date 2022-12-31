@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Config;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Catalog\ProductTable;
@@ -44,12 +47,29 @@ class CatalogProductStoreAmountComponent
 
 	protected $defaultMeasure;
 
+	private AccessController $accessController;
+
+	public function __construct($component = null)
+	{
+		parent::__construct($component);
+
+		$this->accessController = AccessController::getCurrent();
+	}
+
 	public function executeComponent()
 	{
-		if ($this->checkModules() && $this->checkPermissions() && $this->checkProductId())
+		if ($this->checkModules() && $this->checkProductId())
 		{
-			$this->initializeStoreAmountGrid();
-			$this->includeComponentTemplate();
+			if ($this->checkPermissions())
+			{
+				$this->initializeStoreAmountGrid();
+				$this->includeComponentTemplate();
+			}
+			else
+			{
+				$this->includeComponentTemplate('access_denied');
+				return;
+			}
 		}
 
 		if ($this->hasErrors())
@@ -81,6 +101,17 @@ class CatalogProductStoreAmountComponent
 	 */
 	protected function checkPermissions(): bool
 	{
+		if (!$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ))
+		{
+			return false;
+		}
+
+		$availableStores = $this->accessController->getPermissionValue(ActionDictionary::ACTION_STORE_VIEW);
+		if (empty($availableStores))
+		{
+			return false;
+		}
+
 		return true;
 	}
 

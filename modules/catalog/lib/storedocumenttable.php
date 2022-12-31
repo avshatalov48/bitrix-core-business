@@ -67,6 +67,7 @@ class StoreDocumentTable extends DataManager
 	public const TYPE_RETURN = 'R';
 	public const TYPE_DEDUCT = 'D';
 	public const TYPE_UNDO_RESERVE = 'U';
+	public const TYPE_SALES_ORDERS = 'W';
 	//public const TYPE_INVENTORY = 'I';
 
 	public const STATUS_CONDUCTED = 'Y';

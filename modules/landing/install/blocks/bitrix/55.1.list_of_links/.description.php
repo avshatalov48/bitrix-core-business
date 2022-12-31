@@ -34,7 +34,7 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default', 'block-border'),
+			'type' => ['block-default', 'block-border'],
 		),
 		'nodes' => array(
 			'.landing-block-node-list-container' => array(

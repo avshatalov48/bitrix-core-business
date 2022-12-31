@@ -14,36 +14,26 @@ global $APPLICATION;
 ?>
 <div class="catalog-document-card-wrapper">
 	<div class="catalog-document-card-left">
-
-	<?php
-	$APPLICATION->IncludeComponent(
-		'bitrix:ui.form',
-		'.default',
-		[
+		<?
+		$editorParams = [
 			'GUID' => $arResult['FORM']['GUID'],
-
 			'ENTITY_ID' => $arResult['FORM']['ENTITY_ID'],
 			'ENTITY_TYPE_NAME' => $arResult['FORM']['ENTITY_TYPE_NAME'],
-
 			'ENTITY_FIELDS' => $arResult['FORM']['ENTITY_FIELDS'],
 			'ENTITY_CONFIG' => $arResult['FORM']['ENTITY_CONFIG'],
 			'ENTITY_DATA' => $arResult['FORM']['ENTITY_DATA'],
 			'ENTITY_CONTROLLERS' => $arResult['FORM']['ENTITY_CONTROLLERS'],
-
 			'READ_ONLY' => $arResult['FORM']['READ_ONLY'],
-
-			'ENABLE_COMMON_CONFIGURATION_UPDATE' => true,
-			'ENABLE_PERSONAL_CONFIGURATION_UPDATE' => true,
-			'ENABLE_SETTINGS_FOR_ALL' => true,
-			'ENABLE_PAGE_TITLE_CONTROLS' => true,
-
-			'ENABLE_SECTION_EDIT' => true,
-			'ENABLE_SECTION_DRAG_DROP' => true,
-
+			'ENABLE_COMMON_CONFIGURATION_UPDATE' => $arResult['FORM']['ENTITY_CONFIG_EDITABLE'],
+			'ENABLE_PERSONAL_CONFIGURATION_UPDATE' => $arResult['FORM']['ENTITY_CONFIG_EDITABLE'],
+			'ENABLE_SETTINGS_FOR_ALL' => $arResult['FORM']['ENTITY_CONFIG_EDITABLE'],
+			'ENABLE_PAGE_TITLE_CONTROLS' => $arResult['FORM']['ENTITY_CONFIG_EDITABLE'],
+			'ENABLE_SECTION_EDIT' => $arResult['FORM']['ENTITY_CONFIG_EDITABLE'],
+			'ENABLE_SECTION_DRAG_DROP' => $arResult['FORM']['ENTITY_CONFIG_EDITABLE'],
 			'IS_TOOL_PANEL_ALWAYS_VISIBLE' => true,
-			'ENABLE_BOTTOM_PANEL' => true,
-			'ENABLE_CONFIG_CONTROL' => true,
-
+			'ENABLE_BOTTOM_PANEL' => $arResult['FORM']['ENTITY_CONFIG_EDITABLE'],
+			'ENABLE_CONFIG_CONTROL' => $arResult['FORM']['ENTITY_CONFIG_EDITABLE'],
+			'ENABLE_CONFIG_SCOPE_TOGGLE' => $arResult['FORM']['ENTITY_CONFIG_EDITABLE'],
 			'SERVICE_URL' => '/bitrix/components/bitrix/catalog.store.document.detail/ajax.php?'.bitrix_sessid_get(),
 			'COMPONENT_AJAX_DATA' => [
 				'COMPONENT_NAME' => $component->getName(),
@@ -52,16 +42,49 @@ global $APPLICATION;
 
 				'ADDITIONAL_ACTIONS' => $arResult['FORM']['ADDITIONAL_ACTIONS'],
 			],
-
 			'CUSTOM_TOOL_PANEL_BUTTONS' => $arResult['FORM']['CUSTOM_TOOL_PANEL_BUTTONS'],
 			'TOOL_PANEL_BUTTONS_ORDER' => $arResult['FORM']['TOOL_PANEL_BUTTONS_ORDER'],
-		],
-		$component
-	);
-	?>
+			'ENABLE_TOOL_PANEL' => $arResult['FORM']['ENABLE_TOOL_PANEL'],
+		];
+
+		if ($arResult['INCLUDE_CRM_ENTITY_EDITOR']):
+			$componentName = 'bitrix:crm.entity.editor';
+			$editorParams = array_merge(
+				$editorParams,
+				[
+					'MODULE_ID' => 'crm',
+					'ENTITY_TYPE_ID' => CCrmOwnerType::StoreDocument,
+					'CONFIG_ID' => 'store_document_details',
+				]
+			);
+			?>
+			<script>
+				BX.Catalog.DocumentCard.DocumentCard.registerDocumentControllersFactory(
+					'BX.Crm.EntityEditorControllerFactory:onInitialize'
+				);
+			</script>
+		<?else:
+		$componentName = 'bitrix:ui.form';
+		?>
+			<script>
+				BX.Catalog.DocumentCard.DocumentCard.registerFieldFactory();
+				BX.Catalog.DocumentCard.DocumentCard.registerModelFactory();
+				BX.Catalog.DocumentCard.DocumentCard.registerDocumentControllersFactory(
+					'BX.UI.EntityEditorControllerFactory:onInitialize'
+				);
+			</script>
+		<?endif;?>
+		<?
+		$APPLICATION->IncludeComponent(
+			$componentName,
+			'',
+			$editorParams,
+			$component
+		);
+		?>
 	</div>
 	<div class="catalog-document-card-right">
-	<?php
+		<?
 		if (isset($arResult['RIGHT_COLUMN']))
 		{
 			$APPLICATION->IncludeComponent(
@@ -71,6 +94,6 @@ global $APPLICATION;
 				$component
 			);
 		}
-	?>
+		?>
 	</div>
 </div>

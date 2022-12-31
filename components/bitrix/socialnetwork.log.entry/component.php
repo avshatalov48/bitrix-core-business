@@ -207,7 +207,7 @@ if (
 		if (
 			isset($arCommentTmp['EVENT_FORMATTED']['MESSAGE'])
 			&& ($handler = $handlerManager->getHandlerByPostText($arCommentTmp['EVENT_FORMATTED']['MESSAGE'])
-		)
+			)
 		)
 		{
 			$arCommentTmp["AUX"] = $handler->getType();

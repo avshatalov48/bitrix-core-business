@@ -1,11 +1,16 @@
-<?
+<?php
+
+use Bitrix\Catalog\Access\ActionDictionary;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 CModule::IncludeModule('catalog');
 global $APPLICATION, $USER, $DB;
 
-if (!$USER->CanDoOperation('catalog_read'))
+if (!\Bitrix\Catalog\Access\AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ))
+{
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
 
 IncludeModuleLangFile(__FILE__);
 

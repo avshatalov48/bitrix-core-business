@@ -60,7 +60,10 @@ class Map
 	 */
 	public static function prepareManifest(array $manifest, Block $block = null, array $params = []): array
 	{
-		if ($block === null)
+		if (
+			$block === null
+			|| !self::isMapBlock($block)
+		)
 		{
 			return $manifest;
 		}
@@ -106,6 +109,7 @@ class Map
 		];
 
 		$manifest = self::addRequiredUserAction($manifest);
+		$manifest = self::addNodes($manifest);
 		$manifest = self::addSettings($manifest);
 		$manifest = self::addVisualSettings($manifest);
 		$manifest = self::addAssets($manifest);
@@ -115,6 +119,16 @@ class Map
 		self::$manifestStore[$block->getId()] = $manifest;
 
 		return $manifest;
+	}
+
+	/**
+	 * Check if block has map node
+	 * @param Block $block
+	 * @return bool
+	 */
+	protected static function isMapBlock(Block $block): bool
+	{
+		return (bool)$block->getDom()->querySelector(self::MAP_SELECTOR);
 	}
 
 	/**
@@ -207,9 +221,23 @@ class Map
 				'text' => Loc::getMessage('LANDING_BLOCK_EMPTY_GMAP_SETTINGS'),
 				'href' => '#page_url_site_edit@map_required_key',
 				'className' => 'landing-required-link',
-				'targetNodeSelector' => '[data-map]',
+				'targetNodeSelector' => self::MAP_SELECTOR,
 			];
 		}
+
+		return $manifest;
+	}
+
+	protected static function addNodes(array $manifest): array
+	{
+		if (!is_array($manifest['nodes']))
+		{
+			$manifest['nodes'] = [];
+		}
+		$manifest['nodes'][self::MAP_SELECTOR] = [
+			'name' => Loc::getMessage('LANDING_GOOGLE_MAP--STYLE_TITLE'),
+			'type' => 'map',
+		];
 
 		return $manifest;
 	}

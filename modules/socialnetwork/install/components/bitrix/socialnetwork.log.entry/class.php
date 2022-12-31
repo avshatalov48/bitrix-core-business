@@ -249,10 +249,8 @@ final class SocialnetworkLogEntry extends LogEntry
 			{
 				throw $e;
 			}
-			else
-			{
-				ShowError($e->getMessage());
-			}
+
+			ShowError($e->getMessage());
 		}
 	}
 

@@ -9,6 +9,14 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(DiscountType, "MONETARY", 1);
 	babelHelpers.defineProperty(DiscountType, "PERCENTAGE", 2);
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
 
 	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
@@ -43,18 +51,18 @@ this.BX = this.BX || {};
 	  function FieldStorage(fields, calculator) {
 	    babelHelpers.classCallCheck(this, FieldStorage);
 
-	    _validateValue.add(this);
+	    _classPrivateMethodInitSpec(this, _validateValue);
 
-	    _getQuantityPrecision.add(this);
+	    _classPrivateMethodInitSpec(this, _getQuantityPrecision);
 
-	    _getCommonPrecision.add(this);
+	    _classPrivateMethodInitSpec(this, _getCommonPrecision);
 
-	    _getPricePrecision.add(this);
+	    _classPrivateMethodInitSpec(this, _getPricePrecision);
 
-	    this.fields = babelHelpers.objectSpread({}, initialFields);
+	    this.fields = _objectSpread({}, initialFields);
 
 	    if (main_core.Type.isPlainObject(fields)) {
-	      this.fields = babelHelpers.objectSpread({}, this.fields, fields);
+	      this.fields = _objectSpread(_objectSpread({}, this.fields), fields);
 	    }
 
 	    this.calculator = calculator;
@@ -280,25 +288,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "calculatePrice",
 	    value: function calculatePrice(value) {
-	      if (value < 0) {
-	        throw new Error('Price must be equal or greater than zero.');
-	      }
-
-	      var fieldStorage = this.getFieldStorage();
-
-	      if (value >= fieldStorage.getBasePrice()) {
-	        return this.calculateBasePrice(value);
-	      }
-
-	      this.clearResultPrices(fieldStorage);
-
-	      if (fieldStorage.isTaxIncluded()) {
-	        return this.calculateRowSum(value * fieldStorage.getQuantity());
-	      }
-
-	      var discount = fieldStorage.getBasePrice() - value;
-	      fieldStorage.setField('DISCOUNT_TYPE_ID', DiscountType.MONETARY);
-	      return this.calculateDiscount(discount, fieldStorage);
+	      return this.calculateBasePrice(value);
 	    }
 	  }, {
 	    key: "calculateQuantity",
@@ -586,6 +576,16 @@ this.BX = this.BX || {};
 	  return TaxForPriceStrategy;
 	}();
 
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
+	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
+
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
+
+	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 
 	var _fields = /*#__PURE__*/new WeakMap();
@@ -602,19 +602,19 @@ this.BX = this.BX || {};
 	    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, ProductCalculator);
 
-	    _getSetting.add(this);
+	    _classPrivateMethodInitSpec$1(this, _getSetting);
 
-	    _fields.set(this, {
+	    _classPrivateFieldInitSpec(this, _fields, {
 	      writable: true,
 	      value: {}
 	    });
 
-	    _strategy.set(this, {
+	    _classPrivateFieldInitSpec(this, _strategy, {
 	      writable: true,
 	      value: {}
 	    });
 
-	    _settings.set(this, {
+	    _classPrivateFieldInitSpec(this, _settings, {
 	      writable: true,
 	      value: {}
 	    });
@@ -651,19 +651,19 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "getFields",
 	    value: function getFields() {
-	      return babelHelpers.objectSpread({}, babelHelpers.classPrivateFieldGet(this, _fields));
+	      return _objectSpread$1({}, babelHelpers.classPrivateFieldGet(this, _fields));
 	    }
 	  }, {
 	    key: "setSettings",
 	    value: function setSettings() {
 	      var settings = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-	      babelHelpers.classPrivateFieldSet(this, _settings, babelHelpers.objectSpread({}, settings));
+	      babelHelpers.classPrivateFieldSet(this, _settings, _objectSpread$1({}, settings));
 	      return this;
 	    }
 	  }, {
 	    key: "getSettings",
 	    value: function getSettings() {
-	      return babelHelpers.objectSpread({}, babelHelpers.classPrivateFieldGet(this, _settings));
+	      return _objectSpread$1({}, babelHelpers.classPrivateFieldGet(this, _settings));
 	    }
 	  }, {
 	    key: "getPricePrecision",

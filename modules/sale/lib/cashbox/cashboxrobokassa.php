@@ -105,9 +105,9 @@ class CashboxRobokassa extends CashboxPaySystem
 				'payment_object' => $paymentObjectMap[$item['payment_object']],
 			];
 
-			if ($item['nomenclature_code'])
+			if (!empty($item['marking_code']))
 			{
-				$receiptItem['nomenclature_code'] = $item['nomenclature_code'];
+				$receiptItem['nomenclature_code'] = $item['marking_code'];
 			}
 
 			$fields['items'][] = $receiptItem;

@@ -5,8 +5,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'css' => 'dist/property.bundle.css',
-	'js' => 'dist/property.bundle.js',
+	'css' => 'dist/registry.bundle.css',
+	'js' => 'dist/registry.bundle.js',
 	'rel' => [
 		'sale.checkout.view.element.input',
 		'main.core',

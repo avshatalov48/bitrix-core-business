@@ -997,7 +997,9 @@ abstract class CAllDBResult
 		$PAGEN = (int)$PAGEN;
 		$SHOWALL = ${$SHOWALL_NAME};
 
-		$inSession = (CPageOption::GetOptionString("main", "nav_page_in_session", "Y") == "Y");
+		$application = Main\Application::getInstance();
+
+		$inSession = (CPageOption::GetOptionString("main", "nav_page_in_session", "Y") == "Y") && $application->getKernelSession()->isStarted();
 
 		if ($inSession)
 		{
@@ -1005,7 +1007,7 @@ abstract class CAllDBResult
 			$SESS_PAGEN = $md5Path . "SESS_PAGEN_" . ($NavNum+1);
 			$SESS_ALL = $md5Path . "SESS_ALL_" . ($NavNum+1);
 
-			$localStorage = Main\Application::getInstance()->getLocalSession('navigation');
+			$localStorage = $application->getLocalSession('navigation');
 			$session = $localStorage->getData();
 		}
 
@@ -1124,15 +1126,17 @@ abstract class CAllDBResult
 
 	protected function calculatePageNumber(int $defaultNumber = 1, bool $useSession = true, bool $checkOutOfRange = false)
 	{
+		$application = Main\Application::getInstance();
+
 		$correct = false;
 		if ($this->PAGEN > 0 && $this->PAGEN <= $this->NavPageCount)
 		{
 			$this->NavPageNomer = $this->PAGEN;
 			$correct = true;
 		}
-		elseif ($useSession && $this->SESS_PAGEN)
+		elseif ($useSession && $this->SESS_PAGEN && $application->getKernelSession()->isStarted())
 		{
-			$localStorage = Main\Application::getInstance()->getLocalSession('navigation');
+			$localStorage = $application->getLocalSession('navigation');
 			$session = $localStorage->getData();
 
 			if ($session[$this->SESS_PAGEN] > 0 && $session[$this->SESS_PAGEN] <= $this->NavPageCount)

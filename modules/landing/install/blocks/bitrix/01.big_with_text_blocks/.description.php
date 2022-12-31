@@ -68,7 +68,7 @@ return array(
 			),
 			'.landing-block-node-card-img' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_01.BIG_WITH_TEXT_BLOCKS_NODES_LANDINGBLOCKNODECARD_IMG'),
-				'type' => ['background-overlay', 'height-vh', 'paddings', 'background-attachment'],
+				'type' => ['background-overlay', 'height-vh', 'paddings'],
 			),
 			'.landing-block-node-card-button-container' => array(
 				'name' => Loc::getMessage('LANDING_BLOCK_01.BIG_WITH_TEXT_BLOCKS_NODES_LANDINGBLOCKNODECARDBUTTON'),

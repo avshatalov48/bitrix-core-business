@@ -288,7 +288,7 @@ class CSocServBoxAuth extends CSocServAuth
 
 		echo $JSScript;
 
-		die();
+		CMain::FinalActions();
 	}
 }
 

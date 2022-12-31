@@ -23,7 +23,7 @@ export class AddButton extends EventEmitter
 	{
 		this.menuItems = [
 			{
-				text: Loc.getMessage('EC_ADD_EVENT'),
+				text: Loc.getMessage('EC_EVENT_BUTTON'),
 				onclick: this.addEntry.bind(this)
 			}
 		];
@@ -31,7 +31,7 @@ export class AddButton extends EventEmitter
 		if (this.addTaskHandler)
 		{
 			this.menuItems.push({
-				text: Loc.getMessage('EC_ADD_TASK'),
+				text: Loc.getMessage('EC_TASK_BUTTON'),
 				onclick: this.addTask.bind(this)
 			});
 		}
@@ -43,7 +43,7 @@ export class AddButton extends EventEmitter
 				children: [
 					Dom.create("button", {
 						props: {className: "ui-btn-main", type: "button"},
-						html: Loc.getMessage('EC_ADD'),
+						html: Loc.getMessage('EC_CREATE'),
 						events: {click: this.addEntry.bind(this)}
 					})
 				]
@@ -59,7 +59,7 @@ export class AddButton extends EventEmitter
 		{
 			this.DOM.wrap = Dom.create("button", {
 				props: {className: "ui-btn ui-btn-success", type: "button"},
-				html: Loc.getMessage('EC_ADD'),
+				html: Loc.getMessage('EC_CREATE'),
 				events: {click: this.addEntry.bind(this)}
 			});
 		}

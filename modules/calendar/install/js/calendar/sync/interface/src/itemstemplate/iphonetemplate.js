@@ -24,11 +24,23 @@ export default class IphoneTemplate extends MobileInterfaceTemplate
 			popupWithUpdateButton: false,
 		});
 
-		this.warningText = Loc.getMessage('CAL_SYNC_WARNING_IPHONE_AND_MAC');
-		this.warningButtonText = Loc.getMessage('CALENDAR_CONNECT_ICLOUD');
+		this.alreadyConnectedToNew = Util.isIcloudConnected();
+		if (this.alreadyConnectedToNew)
+		{
+			this.warningText = Loc.getMessage('CAL_SYNC_WARNING_IPHONE_AND_MAC_CONNECTED');
+			this.mobileSyncButtonText = Loc.getMessage('CALENDAR_CHECK_ICLOUD_SETTINGS');
+		}
+		else
+		{
+			this.warningText = Loc.getMessage('CAL_SYNC_WARNING_IPHONE_AND_MAC');
+			this.mobileSyncButtonText = Loc.getMessage('CALENDAR_CONNECT_ICLOUD');
+		}
+		// this.warningText = this.alreadyConnectedToNew
+		// 	? Loc.getMessage('CAL_SYNC_WARNING_IPHONE_AND_MAC_CONNECTED')
+		// 	: Loc.getMessage('CAL_SYNC_WARNING_IPHONE_AND_MAC');
 	}
 
-	handleWarningButtonClick()
+	handleMobileButtonConnectClick()
 	{
 		BX.SidePanel.Instance.getOpenSliders().forEach(slider =>
 		{
@@ -47,6 +59,30 @@ export default class IphoneTemplate extends MobileInterfaceTemplate
 				.getInterfaceUnit()
 				.getConnectionTemplate()
 				.handleConnectButton();
+		}
+	}
+
+	handleMobileButtonOtherSyncInfo()
+	{
+		BX.SidePanel.Instance.getOpenSliders().forEach(slider =>
+		{
+			if (['calendar:auxiliary-sync-slider', 'calendar:item-sync-connect-iphone'].includes(slider.getUrl()))
+			{
+				slider.close();
+			}
+		});
+
+		const calendarContext = Util.getCalendarContext();
+		if (calendarContext)
+		{
+			const connectionProvider = calendarContext
+				.syncInterface
+				.getIcloudProvider()
+				.getInterfaceUnit()
+				.connectionProvider
+			;
+
+			connectionProvider.openActiveConnectionSlider(connectionProvider.getConnection());
 		}
 	}
 }

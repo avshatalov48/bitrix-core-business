@@ -1,27 +1,42 @@
 <?php
+
 namespace Bitrix\Landing\Hook\Page;
 
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\Field;
-use \Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Landing\Hook;
+use Bitrix\Landing\Landing;
+use Bitrix\Landing\Manager;
+use Bitrix\Landing\Field;
+use Bitrix\Landing\Internals\HookDataTable;
+use Bitrix\Main\Localization\Loc;
 
 class Copyright extends \Bitrix\Landing\Hook\Page
 {
+	protected const PAGE_TYPE_PAGE = 'PAGE';
+	protected const PAGE_TYPE_STORE = 'STORE';
+
+	protected const REGIONS_RU_LANG = ['ru', 'by', 'kz'];
+
+	/**
+	 * Actual only for ru/by/kz, for any languages always 1
+	 */
+	protected const RANDOM_PHRASE_COUNT = 32;
+
 	/**
 	 * Map of the field.
 	 * @return array
 	 */
 	protected function getMap()
 	{
-		return array(
-			'SHOW' => new Field\Checkbox('SHOW', array(
+		return [
+			'SHOW' => new Field\Checkbox('SHOW', [
 				'title' => Manager::isB24()
-						? Loc::getMessage('LANDING_HOOK_COPYRIGHT_SHOW')
-						: Loc::getMessage('LANDING_HOOK_COPYRIGHT_SHOW_SMN')
-			))
-		);
+					? Loc::getMessage('LANDING_HOOK_COPYRIGHT_SHOW')
+					: Loc::getMessage('LANDING_HOOK_COPYRIGHT_SHOW_SMN'),
+			]),
+			'CODE' => new Field\Text('CODE', [
+				'title' => Loc::getMessage('LANDING_HOOK_COPYRIGHT_CODE'),
+			]),
+		];
 	}
 
 	/**
@@ -52,18 +67,281 @@ class Copyright extends \Bitrix\Landing\Hook\Page
 	{
 		if ($this->isLocked())
 		{
-			return false;
+			return true;
 		}
 
-		return $this->fields['SHOW']->getValue() != 'N';
+		return $this->fields['SHOW']->getValue() !== 'N';
 	}
 
 	/**
-	 * Exec hook. Show or not any copyright.
+	 * Exec hook. Now do nothing, because using print in template
 	 * @return boolean
 	 */
 	public function exec()
 	{
+		$this->setLang(Manager::getZone());
+
 		return true;
+	}
+
+	/**
+	 * Save current site language
+	 * @param string $lang
+	 * @return void
+	 */
+	public function setLang(?string $lang): void
+	{
+		$this->lang = $this->lang ?: $lang;
+	}
+
+	/**
+	 * Get current site language
+	 * @return string
+	 */
+	protected function getLang(): string
+	{
+		return $this->lang ?: Manager::getZone();
+	}
+
+	/**
+	 * Check is current site lang in ru region
+	 * @return bool
+	 */
+	protected function isRuLang(): bool
+	{
+		return in_array($this->getLang(), self::REGIONS_RU_LANG, true);
+	}
+
+	/**
+	 * Return footer html
+	 * @return string
+	 */
+	public function view(): string
+	{
+		$footer = '<div class="bitrix-footer">';
+		$footer .= '<span class="bitrix-footer-text">';
+		$footer .= $this->getCommonText();
+		$footer .= $this->getAdditionalText();
+		$footer .= '</span>';
+		$footer .= '</div>';
+
+		return $footer;
+	}
+
+	protected function getCommonText(): string
+	{
+		$isB24 = Manager::isB24();
+		$lang = $this->getLang();
+
+		$commonText = Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_COMMON', null, $lang);
+		$logoUrl = Manager::getUrlFromFile(
+			'/bitrix/images/landing/copyright/logo_'
+			. (in_array($lang, ['ru', 'ua', 'en']) ? $lang : 'en')
+			. '.svg?1'
+		);
+		$logoAlt = Loc::getMessage('LANDING_HOOK_COPYRIGHT_LOGO_ALT', null, $lang);
+		$logo = '<img src="' . $logoUrl . '" alt="' . $logoAlt . '">';
+
+		// RU
+		if ($isB24 && $this->isRuLang())
+		{
+			return str_replace(
+				[
+					'#LOGO#',
+					'<linklogo>', '</linklogo>',
+					'<linksite>', '</linksite>',
+					'<linkcrm>', '</linkcrm>',
+				],
+				[
+					$logo, '', '', '', '', '', ''
+				],
+				$commonText
+			);
+		}
+
+		$componentClass = \CBitrixComponent::includeComponentClass('bitrix:landing.pub');
+		$component = new $componentClass;
+		$component->setZone($this->getLang());
+
+		// SMN
+		if (!$isB24)
+		{
+			$advCode = $component->getAdvCode();
+
+			return
+				Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_SMN_1')
+				. '<a href="https://www.1c-bitrix.ru/?' . $advCode . '" target="_blank" class="bitrix-footer-link">'
+				. Loc::getMessage('LANDING_TPL_COPY_NAME_SMN_1')
+				. '</a>'
+			;
+		}
+
+		// Not RU
+		$linkLogo = $component->getRefLink('bitrix24_logo', true, true);
+		$linkSite = $component->getRefLink('websites', true, true);
+		$linkCrm = $component->getRefLink('crm', true, true);
+		if ($linkLogo && $linkSite && $linkCrm)
+		{
+			return str_replace(
+				[
+					'#LOGO#',
+					'<linklogo>', '</linklogo>',
+					'<linksite>', '</linksite>',
+					'<linkcrm>', '</linkcrm>',
+				],
+				[
+					$logo,
+					'<a rel="nofollow" target="_blank" href="' . $linkLogo . '">', '</a>',
+					'<a class="bitrix-footer-link" target="_blank" href="' . $linkSite . '">', '</a>',
+					'<a rel="nofollow" class="bitrix-footer-link" target="_blank" href="' . $linkCrm . '">', '</a>',
+				],
+				$commonText
+			);
+		}
+
+		// default
+		return str_replace(
+			[
+				'#LOGO#',
+				'<linklogo>', '</linklogo>',
+				'<linksite>', '</linksite>',
+				'<linkcrm>', '</linkcrm>',
+			],
+			[
+				$logo, '', '', '', '', '', ''
+			],
+			$commonText
+		);
+	}
+
+	/**
+	 * Return random additional phrase with link
+	 * @return mixed
+	 */
+	protected function getAdditionalText()
+	{
+		if (!$this->isRuLang() || !Manager::isB24())
+		{
+			return '';
+		}
+
+		$type = strtoupper(Landing::getSiteType());
+
+		$phrases = $this->getRandomPhraseCollection($type);
+		$code = (int)$this->fields['CODE']->getValue() ?: 1;
+		$text = $phrases[$code] ?: $phrases[1];
+
+		$link =
+			$type === self::PAGE_TYPE_STORE
+				? 'https://www.bitrix24.ru/features/shop.php'
+				: 'https://www.bitrix24.ru/features/sites.php'
+		;
+
+		return '. <a href="' . $link . '">' . $text . '</a>';
+	}
+
+	/**
+	 * Collection of random phrases
+	 * @return array|array[]
+	 */
+	protected function getRandomPhraseCollection(string $type): array
+	{
+		$phrases = [];
+
+		if ($this->isRuLang())
+		{
+			Loc::loadMessages(Manager::getDocRoot() . '/bitrix/modules/landing/lib/hook/page/copyright_notranslate.php');
+			if ($type === self::PAGE_TYPE_STORE)
+			{
+				for ($i = 1; $i <= self::RANDOM_PHRASE_COUNT; $i++)
+				{
+					$phrases[$i] = Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_STORE_' . $i, null, 'ru');
+				}
+			}
+			// default
+			else
+			{
+				for ($i = 1; $i <= self::RANDOM_PHRASE_COUNT; $i++)
+				{
+					$phrases[$i] = Loc::getMessage('LANDING_HOOK_COPYRIGHT_TEXT_PAGE_' . $i, null, 'ru');
+				}
+			}
+		}
+
+		return $phrases;
+	}
+
+	/**
+	 * Get random text code from collection
+	 * @return int
+	 */
+	public static function getRandomPhraseId(): int
+	{
+		return rand(1, self::RANDOM_PHRASE_COUNT);
+	}
+
+	public static function onCopy(?array $data, int $entityId, string $type, bool $publication = false): ?array
+	{
+		// only for site
+		if ($type !== Hook::ENTITY_TYPE_SITE)
+		{
+			return $data;
+		}
+
+		$data = $data ?: [];
+		$newData = $data;
+
+		if (!isset($newData['SHOW']))
+		{
+			$newData['SHOW'] = 'Y';
+		}
+		if (
+			!isset($newData['CODE'])
+			|| !$publication
+		)
+		{
+			$newData['CODE'] = self::getRandomPhraseId();
+		}
+
+		// update
+		if (
+			$data !== $newData
+			&& $publication
+		)
+		{
+			$fields = [
+				'HOOK' => 'COPYRIGHT',
+				'ENTITY_ID' => $entityId,
+				'ENTITY_TYPE' => $type,
+				'PUBLIC' => 'N',
+			];
+			$existing = HookDataTable::getList([
+				'select' => ['ID', 'CODE'],
+				'filter' => $fields,
+			]);
+			while ($row = $existing->fetch())
+			{
+				$res = HookDataTable::update($row['ID'], [
+					'VALUE' => $newData[$row['CODE']]
+				]);
+				if ($res->isSuccess())
+				{
+					unset($newData[$row['CODE']]);
+				}
+			}
+
+			if (!empty($newData))
+			{
+				foreach($newData as $code => $value)
+				{
+					$fieldsAdd = $fields;
+					$fieldsAdd['CODE'] = $code;
+					$fieldsAdd['VALUE'] = $value;
+					HookDataTable::add($fieldsAdd);
+				}
+			}
+		}
+
+		return $newData;
 	}
 }

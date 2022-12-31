@@ -29,9 +29,9 @@ use Bitrix\Main\NotImplementedException;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_WorkgroupFavorites_Query query()
- * @method static EO_WorkgroupFavorites_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WorkgroupFavorites_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_WorkgroupFavorites_Result getById($id)
- * @method static EO_WorkgroupFavorites_Result getList(array $parameters = array())
+ * @method static EO_WorkgroupFavorites_Result getList(array $parameters = [])
  * @method static EO_WorkgroupFavorites_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\EO_WorkgroupFavorites createObject($setDefaultValues = true)
  * @method static \Bitrix\Socialnetwork\EO_WorkgroupFavorites_Collection createCollection()

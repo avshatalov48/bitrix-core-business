@@ -1655,10 +1655,17 @@ class RestService extends \IRestService
 	{
 		if (is_array($documentId))
 		{
-			$runtime = \CBPRuntime::getRuntime(true);
-			$documentService = $runtime->getDocumentService();
-			return $documentService->normalizeDocumentId($documentId);
+			$documentService = \CBPRuntime::getRuntime(true)->getDocumentService();
+			$documentId = $documentService->normalizeDocumentId($documentId);
+
+			if (!$documentService->getDocument($documentId))
+			{
+				return null;
+			}
+
+			return $documentId;
 		}
+
 		return null;
 	}
 
@@ -1666,8 +1673,10 @@ class RestService extends \IRestService
 	{
 		try
 		{
+			$documentId = \CBPHelper::parseDocumentId($documentId);
 			$runtime = \CBPRuntime::getRuntime(true);
 			$documentService = $runtime->getDocumentService();
+
 			return $documentService->getDocumentType($documentId);
 		}
 		catch (\CBPArgumentNullException $e) {}

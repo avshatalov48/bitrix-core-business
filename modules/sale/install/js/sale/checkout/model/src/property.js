@@ -26,6 +26,8 @@ export class Property extends VuexBuilderModel
             type: Const.type.undefined,
             value: "",
             validated: Const.validate.unvalidated,
+			required: 'N',
+			multiple: 'N',
         };
     }
 
@@ -66,6 +68,18 @@ export class Property extends VuexBuilderModel
         {
             result.personTypeId = parseInt(fields.personTypeId);
         }
+
+		if (Type.isString(fields.required))
+		{
+			const requiredValue = fields.required.toString();
+			result.required = requiredValue === 'Y' ? 'Y' : 'N';
+		}
+
+		if (Type.isString(fields.multiple))
+		{
+			const multipleValue = fields.multiple.toString();
+			result.multiple = multipleValue === 'Y' ? 'Y' : 'N';
+		}
 
         return result;
     }

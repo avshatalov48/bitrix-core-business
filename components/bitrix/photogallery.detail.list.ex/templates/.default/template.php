@@ -96,6 +96,11 @@ foreach ($arResult["ELEMENTS_LIST"] as $key => $arItem)
 		$arItem["TITLE"] .= " - ".GetMessage("START_DRAG_TO_SORT");
 	$arItem["TITLE"] = trim($arItem["TITLE"], " -");
 
+	if (!is_array($arItem["PREVIEW_PICTURE"]))
+	{
+		continue;
+	}
+
 	$src = $arItem["PREVIEW_PICTURE"]["SRC"];
 	$w = intval($arItem["PREVIEW_PICTURE"]["WIDTH"]);
 	$h = intval($arItem["PREVIEW_PICTURE"]["HEIGHT"]);

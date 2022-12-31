@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Main\Controller\Filter;
 
 use Bitrix\Main\Error;
@@ -6,12 +7,13 @@ use Bitrix\Main\Localization\Loc;
 
 class Base extends \Bitrix\Main\Engine\Controller
 {
-	protected function getList($entityTypeId, array $filterSettingsParams)
+	protected function getList($entityTypeId, array $filterSettingsParams, ?array $additionalParams = null)
 	{
 		$result = [];
 		$entityFilter = \Bitrix\Main\Filter\Factory::createEntityFilter(
 			$entityTypeId,
-			$filterSettingsParams
+			$filterSettingsParams,
+			$additionalParams
 		);
 
 		foreach($entityFilter->getFields() as $field)
@@ -24,11 +26,12 @@ class Base extends \Bitrix\Main\Engine\Controller
 		return $result;
 	}
 
-	protected function getField($entityTypeId, array $filterSettingsParams, $id)
+	protected function getField($entityTypeId, array $filterSettingsParams, $id, ?array $additionalParams = null)
 	{
 		$entityFilter = \Bitrix\Main\Filter\Factory::createEntityFilter(
 			$entityTypeId,
-			$filterSettingsParams
+			$filterSettingsParams,
+			$additionalParams
 		);
 
 		$field = $entityFilter->getField($id);

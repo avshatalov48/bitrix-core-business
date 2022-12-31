@@ -299,6 +299,11 @@ class RestService extends \IRestService
 			$fields['NAME'] = $params['FIELDS']['NAME'];
 		}
 
+		if (isset($params['FIELDS']['DESCRIPTION']))
+		{
+			$fields['DESCRIPTION'] = $params['FIELDS']['DESCRIPTION'];
+		}
+
 		if (isset($params['FIELDS']['NEW_WINDOW']))
 		{
 			$fields['NEW_WINDOW'] = $params['FIELDS']['NEW_WINDOW'];

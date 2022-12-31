@@ -195,7 +195,8 @@
 				onInput: this.onSearchInput.bind(this),
 				className: "landing-ui-card-library-search-field",
 				placeholder: BX.Landing.Loc.getMessage("SEARCH_FIELD_PLACEHOLDER"),
-				title: this.searchLabel
+				title: this.searchLabel,
+				skipPasteControl: true,
 			});
 
 			field.input.type = "text";

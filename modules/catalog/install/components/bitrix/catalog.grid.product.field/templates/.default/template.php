@@ -26,7 +26,7 @@ Extension::load([
 			{
 				componentName: '<?=$component->getName()?>',
 				signedParameters: '<?=$component->getSignedParameters()?>',
-				productId: '<?=CUtil::JSEscape($arResult['PRODUCT_FIELDS']['ID'])?>',
+				productId: '<?=CUtil::JSEscape($arResult['PRODUCT_FIELDS']['PRODUCT_ID'])?>',
 				iblockId: '<?=CUtil::JSEscape($arResult['IBLOCK_ID'])?>',
 				basePriceId: '<?=CUtil::JSEscape($arResult['BASE_PRICE_ID'])?>',
 				skuId: '<?=CUtil::JSEscape($arResult['SKU_ID'])?>',

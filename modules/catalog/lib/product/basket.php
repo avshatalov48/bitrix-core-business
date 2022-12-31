@@ -492,21 +492,21 @@ class Basket
 				}
 			}
 
-			$fields = $fields +
-				[
-					'DETAIL_PAGE_URL' => $elementFields['~DETAIL_PAGE_URL'],
-					'BARCODE_MULTI' => $productFields['BARCODE_MULTI'],
-					'WEIGHT' => (float)$productFields['WEIGHT'],
-					'DIMENSIONS' => [
-						'WIDTH' => $productFields['WIDTH'],
-						'HEIGHT' => $productFields['HEIGHT'],
-						'LENGTH' => $productFields['LENGTH']
-					],
-					'TYPE' => ($productFields['TYPE'] == Catalog\ProductTable::TYPE_SET ? \CCatalogProductSet::TYPE_SET : null),
-					'MEASURE_ID' => $productFields['MEASURE'],
-					'MEASURE_NAME' => $productFields['MEASURE_NAME'],
-					'MEASURE_CODE' => $productFields['MEASURE_CODE']
-				];
+			$fields['TYPE'] = Sale\Internals\Catalog\ProductTypeMapper::getType((int)$productFields['TYPE']);
+
+			$fields += [
+				'DETAIL_PAGE_URL' => $elementFields['~DETAIL_PAGE_URL'],
+				'BARCODE_MULTI' => $productFields['BARCODE_MULTI'],
+				'WEIGHT' => (float)$productFields['WEIGHT'],
+				'DIMENSIONS' => [
+					'WIDTH' => $productFields['WIDTH'],
+					'HEIGHT' => $productFields['HEIGHT'],
+					'LENGTH' => $productFields['LENGTH']
+				],
+				'MEASURE_ID' => $productFields['MEASURE'],
+				'MEASURE_NAME' => $productFields['MEASURE_NAME'],
+				'MEASURE_CODE' => $productFields['MEASURE_CODE']
+			];
 
 			unset($productFields);
 		}

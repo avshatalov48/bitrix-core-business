@@ -14,7 +14,7 @@ return [
 	'cards' => [
 		'.landing-block-card' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_FAQ_3_NAME_CARD'),
-			'label' => ['.landing-block-faq-visible'],
+			'label' => ['.landing-block-faq-visible-text'],
 		],
 	],
 	'nodes' => [
@@ -22,7 +22,7 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_FAQ_3_NAME_TITLE'),
 			'type' => 'text',
 		],
-		'.landing-block-faq-visible' => [
+		'.landing-block-faq-visible-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_FAQ_3_NAME_TITLE'),
 			'type' => 'text',
 		],
@@ -37,6 +37,10 @@ return [
 			'type' => ['typo', 'animation', 'heading'],
 		],
 		'.landing-block-faq-visible' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_FAQ_3_NAME_ELEMENTS'),
+			'type' => ['color', 'color-hover', 'border-color'],
+		],
+		'.landing-block-faq-visible-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_FAQ_3_NAME_TITLE'),
 			'type' => ['typo', 'color-hover', 'border-color'],
 		],

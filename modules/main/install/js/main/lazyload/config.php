@@ -5,7 +5,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'css' => 'dist/lazyload.bundle.css',
 	'js' => 'dist/lazyload.bundle.js',
 	'rel' => [
 		'main.core',

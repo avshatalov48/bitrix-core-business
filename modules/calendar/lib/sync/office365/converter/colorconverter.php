@@ -11,11 +11,11 @@ class ColorConverter
 		'#86b100' => '1',
 		'#0092cc' => '0',
 		'#00afc7' => '5',
-		'#da9100' => '7',
+		'#e89b06' => '7',
 		'#00b38c' => '-1', //
 		'#de2b24' => '2',
 		'#838fa0' => '6',
-		'#ab7917' => '4',
+		'#c3612c' => '4',
 		'#e97090' => '-1',
 	];
 
@@ -23,8 +23,8 @@ class ColorConverter
 		'#86b100' => 'lightGreen',
 		'#0092cc' => 'lightBlue',
 		'#00afc7' => 'lightTeal',
-		'#ab7917' => 'lightBrown',
-		'#da9100' => 'lightOrange',
+		'#c3612c' => 'lightBrown',
+		'#e89b06' => 'lightOrange',
 //		'#838fa0' => 'lightYellow',
 		'#bd7ac9' => 'lightPink',
 		'#838fa0' => 'lightGray',
@@ -35,8 +35,8 @@ class ColorConverter
 		'lightGreen' => '#86b100',
 		'lightBlue' => '#0092cc',
 		'lightTeal' => '#00afc7',
-		'lightBrown' => '#ab7917',
-		'lightOrange' => '#da9100',
+		'lightBrown' => '#c3612c',
+		'lightOrange' => '#e89b06',
 //		'lightYellow' => '#838fa0',
 		'lightPink' => '#bd7ac9',
 		'lightGray' => '#838fa0',
@@ -61,12 +61,12 @@ class ColorConverter
 		'#86b100', // 1
 		'#0092cc', // 2
 		'#00afc7', // 3
-		'#da9100', // 4
+		'#e89b06', // 4
 		'#00b38c', // 5
 		'#de2b24', // 6
 		'#bd7ac9', // 7
 		'#838fa0', // 8
-		'#ab7917', // 9
+		'#c3612c', // 9
 		'#e97090', // 10
 	];
 

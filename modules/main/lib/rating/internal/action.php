@@ -156,6 +156,7 @@ class Action
 					? $result['reactions']
 					: []
 			),
+			'list_page' => $result['list_page'],
 		];
 
 		foreach ($result['items'] as $key => $value)

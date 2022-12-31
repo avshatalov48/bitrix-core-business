@@ -42,7 +42,7 @@ class Detector implements DetectorInterface
 				{
 					return new Browser('Bitrix24.Disk', 'Windows', DeviceType::DESKTOP);
 				}
-				return new Browser('Bitrix24.Disk', 'MacOSX', DeviceType::DESKTOP);
+				return new Browser('Bitrix24.Disk', 'macOS', DeviceType::DESKTOP);
 			}
 
 			if (strpos($userAgent, 'BitrixDesktop') !== false)
@@ -53,7 +53,7 @@ class Detector implements DetectorInterface
 				}
 				if (strpos($userAgent, 'Mac OS') !== false)
 				{
-					return new Browser('Bitrix24.Desktop', 'MacOSX', DeviceType::DESKTOP);
+					return new Browser('Bitrix24.Desktop', 'macOS', DeviceType::DESKTOP);
 				}
 				return new Browser('Bitrix24.Desktop', 'Linux', DeviceType::DESKTOP);
 			}

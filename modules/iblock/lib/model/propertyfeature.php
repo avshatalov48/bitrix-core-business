@@ -345,7 +345,7 @@ class PropertyFeature
 	 * Returns iblock properties identifiers (ID or CODE), showed in element list.
 	 *
 	 * @param int $iblockId			Iblock identifier.
-	 * @param array $parameters		Options.
+	 * @param array $parameters		Options
 	 * 	keys are case sensitive:
 	 *		<ul>
 	 * 		<li>CODE	Return symbolic code as identifier (Y/N, default N).
@@ -372,7 +372,7 @@ class PropertyFeature
 	 * Returns iblock properties identifiers (ID or CODE), showed on detail element page.
 	 *
 	 * @param int $iblockId			Iblock identifier.
-	 * @param array $parameters		Options.
+	 * @param array $parameters		Options
 	 * 	keys are case sensitive:
 	 *		<ul>
 	 * 		<li>CODE	Return symbolic code as identifier (Y/N, default N).
@@ -400,7 +400,7 @@ class PropertyFeature
 	 * @see self::getDetailPageShowPropertyCodes
 	 *
 	 * @param int $iblockId			Iblock identifier.
-	 * @param array $parameters		Options.
+	 * @param array $parameters		Options
 	 * 	keys are case sensitive:
 	 *		<ul>
 	 * 		<li>CODE	Return symbolic code as identifier (Y/N, default N).
@@ -417,7 +417,7 @@ class PropertyFeature
 	 *
 	 * @param int $iblockId			Iblock identifier.
 	 * @param array $filter			Feature filter.
-	 * @param array $parameters		Options.
+	 * @param array $parameters		Options
 	 * 	keys are case sensitive:
 	 *		<ul>
 	 * 		<li>CODE	Return symbolic code as identifier (Y/N, default N).

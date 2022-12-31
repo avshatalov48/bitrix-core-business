@@ -86,7 +86,20 @@ class Directory
 	{
 		$dir = new Directory(Path::combine($this->path, $name));
 		if (!$dir->isExists())
-			mkdir($dir->getPhysicalPath(), BX_DIR_PERMISSIONS, true);
+		{
+			try
+			{
+				mkdir($dir->getPhysicalPath(), BX_DIR_PERMISSIONS, true);
+			}
+			catch (\ErrorException $exception)
+			{
+				if (!$dir->isExists())
+				{
+					throw $exception;
+				}
+			}
+		}
+
 		return $dir;
 	}
 

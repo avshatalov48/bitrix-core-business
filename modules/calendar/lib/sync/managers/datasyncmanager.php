@@ -3,30 +3,37 @@
 namespace Bitrix\Calendar\Sync\Managers;
 
 use Bitrix\Calendar\Core\Builders\EventBuilderFromArray;
-use Bitrix\Calendar\Core\Builders\SectionBuilderFromDataManager;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Internals\EventConnectionTable;
-use Bitrix\Calendar\Internals\SectionTable;
+use Bitrix\Calendar\Internals\FlagRegistry;
 use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromDM;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Dictionary;
 use Bitrix\Calendar\Sync\Icloud;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Calendar\Internals\SectionConnectionTable;
-use Bitrix\Calendar\Sync\Util\AttendeesDescription;
+use Bitrix\Calendar\Sync\Util\EventDescription;
 use Bitrix\Calendar\Sync\Util\RequestLogger;
 use Bitrix\Calendar\Sync\Util\Result;
+use Bitrix\Calendar\UserField\ResourceBooking;
 use Bitrix\Calendar\Util;
 use Bitrix\Dav\Internals\DavConnectionTable;
 use Bitrix\Dav\Internals\EO_DavConnection;
 use Bitrix\Dav\Internals\EO_DavConnection_Collection;
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ObjectException;
+use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Web\Uri;
+use CCalendar;
 
 class DataSyncManager
 {
@@ -38,7 +45,7 @@ class DataSyncManager
 	private $mapperFactory;
 
 	/**
-	 * @throws \Bitrix\Main\ObjectNotFoundException
+	 * @throws \Bitrix\Main\ObjectNotFoundException|\Psr\Container\NotFoundExceptionInterface
 	 */
 	private function __construct()
 	{
@@ -113,13 +120,14 @@ class DataSyncManager
 
 	/**
 	 *
-	 * @param EO_DavConnection $connection
+	 * @param Connection $connection
 	 *
 	 * @return Result
+	 * @throws LoaderException
 	 * @throws SystemException
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws ArgumentException
+	 * @throws ArgumentNullException
+	 * @throws ObjectPropertyException
 	 */
 	private function syncConnection(Connection $connection): Result
 	{
@@ -214,6 +222,7 @@ class DataSyncManager
 	 * @throws SystemException
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws LoaderException
 	 */
 	private function modifyEvent(
 		Connection $connection,
@@ -228,17 +237,33 @@ class DataSyncManager
 			return;
 		}
 
+		$eventId = null;
+
+		// if (!$this->checkAttendeesAccessibility($eventsMap[$event['href']], $event))
+		// {
+			// temporary this functionality is turned off
+
+			// $this->rollbackEvent(
+			// 	$eventsMap[$event['href']],
+			// 	'CALENDAR_IMPORT_BLOCK_ATTENDEE_ACCESSIBILITY'
+			// );
+			// return;
+		// }
+
 		[$event, $exDate] = $this->mergeExternalEventWithLocal($eventsMap[$event['href']], $event, $client);
 
-		$eventId = $this->modifySingleEvent(
-			$connection,
-			$event['calendar-data'],
-			[
-				'SECTION_ID' => $calendar['SECTION_ID'],
-				'VERSION' => $eventsMap[$event['href']]['VERSION'],
-				'EVENT_CONNECTION_ID' => $eventsMap[$event['href']]['EVENT_CONNECTION_ID'],
-			]
-		);
+		if ($event['calendar-data'] && is_array($event['calendar-data']))
+		{
+			$eventId = $this->modifySingleEvent(
+				$connection,
+				$event['calendar-data'],
+				[
+					'SECTION_ID' => $calendar['SECTION_ID'],
+					'VERSION' => $eventsMap[$event['href']]['VERSION'],
+					'EVENT_CONNECTION_ID' => $eventsMap[$event['href']]['EVENT_CONNECTION_ID'],
+				]
+			);
+		}
 
 		if (is_array($event['calendar-data-ex']) && $eventId && count($event['calendar-data-ex']) > 0)
 		{
@@ -252,7 +277,7 @@ class DataSyncManager
 				]
 			);
 		}
-		else if ($exDate && $event['calendar-data']['ID'])
+		else if ($exDate && $event['calendar-data'] && $event['calendar-data']['ID'])
 		{
 			$this->deleteDuplicateExDates(
 				$exDate,
@@ -261,6 +286,90 @@ class DataSyncManager
 				$connection->getOwner()->getId(),
 			);
 		}
+	}
+
+	/**
+	 * @param array $baseEvent
+	 * @param array $importedEvent
+	 *
+	 * @return bool
+	 *
+	 * @throws ObjectException
+	 */
+	private function checkAttendeesAccessibility(
+		array $baseEvent,
+		array $importedEvent
+	): bool
+	{
+		$codes = $baseEvent['ATTENDEES_CODES'];
+		if (empty($codes) || count($codes) < 2)
+		{
+			return true;
+		}
+
+		$getTime = static function (string $time, ?string $timeZone): DateTime
+		{
+			if (!$timeZone)
+			{
+				$timeZone ='UTC';
+			}
+
+			return new DateTime($time, DateTime::getFormat(), new \DateTimeZone($timeZone));
+		};
+
+		$baseFrom = $getTime(
+			$baseEvent['DATE_FROM']->format(DateTime::getFormat()),
+			$baseEvent['TZ_FROM']
+		);
+		$baseTo = $getTime(
+			$baseEvent['DATE_TO']->format(DateTime::getFormat()),
+			$baseEvent['TZ_TO']
+		);
+
+		$importedFrom = $getTime(
+			$importedEvent['calendar-data']['DATE_FROM'],
+			$importedEvent['calendar-data']['TZ_FROM']
+		);
+
+		$importedTo = $getTime(
+			$importedEvent['calendar-data']['DATE_TO'],
+			$importedEvent['calendar-data']['TZ_TO']
+		);
+
+		if (
+			$baseFrom->format('c') === $importedFrom->format('c')
+			&& $baseTo->format('c') === $importedTo->format('c')
+		)
+		{
+			return true;
+		}
+
+		$userIds = \CCalendar::GetDestinationUsers($codes);
+
+		if ($userIds = array_filter($userIds))
+		{
+			$localTime = new \DateTime();
+			$accessibility = \CCalendar::GetAccessibilityForUsers([
+				'users' => $userIds,
+				'from' => $importedFrom->setTimezone($localTime->getTimezone())->toString(),
+				'to' => $importedTo->setTimezone($localTime->getTimezone())->toString(),
+				'curEventId' => $baseEvent['ID'],
+				'checkPermissions' => false,
+			]);
+
+			foreach ($accessibility as $events)
+			{
+				foreach ($events as $eventData)
+				{
+					if ($eventData['ACCESSIBILITY'] === 'busy')
+					{
+						return false;
+					}
+				}
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -489,19 +598,24 @@ class DataSyncManager
 				}
 				$instance = $this->addParentDataToInstance($instance, $parentEvent);
 
-				$this->modifySingleEvent(
-					$connection,
-					$instance,
-					[
-						'SECTION_ID' => $additionalParams['SECTION_ID'],
-						'VERSION' => $instance['VERSION'] ?? 1,
-						'EVENT_CONNECTION_ID' => $instance['EVENT_CONNECTION_ID'] ?? 0,
-					]
-				);
-
-				if ($instance['RECURRENCE_ID_DATE'])
+				if ($instance && $instance['RECURRENCE_ID'])
 				{
-					$exDates[] = \CCalendar::Date(\CCalendar::Timestamp($instance['RECURRENCE_ID_DATE']), false);
+					unset($instance['RRULE'], $instance['EXDATE']);
+
+					$this->modifySingleEvent(
+						$connection,
+						$instance,
+						[
+							'SECTION_ID' => $additionalParams['SECTION_ID'],
+							'VERSION' => $instance['VERSION'] ?? 1,
+							'EVENT_CONNECTION_ID' => $instance['EVENT_CONNECTION_ID'] ?? 0,
+						]
+					);
+
+					if ($instance['RECURRENCE_ID_DATE'])
+					{
+						$exDates[] = \CCalendar::Date(\CCalendar::Timestamp($instance['RECURRENCE_ID_DATE']), false);
+					}
 				}
 			}
 			$exDate = \CCalendarEvent::SetExDate($exDates);
@@ -574,7 +688,7 @@ class DataSyncManager
 	 * @return array
 	 * @throws SystemException
 	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectException
+	 * @throws ObjectException
 	 * @throws \Bitrix\Main\ObjectNotFoundException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Exception
@@ -741,6 +855,14 @@ class DataSyncManager
 	            'MEETING' => 'EVENT.MEETING',
 	            'EXDATE' => 'EVENT.EXDATE',
 	            'EVENT_PARENT_ID' => 'EVENT.PARENT_ID',
+	            'EVENT_TYPE' => 'EVENT.EVENT_TYPE',
+	            'EVENT_NAME' => 'EVENT.NAME',
+	            'EVENT_OWNER_ID' => 'EVENT.OWNER_ID',
+				'EVENT_DATE_FROM' => 'EVENT.DATE_FROM',
+				'EVENT_DATE_TO' => 'EVENT.DATE_TO',
+				'EVENT_TZ_FROM' => 'EVENT.TZ_FROM',
+				'EVENT_TZ_TO' => 'EVENT.TZ_TO',
+				'EVENT_VERSION' => 'EVENT.VERSION',
 	            'ATTENDEES_CODES' => 'EVENT.ATTENDEES_CODES',
 	            'ACCESSIBILITY' => 'EVENT.ACCESSIBILITY',
 			])
@@ -764,13 +886,20 @@ class DataSyncManager
 
 		foreach ($events as $index => $event)
 		{
-			if (isset($linksMap[$event['XML_ID']]))
+			if (!empty($linksMap[$event['XML_ID']]))
 			{
-				// TODO: EVENT_ID = EVENT_PARENT_ID must be in core for edit and delete event
-				if (
-					(int)$event['STATUS'] === 200
-					&& $linksMap[$event['XML_ID']]['EVENT_ID'] === $linksMap[$event['XML_ID']]['EVENT_PARENT_ID']
-				)
+				$existEvent = $linksMap[$event['XML_ID']];
+
+				if ($existEvent['ENTITY_TAG'] === $event['SYNC_TOKEN'])
+				{
+					continue;
+				}
+				if ($this->isBlockedChange($existEvent, $event))
+				{
+					continue;
+				}
+
+				if ((int)$event['STATUS'] === 200)
 				{
 					if ($linksMap[$event['XML_ID']]['ENTITY_TAG'] !== $event['SYNC_TOKEN'])
 					{
@@ -781,10 +910,7 @@ class DataSyncManager
 						unset($events[$index]);
 					}
 				}
-				else if (
-					(int)$event['STATUS'] === 404
-					&& $linksMap[$event['XML_ID']]['EVENT_ID'] === $linksMap[$event['XML_ID']]['EVENT_PARENT_ID']
-				)
+				else if ((int)$event['STATUS'] === 404)
 				{
 					\CCalendar::DeleteEvent(
 						$linksMap[$event['XML_ID']]['EVENT_ID'],
@@ -806,6 +932,114 @@ class DataSyncManager
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param array $existEvent
+	 * @param array $importedEvent
+	 *
+	 * @return bool
+	 *
+	 * @throws LoaderException
+	 */
+	private function isBlockedChange(array $existEvent, array $importedEvent): bool
+	{
+		if ($existEvent['EVENT_TYPE'] === ResourceBooking::EVENT_LABEL)
+		{
+			// temporary this functionality is turned off
+			// $this->rollbackEvent($existEvent, 'CALENDAR_IMPORT_BLOCK_RESOURCE_BOOKING');
+
+			return true;
+		}
+
+		if ($existEvent['EVENT_ID'] !== $existEvent['EVENT_PARENT_ID'])
+		{
+			// temporary this functionality is turned off
+			// $this->rollbackEvent($existEvent, 'CALENDAR_IMPORT_BLOCK_FROM_ATTENDEE');
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param array $existEvent
+	 * @param string $messageCode
+	 *
+	 * @return void
+	 * @throws LoaderException
+	 * @throws \Exception
+	 */
+	private function rollbackEvent(
+		array $existEvent,
+		string $messageCode
+	): void
+	{
+		$this->pushRollbackToQueue($existEvent);
+		if (!FlagRegistry::getInstance()->isFlag(Dictionary::FIRST_SYNC_FLAG_NAME))
+		{
+			$this->noticeUser($existEvent, $messageCode);
+		}
+	}
+
+	/**
+	 * @param array $existEvent
+	 *
+	 * @return void
+	 *
+	 * @throws \Exception
+	 */
+	private function pushRollbackToQueue(array $existEvent): void
+	{
+		$version = $existEvent['EVENT_VERSION'] ?? $existEvent['VERSION'] ?? 1;
+		EventConnectionTable::update(
+			$existEvent['EVENT_CONNECTION_ID'],
+			[
+				'SYNC_STATUS' => 'update',
+				'VERSION' => max((int)$version - 1, 0)
+			]
+		);
+	}
+
+	/**
+	 * @param array $syncEvent
+	 * @param string $messageCode
+	 *
+	 * @return void
+	 *
+	 * @throws LoaderException
+	 */
+	private function noticeUser(array $syncEvent, string $messageCode = '')
+	{
+		$userId = $syncEvent['EVENT_OWNER_ID'] ?? $syncEvent['MEETING']['MEETING_CREATOR'] ?? null;
+
+		if (
+			$userId
+			&& Loader::includeModule('im')
+			&& Loader::includeModule('pull')
+		)
+		{
+			$path = CCalendar::GetPath(
+				self::ENTITY_TYPE,
+				$userId,
+				true);
+			$uri = (new Uri($path))
+				->deleteParams(["action", "sessid", "bx_event_calendar_request", "EVENT_ID", "EVENT_DATE"])
+				->addParams([
+					'EVENT_ID' => $syncEvent['EVENT_ID']
+				])
+			;
+			NotificationManager::sendBlockChangeNotification(
+				$userId,
+				$messageCode,
+				[
+					'#EVENT_URL#' => $uri->getUri(),
+					'#EVENT_TITLE#' => $syncEvent['EVENT_NAME'],
+					'EVENT_ID' => $syncEvent['EVENT_ID'],
+				]
+			);
+		}
 	}
 
 	/**
@@ -942,13 +1176,15 @@ class DataSyncManager
 	}
 
 	/**
-	 * @param $calendarsList
-	 * @param $connection
+	 * @param Connection $connection
 	 *
+	 * @param $calendarsList
 	 * @return array
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
+	 * @throws ArgumentException
+	 * @throws ObjectException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws \Bitrix\Main\ObjectNotFoundException
 	 */
 	private function syncSections(Connection $connection, $calendarsList): array
 	{
@@ -1186,7 +1422,7 @@ class DataSyncManager
 	 * @param array $fields
 	 *
 	 * @return void
-	 * @throws \Bitrix\Main\ObjectException
+	 * @throws ObjectException
 	 */
 	private function prepareRemind($parsed, array &$fields): void
 	{
@@ -1336,24 +1572,16 @@ class DataSyncManager
 	 */
 	private function prepareDescription(array $event, array &$fields): void
 	{
-		if ($fields['ATTENDEES_CODES'])
+		if (isset($event['MEETING']) && !empty($event['MEETING']['LANGUAGE_ID']))
 		{
-			if (isset($event['MEETING']) && !empty($event['MEETING']['LANGUAGE_ID']))
-			{
-				$languageId = $event['MEETING']['LANGUAGE_ID'];
-			}
-			else
-			{
-				$languageId = \CCalendar::getUserLanguageId((int)$fields['OWNER_ID']);
-			}
-
-			$fields['DESCRIPTION'] = (new AttendeesDescription($languageId))
-				->cutAttendeesFromDescription($event['DETAIL_TEXT']);
+			$languageId = $event['MEETING']['LANGUAGE_ID'];
 		}
 		else
 		{
-			$fields['DESCRIPTION'] = $event['DETAIL_TEXT'];
+			$languageId = \CCalendar::getUserLanguageId((int)$fields['OWNER_ID']);
 		}
+
+		$fields['DESCRIPTION'] = (new EventDescription())->prepareAfterImport($event['DETAIL_TEXT'], $languageId);
 	}
 
 	/**
@@ -1461,9 +1689,10 @@ class DataSyncManager
 		return [
 			'XML_ID' => $xmlId,
 			'ID' => (int)$link['EVENT_ID'],
+			'EVENT_NAME' => $link['EVENT_NAME'],
 			'EVENT_CONNECTION_ID' => (int)$link['EVENT_CONNECTION_ID'],
 			'EXDATE' => $link['EXDATE'] ?? null,
-			'VERSION' => $link['VERSION'] ?? 1,
+			'VERSION' => $link['EVENT_VERSION'] ?? $link['VERSION'] ?? 1,
 			'MEETING' => $link['MEETING']
 				? unserialize($link['MEETING'], ['allowed_classes' => false])
 				: null
@@ -1473,7 +1702,11 @@ class DataSyncManager
 				? explode(',', $link['ATTENDEES_CODES'])
 				: null
 			,
-			'ACCESSIBILITY' => $link['ACCESSIBILITY'] ?? 'busy'
+			'ACCESSIBILITY' => $link['ACCESSIBILITY'] ?? 'busy',
+			'DATE_FROM' => $link['EVENT_DATE_FROM'] ?? null,
+			'DATE_TO' => $link['EVENT_DATE_TO'] ?? null,
+			'TZ_FROM' => $link['EVENT_TZ_FROM'] ?? null,
+			'TZ_TO' => $link['EVENT_TZ_TO'] ?? null,
 		];
 	}
 

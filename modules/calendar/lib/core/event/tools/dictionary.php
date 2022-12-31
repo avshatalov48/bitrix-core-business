@@ -30,4 +30,11 @@ class Dictionary
 		'user' => 'user',
 		'chat' => 'chat',
 	];
+
+	public const MEETING_STATUS = [
+		'Yes' => 'Y',
+		'No' => 'N',
+		'Question' => 'Q',
+		'Host' => 'H'
+	];
 }

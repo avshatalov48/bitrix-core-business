@@ -22,10 +22,10 @@ use Bitrix\Seo\Engine;
 use Bitrix\Seo\Adv;
 use Bitrix\Seo\Service;
 
-Loc::loadMessages(dirname(__FILE__).'/../../main/tools.php');
-Loc::loadMessages(dirname(__FILE__).'/menu.php');
-Loc::loadMessages(dirname(__FILE__).'/seo_search.php');
-Loc::loadMessages(dirname(__FILE__).'/seo_adv.php');
+Loc::loadMessages(__DIR__.'/../../main/tools.php');
+Loc::loadMessages(__DIR__.'/menu.php');
+Loc::loadMessages(__DIR__.'/seo_search.php');
+Loc::loadMessages(__DIR__.'/seo_adv.php');
 
 if (!$USER->CanDoOperation('seo_tools'))
 {

@@ -18,6 +18,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 \Bitrix\Main\UI\Extension::load([
 	'ui.design-tokens',
+	'catalog.access-denied-input',
 ]);
 
 Toolbar::deleteFavoriteStar();
@@ -68,21 +69,26 @@ $APPLICATION->IncludeComponent(
 				</td>
 			</tr>
 			<?php endif; ?>
+
+			<?php if ($arResult['ALLOW_PURCHASING_PRICE']): ?>
 			<tr class="product-stores-amount-details-total-table-row">
 				<td><?=Loc::getMessage('STORE_LIST_DETAILS_TOTAL_PURCHASING_PRICE')?>:</td>
 				<td>
 					<span id="<?=$arResult['GRID']['GRID_ID']?>_total_price" class="total-info"><?=$arResult['TOTAL_DATA']['PRICE']?></span>
 				</td>
 			</tr>
+			<?php endif; ?>
 		</table>
 	</div>
 </div>
 <script>
+	BX.message(<?= Json::encode(Loc::loadLanguageFile(__FILE__)) ?>);
 	BX.ready(function(){
 		BX.message(<?=Json::encode(Loc::loadLanguageFile(__FILE__))?>);
 		BX.Catalog.StoreAmountDetails.Instance = new BX.Catalog.StoreAmountDetails(<?=CUtil::PhpToJSObject([
 			'gridId' => $arResult['GRID']['GRID_ID'],
 			'productId' => $arParams['PRODUCT_ID'],
+			'allowPurchasingPrice' => $arResult['ALLOW_PURCHASING_PRICE'],
 		])?>);
 	});
 </script>

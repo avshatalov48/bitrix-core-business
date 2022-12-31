@@ -1,4 +1,9 @@
 <?php
+
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\Permission\PermissionDictionary;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -6,27 +11,33 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 $defaultStoreId = 0;
 $defaultStoreName = '';
+$allowCreateItem = false;
+
 if (\Bitrix\Main\Loader::includeModule('catalog'))
 {
-	$storeData = \Bitrix\Catalog\StoreTable::getList([
-		'select' => ['ID', 'TITLE', 'IS_DEFAULT']
-	]);
+	$controller = AccessController::getCurrent();
 
-	while ($store = $storeData->fetch())
+	$allowStoresIds = $controller->getPermissionValue(ActionDictionary::ACTION_STORE_VIEW) ?? [];
+	$allAllowed = in_array(PermissionDictionary::VALUE_VARIATION_ALL, $allowStoresIds, true);
+
+	$storeId = $controller->getAllowedDefaultStoreId();
+	if (isset($storeId))
 	{
-		if ($defaultStoreId === 0)
-		{
-			$defaultStoreId = $store['ID'];
-			$defaultStoreName = $store['TITLE'];
-		}
+		$storeData = \Bitrix\Catalog\StoreTable::getRow([
+			'select' => [
+				'ID',
+				'TITLE',
+			],
+			'filter' => [
+				'=ID' => $storeId,
+			],
+		]);
 
-		if ($store['IS_DEFAULT'] === 'Y')
-		{
-			$defaultStoreId = $store['ID'];
-			$defaultStoreName = $store['TITLE'];
-			break;
-		}
+		$defaultStoreId = $storeData['ID'];
+		$defaultStoreName = $storeData['TITLE'];
 	}
+
+	$allowCreateItem = $allAllowed && $controller->check(ActionDictionary::ACTION_STORE_MODIFY);
 }
 
 return [
@@ -34,6 +45,7 @@ return [
 	'js' => 'dist/store-selector.bundle.js',
 	'rel' => [
 		'ui.forms',
+		'ui.hint',
 		'main.core.events',
 		'main.core',
 		'ui.entity-selector',
@@ -45,5 +57,7 @@ return [
 	'settings' => [
 		'defaultStoreId' => $defaultStoreId,
 		'defaultStoreName' => $defaultStoreName,
+		'allowCreateItem' => $allowCreateItem,
+		'disableByRights' => empty($allowStoresIds),
 	],
 ];

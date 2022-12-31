@@ -1,12 +1,14 @@
 <?php
-use \Bitrix\Landing\Manager;
-use \Bitrix\Landing\Assets;
-use \Bitrix\Main\Loader;
-
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
+
+use Bitrix\Landing\Assets;
+use Bitrix\Main\Loader;
+use Bitrix\Main\UI\Extension;
+
+/** @var \CMain $APPLICATION */
 
 if (!Loader::includeModule('landing'))
 {
@@ -20,17 +22,37 @@ $APPLICATION->ShowProperty('FooterJS');
 ?>
 
 </main>
-<?$APPLICATION->ShowProperty('BeforeBodyClose');?>
+<?php $APPLICATION->ShowProperty('BeforeBodyClose');?>
 
-<?if (\Bitrix\Landing\Connector\Mobile::isMobileHit()):?>
+<?php if (\Bitrix\Landing\Connector\Mobile::isMobileHit()):
+	Extension::load(['mobile_tools']);
+	?>
 <script type="text/javascript">
+
 	if (typeof BXMPage !== 'undefined')
 	{
 		BXMPage.TopBar.title.setText('<?= $APPLICATION->getTitle();?>');
 		BXMPage.TopBar.title.show();
 	}
+
+	document.addEventListener('DOMContentLoaded', function ()
+	{
+		BX.bindDelegate(document.body, 'click', {tagName: 'A'}, function (event)
+		{
+			if (this.hostname === document.location.hostname)
+			{
+				let func = BX.MobileTools.resolveOpenFunction(this.href);
+
+				if (func)
+				{
+					func();
+					return BX.PreventDefault(event);
+				}
+			}
+		});
+	}, false);
 </script>
-<?endif;?>
+<?php endif?>
 
 </body>
 </html>

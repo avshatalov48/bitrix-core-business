@@ -1,16 +1,24 @@
 <?
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
+
 use Bitrix\Main;
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
-if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_discount')))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+
 Main\Loader::includeModule("catalog");
 
-$readOnly = !$USER->CanDoOperation('catalog_discount');
+$accessController = AccessController::getCurrent();
+if (!($accessController->check(ActionDictionary::ACTION_CATALOG_READ) || $accessController->check(ActionDictionary::ACTION_PRODUCT_DISCOUNT_SET)))
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
+
+$readOnly = !$accessController->check(ActionDictionary::ACTION_PRODUCT_DISCOUNT_SET);
 $boolShowCoupons = true;
 
 if ($ex = $APPLICATION->GetException())
@@ -670,7 +678,7 @@ $tabControl->BeginNextFormTab();
 	$TMP_ID = 0;
 	$intDiscountID = ((0 == $ID) || ($boolCopy) ? '-'.$TMP_ID : $ID);
 	$strSubTMP_ID = $TMP_ID;
-	$boolCouponsReadOnly = !$USER->CanDoOperation('catalog_discount');
+	$boolCouponsReadOnly = !$accessController->check(ActionDictionary::ACTION_PRODUCT_DISCOUNT_SET);
 	$strSubElementAjaxPath = '/bitrix/admin/cat_subcoupons_admin.php?lang='.LANGUAGE_ID.'&find_discount_id='.$intDiscountID.'&TMP_ID='.urlencode($strSubTMP_ID);
 	if (0 < $intDiscountID && $boolShowCoupons && !$boolCopy)
 	{

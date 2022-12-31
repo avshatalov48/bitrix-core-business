@@ -24,7 +24,21 @@ abstract class BaseProvider
 	 *
 	 * @return Item[]
 	 */
-	public abstract function getSelectedItems(array $ids): array;
+	public function getPreselectedItems(array $ids): array
+	{
+		return $this->getSelectedItems($ids);
+	}
+
+	/**
+	 * @param array $ids
+	 * @return Item[]
+	 *@deprecated
+	 * @see getPreselectedItems
+ */
+	public function getSelectedItems(array $ids): array
+	{
+		return $this->getItems($ids);
+	}
 
 	public function getOptions(): array
 	{

@@ -24,6 +24,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }
 
 	    _this = babelHelpers.possibleConstructorReturn(this, (_babelHelpers$getProt = babelHelpers.getPrototypeOf(IconPanel)).call.apply(_babelHelpers$getProt, [this].concat(args)));
+	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "dictionary", null);
 
 	    _this.setEventNamespace('BX.Landing.UI.Panel.IconPanel');
 
@@ -41,18 +42,73 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	    _this.searchField = new landing_ui_field_textfield.TextField({
 	      className: 'landing-ui-panel-icon-search',
-	      placeholder: 'search...',
+	      placeholder: landing_loc.Loc.getMessage('LANDING_ICON_PANEL_INPUT_PLACEHOLDER'),
 	      textOnly: true,
 	      onInput: _this.search
 	    });
 	    main_core.Dom.append(_this.layout, document.body);
+
+	    _this.initDictionary();
+
 	    return _this;
 	  }
 
 	  babelHelpers.createClass(IconPanel, [{
+	    key: "initDictionary",
+
+	    /**
+	     * Requests current lang dictionary from backend.
+	     */
+	    value: function initDictionary() {
+	      var _this2 = this;
+
+	      if (this.dictionary === null) {
+	        this.dictionary = {};
+	        var lang = landing_loc.Loc.getMessage('LANGUAGE_ID'); // available for 'ru' and 'de' languages only
+
+	        if (lang !== 'ru' && lang !== 'de') {
+	          return;
+	        }
+
+	        BX.ajax.loadJSON('/bitrix/js/landing/dicdata/' + lang + '.json', function (dictionary) {
+	          babelHelpers.toConsumableArray(Object.keys(dictionary)).map(function (key) {
+	            dictionary[key].toLowerCase().split(' ').map(function (word) {
+	              if (word) {
+	                _this2.dictionary[word] = key;
+	              }
+	            });
+	          });
+	        });
+	      }
+	    }
+	    /**
+	     * Returns translated word from loaded dictionary.
+	     *
+	     * @param {string} word Word to translate.
+	     * @returns {null|string}
+	     */
+
+	  }, {
+	    key: "translateWord",
+	    value: function translateWord(word) {
+	      if (this !== null && this !== void 0 && this.dictionary[word]) {
+	        return this.dictionary[word];
+	      }
+
+	      return null;
+	    }
+	  }, {
+	    key: "selectDefaultCategory",
+	    value: function selectDefaultCategory() {
+	      // todo: init current category and icon?
+	      if (this.defaultCategory) {
+	        this.onCategoryChange(this.defaultCategory);
+	      }
+	    }
+	  }, {
 	    key: "makeLayout",
 	    value: function makeLayout() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      if (main_core.Type.isStringFilled(this.content.innerHTML)) {
 	        return;
@@ -60,7 +116,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	      main_core.Dom.append(this.searchField.getLayout(), this.sidebar);
 	      IconPanel.getLibraries().then(function (libraries) {
-	        var defaultCategory = null;
 	        libraries.forEach(function (_ref) {
 	          var id = _ref.id,
 	              text = _ref.name,
@@ -71,41 +126,39 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            return;
 	          }
 
-	          if (!defaultCategory) {
-	            defaultCategory = categories[0].id;
+	          if (!_this3.defaultCategory) {
+	            _this3.defaultCategory = categories[0].id;
 	          }
 
-	          _this2.appendSidebarButton(new landing_ui_button_sidebarbutton.SidebarButton({
+	          _this3.appendSidebarButton(new landing_ui_button_sidebarbutton.SidebarButton({
 	            id: id,
 	            text: text
 	          }));
 
 	          categories.forEach(function (category) {
-	            _this2.appendSidebarButton(new landing_ui_button_sidebarbutton.SidebarButton({
+	            _this3.appendSidebarButton(new landing_ui_button_sidebarbutton.SidebarButton({
 	              id: category.id,
 	              text: category.name,
-	              onClick: _this2.onCategoryChange.bind(_this2, category.id),
+	              onClick: _this3.onCategoryChange.bind(_this3, category.id),
 	              child: true
 	            }));
 	          });
-	        }); // todo: init current category and icon?
+	        });
 
-	        if (defaultCategory) {
-	          _this2.onCategoryChange(defaultCategory);
-	        }
+	        _this3.selectDefaultCategory();
 	      }); // bottom buttons
 
 	      this.appendFooterButton(new landing_ui_button_basebutton.BaseButton("save_icon", {
 	        text: landing_loc.Loc.getMessage("LANDING_ICON_PANEL_BUTTON_CHOOSE"),
 	        onClick: function onClick() {
-	          if (_this2.iconList.getActiveIcon()) {
-	            _this2.resolver({
-	              iconOptions: _this2.iconList.getActiveOptions(),
-	              iconClassName: _this2.iconList.getActiveIcon()
+	          if (_this3.iconList.getActiveIcon()) {
+	            _this3.resolver({
+	              iconOptions: _this3.iconList.getActiveOptions(),
+	              iconClassName: _this3.iconList.getActiveIcon()
 	            });
 	          }
 
-	          void _this2.hide();
+	          void _this3.hide();
 	        },
 	        className: "landing-ui-button-content-save"
 	      }));
@@ -118,7 +171,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "fillIconsList",
 	    value: function fillIconsList(items, title) {
-	      var _this3 = this;
+	      var _this4 = this;
 
 	      this.iconList = new landing_ui_card_iconlistcard.IconListCard();
 	      this.iconList.setTitle(title);
@@ -129,9 +182,9 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            defaultOption: item.defaultOption ? item.defaultOption : ''
 	          };
 
-	          _this3.iconList.addItem(item.className, iconOptions);
+	          _this4.iconList.addItem(item.className, iconOptions);
 	        } else {
-	          _this3.iconList.addItem(item);
+	          _this4.iconList.addItem(item);
 	        }
 	      });
 	      this.appendCard(this.iconList);
@@ -139,7 +192,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "onCategoryChange",
 	    value: function onCategoryChange(id) {
-	      var _this4 = this;
+	      var _this5 = this;
 
 	      this.content.innerHTML = '';
 
@@ -156,7 +209,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	          library.categories.forEach(function (category) {
 	            if (id === category.id) {
-	              _this4.fillIconsList(category.items, category.name);
+	              _this5.fillIconsList(category.items, category.name);
 	            }
 	          });
 	        });
@@ -165,17 +218,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "search",
 	    value: function search(query) {
-	      var _this5 = this;
+	      var _this6 = this;
 
 	      // todo: replaces ',' to space
 	      // mega optimization!
 	      if (query.trim().length < 2) {
+	        this.selectDefaultCategory();
 	        return;
 	      } // dbg
+	      //const date = new Date();
+	      //console.log('search at query "', query, '"was started at', date.getSeconds(), date.getMilliseconds());
 
 
-	      var date = new Date();
-	      console.log('search at query "', query, '"was started at', date.getSeconds(), date.getMilliseconds());
 	      this.content.innerHTML = '';
 
 	      if (this.sidebarButtons.getActive()) {
@@ -205,9 +259,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          library.categories.forEach(function (category) {
 	            category.items.forEach(function (item) {
 	              if (main_core.Type.isObject(item) && item.keywords && item.keywords !== '') {
-	                var isFind = preparedQuery.every(function (queryWord) {
+	                var isFind = preparedQuery.some(function (queryWord) {
+	                  var queryWordTranslated = _this6.translateWord(queryWord);
+
 	                  return item.keywords.split(' ').find(function (word) {
-	                    return collator.compare(queryWord, word) === 0;
+	                    return collator.compare(queryWord, word) === 0 || collator.compare(queryWordTranslated, word) === 0;
 	                  });
 	                });
 
@@ -219,23 +275,30 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          });
 	        }); // print
 
-	        var title = 'Search result "' + query.trim() + '"';
+	        var title = landing_loc.Loc.getMessage('LANDING_ICON_PANEL_TITLE_RESULT').replace('@query@', query.trim());
 
 	        if (result.length > 0) {
-	          _this5.fillIconsList(result, title);
+	          _this6.fillIconsList(result, title);
 	        } else {
-	          _this5.iconList = new landing_ui_card_iconlistcard.IconListCard();
+	          var notFoundMessage;
+	          _this6.iconList = new landing_ui_card_iconlistcard.IconListCard();
 
-	          _this5.iconList.setTitle(title);
+	          _this6.iconList.setTitle(title);
 
-	          main_core.Dom.append(_this5.getNotFoundMessage(), _this5.iconList.getBody());
+	          if (!/^[a-zA-Z0-9]+$/.test(query)) {
+	            // another screen for trying English
+	            notFoundMessage = _this6.getNotFoundMessage();
+	          } else {
+	            notFoundMessage = _this6.getNotFoundMessage();
+	          }
 
-	          _this5.appendCard(_this5.iconList);
+	          main_core.Dom.append(notFoundMessage, _this6.iconList.getBody());
+
+	          _this6.appendCard(_this6.iconList);
 	        } // dbg
+	        //const dateEnd = new Date();
+	        //console.log('search at query"', query, '"was end at____', dateEnd.getSeconds(), dateEnd.getMilliseconds());
 
-
-	        var dateEnd = new Date();
-	        console.log('search at query"', query, '"was end at____', dateEnd.getSeconds(), dateEnd.getMilliseconds());
 	      });
 	    }
 	  }, {
@@ -264,14 +327,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "show",
 	    value: function show() {
-	      var _this6 = this;
+	      var _this7 = this;
 
 	      return new Promise(function (resolve) {
-	        _this6.resolver = resolve;
+	        _this7.resolver = resolve;
 
-	        _this6.makeLayout();
+	        _this7.makeLayout();
 
-	        void babelHelpers.get(babelHelpers.getPrototypeOf(IconPanel.prototype), "show", _this6).call(_this6);
+	        void babelHelpers.get(babelHelpers.getPrototypeOf(IconPanel.prototype), "show", _this7).call(_this7);
 	      });
 	    }
 	  }], [{

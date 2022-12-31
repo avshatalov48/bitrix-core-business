@@ -24,3 +24,4 @@ $MESS["BX_SALE_DCM_COUPON_CHECK_CORRUPT_DATA"] = "неверные данные 
 $MESS["BX_SALE_DCM_COUPON_CHECK_NOT_APPLIED"] = "купон не был применен";
 $MESS["BX_SALE_DCM_COUPONS_VERIFY_ERR"] = "Ошибка верификации купонов";
 $MESS["BX_SALE_DCM_ERR_SAVE_APPLIED"] = "Не удалось сохранить использованные купоны";
+$MESS["BX_SALE_DCM_ERR_SESSION_NOT_ACCESSIBLE"] = "Сессия недоступна";

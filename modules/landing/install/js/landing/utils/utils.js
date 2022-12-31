@@ -275,12 +275,12 @@
 	 * 	}}
 	 */
 	BX.Landing.Utils.Matchers = {
-		youtube: new RegExp("(youtube\\.com|youtu\\.be|youtube\\-nocookie\\.com)\\/(watch\\?(.*&)?v=|v\\/|u\\/|embed\\/?)?(videoseries\\?list=(.*)|[\\w-]{11}|\\?listType=(.*)&list=(.*))(.*)"),
+		youtube: new RegExp("(youtube\\.com|youtu\\.be|youtube\\-nocookie\\.com)\\/((watch\\?(.*&)?v=|v\\/|u\\/|embed\\/?)|(shorts\\/))?(videoseries\\?list=(.*)|[\\w-]{11}|\\?listType=(.*)&list=(.*))(.*)"),
 		vimeo: new RegExp("^.+vimeo.com\\/(.*\\/)?([\\d]+)(.*)?"),
 		vine: new RegExp("vine.co\\/v\\/([a-zA-Z0-9\\?\\=\\-]+)"),
 		instagram: new RegExp("(instagr\\.am|instagram\\.com)\\/p\\/([a-zA-Z0-9_\\-]+)\\/?"),
-		rutube: new RegExp("rutube\\.ru\\/video\\/([a-zA-Z0-9]+)\\/?"),
-		vk: new RegExp("vk\\.com\\/.*(video|clip)(-?\\d+_\\d+)\\/?"),
+		rutube: new RegExp("rutube\\.ru\\/video\\/(private\\/)?([a-zA-Z0-9]+)\\/?"),
+		vk: new RegExp("vk\\.(com|ru)\\/.*(video|clip)(-?\\d+_\\d+)\\/?"),
 
 		// Examples:
 		// https://www.google.com/maps/search/Bitrix24+office/
@@ -422,23 +422,40 @@
 	 * Sets text content to node
 	 * @param {HTMLElement} element
 	 * @param {string} text
+	 * @param {string} classForTextNode
 	 */
-	BX.Landing.Utils.setTextContent = function(element, text)
+	BX.Landing.Utils.setTextContent = function(element, text, classForTextNode = '')
 	{
+		var addClass = BX.Landing.Utils.addClass;
 		if (typeof text === "string")
 		{
 			var firstNode = element.firstChild;
+			var textNode = document.createElement('div');
 
 			if (firstNode &&
 				firstNode === element.lastChild &&
 				firstNode.nodeType === Node.TEXT_NODE)
 			{
 				firstNode.nodeValue = text;
+				if (classForTextNode.length > 0)
+				{
+					addClass(textNode, classForTextNode);
+					textNode.textContent = element.innerText;
+					element.innerText = '';
+					BX.Dom.append(textNode, element);
+				}
 				return;
 			}
 		}
 
 		element.textContent = text;
+		if (classForTextNode.length > 0)
+		{
+			addClass(textNode, classForTextNode);
+			textNode.textContent = element.innerText;
+			element.innerText = '';
+			BX.Dom.append(textNode, element);
+		}
 	};
 
 

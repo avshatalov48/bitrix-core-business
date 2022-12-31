@@ -118,11 +118,11 @@ if($bShowYandexServices):
 <tr>
 	<td>
 <?
-		\Bitrix\Main\Localization\Loc::loadMessages(dirname(__FILE__).'/admin/seo_search.php');
-		\Bitrix\Main\Localization\Loc::loadMessages(dirname(__FILE__).'/admin/seo_adv.php');
+		\Bitrix\Main\Localization\Loc::loadMessages(__DIR__.'/admin/seo_search.php');
+		\Bitrix\Main\Localization\Loc::loadMessages(__DIR__.'/admin/seo_adv.php');
 
 		$engine = new \Bitrix\Seo\Engine\YandexDirect();
-		require_once(dirname(__FILE__)."/admin/tab/seo_search_yandex_direct_auth.php");
+		require_once(__DIR__."/admin/tab/seo_search_yandex_direct_auth.php");
 
 		if(\Bitrix\Seo\Service::isRegistered())
 		{

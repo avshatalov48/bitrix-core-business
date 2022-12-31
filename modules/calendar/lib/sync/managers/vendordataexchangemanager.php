@@ -4,25 +4,34 @@ namespace Bitrix\Calendar\Sync\Managers;
 
 use Bitrix\Calendar\Core;
 use Bitrix\Calendar\Core\Base\BaseException;
+use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Handlers\UpdateMasterExdateHandler;
+use Bitrix\Calendar\Core\Managers\Compare\EventCompareManager;
+use Bitrix\Calendar\Internals\FlagRegistry;
 use Bitrix\Calendar\Internals\HandleStatusTrait;
 use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Connection\Connection;
+use Bitrix\Calendar\Sync\Entities\SyncEvent;
 use Bitrix\Calendar\Sync\Exceptions\AuthException;
 use Bitrix\Calendar\Sync\Exceptions\RemoteAccountException;
 use Bitrix\Calendar\Sync\Handlers\MasterPushHandler;
 use Bitrix\Calendar\Sync\Handlers\SyncEventMergeHandler;
+use Bitrix\Calendar\UserField\ResourceBooking;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
-use Exception;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\Main\Web\Uri;
+use CCalendar;
+use CCalendarSect;
+use Exception;
 
 class VendorDataExchangeManager
 {
@@ -36,9 +45,7 @@ class VendorDataExchangeManager
 	 * @var bool
 	 */
 	protected bool $isFullSync = false;
-	/**
-	 * @var Core\Base\Map|Sync\Entities\SyncSectionMap|null
-	 */
+
 	private Sync\Factories\SyncEventFactory $syncEventFactory;
 	private Core\Mappers\EventConnection $eventConnectionMapper;
 	private Core\Mappers\Event $eventMapper;
@@ -55,7 +62,7 @@ class VendorDataExchangeManager
 	{
 		$this->factory = $factory;
 		$this->syncSectionMap = $syncSectionMap;
-		$this->isFullSync = !(bool)$this->factory->getConnection()->getToken();
+		$this->isFullSync = !$this->factory->getConnection()->getToken();
 
 		/** @var Core\Mappers\Factory $mapperHelper */
 		$mapperHelper = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
@@ -132,7 +139,7 @@ class VendorDataExchangeManager
 
 	public function clearCache(): void
 	{
-		\CCalendar::ClearCache();
+		CCalendar::ClearCache();
 	}
 
 	/**
@@ -196,7 +203,7 @@ class VendorDataExchangeManager
 		Util::addPullEvent('refresh_sync_status', $connection->getOwner()->getId(), [
 			'syncInfo' => [
 				$accountType => [
-					'status' => $connection->getStatus(),
+					'status' => $this->getSyncStatus($connection->getStatus()),
 					'type' => $accountType,
 					'connected' => true,
 					'id' => $connection->getId(),
@@ -207,6 +214,11 @@ class VendorDataExchangeManager
 		]);
 
 		return $this;
+	}
+
+	private function getSyncStatus(?string $status): bool
+	{
+		return $status && preg_match("/^\[(2\d\d|0)\][a-z0-9 _]*/i", $status);
 	}
 
 	/**
@@ -276,6 +288,8 @@ class VendorDataExchangeManager
 					if ($masterSyncEvent->getId() === null)
 					{
 						$this->handleSyncEvent($masterSyncEvent);
+
+						return;
 					}
 
 					$this->updateMasterExdate($this->addExdateToMasterEvent($masterSyncEvent, $syncEvent));
@@ -291,7 +305,11 @@ class VendorDataExchangeManager
 
 		$this->saveEvent($syncEvent);
 
-		if ($syncEvent->isInstance() && $masterSyncEvent)
+		if (
+			$masterSyncEvent
+			&& $masterSyncEvent->getId()
+			&& $syncEvent->isInstance()
+		)
 		{
 			$this->updateMasterExdate($this->addExdateToMasterEvent($masterSyncEvent, $syncEvent));
 		}
@@ -423,7 +441,6 @@ class VendorDataExchangeManager
 	 *
 	 * @return void
 	 * @throws ArgumentException
-	 * @throws BaseException
 	 */
 	public function saveEvent(Sync\Entities\SyncEvent $syncEvent): void
 	{
@@ -437,15 +454,23 @@ class VendorDataExchangeManager
 			])
 		;
 
-		$syncEvent->setEvent($event);
-		$eventConnection = $syncEvent->getEventConnection();
-		$eventConnection->setEvent($event);
-		$eventConnection->setVersion($event->getVersion());
+		if ($event)
+		{
+			$syncEvent->setEvent($event);
+			$eventConnection = $syncEvent->getEventConnection();
+			if ($eventConnection)
+			{
+				$eventConnection
+					->setEvent($event)
+					->setVersion($event->getVersion())
+				;
 
-		$eventConnection->getId()
-			? $this->eventConnectionMapper->update($eventConnection)
-			: $this->eventConnectionMapper->create($eventConnection)
-		;
+				$eventConnection->getId()
+					? $this->eventConnectionMapper->update($eventConnection)
+					: $this->eventConnectionMapper->create($eventConnection)
+				;
+			}
+		}
 	}
 
 	/**
@@ -470,9 +495,9 @@ class VendorDataExchangeManager
 	 */
 	public function savePermissions(Sync\Entities\SyncSection $syncSection): void
 	{
-		\CCalendarSect::SavePermissions(
+		CCalendarSect::SavePermissions(
 			$syncSection->getSection()->getId(),
-			\CCalendarSect::GetDefaultAccess(
+			CCalendarSect::GetDefaultAccess(
 				$syncSection->getSection()->getType(),
 				$syncSection->getSection()->getOwner()->getId()
 			)
@@ -580,40 +605,103 @@ class VendorDataExchangeManager
 	}
 
 	/**
-	 * @param Sync\Entities\SyncEvent $syncEvent
-	 * @param Sync\Entities\SyncEvent $existsExternalSyncEvent
+	 * @param SyncEvent $syncEvent
+	 * @param SyncEvent|null $existsSyncEvent
+	 *
 	 * @return bool
+	 *
 	 * @throws BaseException
+	 * @throws LoaderException
+	 * @throws ObjectException
 	 */
 	public function validateSyncEventChange(
 		Sync\Entities\SyncEvent $syncEvent,
-		Sync\Entities\SyncEvent $existsExternalSyncEvent = null
+		Sync\Entities\SyncEvent $existsSyncEvent = null
 	): bool
 	{
-		if (!$existsExternalSyncEvent)
+		if (!$existsSyncEvent)
 		{
 			return true;
 		}
 
-		if ($existsExternalSyncEvent->getEventId() !== $existsExternalSyncEvent->getParentId())
+		if (
+			$syncEvent->getEventConnection() !== null
+			&& (
+				($syncEvent->getEventConnection()->getVendorVersionId() === $existsSyncEvent->getEventConnection()->getVendorVersionId())
+				|| ($syncEvent->getEventConnection()->getEntityTag() === $existsSyncEvent->getEventConnection()->getEntityTag())
+			)
+		)
 		{
-			$existsExternalSyncEvent->getEventConnection()
-				->setLastSyncStatus(Sync\Dictionary::SYNC_EVENT_ACTION['update'])
-				->setVersion($syncEvent->getEvent()->getVersion() - 1)
-			;
-			$this->eventConnectionMapper->update($existsExternalSyncEvent->getEventConnection());
+			if (
+				(
+					$syncEvent->getEventConnection()->getConnection()->getVendor()->getCode()
+					!== Sync\Google\Helper::GOOGLE_ACCOUNT_TYPE_API
+				)
+				|| !$this->hasDifferentEventFields($syncEvent, $existsSyncEvent))
+			{
+				return false;
+			}
+		}
+
+		// Changing an event for an invitee
+		// TODO: move it check to core.
+		if ($existsSyncEvent->getEventId() !== $existsSyncEvent->getParentId())
+		{
+			// temporary this functionality is turned off
+			// if (!$existsSyncEvent->getEvent()->isDeleted() && $this->hasDifferentEventFields($syncEvent, $existsSyncEvent))
+			// {
+			// 	$this->rollbackEvent(
+			// 		$existsSyncEvent,
+			// 		$syncEvent,
+			// 		'CALENDAR_IMPORT_BLOCK_FROM_ATTENDEE'
+			// 	);
+			// }
 
 			return false;
 		}
 
-		if ($syncEvent->isSingle() && $syncEvent->getEntityTag() !== $existsExternalSyncEvent->getEntityTag())
+		// Prevent changing events with booking
+		if ($existsSyncEvent->getEvent()->getSpecialLabel() === ResourceBooking::EVENT_LABEL)
+		{
+			// temporary this functionality is turned off
+			// if ($this->hasDifferentEventFields($syncEvent, $existsSyncEvent))
+			// {
+			//
+				// $this->rollbackEvent(
+				// 	$existsSyncEvent,
+				// 	$syncEvent,
+				// 	'CALENDAR_IMPORT_BLOCK_RESOURCE_BOOKING'
+				// );
+			// }
+
+			return false;
+		}
+
+		// temporary this functionality is turned off
+
+		// if ($syncEvent->getAction() !== Sync\Dictionary::SYNC_EVENT_ACTION['delete']
+		// 	&& !$this->checkAttendeesAccessibility($existsSyncEvent->getEvent(), $syncEvent->getEvent()))
+		// {
+		// 	if ($this->hasDifferentEventFields($syncEvent, $existsSyncEvent))
+		// 	{
+		// 		$this->rollbackEvent(
+		// 			$existsSyncEvent,
+		// 			$syncEvent,
+		// 			'CALENDAR_IMPORT_BLOCK_ATTENDEE_ACCESSIBILITY'
+		// 		);
+		// 	}
+		//
+		// 	return false;
+		// }
+
+		if ($syncEvent->isSingle() && $syncEvent->getEntityTag() !== $existsSyncEvent->getEntityTag())
 		{
 			return true;
 		}
 
 		if ($syncEvent->isRecurrence())
 		{
-			if ($syncEvent->getEntityTag() !== $existsExternalSyncEvent->getEntityTag())
+			if ($syncEvent->getEntityTag() !== $existsSyncEvent->getEntityTag())
 			{
 				return true;
 			}
@@ -623,7 +711,7 @@ class VendorDataExchangeManager
 				/** @var Sync\Entities\SyncEvent $instance */
 				foreach ($syncEvent->getInstanceMap() as $key => $instance)
 				{
-					$existsInstanceMap = $existsExternalSyncEvent->getInstanceMap();
+					$existsInstanceMap = $existsSyncEvent->getInstanceMap();
 
 					if (!$existsInstanceMap)
 					{
@@ -654,6 +742,39 @@ class VendorDataExchangeManager
 		return false;
 	}
 
+	private function hasDifferentEventFields(
+		Sync\Entities\SyncEvent $syncEvent,
+		Sync\Entities\SyncEvent $existSyncEvent
+	): bool
+	{
+		if (!$syncEvent->getEvent() && !$existSyncEvent->getEvent())
+		{
+			return false;
+		}
+
+		if ($syncEvent->getAction() === Sync\Dictionary::SYNC_EVENT_ACTION['delete']
+			&& !$existSyncEvent->getEvent()->isDeleted()
+		)
+		{
+			return true;
+		}
+
+		$comparator = new EventCompareManager($syncEvent->getEvent(), $existSyncEvent->getEvent());
+
+		$diff = $comparator->getDiff();
+		$significantFields = [
+			EventCompareManager::COMPARE_FIELDS['name'] => true,
+			EventCompareManager::COMPARE_FIELDS['start'] => true,
+			EventCompareManager::COMPARE_FIELDS['end'] => true,
+			EventCompareManager::COMPARE_FIELDS['recurringRule'] => true,
+			EventCompareManager::COMPARE_FIELDS['description'] => true,
+			'excludedDates' => true,
+		];
+		$significantDiff = array_intersect_key($diff, $significantFields);
+
+		return !empty($significantDiff);
+	}
+
 	/**
 	 * @param Sync\Entities\SyncEvent $masterSyncEvent
 	 * @param Sync\Entities\SyncEvent $instance
@@ -681,6 +802,54 @@ class VendorDataExchangeManager
 	}
 
 	/**
+	 * @param SyncEvent $existsExternalSyncEvent
+	 * @param SyncEvent $syncEvent
+	 * @param string $messageCode
+	 *
+	 * @return void
+	 *
+	 * @throws BaseException
+	 * @throws LoaderException
+	 */
+	private function rollbackEvent(
+		Sync\Entities\SyncEvent $existsExternalSyncEvent,
+		Sync\Entities\SyncEvent $syncEvent,
+		string $messageCode
+	): void
+	{
+		$muteNotice = $this->isNoticesMuted();
+		if ($existsExternalSyncEvent->getEvent()->isDeleted())
+		{
+			$muteNotice = true;
+			$syncStatus = Sync\Dictionary::SYNC_EVENT_ACTION['delete'];
+		}
+		else
+		{
+			$syncStatus = ($existsExternalSyncEvent->getEvent()->isRecurrence() || $syncEvent->getEvent()->isRecurrence())
+				? Sync\Dictionary::SYNC_EVENT_ACTION['recreate']
+				: Sync\Dictionary::SYNC_EVENT_ACTION['update']
+			;
+		}
+		$existsExternalSyncEvent->getEventConnection()
+			->setLastSyncStatus($syncStatus)
+			->setVersion($existsExternalSyncEvent->getEvent()->getVersion() - 1);
+		$this->eventConnectionMapper->update($existsExternalSyncEvent->getEventConnection());
+
+		if (!$muteNotice)
+		{
+			$this->noticeUser($existsExternalSyncEvent, $messageCode);
+		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isNoticesMuted(): bool
+	{
+		return FlagRegistry::getInstance()->isFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
+	}
+
+	/**
 	 * @return Sync\Handlers\MasterPushHandler
 	 */
 	private function createPusher(): Sync\Handlers\MasterPushHandler
@@ -693,7 +862,8 @@ class VendorDataExchangeManager
 	}
 
 	/**
-	 * @throws ArgumentException
+	 * @param Sync\Entities\SyncSectionMap $externalSyncSectionMap
+	 * @return void
 	 */
 	private function mergeSyncedSyncSectionsWithSavedSections(Sync\Entities\SyncSectionMap $externalSyncSectionMap): void
 	{
@@ -922,8 +1092,11 @@ class VendorDataExchangeManager
 	}
 
 	/**
-	 * @throws BaseException
+	 * @param Sync\Entities\SyncEventMap $externalSyncEventMap
+	 *
 	 * @throws ArgumentException
+	 * @throws BaseException
+	 * @throws LoaderException
 	 * @throws SystemException
 	 */
 	private function handleEventsToLocalStorage(Sync\Entities\SyncEventMap $externalSyncEventMap): void
@@ -941,14 +1114,14 @@ class VendorDataExchangeManager
 			}
 
 			$masterSyncEvent = null;
-			if ($syncEvent->isInstance())
+			if (
+				($syncEvent->isInstance() || $syncEvent->getVendorRecurrenceId())
+				&& $masterSyncEvent = $this->getMasterSyncEvent($syncEvent)
+			)
 			{
-				if ($masterSyncEvent = $this->getMasterSyncEvent($syncEvent))
+				if ($masterSyncEvent->getId() !== $masterSyncEvent->getParentId())
 				{
-					if ($masterSyncEvent->getId() !== $masterSyncEvent->getParentId())
-					{
-						continue;
-					}
+					continue;
 				}
 			}
 
@@ -1049,7 +1222,7 @@ class VendorDataExchangeManager
 			->setMeetingDescription($this->getMeetingDescriptionForNewEvent($owner))
 			->setIsActive(true)
 			->setIsDeleted(false)
-			->setEventType($owner->getType())
+			->setCalendarType($owner->getType())
 		;
 	}
 
@@ -1064,10 +1237,15 @@ class VendorDataExchangeManager
 	 * @return Core\Event\Event
 	 * @throws Core\Base\BaseException
 	 */
-	public function handleMerge(Sync\Entities\SyncEventMap $localEventCollection, string $vendorId,
-		SyncEventMergeHandler $handlerMerge, Sync\Entities\SyncEvent $syncEvent,
-		?Sync\Connection\EventConnection $eventConnection, Core\Event\Event $event,
-		Sync\Entities\SyncSection $syncSection): Core\Event\Event
+	public function handleMerge(
+		Sync\Entities\SyncEventMap $localEventCollection,
+		string $vendorId,
+		SyncEventMergeHandler $handlerMerge,
+		Sync\Entities\SyncEvent $syncEvent,
+		?Sync\Connection\EventConnection $eventConnection,
+		Core\Event\Event $event,
+		Sync\Entities\SyncSection $syncSection
+	): Core\Event\Event
 	{
 		$mergedSyncEvent = null;
 		if ($localEventCollection->has($vendorId))
@@ -1109,6 +1287,7 @@ class VendorDataExchangeManager
 	/**
 	 * @param Sync\Entities\SyncEvent $syncEvent
 	 * @return void
+	 * @throws BaseException
 	 */
 	private function mergeExternalEventWithLocalParams(Sync\Entities\SyncEvent $syncEvent): void
 	{
@@ -1189,10 +1368,12 @@ class VendorDataExchangeManager
 	}
 
 	/**
-	 * @param Sync\Entities\SyncEvent $existsSyncEvent
-	 * @param Sync\Entities\SyncEvent $externalSyncEvent
+	 * @param SyncEvent $existsSyncEvent
+	 * @param SyncEvent $externalSyncEvent
 	 * @param int|null $id
+	 * @param int|null $eventConnectionId
 	 * @return void
+	 * @throws BaseException
 	 */
 	private function mergeSyncEvent(
 		Sync\Entities\SyncEvent $existsSyncEvent,
@@ -1208,7 +1389,6 @@ class VendorDataExchangeManager
 	/**
 	 * @throws SystemException
 	 * @throws ArgumentException
-	 * @throws LoaderException
 	 */
 	private function prepareLocalSyncEventMapWithVendorEventId(Sync\Entities\SyncEventMap $externalSyncEventMap): void
 	{
@@ -1322,7 +1502,7 @@ class VendorDataExchangeManager
 	/**
 	 * @return void
 	 */
-	private function handleDeleteRecurrenceEvent()
+	private function handleDeleteRecurrenceEvent(SyncEvent $syncEvent)
 	{
 
 	}
@@ -1330,14 +1510,17 @@ class VendorDataExchangeManager
 	/**
 	 * @return void
 	 */
-	private function handleDeleteSingleEvent()
+	private function handleDeleteSingleEvent(SyncEvent $syncEvent)
 	{
 
 	}
 
 	/**
-	 * @param Sync\Entities\SyncEvent $syncEvent
+	 * @param SyncEvent $syncEvent
+	 *
 	 * @return void
+	 *
+	 * @throws BaseException
 	 */
 	private function handleExportedFailedSyncEvent(Sync\Entities\SyncEvent $syncEvent): void
 	{
@@ -1364,6 +1547,16 @@ class VendorDataExchangeManager
 		$this->eventConnectionMapper->update($eventConnection);
 	}
 
+	/**
+	 * @param Sync\Entities\SyncSectionMap $syncSectionMap
+	 *
+	 * @return void
+	 *
+	 * @throws ArgumentException
+	 * @throws ObjectException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
 	private function blockSectionPush(Sync\Entities\SyncSectionMap $syncSectionMap): void
 	{
 		$pushManager = new PushManager();
@@ -1389,6 +1582,18 @@ class VendorDataExchangeManager
 		}
 	}
 
+	/**
+	 * @param Sync\Entities\SyncSectionMap $syncSectionMap
+	 *
+	 * @return void
+	 *
+	 * @throws ArgumentException
+	 * @throws BaseException
+	 * @throws ObjectException
+	 * @throws ObjectNotFoundException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
 	private function unblockSectionPush(Sync\Entities\SyncSectionMap $syncSectionMap): void
 	{
 		$pushManager = new PushManager();
@@ -1495,5 +1700,144 @@ class VendorDataExchangeManager
 		}
 
 		return $syncSectionMap;
+	}
+
+	/**
+	 * @param Sync\Entities\SyncEvent $syncEvent
+	 * @param string $messageCode
+	 *
+	 * @return void
+	 *
+	 * @throws LoaderException
+	 */
+	private function noticeUser(Sync\Entities\SyncEvent $syncEvent, string $messageCode = '')
+	{
+		if (Loader::includeModule('im') && Loader::includeModule('pull'))
+		{
+			$path = CCalendar::GetPath(
+				$syncEvent->getEvent()->getOwner()->getType(),
+				$syncEvent->getEvent()->getOwner()->getId(),
+				true);
+			$uri = (new Uri($path))
+				->deleteParams(["action", "sessid", "bx_event_calendar_request", "EVENT_ID", "EVENT_DATE"])
+				->addParams([
+					'EVENT_ID' => $syncEvent->getEvent()->getId()])
+			;
+
+			NotificationManager::sendBlockChangeNotification(
+				$syncEvent->getEventConnection()->getConnection()->getOwner()->getId(),
+				$messageCode,
+				[
+					'#EVENT_URL#' => $uri->getUri(),
+					'#EVENT_TITLE#' => $syncEvent->getEvent()->getName(),
+					'EVENT_ID' => $syncEvent->getEvent()->getId(),
+				]
+			);
+		}
+	}
+
+	/**
+	 * @param Event $baseEvent
+	 * @param Event $importedEvent
+	 *
+	 * @return bool
+	 *
+	 * @throws ObjectException
+	 */
+	private function checkAttendeesAccessibility(
+		Event $baseEvent,
+		Event $importedEvent
+	): bool
+	{
+		if (
+			$importedEvent->getStart()->format('c') === $baseEvent->getStart()->format('c')
+			&& $importedEvent->getEnd()->format('c') === $baseEvent->getEnd()->format('c')
+		)
+		{
+			return true;
+		}
+
+		$codes = $baseEvent->getAttendeesCollection()->getAttendeesCodes();
+		if (count($codes) > 1)
+		{
+			$userIds = CCalendar::GetDestinationUsers($codes);
+			if ($userIds = array_filter($userIds))
+			{
+				$localTime = new \DateTime();
+				$start = clone $importedEvent->getStart();
+				$end = clone $importedEvent->getEnd();
+				$accessibility = CCalendar::GetAccessibilityForUsers([
+					'users' => $userIds,
+					'from' => $start->setTimezone($localTime->getTimezone())->setTime(0,0,0)->toString(),
+					'to' => $end->setTimezone($localTime->getTimezone())->setTime(23,59,59)->toString(),
+					'curEventId' => $baseEvent->getId(),
+					'checkPermissions' => false,
+				]);
+
+				foreach ($accessibility as $events)
+				{
+					foreach ($events as $eventData)
+					{
+						$eventFrom  = new Date(new DateTime($eventData['DATE_FROM']));
+						$eventTo  = new Date(new DateTime($eventData['DATE_TO']));
+						if ($eventFrom >= $importedEvent->getEnd() || $eventTo <=$importedEvent->getStart())
+						{
+							continue;
+						}
+						if ($eventData['ACCESSIBILITY'] === 'busy')
+						{
+							return false;
+						}
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param Connection $connection
+	 *
+	 * @throws ArgumentException
+	 * @throws ObjectException
+	 * @throws ObjectNotFoundException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws \Psr\Container\NotFoundExceptionInterface
+	 */
+	public function renewSubscription(Connection $connection)
+	{
+		$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
+		$links = $mapperFactory->getSectionConnection()->getMap([
+			'CONNECTION_ID' => $connection->getId(),
+			'=ACTIVE' => 'Y'
+		]);
+
+		$manager = $this->getOutgoingManager($connection);
+		foreach ($links as $link)
+		{
+			$manager->subscribeSection($link);
+		}
+
+		$manager->subscribeConnection();
+	}
+
+	/**
+	 * @param Connection $connection
+	 *
+	 * @return OutgoingManager|mixed
+	 *
+	 * @throws ObjectNotFoundException
+	 */
+	private function getOutgoingManager(Connection $connection)
+	{
+		static $managers = [];
+		if (empty($managers[$connection->getId()]))
+		{
+			$managers[$connection->getId()] = new OutgoingManager($connection);
+		}
+
+		return $managers[$connection->getId()];
 	}
 }

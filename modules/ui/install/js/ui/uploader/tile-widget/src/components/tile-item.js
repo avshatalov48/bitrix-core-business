@@ -1,20 +1,18 @@
 import { MenuManager } from 'main.popup';
 import { Text, Loc } from 'main.core';
-import { BitrixVue } from 'ui.vue';
 import { FileOrigin, FileStatus } from 'ui.uploader.core';
 
 import { UploadLoader } from './upload-loader';
 import { ErrorPopup } from './error-popup';
 import { FileIconComponent } from './file-icon';
 
-import type { TileWidget } from 'ui.uploader.tile-widget';
-
-export const TileItem = BitrixVue.localComponent('tile', {
+export const TileItem = {
 	components: {
 		UploadLoader,
 		ErrorPopup,
 		FileIconComponent,
 	},
+	inject: ['uploader'],
 	props: {
 		item: {
 			type: Object,
@@ -25,7 +23,6 @@ export const TileItem = BitrixVue.localComponent('tile', {
 	{
 		return {
 			tileId: 'tile-uploader-' + Text.getRandom().toLowerCase(),
-			menu: null,
 			showError: false,
 		};
 	},
@@ -82,13 +79,17 @@ export const TileItem = BitrixVue.localComponent('tile', {
 			const nameWithoutExtension = nameParts.join('.');
 			if (nameWithoutExtension.length > 27)
 			{
-				return nameWithoutExtension.substr(0, 20) + '...' + nameWithoutExtension.substr(-5);
+				return nameWithoutExtension.substr(0, 17) + '...' + nameWithoutExtension.substr(-5);
 			}
 
 			return nameWithoutExtension;
 		}
 	},
-	beforeDestroy()
+	created()
+	{
+		this.menu = null;
+	},
+	beforeUnmount()
 	{
 		if (this.menu)
 		{
@@ -99,8 +100,7 @@ export const TileItem = BitrixVue.localComponent('tile', {
 	methods: {
 		remove()
 		{
-			const widget: TileWidget = this.$root.getWidget();
-			widget.remove(this.item.id);
+			this.uploader.removeFile(this.item.id);
 		},
 
 		handleMouseEnter(item)
@@ -211,4 +211,4 @@ export const TileItem = BitrixVue.localComponent('tile', {
 		</div>
 	</transition>
 	`
-});
+};

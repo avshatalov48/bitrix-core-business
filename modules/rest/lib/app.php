@@ -836,7 +836,8 @@ class AppTable extends Main\Entity\DataManager
 		}
 
 		if (
-			array_key_exists('#DAYS#', $replace)
+			is_array($replace)
+			&& array_key_exists('#DAYS#', $replace)
 			&& (
 				is_int($replace['#DAYS#'])
 				|| preg_match('/^(-|)\d+$/', $replace['#DAYS#'])

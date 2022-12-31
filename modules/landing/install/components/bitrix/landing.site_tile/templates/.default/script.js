@@ -433,6 +433,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.ordersCount = options.ordersCount;
 	    this.phone = options.phone;
 	    this.preview = options.preview;
+	    this.cloudPreview = options.cloudPreview;
 	    this.published = options.published;
 	    this.deleted = options.deleted;
 	    this.domainStatus = options.domainStatus;
@@ -469,6 +470,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.$containerSiteMore = null;
 	    this.$containerLinks = null;
 	    this.bindEvents();
+	    this.lazyLoadCloudPreview = this.lazyLoadCloudPreview.bind(this);
 	  }
 
 	  babelHelpers.createClass(Item, [{
@@ -903,27 +905,49 @@ this.BX.Landing = this.BX.Landing || {};
 	    value: function getContainerPreviewImage() {
 	      if (!this.$containerPreviewImage) {
 	        this.$containerPreviewImage = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__preview-image ", "\"></div>"])), this.published ? '' : '--not-published');
+	        this.$containerPreviewImage.style.backgroundImage = 'url(' + this.preview + ')';
+	        this.$containerPreviewImage.style.backgroundSize = 'cover';
 
-	        if (this.preview) {
-	          this.$containerPreviewImage.style.backgroundImage = 'url(' + this.preview + ')';
-	          this.$containerPreviewImage.style.backgroundSize = 'cover';
+	        if (this.published && this.cloudPreview && this.cloudPreview !== this.preview) {
+	          this.lazyLoadCloudPreview();
 	        }
 	      }
 
 	      return this.$containerPreviewImage;
 	    }
 	  }, {
+	    key: "lazyLoadCloudPreview",
+	    value: function lazyLoadCloudPreview() {
+	      var _this9 = this;
+
+	      var previewUrl = this.cloudPreview + (this.cloudPreview.indexOf('?') > 0 ? '&' : '?') + 'refreshed' + (Date.now() / 86400000 | 0);
+	      var xhr = new XMLHttpRequest();
+	      xhr.open("HEAD", previewUrl);
+
+	      xhr.onload = function () {
+	        var expires = xhr.getResponseHeader("expires");
+
+	        if (expires && new Date(expires) <= new Date()) {
+	          setTimeout(_this9.lazyLoadCloudPreview, 3000);
+	        } else {
+	          _this9.$containerPreviewImage.style.backgroundImage = 'url(' + previewUrl + ')';
+	        }
+	      };
+
+	      xhr.send();
+	    }
+	  }, {
 	    key: "getContainerPreviewStatus",
 	    value: function getContainerPreviewStatus() {
-	      var _this9 = this;
+	      var _this10 = this;
 
 	      if (!this.$containerPreviewStatus) {
 	        this.$containerPreviewStatus = main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-status --not-published ", "\">\n\t\t\t\t\t<div class=\"landing-sites__preview-status-wrapper\">\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-icon\"></div>\n\t\t\t\t\t\t<div class=\"landing-sites__preview-status-text\">\n\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), this.published ? '--hide' : '', main_core.Loc.getMessage('LANDING_SITE_TILE_STATUS_NOT_PUBLISHED'));
 	        main_core.Event.bind(this.$containerPreviewStatus, 'mouseenter', function () {
-	          _this9.$containerPreviewStatus.style.width = _this9.$containerPreviewStatus.firstElementChild.offsetWidth + 'px';
+	          _this10.$containerPreviewStatus.style.width = _this10.$containerPreviewStatus.firstElementChild.offsetWidth + 'px';
 	        });
 	        main_core.Event.bind(this.$containerPreviewStatus, 'mouseleave', function () {
-	          _this9.$containerPreviewStatus.style.width = null;
+	          _this10.$containerPreviewStatus.style.width = null;
 	        });
 	      }
 
@@ -941,12 +965,12 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getContainerPreviewInstruction",
 	    value: function getContainerPreviewInstruction() {
-	      var _this10 = this;
+	      var _this11 = this;
 
 	      if (!this.$containerPreviewInstruction) {
 	        this.$containerPreviewInstruction = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-sites__preview-leadership\">\n\t\t\t\t\t<div class=\"landing-sites__preview-leadership-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('LANDING_SITE_TILE_INSTRUCTION'));
 	        main_core.Event.bind(this.$containerPreviewInstruction, 'click', function () {
-	          _this10.getLeadership().show();
+	          _this11.getLeadership().show();
 	        });
 	      }
 
@@ -955,12 +979,12 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getContainerLinks",
 	    value: function getContainerLinks() {
-	      var _this11 = this;
+	      var _this12 = this;
 
 	      if (!this.$containerLinks) {
 	        this.$containerLinks = main_core.Tag.render(_templateObject18 || (_templateObject18 = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-sites__container --without-bg --auto-height --flex\"></div>"])));
 	        this.menuBottomItems.map(function (menuItem) {
-	          _this11.$containerLinks.appendChild(_this11.getContainerLinksItem(menuItem.code, menuItem.href, menuItem.text));
+	          _this12.$containerLinks.appendChild(_this12.getContainerLinksItem(menuItem.code, menuItem.href, menuItem.text));
 	        });
 	      }
 
@@ -969,11 +993,11 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "getContainerLinksItem",
 	    value: function getContainerLinksItem(type, link, title) {
-	      var _this12 = this;
+	      var _this13 = this;
 
 	      var container = main_core.Tag.render(_templateObject19 || (_templateObject19 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<a href=\"", "\" class=\"landing-sites__container-link landing-sites__container-link-", " --white-bg--alpha\">\n\t\t\t\t<div class=\"landing-sites__container-link-icon --", "\"></div>\n\t\t\t\t<div class=\"landing-sites__container-link-text\">", "</div>\n\t\t\t</a>\n\t\t"])), link, this.id, type, title);
 	      main_core.Event.bind(container, 'click', function (event) {
-	        main_core_events.EventEmitter.emit('BX.Landing.SiteTile:onBottomMenuClick', [type, event, _this12]);
+	        main_core_events.EventEmitter.emit('BX.Landing.SiteTile:onBottomMenuClick', [type, event, _this13]);
 	      });
 	      return container;
 	    }
@@ -993,14 +1017,14 @@ this.BX.Landing = this.BX.Landing || {};
 	  }, {
 	    key: "remove",
 	    value: function remove() {
-	      var _this13 = this;
+	      var _this14 = this;
 
 	      this.getContainer().classList.add('--remove');
 	      main_core.Event.bind(this.getContainer(), 'transitionend', function () {
-	        var items = _this13.grid.getItems();
+	        var items = _this14.grid.getItems();
 
 	        items.splice(items.indexOf(items), 1);
-	        main_core.Dom.remove(_this13.getContainer());
+	        main_core.Dom.remove(_this14.getContainer());
 	      });
 	    }
 	  }, {
@@ -1208,7 +1232,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    this.scroller = null;
 	    this.setData(this.items);
 	    this.init();
-	    setTimeout(this.refreshPreview, 3000);
 	  }
 
 	  babelHelpers.createClass(SiteTile, [{
@@ -1245,6 +1268,7 @@ this.BX.Landing = this.BX.Landing || {};
 	          ordersCount: parseInt(item.ordersCount) || null,
 	          phone: item.phone || null,
 	          preview: item.preview || null,
+	          cloudPreview: item.cloudPreview || null,
 	          published: item.published || null,
 	          deleted: item.deleted || null,
 	          domainStatus: item.domainStatus || null,
@@ -1296,23 +1320,6 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "init",
 	    value: function init() {
 	      this.draw();
-	    }
-	  }, {
-	    key: "refreshPreview",
-	    value: function refreshPreview() {
-	      var previews = document.querySelectorAll('.landing-sites__preview-image');
-
-	      if (previews) {
-	        babelHelpers.toConsumableArray(previews).map(function (node) {
-	          var url = node.style.backgroundImage.match(/url\(["']?([^"']*)["']?\)/);
-
-	          if (url) {
-	            url = url[1];
-	            url += url.indexOf('?') > 0 ? '&' : '?';
-	            node.style.backgroundImage = 'url(' + url + 'refreshed' + (Date.now() / 3600000 | 0) + ')';
-	          }
-	        });
-	      }
 	    }
 	  }]);
 	  return SiteTile;

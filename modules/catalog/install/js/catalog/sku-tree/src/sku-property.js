@@ -198,13 +198,9 @@ export default class SkuProperty
 
 		const propertyId = Text.toNumber(selectedSkuProperty.getAttribute('data-property-id'));
 		const propertyValue = Text.toNumber(selectedSkuProperty.getAttribute('data-property-value'));
-		const innerText = selectedSkuProperty.querySelector('.ui-ctl-inner');
-		Dom.addClass(innerText, ['ui-ctl-before','ui-ctl-icon-loader']);
-
 		this.parent.setSelectedProperty(propertyId, propertyValue);
 
 		this.parent.getSelectedSku().then((selectedSkuData) => {
-			Dom.removeClass(innerText, ['ui-ctl-before','ui-ctl-icon-loader']);
 			EventEmitter.emit('SkuProperty::onChange', [selectedSkuData, this.property]);
 			if (this.parent)
 			{

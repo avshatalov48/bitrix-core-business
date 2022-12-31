@@ -790,7 +790,7 @@ if ($arParams['SUCCESS_SAVE'])
 							$gaCounterFields['GACOUNTER_CLICK_TYPE']->setValue('text');
 						}
 						?>
-						<div class="ui-form-row" id="<?= $fieldId ?>">
+						<div class="ui-form-row landing-form-gacounter" id="<?= $fieldId ?>">
 							<?php
 							$isLocked = $hooks['GACOUNTER']->isLocked();
 							?>
@@ -808,6 +808,9 @@ if ($arParams['SUCCESS_SAVE'])
 							</div>
 							<div class="ui-form-row-hidden">
 								<div class="ui-form-row">
+									<div class="ui-form-label">
+										<?= Loc::getMessage('LANDING_TPL_HOOK_METRIKA_COUNTER') ?>
+									</div>
 									<?php $template->showField($gaCounterFields['GACOUNTER_COUNTER']); ?>
 									<div class="ui-form-label landing-form-gacounter-send-js" data-form-row-hidden>
 										<label class="ui-ctl ui-ctl-checkbox">
@@ -821,6 +824,12 @@ if ($arParams['SUCCESS_SAVE'])
 										<?php $template->showField($gaCounterFields['GACOUNTER_CLICK_TYPE']); ?>
 									</div>
 									<?php $template->showField($gaCounterFields['GACOUNTER_SEND_SHOW'], ['title' => true]); ?>
+								</div>
+								<div class="ui-form-row">
+									<div class="ui-form-label">
+										<?= Loc::getMessage('LANDING_TPL_HOOK_METRIKA_COUNTER_GA4') ?>
+									</div>
+									<?php $template->showField($gaCounterFields['GACOUNTER_COUNTER_GA4']); ?>
 								</div>
 							</div>
 						</div>
@@ -1004,6 +1013,7 @@ if ($arParams['SUCCESS_SAVE'])
 <script type="text/javascript">
 	BX.ready(function()
 	{
+		BX.UI.Hint.init(BX('landing-page-set-form'));
 		new BX.UI.LayoutForm({container: BX('landing-page-set-form')});
 		new BX.Landing.ToggleAdditionalFields(BX('landing-page-set-form'));
 		new BX.Landing.EditTitleForm(BX('<?= $template->getFieldId('EDITABLE_TITLE') ?>'), 600, true);

@@ -122,7 +122,7 @@ class CalendarEventViewFormHelper
 			"FORUM_ID" => $set['forum_id'],
 			"ENTITY_TYPE" => "EV",
 			"ENTITY_ID" => $eventCommentId,
-			"ENTITY_XML_ID" => CCalendarEvent::GetEventCommentXmlId($event),
+			"ENTITY_XML_ID" => $event['ENTITY_XML_ID'],
 			"PERMISSION" => $permission,
 			"URL_TEMPLATES_PROFILE_VIEW" => $set['path_to_user'],
 			"SHOW_RATING" => COption::GetOptionString('main', 'rating_vote_show', 'N'),

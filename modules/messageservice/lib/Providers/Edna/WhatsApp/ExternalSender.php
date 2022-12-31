@@ -14,24 +14,15 @@ use Bitrix\MessageService\DTO\Response;
 use Bitrix\MessageService\Sender\Result\HttpRequestResult;
 use Bitrix\MessageService\Sender\Util;
 
-class ExternalSender
+class ExternalSender extends \Bitrix\MessageService\Providers\Edna\ExternalSender
 {
-	protected const USER_AGENT = 'Bitrix24';
-	protected const CONTENT_TYPE = 'application/json';
-	protected const CHARSET = 'UTF-8';
 
-	protected const SOCKET_TIMEOUT = 10;
-	protected const STREAM_TIMEOUT = 30;
-
-	protected const WAIT_RESPONSE = true;
-
-	protected string $apiKey;
-	protected string $apiEndpoint;
-
-	public function __construct(?string $apiKey, string $apiEndpoint)
+	public function __construct(?string $apiKey, string $apiEndpoint, int $socketTimeout = 10, int $streamTimeout = 30)
 	{
 		$this->apiKey = $apiKey ?? '';
 		$this->apiEndpoint = $apiEndpoint;
+		$this->socketTimeout = $socketTimeout;
+		$this->streamTimeout = $streamTimeout;
 	}
 
 	/**
@@ -54,8 +45,8 @@ class ExternalSender
 		$queryMethod = HttpClient::HTTP_GET;
 
 		$httpClient = new HttpClient([
-			'socketTimeout' => static::SOCKET_TIMEOUT,
-			'streamTimeout' => static::STREAM_TIMEOUT,
+			'socketTimeout' => $this->socketTimeout,
+			'streamTimeout' => $this->streamTimeout,
 			'waitResponse' => static::WAIT_RESPONSE,
 			'version' => HttpClient::HTTP_1_1,
 		]);
@@ -78,7 +69,7 @@ class ExternalSender
 
 		if (isset($requestParams) && $queryMethod === HttpClient::HTTP_GET)
 		{
-			$url .= '?' . $this->getParamsForGetMethod($requestParams);
+			$url .= '?' . http_build_query($requestParams);
 		}
 
 		$result = new HttpRequestResult();
@@ -179,16 +170,5 @@ class ExternalSender
 		$errorMessage = Loc::getMessage('MESSAGESERVICE_SENDER_SMS_EDNARU_'.$errorCode);
 
 		return $errorMessage ? : Loc::getMessage('MESSAGESERVICE_SENDER_SMS_EDNARU_UNKNOWN_ERROR');
-	}
-
-	protected function getParamsForGetMethod(array $params): string
-	{
-		$result = '';
-		foreach ($params as $name => $value)
-		{
-			$result .= $name . '=' . $value . '&';
-		}
-
-		return rtrim($result,'&');
 	}
 }

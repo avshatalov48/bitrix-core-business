@@ -1,4 +1,4 @@
-import { Type } from 'main.core';
+import { Extension, Type } from 'main.core';
 import Filter from './filter';
 import UploaderError from '../uploader-error';
 import formatFileSize from '../helpers/format-file-size';
@@ -8,18 +8,24 @@ import type UploaderFile from '../uploader-file';
 
 export default class FileSizeFilter extends Filter
 {
-	maxFileSize: number = null;
-	minFileSize: number = null;
-	maxTotalFileSize: number = null;
-	imageMaxFileSize: number = null;
-	imageMinFileSize: number = null;
+	maxFileSize: ?number = 256 * 1024 * 1024;
+	minFileSize: number = 0;
+	maxTotalFileSize: ?number = null;
+	imageMaxFileSize: ?number = 48 * 1024 * 1024;
+	imageMinFileSize: number = 0;
 
 	constructor(uploader: Uploader, filterOptions: { [key: string]: any } = {})
 	{
 		super(uploader);
 
-		const options = Type.isPlainObject(filterOptions) ? filterOptions : {};
+		const settings = Extension.getSettings('ui.uploader.core');
+		this.maxFileSize = settings.get('maxFileSize', this.maxFileSize);
+		this.minFileSize = settings.get('minFileSize', this.minFileSize);
+		this.maxTotalFileSize = settings.get('maxTotalFileSize', this.maxTotalFileSize);
+		this.imageMaxFileSize = settings.get('imageMaxFileSize', this.imageMaxFileSize);
+		this.imageMinFileSize = settings.get('imageMinFileSize', this.imageMinFileSize);
 
+		const options = Type.isPlainObject(filterOptions) ? filterOptions : {};
 		const integerOptions = [
 			'maxFileSize',
 			'minFileSize',
@@ -29,6 +35,11 @@ export default class FileSizeFilter extends Filter
 		];
 
 		integerOptions.forEach(option => {
+			if ((Type.isNumber(options[option]) && options[option] >= 0) || Type.isNull(option))
+			{
+				this[option] = options[option];
+			}
+
 			this[option] = Type.isNumber(options[option]) && options[option] >= 0 ? options[option] : this[option];
 		});
 	}
@@ -52,7 +63,7 @@ export default class FileSizeFilter extends Filter
 				return;
 			}
 
-			if (this.minFileSize !== null && file.getSize() < this.minFileSize)
+			if (file.getSize() < this.minFileSize)
 			{
 				reject(
 					new UploaderError(
@@ -84,7 +95,7 @@ export default class FileSizeFilter extends Filter
 					return;
 				}
 
-				if (this.imageMinFileSize !== null && file.getSize() < this.imageMinFileSize)
+				if (file.getSize() < this.imageMinFileSize)
 				{
 					reject(
 						new UploaderError(

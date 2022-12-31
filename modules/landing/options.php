@@ -178,6 +178,11 @@ if ($postRight >= 'R'):
 		Loc::getMessage('LANDING_OPT_PUBLIC_HOOK_ON_SAVE') . ':',
 		array('checkbox')
 	);
+	$allOptions[] = array(
+		'allow_svg_content',
+		Loc::getMessage('LANDING_OPT_ALLOW_SVG_CONTENT') . ':',
+		array('checkbox')
+	);
 	/*$allOptions[] = array(
 		'strict_verification_update',
 		Loc::getMessage('LANDING_OPT_STRICT_VERIFICATION_UPDATE') . ':',
@@ -318,6 +323,10 @@ if ($postRight >= 'R'):
 						);
 					}
 				}
+			}
+			elseif (!$val && strpos($name, 'pub_path_') === 0)
+			{
+				$val = '/';
 			}
 
 			\COption::setOptionString($module_id, $name, $val);

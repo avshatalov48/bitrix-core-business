@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,ui_vue3,ui_vue3_components_hint,ui_feedback_form,ui_icons,group,item,button,main_popup,main_core_events,main_core,group$1) {
+(function (exports,ui_vue3,ui_vue3_components_hint,ui_feedback_form,ui_icons,ui_advice,item,button,ui_vue3_pinia,group,main_popup,main_core_events,main_core,group$1) {
 	'use strict';
 
 	const feedback = {
@@ -9,7 +9,6 @@ this.BX = this.BX || {};
 	      BX.UI.Feedback.Form.open(bindings.value);
 	    });
 	  }
-
 	};
 
 	const Group = {
@@ -25,13 +24,11 @@ this.BX = this.BX || {};
 	    hasIcon() {
 	      return main_core.Type.isStringFilled(this.groupData.icon);
 	    }
-
 	  },
 	  methods: {
 	    handleClick() {
 	      this.$emit(!this.groupData.selected ? 'selected' : 'unselected', this.groupData);
 	    }
-
 	  },
 	  template: `
 		<slot name="group" v-bind:groupData="groupData" v-bind:handleClick="handleClick">
@@ -66,11 +63,9 @@ this.BX = this.BX || {};
 	    handleGroupSelected(group$$1) {
 	      this.$emit('groupSelected', group$$1);
 	    },
-
 	    handleGroupUnselected(group$$1) {
 	      this.$emit('groupUnselected', group$$1);
 	    }
-
 	  },
 	  template: `
 		<ul class="ui-entity-catalog__menu">
@@ -117,48 +112,40 @@ this.BX = this.BX || {};
 	      default: false
 	    }
 	  },
-
 	  data() {
 	    var _this$recentGroupData, _this$groups$find;
-
 	    const recentGroup = this.getRecentGroup();
 	    recentGroup[0] = Object.assign(recentGroup[0], (_this$recentGroupData = this.recentGroupData) != null ? _this$recentGroupData : {});
 	    let selectedGroup = (_this$groups$find = this.groups.find(group$$1 => group$$1.selected)) != null ? _this$groups$find : null;
-
 	    if (!selectedGroup) {
 	      var _recentGroup$find;
-
 	      selectedGroup = (_recentGroup$find = recentGroup.find(group$$1 => group$$1.selected)) != null ? _recentGroup$find : null;
 	    }
-
 	    return {
 	      shownGroups: this.groups,
 	      selectedGroup: null,
 	      recentGroup
 	    };
 	  },
-
 	  watch: {
 	    selectedGroup(newGroup) {
 	      const newGroupId = newGroup ? newGroup.id : null;
-	      this.shownGroups = this.shownGroups.map(groupList => groupList.map(group$$1 => ({ ...group$$1,
+	      this.shownGroups = this.shownGroups.map(groupList => groupList.map(group$$1 => ({
+	        ...group$$1,
 	        selected: group$$1.id === newGroupId
 	      })));
-
 	      if (this.showRecentGroup && newGroupId !== this.recentGroup[0].id) {
 	        this.recentGroup = [Object.assign(this.recentGroup[0], {
 	          selected: false
 	        })];
 	      }
-
 	      this.$emit('groupSelected', newGroup);
 	    }
-
 	  },
-
 	  beforeUpdate() {
 	    if (this.searching) {
-	      this.shownGroups = this.shownGroups.map(groupList => groupList.map(group$$1 => ({ ...group$$1,
+	      this.shownGroups = this.shownGroups.map(groupList => groupList.map(group$$1 => ({
+	        ...group$$1,
 	        selected: false
 	      })));
 	      this.recentGroup = [Object.assign(this.recentGroup[0], {
@@ -166,7 +153,6 @@ this.BX = this.BX || {};
 	      })];
 	    }
 	  },
-
 	  methods: {
 	    getRecentGroup() {
 	      return [{
@@ -179,20 +165,16 @@ this.BX = this.BX || {};
 				`
 	      }];
 	    },
-
 	    handleGroupSelected(group$$1) {
 	      this.selectedGroup = group$$1;
 	    },
-
 	    handleRecentGroupSelected(group$$1) {
 	      group$$1.selected = true;
 	      this.selectedGroup = group$$1;
 	    },
-
 	    handleGroupUnselected() {
 	      this.selectedGroup = null;
 	    }
-
 	  },
 	  template: `
 		<div class="ui-entity-catalog__main-groups">
@@ -250,19 +232,25 @@ this.BX = this.BX || {};
 	      return main_core.Type.isStringFilled(this.groupData.adviceAvatar) ? this.groupData.adviceAvatar : '/bitrix/js/ui/entity-catalog/images/ui-entity-catalog--nata.jpg';
 	    }
 	  },
+	  methods: {
+	    renderAdvice() {
+	      main_core.Dom.clean(this.$refs.container);
+	      const advice = new ui_advice.Advice({
+	        content: this.groupData.adviceTitle,
+	        avatarImg: this.getAvatar,
+	        anglePosition: ui_advice.Advice.AnglePosition.BOTTOM
+	      });
+	      advice.renderTo(this.$refs.container);
+	    }
+	  },
+	  mounted() {
+	    this.renderAdvice();
+	  },
+	  updated() {
+	    this.renderAdvice();
+	  },
 	  template: `
-		<div class="ui-entity-catalog__advice-box" v-if="groupData.adviceTitle">
-			<div class="ui-entity-catalog__advice-avatar">
-				<span class="ui-entity-catalog__avatar ui-icon ui-icon-common-user">
-					<i :style="{ backgroundImage: 'url(' + getAvatar + ')'}"></i>
-				</span>
-			</div>
-			<div class="ui-entity-catalog__advice-text">
-				<div class="ui-entity-catalog__advice-text-title">
-					{{ groupData.adviceTitle }}
-				</div>
-			</div>
-		</div>
+		<div ref="container"></div>
 	`
 	};
 
@@ -282,7 +270,6 @@ this.BX = this.BX || {};
 	    buttonText() {
 	      return main_core.Type.isStringFilled(this.buttonData.text) ? this.buttonData.text : main_core.Loc.getMessage('UI_JS_ENTITY_CATALOG_ITEM_DEFAULT_BUTTON_TEXT');
 	    }
-
 	  },
 	  methods: {
 	    handleButtonClick(pointerEvent) {
@@ -292,12 +279,10 @@ this.BX = this.BX || {};
 	          originalEvent: pointerEvent
 	        }
 	      });
-
 	      if (main_core.Type.isFunction(this.buttonData.action)) {
 	        this.buttonData.action.call(this, event);
 	      }
 	    }
-
 	  },
 	  template: `
 		<div class="ui-entity-catalog__option-btn-block">
@@ -322,10 +307,8 @@ this.BX = this.BX || {};
 	      if (!main_core.Type.isPlainObject(this.itemData.button)) {
 	        this.itemData.button = {};
 	      }
-
 	      return this.itemData.button;
 	    }
-
 	  },
 	  template: `
 		<slot name="item" v-bind:itemData="itemData">
@@ -357,19 +340,7 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  template: `
-		<div class="ui-entity-catalog__content --help-block" v-if="items.length <= 0">
-			<slot name="empty-group-stub">
-				<div class="ui-entity-catalog__empty-content">
-					<div class="ui-entity-catalog__empty-content_icon">
-						<img src="/bitrix/js/ui/entity-catalog/images/ui-entity-catalog--search-icon.svg" alt="Choose a grouping">
-					</div>
-					<div class="ui-entity-catalog__empty-content_text">
-						<slot name="empty-group-stub-title"/>
-					</div>
-				</div>
-			</slot>
-		</div>
-		<div class="ui-entity-catalog__content" v-else>
+		<div class="ui-entity-catalog__content">
 			<div class="ui-entity-catalog__options">
 				<Item 
 					:item-data="item"
@@ -385,16 +356,43 @@ this.BX = this.BX || {};
 	`
 	};
 
+	const EmptyContent = {
+	  template: `
+		<div class="ui-entity-catalog__content --help-block">
+			<div class="ui-entity-catalog__empty-content">
+				<div class="ui-entity-catalog__empty-content_icon">
+					<img src="/bitrix/js/ui/entity-catalog/images/ui-entity-catalog--search-icon.svg" alt="Choose a grouping">
+				</div>
+				<div class="ui-entity-catalog__empty-content_text">
+					<slot/>
+				</div>
+			</div>
+		</div>
+		`
+	};
+
+	const useGlobalState = ui_vue3_pinia.defineStore('global-state', {
+	  state: () => ({
+	    searchApplied: false,
+	    filtersApplied: false,
+	    currentGroup: group.GroupData
+	  })
+	});
+
 	const MainContent = {
 	  name: 'ui-entity-catalog-main-content',
 	  components: {
 	    ItemListAdvice,
-	    ItemList
+	    ItemList,
+	    EmptyContent
 	  },
 	  props: {
 	    items: {
 	      type: Array,
 	      required: true
+	    },
+	    itemsToShow: {
+	      type: Array
 	    },
 	    group: {
 	      type: group.GroupData,
@@ -406,28 +404,33 @@ this.BX = this.BX || {};
 	    }
 	  },
 	  computed: {
+	    ...ui_vue3_pinia.mapState(useGlobalState, ['filtersApplied']),
 	    showAdvice() {
 	      return this.group && main_core.Type.isStringFilled(this.group.adviceTitle) && !this.searching;
 	    },
-
+	    hasItems() {
+	      return this.group && this.items.length > 0;
+	    },
 	    showNoSelectedGroupStub() {
 	      return !this.group && !this.searching;
 	    },
-
-	    showSearchStub() {
-	      return this.searching && this.items.length <= 0;
+	    showFiltersStub() {
+	      const hasFilterStubTitle = !!this.$slots['main-content-filter-stub-title'];
+	      return hasFilterStubTitle && this.hasItems && this.filtersApplied && this.itemsToShow.length <= 0;
 	    },
-
+	    showSearchStub() {
+	      return (!this.group || this.hasItems) && this.searching && this.itemsToShow.length <= 0;
+	    },
+	    showEmptyGroupStub() {
+	      return this.group && this.itemsToShow.length === 0;
+	    },
 	    showSeparator() {
 	      return this.showAdvice && this.items.length <= 0;
 	    }
-
 	  },
-
 	  beforeUpdate() {
 	    this.$refs.content.scrollTop = 0;
 	  },
-
 	  template: `
 		<div class="ui-entity-catalog__main-content">
 			<div class="ui-entity-catalog__main-content-head">
@@ -439,25 +442,22 @@ this.BX = this.BX || {};
 
 			<div class="ui-entity-catalog__main-content-body" ref="content">
 				<slot name="main-content-no-selected-group-stub" v-if="showNoSelectedGroupStub"/>
-				<slot name="main-content-search-stub" v-else-if="showSearchStub">
-					<div class="ui-entity-catalog__content --help-block">
-						<div class="ui-entity-catalog__empty-content">
-							<div class="ui-entity-catalog__empty-content_icon">
-								<img src="/bitrix/js/ui/entity-catalog/images/ui-entity-catalog--search-icon.svg" alt="Choose a grouping">
-							</div>
-							<div class="ui-entity-catalog__empty-content_text">
-								<slot name="main-content-search-not-found-stub"/>
-							</div>
-						</div>
-					</div>
+				<slot name="main-content-filter-stub" v-if="showFiltersStub">
+					<EmptyContent>
+						<slot name="main-content-filter-stub-title"/>
+					</EmptyContent>
 				</slot>
-				<ItemList v-else :items="items">
-					<template #empty-group-stub>
-						<slot name="main-content-empty-group-stub"/>
-					</template>
-					<template #empty-group-stub-title>
+				<slot name="main-content-search-stub" v-else-if="showSearchStub">
+					<EmptyContent>
+						<slot name="main-content-search-not-found-stub"/>
+					</EmptyContent>
+				</slot>
+				<slot name="main-content-empty-group-stub" v-else-if="showEmptyGroupStub">
+					<EmptyContent>
 						<slot name="main-content-empty-group-stub-title"/>
-					</template>
+					</EmptyContent> 
+				</slot>
+				<ItemList v-else :items="itemsToShow">
 					<template #item="itemSlotProps">
 						<slot name="item" v-bind:itemData="itemSlotProps.itemData"/>
 					</template>
@@ -468,8 +468,8 @@ this.BX = this.BX || {};
 	};
 
 	let _ = t => t,
-	    _t,
-	    _t2;
+	  _t,
+	  _t2;
 	const TitleBarFilter = {
 	  emits: ['onApplyFilters'],
 	  name: 'ui-entity-catalog-titlebar-filter',
@@ -483,14 +483,12 @@ this.BX = this.BX || {};
 	      default: false
 	    }
 	  },
-
 	  data() {
 	    return {
 	      appliedFilters: this.getAppliedFilters(),
 	      allFilters: this.filters
 	    };
 	  },
-
 	  methods: {
 	    showMenu() {
 	      main_popup.MenuManager.create({
@@ -504,21 +502,17 @@ this.BX = this.BX || {};
 	        items: this.getItems()
 	      }).show();
 	    },
-
 	    getItems() {
 	      const items = [];
-
 	      for (const key in this.allFilters) {
 	        const html = main_core.Tag.render(_t || (_t = _`
 					<div style="display: flex">
 						<div>${0}</div>
 					</div>
 				`), main_core.Text.encode(this.filters[key].text));
-
 	        if (this.allFilters[key].applied) {
 	          main_core.Dom.append(main_core.Tag.render(_t2 || (_t2 = _`<div class="ui-entity-catalog__filter-block_selected"></div>`)), html);
 	        }
-
 	        items.push({
 	          html,
 	          onclick: (event, item$$1) => {
@@ -528,10 +522,8 @@ this.BX = this.BX || {};
 	              if (!this.multiple) {
 	                this.clearAllAction();
 	              }
-
 	              this.appliedFilters[this.allFilters[key].id] = this.allFilters[key];
 	            }
-
 	            this.allFilters[key].applied = !this.allFilters[key].applied;
 	            this.$emit('onApplyFilters', new main_core_events.BaseEvent({
 	              data: this.appliedFilters
@@ -540,14 +532,12 @@ this.BX = this.BX || {};
 	          }
 	        });
 	      }
-
 	      items.push({
 	        delimiter: true
 	      });
 	      items.push(this.getClearAllFilter());
 	      return items;
 	    },
-
 	    getClearAllFilter() {
 	      return {
 	        html: `
@@ -564,32 +554,27 @@ this.BX = this.BX || {};
 	        }
 	      };
 	    },
-
 	    clearAllAction() {
 	      this.appliedFilters = {};
-	      this.allFilters = this.allFilters.map(filter => ({ ...filter,
+	      this.allFilters = this.allFilters.map(filter => ({
+	        ...filter,
 	        applied: false
 	      }));
 	    },
-
 	    getAppliedFilters() {
 	      const appliedFilters = {};
-
 	      for (const key in this.filters) {
 	        if (this.filters[key].applied) {
 	          appliedFilters[this.filters[key].id] = this.filters[key];
 	        }
 	      }
-
 	      if (Object.keys(appliedFilters).length > 0) {
 	        this.$emit('onApplyFilters', new main_core_events.BaseEvent({
-	          data: this.appliedFilters
+	          data: appliedFilters
 	        }));
 	      }
-
 	      return appliedFilters;
 	    }
-
 	  },
 	  template: `
 		<div 
@@ -605,7 +590,6 @@ this.BX = this.BX || {};
 	const Search = {
 	  emits: ['onSearch'],
 	  name: 'ui-entity-catalog-titlebar-search',
-
 	  data() {
 	    return {
 	      opened: false,
@@ -614,20 +598,16 @@ this.BX = this.BX || {};
 	      showClearSearch: false
 	    };
 	  },
-
 	  watch: {
 	    queryString(newString) {
 	      this.showClearSearch = this.opened && this.$refs['search-input'] && main_core.Type.isStringFilled(newString);
 	    }
-
 	  },
-
 	  created() {
 	    this.debounceSearchHandler = main_core.debounce(event => {
 	      this.onSearch(event.target.value);
 	    }, 255);
 	  },
-
 	  methods: {
 	    openSearch() {
 	      this.opened = true;
@@ -635,7 +615,6 @@ this.BX = this.BX || {};
 	        this.$refs['search-input'].focus();
 	      });
 	    },
-
 	    onSearch(queryString) {
 	      this.queryString = queryString;
 	      this.$emit('onSearch', new main_core_events.BaseEvent({
@@ -644,14 +623,12 @@ this.BX = this.BX || {};
 	        }
 	      }));
 	    },
-
 	    clearSearch() {
 	      if (this.showClearSearch) {
 	        this.$refs['search-input'].value = '';
 	        this.onSearch('');
 	      }
 	    }
-
 	  },
 	  template: `
 		<div class="ui-ctl ui-ctl-after-icon ui-ctl-w100 ui-ctl-round" @click.once="openSearch">
@@ -712,63 +689,63 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  },
-
 	  data() {
-	    var _this$groups$find, _this$recentGroupData, _selectedGroup$id, _selectedGroup;
-
-	    let selectedGroup = (_this$groups$find = this.groups.find(group$$1 => group$$1.selected)) != null ? _this$groups$find : null;
-
+	    var _this$recentGroupData, _selectedGroup$id, _selectedGroup;
+	    let selectedGroup = null;
+	    for (const groupList of this.groups) {
+	      selectedGroup = groupList.find(group$$1 => group$$1.selected);
+	      if (selectedGroup) {
+	        break;
+	      }
+	    }
 	    if (main_core.Type.isNil(selectedGroup) && (_this$recentGroupData = this.recentGroupData) != null && _this$recentGroupData.selected) {
 	      var _this$recentGroupData2;
-
 	      selectedGroup = {
 	        id: 'recent',
 	        ...((_this$recentGroupData2 = this.recentGroupData) != null ? _this$recentGroupData2 : {})
 	      };
 	    }
-
 	    return {
 	      selectedGroup,
 	      selectedGroupId: (_selectedGroup$id = (_selectedGroup = selectedGroup) == null ? void 0 : _selectedGroup.id) != null ? _selectedGroup$id : null,
 	      shownItems: [],
 	      shownGroups: this.getDisplayedGroup(),
-	      searching: false,
-	      lastSearchString: null,
+	      lastSearchString: '',
 	      filters: []
 	    };
 	  },
-
 	  computed: {
 	    itemsBySelectedGroupId() {
 	      var _this$selectedGroup;
-
 	      const items = this.items.filter(item$$1 => item$$1.groupIds.some(id => id === this.selectedGroupId));
 	      return (_this$selectedGroup = this.selectedGroup) != null && _this$selectedGroup.compare ? items.sort(this.selectedGroup.compare) : items;
-	    }
-
+	    },
+	    ...ui_vue3_pinia.mapWritableState(useGlobalState, {
+	      searching: 'searchApplied',
+	      filtersApplied: 'filtersApplied',
+	      globalGroup: 'currentGroup'
+	    })
 	  },
 	  watch: {
+	    selectedGroup() {
+	      this.globalGroup = this.selectedGroup;
+	    },
 	    selectedGroupId() {
 	      if (this.searching) {
 	        return;
 	      }
-
 	      this.shownItems = this.itemsBySelectedGroupId;
 	      this.applyFilters();
 	    }
-
 	  },
-
 	  created() {
 	    this.shownItems = this.itemsBySelectedGroupId;
 	  },
-
 	  methods: {
 	    getDisplayedGroup() {
 	      if (this.showEmptyGroups) {
 	        return main_core.Runtime.clone(this.groups);
 	      }
-
 	      const groupIdsWithItems = new Set();
 	      this.items.forEach(item$$1 => {
 	        item$$1.groupIds.forEach(groupId => {
@@ -777,67 +754,58 @@ this.BX = this.BX || {};
 	      });
 	      return this.groups.map(groupList => groupList.filter(group$$1 => groupIdsWithItems.has(group$$1.id))).filter(groupList => groupList.length > 0);
 	    },
-
 	    handleGroupSelected(group$$1) {
 	      var _this$$refs$search;
-
 	      this.searching = false;
 	      (_this$$refs$search = this.$refs.search) == null ? void 0 : _this$$refs$search.clearSearch();
 	      this.selectedGroupId = group$$1 ? group$$1.id : null;
 	      this.selectedGroup = group$$1 != null ? group$$1 : null;
 	    },
-
 	    onSearch(event) {
 	      const queryString = event.getData().queryString.toLowerCase();
 	      this.lastSearchString = queryString;
-
 	      if (!main_core.Type.isStringFilled(queryString)) {
 	        this.searching = false;
 	        this.shownItems = [];
 	        return;
 	      }
-
 	      this.searching = true;
 	      this.selectedGroup = null;
 	      this.selectedGroupId = null;
 	      this.shownItems = this.items.filter(item$$1 => {
 	        var _item$tags;
-
 	        return String(item$$1.title).toLowerCase().includes(queryString) || String(item$$1.description).toLowerCase().includes(queryString) || ((_item$tags = item$$1.tags) == null ? void 0 : _item$tags.some(tag => tag === queryString));
 	      });
 	      this.applyFilters();
 	    },
-
 	    onApplyFilterClick(event) {
 	      this.filters = event.getData();
-
 	      if (this.searching) {
-	        this.onSearch(this.lastSearchString);
+	        this.onSearch(new main_core_events.BaseEvent({
+	          data: {
+	            queryString: this.lastSearchString
+	          }
+	        }));
 	        return;
 	      }
-
 	      this.shownItems = this.itemsBySelectedGroupId;
 	      this.applyFilters();
 	    },
-
 	    applyFilters() {
+	      this.filtersApplied = Object.values(this.filters).length > 0;
 	      for (const filterId in this.filters) {
 	        this.shownItems = this.shownItems.filter(this.filters[filterId].action);
 	      }
 	    },
-
 	    getFilterNode() {
 	      return this.$root.$app.getPopup().getTitleContainer().querySelector('[data-role="titlebar-filter"]');
 	    },
-
 	    getSearchNode() {
 	      return this.$root.$app.getPopup().getTitleContainer().querySelector('[data-role="titlebar-search"]');
 	    },
-
 	    stopPropagation(event) {
 	      event.stopPropagation();
 	    }
-
 	  },
 	  template: `
 		<div class="ui-entity-catalog__main">
@@ -863,7 +831,8 @@ this.BX = this.BX || {};
 				</template>
 			</MainGroups>
 			<MainContent
-				:items="shownItems"
+				:items="itemsBySelectedGroupId"
+				:items-to-show="shownItems"
 				:group="selectedGroup"
 				:searching="searching"
 			>
@@ -872,6 +841,12 @@ this.BX = this.BX || {};
 				</template>
 				<template #main-content-no-selected-group-stub>
 					<slot name="main-content-no-selected-group-stub"/>
+				</template>
+				<template #main-content-filter-stub v-if="$slots['main-content-filter-stub']">
+					<slot name="main-content-filter-stub"/>
+				</template>
+				<template #main-content-filter-stub-title v-if="$slots['main-content-filter-stub-title']">
+					<slot name="main-content-filter-stub-title"/>
 				</template>
 				<template #main-content-search-not-found-stub>
 					<slot name="main-content-search-not-found-stub"/>
@@ -902,47 +877,35 @@ this.BX = this.BX || {};
 	};
 
 	let _$1 = t => t,
-	    _t$1,
-	    _t2$1;
-
+	  _t$1,
+	  _t2$1;
+	const Stubs = {
+	  EmptyContent
+	};
+	const States = {
+	  useGlobalState
+	};
 	var _popup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popup");
-
 	var _popupOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popupOptions");
-
 	var _popupTitle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popupTitle");
-
 	var _customTitleBar = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("customTitleBar");
-
 	var _groups = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("groups");
-
 	var _items = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("items");
-
 	var _recentGroupData = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("recentGroupData");
-
 	var _showEmptyGroups = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showEmptyGroups");
-
 	var _showRecentGroup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showRecentGroup");
-
 	var _showSearch = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showSearch");
-
 	var _filterOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("filterOptions");
-
 	var _application = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("application");
-
 	var _slots = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("slots");
-
+	var _customComponents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("customComponents");
 	var _attachTemplate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("attachTemplate");
-
 	var _getDefaultPopupOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDefaultPopupOptions");
-
 	var _getPopupTitleBar = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getPopupTitleBar");
-
 	var _handleClose = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleClose");
-
 	class EntityCatalog extends main_core_events.EventEmitter {
 	  constructor(props) {
-	    var _props$slots;
-
+	    var _props$slots, _props$customComponen;
 	    super();
 	    Object.defineProperty(this, _handleClose, {
 	      value: _handleClose2
@@ -1011,6 +974,10 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _customComponents, {
+	      writable: true,
+	      value: void 0
+	    });
 	    this.setEventNamespace('BX.UI.EntityCatalog');
 	    this.setGroups(main_core.Type.isArray(props.groups) ? props.groups : []);
 	    this.setItems(main_core.Type.isArray(props.items) ? props.items : []);
@@ -1018,24 +985,21 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _showEmptyGroups)[_showEmptyGroups] = main_core.Type.isBoolean(props.showEmptyGroups) ? props.showEmptyGroups : false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _showRecentGroup)[_showRecentGroup] = main_core.Type.isBoolean(props.showRecentGroup) ? props.showRecentGroup : false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _showSearch)[_showSearch] = main_core.Type.isBoolean(props.showSearch) ? props.showSearch : false;
-
 	    if (main_core.Type.isPlainObject(props.filterOptions)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _filterOptions)[_filterOptions] = props.filterOptions;
 	    }
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _popupTitle)[_popupTitle] = main_core.Type.isString(props.title) ? props.title : '';
 	    babelHelpers.classPrivateFieldLooseBase(this, _customTitleBar)[_customTitleBar] = props.customTitleBar ? props.customTitleBar : null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _popupOptions)[_popupOptions] = Object.assign(babelHelpers.classPrivateFieldLooseBase(this, _getDefaultPopupOptions)[_getDefaultPopupOptions](), main_core.Type.isObject(props.popupOptions) ? props.popupOptions : {});
 	    babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots] = (_props$slots = props.slots) != null ? _props$slots : {};
+	    babelHelpers.classPrivateFieldLooseBase(this, _customComponents)[_customComponents] = (_props$customComponen = props.customComponents) != null ? _props$customComponen : {};
 	    this.subscribeFromOptions(props.events);
 	  }
-
 	  setGroups(groups) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _groups)[_groups] = groups.map(groupList => {
 	      if (!main_core.Type.isArray(groupList)) {
 	        groupList = [groupList];
 	      }
-
 	      return groupList.map(group$$1 => ({
 	        selected: false,
 	        ...group$$1
@@ -1043,54 +1007,39 @@ this.BX = this.BX || {};
 	    });
 	    return this;
 	  }
-
 	  getItems() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _items)[_items];
 	  }
-
 	  setItems(items) {
 	    items = items.map(item$$1 => ({
 	      button: {},
 	      ...item$$1
 	    }));
 	    babelHelpers.classPrivateFieldLooseBase(this, _items)[_items].length = 0;
-
 	    babelHelpers.classPrivateFieldLooseBase(this, _items)[_items].push(...items);
-
 	    return this;
 	  }
-
 	  show() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _attachTemplate)[_attachTemplate]();
-
 	    this.getPopup().show();
 	  }
-
 	  isShown() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup] && babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup].isShown();
 	  }
-
 	  getPopup() {
 	    if (main_core.Type.isNil(babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup])) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup] = new main_popup.Popup(babelHelpers.classPrivateFieldLooseBase(this, _popupOptions)[_popupOptions]);
-
 	      babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup].setResizeMode(true);
 	    }
-
 	    return babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup];
 	  }
-
 	  close() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _application)[_application].unmount();
-
 	    this.getPopup().close();
 	  }
-
 	}
-
 	function _attachTemplate2() {
 	  var _babelHelpers$classPr, _babelHelpers$classPr2, _babelHelpers$classPr3, _babelHelpers$classPr4, _babelHelpers$classPr5, _babelHelpers$classPr6, _babelHelpers$classPr7, _babelHelpers$classPr8, _babelHelpers$classPr9;
-
 	  const context = this;
 	  const rootProps = {
 	    recentGroupData: babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData],
@@ -1102,11 +1051,11 @@ this.BX = this.BX || {};
 	  };
 	  babelHelpers.classPrivateFieldLooseBase(this, _application)[_application] = ui_vue3.BitrixVue.createApp({
 	    name: 'ui-entity-catalog',
-	    components: {
+	    components: Object.assign(babelHelpers.classPrivateFieldLooseBase(this, _customComponents)[_customComponents], {
 	      Application,
 	      Hint: ui_vue3_components_hint.Hint,
 	      Button
-	    },
+	    }),
 	    directives: {
 	      feedback
 	    },
@@ -1118,11 +1067,9 @@ this.BX = this.BX || {};
 	      showRecentGroups: Boolean,
 	      filterOptions: Object
 	    },
-
 	    created() {
 	      this.$app = context;
 	    },
-
 	    template: `
 					<Application
 						:recent-group-data="recentGroupData"
@@ -1145,6 +1092,12 @@ this.BX = this.BX || {};
 						<template #main-content-header>
 							${(_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_HEADER]) != null ? _babelHelpers$classPr4 : ''}
 						</template>
+						<template #main-content-filter-stub v-if="${!!babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB]}">
+							${babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB]}
+						</template>
+						<template #main-content-filter-stub-title v-if="${!!babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB_TITLE]}">
+							${babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB_TITLE]}
+						</template>
 						<template #main-content-search-not-found-stub>
 							${(_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]) != null ? _babelHelpers$classPr5 : main_core.Loc.getMessage('UI_JS_ENTITY_CATALOG_GROUP_LIST_ITEM_LIST_SEARCH_STUB_DEFAULT_TITLE')}
 						</template>
@@ -1163,10 +1116,8 @@ this.BX = this.BX || {};
 					</Application>
 				`
 	  }, rootProps);
-
-	  babelHelpers.classPrivateFieldLooseBase(this, _application)[_application].mount(this.getPopup().getContentContainer());
+	  babelHelpers.classPrivateFieldLooseBase(this, _application)[_application].use(ui_vue3_pinia.createPinia()).mount(this.getPopup().getContentContainer());
 	}
-
 	function _getDefaultPopupOptions2() {
 	  return {
 	    className: 'ui-catalog-popup ui-entity-catalog__scope',
@@ -1182,7 +1133,6 @@ this.BX = this.BX || {};
 	    autoHide: false
 	  };
 	}
-
 	function _getPopupTitleBar2() {
 	  const titleBar = babelHelpers.classPrivateFieldLooseBase(this, _customTitleBar)[_customTitleBar] ? babelHelpers.classPrivateFieldLooseBase(this, _customTitleBar)[_customTitleBar] : main_core.Tag.render(_t$1 || (_t$1 = _$1`<div>${0}</div>`), main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _popupTitle)[_popupTitle]));
 	  return {
@@ -1200,11 +1150,9 @@ this.BX = this.BX || {};
 			`), titleBar, babelHelpers.classPrivateFieldLooseBase(this, _showSearch)[_showSearch] ? `<div class="ui-entity-catalog__titlebar_search" data-role="titlebar-search"></div>` : '', babelHelpers.classPrivateFieldLooseBase(this, _filterOptions)[_filterOptions].filterItems.length > 0 ? '<div data-role="titlebar-filter"></div>' : '', babelHelpers.classPrivateFieldLooseBase(this, _handleClose)[_handleClose].bind(this))
 	  };
 	}
-
 	function _handleClose2() {
 	  this.close();
 	}
-
 	EntityCatalog.DEFAULT_POPUP_WIDTH = 881;
 	EntityCatalog.DEFAULT_POPUP_HEIGHT = 621;
 	EntityCatalog.DEFAULT_POPUP_COLOR = '#edeef0';
@@ -1212,13 +1160,17 @@ this.BX = this.BX || {};
 	EntityCatalog.SLOT_GROUP = 'group';
 	EntityCatalog.SLOT_GROUP_LIST_FOOTER = 'group-list-footer';
 	EntityCatalog.SLOT_MAIN_CONTENT_HEADER = 'main-content-header';
+	EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB = 'main-content-filter-stub';
+	EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB_TITLE = 'main-content-filter-stub-title';
 	EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND = 'search-not-found';
 	EntityCatalog.SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB = 'main-content-no-selected-group-stub';
 	EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB = 'main-content-empty-group-stub';
 	EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB_TITLE = 'main-content-empty-group-stub-title';
 	EntityCatalog.SLOT_MAIN_CONTENT_ITEM = 'main-content-item';
 
+	exports.Stubs = Stubs;
+	exports.States = States;
 	exports.EntityCatalog = EntityCatalog;
 
-}((this.BX.UI = this.BX.UI || {}),BX.Vue3,BX.Vue3.Components,BX,BX,BX,BX,BX,BX.Main,BX.Event,BX,BX));
+}((this.BX.UI = this.BX.UI || {}),BX.Vue3,BX.Vue3.Components,BX,BX,BX.Ui,BX,BX,BX.Vue3.Pinia,BX,BX.Main,BX.Event,BX,BX));
 //# sourceMappingURL=entity-catalog.bundle.js.map

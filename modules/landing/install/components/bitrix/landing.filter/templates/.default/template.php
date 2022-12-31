@@ -61,7 +61,7 @@ if ($isBitrix24Template)
 	{
 		?>
 		<div class="pagetitle-container pagetitle-align-right-container">
-			<a href="<?= \htmlspecialcharsbx($buuton['LINK']);?>" id="landing-create-element" class="ui-btn ui-btn-md ui-btn-success ui-btn-icon-add landing-filter-action-link">
+			<a href="<?= \htmlspecialcharsbx($buuton['LINK']);?>" id="landing-create-element" class="ui-btn ui-btn-md ui-btn-success landing-filter-action-link">
 				<?= \htmlspecialcharsbx($buuton['TITLE']);?>
 			</a>
 		</div>

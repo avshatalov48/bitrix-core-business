@@ -14,8 +14,6 @@ body {background:url("images/submenu-bg.png") repeat 0 0;
 .login-main-wrapper input[type="password"] {font-size:26px;}
 .login-main-popup-wrap input[type="password"] {padding-right:85px;}
 .bx-chrome .login-main-wrapper input[type="password"]{font-size:42px;}
-.bx-ie8 .login-main-wrapper input[type="password"],
-.bx-ie9 .login-main-wrapper input[type="password"] {padding-top:8px;}
 
 .login-page-bg {
 	background: url("images/login-bg.jpg") repeat;
@@ -52,14 +50,6 @@ body {background:url("images/submenu-bg.png") repeat 0 0;
 	position:absolute;
 	width:100%;
 	z-index:2;
-}
-
-.bx-ie8 .login-header,
-.bx-ie9 .login-header {
-	background:url("images/bx-admin-sprite-small-2.png") repeat-x 0 -3734px;
-	box-shadow:none;
-	top:0;
-	height:56px;
 }
 
 .login-logo {
@@ -151,9 +141,6 @@ body {background:url("images/submenu-bg.png") repeat 0 0;
 	width:100%;
 	z-index:2;
 }
-
-.bx-ie8 .login-footer,
-.bx-ie9 .login-footer {bottom:0;}
 
 .login-footer a {color:#949ca8; text-decoration:none;}
 
@@ -354,21 +341,6 @@ body {background:url("images/submenu-bg.png") repeat 0 0;
 	box-shadow:0 0 0 2px rgba(140,173,201, 1);
 }
 
-.bx-ie8 .adm-designed-checkbox-label.login-popup-checkbox-label-active {
-	border-color:#8cadc9;
-}
-
-.bx-ie8 #bx-admin-prefix .login-popup-checbox-block .adm-designed-checkbox
-{
-	display: inline-block !important;
-	position: static !important;
-}
-
-.bx-ie8 #bx-admin-prefix .login-popup-checbox-block .adm-designed-checkbox-label
-{
-	display: none !important;
-}
-
 #bx-admin-prefix .login-popup-checbox-block .adm-designed-checkbox {
 	opacity: 0 !important;
 	position: absolute !important;
@@ -437,9 +409,6 @@ body {background:url("images/submenu-bg.png") repeat 0 0;
 	-webkit-font-smoothing: antialiased;
 }
 
-.bx-ie8 .login-input { line-height: 41px; }
-.bx-ie8 .login-input[type="password"] { line-height: normal; }
-
 .login-input:-webkit-autofill {background-color:transparent}
 
 /************ info message **************/
@@ -475,9 +444,6 @@ body {background:url("images/submenu-bg.png") repeat 0 0;
 	padding:15px 30px 19px 18px;
 	position:relative;
 }
-
-.bx-ie8 .adm-info-message,
-.bx-ie9 .adm-info-message {background-color:#e3e3b5;}
 
 .adm-info-message-title {
 	color:#000;
@@ -555,9 +521,6 @@ body {background:url("images/submenu-bg.png") repeat 0 0;
 	padding-left:84px;
 	position:relative;
 }
-
-.bx-ie8 .adm-info-message-red .adm-info-message,
-.bx-ie9 .adm-info-message-red .adm-info-message {background-color:#dbc9d0;}
 
 .adm-info-message-red .adm-info-message-icon:before {background-position: 0 -1445px;}
 .adm-info-message-red .adm-info-message-icon:after {background-position:-6px 0;}
@@ -688,37 +651,6 @@ body {background:url("images/submenu-bg.png") repeat 0 0;
 	cursor:default;
 }
 
-.bx-ie8 .login-main-wrapper .login-btn-green,
-.bx-ie9 .login-main-wrapper .login-btn-green {
-	background:url("images/bx-admin-sprite.png") no-repeat center -342px #96b22a !important;
-	border:1px solid;
-	border-color:#a6bf45 #829d11 #85a114;
-}
-.bx-ie8 .login-main-wrapper .login-btn-green:hover,
-.bx-ie9 .login-main-wrapper .login-btn-green:hover {
-	background:url("images/bx-admin-sprite.png") no-repeat center -342px #a6c42e !important;
-	border:1px solid;
-	border-color:#b8d251 #98b622 #96b420;
-}
-.bx-ie8 .login-main-wrapper .login-btn-green:active,
-.bx-ie9 .login-main-wrapper .login-btn-green:active {
-	background:url("images/bx-admin-sprite.png") no-repeat center -342px #7d961a !important;
-	border:1px solid;
-	border-color:#64801e #87b022 #92c023;
-}
-
-.bx-ie8 .login-main-wrapper .login-loading-active .login-btn-green,
-.bx-ie8 .login-main-wrapper .login-loading-active .login-btn-green:hover,
-.bx-ie8 .login-main-wrapper .login-loading-active .login-btn-green:active,
-.bx-ie9 .login-main-wrapper .login-loading-active .login-btn-green,
-.bx-ie9 .login-main-wrapper .login-loading-active .login-btn-green:hover,
-.bx-ie9 .login-main-wrapper .login-loading-active .login-btn-green:active {
-	background: #96b22a !important;
-	border:1px solid;
-	border-color:#a6bf45 #829d11 #85a114;
-	cursor:default;
-}
-
 .login-btn {
 	background: #edf3f5;
 	background: -webkit-linear-gradient(top, #fefefe, #d7e3e7);
@@ -743,8 +675,6 @@ body {background:url("images/submenu-bg.png") repeat 0 0;
 }
 
 .bx-chrome .login-btn {padding-top:6px}
-
-.bx-ie8 .login-btn {border:1px solid #92999b;}
 
 .login-btn:hover {
 	background: #f5fbfc;
@@ -904,10 +834,6 @@ body {background:url("images/submenu-bg.png") repeat 0 0;
 .login-animate .login-header {height:50px;}
 
 .login-animate .login-footer {height:41px;}
-
-
-.bx-ie8 .login-popup-wrap,
-.bx-ie9 .login-popup-wrap {opacity:1;}
 
 /* popups animation */
 .login-animate-popup .login-popup-wrap

@@ -1,4 +1,3 @@
-import { BitrixVue } from 'ui.vue';
 import { FileStatus } from 'ui.uploader.core';
 import { FileIcon } from 'ui.uploader.tile-widget';
 
@@ -11,7 +10,9 @@ const fileIconSizes = {
 	[StackWidgetSize.TINY]: 15,
 }
 
-export const StackPreview = BitrixVue.localComponent('ui.uploader.stack-widget.stack-preview', {
+export const StackPreview = {
+	name: 'StackPreview',
+	inject: ['widgetOptions'],
 	components: {
 		FileIcon,
 	},
@@ -21,12 +22,7 @@ export const StackPreview = BitrixVue.localComponent('ui.uploader.stack-widget.s
 			required: true,
 		},
 	},
-	data()
-	{
-		return {
-			menu: null,
-		};
-	},
+	emits: ['showPopup'],
 	computed: {
 		FileStatus: () => FileStatus,
 		Sizes: () => StackWidgetSize,
@@ -40,7 +36,7 @@ export const StackPreview = BitrixVue.localComponent('ui.uploader.stack-widget.s
 		},
 		fileIconSize()
 		{
-			return fileIconSizes[this.$root.widget.size];
+			return fileIconSizes[this.widgetOptions.size];
 		},
 		errorsCount()
 		{
@@ -79,7 +75,7 @@ export const StackPreview = BitrixVue.localComponent('ui.uploader.stack-widget.s
 							<FileIcon :name="item.extension" :size="fileIconSize"/>
 						</div>
 						<div
-							v-if="[Sizes.LARGE, Sizes.MEDIUM].includes($root.widget.size)"
+							v-if="[Sizes.LARGE, Sizes.MEDIUM].includes(widgetOptions.size)"
 							:title="item.originalName"
 							class="ui-uploader-stack-preview-file-name"
 						>{{
@@ -88,7 +84,7 @@ export const StackPreview = BitrixVue.localComponent('ui.uploader.stack-widget.s
 							: item.originalName
 						}}</div>
 						<div 
-							v-if="items.length > 1 && [Sizes.SMALL, Sizes.TINY].includes($root.widget.size)"
+							v-if="items.length > 1 && [Sizes.SMALL, Sizes.TINY].includes(widgetOptions.size)"
 							class="ui-uploader-stack-preview-stats">
 							<span class="ui-uploader-stack-preview-total">{{ items.length }}</span>
 						</div>
@@ -104,4 +100,4 @@ export const StackPreview = BitrixVue.localComponent('ui.uploader.stack-widget.s
 			></div>
 		</div>
 	`,
-});
+};

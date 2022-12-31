@@ -7,24 +7,25 @@ use Bitrix\Main\ORM;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog;
-use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Iblock;
-
-Loc::loadMessages(__FILE__);
 
 class Product extends Entity
 {
 	/** @var string Need to recalculate parent product available */
 	protected const ACTION_CHANGE_PARENT_AVAILABLE = 'SKU_AVAILABLE';
+	/** @var string Need to check parent product type */
+	protected const ACTION_CHANGE_PARENT_TYPE = 'PARENT_TYPE';
+	/** @var string Need to recalculate sets with current product */
+	protected const ACTION_RECALCULATE_SETS = 'SETS';
 	/** @var string Need to send notifications about available products */
 	protected const ACTION_SEND_NOTIFICATIONS = 'SUBSCRIPTION';
 
-	/** @var bool Enable offers automation */
-	private static $separateSkuMode = null;
-	/** @var bool Sale exists */
-	private static $saleIncluded = null;
-	/** @var string Query for update element timestamp */
-	private static $queryElementDate;
+	/** @var null|bool Enable offers automation */
+	private static ?bool $separateSkuMode = null;
+	/** @var null|bool Sale exists */
+	private static ?bool $saleIncluded = null;
+	/** @var null|string Query for update element timestamp */
+	private static ?string $queryElementDate = null;
 
 	/**
 	 * Returns product tablet name.
@@ -108,7 +109,6 @@ class Product extends Entity
 		}
 		$data['external_fields']['IBLOCK_ID'] = $iblockId;
 
-		$defaultType = self::getDefaultProductType($iblockData['CATALOG_TYPE']);
 		$allowedTypes = self::getProductTypes($iblockData['CATALOG_TYPE']);
 
 		$fields = $data['fields'];
@@ -162,7 +162,7 @@ class Product extends Entity
 			$nullFields = ['MEASURE', 'TRIAL_PRICE_ID', 'VAT_ID', 'RECUR_SCHEME_LENGTH'];
 			$sizeFields = ['WIDTH', 'LENGTH', 'HEIGHT'];
 		}
-		$defaultValues['TYPE'] = $defaultType;
+		$defaultValues['TYPE'] = self::getDefaultProductType($iblockData['CATALOG_TYPE']);
 
 		$fields = array_merge($defaultValues, array_diff_key($fields, $blackList));
 
@@ -175,6 +175,26 @@ class Product extends Entity
 			return;
 		}
 
+		$isSpecialType = (
+			$fields['TYPE'] === Catalog\ProductTable::TYPE_EMPTY_SKU
+			|| $fields['TYPE'] === Catalog\ProductTable::TYPE_FREE_OFFER
+		);
+		if ($isSpecialType)
+		{
+			$fields['AVAILABLE'] = Catalog\ProductTable::STATUS_NO;
+			$fields['QUANTITY'] = 0;
+			$fields['QUANTITY_RESERVED'] = 0;
+			$fields['QUANTITY_TRACE'] = Catalog\ProductTable::STATUS_YES;
+			$fields['CAN_BUY_ZERO'] = Catalog\ProductTable::STATUS_NO;
+		}
+		$isService = $fields['TYPE'] === Catalog\ProductTable::TYPE_SERVICE;
+		if ($isService)
+		{
+			$fields['QUANTITY_RESERVED'] = 0;
+			$fields['QUANTITY_TRACE'] = Catalog\ProductTable::STATUS_NO;
+			$fields['CAN_BUY_ZERO'] = Catalog\ProductTable::STATUS_YES;
+		}
+
 		if (is_string($fields['QUANTITY']) && !is_numeric($fields['QUANTITY']))
 		{
 			$result->addError(new ORM\EntityError(
@@ -184,7 +204,19 @@ class Product extends Entity
 				)
 			));
 		}
-		$fields['QUANTITY'] = (float)$fields['QUANTITY'];
+
+		if ($isService)
+		{
+			$fields['QUANTITY'] = (int)$fields['QUANTITY'];
+			if ($fields['QUANTITY'] !== 1)
+			{
+				$fields['QUANTITY'] = 0;
+			}
+		}
+		else
+		{
+			$fields['QUANTITY'] = (float)$fields['QUANTITY'];
+		}
 
 		if (is_string($fields['QUANTITY_RESERVED']) && !is_numeric($fields['QUANTITY_RESERVED']))
 		{
@@ -281,7 +313,18 @@ class Product extends Entity
 			}
 			else
 			{
-				$data['actions'][self::ACTION_CHANGE_PARENT_AVAILABLE] = true;
+				if (!$isSpecialType)
+				{
+					if ($isService)
+					{
+						//TODO: remove this hack after reservation resource
+						$fields['QUANTITY'] = $fields['AVAILABLE'] !== Catalog\ProductTable::STATUS_YES ? 0 : 1;
+					}
+					else
+					{
+						$data['actions'][self::ACTION_CHANGE_PARENT_AVAILABLE] = true;
+					}
+				}
 			}
 		}
 
@@ -298,7 +341,9 @@ class Product extends Entity
 					$fields['AVAILABLE'] = Catalog\ProductTable::STATUS_NO;
 			}
 			if ($fields['TYPE'] === Catalog\ProductTable::TYPE_OFFER)
-				$data['actions']['PARENT_TYPE'] = true;
+			{
+				$data['actions'][self::ACTION_CHANGE_PARENT_TYPE] = true;
+			}
 		}
 
 		if ($result->isSuccess())
@@ -477,7 +522,7 @@ class Product extends Entity
 			else
 			{
 				$fields['WEIGHT'] = (float)$fields['WEIGHT'];
-				$data['actions']['SETS'] = true;
+				$data['actions'][self::ACTION_RECALCULATE_SETS] = true;
 			}
 		}
 		if (isset($fields['TMP_ID']))
@@ -515,8 +560,23 @@ class Product extends Entity
 
 			if (isset($fields['AVAILABLE']))
 			{
-				$data['actions'][self::ACTION_CHANGE_PARENT_AVAILABLE] = true;
-				$data['actions']['SETS'] = true;
+				$copyFields =
+					isset($fields['TYPE'])
+						? $fields
+						: array_merge(static::getCacheItem($id, true), $fields)
+				;
+				$copyFields['TYPE'] = (int)$copyFields['TYPE'];
+				$isService = $copyFields['TYPE'] === Catalog\ProductTable::TYPE_SERVICE;
+				if ($isService)
+				{
+					//TODO: remove this hack after reservation resource
+					$fields['QUANTITY'] = $fields['AVAILABLE'] !== Catalog\ProductTable::STATUS_YES ? 0 : 1;
+				}
+				if (!$isService)
+				{
+					$data['actions'][self::ACTION_CHANGE_PARENT_AVAILABLE] = true;
+				}
+				$data['actions'][self::ACTION_RECALCULATE_SETS] = true;
 				$data['actions'][self::ACTION_SEND_NOTIFICATIONS] = true;
 			}
 			else
@@ -538,7 +598,7 @@ class Product extends Entity
 						? array_merge(static::getCacheItem($id, true), $fields)
 						: $fields
 					);
-
+					$copyFields['TYPE'] = (int)$copyFields['TYPE'];
 					self::calculateAvailable($copyFields, $data['actions']);
 					if ($copyFields['AVAILABLE'] !== null)
 						$fields['AVAILABLE'] = $copyFields['AVAILABLE'];
@@ -566,7 +626,7 @@ class Product extends Entity
 			case Catalog\ProductTable::TYPE_OFFER:
 				if (
 					isset($data['actions'][self::ACTION_CHANGE_PARENT_AVAILABLE])
-					|| isset($data['actions']['PARENT_TYPE'])
+					|| isset($data['actions'][self::ACTION_CHANGE_PARENT_TYPE])
 				)
 				{
 					Catalog\Product\Sku::calculateComplete(
@@ -631,9 +691,13 @@ class Product extends Entity
 			}
 		}
 		if (isset($data['actions'][self::ACTION_SEND_NOTIFICATIONS]))
+		{
 			self::checkSubscription($id, $product);
-		if (isset($data['actions']['SETS']))
+		}
+		if (isset($data['actions'][self::ACTION_RECALCULATE_SETS]))
+		{
 			\CCatalogProductSet::recalculateSetsByProduct($id);
+		}
 
 		$changeAvailable = (
 			isset($product['AVAILABLE'])
@@ -799,14 +863,14 @@ class Product extends Entity
 			case Catalog\ProductTable::TYPE_PRODUCT:
 			case Catalog\ProductTable::TYPE_FREE_OFFER:
 				$result = Catalog\ProductTable::calculateAvailable($fields);
-				$actions['SETS'] = true;
+				$actions[self::ACTION_RECALCULATE_SETS] = true;
 				$actions[self::ACTION_SEND_NOTIFICATIONS] = true;
 				break;
 			case Catalog\ProductTable::TYPE_OFFER:
 				$result = Catalog\ProductTable::calculateAvailable($fields);
 				if (!self::$separateSkuMode)
 					$actions[self::ACTION_CHANGE_PARENT_AVAILABLE] = true;
-				$actions['SETS'] = true;
+				$actions[self::ACTION_RECALCULATE_SETS] = true;
 				$actions[self::ACTION_SEND_NOTIFICATIONS] = true;
 				break;
 			case Catalog\ProductTable::TYPE_SKU:
@@ -821,6 +885,12 @@ class Product extends Entity
 			case Catalog\ProductTable::TYPE_EMPTY_SKU:
 				$result = Catalog\ProductTable::STATUS_NO;
 				break;
+			case Catalog\ProductTable::TYPE_SERVICE:
+				if (isset($fields['QUANTITY']))
+				{
+					$result = ($fields['QUANTITY'] > 0 ? Catalog\ProductTable::STATUS_YES : Catalog\ProductTable::STATUS_NO);
+					$actions[self::ACTION_SEND_NOTIFICATIONS] = true;
+				}
 		}
 
 		$fields['AVAILABLE'] = $result;
@@ -836,7 +906,8 @@ class Product extends Entity
 			case \CCatalogSku::TYPE_CATALOG:
 				$result = [
 					Catalog\ProductTable::TYPE_PRODUCT => true,
-					Catalog\ProductTable::TYPE_SET => true
+					Catalog\ProductTable::TYPE_SET => true,
+					Catalog\ProductTable::TYPE_SERVICE => true,
 				];
 				break;
 			case \CCatalogSku::TYPE_OFFERS:
@@ -850,7 +921,8 @@ class Product extends Entity
 					Catalog\ProductTable::TYPE_PRODUCT => true,
 					Catalog\ProductTable::TYPE_SET => true,
 					Catalog\ProductTable::TYPE_SKU => true,
-					Catalog\ProductTable::TYPE_EMPTY_SKU => true
+					Catalog\ProductTable::TYPE_EMPTY_SKU => true,
+					Catalog\ProductTable::TYPE_SERVICE => true,
 				];
 				break;
 			case \CCatalogSku::TYPE_PRODUCT:

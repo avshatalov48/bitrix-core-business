@@ -2,11 +2,14 @@
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 
+use Bitrix\Catalog\Url\InventoryManagementSourceBuilder;
 use Bitrix\Main;
 use \Bitrix\Catalog\Component\Preset;
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadLanguageFile(__FILE__);
+
+\Bitrix\Main\Loader::includeModule('catalog');
 
 /**
  * Class WarehouseMasterClear
@@ -55,6 +58,9 @@ class WarehouseMasterClear extends CBitrixComponent implements Bitrix\Main\Engin
 		$this->arResult['MODE'] = $this->arParams['MODE'];
 		$this->arResult['PRESET_LIST'] = $this->getPresetList();
 		$this->arResult['PREVIEW_LANG'] = $this->getPortalZone();
+		$this->arResult['INVENTORY_MANAGEMENT_SOURCE'] =
+			InventoryManagementSourceBuilder::getInstance()->getInventoryManagementSource()
+		;
 
 		$this->includeComponentTemplate();
 	}

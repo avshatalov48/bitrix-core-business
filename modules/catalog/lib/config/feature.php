@@ -22,14 +22,16 @@ final class Feature
 	private const INVENTORY_MANAGEMENT = 'catalog_inventory_management';
 	private const COMMON_PRODUCT_PROCESSING = 'catalog_common_product_processing';
 	private const PRODUCT_LIMIT = 'catalog_product_limit';
+	private const CATALOG_PERMISSIONS = 'catalog_permissions';
+	private const CATALOG_SERVICES = 'catalog_services';
 
 	private const LANDING_PRODUCT_LIMIT_VARIABLE = 'landing_product_limit';
 
 	/** @var null|bool sign of the presence of Bitrix24 */
-	private static $bitrix24Included = null;
+	private static ?bool $bitrix24Included = null;
 
 	/** @var array map of compliance with tariff and edition restrictions */
-	private static $tranferList = [
+	private static array $tranferList = [
 		self::PRODUCT_SETS => 'CatCompleteSet',
 		self::MULTI_PRICE_TYPES => 'CatMultiPrice',
 		self::CUMULATIVE_DISCOUNTS => 'CatDiscountSave',
@@ -37,7 +39,7 @@ final class Feature
 	];
 
 	/** @var array edition restrictions */
-	private static $retailExist = [
+	private static array $retailExist = [
 		self::PRODUCT_SETS => true,
 		self::MULTI_PRICE_TYPES => true,
 		self::CUMULATIVE_DISCOUNTS => true,
@@ -45,27 +47,31 @@ final class Feature
 	];
 
 	/** @var array bitrix24 restrictions */
-	private static $bitrix24exist = [
+	private static array $bitrix24exist = [
 		self::PRODUCT_SETS => true,
 		self::EXTENDED_PRICES => true,
 		self::MULTI_PRICE_TYPES => true,
 		self::MULTI_WARENHOUSES => true,
 		self::INVENTORY_MANAGEMENT => true,
 		self::COMMON_PRODUCT_PROCESSING => true,
+		self::CATALOG_PERMISSIONS => true,
+		self::CATALOG_SERVICES => true,
 	];
 
 	/** @var array bitrix24 articles about tarif features */
-	private static $bitrix24helpCodes = [
+	private static array $bitrix24helpCodes = [
 		self::PRODUCT_SETS => 'limit_shop_bundles',
 		self::MULTI_PRICE_TYPES => 'limit_shop_variable_prices',
 		self::EXTENDED_PRICES => 'limit_shop_variable_prices',
 		self::MULTI_WARENHOUSES => 'limit_shop_stocks',
 		self::INVENTORY_MANAGEMENT => 'limit_store_inventory_management',
-		self::PRODUCT_LIMIT => 'limit_shop_products'
+		self::PRODUCT_LIMIT => 'limit_shop_products',
+		self::CATALOG_PERMISSIONS => 'limit_crm_catalog_access_permissions',
+		self::CATALOG_SERVICES => 'limit_crm_catalog_services',
 	];
 
-	private static $helpCodesCounter = 0;
-	private static $initUi = false;
+	private static int $helpCodesCounter = 0;
+	private static bool $initUi = false;
 
 	/**
 	 * @return int
@@ -157,6 +163,16 @@ final class Feature
 	}
 
 	/**
+	 * Returns true if catalog rights editor is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function isAccessControllerCheckingEnabled(): bool
+	{
+		return self::isFeatureEnabled(self::CATALOG_PERMISSIONS);
+	}
+
+	/**
 	 * Returns true if can exporting to Yandex.Market.
 	 *
 	 * @return bool
@@ -165,7 +181,7 @@ final class Feature
 	{
 		$lang = LANGUAGE_ID;
 
-		if (Loader::includeModule('bitrix24'))
+		if (self::isBitrix24())
 		{
 			$lang = \CBitrix24::getLicensePrefix();
 		}
@@ -179,6 +195,16 @@ final class Feature
 		}
 
 		return in_array($lang, ['ru', 'by', 'kz'], true);
+	}
+
+	/**
+	 * Returns true if can use services.
+	 *
+	 * @return bool
+	 */
+	public static function isCatalogServicesEnabled(): bool
+	{
+		return self::isFeatureEnabled(self::CATALOG_SERVICES);
 	}
 
 	/**
@@ -239,6 +265,26 @@ final class Feature
 	public static function getProductLimitHelpLink(): ?array
 	{
 		return self::getHelpLink(self::PRODUCT_LIMIT);
+	}
+
+	/**
+	 * Returns url description for help article about catalog right editor.
+	 *
+	 * @return array|null
+	 */
+	public static function getAccessControllerHelpLink(): ?array
+	{
+		return self::getHelpLink(self::CATALOG_PERMISSIONS);
+	}
+
+	/**
+	 * Returns url description for help article about services in catalog.
+	 *
+	 * @return array|null
+	 */
+	public static function getCatalogServicesHelpLink(): ?array
+	{
+		return self::getHelpLink(self::CATALOG_SERVICES);
 	}
 
 	/**
@@ -314,7 +360,7 @@ final class Feature
 		self::$helpCodesCounter++;
 		return [
 			'TYPE' => 'ONCLICK',
-			'LINK' => 'BX.UI.InfoHelper.show(\''.self::$bitrix24helpCodes[$featureId].'\');',
+			'LINK' => 'top.BX.UI.InfoHelper.show(\''.self::$bitrix24helpCodes[$featureId].'\');',
 			'FEATURE_CODE' => self::$bitrix24helpCodes[$featureId],
 		];
 	}

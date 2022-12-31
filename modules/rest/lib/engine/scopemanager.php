@@ -20,6 +20,7 @@ class ScopeManager
 	public const CACHE_DIR = '/rest/scope/';
 	private const CACHE_KEY = 'list';
 	private const METHOD_DELIMITER = '.';
+	private const VENDOR_DELIMITER = ':';
 
 	/** @var ScopeManager|null  */
 	private static $instance;
@@ -172,6 +173,21 @@ class ScopeManager
 			elseif ($module !== $scope)
 			{
 				$method = $module . self::METHOD_DELIMITER . $method;
+			}
+
+			/**
+			 * for method with ':' doesn't add extra ':' for modules with points in the name
+			 */
+			if (
+				mb_strpos($method, self::VENDOR_DELIMITER) === false
+				&& mb_strpos($module, self::METHOD_DELIMITER) !== false
+			)
+			{
+				$moduleParts = explode(self::METHOD_DELIMITER, $module);
+				array_pop($moduleParts);
+				$vendor = implode(self::METHOD_DELIMITER, $moduleParts);
+
+				$method = preg_replace('/^' . $vendor . self::METHOD_DELIMITER . '/', $vendor . self::VENDOR_DELIMITER, $method);
 			}
 
 			$this->methodInfoList[$method] = [

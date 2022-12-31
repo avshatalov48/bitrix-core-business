@@ -1,15 +1,23 @@
 <?php
 
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\StoreDocumentTable;
+use Bitrix\Catalog\Url\InventoryManagementSourceBuilder;
 use Bitrix\Main;
 use Bitrix\Main\Context;
 use Bitrix\Main\Engine\Contract\Controllerable;
-use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\Json;
+use Bitrix\Main\Web\Uri;
+use Bitrix\UI\Buttons\CreateButton;
+use Bitrix\UI\Buttons\LockedButton;
+use Bitrix\Catalog\v2\Contractor\Provider\Manager;
+use Bitrix\Catalog\ContractorTable;
+use Bitrix\Catalog\StoreTable;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -27,14 +35,15 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 	public const ARRIVAL_MODE = 'receipt_adjustment';
 	public const MOVING_MODE = 'moving';
 	public const DEDUCT_MODE = 'deduct';
+	/**
+	 * @deprecated not used
+	 */
 	public const OTHER_MODE = 'other';
 
 	private $defaultGridSort = [
 		'DATE_MODIFY' => 'desc',
 	];
 	private $navParamName = 'page';
-
-	private $analyticsSource = '';
 
 	/** @var \Bitrix\Catalog\Grid\Filter\DocumentDataProvider $itemProvider */
 	private $itemProvider;
@@ -48,6 +57,16 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 	private $mode;
 	/** @var array $documentStores */
 	private $documentStores;
+
+	/** @var AccessController */
+	private $accessController;
+
+	public function __construct($component = null)
+	{
+		parent::__construct($component);
+
+		$this->accessController = AccessController::getCurrent();
+	}
 
 	public function onPrepareComponentParams($arParams)
 	{
@@ -71,11 +90,15 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		{
 			if ($crmIncluded)
 			{
-				$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage(
-				Loader::includeModule('bitrix24')
-					? 'DOCUMENT_LIST_ERR_ACCESS_DENIED_CLOUD'
-					: 'DOCUMENT_LIST_ERR_ACCESS_DENIED_BOX'
-				);
+				$this->arResult['ERROR_MESSAGES'][] = [
+					'TITLE' => Loc::getMessage(
+						'DOCUMENT_LIST_ERR_ACCESS_DENIED',
+						['#DOCUMENT_TYPE_NAME#' => $this->getModeName()]
+					),
+					'HELPER_CODE' => 15955386,
+					'LESSON_ID' => 25010,
+					'COURSE_ID' => 48,
+				];
 			}
 			else
 			{
@@ -92,19 +115,105 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 
 		$this->arResult['PATH_TO'] = $this->arParams['PATH_TO'];
 
+		$this->arResult['INVENTORY_MANAGEMENT_SOURCE'] =
+			InventoryManagementSourceBuilder::getInstance()->getInventoryManagementSource()
+		;
+
 		$this->initInventoryManagementSlider();
 
 		$this->includeComponentTemplate();
 	}
 
-	private function checkDocumentReadRights(): bool
+	/**
+	 * Localized mode name.
+	 *
+	 * @return string
+	 */
+	private function getModeName(): string
 	{
-		return \Bitrix\Main\Engine\CurrentUser::get()->canDoOperation('catalog_read');
+		if ($this->mode === self::ARRIVAL_MODE)
+		{
+			$type = StoreDocumentTable::TYPE_ARRIVAL;
+		}
+		elseif ($this->mode === self::MOVING_MODE)
+		{
+			$type = StoreDocumentTable::TYPE_MOVING;
+		}
+		elseif ($this->mode === self::DEDUCT_MODE)
+		{
+			$type = StoreDocumentTable::TYPE_DEDUCT;
+		}
+		else
+		{
+			return '';
+		}
+
+		return (string)Loc::getMessage('DOCUMENT_LIST_DOC_TYPE_' . $type);
 	}
 
-	private function checkDocumentWriteRights(): bool
+	private function checkDocumentAccessRights(string $action): bool
 	{
-		return \Bitrix\Main\Engine\CurrentUser::get()->canDoOperation('catalog_store');
+		if (
+			!$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+			|| !$this->accessController->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS)
+		)
+		{
+			return false;
+		}
+
+		switch ($this->mode)
+		{
+			case self::ARRIVAL_MODE:
+				return
+					$this->accessController->checkByValue($action, StoreDocumentTable::TYPE_ARRIVAL)
+					|| $this->accessController->checkByValue($action, StoreDocumentTable::TYPE_STORE_ADJUSTMENT)
+					;
+
+			case self::MOVING_MODE:
+				return $this->accessController->checkByValue(
+					$action,
+					StoreDocumentTable::TYPE_MOVING
+				);
+
+			case self::DEDUCT_MODE:
+				return $this->accessController->checkByValue(
+					$action,
+					StoreDocumentTable::TYPE_DEDUCT
+				);
+
+			case self::OTHER_MODE:
+				return
+					$this->accessController->checkByValue($action, StoreDocumentTable::TYPE_RETURN)
+					|| $this->accessController->checkByValue($action, StoreDocumentTable::TYPE_UNDO_RESERVE)
+					;
+		}
+
+		return false;
+	}
+
+	private function checkDocumentReadRights(): bool
+	{
+		return $this->checkDocumentAccessRights(ActionDictionary::ACTION_STORE_DOCUMENT_VIEW);
+	}
+
+	private function checkDocumentModifyRights(): bool
+	{
+		return $this->checkDocumentAccessRights(ActionDictionary::ACTION_STORE_DOCUMENT_MODIFY);
+	}
+
+	private function checkDocumentDeleteRights(): bool
+	{
+		return $this->checkDocumentAccessRights(ActionDictionary::ACTION_STORE_DOCUMENT_DELETE);
+	}
+
+	private function checkDocumentConductRights(): bool
+	{
+		return $this->checkDocumentAccessRights(ActionDictionary::ACTION_STORE_DOCUMENT_CONDUCT);
+	}
+
+	private function checkDocumentCancelRights(): bool
+	{
+		return $this->checkDocumentAccessRights(ActionDictionary::ACTION_STORE_DOCUMENT_CANCEL);
 	}
 
 	public function configureActions()
@@ -127,8 +236,6 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 
 		$this->itemProvider = new \Bitrix\Catalog\Grid\Filter\DocumentDataProvider($this->mode);
 		$this->filter = new \Bitrix\Main\Filter\Filter($this->getFilterId(), $this->itemProvider);
-
-		$this->analyticsSource = $this->request->get('inventoryManagementSource') ?? '';
 	}
 
 	private function initMode()
@@ -195,6 +302,8 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 					'ID' => 'DESC',
 				];
 				break;
+			case 'ID':
+				break;
 			default:
 				$gridSort['sort']['ID'] = 'DESC';
 				break;
@@ -246,6 +355,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 					'data' => $item,
 					'columns' => $this->getItemColumn($item),
 					'actions' => $this->getItemActions($item),
+					'editable' => $this->accessController->checkByValue(ActionDictionary::ACTION_STORE_DOCUMENT_MODIFY, $item['DOC_TYPE'])
 				];
 			}
 		}
@@ -272,64 +382,82 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$result['SHOW_ROW_CHECKBOXES'] = true;
 		$result['SHOW_CHECK_ALL_CHECKBOXES'] = true;
 		$result['SHOW_ACTION_PANEL'] = true;
+
+		$actionPanelItems = [];
 		$snippet = new \Bitrix\Main\Grid\Panel\Snippet();
-		$removeButton = $snippet->getRemoveButton();
-		$snippet->setButtonActions($removeButton, [
-			[
-				'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
-				'CONFIRM' => true,
-				'CONFIRM_APPLY_BUTTON' => Loc::getMessage('DOCUMENT_LIST_ACTION_DELETE_TEXT'),
-				'DATA' => [
-					[
-						'JS' => 'BX.Catalog.DocumentGridManager.Instance.deleteSelectedDocuments()'
-					],
-				],
-			]
-		]);
-
-		$dropdownActions = [
-			[
-				'NAME' => Loc::getMessage('DOCUMENT_LIST_SELECT_GROUP_ACTION'),
-				'VALUE' => 'none',
-			],
-			[
-				'NAME' => Loc::getMessage('DOCUMENT_LIST_CONDUCT_GROUP_ACTION'),
-				'VALUE' => 'conduct',
-			],
-			[
-				'NAME' => Loc::getMessage('DOCUMENT_LIST_CANCEL_GROUP_ACTION'),
-				'VALUE' => 'cancel',
-			]
-		];
-
-		$dropdownActionsButton = [
-			'TYPE' => \Bitrix\Main\Grid\Panel\Types::DROPDOWN,
-			'ID' => 'action_button_'. $this->getGridId(),
-			'NAME' => 'action_button_'. $this->getGridId(),
-			'ITEMS' => $dropdownActions,
-		];
-
-		$applyButton = $snippet->getApplyButton([
-			'ONCHANGE' => [
+		if ($this->checkDocumentDeleteRights())
+		{
+			$removeButton = $snippet->getRemoveButton();
+			$snippet->setButtonActions($removeButton, [
 				[
 					'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
+					'CONFIRM' => true,
+					'CONFIRM_APPLY_BUTTON' => Loc::getMessage('DOCUMENT_LIST_ACTION_DELETE_TEXT'),
 					'DATA' => [
 						[
-							'JS' => 'BX.Catalog.DocumentGridManager.Instance.processApplyButtonClick()',
+							'JS' => 'BX.Catalog.DocumentGridManager.Instance.deleteSelectedDocuments()'
+						],
+					],
+				]
+			]);
+
+			$actionPanelItems[] = $removeButton;
+		}
+
+		$dropdownActions = [];
+		if ($this->checkDocumentConductRights())
+		{
+			$dropdownActions[] = [
+				'NAME' => Loc::getMessage('DOCUMENT_LIST_CONDUCT_GROUP_ACTION'),
+				'VALUE' => 'conduct',
+			];
+		}
+
+		if ($this->checkDocumentCancelRights())
+		{
+			$dropdownActions[] = [
+				'NAME' => Loc::getMessage('DOCUMENT_LIST_CANCEL_GROUP_ACTION'),
+				'VALUE' => 'cancel',
+			];
+		}
+
+		if ($dropdownActions)
+		{
+			array_unshift($dropdownActions, [
+				'NAME' => Loc::getMessage('DOCUMENT_LIST_SELECT_GROUP_ACTION'),
+				'VALUE' => 'none',
+			]);
+
+			$dropdownActionsButton = [
+				'TYPE' => \Bitrix\Main\Grid\Panel\Types::DROPDOWN,
+				'ID' => 'action_button_'. $this->getGridId(),
+				'NAME' => 'action_button_'. $this->getGridId(),
+				'ITEMS' => $dropdownActions,
+			];
+
+			$actionPanelItems[] = $dropdownActionsButton;
+
+			$applyButton = $snippet->getApplyButton([
+				'ONCHANGE' => [
+					[
+						'ACTION' => \Bitrix\Main\Grid\Panel\Actions::CALLBACK,
+						'DATA' => [
+							[
+								'JS' => 'BX.Catalog.DocumentGridManager.Instance.processApplyButtonClick()',
+							]
 						]
 					]
 				]
-			]
-		]);
+			]);
+			$actionPanelItems[] = $applyButton;
+		}
+
+
 
 		$result['ACTION_PANEL'] = [
 			'GROUPS' => [
 				[
-					'ITEMS' => [
-						$removeButton,
-						$dropdownActionsButton,
-						$applyButton,
-					],
+					'ITEMS' => $actionPanelItems,
 				],
 			]
 		];
@@ -384,24 +512,34 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		];
 		if ($item['STATUS'] === 'N')
 		{
-			$actions[] = [
-				'TITLE' => Loc::getMessage('DOCUMENT_LIST_ACTION_CONDUCT_TITLE'),
-				'TEXT' => Loc::getMessage('DOCUMENT_LIST_ACTION_CONDUCT_TEXT'),
-				'ONCLICK' => "BX.Catalog.DocumentGridManager.Instance.conductDocument(" . $item['ID'] . ", '" . $item['DOC_TYPE'] . "')",
-			];
-			$actions[] = [
-				'TITLE' => Loc::getMessage('DOCUMENT_LIST_ACTION_DELETE_TITLE'),
-				'TEXT' => Loc::getMessage('DOCUMENT_LIST_ACTION_DELETE_TEXT'),
-				'ONCLICK' => "BX.Catalog.DocumentGridManager.Instance.deleteDocument(" . $item['ID'] . ")",
-			];
+			if ($this->accessController->checkByValue(ActionDictionary::ACTION_STORE_DOCUMENT_CONDUCT, $item['DOC_TYPE']))
+			{
+				$actions[] = [
+					'TITLE' => Loc::getMessage('DOCUMENT_LIST_ACTION_CONDUCT_TITLE'),
+					'TEXT' => Loc::getMessage('DOCUMENT_LIST_ACTION_CONDUCT_TEXT'),
+					'ONCLICK' => "BX.Catalog.DocumentGridManager.Instance.conductDocument(" . $item['ID'] . ", '" . $item['DOC_TYPE'] . "')",
+				];
+			}
+
+			if ($this->accessController->checkByValue(ActionDictionary::ACTION_STORE_DOCUMENT_DELETE, $item['DOC_TYPE']))
+			{
+				$actions[] = [
+					'TITLE' => Loc::getMessage('DOCUMENT_LIST_ACTION_DELETE_TITLE'),
+					'TEXT' => Loc::getMessage('DOCUMENT_LIST_ACTION_DELETE_TEXT'),
+					'ONCLICK' => "BX.Catalog.DocumentGridManager.Instance.deleteDocument(" . $item['ID'] . ")",
+				];
+			}
 		}
 		else
 		{
-			$actions[] = [
-				'TITLE' => Loc::getMessage('DOCUMENT_LIST_ACTION_CANCEL_TITLE'),
-				'TEXT' => Loc::getMessage('DOCUMENT_LIST_ACTION_CANCEL_TEXT'),
-				'ONCLICK' => "BX.Catalog.DocumentGridManager.Instance.cancelDocument(" . $item['ID'] . ", '" . $item['DOC_TYPE'] . "')",
-			];
+			if ($this->accessController->checkByValue(ActionDictionary::ACTION_STORE_DOCUMENT_CANCEL, $item['DOC_TYPE']))
+			{
+				$actions[] = [
+					'TITLE' => Loc::getMessage('DOCUMENT_LIST_ACTION_CANCEL_TITLE'),
+					'TEXT' => Loc::getMessage('DOCUMENT_LIST_ACTION_CANCEL_TEXT'),
+					'ONCLICK' => "BX.Catalog.DocumentGridManager.Instance.cancelDocument(" . $item['ID'] . ", '" . $item['DOC_TYPE'] . "')",
+				];
+			}
 		}
 
 		return $actions;
@@ -537,10 +675,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			];
 		}
 
-		if ($column['CONTRACTOR_ID'])
-		{
-			$column['CONTRACTOR_ID'] = htmlspecialcharsbx($this->getContractors()[$column['CONTRACTOR_ID']]['NAME']);
-		}
+		$column['CONTRACTOR_ID'] = htmlspecialcharsbx($this->getContractorName($column));
 
 		if (isset($column['TOTAL']))
 		{
@@ -627,7 +762,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 
 		$this->contractors = [];
 
-		$dbResult = \Bitrix\Catalog\ContractorTable::getList(['select' => ['ID', 'COMPANY', 'PERSON_NAME']]);
+		$dbResult = ContractorTable::getList(['select' => ['ID', 'COMPANY', 'PERSON_NAME']]);
 		while ($contractor = $dbResult->fetch())
 		{
 			$this->contractors[$contractor['ID']] = [
@@ -648,7 +783,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 
 		$this->stores = [];
 
-		$dbResult = \Bitrix\Catalog\StoreTable::getList(['select' => ['ID', 'TITLE']]);
+		$dbResult = StoreTable::getList(['select' => ['ID', 'TITLE']]);
 		while ($store = $dbResult->fetch())
 		{
 			$this->stores[$store['ID']] = [
@@ -740,13 +875,15 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 
 	private function getTotalCountWithoutUserFilter()
 	{
-		return StoreDocumentTable::getList([
-			'select' => ['CNT'],
-			'filter' => $this->getDocTypeModeFilter(),
-			'runtime' => [
-				new ExpressionField('CNT', 'COUNT(*)')
-			],
-		])->fetch()['CNT'];
+		$filter = $this->getDocTypeModeFilter();
+
+		$accessFilter = $this->getAccessFilter();
+		if ($accessFilter)
+		{
+			$filter[] = $accessFilter;
+		}
+
+		return StoreDocumentTable::getCount($filter);
 	}
 
 	private function prepareToolbar()
@@ -764,54 +901,93 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		];
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterOptions);
 
-		$addDocumentButton = \Bitrix\UI\Buttons\CreateButton::create([
-			'text' => Loc::getMessage('DOCUMENT_LIST_ADD_DOCUMENT_BUTTON'),
+		$addDocumentButton = $this->getAddDocumentButton();
+		if ($addDocumentButton)
+		{
+			\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($addDocumentButton, \Bitrix\UI\Toolbar\ButtonLocation::AFTER_TITLE);
+			$this->arResult['ADD_DOCUMENT_BTN_ID'] = $addDocumentButton->getUniqId();
+		}
+	}
+
+	private function getAddDocumentButton(): ?\Bitrix\UI\Buttons\Button
+	{
+		if (!$this->checkDocumentModifyRights())
+		{
+			return LockedButton::create([
+				'text' => Loc::getMessage('DOCUMENT_LIST_ADD_DOCUMENT_BUTTON_2'),
+				'color' => \Bitrix\UI\Buttons\Color::SUCCESS,
+				'hint' => Loc::getMessage('DOCUMENT_LIST_ADD_DOCUMENT_BUTTON_DISABLE_HINT'),
+				'classList' => [
+					'add-document-button',
+					'add-document-button-disabled',
+				],
+			]);
+		}
+
+		$addDocumentButton = CreateButton::create([
+			'text' => Loc::getMessage('DOCUMENT_LIST_ADD_DOCUMENT_BUTTON_2'),
 			'color' => \Bitrix\UI\Buttons\Color::SUCCESS,
 			'dataset' => [
 				'toolbar-collapsed-icon' => \Bitrix\UI\Buttons\Icon::ADD,
 			],
 			'classList' => ['add-document-button'],
 		]);
-		$analyticsSourcePart = $this->analyticsSource ? '&inventoryManagementSource=' . $this->analyticsSource : '';
+
 		if ($this->mode === self::OTHER_MODE)
 		{
 			$addDocumentButton->setMenu([
 				'items' => [
 					[
 						'text' => StoreDocumentTable::getTypeList(true)[StoreDocumentTable::TYPE_UNDO_RESERVE],
-						'href' => '/shop/settings/cat_store_document_edit.php?DOCUMENT_TYPE=U&publicSidePanel=Y&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER' . $analyticsSourcePart,
+						'href' => $this->getUrlToNewDocumentDetail(StoreDocumentTable::TYPE_UNDO_RESERVE),
 					],
 					[
 						'text' => StoreDocumentTable::getTypeList(true)[StoreDocumentTable::TYPE_RETURN],
-						'href' => '/shop/settings/cat_store_document_edit.php?DOCUMENT_TYPE=R&publicSidePanel=Y&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER' . $analyticsSourcePart,
+						'href' => $this->getUrlToNewDocumentDetail(StoreDocumentTable::TYPE_RETURN),
 					],
 				]
 			]);
 		}
 		else
 		{
-			$addDocumentUrl = $this->getUrlToDocumentDetail(0);
 			if ($this->mode === self::ARRIVAL_MODE)
 			{
-				$typeParams =
-					$this->isFirstTime()
-						? (StoreDocumentTable::TYPE_STORE_ADJUSTMENT . '&firstTime=Y')
-						: StoreDocumentTable::TYPE_ARRIVAL
-				;
-				$addDocumentButton->setLink($addDocumentUrl . '?DOCUMENT_TYPE=' . $typeParams . $analyticsSourcePart);
+				if ($this->isFirstTime())
+				{
+					$addDocumentButton->setLink($this->getUrlToNewDocumentDetail(StoreDocumentTable::TYPE_STORE_ADJUSTMENT, 'Y'));
+				}
+				else
+				{
+					$addDocumentButton->setLink($this->getUrlToNewDocumentDetail(StoreDocumentTable::TYPE_ARRIVAL));
+				}
 			}
 			if ($this->mode === self::MOVING_MODE)
 			{
-				$addDocumentButton->setLink($addDocumentUrl . '?DOCUMENT_TYPE=' . StoreDocumentTable::TYPE_MOVING . $analyticsSourcePart);
+				$addDocumentButton->setLink($this->getUrlToNewDocumentDetail(StoreDocumentTable::TYPE_MOVING));
 			}
 			if ($this->mode === self::DEDUCT_MODE)
 			{
-				$addDocumentButton->setLink($addDocumentUrl . '?DOCUMENT_TYPE=' . StoreDocumentTable::TYPE_DEDUCT . $analyticsSourcePart);
+				$addDocumentButton->setLink($this->getUrlToNewDocumentDetail(StoreDocumentTable::TYPE_DEDUCT));
 			}
 		}
 
-		\Bitrix\UI\Toolbar\Facade\Toolbar::addButton($addDocumentButton, \Bitrix\UI\Toolbar\ButtonLocation::AFTER_TITLE);
-		$this->arResult['ADD_DOCUMENT_BTN_ID'] = $addDocumentButton->getUniqId();
+		return $addDocumentButton;
+	}
+
+	private function getUrlToNewDocumentDetail(string $documentType, bool $isFirstTime = false): string
+	{
+		if ($isFirstTime)
+		{
+			$uriEntity = new Uri($this->getUrlToDocumentDetail(0, $documentType, 'Y'));
+		}
+		else
+		{
+			$uriEntity = new Uri($this->getUrlToDocumentDetail(0, $documentType));
+		}
+
+		$uriEntity->addParams(['focusedTab' => 'tab_products']);
+
+		return $uriEntity->getUri();
 	}
 
 	private function isFirstTime(): bool
@@ -861,6 +1037,12 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 	{
 		$filter = array_merge($this->getUserFilter(), $this->getDocTypeModeFilter());
 
+		$accessFilter = $this->getAccessFilter();
+		if ($accessFilter)
+		{
+			$filter[] = $accessFilter;
+		}
+
 		$filter = $this->prepareListFilter($filter);
 
 		return $filter;
@@ -900,6 +1082,11 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			$preparedFilter['DOC_NUMBER'] = '%' . $preparedFilter['DOC_NUMBER'] . '%';
 		}
 
+		if (Manager::getActiveProvider())
+		{
+			Manager::getActiveProvider()::setDocumentsGridFilter($preparedFilter);
+		}
+
 		$filterOptions = new \Bitrix\Main\UI\Filter\Options($this->filter->getID());
 		$searchString = $filterOptions->getSearchString();
 		if ($searchString)
@@ -910,38 +1097,115 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		return $preparedFilter;
 	}
 
+	private function getAccessFilter(): ?array
+	{
+		// default check access
+		$isCheckAccess = ($this->arParams['CHECK_ACCESS'] ?? 'Y') === 'Y';
+		if (!$isCheckAccess)
+		{
+			return null;
+		}
+
+		$result = [];
+
+		$docTypeFilter = $this->accessController->getEntityFilter(
+			ActionDictionary::ACTION_STORE_DOCUMENT_VIEW,
+			StoreDocumentTable::class
+		);
+		if ($docTypeFilter)
+		{
+			$result[] = $docTypeFilter;
+		}
+
+		$storeFilter = $this->accessController->getEntityFilter(
+			ActionDictionary::ACTION_STORE_VIEW,
+			StoreDocumentTable::class
+		);
+		if ($storeFilter)
+		{
+			$result[] = $storeFilter;
+		}
+
+		return $result;
+	}
+
 	private function getDocTypeModeFilter(): array
 	{
+		$docTypes = [];
+
 		switch ($this->mode)
 		{
 			case self::ARRIVAL_MODE:
-				return ['=DOC_TYPE' => [StoreDocumentTable::TYPE_ARRIVAL, StoreDocumentTable::TYPE_STORE_ADJUSTMENT]];
+				$docTypes = [
+					StoreDocumentTable::TYPE_ARRIVAL,
+					StoreDocumentTable::TYPE_STORE_ADJUSTMENT,
+				];
+				break;
+
 			case self::MOVING_MODE:
-				return ['=DOC_TYPE' => StoreDocumentTable::TYPE_MOVING];
+				$docTypes = [
+					StoreDocumentTable::TYPE_MOVING,
+				];
+				break;
+
 			case self::DEDUCT_MODE:
-				return ['=DOC_TYPE' => StoreDocumentTable::TYPE_DEDUCT];
+				$docTypes = [
+					StoreDocumentTable::TYPE_DEDUCT,
+				];
+				break;
+
 			case self::OTHER_MODE:
-				return ['=DOC_TYPE' => [StoreDocumentTable::TYPE_RETURN, StoreDocumentTable::TYPE_UNDO_RESERVE]];
+				$docTypes = [
+					StoreDocumentTable::TYPE_RETURN,
+					StoreDocumentTable::TYPE_UNDO_RESERVE,
+				];
+				break;
 		}
 
-		return [];
+		return $docTypes ? ['=DOC_TYPE' => $docTypes] : [];
 	}
 
-	private function getUrlToDocumentDetail($documentId)
+	private function getUrlToDocumentDetail($documentId, $documentType = null, $firstTime = null): string
 	{
 		if ($this->mode === self::OTHER_MODE)
 		{
-			return '/shop/settings/cat_store_document_edit.php?publicSidePanel=Y&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER&ID=' . $documentId;
+			if ($documentType)
+			{
+				$pathToDocumentDetail =
+					'/shop/settings/cat_store_document_edit.php?DOCUMENT_TYPE='
+					. $documentType
+					. '&publicSidePanel=Y&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER'
+				;
+			}
+			else
+			{
+				$pathToDocumentDetail =
+					'/shop/settings/cat_store_document_edit.php?publicSidePanel=Y&IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER&ID='
+					. $documentId
+				;
+			}
+
+			return InventoryManagementSourceBuilder::getInstance()->addInventoryManagementSourceParam($pathToDocumentDetail);
 		}
 
-		$pathToDocumentDetail = $this->arParams['PATH_TO']['DOCUMENT'] ?? '';
-		if ($pathToDocumentDetail === '')
+		$pathToDocumentDetailTemplate = $this->arParams['PATH_TO']['DOCUMENT'] ?? '';
+		if ($pathToDocumentDetailTemplate === '')
 		{
-			return $pathToDocumentDetail;
+			return $pathToDocumentDetailTemplate;
 		}
 
-		$url = str_replace('#DOCUMENT_ID#', $documentId, $pathToDocumentDetail);
-		return $url;
+		$pathToDocumentDetail = str_replace('#DOCUMENT_ID#', $documentId, $pathToDocumentDetailTemplate);
+
+		if ($documentType)
+		{
+			$pathToDocumentDetail .= '?DOCUMENT_TYPE=' . $documentType;
+			if ($firstTime)
+			{
+				$pathToDocumentDetail .= '&firstTime=' . $firstTime;
+			}
+		}
+
+		return InventoryManagementSourceBuilder::getInstance()->addInventoryManagementSourceParam($pathToDocumentDetail);
 	}
 
 	private function isUserFilterApplied(): bool
@@ -963,6 +1227,10 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 
 		$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.warehouse.master.clear');
 		$sliderPath = getLocalPath('components' . $sliderPath . '/slider.php');
+		if ($this->arResult['INVENTORY_MANAGEMENT_SOURCE'])
+		{
+			$sliderPath .= '?inventoryManagementSource=' . $this->arResult['INVENTORY_MANAGEMENT_SOURCE'];
+		}
 		$this->arResult['MASTER_SLIDER_URL'] = $sliderPath;
 	}
 
@@ -1025,5 +1293,29 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		}
 
 		return $zone;
+	}
+
+	/**
+	 * @param array $column
+	 * @return string
+	 */
+	private function getContractorName(array $column): string
+	{
+		if (Manager::getActiveProvider())
+		{
+			$contractor = Manager::getActiveProvider()::getContractorByDocumentId((int)$column['ID']);
+
+			return $contractor ? $contractor->getName() : '';
+		}
+
+		$contractorId = (int)$column['CONTRACTOR_ID'];
+		$contractors = $this->getContractors();
+
+		if (!isset($contractors[$contractorId]))
+		{
+			return '';
+		}
+
+		return (string)$contractors[$contractorId]['NAME'];
 	}
 }

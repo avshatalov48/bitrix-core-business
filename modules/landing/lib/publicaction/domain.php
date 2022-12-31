@@ -10,6 +10,10 @@ use \Bitrix\Main\SystemException;
 
 class Domain
 {
+	protected const DOMAIN_MAX_LENGTH = 63;
+	protected const DOMAIN_SYMBOLS_REGEXP = '/^[a-z\d.-]+$/i';
+	protected const DOMAIN_WRONG_SYMBOLS_REGEXP = '/(--|-\.|\.\.|^\.|\.$|^-|-$)/i';
+
 	/**
 	 * Get available domains.
 	 * @param array $params Params ORM array.
@@ -146,15 +150,46 @@ class Domain
 		}
 
 		$puny = new \CBXPunycode;
+		$domainOrig = $domain;
 		$domain = $puny->encode(trim($domain));
 		$tld = DomainCore::getTLD($domain);
 		$return = [
 			'available' => true,
 			'deleted' => false,
+			'errors' => null,
 			'domain' => $domain,
+			'length' => [
+				'length' => mb_strlen($domain),
+				'limit' => self::DOMAIN_MAX_LENGTH,
+			],
 			'tld' => $tld,
 			'dns' => Register::getDNSRecords($tld)
 		];
+
+		// check domain name restrictions
+		if (mb_strlen($domain) > self::DOMAIN_MAX_LENGTH)
+		{
+			$return['errors']['wrongLength'] = true;
+		}
+		if (!preg_match(self::DOMAIN_SYMBOLS_REGEXP, $domain))
+		{
+			$return['errors']['wrongSymbols'] = true;
+		}
+		if (preg_match(self::DOMAIN_WRONG_SYMBOLS_REGEXP, $domainOrig))
+		{
+			$return['errors']['wrongSymbolCombination'] = true;
+		}
+		if (strpos($domain, '.') === false)
+		{
+			$return['errors']['wrongDomainLevel'] = true;
+		}
+		if (is_array($return['errors']))
+		{
+			$return['available'] = false;
+			$result->setResult($return);
+
+			return $result;
+		}
 
 		// additional filter
 		if (!is_array($filter))

@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Component\SkuTree;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Catalog\StoreProductTable;
@@ -70,7 +72,10 @@ class CatalogProductStoreAmountDetailsSliderComponent extends \CBitrixComponent 
 
 	private function checkPermissions(): bool
 	{
-		return true;
+		return
+			AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
+			&& AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_VIEW)
+		;
 	}
 
 	private function checkProduct(): bool

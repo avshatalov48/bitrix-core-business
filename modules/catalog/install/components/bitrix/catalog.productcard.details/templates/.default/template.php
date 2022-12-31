@@ -1,8 +1,12 @@
 <?php
 /**
+ * @global \CMain $APPLICATION
  * @var $component \CatalogProductDetailsComponent
  * @var $this \CBitrixComponentTemplate
- * @var $arResult
+ * @var array $arResult
+ * @var array $arParams
+ *
+ * @var string $templateFolder
  */
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -27,9 +31,9 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'n
 Loader::includeModule('ui');
 
 $createDocumentButtonId = null;
-if (\Bitrix\Catalog\Config\State::isUsedInventoryManagement())
+if (isset($arResult['CREATE_DOCUMENT_BUTTON']))
 {
-	$createDocumentButton = new \Bitrix\UI\Buttons\Split\Button($arResult['CREATE_DOCUMENT_BUTTON_PARAMS']);
+	$createDocumentButton = new \Bitrix\UI\Buttons\Split\Button($arResult['CREATE_DOCUMENT_BUTTON']['PARAMS']);
 	Toolbar::addButton($createDocumentButton);
 	$createDocumentButtonId = $createDocumentButton->getUniqId();
 }
@@ -59,26 +63,35 @@ Extension::load([
 	'ui.hint',
 ]);
 
-$tabs = [
-	[
+$tabs = [];
+
+if ($arResult['TAB_LIST']['MAIN'])
+{
+	$tabs[] = [
 		'id' => 'main',
 		'name' => Loc::getMessage('CPD_TAB_GENERAL_TITLE'),
 		'enabled' => true,
 		'active' => true,
-	],
-	[
+	];
+}
+if ($arResult['TAB_LIST']['BALANCE'])
+{
+	$tabs[] = [
 		'id' => 'balance',
 		'name' => Loc::getMessage('CPD_TAB_BALANCE_TITLE'),
 		'enabled' => !$arResult['IS_NEW_PRODUCT'],
 		'active' => false,
-	]
-	// [
-	// 	'id' => 'seo',
-	// 	'name' => 'SEO',
-	// 	'enabled' => false,
-	// 	'active' => false,
-	// ],
-];
+	];
+}
+if ($arResult['TAB_LIST']['SEO'])
+{
+	$tabs[] = [
+		'id' => 'seo',
+		'name' => 'SEO',
+		'enabled' => false,
+		'active' => false,
+	];
+}
 
 $guid = 'product-details';
 $containerId = "{$guid}_container";
@@ -89,6 +102,7 @@ $cardParameters = [
 	'entityId' => $arResult['PRODUCT_FIELDS']['ID'],
 	'componentName' => $component->getName(),
 	'componentSignedParams' => $component->getSignedParameters(),
+	'variationGridComponentName' => $arResult['VARIATION_GRID_COMPONENT_NAME'],
 	'isSimpleProduct' => $arResult['SIMPLE_PRODUCT'],
 	'tabs' => $tabs,
 	'settingsButtonId' => $settingsButton->getUniqId(),
@@ -97,7 +111,7 @@ $cardParameters = [
 	'isWithOrdersMode' => $arResult['IS_WITH_ORDERS_MODE'],
 	'isInventoryManagementUsed' => $arResult['IS_INVENTORY_MANAGEMENT_USED'],
 	'createDocumentButtonId' => $createDocumentButtonId,
-	'createDocumentButtonMenuPopupItems' => $arResult['CREATE_DOCUMENT_BUTTON_POPUP_ITEMS'],
+	'createDocumentButtonMenuPopupItems' => $arResult['CREATE_DOCUMENT_BUTTON']['POPUP_ITEMS'] ?? [],
 	'feedbackUrl' => $arParams['PATH_TO']['FEEDBACK'] ?? '',
 	'containerId' => $containerId,
 	'tabContainerId' => $tabContainerId,
@@ -107,12 +121,14 @@ $cardParameters = [
 	'creationVariationPropertyUrl' => $arResult['UI_CREATION_SKU_PROPERTY_URL'],
 	'variationGridId' => $arResult['VARIATION_GRID_ID'],
 	'productStoreGridId' => $arResult['STORE_AMOUNT_GRID_ID'],
+	'productTypeSelector' => 'catalog-productcard-product-type-selector',
+	'productTypeSelectorTypes' => $arResult['DROPDOWN_TYPES'],
 ];
 ?>
 <script>
 	BX.message(<?=Json::encode(Loc::loadLanguageFile(__FILE__))?>);
 	BX(function() {
-		var topWindow = BX.PageObject.getRootWindow().window;
+		let topWindow = BX.PageObject.getRootWindow().window
 		if (!topWindow.adminSidePanel || !BX.is_subclass_of(topWindow.adminSidePanel, BX.adminSidePanel))
 		{
 			topWindow.adminSidePanel = new BX.adminSidePanel({
@@ -126,6 +142,19 @@ $cardParameters = [
 		);
 	});
 </script>
+<?php
+if (!empty($arResult['DROPDOWN_TYPES']))
+{
+	$dropDownTypes = '<div id="catalog-productcard-product-type-selector" class="catalog-productcard-product-type-selector">'
+		. '<span class="catalog-productcard-product-type-selector-text" data-hint="" data-hint-no-icon>'
+		. Loc::getMessage('CPD_PRODUCT_TYPE_SELECTOR', ['#PRODUCT_TYPE_NAME#' => $arResult['PRODUCT_TYPE_NAME']])
+		. '</span>'
+		. '</div>'
+	;
+	Toolbar::addUnderTitleHtml($dropDownTypes);
+	unset($dropDownTypes);
+}
+?>
 <div id="<?=htmlspecialcharsbx($containerId)?>" class="catalog-entity-wrap catalog-wrapper">
 	<?php
 	$tabContainerClassName = 'catalog-entity-section catalog-entity-section-tabs';
@@ -168,7 +197,7 @@ $cardParameters = [
 				$className .= ' catalog-entity-section-new';
 			}
 
-			if ($tab['active'] !== true)
+			if (!$tab['active'])
 			{
 				$className .= ' catalog-entity-section-tab-content-hide catalog-entity-section-above-overlay';
 				$style = 'style="display: none;"';
@@ -176,8 +205,8 @@ $cardParameters = [
 			?>
 			<div data-tab-id="<?=htmlspecialcharsbx($tabId)?>" class="<?=$className?>" <?=$style?>>
 				<?php
-				$tabFolderPath = Application::getDocumentRoot().$templateFolder.'/tabs/';
-				$file = new File($tabFolderPath.$tabId.'.php');
+				$tabFolderPath = Application::getDocumentRoot() . $templateFolder . '/tabs/';
+				$file = new File($tabFolderPath.$tabId . '.php');
 
 				if ($file->isExists())
 				{
@@ -185,7 +214,7 @@ $cardParameters = [
 				}
 				else
 				{
-					echo "Unknown tab {{$tabId}}.";
+					echo 'Unknown tab {' . $tabId . '}.';
 				}
 				?>
 			</div>

@@ -1,5 +1,5 @@
 /*!
-  * vue-router v4.1.2
+  * vue-router v4.1.5
   * (c) 2022 Eduardo San Martin Morote
   * @license MIT
   *
@@ -75,7 +75,7 @@ function warn(msg) {
 const TRAILING_SLASH_RE = /\/$/;
 const removeTrailingSlash = (path) => path.replace(TRAILING_SLASH_RE, '');
 /**
- * Transforms an URI into a normalized history location
+ * Transforms a URI into a normalized history location
  *
  * @param parseQuery
  * @param location - URI to normalize
@@ -124,8 +124,7 @@ function stringifyURL(stringifyQuery, location) {
   return location.path + (query && '?') + query + (location.hash || '');
 }
 /**
- * Strips off the base from the beginning of a location.pathname in a non
- * case-sensitive way.
+ * Strips off the base from the beginning of a location.pathname in a non-case-sensitive way.
  *
  * @param pathname - location.pathname
  * @param base - base to strip off
@@ -222,12 +221,12 @@ function resolveRelativePath(to, from) {
       continue;
     // go up in the from array
     if (segment === '..') {
-      // we can't go below zero but we still need to increment toPosition
+      // we can't go below zero, but we still need to increment toPosition
       if (position > 1)
         position--;
       // continue
     }
-    // we reached a non relative path, we stop here
+    // we reached a non-relative path, we stop here
     else
       break;
   }
@@ -463,7 +462,7 @@ function useHistoryListeners(base, historyState, currentLocation, replace) {
     pauseState = currentLocation.value;
   }
   function listen(callback) {
-    // setup the listener and prepare teardown callbacks
+    // set up the listener and prepare teardown callbacks
     listeners.push(callback);
     const teardown = () => {
       const index = listeners.indexOf(callback);
@@ -486,7 +485,7 @@ function useHistoryListeners(base, historyState, currentLocation, replace) {
     window.removeEventListener('popstate', popStateHandler);
     window.removeEventListener('beforeunload', beforeUnloadListener);
   }
-  // setup the listeners and prepare teardown callbacks
+  // set up the listeners and prepare teardown callbacks
   window.addEventListener('popstate', popStateHandler);
   window.addEventListener('beforeunload', beforeUnloadListener);
   return {
@@ -524,14 +523,14 @@ function useHistoryStateNavigation(base) {
       // the length is off by one, we need to decrease it
       position: history.length - 1,
       replaced: true,
-      // don't add a scroll as the user may have an anchor and we want
+      // don't add a scroll as the user may have an anchor, and we want
       // scrollBehavior to be triggered without a saved position
       scroll: null,
     }, true);
   }
   function changeLocation(to, state, replace) {
     /**
-     * if a base tag is provided and we are on a normal domain, we have to
+     * if a base tag is provided, and we are on a normal domain, we have to
      * respect the provided `base` attribute because pushState() will use it and
      * potentially erase anything before the `#` like at
      * https://github.com/vuejs/router/issues/685 where a base of
@@ -627,7 +626,7 @@ function createWebHistory(base) {
 }
 
 /**
- * Creates a in-memory based history. The main purpose of this history is to handle SSR. It starts in a special location that is nowhere.
+ * Creates an in-memory based history. The main purpose of this history is to handle SSR. It starts in a special location that is nowhere.
  * It's up to the user to replace that location with the starter location by either calling `router.push` or `router.replace`.
  *
  * @param base - Base applied to all urls, defaults to '/'
@@ -854,7 +853,7 @@ function stringifyRoute(to) {
   return JSON.stringify(location, null, 2);
 }
 
-// default pattern for a param: non greedy everything but /
+// default pattern for a param: non-greedy everything but /
 const BASE_PARAM_PATTERN = '[^/]+?';
 const BASE_PATH_PARSER_OPTIONS = {
   sensitive: false,
@@ -887,7 +886,7 @@ function tokensToParser(segments, extraOptions) {
       pattern += '/';
     for (let tokenIndex = 0; tokenIndex < segment.length; tokenIndex++) {
       const token = segment[tokenIndex];
-      // resets the score if we are inside a sub segment /:a-other-:b
+      // resets the score if we are inside a sub-segment /:a-other-:b
       let subSegmentScore = 40 /* PathScore.Segment */ +
         (options.sensitive ? 0.25 /* PathScore.BonusCaseSensitive */ : 0);
       if (token.type === 0 /* TokenType.Static */) {
@@ -993,9 +992,8 @@ function tokensToParser(segments, extraOptions) {
             : param;
           if (!text) {
             if (optional) {
-              // if we have more than one optional param like /:a?-static and there are more segments, we don't need to
-              // care about the optional param
-              if (segment.length < 2 && segments.length > 1) {
+              // if we have more than one optional param like /:a?-static we don't need to care about the optional param
+              if (segment.length < 2) {
                 // remove the last slash as we could be at the end
                 if (path.endsWith('/'))
                   path = path.slice(0, -1);
@@ -1011,7 +1009,8 @@ function tokensToParser(segments, extraOptions) {
         }
       }
     }
-    return path;
+    // avoid empty path when we have multiple optional params
+    return path || '/';
   }
   return {
     re,
@@ -1341,11 +1340,11 @@ function createRouterMatcher(routes, globalOptions) {
         throw new Error('Catch all routes ("*") must now be defined using a param with a custom regexp.\n' +
           'See more at https://next.router.vuejs.org/guide/migration/#removed-star-or-catch-all-routes.');
       }
-      // create the object before hand so it can be passed to children
+      // create the object beforehand, so it can be passed to children
       matcher = createRouteRecordMatcher(normalizedRecord, parent, options);
       if (parent && path[0] === '/')
         checkMissingParamsInAbsolutePath(matcher, parent);
-      // if we are an alias we must tell the original record that we exist
+      // if we are an alias we must tell the original record that we exist,
       // so we can be removed
       if (originalRecord) {
         originalRecord.alias.push(matcher);
@@ -1370,7 +1369,7 @@ function createRouterMatcher(routes, globalOptions) {
         }
       }
       // if there was no original record, then the first one was not an alias and all
-      // other alias (if any) need to reference this record when adding children
+      // other aliases (if any) need to reference this record when adding children
       originalRecord = originalRecord || matcher;
       // TODO: add normalized records for more flexibility
       // if (parent && isAliasRecord(originalRecord)) {
@@ -1434,13 +1433,24 @@ function createRouterMatcher(routes, globalOptions) {
         throw createRouterError(1 /* ErrorTypes.MATCHER_NOT_FOUND */, {
           location,
         });
+      // warn if the user is passing invalid params so they can debug it better when they get removed
+      {
+        const invalidParams = Object.keys(location.params || {}).filter(paramName => !matcher.keys.find(k => k.name === paramName));
+        if (invalidParams.length) {
+          warn(`Discarded invalid param(s) "${invalidParams.join('", "')}" when navigating. See https://github.com/vuejs/router/blob/main/packages/router/CHANGELOG.md#414-2022-08-22 for more details.`);
+        }
+      }
       name = matcher.record.name;
       params = assign(
         // paramsFromLocation is a new object
         paramsFromLocation(currentLocation.params,
           // only keep params that exist in the resolved location
           // TODO: only keep optional params coming from a parent record
-          matcher.keys.filter(k => !k.optional).map(k => k.name)), location.params);
+          matcher.keys.filter(k => !k.optional).map(k => k.name)),
+        // discard any existing params in the current location that do not exist here
+        // #1497 this ensures better active/exact matching
+        location.params &&
+        paramsFromLocation(location.params, matcher.keys.map(k => k.name)));
       // throws if cannot be stringified
       path = matcher.stringify(params);
     }
@@ -1454,7 +1464,6 @@ function createRouterMatcher(routes, globalOptions) {
       matcher = matchers.find(m => m.re.test(path));
       // matcher should have a value after the loop
       if (matcher) {
-        // TODO: dev warning of unused params if provided
         // we know the matcher works because we tested the regexp
         params = matcher.parse(path);
         name = matcher.record.name;
@@ -1536,7 +1545,7 @@ function normalizeRouteRecord(record) {
  */
 function normalizeRecordProps(record) {
   const propsObject = {};
-  // props does not exist on redirect records but we can set false directly
+  // props does not exist on redirect records, but we can set false directly
   const props = record.props || false;
   if ('component' in record) {
     propsObject.default = props;
@@ -1590,11 +1599,11 @@ function isSameParam(a, b) {
 function checkSameParams(a, b) {
   for (const key of a.keys) {
     if (!key.optional && !b.keys.find(isSameParam.bind(null, key)))
-      return warn(`Alias "${b.record.path}" and the original record: "${a.record.path}" should have the exact same param named "${key.name}"`);
+      return warn(`Alias "${b.record.path}" and the original record: "${a.record.path}" must have the exact same param named "${key.name}"`);
   }
   for (const key of b.keys) {
     if (!key.optional && !a.keys.find(isSameParam.bind(null, key)))
-      return warn(`Alias "${b.record.path}" and the original record: "${a.record.path}" should have the exact same param named "${key.name}"`);
+      return warn(`Alias "${b.record.path}" and the original record: "${a.record.path}" must have the exact same param named "${key.name}"`);
   }
 }
 /**
@@ -1614,7 +1623,7 @@ function checkChildMissingNameWithEmptyPath(mainNormalizedRecord, parent) {
 function checkMissingParamsInAbsolutePath(record, parent) {
   for (const key of parent.keys) {
     if (!record.keys.find(isSameParam.bind(null, key)))
-      return warn(`Absolute path "${record.record.path}" should have the exact same param named "${key.name}" as its parent "${parent.record.path}".`);
+      return warn(`Absolute path "${record.record.path}" must have the exact same param named "${key.name}" as its parent "${parent.record.path}".`);
   }
 }
 function isRecordChildOf(record, parent) {
@@ -1628,7 +1637,7 @@ function isRecordChildOf(record, parent) {
  * On top of that, the RFC3986 (https://tools.ietf.org/html/rfc3986#section-2.2)
  * defines some extra characters to be encoded. Most browsers do not encode them
  * in encodeURI https://github.com/whatwg/url/issues/369, so it may be safer to
- * also encode `!'()*`. Leaving unencoded only ASCII alphanumeric(`a-zA-Z0-9`)
+ * also encode `!'()*`. Leaving un-encoded only ASCII alphanumeric(`a-zA-Z0-9`)
  * plus `-._~`. This extra safety should be applied to query by patching the
  * string returned by encodeURIComponent encodeURI also encodes `[\]^`. `\`
  * should be encoded to avoid ambiguity. Browsers (IE, FF, C) transform a `\`
@@ -1652,7 +1661,7 @@ const PLUS_RE = /\+/g; // %2B
  * application/x-www-form-urlencoded
  * (https://url.spec.whatwg.org/#urlencoded-parsing) and most browsers seems lo
  * leave the plus character as is in queries. To be more flexible, we allow the
- * plus character on the query but it can also be manually encoded by the user.
+ * plus character on the query, but it can also be manually encoded by the user.
  *
  * Resources:
  * - https://url.spec.whatwg.org/#urlencoded-parsing
@@ -1943,7 +1952,7 @@ function onBeforeRouteLeave(leaveGuard) {
     // to avoid warning
     {}).value;
   if (!activeRecord) {
-    warn('No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside of a component child of <router-view>. Maybe you called it inside of App.vue?');
+    warn('No active route record was found when calling `onBeforeRouteLeave()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?');
     return;
   }
   registerGuard(activeRecord, 'leaveGuards', leaveGuard);
@@ -1964,7 +1973,7 @@ function onBeforeRouteUpdate(updateGuard) {
     // to avoid warning
     {}).value;
   if (!activeRecord) {
-    warn('No active route record was found when calling `onBeforeRouteUpdate()`. Make sure you call this function inside of a component child of <router-view>. Maybe you called it inside of App.vue?');
+    warn('No active route record was found when calling `onBeforeRouteUpdate()`. Make sure you call this function inside a component child of <router-view>. Maybe you called it inside of App.vue?');
     return;
   }
   registerGuard(activeRecord, 'updateGuards', updateGuard);
@@ -1976,11 +1985,12 @@ function guardToPromiseFn(guard, to, from, record, name) {
     (record.enterCallbacks[name] = record.enterCallbacks[name] || []);
   return () => new Promise((resolve, reject) => {
     const next = (valid) => {
-      if (valid === false)
+      if (valid === false) {
         reject(createRouterError(4 /* ErrorTypes.NAVIGATION_ABORTED */, {
           from,
           to,
         }));
+      }
       else if (valid instanceof Error) {
         reject(valid);
       }
@@ -1994,8 +2004,9 @@ function guardToPromiseFn(guard, to, from, record, name) {
         if (enterCallbackArray &&
           // since enterCallbackArray is truthy, both record and name also are
           record.enterCallbacks[name] === enterCallbackArray &&
-          typeof valid === 'function')
+          typeof valid === 'function') {
           enterCallbackArray.push(valid);
+        }
         resolve();
       }
     };
@@ -2127,7 +2138,7 @@ function isRouteComponent(component) {
     '__vccOpts' in component);
 }
 /**
- * Ensures a route is loaded so it can be passed as o prop to `<RouterView>`.
+ * Ensures a route is loaded, so it can be passed as o prop to `<RouterView>`.
  *
  * @param route - resolved route to load
  */
@@ -2267,7 +2278,7 @@ const RouterLinkImpl = /*#__PURE__*/ defineComponent({
             : null,
           href: link.href,
           // this would override user added attrs but Vue will still add
-          // the listener so we end up triggering both
+          // the listener, so we end up triggering both
           onClick: link.navigate,
           class: elClass.value,
         }, children);
@@ -2383,7 +2394,7 @@ const RouterViewImpl = /*#__PURE__*/ defineComponent({
         // this will update the instance for new instances as well as reused
         // instances when navigating to a new route
         to.instances[name] = instance;
-        // the component instance is reused for a different route or name so
+        // the component instance is reused for a different route or name, so
         // we copy any saved update or leave guards. With async setup, the
         // mounting component will mount before the matchedRoute changes,
         // making instance === oldInstance, so we check if guards have been
@@ -2409,16 +2420,16 @@ const RouterViewImpl = /*#__PURE__*/ defineComponent({
     }, { flush: 'post' });
     return () => {
       const route = routeToDisplay.value;
-      const matchedRoute = matchedRouteRef.value;
-      const ViewComponent = matchedRoute && matchedRoute.components[props.name];
       // we need the value at the time we render because when we unmount, we
       // navigated to a different location so the value is different
       const currentName = props.name;
+      const matchedRoute = matchedRouteRef.value;
+      const ViewComponent = matchedRoute && matchedRoute.components[currentName];
       if (!ViewComponent) {
         return normalizeSlot(slots.default, { Component: ViewComponent, route });
       }
       // props from route configuration
-      const routePropsOption = matchedRoute.props[props.name];
+      const routePropsOption = matchedRoute.props[currentName];
       const routeProps = routePropsOption
         ? routePropsOption === true
           ? route.params
@@ -3035,7 +3046,7 @@ function createRouter(options) {
           delete targetParams[key];
         }
       }
-      // pass encoded values to the matcher so it can produce encoded path and fullPath
+      // pass encoded values to the matcher, so it can produce encoded path and fullPath
       matcherLocation = assign({}, rawLocation, {
         params: encodeParams(rawLocation.params),
       });
@@ -3048,7 +3059,7 @@ function createRouter(options) {
     if (hash && !hash.startsWith('#')) {
       warn(`A \`hash\` should always start with the character "#". Replace "${hash}" with "#${hash}".`);
     }
-    // decoding them) the matcher might have merged current location params so
+    // the matcher might have merged current location params, so
     // we need to run the decoding again
     matchedRoute.params = normalizeParams(decodeParams(matchedRoute.params));
     const fullPath = stringifyURL(stringifyQuery$1, assign({}, rawLocation, {
@@ -3140,7 +3151,9 @@ function createRouter(options) {
     const shouldRedirect = handleRedirectRecord(targetLocation);
     if (shouldRedirect)
       return pushWithRedirect(assign(locationAsObject(shouldRedirect), {
-          state: data,
+          state: typeof shouldRedirect === 'object'
+            ? assign({}, data, shouldRedirect.state)
+            : data,
           force,
           replace,
         }),
@@ -3186,10 +3199,14 @@ function createRouter(options) {
             }
             return pushWithRedirect(
               // keep options
-              assign(locationAsObject(failure.to), {
-                state: data,
-                force,
+              assign({
+                // preserve an existing replacement but allow the redirect to override it
                 replace,
+              }, locationAsObject(failure.to), {
+                state: typeof failure.to === 'object'
+                  ? assign({}, data, failure.to.state)
+                  : data,
+                force,
               }),
               // preserve the original redirectedFrom if any
               redirectedFrom || toLocation);
@@ -3362,8 +3379,8 @@ function createRouter(options) {
             // Here we could call if (info.delta) routerHistory.go(-info.delta,
             // false) but this is bug prone as we have no way to wait the
             // navigation to be finished before calling pushWithRedirect. Using
-            // a setTimeout of 16ms seems to work but there is not guarantee for
-            // it to work on every browser. So Instead we do not restore the
+            // a setTimeout of 16ms seems to work but there is no guarantee for
+            // it to work on every browser. So instead we do not restore the
             // history entry and trigger a new navigation as requested by the
             // navigation guard.
             // the error is already handled by router.push we just want to avoid
@@ -3373,7 +3390,7 @@ function createRouter(options) {
             )
               .then(failure => {
                 // manual change in hash history #916 ending up in the URL not
-                // changing but it was changed by the manual url change, so we
+                // changing, but it was changed by the manual url change, so we
                 // need to manually change it ourselves
                 if (isNavigationFailure(failure, 4 /* ErrorTypes.NAVIGATION_ABORTED */ |
                     16 /* ErrorTypes.NAVIGATION_DUPLICATED */) &&
@@ -3387,8 +3404,9 @@ function createRouter(options) {
             return Promise.reject();
           }
           // do not restore history on unknown direction
-          if (info.delta)
+          if (info.delta) {
             routerHistory.go(-info.delta, false);
+          }
           // unrecognized error, transfer to the global handler
           return triggerError(error, toLocation, from);
         })
@@ -3400,7 +3418,10 @@ function createRouter(options) {
               toLocation, from, false);
           // revert the navigation
           if (failure) {
-            if (info.delta) {
+            if (info.delta &&
+              // a new navigation has been triggered, so we do not want to revert, that will change the current history
+              // entry while a different route is displayed
+              !isNavigationFailure(failure, 8 /* ErrorTypes.NAVIGATION_CANCELLED */)) {
               routerHistory.go(-info.delta, false);
             }
             else if (info.type === NavigationType.pop &&
@@ -3544,6 +3565,7 @@ function createRouter(options) {
         }
         unmountApp();
       };
+      // TODO: this probably needs to be updated so it can be used by vue-termui
       if (isBrowser) {
         addDevtools(app, router, matcher);
       }

@@ -32,7 +32,7 @@ class ShipmentRules
 			return $resultList;
 		}
 
-		foreach ($productPool as $itemList)
+		foreach ($productPool as $productId => $itemList)
 		{
 			foreach ($itemList as $item)
 			{
@@ -52,7 +52,7 @@ class ShipmentRules
 				}
 				elseif ($item instanceof Sale\ReserveQuantity)
 				{
-					$itemRule = static::createReserveRule($item, $pool);
+					$itemRule = static::createReserveRule($item, $pool, $productId);
 					if (!empty($itemRule) && is_array($itemRule))
 					{
 						$resultList[] = $itemRule;
@@ -74,7 +74,7 @@ class ShipmentRules
 	private static function createShipRule(Sale\ShipmentItem $shipmentItem, PoolQuantity $pool)
 	{
 		$basketItem = $shipmentItem->getBasketItem();
-		if ($basketItem->isBundleParent())
+		if (!$basketItem->isReservableItem())
 		{
 			return false;
 		}
@@ -135,9 +135,17 @@ class ShipmentRules
 				]
 			];
 
-			$reservedQuantity = $basketItem->getReserveQuantityCollection()->getQuantityByStoreId(
-				Sale\Configuration::getDefaultStoreId()
-			);
+			$reservedQuantity = 0;
+
+			/** @var Sale\ReserveQuantityCollection $reserveQuantityCollection */
+			$reserveQuantityCollection = $basketItem->getReserveQuantityCollection();
+			if ($reserveQuantityCollection)
+			{
+				$reservedQuantity = $reserveQuantityCollection->getQuantityByStoreId(
+					Sale\Configuration::getDefaultStoreId()
+				);
+			}
+
 			if ($shipmentItem->getQuantity() < $reservedQuantity)
 			{
 				$reservedQuantity = $shipmentItem->getQuantity();
@@ -206,12 +214,25 @@ class ShipmentRules
 	private static function createReserveRuleForShipmentItem(Sale\ShipmentItem $shipmentItem, PoolQuantity $pool)
 	{
 		$basketItem = $shipmentItem->getBasketItem();
+		if (!$basketItem->isReservableItem())
+		{
+			return false;
+		}
 
-		$shipment = $shipmentItem->getCollection()->getShipment();
+		$reserveCollection = $basketItem->getReserveQuantityCollection();
+		if (!$reserveCollection)
+		{
+			return false;
+		}
 
 		$poolReservationList = $pool->getQuantitiesWithStore(PoolQuantity::POOL_RESERVE_TYPE);
-
 		if (empty($poolReservationList))
+		{
+			return false;
+		}
+
+		$shipment = $shipmentItem->getCollection()->getShipment();
+		if ($shipment->needShip() === Sale\Internals\Catalog\Provider::SALE_TRANSFER_PROVIDER_SHIPMENT_NEED_NOT_SHIP)
 		{
 			return false;
 		}
@@ -225,11 +246,6 @@ class ShipmentRules
 			'PROVIDER_NAME' => $basketItem->getProvider(),
 			'STORE' => []
 		];
-
-		if ($shipment->needShip() === Sale\Internals\Catalog\Provider::SALE_TRANSFER_PROVIDER_SHIPMENT_NEED_NOT_SHIP)
-		{
-			return false;
-		}
 
 		if (!isset($poolReservationList[$productId]))
 		{
@@ -252,47 +268,50 @@ class ShipmentRules
 
 		$needQuantityByStore = [];
 
-		$reserveCollection = $basketItem->getReserveQuantityCollection();
-
-		/** @var Sale\ShipmentItemStore $itemStore */
-		foreach ($shipmentItem->getShipmentItemStoreCollection() as $itemStore)
+		/** @var Sale\ShipmentItemStoreCollection $shipmentItemStoreCollection */
+		$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
+		if ($shipmentItemStoreCollection)
 		{
-			if (
-				isset($poolReservationList[$productId][$itemStore->getStoreId()])
-				&& $poolReservationList[$productId][$itemStore->getStoreId()] == 0
-			)
-			{
-				continue;
-			}
-
-			/** @var Sale\ReserveQuantity $reserve */
-			foreach ($reserveCollection as $reserve)
+			/** @var Sale\ShipmentItemStore $itemStore */
+			foreach ($shipmentItemStoreCollection as $itemStore)
 			{
 				if (
-					$reserve->getStoreId() !== $itemStore->getStoreId()
-					|| !$reserve->getFields()->isChanged('QUANTITY')
+					isset($poolReservationList[$productId][$itemStore->getStoreId()])
+					&& $poolReservationList[$productId][$itemStore->getStoreId()] == 0
 				)
 				{
 					continue;
 				}
 
-				if (!isset($needQuantityByStore[$reserve->getStoreId()]))
+				/** @var Sale\ReserveQuantity $reserve */
+				foreach ($reserveCollection as $reserve)
 				{
-					$needQuantityByStore[$reserve->getStoreId()] = 0;
-				}
+					if (
+						$reserve->getStoreId() !== $itemStore->getStoreId()
+						|| !$reserve->getFields()->isChanged('QUANTITY')
+					)
+					{
+						continue;
+					}
 
-				$needQuantity = $reserve->getQuantity() - $reserve->getFields()->getOriginalValues()['QUANTITY'];
-				if (abs($needQuantity) > abs($needReserveQuantity))
-				{
-					$needQuantityByStore[$reserve->getStoreId()] += $needReserveQuantity;
-					$needReserveQuantity = 0;
-					$poolReservationList[$productId][$reserve->getStoreId()] -= $needReserveQuantity;
-				}
-				else
-				{
-					$needQuantityByStore[$reserve->getStoreId()] += $needQuantity;
-					$needReserveQuantity -= $needQuantity;
-					$poolReservationList[$productId][$reserve->getStoreId()] -= $needQuantity;
+					if (!isset($needQuantityByStore[$reserve->getStoreId()]))
+					{
+						$needQuantityByStore[$reserve->getStoreId()] = 0;
+					}
+
+					$needQuantity = $reserve->getQuantity() - $reserve->getFields()->getOriginalValues()['QUANTITY'];
+					if (abs($needQuantity) > abs($needReserveQuantity))
+					{
+						$needQuantityByStore[$reserve->getStoreId()] += $needReserveQuantity;
+						$needReserveQuantity = 0;
+						$poolReservationList[$productId][$reserve->getStoreId()] -= $needReserveQuantity;
+					}
+					else
+					{
+						$needQuantityByStore[$reserve->getStoreId()] += $needQuantity;
+						$needReserveQuantity -= $needQuantity;
+						$poolReservationList[$productId][$reserve->getStoreId()] -= $needQuantity;
+					}
 				}
 			}
 		}
@@ -386,24 +405,25 @@ class ShipmentRules
 	/**
 	 * @param Sale\ReserveQuantity $reserve
 	 * @param PoolQuantity $pool
+	 * @param int $productId
 	 *
 	 * @return array|bool
 	 */
-	private static function createReserveRule(Sale\ReserveQuantity $reserve, PoolQuantity $pool)
+	private static function createReserveRule(Sale\ReserveQuantity $reserve, PoolQuantity $pool, int $productId)
 	{
 		$basketItem = $reserve->getCollection()->getBasketItem();
 
 		$poolReservationList = $pool->getQuantitiesWithStore(PoolQuantity::POOL_RESERVE_TYPE);
 		if (
 			empty($poolReservationList)
-			|| !isset($poolReservationList[$basketItem->getProductId()])
+			|| !isset($poolReservationList[$productId])
 		)
 		{
 			return false;
 		}
 
 		$rule = [
-			'PRODUCT_ID' => $basketItem->getProductId(),
+			'PRODUCT_ID' => $productId,
 			'BASKET_ITEM' => $basketItem,
 			'PROVIDER_NAME' => $basketItem->getProvider(),
 			'RESERVE_ITEM' => $reserve,
@@ -432,7 +452,7 @@ class ShipmentRules
 			];
 		}
 
-		$pool->setByStore(PoolQuantity::POOL_RESERVE_TYPE, $basketItem->getProductId(), $reserve->getStoreId(), 0);
+		$pool->setByStore(PoolQuantity::POOL_RESERVE_TYPE, $productId, $reserve->getStoreId(), 0);
 
 		return $rule;
 	}
@@ -493,19 +513,36 @@ class ShipmentRules
 
 		if (!empty($reserveProductsList))
 		{
-			$creator = Sale\Internals\ProviderCreator::create($context);
-			foreach ($reserveProductsList as $reserveProductData)
+			if (self::isHasDoubleBasketItems($reserveProductsList))
 			{
-				$creator->addProductData($reserveProductData);
+				// each item is processed separately so that the number of identical basket items is not summed up.
+				foreach ($reserveProductsList as $reserveProductData)
+				{
+					$creator = Sale\Internals\ProviderCreator::create($context);
+					$creator->addProductData($reserveProductData);
+					$r = $creator->reserve();
+					if (!$r->isSuccess())
+					{
+						$result->addErrors($r->getErrors());
+					}
+				}
 			}
-
-			$r = $creator->reserve();
-			if (!$r->isSuccess())
+			else
 			{
-				$result->addErrors($r->getErrors());
+				$creator = Sale\Internals\ProviderCreator::create($context);
+				foreach ($reserveProductsList as $reserveProductData)
+				{
+					$creator->addProductData($reserveProductData);
+				}
+
+				$r = $creator->reserve();
+				if (!$r->isSuccess())
+				{
+					$result->addErrors($r->getErrors());
+				}
 			}
 		}
-		
+
 		if (!empty($shipProductsList))
 		{
 			$creator = Sale\Internals\ProviderCreator::create($context);
@@ -536,4 +573,36 @@ class ShipmentRules
 		return $result;
 	}
 
+	/**
+	 * There are duplicate basket items in the list of reserve items.
+	 *
+	 * @param array $reserveProductsList
+	 *
+	 * @return bool
+	 */
+	private static function isHasDoubleBasketItems(array $reserveProductsList): bool
+	{
+		if (count($reserveProductsList) <= 1)
+		{
+			return false;
+		}
+
+		$map = [];
+		foreach ($reserveProductsList as $item)
+		{
+			$basketItem = $item['BASKET_ITEM'] ?? null;
+			if ($basketItem instanceof Sale\BasketItem)
+			{
+				$basketCode = $basketItem->getBasketCode();
+				if (isset($map[$basketCode]))
+				{
+					return true;
+				}
+
+				$map[$basketCode] = true;
+			}
+		}
+
+		return false;
+	}
 }

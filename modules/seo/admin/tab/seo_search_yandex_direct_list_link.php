@@ -16,7 +16,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Text\Converter;
 
-Loc::loadMessages(dirname(__FILE__).'/../seo_adv.php');
+Loc::loadMessages(__DIR__.'/../seo_adv.php');
 
 if(count($bannerList) > 0)
 {

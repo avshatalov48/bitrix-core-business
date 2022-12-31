@@ -1000,11 +1000,14 @@ class CHotKeys
 		{
 			$name = str_replace(array("#BR#", "&nbsp;"), array(" ", ""), $arPanelButton["TEXT"]);
 
-			if($parent != "")
+			if ($parent != "")
+			{
 				$name = $parent.$name;
-			else
-				if($arPanelButton["MENU"])
-					$name = "<b>".$name."</b>";
+			}
+			elseif (isset($arPanelButton["MENU"]) && $arPanelButton["MENU"])
+			{
+				$name = "<b>".$name."</b>";
+			}
 
 			$Execs = $this->GetCodeByClassName($arPanelButton["HK_ID"], $name, $hkCode);
 			$retJS .= $this->PrintJSExecs($Execs);

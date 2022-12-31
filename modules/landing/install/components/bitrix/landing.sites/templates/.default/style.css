@@ -1058,7 +1058,7 @@ body > a[style*="background: highlight"] {
 	align-items: center;
 	height: 45px;
 	border: none;
-	border-radius: 2px;
+	border-radius: var(--ui-border-radius-md, 2px);
 	background: rgba(82,92,105,.04);
 }
 

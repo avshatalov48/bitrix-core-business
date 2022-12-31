@@ -8,6 +8,11 @@ export class StoreSearchInput
 {
 	selector: StoreSelector;
 	cache = new Cache.MemoryCache();
+	inputName: String;
+	isEnabledDetailLink: Boolean;
+	allowCreateItem: Boolean;
+	disableByRights: Boolean;
+	disabledHint: ?String;
 
 	constructor(id, options = {})
 	{
@@ -20,6 +25,9 @@ export class StoreSearchInput
 
 		this.isEnabledDetailLink = options.isEnabledDetailLink;
 		this.inputName = options.inputName || '';
+		this.allowCreateItem = options.allowCreateItem !== undefined ? options.allowCreateItem : true;
+		this.disableByRights = options.disableByRights ?? false;
+		this.disabledHint = options.disabledHint ?? Loc.getMessage('CATALOG_STORE_SELECTOR_HAS_PERMISSION_VIEW_STORES_HINT');
 	}
 
 	getId()
@@ -37,6 +45,21 @@ export class StoreSearchInput
 
 	getNameBlock(): HTMLElement
 	{
+		if (this.disableByRights)
+		{
+			return Tag.render`
+				<div
+					class="ui-ctl ui-ctl-w100 ui-ctl-before-icon ui-ctl-after-icon ui-ctl-disabled"
+					data-hint="${this.disabledHint}"
+					data-hint-no-icon
+				>
+					<div class="ui-ctl-before catalog-store-field-input-access-denied-lock"></div>
+					<div class="ui-ctl-after catalog-store-field-input-access-denied-hint"></div>
+					<div class="ui-ctl-element">${Loc.getMessage('CATALOG_STORE_SELECTOR_HAS_PERMISSION_VIEW_STORES_TITLE')}</div>
+				</div>
+			`
+		}
+
 		return this.cache.remember('nameBlock', () => {
 			return Tag.render`
 				<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
@@ -136,16 +159,16 @@ export class StoreSearchInput
 		this.clearInputCache();
 		const block = Tag.render`<div class="ui-ctl ui-ctl-w100 ui-ctl-after-icon"></div>`;
 
-		block.appendChild(this.getSearchIcon());
+		Dom.append(this.getSearchIcon(), block)
 		this.toggleIcon(this.getSearchIcon(), 'none');
 
-		block.appendChild(this.getClearIcon());
+		Dom.append(this.getClearIcon(), block)
 		this.toggleIcon(this.getClearIcon(), 'none');
 
 		if (this.showDetailLink() && Type.isStringFilled(this.selector.getStoreTitle()))
 		{
 			this.toggleIcon(this.getArrowIcon(), 'block');
-			block.appendChild(this.getArrowIcon());
+			Dom.append(this.getArrowIcon(), block)
 		}
 		else
 		{
@@ -157,7 +180,9 @@ export class StoreSearchInput
 		Event.bind(this.getNameInput(), 'blur', this.handleNameInputBlur.bind(this));
 		Event.bind(this.getNameInput(), 'keydown', this.handleNameInputKeyDown.bind(this));
 
-		block.appendChild(this.getNameBlock());
+		Dom.append(this.getNameBlock(), block);
+		BX.UI.Hint.init(block);
+
 		return block;
 	}
 
@@ -181,6 +206,15 @@ export class StoreSearchInput
 	getDialog(): ?Dialog
 	{
 		return this.cache.remember('dialog', () => {
+			const stubOptions = {
+				title: Tag.message`${'CATALOG_STORE_SELECTOR_IS_EMPTY_TITLE'}`,
+			};
+			if (this.allowCreateItem)
+			{
+				stubOptions.subtitle = Tag.message`${'CATALOG_STORE_SELECTOR_IS_EMPTY_SUBTITLE'}`;
+				stubOptions.arrow = true;
+			}
+
 			const params = {
 				id: this.id + '_store',
 				height: 300,
@@ -190,12 +224,8 @@ export class StoreSearchInput
 				multiple: false,
 				dropdownMode: true,
 				searchTabOptions: {
+					stubOptions,
 					stub: true,
-					stubOptions: {
-						title: Tag.message`${'CATALOG_STORE_SELECTOR_IS_EMPTY_TITLE'}`,
-						subtitle: Tag.message`${'CATALOG_STORE_SELECTOR_IS_EMPTY_SUBTITLE'}`,
-						arrow: true
-					}
 				},
 				events: {
 					'Item:onSelect': this.onStoreSelect.bind(this),
@@ -216,7 +246,7 @@ export class StoreSearchInput
 					}
 				],
 				searchOptions: {
-					allowCreateItem: true
+					allowCreateItem: this.allowCreateItem
 				},
 			};
 
@@ -379,7 +409,10 @@ export class StoreSearchInput
 						dialog.hide();
 						resolve();
 					})
-					.catch(() => reject())
+					.catch(response => {
+						console.error(response);
+						reject();
+					})
 				;
 			});
 	}
@@ -387,5 +420,14 @@ export class StoreSearchInput
 	getPlaceholder(): string
 	{
 		return Loc.getMessage('CATALOG_STORE_SELECTOR_BEFORE_SEARCH_TITLE');
+	}
+
+	disable(hint: string|null): void
+	{
+		this.disableByRights = true;
+		if (hint)
+		{
+			this.disabledHint = hint;
+		}
 	}
 }

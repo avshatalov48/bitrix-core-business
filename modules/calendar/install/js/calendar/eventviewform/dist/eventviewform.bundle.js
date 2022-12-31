@@ -97,7 +97,7 @@ this.BX = this.BX || {};
 	    loadCommentsView() {
 	      BX.ajax.runAction('calendar.api.calendareventviewform.getCommentsView', {
 	        data: {
-	          event: this.params.event
+	          signedEvent: this.params.signedEvent
 	        }
 	      }).then(response => {
 	        const commentsElement = document.createElement('div');
@@ -301,6 +301,7 @@ this.BX = this.BX || {};
 
 	    }
 	  },
+	  // language=Vue
 	  template: `
 		<div class="ui-alert ui-alert-danger ui-alert-icon-danger ui-alert-text-center" v-if="!params.eventExists">
 			<span class="ui-alert-message">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_EVENT_NOT_FOUND')}}</span>
@@ -350,7 +351,7 @@ this.BX = this.BX || {};
 											<a :href="meetingHostUrl">
 												<div class="calendar-slider-sidebar-user-icon-top"></div>
 												<div class="calendar-slider-sidebar-user-block-item">
-													<img :src="meetingHostAvatar" :width="avatarSize" :height="avatarSize"/>
+													<img :src="encodeURI(meetingHostAvatar)" :width="avatarSize" :height="avatarSize"/>
 												</div>
 												<div class="calendar-slider-sidebar-user-icon-bottom"></div>
 											</a>
@@ -360,7 +361,7 @@ this.BX = this.BX || {};
 										<div class="calendar-slider-sidebar-user-block-avatar" v-if="meetingHostId != att.ID">
 											<a :href="att.URL">
 												<div class="calendar-slider-sidebar-user-block-item">
-													<img :src="att.AVATAR" :width="avatarSize" :height="avatarSize"/>
+													<img :src="encodeURI(att.AVATAR)" :width="avatarSize" :height="avatarSize"/>
 												</div>
 												<div class="calendar-slider-sidebar-user-icon-bottom"></div>
 											</a>
@@ -377,7 +378,7 @@ this.BX = this.BX || {};
 									<div class="calendar-slider-sidebar-user-block-avatar">
 										<a :href="meetingHostUrl">
 											<div class="calendar-slider-sidebar-user-block-item">
-												<img :src="meetingHostAvatar" :width="avatarSize" :height="avatarSize" alt="host"/>
+												<img :src="encodeURI(meetingHostAvatar)" :width="avatarSize" :height="avatarSize" alt="host"/>
 											</div>
 										</a>
 										<div class="calendar-slider-sidebar-user-icon-bottom"></div>
@@ -662,7 +663,7 @@ this.BX = this.BX || {};
 	            this.loadComponentAssets(params.crmView);
 	            this.BX.ajax.runAction('calendar.api.calendareventviewform.getCrmView', {
 	              data: {
-	                event: params.event
+	                signedEvent: params.signedEvent
 	              }
 	            });
 	          } //set vue component to slider

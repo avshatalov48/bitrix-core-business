@@ -4,15 +4,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,main_core,landing_ui_field_basefield,landing_ui_field_datetimefield,landing_ui_component_internal,ui_draganddrop_draggable,landing_loc,landing_ui_component_listitem,main_core_events,landing_ui_panel_fieldspanel,landing_ui_form_formsettingsform,landing_ui_component_actionpanel,landing_ui_field_variablesfield) {
 	'use strict';
 
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-defaultvalue-list-container\"></div>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject;
 	var DefaultValueField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(DefaultValueField, _BaseField);
 	  babelHelpers.createClass(DefaultValueField, null, [{
@@ -134,7 +126,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getListContainer",
 	    value: function getListContainer() {
 	      return this.cache.remember('listContainer', function () {
-	        return main_core.Tag.render(_templateObject());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-defaultvalue-list-container\"></div>"])));
 	      });
 	    }
 	  }, {
@@ -281,7 +273,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }).show({
 	        isLeadEnabled: this.options.isLeadEnabled,
 	        allowedCategories: this.getAllowedCategories(),
-	        allowedTypes: ['string', 'list', 'checkbox', 'radio', 'text', 'integer', 'double', 'date', 'datetime', 'typed_string']
+	        allowedTypes: ['string', 'list', 'enumeration', 'checkbox', 'boolean', 'radio', 'text', 'integer', 'double', 'date', 'datetime', 'typed_string']
 	      }).then(function (selectedFields) {
 	        _this6.options.crmFields = landing_ui_panel_fieldspanel.FieldsPanel.getInstance().getOriginalCrmFields();
 

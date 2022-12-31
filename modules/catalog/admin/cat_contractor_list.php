@@ -2,8 +2,11 @@
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
+
 use Bitrix\Main\Loader;
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
@@ -16,12 +19,30 @@ global $adminSidePanelHelper;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $publicMode = $adminPage->publicMode;
 
-if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_store')))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 Loader::includeModule('catalog');
-$bReadOnly = !$USER->CanDoOperation('catalog_store');
+
+$accessController = AccessController::getCurrent();
+if (!($accessController->check(ActionDictionary::ACTION_CATALOG_READ) || $accessController->check(ActionDictionary::ACTION_STORE_VIEW)))
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
+
+$bReadOnly = !$accessController->check(ActionDictionary::ACTION_STORE_VIEW);
 
 IncludeModuleLangFile(__FILE__);
+
+if (
+	!$publicMode
+	&& Loader::includeModule('sale')
+	&& Catalog\v2\Contractor\Provider\Manager::getActiveProvider()
+)
+{
+	$APPLICATION->SetTitle(GetMessage("CONTRACTOR_PAGE_TITLE"));
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
+	$APPLICATION->IncludeComponent("bitrix:sale.admin.page.stub", "");
+	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+	die();
+}
 
 $bExport = (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel');
 

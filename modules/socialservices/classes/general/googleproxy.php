@@ -146,7 +146,7 @@ class CSocServGoogleProxyOAuth extends CSocServGoogleOAuth
 
 		echo $JSScript;
 
-		die();
+		CMain::FinalActions();
 	}
 
 	public function getUrl($location = 'opener', $addScope = null, $arParams = array())

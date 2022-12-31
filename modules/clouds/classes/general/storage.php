@@ -229,7 +229,7 @@ class CCloudStorage
 
 		if (!$arFile["SRC"])
 		{
-			$arFile["SRC"] = $obSourceBucket->GetFileSRC($arFile);
+			$arFile["SRC"] = $obSourceBucket->GetFileSRC($arFile, false);
 		}
 
 		if (defined("BX_MOBILE") && constant("BX_MOBILE") === true)
@@ -246,11 +246,11 @@ class CCloudStorage
 		$result = true;
 		if ($callbackData["cacheOBJ"]->StartDataCache(CACHED_clouds_file_resize, $callbackData["cacheID"], "clouds"))
 		{
-			$cacheImageFile = $callbackData["obTargetBucket"]->GetFileSRC($callbackData["fileURL"]);
+			$cacheImageFile = $obTargetBucket->GetFileSRC($callbackData["fileURL"], false);
 			$arDestinationSize = array();
 
 			//Check if it is cache file was deleted, but there was a successful resize
-			$delayInfo = CCloudStorage::ResizeImageFileGet($cacheImageFile);
+			$delayInfo = $bImmediate ? false : CCloudStorage::ResizeImageFileGet($cacheImageFile);
 			if (is_array($delayInfo) && ($delayInfo["ERROR_CODE"] < 10))
 			{
 				$callbackData["cacheSTARTED"] = true;
@@ -358,7 +358,7 @@ class CCloudStorage
 
 				if ($obTargetBucket->SaveFile($callbackData["fileURL"], $arFileToStore))
 				{
-					$cacheImageFile = $obTargetBucket->GetFileSRC($callbackData["fileURL"]);
+					$cacheImageFile = $obTargetBucket->GetFileSRC($callbackData["fileURL"], false);
 
 					$arImageSize = CFile::GetImageSize($cacheImageFileTmp);
 					$arImageSize[2] = filesize($io->GetPhysicalName($cacheImageFileTmp));
@@ -410,7 +410,7 @@ class CCloudStorage
 					$obSourceBucket = new CCloudStorageBucket(intval($arFile["HANDLER_ID"]));
 					if ($obSourceBucket->Init())
 					{
-						$cacheImageFile = $obSourceBucket->GetFileSRC($arFile);
+						$cacheImageFile = $obSourceBucket->GetFileSRC($arFile, false);
 					}
 
 					return false;
@@ -423,7 +423,7 @@ class CCloudStorage
 				$arDestinationSize = array("x" => 0, "y" => 0, "width" => 0, "height" => 0);
 				CFile::ScaleImage($arFile["WIDTH"], $arFile["HEIGHT"], $arResizeParams[0], $arResizeParams[1], $bNeedCreatePicture, $arSourceSize, $arDestinationSize);
 
-				$cacheImageFile = $obTargetBucket->GetFileSRC($callbackData["fileURL"]);
+				$cacheImageFile = $obTargetBucket->GetFileSRC($callbackData["fileURL"], false);
 				$arImageSize = array(
 					$arDestinationSize["width"],
 					$arDestinationSize["height"],
@@ -466,6 +466,7 @@ class CCloudStorage
 	{
 		global $DB;
 		$destinationFile = preg_replace("/^https?:/i", "", $destinationFile);
+		$destinationFile = CCloudUtil::URLEncode($destinationFile, "UTF-8", true);
 		$q = $DB->Query("
 			select
 				ID
@@ -483,6 +484,7 @@ class CCloudStorage
 	{
 		global $DB;
 		$destinationFile = preg_replace("/^https?:/i", "", $destinationFile);
+		$destinationFile = CCloudUtil::URLEncode($destinationFile, "UTF-8", true);
 		$q = $DB->Query("
 			select
 				ID
@@ -507,7 +509,7 @@ class CCloudStorage
 				"~TIMESTAMP_X" => $DB->CurrentTimeFunction(),
 				"ERROR_CODE" => intval($errorCode),
 				"PARAMS" => serialize($arResizeParams),
-				"FROM_PATH" => $sourceFile["SRC"],
+				"FROM_PATH" => CCloudUtil::URLEncode($sourceFile["SRC"], "UTF-8", true),
 				"TO_PATH" => $destinationFile,
 				"FILE_ID" => $sourceFile["ID"],
 			));
@@ -518,6 +520,7 @@ class CCloudStorage
 	{
 		global $DB;
 		$destinationFile = preg_replace("/^https?:/i", "", $destinationFile);
+		$destinationFile = CCloudUtil::URLEncode($destinationFile, "UTF-8", true);
 		$q = $DB->Query("
 			select
 				ID
@@ -590,7 +593,7 @@ class CCloudStorage
 					"~TIMESTAMP_X" => $DB->CurrentTimeFunction(),
 					"ERROR_CODE" => "2",
 					"PARAMS" => serialize($arResizeParams),
-					"FROM_PATH" => $sourceFile["SRC"],
+					"FROM_PATH" => CCloudUtil::URLEncode($sourceFile["SRC"], "UTF-8", true),
 					"TO_PATH" => $destinationFile,
 					"FILE_ID" => $sourceFile["ID"],
 				));
@@ -612,7 +615,10 @@ class CCloudStorage
 	public static function ResizeImageFileCheck($obBucket, $path)
 	{
 		global $DB;
+		$io = CBXVirtualIo::GetInstance();
+
 		$path = preg_replace("/^https?:/i", "", $path);
+		$path = CCloudUtil::URLEncode($path, "UTF-8", true);
 		$q = $DB->Query("
 			select
 				ID
@@ -654,6 +660,11 @@ class CCloudStorage
 		");
 
 		$tmpFile = CFile::MakeFileArray($task["FROM_PATH"]);
+		// if (!is_array($tmpFile) || !file_exists($tmpFile["tmp_name"]))
+		// {
+		// 	$tmpFile = CFile::MakeFileArray(\Bitrix\Main\Web\Uri::urnEncode($task["FROM_PATH"], "UTF-8"));
+		// }
+
 		if (!is_array($tmpFile) || !file_exists($tmpFile["tmp_name"]))
 		{
 			$DB->Query("
@@ -687,9 +698,11 @@ class CCloudStorage
 		$jpgQuality = $arResizeParams[3];
 		$arFilters = $arResizeParams[4];
 
-		$to_path = CFile::GetTempName('', bx_basename($task["TO_PATH"]));
+		$from_path = $io->GetLogicalName($tmpFile["tmp_name"]);
+		$to_path = \Bitrix\Main\Text\Encoding::convertEncoding(rawurldecode($task["TO_PATH"]), "UTF-8", LANG_CHARSET);
+		$to_path = CFile::GetTempName('', bx_basename($to_path));
 
-		if (!CFile::ResizeImageFile($tmpFile["tmp_name"], $to_path, $arSize, $resizeType, $arWaterMark, $jpgQuality, $arFilters))
+		if (!CFile::ResizeImageFile($from_path, $to_path, $arSize, $resizeType, $arWaterMark, $jpgQuality, $arFilters))
 		{
 			$DB->Query("
 				UPDATE b_clouds_file_resize
@@ -705,13 +718,16 @@ class CCloudStorage
 			WHERE ID = ".$task["ID"]."
 		");
 
-		$fileToStore = CFile::MakeFileArray($to_path);
+		$fileToStore = CFile::MakeFileArray($io->GetPhysicalName($to_path));
 		if ($arResizeParams["type"] && !preg_match("/^image\\//", $fileToStore["type"]))
+		{
 			$fileToStore["type"] = $arResizeParams["type"];
+		}
 
 		$baseURL = preg_replace("/^https?:/i", "", $obBucket->GetFileSRC("/"));
 		$pathToStore = mb_substr($task["TO_PATH"], mb_strlen($baseURL) - 1);
-		if (!$obBucket->SaveFile(urldecode($pathToStore), $fileToStore))
+		$pathToStore = \Bitrix\Main\Text\Encoding::convertEncoding(rawurldecode($pathToStore), "UTF-8", LANG_CHARSET);
+		if (!$obBucket->SaveFile($pathToStore, $fileToStore))
 		{
 			$DB->Query("
 				UPDATE b_clouds_file_resize
@@ -737,7 +753,7 @@ class CCloudStorage
 			if (mb_substr($file, 0, mb_strlen($_SERVER["DOCUMENT_ROOT"])) == $_SERVER["DOCUMENT_ROOT"])
 				$file = ltrim(mb_substr($file, mb_strlen($_SERVER["DOCUMENT_ROOT"])), "/");
 
-			if (!preg_match("/^http:\\/\\//", $file))
+			if (!preg_match("/^https?:\\/\\//", $file))
 				return false;
 
 			$bucket = CCloudStorage::FindBucketByFile($file);
@@ -745,14 +761,15 @@ class CCloudStorage
 				return false;
 
 			$filePath = mb_substr($file, mb_strlen($bucket->GetFileSRC("/")) - 1);
-			$filePath = urldecode($filePath);
+			$filePath = \Bitrix\Main\Text\Encoding::convertEncoding(rawurldecode($filePath), "UTF-8", LANG_CHARSET);
 
+			$io = CBXVirtualIo::GetInstance();
 			$target = CFile::GetTempName('', bx_basename($filePath));
 			$target = preg_replace("#[\\\\\\/]+#", "/", $target);
 
 			if ($bucket->DownloadToFile($filePath, $target))
 			{
-				$arDestination = $target;
+				$arDestination = $io->GetPhysicalName($target);
 			}
 
 			return true;
@@ -931,14 +948,17 @@ class CCloudStorage
 	public static function OnGetFileSRC($arFile)
 	{
 		if ($arFile["HANDLER_ID"] <= 0)
+		{
 			return false;
+		}
 
 		$bucket = new CCloudStorageBucket($arFile["HANDLER_ID"]);
 		if ($bucket->Init())
-			return $bucket->GetFileSRC($arFile);
-		else
-			return false;
+		{
+			return $bucket->GetFileSRC($arFile, false);
+		}
 
+		return false;
 	}
 
 	protected static function _delete_file($file)
@@ -1272,7 +1292,7 @@ class CCloudStorage
 				$arFile["FILE_HASH"] = '';
 				if(COption::GetOptionString('main', 'control_file_duplicates', 'N') === 'Y')
 				{
-					$info = $bucket->GetFileInfo($arDbFile['FILE_NAME']);
+					$info = $bucket->GetFileInfo('/' . $arDbFile['FILE_NAME']);
 					if($info)
 					{
 						$arFile["FILE_HASH"] = $info["hash"];
@@ -1297,7 +1317,18 @@ class CCloudStorage
 					if (!$copyPath)
 						return false;
 
-					$copySize = $bucket->GetFileSize("/".urldecode(mb_substr($copyPath, mb_strlen($targetPath))));
+					if ($copySize === false)
+					{
+						$info = $bucket->GetFileInfo('/' . urldecode(mb_substr($copyPath, mb_strlen($targetPath))));
+						if ($info)
+						{
+							$copySize = $info["size"];
+						}
+						else
+						{
+							return false;
+						}
+					}
 				}
 			}
 			else
@@ -1660,7 +1691,8 @@ class CCloudStorage
 		if (defined("BX_CHECK_SHORT_URI") && BX_CHECK_SHORT_URI)
 		{
 			$upload_dir = "/".trim(COption::GetOptionString("main", "upload_dir", "upload"), "/")."/";
-			$request_uri = urldecode($_SERVER["REQUEST_URI"]);
+			$request_uri = \Bitrix\Main\Text\Encoding::convertEncoding(rawurldecode($_SERVER["REQUEST_URI"]), "UTF-8", LANG_CHARSET);
+
 			foreach (CCloudStorageBucket::GetAllBuckets() as $arBucket)
 			{
 				if ($arBucket["ACTIVE"] == "Y")
@@ -1668,21 +1700,24 @@ class CCloudStorage
 					$obBucket = new CCloudStorageBucket($arBucket["ID"]);
 					if ($obBucket->Init())
 					{
+						$bucketUrl = $obBucket->GetFileSRC('/');
+						$bucketPrefix = rtrim(parse_url($bucketUrl, PHP_URL_PATH), '/');
+						$prefixMatch = $bucketPrefix ? "(?:$bucketPrefix|)" : "";
 						$match = array();
 						if (
 							COption::GetOptionString("clouds", "delayed_resize") === "Y"
-							&& preg_match("#^(/".$obBucket->PREFIX."|)(/resize_cache/.*\$)#", $request_uri, $match)
+							&& preg_match("#^$prefixMatch(/resize_cache/.*\$)#", $request_uri, $match)
 						)
 						{
 							session_write_close();
-							$to_file = $obBucket->GetFileSRC($match[2]);
+							$to_file = $obBucket->GetFileSRC($match[1], false);
 							if (CCloudStorage::ResizeImageFileCheck($obBucket, $to_file))
 							{
 								$cache_time = 3600 * 24 * 30; // 30 days
 								header("Cache-Control: max-age=".$cache_time);
 								header("Expires: ".gmdate("D, d M Y H:i:s", time() + $cache_time)." GMT");
 								header_remove("Pragma");
-								LocalRedirect($to_file, true, "301 Moved Permanently");
+								LocalRedirect(\Bitrix\Main\Web\Uri::urnEncode($to_file, "UTF-8"), true, "301 Moved Permanently");
 							}
 						}
 						elseif (

@@ -130,15 +130,19 @@ final class CustomFieldsController
 	 */
 	public function initializeCollection(EntityCollection $collection) : EntityCollection
 	{
-		$dbRes = CustomFieldsTable::getList([
-			'select' => ['FIELD', 'ENTITY_ID'],
-			'filter' => $this->buildFilter($collection)
-		]);
-
-		while ($data = $dbRes->fetch())
+		$filter = $this->buildFilter($collection);
+		if ($filter)
 		{
-			$entity = $collection->getItemById($data['ENTITY_ID']);
-			$entity->markFieldCustom($data['FIELD']);
+			$dbRes = CustomFieldsTable::getList([
+				'select' => ['FIELD', 'ENTITY_ID'],
+				'filter' => $filter
+			]);
+
+			while ($data = $dbRes->fetch())
+			{
+				$entity = $collection->getItemById($data['ENTITY_ID']);
+				$entity->markFieldCustom($data['FIELD']);
+			}
 		}
 
 		return $collection;
@@ -149,13 +153,11 @@ final class CustomFieldsController
 	 * @return array
 	 * @throws Main\NotImplementedException
 	 */
-	private function buildFilter(EntityCollection $collection)
+	private function buildFilter(EntityCollection $collection) : array
 	{
-		$filter = [
-			'ENTITY_ID' => [],
-			'ENTITY_TYPE' => [],
-			'ENTITY_REGISTRY_TYPE' => [],
-		];
+		$entityIdList = [];
+		$entityTypeList = [];
+		$entityRegistryTypeList = [];
 
 		/** @var CollectableEntity $entity */
 		foreach ($collection as $entity)
@@ -165,22 +167,45 @@ final class CustomFieldsController
 				continue;
 			}
 
-			if (!in_array($entity->getId(), $filter['ENTITY_ID']))
+			if (!in_array($entity->getId(), $entityIdList))
 			{
-				$filter['ENTITY_ID'][] = $entity->getId();
+				$entityIdList[] = $entity->getId();
 			}
 
-			if (!in_array($entity::getRegistryEntity(), $filter['ENTITY_TYPE']))
+			if (!in_array($entity::getRegistryEntity(), $entityTypeList))
 			{
-				$filter['ENTITY_TYPE'][] = $entity::getRegistryEntity();
+				$entityTypeList[] = $entity::getRegistryEntity();
 			}
 
-			if (!in_array($entity::getRegistryType(), $filter['ENTITY_REGISTRY_TYPE']))
+			if (!in_array($entity::getRegistryType(), $entityRegistryTypeList))
 			{
-				$filter['ENTITY_REGISTRY_TYPE'][] = $entity::getRegistryType();
+				$entityRegistryTypeList[] = $entity::getRegistryType();
 			}
 		}
 
+		if (
+			empty($entityIdList)
+			|| empty($entityTypeList)
+			|| empty($entityRegistryTypeList)
+		)
+		{
+			return [];
+		}
+
+		$filter = $this->buildFilterForField('ENTITY_ID', $entityIdList);
+		$filter += $this->buildFilterForField('ENTITY_TYPE', $entityTypeList);
+		$filter += $this->buildFilterForField('ENTITY_REGISTRY_TYPE', $entityRegistryTypeList);
+
 		return $filter;
+	}
+
+	private function buildFilterForField(string $field, array $data) : array
+	{
+		if (count($data) === 1)
+		{
+			return ['='.$field => array_shift($data)];
+		}
+
+		return ['@'.$field => $data];
 	}
 }

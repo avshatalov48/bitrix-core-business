@@ -11,7 +11,7 @@ class Client
 {
 	const TYPE_CP = "CP";
 
-	public static function register($preferredServer = "")
+	public static function register($preferredServer = "", array $options = []): Result
 	{
 		$result = new Result();
 		if($preferredServer == "")
@@ -25,7 +25,8 @@ class Client
 			$preferredServer = $serverAddressResult->getData()['hostname'];
 		}
 		Config::setServerAddress($preferredServer);
-		$registerResult = static::performRegister();
+		$endpoint = $options['endpoint'] ?? "";
+		$registerResult = static::performRegister($endpoint);
 		if(!$registerResult->isSuccess())
 		{
 			Config::setRegistered(false);
@@ -40,11 +41,11 @@ class Client
 		return $result;
 	}
 
-	public static function selectServer()
+	public static function selectServer(): Result
 	{
 		$result = new Result();
 		$httpClient = new HttpClient();
-		$response = $httpClient->get("https://" . Config::DEFAULT_SERVER . Config::HOSTNAME_URL);
+		$response = $httpClient->get(Config::getDefaultCloudServer() . Config::HOSTNAME_URL);
 		if(!$response)
 		{
 			$errors = $httpClient->getError();
@@ -64,14 +65,14 @@ class Client
 		return $result;
 	}
 
-	public static function getServerList()
+	public static function getServerList(): Result
 	{
 		$result = new Result();
 		$httpClient = new HttpClient([
 			"socketTimeout" => 5,
 			"streamTimeout" => 5
 		]);
-		$response = $httpClient->get("https://" . Config::DEFAULT_SERVER . Config::SERVER_LIST_URL);
+		$response = $httpClient->get(Config::getDefaultCloudServer() . Config::SERVER_LIST_URL);
 		if(!$response)
 		{
 			$errors = $httpClient->getError();
@@ -104,7 +105,7 @@ class Client
 		return $result;
 	}
 
-	protected static function performRegister()
+	protected static function performRegister(string $licenseServerEndpoint = ""): Result
 	{
 		$result = new Result();
 		$params = [
@@ -121,7 +122,9 @@ class Client
 		$httpClient = new HttpClient([
 			"disableSslVerification" => true
 		]);
-		$queryResult = $httpClient->query(HttpClient::HTTP_POST, Config::getRegisterUrl(), $request);
+
+		$licenseServerEndpoint = $licenseServerEndpoint ?: Config::getRegisterUrl();
+		$queryResult = $httpClient->query(HttpClient::HTTP_POST, $licenseServerEndpoint, $request);
 
 		if(!$queryResult)
 		{
@@ -133,13 +136,12 @@ class Client
 			return $result;
 		}
 		$returnCode = $httpClient->getStatus();
-		if($returnCode != 200)
+		$response = $httpClient->getResult();
+		if ($returnCode != 200)
 		{
-			$response = $httpClient->getResult();
 			try
 			{
 				$parsedResponse = Json::decode($response);
-
 				$result->addError(new Error($parsedResponse["error"]));
 			}
 			catch (\Exception $e)
@@ -150,7 +152,6 @@ class Client
 			return $result;
 		}
 
-		$response = $httpClient->getResult();
 		if($response == "")
 		{
 			$result->addError(new Error("Empty server response", "EMPTY_SERVER_RESPONSE"));
@@ -185,12 +186,12 @@ class Client
 		return \CUpdateClient::GetLicenseKey();
 	}
 
-	public static function getPublicLicenseCode()
+	public static function getPublicLicenseCode(): string
 	{
 		return md5("BITRIX" . static::getLicenseKey() . "LICENCE");
 	}
 
-	protected static function signRequest(array $request)
+	protected static function signRequest(array $request): string
 	{
 		$paramStr = md5(implode("|", $request));
 		return md5($paramStr . md5(static::getLicenseKey()));

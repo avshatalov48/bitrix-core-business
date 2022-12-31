@@ -93,6 +93,11 @@ export class TextField extends BaseField
 		return this.textOnly;
 	}
 
+	isContentEditable()
+	{
+		return this.contentEditable !== false;
+	}
+
 	onDocumentClick()
 	{
 		if (this.isEditable() && !this.fromInput)
@@ -169,6 +174,11 @@ export class TextField extends BaseField
 			{
 				BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 				this.input.contentEditable = true;
+			}
+
+			if (!this.isContentEditable())
+			{
+				this.input.contentEditable = false;
 			}
 		}
 	}

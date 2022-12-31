@@ -128,7 +128,7 @@ $componentPage = ($bShowResult ? "result" : "form");
 ob_start();
 $this->IncludeComponentTemplate($componentPage);
 $res = ob_get_clean();
-$frame = $this->__template->createFrame()->begin("");
+$frame = $this->__template->createFrame('vote'.rand(0, 999))->begin("");
 echo $res;
 $frame->end();
 ?>

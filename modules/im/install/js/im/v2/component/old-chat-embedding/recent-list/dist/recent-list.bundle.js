@@ -1,5 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
+this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 (function (exports,ui_designTokens,im_v2_provider_service,im_v2_lib_menu,main_date,ui_vue3_vuex,main_popup,im_v2_component_oldChatEmbedding_elements,im_v2_lib_logger,im_v2_lib_utils,main_core,main_core_events,im_v2_const) {
 	'use strict';
 
@@ -1283,5 +1284,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 
 	exports.RecentList = RecentList;
 
-}((this.BX.Messenger.v2 = this.BX.Messenger.v2 || {}),BX,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Main,BX.Vue3.Vuex,BX.Main,BX.Messenger.v2,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.ComponentLegacy = this.BX.Messenger.v2.ComponentLegacy || {}),BX,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Main,BX.Vue3.Vuex,BX.Main,BX.Messenger.v2.ComponentLegacy,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Const));
 //# sourceMappingURL=recent-list.bundle.js.map

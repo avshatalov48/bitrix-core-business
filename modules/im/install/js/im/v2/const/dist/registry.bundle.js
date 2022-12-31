@@ -111,7 +111,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  imRecentUnread: 'im.recent.unread',
 	  imCallGetCallLimits: 'im.call.getCallLimits',
 	  imNotifyGet: 'im.notify.get',
-	  imNotifySchemaGet: 'im.notify.schema.get'
+	  imNotifySchemaGet: 'im.notify.schema.get',
+	  imCallBackgroundGet: 'im.v2.Call.Background.get',
+	  imCallBackgroundCommit: 'im.v2.Call.Background.commit',
+	  imCallBackgroundDelete: 'im.v2.Call.Background.delete',
+	  imCallMaskGet: 'im.v2.Call.Mask.get'
 	});
 	const RestMethodHandler = Object.freeze({
 	  imChatGet: 'im.chat.get',
@@ -431,6 +435,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  userList: 'userList'
 	});
 
+	const DesktopFeature = {
+	  mask: {
+	    id: 'mask',
+	    availableFromVersion: 72
+	  }
+	};
+
 	exports.DateFormat = DateFormat;
 	exports.DeviceType = DeviceType;
 	exports.DeviceOrientation = DeviceOrientation;
@@ -468,6 +479,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.UserStatus = UserStatus;
 	exports.NotificationTypesCodes = NotificationTypesCodes;
 	exports.ChatOption = ChatOption;
+	exports.DesktopFeature = DesktopFeature;
 
 }((this.BX.Messenger.v2.Const = this.BX.Messenger.v2.Const || {})));
 //# sourceMappingURL=registry.bundle.js.map

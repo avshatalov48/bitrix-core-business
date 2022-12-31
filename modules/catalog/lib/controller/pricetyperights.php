@@ -2,7 +2,8 @@
 
 namespace Bitrix\Catalog\Controller;
 
-use Bitrix\Main\Engine\CurrentUser;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 
@@ -16,8 +17,8 @@ trait PriceTypeRights
 		$r = new Result();
 
 		if (
-			!CurrentUser::get()->CanDoOperation(Controller::CATALOG_READ)
-			&& !CurrentUser::get()->CanDoOperation(Controller::CATALOG_GROUP)
+			!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
+			&& !AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT)
 		)
 		{
 			$r->addError(new Error('Access Denied'));
@@ -33,7 +34,7 @@ trait PriceTypeRights
 	{
 		$result = new Result();
 
-		if (!CurrentUser::get()->CanDoOperation(Controller::CATALOG_GROUP))
+		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT))
 		{
 			$result->addError(new Error('Access Denied'));
 		}

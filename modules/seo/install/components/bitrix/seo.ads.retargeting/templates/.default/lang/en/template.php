@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CRM_ADS_RTG_ADD_AUDIENCE"] = "Create audience";
 $MESS["CRM_ADS_RTG_ADD_CLIENT_BTN"] = "Add account";
 $MESS["CRM_ADS_RTG_APPLY"] = "Run";
@@ -19,10 +19,19 @@ $MESS["CRM_ADS_RTG_CABINET_VKONTAKTE"] = "VK advertising account";
 $MESS["CRM_ADS_RTG_CABINET_YANDEX"] = "Yandex.Audience advertising account";
 $MESS["CRM_ADS_RTG_CANCEL"] = "Cancel";
 $MESS["CRM_ADS_RTG_CANCEL_ALT"] = "Cancel";
+$MESS["CRM_ADS_RTG_CHOOSE_AUDIENCE"] = "Select audience";
 $MESS["CRM_ADS_RTG_CLOSE"] = "Close";
 $MESS["CRM_ADS_RTG_CREATE"] = "Create";
 $MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_AUDIENCE"] = "Create lookalike audience";
+$MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_AUDIENCE_LOOKALIKE"] = "Precision and reach";
+$MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_AUDIENCE_LOOKALIKE_HINT"] = "Greater precision means more parameters to look at when selecting audience. Greater reach means larger audience at the expense of precision. Choosing precision over reach is recommended for low budget campaigns.";
+$MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_AUDIENCE_LOOKALIKE_MORE_ACCURACY"] = "Higher precision";
+$MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_AUDIENCE_LOOKALIKE_MORE_COVERAGE"] = "Greater reach";
 $MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_AUDIENCE_TITLE"] = "Lookalike audiences";
+$MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_DEVICE_DISTRIBUTION"] = "Keep device type distribution";
+$MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_DEVICE_DISTRIBUTION_HINT"] = "Example: if 50% of the users in the source segment are smartphone users and the other half are tablet users, the new segment's users will be shared proportionally.";
+$MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_GEO_DISTRIBUTION"] = "Keep city distribution";
+$MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_GEO_DISTRIBUTION_HINT"] = "Example: if 50% of the users in the source segment are from London and the other half are from New York, the new segment's users will be sourced from those areas. Disable this option to find visitors from any region.";
 $MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_REGION"] = "Lookalike audience location";
 $MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_SIZE"] = "Source audience size";
 $MESS["CRM_ADS_RTG_CREATE_LOOKALIKE_SIZE_HINT"] = "Smaller source audience will create a lookalike audience most similar to the source. Larger source audience will reduce similarity.";
@@ -40,5 +49,6 @@ $MESS["CRM_ADS_RTG_SELECT_AUDIENCE"] = "Add to audience";
 $MESS["CRM_ADS_RTG_SELECT_CONTACT_DATA"] = "Add phone and e-mail to segments";
 $MESS["CRM_ADS_RTG_SELECT_CONTACT_DATA_EMAIL"] = "e-mail";
 $MESS["CRM_ADS_RTG_SELECT_CONTACT_DATA_PHONE"] = "phone";
+$MESS["CRM_ADS_RTG_SELECT_EXISTING_AUDIENCE"] = "Select existing audience";
+$MESS["CRM_ADS_RTG_SELECT_EXISTING_AUDIENCE_HINT"] = "New segment will include visitors whose Internet behavior is similar to that of the source segment.";
 $MESS["CRM_ADS_RTG_TITLE"] = "Configure Target Audience";
-?>

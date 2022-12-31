@@ -44,6 +44,7 @@
 		onUserClick: 'onUserClick',
 		onUserRename: 'onUserRename',
 		onUserPinned: 'onUserPinned',
+		onDeviceSelectorShow: 'onDeviceSelectorShow',
 	};
 
 	var newUserPosition = 999;
@@ -119,6 +120,7 @@
 			parentContainer: this.container,
 			userModel: localUserModel,
 			allowBackgroundItem: BX.Call.Hardware.BackgroundDialog.isAvailable() && this.isIntranetOrExtranet,
+			allowMaskItem: BX.Call.Hardware.BackgroundDialog.isMaskAvailable() && this.isIntranetOrExtranet,
 			onUserRename: this._onUserRename.bind(this),
 			onUserRenameInputFocus: this._onUserRenameInputFocus.bind(this),
 			onUserRenameInputBlur: this._onUserRenameInputBlur.bind(this),
@@ -1707,6 +1709,7 @@
 			faceImproveEnabled: BX.Call.Util.isDesktop() && typeof (BX.desktop) !== 'undefined' && BX.desktop.cameraSmoothingStatus(),
 			allowFaceImprove: BX.Call.Util.isDesktop() && typeof (BX.desktop) !== 'undefined' && BX.desktop.enableInVersion(64),
 			allowBackground: BX.Call.Hardware.BackgroundDialog.isAvailable() && this.isIntranetOrExtranet,
+			allowMask: BX.Call.Hardware.BackgroundDialog.isMaskAvailable() && this.isIntranetOrExtranet,
 			allowAdvancedSettings: typeof (BXIM) !== 'undefined' && this.isIntranetOrExtranet,
 			showCameraBlock: !this.isButtonBlocked('camera'),
 			events: {
@@ -1719,9 +1722,11 @@
 				onChangeHdVideo: this._onChangeHdVideo.bind(this),
 				onChangeMicAutoParams: this._onChangeMicAutoParams.bind(this),
 				onChangeFaceImprove: this._onChangeFaceImprove.bind(this),
-				onDestroy: function()
-				{
+				onDestroy: function() {
 					this.deviceSelector = null;
+				}.bind(this),
+				onShow: function() {
+					this.eventEmitter.emit(EventName.onDeviceSelectorShow, {})
 				}.bind(this)
 			}
 		});
@@ -4748,6 +4753,7 @@
 		this.parentContainer = config.parentContainer;
 		this.userModel = config.userModel;
 		this.allowBackgroundItem = BX.prop.getBoolean(config, "allowBackgroundItem", true);
+		this.allowMaskItem = BX.prop.getBoolean(config, "allowMaskItem", true);
 		this.userModel.subscribe("changed", this._onUserFieldChanged.bind(this));
 		this.incomingVideoConstraints = {
 			width: 0,
@@ -5123,6 +5129,30 @@
 
 		this.elements.container.appendChild(this.elements.removeButton);*/
 
+		this.elements.buttonMask = BX.create("div", {
+			props: {
+				className: "bx-messenger-videocall-user-panel-button mask"
+			},
+			children: [
+				BX.create("div", {
+					props: {
+						className: "bx-messenger-videocall-user-panel-button-icon mask"
+					}
+				}),
+				BX.create("div", {
+					props: {
+						className: "bx-messenger-videocall-user-panel-button-text"
+					},
+					text: BX.message("IM_CALL_CHANGE_MASK")
+				})
+			],
+			events: {
+				click: function()
+				{
+					BX.Call.Hardware.BackgroundDialog.open({'tab': 'mask'});
+				}
+			}
+		});
 		this.elements.buttonBackground = BX.create("div", {
 			props: {
 				className: "bx-messenger-videocall-user-panel-button"
@@ -5416,8 +5446,7 @@
 		if (this.userModel.localUser && this.allowBackgroundItem)
 		{
 			menuItems.push({
-				text: BX.message("IM_CALL_CHANGE_BACKGROUND"),
-				//className: (self.current == user.id ?  "menu-popup-item-accept" : "device-selector-empty"),
+				text: (this.allowMaskItem? BX.message("IM_CALL_CHANGE_BG_MASK"): BX.message("IM_CALL_CHANGE_BACKGROUND")),
 				onclick: function()
 				{
 					this.menu.close();
@@ -5430,9 +5459,10 @@
 			return;
 		}
 
+		let rect =  BX.Dom.getRelativePosition(this.elements.buttonMenu, this.parentContainer)
 		this.menu = BX.PopupMenu.create(
 			'call-view-user-menu-' + this.userModel.id,
-			this.elements.buttonMenu,
+			{left: rect.left, top: rect.top, bottom: rect.bottom}, // this.elements.buttonMenu,
 			menuItems,
 			{
 				targetContainer: this.parentContainer,
@@ -5443,9 +5473,7 @@
 				bindOptions: {
 					position: 'bottom'
 				},
-				angle: {
-					position: "top"
-				},
+				angle: true,
 				overlay: {
 					backgroundColor: 'white',
 					opacity: 0
@@ -5569,8 +5597,12 @@
 		BX.clean(this.elements.panel);
 		if (this.userModel.localUser && this.allowBackgroundItem)
 		{
-			if (width > 250)
+			if (width > 300)
 			{
+				if (this.allowMaskItem)
+				{
+					this.elements.panel.appendChild(this.elements.buttonMask);
+				}
 				this.elements.panel.appendChild(this.elements.buttonBackground);
 			}
 			else
@@ -6897,7 +6929,10 @@
 		}
 
 		this.elements.root = BX.create("div", {
-			props: {className: "bx-messenger-videocall-panel-item-with-arrow" + (this.blocked ? " blocked" : "")},
+			props: {
+				id: "bx-messenger-videocall-panel-item-with-arrow-"+this.class,
+				className: "bx-messenger-videocall-panel-item-with-arrow" + (this.blocked ? " blocked" : "")
+			},
 			children: [
 				BX.create("div", {
 					props: {className: "bx-messenger-videocall-panel-item-with-arrow-left"},
@@ -7595,6 +7630,7 @@
 		this.faceImproveEnabled = BX.prop.getBoolean(config, "faceImproveEnabled", false);
 		this.allowFaceImprove = BX.prop.getBoolean(config, "allowFaceImprove", false);
 		this.allowBackground = BX.prop.getBoolean(config, "allowBackground", true);
+		this.allowMask = BX.prop.getBoolean(config, "allowMask", true);
 		this.allowAdvancedSettings = BX.prop.getBoolean(config, "allowAdvancedSettings", false);
 		this.showCameraBlock = BX.prop.getBoolean(config, "showCameraBlock", true);
 
@@ -7643,6 +7679,7 @@
 		onChangeHdVideo: "onChangeHdVideo",
 		onChangeMicAutoParams: "onChangeMicAutoParams",
 		onChangeFaceImprove: "onChangeFaceImprove",
+		onShow: "onShow",
 		onDestroy: "onDestroy",
 	};
 
@@ -7685,6 +7722,8 @@
 			}
 		);
 		this.popup.show();
+
+		this.eventEmitter.emit(DeviceSelector.Events.onShow, {});
 	};
 
 	DeviceSelector.prototype.render = function()
@@ -7796,7 +7835,7 @@
 								children: [
 									BX.create("span", {
 										props: {className: "bx-call-view-device-selector-bottom-item-action"},
-										text: BX.message("IM_M_CALL_BACKGROUND_CHANGE"),
+										text: this.allowMask? BX.message("IM_M_CALL_BG_MASK_CHANGE"): BX.message("IM_M_CALL_BACKGROUND_CHANGE"),
 										events: {
 											click: function() {
 												BX.Call.Hardware.BackgroundDialog.open();

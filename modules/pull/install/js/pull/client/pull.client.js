@@ -1,4 +1,4 @@
-;(function()
+;(function ()
 {
 	/**
 	 * Bitrix Push & Pull
@@ -12,7 +12,7 @@
 	/****************** ATTENTION *******************************
 	 * Please do not use Bitrix CoreJS in this class.
 	 * This class can be called on a page without Bitrix Framework
-	*************************************************************/
+	 *************************************************************/
 
 	if (!window.BX)
 	{
@@ -27,37 +27,37 @@
 		return;
 	}
 
-	var BX = window.BX;
-	var protobuf = window.protobuf;
+	const BX = window.BX;
+	const protobuf = window.protobuf;
 
-	var REVISION = 19; // api revision - check module/pull/include.php
-	var LONG_POLLING_TIMEOUT = 60;
-	var RESTORE_WEBSOCKET_TIMEOUT = 30 * 60;
-	var CONFIG_TTL = 24 * 60 * 60;
-	var CONFIG_CHECK_INTERVAL = 60000;
-	var MAX_IDS_TO_STORE = 10;
+	const REVISION = 19; // api revision - check module/pull/include.php
+	const LONG_POLLING_TIMEOUT = 60;
+	const RESTORE_WEBSOCKET_TIMEOUT = 30 * 60;
+	const CONFIG_TTL = 24 * 60 * 60;
+	const CONFIG_CHECK_INTERVAL = 60000;
+	const MAX_IDS_TO_STORE = 10;
 
-	var LS_SESSION = "bx-pull-session";
-	var LS_SESSION_CACHE_TIME = 20;
+	const LS_SESSION = "bx-pull-session";
+	const LS_SESSION_CACHE_TIME = 20;
 
-	var ConnectionType = {
+	const ConnectionType = {
 		WebSocket: 'webSocket',
 		LongPolling: 'longPolling'
 	};
 
-	var PullStatus = {
+	const PullStatus = {
 		Online: 'online',
 		Offline: 'offline',
 		Connecting: 'connect'
 	};
 
-	var SenderType = {
+	const SenderType = {
 		Unknown: 0,
 		Client: 1,
 		Backend: 2
 	};
 
-	var SubscriptionType = {
+	const SubscriptionType = {
 		Server: 'server',
 		Client: 'client',
 		Online: 'online',
@@ -65,1303 +65,1529 @@
 		Revision: 'revision'
 	};
 
-	var CloseReasons = {
-		NORMAL_CLOSURE : 1000,
-		SERVER_DIE : 1001,
-		CONFIG_REPLACED : 3000,
-		CHANNEL_EXPIRED : 3001,
-		SERVER_RESTARTED : 3002,
-		CONFIG_EXPIRED : 3003,
-		MANUAL : 3004,
-		WRONG_CHANNEL_ID : 4010,
+	const CloseReasons = {
+		NORMAL_CLOSURE: 1000,
+		SERVER_DIE: 1001,
+		CONFIG_REPLACED: 3000,
+		CHANNEL_EXPIRED: 3001,
+		SERVER_RESTARTED: 3002,
+		CONFIG_EXPIRED: 3003,
+		MANUAL: 3004,
+		STUCK: 3005,
+		WRONG_CHANNEL_ID: 4010,
 	};
 
-	var SystemCommands = {
+	const SystemCommands = {
 		CHANNEL_EXPIRE: 'CHANNEL_EXPIRE',
 		CONFIG_EXPIRE: 'CONFIG_EXPIRE',
-		SERVER_RESTART:'SERVER_RESTART'
+		SERVER_RESTART: 'SERVER_RESTART'
 	};
 
-	var ServerMode = {
+	const ServerMode = {
 		Shared: 'shared',
 		Personal: 'personal'
 	};
 
-	// Protobuf message models
-	var Response = protobuf.roots['push-server']['Response'];
-	var ResponseBatch = protobuf.roots['push-server']['ResponseBatch'];
-	var Request = protobuf.roots['push-server']['Request'];
-	var RequestBatch = protobuf.roots['push-server']['RequestBatch'];
-	var IncomingMessagesRequest = protobuf.roots['push-server']['IncomingMessagesRequest'];
-	var IncomingMessage = protobuf.roots['push-server']['IncomingMessage'];
-	var Receiver = protobuf.roots['push-server']['Receiver'];
-
-	var Pull = function (params)
-	{
-		params = params || {};
-
-		if (params.restApplication)
-		{
-			if (typeof params.configGetMethod === 'undefined')
-			{
-				params.configGetMethod = 'pull.application.config.get';
-			}
-			if (typeof params.skipCheckRevision === 'undefined')
-			{
-				params.skipCheckRevision = true;
-			}
-			if (typeof params.restApplication === 'string')
-			{
-				params.siteId = params.restApplication;
-			}
-
-			params.serverEnabled = true;
-		}
-
-		var self = this;
-
-		this.context = 'master';
-
-		this.guestMode = params.guestMode? params.guestMode: (typeof BX.message !== 'undefined' && BX.message.pull_guest_mode? BX.message.pull_guest_mode === 'Y': false);
-		this.guestUserId = params.guestUserId? params.guestUserId: (typeof BX.message !== 'undefined' && BX.message.pull_guest_user_id? parseInt(BX.message.pull_guest_user_id, 10): 0);
-		if(this.guestMode && this.guestUserId)
-		{
-			this.userId = this.guestUserId;
-		}
-		else
-		{
-			this.userId = params.userId? params.userId: (typeof BX.message !== 'undefined' && BX.message.USER_ID? BX.message.USER_ID: 0);
-		}
-
-		this.siteId = params.siteId? params.siteId: (typeof BX.message !== 'undefined' && BX.message.SITE_ID? BX.message.SITE_ID: 'none');
-		this.restClient = typeof params.restClient !== "undefined"? params.restClient: new BX.RestClient(this.getRestClientOptions());
-
-		this.enabled = typeof params.serverEnabled !== 'undefined'? (params.serverEnabled === 'Y' || params.serverEnabled === true): (typeof BX.message !== 'undefined' && BX.message.pull_server_enabled === 'Y');
-		this.unloading = false;
-		this.starting = false;
-		this.debug = false;
-		this.connectionAttempt = 0;
-		this.connectionType = '';
-		this.reconnectTimeout = null;
-		this.restartTimeout = null;
-		this.restoreWebSocketTimeout = null;
-
-		this.configGetMethod = typeof params.configGetMethod !== 'string'? 'pull.config.get': params.configGetMethod;
-		this.getPublicListMethod = typeof params.getPublicListMethod !== 'string'? 'pull.channel.public.list': params.getPublicListMethod;
-
-		this.skipStorageInit = params.skipStorageInit === true;
-
-		this.skipCheckRevision = params.skipCheckRevision === true;
-
-		this._subscribers = {};
-
-		this.watchTagsQueue = {};
-		this.watchUpdateInterval = 1740000;
-		this.watchForceUpdateInterval = 5000;
-
-		if (typeof params.configTimestamp !== 'undefined')
-		{
-			this.configTimestamp = params.configTimestamp;
-		}
-		else if (typeof BX.message !== 'undefined' && BX.message.pull_config_timestamp)
-		{
-			this.configTimestamp = BX.message.pull_config_timestamp;
-		}
-		else
-		{
-			this.configTimestamp = 0;
-		}
-
-		this.session = {
-			mid : null,
-			tag : null,
-			time : null,
-			history: {},
-			lastMessageIds: [],
-			messageCount: 0
-		};
-
-		this._connectors = {
-			webSocket: null,
-			longPolling: null
-		};
-
-		Object.defineProperty(this, "connector", {
-			get: function()
-			{
-				return self._connectors[self.connectionType];
-			}
-		});
-
-		this.isSecure = document.location.href.indexOf('https') === 0;
-		this.config = null;
-
-		this.storage = null;
-
-		if(this.userId && !this.skipStorageInit)
-		{
-			this.storage = new StorageManager({
-				userId: this.userId,
-				siteId: this.siteId
-			});
-		}
-
-		this.sharedConfig = new SharedConfig({
-			onWebSocketBlockChanged: this.onWebSocketBlockChanged.bind(this),
-			storage: this.storage
-		});
-		this.channelManager = new ChannelManager({
-			restClient: this.restClient,
-			getPublicListMethod: this.getPublicListMethod
-		});
-
-		this.notificationPopup = null;
-
-		// timers
-		this.checkInterval = null;
-		this.offlineTimeout = null;
-
-		// manual stop workaround
-		this.isManualDisconnect = false;
-
-		this.loggingEnabled = this.sharedConfig.isLoggingEnabled();
+	const EmptyConfig = {
+		api: {},
+		channels: {},
+		publicChannels: {},
+		server: {timeShift: 0},
+		clientId: null,
+		jwt: null,
 	};
 
-	/**
-	 * Creates a subscription to incoming messages.
-	 *
-	 * @param {Object} params
-	 * @param {string} [params.type] Subscription type (for possible values see SubscriptionType).
-	 * @param {string} [params.moduleId] Name of the module.
-	 * @param {Function} params.callback Function, that will be called for incoming messages.
-	 * @returns {Function} - Unsubscribe callback function
-	 */
-	Pull.prototype.subscribe = function(params)
+	// Protobuf message models
+	const Response = protobuf.roots['push-server']['Response'];
+	const ResponseBatch = protobuf.roots['push-server']['ResponseBatch'];
+	const Request = protobuf.roots['push-server']['Request'];
+	const RequestBatch = protobuf.roots['push-server']['RequestBatch'];
+	const IncomingMessagesRequest = protobuf.roots['push-server']['IncomingMessagesRequest'];
+	const IncomingMessage = protobuf.roots['push-server']['IncomingMessage'];
+	const Receiver = protobuf.roots['push-server']['Receiver'];
+
+	const JSON_RPC_VERSION = "2.0"
+	const JSON_RPC_PING = "ping"
+	const JSON_RPC_PONG = "pong"
+
+	const PING_TIMEOUT = 10;
+
+	const RpcError = {
+		Parse: {code: -32700, message: "Parse error"},
+		InvalidRequest: {code: -32600, message: "Invalid Request"},
+		MethodNotFound: {code: -32601, message: "Method not found"},
+		InvalidParams: {code: -32602, message: "Invalid params"},
+		Internal: {code: -32603, message: "Internal error"},
+	};
+
+	const RpcMethod = {
+		Publish: "publish",
+		Subscribe: "subscribe",
+	}
+
+	const InternalChannel = {
+		StatusChange: "internal:user_status",
+	}
+
+	class PullClient
 	{
-		/**
-		 * After modify this method, copy to follow scripts:
-		 * mobile/install/mobileapp/mobile/extensions/bitrix/pull/client/events/extension.js
-		 * mobile/install/js/mobile/pull/client/src/client.js
-		 */
-
-		if (!params)
+		constructor(params)
 		{
-			console.error(Utils.getDateForLog() + ': Pull.subscribe: params for subscribe function is invalid. ');
-			return function(){}
-		}
+			params = params || {};
 
-		if (!Utils.isPlainObject(params))
-		{
-			return this.attachCommandHandler(params);
-		}
-
-		params = params || {};
-		params.type = params.type || SubscriptionType.Server;
-		params.command = params.command || null;
-
-		if (params.type == SubscriptionType.Server || params.type == SubscriptionType.Client)
-		{
-			if (typeof (this._subscribers[params.type]) === 'undefined')
+			if (params.restApplication)
 			{
-				this._subscribers[params.type] = {};
-			}
-			if (typeof (this._subscribers[params.type][params.moduleId]) === 'undefined')
-			{
-				this._subscribers[params.type][params.moduleId] = {
-					'callbacks': [],
-					'commands': {},
-				};
-			}
-
-			if (params.command)
-			{
-				if (typeof (this._subscribers[params.type][params.moduleId]['commands'][params.command]) === 'undefined')
+				if (typeof params.configGetMethod === 'undefined')
 				{
-					this._subscribers[params.type][params.moduleId]['commands'][params.command] = [];
+					params.configGetMethod = 'pull.application.config.get';
+				}
+				if (typeof params.skipCheckRevision === 'undefined')
+				{
+					params.skipCheckRevision = true;
+				}
+				if (typeof params.restApplication === 'string')
+				{
+					params.siteId = params.restApplication;
 				}
 
-				this._subscribers[params.type][params.moduleId]['commands'][params.command].push(params.callback);
+				params.serverEnabled = true;
+			}
 
-				return function () {
-					this._subscribers[params.type][params.moduleId]['commands'][params.command] = this._subscribers[params.type][params.moduleId]['commands'][params.command].filter(function(element) {
-						return element !== params.callback;
-					});
-				}.bind(this);
+			this.context = 'master';
+
+			this.guestMode = params.guestMode ? params.guestMode : (typeof BX.message !== 'undefined' && BX.message.pull_guest_mode ? BX.message.pull_guest_mode === 'Y' : false);
+			this.guestUserId = params.guestUserId ? params.guestUserId : (typeof BX.message !== 'undefined' && BX.message.pull_guest_user_id ? parseInt(BX.message.pull_guest_user_id, 10) : 0);
+			if (this.guestMode && this.guestUserId)
+			{
+				this.userId = this.guestUserId;
 			}
 			else
 			{
-				this._subscribers[params.type][params.moduleId]['callbacks'].push(params.callback);
-
-				return function () {
-					this._subscribers[params.type][params.moduleId]['callbacks'] = this._subscribers[params.type][params.moduleId]['callbacks'].filter(function(element) {
-						return element !== params.callback;
-					});
-				}.bind(this);
-			}
-		}
-		else
-		{
-			if (typeof (this._subscribers[params.type]) === 'undefined')
-			{
-				this._subscribers[params.type] = [];
+				this.userId = params.userId ? params.userId : (typeof BX.message !== 'undefined' && BX.message.USER_ID ? BX.message.USER_ID : 0);
 			}
 
-			this._subscribers[params.type].push(params.callback);
+			this.siteId = params.siteId ? params.siteId : (typeof BX.message !== 'undefined' && BX.message.SITE_ID ? BX.message.SITE_ID : 'none');
+			this.restClient = typeof params.restClient !== "undefined" ? params.restClient : new BX.RestClient(this.getRestClientOptions());
 
-			return function () {
-				this._subscribers[params.type] = this._subscribers[params.type].filter(function(element) {
-					return element !== params.callback;
-				});
-			}.bind(this);
-		}
-	};
+			this.enabled = typeof params.serverEnabled !== 'undefined' ? (params.serverEnabled === 'Y' || params.serverEnabled === true) : (typeof BX.message !== 'undefined' && BX.message.pull_server_enabled === 'Y');
+			this.unloading = false;
+			this.starting = false;
+			this.debug = false;
+			this.connectionAttempt = 0;
+			this.connectionType = ConnectionType.WebSocket;
+			this.reconnectTimeout = null;
+			this.restartTimeout = null;
+			this.restoreWebSocketTimeout = null;
 
-	Pull.prototype.attachCommandHandler = function(handler)
-	{
-		/**
-		 * After modify this method, copy to follow scripts:
-		 * mobile/install/mobileapp/mobile/extensions/bitrix/pull/client/events/extension.js
-		 */
-		if (typeof handler.getModuleId !== 'function' || typeof handler.getModuleId() !== 'string')
-		{
-			console.error(Utils.getDateForLog() + ': Pull.attachCommandHandler: result of handler.getModuleId() is not a string.');
-			return function(){}
-		}
+			this.configGetMethod = typeof params.configGetMethod !== 'string' ? 'pull.config.get' : params.configGetMethod;
+			this.getPublicListMethod = typeof params.getPublicListMethod !== 'string' ? 'pull.channel.public.list' : params.getPublicListMethod;
 
-		var type = SubscriptionType.Server;
-		if (typeof handler.getSubscriptionType === 'function')
-		{
-			type = handler.getSubscriptionType();
-		}
+			this.skipStorageInit = params.skipStorageInit === true;
 
-		return this.subscribe({
-			type: type,
-			moduleId: handler.getModuleId(),
-			callback: function(data)
+			this.skipCheckRevision = params.skipCheckRevision === true;
+
+			this._subscribers = {};
+
+			this.watchTagsQueue = {};
+			this.watchUpdateInterval = 1740000;
+			this.watchForceUpdateInterval = 5000;
+
+			if (typeof params.configTimestamp !== 'undefined')
 			{
-				var method = null;
-
-				if (typeof handler.getMap === 'function')
-				{
-					var mapping = handler.getMap();
-					if (mapping && typeof mapping === 'object')
-					{
-						if (typeof mapping[data.command] === 'function')
-						{
-							method = mapping[data.command].bind(handler)
-						}
-						else if (typeof mapping[data.command] === 'string' && typeof handler[mapping[data.command]] === 'function')
-						{
-							method = handler[mapping[data.command]].bind(handler);
-						}
-					}
-				}
-
-				if (!method)
-				{
-					var methodName = 'handle'+data.command.charAt(0).toUpperCase() + data.command.slice(1);
-					if (typeof handler[methodName] === 'function')
-					{
-						method = handler[methodName].bind(handler);
-					}
-				}
-
-				if (method)
-				{
-					if (this.debug && this.context !== 'master')
-					{
-						console.warn(Utils.getDateForLog() + ': Pull.attachCommandHandler: receive command', data);
-					}
-					method(data.params, data.extra, data.command);
-				}
-			}.bind(this)
-		});
-	};
-
-	/**
-	 *
-	 * @param params {Object}
-	 * @returns {boolean}
-	 */
-	Pull.prototype.emit = function(params)
-	{
-		/**
-		 * After modify this method, copy to follow scripts:
-		 * mobile/install/mobileapp/mobile/extensions/bitrix/pull/client/events/extension.js
-		 * mobile/install/js/mobile/pull/client/src/client.js
-		 */
-		params = params || {};
-
-		if (params.type == SubscriptionType.Server || params.type == SubscriptionType.Client)
-		{
-			if (typeof (this._subscribers[params.type]) === 'undefined')
-			{
-				this._subscribers[params.type] = {};
+				this.configTimestamp = params.configTimestamp;
 			}
-			if (typeof (this._subscribers[params.type][params.moduleId]) === 'undefined')
+			else if (typeof BX.message !== 'undefined' && BX.message.pull_config_timestamp)
 			{
-				this._subscribers[params.type][params.moduleId] = {
-					'callbacks': [],
-					'commands': {},
-				};
+				this.configTimestamp = BX.message.pull_config_timestamp;
+			}
+			else
+			{
+				this.configTimestamp = 0;
 			}
 
-			if (this._subscribers[params.type][params.moduleId]['callbacks'].length > 0)
-			{
-				this._subscribers[params.type][params.moduleId]['callbacks'].forEach(function(callback){
-					callback(params.data, {type: params.type, moduleId: params.moduleId});
-				});
-			}
+			this.session = {
+				mid: null,
+				tag: null,
+				time: null,
+				history: {},
+				lastMessageIds: [],
+				messageCount: 0
+			};
 
-			if (
-				this._subscribers[params.type][params.moduleId]['commands'][params.data.command]
-				&& this._subscribers[params.type][params.moduleId]['commands'][params.data.command].length > 0)
-			{
-				this._subscribers[params.type][params.moduleId]['commands'][params.data.command].forEach(function(callback){
-					callback(params.data.params, params.data.extra, params.data.command, {type: params.type, moduleId: params.moduleId});
-				});
-			}
+			this._connectors = {
+				webSocket: null,
+				longPolling: null
+			};
 
-			return true;
-		}
-		else
-		{
-			if (typeof (this._subscribers[params.type]) === 'undefined')
-			{
-				this._subscribers[params.type] = [];
-			}
+			this.isSecure = document.location.href.indexOf('https') === 0;
+			this.config = null;
 
-			if (this._subscribers[params.type].length <= 0)
-			{
-				return true;
-			}
+			this.storage = null;
 
-			this._subscribers[params.type].forEach(function(callback){
-				callback(params.data, {type: params.type});
-			});
-
-			return true;
-		}
-	};
-
-	Pull.prototype.init = function()
-	{
-		this._connectors.webSocket = new WebSocketConnector({
-			parent: this,
-			onOpen: this.onWebSocketOpen.bind(this),
-			onMessage: this.parseResponse.bind(this),
-			onDisconnect: this.onWebSocketDisconnect.bind(this),
-			onError: this.onWebSocketError.bind(this)
-		});
-
-		this._connectors.longPolling = new LongPollingConnector({
-			parent: this,
-			onOpen: this.onLongPollingOpen.bind(this),
-			onMessage: this.parseResponse.bind(this),
-			onDisconnect: this.onLongPollingDisconnect.bind(this),
-			onError: this.onLongPollingError.bind(this)
-		});
-
-		this.connectionType = this.isWebSocketAllowed() ? ConnectionType.WebSocket : ConnectionType.LongPolling;
-
-		window.addEventListener("beforeunload", this.onBeforeUnload.bind(this));
-		window.addEventListener("offline", this.onOffline.bind(this));
-		window.addEventListener("online", this.onOnline.bind(this));
-
-		if(BX && BX.addCustomEvent)
-		{
-			BX.addCustomEvent("BXLinkOpened", this.connect.bind(this));
-		}
-
-		if (BX && BX.desktop)
-		{
-			BX.addCustomEvent("onDesktopReload", function() {
-				this.session.mid = null;
-				this.session.tag = null;
-				this.session.time = null;
-			}.bind(this));
-
-			BX.desktop.addCustomEvent("BXLoginSuccess", function() {
-				this.restart(1000, "Desktop login");
-			}.bind(this));
-		}
-	};
-
-	Pull.prototype.start = function(config)
-	{
-		var allowConfigCaching = true;
-
-		if(this.starting || this.isConnected())
-		{
-			return;
-		}
-
-		if(!this.userId && typeof(BX.message) !== 'undefined' && BX.message.USER_ID)
-		{
-			this.userId = BX.message.USER_ID;
-			if(!this.storage)
+			if (this.userId && !this.skipStorageInit)
 			{
 				this.storage = new StorageManager({
 					userId: this.userId,
 					siteId: this.siteId
 				});
 			}
-		}
-		if(this.siteId === 'none' && typeof(BX.message) !== 'undefined' && BX.message.SITE_ID)
-		{
-			this.siteId = BX.message.SITE_ID;
-		}
 
-		var result = new BX.Promise();
-
-		var skipReconnectToLastSession = false;
-		if (Utils.isPlainObject(config))
-		{
-			if (typeof config.skipReconnectToLastSession !== 'undefined')
-			{
-				skipReconnectToLastSession = !!config.skipReconnectToLastSession;
-				delete config.skipReconnectToLastSession;
-			}
-			this.config = config;
-			allowConfigCaching = false;
-		}
-
-		if (!this.enabled)
-		{
-			result.reject({
-				ex: { error: 'PULL_DISABLED', error_description: 'Push & Pull server is disabled'}
+			this.sharedConfig = new SharedConfig({
+				onWebSocketBlockChanged: this.onWebSocketBlockChanged.bind(this),
+				storage: this.storage
 			});
-			return result;
+			this.channelManager = new ChannelManager({
+				restClient: this.restClient,
+				getPublicListMethod: this.getPublicListMethod
+			});
+
+			this.notificationPopup = null;
+
+			// timers
+			this.checkInterval = null;
+			this.offlineTimeout = null;
+
+			this.pingWaitTimeout = null;
+
+			// manual stop workaround
+			this.isManualDisconnect = false;
+
+			this.loggingEnabled = this.sharedConfig.isLoggingEnabled();
+
+			// bound event handlers
+			this.onPingTimeoutHandler = this.onPingTimeout.bind(this);
 		}
 
-		var self = this;
-		var now = (new Date()).getTime();
-		var oldSession;
-		if(!skipReconnectToLastSession && this.storage)
+		get connector()
 		{
-			oldSession = this.storage.get(LS_SESSION);
-		}
-		if(Utils.isPlainObject(oldSession) && oldSession.hasOwnProperty('ttl') && oldSession.ttl >= now)
-		{
-			this.session.mid = oldSession.mid;
+			return this._connectors[this.connectionType];
 		}
 
-		this.starting = true;
-		this.loadConfig().catch(function(error)
+		/**
+		 * Creates a subscription to incoming messages.
+		 *
+		 * @param {Object} params
+		 * @param {string} [params.type] Subscription type (for possible values see SubscriptionType).
+		 * @param {string} [params.moduleId] Name of the module.
+		 * @param {Function} params.callback Function, that will be called for incoming messages.
+		 * @returns {Function} - Unsubscribe callback function
+		 */
+		subscribe(params)
 		{
-			self.starting = false;
-			self.sendPullStatus(PullStatus.Offline);
-			self.stopCheckConfig();
-			console.error(Utils.getDateForLog() + ': Pull: could not read push-server config. ', error);
-			result.reject(error);
-		}).then(function(config)
-		{
-			self.setConfig(config, allowConfigCaching);
-			self.init();
-			self.connect();
-			self.updateWatch();
-			self.startCheckConfig();
-			result.resolve(true);
-		});
+			/**
+			 * After modify this method, copy to follow scripts:
+			 * mobile/install/mobileapp/mobile/extensions/bitrix/pull/client/events/extension.js
+			 * mobile/install/js/mobile/pull/client/src/client.js
+			 */
 
-		return result;
-	};
-
-	Pull.prototype.getRestClientOptions = function()
-	{
-		var result = {};
-
-		if(this.guestMode && this.guestUserId !== 0)
-		{
-			result.queryParams = {
-				pull_guest_id: this.guestUserId
-			}
-		}
-		return result;
-	};
-
-	Pull.prototype.setLastMessageId = function(lastMessageId)
-	{
-		this.session.mid = lastMessageId;
-	};
-
-	/**
-	 *
-	 * @param {object[]} publicIds
-	 * @param {integer} publicIds.user_id
-	 * @param {string} publicIds.public_id
-	 * @param {string} publicIds.signature
-	 * @param {Date} publicIds.start
-	 * @param {Date} publicIds.end
-	 */
-	Pull.prototype.setPublicIds = function(publicIds)
-	{
-		return this.channelManager.setPublicIds(publicIds);
-	};
-
-	/**
-	 * Send single message to the specified users.
-	 *
-	 * @param {integer[]} users User ids of the message receivers.
-	 * @param {string} moduleId Name of the module to receive message,
-	 * @param {string} command Command name.
-	 * @param {object} params Command parameters.
-	 * @param {integer} [expiry] Message expiry time in seconds.
-	 * @return void
-	 */
-	Pull.prototype.sendMessage = function(users, moduleId, command, params, expiry)
-	{
-		return this.sendMessageBatch([{
-			users: users,
-			moduleId: moduleId,
-			command: command,
-			params: params,
-			expiry: expiry
-		}]);
-	};
-
-	/**
-	 * Send single message to the specified public channels.
-	 *
-	 * @param {string[]} publicChannels Public ids of the channels to receive message.
-	 * @param {string} moduleId Name of the module to receive message,
-	 * @param {string} command Command name.
-	 * @param {object} params Command parameters.
-	 * @param {integer} [expiry] Message expiry time in seconds.
-	 * @return void
-	 */
-	Pull.prototype.sendMessageToChannels = function(publicChannels, moduleId, command, params, expiry)
-	{
-		return this.sendMessageBatch([{
-			publicChannels: publicChannels,
-			moduleId: moduleId,
-			command: command,
-			params: params,
-			expiry: expiry
-		}]);
-	}
-
-	/**
-	 * Sends batch of messages to the multiple public channels.
-	 *
-	 * @param {object[]} messageBatch Array of messages to send.
-	 * @param  {int[]} messageBatch.users User ids the message receivers.
-	 * @param  {string[]|object[]} messageBatch.publicChannels Public ids of the channels to send messages.
-	 * @param {string} messageBatch.moduleId Name of the module to receive message,
-	 * @param {string} messageBatch.command Command name.
-	 * @param {object} messageBatch.params Command parameters.
-	 * @param {integer} [messageBatch.expiry] Message expiry time in seconds.
-	 * @return void
-	 */
-	Pull.prototype.sendMessageBatch = function(messageBatch)
-	{
-		if(!this.isPublishingEnabled())
-		{
-			console.error('Client publishing is not supported or is disabled');
-			return false;
-		}
-
-		var userIds = {};
-		for(var i = 0; i < messageBatch.length; i++)
-		{
-			if (messageBatch[i].users)
+			if (!params)
 			{
-				for(var j = 0; j < messageBatch[i].users.length; j++)
+				console.error(Utils.getDateForLog() + ': Pull.subscribe: params for subscribe function is invalid. ');
+				return function () {}
+			}
+
+			if (!Utils.isPlainObject(params))
+			{
+				return this.attachCommandHandler(params);
+			}
+
+			params = params || {};
+			params.type = params.type || SubscriptionType.Server;
+			params.command = params.command || null;
+
+			if (params.type == SubscriptionType.Server || params.type == SubscriptionType.Client)
+			{
+				if (typeof (this._subscribers[params.type]) === 'undefined')
 				{
-					userIds[messageBatch[i].users[j]] = true;
+					this._subscribers[params.type] = {};
 				}
-			}
-		}
+				if (typeof (this._subscribers[params.type][params.moduleId]) === 'undefined')
+				{
+					this._subscribers[params.type][params.moduleId] = {
+						'callbacks': [],
+						'commands': {},
+					};
+				}
 
-		this.channelManager.getPublicIds(Object.keys(userIds)).then(function(publicIds)
-		{
-			return this.connector.send(this.encodeMessageBatch(messageBatch, publicIds));
-		}.bind(this))
-	};
+				if (params.command)
+				{
+					if (typeof (this._subscribers[params.type][params.moduleId]['commands'][params.command]) === 'undefined')
+					{
+						this._subscribers[params.type][params.moduleId]['commands'][params.command] = [];
+					}
 
-	Pull.prototype.encodeMessageBatch = function(messageBatch, publicIds)
-	{
-		var messages = [];
-		messageBatch.forEach(function(messageFields)
-		{
-			var messageBody = {
-				module_id: messageFields.moduleId,
-				command: messageFields.command,
-				params: messageFields.params
-			};
+					this._subscribers[params.type][params.moduleId]['commands'][params.command].push(params.callback);
 
-			var receivers;
-			if (messageFields.users)
-			{
-				receivers = this.createMessageReceivers(messageFields.users, publicIds);
+					return function ()
+					{
+						this._subscribers[params.type][params.moduleId]['commands'][params.command] = this._subscribers[params.type][params.moduleId]['commands'][params.command].filter((element) =>
+						{
+							return element !== params.callback;
+						});
+					}.bind(this);
+				}
+				else
+				{
+					this._subscribers[params.type][params.moduleId]['callbacks'].push(params.callback);
+
+					return function ()
+					{
+						this._subscribers[params.type][params.moduleId]['callbacks'] = this._subscribers[params.type][params.moduleId]['callbacks'].filter((element) =>
+						{
+							return element !== params.callback;
+						});
+					}.bind(this);
+				}
 			}
 			else
 			{
-				receivers = [];
-			}
-
-			if (messageFields.publicChannels)
-			{
-				if (!BX.type.isArray(messageFields.publicChannels))
+				if (typeof (this._subscribers[params.type]) === 'undefined')
 				{
-					throw new Error('messageFields.publicChannels must be an array');
+					this._subscribers[params.type] = [];
 				}
-				messageFields.publicChannels.forEach(function(publicChannel)
-				{
-					var publicId;
-					var signature;
-					if (typeof(publicChannel) === 'string' && publicChannel.includes('.'))
-					{
-						var fields = publicChannel.toString().split('.');
-						publicId = fields[0];
-						signature = fields[1];
-					}
-					else if (typeof(publicChannel) === 'object' && ('publicId' in publicChannel) && ('signature' in publicChannel))
-					{
-						publicId = publicChannel.publicId;
-						signature = publicChannel.signature;
-					}
-					else
-					{
-						throw new Error('Public channel MUST be either a string, formatted like "{publicId}.{signature}" or an object with fields \'publicId\' and \'signature\'');
-					}
 
-					receivers.push(Receiver.create({
-						id: this.encodeId(publicId),
-						signature: this.encodeId(signature)
-					}))
-				}.bind(this))
+				this._subscribers[params.type].push(params.callback);
+
+				return function ()
+				{
+					this._subscribers[params.type] = this._subscribers[params.type].filter((element) =>
+					{
+						return element !== params.callback;
+					});
+				}.bind(this);
+			}
+		}
+
+		attachCommandHandler(handler)
+		{
+			/**
+			 * After modify this method, copy to follow scripts:
+			 * mobile/install/mobileapp/mobile/extensions/bitrix/pull/client/events/extension.js
+			 */
+			if (typeof handler.getModuleId !== 'function' || typeof handler.getModuleId() !== 'string')
+			{
+				console.error(Utils.getDateForLog() + ': Pull.attachCommandHandler: result of handler.getModuleId() is not a string.');
+				return function () {}
 			}
 
-			var message = IncomingMessage.create({
-				receivers: receivers,
-				body: JSON.stringify(messageBody),
-				expiry: messageFields.expiry || 0
+			let type = SubscriptionType.Server;
+			if (typeof handler.getSubscriptionType === 'function')
+			{
+				type = handler.getSubscriptionType();
+			}
+
+			return this.subscribe({
+				type: type,
+				moduleId: handler.getModuleId(),
+				callback: function (data)
+				{
+					let method = null;
+
+					if (typeof handler.getMap === 'function')
+					{
+						const mapping = handler.getMap();
+						if (mapping && typeof mapping === 'object')
+						{
+							if (typeof mapping[data.command] === 'function')
+							{
+								method = mapping[data.command].bind(handler)
+							}
+							else if (typeof mapping[data.command] === 'string' && typeof handler[mapping[data.command]] === 'function')
+							{
+								method = handler[mapping[data.command]].bind(handler);
+							}
+						}
+					}
+
+					if (!method)
+					{
+						const methodName = 'handle' + data.command.charAt(0).toUpperCase() + data.command.slice(1);
+						if (typeof handler[methodName] === 'function')
+						{
+							method = handler[methodName].bind(handler);
+						}
+					}
+
+					if (method)
+					{
+						if (this.debug && this.context !== 'master')
+						{
+							console.warn(Utils.getDateForLog() + ': Pull.attachCommandHandler: receive command', data);
+						}
+						method(data.params, data.extra, data.command);
+					}
+				}.bind(this)
 			});
-			messages.push(message);
-		}, this);
+		}
 
-		var requestBatch = RequestBatch.create({
-			requests: [{
-				incomingMessages: {
-					messages: messages
-				}
-			}]
-		});
-
-		return RequestBatch.encode(requestBatch).finish();
-	};
-
-	Pull.prototype.createMessageReceivers = function(users, publicIds)
-	{
-		var result = [];
-		for(var i = 0; i < users.length; i++)
+		/**
+		 *
+		 * @param params {Object}
+		 * @returns {boolean}
+		 */
+		emit(params)
 		{
-			var userId = users[i];
-			if(!publicIds[userId] || !publicIds[userId].publicId)
+			/**
+			 * After modify this method, copy to follow scripts:
+			 * mobile/install/mobileapp/mobile/extensions/bitrix/pull/client/events/extension.js
+			 * mobile/install/js/mobile/pull/client/src/client.js
+			 */
+			params = params || {};
+
+			if (params.type == SubscriptionType.Server || params.type == SubscriptionType.Client)
 			{
-				throw new Error('Could not determine public id for user ' + userId);
-			}
-
-			result.push(Receiver.create({
-				id: this.encodeId(publicIds[userId].publicId),
-				signature: this.encodeId(publicIds[userId].signature)
-			}))
-		}
-		return result;
-	};
-
-	Pull.prototype.scheduleRestart = function(disconnectCode, disconnectReason, restartDelay)
-	{
-		clearTimeout(this.restartTimeout);
-		if (!restartDelay || restartDelay < 1)
-		{
-			restartDelay = Math.ceil(Math.random() * 30) + 5;
-		}
-
-		this.restartTimeout = setTimeout(
-			() => this.restart(disconnectCode, disconnectReason),
-			restartDelay
-		);
-	}
-
-	Pull.prototype.restart = function(disconnectCode, disconnectReason)
-	{
-		var self = this;
-		clearTimeout(this.restartTimeout);
-		this.disconnect(disconnectCode, disconnectReason);
-		if(this.storage)
-		{
-			this.storage.remove('bx-pull-config');
-		}
-		this.config = null;
-
-		this.loadConfig().catch(function(error)
-		{
-			console.error(Utils.getDateForLog() + ': Pull: could not read push-server config', error);
-			self.sendPullStatus(PullStatus.Offline);
-
-			clearTimeout(self.reconnectTimeout);
-			if(error.status == 401 || error.status == 403)
-			{
-				self.stopCheckConfig();
-
-				if(BX && BX.onCustomEvent)
+				if (typeof (this._subscribers[params.type]) === 'undefined')
 				{
-					BX.onCustomEvent(window, 'onPullError', ['AUTHORIZE_ERROR']);
+					this._subscribers[params.type] = {};
 				}
-			}
-		}).then(function(config)
-		{
-			self.setConfig(config, true);
-			self.connect();
-			self.updateWatch();
-			self.startCheckConfig();
-		});
-	};
-
-	Pull.prototype.loadConfig = function ()
-	{
-		var result = new BX.Promise();
-		if (!this.config)
-		{
-			this.config = {
-				api: {},
-				channels: {},
-				publicChannels: {},
-				server: { timeShift: 0 },
-				clientId: null
-			};
-
-			var config;
-			if(this.storage)
-			{
-				config = this.storage.get('bx-pull-config');
-			}
-			if(this.isConfigActual(config) && this.checkRevision(config.api.revision_web))
-			{
-				result.resolve(config);
-				return result;
-			}
-			else if (this.storage)
-			{
-				this.storage.remove('bx-pull-config')
-			}
-		}
-		else if(this.isConfigActual(this.config) && this.checkRevision(this.config.api.revision_web))
-		{
-			result.resolve(this.config);
-			return result;
-		}
-		else
-		{
-			this.config = {
-				api: {},
-				channels: {},
-				publicChannels: {},
-				server: { timeShift: 0 },
-				clientId: null
-			};
-		}
-
-		this.restClient.callMethod(this.configGetMethod, {'CACHE': 'N'}).then(function(response) {
-			var timeShift = 0;
-			var data = response.data();
-			timeShift = Math.floor((Utils.getTimestamp() - new Date(data.serverTime).getTime())/1000);
-			delete data.serverTime;
-
-			var config = Object.assign({}, data);
-			config.server.timeShift = timeShift;
-
-			result.resolve(config)
-		}).catch(function(response)
-		{
-				var error = response.error();
-				if(error.getError().error == "AUTHORIZE_ERROR" || error.getError().error == "WRONG_AUTH_TYPE")
+				if (typeof (this._subscribers[params.type][params.moduleId]) === 'undefined')
 				{
-					error.status = 403;
+					this._subscribers[params.type][params.moduleId] = {
+						'callbacks': [],
+						'commands': {},
+					};
 				}
-				result.reject(error);
-		});
 
-		return result;
-	};
-
-	Pull.prototype.isConfigActual = function(config)
-	{
-		if(!Utils.isPlainObject(config))
-		{
-			return false;
-		}
-
-		if(config.server.config_timestamp < this.configTimestamp)
-		{
-			return false;
-		}
-
-		var now = new Date();
-
-		var channelCount = Object.keys(config.channels).length;
-		if(channelCount === 0)
-		{
-			return false;
-		}
-
-		for(var channelType in config.channels)
-		{
-			if (!config.channels.hasOwnProperty(channelType))
-			{
-				continue;
-			}
-
-			var channel = config.channels[channelType];
-			var channelEnd = new Date(channel.end);
-
-			if(channelEnd < now)
-			{
-				return false;
-			}
-		}
-
-		return true;
-	};
-
-	Pull.prototype.startCheckConfig = function()
-	{
-		if(this.checkInterval)
-		{
-			clearInterval(this.checkInterval);
-		}
-
-		this.checkInterval = setInterval(this.checkConfig.bind(this), CONFIG_CHECK_INTERVAL)
-	};
-
-	Pull.prototype.stopCheckConfig = function()
-	{
-		if(this.checkInterval)
-		{
-			clearInterval(this.checkInterval);
-		}
-		this.checkInterval = null;
-	};
-
-	Pull.prototype.checkConfig = function()
-	{
-		if(this.isConfigActual(this.config))
-		{
-			if(!this.checkRevision(this.config.api.revision_web))
-			{
-				return false;
-			}
-		}
-		else
-		{
-			this.logToConsole("Stale config detected. Restarting");
-			this.restart(CloseReasons.CONFIG_EXPIRED, "Config update required");
-		}
-	};
-
-	Pull.prototype.setConfig = function(config, allowCaching)
-	{
-		for (var key in config)
-		{
-			if(config.hasOwnProperty(key) && this.config.hasOwnProperty(key))
-			{
-				this.config[key] = config[key];
-			}
-		}
-
-		if (config.publicChannels)
-		{
-			this.setPublicIds(Utils.objectValues(config.publicChannels));
-		}
-
-		if(this.storage && allowCaching)
-		{
-			try
-			{
-				this.storage.set('bx-pull-config', config);
-			}
-			catch (e)
-			{
-				// try to delete the key "history" (landing site change history, see http://jabber.bx/view.php?id=136492)
-				if (localStorage && localStorage.removeItem)
+				if (this._subscribers[params.type][params.moduleId]['callbacks'].length > 0)
 				{
-					localStorage.removeItem('history');
+					this._subscribers[params.type][params.moduleId]['callbacks'].forEach(function (callback)
+					{
+						callback(params.data, {type: params.type, moduleId: params.moduleId});
+					});
 				}
-				console.error(Utils.getDateForLog() + " Pull: Could not cache config in local storage. Error: ", e);
-			}
-		}
-	};
 
-	Pull.prototype.isWebSocketSupported = function()
-	{
-		return typeof(window.WebSocket) !== "undefined";
-	};
+				if (
+					this._subscribers[params.type][params.moduleId]['commands'][params.data.command]
+					&& this._subscribers[params.type][params.moduleId]['commands'][params.data.command].length > 0)
+				{
+					this._subscribers[params.type][params.moduleId]['commands'][params.data.command].forEach(function (callback)
+					{
+						callback(params.data.params, params.data.extra, params.data.command, {
+							type: params.type,
+							moduleId: params.moduleId
+						});
+					});
+				}
 
-	Pull.prototype.isWebSocketAllowed = function()
-	{
-		if(this.sharedConfig.isWebSocketBlocked())
-		{
-			return false;
-		}
-
-		return this.isWebSocketEnabled();
-	};
-
-	Pull.prototype.isWebSocketEnabled = function()
-	{
-		if(!this.isWebSocketSupported())
-		{
-			return false;
-		}
-
-		return (this.config && this.config.server && this.config.server.websocket_enabled === true);
-	};
-
-	Pull.prototype.isPublishingSupported = function ()
-	{
-		return this.getServerVersion() > 3;
-	};
-
-	Pull.prototype.isPublishingEnabled = function ()
-	{
-		if(!this.isPublishingSupported())
-		{
-			return false;
-		}
-
-		return (this.config && this.config.server && this.config.server.publish_enabled === true);
-	};
-
-	Pull.prototype.isProtobufSupported = function()
-	{
-		return (this.getServerVersion() > 3 && !Utils.browser.IsIe());
-	};
-
-	Pull.prototype.isSharedMode = function()
-	{
-		return (this.getServerMode() == ServerMode.Shared)
-	};
-
-	Pull.prototype.disconnect = function(disconnectCode, disconnectReason)
-	{
-		if(this.connector)
-		{
-			this.isManualDisconnect = true;
-			this.connector.disconnect(disconnectCode, disconnectReason);
-		}
-	};
-
-	Pull.prototype.stop = function(disconnectCode, disconnectReason)
-	{
-		this.disconnect(disconnectCode, disconnectReason);
-		this.stopCheckConfig();
-	};
-
-	Pull.prototype.reconnect = function(disconnectCode, disconnectReason, delay)
-	{
-		this.disconnect(disconnectCode, disconnectReason);
-
-		delay = delay || 1;
-		this.scheduleReconnect(delay);
-	};
-
-	Pull.prototype.restoreWebSocketConnection = function()
-	{
-		if(this.connectionType == ConnectionType.WebSocket)
-		{
-			return true;
-		}
-
-		this._connectors.webSocket.connect();
-	};
-
-	Pull.prototype.scheduleReconnect = function(connectionDelay)
-	{
-		if(!this.enabled)
-			return false;
-
-		if(!connectionDelay)
-		{
-			if(this.connectionAttempt > 3 && this.connectionType === ConnectionType.WebSocket && !this.sharedConfig.isLongPollingBlocked())
-			{
-				// Websocket seems to be closed by network filter. Trying to fallback to long polling
-				this.sharedConfig.setWebSocketBlocked(true);
-				this.connectionType = ConnectionType.LongPolling;
-				this.connectionAttempt = 1;
-				connectionDelay = 1;
+				return true;
 			}
 			else
 			{
-				connectionDelay = this.getConnectionAttemptDelay(this.connectionAttempt);
+				if (typeof (this._subscribers[params.type]) === 'undefined')
+				{
+					this._subscribers[params.type] = [];
+				}
+
+				if (this._subscribers[params.type].length <= 0)
+				{
+					return true;
+				}
+
+				this._subscribers[params.type].forEach(function (callback)
+				{
+					callback(params.data, {type: params.type});
+				});
+
+				return true;
 			}
 		}
-		if(this.reconnectTimeout)
+
+		init()
 		{
-			clearTimeout(this.reconnectTimeout);
-		}
+			this._connectors.webSocket = new WebSocketConnector({
+				parent: this,
+				onOpen: this.onWebSocketOpen.bind(this),
+				onMessage: this.onIncomingMessage.bind(this),
+				onDisconnect: this.onWebSocketDisconnect.bind(this),
+				onError: this.onWebSocketError.bind(this)
+			});
 
-		this.logToConsole('Pull: scheduling reconnection in ' + connectionDelay + ' seconds; attempt # ' + this.connectionAttempt);
+			this._connectors.longPolling = new LongPollingConnector({
+				parent: this,
+				onOpen: this.onLongPollingOpen.bind(this),
+				onMessage: this.onIncomingMessage.bind(this),
+				onDisconnect: this.onLongPollingDisconnect.bind(this),
+				onError: this.onLongPollingError.bind(this)
+			});
 
-		this.reconnectTimeout = setTimeout(this.connect.bind(this), connectionDelay * 1000);
-	};
+			this.connectionType = this.isWebSocketAllowed() ? ConnectionType.WebSocket : ConnectionType.LongPolling;
 
-	Pull.prototype.scheduleRestoreWebSocketConnection = function()
-	{
-		this.logToConsole('Pull: scheduling restoration of websocket connection in ' + RESTORE_WEBSOCKET_TIMEOUT + ' seconds');
+			window.addEventListener("beforeunload", this.onBeforeUnload.bind(this));
+			window.addEventListener("offline", this.onOffline.bind(this));
+			window.addEventListener("online", this.onOnline.bind(this));
 
-		var self = this;
-		if(this.restoreWebSocketTimeout)
-		{
-			return;
-		}
-
-		this.restoreWebSocketTimeout = setTimeout(function()
-		{
-			self.restoreWebSocketTimeout = 0;
-			self.restoreWebSocketConnection();
-		}, RESTORE_WEBSOCKET_TIMEOUT * 1000);
-	};
-
-	Pull.prototype.connect = function()
-	{
-		if(!this.enabled || this.connector.connected)
-		{
-			return false;
-		}
-
-		if(this.reconnectTimeout)
-		{
-			clearTimeout(this.reconnectTimeout);
-		}
-
-		this.sendPullStatus(PullStatus.Connecting);
-		this.connectionAttempt++;
-		this.connector.connect();
-	};
-
-	Pull.prototype.parseResponse = function (response)
-	{
-		var events = this.extractMessages(response);
-		var messages = [];
-		if (events.length === 0)
-		{
-			this.session.mid = null;
-			return;
-		}
-
-		for (var i = 0; i < events.length; i++)
-		{
-			var event = events[i];
-			if (event.mid && this.session.lastMessageIds.includes(event.mid))
+			if (BX && BX.addCustomEvent)
 			{
-				console.warn("Duplicate message " + event.mid + " skipped");
-				continue;
+				BX.addCustomEvent("BXLinkOpened", this.connect.bind(this));
 			}
 
-			this.session.mid = event.mid || null;
-			this.session.tag = event.tag || null;
-			this.session.time = event.time || null;
-			if (event.mid)
+			if (BX && BX.desktop)
 			{
-				this.session.lastMessageIds.push(event.mid);
+				BX.addCustomEvent("onDesktopReload", () =>
+				{
+					this.session.mid = null;
+					this.session.tag = null;
+					this.session.time = null;
+				});
+
+				BX.desktop.addCustomEvent("BXLoginSuccess", () => this.restart(1000, "Desktop login"));
 			}
-			messages.push(event.text);
 
-			if (!this.session.history[event.text.module_id])
+			this.jsonRpcAdapter = new JsonRpc({
+				connector: this._connectors.webSocket,
+				handlers: {
+					"incoming.message": this.handleRpcIncomingMessage.bind(this),
+				}
+			});
+		}
+
+		start(config)
+		{
+			let allowConfigCaching = true;
+
+			if (this.isConnected())
 			{
-				this.session.history[event.text.module_id] = {};
+				return Promise.resolve(true);
 			}
-			if (!this.session.history[event.text.module_id][event.text.command])
+
+			if (this.starting && this._startingPromise)
 			{
-				this.session.history[event.text.module_id][event.text.command] = 0;
+				return this._startingPromise;
 			}
-			this.session.history[event.text.module_id][event.text.command]++;
-			this.session.messageCount++;
-		}
 
-		if (this.session.lastMessageIds.length > MAX_IDS_TO_STORE)
-		{
-			this.session.lastMessageIds = this.session.lastMessageIds.slice( - MAX_IDS_TO_STORE);
-		}
-		this.broadcastMessages(messages);
-	};
-
-	Pull.prototype.extractMessages = function (pullEvent)
-	{
-		if(pullEvent instanceof ArrayBuffer)
-		{
-			return this.extractProtobufMessages(pullEvent);
-		}
-		else if(Utils.isNotEmptyString(pullEvent))
-		{
-			return this.extractPlainTextMessages(pullEvent)
-		}
-	};
-
-	Pull.prototype.extractProtobufMessages = function(pullEvent)
-	{
-		var result = [];
-		try
-		{
-			var responseBatch = ResponseBatch.decode(new Uint8Array(pullEvent));
-			for (var i = 0; i < responseBatch.responses.length; i++)
+			if (!this.userId && typeof (BX.message) !== 'undefined' && BX.message.USER_ID)
 			{
-				var response = responseBatch.responses[i];
-				if (response.command != "outgoingMessages")
+				this.userId = BX.message.USER_ID;
+				if (!this.storage)
+				{
+					this.storage = new StorageManager({
+						userId: this.userId,
+						siteId: this.siteId
+					});
+				}
+			}
+			if (this.siteId === 'none' && typeof (BX.message) !== 'undefined' && BX.message.SITE_ID)
+			{
+				this.siteId = BX.message.SITE_ID;
+			}
+
+			let skipReconnectToLastSession = false;
+			if (Utils.isPlainObject(config))
+			{
+				if (typeof config.skipReconnectToLastSession !== 'undefined')
+				{
+					skipReconnectToLastSession = !!config.skipReconnectToLastSession;
+					delete config.skipReconnectToLastSession;
+				}
+				this.config = config;
+				allowConfigCaching = false;
+			}
+
+			if (!this.enabled)
+			{
+				return Promise.reject({
+					ex: {error: 'PULL_DISABLED', error_description: 'Push & Pull server is disabled'}
+				});
+			}
+
+			const now = (new Date()).getTime();
+			let oldSession;
+			if (!skipReconnectToLastSession && this.storage)
+			{
+				oldSession = this.storage.get(LS_SESSION);
+			}
+			if (Utils.isPlainObject(oldSession) && oldSession.hasOwnProperty('ttl') && oldSession.ttl >= now)
+			{
+				this.session.mid = oldSession.mid;
+			}
+
+			this.starting = true;
+			return new Promise((resolve, reject) =>
+			{
+				this._startingPromise = {resolve, reject};
+				this.loadConfig().then(
+					(config) =>
+					{
+						this.setConfig(config, allowConfigCaching);
+						this.init();
+						this.updateWatch();
+						this.startCheckConfig();
+						this.connect().then(
+							() => resolve(true),
+							error => reject(error)
+						);
+					},
+					(error) =>
+					{
+						this.starting = false;
+						this.sendPullStatus(PullStatus.Offline);
+						this.stopCheckConfig();
+						console.error(Utils.getDateForLog() + ': Pull: could not read push-server config. ', error);
+						reject(error);
+					}
+				);
+			})
+		}
+
+		getRestClientOptions()
+		{
+			let result = {};
+
+			if (this.guestMode && this.guestUserId !== 0)
+			{
+				result.queryParams = {
+					pull_guest_id: this.guestUserId
+				}
+			}
+			return result;
+		}
+
+		setLastMessageId(lastMessageId)
+		{
+			this.session.mid = lastMessageId;
+		}
+
+		/**
+		 *
+		 * @param {object[]} publicIds
+		 * @param {integer} publicIds.user_id
+		 * @param {string} publicIds.public_id
+		 * @param {string} publicIds.signature
+		 * @param {Date} publicIds.start
+		 * @param {Date} publicIds.end
+		 */
+		setPublicIds(publicIds)
+		{
+			return this.channelManager.setPublicIds(publicIds);
+		}
+
+		/**
+		 * Send single message to the specified users.
+		 *
+		 * @param {integer[]} users User ids of the message receivers.
+		 * @param {string} moduleId Name of the module to receive message,
+		 * @param {string} command Command name.
+		 * @param {object} params Command parameters.
+		 * @param {integer} [expiry] Message expiry time in seconds.
+		 * @return {Promise}
+		 */
+		sendMessage(users, moduleId, command, params, expiry)
+		{
+			const message = {
+				userList: users,
+				body: {
+					module_id: moduleId,
+					command: command,
+					params: params,
+				},
+				expiry: expiry
+			};
+
+			if (this.isJsonRpc())
+			{
+				return this.jsonRpcAdapter.executeOutgoingRpcCommand(RpcMethod.Publish, message)
+			}
+			else
+			{
+				return this.sendMessageBatch([message]);
+			}
+		}
+
+		/**
+		 * Send single message to the specified public channels.
+		 *
+		 * @param {string[]} publicChannels Public ids of the channels to receive message.
+		 * @param {string} moduleId Name of the module to receive message,
+		 * @param {string} command Command name.
+		 * @param {object} params Command parameters.
+		 * @param {integer} [expiry] Message expiry time in seconds.
+		 * @return {Promise}
+		 */
+		sendMessageToChannels(publicChannels, moduleId, command, params, expiry)
+		{
+			const message = {
+				channelList: publicChannels,
+				body: {
+					module_id: moduleId,
+					command: command,
+					params: params,
+				},
+				expiry: expiry
+			};
+
+			if (this.isJsonRpc())
+			{
+				return this.jsonRpcAdapter.executeOutgoingRpcCommand("publish", message)
+			}
+			else
+			{
+				return this.sendMessageBatch([message]);
+			}
+		}
+
+		/**
+		 * Sends batch of messages to the multiple public channels.
+		 *
+		 * @param {object[]} messageBatch Array of messages to send.
+		 * @param  {int[]} messageBatch.userList User ids the message receivers.
+		 * @param  {string[]|object[]} messageBatch.channelList Public ids of the channels to send messages.
+		 * @param {string} messageBatch.moduleId Name of the module to receive message,
+		 * @param {string} messageBatch.command Command name.
+		 * @param {object} messageBatch.params Command parameters.
+		 * @param {integer} [messageBatch.expiry] Message expiry time in seconds.
+		 * @return void
+		 */
+		sendMessageBatch(messageBatch)
+		{
+			if (!this.isPublishingEnabled())
+			{
+				console.error('Client publishing is not supported or is disabled');
+				return false;
+			}
+
+			if (this.isJsonRpc())
+			{
+				let rpcRequest = this.jsonRpcAdapter.createPublishRequest(messageBatch);
+				return this.connector.send(JSON.stringify(rpcRequest));
+			}
+			else
+			{
+				let userIds = {};
+				for (let i = 0; i < messageBatch.length; i++)
+				{
+					if (messageBatch[i].userList)
+					{
+						for (let j = 0; j < messageBatch[i].userList.length; j++)
+						{
+							userIds[messageBatch[i].userList[j]] = true;
+						}
+					}
+				}
+				this.channelManager.getPublicIds(Object.keys(userIds)).then((publicIds) =>
+				{
+					return this.connector.send(this.encodeMessageBatch(messageBatch, publicIds));
+				})
+			}
+		}
+
+		encodeMessageBatch(messageBatch, publicIds)
+		{
+			let messages = [];
+			messageBatch.forEach(function (messageFields)
+			{
+				const messageBody = messageFields.body;
+
+				let receivers;
+				if (messageFields.userList)
+				{
+					receivers = this.createMessageReceivers(messageFields.userList, publicIds);
+				}
+				else
+				{
+					receivers = [];
+				}
+
+				if (messageFields.channelList)
+				{
+					if (!Utils.isArray(messageFields.channelList))
+					{
+						throw new Error('messageFields.publicChannels must be an array');
+					}
+					messageFields.channelList.forEach(function (publicChannel)
+					{
+						let publicId;
+						let signature;
+						if (typeof (publicChannel) === 'string' && publicChannel.includes('.'))
+						{
+							const fields = publicChannel.toString().split('.');
+							publicId = fields[0];
+							signature = fields[1];
+						}
+						else if (typeof (publicChannel) === 'object' && ('publicId' in publicChannel) && ('signature' in publicChannel))
+						{
+							publicId = publicChannel.publicId;
+							signature = publicChannel.signature;
+						}
+						else
+						{
+							throw new Error('Public channel MUST be either a string, formatted like "{publicId}.{signature}" or an object with fields \'publicId\' and \'signature\'');
+						}
+
+						receivers.push(Receiver.create({
+							id: this.encodeId(publicId),
+							signature: this.encodeId(signature)
+						}))
+					}.bind(this))
+				}
+
+				const message = IncomingMessage.create({
+					receivers: receivers,
+					body: JSON.stringify(messageBody),
+					expiry: messageFields.expiry || 0
+				});
+				messages.push(message);
+			}, this);
+
+			const requestBatch = RequestBatch.create({
+				requests: [{
+					incomingMessages: {
+						messages: messages
+					}
+				}]
+			});
+
+			return RequestBatch.encode(requestBatch).finish();
+		}
+
+		createMessageReceivers(users, publicIds)
+		{
+			let result = [];
+			for (let i = 0; i < users.length; i++)
+			{
+				let userId = users[i];
+				if (!publicIds[userId] || !publicIds[userId].publicId)
+				{
+					throw new Error('Could not determine public id for user ' + userId);
+				}
+
+				result.push(Receiver.create({
+					id: this.encodeId(publicIds[userId].publicId),
+					signature: this.encodeId(publicIds[userId].signature)
+				}))
+			}
+			return result;
+		}
+
+		subscribeUserStatusChange()
+		{
+			return this.executeSubscribeCommand([InternalChannel.StatusChange]);
+		}
+
+		executeSubscribeCommand(channelList)
+		{
+			return this.jsonRpcAdapter.executeOutgoingRpcCommand(RpcMethod.Subscribe, {channelList});
+		}
+
+		/**
+		 * Returns "last seen" time in seconds for the users. Result format: Object{userId: int}
+		 * If the user is currently connected - will return 0.
+		 * If the user if offline - will return diff between current timestamp and last seen timestamp in seconds.
+		 * If the user was never online - the record for user will be missing from the result object.
+		 *
+		 * @param {integer[]} userList Optional. If empty - returns all known to the server host users.
+		 * @returns {Promise}
+		 */
+		getUsersLastSeen(userList)
+		{
+			return this.jsonRpcAdapter.executeOutgoingRpcCommand("getUsersLastSeen", {
+				userList: userList
+			});
+		}
+
+		/**
+		 * Pings server. In case of success promise will be resolved, otherwise - rejected.
+		 *
+		 * @param {int} timeout Request timeout in seconds
+		 * @returns {Promise}
+		 */
+		ping(timeout)
+		{
+			return this.jsonRpcAdapter.executeOutgoingRpcCommand("ping", {}, timeout);
+		}
+
+		/**
+		 * Returns list channels that the connection is subscribed to.
+		 * 
+		 * @returns {Promise}
+		 */
+		listChannels()
+		{
+			return this.jsonRpcAdapter.executeOutgoingRpcCommand("listChannels", {});
+		}
+
+		scheduleRestart(disconnectCode, disconnectReason, restartDelay)
+		{
+			clearTimeout(this.restartTimeout);
+			if (!restartDelay || restartDelay < 1)
+			{
+				restartDelay = Math.ceil(Math.random() * 30) + 5;
+			}
+
+			this.restartTimeout = setTimeout(
+				() => this.restart(disconnectCode, disconnectReason),
+				restartDelay
+			);
+		}
+
+		restart(disconnectCode, disconnectReason)
+		{
+			if (!disconnectCode)
+			{
+				disconnectCode = CloseReasons.NORMAL_CLOSURE;
+			}
+			clearTimeout(this.restartTimeout);
+			console.warn(Utils.getDateForLog() + ': Pull: restarting with code ' + disconnectCode)
+			this.disconnect(disconnectCode, disconnectReason);
+			if (this.storage)
+			{
+				this.storage.remove('bx-pull-config');
+			}
+			this.config = null;
+
+			this.loadConfig().then(
+				(config) =>	{
+					this.setConfig(config, true);
+					this.updateWatch();
+					this.startCheckConfig();
+					this.connect().catch(error => console.error(error));
+				},
+				(error) => {
+					console.error(Utils.getDateForLog() + ': Pull: could not read push-server config', error);
+					this.sendPullStatus(PullStatus.Offline);
+
+					clearTimeout(this.reconnectTimeout);
+					if (error.status == 401 || error.status == 403)
+					{
+						this.stopCheckConfig();
+
+						if (BX && BX.onCustomEvent)
+						{
+							BX.onCustomEvent(window, 'onPullError', ['AUTHORIZE_ERROR']);
+						}
+					}
+				}
+			);
+		}
+
+		loadConfig()
+		{
+			if (!this.config)
+			{
+				this.config = Object.assign({}, EmptyConfig);
+
+				let config;
+				if (this.storage)
+				{
+					config = this.storage.get('bx-pull-config');
+				}
+				if (this.isConfigActual(config) && this.checkRevision(config.api.revision_web))
+				{
+					return Promise.resolve(config);
+				}
+				else if (this.storage)
+				{
+					this.storage.remove('bx-pull-config')
+				}
+			}
+			else if (this.isConfigActual(this.config) && this.checkRevision(this.config.api.revision_web))
+			{
+				return Promise.resolve(this.config);
+			}
+			else
+			{
+				this.config = Object.assign({}, EmptyConfig);
+			}
+
+			return new Promise((resolve, reject) =>
+			{
+				this.restClient.callMethod(this.configGetMethod, {'CACHE': 'N'}).then((response) =>
+				{
+					const data = response.data();
+					let timeShift;
+
+					timeShift = Math.floor((Utils.getTimestamp() - new Date(data.serverTime).getTime()) / 1000);
+					delete data.serverTime;
+
+					let config = Object.assign({}, data);
+					config.server.timeShift = timeShift;
+
+					resolve(config);
+				}).catch((response) =>
+				{
+					const error = response.error();
+					if (error.getError().error == "AUTHORIZE_ERROR" || error.getError().error == "WRONG_AUTH_TYPE")
+					{
+						error.status = 403;
+					}
+					reject(error);
+				});
+			})
+		}
+
+		isConfigActual(config)
+		{
+			if (!Utils.isPlainObject(config))
+			{
+				return false;
+			}
+
+			if (config.server.config_timestamp < this.configTimestamp)
+			{
+				return false;
+			}
+
+			const now = new Date();
+
+			const channelCount = Object.keys(config.channels).length;
+			if (channelCount === 0)
+			{
+				return false;
+			}
+
+			for (let channelType in config.channels)
+			{
+				if (!config.channels.hasOwnProperty(channelType))
 				{
 					continue;
 				}
 
-				var messages = responseBatch.responses[i].outgoingMessages.messages;
-				for (var m = 0; m < messages.length; m++)
+				const channel = config.channels[channelType];
+				const channelEnd = new Date(channel.end);
+
+				if (channelEnd < now)
 				{
-					var message = messages[m];
-					var messageFields;
-					try
-					{
-						messageFields = JSON.parse(message.body)
-					}
-					catch (e)
-					{
-						console.error(Utils.getDateForLog() + ": Pull: Could not parse message body", e);
-						continue;
-					}
+					return false;
+				}
+			}
 
-					if(!messageFields.extra)
+			return true;
+		}
+
+		startCheckConfig()
+		{
+			if (this.checkInterval)
+			{
+				clearInterval(this.checkInterval);
+			}
+
+			this.checkInterval = setInterval(this.checkConfig.bind(this), CONFIG_CHECK_INTERVAL)
+		}
+
+		stopCheckConfig()
+		{
+			if (this.checkInterval)
+			{
+				clearInterval(this.checkInterval);
+			}
+			this.checkInterval = null;
+		}
+
+		checkConfig()
+		{
+			if (this.isConfigActual(this.config))
+			{
+				if (!this.checkRevision(this.config.api.revision_web))
+				{
+					return false;
+				}
+			}
+			else
+			{
+				this.logToConsole("Stale config detected. Restarting");
+				this.restart(CloseReasons.CONFIG_EXPIRED, "Config update required");
+			}
+		}
+
+		setConfig(config, allowCaching)
+		{
+			for (let key in config)
+			{
+				if (config.hasOwnProperty(key) && this.config.hasOwnProperty(key))
+				{
+					this.config[key] = config[key];
+				}
+			}
+
+			if (config.publicChannels)
+			{
+				this.setPublicIds(Utils.objectValues(config.publicChannels));
+			}
+
+			if (this.storage && allowCaching)
+			{
+				try
+				{
+					this.storage.set('bx-pull-config', config);
+				} catch (e)
+				{
+					// try to delete the key "history" (landing site change history, see http://jabber.bx/view.php?id=136492)
+					if (localStorage && localStorage.removeItem)
 					{
-						messageFields.extra = {}
+						localStorage.removeItem('history');
 					}
-					messageFields.extra.sender = {
-						type: message.sender.type
-					};
-
-					if(message.sender.id instanceof Uint8Array)
-					{
-						messageFields.extra.sender.id = this.decodeId(message.sender.id)
-					}
-
-					var compatibleMessage = {
-						mid: this.decodeId(message.id),
-						text: messageFields
-					};
-
-					result.push(compatibleMessage);
+					console.error(Utils.getDateForLog() + " Pull: Could not cache config in local storage. Error: ", e);
 				}
 			}
 		}
-		catch(e)
-		{
-			console.error(Utils.getDateForLog() + ": Pull: Could not parse message", e)
-		}
-		return result;
-	};
 
-	Pull.prototype.extractPlainTextMessages = function(pullEvent)
-	{
-		var result = [];
-		var dataArray = pullEvent.match(/#!NGINXNMS!#(.*?)#!NGINXNME!#/gm);
-		if (dataArray === null)
+		isWebSocketSupported()
 		{
-			text = "\n========= PULL ERROR ===========\n"+
-				"Error type: parseResponse error parsing message\n"+
-				"\n"+
-				"Data string: " + pullEvent + "\n"+
-				"================================\n\n";
-			console.warn(text);
-			return result;
+			return typeof (window.WebSocket) !== "undefined";
 		}
-		for (var i = 0; i < dataArray.length; i++)
+
+		isWebSocketAllowed()
 		{
-			dataArray[i] = dataArray[i].substring(12, dataArray[i].length - 12);
-			if (dataArray[i].length <= 0)
+			if (this.sharedConfig.isWebSocketBlocked())
 			{
-				continue;
+				return false;
 			}
 
+			return this.isWebSocketEnabled();
+		}
+
+		isWebSocketEnabled()
+		{
+			if (!this.isWebSocketSupported())
+			{
+				return false;
+			}
+
+			return (this.config && this.config.server && this.config.server.websocket_enabled === true);
+		}
+
+		isPublishingSupported()
+		{
+			return this.getServerVersion() > 3;
+		}
+
+		isPublishingEnabled()
+		{
+			if (!this.isPublishingSupported())
+			{
+				return false;
+			}
+
+			return (this.config && this.config.server && this.config.server.publish_enabled === true);
+		}
+
+		isProtobufSupported()
+		{
+			return (this.getServerVersion() == 4 && !Utils.browser.IsIe());
+		}
+
+		isJsonRpc()
+		{
+			return (this.getServerVersion() >= 5);
+		}
+
+		isSharedMode()
+		{
+			return (this.getServerMode() == ServerMode.Shared)
+		}
+
+		disconnect(disconnectCode, disconnectReason)
+		{
+			if (this.connector)
+			{
+				this.isManualDisconnect = true;
+				this.connector.disconnect(disconnectCode, disconnectReason);
+			}
+		}
+
+		stop(disconnectCode, disconnectReason)
+		{
+			this.disconnect(disconnectCode, disconnectReason);
+			this.stopCheckConfig();
+		}
+
+		reconnect(disconnectCode, disconnectReason, delay)
+		{
+			this.disconnect(disconnectCode, disconnectReason);
+
+			delay = delay || 1;
+			this.scheduleReconnect(delay);
+		}
+
+		restoreWebSocketConnection()
+		{
+			if (this.connectionType == ConnectionType.WebSocket)
+			{
+				return true;
+			}
+
+			this._connectors.webSocket.connect();
+		}
+
+		scheduleReconnect(connectionDelay)
+		{
+			if (!this.enabled)
+			{
+				return false;
+			}
+
+			if (!connectionDelay)
+			{
+				if (this.connectionAttempt > 3 && this.connectionType === ConnectionType.WebSocket && !this.sharedConfig.isLongPollingBlocked())
+				{
+					// Websocket seems to be closed by network filter. Trying to fallback to long polling
+					this.sharedConfig.setWebSocketBlocked(true);
+					this.connectionType = ConnectionType.LongPolling;
+					this.connectionAttempt = 1;
+					connectionDelay = 1;
+				}
+				else
+				{
+					connectionDelay = this.getConnectionAttemptDelay(this.connectionAttempt);
+				}
+			}
+			if (this.reconnectTimeout)
+			{
+				clearTimeout(this.reconnectTimeout);
+			}
+
+			this.logToConsole('Pull: scheduling reconnection in ' + connectionDelay + ' seconds; attempt # ' + this.connectionAttempt);
+
+			this.reconnectTimeout = setTimeout(
+				() =>
+				{
+					this.connect().catch(error =>
+					{
+						console.error(error)
+					})
+				},
+				connectionDelay * 1000);
+		}
+
+		scheduleRestoreWebSocketConnection()
+		{
+			this.logToConsole('Pull: scheduling restoration of websocket connection in ' + RESTORE_WEBSOCKET_TIMEOUT + ' seconds');
+
+			if (this.restoreWebSocketTimeout)
+			{
+				return;
+			}
+
+			this.restoreWebSocketTimeout = setTimeout(() =>
+			{
+				this.restoreWebSocketTimeout = 0;
+				this.restoreWebSocketConnection();
+			}, RESTORE_WEBSOCKET_TIMEOUT * 1000);
+		}
+
+		/**
+		 * @returns {Promise}
+		 */
+		connect()
+		{
+			if (!this.enabled)
+			{
+				return Promise.reject();
+			}
+			if (this.connector.connected)
+			{
+				return Promise.resolve();
+			}
+
+			if (this.reconnectTimeout)
+			{
+				clearTimeout(this.reconnectTimeout);
+			}
+
+			this.sendPullStatus(PullStatus.Connecting);
+			this.connectionAttempt++;
+			return new Promise((resolve, reject) =>
+			{
+				this._connectPromise = {resolve, reject}
+				this.connector.connect();
+			})
+		}
+
+		onIncomingMessage(message)
+		{
+			if (this.isJsonRpc())
+			{
+				(message === JSON_RPC_PING) ? this.onJsonRpcPing() : this.jsonRpcAdapter.parseJsonRpcMessage(message);
+			}
+			else
+			{
+				const events = this.extractMessages(message);
+				this.handleIncomingEvents(events);
+			}
+		}
+
+		handleRpcIncomingMessage(messageFields)
+		{
+			this.session.mid = messageFields.mid;
+			let body = messageFields.body;
+
+			if (!messageFields.body.extra)
+			{
+				body.extra = {};
+			}
+			body.extra.sender = messageFields.sender;
+
+			if ("user_params" in messageFields && Utils.isPlainObject(messageFields.user_params))
+			{
+				Object.assign(body.params, messageFields.user_params)
+			}
+
+			if ("dictionary" in messageFields && Utils.isPlainObject(messageFields.dictionary))
+			{
+				Object.assign(body.params, messageFields.dictionary)
+			}
+
+			if (this.checkDuplicate(messageFields.mid))
+			{
+				this.addMessageToStat(body);
+				this.trimDuplicates();
+				this.broadcastMessage(body)
+			}
+
+			this.connector.send(`mack:${messageFields.mid}`)
+
+			return {};
+		}
+
+		onJsonRpcPing()
+		{
+			this.updatePingWaitTimeout();
+			this.connector.send(JSON_RPC_PONG)
+		}
+
+		handleIncomingEvents(events)
+		{
+			let messages = [];
+			if (events.length === 0)
+			{
+				this.session.mid = null;
+				return;
+			}
+
+			for (let i = 0; i < events.length; i++)
+			{
+				let event = events[i];
+				this.updateSessionFromEvent(event);
+				if (event.mid && !this.checkDuplicate(event.mid))
+				{
+					continue;
+				}
+
+				this.addMessageToStat(event.text);
+				messages.push(event.text);
+			}
+			this.trimDuplicates();
+			this.broadcastMessages(messages);
+		}
+
+		updateSessionFromEvent(event)
+		{
+			this.session.mid = event.mid || null;
+			this.session.tag = event.tag || null;
+			this.session.time = event.time || null;
+		}
+
+		checkDuplicate(mid)
+		{
+			if (this.session.lastMessageIds.includes(mid))
+			{
+				console.warn("Duplicate message " + mid + " skipped");
+				return false;
+			}
+			else
+			{
+				this.session.lastMessageIds.push(mid);
+				return true;
+			}
+		}
+
+		trimDuplicates()
+		{
+			if (this.session.lastMessageIds.length > MAX_IDS_TO_STORE)
+			{
+				this.session.lastMessageIds = this.session.lastMessageIds.slice(-MAX_IDS_TO_STORE);
+			}
+		}
+
+		addMessageToStat(message)
+		{
+			if (!this.session.history[message.module_id])
+			{
+				this.session.history[message.module_id] = {};
+			}
+			if (!this.session.history[message.module_id][message.command])
+			{
+				this.session.history[message.module_id][message.command] = 0;
+			}
+			this.session.history[message.module_id][message.command]++;
+
+			this.session.messageCount++;
+		}
+
+		extractMessages(pullEvent)
+		{
+			if (pullEvent instanceof ArrayBuffer)
+			{
+				return this.extractProtobufMessages(pullEvent);
+			}
+			else if (Utils.isNotEmptyString(pullEvent))
+			{
+				return this.extractPlainTextMessages(pullEvent)
+			}
+		}
+
+		extractProtobufMessages(pullEvent)
+		{
+			let result = [];
 			try
 			{
-				var data = JSON.parse(dataArray[i])
-			}
-			catch(e)
+				let responseBatch = ResponseBatch.decode(new Uint8Array(pullEvent));
+				for (let i = 0; i < responseBatch.responses.length; i++)
+				{
+					let response = responseBatch.responses[i];
+					if (response.command != "outgoingMessages")
+					{
+						continue;
+					}
+
+					let messages = response.outgoingMessages.messages;
+					for (let m = 0; m < messages.length; m++)
+					{
+						const message = messages[m];
+						let messageFields;
+						try
+						{
+							messageFields = JSON.parse(message.body)
+						} catch (e)
+						{
+							console.error(Utils.getDateForLog() + ": Pull: Could not parse message body", e);
+							continue;
+						}
+
+						if (!messageFields.extra)
+						{
+							messageFields.extra = {}
+						}
+						messageFields.extra.sender = {
+							type: message.sender.type
+						};
+
+						if (message.sender.id instanceof Uint8Array)
+						{
+							messageFields.extra.sender.id = this.decodeId(message.sender.id)
+						}
+
+						const compatibleMessage = {
+							mid: this.decodeId(message.id),
+							text: messageFields
+						};
+
+						result.push(compatibleMessage);
+					}
+				}
+			} catch (e)
 			{
-				continue;
+				console.error(Utils.getDateForLog() + ": Pull: Could not parse message", e)
 			}
-
-			result.push(data);
-		}
-		return result;
-	};
-
-	/**
-	 * Converts message id from byte[] to string
-	 * @param {Uint8Array} encodedId
-	 * @return {string}
-	 */
-	Pull.prototype.decodeId = function(encodedId)
-	{
-		if(!(encodedId instanceof Uint8Array))
-		{
-			throw new Error("encodedId should be an instance of Uint8Array");
+			return result;
 		}
 
-		var result = "";
-		for (var i = 0; i < encodedId.length; i++)
+		extractPlainTextMessages(pullEvent)
 		{
-			var hexByte = encodedId[i].toString(16);
-			if (hexByte.length === 1)
+			let result = [];
+			const dataArray = pullEvent.match(/#!NGINXNMS!#(.*?)#!NGINXNME!#/gm);
+			if (dataArray === null)
 			{
-				result += '0';
+				text = "\n========= PULL ERROR ===========\n" +
+					"Error type: parseResponse error parsing message\n" +
+					"\n" +
+					"Data string: " + pullEvent + "\n" +
+					"================================\n\n";
+				console.warn(text);
+				return result;
 			}
-			result += hexByte;
+			for (let i = 0; i < dataArray.length; i++)
+			{
+				dataArray[i] = dataArray[i].substring(12, dataArray[i].length - 12);
+				if (dataArray[i].length <= 0)
+				{
+					continue;
+				}
+
+				let data
+				try
+				{
+					data = JSON.parse(dataArray[i])
+				} catch (e)
+				{
+					continue;
+				}
+
+				result.push(data);
+			}
+			return result;
 		}
-		return result;
-	};
 
-	/**
-	 * Converts message id from hex-encoded string to byte[]
-	 * @param {string} id Hex-encoded string.
-	 * @return {Uint8Array}
-	 */
-	Pull.prototype.encodeId = function(id)
-	{
-		if (!id)
+		/**
+		 * Converts message id from byte[] to string
+		 * @param {Uint8Array} encodedId
+		 * @return {string}
+		 */
+		decodeId(encodedId)
 		{
-			return new Uint8Array();
+			if (!(encodedId instanceof Uint8Array))
+			{
+				throw new Error("encodedId should be an instance of Uint8Array");
+			}
+
+			let result = "";
+			for (let i = 0; i < encodedId.length; i++)
+			{
+				const hexByte = encodedId[i].toString(16);
+				if (hexByte.length === 1)
+				{
+					result += '0';
+				}
+				result += hexByte;
+			}
+			return result;
 		}
 
-		var result = [];
-		for (var i = 0; i < id.length; i += 2)
+		/**
+		 * Converts message id from hex-encoded string to byte[]
+		 * @param {string} id Hex-encoded string.
+		 * @return {Uint8Array}
+		 */
+		encodeId(id)
 		{
-			result.push(parseInt(id.substr(i, 2), 16));
+			if (!id)
+			{
+				return new Uint8Array();
+			}
+
+			let result = [];
+			for (let i = 0; i < id.length; i += 2)
+			{
+				result.push(parseInt(id.substr(i, 2), 16));
+			}
+
+			return new Uint8Array(result);
 		}
 
-		return new Uint8Array(result);
-	};
-
-	Pull.prototype.broadcastMessages = function (messages)
-	{
-		messages.forEach(function (message)
+		broadcastMessages(messages)
 		{
-			var moduleId = message.module_id = message.module_id.toLowerCase();
-			var command = message.command;
+			messages.forEach(message => this.broadcastMessage(message));
+		}
 
-			if(!message.extra)
+		broadcastMessage(message)
+		{
+			const moduleId = message.module_id = message.module_id.toLowerCase();
+			const command = message.command;
+
+			if (!message.extra)
 			{
 				message.extra = {};
 			}
 
-			if(message.extra.server_time_unix)
+			if (message.extra.server_time_unix)
 			{
-				message.extra.server_time_ago = ((Utils.getTimestamp() - (message.extra.server_time_unix * 1000)) / 1000)-(this.config.server.timeShift? this.config.server.timeShift: 0);
+				message.extra.server_time_ago = ((Utils.getTimestamp() - (message.extra.server_time_unix * 1000)) / 1000) - (this.config.server.timeShift ? this.config.server.timeShift : 0);
 				message.extra.server_time_ago = message.extra.server_time_ago > 0 ? message.extra.server_time_ago : 0;
 			}
 
 			this.logMessage(message);
 			try
 			{
-				if(message.extra.sender && message.extra.sender.type === SenderType.Client)
+				if (message.extra.sender && message.extra.sender.type === SenderType.Client)
 				{
 					if (typeof BX.onCustomEvent !== 'undefined')
 					{
@@ -1420,16 +1646,15 @@
 						}
 					});
 				}
-			}
-			catch(e)
+			} catch (e)
 			{
-				if (typeof(console) == 'object')
+				if (typeof (console) == 'object')
 				{
 					console.warn(
-						"\n========= PULL ERROR ===========\n"+
-						"Error type: broadcastMessages execute error\n"+
-						"Error event: ", e, "\n"+
-						"Message: ", message, "\n"+
+						"\n========= PULL ERROR ===========\n" +
+						"Error type: broadcastMessages execute error\n" +
+						"Error event: ", e, "\n" +
+						"Message: ", message, "\n" +
 						"================================\n"
 					);
 					if (typeof BX.debug !== 'undefined')
@@ -1439,1302 +1664,1611 @@
 				}
 			}
 
-			if(message.extra && message.extra.revision_web)
+			if (message.extra && message.extra.revision_web)
 			{
 				this.checkRevision(message.extra.revision_web);
 			}
-		}, this);
-	};
-
-	Pull.prototype.logToConsole = function(message)
-	{
-		if(this.loggingEnabled)
-		{
-			console.log(Utils.getDateForLog() + ': ' + message);
-		}
-	};
-
-	Pull.prototype.logMessage = function(message)
-	{
-		if(!this.debug)
-		{
-			return;
 		}
 
-		if(message.extra.sender && message.extra.sender.type === SenderType.Client)
+		logToConsole(message, force)
 		{
-			console.info('onPullClientEvent-' + message.module_id, message.command, message.params, message.extra);
-		}
-		else if (message.moduleId == 'online')
-		{
-			console.info('onPullOnlineEvent', message.command, message.params, message.extra);
-		}
-		else
-		{
-			console.info('onPullEvent', message.module_id, message.command, message.params, message.extra);
-		}
-	};
-
-	Pull.prototype.onLongPollingOpen = function()
-	{
-		this.unloading = false;
-		this.starting = false;
-		this.connectionAttempt = 0;
-		this.isManualDisconnect = false;
-		this.sendPullStatus(PullStatus.Online);
-
-		if(this.offlineTimeout)
-		{
-			clearTimeout(this.offlineTimeout);
-			this.offlineTimeout = null;
+			if (this.loggingEnabled || force)
+			{
+				console.log(Utils.getDateForLog() + ': ' + message);
+			}
 		}
 
-		this.logToConsole('Pull: Long polling connection with push-server opened');
-		if(this.isWebSocketEnabled())
+		logMessage(message)
 		{
-			this.scheduleRestoreWebSocketConnection();
+			if (!this.debug)
+			{
+				return;
+			}
+
+			if (message.extra.sender && message.extra.sender.type === SenderType.Client)
+			{
+				console.info('onPullClientEvent-' + message.module_id, message.command, message.params, message.extra);
+			}
+			else if (message.moduleId == 'online')
+			{
+				console.info('onPullOnlineEvent', message.command, message.params, message.extra);
+			}
+			else
+			{
+				console.info('onPullEvent', message.module_id, message.command, message.params, message.extra);
+			}
 		}
-	};
 
-	Pull.prototype.onWebSocketBlockChanged = function(e)
-	{
-		var isWebSocketBlocked = e.isWebSocketBlocked;
-
-		if(isWebSocketBlocked && this.connectionType === ConnectionType.WebSocket && !this.isConnected())
+		onLongPollingOpen()
 		{
-			clearTimeout(this.reconnectTimeout);
-
+			this.unloading = false;
+			this.starting = false;
 			this.connectionAttempt = 0;
-			this.connectionType = ConnectionType.LongPolling;
-			this.scheduleReconnect(1);
-		}
-		else if(!isWebSocketBlocked && this.connectionType === ConnectionType.LongPolling)
-		{
-			clearTimeout(this.reconnectTimeout);
-			clearTimeout(this.restoreWebSocketTimeout);
+			this.isManualDisconnect = false;
+			this.sendPullStatus(PullStatus.Online);
 
+			if (this.offlineTimeout)
+			{
+				clearTimeout(this.offlineTimeout);
+				this.offlineTimeout = null;
+			}
+
+			this.logToConsole('Pull: Long polling connection with push-server opened');
+			if (this.isWebSocketEnabled())
+			{
+				this.scheduleRestoreWebSocketConnection();
+			}
+			if (this._connectPromise)
+			{
+				this._connectPromise.resolve();
+			}
+		}
+
+		onWebSocketBlockChanged(e)
+		{
+			const isWebSocketBlocked = e.isWebSocketBlocked;
+
+			if (isWebSocketBlocked && this.connectionType === ConnectionType.WebSocket && !this.isConnected())
+			{
+				clearTimeout(this.reconnectTimeout);
+
+				this.connectionAttempt = 0;
+				this.connectionType = ConnectionType.LongPolling;
+				this.scheduleReconnect(1);
+			}
+			else if (!isWebSocketBlocked && this.connectionType === ConnectionType.LongPolling)
+			{
+				clearTimeout(this.reconnectTimeout);
+				clearTimeout(this.restoreWebSocketTimeout);
+
+				this.connectionAttempt = 0;
+				this.connectionType = ConnectionType.WebSocket;
+				this.scheduleReconnect(1);
+			}
+		}
+
+		onWebSocketOpen()
+		{
+			this.unloading = false;
+			this.starting = false;
 			this.connectionAttempt = 0;
-			this.connectionType = ConnectionType.WebSocket;
-			this.scheduleReconnect(1);
+			this.isManualDisconnect = false;
+			this.sendPullStatus(PullStatus.Online);
+			this.sharedConfig.setWebSocketBlocked(false);
+
+			// to prevent fallback to long polling in case of networking problems
+			this.sharedConfig.setLongPollingBlocked(true);
+
+			if (this.connectionType == ConnectionType.LongPolling)
+			{
+				this.connectionType = ConnectionType.WebSocket;
+				this._connectors.longPolling.disconnect();
+			}
+
+			if (this.offlineTimeout)
+			{
+				clearTimeout(this.offlineTimeout);
+				this.offlineTimeout = null;
+			}
+			if (this.restoreWebSocketTimeout)
+			{
+				clearTimeout(this.restoreWebSocketTimeout);
+				this.restoreWebSocketTimeout = null;
+			}
+			this.logToConsole('Pull: Websocket connection with push-server opened');
+			if (this._connectPromise)
+			{
+				this._connectPromise.resolve();
+			}
 		}
-	};
 
-	Pull.prototype.onWebSocketOpen = function()
-	{
-		this.unloading = false;
-		this.starting = false;
-		this.connectionAttempt = 0;
-		this.isManualDisconnect = false;
-		this.sendPullStatus(PullStatus.Online);
-		this.sharedConfig.setWebSocketBlocked(false);
-
-		// to prevent fallback to long polling in case of networking problems
-		this.sharedConfig.setLongPollingBlocked(true);
-
-		if(this.connectionType == ConnectionType.LongPolling)
+		onWebSocketDisconnect(e)
 		{
-			this.connectionType = ConnectionType.WebSocket;
-			this._connectors.longPolling.disconnect();
+			if (this.connectionType === ConnectionType.WebSocket)
+			{
+				if (e.code != CloseReasons.CONFIG_EXPIRED && e.code != CloseReasons.CHANNEL_EXPIRED && e.code != CloseReasons.CONFIG_REPLACED)
+				{
+					this.sendPullStatus(PullStatus.Offline);
+				}
+				else
+				{
+					this.offlineTimeout = setTimeout(() => this.sendPullStatus(PullStatus.Offline), 5000)
+				}
+			}
+
+			if (!e)
+			{
+				e = {};
+			}
+
+			this.logToConsole('Pull: Websocket connection with push-server closed. Code: ' + e.code + ', reason: ' + e.reason, true);
+			if (!this.isManualDisconnect)
+			{
+				if (e.code == CloseReasons.WRONG_CHANNEL_ID)
+				{
+					this.scheduleRestart(CloseReasons.WRONG_CHANNEL_ID, "restarting to reload config");
+				}
+				else
+				{
+					this.scheduleReconnect();
+				}
+			}
+
+			// to prevent fallback to long polling in case of networking problems
+			this.sharedConfig.setLongPollingBlocked(true);
+			this.isManualDisconnect = false;
+
+			this.clearPingWaitTimeout();
 		}
 
-		if(this.offlineTimeout)
+		onWebSocketError(e)
 		{
-			clearTimeout(this.offlineTimeout);
-			this.offlineTimeout = null;
-		}
-		if (this.restoreWebSocketTimeout)
-		{
-			clearTimeout(this.restoreWebSocketTimeout);
-			this.restoreWebSocketTimeout = null;
-		}
-		this.logToConsole('Pull: Websocket connection with push-server opened');
-	};
-
-	Pull.prototype.onWebSocketDisconnect = function(e)
-	{
-		if(this.connectionType === ConnectionType.WebSocket)
-		{
-			if(e.code != CloseReasons.CONFIG_EXPIRED && e.code != CloseReasons.CHANNEL_EXPIRED && e.code != CloseReasons.CONFIG_REPLACED)
+			this.starting = false;
+			if (this.connectionType === ConnectionType.WebSocket)
 			{
 				this.sendPullStatus(PullStatus.Offline);
 			}
-			else
+
+			console.error(Utils.getDateForLog() + ": Pull: WebSocket connection error", e);
+			this.scheduleReconnect();
+			if (this._connectPromise)
 			{
-				this.offlineTimeout = setTimeout(function()
+				this._connectPromise.reject();
+			}
+
+			this.clearPingWaitTimeout();
+		}
+
+		onLongPollingDisconnect(e)
+		{
+			if (this.connectionType === ConnectionType.LongPolling)
+			{
+				if (e.code != CloseReasons.CONFIG_EXPIRED && e.code != CloseReasons.CHANNEL_EXPIRED && e.code != CloseReasons.CONFIG_REPLACED)
 				{
 					this.sendPullStatus(PullStatus.Offline);
-				}.bind(this), 5000)
+				}
+				else
+				{
+					this.offlineTimeout = setTimeout(() => this.sendPullStatus(PullStatus.Offline), 5500)
+				}
 			}
-		}
 
-		if(!e)
-		{
-			e = {};
-		}
-
-		this.logToConsole('Pull: Websocket connection with push-server closed. Code: ' + e.code + ', reason: ' + e.reason);
-		if(!this.isManualDisconnect)
-		{
-			if (e.code == CloseReasons.WRONG_CHANNEL_ID)
+			if (!e)
 			{
-				this.scheduleRestart(CloseReasons.WRONG_CHANNEL_ID, "restarting to reload config");
+				e = {};
 			}
-			else
+
+			this.logToConsole('Pull: Long polling connection with push-server closed. Code: ' + e.code + ', reason: ' + e.reason);
+			if (!this.isManualDisconnect)
 			{
 				this.scheduleReconnect();
 			}
+			this.isManualDisconnect = false;
+			this.clearPingWaitTimeout();
 		}
 
-		// to prevent fallback to long polling in case of networking problems
-		this.sharedConfig.setLongPollingBlocked(true);
-		this.isManualDisconnect = false;
-	};
-
-	Pull.prototype.onWebSocketError = function(e)
-	{
-		this.starting = false;
-		if(this.connectionType === ConnectionType.WebSocket)
+		onLongPollingError(e)
 		{
-			this.sendPullStatus(PullStatus.Offline);
-		}
-
-		console.error(Utils.getDateForLog() + ": Pull: WebSocket connection error", e);
-		this.scheduleReconnect();
-	};
-
-	Pull.prototype.onLongPollingDisconnect = function(e)
-	{
-		if(this.connectionType === ConnectionType.LongPolling)
-		{
-			if(e.code != CloseReasons.CONFIG_EXPIRED && e.code != CloseReasons.CHANNEL_EXPIRED && e.code != CloseReasons.CONFIG_REPLACED)
+			this.starting = false;
+			if (this.connectionType === ConnectionType.LongPolling)
 			{
 				this.sendPullStatus(PullStatus.Offline);
 			}
-			else
-			{
-				this.offlineTimeout = setTimeout(function()
-				{
-					this.sendPullStatus(PullStatus.Offline);
-				}.bind(this), 5500)
-			}
-		}
-
-		if(!e)
-		{
-			e = {};
-		}
-
-		this.logToConsole('Pull: Long polling connection with push-server closed. Code: ' + e.code + ', reason: ' + e.reason);
-		if(!this.isManualDisconnect)
-		{
+			console.error(Utils.getDateForLog() + ': Pull: Long polling connection error', e);
 			this.scheduleReconnect();
-		}
-		this.isManualDisconnect = false;
-	};
-
-	Pull.prototype.onLongPollingError = function(e)
-	{
-		this.starting = false;
-		if(this.connectionType === ConnectionType.LongPolling)
-		{
-			this.sendPullStatus(PullStatus.Offline);
-		}
-		console.error(Utils.getDateForLog() + ': Pull: Long polling connection error', e);
-		this.scheduleReconnect();
-	};
-
-	Pull.prototype.isConnected = function()
-	{
-		return this.connector ? this.connector.connected : false;
-	};
-
-	Pull.prototype.onBeforeUnload = function()
-	{
-		this.unloading = true;
-
-		var session = Utils.clone(this.session);
-		session.ttl = (new Date()).getTime() + LS_SESSION_CACHE_TIME * 1000;
-		if(this.storage)
-		{
-			try
+			if (this._connectPromise)
 			{
-				this.storage.set(LS_SESSION, JSON.stringify(session), LS_SESSION_CACHE_TIME);
+				this._connectPromise.reject();
 			}
-			catch (e)
-			{
-				console.error(Utils.getDateForLog() + " Pull: Could not save session info in local storage. Error: ", e);
-			}
+			this.clearPingWaitTimeout();
 		}
 
-		this.scheduleReconnect(15);
-	};
-
-	Pull.prototype.onOffline = function()
-	{
-		this.disconnect("1000", "offline");
-	};
-
-	Pull.prototype.onOnline = function()
-	{
-		this.connect();
-	};
-
-	Pull.prototype.handleInternalPullEvent = function(command, message)
-	{
-		switch (command.toUpperCase())
+		isConnected()
 		{
-			case SystemCommands.CHANNEL_EXPIRE:
+			return this.connector ? this.connector.connected : false;
+		}
+
+		onBeforeUnload()
+		{
+			this.unloading = true;
+
+			const session = Utils.clone(this.session);
+			session.ttl = (new Date()).getTime() + LS_SESSION_CACHE_TIME * 1000;
+			if (this.storage)
 			{
-				if (message.params.action == 'reconnect')
+				try
 				{
-					this.config.channels[message.params.channel.type] = message.params.new_channel;
-					this.logToConsole("Pull: new config for " + message.params.channel.type + " channel set:\n", this.config.channels[message.params.channel.type]);
-
-					this.reconnect(CloseReasons.CONFIG_REPLACED, "config was replaced");
-				}
-				else
+					this.storage.set(LS_SESSION, JSON.stringify(session), LS_SESSION_CACHE_TIME);
+				} catch (e)
 				{
-					this.restart(CloseReasons.CHANNEL_EXPIRED, "channel expired");
+					console.error(Utils.getDateForLog() + " Pull: Could not save session info in local storage. Error: ", e);
 				}
-				break;
 			}
-			case SystemCommands.CONFIG_EXPIRE:
-			{
-				this.restart(CloseReasons.CONFIG_EXPIRED, "config expired");
-				break;
-			}
-			case SystemCommands.SERVER_RESTART:
-			{
-				this.reconnect(CloseReasons.SERVER_RESTARTED, "server was restarted", 15);
-				break;
-			}
-			default://
-		}
-	};
 
-	Pull.prototype.checkRevision = function(serverRevision)
-	{
-		if (this.skipCheckRevision)
+			this.scheduleReconnect(15);
+		}
+
+		onOffline()
 		{
+			this.disconnect("1000", "offline");
+		}
+
+		onOnline()
+		{
+			this.connect();
+		}
+
+		handleInternalPullEvent(command, message)
+		{
+			switch (command.toUpperCase())
+			{
+				case SystemCommands.CHANNEL_EXPIRE:
+				{
+					if (message.params.action == 'reconnect')
+					{
+						this.config.channels[message.params.channel.type] = message.params.new_channel;
+						this.logToConsole("Pull: new config for " + message.params.channel.type + " channel set:\n", this.config.channels[message.params.channel.type]);
+
+						this.reconnect(CloseReasons.CONFIG_REPLACED, "config was replaced");
+					}
+					else
+					{
+						this.restart(CloseReasons.CHANNEL_EXPIRED, "channel expired");
+					}
+					break;
+				}
+				case SystemCommands.CONFIG_EXPIRE:
+				{
+					this.restart(CloseReasons.CONFIG_EXPIRED, "config expired");
+					break;
+				}
+				case SystemCommands.SERVER_RESTART:
+				{
+					this.reconnect(CloseReasons.SERVER_RESTARTED, "server was restarted", 15);
+					break;
+				}
+				default://
+			}
+		}
+
+		checkRevision(serverRevision)
+		{
+			if (this.skipCheckRevision)
+			{
+				return true;
+			}
+
+			serverRevision = parseInt(serverRevision);
+			if (serverRevision > 0 && serverRevision != REVISION)
+			{
+				this.enabled = false;
+				if (typeof BX.message !== 'undefined')
+				{
+					this.showNotification(BX.message('PULL_OLD_REVISION'));
+				}
+				this.disconnect(CloseReasons.NORMAL_CLOSURE, 'check_revision');
+
+				if (typeof BX.onCustomEvent !== 'undefined')
+				{
+					BX.onCustomEvent(window, 'onPullRevisionUp', [serverRevision, REVISION]);
+				}
+
+				this.emit({
+					type: SubscriptionType.Revision,
+					data: {
+						server: serverRevision,
+						client: REVISION
+					}
+				});
+
+				this.logToConsole("Pull revision changed from " + REVISION + " to " + serverRevision + ". Reload required");
+
+				return false;
+			}
 			return true;
 		}
 
-		serverRevision = parseInt(serverRevision);
-		if (serverRevision > 0 && serverRevision != REVISION)
+		showNotification(text)
 		{
-			this.enabled = false;
-			if (typeof BX.message !== 'undefined')
+			if (this.notificationPopup || typeof BX.PopupWindow === 'undefined')
 			{
-				this.showNotification(BX.message('PULL_OLD_REVISION'));
-			}
-			this.disconnect(CloseReasons.NORMAL_CLOSURE, 'check_revision');
-
-			if (typeof BX.onCustomEvent !== 'undefined')
-			{
-				BX.onCustomEvent(window, 'onPullRevisionUp', [serverRevision, REVISION]);
+				return;
 			}
 
-			this.emit({
-				type: SubscriptionType.Revision,
-				data: {
-					server: serverRevision,
-					client: REVISION
+			this.notificationPopup = new BX.PopupWindow('bx-notifier-popup-confirm', null, {
+				zIndex: 200,
+				autoHide: false,
+				closeByEsc: false,
+				overlay: true,
+				content: BX.create("div", {
+					props: {className: "bx-messenger-confirm"},
+					html: text
+				}),
+				buttons: [
+					new BX.PopupWindowButton({
+						text: BX.message('JS_CORE_WINDOW_CLOSE'),
+						className: "popup-window-button-decline",
+						events: {
+							click: () =>
+							{
+								this.notificationPopup.close();
+							}
+						}
+					})
+				],
+				events: {
+					onPopupClose: function () //not arrow function; this should come from popup
+					{
+						this.destroy()
+					},
+					onPopupDestroy: () =>
+					{
+						this.notificationPopup = null;
+					}
 				}
 			});
-
-			this.logToConsole("Pull revision changed from " + REVISION + " to " + serverRevision + ". Reload required");
-
-			return false;
-		}
-		return true;
-	};
-
-	Pull.prototype.showNotification = function(text)
-	{
-		var self = this;
-		if (this.notificationPopup || typeof BX.PopupWindow === 'undefined')
-			return;
-
-		this.notificationPopup = new BX.PopupWindow('bx-notifier-popup-confirm', null, {
-			zIndex: 200,
-			autoHide: false,
-			closeByEsc: false,
-			overlay: true,
-			content : BX.create("div", {
-				props: {className: "bx-messenger-confirm"},
-				html: text
-			}),
-			buttons: [
-				new BX.PopupWindowButton({
-					text: BX.message('JS_CORE_WINDOW_CLOSE'),
-					className: "popup-window-button-decline",
-					events: {
-						click: function(e)
-						{
-							self.notificationPopup.close();
-						}
-					}
-				})
-			],
-			events: {
-				onPopupClose: function()
-				{
-					this.destroy()
-				},
-				onPopupDestroy: function()
-				{
-					self.notificationPopup = null;
-				}
-			}
-		});
-		this.notificationPopup.show();
-	};
-
-	Pull.prototype.getRevision = function()
-	{
-		return (this.config && this.config.api) ? this.config.api.revision_web : null;
-	};
-
-	Pull.prototype.getServerVersion = function()
-	{
-		return (this.config && this.config.server) ? this.config.server.version : 0;
-	};
-
-	Pull.prototype.getServerMode = function()
-	{
-		return (this.config && this.config.server) ? this.config.server.mode : null;
-	};
-
-	Pull.prototype.getConfig = function()
-	{
-		return this.config;
-	};
-
-	Pull.prototype.getDebugInfo = function()
-	{
-		if (!console || !console.info || !JSON || !JSON.stringify)
-			return false;
-
-		var configDump;
-
-		if(this.config && this.config.channels && this.config.channels.private)
-		{
-			configDump = "ChannelID: " + this.config.channels.private.id + "\n" +
-				"ChannelDie: " + this.config.channels.private.end + "\n" +
-				("shared" in this.config.channels ? "ChannelDieShared: " + this.config.channels.shared.end : "");
-		}
-		else
-		{
-			configDump = "Config error: config is not loaded";
+			this.notificationPopup.show();
 		}
 
-		var watchTagsDump = JSON.stringify(this.watchTagsQueue);
-		var text = "\n========= PULL DEBUG ===========\n"+
-			"UserId: " + this.userId + " " + (this.userId > 0 ?  '': '(guest)') + "\n" +
-			(this.guestMode && this.guestUserId !== 0? "Guest userId: " + this.guestUserId + "\n":"") +
-			"Browser online: " + (navigator.onLine ? 'Y' : 'N') + "\n" +
-			"Connect: " + (this.isConnected() ? 'Y': 'N') + "\n" +
-			"Server type: " + (this.isSharedMode() ? 'cloud' : 'local') + "\n" +
-			"WebSocket support: " + (this.isWebSocketSupported() ? 'Y': 'N') + "\n" +
-			"WebSocket connect: " + (this._connectors.webSocket && this._connectors.webSocket.connected ? 'Y': 'N') + "\n"+
-			"WebSocket mode: " + (this._connectors.webSocket && this._connectors.webSocket.socket ? (this._connectors.webSocket.socket.url.search("binaryMode=true") != -1 ? "protobuf" : "text") : '-') + "\n"+
-
-			"Try connect: " + (this.reconnectTimeout? 'Y': 'N') + "\n" +
-			"Try number: " + (this.connectionAttempt) + "\n" +
-			"\n"+
-			"Path: " + (this.connector ? this.connector.path : '-') + "\n" +
-			configDump + "\n" +
-			"\n"+
-			"Last message: " + (this.session.mid > 0? this.session.mid : '-') + "\n" +
-			"Session history: " + JSON.stringify(this.session.history) + "\n" +
-			"Watch tags: " + (watchTagsDump == '{}'? '-' : watchTagsDump) + "\n"+
-			"================================\n";
-
-		return console.info(text);
-	};
-
-	Pull.prototype.enableLogging = function(loggingFlag)
-	{
-		if(loggingFlag === undefined)
+		getRevision()
 		{
-			loggingFlag = true;
-		}
-		loggingFlag = loggingFlag === true;
-
-		this.sharedConfig.setLoggingEnabled(loggingFlag);
-		this.loggingEnabled = loggingFlag;
-	};
-
-	Pull.prototype.capturePullEvent = function(debugFlag)
-	{
-		if(debugFlag === undefined)
-		{
-			debugFlag = true;
+			return (this.config && this.config.api) ? this.config.api.revision_web : null;
 		}
 
-		this.debug = debugFlag;
-	};
-
-	Pull.prototype.getConnectionPath = function(connectionType)
-	{
-		var path;
-
-		switch(connectionType)
+		getServerVersion()
 		{
-			case ConnectionType.WebSocket:
-				path = this.isSecure? this.config.server.websocket_secure: this.config.server.websocket;
-				break;
-			case ConnectionType.LongPolling:
-				path = this.isSecure? this.config.server.long_pooling_secure: this.config.server.long_polling;
-				break;
-			default:
-				throw new Error("Unknown connection type " + connectionType);
+			return (this.config && this.config.server) ? this.config.server.version : 0;
 		}
 
-		if(!Utils.isNotEmptyString(path))
+		getServerMode()
 		{
-			return false;
+			return (this.config && this.config.server) ? this.config.server.mode : null;
 		}
 
-		var channels = [];
-		['private', 'shared'].forEach(function(type)
+		getConfig()
 		{
-			if (typeof this.config.channels[type] !== 'undefined')
+			return this.config;
+		}
+
+		getDebugInfo()
+		{
+			if (!console || !console.info || !JSON || !JSON.stringify)
 			{
-				channels.push(this.config.channels[type].id);
+				return false;
 			}
-		}, this);
 
-		if(channels.length === 0)
-		{
-			 return false;
-		}
-
-		var params = {
-			CHANNEL_ID: channels.join('/')
-		};
-
-		if(this.isProtobufSupported())
-		{
-			params.binaryMode = 'true';
-		}
-		if (this.isSharedMode())
-		{
-			if(!this.config.clientId)
+			let configDump;
+			if (this.config && this.config.channels)
 			{
-				throw new Error("Push-server is in shared mode, but clientId is not set");
-			}
-			params.clientId = this.config.clientId;
-		}
-		if (this.session.mid)
-		{
-			params.mid = this.session.mid;
-		}
-		if (this.session.tag)
-		{
-			params.tag = this.session.tag;
-		}
-		if (this.session.time)
-		{
-			params.time = this.session.time;
-		}
-		params.revision = REVISION;
-
-		return path + '?' + Utils.buildQueryString(params);
-	};
-
-	Pull.prototype.getPublicationPath = function()
-	{
-		var path = this.isSecure? this.config.server.publish_secure: this.config.server.publish;
-		if(!path)
-		{
-			return '';
-		}
-
-		var channels = [];
-		for (var type in this.config.channels)
-		{
-			if (!this.config.channels.hasOwnProperty(type))
-			{
-				continue;
-			}
-			channels.push(this.config.channels[type].id);
-		}
-
-		var params = {
-			CHANNEL_ID: channels.join('/')
-		};
-
-		return path + '?' + Utils.buildQueryString(params);
-	};
-
-	/**
-	 * Returns reconnect delay in seconds
-	 * @param attemptNumber
-	 * @return {number}
-	 */
-	Pull.prototype.getConnectionAttemptDelay = function(attemptNumber)
-	{
-		var result;
-		if(attemptNumber < 1)
-		{
-			result = 0.5;
-		}
-		else if(attemptNumber < 3)
-		{
-			result = 15;
-		}
-		else if(attemptNumber < 5)
-		{
-			result = 45;
-		}
-		else if (attemptNumber < 10)
-		{
-			result = 600;
-		}
-		else
-		{
-			result = 3600;
-		}
-
-		return result + (result * Math.random() * 0.2);
-	};
-
-	Pull.prototype.sendPullStatus = function(status)
-	{
-		if(this.unloading)
-		{
-			return;
-		}
-
-		if (typeof BX.onCustomEvent !== 'undefined')
-		{
-			BX.onCustomEvent(window, 'onPullStatus', [status]);
-		}
-
-		this.emit({
-			type: SubscriptionType.Status,
-			data: {
-				status: status
-			}
-		});
-	};
-
-	Pull.prototype.extendWatch = function (tag, force)
-	{
-		if (!tag || this.watchTagsQueue[tag])
-		{
-			return false;
-		}
-
-		this.watchTagsQueue[tag] = true;
-		if (force)
-		{
-			this.updateWatch(force);
-		}
-	};
-
-	Pull.prototype.updateWatch = function (force)
-	{
-		clearTimeout(this.watchUpdateTimeout);
-		this.watchUpdateTimeout = setTimeout(function ()
-		{
-			var watchTags = Object.keys(this.watchTagsQueue);
-			if (watchTags.length > 0)
-			{
-				this.restClient.callMethod('pull.watch.extend', {tags: watchTags}, function(result)
-				{
-					if(result.error())
-					{
-						this.updateWatch();
-
-						return false;
-					}
-
-					var updatedTags = result.data();
-
-					for (var tagId in updatedTags)
-					{
-						if (updatedTags.hasOwnProperty(tagId) && !updatedTags[tagId])
-						{
-							this.clearWatch(tagId);
-						}
-					}
-					this.updateWatch();
-
-				}.bind(this))
+				configDump = "ChannelID: " + (this.config.channels.private ? this.config.channels.private.id : "n/a")  + "\n" +
+					"ChannelDie: " + (this.config.channels.private ? this.config.channels.private.end : "n/a" ) + "\n" +
+					("shared" in this.config.channels ? "ChannelDieShared: " + this.config.channels.shared.end : "");
 			}
 			else
 			{
-				this.updateWatch();
+				configDump = "Config error: config is not loaded";
 			}
-		}.bind(this), force ? this.watchForceUpdateInterval : this.watchUpdateInterval);
-	};
 
-	Pull.prototype.clearWatch = function (tagId)
-	{
-		delete this.watchTagsQueue[tagId];
-	};
-
-	// old functions, not used anymore.
-	Pull.prototype.setPrivateVar = function(){};
-	Pull.prototype.returnPrivateVar = function(){};
-	Pull.prototype.expireConfig = function(){};
-	Pull.prototype.updateChannelID = function(){};
-	Pull.prototype.tryConnect = function(){};
-	Pull.prototype.tryConnectDelay = function(){};
-	Pull.prototype.tryConnectSet = function(){};
-	Pull.prototype.updateState = function(){};
-	Pull.prototype.setUpdateStateStepCount = function(){};
-	Pull.prototype.supportWebSocket = function()
-	{
-		return this.isWebSocketSupported();
-	};
-	Pull.prototype.isWebSoketConnected = function()
-	{
-		return this.isConnected() && this.connectionType == ConnectionType.WebSocket;
-	};
-	Pull.prototype.getPullServerStatus = function(){return this.isConnected()};
-	Pull.prototype.closeConfirm = function()
-	{
-		if (this.notificationPopup)
-		{
-			this.notificationPopup.destroy();
-		}
-	};
-
-	var SharedConfig = function(params)
-	{
-		params = params || {};
-		this.storage = params.storage || new StorageManager();
-
-		this.ttl = 24 * 60 * 60;
-
-		this.lsKeys = {
-			websocketBlocked: 'bx-pull-websocket-blocked',
-			longPollingBlocked: 'bx-pull-longpolling-blocked',
-			loggingEnabled: 'bx-pull-logging-enabled'
-		};
-
-		this.callbacks = {
-			onWebSocketBlockChanged: (Utils.isFunction(params.onWebSocketBlockChanged) ? params.onWebSocketBlockChanged : function(){})
-		};
-
-		if (this.storage)
-		{
-			window.addEventListener('storage', this.onLocalStorageSet.bind(this));
-		}
-	};
-
-	SharedConfig.prototype.onLocalStorageSet = function(params)
-	{
-		if(
-			this.storage.compareKey(params.key, this.lsKeys.websocketBlocked)
-			&& params.newValue != params.oldValue
-		)
-		{
-			this.callbacks.onWebSocketBlockChanged({
-				isWebSocketBlocked: this.isWebSocketBlocked()
-			})
-		}
-	};
-
-	SharedConfig.prototype.isWebSocketBlocked = function()
-	{
-		if (!this.storage)
-		{
-			return false;
-		}
-
-		return this.storage.get(this.lsKeys.websocketBlocked, 0) > Utils.getTimestamp();
-	};
-
-	SharedConfig.prototype.setWebSocketBlocked = function(isWebSocketBlocked)
-	{
-		if (!this.storage)
-		{
-			return false;
-		}
-
-		try
-		{
-			this.storage.set(this.lsKeys.websocketBlocked, (isWebSocketBlocked ? Utils.getTimestamp()+this.ttl : 0));
-		}
-		catch (e)
-		{
-			console.error(Utils.getDateForLog() + " Pull: Could not save WS_blocked flag in local storage. Error: ", e);
-		}
-	};
-
-	SharedConfig.prototype.isLongPollingBlocked = function()
-	{
-		if (!this.storage)
-		{
-			return false;
-		}
-
-		return this.storage.get(this.lsKeys.longPollingBlocked, 0) > Utils.getTimestamp();
-	};
-
-	SharedConfig.prototype.setLongPollingBlocked = function(isLongPollingBlocked)
-	{
-		if (!this.storage)
-		{
-			return false;
-		}
-
-		try
-		{
-			this.storage.set(this.lsKeys.longPollingBlocked, (isLongPollingBlocked ? Utils.getTimestamp()+this.ttl : 0));
-		}
-		catch (e)
-		{
-			console.error(Utils.getDateForLog() + " Pull: Could not save LP_blocked flag in local storage. Error: ", e);
-		}
-	};
-
-	SharedConfig.prototype.isLoggingEnabled = function()
-	{
-		if (!this.storage)
-		{
-			return false;
-		}
-
-		return this.storage.get(this.lsKeys.loggingEnabled, 0) > Utils.getTimestamp();
-	};
-
-	SharedConfig.prototype.setLoggingEnabled = function(isLoggingEnabled)
-	{
-		if (!this.storage)
-		{
-			return false;
-		}
-
-		try
-		{
-			this.storage.set(this.lsKeys.loggingEnabled, (isLoggingEnabled ? Utils.getTimestamp()+this.ttl : 0));
-		}
-		catch (e)
-		{
-			console.error("LocalStorage error: ", e);
-			return false;
-		}
-	};
-
-	var ObjectExtend = function(child, parent)
-	{
-		var f = function() {};
-		f.prototype = parent.prototype;
-
-		child.prototype = new f();
-		child.prototype.constructor = child;
-
-		child.superclass = parent.prototype;
-		if(parent.prototype.constructor == Object.prototype.constructor)
-		{
-			parent.prototype.constructor = parent;
-		}
-	};
-
-	var AbstractConnector = function(config)
-	{
-		this.parent = config.parent;
-		this.callbacks = {
-			onOpen: Utils.isFunction(config.onOpen) ? config.onOpen : function() {},
-			onDisconnect: Utils.isFunction(config.onDisconnect) ? config.onDisconnect : function() {},
-			onError: Utils.isFunction(config.onError) ? config.onError : function() {},
-			onMessage: Utils.isFunction(config.onMessage) ? config.onMessage : function() {}
-		};
-
-		this._connected = false;
-		this.connectionType = "";
-
-		this.disconnectCode = '';
-		this.disconnectReason = '';
-
-		Object.defineProperty(this, "connected", {
-			get: function()
+			let websocketMode = "-";
+			if (this._connectors.webSocket && this._connectors.webSocket.socket)
 			{
-				return this._connected
-			},
-			set: function(connected)
-			{
-				if(connected == this._connected)
-					return;
-
-				this._connected = connected;
-
-				if(this._connected)
+				if (this.isJsonRpc())
 				{
-					this.callbacks.onOpen();
+					websocketMode = "json-rpc"
 				}
 				else
 				{
-					this.callbacks.onDisconnect({
-						code: this.disconnectCode,
-						reason: this.disconnectReason
-					});
+					websocketMode = (this._connectors.webSocket.socket.url.search("binaryMode=true") != -1 ? "protobuf" : "text")
 				}
 			}
-		});
 
-		Object.defineProperty(this, "path", {
-			get: function()
-			{
-				return this.parent.getConnectionPath(this.connectionType);
-			}
-		})
-	};
+			const watchTagsDump = JSON.stringify(this.watchTagsQueue);
+			const text = "\n========= PULL DEBUG ===========\n" +
+				"UserId: " + this.userId + " " + (this.userId > 0 ? '' : '(guest)') + "\n" +
+				(this.guestMode && this.guestUserId !== 0 ? "Guest userId: " + this.guestUserId + "\n" : "") +
+				"Browser online: " + (navigator.onLine ? 'Y' : 'N') + "\n" +
+				"Connect: " + (this.isConnected() ? 'Y' : 'N') + "\n" +
+				"Server type: " + (this.isSharedMode() ? 'cloud' : 'local') + "\n" +
+				"WebSocket supported: " + (this.isWebSocketSupported() ? 'Y' : 'N') + "\n" +
+				"WebSocket connected: " + (this._connectors.webSocket && this._connectors.webSocket.connected ? 'Y' : 'N') + "\n" +
+				"WebSocket mode: " + websocketMode + "\n" +
 
-	var WebSocketConnector = function(config)
-	{
-		WebSocketConnector.superclass.constructor.apply(this, arguments);
-		this.connectionType = ConnectionType.WebSocket;
-		this.socket = null;
+				"Try connect: " + (this.reconnectTimeout ? 'Y' : 'N') + "\n" +
+				"Try number: " + (this.connectionAttempt) + "\n" +
+				"\n" +
+				"Path: " + (this.connector ? this.connector.path : '-') + "\n" +
+				configDump + "\n" +
+				"\n" +
+				"Last message: " + (this.session.mid > 0 ? this.session.mid : '-') + "\n" +
+				"Session history: " + JSON.stringify(this.session.history) + "\n" +
+				"Watch tags: " + (watchTagsDump == '{}' ? '-' : watchTagsDump) + "\n" +
+				"================================\n";
 
-		this.onSocketOpenHandler = this.onSocketOpen.bind(this);
-		this.onSocketCloseHandler = this.onSocketClose.bind(this);
-		this.onSocketErrorHandler = this.onSocketError.bind(this);
-		this.onSocketMessageHandler = this.onSocketMessage.bind(this);
-	};
+			return console.info(text);
+		}
 
-	ObjectExtend(WebSocketConnector, AbstractConnector);
-
-	WebSocketConnector.prototype.connect = function()
-	{
-		if(this.socket)
+		enableLogging(loggingFlag)
 		{
-			if(this.socket.readyState === 1)
+			if (loggingFlag === undefined)
 			{
-				// already connected
-				return true;
+				loggingFlag = true;
+			}
+			loggingFlag = loggingFlag === true;
+
+			this.sharedConfig.setLoggingEnabled(loggingFlag);
+			this.loggingEnabled = loggingFlag;
+		}
+
+		capturePullEvent(debugFlag)
+		{
+			if (debugFlag === undefined)
+			{
+				debugFlag = true;
+			}
+
+			this.debug = debugFlag;
+		}
+
+		getConnectionPath(connectionType)
+		{
+			let path;
+			let params = {};
+
+			switch (connectionType)
+			{
+				case ConnectionType.WebSocket:
+					path = this.isSecure ? this.config.server.websocket_secure : this.config.server.websocket;
+					break;
+				case ConnectionType.LongPolling:
+					path = this.isSecure ? this.config.server.long_pooling_secure : this.config.server.long_polling;
+					break;
+				default:
+					throw new Error("Unknown connection type " + connectionType);
+			}
+
+			if (!Utils.isNotEmptyString(path))
+			{
+				return false;
+			}
+
+			if (typeof (this.config.jwt) == 'string' && this.config.jwt !== '')
+			{
+				params['token'] = this.config.jwt;
 			}
 			else
+			{
+				let channels = [];
+				['private', 'shared'].forEach((type) =>
+				{
+					if (typeof this.config.channels[type] !== 'undefined')
+					{
+						channels.push(this.config.channels[type].id);
+					}
+				});
+				if (channels.length === 0)
+				{
+					return false;
+				}
+
+				params['CHANNEL_ID'] = channels.join('/');
+			}
+
+			if (this.isJsonRpc())
+			{
+				params.jsonRpc = 'true';
+			}
+			else if (this.isProtobufSupported())
+			{
+				params.binaryMode = 'true';
+			}
+
+			if (this.isSharedMode())
+			{
+				if (!this.config.clientId)
+				{
+					throw new Error("Push-server is in shared mode, but clientId is not set");
+				}
+				params.clientId = this.config.clientId;
+			}
+			if (this.session.mid)
+			{
+				params.mid = this.session.mid;
+			}
+			if (this.session.tag)
+			{
+				params.tag = this.session.tag;
+			}
+			if (this.session.time)
+			{
+				params.time = this.session.time;
+			}
+			params.revision = REVISION;
+
+			return path + '?' + Utils.buildQueryString(params);
+		}
+
+		getPublicationPath()
+		{
+			const path = this.isSecure ? this.config.server.publish_secure : this.config.server.publish;
+			if (!path)
+			{
+				return '';
+			}
+
+			let channels = [];
+			for (let type in this.config.channels)
+			{
+				if (!this.config.channels.hasOwnProperty(type))
+				{
+					continue;
+				}
+				channels.push(this.config.channels[type].id);
+			}
+
+			const params = {
+				CHANNEL_ID: channels.join('/')
+			};
+
+			return path + '?' + Utils.buildQueryString(params);
+		}
+
+		/**
+		 * Returns reconnect delay in seconds
+		 * @param attemptNumber
+		 * @return {number}
+		 */
+		getConnectionAttemptDelay(attemptNumber)
+		{
+			let result;
+			if (attemptNumber < 1)
+			{
+				result = 0.5;
+			}
+			else if (attemptNumber < 3)
+			{
+				result = 15;
+			}
+			else if (attemptNumber < 5)
+			{
+				result = 45;
+			}
+			else if (attemptNumber < 10)
+			{
+				result = 600;
+			}
+			else
+			{
+				result = 3600;
+			}
+
+			return result + (result * Math.random() * 0.2);
+		}
+
+		sendPullStatus(status)
+		{
+			if (this.unloading)
+			{
+				return;
+			}
+
+			if (typeof BX.onCustomEvent !== 'undefined')
+			{
+				BX.onCustomEvent(window, 'onPullStatus', [status]);
+			}
+
+			this.emit({
+				type: SubscriptionType.Status,
+				data: {
+					status: status
+				}
+			});
+		}
+
+		extendWatch(tag, force)
+		{
+			if (!tag || this.watchTagsQueue[tag])
+			{
+				return false;
+			}
+
+			this.watchTagsQueue[tag] = true;
+			if (force)
+			{
+				this.updateWatch(force);
+			}
+		}
+
+		updateWatch(force)
+		{
+			clearTimeout(this.watchUpdateTimeout);
+			this.watchUpdateTimeout = setTimeout(() =>
+			{
+				const watchTags = Object.keys(this.watchTagsQueue);
+				if (watchTags.length > 0)
+				{
+					this.restClient.callMethod('pull.watch.extend', {tags: watchTags}, (result) =>
+					{
+						if (result.error())
+						{
+							this.updateWatch();
+
+							return false;
+						}
+
+						const updatedTags = result.data();
+
+						for (let tagId in updatedTags)
+						{
+							if (updatedTags.hasOwnProperty(tagId) && !updatedTags[tagId])
+							{
+								this.clearWatch(tagId);
+							}
+						}
+						this.updateWatch();
+					})
+				}
+				else
+				{
+					this.updateWatch();
+				}
+			}, force ? this.watchForceUpdateInterval : this.watchUpdateInterval);
+		}
+
+		clearWatch(tagId)
+		{
+			delete this.watchTagsQueue[tagId];
+		}
+
+		updatePingWaitTimeout()
+		{
+			clearTimeout(this.pingWaitTimeout);
+			this.pingWaitTimeout = setTimeout(this.onPingTimeoutHandler, PING_TIMEOUT * 2 * 1000)
+		}
+
+		clearPingWaitTimeout()
+		{
+			clearTimeout(this.pingWaitTimeout);
+			this.pingWaitTimeout = null;
+		}
+
+		onPingTimeout()
+		{
+			this.pingWaitTimeout = null;
+			if (!this.enabled || !this.isConnected())
+			{
+				return;
+			}
+
+			console.warn("No pings are received in " + PING_TIMEOUT * 2 + " seconds. Reconnecting")
+			this.disconnect(CloseReasons.STUCK, "connection stuck");
+			this.scheduleReconnect();
+		}
+
+		// old functions, not used anymore.
+		setPrivateVar() {}
+
+		returnPrivateVar() {}
+
+		expireConfig() {}
+
+		updateChannelID() {}
+
+		tryConnect() {}
+
+		tryConnectDelay() {}
+
+		tryConnectSet() {}
+
+		updateState() {}
+
+		setUpdateStateStepCount() {}
+
+		supportWebSocket()
+		{
+			return this.isWebSocketSupported();
+		}
+
+		isWebSoketConnected()
+		{
+			return this.isConnected() && this.connectionType == ConnectionType.WebSocket;
+		}
+
+		getPullServerStatus() {return this.isConnected()}
+
+		closeConfirm()
+		{
+			if (this.notificationPopup)
+			{
+				this.notificationPopup.destroy();
+			}
+		}
+	}
+
+	class SharedConfig
+	{
+		constructor(params)
+		{
+			params = params || {};
+			this.storage = params.storage || new StorageManager();
+
+			this.ttl = 24 * 60 * 60;
+
+			this.lsKeys = {
+				websocketBlocked: 'bx-pull-websocket-blocked',
+				longPollingBlocked: 'bx-pull-longpolling-blocked',
+				loggingEnabled: 'bx-pull-logging-enabled'
+			};
+
+			this.callbacks = {
+				onWebSocketBlockChanged: (Utils.isFunction(params.onWebSocketBlockChanged) ? params.onWebSocketBlockChanged : function () {})
+			};
+
+			if (this.storage)
+			{
+				window.addEventListener('storage', this.onLocalStorageSet.bind(this));
+			}
+		}
+
+		onLocalStorageSet(params)
+		{
+			if (
+				this.storage.compareKey(params.key, this.lsKeys.websocketBlocked)
+				&& params.newValue != params.oldValue
+			)
+			{
+				this.callbacks.onWebSocketBlockChanged({
+					isWebSocketBlocked: this.isWebSocketBlocked()
+				})
+			}
+		}
+
+		isWebSocketBlocked()
+		{
+			if (!this.storage)
+			{
+				return false;
+			}
+
+			return this.storage.get(this.lsKeys.websocketBlocked, 0) > Utils.getTimestamp();
+		}
+
+		setWebSocketBlocked(isWebSocketBlocked)
+		{
+			if (!this.storage)
+			{
+				return false;
+			}
+
+			try
+			{
+				this.storage.set(this.lsKeys.websocketBlocked, (isWebSocketBlocked ? Utils.getTimestamp() + this.ttl : 0));
+			} catch (e)
+			{
+				console.error(Utils.getDateForLog() + " Pull: Could not save WS_blocked flag in local storage. Error: ", e);
+			}
+		}
+
+		isLongPollingBlocked()
+		{
+			if (!this.storage)
+			{
+				return false;
+			}
+
+			return this.storage.get(this.lsKeys.longPollingBlocked, 0) > Utils.getTimestamp();
+		}
+
+		setLongPollingBlocked(isLongPollingBlocked)
+		{
+			if (!this.storage)
+			{
+				return false;
+			}
+
+			try
+			{
+				this.storage.set(this.lsKeys.longPollingBlocked, (isLongPollingBlocked ? Utils.getTimestamp() + this.ttl : 0));
+			} catch (e)
+			{
+				console.error(Utils.getDateForLog() + " Pull: Could not save LP_blocked flag in local storage. Error: ", e);
+			}
+		}
+
+		isLoggingEnabled()
+		{
+			if (!this.storage)
+			{
+				return false;
+			}
+
+			return this.storage.get(this.lsKeys.loggingEnabled, 0) > Utils.getTimestamp();
+		}
+
+		setLoggingEnabled(isLoggingEnabled)
+		{
+			if (!this.storage)
+			{
+				return false;
+			}
+
+			try
+			{
+				this.storage.set(this.lsKeys.loggingEnabled, (isLoggingEnabled ? Utils.getTimestamp() + this.ttl : 0));
+			} catch (e)
+			{
+				console.error("LocalStorage error: ", e);
+				return false;
+			}
+		}
+	}
+
+	class AbstractConnector
+	{
+		_connected = false;
+		connectionType = "";
+
+		disconnectCode = '';
+		disconnectReason = '';
+
+		constructor(config)
+		{
+			this.parent = config.parent;
+			this.callbacks = {
+				onOpen: Utils.isFunction(config.onOpen) ? config.onOpen : function () {},
+				onDisconnect: Utils.isFunction(config.onDisconnect) ? config.onDisconnect : function () {},
+				onError: Utils.isFunction(config.onError) ? config.onError : function () {},
+				onMessage: Utils.isFunction(config.onMessage) ? config.onMessage : function () {}
+			};
+		}
+
+		get connected()
+		{
+			return this._connected
+		}
+
+		set connected(value)
+		{
+			if (value == this._connected)
+			{
+				return;
+			}
+
+			this._connected = value;
+
+			if (this._connected)
+			{
+				this.callbacks.onOpen();
+			}
+			else
+			{
+				this.callbacks.onDisconnect({
+					code: this.disconnectCode,
+					reason: this.disconnectReason
+				});
+			}
+		}
+
+		get path()
+		{
+			return this.parent.getConnectionPath(this.connectionType);
+		}
+	}
+
+	class WebSocketConnector extends AbstractConnector
+	{
+		constructor(config)
+		{
+			super(config)
+			this.connectionType = ConnectionType.WebSocket;
+			this.socket = null;
+
+			this.onSocketOpenHandler = this.onSocketOpen.bind(this);
+			this.onSocketCloseHandler = this.onSocketClose.bind(this);
+			this.onSocketErrorHandler = this.onSocketError.bind(this);
+			this.onSocketMessageHandler = this.onSocketMessage.bind(this);
+		}
+
+		connect()
+		{
+			if (this.socket)
+			{
+				if (this.socket.readyState === 1)
+				{
+					// already connected
+					return true;
+				}
+				else
+				{
+					this.socket.removeEventListener('open', this.onSocketOpenHandler);
+					this.socket.removeEventListener('close', this.onSocketCloseHandler);
+					this.socket.removeEventListener('error', this.onSocketErrorHandler);
+					this.socket.removeEventListener('message', this.onSocketMessageHandler);
+
+					this.socket.close();
+					this.socket = null;
+				}
+			}
+
+			this.createSocket();
+		}
+
+		disconnect(code, message)
+		{
+			if (this.socket !== null)
 			{
 				this.socket.removeEventListener('open', this.onSocketOpenHandler);
 				this.socket.removeEventListener('close', this.onSocketCloseHandler);
 				this.socket.removeEventListener('error', this.onSocketErrorHandler);
 				this.socket.removeEventListener('message', this.onSocketMessageHandler);
 
+				this.socket.close(code, message);
+			}
+			this.socket = null;
+			this.disconnectCode = code;
+			this.disconnectReason = message;
+			this.connected = false;
+		}
+
+		createSocket()
+		{
+			if (this.socket)
+			{
+				throw new Error("Socket already exists");
+			}
+
+			if (!this.path)
+			{
+				throw new Error("Websocket connection path is not defined");
+			}
+
+			this.socket = new WebSocket(this.path);
+			this.socket.binaryType = 'arraybuffer';
+
+			this.socket.addEventListener('open', this.onSocketOpenHandler);
+			this.socket.addEventListener('close', this.onSocketCloseHandler);
+			this.socket.addEventListener('error', this.onSocketErrorHandler);
+			this.socket.addEventListener('message', this.onSocketMessageHandler);
+		}
+
+		/**
+		 * Sends some data to the server via websocket connection.
+		 * @param {ArrayBuffer} buffer Data to send.
+		 * @return {boolean}
+		 */
+		send(buffer)
+		{
+			if (!this.socket || this.socket.readyState !== 1)
+			{
+				console.error(Utils.getDateForLog() + ": Pull: WebSocket is not connected");
+				return false;
+			}
+
+			this.socket.send(buffer);
+			return true;
+		}
+
+		onSocketOpen()
+		{
+			this.connected = true;
+		}
+
+		onSocketClose(e)
+		{
+			this.socket = null;
+			this.disconnectCode = e.code;
+			this.disconnectReason = e.reason;
+			this.connected = false;
+		}
+
+		onSocketError(e)
+		{
+			this.callbacks.onError(e);
+		}
+
+		onSocketMessage(e)
+		{
+			this.callbacks.onMessage(e.data);
+		}
+
+		destroy()
+		{
+			if (this.socket)
+			{
 				this.socket.close();
 				this.socket = null;
 			}
 		}
+	}
 
-		this.createSocket();
-	};
-
-	WebSocketConnector.prototype.disconnect = function(code, message)
+	class LongPollingConnector extends AbstractConnector
 	{
-		if (this.socket !== null)
+		constructor(config)
 		{
-			this.socket.removeEventListener('open', this.onSocketOpenHandler);
-			this.socket.removeEventListener('close', this.onSocketCloseHandler);
-			this.socket.removeEventListener('error', this.onSocketErrorHandler);
-			this.socket.removeEventListener('message', this.onSocketMessageHandler);
+			super(config);
 
-			this.socket.close(code, message);
-		}
-		this.socket = null;
-		this.disconnectCode = code;
-		this.disconnectReason = message;
-		this.connected = false;
-	};
-
-	WebSocketConnector.prototype.createSocket = function()
-	{
-		if(this.socket)
-		{
-			throw new Error("Socket already exists");
-		}
-
-		if(!this.path)
-		{
-			throw new Error("Websocket connection path is not defined");
-		}
-
-		this.socket = new WebSocket(this.path);
-		this.socket.binaryType = 'arraybuffer';
-
-		this.socket.addEventListener('open', this.onSocketOpenHandler);
-		this.socket.addEventListener('close', this.onSocketCloseHandler);
-		this.socket.addEventListener('error', this.onSocketErrorHandler);
-		this.socket.addEventListener('message', this.onSocketMessageHandler);
-	};
-
-	/**
-	 * Sends some data to the server via websocket connection.
-	 * @param {ArrayBuffer} buffer Data to send.
-	 * @return {boolean}
-	 */
-	WebSocketConnector.prototype.send = function(buffer)
-	{
-		if(!this.socket || this.socket.readyState !== 1)
-		{
-			console.error(Utils.getDateForLog() + ": Pull: WebSocket is not connected");
-			return false;
-		}
-
-		this.socket.send(buffer);
-	};
-
-	WebSocketConnector.prototype.onSocketOpen = function()
-	{
-		this.connected = true;
-	};
-
-	WebSocketConnector.prototype.onSocketClose = function(e)
-	{
-		this.socket = null;
-		this.disconnectCode = e.code;
-		this.disconnectReason = e.reason;
-		this.connected = false;
-	};
-
-	WebSocketConnector.prototype.onSocketError = function(e)
-	{
-		this.callbacks.onError(e);
-	};
-
-	WebSocketConnector.prototype.onSocketMessage = function(e)
-	{
-		this.callbacks.onMessage(e.data);
-	};
-
-	WebSocketConnector.prototype.destroy = function()
-	{
-		if(this.socket)
-		{
-			this.socket.close();
-			this.socket = null;
-		}
-	};
-
-	var LongPollingConnector = function(config)
-	{
-		LongPollingConnector.superclass.constructor.apply(this, arguments);
-
-		this.active = false;
-		this.connectionType = ConnectionType.LongPolling;
-		this.requestTimeout = null;
-		this.failureTimeout = null;
-		this.xhr = this.createXhr();
-		this.requestAborted = false;
-	};
-
-	ObjectExtend(LongPollingConnector, AbstractConnector);
-
-	LongPollingConnector.prototype.createXhr = function()
-	{
-		var result = new XMLHttpRequest();
-		if(this.parent.isProtobufSupported())
-		{
-			result.responseType = "arraybuffer";
-		}
-		result.addEventListener("readystatechange", this.onXhrReadyStateChange.bind(this));
-		return result;
-	};
-
-	LongPollingConnector.prototype.connect = function()
-	{
-		this.active = true;
-		this.performRequest();
-	};
-
-	LongPollingConnector.prototype.disconnect = function(code, reason)
-	{
-		this.active = false;
-
-		if(this.failureTimeout)
-		{
-			clearTimeout(this.failureTimeout);
-			this.failureTimeout = null;
-		}
-		if(this.requestTimeout)
-		{
-			clearTimeout(this.requestTimeout);
+			this.active = false;
+			this.connectionType = ConnectionType.LongPolling;
 			this.requestTimeout = null;
+			this.failureTimeout = null;
+			this.xhr = this.createXhr();
+			this.requestAborted = false;
 		}
 
-		if(this.xhr)
+		createXhr()
+		{
+			const result = new XMLHttpRequest();
+			if (this.parent.isProtobufSupported() && !this.parent.isJsonRpc())
+			{
+				result.responseType = "arraybuffer";
+			}
+			result.addEventListener("readystatechange", this.onXhrReadyStateChange.bind(this));
+			return result;
+		}
+
+		connect()
+		{
+			this.active = true;
+			this.performRequest();
+		}
+
+		disconnect(code, reason)
+		{
+			this.active = false;
+
+			if (this.failureTimeout)
+			{
+				clearTimeout(this.failureTimeout);
+				this.failureTimeout = null;
+			}
+			if (this.requestTimeout)
+			{
+				clearTimeout(this.requestTimeout);
+				this.requestTimeout = null;
+			}
+
+			if (this.xhr)
+			{
+				this.requestAborted = true;
+				this.xhr.abort();
+			}
+
+			this.disconnectCode = code;
+			this.disconnectReason = reason;
+			this.connected = false;
+		}
+
+		performRequest()
+		{
+			if (!this.active)
+			{
+				return;
+			}
+
+			if (!this.path)
+			{
+				throw new Error("Long polling connection path is not defined");
+			}
+			if (this.xhr.readyState !== 0 && this.xhr.readyState !== 4)
+			{
+				return;
+			}
+
+			clearTimeout(this.failureTimeout);
+			clearTimeout(this.requestTimeout);
+
+			this.failureTimeout = setTimeout(() => { this.connected = true }, 5000);
+			this.requestTimeout = setTimeout(this.onRequestTimeout.bind(this), LONG_POLLING_TIMEOUT * 1000);
+
+			this.xhr.open("GET", this.path);
+			this.xhr.send();
+		}
+
+		onRequestTimeout()
 		{
 			this.requestAborted = true;
 			this.xhr.abort();
+			this.performRequest();
 		}
 
-		this.disconnectCode = code;
-		this.disconnectReason = reason;
-		this.connected = false;
-	};
-
-	LongPollingConnector.prototype.performRequest = function()
-	{
-		var self = this;
-		if(!this.active)
-			return;
-
-		if(!this.path)
+		onXhrReadyStateChange()
 		{
-			throw new Error("Long polling connection path is not defined");
-		}
-		if(this.xhr.readyState !== 0 && this.xhr.readyState !== 4)
-		{
-			return;
-		}
-
-		clearTimeout(this.failureTimeout);
-		clearTimeout(this.requestTimeout);
-
-		this.failureTimeout = setTimeout(function()
-		{
-			self.connected = true;
-		}, 5000);
-
-		this.requestTimeout = setTimeout(this.onRequestTimeout.bind(this), LONG_POLLING_TIMEOUT * 1000);
-
-		this.xhr.open("GET", this.path);
-		this.xhr.send();
-	};
-
-	LongPollingConnector.prototype.onRequestTimeout = function()
-	{
-		this.requestAborted = true;
-		this.xhr.abort();
-		this.performRequest();
-	};
-
-	LongPollingConnector.prototype.onXhrReadyStateChange = function (e)
-	{
-		if (this.xhr.readyState === 4)
-		{
-			if(!this.requestAborted || this.xhr.status == 200)
+			if (this.xhr.readyState === 4)
 			{
-				this.onResponse(this.xhr.response);
+				if (!this.requestAborted || this.xhr.status == 200)
+				{
+					this.onResponse(this.xhr.response);
+				}
+				this.requestAborted = false;
 			}
-			this.requestAborted = false;
-		}
-	};
-
-	/**
-	 * Sends some data to the server via http request.
-	 * @param {ArrayBuffer} buffer Data to send.
-	 * @return {bool}
-	 */
-	LongPollingConnector.prototype.send = function(buffer)
-	{
-		var path = this.parent.getPublicationPath();
-		if(!path)
-		{
-			console.error(Utils.getDateForLog() + ": Pull: publication path is empty");
-			return false;
 		}
 
-		var xhr = new XMLHttpRequest();
-		xhr.open("POST", path);
-		xhr.send(buffer);
-	};
-
-	LongPollingConnector.prototype.onResponse = function(response)
-	{
-		if(this.failureTimeout)
+		/**
+		 * Sends some data to the server via http request.
+		 * @param {ArrayBuffer} buffer Data to send.
+		 * @return {bool}
+		 */
+		send(buffer)
 		{
-			clearTimeout(this.failureTimeout);
-			this.failureTimeout = 0;
-		}
-		if(this.requestTimeout)
-		{
-			clearTimeout(this.requestTimeout);
-			this.requestTimeout = 0;
-		}
-
-		if(this.xhr.status == 200)
-		{
-			this.connected = true;
-			if(Utils.isNotEmptyString(response) || (response instanceof ArrayBuffer))
+			const path = this.parent.getPublicationPath();
+			if (!path)
 			{
-				this.callbacks.onMessage(response);
+				console.error(Utils.getDateForLog() + ": Pull: publication path is empty");
+				return false;
+			}
+
+			let xhr = new XMLHttpRequest();
+			xhr.open("POST", path);
+			xhr.send(buffer);
+		}
+
+		onResponse(response)
+		{
+			if (this.failureTimeout)
+			{
+				clearTimeout(this.failureTimeout);
+				this.failureTimeout = 0;
+			}
+			if (this.requestTimeout)
+			{
+				clearTimeout(this.requestTimeout);
+				this.requestTimeout = 0;
+			}
+
+			if (this.xhr.status == 200)
+			{
+				this.connected = true;
+				if (Utils.isNotEmptyString(response) || (response instanceof ArrayBuffer))
+				{
+					this.callbacks.onMessage(response);
+				}
+				else
+				{
+					this.parent.session.mid = null;
+				}
+				this.performRequest();
+			}
+			else if (this.xhr.status == 304)
+			{
+				this.connected = true;
+				if (this.xhr.getResponseHeader("Expires") === "Thu, 01 Jan 1973 11:11:01 GMT")
+				{
+					const lastMessageId = this.xhr.getResponseHeader("Last-Message-Id");
+					if (Utils.isNotEmptyString(lastMessageId))
+					{
+						this.parent.setLastMessageId(lastMessageId);
+					}
+				}
+				this.performRequest();
 			}
 			else
 			{
-				this.parent.session.mid = null;
+				this.callbacks.onError('Could not connect to the server');
+				this.connected = false;
 			}
-			this.performRequest();
 		}
-		else if(this.xhr.status == 304)
+	}
+
+	class ChannelManager
+	{
+		constructor(params)
 		{
-			this.connected = true;
-			if (this.xhr.getResponseHeader("Expires") === "Thu, 01 Jan 1973 11:11:01 GMT")
+			this.publicIds = {};
+
+			this.restClient = typeof params.restClient !== "undefined" ? params.restClient : BX.rest;
+
+			this.getPublicListMethod = params.getPublicListMethod;
+		}
+
+		/**
+		 *
+		 * @param {Array} users Array of user ids.
+		 * @return {Promise}
+		 */
+		getPublicIds(users)
+		{
+			const now = new Date();
+			let result = {};
+			let unknownUsers = [];
+
+			for (let i = 0; i < users.length; i++)
 			{
-				var lastMessageId = this.xhr.getResponseHeader("Last-Message-Id");
-				if (Utils.isNotEmptyString(lastMessageId))
+				const userId = users[i];
+				if (this.publicIds[userId] && this.publicIds[userId]['end'] > now)
 				{
-					this.parent.setLastMessageId(lastMessageId);
+					result[userId] = this.publicIds[userId];
+				}
+				else
+				{
+					unknownUsers.push(userId);
 				}
 			}
-			this.performRequest();
-		}
-		else
-		{
-			this.callbacks.onError('Could not connect to the server');
-			this.connected = false;
-		}
-	};
 
-	var ChannelManager = function (params)
-	{
-		this.publicIds = {};
-
-		this.restClient = typeof params.restClient !== "undefined"? params.restClient: BX.rest;
-
-		this.getPublicListMethod = params.getPublicListMethod;
-	};
-
-	/**
-	 *
-	 * @param {Array} users Array of user ids.
-	 * @return {BX.Promise}
-	 */
-	ChannelManager.prototype.getPublicIds = function(users)
-	{
-		var promise = new BX.Promise();
-		var result = {};
-		var now = new Date();
-		var unknownUsers = [];
-
-		for(var i = 0; i < users.length; i++)
-		{
-			var userId = users[i];
-			if(this.publicIds[userId] && this.publicIds[userId]['end'] > now)
+			if (unknownUsers.length === 0)
 			{
-				result[userId] = this.publicIds[userId];
+				return Promise.resolve(result);
+			}
+
+			return new Promise((resolve) =>
+			{
+				this.restClient.callMethod(this.getPublicListMethod, {users: unknownUsers}).then((response) =>
+				{
+					if (response.error())
+					{
+						return resolve({});
+					}
+
+					const data = response.data();
+					this.setPublicIds(Utils.objectValues(data));
+					unknownUsers.forEach((userId) =>
+					{
+						result[userId] = this.publicIds[userId];
+					});
+
+					resolve(result);
+				});
+			})
+		}
+
+		/**
+		 *
+		 * @param {object[]} publicIds
+		 * @param {integer} publicIds.user_id
+		 * @param {string} publicIds.public_id
+		 * @param {string} publicIds.signature
+		 * @param {Date} publicIds.start
+		 * @param {Date} publicIds.end
+		 */
+		setPublicIds(publicIds)
+		{
+			for (let i = 0; i < publicIds.length; i++)
+			{
+				const publicIdDescriptor = publicIds[i];
+				const userId = publicIdDescriptor.user_id;
+				this.publicIds[userId] = {
+					userId: userId,
+					publicId: publicIdDescriptor.public_id,
+					signature: publicIdDescriptor.signature,
+					start: new Date(publicIdDescriptor.start),
+					end: new Date(publicIdDescriptor.end)
+				}
+			}
+		};
+	}
+
+	class StorageManager
+	{
+		constructor(params)
+		{
+			params = params || {};
+
+			this.userId = params.userId ? params.userId : (typeof BX.message !== 'undefined' && BX.message.USER_ID ? BX.message.USER_ID : 0);
+			this.siteId = params.siteId ? params.siteId : (typeof BX.message !== 'undefined' && BX.message.SITE_ID ? BX.message.SITE_ID : 'none');
+		}
+
+		set(name, value)
+		{
+			if (typeof window.localStorage === 'undefined')
+			{
+				return false;
+			}
+			if (typeof value != 'string')
+			{
+				if (value)
+				{
+					value = JSON.stringify(value);
+				}
+			}
+			return window.localStorage.setItem(this.getKey(name), value)
+		}
+
+		get(name, defaultValue)
+		{
+			if (typeof window.localStorage === 'undefined')
+			{
+				return defaultValue || null;
+			}
+
+			const result = window.localStorage.getItem(this.getKey(name));
+			if (result === null)
+			{
+				return defaultValue || null;
+			}
+
+			return JSON.parse(result);
+		}
+
+		remove(name)
+		{
+			if (typeof window.localStorage === 'undefined')
+			{
+				return false;
+			}
+			return window.localStorage.removeItem(this.getKey(name));
+		}
+
+		getKey(name)
+		{
+			return 'bx-pull-' + this.userId + '-' + this.siteId + '-' + name;
+		}
+
+		compareKey(eventKey, userKey)
+		{
+			return eventKey === this.getKey(userKey);
+		}
+	}
+
+	class JsonRpc
+	{
+		idCounter = 0;
+
+		handlers = {};
+		rpcResponseAwaiters = new Map();
+
+		constructor(options)
+		{
+			this.connector = options.connector;
+			if (Utils.isPlainObject(options.handlers))
+			{
+				for (let method in options.handlers)
+				{
+					this.handle(method, options.handlers[method]);
+				}
+			}
+		}
+
+		/**
+		 * @param {string} method
+		 * @param {function} handler
+		 */
+		handle(method, handler)
+		{
+			this.handlers[method] = handler;
+		}
+
+		/**
+		 * Sends RPC command to the server.
+		 *
+		 * @param {string} method Method name
+		 * @param {object} params
+		 * @param {int} timeout
+		 * @returns {Promise}
+		 */
+		executeOutgoingRpcCommand(method, params, timeout)
+		{
+			if (!timeout)
+			{
+				timeout = 5;
+			}
+			return new Promise((resolve, reject) =>
+			{
+				const request = this.createRequest(method, params);
+
+				if (!this.connector.send(JSON.stringify(request)))
+				{
+					reject(new ErrorNotConnected('websocket is not connected'));
+				}
+
+				const t = setTimeout(() => {
+					this.rpcResponseAwaiters.delete(request.id);
+					reject(new ErrorTimeout('no response'));
+				}, timeout * 1000);
+				this.rpcResponseAwaiters.set(request.id, {resolve, reject, timeout: t});
+			})
+		}
+
+		/**
+		 * Executes array or rpc commands. Returns array of promises, each promise will be resolved individually.
+		 *
+		 * @param {JsonRpcRequest[]} batch
+		 * @returns {Promise[]}
+		 */
+		executeOutgoingRpcBatch(batch)
+		{
+			let requests = [];
+			let promises = [];
+			batch.forEach(({method, params, id}) =>
+			{
+				const request = this.createRequest(method, params, id);
+				requests.push(request);
+				promises.push(new Promise((resolve, reject) => this.rpcResponseAwaiters.set(request.id, {
+					resolve,
+					reject
+				})));
+			});
+
+			this.connector.send(JSON.stringify(requests));
+			return promises;
+		}
+
+		processRpcResponse(response)
+		{
+			if ("id" in response && this.rpcResponseAwaiters.has(response.id))
+			{
+				const awaiter = this.rpcResponseAwaiters.get(response.id)
+				if ("result" in response)
+				{
+					awaiter.resolve(response.result)
+				}
+				else if ("error" in response)
+				{
+					awaiter.reject(response.error)
+				}
+				else
+				{
+					awaiter.reject(new Error("wrong response structure"))
+				}
+
+				clearTimeout(awaiter.timeout)
+				this.rpcResponseAwaiters.delete(response.id)
 			}
 			else
 			{
-				unknownUsers.push(userId);
+				console.error("Received rpc response with unknown id", response)
 			}
 		}
 
-		if(unknownUsers.length === 0)
+		parseJsonRpcMessage(message)
 		{
-			promise.resolve(result);
-			return promise;
-		}
-
-		this.restClient.callMethod(this.getPublicListMethod, {users: unknownUsers}).then(function(response)
-		{
-			if(response.error())
+			let decoded
+			try
 			{
-				promise.resolve({});
-				return promise;
-			}
-
-			var data = response.data();
-
-			this.setPublicIds(Utils.objectValues(data));
-			unknownUsers.forEach(function(userId) {
-				result[userId] = this.publicIds[userId];
-			}, this);
-
-			promise.resolve(result);
-
-		}.bind(this));
-
-		return promise;
-	};
-
-	/**
-	 *
-	 * @param {object[]} publicIds
-	 * @param {integer} publicIds.user_id
-	 * @param {string} publicIds.public_id
-	 * @param {string} publicIds.signature
-	 * @param {Date} publicIds.start
-	 * @param {Date} publicIds.end
-	 */
-	ChannelManager.prototype.setPublicIds = function(publicIds)
-	{
-		for(var i = 0; i < publicIds.length; i++)
-		{
-			var publicIdDescriptor = publicIds[i];
-			var userId = publicIdDescriptor.user_id;
-			this.publicIds[userId] = {
-				userId: userId,
-				publicId: publicIdDescriptor.public_id,
-				signature: publicIdDescriptor.signature,
-				start: new Date(publicIdDescriptor.start),
-				end: new Date(publicIdDescriptor.end)
-			}
-		}
-	};
-
-
-	var StorageManager = function (params)
-	{
-		params = params || {};
-
-		this.userId = params.userId? params.userId: (typeof BX.message !== 'undefined' && BX.message.USER_ID? BX.message.USER_ID: 0);
-		this.siteId = params.siteId? params.siteId: (typeof BX.message !== 'undefined' && BX.message.SITE_ID? BX.message.SITE_ID: 'none');
-	};
-
-	StorageManager.prototype.set = function(name, value)
-	{
-		if (typeof window.localStorage === 'undefined')
-		{
-			return false;
-		}
-		if (typeof value != 'string')
-		{
-			if (value)
+				decoded = JSON.parse(message);
+			} catch (e)
 			{
-				value = JSON.stringify(value);
+				console.error(Utils.getDateForLog() + ": Pull: Could not decode json rpc message", e);
+			}
+
+			if (Utils.isArray(decoded))
+			{
+				return this.executeIncomingRpcBatch(decoded);
+			}
+			else if (Utils.isJsonRpcRequest(decoded))
+			{
+				return this.executeIncomingRpcCommand(decoded);
+			}
+			else if (Utils.isJsonRpcResponse(decoded))
+			{
+				return this.processRpcResponse(decoded);
+			}
+			else
+			{
+				console.error(Utils.getDateForLog() + ": Pull: unknown rpc packet", decoded);
 			}
 		}
-		return window.localStorage.setItem(this.getKey(name), value)
-	};
 
-
-	StorageManager.prototype.get = function(name, defaultValue)
-	{
-		if (typeof window.localStorage === 'undefined')
+		/**
+		 * Executes RPC command, received from the server
+		 *
+		 * @param {string} method
+		 * @param {object} params
+		 * @returns {object}
+		 */
+		executeIncomingRpcCommand({method, params})
 		{
-			return defaultValue || null;
+			if (method in this.handlers)
+			{
+				return this.handlers[method].call(this, params)
+			}
+
+			return {
+				"error": RpcError.MethodNotFound
+			}
 		}
 
-		var result = window.localStorage.getItem(this.getKey(name));
-		if (result === null)
+		executeIncomingRpcBatch(batch)
 		{
-			return defaultValue || null;
+			let result = [];
+			for (let command of batch)
+			{
+				if ("jsonrpc" in command)
+				{
+					if ("method" in command)
+					{
+						let commandResult = this.executeIncomingRpcCommand(command)
+						if (commandResult)
+						{
+							commandResult["jsonrpc"] = JSON_RPC_VERSION;
+							commandResult["id"] = command["id"];
+
+							result.push(commandResult)
+						}
+					}
+					else
+					{
+						this.processRpcResponse(command)
+					}
+				}
+				else
+				{
+					console.error(Utils.getDateForLog() + ": Pull: unknown rpc command in batch", command);
+					result.push({
+						"jsonrpc": "2.0",
+						"error": RpcError.InvalidRequest,
+					})
+				}
+			}
+
+			return result;
 		}
 
-		return JSON.parse(result);
-	};
-
-	StorageManager.prototype.remove = function(name)
-	{
-		if (typeof window.localStorage === 'undefined')
+		nextId()
 		{
-			return false;
+			return ++this.idCounter;
 		}
-		return window.localStorage.removeItem(this.getKey(name));
-	};
 
-	StorageManager.prototype.getKey = function (name)
+		createPublishRequest(messageBatch)
+		{
+			let result = messageBatch.map(message => this.createRequest('publish', message));
+
+			if (result.length === 0)
+			{
+				return result[0]
+			}
+
+			return result;
+		}
+
+		createRequest(method, params, id)
+		{
+			if (!id)
+			{
+				id = this.nextId()
+			}
+
+			return {
+				jsonrpc: JSON_RPC_VERSION,
+				method: method,
+				params: params,
+				id: id
+			}
+		}
+	}
+
+	class ErrorNotConnected extends Error
 	{
-		return 'bx-pull-' + this.userId + '-' + this.siteId + '-' + name;
-	};
+		constructor(message)
+		{
+			super(message);
+			this.name = 'ErrorNotConnected';
+		}
+	}
 
-	StorageManager.prototype.compareKey = function (eventKey, userKey)
+	class ErrorTimeout extends Error
 	{
-		return eventKey === this.getKey(userKey);
-	};
+		constructor(message)
+		{
+			super(message);
+			this.name = 'ErrorTimeout';
+		}
+	}
 
-	var Utils = {
+	const Utils = {
 		browser: {
-			IsChrome: function()
+			IsChrome: function ()
 			{
 				return navigator.userAgent.toLowerCase().indexOf('chrome') != -1;
 			},
-			IsFirefox: function()
+			IsFirefox: function ()
 			{
 				return navigator.userAgent.toLowerCase().indexOf('firefox') != -1;
 			},
@@ -2743,7 +3277,7 @@
 				return navigator.userAgent.match(/(Trident\/|MSIE\/)/) !== null;
 			}
 		},
-		getTimestamp: function()
+		getTimestamp: function ()
 		{
 			return (new Date()).getTime();
 		},
@@ -2752,17 +3286,17 @@
 		 * @param {array} errors
 		 * @return {string}
 		 */
-		errorsToString: function(errors)
+		errorsToString: function (errors)
 		{
-			if(!this.isArray(errors))
+			if (!this.isArray(errors))
 			{
 				return "";
 			}
 			else
 			{
-				return errors.reduce(function(result, currentValue)
+				return errors.reduce(function (result, currentValue)
 				{
-					if(result != "")
+					if (result != "")
 					{
 						result += "; ";
 					}
@@ -2770,63 +3304,94 @@
 				}, "");
 			}
 		},
-		isString: function(item) {
+		isString: function (item)
+		{
 			return item === '' ? true : (item ? (typeof (item) == "string" || item instanceof String) : false);
 		},
-		isArray: function(item) {
+		isArray: function (item)
+		{
 			return item && Object.prototype.toString.call(item) == "[object Array]";
 		},
-		isFunction: function(item) {
+		isFunction: function (item)
+		{
 			return item === null ? false : (typeof (item) == "function" || item instanceof Function);
 		},
-		isDomNode: function(item) {
+		isDomNode: function (item)
+		{
 			return item && typeof (item) == "object" && "nodeType" in item;
 		},
-		isDate: function(item) {
+		isDate: function (item)
+		{
 			return item && Object.prototype.toString.call(item) == "[object Date]";
 		},
-		isPlainObject: function(item)
+		isPlainObject: function (item)
 		{
-			if(!item || typeof(item) !== "object" || item.nodeType)
+			if (!item || typeof (item) !== "object" || item.nodeType)
 			{
 				return false;
 			}
 
-			var hasProp = Object.prototype.hasOwnProperty;
+			const hasProp = Object.prototype.hasOwnProperty;
 			try
 			{
-				if (item.constructor && !hasProp.call(item, "constructor") && !hasProp.call(item.constructor.prototype, "isPrototypeOf") )
+				if (item.constructor && !hasProp.call(item, "constructor") && !hasProp.call(item.constructor.prototype, "isPrototypeOf"))
 				{
 					return false;
 				}
-			}
-			catch (e)
+			} catch (e)
 			{
 				return false;
 			}
 
-			var key;
+			let key;
 			for (key in item)
 			{
 			}
-			return typeof(key) === "undefined" || hasProp.call(item, key);
+			return typeof (key) === "undefined" || hasProp.call(item, key);
 		},
-		isNotEmptyString: function(item) {
+		isNotEmptyString: function (item)
+		{
 			return this.isString(item) ? item.length > 0 : false;
 		},
-		buildQueryString: function(params)
+		isJsonRpcRequest: function (item)
 		{
-			var result = '';
-			for (var key in params)
+			return (
+				typeof (item) === "object"
+				&& item
+				&& "jsonrpc" in item
+				&& Utils.isNotEmptyString(item.jsonrpc)
+				&& "method" in item
+				&& Utils.isNotEmptyString(item.method)
+			);
+		},
+		isJsonRpcResponse: function (item)
+		{
+			return (
+				typeof (item) === "object"
+				&& item
+				&& "jsonrpc" in item
+				&& Utils.isNotEmptyString(item.jsonrpc)
+				&& "id" in item
+				&& (
+					"result" in item
+					|| "error" in item
+				)
+			);
+
+		},
+		buildQueryString: function (params)
+		{
+			let result = '';
+			for (let key in params)
 			{
 				if (!params.hasOwnProperty(key))
 				{
 					continue;
 				}
-				var value = params[key];
-				if(Utils.isArray(value))
+				const value = params[key];
+				if (Utils.isArray(value))
 				{
-					value.forEach(function(valueElement, index)
+					value.forEach((valueElement, index) =>
 					{
 						result += encodeURIComponent(key + "[" + index + "]") + "=" + encodeURIComponent(valueElement) + "&";
 					});
@@ -2837,32 +3402,37 @@
 				}
 			}
 
-			if(result.length > 0)
+			if (result.length > 0)
 			{
 				result = result.substr(0, result.length - 1);
 			}
+
 			return result;
 		},
 		objectValues: function values(obj)
 		{
-			var result = [];
-			for (var key in obj)
+			let result = [];
+			for (let key in obj)
 			{
-				if(obj.hasOwnProperty(key) && obj.propertyIsEnumerable(key))
+				if (obj.hasOwnProperty(key) && obj.propertyIsEnumerable(key))
 				{
 					result.push(obj[key]);
 				}
 			}
 			return result;
 		},
-		clone: function(obj, bCopyObj)
+		clone: function (obj, bCopyObj)
 		{
-			var _obj, i, l;
+			let _obj, i, l;
 			if (bCopyObj !== false)
+			{
 				bCopyObj = true;
+			}
 
 			if (obj === null)
+			{
 				return null;
+			}
 
 			if (this.isDomNode(obj))
 			{
@@ -2873,23 +3443,31 @@
 				if (this.isArray(obj))
 				{
 					_obj = [];
-					for (i=0,l=obj.length;i<l;i++)
+					for (i = 0, l = obj.length; i < l; i++)
 					{
 						if (typeof obj[i] == "object" && bCopyObj)
+						{
 							_obj[i] = this.clone(obj[i], bCopyObj);
+						}
 						else
+						{
 							_obj[i] = obj[i];
+						}
 					}
 				}
 				else
 				{
-					_obj =  {};
+					_obj = {};
 					if (obj.constructor)
 					{
 						if (this.isDate(obj))
+						{
 							_obj = new Date(obj);
+						}
 						else
+						{
 							_obj = new obj.constructor();
+						}
 					}
 
 					for (i in obj)
@@ -2899,9 +3477,13 @@
 							continue;
 						}
 						if (typeof obj[i] == "object" && bCopyObj)
+						{
 							_obj[i] = this.clone(obj[i], bCopyObj);
+						}
 						else
+						{
 							_obj[i] = obj[i];
+						}
 					}
 				}
 
@@ -2914,42 +3496,42 @@
 			return _obj;
 		},
 
-		getDateForLog: function()
+		getDateForLog: function ()
 		{
-			var d = new Date();
+			const d = new Date();
 
 			return d.getFullYear() + "-" + Utils.lpad(d.getMonth(), 2, '0') + "-" + Utils.lpad(d.getDate(), 2, '0') + " " + Utils.lpad(d.getHours(), 2, '0') + ":" + Utils.lpad(d.getMinutes(), 2, '0');
 		},
 
-		lpad: function(str, length, chr)
+		lpad: function (str, length, chr)
 		{
 			str = str.toString();
 			chr = chr || ' ';
 
-			if(str.length > length)
+			if (str.length > length)
 			{
 				return str;
 			}
 
-			var result = '';
-			for(var i = 0; i < length - str.length; i++)
+			let result = '';
+			for (let i = 0; i < length - str.length; i++)
 			{
 				result += chr;
 			}
 
 			return result + str;
 		}
-	};
+	}
 
 	if (
 		typeof BX.namespace !== 'undefined'
 		&& typeof BX.PULL === 'undefined'
 	)
 	{
-		BX.PULL = new Pull();
+		BX.PULL = new PullClient();
 	}
 
-	BX.PullClient = Pull;
+	BX.PullClient = PullClient;
 	BX.PullClient.PullStatus = PullStatus;
 	BX.PullClient.SubscriptionType = SubscriptionType;
 	BX.PullClient.CloseReasons = CloseReasons;

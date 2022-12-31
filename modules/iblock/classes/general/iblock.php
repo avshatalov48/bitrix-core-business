@@ -721,7 +721,7 @@ class CAllIBlock
 
 			$CACHE_MANAGER->Clean($cache_id, "b_iblock");
 		}
-		Iblock\IblockTable::getEntity()->cleanCache();
+		Iblock\IblockTable::cleanCache();
 	}
 
 	///////////////////////////////////////////////////////////////////
@@ -2170,7 +2170,17 @@ REQ
 			{
 				$a = &$arDefFields[$FIELD_ID]["DEFAULT_VALUE"];
 
-				$a = $a <> ''? unserialize($a, ['allowed_classes' => false]) : array();
+				if (is_string($a) && $a !== '')
+				{
+					if (CheckSerializedData($a))
+					{
+						$a = unserialize($a, ['allowed_classes' => false]);
+					}
+				}
+				if (!is_array($a))
+				{
+					$a = [];
+				}
 
 				if(array_key_exists("TRANS_LEN", $a))
 				{
@@ -2485,11 +2495,44 @@ REQ
 					break;
 				case "date":
 					if(!is_array($val) && $val == '')
-						$res[] = ($cOperationType=="N"?"NOT":"")."(".$fname." IS NULL)";
-					elseif(($cOperationType=="B" || $cOperationType=="NB") && is_array($val) && count($val)==2)
-						$res[] = ($cOperationType=='NB'?' '.$fname.' IS NULL OR NOT ':'').'('.$fname.' '.$strOperation[0].' '.$DB->CharToDateFunction($DB->ForSql($val[0]), "FULL").' '.$strOperation[1].' '.$DB->CharToDateFunction($DB->ForSql($val[1]), "FULL").')';
+					{
+						$res[] = ($cOperationType == "N" ? "NOT" : "") . "(" . $fname . " IS NULL)";
+					}
+					elseif (($cOperationType=="B" || $cOperationType=="NB") && is_array($val) && count($val)==2)
+					{
+						if (
+							static::isCorrectFullFormatDate($DB->ForSql($val[0])) &&
+							static::isCorrectFullFormatDate($DB->ForSql($val[1]))
+						)
+						{
+							$res[] = ($cOperationType == 'NB' ? ' ' . $fname . ' IS NULL OR NOT ' : '')
+								. '('
+								. $fname
+								. ' '
+								. $strOperation[0]
+								. ' '
+								. $DB->CharToDateFunction($DB->ForSql($val[0]), "FULL")
+								. ' '
+								. $strOperation[1]
+								. ' '
+								. $DB->CharToDateFunction($DB->ForSql($val[1]), "FULL")
+								. ')';
+						}
+					}
 					else
-						$res[] = ($bNegative? " ".$fname." IS NULL OR NOT ": "")."(".$fname." ".$strOperation." ".$DB->CharToDateFunction($DB->ForSql($val), "FULL").")";
+					{
+						if (static::isCorrectFullFormatDate($DB->ForSql($val)))
+						{
+							$res[] = ($bNegative ? " " . $fname . " IS NULL OR NOT " : "")
+								. "("
+								. $fname
+								. " "
+								. $strOperation
+								. " "
+								. $DB->CharToDateFunction($DB->ForSql($val), "FULL")
+								. ")";
+						}
+					}
 					break;
 				case "number":
 					if($val === '' || $val === null || $val === false)
@@ -2612,6 +2655,37 @@ REQ
 			$bFullJoin = false;
 
 		return $strResult;
+	}
+
+	public static function isCorrectFullFormatDate($value): bool
+	{
+		$result = true;
+
+		// get user time
+		if ($value instanceof Main\Type\DateTime && !$value->isUserTimeEnabled())
+		{
+			$value = clone $value;
+			$value->toUserTime();
+		}
+
+		// format
+		if (($context = Main\Context::getCurrent()) && ($culture = $context->getCulture()) !== null)
+		{
+			$format = $culture->getFormatDatetime();
+		}
+		else
+		{
+			$format = CLang::GetDateFormat('FULL');
+		}
+
+		$formatDate = CDatabase::FormatDate($value, $format, "YYYY-MM-DD HH:MI:SS");
+
+		if ($formatDate === false || $formatDate === '')
+		{
+			$result = false;
+		}
+
+		return $result;
 	}
 
 	public static function _MergeIBArrays($iblock_id, $iblock_code = false, $iblock_id2 = false, $iblock_code2 = false)
@@ -3514,6 +3588,10 @@ REQ
 			"asc"        => array(true,  "asc" ),
 			"desc"       => array(false, "desc"),
 		);
+		if (!is_string($order))
+		{
+			$order = 'desc,nulls';
+		}
 		$order = mb_strtolower(trim($order));
 		$default_order = mb_strtolower(trim($default_order));
 		if (isset($arOrder[$order]))

@@ -133,11 +133,6 @@ if (!$arParams["ALLOW_HORIZONTAL_SCROLL"])
 	$gridClasses[] = 'main-grid-full';
 }
 
-if ($arParams["ALLOW_ROWS_SORT"])
-{
-	$gridClasses[] = 'main-grid-rows-sort-enable';
-}
-
 if ($arParams["HIDE_TOP_BORDER_RADIUS"])
 {
 	$gridClasses[] = '--hide-top-border-radius';
@@ -213,9 +208,21 @@ if ($emptyFooter)
 					{
 						$sectionId = $headerSection['id'];
 						$isHiddenSection = empty($headerSection['selected']);
-						?><div <?= $isHiddenSection ? 'hidden' : '' ?> data-ui-grid-filter-section="<?= $sectionId ?>"><?php
-							?><h3 class="main-grid-settings-window-section-title"><?= Text\HtmlFilter::encode($headerSection['name']) ?></h3><?
-							?><div class="main-grid-settings-window-list"><?php
+						?><div <?= $isHiddenSection ? 'hidden' : '' ?> data-ui-grid-filter-section="<?= $sectionId ?>">
+						<h3 class="main-grid-settings-window-section-title">
+							<?= Text\HtmlFilter::encode($headerSection['name']) ?>
+							<?php if (isset($headerSection["hint"])): ?>
+								<script>
+									BX.ready(function() {
+										BX.UI.Hint.init(BX('hint_section_<?= CUtil::JSEscape($headerSection['id']) ?>'));
+									});
+								</script>
+								<span id="hint_section_<?= Text\HtmlFilter::encode($headerSection['id']) ?>" class="main-grid-head-title-tooltip" title="">
+									<span <?= empty($headerSection['hintInteractivity']) ? '' : 'data-hint-interactivity'?> <?= empty($headerSection['hintHtml']) ? '' : 'data-hint-html' ?> data-hint="<?= Text\HtmlFilter::encode($headerSection["hint"]) ?>"></span>
+								</span>
+							<? endif; ?>
+						</h3>
+						<div class="main-grid-settings-window-list"><?php
 								if (!empty($arResult['COLUMNS_ALL_WITH_SECTIONS'][$sectionId]))
 								{
 									foreach ($arResult['COLUMNS_ALL_WITH_SECTIONS'][$sectionId] as $column)

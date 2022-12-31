@@ -35,6 +35,7 @@ class Role extends \Bitrix\Landing\Internals\BaseTable
 		'knowledge_admin',
 		'unexportable',
 		'knowledge_unexportable',
+		'knowledge_extension',
 	];
 
 	/**
@@ -530,6 +531,10 @@ class Role extends \Bitrix\Landing\Internals\BaseTable
 		}
 
 		$setAdditionalRights();
+
+		Manager::getCacheManager()->clearByTag(
+			"intranet_menu_binding"
+		);
 	}
 
 	/**

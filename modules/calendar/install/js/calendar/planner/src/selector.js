@@ -33,6 +33,7 @@ export class Selector extends EventEmitter
 
 		this.useAnimation = params.useAnimation !== false;
 		this.DOM.timelineWrap = params.timelineWrap;
+		this.DOM.timelineFixedWrap = params.timelineFixedWrap;
 
 		this.render();
 	}
@@ -119,6 +120,13 @@ export class Selector extends EventEmitter
 				}
 			);
 		}
+
+		const isSelectorInThePast = this.currentDateTo.getTime() < this.getScaleInfo().scaleDateFrom.getTime();
+		const isSelectorInTheFuture = this.currentDateFrom.getTime() > this.getScaleInfo().scaleDateTo.getTime();
+		if (isSelectorInThePast || isSelectorInTheFuture)
+		{
+			this.DOM.wrap.style.display = 'none';
+		}
 	}
 
 	show(from, to, params)
@@ -165,6 +173,7 @@ export class Selector extends EventEmitter
 
 	startMove()
 	{
+		document.addEventListener('pointermove', this.preventDefault, { passive:false });
 		this.selectorIsDraged = true;
 		this.selectorStartLeft = parseInt(this.DOM.wrap.style.left);
 		this.selectorStartScrollLeft = this.DOM.timelineWrap.scrollLeft;
@@ -190,23 +199,90 @@ export class Selector extends EventEmitter
 			}
 
 			let boundary = this.eventDragAndDrop.getDragBoundary(pos);
+			boundary = this.getAutoScrollBoundary(boundary);
 			boundary = this.getConstrainedBoundary(boundary);
-			if (boundary.wasMagnetized)
-			{
-				this.DOM.wrap.style.transition = 'left .05s, width .1s';
-			}
-			else
-			{
-				this.DOM.wrap.style.transition = 'width .1s';
-			}
-
-			this.DOM.wrap.style.width = boundary.size + 'px';
-			this.DOM.wrap.style.left = boundary.position + 'px';
-
-			this.showTitle(boundary.from, boundary.to);
-
-			this.checkStatus(boundary.position, true);
+			this.setBoundary(boundary);
 		}
+	}
+
+	getAutoScrollBoundary(boundary)
+	{
+		const boundaryLeft = boundary.position - this.DOM.timelineWrap.scrollLeft;
+		const containerLeft = this.getPosByDate(this.getScaleInfo().scaleDateFrom);
+		const boundaryRight = boundaryLeft + boundary.size;
+		const containerRight = this.DOM.timelineFixedWrap.offsetWidth;
+
+		if (boundaryRight > containerRight)
+		{
+			this.scrollSpeed = this.getSpeed(boundaryRight, containerRight);
+			boundary.position = containerRight + this.DOM.timelineWrap.scrollLeft - boundary.size;
+			this.setAutoScrollInterval(boundary, 1);
+		}
+		else if (boundaryLeft < containerLeft)
+		{
+			this.scrollSpeed = this.getSpeed(boundaryLeft, containerLeft);
+			boundary.position = containerLeft + this.DOM.timelineWrap.scrollLeft;
+			this.setAutoScrollInterval(boundary, -1);
+		}
+		else
+		{
+			this.stopAutoScroll();
+		}
+
+		return boundary;
+	}
+
+	getSpeed(x1, x2)
+	{
+		return Math.floor(Math.sqrt(Math.abs(x1 - x2))) + 1;
+	}
+
+	setAutoScrollInterval(boundary, direction)
+	{
+		if (!this.scrollInterval)
+		{
+			this.scrollInterval = setInterval(() => {
+				if (!this.getDateByPos(boundary.position + this.scrollSpeed * direction)
+					|| !this.getDateByPos(boundary.position + boundary.size + this.scrollSpeed * direction)
+				)
+				{
+					this.stopAutoScroll();
+					return;
+				}
+
+				this.DOM.timelineWrap.scrollLeft += this.scrollSpeed * direction;
+				boundary.position += this.scrollSpeed * direction;
+				boundary.from = this.getDateByPos(boundary.position);
+				boundary.to = this.getDateByPos(boundary.position + boundary.size);
+				this.eventDragAndDrop.setFinalTimeInterval(boundary.from, boundary.to);
+				this.setBoundary(boundary);
+			}, 13);
+		}
+	}
+
+	stopAutoScroll()
+	{
+		clearInterval(this.scrollInterval);
+		this.scrollInterval = false;
+	}
+
+	setBoundary(boundary)
+	{
+		if (boundary.wasMagnetized)
+		{
+			this.DOM.wrap.style.transition = 'left .05s, width .1s';
+		}
+		else
+		{
+			this.DOM.wrap.style.transition = 'width .1s';
+		}
+
+		this.DOM.wrap.style.width = boundary.size + 'px';
+		this.DOM.wrap.style.left = boundary.position + 'px';
+
+		this.showTitle(boundary.from, boundary.to);
+
+		this.checkStatus(boundary.position, true);
 	}
 
 	getConstrainedBoundary(boundary)
@@ -247,6 +323,8 @@ export class Selector extends EventEmitter
 
 	endMove()
 	{
+		document.removeEventListener('pointermove', this.preventDefault, { passive:false });
+		this.stopAutoScroll();
 		if (this.selectorIsDraged)
 		{
 			this.selectorIsDraged = false;
@@ -274,6 +352,8 @@ export class Selector extends EventEmitter
 
 	startResize()
 	{
+		document.addEventListener('pointermove', this.preventDefault, { passive:false });
+
 		this.selectorIsResized = true;
 
 		this.selectorStartLeft = parseInt(this.DOM.wrap.style.left);
@@ -293,6 +373,10 @@ export class Selector extends EventEmitter
 			// Correct cursor position according to changes of scrollLeft
 			width -= this.selectorStartScrollLeft - this.DOM.timelineWrap.scrollLeft;
 			let rightPos = Math.min(this.selectorStartLeft + width, this.getTimelineWidth());
+			if (rightPos < this.selectorStartLeft)
+			{
+				rightPos = this.selectorStartLeft;
+			}
 
 			toDate = this.getDateByPos(rightPos, true);
 
@@ -306,16 +390,6 @@ export class Selector extends EventEmitter
 					toDate.setHours(0, 0, 0, 0);
 				}
 				rightPos = this.getPosByDate(toDate);
-				width = rightPos - this.selectorStartLeft;
-
-				if (width <= 10)
-				{
-					toDate = this.getDateByPos(this.selectorStartLeft);
-					toDate = new Date(toDate.getTime() + Util.getDayLength());
-					toDate.setHours(0, 0, 0, 0);
-					width = this.getPosByDate(toDate) - this.selectorStartLeft;
-					rightPos = this.selectorStartLeft + width;
-				}
 			}
 			else if (this.getScaleInfo().shownTimeFrom !== 0 || this.getScaleInfo().shownTimeTo !== 24)
 			{
@@ -325,7 +399,6 @@ export class Selector extends EventEmitter
 					toDate = new Date(fromDate.getTime());
 					toDate.setHours(this.getScaleInfo().shownTimeTo, 0, 0, 0);
 					rightPos = this.getPosByDate(toDate);
-					width = rightPos - this.selectorStartLeft;
 				}
 			}
 
@@ -341,6 +414,17 @@ export class Selector extends EventEmitter
 					this.selectorRoundedRightPos = roundedPos;
 				}
 			}
+			if (this.selectorRoundedRightPos < this.selectorStartLeft)
+			{
+				this.selectorRoundedRightPos = this.selectorStartLeft;
+			}
+
+			if (this.selectorRoundedRightPos - this.DOM.timelineWrap.scrollLeft > this.DOM.timelineFixedWrap.offsetWidth)
+			{
+				this.selectorRoundedRightPos = this.DOM.timelineWrap.scrollLeft + this.DOM.timelineFixedWrap.offsetWidth;
+			}
+
+			width = this.selectorRoundedRightPos - this.selectorStartLeft;
 
 			this.DOM.wrap.style.width = width + 'px';
 			this.showTitle(this.getDateByPos(this.selectorStartLeft), this.getDateByPos(this.selectorRoundedRightPos));
@@ -350,6 +434,7 @@ export class Selector extends EventEmitter
 
 	endResize()
 	{
+		document.removeEventListener('pointermove', this.preventDefault, { passive:false });
 		if (this.selectorIsResized)
 		{
 			this.selectorIsResized = false;
@@ -367,6 +452,11 @@ export class Selector extends EventEmitter
 			this.setValue();
 		}
 		this.selectorIsResized = false;
+	}
+
+	preventDefault(e)
+	{
+		e.preventDefault();
 	}
 
 	isDragged()
@@ -443,26 +533,30 @@ export class Selector extends EventEmitter
 		}
 	}
 
-	setValue(selectorPos, selectorWidth)
+	setValue(selectorPos = null, duration = null)
 	{
 		if (!selectorPos)
 		{
 			selectorPos = parseInt(this.DOM.wrap.style.left);
 		}
 		selectorPos = Math.max(0, selectorPos);
-
-		if (!selectorWidth)
-		{
-			selectorWidth = parseInt(this.DOM.wrap.style.width);
-		}
+		const selectorWidth = parseInt(this.DOM.wrap.style.width);
 
 		if (selectorPos + selectorWidth > parseInt(this.getTimelineWidth()))
 		{
 			selectorPos = parseInt(this.getTimelineWidth()) - selectorWidth;
 		}
 
-		let dateFrom = this.getDateByPos(selectorPos);
-		let dateTo = this.getDateByPos(selectorPos + selectorWidth, true);
+		const dateFrom = this.getDateByPos(selectorPos);
+		let dateTo;
+		if (duration)
+		{
+			dateTo = new Date(dateFrom.getTime() + duration);
+		}
+		else
+		{
+			dateTo = this.getDateByPos(selectorPos + selectorWidth, true);
+		}
 
 		if (dateFrom && dateTo)
 		{
@@ -544,11 +638,14 @@ export class Selector extends EventEmitter
 				}
 			}
 		}
-		return fromPos;
+		return Math.max(fromPos, 0);
 	}
 
 	transit(params = {})
 	{
+		this.DOM.wrap.style.display = 'block';
+
+		let duration;
 		if (Type.isDate(params.leftDate) && Type.isDate(params.rightDate))
 		{
 			if (this.fullDayMode)
@@ -558,6 +655,7 @@ export class Selector extends EventEmitter
 				params.rightDate = new Date(params.leftDate.getTime() + (dayCount - 1) * 24 * 3600 * 1000);
 				params.rightDate.setHours(23, 55, 0, 0);
 			}
+			duration = params.rightDate.getTime() - params.leftDate.getTime();
 			const fromPos = this.getPosByDate(params.leftDate);
 			const toPos = this.getPosByDate(params.rightDate);
 			params.toX = fromPos;
@@ -596,7 +694,7 @@ export class Selector extends EventEmitter
 
 					if (triggerChangeEvents)
 					{
-						this.setValue(checkedPos);
+						this.setValue(checkedPos, duration);
 					}
 
 					if (focus)
@@ -626,7 +724,7 @@ export class Selector extends EventEmitter
 		{
 			if (triggerChangeEvents)
 			{
-				this.setValue();
+				this.setValue(false, duration);
 			}
 
 			if (focus === true)

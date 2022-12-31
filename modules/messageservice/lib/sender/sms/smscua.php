@@ -112,7 +112,7 @@ class SmscUa extends Sender\BaseConfigurable
 		$message = [
 			'sender' => $messageFields['MESSAGE_FROM'],
 			'phones' => str_replace('+', '', $messageFields['MESSAGE_TO']),
-			'mes' => $messageFields['MESSAGE_BODY'],
+			'mes' => $this->prepareMessageBodyForSend($messageFields['MESSAGE_BODY']),
 			'charset' => 'utf-8'
 		];
 
@@ -273,8 +273,8 @@ class SmscUa extends Sender\BaseConfigurable
 	private function sendHttpRequest($method, $path, array $params): Sender\Result\HttpRequestResult
 	{
 		$httpClient = new HttpClient([
-			"socketTimeout" => 10,
-			"streamTimeout" => 30,
+			"socketTimeout" => $this->socketTimeout,
+			"streamTimeout" => $this->streamTimeout,
 			"waitResponse" => true,
 		]);
 		$httpClient->setCharset('UTF-8');

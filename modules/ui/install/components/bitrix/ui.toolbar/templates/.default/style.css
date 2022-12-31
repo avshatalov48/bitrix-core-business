@@ -115,11 +115,6 @@
     flex-basis: auto;
 }
 
-.bx-ie11 .ui-toolbar-filter-box {
-	flex-shrink: 0;
-	min-width: auto;
-}
-
 .ui-toolbar-filter-box .main-ui-filter-search {
     flex-grow: 1;
     flex-shrink: 1;

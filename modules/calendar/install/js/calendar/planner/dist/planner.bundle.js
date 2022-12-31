@@ -29,6 +29,7 @@ this.BX = this.BX || {};
 	    this.eventDragAndDrop = new calendar_ui_tools_draganddrop.EventDragAndDrop(params.getDateByPos, params.getPosByDate, params.getEvents);
 	    this.useAnimation = params.useAnimation !== false;
 	    this.DOM.timelineWrap = params.timelineWrap;
+	    this.DOM.timelineFixedWrap = params.timelineFixedWrap;
 	    this.render();
 	  }
 
@@ -99,6 +100,13 @@ this.BX = this.BX || {};
 	        focus: params.focus
 	      });
 	    }
+
+	    const isSelectorInThePast = this.currentDateTo.getTime() < this.getScaleInfo().scaleDateFrom.getTime();
+	    const isSelectorInTheFuture = this.currentDateFrom.getTime() > this.getScaleInfo().scaleDateTo.getTime();
+
+	    if (isSelectorInThePast || isSelectorInTheFuture) {
+	      this.DOM.wrap.style.display = 'none';
+	    }
 	  }
 
 	  show(from, to, params) {
@@ -136,6 +144,9 @@ this.BX = this.BX || {};
 	  }
 
 	  startMove() {
+	    document.addEventListener('pointermove', this.preventDefault, {
+	      passive: false
+	    });
 	    this.selectorIsDraged = true;
 	    this.selectorStartLeft = parseInt(this.DOM.wrap.style.left);
 	    this.selectorStartScrollLeft = this.DOM.timelineWrap.scrollLeft;
@@ -155,19 +166,71 @@ this.BX = this.BX || {};
 	      }
 
 	      let boundary = this.eventDragAndDrop.getDragBoundary(pos);
+	      boundary = this.getAutoScrollBoundary(boundary);
 	      boundary = this.getConstrainedBoundary(boundary);
-
-	      if (boundary.wasMagnetized) {
-	        this.DOM.wrap.style.transition = 'left .05s, width .1s';
-	      } else {
-	        this.DOM.wrap.style.transition = 'width .1s';
-	      }
-
-	      this.DOM.wrap.style.width = boundary.size + 'px';
-	      this.DOM.wrap.style.left = boundary.position + 'px';
-	      this.showTitle(boundary.from, boundary.to);
-	      this.checkStatus(boundary.position, true);
+	      this.setBoundary(boundary);
 	    }
+	  }
+
+	  getAutoScrollBoundary(boundary) {
+	    const boundaryLeft = boundary.position - this.DOM.timelineWrap.scrollLeft;
+	    const containerLeft = this.getPosByDate(this.getScaleInfo().scaleDateFrom);
+	    const boundaryRight = boundaryLeft + boundary.size;
+	    const containerRight = this.DOM.timelineFixedWrap.offsetWidth;
+
+	    if (boundaryRight > containerRight) {
+	      this.scrollSpeed = this.getSpeed(boundaryRight, containerRight);
+	      boundary.position = containerRight + this.DOM.timelineWrap.scrollLeft - boundary.size;
+	      this.setAutoScrollInterval(boundary, 1);
+	    } else if (boundaryLeft < containerLeft) {
+	      this.scrollSpeed = this.getSpeed(boundaryLeft, containerLeft);
+	      boundary.position = containerLeft + this.DOM.timelineWrap.scrollLeft;
+	      this.setAutoScrollInterval(boundary, -1);
+	    } else {
+	      this.stopAutoScroll();
+	    }
+
+	    return boundary;
+	  }
+
+	  getSpeed(x1, x2) {
+	    return Math.floor(Math.sqrt(Math.abs(x1 - x2))) + 1;
+	  }
+
+	  setAutoScrollInterval(boundary, direction) {
+	    if (!this.scrollInterval) {
+	      this.scrollInterval = setInterval(() => {
+	        if (!this.getDateByPos(boundary.position + this.scrollSpeed * direction) || !this.getDateByPos(boundary.position + boundary.size + this.scrollSpeed * direction)) {
+	          this.stopAutoScroll();
+	          return;
+	        }
+
+	        this.DOM.timelineWrap.scrollLeft += this.scrollSpeed * direction;
+	        boundary.position += this.scrollSpeed * direction;
+	        boundary.from = this.getDateByPos(boundary.position);
+	        boundary.to = this.getDateByPos(boundary.position + boundary.size);
+	        this.eventDragAndDrop.setFinalTimeInterval(boundary.from, boundary.to);
+	        this.setBoundary(boundary);
+	      }, 13);
+	    }
+	  }
+
+	  stopAutoScroll() {
+	    clearInterval(this.scrollInterval);
+	    this.scrollInterval = false;
+	  }
+
+	  setBoundary(boundary) {
+	    if (boundary.wasMagnetized) {
+	      this.DOM.wrap.style.transition = 'left .05s, width .1s';
+	    } else {
+	      this.DOM.wrap.style.transition = 'width .1s';
+	    }
+
+	    this.DOM.wrap.style.width = boundary.size + 'px';
+	    this.DOM.wrap.style.left = boundary.position + 'px';
+	    this.showTitle(boundary.from, boundary.to);
+	    this.checkStatus(boundary.position, true);
 	  }
 
 	  getConstrainedBoundary(boundary) {
@@ -208,6 +271,11 @@ this.BX = this.BX || {};
 	  }
 
 	  endMove() {
+	    document.removeEventListener('pointermove', this.preventDefault, {
+	      passive: false
+	    });
+	    this.stopAutoScroll();
+
 	    if (this.selectorIsDraged) {
 	      this.selectorIsDraged = false;
 	      const left = this.getPosByDate(this.eventDragAndDrop.getFinalFrom());
@@ -230,6 +298,9 @@ this.BX = this.BX || {};
 	  }
 
 	  startResize() {
+	    document.addEventListener('pointermove', this.preventDefault, {
+	      passive: false
+	    });
 	    this.selectorIsResized = true;
 	    this.selectorStartLeft = parseInt(this.DOM.wrap.style.left);
 	    this.selectorStartWidth = parseInt(this.DOM.wrap.style.width);
@@ -244,6 +315,11 @@ this.BX = this.BX || {};
 
 	      width -= this.selectorStartScrollLeft - this.DOM.timelineWrap.scrollLeft;
 	      let rightPos = Math.min(this.selectorStartLeft + width, this.getTimelineWidth());
+
+	      if (rightPos < this.selectorStartLeft) {
+	        rightPos = this.selectorStartLeft;
+	      }
+
 	      toDate = this.getDateByPos(rightPos, true);
 
 	      if (this.fullDayMode) {
@@ -256,15 +332,6 @@ this.BX = this.BX || {};
 	        }
 
 	        rightPos = this.getPosByDate(toDate);
-	        width = rightPos - this.selectorStartLeft;
-
-	        if (width <= 10) {
-	          toDate = this.getDateByPos(this.selectorStartLeft);
-	          toDate = new Date(toDate.getTime() + calendar_util.Util.getDayLength());
-	          toDate.setHours(0, 0, 0, 0);
-	          width = this.getPosByDate(toDate) - this.selectorStartLeft;
-	          rightPos = this.selectorStartLeft + width;
-	        }
 	      } else if (this.getScaleInfo().shownTimeFrom !== 0 || this.getScaleInfo().shownTimeTo !== 24) {
 	        let fromDate = this.getDateByPos(this.selectorStartLeft);
 
@@ -272,7 +339,6 @@ this.BX = this.BX || {};
 	          toDate = new Date(fromDate.getTime());
 	          toDate.setHours(this.getScaleInfo().shownTimeTo, 0, 0, 0);
 	          rightPos = this.getPosByDate(toDate);
-	          width = rightPos - this.selectorStartLeft;
 	        }
 	      }
 
@@ -286,6 +352,15 @@ this.BX = this.BX || {};
 	        }
 	      }
 
+	      if (this.selectorRoundedRightPos < this.selectorStartLeft) {
+	        this.selectorRoundedRightPos = this.selectorStartLeft;
+	      }
+
+	      if (this.selectorRoundedRightPos - this.DOM.timelineWrap.scrollLeft > this.DOM.timelineFixedWrap.offsetWidth) {
+	        this.selectorRoundedRightPos = this.DOM.timelineWrap.scrollLeft + this.DOM.timelineFixedWrap.offsetWidth;
+	      }
+
+	      width = this.selectorRoundedRightPos - this.selectorStartLeft;
 	      this.DOM.wrap.style.width = width + 'px';
 	      this.showTitle(this.getDateByPos(this.selectorStartLeft), this.getDateByPos(this.selectorRoundedRightPos));
 	      this.checkStatus(this.selectorStartLeft, true);
@@ -293,6 +368,10 @@ this.BX = this.BX || {};
 	  }
 
 	  endResize() {
+	    document.removeEventListener('pointermove', this.preventDefault, {
+	      passive: false
+	    });
+
 	    if (this.selectorIsResized) {
 	      this.selectorIsResized = false;
 	      let left = parseInt(this.DOM.wrap.style.left);
@@ -308,6 +387,10 @@ this.BX = this.BX || {};
 	    }
 
 	    this.selectorIsResized = false;
+	  }
+
+	  preventDefault(e) {
+	    e.preventDefault();
 	  }
 
 	  isDragged() {
@@ -364,23 +447,26 @@ this.BX = this.BX || {};
 	    }
 	  }
 
-	  setValue(selectorPos, selectorWidth) {
+	  setValue(selectorPos = null, duration = null) {
 	    if (!selectorPos) {
 	      selectorPos = parseInt(this.DOM.wrap.style.left);
 	    }
 
 	    selectorPos = Math.max(0, selectorPos);
-
-	    if (!selectorWidth) {
-	      selectorWidth = parseInt(this.DOM.wrap.style.width);
-	    }
+	    const selectorWidth = parseInt(this.DOM.wrap.style.width);
 
 	    if (selectorPos + selectorWidth > parseInt(this.getTimelineWidth())) {
 	      selectorPos = parseInt(this.getTimelineWidth()) - selectorWidth;
 	    }
 
-	    let dateFrom = this.getDateByPos(selectorPos);
-	    let dateTo = this.getDateByPos(selectorPos + selectorWidth, true);
+	    const dateFrom = this.getDateByPos(selectorPos);
+	    let dateTo;
+
+	    if (duration) {
+	      dateTo = new Date(dateFrom.getTime() + duration);
+	    } else {
+	      dateTo = this.getDateByPos(selectorPos + selectorWidth, true);
+	    }
 
 	    if (dateFrom && dateTo) {
 	      if (this.fullDayMode) {
@@ -451,11 +537,14 @@ this.BX = this.BX || {};
 	      }
 	    }
 
-	    return fromPos;
+	    return Math.max(fromPos, 0);
 	  }
 
 	  transit(params = {}) {
 	    var _params$fromX, _params$toX;
+
+	    this.DOM.wrap.style.display = 'block';
+	    let duration;
 
 	    if (main_core.Type.isDate(params.leftDate) && main_core.Type.isDate(params.rightDate)) {
 	      if (this.fullDayMode) {
@@ -465,6 +554,7 @@ this.BX = this.BX || {};
 	        params.rightDate.setHours(23, 55, 0, 0);
 	      }
 
+	      duration = params.rightDate.getTime() - params.leftDate.getTime();
 	      const fromPos = this.getPosByDate(params.leftDate);
 	      const toPos = this.getPosByDate(params.rightDate);
 	      params.toX = fromPos;
@@ -503,7 +593,7 @@ this.BX = this.BX || {};
 	          }
 
 	          if (triggerChangeEvents) {
-	            this.setValue(checkedPos);
+	            this.setValue(checkedPos, duration);
 	          }
 
 	          if (focus) {
@@ -523,7 +613,7 @@ this.BX = this.BX || {};
 	      this.animation.animate();
 	    } else {
 	      if (triggerChangeEvents) {
-	        this.setValue();
+	        this.setValue(false, duration);
 	      }
 
 	      if (focus === true) {
@@ -756,7 +846,12 @@ this.BX = this.BX || {};
 	    _t46,
 	    _t47,
 	    _t48,
-	    _t49;
+	    _t49,
+	    _t50,
+	    _t51,
+	    _t52,
+	    _t53,
+	    _t54;
 	class Planner extends main_core_events.EventEmitter {
 	  // in days
 	  // in days
@@ -814,6 +909,15 @@ this.BX = this.BX || {};
 	  }
 
 	  show() {
+	    if (this.currentFromDate && this.currentToDate) {
+	      const hourFrom = this.currentFromDate.getHours();
+	      const hourTo = this.currentToDate.getHours() + Math.ceil(this.currentToDate.getMinutes() / 60);
+	      this.extendScaleTimeLimits(hourFrom, hourTo);
+	    }
+
+	    if (this.currentFromDate && this.currentToDate) {
+	      this.updateScaleLimitsFromEntry(this.currentFromDate, this.currentToDate);
+	    }
 
 	    if (this.hideAnimation) {
 	      this.hideAnimation.stop();
@@ -828,12 +932,21 @@ this.BX = this.BX || {};
 	    }
 
 	    this.buildTimeline();
+	    this.DOM.wrap.style.display = '';
 
 	    if (this.adjustWidth) {
 	      this.resizePlannerWidth(this.DOM.timelineInnerWrap.offsetWidth);
 	    }
 
-	    this.DOM.wrap.style.display = '';
+	    this.selector.update({
+	      from: this.currentFromDate,
+	      to: this.currentToDate,
+	      animation: false
+	    });
+
+	    if (this.currentFromDate && this.currentToDate && this.currentFromDate.getTime() >= this.scaleDateFrom.getTime() && this.currentToDate.getTime() <= this.scaleDateTo.getTime()) {
+	      this.selector.focus(false, 0, true);
+	    }
 
 	    if (this.readonly) {
 	      main_core.Dom.addClass(this.DOM.mainWrap, 'calendar-planner-readonly');
@@ -861,6 +974,7 @@ this.BX = this.BX || {};
 	  }
 
 	  setConfig(params) {
+	    this.todayLocMessage = main_core.Loc.getMessage('EC_PLANNER_TODAY');
 	    this.setScaleType(params.scaleType); // showTimelineDayTitle
 
 	    if (params.showTimelineDayTitle !== undefined) {
@@ -975,6 +1089,12 @@ this.BX = this.BX || {};
 	    this.setScaleLimits(params.scaleDateFrom, params.scaleDateTo);
 	  }
 
+	  updateScaleLimitsFromEntry(from, to) {
+	    if (from.getTime() > this.scaleDateTo.getTime() || to.getTime() < this.scaleDateFrom.getTime()) {
+	      this.setScaleLimits(new Date(from.getTime()), new Date(to.getTime() + calendar_util.Util.getDayLength() * this.SCALE_OFFSET_AFTER));
+	    }
+	  }
+
 	  setScaleLimits(scaleDateFrom, scaleDateTo) {
 	    if (scaleDateFrom !== undefined) {
 	      this.scaleDateFrom = main_core.Type.isDate(scaleDateFrom) ? scaleDateFrom : calendar_util.Util.parseDate(scaleDateFrom);
@@ -1005,20 +1125,7 @@ this.BX = this.BX || {};
 	    this.scaleDateTo.setHours(this.isOneDayScale() ? 0 : this.shownScaleTimeTo, 0, 0, 0);
 	  }
 
-	  SetLoadedDataLimits(from, to) {
-	    if (from) {
-	      this.loadedDataFrom = from.getTime ? from : calendar_util.Util.parseDate(from);
-	    }
-
-	    if (to) {
-	      this.loadedDataTo = to.getTime ? to : calendar_util.Util.parseDate(to);
-	    }
-	  }
-
-	  extendScaleTime(fromTime, toTime) {
-	    const savedTimeFrom = this.shownScaleTimeFrom;
-	    const savedTimeTo = this.shownScaleTimeTo;
-
+	  extendScaleTimeLimits(fromTime, toTime) {
 	    if (fromTime !== false && !isNaN(parseInt(fromTime))) {
 	      this.shownScaleTimeFrom = Math.min(parseInt(fromTime), this.shownScaleTimeFrom, 23);
 	      this.shownScaleTimeFrom = Math.max(this.shownScaleTimeFrom, 0);
@@ -1037,13 +1144,29 @@ this.BX = this.BX || {};
 	      }
 	    }
 
-	    if ((this.shownScaleTimeTo - this.shownScaleTimeFrom) % 2 !== 0) {
-	      this.shownScaleTimeTo++;
-
-	      if (this.shownScaleTimeTo > 24) {
-	        this.shownScaleTimeFrom--;
-	      }
+	    if (this.shownScaleTimeFrom % 2 !== 0) {
+	      this.shownScaleTimeFrom--;
 	    }
+
+	    if (this.shownScaleTimeTo % 2 !== 0) {
+	      this.shownScaleTimeTo++;
+	    }
+	  }
+
+	  SetLoadedDataLimits(from, to) {
+	    if (from) {
+	      this.loadedDataFrom = from.getTime ? from : calendar_util.Util.parseDate(from);
+	    }
+
+	    if (to) {
+	      this.loadedDataTo = to.getTime ? to : calendar_util.Util.parseDate(to);
+	    }
+	  }
+
+	  extendScaleTime(fromTime, toTime) {
+	    const savedTimeFrom = this.shownScaleTimeFrom;
+	    const savedTimeTo = this.shownScaleTimeTo;
+	    this.extendScaleTimeLimits(fromTime, toTime);
 
 	    if (fromTime === false && toTime !== false) {
 	      setTimeout(() => {
@@ -1159,10 +1282,16 @@ this.BX = this.BX || {};
 
 	    this.DOM.accessibilityWrap = this.DOM.timelineDataWrap.appendChild(main_core.Tag.render(_t13 || (_t13 = _$1`
 			<div class="calendar-planner-acc-wrap"></div>
-		`))); // Selector
+		`)));
+
+	    if (!this.readonly) {
+	      this.DOM.timelineVerticalConstraint.addEventListener('scroll', this.updateTodayButtonVisibility.bind(this));
+	    } // Selector
+
 
 	    this.selector = new Selector({
 	      selectMode: this.selectMode,
+	      timelineFixedWrap: this.DOM.timelineFixedWrap,
 	      timelineWrap: this.DOM.timelineVerticalConstraint,
 	      getPosByDate: this.getPosByDate.bind(this),
 	      getDateByPos: this.getDateByPos.bind(this),
@@ -1176,7 +1305,9 @@ this.BX = this.BX || {};
 	        return {
 	          scale: this.scaleType,
 	          shownTimeFrom: this.shownScaleTimeFrom,
-	          shownTimeTo: this.shownScaleTimeTo
+	          shownTimeTo: this.shownScaleTimeTo,
+	          scaleDateFrom: this.scaleDateFrom,
+	          scaleDateTo: this.scaleDateTo
 	        };
 	      },
 	      getTimelineWidth: () => {
@@ -1208,31 +1339,54 @@ this.BX = this.BX || {};
 
 	  buildTimeline(clearCache) {
 	    if (this.isBuilt() && (this.lastTimelineKey !== this.getTimelineShownKey() || clearCache === true)) {
-	      if (this.DOM.timelineScaleWrap) {
-	        main_core.Dom.clean(this.DOM.timelineScaleWrap);
-	      }
-
+	      main_core.Dom.clean(this.DOM.timelineScaleWrap);
 	      this.scaleData = this.getScaleData();
 	      let outerDayCont,
 	          dayTitle,
 	          cont = this.DOM.timelineScaleWrap;
+	      this.futureDayTitles = [];
+	      this.todayButtonPivotDay = undefined;
 
 	      for (let i = 0; i < this.scaleData.length; i++) {
 	        if (this.showTimelineDayTitle && !this.isOneDayScale()) {
 	          if (this.scaleDayTitles[this.scaleData[i].daystamp]) {
 	            cont = this.scaleDayTitles[this.scaleData[i].daystamp];
 	          } else {
+	            const date = new Date(this.scaleData[i].timestamp);
+	            date.setHours(0, 0, 0, 0);
+	            const today = new Date();
+	            today.setHours(0, 0, 0, 0);
 	            outerDayCont = this.DOM.timelineScaleWrap.appendChild(main_core.Tag.render(_t17 || (_t17 = _$1`
 							<div class="calendar-planner-time-day-outer"></div>
-						`))); //F d, l
+						`)));
+	            let dayTitleClass = 'calendar-planner-time-day-title';
+
+	            if (date.getTime() < today.getTime()) {
+	              dayTitleClass += ' calendar-planner-time-day-past';
+	            } //F d, l
+
 
 	            dayTitle = outerDayCont.appendChild(main_core.Tag.render(_t18 || (_t18 = _$1`
-							<div class="calendar-planner-time-day-title">
+							<div class="${0}">
 								<span>${0}</span>
 								<div class="calendar-planner-time-day-border"></div>
 							</div>
-						`), BX.date.format(this.dayOfWeekMonthFormat, this.scaleData[i].timestamp / 1000)));
-	            cont = outerDayCont.appendChild(main_core.Tag.render(_t19 || (_t19 = _$1`
+						`), dayTitleClass, BX.date.format(this.dayOfWeekMonthFormat, this.scaleData[i].timestamp / 1000)));
+
+	            if (date.getTime() > today.getTime()) {
+	              this.futureDayTitles.push(dayTitle.querySelector('span'));
+	            }
+
+	            if (date.getTime() === today.getTime()) {
+	              this.todayTitleButton = dayTitle.firstElementChild.appendChild(main_core.Tag.render(_t19 || (_t19 = _$1`
+								<div class="calendar-planner-today-button"></div>
+							`)));
+	              this.todayTitleButton.innerHTML = this.todayLocMessage;
+	              this.todayTitleButton.addEventListener('click', this.todayButtonClickHandler.bind(this));
+	              this.todayButtonPivotDay = outerDayCont;
+	            }
+
+	            cont = outerDayCont.appendChild(main_core.Tag.render(_t20 || (_t20 = _$1`
 							<div class="calendar-planner-time-day"></div>
 						`)));
 	            this.scaleDayTitles[this.scaleData[i].daystamp] = cont;
@@ -1257,7 +1411,7 @@ this.BX = this.BX || {};
 	        }));
 
 	        if (!this.isOneDayScale() && this.scaleData[i + 1] && this.scaleData[i + 1].dayStart) {
-	          cont.appendChild(main_core.Tag.render(_t20 || (_t20 = _$1`
+	          cont.appendChild(main_core.Tag.render(_t21 || (_t21 = _$1`
 						<div class="calendar-planner-timeline-border"></div>
 					`)));
 	        }
@@ -1270,6 +1424,63 @@ this.BX = this.BX || {};
 	      this.DOM.entrieListWrap.style.top = parseInt(this.DOM.timelineDataWrap.offsetTop) + 10 + 'px';
 	      this.lastTimelineKey = this.getTimelineShownKey();
 	      this.checkRebuildTimeout(timelineOffset);
+	      this.buildTodayButtonWrap();
+	    }
+	  }
+
+	  buildTodayButtonWrap() {
+	    if (this.readonly) {
+	      return;
+	    }
+
+	    if (this.todayButton) {
+	      this.todayButton.remove();
+	    }
+
+	    if (this.todayRightButton) {
+	      this.todayRightButton.remove();
+	    }
+
+	    if (this.DOM.todayButtonContainer) {
+	      this.DOM.todayButtonContainer.remove();
+	    }
+
+	    if (this.isOneDayScale()) {
+	      return;
+	    }
+
+	    const todayButton = this.DOM.entriesOuterWrap.appendChild(main_core.Tag.render(_t22 || (_t22 = _$1`
+			<div class="calendar-planner-today-button">${0}</div>
+		`), this.todayLocMessage));
+	    this.todayButtonWidth = todayButton.offsetWidth;
+	    todayButton.innerHTML = this.todayLocMessage + ' &rarr;';
+	    this.todayButtonRightWidth = todayButton.offsetWidth;
+	    todayButton.innerHTML = this.todayLocMessage + ' &larr;';
+	    this.todayButtonLeftWidth = todayButton.offsetWidth;
+	    const top = BX.pos(todayButton).top - BX.pos(this.DOM.timelineScaleWrap).top;
+	    todayButton.remove();
+	    let left = 0;
+
+	    if (this.todayButtonPivotDay) {
+	      left = this.todayButtonPivotDay.offsetLeft + this.todayButtonPivotDay.offsetWidth - 10 - this.todayButtonWidth + 1;
+	    }
+
+	    const width = this.DOM.timelineScaleWrap.offsetWidth - left;
+	    this.DOM.todayButtonContainer = this.DOM.timelineScaleWrap.appendChild(main_core.Tag.render(_t23 || (_t23 = _$1`
+			<div class="calendar-planner-today-button-container" style="width: ${0}px; left: ${0}px; top: ${0}px;"></div>
+		`), width, left, top));
+	    this.todayButton = this.DOM.todayButtonContainer.appendChild(main_core.Tag.render(_t24 || (_t24 = _$1`
+			<div class="calendar-planner-today-button" style="width: ${0}px; direction: rtl;">${0}</div>
+		`), this.todayButtonWidth, this.todayLocMessage));
+	    this.todayRightButton = this.DOM.timelineVerticalConstraint.appendChild(main_core.Tag.render(_t25 || (_t25 = _$1`
+			<div class="calendar-planner-today-button" style="right: 0; top: 5px; position: absolute;">${0}</div>
+		`), this.todayLocMessage));
+	    this.todayButton.addEventListener('click', this.todayButtonClickHandler.bind(this));
+	    this.todayRightButton.addEventListener('click', this.todayButtonClickHandler.bind(this));
+	    this.updateTodayButtonVisibility(false);
+
+	    if (this.isLocked() && this.DOM.todayButtonContainer) {
+	      main_core.Dom.addClass(this.DOM.todayButtonContainer, '--lock');
 	    }
 	  }
 
@@ -1347,6 +1558,10 @@ this.BX = this.BX || {};
 	      if (isToLeft) {
 	        toTimestamp = this.scaleData[pivotScaleDatumOfDayIndex].timestamp / 1000;
 	        fromTimestamp = toTimestamp - 3600 * extendCount;
+
+	        if (new Date(fromTimestamp * 1000).getHours() !== extendedTimeFrom) {
+	          return;
+	        }
 	      } else {
 	        fromTimestamp = this.scaleData[pivotScaleDatumOfDayIndex].timestamp / 1000 + this.scaleSize;
 	        toTimestamp = fromTimestamp + 3600 * extendCount;
@@ -1421,6 +1636,7 @@ this.BX = this.BX || {};
 	      finish: {},
 	      transition: BX.easing.makeEaseOut(BX.easing.transitions.linear),
 	      step: () => {
+	        this.buildTodayButtonWrap();
 	        this.selector.update();
 
 	        for (const event of animatedEvents) {
@@ -1445,12 +1661,12 @@ this.BX = this.BX || {};
 	    this.DOM.timelineInnerWrap.style.width = timelineOffset + 'px';
 	    this.DOM.entrieListWrap.style.top = parseInt(this.DOM.timelineDataWrap.offsetTop) + 10 + 'px';
 	    this.lastTimelineKey = this.getTimelineShownKey();
-	    this.checkRebuildTimeout(timelineOffset);
 	    this.update(this.entries, this.accessibility);
 	    this.adjustHeight();
 	    this.resizePlannerWidth(this.width);
 	    this.selector.update();
 	    this.clearCacheTime();
+	    this.buildTodayButtonWrap();
 	  }
 
 	  rebuild(params = {}) {
@@ -1462,6 +1678,7 @@ this.BX = this.BX || {};
 
 	      if (params.updateSelector !== false) {
 	        this.selector.update(params.selectorParams);
+	        this.selector.focus(false, 0, true);
 	      }
 
 	      this.clearCacheTime();
@@ -1612,18 +1829,18 @@ this.BX = this.BX || {};
 	    let rowWrap;
 
 	    if (entry.type === 'moreLink') {
-	      rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_t21 || (_t21 = _$1`
+	      rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_t26 || (_t26 = _$1`
 				<div class="calendar-planner-user"></div>
 			`)));
 
 	      if (this.showEntryName) {
-	        this.DOM.showMoreUsersLink = rowWrap.appendChild(main_core.Tag.render(_t22 || (_t22 = _$1`
+	        this.DOM.showMoreUsersLink = rowWrap.appendChild(main_core.Tag.render(_t27 || (_t27 = _$1`
 					<div class="calendar-planner-all-users" title="${0}">
 						${0}
 					</div>
 				`), entry.title || '', entry.name));
 	      } else {
-	        this.DOM.showMoreUsersLink = rowWrap.appendChild(main_core.Tag.render(_t23 || (_t23 = _$1`
+	        this.DOM.showMoreUsersLink = rowWrap.appendChild(main_core.Tag.render(_t28 || (_t28 = _$1`
 					<div class="calendar-planner-users-more" title="${0}">
 						<span class="calendar-planner-users-more-btn"></span>
 					</div>
@@ -1632,18 +1849,18 @@ this.BX = this.BX || {};
 
 	      main_core.Event.bind(this.DOM.showMoreUsersLink, 'click', () => this.showMoreUsers());
 	    } else if (entry.type === 'lastUsers') {
-	      rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_t24 || (_t24 = _$1`	
+	      rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_t29 || (_t29 = _$1`	
 				<div class="calendar-planner-user"></div>
 			`)));
 
 	      if (this.showEntryName) {
-	        this.DOM.showMoreUsersLink = rowWrap.appendChild(main_core.Tag.render(_t25 || (_t25 = _$1`
+	        this.DOM.showMoreUsersLink = rowWrap.appendChild(main_core.Tag.render(_t30 || (_t30 = _$1`
 					<div class="calendar-planner-all-users calendar-planner-last-users" title="${0}">
 						${0}
 					</div>
 				`), entry.title || '', entry.name));
 	      } else {
-	        this.DOM.showMoreUsersLink = rowWrap.appendChild(main_core.Tag.render(_t26 || (_t26 = _$1`
+	        this.DOM.showMoreUsersLink = rowWrap.appendChild(main_core.Tag.render(_t31 || (_t31 = _$1`
 					<div class="calendar-planner-users-more" title="${0}">
 						<span class="calendar-planner-users-last-btn"></span>
 					</div>
@@ -1669,7 +1886,7 @@ this.BX = this.BX || {};
 	      rowWrap.appendChild(Planner.getEntryAvatarNode(entry));
 
 	      if (this.showEntryName) {
-	        rowWrap.appendChild(main_core.Tag.render(_t27 || (_t27 = _$1`
+	        rowWrap.appendChild(main_core.Tag.render(_t32 || (_t32 = _$1`
 					<span class="calendar-planner-user-name"></span>
 				`))).appendChild(BX.create('SPAN', {
 	          props: {
@@ -1686,26 +1903,26 @@ this.BX = this.BX || {};
 	        }));
 	      }
 	    } else if (entry.id && entry.type === 'room') {
-	      rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_t28 || (_t28 = _$1`
+	      rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_t33 || (_t33 = _$1`
 				<div class="calendar-planner-user"></div>
 			`)));
 
 	      if (this.showEntryName) {
-	        rowWrap.appendChild(main_core.Tag.render(_t29 || (_t29 = _$1`
+	        rowWrap.appendChild(main_core.Tag.render(_t34 || (_t34 = _$1`
 					<span class="calendar-planner-user-name"></span>
-				`))).appendChild(main_core.Tag.render(_t30 || (_t30 = _$1`
+				`))).appendChild(main_core.Tag.render(_t35 || (_t35 = _$1`
 					<span class="calendar-planner-entry-name" style="width: ${0}px;">
 						${0}
 					</span>
 				`), this.entriesListWidth - 20, main_core.Text.encode(entry.name)));
 	      } else {
-	        rowWrap.appendChild(main_core.Tag.render(_t31 || (_t31 = _$1`
+	        rowWrap.appendChild(main_core.Tag.render(_t36 || (_t36 = _$1`
 					<div class="calendar-planner-location-image-icon" title="${0}"></div>
 				`), main_core.Text.encode(entry.name)));
 	      }
 	    } else if (entry.type === 'resource') {
 	      if (!this.entriesResourceListWrap || !BX.isNodeInDom(this.entriesResourceListWrap)) {
-	        this.entriesResourceListWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_t32 || (_t32 = _$1`
+	        this.entriesResourceListWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_t37 || (_t37 = _$1`
 					<div class="calendar-planner-container-resource">
 						<div class="calendar-planner-resource-header">
 							<span class="calendar-planner-users-item">${0}</span>
@@ -1714,39 +1931,39 @@ this.BX = this.BX || {};
 				`), main_core.Loc.getMessage('EC_PL_RESOURCE_TITLE')));
 	      }
 
-	      rowWrap = this.entriesResourceListWrap.appendChild(main_core.Tag.render(_t33 || (_t33 = _$1`
+	      rowWrap = this.entriesResourceListWrap.appendChild(main_core.Tag.render(_t38 || (_t38 = _$1`
 				<div class="calendar-planner-user" data-bx-planner-entry="${0}"></div>
 			`), entry.uid));
 
 	      if (this.showEntryName) {
-	        rowWrap.appendChild(main_core.Tag.render(_t34 || (_t34 = _$1`
+	        rowWrap.appendChild(main_core.Tag.render(_t39 || (_t39 = _$1`
 					<span class="calendar-planner-user-name"></span>
-				`))).appendChild(main_core.Tag.render(_t35 || (_t35 = _$1`
+				`))).appendChild(main_core.Tag.render(_t40 || (_t40 = _$1`
 					<span class="calendar-planner-entry-name" style="width: ${0}px;">
 						${0}
 					<span>
 				`), this.entriesListWidth - 20, main_core.Text.encode(entry.name)));
 	      } else {
-	        rowWrap.appendChild(main_core.Tag.render(_t36 || (_t36 = _$1`
+	        rowWrap.appendChild(main_core.Tag.render(_t41 || (_t41 = _$1`
 					<div class="calendar-planner-location-image-icon" title="${0}"></div>
 				`), main_core.Text.encode(entry.name)));
 	      }
 	    } else {
-	      rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_t37 || (_t37 = _$1`
+	      rowWrap = this.DOM.entrieListWrap.appendChild(main_core.Tag.render(_t42 || (_t42 = _$1`
 				<div class="calendar-planner-user"></div>
 			`)));
-	      rowWrap.appendChild(main_core.Tag.render(_t38 || (_t38 = _$1`
+	      rowWrap.appendChild(main_core.Tag.render(_t43 || (_t43 = _$1`
 				<div class="calendar-planner-all-users">${0}</div>
 			`), main_core.Text.encode(entry.name)));
 	    }
 
 	    let top = rowWrap.offsetTop + 13;
-	    let dataRowWrap = this.DOM.accessibilityWrap.appendChild(main_core.Tag.render(_t39 || (_t39 = _$1`
+	    let dataRowWrap = this.DOM.accessibilityWrap.appendChild(main_core.Tag.render(_t44 || (_t44 = _$1`
 			<div class="calendar-planner-timeline-space" style="top:${0}px" data-bx-planner-entry="${0}"></div>
 		`), top, entry.uid || 0));
 
 	    if (this.selectMode) {
-	      entry.selectorControlWrap = this.selector.controlWrap.appendChild(main_core.Tag.render(_t40 || (_t40 = _$1`
+	      entry.selectorControlWrap = this.selector.controlWrap.appendChild(main_core.Tag.render(_t45 || (_t45 = _$1`
 				<div class="calendar-planner-selector-control-row" data-bx-planner-entry="${0}" style="top: ${0}px;"></div>
 			`), entry.uid, top - 4));
 
@@ -1771,9 +1988,9 @@ this.BX = this.BX || {};
 	    const img = entry.avatar;
 
 	    if (!img || img === "/bitrix/images/1.gif") {
-	      imageNode = main_core.Tag.render(_t41 || (_t41 = _$1`<div bx-tooltip-user-id="${0}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${0}" class="ui-icon calendar-planner-user-image-icon ${0}"><i></i></div>`), entry.id, main_core.Text.encode(entry.name), entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user');
+	      imageNode = main_core.Tag.render(_t46 || (_t46 = _$1`<div bx-tooltip-user-id="${0}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${0}" class="ui-icon calendar-planner-user-image-icon ${0}"><i></i></div>`), entry.id, main_core.Text.encode(entry.name), entry.emailUser ? 'ui-icon-common-user-mail' : 'ui-icon-common-user');
 	    } else {
-	      imageNode = main_core.Tag.render(_t42 || (_t42 = _$1`<div bx-tooltip-user-id="${0}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${0}" class="ui-icon calendar-planner-user-image-icon"><i style="background-image: url('${0}')"></i></div>`), entry.id, main_core.Text.encode(entry.name), entry.avatar);
+	      imageNode = main_core.Tag.render(_t47 || (_t47 = _$1`<div bx-tooltip-user-id="${0}" bx-tooltip-classname="calendar-planner-user-tooltip" title="${0}" class="ui-icon calendar-planner-user-image-icon"><i style="background-image: url('${0}')"></i></div>`), entry.id, main_core.Text.encode(entry.name), encodeURI(entry.avatar));
 	    }
 
 	    return imageNode;
@@ -1784,7 +2001,7 @@ this.BX = this.BX || {};
 	      let top = parseInt(entry.dataRowWrap.offsetTop);
 
 	      if (!entry.selectWrap || !BX.isParentForNode(this.selectedEntriesWrap, entry.selectWrap)) {
-	        entry.selectWrap = this.selectedEntriesWrap.appendChild(main_core.Tag.render(_t43 || (_t43 = _$1`
+	        entry.selectWrap = this.selectedEntriesWrap.appendChild(main_core.Tag.render(_t48 || (_t48 = _$1`
 					<div class="calendar-planner-timeline-selected"></div>
 				`)));
 	      }
@@ -1847,6 +2064,11 @@ this.BX = this.BX || {};
 
 	    e.preventDefault();
 	    const isRightClick = e.which === 3;
+
+	    if (isRightClick || e.target.className === 'calendar-planner-today-button') {
+	      return;
+	    }
+
 	    this.clickMousePos = this.getMousePos(e);
 	    let nodeTarget = e.target || e.srcElement,
 	        accuracyMouse = 5;
@@ -1886,18 +2108,12 @@ this.BX = this.BX || {};
 
 	        const selectorTimeLength = this.currentToDate - this.currentFromDate;
 	        let selectedDateTo = new Date(selectedDateFrom.getTime() + selectorTimeLength);
-
-	        if (isRightClick) {
-	          selectedDateFrom = new Date(selectedDateFrom.getTime() - selectorTimeLength);
-	          selectedDateTo = new Date(selectedDateTo.getTime() - selectorTimeLength);
-	        }
-
 	        this.currentFromDate = selectedDateFrom;
 	        this.currentToDate = selectedDateTo;
 	        this.selector.transit({
 	          toX: this.getPosByDate(selectedDateFrom),
-	          leftDate: selectedDateFrom,
-	          rightDate: selectedDateTo
+	          leftDate: this.currentFromDate,
+	          rightDate: this.currentToDate
 	        });
 	      }
 	    }
@@ -1981,6 +2197,128 @@ this.BX = this.BX || {};
 	          return BX.PreventDefault(e);
 	        }
 	      }
+	    }
+	  }
+
+	  updateTodayButtonVisibility(animation = true) {
+	    if (this.isOneDayScale()) {
+	      return;
+	    }
+
+	    this.todayButton.style.transition = animation ? '' : 'none';
+	    const today = new Date();
+	    today.setHours(this.shownScaleTimeFrom, 0, 0, 0);
+	    let parent = this.DOM.entriesOuterWrap;
+
+	    if (this.todayTitleButton) {
+	      parent = this.todayTitleButton.parentElement;
+	    }
+
+	    const doDisplayTodayButton = today.getTime() < this.scaleDateTo.getTime() && BX.pos(parent).left + 30 < BX.pos(this.DOM.entriesOuterWrap).right;
+
+	    if (doDisplayTodayButton && this.todayButton.style.display !== '') {
+	      this.todayButton.style.display = '';
+	      this.setFutureDayTitlesOffset(false);
+	    }
+
+	    if (!doDisplayTodayButton && this.todayButton.style.display !== 'none') {
+	      this.todayButton.style.display = 'none';
+	      this.setFutureDayTitlesOffset(false);
+	    }
+
+	    const doAddLeftArrow = BX.pos(this.todayTitleButton).right + (this.todayButtonLeftWidth - this.todayButtonWidth) < BX.pos(this.DOM.entriesOuterWrap).right;
+
+	    if (doAddLeftArrow && this.todayButton.innerHTML === this.todayLocMessage) {
+	      this.todayButton.innerHTML = this.todayLocMessage + ' &larr;';
+	      this.todayButton.style.width = this.todayButtonLeftWidth + 'px';
+	      this.setFutureDayTitlesOffset(animation);
+	    }
+
+	    if (!doAddLeftArrow && this.todayButton.innerHTML !== this.todayLocMessage) {
+	      this.todayButton.innerHTML = this.todayLocMessage;
+	      this.todayButton.style.width = this.todayButtonWidth + 'px';
+	      this.setFutureDayTitlesOffset(animation);
+	    }
+
+	    const isTodayInFuture = today.getTime() > this.scaleDateTo.getTime();
+	    const doDisplayTodayRightButton = isTodayInFuture || BX.pos(parent).right > BX.pos(this.DOM.timelineVerticalConstraint).right;
+
+	    if (doDisplayTodayRightButton && this.todayRightButton.style.display !== '') {
+	      this.todayRightButton.style.display = '';
+	    }
+
+	    if (!doDisplayTodayRightButton && this.todayRightButton.style.display !== 'none') {
+	      this.todayRightButton.style.display = 'none';
+	    }
+
+	    if (this.todayTitleButton) {
+	      if (BX.pos(this.todayTitleButton).right < BX.pos(this.DOM.timelineVerticalConstraint).right) {
+	        this.todayTitleButton.style.position = 'sticky';
+	      }
+
+	      if (BX.pos(this.todayTitleButton).right > BX.pos(this.DOM.timelineVerticalConstraint).right) {
+	        this.todayTitleButton.style.position = '';
+	      }
+	    }
+
+	    const doAddRightArrow = BX.pos(parent).left > BX.pos(this.DOM.timelineVerticalConstraint).right || isTodayInFuture;
+
+	    if (doAddRightArrow && this.todayRightButton.innerHTML === this.todayLocMessage) {
+	      this.todayRightButton.innerHTML = this.todayLocMessage + ' &rarr;';
+	      this.todayRightButton.style.width = this.todayButtonRightWidth + 'px';
+	    }
+
+	    if (!doAddRightArrow && this.todayRightButton.innerHTML !== this.todayLocMessage) {
+	      this.todayRightButton.innerHTML = this.todayLocMessage;
+	      this.todayRightButton.style.width = this.todayButtonWidth + 'px';
+	    }
+	  }
+
+	  setFutureDayTitlesOffset(animation = true) {
+	    const left = this.todayButton.style.display === 'none' ? '' : parseInt(this.todayButton.style.width) + 4 + 'px';
+
+	    for (const title of this.futureDayTitles) {
+	      title.style.transition = animation ? '' : 'none';
+	      title.style.left = left;
+	    }
+	  }
+
+	  todayButtonClickHandler() {
+	    if (this.readonly) {
+	      return;
+	    }
+
+	    if (this.todayButtonPivotDay) {
+	      const today = new Date();
+	      today.setHours(this.shownScaleTimeFrom, 0, 0, 0);
+	      new BX.easing({
+	        duration: 300,
+	        start: {
+	          scrollLeft: this.DOM.timelineVerticalConstraint.scrollLeft
+	        },
+	        finish: {
+	          scrollLeft: this.getPosByDate(today)
+	        },
+	        transition: BX.easing.makeEaseOut(BX.easing.transitions.quad),
+	        step: state => {
+	          this.DOM.timelineVerticalConstraint.scrollLeft = state.scrollLeft;
+	        },
+	        complete: () => {}
+	      }).animate();
+	    } else {
+	      this.scaleDateFrom = new Date();
+	      this.scaleDateFrom.setHours(this.shownScaleTimeFrom, 0, 0, 0);
+	      this.scaleDateTo = new Date(new Date().getTime() + calendar_util.Util.getDayLength() * this.SCALE_OFFSET_AFTER);
+	      this.scaleDateTo.setHours(this.shownScaleTimeTo, 0, 0, 0);
+	      this.rebuild();
+	      this.DOM.timelineVerticalConstraint.scrollLeft = 0;
+	      this.emit('onExpandTimeline', new main_core_events.BaseEvent({
+	        data: {
+	          reload: true,
+	          dateFrom: this.scaleDateFrom,
+	          dateTo: this.scaleDateTo
+	        }
+	      }));
 	    }
 	  }
 
@@ -2286,10 +2624,9 @@ this.BX = this.BX || {};
 	    const prevScaleDateTo = this.scaleDateTo;
 	    if (!scaleDateFrom) scaleDateFrom = this.scaleDateFrom;
 	    if (!scaleDateTo) scaleDateTo = this.scaleDateTo;
-	    let oldScaleDateFrom;
 
 	    if (this.expandTimelineDirection === 'past') {
-	      oldScaleDateFrom = new Date(this.scaleDateFrom.getTime());
+	      scrollLeft = this.DOM.timelineVerticalConstraint.scrollLeft;
 	      this.scaleDateFrom = new Date(scaleDateFrom.getTime() - calendar_util.Util.getDayLength() * this.EXPAND_OFFSET);
 	      const today = new Date();
 	      today.setHours(this.scaleDateFrom.getHours(), 0, 0, 0);
@@ -2336,17 +2673,14 @@ this.BX = this.BX || {};
 	        dateTo: this.scaleDateTo
 	      }
 	    }));
+	    const currentPlannerWidth = this.DOM.timelineInnerWrap.offsetWidth;
 	    this.rebuild({
 	      updateSelector: true
 	    });
 
 	    if (this.expandTimelineDirection === 'past') {
-	      scrollLeft = this.getPosByDate(oldScaleDateFrom);
-	      this.DOM.timelineVerticalConstraint.scrollLeft = scrollLeft;
-	      this.DOM.timelineVerticalConstraint.scrollTo({
-	        left: scrollLeft - 50,
-	        behavior: 'smooth'
-	      });
+	      const widthDiff = this.DOM.timelineInnerWrap.offsetWidth - currentPlannerWidth;
+	      this.DOM.timelineVerticalConstraint.scrollLeft = scrollLeft + widthDiff;
 	    } else if (scrollLeft !== undefined) {
 	      this.DOM.timelineVerticalConstraint.scrollLeft = scrollLeft;
 	    }
@@ -2410,7 +2744,11 @@ this.BX = this.BX || {};
 	        return -1;
 	      }
 
-	      return 0;
+	      if (parseInt(a.id) < parseInt(b.id)) {
+	        return -1;
+	      }
+
+	      return 1;
 	    });
 
 	    if (this.selectedEntriesWrap) {
@@ -2476,6 +2814,9 @@ this.BX = this.BX || {};
 	      }
 	    }
 
+	    this.clearCacheTime();
+	    const status = this.checkTimePeriod(this.currentFromDate, this.currentToDate) === true;
+	    this.updateSelectorFromStatus(status);
 	    calendar_util.Util.extendPlannerWatches({
 	      entries: entries,
 	      userId: this.userId
@@ -2523,7 +2864,7 @@ this.BX = this.BX || {};
 	            this.extendScaleTime(timeFrom - scale, false);
 	          }
 
-	          if (timeTo + 1 >= this.shownScaleTimeTo) {
+	          if (timeTo >= this.shownScaleTimeTo) {
 	            this.extendScaleTime(false, timeTo + scale);
 	          }
 	        }
@@ -2599,21 +2940,25 @@ this.BX = this.BX || {};
 	      const data = event.getData();
 	      this.clearCacheTime();
 	      const selectorStatus = this.checkTimePeriod(data.dateFrom, data.dateTo) === true;
-	      this.selector.setSelectorStatus(selectorStatus);
+	      this.updateSelectorFromStatus(selectorStatus);
+	    }
+	  }
 
-	      if (this.selector.isDragged()) {
-	        this.hideProposeControl();
-	      }
+	  updateSelectorFromStatus(status) {
+	    this.selector.setSelectorStatus(status);
 
-	      if (selectorStatus) {
-	        main_core.Dom.removeClass(this.DOM.mainWrap, 'calendar-planner-selector-warning');
-	        this.hideProposeControl();
-	      } else {
-	        main_core.Dom.addClass(this.DOM.mainWrap, 'calendar-planner-selector-warning');
+	    if (this.selector.isDragged()) {
+	      this.hideProposeControl();
+	    }
 
-	        if (!this.selector.isDragged()) {
-	          this.showProposeControl();
-	        }
+	    if (status) {
+	      main_core.Dom.removeClass(this.DOM.mainWrap, 'calendar-planner-selector-warning');
+	      this.hideProposeControl();
+	    } else {
+	      main_core.Dom.addClass(this.DOM.mainWrap, 'calendar-planner-selector-warning');
+
+	      if (!this.selector.isDragged()) {
+	        this.showProposeControl();
 	      }
 	    }
 	  }
@@ -2830,13 +3175,13 @@ this.BX = this.BX || {};
 	  }
 
 	  showSettingsPopup() {
-	    let settingsDialogCont = main_core.Tag.render(_t44 || (_t44 = _$1`<div class="calendar-planner-settings-popup"></div>`));
-	    let scaleRow = settingsDialogCont.appendChild(main_core.Tag.render(_t45 || (_t45 = _$1`
+	    let settingsDialogCont = main_core.Tag.render(_t49 || (_t49 = _$1`<div class="calendar-planner-settings-popup"></div>`));
+	    let scaleRow = settingsDialogCont.appendChild(main_core.Tag.render(_t50 || (_t50 = _$1`
 			<div class="calendar-planner-settings-row">
 				<i>${0}:</i>
 			</div>
 		`), main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE')));
-	    let scaleWrap = scaleRow.appendChild(main_core.Tag.render(_t46 || (_t46 = _$1`
+	    let scaleWrap = scaleRow.appendChild(main_core.Tag.render(_t51 || (_t51 = _$1`
 			<span class="calendar-planner-option-container"></span>
 		`)));
 
@@ -2846,7 +3191,7 @@ this.BX = this.BX || {};
 	    }
 
 	    this.scaleTypes.forEach(scale => {
-	      scaleWrap.appendChild(main_core.Tag.render(_t47 || (_t47 = _$1`<span class="calendar-planner-option-tab ${0}" data-bx-planner-scale="${0}">${0}</span>`), scale === this.scaleType ? ' calendar-planner-option-tab-active' : '', scale, main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE_' + scale.toUpperCase())));
+	      scaleWrap.appendChild(main_core.Tag.render(_t52 || (_t52 = _$1`<span class="calendar-planner-option-tab ${0}" data-bx-planner-scale="${0}">${0}</span>`), scale === this.scaleType ? ' calendar-planner-option-tab-active' : '', scale, main_core.Loc.getMessage('EC_PL_SETTINGS_SCALE_' + scale.toUpperCase())));
 	    }); // Create and show settings popup
 
 	    let popup = main_popup.PopupWindowManager.create(this.id + "-settings-popup", this.DOM.settingsButton, {
@@ -2880,7 +3225,6 @@ this.BX = this.BX || {};
 	    if (scaleType !== this.scaleType) {
 	      this.setScaleType(scaleType);
 	      this.rebuild();
-	      this.selector.focus(true, 300);
 	    }
 	  }
 
@@ -2904,7 +3248,7 @@ this.BX = this.BX || {};
 
 	  showProposeControl() {
 	    if (!this.DOM.proposeTimeButton) {
-	      this.DOM.proposeTimeButton = this.DOM.mainWrap.appendChild(main_core.Tag.render(_t48 || (_t48 = _$1`
+	      this.DOM.proposeTimeButton = this.DOM.mainWrap.appendChild(main_core.Tag.render(_t53 || (_t53 = _$1`
 				<div class="calendar-planner-time-arrow-right">
 					<span class="calendar-planner-time-arrow-right-text">
 						${0}
@@ -2913,6 +3257,10 @@ this.BX = this.BX || {};
 				</div>
 			`), main_core.Loc.getMessage('EC_PL_PROPOSE')));
 	      main_core.Event.bind(this.DOM.proposeTimeButton, 'click', this.proposeTime.bind(this));
+
+	      if (this.isLocked()) {
+	        main_core.Dom.addClass(this.DOM.proposeTimeButton, '--lock');
+	      }
 	    }
 
 	    this.DOM.proposeTimeButton.style.display = "block";
@@ -2987,7 +3335,7 @@ this.BX = this.BX || {};
 
 	  showLoader() {
 	    this.hideLoader();
-	    this.DOM.loader = this.DOM.mainWrap.appendChild(calendar_util.Util.getLoader(40));
+	    this.DOM.loader = this.DOM.mainWrap.appendChild(calendar_util.Util.getLoader(50));
 	    main_core.Dom.addClass(this.DOM.loader, 'calendar-planner-main-loader');
 	    this.loaderShown = true;
 	  }
@@ -3018,7 +3366,7 @@ this.BX = this.BX || {};
 
 	  lock() {
 	    if (!this.DOM.lockScreen) {
-	      this.DOM.lockScreen = main_core.Tag.render(_t49 || (_t49 = _$1`
+	      this.DOM.lockScreen = main_core.Tag.render(_t54 || (_t54 = _$1`
 				<div class="calendar-planner-timeline-locker">
 					<div class="calendar-planner-timeline-locker-container">
 						<div class="calendar-planner-timeline-locker-top">

@@ -1325,6 +1325,11 @@ class OrderEdit
 		{
 			$basketCode = $item->getBasketCode();
 			$productData = $productsFormData[$basketCode];
+			if (!$productData)
+			{
+				continue;
+			}
+
 			$isDataNeedUpdate = in_array($basketCode, $needDataUpdate);
 			$data[$basketCode] = $item->getFieldValues();
 

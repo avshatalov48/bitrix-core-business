@@ -489,6 +489,7 @@ class LandingLandingsComponent extends LandingBaseComponent
 				{
 					$unActive[] = $item['ID'];
 				}
+				$item['PUBLISHED'] = $item['ACTIVE'] === 'Y' && $item['DELETED'] === 'N';
 				// detect index page
 				if (isset($sites[$item['SITE_ID']]))
 				{
@@ -511,7 +512,7 @@ class LandingLandingsComponent extends LandingBaseComponent
 				$item['AREA_CODE'] = '';
 				$item['PUBLIC_URL'] = '';
 				$item['WAS_MODIFIED'] = $item['DATE_MODIFY_UNIX'] > $item['DATE_PUBLIC_UNIX'] ? 'Y' : 'N';
-				$item['PREVIEW'] = $pictureFromCloud ? '' : $landing->getPreview($item['ID'], true);
+				$item['PREVIEW'] = $landing->getPreview($item['ID'], true);
 				if ($item['DELETED'] === 'Y')
 				{
 					$item['DATE_DELETED_DAYS'] = $deletedLTdays - intval((time() - $item['DATE_MODIFY']->getTimeStamp()) / 86400);
@@ -534,7 +535,7 @@ class LandingLandingsComponent extends LandingBaseComponent
 				$this->arResult['LANDINGS'][$id]['PUBLIC_URL'] = $url;
 				if ($pictureFromCloud)
 				{
-					$this->arResult['LANDINGS'][$id]['PREVIEW'] = $url . 'preview.jpg';
+					$this->arResult['LANDINGS'][$id]['CLOUD_PREVIEW'] = $url . 'preview.jpg';
 				}
 			}
 

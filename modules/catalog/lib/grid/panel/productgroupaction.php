@@ -6,6 +6,8 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Currency;
 
 class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
@@ -95,6 +97,12 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 		$result = parent::getActionHandlers();
 		$result[Catalog\Grid\ProductAction::SET_FIELD] = 'ProductField';
 		$result[Catalog\Grid\ProductAction::CHANGE_PRICE] = 'ProductChangePrice';
+		if (Main\Config\Option::get('catalog', 'enable_convert_product_to_service') === 'Y')
+		{
+			$result[Catalog\Grid\ProductAction::CONVERT_PRODUCT_TO_SERVICE] = 'ConvertProductToService';
+			$result[Catalog\Grid\ProductAction::CONVERT_SERVICE_TO_PRODUCT] = 'ConvertServiceToProduct';
+		}
+
 		return $result;
 	}
 
@@ -125,6 +133,8 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 				}
 			}
 			unset($row, $handler);
+
+
 		}
 
 		$userFields = Catalog\Product\SystemField::getGroupActions($this);
@@ -151,7 +161,8 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 			if ($this->isUiGrid())
 			{
 				$data[] = $this->getApplyButtonWithConfirm([
-					'APPLY_BUTTON_ID' => 'send_product'
+					'APPLY_BUTTON_ID' => 'send_product',
+					'CONFIRM_MESSAGE' => Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_SET_PRODUCT_FIELD_CONFIRM'),
 				]);
 			}
 
@@ -241,6 +252,64 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 		$result['DIFFERENCE_VALUE'] = $this->request->get('chprice_difference_value');
 		$result['VALUE_CHANGING'] = $this->request->get('chprice_value_changing_price');
 		return (!empty($result['VALUE_CHANGING']) ? $result : null);
+	}
+
+	protected function actionConvertProductToServicePanel(array $params = []): ?array
+	{
+		if (!$this->isAllowedProductActions())
+		{
+			return null;
+		}
+		if (!$this->isUiGrid())
+		{
+			return null;
+		}
+
+		$params['APPLY_BUTTON_ID'] = 'convert_product_to_service_confirm';
+		$params['DEFAULT_CONFIRM_MESSAGE'] = Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_CONVERT_PRODUCT_TO_SERVICE_CONFIRM');
+
+		return [
+			'name' => (string)($params['NAME'] ?? Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_CONVERT_PRODUCT_TO_SERVICE')),
+			'type' => 'multicontrol',
+			'action' => [
+				[
+					'ACTION' => Main\Grid\Panel\Actions::RESET_CONTROLS
+				],
+				[
+					'ACTION' => Main\Grid\Panel\Actions::CREATE,
+					'DATA' => [$this->getApplyButtonWithConfirm($params)]
+				]
+			]
+		];
+	}
+
+	protected function actionConvertServiceToProductPanel(array $params = []): ?array
+	{
+		if (!$this->isAllowedProductActions())
+		{
+			return null;
+		}
+		if (!$this->isUiGrid())
+		{
+			return null;
+		}
+
+		$params['APPLY_BUTTON_ID'] = 'convert_service_to_product_confirm';
+		$params['DEFAULT_CONFIRM_MESSAGE'] = Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_CONVERT_SERVICE_TO_PRODUCT_CONFIRM');
+
+		return [
+			'name' => (string)($params['NAME'] ?? Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_CONVERT_SERVICE_TO_PRODUCT')),
+			'type' => 'multicontrol',
+			'action' => [
+				[
+					'ACTION' => Main\Grid\Panel\Actions::RESET_CONTROLS
+				],
+				[
+					'ACTION' => Main\Grid\Panel\Actions::CREATE,
+					'DATA' => [$this->getApplyButtonWithConfirm($params)]
+				]
+			]
+		];
 	}
 
 	/**
@@ -526,11 +595,12 @@ class ProductGroupAction extends Iblock\Grid\Panel\GroupAction
 	 */
 	protected function getProductFieldPurchasingPriceRow(): ?array
 	{
-		global $USER;
 		if ($this->catalogOptions['STORE_MODE'])
 			return null;
-		if (!$USER->CanDoOperation('catalog_purchas_info'))
+		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW))
+		{
 			return null;
+		}
 
 		$list = [];
 		foreach (Currency\CurrencyManager::getCurrencyList() as $currencyId => $currencyName)

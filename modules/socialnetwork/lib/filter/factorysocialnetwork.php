@@ -27,7 +27,22 @@ class FactorySocialnetwork
 							);
 
 						}
-					}
+					},
+					\Bitrix\Socialnetwork\WorkgroupTable::getUfId() => function($entityTypeName, array $settingsParams, array $additionalParams = null) {
+
+						if ($entityTypeName === \Bitrix\Socialnetwork\WorkgroupTable::getUfId())
+						{
+							$settings = new \Bitrix\Socialnetwork\Filter\WorkgroupSettings($settingsParams);
+							$filterID = $settings->getId();
+
+							return new \Bitrix\Main\Filter\Filter(
+								$filterID,
+								new \Bitrix\Socialnetwork\Filter\WorkgroupDataProvider($settings, $additionalParams),
+								[ ]
+							);
+
+						}
+					},
 				]
 			],
 			'socialnetwork'

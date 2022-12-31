@@ -124,6 +124,9 @@
 .bx-ui-tooltip-field-row {
 	display: block;
 	margin: 0 0 6px 0;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	width: 100%;
 }
 
 .bx-ui-tooltip-info-data .bx-ui-tooltip-info-data-info .bx-ui-tooltip-field-name {
@@ -174,12 +177,14 @@
 
 .bx-ui-tooltip-user-name {
 	display: inline-block;
-	margin: 0 0 1px 0;
 	border-bottom: 1px solid transparent;
 	font: 20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #2066B0;
 	transition: border-bottom .3s;
 	cursor: pointer;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	width: 100%;
 }
 
 .bx-ui-tooltip-user-name:hover {

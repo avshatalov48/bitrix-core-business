@@ -134,7 +134,7 @@
 
 		this.postForm = LHEPostForm.getHandler(this.formId+'_editor');
 		this.editor = BXHtmlEditor.Get(this.formId+'_editor');
-		this.editor.config.autoLink = false;
+		// this.editor.config.autoLink = false;
 		this.editorInited = false;
 
 		this.timestamp = (new Date).getTime();
@@ -481,18 +481,72 @@
 			{
 				BX.onCustomEvent(field.form, 'MailForm:field:setMenuExt', [field.form, field]);
 
-				BX.PopupMenu.destroy(field.fieldId+'-menu-ext');
-				BX.PopupMenu.show(
-					field.fieldId+'-menu-ext',
-					this, field.__menuExt,
+				const result = [];
+				field.__menuExt.forEach(function(item) {
+					if ((item.text === undefined) || (item.value === null))
 					{
-						className: 'main-mail-form-field-value-menu-ext-content',
-						offsetTop: -8,
-						offsetLeft: 13,
-						angle: true,
-						closeByEsc: true
+						return;
 					}
-				);
+
+					if (item.items.length === 0)
+					{
+						result.push({
+							id: item.value,
+							entityId: item.text,
+							title: item.text,
+							customData: {
+								field: item.value,
+							},
+							tabs: ['recents']
+						});
+						return;
+					}
+
+					result.push({
+						id: item.value,
+						entityId: item.text,
+						title: item.text,
+						tabs: ['recents'],
+						children: item.items.map((children) => {
+							if ((children.value === undefined) || (children.text === undefined))
+							{
+								return;
+							}
+
+							return {
+								supertitle: item.text,
+								id: children.value,
+								entityId: children.text,
+								title: children.text,
+								customData: {
+									field: children.value,
+								},
+								tabs: ['recents'],
+							}
+						})
+					});
+				});
+
+				const dialog = new BX.UI.EntitySelector.Dialog({
+					targetNode: this,
+					width: 500,
+					height: 300,
+					multiple: false,
+					dropdownMode: true,
+					showAvatars: false,
+					compactView: true,
+					enableSearch: true,
+					items: result,
+					events: {
+						'Item:onBeforeSelect': (event) => {
+							event.preventDefault();
+
+							field.insert(event.getData().item.id);
+						},
+					}
+				});
+
+				dialog.show();
 			});
 		}
 	}

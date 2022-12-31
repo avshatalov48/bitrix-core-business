@@ -419,6 +419,8 @@ class CIBlockElement extends CAllIBlockElement
 				$this->arFilterIBlocks[$db_prop["IBLOCK_ID"]] = $db_prop["IBLOCK_ID"];
 		}
 
+		$showHistory = isset($arFilter["SHOW_HISTORY"]) && $arFilter["SHOW_HISTORY"] === 'Y';
+		$showNew = isset($arFilter["SHOW_NEW"]) && $arFilter["SHOW_NEW"] === 'Y';
 		foreach($arJoinProps["BE"] as $propID => $db_prop)
 		{
 			$i = $db_prop["CNT"];
@@ -430,8 +432,8 @@ class CIBlockElement extends CAllIBlockElement
 					:"FPV".$db_prop["JOIN"].".VALUE_NUM"
 				).
 				(
-					$arFilter["SHOW_HISTORY"] != "Y"?
-					" AND ((BE.WF_STATUS_ID=1 AND BE.WF_PARENT_ELEMENT_ID IS NULL)".($arFilter["SHOW_NEW"]=="Y"? " OR BE.WF_NEW='Y'": "").")":
+					!$showHistory ?
+					" AND ((BE.WF_STATUS_ID=1 AND BE.WF_PARENT_ELEMENT_ID IS NULL)".($showNew ? " OR BE.WF_NEW='Y'": "").")":
 					""
 				)."\n";
 
@@ -441,13 +443,15 @@ class CIBlockElement extends CAllIBlockElement
 			if($db_prop["bJoinSection"])
 				$sFrom .= "\t\t\tLEFT JOIN b_iblock_section BS".$i." ON BS".$i.".ID = BE".$i.".IBLOCK_SECTION_ID\n";
 
-			if($db_prop["IBLOCK_ID"])
+			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
+			{
 				$this->arFilterIBlocks[$db_prop["IBLOCK_ID"]] = $db_prop["IBLOCK_ID"];
+			}
 		}
 
 		foreach($arJoinProps["BE_FPS"] as $iblock_id => $db_prop)
 		{
-			list($iblock_id, $link) = explode("~", $iblock_id, 2);
+			[$iblock_id, $link] = explode("~", $iblock_id, 2);
 			$sFrom .= "\t\t\tLEFT JOIN b_iblock_element_prop_s".$iblock_id." JFPS".$db_prop["CNT"]." ON JFPS".$db_prop["CNT"].".IBLOCK_ELEMENT_ID = BE".$db_prop["JOIN"].".ID\n";
 
 			if($db_prop["IBLOCK_ID"])
@@ -457,7 +461,7 @@ class CIBlockElement extends CAllIBlockElement
 		foreach($arJoinProps["BE_FP"] as $propID => $db_prop)
 		{
 			$i = $db_prop["CNT"];
-			list($propID, $link) = explode("~", $propID, 2);
+			[$propID, $link] = explode("~", $propID, 2);
 
 			if($db_prop["bFullJoin"])
 				$sFrom .= "\t\t\tINNER JOIN b_iblock_property JFP".$i." ON JFP".$i.".IBLOCK_ID = BE".$db_prop["JOIN"].".IBLOCK_ID AND ".
@@ -481,7 +485,7 @@ class CIBlockElement extends CAllIBlockElement
 		foreach($arJoinProps["BE_FPV"] as $propID => $db_prop)
 		{
 			$i = $db_prop["CNT"];
-			list($propID, $link) = explode("~", $propID, 2);
+			[$propID, $link] = explode("~", $propID, 2);
 
 			if($db_prop["MULTIPLE"]=="Y")
 				$this->bDistinct = true;
@@ -503,7 +507,7 @@ class CIBlockElement extends CAllIBlockElement
 		foreach($arJoinProps["BE_FPEN"] as $propID => $db_prop)
 		{
 			$i = $db_prop["CNT"];
-			list($propID, $link) = explode("~", $propID, 2);
+			[$propID, $link] = explode("~", $propID, 2);
 
 			if($db_prop["VERSION"] == 2 && $db_prop["MULTIPLE"] == "N")
 			{
@@ -1739,7 +1743,7 @@ class CIBlockElement extends CAllIBlockElement
 				}
 			}
 
-			Iblock\ElementTable::getEntity()->cleanCache();
+			Iblock\ElementTable::cleanCache();
 
 			$Result = true;
 

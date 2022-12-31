@@ -167,7 +167,7 @@ export class DynamicCardsForm extends BaseForm
 			disableBlocks: true,
 			disallowType: true,
 			allowedTypes: [
-				BX.Landing.UI.Field.LinkURL.TYPE_PAGE,
+				BX.Landing.UI.Field.LinkUrl.TYPE_HREF_PAGE,
 			],
 			detailPageMode: true,
 			sourceField: this.fields.find((field) => {

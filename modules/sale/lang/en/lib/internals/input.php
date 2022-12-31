@@ -12,6 +12,7 @@ $MESS["INPUT_EITHERYN_Y"] = "Yes";
 $MESS["INPUT_ENUM"] = "Enum";
 $MESS["INPUT_ENUM_EMPTY_OPTION"] = "Not selected";
 $MESS["INPUT_ENUM_MULTIELEMENT"] = "Show as item list";
+$MESS["INPUT_ENUM_NOT_UNIQUE_CODES"] = "Each of the list items must have a unique ID.";
 $MESS["INPUT_ENUM_OPTIONS_ERROR"] = "No enum items specified";
 $MESS["INPUT_ENUM_SIZE"] = "Number of visible items";
 $MESS["INPUT_FILE"] = "File";

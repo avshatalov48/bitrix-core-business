@@ -77,6 +77,11 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		$result = new Result();
 		$event->setUid($context->getEventConnection()->getVendorEventId());
 
+		if ($event->getRecurringRule())
+		{
+			return $this->saveInstance($event, $context);
+		}
+
 		$data = $this->getApiService()->updateEvent(
 			$context->getSectionConnection()->getVendorSectionId(),
 			$event,
@@ -321,9 +326,11 @@ class EventManager extends AbstractManager implements EventManagerInterface
 
 			$this->prepareLink($masterEvent, $sectionConnection, $data['XML_ID'], $data['MODIFICATION_LABEL']);
 
+			/** @var SyncEvent $instance */
 			foreach ($recurrenceEvent->getInstanceMap()->getCollection() as $instance)
 			{
 				$this->prepareLink($instance, $sectionConnection, $data['XML_ID']);
+				$instance->getEventConnection()->setRecurrenceId($data['XML_ID']);
 			}
 		}
 		else
@@ -406,7 +413,9 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	{
 		if ($event->getEventConnection())
 		{
-			$event->getEventConnection()->setEntityTag($entityTag);
+			$event->getEventConnection()
+				->setLastSyncStatus(Calendar\Sync\Dictionary::SYNC_STATUS['success'])
+				->setEntityTag($entityTag);
 		}
 		else
 		{
@@ -417,6 +426,7 @@ class EventManager extends AbstractManager implements EventManagerInterface
 				->setConnection($connection->getConnection())
 				->setVendorEventId($vendorId)
 				->setEntityTag($entityTag)
+				->setLastSyncStatus(Calendar\Sync\Dictionary::SYNC_STATUS['success'])
 			;
 			$event->setEventConnection($link);
 		}

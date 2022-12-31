@@ -1,7 +1,7 @@
-import {Event, Loc, Reflection} from 'main.core';
+import {Loc, Reflection} from 'main.core';
 import {EntityCard} from 'catalog.entity-card';
-import {type BaseEvent, EventEmitter} from 'main.core.events';
-import { Popup } from "main.popup";
+import {BaseEvent, EventEmitter} from 'main.core.events';
+import {MenuManager, Popup} from "main.popup";
 import {Button} from "ui.buttons";
 
 class ProductCard extends EntityCard
@@ -11,6 +11,8 @@ class ProductCard extends EntityCard
 	constructor(id, settings = {})
 	{
 		super(id, settings);
+
+		this.initDocumentTypeSelector();
 	}
 
 	getEntityType()
@@ -122,6 +124,47 @@ class ProductCard extends EntityCard
 				this.showNotification(Loc.getMessage('CPD_NEW_VARIATION_ADDED'));
 			}
 		}
+	}
+
+	initDocumentTypeSelector()
+	{
+		let productTypeSelector = document.getElementById(this.settings.productTypeSelector);
+		let productTypeSelectorTypes = this.settings.productTypeSelectorTypes;
+
+		if (!productTypeSelector || !productTypeSelectorTypes)
+		{
+			return;
+		}
+
+		let menuItems = [];
+
+		Object.keys(productTypeSelectorTypes).forEach((type) => {
+			menuItems.push({
+				text: productTypeSelectorTypes[type],
+				onclick: (e) => {
+					let slider = BX.SidePanel.Instance.getTopSlider();
+					if (slider)
+					{
+						slider.url = BX.Uri.addParam(slider.getUrl(), {productTypeId: type});
+						slider.requestMethod = 'post';
+
+						slider.setFrameSrc();
+					}
+				},
+			});
+		});
+
+		let popupMenu = MenuManager.create({
+			id: 'productcard-product-type-selector',
+			bindElement: productTypeSelector,
+			items: menuItems,
+			minWidth: productTypeSelector.offsetWidth,
+		});
+
+		productTypeSelector.addEventListener('click', e => {
+			e.preventDefault();
+			popupMenu.show();
+		});
 	}
 }
 

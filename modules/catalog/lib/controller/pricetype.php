@@ -14,14 +14,14 @@ use Bitrix\Rest\RestException;
 
 final class PriceType extends Controller implements EventBindInterface
 {
+	use PriceTypeRights;
+
 	const EVENT_ON_ADD = 'OnGroupAdd';
 	const EVENT_ON_UPDATE = 'OnGroupUpdate';
 	const EVENT_ON_DELETE = 'OnGroupDelete';
 
 	private const USER_GROUP_ADMINS = 1;
 	private const USER_GROUP_ALL_USERS = 2;
-
-	use PriceTypeRights;
 
 	//region Actions
 

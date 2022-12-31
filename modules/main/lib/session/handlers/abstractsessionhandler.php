@@ -132,7 +132,7 @@ abstract class AbstractSessionHandler implements \SessionHandlerInterface, \Sess
 	{
 		if ($this->readOnly)
 		{
-			return false;
+			return true;
 		}
 
 		if (!$this->validateSessionId($sessionId))

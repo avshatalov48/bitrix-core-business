@@ -551,6 +551,7 @@ class SiteTable extends Entity\DataManager
 			if (in_array(Rights::ACCESS_TYPES['delete'], $rights))
 			{
 				$freeAccessFields[] = 'DELETED';
+				$freeAccessFields[] = 'DOMAIN_PROVIDER';
 				// allow unpublic in delete case
 				if ($deleteMode)
 				{

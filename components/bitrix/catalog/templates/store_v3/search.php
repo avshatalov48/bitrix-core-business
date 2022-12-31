@@ -139,7 +139,8 @@ $APPLICATION->IncludeComponent("bitrix:catalog.search", "bootstrap_v4", array(
 		'MESS_BTN_ADD_TO_BASKET' => $arParams['~MESS_BTN_ADD_TO_BASKET'],
 		'MESS_BTN_SUBSCRIBE' => $arParams['~MESS_BTN_SUBSCRIBE'],
 		'MESS_BTN_DETAIL' => $arParams['~MESS_BTN_DETAIL'],
-		'MESS_NOT_AVAILABLE' => $arParams['~MESS_NOT_AVAILABLE'],
+		'MESS_NOT_AVAILABLE' => $arParams['~MESS_NOT_AVAILABLE'] ?? '',
+		'MESS_NOT_AVAILABLE_SERVICE' => $arParams['~MESS_NOT_AVAILABLE_SERVICE'] ?? '',
 		'MESS_BTN_COMPARE' => (isset($arParams['~MESS_BTN_COMPARE']) ? $arParams['~MESS_BTN_COMPARE'] : ''),
 
 		'USE_ENHANCED_ECOMMERCE' => (isset($arParams['USE_ENHANCED_ECOMMERCE']) ? $arParams['USE_ENHANCED_ECOMMERCE'] : ''),

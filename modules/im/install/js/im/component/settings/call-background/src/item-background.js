@@ -177,10 +177,10 @@ export const CallBackgroundItem =
 		},
 	},
 	template: `
-		<div :key="item.id" @click="$emit('select')" :class="['bx-im-settings-video-background-dialog-item', {'bx-im-settings-video-background-dialog-item-selected': selected, 'bx-im-settings-video-background-dialog-item-unsupported': !item.supported , 'bx-im-settings-video-background-dialog-item-loading': item.loading }]" ref="container">
+		<div :key="item.id" @click="$emit('select')" :class="['bx-im-settings-video-background-dialog-item', {'bx-im-settings-video-background-dialog-item-selected': selected, 'bx-im-settings-video-background-dialog-item-unsupported': !item.isSupported , 'bx-im-settings-video-background-dialog-item-loading': item.isLoading }]" ref="container">
 			<div class="bx-im-settings-video-background-dialog-item-image" :style="{backgroundImage: item.preview? 'url('+item.preview+')': ''}"></div>
-			<div v-if="item.supported && item.video" class="bx-im-settings-video-background-dialog-item-video"></div>
-			<div v-if="!item.loading" class="bx-im-settings-video-background-dialog-item-title">
+			<div v-if="item.isSupported && item.isVideo" class="bx-im-settings-video-background-dialog-item-video"></div>
+			<div v-if="!item.isLoading" class="bx-im-settings-video-background-dialog-item-title">
 				<span class="bx-im-settings-video-background-dialog-item-title-text">{{item.title}}</span>
 				<div v-if="item.canRemove" class="bx-im-settings-video-background-dialog-item-remove" :title="localize.BX_IM_COMPONENT_SETTINGS_CALL_BG_REMOVE" @click="$emit('remove')"></div>
 			</div>

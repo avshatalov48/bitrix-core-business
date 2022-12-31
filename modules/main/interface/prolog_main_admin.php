@@ -27,7 +27,7 @@ if($APPLICATION->GetTitle() == '')
 	$APPLICATION->SetTitle(GetMessage("MAIN_PROLOG_ADMIN_TITLE"));
 
 $aUserOpt = CUserOptions::GetOption("admin_panel", "settings");
-$aUserOptGlobal = CUserOptions::GetOption("global", "settings");
+$aUserOptGlobal = CUserOptions::GetOption("global", "settings", []);
 
 $isSidePanel = (isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y");
 
@@ -55,7 +55,7 @@ if (!defined('ADMIN_SECTION_LOAD_AUTH') || !ADMIN_SECTION_LOAD_AUTH):
 	$direction = \Bitrix\Main\Context::getCurrent()->getCulture()->getDirection() ? '' : ' dir="rtl"';
 ?>
 <!DOCTYPE html>
-<html<?=$aUserOpt['fix'] == 'on' ? ' class="adm-header-fixed"' : ''?><?= $direction ?>>
+<html<?= isset($aUserOpt['fix']) && $aUserOpt['fix'] == 'on' ? ' class="adm-header-fixed"' : ''?><?= $direction ?>>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=<?=htmlspecialcharsbx(LANG_CHARSET)?>">
 <meta name="viewport" content="initial-scale=1.0, width=device-width">
@@ -83,7 +83,7 @@ $APPLICATION->ShowHeadStrings();
 $APPLICATION->ShowHeadScripts();
 ?>
 <script type="text/javascript">
-BX.message({MENU_ENABLE_TOOLTIP: <?=($aUserOptGlobal['start_menu_title'] <> 'N' ? 'true' : 'false')?>});
+BX.message({MENU_ENABLE_TOOLTIP: <?=(!isset($aUserOptGlobal['start_menu_title']) || $aUserOptGlobal['start_menu_title'] <> 'N' ? 'true' : 'false')?>});
 BX.InitializeAdmin();
 
 var topWindow = BX.PageObject.getRootWindow();
@@ -170,7 +170,7 @@ BX.adminMenu.setOpenedSections('<?=CUtil::JSEscape($adminMenu->GetOpenedSections
 		if(($menu["items_id"] == $aActiveSection["items_id"] && $openedSection !="desktop" )|| $menu["menu_id"] == $openedSection)
 			$menuClass .=' adm-main-menu-item-active';
 
-		if ($menu['url']):
+		if (isset($menu['url']) && $menu['url']):
 ?>
 						<a href="<?=htmlspecialcharsbx($menu["url"])?>" class="adm-default <?=$menuClass?>" onclick="BX.adminMenu.GlobalMenuClick('<?echo $menu["menu_id"]?>'); return false;" onfocus="this.blur();" id="global_menu_<?echo $menu["menu_id"]?>">
 							<div class="adm-main-menu-item-icon"></div>
@@ -427,7 +427,7 @@ if($USER->IsAuthorized()):
 		if($supportFinishDate <> '' && is_array(($aSupportFinishDate=ParseDate($supportFinishDate, 'ymd'))))
 		{
 			$aGlobalOpt = CUserOptions::GetOption("global", "settings", array());
-			if($aGlobalOpt['messages']['support'] <> 'N')
+			if(!isset($aGlobalOpt['messages']['support']) || $aGlobalOpt['messages']['support'] <> 'N')
 			{
 				$supportFinishStamp = mktime(0,0,0, $aSupportFinishDate[1], $aSupportFinishDate[0], $aSupportFinishDate[2]);
 				$supportDateDiff = ceil(($supportFinishStamp - time())/86400);
@@ -466,8 +466,8 @@ if($USER->IsAuthorized()):
 
 				if($sSupportMess <> '')
 				{
-					$userOption = CUserOptions::GetOption("main", "admSupInf");
-					if(time() > $userOption["showInformerDate"])
+					$userOption = CUserOptions::GetOption("main", "admSupInf", []);
+					if(!isset($userOption["showInformerDate"]) || time() > $userOption["showInformerDate"])
 					{
 						$prolongUrl = "/bitrix/admin/buy_support.php?lang=".LANGUAGE_ID;
 						if(!in_array(LANGUAGE_ID, array("ru", "ua")) || intval(COption::GetOptionString("main", "~PARAM_PARTNER_ID")) <= 0)

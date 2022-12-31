@@ -97,7 +97,7 @@ class ContractorProvider extends BaseProvider
 
 	private function makeItem($contractor)
 	{
-		if ((int)$contractor['PERSON_TYPE'] === CONTRACTOR_INDIVIDUAL)
+		if ((int)$contractor['PERSON_TYPE'] === (int)\Bitrix\Catalog\ContractorTable::TYPE_INDIVIDUAL)
 		{
 			$title = $contractor['PERSON_NAME'];
 		}

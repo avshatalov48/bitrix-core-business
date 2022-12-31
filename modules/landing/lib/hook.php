@@ -35,6 +35,11 @@ class Hook
 	const HOOKS_NAMESPACE = '\\Hook\\Page\\';
 
 	/**
+	 * Handler for copy event
+	 */
+	protected const HOOKS_ON_COPY_HANDLER = 'onCopy';
+
+	/**
 	 * Hook codes which contains file ids.
 	 */
 	const HOOKS_CODES_FILES = [
@@ -73,34 +78,34 @@ class Hook
 	 * @param boolean $asIs Return row as is.
 	 * @return array
 	 */
-	public static function getData($id, $type, $asIs = false)
+	public static function getData($id, $type, $asIs = false): array
 	{
 		$data = [];
-		$id = intval($id);
+		$id = (int)$id;
 
 		if (!is_string($type))
 		{
 			return $data;
 		}
 
-		$res = HookData::getList(array(
-			'select' => array(
+		$res = HookData::getList([
+			'select' => [
 				'ID', 'HOOK', 'CODE', 'VALUE'
-			),
-			'filter' => array(
+			],
+			'filter' => [
 				'ENTITY_ID' => $id,
 				'=ENTITY_TYPE' => $type,
 				'=PUBLIC' => self::$editMode ? 'N' : 'Y'
-			),
-			'order' => array(
+			],
+			'order' => [
 				'ID' => 'asc'
-			)
-		));
+			]
+		]);
 		while ($row = $res->fetch())
 		{
 			if (!isset($data[$row['HOOK']]))
 			{
-				$data[$row['HOOK']] = array();
+				$data[$row['HOOK']] = [];
 			}
 			if (mb_strpos($row['VALUE'], 'serialized#') === 0)
 			{
@@ -283,10 +288,33 @@ class Hook
 	 */
 	protected static function copy($from, $to, $type, $publication = false)
 	{
-		$from = intval($from);
-		$to = intval($to);
+
+		$from = (int)$from;
+		$to = (int)$to;
 		$data = self::getData($from, $type);
 		$existData = [];
+
+		$classDir = self::HOOKS_PAGE_DIR;
+		$classNamespace = self::HOOKS_NAMESPACE;
+		$excludedHooks = \Bitrix\Landing\Site\Type::getExcludedHooks();
+
+		// first read all hooks in base dir
+		foreach (self::getClassesFromDir($classDir) as $class)
+		{
+			if (in_array($class, $excludedHooks, true))
+			{
+				continue;
+			}
+			$classFull = __NAMESPACE__  . $classNamespace . $class;
+			if (method_exists($classFull, self::HOOKS_ON_COPY_HANDLER))
+			{
+				$handler = self::HOOKS_ON_COPY_HANDLER;
+				if ($preparedData = $classFull::$handler($data[$class], $from, $type, $publication))
+				{
+					$data[$class] = $preparedData;
+				}
+			}
+		}
 
 		// collect exist data
 		if ($data)

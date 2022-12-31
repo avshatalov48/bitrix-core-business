@@ -44,7 +44,7 @@ class BuilderSyncEventFromExternalData implements Core\Builders\Builder
 	 */
 	public function build()
 	{
-		$syncEvent = new Sync\Entities\SyncEvent;
+		$syncEvent = new Sync\Entities\SyncEvent();
 
 		$syncEvent->setAction(Sync\Google\Dictionary::SYNC_ACTION[$this->item['status']]);
 
@@ -186,8 +186,10 @@ class BuilderSyncEventFromExternalData implements Core\Builders\Builder
 			->setConnection($this->connection)
 			->setEntityTag($this->item['etag'])
 			->setVendorEventId($this->item['id'])
-			->setVendorVersionId(($this->item['sequence'] ?? 0))
-			->setVersion($event->getVersion())
+			// ->setVendorVersionId(($this->item['sequence'] ?? 0))
+			->setVendorVersionId($this->item['etag'])
+			->setVersion(($this->item['sequence'] ?? 0))
+			// ->setVersion($event->getVersion())
 			->setLastSyncStatus(Sync\Dictionary::SYNC_STATUS['success'])
 			->setRecurrenceId($this->item['recurringEventId'])
 			->setEvent($event)
@@ -249,10 +251,6 @@ class BuilderSyncEventFromExternalData implements Core\Builders\Builder
 			{
 				$phpDate = new \DateTime($rrule['UNTIL']);
 				$date = new Core\Base\Date(Type\DateTime::createFromPhp($phpDate));
-				if ($date->isStartDay())
-				{
-					$date = $date->sub('1 day');
-				}
 
 				$property->setUntil($date);
 			}
@@ -312,10 +310,9 @@ class BuilderSyncEventFromExternalData implements Core\Builders\Builder
 	private function getDescription(): string
 	{
 		$languageId = \CCalendar::getUserLanguageId($this->syncSection->getSection()->getOwner()->getId());
+		$this->item['description'] = \CCalendar::ParseHTMLToBB($this->item['description']);
 
-		return (new Sync\Util\AttendeesDescription($languageId))
-			->cutAttendeesFromDescription($this->item['description'])
-		;
+		return (new Sync\Util\EventDescription())->prepareAfterImport($this->item['description'], $languageId);
 	}
 
 	/**

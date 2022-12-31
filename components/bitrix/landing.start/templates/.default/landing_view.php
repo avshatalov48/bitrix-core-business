@@ -90,6 +90,7 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 		'PAGE_URL_LANDING_DESIGN' => $arParams['PAGE_URL_LANDING_DESIGN'],
 		'PAGE_URL_LANDING_SETTINGS' => $arParams['PAGE_URL_LANDING_SETTINGS'],
 		'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
+		'PAGE_URL_SITE_DESIGN' => $arParams['PAGE_URL_SITE_DESIGN'],
 		'DRAFT_MODE' => $arParams['DRAFT_MODE'],
 		'PARAMS' => $params,
 		'SEF' => $params['sef_url'],

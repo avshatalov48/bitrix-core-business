@@ -635,7 +635,7 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setLicence(static::LICENCE_MIT),
 
 			// ui/install/js/ui/vue/router
-			(new static("Vue-router v3.5.3"))
+			(new static("Vue-router v3.6.5"))
 				->setCopyright("Copyright 2021, Evan You")
 				->setProductUrl("https://v3.router.vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
@@ -647,7 +647,7 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setLicence(static::LICENCE_MIT),
 
 			// ui/install/js/ui/vue3/vue
-			(new static("Vue v3.2.37"))
+			(new static("Vue v3.2.40"))
 				->setCopyright("Copyright 2014-2022 Evan You")
 				->setProductUrl("https://vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
@@ -665,13 +665,13 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setLicence(static::LICENCE_MIT),
 
 			// ui/install/js/ui/vue3/router
-			(new static("Vue-router v4.1.2"))
+			(new static("Vue-router v4.1.5"))
 				->setCopyright("Copyright 2022 Eduardo San Martin Morote")
 				->setProductUrl("https://router.vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
 
 			// ui/install/js/ui/vue3/pinia
-			(new static("Pinia v2.0.16"))
+			(new static("Pinia v2.0.22"))
 				->setCopyright("Copyright 2022 Eduardo San Martin Morote")
 				->setProductUrl("https://pinia.vuejs.org/")
 				->setLicence(static::LICENCE_MIT),
@@ -826,11 +826,23 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setProductUrl('https://github.com/maxmind/GeoIP2-php')
 				->setLicence(static::LICENCE_APACHE2),
 
+			// main/install/js/main/rating
+			(new static("Lottie-web"))
+				->setCopyright("Copyright (c) 2015 Bodymovin")
+				->setProductUrl('https://github.com/airbnb/lottie-web')
+				->setLicence(static::LICENCE_MIT),
+
 			// mobileapp/mobile/extensions/bitrix/utils/url/punycode.js
 			(new static("Punycode.js"))
 				->setCopyright("Copyright Mathias Bynens <https://mathiasbynens.be/>")
 				->setProductUrl('https://github.com/mathiasbynens/punycode.js')
 				->setLicence(static::LICENCE_MIT),
+
+			// voximplant/install/js/voximplant/voximplant.min.js
+			(new static("Voximplant Web SDK"))
+				->setCopyright("Copyright Voximplant <https://voximplant.com/>")
+				->setProductUrl('https://www.npmjs.com/package/voximplant-websdk')
+				->setLicence(static::LICENCE_COMMERCIAL),
 		];
 	}
 }

@@ -9,6 +9,7 @@ import {ProductSelector} from "catalog.product-selector";
 import {StoreSelector} from "catalog.store-selector";
 import {PopupMenu} from "main.popup";
 import {PriceCalculator} from "./price.calculator";
+import {AccessDeniedInput} from './access.denied.input';
 
 type Action = {
 	type: string,
@@ -20,7 +21,6 @@ type Settings = {}
 
 const MODE_EDIT = 'EDIT';
 const MODE_SET = 'SET';
-const PRODUCT_TYPE_SET = 2;
 
 export class Row
 {
@@ -39,6 +39,7 @@ export class Row
 		SET: MODE_SET,
 	};
 	validatingFields: Map<string, boolean> = new Map();
+	realValues: ?Array;
 
 	constructor(id: string, fields: Object, settings: Settings, editor: Editor): void
 	{
@@ -52,6 +53,7 @@ export class Row
 		// this.#initPriceExtra();
 		this.#initStoreSelector(this.getSettingValue('storeHeaderMap', {}));
 		this.#initActions();
+		this.#hideFields();
 		requestAnimationFrame(this.initHandlers.bind(this));
 	}
 
@@ -161,7 +163,7 @@ export class Row
 
 	#initActions()
 	{
-		if (this.getEditor().isReadOnly())
+		if (this.getEditor().isReadOnly() || this.getField('EDITABLE') === false)
 		{
 			return;
 		}
@@ -218,7 +220,7 @@ export class Row
 				ROW_ID: this.getId(),
 				ENABLE_SKU_SELECTION: true,
 				ENABLE_EMPTY_PRODUCT_ERROR: true,
-				RESTRICTED_PRODUCT_TYPES: [PRODUCT_TYPE_SET],
+				RESTRICTED_PRODUCT_TYPES: this.getEditor().getRestrictedProductTypes(),
 				URL_BUILDER_CONTEXT: this.editor.getSettingValue('productUrlBuilderContext'),
 			},
 			mode: ProductSelector.MODE_EDIT,
@@ -263,8 +265,9 @@ export class Row
 			config: {
 				ENABLE_SEARCH: true,
 				IS_ALLOWED_CREATION_PRODUCT: this.getSettingValue('isAllowedCreationProduct', true),
-				ENABLE_INFO_SPOTLIGHT: this.editor.getSettingValue('showBarcodeSpotlightInfo',true),
-				ENABLE_BARCODE_QR_AUTH: this.editor.getSettingValue('showBarcodeQrAuth',true),
+				ENABLE_INFO_SPOTLIGHT: this.editor.getSettingValue('showBarcodeSpotlightInfo', true),
+				ENABLE_BARCODE_QR_AUTH: this.editor.getSettingValue('showBarcodeQrAuth', true),
+				IS_INSTALLED_MOBILE_APP: this.editor.getSettingValue('isInstalledMobileApp', null),
 				ENABLE_IMAGE_INPUT: false,
 				ROLLBACK_INPUT_AFTER_CANCEL: true,
 				ENABLE_INPUT_DETAIL_LINK: false,
@@ -272,18 +275,13 @@ export class Row
 				ENABLE_SKU_SELECTION: false,
 				ENABLE_SKU_TREE: false,
 				ENABLE_EMPTY_PRODUCT_ERROR: false,
-				RESTRICTED_PRODUCT_TYPES: [PRODUCT_TYPE_SET],
+				RESTRICTED_PRODUCT_TYPES: this.getEditor().getRestrictedProductTypes(),
 			},
 			mode: ProductSelector.MODE_EDIT,
 			scannerToken: this.getEditor().scannerToken,
 		};
 
 		this.barcodeSelector = new ProductSelector('catalog_document_grid_' + this.getId() + '_barcode', selectorOptions);
-		const barcodeWrapper = this.getNode().querySelector('[data-name="BARCODE_INFO"]');
-		if (barcodeWrapper)
-		{
-			this.barcodeSelector.renderTo(barcodeWrapper);
-		}
 
 		EventEmitter.subscribe(
 			this.barcodeSelector,
@@ -302,6 +300,34 @@ export class Row
 			'onBarcodeQrClose',
 			this.#handleBarcodeQrClose.bind(this)
 		);
+
+		EventEmitter.subscribe(
+			this.barcodeSelector,
+			'onBarcodeScannerInstallChecked',
+			this.#handleBarcodeScannerInstallCheck.bind(this)
+		);
+
+		EventEmitter.subscribe(
+			this.barcodeSelector,
+			'onBarcodeChange',
+			this.#handleBarcodeChange.bind(this)
+		);
+
+		this.layoutBarcode();
+	}
+
+	layoutBarcode(): void
+	{
+		const barcodeWrapper = this.getNode().querySelector('[data-name="BARCODE_INFO"]');
+		if (this.barcodeSelector && barcodeWrapper)
+		{
+			barcodeWrapper.innerHTML = '';
+
+			if (this.#needBarcode())
+			{
+				this.barcodeSelector.renderTo(barcodeWrapper);
+			}
+		}
 	}
 
 	#initPriceExtra()
@@ -375,35 +401,54 @@ export class Row
 
 	#initStoreSelector(fieldNames: {})
 	{
-		Object.keys(fieldNames)
-			.forEach( rowName => {
-				const selectorOptions = {
-					inputFieldId: fieldNames[rowName],
-					inputFieldTitle: fieldNames[rowName] + '_TITLE',
-					config: {
-						ENABLE_SEARCH: true,
-						ENABLE_INPUT_DETAIL_LINK: false,
-						ROW_ID: this.getId(),
-					},
-					mode: StoreSelector.MODE_EDIT,
-					model: this.model,
-				};
+		Object.keys(fieldNames).forEach( rowName => {
+			const selectorOptions = {
+				inputFieldId: fieldNames[rowName],
+				inputFieldTitle: fieldNames[rowName] + '_TITLE',
+				config: {
+					ENABLE_SEARCH: true,
+					ENABLE_INPUT_DETAIL_LINK: false,
+					ROW_ID: this.getId(),
+				},
+				mode: StoreSelector.MODE_EDIT,
+				model: this.model,
+			};
 
-				const storeSelector = new StoreSelector(this.getId() + '_' + rowName, selectorOptions);
-				const storeWrapper = this.getNode().querySelector('[data-name="' + rowName + '"]');
-				if (storeSelector)
+			const storeSelector = new StoreSelector(this.getId() + '_' + rowName, selectorOptions);
+
+			EventEmitter.subscribe(
+				storeSelector,
+				'onChange',
+				Runtime.debounce(this.#onStoreFieldChange.bind(this), 500, this)
+			);
+
+			this.storeSelectors.push(storeSelector);
+		});
+
+		this.layoutStoreSelector(fieldNames);
+	}
+
+	layoutStoreSelector(fieldNames: {})
+	{
+		Object.keys(fieldNames).forEach(rowName => {
+			const selectorId = this.getId() + '_' + rowName;
+
+			this.storeSelectors.forEach((selector) => {
+				if (selector.getId() === selectorId)
 				{
-					storeSelector.renderTo(storeWrapper);
+					const storeWrapper = this.getNode().querySelector('[data-name="' + rowName + '"]');
+					if (storeWrapper)
+					{
+						storeWrapper.innerHTML = '';
+
+						if (this.#needInventory())
+						{
+							selector.renderTo(storeWrapper);
+						}
+					}
 				}
-
-				EventEmitter.subscribe(
-					storeSelector,
-					'onChange',
-					Runtime.debounce(this.#onStoreFieldChange.bind(this), 500, this)
-				);
-
-				this.storeSelectors.push(storeSelector);
 			});
+		});
 	}
 
 	#onStoreFieldChange(event)
@@ -439,7 +484,54 @@ export class Row
 			}
 		}
 
+		// merge with real values
+		const realValues = this.#getRealValues();
+		for (const fieldName in realValues)
+		{
+			if (
+				Object.hasOwnProperty.call(realValues, fieldName)
+				&& Object.hasOwnProperty.call(result, fieldName)
+			)
+			{
+				result[fieldName] = realValues[fieldName];
+			}
+		}
+
 		return result;
+	}
+
+	/**
+	 * Get real values field.
+	 *
+	 * Stores the real values of rows that are hidden due to lack of user access.
+	 *
+	 * @returns
+	 */
+	#getRealValues()
+	{
+		if (!!this.realValues)
+		{
+			return this.realValues
+		}
+
+		try
+		{
+			const value = this.getField('REAL_VALUES');
+			if (value)
+			{
+				const parsedValue = JSON.parse(atob(value));
+				if (Type.isPlainObject(parsedValue))
+				{
+					this.realValues = parsedValue;
+				}
+			}
+		}
+		catch (e)
+		{
+			console.error('Cannot parse REAL_VALUE: ' + e.getMessage());
+		}
+
+		return this.realValues;
 	}
 
 	initFields(fields: Object): void
@@ -461,6 +553,15 @@ export class Row
 
 	getField(name: string, defaultValue)
 	{
+		if (name !== 'REAL_VALUES')
+		{
+			const realValues = this.#getRealValues();
+			if (realValues && Object.hasOwnProperty.call(realValues, name))
+			{
+				return realValues[name];
+			}
+		}
+
 		return this.fields.hasOwnProperty(name) ? this.fields[name] : defaultValue;
 	}
 
@@ -716,6 +817,11 @@ export class Row
 
 	changePurchasingPrice(value, mode = MODE_SET)
 	{
+		if (this.#isPurchasingPriceAccessDenied())
+		{
+			return;
+		}
+
 		const preparedValue = this.parseFloat(value, this.getPricePrecision());
 		this.setPurchasingPrice(preparedValue, mode);
 
@@ -774,6 +880,7 @@ export class Row
 		{
 			this.setField(code, preparedValue);
 			this.setStoreAmount(value, code);
+			this.layoutStoreSelector(this.getSettingValue('storeHeaderMap', {}));
 			this.addActionProductChange();
 		}
 	}
@@ -919,6 +1026,17 @@ export class Row
 		this.editor.closeBarcodeQrAuths();
 	}
 
+	#handleBarcodeScannerInstallCheck(event: BaseEvent): void
+	{
+		this.editor.enableSendBarcodeMobilePush();
+	}
+	
+	#handleBarcodeChange(event: BaseEvent): void
+	{
+		const {value} = event.getData();
+		this.changeBarcode(value, MODE_EDIT);
+	}
+
 	setProductId(value)
 	{
 		const isChangedValue = this.getField('PRODUCT_ID') !== value;
@@ -931,6 +1049,8 @@ export class Row
 
 			this.addActionProductChange();
 			this.addActionUpdateTotal();
+
+			this.#hidePurchasingPrice();
 		}
 	}
 
@@ -988,7 +1108,9 @@ export class Row
 			}
 
 			this.setStoreAmount(value, fieldName)
-		});
+		})
+
+		this.layoutStoreSelector(this.getSettingValue('storeHeaderMap', {}));
 	}
 
 	setStoreAmount(value, fieldName, mode = MODE_SET)
@@ -1005,11 +1127,16 @@ export class Row
 			};
 			for (const postfix in amounts) {
 				if (Object.hasOwnProperty.call(amounts, postfix)) {
-					const wrapper = this.getNode().querySelector('[data-name=' + fieldName + postfix + ']');
+					const wrapper = this.#getNodeChildByDataName(fieldName + postfix);
 					if (wrapper)
 					{
-						amount = amounts[postfix]() || 0;
-						wrapper.innerHTML = amount + ' ' + Text.encode(this.getField('MEASURE_NAME'));
+						wrapper.innerHTML = '';
+
+						if (this.#needInventory())
+						{
+							amount = amounts[postfix]() || 0;
+							wrapper.innerHTML = amount + ' ' + Text.encode(this.getField('MEASURE_NAME'));
+						}
 					}
 				}
 			}
@@ -1018,6 +1145,11 @@ export class Row
 
 	setPurchasingPrice(value, mode = MODE_SET)
 	{
+		if (this.#isPurchasingPriceAccessDenied())
+		{
+			return;
+		}
+
 		// price can't be less than zero
 		value = Math.max(value, 0);
 
@@ -1379,7 +1511,7 @@ export class Row
 		if (!this.#isProductCountCorrect(this.getAmount()))
 		{
 			this.#subscribeFieldToValidator('AMOUNT', this.#isProductCountCorrect);
-			errorsList.push(Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT'));
+			errorsList.push(Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_INVALID_AMOUNT_2'));
 		}
 
 		return errorsList;
@@ -1414,5 +1546,104 @@ export class Row
 	#isProductCountCorrect(amountValue): boolean
 	{
 		return amountValue > 0;
+	}
+
+	#getNodeChildByDataName(name: String): HTMLElement
+	{
+		return this.getNode().querySelector(`[data-name="${name}"]`);
+	}
+
+	#needInventory(): boolean
+	{
+		return !this.getModel().isService();
+	}
+
+	#needBarcode(): boolean
+	{
+		return !this.getModel().isService();
+	}
+
+	#isRowAccessDenied()
+	{
+		return this.getField('ACCESS_DENIED') === true;
+	}
+
+	#hideFields()
+	{
+		if (!this.#isRowAccessDenied())
+		{
+			this.#hidePurchasingPrice();
+			return;
+		}
+
+		const hiddenFields = this.getEditor().getSettingValue('hiddenFields');
+		const columnIndexes = this.getEditor().getGridColumnIndexes();
+
+		hiddenFields.forEach((fieldName) => {
+			const columnIndex = columnIndexes[fieldName];
+			if (columnIndex === undefined)
+			{
+				return;
+			}
+
+			const item = this.getNode().querySelector(`.main-grid-cell:nth-child(${columnIndex+1}) .main-grid-cell-content`);
+			if (Type.isElementNode(item))
+			{
+				item.innerHTML = '';
+			}
+		});
+
+		const fieldWithHintIndex = columnIndexes['AMOUNT'];
+		if (fieldWithHintIndex)
+		{
+			const fieldWithHintNode = this.getNode().querySelector(`.main-grid-cell:nth-child(${fieldWithHintIndex+1}) .main-grid-cell-content`);
+			if (fieldWithHintNode)
+			{
+				const input = new AccessDeniedInput({
+					hint: Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_STORE_HINT'),
+					isReadOnly: this.getEditor().isReadOnly(),
+				});
+				input.renderTo(fieldWithHintNode);
+			}
+		}
+	}
+
+	#isPurchasingPriceAccessDenied()
+	{
+		return this.getField('ACCESS_DENIED_TO_PURCHASING_PRICE') === true;
+	}
+
+	#hidePurchasingPrice()
+	{
+		if (!this.#isPurchasingPriceAccessDenied())
+		{
+			return;
+		}
+
+		const columnIndexes = this.getEditor().getGridColumnIndexes();
+		const fieldWithHintIndex = columnIndexes['PURCHASING_PRICE'];
+		if (fieldWithHintIndex)
+		{
+			const fieldWithHintNode = this.getNode().querySelector(`.main-grid-cell:nth-child(${fieldWithHintIndex+1})`);
+			if (fieldWithHintNode)
+			{
+				const priceNode = fieldWithHintNode.querySelector('.main-grid-editor-container');
+				if (priceNode)
+				{
+					priceNode.remove();
+				}
+
+				const contentNode = fieldWithHintNode.querySelector('.main-grid-cell-content');
+				if (contentNode)
+				{
+					const input = new AccessDeniedInput({
+						hint: Loc.getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_PURCHASING_PRICE_HINT'),
+						isReadOnly: this.getEditor().isReadOnly(),
+					});
+					input.renderTo(contentNode);
+					contentNode.style.display = 'block';
+				}
+			}
+		}
 	}
 }

@@ -104,7 +104,7 @@ class SocialnetworkGroupCreateAjaxController extends \Bitrix\Main\Engine\Control
 
 		if (
 			($groupId > 0)
-			&& !\Bitrix\Socialnetwork\Helper\Workgroup::canUpdate([
+			&& !\Bitrix\Socialnetwork\Helper\Workgroup\Access::canUpdate([
 				'groupId' => $groupId,
 			])
 		)

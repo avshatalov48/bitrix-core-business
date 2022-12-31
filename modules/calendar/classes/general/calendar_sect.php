@@ -430,7 +430,7 @@ class CCalendarSect
 	{
 		global $DB;
 		$checkPermissions = $params['checkPermissions'] !== false;
-		$userId = isset($params['userId']) ? intval($params['userId']) : CCalendar::GetCurUserId();
+		$userId = isset($params['userId']) ? (int)$params['userId'] : CCalendar::GetCurUserId();
 
 		$arResult = [];
 		$arSectionIds = [];
@@ -449,11 +449,15 @@ class CCalendarSect
 		if (isset($params['TYPES']) && is_array($params['TYPES']))
 		{
 			foreach($params['TYPES'] as $type)
-				$strTypes .= ",'".$DB->ForSql($type)."'";
+			{
+				$strTypes .= ",'" . $DB->ForSql($type) . "'";
+			}
 
 			$strTypes = trim($strTypes, ", ");
 			if ($strTypes != "")
-				$sqlSearch .= "(CS.CAL_TYPE in (".$strTypes."))";
+			{
+				$sqlSearch .= "(CS.CAL_TYPE in (" . $strTypes . "))";
+			}
 		}
 
 		// Group's calendars
@@ -461,13 +465,19 @@ class CCalendarSect
 		if (is_array($params['GROUPS']) && count($params['GROUPS']) > 0)
 		{
 			foreach($params['GROUPS'] as $ownerId)
-				if (intval($ownerId) > 0)
-					$strGroups .= ",".intval($ownerId);
+			{
+				if ((int)$ownerId > 0)
+				{
+					$strGroups .= "," . (int)$ownerId;
+				}
+			}
 
 			if ($strGroups != "0")
 			{
 				if ($sqlSearch != "")
+				{
 					$sqlSearch .= " OR ";
+				}
 				$sqlSearch .= "(CS.OWNER_ID in (".$strGroups.") AND CS.CAL_TYPE='group')";
 			}
 		}
@@ -516,9 +526,9 @@ class CCalendarSect
 		{
 			foreach($params['USERS'] as $ownerId)
 			{
-				if (intval($ownerId) > 0)
+				if ((int)$ownerId > 0)
 				{
-					$strUsers .= ",".intval($ownerId);
+					$strUsers .= ",". (int)$ownerId;
 				}
 			}
 
@@ -1353,7 +1363,9 @@ class CCalendarSect
 		$GLOBALS['APPLICATION']->RestartBuffer();
 
 		if (!self::CheckSign($sign, $userId, $sectId))
+		{
 			return CCalendar::ThrowError(Loc::getMessage('EC_ACCESS_DENIED'));
+		}
 
 		$arSections = self::GetList(
 			array(
@@ -1394,7 +1406,9 @@ class CCalendarSect
 		{
 			$calId = $arEvents[$i]['IBLOCK_SECTION_ID'];
 			if (!isset($arCalEx[$calId]))
+			{
 				continue;
+			}
 			$arEvents[$i]['NAME'] = $arEvents[$i]['NAME'].' ['.$arCalEx[$calId]['SP_PARAMS']['NAME'].' :: '.$arCalEx[$calId]['NAME'].']';
 		}
 		return $arEvents;
@@ -1781,7 +1795,7 @@ class CCalendarSect
 				if (
 					$section['EXTERNAL_TYPE'] === self::EXTERNAL_TYPE_LOCAL
 					&& $section['CAL_TYPE'] === 'user'
-					&& (int)$section['OWNER_ID'] === CCalendar::GetUserId()
+					&& (int)$section['OWNER_ID'] === CCalendar::GetOwnerId()
 				)
 				{
 					return true;

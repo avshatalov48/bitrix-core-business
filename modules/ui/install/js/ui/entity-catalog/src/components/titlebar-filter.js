@@ -126,7 +126,7 @@ export const TitleBarFilter = {
 
 			if (Object.keys(appliedFilters).length > 0)
 			{
-				this.$emit('onApplyFilters', new BaseEvent({data: this.appliedFilters}));
+				this.$emit('onApplyFilters', new BaseEvent({data: appliedFilters}));
 			}
 
 			return appliedFilters;

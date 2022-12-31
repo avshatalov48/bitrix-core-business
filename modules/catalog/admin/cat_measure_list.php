@@ -1,4 +1,9 @@
 <?
+
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Main\Localization\Loc;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 global $APPLICATION;
@@ -13,10 +18,18 @@ global $adminSidePanelHelper;
 $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
-if(!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_store')))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 CModule::IncludeModule("catalog");
-$bReadOnly = !$USER->CanDoOperation('catalog_store');
+
+$accessController = AccessController::getCurrent();
+if (
+	!$accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+	&& !$accessController->check(ActionDictionary::ACTION_MEASURE_EDIT)
+)
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
+
+$bReadOnly = !$accessController->check(ActionDictionary::ACTION_MEASURE_EDIT);
 
 IncludeModuleLangFile(__FILE__);
 
@@ -117,7 +130,7 @@ if(($arID = $lAdmin->GroupAction()) && !$bReadOnly)
 }
 $arSelect = array(
 	"ID",
-//	"CODE",
+	"CODE",
 	"MEASURE_TITLE",
 	"SYMBOL_RUS",
 	"SYMBOL_INTL",
@@ -233,7 +246,7 @@ while($arRes = $dbResultList->Fetch())
 	if($bReadOnly)
 	{
 		if($arSelectFieldsMap['CODE'])
-			$row->AddField("CODE", false);
+			$row->AddInputField("CODE", false);
 		if($arSelectFieldsMap['MEASURE_TITLE'])
 			$row->AddInputField("MEASURE_TITLE", false);
 		if($arSelectFieldsMap['SYMBOL_RUS'])
@@ -269,7 +282,7 @@ while($arRes = $dbResultList->Fetch())
 	$arActions = array();
 	$arActions[] = array(
 		"ICON" => "edit",
-		"TEXT" => GetMessage("CAT_MEASURE_EDIT_ALT"),
+		"TEXT" => $bReadOnly ? Loc::getMessage('CAT_MEASURE_VIEW_ALT') : Loc::getMessage("CAT_MEASURE_EDIT_ALT"),
 		"LINK" => $editUrl,
 		"DEFAULT" => true
 	);

@@ -2,6 +2,10 @@
 
 namespace Bitrix\Catalog\Document\Action\Store;
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\Model\StoreDocument;
+use Bitrix\Catalog\Config\Options\CheckRightsOnDecreaseStoreAmount;
 use Bitrix\Catalog\Document\Action;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Main\Application;
@@ -20,6 +24,22 @@ class DecreaseStoreQuantityAction  implements Action
 {
 	use BaseStoreQuantityAction;
 
+	private string $docType;
+
+	/**
+	 * @param int $storeId
+	 * @param int $productId
+	 * @param float $amount
+	 * @param string $docType
+	 */
+	public function __construct(int $storeId, int $productId, float $amount, string $docType)
+	{
+		$this->storeId = $storeId;
+		$this->productId = $productId;
+		$this->amount = $amount;
+		$this->docType = $docType;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -30,8 +50,28 @@ class DecreaseStoreQuantityAction  implements Action
 		$amount = $this->getProductAmountNew();
 		if ($amount < 0)
 		{
+			$can = false;
+
 			$product = ProductTable::getRowById($this->productId);
-			if (!$product || $product['NEGATIVE_AMOUNT_TRACE'] !== 'Y')
+			if (!$product || CheckRightsOnDecreaseStoreAmount::isDisabled())
+			{
+				$can = false;
+			}
+			elseif (CheckRightsOnDecreaseStoreAmount::isEnabled())
+			{
+				$can = AccessController::getCurrent()->check(
+					ActionDictionary::ACTION_STORE_DOCUMENT_ALLOW_NEGATION_PRODUCT_QUANTITY,
+					StoreDocument::createFromArray([
+						'DOC_TYPE' => $this->docType,
+					])
+				);
+			}
+			elseif (CheckRightsOnDecreaseStoreAmount::isNotUsed())
+			{
+				$can = $product['NEGATIVE_AMOUNT_TRACE'] === 'Y';
+			}
+
+			if (!$can)
 			{
 				$message = Loc::getMessage("CATALOG_STORE_DOCS_ERR_INSUFFICIENTLY_AMOUNT_EXT", [
 					"#STORE#" => $this->getStoreName(),

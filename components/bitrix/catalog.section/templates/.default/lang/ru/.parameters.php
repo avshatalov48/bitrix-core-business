@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CP_BCS_TPL_THEME_SITE"] = "Брать тему из настроек сайта (для решения bitrix.eshop)";
 $MESS["CP_BCS_TPL_THEME_BLUE"] = "синяя (тема по умолчанию)";
 $MESS["CP_BCS_TPL_THEME_GREEN"] = "зеленая";
@@ -60,6 +60,7 @@ $MESS["CP_BCS_TPL_MESS_BTN_DETAIL"] = "Текст кнопки \"Подробн�
 $MESS["CP_BCS_TPL_MESS_BTN_SUBSCRIBE"] = "Текст кнопки \"Уведомить о поступлении\"";
 $MESS["CP_BCS_TPL_MESS_BTN_COMPARE"] = "Текст кнопки \"Сравнить\"";
 $MESS["CP_BCS_TPL_MESS_NOT_AVAILABLE"] = "Сообщение об отсутствии товара";
+$MESS['CP_BCS_TPL_MESS_NOT_AVAILABLE_SERVICE'] = "Сообщение о недоступности услуги";
 $MESS["CP_BCS_TPL_MESS_BTN_LAZY_LOAD"] = "Текст кнопки \"Показать ещё\"";
 $MESS["CP_BCS_TPL_MESS_BTN_BUY_DEFAULT"] = "Купить";
 $MESS["CP_BCS_TPL_MESS_BTN_ADD_TO_BASKET_DEFAULT"] = "В корзину";
@@ -67,6 +68,7 @@ $MESS["CP_BCS_TPL_MESS_BTN_DETAIL_DEFAULT"] = "Подробнее";
 $MESS["CP_BCS_TPL_MESS_BTN_SUBSCRIBE_DEFAULT"] = "Подписаться";
 $MESS["CP_BCS_TPL_MESS_BTN_COMPARE_DEFAULT"] = "Сравнить";
 $MESS["CP_BCS_TPL_MESS_NOT_AVAILABLE_DEFAULT"] = "Нет в наличии";
+$MESS['CP_BCS_TPL_MESS_NOT_AVAILABLE_SERVICE_DEFAULT'] = "Недоступно";
 $MESS["CP_BCS_TPL_MESS_BTN_LAZY_LOAD_DEFAULT"] = "Показать ещё";
 $MESS["CP_BCS_TPL_LAZY_LOAD"] = "Показать кнопку ленивой загрузки Lazy Load";
 $MESS["CP_BCS_TPL_LOAD_ON_SCROLL"] = "Подгружать товары при прокрутке до конца";

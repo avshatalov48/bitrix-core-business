@@ -3,24 +3,37 @@
 namespace Bitrix\Calendar\Sync\Managers;
 
 use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Core\Base\BaseException;
+use Bitrix\Calendar\Core\Base\Map;
 use Bitrix\Calendar\Core\Section\Section;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Internals\EventConnectionTable;
+use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Connection\EventConnection;
 use Bitrix\Calendar\Sync\Connection\SectionConnection;
+use Bitrix\Calendar\Sync\Dictionary;
+use Bitrix\Calendar\Sync\Entities\InstanceMap;
+use Bitrix\Calendar\Sync\Entities\SyncEvent;
 use Bitrix\Calendar\Sync\Exceptions\RemoteAccountException;
 use Bitrix\Calendar\Sync\Factories\FactoriesCollection;
 use Bitrix\Calendar\Sync\Factories\FactoryInterface;
+use Bitrix\Calendar\Sync;
 use Bitrix\Calendar\Sync\Util\Context;
 use Bitrix\Calendar\Sync\Util\EventContext;
+use Bitrix\Calendar\Sync\Util\ExcludeDatesHandler;
 use Bitrix\Calendar\Sync\Util\Result;
 use Bitrix\Calendar\Sync\Util\SectionContext;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Error;
+use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\SystemException;
+use CCalendar;
+use CCalendarSect;
+use Exception;
 
 class Synchronization
 {
@@ -38,7 +51,7 @@ class Synchronization
 	/**
 	 * @param FactoriesCollection $factories
 	 *
-	 * @throws \Bitrix\Main\ObjectNotFoundException
+	 * @throws ObjectNotFoundException
 	 */
 	public function __construct(FactoriesCollection $factories)
 	{
@@ -59,6 +72,12 @@ class Synchronization
 	 */
 	public function createEvent(Event $event, Context $context = null): Result
 	{
+		if ($event->getExcludedDateCollection() && $event->getExcludedDateCollection()->count())
+		{
+			$slaveEvents = $this->getSlaveEvents($event);
+			$context->add('sync', 'slaveEvents', $slaveEvents);
+			$this->prepareEventExDates($event, $slaveEvents);
+		}
 		return $this->execActionEvent('createEvent', $event, $context);
 	}
 
@@ -74,6 +93,12 @@ class Synchronization
 	 */
 	public function updateEvent(Event $event, Context $context): Result
 	{
+		if ($event->getExcludedDateCollection()->count())
+		{
+			$slaveEvents = $this->getSlaveEvents($event);
+			$context->add('sync', 'slaveEvents', $slaveEvents);
+			$this->prepareEventExDates($event, $slaveEvents);
+		}
 		return $this->execActionEvent('updateEvent', $event, $context);
 	}
 
@@ -107,6 +132,7 @@ class Synchronization
 	{
 		$mainResult = new Result();
 		$data = [];
+		$eventCloner = new Core\Builders\EventCloner($event);
 		/** @var FactoryInterface $factory */
 		foreach ($this->factories as $factory)
 		{
@@ -116,9 +142,134 @@ class Synchronization
 			}
 			try
 			{
+				$clonedEvent = $eventCloner->build();
 				$vendorSync = $this->getVendorSynchronization($factory);
-				$eventContext = $this->prepareEventContext($event, $context, $factory);
-				$vendorResult = $vendorSync->$method($event, $eventContext);
+				$eventContext = $this->prepareEventContext($clonedEvent, clone $context, $factory);
+
+				$vendorResult = $vendorSync->$method($clonedEvent, $eventContext);
+
+				$data[$this->getVendorCode($factory)] = $vendorResult;
+				if (!$vendorResult->isSuccess())
+				{
+					$mainResult->addErrors($vendorResult->getErrors());
+				}
+			}
+			catch (RemoteAccountException $e)
+			{
+				$mainResult->addError(new Error($e->getMessage(), $e->getCode()));
+			}
+		}
+
+		return $mainResult->setData($data);
+	}
+
+	/**
+	 * @param Event $masterEvent
+	 * @param Context $context
+	 *
+	 * @return Result
+	 *
+	 * @throws ArgumentException
+	 * @throws BaseException
+	 * @throws ObjectNotFoundException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws Exception
+	 */
+	public function reCreateRecurrence(Event $masterEvent, Context $context): Result
+	{
+		$mainResult = new Result();
+		$eventExceptionsMap = $this->getEventExceptionsMap($masterEvent);
+		$data = [];
+		$masterEvent->setVersion($masterEvent->getVersion() + 1);
+		$eventCloner = new Core\Builders\EventCloner($masterEvent);
+
+		/** @var FactoryInterface $factory */
+		foreach ($this->factories as $factory)
+		{
+			if ($this->checkExclude($factory, $context))
+			{
+				continue;
+			}
+			try
+			{
+				$safeEvent = $eventCloner->build();
+				$safeExceptionsMap = $this->cloneEventMap($eventExceptionsMap);
+				$vendorSyncManager = $this->getVendorSynchronization($factory);
+				$eventContext = $this->prepareEventContext($safeEvent, clone $context, $factory);
+
+				if ($factory->getServiceName() === Sync\Icloud\Factory::SERVICE_NAME)
+				{
+					$syncEvent = $this->prepareRecurrenceEvent($safeEvent, $safeExceptionsMap, $factory);
+					$vendorResult = $vendorSyncManager->updateRecurrence($syncEvent, $eventContext);
+				}
+				else
+				{
+					$syncEvent = $this->prepareRecurrenceEvent($safeEvent, $safeExceptionsMap);
+					$deleteResult = $vendorSyncManager->deleteEvent($safeEvent, clone $eventContext);
+					if ($deleteResult->isSuccess() && $syncEvent->getEventConnection())
+					{
+						$this->mapperFactory->getEventConnection()->delete($syncEvent->getEventConnection());
+					}
+					$syncEvent->setEventConnection(null);
+					$vendorResult = $vendorSyncManager->createRecurrence($syncEvent, $eventContext);
+				}
+
+				$data[$this->getVendorCode($factory)] = $vendorResult;
+				if (!$vendorResult->isSuccess())
+				{
+					$mainResult->addErrors($vendorResult->getErrors());
+				}
+			}
+			catch (RemoteAccountException $e)
+			{
+				$mainResult->addError(new Error($e->getMessage(), $e->getCode()));
+			}
+		}
+
+		return $mainResult->setData($data);
+	}
+
+	/**
+	 * @param Event $event
+	 * @param Context $context
+	 *
+	 * @return Result
+	 *
+	 * @throws ArgumentException
+	 * @throws Core\Base\BaseException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws ObjectNotFoundException
+	 * @throws Exception
+	 */
+	public function createReccurence(Event $event, Context $context): Result
+	{
+		if (empty($event->getRecurringRule()))
+		{
+			return $this->createEvent($event, $context);
+		}
+
+		$eventExceptionsMap = $this->getEventExceptionsMap($event);
+		$mainResult = new Result();
+		$data = [];
+		$eventCloner = new Core\Builders\EventCloner($event);
+		/** @var FactoryInterface $factory */
+		foreach ($this->factories as $factory)
+		{
+			if ($this->checkExclude($factory, $context))
+			{
+				continue;
+			}
+			try
+			{
+				$safeEvent = $eventCloner->build();
+				$vendorSyncManager = $this->getVendorSynchronization($factory);
+				$eventContext = $this->prepareEventContext($safeEvent, $context, $factory);
+				$syncEvent = $this->prepareRecurrenceEvent($safeEvent, $eventExceptionsMap);
+
+				$vendorResult = $vendorSyncManager->createRecurrence($syncEvent, $eventContext);
+
 				$data[$this->getVendorCode($factory)] = $vendorResult;
 				if (!$vendorResult->isSuccess())
 				{
@@ -199,7 +350,7 @@ class Synchronization
 						$event->getExcludedDateCollection()->getCollection(),
 						function($item) use ($diff)
 						{
-							return !in_array($item->format(\CCalendar::DFormat(false)), $diff);
+							return !in_array($item->format(CCalendar::DFormat(false)), $diff);
 						})
 				);
 			$context->add('sync', 'excludeDate', $excludeDate);
@@ -297,7 +448,7 @@ class Synchronization
 	public function deleteSection(Section $section, Context $context): Result
 	{
 		$result = $this->execActionSection('deleteSection', $section, $context);
-		\CCalendarSect::cleanLinkTables($section->getId());
+		CCalendarSect::cleanLinkTables($section->getId());
 
 		return $result;
 	}
@@ -312,6 +463,7 @@ class Synchronization
 	 * @throws ArgumentException
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
+	 * @throws Exception
 	 */
 	public function upEventVersion(Event $event, Connection $connection, string $version)
 	{
@@ -327,7 +479,7 @@ class Synchronization
 			EventConnectionTable::update($link->getId(), [
 				'fields' => [
 					'VERSION' => $version,
-				]
+				],
 			]);
 		}
 	}
@@ -336,7 +488,8 @@ class Synchronization
 	 * @param FactoryInterface $factory
 	 *
 	 * @return VendorSynchronization
-	 * @throws \Bitrix\Main\ObjectNotFoundException
+	 *
+	 * @throws ObjectNotFoundException
 	 */
 	private function getVendorSynchronization(FactoryInterface $factory): VendorSynchronization
 	{
@@ -348,7 +501,6 @@ class Synchronization
 
 		return $this->subManagers[$key];
 	}
-
 
 	/**
 	 * @param FactoryInterface $factory
@@ -397,8 +549,8 @@ class Synchronization
 	 */
 	private function prepareEventContext(Event $event, Context $context, FactoryInterface $factory): EventContext
 	{
-		$eventLink = $context->sync['eventLink'] ?? $this->getEventConnection($event, $factory);
 		$sectionLink = $context->sync['sectionLink'] ?? $this->getSectionConnection($event->getSection(), $factory);
+		$eventLink = $context->sync['eventLink'] ?? $this->getEventConnection($event, $factory);
 
 		return (new EventContext())
 			->merge($context)
@@ -455,11 +607,150 @@ class Synchronization
 	 * @throws Core\Base\BaseException
 	 * @throws SystemException
 	 */
-	private function getEventConnection(Event $event, FactoryInterface $factory): ?EventConnection
+	private function getEventConnection(Event $event, ?FactoryInterface $factory): ?EventConnection
 	{
-		return $this->mapperFactory->getEventConnection()->getMap([
-			'=EVENT_ID' => $event->getId(),
-			'=CONNECTION_ID' => $factory->getConnection()->getId(),
+		if (!$factory)
+		{
+			return null;
+		}
+		$link = $this->mapperFactory->getEventConnection()->getMap([
+			'EVENT_ID' => $event->getId(),
+			'CONNECTION_ID' => $factory->getConnection()->getId(),
 		])->fetch();
+
+		return $link;
+	}
+
+	/**
+	 * @param Event $event
+	 *
+	 * @return Core\Base\Map
+	 *
+	 * @throws ArgumentException
+	 * @throws SystemException
+	 */
+	private function getSlaveEvents(Event $event): Core\Base\Map
+	{
+		$map = $this->getEventExceptionsMap($event);
+
+		return new Core\Event\EventMap(
+			array_reduce($map->getCollection(), static function ($result, $value)
+			{
+				/** @var Event $value */
+				if ($value->getOriginalDateFrom())
+				{
+					$key = $value->getOriginalDateFrom()->format('Ymd');
+					$result[$key] = $value->getId();
+				}
+
+				return $result;
+			}, []) ?? []
+		);
+	}
+
+	/**
+	 * @param Event $event
+	 * @param Core\Base\Map $slaveEvents
+	 *
+	 * @return void
+	 */
+	private function prepareEventExDates(Event $event, Core\Base\Map $slaveEvents)
+	{
+		(new ExcludeDatesHandler())->prepareEventExcludeDates($event, $slaveEvents);
+	}
+
+	/**
+	 * @param Event $event
+	 *
+	 * @return Core\Base\Map
+	 *
+	 * @throws ArgumentException
+	 * @throws SystemException
+	 * todo move it to the special class
+	 */
+	private function getEventExceptionsMap(Event $event): Core\Base\Map
+	{
+		$mapClass = Core\Event\EventMap::class;
+		$result = new $mapClass;
+
+		$queryResult = EventTable::query()
+			->setSelect(['*'])
+			->where('RECURRENCE_ID', $event->getParentId())
+			->where('DELETED', 'N')
+			->where('OWNER_ID', $event->getOwner()->getId())
+			->where(Query::filter()
+			->logic('or')
+				->whereNot('MEETING_STATUS', 'N')
+				->whereNull('MEETING_STATUS')
+			)
+			->whereNotNull('ORIGINAL_DATE_FROM')
+			->exec()
+		;
+		/** @var Event $row */
+		while ($row = $queryResult->fetchObject())
+		{
+			$eventEntity = $this->mapperFactory->getEvent()->getByEntityObject($row);
+			if ($eventEntity)
+			{
+				$result->add($eventEntity, $eventEntity->getId());
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param Event $event
+	 * @param Map $eventExceptionsMap
+	 * @param FactoryInterface|null $factory
+	 *
+	 * @return SyncEvent
+	 *
+	 * @throws ArgumentException
+	 * @throws BaseException
+	 * @throws SystemException
+	 */
+	private function prepareRecurrenceEvent(
+		Event $event,
+		Core\Base\Map $eventExceptionsMap,
+		?FactoryInterface $factory = null
+	): SyncEvent
+	{
+		$masterLink = $this->getEventConnection($event, $factory);
+		$syncEvent = (new SyncEvent())
+			->setEvent($event)
+			->setAction(Dictionary::SYNC_EVENT_ACTION['create'])
+			->setEventConnection($masterLink)
+			->setInstanceMap(new InstanceMap());
+		/** @var Event $exceptionEvent */
+		foreach ($eventExceptionsMap as $exceptionEvent)
+		{
+			$instance = (new SyncEvent())
+				->setEvent($exceptionEvent)
+				->setAction(Dictionary::SYNC_EVENT_ACTION['create'])
+				->setEventConnection($this->getEventConnection($exceptionEvent, $factory));
+			$syncEvent->getInstanceMap()->add($instance);
+		}
+		(new ExcludeDatesHandler())->prepareEventExcludeDates($event, $syncEvent->getInstanceMap());
+
+		return $syncEvent;
+	}
+
+	/**
+	 * @param Core\Event\EventMap $eventExceptionsMap
+	 *
+	 * @return Core\Event\EventMap
+	 *
+	 * @throws ArgumentException
+	 */
+	private function cloneEventMap(Core\Event\EventMap $eventExceptionsMap): Core\Event\EventMap
+	{
+		$result = new Core\Event\EventMap();
+		foreach ($eventExceptionsMap as $key => $event)
+		{
+			$result->add((new Core\Builders\EventCloner($event))->build(), $key);
+		}
+
+		return $result;
 	}
 }

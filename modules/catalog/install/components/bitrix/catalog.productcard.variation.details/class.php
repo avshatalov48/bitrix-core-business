@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Component\BaseForm;
 use Bitrix\Catalog\Component\GridVariationForm;
 use Bitrix\Catalog\Component\UseStore;
@@ -46,10 +48,24 @@ class CatalogProductVariationDetailsComponent
 
 	protected function showErrors()
 	{
+		Toolbar::deleteFavoriteStar();
 		foreach ($this->getErrors() as $error)
 		{
-			ShowError($error);
+			$this->includeErrorComponent($error->getMessage());
 		}
+	}
+
+	protected function includeErrorComponent(string $errorMessage, string $description = null): void
+	{
+		global $APPLICATION;
+		$APPLICATION->IncludeComponent(
+			"bitrix:ui.info.error",
+			"",
+			[
+				'TITLE' => $errorMessage,
+				'DESCRIPTION' => $description,
+			]
+		);
 	}
 
 	public function configureActions()
@@ -91,7 +107,7 @@ class CatalogProductVariationDetailsComponent
 
 	public function executeComponent()
 	{
-		if ($this->checkModules() && $this->checkPermissions() && $this->checkRequiredParameters())
+		if ($this->checkModules() && $this->checkBasePermissions() && $this->checkRequiredParameters())
 		{
 			$variation = $this->getVariation();
 
@@ -129,7 +145,7 @@ class CatalogProductVariationDetailsComponent
 		if ($sanitizer === null)
 		{
 			$sanitizer = new \CBXSanitizer;
-			
+
 			$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_LOW);
 			$sanitizer->ApplyDoubleEncode(false);
 		}
@@ -395,6 +411,11 @@ class CatalogProductVariationDetailsComponent
 			}
 		}
 
+		if (!$this->getForm()->isPricesEditable())
+		{
+			unset($fields['VAT_ID'], $fields['VAT_INCLUDED'], $fields['PURCHASING_PRICE']);
+		}
+
 		return $fields = array_merge($fields, $skuField);
 	}
 
@@ -449,7 +470,12 @@ class CatalogProductVariationDetailsComponent
 			return null;
 		}
 
-		if ($this->checkModules() && $this->checkPermissions() && $this->checkRequiredParameters())
+		if (
+			$this->checkModules()
+			&& $this->checkBasePermissions()
+			&& $this->checkRequiredParameters()
+			&& $this->checkProductEditPermissions()
+		)
 		{
 			$variation = $this->getVariation();
 
@@ -488,7 +514,7 @@ class CatalogProductVariationDetailsComponent
 					$variation->getPropertyCollection()->setValues($propertyFields);
 				}
 
-				if (!empty($priceFields))
+				if (!empty($priceFields) && $this->getForm()->isPricesEditable())
 				{
 					$variation->getPriceCollection()->setValues($priceFields);
 				}
@@ -548,11 +574,30 @@ class CatalogProductVariationDetailsComponent
 		return true;
 	}
 
-	protected function checkPermissions(): bool
+	protected function checkBasePermissions(): bool
 	{
+		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ))
+		{
+			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('CPVD_ACCESS_DENIED_TITLE'));
+
+			return false;
+		}
+
 		if (!$this->getForm()->isCardAllowed())
 		{
 			$this->errorCollection[] = new \Bitrix\Main\Error('New product card feature disabled.');
+
+			return false;
+		}
+
+		return true;
+	}
+
+	protected function checkProductEditPermissions(): bool
+	{
+		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_PRODUCT_EDIT))
+		{
+			$this->errorCollection[] = new \Bitrix\Main\Error(Loc::getMessage('CPD_ACCESS_DENIED_ERROR_TITLE'));
 
 			return false;
 		}
@@ -682,10 +727,11 @@ class CatalogProductVariationDetailsComponent
 
 			global $APPLICATION;
 			$APPLICATION->IncludeComponent(
-				"bitrix:catalog.notfounderror",
+				"bitrix:ui.info.error",
 				'',
 				[
-					'ERROR_MESSAGE' => Loc::getMessage('CPVD_NOT_FOUND_ERROR_TITLE'),
+					'TITLE' => Loc::getMessage('CPVD_NOT_FOUND_ERROR_TITLE'),
+					'DESCRIPTION' => '',
 				]
 			);
 		}
@@ -747,6 +793,9 @@ class CatalogProductVariationDetailsComponent
 		$this->arResult['UI_ENTITY_DATA'] = $this->getForm()->getValues();
 		$this->arResult['UI_ENTITY_CONTROLLERS'] = $this->getForm()->getControllers();
 		$this->arResult['UI_CREATION_PROPERTY_URL'] = $this->getCreationPropertyUrl();
+		$this->arResult['UI_ENTITY_READ_ONLY'] = $this->getForm()->isReadOnly();
+		$this->arResult['UI_ENTITY_CARD_SETTINGS_EDITABLE'] = $this->getForm()->isCardSettingsEditable();
+		$this->arResult['UI_ENTITY_ENABLE_SETTINGS_FOR_ALL'] = $this->getForm()->isEnabledSetSettingsForAll();
 		$this->arResult['VARIATION_GRID_ID'] = $this->getForm()->getVariationGridId();
 		$this->arResult['STORE_AMOUNT_GRID_ID'] = $this->getStoreAmount()->getStoreAmountGridId();
 		$this->arResult['CARD_SETTINGS'] = $this->getForm()->getCardSettings();
@@ -757,7 +806,11 @@ class CatalogProductVariationDetailsComponent
 
 	public function setCardSettingAction(string $settingId, $selected): Bitrix\Main\Engine\Response\AjaxJson
 	{
-		if (!$this->checkModules() || !$this->checkPermissions() || !$this->checkRequiredParameters())
+		if (
+			!$this->checkModules()
+			|| !$this->checkBasePermissions()
+			|| !$this->checkRequiredParameters()
+		)
 		{
 			return Bitrix\Main\Engine\Response\AjaxJson::createError($this->errorCollection);
 		}
@@ -780,7 +833,11 @@ class CatalogProductVariationDetailsComponent
 
 	public function setGridSettingAction(string $settingId, $selected, array $currentHeaders = []): Bitrix\Main\Engine\Response\AjaxJson
 	{
-		if (!$this->checkModules() || !$this->checkPermissions() || !$this->checkRequiredParameters())
+		if (
+			!$this->checkModules()
+			|| !$this->checkBasePermissions()
+			|| !$this->checkRequiredParameters()
+		)
 		{
 			return Bitrix\Main\Engine\Response\AjaxJson::createError($this->errorCollection);
 		}
@@ -791,7 +848,7 @@ class CatalogProductVariationDetailsComponent
 		{
 			$headers = ['WEIGHT', 'WIDTH', 'LENGTH', 'HEIGHT'];
 		}
-		elseif ($settingId === 'PURCHASING_PRICE_FIELD')
+		elseif ($settingId === 'PURCHASING_PRICE_FIELD' && $this->getForm()->isPurchasingPriceAllowed())
 		{
 			$headers = ['PURCHASING_PRICE_FIELD'];
 		}
@@ -1034,7 +1091,12 @@ class CatalogProductVariationDetailsComponent
 	public function updatePropertyAction(array $fields): array
 	{
 		$resultFields = [];
-		if ($this->checkModules() && $this->checkPermissions() && $this->checkRequiredParameters())
+		if (
+			$this->checkModules()
+			&& $this->checkBasePermissions()
+			&& $this->checkRequiredParameters()
+			&& $this->checkProductEditPermissions()
+		)
 		{
 			CBitrixComponent::includeComponentClass('bitrix:catalog.productcard.details');
 			$id = str_replace(VariationForm::PROPERTY_FIELD_PREFIX, '', $fields['CODE']);
@@ -1065,7 +1127,12 @@ class CatalogProductVariationDetailsComponent
 
 	public function addPropertyAction(array $fields = []): array
 	{
-		if ($this->checkModules() && $this->checkPermissions() && $this->checkRequiredParameters())
+		if (
+			$this->checkModules()
+			&& $this->checkBasePermissions()
+			&& $this->checkRequiredParameters()
+			&& $this->checkProductEditPermissions()
+		)
 		{
 			$fields['IBLOCK_ID'] = $this->getForm()->getVariationIblockId();
 			CBitrixComponent::includeComponentClass("bitrix:catalog.productcard.details");

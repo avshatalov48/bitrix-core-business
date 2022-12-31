@@ -1995,6 +1995,7 @@ class OrderBasket
 				$params["QUANTITY"] = Sale\BasketItem::formatQuantity($item->getField('QUANTITY'));
 				$params["NOTES"] = $item->getField("NOTES");
 				$params["MODULE"] = $item->getField("MODULE");
+				$params['TYPE'] = (int)$item->getField('TYPE');
 
 				if($params["MODULE"] == 'catalog')
 				{

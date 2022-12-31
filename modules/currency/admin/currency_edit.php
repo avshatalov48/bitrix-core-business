@@ -33,7 +33,7 @@ while ($oneLang = $langIterator->Fetch())
 	$langID[] = $oneLang['LID'];
 	$langList[$oneLang['LID']] = $oneLang['NAME'];
 }
-unset($oneLang, $langIterator, $order, $by);
+unset($oneLang, $langIterator);
 
 $arFields = array();
 
@@ -148,7 +148,7 @@ if ($ID != '')
 				$language['FULL_NAME'] = $ID;
 			$currencyLangs[$language['LID']] = $language;
 		}
-		unset($language, $langIterator, $order, $by);
+		unset($language, $langIterator);
 	}
 }
 
@@ -230,18 +230,13 @@ function setThousandsVariant(lang)
 	document.forms['form1'].elements['LANG_' + lang + '[THOUSANDS_SEP]'].disabled = (value.length > 0);
 }
 </script>
-<form method="post" action="<?$APPLICATION->GetCurPage()?>" name="form1">
+<form method="post" action="<?= $APPLICATION->GetCurPage()?>" name="form1">
 <? echo bitrix_sessid_post(); ?>
 <?echo GetFilterHiddens("filter_");?>
 <input type="hidden" name="ID" value="<?=htmlspecialcharsbx($ID); ?>">
 <input type="hidden" name="Update" value="Y">
-<input type="hidden" name="from" value="<?echo htmlspecialcharsbx($from)?>">
 <input type="hidden" name="BASE" value="<?echo htmlspecialcharsbx($currency['BASE']); ?>">
 <?
-if (isset($return_url) && $return_url != '')
-{
-	?><input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($return_url)?>"><?
-}
 
 $tabControl->Begin();?>
 <?$tabControl->BeginNextTab();?>

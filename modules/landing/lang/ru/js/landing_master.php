@@ -33,7 +33,8 @@ $MESS["FIELD_LINK_TEXT_LABEL"] = "Текст";
 $MESS["FIELD_LINK_HREF_PLACEHOLDER"] = "http:// или выбрать блок, страницу";
 $MESS["FIELD_LINK_HREF_PLACEHOLDER_PAGES_ONLY"] = "выбрать страницу";
 $MESS["FIELD_LINK_HREF_PLACEHOLDER_WITHOUT_CUSTOM_URL"] = "выбрать блок или страницу";
-$MESS["FIELD_LINK_HREF_LABEL"] = "Ссылка";
+$MESS["FIELD_LINK_HREF_LABEL_2"] = "Действие по клику";
+$MESS["FIELD_LINK_HREF_BUTTON"] = "Выберите действие";
 $MESS["FIELD_LINK_TARGET_LABEL"] = "открывать";
 $MESS["FIELD_LINK_TARGET_SELF"] = "В этом окне";
 $MESS["FIELD_LINK_TARGET_BLANK"] = "В новом окне";
@@ -108,6 +109,7 @@ $MESS["LANDING_LINKS_LANDINGS_TITLE__KNOWLEDGE"] = "Базы знаний и с�
 $MESS["LANDING_LINKS_BLOCKS_TITLE"] = "Переход к блоку";
 $MESS["LANDING_LINKS_CRM_FORMS_TITLE"] = "CRM-формы";
 $MESS["LANDING_LINKS_CRM_PHONES_TITLE"] = "Телефоны";
+$MESS["LANDING_LINKS_CRM_PHONES_USERS"] = "Пользователи";
 $MESS["LANDING_BLOCKS_LIST_FEEDBACK_BUTTON"] = "Обратная связь";
 $MESS["LANDING_BLOCKS_LIST_NEW_LABEL"] = "Новый";
 $MESS["LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON"] = "Оставить замечание";
@@ -409,6 +411,7 @@ $MESS['LANDING_ACTION_BUTTON_PUBLISH'] = 'Опубликовать';
 $MESS['LANDING_LINK_PLACEHOLDER_NEW_PAGE'] = 'Новая страница';
 $MESS['LANDING_LINK_NEW_PAGE_LABEL'] = 'НОВАЯ';
 $MESS['LANDING_LINK_NEW_PAGE_SAVE_BUTTON_LABEL'] = 'Создать';
+$MESS['LANDING_LINK_NEW_PAGE_CANCEL_BUTTON_LABEL'] = 'Отменить';
 
 $MESS['LANDING_EMBED_BG_FIELD_DESCRIPTION'] = 'Допускаются только полные или короткие ссылки на видео с&nbsp;сервисов Youtube и VK видео';
 $MESS['LANDING_EMBED_NOT_BG_FIELD_DESCRIPTION'] = 'Допускаются только полные или короткие ссылки на видео с&nbsp;сервисов Youtube, VK видео, RuTube или Vimeo';
@@ -463,3 +466,48 @@ $MESS["LANDING_TABLE_SELECT_TABLE"] = "Выбрать всю таблицу";
 $MESS["LANDING_TABLE_BUTTON_CHANGE_TEXT"] = "Отредактировать текст";
 $MESS['LANDING_FONTS_PANEL_MORE_BUTTON_LABEL'] = 'Загрузить еще';
 $MESS['LANDING_FONTS_PANEL_EMPTY_STUB'] = 'Шрифты не найдены...';
+
+//link control phrases
+//actions
+$MESS["LANDING_LINK_URL_ACTION_SELECT"] = "Выберите действие";
+$MESS["LANDING_LINK_URL_ACTION_PAGE"] = "Перейти на страницу";
+$MESS["LANDING_LINK_URL_ACTION_BLOCK"] = "Перейти к блоку";
+$MESS["LANDING_LINK_URL_ACTION_CRM"] = "Открыть CRM-форму";
+$MESS["LANDING_LINK_URL_ACTION_PRODUCT"] = "Открыть страницу товара";
+$MESS["LANDING_LINK_URL_ACTION_PHONE"] = "Позвонить";
+$MESS["LANDING_LINK_URL_ACTION_SMS"] = "Отправить СМС";
+$MESS["LANDING_LINK_URL_ACTION_EMAIL"] = "Отправить письмо по e-mail";
+$MESS["LANDING_LINK_URL_ACTION_SKYPE"] = "Связаться по Skype";
+$MESS["LANDING_LINK_URL_ACTION_LINK"] = "Перейти по внешней ссылке";
+$MESS["LANDING_LINK_URL_ACTION_FILE_MSGVER_1"] = "Открыть файл";
+$MESS["LANDING_LINK_URL_ACTION_USER"] = "Открыть профиль в Битрикс24";
+$MESS["LANDING_LINK_URL_DELETE_ACTION"] = "Не указывать ссылку";
+$MESS["LANDING_LINK_URL_ACTION_SELECT_CATALOG"] = "Выбрать папку";
+$MESS["LANDING_LINK_URL_ACTION_SELECT_PAGE"] = "Выбрать страницу";
+
+$MESS["LANDING_LINK_URL_TITLE_PAGE"] = "Клиент откроет страницу";
+$MESS["LANDING_LINK_URL_TITLE_BLOCK"] = "Клиент откроет блок";
+$MESS["LANDING_LINK_URL_TITLE_CRM_FORM"] = "Клиент откроет CRM-форму";
+$MESS["LANDING_LINK_URL_TITLE_PRODUCT"] = "Клиент откроет страницу товара в этом окне";
+$MESS["LANDING_LINK_URL_TITLE_TEL"] = "Клиент позвонит по указанному номеру";
+$MESS["LANDING_LINK_URL_TITLE_SMS"] = "Клиент отправит СМС";
+$MESS["LANDING_LINK_URL_TITLE_SKYPE"] = "Клиент свяжется с указанным контактом в Slype";
+$MESS["LANDING_LINK_URL_TITLE_MAILTO"] = "Клиент отправит письмо на указанный e-mail";
+$MESS["LANDING_LINK_URL_TITLE_LINK"] = "Клиент откроет страницу";
+$MESS["LANDING_LINK_URL_TITLE_FILE"] = "Пользователь скачает файл";
+$MESS["LANDING_LINK_URL_TITLE_USER"] = "Откроется профиль пользователя Битрикс24";
+
+$MESS["LANDING_LINK_URL_BUTTON_PAGE"] = "Выберите страницу для перехода";
+$MESS["LANDING_LINK_URL_BUTTON_PAGE_SHORT"] = "Страницы сайта";
+$MESS["LANDING_LINK_URL_BUTTON_BLOCK"] = "Выберите блок для перехода";
+$MESS["LANDING_LINK_URL_BUTTON_CRM"] = "Выберите CRM-Форму";
+$MESS["LANDING_LINK_URL_BUTTON_FILE"] = "Выберите файл";
+$MESS["LANDING_LINK_URL_BUTTON_USER"] = "Выберите пользователя";
+$MESS["LANDING_LINK_URL_BUTTON_PRODUCT"] = "Выберите товар";
+$MESS["LANDING_LINK_URL_BUTTON_CATALOG"] = "Каталог товаров";
+
+//placeholder
+$MESS["LANDING_LINK_URL_PLACEHOLDER_PHONE"] = "Выберите или введите номер телефона";
+$MESS["LANDING_LINK_URL_PLACEHOLDER_EMAIL"] = "Введите e-mail";
+$MESS["LANDING_LINK_URL_PLACEHOLDER_SKYPE"] = "Введите логин Skype";
+$MESS["LANDING_LINK_URL_PLACEHOLDER_URL"] = "Введите url";

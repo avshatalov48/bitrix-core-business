@@ -18,9 +18,7 @@ class Location extends \Bitrix\Main\Engine\Controller
 {
 	protected function getDefaultPreFilters()
 	{
-		return [
-			new Cors(),
-		];
+		return [];
 	}
 
 	/**

@@ -1011,12 +1011,6 @@
 	padding-right:40px !important;
 }
 
-.bx-ie8 #bx-panel .adm-warning-block,
-.bx-ie9 #bx-panel .adm-warning-block
-{
-	background-color: #c3d467 !important;
-}
-
 #bx-panel .adm-warning-block-red {
 	background:-webkit-linear-gradient(top, #bf94a0 0%, #dcacb8 25%, #d4a6ab 100%) !important;
 	background:-moz-linear-gradient(top, #bf94a0 0%, #dcacb8 25%, #d4a6ab 100%) !important;
@@ -1028,11 +1022,6 @@
 	overflow:hidden !important;
 	position:relative !important;
 	padding-right:40px !important;
-}
-
-.bx-ie8 #bx-panel .adm-warning-block-red,
-.bx-ie9 #bx-panel .adm-warning-block-red {
-	background-color: #dcacb8 !important;
 }
 
 #bx-panel .adm-warning-text {

@@ -4,6 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use \Bitrix\Landing\Folder;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Landing;
@@ -373,7 +374,12 @@ class LandingViewComponent extends LandingBaseComponent
 		{
 			$pages = $this->getLandings(array(
 				'filter' => array(
-					'SITE_ID' => $landing->getSiteId()
+					'SITE_ID' => $landing->getSiteId(),
+					[
+						'LOGIC' => 'OR',
+						['FOLDER_ID' => null],
+						['!FOLDER_ID' => Folder::getFolderIdsForSite($landing->getSiteId(), ['=DELETED' => 'Y']) ?: [-1]]
+					]
 				)
 			));
 			foreach ($pages as $page)
@@ -649,6 +655,7 @@ class LandingViewComponent extends LandingBaseComponent
 				$options = $event->getParameter('options');
 				$meta = $landing->getMeta();
 				$options['url'] = $arResult['~LANDING_FULL_URL'] ?? $landing->getPublicUrl();
+				$options['allow_svg'] = Manager::getOption('allow_svg_content') === 'Y';
 				$options['folder_id'] = $landing->getFolderId();
 				$options['version'] = Manager::getVersion();
 				$options['default_section'] = $this->getCurrentBlockSection($type);
@@ -883,9 +890,9 @@ class LandingViewComponent extends LandingBaseComponent
 							}
 						}
 						if (
-							!empty($block['type']) &&
-							!in_array($type, $block['type']) &&
-							($b24 || $block['type'] == 'null')
+							!empty($block['type'])
+							&& !in_array($type, $block['type'], true)
+							&& ($b24 || in_array('NULL', $block['type'], true))
 						)
 						{
 							unset($section['items'][$code]);

@@ -787,7 +787,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    _t2$1,
 	    _t3$1,
 	    _t4$1,
-	    _t5$1;
+	    _t5$1,
+	    _t6$1,
+	    _t7$1;
 	class Location {
 	  constructor(params) {
 	    this.datesRange = [];
@@ -845,21 +847,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      });
 	    }
 
-	    if (this.disabled) {
-	      main_core.Dom.addClass(this.DOM.wrapNode, 'locked');
-	      this.DOM.inputWrap.appendChild(main_core.Dom.create('DIV', {
-	        props: {
-	          className: 'calendar-lock-icon'
-	        },
-	        events: {
-	          click: () => {
-	            top.BX.UI.InfoHelper.show('limit_office_calendar_location');
-	          }
-	        }
-	      }));
-	    }
-
-	    this.DOM.input = this.DOM.inputWrap.appendChild(main_core.Dom.create('INPUT', {
+	    this.DOM.inputWrapInner = this.DOM.inputWrap.appendChild(main_core.Tag.render(_t5$1 || (_t5$1 = _$1`
+				<div class="calendar-event-location-input-wrap-inner">
+				</div>`)));
+	    this.DOM.input = this.DOM.inputWrapInner.appendChild(main_core.Dom.create('INPUT', {
 	      attrs: {
 	        name: this.params.inputName || '',
 	        placeholder: this.disabled ? main_core.Loc.getMessage('EC_LOCATION_PLACEHOLDER_LOCKED') : main_core.Loc.getMessage('EC_LOCATION_PLACEHOLDER'),
@@ -871,9 +862,21 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      },
 	      style: {
 	        paddingRight: 25 + 'px',
+	        minWidth: 300 + 'px',
 	        maxWidth: 300 + 'px'
 	      }
 	    }));
+
+	    if (this.disabled) {
+	      main_core.Dom.addClass(this.DOM.wrapNode, 'locked');
+	      this.DOM.lockIcon = main_core.Tag.render(_t6$1 || (_t6$1 = _$1`
+				<div class="calendar-lock-icon"></div>
+			`));
+	      main_core.Event.bind(this.DOM.lockIcon, 'click', () => {
+	        top.BX.UI.InfoHelper.show('limit_office_calendar_location');
+	      });
+	      main_core.Dom.append(this.DOM.lockIcon, this.DOM.inputWrapInner);
+	    }
 	  }
 
 	  setValues() {
@@ -996,7 +999,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      zIndex: this.zIndex,
 	      disabled: this.disabled,
 	      minWidth: 300,
-	      onChangeCallback: BX.delegate(function () {
+	      onChangeCallback: () => {
+	        main_core_events.EventEmitter.emit('Calendar.LocationControl.onValueChange');
 	        let i,
 	            value = this.DOM.input.value;
 	        this.value = {
@@ -1022,7 +1026,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	        this.addLocationRemoveButton();
 	        this.allowClick();
-	      }, this)
+	      }
 	    });
 	    this.allowClick();
 	  }
@@ -1080,7 +1084,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 
 	    if ((this.value.value || this.value.str || this.value.text) && !this.viewMode && !this.DOM.removeLocationButton && this.value.text !== '') {
-	      this.DOM.removeLocationButton = wrap.appendChild(main_core.Tag.render(_t5$1 || (_t5$1 = _$1`
+	      this.DOM.removeLocationButton = wrap.appendChild(main_core.Tag.render(_t7$1 || (_t7$1 = _$1`
 				<span class="calendar-location-clear-btn-wrap calendar-location-readonly">
 					<span class="calendar-location-clear-btn-text">${0}</span>
 				</span>`), main_core.Loc.getMessage('EC_LOCATION_CLEAR_INPUT')));
@@ -2173,8 +2177,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    _t3$2,
 	    _t4$2,
 	    _t5$2,
-	    _t6$1,
-	    _t7$1,
+	    _t6$2,
+	    _t7$2,
 	    _t8$1;
 	class SectionSelector {
 	  constructor(params) {
@@ -2376,11 +2380,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      let imageNode;
 
 	      if (imageSrc) {
-	        imageNode = main_core.Tag.render(_t5$2 || (_t5$2 = _$3`<img class="calendar-field-choice-calendar-img-value" src="${0}">`), imageSrc);
+	        imageNode = main_core.Tag.render(_t5$2 || (_t5$2 = _$3`<img class="calendar-field-choice-calendar-img-value" src="${0}">`), encodeURI(imageSrc));
 	      } else if (section.type === 'group') {
-	        imageNode = main_core.Tag.render(_t6$1 || (_t6$1 = _$3`<div class="ui-icon ui-icon-common-user-group"><i></i></div>`));
+	        imageNode = main_core.Tag.render(_t6$2 || (_t6$2 = _$3`<div class="ui-icon ui-icon-common-user-group"><i></i></div>`));
 	      } else if (section.type === 'user') {
-	        imageNode = main_core.Tag.render(_t7$1 || (_t7$1 = _$3`<div class="ui-icon ui-icon-common-user"><i></i></div>`));
+	        imageNode = main_core.Tag.render(_t7$2 || (_t7$2 = _$3`<div class="ui-icon ui-icon-common-user"><i></i></div>`));
 	      } else {
 	        imageNode = main_core.Tag.render(_t8$1 || (_t8$1 = _$3`<div class="ui-icon ui-icon-common-bitrix24"><i></i></div>`));
 	      }
@@ -3206,13 +3210,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	  create() {
 	    this.menuItems = [{
-	      text: main_core.Loc.getMessage('EC_ADD_EVENT'),
+	      text: main_core.Loc.getMessage('EC_EVENT_BUTTON'),
 	      onclick: this.addEntry.bind(this)
 	    }];
 
 	    if (this.addTaskHandler) {
 	      this.menuItems.push({
-	        text: main_core.Loc.getMessage('EC_ADD_TASK'),
+	        text: main_core.Loc.getMessage('EC_TASK_BUTTON'),
 	        onclick: this.addTask.bind(this)
 	      });
 	    }
@@ -3227,7 +3231,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	            className: "ui-btn-main",
 	            type: "button"
 	          },
-	          html: main_core.Loc.getMessage('EC_ADD'),
+	          html: main_core.Loc.getMessage('EC_CREATE'),
 	          events: {
 	            click: this.addEntry.bind(this)
 	          }
@@ -3248,7 +3252,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          className: "ui-btn ui-btn-success",
 	          type: "button"
 	        },
-	        html: main_core.Loc.getMessage('EC_ADD'),
+	        html: main_core.Loc.getMessage('EC_CREATE'),
 	        events: {
 	          click: this.addEntry.bind(this)
 	        }
@@ -3636,8 +3640,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    _t3$4,
 	    _t4$4,
 	    _t5$4,
-	    _t6$2,
-	    _t7$2,
+	    _t6$3,
+	    _t7$3,
 	    _t8$2,
 	    _t9,
 	    _t10,
@@ -3690,8 +3694,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        this.DOM.fromTimeText = this.DOM.leftInnerWrap.appendChild(main_core.Tag.render(_t5$4 || (_t5$4 = _$6`<span class="calendar-field-value calendar-field-value-time"></span>`)));
 	      }
 
-	      this.DOM.betweenSpacer = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t6$2 || (_t6$2 = _$6`<div class="calendar-field-block calendar-field-block-between" />`)));
-	      this.DOM.rightInnerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t7$2 || (_t7$2 = _$6`<div class="calendar-field-block calendar-field-block-right"></div>`)));
+	      this.DOM.betweenSpacer = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t6$3 || (_t6$3 = _$6`<div class="calendar-field-block calendar-field-block-between" />`)));
+	      this.DOM.rightInnerWrap = this.DOM.outerWrap.appendChild(main_core.Tag.render(_t7$3 || (_t7$3 = _$6`<div class="calendar-field-block calendar-field-block-right"></div>`)));
 	      this.DOM.toTime = this.DOM.rightInnerWrap.appendChild(main_core.Tag.render(_t8$2 || (_t8$2 = _$6`
 				<input class="calendar-field calendar-field-time" value="" type="text" autocomplete="off" style="width: ${0}px; max-width: ${0}px;"/>
 			`), this.TIME_INPUT_WIDTH, this.TIME_INPUT_WIDTH));
@@ -3860,6 +3864,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    main_core.Event.bind(this.DOM.fromDate, 'change', this.handleDateFromChange.bind(this));
 	    main_core.Event.bind(this.DOM.toDate, 'click', DateTimeControl.showInputCalendar);
 	    main_core.Event.bind(this.DOM.toDate, 'change', this.handleDateToChange.bind(this));
+	    main_core.Event.bind(this.DOM.fromTime, 'input', this.handleTimeInput.bind(this));
+	    main_core.Event.bind(this.DOM.toTime, 'input', this.handleTimeInput.bind(this));
 	    main_core.Event.bind(this.DOM.fullDay, 'click', () => {
 	      this.handleFullDayChange();
 	      this.handleValueChange();
@@ -3950,13 +3956,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	    this.DOM.fromDate.value = calendar_util.Util.formatDate(this.getFrom());
 	    const difference = this.getFrom().getTime() - this.from.getTime();
-	    const yearDuration = 1000 * 60 * 60 * 24 * 365;
-
-	    if (Math.abs(difference) > yearDuration) {
-	      this.DOM.fromDate.value = calendar_util.Util.formatDate(this.from.getTime());
-	      return;
-	    }
-
 	    this.DOM.toDate.value = calendar_util.Util.formatDate(this.to.getTime() + difference);
 	    this.handleValueChange();
 	  }
@@ -3969,11 +3968,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	    this.DOM.toDate.value = calendar_util.Util.formatDate(this.getTo());
 	    const difference = Math.abs(this.to.getTime() - this.getTo().getTime());
-	    const yearDuration = 1000 * 60 * 60 * 24 * 365;
+	    const yearDuration = 1000 * 60 * 60 * 24 * 300;
 
 	    if (difference > yearDuration) {
-	      this.DOM.toDate.value = calendar_util.Util.formatDate(this.to.getTime());
-	      return;
+	      const duration = this.to.getTime() - this.from.getTime();
+	      const toDate = calendar_util.Util.parseDate(this.DOM.toDate.value);
+	      toDate.setHours(this.to.getHours(), this.to.getMinutes(), 0, 0);
+	      const fromDate = new Date(toDate.getTime() - duration);
+	      this.DOM.fromDate.value = calendar_util.Util.formatDate(fromDate);
 	    }
 
 	    if (this.getTo() < this.getFrom()) {
@@ -3986,10 +3988,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 
 	  handleTimeFromChange(inputValue, dataValue) {
-	    if (this.isIncorrectTimeValue(inputValue)) {
+	    this.handleTimeChange(this.DOM.fromTime);
+
+	    if (this.isIncorrectTimeValue(this.DOM.fromTime.value)) {
 	      this.DOM.fromTime.value = calendar_util.Util.formatTime(this.from);
 	    } else {
-	      this.fromMinutes = dataValue != null ? dataValue : this.getMinutesFromFormattedTime(inputValue);
+	      this.fromMinutes = dataValue != null ? dataValue : this.getMinutesFromFormattedTime(this.DOM.fromTime.value);
 	      this.DOM.fromTime.value = calendar_util.Util.formatTime(this.getFrom());
 	    }
 
@@ -4002,10 +4006,12 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 
 	  handleTimeToChange(inputValue, dataValue) {
-	    if (this.isIncorrectTimeValue(inputValue)) {
+	    this.handleTimeChange(this.DOM.toTime);
+
+	    if (this.isIncorrectTimeValue(this.DOM.toTime.value)) {
 	      this.DOM.toTime.value = calendar_util.Util.formatTime(this.to);
 	    } else {
-	      this.toMinutes = dataValue != null ? dataValue : this.getMinutesFromFormattedTime(inputValue);
+	      this.toMinutes = dataValue != null ? dataValue : this.getMinutesFromFormattedTime(this.DOM.toTime.value);
 	      this.DOM.toTime.value = calendar_util.Util.formatTime(this.getTo());
 	    }
 
@@ -4026,6 +4032,237 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 
 	    return timeValue === '' || timeValue[0] !== '0' && calendar_util.Util.parseTime(timeValue).h === 0;
+	  }
+
+	  handleTimeChange(timeSelector) {
+	    if (timeSelector.value === '') {
+	      return;
+	    }
+
+	    let time = this.getMaskedTime(timeSelector.value);
+	    time = this.beautifyTime(time);
+
+	    if (BX.isAmPmMode()) {
+	      var _timeSelector$value$t;
+
+	      let amPmSymbol = ((_timeSelector$value$t = timeSelector.value.toLowerCase().match(/[ap]/g)) != null ? _timeSelector$value$t : []).pop();
+
+	      if (!amPmSymbol) {
+	        const hour = parseInt(this.getMinutesAndHours(time).hours);
+
+	        if (8 <= hour && hour <= 11) {
+	          amPmSymbol = 'a';
+	        } else {
+	          amPmSymbol = 'p';
+	        }
+	      }
+
+	      if (amPmSymbol === 'a') {
+	        time += ' am';
+	      }
+
+	      if (amPmSymbol === 'p') {
+	        time += ' pm';
+	      }
+	    }
+
+	    timeSelector.value = time;
+	  }
+
+	  handleTimeInput(e) {
+	    e.target.value = this.getMaskedTime(e.target.value, e.data, e.inputType === 'deleteContentBackward');
+	  }
+
+	  getMaskedTime(value, key, backspace = false) {
+	    if (backspace) {
+	      return value;
+	    }
+
+	    let time = '';
+	    const {
+	      hours,
+	      minutes
+	    } = this.getMinutesAndHours(value, key);
+
+	    if (hours && !minutes) {
+	      time = `${hours}`;
+
+	      if (value.length - time.length === 1 || value.indexOf(':') !== -1) {
+	        time += ':';
+	      }
+	    }
+
+	    if (hours && minutes) {
+	      time = `${hours}:${minutes}`;
+	    }
+
+	    if (BX.isAmPmMode() && this.clearTimeString(time) !== '') {
+	      var _value$toLowerCase$ma;
+
+	      const amPmSymbol = ((_value$toLowerCase$ma = value.toLowerCase().match(/[ap]/g)) != null ? _value$toLowerCase$ma : []).pop();
+
+	      if (amPmSymbol === 'a') {
+	        time = this.beautifyTime(time) + ' am';
+	      }
+
+	      if (amPmSymbol === 'p') {
+	        time = this.beautifyTime(time) + ' pm';
+	      }
+	    }
+
+	    return time;
+	  }
+
+	  getMinutesAndHours(value, key) {
+	    let time = this.clearTimeString(value, key);
+	    let hours, minutes;
+
+	    if (time.indexOf(':') !== -1) {
+	      hours = time.match(/[\d]*:/g)[0].slice(0, -1);
+	      minutes = time.match(/:[\d]*/g)[0].slice(1);
+	    } else {
+	      var _time$match;
+
+	      const digits = ((_time$match = time.match(/\d/g)) != null ? _time$match : []).splice(0, 4).map(d => parseInt(d));
+
+	      if (digits.length === 4 && digits[0] > this.getMaxHours() / 10) {
+	        digits.pop();
+	      }
+
+	      if (digits.length === 1) {
+	        hours = `${digits[0]}`;
+	      }
+
+	      if (digits.length === 2) {
+	        hours = `${digits[0]}${digits[1]}`;
+
+	        if (parseInt(hours) > this.getMaxHours()) {
+	          hours = `${digits[0]}`;
+	          minutes = `${digits[1]}`;
+	        }
+	      }
+
+	      if (digits.length === 3) {
+	        if (BX.isAmPmMode()) {
+	          if (digits[0] >= 1) {
+	            hours = `${digits[0]}`;
+	            minutes = `${digits[1]}${digits[2]}`;
+	          } else {
+	            hours = `${digits[0]}${digits[1]}`;
+	            minutes = `${digits[2]}`;
+	          }
+	        } else {
+	          if (parseInt(`${digits[0]}${digits[1]}`) < 24) {
+	            hours = `${digits[0]}${digits[1]}`;
+	            minutes = `${digits[2]}`;
+	          } else {
+	            hours = `${digits[0]}`;
+	            minutes = `${digits[1]}${digits[2]}`;
+	          }
+	        }
+	      }
+
+	      if (digits.length === 4) {
+	        hours = `${digits[0]}${digits[1]}`;
+	        minutes = `${digits[2]}${digits[3]}`;
+	      }
+	    }
+
+	    if (hours) {
+	      hours = this.formatHours(hours);
+	    }
+
+	    if (minutes) {
+	      minutes = this.formatMinutes(minutes);
+	    }
+
+	    return {
+	      hours,
+	      minutes
+	    };
+	  }
+
+	  clearTimeString(str, key) {
+	    let validatedTime = str.replace(/[ap]/g, '').replace(/\D/g, ':'); // remove a and p and replace not digits to :
+
+	    validatedTime = validatedTime.replace(/:*/, ''); // remove everything before first digit
+	    // leave only first :
+
+	    const firstColonIndex = validatedTime.indexOf(':');
+	    validatedTime = validatedTime.substr(0, firstColonIndex + 1) + validatedTime.slice(firstColonIndex + 1).replaceAll(':', ''); // leave not more than 2 hour digits and 2 minute digits
+
+	    if (firstColonIndex !== -1) {
+	      const hours = this.formatHours(validatedTime.match(/[\d]*:/g)[0].slice(0, -1));
+	      const minutes = validatedTime.match(/:[\d]*/g)[0].slice(1).slice(0, 3);
+
+	      if (hours.length === 1 && minutes.length === 3 && !isNaN(parseInt(key)) && this.areTimeDigitsCorrect(`${hours}${minutes}`)) {
+	        return `${hours}${minutes}`;
+	      }
+
+	      return `${hours}:${minutes}`;
+	    }
+
+	    return validatedTime.slice(0, 4);
+	  }
+
+	  areTimeDigitsCorrect(time) {
+	    const hh = time.slice(0, 2);
+	    const mm = time.slice(2);
+	    return this.formatHours(hh) === hh && this.formatMinutes(mm) === mm;
+	  }
+
+	  formatHours(str) {
+	    const firstDigit = str[0];
+
+	    if (parseInt(firstDigit) > this.getMaxHours() / 10) {
+	      return `0${firstDigit}`;
+	    }
+
+	    if (parseInt(str) <= this.getMaxHours()) {
+	      var _str$;
+
+	      return `${firstDigit}${(_str$ = str[1]) != null ? _str$ : ''}`;
+	    }
+
+	    return `${firstDigit}`;
+	  }
+
+	  formatMinutes(str) {
+	    var _str$2;
+
+	    const firstDigit = str[0];
+
+	    if (firstDigit >= 6) {
+	      return `0${firstDigit}`;
+	    }
+
+	    return `${firstDigit}${(_str$2 = str[1]) != null ? _str$2 : ''}`;
+	  }
+
+	  beautifyTime(time) {
+	    if (this.clearTimeString(time) === '') {
+	      return '';
+	    }
+
+	    if (time.indexOf(':') === -1) {
+	      time += ':00';
+	    }
+
+	    if (time.indexOf(':') === time.length - 1) {
+	      time += '00';
+	    }
+
+	    let {
+	      hours,
+	      minutes
+	    } = this.getMinutesAndHours(time);
+	    hours = `0${hours}`.slice(-2);
+	    minutes = `0${minutes}`.slice(-2);
+	    return `${hours}:${minutes}`;
+	  }
+
+	  getMaxHours() {
+	    return BX.isAmPmMode() ? 12 : 24;
 	  }
 
 	  handleFullDayChange() {
@@ -4209,8 +4446,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    _t$7,
 	    _t2$7;
 	class UserPlannerSelector extends main_core_events.EventEmitter {
-	  // 8
-	  // 10
 	  constructor(params = {}) {
 	    super();
 	    this.zIndex = 4200;
@@ -4350,11 +4585,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	    this.entry = entry;
 	    this.entryId = this.entry.id;
-
-	    if (this.attendeesEntityList.length > 1 && !viewMode) {
-	      this.showPlanner();
-	    }
-
 	    this.setEntityList(this.attendeesEntityList);
 	    this.setInformValue(notify);
 	    this.setLocationValue(location);
@@ -4364,6 +4594,11 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 
 	    this.refreshPlannerStateDebounce();
+	    let dateTime = this.getDateTime();
+
+	    if (dateTime) {
+	      this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
+	    }
 
 	    if ((_BX = BX) != null && (_BX$Intranet = _BX.Intranet) != null && _BX$Intranet.ControlButton && this.DOM.videocallWrap && this.entryId && this.entry.getCurrentStatus() !== false) {
 	      main_core.Dom.clean(this.DOM.videocallWrap);
@@ -4441,6 +4676,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  checkBusyTime() {
 	    const dateTime = this.getDateTime();
 	    const entityList = this.getEntityList();
+	    this.planner.updateScaleLimitsFromEntry(dateTime.from, dateTime.to);
 	    this.runPlannerDataRequest({
 	      entityList: entityList,
 	      timezone: dateTime.timezoneFrom,
@@ -4511,8 +4747,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        location: this.getLocationValue(),
 	        entryId: this.entryId,
 	        prevUserList: this.prevUserList
-	      }).then(response => {
-	        this.displayAttendees(this.prepareAttendeesForDisplay(response.data.entries || []));
 	      });
 	    }
 	  }
@@ -4545,10 +4779,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 
 	  runPlannerDataRequest(params) {
-	    let dateTime = this.getDateTime();
-	    this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay, {
-	      focus: false
-	    });
 	    return this.BX.ajax.runAction('calendar.api.calendarajax.updatePlanner', {
 	      data: {
 	        entryId: params.entryId || 0,
@@ -4568,6 +4798,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	  setDateTime(dateTime, updatePlaner = false) {
 	    this.dateTime = dateTime;
+	    this.planner.currentFromDate = dateTime.from;
+	    this.planner.currentToDate = dateTime.to;
 
 	    if (this.planner && updatePlaner) {
 	      this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay);
@@ -4602,13 +4834,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        usersCount: usersCount
 	      }
 	    }));
-	    let userLength = this.attendeeList.accepted.length;
+	    const userLength = Math.min(this.attendeeList.accepted.length, UserPlannerSelector.MAX_USER_COUNT_DISPLAY);
 
 	    if (userLength > 0) {
-	      if (userLength > UserPlannerSelector.MAX_USER_COUNT_DISPLAY) {
-	        userLength = UserPlannerSelector.MAX_USER_COUNT;
-	      }
-
 	      for (let i = 0; i < userLength; i++) {
 	        this.attendeeList.accepted[i].shown = true;
 	        this.DOM.attendeesList.appendChild(UserPlannerSelector.getUserAvatarNode(this.attendeeList.accepted[i]));
@@ -4621,7 +4849,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      this.DOM.attendeesLabel.innerHTML = main_core.Text.encode(main_core.Loc.getMessage('EC_ATTENDEES_LABEL_ONE'));
 	    }
 
-	    if (userLength < attendees.length) {
+	    if (attendees.length > 1) {
 	      this.DOM.moreLink.innerHTML = main_core.Text.encode(main_core.Loc.getMessage('EC_ATTENDEES_ALL_COUNT').replace('#COUNT#', attendees.length));
 	      main_core.Dom.show(this.DOM.moreLink);
 	    } else {
@@ -4648,7 +4876,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 				class="calendar-member"
 				id="simple_popup_${0}"
 				src="${0}"
-			>`), main_core.Text.encode(user.DISPLAY_NAME), parseInt(user.ID), img);
+			>`), main_core.Text.encode(user.DISPLAY_NAME), parseInt(user.ID), encodeURI(img));
 	    }
 
 	    return imageNode;
@@ -4770,9 +4998,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	}
 	UserPlannerSelector.VIEW_MODE = 'view';
 	UserPlannerSelector.EDIT_MODE = 'edit';
-	UserPlannerSelector.MAX_USER_COUNT = 8;
-	UserPlannerSelector.MAX_USER_COUNT_DISPLAY = 10;
-	UserPlannerSelector.PLANNER_WIDTH = 500;
+	UserPlannerSelector.MAX_USER_COUNT_DISPLAY = 8;
+	UserPlannerSelector.PLANNER_WIDTH = 550;
 
 	class ReinviteUserDialog extends main_core_events.EventEmitter {
 	  constructor() {
@@ -4785,6 +5012,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 
 	  show() {
 	    const content = main_core.Dom.create('DIV');
+	    this.close();
 	    this.dialog = new main_popup.Popup(this.id, null, {
 	      overlay: {
 	        opacity: 10

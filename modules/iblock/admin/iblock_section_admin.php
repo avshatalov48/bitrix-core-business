@@ -2,8 +2,11 @@
 /** @global CMain $APPLICATION */
 /** @global $DB CDatabase */
 /** @global CUserTypeManager $USER_FIELD_MANAGER */
+
 use Bitrix\Main,
 	Bitrix\Main\Loader,
+	Bitrix\Catalog\Access\ActionDictionary,
+	Bitrix\Catalog\Access\AccessController,
 	Bitrix\Iblock,
 	Bitrix\Iblock\Grid\ActionType,
 	Bitrix\Catalog;
@@ -161,14 +164,9 @@ $catalog = false;
 if ($catalogIncluded)
 {
 	$catalog = CCatalogSKU::GetInfoByIBlock($arIBlock["ID"]);
-	if (empty($catalog))
+	if (empty($catalog) || !AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_EDIT))
 	{
 		$useCatalog = false;
-	}
-	else
-	{
-		if (!$USER->CanDoOperation('catalog_price'))
-			$useCatalog = false;
 	}
 }
 
@@ -202,6 +200,8 @@ if ($useTree)
 {
 	$lAdmin->AddVisibleHeaderColumn("DEPTH_LEVEL");
 }
+
+// region Filter definitions
 
 $sectionItems = array(
 	"" => GetMessage("IBLOCK_ALL"),
@@ -284,6 +284,8 @@ $filterFields[] = array(
 
 global $USER_FIELD_MANAGER;
 $USER_FIELD_MANAGER->AdminListAddFilterFieldsV2($entity_id, $filterFields);
+
+// endregion
 
 //We have to handle current section in a special way
 $parent_section_id = $find_section_section === '' || $find_section_section === null ? '' : (int)$find_section_section;
@@ -551,6 +553,7 @@ if ($arID = $lAdmin->GroupAction())
 	}
 }
 
+// region Columns definition
 // list header
 $arHeaders = array(
 	array(
@@ -658,6 +661,8 @@ if ($useTree)
 		if (isset($arHeader["sort"]))
 			unset($arHeaders[$i]["sort"]);
 }
+
+// endregion
 
 $lAdmin->AddHeaders($arHeaders);
 

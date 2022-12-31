@@ -54,4 +54,6 @@ class PermissionDictionary extends \Bitrix\Main\Access\Permission\PermissionDict
 //	const SETTINGS_VIEW = 35;
 	const ADS_MARKETING_FB_EDIT = 36;
 	const ADS_MARKETING_INSTAGRAM_EDIT = 37;
+
+	const ADS_LOOK_ALIKE_YA_EDIT = 38;
 }

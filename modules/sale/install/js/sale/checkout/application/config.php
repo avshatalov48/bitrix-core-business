@@ -9,12 +9,12 @@ return [
 	'js' => 'dist/application.bundle.js',
 	'rel' => [
 		'sale.checkout.lib',
-		'main.core',
 		'ui.vue.vuex',
 		'sale.checkout.controller',
 		'sale.checkout.model',
 		'ui.vue',
 		'main.core.events',
+		'main.core',
 		'sale.checkout.const',
 		'sale.checkout.view.total',
 		'sale.checkout.view.product',

@@ -37,12 +37,12 @@ class Settings
 
 		$settings = \Bitrix\Main\Config\Configuration::getValue('im');
 
-		if (!isset($settings['broadcastingEnabled']))
+		if (!isset($settings['call']['broadcast_enabled']))
 		{
 			return $broadcastingEnabled;
 		}
 
-		return (bool)$settings['broadcastingEnabled'];
+		return (bool)$settings['call']['broadcast_enabled'];
 	}
 }
 

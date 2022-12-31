@@ -931,15 +931,6 @@ only screen and (min-resolution: 2dppx) {
 	}
 }
 
-.bx-ie.bx-ie11 body {
-	overflow: hidden;
-}
-
-.bx-ie.bx-ie11 .g-upper-show,
-.bx-ie.bx-ie11 .template-bitrix24 {
-	overflow-y: auto;
-}
-
 .landing-ui-block-selectable-overlay {
 	overflow: visible;
 }

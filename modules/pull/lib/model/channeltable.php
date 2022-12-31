@@ -75,7 +75,6 @@ class ChannelTable extends Main\Entity\DataManager
 			),
 			'CHANNEL_PUBLIC_ID' => array(
 				'data_type' => 'string',
-				'required' => true,
 				'validation' => array(__CLASS__, 'validateChannelId'),
 			),
 			'LAST_ID' => array(

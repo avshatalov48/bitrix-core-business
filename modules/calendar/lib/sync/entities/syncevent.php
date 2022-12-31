@@ -256,7 +256,7 @@ class SyncEvent implements Core\Base\EntityInterface
 
 		if ($this->event->getExcludedDateCollection())
 		{
-			$this->event->getExcludedDateCollection()->add($date);
+			$this->addExcludeDate($date);
 		}
 		else
 		{
@@ -278,5 +278,24 @@ class SyncEvent implements Core\Base\EntityInterface
 	public function isSingle(): bool
 	{
 		return $this->event->isSingle();
+	}
+
+	/**
+	 * @param Core\Base\Date $newExDate
+	 *
+	 * @return void
+	 */
+	private function addExcludeDate(Core\Base\Date $newExDate)
+	{
+		/** @var Core\Base\Date $exDate */
+		foreach ($this->event->getExcludedDateCollection() as $exDate)
+		{
+			if ($exDate->format('Ymd') === $newExDate->format('Ymd'))
+			{
+				return;
+			}
+		}
+
+		$this->event->getExcludedDateCollection()->add($newExDate);
 	}
 }

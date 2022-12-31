@@ -4,12 +4,10 @@ import {ContentWrapper} from 'landing.ui.panel.basepresetpanel';
 import {RadioButtonField} from 'landing.ui.field.radiobuttonfield';
 import {BaseEvent} from 'main.core.events';
 import {FormSettingsForm} from 'landing.ui.form.formsettingsform';
-import {MessageCard} from 'landing.ui.card.messagecard';
 import {Text, Type} from 'main.core';
 import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
 import StageField from './internal/stagefield/stagefield';
-
-import messageIcon from './images/message-icon.svg';
+import { SchemeManager } from 'landing.ui.panel.formsettingspanel.content.crm.schememanager';
 
 import './css/style.css';
 
@@ -27,10 +25,14 @@ type CrmField = {
 
 export default class CrmContent extends ContentWrapper
 {
+	#schemeManager: SchemeManager;
+
 	constructor(options)
 	{
 		super(options);
 		this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.CrmContent');
+
+		this.#schemeManager = new SchemeManager([ ...options.dictionary.document.schemes ]);
 
 		this.addItem(this.getHeader());
 		this.addItem(this.getTypesField());
@@ -85,19 +87,6 @@ export default class CrmContent extends ContentWrapper
 		});
 	}
 
-	getPaymentField(): BX.Landing.UI.Field.Checkbox
-	{
-		return this.cache.remember('paymentField', () => {
-			return new BX.Landing.UI.Field.Checkbox({
-				selector: 'payment',
-				value: [this.options.formOptions.payment.use],
-				items: [
-					{name: Loc.getMessage('LANDING_FORM_SETTINGS_ORDER_SHOW_PAYMENT'), value: true},
-				],
-			});
-		});
-	}
-
 	getOrderSettingsForm(): FormSettingsForm
 	{
 		return this.cache.remember('formSettingsForm', () => {
@@ -115,17 +104,7 @@ export default class CrmContent extends ContentWrapper
 				title: Loc.getMessage('LANDING_FORM_SETTINGS_ORDER_HEADER'),
 				toggleable: true,
 				opened: isOpened,
-				fields: [
-					this.getPaymentField(),
-					new MessageCard({
-						id: 'orderMessage',
-						header: Loc.getMessage('LANDING_FORM_SETTINGS_ORDER_MESSAGE_HEADER'),
-						description: Loc.getMessage('LANDING_FORM_SETTINGS_ORDER_MESSAGE_DESCRIPTION'),
-						angle: false,
-						icon: messageIcon,
-						restoreState: true,
-					}),
-				],
+				fields: [],
 			});
 		});
 	}
@@ -165,6 +144,16 @@ export default class CrmContent extends ContentWrapper
 		return this.cache.remember('type4header', () => {
 			return new HeaderCard({
 				title: Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_4').replace('&nbsp;', ' '),
+				level: 2,
+			});
+		});
+	}
+
+	getType6Header(): HeaderCard
+	{
+		return this.cache.remember('type6header', () => {
+			return new HeaderCard({
+				title: Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_6').replace('&nbsp;', ' '),
 				level: 2,
 			});
 		});
@@ -277,6 +266,11 @@ export default class CrmContent extends ContentWrapper
 					title: Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_4'),
 					icon: 'landing-ui-crm-entity-type4',
 				},
+				{
+					id: '310',
+					title: Loc.getMessage('LANDING_FORM_SETTINGS_CRM_TYPE_310'),
+					icon: 'landing-ui-crm-entity-type310',
+				},
 			];
 
 			if (this.isDynamicAvailable())
@@ -300,24 +294,15 @@ export default class CrmContent extends ContentWrapper
 			return new RadioButtonField({
 				selector: 'scheme',
 				value: (() => {
-					if (String(this.options.formOptions.document.scheme) === '8')
+					const schemeId = Text.toNumber(this.options.formOptions.document.scheme);
+					if (this.#schemeManager.isDefaultScheme(schemeId) && this.#schemeManager.isInvoice(schemeId))
 					{
-						return 1;
+						return this.#schemeManager.getSpecularSchemeId(schemeId);
 					}
 
-					if (String(this.options.formOptions.document.scheme) === '5')
+					if (String(this.options.formOptions.document.scheme) === '310')
 					{
-						return 2;
-					}
-
-					if (String(this.options.formOptions.document.scheme) === '6')
-					{
-						return 3;
-					}
-
-					if (String(this.options.formOptions.document.scheme) === '7')
-					{
-						return 4;
+						return 310;
 					}
 
 					const scheme = this.getSchemeById(this.options.formOptions.document.scheme);
@@ -326,7 +311,7 @@ export default class CrmContent extends ContentWrapper
 						return 'smart';
 					}
 
-					return this.options.formOptions.document.scheme;
+					return String(schemeId);
 				})(),
 				items,
 				onChange: this.onTypeChange.bind(this),
@@ -462,12 +447,17 @@ export default class CrmContent extends ContentWrapper
 			expertSettingsForm.addField(this.getType4Header());
 			expertSettingsForm.addField(this.getDuplicatesField());
 		}
+		if (String(item.id) === '310')
+		{
+			expertSettingsForm.addField(this.getType6Header());
+			expertSettingsForm.addField(this.getDuplicatesField());
+		}
 
 		if (
 			(
 				Text.toNumber(item.id) > 4
 				&& Type.isPlainObject(scheme)
-				&& scheme.dynamic !== true
+				&& scheme.dynamic !== true && String(item.id)  !== '9'
 			)
 			|| this.getOrderSettingsForm().isOpened()
 		)
@@ -482,7 +472,11 @@ export default class CrmContent extends ContentWrapper
 		)
 		{
 			expertSettingsForm.addField(this.getDynamicHeader(scheme.name));
-			expertSettingsForm.addField(this.getDynamicCategoriesField(scheme.id));
+			const dynamicScheme = this.getDynamicSchemeById(scheme.id);
+			if (dynamicScheme && dynamicScheme.categories)
+			{
+				expertSettingsForm.addField(this.getDynamicCategoriesField(scheme.id));
+			}
 			expertSettingsForm.addField(this.getDuplicatesField());
 
 			if (String(scheme.id).endsWith('1'))
@@ -494,7 +488,10 @@ export default class CrmContent extends ContentWrapper
 		}
 
 		this.addItem(expertSettingsForm);
-		this.addItem(this.getOrderSettingsForm());
+		if (String(item.id) !== '310')
+		{
+			this.addItem(this.getOrderSettingsForm());
+		}
 	}
 
 	setAdditionalValue(value: {[key: string]: any})
@@ -520,6 +517,16 @@ export default class CrmContent extends ContentWrapper
 	getDealCategoryChangeConfirm(): MessageBox
 	{
 		return this.cache.remember('dealCategoryChangeConfirm', () => {
+			return new MessageBox({
+				title: Loc.getMessage('LANDING_FORM_SETTINGS_PANEL_CRM_SCHEME_CHANGE_CONFIRM_TITLE'),
+				buttons: MessageBoxButtons.OK_CANCEL,
+			});
+		});
+	}
+
+	getCreateOrderChangeConfirm(): MessageBox
+	{
+		return this.cache.remember('createOrderChangeConfirm', () => {
 			return new MessageBox({
 				title: Loc.getMessage('LANDING_FORM_SETTINGS_PANEL_CRM_SCHEME_CHANGE_CONFIRM_TITLE'),
 				buttons: MessageBoxButtons.OK_CANCEL,
@@ -705,6 +712,33 @@ export default class CrmContent extends ContentWrapper
 				}
 			}
 		}
+		if (!this.#schemeManager.isInvoice(scheme.id) && value.document.payment.use)
+		{
+			const createOrderMessageBox = this.getCreateOrderChangeConfirm();
+			createOrderMessageBox.setMessage(
+				Loc.getMessage('LANDING_FORM_SETTINGS_PANEL_CRM_CREATE_ORDER_MESSAGE_BOX_TITLE')
+			);
+
+			createOrderMessageBox.setOkCallback((messageBox: MessageBox) => {
+				messageBox.close();
+				messageBox.getOkButton().setDisabled(false);
+
+				this.options.formOptions.payment.use = false;
+
+				this.onChange(event);
+			})
+			createOrderMessageBox.setCancelCallback((messageBox: MessageBox) => {
+				messageBox.close();
+				messageBox.getCancelButton().setDisabled(false);
+
+				const orderSettingsSwitch = this.getOrderSettingsForm().getSwitch();
+				orderSettingsSwitch.setValue(true);
+				orderSettingsSwitch.onChange();
+
+				this.onChange(event);
+			})
+			createOrderMessageBox.show();
+		}
 
 		this.emit('onChange', {...event.getData(), skipPrepare: true});
 	}
@@ -747,7 +781,9 @@ export default class CrmContent extends ContentWrapper
 				duplicatesEnabled: Text.toBoolean(this.getDuplicatesEnabledField().getValue()[0]),
 			},
 			payment: {
-				use: this.getPaymentField().getValue().length > 0,
+				use: this.options.formOptions.payment.use,
+				payer: this.options.formOptions.payment.payer,
+				disabledSystems: this.options.formOptions.payment.disabledSystems,
 			},
 			dynamic: {
 				category: null,
@@ -786,7 +822,8 @@ export default class CrmContent extends ContentWrapper
 		}
 
 		const scheme = this.getSchemeById(reducedValue.scheme);
-		if (Type.isPlainObject(scheme) && scheme.dynamic)
+		const dynamicScheme = this.getDynamicSchemeById(reducedValue.scheme);
+		if (Type.isPlainObject(scheme) && scheme.dynamic && dynamicScheme && dynamicScheme.categories)
 		{
 			reducedValue.dynamic.category = this.getDynamicCategoriesField(scheme.id).getValue().category;
 		}

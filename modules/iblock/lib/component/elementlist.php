@@ -140,8 +140,23 @@ abstract class ElementList extends Base
 			$this->arResult['ORIGINAL_PARAMETERS']['GLOBAL_FILTER'] = $this->globalFilter;
 		}
 
+		$productMappingFilter = [];
+		if (
+			Loader::includeModule('catalog')
+			&& Catalog\Product\SystemField\ProductMapping::isAllowed()
+		)
+		{
+			$productMappingFilter = Catalog\Product\SystemField\ProductMapping::getExtendedFilterByArea(
+				[],
+				Catalog\Product\SystemField\ProductMapping::MAP_LANDING
+			);
+		}
 		$params['CACHE_FILTER'] = isset($params['CACHE_FILTER']) && $params['CACHE_FILTER'] === 'Y';
-		if (!$params['CACHE_FILTER'] && !empty($this->globalFilter))
+		if (
+			!$params['CACHE_FILTER']
+			&& !empty($this->globalFilter)
+			&& array_diff_assoc($this->globalFilter, $productMappingFilter)
+		)
 		{
 			$params['CACHE_TIME'] = 0;
 		}

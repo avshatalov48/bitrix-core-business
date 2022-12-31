@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Main\Security\Sign;
+
 IncludeModuleLangFile(__FILE__);
 
 class CPullChannel
@@ -236,16 +237,43 @@ class CPullChannel
 			$publicChannelId = $userId > 0? self::GetNewChannelId(): '';
 		}
 
-		$arParams = Array(
-			'USER_ID' => intval($userId),
+		$channelFields = [
+			'USER_ID' => (int)$userId,
 			'CHANNEL_ID' => $channelId,
 			'CHANNEL_PUBLIC_ID' => $publicChannelId,
 			'CHANNEL_TYPE' => $channelType,
 			'LAST_ID' => 0,
-			'~DATE_CREATE' => $DB->CurrentTimeFunction(),
-		);
-		$result = intval($DB->Add(self::CACHE_TABLE, $arParams, Array(), "", true));
-		if ($result > 0)
+			'DATE_CREATE' => new \Bitrix\Main\Type\DateTime(),
+		];
+
+		$isChannelAdded = false;
+		try
+		{
+			$result = \Bitrix\Pull\ChannelTable::add($channelFields);
+			if (!$result->isSuccess())
+			{
+				foreach ($result->getErrors() as $error)
+				{
+					$exception = new \Bitrix\Main\SystemException($error->getMessage());
+					\Bitrix\Main\Application::getInstance()->getExceptionHandler()->writeToLog($exception);
+				}
+
+				return false;
+			}
+
+			$isChannelAdded = true;
+		}
+		catch (\Throwable $exception)
+		{
+			if (!mb_strpos($exception->getMessage(), '1062'))
+			{
+				\Bitrix\Main\Application::getInstance()->getExceptionHandler()->writeToLog($exception);
+
+				return false;
+			}
+		}
+
+		if ($isChannelAdded)
 		{
 			$arChannel = Array(
 				'CHANNEL_ID' => $channelId,
@@ -695,38 +723,8 @@ class CPullChannel
 		{
 			return "CPullChannel::CheckOnlineChannel();";
 		}
-		$arOnline = Array();
 
-		global $USER;
-		$agentUserId = 0;
-		if (is_object($USER) && $USER->GetId() > 0)
-		{
-			$agentUserId = $USER->GetId();
-			$arOnline[$agentUserId] = $agentUserId;
-		}
-
-		if(\Bitrix\Pull\Config::isProtobufUsed())
-		{
-			$channelsStatus = \Bitrix\Pull\ProtobufTransport::getOnlineChannels(array_keys($channels));
-		}
-		else
-		{
-			$channelsStatus = self::GetOnlineChannels(array_keys($channels));
-		}
-
-		foreach ($channelsStatus as $channelId => $onlineStatus)
-		{
-			$userId = $channels[$channelId];
-			if ($userId == 0 || $agentUserId == $userId)
-			{
-				continue;
-			}
-
-			if ($onlineStatus)
-			{
-				$arOnline[$userId] = $userId;
-			}
-		}
+		$arOnline = static::getOnlineUsers($channels);
 
 		if (count($arOnline) > 0)
 		{
@@ -776,6 +774,68 @@ class CPullChannel
 		));
 
 		return "CPullChannel::CheckOnlineChannel();";
+	}
+
+	/**
+	 * @param array $channels Maps channelId => userId
+	 * @return array
+	 */
+	private static function getOnlineUsers(array $channels): array
+	{
+		$arOnline = [];
+
+		global $USER;
+		$agentUserId = 0;
+		if (is_object($USER) && $USER->GetId() > 0)
+		{
+			$agentUserId = $USER->GetId();
+			$arOnline[$agentUserId] = $agentUserId;
+		}
+
+		if (\Bitrix\Pull\Config::isJsonRpcUsed())
+		{
+			$userList = array_map("intval", array_values($channels));
+			$result = \Bitrix\Pull\JsonRpcTransport::getUsersLastSeen($userList);
+			if (!$result->isSuccess())
+			{
+				return [];
+			}
+			foreach ($result->getData() as $userId => $lastSeen)
+			{
+				if ($lastSeen == 0)
+				{
+					$arOnline[$userId] = $userId;
+				}
+			}
+		}
+		else
+		{
+			if (\Bitrix\Pull\Config::isProtobufUsed())
+			{
+				$channelsStatus = \Bitrix\Pull\ProtobufTransport::getOnlineChannels(array_keys($channels));
+			}
+			else
+			{
+				$channelsStatus = self::GetOnlineChannels(array_keys($channels));
+			}
+
+			foreach ($channelsStatus as $channelId => $onlineStatus)
+			{
+				$userId = $channels[$channelId];
+				if ($userId == 0 || $agentUserId == $userId)
+				{
+					continue;
+				}
+
+				if ($onlineStatus)
+				{
+					$arOnline[$userId] = $userId;
+				}
+			}
+		}
+
+
+		return $arOnline;
 	}
 
 	/**

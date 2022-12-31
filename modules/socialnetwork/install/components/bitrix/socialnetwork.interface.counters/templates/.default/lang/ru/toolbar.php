@@ -1,0 +1,7 @@
+<?php
+$MESS['SONET_SIC_COUNTER_TEMPLATE_HINT'] = 'Новая панель счётчиков скоро будет доступна';
+$MESS['SONET_SIC_COUNTER_TEMPLATE_MY'] = 'Мои';
+$MESS['SONET_SIC_COUNTER_TEMPLATE_OTHER'] = 'Другие';
+$MESS['SONET_SIC_COUNTER_TEMPLATE_OVERDUE'] = 'Просрочены';
+$MESS['SONET_SIC_COUNTER_TEMPLATE_COMMUNICATIONS'] = 'Коммуникации';
+$MESS['SONET_SIC_COUNTER_TEMPLATE_READ_ALL'] = 'Прочитать все';

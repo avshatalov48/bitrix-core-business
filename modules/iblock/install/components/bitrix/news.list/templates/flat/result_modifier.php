@@ -111,7 +111,7 @@ if ($mediaProperty)
 }
 
 /*SLIDER*/
-$sliderProperty = trim($arParams["SLIDER_PROPERTY"]);
+$sliderProperty = trim($arParams["SLIDER_PROPERTY"] ?? '');
 if ($sliderProperty)
 {
 	if (is_numeric($sliderProperty))

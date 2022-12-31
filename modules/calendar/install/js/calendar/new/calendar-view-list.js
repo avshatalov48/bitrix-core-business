@@ -147,46 +147,33 @@
 		this.calendar.setDisplayedViewRange(this.displayedRange);
 		if (params.displayEntries !== false)
 		{
-			this.displayEntries({focusDate: this.todayDate});
+			this.loadEntries().then(entries => {
+				this.entries = entries;
+				this.displayEntries({focusDate: this.todayDate});
+			});
 		}
-		this.nothingToLoadNext = false;
-		this.nothingToLoadPrevious = false;
 	};
 
-	ListView.prototype.displayEntries = function(params)
+	ListView.prototype.loadEntries = function()
 	{
-		params = params || {};
-
-		// Get list of entries
-		this.entiesRequested = true;
-
-		this.entries = this.entryController.getList({
-			startDate: this.displayedRange.start,
-			finishDate: this.displayedRange.end,
-			viewRange: this.displayedRange,
-			finishCallback: function(){
-				//for load entries when displaying schedule mode
-				if (this.entiesRequested !== false)
-				{
-					this.displayEntries(params);
-				}
-				this.entiesRequested = false;
-			}.bind(this)
+		return new Promise((resolve) => {
+			this.entryController.getList({
+				startDate: this.displayedRange.start,
+				finishDate: this.displayedRange.end,
+				viewRange: this.displayedRange
+			}).then((entries) => {
+				resolve(entries);
+			});
 		});
+	};
 
-		if (this.entries === false)
-		{
-			if (this.loaderCircle)
-			{
-				this.loaderCircle.hide();
-			}
-			return;
-		}
-
+	ListView.prototype.displayEntries = function(params = {})
+	{
 		if (this.calendar.util.isFilterEnabled()
 			&& !this.calendar.search.isFilterEmpty())
 		{
 			this.calendar.search.applyFilter();
+			return;
 		}
 
 		// Clean holders
@@ -221,9 +208,9 @@
 		this.attachEntries(
 			this.entries,
 			!!params.animation,
-			function(){
-				this.focusOnDate(params.focusDate || this.getCurrentViewDate() || null);
-			}.bind(this),
+			() => {
+				this.focusOnDate(params.focusDate ?? this.getCurrentViewDate());
+			},
 			params.focusDate
 		);
 
@@ -243,9 +230,6 @@
 		// Clean holders
 		BX.cleanNode(this.listWrap);
 		this.dateGroupIndex = {};
-
-		// this.entiesRequested - is used in displayEntries
-		this.entiesRequested = null;
 
 		this.groups = [];
 		this.groupsDayCodes = [];
@@ -596,7 +580,7 @@
 						wrapper.appendChild(BX.create('IMG', {
 							attrs: {
 								id: 'simple_view_popup_' + user.ID,
-								src: user.AVATAR || '',
+								src: encodeURI(user.AVATAR) || '',
 								'bx-tooltip-user-id': user.ID,
 							},
 							props: {
@@ -967,12 +951,13 @@
 					};
 					this.calendar.setDisplayedViewRange(this.displayedRange);
 					this.animationMode = false;
-					this.displayEntries({
-						animation: false,
-						focusDate: date
+					this.loadEntries().then(entries => {
+						this.entries = entries;
+						this.displayEntries({
+							animation: false,
+							focusDate: date
+						});
 					});
-					this.nothingToLoadNext = false;
-					this.nothingToLoadPrevious = false;
 				}
 			}
 		}
@@ -1125,14 +1110,11 @@
 	{
 		if (!this.filterMode)
 		{
-			if (this.streamScrollWrap.scrollHeight - this.util.getViewHeight() - this.streamScrollWrap.scrollTop < this.SCROLL_DELTA_HEIGHT
-				&& !this.nothingToLoadNext
-			)
+			if (this.streamScrollWrap.scrollHeight - this.util.getViewHeight() - this.streamScrollWrap.scrollTop < this.SCROLL_DELTA_HEIGHT)
 			{
 				this.loadMoreEntries({mode: 'next'});
 			}
-			else if (this.streamScrollWrap.scrollTop < this.SCROLL_DELTA_HEIGHT
-				&& !this.nothingToLoadPrevious)
+			else if (this.streamScrollWrap.scrollTop < this.SCROLL_DELTA_HEIGHT)
 			{
 				this.loadMoreEntries({mode: 'previous'});
 			}
@@ -1146,66 +1128,30 @@
 			return;
 		}
 
-		this.currentLoadMode = params.mode;
-		if (params.mode == 'next')
+		if (params.mode === 'next')
 		{
-			// Show loader
 			this.loader = this.bottomLoaderBlock.appendChild(BX.adjust(this.calendar.util.getLoader(), {style: {height: '180px'}}));
-			this.displayedRange.start = new Date(this.displayedRange.start.getFullYear(), this.displayedRange.start.getMonth() + 1, this.displayedRange.start.getDate());
 			this.displayedRange.end = new Date(this.displayedRange.end.getFullYear(), this.displayedRange.end.getMonth() + 1, this.displayedRange.end.getDate());
-			this.calendar.setDisplayedViewRange(this.displayedRange);
-			this.entryController.getList({
-				// loadNext: true,
-				// loadLimit: this.loadLimit,
-				// finishDate: new Date(this.displayedRange.start.getFullYear(), this.displayedRange.start.getMonth(), this.displayedRange.start.getDate() - 1),
-				startDate: this.displayedRange.start,
-				finishDate: this.displayedRange.end,
-				finishCallback: BX.proxy(this.loadMoreCallback, this)
-			});
 		}
 		else
 		{
 			this.loader = this.topLoaderBlock.appendChild(BX.adjust(this.calendar.util.getLoader(), {style: {height: '180px'}}));
 			this.displayedRange.start = new Date(this.displayedRange.start.getFullYear(), this.displayedRange.start.getMonth() - 1, this.displayedRange.start.getDate());
-			this.displayedRange.end = new Date(this.displayedRange.end.getFullYear(), this.displayedRange.end.getMonth() - 1, this.displayedRange.end.getDate());
-			this.calendar.setDisplayedViewRange(this.displayedRange);
-			this.entryController.getList({
-				// loadPrevious: true,
-				// loadLimit: this.loadLimitPrevious,
-				// finishDate: new Date(this.displayedRange.start.getFullYear(), this.displayedRange.start.getMonth(), this.displayedRange.start.getDate() - 1),
-				startDate: this.displayedRange.start,
-				finishDate: this.displayedRange.end,
-				finishCallback: BX.proxy(this.loadMoreCallback, this)
-			});
 		}
-	};
 
-	ListView.prototype.loadMoreCallback = function(params)
-	{
-		// Hide loader
-		BX.remove(this.loader);
-		this.displayedRange = this.calendar.entryController.getLoadedEntiesLimits();
-		var entries = this.entryController.getList({
+		this.calendar.setDisplayedViewRange(this.displayedRange);
+		this.entryController.getList({
 			startDate: this.displayedRange.start,
-			finishDate: this.displayedRange.end,
-			finishCallback: BX.proxy(this.loadMoreCallback, this)
+			finishDate: this.displayedRange.end
+		}).then((entries) => {
+			BX.remove(this.loader);
+			this.displayedRange = this.calendar.entryController.getLoadedEntiesLimits();
+
+			this.entries = entries;
+			this.attachEntries(entries, params.mode === 'next' ? 'next' : false);
+
+			this.currentLoadMode = false;
 		});
-
-		if (this.currentLoadMode == 'next' && params.data.finish)
-			this.nothingToLoadNext = true;
-		if (this.currentLoadMode == 'previous' && params.data.finish)
-			this.nothingToLoadPrevious = true;
-
-		if (!this.entries)
-			this.entries = [];
-
-		if (entries && entries.length)
-		{
-			this.entries = this.entries.concat(entries);
-			this.attachEntries(entries, this.currentLoadMode == 'next' ? 'next' : false);
-		}
-
-		this.currentLoadMode = false;
 	};
 
 	ListView.prototype.getUniqueId = function(entryPart)
@@ -1245,7 +1191,7 @@
 				}
 				else
 				{
-					entry = this.entries[this.entriesIndex[uid]];
+					entry = this.getEntryById(uid);
 				}
 				if (entry && ['Y', 'N'].includes(decision))
 				{
@@ -1367,11 +1313,6 @@
 			}
 		}));
 
-		if (this.streamScrollWrap)
-		{
-			this.streamContentWrap.style.display = 'none';
-			// this.filterLoaderWrap.style.display = '';
-		}
 		if (this.loaderCircle)
 		{
 			this.loaderCircle.show();
@@ -1397,14 +1338,6 @@
 		}
 
 		this.streamContentWrap.style.display = '';
-		// if (this.filterLoaderWrap)
-		// {
-		// 	this.filterLoaderWrap.style.display = 'none';
-		// }
-		// if (this.loaderCircle)
-		// {
-		// 	this.loaderCircle.hide();
-		// }
 
 		if (!params || params.resetSearchFilter !== false)
 		{

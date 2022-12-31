@@ -108,7 +108,8 @@ if (
 		}
 	}
 
-	$arResult["NAV_RESULT"] = $res = new CDBResult;
+	$res = new CDBResult;
+	$arResult["NAV_RESULT"] = $res;
 
 	if (
 		$arParams["NAV_TYPE_NEW"] === 'Y'

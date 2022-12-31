@@ -16,6 +16,7 @@ use Bitrix\Sale\Helpers\Admin\Blocks\OrderBasket;
 use Bitrix\Sale\Helpers\Admin\OrderEdit;
 use Bitrix\Sale\Order;
 use Bitrix\Sale\Provider;
+use Bitrix\Sale\ReserveQuantityCollection;
 
 /**
  * Class BasketBuilder
@@ -312,7 +313,8 @@ abstract class BasketBuilder
 				self::sendProductCachedDataToProvider($item, $this->getOrder(), $productData);
 			}
 
-			$item->setField("NAME", $productData["NAME"]);
+			$item->setField('NAME', $productData['NAME']);
+			$item->setField('TYPE', $productData['TYPE']);
 
 			if ($productData['CUSTOM_PRICE'] === 'Y')
 			{
@@ -617,16 +619,19 @@ abstract class BasketBuilder
 				$product["CURRENCY"] = $order->getCurrency();
 			}
 
-			self::setBasketItemFields($item, $product);
+			$this->setBasketItemFields($item, $product);
 
-			if (!empty($productFormData['RESERVE']) && is_array($productFormData['RESERVE']))
+			if ($item->isReservableItem())
 			{
-				$reserveData = $productFormData['RESERVE'];
-				$this->setReserveDataForItem($item, $reserveData);
-			}
-			elseif ($this->getSettingsContainer()->getItemValue('clearReservesIfEmpty') === true)
-			{
-				$this->clearReservesForItem($item);
+				if (!empty($productFormData['RESERVE']) && is_array($productFormData['RESERVE']))
+				{
+					$reserveData = $productFormData['RESERVE'];
+					$this->setReserveDataForItem($item, $reserveData);
+				}
+				elseif ($this->getSettingsContainer()->getItemValue('clearReservesIfEmpty') === true)
+				{
+					$this->clearReservesForItem($item);
+				}
 			}
 		}
 
@@ -635,12 +640,31 @@ abstract class BasketBuilder
 
 	protected function clearReservesForItem(BasketItem $item)
 	{
-		$item->getReserveQuantityCollection()->clearCollection();
+		if (!$item->isReservableItem())
+		{
+			return;
+		}
+
+		/** @var ReserveQuantityCollection $reserveCollection */
+		$reserveCollection = $item->getReserveQuantityCollection();
+		if ($reserveCollection)
+		{
+			$reserveCollection->clearCollection();
+		}
 	}
 
 	protected function setReserveDataForItem(BasketItem $item, array $reserveData)
 	{
+		if (!$item->isReservableItem())
+		{
+			return;
+		}
+
 		$reserveCollection = $item->getReserveQuantityCollection();
+		if (!$reserveCollection)
+		{
+			return;
+		}
 
 		// if some reserves were created upon order creation, we have to clear them and set the manual reserves
 		if ($this->getOrder()->isNew())

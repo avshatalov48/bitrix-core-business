@@ -1,7 +1,9 @@
-import { BitrixVue } from 'ui.vue';
 import { ProgressRound } from 'ui.progressround';
 
-export const UploadLoader = BitrixVue.localComponent('tile-uploader.uploader-loader', {
+/**
+ * @memberof BX.UI.Uploader
+ */
+export const UploadLoader = {
 	props: {
 		progress: {
 			type: Number,
@@ -27,12 +29,6 @@ export const UploadLoader = BitrixVue.localComponent('tile-uploader.uploader-loa
 			type: Boolean,
 			default: true,
 		},
-	},
-	data()
-	{
-		return {
-			loader: null,
-		}
 	},
 	mounted()
 	{
@@ -70,4 +66,4 @@ export const UploadLoader = BitrixVue.localComponent('tile-uploader.uploader-loa
 		},
 	},
 	template: `<span ref="container"></span>`
-});
+};

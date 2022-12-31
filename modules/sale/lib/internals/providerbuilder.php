@@ -83,7 +83,7 @@ class ProviderBuilder extends ProviderBuilderBase
 		}
 		else
 		{
-			$reservedQuantity = $basketItem->getReserveQuantityCollection()->getQuantity();
+			$reservedQuantity = $basketItem->getReservedQuantity();
 		}
 
 		$fields['RESERVED_QUANTITY'] = $reservedQuantity;
@@ -108,8 +108,7 @@ class ProviderBuilder extends ProviderBuilderBase
 		/** @var Sale\ShipmentItem $shipmentItem */
 		$shipmentItem = $productData['SHIPMENT_ITEM'] ?? null;
 		$basketItem = $productData['BASKET_ITEM'];
-
-		$productId = $basketItem->getProductId();
+		$productId = $productData['PRODUCT_ID'] ?? $basketItem->getProductId();
 
 		$fields = [
 			'ITEM_CODE' => $productId,
@@ -217,13 +216,18 @@ class ProviderBuilder extends ProviderBuilderBase
 
 				$shipmentItemQuantity = $shipmentItem->getQuantity();
 
-				/** @var Sale\ShipmentItemStore $shipmentItemStore */
-				foreach ($shipmentItem->getShipmentItemStoreCollection() as $shipmentItemStore)
+				/** @var Sale\ShipmentItemStoreCollection $shipmentItemStoreCollection */
+				$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
+				if ($shipmentItemStoreCollection)
 				{
-					$quantity = $coefficient * $shipmentItemStore->getQuantity();
-					$pool->addByStore(PoolQuantity::POOL_QUANTITY_TYPE, $productId, $shipmentItemStore->getStoreId(), $quantity);
+					/** @var Sale\ShipmentItemStore $shipmentItemStore */
+					foreach ($shipmentItemStoreCollection as $shipmentItemStore)
+					{
+						$quantity = $coefficient * $shipmentItemStore->getQuantity();
+						$pool->addByStore(PoolQuantity::POOL_QUANTITY_TYPE, $productId, $shipmentItemStore->getStoreId(), $quantity);
 
-					$shipmentItemQuantity -= $shipmentItemStore->getQuantity();
+						$shipmentItemQuantity -= $shipmentItemStore->getQuantity();
+					}
 				}
 
 				if ($shipmentItemQuantity > 0)

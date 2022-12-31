@@ -120,6 +120,23 @@ class SocialNetwork
 	}
 
 	/**
+	 * Returns title knowledge of group.
+	 * @param int $groupId Group id.
+	 * @return string
+	 */
+	public static function getSocNetMenuTitle($groupId)
+	{
+		$title = '';
+		$groupId = intval($groupId);
+		$bindings = self::getBindingRow($groupId, false);
+		if ($bindings['TITLE'])
+		{
+			$title = $bindings['TITLE'];
+		}
+		return $title;
+	}
+
+	/**
 	 * Fill settings array for social network group.
 	 * @param array &$socNetFeaturesSettings Settings array.
 	 * @return void
@@ -178,15 +195,21 @@ class SocialNetwork
 			{
 				$enable = false;
 			}
+			$title = self::getSocNetMenuTitle($result['Group']['ID']);
+			if ($title !== '')
+			{
+				$title = ' - ' . $title;
+			}
 		}
 		else
 		{
 			$url = '';
+			$title = '';
 		}
 
 		// build menu params
 		$result['CanView'][self::SETTINGS_CODE] = $enable;
-		$result['Title'][self::SETTINGS_CODE] = Loc::getMessage('LANDING_CONNECTOR_SN_TITLE');
+		$result['Title'][self::SETTINGS_CODE] = Loc::getMessage('LANDING_CONNECTOR_SN_TITLE') . $title;
 		$result['Urls'][self::SETTINGS_CODE] = $url;
 	}
 

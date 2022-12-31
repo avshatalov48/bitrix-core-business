@@ -1,7 +1,6 @@
 <?php
 $MESS["SALE_HPS_ALFABANK"] = "Alfa Bank";
 $MESS["SALE_HPS_ALFABANK_CHANGE_STATUS_PAY"] = "Auto change order status to paid when payment success status is received";
-$MESS["SALE_HPS_ALFABANK_DESCRIPTION_MAIN"] = "To change order status, please contact the Alfa Bank helpdesk and configure callback notifications to include checksum and the \"bx_paysystem_code\" parameter.";
 $MESS["SALE_HPS_ALFABANK_LOGIN"] = "Login";
 $MESS["SALE_HPS_ALFABANK_MERCHANT"] = "Merchant";
 $MESS["SALE_HPS_ALFABANK_ORDER_DESCRIPTION"] = "Order description";

@@ -531,7 +531,7 @@ class CCatalogGifterProduct extends CGlobalCondCtrlAtoms
 	public static function GenerateApplyCallableFilter($controlId, array $gifts, $type)
 	{
 		$gifts = array_combine($gifts, $gifts);
-		return function(&$row) use($controlId, $gifts, $type)
+		return function($row) use($controlId, $gifts, $type)
 		{
 			static $isApplied = false;
 			if($isApplied && $type === CSaleDiscountActionApply::GIFT_SELECT_TYPE_ONE)

@@ -182,7 +182,7 @@ final class ClaimBuilder
 		$result = new ShippingItemCollection();
 
 		/** @var ShipmentItem $shipmentItem */
-		foreach($shipment->getShipmentItemCollection() as $shipmentItem)
+		foreach($shipment->getShipmentItemCollection()->getShippableItems() as $shipmentItem)
 		{
 			$basketItem = $shipmentItem->getBasketItem();
 			if(!$basketItem)

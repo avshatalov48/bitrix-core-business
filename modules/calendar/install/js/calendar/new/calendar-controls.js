@@ -274,7 +274,7 @@
 
 	DragDrop.prototype = {
 
-		getPosByDate(date)
+		getPosByDate: function(date)
 		{
 			const time = {
 				h: date.getHours(),
@@ -283,7 +283,7 @@
 			return this.offset + this.calendar.getView().getPosByTime(time);
 		},
 
-		getDateByPos(pos)
+		getDateByPos: function(pos)
 		{
 			const time = this.calendar.getView().getTimeByPos(pos - this.offset, 5);
 			const date = new Date(this.currentState.entry.from.getTime());
@@ -291,17 +291,17 @@
 			return date;
 		},
 
-		getEvents()
+		getEvents: function()
 		{
 			return this.calendar.getView().getEvents(this.currentState.day);
 		},
 
-		undo()
+		undo: function()
 		{
 			this.manageHistory(this.undoList, this.redoList);
 		},
 
-		redo()
+		redo: function()
 		{
 			this.manageHistory(this.redoList, this.undoList);
 		},
@@ -317,7 +317,24 @@
 			this.saveEntry({
 				from: this.currentState.entry.from,
 				to: this.currentState.entry.to
-			});
+			}, true);
+		},
+
+		pushToHistory(entryState)
+		{
+			const topEntryState = this.undoList[this.undoList.length - 1];
+			if (
+				this.undoList.length > 0
+				&& topEntryState.from.getTime() === entryState.from.getTime()
+				&& topEntryState.to.getTime() === entryState.to.getTime()
+			)
+			{
+				this.undoList[this.undoList.length - 1] = entryState;
+			}
+			else
+			{
+				this.undoList.push(entryState);
+			}
 		},
 
 		getEntryState: function(entry)
@@ -363,8 +380,9 @@
 				{
 					return;
 				}
+				const duration = this.currentState.entry.to.getTime() - this.currentState.entry.from.getTime();
 				this.currentState.entry.from.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-				this.currentState.entry.to.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+				this.currentState.entry.to.setTime(this.currentState.entry.from.getTime() + duration);
 				BX.addClass(dayNode, 'calendar-grid-drag-select');
 			};
 			dayNode.onbxdestdraghout = () => {
@@ -390,10 +408,10 @@
 							this.currentState.day = this.calendar.getView().getDayByCode(dayNode.getAttribute('data-bx-calendar-timeline-day'));
 							this.currentState.entry.from.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
 							this.currentState.entry.to.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-							this.currentState.dayNode = dayNode;
 						}
 						this.draggedNode.style.left = (BX.pos(dayNode).left + 2) + 'px';
 					}
+					this.currentState.dayNode = dayNode;
 					BX.addClass(dayNode, 'calendar-timeline-drag-select');
 				}
 			}, this);
@@ -422,13 +440,12 @@
 
 			node.onbxdragstart = BX.delegate(function()
 			{
-				if (!dragAllowed)
+				this.cancelDragAndDrop = false;
+				if (!dragAllowed || !this.calendar.getView().allowActions())
 				{
+					this.cancelDragAndDrop = true;
 					this.draggedNode = false;
-					BX.addClass(node, 'calendar-entry-shake-mode');
-					if (this.denyDragTimeout)
-						clearTimeout(this.denyDragTimeout);
-					this.denyDragTimeout = setTimeout(function(){BX.removeClass(node, 'calendar-entry-shake-mode');}, 1000);
+					this.shake(node);
 					return;
 				}
 
@@ -439,19 +456,50 @@
 				BX.removeClass(this.draggedNode, 'calendar-event-line-start-yesterday');
 				BX.removeClass(this.draggedNode, 'calendar-event-line-finish-tomorrow');
 				BX.removeClass(this.draggedNode, 'calendar-event-block-wrap-past');
+				if (this.isDayWeek())
+				{
+					if (this.draggedNode.querySelector('.calendar-event-line-time'))
+					{
+						this.draggedNode.querySelector('.calendar-event-line-time').remove();
+					}
+					if (this.draggedNode.querySelector('.calendar-event-line-expired-time'))
+					{
+						this.draggedNode.querySelector('.calendar-event-line-expired-time').remove();
+					}
+					if (this.draggedNode.querySelector('.calendar-event-line-dot'))
+					{
+						this.draggedNode.querySelector('.calendar-event-line-dot').remove();
+					}
+				}
 
 				this.calendar.getView().setDraggedEntry(this.currentState.entry);
 
-				if (this.calendar.currentViewName === 'week' || this.calendar.currentViewName === 'day')
+				if (this.isDayWeek())
 				{
 					this.draggedNode.style.left = BX.pos(node).left + 'px';
-					this.draggedNode.style.width = (this.calendar.getView().getDayWidth() - 5) + 'px';
+					let duration = this.currentState.entry.to.getTime() - this.currentState.entry.from.getTime()
+					if (this.currentState.entry.isFullDay() || duration > this.calendar.util.dayLength)
+					{
+						duration += this.calendar.util.dayLength;
+						const dayCount = duration === 0 ? 1 : Math.ceil(duration / (1000 * 3600 * 24));
+						this.draggedNode.style.width = this.calendar.getView().getDayWidth() * dayCount + 'px';
+					}
+					else
+					{
+						this.draggedNode.style.width = (this.calendar.getView().getDayWidth() - 5) + 'px';
+					}
 					this.offset = BX.pos(this.calendar.getView().timeLinesCont).top;
 					this.currentState.bottomBasePos = BX.pos(this.calendar.getView().bottomOffHours).bottom - 2;
 				}
 				else
 				{
-					this.draggedNode.style.width = this.calendar.getView().getDayWidth() + 'px';
+					let duration = this.currentState.entry.to.getTime() - this.currentState.entry.from.getTime();
+					if (this.currentState.entry.isFullDay())
+					{
+						duration += this.calendar.util.dayLength;
+					}
+					const dayCount = duration === 0 ? 1 : Math.ceil(duration / (1000 * 3600 * 24));
+					this.draggedNode.style.width = this.calendar.getView().getDayWidth() * dayCount + 'px';
 				}
 
 				var
@@ -459,6 +507,9 @@
 					dayLength = entry.getLengthInDays(),
 					innerContainer = this.draggedNode.querySelector('.calendar-event-line-inner-container'),
 					lineInner = this.draggedNode.querySelector('.calendar-event-line-inner');
+
+				this.startDuration = entry.to.getTime() - entry.from.getTime();
+				this.startDurationHint = this.getDurationHint(entry.from, entry.to);
 
 				if (this.calendar.getView().getDayByCode)
 				{
@@ -500,9 +551,9 @@
 					this.calendar.getView().allEventsPopup.close()
 				}
 
-				this.undoList.push(this.getEntryState(entry));
+				this.pushToHistory(this.getEntryState(entry));
 				this.isDragging = true;
-				if (this.calendar.currentViewName === 'week' || this.calendar.currentViewName === 'day')
+				if (this.isDayWeek())
 				{
 					this.eventDragAndDrop.onDragStart(entry.to.getTime() - entry.from.getTime());
 				}
@@ -515,7 +566,7 @@
 
 			node.onbxdrag = BX.delegate(function(x, y)
 			{
-				if (!this.draggedNode)
+				if (!this.draggedNode || this.cancelDragAndDrop)
 				{
 					return;
 				}
@@ -526,8 +577,14 @@
 			}, this);
 
 			node.onbxdragstop = () => {
+
+				if (this.cancelDragAndDrop)
+				{
+					return;
+				}
+
 				this.redoList = [];
-				if (this.calendar.currentViewName === 'week' || this.calendar.currentViewName === 'day')
+				if (this.isDayWeek())
 				{
 					this.saveEntry({
 						from: this.eventDragAndDrop.getFinalFrom(),
@@ -559,7 +616,7 @@
 			}
 		},
 
-		getPositionAfterScroll(x, y)
+		getPositionAfterScroll: function(x, y)
 		{
 			y = this.getPositionAfterBottomScroll(x, y);
 			y = this.getPositionAfterTopScroll(x, y);
@@ -577,7 +634,7 @@
 			return y;
 		},
 
-		getPositionAfterTopScroll(x, y)
+		getPositionAfterTopScroll: function(x, y)
 		{
 			const dragContainer = this.calendar.getView().gridWrap;
 			const containerTop = BX.pos(dragContainer).top;
@@ -604,7 +661,7 @@
 			return y;
 		},
 
-		getPositionAfterBottomScroll(x, y)
+		getPositionAfterBottomScroll: function(x, y)
 		{
 			const dragContainer = this.calendar.getView().gridWrap;
 			const containerBottom = BX.pos(dragContainer).bottom - this.draggedNode.offsetHeight;
@@ -631,22 +688,22 @@
 			return y;
 		},
 
-		getSpeed(y1, y2)
+		getSpeed: function(y1, y2)
 		{
 			return Math.floor(Math.log(1 + Math.abs(y1 - y2))) + 1;
 		},
 
-		setWindowTopScrollInterval(x, y)
+		setWindowTopScrollInterval: function(x, y)
 		{
 			this.setWindowScrollInterval(x, y, this.setContainerTopScrollInterval.bind(this), -1);
 		},
 
-		setWindowBottomScrollInterval(x, y)
+		setWindowBottomScrollInterval: function(x, y)
 		{
 			this.setWindowScrollInterval(x, y, this.setContainerBottomScrollInterval.bind(this), 1);
 		},
 
-		setWindowScrollInterval(x, y, setContainerScrollInterval, direction)
+		setWindowScrollInterval: function(x, y, setContainerScrollInterval, direction)
 		{
 			if (!this.windowScrollInterval)
 			{
@@ -664,27 +721,27 @@
 			}
 		},
 
-		setContainerTopScrollInterval(x, y)
+		setContainerTopScrollInterval: function(x, y)
 		{
 			this.setContainerScrollInterval(x, y, this.getScrollTop, -1);
 		},
 
-		setContainerBottomScrollInterval(x, y)
+		setContainerBottomScrollInterval: function(x, y)
 		{
 			this.setContainerScrollInterval(x, y, this.getScrollBottom, 1);
 		},
 
-		getScrollTop(node)
+		getScrollTop: function(node)
 		{
 			return node.scrollTop;
 		},
 
-		getScrollBottom(node)
+		getScrollBottom: function(node)
 		{
 			return parseInt(node.scrollHeight - node.clientHeight - node.scrollTop);
 		},
 
-		setContainerScrollInterval(x, y, getScroll, direction)
+		setContainerScrollInterval: function(x, y, getScroll, direction)
 		{
 			if (!this.containerScrollInterval)
 			{
@@ -703,14 +760,14 @@
 			}
 		},
 
-		doesViewportContainDraggedNode(y)
+		doesViewportContainDraggedNode: function(y)
 		{
 			const viewportTop = window.scrollY;
 			const viewportBottom = window.innerHeight + window.scrollY - this.draggedNode.offsetHeight;
 			return (y > viewportTop && y < viewportBottom);
 		},
 
-		doesContainerContainDraggedNode(y)
+		doesContainerContainDraggedNode: function(y)
 		{
 			const dragContainer = this.calendar.getView().gridWrap;
 			const containerTop = BX.pos(dragContainer).top;
@@ -718,21 +775,21 @@
 			return (y > containerTop && y < containerBottom);
 		},
 
-		stopWindowScroll()
+		stopWindowScroll: function()
 		{
 			clearInterval(this.windowScrollInterval);
 			this.windowScrollInterval = false;
 		},
 
-		stopContainerScroll()
+		stopContainerScroll: function()
 		{
 			clearInterval(this.containerScrollInterval);
 			this.containerScrollInterval = false;
 		},
 
-		dragEntry(x, y)
+		dragEntry: function(x, y)
 		{
-			if (this.calendar.currentViewName === 'week' || this.calendar.currentViewName === 'day')
+			if (this.isDayWeek())
 			{
 				this.dragWeekDayEntry(y);
 			}
@@ -774,16 +831,134 @@
 				this.draggedNode.style.transition = 'left .2s, height .1s';
 			}
 
-			if (parseInt(this.draggedNode.style.height) !== boundary.size)
-			{
-				// recalculate compactness in the end of height transition
-				setTimeout(() => view.setCompactness(this.draggedNode), 100);
-			}
-			view.setCompactness(this.draggedNode);
+			view.updateCompactness(this.draggedNode);
 
 			this.setBoundaryTimeToTimeNode(boundary, this.draggedNode);
 			this.draggedNode.style.top = boundary.position + 'px';
 			this.draggedNode.style.height = boundary.size + 'px';
+			const currentDuration = boundary.to.getTime() - boundary.from.getTime();
+
+			if (this.previousDuration > currentDuration)
+			{
+				if (currentDuration >= 20 * 60 * 1000)
+				{
+					this.displayDurationChanged();
+				}
+				this.showDurationChangedPopup(boundary.from, boundary.to);
+				this.durationChangedTimeout = setTimeout(this.hideDurationChanged.bind(this), 1600);
+			}
+			if (this.previousDuration < currentDuration || currentDuration === this.startDuration)
+			{
+				this.closeDurationChangedPopup();
+				this.hideDurationChanged();
+			}
+
+			this.previousDuration = currentDuration;
+		},
+
+		displayDurationChanged: function()
+		{
+			BX.addClass(this.draggedNode, 'duration-changed');
+			this.durationNode.style.display = '';
+			if (this.draggedNode.querySelector('.calendar-event-block-time'))
+			{
+				this.draggedNode.querySelector('.calendar-event-block-time').style.display = 'none';
+			}
+			if (this.draggedNode.querySelector('.calendar-event-block-text'))
+			{
+				this.draggedNode.querySelector('.calendar-event-block-text').style.display = 'none';
+			}
+		},
+
+		hideDurationChanged: function()
+		{
+			BX.removeClass(this.draggedNode, 'duration-changed');
+			clearTimeout(this.durationChangedTimeout);
+			this.durationNode.style.display = 'none';
+			if (this.draggedNode.querySelector('.calendar-event-block-time'))
+			{
+				this.draggedNode.querySelector('.calendar-event-block-time').style.display = '';
+			}
+			if (this.draggedNode.querySelector('.calendar-event-block-text'))
+			{
+				this.draggedNode.querySelector('.calendar-event-block-text').style.display = '';
+			}
+			this.calendar.getView().updateCompactness(this.draggedNode);
+		},
+
+		showDurationChangedPopup: function(from, to)
+		{
+			const popup = this.getDurationChangedPopup(- 500, 'right', from, to);
+			if (!popup)
+			{
+				return;
+			}
+			popup.show();
+			const popupWidth = popup.popupContainer.offsetWidth;
+			this.popupHeight = popup.popupContainer.offsetHeight;
+			popup.destroy();
+
+			this.closeDurationChangedPopup();
+			this.showDurationChangedPopupTimeout = setTimeout(() => {
+				if (BX.pos(this.draggedNode).left + this.draggedNode.offsetWidth + popupWidth > window.innerWidth)
+				{
+					this.durationChangedPopup = this.getDurationChangedPopup(- popupWidth - 10, 'right', from, to);
+				}
+				else
+				{
+					this.durationChangedPopup = this.getDurationChangedPopup(this.draggedNode.offsetWidth + 10, 'left', from, to);
+				}
+
+				if (this.durationChangedPopup)
+				{
+					this.durationChangedPopup.show();
+				}
+			}, 200);
+		},
+
+		getDurationChangedPopup: function(offsetLeft, anglePosition, from, to)
+		{
+			if (!this.draggedNode || this.draggedNode.offsetHeight === 0)
+			{
+				return null;
+			}
+
+			const popupHeight = this.popupHeight ?? 0;
+			const popup = new BX.PopupWindow('ui-hint-popup-' + (+new Date()), this.draggedNode, {
+				darkMode: true,
+				className: 'calendar-duration-changed-popup',
+				content: BX.Loc.getMessage('CALENDAR_EVENT_DURATION_CHANGE') +': '+ this.getDurationHint(from, to),
+				offsetTop:  - this.draggedNode.offsetHeight / 2 - popupHeight / 2,
+				offsetLeft,
+				angle: { position: anglePosition },
+			});
+			popup.angle.element.style.top = '3px';
+
+			popup.popupContainer.style.cursor = 'pointer';
+			popup.popupContainer.style.whiteSpace = 'nowrap';
+			popup.popupContainer.addEventListener('click', () => {
+				if (popup)
+				{
+					popup.destroy();
+				}
+			});
+			setTimeout(() => {
+				if (popup)
+				{
+					popup.destroy();
+				}
+			}, 3000);
+
+			return popup;
+		},
+
+		closeDurationChangedPopup: function()
+		{
+			clearTimeout(this.showDurationChangedPopupTimeout);
+			if (this.durationChangedPopup)
+			{
+				this.durationChangedPopup.destroy();
+			}
 		},
 
 		dragMonthEntry: function(x, y)
@@ -819,6 +994,14 @@
 			node.setAttribute('data-bx-entry-resizer', 'Y');
 
 			node.onbxdragstart = (e) => {
+				if (!this.calendar.getView().allowActions())
+				{
+					this.cancelDragAndDrop = true;
+					this.draggedNode = false;
+					this.shake(params.entry.parts[0].params.wrapNode);
+					return;
+				}
+
 				e = e || window.event;
 
 				let entry = params.entry;
@@ -831,7 +1014,7 @@
 					startY: e.clientY + BX.GetWindowSize().scrollTop
 				};
 				this.resizedNode = entry.parts[0].params.wrapNode;
-				this.undoList.push(this.getEntryState(entry));
+				this.pushToHistory(this.getEntryState(entry));
 				this.calendar.getView().setResizedEntry(this.currentState.entry);
 				this.offset = 0;
 
@@ -844,6 +1027,11 @@
 
 			node.onbxdrag = (x, y) =>
 			{
+				if (this.cancelDragAndDrop)
+				{
+					return;
+				}
+
 				if (this.currentState && this.calendar.util.type !== 'location')
 				{
 					this.resizeWeekDayEntry(y - this.currentState.startY);
@@ -851,6 +1039,12 @@
 			};
 
 			node.onbxdragstop = () => {
+				if (this.cancelDragAndDrop)
+				{
+					this.cancelDragAndDrop = false;
+					return;
+				}
+
 				this.redoList = [];
 				this.currentState.entry.from = this.resizeDragAndDrop.getFinalFrom();
 				this.currentState.entry.to = this.resizeDragAndDrop.getFinalTo();
@@ -869,10 +1063,10 @@
 			this.setBoundaryTimeToTimeNode(boundary, this.resizedNode);
 			this.resizedNode.style.height = boundary.size + 'px';
 			this.resizedNode.style.top = boundary.position + 'px';
-			this.calendar.getView().setCompactness(this.resizedNode);
+			this.calendar.getView().updateCompactness(this.resizedNode);
 		},
 
-		saveEntry: function(timeInterval)
+		saveEntry: function(timeInterval, isFromHistory = false)
 		{
 			if (!this.currentState)
 			{
@@ -886,8 +1080,22 @@
 			{
 				this.calendar.getView().setResizedEntry(null);
 			}
-			this.calendar.getView().displayEntries({reloadEntries: false});
-			this.calendar.entryController.moveEventToNewDate(realEntry, realEntry.from, realEntry.to);
+			this.calendar.getView().displayEntries();
+
+			if (isFromHistory || this.hasEventBeenMoved())
+			{
+				this.calendar.entryController.moveEventToNewDate(realEntry, realEntry.from, realEntry.to)
+					.then((isEntrySavedSuccessfully) => {
+						if (isEntrySavedSuccessfully)
+						{
+							this.showEntryDraggedNotification();
+						}
+					});
+			}
+			else
+			{
+				this.undoList.pop();
+			}
 
 			if (this.currentState.dayNode)
 			{
@@ -896,8 +1104,6 @@
 
 			setTimeout(() => this.isDragging = false, 10);
 			BX.remove(this.draggedNode);
-
-			this.showEntryDraggedNotification();
 		},
 
 		setTimeIntervalToEntry: function(entry, timeInterval)
@@ -940,6 +1146,10 @@
 					title: BX.Loc.getMessage('CALENDAR_EVENT_DO_CANCEL'),
 					events: {
 						click: (e, balloon) => {
+							if (!this.calendar.getView().allowActions())
+							{
+								return;
+							}
 							this.undo();
 							balloon.close();
 						}
@@ -948,18 +1158,63 @@
 			);
 		},
 
-		setBoundaryTimeToTimeNode(boundary, wrapNode)
+		setBoundaryTimeToTimeNode: function(boundary, wrapNode)
 		{
 			const timeNode = wrapNode.querySelector('.calendar-event-block-time');
 			if (timeNode)
 			{
 				timeNode.innerHTML = this.formatTimePeriod(boundary.from, boundary.to);
 			}
+			if (!this.durationNode || !wrapNode.querySelector('.calendar-event-block-duration'))
+			{
+				this.durationNode = BX.create('DIV');
+				this.durationNode.className = 'calendar-event-block-duration';
+				this.durationNode.style.display = 'none';
+				if (timeNode)
+				{
+					timeNode.after(this.durationNode);
+				}
+			}
+			this.durationNode.innerHTML = this.startDurationHint + ' &rarr; ' + this.getDurationHint(boundary.from, boundary.to);
 		},
 
-		formatTimePeriod(from, to)
+		hasEventBeenMoved: function()
 		{
-			return this.calendar.util.formatTime(from) + ' &ndash; ' + this.calendar.util.formatTime(to);
+			const startEntry = this.undoList[this.undoList.length - 1];
+			return (
+				startEntry.from.getTime() !== this.currentState.entry.from.getTime()
+				|| startEntry.to.getTime() !== this.currentState.entry.to.getTime()
+			);
+		},
+
+		isDayWeek: function()
+		{
+			return this.calendar.currentViewName === 'week' || this.calendar.currentViewName === 'day';
+		},
+
+		formatTimePeriod: function(from, to)
+		{
+			return this.calendar.util.formatTime(from) + ' &ndash; ' + this.calendar.util.formatTime(to) + ' (' + this.getDurationHint(from, to) + ')';
+		},
+
+		getDurationHint: function(fromDate, toDate)
+		{
+			const diff = toDate.getTime() - fromDate.getTime();
+			const diffMinutes = Math.floor(diff / (1000 * 60));
+			const hours = Math.floor(diffMinutes / 60);
+			const minutes = diffMinutes % 60;
+
+			let hint = `${minutes} ${BX.message('EC_MINUTE_SHORT')}`;
+			if (hours > 0)
+			{
+				hint = `${hours} ${BX.message('EC_HOUR_SHORT')}`;
+				if (minutes > 0)
+				{
+					hint += ` ${minutes} ${BX.message('EC_MINUTE_SHORT')}`;
+				}
+			}
+
+			return hint;
 		},
 
 	};
@@ -1009,14 +1264,12 @@
 				return this.sectionMenu.close();
 			}
 
-			var
-				i, menuItems = [], icon;
-
+			let menuItems = [];
 			if (BX.type.isArray(this.sectionGroupList))
 			{
 				this.sectionGroupList.forEach(function(sectionGroup)
 				{
-					var filteredList = [], i;
+					let filteredList;
 					if (sectionGroup.belongsToView)
 					{
 						filteredList = this.sectionList.filter(function(section){
@@ -1052,7 +1305,7 @@
 							delimiter: true
 						}));
 
-						for (i = 0; i < filteredList.length; i++)
+						for (let i = 0; i < filteredList.length; i++)
 						{
 							menuItems.push(this.getMenuItem(filteredList[i]));
 						}
@@ -1061,7 +1314,7 @@
 			}
 			else
 			{
-				for (i = 0; i < this.sectionList.length; i++)
+				for (let i = 0; i < this.sectionList.length; i++)
 				{
 					menuItems.push(this.getMenuItem(this.sectionList[i]));
 				}
@@ -1093,11 +1346,11 @@
 			this.sectionMenu.show();
 
 			// Paint round icons for section menu
-			for (i = 0; i < this.sectionMenu.menuItems.length; i++)
+			for (let i = 0; i < this.sectionMenu.menuItems.length; i++)
 			{
 				if (this.sectionMenu.menuItems[i].layout.item)
 				{
-					icon = this.sectionMenu.menuItems[i].layout.item.querySelector('.menu-popup-item-icon');
+					const icon = this.sectionMenu.menuItems[i].layout.item.querySelector('.menu-popup-item-icon');
 					if (icon)
 					{
 						icon.style.backgroundColor = this.sectionMenu.menuItems[i].color;

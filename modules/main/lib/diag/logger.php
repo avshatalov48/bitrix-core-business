@@ -45,7 +45,7 @@ abstract class Logger extends Log\AbstractLogger
 
 		if (!isset($this->context['host']))
 		{
-			$this->context['host'] = $_SERVER['HTTP_HOST'];
+			$this->context['host'] = $_SERVER['HTTP_HOST'] ?? '';
 		}
 
 		$formatter = $this->getFormatter();

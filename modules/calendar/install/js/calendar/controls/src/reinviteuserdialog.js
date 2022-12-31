@@ -16,6 +16,7 @@ export class ReinviteUserDialog extends EventEmitter
 	show()
 	{
 		const content = Dom.create('DIV');
+		this.close();
 		this.dialog = new Popup(this.id, null, {
 			overlay: {opacity: 10},
 			autoHide: true,

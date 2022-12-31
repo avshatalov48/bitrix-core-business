@@ -2028,3 +2028,40 @@
 	box-shadow: 0 0 3px rgba(0,0,0,.2);
 	background: #fff;
 }
+
+/*css for column revert */
+.main-kanban.--columns-revert .main-kanban-column-title-bg {
+	left: 13px;
+	right: -3px;
+	border-radius: var(--ui-border-radius-2xs, 3px);
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+.main-kanban.--columns-revert .main-kanban-column-title-right {
+	right: auto;
+	left: 3px;
+	transform: scaleX(-1);
+}
+
+.main-kanban.--columns-revert .main-kanban-column:first-child .main-kanban-column-title-bg {
+	left: 0;
+	border-radius: 3px;
+}
+
+.main-kanban.--columns-revert .main-kanban-column:last-child  .main-kanban-column-title-right {
+	display: block;
+}
+
+.main-kanban.--columns-revert .main-kanban-column:first-child .main-kanban-column-title-right {
+	display: none;
+}
+
+.main-kanban.--columns-revert .main-kanban-column-title-text {
+	padding-left: 6px;
+}
+
+.main-kanban.--columns-revert .main-kanban-column:first-child .main-kanban-column-title-text {
+	padding-left: 2px;
+}
+

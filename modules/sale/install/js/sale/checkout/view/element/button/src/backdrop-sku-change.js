@@ -15,6 +15,7 @@ BitrixVue.component('sale-checkout-view-element-button-backdrop_sku_change', {
 	{
 		click()
 		{
+			document.body.style.overflowY = '';
 			EventEmitter.emit(EventType.basket.backdropClose, {index: this.index})
 		},
 	},

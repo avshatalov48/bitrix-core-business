@@ -27,6 +27,7 @@
 		this.layout.classList.add("landing-ui-field-dropdown");
 		this.popup = null;
 		this.input.addEventListener("click", this.onInputClick.bind(this));
+		this.classForTextNode = options.classForTextNode;
 		document.addEventListener("click", this.onDocumentClick.bind(this));
 		var rootWindow = BX.Landing.PageObject.getRootWindow();
 		rootWindow.document.addEventListener("click", this.onDocumentClick.bind(this));
@@ -50,7 +51,7 @@
 
 		if (BX.Type.isArrayFilled(this.items))
 		{
-			setTextContent(this.input, this.items[0].name);
+			setTextContent(this.input, this.items[0].name, this.classForTextNode);
 			data(this.input, "value", this.items[0].value);
 		}
 		else
@@ -61,6 +62,10 @@
 
 		if (this.content !== "")
 		{
+			setTimeout(() => {
+				this.emit("onInit", this.items[this.content]);
+			}, 0);
+
 			this.setValue(this.content);
 		}
 	};
@@ -77,6 +82,38 @@
 				|| (!this.contentRoot && this.popupRoot && !this.popupRoot.contains(this.popup.popupWindow.popupContainer))
 			)
 			{
+				var menuItems = [];
+				this.items.forEach(function(item) {
+					if (item.hidden !== true)
+					{
+						menuItems.push(item);
+					}
+				})
+				var mahHeight;
+				if (this.options.maxHeight)
+				{
+					mahHeight = this.options.maxHeight;
+				}
+				else
+				{
+					mahHeight = 196;
+				}
+				menuItems = menuItems.map(function(item) {
+					if (item.delimiter)
+					{
+						return {
+							delimiter: item.delimiter,
+						}
+					}
+					return {
+						html: item.html,
+						text: !item.html ? escapeText(item.name) : undefined,
+						onclick: function() {
+							this.onItemClick(item)
+						}.bind(this),
+						className: item.className,
+					}
+				}, this);
 				this.popup = new BX.PopupMenuWindow({
 					id: "dropdown_" + (+new Date()),
 					bindElement: this.input,
@@ -84,22 +121,16 @@
 						forceBindPosition: true
 					},
 					targetContainer: this.contentRoot,
-					maxHeight: 196,
-					items: this.items.map(function(item) {
-						return {
-							html: item.html,
-							text: !item.html ? escapeText(item.name) : undefined,
-							onclick: function() {
-								this.onItemClick(item)
-							}.bind(this)
-						}
-					}, this),
+					maxHeight: mahHeight,
+					items: menuItems,
 					events: {
 						onPopupClose: function() {
 							this.input.classList.remove("landing-ui-active");
 							this.layout.classList.remove("landing-ui-active");
 						}.bind(this)
-					}
+					},
+					className: this.options.className,
+					angle: true,
 				});
 
 				if (!this.contentRoot)
@@ -136,13 +167,13 @@
 
 		onItemClick: function(item)
 		{
-			setTextContent(this.input, item.name);
+			setTextContent(this.input, item.name, this.classForTextNode);
 			data(this.input, "value", item.value);
 			this.popup.close();
 			this.onChangeHandler(item.value, this.items, this.postfix, this.property);
 			this.onValueChangeHandler(this);
 			BX.fireEvent(this.input, "input");
-			this.emit('onChange');
+			this.emit("onChange", item);
 		},
 
 		/**
@@ -163,14 +194,21 @@
 			}
 		},
 
-		setValue: function(value)
+		setValue: function(value, preventEvent)
 		{
 			this.items.forEach(function(item) {
 				// noinspection EqualityComparisonWithCoercionJS
 				if (value == item.value)
 				{
-					setTextContent(this.input, item.name);
+					setTextContent(this.input, item.name, this.classForTextNode);
 					data(this.input, "value", item.value);
+
+					if (preventEvent)
+					{
+						setTimeout(() => {
+							this.emit("onInit", item);
+						}, 0);
+					}
 				}
 			}, this);
 		},

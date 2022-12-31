@@ -116,7 +116,6 @@ Loc::loadMessages(__FILE__);
 						</i>
 					</p>
 					<p class="landing-alert-paragraph">
-						<strong><?= Loc::getMessage('LANDING_TPL_DOMAIN_ATTENTION');?></strong>
 						<?= Loc::getMessage('LANDING_TPL_DOMAIN_OWN_DOMAIN_AAAA');?>
 					</p>
 					<?if ($helpUrl = \Bitrix\Landing\Help::getHelpUrl('DOMAIN_EDIT')):?>

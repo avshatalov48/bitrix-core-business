@@ -183,4 +183,151 @@
 	};
 
 	BX.Call.PromoPopup.Events = Events;
+
+
+	BX.Call.PromoPopup3D = function(options)
+	{
+		options = BX.type.isPlainObject(options) ? options : {};
+
+		this.promoCode = BX.type.isStringFilled(options.promoCode) ? options.promoCode : '';
+		this.bindElement = options.bindElement;
+
+		this.popup = null;
+
+
+		options.events = BX.type.isPlainObject(options.events) ? options.events : {};
+		this.events = {};
+		this.events.onActionClick = options.events.onActionClick? options.events.onActionClick: () => {};
+		this.events.onClose = options.events.onClose? options.events.onClose: () => {};
+	};
+
+	BX.Call.PromoPopup3D.prototype.show = function()
+	{
+		this.createPopup();
+		this.popup.show();
+
+		BX.bind(BX('promo-popup-3d-button'), "click", this.openWindow.bind(this));
+	};
+
+	BX.Call.PromoPopup3D.prototype.openWindow = function()
+	{
+		BX.Call.Hardware.BackgroundDialog.open({tab: 'mask'});
+		setTimeout(() => this.close(), 100);
+	}
+
+	BX.Call.PromoPopup3D.prototype.openLearningPopup = function()
+	{
+		const bindElement = BX('bx-messenger-videocall-panel-item-with-arrow-camera');
+		if (!bindElement)
+		{
+			return true;
+		}
+
+		const title = BX.message('IM_PROMO_3DAVATAR_30112022_LEARNING_TITLE');
+		const description = BX.message('IM_PROMO_3DAVATAR_30112022_LEARNING_TEXT');
+
+		const content = `
+			<div class="promo-popup-3d-learning-content">
+				<h4 class="ui-typography-heading-h4 promo-popup-3d-learning-content__title">${title}</h4>
+				<p class="promo-popup-3d-learning-content__description">${description}</p>
+			</div>
+		`;
+
+		this.popup = new BX.PopupWindow('bx-call-promo-learning-popup', bindElement, {
+			targetContainer: document.body,
+			content: content,
+			cacheable: false,
+			closeIcon: true,
+			autoHide: true,
+			closeByEsc: true,
+			bindOptions: {
+				position: "top", forceTop: -100, forceLeft: 100, forceBindPosition: true
+			},
+			angle: {position: "top", offset: 49},
+			className: 'bx-call-promo-popup-learn',
+			contentBackground: 'unset',
+			events: {
+				onPopupClose: () => {
+					this.events.onClose();
+				},
+			}
+		});
+
+		this.popup.show();
+
+		window.BXIM.callController.callView.eventEmitter.subscribe(
+			BX.Call.View.Event.onDeviceSelectorShow,
+			() => this.popup ? this.popup.close(): ''
+		);
+	}
+
+	BX.Call.PromoPopup3D.prototype.close = function()
+	{
+		if (!this.popup)
+		{
+			return false;
+		}
+
+		this.popup.close();
+	};
+
+	BX.Call.PromoPopup3D.prototype.createPopup = function()
+	{
+		var self = this;
+
+		const title = BX.message('IM_PROMO_3DAVATAR_30112022_TITLE');
+		const description = BX.message('IM_PROMO_3DAVATAR_30112022_TEXT');
+		const btnText = BX.message('IM_PROMO_3DAVATAR_30112022_BUTTON');
+
+		const content = `
+			<div class="promo-popup-3d-content">
+				<div class="promo-popup-3d-content__masks-container">
+					<div class="promo-popup-3d-content__mask --left-2 --bear"></div>
+					<div class="promo-popup-3d-content__mask --left-1 --pole-bear"></div>
+					<div class="promo-popup-3d-content__mask --center --fox"></div>
+					<div class="promo-popup-3d-content__mask --right-1 --santa"></div>
+					<div class="promo-popup-3d-content__mask --right-2 --owl"></div>
+				</div>
+				<h3 class="ui-typography-heading-h2 promo-popup-3d-content__title">${title}</h3>
+				<p class="promo-popup-3d-content__description">${description}</p>
+				<div class="promo-popup-3d-content__actions-btn">
+					<span class="ui-btn btn-primary ui-btn-lg ui-btn-round ui-btn-primary" id="promo-popup-3d-button">${btnText}</span>
+				</div>
+			</div>
+		`;
+
+		this.popup = new BX.PopupWindow('bx-call-promo-popup-3d', this.bindElement, {
+			targetContainer: document.body,
+			content: content,
+			cacheable: false,
+			closeIcon: true,
+			overlay: {
+				backgroundColor: '#000',
+				opacity: 40,
+			},
+			width: 531,
+			minHeight: 481,
+			bindOptions: {
+				position: "top"
+			},
+			className: 'bx-call-promo-popup-3d-masks',
+			events: {
+				onPopupClose: self.onPopupClose.bind(self),
+			}
+		});
+	};
+
+	BX.Call.PromoPopup3D.prototype.onPopupClose = function()
+	{
+		if (BX.MessengerPromo && this.promoCode)
+		{
+			BX.MessengerPromo.save(this.promoCode);
+		}
+
+		this.popup.destroy();
+		this.openLearningPopup();
+	};
+
+	BX.Call.PromoPopup3D.Events = Events;
+
 })();

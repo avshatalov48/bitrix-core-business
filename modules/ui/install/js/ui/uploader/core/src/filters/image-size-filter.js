@@ -1,4 +1,4 @@
-import { Type } from 'main.core';
+import { Extension, Type } from 'main.core';
 
 import Filter from './filter';
 import UploaderError from '../uploader-error';
@@ -11,18 +11,26 @@ export default class ImageSizeFilter extends Filter
 {
 	imageMinWidth: number = 1;
 	imageMinHeight: number = 1;
-	imageMaxWidth: number = 10000;
-	imageMaxHeight: number = 10000;
+	imageMaxWidth: number = 7000;
+	imageMaxHeight: number = 7000;
 	ignoreUnknownImageTypes: boolean = false;
 
 	constructor(uploader: Uploader, filterOptions: { [key: string]: any } = {})
 	{
 		super(uploader);
 
-		const options = Type.isPlainObject(filterOptions) ? filterOptions : {};
+		const settings = Extension.getSettings('ui.uploader.core');
+		this.imageMinWidth = settings.get('imageMinWidth', this.imageMinWidth);
+		this.imageMinHeight = settings.get('imageMinHeight', this.imageMinHeight);
+		this.imageMaxWidth = settings.get('imageMaxWidth', this.imageMaxWidth);
+		this.imageMaxHeight = settings.get('imageMaxHeight', this.imageMaxHeight);
 
+		const options = Type.isPlainObject(filterOptions) ? filterOptions : {};
 		['imageMinWidth', 'imageMinHeight', 'imageMaxWidth', 'imageMaxHeight'].forEach(option => {
-			this[option] = Type.isNumber(options[option]) && options[option] > 0 ? options[option] : this[option];
+			if (Type.isNumber(options[option]) && options[option] > 0)
+			{
+				this[option] = options[option];
+			}
 		});
 
 		if (Type.isBoolean(options['ignoreUnknownImageTypes']))

@@ -329,17 +329,15 @@ class ShipmentItemCollection
 	}
 
 	/**
+	 * Returns shippable items
+	 *
 	 * @return Internals\CollectionFilterIterator
 	 */
 	public function getShippableItems()
 	{
 		$callback = function (ShipmentItem $shipmentItem)
 		{
-			$basketItem = $shipmentItem->getBasketItem();
-			if ($basketItem)
-				return !$basketItem->isBundleParent();
-
-			return true;
+			return $shipmentItem->isShippable();
 		};
 
 		return new Internals\CollectionFilterIterator($this->getIterator(), $callback);

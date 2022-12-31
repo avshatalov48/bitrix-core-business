@@ -127,6 +127,20 @@ let Utils =
 
 			return this.getDesktopVersionStatic;
 		},
+		isDesktopFeatureEnabled(code)
+		{
+			if (typeof BXDesktopSystem === 'undefined')
+			{
+				return false;
+			}
+
+			if (typeof BXDesktopSystem.FeatureEnabled !== 'function')
+			{
+				return false;
+			}
+
+			return !!BXDesktopSystem.FeatureEnabled(code);
+		},
 		isMobile()
 		{
 			return this.isAndroid() || this.isIos() || this.isBitrixMobile();

@@ -375,14 +375,16 @@ div#landing-popup-publication-error {
 	opacity: 0;
 }
 
-.landing-popup-publication-content-autopub-btn {
+.landing-popup-publication-content-autopub-btn,
+.landing-popup-publication-content-preview-btn {
 	--ui-btn-height: 36px;
 	--ui-btn-font-size: 14px;
 	--ui-btn-padding: 0 24px;
-	width: 200px;
+	min-width: 210px;
 }
 
-.ui-btn-light.landing-popup-publication-content-autopub-btn {
+.ui-btn-light.landing-popup-publication-content-autopub-btn,
+.ui-btn-light.landing-popup-publication-content-preview-btn {
 	--ui-btn-background: #fff;
 	--ui-btn-background-hover: #fff;
 	--ui-btn-background-active: #fff;
@@ -394,7 +396,20 @@ div#landing-popup-publication-error {
 	--ui-btn-color: #535c69;
 	--ui-btn-color-hover: #535c69;
 	--ui-btn-color-active: #535c69;
+}
+.ui-btn-light.landing-popup-publication-content-preview-btn {
 	margin-bottom: 12px;
+}
+.landing-popup-publication-content-autopub-btn-container {
+	position: relative;
+}
+.landing-popup-publication-content-autopub-btn-clicker {
+	cursor: not-allowed;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }
 
 .landing-popup-publication-content-hint {

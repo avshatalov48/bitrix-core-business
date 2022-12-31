@@ -17,6 +17,7 @@ Loc::loadMessages(__FILE__);
 class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 {
 	const USER_TYPE_ID = 'resourcebooking';
+	public const EVENT_LABEL = '#resourcebooking#';
 	const RESOURCE_CALENDAR_TYPE = 'resource';
 	const BITRIX24_RESTRICTION = 100;
 	const BITRIX24_RESTRICTION_CODE = 'uf_resourcebooking';
@@ -85,7 +86,7 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		return "text";
 	}
 
-	public function checkFields($userField, $value)
+	public static function checkFields($userField, $value)
 	{
 		if($userField["MANDATORY"] =="Y" && ($value == 'empty' || !$value))
 		{

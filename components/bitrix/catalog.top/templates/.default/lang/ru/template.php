@@ -1,9 +1,10 @@
-<?
+<?php
 $MESS["CT_BCT_ELEMENT_DELETE_CONFIRM"] = "Будет удалена вся информация, связанная с этой записью. Продолжить?";
 $MESS["CT_BCT_TPL_MESS_BTN_ADD_TO_BASKET"] = "В корзину";
 $MESS["CATALOG_COMPARE"] = "Сравнить";
 $MESS["CT_BCT_TPL_MESS_BTN_BUY"] = "Купить";
 $MESS["CT_BCT_TPL_MESS_PRODUCT_NOT_AVAILABLE"] = "Нет в наличии";
+$MESS['CT_BCT_TPL_MESS_PRODUCT_NOT_AVAILABLE_SERVICE'] = "Недоступно";
 $MESS["CT_BCT_TPL_MESS_BTN_DETAIL"] = "Подробнее";
 $MESS["CT_BCT_TPL_MESS_BTN_SUBSCRIBE"] = "Подписаться";
 $MESS["CT_BCT_CATALOG_BTN_MESSAGE_BASKET_REDIRECT"] = "Перейти в корзину";
@@ -24,4 +25,3 @@ $MESS["CT_BCT_CATALOG_PRICE_TOTAL_PREFIX"] = "на сумму";
 $MESS["CT_BCT_CATALOG_SHOW_MAX_QUANTITY"] = "Наличие";
 $MESS["CT_BCT_CATALOG_RELATIVE_QUANTITY_MANY"] = "много";
 $MESS["CT_BCT_CATALOG_RELATIVE_QUANTITY_FEW"] = "мало";
-?>

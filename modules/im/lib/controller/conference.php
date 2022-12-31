@@ -49,7 +49,7 @@ class Conference extends JsonController
 
 	public function createAction(JsonPayload $payload)
 	{
-		if (!isset($payload->getData()['fields']) || !$this->checkRequirements())
+		if (!isset($payload->getData()['fields']))
 		{
 			$this->addError(new Error(Loc::getMessage('IM_CONFERENCE_EDIT_CREATION_ERROR')));
 
@@ -90,13 +90,6 @@ class Conference extends JsonController
 		];
 	}
 
-	private function checkRequirements(): bool
-	{
-		return Loader::includeModule('pull')
-			   && \CPullOptions::GetPublishWebEnabled()
-			   && \Bitrix\Im\Call\Call::isCallServerEnabled() === true;
-	}
-
 	private function updateConference(array $fields): Result
 	{
 		$updatingResult = new Result();
@@ -122,27 +115,9 @@ class Conference extends JsonController
 		// link was created before
 		if (isset($payload->getData()['aliasData']))
 		{
-			$aliasData = $payload->getData()['aliasData'];
-			if (!$this->checkAliasData($aliasData))
-			{
-				return $addingResult->addError(new Error(Loc::getMessage('IM_CONFERENCE_EDIT_CREATION_ERROR')));
-			}
+			$fields['ALIAS_DATA'] = $payload->getData()['aliasData'];
 		}
-		else
-		{
-			$aliasData = Alias::addUnique([
-				"ENTITY_TYPE" => Alias::ENTITY_TYPE_VIDEOCONF,
-				"ENTITY_ID" => 0
-			]);
-		}
-
-		$fields['ALIAS_DATA'] = $aliasData;
 
 		return ConferenceClass::add($fields);
-	}
-
-	private function checkAliasData($aliasData): bool
-	{
-		return isset($aliasData['ID'], $aliasData['ALIAS']) && Alias::getByIdAndCode($aliasData['ID'], $aliasData['ALIAS']);
 	}
 }

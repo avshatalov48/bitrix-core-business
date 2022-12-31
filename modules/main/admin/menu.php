@@ -225,7 +225,7 @@ if($USER->CanDoOperation('view_other_settings') || $USER->CanDoOperation('manage
 		$aModuleItems = array();
 		if(method_exists($adminMenu, "IsSectionActive"))
 		{
-			if($adminMenu->IsSectionActive("menu_module_settings") || ($APPLICATION->GetCurPage() == "/bitrix/admin/settings.php" && $_REQUEST["mid_menu"]<>"") || defined('BX_SEARCH_ADMIN') && BX_SEARCH_ADMIN === true)
+			if($adminMenu->IsSectionActive("menu_module_settings") || ($APPLICATION->GetCurPage() == "/bitrix/admin/settings.php" && isset($_REQUEST["mid_menu"]) && $_REQUEST["mid_menu"] != '') || defined('BX_SEARCH_ADMIN') && BX_SEARCH_ADMIN === true)
 			{
 				$adminPage->Init();
 				foreach($adminPage->aModules as $module)

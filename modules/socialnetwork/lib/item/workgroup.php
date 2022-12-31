@@ -692,4 +692,15 @@ class Workgroup
 	{
 		return Helper\Workgroup::getEditFeaturesAvailability();
 	}
+
+	public static function canWorkWithClosedWorkgroups(): bool
+	{
+		static $optionValue = null;
+		if ($optionValue === null)
+		{
+			$optionValue = Option::get('socialnetwork', 'work_with_closed_groups', 'N');
+		}
+
+		return ($optionValue === 'Y');
+	}
 }

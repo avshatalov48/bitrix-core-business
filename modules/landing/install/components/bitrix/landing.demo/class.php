@@ -23,10 +23,13 @@ use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\UI\Filter;
 use Bitrix\Iblock;
 use Bitrix\Main;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
+use Bitrix\Main\Type\Date;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Crm\Integration\UserConsent;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Rest\Marketplace\Client;
@@ -65,6 +68,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		'STORE' => 'shop',
 		'KNOWLEDGE' => 'knowledgeBase',
 	];
+
+	protected const FILTER_ID = 'LANDING_FLT_DEMO';
 
 	/**
 	 * Remote repository url.
@@ -933,8 +938,10 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$url = 'https://preview.bitrix24.site' . $previewSubDir . $code;
 		}
 
+		$availableLangs = ['ru', 'de', 'en', 'br', 'fr', 'la', 'pl', 'ua'];
+		$lang = in_array(LANGUAGE_ID, $availableLangs, true) ? LANGUAGE_ID : 'en';
 		$uri = new Uri($url);
-		$uri->addParams(['user_lang' => LANGUAGE_ID]);
+		$uri->addParams(['user_lang' => $lang]);
 
 		return $uri->getUri();
 	}
@@ -990,6 +997,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				return false;
 			}
 		}
+
 		// else create site and pages into
 		$demo = $this->getDemoSite();
 		if (isset($demo[$code]))
@@ -1578,6 +1586,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 
 		$eventFunc = function($data) use($subDir, $code, &$applicationItems)
 		{
+			// region modify data
 			if (!empty($data))
 			{
 				// todo: need check singleton?
@@ -1647,75 +1656,80 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			{
 				$xmlId = $appCode = null;
 			}
+			// endregion
 
-			// fill from REST
-			$res = Demos::getList([
-				'select' => [
-					'ID', 'APP_CODE', 'XML_ID', 'TYPE',
-					'TITLE', 'ACTIVE', 'DESCRIPTION', 'LANG',
-					'PREVIEW', 'PREVIEW2X', 'PREVIEW3X',
-					'DATE_CREATE'
-				],
-				'filter' => [
-					'=ACTIVE' => 'Y',
-					'=TYPE' => $this->arParams['TYPE'],
-					'=TPL_TYPE' =>
-						($subDir == $this::DEMO_DIR_SITE)
-							? Demos::TPL_TYPE_SITE
-							: Demos::TPL_TYPE_PAGE,
-					$code
-						? [
-							'=XML_ID' => $xmlId,
-							'=APP_CODE' => $appCode
-						]
-						: [
-							'=SHOW_IN_LIST' => 'Y'
-						],
-					Manager::isTemplateIdSystem($siteTemplateId)
-						? [
-						'LOGIC' => 'OR',
-						['=SITE_TEMPLATE_ID' => $siteTemplateId],
-						['=SITE_TEMPLATE_ID' => false]
-					]
-						: [
-						['=SITE_TEMPLATE_ID' => $siteTemplateId]
-					]
-				],
-				'order' => [
-					'ID' => 'asc'
-				]
-			]);
-			while ($row = $res->fetch())
+			// region fill from APPs
+			if (!$this->arResult['IS_SEARCH'])
 			{
-				$lang = $row['LANG'] ? (array)unserialize($row['LANG'], ['allowed_classes' => false]) : [];
-				if (!$row['APP_CODE'])
+				$res = Demos::getList([
+					'select' => [
+						'ID', 'APP_CODE', 'XML_ID', 'TYPE',
+						'TITLE', 'ACTIVE', 'DESCRIPTION', 'LANG',
+						'PREVIEW', 'PREVIEW2X', 'PREVIEW3X',
+						'DATE_CREATE',
+					],
+					'filter' => [
+						'=ACTIVE' => 'Y',
+						'=TYPE' => $this->arParams['TYPE'],
+						'=TPL_TYPE' =>
+							($subDir == $this::DEMO_DIR_SITE)
+								? Demos::TPL_TYPE_SITE
+								: Demos::TPL_TYPE_PAGE,
+						$code
+							? [
+							'=XML_ID' => $xmlId,
+							'=APP_CODE' => $appCode,
+						]
+							: [
+							'=SHOW_IN_LIST' => 'Y',
+						],
+						Manager::isTemplateIdSystem($siteTemplateId)
+							? [
+							'LOGIC' => 'OR',
+							['=SITE_TEMPLATE_ID' => $siteTemplateId],
+							['=SITE_TEMPLATE_ID' => false],
+						]
+							: [
+							['=SITE_TEMPLATE_ID' => $siteTemplateId],
+						],
+					],
+					'order' => [
+						'ID' => 'asc',
+					],
+				]);
+				while ($row = $res->fetch())
 				{
-					$row['APP_CODE'] = 'local';
+					$lang = $row['LANG'] ? (array)unserialize($row['LANG'], ['allowed_classes' => false]) : [];
+					if (!$row['APP_CODE'])
+					{
+						$row['APP_CODE'] = 'local';
+					}
+					$key = $row['APP_CODE'] . '@' . $row['XML_ID'];
+					$data = array(
+							$key => $this->translate(array(
+								'ID' => $key,
+								'XML_ID' => $row['XML_ID'],
+								'TYPE' => mb_strtoupper($row['TYPE']),
+								'TITLE' => $row['TITLE'],
+								'ACTIVE' => $row['ACTIVE'],
+								'AVAILABLE' => true,
+								'SECTION' => [],//@todo
+								'DESCRIPTION' => $row['DESCRIPTION'],
+								// 'SORT' => self::matchFullSort($key, self::DEMO_SORT_SCOPE_REST, $row['DATE_CREATE']->getTimeStamp()),
+								'PREVIEW' => $row['PREVIEW'],
+								'PREVIEW2X' => $row['PREVIEW2X'],
+								'PREVIEW3X' => $row['PREVIEW3X'],
+								'APP_CODE' => $row['APP_CODE'],
+								'REST' => $row['ID'],
+								'LANG' => $lang,
+								'TIMESTAMP' => $row['DATE_CREATE']->getTimeStamp(),
+								'DESIGNED_BY' => [],
+								'DATA' => [],
+							), $lang),
+						) + $data;
 				}
-				$key = $row['APP_CODE'] . '@' . $row['XML_ID'];
-				$data = array(
-						$key => $this->translate(array(
-							'ID' => $key,
-							'XML_ID' => $row['XML_ID'],
-							'TYPE' => mb_strtoupper($row['TYPE']),
-							'TITLE' => $row['TITLE'],
-							'ACTIVE' => $row['ACTIVE'],
-							'AVAILABLE' => true,
-							'SECTION' => [],//@todo
-							'DESCRIPTION' => $row['DESCRIPTION'],
-							// 'SORT' => self::matchFullSort($key, self::DEMO_SORT_SCOPE_REST, $row['DATE_CREATE']->getTimeStamp()),
-							'PREVIEW' => $row['PREVIEW'],
-							'PREVIEW2X' => $row['PREVIEW2X'],
-							'PREVIEW3X' => $row['PREVIEW3X'],
-							'APP_CODE' => $row['APP_CODE'],
-							'REST' => $row['ID'],
-							'LANG' => $lang,
-							'TIMESTAMP' => $row['DATE_CREATE']->getTimeStamp(),
-							'DESIGNED_BY' => [],
-							'DATA' => []
-						), $lang)
-					) + $data;
 			}
+			//endregion
 
 			// send events
 			$event = new \Bitrix\Main\Event('landing', 'onDemosGetRepository', array(
@@ -1755,7 +1769,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$cacheId .= $subDir . $cacheStarted . $this->arParams['TYPE'];
 			$cacheId .= $siteTemplateId . LANGUAGE_ID;
 			$cacheId .= $code ?? 'all';
-			$cacheId .= $this->arParams['SITE_ID'] > 0 ? 'onePage' : 'miltiPage';
+			$cacheId .= $this->arParams['SITE_ID'] > 0 ? 'onePage' : 'multiPage';
+			$cacheId .= $this->getFilterToString();
 
 			$navigation = $this->getLastNavigation();
 			$cacheId .= $navigation ? $navigation->getCurrentPage() : 1;
@@ -1765,6 +1780,27 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			{
 				$cacheId .= $param;
 			}
+
+			// market checks
+			$marketPrefix = 'market';
+			$marketIdDelimiter = '/';
+			$isNeedMarket =
+				$this->arParams['SKIP_REMOTE'] !== 'Y'
+				&& (!$code || mb_strpos($code, $marketPrefix . $marketIdDelimiter) === 0)
+				&& $this->arParams['TYPE'] === 'PAGE'
+			;
+			if ($isNeedMarket)
+			{
+				$hasMarket =
+					Loader::includeModule('rest')
+					&& is_callable(['\Bitrix\Rest\Marketplace\Client', 'getSiteList'])
+				;
+				if (!$hasMarket)
+				{
+					$this->setErrors(new Bitrix\Main\Error(Loc::getMessage('LANDING_TPL_REPO_NOT_INSTALL')));
+				}
+			}
+			$cacheId .= ($isNeedMarket && $hasMarket) ? 'Market' : 'NoMarket';
 
 			// nfr - without cache
 			$cachePath = 'landing/demo';
@@ -1797,115 +1833,110 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$siteTypeCurr = $this->arParams['TYPE'];
 
 			// region get LOCAL
-			$pathLocal = '/bitrix/components/bitrix/landing.demo/data/' . $subDir;//@todo make better
-			$path = Manager::getDocRoot() . $pathLocal;
-			$localDirectories = [];
-			$localTemplates = [
-				'empty',
-				'empty-multipage',
-				'wiki-dark',
-				'wiki-light',
-				'store_v3',
-				'store-chats-dark',
-				'clothes',
-				'store-instagram',
-				'store-mini-catalog',
-				'store-mini-one-element',
-				'search-result',
-				'search-result2',
-				'search-result3-dark',
-				'news-detail',
-			];
-			foreach($localTemplates as $template)
+			if (!$this->arResult['IS_SEARCH'])
 			{
-				$descPath = $path . '/' . $template . '/.description.php';
-				if (file_exists($descPath))
+				$pathLocal = '/bitrix/components/bitrix/landing.demo/data/' . $subDir;//@todo make better
+				$path = Manager::getDocRoot() . $pathLocal;
+				$localDirectories = [];
+				$localTemplates = [
+					'empty',
+					'empty-multipage',
+					'wiki-dark',
+					'wiki-light',
+					'store_v3',
+					'store-chats-dark',
+					'clothes',
+					'store-instagram',
+					'store-mini-catalog',
+					'store-mini-one-element',
+					'search-result',
+					'search-result2',
+					'search-result3-dark',
+					'news-detail',
+				];
+				foreach ($localTemplates as $template)
 				{
-					$localDirectories[] = $template;
-				}
-				else if (($handleSubdir = opendir($path . '/' . $template)))
-				{
-					while ((($entrySubdir = readdir($handleSubdir)) !== false))
+					$descPath = $path . '/' . $template . '/.description.php';
+					if (file_exists($descPath))
 					{
-						if ($entrySubdir != '.' && $entrySubdir != '..')
+						$localDirectories[] = $template;
+					}
+					elseif (($handleSubdir = opendir($path . '/' . $template)))
+					{
+						while ((($entrySubdir = readdir($handleSubdir)) !== false))
 						{
-							$descPath = $path . '/' . $template . '/' . $entrySubdir . '/.description.php';
-							if (file_exists($descPath))
+							if ($entrySubdir != '.' && $entrySubdir != '..')
 							{
-								$localDirectories[] = $template . '/' . $entrySubdir;
+								$descPath = $path . '/' . $template . '/' . $entrySubdir . '/.description.php';
+								if (file_exists($descPath))
+								{
+									$localDirectories[] = $template . '/' . $entrySubdir;
+								}
 							}
 						}
 					}
 				}
-			}
 
-			foreach($localDirectories as $dir)
-			{
-				$itemData = include $path . '/' . $dir . '/.description.php';
-				if (!isset($itemData['type']))
+				foreach ($localDirectories as $dir)
 				{
-					$itemData['type'] = $siteTypeDef;
-				}
-				$itemData['type'] = array_map('strtoupper', (array)$itemData['type']);
-				if (in_array($siteTypeCurr, $itemData['type']) && isset($itemData['name']))
-				{
-					if (!isset($itemData['fields']) || !is_array($itemData['fields']))
+					$itemData = include $path . '/' . $dir . '/.description.php';
+					if (!isset($itemData['type']))
 					{
-						$itemData['fields'] = array();
+						$itemData['type'] = $siteTypeDef;
 					}
-					if (!isset($itemData['items']) || !is_array($itemData['items']))
+					$itemData['type'] = array_map('strtoupper', (array)$itemData['type']);
+					if (in_array($siteTypeCurr, $itemData['type']) && isset($itemData['name']))
 					{
-						$itemData['items'] = array();
+						if (!isset($itemData['fields']) || !is_array($itemData['fields']))
+						{
+							$itemData['fields'] = array();
+						}
+						if (!isset($itemData['items']) || !is_array($itemData['items']))
+						{
+							$itemData['items'] = array();
+						}
+						if (!isset($itemData['version']))
+						{
+							$itemData['version'] = 1;
+						}
+						// predefined
+						$itemData['fields']['ACTIVE'] = 'Y';
+						if (!isset($itemData['fields']['TITLE']))
+						{
+							$itemData['fields']['TITLE'] = $itemData['name'];
+						}
+						$data[$subDir][$dir] = array(
+							'ID' => $dir,
+							'XML_ID' => $dir,
+							'TYPE' => $itemData['type'],
+							'TITLE' => $itemData['name'],
+							'ACTIVE' => $itemData['active'] ?? true,
+							'PUBLICATION' => $itemData['publication'] ?? false,
+							'LOCK_DELETE' => $itemData['lock_delete'] ?? false,
+							'AVAILABLE' => $itemData['available'] ?? true,
+							'SINGLETON' => $itemData['singleton'] ?? false,
+							'SECTION' => isset($itemData['section']) ? (array)$itemData['section'] : [],
+							'DESCRIPTION' => $itemData['description'] ?? '',
+							'PREVIEW' => file_exists($path . '/' . $dir . '/preview.jpg')
+								? Manager::getUrlFromFile($pathLocal . '/' . $dir . '/preview.jpg')
+								: '',
+							'PREVIEW2X' => file_exists($path . '/' . $dir . '/preview@2x.jpg')
+								? Manager::getUrlFromFile($pathLocal . '/' . $dir . '/preview@2x.jpg')
+								: '',
+							'PREVIEW3X' => file_exists($path . '/' . $dir . '/preview@3x.jpg')
+								? Manager::getUrlFromFile($pathLocal . '/' . $dir . '/preview@3x.jpg')
+								: '',
+							'APP_CODE' => '',
+							'REST' => 0,
+							'DATA' => $itemData,
+						);
 					}
-					if (!isset($itemData['version']))
-					{
-						$itemData['version'] = 1;
-					}
-					// predefined
-					$itemData['fields']['ACTIVE'] = 'Y';
-					if (!isset($itemData['fields']['TITLE']))
-					{
-						$itemData['fields']['TITLE'] = $itemData['name'];
-					}
-					$data[$subDir][$dir] = array(
-						'ID' => $dir,
-						'XML_ID' => $dir,
-						'TYPE' => $itemData['type'],
-						'TITLE' => $itemData['name'],
-						'ACTIVE' => $itemData['active'] ?? true,
-						'PUBLICATION' => $itemData['publication'] ?? false,
-						'LOCK_DELETE' => $itemData['lock_delete'] ?? false,
-						'AVAILABLE' => $itemData['available'] ?? true,
-						'SINGLETON' => $itemData['singleton'] ?? false,
-						'SECTION' => isset($itemData['section']) ? (array)$itemData['section'] : [],
-						'DESCRIPTION' => $itemData['description'] ?? '',
-						'PREVIEW' => file_exists($path . '/' . $dir . '/preview.jpg')
-							? Manager::getUrlFromFile($pathLocal . '/' . $dir . '/preview.jpg')
-							: '',
-						'PREVIEW2X' => file_exists($path . '/' . $dir . '/preview@2x.jpg')
-							? Manager::getUrlFromFile($pathLocal . '/' . $dir . '/preview@2x.jpg')
-							: '',
-						'PREVIEW3X' => file_exists($path . '/' . $dir . '/preview@3x.jpg')
-							? Manager::getUrlFromFile($pathLocal . '/' . $dir . '/preview@3x.jpg')
-							: '',
-						'APP_CODE' => '',
-						'REST' => 0,
-						'DATA' => $itemData,
-					);
 				}
 			}
 			// endregion
 
 			// region get from zip repository
-			$marketPrefix = 'market';
-			$marketIdDelimiter = '/';
-			$isMarketCode = !$code || mb_strpos($code, $marketPrefix . $marketIdDelimiter) === 0;
-			if (
-				Loader::includeModule('rest')
-				&& is_callable(['\Bitrix\Rest\Marketplace\Client', 'getSiteList'])
-				&& $isMarketCode
-				&& $siteTypeCurr === 'PAGE'
-			)
+			if ($isNeedMarket && $hasMarket)
 			{
 				$query = [
 					'pageSize' => $navigation ? $navigation->getPageSize() : self::COUNT_PER_PAGE,
@@ -1921,6 +1952,10 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					$query['code'] = preg_replace(['/^\w+\//i', '/\/\w+$/i'], '', $code);
 					unset($query['onePage'], $query['pageSize'], $query['page']);
 				}
+
+				// filter
+				$query = array_merge($query, $this->getQueryFromFilter());
+
 				$siteList = Client::getSiteList($query);
 				if (is_array($siteList) && is_array($siteList['ITEMS']))
 				{
@@ -1978,7 +2013,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			// endregion
 
 			// to change template list by additional params
-			$data[$subDir] = self::applyExtDemoPerms($data[$subDir]);
+			$data[$subDir] = $this->applyExtDemoPerms($data[$subDir]);
 
 			// system cache end
 			if ($cacheStarted)
@@ -2009,11 +2044,10 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		return $params;
 	}
 
-	protected static function applyExtDemoPerms(array $data): array
+	protected function applyExtDemoPerms(array $data): array
 	{
 		// not for repo
-		// todo: change to isRepo()
-		if (defined('LANDING_IS_REPO') && LANDING_IS_REPO === true)
+		if ($this->isRepo())
 		{
 			return $data;
 		}
@@ -2731,11 +2765,46 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$this->checkParam('BINDING_TYPE', '');
 			$this->checkParam('BINDING_ID', '');
 
+			// save frame state in ajax requests
+			$this->arResult['IS_AJAX'] = $this->isAjax();
+			$this->arResult['IS_FRAME'] = $this->request('IFRAME') === 'Y' || $this->request('IS_FRAME') === 'Y';
+
+			// Filter
+			$this->arResult['FILTER_URI'] = $this->getUri(
+				[
+					'IS_AJAX' => 'Y',
+					'IS_FRAME' => $this->arResult['IS_FRAME'] ? 'Y' : 'N'
+				],
+				['IFRAME', 'IFRAME_TYPE']
+			);
+			if (
+				$this->arParams['TYPE'] === 'PAGE'
+				&& !$this->request('action')
+			)
+			{
+				$this->arResult['FILTER_FIELDS'] = self::getFilterFields();
+				$this->arResult['FILTER_ID'] = self::FILTER_ID . '_' . $this->arParams['TYPE'];
+				$this->arResult['FILTER_PRESETS'] = self::getFilterPresets();
+				$this->arResult['FILTER_OPTIONS'] = new Filter\Options(
+					$this->arResult['FILTER_ID'],
+					$this->arResult['FILTER_PRESETS']
+				);
+				$this->arResult['FILTER'] = $this->arResult['FILTER_OPTIONS']->getFilter();
+			}
+			$this->arResult['IS_SEARCH'] = is_array($this->arResult['FILTER']) && !empty($this->arResult['FILTER']);
+
 			// init nav
-			$this->lastNavigation = new PageNavigation('nav');
+			$this->arResult['NAV_URI'] =
+				$this->arResult['IS_FRAME']
+					? $this->getUri(['IFRAME' => 'Y', 'IFRAME_TYPE' => 'SIDE_SLIDER'], ['IS_AJAX', 'IS_FRAME'])
+					: $this->getUri([], ['IS_AJAX', 'IS_FRAME'])
+				;
+			$this->lastNavigation = new PageNavigation(self::NAVIGATION_ID);
 			$this->lastNavigation->allowAllRecords(false)
 				->setPageSize($this::COUNT_PER_PAGE)
 				->initFromUri();
+
+
 
 			if (
 				$this->arParams['SITE_ID'] > 0 &&
@@ -3751,5 +3820,204 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		$xmlPath .= '/'.$this->getCurrentXml().'.xml';
 
 		return $xmlPath;
+	}
+
+	protected static function getFilterFields(): array
+	{
+		$fields = [
+			'INSTALLS' => [
+				'id' => 'INSTALLS',
+				'type' => 'list',
+				'default' => true,
+				'name' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_INSTALL_COUNT'),
+				'items' => [
+					'100' => '1 - 100',
+					'500' => '100 - 500',
+					'3000' => '500 - 3000',
+					'3001' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_MORE_3000'),
+					// '10001' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_MORE_10000'),
+					// todo: now max count is 4800
+				],
+			],
+			'DATE' => [
+				'id' => 'DATE',
+				'type' => 'list',
+				'default' => true,
+				'name' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_DATE_PUBLIC'),
+				'items' => [
+					'today' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_TODAY'),
+					'week' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_WEEK_AGO'),
+					'2week' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_2WEEK_AGO'),
+					'earlier' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_LONG_TIME_AGO'),
+				],
+			],
+		];
+
+		if (Manager::isB24())
+		{
+			$fields['PAYMENT'] = [
+				'id' => 'PAYMENT',
+				'type' => 'list',
+				'default' => true,
+				'name' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_TMP_TYPE'),
+				'items' => [
+					'free' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_FREE'),
+					'subscribe' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_PAY'),
+				],
+			];
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * Gets presets for filter.
+	 * @return array
+	 */
+	protected static function getFilterPresets(): array
+	{
+		$presets = [
+			'New' => [
+				'name' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_PRESET_NEWS'),
+				'fields' => [
+					'DATE' => '2week',
+				]
+			],
+			'Populars' => [
+				'name' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_PRESET_POPULAR'),
+				'fields' => [
+					'INSTALLS' => '3000',
+				]
+			],
+		];
+
+		if (Manager::isB24())
+		{
+			$presets['Free'] = [
+				'name' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_PRESET_FREE'),
+				'fields' => [
+					'PAYMENT' => 'free',
+				],
+			];
+			$presets['Subscribe'] = [
+				'name' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_PRESET_PAY'),
+				'fields' => [
+					'PAYMENT' => 'subscribe',
+				],
+			];
+		}
+
+		return $presets;
+	}
+
+	/**
+	 * Convert filter to unique string, f.e. for cache unification
+	 * @return string
+	 */
+	protected function getFilterToString(): string
+	{
+		$result = '';
+		$filter = $this->arResult['FILTER'];
+		if (is_array($filter) && !empty($filter))
+		{
+			$keys = array_merge(['FIND'], array_keys(self::getFilterFields()));
+			foreach ($keys as $key)
+			{
+				if ($filter[$key])
+				{
+					$result .= "{$key}:{$filter[$key]}_";
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return array - query params for getSiteList method
+	 */
+	protected function getQueryFromFilter(): array
+	{
+		$filter = $this->arResult['FILTER'];
+		$query = [];
+
+		if (!empty($filter) && $filter['FILTER_APPLIED'])
+		{
+			// search
+			if ($filter['FIND'])
+			{
+				$query['q'] = $filter['FIND'];
+			}
+
+			// type
+			if ($filter['PAYMENT'] === 'free')
+			{
+				$query['free'] = 'Y';
+				unset($query['by_subscription']);
+			}
+			elseif ($filter['PAYMENT'] === 'subscribe')
+			{
+				$query['by_subscription'] = 'Y';
+				unset($query['free']);
+			}
+
+			// install count
+			if ($filter['INSTALLS'] && $filter['INSTALLS'] !== 'all')
+			{
+				if ($filter['INSTALLS'] === '100')
+				{
+					$query['installs_from'] = 1;
+					$query['installs_to'] = 100;
+				}
+				elseif ($filter['INSTALLS'] === '500')
+				{
+					$query['installs_from'] = 100;
+					$query['installs_to'] = 500;
+				}
+				elseif ($filter['INSTALLS'] === '3000')
+				{
+					$query['installs_from'] = 500;
+					$query['installs_to'] = 3000;
+				}
+				elseif ($filter['INSTALLS'] === '3001')
+				{
+					$query['installs_from'] = 3000;
+				}
+				elseif ($filter['INSTALLS'] === '5000')
+				{
+					$query['installs_from'] = 5000;
+					$query['installs_to'] = 10000;
+				}
+				elseif ($filter['INSTALLS'] === '10001')
+				{
+					$query['installs_from'] = 10000;
+				}
+			}
+
+			if ($filter['DATE'])
+			{
+				$now = new Date();
+				$toPhpFormat = Date::convertFormatToPhp('DD.MM.YYYY HH:MI:SS');
+
+				if ($filter['DATE'] === 'today')
+				{
+					$query['date_public_from'] = $now->add('-1D')->format($toPhpFormat);
+				}
+				elseif ($filter['DATE'] === 'week')
+				{
+					$query['date_public_from'] = $now->add('-7D')->format($toPhpFormat);
+				}
+				elseif ($filter['DATE'] === '2week')
+				{
+					$query['date_public_from'] = $now->add('-14D')->format($toPhpFormat);
+				}
+				elseif ($filter['DATE'] === 'earlier')
+				{
+					$query['date_public_to'] = $now->add('-14D')->format($toPhpFormat);
+				}
+			}
+		}
+
+		return  $query;
 	}
 }

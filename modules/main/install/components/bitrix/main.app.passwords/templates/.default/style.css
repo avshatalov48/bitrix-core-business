@@ -230,14 +230,7 @@ h3.bx-otp-wrap-container-title{
 .bx-otp-slt.medium  {line-height:32px;height:32px;font-size:14px;}
 .bx-otp-slt.small   {line-height:29px;height:29px;font-size:14px;}
 .bx-otp-slt.xsmall  {line-height:18px;height:20px;font-size:13px;padding-bottom: 2px;font-weight: normal;}
-.bx-ie .bx-otp-slt {
-	padding-right:0;
-	padding-left:0;
-	height: auto;
-	line-height: normal;
-	margin-top: 5px;
-	margin-bottom: 5px;
-}
+
 /*== MODAL WINDOW ==*/
 /* General */
 .bx-otp-popup-container{

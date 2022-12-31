@@ -7,7 +7,7 @@ abstract class Dto
 	/**
 	 * @param array $data
 	 */
-	public function __construct(array $data)
+	public function __construct(array $data = [])
 	{
 		$this->initComplexProperties($data);
 		foreach ($data as $key => $value)

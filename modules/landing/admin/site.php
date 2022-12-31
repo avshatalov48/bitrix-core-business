@@ -49,6 +49,7 @@ $landing = $request->get('id');
 $cmp = $request->get('cmp');
 $isFrame = $request->get('IFRAME') == 'Y';
 $isAjax = $request->get('IS_AJAX') == 'Y';
+$storeEnabled = !Manager::isB24() && Manager::isStoreEnabled();
 $actionFolder = 'folderId';
 $type = 'SMN';
 $siteTemplate = Manager::getTemplateId($site);
@@ -203,8 +204,6 @@ echo '<div class="landing-content-title-admin">';
 
 if (!$cmp && !$isFrame)
 {
-	$storeEnabled = !Manager::isB24() && Manager::isStoreEnabled();
-
 	// create buttons
 	if (!Rights::hasAccessForSite($siteId, Rights::ACCESS_TYPES['edit']))
 	{
@@ -244,20 +243,6 @@ if (!$cmp && !$isFrame)
 		$settingsLink[] = [
 			'TITLE' => Loc::getMessage('LANDING_ADMIN_ACTION_SETTINGS'),
 			'LINK' => $siteSettings
-		];
-		if ($storeEnabled)
-		{
-			$uriSettCatalog = new \Bitrix\Main\Web\Uri($editSite);
-			$uriSettCatalog->addParams(['tpl' => 'catalog']);
-			$settingsLink[] = [
-				'TITLE' => Loc::getMessage('LANDING_ADMIN_ACTION_CATALOG'),
-				'LINK' => $uriSettCatalog->getUri()
-			];
-			unset($uriSettCatalog);
-		}
-		$settingsLink[] = [
-			'TITLE' => Loc::getMessage('LANDING_ADMIN_ACTION_DESIGN'),
-			'LINK' => $designSite
 		];
 	}
 
@@ -358,6 +343,7 @@ if ($cmp == 'landing_edit')
 					'SITE_WORK_MODE' => 'Y',
 					'LANG_ID' => LANGUAGE_ID,
 					'ADMIN_SECTION' => 'Y',
+					'ACTION_FOLDER' => $actionFolder,
 				),
 				$component
 			);
@@ -419,16 +405,25 @@ elseif ($cmp == 'site_edit')
 }
 elseif ($cmp == 'landing_settings')
 {
+	$pages = [
+		'PAGE_URL_SITE_EDIT' => $editSite,
+		'PAGE_URL_SITE_DESIGN' => $designSite,
+	];
+	if ($storeEnabled)
+	{
+		$uriSettCatalog = new \Bitrix\Main\Web\Uri($editSite);
+		$uriSettCatalog->addParams(['tpl' => 'catalog']);
+		$pages['PAGE_URL_CATALOG_EDIT'] = $uriSettCatalog->getUri();
+		unset($uriSettCatalog);
+	}
+
 	$componentParams = [
 		'POPUP_COMPONENT_NAME' => 'bitrix:landing.settings',
 		'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 		'POPUP_COMPONENT_PARAMS' => [
 			'SITE_ID' => $siteId,
-			'TYPE' => $type,
-			'PAGES' => [
-				'PAGE_URL_SITE_EDIT' => $editSite,
-				'PAGE_URL_SITE_DESIGN' => $designSite,
-			],
+			'TYPE' => $storeEnabled ? 'STORE' : $type,
+			'PAGES' => $pages,
 		],
 		'USE_PADDING' => false,
 		'PAGE_MODE' => false,

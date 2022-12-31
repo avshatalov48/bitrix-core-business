@@ -44,7 +44,7 @@ abstract class SenderInvitation implements Serializable
 	 */
 	protected $context;
 	/**
-	 * @var string
+	 * @var string|null
 	 */
 	protected $uid = '';
 
@@ -74,6 +74,12 @@ abstract class SenderInvitation implements Serializable
 		$this->checkAddresserEmail();
 		$this->prepareEventFields();
 
+		$content = $this->getContent();
+		if (!$content)
+		{
+			return true;
+		}
+
 		$status = CEvent::sendImmediate(
 			self::MAIL_TEMPLATE,
 			SITE_ID,
@@ -82,7 +88,7 @@ abstract class SenderInvitation implements Serializable
 			"",
 			[],
 			'',
-			$this->getContent()
+			$content
 		);
 
 		return $status === Event::SEND_RESULT_SUCCESS;

@@ -436,4 +436,72 @@ abstract class Base
 	{
 		return $productRow;
 	}
+
+	public static function renderAdminFormControl(array $field, array $product, array $config): ?string
+	{
+		if (!static::isAllowed())
+		{
+			return null;
+		}
+		if (!static::checkRestictions($product))
+		{
+			return null;
+		}
+		if (!static::isExists())
+		{
+			return null;
+		}
+
+		$userFieldManager = Main\UserField\Internal\UserFieldHelper::getInstance()->getManager();
+		$request = Main\Context::getCurrent()->getRequest();
+
+		return $userFieldManager->GetEditFormHTML(
+			$config['FROM_FORM'],
+			$request->getPost($field['FIELD_NAME']) ?? '',
+			$field
+		);
+	}
+
+	public static function getUiDescription(array $restrictions): ?array
+	{
+		if (
+			static::isAllowed()
+			&& static::checkRestictions($restrictions)
+			&& static::isExists()
+		)
+		{
+			$userField = static::load();
+			if ($userField === null)
+			{
+				return null;
+			}
+
+			$description = [
+				'entity' => 'product',
+				'name' => $userField['FIELD_NAME'],
+				'originalName' => $userField['FIELD_NAME'],
+				'title' => $userField['EDIT_FORM_LABEL'] ?? $userField['FIELD_NAME'],
+				'hint' => $userField['HELP_MESSAGE'],
+				'editable' => true,
+				'required' => $userField['MANDATORY'] === 'Y',
+				'multiple' => $userField['MULTIPLE'] === 'Y',
+				'placeholders' => null,
+				'defaultValue' => $userField['SETTINGS']['DEFAULT_VALUE'] ?? '',
+				'optionFlags' => 1, // showAlways */
+				'options' => [
+					'showCode' => 'true',
+				],
+				'data' => [],
+			];
+
+			return static::getUiDescriptionInternal($description, $userField, $restrictions);
+		}
+
+		return null;
+	}
+
+	protected static function getUiDescriptionInternal(array $description, array $userField, array $restrictions): ?array
+	{
+		return $description;
+	}
 }

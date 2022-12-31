@@ -3,6 +3,7 @@
 namespace Bitrix\Catalog\Controller;
 
 
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\CatalogIblockTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Error;
@@ -11,8 +12,6 @@ use Bitrix\Main\Type\Collection;
 
 abstract class ProductPropertyBase extends Controller
 {
-	private const EMPTY_ENTITY_ID = 0;
-
 	/**
 	 * @return array
 	 */
@@ -46,7 +45,7 @@ abstract class ProductPropertyBase extends Controller
 	{
 		$result = new Result();
 
-		if (!\CIBlockRights::UserHasRightTo($iblockId, self::EMPTY_ENTITY_ID, self::IBLOCK_EDIT))
+		if (!\CIBlockRights::UserHasRightTo($iblockId, $iblockId, self::IBLOCK_EDIT))
 		{
 			$result->addError(new Error('Access Denied'));
 		}
@@ -111,7 +110,7 @@ abstract class ProductPropertyBase extends Controller
 	{
 		$r = new Result();
 
-		if (!(static::getGlobalUser()->CanDoOperation(self::CATALOG_READ)))
+		if (!($this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)))
 		{
 			$r->addError(new Error('Access Denied'));
 		}
@@ -124,7 +123,7 @@ abstract class ProductPropertyBase extends Controller
 	 */
 	protected function checkModifyPermissionEntity()
 	{
-		return new Result();
+		return $this->checkReadPermissionEntity();
 	}
 
 	/**

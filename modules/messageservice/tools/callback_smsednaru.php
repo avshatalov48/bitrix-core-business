@@ -17,16 +17,34 @@ if (!Main\Loader::includeModule('messageservice'))
 {
 	Main\Application::getInstance()->terminate();
 }
+$jsonText = Main\HttpRequest::getInput();
+$request = $jsonText ? Main\Web\Json::decode($jsonText) : null;
 
-$request = Main\Web\Json::decode(Main\HttpRequest::getInput());
-
-$messageId = $request['smsOutMessageId'];
-$externalStatus = (string)$request['dlvStatus'];
-
-$message = \Bitrix\MessageService\Message::loadByExternalId(Sender\Sms\SmsEdnaru::ID, $messageId);
-if ($message && $externalStatus != '')
+//region Old API
+if (isset($request['dlvStatus'], $request['imOutMessageId']))
 {
-	$message->updateStatusByExternalStatus($externalStatus);
+	$messageId = $request['smsOutMessageId'];
+	$externalStatus = (string)$request['dlvStatus'];
+
+	$message = \Bitrix\MessageService\Message::loadByExternalId(Sender\Sms\SmsEdnaru::ID, $messageId);
+	if ($message && $externalStatus !== '')
+	{
+		$message->updateStatusByExternalStatus($externalStatus);
+	}
 }
+//endregion
+//region New API
+else if (isset($request['requestId'], $request['status']))
+{
+	$messageId = $request['requestId'];
+	$externalStatus = (string)$request['status'];
+
+	$message = \Bitrix\MessageService\Message::loadByExternalId(Sender\Sms\SmsEdnaru::ID, $messageId);
+	if ($message && $externalStatus !== '')
+	{
+		$message->updateStatusByExternalStatus($externalStatus);
+	}
+}
+//endregion
 
 Main\Application::getInstance()->terminate();

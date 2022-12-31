@@ -94,6 +94,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return this.getDesktopVersionStatic;
 	    },
 
+	    isDesktopFeatureEnabled(code) {
+	      if (!this.isBitrixDesktop() || !main_core.Type.isFunction(BXDesktopSystem.FeatureEnabled)) {
+	        return false;
+	      }
+
+	      return !!BXDesktopSystem.FeatureEnabled(code);
+	    },
+
 	    isMobile() {
 	      return this.isAndroid() || this.isIos() || this.isBitrixMobile();
 	    },

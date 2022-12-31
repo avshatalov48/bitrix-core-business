@@ -51,6 +51,10 @@ $arComponentParameters = Array(
 		'PAGE_URL_LANDING_VIEW' => array(
 			'NAME' => getMessage('LANDING_CMP_PAR_PAGE_URL_LANDING_VIEW'),
 			'TYPE' => 'STRING'
-		)
+		),
+		'SKIP_REMOTE' => array(
+			'NAME' => getMessage('LANDING_CMP_PAR_SKIP_REMOTE'),
+			'TYPE' => 'CHECKBOX'
+		),
 	)
 );

@@ -85,9 +85,6 @@ class FinishStep extends \FinishStep
 
 			// enable composite
 			SitePatcher::enableComposite();
-
-			// enable crm shop
-			SitePatcher::crmShopEnable();
 		}
 
 		ob_start();

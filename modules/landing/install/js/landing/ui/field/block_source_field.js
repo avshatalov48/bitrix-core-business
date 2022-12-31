@@ -35,7 +35,7 @@
 
 		createLinkField: function()
 		{
-			return new BX.Landing.UI.Field.LinkURL({
+			return new BX.Landing.UI.Field.LinkUrl({
 				selector: "source",
 				title: BX.Landing.Loc.getMessage("LANDING_BLOCK__SOURCE_TITLE"),
 				textOnly: true,
@@ -43,7 +43,7 @@
 				disablePages: true,
 				disallowType: true,
 				allowedTypes: [
-					BX.Landing.UI.Field.LinkURL.TYPE_BLOCK
+					BX.Landing.UI.Field.LinkUrl.TYPE_BLOCK
 				],
 				customPlaceholder: BX.Landing.Loc.getMessage('LANDING_BLOCK__BLOCK_SOURCE_PLACEHOLDER'),
 				options: {

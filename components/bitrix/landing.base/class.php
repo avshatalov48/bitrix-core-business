@@ -76,7 +76,7 @@ class LandingBaseComponent extends \CBitrixComponent
 
 	/**
 	 * Last navigation result.
-	 * @var \Bitrix\Main\UI\PageNavigation
+	 * @var PageNavigation
 	 */
 	protected $lastNavigation = null;
 
@@ -148,6 +148,14 @@ class LandingBaseComponent extends \CBitrixComponent
 	 */
 	public function getUserGeoData(): array
 	{
+		if (defined('LANDING_DISABLE_USER_DATA_COLLECT') && LANDING_DISABLE_USER_DATA_COLLECT === true)
+		{
+			return [
+				'country' => 'N0',
+				'city' => 'N0'
+			];
+		}
+
 		$countryName = GeoIp\Manager::getCountryName('', 'ru');
 		if (!$countryName)
 		{
@@ -268,6 +276,32 @@ class LandingBaseComponent extends \CBitrixComponent
 					['zones' => ['ru'], 'id' => '1368','lang' => 'ru', 'sec' => '0rb92n'],
 					['zones' => ['kz'], 'id' => '1372','lang' => 'ru', 'sec' => 'o32l7z'],
 					['zones' => ['by'], 'id' => '1378','lang' => 'ru', 'sec' => 'naegic']
+				],
+				'PRESETS' => [
+					'url' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME'],
+					'tarif' => $b24 ? \CBitrix24::getLicenseType() : '',
+					'city' => $b24 ? implode(' / ', $this->getUserGeoData()) : '',
+					'partner_id' => $partnerId,
+					'date_to' => $tariffDate ?: null
+				],
+				'PORTAL_URI' => 'https://bitrix24.team'
+			],
+			'landing-feedback-store' => [
+				'ID' => 'landing-feedback-store',
+				'VIEW_TARGET' => null,
+				'FORMS' => [
+					['zones' => ['en'], 'id' => '1930','lang' => 'en', 'sec' => 'lg4wsd'],
+					['zones' => ['de'], 'id' => '1965','lang' => 'de', 'sec' => 'i95dp6'],
+					['zones' => ['es'], 'id' => '1966','lang' => 'la', 'sec' => 'zlemun'],
+					['zones' => ['fr'], 'id' => '1968','lang' => 'fr', 'sec' => '8rao53'],
+					['zones' => ['pl'], 'id' => '1967','lang' => 'pl', 'sec' => 'hg6mms'],
+					['zones' => ['pt'], 'id' => '1964','lang' => 'pt', 'sec' => 'n4evxs'],
+					['zones' => ['ru'], 'id' => '1291','lang' => 'ru', 'sec' => 'a9byq4'],
+					['zones' => ['kz'], 'id' => '1298','lang' => 'ru', 'sec' => '6xe72g'],
+					['zones' => ['by'], 'id' => '1297','lang' => 'ru', 'sec' => 'b9rrf5'],
+					['zones' => ['it'], 'id' => '1969','lang' => 'it', 'sec' => 'o13tam'],
+					['zones' => ['vn'], 'id' => '1970','lang' => 'vn', 'sec' => '7w04lu'],
+					['zones' => ['tr'], 'id' => '1971','lang' => 'tr', 'sec' => 'm0i3bs'],
 				],
 				'PRESETS' => [
 					'url' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME'],
@@ -565,13 +599,13 @@ class LandingBaseComponent extends \CBitrixComponent
 
 	/**
 	 * Gets last navigation object.
-	 * @return \Bitrix\Main\UI\PageNavigation
+	 * @return PageNavigation
 	 */
 	public function getLastNavigation(): PageNavigation
 	{
 		if (!$this->lastNavigation)
 		{
-			$this->lastNavigation = new PageNavigation('nav');
+			$this->lastNavigation = new PageNavigation(self::NAVIGATION_ID);
 			$this->lastNavigation
 				->allowAllRecords(false)
 				->initFromUri();
@@ -595,8 +629,8 @@ class LandingBaseComponent extends \CBitrixComponent
 			// make navigation
 			if (isset($params['navigation']))
 			{
-				$this->lastNavigation = new \Bitrix\Main\UI\PageNavigation(
-					$this::NAVIGATION_ID
+				$this->lastNavigation = new PageNavigation(
+					self::NAVIGATION_ID
 				);
 				$this->lastNavigation->allowAllRecords(false)
 									->setPageSize($params['navigation'])
@@ -822,7 +856,7 @@ class LandingBaseComponent extends \CBitrixComponent
 			);
 			$curUri->deleteParams([
 				'sessid', 'action', 'param', 'additional', 'code', 'tpl',
-				'stepper', 'start', 'IS_AJAX', $this::NAVIGATION_ID
+				'stepper', 'start', 'IS_AJAX', self::NAVIGATION_ID
 			]);
 		}
 

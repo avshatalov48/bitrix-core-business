@@ -317,7 +317,7 @@ class CCloudStorageService_S3 extends CCloudStorageService
 			$additional_headers["x-amz-security-token"] = $arSettings["SESSION_TOKEN"];
 		}
 
-		$additional_headers["host"] = $this->GetRequestHost($bucket, $arSettings);
+		$host = $additional_headers["Host"] = $this->GetRequestHost($bucket, $arSettings);
 
 		foreach($this->SignRequest($arSettings, $verb, $bucket, $file_name, $ContentType, $additional_headers, $params, $content) as $key => $value)
 		{
@@ -325,10 +325,8 @@ class CCloudStorageService_S3 extends CCloudStorageService
 		}
 
 		foreach($additional_headers as $key => $value)
-			if(preg_match("/^(option-|host\$)/", $key) == 0)
+			if(!preg_match("/^option-/", $key))
 				$request->setHeader($key, $value);
-
-		$host = $additional_headers["host"];
 
 		$was_end_point = $this->new_end_point;
 		$this->new_end_point = '';
@@ -689,9 +687,10 @@ class CCloudStorageService_S3 extends CCloudStorageService
 	/**
 	 * @param array[string]string $arBucket
 	 * @param mixed $arFile
+	 * @param boolean $encoded
 	 * @return string
 	*/
-	function GetFileSRC($arBucket, $arFile)
+	function GetFileSRC($arBucket, $arFile, $encoded = true)
 	{
 		if ($arBucket["SETTINGS"]["USE_HTTPS"] === "Y")
 			$proto = "https";
@@ -730,7 +729,14 @@ class CCloudStorageService_S3 extends CCloudStorageService
 			$URI = $pref."/".$URI;
 		}
 
-		return $proto."://$host/".CCloudUtil::URLEncode($URI, "UTF-8", true);
+		if ($encoded)
+		{
+			return $proto."://$host/".CCloudUtil::URLEncode($URI, "UTF-8", true);
+		}
+		else
+		{
+			return $proto."://$host/".$URI;
+		}
 	}
 	/**
 	 * @param array[string]string $arBucket
@@ -994,15 +1000,6 @@ class CCloudStorageService_S3 extends CCloudStorageService
 		}
 	}
 
-	function DownloadToFile($arBucket, $arFile, $filePath)
-	{
-		$request = new Bitrix\Main\Web\HttpClient(array(
-			"streamTimeout" => $this->streamTimeout,
-		));
-		$url = $this->GetFileSRC($arBucket, $arFile);
-		return $request->download($url, $filePath);
-	}
-
 	function DeleteFile($arBucket, $filePath)
 	{
 		global $APPLICATION;
@@ -1250,6 +1247,55 @@ class CCloudStorageService_S3 extends CCloudStorageService
 		}
 
 		return $result;
+	}
+
+	public function GetFileInfo($arBucket, $filePath)
+	{
+		global $APPLICATION;
+
+		if($arBucket["PREFIX"] != "")
+		{
+			if(mb_substr($filePath, 0, mb_strlen($arBucket["PREFIX"]) + 2) != "/".$arBucket["PREFIX"]."/")
+				$filePath = "/".$arBucket["PREFIX"]."/".ltrim($filePath, "/");
+		}
+		$filePath = CCloudUtil::URLEncode($filePath, "UTF-8", true);
+
+		$this->SetLocation($arBucket["LOCATION"]);
+		$this->SendRequest(
+			$arBucket["SETTINGS"],
+			'HEAD',
+			$arBucket["BUCKET"],
+			$filePath
+		);
+
+		if($this->status == 200)
+		{
+			$result = [];
+			foreach ($this->headers as $name => $value)
+			{
+				$name = strtolower($name);
+				if ($name === 'content-length')
+				{
+					$result['size'] = $value;
+				}
+				elseif ($name === 'etag')
+				{
+					$result['hash'] = trim($value, '"');
+				}
+				elseif ($name === 'last-modified')
+				{
+					$ts = strtotime($value);
+					$result['mtime'] = mb_substr(gmdate('c', $ts), 0, 19);
+				}
+			}
+
+			return count($result) == 3 ? $result : null;
+		}
+		else
+		{
+			$APPLICATION->ResetException();
+			return false;
+		}
 	}
 
 	function InitiateMultipartUpload($arBucket, &$NS, $filePath, $fileSize, $ContentType)

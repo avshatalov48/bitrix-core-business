@@ -1,8 +1,5 @@
 <?php
-$MESS['LANDING_TPL_ADD_SITE'] = 'Создать сайт';
-$MESS['LANDING_TPL_ADD_SITE_PAGE'] = 'Создать сайт';
-$MESS['LANDING_TPL_ADD_SITE_STORE'] = 'Создать магазин';
-$MESS['LANDING_TPL_ADD_SITE_KNOWLEDGE'] = 'Создать базу знаний';
+$MESS['LANDING_TPL_ADD_SITE_2'] = 'Создать';
 $MESS['LANDING_TPL_ADD_PAGE'] = 'Новая страница';
 $MESS['LANDING_TPL_ACCEPT'] = 'Я согласен';
 $MESS['LANDING_TPL_ACCEPTED'] = 'Вы уже дали согласие';

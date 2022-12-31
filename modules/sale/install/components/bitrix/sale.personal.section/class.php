@@ -194,14 +194,27 @@ class PersonalOrderSection extends CBitrixComponent
 		if ($componentPage == "order_detail")
 		{
 			Loader::includeModule('sale');
+
+			$order = null;
+
 			$id = urldecode(urldecode($variables["ID"]));
+
 			$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+			/** @var Sale\OrderBase $orderClassName */
 			$orderClassName = $registry->getOrderClassName();
 
-			$order = $orderClassName::loadByAccountNumber($id);
+			if (trim($id) !== '')
+			{
+				$order = $orderClassName::loadByAccountNumber($id);
+			}
+
 			if (!$order)
 			{
-				$order = $orderClassName::load((int)$id);
+				$id = (int)$id;
+				if ($id > 0)
+				{
+					$order = $orderClassName::load($id);
+				}
 			}
 
 			/** @var Sale\Order $order */

@@ -96,7 +96,8 @@ final class Shipment
 	{
 		$result = [];
 
-		foreach ($shipment->getShipmentItemCollection() as $shipmentItem)
+		/** @var Sale\ShipmentItem $shipmentItem */
+		foreach ($shipment->getShipmentItemCollection()->getShippableItems() as $shipmentItem)
 		{
 			if (!$basketItem = $shipmentItem->getBasketItem())
 			{

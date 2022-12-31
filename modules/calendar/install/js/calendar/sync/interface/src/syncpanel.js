@@ -61,7 +61,7 @@ export default class SyncPanel
 			<div class="calendar-sync__header">
 				<div class="calendar-sync__header-logo"></div>
 				<div class="calendar-sync__header-container">
-					<div class="calendar-sync__header-title">${Loc.getMessage('CAL_SYNC_TITLE')}</div>
+					<div class="calendar-sync__header-title">${Loc.getMessage('CAL_SYNC_TITLE_NEW')}</div>
 					<div class="calendar-sync__header-sub-title">${Loc.getMessage('CAL_SYNC_SUB_TITLE')}</div>
 				</div>
 			</div>

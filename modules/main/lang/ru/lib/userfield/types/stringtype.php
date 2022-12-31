@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS ['USER_TYPE_STRING_DESCRIPTION'] = "Строка";
 $MESS ['USER_TYPE_STRING_SIZE'] = "Размер поля ввода для отображения";
 $MESS ['USER_TYPE_STRING_ROWS'] = "Количество строчек поля ввода";
@@ -9,4 +9,3 @@ $MESS ['USER_TYPE_STRING_MIN_LEGTH_ERROR'] = "Длина поля \"#FIELD_NAME#
 $MESS ['USER_TYPE_STRING_MAX_LEGTH_ERROR'] = "Длина поля \"#FIELD_NAME#\" должна быть не более #MAX_LENGTH# символов.";
 $MESS ['USER_TYPE_STRING_REGEXP_ERROR'] = "Поле \"#FIELD_NAME#\" не удовлетворяет проверочному регулярному выражению.";
 $MESS ['USER_TYPE_STRING_DEFAULT_VALUE'] = "Значение по умолчанию";
-?>

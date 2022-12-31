@@ -226,6 +226,18 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 		return $request->get('InvId');
 	}
 
+	protected function getUrl(Payment $payment = null, $action): string
+	{
+		$url = parent::getUrl($payment, $action);
+
+		if ($payment !== null)
+		{
+			$url = str_replace('#domain#', $this->getDomain($payment), $url);
+		}
+
+		return $url;
+	}
+
 	/**
 	 * @return mixed
 	 */
@@ -233,9 +245,15 @@ class RoboxchangeHandler extends PaySystem\ServiceHandler implements PaySystem\C
 	{
 		return [
 			'pay' => [
-				self::ACTIVE_URL => 'https://auth.robokassa.ru/Merchant/Index.aspx',
+				self::ACTIVE_URL => 'https://auth.robokassa.#domain#/Merchant/Index.aspx',
 			],
 		];
+	}
+
+	private function getDomain(Payment $payment): string
+	{
+		$countryCode = $this->getCountryCode($payment);
+		return mb_strtolower($countryCode);
 	}
 
 	/**

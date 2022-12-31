@@ -40,6 +40,7 @@ $MESS['INPUT_ENUM_SIZE'] = 'Количество видимых элементо
 $MESS['INPUT_ENUM_MULTIELEMENT'] = 'Показывать как список элементов';
 $MESS['INPUT_ENUM_OPTIONS_ERROR'] = 'Не заданы варианты перечисления';
 $MESS['INPUT_ENUM_EMPTY_OPTION'] = 'Не выбрано';
+$MESS['INPUT_ENUM_NOT_UNIQUE_CODES'] = 'У каждого элемента списка должен быть уникальный код';
 
 $MESS['INPUT_FILE'] = 'Файл';
 $MESS['INPUT_FILE_MAXSIZE'] = 'Максимальный размер файла в байтах';

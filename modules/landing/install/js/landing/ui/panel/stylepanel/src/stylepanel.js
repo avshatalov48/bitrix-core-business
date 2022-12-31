@@ -181,4 +181,18 @@ export class StylePanel extends Content
 				return this;
 			});
 	}
+
+	prepareFooter(isMultiSelector = true)
+	{
+		if (isMultiSelector)
+		{
+			this.footer.hidden = false;
+			Dom.removeClass(this.body, 'landing-ui-panel-content-body_long');
+		}
+		else
+		{
+			this.footer.hidden = true;
+			Dom.addClass(this.body, 'landing-ui-panel-content-body_long');
+		}
+	}
 }

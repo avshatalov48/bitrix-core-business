@@ -1655,6 +1655,11 @@ final class CProductQueryBuilder
 		{
 			return null;
 		}
+		if (self::isExternalEntity($entity['ENTITY']))
+		{
+			return $row;
+		}
+
 		$row['ALIAS'] = str_replace('#ENTITY_ID#', $entity['ENTITY_ID'], $row['ALIAS']);
 
 		$joinTemplates = [

@@ -49,6 +49,53 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 
 	public function onPrepareComponentParams($params = [])
 	{
+		if (
+			!isset($params['IND'])
+			|| (string)$params['IND'] === ''
+		)
+		{
+			$params['IND'] = \Bitrix\Main\Security\Random::getString(8);
+		}
+
+		if (empty($params['LOG_PROPERTY']))
+		{
+			$params['LOG_PROPERTY'] = [ 'UF_SONET_LOG_FILE' ];
+			if (
+				ModuleManager::isModuleInstalled('webdav')
+				|| ModuleManager::isModuleInstalled('disk'))
+			{
+				$params['LOG_PROPERTY'][] = 'UF_SONET_LOG_DOC';
+			}
+		}
+
+		if (empty($params['COMMENT_PROPERTY']))
+		{
+			$params['COMMENT_PROPERTY'] = [ 'UF_SONET_COM_FILE' ];
+			if (
+				ModuleManager::isModuleInstalled('webdav')
+				|| ModuleManager::isModuleInstalled('disk')
+			)
+			{
+				$params['COMMENT_PROPERTY'][] = 'UF_SONET_COM_DOC';
+			}
+
+			$params['COMMENT_PROPERTY'][] = 'UF_SONET_COM_URL_PRV';
+		}
+
+		if (empty($params['PATH_TO_LOG_TAG']))
+		{
+			$folderUsers = Option::get('socialnetwork', 'user_page', false, SITE_ID);
+			$params['PATH_TO_LOG_TAG'] = $folderUsers . 'log/?TAG=#tag#';
+			if (SITE_TEMPLATE_ID === 'bitrix24')
+			{
+				$params['PATH_TO_LOG_TAG'] .= '&apply_filter=Y';
+			}
+		}
+
+		\CSocNetLogComponent::processDateTimeFormatParams($params);
+
+		$params['COMMENT_ID'] = (int)$params['COMMENT_ID'];
+
 		return $params;
 	}
 

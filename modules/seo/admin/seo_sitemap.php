@@ -10,7 +10,7 @@ use Bitrix\Seo\SitemapTable;
 use Bitrix\Seo\SitemapRuntime;
 use Bitrix\Seo\SitemapRuntimeTable;
 
-Loc::loadMessages(dirname(__FILE__).'/seo_sitemap.php');
+Loc::loadMessages(__DIR__.'/seo_sitemap.php');
 
 if (!$USER->CanDoOperation('seo_tools'))
 {

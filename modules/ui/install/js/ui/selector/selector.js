@@ -1859,7 +1859,7 @@ BX.UI.Selector.prototype.drawTreeLeafItem = function(params)
 			}),
 			BX.create('DIV', {
 				attrs: {
-					style: (leafItem.avatar ? "background:url('" + leafItem.avatar + "') no-repeat center center; background-size: cover;" : "")
+					style: (leafItem.avatar ? "background:url('" + encodeURI(leafItem.avatar) + "') no-repeat center center; background-size: cover;" : "")
 				},
 				props: {
 					className: this.getRenderInstance().class.treeLeafAvatar
@@ -2086,7 +2086,7 @@ BX.UI.Selector.prototype.drawItem = function(params)
 			children: [
 				BX.create('IMG', {
 					attrs: {
-						src: item.avatar,
+						src: encodeURI(item.avatar),
 						'bx-lm-item-id': item.id,
 						'bx-lm-item-type': entityType.toLowerCase()
 					},

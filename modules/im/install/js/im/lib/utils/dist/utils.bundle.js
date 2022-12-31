@@ -91,6 +91,17 @@ this.BX.Messenger = this.BX.Messenger || {};
 	      this.getDesktopVersionStatic = version[3];
 	      return this.getDesktopVersionStatic;
 	    },
+	    isDesktopFeatureEnabled: function isDesktopFeatureEnabled(code) {
+	      if (typeof BXDesktopSystem === 'undefined') {
+	        return false;
+	      }
+
+	      if (typeof BXDesktopSystem.FeatureEnabled !== 'function') {
+	        return false;
+	      }
+
+	      return !!BXDesktopSystem.FeatureEnabled(code);
+	    },
 	    isMobile: function isMobile() {
 	      return this.isAndroid() || this.isIos() || this.isBitrixMobile();
 	    },

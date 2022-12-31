@@ -2,8 +2,12 @@
 
 namespace Bitrix\Catalog\Component;
 
+use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Url;
 use Bitrix\Catalog\Config\State;
+use Bitrix\Catalog\Product;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\v2\BaseIblockElementEntity;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
@@ -14,6 +18,7 @@ use Bitrix\Currency\CurrencyManager;
 use Bitrix\Iblock\ElementTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Iblock\Url\AdminPage\BuilderManager;
+use Bitrix\Main\Config\Ini;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
@@ -31,10 +36,15 @@ use Bitrix\Main\ORM\Fields\TextField;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UI\FileInputUtility;
+use Bitrix\Main\UserField;
+use Bitrix\Main\UserFieldTable;
+use Bitrix\Highloadblock as Highload;
+use Bitrix\UI\EntityForm\Control;
 
 abstract class BaseForm
 {
 	public const GRID_FIELD_PREFIX = 'SKU_GRID_';
+	public const SERVICE_GRID_PREFIX = 'SERVICE_GRID_';
 	public const PROPERTY_FIELD_PREFIX = 'PROPERTY_';
 	public const PRICE_FIELD_PREFIX = 'CATALOG_GROUP_';
 	public const CURRENCY_FIELD_PREFIX = 'CATALOG_CURRENCY_';
@@ -53,25 +63,31 @@ abstract class BaseForm
 	public const SCOPE_SHOP = 'shop';
 	public const SCOPE_CRM = 'crm';
 
+	public const CREATION_MODE = 'CREATION';
+	public const EDIT_MODE = 'EDIT';
+
 	/** @var \Bitrix\Catalog\v2\BaseIblockElementEntity */
 	protected $entity;
 	/** @var array */
-	protected $params;
+	protected array $params = [];
 
 	/** @var array|null */
-	protected $descriptions;
+	protected ?array $descriptions = null;
 	/** @var array|null */
-	protected $propertyDescriptions;
+	protected ?array $propertyDescriptions = null;
 
 	/** @var null|Url\ShopBuilder|Url\InventoryBuilder|Crm\Product\Url\ProductBuilder */
 	protected $urlBuilder;
 
-	protected $crmIncluded;
+	protected bool $crmIncluded = false;
+
+	/** @var AccessController */
+	protected $accessController;
 
 	public function __construct(BaseIblockElementEntity $entity, array $params = [])
 	{
 		$this->crmIncluded = Loader::includeModule('crm');
-
+		$this->accessController = AccessController::getCurrent();
 		$this->entity = $entity;
 		$this->params = $this->getPreparedParams($params);
 
@@ -110,7 +126,17 @@ abstract class BaseForm
 			$params['SCOPE'] = self::SCOPE_SHOP;
 		}
 
+		if ($params['MODE'] !== self::CREATION_MODE && $params['MODE'] !== self::EDIT_MODE)
+		{
+			$params['MODE'] = $this->entity->isNew() ? self::CREATION_MODE : self::EDIT_MODE;
+		}
+
 		return $params;
+	}
+
+	protected function isEntityCreationForm(): bool
+	{
+		return $this->params['MODE'] === self::CREATION_MODE;
 	}
 
 	protected function getScopeByUrl(): string
@@ -158,6 +184,84 @@ abstract class BaseForm
 		}
 
 		return $result;
+	}
+
+	public function isReadOnly(): bool
+	{
+		return
+			!$this->accessController->check(ActionDictionary::ACTION_PRODUCT_CARD_EDIT)
+			&& !$this->isAllowedEditFields()
+		;
+	}
+
+	public function isAllowedEditFields(): bool
+	{
+		if ($this->isEntityCreationForm())
+		{
+			return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_ADD);
+		}
+
+		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_EDIT);
+	}
+
+	public function isCardSettingsEditable(): bool
+	{
+		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_CARD_EDIT);
+	}
+
+	public function isEnabledSetSettingsForAll(): bool
+	{
+		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_CARD_SETTINGS_FOR_USERS_SET);
+	}
+
+	public function isPricesEditable(): bool
+	{
+		return
+			(
+				$this->accessController->check(ActionDictionary::ACTION_PRICE_EDIT)
+				|| $this->isEntityCreationForm()
+			)
+			&& $this->isAllowedEditFields()
+		;
+	}
+
+	public function isPurchasingPriceAllowed(): bool
+	{
+		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW);
+	}
+
+	public function isVisibilityEditable(): bool
+	{
+		return
+			$this->accessController->check(ActionDictionary::ACTION_PRODUCT_PUBLIC_VISIBILITY_SET)
+			&& $this->isAllowedEditFields()
+		;
+	}
+
+	public function isInventoryManagementAccess(): bool
+	{
+		return $this->accessController->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS);
+	}
+
+	protected function isProductForm(): bool
+	{
+		$productTypeId = $this->entity->getType();
+
+		return (
+			$productTypeId === ProductTable::TYPE_PRODUCT
+			|| $productTypeId === ProductTable::TYPE_SET
+			|| $productTypeId === ProductTable::TYPE_SKU
+		);
+	}
+
+	protected function isVariationForm(): bool
+	{
+		return $this->entity->getType() === ProductTable::TYPE_OFFER;
+	}
+
+	protected function isServiceForm(): bool
+	{
+		return $this->entity->getType() === ProductTable::TYPE_SERVICE;
 	}
 
 	protected function prepareFieldName(string $name): string
@@ -238,26 +342,19 @@ abstract class BaseForm
 		return 'catalog-product-variation-grid';
 	}
 
+	public function getVariationGridClassName(): string
+	{
+		return GridVariationForm::class;
+	}
+
+	public function getVariationGridJsComponentName(): string
+	{
+		return 'BX.Catalog.VariationGrid';
+	}
+
 	public function getCardSettings(): array
 	{
-		$gridColumnSettings = [
-			'VAT_INCLUDED' => [
-				GridVariationForm::formatFieldName('VAT_ID'),
-				GridVariationForm::formatFieldName('VAT_INCLUDED'),
-			],
-			'PURCHASING_PRICE_FIELD' => [
-				GridVariationForm::formatFieldName('PURCHASING_PRICE_FIELD'),
-			],
-			'MEASUREMENTS' => [
-				GridVariationForm::formatFieldName('HEIGHT'),
-				GridVariationForm::formatFieldName('LENGTH'),
-				GridVariationForm::formatFieldName('WIDTH'),
-				GridVariationForm::formatFieldName('WEIGHT'),
-			],
-			'MEASURE_RATIO' => [
-				GridVariationForm::formatFieldName('MEASURE_RATIO'),
-			],
-		];
+		$gridColumnSettings = $this->getCardSettingsItems();
 
 		$activeSettings = [];
 		$options = new \Bitrix\Main\Grid\Options($this->getVariationGridId());
@@ -266,7 +363,7 @@ abstract class BaseForm
 		{
 			foreach ($gridColumnSettings as $setting => $columns)
 			{
-				if (empty(array_diff($columns, $allUsedColumns)))
+				if (empty(array_diff($columns['ITEMS'], $allUsedColumns)))
 				{
 					$activeSettings[] = $setting;
 				}
@@ -280,35 +377,61 @@ abstract class BaseForm
 		}
 
 		$items = [];
-		$settingList = array_merge(array_keys($gridColumnSettings), ['CATALOG_PARAMETERS']);
+		$settingList = array_keys($gridColumnSettings);
+		if ($this->entity->getType() !== ProductTable::TYPE_SERVICE)
+		{
+			$settingList = array_merge(
+				$settingList,
+				[
+					'CATALOG_PARAMETERS',
+				]
+			);
+		}
 		foreach ($settingList as $setting)
 		{
 			$items[] = [
 				'id' => $setting,
 				'checked' => in_array($setting, $activeSettings, true),
-				'title' => Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_' . $setting . '_TITLE'),
-				'desc' => Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_' . $setting . '_DESC'),
+				'title' => $gridColumnSettings[$setting]['TITLE'] ?? Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_' . $setting . '_TITLE'),
+				'desc' => $gridColumnSettings[$setting]['DESCRIPTION'] ?? Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_' . $setting . '_DESC'),
 				'action' => isset($gridColumnSettings[$setting]) ? 'grid' : 'card',
 				'columns' => $gridColumnSettings[$setting] ?? null,
 			];
 		}
 
-		$isInventoryControlEnabled = UseStore::isUsed();
-		$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.warehouse.master.clear');
-		$sliderPath = getLocalPath('components' . $sliderPath . '/slider.php');
+		if (
+			($this->accessController->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS))
+			&& $this->isInventoryButtonAllowed()
+		)
+		{
+			$isInventoryControlEnabled = UseStore::isUsed();
+			$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.warehouse.master.clear');
+			$sliderPath = getLocalPath('components' . $sliderPath . '/slider.php');
 
-		$items[] = [
-			'id' => 'SLIDER',
-			'checked' => $isInventoryControlEnabled,
-			'disabled' => $isInventoryControlEnabled,
-			'title' => Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_WAREHOUSE_TITLE'),
-			'desc' => '',
-			'hint' => $isInventoryControlEnabled ? Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_WAREHOUSE_HINT') : '',
-			'url' => $sliderPath,
-			'action' => 'slider',
-		];
+			$items[] = [
+				'id' => 'SLIDER',
+				'checked' => $isInventoryControlEnabled,
+				'disabled' => $isInventoryControlEnabled,
+				'title' => Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_WAREHOUSE_TITLE'),
+				'desc' => '',
+				'hint' => $isInventoryControlEnabled ? Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_WAREHOUSE_HINT')
+					: '',
+				'url' => $sliderPath,
+				'action' => 'slider',
+			];
+		}
 
 		return $items;
+	}
+
+	protected function isInventoryButtonAllowed(): bool
+	{
+		return $this->entity->getType() !== ProductTable::TYPE_SERVICE;
+	}
+
+	protected function getCardSettingsItems(): array
+	{
+		return [];
 	}
 
 	public function getCardConfigId(): string
@@ -684,12 +807,16 @@ abstract class BaseForm
 
 		foreach ($config as &$column)
 		{
-			usort($column['elements'], static function ($a, $b) {
-				$sortA = $a['sort'] ?? PHP_INT_MAX;
-				$sortB = $b['sort'] ?? PHP_INT_MAX;
+			usort(
+				$column['elements'],
+				static function ($a, $b)
+				{
+					$sortA = $a['sort'] ?? PHP_INT_MAX;
+					$sortB = $b['sort'] ?? PHP_INT_MAX;
 
-				return $sortA <=> $sortB;
-			});
+					return $sortA <=> $sortB;
+				}
+			);
 		}
 
 		return array_values($config);
@@ -727,18 +854,7 @@ abstract class BaseForm
 	{
 		$leftWidth = 30;
 
-		$catalogParameters = [
-			['name' => 'QUANTITY_TRACE'],
-			['name' => 'CAN_BUY_ZERO'],
-			['name' => 'SUBSCRIBE'],
-		];
-
-		if ($this->isQuantityTraceSettingDisabled())
-		{
-			array_shift($catalogParameters);
-		}
-
-		return [
+		$result = [
 			'left' => [
 				'name' => 'left',
 				'type' => 'column',
@@ -774,27 +890,60 @@ abstract class BaseForm
 				'data' => [
 					'width' => 100 - $leftWidth,
 				],
-				'elements' => [
-					[
-						'name' => 'catalog_parameters',
-						'title' => Loc::getMessage('CATALOG_C_F_STORE_SECTION_TITLE'),
-						'type' => 'section',
-						'elements' => $catalogParameters,
-						'data' => [
-							'isRemovable' => false,
-						],
-						'sort' => 200,
-					],
-				],
+				'elements' => [],
 			],
 		];
+
+		$catalogParameters = $this->getCatalogParametersSectionConfig();
+		if (!empty($catalogParameters))
+		{
+			$result['right']['elements'][] = $catalogParameters;
+		}
+
+		return $result;
 	}
 
 	protected function getMainConfigElements(): array
 	{
+		return array_merge(
+			[
+				['name' => 'NAME-CODE'],
+				['name' => 'DETAIL_TEXT'],
+			],
+			Product\SystemField::getFieldsByRestrictions(
+				[
+					'TYPE' => $this->entity->getType(),
+					'IBLOCK_ID' => $this->entity->getIblockId(),
+				],
+				[
+					'RESULT_MODE' => Product\SystemField::DESCRIPTION_MODE_UI_FORM_EDITOR,
+				]
+			)
+		);
+	}
+
+	protected function getCatalogParametersSectionConfig(): array
+	{
+		$catalogParameters = [
+			['name' => 'QUANTITY_TRACE'],
+			['name' => 'CAN_BUY_ZERO'],
+			['name' => 'SUBSCRIBE'],
+		];
+
+		if ($this->isQuantityTraceSettingDisabled())
+		{
+			array_shift($catalogParameters);
+		}
+
 		return [
-			['name' => 'NAME-CODE'],
-			['name' => 'DETAIL_TEXT'],
+			'name' => 'catalog_parameters',
+			'title' => Loc::getMessage('CATALOG_C_F_STORE_SECTION_TITLE'),
+			'type' => 'section',
+			'elements' => $catalogParameters,
+			'data' => [
+				'isRemovable' => false,
+			],
+			'sort' => 200,
 		];
 	}
 
@@ -815,6 +964,8 @@ abstract class BaseForm
 		$fieldBlocks[] = $this->getTableDescriptions($this->getElementTableMap());
 		$fieldBlocks[] = $this->getTableDescriptions(ProductTable::getMap());
 		$fieldBlocks[] = $this->getIblockPropertiesDescriptions();
+		$fieldBlocks[] = $this->getProductSystemFieldDescriptions();
+		$fieldBlocks[] = $this->getUserFieldDescriptions();
 
 		return array_merge(...$fieldBlocks);
 	}
@@ -836,7 +987,7 @@ abstract class BaseForm
 				'originalName' => 'NAME-CODE',
 				'title' => Loc::getMessage('ELEMENT_ENTITY_NAME_FIELD'),
 				'type' => 'name-code',
-				'editable' => 'true',
+				'editable' => $this->isAllowedEditFields(),
 				'required' => 'true',
 				'placeholders' => [
 					'creation' => Loc::getMessage('CATALOG_C_F_NEW_PRODUCT_PLACEHOLDER'),
@@ -853,8 +1004,8 @@ abstract class BaseForm
 
 		$allowedFields = $this->getTableElementsWhiteList();
 
-		/** @var \Bitrix\Main\ORM\Fields\ScalarField $field */
-		foreach ($tableMap as $name => $field)
+		/** @var ScalarField $field */
+		foreach ($tableMap as $field)
 		{
 			$fieldName = $field->getName();
 
@@ -1115,8 +1266,13 @@ abstract class BaseForm
 		return $fieldType;
 	}
 
-	private function isEditableField(Field $field): bool
+	private function isEditableField(ScalarField $field): bool
 	{
+		if (!$this->isAllowedEditFields())
+		{
+			return false;
+		}
+
 		if (in_array(
 			$field->getName(),
 			[
@@ -1141,7 +1297,7 @@ abstract class BaseForm
 		return !$field->isPrimary() && !$field->isAutocomplete();
 	}
 
-	private function isRequiredField(Field $field): bool
+	private function isRequiredField(ScalarField $field): bool
 	{
 		if ($field->getName() === 'IBLOCK_ID')
 		{
@@ -1151,7 +1307,7 @@ abstract class BaseForm
 		return $field->isRequired();
 	}
 
-	private function getFieldPlaceholders(Field $field): ?array
+	private function getFieldPlaceholders(ScalarField $field): ?array
 	{
 		if ($field->getName() === 'NAME')
 		{
@@ -1258,6 +1414,180 @@ abstract class BaseForm
 		return $items;
 	}
 
+	protected function getProductSystemFieldDescriptions(): array
+	{
+		return Product\SystemField::getUiDescriptions([
+			'TYPE' => $this->entity->getType(),
+			'IBLOCK_ID' => $this->entity->getIblockId(),
+		]);
+	}
+
+	protected function getUserFieldDescriptions(): array
+	{
+		$filter = [
+			'=ENTITY_ID' => ProductTable::getUfId(),
+		];
+		$allSystemFields = Product\SystemField::getFieldNamesByRestrictions([]);
+		if (!empty($allSystemFields))
+		{
+			$filter['!@FIELD_NAME'] = $allSystemFields;
+		}
+
+		$result = [];
+		$iterator = UserFieldTable::getList([
+			'select' => array_merge(
+				['*'],
+				UserFieldTable::getLabelsSelect()
+			),
+			'filter' => $filter,
+			'order' => [
+				'SORT' => 'ASC',
+				'ID' => 'ASC',
+			],
+			'runtime' => [
+				UserFieldTable::getLabelsReference('', Loc::getCurrentLang()),
+			],
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$description = [
+				'entity' => 'product',
+				'name' => $row['FIELD_NAME'],
+				'originalName' => $row['FIELD_NAME'],
+				'title' => $row['EDIT_FORM_LABEL'] ?? $row['FIELD_NAME'],
+				'hint' => $row['HELP_MESSAGE'],
+				'type' => $this->getUserFieldType($row),
+				'editable' => true,
+				'required' => $row['MANDATORY'] === 'Y',
+				'multiple' => $row['MULTIPLE'] === 'Y',
+				'placeholders' => null,
+				'defaultValue' => $row['SETTINGS']['DEFAULT_VALUE'] ?? '',
+				'optionFlags' => 1, // showAlways
+				'options' => [
+					'showCode' => 'true',
+				],
+				'data' => [],
+			];
+
+			switch ($description['type'])
+			{
+				case Control\Type::CUSTOM:
+					$description['data'] += $this->getCustomControlParameters($description['name']);
+					break;
+				case Control\Type::MULTI_LIST:
+				case Control\Type::LIST:
+					$description['data'] += $this->getUserFieldListItems($row);
+					break;
+			}
+
+			$result[] = $description;
+		}
+
+		return $result;
+	}
+
+	private function getUserFieldListItems(array $userField): array
+	{
+		if ($userField['USER_TYPE_ID'] === UserField\Types\EnumType::USER_TYPE_ID)
+		{
+			return $this->getUserFieldEnumItems($userField);
+		}
+		elseif (
+			Loader::includeModule('highloadblock')
+			&& $userField['USER_TYPE_ID'] === \CUserTypeHlblock::USER_TYPE_ID
+		)
+		{
+			return $this->getUserFieldHighloadblockItems($userField);
+		}
+
+		return [];
+	}
+
+	private function getUserFieldEnumItems(array $userField): array
+	{
+		$list = [];
+
+		$showNoValue = (
+			$userField['MANDATORY'] !== 'Y'
+			||
+			$userField['SETTINGS']['SHOW_NO_VALUE'] !== 'N'
+		);
+
+		if (
+			$showNoValue
+			&&
+			(
+				$userField['SETTINGS']['DISPLAY'] !== 'CHECKBOX'
+				||
+				$userField['MULTIPLE'] !== 'Y'
+			)
+		)
+		{
+			$list[] = [
+				'ID' => '0',
+				'VALUE' => '0',
+				'NAME' => Loc::getMessage('CATALOG_PRODUCT_CARD_USERFIELD_MESS_EMPTY_VALUE')
+			];
+		}
+
+		$iterator = UserField\Types\EnumType::getList($userField);
+		while ($value = $iterator->Fetch())
+		{
+			$list[] = [
+				'ID' => $value['ID'],
+				'VALUE' => $value['ID'],
+				'NAME' => $value['VALUE'],
+			];
+		}
+		unset($value, $iterator);
+
+		return (!empty($list) ? ['items' => $list] : []);
+	}
+
+	private function getUserFieldHighloadblockItems(array $userField): array
+	{
+		$list = [];
+		if (
+			$userField['MANDATORY'] === 'N'
+			&& $userField['MULTIPLE'] === 'N'
+		)
+		{
+			$list[] = [
+				'ID' => '0',
+				'VALUE' => '0',
+				'NAME' => Loc::getMessage('CATALOG_PRODUCT_CARD_USERFIELD_MESS_EMPTY_VALUE')
+			];
+		}
+
+		$entity = Highload\HighloadBlockTable::compileEntity($userField['SETTINGS']['HLBLOCK_ID']);
+		$fieldsList = $entity->getFields();
+		if (isset($fieldsList['ID']) && isset($fieldsList['UF_NAME']))
+		{
+			$entityDataClass = $entity->getDataClass();
+			$iterator = $entityDataClass::getList([
+				'select' => [
+					'ID',
+					'UF_NAME',
+				],
+				'order' => [
+					'UF_NAME' => 'ASC',
+				],
+			]);
+			while ($value = $iterator->fetch())
+			{
+				$list[] = [
+					'ID' => $value['ID'],
+					'VALUE' => $value['ID'],
+					'NAME' => $value['UF_NAME'],
+				];
+			}
+			unset($value, $iterator);
+			unset($entityDataClass, $entity);
+		}
+
+		return (!empty($list) ? ['items' => $list] : []);
+	}
+
 	public function getIblockPropertiesDescriptions(): array
 	{
 		if ($this->propertyDescriptions === null)
@@ -1342,6 +1672,12 @@ abstract class BaseForm
 		}
 
 		$specificDescription['data']['isPublic'] = $property->isPublic();
+
+		if (!$this->isAllowedEditFields())
+		{
+			unset($specificDescription['editable']);
+			$description['editable'] = false;
+		}
 
 		return array_merge($description, $specificDescription);
 	}
@@ -1693,7 +2029,7 @@ abstract class BaseForm
 				'MODULE_ID' => 'catalog',
 				'ALLOW_UPLOAD' => 'F',
 				'ALLOW_UPLOAD_EXT' => $description['settings']['FILE_TYPE'],
-				'MAX_FILE_SIZE' => \CUtil::Unformat(ini_get('upload_max_filesize')),
+				'MAX_FILE_SIZE' => Ini::unformatInt((string)ini_get('upload_max_filesize')),
 				'CONTROL_ID' => $controlId,
 			]
 		);
@@ -1768,8 +2104,16 @@ abstract class BaseForm
 
 		if (!empty($value) && is_array($value))
 		{
-			foreach ($value as $fileId)
+			foreach ($value as $valueItem)
 			{
+				if (is_array($valueItem))
+				{
+					$fileId = $valueItem['ID'];
+				}
+				else
+				{
+					$fileId = $valueItem;
+				}
 				$propName = str_replace('n#IND#', $fileId, $inputName);
 				$fileValues[$propName] = $fileId;
 			}
@@ -1810,7 +2154,7 @@ abstract class BaseForm
 		return $inputName;
 	}
 
-	protected function getElementPropertyEditHtml(string $name, array $propertyFields, $values, bool $bVarsFromForm = false, bool $isCopying = false): string
+	protected function getElementPropertyEditHtml(string $name, array $propertyFields, $values, bool $valueFromForm = false, bool $isCopying = false): string
 	{
 		$name = htmlspecialcharsbx($name);
 
@@ -1880,12 +2224,12 @@ abstract class BaseForm
 
 			if ($propertyFields['MULTIPLE'] !== 'Y')
 			{
-				$bVarsFromForm = true;
+				$valueFromForm = true;
 				break;
 			}
 		}
 
-		if (!$bVarsFromForm || $show)
+		if (!$valueFromForm || $show)
 		{
 			for ($i = 0; $i < $cnt; $i++)
 			{
@@ -1996,6 +2340,7 @@ abstract class BaseForm
 
 	protected function getPropertyFieldValue(array $field)
 	{
+		/** @var Property $property */
 		$property = $this->entity->getPropertyCollection()->findById($field['propertyId']);
 		$value = $property ? $property->getPropertyValueCollection()->getValues() : null;
 
@@ -2071,9 +2416,33 @@ abstract class BaseForm
 
 		if ($measures === null)
 		{
-			$measures = \Bitrix\Catalog\MeasureTable::getList([
-				'select' => ['ID', 'CODE', 'MEASURE_TITLE'],
-			])->fetchAll();
+			$params = [
+				'select' => [
+					'ID',
+					'CODE',
+					'MEASURE_TITLE',
+				],
+			];
+
+			if ($this->isServiceForm())
+			{
+				$row = Catalog\MeasureTable::getRow([
+					'select' => [
+						'ID',
+					],
+					'filter' => [
+						'=CODE' => 796, // TODO: remove magic number after refactoring measure for services
+					]
+				]);
+				if ($row !== null)
+				{
+					$params['filter'] = [
+						'=ID' => (int)$row['ID'],
+					];
+				}
+			}
+
+			$measures = \Bitrix\Catalog\MeasureTable::getList($params)->fetchAll();
 		}
 
 		return $measures;
@@ -2085,7 +2454,7 @@ abstract class BaseForm
 
 		if ($vats === null)
 		{
-			$vats = \Bitrix\Catalog\VatTable::getList([
+			$vats = Catalog\VatTable::getList([
 				'select' => ['ID', 'NAME', 'RATE', 'EXCLUDE_VAT'],
 				'filter' => ['=ACTIVE' => 'Y'],
 			])->fetchAll();
@@ -2135,5 +2504,53 @@ abstract class BaseForm
 			'editList' => $fieldName . '[EDIT_HTML_LIST]',
 			'viewList' => $fieldName . '[VIEW_HTML_LIST]',
 		];
+	}
+
+	protected function getUserFieldType(array $userField): string
+	{
+		$isMultiple = $userField['MULTIPLE'] === 'Y';
+		switch ($userField['USER_TYPE_ID'])
+		{
+			case UserField\Types\BooleanType::USER_TYPE_ID:
+				$result = Control\Type::BOOLEAN;
+				break;
+			case UserField\Types\DateTimeType::USER_TYPE_ID:
+			case UserField\Types\DateType::USER_TYPE_ID:
+				$result = $isMultiple ? Control\Type::MULTI_DATETIME : Control\Type::DATETIME;
+				break;
+			case UserField\Types\DoubleType::USER_TYPE_ID:
+			case UserField\Types\IntegerType::USER_TYPE_ID:
+				$result = $isMultiple ? Control\Type::MULTI_NUMBER : Control\Type::NUMBER;
+				break;
+			case UserField\Types\EnumType::USER_TYPE_ID:
+				$result = $isMultiple ? Control\Type::MULTI_LIST : Control\Type::LIST;
+				break;
+			case UserField\Types\FileType::USER_TYPE_ID:
+				$result = Control\Type::CUSTOM;
+				break;
+			case UserField\Types\StringFormattedType::USER_TYPE_ID:
+				$result = Control\Type::TEXTAREA; // TODO: need replace
+				break;
+			case UserField\Types\StringType::USER_TYPE_ID:
+				$result = $isMultiple ? Control\Type::MULTI_TEXT : Control\Type::TEXT;
+				break;
+			case UserField\Types\UrlType::USER_TYPE_ID:
+				$result = Control\Type::LINK;
+				break;
+			default:
+				if (
+					Loader::includeModule('highloadblock')
+					&& $userField['USER_TYPE_ID'] === \CUserTypeHlblock::USER_TYPE_ID
+				)
+				{
+					$result = $isMultiple ? Control\Type::MULTI_LIST : Control\Type::LIST;
+				}
+				else
+				{
+					$result = Control\Type::TEXT;
+				}
+		}
+
+		return $result;
 	}
 }

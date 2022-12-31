@@ -44,7 +44,7 @@ export class BuilderModel
  	 * @override
 	 * @returns {Object}
 	 */
-	getState(): object
+	getState(): Object
 	{
 		return {};
 	}
@@ -55,7 +55,7 @@ export class BuilderModel
  	 * @override
 	 * @returns {Object}
 	 */
-	getElementState(): object
+	getElementState(params = {}): Object
 	{
 		return {};
 	}

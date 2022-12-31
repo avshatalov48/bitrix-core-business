@@ -1,4 +1,4 @@
-<section class="landing-block g-pt-30 g-pb-30">
+<section class="landing-block g-pt-30 g-pb-30 u-block-border-none">
 
 	<ul class="landing-block-node-list row no-gutters list-inline g-mb-0 justify-content-center">
 		<li class="landing-block-node-list-item col g-valign-middle g-flex-grow-0 list-inline-item g-mr-6 g-mb-6"

@@ -2,6 +2,9 @@
 
 namespace Bitrix\Catalog\v2\Integration\UI\EntitySelector;
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\Permission\PermissionDictionary;
 use Bitrix\Catalog\ProductTable;
 use Bitrix\Catalog\StoreProductTable;
 use Bitrix\Catalog\StoreTable;
@@ -135,6 +138,17 @@ class StoreProvider extends BaseProvider
 
 	private function getStores(array $filter = []): array
 	{
+		$allowedStores = AccessController::getCurrent()->getPermissionValue(ActionDictionary::ACTION_STORE_VIEW);
+		if (empty($allowedStores))
+		{
+			return [];
+		}
+
+		if (!in_array(PermissionDictionary::VALUE_VARIATION_ALL, $allowedStores, true))
+		{
+			$filter['=ID'] = $allowedStores;
+		}
+
 		$filter['=ACTIVE'] = 'Y';
 
 		$storeProducts = [];

@@ -78,7 +78,7 @@ class Converter
 			->setImportance($eventData->importance)
 //			->setIsPrivate($eventData->sensitivity ) // TODO: need converter
 //			->setVersion($this->getVersion())
-			->setEventType(self::CALENDAR_TYPE)
+			->setCalendarType(self::CALENDAR_TYPE)
 //			->setUid($this->getUid())
 			->setIsActive(!$eventData->isCancelled && !$eventData->isDraft)
 			->setIsDeleted($eventData->isCancelled)
@@ -215,6 +215,7 @@ class Converter
 			{
 				$reminder = (new Remind())->setTimeBeforeEvent($minutes, 'minutes');
 			}
+			$reminder->setEventStart($start);
 			$collection->add($reminder);
 		}
 
@@ -329,6 +330,7 @@ class Converter
 	/**
 	 * @param Office365\Dto\RichTextDto $body
 	 * @param int $userId
+	 *
 	 * @return string
 	 */
 	private function prepareBody(Office365\Dto\RichTextDto $body, int $userId): string
@@ -343,12 +345,10 @@ class Converter
 		}
 
 		$text = html_entity_decode($text, ENT_QUOTES | ENT_XML1);
-
+		$text = html_entity_decode($text, ENT_QUOTES | ENT_XML1);
 		$languageId = CCalendar::getUserLanguageId($userId);
 
-		return (new Sync\Util\AttendeesDescription($languageId))
-			->cutAttendeesFromDescription($text)
-		;
+		return (new Sync\Util\EventDescription())->prepareAfterImport($text, $languageId);
 	}
 
 	/**

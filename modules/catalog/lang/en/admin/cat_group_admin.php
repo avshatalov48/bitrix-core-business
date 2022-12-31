@@ -27,4 +27,5 @@ $MESS["NAME"] = "Name";
 $MESS["RESET"] = "Reset";
 $MESS["SAVE"] = "Save";
 $MESS["SORT"] = "Sort";
+$MESS["VIEW"] = "Open";
 $MESS["group_admin_nav"] = "Types";

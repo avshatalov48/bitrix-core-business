@@ -17,57 +17,129 @@ BX.extend(BX.adminSubList, BX.adminList);
 
 BX.adminSubList.prototype._ActivateMainForm = function()
 {
-	if (!!this.MAIN_BUTTON_BTNSAVE)
+	if (BX.type.isElementNode(this.MAIN_BUTTON_BTNSAVE))
 	{
-		this.MAIN_BUTTON_BTNSAVE.disabled = false;
+		if (!(
+			this.MAIN_BUTTON_BTNSAVE.hasAttribute('data-btn-disabled')
+			&& this.MAIN_BUTTON_BTNSAVE.getAttribute('data-btn-disabled') === 'Y'
+		))
+		{
+			this.MAIN_BUTTON_BTNSAVE.disabled = false;
+		}
 	}
-	if (!!this.MAIN_BUTTON_DONTSAVE)
+	if (BX.type.isElementNode(this.MAIN_BUTTON_DONTSAVE))
 	{
-		this.MAIN_BUTTON_DONTSAVE.disabled = false;
+		if (!(
+			this.MAIN_BUTTON_DONTSAVE.hasAttribute('data-btn-disabled')
+			&& this.MAIN_BUTTON_DONTSAVE.getAttribute('data-btn-disabled') === 'Y'
+		))
+		{
+			this.MAIN_BUTTON_DONTSAVE.disabled = false;
+		}
 	}
-	if (!!this.MAIN_BUTTON_SAVE)
+	if (BX.type.isElementNode(this.MAIN_BUTTON_SAVE))
 	{
-		this.MAIN_BUTTON_SAVE.disabled = false;
+		if (!(
+			this.MAIN_BUTTON_SAVE.hasAttribute('data-btn-disabled')
+			&& this.MAIN_BUTTON_SAVE.getAttribute('data-btn-disabled') === 'Y'
+		))
+		{
+			this.MAIN_BUTTON_SAVE.disabled = false;
+		}
 	}
-	if (!!this.MAIN_BUTTON_APPLY)
+	if (BX.type.isElementNode(this.MAIN_BUTTON_APPLY))
 	{
-		this.MAIN_BUTTON_APPLY.disabled = false;
+		if (!(
+			this.MAIN_BUTTON_APPLY.hasAttribute('data-btn-disabled')
+			&& this.MAIN_BUTTON_APPLY.getAttribute('data-btn-disabled') === 'Y'
+		))
+		{
+			this.MAIN_BUTTON_APPLY.disabled = false;
+		}
 	}
-	if (!!this.MAIN_BUTTON_CANCEL)
+	if (BX.type.isElementNode(this.MAIN_BUTTON_CANCEL))
 	{
-		this.MAIN_BUTTON_CANCEL.disabled = false;
+		if (!(
+			this.MAIN_BUTTON_CANCEL.hasAttribute('data-btn-disabled')
+			&& this.MAIN_BUTTON_CANCEL.getAttribute('data-btn-disabled') === 'Y'
+		))
+		{
+			this.MAIN_BUTTON_CANCEL.disabled = false;
+		}
 	}
-	if (!!this.MAIN_BUTTON_SAVE_ADD)
+	if (BX.type.isElementNode(this.MAIN_BUTTON_SAVE_ADD))
 	{
-		this.MAIN_BUTTON_SAVE_ADD.disabled = false;
+		if (!(
+			this.MAIN_BUTTON_SAVE_ADD.hasAttribute('data-btn-disabled')
+			&& this.MAIN_BUTTON_SAVE_ADD.getAttribute('data-btn-disabled') === 'Y'
+		))
+		{
+			this.MAIN_BUTTON_SAVE_ADD.disabled = false;
+		}
 	}
 };
 
 BX.adminSubList.prototype._DeActivateMainForm = function()
 {
-	if (!!this.MAIN_BUTTON_BTNSAVE)
+	if (BX.type.isElementNode(this.MAIN_BUTTON_BTNSAVE))
 	{
-		this.MAIN_BUTTON_BTNSAVE.disabled = true;
+		if (!(
+			this.MAIN_BUTTON_BTNSAVE.hasAttribute('data-btn-disabled')
+			&& this.MAIN_BUTTON_BTNSAVE.getAttribute('data-btn-disabled') === 'Y'
+		))
+		{
+			this.MAIN_BUTTON_BTNSAVE.disabled = true;
+		}
 	}
-	if (!!this.MAIN_BUTTON_DONTSAVE)
+	if (BX.type.isElementNode(this.MAIN_BUTTON_DONTSAVE))
 	{
-		this.MAIN_BUTTON_DONTSAVE.disabled = true;
+		if (!(
+			this.MAIN_BUTTON_DONTSAVE.hasAttribute('data-btn-disabled')
+			&& this.MAIN_BUTTON_DONTSAVE.getAttribute('data-btn-disabled') === 'Y'
+		))
+		{
+			this.MAIN_BUTTON_DONTSAVE.disabled = true;
+		}
 	}
-	if (!!this.MAIN_BUTTON_SAVE)
+	if (BX.type.isElementNode(this.MAIN_BUTTON_SAVE))
 	{
-		this.MAIN_BUTTON_SAVE.disabled = true;
+		if (!(
+			this.MAIN_BUTTON_SAVE.hasAttribute('data-btn-disabled')
+			&& this.MAIN_BUTTON_SAVE.getAttribute('data-btn-disabled') === 'Y'
+		))
+		{
+			this.MAIN_BUTTON_SAVE.disabled = true;
+		}
 	}
-	if (!!this.MAIN_BUTTON_APPLY)
+	if (BX.type.isElementNode(this.MAIN_BUTTON_APPLY))
 	{
-		this.MAIN_BUTTON_APPLY.disabled = true;
+		if (!(
+			this.MAIN_BUTTON_APPLY.hasAttribute('data-btn-disabled')
+			&& this.MAIN_BUTTON_APPLY.getAttribute('data-btn-disabled') === 'Y'
+		))
+		{
+			this.MAIN_BUTTON_APPLY.disabled = true;
+		}
 	}
-	if (!!this.MAIN_BUTTON_CANCEL)
+	if (BX.type.isElementNode(this.MAIN_BUTTON_CANCEL))
 	{
-		this.MAIN_BUTTON_CANCEL.disabled = true;
+		if (!(
+			this.MAIN_BUTTON_CANCEL.hasAttribute('data-btn-disabled')
+			&& this.MAIN_BUTTON_CANCEL.getAttribute('data-btn-disabled') === 'Y'
+		))
+		{
+			this.MAIN_BUTTON_CANCEL.disabled = true;
+		}
 	}
-	if (!!this.MAIN_BUTTON_SAVE_ADD)
+	if (BX.type.isElementNode(this.MAIN_BUTTON_SAVE_ADD))
 	{
-		this.MAIN_BUTTON_SAVE_ADD.disabled = true;
+		if (!(
+			this.MAIN_BUTTON_SAVE_ADD.hasAttribute('data-btn-disabled')
+			&& this.MAIN_BUTTON_SAVE_ADD.getAttribute('data-btn-disabled') === 'Y'
+		))
+		{
+			this.MAIN_BUTTON_SAVE_ADD.disabled = true;
+		}
 	}
 };
 

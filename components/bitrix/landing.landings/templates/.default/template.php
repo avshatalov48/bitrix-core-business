@@ -382,8 +382,17 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 					</div>
 				<?php endif;?>
 				<div class="landing-item-cover<?= $item['IS_AREA'] ? ' landing-item-cover-area' : '' ?>"
-					<?if ($item['PREVIEW'] && !$item['IS_AREA']) {?> style="background-image: url(<?=
-					htmlspecialcharsbx($item['PREVIEW'])?>);"<?}?>>
+					<?php if ($item['PREVIEW'] && !$item['IS_AREA']) :?>
+						style="background-image: url(<?= htmlspecialcharsbx($item['PREVIEW']) ?>);"
+						<?php if (
+							$item['PUBLISHED']
+							&& $item['CLOUD_PREVIEW']
+							&& ($item['CLOUD_PREVIEW'] !== $item['PREVIEW'])
+						) :?>
+							data-cloud-preview="<?= $item['CLOUD_PREVIEW'] ?>"
+						<?php endif; ?>
+					<?php endif; ?>
+				>
 					<?if ($item['IS_HOMEPAGE'] || $item['IS_AREA']):?>
 					<div class="landing-item-area">
 						<div class="landing-item-area-icon<?=' landing-item-area-icon-' . htmlspecialcharsbx($areaCode) ?>"></div>
@@ -500,27 +509,8 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 
 	BX.ready(function ()
 	{
-		var wrapper = BX('grid-tile-wrap');
-		var title_list = Array.prototype.slice.call(wrapper.getElementsByClassName('landing-item'));
-
-		setTimeout(function()
-		{
-			let previews = document.querySelectorAll('.landing-item-cover');
-
-			if (previews)
-			{
-				[...previews].map(function(node)
-				{
-					let url = node.style.backgroundImage.match(/url\(["']?([^"']*)["']?\)/);
-					if (url)
-					{
-						url = url[1];
-						url += (url.indexOf('?') > 0) ? '&' : '?';
-						node.style.backgroundImage = 'url(' + url + 'refreshed' + (Date.now()/3600000|0) + ')';
-					}
-				});
-			}
-		}, 3000);
+		const wrapper = BX('grid-tile-wrap');
+		const title_list = Array.prototype.slice.call(wrapper.getElementsByClassName('landing-item'));
 
 		tileGrid = new BX.Landing.TileGrid({
 			wrapper: wrapper,
@@ -532,6 +522,36 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 				maxWidth: 330
 			}
 		});
+
+		// init previews
+		const previews = document.querySelectorAll('.landing-item-cover[data-cloud-preview]');
+		previews.forEach(item => lazyLoadCloudPreview(item));
+		function lazyLoadCloudPreview(item)
+		{
+			const cloudPreview = item.dataset.cloudPreview;
+			const previewUrl =
+				cloudPreview
+				+ ((cloudPreview.indexOf('?') > 0) ? '&' : '?')
+				+ 'refreshed' + (Date.now()/86400000|0)
+			;
+			const xhr = new XMLHttpRequest();
+			xhr.open("HEAD", previewUrl);
+			xhr.onload = () => {
+				const expires = xhr.getResponseHeader("expires");
+				if (
+					expires
+					&& (new Date(expires)) <= (new Date())
+				)
+				{
+					setTimeout(lazyLoadCloudPreview, 3000, item);
+				}
+				else
+				{
+					item.style.backgroundImage = 'url(' + previewUrl + ')';
+				}
+			};
+			xhr.send();
+		}
 
 		// disable some buttons for deleted
 		var createFolderEl = BX('landing-create-folder');
@@ -744,7 +764,7 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 				},
 				{
 					text: params.isFolder
-							? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT_FOLDER')) ?>'
+							? '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT_FOLDER_MSGVER_1')) ?>'
 							: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_ACTION_EDIT_2')) ?>',
 					href: params.isFolder ? params.editPage : params.settings,
 					disabled: params.isDeleted || params.isSettingsDisabled,
@@ -914,26 +934,24 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 								&& typeof BX.Landing.Metrika !== 'undefined'
 							)
 							{
-								var appCode = event.data.from.match(/app_code:(.*)=?:title/i);
-								var title = event.data.from.match(/title:(.*)=?:preview_url/iu);
-								var previewUrl = event.data.from.match(/preview_url:(.*)/i);
+								var dataFrom = event.data.from.split('|');
+								var appCode = dataFrom[1];
+								var title = dataFrom[2];
+								var previewId = dataFrom[3];
 								if (
 									appCode !== null
-									&& appCode.length > 1
 									&& title !== null
-									&& title.length > 1
-									&& previewUrl !== null
-									&& previewUrl.length > 1
+									&& previewId !== null
 								)
 								{
 									var metrikaValue =
 										sitePath
 										+ '?action=templateCreated&app_code='
-										+ appCode[1]
+										+ appCode
 										+ '&title='
-										+ title[1]
-										+ '&preview_url='
-										+ previewUrl[1];
+										+ title
+										+ '&preview_id='
+										+ previewId;
 									var metrika = new BX.Landing.Metrika(true);
 									metrika.sendLabel(
 										null,
@@ -943,7 +961,7 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 								}
 							}
 							gotoSiteButton.setAttribute('href', sitePath);
-							window.location.href = sitePath;
+							setTimeout(() => {window.location.href = sitePath}, 3000);
 						}
 					}
 				}

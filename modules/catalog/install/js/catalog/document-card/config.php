@@ -14,8 +14,8 @@ return [
 		'ui.entity-selector',
 		'main.popup',
 		'catalog.store-use',
-		'main.core',
 		'ui.feedback.form',
+		'main.core',
 	],
 	'skip_core' => false,
 ];

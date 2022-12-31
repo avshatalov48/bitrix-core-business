@@ -4,6 +4,7 @@ namespace Bitrix\Landing\PublicAction;
 use \Bitrix\Landing\Hook;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\File;
+use \Bitrix\Landing\Folder;
 use \Bitrix\Landing\Site;
 use \Bitrix\Landing\Block as BlockCore;
 use \Bitrix\Landing\TemplateRef;
@@ -575,6 +576,20 @@ class Landing
 		$getPreview = false;
 		$getUrls = false;
 		$checkArea = false;
+
+		if ($params['filter']['SITE_ID'] ?? null)
+		{
+			$siteId = $params['filter']['SITE_ID'];
+			if (is_array($siteId))
+			{
+				$siteId = array_shift($siteId);
+			}
+			$params['filter'][] = [
+				'LOGIC' => 'OR',
+				['FOLDER_ID' => null],
+				['!FOLDER_ID' => Folder::getFolderIdsForSite($siteId, ['=DELETED' => 'Y']) ?: [-1]]
+			];
+		}
 
 		if (isset($params['get_preview']))
 		{

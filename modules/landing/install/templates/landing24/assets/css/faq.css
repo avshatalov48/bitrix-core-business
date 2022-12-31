@@ -23,7 +23,6 @@ block faq3
 .landing-block-faq-3 .icon {
 	display: inline-block;
 	position: absolute;
-	top: 18px;
 	right: 0;
 	width: 22px;
 	height: 22px;
@@ -201,4 +200,9 @@ block faq6
  {
 	transform: rotate(90deg);
 	transition: transform .5s;
+}
+.landing-block-faq-6 .landing-block-faq-icons {
+	position: absolute;
+	right: 0;
+	top: calc(50% - 31px);
 }

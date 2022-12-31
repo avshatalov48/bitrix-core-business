@@ -112,6 +112,10 @@ let lazyloadLoadImage = function(currentImage, callback)
 			currentImage.lazyloadCallback({element: currentImage, state: 'error'});
 			delete currentImage.lazyloadCallback;
 		}
+		else
+		{
+			currentImage.src = BLANK_IMAGE;
+		}
 	};
 
 	if (typeof currentImage.dataset.lazyloadDontHide !== 'undefined')
@@ -133,6 +137,11 @@ if (typeof window.IntersectionObserver !== 'undefined')
 		entries.forEach(function(entry)
 		{
 			const currentImage = entry.target;
+
+			if (currentImage.classList.contains(ERROR))
+			{
+				return true;
+			}
 
 			if (entry.isIntersecting)
 			{

@@ -1,10 +1,10 @@
 // @flow
 'use strict';
 
-import { Dom, Loc, Tag, Cache, Event, Text, Type} from 'main.core';
-import {Util} from 'calendar.util';
+import { Cache, Dom, Event, Loc, Tag, Text, Type } from 'main.core';
+import { Util } from 'calendar.util';
 import { Entry } from 'calendar.entry';
-import {EventEmitter} from 'main.core.events';
+import { EventEmitter } from 'main.core.events';
 
 export default class SyncWizard extends EventEmitter
 {
@@ -236,10 +236,84 @@ export default class SyncWizard extends EventEmitter
 		if (!Type.isElementNode(this.activeStatusNode))
 		{
 			this.activeStatusNode = Tag.render`
-				<span>${Loc.getMessage('CAL_STATUS_SYNC_IN_PROGRESS').toUpperCase()}</span>
+				<span class="calendar-active-status-node-carousel">
+					<span class="calendar-active-status-node-phrase">
+						${Loc.getMessage('CAL_STATUS_SYNC_IN_PROGRESS')}
+					</span>
+				</span>
 			`;
+
+			this.startStatusCarousel(this.activeStatusNode);
 		}
+
 		return this.activeStatusNode;
+	}
+
+	startStatusCarousel(statusNode)
+	{
+		const progressStatuses = [
+			Loc.getMessage('CAL_STATUS_SYNC_IN_PROGRESS_STATUSES_FIRST'),
+			Loc.getMessage('CAL_STATUS_SYNC_IN_PROGRESS_STATUSES_SECOND')
+		];
+
+		let dotCycle = 1;
+
+		this.statusCarouselInterval = setInterval(() => {
+			const currentPhraseNode = statusNode.firstElementChild;
+			if (this.countDots(currentPhraseNode.innerText) < 3)
+			{
+				currentPhraseNode.innerText += '.';
+				statusNode.style.width = (currentPhraseNode.offsetWidth + 1) + 'px';
+				return;
+			}
+			if (dotCycle < 2)
+			{
+				dotCycle++;
+				currentPhraseNode.innerText = currentPhraseNode.innerText.slice(0, -3);
+				return;
+			}
+			dotCycle = 1;
+
+			if (progressStatuses.length > 0)
+			{
+				const status = progressStatuses.shift();
+				this.animateNextStatus(statusNode, status);
+			}
+			else
+			{
+				const almostDoneStatus = Loc.getMessage('CAL_STATUS_SYNC_IN_PROGRESS_ALMOST_DONE');
+				this.animateNextStatus(statusNode, almostDoneStatus);
+				statusNode.style.width = '';
+				clearInterval(this.statusCarouselInterval);
+			}
+		}, 900);
+	}
+
+	animateNextStatus(carousel, phraseText)
+	{
+		const currentPhraseNode = carousel.firstElementChild;
+		const nextPhraseNode = Tag.render`
+			<span class="calendar-active-status-node-phrase">${phraseText}</span>
+		`;
+		carousel.append(nextPhraseNode);
+
+		const maxWidth = Math.max(nextPhraseNode.offsetWidth, currentPhraseNode.offsetWidth);
+		carousel.style.width = (maxWidth + 1) + 'px';
+
+		currentPhraseNode.style.transition = ''; // turn on animation
+		currentPhraseNode.style.transform = `translateX(-${currentPhraseNode.offsetWidth}px)`;
+		nextPhraseNode.style.transform = `translateX(-${currentPhraseNode.offsetWidth}px)`;
+
+		setTimeout(() => {
+			currentPhraseNode.remove();
+			nextPhraseNode.style.transition = 'none'; // turn off animation
+			nextPhraseNode.style.transform = '';
+		}, 300);
+	}
+
+	countDots(string)
+	{
+		return (string.match(/\./g) || []).length;
 	}
 
 	setSyncStages()
@@ -328,7 +402,7 @@ export default class SyncWizard extends EventEmitter
 				slider.close();
 			}
 		});
-		
+
 		BX.ajax.runAction('calendar.api.calendarajax.analytical', {
 			analyticsLabel: {
 				calendarAction: 'complete_wizard_close',
@@ -373,6 +447,8 @@ export default class SyncWizard extends EventEmitter
 
 	setActiveStatusFinished()
 	{
+		this.activeStatusNode.style.width = '';
+		clearInterval(this.statusCarouselInterval);
 		this.syncIsFinished = true;
 		if (Type.isElementNode(this.activeStatusNode))
 		{
@@ -582,6 +658,8 @@ export default class SyncWizard extends EventEmitter
 	handleCloseWizard()
 	{
 		this.slider = null;
+
+		clearInterval(this.statusCarouselInterval);
 
 		Util.getBX().Event.EventEmitter.unsubscribe(
 			'onPullEvent-calendar',

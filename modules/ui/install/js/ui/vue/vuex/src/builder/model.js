@@ -57,7 +57,7 @@ export class VuexBuilderModel
 	 *
 	 * @returns {Object}
 	 */
-	getElementState()
+	getElementState(params = {}): object
 	{
 		return {};
 	}

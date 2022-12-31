@@ -5,10 +5,13 @@
 /** @var bool $bVarsFromForm */
 /** @var int $IBLOCK_ID */
 /** @var int $ID */
+
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Currency;
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 
 /** @global CAdminPage $adminPage */
 global $adminPage;
@@ -39,77 +42,185 @@ else
 
 $isCloud = Loader::includeModule('bitrix24');
 
-if ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_price') || $USER->CanDoOperation('catalog_view'))
+$PRODUCT_ID = (0 < $ID ? CIBlockElement::GetRealElement($ID) : 0);
+
+$accessController = AccessController::getCurrent();
+
+$iblockEditProduct = $PRODUCT_ID > 0 && !$bSubCopy
+	? CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $PRODUCT_ID, 'element_edit_price')
+	: CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, 'element_edit_price')
+;
+
+$allowEdit = false;
+if ($iblockEditProduct)
 {
-	IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/templates/product_edit.php');
+	$allowEdit = $PRODUCT_ID > 0 && !$bSubCopy
+		? $accessController->check(ActionDictionary::ACTION_PRODUCT_EDIT)
+		: $accessController->check(ActionDictionary::ACTION_PRODUCT_ADD);
+}
+$allowEditPrices = $allowEdit
+	&& $accessController->check(ActionDictionary::ACTION_PRICE_EDIT)
+;
+$allowView = $allowEdit
+	|| $accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+	|| $accessController->check(ActionDictionary::ACTION_CATALOG_VIEW)
+;
 
-	$currencyList = array();
-	foreach (Currency\CurrencyManager::getCurrencyList() as $currency => $currencyName)
+if (!$allowView)
+{
+	return;
+}
+
+$disableFieldAttributes = ' disabled readonly';
+$disableProduct = $allowEdit
+	? ''
+	: $disableFieldAttributes
+;
+$disablePrice = $allowEditPrices
+	? ''
+	: $disableFieldAttributes
+;
+
+IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/templates/product_edit.php');
+
+$currencyList = array();
+foreach (Currency\CurrencyManager::getCurrencyList() as $currency => $currencyName)
+{
+	$currencyList[$currency] = array(
+		'CURRENCY' => $currency,
+		'FULL_NAME' => htmlspecialcharsbx($currencyName)
+	);
+	$currencyList[$currency]['FULL_NAME_JS'] = CUtil::JSEscape($currencyList[$currency]['FULL_NAME']);
+}
+unset($currency, $currencyName);
+
+$bDiscount = $accessController->check(ActionDictionary::ACTION_PRODUCT_DISCOUNT_SET);
+$bStore = $accessController->check(ActionDictionary::ACTION_STORE_VIEW);
+$bUseStoreControl = Catalog\Config\State::isUsedInventoryManagement();
+$bEnableReservation = (COption::GetOptionString('catalog', 'enable_reservation') !== 'N');
+$allowedShowQuantity = \CCatalogAdminTools::allowedShowQuantityFields();
+$enableQuantityRanges = Catalog\Config\Feature::isPriceQuantityRangesEnabled();
+$quantityRangesHelpLink = null;
+if (!$enableQuantityRanges)
+{
+	$quantityRangesHelpLink = Catalog\Config\Feature::getPriceQuantityRangesHelpLink();
+}
+
+$availQuantityTrace = COption::GetOptionString("catalog", "default_quantity_trace");
+$availCanBuyZero = COption::GetOptionString("catalog", "default_can_buy_zero");
+$strGlobalSubscribe = COption::GetOptionString("catalog", "default_subscribe");
+
+$arCatalog = CCatalog::GetByID($IBLOCK_ID);
+$vatInclude = (Main\Config\Option::get('catalog', 'default_product_vat_included') === 'Y' ? 'Y' : 'N');
+
+$arBaseProduct = null;
+$periodTimeTypes = [];
+if ($arCatalog['SUBSCRIPTION'] == 'Y')
+{
+	$defaultProduct = [
+		'QUANTITY' => '',
+		'QUANTITY_RESERVED' => '',
+		'VAT_ID' => 0,
+		'VAT_INCLUDED' => $vatInclude,
+		'QUANTITY_TRACE_ORIG' => Catalog\ProductTable::STATUS_NO,
+		'CAN_BUY_ZERO_ORIG' => Catalog\ProductTable::STATUS_NO,
+		'SUBSCRIBE_ORIG' => Catalog\ProductTable::STATUS_DEFAULT,
+		'SUBSCRIBE' => $strGlobalSubscribe,
+		'PURCHASING_PRICE' => '',
+		'PURCHASING_CURRENCY' => '',
+		'BARCODE_MULTI' => '',
+		'PRICE_TYPE' => '',
+		'RECUR_SCHEME_TYPE' => '',
+		'RECUR_SCHEME_LENGTH' => '',
+		'TRIAL_PRICE_ID' => '',
+		'WITHOUT_ORDER' => '',
+	];
+	$periodTimeTypes = Catalog\ProductTable::getPaymentPeriods(true);
+}
+else
+{
+	$defaultProduct = [
+		'QUANTITY' => '',
+		'QUANTITY_RESERVED' => '',
+		'VAT_ID' => 0,
+		'VAT_INCLUDED' => $vatInclude,
+		'QUANTITY_TRACE_ORIG' => Catalog\ProductTable::STATUS_DEFAULT,
+		'CAN_BUY_ZERO_ORIG' => Catalog\ProductTable::STATUS_DEFAULT,
+		'SUBSCRIBE_ORIG' => Catalog\ProductTable::STATUS_DEFAULT,
+		'SUBSCRIBE' => $strGlobalSubscribe,
+		'PURCHASING_PRICE' => '',
+		'PURCHASING_CURRENCY' => '',
+		'WEIGHT' => '',
+		'WIDTH' => '',
+		'LENGTH' => '',
+		'HEIGHT' => '',
+		'MEASURE' => '',
+		'BARCODE_MULTI' => ''
+	];
+}
+if ($PRODUCT_ID > 0)
+{
+	$iterator = Catalog\ProductTable::getList([
+		'select' => array_merge(
+			[
+				'ID',
+				'TYPE',
+			],
+			array_keys($defaultProduct)
+		),
+		'filter' => [
+			'=ID' => $PRODUCT_ID,
+		]
+	]);
+	$arBaseProduct = $iterator->fetch();
+	unset($iterator);
+	if (!empty($arBaseProduct))
 	{
-		$currencyList[$currency] = array(
-			'CURRENCY' => $currency,
-			'FULL_NAME' => htmlspecialcharsbx($currencyName)
-		);
-		$currencyList[$currency]['FULL_NAME_JS'] = CUtil::JSEscape($currencyList[$currency]['FULL_NAME']);
+		if ($bSubCopy)
+		{
+			$arBaseProduct['QUANTITY'] = '';
+			$arBaseProduct['QUANTITY_RESERVED'] = '';
+		}
+		if ($arCatalog['SUBSCRIPTION'] == 'Y')
+		{
+			$arBaseProduct['QUANTITY_TRACE_ORIG'] = Catalog\ProductTable::STATUS_NO;
+			$arBaseProduct['CAN_BUY_ZERO_ORIG'] = Catalog\ProductTable::STATUS_NO;
+		}
 	}
-	unset($currency, $currencyName);
+}
 
-	$bDiscount = $USER->CanDoOperation('catalog_discount');
-	$bStore = $USER->CanDoOperation('catalog_store');
-	$bUseStoreControl = Catalog\Config\State::isUsedInventoryManagement();
-	$bEnableReservation = ('N' != COption::GetOptionString('catalog', 'enable_reservation'));
-	$enableQuantityRanges = Catalog\Config\Feature::isPriceQuantityRangesEnabled();
-	$quantityRangesHelpLink = null;
-	if (!$enableQuantityRanges)
-	{
-		$quantityRangesHelpLink = Catalog\Config\Feature::getPriceQuantityRangesHelpLink();
-	}
+if ($arBaseProduct === null)
+{
+	$arBaseProduct = $defaultProduct;
+	$arBaseProduct['TYPE'] = Catalog\ProductTable::TYPE_OFFER;
+}
 
-	$availQuantityTrace = COption::GetOptionString("catalog", "default_quantity_trace");
-	$availCanBuyZero = COption::GetOptionString("catalog", "default_can_buy_zero");
-	$strGlobalSubscribe = COption::GetOptionString("catalog", "default_subscribe");
+$disableQuantityFields = !$allowEdit || $bUseStoreControl
+	? $disableFieldAttributes
+	: ''
+;
 
-	$arCatalog = CCatalog::GetByID($IBLOCK_ID);
-	$PRODUCT_ID = (0 < $ID ? CIBlockElement::GetRealElement($ID) : 0);
-	$arBaseProduct = CCatalogProduct::GetByID($PRODUCT_ID);
+$subscribeEnabled = $arBaseProduct["SUBSCRIBE"] == 'Y';
+$activitySubscribeTab = $PRODUCT_ID > 0 && !$bSubCopy && $subscribeEnabled;
 
-	$periodTimeTypes = array();
-	if ($arCatalog["SUBSCRIPTION"]=="Y")
-	{
-		$periodTimeTypes = Catalog\ProductTable::getPaymentPeriods(true);
-	}
-
-	if (0 < $PRODUCT_ID)
-	{
-		$bReadOnly = !($USER->CanDoOperation('catalog_price') && CIBlockElementRights::UserHasRightTo($IBLOCK_ID, $PRODUCT_ID, "element_edit_price"));
-	}
-	else
-	{
-		$bReadOnly = !($USER->CanDoOperation('catalog_price') && CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "element_edit_price"));
-	}
-	if ($bSubCopy)
-	{
-		$arBaseProduct['QUANTITY'] = '';
-		$arBaseProduct['QUANTITY_RESERVED'] = '';
-	}
-
-	$subscribeEnabled = $arBaseProduct["SUBSCRIBE"] == 'Y';
-	$activitySubscribeTab = $PRODUCT_ID > 0 && !$bSubCopy && $subscribeEnabled;
-
-	$arExtraList = array();
-	$l = CExtra::GetList(array("NAME" => "ASC"));
-	while ($l_res = $l->Fetch())
-	{
-		$arExtraList[] = $l_res;
-	}
-	?>
+$arExtraList = array();
+$l = CExtra::GetList(array("NAME" => "ASC"));
+while ($l_res = $l->Fetch())
+{
+	$arExtraList[] = $l_res;
+}
+?>
 <tr class="heading">
 <td colspan="2"><?php
 	echo GetMessage("IBLOCK_TCATALOG");
-	if ($bReadOnly) echo " ".GetMessage("IBLOCK_TREADONLY");
+	if (!$allowEdit)
+	{
+		echo ' ' . GetMessage("IBLOCK_TREADONLY");
+	}
 	?>
 <script type="text/javascript">
-var bReadOnly = <?= ($bReadOnly ? 'true' : 'false'); ?>;
+var allowSubPriceEdit = <?= ($allowEditPrices ? 'true' : 'false'); ?>;
+var allowSubEdit = <?= ($allowEdit ? 'true' : 'false'); ?>;
 
 function getElementSubForm()
 {
@@ -196,7 +307,7 @@ function editSubBarCode()
 {
 	var obEditSubBarCode = BX('SUBCAT_BARCODE_EDIT_Y');
 	var obSubBarCode = BX('SUBCAT_BARCODE');
-	if (!bReadOnly && !!obEditSubBarCode && !!obSubBarCode)
+	if (allowSubEdit && !!obEditSubBarCode && !!obSubBarCode)
 	{
 		if (obEditSubBarCode.checked)
 		{
@@ -222,8 +333,12 @@ function SetSubFieldsStyle(table_id)
 	var tbl = BX(table_id);
 	var n = tbl.rows.length;
 	for(var i=0; i<n; i++)
-		if(tbl.rows[i].cells[0].colSpan == 1)
-			tbl.rows[i].cells[0].className = 'field-name';
+	{
+		if (tbl.rows[i].cells[0].colSpan == 1)
+		{
+			tbl.rows[i].cells[0].classList.add('field-name');
+		}
+	}
 }
 
 function toggleSubPriceType()
@@ -265,10 +380,22 @@ function toggleSubPriceType()
 		if($arCatalog["SUBSCRIPTION"] == "Y")
 			$aTabs1[] = array("DIV" => "subcat_edit4", "TAB" => GetMessage("C2IT_GROUPS"), "TITLE" => GetMessage("C2IT_GROUPS_D"));
 		$aTabs1[] = array("DIV" => "subcat_edit6", "TAB" => GetMessage("C2IT_DISCOUNTS"), "TITLE" => GetMessage("C2IT_DISCOUNTS_D"));
-		$aTabs1[] = array("DIV" => "subcat_edit5", "TAB" => GetMessage("C2IT_STORE"), "TITLE" => GetMessage("C2IT_STORE_D"));
-		if($bUseStoreControl)
+		if ($allowedShowQuantity)
 		{
-			$aTabs1[] = array("DIV" => "subcat_edit7", "TAB" => GetMessage("C2IT_BAR_CODE"), "TITLE" => GetMessage("C2IT_BAR_CODE_D"));
+			$aTabs1[] = [
+				"DIV" => "subcat_edit5",
+				"TAB" => GetMessage("C2IT_STORE"),
+				"TITLE" => GetMessage("C2IT_STORE_D")
+			];
+
+			if ($bUseStoreControl)
+			{
+				$aTabs1[] = [
+					"DIV" => "subcat_edit7",
+					"TAB" => GetMessage("C2IT_BAR_CODE"),
+					"TITLE" => GetMessage("C2IT_BAR_CODE_D")
+				];
+			}
 		}
 		if($activitySubscribeTab)
 		{
@@ -421,37 +548,37 @@ if (!isset($vatList[$str_CAT_VAT_ID]))
 }
 $str_CAT_VAT_INCLUDED = (string)($bVarsFromForm ? $SUBCAT_VAT_INCLUDED : $arBaseProduct['VAT_INCLUDED']);
 if ($str_CAT_VAT_INCLUDED != 'Y' && $str_CAT_VAT_INCLUDED != 'N')
-	$str_CAT_VAT_INCLUDED = ((string)Main\Config\Option::get('catalog', 'default_product_vat_included') == 'Y' ? 'Y' : 'N');
+	$str_CAT_VAT_INCLUDED = (Main\Config\Option::get('catalog', 'default_product_vat_included') === 'Y' ? 'Y' : 'N');
 		?>
 <input type="hidden" name="subprice_useextform" id="subprice_useextform_N" value="N" />
 <table border="0" cellspacing="0" cellpadding="0" width="100%" class="edit-table" id="subcatalog_vat_table">
-<?
+<?php
 if ($enableQuantityRanges || !empty($quantityRangesHelpLink))
 {
 	?>
 	<tr>
-		<td width="40%"><label for="subprice_useextform"><? echo GetMessage('C2IT_PRICES_USEEXT'); ?>:</label></td>
-		<td width="60%"><?
+		<td width="40%"><label for="subprice_useextform"><?= GetMessage('C2IT_PRICES_USEEXT'); ?>:</label></td>
+		<td width="60%"><?php
 		if ($enableQuantityRanges)
 		{
-			?><input type="checkbox" name="subprice_useextform" id="subprice_useextform" value="Y" onclick="toggleSubPriceType()" <?= $bUseExtendedPrice ? 'checked="checked"' : '' ?><? echo($bReadOnly ? ' disabled readonly' : ''); ?> /><?
+			?><input type="checkbox" name="subprice_useextform" id="subprice_useextform" value="Y" onclick="toggleSubPriceType()" <?= $bUseExtendedPrice ? 'checked="checked"' : '' ?><?= $disablePrice; ?> /><?php
 		}
 		else
 		{
-			?><input type="hidden" name="subprice_useextform" value="N"><?
+			?><input type="hidden" name="subprice_useextform" value="N"><?php
 			if ($quantityRangesHelpLink['TYPE'] == 'ONCLICK')
 			{
-				?><a href="#" onclick="<?=$quantityRangesHelpLink['LINK']; ?>"><?=GetMessage('C2IT_PRICES_EXT_TARIFF_ENABLE'); ?></a><?
+				?><a href="#" onclick="<?=$quantityRangesHelpLink['LINK']; ?>"><?=GetMessage('C2IT_PRICES_EXT_TARIFF_ENABLE'); ?></a><?php
 				Catalog\Config\Feature::initUiHelpScope();
 			}
 		}
 		?></td>
 	</tr>
-	<?
+	<?php
 }
 else
 {
-	?><input type="hidden" name="subprice_useextform" value="N"><?
+	?><input type="hidden" name="subprice_useextform" value="N"><?php
 }
 ?>
 	<tr>
@@ -474,7 +601,7 @@ else
 			echo GetMessage("CAT_VAT")?>:
 		</td>
 		<td width="60%">
-			<select name="SUBCAT_VAT_ID" id="SUBCAT_VAT_ID" <?= ($bReadOnly ? "disabled readonly" : ''); ?>>
+			<select name="SUBCAT_VAT_ID" id="SUBCAT_VAT_ID" <?= $disableProduct; ?>>
 				<?php
 				if (!$isCloud)
 				{
@@ -494,36 +621,37 @@ else
 		</td>
 	</tr>
 	<tr>
-		<td width="40%"><label for="SUBCAT_VAT_INCLUDED"><? echo GetMessage("CAT_VAT_INCLUDED");?></label>:</td>
+		<td width="40%"><label for="SUBCAT_VAT_INCLUDED"><?= GetMessage("CAT_VAT_INCLUDED");?></label>:</td>
 		<td width="60%">
 			<input type="hidden" name="SUBCAT_VAT_INCLUDED" id="SUBCAT_VAT_INCLUDED_N" value="N">
-			<input type="checkbox" name="SUBCAT_VAT_INCLUDED" id="SUBCAT_VAT_INCLUDED" value="Y" <?=$str_CAT_VAT_INCLUDED == 'Y' ? 'checked="checked"' : ''?> <?=$bReadOnly ? 'disabled readonly' : ''?> />
+			<input type="checkbox" name="SUBCAT_VAT_INCLUDED" id="SUBCAT_VAT_INCLUDED" value="Y" <?=$str_CAT_VAT_INCLUDED == 'Y' ? 'checked="checked"' : ''?><?= $disableProduct; ?> />
 		</td>
 	</tr>
 
-	<?if($USER->CanDoOperation('catalog_purchas_info')):?>
+	<?php
+	if ($accessController->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW)):?>
 		<tr id="tr_SUB_PURCHASING_PRICE">
-			<?
+			<?php
 			$str_CAT_PURCHASING_PRICE = $bVarsFromForm ? $SUBCAT_PURCHASING_PRICE : $arBaseProduct['PURCHASING_PRICE'];
 			?>
-			<td width="40%"><?echo GetMessage("C2IT_COST_PRICE")?>:</td>
-			<td width="60%">
-				<input type="hidden" id="SUBCAT_PURCHASING_PRICE_hidden" name="SUBCAT_PURCHASING_PRICE" value="<?echo htmlspecialcharsbx($str_CAT_PURCHASING_PRICE) ?>">
-				<input type="text" <?if ($bReadOnly || $bUseStoreControl) echo "disabled readonly" ?> id="SUBCAT_PURCHASING_PRICE" name="SUBCAT_PURCHASING_PRICE" value="<?echo htmlspecialcharsbx($str_CAT_PURCHASING_PRICE) ?>" size="30">
+			<td width="40%"><?= GetMessage("C2IT_COST_PRICE_EXT")?></td>
+			<td width="60%"><?php
+				$isDisabled = (!$allowEdit || $bUseStoreControl)
+					? ' disabled'
+					: ''
+				;
+				?>
+				<input type="hidden" id="SUBCAT_PURCHASING_PRICE_hidden" name="SUBCAT_PURCHASING_PRICE" value="<?= htmlspecialcharsbx($str_CAT_PURCHASING_PRICE) ?>">
+				<input type="text"<?= $isDisabled; ?> id="SUBCAT_PURCHASING_PRICE" name="SUBCAT_PURCHASING_PRICE" value="<?= htmlspecialcharsbx($str_CAT_PURCHASING_PRICE) ?>" size="30">
+				<input type="hidden" id="SUBCAT_PURCHASING_CURRENCY_hidden" name="SUBCAT_PURCHASING_CURRENCY" value="<?= htmlspecialcharsbx($arBaseProduct['PURCHASING_CURRENCY']) ?>"><?php
+				echo CCurrency::SelectBox("SUBCAT_PURCHASING_CURRENCY", $arBaseProduct['PURCHASING_CURRENCY'], "", true, "", "id='SUBCAT_PURCHASING_CURRENCY' $isDisabled");?>
 			</td>
 		</tr>
-		<tr>
-			<td><?= GetMessage("C2IT_COST_CURRENCY") ?>:</td>
-			<td>
-				<input type="hidden" id="SUBCAT_PURCHASING_CURRENCY_hidden" name="SUBCAT_PURCHASING_CURRENCY" value="<?echo htmlspecialcharsbx($arBaseProduct['PURCHASING_CURRENCY']) ?>">
-
-				<? $isDisabled = ''; if($bUseStoreControl) $isDisabled = " disabled"; echo CCurrency::SelectBox("SUBCAT_PURCHASING_CURRENCY", $arBaseProduct['PURCHASING_CURRENCY'], "", true, "", "id='SUBCAT_PURCHASING_CURRENCY' $isDisabled");?></td>
-		</tr>
-	<?endif;?>
-
-	<tr id="tr_SUB_BASE_PRICE" style="display: <? echo ($bUseExtendedPrice ? 'none' : 'table-row'); ?>;">
+	<?php
+	endif;?>
+	<tr id="tr_SUB_BASE_PRICE" style="display: <?= ($bUseExtendedPrice ? 'none' : 'table-row'); ?>;">
 		<td width="40%">
-			<?
+			<?php
 			$arBaseGroup = Catalog\GroupTable::getBasePriceType();
 			$arBasePrice = CPrice::GetBasePrice(
 				$PRODUCT_ID,
@@ -531,13 +659,13 @@ else
 				$arPriceBoundaries[0]["TO"],
 				false
 			);
-			echo GetMessage("BASE_PRICE")?> (<? echo GetMessage('C2IT_PRICE_TYPE'); ?> "<? echo htmlspecialcharsbx(!empty($arBaseGroup['NAME_LANG']) ? $arBaseGroup['NAME_LANG'] : $arBaseGroup["NAME"]); ?>"):
+			echo GetMessage("BASE_PRICE")?> (<?= GetMessage('C2IT_PRICE_TYPE'); ?> "<?= htmlspecialcharsbx(!empty($arBaseGroup['NAME_LANG']) ? $arBaseGroup['NAME_LANG'] : $arBaseGroup["NAME"]); ?>"):
 		</td>
 		<td width="60%">
 			<script type="text/javascript">
-				var arExtra = new Array();
-				var arExtraPrc = new Array();
-				<?
+				var arExtra = [];
+				var arExtraPrc = [];
+				<?php
 				$db_extras = CExtra::GetList(($by3="NAME"), ($order3="ASC"));
 				$i = 0;
 				while ($extras = $db_extras->Fetch())
@@ -550,7 +678,7 @@ else
 
 				function OnChangeSubExtra(priceType)
 				{
-					if (bReadOnly)
+					if (!allowSubPriceEdit)
 						return;
 
 					var e_base_price = BX('SUBCAT_BASE_PRICE');
@@ -589,10 +717,9 @@ else
 					}
 				}
 
-
 				function OnChangeSubExtraEx(e)
 				{
-					if (bReadOnly)
+					if (!allowSubPriceEdit)
 						return;
 
 					var thename = e.name;
@@ -642,7 +769,7 @@ else
 
 				function ChangeSubExtra(codID)
 				{
-					if (bReadOnly)
+					if (!allowSubPriceEdit)
 						return;
 
 					OnChangeSubExtra(codID);
@@ -658,7 +785,7 @@ else
 
 				function OnChangeSubBasePrice()
 				{
-					if (bReadOnly)
+					if (!allowSubPriceEdit)
 						return;
 
 					var e_base_price = BX('SUBCAT_BASE_PRICE');
@@ -707,7 +834,7 @@ else
 
 				function ChangeSubBasePrice(e)
 				{
-					if (bReadOnly)
+					if (!allowSubPriceEdit)
 						return;
 
 					if (e.value != '' && (isNaN(e.value) || e.value <= 0))
@@ -728,7 +855,7 @@ else
 
 				function ChangeSubBaseCurrency()
 				{
-					if (bReadOnly)
+					if (!allowSubPriceEdit)
 						return;
 
 					BX('SUBCAT_BASE_CURRENCY_0').selectedIndex = BX('SUBCAT_BASE_CURRENCY').selectedIndex;
@@ -736,7 +863,7 @@ else
 
 				function ChangeSubPrice(codID)
 				{
-					if (bReadOnly)
+					if (!allowSubPriceEdit)
 						return;
 
 					var e_price = BX('SUBCAT_PRICE_' + codID + '_0');
@@ -747,7 +874,7 @@ else
 
 				function ChangeSubCurrency(codID)
 				{
-					if (bReadOnly)
+					if (!allowSubPriceEdit)
 						return;
 
 					var e_currency = BX('SUBCAT_CURRENCY_' + codID + "_0");
@@ -756,7 +883,7 @@ else
 
 				function OnChangeSubPriceExist()
 				{
-					if (bReadOnly)
+					if (!allowSubPriceEdit)
 						return;
 
 					var bExist = 'N';
@@ -786,7 +913,7 @@ else
 					e_ext_price_exist.value = bExist;
 				}
 			</script>
-			<?
+			<?php
 			$boolBaseExistPrice = false;
 			$str_CAT_BASE_PRICE = "";
 			if ($arBasePrice)
@@ -796,15 +923,15 @@ else
 			if (trim($str_CAT_BASE_PRICE) != '' && doubleval($str_CAT_BASE_PRICE) >= 0)
 				$boolBaseExistPrice = true;
 			?>
-			<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_BASE_PRICE" name="SUBCAT_BASE_PRICE" value="<?echo htmlspecialcharsbx($str_CAT_BASE_PRICE) ?>" size="30" OnBlur="ChangeSubBasePrice(this)">
+			<input type="text"<?= $disablePrice; ?> id="SUBCAT_BASE_PRICE" name="SUBCAT_BASE_PRICE" value="<?= htmlspecialcharsbx($str_CAT_BASE_PRICE) ?>" size="30" OnBlur="ChangeSubBasePrice(this)">
 		</td>
 	</tr>
-	<tr id="tr_SUB_BASE_CURRENCY" style="display: <? echo ($bUseExtendedPrice ? 'none' : 'table-row'); ?>;">
+	<tr id="tr_SUB_BASE_CURRENCY" style="display: <?= ($bUseExtendedPrice ? 'none' : 'table-row'); ?>;">
 		<td width="40%">
-			<?echo GetMessage("BASE_CURRENCY")?>:
+			<?= GetMessage("BASE_CURRENCY")?>:
 		</td>
 		<td width="60%">
-			<?
+			<?php
 			$str_CAT_BASE_CURRENCY = '';
 			if ($arBasePrice)
 				$str_CAT_BASE_CURRENCY = $arBasePrice["CURRENCY"];
@@ -812,11 +939,11 @@ else
 				$str_CAT_BASE_CURRENCY = $SUBCAT_BASE_CURRENCY;
 
 			?>
-			<select id="SUBCAT_BASE_CURRENCY" name="SUBCAT_BASE_CURRENCY" <?if ($bReadOnly) echo "disabled readonly" ?> OnChange="ChangeSubBaseCurrency()">
-				<?
+			<select id="SUBCAT_BASE_CURRENCY" name="SUBCAT_BASE_CURRENCY"<?= $disablePrice; ?> OnChange="ChangeSubBaseCurrency()">
+				<?php
 				foreach ($currencyList as &$currency)
 				{
-					?><option value="<? echo $currency["CURRENCY"]; ?>"<? if ($currency["CURRENCY"] == $str_CAT_BASE_CURRENCY) echo " selected"?>><? echo $currency["FULL_NAME"]; ?></option><?
+					?><option value="<?= $currency["CURRENCY"]; ?>"<?= ($currency["CURRENCY"] == $str_CAT_BASE_CURRENCY ? " selected" : '');?>><?= $currency["FULL_NAME"]; ?></option><?php
 				}
 				unset($currency);
 				?>
@@ -827,26 +954,26 @@ else
 <script type="text/javascript">
 SetSubFieldsStyle('subcatalog_vat_table');
 </script>
-<?
+<?php
 // simple price form
 ?>
 <div id="subprices_simple" style="display: <?=$bUseExtendedPrice ? 'none' : 'block'?>;">
-		<?
+		<?php
 		$intCount = count($arPriceBoundariesError);
 		if ($intCount > 0)
 		{
 			?>
 			<font class="errortext">
-			<?echo GetMessage("C2IT_BOUND_WRONG")?><br>
-			<?
+			<?= GetMessage("C2IT_BOUND_WRONG")?><br>
+			<?php
 			for ($i = 0; $i < $intCount; $i++)
 			{
 				echo $arPriceBoundariesError[$i]."<br>";
 			}
 			?>
-			<?echo GetMessage("C2IT_BOUND_RECOUNT")?>
+			<?= GetMessage("C2IT_BOUND_RECOUNT")?>
 			</font>
-			<?
+			<?php
 		}
 
 	if (Catalog\Config\Feature::isMultiPriceTypesEnabled())
@@ -865,12 +992,12 @@ SetSubFieldsStyle('subcatalog_vat_table');
 			<br>
 			<table border="0" cellspacing="0" cellpadding="0" width="100%" class="internal">
 				<tr class="heading">
-					<td><? echo GetMessage("PRICE_TYPE"); ?></td>
-					<td><? echo GetMessage("PRICE_EXTRA"); ?></td>
-					<td><? echo GetMessage("PRICE_SUM"); ?></td>
-					<td><? echo GetMessage("PRICE_CURRENCY"); ?></td>
+					<td><?= GetMessage("PRICE_TYPE"); ?></td>
+					<td><?= GetMessage("PRICE_EXTRA"); ?></td>
+					<td><?= GetMessage("PRICE_SUM"); ?></td>
+					<td><?= GetMessage("PRICE_CURRENCY"); ?></td>
 				</tr>
-				<?
+				<?php
 				$bFirst = false;
 			}
 			$str_CAT_EXTRA = 0;
@@ -901,139 +1028,49 @@ SetSubFieldsStyle('subcatalog_vat_table');
 			if (trim($str_CAT_PRICE) != '' && doubleval($str_CAT_PRICE) >= 0)
 				$boolBaseExistPrice = true;
 			?>
-			<tr <?if ($bReadOnly) echo "disabled" ?>>
+			<tr>
 				<td valign="top" align="left">
-					<? echo htmlspecialcharsbx(!empty($arCatalogGroup["NAME_LANG"]) ? $arCatalogGroup["NAME_LANG"] : $arCatalogGroup["NAME"]); ?>
-					<?if ($arPrice):?>
-					<input type="hidden" name="SUBCAT_ID_<?echo $arCatalogGroup["ID"] ?>" value="<?echo $arPrice["ID"] ?>">
-					<?endif;?>
-				</td>
-				<td valign="top" align="center">
-					<?
-					echo CExtra::SelectBox("SUBCAT_EXTRA_".$arCatalogGroup["ID"], $str_CAT_EXTRA, GetMessage("VAL_NOT_SET"), "ChangeSubExtra(".$arCatalogGroup["ID"].")", (($bReadOnly) ? "disabled readonly" : "").' id="'."SUBCAT_EXTRA_".$arCatalogGroup["ID"].'" ');
+					<?= htmlspecialcharsbx(!empty($arCatalogGroup["NAME_LANG"]) ? $arCatalogGroup["NAME_LANG"] : $arCatalogGroup["NAME"]); ?>
+					<?php
+					if ($arPrice):
+					?>
+					<input type="hidden" name="SUBCAT_ID_<?= $arCatalogGroup["ID"] ?>" value="<?= $arPrice["ID"] ?>">
+					<?php
+					endif;
 					?>
 				</td>
 				<td valign="top" align="center">
-					<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_PRICE_<?echo $arCatalogGroup["ID"] ?>" name="SUBCAT_PRICE_<?echo $arCatalogGroup["ID"] ?>" value="<?echo htmlspecialcharsbx($str_CAT_PRICE) ?>" size="8" OnChange="ChangeSubPrice(<?= $arCatalogGroup["ID"] ?>)">
+					<?php
+					echo CExtra::SelectBox("SUBCAT_EXTRA_".$arCatalogGroup["ID"], $str_CAT_EXTRA, GetMessage("VAL_NOT_SET"), "ChangeSubExtra(".$arCatalogGroup["ID"].")", $disablePrice.' id="'."SUBCAT_EXTRA_".$arCatalogGroup["ID"].'" ');
+					?>
 				</td>
 				<td valign="top" align="center">
-					<?
-					echo CCurrency::SelectBox("SUBCAT_CURRENCY_".$arCatalogGroup["ID"], $str_CAT_CURRENCY, GetMessage("VAL_BASE"), true, "ChangeSubCurrency(".$arCatalogGroup["ID"].")", (($bReadOnly) ? "disabled readonly" : "").' id="'."SUBCAT_CURRENCY_".$arCatalogGroup["ID"].'" ')
+					<input type="text"<?= $disablePrice; ?> id="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>" name="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>" value="<?= htmlspecialcharsbx($str_CAT_PRICE) ?>" size="8" OnChange="ChangeSubPrice(<?= $arCatalogGroup["ID"] ?>)">
+				</td>
+				<td valign="top" align="center">
+					<?php
+					echo CCurrency::SelectBox("SUBCAT_CURRENCY_".$arCatalogGroup["ID"], $str_CAT_CURRENCY, GetMessage("VAL_BASE"), true, "ChangeSubCurrency(".$arCatalogGroup["ID"].")", $disablePrice.' id="'."SUBCAT_CURRENCY_".$arCatalogGroup["ID"].'" ')
 					?>
 					<script type="text/javascript">
-						ChangeSubExtra(<?echo $arCatalogGroup["ID"] ?>);
+						ChangeSubExtra(<?= $arCatalogGroup["ID"] ?>);
 					</script>
 				</td>
 			</tr>
-			<?
+			<?php
 		}// endwhile
 		if (!$bFirst) echo "</table>";
 	}
-		?><input type="hidden" name="SUBCAT_PRICE_EXIST" id="SUBCAT_PRICE_EXIST" value="<? echo ($boolBaseExistPrice == true ? 'Y' : 'N'); ?>">
+		?><input type="hidden" name="SUBCAT_PRICE_EXIST" id="SUBCAT_PRICE_EXIST" value="<?= ($boolBaseExistPrice == true ? 'Y' : 'N'); ?>">
 </div>
-		<?
+		<?php
 		//$subtabControl1->BeginNextTab();
 // extended price form
 		?>
 <div id="subprices_ext" style="display: <?=$bUseExtendedPrice ? 'block' : 'none'?>;">
 <script type="text/javascript">
-function addSubNewElementsGroup(parentId, modelId, counterId, keepValues, typefocus)
-{
-	if (bReadOnly)
-		return;
-
-	if (!BX(counterId))
-		return false;
-	var n = ++BX(counterId).value;
-	var thebody = BX(parentId);
-	if (!thebody)
-		return false;
-	var therow = BX(modelId);
-	if (!therow)
-		return false;
-	var thecopy = duplicateSubElement(therow, n, keepValues);
-	thebody.appendChild(thecopy);
-
-	return true;
-}
-
-function duplicateSubElement(e, n, keepVal)
-{
-	if (bReadOnly)
-		return;
-
-	if (typeof e.tagName != "undefined")
-	{
-		var copia = document.createElement(e.tagName);
-
-		var attr = e.attributes;
-		if (attr)
-		{
-			for (i=0; i<attr.length; i++)
-			{
-				copia.setAttribute(attr[i].name, attr[i].value);
-			}
-		}
-
-		if (e.id) copia.id = e.id + n;
-		if (e.text) copia.text = e.text;
-
-		if (e.tagName.toLowerCase() == "textarea" && !keepVal)
-		{
-			copia.text = "";
-		}
-		if (e.name)
-		{
-			var thename = e.name;
-
-			if (thename.substr(thename.length-1)!="]")
-			{
-				var ind = thename.lastIndexOf("_");
-				if (ind > -1)
-				{
-					var thename_postf = thename.substr(ind + 1);
-					if (!isNaN(parseFloat(thename_postf)))
-					{
-						thename = thename.substring(0, ind);
-					}
-				}
-				thename = thename + "_" + n;
-			}
-			else
-			{
-				var ind = thename.indexOf("[");
-				if (ind > -1)
-				{
-					thename = thename.substring(0, ind);
-					thename = thename + "[" + n + "]";
-				}
-			}
-
-			copia.name = thename;
-		}
-
-		copia.value = ((keepVal == true) ?  e.value : ((e.tagName.toLowerCase() == "option" || e.type == "button") ? e.value : null));
-
-		var hijos = e.childNodes;
-		if (hijos)
-		{
-			for (key in hijos)
-			{
-				if (typeof hijos[key] != "undefined")
-				{
-					hijocopia = duplicateSubElement(hijos[key], n, keepVal);
-					if (hijocopia) copia.appendChild(hijocopia);
-				}
-			}
-		}
-		return copia;
-	}
-	return null;
-}
-
 function CloneSubBasePriceGroup()
 {
-	if (bReadOnly)
+	if (!allowSubPriceEdit)
 		return;
 
 	var oTbl = BX("SUBBASE_PRICE_GROUP_TABLE");
@@ -1048,26 +1085,26 @@ function CloneSubBasePriceGroup()
 	var oCell = oRow.insertCell(-1);
 	oCell.valign = "top";
 	oCell.align = "center";
-	oCell.innerHTML = '<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> name="SUBCAT_BASE_QUANTITY_FROM_'+cnt+'" value="" size="3" OnChange="ChangeSubBaseQuantityEx(this)">';
+	oCell.innerHTML = '<input type="text" <?= $disablePrice; ?> name="SUBCAT_BASE_QUANTITY_FROM_'+cnt+'" value="" size="3" OnChange="ChangeSubBaseQuantityEx(this)">';
 
 	var oCell = oRow.insertCell(-1);
 	oCell.valign = "top";
 	oCell.align = "center";
-	oCell.innerHTML = '<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> name="SUBCAT_BASE_QUANTITY_TO_'+cnt+'" value="" size="3" OnChange="ChangeSubBaseQuantityEx(this)">';
+	oCell.innerHTML = '<input type="text" <?= $disablePrice; ?> name="SUBCAT_BASE_QUANTITY_TO_'+cnt+'" value="" size="3" OnChange="ChangeSubBaseQuantityEx(this)">';
 
 	var oCell = oRow.insertCell(-1);
 	oCell.valign = "top";
 	oCell.align = "center";
-	oCell.innerHTML = '<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_BASE_PRICE_'+cnt+'" name="SUBCAT_BASE_PRICE_'+cnt+'" value="" size="15" OnBlur="ChangeSubBasePriceEx(this)">';
+	oCell.innerHTML = '<input type="text" <?= $disablePrice; ?> id="SUBCAT_BASE_PRICE_'+cnt+'" name="SUBCAT_BASE_PRICE_'+cnt+'" value="" size="15" OnBlur="ChangeSubBasePriceEx(this)">';
 
 	var oCell = oRow.insertCell(-1);
 	oCell.valign = "top";
 	oCell.align = "center";
-	var str = '<select id="SUBCAT_BASE_CURRENCY_'+cnt+'" name="SUBCAT_BASE_CURRENCY_'+cnt+'" <?if ($bReadOnly) echo "disabled readonly" ?> OnChange="ChangeSubBaseCurrencyEx(this)">';
-	<?
+	var str = '<select id="SUBCAT_BASE_CURRENCY_'+cnt+'" name="SUBCAT_BASE_CURRENCY_'+cnt+'" <?= $disablePrice; ?> OnChange="ChangeSubBaseCurrencyEx(this)">';
+	<?php
 	foreach ($currencyList as &$currency)
 	{
-		?>str += '<option value="<?echo $currency["CURRENCY"] ?>"><?echo $currency["FULL_NAME_JS"]; ?></option>';<?
+		?>str += '<option value="<?= $currency["CURRENCY"] ?>"><?= $currency["FULL_NAME_JS"]; ?></option>';<?php
 	}
 	unset($currency);
 	?>
@@ -1089,7 +1126,7 @@ function CloneSubBasePriceGroup()
 
 function CloneSubOtherPriceGroup(ind)
 {
-	if (bReadOnly)
+	if (!allowSubPriceEdit)
 		return;
 
 	var oTbl = BX("SUBOTHER_PRICE_GROUP_TABLE_"+ind);
@@ -1119,14 +1156,14 @@ function CloneSubOtherPriceGroup(ind)
 	oCell.valign = "top";
 	oCell.align = "center";
 	//oCell.className = "tablebody";
-	str += '<select id="SUBCAT_EXTRA_'+ind+'_'+cnt+'" name="SUBCAT_EXTRA_'+ind+'_'+cnt+'" OnChange="ChangeSubExtraEx(this)" <?if ($bReadOnly) echo "disabled readonly" ?>>';
+	str += '<select id="SUBCAT_EXTRA_'+ind+'_'+cnt+'" name="SUBCAT_EXTRA_'+ind+'_'+cnt+'" OnChange="ChangeSubExtraEx(this)" <?= $disablePrice; ?>>';
 	str += '<option value=""><?= GetMessage("VAL_NOT_SET") ?></option>';
-	<?
+	<?php
 	foreach ($arExtraList as $arOneExtra)
 	{
 		?>
 		str += '<option value="<?= $arOneExtra["ID"] ?>"><?= CUtil::JSEscape(htmlspecialcharsbx($arOneExtra["NAME"]))." (".htmlspecialcharsbx($arOneExtra["PERCENTAGE"])."%)" ?></option>';
-		<?
+		<?php
 	}
 	?>
 	str += '</select>';
@@ -1135,17 +1172,17 @@ function CloneSubOtherPriceGroup(ind)
 	var oCell = oRow.insertCell(-1);
 	oCell.valign = "top";
 	oCell.align = "center";
-	oCell.innerHTML = '<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_PRICE_'+ind+'_'+cnt+'" name="SUBCAT_PRICE_'+ind+'_'+cnt+'" value="" size="10" OnChange="ptSubPriceChangeEx(this)">';
+	oCell.innerHTML = '<input type="text" <?= $disablePrice; ?> id="SUBCAT_PRICE_'+ind+'_'+cnt+'" name="SUBCAT_PRICE_'+ind+'_'+cnt+'" value="" size="10" OnChange="ptSubPriceChangeEx(this)">';
 
 	var oCell = oRow.insertCell(-1);
 	oCell.valign = "top";
 	oCell.align = "center";
-	var str = '<select id="SUBCAT_CURRENCY_'+ind+'_'+cnt+'" name="SUBCAT_CURRENCY_'+ind+'_'+cnt+'" OnChange="ChangeSubCurrencyEx(this)" <?if ($bReadOnly) echo "disabled readonly" ?>>';
+	var str = '<select id="SUBCAT_CURRENCY_'+ind+'_'+cnt+'" name="SUBCAT_CURRENCY_'+ind+'_'+cnt+'" OnChange="ChangeSubCurrencyEx(this)" <?= $disablePrice; ?>>';
 	str += '<option value=""><?= GetMessage("VAL_BASE") ?></option>';
-	<?
+	<?php
 	foreach ($currencyList as &$currency)
 	{
-		?>str += '<option value="<?echo $currency["CURRENCY"] ?>"><?echo $currency["FULL_NAME_JS"]; ?></option>';<?
+		?>str += '<option value="<?= $currency["CURRENCY"] ?>"><?= $currency["FULL_NAME_JS"]; ?></option>';<?php
 	}
 	unset($currency);
 	?>
@@ -1157,7 +1194,7 @@ function CloneSubOtherPriceGroup(ind)
 
 function CloneSubPriceSections()
 {
-	if (bReadOnly)
+	if (!allowSubPriceEdit)
 		return;
 
 	CloneSubBasePriceGroup();
@@ -1174,7 +1211,7 @@ function CloneSubPriceSections()
 
 function ChangeSubBaseQuantityEx(e)
 {
-	if (bReadOnly)
+	if (!allowSubPriceEdit)
 		return;
 
 	var thename = e.name;
@@ -1204,7 +1241,7 @@ function ChangeSubBaseQuantityEx(e)
 
 function OnChangeSubBasePriceEx(e)
 {
-	if (bReadOnly)
+	if (!allowSubPriceEdit)
 		return;
 
 	var thename = e.name;
@@ -1256,7 +1293,7 @@ function OnChangeSubBasePriceEx(e)
 
 function ChangeSubBasePriceEx(e)
 {
-	if (bReadOnly)
+	if (!allowSubPriceEdit)
 		return;
 
 	if (isNaN(e.value) || e.value <= 0)
@@ -1283,7 +1320,7 @@ function ChangeSubBasePriceEx(e)
 
 function ChangeSubExtraEx(e)
 {
-	if (bReadOnly)
+	if (!allowSubPriceEdit)
 		return;
 
 	if (null == e)
@@ -1307,7 +1344,7 @@ function ChangeSubExtraEx(e)
 
 function ChangeSubBaseCurrencyEx(e)
 {
-	if (bReadOnly)
+	if (!allowSubPriceEdit)
 		return;
 
 	var thename = e.name;
@@ -1323,7 +1360,7 @@ function ChangeSubBaseCurrencyEx(e)
 
 function ptSubPriceChangeEx(e)
 {
-	if (bReadOnly)
+	if (!allowSubPriceEdit)
 		return;
 
 	var thename = e.name;
@@ -1345,7 +1382,7 @@ function ptSubPriceChangeEx(e)
 
 function ChangeSubCurrencyEx(e)
 {
-	if (bReadOnly)
+	if (!allowSubPriceEdit)
 		return;
 
 	var thename = e.name;
@@ -1365,7 +1402,7 @@ function ChangeSubCurrencyEx(e)
 
 function OnChangeSubPriceExistEx(e)
 {
-	if (bReadOnly)
+	if (!allowSubPriceEdit)
 		return;
 
 	var thename = e.name;
@@ -1415,43 +1452,43 @@ function HideNotice()
 	BX('CAT_QUANTITY_RESERVED_DIV').style.display = 'none';
 }
 </script>
-		<?
+		<?php
 		$intCount = count($arPriceBoundariesError);
 		if ($intCount > 0)
 		{
 			?>
 			<font class="errortext">
-			<?echo GetMessage("C2IT_BOUND_WRONG")?><br>
-			<?
+			<?= GetMessage("C2IT_BOUND_WRONG")?><br>
+			<?php
 			for ($i = 0; $i < $intCount; $i++)
 			{
 				echo $arPriceBoundariesError[$i]."<br>";
 			}
 			?>
-			<?echo GetMessage("C2IT_BOUND_RECOUNT")?>
+			<?= GetMessage("C2IT_BOUND_RECOUNT")?>
 			</font>
-			<?
+			<?php
 		}
 		$boolExistPrice = false;
 		?>
 		<table border="0" cellspacing="0" cellpadding="0" width="100%" class="internal">
 			<tr>
 				<td valign="top" align="right">
-				<?
-					echo GetMessage("BASE_PRICE")?> (<? echo GetMessage('C2IT_PRICE_TYPE'); ?> "<? echo htmlspecialcharsbx(!empty($arBaseGroup['NAME_LANG']) ? $arBaseGroup['NAME_LANG'] : $arBaseGroup["NAME"]); ?>"):
+				<?php
+					echo GetMessage("BASE_PRICE")?> (<?= GetMessage('C2IT_PRICE_TYPE'); ?> "<?= htmlspecialcharsbx(!empty($arBaseGroup['NAME_LANG']) ? $arBaseGroup['NAME_LANG'] : $arBaseGroup["NAME"]); ?>"):
 				</td>
 				<td valign="top" align="left">
 					<table border="0" cellspacing="1" cellpadding="3" id="SUBBASE_PRICE_GROUP_TABLE">
 						<thead>
 						<tr>
-							<td align="center"><?echo GetMessage("C2IT_FROM")?></td>
-							<td align="center"><?echo GetMessage("C2IT_TO")?></td>
-							<td align="center"><?echo GetMessage("C2IT_PRICE")?></td>
-							<td align="center"><?echo GetMessage("C2IT_CURRENCY")?></td>
+							<td align="center"><?= GetMessage("C2IT_FROM")?></td>
+							<td align="center"><?= GetMessage("C2IT_TO")?></td>
+							<td align="center"><?= GetMessage("C2IT_PRICE")?></td>
+							<td align="center"><?= GetMessage("C2IT_CURRENCY")?></td>
 						</tr>
 						</thead>
 						<tbody id="subcontainer3">
-							<?
+							<?php
 							$ind = -1;
 							$dbBasePrice = CPrice::GetList(
 									array("QUANTITY_FROM" => "ASC", "QUANTITY_TO" => "ASC"),
@@ -1496,28 +1533,28 @@ function HideNotice()
 								?>
 								<tr id="submodel3">
 									<td valign="top" align="center">
-										<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> name="SUBCAT_BASE_QUANTITY_FROM_<?= $ind ?>" value="<?echo ($str_CAT_BASE_QUANTITY_FROM != 0 ? htmlspecialcharsbx($str_CAT_BASE_QUANTITY_FROM) : "") ?>" size="3" OnChange="ChangeSubBaseQuantityEx(this)">
+										<input type="text" <?= $allowEditPrices; ?> name="SUBCAT_BASE_QUANTITY_FROM_<?= $ind ?>" value="<?= ($str_CAT_BASE_QUANTITY_FROM != 0 ? htmlspecialcharsbx($str_CAT_BASE_QUANTITY_FROM) : "") ?>" size="3" OnChange="ChangeSubBaseQuantityEx(this)">
 										<input type="hidden" name="SUBCAT_BASE_ID[<?= $ind ?>]" value="<?= htmlspecialcharsbx($str_CAT_BASE_ID) ?>">
 									</td>
 									<td valign="top" align="center">
-										<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> name="SUBCAT_BASE_QUANTITY_TO_<?= $ind ?>" value="<?echo ($str_CAT_BASE_QUANTITY_TO != 0 ? htmlspecialcharsbx($str_CAT_BASE_QUANTITY_TO) : "") ?>" size="3" OnChange="ChangeSubBaseQuantityEx(this)">
+										<input type="text" <?= $allowEditPrices; ?> name="SUBCAT_BASE_QUANTITY_TO_<?= $ind ?>" value="<?= ($str_CAT_BASE_QUANTITY_TO != 0 ? htmlspecialcharsbx($str_CAT_BASE_QUANTITY_TO) : "") ?>" size="3" OnChange="ChangeSubBaseQuantityEx(this)">
 									</td>
 									<td valign="top" align="center">
-										<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_BASE_PRICE_<?= $ind ?>" name="SUBCAT_BASE_PRICE_<?= $ind ?>" value="<?echo htmlspecialcharsbx($str_CAT_BASE_PRICE) ?>" size="15" OnBlur="ChangeSubBasePriceEx(this)">
+										<input type="text" <?= $allowEditPrices; ?> id="SUBCAT_BASE_PRICE_<?= $ind ?>" name="SUBCAT_BASE_PRICE_<?= $ind ?>" value="<?= htmlspecialcharsbx($str_CAT_BASE_PRICE) ?>" size="15" OnBlur="ChangeSubBasePriceEx(this)">
 									</td>
 									<td valign="top" align="center">
-										<select id="SUBCAT_BASE_CURRENCY_<?= $ind ?>" name="SUBCAT_BASE_CURRENCY_<?= $ind ?>" <?if ($bReadOnly) echo "disabled readonly" ?> OnChange="ChangeSubBaseCurrencyEx(this)">
-											<?
+										<select id="SUBCAT_BASE_CURRENCY_<?= $ind ?>" name="SUBCAT_BASE_CURRENCY_<?= $ind ?>" <?= $allowEditPrices; ?> OnChange="ChangeSubBaseCurrencyEx(this)">
+											<?php
 											foreach ($currencyList as &$currency)
 											{
-												?><option value="<? echo $currency["CURRENCY"]; ?>"<? if ($currency["CURRENCY"] == $str_CAT_BASE_CURRENCY) echo " selected"?>><? echo $currency["FULL_NAME"];?></option><?
+												?><option value="<?= $currency["CURRENCY"]; ?>"<?= ($currency["CURRENCY"] == $str_CAT_BASE_CURRENCY ? " selected" : '');?>><?= $currency["FULL_NAME"];?></option><?php
 											}
 											unset($currency);
 											?>
 										</select>
 									</td>
 								</tr>
-								<?
+								<?php
 							}
 
 							if ($bVarsFromForm && $ind < intval($SUBCAT_ROW_COUNTER))
@@ -1536,28 +1573,28 @@ function HideNotice()
 									?>
 									<tr id="submodel3">
 										<td valign="top" align="center">
-											<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> name="SUBCAT_BASE_QUANTITY_FROM_<?= $ind ?>" value="<?echo ($str_CAT_BASE_QUANTITY_FROM != 0 ? htmlspecialcharsbx($str_CAT_BASE_QUANTITY_FROM) : "") ?>" size="3" OnChange="ChangeSubBaseQuantityEx(this)">
+											<input type="text" <?= $allowEditPrices; ?> name="SUBCAT_BASE_QUANTITY_FROM_<?= $ind ?>" value="<?= ($str_CAT_BASE_QUANTITY_FROM != 0 ? htmlspecialcharsbx($str_CAT_BASE_QUANTITY_FROM) : "") ?>" size="3" OnChange="ChangeSubBaseQuantityEx(this)">
 											<input type="hidden" name="SUBCAT_BASE_ID[<?= $ind ?>]" value="<?= 0 ?>">
 										</td>
 										<td valign="top" align="center">
-											<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> name="SUBCAT_BASE_QUANTITY_TO_<?= $ind ?>" value="<?echo ($str_CAT_BASE_QUANTITY_TO != 0 ? htmlspecialcharsbx($str_CAT_BASE_QUANTITY_TO) : "") ?>" size="3" OnChange="ChangeSubBaseQuantityEx(this)">
+											<input type="text" <?= $allowEditPrices; ?> name="SUBCAT_BASE_QUANTITY_TO_<?= $ind ?>" value="<?= ($str_CAT_BASE_QUANTITY_TO != 0 ? htmlspecialcharsbx($str_CAT_BASE_QUANTITY_TO) : "") ?>" size="3" OnChange="ChangeSubBaseQuantityEx(this)">
 										</td>
 										<td valign="top" align="center">
-											<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_BASE_PRICE_<?= $ind ?>" name="SUBCAT_BASE_PRICE_<?= $ind ?>" value="<?echo htmlspecialcharsbx($str_CAT_BASE_PRICE) ?>" size="15" OnBlur="ChangeSubBasePriceEx(this)">
+											<input type="text" <?= $allowEditPrices; ?> id="SUBCAT_BASE_PRICE_<?= $ind ?>" name="SUBCAT_BASE_PRICE_<?= $ind ?>" value="<?= htmlspecialcharsbx($str_CAT_BASE_PRICE) ?>" size="15" OnBlur="ChangeSubBasePriceEx(this)">
 										</td>
 										<td valign="top" align="center">
-											<select id="SUBCAT_BASE_CURRENCY_<?= $ind ?>" name="SUBCAT_BASE_CURRENCY_<?= $ind ?>" <?if ($bReadOnly) echo "disabled readonly" ?> OnChange="ChangeSubBaseCurrencyEx(this)">
-												<?
+											<select id="SUBCAT_BASE_CURRENCY_<?= $ind ?>" name="SUBCAT_BASE_CURRENCY_<?= $ind ?>" <?= $allowEditPrices; ?> OnChange="ChangeSubBaseCurrencyEx(this)">
+												<?php
 												foreach ($currencyList as &$currency)
 												{
-													?><option value="<? echo $currency["CURRENCY"]; ?>"<? if ($currency["CURRENCY"] == $str_CAT_BASE_CURRENCY) echo " selected"?>><? echo $currency["FULL_NAME"];?></option><?
+													?><option value="<?= $currency["CURRENCY"]; ?>"<?= ($currency["CURRENCY"] == $str_CAT_BASE_CURRENCY ? " selected" : '');?>><?= $currency["FULL_NAME"];?></option><?php
 												}
 												unset($currency);
 												?>
 											</select>
 										</td>
 									</tr>
-									<?
+									<?php
 								}
 							}
 							if ($ind == -1)
@@ -1566,41 +1603,41 @@ function HideNotice()
 								?>
 								<tr id="submodel3">
 									<td valign="top" align="center">
-										<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> name="SUBCAT_BASE_QUANTITY_FROM_<?= $ind ?>" value="" size="3" OnChange="ChangeSubBaseQuantityEx(this)">
+										<input type="text" <?= $allowEditPrices; ?> name="SUBCAT_BASE_QUANTITY_FROM_<?= $ind ?>" value="" size="3" OnChange="ChangeSubBaseQuantityEx(this)">
 									</td>
 									<td valign="top" align="center">
-										<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> name="SUBCAT_BASE_QUANTITY_TO_<?= $ind ?>" value="" size="3" OnChange="ChangeSubBaseQuantityEx(this)">
+										<input type="text" <?= $allowEditPrices; ?> name="SUBCAT_BASE_QUANTITY_TO_<?= $ind ?>" value="" size="3" OnChange="ChangeSubBaseQuantityEx(this)">
 									</td>
 									<td valign="top" align="center">
-										<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_BASE_PRICE_<?= $ind ?>" name="SUBCAT_BASE_PRICE_<?= $ind ?>" value="" size="15" OnBlur="ChangeSubBasePriceEx(this)">
+										<input type="text" <?= $allowEditPrices; ?> id="SUBCAT_BASE_PRICE_<?= $ind ?>" name="SUBCAT_BASE_PRICE_<?= $ind ?>" value="" size="15" OnBlur="ChangeSubBasePriceEx(this)">
 									</td>
 									<td valign="top" align="center">
-										<select id="SUBCAT_BASE_CURRENCY_<?= $ind ?>" name="SUBCAT_BASE_CURRENCY_<?= $ind ?>" <?if ($bReadOnly) echo "disabled readonly" ?> OnChange="ChangeSubBaseCurrencyEx(this)">
-											<?
+										<select id="SUBCAT_BASE_CURRENCY_<?= $ind ?>" name="SUBCAT_BASE_CURRENCY_<?= $ind ?>" <?= $allowEditPrices; ?> OnChange="ChangeSubBaseCurrencyEx(this)">
+											<?php
 											foreach ($currencyList as &$currency)
 											{
-												?><option value="<? echo $currency["CURRENCY"]; ?>"><? echo $currency["FULL_NAME"];?></option><?
+												?><option value="<?= $currency["CURRENCY"]; ?>"><?= $currency["FULL_NAME"];?></option><?php
 											}
 											unset($currency);
 											?>
 										</select>
 									</td>
 								</tr>
-								<?
+								<?php
 								$arCatPricesExist[$ind][$arBaseGroup['ID']] = 'N';
 							}
 							?>
 						</tbody>
 					</table>
 					<input type="hidden" name="SUBCAT_ROW_COUNTER" id="SUBCAT_ROW_COUNTER" value="<?= $ind ?>">
-					<input type="button" value="<?echo GetMessage("C2IT_MORE")?>" OnClick="CloneSubPriceSections()">
+					<input type="button" value="<?= GetMessage("C2IT_MORE")?>" OnClick="CloneSubPriceSections()">
 				</td>
 			</tr>
 			<script type="text/javascript">
 			arCatalogGroups = new Array();
 			catalogGroupsInd = 0;
 			</script>
-			<?
+			<?php
 	if (Catalog\Config\Feature::isMultiPriceTypesEnabled())
 	{
 
@@ -1617,21 +1654,21 @@ function HideNotice()
 				</script>
 				<tr>
 					<td valign="top" align="right">
-						<?echo GetMessage("C2IT_PRICE_TYPE")?> "<? echo htmlspecialcharsbx(!empty($arCatalogGroup["NAME_LANG"]) ? $arCatalogGroup["NAME_LANG"] : $arCatalogGroup["NAME"]); ?>":
+						<?= GetMessage("C2IT_PRICE_TYPE")?> "<?= htmlspecialcharsbx(!empty($arCatalogGroup["NAME_LANG"]) ? $arCatalogGroup["NAME_LANG"] : $arCatalogGroup["NAME"]); ?>":
 					</td>
 					<td valign="top" align="left">
 						<table border="0" cellspacing="1" cellpadding="3" id="SUBOTHER_PRICE_GROUP_TABLE_<?= $arCatalogGroup["ID"] ?>">
 							<thead>
 							<tr>
-							<td align="center"><?echo GetMessage("C2IT_FROM")?></td>
-							<td align="center"><?echo GetMessage("C2IT_TO")?></td>
-							<td align="center"><?echo GetMessage("C2IT_NAC_TYPE")?></td>
-							<td align="center"><?echo GetMessage("C2IT_PRICE")?></td>
-							<td align="center"><?echo GetMessage("C2IT_CURRENCY")?></td>
+							<td align="center"><?= GetMessage("C2IT_FROM")?></td>
+							<td align="center"><?= GetMessage("C2IT_TO")?></td>
+							<td align="center"><?= GetMessage("C2IT_NAC_TYPE")?></td>
+							<td align="center"><?= GetMessage("C2IT_PRICE")?></td>
+							<td align="center"><?= GetMessage("C2IT_CURRENCY")?></td>
 							</tr>
 							</thead>
 							<tbody id="subcontainer3_<?= $arCatalogGroup["ID"] ?>">
-							<?
+							<?php
 							$ind = -1;
 							$dbPriceList = CPrice::GetList(
 									array("QUANTITY_FROM" => "ASC", "QUANTITY_TO" => "ASC"),
@@ -1678,33 +1715,33 @@ function HideNotice()
 								?>
 								<tr id="submodel3_<?= $arCatalogGroup["ID"] ?>">
 									<td valign="top" align="center">
-										<input type="text" disabled readonly id="SUBCAT_QUANTITY_FROM_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_QUANTITY_FROM_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="<?echo ($str_CAT_QUANTITY_FROM != 0 ? htmlspecialcharsbx($str_CAT_QUANTITY_FROM) : "") ?>" size="3">
+										<input type="text" disabled readonly id="SUBCAT_QUANTITY_FROM_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_QUANTITY_FROM_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="<?= ($str_CAT_QUANTITY_FROM != 0 ? htmlspecialcharsbx($str_CAT_QUANTITY_FROM) : "") ?>" size="3">
 										<input type="hidden" name="SUBCAT_ID_<?= $arCatalogGroup["ID"] ?>[<?= $ind ?>]" value="<?= htmlspecialcharsbx($str_CAT_ID) ?>">
 									</td>
 									<td valign="top" align="center">
-										<input type="text" disabled readonly id="SUBCAT_QUANTITY_TO_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_QUANTITY_TO_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="<?echo ($str_CAT_QUANTITY_TO != 0 ? htmlspecialcharsbx($str_CAT_QUANTITY_TO) : "") ?>" size="3">
+										<input type="text" disabled readonly id="SUBCAT_QUANTITY_TO_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_QUANTITY_TO_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="<?= ($str_CAT_QUANTITY_TO != 0 ? htmlspecialcharsbx($str_CAT_QUANTITY_TO) : "") ?>" size="3">
 
 									</td>
 									<td valign="top" align="center">
-										<?
-										echo CExtra::SelectBox("SUBCAT_EXTRA_".$arCatalogGroup["ID"]."_".$ind, $str_CAT_EXTRA, GetMessage("VAL_NOT_SET"), "ChangeSubExtraEx(this)", (($bReadOnly) ? "disabled readonly" : "").' id="'."SUBCAT_EXTRA_".$arCatalogGroup["ID"]."_".$ind.'" ');
+										<?php
+										echo CExtra::SelectBox("SUBCAT_EXTRA_".$arCatalogGroup["ID"]."_".$ind, $str_CAT_EXTRA, GetMessage("VAL_NOT_SET"), "ChangeSubExtraEx(this)", $allowEditPrices.' id="'."SUBCAT_EXTRA_".$arCatalogGroup["ID"]."_".$ind.'" ');
 										?>
 
 									</td>
 									<td valign="top" align="center">
-										<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="<?echo htmlspecialcharsbx($str_CAT_PRICE) ?>" size="10" OnChange="ptSubPriceChangeEx(this)">
+										<input type="text" <?= $allowEditPrices; ?> id="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="<?= htmlspecialcharsbx($str_CAT_PRICE) ?>" size="10" OnChange="ptSubPriceChangeEx(this)">
 
 									</td>
 									<td valign="top" align="center">
 
-											<?= CCurrency::SelectBox("SUBCAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind, $str_CAT_CURRENCY, GetMessage("VAL_BASE"), true, "ChangeSubCurrencyEx(this)", (($bReadOnly) ? "disabled readonly" : "").' id="'."SUBCAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind.'" ') ?>
+											<?= CCurrency::SelectBox("SUBCAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind, $str_CAT_CURRENCY, GetMessage("VAL_BASE"), true, "ChangeSubCurrencyEx(this)", $allowEditPrices.' id="'."SUBCAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind.'" ') ?>
 											<script type="text/javascript">
 												jsUtils.addEvent(window, 'load', function() {ChangeSubExtraEx(BX('SUBCAT_EXTRA_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>'));});
 											</script>
 
 									</td>
 								</tr>
-								<?
+								<?php
 							}
 
 							if ($bVarsFromForm && $ind < intval(${"SUBCAT_ROW_COUNTER_".$arCatalogGroup["ID"]}))
@@ -1724,33 +1761,33 @@ function HideNotice()
 									?>
 									<tr id="submodel3_<?= $arCatalogGroup["ID"] ?>">
 										<td valign="top" align="center">
-											<input type="text" disabled readonly id="SUBCAT_QUANTITY_FROM_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_QUANTITY_FROM_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="<?echo ($str_CAT_QUANTITY_FROM != 0 ? htmlspecialcharsbx($str_CAT_QUANTITY_FROM) : "") ?>" size="3">
+											<input type="text" disabled readonly id="SUBCAT_QUANTITY_FROM_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_QUANTITY_FROM_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="<?= ($str_CAT_QUANTITY_FROM != 0 ? htmlspecialcharsbx($str_CAT_QUANTITY_FROM) : "") ?>" size="3">
 											<input type="hidden" name="SUBCAT_ID_<?= $arCatalogGroup["ID"] ?>[<?= $ind ?>]" value="<?= 0 ?>">
 										</td>
 										<td valign="top" align="center">
-											<input type="text" disabled readonly id="SUBCAT_QUANTITY_TO_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_QUANTITY_TO_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="<?echo ($str_CAT_QUANTITY_TO != 0 ? htmlspecialcharsbx($str_CAT_QUANTITY_TO) : "") ?>" size="3">
+											<input type="text" disabled readonly id="SUBCAT_QUANTITY_TO_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_QUANTITY_TO_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="<?= ($str_CAT_QUANTITY_TO != 0 ? htmlspecialcharsbx($str_CAT_QUANTITY_TO) : "") ?>" size="3">
 
 										</td>
 										<td valign="top" align="center">
-											<?
-											echo CExtra::SelectBox("SUBCAT_EXTRA_".$arCatalogGroup["ID"]."_".$ind, $str_CAT_EXTRA, GetMessage("VAL_NOT_SET"), "ChangeSubExtraEx(this)", (($bReadOnly) ? "disabled readonly" : "").' id="'."SUBCAT_EXTRA_".$arCatalogGroup["ID"]."_".$ind.'" ');
+											<?php
+											echo CExtra::SelectBox("SUBCAT_EXTRA_".$arCatalogGroup["ID"]."_".$ind, $str_CAT_EXTRA, GetMessage("VAL_NOT_SET"), "ChangeSubExtraEx(this)", $allowEditPrices.' id="'."SUBCAT_EXTRA_".$arCatalogGroup["ID"]."_".$ind.'" ');
 											?>
 
 										</td>
 										<td valign="top" align="center">
-											<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="<?echo htmlspecialcharsbx($str_CAT_PRICE) ?>" size="10" OnChange="ptSubPriceChangeEx(this)">
+											<input type="text" <?= $allowEditPrices; ?> id="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="<?= htmlspecialcharsbx($str_CAT_PRICE) ?>" size="10" OnChange="ptSubPriceChangeEx(this)">
 
 										</td>
 										<td valign="top" align="center">
 
-												<?= CCurrency::SelectBox("SUBCAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind, $str_CAT_CURRENCY, GetMessage("VAL_BASE"), true, "ChangeSubCurrencyEx(this)", (($bReadOnly) ? "disabled readonly" : "").' id="'."SUBCAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind.'" ') ?>
+												<?= CCurrency::SelectBox("SUBCAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind, $str_CAT_CURRENCY, GetMessage("VAL_BASE"), true, "ChangeSubCurrencyEx(this)", $allowEditPrices.' id="'."SUBCAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind.'" ') ?>
 												<script type="text/javascript">
 													jsUtils.addEvent(window, 'load', function () {ChangeSubExtraEx(BX('SUBCAT_EXTRA_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>'));});
 												</script>
 
 										</td>
 									</tr>
-									<?
+									<?php
 								}
 							}
 							if ($ind == -1)
@@ -1766,22 +1803,22 @@ function HideNotice()
 
 									</td>
 									<td valign="top" align="center">
-										<?
-										echo CExtra::SelectBox("SUBCAT_EXTRA_".$arCatalogGroup["ID"]."_".$ind, "", GetMessage("VAL_NOT_SET"), "ChangeSubExtraEx(this)", (($bReadOnly) ? "disabled readonly" : "").' id="'."SUBCAT_EXTRA_".$arCatalogGroup["ID"]."_".$ind.'" ');
+										<?php
+										echo CExtra::SelectBox("SUBCAT_EXTRA_".$arCatalogGroup["ID"]."_".$ind, "", GetMessage("VAL_NOT_SET"), "ChangeSubExtraEx(this)", $allowEditPrices.' id="'."SUBCAT_EXTRA_".$arCatalogGroup["ID"]."_".$ind.'" ');
 										?>
 
 									</td>
 									<td valign="top" align="center">
-										<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="" size="10" OnChange="ptSubPriceChangeEx(this)">
+										<input type="text" <?= $allowEditPrices; ?> id="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" name="SUBCAT_PRICE_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>" value="" size="10" OnChange="ptSubPriceChangeEx(this)">
 
 									</td>
 									<td valign="top" align="center">
 
-											<?= CCurrency::SelectBox("SUBCAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind, "", GetMessage("VAL_BASE"), true, "ChangeSubCurrencyEx(this)", (($bReadOnly) ? "disabled readonly" : "").' id="'."SUBCAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind.'" ') ?>
+											<?= CCurrency::SelectBox("SUBCAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind, "", GetMessage("VAL_BASE"), true, "ChangeSubCurrencyEx(this)", $allowEditPrices.' id="'."SUBCAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind.'" ') ?>
 
 									</td>
 								</tr>
-								<?
+								<?php
 								$arCatPricesExist[$ind][$arCatalogGroup['ID']] = 'N';
 							}
 							?>
@@ -1790,64 +1827,87 @@ function HideNotice()
 						<input type="hidden" name="SUBCAT_ROW_COUNTER_<?= $arCatalogGroup["ID"] ?>" id="SUBCAT_ROW_COUNTER_<?= $arCatalogGroup["ID"] ?>" value="<?= $ind ?>">
 					</td>
 				</tr>
-				<?
+				<?php
 			}
 	}
 			?>
 		</table>
 		<div id="ext_subprice_exist">
-		<?
+		<?php
 		foreach ($arCatPricesExist as $ind => $arPriceExist)
 		{
 			$strExist = (in_array('Y',$arPriceExist) ? 'Y' : 'N');
 			?>
-			<input type="hidden" name="SUBCAT_PRICE_EXIST_<? echo $ind; ?>" id="SUBCAT_PRICE_EXIST_<? echo $ind; ?>" value="<? echo $strExist; ?>"><?
+			<input type="hidden" name="SUBCAT_PRICE_EXIST_<?= $ind; ?>" id="SUBCAT_PRICE_EXIST_<?= $ind; ?>" value="<?= $strExist; ?>"><?php
 		}
 		?>
 		</div>
 </div>
-		<?
+		<?php
 		$subtabControl1->BeginNextTab();
 		?>
 
-		<table border="0" cellspacing="0" cellpadding="0" width="100%" class="edit-table" id="subcatalog_properties_table">
-			<tr>
-				<td width="40%">
-					<?echo GetMessage("FULL_QUANTITY")?>:
-				</td>
-				<td width="60%">
-					<?
-					$str_CAT_BASE_QUANTITY = $arBaseProduct["QUANTITY"];
-					if (!$bUseStoreControl && $bVarsFromForm) $str_CAT_BASE_QUANTITY = $SUBCAT_BASE_QUANTITY;
-					?>
-					<input type="text" name="SUBCAT_BASE_QUANTITY" <?if ($bReadOnly  || $bUseStoreControl) echo "disabled readonly" ?> value="<?echo htmlspecialcharsbx($str_CAT_BASE_QUANTITY) ?>" size="30">
-
-				</td>
-			</tr><?
-			if ($bEnableReservation)
+		<table border="0" cellspacing="0" cellpadding="0" width="100%" class="edit-table" id="subcatalog_properties_table"><?php
+			if ($allowedShowQuantity)
 			{
-			?>
-			<tr id="SUBCAT_BASE_QUANTITY_RESERV">
+				$currentQuantity = [
+					'QUANTITY' => $arBaseProduct['QUANTITY'],
+					'QUANTITY_RESERVED' => $arBaseProduct['QUANTITY_RESERVED'],
+				];
+				if (\CCatalogAdminTools::needSummaryStoreAmountByPermissions())
+				{
+					$storeQuantity = \CCatalogAdminTools::getSummaryStoreAmountByPermissions([$PRODUCT_ID]);
+					$currentQuantity = $storeQuantity[$PRODUCT_ID] ?? [
+							'QUANTITY' => '',
+							'QUANTITY_RESERVED' => '',
+						];
+					unset($storeQuantity);
+				}
+				else
+				{
+					if (!$bUseStoreControl && $bVarsFromForm)
+					{
+						if (isset($_POST['SUBCAT_BASE_QUANTITY']) && is_string($_POST['SUBCAT_BASE_QUANTITY']))
+						{
+							$currentQuantity['QUANTITY'] = $_POST['SUBCAT_BASE_QUANTITY'];
+						}
+						if (isset($_POST['SUBCAT_BASE_QUANTITY_RESERVED']) && is_string($_POST['SUBCAT_BASE_QUANTITY_RESERVED']))
+						{
+							$currentQuantity['QUANTITY_RESERVED'] = $_POST['SUBCAT_BASE_QUANTITY_RESERVED'];
+						}
+					}
+				}
+				?>
+				<tr>
 				<td width="40%">
-					<?echo GetMessage("BASE_QUANTITY_RESERVED")?>:
+					<?= GetMessage("FULL_QUANTITY")?>:
 				</td>
 				<td width="60%">
-					<?
-					$str_CAT_BASE_QUANTITY_RESERVED = $arBaseProduct["QUANTITY_RESERVED"];
-					?>
-					<input type="hidden" id="SUBCAT_BASE_QUANTITY_RESERVED_hidden" name="SUBCAT_BASE_QUANTITY_RESERVED" value="<?echo htmlspecialcharsbx($str_CAT_BASE_QUANTITY_RESERVED) ?>">
-					<input type="text" id="SUBCAT_BASE_QUANTITY_RESERVED" name="SUBCAT_BASE_QUANTITY_RESERVED" <?if ($bReadOnly  || $bUseStoreControl) echo "disabled readonly" ?>  onfocus="ShowNotice()" onblur="HideNotice()" value="<?echo htmlspecialcharsbx($str_CAT_BASE_QUANTITY_RESERVED) ?>" size="30"><span id="CAT_QUANTITY_RESERVED_DIV" style="color: #af2d49; margin-left: 10px; display: none;">	<?echo GetMessage("QUANTITY_RESERVED_NOTICE")?></span>
-
+					<input type="text" name="SUBCAT_BASE_QUANTITY" <?= $disableQuantityFields; ?> value="<?= htmlspecialcharsbx($currentQuantity['QUANTITY']); ?>" size="30">
 				</td>
-			</tr><?
+				</tr><?php
+				if ($bEnableReservation)
+				{
+					?>
+					<tr id="SUBCAT_BASE_QUANTITY_RESERV">
+						<td width="40%">
+							<?= GetMessage("BASE_QUANTITY_RESERVED")?>:
+						</td>
+						<td width="60%">
+							<input type="text" id="SUBCAT_BASE_QUANTITY_RESERVED" name="SUBCAT_BASE_QUANTITY_RESERVED" <?= $disableQuantityFields; ?>  onfocus="ShowNotice()" onblur="HideNotice()" value="<?= htmlspecialcharsbx($currentQuantity['QUANTITY_RESERVED']); ?>" size="30">
+							<span id="CAT_QUANTITY_RESERVED_DIV" style="color: #af2d49; margin-left: 10px; display: none;">	<?= GetMessage("QUANTITY_RESERVED_NOTICE")?></span>
+						</td>
+					</tr><?php
+				}
+				unset($currentQuantity);
 			}
 			?>
 			<tr>
 				<td width="40%">
-					<?echo GetMessage("C2IT_MEASURE")?>:
+					<?= GetMessage("C2IT_MEASURE")?>:
 				</td>
 				<td width="60%">
-					<?
+					<?php
 					$arAllMeasure = array();
 					$dbResultList = CCatalogMeasure::getList(
 						array(),
@@ -1864,28 +1924,38 @@ function HideNotice()
 					if ($bVarsFromForm)
 						$str_CAT_MEASURE = $SUBCAT_MEASURE;
 					?>
-					<?if(!empty($arAllMeasure)):?>
-						<select style="max-width:220px" id="SUBCAT_MEASURE" name="SUBCAT_MEASURE" <?if ($bReadOnly) echo "disabled readonly" ?>>
-							<?foreach($arAllMeasure as $arMeasure):?>
-								<option <?if($str_CAT_MEASURE == $arMeasure["ID"] || ($str_CAT_MEASURE == '' && $arMeasure["IS_DEFAULT"] == 'Y')) echo " selected";?> value="<?=$arMeasure["ID"]?>"><?=htmlspecialcharsbx($arMeasure["MEASURE_TITLE"])?></option>
-							<?endforeach;
+					<?php
+					if(!empty($arAllMeasure)):
+					?>
+						<select style="max-width:220px" id="SUBCAT_MEASURE" name="SUBCAT_MEASURE"<?= $disableProduct; ?>>
+							<?php
+							foreach($arAllMeasure as $arMeasure):
+							?>
+								<option <?= ($str_CAT_MEASURE == $arMeasure["ID"] || ($str_CAT_MEASURE == '' && $arMeasure["IS_DEFAULT"] == 'Y') ? " selected" : '');?> value="<?=$arMeasure["ID"]?>"><?=htmlspecialcharsbx($arMeasure["MEASURE_TITLE"])?></option>
+							<?php
+							endforeach;
 							unset($arMeasure);
 							?>
 						</select>
-					<?else:
+					<?php
+					else:
 						$measureListUrl = $selfFolderUrl.'cat_measure_list.php?lang='.LANGUAGE_ID;
 						$measureListUrl = $adminSidePanelHelper->editUrlToPublicPage($measureListUrl);
 						echo GetMessage("C2IT_MEASURE_NO_MEASURE"); ?> <a target="_top" href="<?=$measureListUrl?>"><?=GetMessage("C2IT_MEASURES"); ?></a><br>
-					<?endif;?>
+					<?php
+					endif;
+					?>
 				</td>
 			</tr>
-			<?if(!empty($arAllMeasure)):?>
+			<?php
+			if(!empty($arAllMeasure)):
+			?>
 				<tr>
 					<td width="40%">
-						<?echo GetMessage("C2IT_MEASURE_RATIO")?>:
+						<?= GetMessage("C2IT_MEASURE_RATIO")?>:
 					</td>
 					<td width="60%">
-						<?
+						<?php
 						$str_CAT_MEASURE_RATIO = null;
 						$SUBCAT_MEASURE_RATIO_ID = 0;
 						$db_CAT_MEASURE_RATIO = CCatalogMeasureRatio::getList(
@@ -1912,134 +1982,136 @@ function HideNotice()
 						if($bVarsFromForm)
 							$str_CAT_MEASURE_RATIO = $SUBCAT_MEASURE_RATIO;
 						?>
-						<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_MEASURE_RATIO" name="SUBCAT_MEASURE_RATIO" value="<?echo htmlspecialcharsbx($str_CAT_MEASURE_RATIO) ?>" size="30">
-						<input type="hidden" id="SUBCAT_MEASURE_RATIO_ID" name="SUBCAT_MEASURE_RATIO_ID" value="<?echo htmlspecialcharsbx($SUBCAT_MEASURE_RATIO_ID) ?>">
+						<input type="text"<?= $disableProduct; ?> id="SUBCAT_MEASURE_RATIO" name="SUBCAT_MEASURE_RATIO" value="<?= htmlspecialcharsbx($str_CAT_MEASURE_RATIO) ?>" size="30">
+						<input type="hidden" id="SUBCAT_MEASURE_RATIO_ID" name="SUBCAT_MEASURE_RATIO_ID" value="<?= htmlspecialcharsbx($SUBCAT_MEASURE_RATIO_ID) ?>">
 					</td>
 				</tr>
-			<?endif;?>
+			<?php
+			endif;
+			?>
 			<tr class="heading">
 				<td colspan="2">
-					<?echo GetMessage("C2IT_PARAMS")?>
+					<?= GetMessage("C2IT_PARAMS")?>
 				</td>
 			</tr>
 			<tr>
 				<td width="40%">
-					<?echo GetMessage("ENABLE_STORE_TRACE")?>:
+					<?= GetMessage("ENABLE_STORE_TRACE")?>:
 				</td>
 				<td width="60%">
-					<?
+					<?php
 					$str_CAT_BASE_QUANTITY_TRACE = $arBaseProduct["QUANTITY_TRACE_ORIG"];
 					if ($bVarsFromForm) $str_CAT_BASE_QUANTITY_TRACE = $SUBCAT_BASE_QUANTITY_TRACE;
 					?>
-					<select id="SUBCAT_BASE_QUANTITY_TRACE" name="SUBCAT_BASE_QUANTITY_TRACE" <?if ($bReadOnly) echo "disabled readonly" ?>>
-						<option value="D" <?if ("D"==$str_CAT_BASE_QUANTITY_TRACE) echo " selected"?>><?=GetMessage("C2IT_DEFAULT_NEGATIVE")." ("?><?echo $availQuantityTrace=='Y' ? GetMessage("C2IT_YES_NEGATIVE") : GetMessage("C2IT_NO_NEGATIVE")?>) </option>
-						<option value="Y" <?if ("Y"==$str_CAT_BASE_QUANTITY_TRACE) echo " selected"?>><?=GetMessage("C2IT_YES_NEGATIVE")?></option>
-						<option value="N" <?if ("N"==$str_CAT_BASE_QUANTITY_TRACE) echo " selected"?>><?=GetMessage("C2IT_NO_NEGATIVE")?></option>
+					<select id="SUBCAT_BASE_QUANTITY_TRACE" name="SUBCAT_BASE_QUANTITY_TRACE"<?= $disableProduct; ?>>
+						<option value="D" <?= ("D"==$str_CAT_BASE_QUANTITY_TRACE ? " selected" : '');?>><?=GetMessage("C2IT_DEFAULT_NEGATIVE")." ("?><?= $availQuantityTrace=='Y' ? GetMessage("C2IT_YES_NEGATIVE") : GetMessage("C2IT_NO_NEGATIVE")?>) </option>
+						<option value="Y" <?= ("Y"==$str_CAT_BASE_QUANTITY_TRACE ? " selected" : '');?>><?=GetMessage("C2IT_YES_NEGATIVE")?></option>
+						<option value="N" <?= ("N"==$str_CAT_BASE_QUANTITY_TRACE ? " selected" : '');?>><?=GetMessage("C2IT_NO_NEGATIVE")?></option>
 					</select>
 				</td>
 			</tr>
 			<tr>
 				<td width="40%">
-					<?echo GetMessage("C2IT_CAN_BUY_NULL_EXT")?>:
+					<?= GetMessage("C2IT_CAN_BUY_NULL_EXT")?>:
 				</td>
 				<td width="60%">
-					<?
+					<?php
 					$str_CAT_BASE_CAN_BUY_ZERO = $arBaseProduct["CAN_BUY_ZERO_ORIG"];
 					if ($bVarsFromForm) $str_CAT_BASE_CAN_BUY_ZERO = $SUBUSE_STORE;
 					?>
-					<select id="SUBUSE_STORE" name="SUBUSE_STORE" <? echo ($bReadOnly ? "disabled readonly" : ''); ?>>
-						<option value="D" <?if ("D"==$str_CAT_BASE_CAN_BUY_ZERO) echo " selected"?>><?=GetMessage("C2IT_DEFAULT_NEGATIVE")." ("?><?echo $availCanBuyZero=='Y' ? GetMessage("C2IT_YES_NEGATIVE") : GetMessage("C2IT_NO_NEGATIVE")?>) </option>
-						<option value="Y" <?if ("Y"==$str_CAT_BASE_CAN_BUY_ZERO) echo " selected"?>><?=GetMessage("C2IT_YES_NEGATIVE")?></option>
-						<option value="N" <?if ("N"==$str_CAT_BASE_CAN_BUY_ZERO) echo " selected"?>><?=GetMessage("C2IT_NO_NEGATIVE")?></option>
+					<select id="SUBUSE_STORE" name="SUBUSE_STORE" <?= $disableProduct; ?>>
+						<option value="D" <?= ("D"==$str_CAT_BASE_CAN_BUY_ZERO ? " selected" : '');?>><?=GetMessage("C2IT_DEFAULT_NEGATIVE")." ("?><?= $availCanBuyZero=='Y' ? GetMessage("C2IT_YES_NEGATIVE") : GetMessage("C2IT_NO_NEGATIVE")?>) </option>
+						<option value="Y" <?= ("Y"==$str_CAT_BASE_CAN_BUY_ZERO ? " selected" : '');?>><?=GetMessage("C2IT_YES_NEGATIVE")?></option>
+						<option value="N" <?= ("N"==$str_CAT_BASE_CAN_BUY_ZERO ? " selected" : '');?>><?=GetMessage("C2IT_NO_NEGATIVE")?></option>
 					</select>
 				</td>
 			</tr>
 			<tr>
-				<td width="40%"><? echo GetMessage("C2IT_SUBSCRIBE"); ?>:</td>
+				<td width="40%"><?= GetMessage("C2IT_SUBSCRIBE"); ?>:</td>
 				<td width="60%">
-					<?
+					<?php
 					$str_CAT_SUBSCRIBE = $arBaseProduct["SUBSCRIBE_ORIG"];
 					if ($bVarsFromForm) $str_CAT_SUBSCRIBE = $SUBSUBSCRIBE;
 					?>
-					<select id="SUBSUBSCRIBE" name="SUBSUBSCRIBE" <?if ($bReadOnly) echo "disabled readonly" ?>>
-						<option value="D" <?if ("D"==$str_CAT_SUBSCRIBE) echo " selected"?>><?=GetMessage("C2IT_DEFAULT_NEGATIVE")." ("?><?echo 'Y' == $strGlobalSubscribe ? GetMessage("C2IT_YES_NEGATIVE") : GetMessage("C2IT_NO_NEGATIVE")?>)</option>
-						<option value="Y" <?if ("Y"==$str_CAT_SUBSCRIBE) echo " selected"?>><?=GetMessage("C2IT_YES_NEGATIVE")?></option>
-						<option value="N" <?if ("N"==$str_CAT_SUBSCRIBE) echo " selected"?>><?=GetMessage("C2IT_NO_NEGATIVE")?></option>
+					<select id="SUBSUBSCRIBE" name="SUBSUBSCRIBE"<?= $disableProduct; ?>>
+						<option value="D" <?= ("D"==$str_CAT_SUBSCRIBE ? " selected" : '');?>><?=GetMessage("C2IT_DEFAULT_NEGATIVE")." ("?><?= 'Y' == $strGlobalSubscribe ? GetMessage("C2IT_YES_NEGATIVE") : GetMessage("C2IT_NO_NEGATIVE")?>)</option>
+						<option value="Y" <?= ("Y"==$str_CAT_SUBSCRIBE ? " selected" : '');?>><?=GetMessage("C2IT_YES_NEGATIVE")?></option>
+						<option value="N" <?= ("N"==$str_CAT_SUBSCRIBE ? " selected" : '');?>><?=GetMessage("C2IT_NO_NEGATIVE")?></option>
 					</select>
 				</td>
 			</tr>
 			<tr class="heading">
 				<td colspan="2">
-					<?echo GetMessage("C2IT_MEASUREMENTS_EXT")?>
+					<?= GetMessage("C2IT_MEASUREMENTS_EXT")?>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					<?echo GetMessage("BASE_WEIGHT")?>:
+					<?= GetMessage("BASE_WEIGHT")?>:
 				</td>
 				<td>
-					<?
+					<?php
 					$str_CAT_BASE_WEIGHT = $arBaseProduct["WEIGHT"];
 					if ($bVarsFromForm) $str_CAT_BASE_WEIGHT = $SUBCAT_BASE_WEIGHT;
 					?>
-					<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> name="SUBCAT_BASE_WEIGHT" value="<?echo htmlspecialcharsbx($str_CAT_BASE_WEIGHT) ?>" size="30">
+					<input type="text"<?= $disableProduct; ?> name="SUBCAT_BASE_WEIGHT" value="<?= htmlspecialcharsbx($str_CAT_BASE_WEIGHT) ?>" size="30">
 
 				</td>
 			</tr>
 			<tr>
 				<td width="40%">
-					<?echo GetMessage("C2IT_BASE_LENGTH")?>:
+					<?= GetMessage("C2IT_BASE_LENGTH")?>:
 				</td>
 				<td width="60%">
-					<?
+					<?php
 					$str_CAT_BASE_LENGTH = $arBaseProduct["LENGTH"];
 					if ($bVarsFromForm) $str_CAT_BASE_LENGTH = $SUBCAT_BASE_LENGTH;
 					?>
-					<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_BASE_LENGTH" name="SUBCAT_BASE_LENGTH" value="<?echo htmlspecialcharsbx($str_CAT_BASE_LENGTH) ?>" size="30">
+					<input type="text"<?= $disableProduct; ?> id="SUBCAT_BASE_LENGTH" name="SUBCAT_BASE_LENGTH" value="<?= htmlspecialcharsbx($str_CAT_BASE_LENGTH) ?>" size="30">
 				</td>
 			</tr>
 
 			<tr>
 				<td width="40%">
-					<?echo GetMessage("C2IT_BASE_WIDTH")?>:
+					<?= GetMessage("C2IT_BASE_WIDTH")?>:
 				</td>
 				<td width="60%">
-					<?
+					<?php
 					$str_CAT_BASE_WIDTH = $arBaseProduct["WIDTH"];
 					if ($bVarsFromForm) $str_CAT_BASE_WIDTH = $SUBCAT_BASE_WIDTH;
 					?>
-					<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_BASE_WIDTH" name="SUBCAT_BASE_WIDTH" value="<?echo htmlspecialcharsbx($str_CAT_BASE_WIDTH) ?>" size="30">
+					<input type="text"<?= $disableProduct; ?> id="SUBCAT_BASE_WIDTH" name="SUBCAT_BASE_WIDTH" value="<?= htmlspecialcharsbx($str_CAT_BASE_WIDTH) ?>" size="30">
 				</td>
 			</tr>
 
 			<tr>
 				<td width="40%">
-					<?echo GetMessage("C2IT_BASE_HEIGHT")?>:
+					<?= GetMessage("C2IT_BASE_HEIGHT")?>:
 				</td>
 				<td width="60%">
-					<?
+					<?php
 					$str_CAT_BASE_HEIGHT = $arBaseProduct["HEIGHT"];
 					if ($bVarsFromForm) $str_CAT_BASE_HEIGHT = $SUBCAT_BASE_HEIGHT;
 					?>
-					<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_BASE_HEIGHT" name="SUBCAT_BASE_HEIGHT" value="<?echo htmlspecialcharsbx($str_CAT_BASE_HEIGHT) ?>" size="30">
+					<input type="text"<?= $disableProduct; ?> id="SUBCAT_BASE_HEIGHT" name="SUBCAT_BASE_HEIGHT" value="<?= htmlspecialcharsbx($str_CAT_BASE_HEIGHT) ?>" size="30">
 				</td>
 			</tr>
-			<?
+			<?php
 			if ($arCatalog["SUBSCRIPTION"]=="Y")
 			{
 				?>
 				<tr class="heading">
-					<td colspan="2"><?echo GetMessage("C2IT_SUBSCR_PARAMS")?></td>
+					<td colspan="2"><?= GetMessage("C2IT_SUBSCR_PARAMS")?></td>
 				</tr>
 				<tr>
 					<td>
-						<?echo GetMessage("C2IT_PAY_TYPE")?>
+						<?= GetMessage("C2IT_PAY_TYPE")?>
 					</td>
 					<td>
 						<script type="text/javascript">
 						function ChangeSubPriceType()
 						{
-							if (bReadOnly)
+							if (!allowSubPriceEdit)
 								return;
 
 							var e_pt = BX('SUBCAT_PRICE_TYPE');
@@ -2071,46 +2143,46 @@ function HideNotice()
 						}
 						</script>
 
-						<?
+						<?php
 						$str_CAT_PRICE_TYPE = $arBaseProduct["PRICE_TYPE"];
 						if ($bVarsFromForm) $str_CAT_PRICE_TYPE = $SUBCAT_PRICE_TYPE;
 						?>
-						<select id="SUBCAT_PRICE_TYPE" name="SUBCAT_PRICE_TYPE" OnChange="ChangeSubPriceType()">
-							<option value="S"<?if ($str_CAT_PRICE_TYPE=="S") echo " selected";?>><?echo GetMessage("C2IT_SINGLE")?></option>
-							<option value="R"<?if ($str_CAT_PRICE_TYPE=="R") echo " selected";?>><?echo GetMessage("C2IT_REGULAR")?></option>
-							<option value="T"<?if ($str_CAT_PRICE_TYPE=="T") echo " selected";?>><?echo GetMessage("C2IT_TRIAL")?></option>
+						<select id="SUBCAT_PRICE_TYPE" name="SUBCAT_PRICE_TYPE"<?= $disableProduct; ?> OnChange="ChangeSubPriceType()">
+							<option value="S"<?= ($str_CAT_PRICE_TYPE=="S" ? " selected" : '');?>><?= GetMessage("C2IT_SINGLE")?></option>
+							<option value="R"<?= ($str_CAT_PRICE_TYPE=="R" ? " selected" : '');?>><?= GetMessage("C2IT_REGULAR")?></option>
+							<option value="T"<?= ($str_CAT_PRICE_TYPE=="T" ? " selected" : '');?>><?= GetMessage("C2IT_TRIAL")?></option>
 						</select>
 
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<?echo GetMessage("C2IT_PERIOD_LENGTH")?>
+						<?= GetMessage("C2IT_PERIOD_LENGTH")?>
 					</td>
 					<td>
 
-						<?
+						<?php
 						$str_CAT_RECUR_SCHEME_LENGTH = $arBaseProduct["RECUR_SCHEME_LENGTH"];
 						if ($bVarsFromForm) $str_CAT_RECUR_SCHEME_LENGTH = $SUBCAT_RECUR_SCHEME_LENGTH;
 						?>
-						<input type="text" <?if ($bReadOnly) echo "disabled readonly" ?> id="SUBCAT_RECUR_SCHEME_LENGTH" name="SUBCAT_RECUR_SCHEME_LENGTH" value="<?echo htmlspecialcharsbx($str_CAT_RECUR_SCHEME_LENGTH) ?>" size="10">
+						<input type="text"<?= $disableProduct; ?> id="SUBCAT_RECUR_SCHEME_LENGTH" name="SUBCAT_RECUR_SCHEME_LENGTH" value="<?= htmlspecialcharsbx($str_CAT_RECUR_SCHEME_LENGTH) ?>" size="10">
 
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<?echo GetMessage("C2IT_PERIOD_TIME")?>
+						<?= GetMessage("C2IT_PERIOD_TIME")?>
 					</td>
 					<td>
-						<?
+						<?php
 						$str_CAT_RECUR_SCHEME_TYPE = $arBaseProduct["RECUR_SCHEME_TYPE"];
 						if ($bVarsFromForm) $str_CAT_RECUR_SCHEME_TYPE = $SUBCAT_RECUR_SCHEME_TYPE;
 						?>
-						<select id="SUBCAT_RECUR_SCHEME_TYPE" name="SUBCAT_RECUR_SCHEME_TYPE">
-							<?
+						<select id="SUBCAT_RECUR_SCHEME_TYPE" name="SUBCAT_RECUR_SCHEME_TYPE"<?= $disableProduct; ?>>
+							<?php
 							foreach ($periodTimeTypes as $key => $value)
 							{
-								?><option value="<?= $key ?>"<?if ($str_CAT_RECUR_SCHEME_TYPE==$key) echo " selected";?>><?= $value ?></option><?
+								?><option value="<?= $key ?>"<?= ($str_CAT_RECUR_SCHEME_TYPE==$key ? " selected" : '');?>><?= $value ?></option><?php
 							}
 							?>
 						</select>
@@ -2118,11 +2190,11 @@ function HideNotice()
 				</tr>
 				<tr>
 					<td>
-						<?echo GetMessage("C2IT_TRIAL_FOR")?>
+						<?= GetMessage("C2IT_TRIAL_FOR")?>
 					</td>
 					<td>
 
-						<?
+						<?php
 						$str_CAT_TRIAL_PRICE_ID = $arBaseProduct["TRIAL_PRICE_ID"];
 						if ($bVarsFromForm) $str_CAT_TRIAL_PRICE_ID = $SUBCAT_TRIAL_PRICE_ID;
 						$catProductName = "";
@@ -2133,142 +2205,91 @@ function HideNotice()
 								$catProductName = $arCatElement["NAME"];
 						}
 						?>
-						<input id="SUBCAT_TRIAL_PRICE_ID" name="SUBCAT_TRIAL_PRICE_ID" value="<?= htmlspecialcharsbx($str_CAT_TRIAL_PRICE_ID) ?>" size="5" type="text"><input type="button" id="SUBCAT_TRIAL_PRICE_ID_BUTTON" name="SUBCAT_TRIAL_PRICE_ID_BUTTON" value="..." onClick="window.open('cat_product_search.php?IBLOCK_ID=<?= $IBLOCK_ID ?>&amp;field_name=SUBCAT_TRIAL_PRICE_ID&amp;alt_name=subtrial_price_alt&amp;form_name='+getElementSubFormName(), '', 'scrollbars=yes,resizable=yes,width=600,height=500,top='+Math.floor((screen.height - 500)/2-14)+',left='+Math.floor((screen.width - 600)/2-5));">&nbsp;<span id="subtrial_price_alt"><?= $catProductName ?></span>
+						<input<?= $disableProduct; ?> id="SUBCAT_TRIAL_PRICE_ID" name="SUBCAT_TRIAL_PRICE_ID" value="<?= htmlspecialcharsbx($str_CAT_TRIAL_PRICE_ID) ?>" size="5" type="text"><input type="button"<?= $disableProduct; ?> id="SUBCAT_TRIAL_PRICE_ID_BUTTON" name="SUBCAT_TRIAL_PRICE_ID_BUTTON" value="..." onClick="window.open('cat_product_search.php?IBLOCK_ID=<?= $IBLOCK_ID ?>&amp;field_name=SUBCAT_TRIAL_PRICE_ID&amp;alt_name=subtrial_price_alt&amp;form_name='+getElementSubFormName(), '', 'scrollbars=yes,resizable=yes,width=600,height=500,top='+Math.floor((screen.height - 500)/2-14)+',left='+Math.floor((screen.width - 600)/2-5));">&nbsp;<span id="subtrial_price_alt"><?= $catProductName ?></span>
 
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<?echo GetMessage("C2IT_WITHOUT_ORDER")?>
+						<?= GetMessage("C2IT_WITHOUT_ORDER")?>
 					</td>
 					<td>
-						<?
+						<?php
 						$str_CAT_WITHOUT_ORDER = $arBaseProduct["WITHOUT_ORDER"];
 						if ($bVarsFromForm) $str_CAT_WITHOUT_ORDER = $SUBCAT_WITHOUT_ORDER;
 						?>
-						<input type="checkbox" <?if ($bReadOnly) echo "disabled readonly" ?> name="SUBCAT_WITHOUT_ORDER" value="Y" <?if ($str_CAT_WITHOUT_ORDER=="Y") echo "checked"?>>
+						<input type="checkbox"<?= $disableProduct; ?> name="SUBCAT_WITHOUT_ORDER" value="Y" <?= ($str_CAT_WITHOUT_ORDER=="Y" ?  "checked" : '');?>>
 
 					</td>
 				</tr>
-				<?
+				<?php
 			}
 
-			$userFieldManager = Main\UserField\Internal\UserFieldHelper::getInstance()->getManager();
-			$arUserFields = $userFieldManager->GetUserFields(
-				Catalog\ProductTable::getUfId(),
-				$PRODUCT_ID,
-				LANGUAGE_ID
-			);
-			if (!empty($arUserFields))
-			{
-				foreach (array_keys($arUserFields) as $fieldName)
-				{
-					$arUserFields[$fieldName]['VALUE_ID'] = $PRODUCT_ID;
-					$arUserFields[$fieldName]['EDIT_FORM_LABEL'] = $arUserFields[$fieldName]['EDIT_FORM_LABEL']
-						??
-						$arUserFields[$fieldName]['FIELD_NAME']
-					;
-				}
-				unset($fieldName);
-
-				$restrictions = [
-					'TYPE' => (int)$arBaseProduct['TYPE'],
+			$productUserFieldsHtml = \CCatalogAdminTools::getAllProductFieldsHtml(
+				[
+					'ID' => $ID,
+					'PRODUCT_ID' => $PRODUCT_ID,
 					'IBLOCK_ID' => $IBLOCK_ID,
-				];
-
-				$permissionFields = Catalog\Product\SystemField::getPermissionFieldsByRestrictions($restrictions);
-				foreach ($permissionFields as $field => $permission)
-				{
-					if (
-						!$permission
-						&& isset($arUserFields[$field])
-					)
-					{
-						unset($arUserFields[$field]);
-					}
-				}
-				$systemFields = Catalog\Product\SystemField::getFieldNamesByRestrictions($restrictions);
-
-				if (!empty($systemFields))
-				{
-					?><tr class="heading">
-					<td colspan="2"><?=GetMessage("C2IT_UF_SYSTEM_FIELDS"); ?></td>
-					</tr><?
-
-					foreach ($systemFields as $fieldName)
-					{
-						$html = $userFieldManager->GetEditFormHTML(
-							$bVarsFromForm,
-							$GLOBALS[$fieldName] ?? '',
-							$arUserFields[$fieldName]
-						);
-						//TODO: remove this code after refactoring UF fields
-						if ($fieldName == 'UF_PRODUCT_GROUP')
-						{
-							$html = str_replace('<select', '<select style="max-width: 300px;"', $html);
-						}
-						echo $html;
-
-						unset($arUserFields[$fieldName]);
-					}
-				}
-				unset($systemFields);
-			}
-			if (!empty($arUserFields))
+					'TYPE' => $arBaseProduct['TYPE'],
+				],
+				[
+					'FROM_FORM' => $bVarsFromForm,
+					'ALLOW_EDIT' => $allowEdit,
+				]
+			);
+			if ($productUserFieldsHtml[0] !== '')
 			{
 				?><tr class="heading">
-				<td colspan="2"><?echo GetMessage("C2IT_UF_FIELDS")?></td>
-				</tr><?
-
-				foreach ($arUserFields as $fieldName => $arUserField)
-				{
-
-					echo $userFieldManager->GetEditFormHTML(
-						$bVarsFromForm,
-						$GLOBALS[$fieldName] ?? '',
-						$arUserField
-					);
-				}
-				unset($fieldName, $arUserField);
+				<td colspan="2"><?=GetMessage("C2IT_UF_SYSTEM_FIELDS"); ?></td>
+				</tr><?php
+				echo $productUserFieldsHtml[0];
 			}
-			unset($arUserFields);
-			unset($userFieldManager);
+			if ($productUserFieldsHtml[1] !== '')
+			{
+				?><tr class="heading">
+				<td colspan="2"><?= GetMessage("C2IT_UF_FIELDS")?></td>
+				</tr><?php
+				echo $productUserFieldsHtml[1];
+			}
+			unset($productUserFieldsHtml);
 			?>
 		</table>
 <script type="text/javascript">
 SetSubFieldsStyle('subcatalog_properties_table');
 </script>
-		<?if ($arCatalog["SUBSCRIPTION"]=="Y"):?>
+		<?php
+		if ($arCatalog["SUBSCRIPTION"]=="Y"):?>
 			<script type="text/javascript">
 			ChangeSubPriceType();
 			</script>
-		<?endif;?>
+		<?php
+		endif;
 
-		<?if ($arCatalog["SUBSCRIPTION"]=="Y"):?>
+		if ($arCatalog["SUBSCRIPTION"]=="Y"):
 
-			<?
 			$subtabControl1->BeginNextTab();
 			?>
 
 			<script type="text/javascript">
 			function SubCatGroupsActivate(obj, id)
 			{
-				if (bReadOnly)
+				if (!allowSubEdit)
 					return;
 
 				var ed = BX('SUBCAT_ACCESS_LENGTH_' + id);
 				var ed1 = BX('SUBCAT_ACCESS_LENGTH_TYPE_' + id);
 				ed.disabled = !obj.checked;
+				ed.readOnly = !obj.checked;
 				ed1.disabled = !obj.checked;
 			}
 			</script>
 			<table border="0" cellspacing="0" cellpadding="0" width="100%" class="internal">
 				<tr class="heading">
-					<td><?echo GetMessage("C2IT_VKL")?></td>
-					<td><?echo GetMessage("C2IT_USERS_GROUP")?></td>
-					<td><?echo GetMessage("C2IT_ACTIVE_TIME")?> <sup>1)</sup></td>
+					<td><?= GetMessage("C2IT_VKL")?></td>
+					<td><?= GetMessage("C2IT_USERS_GROUP")?></td>
+					<td><?= GetMessage("C2IT_ACTIVE_TIME")?> <sup>1)</sup></td>
 				</tr>
-				<?
+				<?php
 				$arCurProductGroups = array();
 
 				$dbProductGroups = CCatalogProductGroups::GetList(
@@ -2316,37 +2337,45 @@ SetSubFieldsStyle('subcatalog_properties_table');
 					}
 
 					$bNoAvailGroups = false;
+					$usedProductGroup = isset($arCurProductGroups[$arGroup['ID']]);
+					if ($usedProductGroup)
+					{
+						$accessLenghtValue = $arCurProductGroups[$arGroup["ID"]][0];
+						$accessLenghtType = $arCurProductGroups[$arGroup["ID"]][1];
+						$accessLenghtDisable = '';
+					}
+					else
+					{
+						$accessLenghtValue = '';
+						$accessLenghtType = '';
+						$accessLenghtDisable = $disableFieldAttributes;
+					}
+					if (!$allowEdit)
+					{
+						$accessLenghtDisable = $disableFieldAttributes;
+					}
 					?>
 					<tr>
 						<td align="center">
-
-								<input type="checkbox" name="SUBCAT_USER_GROUP_ID_<?= $arGroup["ID"] ?>" value="Y"<?if (isset($arCurProductGroups[$arGroup["ID"]])) echo " checked";?> onclick="SubCatGroupsActivate(this, <?= $arGroup["ID"] ?>)">
-
+							<input type="checkbox" name="SUBCAT_USER_GROUP_ID_<?= $arGroup["ID"] ?>" value="Y"<?= ($usedProductGroup ? " checked" : '');?> onclick="SubCatGroupsActivate(this, <?= $arGroup["ID"] ?>)"<?= $disableProduct; ?>>
 						</td>
-						<td align="left"><? echo htmlspecialcharsbx($arGroup["NAME"]); ?></td>
+						<td align="left"><?= htmlspecialcharsbx($arGroup["NAME"]); ?></td>
 						<td align="center">
-
-								<input type="text" id="SUBCAT_ACCESS_LENGTH_<?= $arGroup["ID"] ?>" name="SUBCAT_ACCESS_LENGTH_<?= $arGroup["ID"] ?>" size="5" <?
-								if (isset($arCurProductGroups[$arGroup["ID"]]))
-									echo 'value="'.$arCurProductGroups[$arGroup["ID"]][0].'" ';
-								else
-									echo 'disabled ';
-								?>>
-								<select id="SUBCAT_ACCESS_LENGTH_TYPE_<?= $arGroup["ID"] ?>" name="SUBCAT_ACCESS_LENGTH_TYPE_<?= $arGroup["ID"] ?>"<?
-								if (!isset($arCurProductGroups[$arGroup["ID"]]))
-									echo ' disabled';
-								?>>
-									<?
-									foreach ($periodTimeTypes as $key => $value)
-									{
-										?><option value="<?= $key ?>"<?if ($arCurProductGroups[$arGroup["ID"]][1] == $key) echo " selected";?>><?= $value ?></option><?
-									}
-									?>
-								</select>
-
+							<input type="text" id="SUBCAT_ACCESS_LENGTH_<?= $arGroup["ID"] ?>" name="SUBCAT_ACCESS_LENGTH_<?= $arGroup["ID"] ?>" size="5" <?php
+								echo 'value="' . htmlspecialcharsbx($accessLenghtValue) . '" ';
+								echo $accessLenghtDisable;
+							?>>
+							<select id="SUBCAT_ACCESS_LENGTH_TYPE_<?= $arGroup["ID"] ?>" name="SUBCAT_ACCESS_LENGTH_TYPE_<?= $arGroup["ID"] ?>"<?= $accessLenghtDisable;?>>
+								<?php
+								foreach ($periodTimeTypes as $key => $value)
+								{
+									?><option value="<?= $key ?>"<?= ($accessLenghtType == $key ?  ' selected' : ''); ?>><?= $value ?></option><?php
+								}
+								?>
+							</select>
 						</td>
 					</tr>
-					<?
+					<?php
 				}
 
 				if ($bNoAvailGroups)
@@ -2361,13 +2390,13 @@ SetSubFieldsStyle('subcatalog_properties_table');
 					<tr>
 						<td colspan="3"><?=GetMessage("C2IT_NO_USER_GROUPS1")?><?=" ".$textForSettingsNotify?></td>
 					</tr>
-					<?
+					<?php
 				}
 				?>
 			</table>
-			<br><b>1)</b> <?echo GetMessage("C2IT_ZERO_HINT")?>
-		<?endif;?>
-		<?
+			<br><b>1)</b> <?= GetMessage("C2IT_ZERO_HINT")?>
+		<?php
+		endif;
 		$subtabControl1->BeginNextTab();
 
 		$arParams = array();
@@ -2382,7 +2411,7 @@ SetSubFieldsStyle('subcatalog_properties_table');
 
 		if (empty($arDiscountList))
 		{
-			?><b><?echo GetMessage("C2IT_NO_ACTIVE_DISCOUNTS")?></b><br><?
+			?><b><?= GetMessage("C2IT_NO_ACTIVE_DISCOUNTS")?></b><br><?php
 		}
 		else
 		{
@@ -2396,33 +2425,34 @@ SetSubFieldsStyle('subcatalog_properties_table');
 			?><table border="0" cellspacing="0" cellpadding="0" class="internal" align="center" width="100%">
 				<tr class="heading">
 					<td>ID</td>
-					<td><?echo GetMessage("C2IT_SITE")?></td>
-					<td><?echo GetMessage("C2IT_ACTIVITY")?></td>
-					<td><?echo GetMessage("C2IT_NAME")?></td>
-					<td><?echo GetMessage("C2IT_AMOUNT")?></td>
-					<? if ($showDiscountUrl)
+					<td><?= GetMessage("C2IT_SITE")?></td>
+					<td><?= GetMessage("C2IT_ACTIVITY")?></td>
+					<td><?= GetMessage("C2IT_NAME")?></td>
+					<td><?= GetMessage("C2IT_AMOUNT")?></td>
+					<?php
+					if ($showDiscountUrl)
 					{
-					?><td><?echo GetMessage("C2IT_ACTIONS")?></td><?
+					?><td><?= GetMessage("C2IT_ACTIONS")?></td><?php
 					}
 					?>
-				</tr><?
+				</tr><?php
 			foreach ($arDiscountList as $arProductDiscounts)
 			{
 					$boolWork = true;
 				?><tr>
-						<td style="text-align: right;"><? echo $arProductDiscounts["ID"] ?></td>
-						<td style="text-align: center;"><? echo $arProductDiscounts["SITE_ID"] ?></td>
-						<td style="text-align: center;"><? echo GetMessage("C2IT_YES")?></td>
-						<td style="text-align: left;"><? echo htmlspecialcharsbx($arProductDiscounts["NAME"]) ?></td>
+						<td style="text-align: right;"><?= $arProductDiscounts["ID"] ?></td>
+						<td style="text-align: center;"><?= $arProductDiscounts["SITE_ID"] ?></td>
+						<td style="text-align: center;"><?= GetMessage("C2IT_YES")?></td>
+						<td style="text-align: left;"><?= htmlspecialcharsbx($arProductDiscounts["NAME"]) ?></td>
 						<td style="text-align: right;">
-							<?
+							<?php
 							if ($arProductDiscounts["VALUE_TYPE"]=="P")
 							{
 								echo $arProductDiscounts["VALUE"]."%";
 							}
 							elseif ($arProductDiscounts["VALUE_TYPE"]=="S")
 							{
-								?>= <? echo CCurrencyLang::CurrencyFormat($arProductDiscounts["VALUE"], $arProductDiscounts["CURRENCY"], true);
+								?>= <?= CCurrencyLang::CurrencyFormat($arProductDiscounts["VALUE"], $arProductDiscounts["CURRENCY"], true);
 							}
 							else
 							{
@@ -2430,33 +2460,46 @@ SetSubFieldsStyle('subcatalog_properties_table');
 							}
 							?>
 						</td>
-						<?
+						<?php
 						if ($showDiscountUrl)
 						{
 						?>
 						<td style="text-align: center;">
-							<a href="<?=$discountUrl.$arProductDiscounts["ID"] ?>&lang=<?=LANGUAGE_ID; ?>#tb" target="_blank"><?echo GetMessage("C2IT_MODIFY")?></a>
+							<a href="<?=$discountUrl.$arProductDiscounts["ID"] ?>&lang=<?=LANGUAGE_ID; ?>#tb" target="_blank"><?= GetMessage("C2IT_MODIFY")?></a>
 						</td>
-						<?
+						<?php
 						}
 						?>
 					</tr>
-					<?
+					<?php
 			}
-			?></table><?
+			?></table><?php
 		}
 		?>
 		<br>
-		<?echo GetMessage("C2IT_DISCOUNT_HINT");
+		<?= GetMessage("C2IT_DISCOUNT_HINT");
+		if ($allowedShowQuantity)
+		{
 	$subtabControl1->BeginNextTab();
 
 		$showStoreReserve = Catalog\Config\State::isShowedStoreReserve();
 		$stores = array();
 		$storeLink = array();
 		$storeCount = 0;
+		$permissionFilter = [];
+		if (Loader::includeModule('crm'))
+		{
+			$permissionFilter = $accessController->getEntityFilter(
+				ActionDictionary::ACTION_STORE_VIEW,
+				Catalog\StoreTable::class
+			);
+		}
 		$iterator = Catalog\StoreTable::getList(array(
 			'select' => array('ID', 'TITLE', 'ADDRESS', 'SORT'),
-			'filter' => array('=ACTIVE' => 'Y'),
+			'filter' => array_merge(
+				array('=ACTIVE' => 'Y'),
+				$permissionFilter
+			),
 			'order' => array('SORT' => 'ASC', 'ID' => 'ASC'),
 		));
 		while ($row = $iterator->fetch())
@@ -2530,18 +2573,18 @@ SetSubFieldsStyle('subcatalog_properties_table');
 		{
 			?><table border="0" cellspacing="0" cellpadding="0" width="100%" class="internal">
 			<tr class="heading">
-				<td><?echo GetMessage("C2IT_STORE_NUMBER"); ?></td>
-				<td><? echo GetMessage('C2IT_STORE_ID'); ?></td>
-				<td><?echo GetMessage("C2IT_NAME"); ?></td>
-				<td><?echo GetMessage("C2IT_STORE_ADDR"); ?></td>
-				<td><?echo GetMessage("C2IT_PROD_AMOUNT"); ?></td><?php
+				<td><?= GetMessage("C2IT_STORE_NUMBER"); ?></td>
+				<td><?= GetMessage('C2IT_STORE_ID'); ?></td>
+				<td><?= GetMessage("C2IT_NAME"); ?></td>
+				<td><?= GetMessage("C2IT_STORE_ADDR"); ?></td>
+				<td><?= GetMessage("C2IT_PROD_AMOUNT"); ?></td><?php
 				if ($showStoreReserve)
 				{
-					?><td><?php echo GetMessage("C2IT_PROD_QUANTITY_RESERVED"); ?></td><?php
+					?><td><?= GetMessage("C2IT_PROD_QUANTITY_RESERVED"); ?></td><?php
 				}
 				?>
 			</tr>
-			<?
+			<?php
 			foreach ($stores as $storeIndex => $row)
 			{
 				$storeId = '';
@@ -2560,21 +2603,21 @@ SetSubFieldsStyle('subcatalog_properties_table');
 				<td style="text-align:center;"><?=$storeId; ?></td>
 				<td style="text-align:center;"><?=htmlspecialcharsbx($row['TITLE']); ?></td>
 				<td style="text-align:center;"><?=$address; ?></td>
-				<td style="text-align:center;"><input type="text" id="SUBAR_AMOUNT_<?=$row['ID']; ?>" name="SUBAR_AMOUNT[<?=$row['ID']?>]" size="12" value="<?=htmlspecialcharsbx($row['PRODUCT_AMOUNT']); ?>" <? echo ((!$bStore || $bUseStoreControl) ? 'disabled readonly' : ''); ?>><?
+				<td style="text-align:center;"><input type="text" id="SUBAR_AMOUNT_<?=$row['ID']; ?>" name="SUBAR_AMOUNT[<?=$row['ID']?>]" size="12" value="<?=htmlspecialcharsbx($row['PRODUCT_AMOUNT']); ?>" <?= ((!$bStore || $bUseStoreControl) ? 'disabled readonly' : ''); ?>><?php
 				if ($bStore)
 				{
-					?><input type="hidden" name="SUBAR_STORE_ID[<?=$row['ID']?>]" value="<?=$row['ID']?>"><?
+					?><input type="hidden" name="SUBAR_STORE_ID[<?=$row['ID']?>]" value="<?=$row['ID']?>"><?php
 				}
 				?></td><?php
 				if ($showStoreReserve)
 				{
 					?><td><input type="text" size="12" disable readonly value="<?=htmlspecialcharsbx($row['QUANTITY_RESERVED']); ?>"></td><?php
 				}
-				?></tr><?
+				?></tr><?php
 				unset($storeUrl, $address, $storeId);
 			}
 			unset($storeIndex, $row);
-			?></table><?
+			?></table><?php
 		}
 		else
 		{
@@ -2582,7 +2625,7 @@ SetSubFieldsStyle('subcatalog_properties_table');
 			{
 				$storeListUrl = $selfFolderUrl.'cat_store_list.php?lang='.LANGUAGE_ID;
 				$storeListUrl = $adminSidePanelHelper->editUrlToPublicPage($storeListUrl);
-				?><b><? echo GetMessage("C2IT_STORE_NO_STORE"); ?> <a target="_top" href="<?=$storeListUrl?>"><?=GetMessage("C2IT_STORE"); ?></a></b><br><?
+				?><b><?= GetMessage("C2IT_STORE_NO_STORE"); ?> <a target="_top" href="<?=$storeListUrl?>"><?=GetMessage("C2IT_STORE"); ?></a></b><br><?php
 			}
 		}
 		if (!$bUseStoreControl)
@@ -2606,42 +2649,32 @@ SetSubFieldsStyle('subcatalog_properties_table');
 			<table border="0" cellspacing="0" cellpadding="0" width="100%" class="edit-table" id="subcatalog_barcode_table">
 
 				<tr>
-					<td width="40%"><label for="SUBCAT_BARCODE_MULTIPLY"><? echo GetMessage('C2IT_BARCODE_MULTIPLY'); ?>:</label></td>
+					<td width="40%"><label for="SUBCAT_BARCODE_MULTIPLY"><?= GetMessage('C2IT_BARCODE_MULTIPLY'); ?>:</label></td>
 					<td width="60%">
-						<input type="checkbox" name="SUBCAT_BARCODE_MULTIPLY" id="SUBCAT_BARCODE_MULTIPLY" value="Y" <?=$bUseMultiplyBarcode ? 'checked="checked"' : ''?> <? echo (($bReadOnly) ? 'disabled readonly' : 'onclick="checkSubBarCode();"'); ?>/>
+						<input type="checkbox" name="SUBCAT_BARCODE_MULTIPLY" id="SUBCAT_BARCODE_MULTIPLY" value="Y"<?=$bUseMultiplyBarcode ? ' checked="checked"' : ''?><?= $disableProduct; ?> onclick="checkSubBarCode();">
 					</td>
 				</tr>
 
-				<tr id="tr_SUB_CAT_BARCODE"<? echo (($bUseMultiplyBarcode) ? ' style="display: none;"' : ''); ?>>
-					<td><?echo GetMessage("C2IT_BAR_CODE")?>:</td><?
-					$strDisable = '';
-					if ($bReadOnly)
-					{
-						$strDisable = ' disabled readonly';
-					}
-					elseif ('' != $barcode)
-					{
-						$strDisable = ' disabled';
-					}
-					?>
-					<td><input type="text" name="SUBCAT_BARCODE" id="SUBCAT_BARCODE" size="30" value="<? echo htmlspecialcharsbx($barcode); ?>" <? echo $strDisable; ?>/></td>
-				</tr><?
+				<tr id="tr_SUB_CAT_BARCODE"<?= ($bUseMultiplyBarcode ? ' style="display: none;"' : ''); ?>>
+					<td><?= GetMessage("C2IT_BAR_CODE")?>:</td>
+					<td><input type="text" name="SUBCAT_BARCODE" id="SUBCAT_BARCODE" size="30" value="<?= htmlspecialcharsbx($barcode); ?>"<?= $disableProduct; ?>></td>
+				</tr><?php
 				if (0 < $PRODUCT_ID && '' != $barcode)
 				{
 				?>
-				<tr id="tr_SUBCAT_BARCODE_EDIT"<? echo (($bUseMultiplyBarcode) ? ' style="display: none;"' : ''); ?>>
-					<td><?echo GetMessage("C2IT_BAR_CODE_EDIT")?>:</td>
+				<tr id="tr_SUBCAT_BARCODE_EDIT"<?= (($bUseMultiplyBarcode) ? ' style="display: none;"' : ''); ?>>
+					<td><?= GetMessage("C2IT_BAR_CODE_EDIT")?>:</td>
 					<td>
 						<input type="hidden" name="SUBCAT_BARCODE_EDIT" id="SUBCAT_BARCODE_EDIT_N" value="N" />
-						<input type="checkbox" name="SUBCAT_BARCODE_EDIT" id="SUBCAT_BARCODE_EDIT_Y" size="30" value="Y" <? echo (($bReadOnly) ? ' disabled readonly' : ' onclick="editSubBarCode();"'); ?> />
+						<input type="checkbox" name="SUBCAT_BARCODE_EDIT" id="SUBCAT_BARCODE_EDIT_Y" size="30" value="Y"<?= $disableProduct; ?> onclick="editSubBarCode();">
 					</td>
-				</tr><?
+				</tr><?php
 				}
 				?>
 			</table>
-			<?
+			<?php
 		}
-
+		}
 		if($activitySubscribeTab)
 		{
 			$subtabControl1->BeginNextTab();
@@ -2696,7 +2729,7 @@ SetSubFieldsStyle('subcatalog_properties_table');
 					<tr>
 						<td width="40%" style="text-align:right;"><?=GetMessage('C2IT_LIST_SUBSCRIPTIONS')?></td>
 						<td width="60%">
-							<?
+							<?php
 							$subscriptionUrl = $selfFolderUrl."cat_subscription_list.php?ITEM_ID=".htmlspecialcharsbx($PRODUCT_ID)."&lang=".LANGUAGE_ID;
 							$subscriptionUrl = ($publicMode ? str_replace(".php", "/", $subscriptionUrl) : $subscriptionUrl);
 							?>
@@ -2707,11 +2740,9 @@ SetSubFieldsStyle('subcatalog_properties_table');
 					</tr>
 				</table>
 			</div>
-			<?
+			<?php
 		}
 		$subtabControl1->End();
 		?>
 	</td>
 </tr>
-<?
-}

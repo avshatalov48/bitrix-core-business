@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\Controller\Document;
 
+use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\Engine\Response\DataType\Page;
@@ -10,6 +11,9 @@ use Bitrix\Main\Result;
 use Bitrix\Main\UI\PageNavigation;
 use CCatalogStoreDocsElement;
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\Model\StoreDocument;
+use Bitrix\Catalog\Access\Model\StoreDocumentElement;
 use Bitrix\Catalog\Controller\Controller;
 
 class Element extends Controller
@@ -34,6 +38,29 @@ class Element extends Controller
 	public function addAction(array $fields): ?array
 	{
 		$documentId = (int)($fields['DOC_ID'] ?? 0);
+		if (!$documentId)
+		{
+			$this->setDocumentNotFoundError();
+
+			return null;
+		}
+
+		$documentFields = $this->getDocumentFields($documentId);
+		if (!$documentFields)
+		{
+			$this->setDocumentNotFoundError();
+
+			return null;
+		}
+		elseif (!$this->checkDocumentAccess(ActionDictionary::ACTION_STORE_DOCUMENT_MODIFY, $documentFields))
+		{
+			return null;
+		}
+		elseif (!$this->checkStoresAccess(0, $fields))
+		{
+			return null;
+		}
+
 		switch ($this->getDocumentStatusById($documentId))
 		{
 			case self::DOCUMENT_STATUS_ALLOWED:
@@ -65,6 +92,22 @@ class Element extends Controller
 	 */
 	public function updateAction(int $id, array $fields): ?array
 	{
+		$documentFields = $this->getDocumentFieldsByElementId($id);
+		if (!$documentFields)
+		{
+			$this->setDocumentNotFoundError();
+
+			return null;
+		}
+		elseif (!$this->checkDocumentAccess(ActionDictionary::ACTION_STORE_DOCUMENT_MODIFY, $documentFields))
+		{
+			return null;
+		}
+		elseif (!$this->checkStoresAccess($id, $fields))
+		{
+			return null;
+		}
+
 		switch ($this->getDocumentStatusByElementId($id))
 		{
 			case self::DOCUMENT_STATUS_ALLOWED:
@@ -96,6 +139,22 @@ class Element extends Controller
 	 */
 	public function deleteAction(int $id): ?bool
 	{
+		$documentFields = $this->getDocumentFieldsByElementId($id);
+		if (!$documentFields)
+		{
+			$this->setDocumentNotFoundError();
+
+			return null;
+		}
+		elseif (!$this->checkDocumentAccess(ActionDictionary::ACTION_STORE_DOCUMENT_MODIFY, $documentFields))
+		{
+			return null;
+		}
+		elseif (!$this->checkStoresAccess($id))
+		{
+			return null;
+		}
+
 		switch ($this->getDocumentStatusByElementId($id))
 		{
 			case self::DOCUMENT_STATUS_ALLOWED:
@@ -136,6 +195,19 @@ class Element extends Controller
 	{
 		$filter['@DOCUMENT.DOC_TYPE'] = array_keys(Catalog\Controller\Document::getAvailableRestDocumentTypes());
 
+		$accessFilter = AccessController::getCurrent()->getEntityFilter(
+			ActionDictionary::ACTION_STORE_DOCUMENT_VIEW,
+			get_class($this->getEntityTable())
+		);
+		if ($accessFilter)
+		{
+			// combines through a new array so that the `OR` condition does not bypass the access filter.
+			$filter = [
+				$accessFilter,
+				$filter,
+			];
+		}
+
 		return new Page(
 			'DOCUMENT_ELEMENTS',
 			$this->getList($select, $filter, $order, $pageNavigation),
@@ -150,12 +222,6 @@ class Element extends Controller
 	 */
 	public function fieldsAction(): ?array
 	{
-		$r = $this->checkReadPermissionEntity();
-		if (!$r->isSuccess())
-		{
-			return null;
-		}
-
 		return [$this->getViewFields()];
 	}
 
@@ -182,13 +248,14 @@ class Element extends Controller
 	 */
 	protected function checkModifyPermissionEntity()
 	{
-		$r = $this->checkReadPermissionEntity();
-		if($r->isSuccess())
+		$r = new Result();
+
+		if (!AccessController::getCurrent()->check(Controller::CATALOG_STORE))
 		{
-			if (!Engine\CurrentUser::get()->canDoOperation(Controller::CATALOG_STORE))
-			{
-				$this->setDocumentRightsError();
-			}
+			$r->addError(new Error(
+				Controller::ERROR_ACCESS_DENIED,
+				'ERROR_DOCUMENT_RIGHTS'
+			));
 		}
 
 		return $r;
@@ -198,14 +265,15 @@ class Element extends Controller
 	{
 		$r = new Result();
 
-		$currentUser = Engine\CurrentUser::get();
-
 		if (
-			!$currentUser->canDoOperation(Controller::CATALOG_STORE)
-			&& !$currentUser->canDoOperation(Controller::CATALOG_READ)
+			!AccessController::getCurrent()->check(Controller::CATALOG_STORE)
+			&& !AccessController::getCurrent()->check(Controller::CATALOG_READ)
 		)
 		{
-			$this->setDocumentRightsError();
+			$r->addError(new Error(
+				Controller::ERROR_ACCESS_DENIED,
+				'ERROR_DOCUMENT_RIGHTS'
+			));
 		}
 
 		return $r;
@@ -229,9 +297,16 @@ class Element extends Controller
 
 	private function getDocumentStatusById(int $documentId): int
 	{
-		$iterator = Catalog\StoreDocumentTable::getList([
+		return $this->getDocumentStatus(
+			$this->getDocumentFields($documentId)
+		);
+	}
+
+	private function getDocumentFields(int $documentId): ?array
+	{
+		return Catalog\StoreDocumentTable::getRow([
 			'select' => [
-				'STORE_DOCUMENT_ID' => 'ID',
+				'ID',
 				'STATUS',
 				'DOC_TYPE',
 			],
@@ -239,15 +314,18 @@ class Element extends Controller
 				'=ID' => $documentId,
 			],
 		]);
-		$row = $iterator->fetch();
-		unset($iterator);
-
-		return $this->getDocumentStatus($row);
 	}
 
 	private function getDocumentStatusByElementId(int $elementId): int
 	{
-		$iterator = Catalog\StoreDocumentElementTable::getList([
+		return $this->getDocumentStatus(
+			$this->getDocumentFieldsByElementId($elementId)
+		);
+	}
+
+	public function getDocumentFieldsByElementId(int $elementId): ?array
+	{
+		$row = Catalog\StoreDocumentElementTable::getRow([
 			'select' => [
 				'STORE_DOCUMENT_ID' => 'DOC_ID',
 				'STATUS' => 'DOCUMENT.STATUS',
@@ -257,10 +335,13 @@ class Element extends Controller
 				'=ID' => $elementId,
 			],
 		]);
-		$row = $iterator->fetch();
-		unset($iterator);
+		if ($row)
+		{
+			$row['ID'] = $row['STORE_DOCUMENT_ID'];
+			unset($row['STORE_DOCUMENT_ID']);
+		}
 
-		return $this->getDocumentStatus($row);
+		return $row;
 	}
 
 	private function getDocumentStatus($row): int
@@ -304,5 +385,55 @@ class Element extends Controller
 			'Conducted document',
 			'ERROR_DOCUMENT_STATUS'
 		));
+	}
+
+	/**
+	 * Check access to document.
+	 *
+	 * @param string $action
+	 * @param array $documentFields
+	 *
+	 * @return bool
+	 */
+	private function checkDocumentAccess(string $action, array $documentFields): bool
+	{
+		$can = AccessController::getCurrent()->check(
+			$action,
+			StoreDocument::createFromArray($documentFields)
+		);
+		if (!$can)
+		{
+			$this->setDocumentRightsError();
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check access to stores.
+	 *
+	 * @param int $id
+	 * @param array $fields
+	 *
+	 * @return bool
+	 */
+	private function checkStoresAccess(int $id, array $fields = []): bool
+	{
+		$fields['ID'] = $id;
+
+		$can = AccessController::getCurrent()->check(
+			ActionDictionary::ACTION_STORE_VIEW,
+			StoreDocumentElement::createFromArray($fields)
+		);
+		if (!$can)
+		{
+			$this->setDocumentRightsError();
+
+			return false;
+		}
+
+		return true;
 	}
 }

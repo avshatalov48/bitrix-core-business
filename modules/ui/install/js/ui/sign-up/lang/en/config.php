@@ -10,5 +10,6 @@ $MESS["UI_SIGN_UP_TAB_TOUCH_TITLE"] = "Hand sign";
 $MESS["UI_SIGN_UP_TAKE_SIGN_PHOTO"] = "Take photo with phone";
 $MESS["UI_SIGN_UP_TOUCH_CLEAR_BUTTON"] = "clear";
 $MESS["UI_SIGN_UP_TOUCH_LAYOUT_LABEL"] = "Use mouse to write your signature below &darr;";
+$MESS["UI_SIGN_UP_TOUCH_LAYOUT_MOBILE_LABEL"] = "Draw your signature in the box below &darr;";
 $MESS["UI_SIGN_UP_UPLOAD_NEW"] = "Upload new image";
 $MESS["UI_SIGN_UP_UPLOAD_SIGN_PHOTO"] = "Upload image";

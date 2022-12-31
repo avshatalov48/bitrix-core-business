@@ -254,4 +254,12 @@ class Date extends BaseProperty
 
 		return $this;
 	}
+
+	/**
+	 * @return mixed|string
+	 */
+	public function getDateTimeFormat(): string
+	{
+		return $this->format;
+	}
 }

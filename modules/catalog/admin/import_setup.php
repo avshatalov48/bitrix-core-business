@@ -2,7 +2,10 @@
 /** @global CDatabase $DB */
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Main\Loader;
+
 define('NO_AGENT_CHECK', true);
 
 $executeImport = (isset($_REQUEST['ACTION']) && is_string($_REQUEST['ACTION']) && $_REQUEST['ACTION'] == 'IMPORT');
@@ -27,11 +30,23 @@ unset($filePosition, $existImportSession, $existActionFile, $executeImport);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
-if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_import_edit') || $USER->CanDoOperation('catalog_import_exec')))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+
 Loader::includeModule('catalog');
-$bCanEdit = $USER->CanDoOperation('catalog_import_edit');
-$bCanExec = $USER->CanDoOperation('catalog_import_exec');
+
+$accessController = AccessController::getCurrent();
+if (
+	!(
+		$accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+		|| $accessController->check(ActionDictionary::ACTION_CATALOG_IMPORT_EDIT)
+		|| $accessController->check(ActionDictionary::ACTION_CATALOG_IMPORT_EXECUTION)
+	)
+)
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
+
+$bCanEdit = $accessController->check(ActionDictionary::ACTION_CATALOG_IMPORT_EDIT);
+$bCanExec = $accessController->check(ActionDictionary::ACTION_CATALOG_IMPORT_EXECUTION);
 
 if ($ex = $APPLICATION->GetException())
 {

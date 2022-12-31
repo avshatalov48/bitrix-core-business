@@ -403,13 +403,18 @@ class LandingSitesComponent extends LandingBaseComponent
 					}
 					if ($item['PUBLIC_URL'])
 					{
-						if ($item['DOMAIN_ID'] > 0 && $pictureFromCloud && $item['TYPE'] != 'SMN')
+						if ($item['DOMAIN_ID'] > 0 && $pictureFromCloud && $item['TYPE'] !== 'SMN')
 						{
-							$item['PREVIEW'] = $item['PUBLIC_URL'] . '/preview.jpg';
+							$item['PREVIEW'] = $landingNull->getPreview($item['LANDING_ID_INDEX'], true);
+							$item['CLOUD_PREVIEW'] = $item['PUBLIC_URL'] . '/preview.jpg';
 						}
 						else if ($item['LANDING_ID_INDEX'])
 						{
 							$item['PREVIEW'] = $landingNull->getPreview($item['LANDING_ID_INDEX'], true);
+						}
+						else
+						{
+							$item['PREVIEW'] = Manager::getUrlFromFile('/bitrix/images/landing/nopreview.jpg');
 						}
 					}
 				}

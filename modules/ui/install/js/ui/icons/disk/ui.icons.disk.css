@@ -40,41 +40,4 @@
 
 .ui-icon.ui-icon-file-folder-shared-2 > i { background-position: 0 calc(100% / var(--icon-file-col) * 14) }
 
-/*region Fix for IE*/
-.bx-ie .ui-icon-file,
-.bx-ie .ui-icon-file-empty > i { background-position: 0 0 }
-
-.bx-ie .ui-icon-file-txt > i { background-position: 0 7.14% }
-
-.bx-ie .ui-icon-file-doc > i,
-.bx-ie .ui-icon-file-docx > i { background-position: 0 14.28% }
-
-.bx-ie .ui-icon-file-xls > i,
-.bx-ie .ui-icon-file-xlsx > i { background-position: 0 21.42% }
-
-.bx-ie .ui-icon-file-php > i { background-position: 0 28.58% }
-
-.bx-ie .ui-icon-file-pdf > i { background-position: 0 35.72% }
-
-.bx-ie .ui-icon-file-ppt > i { background-position: 0 42.86% }
-
-.bx-ie .ui-icon-file-rar > i { background-position: 0 50% }
-
-.bx-ie .ui-icon-file-zip > i { background-position: 0 57.14% }
-
-.bx-ie .ui-icon-file-set > i { background-position: 0 64.28% }
-
-.bx-ie .ui-icon-file-mov > i,
-.bx-ie .ui-icon-file-mp4 > i { background-position: 0 71.42% }
-
-.bx-ie .ui-icon-file-img > i { background-position: 0 78.58% }
-
-.bx-ie .ui-icon-file-folder > i { background-position: 0 85.72% }
-
-.bx-ie .ui-icon-file-folder-shared > i { background-position: 0 92.86% }
-
-.bx-ie .ui-icon-file-folder-shared-2 > i { background-position: 0 100% }
-
-/*endregion*/
-
 /*endregion*/

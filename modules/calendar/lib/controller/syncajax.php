@@ -5,6 +5,7 @@ use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\User;
+use Bitrix\Calendar\Internals\FlagRegistry;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Sync\ICloud;
@@ -129,6 +130,7 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 			try
 			{
 				$manager = new Google\StartSynchronizationManager($owner->getId());
+				FlagRegistry::getInstance()->setFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
 				if ($connection = $manager->addStatusHandler($pusher)->start())
 				{
 					$response = [
@@ -137,6 +139,7 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 						'connectionId' => $connection->getId(),
 					];
 				}
+				FlagRegistry::getInstance()->resetFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
 			}
 			catch (BaseException $e)
 			{
@@ -182,6 +185,9 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 			};
 
 			$controller = new Sync\Office365\StartSyncController($owner);
+			FlagRegistry::getInstance()->setFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
+
+			// start process
 			if ($connection = $controller->addStatusHandler($pusher)->start())
 			{
 				$response['connectionId'] = $connection->getId();
@@ -190,6 +196,7 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 			{
 				$response['connectionId'] = null;
 			}
+			FlagRegistry::getInstance()->resetFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
 		}
 		catch (LoaderException $e)
 		{
@@ -279,8 +286,9 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 				'message' => Loc::getMessage('EC_SYNCAJAX_DAV_REQUIRED'),
 			];
 		}
-
+		FlagRegistry::getInstance()->setFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
 		$result = (new Icloud\VendorSyncManager())->syncIcloudConnection($connectionId);
+		FlagRegistry::getInstance()->resetFlag(Sync\Dictionary::FIRST_SYNC_FLAG_NAME);
 
 		if ($result['status'] === 'error' && $result['message'])
 		{

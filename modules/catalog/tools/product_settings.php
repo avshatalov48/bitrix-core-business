@@ -8,23 +8,23 @@ define('PUBLIC_AJAX_MODE', true);
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Main\Loader,
-	Bitrix\Catalog;
+	Bitrix\Catalog,
+	Bitrix\Catalog\Access\ActionDictionary,
+	Bitrix\Catalog\Access\AccessController;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 
 Loc::loadMessages(__FILE__);
 
-$settingIds = array(
-	'default_quantity_trace',
-	'default_can_buy_zero',
-	'default_subscribe'
-);
-$settings = array();
-foreach ($settingIds as $id)
-	$settings[$id] = (string)Main\Config\Option::get('catalog', $id);
-unset($id);
+if (!Loader::includeModule('catalog'))
+{
+	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
+	ShowError(Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_REINDEX_ERRORS_MODULE_CATALOG_ABSENT'));
+	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
+	die();
+}
 
-if (!$USER->CanDoOperation('catalog_settings'))
+if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS))
 {
 	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 	ShowError(Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_ACCESS_DENIED'));
@@ -40,15 +40,17 @@ if (!check_bitrix_sessid())
 	die();
 }
 
-if (!Loader::includeModule('catalog'))
-{
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
-	ShowError(Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_REINDEX_ERRORS_MODULE_CATALOG_ABSENT'));
-	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
-	die();
-}
-
 $request = Main\Context::getCurrent()->getRequest();
+
+$settingIds = array(
+	'default_quantity_trace',
+	'default_can_buy_zero',
+	'default_subscribe',
+);
+$settings = array();
+foreach ($settingIds as $id)
+	$settings[$id] = (string)Main\Config\Option::get('catalog', $id);
+unset($id);
 
 if (
 	$request->getRequestMethod() == 'GET'
@@ -94,7 +96,9 @@ elseif (
 	{
 		$newValue = (string)$request[$id];
 		if ($newValue == 'Y' || $newValue == 'N')
+		{
 			$newSettings[$id] = $newValue;
+		}
 		unset($newValue);
 	}
 	unset($id);
@@ -102,6 +106,7 @@ elseif (
 	foreach ($newSettings as $id => $value)
 	{
 		Main\Config\Option::set('catalog', $id, $value, '');
+
 		if ($id === 'default_can_buy_zero')
 			Main\Config\Option::set('catalog', 'allow_negative_amount', $value, '');
 	}

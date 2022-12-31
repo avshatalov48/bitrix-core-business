@@ -3,6 +3,7 @@ namespace Bitrix\MessageService\Sender\Sms;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Event;
@@ -13,6 +14,7 @@ use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 
 use Bitrix\MessageService;
+use Bitrix\MessageService\Providers\Twilio\ErrorInformant;
 use Bitrix\MessageService\Sender;
 use Bitrix\MessageService\Sender\Result\MessageStatus;
 use Bitrix\MessageService\Sender\Result\SendMessage;
@@ -257,11 +259,11 @@ class Twilio extends Sender\BaseConfigurable
 
 	private function callExternalMethod($httpMethod, $apiMethod, array $params = array(), $sid = null, $token = null): Sender\Result\HttpRequestResult
 	{
-		$url = 'https://api.twilio.com/2010-04-01/'.$apiMethod.'.json';
+		$url = $this->getRequestUrl($apiMethod);
 
 		$httpClient = new HttpClient(array(
-			"socketTimeout" => 10,
-			"streamTimeout" => 30,
+			"socketTimeout" => $this->socketTimeout,
+			"streamTimeout" => $this->streamTimeout,
 			"waitResponse" => true,
 		));
 		$httpClient->setHeader('User-Agent', 'Bitrix24');
@@ -305,14 +307,16 @@ class Twilio extends Sender\BaseConfigurable
 			$httpStatus = $httpClient->getStatus();
 			if ($httpStatus >= 400)
 			{
-				if (isset($answer['message']) && isset($answer['code']))
-				{
-					$result->addError(new Error($answer['message'], $answer['code']));
-				}
-				else
-				{
-					$result->addError(new Error('Service error (HTTP Status '.$httpStatus.')'));
-				}
+				$errorInformant = new ErrorInformant($answer['message'], $answer['code'], $answer['more_info'], $httpStatus);
+				$result->addError($errorInformant->getError());
+				// if (isset($answer['message']) && isset($answer['code']))
+				// {
+				// 	$result->addError(new Error($answer['message'], $answer['code']));
+				// }
+				// else
+				// {
+				// 	$result->addError(new Error('Service error (HTTP Status '.$httpStatus.')'));
+				// }
 			}
 		}
 		$result->setHttpResponse(new MessageService\DTO\Response([
@@ -379,7 +383,7 @@ class Twilio extends Sender\BaseConfigurable
 	{
 		$params = [
 			'To' => $messageFields['MESSAGE_TO'],
-			'Body' => $messageFields['MESSAGE_BODY'],
+			'Body' => $this->prepareMessageBodyForSend($messageFields['MESSAGE_BODY']),
 			'From' => $messageFields['MESSAGE_FROM_ALPHANUMERIC'],
 			'StatusCallback' => $this->getCallbackUrl()
 		];
@@ -400,7 +404,7 @@ class Twilio extends Sender\BaseConfigurable
 	{
 		$params = [
 			'To' => $messageFields['MESSAGE_TO'],
-			'Body' => $messageFields['MESSAGE_BODY'],
+			'Body' => $this->prepareMessageBodyForSend($messageFields['MESSAGE_BODY']),
 			'From' => $messageFields['MESSAGE_FROM'],
 			'StatusCallback' => $this->getCallbackUrl()
 		];
@@ -432,5 +436,16 @@ class Twilio extends Sender\BaseConfigurable
 		$event->send();
 
 		return $event->getResults();
+	}
+
+	private function getRequestUrl(string $apiMethod): string
+	{
+		$url = Option::get(
+			'messageservice',
+			'twilio_api_uri_tpl',
+			'https://api.twilio.com/2010-04-01/%apiMethod%.json'
+		);
+
+		return str_replace('%apiMethod%', $apiMethod, $url);
 	}
 }

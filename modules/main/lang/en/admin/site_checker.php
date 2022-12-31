@@ -301,7 +301,7 @@ Misconfiguration will lead to numerous issues: texts will be haphazardly truncat
 
 Add this code to <i>/bitrix/php_interface/dbconn.php</I> to enable UTF-8 on your site:
 <code>define('BX_UTF', true);</code>
-and add this code to <i>/bitrix/settings.php</i>:
+and add this code to <i>/bitrix/.settings.php</i>:
 <code>'utf_mode' => 
   array (
     'value' => true,
@@ -438,7 +438,7 @@ A certificate is valid if it was verified by the issuing authority and is owned 
 
 If you use a self-issued certificate on a HTTPS connection, your visitors may experience problems using external software when connecting a WebDav drive or communicating with Microsoft Outlook.
 ";
-$MESS["SC_HELP_CHECK_SOCNET"] = "To receive updates from social resources, the <a href=\"http://www.bitrixsoft.com/company/blog/news/integration-with-social-networks.php\">Social Website Integration</a> module has to be configured providing authentication keys for each service that are going to be used.";
+$MESS["SC_HELP_CHECK_SOCNET"] = "To receive updates from social resources, the Social Website Integration module has to be configured providing authentication keys for each service that are going to be used.";
 $MESS["SC_HELP_CHECK_TURN"] = "Video calling requires that the involved users' browsers can connect to each other. If the callers sit on different networks - for example, in offices  in different locations - and no direct connection is possible, you will need a special TURN server to establish connection.
 
 Bitrix24 provides the preconfigured TURN server free of charge at turn.calls.bitrix24.com. 

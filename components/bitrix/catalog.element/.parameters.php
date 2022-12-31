@@ -677,7 +677,7 @@ if ($usePropertyFeatures)
 		unset($arComponentParameters["PARAMETERS"]["PRODUCT_PROPERTIES"]);
 }
 
-if ($arCurrentValues["SEF_MODE"] == "Y")
+if (isset($arCurrentValues["SEF_MODE"]) && $arCurrentValues["SEF_MODE"] === "Y")
 {
 	$arComponentParameters["PARAMETERS"]["SECTION_CODE_PATH"] = array(
 		"NAME" => GetMessage("CP_BCE_SECTION_CODE_PATH"),

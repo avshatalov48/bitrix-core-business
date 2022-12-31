@@ -37,6 +37,8 @@ const aliases = {
 
 EventEmitter.registerAliases(aliases);
 
+const disabledScrolls: WeakMap<HTMLElement, Set<Popup>> = new WeakMap();
+
 /**
  * @memberof BX.Main
  */
@@ -155,7 +157,7 @@ export default class Popup extends EventEmitter
 		this.titleBar = null;
 		this.bindOptions = typeof (params.bindOptions) === 'object' ? params.bindOptions : {};
 		this.autoHide = params.autoHide === true;
-		this.isScrollBlock = params.isScrollBlock === true;
+		this.disableScroll = params.disableScroll === true || params.isScrollBlock === true;
 		this.autoHideHandler = Type.isFunction(params.autoHideHandler) ? params.autoHideHandler : null;
 		this.handleAutoHide = this.handleAutoHide.bind(this);
 		this.handleOverlayClick = this.handleOverlayClick.bind(this);
@@ -166,6 +168,7 @@ export default class Popup extends EventEmitter
 
 		this.cacheable = true;
 		this.destroyed = false;
+		this.fixed = false;
 
 		this.width = null;
 		this.height = null;
@@ -316,6 +319,7 @@ export default class Popup extends EventEmitter
 		this.setAnimation(params.animation);
 		this.setCacheable(params.cacheable);
 		this.setToFrontOnShow(params.toFrontOnShow);
+		this.setFixed(params.fixed);
 
 		// Compatibility
 		if (params.contentNoPaddings)
@@ -491,8 +495,8 @@ export default class Popup extends EventEmitter
 
 			return {
 				left: windowSize.innerWidth / 2 - popupWidth / 2 + windowScroll.scrollLeft,
-				top: windowSize.innerHeight / 2 - popupHeight / 2 + windowScroll.scrollTop,
-				bottom: windowSize.innerHeight / 2 - popupHeight / 2 + windowScroll.scrollTop,
+				top: windowSize.innerHeight / 2 - popupHeight / 2 + (this.isFixed() ? 0 : windowScroll.scrollTop),
+				bottom: windowSize.innerHeight / 2 - popupHeight / 2 + (this.isFixed() ? 0 : windowScroll.scrollTop),
 
 				//for optimisation purposes
 				windowSize: windowSize,
@@ -963,6 +967,27 @@ export default class Popup extends EventEmitter
 	shouldFrontOnShow(): boolean
 	{
 		return this.toFrontOnShow;
+	}
+
+	setFixed(flag: boolean): void
+	{
+		if (Type.isBoolean(flag))
+		{
+			this.fixed = flag;
+			if (flag)
+			{
+				Dom.addClass(this.getPopupContainer(), '--fixed');
+			}
+			else
+			{
+				Dom.removeClass(this.getPopupContainer(), '--fixed');
+			}
+		}
+	}
+
+	isFixed(): boolean
+	{
+		return this.fixed;
 	}
 
 	setResizeMode(mode: boolean): void
@@ -1464,14 +1489,49 @@ export default class Popup extends EventEmitter
 		return this.zIndexComponent;
 	}
 
-	#disableScroll()
+	setDisableScroll(flag: boolean): void
 	{
-		Dom.addClass(document.body, 'popup-no-scroll');
+		const disable = Type.isBoolean(flag) ? flag : true;
+		if (disable)
+		{
+			this.disableScroll = true;
+			this.#disableTargetScroll();
+		}
+		else
+		{
+			this.disableScroll = false;
+			this.#enableTargetScroll();
+		}
 	}
 
-	#enableScroll()
+	#disableTargetScroll(): void
 	{
-		Dom.removeClass(document.body, 'popup-no-scroll')
+		const target = this.getTargetContainer();
+		let popups: Set<Popup> = disabledScrolls.get(target);
+		if (!popups)
+		{
+			popups = new Set();
+			disabledScrolls.set(target, popups);
+		}
+
+		popups.add(this);
+
+		Dom.addClass(target, 'popup-window-disable-scroll');
+	}
+
+	#enableTargetScroll(): void
+	{
+		const target = this.getTargetContainer();
+		const popups: Set<Popup> = disabledScrolls.get(target) || null;
+		if (popups)
+		{
+			popups.delete(this);
+		}
+
+		if (popups === null || popups.size === 0)
+		{
+			Dom.removeClass(target, 'popup-window-disable-scroll');
+		}
 	}
 
 	show(): void
@@ -1499,6 +1559,11 @@ export default class Popup extends EventEmitter
 
 		this.emit('onShow', new BaseEvent({ compatData: [this] }));
 
+		if (this.disableScroll)
+		{
+			this.#disableTargetScroll();
+		}
+
 		this.adjustPosition();
 
 		this.animateOpening(() => {
@@ -1524,11 +1589,6 @@ export default class Popup extends EventEmitter
 		{
 			this.bindAutoHide();
 		}
-
-		if (this.isScrollBlock)
-		{
-			this.#disableScroll();
-		}
 	}
 
 	close(): void
@@ -1545,9 +1605,9 @@ export default class Popup extends EventEmitter
 			return;
 		}
 
-		if (this.isScrollBlock)
+		if (this.disableScroll)
 		{
-			this.#enableScroll();
+			this.#enableTargetScroll();
 		}
 
 		this.animateClosing(() => {
@@ -1714,9 +1774,9 @@ export default class Popup extends EventEmitter
 			return;
 		}
 
-		if (this.isScrollBlock)
+		if (this.disableScroll)
 		{
-			this.#enableScroll();
+			this.#enableTargetScroll();
 		}
 
 		this.destroyed = true;

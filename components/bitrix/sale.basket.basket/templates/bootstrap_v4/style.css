@@ -109,8 +109,6 @@
 	transition: 220ms ease all;
 }
 
-.bx-ie .basket-coupon-alert .close-link { color: #006cc0; }
-
 .basket-coupon-alert .close-link:hover { border-color: transparent; }
 
 @media (max-width: 991px) {
@@ -423,14 +421,10 @@
 	transition: 220ms ease;
 }
 
-.bx-ie .basket-items-list-header-filter-item { color: #006cc0; }
-
 .basket-items-list-header-filter-item:hover {
 	color: var(--theme-color-second);
 	text-decoration: none;
 }
-
-.bx-ie .basket-items-list-header-filter-item:hover { color: #006cc0; }
 
 .basket-items-list-header-filter-item.active {
 	border-bottom: none;
@@ -1092,10 +1086,6 @@ h2.basket-item-info-name {
 .basket-item-scu-item.selected,
 .basket-item-scu-item.not-available:hover { border-color: var(--primary); }
 
-.bx-ie .basket-item-scu-item:hover,
-.bx-ie .basket-item-scu-item.selected,
-.bx-ie .basket-item-scu-item.not-available:hover { border-color: #006cc0; }
-
 .basket-item-scu-item.selected:hover { cursor: default }
 
 .basket-item-scu-item.not-available:after {
@@ -1222,9 +1212,6 @@ h2.basket-item-info-name {
 
 .basket-item-amount-filed:hover,
 .basket-item-amount-filed:focus { border-color: var(--primary); }
-
-.bx-ie .basket-item-amount-filed:hover,
-.bx-ie .basket-item-amount-filed:focus { border-color: #006cc0; }
 
 .basket-item-amount-filed::-webkit-outer-spin-button,
 .basket-item-amount-filed::-webkit-inner-spin-button {
@@ -2076,8 +2063,6 @@ h2.basket-item-info-name {
 	transition: 190ms all ease;
 }
 
-.bx-ie .basket-gift-item-select-btn-radio { background: #006cc0; }
-
 .basket-gift-item-select-input:checked + .basket-gift-item-select-btn-radio { border-width: 5px; }
 
 .basket-gift-item-select-btn-text {
@@ -2136,9 +2121,6 @@ h2.basket-item-info-name {
 	background-color: var(--primary);
 	opacity: 1;
 }
-
-.bx-ie .basket-gift-item-select-input:checked + .basket-gift-item-select-btn-checkbox:after,
-.bx-ie .basket-gift-item-select-input:checked + .basket-gift-item-select-btn-checkbox:before { background-color: #006cc0; }
 
 @media (max-width: 797px) {
 	.basket-gift-item-select-btn-container {

@@ -14,8 +14,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
  * @param array $arCurrentValues
  */
 
-include_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/desktop/include.php');
-
 $arComponentParameters = array(
 	"GROUPS" => array(),
 	"PARAMETERS" => array(

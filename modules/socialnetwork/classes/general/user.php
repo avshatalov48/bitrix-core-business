@@ -162,12 +162,12 @@ class CAllSocNetUser
 
 	public static function IsFriendsAllowed()
 	{
-		return (COption::GetOptionString("socialnetwork", "allow_frields", "Y") == "Y");
+		return (COption::GetOptionString("socialnetwork", "allow_frields", "Y") === "Y");
 	}
 
 	public static function IsFriendsFriendsAllowed()
 	{
-		return (COption::GetOptionString("socialnetwork", "allow_frields_friends", "Y") == "Y");
+		return (COption::GetOptionString("socialnetwork", "allow_frields_friends", "Y") === "Y");
 	}
 
 	/**

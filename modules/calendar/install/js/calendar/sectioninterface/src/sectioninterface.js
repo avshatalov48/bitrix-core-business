@@ -346,7 +346,11 @@ export class SectionInterface extends EventEmitter
 				&& calendarContext
 				&& calendarContext.util.userIsOwner()
 				&& !section.isArchive()
-				&& (section.isExchange() && !calendarContext.util.config.bExchange)
+				&& (
+					!section.isExchange()
+					||
+					(!calendarContext.util.config.bExchange && section.isExchange())
+				)
 			)
 			{
 				sectionListWrap.querySelector('.calendar-list-slider-widget-content-block')
@@ -957,7 +961,7 @@ export class SectionInterface extends EventEmitter
 			}
 		}
 
-		if (section.isPseudo())
+		if (section.isPseudo() && section.taskSectionBelongToUser())
 		{
 			menuItems.push({
 				text: Loc.getMessage('EC_SEC_EDIT'),
@@ -1075,7 +1079,7 @@ export class SectionInterface extends EventEmitter
 		else if (params.section && params.section.id)
 		{
 			formTitleNode.innerHTML = Loc.getMessage('EC_SEC_SLIDER_EDIT_SECTION');
-			showAccessControl = params.section.canDo('access');
+			showAccessControl = params.section.hasPermission('access');
 		}
 		else
 		{
@@ -1187,11 +1191,11 @@ export class SectionInterface extends EventEmitter
 					if (!section.externalTypeIsLocal())
 					{
 						const listWrap = this.getSectionListWrapForSection(section);
+						this.sliderSections = BX.util.deleteFromArray(this.sliderSections, index);
 						setTimeout(() => {
 							deleteSectionNodes.forEach(node => {
 								Dom.remove(node);
 							});
-							this.sliderSections = BX.util.deleteFromArray(this.sliderSections, index);
 
 							if(!listWrap.querySelector('li.calendar-list-slider-item'))
 							{

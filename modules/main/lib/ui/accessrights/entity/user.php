@@ -71,7 +71,7 @@ class User extends EntityBase
 	{
 		if ($this->model)
 		{
-			return Uri::urnEncode(Avatar::getSrc($this->model->getPersonalPhoto(), $width, $height));
+			return Avatar::getSrc($this->model->getPersonalPhoto(), $width, $height);
 		}
 		return '';
 	}

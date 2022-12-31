@@ -5,7 +5,7 @@ namespace Bitrix\MessageService\Providers\Edna\WhatsApp\Old;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\MessageService\Providers;
-use Bitrix\MessageService\Providers\Edna\WhatsApp\EdnaRu;
+use Bitrix\MessageService\Providers\Constants\InternalOption;
 use Bitrix\MessageService\Providers\Edna\WhatsApp\ExternalSender;
 use Bitrix\MessageService\Providers\Edna\WhatsApp\StatusResolver;
 use Bitrix\MessageService\Sender\Result\MessageStatus;
@@ -16,7 +16,7 @@ class Sender extends Providers\Edna\WhatsApp\Sender
 	public function __construct(
 		Providers\OptionManager $optionManager,
 		Providers\SupportChecker $supportChecker,
-		EdnaRu $utils,
+		Providers\Edna\EdnaRu $utils,
 		EmojiConverter $emoji
 	)
 	{
@@ -47,7 +47,7 @@ class Sender extends Providers\Edna\WhatsApp\Sender
 
 		$externalSender =
 			new ExternalSender(
-				$this->optionManager->getOption(Constants::API_KEY_OPTION),
+				$this->optionManager->getOption(InternalOption::API_KEY),
 				Constants::API_ENDPOINT
 			)
 		;
@@ -81,7 +81,7 @@ class Sender extends Providers\Edna\WhatsApp\Sender
 
 		$externalSender =
 			new ExternalSender(
-				$this->optionManager->getOption(Constants::API_KEY_OPTION),
+				$this->optionManager->getOption(InternalOption::API_KEY),
 				Constants::API_ENDPOINT
 			)
 		;
@@ -110,7 +110,7 @@ class Sender extends Providers\Edna\WhatsApp\Sender
 	 */
 	public function prepareMessageBodyForSave(string $text): string
 	{
-		return $this->emoji->convertEmoji($text, Constants::EMOJI_ENCODE);
+		return $this->emoji->convertEmoji($text, Providers\Constants\InternalOption::EMOJI_ENCODE);
 	}
 
 	/**
@@ -121,7 +121,7 @@ class Sender extends Providers\Edna\WhatsApp\Sender
 	 */
 	private function getSendMessageParams(array $messageFields): array
 	{
-		$messageFields['MESSAGE_BODY'] = $this->emoji->convertEmoji($messageFields['MESSAGE_BODY'], Constants::EMOJI_DECODE);
+		$messageFields['MESSAGE_BODY'] = $this->emoji->convertEmoji($messageFields['MESSAGE_BODY'], Providers\Constants\InternalOption::EMOJI_DECODE);
 		$params = [
 			'id' => uniqid('', true),
 			'subject' => $messageFields['MESSAGE_FROM'],
@@ -148,7 +148,7 @@ class Sender extends Providers\Edna\WhatsApp\Sender
 				}
 			}
 
-			$params = $this->emoji->convertEmojiInTemplate($params, Constants::EMOJI_DECODE);
+			$params = $this->emoji->convertEmojiInTemplate($params, InternalOption::EMOJI_DECODE);
 		}
 
 		return $params;

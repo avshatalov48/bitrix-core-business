@@ -24,6 +24,7 @@ class CZip implements IBXArchive
 	private $add_path = "";
 	private $replaceExistentFiles = false;
 	private $checkBXPermissions = false;
+	private $rule = [];
 
 	const ReadBlockSize = 2048;
 
@@ -379,6 +380,8 @@ class CZip implements IBXArchive
 	{
 		$this->SetOptions(array("ADD_PATH"=>$strPath));
 
+		$rule = $this->GetOptions()['RULE'];
+
 		$arParams = array(
 			"add_path"              => $this->add_path,
 			"remove_path"           => $this->remove_path,
@@ -388,7 +391,7 @@ class CZip implements IBXArchive
 			"callback_post_extract" => "",
 			"set_chmod"             => 0,
 			"by_name"               => "",
-			"by_index"              => "",
+			"by_index"              => array_key_exists("by_index", $rule) ?  $rule['by_index'] : "",
 			"by_preg"               => ""
 		);
 
@@ -434,6 +437,9 @@ class CZip implements IBXArchive
 
 		if (array_key_exists("CHECK_PERMISSIONS", $arOptions))
 			$this->checkBXPermissions = $arOptions["CHECK_PERMISSIONS"] === true;
+
+		if (array_key_exists("RULE", $arOptions))
+			$this->rule = $arOptions["RULE"];
 	}
 
 	/**
@@ -448,7 +454,8 @@ class CZip implements IBXArchive
 			"REMOVE_PATH"       => $this->remove_path,
 			"STEP_TIME"         => $this->step_time,
 			"UNPACK_REPLACE"    => $this->replaceExistentFiles,
-			"CHECK_PERMISSIONS" => $this->checkBXPermissions
+			"CHECK_PERMISSIONS" => $this->checkBXPermissions,
+			"RULE" 				=> $this->rule,
 			);
 
 		return $arOptions;

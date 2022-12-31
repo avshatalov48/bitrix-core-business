@@ -19,6 +19,7 @@ $MESS["BX_SALE_DCM_ERR_BAD_USER_ID"] = "Customer ID is missing";
 $MESS["BX_SALE_DCM_ERR_ORDER_ID_ABSENT"] = "No order ID specified in edit mode";
 $MESS["BX_SALE_DCM_ERR_ORDER_ID_EXIST"] = "Order ID specified in new order creation mode";
 $MESS["BX_SALE_DCM_ERR_SAVE_APPLIED"] = "Cannot save used coupons";
+$MESS["BX_SALE_DCM_ERR_SESSION_NOT_ACCESSIBLE"] = "Session is not available.";
 $MESS["BX_SALE_DCM_STATUS_APPLYED"] = "used";
 $MESS["BX_SALE_DCM_STATUS_ENTERED"] = "added";
 $MESS["BX_SALE_DCM_STATUS_FREEZE"] = "cannot be used";

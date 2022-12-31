@@ -100,30 +100,24 @@ class LandingPubComponent extends LandingBaseComponent
 	}
 
 	/**
+	 * Can reinit current domain zone
+	 * @param string $zone
+	 * @return void
+	 */
+	public function setZone(string $zone)
+	{
+		$this->zone = $zone;
+	}
+
+	/**
 	 * Get base domain of service by lang.
 	 * @return string
 	 */
 	protected function getParentDomain()
 	{
-		static $domain = null;
-
-		if ($domain !== null)
-		{
-			return $domain;
-		}
-
 		$domains = \Bitrix\Landing\Help::getDomains();
 
-		if (isset($domains[$this->zone]))
-		{
-			$domain = $domains[$this->zone];
-		}
-		else
-		{
-			$domain = $domains['en'];
-		}
-
-		return $domain;
+		return $domains[$this->zone] ?? $domains['en'];
 	}
 
 	/**
@@ -170,7 +164,7 @@ class LandingPubComponent extends LandingBaseComponent
 	 * @param string $type Type of the link.
 	 * @return string
 	 */
-	protected function getAdvCode($type = 'bitrix24_logo')
+	public function getAdvCode($type = 'bitrix24_logo')
 	{
 		static $domain = null;
 		static $domainPart = null;
@@ -462,6 +456,8 @@ class LandingPubComponent extends LandingBaseComponent
 				array_shift($requestedPageParts);
 			}
 		}
+
+		$this->arParams['LOCAL_SITE_ID'] = $siteId ?? 0;
 
 		$landingUrl = array_shift($requestedPageParts);
 		$landingSubUrl = $requestedPageParts ? implode('/', $requestedPageParts) : '';
@@ -997,30 +993,27 @@ class LandingPubComponent extends LandingBaseComponent
 	 */
 	protected function onSearchGetURL()
 	{
-		static $pageCatalog = null;
-
-		if ($pageCatalog === null)
-		{
-			$syspages = Syspage::get($this->arResult['LANDING']->getSiteId());
-			if (isset($syspages['catalog']))
-			{
-				$landing = Landing::createInstance(
-					$syspages['catalog']['LANDING_ID'],
-					['skip_blocks' => true]
-				);
-				if ($landing->exist())
-				{
-					$pageCatalog = $landing->getPublicUrl();
-				}
-			}
-		}
-
 		$eventManager = EventManager::getInstance();
 		$eventManager->addEventHandler('search', 'onSearchGetURL',
-			function($row) use($pageCatalog)
+			function($row)
 			{
 				if (isset($row['URL']))
 				{
+					$pageCatalog = '';
+					$syspages = Syspage::get($this->arResult['LANDING']->getSiteId());
+					if (isset($syspages['catalog']))
+					{
+						$landing = Landing::createInstance(
+							$syspages['catalog']['LANDING_ID'],
+							['skip_blocks' => true]
+						);
+						if ($landing->exist())
+						{
+							$pageCatalog = $landing->getPublicUrl();
+						}
+					}
+
+
 					$urlType = 'detail';
 					if (mb_substr($row['ITEM_ID'], 0, 1) == 'S')
 					{
@@ -1251,7 +1244,7 @@ class LandingPubComponent extends LandingBaseComponent
 	 */
 	protected function onBlockPublicView(): void
 	{
-		$query = $this->request('q');
+		$query = \htmlspecialcharsbx($this->request('q'));
 		if ($query)
 		{
 			Cache::disableCache();
@@ -1293,7 +1286,7 @@ class LandingPubComponent extends LandingBaseComponent
 					}
 					$phrases = explode(' ', $query);
 					\trimArr($phrases, true);
-					// try find search phrases in real content (between tags)
+					// try to find search phrases in real content (between tags)
 					$found = preg_match_all(
 						'#>[^<]*(' . implode('|', $phrases) . ')[^<]*<#isu',
 						$outputContent,
@@ -1761,6 +1754,11 @@ class LandingPubComponent extends LandingBaseComponent
 						return;
 					}
 					$this->arParams['CHECK_PERMISSIONS'] = 'Y';
+				}
+				// for 404 we need site url
+				if ($this->arParams['LOCAL_SITE_ID'] ?? null)
+				{
+					$this->arResult['SITE_URL'] = Site::getPublicUrl($this->arParams['LOCAL_SITE_ID']);
 				}
 				// try force reload
 				if ($this->request('forceLandingId'))

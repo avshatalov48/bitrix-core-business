@@ -6,6 +6,8 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Pull\Event;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 
 final class BarcodeScanner extends \Bitrix\Main\Engine\Controller
 {
@@ -15,7 +17,7 @@ final class BarcodeScanner extends \Bitrix\Main\Engine\Controller
 	 */
 	public function sendMobilePushAction(string $id): ?array
 	{
-		if (!$this->getCurrentUser()->canDoOperation('catalog_read'))
+		if (!Loader::includeModule('catalog') || !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ))
 		{
 			$this->addError(new Error(Loc::getMessage('BARCODE_SCANNER_ACCESS_DENIED')));
 			return null;

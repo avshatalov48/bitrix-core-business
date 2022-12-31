@@ -14,8 +14,8 @@ use Bitrix\Seo\SitemapForumTable;
 use Bitrix\Seo\SitemapRuntimeTable;
 use Bitrix\Main\Text\HtmlFilter;
 
-Loc::loadMessages(dirname(__FILE__).'/../../main/tools.php');
-Loc::loadMessages(dirname(__FILE__).'/seo_sitemap.php');
+Loc::loadMessages(__DIR__.'/../../main/tools.php');
+Loc::loadMessages(__DIR__.'/seo_sitemap.php');
 
 if (!$USER->CanDoOperation('seo_tools'))
 {

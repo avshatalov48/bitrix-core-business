@@ -25,6 +25,7 @@
 }
 
 .calendar-planner-time {
+	position: relative;
 	will-change: width;
 	display: table;
 	-webkit-user-select: none!important;  /* Chrome all / Safari all */
@@ -63,8 +64,9 @@
 
 .calendar-planner-time-day-title span {
 	position: sticky;
-	left: 0;
+	left: 5px;
 	margin-right: 10px;
+	transition: left 300ms ease 0s;
 }
 
 .calendar-planner-time-day {
@@ -74,6 +76,21 @@
 
 .calendar-planner-time-day *{
 	font: normal 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+}
+
+.calendar-planner-time-day-past:after {
+	content: '';
+	position: absolute;
+	z-index: 3;
+	top: 25px;
+	left: 1px;
+	right: 0;
+	height: 10000px;
+	box-shadow: inset 0 0 0 99999px rgba(255, 255, 255, 0.55);
+}
+
+.calendar-options-item-planner .calendar-planner-time-day-past:after {
+	box-shadow: inset 0 0 0 99999px rgba(248, 249, 250, 0.55);
 }
 
 .calendar-planner-time-hour-item {
@@ -286,10 +303,9 @@
 /* timeline */
 
 .calendar-planner-timeline-wrapper {
-	overflow: auto;
 	white-space: nowrap;
 	position: relative;
-	overflow-y: hidden;
+	overflow: hidden;
 }
 
 .calendar-planner-timeline-constraint.--lock {
@@ -365,7 +381,7 @@
 	display: inline-block;
 	width: 3px;
 	height: 100%;
-	cursor: e-resize;
+	cursor: ew-resize;
 	z-index: 1000;
 }
 
@@ -699,6 +715,10 @@
 	cursor: pointer;
 }
 
+.calendar-planner-time-arrow-right.--lock {
+	display: none !important;
+}
+
 .calendar-planner-time-arrow-left:hover,
 .calendar-planner-time-arrow-right:hover {
 	background: rgba(59,200,245, 1);
@@ -783,6 +803,7 @@
 	background: rgba(59, 200, 245, .35);
 	border: none;
 	border-radius: 1px;
+	min-width: 3px;
 }
 
 .calendar-planner-main-container-resource .calendar-planner-timeline-space {
@@ -810,7 +831,6 @@
 }
 
 .calendar-planner-main-container-resource .calendar-planner-user-container {
-	margin-right: 2px;
 	padding-left: 15px;
 }
 
@@ -1172,7 +1192,7 @@
 
 .calendar-planner-main-loader {
 	position: absolute !important;
-	top: 62px;
+	top: max(55px, 50%);
 	left: 50%;
 }
 
@@ -1238,4 +1258,65 @@
 		min-width: 40px;
 		width: 40px;
 	}
+}
+
+.calendar-planner-today-button {
+	box-sizing: border-box;
+	position: relative;
+	right: 0;
+	z-index: 10;
+	display: inline-block;
+	margin: -4px 0 0 4px;
+	padding: 4px 5px;
+	font: normal 11px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #58606C;
+	background: #fff;
+	transition: width 300ms ease 0s;
+	cursor: pointer;
+	user-select: none;
+}
+
+.calendar-options-item-planner .calendar-planner-today-button {
+	background: var(--ui-color-palette-gray-03, #f8f9fa);
+}
+
+.calendar-planner-today-button:after {
+	content: '';
+	position: absolute;
+	z-index: -1;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	border-radius: 1in;
+	background: #D9EDF5;
+	border: 1px solid #B9E2F1;
+}
+
+.calendar-planner-readonly .calendar-planner-today-button {
+	cursor: default;
+}
+
+.calendar-planner-user-container .calendar-planner-today-button {
+	position: absolute;
+	margin-top: 1px;
+	top: 0;
+}
+
+.calendar-planner-today-button-container {
+	margin-left: -5px;
+	top: 5px;
+	position: absolute;
+	width: 100%;
+	z-index: 100;
+}
+
+.calendar-planner-today-button-container.--lock {
+	display: none;
+}
+
+.calendar-planner-today-button-container .calendar-planner-today-button {
+	position: sticky;
+	margin-top: 0;
+	left: 0;
 }

@@ -120,7 +120,7 @@ if(window.opener)
 window.close();
 </script>
 ';
-			die();
+			CMain::FinalActions();
 		}
 		else
 		{

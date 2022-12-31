@@ -350,7 +350,10 @@ export class ListPopup
 
 		if (Number(data.items_page) === 0)
 		{
-			likeInstance.popup.close();
+			if (Number(data.list_page) === 1)
+			{
+				likeInstance.popup.close();
+			}
 			return false;
 		}
 

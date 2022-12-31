@@ -2,6 +2,7 @@
 
 namespace Bitrix\Main\Session\Handlers;
 
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Context;
 use Bitrix\Main\Request;
 use Bitrix\Main\Web\Cookie;
@@ -54,8 +55,16 @@ class CookieSessionHandler implements \SessionHandlerInterface
 			return '';
 		}
 
-		$decoded = Json::decode($value);
-		if ($decoded !== null && is_array($decoded))
+		try
+		{
+			$decoded = Json::decode($value);
+		}
+		catch (ArgumentException $exception)
+		{
+			return '';
+		}
+
+		if (is_array($decoded))
 		{
 			if (!isset($decoded['expires']))
 			{

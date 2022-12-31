@@ -124,6 +124,7 @@ export class Explorer
 							action = 'Site::moveFolder';
 							data = {
 								folderId: entityId,
+								toSiteId: this.currentSiteId,
 								toFolderId: this.currentFolderId
 							};
 							break;
@@ -149,7 +150,7 @@ export class Explorer
 						})
 						.catch(reason => {
 							this.errorAlert(reason.result);
-							return Promise.reject(reason);
+							//return Promise.reject(reason);
 						})
 				}
 			),
@@ -202,7 +203,7 @@ export class Explorer
 			)
 			.then(result => {
 				this.popupWindow.setContent(
-					ExplorerUI.getSiteList(result, this.#clickSite.bind(this))
+					ExplorerUI.getSiteList(result, this.#clickSite.bind(this), this.type)
 				);
 				this.popupWindow.adjustPosition();
 				this.#scrollToSite(this.currentSiteId);

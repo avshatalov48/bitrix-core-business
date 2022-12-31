@@ -592,6 +592,16 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_Event resetSyncStatus()
 	 * @method \Bitrix\Calendar\Internals\EO_Event unsetSyncStatus()
 	 * @method \string fillSyncStatus()
+	 * @method \string getEventType()
+	 * @method \Bitrix\Calendar\Internals\EO_Event setEventType(\string|\Bitrix\Main\DB\SqlExpression $eventType)
+	 * @method bool hasEventType()
+	 * @method bool isEventTypeFilled()
+	 * @method bool isEventTypeChanged()
+	 * @method \string remindActualEventType()
+	 * @method \string requireEventType()
+	 * @method \Bitrix\Calendar\Internals\EO_Event resetEventType()
+	 * @method \Bitrix\Calendar\Internals\EO_Event unsetEventType()
+	 * @method \string fillEventType()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -726,6 +736,8 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Main\Type\DateTime[] fillOriginalDateFrom()
 	 * @method \string[] getSyncStatusList()
 	 * @method \string[] fillSyncStatus()
+	 * @method \string[] getEventTypeList()
+	 * @method \string[] fillEventType()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -1110,7 +1122,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method static \Bitrix\Calendar\Internals\EO_SectionConnection wakeUp($data)
 	 */
 	class EO_SectionConnection {
-		/* @var SectionConnectionTable */
+		/* @var \Bitrix\Calendar\Internals\SectionConnectionTable */
 		static public $dataClass = '\Bitrix\Calendar\Internals\SectionConnectionTable';
 		/**
 		 * @param bool|array $setDefaultValues
@@ -1209,6 +1221,274 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection_Collection wakeUpCollection($rows)
 	 */
 	class EO_SectionConnection_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\RoomCategoryTable:calendar/lib/internals/roomcategorytable.php */
+namespace Bitrix\Calendar\Internals {
+	/**
+	 * EO_RoomCategory
+	 * @see \Bitrix\Calendar\Internals\RoomCategoryTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getName()
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method bool isNameChanged()
+	 * @method \string remindActualName()
+	 * @method \string requireName()
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory resetName()
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory unsetName()
+	 * @method \string fillName()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory set($fieldName, $value)
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory reset($fieldName)
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Calendar\Internals\EO_RoomCategory wakeUp($data)
+	 */
+	class EO_RoomCategory {
+		/* @var \Bitrix\Calendar\Internals\RoomCategoryTable */
+		static public $dataClass = '\Bitrix\Calendar\Internals\RoomCategoryTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Calendar\Internals {
+	/**
+	 * EO_RoomCategory_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getNameList()
+	 * @method \string[] fillName()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Calendar\Internals\EO_RoomCategory $object)
+	 * @method bool has(\Bitrix\Calendar\Internals\EO_RoomCategory $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory getByPrimary($primary)
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory[] getAll()
+	 * @method bool remove(\Bitrix\Calendar\Internals\EO_RoomCategory $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Calendar\Internals\EO_RoomCategory_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_RoomCategory_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Calendar\Internals\RoomCategoryTable */
+		static public $dataClass = '\Bitrix\Calendar\Internals\RoomCategoryTable';
+	}
+}
+namespace Bitrix\Calendar\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_RoomCategory_Result exec()
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory fetchObject()
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_RoomCategory_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory fetchObject()
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory_Collection fetchCollection()
+	 */
+	class EO_RoomCategory_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory createObject($setDefaultValues = true)
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory_Collection createCollection()
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory wakeUpObject($row)
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory_Collection wakeUpCollection($rows)
+	 */
+	class EO_RoomCategory_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\QueueMessageTable:calendar/lib/internals/queuemessagetable.php */
+namespace Bitrix\Calendar\Internals {
+	/**
+	 * EO_QueueMessage
+	 * @see \Bitrix\Calendar\Internals\QueueMessageTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method array getMessage()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage setMessage(array|\Bitrix\Main\DB\SqlExpression $message)
+	 * @method bool hasMessage()
+	 * @method bool isMessageFilled()
+	 * @method bool isMessageChanged()
+	 * @method array remindActualMessage()
+	 * @method array requireMessage()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage resetMessage()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage unsetMessage()
+	 * @method array fillMessage()
+	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
+	 * @method bool hasDateCreate()
+	 * @method bool isDateCreateFilled()
+	 * @method bool isDateCreateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage resetDateCreate()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage unsetDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage set($fieldName, $value)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage reset($fieldName)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Calendar\Internals\EO_QueueMessage wakeUp($data)
+	 */
+	class EO_QueueMessage {
+		/* @var \Bitrix\Calendar\Internals\QueueMessageTable */
+		static public $dataClass = '\Bitrix\Calendar\Internals\QueueMessageTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Calendar\Internals {
+	/**
+	 * EO_QueueMessage_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method array[] getMessageList()
+	 * @method array[] fillMessage()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Calendar\Internals\EO_QueueMessage $object)
+	 * @method bool has(\Bitrix\Calendar\Internals\EO_QueueMessage $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage getByPrimary($primary)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage[] getAll()
+	 * @method bool remove(\Bitrix\Calendar\Internals\EO_QueueMessage $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Calendar\Internals\EO_QueueMessage_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_QueueMessage_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Calendar\Internals\QueueMessageTable */
+		static public $dataClass = '\Bitrix\Calendar\Internals\QueueMessageTable';
+	}
+}
+namespace Bitrix\Calendar\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_QueueMessage_Result exec()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage fetchObject()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_QueueMessage_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage fetchObject()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage_Collection fetchCollection()
+	 */
+	class EO_QueueMessage_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage createObject($setDefaultValues = true)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage_Collection createCollection()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage wakeUpObject($row)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage_Collection wakeUpCollection($rows)
+	 */
+	class EO_QueueMessage_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\SectionTable:calendar/lib/internals/section.php */
 namespace Bitrix\Calendar\Internals {
@@ -1766,6 +2046,183 @@ namespace Bitrix\Calendar\Internals {
 	 */
 	class EO_CalendarLog_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+/* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\QueueHandledMessageTable:calendar/lib/internals/queuehandledmessagetable.php */
+namespace Bitrix\Calendar\Internals {
+	/**
+	 * EO_QueueHandledMessage
+	 * @see \Bitrix\Calendar\Internals\QueueHandledMessageTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getMessageId()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage setMessageId(\int|\Bitrix\Main\DB\SqlExpression $messageId)
+	 * @method bool hasMessageId()
+	 * @method bool isMessageIdFilled()
+	 * @method bool isMessageIdChanged()
+	 * @method \int remindActualMessageId()
+	 * @method \int requireMessageId()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage resetMessageId()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage unsetMessageId()
+	 * @method \int fillMessageId()
+	 * @method \int getQueueId()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage setQueueId(\int|\Bitrix\Main\DB\SqlExpression $queueId)
+	 * @method bool hasQueueId()
+	 * @method bool isQueueIdFilled()
+	 * @method bool isQueueIdChanged()
+	 * @method \int remindActualQueueId()
+	 * @method \int requireQueueId()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage resetQueueId()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage unsetQueueId()
+	 * @method \int fillQueueId()
+	 * @method \string getHash()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage setHash(\string|\Bitrix\Main\DB\SqlExpression $hash)
+	 * @method bool hasHash()
+	 * @method bool isHashFilled()
+	 * @method bool isHashChanged()
+	 * @method \string remindActualHash()
+	 * @method \string requireHash()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage resetHash()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage unsetHash()
+	 * @method \string fillHash()
+	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
+	 * @method bool hasDateCreate()
+	 * @method bool isDateCreateFilled()
+	 * @method bool isDateCreateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage resetDateCreate()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage unsetDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage getMessage()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage remindActualMessage()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage requireMessage()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage setMessage(\Bitrix\Calendar\Internals\EO_QueueMessage $object)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage resetMessage()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage unsetMessage()
+	 * @method bool hasMessage()
+	 * @method bool isMessageFilled()
+	 * @method bool isMessageChanged()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage fillMessage()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage set($fieldName, $value)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage reset($fieldName)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Calendar\Internals\EO_QueueHandledMessage wakeUp($data)
+	 */
+	class EO_QueueHandledMessage {
+		/* @var \Bitrix\Calendar\Internals\QueueHandledMessageTable */
+		static public $dataClass = '\Bitrix\Calendar\Internals\QueueHandledMessageTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Calendar\Internals {
+	/**
+	 * EO_QueueHandledMessage_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getMessageIdList()
+	 * @method \int[] fillMessageId()
+	 * @method \int[] getQueueIdList()
+	 * @method \int[] fillQueueId()
+	 * @method \string[] getHashList()
+	 * @method \string[] fillHash()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage[] getMessageList()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage_Collection getMessageCollection()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage_Collection fillMessage()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Calendar\Internals\EO_QueueHandledMessage $object)
+	 * @method bool has(\Bitrix\Calendar\Internals\EO_QueueHandledMessage $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage getByPrimary($primary)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage[] getAll()
+	 * @method bool remove(\Bitrix\Calendar\Internals\EO_QueueHandledMessage $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Calendar\Internals\EO_QueueHandledMessage_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_QueueHandledMessage_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Calendar\Internals\QueueHandledMessageTable */
+		static public $dataClass = '\Bitrix\Calendar\Internals\QueueHandledMessageTable';
+	}
+}
+namespace Bitrix\Calendar\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_QueueHandledMessage_Result exec()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage fetchObject()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_QueueHandledMessage_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage fetchObject()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage_Collection fetchCollection()
+	 */
+	class EO_QueueHandledMessage_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage createObject($setDefaultValues = true)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage_Collection createCollection()
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage wakeUpObject($row)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage_Collection wakeUpCollection($rows)
+	 */
+	class EO_QueueHandledMessage_Entity extends \Bitrix\Main\ORM\Entity {}
+}
 /* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\EventConnectionTable:calendar/lib/internals/eventconnectiontable.php */
 namespace Bitrix\Calendar\Internals {
 	/**
@@ -1820,6 +2277,16 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection resetSyncStatus()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection unsetSyncStatus()
 	 * @method \string fillSyncStatus()
+	 * @method \int getRetryCount()
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setRetryCount(\int|\Bitrix\Main\DB\SqlExpression $retryCount)
+	 * @method bool hasRetryCount()
+	 * @method bool isRetryCountFilled()
+	 * @method bool isRetryCountChanged()
+	 * @method \int remindActualRetryCount()
+	 * @method \int requireRetryCount()
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection resetRetryCount()
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection unsetRetryCount()
+	 * @method \int fillRetryCount()
 	 * @method \string getEntityTag()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setEntityTag(\string|\Bitrix\Main\DB\SqlExpression $entityTag)
 	 * @method bool hasEntityTag()
@@ -1860,8 +2327,16 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection resetData()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection unsetData()
 	 * @method array fillData()
-	 * @method int getRetryCount()
-	 * @method string getRecurrenceId()
+	 * @method \string getRecurrenceId()
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setRecurrenceId(\string|\Bitrix\Main\DB\SqlExpression $recurrenceId)
+	 * @method bool hasRecurrenceId()
+	 * @method bool isRecurrenceIdFilled()
+	 * @method bool isRecurrenceIdChanged()
+	 * @method \string remindActualRecurrenceId()
+	 * @method \string requireRecurrenceId()
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection resetRecurrenceId()
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection unsetRecurrenceId()
+	 * @method \string fillRecurrenceId()
 	 * @method \Bitrix\Calendar\Internals\EO_Event getEvent()
 	 * @method \Bitrix\Calendar\Internals\EO_Event remindActualEvent()
 	 * @method \Bitrix\Calendar\Internals\EO_Event requireEvent()
@@ -1910,7 +2385,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method static \Bitrix\Calendar\Internals\EO_EventConnection wakeUp($data)
 	 */
 	class EO_EventConnection {
-		/* @var EventConnectionTable */
+		/* @var \Bitrix\Calendar\Internals\EventConnectionTable */
 		static public $dataClass = '\Bitrix\Calendar\Internals\EventConnectionTable';
 		/**
 		 * @param bool|array $setDefaultValues
@@ -1934,6 +2409,8 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \string[] fillVendorEventId()
 	 * @method \string[] getSyncStatusList()
 	 * @method \string[] fillSyncStatus()
+	 * @method \int[] getRetryCountList()
+	 * @method \int[] fillRetryCount()
 	 * @method \string[] getEntityTagList()
 	 * @method \string[] fillEntityTag()
 	 * @method \string[] getVendorVersionIdList()
@@ -1942,6 +2419,8 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \string[] fillVersion()
 	 * @method array[] getDataList()
 	 * @method array[] fillData()
+	 * @method \string[] getRecurrenceIdList()
+	 * @method \string[] fillRecurrenceId()
 	 * @method \Bitrix\Calendar\Internals\EO_Event[] getEventList()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection_Collection getEventCollection()
 	 * @method \Bitrix\Calendar\Internals\EO_Event_Collection fillEvent()
@@ -1975,7 +2454,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method int count() Countable
 	 */
 	class EO_EventConnection_Collection implements \ArrayAccess, \Iterator, \Countable {
-		/* @var EventConnectionTable */
+		/* @var \Bitrix\Calendar\Internals\EventConnectionTable */
 		static public $dataClass = '\Bitrix\Calendar\Internals\EventConnectionTable';
 	}
 }
@@ -2050,6 +2529,16 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_Location resetCapacity()
 	 * @method \Bitrix\Calendar\Internals\EO_Location unsetCapacity()
 	 * @method \int fillCapacity()
+	 * @method \int getCategoryId()
+	 * @method \Bitrix\Calendar\Internals\EO_Location setCategoryId(\int|\Bitrix\Main\DB\SqlExpression $categoryId)
+	 * @method bool hasCategoryId()
+	 * @method bool isCategoryIdFilled()
+	 * @method bool isCategoryIdChanged()
+	 * @method \int remindActualCategoryId()
+	 * @method \int requireCategoryId()
+	 * @method \Bitrix\Calendar\Internals\EO_Location resetCategoryId()
+	 * @method \Bitrix\Calendar\Internals\EO_Location unsetCategoryId()
+	 * @method \int fillCategoryId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -2100,6 +2589,8 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \boolean[] fillNecessity()
 	 * @method \int[] getCapacityList()
 	 * @method \int[] fillCapacity()
+	 * @method \int[] getCategoryIdList()
+	 * @method \int[] fillCategoryId()
 	 *
 	 * Common methods:
 	 * ---------------
@@ -2563,16 +3054,16 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_Push resetExpires()
 	 * @method \Bitrix\Calendar\Internals\EO_Push unsetExpires()
 	 * @method \Bitrix\Main\Type\DateTime fillExpires()
-	 * @method \boolean getNotProcessed()
-	 * @method \Bitrix\Calendar\Internals\EO_Push setNotProcessed(\boolean|\Bitrix\Main\DB\SqlExpression $notProcessed)
+	 * @method \string getNotProcessed()
+	 * @method \Bitrix\Calendar\Internals\EO_Push setNotProcessed(\string|\Bitrix\Main\DB\SqlExpression $notProcessed)
 	 * @method bool hasNotProcessed()
 	 * @method bool isNotProcessedFilled()
 	 * @method bool isNotProcessedChanged()
-	 * @method \boolean remindActualNotProcessed()
-	 * @method \boolean requireNotProcessed()
+	 * @method \string remindActualNotProcessed()
+	 * @method \string requireNotProcessed()
 	 * @method \Bitrix\Calendar\Internals\EO_Push resetNotProcessed()
 	 * @method \Bitrix\Calendar\Internals\EO_Push unsetNotProcessed()
-	 * @method \boolean fillNotProcessed()
+	 * @method \string fillNotProcessed()
 	 * @method \Bitrix\Main\Type\DateTime getFirstPushDate()
 	 * @method \Bitrix\Calendar\Internals\EO_Push setFirstPushDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $firstPushDate)
 	 * @method bool hasFirstPushDate()
@@ -2634,8 +3125,8 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \string[] fillResourceId()
 	 * @method \Bitrix\Main\Type\DateTime[] getExpiresList()
 	 * @method \Bitrix\Main\Type\DateTime[] fillExpires()
-	 * @method \boolean[] getNotProcessedList()
-	 * @method \boolean[] fillNotProcessed()
+	 * @method \string[] getNotProcessedList()
+	 * @method \string[] fillNotProcessed()
 	 * @method \Bitrix\Main\Type\DateTime[] getFirstPushDateList()
 	 * @method \Bitrix\Main\Type\DateTime[] fillFirstPushDate()
 	 *
@@ -2745,16 +3236,16 @@ namespace Bitrix\Calendar {
 	 * @method \Bitrix\Calendar\EO_Push resetExpires()
 	 * @method \Bitrix\Calendar\EO_Push unsetExpires()
 	 * @method \Bitrix\Main\Type\DateTime fillExpires()
-	 * @method \boolean getNotProcessed()
-	 * @method \Bitrix\Calendar\EO_Push setNotProcessed(\boolean|\Bitrix\Main\DB\SqlExpression $notProcessed)
+	 * @method \string getNotProcessed()
+	 * @method \Bitrix\Calendar\EO_Push setNotProcessed(\string|\Bitrix\Main\DB\SqlExpression $notProcessed)
 	 * @method bool hasNotProcessed()
 	 * @method bool isNotProcessedFilled()
 	 * @method bool isNotProcessedChanged()
-	 * @method \boolean remindActualNotProcessed()
-	 * @method \boolean requireNotProcessed()
+	 * @method \string remindActualNotProcessed()
+	 * @method \string requireNotProcessed()
 	 * @method \Bitrix\Calendar\EO_Push resetNotProcessed()
 	 * @method \Bitrix\Calendar\EO_Push unsetNotProcessed()
-	 * @method \boolean fillNotProcessed()
+	 * @method \string fillNotProcessed()
 	 * @method \Bitrix\Main\Type\DateTime getFirstPushDate()
 	 * @method \Bitrix\Calendar\EO_Push setFirstPushDate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $firstPushDate)
 	 * @method bool hasFirstPushDate()
@@ -2816,8 +3307,8 @@ namespace Bitrix\Calendar {
 	 * @method \string[] fillResourceId()
 	 * @method \Bitrix\Main\Type\DateTime[] getExpiresList()
 	 * @method \Bitrix\Main\Type\DateTime[] fillExpires()
-	 * @method \boolean[] getNotProcessedList()
-	 * @method \boolean[] fillNotProcessed()
+	 * @method \string[] getNotProcessedList()
+	 * @method \string[] fillNotProcessed()
 	 * @method \Bitrix\Main\Type\DateTime[] getFirstPushDateList()
 	 * @method \Bitrix\Main\Type\DateTime[] fillFirstPushDate()
 	 *

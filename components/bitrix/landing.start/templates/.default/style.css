@@ -93,13 +93,23 @@
 	margin: 0;
 	padding: 21px 0 21px 5px;
 	display: flex;
+	flex-wrap: nowrap;
 	word-wrap: break-word;
 	justify-content: space-between;
 }
 
+.landing-slider-pagetitle-title
+{
+	flex-grow: 0;
+	padding-right: 20px;
+}
+
 .landing-slider-pagetitle-actions
 {
-	padding-right: 30px;
+	padding-right: 20px;
+	flex-grow: 1;
+	display: flex;
+	justify-content: flex-end;
 }
 
 .landing-slider-no-background .ui-side-panel-wrap-workarea {

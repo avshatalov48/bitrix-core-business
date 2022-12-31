@@ -102,7 +102,7 @@ class CRestUtil
 		}
 
 		// TODO: process errorMessage and output correct error message on encoding mismatch
-		$query = \Bitrix\Main\Text\Encoding::convertEncoding($query, 'UTF-8', LANG_CHARSET, $errorMessage);
+		$query = \Bitrix\Main\Text\Encoding::convertEncoding($query, 'UTF-8', LANG_CHARSET);
 
 		return $query;
 	}
@@ -388,6 +388,10 @@ class CRestUtil
 					}
 					else
 					{
+						if (!is_string($r))
+						{
+							continue;
+						}
 						$query = str_replace($arMatch[0], $r, $query);
 					}
 				}

@@ -1,6 +1,8 @@
 <?php
 $MESS["CATALOG_STORE_SELECTOR_BEFORE_SEARCH_TITLE"] = "Find or create warehouse";
 $MESS["CATALOG_STORE_SELECTOR_EMPTY_STORE_TITLE"] = "Untitled";
+$MESS["CATALOG_STORE_SELECTOR_HAS_PERMISSION_VIEW_STORES_HINT"] = "Insufficient permission to view or select warehouses.";
+$MESS["CATALOG_STORE_SELECTOR_HAS_PERMISSION_VIEW_STORES_TITLE"] = "Insufficient permissions.";
 $MESS["CATALOG_STORE_SELECTOR_IS_EMPTY_SUBTITLE"] = "Create a new warehouse?";
 $MESS["CATALOG_STORE_SELECTOR_IS_EMPTY_TITLE"] = "Warehouse was not found";
 $MESS["CATALOG_STORE_SELECTOR_VIEW_NAME_TITLE"] = "Warehouse";

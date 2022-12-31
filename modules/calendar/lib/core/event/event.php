@@ -104,9 +104,15 @@ class Event implements EntityInterface
 	 */
 	protected ?int $version = 0;
 	/**
+	 * it's actually a special label|tag
 	 * @var string|null
 	 */
 	protected ?string $eventType = null;
+	/**
+	 * field CAL_TYPE
+	 * @var string|null
+	 */
+	protected ?string $calType = null;
 	/**
 	 * @var string|null
 	 */
@@ -506,11 +512,26 @@ class Event implements EntityInterface
 
 	/**
 	 * @param string|null $eventType
-	 * @return Event
+	 *
+	 * @return $this
+	 *
+	 * @deprecated use setSpecialLabel() and setCalendarType();
 	 */
 	public function setEventType(?string $eventType): Event
 	{
 		$this->eventType = $eventType;
+
+		return $this;
+	}
+
+	/**
+	 * @param string|null $label
+	 *
+	 * @return $this
+	 */
+	public function setSpecialLabel(?string $label): Event
+	{
+		$this->eventType = $label;
 
 		return $this;
 	}
@@ -727,8 +748,18 @@ class Event implements EntityInterface
 
 	/**
 	 * @return string|null
+	 *
+	 * @deprecated use $this->getSpecialLabel() and $this->getCalendarType()
 	 */
 	public function getEventType(): ?string
+	{
+		return $this->eventType;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getSpecialLabel(): ?string
 	{
 		return $this->eventType;
 	}
@@ -762,7 +793,7 @@ class Event implements EntityInterface
 	 */
 	public function isInstance(): bool
 	{
-		return $this->recurrenceId || $this->originalDateFrom;
+		return $this->recurrenceId && $this->originalDateFrom;
 	}
 
 	/**
@@ -944,7 +975,7 @@ class Event implements EntityInterface
 	 */
 	public function isNew(): bool
 	{
-		return empty($this->id);
+		return $this->id === 0 || $this->id === null;
 	}
 
 	/**
@@ -954,6 +985,25 @@ class Event implements EntityInterface
 	{
 		$this->version++;
 
+		return $this;
+	}
+
+	/**
+	 * @return string|null
+	 */
+	public function getCalendarType(): ?string
+	{
+		return $this->calType;
+	}
+
+	/**
+	 * @param string|null $calendarType
+	 *
+	 * @return $this
+	 */
+	public function setCalendarType(?string $calendarType): self
+	{
+		$this->calType = $calendarType;
 		return $this;
 	}
 }

@@ -2,6 +2,8 @@
 
 namespace Bitrix\Catalog\v2\Integration\UI\EntitySelector;
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\PriceTable;
 use Bitrix\Catalog\Product\PropertyCatalogFeature;
 use Bitrix\Catalog\ProductTable;
@@ -41,7 +43,7 @@ class ProductProvider extends BaseProvider
 
 		if (
 			!$USER->isAuthorized()
-			|| !($USER->canDoOperation('catalog_read') || $USER->canDoOperation('catalog_view'))
+			|| !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
 		)
 		{
 			return false;
@@ -395,25 +397,16 @@ class ProductProvider extends BaseProvider
 		$shouldLoadOffers = (bool)($parameters['load_offers'] ?? true);
 
 		$additionalProductFilter = ['IBLOCK_ID' => $iblockInfo->getProductIblockId()];
+		$filteredTypes = [];
 		if ($this->options['restrictedProductTypes'] !== null)
 		{
 			$filteredTypes = array_intersect(
 				$this->options['restrictedProductTypes'],
-				[
-					\Bitrix\Catalog\ProductTable::TYPE_PRODUCT,
-					\Bitrix\Catalog\ProductTable::TYPE_SET,
-					\Bitrix\Catalog\ProductTable::TYPE_SKU,
-					\Bitrix\Catalog\ProductTable::TYPE_OFFER,
-					\Bitrix\Catalog\ProductTable::TYPE_FREE_OFFER,
-					\Bitrix\Catalog\ProductTable::TYPE_EMPTY_SKU,
-				]
+				ProductTable::getProductTypes()
 			);
-
-			if (count($filteredTypes) > 0)
-			{
-				$additionalProductFilter['!=TYPE'] = $filteredTypes;
-			}
 		}
+		$filteredTypes[] = ProductTable::TYPE_EMPTY_SKU;
+		$additionalProductFilter['!=TYPE'] = array_values(array_unique($filteredTypes));
 
 		$products = $this->loadElements([
 			'filter' => array_merge($productFilter, $additionalProductFilter),

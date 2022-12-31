@@ -20,10 +20,11 @@ Extension::load([
 	'ui.dialogs.messagebox',
 ]);
 
-if (!$arParams['ITEMS'] && !$arParams['PAGE_URL_SITE_ADD'])
-{
-	return;
-}
+//todo: when no site has been created yet, we display a banner but simply without a button
+// if (!$arParams['ITEMS'] && !$arParams['PAGE_URL_SITE_ADD'])
+// {
+// 	return;
+// }
 
 $isAjax = $component->isAjax();
 ?>
@@ -51,7 +52,7 @@ $isAjax = $component->isAjax();
 			rules: [
 				<?if ($arParams['PAGE_URL_SITE_ADD']):?>
 				{
-					condition: ['<?= str_replace('/?', '/\\\?', $arParams['PAGE_URL_SITE_ADD'])?>'],
+					condition: ['<?= strpos($arParams['PAGE_URL_SITE_ADD'], '?') ? explode('?', $arParams['PAGE_URL_SITE_ADD'])[0] : $arParams['PAGE_URL_SITE_ADD']?>'],
 					options: {
 						allowChangeHistory: false
 						<?if ($arParams['TYPE'] === 'STORE'):?>
@@ -100,11 +101,17 @@ $isAjax = $component->isAjax();
 						<?endforeach;?>
 					</ul>
 					<div class="landing-sites__grid-empty--bth-container">
-						<a href="<?= $arParams['PAGE_URL_SITE_ADD']?>" class="ui-btn ui-btn-lg ui-btn-success ui-btn-icon-inline ui-btn-icon-add landing-sites__grid-empty--bth-radiance">
-							<span class="landing-sites__grid-empty--bth-radiance-left"></span>
-								<?= $component->getMessageType('LANDING_SITE_TILE_EMPTY_ADD')?>
-							<span class="landing-sites__grid-empty--bth-radiance-right"></span>
-						</a>
+						<?php if ($arParams['PAGE_URL_SITE_ADD'] !== ''): ?>
+							<a href="<?= $arParams['PAGE_URL_SITE_ADD']?>" class="ui-btn ui-btn-lg ui-btn-success landing-sites__grid-empty--bth-radiance">
+								<span class="landing-sites__grid-empty--bth-radiance-left"></span>
+								<?= $component->getMessageType('LANDING_SITE_TILE_EMPTY_ADD_2')?>
+								<span class="landing-sites__grid-empty--bth-radiance-right"></span>
+							</a>
+						<?php else: ?>
+							<p class="landing-sites__grid-empty--text">
+								<?= $component->getMessageType('LANDING_SITE_TILE_EMPTY_ADD_NO_RIGHT')?>
+							</p>
+						<?php endif; ?>
 					</div>
 				</div>
 			</div>
@@ -127,12 +134,26 @@ $isAjax = $component->isAjax();
 		let switchDomainPage = '<?= \CUtil::jsEscape($arParams['PAGE_URL_SITE_DOMAIN_SWITCH'])?>';
 
 		<?if ($arParams['FEEDBACK_CODE']):?>
+		<?php
+		if ($arParams['TYPE'] === 'PAGE')
+		{
+			$title = Loc::getMessage('LANDING_SITE_TILE_DEV_HELP');
+			$text = Loc::getMessage('LANDING_SITE_TILE_DEV_ORDER');
+			$buttonText = Loc::getMessage('LANDING_SITE_TILE_DEV_BTN');
+		}
+		else
+		{
+			$title = Loc::getMessage('LANDING_SITE_TILE_DEV_STORE_HELP');
+			$text = Loc::getMessage('LANDING_SITE_TILE_DEV_STORE_ORDER');
+			$buttonText = Loc::getMessage('LANDING_SITE_TILE_DEV_STORE_BTN');
+		}
+		?>
 		items.push({
 			id: '<?= $arParams['FEEDBACK_CODE']?>',
 			type: 'itemMarketing',
-			title: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_SITE_TILE_DEV_HELP'))?>',
-			text: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_SITE_TILE_DEV_ORDER'))?>',
-			buttonText: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_SITE_TILE_DEV_BTN'))?>',
+			title: '<?= \CUtil::jsEscape($title)?>',
+			text: '<?= \CUtil::jsEscape($text)?>',
+			buttonText: '<?= \CUtil::jsEscape($buttonText)?>',
 			onClick: function()
 			{
 				BX.fireEvent(BX('landing-feedback-<?= $arParams['FEEDBACK_CODE']?>-button'), 'click');

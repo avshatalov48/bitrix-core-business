@@ -30,6 +30,7 @@ export default class IcloudAuthDialog extends EventEmitter
 			draggable: true,
 			content: this.getContainer(),
 			width: 475,
+			animation: 'fading-slide',
 			zIndexAbsolute: this.zIndex,
 			cacheable: false,
 			closeByEsc: true,
@@ -162,7 +163,10 @@ export default class IcloudAuthDialog extends EventEmitter
 						${this.getAppPasswordTitle()}
 						${this.getLearnMoreButton()}
 					</div>
-					${this.getAppPasswordInput()}
+					<div class="ui-ctl ui-ctl-w100 ui-ctl-after-icon">
+						${this.getAppPasswordInput()}
+						${this.getShowHidePasswordIcon()}
+					</div>
 					${this.getAppPasswordError()}
 				</div>
 			</div>
@@ -205,9 +209,9 @@ export default class IcloudAuthDialog extends EventEmitter
 		if (!this.DOM.appPasswordTitle)
 		{
 			this.DOM.appPasswordTitle = Tag.render`
-			<p class="calendar-sync__auth-popup--label-text">
-				${Loc.getMessage('CAL_ICLOUD_PASS_PLACEHOLDER')}
-			</p>
+				<p class="calendar-sync__auth-popup--label-text">
+					${Loc.getMessage('CAL_ICLOUD_PASS_PLACEHOLDER')}
+				</p>
 			`;
 		}
 		
@@ -219,9 +223,9 @@ export default class IcloudAuthDialog extends EventEmitter
 		if (!this.DOM.appleIdError)
 		{
 			this.DOM.appleIdError = Tag.render`
-			<div class="calendar-sync__auth-popup--label-text --error">
-				${Loc.getMessage('CAL_ICLOUD_APPLE_ID_ERROR')}
-			</div>
+				<div class="calendar-sync__auth-popup--label-text --error">
+					${Loc.getMessage('CAL_ICLOUD_APPLE_ID_ERROR')}
+				</div>
 			`;
 		}
 		
@@ -233,15 +237,15 @@ export default class IcloudAuthDialog extends EventEmitter
 		if (!this.DOM.appPasswordError)
 		{
 			this.DOM.appPasswordError = Tag.render`
-			<div class="calendar-sync__auth-popup--label-text --error">
-				${Loc.getMessage(
-					'CAL_ICLOUD_APP_PASSWORD_ERROR',
-				{ 
-						'#LINK_START#': '<a href="#" data-role="open-helpdesk-password">',
-						'#LINK_END#': '</a>',
-					}
-				)}
-			</div>
+				<div class="calendar-sync__auth-popup--label-text --error">
+					${Loc.getMessage(
+						'CAL_ICLOUD_APP_PASSWORD_ERROR',
+					{
+							'#LINK_START#': '<a href="#" data-role="open-helpdesk-password">',
+							'#LINK_END#': '</a>',
+						}
+					)}
+				</div>
 			`;
 
 			const link = this.DOM.appPasswordError.querySelector('a[data-role="open-helpdesk-password"]');
@@ -259,12 +263,12 @@ export default class IcloudAuthDialog extends EventEmitter
 		if (!this.DOM.appleIdInput)
 		{
 			this.DOM.appleIdInput = Tag.render `
-			<input
-				type="text"
-				placeholder="${Loc.getMessage('CAL_ICLOUD_AUTH_EMAIL_PLACEHOLDER')}"
-				class="calendar-field-string ui-ctl-element"
-			/>
-		`;
+				<input
+					type="text"
+					placeholder="${Loc.getMessage('CAL_ICLOUD_AUTH_EMAIL_PLACEHOLDER')}"
+					class="calendar-field-string ui-ctl-element"
+				/>
+			`;
 			this.DOM.appleIdInput.onfocus = () => {
 				if (Dom.hasClass(this.DOM.appleIdInput, 'calendar-field-string-error'))
 				{
@@ -300,11 +304,23 @@ export default class IcloudAuthDialog extends EventEmitter
 					required maxlength="19"
 				/>
 			`;
-			
 			Event.bind(this.DOM.appPasswordInput, 'input', this.validateAppPasswordInput.bind(this));
 		}
 
 		return this.DOM.appPasswordInput;
+	}
+	
+	getShowHidePasswordIcon()
+	{
+		if (!this.DOM.showHidePasswordIcon)
+		{
+			this.DOM.showHidePasswordIcon = Tag.render`
+				<div class="ui-ctl-after calendar-sync__auth-popup--icon-adjust-password"></div>
+			`;
+			Event.bind(this.DOM.showHidePasswordIcon, 'click', this.switchPasswordVisibility.bind(this));
+		}
+		
+		return this.DOM.showHidePasswordIcon;
 	}
 	
 	getLearnMoreButton()
@@ -325,9 +341,9 @@ export default class IcloudAuthDialog extends EventEmitter
 		if (!this.DOM.alertBlock)
 		{
 			this.DOM.alertBlock = Tag.render`
-			<div class="ui-alert ui-alert-danger calendar-sync__auth-error">
-    			<span class="ui-alert-message">${Loc.getMessage('CAL_ICLOUD_AUTH_ERROR')}</span>
-			</div>
+				<div class="ui-alert ui-alert-danger calendar-sync__auth-error">
+	                <span class="ui-alert-message">${Loc.getMessage('CAL_ICLOUD_AUTH_ERROR')}</span>
+				</div>
 			`;
 		}
 	}
@@ -345,7 +361,7 @@ export default class IcloudAuthDialog extends EventEmitter
 	
 	validateAppleIdInput()
 	{
-		const emailRegExp = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+		const emailRegExp = /^[a-zA-Z\d.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z\d-]+(?:\.[a-zA-Z\d-]+)*$/;
 		const input = this.DOM.appleIdInput.value.toString().trim();
 		if (input === '')
 		{
@@ -368,6 +384,20 @@ export default class IcloudAuthDialog extends EventEmitter
 		{
 			Dom.addClass(this.DOM.appPasswordInput, 'calendar-field-string-error');
 			Dom.addClass(this.DOM.appPasswordError, 'show');
+		}
+	}
+	
+	switchPasswordVisibility()
+	{
+		if (Dom.hasClass(this.DOM.showHidePasswordIcon, '--hide'))
+		{
+			this.DOM.appPasswordInput.type = 'password';
+			Dom.removeClass(this.DOM.showHidePasswordIcon, '--hide');
+		}
+		else
+		{
+			this.DOM.appPasswordInput.type = 'text';
+			Dom.addClass(this.DOM.showHidePasswordIcon, '--hide');
 		}
 	}
 	

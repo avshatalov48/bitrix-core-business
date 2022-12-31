@@ -59,7 +59,7 @@ export class DialogError
 					${Loc.getMessage('CAT_WAREHOUSE_MASTER_STORE_USE_10')}
 				</h3>	
 				<div class="catalog-warehouse-master-clear-popup-text">
-					${Text.encode(this.text)}
+					${Text.encode(this.text)} 
 					${this.helpArticleId ? this.getHelpLink() : ''}
 				</div>
 			</div>

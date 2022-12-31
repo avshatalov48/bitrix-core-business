@@ -24,7 +24,7 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 	{
 		global $DB, $APPLICATION;
 
-		if (!CModule::IncludeModule("socialnetwork") || !CModule::IncludeModule("blog"))
+		if (!CModule::IncludeModule('socialnetwork') || !CModule::IncludeModule('blog'))
 		{
 			return CBPActivityExecutionStatus::Closed;
 		}
@@ -36,19 +36,24 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 		$ownerId = CBPHelper::ExtractUsers($this->OwnerId, $documentId, true);
 		$usersTo = $this->UsersTo;
 		$title = trim($this->PostTitle);
-		$message = HTMLToTxt(nl2br($this->PostMessage), '', [], 0);
+		$message = $this->postMessageToText();
 
 		$this->logDebug($title, $ownerId, $usersTo);
 
 		if (empty($ownerId))
 		{
-			$this->WriteToTrackingService(GetMessage('SNBPA_EMPTY_OWNER'), 0, CBPTrackingType::Error);
+			$this->WriteToTrackingService(
+				GetMessage('SNBPA_EMPTY_OWNER'),
+				0,
+				CBPTrackingType::Error
+			);
+
 			return CBPActivityExecutionStatus::Closed;
 		}
 
 		$pathToPost = \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page', $siteId);
-		$pathToSmile = COption::GetOptionString("socialnetwork", "smile_page", false, $siteId);
-		$blogGroupID = COption::GetOptionString("socialnetwork", "userbloggroup_id", false, $siteId);
+		$pathToSmile = COption::GetOptionString('socialnetwork', 'smile_page', false, $siteId);
+		$blogGroupID = COption::GetOptionString('socialnetwork', 'userbloggroup_id', false, $siteId);
 
 		$blog = CBlog::GetByOwnerID($ownerId);
 		if (!$blog)
@@ -61,7 +66,7 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 		{
 			$micro = 'Y';
 			$title = trim(preg_replace(
-				array("/\n+/is".BX_UTF_PCRE_MODIFIER, '/\s+/is'.BX_UTF_PCRE_MODIFIER),
+				["/\n+/is" . BX_UTF_PCRE_MODIFIER, '/\s+/is' . BX_UTF_PCRE_MODIFIER],
 				" ",
 				blogTextParser::killAllTags($this->PostMessage)
 			));
@@ -71,36 +76,48 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 
 		if (empty($socnetRights))
 		{
-			$this->WriteToTrackingService(GetMessage('SNBPA_EMPTY_USERS'), 0, CBPTrackingType::Error);
+			$this->WriteToTrackingService(
+				GetMessage('SNBPA_EMPTY_USERS'),
+				0,
+				CBPTrackingType::Error
+			);
+
 			return CBPActivityExecutionStatus::Closed;
 		}
 
 		try
 		{
-			$postFields = array(
-				'TITLE'            => $title,
-				'DETAIL_TEXT'      => $message,
+			$postFields = [
+				'TITLE' => $title,
+				'DETAIL_TEXT' => $message,
 				'DETAIL_TEXT_TYPE' => 'text',
-				'=DATE_PUBLISH'    => $DB->CurrentTimeFunction(),
-				'PUBLISH_STATUS'   => BLOG_PUBLISH_STATUS_PUBLISH,
-				'CATEGORY_ID'      => '',
-				'PATH'             => CComponentEngine::MakePathFromTemplate($pathToPost, array("post_id" => "#post_id#", "user_id" => $ownerId)),
-				'URL'              => $blog['URL'],
-				'PERMS_POST'       => array(),
-				'PERMS_COMMENT'    => array(),
-				'MICRO'            => $micro,
-				'SOCNET_RIGHTS'    => $socnetRights,
-				'=DATE_CREATE'     => $DB->CurrentTimeFunction(),
-				'AUTHOR_ID'        => $ownerId,
-				'BLOG_ID'          => $blog['ID'],
-				"HAS_IMAGES"       => "N",
-				"HAS_TAGS"         => "N",
-				"HAS_PROPS"        => "N",
-				"HAS_SOCNET_ALL"   => "N",
-				"SEARCH_GROUP_ID"  => $blogGroupID
-			);
+				'=DATE_PUBLISH' => $DB->CurrentTimeFunction(),
+				'PUBLISH_STATUS' => BLOG_PUBLISH_STATUS_PUBLISH,
+				'CATEGORY_ID' => '',
+				'PATH' => CComponentEngine::MakePathFromTemplate(
+					$pathToPost,
+					['post_id' => '#post_id#', 'user_id' => $ownerId]
+				),
+				'URL' => $blog['URL'],
+				'PERMS_POST' => [],
+				'PERMS_COMMENT' => [],
+				'MICRO' => $micro,
+				'SOCNET_RIGHTS' => $socnetRights,
+				'=DATE_CREATE' => $DB->CurrentTimeFunction(),
+				'AUTHOR_ID' => $ownerId,
+				'BLOG_ID' => $blog['ID'],
+				'HAS_IMAGES' => 'N',
+				'HAS_TAGS' => 'N',
+				'HAS_PROPS' => 'N',
+				'HAS_SOCNET_ALL' => 'N',
+				'SEARCH_GROUP_ID' => $blogGroupID,
+			];
 
-			if(!empty($postFields["SOCNET_RIGHTS"]) && count($postFields["SOCNET_RIGHTS"]) == 1 && in_array("UA", $postFields["SOCNET_RIGHTS"]))
+			if (
+				!empty($postFields['SOCNET_RIGHTS'])
+				&& count($postFields['SOCNET_RIGHTS']) == 1
+				&& in_array('UA', $postFields['SOCNET_RIGHTS'])
+			)
 			{
 				$postFields['HAS_SOCNET_ALL'] = 'Y';
 			}
@@ -117,36 +134,39 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 				return CBPActivityExecutionStatus::Closed;
 			}
 
-			$postFields["ID"] = $newId;
+			$postFields['ID'] = $newId;
 
-			$arParamsNotify = Array(
-				"bSoNet" => true,
-				"UserID" => $ownerId,
-				"allowVideo" => COption::GetOptionString("blog","allow_video", "Y"),
-				"PATH_TO_SMILE" => $pathToSmile,
-				"PATH_TO_POST" => $pathToPost,
-				"user_id" => $ownerId,
-				"NAME_TEMPLATE" => CSite::GetNameFormat(false),
-				"SITE_ID" => $siteId
-			);
+			$arParamsNotify = [
+				'bSoNet' => true,
+				'UserID' => $ownerId,
+				'allowVideo' => COption::GetOptionString('blog', 'allow_video', 'Y'),
+				'PATH_TO_SMILE' => $pathToSmile,
+				'PATH_TO_POST' => $pathToPost,
+				'user_id' => $ownerId,
+				'NAME_TEMPLATE' => CSite::GetNameFormat(false),
+				'SITE_ID' => $siteId,
+			];
 			CBlogPost::Notify($postFields, $blog, $arParamsNotify);
 
-			BXClearCache(true, \Bitrix\Socialnetwork\ComponentHelper::getBlogPostCacheDir(array(
+			BXClearCache(true, \Bitrix\Socialnetwork\ComponentHelper::getBlogPostCacheDir([
 				'TYPE' => 'posts_last',
-				'SITE_ID' => $siteId
-			)));
+				'SITE_ID' => $siteId,
+			]));
 
-			$postUrl = CComponentEngine::MakePathFromTemplate($pathToPost, ["post_id" => $newId, "user_id" => $ownerId]);
-			$arFieldsIM = Array(
-				"TYPE" => "POST",
-				"TITLE" => $postFields["TITLE"],
-				"URL" => $postUrl,
-				"ID" => $newId,
-				"FROM_USER_ID" => $ownerId,
-				"TO_USER_ID" => array(),
-				"TO_SOCNET_RIGHTS" => $postFields["SOCNET_RIGHTS"],
-				"TO_SOCNET_RIGHTS_OLD" => array()
+			$postUrl = CComponentEngine::MakePathFromTemplate(
+				$pathToPost,
+				['post_id' => $newId, 'user_id' => $ownerId]
 			);
+			$arFieldsIM = [
+				'TYPE' => 'POST',
+				'TITLE' => $postFields['TITLE'],
+				'URL' => $postUrl,
+				'ID' => $newId,
+				'FROM_USER_ID' => $ownerId,
+				'TO_USER_ID' => [],
+				'TO_SOCNET_RIGHTS' => $postFields['SOCNET_RIGHTS'],
+				'TO_SOCNET_RIGHTS_OLD' => [],
+			];
 			CBlogPost::NotifyIm($arFieldsIM);
 
 			$this->logDebugPost($postUrl);
@@ -476,5 +496,26 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 			$toWrite,
 			CBPTrackingType::DebugLink
 		);
+	}
+
+	private function postMessageToText(): string
+	{
+		$message = $this->PostMessage;
+		if (!is_string($message))
+		{
+			/** @var CBPDocumentService $documentService */
+			$documentService = $this->workflow->GetService('DocumentService');
+			$fieldType = $documentService->getFieldTypeObject($this->getDocumentType(), ['Type' => 'text']);
+			if ($fieldType)
+			{
+				if (is_array($message))
+				{
+					$fieldType->setMultiple(true);
+				}
+				$message = $fieldType->formatValue($message);
+			}
+		}
+
+		return HTMLToTxt(nl2br($message), '', [], 0);
 	}
 }

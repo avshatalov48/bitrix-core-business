@@ -14,6 +14,8 @@ $MESS["CATALOG_STORE_DOCUMENT_DETAIL_INCORRECT_VALUE"] = "The value of \"#FIELD_
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_VIEW_RIGHTS_ERROR"] = "Insufficient permissions to view the inventory object";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_NO_WRITE_RIGHTS_ERROR"] = "Insufficient permissions to save the inventory object";
 $MESS["CATALOG_STORE_DOCUMENT_DETAIL_SAVE_ERROR"] = "Error saving inventory object";
+$MESS["CATALOG_STORE_DOCUMENT_ELEMENT_STORE_ACCESS_DENIED"] = "You do not have permission to access this warehouse to save entities for \"#PRODUCT_NAME#\".";
+$MESS["CATALOG_STORE_DOCUMENT_ERR_ACCESS_DENIED"] = "Insufficient permission to view Inventory Management area.";
 $MESS["CATALOG_STORE_DOCUMENT_ERR_ACCESS_DENIED_BOX"] = "You do not have permission to access Inventory Management. Please contact your Bitrix24 administrator to get access. <a href=\"https://training.bitrix24.com/support/training/course/index.php?COURSE_ID=178&LESSON_ID=25118\" target=\"_blank\">Learn more</a>";
 $MESS["CATALOG_STORE_DOCUMENT_ERR_ACCESS_DENIED_CLOUD"] = "You do not have permission to access Inventory Management. Please contact your Bitrix24 administrator to get access. The administrator will have to assign you the Manager role in the CRM settings. <a onclick=\"top.BX.Helper.show('redirect=detail&code=15955386')\" style=\"cursor: pointer; \">Learn more</a>";
 $MESS["CATALOG_STORE_DOCUMENT_NO_PRODUCT"] = "You have to select or create a product to save the inventory object";

@@ -1,7 +1,5 @@
 <?
-use \Bitrix\Calendar\Ui\CalendarFilter;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Calendar\Ui\CountersManager;
 
 class CCalendarRequest
 {
@@ -10,7 +8,7 @@ class CCalendarRequest
 		$reqId,
 		$calendar;
 
-	public static function Process($action = '', CCalendar $calendar)
+	public static function Process(CCalendar $calendar, $action = '')
 	{
 		global $APPLICATION;
 
@@ -33,7 +31,9 @@ class CCalendarRequest
 			{
 				$APPLICATION->RestartBuffer();
 				if (CCalendarSect::CheckSign($_GET['sign'], intval($_GET['user']), $sectId > 0 ? $sectId : 'superposed_calendars'))
+				{
 					echo 'BEGIN:VCALENDAR';
+				}
 				CMain::FinalActions();
 				die();
 			}
@@ -86,7 +86,9 @@ class CCalendarRequest
 		}
 
 		if($ex = $APPLICATION->GetException())
+		{
 			ShowError($ex->GetString());
+		}
 
 		CMain::FinalActions();
 		die();
@@ -95,11 +97,17 @@ class CCalendarRequest
 	public static function OutputJSRes($reqId = false, $res = false)
 	{
 		if ($res === false)
+		{
 			return;
+		}
 		if ($reqId === false)
+		{
 			$reqId = intval($_REQUEST['reqId']);
+		}
 		if (!$reqId)
+		{
 			return;
+		}
 		?>
 		<script>top.BXCRES['<?= $reqId?>'] = <?= CUtil::PhpToJSObject($res)?>;</script>
 		<?

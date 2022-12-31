@@ -2737,6 +2737,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	            return element !== payload.id;
 	          });
 	          state.collection[payload.id].isAbsent = false;
+	        } else if (main_core.Type.isDate(payload.fields.absent)) {
+	          state.collection[payload.id].isAbsent = true;
+	          this.addToAbsentList(payload.id);
 	        }
 
 	        state.collection[payload.id] = { ...state.collection[payload.id],

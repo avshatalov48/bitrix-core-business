@@ -2,7 +2,6 @@
 
 namespace Bitrix\UI\FileUploader;
 
-use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Security;
 use Bitrix\Main\IO;
@@ -174,7 +173,7 @@ final class TempFile extends EO_TempFile
 		{
 			$this->delete();
 
-			return $result->addError(new UploaderError(UploaderError::FILE_COMMIT_FAILED));
+			return $result->addError(new UploaderError(UploaderError::SAVE_FILE_FAILED));
 		}
 
 		$this->setFileId($fileId);
@@ -304,8 +303,19 @@ final class TempFile extends EO_TempFile
 		$minUploadSize = $bucket->getService()->getMinUploadPartSize();
 		if ($chunk->getSize() < $minUploadSize && !$chunk->isLast())
 		{
+			$postMaxSize = \CUtil::unformat(ini_get('post_max_size'));
+			$uploadMaxFileSize = \CUtil::unformat(ini_get('upload_max_filesize'));
+
 			return $result->addError(
-				new UploaderError(UploaderError::CLOUD_INVALID_CHUNK_SIZE, ['minUploadSize' => $minUploadSize])
+				new UploaderError(
+					UploaderError::CLOUD_INVALID_CHUNK_SIZE,
+					[
+						'chunkSize' => $chunk->getSize(),
+						'minUploadSize' => $minUploadSize,
+						'postMaxSize' => $postMaxSize,
+						'uploadMaxFileSize' => $uploadMaxFileSize,
+					]
+				)
 			);
 		}
 
@@ -400,7 +410,11 @@ final class TempFile extends EO_TempFile
 			]
 		);
 
-		IO\Directory::createDirectory($directory);
+		if (!IO\Directory::isDirectoryExists($directory))
+		{
+			IO\Directory::createDirectory($directory);
+		}
+
 		$tempName = md5(mt_rand() . mt_rand());
 
 		return $directory . $tempName;
@@ -410,7 +424,10 @@ final class TempFile extends EO_TempFile
 	{
 		$tmpFilePath = \CTempFile::getFileName('file-uploader' . uniqid(md5(mt_rand() . mt_rand()), true));
 		$directory = IO\Path::getDirectory($tmpFilePath);
-		IO\Directory::createDirectory($directory);
+		if (!IO\Directory::isDirectoryExists($directory))
+		{
+			IO\Directory::createDirectory($directory);
+		}
 
 		return $tmpFilePath;
 	}

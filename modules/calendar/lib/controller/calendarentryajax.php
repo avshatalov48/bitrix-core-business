@@ -362,61 +362,14 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 				&& $request->getPost('is_meeting') === 'Y'
 			)
 			{
-				$usersToCheck = [];
-				foreach ($attendees as $attId)
+				$fromTs = \CCalendar::Timestamp($arFields["DATE_FROM"]);
+				$toTs = \CCalendar::Timestamp($arFields["DATE_TO"]);
+				$fromTs -= \CCalendar::GetTimezoneOffset($timezone, $fromTs);
+				$toTs -= \CCalendar::GetTimezoneOffset($timezone, $toTs);
+				if (!empty($this->getBusyUsersIds($attendees, $id, $fromTs, $toTs)))
 				{
-					if ((int)$attId !== \CCalendar::GetUserId())
-					{
-						$userSettings = UserSettings::get((int)$attId);
-						if ($userSettings && $userSettings['denyBusyInvitation'])
-						{
-							$usersToCheck[] = (int)$attId;
-						}
-					}
-				}
-
-				if (count($usersToCheck) > 0)
-				{
-					$fromTs = \CCalendar::Timestamp($arFields["DATE_FROM"]);
-					$toTs = \CCalendar::Timestamp($arFields["DATE_TO"]);
-					$fromTs -= \CCalendar::GetTimezoneOffset($timezone, $fromTs);
-					$toTs = $toTs - \CCalendar::GetTimezoneOffset($timezone, $toTs);
-					$dateFromUtc = \CCalendar::Date($fromTs);
-					$dateToUtc = \CCalendar::Date($toTs);
-
-					$accessibility = \CCalendar::GetAccessibilityForUsers(
-						[
-							'users' => $usersToCheck,
-							'from' => $dateFromUtc, // date or datetime in UTC
-							'to' => $dateToUtc, // date or datetime in UTC
-							'curEventId' => $id,
-							'getFromHR' => true,
-							'checkPermissions' => false
-						]
-					);
-
-					foreach ($accessibility as $userId => $entries)
-					{
-						foreach ($entries as $entry)
-						{
-							$entFromTs = \CCalendar::Timestamp($entry["DATE_FROM"]);
-							$entToTs = \CCalendar::Timestamp($entry["DATE_TO"]);
-							$entFromTs -= \CCalendar::GetTimezoneOffset($entry['TZ_FROM'], $entFromTs);
-							$entToTs -= \CCalendar::GetTimezoneOffset($entry['TZ_TO'], $entToTs);
-
-							if ($entFromTs < $toTs && $entToTs > $fromTs)
-							{
-								$busyWarning = true;
-								$reload = true;
-								break;
-							}
-						}
-
-						if ($busyWarning)
-						{
-							break;
-						}
-					}
+					$busyWarning = true;
+					$reload = true;
 				}
 			}
 
@@ -647,84 +600,25 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 
 		if ($entryFields['IS_MEETING'] && $isPlannerFeatureEnabled)
 		{
-			$usersToCheck = [];
+			$attendees = [];
 			if ($checkCurrentUsersAccessibility)
 			{
-				foreach ($entryFields['ATTENDEES'] as $attId)
-				{
-					$attId = (int)$attId;
-					if ($attId !== \CCalendar::GetUserId())
-					{
-						$userSettings = UserSettings::get($attId);
-						if ($userSettings && $userSettings['denyBusyInvitation'])
-						{
-							$usersToCheck[] = $attId;
-						}
-					}
-				}
+				$attendees = $entryFields['ATTENDEES'];
 			}
 			else if (is_array($request['newAttendeesList']))
 			{
-				$newAttendeesList = array_diff($request['newAttendeesList'], $excludeUsers);
-				foreach ($newAttendeesList as $attId)
-				{
-					$attId = (int)$attId;
-					if ($attId !== \CCalendar::GetUserId())
-					{
-						$userSettings = UserSettings::get($attId);
-						if ($userSettings && $userSettings['denyBusyInvitation'])
-						{
-							$usersToCheck[] = $attId;
-						}
-					}
-				}
+				$attendees = array_diff($request['newAttendeesList'], $excludeUsers);
 			}
 
-			if (count($usersToCheck) > 0)
+			$fromTs = \CCalendar::Timestamp($dateFrom);
+			$toTs = \CCalendar::Timestamp($dateTo);
+			$fromTs -= \CCalendar::GetTimezoneOffset($tzFrom, $fromTs);
+			$toTs -= \CCalendar::GetTimezoneOffset($tzTo, $toTs);
+			$busyUsers = $this->getBusyUsersIds($attendees, $id, $fromTs, $toTs);
+			if (count($busyUsers) > 0)
 			{
-				$fromTs = \CCalendar::Timestamp($dateFrom);
-				$toTs = \CCalendar::Timestamp($dateTo);
-				$fromTs -= \CCalendar::GetTimezoneOffset($tzFrom, $fromTs);
-				$toTs -= \CCalendar::GetTimezoneOffset($tzTo, $toTs);
-
-				$accessibility = \CCalendar::GetAccessibilityForUsers([
-					'users' => $usersToCheck,
-					'from' => \CCalendar::Date($fromTs, false), // date or datetime in UTC
-					'to' => \CCalendar::Date($toTs, false), // date or datetime in UTC
-					'curEventId' => $id,
-					'getFromHR' => true,
-					'checkPermissions' => false
-				]);
-
-				$busyUsersList = [];
-				foreach ($accessibility as $accUserId => $entries)
-				{
-					foreach ($entries as $entry)
-					{
-						$entFromTs = \CCalendar::Timestamp($entry['DATE_FROM']);
-						$entToTs = \CCalendar::Timestamp($entry['DATE_TO']);
-
-						if ($entry['DT_SKIP_TIME'] === 'Y')
-						{
-							$entToTs += \CCalendar::GetDayLen();
-						}
-
-						$entFromTs -= \CCalendar::GetTimezoneOffset($entry['TZ_FROM'], $entFromTs);
-						$entToTs -= \CCalendar::GetTimezoneOffset($entry['TZ_TO'], $entToTs);
-
-						if ($entFromTs < $toTs && $entToTs > $fromTs)
-						{
-							$busyUsersList[] = $accUserId;
-							$this->addError(new Error(Loc::getMessage('EC_USER_BUSY', ['#USER#' => \CCalendar::GetUserName($accUserId)]), 'edit_entry_user_busy'));
-							break;
-						}
-					}
-				}
-
-				if (count($busyUsersList) > 0)
-				{
-					$response['busyUsersList'] = \CCalendarEvent::getUsersDetails($busyUsersList);
-				}
+				$response['busyUsersList'] = \CCalendarEvent::getUsersDetails($busyUsers);
+				$this->addError(new Error(Loc::getMessage('EC_USER_BUSY', ['#USER#' => \CCalendar::GetUserName($busyUsers[0])]), 'edit_entry_user_busy'));
 			}
 		}
 
@@ -882,6 +776,66 @@ class CalendarEntryAjax extends \Bitrix\Main\Engine\Controller
 		UserSettings::set($userSettings, $userId);
 
 		return $response;
+	}
+
+	private function getBusyUsersIds(array $attendees, int $curEventId, int $fromTs, int $toTs): array
+	{
+		$usersToCheck = $this->getUsersToCheck($attendees);
+		if (empty($usersToCheck))
+		{
+			return [];
+		}
+
+		$accessibility = \CCalendar::GetAccessibilityForUsers([
+			'users' => $usersToCheck,
+			'from' => \CCalendar::Date($fromTs, false), // date or datetime in UTC
+			'to' => \CCalendar::Date($toTs, false), // date or datetime in UTC
+			'curEventId' => $curEventId,
+			'getFromHR' => true,
+			'checkPermissions' => false
+		]);
+
+		$busyUsersList = [];
+		foreach ($accessibility as $accUserId => $entries)
+		{
+			foreach ($entries as $entry)
+			{
+				$entFromTs = \CCalendar::Timestamp($entry['DATE_FROM']);
+				$entToTs = \CCalendar::Timestamp($entry['DATE_TO']);
+
+				if ($entry['DT_SKIP_TIME'] === 'Y')
+				{
+					$entToTs += \CCalendar::GetDayLen();
+				}
+
+				$entFromTs -= \CCalendar::GetTimezoneOffset($entry['TZ_FROM'], $entFromTs);
+				$entToTs -= \CCalendar::GetTimezoneOffset($entry['TZ_TO'], $entToTs);
+
+				if ($entFromTs < $toTs && $entToTs > $fromTs)
+				{
+					$busyUsersList[] = $accUserId;
+				}
+			}
+		}
+
+		return $busyUsersList;
+	}
+
+	private function getUsersToCheck(array $attendees): array
+	{
+		$usersToCheck = [];
+		foreach ($attendees as $attId)
+		{
+			if ((int)$attId !== \CCalendar::GetUserId())
+			{
+				$userSettings = UserSettings::get((int)$attId);
+				if ($userSettings && $userSettings['denyBusyInvitation'])
+				{
+					$usersToCheck[] = (int)$attId;
+				}
+			}
+		}
+		return $usersToCheck;
 	}
 
 	private function prepareRecurringRule(array $rrule = null, ?string $endMode = 'never'): ?array

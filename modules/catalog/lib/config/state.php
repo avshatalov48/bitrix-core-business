@@ -512,14 +512,19 @@ final class State
 			$iblockSectionIds = self::getIblockSections($iblockId);
 			if (!empty($iblockSectionIds))
 			{
+				$filter = [
+					'IBLOCK_ID' => $iblockId,
+					'SECTION_ID' => $iblockSectionIds,
+					'INCLUDE_SUBSECTIONS' => 'Y',
+					'CHECK_PERMISSIONS' => 'N',
+				];
+				$filter = Catalog\Product\SystemField\ProductMapping::getExtendedFilterByArea(
+					$filter,
+					Catalog\Product\SystemField\ProductMapping::MAP_LANDING
+				);
 				self::$elementCount = (int)\CIBlockElement::GetList(
 					[],
-					[
-						'IBLOCK_ID' => $iblockId,
-						'SECTION_ID' => $iblockSectionIds,
-						'INCLUDE_SUBSECTIONS' => 'Y',
-						'CHECK_PERMISSIONS' => 'N',
-					],
+					$filter,
 					[],
 					false,
 					['ID']
@@ -771,7 +776,7 @@ final class State
 		$result = [
 			'COUNT' => 0,
 			'LIMIT' => Feature::getLandingProductLimit(),
-			'MESSAGE_ID' => 'CATALOG_STATE_ERR_PRODUCT_LIMIT'
+			'MESSAGE_ID' => 'CATALOG_STATE_ERR_PRODUCT_LIMIT_1'
 		];
 		if ($result['LIMIT'] === 0)
 		{

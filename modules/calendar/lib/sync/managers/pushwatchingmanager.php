@@ -5,11 +5,13 @@ namespace Bitrix\Calendar\Sync\Managers;
 use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Internals\PushTable;
+use Bitrix\Calendar\Internals\SectionConnectionTable;
 use Bitrix\Calendar\Sync\Builders\BuilderPushFromDM;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Connection\SectionConnection;
 use Bitrix\Calendar\Sync\Dictionary;
 use Bitrix\Calendar\Sync\Exceptions\ApiException;
+use Bitrix\Calendar\Sync\Exceptions\SyncException;
 use Bitrix\Calendar\Sync\Factories\FactoryBuilder;
 use Bitrix\Calendar\Sync\Factories\SectionConnectionFactory;
 use Bitrix\Calendar\Sync\Factories\FactoryInterface;
@@ -19,12 +21,14 @@ use Bitrix\Calendar\Sync\Util\Result;
 use Bitrix\Dav\Internals\DavConnectionTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
@@ -39,7 +43,8 @@ class PushWatchingManager
 	private const PAUSE_INTERVAL_CHANNEL = 72000; // 60*60*20
 	private const TYPE_LINK = 'SECTION_CONNECTION';
 	private const TYPE_CONNECTION = 'CONNECTION';
-
+	private const GOOGLE_CONNECTION = 'google_api_oauth';
+	private const OFFICE365_CONNECTION = 'office365';
 	private const RESULT_STATUS = [
 		'done' => 'done', // nothing left to process
 		'next' => 'next', // something left to process
@@ -49,7 +54,7 @@ class PushWatchingManager
 
 	/**
 	 * @throws SystemException
-	 * @throws LoaderException
+	 * @throws LoaderException|\Psr\Container\NotFoundExceptionInterface
 	 */
 	public function __construct()
 	{
@@ -186,20 +191,31 @@ class PushWatchingManager
 	/**
 	 * @param PushManagerInterface $vendorPushManager
 	 * @param Push $pushChannel
+	 *
 	 * @return Result
+	 *
 	 * @throws Exception
 	 */
 	private function renewPushChannel(PushManagerInterface $vendorPushManager, Push $pushChannel): Result
 	{
-		$result = $vendorPushManager->renewPush($pushChannel);
-		if ($result->isSuccess())
+		try
 		{
-			$this->savePushChannel($pushChannel);
+			$result = $vendorPushManager->renewPush($pushChannel);
+
+			if ($result->isSuccess())
+			{
+				$this->savePushChannel($pushChannel);
+			}
+			else
+			{
+				$result->addError(new Error('Error of renew push channel.'));
+			}
 		}
-		else
+		catch(SyncException $e)
 		{
-			$result->addError(new Error('Error of renew push channel.'));
+			$result = (new Result())->addError(new Error('Error of renew push channel.', $e->getCode()));
 		}
+
 		return $result;
 	}
 
@@ -267,7 +283,7 @@ class PushWatchingManager
 		}
 		foreach ($errors as $error)
 		{
-			if ($error->getCode() == 405)
+			if ((int)$error->getCode() === 405)
 			{
 				return true;
 			}
@@ -309,7 +325,7 @@ class PushWatchingManager
 			]
 		]);
 		if (
-			!empty($sectionLink)
+			$sectionLink !== null
 			&& $sectionLink->isActive()
 			&& ($sectionLink->getConnection() !== null)
 			&& !$sectionLink->getConnection()->isDeleted()
@@ -324,13 +340,21 @@ class PushWatchingManager
 				if ($pushChannel->getExpireDate()->getDate() > $now)
 				{
 					$result = $this->renewPushChannel($vendorPushManager, $pushChannel);
-					if (!$result->isSuccess() && $this->isError405($result))
+					if ($result->isSuccess())
+					{
+						return;
+					}
+					elseif ($result->getErrorCollection()->getErrorByCode(405))
 					{
 						$result = $this->recreateSectionPushChannel($vendorPushManager, $pushChannel, $sectionLink);
 						if ($result->isSuccess())
 						{
 							return;
 						}
+					}
+					elseif ($result->getErrorCollection()->getErrorByCode(401))
+					{
+						return;
 					}
 				}
 				else
@@ -358,11 +382,11 @@ class PushWatchingManager
 	 * @throws SystemException
 	 * @throws Exception
 	 */
-	private function renewConnectionPush(Push $pushChannel)
+	private function renewConnectionPush(Push $pushChannel): void
 	{
 		/** @var Connection $connection */
 		$connection = $this->getConnectionMapper()->getById($pushChannel->getEntityId());
-		if (!empty($connection) && !$connection->isDeleted())
+		if ($connection !== null && !$connection->isDeleted())
 		{
 			/** @var FactoryInterface $vendorFactory */
 			$vendorFactory = $this->getFactoryByConnection($connection);
@@ -422,76 +446,103 @@ class PushWatchingManager
 
 	/**
 	 * @return void
-	 *
 	 * @throws ArgumentException
 	 * @throws BaseException
 	 * @throws ObjectNotFoundException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
 	 */
-	private function doFixWatchSectionChannels()
+	private function doFixWatchSectionChannels(): void
 	{
-		// TODO: move it to D7
-		$sql = "SELECT link.ID, link.CONNECTION_ID, link.SECTION_ID FROM b_calendar_section_connection link
-		inner join b_dav_connections conn ON link.CONNECTION_ID = conn.ID 
-		LEFT JOIN b_calendar_push push ON push.ENTITY_ID = link.ID AND push.ENTITY_TYPE = '". self::TYPE_LINK ."'
-		WHERE link.ACTIVE = 'Y' AND conn.IS_DELETED='N' AND link.LAST_SYNC_STATUS='success'
-		    AND conn.ACCOUNT_TYPE IN ('office365', 'google_api_oauth')
-			AND push.ENTITY_TYPE IS NULL 
-		LIMIT " . self::FIX_LIMIT . "
-		;";
-		global $DB;
-		$result = $DB->Query($sql);
-		if ($result)
+		$query = SectionConnectionTable::query()
+			->setSelect(['ID', 'CONNECTION_ID', 'SECTION_ID'])
+			->registerRuntimeField('CONNECTION',
+				new ReferenceField(
+					'CONNECTION',
+					DavConnectionTable::getEntity(),
+					[
+						'=this.CONNECTION_ID' => 'ref.ID',
+					],
+					['join_type' => Join::TYPE_INNER]
+				)
+			)
+			->registerRuntimeField('PUSH',
+				new ReferenceField(
+					'PUSH',
+					PushTable::getEntity(),
+					[
+						'=this.ID' => 'ref.ENTITY_ID',
+						'ref.ENTITY_TYPE' => ['?', self::TYPE_LINK]
+					],
+					['join_type' => Join::TYPE_LEFT]
+				)
+			)
+			->where('ACTIVE', 'Y')
+			->where('LAST_SYNC_STATUS', 'success')
+			->where('CONNECTION.IS_DELETED', 'N')
+			->whereIn('CONNECTION.ACCOUNT_TYPE', [self::GOOGLE_CONNECTION, self::OFFICE365_CONNECTION])
+			->whereNull('PUSH.ENTITY_TYPE')
+			->setLimit(self::FIX_LIMIT)
+			->exec()
+		;
+
+		while ($row = $query->Fetch())
 		{
-			while ($row = $result->Fetch())
+			$manager = $this->getOutgoingManager($row['CONNECTION_ID']);
+			/** @var SectionConnection $link */
+			$link = $this->mapperFactory->getSectionConnection()->getById($row['ID']);
+			try
 			{
-				$manager = $this->getOutgoingManager($row['CONNECTION_ID']);
-				/** @var SectionConnection $link */
-				$link = $this->mapperFactory->getSectionConnection()->getById($row['ID']);
-				try
-				{
-					$manager->subscribeSection($link);
-				}
-				catch (Exception $e)
-				{
-					$link->setLastSyncStatus(Dictionary::SYNC_STATUS['failed']);
-					$this->mapperFactory->getSectionConnection()->update($link);
-				}
+				$manager->subscribeSection($link);
+			}
+			catch (Exception $e)
+			{
+				$link->setLastSyncStatus(Dictionary::SYNC_STATUS['failed']);
+				$this->mapperFactory->getSectionConnection()->update($link);
 			}
 		}
 	}
 
 	/**
 	 * @return void
-	 *
-	 * @throws Exception
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
 	 */
-	private function doFixWatchConnectionChannels()
+	private function doFixWatchConnectionChannels(): void
 	{
-		// TODO: move it to D7
-		$sql = "SELECT conn.ID from b_dav_connections conn
-		LEFT JOIN b_calendar_push push ON push.ENTITY_ID = conn.ID AND push.ENTITY_TYPE = '". self::TYPE_CONNECTION ."'
-		WHERE conn.IS_DELETED='N' AND conn.LAST_RESULT IN ('success', '[200] OK')
-		    AND conn.ACCOUNT_TYPE = 'google_api_oauth'
-			AND push.ENTITY_TYPE IS NULL 
-		LIMIT " . self::FIX_LIMIT . "
-		;";
-		global $DB;
-		$result = $DB->Query($sql);
-		if ($result)
+		$query = DavConnectionTable::query()
+			->setSelect(['ID'])
+			->registerRuntimeField('PUSH',
+               new ReferenceField(
+                   'PUSH',
+                   PushTable::getEntity(),
+				   [
+					   '=this.ID' => 'ref.ENTITY_ID',
+					   'ref.ENTITY_TYPE' => ['?', self::TYPE_CONNECTION]
+                   ],
+                   ['join_type' => Join::TYPE_LEFT]
+               )
+			)
+			->where('IS_DELETED', 'N')
+			->where('ACCOUNT_TYPE', self::GOOGLE_CONNECTION)
+			->whereIn('LAST_RESULT', ['success', '[200] OK'])
+			->whereNull('PUSH.ENTITY_TYPE')
+			->setLimit(self::FIX_LIMIT)
+			->exec()
+		;
+		while ($row = $query->fetch())
 		{
-			while ($row = $result->Fetch())
+			try
 			{
-				try
-				{
-					$manager = $this->getOutgoingManager($row['ID']);
-					$manager->subscribeConnection();
-				}
-				catch (Exception $e)
-				{
-					DavConnectionTable::update($row['ID'],[
-						'LAST_RESULT' => '['. $e->getCode() .'] ERR'
-					]);
-				}
+				$manager = $this->getOutgoingManager($row['ID']);
+				$manager->subscribeConnection();
+			}
+			catch (Exception $e)
+			{
+				DavConnectionTable::update($row['ID'], [
+					'LAST_RESULT' => '['. $e->getCode() .'] ERR'
+				]);
 			}
 		}
 	}

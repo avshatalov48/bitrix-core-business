@@ -1,0 +1,59 @@
+.bx-messenger-dark .bx-im-call-background__scope {
+	--im-call-background__background-color_video : #313131;
+	--im-call-background__background-color_tab : rgba(255, 255, 255, 0.1);
+	--im-call-background__background-color_tab-active : #3d3d3d;
+	--im-call-background__background-color_tab-hover : rgba(255, 255, 255, 0.05);
+	--im-call-background__background-color_tab-border : rgba(255, 255, 255, 0.1);
+	--im-call-background__background-color_tab-new : #1db1e6;
+	--im-call-background__background-color_scroll : rgba(255, 255, 255, 0.3);
+	--im-call-background__background-color_scroll-hover : rgba(255, 255, 255, 0.45);
+	--im-call-background__background-color_item: #313131;
+	--im-call-background__background-color_item-soon: var(--ui-color-palette-green-55, #9dcf00);
+	--im-call-background__background-color_item-title: rgba(0, 0, 0, 0.2);
+	--im-call-background__background-color_item-video: rgba(255, 255, 255, .26);
+
+	--im-call-background__font-color_description: var(--ui-color-palette-white-base, #fff);
+	--im-call-background__font-color_no-cam: var(--ui-color-palette-white-base, #fff);
+	--im-call-background__font-color_tab: var(--ui-color-palette-white-base, #fff);
+	--im-call-background__font-color_tab-new: var(--ui-color-palette-white-base, #fff);
+	--im-call-background__font-color_item-title: var(--ui-color-palette-white-base, #fff);
+	--im-call-background__font-color_item-mask-title: var(--ui-color-palette-white-base, #fff);
+	--im-call-background__font-color_item-soon: var(--ui-color-palette-white-base, #fff);
+	--im-call-background__font-color_action-title: var(--ui-color-palette-white-base, #fff);
+}
+
+.bx-messenger-dark .ui-btn-link {
+	color: #fff;
+}
+
+.bx-messenger-dark .bx-im-call-background__right.--scrolled:before {
+	background: linear-gradient(180deg, rgba(61, 61, 61, 0) 0%, #3D3D3D 100%);
+}
+
+.bx-messenger-dark .bx-im-call-background__right:after {
+	background: linear-gradient(180deg, rgba(61, 61, 61, 0) 0%, #3D3D3D 100%);
+}
+
+.bx-messenger-dark .bx-im-call-background__item.--action.--none .bx-im-call-background__action_icon {
+	background-image: url('./images/actions/no-bg-dark.svg');
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.bx-messenger-dark .bx-im-call-background__item.--action.--upload .bx-im-call-background__action_icon {
+	background-image: url('./images/actions/upload-dark.svg');
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.bx-messenger-dark .bx-im-call-background__item.--action.--gaussianBlur .bx-im-call-background__action_icon {
+	background-image: url('./images/actions/soft-blur-dark.svg');
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.bx-messenger-dark .bx-im-call-background__item.--action.--blur .bx-im-call-background__action_icon {
+	background-image: url('./images/actions/hard-blur-dark.svg');
+	background-repeat: no-repeat;
+	background-position: center;
+}

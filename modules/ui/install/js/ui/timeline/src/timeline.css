@@ -397,8 +397,7 @@
 	white-space: nowrap;
 }
 
-.ui-item-detail-stream-section-im-avatar,
-.bx-ie .ui-item-detail-stream-section-im-avatar {
+.ui-item-detail-stream-section-im-avatar {
 	position: relative;
 	display: inline-block;
 	min-width: 22px;

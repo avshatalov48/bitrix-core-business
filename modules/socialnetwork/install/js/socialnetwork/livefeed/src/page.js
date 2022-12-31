@@ -477,7 +477,7 @@ class Page
 
 	clearContainerExternal()
 	{
- 		if (this.requestMode === 'new')
+		if (this.requestMode === 'new')
 		{
 			InformerInstance.hideWrapAnimation();
 			InformerInstance.recover();

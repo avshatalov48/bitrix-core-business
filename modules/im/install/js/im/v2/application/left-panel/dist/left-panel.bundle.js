@@ -86,5 +86,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.LeftPanelApplication = LeftPanelApplication;
 
-}((this.BX.Messenger.v2.Application = this.BX.Messenger.v2.Application || {}),BX.Messenger.v2.Application,BX.Messenger.v2,BX.Messenger.v2.Provider.Pull,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Application = this.BX.Messenger.v2.Application || {}),BX.Messenger.v2.Application,BX.Messenger.v2.ComponentLegacy,BX.Messenger.v2.Provider.Pull,BX.Messenger.v2.Const));
 //# sourceMappingURL=left-panel.bundle.js.map

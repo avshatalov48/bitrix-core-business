@@ -37,7 +37,7 @@ export function abort(controller: ServerLoadController)
 		queue.xhr = null;
 		queues.delete(server);
 
-		tasks.forEach(task => {
+		queue.tasks.forEach(task => {
 			const { controller, file } = task;
 			controller.emit('onAbort');
 		});

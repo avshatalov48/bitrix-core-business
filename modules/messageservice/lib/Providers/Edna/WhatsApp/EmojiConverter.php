@@ -2,6 +2,8 @@
 
 namespace Bitrix\MessageService\Providers\Edna\WhatsApp;
 
+use Bitrix\MessageService\Providers\Constants\InternalOption;
+
 class EmojiConverter
 {
 	public function convertEmojiInTemplate(array $messageTemplate, string $type): array
@@ -29,7 +31,7 @@ class EmojiConverter
 
 	public function convertEmoji(string $text, string $type): string
 	{
-		if (!in_array($type, ['decode', 'encode'], true))
+		if (!in_array($type, [InternalOption::EMOJI_DECODE, InternalOption::EMOJI_ENCODE], true))
 		{
 			return $text;
 		}

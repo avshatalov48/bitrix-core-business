@@ -8,3 +8,4 @@ $MESS["DDCT_DEDUCTION_QUANTITY_ERROR"] = "Недостаточное колич�
 $MESS["DDCT_DEDUCTION_MULTI_BARCODE_EMPTY"] = "У товара \"#PRODUCT_NAME#\" не указан штрихкод.";
 $MESS["DDCT_DEDUCTION_BARCODE_ERROR"] = "Для товара #PRODUCT_NAME# (##PRODUCT_ID#) не найден штрихкод \"#BARCODE#\".";
 $MESS["SALE_PROVIDER_PRODUCT_NOT_AVAILABLE"] = "Товар #PRODUCT_NAME# (##PRODUCT_ID#) недоступен.";
+$MESS["SALE_PROVIDER_PRODUCT_SERVICE_NOT_AVAILABLE"] = "Услуга #PRODUCT_NAME# (##PRODUCT_ID#) недоступна.";

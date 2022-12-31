@@ -1,5 +1,8 @@
 <?
 $MESS["EC_ADD"] = "Добавить";
+$MESS["EC_CREATE"] = "Создать";
+$MESS['EC_EVENT_BUTTON'] = 'Событие';
+$MESS['EC_TASK_BUTTON'] = 'Задачу';
 $MESS["EC_ADD_LOCATION"] = "Добавить переговорную";
 $MESS["EC_ADD_CATEGORY"] = "Добавить категорию";
 $MESS["EC_RESERVE"] = "Забронировать";
@@ -86,6 +89,7 @@ $MESS['EC_COUNTER_TOTAL'] = 'События';
 $MESS['EC_COUNTER_INVITATION_PLURAL_0'] = 'приглашение';
 $MESS['EC_COUNTER_INVITATION_PLURAL_1'] = 'приглашения';
 $MESS['EC_COUNTER_INVITATION_PLURAL_2'] = 'приглашения';
+$MESS['EC_COUNTER_INVITATION'] = 'Приглашения';
 $MESS['EC_COUNTER_NEW_COMMENTS_PLURAL_0'] = 'с новыми комментариями';
 $MESS['EC_COUNTER_NEW_COMMENTS_PLURAL_1'] = 'с новыми комментариями';
 $MESS['EC_COUNTER_NEW_COMMENTS_PLURAL_2'] = 'с новыми комментариями';
@@ -106,7 +110,9 @@ $MESS["EC_SEC_SLIDER_SECTION_CAPACITY"] = "Количество участник
 $MESS["EC_SEC_SLIDER_ROOM_CATEGORY"] = "Категория";
 $MESS["EC_SEC_SLIDER_ROOM_SELECTOR"] = "Переговорные";
 $MESS["EC_SEC_SLIDER_ROOM_SELECTOR_PLACEHOLDER"] = "Введите название переговорной";
+$MESS["EC_SEC_SLIDER_ROOM_SELECTOR_STUB"] = "Нет переговорных";
 $MESS["EC_SEC_SLIDER_CATEGORY_SELECTOR_PLACEHOLDER"] = "Введите название категории";
+$MESS["EC_SEC_SLIDER_CATEGORY_SELECTOR_STUB"] = "Нет категорий";
 $MESS["EC_SEC_SLIDER_MY_CALENDARS_LIST"] = "Мои календари";
 $MESS["EC_SEC_SLIDER_GROUP_CALENDARS_LIST"] = "Календари группы";
 $MESS["EC_SEC_SLIDER_TYPE_CALENDARS_LIST"] = "Календари компании";

@@ -19,9 +19,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_WorkgroupSite_Query query()
- * @method static EO_WorkgroupSite_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WorkgroupSite_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_WorkgroupSite_Result getById($id)
- * @method static EO_WorkgroupSite_Result getList(array $parameters = array())
+ * @method static EO_WorkgroupSite_Result getList(array $parameters = [])
  * @method static EO_WorkgroupSite_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite createObject($setDefaultValues = true)
  * @method static \Bitrix\Socialnetwork\EO_WorkgroupSite_Collection createCollection()

@@ -13,6 +13,7 @@ return [
 		'currency.currency-core',
 		'ui.vue',
 		'sale.checkout.view.element.button',
+		'sale.checkout.const',
 	],
 	'skip_core' => false,
 ];

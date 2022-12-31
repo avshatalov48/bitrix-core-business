@@ -41,6 +41,7 @@
 		this.numeratorForm = this.selectByRoles(this.roles.form);
 		this.nameInput = this.selectByRoles(this.roles.nameInput);
 		this.settingsBlock = {};
+		this.errorBlock = null;
 		this.errors = [];
 		this.errorMessages = options && options.errors ? options.errors : {};
 		this.wordButtons = this.selectByRoles(this.roles.wordBtn, 'all');
@@ -234,31 +235,38 @@
 		},
 		showErrors: function ()
 		{
-			for (var t = 0; t < this.errors.length; t++)
+			let errorTexts = [];
+
+			if (!this.errorBlock)
 			{
-				var errorData = this.errors[t];
-				var errorBlock = BX.create('div', {
-					attrs:
-						{
-							class: 'main-numerator-edit-alert-text'
-						},
+				this.errorBlock = BX.create('div', {
+					attrs: {class: 'main-numerator-edit-alert-text'},
 					dataset: {role: 'numerator-error-block'},
-					text: errorData.text
+					text: null,
 				});
+			}
+
+			this.numeratorForm.prepend(this.errorBlock);
+
+			for (let t = 0; t < this.errors.length; t++)
+			{
+				let errorData = this.errors[t];
+
+				errorTexts.push(errorData.text);
+
 				if (!errorData.field)
 				{
 					errorData.field = this.numeratorForm;
-					errorData.field.parentNode.insertBefore(errorBlock, errorData.field);
 				}
-				else
-				{
-					errorData.field.parentNode.insertBefore(errorBlock, errorData.field.nextSibling);
-				}
+
 				if (!errorData.field.classList.contains('main-numerator-edit-input-alert'))
 				{
 					errorData.field.classList.add('main-numerator-edit-input-alert');
 				}
 			}
+
+			this.errorBlock.innerHTML = errorTexts.join('<br>');
+
 		},
 		updateErrors: function ()
 		{
@@ -307,6 +315,7 @@
 				}.bind(this),
 				function (response)
 				{
+					this.errors = [];
 					for (var j = 0; j < response.errors.length; j++)
 					{
 						this.errors.push({text: response.errors[j].message})

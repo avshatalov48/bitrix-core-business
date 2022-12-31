@@ -1,7 +1,6 @@
-import {Dom, Event, Loc, Reflection, Tag, Text, Type} from 'main.core';
+import {Dom, Event, Loc, Reflection, Tag, Type} from 'main.core';
 import {type BaseEvent, EventEmitter} from 'main.core.events'
 import './entity-card.css';
-import TabManager from './tab/manager';
 import 'ui.entity-editor';
 import 'ui.notification';
 import 'ui.feedback.form';
@@ -14,7 +13,7 @@ import IblockFieldConfigurationManager from './field-configurator/iblock-field-c
 import GridFieldConfigurationManager from './field-configurator/grid-field-configuration-manager';
 import {Popup} from "main.popup";
 import {BaseCard} from "./base-card/base-card";
-import {DialogDisable, Slider, EventType} from 'catalog.store-use'
+import {Slider} from 'catalog.store-use'
 
 class EntityCard extends BaseCard
 {
@@ -35,6 +34,7 @@ class EntityCard extends BaseCard
 
 		this.componentName = settings.componentName || null;
 		this.componentSignedParams = settings.componentSignedParams || null;
+		this.variationGridComponentName = (settings.variationGridComponentName || 'BX.Catalog.VariationGrid') + '.Instance';
 
 		this.isSimpleProduct = settings.isSimpleProduct || false;
 		this.isWithOrdersMode = settings.isWithOrdersMode || false;
@@ -127,11 +127,12 @@ class EntityCard extends BaseCard
 	}
 
 	/**
-	 * @returns {BX.Catalog.VariationGrid|null}
+	 * @returns {BX.Catalog.VariationGrid|BX.Catalog.ProductServiceGrid|null}
 	 */
 	getVariationGridComponent()
 	{
-		return Reflection.getClass('BX.Catalog.VariationGrid.Instance');
+		//return Reflection.getClass('BX.Catalog.VariationGrid.Instance');
+		return Reflection.getClass(this.variationGridComponentName);
 	}
 
 	reloadVariationGrid()
@@ -343,6 +344,11 @@ class EntityCard extends BaseCard
 		{
 			eventArgs.configurationFieldManager = this.initializeVariationPropertyConfigurationManager(eventArgs);
 		}
+
+		if (eventArgs.id === 'service_grid')
+		{
+			eventArgs.configurationFieldManager = this.initializeServicePropertyConfigurationManager(eventArgs);
+		}
 	}
 
 	initializeIblockFieldConfigurationManager(eventArgs)
@@ -359,6 +365,11 @@ class EntityCard extends BaseCard
 		configurationManager.setCreationPageUrl(this.settings.creationVariationPropertyUrl);
 
 		return configurationManager;
+	}
+
+	initializeServicePropertyConfigurationManager(eventArgs)
+	{
+		return GridFieldConfigurationManager.create(this.id, eventArgs);
 	}
 
 	showNotification(content, options)
@@ -713,18 +724,18 @@ class EntityCard extends BaseCard
 		const popupContainer = this.getCardSettingsPopup().getContentContainer();
 
 		this.cardSettings
-			.filter(item => item.action === 'grid' && Type.isArray(item.columns))
+			.filter(item => item.action === 'grid' && Type.isArray(item.columns?.ITEMS))
 			.forEach(item => {
-				let allColumnsExist = true;
 
-				item.columns.forEach(columnName => {
+				let allColumnsExist = true;
+				item.columns.ITEMS.forEach(columnName => {
 					if (!this.getVariationGrid().getColumnHeaderCellByName(columnName))
 					{
 						allColumnsExist = false;
 					}
 				})
 
-				let checkbox = popupContainer.querySelector('input[data-setting-id="' + item.id + '"]');
+				const checkbox = popupContainer.querySelector('input[data-setting-id="' + item.id + '"]');
 				if (Type.isDomNode(checkbox))
 				{
 					checkbox.checked = allColumnsExist;

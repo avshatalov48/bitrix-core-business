@@ -1,9 +1,10 @@
-<?
+<?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2022 Bitrix
  */
 
 IncludeModuleLangFile(__FILE__);
@@ -598,54 +599,3 @@ class CMenu
 		return $result;
 	}
 }
-
-class CMenuCustom
-{
-	var $arItems = array();
-
-	function AddItem($type="left", $arItem=array())
-	{
-		if (count($arItem) <= 0)
-			return;
-
-		if (!array_key_exists("TEXT", $arItem) || trim($arItem["TEXT"]) == '')
-			return;
-
-		if (!array_key_exists("LINK", $arItem) || trim($arItem["LINK"]) == '')
-			$arItem["LINK"] = "";
-
-		if (!array_key_exists("SELECTED", $arItem))
-			$arItem["SELECTED"] = false;
-
-		if (!array_key_exists("PERMISSION", $arItem))
-			$arItem["PERMISSION"] = "R";
-
-		if (!array_key_exists("DEPTH_LEVEL", $arItem))
-			$arItem["DEPTH_LEVEL"] = 1;
-
-		if (!array_key_exists("IS_PARENT", $arItem))
-			$arItem["IS_PARENT"] = false;
-
-		$this->arItems[$type][] = array(
-						"TEXT" => $arItem["TEXT"],
-						"LINK" => $arItem["LINK"],
-						"SELECTED" => $arItem["SELECTED"],
-						"PERMISSION" => $arItem["PERMISSION"],
-						"DEPTH_LEVEL" => $arItem["DEPTH_LEVEL"],
-						"IS_PARENT" => $arItem["IS_PARENT"],
-					);
-	}
-
-
-	function GetItems($type="left")
-	{
-		if (array_key_exists($type, $this->arItems))
-			return $this->arItems[$type];
-		else
-			return false;
-	}
-
-}
-
-global $BX_MENU_CUSTOM;
-$BX_MENU_CUSTOM = new CMenuCustom;

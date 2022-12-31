@@ -2,6 +2,7 @@
 $MESS["CPD_FEEDBACK_BUTTON"] = "Feedback";
 $MESS["CPD_NEW_PROPERTY_ADDED"] = "Eigenschaft wurde hinzugefügt";
 $MESS["CPD_NEW_VARIATION_ADDED"] = "Variante wurde hinzugefügt";
+$MESS["CPD_PRODUCT_TYPE_SELECTOR"] = "Produkttyp: #PRODUCT_TYPE_NAME#";
 $MESS["CPD_QUANTITY_TRACE_ACCEPT"] = "Fortfahren";
 $MESS["CPD_QUANTITY_TRACE_NOTICE"] = "Wenn Sie Bestandskontrolle aktivieren, bleibt sie für immer aktiv, Sie werden sie nicht deaktivieren können, weil sie für die Bestandsverwaltung erforderlich ist.";
 $MESS["CPD_QUANTITY_TRACE_NOTICE_TITLE"] = "Bestandskontrolle aktivieren";

@@ -12,7 +12,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admi
 
 Loc::loadMessages(__FILE__);
 
-$saleRights = $APPLICATION->GetGroupRight($module_id);
+$saleRights = $APPLICATION->GetGroupRight('sale');
 if ($saleRights < 'W')
 {
 	require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');

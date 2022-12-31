@@ -2,36 +2,36 @@
 	"text": {
 		"transform": {
 			"type": "textCase",
-			"none": { "value":  "none" },
-			"capitalize": { "value":  "capitalize" },
-			"uppercase": { "value":  "uppercase" },
-			"lowercase": { "value":  "lowercase" }
+			"none": { "value": "none" },
+			"capitalize": { "value": "capitalize" },
+			"uppercase": { "value": "uppercase" },
+			"lowercase": { "value": "lowercase" }
 		},
 		"decoration": {
 			"line": {
 				"type": "textDecoration",
-				"underline": { "value":  "underline" },
-				"line-through": { "value":  "line-through" },
-				"overline": { "value":  "overline", "ignoreFigma": true }
+				"underline": { "value": "underline" },
+				"line-through": { "value": "line-through" },
+				"overline": { "value": "overline", "ignoreFigma": true }
 			},
 			"style": {
 				"ignoreFigma": true,
-				"solid": { "value":  "solid" },
-				"double": { "value":  "double" },
-				"dotted": { "value":  "dotted" },
-				"wavy": { "value":  "wavy" },
-				"dashed": { "value":  "dashed" }
+				"solid": { "value": "solid" },
+				"double": { "value": "double" },
+				"dotted": { "value": "dotted" },
+				"wavy": { "value": "wavy" },
+				"dashed": { "value": "dashed" }
 			}
 		},
 		"letter-spacing": {
 			"type": "letterSpacing",
-			"neg-1": { "value":  "-0.03em" },
-			"neg-2": { "value":  "-0.02em" },
-			"neg-3": { "value":  "-0.01em" },
-			"auto": { "value":  "auto", "ignoreFigma": true },
-			"1": { "value":  "0.025em" },
-			"2": { "value":  "0.1em" },
-			"3": { "value":  "0.15em" }
+			"neg-1": { "value": "-0.03em" },
+			"neg-2": { "value": "-0.02em" },
+			"neg-3": { "value": "-0.01em" },
+			"auto": { "value": "auto", "ignoreFigma": true },
+			"1": { "value": "0.025em" },
+			"2": { "value": "0.1em" },
+			"3": { "value": "0.15em" }
 		}
 	}
 }

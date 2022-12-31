@@ -6,6 +6,7 @@ use Bitrix\Catalog\v2\Property\Property;
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
 
 class VariationForm extends BaseForm
 {
@@ -108,6 +109,11 @@ class VariationForm extends BaseForm
 		);
 	}
 
+	protected function getCardSettingsItems(): array
+	{
+		return GridVariationForm::getGridCardSettingsItems();
+	}
+
 	protected function showCatalogProductFields(): bool
 	{
 		return true;
@@ -147,7 +153,7 @@ class VariationForm extends BaseForm
 	protected function getPriceDescriptions(): array
 	{
 		$descriptions = [];
-		$priceTypeList = \CCatalogGroup::GetListArray();
+		$priceTypeList = Catalog\GroupTable::getTypeList();
 
 		if (!empty($priceTypeList))
 		{
@@ -186,7 +192,7 @@ class VariationForm extends BaseForm
 			'type' => 'money',
 			'entity' => 'money',
 			'priceTypeId' => $fields['TYPE_ID'],
-			'editable' => true,
+			'editable' => $this->isPricesEditable(),
 			'data' => [
 				'affectedFields' => [
 					$fields['PRICE_FIELD'],
@@ -211,7 +217,7 @@ class VariationForm extends BaseForm
 				'name' => static::formatFieldName('MEASURE_RATIO'),
 				'title' => Loc::getMessage('CATALOG_C_F_VARIATION_SETTINGS_MEASURE_RATIO_TITLE'),
 				'type' => 'number',
-				'editable' => true,
+				'editable' => $this->isAllowedEditFields(),
 				'required' => false,
 				'defaultValue' => 1,
 			],

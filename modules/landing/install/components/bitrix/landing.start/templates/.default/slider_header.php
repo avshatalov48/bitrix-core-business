@@ -28,7 +28,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 				<?$APPLICATION->ShowViewContent('pagetitle');?>
 			</div>
 			<div class="landing-slider-pagetitle">
-				<span id="pagetitle" class="landing-slider-pagetitle-item"><?$APPLICATION->ShowTitle(false);?></span>
+				<div id="pagetitle" class="landing-slider-pagetitle-title"><?$APPLICATION->ShowTitle(false);?></div>
 				<div class="landing-slider-pagetitle-actions"><?$APPLICATION->ShowViewContent('title_actions');?></div>
 			</div>
 		</div>

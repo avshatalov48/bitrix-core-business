@@ -200,7 +200,7 @@ class IblockMoneyProperty
 				}
 				else
 				{
-					$regExp = '/^[0-9]?$/';
+					$regExp = '/^[0-9]*$/';
 				}
 			}
 			elseif(!$thousandsSep && !$decPoint)
@@ -436,7 +436,7 @@ class IblockMoneyProperty
 					{
 						if (this.isDecimalsNull)
 						{
-							this.regExp = '^[0-9]?$';
+							this.regExp = '^[0-9]*$';
 							this.exampleValue = '6456';
 						}
 						else

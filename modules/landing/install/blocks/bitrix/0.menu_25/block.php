@@ -1,4 +1,4 @@
-<section class="landing-block g-pt-30 g-pb-30">
+<section class="landing-block g-pt-30 g-pb-30 u-block-border-none">
 	<div class="container g-px-0">
 		<nav class="landing-block-node-navbar landing-semantic-nav-bar g-px-15 navbar navbar-expand-md g-brd-0 u-navbar-color-gray-dark-v5 u-navbar-color-primary--hover">
 			<div class="collapse navbar-collapse align-items-center" id="navBar">

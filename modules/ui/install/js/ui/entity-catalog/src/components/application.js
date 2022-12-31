@@ -1,11 +1,14 @@
 import { Type, Runtime } from 'main.core';
 import { BaseEvent } from 'main.core.events';
+import { mapWritableState } from 'ui.vue3.pinia';
 import 'ui.icons';
 
 import { MainGroups } from './main-groups';
 import { MainContent } from './main-content';
 import { TitleBarFilter } from './titlebar-filter';
 import { Search } from './search';
+
+import { useGlobalState } from '../stores/global-state';
 
 import { GroupData } from '@/type/group';
 import type { ItemData } from '@/type/item';
@@ -51,7 +54,15 @@ export const Application = {
 	},
 	data(): Object
 	{
-		let selectedGroup: ?GroupData = this.groups.find(group => group.selected) ?? null;
+		let selectedGroup = null;
+		for (const groupList of this.groups)
+		{
+			selectedGroup = groupList.find(group => group.selected);
+			if (selectedGroup)
+			{
+				break;
+			}
+		}
 		if (Type.isNil(selectedGroup) && this.recentGroupData?.selected)
 		{
 			selectedGroup = {id: 'recent', ...(this.recentGroupData ?? {})};
@@ -62,8 +73,7 @@ export const Application = {
 			selectedGroupId: selectedGroup?.id ?? null,
 			shownItems: [],
 			shownGroups: this.getDisplayedGroup(),
-			searching: false,
-			lastSearchString: null,
+			lastSearchString: '',
 			filters: [],
 		};
 	},
@@ -73,9 +83,18 @@ export const Application = {
 			const items = this.items.filter((item) => item.groupIds.some(id => id === this.selectedGroupId));
 
 			return this.selectedGroup?.compare ? items.sort(this.selectedGroup.compare) : items;
-		}
+		},
+		...mapWritableState(useGlobalState, {
+			searching: 'searchApplied',
+			filtersApplied: 'filtersApplied',
+			globalGroup: 'currentGroup',
+		}),
 	},
 	watch: {
+		selectedGroup()
+		{
+			this.globalGroup = this.selectedGroup;
+		},
 		selectedGroupId()
 		{
 			if (this.searching)
@@ -152,7 +171,7 @@ export const Application = {
 			this.filters = event.getData();
 			if (this.searching)
 			{
-				this.onSearch(this.lastSearchString);
+				this.onSearch(new BaseEvent({data: {queryString: this.lastSearchString}}));
 
 				return;
 			}
@@ -162,6 +181,7 @@ export const Application = {
 		},
 		applyFilters()
 		{
+			this.filtersApplied = Object.values(this.filters).length > 0;
 			for (const filterId in this.filters)
 			{
 				this.shownItems = this.shownItems.filter(this.filters[filterId].action);
@@ -212,7 +232,8 @@ export const Application = {
 				</template>
 			</MainGroups>
 			<MainContent
-				:items="shownItems"
+				:items="itemsBySelectedGroupId"
+				:items-to-show="shownItems"
 				:group="selectedGroup"
 				:searching="searching"
 			>
@@ -221,6 +242,12 @@ export const Application = {
 				</template>
 				<template #main-content-no-selected-group-stub>
 					<slot name="main-content-no-selected-group-stub"/>
+				</template>
+				<template #main-content-filter-stub v-if="$slots['main-content-filter-stub']">
+					<slot name="main-content-filter-stub"/>
+				</template>
+				<template #main-content-filter-stub-title v-if="$slots['main-content-filter-stub-title']">
+					<slot name="main-content-filter-stub-title"/>
 				</template>
 				<template #main-content-search-not-found-stub>
 					<slot name="main-content-search-not-found-stub"/>

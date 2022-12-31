@@ -834,7 +834,9 @@ BX.Kanban.Column.prototype =
 			attrs: {
 				className: "main-kanban-column-title-input-edit",
 				type: "text",
-				placeholder: this.getGrid().getMessage("COLUMN_TITLE_PLACEHOLDER")
+				placeholder: this.getGrid().getMessage("COLUMN_TITLE_PLACEHOLDER2"),
+				autocomplete: "off",
+				disabled: true
 			},
 			events: {
 				blur: this.handleTextBoxBlur.bind(this),
@@ -868,12 +870,24 @@ BX.Kanban.Column.prototype =
 	{
 		this.disableDragging();
 		this.getContainer().classList.add("main-kanban-column-edit-mode");
+		this.getTitleTextBox().disabled = false;
 		this.getTitleTextBox().value = this.getName();
+
 		this.focusTextBox();
+	},
+
+	isEditModeEnabled: function()
+	{
+		return this.getContainer().classList.contains("main-kanban-column-edit-mode");
 	},
 
 	applyEditMode: function()
 	{
+		if (!this.isEditModeEnabled())
+		{
+			return;
+		}
+
 		var title = BX.util.trim(this.getTitleTextBox().value);
 		var titleChanged = false;
 		if (title.length > 0 && this.getName() !== title)
@@ -894,6 +908,8 @@ BX.Kanban.Column.prototype =
 
 		this.colorChanged = false;
 		this.enableDragging();
+
+		this.getTitleTextBox().disabled = true;
 		this.getContainer().classList.remove("main-kanban-column-edit-mode");
 	},
 

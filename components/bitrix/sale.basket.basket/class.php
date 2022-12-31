@@ -3213,7 +3213,14 @@ class CBitrixBasketComponent extends CBitrixComponent
 						if (empty($arUsedValues[$arProp['CODE']]))
 							continue;
 
-						$arTmpRes['n'.$propId] = [];
+						$propertyData = [
+							"ID" => $arProp["ID"],
+							"CODE" => $arProp["CODE"],
+							"TYPE" => $arProp["TYPE"],
+							"USER_TYPE" => $arProp["USER_TYPE"],
+							"NAME" => $arProp["NAME"],
+							"VALUES" => [],
+						];
 						foreach ($arProp['VALUES'] as $valId => $arValue)
 						{
 							// properties of various type have different values in the used values data
@@ -3246,14 +3253,14 @@ class CBitrixBasketComponent extends CBitrixComponent
 									}
 								}
 
-								$arTmpRes['n'.$propId]["ID"] = $arProp["ID"];
-								$arTmpRes['n'.$propId]["CODE"] = $arProp["CODE"];
-								$arTmpRes['n'.$propId]["TYPE"] = $arProp["TYPE"];
-								$arTmpRes['n'.$propId]["USER_TYPE"] = $arProp["USER_TYPE"];
-								$arTmpRes['n'.$propId]["NAME"] = $arProp["NAME"];
-								$arTmpRes['n'.$propId]["VALUES"][$valId] = $arValue;
+								$propertyData['VALUES'][$valId] = $arValue;
 							}
 						}
+						if (!empty($propertyData['VALUES']))
+						{
+							$arTmpRes['n'.$propId] = $propertyData;
+						}
+						unset($propertyData);
 					}
 				}
 

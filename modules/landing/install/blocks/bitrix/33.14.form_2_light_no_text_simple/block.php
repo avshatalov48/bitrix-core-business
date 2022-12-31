@@ -1,4 +1,4 @@
-<section class="g-pos-rel landing-block g-pt-30 g-pb-30">
+<section class="g-pos-rel landing-block g-pt-30 g-pb-30 u-block-border-none">
 	<div class="container">
 		<div class="landing-block-node-form-container row justify-content-center">
 			<div class="bitrix24forms g-brd-white-opacity-0_6 u-form-alert-v4"

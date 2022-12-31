@@ -1,4 +1,4 @@
-import {Runtime, Text} from 'main.core';
+import {Loc, Runtime, Text} from 'main.core';
 import {Vue} from "ui.vue";
 import {config} from "../../config";
 import type {BaseEvent} from "main.core.events";
@@ -20,6 +20,10 @@ Vue.component(config.templateFieldPrice,
 	created()
 	{
 		this.onInputPriceHandler = Runtime.debounce(this.onInputPrice, 500, this);
+	},
+	mounted()
+	{
+		BX.UI.Hint.init();
 	},
 	methods:
 	{
@@ -65,10 +69,24 @@ Vue.component(config.templateFieldPrice,
 		{
 			return this.options.currencySymbol || '';
 		},
+		hintText()
+		{
+			if (!this.editable && !this.options?.isCatalogPriceEditEnabled)
+			{
+				return Loc.getMessage('CATALOG_FORM_PRICE_ACCESS_DENIED_HINT');
+			}
+
+			return null;
+		},
 	},
 	// language=Vue
 	template: `
-		<div class="catalog-pf-product-input-wrapper" v-bind:class="{ 'ui-ctl-danger': hasError }">
+		<div 
+			class="catalog-pf-product-input-wrapper" 
+			:class="{ 'ui-ctl-danger': hasError, '.catalog-pf-product-input-wrapper--disabled': !editable }"
+			:data-hint="hintText"
+			data-hint-no-icon
+		>
 			<input 	type="text" class="catalog-pf-product-input catalog-pf-product-input--align-right"
 					v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
 					v-model.lazy="price"

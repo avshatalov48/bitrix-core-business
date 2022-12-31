@@ -20,9 +20,9 @@ use Bitrix\Main\Type\DateTime;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_LogIndex_Query query()
- * @method static EO_LogIndex_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LogIndex_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_LogIndex_Result getById($id)
- * @method static EO_LogIndex_Result getList(array $parameters = array())
+ * @method static EO_LogIndex_Result getList(array $parameters = [])
  * @method static EO_LogIndex_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\EO_LogIndex createObject($setDefaultValues = true)
  * @method static \Bitrix\Socialnetwork\EO_LogIndex_Collection createCollection()

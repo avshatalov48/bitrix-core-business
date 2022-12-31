@@ -3,6 +3,7 @@
 namespace Bitrix\Calendar\Sync\Icloud;
 
 use Bitrix\Calendar\Core\Builders\EventBuilderFromEntityObject;
+use Bitrix\Calendar\Core\Builders\EventCloner;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Section\Section;
 use Bitrix\Calendar\Core\Base\Date;
@@ -245,6 +246,7 @@ class ApiService
 			return null;
 		}
 
+		$event = (new EventCloner($event))->build();
 		[$eventPath, $calendarData] = $this->prepareInstanceData($event, $path, $xmlId, $data, $excludeDate);
 
 		return $this->sendPutAction($eventPath, $calendarData);

@@ -124,7 +124,7 @@ export class Icon extends Image
 			id: -1,
 			alt: "",
 			classList: classList,
-			url: Object.assign({}, this.url.getValue(), {enabled: this.urlCheckbox.checked}),
+			url: Object.assign({}, this.url.getValue(), {enabled: true}),
 		};
 	}
 

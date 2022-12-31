@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
-(function (exports,sale_checkout_lib,main_core,ui_vue_vuex,sale_checkout_controller,sale_checkout_model,ui_vue,main_core_events,sale_checkout_const) {
+(function (exports,sale_checkout_lib,ui_vue_vuex,sale_checkout_controller,sale_checkout_model,ui_vue,main_core_events,main_core,sale_checkout_const) {
 	'use strict';
 
 	ui_vue.BitrixVue.component('sale-checkout-form', {
@@ -18,9 +18,23 @@ this.BX.Sale = this.BX.Sale || {};
 	      var list = this.$store.getters['property/getProperty'];
 
 	      for (var listKey in list) {
-	        if (list[listKey].value.length > 0) {
-	          properties.push(list[listKey].value);
+	        if (!main_core.Type.isStringFilled(list[listKey].value) && list[listKey].required === 'Y') {
+	          return false;
 	        }
+
+	        if (!main_core.Type.isStringFilled(list[listKey].value)) {
+	          continue;
+	        }
+
+	        if (list[listKey].type === sale_checkout_const.Property.type.checkbox && list[listKey].required === 'Y' && list[listKey].value !== 'Y') {
+	          return false;
+	        }
+
+	        if (list[listKey].type === sale_checkout_const.Property.type.checkbox) {
+	          continue;
+	        }
+
+	        properties.push(list[listKey].value);
 	      }
 
 	      return properties.length > 0;
@@ -49,6 +63,9 @@ this.BX.Sale = this.BX.Sale || {};
 	    },
 	    getProperty: function getProperty() {
 	      return this.$store.getters['property/getProperty'];
+	    },
+	    getVariant: function getVariant() {
+	      return this.$store.getters['property-variant/getVariant'];
 	    },
 	    getPropertyErrors: function getPropertyErrors() {
 	      return this.$store.getters['property/getErrors'];
@@ -126,7 +143,7 @@ this.BX.Sale = this.BX.Sale || {};
 	    main_core_events.EventEmitter.unsubscribe(sale_checkout_const.EventType.basket.backdropTotalClose);
 	  },
 	  // language=Vue
-	  template: "\n      <div class=\"checkout-container-wrapper\">\n\t\t  <div class=\"checkout-basket-container\">\n\t\t\t<template v-if=\"getStage === stage.edit\">\n\t\t\t  <sale-checkout-view-product :items=\"getBasket\" :total=\"getTotal\" :mode=\"mode.edit\" :errors=\"getBasketErrors\" :config=\"getBasketConfig\"/>\n\t\t\t  <sale-checkout-view-property :items=\"getProperty\" :mode=\"mode.edit\" :errors=\"getPropertyErrors\"/>\n\t\t\t  <sale-checkout-view-alert-list :errors=\"getErrors\"/>\n\t\t\t  <sale-checkout-view-user_consent :item=\"getConsent\" v-if=\"needCheckConsent\"/>\n\t\t\t  <template v-if=\"checkoutButtonEnabled\">\n\t\t\t\t<sale-checkout-view-element-button-checkout :title=\"getTitleCheckoutButton.title\" :wait=\"getStatus === status.wait\"/>\n\t\t\t  </template>\n\t\t\t  <template v-else>\n\t\t\t\t<sale-checkout-view-element-button-checkout_disabled :title=\"getTitleCheckoutButton.title\"/>\n\t\t\t  </template>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.success\">\n\t\t\t  <template v-if=\"hasPS\">\n\t\t\t\t<sale-checkout-view-successful :items=\"getProperty\" :order=\"getOrder\" :config=\"getSuccessfulConfig\"/>\n\t\t\t  </template>\n\t\t\t  <template v-else>\n\t\t\t\t<sale-checkout-view-successful-without-ps :items=\"getProperty\" :order=\"getOrder\" :config=\"getSuccessfulConfig\"/>\n\t\t\t  </template>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.payed\">\n              <sale-checkout-view-successful_ps_return :items=\"getProperty\" :order=\"getOrder\" :total=\"getTotal\" :config=\"getSuccessfulConfig\"/>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.view\">\n\t\t\t  <sale-checkout-view-product :items=\"getBasket\" :total=\"getTotal\" :mode=\"mode.view\" :errors=\"getBasketErrors\" :config=\"getBasketConfig\"/>\n\t\t\t  <sale-checkout-view-property :items=\"getProperty\" :mode=\"mode.view\" :order=\"getOrder\"/>\n\t\t\t  <sale-checkout-view-product-summary :total=\"getTotal\" :mode=\"mode.view\"/>\n              <sale-checkout-view-payment :order=\"getOrder\" :payments=\"getPayment\" :paySystems=\"getPaySystem\" :check=\"getCheck\" :config=\"getPaymentConfig\"/>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.empty\">\n\t\t\t  <sale-checkout-view-empty_cart :config=\"getEmptyCartConfig\"/>\n\t\t\t</template>\n\t\t  </div>\n\t\t  <template v-if=\"getStage === stage.view\">\n\t\t\t<sale-checkout-view-total :total=\"getTotal\" :showBackdrop=\"totalIsShow\"/>\n\t\t  </template>\n      </div>\n\t"
+	  template: "\n      <div class=\"checkout-container-wrapper\">\n\t\t  <div class=\"checkout-basket-container\">\n\t\t\t<template v-if=\"getStage === stage.edit\">\n\t\t\t  <sale-checkout-view-product :items=\"getBasket\" :total=\"getTotal\" :mode=\"mode.edit\" :errors=\"getBasketErrors\" :config=\"getBasketConfig\"/>\n\t\t\t  <sale-checkout-view-property :items=\"getProperty\" :mode=\"mode.edit\" :errors=\"getPropertyErrors\" :propertyVariants=\"getVariant\"/>\n\t\t\t  <sale-checkout-view-alert-list :errors=\"getErrors\"/>\n\t\t\t  <sale-checkout-view-user_consent :item=\"getConsent\" v-if=\"needCheckConsent\"/>\n\t\t\t  <template v-if=\"checkoutButtonEnabled\">\n\t\t\t\t<sale-checkout-view-element-button-checkout :title=\"getTitleCheckoutButton.title\" :wait=\"getStatus === status.wait\"/>\n\t\t\t  </template>\n\t\t\t  <template v-else>\n\t\t\t\t<sale-checkout-view-element-button-checkout_disabled :title=\"getTitleCheckoutButton.title\"/>\n\t\t\t  </template>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.success\">\n\t\t\t  <template v-if=\"hasPS\">\n\t\t\t\t<sale-checkout-view-successful :items=\"getProperty\" :order=\"getOrder\" :config=\"getSuccessfulConfig\"/>\n\t\t\t  </template>\n\t\t\t  <template v-else>\n\t\t\t\t<sale-checkout-view-successful-without-ps :items=\"getProperty\" :order=\"getOrder\" :config=\"getSuccessfulConfig\"/>\n\t\t\t  </template>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.payed\">\n              <sale-checkout-view-successful_ps_return :items=\"getProperty\" :order=\"getOrder\" :total=\"getTotal\" :config=\"getSuccessfulConfig\"/>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.view\">\n\t\t\t  <sale-checkout-view-product :items=\"getBasket\" :total=\"getTotal\" :mode=\"mode.view\" :errors=\"getBasketErrors\" :config=\"getBasketConfig\"/>\n\t\t\t  <sale-checkout-view-property :items=\"getProperty\" :mode=\"mode.view\" :order=\"getOrder\" :propertyVariants=\"getVariant\"/>\n\t\t\t  <sale-checkout-view-product-summary :total=\"getTotal\" :mode=\"mode.view\"/>\n              <sale-checkout-view-payment :order=\"getOrder\" :payments=\"getPayment\" :paySystems=\"getPaySystem\" :check=\"getCheck\" :config=\"getPaymentConfig\"/>\n\t\t\t</template>\n\t\t\t<template v-else-if=\"getStage === stage.empty\">\n\t\t\t  <sale-checkout-view-empty_cart :config=\"getEmptyCartConfig\"/>\n\t\t\t</template>\n\t\t  </div>\n\t\t  <template v-if=\"getStage === stage.view\">\n\t\t\t<sale-checkout-view-total :total=\"getTotal\" :showBackdrop=\"totalIsShow\"/>\n\t\t  </template>\n      </div>\n\t"
 	});
 
 	var _templateObject;
@@ -191,7 +208,7 @@ this.BX.Sale = this.BX.Sale || {};
 	        messages: this.options.messages
 	      };
 	      contextVariablesApp.path.location = sale_checkout_lib.Url.getCurrentUrl();
-	      return builder.addModel(sale_checkout_model.Order.create()).addModel(sale_checkout_model.Basket.create().setVariables(contextVariablesBasket)).addModel(sale_checkout_model.Property.create()).addModel(sale_checkout_model.Payment.create()).addModel(sale_checkout_model.Check.create()).addModel(sale_checkout_model.PaySystem.create()).addModel(sale_checkout_model.Application.create().setVariables(contextVariablesApp)).addModel(sale_checkout_model.Consent.create()).build();
+	      return builder.addModel(sale_checkout_model.Order.create()).addModel(sale_checkout_model.Basket.create().setVariables(contextVariablesBasket)).addModel(sale_checkout_model.Property.create()).addModel(sale_checkout_model.Variant.create()).addModel(sale_checkout_model.Payment.create()).addModel(sale_checkout_model.Check.create()).addModel(sale_checkout_model.PaySystem.create()).addModel(sale_checkout_model.Application.create().setVariables(contextVariablesApp)).addModel(sale_checkout_model.Consent.create()).build();
 	    }
 	    /**
 	     * @private
@@ -249,6 +266,7 @@ this.BX.Sale = this.BX.Sale || {};
 	                currency: this.options.currency,
 	                discount: this.options.discount,
 	                property: this.options.property,
+	                variant: this.options.variant,
 	                consent: this.options.consent,
 	                consentStatus: this.options.consentStatus
 	              };
@@ -330,6 +348,17 @@ this.BX.Sale = this.BX.Sale || {};
 	          });
 	        });
 	      } //endregion
+	      //region: variant model
+
+
+	      if (main_core.Type.isObject(data.variant)) {
+	        data.variant.forEach(function (fields, index) {
+	          _this3.store.dispatch('property-variant/changeItem', {
+	            index: index,
+	            fields: fields
+	          });
+	        });
+	      } //endregion
 	      //region: payment model
 
 
@@ -396,5 +425,5 @@ this.BX.Sale = this.BX.Sale || {};
 
 	exports.Application = Application;
 
-}((this.BX.Sale.Checkout = this.BX.Sale.Checkout || {}),BX.Sale.Checkout.Lib,BX,BX,BX.Sale.Checkout.Controller,BX.Sale.Checkout.Model,BX,BX.Event,BX.Sale.Checkout.Const));
+}((this.BX.Sale.Checkout = this.BX.Sale.Checkout || {}),BX.Sale.Checkout.Lib,BX,BX.Sale.Checkout.Controller,BX.Sale.Checkout.Model,BX,BX.Event,BX,BX.Sale.Checkout.Const));
 //# sourceMappingURL=application.bundle.js.map

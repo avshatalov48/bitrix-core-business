@@ -1,8 +1,11 @@
 .landing-ui-panel-fields {
 	position: absolute;
 	max-width: 630px;
-	height: calc(100vh - 66px);
 	z-index: 323;
+}
+
+.landing-ui-view-container .landing-ui-panel-fields {
+	height: calc(100vh - 66px);
 }
 
 .landing-ui-panel-fields .landing-ui-panel-content-body-sidebar {

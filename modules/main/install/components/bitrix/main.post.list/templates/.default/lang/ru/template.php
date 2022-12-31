@@ -9,6 +9,7 @@ $MESS["BPC_MES_DELETE_POST_CONFIRM"] = "Вы уверены, что хотите
 $MESS["BPC_MES_DELETE"] = "Удалить";
 $MESS["BPC_MES_CREATE_TASK_RESULT"] = "Отметить как результат";
 $MESS["BPC_MES_REMOVE_TASK_RESULT"] = "Снять отметку как результат";
+$MESS['BPC_MES_DELETE_TASK_RESULT'] = 'Убрать результат';
 $MESS["BPC_MES_CREATE_TASK"] = "Создать задачу";
 $MESS["BPC_MES_CREATE_SUBTASK"] = "Создать подзадачу";
 $MESS["B_B_MS_ADD_COMMENT"] = "Добавить комментарий";

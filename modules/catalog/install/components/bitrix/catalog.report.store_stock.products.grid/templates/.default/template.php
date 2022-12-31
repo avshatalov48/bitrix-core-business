@@ -5,6 +5,13 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+
+use Bitrix\Main\UI\Extension;
+
+Extension::load([
+	'ui.alerts',
+]);
+
 global $APPLICATION;
 
 if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES'])): ?>
@@ -42,7 +49,7 @@ $APPLICATION->IncludeComponent(
 	}
 
 	BX.addCustomEvent('DocumentCard:onBeforeEntityRedirect', function () {
-		var grid = BX.Main.gridManager.getInstanceById('<?= CUtil::JSEscape($arResult['GRID']['GRID_ID']) ?>');
+		const grid = BX.Main.gridManager.getInstanceById('<?= CUtil::JSEscape($arResult['GRID']['GRID_ID']) ?>');
 		if (grid)
 		{
 			grid.reload();

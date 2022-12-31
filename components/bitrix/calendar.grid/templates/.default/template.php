@@ -51,15 +51,21 @@ if($isBitrix24Template)
 	$this->SetViewTarget("below_pagetitle");
 }
 ?>
-<div class="calendar-view-switcher-list">
-	<div id="<?= $arResult['ID']?>-view-switcher-container"></div>
+<div class="calendar-interface-toolbar">
+	<div class="calendar-view-switcher">
+		<div id="<?= $arResult['ID']?>-view-switcher-container"></div>
+	</div>
 
-	<? if ($arParams["SHOW_FILTER"]):?>
-		<div id="<?= $arResult['ID']?>-counter-container" class="pagetitle-container" style="overflow: hidden;"></div>
+	<? if (
+		$arParams["SHOW_FILTER"]
+		&& $arParams['CALENDAR_TYPE'] === 'user'
+		&& (int)$arParams['OWNER_ID'] === (int)$arParams['USER_ID']
+	):?>
+		<div id="<?= $arResult['ID']?>-counter-container" class="pagetitle-container calendar-counter"></div>
 	<? endif;?>
-</div>
 
-<div id="<?= $arResult['ID']?>-sync-container" class="calendar-view-switcher pagetitle-align-right-container"></div>
+	<div id="<?= $arResult['ID']?>-sync-container" style="margin: auto 0 auto auto"></div>
+</div>
 <?
 if($isBitrix24Template)
 {

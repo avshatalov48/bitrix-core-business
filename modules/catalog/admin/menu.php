@@ -1,7 +1,10 @@
-<?
+<?php
+
 use Bitrix\Main\ModuleManager,
 	Bitrix\Main\Loader,
-	Bitrix\Catalog;
+	Bitrix\Catalog,
+	Bitrix\Catalog\Access\ActionDictionary,
+	Bitrix\Catalog\Access\AccessController;
 
 if (ModuleManager::isModuleInstalled('sale'))
 	return false;
@@ -11,17 +14,19 @@ if (!Loader::includeModule('catalog'))
 
 IncludeModuleLangFile(__FILE__);
 
-$boolRead = $USER->CanDoOperation('catalog_read');
-$boolDiscount = $USER->CanDoOperation('catalog_discount');
-$boolStore = $USER->CanDoOperation('catalog_store');
-$boolGroup = $USER->CanDoOperation('catalog_group');
-$boolPrice = $USER->CanDoOperation('catalog_price');
-$boolVat = $USER->CanDoOperation('catalog_vat');
-$boolMeasure = $USER->CanDoOperation('catalog_measure');
-$boolExportEdit = $USER->CanDoOperation('catalog_export_edit');
-$boolExportExec = $USER->CanDoOperation('catalog_export_exec');
-$boolImportEdit = $USER->CanDoOperation('catalog_import_edit');
-$boolImportExec = $USER->CanDoOperation('catalog_import_exec');
+$accessController = AccessController::getCurrent();
+
+$boolRead = $accessController->check(ActionDictionary::ACTION_CATALOG_READ);
+$boolDiscount = $accessController->check(ActionDictionary::ACTION_PRODUCT_DISCOUNT_SET);
+$boolStore = $accessController->check(ActionDictionary::ACTION_STORE_VIEW);
+$boolGroup = $accessController->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT);
+$boolPrice = $accessController->check(ActionDictionary::ACTION_PRICE_EDIT);
+$boolVat = $accessController->check(ActionDictionary::ACTION_VAT_EDIT);
+$boolMeasure = $accessController->check(ActionDictionary::ACTION_MEASURE_EDIT);
+$boolExportEdit = $accessController->check(ActionDictionary::ACTION_CATALOG_EXPORT_EDIT);
+$boolExportExec = $accessController->check(ActionDictionary::ACTION_CATALOG_EXPORT_EXECUTION);
+$boolImportEdit = $accessController->check(ActionDictionary::ACTION_CATALOG_IMPORT_EDIT);
+$boolImportExec = $accessController->check(ActionDictionary::ACTION_CATALOG_IMPORT_EXECUTION);
 
 global $adminMenu;
 
@@ -40,9 +45,10 @@ if (!function_exists("__get_export_profiles"))
 		if (empty($strItemID))
 			return array();
 
-		$boolRead = $USER->CanDoOperation('catalog_read');
-		$boolExportEdit = $USER->CanDoOperation('catalog_export_edit');
-		$boolExportExec = $USER->CanDoOperation('catalog_export_exec');
+		$accessController = AccessController::getCurrent();
+		$boolRead = $accessController->check(ActionDictionary::ACTION_CATALOG_READ);
+		$boolExportEdit = $accessController->check(ActionDictionary::ACTION_CATALOG_EXPORT_EDIT);
+		$boolExportExec = $accessController->check(ActionDictionary::ACTION_CATALOG_EXPORT_EXECUTION);
 
 		$arProfileList = array();
 
@@ -93,9 +99,10 @@ if (!function_exists("__get_import_profiles"))
 		if (empty($strItemID))
 			return array();
 
-		$boolRead = $USER->CanDoOperation('catalog_read');
-		$boolImportEdit = $USER->CanDoOperation('catalog_import_edit');
-		$boolImportExec = $USER->CanDoOperation('catalog_import_exec');
+		$accessController = AccessController::getCurrent();
+		$boolRead = $accessController->check(ActionDictionary::ACTION_CATALOG_READ);
+		$boolImportEdit = $accessController->check(ActionDictionary::ACTION_CATALOG_IMPORT_EDIT);
+		$boolImportExec = $accessController->check(ActionDictionary::ACTION_CATALOG_IMPORT_EXECUTION);
 
 		$arProfileList = array();
 

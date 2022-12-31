@@ -16,9 +16,9 @@ use Bitrix\Main\ORM;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_LogSite_Query query()
- * @method static EO_LogSite_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LogSite_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_LogSite_Result getById($id)
- * @method static EO_LogSite_Result getList(array $parameters = array())
+ * @method static EO_LogSite_Result getList(array $parameters = [])
  * @method static EO_LogSite_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\EO_LogSite createObject($setDefaultValues = true)
  * @method static \Bitrix\Socialnetwork\EO_LogSite_Collection createCollection()

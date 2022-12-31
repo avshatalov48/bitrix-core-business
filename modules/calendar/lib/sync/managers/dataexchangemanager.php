@@ -72,11 +72,6 @@ class DataExchangeManager
 				continue;
 			}
 
-			if ($factory->getConnection()->getVendor()->getCode() === Icloud\Helper::ACCOUNT_TYPE)
-			{
-				continue;
-			}
-
 			$exchangeManager = new VendorDataExchangeManager($factory, self::getSyncSectionMap($factory));
 			$exchangeManager->exchange();
 		}
@@ -106,6 +101,14 @@ class DataExchangeManager
 				->updateConnection($factory->getConnection())
 				->clearCache()
 			;
+
+			try
+			{
+				$exchangeManager->renewSubscription($factory->getConnection());
+			}
+			catch (\Exception $e)
+			{
+			}
 		}
 
 		return new Result();

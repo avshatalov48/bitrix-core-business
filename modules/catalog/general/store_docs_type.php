@@ -12,6 +12,7 @@ use Bitrix\Catalog\Document\Action\Store\IncreaseStoreQuantityAction;
 use Bitrix\Catalog\Document\Action\Price\UpdateProductPricesAction;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Iblock;
+use Bitrix\Catalog\v2\Contractor\Provider\Manager;
 
 /** @global CMain $APPLICATION */
 
@@ -1286,7 +1287,18 @@ class CCatalogArrivalDocs extends CCatalogDocsTypes
 		{
 			return false;
 		}
-		if ($contractorId <= 0)
+
+		if (Manager::getActiveProvider())
+		{
+			$contractor = Manager::getActiveProvider()::getContractorByDocumentId($documentId);
+			$isContractorSpecified = !is_null($contractor);
+		}
+		else
+		{
+			$isContractorSpecified = $contractorId > 0;
+		}
+
+		if (!$isContractorSpecified)
 		{
 			static::setErrors([
 				Loc::getMessage('CATALOG_STORE_DOCS_ERR_WRONG_CONTRACTOR')
@@ -1334,7 +1346,8 @@ class CCatalogArrivalDocs extends CCatalogDocsTypes
 					$actions[] = new DecreaseStoreQuantityAction(
 						$item['STORE_TO'],
 						$item['PRODUCT_ID'],
-						$item['AMOUNT']
+						$item['AMOUNT'],
+						$document['DOC_TYPE']
 					);
 				}
 			}
@@ -1582,7 +1595,8 @@ class CCatalogMovingDocs extends CCatalogDocsTypes
 					$actions[] = new DecreaseStoreQuantityAction(
 						$item['STORE_FROM'],
 						$item['PRODUCT_ID'],
-						$item['AMOUNT']
+						$item['AMOUNT'],
+						$document['DOC_TYPE']
 					);
 					$actions[] = new IncreaseStoreQuantityAction(
 						$item['STORE_TO'],
@@ -1600,7 +1614,8 @@ class CCatalogMovingDocs extends CCatalogDocsTypes
 					$actions[] = new DecreaseStoreQuantityAction(
 						$item['STORE_TO'],
 						$item['PRODUCT_ID'],
-						$item['AMOUNT']
+						$item['AMOUNT'],
+						$document['DOC_TYPE']
 					);
 				}
 			}
@@ -1815,7 +1830,8 @@ class CCatalogReturnsDocs extends CCatalogDocsTypes
 					$actions[] = new DecreaseStoreQuantityAction(
 						$item['STORE_TO'],
 						$item['PRODUCT_ID'],
-						$item['AMOUNT']
+						$item['AMOUNT'],
+						$document['DOC_TYPE']
 					);
 				}
 			}
@@ -1969,7 +1985,8 @@ class CCatalogDeductDocs extends CCatalogDocsTypes
 					$actions[] = new DecreaseStoreQuantityAction(
 						$item['STORE_FROM'],
 						$item['PRODUCT_ID'],
-						$item['AMOUNT']
+						$item['AMOUNT'],
+						$document['DOC_TYPE']
 					);
 				}
 				elseif ($action === self::ACTION_CANCEL)

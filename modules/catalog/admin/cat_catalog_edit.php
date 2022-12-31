@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Iblock\PropertyTable;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -21,9 +24,16 @@ $IBLOCK_ID = intval($_REQUEST["IBLOCK_ID"]);
 
 $arIBlock = CIBlock::GetArrayByID($IBLOCK_ID);
 if($arIBlock)
-	$bBadBlock = !CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "iblock_edit");
+{
+	$bBadBlock = !(
+		CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "iblock_edit")
+		|| AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS)
+	);
+}
 else
+{
 	$bBadBlock = true;
+}
 
 if($bBadBlock)
 {

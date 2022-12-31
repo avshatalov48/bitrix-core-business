@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\Controller;
 
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\v2\Image\BaseImage;
 use Bitrix\Catalog\v2\Image\DetailImage;
 use Bitrix\Catalog\v2\Image\MorePhotoImage;
@@ -377,13 +378,11 @@ final class ProductImage extends Controller
 
 	protected function checkModifyPermissionEntity(): Result
 	{
-		$r = $this->checkReadPermissionEntity();
-		if($r->isSuccess())
+		$r = new Result();
+
+		if (!$this->accessController->check(ActionDictionary::ACTION_CATALOG_VIEW))
 		{
-			if (!static::getGlobalUser()->CanDoOperation(self::CATALOG_GROUP))
-			{
-				$r->addError(new Error('Access Denied', 200040300020));
-			}
+			$r->addError(new Error('Access Denied', 200040300020));
 		}
 
 		return $r;
@@ -394,8 +393,8 @@ final class ProductImage extends Controller
 		$r = new Result();
 
 		if (
-			!static::getGlobalUser()->CanDoOperation(self::CATALOG_READ)
-			&& !static::getGlobalUser()->CanDoOperation(self::CATALOG_GROUP)
+			!$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+			&& !$this->accessController->check(ActionDictionary::ACTION_CATALOG_VIEW)
 		)
 		{
 			$r->addError(new Error('Access Denied', 200040300010));

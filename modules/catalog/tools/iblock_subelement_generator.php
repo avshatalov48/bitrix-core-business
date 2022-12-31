@@ -1,10 +1,13 @@
 <?
 /** @global CMain $APPLICATION */
 /**	@global CUser $USER */
+
 use Bitrix\Main,
 	Bitrix\Highloadblock as HL,
 	Bitrix\Currency,
-	Bitrix\Catalog;
+	Bitrix\Catalog,
+	Bitrix\Catalog\Access\ActionDictionary,
+	Bitrix\Catalog\Access\AccessController;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 IncludeModuleLangFile(__FILE__);
@@ -382,7 +385,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !$bReadOnly && check_bitrix_sessid()
 		);
 		if (!$useStoreControl)
 			$productData['QUANTITY'] = $_POST['IB_SEG_QUANTITY'];
-		if ($USER->CanDoOperation('catalog_purchas_info') && !$useStoreControl)
+		if (AccessController::getCurrent()->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW) && !$useStoreControl)
 		{
 			if (!empty($_POST['IB_SEG_PURCHASING_CURRENCY']) && $_POST['IB_SEG_PURCHASING_PRICE'] !== '')
 			{
@@ -806,7 +809,7 @@ else
 			</td>
 		</tr>
 		<?
-		if ($USER->CanDoOperation('catalog_purchas_info') && !$useStoreControl)
+		if (AccessController::getCurrent()->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW) && !$useStoreControl)
 		{
 			$baseCurrency = Currency\CurrencyManager::getBaseCurrency();
 		?>

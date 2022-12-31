@@ -31,8 +31,9 @@ abstract class MessageBase implements Message\iBase, Message\iAds
 	const CODE_ADS_GA = 'ads_ga';
 	const CODE_ADS_LOOKALIKE_FB = 'ads_lookalike_fb';
 	const CODE_ADS_LOOKALIKE_VK = 'ads_lookalike_vk';
+	const CODE_ADS_LOOKALIKE_YANDEX = 'ads_lookalike_yandex';
 
-	/** @var Message\Configuration $configuration Configuration. */
+	/** @var Message\Configuration $config\ \ uration Configuration. */
 	protected $configuration;
 
 	/**
@@ -87,7 +88,7 @@ abstract class MessageBase implements Message\iBase, Message\iAds
 				'type' => 'string',
 				'code' => 'AUDIENCE_ID',
 				'name' => Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_CONFIG_AUDIENCE_ID'),
-				'required' => false,
+				'required' => true,
 			),
 			array(
 				'type' => 'string',
@@ -150,9 +151,13 @@ abstract class MessageBase implements Message\iBase, Message\iAds
 				$containerNodeId = 'seo-ads-' . $configuration->getId();
 				ob_start();
 				$provider = Service::getAdsProvider($self->getAdsType(), $configuration->getOption('CLIENT_ID')->getValue());
-				$audienceSize =  $configuration->getOption('AUDIENCE_SIZE') ?  $configuration->getOption('AUDIENCE_SIZE')->getValue() : null;
-				$audienceRegion =  $configuration->getOption('AUDIENCE_REGION') ?  $configuration->getOption('AUDIENCE_REGION')->getValue() : null;
-				$autoRemoveDays = $configuration->getOption('AUTO_REMOVE_DAY_NUMBER') ? $configuration->getOption('AUTO_REMOVE_DAY_NUMBER')->getValue() : null;
+
+				$audienceSize =  $self->getConfigurationOptionValue($configuration, 'AUDIENCE_SIZE');
+				$audienceRegion =  $self->getConfigurationOptionValue($configuration, 'AUDIENCE_REGION');
+				$autoRemoveDays = $self->getConfigurationOptionValue($configuration, 'AUTO_REMOVE_DAY_NUMBER');
+				$audienceLookalike = $self->getConfigurationOptionValue($configuration, 'AUDIENCE_LOOKALIKE');
+				$geoDistribution = $self->getConfigurationOptionValue($configuration, 'GEO_DISTRIBUTION');
+				$deviceDistribution = $self->getConfigurationOptionValue($configuration, 'DEVICE_DISTRIBUTION');
 
 				$audienceLookalikeMode = $provider['IS_SUPPORT_LOOKALIKE_AUDIENCE'] && ($this instanceof iLookalikeAds);
 
@@ -170,9 +175,13 @@ abstract class MessageBase implements Message\iBase, Message\iAds
 						'AUDIENCE_REGION' => $audienceRegion,
 						'AUDIENCE_LOOKALIKE_MODE' => $audienceLookalikeMode,
 						'AUTO_REMOVE_DAY_NUMBER' => $autoRemoveDays,
+						'AUDIENCE_LOOKALIKE' => $audienceLookalike,
+						'GEO_DISTRIBUTION' => $geoDistribution,
+						'DEVICE_DISTRIBUTION' => $deviceDistribution,
 						'JS_DESTROY_EVENT_NAME' => '',
 						'TITLE_NODE_SELECTOR' => '[data-role="letter-title"]',
-						'HAS_ACCESS' => true // TODO: check SENDER-module permissions
+						'HAS_ACCESS' => true, // TODO: check SENDER-module permissions
+						'MESSAGE_CODE' => $self::CODE,
 					)
 				);
 
@@ -183,6 +192,14 @@ abstract class MessageBase implements Message\iBase, Message\iAds
 		);
 
 		return $this->configuration;
+	}
+
+	private function getConfigurationOptionValue(Message\Configuration $configuration, string $optionName)
+	{
+		return $configuration->getOption($optionName)
+			? $configuration->getOption($optionName)->getValue()
+			: null
+		;
 	}
 
 	/**

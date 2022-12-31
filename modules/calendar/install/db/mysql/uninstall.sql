@@ -11,3 +11,5 @@ DROP TABLE if exists b_calendar_log;
 DROP TABLE if exists b_calendar_section_connection;
 DROP TABLE if exists b_calendar_event_connection;
 DROP TABLE if exists b_calendar_room_category;
+DROP TABLE if exists b_calendar_queue_message;
+DROP TABLE if exists b_calendar_queue_handled_message;

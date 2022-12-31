@@ -33,6 +33,7 @@ return [
 	],
 	'rel' => [
 		'ui.design-tokens',
+		'ui.lottie',
 		'ajax',
 		'popup'
 	],

@@ -19,6 +19,11 @@ $basePriceId = null;
 $hasLandingStore = false;
 $isEnabledLanding = false;
 $isLimitedLanding = false;
+$isCatalogAccess = false;
+$isCatalogSettingAccess = false;
+$isCatalogPriceEditEnabled = false;
+$isCatalogPriceSaveEnabled = false;
+$isCatalogDiscountSetEnabled = false;
 
 if (Loader::includeModule('catalog'))
 {
@@ -31,18 +36,14 @@ if (Loader::includeModule('catalog'))
 		$hasLandingStore = Bitrix\Catalog\v2\Integration\Landing\StoreV3Master::hasStore();
 		$isLimitedLanding = !$hasLandingStore && !Bitrix\Catalog\v2\Integration\Landing\StoreV3Master::canCreate();
 	}
-}
 
-$isCatalogPriceEditEnabled = true;
-$fieldHints = [];
-if (Loader::includeModule('crm'))
-{
-	$isCatalogPriceEditEnabled = \Bitrix\Crm\Settings\LayoutSettings::getCurrent()->isCatalogPriceEditEnabled();
-	$isCatalogPriceSaveEnabled = \Bitrix\Crm\Settings\LayoutSettings::getCurrent()->isCatalogPriceSaveEnabled();
-	if (!$isCatalogPriceEditEnabled)
-	{
-		$fieldHints['price'] = \Bitrix\Crm\Config\State::getProductPriceChangingNotification();
-	}
+	$accessController = \Bitrix\Catalog\Access\AccessController::getCurrent();
+
+	$isCatalogPriceEditEnabled = $accessController->check(\Bitrix\Catalog\Access\ActionDictionary::ACTION_PRICE_ENTITY_EDIT);
+	$isCatalogPriceSaveEnabled = $accessController->check(\Bitrix\Catalog\Access\ActionDictionary::ACTION_PRICE_EDIT);
+	$isCatalogDiscountSetEnabled = $accessController->check(\Bitrix\Catalog\Access\ActionDictionary::ACTION_PRODUCT_DISCOUNT_SET);
+	$isCatalogSettingAccess = $accessController->check(\Bitrix\Catalog\Access\ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS);
+	$isCatalogAccess = $accessController->check(\Bitrix\Catalog\Access\ActionDictionary::ACTION_CATALOG_READ);
 }
 
 return [
@@ -90,9 +91,12 @@ return [
 		'hasLandingStore' => $hasLandingStore,
 		'isLimitedLandingStore' => $isLimitedLanding,
 		'basePriceId' => $basePriceId,
+		'isCatalogDiscountSetEnabled' => $isCatalogDiscountSetEnabled,
 		'isCatalogPriceEditEnabled' => $isCatalogPriceEditEnabled,
 		'isCatalogPriceSaveEnabled' => $isCatalogPriceSaveEnabled,
-		'fieldHints' => $fieldHints,
+		'isCatalogSettingAccess' => $isCatalogSettingAccess,
+		'isCatalogAccess' => $isCatalogAccess,
+		'fieldHints' => [],
 		'hiddenCompilationInfoMessage' => \CUserOptions::GetOption('catalog.product-form', 'hiddenCompilationInfoMessage') === 'Y',
 	],
 	'skip_core' => false,

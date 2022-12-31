@@ -240,6 +240,20 @@
 		return this.response;
 	};
 
+	/**
+	 * Returns a grid container
+	 * @return {?Element}
+	 */
+	BX.Grid.Data.prototype.getContainer = function()
+	{
+		const className = this.getParent().settings.get('classContainer');
+		if (BX.Dom.hasClass(this.getResponse(), className))
+		{
+			return this.getResponse();
+		}
+
+		return BX.Grid.Utils.getByClass(this.getResponse(), className, true);
+	};
 
 	/**
 	 * Gets head rows of grid from server response

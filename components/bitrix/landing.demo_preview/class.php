@@ -47,6 +47,7 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 			$this->checkParam('DONT_LEAVE_FRAME', 'N');
 			$this->checkParam('BINDING_TYPE', '');
 			$this->checkParam('BINDING_ID', '');
+			$this->checkParam('ACTION_FOLDER', 'folderId');
 
 			Type::setScope(
 				$this->arParams['TYPE']
@@ -177,6 +178,12 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 				else
 				{
 					$this->arResult['DISABLE_IMPORT'] = false;
+				}
+
+				// folder
+				if ($this->request($this->arParams['ACTION_FOLDER']))
+				{
+					$this->arResult['FOLDER_ID'] = $this->request($this->arParams['ACTION_FOLDER']);
 				}
 			}
 			else

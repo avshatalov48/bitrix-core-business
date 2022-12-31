@@ -175,4 +175,9 @@ class BooleanType extends BaseType
 	{
 		return false;
 	}
+
+	public static function checkFields(array $userField, $value): array
+	{
+		return [];
+	}
 }

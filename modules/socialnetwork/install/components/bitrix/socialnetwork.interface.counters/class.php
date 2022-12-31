@@ -113,68 +113,6 @@ class CSocialnetworkInterfaceCountersComponent extends CBitrixComponent	implemen
 		return [];
 	}
 
-	/**
-	 *
-	 */
-	public function getCountersAction()
-	{
-		try
-		{
-			$this->checkModules();
-			$this->initFromRequest();
-			$this->init();
-			$this->loadData();
-		}
-		catch (SystemException $exception)
-		{
-			$this->setError(Loc::getMessage('SONET_SIC_SYSTEM_ERROR'), [], $exception);
-		}
-
-		return $this->arResult['COUNTERS'];
-	}
-
-	/**
-	 *
-	 */
-	private function initFromRequest()
-	{
-		$request = $this->request->toArray();
-
-		if (array_key_exists('groupId', $request))
-		{
-			$this->arParams['ENTITY_ID'] = (int)$request['entityId'];
-		}
-		if (array_key_exists('counters', $request) && is_array($request['counters']))
-		{
-			$this->arParams['COUNTERS'] = $request['counters'];
-		}
-		if (array_key_exists('role', $request) && is_scalar($request['role']))
-		{
-			$this->arParams['ROLE'] = (string)$request['role'];
-		}
-	}
-
-	/**
-	 * @param string $inputMessage
-	 * @param Error[] $errors
-	 * @param Exception|null $exception
-	 */
-	private function setError(string $inputMessage, array $errors = [], Exception $exception = null): void
-	{
-		$this->errorCollection->setError(new \Bitrix\Main\Error($inputMessage, $this->getFirstErrorCode($errors)));
-	}
-
-	/**
-	 * @param Error[] $errors
-	 */
-	private function getFirstErrorCode(array $errors): string
-	{
-		foreach ($errors as $error)
-		{
-			return (string) $error->getCode();
-		}
-		return self::ERROR_UNKNOWN_SYSTEM_ERROR;
-	}
 
 	/**
 	 * @throws SystemException
@@ -200,7 +138,8 @@ class CSocialnetworkInterfaceCountersComponent extends CBitrixComponent	implemen
 			$this->arResult['COUNTERS'][$counter] = [
 				'VALUE' => $value,
 				'FILTER_PRESET_ID' => $this->getFilterPresetId($counter),
-				'TITLE' => $this->getCounterTitle($counter, $value),
+				'FILTER_FIELDS' => $this->getFilterFields($counter),
+				'TITLE' => $this->getCounterTitle($counter),
 				'STYLE' => $this->getCounterStyle($counter, $value)
 			];
 		}
@@ -213,19 +152,30 @@ class CSocialnetworkInterfaceCountersComponent extends CBitrixComponent	implemen
 	 * @param int $value
 	 * @return string
 	 */
-	private function getCounterStyle(string $counter, int $value): string
+	private function getCounterStyle(string $counter, array $value): string
 	{
-		if ($counter === CounterDictionary::COUNTER_WORKGROUP_REQUESTS_OUT)
+		$sum = 0;
+		foreach ($value as $val)
 		{
-			return Counter\CounterStyle::STYLE_GREEN;
+			$sum += (int)$val;
+		}
+		switch ($counter)
+		{
+			case CounterDictionary::COUNTER_WORKGROUP_REQUESTS_OUT:
+				$result = ($sum > 0 ? Counter\CounterStyle::STYLE_GREEN : Counter\CounterStyle::STYLE_GRAY);
+				break;
+			case CounterDictionary::COUNTER_WORKGROUP_REQUESTS_IN:
+				$result = ($sum > 0 ? Counter\CounterStyle::STYLE_YELLOW : Counter\CounterStyle::STYLE_GRAY);
+				break;
+			case CounterDictionary::COUNTER_WORKGROUP_LIST_LIVEFEED:
+			case CounterDictionary::COUNTER_WORKGROUP_LIST_TASKS:
+				$result = ($sum > 0 ? Counter\CounterStyle::STYLE_RED : Counter\CounterStyle::STYLE_GRAY);
+				break;
+			default:
+				$result = Counter\CounterStyle::STYLE_GRAY;
 		}
 
-		if ($counter === CounterDictionary::COUNTER_WORKGROUP_REQUESTS_IN)
-		{
-			return Counter\CounterStyle::STYLE_YELLOW;
-		}
-
-		return Counter\CounterStyle::STYLE_GRAY;
+		return $result;
 	}
 
 	/**
@@ -233,11 +183,13 @@ class CSocialnetworkInterfaceCountersComponent extends CBitrixComponent	implemen
 	 * @param int $value
 	 * @return string
 	 */
-	private function getCounterTitle(string $counter, int $value): string
+	private function getCounterTitle(string $counter): string
 	{
 		$map = [
 			CounterDictionary::COUNTER_WORKGROUP_REQUESTS_IN => Loc::getMessage('SONET_SIC_COUNTER_TITLE_WORKGROUP_REQUESTS_IN'),
 			CounterDictionary::COUNTER_WORKGROUP_REQUESTS_OUT => Loc::getMessage('SONET_SIC_COUNTER_TITLE_WORKGROUP_REQUESTS_OUT'),
+			CounterDictionary::COUNTER_WORKGROUP_LIST_LIVEFEED => Loc::getMessage('SONET_SIC_COUNTER_TITLE_WORKGROUP_LIST_LIVEFEED'),
+			CounterDictionary::COUNTER_WORKGROUP_LIST_TASKS => Loc::getMessage('SONET_SIC_COUNTER_TITLE_WORKGROUP_LIST_TASKS'),
 		];
 
 		return ($map[$counter] ?? '');
@@ -251,6 +203,20 @@ class CSocialnetworkInterfaceCountersComponent extends CBitrixComponent	implemen
 		];
 
 		return ($map[$counter] ?? '');
+	}
+
+	private function getFilterFields(string $counter): ?array
+	{
+		$map = [
+			CounterDictionary::COUNTER_WORKGROUP_LIST_LIVEFEED => [
+				'COMMON_COUNTERS' => CounterFilter::VALUE_LIVEFEED,
+			],
+			CounterDictionary::COUNTER_WORKGROUP_LIST_TASKS => [
+				'COMMON_COUNTERS' => CounterFilter::VALUE_TASKS,
+			],
+		];
+
+		return ($map[$counter] ?? null);
 	}
 
 	/**
@@ -345,6 +311,12 @@ class CSocialnetworkInterfaceCountersComponent extends CBitrixComponent	implemen
 			CounterDictionary::COUNTER_WORKGROUP_REQUESTS_OUT => [
 				Role::WORKGROUP_OWNER,
 			],
+			CounterDictionary::COUNTER_WORKGROUP_LIST_LIVEFEED => [
+				Role::ALL,
+			],
+			CounterDictionary::COUNTER_WORKGROUP_LIST_TASKS => [
+				Role::ALL,
+			],
 		];
 
 		return (
@@ -362,6 +334,7 @@ class CSocialnetworkInterfaceCountersComponent extends CBitrixComponent	implemen
 	{
 		$map = [
 			CounterDictionary::ENTITY_WORKGROUP_DETAIL => Loc::getMessage('SONET_SIC_ENTITY_TITLE_WORKGROUP_DETAIL'),
+			CounterDictionary::ENTITY_WORKGROUP_LIST => Loc::getMessage('SONET_SIC_ENTITY_TITLE_WORKGROUP_LIST'),
 		];
 
 		return ($map[$entityType] ?? '');

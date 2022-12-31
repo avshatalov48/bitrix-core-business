@@ -5,6 +5,9 @@ use Bitrix\Im\Integration\UI\EntitySelector\DepartmentDataFilter;
 return [
 	'controllers' => [
 		'value' => [
+			'namespaces' => [
+				'\\Bitrix\\Im\\V2\\Controller' => 'v2',
+			],
 			'defaultNamespace' => '\\Bitrix\\Im\\Controller',
 			'restIntegration' => [
 				'enabled' => true

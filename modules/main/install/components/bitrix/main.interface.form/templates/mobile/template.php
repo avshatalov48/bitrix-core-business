@@ -460,6 +460,10 @@ array_unshift($tab["fields"], array(
 											$val = is_array($val) ? $val : array($val);
 											foreach ($field["items"] as $item)
 											{
+												if (!is_array($item))
+												{
+													continue;
+												}
 												$item = array_change_key_case($item, CASE_LOWER);
 												if (!in_array($item["id"], $val))
 												{

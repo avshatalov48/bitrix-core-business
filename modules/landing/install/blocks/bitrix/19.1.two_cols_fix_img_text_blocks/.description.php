@@ -11,6 +11,7 @@ return array(
 		'name' => Loc::getMessage('LANDING_BLOCK_7_TWO_COLS_FIX_IMG_TEXT_ACCORDEON_NAME'),
 		'section' => array('about', 'text_image'),
 		'type' => 'null',
+		//new block with code '68.6.faq'
 	),
 	'cards' => array(
 		'.landing-block-card-accordeon-element' => array(

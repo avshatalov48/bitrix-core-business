@@ -5,9 +5,9 @@
 			<!-- card 1 -->
 			<div class="landing-block-card accordion-item g-border-color g-pa-10 g-brd-bottom" style="--border-color:hsla(0, 0%, 86%, 1);">
 				<div
-					class="landing-block-faq-visible g-ma-0 g-cursor-pointer g-color--hover g-brd-bottom g-brd-primary g-pos-rel g-py-15"
+					class="landing-block-faq-visible g-ma-0 g-cursor-pointer g-color--hover g-brd-bottom g-brd-primary g-pos-rel g-py-15 d-flex align-items-center"
 					style="--color-hover:var(--primary);">
-					<h4 class="g-pr-25">What is Sites & stores?</h4>
+					<h4 class="landing-block-faq-visible-text g-pr-25">What is Sites & stores?</h4>
 					<span class="icon"></span>
 				</div>
 				<div class="landing-block-faq-hidden">
@@ -19,9 +19,9 @@
 			<!-- card 2 -->
 			<div class="landing-block-card accordion-item g-border-color g-pa-10 g-brd-bottom" style="--border-color:hsla(0, 0%, 86%, 1);">
 				<div
-					class="landing-block-faq-visible g-ma-0 g-cursor-pointer g-color--hover g-brd-bottom g-brd-primary g-pos-rel g-py-15"
+					class="landing-block-faq-visible g-ma-0 g-cursor-pointer g-color--hover g-brd-bottom g-brd-primary g-pos-rel g-py-15 d-flex align-items-center"
 					style="--color-hover:var(--primary);">
-					<h4 class="g-pr-25">What is Communications?</h4>
+					<h4 class="landing-block-faq-visible-text g-pr-25">What is Communications?</h4>
 					<span class="icon"></span>
 				</div>
 				<div class="landing-block-faq-hidden">
@@ -33,9 +33,9 @@
 			<!-- card 3 -->
 			<div class="landing-block-card accordion-item g-border-color g-pa-10 g-brd-bottom" style="--border-color:hsla(0, 0%, 86%, 1);">
 				<div
-					class="landing-block-faq-visible g-ma-0 g-cursor-pointer g-color--hover g-brd-bottom g-brd-primary g-pos-rel g-py-15"
+					class="landing-block-faq-visible g-ma-0 g-cursor-pointer g-color--hover g-brd-bottom g-brd-primary g-pos-rel g-py-15 d-flex align-items-center"
 					style="--color-hover:var(--primary);">
-					<h4 class="g-pr-25">What is CRM?</h4>
+					<h4 class="landing-block-faq-visible-text g-pr-25">What is CRM?</h4>
 					<span class="icon"></span>
 				</div>
 				<div class="landing-block-faq-hidden">
@@ -47,9 +47,9 @@
 			<!-- card 4 -->
 			<div class="landing-block-card accordion-item g-border-color g-pa-10 g-brd-bottom" style="--border-color:hsla(0, 0%, 86%, 1);">
 				<div
-					class="landing-block-faq-visible g-ma-0 g-cursor-pointer g-color--hover g-brd-bottom g-brd-primary g-pos-rel g-py-15"
+					class="landing-block-faq-visible g-ma-0 g-cursor-pointer g-color--hover g-brd-bottom g-brd-primary g-pos-rel g-py-15 d-flex align-items-center"
 					style="--color-hover:var(--primary);">
-					<h4 class="g-pr-25">What is Contact center?</h4>
+					<h4 class="landing-block-faq-visible-text g-pr-25">What is Contact center?</h4>
 					<span class="icon"></span>
 				</div>
 				<div class="landing-block-faq-hidden">
@@ -61,9 +61,9 @@
 			<!-- card 5 -->
 			<div class="landing-block-card accordion-item g-border-color g-pa-10 g-brd-bottom" style="--border-color:hsla(0, 0%, 86%, 1);">
 				<div
-					class="landing-block-faq-visible g-ma-0 g-cursor-pointer g-color--hover g-brd-bottom g-brd-primary g-pos-rel g-py-15"
+					class="landing-block-faq-visible g-ma-0 g-cursor-pointer g-color--hover g-brd-bottom g-brd-primary g-pos-rel g-py-15 d-flex align-items-center"
 					style="--color-hover:var(--primary);">
-					<h4 class="g-pr-25">What is Tasks & projects?</h4>
+					<h4 class="landing-block-faq-visible-text g-pr-25">What is Tasks & projects?</h4>
 					<span class="icon"></span>
 				</div>
 				<div class="landing-block-faq-hidden">

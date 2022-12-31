@@ -224,7 +224,7 @@ if(window.opener)
 window.close();
 </script>
 ';
-		die();
+		CMain::FinalActions();
 	}
 
 	public function setUser($userId)

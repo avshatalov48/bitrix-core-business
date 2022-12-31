@@ -419,6 +419,10 @@ this.BX = this.BX || {};
 	    this.onInputPriceHandler = main_core.Runtime.debounce(this.onInputPrice, 500, this);
 	  },
 
+	  mounted() {
+	    BX.UI.Hint.init();
+	  },
+
 	  methods: {
 	    onInputPrice(event) {
 	      if (!this.editable) {
@@ -458,12 +462,27 @@ this.BX = this.BX || {};
 
 	    currencySymbol() {
 	      return this.options.currencySymbol || '';
+	    },
+
+	    hintText() {
+	      var _this$options;
+
+	      if (!this.editable && !((_this$options = this.options) != null && _this$options.isCatalogPriceEditEnabled)) {
+	        return main_core.Loc.getMessage('CATALOG_FORM_PRICE_ACCESS_DENIED_HINT');
+	      }
+
+	      return null;
 	    }
 
 	  },
 	  // language=Vue
 	  template: `
-		<div class="catalog-pf-product-input-wrapper" v-bind:class="{ 'ui-ctl-danger': hasError }">
+		<div 
+			class="catalog-pf-product-input-wrapper" 
+			:class="{ 'ui-ctl-danger': hasError, '.catalog-pf-product-input-wrapper--disabled': !editable }"
+			:data-hint="hintText"
+			data-hint-no-icon
+		>
 			<input 	type="text" class="catalog-pf-product-input catalog-pf-product-input--align-right"
 					v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
 					v-model.lazy="price"
@@ -491,6 +510,10 @@ this.BX = this.BX || {};
 	  created() {
 	    this.onInputDiscount = main_core.Runtime.debounce(this.onChangeDiscount, 500, this);
 	    this.currencySymbol = this.options.currencySymbol;
+	  },
+
+	  mounted() {
+	    BX.UI.Hint.init();
 	  },
 
 	  methods: {
@@ -563,21 +586,43 @@ this.BX = this.BX || {};
 
 	    getDiscountSymbol() {
 	      return main_core.Text.toNumber(this.discountType) === catalog_productCalculator.DiscountType.PERCENTAGE ? '%' : this.currencySymbol;
+	    },
+
+	    wrapperClasses() {
+	      return {
+	        'catalog-pf-product-input-wrapper--disabled': !this.editable
+	      };
+	    },
+
+	    hintText() {
+	      var _this$options;
+
+	      if (!this.editable && !((_this$options = this.options) != null && _this$options.isCatalogDiscountSetEnabled)) {
+	        return main_core.Loc.getMessage('CATALOG_FORM_DISCOUNT_ACCESS_DENIED_HINT');
+	      }
+
+	      return null;
 	    }
 
 	  },
 	  // language=Vue
 	  template: `
-		<div class="catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--left">
+		<div
+			class="catalog-pf-product-input-wrapper catalog-pf-product-input-wrapper--left"
+			:class="wrapperClasses"
+			:data-hint="hintText"
+			data-hint-no-icon
+		>
 			<input class="catalog-pf-product-input catalog-pf-product-input--align-right catalog-pf-product-input--right"
-					v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
-					ref="discountInput" 
-					:value="getDiscountInputValue"
-					:v-model="discountRate"
-					@input="onInputDiscount"
-					placeholder="0"
-					:disabled="!editable">
-			<div class="catalog-pf-product-input-info catalog-pf-product-input-info--action" 
+				ref="discountInput"
+				v-bind:class="{ 'catalog-pf-product-input--disabled': !editable }"
+				:value="getDiscountInputValue"
+				:v-model="discountRate"
+				@input="onInputDiscount"
+				placeholder="0"
+				:disabled="!editable"
+			/>
+			<div class="catalog-pf-product-input-info catalog-pf-product-input-info--action"
 				@click="showPopupMenu">
 				<span v-html="getDiscountSymbol"></span>
 			</div>
@@ -1036,7 +1081,7 @@ this.BX = this.BX || {};
 	        event.target.value = 0;
 	      }
 
-	      let lastSymbol = event.target.value.substr(-1);
+	      const lastSymbol = event.target.value.substr(-1);
 
 	      if (lastSymbol === ',') {
 	        event.target.value = event.target.value.replace(',', ".");
@@ -1315,37 +1360,29 @@ this.BX = this.BX || {};
 	    },
 
 	    onChangeSum(sum) {
-	      const price = sum / main_core.Text.toNumber(this.basketItem.fields.quantity) + main_core.Text.toNumber(this.basketItem.fields.discount);
-	      this.onChangePrice(price);
+	      const priceItem = sum / main_core.Text.toNumber(this.basketItem.fields.quantity);
+
+	      if (this.isEditablePrice()) {
+	        const price = priceItem + main_core.Text.toNumber(this.basketItem.fields.discount);
+	        this.onChangePrice(price);
+	      } else if (this.isEditableDiscount()) {
+	        const discount = this.basketItem.fields.basePrice - priceItem;
+	        this.toggleDiscount('Y');
+	        this.changeDiscountType(catalog_productCalculator.DiscountType.MONETARY);
+	        this.changeDiscount(discount);
+	      }
 	    },
 
 	    onChangePrice(newPrice) {
-	      if (!this.options.isCatalogPriceSaveEnabled) {
-	        this.changeBasePrice(newPrice);
-	        return;
+	      this.changeBasePrice(newPrice);
+
+	      if (this.isSaveablePrice()) {
+	        this.saveCatalogField(['BASE_PRICE']).then(() => {
+	          this.changeRowData({
+	            catalogPrice: newPrice
+	          });
+	        });
 	      }
-
-	      this.model.showSaveNotifier('priceChanger_' + this.selectorId, {
-	        title: main_core.Loc.getMessage('CATALOG_PRODUCT_MODEL_SAVING_NOTIFICATION_PRICE_CHANGED_QUERY'),
-	        events: {
-	          onCancel: () => {
-	            const calculatorFields = this.changePrice(newPrice);
-
-	            if (calculatorFields.DISCOUNT_SUM > 0) {
-	              this.toggleDiscount('Y');
-	              this.$root.$app.changeFormOption('showDiscountBlock', 'Y');
-	            }
-	          },
-	          onSave: () => {
-	            this.changeBasePrice(newPrice);
-	            this.saveCatalogField(['BASE_PRICE']).then(() => {
-	              this.changeRowData({
-	                catalogPrice: newPrice
-	              });
-	            });
-	          }
-	        }
-	      });
 	    },
 
 	    onSelectMeasure(measure) {
@@ -1522,38 +1559,44 @@ this.BX = this.BX || {};
 	      return ((_this$options = this.options) == null ? void 0 : _this$options.editableFields.includes(FormInputCode.PRICE)) && (this.model.isNew() || !this.model.isCatalogExisted() || ((_this$options2 = this.options) == null ? void 0 : _this$options2.isCatalogPriceEditEnabled));
 	    },
 
-	    isEditableField(code) {
-	      var _this$options3, _this$options4;
+	    isEditableDiscount() {
+	      var _this$options3;
 
-	      if (code === FormInputCode.PRICE && !((_this$options3 = this.options) != null && _this$options3.isCatalogPriceEditEnabled)) {
-	        return this.isEditablePrice();
+	      return (_this$options3 = this.options) == null ? void 0 : _this$options3.isCatalogDiscountSetEnabled;
+	    },
+
+	    isSaveablePrice() {
+	      return this.options.isCatalogPriceEditEnabled && this.options.isCatalogPriceSaveEnabled && this.model.isNew();
+	    },
+
+	    isEditableField(code) {
+	      var _this$options4, _this$options5;
+
+	      if (code === FormInputCode.PRICE && !this.isEditablePrice()) {
+	        return false;
+	      } else if (code === FormInputCode.DISCOUNT && !this.isEditableDiscount()) {
+	        return false;
+	      } else if (code === FormInputCode.RESULT && !((_this$options4 = this.options) != null && _this$options4.isCatalogDiscountSetEnabled) && !this.isEditablePrice()) {
+	        return false;
 	      }
 
-	      return (_this$options4 = this.options) == null ? void 0 : _this$options4.editableFields.includes(code);
+	      return (_this$options5 = this.options) == null ? void 0 : _this$options5.editableFields.includes(code);
 	    },
 
 	    getHint(code) {
-	      var _this$options5;
+	      var _this$options6;
 
-	      return (_this$options5 = this.options) == null ? void 0 : _this$options5.fieldHints[code];
+	      return (_this$options6 = this.options) == null ? void 0 : _this$options6.fieldHints[code];
 	    },
 
 	    hasHint(code) {
-	      var _this$options6;
+	      var _this$options7;
 
-	      if (code === FormInputCode.PRICE && !((_this$options6 = this.options) != null && _this$options6.isCatalogPriceEditEnabled)) {
+	      if (code === FormInputCode.PRICE && !((_this$options7 = this.options) != null && _this$options7.isCatalogPriceEditEnabled)) {
 	        return !this.isEditablePrice();
 	      }
 
 	      return false;
-	    },
-
-	    showPriceNotify() {
-	      const hint = this.getHint(this.blocks.price);
-
-	      if (main_core.Text.toNumber(hint == null ? void 0 : hint.ARTICLE_CODE) > 0) {
-	        top.BX.Helper.show("redirect=detail&code=" + main_core.Text.toNumber(hint == null ? void 0 : hint.ARTICLE_CODE));
-	      }
 	    }
 
 	  },
@@ -1631,7 +1674,7 @@ this.BX = this.BX || {};
 	    },
 
 	    isReadOnly() {
-	      return this.mode === FormMode.READ_ONLY;
+	      return this.mode === FormMode.READ_ONLY || this.mode === FormMode.COMPILATION_READ_ONLY;
 	    },
 
 	    getErrorsText() {
@@ -1711,7 +1754,6 @@ this.BX = this.BX || {};
 					<div class="catalog-pf-product-item-section">
 						<div v-if="isVisibleBlock(blocks.price)" class="catalog-pf-product-label" style="width: 94px">
 							{{localize.CATALOG_FORM_PRICE}}
-							<span v-if="hasHint(blocks.price)" class="ui-hint-icon" @click="showPriceNotify"></span>
 						</div>
 						<div v-if="isVisibleBlock(blocks.quantity)" class="catalog-pf-product-label" style="width: 72px">
 							{{localize.CATALOG_FORM_QUANTITY}}
@@ -2114,7 +2156,6 @@ this.BX = this.BX || {};
 						<div ref="label"></div>
 						<div class="tariff-lock" v-if="compilationOptions.isLimitedStore"></div>
 					</label>
-					<div class="catalog-pf-product-panel-compilation-price-info">{{localize.CATALOG_FORM_COMPILATION_PRICE_NOTIFICATION}}</div>
 				</div>
 				<div
 					v-if="showQrLink"
@@ -2125,6 +2166,7 @@ this.BX = this.BX || {};
 					{{localize.CATALOG_FORM_COMPILATION_QR_LINK}}
 				</div>
 			</div>
+			<div class="catalog-pf-product-panel-compilation-price-info">{{localize.CATALOG_FORM_COMPILATION_PRICE_NOTIFICATION}}</div>
 			<div class="catalog-pf-product-panel-compilation-message" ref="message"></div>
 		</div>
 	`
@@ -2395,7 +2437,7 @@ this.BX = this.BX || {};
 	    },
 
 	    getSettingItems() {
-	      return [// {
+	      const items = [// {
 	      // 	id: 'taxIncludedOption',
 	      // 	checked: (this.options.taxIncluded === 'Y'),
 	      // 	title: this.localize.CATALOG_FORM_ADD_TAX_INCLUDED,
@@ -2404,18 +2446,24 @@ this.BX = this.BX || {};
 	        id: 'showDiscountInputOption',
 	        checked: this.options.showDiscountBlock !== 'N',
 	        title: this.localize.CATALOG_FORM_ADD_SHOW_DISCOUNTS_OPTION
-	      }, // {
+	      } // {
 	      // 	id: 'showTaxInputOption',
 	      // 	checked: (this.options.showTaxBlock !== 'N'),
 	      // 	title: this.localize.CATALOG_FORM_ADD_SHOW_TAXES_OPTION,
 	      // },
-	      {
-	        id: 'warehouseOption',
-	        checked: this.options.warehouseOption,
-	        disabled: this.options.warehouseOption,
-	        title: this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_OPTION,
-	        hint: this.options.warehouseOption ? this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_HINT : ''
-	      }];
+	      ];
+
+	      if (this.options.isCatalogSettingAccess) {
+	        items.push({
+	          id: 'warehouseOption',
+	          checked: this.options.warehouseOption,
+	          disabled: this.options.warehouseOption,
+	          title: this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_OPTION,
+	          hint: this.options.warehouseOption ? this.localize.CATALOG_FORM_ADD_SHOW_WAREHOUSE_HINT : ''
+	        });
+	      }
+
+	      return items;
 	    },
 
 	    prepareSettingsContent() {
@@ -2474,6 +2522,10 @@ this.BX = this.BX || {};
 
 	  },
 	  computed: {
+	    hasAccessToCatalog() {
+	      return this.options.isCatalogAccess;
+	    },
+
 	    localize() {
 	      return ui_vue.Vue.getFilteredPhrases('CATALOG_');
 	    },
@@ -2489,6 +2541,7 @@ this.BX = this.BX || {};
 
 	  mounted() {
 	    this.settings = this.getSettingItems();
+	    BX.UI.Hint.init();
 	  },
 
 	  // language=Vue
@@ -2497,7 +2550,17 @@ this.BX = this.BX || {};
 			<div class="catalog-pf-product-add">
 				<div class="catalog-pf-product-add-wrapper">
 					<span class="catalog-pf-product-add-link" @click="addBasketItemForm">{{localize.CATALOG_FORM_ADD_PRODUCT}}</span>
-					<span class="catalog-pf-product-add-link catalog-pf-product-add-link--gray" @click="showDialogProductSearch">{{localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG}}</span>
+					<span
+						v-if="hasAccessToCatalog"
+						class="catalog-pf-product-add-link catalog-pf-product-add-link--gray"
+						@click="showDialogProductSearch"
+					>{{localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG}}</span>
+					<span
+						v-else
+						class="catalog-pf-product-add-link catalog-pf-product-add-link--gray catalog-pf-product-add-link--disabled"
+						:data-hint="localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG_DENIED_HINT"
+						data-hint-no-icon
+					>{{localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG}}</span>
 				</div>
 				<div class="catalog-pf-product-configure-link" @click="showConfigPopup">{{localize.CATALOG_FORM_DISCOUNT_EDIT_PAGE_URL_TITLE}}</div>
 			</div>
@@ -2743,8 +2806,11 @@ this.BX = this.BX || {};
 	      buttonsPosition: FormElementPosition.TOP,
 	      urlBuilderContext: 'SHOP',
 	      hideUnselectedProperties: false,
+	      isCatalogDiscountSetEnabled: settingsCollection.get('isCatalogDiscountSetEnabled'),
 	      isCatalogPriceEditEnabled: settingsCollection.get('isCatalogPriceEditEnabled'),
 	      isCatalogPriceSaveEnabled: settingsCollection.get('isCatalogPriceSaveEnabled'),
+	      isCatalogSettingAccess: settingsCollection.get('isCatalogSettingAccess'),
+	      isCatalogAccess: settingsCollection.get('isCatalogAccess'),
 	      fieldHints: settingsCollection.get('fieldHints'),
 	      compilationFormType: FormCompilationType.REGULAR,
 	      compilationFormOption: {},

@@ -14,3 +14,4 @@ $MESS["CAT_MEASURE_ADD_NEW_OKEI_ALT"] = "Добавить новую едини�
 $MESS["CAT_MEASURE_DELETE_CONFIRM"] = "Вы уверены, что хотите удалить единицу измерения?";
 $MESS["CAT_MEASURE_DELETE_ALT"] = "Удалить";
 $MESS["CAT_MEASURE_EDIT_ALT"] = "Редактировать";
+$MESS["CAT_MEASURE_VIEW_ALT"] = "Открыть";

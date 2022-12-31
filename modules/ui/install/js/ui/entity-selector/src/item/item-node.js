@@ -9,6 +9,7 @@ import MatchField from '../search/match-field';
 import TextNode from '../common/text-node';
 import Animation from '../common/animation';
 import Item from './item';
+import encodeUrl from '../common/encode-url';
 
 import type Tab from '../dialog/tabs/tab';
 import type Dialog from '../dialog/dialog';
@@ -652,7 +653,7 @@ export default class ItemNode
 		const avatar = this.getAvatar();
 		if (Type.isStringFilled(avatar))
 		{
-			this.getAvatarContainer().style.backgroundImage = `url('${avatar}')`;
+			this.getAvatarContainer().style.backgroundImage = `url('${encodeUrl(avatar)}')`;
 		}
 		else
 		{

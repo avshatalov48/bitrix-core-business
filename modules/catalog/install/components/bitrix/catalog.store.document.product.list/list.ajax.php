@@ -5,6 +5,8 @@ use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Web\PostDecodeFilter;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
 
 define('NO_KEEP_STATISTIC', 'Y');
 define('NO_AGENT_STATISTIC', 'Y');
@@ -27,8 +29,8 @@ if (!Loader::includeModule('catalog') || !check_bitrix_sessid())
 }
 
 if (
-	!CurrentUser::get()->canDoOperation('catalog_read')
-	|| !CurrentUser::get()->canDoOperation('catalog_store')
+	!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
+	|| !AccessController::getCurrent()->check(ActionDictionary::ACTION_STORE_VIEW)
 )
 {
 	die();

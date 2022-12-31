@@ -172,6 +172,11 @@ export class CalendarSection
 			return false;
 		}
 
+		return this.hasPermission(action);
+	}
+
+	hasPermission(action)
+	{
 		if (action === 'view_event')
 		{
 			action = 'view_time';

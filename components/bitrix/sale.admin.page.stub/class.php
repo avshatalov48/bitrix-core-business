@@ -66,12 +66,14 @@ class SaleAdminPageStub extends \CBitrixComponent
 				"title" => Loc::getMessage("SAPS_CAT_STORE_LIST"),
 			],
 			"cat_store_document_list.php" => [
-				"page" => "/shop/settings/cat_store_document_list/",
+				"page" => "/shop/documents/",
 				"title" => Loc::getMessage("SAPS_CAT_STORE_DOCUMENT_LIST"),
+				"adminPageAvailable" => false,
 			],
 			"cat_contractor_list.php" => [
-				"page" => "/shop/settings/cat_contractor_list/",
+				"page" => "/shop/documents/contractors/",
 				"title" => Loc::getMessage("SAPS_CAT_CONTRACTOR_LIST"),
+				"adminPageAvailable" => false,
 			],
 			"sale_discount.php" => [
 				"page" => "/shop/settings/sale_discount/",

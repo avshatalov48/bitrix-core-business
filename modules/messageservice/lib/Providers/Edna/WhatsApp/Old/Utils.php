@@ -4,6 +4,7 @@ namespace Bitrix\MessageService\Providers\Edna\WhatsApp\Old;
 
 use Bitrix\Main\Result;
 use Bitrix\Main\Web\HttpClient;
+use Bitrix\MessageService\Providers\Constants\InternalOption;
 use Bitrix\MessageService\Providers\Edna\WhatsApp;
 use Bitrix\MessageService\Providers\Edna\WhatsApp\ExternalSender;
 use Bitrix\MessageService\Providers\OptionManager;
@@ -21,7 +22,7 @@ class Utils extends WhatsApp\Utils
 
 		$externalSender =
 			new ExternalSender(
-				$this->optionManager->getOption(Constants::API_KEY_OPTION),
+				$this->optionManager->getOption(InternalOption::API_KEY),
 				Constants::API_ENDPOINT
 			)
 		;
@@ -44,7 +45,7 @@ class Utils extends WhatsApp\Utils
 
 		$externalSender =
 			new ExternalSender(
-			$this->optionManager->getOption(Constants::API_KEY_OPTION),
+			$this->optionManager->getOption(InternalOption::API_KEY),
 			Constants::API_ENDPOINT
 		);
 

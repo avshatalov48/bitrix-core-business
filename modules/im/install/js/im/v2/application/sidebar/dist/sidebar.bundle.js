@@ -80,5 +80,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.SidebarApplication = SidebarApplication;
 
-}((this.BX.Messenger.v2.Application = this.BX.Messenger.v2.Application || {}),BX.Messenger.v2.Application,BX.Messenger.v2,BX.Messenger.v2.Provider.Pull,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Application = this.BX.Messenger.v2.Application || {}),BX.Messenger.v2.Application,BX.Messenger.v2.ComponentLegacy,BX.Messenger.v2.Provider.Pull,BX.Messenger.v2.Const));
 //# sourceMappingURL=sidebar.bundle.js.map

@@ -3,6 +3,7 @@ use Bitrix\Main,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Catalog,
 	Bitrix\Sale\DiscountCouponsManager;
+use Bitrix\Main\Application;
 
 Loc::loadMessages(__FILE__);
 
@@ -177,8 +178,14 @@ class CAllCatalogDiscountCoupon
 			if ($coupon === '')
 				return false;
 
-			if (!isset($_SESSION['CATALOG_USER_COUPONS']) || !is_array($_SESSION['CATALOG_USER_COUPONS']))
-				$_SESSION['CATALOG_USER_COUPONS'] = array();
+			$session = Application::getInstance()->getSession();
+			if (!$session->isAccessible())
+			{
+				return false;
+			}
+
+			if (!isset($session['CATALOG_USER_COUPONS']) || !is_array($session['CATALOG_USER_COUPONS']))
+				$session['CATALOG_USER_COUPONS'] = array();
 
 			$couponIterator = Catalog\DiscountCouponTable::getList(array(
 				'select' => array('ID', 'COUPON'),
@@ -186,8 +193,8 @@ class CAllCatalogDiscountCoupon
 			));
 			if ($existCoupon = $couponIterator->fetch())
 			{
-				if (!in_array($existCoupon['COUPON'], $_SESSION['CATALOG_USER_COUPONS']))
-					$_SESSION['CATALOG_USER_COUPONS'][] = $existCoupon['COUPON'];
+				if (!in_array($existCoupon['COUPON'], $session['CATALOG_USER_COUPONS']))
+					$session['CATALOG_USER_COUPONS'][] = $existCoupon['COUPON'];
 				return true;
 			}
 		}
@@ -213,9 +220,15 @@ class CAllCatalogDiscountCoupon
 		}
 		else
 		{
-			if (!isset($_SESSION['CATALOG_USER_COUPONS']) || !is_array($_SESSION['CATALOG_USER_COUPONS']))
-				$_SESSION['CATALOG_USER_COUPONS'] = array();
-			return $_SESSION["CATALOG_USER_COUPONS"];
+			$session = Application::getInstance()->getSession();
+			if (!$session->isAccessible())
+			{
+				return [];
+			}
+
+			if (!isset($session['CATALOG_USER_COUPONS']) || !is_array($session['CATALOG_USER_COUPONS']))
+				$session['CATALOG_USER_COUPONS'] = array();
+			return $session["CATALOG_USER_COUPONS"];
 		}
 	}
 
@@ -244,15 +257,21 @@ class CAllCatalogDiscountCoupon
 			if (empty($strCoupon))
 				return false;
 
-			if (!isset($_SESSION['CATALOG_USER_COUPONS']) || !is_array($_SESSION['CATALOG_USER_COUPONS']))
+			$session = Application::getInstance()->getSession();
+			if (!$session->isAccessible())
 			{
-				$_SESSION['CATALOG_USER_COUPONS'] = array();
+				return false;
+			}
+
+			if (!isset($session['CATALOG_USER_COUPONS']) || !is_array($session['CATALOG_USER_COUPONS']))
+			{
+				$session['CATALOG_USER_COUPONS'] = array();
 				return true;
 			}
-			$key = array_search($strCoupon, $_SESSION['CATALOG_USER_COUPONS']);
+			$key = array_search($strCoupon, $session['CATALOG_USER_COUPONS']);
 			if ($key !== false)
 			{
-				unset($_SESSION['CATALOG_USER_COUPONS'][$key]);
+				unset($session['CATALOG_USER_COUPONS'][$key]);
 			}
 			return true;
 		}
@@ -274,7 +293,11 @@ class CAllCatalogDiscountCoupon
 		}
 		else
 		{
-			$_SESSION['CATALOG_USER_COUPONS'] = array();
+			$session = Application::getInstance()->getSession();
+			if ($session->isAccessible())
+			{
+				$session['CATALOG_USER_COUPONS'] = array();
+			}
 		}
 	}
 
@@ -307,10 +330,16 @@ class CAllCatalogDiscountCoupon
 				if (empty($strCoupon))
 					return false;
 
-				if (!isset($_SESSION['CATALOG_MANAGE_COUPONS']) || !is_array($_SESSION['CATALOG_MANAGE_COUPONS']))
-					$_SESSION['CATALOG_MANAGE_COUPONS'] = array();
-				if (!isset($_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID]) || !is_array($_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID]))
-					$_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID] = array();
+				$session = Application::getInstance()->getSession();
+				if (!$session->isAccessible())
+				{
+					return false;
+				}
+
+				if (!isset($session['CATALOG_MANAGE_COUPONS']) || !is_array($session['CATALOG_MANAGE_COUPONS']))
+					$session['CATALOG_MANAGE_COUPONS'] = array();
+				if (!isset($session['CATALOG_MANAGE_COUPONS'][$intUserID]) || !is_array($session['CATALOG_MANAGE_COUPONS'][$intUserID]))
+					$session['CATALOG_MANAGE_COUPONS'][$intUserID] = array();
 
 				$couponIterator = Catalog\DiscountCouponTable::getList(array(
 					'select' => array('ID', 'COUPON'),
@@ -318,8 +347,8 @@ class CAllCatalogDiscountCoupon
 				));
 				if ($existCoupon = $couponIterator->fetch())
 				{
-					if (!in_array($existCoupon['COUPON'], $_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID]))
-						$_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID][] = $existCoupon['COUPON'];
+					if (!in_array($existCoupon['COUPON'], $session['CATALOG_MANAGE_COUPONS'][$intUserID]))
+						$session['CATALOG_MANAGE_COUPONS'][$intUserID][] = $existCoupon['COUPON'];
 
 					return true;
 				}
@@ -352,12 +381,18 @@ class CAllCatalogDiscountCoupon
 			}
 			else
 			{
-				if (!isset($_SESSION['CATALOG_MANAGE_COUPONS']) || !is_array($_SESSION['CATALOG_MANAGE_COUPONS']))
-					$_SESSION['CATALOG_MANAGE_COUPONS'] = array();
-				if (!isset($_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID]) || !is_array($_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID]))
-					$_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID] = array();
+				$session = Application::getInstance()->getSession();
+				if (!$session->isAccessible())
+				{
+					return false;
+				}
 
-				return $_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID];
+				if (!isset($session['CATALOG_MANAGE_COUPONS']) || !is_array($session['CATALOG_MANAGE_COUPONS']))
+					$session['CATALOG_MANAGE_COUPONS'] = array();
+				if (!isset($session['CATALOG_MANAGE_COUPONS'][$intUserID]) || !is_array($session['CATALOG_MANAGE_COUPONS'][$intUserID]))
+					$session['CATALOG_MANAGE_COUPONS'][$intUserID] = array();
+
+				return $session['CATALOG_MANAGE_COUPONS'][$intUserID];
 			}
 		}
 		return false;
@@ -388,17 +423,23 @@ class CAllCatalogDiscountCoupon
 			}
 			else
 			{
+				$session = Application::getInstance()->getSession();
+				if (!$session->isAccessible())
+				{
+					return false;
+				}
+
 				$strCoupon = trim((string)$strCoupon);
 				if (empty($strCoupon))
 					return false;
-				if (!isset($_SESSION['CATALOG_MANAGE_COUPONS']) || !is_array($_SESSION['CATALOG_MANAGE_COUPONS']))
+				if (!isset($session['CATALOG_MANAGE_COUPONS']) || !is_array($session['CATALOG_MANAGE_COUPONS']))
 					return false;
-				if (!isset($_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID]) || !is_array($_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID]))
+				if (!isset($session['CATALOG_MANAGE_COUPONS'][$intUserID]) || !is_array($session['CATALOG_MANAGE_COUPONS'][$intUserID]))
 					return false;
-				$key = array_search($strCoupon, $_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID]);
+				$key = array_search($strCoupon, $session['CATALOG_MANAGE_COUPONS'][$intUserID]);
 				if ($key !== false)
 				{
-					unset($_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID][$key]);
+					unset($session['CATALOG_MANAGE_COUPONS'][$intUserID][$key]);
 					return true;
 				}
 			}
@@ -430,9 +471,15 @@ class CAllCatalogDiscountCoupon
 			}
 			else
 			{
-				if (!isset($_SESSION['CATALOG_MANAGE_COUPONS']) || !is_array($_SESSION['CATALOG_MANAGE_COUPONS']))
-					$_SESSION['CATALOG_MANAGE_COUPONS'] = array();
-				$_SESSION['CATALOG_MANAGE_COUPONS'][$intUserID] = array();
+				$session = Application::getInstance()->getSession();
+				if (!$session->isAccessible())
+				{
+					return false;
+				}
+
+				if (!isset($session['CATALOG_MANAGE_COUPONS']) || !is_array($session['CATALOG_MANAGE_COUPONS']))
+					$session['CATALOG_MANAGE_COUPONS'] = array();
+				$session['CATALOG_MANAGE_COUPONS'][$intUserID] = array();
 				return true;
 			}
 		}

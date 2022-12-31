@@ -1,0 +1,26 @@
+.document-limit-slider {
+	padding: 0 13px 0 21px;
+}
+
+.document-limit-inner {
+	background: #fff;
+	padding: 50px 24px 175px 24px;
+	border-radius: var(--document-limit-border-radius, var(--ui-border-radius-md));
+}
+
+.document-limit-desc {
+	padding: 0 0 75px 200px;
+	margin-bottom: 30px;
+	border-bottom: 1px solid #eeeef0;
+	position: relative;
+}
+
+.document-limit-desc-text {
+	font: 16px/24px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+	color: #525c69;
+}
+
+.document-limit-desc-number {
+	font-weight: var(--ui-font-weight-bold);
+}

@@ -210,7 +210,7 @@ class LogList extends \Bitrix\Socialnetwork\Component\LogListCommon
 
 	public function getCounterProcessorInstance(): Counter
 	{
-		if($this->counterProcessorInstance === null)
+		if ($this->counterProcessorInstance === null)
 		{
 			$this->counterProcessorInstance = new Counter([
 				'component' => $this,
@@ -386,10 +386,9 @@ class LogList extends \Bitrix\Socialnetwork\Component\LogListCommon
 			$processorInstance->processSelectData($result);
 
 			$this->getEntriesData($result);
+
 			$processorInstance->processFavoritesData($result);
-
 			$processorInstance->processDiskUFEntities();
-
 			$processorInstance->processCrmActivities($result);
 
 			$logPageProcessorInstance->deleteLogPageData($result);

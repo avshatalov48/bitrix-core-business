@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Landing;
 
+use Bitrix\Main\ModuleManager;
+
 class Debug
 {
 	/**
@@ -32,5 +34,30 @@ class Debug
 			'ITEM_ID' => $itemId,
 			'DESCRIPTION' => $itemDesc
 		]);
+	}
+
+	/**
+	 * Writes message to log file if permitted.
+	 * @param string $message Message.
+	 * @return void
+	 */
+	public static function logToFile(string $message)
+	{
+		static $write = null;
+
+		if ($write === null)
+		{
+			$write = defined('LANDING_FILE_WORK_LOG_TO_FILE') && LANDING_FILE_WORK_LOG_TO_FILE === true;
+
+			if (!$write && ModuleManager::isModuleInstalled('bitrix24') && !Manager::isCloudDisable())
+			{
+				$write = true;
+			}
+		}
+
+		if ($write)
+		{
+			AddMessage2Log($message, 'landing', 7);
+		}
 	}
 }

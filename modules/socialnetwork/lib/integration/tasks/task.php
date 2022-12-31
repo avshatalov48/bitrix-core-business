@@ -98,6 +98,7 @@ class Task
 			]);
 		}
 
+		// to send pushes only
 		UserCounterTable::update([
 			'USER_ID' => $userId,
 			'SITE_ID' => $siteId,
@@ -115,16 +116,16 @@ class Task
 			'socialnetwork'
 		);
 
-		$taskId = intval($event->getParameter('taskId'));
-		$userId = intval($event->getParameter('userId'));
-		$option = $event->getParameter('option');
+		$taskId = (int)$event->getParameter('taskId');
+		$userId = (int)$event->getParameter('userId');
+		$option = (int)$event->getParameter('option');
 		$added = $event->getParameter('added');
 
 		if (
 			$taskId <= 0
 			|| $userId <= 0
+			|| $option !== \Bitrix\Tasks\Internals\UserOption\Option::MUTED
 			|| !Loader::includeModule('tasks')
-			|| $option != \Bitrix\Tasks\Internals\UserOption\Option::MUTED
 		)
 		{
 			return $result;
@@ -141,7 +142,7 @@ class Task
 		]);
 		if ($logFields = $res->fetch())
 		{
-			$logId = intval($logFields['ID']);
+			$logId = (int)$logFields['ID'];
 		}
 		if ($logId <= 0)
 		{

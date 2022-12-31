@@ -4,6 +4,7 @@ namespace Bitrix\Location\Infrastructure;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Event;
+use Bitrix\Main\Application;
 
 /**
  * Class CurrentFormatCode
@@ -15,12 +16,12 @@ class FormatCode
 	protected static $optionName = 'address_format_code';
 	protected static $onChangedEventName = 'onCurrentFormatCodeChanged';
 
-	public static function getCurrent(string $languageId = LANGUAGE_ID, string $siteId = ''): string
+	public static function getCurrent(string $regionId = null, string $siteId = ''): string
 	{
 		return Option::get(
 			'location',
 			static::$optionName,
-			static::getDefault($languageId),
+			static::getDefault($regionId),
 			$siteId
 		);
 	}
@@ -39,33 +40,36 @@ class FormatCode
 	}
 
 	/**
-	 * @param string $languageId
+	 * @param string|null $regionId
 	 * @return string
-	 * copy & paste to location/default_option.php after the change.
 	 */
-	public static function getDefault(string $languageId = LANGUAGE_ID): string
+	public static function getDefault(string $regionId = null): string
 	{
-		switch ($languageId)
-		{
-			case 'kz':
-				$result = 'RU_2';
-				break;
+		$regionId = $regionId ?? static::getRegion();
 
-			case 'de':
-				$result = 'EU';
-				break;
+		$map = [
+			'kz' => 'RU_2',
+			'en' => 'US',
+			'eu' => 'EU',
+			'de' => 'EU',
+			'la' => 'EU',
+			'br' => 'BR',
+			'fr' => 'EU',
+			'it' => 'EU',
+			'pl' => 'EU',
+			'uk' => 'UK',
+		];
 
-			case 'en':
-				$result = 'US';
-				break;
+		return $map[$regionId] ?? 'RU';
+	}
 
-			//case 'ru':
-			//case 'by':
-			//case 'ua':
-			default:
-				$result = 'RU';
-		}
+	/**
+	 * @return string
+	 */
+	private static function getRegion(): string
+	{
+		$region = Application::getInstance()->getLicense()->getRegion();
 
-		return $result;
+		return $region ?? LANGUAGE_ID;
 	}
 }

@@ -141,7 +141,7 @@ if (isset($_REQUEST['unique_id']) && $_REQUEST['unique_id'])
 			}
 		break;
 		case 'auth_test':
-			$remote_user = $_SERVER["REMOTE_USER"] ? $_SERVER["REMOTE_USER"] : $_SERVER["REDIRECT_REMOTE_USER"];
+			$remote_user = ($_SERVER["REMOTE_USER"] ?? '') ?: ($_SERVER["REDIRECT_REMOTE_USER"] ?? '');
 			$strTmp = base64_decode(mb_substr($remote_user, 6));
 			if ($strTmp)
 				list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', $strTmp);

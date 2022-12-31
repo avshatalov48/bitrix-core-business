@@ -2,9 +2,13 @@
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
+use Bitrix\Iblock\Component\UserField\Catalog\CheckAccessTrait;
 use Bitrix\Main\Component\BaseUfComponent;
 use Bitrix\Iblock\UserField\Types\SectionType;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+
+Loc::loadMessages(__FILE__);
 
 /**
  * Class SectionUfComponent
@@ -13,6 +17,8 @@ use Bitrix\Main\Loader;
  */
 class SectionUfComponent extends BaseUfComponent
 {
+	use CheckAccessTrait;
+
 	protected static
 		$iblockIncluded = null;
 
@@ -36,5 +42,15 @@ class SectionUfComponent extends BaseUfComponent
 	protected static function getUserTypeId(): string
 	{
 		return SectionType::USER_TYPE_ID;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected function prepareResult(): void
+	{
+		parent::prepareResult();
+
+		$this->arResult['hasAccessToCatalog'] = $this->hasAccessToCatalog();
 	}
 }

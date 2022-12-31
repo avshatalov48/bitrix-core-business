@@ -2,7 +2,7 @@
   'use strict';
 
   /*!
-    * vue-router v3.5.3
+    * vue-router v3.6.5
     * (c) 2021 Evan You
     * @license MIT
     *
@@ -512,7 +512,7 @@
   }
 
   function cleanPath(path) {
-    return path.replace(/\/+/g, '/');
+    return path.replace(/\/(?:\s*\/)+/g, '/');
   }
 
   var isarray = Array.isArray || function (arr) {
@@ -1402,7 +1402,7 @@
         if (route.name && !route.redirect && route.children.some(function (child) {
           return /^\/?$/.test(child.path);
         })) {
-          warn(false, "Named Route '".concat(route.name, "' has a default child route. ") + "When navigating to this named route (:to=\"{name: '".concat(route.name, "'\"), ") + "the default child route will not be rendered. Remove the name from " + "this route and use the name of the default child route for named " + "links instead.");
+          warn(false, "Named Route '".concat(route.name, "' has a default child route. ") + "When navigating to this named route (:to=\"{name: '".concat(route.name, "'}\"), ") + "the default child route will not be rendered. Remove the name from " + "this route and use the name of the default child route for named " + "links instead.");
         }
       }
       route.children.forEach(function (child) {
@@ -1884,26 +1884,6 @@
 
   function replaceState(url) {
     pushState(url, true);
-  }
-  /*  */
-
-
-  function runQueue(queue, fn, cb) {
-    var step = function step(index) {
-      if (index >= queue.length) {
-        cb();
-      } else {
-        if (queue[index]) {
-          fn(queue[index], function () {
-            step(index + 1);
-          });
-        } else {
-          step(index + 1);
-        }
-      }
-    };
-
-    step(0);
   } // When changing thing, also edit router.d.ts
 
 
@@ -1960,6 +1940,26 @@
 
   function isNavigationFailure(err, errorType) {
     return isError(err) && err._isRouter && (errorType == null || err.type === errorType);
+  }
+  /*  */
+
+
+  function runQueue(queue, fn, cb) {
+    var step = function step(index) {
+      if (index >= queue.length) {
+        cb();
+      } else {
+        if (queue[index]) {
+          fn(queue[index], function () {
+            step(index + 1);
+          });
+        } else {
+          step(index + 1);
+        }
+      }
+    };
+
+    step(0);
   }
   /*  */
 
@@ -3009,12 +3009,15 @@
   function createHref(base, fullPath, mode) {
     var path = mode === 'hash' ? '#' + fullPath : fullPath;
     return base ? cleanPath(base + '/' + path) : path;
-  }
+  } // We cannot remove this as it would be a breaking change
+
 
   VueRouter.install = install;
-  VueRouter.version = '3.5.3';
+  VueRouter.version = '3.6.5';
   VueRouter.isNavigationFailure = isNavigationFailure;
   VueRouter.NavigationFailureType = NavigationFailureType;
+  VueRouter.RouterLink = Link;
+  VueRouter.RouterView = View;
   VueRouter.START_LOCATION = START; // origin-end
 
   VueRouter.create = function (params) {

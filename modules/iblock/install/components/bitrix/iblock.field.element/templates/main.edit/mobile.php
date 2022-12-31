@@ -3,12 +3,20 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Iblock\UserField\Types\ElementType;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 
 /**
  * @var ElementUfComponent $component
  * @var array $arResult
  */
+
+if (!$arResult['hasAccessToCatalog'])
+{
+	echo Loc::getMessage('IBLOCK_FIELD_ELEMENT_CATALOG_ACCESS_DENIED');
+
+	return;
+}
 
 $component = $this->getComponent();
 

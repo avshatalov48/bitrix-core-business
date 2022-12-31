@@ -112,7 +112,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        disableCustomURL: true,
 	        disableBlocks: true,
 	        disallowType: true,
-	        allowedTypes: [BX.Landing.UI.Field.LinkURL.TYPE_PAGE],
+	        allowedTypes: [BX.Landing.UI.Field.LinkUrl.TYPE_HREF_PAGE],
 	        detailPageMode: true,
 	        sourceField: this.fields.find(function (field) {
 	          return field.selector === 'source';

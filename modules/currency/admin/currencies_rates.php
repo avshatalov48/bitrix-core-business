@@ -1,4 +1,4 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
 use Bitrix\Main,
 	Bitrix\Main\Loader,
@@ -12,8 +12,8 @@ Loader::includeModule('currency');
 IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/currency/currencies_rates.php");
 
 $adminListTableID = "t_currency_rates";
-$oSort = new CAdminSorting($adminListTableID, "date", "desc");
-$adminList = new CAdminList($adminListTableID, $oSort);
+$adminSort = new CAdminSorting($adminListTableID, 'DATE_RATE', 'DESC');
+$adminList = new CAdminList($adminListTableID, $adminSort);
 
 $arFilterFields = array(
 	"filter_period_from",
@@ -66,26 +66,21 @@ $orderConvert = array(
 	'CURR' => 'CURRENCY',
 	'DATE' => 'DATE_RATE'
 );
-if (!isset($by))
-	$by = 'DATE_RATE';
-$by = mb_strtoupper($by);
-if (isset($orderConvert[$by]))
-	$by = $orderConvert[$by];
 
-if (!isset($order))
-	$order = 'DESC';
-$order = mb_strtoupper($order);
+$by = mb_strtoupper($adminSort->getField());
+if (isset($orderConvert[$by]))
+{
+	$by = $orderConvert[$by];
+}
+
+$order = mb_strtoupper($adminSort->getOrder());
 $rateOrder = array($by => $order);
 
 if ($CURRENCY_RIGHT=="W" && $adminList->EditAction())
 {
-	/** @global array $FIELDS */
-	foreach($FIELDS as $ID => $arFields)
+	foreach ($adminList->GetEditFields() as $ID => $arFields)
 	{
 		$ID = (int)$ID;
-
-		if(!$adminList->IsUpdated($ID))
-			continue;
 
 		$arCurR = CCurrencyRates::GetByID($ID);
 		$arFields["CURRENCY"] = $arCurR["CURRENCY"];
@@ -133,7 +128,7 @@ $currencyList = Currency\Helpers\Admin\Tools::getCurrencyLinkList();
 
 $usePageNavigation = true;
 $navyParams = array();
-if (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel')
+if ($adminList->isExportMode())
 {
 	$usePageNavigation = false;
 }
@@ -248,11 +243,11 @@ while ($rate = $rateIterator->Fetch())
 	$row->AddViewField('ID', '<a href="'.$editUrl.'" title="'.GetMessage('CURRENCY_RATES_A_EDIT_TITLE').'">'.$rate['ID'].'</a>');
 	$row->AddViewField(
 		'CURRENCY',
-		(isset($currencyList[$rate['CURRENCY']]) ? $currencyList[$rate['CURRENCY']] : htmlspecialcharsbx($rate['CURRENCY']))
+		($currencyList[$rate['CURRENCY']] ?? htmlspecialcharsbx($rate['CURRENCY']))
 	);
 	$row->AddViewField(
 		'BASE_CURRENCY',
-		(isset($currencyList[$rate['BASE_CURRENCY']]) ? $currencyList[$rate['BASE_CURRENCY']] : htmlspecialcharsbx($rate['BASE_CURRENCY']))
+		($currencyList[$rate['BASE_CURRENCY']] ?? htmlspecialcharsbx($rate['BASE_CURRENCY']))
 	);
 	$row->AddCalendarField('DATE_RATE');
 
@@ -313,32 +308,35 @@ $adminList->CheckListMode();
 $APPLICATION->SetTitle(GetMessage("CURRENCY_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 ?>
-<form method="get" action="<?=$APPLICATION->GetCurPage()?>" name="find_form">
-<?$adminFilter->Begin();?>
+<form method="get" action="<?=$APPLICATION->GetCurPage()?>" name="find_form"><?php
+$adminFilter->Begin();
+?>
 	<tr>
-		<td><?echo GetMessage("curr_rates_date1")?>:</td>
+		<td><?= GetMessage("curr_rates_date1")?>:</td>
 		<td>
-			<?echo CalendarPeriod("filter_period_from", $filter_period_from, "filter_period_to", $filter_period_to, "find_form", "Y")?>
+			<?= CalendarPeriod("filter_period_from", $filter_period_from, "filter_period_to", $filter_period_to, "find_form", "Y")?>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("curr_rates_curr1")?>:</td>
+		<td><?= GetMessage("curr_rates_curr1")?>:</td>
 		<td>
-			<?echo CCurrency::SelectBox("filter_currency", $filter_currency, GetMessage("curr_rates_all"), true, "", "") ?>
+			<?= CCurrency::SelectBox("filter_currency", $filter_currency, GetMessage("curr_rates_all"), true, "", "") ?>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("BX_CURRENCY_RATE_BASE_CURRENCY"); ?>:</td>
+		<td><?= GetMessage("BX_CURRENCY_RATE_BASE_CURRENCY"); ?>:</td>
 		<td>
-			<?echo CCurrency::SelectBox("filter_base_currency", (isset($filter_base_currency) ? $filter_base_currency : ''), GetMessage("curr_rates_all"), true, "", "") ?>
+			<?= CCurrency::SelectBox("filter_base_currency", ($filter_base_currency ?? ''), GetMessage("curr_rates_all"), true, "", "") ?>
 		</td>
 	</tr>
-<?$adminFilter->Buttons(array(
+<?php
+$adminFilter->Buttons(array(
 	"table_id" => $adminListTableID,
 	"url" => $APPLICATION->GetCurPage(),
 	"form"=>"find_form"
 ));
 $adminFilter->End();?>
 </form>
-<?$adminList->DisplayList();
+<?php
+$adminList->DisplayList();
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

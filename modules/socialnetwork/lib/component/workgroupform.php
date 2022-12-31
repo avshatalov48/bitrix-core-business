@@ -160,7 +160,7 @@ class WorkgroupForm extends \CBitrixComponent
 		$currentAdmin = \CSocNetUser::isCurrentUserModuleAdmin();
 		$groupFields = \CSocNetGroup::getById($groupId);
 
-		$canUpdate = \Bitrix\Socialnetwork\Helper\Workgroup::canUpdate([
+		$canUpdate = \Bitrix\Socialnetwork\Helper\Workgroup\Access::canUpdate([
 			'groupId' => $groupId,
 		]);
 

@@ -4,3 +4,4 @@ $MESS["LANDING_FORM_SETTINGS_PANEL_CRM_SCHEME_CHANGE_CONFIRM_TEXT"] = "При в
 $MESS["LANDING_FORM_SETTINGS_PANEL_CRM_SCHEME_CHANGE_CONFIRM_TEXT_1"] = "При выборе {entityName} из значений полей по умолчанию будет удалено поле {fieldName}, так как его там нет.";
 $MESS["LANDING_FORM_SETTINGS_PANEL_CRM_ITEM_TEMPLATE"] = "«{text}»";
 $MESS["LANDING_FORM_SETTINGS_PANEL_CRM_CATEGORY_CHANGE_CONFIRM_TEXT"] = "При смене направления из значений полей по умолчанию будет удалено поле {fieldName}";
+$MESS["LANDING_FORM_SETTINGS_PANEL_CRM_CREATE_ORDER_MESSAGE_BOX_TITLE"] = 'В форме подключен прием платежей.<br><br>При отключении "Создать заказ" Клиент не сможет оплатить, после заполнения формы';

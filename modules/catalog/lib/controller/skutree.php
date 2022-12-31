@@ -20,6 +20,11 @@ class SkuTree extends JsonController
 					ActionFilter\Authentication::class,
 				],
 			],
+			'getIblockProperties' => [
+				'-prefilters' => [
+					ActionFilter\Authentication::class,
+				],
+			],
 		];
 	}
 	protected function getDefaultPreFilters()

@@ -1,5 +1,6 @@
 <?php
 $MESS["ADD_TO_BASKET_OK"] = "Item added to cart";
+$MESS["CP_BCS_TPL_MESS_PRODUCT_NOT_AVAILABLE_SERVICE"] = "Unavailable";
 $MESS["CT_BCS_CATALOG_BASKET_UNKNOWN_ERROR"] = "Unknown error adding an item to shopping cart";
 $MESS["CT_BCS_CATALOG_BTN_MESSAGE_BASKET_REDIRECT"] = "Go to shopping cart";
 $MESS["CT_BCS_CATALOG_BTN_MESSAGE_CLOSE"] = "Close";

@@ -37,7 +37,7 @@ if($arResult["PERMISSION"]>"R")
 	}
 
 	?><script type="text/javascript">
-		var window.arGDGroups = <?=CUtil::PhpToJSObject($arResult["GROUPS"])?>;
+		var arGDGroups = <?=CUtil::PhpToJSObject($arResult["GROUPS"])?>;
 		new BXGadget('<?=$arResult["ID"]?>', <?=CUtil::PhpToJSObject($allGD)?>);
 	</script>
 

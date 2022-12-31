@@ -33,16 +33,18 @@ class Webhook
 			$eventDictionaryResult = [];
 			foreach ($eventDictionary as $event)
 			{
-				$eventDictionaryResult[ToUpper($event['code'])] = $event;
+				$eventDictionaryResult[mb_strtoupper($event['code'])] = $event;
 			}
 			$eventList = CRestUtil::getEventList();
+			$eventDistinctId = [];
 			foreach ($eventList as $type => $events)
 			{
 				foreach ($events as $event)
 				{
-					if (array_key_exists($event, $eventDictionaryResult))
+					if (array_key_exists($event, $eventDictionaryResult) && !in_array(mb_strtoupper($event), $eventDistinctId))
 					{
-						$event = ToUpper($event);
+						$event = mb_strtoupper($event);
+						$eventDistinctId[] = $event;
 
 						$result[] = [
 							'id' => $event,

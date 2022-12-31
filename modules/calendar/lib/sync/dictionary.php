@@ -17,6 +17,7 @@ class Dictionary
 		'failed'    => 'failed',
 		'delete'    => 'delete',
 		'create'    => 'create',
+		'recreate' => 'recreate',
 		'update'    => 'update',
 		'next'      => 'next',
 		'parent'    => 'parent',
@@ -44,8 +45,11 @@ class Dictionary
 
 	public const SYNC_EVENT_ACTION = [
 		'create' => 'create',
+		'recreate' => 'recreate',
 		'update' => 'update',
 		'delete' => 'delete',
 		'success' => 'success',
 	];
+
+	public const FIRST_SYNC_FLAG_NAME = 'IsFirstSynchronization';
 }

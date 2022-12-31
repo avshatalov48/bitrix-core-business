@@ -1,4 +1,4 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
@@ -35,6 +35,7 @@ $enableRestrictedGroupsMode = ($adminSidePanelHelper->isPublicSidePanel()
 $presetManager = \Bitrix\Sale\Discount\Preset\Manager::getInstance();
 $presetManager->enableRestrictedGroupsMode($enableRestrictedGroupsMode);
 
+$preset = null;
 if(!empty($_GET['DISCOUNT_ID']))
 {
 	$discountId = $_GET['DISCOUNT_ID'];
@@ -136,13 +137,17 @@ $APPLICATION->SetTitle($preset->getTitle());
 		</div>
 	</div>
 	<div style="margin-top: 20px">
-		<? if($preset->hasPrevStep()){ ?>
-		<a href="javascript:  BX('__run_prev_step').value = 'Y';BX.submit(document.forms['__preset_form'])" style="margin-right: 10px;" class="adm-btn adm-btn-grey"><?= Loc::getMessage('SALE_DISCOUNT_PRESET_DETAIL_PREV_STEP') ?></a>
-		<? } ?>
-		<? if(!$preset->isLastStep()) {?>
-		<a href="javascript: BX.submit(document.forms['__preset_form'])" class="adm-btn adm-btn-grey"><?= Loc::getMessage('SALE_DISCOUNT_PRESET_DETAIL_NEXT_STEP') ?></a>
-		<?
-			} else {
+		<?php
+		if($preset->hasPrevStep())
+		{
+			?><a href="javascript:  BX('__run_prev_step').value = 'Y';BX.submit(document.forms['__preset_form'])" style="margin-right: 10px;" class="adm-btn adm-btn-grey"><?= Loc::getMessage('SALE_DISCOUNT_PRESET_DETAIL_PREV_STEP') ?></a><?php
+		}
+		if(!$preset->isLastStep())
+		{
+			?><a href="javascript: BX.submit(document.forms['__preset_form'])" class="adm-btn adm-btn-grey"><?= Loc::getMessage('SALE_DISCOUNT_PRESET_DETAIL_NEXT_STEP') ?></a><?php
+		}
+		else
+		{
 			$listDiscountLink = $selfFolderUrl.'sale_discount.php?' . http_build_query(array(
 					'from_list'=> 'preset',
 					'lang' => LANGUAGE_ID,
@@ -150,10 +155,10 @@ $APPLICATION->SetTitle($preset->getTitle());
 					'apply_filter' => 'Y'
 				));
 			$listDiscountLink = $adminSidePanelHelper->editUrlToPublicPage($listDiscountLink);
+			?><a href="<?= $listDiscountLink ?>" class="adm-btn adm-btn-grey" target="_top"><?= Loc::getMessage('SALE_DISCOUNT_PRESET_DETAIL_PRESET_DISCOUNT_GO_TO_LIST') ?></a><?php
+		}
 		?>
-		<a href="<?= $listDiscountLink ?>" class="adm-btn adm-btn-grey" target="_top"><?= Loc::getMessage('SALE_DISCOUNT_PRESET_DETAIL_PRESET_DISCOUNT_GO_TO_LIST') ?></a>
-		<? } ?>
 	</div>
 </div>
-<?
+<?php
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

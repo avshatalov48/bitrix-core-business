@@ -319,7 +319,7 @@ class Entity
 		{
 			// try to find ENTITY_ID by map
 			$userTypeManager = Main\Application::getUserTypeManager();
-			if($userTypeManager)
+			if($userTypeManager instanceof \CUserTypeManager)
 			{
 				$entityList = $userTypeManager->getEntityList();
 				$ufId = is_array($entityList) ? array_search($this->className, $entityList) : false;

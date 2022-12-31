@@ -29,6 +29,7 @@ class MailInvitationManager
 	public static function manageSendingInvitation($serializedSenders): void
 	{
 		$serializedSenders = str_replace("\'", "'", $serializedSenders);
+		$serializedSenders = \Bitrix\Main\Text\Emoji::decode($serializedSenders);
 		$sendersCollection = self::unserializeMailSendersBatch($serializedSenders);
 
 		if (!is_iterable($sendersCollection))
@@ -95,17 +96,27 @@ class MailInvitationManager
 	 */
 	public static function createAgentSent(array $sendersCollection): void
 	{
+		// TODO: it's better to avoid serialized data in the agent parameters, maybe use QueueManager here
 		$serializedData = str_replace("'", "\'", serialize($sendersCollection));
-//		$nextAgentDate = DateTime::createFromTimestamp(strtotime('now') + 10)->format(Date::convertFormatToPhp(FORMAT_DATETIME));
-		CAgent::addAgent(
-			"\\Bitrix\\Calendar\\ICal\\MailInvitation\\MailInvitationManager::manageSendingInvitation('" . $serializedData . "');",
-			"calendar",
-			"N",
-			0,
-			"",
-			"Y",
-			""
-		);
+		$agentName = "\\Bitrix\\Calendar\\ICal\\MailInvitation\\MailInvitationManager::manageSendingInvitation('"
+			. $serializedData
+			. "');";
+		$agentName = \Bitrix\Main\Text\Emoji::encode($agentName);
+
+		// Workaround to avoid deserialization bug like mantis#162578
+		// We need length in bytes not in symbols
+		if (strlen($agentName) < 65000)
+		{
+			CAgent::addAgent(
+				$agentName,
+				"calendar",
+				"N",
+				0,
+				"",
+				"Y",
+				""
+			);
+		}
 	}
 
 	/**

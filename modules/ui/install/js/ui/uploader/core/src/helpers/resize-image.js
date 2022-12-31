@@ -5,6 +5,7 @@ import createImagePreview from './create-image-preview';
 import renameFileToMatchMimeType from './rename-file-to-match-mime-type';
 import createFileFromBlob from './create-file-from-blob';
 import convertCanvasToBlob from './convert-canvas-to-blob';
+import { Browser } from 'main.core';
 
 type ResizeImageOptions = {
 	mode?: 'contain' | 'crop' | 'force',
@@ -14,14 +15,26 @@ type ResizeImageOptions = {
 	quality?: number,
 };
 
-const canCreateImageBitmap = (
+let canCreateImageBitmap = (
 	'createImageBitmap' in window
 	&& typeof ImageBitmap !== 'undefined'
 	&& ImageBitmap.prototype
 	&& ImageBitmap.prototype.close
 );
 
-const resizeImage = (file: File, options: ResizeImageOptions) => {
+if (canCreateImageBitmap && Browser.isSafari())
+{
+	const ua = navigator.userAgent.toLowerCase();
+	const regex = new RegExp('version\\/([0-9.]+)', 'i');
+	const result = regex.exec(ua);
+	if (result && result[1] && result[1] < '16.4')
+	{
+		// Webkit bug https://bugs.webkit.org/show_bug.cgi?id=223326
+		canCreateImageBitmap = false;
+	}
+}
+
+const resizeImage = async (file: File, options: ResizeImageOptions) => {
 	return new Promise((resolve, reject) => {
 		const loadImageDataFallback = () => {
 			loadImage(file)

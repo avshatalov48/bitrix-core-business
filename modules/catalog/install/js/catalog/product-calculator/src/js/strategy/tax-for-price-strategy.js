@@ -62,27 +62,7 @@ export class TaxForPriceStrategy
 
 	calculatePrice(value: number): FieldScheme
 	{
-		if (value < 0)
-		{
-			throw new Error('Price must be equal or greater than zero.')
-		}
-
-		const fieldStorage = this.getFieldStorage();
-		if (value >= fieldStorage.getBasePrice())
-		{
-			return this.calculateBasePrice(value);
-		}
-
-		this.clearResultPrices(fieldStorage);
-
-		if (fieldStorage.isTaxIncluded())
-		{
-			return this.calculateRowSum(value * fieldStorage.getQuantity());
-		}
-
-		const discount = fieldStorage.getBasePrice() - value;
-		fieldStorage.setField('DISCOUNT_TYPE_ID', DiscountType.MONETARY);
-		return this.calculateDiscount(discount, fieldStorage);
+		return this.calculateBasePrice(value);
 	}
 
 	calculateQuantity(value: number): FieldScheme

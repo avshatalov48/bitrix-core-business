@@ -4,6 +4,8 @@ use Bitrix\Main;
 
 class CBPTrackingService extends CBPRuntimeService
 {
+	protected const CLEAR_LOG_SELECT_LIMIT = 50000;
+	protected const CLEAR_LOG_DELETE_LIMIT = 1000;
 	protected $skipTypes = [];
 	protected $forcedModeWorkflows = [];
 	protected static $userGroupsCache = [];
@@ -373,7 +375,7 @@ class CBPTrackingService extends CBPRuntimeService
 
 	public static function clearOld($days = 0)
 	{
-		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
 
 		$days = intval($days);
 		if ($days <= 0)
@@ -382,14 +384,27 @@ class CBPTrackingService extends CBPRuntimeService
 		}
 
 		$completed = self::shouldClearCompletedTracksOnly() ? "= 'Y'" : "IN ('N', 'Y')";
+		$limit = static::CLEAR_LOG_SELECT_LIMIT;
+		$partLimit = static::CLEAR_LOG_DELETE_LIMIT;
 
-		$strSql = "DELETE t FROM b_bp_tracking t".
-			" WHERE t.COMPLETED {$completed} ".
-			" AND t.MODIFIED < DATE_SUB(NOW(), INTERVAL ".$days." DAY)".
-			" AND t.TYPE IN (0,1,2,3,4,5,7,8,9)";
-		$bSuccess = $DB->Query($strSql, true);
+		$strSql = "SELECT ID FROM b_bp_tracking t WHERE t.COMPLETED {$completed} "
+			. " AND t.MODIFIED < DATE_SUB(NOW(), INTERVAL " . $days . " DAY)"
+			. " AND t.TYPE IN (0,1,2,3,4,5,7,8,9) LIMIT {$limit}"
+		;
 
-		return $bSuccess;
+		$ids = $connection->query($strSql)->fetchAll();
+
+		while ($partIds = array_splice($ids, 0, $partLimit))
+		{
+			$connection->query(
+				sprintf(
+					'DELETE from b_bp_tracking WHERE ID IN(%s)',
+					implode(',', array_column($partIds, 'ID'))
+				)
+			);
+		}
+
+		return true;
 	}
 
 	private function cutLogSize(string $workflowId, int $size): bool

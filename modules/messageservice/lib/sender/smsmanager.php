@@ -7,6 +7,7 @@ use Bitrix\Main\EventResult;
 use Bitrix\MessageService\Internal\Entity\MessageTable;
 use Bitrix\MessageService\Message;
 use Bitrix\MessageService\MessageType;
+use Bitrix\Main\ORM\Data\AddResult;
 
 class SmsManager
 {
@@ -216,6 +217,26 @@ class SmsManager
 	}
 
 	/**
+	 * @return BaseConfigurable[]
+	 */
+	public static function getRegisteredSenderList(): array
+	{
+		$senderList = [];
+		foreach (static::getSenders() as $sender)
+		{
+			if (
+				$sender instanceof BaseConfigurable
+				&& $sender->isRegistered()
+			)
+			{
+				$senderList[] = $sender;
+			}
+		}
+
+		return $senderList;
+	}
+
+	/**
 	 * @param array $messageFields
 	 * @param Base|null $sender
 	 * @return Message
@@ -226,6 +247,12 @@ class SmsManager
 		if (!$sender && !isset($messageFields['SENDER_ID']))
 		{
 			$sender = static::getUsableSender();
+		}
+
+		if ($sender === null)
+		{
+			$message = new Message($sender);
+			$message->setError(new Main\Error('There are no registered SMS providers.'));
 		}
 
 		if (isset($messageFields['MESSAGE_TO']))
@@ -288,12 +315,26 @@ class SmsManager
 	/**
 	 * @param array $messageFields
 	 * @param Base|null $sender
-	 * @return Main\Entity\AddResult
+	 * @return AddResult
 	 * @throws Main\ArgumentTypeException
 	 */
 	public static function sendMessage(array $messageFields, Base $sender = null)
 	{
+		if (!$sender && isset($messageFields['SENDER_ID']))
+		{
+			$sender = static::getSenderById($messageFields['SENDER_ID']);
+
+			if ($sender === null)
+			{
+				(new AddResult())->addError(new Main\Error('Incorrect sender id.'));
+			}
+		}
 		$message = static::createMessage($messageFields, $sender);
+
+		if ($message->getError() !== null)
+		{
+			return (new AddResult())->addError($message->getError());
+		}
 
 		$result = $message->send();
 

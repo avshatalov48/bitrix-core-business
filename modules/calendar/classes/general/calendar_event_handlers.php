@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Calendar\UserSettings;
+
 IncludeModuleLangFile(__FILE__);
 
 /*
@@ -298,13 +301,19 @@ class CCalendarEventHandlers
 		global $USER;
 		$today = ConvertTimeStamp(time()+CTimeZone::GetOffset(), 'SHORT');
 		$userId = $USER->GetID();
+		$userSettings = UserSettings::get($userId);
+		$reminderList = $userSettings['defaultReminders']['withTime'];
 		$data = [
 			'CAL_TYPE' => 'user',
 			'OWNER_ID' => $USER->GetID(),
 			'NAME' => $arParams['NAME'],
 			'DT_FROM' => self::MakeDateTime($today, $arParams['FROM']),
 			'DT_TO' => self::MakeDateTime($today, $arParams['TO']),
-			'SECTIONS' => CCalendar::GetMeetingSection($userId, true)
+			'SECTIONS' => CCalendar::GetMeetingSection($userId, true),
+			'ATTENDEES_CODES' => ['U' . $userId],
+			'ATTENDEES' => [$userId],
+			'MEETING_HOST' => $userId,
+			'REMIND' => $reminderList,
 		];
 
 		if ($arParams['ABSENCE'] == 'Y')

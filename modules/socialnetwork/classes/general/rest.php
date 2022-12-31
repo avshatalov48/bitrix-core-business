@@ -1767,6 +1767,7 @@ class CSocNetLogRestService extends IRestService
 
 		if (!\Bitrix\Socialnetwork\Helper\Workgroup::canCreate([
 			'siteId' => $siteIdForCheck,
+			'checkAdminSession' => false,
 		]))
 		{
 			throw new AccessDeniedException('You have no permissions to create a group');
@@ -1943,7 +1944,7 @@ class CSocNetLogRestService extends IRestService
 			throw new ArgumentException('Wrong group ID');
 		}
 
-		if (!Workgroup::canUpdate([
+		if (!Workgroup\Access::canUpdate([
 			'groupId' => $groupID,
 			'checkAdminSession' => false,
 		]))

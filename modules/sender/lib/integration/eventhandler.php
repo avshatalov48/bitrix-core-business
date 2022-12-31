@@ -263,6 +263,7 @@ class EventHandler
 		{
 			$adsList = array(
 				'Bitrix\Sender\Integration\Seo\Ads\MessageYa',
+				\Bitrix\Sender\Integration\Seo\Ads\MessageLookalikeYandex::class,
 				'Bitrix\Sender\Integration\Seo\Ads\MessageGa',
 				'Bitrix\Sender\Integration\Seo\Ads\MessageVk',
 				'Bitrix\Sender\Integration\Seo\Ads\MessageFb',
@@ -326,6 +327,7 @@ class EventHandler
 	{
 		$list = [];
 		$list[] = 'Bitrix\Sender\Integration\Sender\Mail\ConsentResponseMail';
+		$list[] = 'Bitrix\Sender\Integration\Sender\Mail\TestConsentResponseMail';
 		return $list;
 	}
 	/**
@@ -373,6 +375,7 @@ class EventHandler
 			$list[] = 'Bitrix\Sender\Integration\Seo\Ads\TransportMarketingInstagram';
 			$list[] = 'Bitrix\Sender\Integration\Seo\Ads\TransportLookalikeVk';
 			$list[] = 'Bitrix\Sender\Integration\Seo\Ads\TransportLookalikeFb';
+			$list[] = \Bitrix\Sender\Integration\Seo\Ads\TransportLookalikeYandex::class;
 		}
 
 		// Return Customer

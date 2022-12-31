@@ -1603,30 +1603,31 @@ class CSaleExport
 
 					$shipmentItemCollection = $shipment->getShipmentItemCollection();
 
-					/** @var ShipmentItem $shipmentItem */
+					/** @var \Bitrix\Sale\ShipmentItem $shipmentItem */
 					foreach ($shipmentItemCollection as $shipmentItem)
 					{
-						if($shipmentItem->getId() == $shipmentItemId)
+						if ($shipmentItem->getId() == $shipmentItemId)
 						{
 							$basketItem = $shipmentItem->getBasketItem();
 							if ($basketItem->isSupportedMarkingCode())
-							{								
+							{
 								$storeCollection = $shipmentItem->getShipmentItemStoreCollection();
-								
+
 								for ($i = $shipmentItem->getQuantity(); $i > 0; $i--)
 								{
-									$markingCode = '';
-
-									/** @var ShipmentItemStore $itemStore */
-									if ($itemStore = $storeCollection->current())
+									if ($storeCollection)
 									{
-										$code = $itemStore->getMarkingCode();
-										if($code <> '')
+										/** @var \Bitrix\Sale\ShipmentItemStore $itemStore */
+										if ($itemStore = $storeCollection->current())
 										{
-											$list[] = $code;
-										}											
-										
-										$storeCollection->next();
+											$code = $itemStore->getMarkingCode();
+											if($code <> '')
+											{
+												$list[] = $code;
+											}
+
+											$storeCollection->next();
+										}
 									}
 								}
 							}

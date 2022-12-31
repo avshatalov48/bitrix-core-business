@@ -40,9 +40,11 @@
                     <h4 class="landing-block-node-title text-uppercase g-font-weight-700 mb-0">Simone Gomez</h4>
                     <div class="landing-block-node-subtitle text-uppercase g-font-style-normal g-font-weight-700 g-font-size-10">
 						Anderson industry</div>
-                    <blockquote class="landing-block-node-text u-blockquote-v7 g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
-                        vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
-                    </blockquote>
+					<div class="landing-block-node-text u-blockquote-v7">
+						<blockquote class="g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
+							vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
+						</blockquote>
+					</div>
                 </div>
             </div>
 
@@ -53,9 +55,11 @@
                     <h4 class="landing-block-node-title text-uppercase g-font-weight-700 mb-0">Carla Harris</h4>
                     <div class="landing-block-node-subtitle text-uppercase g-font-style-normal g-font-weight-700 g-font-size-10">
 						HNN consultation corp</div>
-                    <blockquote class="landing-block-node-text u-blockquote-v7 g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
-                        vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
-                    </blockquote>
+					<div class="landing-block-node-text u-blockquote-v7">
+						<blockquote class="g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
+							vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
+						</blockquote>
+					</div>
                 </div>
             </div>
 
@@ -66,9 +70,11 @@
                     <h4 class="landing-block-node-title text-uppercase g-font-weight-700 mb-0">Dianna Kimwealth</h4>
                     <div class="landing-block-node-subtitle text-uppercase g-font-style-normal g-font-weight-700 g-font-size-10">
 						Robo construction</div>
-                    <blockquote class="landing-block-node-text u-blockquote-v7 g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
-                        vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
-                    </blockquote>
+					<div class="landing-block-node-text u-blockquote-v7">
+						<blockquote class="g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
+							vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
+						</blockquote>
+					</div>
                 </div>
             </div>
 
@@ -79,9 +85,11 @@
                     <h4 class="landing-block-node-title text-uppercase g-font-weight-700 mb-0">John Wellberg</h4>
                     <div class="landing-block-node-subtitle text-uppercase g-font-style-normal g-font-weight-700 g-font-size-10">
 						Solid iron corp</div>
-                    <blockquote class="landing-block-node-text u-blockquote-v7 g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
-                        vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
-                    </blockquote>
+					<div class="landing-block-node-text u-blockquote-v7">
+						<blockquote class="g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
+							vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
+						</blockquote>
+					</div>
                 </div>
             </div>
 
@@ -92,9 +100,11 @@
                     <h4 class="landing-block-node-title text-uppercase g-font-weight-700 mb-0">Sarah Rahman</h4>
                     <div class="landing-block-node-subtitle text-uppercase g-font-style-normal g-font-weight-700 g-font-size-10">
 						South Conton architecture</div>
-                    <blockquote class="landing-block-node-text u-blockquote-v7 g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
-                        vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
-                    </blockquote>
+					<div class="landing-block-node-text u-blockquote-v7">
+						<blockquote class="g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
+							vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
+						</blockquote>
+					</div>
                 </div>
             </div>
 
@@ -106,9 +116,11 @@
                     <div class="landing-block-node-subtitle text-uppercase g-font-style-normal g-font-weight-700 g-font-size-10">
 						Fineman construction company
 					</div>
-                    <blockquote class="landing-block-node-text u-blockquote-v7 g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
-                        vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
-                    </blockquote>
+					<div class="landing-block-node-text u-blockquote-v7">
+						<blockquote class="g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
+							vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
+						</blockquote>
+					</div>
                 </div>
             </div>
 
@@ -119,9 +131,11 @@
                     <h4 class="landing-block-node-title text-uppercase g-font-weight-700 mb-0">William Mountcon</h4>
                     <div class="landing-block-node-subtitle text-uppercase g-font-style-normal g-font-weight-700 g-font-size-10">
 						Mountcon brothers</div>
-                    <blockquote class="landing-block-node-text u-blockquote-v7 g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
-                        vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
-                    </blockquote>
+					<div class="landing-block-node-text u-blockquote-v7">
+						<blockquote class="g-line-height-1_5 g-bg-primary--before mb-0">Mauris sodales tellus vel felis dapibus, sit amet porta nibh egestas. Sed dignissim tellus quis sapien sagittis cursus. At
+							vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis.
+						</blockquote>
+					</div>
                 </div>
             </div>
 			

@@ -26,25 +26,39 @@ import type { UploaderFileOptions } from './types/uploader-file-options';
 
 export default class Uploader extends EventEmitter
 {
-	files: UploaderFile[] = [];
-	multiple: boolean = false;
-	autoUpload: boolean = true;
-	allowReplaceSingle: boolean = true;
-	maxParallelUploads: number = 2;
-	maxParallelLoads: number = 10;
-	acceptOnlyImages: boolean = false;
-	acceptedFileTypes: string[] = [];
-	ignoredFileNames: string[] = ['.ds_store', 'thumbs.db', 'desktop.ini'];
-	maxFileCount: ?number = null;
-	server: Server = null;
+	#files: UploaderFile[] = [];
+	#multiple: boolean = false;
+	#autoUpload: boolean = true;
+	#allowReplaceSingle: boolean = true;
+	#maxParallelUploads: number = 2;
+	#maxParallelLoads: number = 10;
+	#acceptOnlyImages: boolean = false;
+	#acceptedFileTypes: string[] = [];
+	#ignoredFileNames: string[] = ['.ds_store', 'thumbs.db', 'desktop.ini'];
+	#maxFileCount: ?number = null;
+	#server: Server = null;
 
-	hiddenFields: Map<string, HTMLInputElement> = new Map();
-	hiddenFieldsContainer: HTMLElement = null;
-	hiddenFieldName: string = 'file';
-	assignAsFile: boolean = false;
+	#hiddenFields: Map<string, HTMLInputElement> = new Map();
+	#hiddenFieldsContainer: HTMLElement = null;
+	#hiddenFieldName: string = 'file';
+	#assignAsFile: boolean = false;
 
-	filters: Map<FilterType, Filter[]> = new Map();
-	status: UploaderStatus = UploaderStatus.STOPPED;
+	#filters: Map<FilterType, Filter[]> = new Map();
+	#status: UploaderStatus = UploaderStatus.STOPPED;
+
+	#onBeforeUploadHandler: Function = null;
+	#onPrepareFileAsyncHandler: Function = null;
+	#onUploadStartHandler: Function = null;
+	#onFileCancelHandler: Function = null;
+	#onFileStatusChangeHandler: Function = null;
+	#onFileStateChangeHandler: Function = null;
+	#onInputFileChangeHandler: Function = null;
+	#onPasteHandler: Function = null;
+	#onDropHandler: Function = null;
+
+	#browsingNodes: Map<HTMLElement, ?Function> = new Map();
+	#dropNodes: Set<HTMLElement> = new Set();
+	#pastingNodes: Set<HTMLElement> = new Set();
 
 	constructor(uploaderOptions: UploaderOptions)
 	{
@@ -53,14 +67,24 @@ export default class Uploader extends EventEmitter
 
 		const options = Type.isPlainObject(uploaderOptions) ? Object.assign({}, uploaderOptions) : {};
 
-		this.multiple = Type.isBoolean(options.multiple) ? options.multiple : false;
-		this.acceptOnlyImages = Type.isBoolean(options.acceptOnlyImages) ? options.acceptOnlyImages : false;
+		this.#multiple = Type.isBoolean(options.multiple) ? options.multiple : false;
+		this.#acceptOnlyImages = Type.isBoolean(options.acceptOnlyImages) ? options.acceptOnlyImages : false;
+
+		this.#onBeforeUploadHandler = this.#handleBeforeUpload.bind(this);
+		this.#onPrepareFileAsyncHandler = this.#handlePrepareFileAsync.bind(this);
+		this.#onUploadStartHandler = this.#handleUploadStart.bind(this);
+		this.#onFileCancelHandler = this.#handleFileCancel.bind(this);
+		this.#onFileStatusChangeHandler = this.#handleFileStatusChange.bind(this);
+		this.#onFileStateChangeHandler = this.#handleFileStateChange.bind(this);
+		this.#onInputFileChangeHandler = this.#handleInputFileChange.bind(this);
+		this.#onPasteHandler = this.#handlePaste.bind(this);
+		this.#onDropHandler = this.#handleDrop.bind(this);
 
 		this.setAutoUpload(options.autoUpload);
 		this.setMaxParallelUploads(options.maxParallelUploads);
 		this.setMaxParallelLoads(options.maxParallelLoads);
 
-		if (this.acceptOnlyImages)
+		if (this.#acceptOnlyImages)
 		{
 			const settings = Extension.getSettings('ui.uploader.core');
 			const imageExtensions = settings.get('imageExtensions', 'jpg,bmp,jpeg,jpe,gif,png,webp');
@@ -87,7 +111,7 @@ export default class Uploader extends EventEmitter
 			serverOptions
 		);
 
-		this.server = new Server(serverOptions);
+		this.#server = new Server(serverOptions);
 
 		this.subscribeFromOptions(options.events);
 
@@ -97,13 +121,6 @@ export default class Uploader extends EventEmitter
 		this.addFilter(FilterType.VALIDATION, new ImagePreviewFilter(this, options));
 		this.addFilter(FilterType.PREPARATION, new TransformImageFilter(this, options));
 		this.addFilters(options.filters);
-
-		this.handleBeforeUpload = this.handleBeforeUpload.bind(this);
-		this.handlePrepareFileAsync = this.handlePrepareFileAsync.bind(this);
-		this.handleUploadStart = this.handleBeforeUpload.bind(this);
-		this.handleFileCancel = this.handleFileCancel.bind(this);
-		this.handleFileStatusChange = this.handleFileStatusChange.bind(this);
-		this.handleFileStateChange = this.handleFileStateChange.bind(this);
 
 		this.addFiles(options.files);
 	}
@@ -147,9 +164,9 @@ export default class Uploader extends EventEmitter
 			return;
 		}
 
-		if (!this.isMultiple() && this.shouldReplaceSingle() && this.getFiles().length > 0)
+		if (!this.isMultiple() && this.shouldReplaceSingle() && this.#files.length > 0)
 		{
-			const fileToReplace: UploaderFile = this.getFiles()[0];
+			const fileToReplace: UploaderFile = this.#files[0];
 			this.removeFile(fileToReplace);
 		}
 
@@ -163,17 +180,17 @@ export default class Uploader extends EventEmitter
 		this.#setLoadController(file);
 		this.#setUploadController(file);
 
-		this.files.push(file);
+		this.#files.push(file);
 		file.setStatus(FileStatus.ADDED);
 
 		this.emit('File:onAddStart', { file });
 
-		file.subscribe('onBeforeUpload', this.handleBeforeUpload);
-		file.subscribe('onPrepareFileAsync', this.handlePrepareFileAsync);
-		file.subscribe('onUploadStart', this.handleUploadStart);
-		file.subscribe('onCancel', this.handleFileCancel);
-		file.subscribe('onStatusChange', this.handleFileStatusChange);
-		file.subscribe('onStateChange', this.handleFileStateChange);
+		file.subscribe('onBeforeUpload', this.#onBeforeUploadHandler);
+		file.subscribe('onPrepareFileAsync', this.#onPrepareFileAsyncHandler);
+		file.subscribe('onUploadStart', this.#onUploadStartHandler);
+		file.subscribe('onCancel', this.#onFileCancelHandler);
+		file.subscribe('onStatusChange', this.#onFileStatusChangeHandler);
+		file.subscribe('onStateChange', this.#onFileStateChangeHandler);
 
 		if (file.getOrigin() === FileOrigin.SERVER)
 		{
@@ -195,8 +212,11 @@ export default class Uploader extends EventEmitter
 
 		loadController.subscribeFromOptions({
 			'onError': (event: BaseEvent) => {
+				const { error } = event.getData();
+				file.addError(error);
 				file.setStatus(FileStatus.LOAD_FAILED);
-				this.emit('File:onError', { file, error: event.getData().error });
+				this.emit('File:onError', { file, error });
+
 				this.#loadNext();
 			},
 			'onAbort': (event: BaseEvent) => {
@@ -254,6 +274,7 @@ export default class Uploader extends EventEmitter
 						this.#loadNext();
 					})
 					.catch(error => {
+						file.addError(error);
 						file.setStatus(FileStatus.LOAD_FAILED);
 						this.emit('File:onError', { file, error });
 						this.emit('File:onAdd', { file, error });
@@ -276,8 +297,10 @@ export default class Uploader extends EventEmitter
 
 		uploadController.subscribeFromOptions({
 			'onError': (event: BaseEvent) => {
+				const { error } = event.getData();
+				file.addError(error);
 				file.setStatus(FileStatus.UPLOAD_FAILED);
-				this.emit('File:onError', { file, error: event.getData().error });
+				this.emit('File:onError', { file, error });
 				this.#uploadNext();
 			},
 			'onAbort': (event: BaseEvent) => {
@@ -286,7 +309,9 @@ export default class Uploader extends EventEmitter
 				this.#uploadNext();
 			},
 			'onProgress': (event: BaseEvent) => {
-				this.emit('File:onUploadProgress', { file, progress: event.getData().progress });
+				const { progress } = event.getData();
+				file.setProgress(progress);
+				this.emit('File:onUploadProgress', { file, progress });
 			},
 			'onUpload': (event: BaseEvent) => {
 				file.setStatus(FileStatus.COMPLETE);
@@ -305,7 +330,7 @@ export default class Uploader extends EventEmitter
 	#exceedsMaxFileCount(fileList: Array): boolean
 	{
 		const totalNewFiles = fileList.length;
-		const totalFiles = this.getFiles().length;
+		const totalFiles = this.#files.length;
 
 		if (!this.isMultiple() && totalNewFiles > 1)
 		{
@@ -337,7 +362,7 @@ export default class Uploader extends EventEmitter
 	#applyFilters(type: FilterType, ...args): Promise
 	{
 		return new Promise((resolve, reject) => {
-			const filters = [...(this.filters.get(type) || [])];
+			const filters = [...(this.#filters.get(type) || [])];
 			if (filters.length === 0)
 			{
 				resolve();
@@ -364,7 +389,7 @@ export default class Uploader extends EventEmitter
 	{
 		if (this.getStatus() !== UploaderStatus.STARTED && this.getPendingFileCount() > 0)
 		{
-			this.status = UploaderStatus.STARTED;
+			this.#status = UploaderStatus.STARTED;
 			this.emit('onUploadStart');
 			this.#uploadNext();
 		}
@@ -372,9 +397,9 @@ export default class Uploader extends EventEmitter
 
 	stop(): void
 	{
-		this.status = UploaderStatus.STOPPED;
+		this.#status = UploaderStatus.STOPPED;
 
-		this.getFiles().forEach((file: UploaderFile) => {
+		this.#files.forEach((file: UploaderFile) => {
 			if (file.isUploading())
 			{
 				file.abort();
@@ -387,7 +412,7 @@ export default class Uploader extends EventEmitter
 
 	cancel(): void
 	{
-		this.getFiles().forEach((file: UploaderFile) => {
+		this.#files.forEach((file: UploaderFile) => {
 			file.cancel();
 		});
 	}
@@ -396,21 +421,20 @@ export default class Uploader extends EventEmitter
 	{
 		this.emit('onDestroy');
 
-		// TODO
-		// unassignBrowse
-		// unassignDrop
+		this.unassignBrowseAll();
+		this.unassignDropzoneAll();
+		this.unassignPasteAll();
 
-		this.getFiles().forEach((file: UploaderFile) => {
+		this.#files.forEach((file: UploaderFile) => {
 			file.cancel();
 		});
 
-		for (const property in this)
-		{
-			if (this.hasOwnProperty(property))
-			{
-				delete this[property];
-			}
-		}
+		this.#files = [];
+		this.#server = null;
+		this.#acceptedFileTypes = null;
+		this.#ignoredFileNames = null;
+		this.#filters = null;
+		// #hiddenFields
 
 		Object.setPrototypeOf(this, null);
 	}
@@ -422,10 +446,10 @@ export default class Uploader extends EventEmitter
 			file = this.getFile(file);
 		}
 
-		const index = this.files.findIndex(element => element === file);
+		const index = this.#files.findIndex(element => element === file);
 		if (index >= 0)
 		{
-			this.files.splice(index, 1);
+			this.#files.splice(index, 1);
 
 			file.abort();
 			file.setStatus(FileStatus.INIT);
@@ -437,22 +461,22 @@ export default class Uploader extends EventEmitter
 
 	getFile(id: string): ?UploaderFile
 	{
-		return this.getFiles().find((file: UploaderFile) => file.getId() === id) || null;
+		return this.#files.find((file: UploaderFile) => file.getId() === id) || null;
 	}
 
 	getFiles(): UploaderFile[]
 	{
-		return this.files;
+		return Array.from(this.#files);
 	}
 
 	isMultiple(): boolean
 	{
-		return this.multiple;
+		return this.#multiple;
 	}
 
 	getStatus(): UploaderStatus
 	{
-		return this.status;
+		return this.#status;
 	}
 
 	addFilter(type: FilterType, filter: Filter | Function | string, filterOptions: { [key: string]: any } = {}): void
@@ -468,11 +492,11 @@ export default class Uploader extends EventEmitter
 
 		if (filter instanceof Filter)
 		{
-			let filters = this.filters.get(type);
+			let filters = this.#filters.get(type);
 			if (!Type.isArray(filters))
 			{
 				filters = [];
-				this.filters.set(type, filters);
+				this.#filters.set(type, filters);
 			}
 
 			filters.push(filter);
@@ -498,7 +522,7 @@ export default class Uploader extends EventEmitter
 
 	getServer(): Server
 	{
-		return this.server;
+		return this.#server;
 	}
 
 	assignBrowse(nodes: HTMLElement | HTMLElement[]): void
@@ -510,7 +534,7 @@ export default class Uploader extends EventEmitter
 		}
 
 		nodes.forEach((node: HTMLElement | HTMLInputElement) => {
-			if (!Type.isElementNode(node))
+			if (!Type.isElementNode(node) || this.#browsingNodes.has(node))
 			{
 				return;
 			}
@@ -521,7 +545,7 @@ export default class Uploader extends EventEmitter
 				input = node;
 
 				// Add already selected files
-				if (input.files)
+				if (input.files && input.files.length)
 				{
 					this.addFiles(input.files);
 				}
@@ -531,15 +555,17 @@ export default class Uploader extends EventEmitter
 				{
 					this.setAcceptedFileTypes(acceptAttr);
 				}
+
+				this.#browsingNodes.set(node, null);
 			}
 			else
 			{
 				input = document.createElement('input');
 				input.setAttribute('type', 'file');
 
-				Event.bind(node, 'click', () => {
-					input.click();
-				});
+				const onBrowseClickHandler = this.#handleBrowseClick.bind(this, input, node);
+				this.#browsingNodes.set(node, onBrowseClickHandler);
+				Event.bind(node, 'click', onBrowseClickHandler);
 			}
 
 			if (this.isMultiple())
@@ -552,12 +578,54 @@ export default class Uploader extends EventEmitter
 				input.setAttribute('accept', this.getAcceptedFileTypes().join(','));
 			}
 
-			Event.bind(input, 'change', () => {
-				this.addFiles(Array.from(input.files));
+			Event.bind(input, 'change', this.#onInputFileChangeHandler);
+		});
+	}
 
-				// reset file input
-				input.value = '';
-			});
+	#handleBrowseClick(input: HTMLInputElement, node: HTMLElement): void
+	{
+		const event = new BaseEvent({ data: { input, node } });
+		this.emit('onBeforeBrowse', event);
+		if (event.isDefaultPrevented())
+		{
+			return;
+		}
+
+		input.click();
+	}
+
+	#handleInputFileChange(event: Event): void
+	{
+		const input = event.currentTarget;
+
+		this.addFiles(Array.from(input.files));
+
+		// reset file input
+		input.value = '';
+	}
+
+	unassignBrowse(nodes: HTMLElement | HTMLElement[]): void
+	{
+		nodes = Type.isElementNode(nodes) ? [nodes] : nodes;
+		if (!Type.isArray(nodes))
+		{
+			return;
+		}
+
+		nodes.forEach((node: HTMLElement | HTMLInputElement) => {
+			if (this.#browsingNodes.has(node))
+			{
+				Event.unbind(node, 'click', this.#browsingNodes.get(node));
+				Event.unbind(node, 'change', this.#onInputFileChangeHandler);
+				this.#browsingNodes.delete(node);
+			}
+		});
+	}
+
+	unassignBrowseAll(): void
+	{
+		Array.from(this.#browsingNodes.keys()).forEach(node => {
+			this.unassignBrowse(node);
 		});
 	}
 
@@ -570,26 +638,63 @@ export default class Uploader extends EventEmitter
 		}
 
 		nodes.forEach((node: HTMLElement) => {
-			if (!Type.isElementNode(node))
+			if (!Type.isElementNode(node) || this.#dropNodes.has(node))
 			{
 				return;
 			}
 
-			Event.bind(node, 'dragover', (event: DragEvent) => {
-				event.preventDefault();
-			});
+			Event.bind(node, 'dragover', this.#preventDefault);
+			Event.bind(node, 'dragenter', this.#preventDefault);
+			Event.bind(node, 'drop', this.#onDropHandler);
 
-			Event.bind(node, 'dragenter', (event: DragEvent) => {
-				event.preventDefault();
-			});
+			this.#dropNodes.add(node);
+		});
+	}
 
-			Event.bind(node, 'drop', (event: DragEvent) => {
-				event.preventDefault();
+	#handleDrop(dragEvent: DragEvent): void
+	{
+		dragEvent.preventDefault();
 
-				getFilesFromDataTransfer(event.dataTransfer).then((files: File[]) => {
-					this.addFiles(files);
-				});
-			});
+		const event = new BaseEvent({ data: { dragEvent } });
+		this.emit('onBeforeDrop', event);
+		if (event.isDefaultPrevented())
+		{
+			return;
+		}
+
+		getFilesFromDataTransfer(dragEvent.dataTransfer).then((files: File[]) => {
+			this.addFiles(files);
+		});
+	}
+
+	#preventDefault(event: DragEvent): void
+	{
+		event.preventDefault();
+	}
+
+	unassignDropzone(nodes: HTMLElement | HTMLElement[]): void
+	{
+		nodes = Type.isElementNode(nodes) ? [nodes] : nodes;
+		if (!Type.isArray(nodes))
+		{
+			return;
+		}
+
+		nodes.forEach((node: HTMLElement) => {
+			if (this.#dropNodes.has(node))
+			{
+				Event.unbind(node, 'dragover', this.#preventDefault);
+				Event.unbind(node, 'dragenter', this.#preventDefault);
+				Event.unbind(node, 'drop', this.#onDropHandler);
+				this.#dropNodes.delete(node);
+			}
+		});
+	}
+
+	unassignDropzoneAll(): void
+	{
+		Array.from(this.#dropNodes).forEach(node => {
+			this.unassignDropzone(node);
 		});
 	}
 
@@ -602,37 +707,72 @@ export default class Uploader extends EventEmitter
 		}
 
 		nodes.forEach((node: HTMLElement) => {
-			if (!Type.isElementNode(node))
+			if (!Type.isElementNode(node) || this.#pastingNodes.has(node))
 			{
 				return;
 			}
 
-			Event.bind(node, 'paste', (event: ClipboardEvent) => {
-				event.preventDefault();
+			Event.bind(node, 'paste', this.#onPasteHandler);
+			this.#pastingNodes.add(node);
+		});
+	}
 
-				const clipboardData: DataTransfer = event.clipboardData;
-				if (!clipboardData)
-				{
-					return;
-				}
+	#handlePaste(clipboardEvent: ClipboardEvent): void
+	{
+		clipboardEvent.preventDefault();
 
-				getFilesFromDataTransfer(clipboardData).then((files: File[]) => {
-					this.addFiles(files);
-				});
-			});
+		const clipboardData: DataTransfer = clipboardEvent.clipboardData;
+		if (!clipboardData)
+		{
+			return;
+		}
+
+		const event = new BaseEvent({ data: { clipboardEvent } });
+		this.emit('onBeforePaste', event);
+		if (event.isDefaultPrevented())
+		{
+			return;
+		}
+
+		getFilesFromDataTransfer(clipboardData).then((files: File[]) => {
+			this.addFiles(files);
+		});
+	}
+
+	unassignPaste(nodes: HTMLElement | HTMLElement[]): void
+	{
+		nodes = Type.isElementNode(nodes) ? [nodes] : nodes;
+		if (!Type.isArray(nodes))
+		{
+			return;
+		}
+
+		nodes.forEach((node: HTMLElement) => {
+			if (this.#pastingNodes.has(node))
+			{
+				Event.unbind(node, 'paste', this.#onPasteHandler);
+				this.#pastingNodes.delete(node);
+			}
+		});
+	}
+
+	unassignPasteAll(): void
+	{
+		Array.from(this.#pastingNodes).forEach(node => {
+			this.unassignPaste(node);
 		});
 	}
 
 	getHiddenFieldsContainer(): ?HTMLElement
 	{
 		let element = null;
-		if (Type.isStringFilled(this.hiddenFieldsContainer))
+		if (Type.isStringFilled(this.#hiddenFieldsContainer))
 		{
-			element = document.querySelector(this.hiddenFieldsContainer);
+			element = document.querySelector(this.#hiddenFieldsContainer);
 		}
-		else if (Type.isElementNode(this.hiddenFieldsContainer))
+		else if (Type.isElementNode(this.#hiddenFieldsContainer))
 		{
-			element = this.hiddenFieldsContainer;
+			element = this.#hiddenFieldsContainer;
 		}
 
 		return element;
@@ -642,100 +782,100 @@ export default class Uploader extends EventEmitter
 	{
 		if (Type.isStringFilled(container) || Type.isElementNode(container) || Type.isNull(container))
 		{
-			this.hiddenFieldsContainer = container;
+			this.#hiddenFieldsContainer = container;
 		}
 	}
 
 	getHiddenFieldName(): string
 	{
-		return this.hiddenFieldName;
+		return this.#hiddenFieldName;
 	}
 
 	setHiddenFieldName(name: string)
 	{
 		if (Type.isStringFilled(name))
 		{
-			this.hiddenFieldName = name;
+			this.#hiddenFieldName = name;
 		}
 	}
 
 	shouldAssignAsFile(): boolean
 	{
-		return this.assignAsFile;
+		return this.#assignAsFile;
 	}
 
 	setAssignAsFile(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
 		{
-			this.assignAsFile = flag;
+			this.#assignAsFile = flag;
 		}
 	}
 
 	getTotalSize(): number
 	{
-		return this.getFiles().reduce((totalSize: number, file: UploaderFile) => {
+		return this.#files.reduce((totalSize: number, file: UploaderFile) => {
 			return totalSize + file.getSize();
 		}, 0);
 	}
 
 	shouldAutoUpload(): boolean
 	{
-		return this.autoUpload;
+		return this.#autoUpload;
 	}
 
 	setAutoUpload(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
 		{
-			this.autoUpload = flag;
+			this.#autoUpload = flag;
 		}
 	}
 
 	getMaxParallelUploads(): number
 	{
-		return this.maxParallelUploads;
+		return this.#maxParallelUploads;
 	}
 
 	setMaxParallelUploads(number: number): void
 	{
 		if (Type.isNumber(number) && number > 0)
 		{
-			this.maxParallelUploads = number;
+			this.#maxParallelUploads = number;
 		}
 	}
 
 	getMaxParallelLoads(): number
 	{
-		return this.maxParallelLoads;
+		return this.#maxParallelLoads;
 	}
 
 	setMaxParallelLoads(number: number): void
 	{
 		if (Type.isNumber(number) && number > 0)
 		{
-			this.maxParallelLoads = number;
+			this.#maxParallelLoads = number;
 		}
 	}
 
 	getUploadingFileCount(): number
 	{
-		return this.getFiles().filter(file => file.isUploading()).length;
+		return this.#files.filter(file => file.isUploading()).length;
 	}
 
 	getPendingFileCount(): number
 	{
-		return this.getFiles().filter(file => file.isReadyToUpload()).length;
+		return this.#files.filter(file => file.isReadyToUpload()).length;
 	}
 
 	shouldAcceptOnlyImages(): boolean
 	{
-		return this.acceptOnlyImages;
+		return this.#acceptOnlyImages;
 	}
 
 	getAcceptedFileTypes(): string[]
 	{
-		return this.acceptedFileTypes;
+		return this.#acceptedFileTypes;
 	}
 
 	setAcceptedFileTypes(fileTypes: string | string[]): void
@@ -747,12 +887,12 @@ export default class Uploader extends EventEmitter
 
 		if (Type.isArray(fileTypes))
 		{
-			this.acceptedFileTypes = [];
+			this.#acceptedFileTypes = [];
 
 			fileTypes.forEach(type => {
 				if (Type.isStringFilled(type))
 				{
-					this.acceptedFileTypes.push(type);
+					this.#acceptedFileTypes.push(type);
 				}
 			});
 		}
@@ -760,19 +900,19 @@ export default class Uploader extends EventEmitter
 
 	getIgnoredFileNames(): string[]
 	{
-		return this.ignoredFileNames;
+		return this.#ignoredFileNames;
 	}
 
 	setIgnoredFileNames(fileNames: string[]): void
 	{
 		if (Type.isArray(fileNames))
 		{
-			this.ignoredFileNames = [];
+			this.#ignoredFileNames = [];
 
 			fileNames.forEach(fileName => {
 				if (Type.isStringFilled(fileName))
 				{
-					this.ignoredFileNames.push(fileName.toLowerCase());
+					this.#ignoredFileNames.push(fileName.toLowerCase());
 				}
 			});
 		}
@@ -782,26 +922,26 @@ export default class Uploader extends EventEmitter
 	{
 		if ((Type.isNumber(maxFileCount) && maxFileCount > 0) || maxFileCount === null)
 		{
-			this.maxFileCount = maxFileCount;
+			this.#maxFileCount = maxFileCount;
 		}
 	}
 
 	getMaxFileCount(): ?number
 	{
-		return this.maxFileCount;
+		return this.#maxFileCount;
 	}
 
 	setAllowReplaceSingle(flag: boolean): void
 	{
 		if (Type.isBoolean(flag))
 		{
-			this.allowReplaceSingle = flag;
+			this.#allowReplaceSingle = flag;
 		}
 	}
 
 	shouldReplaceSingle(): boolean
 	{
-		return this.allowReplaceSingle;
+		return this.#allowReplaceSingle;
 	}
 
 	#uploadNext(): void
@@ -813,7 +953,7 @@ export default class Uploader extends EventEmitter
 
 		const maxParallelUploads = this.getMaxParallelUploads();
 		const currentUploads = this.getUploadingFileCount();
-		const pendingFiles = this.getFiles().filter(file => file.isReadyToUpload());
+		const pendingFiles = this.#files.filter(file => file.isReadyToUpload());
 		const pendingUploads = pendingFiles.length;
 
 		if (currentUploads < maxParallelUploads)
@@ -829,7 +969,7 @@ export default class Uploader extends EventEmitter
 		// All files are COMPLETE or FAILED
 		if (currentUploads === 0 && pendingUploads === 0)
 		{
-			this.status = UploaderStatus.STOPPED;
+			this.#status = UploaderStatus.STOPPED;
 			this.emit('onUploadComplete');
 		}
 	}
@@ -837,8 +977,8 @@ export default class Uploader extends EventEmitter
 	#loadNext(): void
 	{
 		const maxParallelLoads = this.getMaxParallelLoads();
-		const currentLoads = this.getFiles().filter(file => file.isLoading()).length;
-		const pendingFiles = this.getFiles().filter(file => {
+		const currentLoads = this.#files.filter(file => file.isLoading()).length;
+		const pendingFiles = this.#files.filter(file => {
 			return file.getStatus() === FileStatus.ADDED && file.getOrigin() === FileOrigin.CLIENT;
 		});
 
@@ -853,7 +993,7 @@ export default class Uploader extends EventEmitter
 		}
 	}
 
-	handleBeforeUpload(event: BaseEvent): void
+	#handleBeforeUpload(event: BaseEvent): void
 	{
 		if (this.getStatus() === UploaderStatus.STOPPED)
 		{
@@ -869,7 +1009,7 @@ export default class Uploader extends EventEmitter
 		}
 	}
 
-	handlePrepareFileAsync(event: BaseEvent): void
+	#handlePrepareFileAsync(event: BaseEvent): void
 	{
 		return new Promise((resolve, reject) => {
 			const { file } = event.getData();
@@ -889,13 +1029,13 @@ export default class Uploader extends EventEmitter
 		});
 	}
 
-	handleUploadStart(event: BaseEvent): void
+	#handleUploadStart(event: BaseEvent): void
 	{
 		const file: UploaderFile = event.getTarget();
 		this.emit('File:onUploadStart', { file });
 	}
 
-	handleFileCancel(event: BaseEvent): void
+	#handleFileCancel(event: BaseEvent): void
 	{
 		const file: UploaderFile = event.getTarget();
 		this.emit('File:onCancel', { file });
@@ -903,13 +1043,13 @@ export default class Uploader extends EventEmitter
 		this.removeFile(file);
 	}
 
-	handleFileStatusChange(event: BaseEvent): void
+	#handleFileStatusChange(event: BaseEvent): void
 	{
 		const file: UploaderFile = event.getTarget();
 		this.emit('File:onStatusChange', { file });
 	}
 
-	handleFileStateChange(event: BaseEvent): void
+	#handleFileStateChange(event: BaseEvent): void
 	{
 		const file: UploaderFile = event.getTarget();
 		this.emit('File:onStateChange', { file });
@@ -918,7 +1058,7 @@ export default class Uploader extends EventEmitter
 	#setHiddenField(file: UploaderFile): void
 	{
 		const container = this.getHiddenFieldsContainer();
-		if (!container || this.hiddenFields.has(file.getId()))
+		if (!container || this.#hiddenFields.has(file.getId()))
 		{
 			return;
 		}
@@ -961,18 +1101,18 @@ export default class Uploader extends EventEmitter
 		}
 
 		container.appendChild(input);
-		this.hiddenFields.set(file.getId(), input);
+		this.#hiddenFields.set(file.getId(), input);
 
 		this.#syncInputPositions();
 	}
 
 	#resetHiddenField(file: UploaderFile): void
 	{
-		const input = this.hiddenFields.get(file.getId());
+		const input = this.#hiddenFields.get(file.getId());
 		if (input)
 		{
 			Dom.remove(input);
-			this.hiddenFields.delete(file.getId());
+			this.#hiddenFields.delete(file.getId());
 		}
 	}
 
@@ -984,8 +1124,8 @@ export default class Uploader extends EventEmitter
 			return;
 		}
 
-		this.getFiles().forEach((file: UploaderFile) => {
-			const input = this.hiddenFields.get(file.getId());
+		this.#files.forEach((file: UploaderFile) => {
+			const input = this.#hiddenFields.get(file.getId());
 			if (input)
 			{
 				container.appendChild(input);

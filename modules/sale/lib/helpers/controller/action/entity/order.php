@@ -44,6 +44,7 @@ final class Order
 			'PAY_SYSTEMS' => self::getPaySystemListWithRestrictions($order),
 			'DELIVERY_SERVICES' => self::getDeliveryServiceListWithRestrictions($order),
 			'PROPERTIES' => self::getOrderProperties($order),
+			'VARIANTS' => self::getVariants($order),
 			'PAYMENTS' => self::getPayments($order),
 			'CHECKS' => self::getChecks($order),
 		];
@@ -328,6 +329,9 @@ final class Order
 		if ($product)
 		{
 			$result = $product->getFields();
+
+			$result['TYPE'] = ($result['TYPE'] === Catalog\ProductTable::TYPE_SERVICE) ? 'service' : 'product';
+
 			if ((int)$result['PREVIEW_PICTURE'] > 0)
 			{
 				$result['PREVIEW_PICTURE_SRC'] = \CFile::GetPath($result['PREVIEW_PICTURE']);
@@ -340,6 +344,15 @@ final class Order
 
 			$result['AVAILABLE_QUANTITY'] = $result['QUANTITY'];
 			unset($result['QUANTITY']);
+
+			if ($result['QUANTITY_TRACE'] === Catalog\ProductTable::STATUS_DEFAULT)
+			{
+				$result['QUANTITY_TRACE'] = (Main\Config\Option::get('catalog', 'default_quantity_trace') === 'Y') ? 'Y' : 'N';
+			}
+			if ($result['CAN_BUY_ZERO'] === Catalog\ProductTable::STATUS_DEFAULT)
+			{
+				$result['CAN_BUY_ZERO'] = (Main\Config\Option::get('catalog', 'default_can_buy_zero') === 'Y') ? 'Y' : 'N';
+			}
 
 			$checkMaxQuantity = ($result['QUANTITY_TRACE'] === 'Y' && $result['CAN_BUY_ZERO'] === 'N') ? 'Y' : 'N';
 			$result['CHECK_MAX_QUANTITY'] = $checkMaxQuantity;
@@ -474,7 +487,7 @@ final class Order
 					$parentProductId = $parentProduct->getId();
 					$skuId = $sku->getId();
 
-					$tree = $skuTree->loadWithSelectedOffers([$parentProductId => $skuId]);
+					$tree = $skuTree->loadJsonOffers([$parentProductId => $skuId]);
 					if (isset($tree[$parentProductId][$skuId]))
 					{
 						$result = [
@@ -597,6 +610,39 @@ final class Order
 		}
 
 		return $result;
+	}
+
+	private static function getVariants(Sale\Order $order): array
+	{
+		$propertyCollection = $order->getPropertyCollection();
+		if (!$propertyCollection)
+		{
+			return [];
+		}
+
+		$propertyCollectionData = $propertyCollection->getArray();
+		$propertyEnumIds = [];
+		foreach ($propertyCollectionData['properties'] as $property)
+		{
+			if ($property['TYPE'] === 'ENUM')
+			{
+				$propertyEnumIds[] = $property['ID'];
+			}
+		}
+
+		if (empty($propertyEnumIds))
+		{
+			return [];
+		}
+
+		$variants = Sale\Internals\OrderPropsVariantTable::getList([
+			'filter' => [
+				'=ORDER_PROPS_ID' => $propertyEnumIds,
+			],
+			'order' => ['SORT' => 'ASC'],
+		])->fetchAll();
+
+		return $variants;
 	}
 
 	private static function getPayments(Sale\Order $order): array

@@ -20,5 +20,4 @@ class DataType
 	public const TYPE_DATETIME = 'datetime';
 	public const TYPE_DATATYPE = 'datatype';
 	public const TYPE_PRODUCT_PROPERTY = 'productproperty';
-	public const TYPE_PRODUCT_STORE_QUANTITY = 'productstorequantity';
 }

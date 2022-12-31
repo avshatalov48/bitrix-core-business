@@ -58,8 +58,12 @@ class EdnaruImHpx extends Sender\BaseConfigurable
 
 	public function getFromList()
 	{
+		$id = $this->getOption(self::SUBJECT_OPTION);
 		return [
-			$this->getOption(self::SUBJECT_OPTION),
+			[
+				'id' => $id,
+				'name' => $id,
+			],
 		];
 	}
 
@@ -201,8 +205,8 @@ XML;
 	protected function callExternalMethod(string $body): Sender\Result\HttpRequestResult
 	{
 		$httpClient = new HttpClient([
-			'socketTimeout' => 10,
-			'streamTimeout' => 30,
+			"socketTimeout" => $this->socketTimeout,
+			"streamTimeout" => $this->streamTimeout,
 			'waitResponse' => true,
 		]);
 		$httpClient->setHeader('User-Agent', 'Bitrix24');

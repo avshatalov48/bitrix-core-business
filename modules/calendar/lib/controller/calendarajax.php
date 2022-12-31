@@ -239,12 +239,9 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 	public function getTrackingSectionsAction()
 	{
-		if (Loader::includeModule('intranet'))
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
 		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
+			return [];
 		}
 
 		$request = $this->getRequest();
@@ -766,14 +763,11 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 
 	public function deleteCalendarSectionAction($id)
 	{
-		if (Loader::includeModule('intranet'))
-		{
-			if (!\Bitrix\Intranet\Util::isIntranetUser())
-			{
-				return [];
-			}
-		}
 		$response = [];
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		{
+			return $response;
+		}
 
 		$sectionList = SectionTable::getList([
 			   'filter' => [
@@ -1037,6 +1031,7 @@ class CalendarAjax extends \Bitrix\Main\Engine\Controller
 		if (!empty($user_timezone_name))
 		{
 			\CCalendar::SaveUserTimezoneName($userId, $user_timezone_name);
+			\CCalendar::ClearCache('event_list');
 		}
 	}
 

@@ -1,5 +1,9 @@
 <?php
 $MESS["LANDING_CMP_OL_BUTTON_NO_CHOOSE_BUTTON"] = "Einstellungen öffnnen";
+$MESS["LANDING_CMP_OL_BUTTON_NO_CHOOSE_PAGE_1"] = "Seiten-Widget auswählen";
+$MESS["LANDING_CMP_OL_BUTTON_NO_CHOOSE_PAGE_TEXT_1"] = "Wählen Sie ein Widget aus, das die Icons verfügbarer Chats anzeigen wird. Sie können das Widget in den Seiteneinstellungen auswählen oder es dort erstellen.";
+$MESS["LANDING_CMP_OL_BUTTON_NO_CHOOSE_SITE_1"] = "Website-Widget auswählen";
+$MESS["LANDING_CMP_OL_BUTTON_NO_CHOOSE_SITE_TEXT_1"] = "Wählen Sie ein Widget aus, das die Icons verfügbarer Chats anzeigen wird. Sie können das Widget in den Website-Einstellungen auswählen oder es dort erstellen.";
 $MESS["LANDING_CMP_OL_BUTTON_REST_ERROR"] = "Der Block ist vorübergehend nicht verfügbar";
 $MESS["LANDING_CMP_OL_BUTTON_REST_ERROR_DESC"] = "Bitrix24 muss aktualisiert werden. Bitte warten Sie.";
 $MESS["LANDING_CMP_OL_NO_BUTTON"] = "Es gibt keine CRM-Widgets auf Ihrer Website";

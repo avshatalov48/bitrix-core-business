@@ -121,6 +121,11 @@ class CBPSchedulerService extends CBPRuntimeService
 			$entityKey = 0;
 		}
 
+		if (is_array($entityId))
+		{
+			$entityId = current(\CBPHelper::makeArrayFlat($entityId));
+		}
+
 		if (!SchedulerEventTable::isSubscribed($workflowId, $eventHandlerName, $eventModule, $eventName, $entityId))
 		{
 			SchedulerEventTable::add(array(
@@ -166,6 +171,11 @@ class CBPSchedulerService extends CBPRuntimeService
 		elseif ($entityId !== null)
 		{
 			$entityKey = 0;
+		}
+
+		if (is_array($entityId))
+		{
+			$entityId = current(\CBPHelper::makeArrayFlat($entityId));
 		}
 
 		SchedulerEventTable::deleteBySubscription($workflowId, $eventHandlerName, $eventModule, $eventName, $entityId);

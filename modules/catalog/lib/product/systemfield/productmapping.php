@@ -2,10 +2,13 @@
 
 namespace Bitrix\Catalog\Product\SystemField;
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Grid\Panel\ProductGroupAction;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog;
+use Bitrix\UI;
 
 class ProductMapping extends Highloadblock
 {
@@ -221,6 +224,7 @@ class ProductMapping extends Highloadblock
 			Catalog\ProductTable::TYPE_PRODUCT,
 			Catalog\ProductTable::TYPE_SET,
 			Catalog\ProductTable::TYPE_SKU,
+			Catalog\ProductTable::TYPE_SERVICE,
 		];
 	}
 
@@ -391,5 +395,44 @@ class ProductMapping extends Highloadblock
 			],
 			Catalog\Update\UiFormConfiguration::PARENT_SECTION_MAIN
 		);
+	}
+
+	public static function renderAdminFormControl(array $field, array $product, array $config): ?string
+	{
+		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_PRODUCT_PUBLIC_VISIBILITY_SET))
+		{
+			$field['EDIT_IN_LIST'] = 'N';
+		}
+
+		return parent::renderAdminFormControl($field, $product, $config);
+	}
+
+	protected static function getUiDescriptionInternal(array $description, array $userField, array $restrictions): ?array
+	{
+		$description['type'] = UI\EntityForm\Control\Type::MULTI_LIST;
+
+		$config = [
+			'RESULT' => [
+				'RETURN_FIELD_ID' => 'Y',
+			],
+		];
+
+		$items = Type\HighloadBlock::getItems($userField, $config);
+		if ($items !== null)
+		{
+			$description['data'] += [
+				'items' => $items
+			];
+		}
+		unset($items);
+
+		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_PRODUCT_PUBLIC_VISIBILITY_SET))
+		{
+			$description['editable'] = false;
+			$description['defaultValue'] = [];
+			$description['lockText'] = Loc::getMessage('PRODUCT_MAPPING_FIELD_LOCK_TEXT');
+		}
+
+		return $description;
 	}
 }

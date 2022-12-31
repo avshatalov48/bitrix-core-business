@@ -8,6 +8,9 @@ use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Sync\Entities\SyncEvent;
 use Bitrix\Calendar\Sync\Connection\EventConnection;
 use Bitrix\Calendar\Sync\Connection\SectionConnection;
+use Bitrix\Calendar\Sync\Exceptions\ApiException;
+use Bitrix\Calendar\Sync\Exceptions\ConflictException;
+use Bitrix\Calendar\Sync\Exceptions\NotFoundException;
 use Bitrix\Calendar\Sync\Internals\ContextInterface;
 use Bitrix\Calendar\Sync\Internals\HasContextTrait;
 use Bitrix\Calendar\Sync\Managers\EventManagerInterface;
@@ -66,8 +69,26 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		$dto = $this->getEventConverter()->eventToDto($event);
 
 		$dto = $this->getService()->createEvent($dto, $context->getSectionConnection()->getVendorSectionId());
+		if ($event->getExcludedDateCollection() && $event->getExcludedDateCollection()->count())
+		{
+			$context->add('sync', 'masterEventId', $dto->id);
+			/** @var Date $item */
+			foreach ($event->getExcludedDateCollection() as $item)
+			{
+				$context->add('sync', 'excludeDate', $item);
+				$this->deleteInstance($event, $context);
+			}
+		}
+
 		$result = new Result();
-		$result->setData($this->prepareResultData($dto));
+		if (!empty($dto->id))
+		{
+			$result->setData($this->prepareResultData($dto));
+		}
+		else
+		{
+			$result->addError(new Error('Error of create a series master event'));
+		}
 
 		return $result;
 	}
@@ -137,7 +158,14 @@ class EventManager extends AbstractManager implements EventManagerInterface
 				$instance->id,
 				$this->getEventConverter()->eventToDto($event),
 			);
-			$result->setData($this->prepareResultData($dto));
+			if (!empty($dto->id))
+			{
+				$result->setData($this->prepareResultData($dto));
+			}
+			else
+			{
+				$result->addError(new Error("Error of create instance.", 404));
+			}
 		}
 		else
 		{
@@ -192,31 +220,48 @@ class EventManager extends AbstractManager implements EventManagerInterface
 	 *
 	 * @return Result
 	 *
+	 * @throws ApiException
 	 * @throws ArgumentException
-	 * @throws Calendar\Sync\Exceptions\ApiException
-	 * @throws Calendar\Sync\Exceptions\ConflictException
-	 * @throws Calendar\Sync\Exceptions\NotFoundException
 	 * @throws ArgumentNullException
+	 * @throws ConflictException
+	 * @throws NotFoundException
+	 * @throws ObjectException
 	 */
 	public function deleteInstance(Event $event, EventContext $context): Result
 	{
 		$result = new Result();
-		$masterEventLink = $context->getEventConnection();
-		$excludeDate = new DateTime(
-			$context->sync['excludeDate']->getDate()->format('Ymd 000000'),
-			'Ymd His',
-			$event->getStartTimeZone()->getTimeZone()
-		);
-
-		if ($instance = $this->getInstanceForDay($masterEventLink->getVendorEventId(), $excludeDate))
+		$masterEventId = $context->getEventConnection()
+			? $context->getEventConnection()->getVendorEventId()
+			: ($context->sync['masterEventId'] ?? null)
+		;
+		if ($masterEventId)
 		{
-			$this->getService()->deleteEvent(
-				$instance->id,
+			$excludeDate = new DateTime(
+				$context->sync['excludeDate']->getDate()->format('Ymd 000000'),
+				'Ymd His',
+				$event->getStartTimeZone()->getTimeZone()
 			);
-		}
-		else
-		{
-			$result->addError(new Error("Instances for event not found", 404));
+			try
+			{
+				if ($instance = $this->getInstanceForDay($masterEventId, $excludeDate))
+				{
+					$this->getService()->deleteEvent(
+						$instance->id,
+					);
+				}
+				else
+				{
+					$result->addError(new Error("Instances for event not found", 404));
+				}
+			}
+			catch(ApiException $e)
+			{
+				if ($e->getCode() != 400)
+				{
+					throw $e;
+				}
+				$result->addError(new Error($e->getMessage(), $e->getCode()));
+			}
 		}
 
 		return $result;
@@ -248,7 +293,18 @@ class EventManager extends AbstractManager implements EventManagerInterface
 				$instance->id,
 				$this->getEventConverter()->eventToDto($event),
 			);
-			$result->setData($this->prepareResultData($dto));
+			if (!empty($dto->id))
+			{
+				$result->setData($this->prepareResultData($dto));
+			}
+			else
+			{
+				$result->addError(new Error('Error of move instance', 400));
+			}
+		}
+		else
+		{
+			$result->addError(new Error('Instance not found'));
 		}
 
 		return $result;
@@ -368,6 +424,13 @@ class EventManager extends AbstractManager implements EventManagerInterface
 			/** @var SyncEvent $instance */
 			foreach ($recurrenceEvent->getInstanceMap()->getCollection() as $instance)
 			{
+				if (empty($instance->getEvent()->getOriginalDateFrom()))
+				{
+					$result->addError(
+						new Error('Instance is invalid - there is not original date from. ['.$instance->getEvent()->getId().']', 400));
+					continue;
+				}
+
 				if ($instance->getEventConnection())
 				{
 					try
@@ -401,7 +464,7 @@ class EventManager extends AbstractManager implements EventManagerInterface
 				{
 					$excludes->removeDateFromCollection($instance->getEvent()->getStart());
 				}
-				if (!$result->isSuccess())
+				if (!$instanceResult->isSuccess())
 				{
 					$result->addErrors($instanceResult->getErrors());
 				}
@@ -426,7 +489,10 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		return $result;
 	}
 
-	private function getEventConnectionMapper()
+	/**
+	 * @return Core\Mappers\EventConnection
+	 */
+	private function getEventConnectionMapper(): Core\Mappers\EventConnection
 	{
 		static $mapper = null;
 		if ($mapper === null)
@@ -651,30 +717,41 @@ class EventManager extends AbstractManager implements EventManagerInterface
 			if ($masterLink)
 			{
 				$eventContext->setEventConnection($masterLink);
-				$result = $this->createInstance($syncEvent->getEvent(), $eventContext);
+				$event = (new Core\Builders\EventCloner($syncEvent->getEvent()))->build();
+				$result = $this->createInstance($event, $eventContext);
 			}
 			else
 			{
 				$eventContext->setSectionConnection($sectionConnection);
-				$result = $this->create($syncEvent->getEvent(), $eventContext);
+				$event = $this->prepareMasterEvent($syncEvent);
+				$result = $this->create($event, $eventContext);
 			}
 			if ($result->isSuccess())
 			{
 				if (!$syncEvent->getEvent()->isDeleted())
 				{
-					$link = (new EventConnection())
-						->setEvent($syncEvent->getEvent())
-						->setConnection($sectionConnection->getConnection())
-						->setVersion($syncEvent->getEvent()->getVersion())
-						->setVendorEventId($result->getData()['event']['id'])
-						->setEntityTag($result->getData()['event']['etag'])
-						->setVendorVersionId($result->getData()['event']['version'])
-						->setRecurrenceId($result->getData()['event']['recurrence'] ?? null)
-						->setLastSyncStatus(Calendar\Sync\Dictionary::SYNC_STATUS['success'])
-					;
-					$syncEvent
-						->setEventConnection($link)
-						->setAction(Calendar\Sync\Dictionary::SYNC_STATUS['success']);
+					if (!empty($result->getData()['event']['id']))
+					{
+						$link = (new EventConnection())
+							->setEvent($event)
+							->setConnection($sectionConnection->getConnection())
+							->setVersion($event->getVersion())
+							->setVendorEventId($result->getData()['event']['id'])
+							->setEntityTag($result->getData()['event']['etag'])
+							->setVendorVersionId($result->getData()['event']['version'])
+							->setRecurrenceId($result->getData()['event']['recurrence'] ?? null)
+							->setLastSyncStatus(Calendar\Sync\Dictionary::SYNC_STATUS['success'])
+						;
+						$syncEvent
+							->setEventConnection($link)
+							->setAction(Calendar\Sync\Dictionary::SYNC_STATUS['success']);
+					}
+					else
+					{
+						$errMessage = 'Uncknown error of creating recurrence '
+							. ($masterLink ? 'master' : 'instance');
+						$result->addError(new Error($errMessage, 400, ['data' => $result->getData()]));
+					}
 
 				}
 				else
@@ -747,5 +824,13 @@ class EventManager extends AbstractManager implements EventManagerInterface
 			$excludes->add($item);
 		}
 		return $excludes;
+	}
+
+	private function prepareMasterEvent(SyncEvent $syncEvent): Event
+	{
+		$event = (new Core\Builders\EventCloner($syncEvent->getEvent()))->build();
+		(new Calendar\Sync\Util\ExcludeDatesHandler())->prepareEventExcludeDates($event, $syncEvent->getInstanceMap());
+
+		return $event;
 	}
 }

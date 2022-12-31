@@ -22,6 +22,8 @@ class CatalogProductControllerComponent extends CBitrixComponent
 	private const URL_TEMPLATE_PRODUCT_STORE_AMOUNT = 'product_store_amount_details';
 	private const URL_TEMPLATE_PRODUCT_STORE_AMOUNT_SLIDER = 'product_store_amount_details_slider';
 
+	private const REQUEST_VARIABLE_PRODUCT_TYPE = 'productTypeId';
+
 	public const SCOPE_SHOP = 'shop';
 	public const SCOPE_CRM = 'crm';
 
@@ -212,6 +214,24 @@ class CatalogProductControllerComponent extends CBitrixComponent
 		return [$template, $variables, $variableAliases];
 	}
 
+	protected function getAdditionalTemplateParameters(string $template): array
+	{
+		$result = [];
+
+		if (
+			$template === self::URL_TEMPLATE_PRODUCT
+		)
+		{
+			$value = $this->request->get(self::REQUEST_VARIABLE_PRODUCT_TYPE);
+			if (is_string($value) && $value !== '')
+			{
+				$result['PRODUCT_TYPE_ID'] = $value;
+			}
+		}
+
+		return $result;
+	}
+
 	public function executeComponent()
 	{
 		if (!$this->checkModules() || !$this->checkFeature())
@@ -239,12 +259,13 @@ class CatalogProductControllerComponent extends CBitrixComponent
 			],
 			$this->arResult
 		);
+		$this->arResult['ADDITIONAL_TEMPLATE_PARAMETERS'] = $this->getAdditionalTemplateParameters($template);
 		$this->arResult['BUILDER_CONTEXT'] = $this->arParams['BUILDER_CONTEXT'];
 		$this->arResult['SCOPE'] = $this->arParams['SCOPE'];
 
 		if (
-			\Bitrix\Main\Context::getCurrent()->getRequest()->get('IFRAME') === 'Y'
-			|| \Bitrix\Main\Context::getCurrent()->getRequest()->get('mode') === 'dev'
+			$this->request->get('IFRAME') === 'Y'
+			|| $this->request->get('mode') === 'dev'
 		)
 		{
 			$this->includeComponentTemplate($template);

@@ -1,7 +1,7 @@
 import { Vue } from 'ui.vue';
 import { VuexBuilderModel } from 'ui.vue.vuex';
 import { Type } from 'main.core';
-import { Loader as LoaderConst } from 'sale.checkout.const';
+import { Loader as LoaderConst, Product as ProductConst } from 'sale.checkout.const';
 
 export class Basket extends VuexBuilderModel
 {
@@ -96,6 +96,8 @@ export class Basket extends VuexBuilderModel
             detailPageUrl : "",
             availableQuantity: 0,
             ratio: 0,
+			type: ProductConst.type.product,
+			checkMaxQuantity: 'N',
         };
     }
     
@@ -352,6 +354,23 @@ export class Basket extends VuexBuilderModel
                         result.ratio = parseFloat(fields.ratio)
                     }
                 }
+				else if (field === 'type')
+				{
+					if (Type.isString(fields.type))
+					{
+						const productTypes = Object.values(ProductConst.type);
+						const type = fields.type.toString();
+
+						result.type = productTypes.includes(type) ? type : ProductConst.type.product;
+					}
+				}
+				else if (field === 'checkMaxQuantity')
+				{
+					if (Type.isString(fields.checkMaxQuantity))
+					{
+						result.checkMaxQuantity = fields.checkMaxQuantity.toString() === 'Y' ? 'Y' : 'N'
+					}
+				}
                 else
                 {
                     result[field] = fields[field];

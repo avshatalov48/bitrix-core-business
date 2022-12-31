@@ -1,8 +1,6 @@
 <?
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
-include_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/desktop/include.php');
-
 $col = 0;
 $arDiff = array_diff($arParams["GADGETS_FIXED"], $arResult["GADGETS_LIST"]);
 

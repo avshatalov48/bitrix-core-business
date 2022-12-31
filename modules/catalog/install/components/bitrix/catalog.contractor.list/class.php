@@ -8,6 +8,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Catalog\ContractorTable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
 
 \Bitrix\Main\Loader::includeModule('catalog');
 
@@ -37,7 +39,7 @@ class CatalogContractorList extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		if (!$this->checkDocumentReadRights())
+		if (!$this->checkReadRights())
 		{
 			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('CONTRACTOR_LIST_NO_VIEW_RIGHTS_ERROR');
 			$this->includeComponentTemplate();
@@ -238,20 +240,22 @@ class CatalogContractorList extends CBitrixComponent
 	{
 		$this->arResult['ERROR_MESSAGES'] = [];
 
-		if (!$this->checkDocumentWriteRights())
+		$action = $this->request->get('action');
+		$groupAction = $this->request->get('action_button_' . self::GRID_ID);
+		if (!$action && !$groupAction)
 		{
-			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('CONTRACTOR_LIST_NO_WRITE_RIGHTS_ERROR');
-			$this->endResponseWithErrors();
+			return;
 		}
 
-		$action = $this->request->get('action');
-		if ($action)
+		if (!$this->checkWriteRights())
+		{
+			$this->arResult['ERROR_MESSAGES'][] = Loc::getMessage('CONTRACTOR_LIST_NO_WRITE_RIGHTS_ERROR');
+		}
+		elseif ($action)
 		{
 			$this->processSingleAction($action);
 		}
-
-		$groupAction = $this->request->get('action_button_' . self::GRID_ID);
-		if ($groupAction)
+		elseif ($groupAction)
 		{
 			$this->processGroupAction($groupAction);
 		}
@@ -320,13 +324,13 @@ class CatalogContractorList extends CBitrixComponent
 		CMain::FinalActions(Json::encode(['messages' => $messages]));
 	}
 
-	private function checkDocumentReadRights(): bool
+	private function checkReadRights(): bool
 	{
-		return \Bitrix\Main\Engine\CurrentUser::get()->canDoOperation('catalog_read');
+		return AccessController::getCurrent()->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS);
 	}
 
-	private function checkDocumentWriteRights(): bool
+	private function checkWriteRights(): bool
 	{
-		return \Bitrix\Main\Engine\CurrentUser::get()->canDoOperation('catalog_store');
+		return AccessController::getCurrent()->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS);
 	}
 }

@@ -7,6 +7,7 @@ use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Sync\Exceptions\ApiException;
 use Bitrix\Calendar\Sync\Exceptions\AuthException;
 use Bitrix\Calendar\Sync\Exceptions\ConflictException;
+use Bitrix\Calendar\Sync\Exceptions\GoneException;
 use Bitrix\Calendar\Sync\Exceptions\NotFoundException;
 use Bitrix\Calendar\Sync\Exceptions\RemoteAccountException;
 use Bitrix\Calendar\Sync\Internals\ContextInterface;
@@ -158,19 +159,32 @@ class ApiService
 		do {
 			$uri = $this->getDeltaUri($sectionConnection, $baseUri);
 
-			$response = $this->apiClient->get($uri);
-
-			if (!empty($response))
+			try
 			{
-				$breakingFlag = $this->processResponseAfterDelta($sectionConnection, $response);
+				$response = $this->apiClient->get($uri);
+				if (!empty($response))
+				{
+					$breakingFlag = $this->processResponseAfterDelta($sectionConnection, $response);
+				}
+				if (!empty($response['value']))
+				{
+					yield $response['value'];
+				}
+				else
+				{
+					break;
+				}
 			}
-			if (!empty($response['value']))
+			catch(GoneException $e)
 			{
-				yield $response['value'];
-			}
-			else
-			{
-				break;
+				if ($sectionConnection->getPageToken())
+				{
+					$sectionConnection->setPageToken(null);
+				}
+				elseif ($sectionConnection->getSyncToken())
+				{
+					$sectionConnection->setSyncToken(null);
+				}
 			}
 		}
 		while(!$breakingFlag);

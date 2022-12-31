@@ -136,11 +136,12 @@ class ShipmentItem
 					throw new Main\ObjectNotFoundException('Entity "BasketItem" not found');
 				}
 
-				$result->addError(new ResultError(Loc::getMessage(
-					'SALE_SHIPMENT_ITEM_SHIPMENT_ALREADY_SHIPPED_CANNOT_DELETE',
-					[
-						'#PRODUCT_NAME#' => $basketItem->getField('NAME')
-					]), 'SALE_SHIPMENT_ITEM_SHIPMENT_ALREADY_SHIPPED_CANNOT_DELETE'));
+				$result->addError(
+					new ResultError(
+						Loc::getMessage('SALE_SHIPMENT_ITEM_SHIPMENT_ALREADY_SHIPPED_CANNOT_EDIT'),
+						'SALE_SHIPMENT_ITEM_SHIPMENT_ALREADY_SHIPPED_CANNOT_EDIT'
+					)
+				);
 
 				return $result;
 			}
@@ -243,7 +244,6 @@ class ShipmentItem
 
 			if ($basketItem && $deltaQuantity > 0)
 			{
-
 				$systemShipment = $shipment->getCollection()->getSystemShipment();
 
 				$systemBasketItemQuantity = $systemShipment->getBasketItemQuantity($basketItem);
@@ -271,7 +271,7 @@ class ShipmentItem
 						$result->addError(
 							new ResultError(
 								Loc::getMessage(
-									'SALE_SHIPMENT_ITEM_LESS_AVAILABLE_QUANTITY',
+									'SALE_SHIPMENT_ITEM_LESS_AVAILABLE_QUANTITY_2',
 									[
 										'#PRODUCT_NAME#' => $basketItem->getField('NAME'),
 									]
@@ -300,68 +300,73 @@ class ShipmentItem
 			}
 
 			/** @var ShipmentItemStoreCollection $shipmentItemStoreCollection */
-			if (!$shipmentItemStoreCollection = $this->getShipmentItemStoreCollection())
+			$shipmentItemStoreCollection = $this->getShipmentItemStoreCollection();
+			if (
+				!$shipmentItemStoreCollection
+				&& $basketItem->isReservableItem()
+			)
 			{
 				throw new Main\ObjectNotFoundException('Entity "ShipmentItemStoreCollection" not found');
 			}
 
-
-
-			if ($value == 0)
+			if ($shipmentItemStoreCollection)
 			{
-				$basketItemName = Loc::getMessage("SALE_SHIPMENT_ITEM_BASKET_WRONG_BASKET_ITEM");
-				$basketItemProductId = '1';
-
-				if ($basketItem)
+				if ((int)$value === 0)
 				{
-					$basketItemName = $basketItem->getField('NAME');
-					$basketItemProductId = $basketItem->getProductId();
-				}
+					$basketItemName = Loc::getMessage("SALE_SHIPMENT_ITEM_BASKET_WRONG_BASKET_ITEM");
+					$basketItemProductId = '1';
 
-				$registry = Registry::getInstance(static::getRegistryType());
+					if ($basketItem)
+					{
+						$basketItemName = $basketItem->getField('NAME');
+						$basketItemProductId = $basketItem->getProductId();
+					}
 
-				/** @var OrderHistory $orderHistory */
-				$orderHistory = $registry->getOrderHistoryClassName();
-				$orderHistory::addAction(
-					'SHIPMENT',
-					$order->getId(),
-					'SHIPMENT_ITEM_BASKET_REMOVED',
-					$shipment->getId(),
-					null,
-					[
-						'NAME' => $basketItemName,
-						'PRODUCT_ID' => $basketItemProductId,
-					]
-				);
+					$registry = Registry::getInstance(static::getRegistryType());
 
-				/** @var ShipmentItemStore $shipmentItemStore */
-				foreach ($shipmentItemStoreCollection as $shipmentItemStore)
-				{
-					$shipmentItemStore->delete();
-				}
-
-			}
-			elseif (!$basketItem->isBundleParent())
-			{
-				// check barcodes
-				$r = $shipmentItemStoreCollection->onShipmentItemModify(EventActions::UPDATE, $this, $name, $oldValue, $value);
-				if (!$r->isSuccess())
-				{
-					$result->addErrors($r->getErrors());
-					return $result;
-				}
-
-				$barcodeQuantity = $shipmentItemStoreCollection->getQuantityByBasketCode($basketItem->getBasketCode());
-				if ($barcodeQuantity > $value)
-				{
-					$result->addError(
-						new ResultError(
-							Loc::getMessage('SALE_SHIPMENT_ITEM_BARCODE_MORE_ITEM_QUANTITY'),
-							'BARCODE_MORE_ITEM_QUANTITY'
-						)
+					/** @var OrderHistory $orderHistory */
+					$orderHistory = $registry->getOrderHistoryClassName();
+					$orderHistory::addAction(
+						'SHIPMENT',
+						$order->getId(),
+						'SHIPMENT_ITEM_BASKET_REMOVED',
+						$shipment->getId(),
+						null,
+						[
+							'NAME' => $basketItemName,
+							'PRODUCT_ID' => $basketItemProductId,
+						]
 					);
 
-					return $result;
+					/** @var ShipmentItemStore $shipmentItemStore */
+					foreach ($shipmentItemStoreCollection as $shipmentItemStore)
+					{
+						$shipmentItemStore->delete();
+					}
+
+				}
+				elseif ($basketItem->isReservableItem())
+				{
+					// check barcodes
+					$r = $shipmentItemStoreCollection->onShipmentItemModify(EventActions::UPDATE, $this, $name, $oldValue, $value);
+					if (!$r->isSuccess())
+					{
+						$result->addErrors($r->getErrors());
+						return $result;
+					}
+
+					$barcodeQuantity = $shipmentItemStoreCollection->getQuantityByBasketCode($basketItem->getBasketCode());
+					if ($barcodeQuantity > $value)
+					{
+						$result->addError(
+							new ResultError(
+								Loc::getMessage('SALE_SHIPMENT_ITEM_BARCODE_MORE_ITEM_QUANTITY'),
+								'BARCODE_MORE_ITEM_QUANTITY'
+							)
+						);
+
+						return $result;
+					}
 				}
 			}
 
@@ -384,31 +389,35 @@ class ShipmentItem
 	{
 		$result = new Result();
 
-		if (!$this->getBasketItem()->isSupportedMarkingCode())
+		if (
+			!$this->getBasketItem()->isReservableItem()
+			|| !$this->getBasketItem()->isSupportedMarkingCode()
+		)
 		{
 			return $result;
 		}
 
-		if ($this->getShipmentItemStoreCollection()->count() < $this->getQuantity())
+		$shipmentItemStoreCollection = $this->getShipmentItemStoreCollection();
+		if ($shipmentItemStoreCollection && $shipmentItemStoreCollection->count() < $this->getQuantity())
 		{
 			return $result->addError(
 				new Main\Error(
 					Loc::getMessage(
-						'SALE_SHIPMENT_ITEM_MARKING_CODE_LESS_ITEM_QUANTITY_LONG',
+						'SALE_SHIPMENT_ITEM_MARKING_CODE_LESS_ITEM_QUANTITY_LONG_2',
 						['#PRODUCT_NAME#' => $this->getBasketItem()->getField('NAME')])
 				)
 			);
 		}
 
 		/** @var ShipmentItemStore $itemStore */
-		foreach ($this->getShipmentItemStoreCollection() as $itemStore)
+		foreach ($shipmentItemStoreCollection as $itemStore)
 		{
 			if ($itemStore->getMarkingCode() === '')
 			{
 				return $result->addError(
 					new Main\Error(
 						Loc::getMessage(
-							'SALE_SHIPMENT_ITEM_MARKING_CODE_LESS_ITEM_QUANTITY_LONG',
+							'SALE_SHIPMENT_ITEM_MARKING_CODE_LESS_ITEM_QUANTITY_LONG_2',
 							['#PRODUCT_NAME#' => $this->getBasketItem()->getField('NAME')])
 					)
 				);
@@ -468,7 +477,12 @@ class ShipmentItem
 		$result = new Result();
 
 		$basketItem = $this->getBasketItem();
+
 		$reserveCollection = $basketItem->getReserveQuantityCollection();
+		if (!$reserveCollection)
+		{
+			return $result;
+		}
 
 		if ($value - $oldValue > 0) // plus
 		{
@@ -651,33 +665,8 @@ class ShipmentItem
 			$fields["BASKET_ID"] = $this->basketItem->getId();
 			$this->setFieldNoDemand('BASKET_ID', $fields['BASKET_ID']);
 
-			if (intval($fields['BASKET_ID']) <= 0)
+			if ($fields['BASKET_ID'] <= 0)
 			{
-
-				$error = Loc::getMessage(
-					'SALE_SHIPMENT_ITEM_BASKET_ITEM_ID_EMPTY',
-					[
-						'#PRODUCT_NAME#' => $this->basketItem->getField('NAME')
-					]
-				);
-
-				$registry = Registry::getInstance(static::getRegistryType());
-
-				/** @var OrderHistory $orderHistory */
-				$orderHistory = $registry->getOrderHistoryClassName();
-				$orderHistory::addAction(
-					'SHIPMENT',
-					$order->getId(),
-					'SHIPMENT_ITEM_BASKET_ITEM_EMPTY_ERROR',
-					null,
-					$this,
-					[
-						"ERROR" => $error
-					]
-				);
-
-				$result->addError(new ResultError($error, 'SALE_SHIPMENT_ITEM_BASKET_ITEM_ID_EMPTY'));
-
 				return $result;
 			}
 
@@ -747,10 +736,13 @@ class ShipmentItem
 		}
 
 		$shipmentItemStoreCollection = $this->getShipmentItemStoreCollection();
-		$r = $shipmentItemStoreCollection->save();
-		if (!$r->isSuccess())
+		if ($shipmentItemStoreCollection)
 		{
-			$result->addErrors($r->getErrors());
+			$r = $shipmentItemStoreCollection->save();
+			if (!$r->isSuccess())
+			{
+				$result->addErrors($r->getErrors());
+			}
 		}
 
 		if ($result->isSuccess())
@@ -918,10 +910,15 @@ class ShipmentItem
 	}
 
 	/**
-	 * @return ShipmentItemStoreCollection
+	 * @return ShipmentItemStoreCollection|null
 	 */
 	public function getShipmentItemStoreCollection()
 	{
+		if (!$this->getBasketItem()->isReservableItem())
+		{
+			return null;
+		}
+
 		if (empty($this->shipmentItemStoreCollection))
 		{
 			$registry = Registry::getInstance(static::getRegistryType());
@@ -930,6 +927,7 @@ class ShipmentItem
 			$itemStoreCollectionClassName = $registry->getShipmentItemStoreCollectionClassName();
 			$this->shipmentItemStoreCollection = $itemStoreCollectionClassName::load($this);
 		}
+
 		return $this->shipmentItemStoreCollection;
 	}
 
@@ -1072,7 +1070,8 @@ class ShipmentItem
 			return true;
 		}
 
-		return $this->getShipmentItemStoreCollection()->isChanged();
+		$shipmentItemStoreCollection = $this->getShipmentItemStoreCollection();
+		return $shipmentItemStoreCollection && $shipmentItemStoreCollection->isChanged();
 	}
 
 	/**
@@ -1401,12 +1400,29 @@ class ShipmentItem
 	/**
 	 * @return array
 	 */
-	public function toArray() : array
+	public function toArray(): array
 	{
 		$result = parent::toArray();
 
-		$result['STORES'] = $this->getShipmentItemStoreCollection()->toArray();
+		$shipmentItemStoreCollection = $this->getShipmentItemStoreCollection();
+		$result['STORES'] = $shipmentItemStoreCollection ? $shipmentItemStoreCollection->toArray() : [];
 
 		return $result;
+	}
+
+	/**
+	 * Returns true if basketItem can be shipped
+	 *
+	 * @return bool
+	 */
+	public function isShippable(): bool
+	{
+		$basketItem = $this->getBasketItem();
+		if ($basketItem)
+		{
+			return !$basketItem->isBundleParent() && !$basketItem->isService();
+		}
+
+		return true;
 	}
 }

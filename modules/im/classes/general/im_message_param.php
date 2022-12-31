@@ -1475,7 +1475,14 @@ class CIMMessageLink
 						{
 							if (isset($arAttachUrl[$urlId]))
 							{
-								$arMessages[$messageId]['params']['ATTACH'][] = $arAttachUrl[$urlId];
+								if (isset($arMessages[$messageId]['params']))
+								{
+									$arMessages[$messageId]['params']['ATTACH'][] = $arAttachUrl[$urlId];
+								}
+								else
+								{
+									$arMessages[$messageId]['PARAMS']['ATTACH'][] = $arAttachUrl[$urlId];
+								}
 							}
 						}
 					}

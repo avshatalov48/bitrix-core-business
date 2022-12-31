@@ -13,7 +13,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
-/** @var boolean $is_unread */
 
 $component = $this->getComponent();
 

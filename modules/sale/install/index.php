@@ -245,6 +245,9 @@ Class sale extends CModule
 		$eventManager->registerEventHandler('sale', 'OnPrintableCheckSend', 'sale', '\Bitrix\Sale\Cashbox\Internals\Analytics\EventHandler', 'onPrintableCheckSend');
 		$eventManager->registerEventHandler('sale', 'OnSaleAfterPsServiceProcessRequest', 'sale', '\Bitrix\Sale\PaySystem\Internals\Analytics\EventHandler', 'onSaleAfterPsServiceProcessRequest');
 
+		$eventManager->registerEventHandler('sale', 'OnSaleBasketItemSetField', 'sale', \Bitrix\Sale\Reservation\Event\Handler\BasketItemUpdateProductReserveHandlers::class, 'OnSaleBasketItemSetField');
+		$eventManager->registerEventHandler('sale', 'OnAfterSaleBasketItemSetField', 'sale', \Bitrix\Sale\Reservation\Event\Handler\BasketItemUpdateProductReserveHandlers::class, 'OnAfterSaleBasketItemSetField');
+
 		COption::SetOptionString("sale", "viewed_capability", "N");
 		COption::SetOptionString("sale", "viewed_count", 10);
 		COption::SetOptionString("sale", "viewed_time", 5);
@@ -528,6 +531,9 @@ Class sale extends CModule
 
 		$eventManager->unRegisterEventHandler('sale', 'OnPrintableCheckSend', 'sale', '\Bitrix\Sale\Cashbox\Internals\Analytics\EventHandler', 'onPrintableCheckSend');
 		$eventManager->unRegisterEventHandler('sale', 'OnSaleAfterPsServiceProcessRequest', 'sale', '\Bitrix\Sale\PaySystem\Internals\Analytics\EventHandler', 'onSaleAfterPsServiceProcessRequest');
+
+		$eventManager->unRegisterEventHandler('sale', 'OnSaleBasketItemSetField', 'sale', \Bitrix\Sale\Reservation\Event\Handler\BasketItemUpdateProductReserveHandlers::class, 'OnSaleBasketItemSetField');
+		$eventManager->unRegisterEventHandler('sale', 'OnAfterSaleBasketItemSetField', 'sale', \Bitrix\Sale\Reservation\Event\Handler\BasketItemUpdateProductReserveHandlers::class, 'OnAfterSaleBasketItemSetField');
 
 		if (\Bitrix\Main\Loader::includeModule('sale'))
 		{

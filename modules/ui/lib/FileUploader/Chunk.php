@@ -295,7 +295,7 @@ class Chunk
 			);
 		}
 
-		if ($config->getMinFileSize() !== null && $this->getFileSize() < $config->getMinFileSize())
+		if ($this->getFileSize() < $config->getMinFileSize())
 		{
 			return $result->addError(
 				new UploaderError(
@@ -330,7 +330,7 @@ class Chunk
 				);
 			}
 
-			if ($config->getImageMinFileSize() !== null && $this->getFileSize() < $config->getImageMinFileSize())
+			if ($this->getFileSize() < $config->getImageMinFileSize())
 			{
 				return $result->addError(
 					new UploaderError(

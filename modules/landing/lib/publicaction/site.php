@@ -444,13 +444,14 @@ class Site
 	 * Move folder.
 	 * @param int $folderId Current folder id.
 	 * @param int|null $toFolderId Destination folder id (or null for root folder of current folder's site).
+	 * @param int|null $toSiteId Destination site id (if different from current).
 	 * @return PublicActionResult
 	 */
-	public static function moveFolder(int $folderId, ?int $toFolderId): PublicActionResult
+	public static function moveFolder(int $folderId, ?int $toFolderId, ?int $toSiteId = null): PublicActionResult
 	{
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
-		$moveResult = SiteCore::moveFolder($folderId, $toFolderId ?: null);
+		$moveResult = SiteCore::moveFolder($folderId, $toFolderId ?: null, $toSiteId ?: null);
 
 		if ($moveResult->isSuccess())
 		{

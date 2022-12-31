@@ -411,7 +411,7 @@ class CCalendarSync
 		$saveEvent = true;
 
 		CCalendar::SetSilentErrorMode();
-		if ($sectionId && ($section = CCalendarSect::GetById($sectionId, false)))
+		if ($sectionId && ($section = CCalendarSect::GetById((int)$sectionId, false)))
 		{
 			CCalendar::SetOffset(false, CCalendar::GetOffset($userId));
 			$eventId = ((isset($arFields["ID"]) && (intval($arFields["ID"]) > 0)) ? intval($arFields["ID"]) : 0);
@@ -423,10 +423,10 @@ class CCalendarSync
 				'NAME' => $arFields["NAME"] ?: GetMessage('EC_NONAME_EVENT'),
 				'CAL_TYPE' => $section['CAL_TYPE'],
 				'OWNER_ID' => $section['OWNER_ID'],
-				'DESCRIPTION' => isset($arFields['DESCRIPTION']) ? $arFields['DESCRIPTION'] : '',
+				'DESCRIPTION' => $arFields['DESCRIPTION'] ?? '',
 				'SECTIONS' => [$sectionId],
-				'ACCESSIBILITY' => isset($arFields['ACCESSIBILITY']) ? $arFields['ACCESSIBILITY'] : 'busy',
-				'IMPORTANCE' => isset($arFields['IMPORTANCE']) ? $arFields['IMPORTANCE'] : 'normal',
+				'ACCESSIBILITY' => $arFields['ACCESSIBILITY'] ?? 'busy',
+				'IMPORTANCE' => $arFields['IMPORTANCE'] ?? 'normal',
 				"REMIND" => is_array($arFields['REMIND']) ? $arFields['REMIND'] : array(),
 				"RRULE" => is_array($arFields['RRULE']) ? $arFields['RRULE'] : array(),
 				"VERSION" => isset($arFields['VERSION']) ? (int)$arFields['VERSION'] : 1,

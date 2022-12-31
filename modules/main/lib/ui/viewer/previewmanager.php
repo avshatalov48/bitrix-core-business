@@ -3,6 +3,7 @@
 namespace Bitrix\Main\UI\Viewer;
 
 use Bitrix\Main\Application;
+use Bitrix\Main;
 use Bitrix\Main\Context;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
@@ -18,18 +19,20 @@ use Bitrix\Main\Engine\Response;
 
 final class PreviewManager
 {
-	const GET_KEY_TO_SEND_PREVIEW_CONTENT    = 'ibxPreview';
-	const GET_KEY_TO_SHOW_IMAGE              = 'ibxShowImage';
-	const HEADER_TO_SEND_PREVIEW             = 'BX-Viewer';
-	const HEADER_TO_RESIZE_IMAGE             = 'BX-Viewer-image';
-	const HEADER_TO_GET_SOURCE               = 'BX-Viewer-src';
-	const HEADER_TO_RUN_FORCE_TRANSFORMATION = 'BX-Viewer-force-transformation';
-	const HEADER_TO_CHECK_TRANSFORMATION     = 'BX-Viewer-check-transformation';
+	public const GET_KEY_TO_SEND_PREVIEW_CONTENT    = 'ibxPreview';
+	public const GET_KEY_TO_SHOW_IMAGE              = 'ibxShowImage';
+	public const HEADER_TO_SEND_PREVIEW             = 'BX-Viewer';
+	public const HEADER_TO_RESIZE_IMAGE             = 'BX-Viewer-image';
+	public const HEADER_TO_GET_SOURCE               = 'BX-Viewer-src';
+	public const HEADER_TO_RUN_FORCE_TRANSFORMATION = 'BX-Viewer-force-transformation';
+	public const HEADER_TO_CHECK_TRANSFORMATION     = 'BX-Viewer-check-transformation';
+
+	private const SALT_FILE_ID = 'previewfile';
 
 	/** @var TransformerManager  */
 	private $transformer;
-	private $rendererList = [];
-	private static $disableCatchingViewByUser = false;
+	private array $rendererList = [];
+	private static bool $disableCatchingViewByUser = false;
 
 	/**
 	 * @var HttpRequest
@@ -43,7 +46,7 @@ final class PreviewManager
 		$this->buildViewRendererList();
 	}
 
-	private function buildTransformer()
+	private function buildTransformer(): ?TransformerManager
 	{
 		if (!Loader::includeModule('transformer'))
 		{
@@ -53,7 +56,7 @@ final class PreviewManager
 		return new TransformerManager();
 	}
 
-	private function buildViewRendererList()
+	private function buildViewRendererList(): void
 	{
 		$default = [
 			Renderer\Pdf::class,
@@ -95,25 +98,25 @@ final class PreviewManager
 			}
 		}
 
-		$this->rendererList = array_merge($default, $additionalList);
+		$this->rendererList = array_merge($additionalList, $default);
 	}
 
-	public static function disableCatchingViewByUser()
+	public static function disableCatchingViewByUser(): void
 	{
 		self::$disableCatchingViewByUser = true;
 	}
 
-	public static function enableCatchingViewByUser()
+	public static function enableCatchingViewByUser(): void
 	{
 		self::$disableCatchingViewByUser = false;
 	}
 
-	public static function isDisabledCatchingViewByUser()
+	public static function isDisabledCatchingViewByUser(): bool
 	{
-		 return (bool)self::$disableCatchingViewByUser;
+		 return self::$disableCatchingViewByUser;
 	}
 
-	public function isInternalRequest($file, $options)
+	public function isInternalRequest($file, $options): bool
 	{
 		if (self::isDisabledCatchingViewByUser())
 		{
@@ -163,17 +166,18 @@ final class PreviewManager
 		return false;
 	}
 
-	public function processViewByUserRequest($file, $options)
+	public function processViewByUserRequest($file, $options): void
 	{
 		self::disableCatchingViewByUser();
 
+		$response = null;
 		if ($this->httpRequest->get(self::GET_KEY_TO_SEND_PREVIEW_CONTENT))
 		{
 			$response = $this->sendPreviewContent($file, $options);
 		}
 		elseif ($this->httpRequest->get(self::GET_KEY_TO_SHOW_IMAGE))
 		{
-			$response = $this->showImage($file, $options);
+			$this->showImage($file, $options);
 		}
 		elseif ($this->httpRequest->getHeader(self::HEADER_TO_RUN_FORCE_TRANSFORMATION))
 		{
@@ -192,12 +196,12 @@ final class PreviewManager
 			$response = $this->sendResizedImage($file);
 		}
 
-		if ($response instanceof Response\BFile && isset($options['cache_time']))
+		if (($response instanceof Response\BFile) && isset($options['cache_time']))
 		{
 			$response->setCacheTime($options['cache_time']);
 		}
 
-		if ($response instanceof \Bitrix\Main\Response)
+		if ($response instanceof Main\Response)
 		{
 			/** @global \CMain $APPLICATION */
 			global $APPLICATION;
@@ -208,7 +212,7 @@ final class PreviewManager
 		}
 	}
 
-	protected function sendPreviewContent($file, $options)
+	protected function sendPreviewContent($file, $options): ?Response\BFile
 	{
 		$possiblePreviewFileId = $this->unsignFileId($this->httpRequest->get(self::GET_KEY_TO_SEND_PREVIEW_CONTENT));
 		$filePreview = $this->getFilePreviewEntryByFileId($file['ID']);
@@ -228,7 +232,7 @@ final class PreviewManager
 		);
 	}
 
-	protected function showImage($file, $options)
+	protected function showImage($file, $options): void
 	{
 		if (!is_array($options))
 		{
@@ -239,7 +243,7 @@ final class PreviewManager
 		\CFile::viewByUser($file, $options);
 	}
 
-	protected function sendResizedImage($file)
+	protected function sendResizedImage($file): ?Response\ResizedImage
 	{
 		$fileView = $this->getByImage($file['ID'], $this->getSourceUri());
 		if (!$fileView)
@@ -250,7 +254,7 @@ final class PreviewManager
 		return $fileView->render();
 	}
 
-	protected function prepareRenderParameters($file)
+	protected function prepareRenderParameters($file): array
 	{
 		$getContentType = function() use ($file){
 			$filePreviewData = $this->getViewFileData($file);
@@ -282,14 +286,14 @@ final class PreviewManager
 		];
 	}
 
-	protected function checkTransformation($file)
+	protected function checkTransformation($file): Response\AjaxJson
 	{
 		return new Response\AjaxJson([
 			'transformation' => (bool)$this->getViewFileData($file),
 		]);
 	}
 
-	protected function sendPreview($file, $forceTransformation = false)
+	protected function sendPreview($file, $forceTransformation = false): Response\AjaxJson
 	{
 		$render = $this->buildRenderByFile(
 			$file['ORIGINAL_NAME'],
@@ -315,13 +319,17 @@ final class PreviewManager
 			else
 			{
 				$generatePreview = $this->generatePreview($file['ID']);
-				if ($generatePreview->isSuccess())
+				if ($generatePreview instanceof Main\Result)
 				{
-					$render = null;
-					return Response\AjaxJson::createSuccess($generatePreview->getData());
+					if ($generatePreview->isSuccess())
+					{
+						return Response\AjaxJson::createSuccess($generatePreview->getData());
+					}
+
+					return Response\AjaxJson::createError($generatePreview->getErrorCollection());
 				}
 
-				return Response\AjaxJson::createError($generatePreview->getErrorCollection());
+				return Response\AjaxJson::createError();
 			}
 		}
 
@@ -356,7 +364,7 @@ final class PreviewManager
 		return $result;
 	}
 
-	public function generatePreview($fileId)
+	public function generatePreview($fileId): ?Main\Result
 	{
 		if (!$this->transformer)
 		{
@@ -368,41 +376,40 @@ final class PreviewManager
 		return $this->transformer->transform($fileId);
 	}
 
-	protected function getSourceUri()
+	protected function getSourceUri(): Uri
 	{
 		$sourceSrc = $this->httpRequest->getHeader(self::HEADER_TO_GET_SOURCE);
 		if (!$sourceSrc)
 		{
 			$sourceSrc = $this->httpRequest->getRequestUri();
 		}
-		$sourceUri = new Uri($sourceSrc);
 
-		return $sourceUri;
+		return new Uri($sourceSrc);
 	}
 
-	protected function signFileId($fileId)
+	protected function signFileId($fileId): string
 	{
-		$signer = new Security\Sign\Signer;
+		$signer = new Security\Sign\Signer();
 
 		return $signer->sign(
 			base64_encode(serialize($fileId)),
-			'previewfile'
+			self::SALT_FILE_ID
 		);
 	}
 
 	protected function unsignFileId($signedString)
 	{
-		$signer = new Security\Sign\Signer;
+		$signer = new Security\Sign\Signer();
 
 		$unsignedParameters = $signer->unsign(
 			$signedString,
-			'previewfile'
+			self::SALT_FILE_ID
 		);
 
 		return unserialize(base64_decode($unsignedParameters), ['allowed_classes' => false]);
 	}
 
-	public function getByImage($fileId, Uri $sourceUri)
+	public function getByImage($fileId, Uri $sourceUri): ?Renderer\Image
 	{
 		$fileData = $this->getFileData($fileId);
 		if (!$fileData)
@@ -499,7 +506,7 @@ final class PreviewManager
 		return $rendererClass;
 	}
 
-	private function shouldRestrictBySize(array $file, $rendererClass)
+	private function shouldRestrictBySize(array $file, $rendererClass): bool
 	{
 		if (!isset($file['size']))
 		{

@@ -4,6 +4,7 @@ namespace Bitrix\Catalog\v2\Sku;
 
 use Bitrix\Catalog\v2\IblockElementRepositoryContract;
 use Bitrix\Catalog\v2\Product\BaseProduct;
+use Iterator;
 
 /**
  * Interface SkuRepositoryContract
@@ -16,4 +17,8 @@ use Bitrix\Catalog\v2\Product\BaseProduct;
 interface SkuRepositoryContract extends IblockElementRepositoryContract
 {
 	public function getCollectionByProduct(BaseProduct $product): SkuCollection;
+
+	public function getEntitiesByProduct(BaseProduct $product, array $params): Iterator;
+
+	public function getCountByProductId(int $productId): int;
 }

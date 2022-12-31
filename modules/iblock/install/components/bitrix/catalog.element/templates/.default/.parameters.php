@@ -1,4 +1,5 @@
-<? if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 /**
  * @var string $componentPath
@@ -44,7 +45,7 @@ $arThemesList = array(
 	'yellow' => GetMessage('CP_BCE_TPL_THEME_YELLOW'),
 	'black' => GetMessage('CP_BCE_TPL_THEME_BLACK')
 );
-$dir = trim(preg_replace("'[\\\\/]+'", "/", dirname(__FILE__).'/themes/'));
+$dir = trim(preg_replace("'[\\\\/]+'", "/", __DIR__.'/themes/'));
 if (is_dir($dir))
 {
 	foreach ($arThemesList as $themeID => $themeName)
@@ -620,6 +621,13 @@ $arTemplateParameters['MESS_NOT_AVAILABLE'] = array(
 	'TYPE' => 'STRING',
 	'DEFAULT' => GetMessage('CP_BCE_TPL_MESS_NOT_AVAILABLE_DEFAULT')
 );
+$arTemplateParameters['MESS_NOT_AVAILABLE_SERVICE'] = array(
+	'PARENT' => 'VISUAL',
+	'NAME' => GetMessage('CP_BCE_TPL_MESS_NOT_AVAILABLE_SERVICE'),
+	'TYPE' => 'STRING',
+	'DEFAULT' => GetMessage('CP_BCE_TPL_MESS_NOT_AVAILABLE_SERVICE_DEFAULT')
+);
+
 $arTemplateParameters['USE_VOTE_RATING'] = array(
 	'PARENT' => 'VISUAL',
 	'NAME' => GetMessage('CP_BCE_TPL_USE_VOTE_RATING'),
@@ -627,7 +635,6 @@ $arTemplateParameters['USE_VOTE_RATING'] = array(
 	'DEFAULT' => 'N',
 	'REFRESH' => 'Y'
 );
-
 if (isset($arCurrentValues['USE_VOTE_RATING']) && $arCurrentValues['USE_VOTE_RATING'] === 'Y')
 {
 	$arTemplateParameters['VOTE_DISPLAY_AS_RATING'] = array(

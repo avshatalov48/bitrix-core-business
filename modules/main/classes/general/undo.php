@@ -51,7 +51,7 @@ class CUndo
 			}
 			$CACHE_MANAGER->Set($cacheId, $arUndoCache);
 		}
-		$arUndo = $arUndoCache[$ID][$USER->GetId()];
+		$arUndo = $arUndoCache[$ID][$USER->GetId()] ?? false;
 
 		if (!$arUndo)
 			return false;
@@ -444,8 +444,8 @@ class CAutoSave
 
 		if (self::$bAllowed == null)
 		{
-			$arOpt = CUserOptions::GetOption('global', 'settings');
-			self::$bAllowed = $arOpt['autosave'] != 'N' && $APPLICATION->GetCurPage() != '/bitrix/admin/update_system.php';
+			$arOpt = CUserOptions::GetOption('global', 'settings', []);
+			self::$bAllowed = (!isset($arOpt['autosave']) || $arOpt['autosave'] != 'N') && $APPLICATION->GetCurPage() != '/bitrix/admin/update_system.php';
 		}
 
 		return self::$bAllowed;

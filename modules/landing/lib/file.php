@@ -184,24 +184,22 @@ class File
 			{
 				unset($deletedFiles[$row['FILE_ID']]);
 			}
-			foreach ($deletedFiles as $fid)
+			foreach ($deletedFiles as $file)
 			{
-				$fileData = self::getFileArray($fid['FILE_ID']);
+				$fileData = self::getFileArray($file['FILE_ID']);
 				if ($fileData)
 				{
-					AddMessage2Log(
-						"[lndgdbg] AGENT delete file {$fid} with ORIG_NAME {$fileData['ORIGINAL_NAME']} for ENTITY {$fid['ENTITY_TYPE']}_{$fid['ENTITY_ID']}",
-						'landing',
-						7
+					\Bitrix\Landing\Debug::logToFile(
+						"[lndgdbg] AGENT delete file {$file['FILE_ID']} with ORIG_NAME {$fileData['ORIGINAL_NAME']} for ENTITY {$file['ENTITY_TYPE']}_{$file['ENTITY_ID']}"
 					);
 
 					//@tmp log
 					Debug::log(
 						$fileData['SRC'],
-						'fileId: ' . $fid,
+						'fileId: ' . $file['FILE_ID'],
 						'LANDING_FILE_DELETE'
 					);
-					\CFile::delete($fid);
+					\CFile::delete($file);
 				}
 			}
 		}

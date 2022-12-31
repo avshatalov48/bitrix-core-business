@@ -9,8 +9,8 @@ use Bitrix\Main\Entity\UpdateResult;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Numerator\Generator\Contract\Sequenceable;
-use Bitrix\Main\Numerator\Numerator;
 use Bitrix\Main\Numerator\NumberGeneratorFactory;
+use Bitrix\Main\Numerator\Numerator;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\Json;
@@ -69,6 +69,40 @@ class NumeratorTable extends DataManager
 			new IntegerField('CREATED_BY'),
 			new DatetimeField('UPDATED_AT'),
 			new IntegerField('UPDATED_BY'),
+			(new StringField('CODE'))
+				->configureSize(255)
+				->configureUnique()
+				->configureNullable()
+				->addValidator(static function($value) {
+					if (is_null($value) || (is_string($value) && !empty($value)))
+					{
+						return true;
+					}
+
+					return 'CODE should be either NULL or non-empty string';
+				})
+				->addValidator(static function($value, $primary) {
+					if (!is_string($value))
+					{
+						return true;
+					}
+
+					$existingId = self::getIdByCode($value);
+					if (!$existingId)
+					{
+						// no rows with this code exists
+						return true;
+					}
+
+					$id = (int)($primary['ID'] ?? 0);
+					if ($id > 0 && $id === $existingId)
+					{
+						return true;
+					}
+
+					return 'Entry with the same CODE already exists';
+				})
+			,
 		];
 	}
 
@@ -116,6 +150,7 @@ class NumeratorTable extends DataManager
 			$numerator['name'] = $numerator['NAME'];
 			$numerator['template'] = $numerator['TEMPLATE'];
 			$numerator['type'] = $numerator['TYPE'];
+			$numerator['code'] = $numerator['CODE'];
 		}
 		return $results;
 	}
@@ -138,6 +173,7 @@ class NumeratorTable extends DataManager
 			'SETTINGS'   => Json::encode($numeratorFields['SETTINGS']),
 			'UPDATED_AT' => new DateTime(),
 			'UPDATED_BY' => static::getCurrentUserId(),
+			'CODE'       => $numeratorFields['CODE'] ?? null,
 		];
 		if ($numeratorId)
 		{
@@ -188,6 +224,7 @@ class NumeratorTable extends DataManager
 				'name'     => $numerator['NAME'],
 				'template' => $numerator['TEMPLATE'],
 				'type'     => $numerator['TYPE'],
+				'code'     => $numerator['CODE'],
 			];
 			$numeratorGenerators = Json::decode($numerator['SETTINGS']);
 			$numberGeneratorFactory = new NumberGeneratorFactory();
@@ -203,5 +240,30 @@ class NumeratorTable extends DataManager
 		}
 
 		return $numerator;
+	}
+
+	public static function getIdByCode($code): ?int
+	{
+		$code = (string)$code;
+		if (empty($code))
+		{
+			return null;
+		}
+
+		$row =
+			static::query()
+				->setSelect(['ID'])
+				->where('CODE', $code)
+				->setLimit(1)
+				->setCacheTtl(3600)
+				->fetch()
+		;
+
+		if ($row && isset($row['ID']))
+		{
+			return (int)$row['ID'];
+		}
+
+		return null;
 	}
 }

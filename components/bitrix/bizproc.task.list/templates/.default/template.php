@@ -1,12 +1,16 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 if (!empty($_REQUEST['action_button_'.$arResult["GRID_ID"]]))
 {
 	//@TODO remake
 	unset($_REQUEST['bxajaxid'], $_REQUEST['AJAX_CALL']);
 }
 
-\Bitrix\Main\UI\Extension::load(["ui.viewer", "ui.fonts.opensans"]);
+\Bitrix\Main\UI\Extension::load(["ui.viewer", "ui.fonts.opensans", 'ui.buttons.icons']);
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 \Bitrix\Main\Page\Asset::getInstance()->addCss('/bitrix/components/bitrix/bizproc.workflow.faces/templates/.default/style.css');
 
@@ -123,24 +127,38 @@ else
 					$controls = CBPDocument::getTaskControls($record['data']);
 					foreach ($controls['BUTTONS'] as $control)
 					{
-						$class = $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::No || $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::Cancel ? 'decline' : 'accept';
+						$isDecline =
+							$control['TARGET_USER_STATUS'] == CBPTaskUserStatus::No
+							|| $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::Cancel
+						;
+						$class = $isDecline ? 'danger' : 'success';
+						$icon = $isDecline ? 'cancel' : 'done';
 						$props = CUtil::PhpToJSObject(array(
 							'TASK_ID' => $record['data']['ID'],
 							$control['NAME'] => $control['VALUE']
 						));
 
 						$arResult["RECORDS"][$key]['data']["NAME"] .= '<a href="#" onclick="return BX.Bizproc.doInlineTask('
-							.$props.', function(){window[\'bxGrid_'.$arResult["GRID_ID"].'\'].Reload()}, this)" class="bp-button bp-button bp-button-'
-							.$class.'"><span class="bp-button-icon"></span><span class="bp-button-text">'.$control['TEXT'].'</span></a>';
+							. $props
+							. ', function(){window[\'bxGrid_'
+							. $arResult["GRID_ID"]
+							. '\'].Reload()}, this)" class="ui-btn ui-btn-' . $class . ' ui-btn-icon-' . $icon
+							. '">'
+							. $control['TEXT']
+							. '</a>';
 					}
 					$arResult["RECORDS"][$key]['data']["NAME"] .= '</div>';
 				}
 				else
 				{
-					$anchor = '<a '.$attrs.' class="bp-button bp-button bp-button-blue">'.GetMessage("BPATL_BEGIN").'</a>';
+					$anchor = '<a ' . $attrs . ' class="ui-btn ui-btn-primary">' . GetMessage("BPATL_BEGIN") . '</a>';
 					if ($record['data']['ACTIVITY'] == 'RequestInformationActivity' || $record['data']['ACTIVITY'] == 'RequestInformationOptionalActivity')
 					{
-						$anchor = '<a href="'.$record['data']['URL']['TASK'].'" class="bp-button bp-button bp-button-blue">'.GetMessage("BPATL_BEGIN").'</a>';
+						$anchor = '<a href="'
+							. $record['data']['URL']['TASK']
+							. '" class="ui-btn ui-btn-primary">'
+							. GetMessage("BPATL_BEGIN")
+							. '</a>';
 					}
 
 					$arResult["RECORDS"][$key]['data']["NAME"] .= '<div class="bp-btn-panel">'.$anchor.'</div>';

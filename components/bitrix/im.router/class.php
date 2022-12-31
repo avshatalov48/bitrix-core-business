@@ -60,6 +60,11 @@ class ImRouterComponent extends \CBitrixComponent
 	{
 		define('SKIP_TEMPLATE_AUTH_ERROR', true);
 
+		if (Loader::includeModule('ui'))
+		{
+			\Bitrix\Main\UI\Extension::load('ui.roboto');
+		}
+
 		$this->arResult['ALIAS'] = $this->aliasData['ALIAS'];
 		$this->arResult['CHAT_ID'] = $this->aliasData['ENTITY_ID'];
 

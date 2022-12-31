@@ -11,8 +11,8 @@
 		BX.Landing.MediaService.BaseMediaService.apply(this, arguments);
 
 		this.matcher = BX.Landing.Utils.Matchers.rutube;
-		this.embedURL = "//rutube.ru/play/embed/$1";
-		this.idPlace = 1;
+		this.embedURL = "//rutube.ru/play/embed/$2";
+		this.idPlace = 2;
 		this.params = {
 			t: 0,
 		};

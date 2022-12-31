@@ -1,5 +1,6 @@
 <?php
 $MESS["PULL_BATCH_MAX_COUNT_MESSAGES"] = "Maximum number of push notifications to send simultaneously";
+$MESS["PULL_NOTIFY_DEPRECATED"] = "Server versions below 2.0 are no longer supported. Please use Bitrix Push server 2.0 or newer, or use a cloud server. <a href=\"https://training.bitrix24.com/support/training/course/index.php?COURSE_ID=178&LESSON_ID=21641\" target=\"_blank\">Details.</a>";
 $MESS["PULL_NOTIFY_OUTDATED"] = "Versions listed below are deprecated and won't be supported for much longer. Please use Bitrix Push server 2.0 or enable a cloud based server. <a href=\"https://training.bitrix24.com/support/training/course/index.php?COURSE_ID=178&LESSON_ID=21641\" target=\"_blank\">Learn more</a>";
 $MESS["PULL_OPTIONS_CLOUD_ACTIVE_KEY_REQUIRED"] = "Note: a valid license is required to use cloud servers.";
 $MESS["PULL_OPTIONS_CLOUD_REGISTRATION_ACTIVE"] = "Active";
@@ -32,6 +33,9 @@ $MESS["PULL_OPTIONS_NGINX_VERSION_034_DESC"] = "nginx-push-stream-module 0.4.0 i
 $MESS["PULL_OPTIONS_NGINX_VERSION_040"] = "Bitrix Virtual Appliance 4.4 or higher (nginx-push-stream-module 0.4.0)";
 $MESS["PULL_OPTIONS_NGINX_VERSION_710"] = "Bitrix Virtual Appliance 7.1 and higher (Bitrix Push server)";
 $MESS["PULL_OPTIONS_NGINX_VERSION_730"] = "Bitrix Virtual Appliance 7.3 and later (Bitrix Push server 2.0)";
+$MESS["PULL_OPTIONS_NGINX_VERSION_730_2"] = "Virtual Appliance 7.3 - 7.5 (Bitrix Push server 2.0)";
+$MESS["PULL_OPTIONS_NGINX_VERSION_760"] = "Bitrix Virtual Appliance 7.6 and later (Bitrix Push server 3.0)";
+$MESS["PULL_OPTIONS_PATH_TO_JSON_RPC"] = "Path for executing JSON-RPC queries";
 $MESS["PULL_OPTIONS_PATH_TO_LISTENER"] = "Message listener path (HTTP)";
 $MESS["PULL_OPTIONS_PATH_TO_LISTENER_DESC"] = "It is recommended to use a standard port for HTTP or HTTPS.<br>Use 8893 (HTTP) or 8894 (HTTPS) only for nginx-push-stream-module version 0.3.4.";
 $MESS["PULL_OPTIONS_PATH_TO_LISTENER_MODERN_DESC"] = "Notice that modern browsers may connect to a remote push server even on a different domain (CORS requests).";

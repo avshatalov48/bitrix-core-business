@@ -73,8 +73,10 @@ class CListPermissions
 			$socnet_role = "A";
 		}
 
-		if($socnet_role !== "A" && CIBlock::GetArrayByID($iblock_id, "RIGHTS_MODE") === "E")
-			return '';
+		if ($socnet_role !== "A" && CIBlock::GetArrayByID($iblock_id, "RIGHTS_MODE") === "E")
+		{
+			return '0';
+		}
 
 		static $roles = array("A", "E", "K", "T");
 		if(!in_array($socnet_role, $roles))
@@ -162,8 +164,10 @@ class CListPermissions
 			return $iblock_check;
 
 		$arListsPerm = CLists::GetPermission($iblock_type_id);
-		if(!count($arListsPerm))
+		if(!$arListsPerm)
+		{
 			return CListPermissions::ACCESS_DENIED;
+		}
 
 		$arUSER_GROUPS = $USER->GetUserGroupArray();
 		if(count(array_intersect($arListsPerm, $arUSER_GROUPS)) > 0)

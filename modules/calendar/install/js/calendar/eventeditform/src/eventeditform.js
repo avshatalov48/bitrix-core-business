@@ -153,6 +153,14 @@ export class EventEditForm
 		});
 		// endregion
 
+		EventEmitter.subscribe('Calendar.LocationControl.onValueChange', () => {
+			if (this.locationBusyAlert)
+			{
+				Dom.remove(this.locationBusyAlert);
+				this.locationBusyAlert = null;
+			}
+		});
+
 		this.BX.addCustomEvent(window, "onCalendarControlChildPopupShown", this.BX.proxy(this.denySliderClose, this));
 		this.BX.addCustomEvent(window, "onCalendarControlChildPopupClosed", this.BX.proxy(this.allowSliderClose, this));
 	}
@@ -494,9 +502,9 @@ export class EventEditForm
 			{
 				this.BX.removeCustomEvent("SidePanel.Slider::onClose", this.sliderOnClose);
 				if (this.attendeesSelector)
+				{
 				 	this.attendeesSelector.closeAll();
-
-				this.destroy(event);
+				}
 			}
 		}
 	}
@@ -832,6 +840,16 @@ export class EventEditForm
 			}
 		}
 
+		let dateTime = this.dateTimeControl.getValue();
+		this.planner.updateSelector(
+			dateTime.from,
+			dateTime.to,
+			dateTime.fullDay,
+			{
+				focus: true
+			}
+		);
+
 		this.loadPlannerData({
 			entityList: this.getUserSelectorEntityList(),
 			from: Util.formatDate(entry.from.getTime() - Util.getDayLength() * 3),
@@ -1158,14 +1176,14 @@ export class EventEditForm
 				this.repeatSelector.changeType(this.repeatSelector.getType());
 			}
 		});
-		
+
 		this.planner.subscribe('onDateChange', () => {
 			if (this.repeatSelector.getType() === 'weekly')
 			{
 				this.repeatSelector.changeType(this.repeatSelector.getType());
 			}
 		});
-		
+
 	}
 
 	initAttendeesControl()
@@ -1259,16 +1277,6 @@ export class EventEditForm
 
 	loadPlannerData(params = {})
 	{
-		let dateTime = this.dateTimeControl.getValue();
-		this.planner.updateSelector(
-			dateTime.from,
-			dateTime.to,
-			dateTime.fullDay,
-			{
-				focus: params.focusSelector !== false
-			}
-		);
-
 		this.planner.showLoader();
 		return new Promise((resolve) => {
 			this.BX.ajax.runAction('calendar.api.calendarajax.updatePlanner', {
@@ -1892,7 +1900,8 @@ export class EventEditForm
 			errorList.forEach((error) => {
 				if (error.code === "edit_entry_location_busy")
 				{
-					return Util.showFieldError(error.message, this.DOM.locationWrap, {clearTimeout: 10000});
+					this.locationBusyAlert = Util.showFieldError(error.message, this.DOM.locationWrap, {clearTimeout: 10000});
+					return;
 				}
 				errorText += error.message + "\n";
 			});

@@ -401,9 +401,10 @@ final class Api
 		try
 		{
 			$response = $this->transport->request(
-				self::SINGLE_POINT_API_VERSION,
+				self::MULTI_POINT_API_VERSION,
 				HttpClient::HTTP_POST,
 				'driver-voiceforwarding',
+				null,
 				['claim_id' => $claimId]
 			);
 		}
@@ -448,7 +449,7 @@ final class Api
 		try
 		{
 			$response = $this->transport->request(
-				self::SINGLE_POINT_API_VERSION,
+				self::MULTI_POINT_API_VERSION,
 				HttpClient::HTTP_POST,
 				'claims/journal',
 				null,

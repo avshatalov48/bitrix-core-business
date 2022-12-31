@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CPT_BCT_TPL_VIEW_MODE_BANNER"] = "баннер";
 $MESS["CPT_BCT_TPL_VIEW_MODE_SLIDER"] = "слайдер";
 $MESS["CPT_BCT_TPL_VIEW_MODE_SECTION"] = "список";
@@ -68,11 +68,13 @@ $MESS["CP_BCT_TPL_MESS_BTN_ADD_TO_BASKET"] = "Текст кнопки \"Доба
 $MESS["CP_BCT_TPL_MESS_BTN_COMPARE"] = "Текст кнопки \"Сравнить\"";
 $MESS["CP_BCT_TPL_MESS_BTN_DETAIL"] = "Текст кнопки \"Подробнее\"";
 $MESS["CP_BCT_TPL_MESS_NOT_AVAILABLE"] = "Сообщение об отсутствии товара";
+$MESS['CP_BCT_TPL_MESS_NOT_AVAILABLE_SERVICE'] = "Сообщение о недоступности услуги";
 $MESS["CP_BCT_TPL_MESS_BTN_BUY_DEFAULT"] = "Купить";
 $MESS["CP_BCT_TPL_MESS_BTN_ADD_TO_BASKET_DEFAULT"] = "В корзину";
 $MESS["CP_BCT_TPL_MESS_BTN_COMPARE_DEFAULT"] = "Сравнить";
 $MESS["CP_BCT_TPL_MESS_BTN_DETAIL_DEFAULT"] = "Подробнее";
 $MESS["CP_BCT_TPL_MESS_NOT_AVAILABLE_DEFAULT"] = "Нет в наличии";
+$MESS['CP_BCT_TPL_MESS_NOT_AVAILABLE_SERVICE_DEFAULT'] = "Недоступно";
 $MESS["ADD_TO_BASKET_ACTION_BUY"] = "покупки";
 $MESS["ADD_TO_BASKET_ACTION_ADD"] = "добавления в корзину";
 $MESS["VIEW_MODE_TIP"] = "Настройка определяет, как будет выглядеть перечень элементов на странице";
@@ -99,4 +101,3 @@ $MESS["USE_ENHANCED_ECOMMERCE_TIP"] = "Требуется дополнитель
 Ecommerce и/или Яндекс.Метрике";
 $MESS["CP_BCT_TPL_DATA_LAYER_NAME"] = "Имя контейнера данных";
 $MESS["CP_BCT_TPL_BRAND_PROPERTY"] = "Свойство брендов";
-?>

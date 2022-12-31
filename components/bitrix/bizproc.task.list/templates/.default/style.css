@@ -220,4 +220,7 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 	display: inline-block;
 	vertical-align: middle;
 }
+.bp-btn-panel .ui-btn {
+	margin: 3px;
+}
 /* <<< bizproc.task.list */

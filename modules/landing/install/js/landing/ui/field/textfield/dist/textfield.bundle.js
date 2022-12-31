@@ -93,6 +93,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return this.textOnly;
 	    }
 	  }, {
+	    key: "isContentEditable",
+	    value: function isContentEditable() {
+	      return this.contentEditable !== false;
+	    }
+	  }, {
 	    key: "onDocumentClick",
 	    value: function onDocumentClick() {
 	      if (this.isEditable() && !this.fromInput) {
@@ -158,6 +163,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        } else {
 	          BX.Landing.UI.Panel.EditorPanel.getInstance().hide();
 	          this.input.contentEditable = true;
+	        }
+
+	        if (!this.isContentEditable()) {
+	          this.input.contentEditable = false;
 	        }
 	      }
 	    }

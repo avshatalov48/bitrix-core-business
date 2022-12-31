@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,ui_uploader_core,ui_sidepanel_layout,main_loader,main_core,main_core_events,ui_buttons) {
+(function (exports,ui_uploader_core,ui_dialogs_messagebox,ui_sidepanel_layout,main_loader,main_core,main_core_events,ui_buttons) {
 	'use strict';
 
 	let _ = t => t,
@@ -31,9 +31,9 @@ this.BX.UI = this.BX.UI || {};
 	    return this.cache.remember('valueLayout', () => {
 	      return main_core.Tag.render(_t || (_t = _`
 				<div class="ui-stamp-uploader-header-text-value">
-					<span class="ui-link">${0}</span>
+					<span title="${0}">${0}</span>
 				</div>
-			`), main_core.Text.encode(this.getOptions().contact.label));
+			`), main_core.Text.encode(this.getOptions().contact.label), main_core.Text.encode(this.getOptions().contact.label));
 	    });
 	  }
 
@@ -493,7 +493,8 @@ this.BX.UI = this.BX.UI || {};
 
 	let _$8 = t => t,
 	    _t$8,
-	    _t2$4;
+	    _t2$4,
+	    _t3$2;
 
 	var _delay = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("delay");
 
@@ -512,27 +513,32 @@ this.BX.UI = this.BX.UI || {};
 	      const previewLayout = this.getPreview().getLayout();
 	      const fileSelectButtonLayout = this.getFileSelect().getLayout();
 	      return new ui_uploader_core.Uploader({
-	        acceptOnlyImages: true,
 	        controller: this.getOptions().controller.upload,
-	        browseElement: [dropzoneLayout, previewLayout, fileSelectButtonLayout],
+	        assignAsFile: true,
+	        browseElement: [dropzoneLayout, previewLayout, fileSelectButtonLayout, this.getHiddenInput()],
 	        dropElement: [dropzoneLayout, previewLayout],
 	        imagePreviewHeight: 556,
 	        imagePreviewWidth: 1000,
 	        autoUpload: false,
+	        acceptedFileTypes: ['image/png', 'image/jpeg'],
 	        events: {
 	          'File:onAdd': event => {
 	            const {
-	              file
+	              file,
+	              error
 	            } = event.getData();
-	            this.getPreview().show(URL.createObjectURL(file.clientPreview));
-	            this.setUploaderFile(file);
 
-	            if (this.getMode() === Uploader.Mode.SLIDER) {
-	              this.getSliderButtons().saveButton.setDisabled(false);
-	            }
+	            if (main_core.Type.isNil(error)) {
+	              this.getPreview().show(file.getClientPreviewUrl());
+	              this.setUploaderFile(file);
 
-	            if (this.getMode() === Uploader.Mode.INLINE) {
-	              this.getInlineSaveButton().setDisabled(false);
+	              if (this.getMode() === Uploader.Mode.SLIDER) {
+	                this.getSliderButtons().saveButton.setDisabled(false);
+	              }
+
+	              if (this.getMode() === Uploader.Mode.INLINE) {
+	                this.getInlineSaveButton().setDisabled(false);
+	              }
 	            }
 	          },
 	          'File:onUploadProgress': event => {
@@ -544,6 +550,16 @@ this.BX.UI = this.BX.UI || {};
 	              percent: progress,
 	              size: file.getSize() / 100 * progress
 	            });
+	          },
+	          'File:onError': function (event) {
+	            const {
+	              error
+	            } = event.getData();
+	            const TopMessageBox = main_core.Reflection.getClass('top.BX.UI.Dialogs.MessageBox');
+
+	            if (!main_core.Type.isNil(TopMessageBox)) {
+	              TopMessageBox.alert(error.getMessage());
+	            }
 	          }
 	        }
 	      });
@@ -617,7 +633,8 @@ this.BX.UI = this.BX.UI || {};
 	          }
 
 	          return this.getDropzone();
-	        })(), this.getActionPanel(), this.getStatus(), this.getPreview()]
+	        })(), // this.getActionPanel(),
+	        this.getStatus(), this.getPreview()]
 	      });
 	    });
 	  }
@@ -649,6 +666,7 @@ this.BX.UI = this.BX.UI || {};
 					${0}
 					${0}
 					${0}
+					${0}
 				</div>
 			`), mode, (() => {
 	        if (mode === Uploader.Mode.SLIDER) {
@@ -666,7 +684,15 @@ this.BX.UI = this.BX.UI || {};
 	        }
 
 	        return '';
-	      })());
+	      })(), this.getHiddenInput());
+	    });
+	  }
+
+	  getHiddenInput() {
+	    return this.cache.remember('hiddenInput', () => {
+	      return main_core.Tag.render(_t3$2 || (_t3$2 = _$8`
+				<input type="file" name="STAMP_UPLOADER_INPUT" hidden>
+			`));
 	    });
 	  }
 
@@ -686,7 +712,8 @@ this.BX.UI = this.BX.UI || {};
 	          reset: true
 	        });
 	        file.upload();
-	        file.uploadController.subscribeOnce('onUpload', event => {
+	        const uploadController = main_core.Type.isFunction(file.getUploadController) ? file.getUploadController() : file.uploadController;
+	        uploadController.subscribeOnce('onUpload', event => {
 	          resolve(event.getData().fileInfo);
 	        });
 	      }
@@ -822,5 +849,5 @@ this.BX.UI = this.BX.UI || {};
 
 	exports.Uploader = Uploader;
 
-}((this.BX.UI.Stamp = this.BX.UI.Stamp || {}),BX.UI.Uploader,BX.UI.SidePanel,BX,BX,BX.Event,BX.UI));
+}((this.BX.UI.Stamp = this.BX.UI.Stamp || {}),BX.UI.Uploader,BX.UI.Dialogs,BX.UI.SidePanel,BX,BX,BX.Event,BX.UI));
 //# sourceMappingURL=uploader.bundle.js.map

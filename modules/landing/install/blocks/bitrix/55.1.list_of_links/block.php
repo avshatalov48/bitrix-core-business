@@ -1,4 +1,4 @@
-<section class="landing-block g-pt-30 g-pb-30 g-pl-15 g-pr-15">
+<section class="landing-block g-pt-30 g-pb-30 g-pl-15 g-pr-15 u-block-border-none">
 	<div class="landing-block-node-list-container row no-gutters justify-content-center">
 		<ul class="landing-block-node-list list-unstyled w-100 g-max-width-384 g-mb-0">
 			<li class="landing-block-node-list-item g-brd-bottom g-brd-gray-light-v3 g-brd-1 g-py-12 js-animation fadeInRight">

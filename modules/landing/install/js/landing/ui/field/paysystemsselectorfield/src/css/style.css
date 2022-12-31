@@ -1,0 +1,39 @@
+.landing-ui-field-pay-system-selector-ps-wrapper {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 12px 9px;
+
+	height: max-content;
+}
+
+.landing-ui-field-pay-system-selector-ps-img {
+	height: 50px;
+	width: 75px;
+}
+
+.landing-ui-field-pay-system-selector-ps-img img {
+	height: 100%;
+	width: 100%;
+
+	object-fit: contain;
+}
+
+.landing-ui-field-pay-system-ps-title {
+	margin-left: 15px;
+	flex-grow: 1;
+}
+
+.landing-ui-field-pay-system-selector-connect-recommended {
+	display: flex;
+	flex-direction: row;
+	color: var(--blue);
+	border-bottom: 1px dotted;
+	font-size: small;
+	align-self: center;
+	cursor: pointer;
+}
+
+.landing-ui-field-pay-system-selector-ps-switch {
+	margin: 0;
+}

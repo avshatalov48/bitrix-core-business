@@ -674,7 +674,7 @@ if(!CMain::IsHTTPS() && COption::GetOptionString('main', 'use_encrypted_auth', '
 }
 ?>
 	<tr id="bx_pass_row" style="display:<?=($str_EXTERNAL_AUTH_ID <> ''? 'none':'')?>;"<?if($ID<=0 || $COPY_ID>0):?> class="adm-detail-required-field"<?endif?>>
-		<td><?echo GetMessage('NEW_PASSWORD_REQ')?>:<sup><span class="required">1</span></sup></td>
+		<td><?echo GetMessage('NEW_PASSWORD_REQ')?>:</td>
 		<td><input type="password" name="NEW_PASSWORD" size="30" maxlength="255" value="<? echo htmlspecialcharsbx($NEW_PASSWORD) ?>" autocomplete="new-password" style="vertical-align:middle;">
 <?if($bSecure):?>
 				<span class="bx-auth-secure" id="bx_auth_secure" title="<?echo GetMessage("AUTH_SECURE_NOTE")?>" style="display:none">
@@ -922,6 +922,7 @@ $tabControl->BeginCustomField("RATING_BOX", GetMessage("USER_RATING_INFO"), fals
 		$aTabs2 = array();
 		$arRatings = array();
 		$rsRatings = CRatings::GetList(array('ID' => 'ASC'), array('ACTIVE' => 'Y', 'ENTITY_ID' => 'USER'));
+		$showNote = false;
 		while ($arRatingsTmp = $rsRatings->GetNext())
 		{
 			if ($arRatingsTmp['AUTHORITY'] == 'Y')
@@ -949,9 +950,12 @@ $tabControl->BeginCustomField("RATING_BOX", GetMessage("USER_RATING_INFO"), fals
 				$viewTabControl->BeginNextTab();
 				?>
 					<table cellspacing="7" cellpadding="0" border="0" width="100%" class="edit-table">
-				<?	if ($USER->CanDoOperation('edit_ratings') && ($selfEdit || $ID!=$uid)): ?>
+				<?
+					if ($USER->CanDoOperation('edit_ratings') && ($selfEdit || $ID!=$uid)):
+						$showNote = true;
+				?>
 					<tr>
-						<td class="field-name" width="40%"><?=GetMessage('RATING_BONUS')?>:<sup><span class="required">2</span></sup></td>
+						<td class="field-name" width="40%"><?=GetMessage('RATING_BONUS')?>:<sup><span class="required">1</span></sup></td>
 						<td><?=InputType('text', "RATING_BONUS[$ratingId]", floatval($arRatingUserProp['BONUS']), false, false, '', 'size="5" maxlength="11"')?> <?=($ratingWeightType == 'auto'? 'x '.GetMessage('RATING_NORM_VOTE_WEIGHT'): '')?></td>
 					</tr>
 				<? endif; ?>
@@ -1029,7 +1033,9 @@ $tabControl->BeginCustomField("RATING_BOX", GetMessage("USER_RATING_INFO"), fals
 			$viewTabControl->End();
 		}
 		else
+		{
 			echo GetMessage('RATING_NOT_AVAILABLE');
+		}
 		?>
 		</td>
 	</tr>
@@ -1098,11 +1104,13 @@ $tabControl->Show();
 $tabControl->ShowWarnings($tabControl->GetName(), $message);
 ?>
 
+<?php if ($showNote):?>
 <?if(!defined('BX_PUBLIC_MODE') || BX_PUBLIC_MODE != 1):?>
 <?echo BeginNote();?>
 <span class="required">1</span> <?echo GetMessage("RATING_BONUS_NOTICE")?><br>
 <?echo EndNote();?>
 <?endif;?>
+<?php endif;?>
 
 <?
 require_once ($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");

@@ -36,6 +36,7 @@ elseif (\CModule::IncludeModule('tasks'))
                 "PATH_TO_USER" => $arResult["PATH_TO_USER"],
                 'PATH_TO_USER_TASKS' => $arResult['PATH_TO_USER_TASKS'],
                 "PATH_TO_GROUP" => $arParams["PATH_TO_GROUP"],
+				'PATH_TO_USER_TASKS_TASK' => $arResult['PATH_TO_USER_TASKS_TASK'],
                 "PATH_TO_TASKS" => CComponentEngine::MakePathFromTemplate(
                     $arResult["PATH_TO_USER_TASKS"],
                     array('user_id' => $arResult["VARIABLES"]["user_id"])

@@ -27,9 +27,9 @@ use Bitrix\Main\NotImplementedException;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_UserTag_Query query()
- * @method static EO_UserTag_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserTag_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_UserTag_Result getById($id)
- * @method static EO_UserTag_Result getList(array $parameters = array())
+ * @method static EO_UserTag_Result getList(array $parameters = [])
  * @method static EO_UserTag_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\EO_UserTag createObject($setDefaultValues = true)
  * @method static \Bitrix\Socialnetwork\EO_UserTag_Collection createCollection()

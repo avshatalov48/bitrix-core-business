@@ -216,7 +216,13 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 		}
 	}
 
-	function GetFileSRC($arBucket, $arFile)
+	/**
+	 * @param array[string]string $arBucket
+	 * @param mixed $arFile
+	 * @param boolean $encoded
+	 * @return string
+	*/
+	function GetFileSRC($arBucket, $arFile, $encoded = true)
 	{
 		global $APPLICATION;
 
@@ -253,7 +259,14 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 
 		$proto = $APPLICATION->IsHTTPS()? "https": "http";
 
-		return $proto."://$host/".CCloudUtil::URLEncode($URI, "UTF-8", true);
+		if ($encoded)
+		{
+			return $proto."://$host/".CCloudUtil::URLEncode($URI, "UTF-8", true);
+		}
+		else
+		{
+			return $proto."://$host/".$URI;
+		}
 	}
 
 	function FileExists($arBucket, $filePath)
@@ -334,15 +347,6 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 		}
 	}
 
-	function DownloadToFile($arBucket, $arFile, $filePath)
-	{
-		$request = new Bitrix\Main\Web\HttpClient(array(
-			"streamTimeout" => $this->streamTimeout,
-		));
-		$url = $this->GetFileSRC($arBucket, $arFile);
-		return $request->download($url, $filePath);
-	}
-
 	function DeleteFile($arBucket, $filePath)
 	{
 		global $APPLICATION;
@@ -387,7 +391,6 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 			if(mb_substr($filePath, 0, mb_strlen($arBucket["PREFIX"]) + 2) != "/".$arBucket["PREFIX"]."/")
 				$filePath = "/".$arBucket["PREFIX"]."/".ltrim($filePath, "/");
 		}
-		$filePath = str_replace("%", " ", $filePath);
 		$filePath = CCloudUtil::URLEncode($filePath, "UTF-8", true);
 
 		$response = $this->SendRequest(
@@ -475,7 +478,7 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 					foreach($response["ListBucketResult"]["#"]["CommonPrefixes"] as $a)
 					{
 						$dir_name = mb_substr(rtrim($a["#"]["Prefix"][0]["#"], "/"), mb_strlen($filePath));
-						$result["dir"][] = $APPLICATION->ConvertCharset(rawurldecode($dir_name), "UTF-8", LANG_CHARSET);
+						$result["dir"][] = $APPLICATION->ConvertCharset($dir_name, "UTF-8", LANG_CHARSET);
 					}
 				}
 
@@ -487,7 +490,7 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 					foreach($response["ListBucketResult"]["#"]["Contents"] as $a)
 					{
 						$file_name = mb_substr($a["#"]["Key"][0]["#"], mb_strlen($filePath));
-						$result["file"][] = $APPLICATION->ConvertCharset(rawurldecode($file_name), "UTF-8", LANG_CHARSET);
+						$result["file"][] = $APPLICATION->ConvertCharset($file_name, "UTF-8", LANG_CHARSET);
 						$result["file_size"][] = $a["#"]["Size"][0]["#"];
 						$result["file_mtime"][] = mb_substr($a["#"]["LastModified"][0]["#"], 0, 19);
 						$result["file_hash"][] = trim($a["#"]["ETag"][0]["#"], '"');
@@ -532,7 +535,6 @@ class CCloudStorageService_GoogleStorage extends CCloudStorageService
 			if(mb_substr($filePath, 0, mb_strlen($arBucket["PREFIX"]) + 2) != "/".$arBucket["PREFIX"]."/")
 				$filePath = "/".$arBucket["PREFIX"].$filePath;
 		}
-		$filePath = str_replace("%", " ", $filePath);
 		$filePathU = CCloudUtil::URLEncode($filePath, "UTF-8", true);
 
 		$response = $this->SendRequest(

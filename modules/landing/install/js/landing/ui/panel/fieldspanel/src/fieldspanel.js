@@ -10,7 +10,9 @@ import {BaseButton} from 'landing.ui.button.basebutton';
 import {Text} from 'landing.ui.field.textfield';
 import {FormSettingsPanel} from 'landing.ui.panel.formsettingspanel';
 import {FormClient} from 'crm.form.client';
+import {ZIndexManager} from 'main.core.z-index-manager';
 import 'ui.userfieldfactory';
+import 'landing.master';
 
 import 'ui.fonts.opensans';
 import './css/style.css';
@@ -39,9 +41,32 @@ type CrmFieldsList = {
  */
 export class FieldsPanel extends Content
 {
+	static staticCache = new Cache.MemoryCache();
+
+	static isEditorContext(): boolean
+	{
+		return FieldsPanel.staticCache.remember('isEditorContext', () => {
+			const rootWindow = PageObject.getRootWindow();
+			const viewContainer = rootWindow.document.body.querySelector('.landing-ui-view');
+			return Type.isDomNode(viewContainer);
+		});
+	}
+
+	static getRootWindow(): Window
+	{
+		return FieldsPanel.staticCache.remember('rootWindow', () => {
+			if (FieldsPanel.isEditorContext())
+			{
+				return PageObject.getRootWindow();
+			}
+
+			return window;
+		});
+	}
+
 	static getInstance(options): FieldsPanel
 	{
-		const rootWindow = PageObject.getRootWindow();
+		const rootWindow = FieldsPanel.getRootWindow();
 		const rootWindowPanel = rootWindow.BX.Landing.UI.Panel.FieldsPanel;
 		if (!rootWindowPanel.instance && !FieldsPanel.instance)
 		{
@@ -74,43 +99,6 @@ export class FieldsPanel extends Content
 		Dom.append(this.overlay, this.getViewContainer());
 		Dom.insertAfter(this.getSearchContainer(), this.header);
 		Dom.append(this.getCreateFieldLayout(), this.body);
-
-		this.showLoader();
-		this.loadPromise = this.load()
-			.then(() => {
-				this.hideLoader();
-
-				Object.entries(this.getCrmFields())
-					.forEach(([categoryId, category]) => {
-						if (
-							categoryId !== 'CATALOG'
-							&& categoryId !== 'ACTIVITY'
-							&& categoryId !== 'INVOICE'
-						)
-						{
-							if (
-								Type.isPlainObject(options)
-								&& Type.isBoolean(options.isLeadEnabled)
-								&& !options.isLeadEnabled
-								&& categoryId === 'LEAD'
-							)
-							{
-								return;
-							}
-
-							const button = new SidebarButton({
-								id: categoryId,
-								text: category.CAPTION,
-								child: true,
-								onClick: () => {
-									this.onSidebarButtonClick(button);
-								},
-							});
-
-							this.appendSidebarButton(button);
-						}
-					});
-			});
 
 		this.appendFooterButton(
 			new BaseButton('save_settings', {
@@ -171,6 +159,16 @@ export class FieldsPanel extends Content
 		return this.cache.get('allowedCategories', []);
 	}
 
+	setDisabledCategories(categories: Array<string>)
+	{
+		this.cache.set('disabledCategories', categories);
+	}
+
+	getDisabledCategories(): Array<string>
+	{
+		return this.cache.get('disabledCategories', []);
+	}
+
 	resetFactoriesCache()
 	{
 		this.cache.keys().forEach((key) => {
@@ -181,14 +179,42 @@ export class FieldsPanel extends Content
 		});
 	}
 
+	#setShowLock(value: boolean)
+	{
+		this.cache.set('showLock', value);
+	}
+
+	#getShowLock(): boolean
+	{
+		return this.cache.get('showLock', false);
+	}
+
+	setLoadOptions(options: {[key: string]: any})
+	{
+		this.cache.set('loadOptions', {...options});
+	}
+
+	getLoadOptions(): {[key: string]: any}
+	{
+		return this.cache.get('loadOptions', {});
+	}
+
 	show(options = {}): Promise<any>
 	{
+		if (this.#getShowLock())
+		{
+			return Promise.resolve();
+		}
+
+		this.#setShowLock(true);
+
 		this.getSearchField().input.textContent = '';
 
 		this.setMultiple(true);
 		this.setAllowedTypes([]);
 		this.setDisabledFields([]);
 		this.setAllowedCategories([]);
+		this.setDisabledCategories([]);
 		this.resetFactoriesCache();
 
 		if (Type.isArrayFilled(options.disabledFields))
@@ -201,6 +227,11 @@ export class FieldsPanel extends Content
 			this.setAllowedCategories(options.allowedCategories);
 		}
 
+		if (Type.isArrayFilled(options.disabledCategories))
+		{
+			this.setDisabledCategories(options.disabledCategories);
+		}
+
 		if (Type.isArrayFilled(options.allowedTypes))
 		{
 			this.setAllowedTypes(options.allowedTypes);
@@ -211,41 +242,57 @@ export class FieldsPanel extends Content
 			this.setMultiple(options.multiple);
 		}
 
-		this.loadPromise
+		Dom.style(this.layout, 'position', options.position ?? null);
+
+		const allowedLoadOptions = ['hideVirtual', 'hideRequisites', 'hideSmartDocument', 'presetId'];
+		const loadOptions = Object.entries(options).reduce((acc, [key, value]) => {
+			if (allowedLoadOptions.includes(key))
+			{
+				acc[key] = value;
+			}
+			return acc;
+		}, {});
+
+		this.setLoadOptions(loadOptions);
+
+		this.showLoader();
+		this.load(loadOptions)
 			.then(() => {
-				this.sidebarButtons.forEach((button) => {
-					Dom.show(button.layout);
-				});
+				this.hideLoader();
+				this.clearSidebar();
 
-				if (options.isLeadEnabled === false)
-				{
-					const leadButton = this.sidebarButtons.get('LEAD');
-					if (leadButton)
-					{
-						Dom.hide(leadButton.layout);
-					}
-				}
+				Object.entries(this.getCrmFields())
+					.forEach(([categoryId, category]) => {
+						if (
+							categoryId !== 'CATALOG'
+							&& categoryId !== 'ACTIVITY'
+							&& categoryId !== 'INVOICE'
+						)
+						{
+							if (
+								Type.isPlainObject(this.options)
+								&& Type.isBoolean(this.options.isLeadEnabled)
+								&& !this.options.isLeadEnabled
+								&& categoryId === 'LEAD'
+							)
+							{
+								return;
+							}
 
-				if (Type.isArrayFilled(options.allowedCategories))
-				{
-					this.sidebarButtons.forEach((button) => {
-						if (!options.allowedCategories.includes(button.id))
-						{
-							Dom.hide(button.layout);
-						}
-						else
-						{
-							Dom.show(button.layout);
+							const button = new SidebarButton({
+								id: categoryId,
+								text: category.CAPTION,
+								child: true,
+								onClick: () => {
+									this.onSidebarButtonClick(button);
+								},
+							});
+
+							this.appendSidebarButton(button);
 						}
 					});
-				}
-				else
-				{
-					this.sidebarButtons.forEach((button) => {
-						Dom.show(button.layout);
-					});
-				}
-
+			})
+			.then(() => {
 				const filteredFieldsTree = this.getFilteredFieldsTree();
 				const categories = Object.keys(filteredFieldsTree);
 
@@ -269,6 +316,7 @@ export class FieldsPanel extends Content
 					const firstShowedButton = this.sidebarButtons.find((button) => {
 						return button.getLayout().hidden !== true;
 					});
+
 					if (firstShowedButton)
 					{
 						firstShowedButton.getLayout().click();
@@ -276,7 +324,10 @@ export class FieldsPanel extends Content
 				}
 			});
 
+		Dom.append(this.overlay, this.layout.parentElement);
+
 		super.show(options).then(() => {
+			this.#setShowLock(false);
 			this.getSearchField().enableEdit();
 			this.getSearchField().input.focus();
 		});
@@ -284,6 +335,16 @@ export class FieldsPanel extends Content
 		return new Promise((resolve) => {
 			this.promiseResolver = resolve;
 		});
+	}
+
+	#setHideLock(value: boolean)
+	{
+		this.cache.set('hideLock', value);
+	}
+
+	#getHideLock(): boolean
+	{
+		return this.cache.get('hideLock', false);
 	}
 
 	hide()
@@ -313,8 +374,13 @@ export class FieldsPanel extends Content
 	getViewContainer(): HTMLDivElement
 	{
 		return this.cache.remember('viewContainer', () => {
-			const rootWindow = PageObject.getRootWindow();
-			return rootWindow.document.querySelector('.landing-ui-view-container');
+			if (FieldsPanel.isEditorContext())
+			{
+				const rootWindow = FieldsPanel.getRootWindow();
+				return rootWindow.document.querySelector('.landing-ui-view-container');
+			}
+
+			return document.body;
 		});
 	}
 
@@ -339,14 +405,48 @@ export class FieldsPanel extends Content
 		void this.getLoader().hide();
 	}
 
-	load(): Promise<any>
+	setHideVirtual(value: ?boolean)
+	{
+		this.cache.set('hideVirtual', value);
+	}
+
+	getHideVirtual(): ?boolean
+	{
+		return this.cache.get('hideVirtual', null);
+	}
+
+	setHideRequisites(value: ?boolean)
+	{
+		this.cache.set('hideRequisites', value);
+	}
+
+	getHideRequisites(): ?boolean
+	{
+		return this.cache.get('hideRequisites', null);
+	}
+
+	setHideSmartDocuments(value: ?boolean)
+	{
+		this.cache.set('hideSmartDocument', value);
+	}
+
+	getHideSmartDocuments(): boolean
+	{
+		return this.cache.get('hideSmartDocument', true);
+	}
+
+	load(options = {}): Promise<any>
 	{
 		return Backend.getInstance()
-			.action('Form::getCrmFields')
+			.action('Form::getCrmFields', {options})
 			.then((result) => {
 				this.setOriginalCrmFields(result);
 				this.setCrmFields(result);
-				Object.assign(FormSettingsPanel.getInstance().getCrmFields(), result);
+
+				if (FieldsPanel.isEditorContext())
+				{
+					Object.assign(FormSettingsPanel.getInstance().getCrmFields(), result);
+				}
 
 				return FormClient
 					.getInstance()
@@ -434,10 +534,11 @@ export class FieldsPanel extends Content
 		}
 	}
 
-	getFilteredFieldsTree()
+	getFilteredFieldsTree(): {[key: string]: any}
 	{
 		const searchString = String(this.getSearchField().getValue()).toLowerCase().trim();
 		const allowedCategories = this.getAllowedCategories();
+		const disabledCategories = this.getDisabledCategories();
 		const allowedTypes = this.getAllowedTypes();
 
 		return Object
@@ -453,45 +554,55 @@ export class FieldsPanel extends Content
 						!Type.isArrayFilled(allowedCategories)
 						|| allowedCategories.includes(categoryId)
 					)
+					&& !disabledCategories.includes(categoryId)
 				)
 				{
-					const filteredFields = category.FIELDS.filter((field) => {
-						const fieldCaption = String(field.caption).toLowerCase().trim();
-						if (Type.isArrayFilled(allowedTypes))
-						{
-							const isTypeAllowed = allowedTypes.some(allowedType => {
-								if (!Type.isPlainObject(allowedType))
-								{
-									allowedType = {type: allowedType};
-								}
-								if (
-									allowedType.entityFieldName
-									&& allowedType.entityFieldName !== field.entity_field_name
-								)
-								{
-									return false;
-								}
-								if (
-									Type.isBoolean(allowedType.multiple)
-									&& allowedType.multiple !== field.multiple
-								)
-								{
-									return false;
-								}
-
-								return field.type === allowedType.type;
-							});
-							if (!isTypeAllowed)
+					const filteredFields = category.FIELDS
+						.filter((field) => {
+							if (
+								field.name === 'CONTACT_ORIGIN_VERSION'
+								|| field.name === 'CONTACT_LINK'
+							)
 							{
 								return false;
 							}
-						}
 
-						return (
-							!Type.isStringFilled(searchString)
-							|| fieldCaption.includes(searchString)
-						);
-					});
+							const fieldCaption = String(field.caption).toLowerCase().trim();
+							if (Type.isArrayFilled(allowedTypes))
+							{
+								const isTypeAllowed = allowedTypes.some(allowedType => {
+									if (!Type.isPlainObject(allowedType))
+									{
+										allowedType = {type: allowedType};
+									}
+									if (
+										allowedType.entityFieldName
+										&& allowedType.entityFieldName !== field.entity_field_name
+									)
+									{
+										return false;
+									}
+									if (
+										Type.isBoolean(allowedType.multiple)
+										&& allowedType.multiple !== field.multiple
+									)
+									{
+										return false;
+									}
+
+									return field.type === allowedType.type;
+								});
+								if (!isTypeAllowed)
+								{
+									return false;
+								}
+							}
+
+							return (
+								!Type.isStringFilled(searchString)
+								|| fieldCaption.includes(searchString)
+							);
+						});
 
 					if (Type.isArrayFilled(filteredFields))
 					{
@@ -582,7 +693,7 @@ export class FieldsPanel extends Content
 	getSearchField(): Text
 	{
 		return this.cache.remember('searchField', () => {
-			const rootWindow = PageObject.getRootWindow();
+			const rootWindow = FieldsPanel.getRootWindow();
 			return new rootWindow.BX.Landing.UI.Field.Text({
 				selector: 'search',
 				textOnly: true,
@@ -607,7 +718,7 @@ export class FieldsPanel extends Content
 	getUserFieldFactory(entityId: string)
 	{
 		const factory = this.cache.remember(`userFieldFactory_${entityId}`, () => {
-			const rootWindow = PageObject.getRootWindow();
+			const rootWindow = window.top;
 			const preparedEntityId = (() => {
 				if (entityId.startsWith('DYNAMIC_'))
 				{
@@ -617,7 +728,16 @@ export class FieldsPanel extends Content
 				return `CRM_${entityId}`;
 			})();
 
-			return new rootWindow.BX.UI.UserFieldFactory.Factory(
+			const Factory = (() => {
+				if (rootWindow.BX.UI.UserFieldFactory)
+				{
+					return rootWindow.BX.UI.UserFieldFactory.Factory
+				}
+
+				return BX.UI.UserFieldFactory.Factory;
+			})();
+
+			return new Factory(
 				preparedEntityId,
 				{
 					moduleId: 'crm',
@@ -654,7 +774,7 @@ export class FieldsPanel extends Content
 			&& dictionary.permissions.userField.add === false
 		)
 		{
-			const rootWindow = PageObject.getRootWindow();
+			const rootWindow = FieldsPanel.getRootWindow();
 			rootWindow.BX.UI.Dialogs.MessageBox.alert(Loc.getMessage('LANDING_FORM_ADD_USER_FIELD_PERMISSION_DENIED'));
 			return;
 		}
@@ -672,7 +792,7 @@ export class FieldsPanel extends Content
 					userField
 						.save()
 						.then(() => {
-							return this.load();
+							return this.load(this.getLoadOptions());
 						})
 						.then(() => {
 							this.getSearchField()
@@ -690,6 +810,8 @@ export class FieldsPanel extends Content
 			Dom.append(configurator.render(), this.content);
 			this.hideCreateFieldButton();
 		});
+
+		Dom.style(menu.getPopup().getPopupContainer(), 'z-index', 9999);
 	}
 
 	getCreateFieldButton(): HTMLSpanElement

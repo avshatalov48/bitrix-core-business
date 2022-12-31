@@ -118,12 +118,18 @@ class CAllSaleOrderUserProps
 				$curVal = $orderProps[$arOrderProperty["ID"]];
 			}
 
-			if (($arOrderProperty["TYPE"] == "MULTISELECT") && is_array($curVal))
+			if (
+				(
+					$arOrderProperty["TYPE"] === "MULTISELECT"
+					|| $arOrderProperty["TYPE"] === "SELECT"
+				)
+				&& is_array($curVal)
+			)
 			{
 				$curVal = implode(",", $curVal);
 			}
 
-			if (($arOrderProperty["TYPE"] == "FILE") && is_array($curVal))
+			if (($arOrderProperty["TYPE"] === "FILE") && is_array($curVal))
 			{
 				$fileList = array();
 
@@ -138,7 +144,7 @@ class CAllSaleOrderUserProps
 				$curVal = serialize($fileList);
 			}
 
-			if ($arOrderProperty["MULTIPLE"] === "Y" & is_array($curVal))
+			if ($arOrderProperty["MULTIPLE"] === "Y" && is_array($curVal))
 			{
 				$curVal = serialize($curVal);
 			}

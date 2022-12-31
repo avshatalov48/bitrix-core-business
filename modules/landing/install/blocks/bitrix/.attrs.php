@@ -18,8 +18,22 @@ return [
 			'attribute' => 'data-slider-autoplay',
 			'type' => 'list',
 			'items' => [
-				['name' => Loc::getMessage('LANDING_BLOCK_ATTRS_OFF'), 'value' => 0],
-				['name' => Loc::getMessage('LANDING_BLOCK_ATTRS_ON'), 'value' => 1],
+				[
+					'name' => Loc::getMessage('LANDING_BLOCK_ATTRS_OFF'),
+					'value' => 0,
+					'hide' => [
+						'autoplay-speed',
+						'pause-hover',
+					],
+				],
+				[
+					'name' => Loc::getMessage('LANDING_BLOCK_ATTRS_ON'),
+					'value' => 1,
+					'show' => [
+						'autoplay-speed',
+						'pause-hover',
+					]
+				],
 			],
 		],
 		'autoplay-speed' => [
@@ -93,10 +107,10 @@ return [
 			'attribute' => 'data-slider-animation',
 			'type' => 'list',
 			'items' => [
-				['name' => Loc::getMessage('LANDING_BLOCK_ATTRS_ANIMATION_OFF'), 'value' => '0'],
-				['name' => 'Slide', 'value' => '1'],
-				['name' => 'Advanced slide', 'value' => '2'],
-				['name' => 'Fade in', 'value' => '3'],
+				['name' => Loc::getMessage('LANDING_BLOCK_ATTRS_ANIMATION_OFF'), 'value' => '0', 'show' => ['slides-show']],
+				['name' => 'Slide', 'value' => '1', 'show' => ['slides-show']],
+				['name' => 'Advanced slide', 'value' => '2', 'show' => ['slides-show']],
+				['name' => 'Fade in', 'value' => '3', 'hide' => ['slides-show']],
 			],
 			'dependency' => [
 				[
@@ -129,8 +143,8 @@ return [
 			'attribute' => 'data-slider-dots',
 			'type' => 'list',
 			'items' => [
-				['name' => Loc::getMessage('LANDING_BLOCK_ATTRS_NO'), 'value' => '0'],
 				['name' => Loc::getMessage('LANDING_BLOCK_ATTRS_YES'), 'value' => '1'],
+				['name' => Loc::getMessage('LANDING_BLOCK_ATTRS_NO'), 'value' => '0'],
 			],
 		],
 	]

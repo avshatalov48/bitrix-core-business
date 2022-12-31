@@ -16,7 +16,7 @@ use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Text\Converter;
 use \Bitrix\Seo\Adv;
 
-Loc::loadMessages(dirname(__FILE__).'/../seo_adv.php');
+Loc::loadMessages(__DIR__.'/../seo_adv.php');
 
 $bAllowDelete = $ID > 0;
 

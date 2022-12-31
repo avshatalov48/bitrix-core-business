@@ -172,14 +172,14 @@ class Service
 	 */
 	public static function isAdVisibleInRegion($code)
 	{
-		if (in_array(
-			$code,
-			[
-				Seo\Ads\MessageBase::CODE_ADS_VK,
-				Seo\Ads\MessageBase::CODE_ADS_YA,
-				Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_VK
-			]
-		))
+		$codes = [
+			Seo\Ads\MessageBase::CODE_ADS_VK,
+			Seo\Ads\MessageBase::CODE_ADS_YA,
+			Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_VK,
+			Seo\Ads\MessageBase::CODE_ADS_LOOKALIKE_YANDEX
+		];
+
+		if (in_array($code, $codes))
 		{
 			if (self::isCloud())
 			{

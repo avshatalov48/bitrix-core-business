@@ -380,12 +380,17 @@ class ShipmentImport extends EntityImport
 	{
 		$result = new Sale\Result();
 
-		$this->resetMarkingsShipmentItem($item);
 		$itemStoreCollection = $item->getShipmentItemStoreCollection();
+		if (!$itemStoreCollection)
+		{
+			return $result;
+		}
+
+		$this->resetMarkingsShipmentItem($item);
 
 		$delta = min(count($markings), $item->getQuantity());
 
-		if($itemStoreCollection->count() < $delta)
+		if ($itemStoreCollection->count() < $delta)
 		{
 			for ($i = (count($markings) - $itemStoreCollection->count()); $i > 0; $i--)
 			{
@@ -402,53 +407,60 @@ class ShipmentImport extends EntityImport
 			}
 		}
 
-		if($result->isSuccess())
+		if ($result->isSuccess())
 		{
 			$k = 0;
 			/** @var  Sale\ShipmentItemStore $storeItem */
 			foreach ($itemStoreCollection as  $storeItem)
 			{
 				$r = $storeItem->setField('MARKING_CODE', $markings[$k++]);
-				if($r->isSuccess() === false)
+				if ($r->isSuccess() === false)
 				{
 					$result->addErrors($r->getErrors());
 					break 1;
 				}
 			}
 		}
+
 		return $result;
 	}
 
 	protected function resetMarkingsShipmentItem(Sale\ShipmentItem $item)
 	{
 		$itemStoreCollection = $item->getShipmentItemStoreCollection();
-
-		/** @var \Bitrix\Sale\ShipmentItemStore $barcode */
-		foreach ($itemStoreCollection as $barcode)
+		if ($itemStoreCollection)
 		{
-			$barcode->setField('MARKING_CODE', null);
+			/** @var \Bitrix\Sale\ShipmentItemStore $barcode */
+			foreach ($itemStoreCollection as $barcode)
+			{
+				$barcode->setField('MARKING_CODE', null);
+			}
 		}
 	}
 
 	private function syncRelationBarcodeMarkingsCode(Sale\ShipmentItem $shipmentItem, $value)
 	{
-		if($shipmentItem->getBasketItem()->isSupportedMarkingCode())
+		if ($shipmentItem->getBasketItem()->isSupportedMarkingCode())
 		{
 			$after = $shipmentItem->getQuantity() + $value;
-			if($after < $shipmentItem->getQuantity()) // minus
+			if ($after < $shipmentItem->getQuantity()) // minus
 			{
 				$deltaQuantity = $shipmentItem->getQuantity() - $after;
 
 				$storeCollection = $shipmentItem->getShipmentItemStoreCollection();
-				/** @var Sale\ShipmentItemStore $store */
-				foreach ($storeCollection as $store)
+				if ($storeCollection)
 				{
-					if($deltaQuantity > 0)
+					/** @var Sale\ShipmentItemStore $store */
+					foreach ($storeCollection as $store)
 					{
-						$store->delete();
-						$deltaQuantity--;
+						if ($deltaQuantity > 0)
+						{
+							$store->delete();
+							$deltaQuantity--;
+						}
 					}
 				}
+
 			}
 		}
 	}
@@ -707,7 +719,7 @@ class ShipmentImport extends EntityImport
 				foreach ($shipmentItemCollection as $shipmentItem)
 				{
 					$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
-					if ($shipmentItemStoreCollection->count()>0)
+					if ($shipmentItemStoreCollection && $shipmentItemStoreCollection->count() > 0)
 					{
 						/** @var Sale\ShipmentItemStore $shipmentItemStore */
 						foreach ($shipmentItemStoreCollection as $shipmentItemStore)

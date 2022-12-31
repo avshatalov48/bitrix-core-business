@@ -94,7 +94,7 @@ export const ViewEventSlider = {
 		{
 			BX.ajax.runAction('calendar.api.calendareventviewform.getCommentsView', {
 				data: {
-					event: this.params.event,
+					signedEvent: this.params.signedEvent,
 				}
 			}).then(response => {
 				const commentsElement = document.createElement('div');
@@ -266,6 +266,7 @@ export const ViewEventSlider = {
 		location: { handler(newValue, oldValue) { this.highlightChange(this.$refs.highlightLocation); } },
 		accessibility: { handler(newValue, oldValue) { this.highlightChange(this.$refs.highlightAccessibility); } },
 	},
+	// language=Vue
 	template: `
 		<div class="ui-alert ui-alert-danger ui-alert-icon-danger ui-alert-text-center" v-if="!params.eventExists">
 			<span class="ui-alert-message">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_EVENT_NOT_FOUND')}}</span>
@@ -315,7 +316,7 @@ export const ViewEventSlider = {
 											<a :href="meetingHostUrl">
 												<div class="calendar-slider-sidebar-user-icon-top"></div>
 												<div class="calendar-slider-sidebar-user-block-item">
-													<img :src="meetingHostAvatar" :width="avatarSize" :height="avatarSize"/>
+													<img :src="encodeURI(meetingHostAvatar)" :width="avatarSize" :height="avatarSize"/>
 												</div>
 												<div class="calendar-slider-sidebar-user-icon-bottom"></div>
 											</a>
@@ -325,7 +326,7 @@ export const ViewEventSlider = {
 										<div class="calendar-slider-sidebar-user-block-avatar" v-if="meetingHostId != att.ID">
 											<a :href="att.URL">
 												<div class="calendar-slider-sidebar-user-block-item">
-													<img :src="att.AVATAR" :width="avatarSize" :height="avatarSize"/>
+													<img :src="encodeURI(att.AVATAR)" :width="avatarSize" :height="avatarSize"/>
 												</div>
 												<div class="calendar-slider-sidebar-user-icon-bottom"></div>
 											</a>
@@ -342,7 +343,7 @@ export const ViewEventSlider = {
 									<div class="calendar-slider-sidebar-user-block-avatar">
 										<a :href="meetingHostUrl">
 											<div class="calendar-slider-sidebar-user-block-item">
-												<img :src="meetingHostAvatar" :width="avatarSize" :height="avatarSize" alt="host"/>
+												<img :src="encodeURI(meetingHostAvatar)" :width="avatarSize" :height="avatarSize" alt="host"/>
 											</div>
 										</a>
 										<div class="calendar-slider-sidebar-user-icon-bottom"></div>

@@ -11,6 +11,7 @@
 		this.params = {
 			firstRun: !!params.firstRun,
 			appHost: params.appHost,
+			appPort: params.appPort,
 			appProto: params.appProto,
 			authId: params.authId,
 			authExpires: params.authExpires,
@@ -240,7 +241,7 @@
 	BX.rest.AppLayout.openPath = function(applicationCode, params, callback)
 	{
 		var path = BX.type.isString(params['path']) ? params['path'] : '';
-		var availablePath = /^\/(crm\/(deal|lead|contact|company)|marketplace|company\/personal\/user\/[0-9]+|workgroups\/group\/[0-9]+)\//;
+		var availablePath = /^\/(crm\/(deal|lead|contact|company|type)|marketplace|company\/personal\/user\/[0-9]+|workgroups\/group\/[0-9]+)\//;
 
 		if (!BX.browser.IsMobile())
 		{
@@ -370,7 +371,10 @@
 			e = e || window.event;
 
 			if (
-				e.origin != this.params.appProto + '://' + this.params.appHost
+				(
+					e.origin !== this.params.appProto + '://' + this.params.appHost
+					&& e.origin + ':' + this.params.appPort !== this.params.appProto + '://' + this.params.appHost
+				)
 				|| (!BX.type.isString(e.data) && !BX.type.isObject(e.data))
 			)
 			{

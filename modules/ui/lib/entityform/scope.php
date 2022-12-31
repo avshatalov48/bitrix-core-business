@@ -161,6 +161,8 @@ class Scope
 
 	protected function prepareAccessCodes(array &$accessCodes): void
 	{
+		$accessCodes = array_filter($accessCodes, static fn($code) => mb_strpos($code, 'CHAT') !== 0);
+
 		foreach ($accessCodes as &$accessCode)
 		{
 			$accessCode = preg_replace('|^(SG\d*?)(_[K,A,M])$|', '$1', $accessCode);

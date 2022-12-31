@@ -495,7 +495,7 @@ BX.Sale.Admin.ShipmentBasketEdit.prototype.createProductCell = function(basketCo
 		tdClass = "",
 		stack = [],
 		i = null,
-		showStoreInfo =  this.useStoreControl && !!product.STORES && product.STORES.length > 0;
+		showStoreInfo = this.useStoreControl && !!product.STORES && product.STORES.length > 0 && !this.isServiceProduct(product);
 
 	switch(fieldId)
 	{

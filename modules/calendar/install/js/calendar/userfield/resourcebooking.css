@@ -193,6 +193,7 @@
 	position: relative;
 	padding: 14px 0 16px;
 	background-color: #f6f6f7;
+	border-radius: var(--ui-border-radius-sm);
 }
 
 .calendar-resourcebook-content-block {
@@ -443,7 +444,7 @@
 	width: 100%;
 	outline: none;
 	border: 1px solid #c4c7cc;
-	border-radius: 1px;
+	border-radius: var(--ui-field-border-radius, 1px);
 	background-color: #fff;
 	color: #424956;
 	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));

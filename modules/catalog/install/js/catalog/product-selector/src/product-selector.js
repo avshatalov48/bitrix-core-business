@@ -1,4 +1,4 @@
-import {ajax, Cache, Dom, Event, Loc, Reflection, Runtime, Tag, Text, Type} from 'main.core';
+import {ajax, Cache, Dom, Event, Extension, Loc, Reflection, Runtime, Tag, Text, Type} from 'main.core';
 import 'ui.design-tokens';
 import 'ui.forms';
 import 'fileinput';
@@ -7,7 +7,7 @@ import {EventEmitter} from 'main.core.events';
 import {SkuTree} from 'catalog.sku-tree';
 import {ProductSearchInput} from "./product-search-input";
 import {ProductImageInput} from "./product-image-input";
-import {ProductModel} from "catalog.product-model";
+import {ProductModel, RightActionDictionary} from "catalog.product-model";
 import './component.css';
 import {BarcodeSearchInput} from "./barcode-search-input";
 import {SelectorErrorCode} from "./selector-error-code";
@@ -51,6 +51,7 @@ export class ProductSelector extends EventEmitter
 		this.id = id || Text.getRandom();
 		options.inputFieldName = options.inputFieldName || ProductSelector.INPUT_FIELD_NAME;
 		this.options = options || {};
+		this.settings = Extension.getSettings('catalog.product-selector');
 
 		this.type = this.options.type || ProductSelector.INPUT_FIELD_NAME;
 
@@ -97,7 +98,7 @@ export class ProductSelector extends EventEmitter
 		{
 			this.model.getErrorCollection().setError(
 				SelectorErrorCode.NOT_SELECTED_PRODUCT,
-				Loc.getMessage('CATALOG_SELECTOR_SELECTED_PRODUCT_TITLE')
+				this.getEmptySelectErrorMessage()
 			);
 		}
 
@@ -122,10 +123,7 @@ export class ProductSelector extends EventEmitter
 			this.setMobileScannerToken(options.scannerToken);
 		}
 
-		EventEmitter.subscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
-		EventEmitter.subscribe('ProductSelector::onNameChange', this.onNameChangeFieldHandler);
-		EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
-		EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
+		this.subscribeEvents();
 
 		instances.set(this.id, this);
 	}
@@ -168,9 +166,33 @@ export class ProductSelector extends EventEmitter
 		return !this.isViewMode() && this.getConfig('ENABLE_MOBILE_SCANNING', true);
 	}
 
+	getEmptySelectErrorMessage()
+	{
+		return this.checkProductAddRights()
+			? Loc.getMessage('CATALOG_SELECTOR_SELECTED_PRODUCT_TITLE')
+			: Loc.getMessage('CATALOG_SELECTOR_SELECT_PRODUCT_TITLE')
+		;
+	}
+
+
 	getMobileScannerToken(): string
 	{
 		return this.mobileScannerToken || Text.getRandom(16);
+	}
+
+	checkProductViewRights(): boolean
+	{
+		return this.model.checkAccess(RightActionDictionary.ACTION_PRODUCT_VIEW) ?? true;
+	}
+
+	checkProductEditRights(): boolean
+	{
+		return this.model.checkAccess(RightActionDictionary.ACTION_PRODUCT_EDIT) ?? false;
+	}
+
+	checkProductAddRights(): boolean
+	{
+		return this.model.checkAccess(RightActionDictionary.ACTION_PRODUCT_ADD) ?? false;
 	}
 
 	setMobileScannerToken(token: string): void
@@ -228,7 +250,10 @@ export class ProductSelector extends EventEmitter
 
 	isProductSearchEnabled(): boolean
 	{
-		return this.getConfig('ENABLE_SEARCH', false) && this.model.getIblockId() > 0;
+		return this.getConfig('ENABLE_SEARCH', false)
+			&& this.model.getIblockId() > 0
+			&& this.checkProductViewRights()
+		;
 	}
 
 	isSkuTreeEnabled(): boolean
@@ -272,7 +297,10 @@ export class ProductSelector extends EventEmitter
 
 	isInputDetailLinkEnabled(): boolean
 	{
-		return this.getConfig('ENABLE_INPUT_DETAIL_LINK', false) && Type.isStringFilled(this.model.getDetailPath());
+		return this.getConfig('ENABLE_INPUT_DETAIL_LINK', false)
+			&& Type.isStringFilled(this.model.getDetailPath())
+			&& this.checkProductViewRights()
+		;
 	}
 
 	getWrapper(): HTMLElement
@@ -342,7 +370,7 @@ export class ProductSelector extends EventEmitter
 
 		if (this.isViewMode())
 		{
-			wrapper.appendChild(block);
+			Dom.append(block, wrapper);
 		}
 
 		if (this.isViewMode())
@@ -485,6 +513,14 @@ export class ProductSelector extends EventEmitter
 		}
 
 		this.unsubscribeToVariationChange();
+	}
+
+	subscribeEvents()
+	{
+		EventEmitter.subscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
+		EventEmitter.subscribe('ProductSelector::onNameChange', this.onNameChangeFieldHandler);
+		EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
+		EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
 	}
 
 	unsubscribeEvents()
@@ -817,15 +853,16 @@ export class ProductSelector extends EventEmitter
 		const data = response?.data || null;
 		this.#inAjaxProcess = false;
 
+		if (isProductAction)
+		{
+			this.clearState();
+		}
+
 		if (data)
 		{
 			this.changeSelectedElement(data, config);
 		}
-		else if (isProductAction)
-		{
-			this.clearState();
-		}
-		else
+		else if (!isProductAction)
 		{
 			this.productSelectAjaxAction(this.getModel().getProductId());
 		}

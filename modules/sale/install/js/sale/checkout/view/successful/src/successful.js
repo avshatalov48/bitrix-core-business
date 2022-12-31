@@ -1,5 +1,6 @@
 import { BitrixVue } from 'ui.vue';
 import 'sale.checkout.view.element.button';
+import { Property as Const } from 'sale.checkout.const';
 
 import './call'
 import './property-list';
@@ -12,6 +13,24 @@ BitrixVue.component('sale-checkout-view-successful', {
 			return Object.freeze(
 				BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_SUCCESSFUL_'))
 		},
+		getItemsForView()
+		{
+			const itemsForView = [];
+
+			for (let propertyId in this.items)
+			{
+				const item = this.items[propertyId];
+				if (BX.util.in_array(item.type, [
+					Const.type.name,
+					Const.type.phone,
+					Const.type.email,
+				]))
+				{
+					itemsForView.push(item);
+				}
+			}
+			return itemsForView;
+		}
 	},
 	// language=Vue
 	template: `
@@ -25,7 +44,7 @@ BitrixVue.component('sale-checkout-view-successful', {
 		  	{{localize.CHECKOUT_VIEW_SUCCESSFUL_STATUS_ORDER_CREATED}}
 		  </div>
 	
-		  <sale-checkout-view-successful-property_list :items="items" :order="order"/>
+		  <sale-checkout-view-successful-property_list :items="getItemsForView" :order="order"/>
 		  <sale-checkout-view-element-button-shipping-button_to_checkout/>
 		  <sale-checkout-view-element-button-shipping-link :url="config.mainPage">
 			<template v-slot:link-title>{{localize.CHECKOUT_VIEW_SUCCESSFUL_ELEMENT_BUTTON_SHIPPING_BUY}}</template>

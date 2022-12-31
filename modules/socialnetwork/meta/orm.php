@@ -1,6 +1,6 @@
 <?php
 
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\FeatureTable:socialnetwork/lib/feature.php:631d87045d418a51b5201c3b06da9547 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\FeatureTable:socialnetwork\lib\feature.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_Feature
@@ -200,7 +200,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_Feature_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\FeaturePermTable:socialnetwork/lib/featureperm.php:d61c718dde60cd22b6e2de15073c44eb */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\FeaturePermTable:socialnetwork\lib\featureperm.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_FeaturePerm
@@ -365,7 +365,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_FeaturePerm_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogTable:socialnetwork/lib/log.php:b2dba024e0cb748c3084cfac2e8918f2 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogTable:socialnetwork\lib\log.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_Log
@@ -469,6 +469,16 @@ namespace Bitrix\Socialnetwork {
 	 * @method \Bitrix\Socialnetwork\EO_Log resetUrl()
 	 * @method \Bitrix\Socialnetwork\EO_Log unsetUrl()
 	 * @method \string fillUrl()
+	 * @method \string getModuleId()
+	 * @method \Bitrix\Socialnetwork\EO_Log setModuleId(\string|\Bitrix\Main\DB\SqlExpression $moduleId)
+	 * @method bool hasModuleId()
+	 * @method bool isModuleIdFilled()
+	 * @method bool isModuleIdChanged()
+	 * @method \string remindActualModuleId()
+	 * @method \string requireModuleId()
+	 * @method \Bitrix\Socialnetwork\EO_Log resetModuleId()
+	 * @method \Bitrix\Socialnetwork\EO_Log unsetModuleId()
+	 * @method \string fillModuleId()
 	 * @method \string getParams()
 	 * @method \Bitrix\Socialnetwork\EO_Log setParams(\string|\Bitrix\Main\DB\SqlExpression $params)
 	 * @method bool hasParams()
@@ -622,6 +632,8 @@ namespace Bitrix\Socialnetwork {
 	 * @method \string[] fillTextMessage()
 	 * @method \string[] getUrlList()
 	 * @method \string[] fillUrl()
+	 * @method \string[] getModuleIdList()
+	 * @method \string[] fillModuleId()
 	 * @method \string[] getParamsList()
 	 * @method \string[] fillParams()
 	 * @method \int[] getSourceIdList()
@@ -698,7 +710,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_Log_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogCommentTable:socialnetwork/lib/logcomment.php:b0680dab81babffde568c7a4efaf247a */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogCommentTable:socialnetwork\lib\logcomment.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_LogComment
@@ -935,7 +947,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogComment_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogFavoritesTable:socialnetwork/lib/logfavorites.php:e0640126736b4361c96b4a59c84a096e */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogFavoritesTable:socialnetwork\lib\logfavorites.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_LogFavorites
@@ -1057,7 +1069,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogFavorites_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogFollowTable:socialnetwork/lib/logfollow.php:1ff9e9b2de9c8ab8c1fcf46cd34e9fc3 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogFollowTable:socialnetwork\lib\logfollow.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_LogFollow
@@ -1191,7 +1203,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogFollow_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogIndexTable:socialnetwork/lib/logindex.php:a852763feacd25e426a0cc3b6651229d */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogIndexTable:socialnetwork\lib\logindex.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_LogIndex
@@ -1361,7 +1373,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogIndex_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogPageTable:socialnetwork/lib/logpage.php:b602d1cc19d0cc92c0bcf147ca204cb4 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogPageTable:socialnetwork\lib\logpage.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_LogPage
@@ -1549,7 +1561,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogPage_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogPinnedTable:socialnetwork/lib/logpinned.php:bec3a07eb78acd2e3105c3f1b46c7111 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogPinnedTable:socialnetwork\lib\logpinned.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_LogPinned
@@ -1683,7 +1695,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogPinned_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogRightTable:socialnetwork/lib/logright.php:0e0fbd7154007f3d9184ffcaddcc9e50 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogRightTable:socialnetwork\lib\logright.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_LogRight
@@ -1842,7 +1854,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogRight_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogSiteTable:socialnetwork/lib/logsite.php:b876ad120c7e126e694ebb9d36d72299 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogSiteTable:socialnetwork\lib\logsite.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_LogSite
@@ -1977,7 +1989,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogSite_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogSubscribeTable:socialnetwork/lib/logsubscribe.php:ce5137a7e1696fc55311a553a8ef5c84 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogSubscribeTable:socialnetwork\lib\logsubscribe.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_LogSubscribe
@@ -2117,7 +2129,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogSubscribe_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogTagTable:socialnetwork/lib/logtag.php:eff47f02145d2d51ea504a8cbf995acb */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogTagTable:socialnetwork\lib\logtag.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_LogTag
@@ -2270,7 +2282,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogTag_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogViewTable:socialnetwork/lib/logview.php:4e29477de5570dd3290e2994b3c24f0d */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\LogViewTable:socialnetwork\lib\logview.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_LogView
@@ -2404,7 +2416,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_LogView_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserContentViewTable:socialnetwork/lib/usercontentview.php:9b7a105b203ed1168be36144aeb29eba */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserContentViewTable:socialnetwork\lib\usercontentview.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_UserContentView
@@ -2569,7 +2581,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_UserContentView_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserRelationsTable:socialnetwork/lib/userrelations.php:fb8cc8e5d9f37780d97b226dc585c0f7 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserRelationsTable:socialnetwork\lib\userrelations.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_UserRelations
@@ -2795,7 +2807,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_UserRelations_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserTagTable:socialnetwork/lib/usertag.php:9bb4e0eeed5e17981637ec1fbc9a7b07 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserTagTable:socialnetwork\lib\usertag.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_UserTag
@@ -2930,7 +2942,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_UserTag_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserToGroupTable:socialnetwork/lib/usertogroup.php:e768ca79c777a365bda01859a619a210 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserToGroupTable:socialnetwork\lib\usertogroup.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_UserToGroup
@@ -2954,16 +2966,16 @@ namespace Bitrix\Socialnetwork {
 	 * @method \Bitrix\Socialnetwork\EO_UserToGroup resetUserId()
 	 * @method \Bitrix\Socialnetwork\EO_UserToGroup unsetUserId()
 	 * @method \int fillUserId()
-	 * @method \Bitrix\Main\EO_User getUser()
-	 * @method \Bitrix\Main\EO_User remindActualUser()
-	 * @method \Bitrix\Main\EO_User requireUser()
-	 * @method \Bitrix\Socialnetwork\EO_UserToGroup setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Intranet\EO_User getUser()
+	 * @method \Bitrix\Intranet\EO_User remindActualUser()
+	 * @method \Bitrix\Intranet\EO_User requireUser()
+	 * @method \Bitrix\Socialnetwork\EO_UserToGroup setUser(\Bitrix\Intranet\EO_User $object)
 	 * @method \Bitrix\Socialnetwork\EO_UserToGroup resetUser()
 	 * @method \Bitrix\Socialnetwork\EO_UserToGroup unsetUser()
 	 * @method bool hasUser()
 	 * @method bool isUserFilled()
 	 * @method bool isUserChanged()
-	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \Bitrix\Intranet\EO_User fillUser()
 	 * @method \int getGroupId()
 	 * @method \Bitrix\Socialnetwork\EO_UserToGroup setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
 	 * @method bool hasGroupId()
@@ -3110,9 +3122,9 @@ namespace Bitrix\Socialnetwork {
 	 * @method \int[] getIdList()
 	 * @method \int[] getUserIdList()
 	 * @method \int[] fillUserId()
-	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Intranet\EO_User[] getUserList()
 	 * @method \Bitrix\Socialnetwork\EO_UserToGroup_Collection getUserCollection()
-	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 * @method \Bitrix\Intranet\EO_User_Collection fillUser()
 	 * @method \int[] getGroupIdList()
 	 * @method \int[] fillGroupId()
 	 * @method \Bitrix\Socialnetwork\EO_Workgroup[] getGroupList()
@@ -3193,7 +3205,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_UserToGroup_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserWelltoryTable:socialnetwork/lib/userwelltory.php:f013aef1f20953597f1e9d4ea1f09515 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserWelltoryTable:socialnetwork\lib\userwelltory.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_UserWelltory
@@ -3394,7 +3406,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_UserWelltory_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserWelltoryDisclaimerTable:socialnetwork/lib/userwelltorydisclaimer.php:2ccad67371caad9cfe02aa4e0083257b */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\UserWelltoryDisclaimerTable:socialnetwork\lib\userwelltorydisclaimer.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_UserWelltoryDisclaimer
@@ -3547,7 +3559,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_UserWelltoryDisclaimer_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupTable:socialnetwork/lib/workgroup.php:4872af51978dcaea4c1036aa9c34eac7 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupTable:socialnetwork\lib\workgroup.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_Workgroup
@@ -3701,6 +3713,16 @@ namespace Bitrix\Socialnetwork {
 	 * @method \Bitrix\Socialnetwork\EO_Workgroup resetImageId()
 	 * @method \Bitrix\Socialnetwork\EO_Workgroup unsetImageId()
 	 * @method \int fillImageId()
+	 * @method \string getAvatarType()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup setAvatarType(\string|\Bitrix\Main\DB\SqlExpression $avatarType)
+	 * @method bool hasAvatarType()
+	 * @method bool isAvatarTypeFilled()
+	 * @method bool isAvatarTypeChanged()
+	 * @method \string remindActualAvatarType()
+	 * @method \string requireAvatarType()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup resetAvatarType()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup unsetAvatarType()
+	 * @method \string fillAvatarType()
 	 * @method \int getOwnerId()
 	 * @method \Bitrix\Socialnetwork\EO_Workgroup setOwnerId(\int|\Bitrix\Main\DB\SqlExpression $ownerId)
 	 * @method bool hasOwnerId()
@@ -3914,6 +3936,8 @@ namespace Bitrix\Socialnetwork {
 	 * @method \Bitrix\Main\Type\DateTime[] fillDateActivity()
 	 * @method \int[] getImageIdList()
 	 * @method \int[] fillImageId()
+	 * @method \string[] getAvatarTypeList()
+	 * @method \string[] fillAvatarType()
 	 * @method \int[] getOwnerIdList()
 	 * @method \int[] fillOwnerId()
 	 * @method \Bitrix\Main\EO_User[] getWorkgroupOwnerList()
@@ -4001,7 +4025,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_Workgroup_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupFavoritesTable:socialnetwork/lib/workgroupfavorites.php:b6de6e68f70e61dcd4af890a5e74988d */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupFavoritesTable:socialnetwork\lib\workgroupfavorites.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_WorkgroupFavorites
@@ -4161,7 +4185,185 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_WorkgroupFavorites_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupSiteTable:socialnetwork/lib/workgroupsite.php:97afa9014d42d6d6017e8a200de03f95 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupPinTable:socialnetwork\lib\workgrouppin.php */
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_WorkgroupPin
+	 * @see \Bitrix\Socialnetwork\WorkgroupPinTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin resetUserId()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin resetUser()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \int getGroupId()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin setGroupId(\int|\Bitrix\Main\DB\SqlExpression $groupId)
+	 * @method bool hasGroupId()
+	 * @method bool isGroupIdFilled()
+	 * @method bool isGroupIdChanged()
+	 * @method \int remindActualGroupId()
+	 * @method \int requireGroupId()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin resetGroupId()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin unsetGroupId()
+	 * @method \int fillGroupId()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup getGroup()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup remindActualGroup()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup requireGroup()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin setGroup(\Bitrix\Socialnetwork\EO_Workgroup $object)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin resetGroup()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin unsetGroup()
+	 * @method bool hasGroup()
+	 * @method bool isGroupFilled()
+	 * @method bool isGroupChanged()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup fillGroup()
+	 * @method \string getContext()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin setContext(\string|\Bitrix\Main\DB\SqlExpression $context)
+	 * @method bool hasContext()
+	 * @method bool isContextFilled()
+	 * @method bool isContextChanged()
+	 * @method \string remindActualContext()
+	 * @method \string requireContext()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin resetContext()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin unsetContext()
+	 * @method \string fillContext()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin set($fieldName, $value)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin reset($fieldName)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupPin wakeUp($data)
+	 */
+	class EO_WorkgroupPin {
+		/* @var \Bitrix\Socialnetwork\WorkgroupPinTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupPinTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * EO_WorkgroupPin_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin_Collection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 * @method \int[] getGroupIdList()
+	 * @method \int[] fillGroupId()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup[] getGroupList()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin_Collection getGroupCollection()
+	 * @method \Bitrix\Socialnetwork\EO_Workgroup_Collection fillGroup()
+	 * @method \string[] getContextList()
+	 * @method \string[] fillContext()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Socialnetwork\EO_WorkgroupPin $object)
+	 * @method bool has(\Bitrix\Socialnetwork\EO_WorkgroupPin $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin getByPrimary($primary)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin[] getAll()
+	 * @method bool remove(\Bitrix\Socialnetwork\EO_WorkgroupPin $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Socialnetwork\EO_WorkgroupPin_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 */
+	class EO_WorkgroupPin_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Socialnetwork\WorkgroupPinTable */
+		static public $dataClass = '\Bitrix\Socialnetwork\WorkgroupPinTable';
+	}
+}
+namespace Bitrix\Socialnetwork {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_WorkgroupPin_Result exec()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_WorkgroupPin_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin fetchObject()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin_Collection fetchCollection()
+	 */
+	class EO_WorkgroupPin_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin createObject($setDefaultValues = true)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin_Collection createCollection()
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin wakeUpObject($row)
+	 * @method \Bitrix\Socialnetwork\EO_WorkgroupPin_Collection wakeUpCollection($rows)
+	 */
+	class EO_WorkgroupPin_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupSiteTable:socialnetwork\lib\workgroupsite.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_WorkgroupSite
@@ -4309,7 +4511,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_WorkgroupSite_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupSubjectTable:socialnetwork/lib/workgroupsubject.php:7b2ef67f53ea3ee1ca988c388297d4c3 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupSubjectTable:socialnetwork\lib\workgroupsubject.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_WorkgroupSubject
@@ -4468,7 +4670,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_WorkgroupSubject_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupSubjectSiteTable:socialnetwork/lib/workgroupsubjectsite.php:d7be50a5c80218e70a8c4be530d50f5e */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupSubjectSiteTable:socialnetwork\lib\workgroupsubjectsite.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_WorkgroupSubjectSite
@@ -4616,7 +4818,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_WorkgroupSubjectSite_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupTagTable:socialnetwork/lib/workgrouptag.php:415196d91057dca491a877346554330f */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupTagTable:socialnetwork\lib\workgrouptag.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_WorkgroupTag
@@ -4757,7 +4959,7 @@ namespace Bitrix\Socialnetwork {
 	 */
 	class EO_WorkgroupTag_Entity extends \Bitrix\Main\ORM\Entity {}
 }
-/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupViewTable:socialnetwork/lib/workgroupview.php:73657a17de59972b2771abfaa7fbaea4 */
+/* ORMENTITYANNOTATION:Bitrix\Socialnetwork\WorkgroupViewTable:socialnetwork\lib\workgroupview.php */
 namespace Bitrix\Socialnetwork {
 	/**
 	 * EO_WorkgroupView

@@ -8,7 +8,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  * @var OlWidgetBlock $classBlock
  */
 ?>
-<section class="landing-block g-pt-30 g-pb-30">
+<section class="landing-block g-pt-30 g-pb-30 u-block-border-none">
 	<div class="landing-block-node-container container">
 		<h3 class="landing-block-node-title g-mb-10">Contact us</h3>
 		<?$APPLICATION->IncludeComponent(

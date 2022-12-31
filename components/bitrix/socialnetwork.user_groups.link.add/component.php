@@ -48,7 +48,7 @@ if (!isset($arParams["ALLOW_CREATE_GROUP"]))
 
 		$arParams["ALLOW_CREATE_GROUP"] = (
 		$currentUserPerms["IsCurrentUser"]
-		&& \Bitrix\Socialnetwork\Helper\Workgroup::canCreate()
+		&& \Bitrix\Socialnetwork\Helper\Workgroup\Access::canCreate()
 			? 'Y'
 			: 'N'
 		);

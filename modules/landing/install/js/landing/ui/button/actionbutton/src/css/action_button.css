@@ -98,10 +98,6 @@
 	display: none;
 }
 
-.landing-ui-button-action[data-id="block_display_info"]:hover {
-	opacity: .8;
-}
-
 .l-d-lg-none ~ .landing-ui-panel-content-action .landing-ui-button-action[data-id="block_display_info"],
 .l-d-md-none ~ .landing-ui-panel-content-action .landing-ui-button-action[data-id="block_display_info"],
 .l-d-xs-none ~ .landing-ui-panel-content-action .landing-ui-button-action[data-id="block_display_info"] {

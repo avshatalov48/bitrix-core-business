@@ -21,8 +21,6 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 
 $this->setFrameMode(false);
 
-include_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/desktop/include.php');
-
 $arParams["ID"] = (isset($arParams["ID"])? preg_replace("/[^a-z0-9_]/i", "", $arParams["ID"]) : "gdholder1");
 
 if ($arParams["MULTIPLE"] == "Y")
@@ -336,7 +334,7 @@ if($_REQUEST['gd_ajax']==$arParams["ID"])
 				break;
 
 			case 'save_default':
-				GDCSaveSettings($arParams, $_REQUEST['POS']);
+				BXGadget::SavePositions($arParams, $_REQUEST['POS']);
 
 				if ($arResult["PERMISSION"] > "W")
 				{
@@ -360,7 +358,7 @@ if($_REQUEST['gd_ajax']==$arParams["ID"])
 				break;
 
 			case 'update_position':
-				GDCSaveSettings($arParams, $_REQUEST['POS']);
+				BXGadget::SavePositions($arParams, $_REQUEST['POS']);
 				break;
 		}
 	}

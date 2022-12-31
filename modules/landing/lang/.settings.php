@@ -6,4 +6,7 @@ return [
 	'lib/hook/page/ymap.php' => [
 		'languages' => ['ru']
 	],
+	'lib/hook/page/copyright_notranslate.php' => [
+		'languages' => ['ru']
+	],
 ];

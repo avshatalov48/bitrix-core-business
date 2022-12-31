@@ -6,6 +6,8 @@ use Bitrix\Main\Localization\Loc;
 
 class Background
 {
+	private static $path = '/bitrix/js/im/images/background';
+
 	public static function get()
 	{
 		return array_merge(
@@ -134,8 +136,10 @@ class Background
 
 		foreach ($result as &$value)
 		{
-			$value['preview'] = "/bitrix/js/im/images/background/{$value['id']}-preview.jpg";
-			$value['source'] = "/bitrix/js/im/images/background/{$value['id']}.jpg";
+			$value['preview'] = static::$path."/{$value['id']}-preview.jpg";
+			$value['background'] = static::$path."/{$value['id']}.jpg";
+			$value['isVideo'] = false;
+			$value['isSupported'] = true;
 		}
 
 		return $result;
@@ -197,7 +201,9 @@ class Background
 		foreach ($result as &$value)
 		{
 			$value['preview'] = "/bitrix/js/im/images/background/video/{$value['id']}-preview.jpg";
-			$value['source'] = "/bitrix/js/im/images/background/video/{$value['id']}.mp4";
+			$value['background'] = "/bitrix/js/im/images/background/video/{$value['id']}.mp4";
+			$value['isVideo'] = true;
+			$value['isSupported'] = true;
 			$value['id'] .= ':video';
 		}
 
@@ -235,9 +241,11 @@ class Background
 
 			$result[] = [
 				'id' => $element['id'],
-				'source' => $element['prefetchImages'][0],
-				'preview' => $element['previewImage'],
 				'title' => $element['title'],
+				'preview' => $element['previewImage'],
+				'background' => $element['prefetchImages'][0],
+				'isVideo' => false,
+				'isSupported' => true
 			];
 		}
 
@@ -289,11 +297,11 @@ class Background
 
 			$result[] = [
 				'id' => (int)$fileModel->getId(),
-				'source' => $supported? \CIMDisk::GetPublicPath(\CIMDisk::PATH_TYPE_SHOW, $fileModel, false): '',
-				'preview' => $supported? \CIMDisk::GetPublicPath(\CIMDisk::PATH_TYPE_PREVIEW, $fileModel, false): '',
 				'title' => $fileModel->getName(),
-				'video' => $fileModel->getTypeFile() == \Bitrix\Disk\TypeFile::VIDEO,
-				'supported' => $supported,
+				'preview' => $supported? \CIMDisk::GetPublicPath(\CIMDisk::PATH_TYPE_PREVIEW, $fileModel, false): '',
+				'background' => $supported? \CIMDisk::GetPublicPath(\CIMDisk::PATH_TYPE_SHOW, $fileModel, false): '',
+				'isVideo' => $fileModel->getTypeFile() == \Bitrix\Disk\TypeFile::VIDEO,
+				'isSupported' => $supported,
 			];
 		}
 

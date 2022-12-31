@@ -1347,34 +1347,38 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 		unset($this->measureRatios[$id]);
 	}
 
-	private function getFullCatalogItem(array $product)
+	private function getFullCatalogItem(array $product): array
 	{
-		$fields = array(); // only for phpDoc
+		$fields = []; // only for phpDoc
 		switch ($product['SKU_STATE'])
 		{
 			case Catalog\Product\Sku::OFFERS_AVAILABLE:
 			case Catalog\Product\Sku::OFFERS_NOT_AVAILABLE:
 				if ($this->config['SEPARATE_SKU_MODE'])
 				{
-					$fields = array(
+					$fields = [
 						'AVAILABLE' => Catalog\ProductTable::calculateAvailable($product),
 						'TYPE' => Catalog\ProductTable::TYPE_SKU,
-					);
+					];
 				}
 				else
 				{
-					$fields = Catalog\Product\Sku::getDefaultParentSettings($product['SKU_STATE'], false);
+					$fields = Catalog\Product\Sku::getDefaultParentSettings($product['SKU_STATE']);
 				}
 				break;
 			case Catalog\Product\Sku::OFFERS_NOT_EXIST:
 				switch ($product['TYPE'])
 				{
 					case Catalog\ProductTable::TYPE_SKU:
-						$fields = Catalog\Product\Sku::getDefaultParentSettings($product['SKU_STATE'], false);
+					case Catalog\ProductTable::TYPE_EMPTY_SKU:
+						$fields = Catalog\Product\Sku::getDefaultParentSettings($product['SKU_STATE']);
 						break;
 					case Catalog\ProductTable::TYPE_PRODUCT:
 					case Catalog\ProductTable::TYPE_SET:
 						$fields['AVAILABLE'] = Catalog\ProductTable::calculateAvailable($product);
+						$fields['TYPE'] = (int)$product['TYPE'];
+						break;
+					case Catalog\ProductTable::TYPE_SERVICE:
 						$fields['TYPE'] = (int)$product['TYPE'];
 						break;
 					default:
@@ -1384,26 +1388,18 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 				}
 				break;
 		}
-		if ($this->config['CHECK_SETS'])
-		{
-			if ($fields['TYPE'] == Catalog\ProductTable::TYPE_SET && !$product['SET_EXISTS'])
-				$fields['TYPE'] = Catalog\ProductTable::TYPE_PRODUCT;
-			elseif ($fields['TYPE'] == Catalog\ProductTable::TYPE_PRODUCT && $product['SET_EXISTS'])
-				$fields['TYPE'] = Catalog\ProductTable::TYPE_SET;
-		}
 
-		return $fields;
+		return $this->prepareSetState($fields, $product);
 	}
 
-	private function getProductIblockItem(array $product)
+	private function getProductIblockItem(array $product): array
 	{
-		return Catalog\Product\Sku::getDefaultParentSettings(
-			$product['SKU_STATE'],
-			true
+		return Catalog\Product\Sku::getParentProductFieldsByState(
+			$product['SKU_STATE']
 		);
 	}
 
-	private function getCatalogItem(array $product)
+	private function getCatalogItem(array $product): array
 	{
 		if ($product['PRODUCT_EXISTS'])
 		{
@@ -1412,6 +1408,9 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 				case Catalog\ProductTable::TYPE_PRODUCT:
 				case Catalog\ProductTable::TYPE_SET:
 					$fields['AVAILABLE'] = Catalog\ProductTable::calculateAvailable($product);
+					$fields['TYPE'] = (int)$product['TYPE'];
+					break;
+				case Catalog\ProductTable::TYPE_SERVICE:
 					$fields['TYPE'] = (int)$product['TYPE'];
 					break;
 				default:
@@ -1427,23 +1426,35 @@ class CCatalogProductAvailable extends CCatalogStepOperations
 			$fields = Catalog\ProductTable::getDefaultAvailableSettings();
 			$fields['TYPE'] = Catalog\ProductTable::TYPE_PRODUCT;
 		}
-		if ($this->config['CHECK_SETS'])
-		{
-			if ($fields['TYPE'] = Catalog\ProductTable::TYPE_SET && !$product['SET_EXISTS'])
-				$fields['TYPE'] = Catalog\ProductTable::TYPE_PRODUCT;
-			elseif ($fields['TYPE'] = Catalog\ProductTable::TYPE_PRODUCT && $product['SET_EXISTS'])
-				$fields['TYPE'] = Catalog\ProductTable::TYPE_SET;
-		}
 
-		return $fields;
+		return $this->prepareSetState($fields, $product);
 	}
 
-	private function getOfferIblockItem(array $product)
+	private function getOfferIblockItem(array $product): array
 	{
 		return array(
 			'AVAILABLE' => Catalog\ProductTable::calculateAvailable($product),
 			'TYPE' => ($product['PARENT_EXISTS'] ? Catalog\ProductTable::TYPE_OFFER : Catalog\ProductTable::TYPE_FREE_OFFER)
 		);
+	}
+
+	private function prepareSetState(array $fields, array $product): array
+	{
+		if (!$this->config['CHECK_SETS'])
+		{
+			return $fields;
+		}
+
+		if ($fields['TYPE'] == Catalog\ProductTable::TYPE_SET && !$product['SET_EXISTS'])
+		{
+			$fields['TYPE'] = Catalog\ProductTable::TYPE_PRODUCT;
+		}
+		elseif ($fields['TYPE'] == Catalog\ProductTable::TYPE_PRODUCT && $product['SET_EXISTS'])
+		{
+			$fields['TYPE'] = Catalog\ProductTable::TYPE_SET;
+		}
+
+		return $fields;
 	}
 }
 

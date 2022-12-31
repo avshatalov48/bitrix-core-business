@@ -39,7 +39,7 @@ return array(
 	),
 	'style' => [
 		'block' => [
-			'type' => ['block-default-background-overlay'],
+			'type' => ['block-default-background-overlay', 'background'],
 			'additional' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_44_4_SLIDER_5_COLS_WITH_PRICES_NODES_LANDINGBLOCKNODE_SLIDER'),
 				'attrsType' => ['autoplay', 'autoplay-speed', 'animation', 'pause-hover', 'slides-show-extended', 'arrows', 'dots'],

@@ -44,7 +44,7 @@ class Connection implements EntityInterface
 	/**
 	 * @var string
 	 */
-	protected string $status = '[0] Not sync';
+	protected string $status = '[200] Not synced';
 	/**
 	 * @var SectionCollection|null
 	 */

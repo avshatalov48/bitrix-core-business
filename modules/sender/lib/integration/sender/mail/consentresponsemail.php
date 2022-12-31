@@ -11,7 +11,7 @@ use Bitrix\Sender\Internals\Model\Posting\RecipientTable;
 use Bitrix\Sender\Recipient;
 use Bitrix\Sender\Transport\iBase;
 
-final class ConsentResponseMail extends AbstractConsentResponse
+class ConsentResponseMail extends AbstractConsentResponse
 {
 	const CODE = iBase::CODE_MAIL;
 	private $fields;

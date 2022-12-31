@@ -643,7 +643,7 @@ if ($arResult["FatalError"] == '')
 if ($arResult["FatalError"] == '')
 {
 	$arResult["CurrentUserPerms"] = CSocNetUserPerms::InitUserPerms($USER->GetID(), $arResult["User"]["ID"], CSocNetUser::IsCurrentUserModuleAdmin());
-	$arResult["ALLOW_CREATE_GROUP"] = \Bitrix\Socialnetwork\Helper\Workgroup::canCreate();
+	$arResult["ALLOW_CREATE_GROUP"] = \Bitrix\Socialnetwork\Helper\Workgroup\Access::canCreate();
 
 	$arCacheKeys = array();
 	$arNavigation = array();

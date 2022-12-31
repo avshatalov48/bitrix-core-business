@@ -23,6 +23,8 @@ use Bitrix\Main\Web;
  */
 class HttpApplication extends Application
 {
+	public const EXCEPTION_UNKNOWN_CONTROLLER = 221001;
+
 	/**
 	 * Initializes context of the current request.
 	 *
@@ -100,7 +102,7 @@ class HttpApplication extends Application
 			[$controller, $actionName] = $router->getControllerAndAction();
 			if (!$controller)
 			{
-				throw new SystemException('Could not find controller for the request');
+				throw new SystemException('Could not find controller for the request', self::EXCEPTION_UNKNOWN_CONTROLLER);
 			}
 
 			$this->runController($controller, $actionName);
@@ -170,20 +172,50 @@ class HttpApplication extends Application
 		$this->end(0, $response);
 	}
 
+	private function shouldWriteToLogException(\Throwable $e): bool
+	{
+		if ($e instanceof AutoWire\BinderArgumentException)
+		{
+			return false;
+		}
+
+		$unnecessaryCodes = [
+			self::EXCEPTION_UNKNOWN_CONTROLLER,
+			Router::EXCEPTION_INVALID_COMPONENT_INTERFACE,
+			Router::EXCEPTION_INVALID_COMPONENT,
+			Router::EXCEPTION_INVALID_AJAX_MODE,
+			Router::EXCEPTION_NO_MODULE,
+			Router::EXCEPTION_INVALID_MODULE_NAME,
+			Router::EXCEPTION_INVALID_COMPONENT_NAME,
+			Router::EXCEPTION_NO_COMPONENT,
+			Router::EXCEPTION_NO_COMPONENT_AJAX_CLASS,
+		];
+
+		if ($e instanceof SystemException && in_array($e->getCode(), $unnecessaryCodes, true))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	private function processRunError(\Throwable $e, ErrorCollection $errorCollection): void
 	{
-		$exceptionHandler = $this->getExceptionHandler();
-		$exceptionHandler->writeToLog($e);
-
 		$errorCollection[] = new Error($e->getMessage(), $e->getCode());
 		$exceptionHandling = Configuration::getValue('exception_handling');
-		if (!empty($exceptionHandling['debug']))
+		$debugMode = !empty($exceptionHandling['debug']);
+		if ($debugMode)
 		{
 			$errorCollection[] = new Error(Diag\ExceptionHandlerFormatter::format($e));
 			if ($e->getPrevious())
 			{
 				$errorCollection[] = new Error(Diag\ExceptionHandlerFormatter::format($e->getPrevious()));
 			}
+		}
+
+		if ($debugMode || $this->shouldWriteToLogException($e))
+		{
+			$this->getExceptionHandler()->writeToLog($e);
 		}
 	}
 

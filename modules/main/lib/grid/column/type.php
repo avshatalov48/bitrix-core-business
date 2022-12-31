@@ -4,8 +4,8 @@ namespace Bitrix\Main\Grid\Column;
 
 class Type
 {
-	const TEXT = 'text';
-	const CHECKBOX = 'checkbox';
-	const TAGS = 'tags';
-	const LABELS = 'labels';
+	public const TEXT = 'text';
+	public const CHECKBOX = 'checkbox';
+	public const TAGS = 'tags';
+	public const LABELS = 'labels';
 }

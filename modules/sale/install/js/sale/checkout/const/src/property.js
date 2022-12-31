@@ -9,6 +9,11 @@ export const Property = Object.freeze({
        email: 'EMAIL',
        phone: 'PHONE',
        string: 'STRING',
+       number: 'NUMBER',
+       checkbox: 'Y/N',
+       date: 'DATE',
+       datetime: 'DATETIME',
+       enum: 'ENUM',
        undefined: 'UNDEFINED'
     }
 });

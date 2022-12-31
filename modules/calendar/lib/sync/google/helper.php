@@ -51,11 +51,19 @@ class Helper
 
 	public function isNotValidSyncTokenError(string $errorText = null): bool
 	{
-		return !empty($errorText) &&
-			(preg_match("/^(\[410\] The requested minimum modification time lies too far in the past.)/i", $errorText)
+		return !empty($errorText)
+			&& (preg_match("/^(\[410\] The requested minimum modification time lies too far in the past.)/i", $errorText)
 			|| preg_match("/^(\[410\] Sync token is no longer valid, a full sync is required.)/i", $errorText))
-			;
+		;
 	}
+
+	public function isMissingRequiredAuthCredential(string $errorText = null): bool
+	{
+		return !empty($errorText)
+			&& preg_match("/^\[401\] Request is missing required authentication credential.[a-z0-9 _]*/i", $errorText)
+		;
+	}
+
 
 	/**
 	 * @return string|null

@@ -13,4 +13,7 @@ class CounterFilter
 {
 	public const PRESET_REQUESTS_IN = 'requests_in';
 	public const PRESET_REQUESTS_OUT = 'requests_out';
+
+	public const VALUE_LIVEFEED = 'livefeed';
+	public const VALUE_TASKS = 'tasks';
 }

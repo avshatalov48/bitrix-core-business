@@ -207,42 +207,25 @@ abstract class BaseConfigurable extends Base
 
 	/**
 	 * @return array
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
-	protected function getOptions()
+	protected function getOptions(): array
 	{
-		if ($this->options === null)
-		{
-			$providerId = $this->getId();
-			$providerType = mb_strtolower($this->getType());
-			$optionsString = Option::get('messageservice', 'sender.'.$providerType.'.'.$providerId);
-			$this->options = unserialize($optionsString, ['allowed_classes' => false]);
+		$this->optionManager ??= new Providers\Base\Option($this->getType(), $this->getId());
 
-			if (!is_array($this->options))
-			{
-				$this->options = array();
-			}
-		}
-		return $this->options;
+		return $this->optionManager->getOptions();
 	}
 
 	/**
 	 * @param $optionName
 	 * @param $optionValue
 	 * @return $this
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 * @internal param array $options
 	 */
-	protected function setOption($optionName, $optionValue)
+	protected function setOption($optionName, $optionValue): BaseConfigurable
 	{
-		$options = $this->getOptions();
-		if (!isset($options[$optionName]) || $options[$optionName] !== $optionValue)
-		{
-			$options[$optionName] = $optionValue;
-			$this->setOptions($options);
-		}
+		$this->optionManager ??= new Providers\Base\Option($this->getType(), $this->getId());
+		$this->optionManager->setOption($optionName, $optionValue);
+
 		return $this;
 	}
 
@@ -250,25 +233,22 @@ abstract class BaseConfigurable extends Base
 	 * @param $optionName
 	 * @param mixed $defaultValue
 	 * @return mixed|null
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
 	protected function getOption($optionName, $defaultValue = null)
 	{
-		$options = $this->getOptions();
-		return isset($options[$optionName]) ? $options[$optionName] : $defaultValue;
+		$this->optionManager ??= new Providers\Base\Option($this->getType(), $this->getId());
+
+		return $this->optionManager->getOption($optionName, $defaultValue);
 	}
 
 	/**
 	 * @return bool
-	 * @throws \Bitrix\Main\ArgumentNullException
 	 */
-	public function clearOptions()
+	public function clearOptions(): bool
 	{
-		$this->options = array();
-		$providerId = $this->getId();
-		$providerType = mb_strtolower($this->getType());
-		Option::delete('messageservice', array('name' => 'sender.'.$providerType.'.'.$providerId));
+		$this->optionManager ??= new Providers\Base\Option($this->getType(), $this->getId());
+		$this->optionManager->clearOptions();
+
 		return true;
 	}
 

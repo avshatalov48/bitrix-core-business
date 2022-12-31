@@ -17,6 +17,7 @@ class AdsAction
 	{
 		return [
 			MessageBase::CODE_ADS_YA => ActionDictionary::ACTION_ADS_YANDEX_EDIT,
+			MessageBase::CODE_ADS_LOOKALIKE_YANDEX => ActionDictionary::ACTION_ADS_YANDEX_EDIT,
 			MessageBase::CODE_ADS_GA => ActionDictionary::ACTION_ADS_GOOGLE_EDIT,
 			MessageMarketingFb::CODE => ActionDictionary::ACTION_ADS_MARKETING_FB_EDIT,
 			MessageMarketingInstagram::CODE => ActionDictionary::ACTION_ADS_MARKETING_INSTAGRAM_EDIT,

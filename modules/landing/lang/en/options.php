@@ -1,4 +1,5 @@
 <?php
+$MESS["LANDING_OPT_ALLOW_SVG_CONTENT"] = "Allow SVG in web pages";
 $MESS["LANDING_OPT_DELETED_LIFETIME_DAYS"] = "Days to keep deleted items";
 $MESS["LANDING_OPT_GOOGLE_IMAGES_KEY"] = "Google Images API key";
 $MESS["LANDING_OPT_OTHER"] = "Other settings";

@@ -162,7 +162,7 @@ final class ConverterObjectColor extends Stepper
 		$color = strtolower($color);
 		$colorTable = array(
 			// Biege
-			'#af7e00' => '#ab7917',
+			'#af7e00' => '#c3612c',
 			// blue
 			'#2fc6f6' => '#0092cc',
 			// gray
@@ -172,7 +172,7 @@ final class ConverterObjectColor extends Stepper
 			// orange
 			'#ffa900' => '#ffa900',
 			// blue2
-			'#56d1e0' => '#da9100',
+			'#56d1e0' => '#e89b06',
 			// violet
 			'#9985dd' => '#bd7ac9',
 			// red

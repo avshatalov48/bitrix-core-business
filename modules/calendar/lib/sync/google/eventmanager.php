@@ -3,20 +3,24 @@
 namespace Bitrix\Calendar\Sync\Google;
 
 use Bitrix\Calendar\Core;
+use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Sync\Dictionary;
 use Bitrix\Calendar\Sync\Connection\EventConnection;
 use Bitrix\Calendar\Sync\Entities\SyncEvent;
 use Bitrix\Calendar\Sync\Connection\SectionConnection;
 use Bitrix\Calendar\Sync\Connection\Server;
+use Bitrix\Calendar\Sync\Exceptions\ConflictException;
 use Bitrix\Calendar\Sync\Managers\EventManagerInterface;
 use Bitrix\Calendar\Sync\Util\Context;
 use Bitrix\Calendar\Sync\Util\EventContext;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Error;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectException;
+use Bitrix\Main\SystemException;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Calendar\Sync\Util\Result;
 use Bitrix\Main\Web\Json;
@@ -53,7 +57,41 @@ class EventManager extends Manager implements EventManagerInterface
 			}
 			else
 			{
-				$result->addError(new Error('error of saving event'));
+				$response = Json::decode($this->httpClient->getResult());
+				if (!empty($response['error']))
+				{
+					$error = $response['error'];
+					switch ($error['code'])
+					{
+						case 409:
+							throw new ConflictException($error['message'], $error['code']);
+						case 401:
+							$this->handleUnauthorizeException();
+							$result->addError(new Error($error['message'], $error['code']));
+							break;
+						default:
+							if (!empty($error['code']))
+							{
+								$result->addError(new Error($error['message'], $error['code']));
+							}
+							else
+							{
+								$result->addError(new Error('Uncknown Google API error', 400));
+							}
+					}
+				}
+			}
+		}
+		catch (ConflictException $e)
+		{
+			if ($event->getUid())
+			{
+				$event->setUid(null);
+				return $this->create($event, $context);
+			}
+			else
+			{
+				$result->addError(new Error($e->getMessage(), $e->getCode()));
 			}
 		}
 		catch (ArgumentException $e)
@@ -76,8 +114,9 @@ class EventManager extends Manager implements EventManagerInterface
 	 *
 	 * @return Result
 	 *
-	 * @throws Core\Base\BaseException
+	 * @throws BaseException
 	 * @throws LoaderException
+	 * @throws SystemException
 	 */
 	public function update(Core\Event\Event $event, EventContext $context): Result
 	{
@@ -94,12 +133,49 @@ class EventManager extends Manager implements EventManagerInterface
 			if ($this->isRequestSuccess())
 			{
 				$requestResult = $this->prepareResult($this->httpClient->getResult(), $event);
-
+				// TODO: move it to core
+				if ($childList = ($context->sync['childList'] ?? null))
+				{
+					/**
+					 * @var int $eventId
+					 * @var Event $childEvent
+					 */
+					foreach ($childList as $eventId => $childEvent)
+					{
+						$childResult = $this->createInstance($childEvent, $context);
+						if ($childResult->isSuccess())
+						{
+							$data = $childResult->getData()['event'];
+							$mapper = new Core\Mappers\EventConnection();
+							/** @var EventConnection $link */
+							$link = $mapper->getMap([
+								'EVENT_ID' => $childEvent->getId(),
+								'CONNECTION_ID' => $this->connection->getId(),
+							])->fetch();
+							if ($link)
+							{
+								$link
+									->setVendorEventId($data['id'])
+									->setEntityTag($data['etag'])
+									->setVendorVersionId($data['version'])
+									->setRecurrenceId($requestResult['event']['id'])
+									;
+								$mapper->update($link);
+							}
+						}
+					}
+				}
 				$result->setData($requestResult);
 			}
 			else
 			{
-				$result->addError(new Error('error of updating event'));
+				$response = Json::decode($this->httpClient->getResult());
+				if (!empty($response['error']) && $response['error']['code'] === 401)
+				{
+					$this->handleUnauthorizeException();
+				}
+
+				$result->addError(new Error('error of updating event', $this->httpClient->getStatus()));
 			}
 		}
 		catch (ArgumentException $e)
@@ -146,6 +222,12 @@ class EventManager extends Manager implements EventManagerInterface
 			}
 			else
 			{
+				$response = Json::decode($this->httpClient->getResult());
+				if (!empty($response['error']) && $response['error']['code'] === 401)
+				{
+					$this->handleUnauthorizeException();
+				}
+
 				$result->addError(new Error('error of deleting event'));
 			}
 
@@ -196,6 +278,12 @@ class EventManager extends Manager implements EventManagerInterface
 			}
 			else
 			{
+				$response = Json::decode($this->httpClient->getResult());
+				if (!empty($response['error']) && $response['error']['code'] === 401)
+				{
+					$this->handleUnauthorizeException();
+				}
+
 				$result->addError(new Error('error of creating instance'));
 			}
 		}
@@ -223,7 +311,13 @@ class EventManager extends Manager implements EventManagerInterface
 				->setEventConnection($eventLink)
 			;
 
-			return $this->update($event, $eventContext);
+			$result = $this->update($event, $eventContext);
+			if (!$result->isSuccess() && $result->getErrorCollection()->getErrorByCode(403))
+			{
+				// TODO: implement it
+			}
+
+			return $result;
 		}
 
 		return (new Result())->addError(new Error('Not found link for instance'));
@@ -269,7 +363,13 @@ class EventManager extends Manager implements EventManagerInterface
 			}
 			else
 			{
-				$result->addError(new Error('error of updating event'));
+				$response = Json::decode($this->httpClient->getResult());
+				if (!empty($response['error']) && $response['error']['code'] === 401)
+				{
+					$this->handleUnauthorizeException();
+				}
+
+				$result->addError(new Error('error of delete instance'));
 			}
 		}
 
@@ -307,7 +407,7 @@ class EventManager extends Manager implements EventManagerInterface
 			$this->connection->getServer()->getFullPath() . self::EVENT_PATH,
 			[
 				'%CALENDAR_ID%' => Server::getEncodePath($context->getSectionConnection()->getVendorSectionId()),
-				'%EVENT_ID%' => Server::getEncodePath($context->getEventConnection()->getVendorEventId())
+				'%EVENT_ID%' => Server::getEncodePath($context->getEventConnection()->getVendorEventId()),
 			]
 		);
 	}
@@ -441,12 +541,29 @@ class EventManager extends Manager implements EventManagerInterface
 			->setEventConnection(
 				(new EventConnection())
 					->setVendorEventId(
-						$masterVendorEventId
-						. '_'
-						. $event->getOriginalDateFrom()->setTimezone(Util::prepareTimezone())->format('Ymd\THis\Z')
+						$this->getInstanceId($masterVendorEventId, $event)
 					)
 					->setRecurrenceId($masterVendorEventId)
 			);
+	}
+
+	/**
+	 * @param string $masterId Vendor ID of master event
+	 * @param Event $event exception event
+	 *
+	 * @return string
+	 */
+	private function getInstanceId(string $masterId, Event $event): string
+	{
+		$base = $masterId . '_';
+		if ($event->isFullDayEvent())
+		{
+			return $base . $event->getOriginalDateFrom()->setTimezone(Util::prepareTimezone())->format('Ymd');
+		}
+		else
+		{
+			return $base . $event->getOriginalDateFrom()->setTimezone(Util::prepareTimezone())->format('Ymd\THis\Z');
+		}
 	}
 
 	/**
@@ -502,6 +619,8 @@ class EventManager extends Manager implements EventManagerInterface
 		$eventContext = new EventContext();
 		$eventContext->merge($context);
 
+		$eventContext->setSectionConnection($sectionConnection);
+
 		if ($masterLink)
 		{
 			$eventContext->setEventConnection($masterLink);
@@ -509,7 +628,6 @@ class EventManager extends Manager implements EventManagerInterface
 		}
 		else
 		{
-			$eventContext->setSectionConnection($sectionConnection);
 			$result = $this->create($syncEvent->getEvent(), $eventContext);
 		}
 
@@ -601,6 +719,32 @@ class EventManager extends Manager implements EventManagerInterface
 			'id' => $externalEvent['id'],
 			'etag' => $externalEvent['etag'],
 			'version' => $externalEvent['etag'],
+			'recurrence' => $externalEvent['recurringEventId'] ?? null,
 		]];
+	}
+
+	private function handleUnauthorizeException()
+	{
+		$this->connection
+			->setStatus('[401] Unauthorized')
+			->setLastSyncTime(new Core\Base\Date())
+		;
+
+		/** @var Core\Mappers\Factory $mapperFactory */
+		$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
+		$mapperFactory->getConnection()->update($this->connection);
+
+		Util::addPullEvent('refresh_sync_status', $this->connection->getOwner()->getId(), [
+			'syncInfo' => [
+				'google' => [
+					'status' => false,
+					'type' => $this->connection->getAccountType(),
+					'connected' => true,
+					'id' => $this->connection->getId(),
+					'syncOffset' => 0
+				],
+			],
+			'requestUid' => Util::getRequestUid(),
+		]);
 	}
 }

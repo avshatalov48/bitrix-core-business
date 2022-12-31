@@ -29,6 +29,7 @@ class CCalendarSceleton
 			'calendar.util',
 			'calendar.entry',
 			'calendar.search',
+			'calendar.counters',
 			'calendar.controls',
 			'calendar.sliderloader',
 			'calendar.sync.manager',
@@ -171,103 +172,6 @@ class CCalendarSceleton
 			<?endforeach;?>
 		</select>
 		</span>
-		<?
-	}
-
-	public static function GetUserfieldsEditHtml($eventId, $url = '')
-	{
-		global $USER_FIELD_MANAGER, $APPLICATION;
-		$USER_FIELDS = $USER_FIELD_MANAGER->GetUserFields("CALENDAR_EVENT", $eventId, LANGUAGE_ID);
-		if (!$USER_FIELDS || count($USER_FIELDS) == 0)
-			return;
-
-		$url = CHTTP::urlDeleteParams($url, array("action", "sessid", "bx_event_calendar_request", "event_id", "reqId"));
-		$url = $url.(mb_strpos($url, '?') === false ? '?' : '&').'action=userfield_save&bx_event_calendar_request=Y&'.bitrix_sessid_get();
-?>
-<form method="post" name="calendar-event-uf-form<?=$eventId?>" action="<?= $url?>" enctype="multipart/form-data" encoding="multipart/form-data">
-<input name="event_id" type="hidden" value="" />
-<input name="reqId" type="hidden" value="" />
-<table cellspacing="0" class="bxc-prop-layout">
-	<?foreach ($USER_FIELDS as $arUserField):?>
-		<tr>
-			<td class="bxc-prop"><?= htmlspecialcharsbx($arUserField["EDIT_FORM_LABEL"])?>:</td>
-			<td class="bxc-prop">
-				<?$APPLICATION->IncludeComponent(
-					"bitrix:system.field.edit",
-					$arUserField["USER_TYPE"]["USER_TYPE_ID"],
-					array(
-						"bVarsFromForm" => false,
-						"arUserField" => $arUserField,
-						"form_name" => "calendar-event-uf-form".$eventId
-					), null, array("HIDE_ICONS" => "Y")
-				);?>
-			</td>
-		</tr>
-	<?endforeach;?>
-</table>
-</form>
-<?
-	}
-
-	public static function GetUserfieldsViewHtml($eventId)
-	{
-		global $USER_FIELD_MANAGER, $APPLICATION;
-		$USER_FIELDS = $USER_FIELD_MANAGER->GetUserFields("CALENDAR_EVENT", $eventId, LANGUAGE_ID);
-		if (!$USER_FIELDS || count($USER_FIELDS) == 0)
-			return;
-		$bFound = false;
-
-		foreach ($USER_FIELDS as $arUserField)
-		{
-			if ($arUserField['VALUE'] == "" || (is_array($arUserField['VALUE']) && !count($arUserField['VALUE'])))
-				continue;
-
-			if (!$bFound)
-			{
-				$bFound = true;
-				?><table cellspacing="0" class="bxc-prop-layout"><?
-			}
-			?>
-
-			<tr>
-				<td class="bxc-prop-name"><?= htmlspecialcharsbx($arUserField["EDIT_FORM_LABEL"])?>:</td>
-				<td class="bxc-prop-value">
-					<?$APPLICATION->IncludeComponent(
-						"bitrix:system.field.view",
-						$arUserField["USER_TYPE"]["USER_TYPE_ID"],
-						array("arUserField" => $arUserField),
-						null,
-						array("HIDE_ICONS"=>"Y")
-					);?>
-				</td>
-			</tr>
-		<?
-		}
-
-		if ($bFound)
-		{
-			?></table><?
-		}
-	}
-
-	public static function DisplayColorSelector($id, $key = 'sect', $colors = false)
-	{
-		if (!$colors)
-		{
-			$colors = array(
-				'#DAA187','#78D4F1','#C8CDD3','#43DAD2','#EECE8F','#AEE5EC','#B6A5F6','#F0B1A1','#82DC98','#EE9B9A',
-				'#B47153','#2FC7F7','#A7ABB0','#04B4AB','#FFA801','#5CD1DF','#6E54D1','#F73200','#29AD49','#FE5957'
-			);
-		}
-
-		?>
-		<div  class="bxec-color-inp-cont">
-			<input class="bxec-color-inp" id="<?=$id?>-<?=$key?>-color-inp"/>
-			<a  id="<?=$id?>-<?=$key?>-text-color-inp" href="javascript:void('');" class="bxec-color-text-link"><?= Loc::getMessage('EC_TEXT_COLOR')?></a>
-		</div>
-		<div class="bxec-color-cont" id="<?=$id?>-<?=$key?>-color-cont">
-		<?foreach($colors as $i => $color):?><span class="bxec-color-it"><a id="<?=$id?>-<?=$key?>-color-<?=$i?>" style="background-color:<?= $color?>" href="javascript:void(0);"></a></span><?endforeach;?>
-		</div>
 		<?
 	}
 

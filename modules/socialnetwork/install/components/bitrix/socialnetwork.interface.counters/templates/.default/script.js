@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Socialnetwork = this.BX.Socialnetwork || {};
-(function (exports,pull_client,main_core,main_core_events) {
+(function (exports,pull_client,ui_counterpanel,ui_cnt,main_core,main_core_events) {
 	'use strict';
 
 	var Filter = /*#__PURE__*/function () {
@@ -8,21 +8,11 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    babelHelpers.classCallCheck(this, Filter);
 	    this.filterId = options.filterId;
 	    this.filterManager = BX.Main.filterManager.getById(this.filterId);
-	    this.bindEvents();
+	    this.countersManager = options.countersManager;
 	    setTimeout(this.updateFields.bind(this), 100);
 	  }
 
 	  babelHelpers.createClass(Filter, [{
-	    key: "bindEvents",
-	    value: function bindEvents() {
-	      main_core_events.EventEmitter.subscribe('BX.Main.Filter:apply', this.onFilterApply.bind(this));
-	    }
-	  }, {
-	    key: "onFilterApply",
-	    value: function onFilterApply() {
-	      this.updateFields();
-	    }
-	  }, {
 	    key: "updateFields",
 	    value: function updateFields() {
 	      var filterManager = this.getFilter();
@@ -32,11 +22,35 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      }
 
 	      this.presetId = filterManager.getPreset().getCurrentPresetId();
+	      this.fields = filterManager.getFilterFieldsValues();
+	      this.countersManager.activateCountersByFilter();
 	    }
 	  }, {
 	    key: "isFilteredByPresetId",
 	    value: function isFilteredByPresetId(presetId) {
 	      return presetId === this.presetId;
+	    }
+	  }, {
+	    key: "isFilteredByFields",
+	    value: function isFilteredByFields(filterFields) {
+	      var _this = this;
+
+	      var result = false;
+	      var breakNeeded = false;
+	      Object.entries(filterFields).map(function (_ref) {
+	        var _ref2 = babelHelpers.slicedToArray(_ref, 2),
+	            field = _ref2[0],
+	            value = _ref2[1];
+
+	        if (!breakNeeded && !main_core.Type.isUndefined(_this.fields[field])) {
+	          result = _this.fields[field] === value;
+
+	          if (!result) {
+	            breakNeeded = true;
+	          }
+	        }
+	      });
+	      return result;
 	    }
 	  }, {
 	    key: "getFilter",
@@ -47,190 +61,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  return Filter;
 	}();
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4;
-
-	var CountersItem = /*#__PURE__*/function () {
-	  function CountersItem(options) {
-	    babelHelpers.classCallCheck(this, CountersItem);
-	    this.count = options.count;
-	    this.name = options.name;
-	    this.type = options.type;
-	    this.color = options.color;
-	    this.filterPresetId = options.filterPresetId;
-	    this.filter = options.filter;
-	    this.activeByDefault = !!options.activeByDefault;
-	    this.$container = null;
-	    this.$remove = null;
-	    this.$counter = null;
-	    this.bindEvents();
-	  }
-
-	  babelHelpers.createClass(CountersItem, [{
-	    key: "bindEvents",
-	    value: function bindEvents() {
-	      var _this = this;
-
-	      main_core_events.EventEmitter.subscribe('BX.Socialnetwork.Interface.Counters:active', function (param) {
-	        _this !== param.data ? _this.unActive() : null;
-	      });
-	    }
-	  }, {
-	    key: "getCounter",
-	    value: function getCounter() {
-	      if (!this.$counter) {
-	        var count = this.count > 99 ? '99+' : this.count;
-	        this.$counter = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"sonet-counters--item-num ", "\">\n\t\t\t\t\t<div class=\"sonet-counters--item-num-text --stop --without-animate\">", "</div>\n\t\t\t\t</div>\n\t\t\t"])), this.getCounterColor(), count);
-	      }
-
-	      return this.$counter;
-	    }
-	  }, {
-	    key: "getCounterColor",
-	    value: function getCounterColor() {
-	      if (!this.color) {
-	        return null;
-	      }
-
-	      return "--".concat(this.color);
-	    }
-	  }, {
-	    key: "animateCounter",
-	    value: function animateCounter(start, value) {
-	      var _this2 = this;
-
-	      if (start > 99 && value > 99) {
-	        return;
-	      }
-
-	      value > 99 ? value = 99 : null;
-
-	      if (start > 99) {
-	        start = 99;
-	      }
-
-	      var duration = start - value;
-
-	      if (duration < 0) {
-	        duration = duration * -1;
-	      }
-
-	      this.$counter.innerHTML = '';
-	      this.getCounter().classList.remove('--update');
-	      this.getCounter().classList.remove('--update-multi');
-
-	      if (duration > 5) {
-	        setTimeout(function () {
-	          _this2.getCounter().style.animationDuration = duration * 50 + 'ms';
-
-	          _this2.getCounter().classList.add('--update-multi');
-	        });
-	      }
-
-	      var timer = setInterval(function () {
-	        value < start ? start-- : start++;
-	        var node = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"sonet-counters--item-num-text ", "\">", "</div>\n\t\t\t"])), value < start ? '--decrement' : '', start);
-
-	        if (start === value) {
-	          node.classList.add('--stop');
-
-	          if (duration < 5) {
-	            _this2.getCounter().classList.add('--update');
-	          }
-
-	          clearInterval(timer);
-	          start === 0 ? _this2.fade() : _this2.unFade();
-	        }
-
-	        if (start !== value) {
-	          main_core.Event.bind(node, 'animationend', function () {
-	            node.parentNode.removeChild(node);
-	          });
-	        }
-
-	        _this2.$counter.appendChild(node);
-	      }, 50);
-	    }
-	  }, {
-	    key: "updateCount",
-	    value: function updateCount(param) {
-	      if (this.count === param) {
-	        return;
-	      }
-
-	      this.animateCounter(this.count, param);
-	      this.count = param;
-	    }
-	  }, {
-	    key: "getRemove",
-	    value: function getRemove() {
-	      if (!this.$remove) {
-	        this.$remove = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"sonet-counters--item-remove\"></div>\n\t\t\t"])));
-	      }
-
-	      return this.$remove;
-	    }
-	  }, {
-	    key: "fade",
-	    value: function fade() {
-	      this.getContainer().classList.add('--fade');
-	    }
-	  }, {
-	    key: "unFade",
-	    value: function unFade() {
-	      this.getContainer().classList.remove('--fade');
-	    }
-	  }, {
-	    key: "active",
-	    value: function active(node) {
-	      var targetNode = main_core.Type.isDomNode(node) ? node : this.getContainer();
-	      targetNode.classList.add('--hover');
-	      main_core_events.EventEmitter.emit('BX.Socialnetwork.Interface.Counters:active', this);
-	    }
-	  }, {
-	    key: "unActive",
-	    value: function unActive(node) {
-	      var targetNode = main_core.Type.isDomNode(node) ? node : this.getContainer();
-	      targetNode.classList.remove('--hover');
-	      main_core_events.EventEmitter.emit('BX.Socialnetwork.Interface.Counters:unActive', this);
-	    }
-	  }, {
-	    key: "adjustClick",
-	    value: function adjustClick() {
-	      main_core_events.EventEmitter.emit('Socialnetwork.Toolbar:onItem', {
-	        counter: this
-	      });
-	      this.$container.classList.contains('--hover') ? this.unActive() : this.active();
-	    }
-	  }, {
-	    key: "getContainer",
-	    value: function getContainer() {
-	      if (!this.$container) {
-	        this.$container = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"sonet-counters--item ", "\">\n\t\t\t\t\t<div class=\"sonet-counters--item-wrapper\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t\t<div class=\"sonet-counters--item-title\">", "</div>\n\t\t\t\t\t\t", "\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t"])), Number(this.count) === 0 ? ' --fade' : '', this.getCounter(), this.name, this.getRemove());
-
-	        if (this.filter.isFilteredByPresetId(this.filterPresetId) || this.activeByDefault) {
-	          this.active(this.$container);
-	        }
-
-	        main_core.Event.bind(this.$container, 'click', this.adjustClick.bind(this));
-	      }
-
-	      return this.$container;
-	    }
-	  }]);
-	  return CountersItem;
-	}();
-
-	var _templateObject$1, _templateObject2$1;
 	var Counters = /*#__PURE__*/function () {
-	  babelHelpers.createClass(Counters, null, [{
-	    key: "counterTypes",
-	    get: function get() {
-	      return {
-	        workgroup_detail: ['workgroup_requests_in', 'workgroup_requests_out']
-	      };
-	    }
-	  }]);
-
 	  function Counters(options) {
 	    babelHelpers.classCallCheck(this, Counters);
 	    this.userId = options.userId;
@@ -240,21 +71,18 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    this.role = options.role;
 	    this.entityTitle = options.entityTitle || '';
 	    this.counters = options.counters;
-	    this.initialCounterTypes = options.counterTypes;
 	    this.renderTo = options.renderTo;
 	    this.signedParameters = options.signedParameters;
 	    this.initialCounter = options.initialCounter || '';
-	    this.$other = {
-	      cropped: null,
-	      layout: null
-	    };
-	    this.$entityHead = null;
-	    this.filter = new Filter({
-	      filterId: options.filterId
-	    });
+	    this.panel = null;
+	    this.tasksCounter = {};
 	    this.bindEvents();
 	    this.setData(this.counters);
 	    this.initPull();
+	    this.filter = new Filter({
+	      filterId: options.filterId,
+	      countersManager: this
+	    });
 	  }
 
 	  babelHelpers.createClass(Counters, [{
@@ -268,7 +96,19 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      var _this = this;
 
 	      pull_client.PULL.subscribe({
+	        moduleId: 'main',
+	        callback: function callback(data) {
+	          return _this.processPullEvent(data);
+	        }
+	      });
+	      pull_client.PULL.subscribe({
 	        moduleId: 'socialnetwork',
+	        callback: function callback(data) {
+	          return _this.processPullEvent(data);
+	        }
+	      });
+	      pull_client.PULL.subscribe({
+	        moduleId: 'tasks',
 	        callback: function callback(data) {
 	          return _this.processPullEvent(data);
 	        }
@@ -313,12 +153,22 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }, {
 	    key: "onFilterApply",
 	    value: function onFilterApply() {
+	      this.filter.updateFields();
+	    }
+	  }, {
+	    key: "activateCountersByFilter",
+	    value: function activateCountersByFilter() {
 	      var _this3 = this;
 
-	      this.filter.updateFields();
-	      Object.values(this.counterItems).forEach(function (counter) {
-	        if (counter) {
-	          _this3.filter.isFilteredByPresetId(counter.filterPresetId) ? counter.active() : counter.unActive();
+	      if (!this.panel) {
+	        return;
+	      }
+
+	      this.counterItems.forEach(function (counter) {
+	        if (main_core.Type.isObject(counter.filterFields)) {
+	          _this3.filter.isFilteredByFields(counter.filterFields) ? _this3.panel.getItemById(counter.type).activate() : _this3.panel.getItemById(counter.type).deactivate();
+	        } else if (main_core.Type.isStringFilled(counter.filterPresetId)) {
+	          _this3.filter.isFilteredByPresetId(counter.filterPresetId) ? _this3.panel.getItemById(counter.type).activate() : _this3.panel.getItemById(counter.type).deactivate();
 	        }
 	      });
 	    }
@@ -339,82 +189,156 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	              type = _ref2[0],
 	              value = _ref2[1];
 
-	          if (_this4.counterItems[type]) {
-	            _this4.counterItems[type].updateCount(value);
-	          }
+	          _this4.counterItems.forEach(function (counter) {
+	            if (counter.type === type) {
+	              var item = _this4.panel.getItemById(counter.type);
+
+	              item.updateValue(value.all);
+	              var baseColor = 'GRAY';
+
+	              switch (type) {
+	                case 'workgroup_requests_in':
+	                  baseColor = 'WARNING';
+	                  break;
+
+	                case 'workgroup_requests_out':
+	                  baseColor = 'SUCCESS';
+	                  break;
+	              }
+
+	              item.updateColor(value.all > 0 ? baseColor : 'GRAY');
+	            }
+	          });
 	        });
+	      } else if (this.entityType === 'workgroup_list') {
+	        if (main_core.Type.isPlainObject(data[main_core.Loc.getMessage('SITE_ID')]) && !main_core.Type.isUndefined(data[main_core.Loc.getMessage('SITE_ID')]['**SG0'])) {
+	          this.counterItems.forEach(function (counter) {
+	            if (counter.type === 'workgroup_list_livefeed') {
+	              var item = _this4.panel.getItemById(counter.type);
+
+	              var value = Number(data[main_core.Loc.getMessage('SITE_ID')]['**SG0']);
+	              item.updateValue(value);
+	              item.updateColor(value > 0 ? 'DANGER' : 'GRAY');
+	            }
+	          });
+	        } else if (!main_core.Type.isUndefined(data.projects_major) || !main_core.Type.isUndefined(data.scrum_total_comments)) {
+	          if (!main_core.Type.isUndefined(data.projects_major)) {
+	            this.tasksCounter.projects_major = Number(data.projects_major);
+	          }
+
+	          if (!main_core.Type.isUndefined(data.scrum_total_comments)) {
+	            this.tasksCounter.scrum_total_comments = Number(data.scrum_total_comments);
+	          }
+
+	          this.counterItems.forEach(function (counter) {
+	            if (counter.type === 'workgroup_list_tasks') {
+	              var sum = 0;
+	              Object.entries(_this4.tasksCounter).map(function (_ref3) {
+	                var _ref4 = babelHelpers.slicedToArray(_ref3, 1),
+	                    key = _ref4[0];
+
+	                sum += _this4.tasksCounter[key];
+	              });
+
+	              var item = _this4.panel.getItemById(counter.type);
+
+	              item.updateValue(sum);
+	              item.updateColor(sum > 0 ? 'DANGER' : 'GRAY');
+	            }
+	          });
+	        }
 	      }
 	    }
 	  }, {
 	    key: "getCounterItem",
 	    value: function getCounterItem(param) {
-	      return new CountersItem({
-	        count: param.count,
-	        name: param.name,
+	      var counterData = {
 	        type: param.type,
-	        color: param.color,
-	        filterPresetId: param.filterPresetId,
 	        activeByDefault: param.type === this.initialCounter,
 	        filter: this.filter
-	      });
+	      };
+
+	      if (main_core.Type.isObject(param.filterFields)) {
+	        var _Object$entries$pop = Object.entries(param.filterFields).pop(),
+	            _Object$entries$pop2 = babelHelpers.slicedToArray(_Object$entries$pop, 2),
+	            key = _Object$entries$pop2[0],
+	            value = _Object$entries$pop2[1];
+
+	        counterData.filterField = key;
+	        counterData.filterValue = value;
+	      } else if (main_core.Type.isStringFilled(param.filterPresetId)) {
+	        counterData.filterPresetId = param.filterPresetId;
+	      }
+
+	      return {
+	        id: param.type,
+	        title: param.name,
+	        value: param.count,
+	        color: param.color,
+	        eventsForActive: {
+	          click: function click() {
+	            main_core_events.EventEmitter.emit('Socialnetwork.Toolbar:onItem', {
+	              counter: counterData
+	            });
+	          },
+	          mouseenter: function mouseenter() {},
+	          anyEvent: function anyEvent() {}
+	        },
+	        eventsForUnActive: {
+	          click: function click() {
+	            main_core_events.EventEmitter.emit('Socialnetwork.Toolbar:onItem', {
+	              counter: counterData
+	            });
+	          }
+	        }
+	      };
 	    }
 	  }, {
 	    key: "setData",
 	    value: function setData(counters) {
 	      var _this5 = this;
 
-	      this.counterItems = {};
-	      var availableTypes = babelHelpers.toConsumableArray(Counters.counterTypes.workgroup_detail);
-	      Object.entries(counters).forEach(function (_ref3) {
-	        var _ref4 = babelHelpers.slicedToArray(_ref3, 2),
-	            type = _ref4[0],
-	            data = _ref4[1];
+	      this.counterItems = [];
+	      Object.entries(counters).forEach(function (_ref5) {
+	        var _ref6 = babelHelpers.slicedToArray(_ref5, 2),
+	            type = _ref6[0],
+	            data = _ref6[1];
 
-	        if (!availableTypes.includes(type)) {
-	          return;
-	        }
-
-	        _this5.counterItems[type] = _this5.getCounterItem({
+	        _this5.counterItems.push({
 	          type: type,
 	          name: data.TITLE,
-	          count: Number(data.VALUE),
+	          count: _this5.getCounterSum(data.VALUE),
 	          color: data.STYLE,
-	          filterPresetId: data.FILTER_PRESET_ID
+	          filterPresetId: data.FILTER_PRESET_ID,
+	          filterFields: data.FILTER_FIELDS
 	        });
 	      });
 	    }
 	  }, {
-	    key: "isCroppedBlock",
-	    value: function isCroppedBlock(node) {
-	      if (node) {
-	        return node.classList.contains('--cropp');
-	      }
-	    }
-	  }, {
-	    key: "getContainer",
-	    value: function getContainer() {
-	      var content = [];
-	      Object.values(this.counterItems).forEach(function (counter) {
-	        return content.push(counter.getContainer());
+	    key: "getCounterSum",
+	    value: function getCounterSum(counterValues) {
+	      var result = 0;
+	      Object.entries(counterValues).map(function (_ref7) {
+	        var _ref8 = babelHelpers.slicedToArray(_ref7, 2),
+	            value = _ref8[1];
+
+	        result += Number(value);
 	      });
-	      this.$entityHead = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-counters--group-head\">\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.entityTitle);
-	      this.$element = main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"sonet-counters sonet-counters--scope\">\n\t\t\t\t<div class=\"sonet-counters--group\">\n\t\t\t\t\t", "\n\t\t\t\t\t<div class=\"sonet-counters--group-content\">", "</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.$entityHead, content);
-	      return this.$element;
+	      return result;
 	    }
 	  }, {
 	    key: "render",
 	    value: function render() {
-	      var node = this.getContainer();
-	      var fakeNode = node.cloneNode(true);
-	      fakeNode.classList.add('sonet-counters');
-	      fakeNode.style.position = 'fixed';
-	      fakeNode.style.opacity = '0';
-	      fakeNode.style.width = 'auto';
-	      fakeNode.style.pointerEvents = 'none';
-	      document.body.appendChild(fakeNode);
-	      this.nodeWidth = fakeNode.offsetWidth;
-	      document.body.removeChild(fakeNode);
-	      main_core.Dom.replace(this.renderTo.firstChild, node);
+	      var _this6 = this;
+
+	      this.panel = new ui_counterpanel.CounterPanel({
+	        target: this.renderTo,
+	        multiselect: true,
+	        items: this.counterItems.map(function (item) {
+	          return _this6.getCounterItem(item);
+	        })
+	      });
+	      this.panel.init();
 	    }
 	  }]);
 	  return Counters;
@@ -425,5 +349,5 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 
 	exports.Counters = Counters;
 
-}((this.BX.Socialnetwork.Interface = this.BX.Socialnetwork.Interface || {}),BX,BX,BX.Event));
+}((this.BX.Socialnetwork.Interface = this.BX.Socialnetwork.Interface || {}),BX,BX.UI,BX.UI,BX,BX.Event));
 //# sourceMappingURL=script.js.map

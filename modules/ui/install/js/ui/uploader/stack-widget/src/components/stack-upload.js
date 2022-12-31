@@ -1,7 +1,5 @@
 import { Loc } from 'main.core';
-import { BitrixVue } from 'ui.vue';
 import { UploadLoader } from 'ui.uploader.tile-widget';
-
 import { StackWidgetSize } from '../stack-widget-size';
 
 const progressSizes = {
@@ -11,7 +9,9 @@ const progressSizes = {
 	[StackWidgetSize.TINY]: { width: 14, lineSize: 2 },
 };
 
-export const StackUpload = BitrixVue.localComponent('ui.uploader.stack-widget.stack-upload', {
+export const StackUpload = {
+	name: 'StackUpload',
+	inject: ['widgetOptions'],
 	components: {
 		UploadLoader,
 	},
@@ -25,6 +25,7 @@ export const StackUpload = BitrixVue.localComponent('ui.uploader.stack-widget.st
 			required: true,
 		}
 	},
+	emits: ['showPopup', 'abortUpload'],
 	computed: {
 		StackWidgetSize: () => StackWidgetSize,
 		uploadFileTitle()
@@ -53,7 +54,7 @@ export const StackUpload = BitrixVue.localComponent('ui.uploader.stack-widget.st
 		},
 		progressOptions()
 		{
-			const { width, lineSize } = progressSizes[this.$root.widget.size];
+			const { width, lineSize } = progressSizes[this.widgetOptions.size];
 
 			return {
 				width,
@@ -78,12 +79,12 @@ export const StackUpload = BitrixVue.localComponent('ui.uploader.stack-widget.st
 					</div>
 					<div class="ui-uploader-stack-upload-progress">
 						<div
-							v-if="$root.widget.size === StackWidgetSize.LARGE"
+							v-if="widgetOptions.size === StackWidgetSize.LARGE"
 							class="ui-uploader-stack-upload-title"
 						>{{ uploadFileTitle }}</div>
 						<div class="ui-uploader-stack-upload-percent">{{ progress }}%</div>
 						<div
-							v-if="queueItems.length === 1 && $root.widget.size === StackWidgetSize.LARGE"
+							v-if="queueItems.length === 1 && widgetOptions.size === StackWidgetSize.LARGE"
 							class="ui-uploader-stack-upload-stats"
 						>
 							<span class="ui-uploader-stack-upload-total">{{
@@ -99,4 +100,4 @@ export const StackUpload = BitrixVue.localComponent('ui.uploader.stack-widget.st
 			</div>
 		</div>
 	`,
-});
+};

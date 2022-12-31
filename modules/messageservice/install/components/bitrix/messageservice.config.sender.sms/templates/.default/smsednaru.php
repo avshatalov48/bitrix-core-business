@@ -1,6 +1,7 @@
 <?php
 
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\MessageService\Providers\Constants\InternalOption;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -109,6 +110,12 @@ if ($sender->isRegistered())
 						<label for="" class="sms-settings-input-label">X-API-KEY*</label>
 						<input type="text" name="api_key" class="sms-settings-input">
 					</div>
+					<?php if ($sender->isMigratedToNewAPI()): ?>
+						<div class="sms-settings-input-container">
+							<label for="" class="sms-settings-input-label">Subject ID*</label>
+							<input type="text" name="subject_id" class="sms-settings-input">
+						</div>
+					<?php endif;?>
 					<div class="sms-settings-input-container">
 						<button type="submit" class="webform-small-button webform-small-button-blue" data-role="`sms-registration-submit`">
 							<span class="webform-small-button-text"><?= Loc::getMessage('MESSAGESERVICE_CONFIG_SENDER_SMS_ACTION_SAVE') ?></span>
@@ -126,11 +133,11 @@ if ($sender->isRegistered())
 				<div class="sms-settings-step-contact-info">
 					<div class="sms-settings-step-contact-info-block">
 						<div class="sms-settings-step-contact-info-name">X-API-KEY:</div>
-						<div class="sms-settings-step-contact-info-value"><?=htmlspecialcharsbx($ownerInfo['apiKey'])?></div>
+						<div class="sms-settings-step-contact-info-value"><?=htmlspecialcharsbx($ownerInfo[InternalOption::API_KEY])?></div>
 					</div>
 					<div class="sms-settings-step-contact-info-block">
 						<div class="sms-settings-step-contact-info-name"><?= Loc::getMessage('MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_SUBJECT') ?>:</div>
-						<div class="sms-settings-step-contact-info-value"><?=htmlspecialcharsbx(implode(', ', $ownerInfo['subjects']))?></div>
+						<div class="sms-settings-step-contact-info-value"><?=htmlspecialcharsbx(implode(', ', $ownerInfo[InternalOption::SENDER_ID]))?></div>
 					</div>
 				</div>
 			</div>
@@ -162,13 +169,27 @@ if ($sender->isRegistered())
 			BX.bind(registrationForm, 'submit', function(e)
 			{
 				e.preventDefault();
-
+				const isMigratedToNewApi = '<?=$sender->isMigratedToNewAPI() ? 'Y' : 'N'?>' === 'Y';
+				let subjectId = '';
 				var apiKey = registrationForm.elements['api_key'].value;
+
 
 				if (!apiKey.length)
 				{
 					window.alert('<?= CUtil::JSEscape(Loc::getMessage('MESSAGESERVICE_CONFIG_SENDER_SMS_ERROR_EMPTY_FIELDS')) ?>');
 					return false;
+				}
+
+				const requestData = {
+					sessid: BX.bitrix_sessid(),
+					site_id: BX.message('SITE_ID'),
+					sender_id: senderId,
+					action: registrationForm.elements['action'].value,
+					api_key: apiKey,
+				}
+				if (isMigratedToNewApi)
+				{
+					requestData.subject_id = registrationForm.elements['subject_id'].value;
 				}
 
 				BX.addClass(registrationSubmit, 'webform-small-button-wait');
@@ -179,18 +200,19 @@ if ($sender->isRegistered())
 						action: 'registration',
 						sender_id: senderId
 					}),
-					data: {
-						sessid: BX.bitrix_sessid(),
-						site_id: BX.message('SITE_ID'),
-						sender_id: senderId,
-						action: registrationForm.elements['action'].value,
-						apiKey: apiKey,
-					},
+					data: requestData,
 					onsuccess: function (response)
 					{
 						if (!response.success)
 						{
-							alert(response.errors[0]);
+							BX.UI.Dialogs.MessageBox.show({
+								message: response.errors[0],
+								minWidth: 500,
+								buttons: BX.UI.Dialogs.MessageBoxButtons.OK,
+								onOk: (messageBox, button, event) => {
+									messageBox.close()
+								}
+							});
 						}
 						else
 						{

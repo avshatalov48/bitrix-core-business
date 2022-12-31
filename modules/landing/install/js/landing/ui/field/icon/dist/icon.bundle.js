@@ -117,7 +117,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        alt: "",
 	        classList: classList,
 	        url: Object.assign({}, this.url.getValue(), {
-	          enabled: this.urlCheckbox.checked
+	          enabled: true
 	        })
 	      };
 	    }

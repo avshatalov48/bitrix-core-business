@@ -3,11 +3,11 @@
 
 	BX.namespace("BX.Landing.UI.Field");
 
-	var bind = BX.Landing.Utils.bind;
-	var fireCustomEvent = BX.Landing.Utils.fireCustomEvent;
-	var getQueryParam = BX.Landing.Utils.getQueryParams;
-	var remove = BX.Landing.Utils.remove;
-	var create = BX.Landing.Utils.create;
+	const bind = BX.Landing.Utils.bind;
+	const fireCustomEvent = BX.Landing.Utils.fireCustomEvent;
+	const getQueryParam = BX.Landing.Utils.getQueryParams;
+	const remove = BX.Landing.Utils.remove;
+	const create = BX.Landing.Utils.create;
 
 	/**
 	 * Implements interface for works with text field
@@ -25,6 +25,7 @@
 		BX.Dom.addClass(this.error, 'landing-ui-error');
 	};
 
+	BX.Landing.UI.Field.EmbedBg.isBgVideo = true;
 
 	BX.Landing.UI.Field.EmbedBg.prototype = {
 		constructor: BX.Landing.UI.Field.EmbedBg,
@@ -32,7 +33,6 @@
 
 		isEmbedUrl: function(value)
 		{
-			console.log("isEmbedUrl bg");
 			return BX.Landing.Utils.Matchers.youtube.test(value)
 				|| BX.Landing.Utils.Matchers.vk.test(value)
 			;

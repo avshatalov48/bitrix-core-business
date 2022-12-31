@@ -515,7 +515,7 @@ this.BX = this.BX || {};
 	      getUserAvatarStyle: function getUserAvatarStyle(user) {
 	        if (user.avatar) {
 	          return {
-	            backgroundImage: "url('".concat(user.avatar, "')")
+	            backgroundImage: "url('".concat(encodeURI(user.avatar), "')")
 	          };
 	        }
 
@@ -605,7 +605,7 @@ this.BX = this.BX || {};
 	      getUserAvatarStyle: function getUserAvatarStyle(user) {
 	        if (user.avatar) {
 	          return {
-	            backgroundImage: "url('".concat(user.avatar, "')")
+	            backgroundImage: "url('".concat(encodeURI(user.avatar), "')")
 	          };
 	        }
 

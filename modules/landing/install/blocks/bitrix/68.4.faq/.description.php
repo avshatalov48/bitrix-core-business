@@ -18,6 +18,10 @@ return [
 		],
 	],
 	'nodes' => [
+		'.landing-block-title' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_FAQ_4_TITLE'),
+			'type' => 'text',
+		],
 		'.landing-block-faq-visible' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_FAQ_4_TITLE'),
 			'type' => 'text',

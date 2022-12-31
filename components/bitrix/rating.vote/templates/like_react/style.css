@@ -175,15 +175,19 @@
 
 .feed-post-emoji-icon-item {
 	display: inline-block;
-	width: 18px;
-	height: 18px;
-	border: 2px solid #fff;
+	width: 21px;
+	height: 22px;
+	border: 1px solid #fff;
 	border-radius: 100%;
 	background-position: center;
 	background-repeat: no-repeat;
 	transition: transform .3s;
 	text-decoration: none;
 	cursor: default;
+}
+
+.feed-post-emoji-icon-item svg {
+	transform: translateY(2px);
 }
 
 .feed-post-emoji-top-panel-box.feed-post-emoji-top-panel-container-active .feed-post-emoji-icon-item,
@@ -198,9 +202,10 @@
 }
 
 .feed-post-emoji-popup-container .feed-post-emoji-icon-item {
-	padding: 10px 0;
-	width: 34px;
-	height: 34px;
+	margin: 17px 0 10px 0;
+	padding: 0px;
+	width: 40px;
+	height: 40px;
 	cursor: pointer;
 }
 
@@ -216,8 +221,8 @@
 
 .feed-com-block .feed-post-emoji-icon-item {
 	margin-left: -6px;
-	height: 16px;
-	width: 16px;
+	height: 19px;
+	width: 18px;
 }
 
 .feed-com-block .feed-post-emoji-icon-item.feed-post-emoji-icon-item-1,
@@ -261,7 +266,7 @@
 }
 
 .feed-post-emoji-icon-animate.feed-post-emoji-icon-item {
-	animation: feed-post-emoji-icon-animate .15s ease-in-out forwards;
+	animation: feed-post-emoji-icon-animate .2s ease-in-out;
 }
 
 .feed-post-emoji-icon-animate-hide.feed-post-emoji-icon-item {
@@ -299,7 +304,7 @@
 .feed-post-emoji-text-box {
 	display: flex;
 	align-items: center;
-	overflow: hidden;
+	/*overflow: hidden;*/
 }
 
 .feed-com-block .feed-post-emoji-text-box {
@@ -328,7 +333,7 @@
 
 .feed-post-emoji-top-panel-container-active.feed-post-emoji-top-panel-box {
 	display: inline-block;
-	max-height: 20px;
+	max-height: 22px;
 }
 
 .feed-post-emoji-top-panel-box .feed-post-emoji-text-box.feed-post-emoji-move-to-right {
@@ -345,7 +350,7 @@
 	text-decoration: none;
 	transition: border-bottom .3s;
 	white-space: nowrap;
-	overflow: hidden;
+	/*overflow: hidden;*/
 	text-overflow: ellipsis;
 	cursor: pointer;
 }
@@ -457,8 +462,6 @@
 }
 
 .feed-post-emoji-icon-inner .feed-post-emoji-icon-item {
-	flex: 0 0 34px;
-	margin-right: 4px;
 	border: none;
 	opacity: 0;
 	background-size: contain;
@@ -542,7 +545,7 @@
 
 @keyframes feed-post-emoji-pop {
 	0% {
-		transform: scale(0);
+		transform: scale(.5);
 	}
 	35% {
 		transform: scale(1.22);
@@ -557,19 +560,19 @@
 
 @keyframes feed-post-emoji-icon-animate {
 	0% {
-		margin: 0 0 0 -18px;
+		transform: translateX(-13px);
 	}
 	100% {
-		margin: 0 0 0 -5px;
+		transform: translateX(0);
 	}
 }
 
 @keyframes feed-post-emoji-icon-animate-hide {
 	0% {
-		margin: 0 0 0 -5px;
+		transform: translateX(0);
 	}
 	100% {
-		margin: 0 0 0 -18px;
+		transform: translateX(-13px);
 	}
 }
 

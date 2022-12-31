@@ -1,4 +1,4 @@
-import {ajax} from 'main.core';
+import {Type, ajax} from 'main.core';
 
 export class Controller
 {
@@ -77,7 +77,13 @@ export class Controller
 
 	#makeAnalyticsData(data={})
 	{
-		return {iME: 'inventoryManagementEnabled' + '_' + data.preset?.sort().join('_')};
+		const analyticsData = {iME: 'inventoryManagementEnabled' + '_' + data.preset?.sort().join('_')};
+		if (Type.isStringFilled(data.inventoryManagementSource))
+		{
+			analyticsData.inventoryManagementSource = data.inventoryManagementSource;
+		}
+
+		return analyticsData;
 	}
 
 	inventoryManagementDisabled()

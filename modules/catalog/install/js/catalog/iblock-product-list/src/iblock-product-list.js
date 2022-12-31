@@ -1,6 +1,7 @@
 import type {BaseEvent} from 'main.core.events';
 import {EventEmitter} from 'main.core.events';
-import {Dom, Tag, Text, Type, Uri} from 'main.core';
+import {Dom, Tag, Text, Type, Uri, Loc} from 'main.core';
+import { IblockProductListHints } from './iblock-product-list-hints';
 import './style.css';
 
 export class IblockProductList
@@ -9,6 +10,7 @@ export class IblockProductList
 	 * @type {?BX.Main.grid}
 	 */
 	grid;
+	hints;
 	variations = new Map();
 	variationsEditData = new Map();
 	editedVariations = new Map();
@@ -37,6 +39,8 @@ export class IblockProductList
 		EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
 		EventEmitter.subscribe('BX.Main.Filter:apply', this.onFilterApplyHandler);
 		EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
+
+		this.hints = new IblockProductListHints(options);
 	}
 
 	addCustomClassToGrid()

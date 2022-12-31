@@ -193,6 +193,7 @@
 	position: relative;
 	padding: 14px 0 16px;
 	background-color: #f6f6f7;
+	border-radius: var(--ui-border-radius-sm);
 }
 
 .calendar-resourcebook-content-block {
@@ -441,7 +442,7 @@
 	width: 100%;
 	outline: none;
 	border: 1px solid #c4c7cc;
-	border-radius: 1px;
+	border-radius: var(--ui-field-border-radius, 1px);
 	background-color: #fff;
 	color: #424956;
 	font: 15px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica, "Helvetica Neue", Helvetica, Arial, sans-serif));
@@ -1434,17 +1435,7 @@ input.calendar-resbook-error{
 	margin-bottom: 8px;
 }
 
-.bx-ie .calendar-resbook-webform-block-btn {
-	background: #a6c12e;
-	border-color: #a6c12e;
-}
-
 .calendar-resbook-webform-block-btn:hover {
-	background: #b4cc4b;
-	border-color: #b4cc4b;
-}
-
-.bx-ie .calendar-resbook-webform-block-btn:hover {
 	background: #b4cc4b;
 	border-color: #b4cc4b;
 }

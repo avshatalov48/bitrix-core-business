@@ -2,11 +2,14 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 /** @global array $FIELDS */
+
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
 use Bitrix\Catalog;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 
 if (!defined('B_ADMIN_IBLOCK_CATALOGS') || B_ADMIN_IBLOCK_CATALOGS != 1 || !defined('B_ADMIN_IBLOCK_CATALOGS_LIST'))
 	return;
@@ -21,7 +24,7 @@ if ($prologAbsent)
 	CUtil::JSPostUnescape();
 	Loader::includeModule('catalog');
 
-	$readOnly = !$USER->CanDoOperation('catalog_settings');
+	$readOnly = !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS);
 }
 
 $catalogsAjaxPath = '/bitrix/tools/catalog/iblock_catalog_list.php?lang='.LANGUAGE_ID;

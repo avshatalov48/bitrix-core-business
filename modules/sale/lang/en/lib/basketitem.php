@@ -1,2 +1,3 @@
-<?
+<?php
+$MESS["SALE_BASKET_ITEM_REMOVE_IMPOSSIBLE_BECAUSE_SERVICE_SHIPPED"] = "Cannot delete rendered service \"#PRODUCT_NAME#\"";
 $MESS["SALE_BASKET_ITEM_REMOVE_IMPOSSIBLE_BECAUSE_SHIPPED"] = "Cannot delete shipped product \"#PRODUCT_NAME#\"";

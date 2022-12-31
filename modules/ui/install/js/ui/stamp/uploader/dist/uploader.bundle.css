@@ -54,6 +54,15 @@
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+.ui-stamp-uploader-header-text-value span {
+	display: inline-block;
+	max-width: 260px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: #525C69;
+}
+
 .ui-stamp-uploader-header-text-value span,
 .ui-stamp-uploader-header-text-value span:hover {
 	font-size: 16px;

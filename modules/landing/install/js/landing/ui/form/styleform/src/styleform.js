@@ -1,4 +1,4 @@
-import {Dom, Event} from 'main.core';
+import { Dom, Event, Type } from 'main.core';
 import {BaseForm} from 'landing.ui.form.baseform';
 import {Highlight} from 'landing.ui.highlight';
 import {BaseField} from 'landing.ui.field.basefield';
@@ -12,6 +12,8 @@ import 'ui.design-tokens';
  */
 export class StyleForm extends BaseForm
 {
+	#styleFields: Map;
+
 	constructor(options = {})
 	{
 		super(options);
@@ -22,6 +24,7 @@ export class StyleForm extends BaseForm
 		this.iframe = 'iframe' in options ? options.iframe : null;
 		this.node = 'node' in options ? options.node : null;
 		this.selector = 'selector' in options ? options.selector : null;
+		this.#styleFields = new Map();
 
 		this.onHeaderEnter = this.onHeaderEnter.bind(this);
 		this.onHeaderLeave = this.onHeaderLeave.bind(this);
@@ -71,14 +74,57 @@ export class StyleForm extends BaseForm
 	{
 		if (field)
 		{
+			const attrKey = field?.data?.attrKey;
+
 			field.subscribe('onChange', this.onChange.bind(this));
+			field.subscribe('onInit', this.onInit.bind(this));
+
 			this.fields.add(field);
 			this.body.appendChild(field.layout);
+
+			if (attrKey)
+			{
+				this.#styleFields.set(attrKey, field.getLayout());
+			}
 		}
 	}
 
-	onChange()
+	onChange(event)
 	{
+		this.#toggleLinkedFields(event.getData());
 		this.emit('onChange');
+	}
+
+	onInit(event)
+	{
+		this.#toggleLinkedFields(event.getData());
+		this.emit('onInit');
+	}
+
+	#toggleLinkedFields(fieldData: Object)
+	{
+		// hide linked fields
+		if (fieldData.hide && Type.isArray(fieldData.hide))
+		{
+			fieldData.hide.map(attr => {
+				const layout = this.#styleFields.get(attr);
+				if (layout)
+				{
+					layout.style.display = 'none';
+				}
+			});
+		}
+
+		// show linked fields
+		if (fieldData.show && Type.isArray(fieldData.show))
+		{
+			fieldData.show.map(attr => {
+				const layout = this.#styleFields.get(attr);
+				if (layout)
+				{
+					layout.style.display = 'block';
+				}
+			});
+		}
 	}
 }

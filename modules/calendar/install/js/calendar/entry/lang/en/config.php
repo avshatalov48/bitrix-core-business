@@ -11,6 +11,7 @@ $MESS["CALENDAR_EVENT_DO_OPEN_PARENT"] = "View event";
 $MESS["CALENDAR_EVENT_DO_RELEASE"] = "Cancel reservation";
 $MESS["CALENDAR_EVENT_DO_SAVE"] = "Save";
 $MESS["CALENDAR_EVENT_DO_VIEW"] = "View";
+$MESS["CALENDAR_EVENT_DURATION_CHANGE"] = "Event duration changed";
 $MESS["CALENDAR_EVENT_FULL_FORM"] = "Full editor";
 $MESS["CALENDAR_EVENT_WAITING_CONVERSION"] = "Converting";
 $MESS["CALENDAR_NEW_EVENT_NOTIFICATION"] = "Event has been successfully created";

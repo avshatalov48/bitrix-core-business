@@ -29,6 +29,14 @@ this.BX = this.BX || {};
 	    this.DOM.outerContent.querySelector(`#${this.UID}_timezone_default_hint`).title = main_core.Loc.getMessage('EC_EVENT_TZ_DEF_HINT');
 	    this.prepareModel();
 	    this.bindEventHandlers();
+
+	    if (BX.isAmPmMode()) {
+	      this.DOM.fromTime.style.minWidth = '8em';
+	      this.DOM.toTime.style.minWidth = '8em';
+	    } else {
+	      this.DOM.fromTime.style.minWidth = '6em';
+	      this.DOM.toTime.style.minWidth = '6em';
+	    }
 	  }
 
 	  prepareModel() {
@@ -197,6 +205,12 @@ this.BX = this.BX || {};
 	      }, 0);
 	    }); // endregion
 
+	    main_core_events.EventEmitter.subscribe('Calendar.LocationControl.onValueChange', () => {
+	      if (this.locationBusyAlert) {
+	        main_core.Dom.remove(this.locationBusyAlert);
+	        this.locationBusyAlert = null;
+	      }
+	    });
 	    this.BX.addCustomEvent(window, "onCalendarControlChildPopupShown", this.BX.proxy(this.denySliderClose, this));
 	    this.BX.addCustomEvent(window, "onCalendarControlChildPopupClosed", this.BX.proxy(this.allowSliderClose, this));
 	  }
@@ -458,8 +472,10 @@ this.BX = this.BX || {};
 	        event.denyAction();
 	      } else {
 	        this.BX.removeCustomEvent("SidePanel.Slider::onClose", this.sliderOnClose);
-	        if (this.attendeesSelector) this.attendeesSelector.closeAll();
-	        this.destroy(event);
+
+	        if (this.attendeesSelector) {
+	          this.attendeesSelector.closeAll();
+	        }
 	      }
 	    }
 	  }
@@ -726,6 +742,10 @@ this.BX = this.BX || {};
 	      }
 	    }
 
+	    let dateTime = this.dateTimeControl.getValue();
+	    this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay, {
+	      focus: true
+	    });
 	    this.loadPlannerData({
 	      entityList: this.getUserSelectorEntityList(),
 	      from: calendar_util.Util.formatDate(entry.from.getTime() - calendar_util.Util.getDayLength() * 3),
@@ -1079,10 +1099,6 @@ this.BX = this.BX || {};
 	  }
 
 	  loadPlannerData(params = {}) {
-	    let dateTime = this.dateTimeControl.getValue();
-	    this.planner.updateSelector(dateTime.from, dateTime.to, dateTime.fullDay, {
-	      focus: params.focusSelector !== false
-	    });
 	    this.planner.showLoader();
 	    return new Promise(resolve => {
 	      this.BX.ajax.runAction('calendar.api.calendarajax.updatePlanner', {
@@ -1600,9 +1616,10 @@ this.BX = this.BX || {};
 	    if (main_core.Type.isArray(errorList)) {
 	      errorList.forEach(error => {
 	        if (error.code === "edit_entry_location_busy") {
-	          return calendar_util.Util.showFieldError(error.message, this.DOM.locationWrap, {
+	          this.locationBusyAlert = calendar_util.Util.showFieldError(error.message, this.DOM.locationWrap, {
 	            clearTimeout: 10000
 	          });
+	          return;
 	        }
 
 	        errorText += error.message + "\n";

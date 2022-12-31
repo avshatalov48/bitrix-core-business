@@ -1259,7 +1259,7 @@ CalendarPlanner.prototype =
 					'bx-tooltip-classname': 'calendar-planner-user-tooltip',
 					'title': BX.Text.encode(entry.name)
 				},
-				html: '<i style="background-image: url(\'' + (entry.avatar) + '\')"></i>'
+				html: '<i style="background-image: url(\'' + (encodeURI(entry.avatar)) + '\')"></i>'
 			});
 		}
 		return imageNode;

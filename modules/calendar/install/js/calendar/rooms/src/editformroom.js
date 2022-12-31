@@ -240,7 +240,13 @@ export class EditFormRoom extends EditForm
 				showAvatars: false,
 				dropdownMode: true,
 				tabs: [
-					{ id: 'category', title: 'categories', itemOrder: { title: 'asc' }, icon: 'none'},
+					{
+						id: 'category',
+						title: 'categories',
+						itemOrder: { title: 'asc' },
+						icon: 'none',
+						stubOptions: { title: Loc.getMessage('EC_SEC_SLIDER_CATEGORY_SELECTOR_STUB') },
+					},
 				],
 				items: preparedCategories,
 				selectedItems: this.selectedCategory,

@@ -9,7 +9,13 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 				return false;
 			scope.__waiting = true;
 			if (BX.hasClass(scope, 'bp-button'))
+			{
 				BX.addClass(scope, 'bp-button-wait');
+			}
+			else if (BX.hasClass(scope, 'ui-btn'))
+			{
+				BX.addClass(scope, 'ui-btn-wait');
+			}
 		}
 		if (!parameters || !parameters['TASK_ID'])
 			return false;
@@ -29,7 +35,7 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 				if (scope)
 				{
 					scope.__waiting = false;
-					BX.removeClass(scope, 'bp-button-wait');
+					BX.removeClass(scope, ['bp-button-wait', 'ui-btn-wait']);
 				}
 				if (response.SUCCESS && callback)
 				{
@@ -50,7 +56,13 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 				return false;
 			scope.__waiting = true;
 			if (BX.hasClass(scope, 'bp-button'))
+			{
 				BX.addClass(scope, 'bp-button-wait');
+			}
+			else if (BX.hasClass(scope, 'ui-btn'))
+			{
+				BX.addClass(scope, 'ui-btn-wait');
+			}
 		}
 		BX.Bizproc.taskPopupInstance = null;
 		BX.Bizproc.taskPopupCallback = null;
@@ -65,7 +77,7 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 				if (scope)
 				{
 					scope.__waiting = false;
-					BX.removeClass(scope, 'bp-button-wait');
+					BX.removeClass(scope, ['bp-button-wait', 'ui-btn-wait']);
 				}
 				var wrapper = BX.create('div', {
 					style: {width: '980px'}
@@ -362,7 +374,14 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 		}
 		if (scope)
 		{
-			BX.addClass(scope, 'bp-button-wait');
+			if (BX.hasClass(scope, 'bp-button'))
+			{
+				BX.addClass(scope, 'bp-button-wait');
+			}
+			else if (BX.hasClass(scope, 'ui-btn'))
+			{
+				BX.addClass(scope, 'ui-btn-wait');
+			}
 		}
 
 		form.BXFormCallback = function (response)
@@ -370,7 +389,7 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 			form.BPRUNNING = false;
 			if (scope)
 			{
-				BX.removeClass(scope, 'bp-button-wait');
+				BX.removeClass(scope, ['bp-button-wait', 'ui-btn-wait']);
 			}
 			response = BX.parseJSON(response);
 			if (response && response.ERROR)

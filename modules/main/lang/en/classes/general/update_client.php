@@ -263,7 +263,7 @@ $MESS["SUPN_CU_RD_TMP_CAT"] = "Folder \"#FILE#\" is not readable";
 $MESS["SUP_MYSQL_L4"] = "From the version 5.0, Bitrix Site Manager requires MySql 5.0.0 or higher. Meantime, MySql version #VERS# is detected. Should you have any questions regarding minimum system requirements, please contact the <a href=\"http://www.bitrixsoft.com/support/\" target=\"_blank\">Helpdesk service</a>.";
 $MESS["SUP_STABLE_OFF"] = "The beta versions of updates are allowed to be installed on your site.";
 $MESS["SUP_STABLE_OFF_PROMT"] = "The beta versions of updates are allowed to be installed on your site. If you prefer to install only stable updates, please disable beta versions on this page or in the Kernel module settings.";
-$MESS["SUP_STABLE_ON_PROMT"] = "Only stable updates are allowed to be installed on your site. If you want to download and the install beta versions of system updates, please enable beta versions on this page or in the Kernel module settings.";
+$MESS["SUP_STABLE_ON_PROMT"] = "Only stable updates are allowed to be installed on your site. If you want to download and install beta versions of system updates, please enable beta versions on this page or in the Kernel module settings.";
 $MESS["SUP_STABLE_PROMT"] = "A &quot;Beta version&quot; is a piece of update that has been tested internally by the developers prior to its release. Beta versions include the latest changes and fixes and are relatively stable, but may cause improper functioning in some cases.";
 $MESS["SUP_STABLE_TURN_ON"] = "Allow only stable versions";
 $MESS["SUP_STABLE_TURN_OFF"] = "Allow beta versions";

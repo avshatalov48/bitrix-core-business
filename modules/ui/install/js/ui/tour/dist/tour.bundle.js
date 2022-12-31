@@ -368,6 +368,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "showStep",
 	    value: function showStep() {
+	      var _this2 = this;
+
 	      this.adjustEvents();
 	      main_core.Dom.removeClass(this.popup.getPopupContainer(), "popup-window-ui-tour-opacity");
 
@@ -377,8 +379,8 @@ this.BX.UI = this.BX.UI || {};
 
 	      if (this.layout.backBtn) {
 	        setTimeout(function () {
-	          this.layout.backBtn.style.display = "block";
-	        }.bind(this), 10);
+	          _this2.layout.backBtn.style.display = "block";
+	        }, 10);
 	      }
 
 	      this.setOverlayElementForm();
@@ -430,7 +432,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "adjustEvents",
 	    value: function adjustEvents() {
-	      var _this2 = this;
+	      var _this3 = this;
 
 	      var currentStep = this.getCurrentStep();
 	      currentStep.emit(currentStep.constructor.getFullEventName("onShow"), {
@@ -446,7 +448,7 @@ this.BX.UI = this.BX.UI || {};
 	            close();
 	          }
 
-	          main_core_events.EventEmitter.emit('UI.Tour.Guide:clickTarget', _this2);
+	          main_core_events.EventEmitter.emit('UI.Tour.Guide:clickTarget', _this3);
 	          main_core.Event.unbind(currentStep.getTarget(), 'click', clickEvent);
 	        };
 
@@ -556,21 +558,13 @@ this.BX.UI = this.BX.UI || {};
 
 	            if (!this.onEvents) {
 	              offsetTop = -(this.layout.element.getAttribute("height") / 2 - this.targetPos.height / 2 + 10);
+	            } else {
+	              offsetTop = 0;
 	            }
 
 	            angleOffset = 0;
 	          }
 	        }
-
-	      if (this.onEvents) {
-	        var _bindElement = this.getCurrentStep() ? this.getCurrentStep().getTarget() : window;
-
-	        var _popupWidth = this.onEvents ? 280 : 420;
-
-	        offsetTop = 0;
-	        offsetLeft = -(_popupWidth / 2) + _bindElement.offsetWidth / 2 + 40;
-	        angleOffset = _popupWidth / 2 - 15;
-	      }
 
 	      var bindElement = this.getCurrentStep().getTarget();
 	      if (this.getCurrentStep().getPosition() === 'center') bindElement = window;
@@ -670,12 +664,14 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "increaseCurrentStepIndex",
 	    value: function increaseCurrentStepIndex() {
+	      var _this4 = this;
+
 	      this.currentStepIndex++;
 
 	      if (this.currentStepIndex + 1 === this.steps.length && !this.finalStep && !this.onEvents) {
 	        setTimeout(function () {
-	          this.layout.nextBtn.textContent = main_core.Loc.getMessage("JS_UI_TOUR_BUTTON_CLOSE");
-	        }.bind(this), 200);
+	          _this4.layout.nextBtn.textContent = main_core.Loc.getMessage("JS_UI_TOUR_BUTTON_CLOSE");
+	        }, 200);
 	      }
 	    }
 	    /**
@@ -685,14 +681,16 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "reduceCurrentStepIndex",
 	    value: function reduceCurrentStepIndex() {
+	      var _this5 = this;
+
 	      if (this.currentStepIndex === 0) {
 	        return;
 	      }
 
 	      if (this.currentStepIndex < this.steps.length && !this.finalStep) {
 	        setTimeout(function () {
-	          this.layout.nextBtn.textContent = main_core.Loc.getMessage("JS_UI_TOUR_BUTTON");
-	        }.bind(this), 200);
+	          _this5.layout.nextBtn.textContent = main_core.Loc.getMessage("JS_UI_TOUR_BUTTON");
+	        }, 200);
 	      }
 
 	      this.currentStepIndex--;
@@ -704,7 +702,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "getPopup",
 	    value: function getPopup() {
-	      var _this3 = this;
+	      var _this6 = this;
 
 	      if (!this.popup) {
 	        var _this$getCurrentStep$4;
@@ -762,9 +760,9 @@ this.BX.UI = this.BX.UI || {};
 	          },
 	          events: {
 	            onPopupClose: function onPopupClose(popup) {
-	              if (popup.destroyed === false && _this3.onEvents) main_core_events.EventEmitter.emit('UI.Tour.Guide:onPopupClose', _this3);
+	              if (popup.destroyed === false && _this6.onEvents) main_core_events.EventEmitter.emit('UI.Tour.Guide:onPopupClose', _this6);
 
-	              _this3.close();
+	              _this6.close();
 	            }
 	          },
 	          buttons: buttons
@@ -859,7 +857,7 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleClickLink",
 	    value: function handleClickLink() {
-	      var _this4 = this;
+	      var _this7 = this;
 
 	      event.preventDefault();
 
@@ -872,7 +870,7 @@ this.BX.UI = this.BX.UI || {};
 	      if (this.onEvent) {
 	        if (this.helper.isOpen()) this.getPopup().setAutoHide(false);
 	        main_core_events.EventEmitter.subscribe(this.helper.getSlider(), 'SidePanel.Slider:onCloseComplete', function () {
-	          _this4.getPopup().setAutoHide(true);
+	          _this7.getPopup().setAutoHide(true);
 	        });
 	      }
 	    }
@@ -987,6 +985,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleClickOnNextBtn",
 	    value: function handleClickOnNextBtn() {
+	      var _this8 = this;
+
 	      main_core.Dom.addClass(this.layout.element, "ui-tour-overlay-element-opacity");
 	      main_core.Dom.addClass(this.popup.getPopupContainer(), "popup-window-ui-tour-opacity");
 	      this.clickOnBackBtn = false;
@@ -1009,8 +1009,8 @@ this.BX.UI = this.BX.UI || {};
 	        }
 	      } else {
 	        setTimeout(function () {
-	          this.showStep();
-	        }.bind(this), 200);
+	          _this8.showStep();
+	        }, 200);
 
 	        if (main_core.Dom.hasClass(this.layout.backBtn, 'ui-tour-popup-btn-hidden')) {
 	          main_core.Dom.removeClass(this.layout.backBtn, 'ui-tour-popup-btn-hidden');
@@ -1020,6 +1020,8 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "handleClickOnBackBtn",
 	    value: function handleClickOnBackBtn() {
+	      var _this9 = this;
+
 	      main_core.Dom.addClass(this.layout.element, "ui-tour-overlay-element-opacity");
 	      main_core.Dom.addClass(this.popup.getPopupContainer(), "popup-window-ui-tour-opacity");
 	      this.closeStep();
@@ -1031,9 +1033,10 @@ this.BX.UI = this.BX.UI || {};
 
 	      this.clickOnBackBtn = true;
 	      setTimeout(function () {
-	        this.layout.backBtn.style.display = "none";
-	        this.showStep();
-	      }.bind(this), 200);
+	        _this9.layout.backBtn.style.display = "none";
+
+	        _this9.showStep();
+	      }, 200);
 
 	      if (this.getCurrentStep().getTarget()) {
 	        main_core.Dom.addClass(this.getCurrentStep().getTarget(), 'ui-tour-selector');
@@ -1117,19 +1120,23 @@ this.BX.UI = this.BX.UI || {};
 	  }, {
 	    key: "showCursor",
 	    value: function showCursor() {
+	      var _this10 = this;
+
 	      this.setCursorPos();
 	      setTimeout(function () {
-	        this.animateCursor();
-	      }.bind(this), 1000);
+	        _this10.animateCursor();
+	      }, 1000);
 	    }
 	  }, {
 	    key: "getCursor",
 	    value: function getCursor() {
+	      var _this11 = this;
+
 	      if (!this.layout.cursor) {
 	        this.layout.cursor = main_core.Tag.render(_templateObject17 || (_templateObject17 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"ui-tour-cursor\"></div>\n\t\t\t"])));
 	        main_core.Event.bind(this.layout.cursor, 'transitionend', function () {
-	          this.getCurrentStep().initTargetEvent();
-	        }.bind(this));
+	          _this11.getCurrentStep().initTargetEvent();
+	        });
 	        main_core.Dom.append(this.layout.cursor, document.body);
 	      }
 

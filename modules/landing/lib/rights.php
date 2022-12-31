@@ -38,6 +38,7 @@ class Rights
 		'knowledge_admin' => 'knowledge_admin',//admin rights
 		'knowledge_create' => 'knowledge_create',//can create new Knowledge base
 		'knowledge_unexportable' => 'knowledge_unexportable',
+		'knowledge_extension' => 'knowledge_extension',
 		'group_create' => 'group_create',//can create new social network group base
 		'group_admin' => 'group_admin',//admin rights
 		'group_menu24' => 'group_menu24',// show group in main menu of Bitrix24

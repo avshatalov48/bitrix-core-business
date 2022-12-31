@@ -1,5 +1,4 @@
 <?php
-$MESS["SALE_HPS_ALFABANK_DESCRIPTION_MAIN"] = "Для смены статуса заказа обратитесь в техническую поддержку Альфа-Банка и настройте уведомления обратного вызова c контрольной суммой и дополнительным параметром \"bx_paysystem_code\".";
 $MESS["SALE_HPS_ALFABANK"] = "Альфа-Банк";
 $MESS["SALE_HPS_ALFABANK_LOGIN"] = "Логин";
 $MESS["SALE_HPS_ALFABANK_PASSWORD"] = "Пароль";

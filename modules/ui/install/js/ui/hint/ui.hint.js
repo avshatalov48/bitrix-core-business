@@ -272,17 +272,14 @@
 					parameters.className = this.classNamePopup;
 				}
 
-				this.popup = new BX.PopupWindow(this.id, anchorNode, parameters);
+				if (typeof parameters.angle === "undefined")
+				{
+					parameters.angle = {
+						offset: anchorNode.offsetWidth ? (23 + anchorNode.offsetWidth / 2) : false
+					};
+				}
 
-				// register for working interactive mode
-				BX.bind(this.popup.getPopupContainer(), 'mouseleave', () => {
-					setTimeout(() => {
-						if (!isHovered(this.cursorPosition, this.anchorNode))
-						{
-							this.popup.close();
-						}
-					}, 200);
-				});
+				this.popup = new BX.PopupWindow(this.id, anchorNode, parameters);
 			}
 
 			if (anchorNode.hasAttribute(this.attributeInteractivityName))
@@ -297,6 +294,7 @@
 			this.content.innerHTML = html;
 			this.popup.setBindElement(anchorNode);
 			this.popup.show();
+			this.timer = null;
 		},
 
 		/**

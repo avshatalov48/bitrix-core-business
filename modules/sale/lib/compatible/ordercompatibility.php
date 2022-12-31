@@ -1439,7 +1439,11 @@ class OrderCompatibility extends Internals\EntityCompatibility
 				continue;
 			}
 			/** @var Sale\ShipmentItemStoreCollection $shipmentItemStoreCollection */
-			if (!$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection())
+			$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
+			if (
+				!$shipmentItemStoreCollection
+				&& $basketItem->isReservableItem()
+			)
 			{
 				throw new Main\ObjectNotFoundException('Entity "ShipmentItemStoreCollection" not found');
 			}

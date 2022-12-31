@@ -276,4 +276,16 @@
 			}
 		}
 	};
+
+	/**
+	 * Updates a grid container
+	 * @param {?HTMLElement} container
+	 */
+	BX.Grid.Updater.prototype.updateContainer = function(container)
+	{
+		if (BX.Type.isDomNode(container))
+		{
+			this.getParent().getContainer().className = container.className;
+		}
+	};
 })();

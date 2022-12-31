@@ -22,32 +22,32 @@ class Sku
 	protected const ACTION_PRICE = 'PRICE';
 	protected const ACTION_ELEMENT_TIMESTAMP = 'ELEMENT_TIMESTAMP';
 
-	protected static $allowUpdateAvailable = 0;
-	protected static $allowPropertyHandler = 0;
+	protected static int $allowUpdateAvailable = 0;
+	protected static int $allowPropertyHandler = 0;
 
-	protected static $productIds = [];
-	protected static $offers = [];
-	private static $changeActive = [];
-	private static $currentActive = [];
+	protected static array $productIds = [];
+	protected static array $offers = [];
+	private static array $changeActive = [];
+	private static array $currentActive = [];
 
-	private static $separateSkuMode = null;
+	private static ?bool $separateSkuMode = null;
 
-	private static $deferredCalculation = -1;
+	private static int $deferredCalculation = -1;
 
-	private static $calculateAvailable = false;
-	private static $calculatePriceTypes = array();
+	private static bool $calculateAvailable = false;
+	private static array $calculatePriceTypes = [];
 
-	private static $deferredSku = [];
-	private static $deferredOffers = [];
-	private static $deferredUnknown = [];
+	private static array $deferredSku = [];
+	private static array $deferredOffers = [];
+	private static array $deferredUnknown = [];
 
-	private static $skuExist = [];
-	private static $skuAvailable = [];
-	private static $offersIds = [];
-	private static $offersMap = [];
-	private static $skuPrices = [];
+	private static array $skuExist = [];
+	private static array $skuAvailable = [];
+	private static array $offersIds = [];
+	private static array $offersMap = [];
+	private static array $skuPrices = [];
 
-	private static $queryElementTimestamp;
+	private static ?string $queryElementTimestamp = null;
 
 	/**
 	 * Enable automatic update parent product available and prices.
@@ -110,48 +110,62 @@ class Sku
 	}
 
 	/**
-	 * Return default settings for product with sku.
+	 * Returns base product fields for product with sku.
 	 *
-	 * @param int $state			State flag.
-	 * @param bool $productIblock   Is iblock (no catalog) with offers.
+	 * @param int $offerState Offers state (exists, available, etc).
 	 * @return array
 	 */
-	public static function getDefaultParentSettings($state, $productIblock = false)
+	public static function getParentProductFieldsByState(int $offerState): array
 	{
-		$state = (int)$state;
+		return self::getDefaultParentSettings($offerState, true);
+	}
+
+	/**
+	 * Return default settings for product with sku.
+	 *
+	 * @param int $state State flag.
+	 * @param bool $productIblock Is iblock (no catalog) with offers.
+	 * @return array
+	 */
+	public static function getDefaultParentSettings(int $state, bool $productIblock = false): array
+	{
 		switch ($state)
 		{
 			case self::OFFERS_NOT_EXIST:
-				$result = array(
-					'TYPE' => ($productIblock ? Catalog\ProductTable::TYPE_EMPTY_SKU : Catalog\ProductTable::TYPE_PRODUCT),
+				$result = [
+					'TYPE' => $productIblock
+						? Catalog\ProductTable::TYPE_EMPTY_SKU
+						: Catalog\ProductTable::TYPE_PRODUCT
+					,
 					'AVAILABLE' => Catalog\ProductTable::STATUS_NO,
 					'QUANTITY' => 0,
 					'QUANTITY_TRACE' => Catalog\ProductTable::STATUS_YES,
 					'CAN_BUY_ZERO' => Catalog\ProductTable::STATUS_NO
-				);
+				];
 				break;
 			case self::OFFERS_NOT_AVAILABLE:
-				$result = array(
+				$result = [
 					'TYPE' => Catalog\ProductTable::TYPE_SKU,
 					'AVAILABLE' => Catalog\ProductTable::STATUS_NO,
 					'QUANTITY' => 0,
 					'QUANTITY_TRACE' => Catalog\ProductTable::STATUS_YES,
 					'CAN_BUY_ZERO' => Catalog\ProductTable::STATUS_NO
-				);
+				];
 				break;
 			case self::OFFERS_AVAILABLE:
-				$result = array(
+				$result = [
 					'TYPE' => Catalog\ProductTable::TYPE_SKU,
 					'AVAILABLE' => Catalog\ProductTable::STATUS_YES,
 					'QUANTITY' => 0,
 					'QUANTITY_TRACE' => Catalog\ProductTable::STATUS_NO,
 					'CAN_BUY_ZERO' => Catalog\ProductTable::STATUS_YES,
-				);
+				];
 				break;
 			default:
-				$result = array();
+				$result = [];
 				break;
 		}
+
 		return $result;
 	}
 
@@ -214,23 +228,23 @@ class Sku
 			switch ($iblockData['CATALOG_TYPE'])
 			{
 				case \CCatalogSku::TYPE_PRODUCT:
-					if (self::isSeparateSkuMode())
-						$fields = static::getParentDataAsProduct($productId, $productFields);
-					else
-						$fields = static::getDefaultParentSettings(static::getOfferState($productId, $iblockId), true);
+					$fields = (self::isSeparateSkuMode()
+						? static::getParentDataAsProduct($productId, $productFields)
+						: static::getParentProductFieldsByState(static::getOfferState($productId, $iblockId))
+					);
 					break;
 				case \CCatalogSku::TYPE_FULL:
 					$offerState = static::getOfferState($productId, $iblockId);
-					if ($offerState != self::OFFERS_ERROR)
+					if ($offerState !== self::OFFERS_ERROR)
 					{
 						switch ($offerState)
 						{
 							case self::OFFERS_AVAILABLE:
 							case self::OFFERS_NOT_AVAILABLE:
-								if (self::isSeparateSkuMode())
-									$fields = static::getParentDataAsProduct($productId, $productFields);
-								else
-									$fields = static::getDefaultParentSettings($offerState, false);
+								$fields = (self::isSeparateSkuMode()
+									? static::getParentDataAsProduct($productId, $productFields)
+									: static::getParentProductFieldsByState($offerState)
+								);
 								break;
 							case self::OFFERS_NOT_EXIST:
 								$product = Catalog\Model\Product::getCacheItem($productId, true);
@@ -240,6 +254,9 @@ class Sku
 									{
 										case Catalog\ProductTable::TYPE_SKU:
 											$fields = static::getDefaultParentSettings($offerState, false);
+											break;
+										case Catalog\ProductTable::TYPE_EMPTY_SKU:
+											$fields = static::getParentProductFieldsByState($offerState);
 											break;
 										case Catalog\ProductTable::TYPE_PRODUCT:
 										case Catalog\ProductTable::TYPE_SET:
@@ -258,15 +275,15 @@ class Sku
 					$parent = \CCatalogSku::getProductList($productId, $iblockId);
 					if (!isset($parent[$productId]))
 					{
-						$fields = array(
+						$fields = [
 							'TYPE' => Catalog\ProductTable::TYPE_FREE_OFFER,
-						);
+						];
 					}
 					else
 					{
-						$fields = array(
+						$fields = [
 							'TYPE' => Catalog\ProductTable::TYPE_OFFER,
-						);
+						];
 						$parentId = $parent[$productId]['ID'];
 						$parentIblockId = $parent[$productId]['IBLOCK_ID'];
 					}
@@ -796,10 +813,10 @@ class Sku
 	/**
 	 * OnAfterIBlockElementSetPropertyValues event handler. Do not use directly.
 	 *
-	 * @param int $elementId							Element id.
-	 * @param int $iblockId								Iblock id.
-	 * @param array $newValues							New properties values.
-	 * @param int|string|false $propertyIdentifyer		Property identifier.
+	 * @param int|string $elementId Element id.
+	 * @param int|string $iblockId Iblock id.
+	 * @param array|mixed $newValues New properties values.
+	 * @param int|string|false $propertyIdentifyer Property identifier.
 	 *
 	 * @return void
 	 */
@@ -813,7 +830,7 @@ class Sku
 		if (!static::allowedPropertyHandler())
 			return;
 
-		self::calculateOfferChange($elementId, $iblockId);
+		self::calculateOfferChange((int)$elementId, (int)$iblockId);
 	}
 
 	/**
@@ -916,10 +933,10 @@ class Sku
 	/**
 	 * OnAfterIBlockElementSetPropertyValuesEx event handler. Do not use directly.
 	 *
-	 * @param int $elementId							Element id.
-	 * @param int $iblockId								Iblock id.
-	 * @param array $newValues							New properties values.
-	 * @param array $flags								Flags from \CIBlockElement::SetPropertyValuesEx.
+	 * @param int|string $elementId Element id.
+	 * @param int|string $iblockId Iblock id.
+	 * @param array|mixed $newValues New properties values.
+	 * @param array|mixed $flags Flags from \CIBlockElement::SetPropertyValuesEx.
 	 *
 	 * @return void
 	 */
@@ -930,7 +947,7 @@ class Sku
 		$flags
 	)
 	{
-		self::calculateOfferChange($elementId, $iblockId);
+		self::calculateOfferChange((int)$elementId, (int)$iblockId);
 	}
 
 	/**
@@ -1077,7 +1094,7 @@ class Sku
 	{
 		if (self::$separateSkuMode === null)
 		{
-			self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') == 'Y';
+			self::$separateSkuMode = Main\Config\Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y';
 		}
 
 		return self::$separateSkuMode;
@@ -1142,22 +1159,23 @@ class Sku
 
 	/**
 	 * Change parent available.
-	 * @internal
 	 *
-	 * @param int $parentId             Parent id.
+	 * @param int $parentId Parent id.
 	 * @param int $parentIblockId       Parent iblock id.
 	 * @return bool
+	 *@internal
+	 *
 	 */
-	private static function updateParentAvailable($parentId, $parentIblockId)
+	private static function updateParentAvailable(int $parentId, int $parentIblockId): bool
 	{
-		$result = true;
-
 		$parentIBlock = \CCatalogSku::GetInfoByIblock($parentIblockId);
 		if (
 			empty($parentIBlock)
-			|| (self::isSeparateSkuMode() && $parentIBlock['CATALOG_TYPE'] == \CCatalogSku::TYPE_FULL)
+			|| (self::isSeparateSkuMode() && $parentIBlock['CATALOG_TYPE'] === \CCatalogSku::TYPE_FULL)
 		)
-			return $result;
+		{
+			return true;
+		}
 
 		$parentFields = static::getDefaultParentSettings(static::getOfferState(
 			$parentId,
@@ -1165,10 +1183,14 @@ class Sku
 		));
 
 		self::disableUpdateAvailable();
-		$iterator = Catalog\Model\Product::getList(array(
-			'select' => array('ID'),
-			'filter' => array('=ID' => $parentId)
-		));
+		$iterator = Catalog\Model\Product::getList([
+			'select' => [
+				'ID',
+			],
+			'filter' => [
+				'=ID' => $parentId,
+			],
+		]);
 		$row = $iterator->fetch();
 		if (!empty($row))
 		{
@@ -1180,8 +1202,7 @@ class Sku
 			$updateResult = Catalog\Model\Product::add($parentFields);
 		}
 
-		if (!$updateResult->isSuccess())
-			$result = false;
+		$result = $updateResult->isSuccess();
 		unset($updateResult);
 
 		self::enableUpdateAvailable();
@@ -1257,10 +1278,9 @@ class Sku
 
 		self::$calculateAvailable = true;
 
-		//TODO:: replace \CCatalogGroup::GetListArray after create cached d7 method
 		if ($priceTypes === null)
 		{
-			$priceTypes = array_keys(\CCatalogGroup::GetListArray());
+			$priceTypes = array_keys(Catalog\GroupTable::getTypeList());
 			$priceTypeKeys = array_fill_keys($priceTypes, true);
 		}
 		self::$calculatePriceTypes = $priceTypeKeys;
@@ -1296,10 +1316,9 @@ class Sku
 	{
 		static $allPriceTypes = null;
 
-		//TODO:: replace \CCatalogGroup::GetListArray after create cached d7 method
 		if ($allPriceTypes === null)
 		{
-			$allPriceTypes = array_keys(\CCatalogGroup::GetListArray());
+			$allPriceTypes = array_keys(Catalog\GroupTable::getTypeList());
 		}
 
 		if (empty($priceTypes))
@@ -1531,11 +1550,13 @@ class Sku
 	 *
 	 * @return void
 	 */
-	private static function updateProductData(array $listIds)
+	private static function updateProductData(array $listIds): void
 	{
 		$separateMode = self::isSeparateSkuMode();
 		if (self::$calculateAvailable)
 		{
+			$iblockData = false;
+			$iblockId = null;
 			foreach ($listIds as $id)
 			{
 				if (empty(self::$deferredSku[$id][self::ACTION_AVAILABLE]))
@@ -1545,20 +1566,32 @@ class Sku
 				if (!isset(self::$skuAvailable[$id]))
 					continue;
 
-				$iblockData = \CCatalogSku::GetInfoByIBlock(self::$deferredSku[$id]['IBLOCK_ID']);
+				if ($iblockId !== self::$deferredSku[$id]['IBLOCK_ID'])
+				{
+					$iblockId = self::$deferredSku[$id]['IBLOCK_ID'];
+					$iblockData = \CCatalogSku::GetInfoByIBlock(self::$deferredSku[$id]['IBLOCK_ID']);
+				}
 				if (empty($iblockData))
+				{
 					continue;
+				}
 
 				$fields = self::getDefaultParentSettings(
 					self::$skuAvailable[$id],
 					$iblockData['CATALOG_TYPE'] == \CCatalogSku::TYPE_PRODUCT
 				);
 				if (empty($fields))
+				{
 					continue;
+				}
 
 				// for separate only
 				if ($separateMode)
-					$fields = ['TYPE' => $fields['TYPE']];
+				{
+					$fields = [
+						'TYPE' => $fields['TYPE'],
+					];
+				}
 
 				if (isset(self::$skuExist[$id]))
 				{
@@ -1570,16 +1603,14 @@ class Sku
 					$fields['ID'] = $id;
 					$result = Catalog\Model\Product::add($fields);
 				}
-				if (!$result->isSuccess())
-				{
-
-				}
 			}
 			unset($result, $id);
 		}
 
 		if (!$separateMode)
+		{
 			self::updateProductPrices($listIds);
+		}
 	}
 
 	/**
@@ -1798,7 +1829,7 @@ class Sku
 	 *
 	 * @return void
 	 */
-	private static function calculateOfferChange($elementId, $iblockId): void
+	private static function calculateOfferChange(int $elementId, int $iblockId): void
 	{
 		if (!isset(self::$offers[$elementId]))
 			return;

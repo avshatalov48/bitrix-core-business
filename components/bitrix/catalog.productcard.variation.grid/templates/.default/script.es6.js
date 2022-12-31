@@ -3,6 +3,8 @@ import {typeof BaseEvent, EventEmitter} from 'main.core.events';
 import {MenuManager, Popup, PopupManager} from 'main.popup';
 import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
 import {TagSelector} from "ui.entity-selector";
+import 'ui.buttons';
+import 'ui.hint';
 
 const GRID_TEMPLATE_ROW = 'template_0';
 
@@ -18,6 +20,7 @@ class VariationGrid
 		this.createPropertyHintId = settings.createPropertyHintId;
 		this.gridId = settings.gridId;
 		this.isNew = settings.isNew;
+		this.isReadOnly = settings.isReadOnly;
 		this.isSimple = settings.isSimple;
 		this.hiddenProperties = settings.hiddenProperties;
 		this.modifyPropertyLink = settings.modifyPropertyLink;
@@ -30,6 +33,17 @@ class VariationGrid
 		if (settings.copyItemsMap)
 		{
 			this.getGrid().arParams.COPY_ITEMS_MAP = settings.copyItemsMap;
+		}
+
+		if (!this.isNew)
+		{
+			this.bindPopupInitToQuantityNodes();
+			this.bindSliderToReservedQuantityNodes();
+		}
+
+		if (this.isReadOnly)
+		{
+			return;
 		}
 
 		const isGridReload = settings.isGridReload || false;
@@ -57,13 +71,12 @@ class VariationGrid
 		else
 		{
 			this.bindInlineEdit();
-			this.bindPopupInitToQuantityNodes();
-			this.bindSliderToReservedQuantityNodes();
 		}
 
 		Event.bind(this.getGrid().getScrollContainer(), 'scroll', Runtime.throttle(this.onScrollHandler.bind(this), 50));
 		Event.bind(this.getGridSettingsButton(), 'click', this.showGridSettingsWindowHandler.bind(this));
 
+		this.modifyHeaders();
 		this.subscribeCustomEvents();
 	}
 
@@ -139,6 +152,41 @@ class VariationGrid
 		{
 			EventEmitter.unsubscribe('UiSelect::onCreatePopup', this.onCreatePopupHandler);
 			this.onCreatePopupHandler = null;
+		}
+	}
+
+	modifyHeaders()
+	{
+		const headers = this.getGrid().getParam('COLUMNS_ALL');
+		for (const headerName in headers)
+		{
+			const header = headers[headerName];
+
+			if (!header.locked && !Type.isStringFilled(header.headerHint))
+			{
+				continue;
+			}
+
+			const headerCell = this.getGrid().getColumnHeaderCellByName(header.id);
+			const headerTitle = headerCell?.querySelector('.main-grid-head-title');
+			if (!headerTitle)
+			{
+				continue;
+			}
+
+			if (header.locked)
+			{
+				const lock = Tag.render`<span class='ui-btn ui-btn-link ui-btn-icon-lock'></span>`;
+				Dom.addClass(headerTitle.parentNode, 'main-grid-cell-head-container--locked');
+				Dom.prepend(lock, headerTitle);
+			}
+
+			if (Type.isStringFilled(header.headerHint))
+			{
+				Dom.attr(headerTitle, 'data-hint-no-icon', 'true');
+				Dom.attr(headerTitle, 'data-hint', header.headerHint);
+				BX.UI.Hint.init(headerCell);
+			}
 		}
 	}
 
@@ -471,7 +519,7 @@ class VariationGrid
 	getStoreAmountPopupContent(rowId)
 	{
 		const skuStoreAmountData = this.storeAmount[rowId];
-		const currentSkusCount = skuStoreAmountData.storesCount;
+		const currentSkusCount = skuStoreAmountData?.storesCount || 0;
 		if (!Type.isObject(skuStoreAmountData) || currentSkusCount <= 0)
 		{
 			return Tag.render`
@@ -482,7 +530,7 @@ class VariationGrid
 		}
 
 		const stores = skuStoreAmountData.stores;
-		const linkToDetails = skuStoreAmountData.linkToDetails;
+		const linkToDetails = skuStoreAmountData?.linkToDetails;
 
 		return Tag.render`
 			<div class="store-amount-popup-container">
@@ -626,6 +674,11 @@ class VariationGrid
 
 	enableEdit()
 	{
+		if (this.isReadOnly)
+		{
+			return;
+		}
+
 		this.getGrid().getRows().selectAll();
 		this.getGrid().getRows().editSelected();
 		this.getGrid()

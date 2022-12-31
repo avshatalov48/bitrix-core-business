@@ -9,6 +9,7 @@ use Bitrix\Socialnetwork\Item\Workgroup;
 use Bitrix\Socialnetwork\Item\WorkgroupSubject;
 use Bitrix\Socialnetwork\Integration;
 use Bitrix\Socialnetwork\WorkgroupTagTable;
+use Bitrix\Socialnetwork\Internals\EventService;
 
 class CSocNetGroup extends CAllSocNetGroup
 {
@@ -97,6 +98,10 @@ class CSocNetGroup extends CAllSocNetGroup
 
 			if ($ID > 0)
 			{
+				EventService\Service::addEvent(EventService\EventDictionary::EVENT_WORKGROUP_ADD, [
+					'GROUP_ID' => $ID,
+				]);
+
 				if(!empty($arSiteID))
 				{
 					$DB->Query("
@@ -216,6 +221,10 @@ class CSocNetGroup extends CAllSocNetGroup
 				return false;
 			}
 		}
+
+		EventService\Service::addEvent(EventService\EventDictionary::EVENT_WORKGROUP_BEFORE_UPDATE, [
+			'GROUP_ID' => $ID,
+		]);
 
 		if (
 			array_key_exists("IMAGE_ID", $arFields)
@@ -353,6 +362,11 @@ class CSocNetGroup extends CAllSocNetGroup
 			{
 				ExecuteModuleEventEx($arEvent, array($ID, &$arFields));
 			}
+
+			EventService\Service::addEvent(EventService\EventDictionary::EVENT_WORKGROUP_UPDATE, [
+				'GROUP_ID' => $ID,
+			]);
+
 			CSocNetGroup::SearchIndex($ID, false, $arGroupOld);
 
 			if (isset($arFields['KEYWORDS']))

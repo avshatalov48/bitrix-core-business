@@ -40,6 +40,12 @@ abstract class Field
 	protected $help;
 
 	/**
+	 *  Field html help.
+	 * @var boolean
+	 */
+	protected $htmlHelp;
+
+	/**
 	 * Searchable flag of field.
 	 * @var bool
 	 */
@@ -64,6 +70,7 @@ abstract class Field
 		$this->title = isset($params['title']) ? $params['title'] : '';
 		$this->default = isset($params['default']) ? $params['default'] : null;
 		$this->help = isset($params['help']) ? $params['help'] : '';
+		$this->htmlHelp = isset($params['htmlHelp']) ? $params['htmlHelp'] : false;
 		$this->searchable = isset($params['searchable']) && $params['searchable'] === true;
 		$this->fetchModificator = isset($params['fetch_data_modification']) ? $params['fetch_data_modification'] : null;
 	}
@@ -110,6 +117,15 @@ abstract class Field
 	public function getHelpValue()
 	{
 		return $this->help;
+	}
+
+	/**
+	 * Is html help.
+	 * @return boolean
+	 */
+	public function isHtmlHelp()
+	{
+		return $this->htmlHelp === true;
 	}
 
 	/**

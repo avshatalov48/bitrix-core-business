@@ -4,6 +4,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -18,6 +20,7 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 	private const PAGE_SECTION_LIST = 'section_list';
 	private const PAGE_SECTION_DETAIL = 'section_detail';
 	private const PAGE_PRODUCT_DETAIL = 'product_detail';
+	private const PAGE_ERROR = 'error';
 
 	/** @var  Main\ErrorCollection */
 	protected $errorCollection;
@@ -140,10 +143,16 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 	public function executeComponent()
 	{
 		$this->checkModules();
-		$this->checkAccess();
 		if ($this->isExistErrors())
 		{
 			$this->showErrors();
+			return;
+		}
+		$this->checkAccess();
+		if ($this->isExistErrors())
+		{
+			$this->includeComponentTemplate(self::PAGE_ERROR);
+
 			return;
 		}
 		$this->initConfig();
@@ -183,7 +192,10 @@ class CatalogCatalogControllerComponent extends CBitrixComponent implements Main
 
 	protected function checkAccess(): void
 	{
-
+		if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ))
+		{
+			$this->addErrorMessage(Loc::getMessage('CATALOG_CATALOG_CONTROLLER_ERR_ACCESS_DENIED'));
+		}
 	}
 
 	protected function initConfig(): void

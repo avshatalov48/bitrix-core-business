@@ -207,7 +207,7 @@ class Connection extends Mapper implements BaseMapperInterface
 			return null;
 		}
 
-		throw new Core\Base\BaseException('Error of delete section');
+		throw new Core\Base\BaseException('Error of delete Dav connection');
 	}
 
 	/**

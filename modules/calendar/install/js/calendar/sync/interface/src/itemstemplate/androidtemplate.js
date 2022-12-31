@@ -24,11 +24,20 @@ export default class AndroidTemplate extends MobileInterfaceTemplate
 			popupWithUpdateButton: false,
 		});
 
-		this.warningText = Loc.getMessage('CAL_SYNC_WARNING_ANDROID');
-		this.warningButtonText = Loc.getMessage('CALENDAR_CONNECT_GOOGLE');
+		this.alreadyConnectedToNew = Util.isGoogleConnected();
+		if (this.alreadyConnectedToNew)
+		{
+			this.warningText = Loc.getMessage('CAL_SYNC_WARNING_ANDROID_CONNECTED');
+			this.mobileSyncButtonText = Loc.getMessage('CALENDAR_CHECK_GOOGLE_SETTINGS');
+		}
+		else
+		{
+			this.warningText = Loc.getMessage('CAL_SYNC_WARNING_ANDROID');
+			this.mobileSyncButtonText = Loc.getMessage('CALENDAR_CONNECT_GOOGLE');
+		}
 	}
 
-	handleWarningButtonClick()
+	handleMobileButtonConnectClick()
 	{
 		BX.SidePanel.Instance.getOpenSliders().forEach(slider =>
 		{
@@ -47,6 +56,30 @@ export default class AndroidTemplate extends MobileInterfaceTemplate
 				.getInterfaceUnit()
 				.getConnectionTemplate()
 				.handleConnectButton();
+		}
+	}
+
+	handleMobileButtonOtherSyncInfo()
+	{
+		BX.SidePanel.Instance.getOpenSliders().forEach(slider =>
+		{
+			if (['calendar:auxiliary-sync-slider', 'calendar:item-sync-connect-android'].includes(slider.getUrl()))
+			{
+				slider.close();
+			}
+		});
+
+		const calendarContext = Util.getCalendarContext();
+		if (calendarContext)
+		{
+			const connectionProvider = calendarContext
+				.syncInterface
+				.getGoogleProvider()
+				.getInterfaceUnit()
+				.connectionProvider
+			;
+
+			connectionProvider.openActiveConnectionSlider(connectionProvider.getConnection());
 		}
 	}
 }

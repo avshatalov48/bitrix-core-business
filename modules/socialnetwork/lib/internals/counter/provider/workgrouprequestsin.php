@@ -26,9 +26,9 @@ class WorkgroupRequestsIn implements Base
 		}
 	}
 
-	public function getCounterValue(): int
+	public function getCounterValue(): array
 	{
-		return (new \Bitrix\Main\Entity\Query(UserToGroupTable::getEntity()))
+		$result = (new \Bitrix\Main\Entity\Query(UserToGroupTable::getEntity()))
 			->addFilter('=GROUP_ID', $this->workgroupId)
 			->addFilter('=ROLE', UserToGroupTable::ROLE_REQUEST)
 			->addFilter('=INITIATED_BY_TYPE', UserToGroupTable::INITIATED_BY_USER)
@@ -36,5 +36,9 @@ class WorkgroupRequestsIn implements Base
 			->countTotal(true)
 			->exec()
 			->getCount();
+
+		return [
+			'all' => $result,
+		];
 	}
 }

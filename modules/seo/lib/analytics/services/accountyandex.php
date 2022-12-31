@@ -2,6 +2,7 @@
 
 namespace Bitrix\Seo\Analytics\Services;
 
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
@@ -60,7 +61,15 @@ class AccountYandex extends \Bitrix\Seo\Analytics\Account implements IRequestDir
 
 		if ($response)
 		{
-			$response = Json::decode($response);
+			try
+			{
+				$response = Json::decode($response);
+			}
+			catch (\Exception $exception)
+			{
+				return null;
+			}
+
 			if (is_array($response))
 			{
 				return array(

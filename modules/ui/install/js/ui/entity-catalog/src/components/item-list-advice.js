@@ -1,7 +1,6 @@
-import { Type } from 'main.core';
+import { Type, Dom } from 'main.core';
 import { GroupData } from '@/types/group';
-
-import '../css/item-list-advice.css';
+import { Advice } from 'ui.advice';
 
 export const ItemListAdvice = {
 	name: 'ui-entity-catalog-item-list-advice',
@@ -21,18 +20,30 @@ export const ItemListAdvice = {
 			);
 		},
 	},
+
+	methods: {
+		renderAdvice() {
+			Dom.clean(this.$refs.container);
+
+			const advice = new Advice({
+				content: this.groupData.adviceTitle,
+				avatarImg: this.getAvatar,
+				anglePosition: Advice.AnglePosition.BOTTOM,
+			});
+
+			advice.renderTo(this.$refs.container);
+		},
+	},
+
+	mounted() {
+		this.renderAdvice();
+	},
+
+	updated() {
+		this.renderAdvice();
+	},
+
 	template: `
-		<div class="ui-entity-catalog__advice-box" v-if="groupData.adviceTitle">
-			<div class="ui-entity-catalog__advice-avatar">
-				<span class="ui-entity-catalog__avatar ui-icon ui-icon-common-user">
-					<i :style="{ backgroundImage: 'url(' + getAvatar + ')'}"></i>
-				</span>
-			</div>
-			<div class="ui-entity-catalog__advice-text">
-				<div class="ui-entity-catalog__advice-text-title">
-					{{ groupData.adviceTitle }}
-				</div>
-			</div>
-		</div>
+		<div ref="container"></div>
 	`,
 };

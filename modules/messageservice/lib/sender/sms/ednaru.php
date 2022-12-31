@@ -13,23 +13,19 @@ class Ednaru extends Sender\BaseConfigurable
 
 	use Sender\Traits\RussianProvider;
 
-	protected WhatsApp\EdnaRu $utils;
+	protected \Bitrix\MessageService\Providers\Edna\EdnaRu $utils;
 	protected WhatsApp\EmojiConverter $emoji;
 
 	public function __construct()
 	{
 		$this->informant = new WhatsApp\Informant();
 		$this->optionManager = new Base\Option($this->getType(), $this->getId());
-		$this->initiator = new WhatsApp\Initiator($this->optionManager);
-
-		if ($this->isMigratedToNewAPI())
-		{
-			$this->initializeNewAPI();
-
-			return;
-		}
-
-		$this->initializeOldAPI();
+		$this->utils = new WhatsApp\Utils($this->getId(), $this->optionManager);
+		$this->registrar = new WhatsApp\Registrar($this->getId(), $this->optionManager, $this->utils);
+		$this->initiator = new WhatsApp\Initiator($this->optionManager, $this->registrar, $this->utils);
+		$emojiConverter = new WhatsApp\EmojiConverter();
+		$this->sender = new WhatsApp\Sender($this->optionManager, $this->registrar, $this->utils, $emojiConverter);
+		$this->templateManager = new WhatsApp\TemplateManager($this->getId(), $this->utils, $emojiConverter);
 	}
 
 	public function isAvailable(): bool
@@ -84,7 +80,7 @@ class Ednaru extends Sender\BaseConfigurable
 
 	public function testConnection(): Result
 	{
-		return $this->utils->testConnection();
+		return (new WhatsApp\ConnectorLine($this->utils))->testConnection();
 	}
 
 	public function getFromList(): array
@@ -99,7 +95,7 @@ class Ednaru extends Sender\BaseConfigurable
 
 	public function getLineId(): ?int
 	{
-		return $this->utils->getLineId();
+		return (new WhatsApp\ConnectorLine($this->utils))->getLineId();
 	}
 
 	public function getCallbackUrl(): string
@@ -156,44 +152,16 @@ class Ednaru extends Sender\BaseConfigurable
 		return $this->sender->prepareMessageBodyForSave($text);
 	}
 
-	protected function initializeNewAPI(): void
+	public function setSocketTimeout(int $socketTimeout): Sender\Base
 	{
-		$this->utils = new WhatsApp\Utils($this->getId(), $this->optionManager);
-		$this->registrar = new WhatsApp\Registrar($this->getId(), $this->optionManager, $this->utils);
-		$emojiConverter = new WhatsApp\EmojiConverter();
-		$this->sender = new WhatsApp\Sender($this->optionManager, $this->registrar, $this->utils, $emojiConverter);
-		$this->templateManager = new WhatsApp\TemplateManager($this->getId(), $this->utils, $emojiConverter);
+		$this->optionManager->setSocketTimeout($socketTimeout);
+		return $this;
 	}
 
-	protected function initializeOldAPI(): void
+	public function setStreamTimeout(int $streamTimeout): Sender\Base
 	{
-		$this->utils = new WhatsApp\Old\Utils($this->getId(), $this->optionManager);
-		$this->registrar = new WhatsApp\Old\Registrar($this->getId(), $this->optionManager, $this->utils);
-		$emojiConverter = new WhatsApp\Old\EmojiConverter();
-		$this->sender = new WhatsApp\Old\Sender($this->optionManager, $this->registrar, $this->utils, $emojiConverter);
-		$this->templateManager = new WhatsApp\TemplateManager($this->getId(), $this->utils, $emojiConverter);
+		$this->optionManager->setStreamTimeout($streamTimeout);
+		return $this;
 	}
-
-	public function isMigratedToNewAPI(): bool
-	{
-		if ($this->getOption(WhatsApp\Constants::NEW_API_AVAILABLE, 'N') === 'Y')
-		{
-			return true;
-		}
-
-		$currentDateTime = time();
-		$migratedDateTime = gmmktime(-3, 0,0, 9,1,2022); //September 01, 2022 00:00 MSK
-		$isMigrated = $currentDateTime >= $migratedDateTime;
-
-		if ($isMigrated)
-		{
-			$this->setOption(WhatsApp\Constants::NEW_API_AVAILABLE, 'Y');
-
-			return true;
-		}
-
-		return false;
-	}
-
 
 }

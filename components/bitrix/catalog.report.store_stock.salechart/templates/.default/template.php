@@ -25,34 +25,39 @@ Extension::load([
 	'currency',
 	'ui.icons',
 	'ui.hint',
+	'catalog.store-chart',
 ]);
 
+if (!empty($arResult['ERROR_MESSAGES']) && is_array($arResult['ERROR_MESSAGES'])): ?>
+	<?php foreach($arResult['ERROR_MESSAGES'] as $error):?>
+		<div class="ui-alert ui-alert-danger" style="margin-bottom: 0px;">
+			<span class="ui-alert-message"><?= htmlspecialcharsbx($error) ?></span>
+		</div>
+	<?php endforeach;?>
+	<?php
+	return;
+endif;
+
+
+$jsMessagesCodes = [
+	'STORE_CHART_ZOOMOUT_TITLE',
+	'STORE_CHART_HINT_TITLE',
+	'STORE_STOCK_CHART_SUM_STORED_SERIES_TITLE',
+	'STORE_STOCK_CHART_SUM_STORED_SERIES_POPUP_TITLE',
+	'STORE_STOCK_CHART_SUM_STORED_SERIES_POPUP_SUM',
+	'STORE_STOCK_CHART_HINT_TITLE',
+];
+
+$jsMessages = [];
+
+foreach ($jsMessagesCodes as $code)
+{
+	$jsMessages[$code] = Loc::getMessage($code);
+}
 
 ?>
 
-<div class="store-stock-sale-chart" id="chartdiv"></div>
-
-<div id="chart-popup-template" class="catalog-report-store-stock-modal catalog-report-store-stock-modal-hidden" style="border-color: rgb(57, 168, 239);">
-	<div class="catalog-report-store-stock-modal-head">
-		<div id="chart-popup-template-title" class="catalog-report-store-stock-modal-title"></div>
-	</div>
-	<div class="catalog-report-store-stock-modal-main">
-		<div class="catalog-report-store-stock-card-info">
-			<div class="catalog-report-store-stock-card-info-item" style="display: block">
-				<div class="catalog-report-store-stock-card-subtitle"><?=Loc::getMessage('STORE_STOCK_CHART_POPUP_SUM')?></div>
-				<div class="catalog-report-store-stock-card-info-value-box">
-					<div id="chart-popup-template-sum" class="catalog-report-store-stock-card-info-value"></div>
-				</div>
-			</div>
-			<div class="catalog-report-store-stock-card-info-item" style="display: block">
-				<div class="catalog-report-store-stock-card-subtitle">&#8291;</div>
-				<div class="catalog-report-store-stock-card-info-value-box">
-					<div id="chart-popup-template-sum-proc" class="catalog-report-store-stock-card-info-value"></div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+<div class="store-stock-sale-chart" id="<?=$arResult['chartData']['chartProps']['id']?>"></div>
 
 <script>
 
@@ -61,17 +66,9 @@ Extension::load([
 		<?= \CUtil::PhpToJSObject(\CCurrencyLang::GetFormatDescription($arResult['chartData']['currency']))?>
 	);
 
-	BX.message(<?=Json::encode(Loc::loadLanguageFile(__FILE__))?>);
+	BX.message(<?=Json::encode($jsMessages)?>);
 	BX.ready(function ()
 	{
-		var chartParams = {
-			chartId: 'chartdiv',
-			boardId: '<?=$arResult['boardId']?>',
-			widgetId: '<?=$arResult['widgetId']?>',
-			chartData: <?=CUtil::PhpToJSObject($arResult['chartData'])?>,
-			storeInfoPopupTemplate: document.getElementById('chart-popup-template'),
-		};
-
-		BX.Catalog.Report.StoreStock.StoreStockSaleChart.Instance = new BX.Catalog.Report.StoreStock.StoreStockSaleChart(chartParams);
+		BX.Catalog.Report.StoreStockChartManager.Instance = new BX.Catalog.Report.StoreStockChartManager(<?=CUtil::PhpToJSObject($arResult['chartData'])?>);
 	});
 </script>

@@ -386,7 +386,7 @@ else
 			$arResult["User"]["TYPE"] = 'extranet';
 		}
 
-		$arResult["ALLOW_CREATE_GROUP"] = (\Bitrix\Socialnetwork\Helper\Workgroup::canCreate());
+		$arResult["ALLOW_CREATE_GROUP"] = (\Bitrix\Socialnetwork\Helper\Workgroup\Access::canCreate());
 
 		if(!CModule::IncludeModule("video"))
 			$arResult["CurrentUserPerms"]["Operations"]["videocall"] = false;

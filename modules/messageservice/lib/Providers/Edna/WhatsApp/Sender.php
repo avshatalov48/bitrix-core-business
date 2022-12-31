@@ -9,88 +9,32 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Result;
 use Bitrix\MessageService\Providers;
-use Bitrix\MessageService\Sender\Result\MessageStatus;
-use Bitrix\MessageService\Sender\Result\SendMessage;
+use Bitrix\MessageService\Providers\Constants\InternalOption;
 
-class Sender extends Providers\Base\Sender
+class Sender extends Providers\Edna\Sender
 {
 	protected Providers\OptionManager $optionManager;
 	protected Providers\SupportChecker $supportChecker;
-	protected EdnaRu $utils;
+	protected Providers\Edna\EdnaRu $utils;
 	protected EmojiConverter $emoji;
+	protected ConnectorLine $connectorLine;
 
 	public function __construct(
 		Providers\OptionManager $optionManager,
 		Providers\SupportChecker $supportChecker,
-		EdnaRu $utils,
+		Providers\Edna\EdnaRu $utils,
 		EmojiConverter $emoji
 	)
 	{
-		$this->optionManager = $optionManager;
-		$this->supportChecker = $supportChecker;
-		$this->utils = $utils;
+		parent::__construct($optionManager, $supportChecker, $utils);
 		$this->emoji = $emoji;
-	}
 
-	public function sendMessage(array $messageFields): SendMessage
-	{
-		if (!$this->supportChecker->canUse())
-		{
-			$result = new SendMessage();
-			$result->addError(new Error('Service is unavailable'));
-
-			return $result;
-		}
-
-		$paramsResult = $this->getSendMessageParams($messageFields);
-		if (!$paramsResult->isSuccess())
-		{
-			$result = new SendMessage();
-			$result->addErrors($paramsResult->getErrors());
-
-			return $result;
-		}
-
-		$requestParams = $paramsResult->getData();
-		$method = $this->getSendMessageMethod($messageFields);
-
-		if ($this->isTemplateMessage($messageFields))
-		{
-			$this->sendHSMtoChat($messageFields);
-		}
-
-		$result = new SendMessage();
-
-		$externalSender =
-			new ExternalSender(
-				$this->optionManager->getOption(Constants::API_KEY_OPTION),
-				Constants::API_ENDPOINT
-			)
-		;
-
-		$requestResult = $externalSender->callExternalMethod($method, $requestParams);
-		if (!$requestResult->isSuccess())
-		{
-			$result->addErrors($requestResult->getErrors());
-
-			return $result;
-		}
-
-		$apiData = $requestResult->getData();
-		$result->setExternalId($apiData['requestId']);
-		$result->setAccepted();
-
-		return $result;
-	}
-
-	public function getMessageStatus(array $messageFields): MessageStatus
-	{
-		return new MessageStatus();
+		$this->connectorLine = new ConnectorLine($this->utils);
 	}
 
 	protected function getSendMessageMethod(array $messageFields): string
 	{
-		return 'cascade/schedule';
+		return Providers\Edna\Constants\Method::SEND_MESSAGE;
 	}
 
 	/**
@@ -102,23 +46,43 @@ class Sender extends Providers\Base\Sender
 	 */
 	public function prepareMessageBodyForSave(string $text): string
 	{
-		return $this->emoji->convertEmoji($text, Constants::EMOJI_ENCODE);
+		return $this->emoji->convertEmoji($text, InternalOption::EMOJI_ENCODE);
 	}
 
-	private function getSendMessageParams(array $messageFields): Result
+	protected function getSendMessageParams(array $messageFields): Result
 	{
-		if (!is_numeric($messageFields['MESSAGE_FROM']))
+		$cascadeResult = new Result();
+		if (is_numeric($messageFields['MESSAGE_FROM']))
 		{
-			return (new Result())->addError(new Error('Invalid subject id'));
+			$cascadeResult = $this->utils->getCascadeIdFromSubject(
+				(int)$messageFields['MESSAGE_FROM'],
+				static function(array $externalSubjectData, int $internalSubject)
+				{
+					return $externalSubjectData['id'] === $internalSubject;
+				}
+			);
+		}
+		elseif (is_string($messageFields['MESSAGE_FROM']))
+		{
+			$cascadeResult = $this->utils->getCascadeIdFromSubject(
+				$messageFields['MESSAGE_FROM'],
+				static function(array $externalSubjectData, string $internalSubject)
+				{
+					return $externalSubjectData['subject'] === $internalSubject;
+				}
+			);
+		}
+		else
+		{
+			return $cascadeResult->addError(new Error('Invalid subject id'));
 		}
 
-		$messageFields['MESSAGE_BODY'] = $this->emoji->convertEmoji($messageFields['MESSAGE_BODY'], Constants::EMOJI_DECODE);
-
-		$cascadeResult = $this->getCascadeIdFromSubject($messageFields['MESSAGE_FROM']);
 		if (!$cascadeResult->isSuccess())
 		{
 			return $cascadeResult;
 		}
+
+		$messageFields['MESSAGE_BODY'] = $this->emoji->convertEmoji($messageFields['MESSAGE_BODY'], InternalOption::EMOJI_DECODE);
 
 		$params = [
 			'requestId' => uniqid('', true),
@@ -178,7 +142,7 @@ class Sender extends Providers\Base\Sender
 	 */
 	private function getHSMContent(array $messageFields): array
 	{
-		$params['contentType'] = Constants::CONTENT_TYPE_TEXT;
+		$params['contentType'] = Providers\Edna\Constants\ContentType::TEXT;
 		$params['text'] = $messageFields['MESSAGE_HEADERS']['template']['text'];
 
 		foreach (['header', 'footer', 'keyboard'] as $templateField)
@@ -192,7 +156,7 @@ class Sender extends Providers\Base\Sender
 			}
 		}
 
-		$params = $this->emoji->convertEmojiInTemplate($params, Constants::EMOJI_DECODE);
+		$params = $this->emoji->convertEmojiInTemplate($params, InternalOption::EMOJI_DECODE);
 
 		return $params;
 	}
@@ -209,74 +173,30 @@ class Sender extends Providers\Base\Sender
 		];
 	}
 
-	protected function getCascadeIdFromSubject(int $subjectId): Result
-	{
-		$externalSender =
-			new ExternalSender(
-				$this->optionManager->getOption(Constants::API_KEY_OPTION),
-				Constants::API_ENDPOINT
-			)
-		;
-
-		/** @see https://docs.edna.ru/kb/poluchenie-informacii-o-kaskadah/ */
-		$apiResult = $externalSender->callExternalMethod('cascade/get-all/', [
-			'offset' => 0,
-			'limit' => 0
-		]);
-
-		$result = new Result();
-		if (!$apiResult->isSuccess())
-		{
-			$result->addErrors($apiResult->getErrors());
-
-			return $result;
-		}
-
-		$apiData = $apiResult->getData();
-		foreach ($apiData as $cascade)
-		{
-			if ($cascade['status'] !== 'ACTIVE' || $cascade['stagesCount'] > 1)
-			{
-				continue;
-			}
-
-			if ($cascade['stages'][0]['subject']['id'] === $subjectId)
-			{
-				$result->setData(['cascadeId' => $cascade['id']]);
-
-				return $result;
-			}
-		}
-
-		$result->addError(new Error('not cascade'));
-
-		return $result;
-	}
-
-	protected function sendHSMtoChat(array $messageFields): void
+	protected function sendHSMtoChat(array $messageFields): Result
 	{
 		if (!Loader::includeModule('imopenlines') || !Loader::includeModule('imconnector'))
 		{
-			return;
+			return (new Result())->addError(new Error('Missing modules imopenlines and imconnector'));
 		}
 
 		$externalChatId = str_replace('+', '', $messageFields['MESSAGE_TO']);
 		$userId = $this->getImconnectorUserId($externalChatId);
 		if (!$userId)
 		{
-			return;
+			return (new Result())->addError(new Error('Missing User Id'));
 		}
 
 		$from = $messageFields['MESSAGE_FROM'];
-		$lineId = $this->utils->getLineId();
+		$lineId = $this->connectorLine->getLineId();
 		$userSessionCode = $this->getSessionUserCode($lineId, $externalChatId, $from, $userId);
 		$chatId = $this->getOpenedSessionChatId($userSessionCode);
 		if (!$chatId)
 		{
-			return;
+			return (new Result())->addError(new Error('Missing Chat Id'));
 		}
 
-		Im::addMessage([
+		$messageId = Im::addMessage([
 			'TO_CHAT_ID' => $chatId,
 			'MESSAGE' => $this->utils->prepareTemplateMessageText($messageFields),
 			'SYSTEM' => 'Y',
@@ -286,6 +206,18 @@ class Sender extends Providers\Base\Sender
 				'CLASS' => 'bx-messenger-content-item-ol-output'
 			],
 		]);
+
+		$result = new Result();
+		$resultData = $messageFields;
+		$resultData['messageId'] = $messageId;
+		$resultData['chatId'] = $chatId;
+		$result->setData($resultData);
+
+		if (!$messageId)
+		{
+			$result->addError(new Error('Error sending a message to the chat'));
+		}
+		return $result;
 	}
 
 	protected function getImconnectorUserId(string $externalChatId): ?string
@@ -323,5 +255,13 @@ class Sender extends Providers\Base\Sender
 		return $chatId;
 	}
 
-
+	protected function initializeDefaultExternalSender(): Providers\ExternalSender
+	{
+		return new ExternalSender(
+			$this->optionManager->getOption(InternalOption::API_KEY),
+			Constants::API_ENDPOINT,
+			$this->optionManager->getSocketTimeout(),
+			$this->optionManager->getStreamTimeout()
+		);
+	}
 }

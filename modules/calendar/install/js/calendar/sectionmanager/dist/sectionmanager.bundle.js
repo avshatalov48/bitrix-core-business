@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,calendar_sectionmanager,calendar_util,main_core,main_core_events) {
+(function (exports,calendar_util,calendar_sectionmanager,main_core,main_core_events) {
 	'use strict';
 
 	class CalendarSection {
@@ -133,6 +133,10 @@ this.BX = this.BX || {};
 	      return false;
 	    }
 
+	    return this.hasPermission(action);
+	  }
+
+	  hasPermission(action) {
 	    if (action === 'view_event') {
 	      action = 'view_time';
 	    }
@@ -279,10 +283,12 @@ this.BX = this.BX || {};
 	    ownerId
 	  }) {
 	    const defaultColor = '#ff5b55';
-	    let defaultName = main_core.Loc.getMessage('EC_SEC_MY_TASK_DEFAULT');
+	    let belongToUser = false;
+	    let defaultName = main_core.Loc.getMessage('EC_SEC_USER_TASK_DEFAULT');
 
-	    if (type === 'user' && userId !== ownerId) {
-	      defaultName = main_core.Loc.getMessage('EC_SEC_USER_TASK_DEFAULT');
+	    if (type === 'user' && userId === ownerId) {
+	      defaultName = main_core.Loc.getMessage('EC_SEC_MY_TASK_DEFAULT');
+	      belongToUser = true;
 	    } else if (type === 'group') {
 	      defaultName = main_core.Loc.getMessage('EC_SEC_GROUP_TASK_DEFAULT');
 	    }
@@ -298,10 +304,15 @@ this.BX = this.BX || {};
 	        view_title: true
 	      }
 	    });
+	    this.isUserTaskSection = belongToUser;
 	  }
 
 	  isPseudo() {
 	    return true;
+	  }
+
+	  taskSectionBelongToUser() {
+	    return this.isUserTaskSection;
 	  }
 
 	  updateData(data) {
@@ -317,7 +328,9 @@ this.BX = this.BX || {};
 	    this.setConfig(config);
 	    this.addTaskSection();
 	    this.sortSections();
-	    main_core_events.EventEmitter.subscribeOnce('BX.Calendar.Section:delete', this.deleteSectionHandler.bind(this));
+	    main_core_events.EventEmitter.subscribeOnce('BX.Calendar.Section:delete', event => {
+	      this.deleteSectionHandler(event.data.sectionId);
+	    });
 	    this.reloadDataDebounce = main_core.Runtime.debounce(this.reloadData, SectionManager.RELOAD_DELAY, this);
 	  }
 
@@ -569,8 +582,9 @@ this.BX = this.BX || {};
 	  deleteSectionHandler(sectionId) {
 	    if (this.sectionIndex[sectionId] !== undefined) {
 	      this.sections = BX.util.deleteFromArray(this.sections, this.sectionIndex[sectionId]);
+	      this.sectionIndex = {};
 
-	      for (var i = 0; i < this.sections.length; i++) {
+	      for (let i = 0; i < this.sections.length; i++) {
 	        this.sectionIndex[this.sections[i].id] = i;
 	      }
 	    }
@@ -591,7 +605,7 @@ this.BX = this.BX || {};
 	      }
 	    }
 
-	    return SectionManager.newEntrySectionId;
+	    return null;
 	  }
 
 	  static setNewEntrySectionId(sectionId) {
@@ -760,7 +774,7 @@ this.BX = this.BX || {};
 	    let connection = undefined;
 	    let connectionId = linkList.length ? parseInt(linkList[0].id) : parseInt(section.data.CAL_DAV_CON, 10);
 
-	    if (connectionId && calendarContext.syncInterface) {
+	    if (connectionId && calendarContext && calendarContext.syncInterface) {
 	      [provider, connection] = calendarContext.syncInterface.getProviderById(connectionId);
 
 	      if (connection && (!linkList.length || connection.getType() === sectionExternalType)) {

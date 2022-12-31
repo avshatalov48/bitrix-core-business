@@ -57,17 +57,19 @@ class CTextParser
 		"TAG" => "N",
 		"SPOILER" => "Y",
 	);
+	public $anchorType = "html";
 	public $smiles = null;
+	public $smilesGallery = CSmileGallery::GALLERY_DEFAULT;
+	public $bMobile = false;
+	public $LAZYLOAD = "N";
+
 	protected $wordSeparator = "\\s.,;:!?\\#\\-\\*\\|\\[\\]\\(\\)\\{\\}";
 	protected $smilePatterns = null;
 	protected $smileReplaces = null;
 	protected static $repoSmiles = array();
-	public $smilesGallery = CSmileGallery::GALLERY_DEFAULT;
 	protected $defended_urls = array();
 	protected $anchorSchemes = null;
 	protected $userField;
-	public $bMobile = false;
-	public $LAZYLOAD = "N";
 	protected $tagPattern = "/([\s]+|^)#([^\s,\.\[\]<>]+)/is";
 
 	public function __construct()
@@ -1875,7 +1877,7 @@ class CTextParser
 		return $this->convert_anchor_tag($matches[1], ($matches[2] <> ''? $matches[2] : $matches[1]), '');
 	}
 
-	public function convert_anchor_tag($url, $text, $pref="")
+	public function convert_anchor_tag($url, $text, $prefix="")
 	{
 		$url = trim(str_replace(array("[nomodify]", "[/nomodify]"), "", $url));
 		$text = trim(str_replace(array("[nomodify]", "[/nomodify]"), "", $text));
@@ -1885,11 +1887,11 @@ class CTextParser
 		$bShortUrl = (($this->allow["SHORT_ANCHOR"] ?? '') == "Y");
 
 		$text = str_replace("\\\"", "\"", $text);
-		$end = "";
+		$postfix = "";
 		$pattern = "/([\\.,\\?\\!\\;]|&#33;)$/".BX_UTF_PCRE_MODIFIER;
 		if ($bTextUrl && preg_match($pattern, $url, $match))
 		{
-			$end = $match[1];
+			$postfix = $match[1];
 			$url = preg_replace($pattern, "", $url);
 			$text = preg_replace($pattern, "", $text);
 		}
@@ -1932,8 +1934,33 @@ class CTextParser
 				);
 		}
 
-		$url = $this->defended_tags(htmlspecialcharsbx(htmlspecialcharsback($url)), 'replace');
-		return $pref.($this->parser_nofollow == "Y" ? '<noindex>' : '').'<a href="'.$url.'" target="'.$this->link_target.'"'.($this->parser_nofollow == "Y" ? ' rel="nofollow"' : '').'>'.$text.'</a>'.($this->parser_nofollow == "Y" ? '</noindex>' : '').$end;
+		if ($this->anchorType === 'bbcode')
+		{
+			if ($url === $text)
+			{
+				$link = '[URL]'.$url .'[/URL]';
+			}
+			else
+			{
+				$link = '[URL='.$url.']'.$text .'[/URL]';
+			}
+		}
+		else
+		{
+			$url = $this->defended_tags(htmlspecialcharsbx($url, ENT_COMPAT, false), 'replace');
+			$text = htmlspecialcharsbx($text, ENT_COMPAT, false);
+
+			$noFollowAttribute = $this->parser_nofollow == "Y"? ' rel="nofollow"': '';
+
+			$link = '<a href="' . $url . '" target="' . $this->link_target . '"' . $noFollowAttribute . '>' . $text .'</a>';
+
+			if ($noFollowAttribute)
+			{
+				$link = '<noindex>'.$link.'</noindex>';
+			}
+		}
+
+		return $prefix.$link.$postfix;
 	}
 
 	private function preconvertUrl($matches)

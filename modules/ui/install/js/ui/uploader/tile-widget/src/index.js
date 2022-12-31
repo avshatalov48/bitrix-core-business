@@ -1,4 +1,5 @@
 import TileWidget from './tile-widget';
+import { TileWidgetComponent } from './components/tile-widget-component';
 import { TileList } from './components/tile-list';
 import { ErrorPopup } from './components/error-popup';
 import { UploadLoader } from './components/upload-loader';
@@ -12,6 +13,7 @@ import './css/drop-area.css';
 
 export {
 	TileWidget,
+	TileWidgetComponent,
 	TileList,
 	FileIcon,
 	ErrorPopup,

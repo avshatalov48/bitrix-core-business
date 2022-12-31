@@ -14,11 +14,7 @@ use Bitrix\Main\Loader;
 
 class VariationGridController extends \Bitrix\Main\Engine\Controller
 {
-	/**
-	 * @return \Bitrix\Main\Engine\Response\HtmlContent
-	 * @throws \Bitrix\Main\LoaderException
-	 */
-	public function getProductGridAction(): Response\HtmlContent
+	public function getProductGridAction()
 	{
 		if (!Loader::includeModule('catalog'))
 		{
@@ -26,6 +22,7 @@ class VariationGridController extends \Bitrix\Main\Engine\Controller
 		}
 
 		$params = $this->getUnsignedParameters();
+
 		$iblockId = (int)($params['IBLOCK_ID'] ?? 0);
 
 		if ($iblockId <= 0)
@@ -47,7 +44,7 @@ class VariationGridController extends \Bitrix\Main\Engine\Controller
 		);
 	}
 
-	private function sendErrorResponse(string $message)
+	private function sendErrorResponse(string $message): AjaxJson
 	{
 		$errorCollection = new ErrorCollection();
 		$errorCollection->setError(new Error($message));

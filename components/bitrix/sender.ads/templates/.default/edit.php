@@ -34,7 +34,7 @@ $componentParameters = array(
 		'SENDER_SEGMENT_SELECTOR_RECIPIENT_COUNT_EXACT_HINT1' => Loc::getMessage('SENDER_RC_SEGMENT_SELECTOR_RECIPIENT_COUNT_EXACT_HINT1'),
 	],
 	'MESSAGE_CODE_LIST' => array_merge(\Bitrix\Sender\Message\Factory::getAdsMessageCodes(),
-		\Bitrix\Sender\Message\Factory::getMarketingMessageCodes()) ,
+		\Bitrix\Sender\Message\Factory::getMarketingMessageCodes()),
 );
 if ($_REQUEST['IFRAME'] == 'Y')
 {

@@ -14,6 +14,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var CBitrixComponent $component */
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Tasks\TourGuide;
 
 $pageId = 'user_tasks_projects_overview';
 include('util_menu.php');
@@ -41,13 +42,30 @@ elseif (CModule::IncludeModule('tasks'))
 {
 	$userReplace = ['user_id' => $userId];
 
+	$firstProjectCreationTour = TourGuide\FirstProjectCreation::getInstance($userId);
+	$popupData = $firstProjectCreationTour->getCurrentStepPopupData();
+	$showTour = $firstProjectCreationTour->proceed();
+	if ($showTour)
+	{
+		\Bitrix\Tasks\AnalyticLogger::logToFile(
+			'markShowedStep',
+			'firstProjectCreation',
+			'0',
+			'tourGuide'
+		);
+	}
+
 	$APPLICATION->IncludeComponent(
 		'bitrix:ui.sidepanel.wrapper',
 		'',
 		[
-			'POPUP_COMPONENT_NAME' => 'bitrix:tasks.projects',
+//			'POPUP_COMPONENT_NAME' => 'bitrix:tasks.projects',
+			'POPUP_COMPONENT_NAME' => 'bitrix:socialnetwork.group.list',
 			'POPUP_COMPONENT_TEMPLATE_NAME' => '',
 			'POPUP_COMPONENT_PARAMS' => [
+
+// 				bitrix:tasks.projects
+/*
 				'USER_ID' => $userId,
 				'NAME_TEMPLATE' => $arParams['NAME_TEMPLATE'],
 				'GRID_ID'=> 'TASKS_GRID_PROJECTS',
@@ -88,13 +106,38 @@ elseif (CModule::IncludeModule('tasks'))
 					$arResult['PATH_TO_USER_TASKS_REPORT_VIEW'],
 					$userReplace
 				),
-
 				'PATH_TO_REPORTS' => CComponentEngine::MakePathFromTemplate(
 					$arResult['PATH_TO_USER_TASKS_REPORT'],
 					$userReplace
 				),
+*/
+
+				'USER_ID' => $userId,
+				'PATH_TO_GROUP' => $arResult['PATH_TO_GROUP'],
+				'PATH_TO_GROUP_CREATE' => $arParams['PATH_TO_GROUP_CREATE'],
+				'PATH_TO_GROUP_EDIT' => $arResult['PATH_TO_GROUP_EDIT'],
+				'PATH_TO_GROUP_DELETE' => $arResult['PATH_TO_GROUP_DELETE'],
+				'PATH_TO_GROUP_TASKS' => $arParams['PATH_TO_GROUP_TASKS'],
+				'PATH_TO_USER' => $arResult['PATH_TO_USER'],
+				'PATH_TO_USER_TASKS' => $arResult['PATH_TO_USER_TASKS'],
+				'PATH_TO_USER_TASKS_TEMPLATES' => $arResult['PATH_TO_USER_TASKS_TEMPLATES'],
+				'PAGE' => $pageId,
+				'MODE' => \Bitrix\Socialnetwork\Component\WorkgroupList::MODE_TASKS_PROJECT,
+				'TOURS' => [
+					'firstProjectCreation' => [
+						'targetNodeId' => 'projectAddButton',
+						'popupData' => $popupData,
+						'show' => $showTour,
+					],
+				],
+				'SET_TITLE' => $arResult['SET_TITLE'],
+				'MARK_SECTION_PROJECTS_LIST' => 'Y',
+
+
 			],
 			'POPUP_COMPONENT_PARENT' => $component,
+			'USE_UI_TOOLBAR' => 'Y',
 		]
 	);
+
 }

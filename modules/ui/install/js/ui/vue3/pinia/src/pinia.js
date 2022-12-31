@@ -1,5 +1,5 @@
 /**
- * pinia v2.0.16
+ * pinia v2.0.22
  * (c) 2022 Eduardo San Martin Morote
  * @license MIT
  *
@@ -12,14 +12,12 @@
  * - remove vue-demi library from global import, replace to 'ui.vue3';
  * - remove import '@vue/devtools-api', add function setupDevtoolsPlugin
  * - replace emoji 'pineapple' to ':Pinia:', replace all emoji to text
- * - replace 'process.env.NODE_ENV' to 'environmentMode'
  * - added const 'isVue2'
  * - added 'set' and 'del' functions similar to functions from the vue-demi library
  */
 
-import { BitrixVue, getCurrentInstance, inject, toRaw, watch, unref, markRaw, effectScope, ref, isRef, isReactive, onUnmounted, reactive, toRef, nextTick, computed, toRefs } from 'ui.vue3';
+import { getCurrentInstance, inject, toRaw, watch, unref, markRaw, effectScope, ref, isRef, isReactive, onUnmounted, reactive, toRef, nextTick, computed, toRefs } from 'ui.vue3';
 
-const environmentMode = BitrixVue.developerMode? 'development': 'production'
 const isVue2 = false;
 
 function set(object, key, value): any
@@ -95,7 +93,7 @@ const setActivePinia = (pinia) => (activePinia = pinia);
  * Get the currently active pinia if there is any.
  */
 const getActivePinia = () => (getCurrentInstance() && inject(piniaSymbol)) || activePinia;
-const piniaSymbol = ((environmentMode !== 'production') ? Symbol('pinia') : /* istanbul ignore next */ Symbol());
+const piniaSymbol = (Symbol('pinia') );
 
 function isPlainObject(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -136,6 +134,13 @@ var MutationType;
 })(MutationType || (MutationType = {}));
 
 const IS_CLIENT = typeof window !== 'undefined';
+/**
+ * Should we add the devtools plugins.
+ * - only if dev mode or forced through the prod devtools flag
+ * - not in test
+ * - only if window exists (could change in the future)
+ */
+const USE_DEVTOOLS = IS_CLIENT;
 
 /*
  * FileSaver.js A saveAs() FileSaver implementation.
@@ -624,6 +629,25 @@ function registerPiniaDevtools(app, pinia) {
 					tooltip: 'Import the state from a JSON file',
 				},
 			],
+			nodeActions: [
+				{
+					icon: 'restore',
+					tooltip: 'Reset the state (option store only)',
+					action: (nodeId) => {
+						const store = pinia._s.get(nodeId);
+						if (!store) {
+							toastMessage(`Cannot reset "${nodeId}" store because it wasn't found.`, 'warn');
+						}
+						else if (!store._isOptionsAPI) {
+							toastMessage(`Cannot reset "${nodeId}" store because it's a setup store.`, 'warn');
+						}
+						else {
+							store.$reset();
+							toastMessage(`Store "${nodeId}" reset.`);
+						}
+					},
+				},
+			],
 		});
 		api.on.inspectComponent((payload, ctx) => {
 			const proxy = (payload.componentInstance &&
@@ -638,7 +662,7 @@ function registerPiniaDevtools(app, pinia) {
 						value: store._isOptionsAPI
 							? {
 								_custom: {
-									value: store.$state,
+									value: toRaw(store.$state),
 									actions: [
 										{
 											icon: 'restore',
@@ -648,7 +672,11 @@ function registerPiniaDevtools(app, pinia) {
 									],
 								},
 							}
-							: store.$state,
+							: // NOTE: workaround to unwrap transferred refs
+							Object.keys(store.$state).reduce((state, key) => {
+								state[key] = store.$state[key];
+								return state;
+							}, {}),
 					});
 					if (store._getters && store._getters.length) {
 						payload.instanceData.state.push({
@@ -1012,7 +1040,7 @@ function createPinia() {
 				app.provide(piniaSymbol, pinia);
 				app.config.globalProperties.$pinia = pinia;
 				/* istanbul ignore else */
-				if ((environmentMode !== 'production') && IS_CLIENT) {
+				if (USE_DEVTOOLS) {
 					registerPiniaDevtools(app, pinia);
 				}
 				toBeInstalled.forEach((plugin) => _p.push(plugin));
@@ -1037,9 +1065,8 @@ function createPinia() {
 		state,
 	});
 	// pinia devtools rely on dev only features so they cannot be forced unless
-	// the dev build of Vue is used
-	// We also don't need devtools in test mode
-	if ((environmentMode !== 'production') && IS_CLIENT && !(environmentMode === 'test')) {
+	// the dev build of Vue is used. Avoid old browsers like IE11.
+	if (USE_DEVTOOLS && typeof Proxy !== 'undefined') {
 		pinia.use(devtoolsPlugin);
 	}
 	return pinia;
@@ -1159,6 +1186,14 @@ function triggerSubscriptions(subscriptions, ...args) {
 }
 
 function mergeReactiveObjects(target, patchToApply) {
+	// Handle Map instances
+	if (target instanceof Map && patchToApply instanceof Map) {
+		patchToApply.forEach((value, key) => target.set(key, value));
+	}
+	// Handle Set instances
+	if (target instanceof Set && patchToApply instanceof Set) {
+		patchToApply.forEach(target.add, target);
+	}
 	// no need to go through symbols because they cannot be serialized anyway
 	for (const key in patchToApply) {
 		if (!patchToApply.hasOwnProperty(key))
@@ -1170,6 +1205,9 @@ function mergeReactiveObjects(target, patchToApply) {
 			target.hasOwnProperty(key) &&
 			!isRef(subPatch) &&
 			!isReactive(subPatch)) {
+			// NOTE: here I wanted to warn about inconsistent types but it's not possible because in setup stores one might
+			// start the value of a property as a certain type e.g. a Map, and then for some reason, during SSR, change that
+			// to `undefined`. When trying to hydrate, we want to override the Map with `undefined`.
 			target[key] = mergeReactiveObjects(targetValue, subPatch);
 		}
 		else {
@@ -1179,9 +1217,8 @@ function mergeReactiveObjects(target, patchToApply) {
 	}
 	return target;
 }
-const skipHydrateSymbol = (environmentMode !== 'production')
-	? Symbol('pinia:skipHydration')
-	: /* istanbul ignore next */ Symbol();
+const skipHydrateSymbol = Symbol('pinia:skipHydration')
+;
 const skipHydrateMap = /*#__PURE__*/ new WeakMap();
 /**
  * Tells Pinia to skip the hydration process of a given object. This is useful in setup stores (only) when you return a
@@ -1210,7 +1247,7 @@ function createOptionsStore(id, options, pinia, hot) {
 	const initialState = pinia.state.value[id];
 	let store;
 	function setup() {
-		if (!initialState && (!(environmentMode !== 'production') || !hot)) {
+		if (!initialState && (!hot)) {
 			/* istanbul ignore if */
 			if (isVue2) {
 				set(pinia.state.value, id, state ? state() : {});
@@ -1220,12 +1257,12 @@ function createOptionsStore(id, options, pinia, hot) {
 			}
 		}
 		// avoid creating a state in pinia.state.value
-		const localState = (environmentMode !== 'production') && hot
+		const localState = hot
 			? // use ref() to unwrap refs inside state TODO: check if this is still necessary
 			toRefs(ref(state ? state() : {}).value)
 			: toRefs(pinia.state.value[id]);
 		return assign(localState, actions, Object.keys(getters || {}).reduce((computedGetters, name) => {
-			if ((environmentMode !== 'production') && name in localState) {
+			if (name in localState) {
 				console.warn(`[Pinia]: A getter cannot have the same name as another state property. Rename one of them. Found with "${name}" in store "${id}".`);
 			}
 			computedGetters[name] = markRaw(computed(() => {
@@ -1259,7 +1296,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 	const optionsForPlugin = assign({ actions: {} }, options);
 	/* istanbul ignore if */
 	// @ts-expect-error: active is an internal property
-	if ((environmentMode !== 'production') && !pinia._e.active) {
+	if (!pinia._e.active) {
 		throw new Error('Pinia destroyed');
 	}
 	// watcher options for $subscribe
@@ -1268,7 +1305,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 		// flush: 'post',
 	};
 	/* istanbul ignore else */
-	if ((environmentMode !== 'production') && !isVue2) {
+	if (!isVue2) {
 		$subscribeOptions.onTrigger = (event) => {
 			/* istanbul ignore else */
 			if (isListening) {
@@ -1296,7 +1333,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 	const initialState = pinia.state.value[$id];
 	// avoid setting the state for option stores if it is set
 	// by the setup
-	if (!isOptionsStore && !initialState && (!(environmentMode !== 'production') || !hot)) {
+	if (!isOptionsStore && !initialState && (!hot)) {
 		/* istanbul ignore if */
 		if (isVue2) {
 			set(pinia.state.value, $id, {});
@@ -1314,7 +1351,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 		isListening = isSyncListening = false;
 		// reset the debugger events since patches are sync
 		/* istanbul ignore else */
-		if ((environmentMode !== 'production')) {
+		{
 			debuggerEvents = [];
 		}
 		if (typeof partialStateOrMutator === 'function') {
@@ -1345,11 +1382,10 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 		triggerSubscriptions(subscriptions, subscriptionMutation, pinia.state.value[$id]);
 	}
 	/* istanbul ignore next */
-	const $reset = (environmentMode !== 'production')
-		? () => {
+	const $reset = () => {
 			throw new Error(`Pinia: Store "${$id}" is built using the setup syntax and does not implement $reset().`);
 		}
-		: noop;
+	;
 	function $dispose() {
 		scope.stop();
 		subscriptions = [];
@@ -1441,7 +1477,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 		// start as non ready
 		partialStore._r = false;
 	}
-	const store = reactive(assign((environmentMode !== 'production') && IS_CLIENT
+	const store = reactive(assign(IS_CLIENT
 			? // devtools custom properties
 			{
 				_customProperties: markRaw(new Set()),
@@ -1464,7 +1500,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 		const prop = setupStore[key];
 		if ((isRef(prop) && !isComputed(prop)) || isReactive(prop)) {
 			// mark it as a piece of state to be serialized
-			if ((environmentMode !== 'production') && hot) {
+			if (hot) {
 				set(hotState.value, key, toRef(setupStore, key));
 				// createOptionStore directly sets the state in pinia.state.value so we
 				// can just skip that
@@ -1490,14 +1526,14 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 				}
 			}
 			/* istanbul ignore else */
-			if ((environmentMode !== 'production')) {
+			{
 				_hmrPayload.state.push(key);
 			}
 			// action
 		}
 		else if (typeof prop === 'function') {
 			// @ts-expect-error: we are overriding the function we avoid wrapping if
-			const actionValue = (environmentMode !== 'production') && hot ? prop : wrapAction(key, prop);
+			const actionValue = hot ? prop : wrapAction(key, prop);
 			// this a hot module replacement store because the hotUpdate method needs
 			// to do it with the right context
 			/* istanbul ignore if */
@@ -1509,14 +1545,14 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 				setupStore[key] = actionValue;
 			}
 			/* istanbul ignore else */
-			if ((environmentMode !== 'production')) {
+			{
 				_hmrPayload.actions[key] = prop;
 			}
 			// list actions so they can be used in plugins
 			// @ts-expect-error
 			optionsForPlugin.actions[key] = prop;
 		}
-		else if ((environmentMode !== 'production')) {
+		else {
 			// add getters for devtools
 			if (isComputed(prop)) {
 				_hmrPayload.getters[key] = isOptionsStore
@@ -1551,10 +1587,10 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 	// without linking the computed lifespan to wherever the store is first
 	// created.
 	Object.defineProperty(store, '$state', {
-		get: () => ((environmentMode !== 'production') && hot ? hotState.value : pinia.state.value[$id]),
+		get: () => (hot ? hotState.value : pinia.state.value[$id]),
 		set: (state) => {
 			/* istanbul ignore if */
-			if ((environmentMode !== 'production') && hot) {
+			if (hot) {
 				throw new Error('cannot set hotState');
 			}
 			$patch(($state) => {
@@ -1564,7 +1600,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 	});
 	// add the hotUpdate before plugins to allow them to override it
 	/* istanbul ignore else */
-	if ((environmentMode !== 'production')) {
+	{
 		store._hotUpdate = markRaw((newStore) => {
 			store._hotUpdating = true;
 			newStore._hmrPayload.state.forEach((stateKey) => {
@@ -1655,7 +1691,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 	// apply all plugins
 	pinia._p.forEach((extender) => {
 		/* istanbul ignore else */
-		if ((environmentMode !== 'production') && IS_CLIENT) {
+		if (IS_CLIENT) {
 			const extensions = scope.run(() => extender({
 				store,
 				app: pinia._a,
@@ -1674,8 +1710,7 @@ function createSetupStore($id, setup, options = {}, pinia, hot, isOptionsStore) 
 			})));
 		}
 	});
-	if ((environmentMode !== 'production') &&
-		store.$state &&
+	if (store.$state &&
 		typeof store.$state === 'object' &&
 		typeof store.$state.constructor === 'function' &&
 		!store.$state.constructor.toString().includes('[native code]')) {
@@ -1713,11 +1748,11 @@ idOrOptions, setup, setupOptions) {
 		pinia =
 			// in test mode, ignore the argument provided as we can always retrieve a
 			// pinia instance with getActivePinia()
-			((environmentMode === 'test') && activePinia && activePinia._testing ? null : pinia) ||
+			(pinia) ||
 			(currentInstance && inject(piniaSymbol));
 		if (pinia)
 			setActivePinia(pinia);
-		if ((environmentMode !== 'production') && !activePinia) {
+		if (!activePinia) {
 			throw new Error(`[Pinia]: getActivePinia was called with no active Pinia. Did you forget to install pinia?\n` +
 				`\tconst pinia = createPinia()\n` +
 				`\tapp.use(pinia)\n` +
@@ -1733,13 +1768,13 @@ idOrOptions, setup, setupOptions) {
 				createOptionsStore(id, options, pinia);
 			}
 			/* istanbul ignore else */
-			if ((environmentMode !== 'production')) {
+			{
 				// @ts-expect-error: not the right inferred type
 				useStore._pinia = pinia;
 			}
 		}
 		const store = pinia._s.get(id);
-		if ((environmentMode !== 'production') && hot) {
+		if (hot) {
 			const hotId = '__hot:' + id;
 			const newStore = isSetupStore
 				? createSetupStore(hotId, setup, options, pinia, true)
@@ -1750,8 +1785,7 @@ idOrOptions, setup, setupOptions) {
 			pinia._s.delete(hotId);
 		}
 		// save stores in instances to access them devtools
-		if ((environmentMode !== 'production') &&
-			IS_CLIENT &&
+		if (IS_CLIENT &&
 			currentInstance &&
 			currentInstance.proxy &&
 			// avoid adding stores that are just built for hot module replacement
@@ -1802,7 +1836,7 @@ function setMapStoreSuffix(suffix // could be 'Store' but that would be annoying
  * @param stores - list of stores to map to an object
  */
 function mapStores(...stores) {
-	if ((environmentMode !== 'production') && Array.isArray(stores[0])) {
+	if (Array.isArray(stores[0])) {
 		console.warn(`[Pinia]: Directly pass all stores to "mapStores()" without putting them in an array:\n` +
 			`Replace\n` +
 			`\tmapStores([useAuthStore, useCartStore])\n` +
@@ -1999,9 +2033,9 @@ const PiniaVuePlugin = function (_Vue) {
 					// this allows calling useStore() outside of a component setup after
 					// installing pinia's plugin
 					setActivePinia(pinia);
-					if ((environmentMode !== 'production')) {
-						registerPiniaDevtools(pinia._a, pinia);
-					}
+				}
+				if (USE_DEVTOOLS) {
+					registerPiniaDevtools(pinia._a, pinia);
 				}
 			}
 			else if (!this.$pinia && options.parent && options.parent.$pinia) {
@@ -2016,5 +2050,5 @@ const PiniaVuePlugin = function (_Vue) {
 
 export { MutationType, PiniaVuePlugin, acceptHMRUpdate, createPinia, defineStore, getActivePinia, mapActions, mapGetters, mapState, mapStores, mapWritableState, setActivePinia, setMapStoreSuffix, skipHydrate, storeToRefs };
 // origin-end
-const version = '2.0.11';
+const version = '2.0.22';
 export {version}

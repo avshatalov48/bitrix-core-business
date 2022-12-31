@@ -37,6 +37,17 @@ export class SliderDateTimeControl extends DateTimeControl
 
 		this.prepareModel();
 		this.bindEventHandlers();
+
+		if (BX.isAmPmMode())
+		{
+			this.DOM.fromTime.style.minWidth = '8em';
+			this.DOM.toTime.style.minWidth = '8em';
+		}
+		else
+		{
+			this.DOM.fromTime.style.minWidth = '6em';
+			this.DOM.toTime.style.minWidth = '6em';
+		}
 	}
 
 	prepareModel()

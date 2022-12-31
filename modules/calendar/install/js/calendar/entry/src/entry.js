@@ -50,7 +50,7 @@ export class Entry
 		{
 			this.data.DT_LENGTH = this.FULL_DAY_LENGTH;
 		}
-		
+
 		if (
 			!Type.isString(this.data.DATE_FROM) && !Type.isString(this.data.DATE_TO)
 			&& Type.isDate(this.data.dateFrom) && Type.isDate(this.data.dateTo)
@@ -581,7 +581,7 @@ export class Entry
 		else
 		{
 			// Broadcast event
-			BX.onCustomEvent('BX.Calendar.Entry:beforeDelete', [{entryId: this.id, recursionMode: recursionMode}]);
+			BX.onCustomEvent('BX.Calendar.Entry:beforeDelete', [{entryId: this.id, recursionMode: recursionMode, entryData: this.data}]);
 
 			EntryManager.showDeleteEntryNotification(this);
 			this.deleteParts(recursionMode);
@@ -613,7 +613,7 @@ export class Entry
 		let recursionMode = 'this';
 		if (this.isRecursive())
 		{
-			BX.onCustomEvent('BX.Calendar.Entry:beforeDelete', [{entryId: this.id, recursionMode: recursionMode}]);
+			BX.onCustomEvent('BX.Calendar.Entry:beforeDelete', [{entryId: this.id, recursionMode: recursionMode, entryData: this.data}]);
 
 			EntryManager.showDeleteEntryNotification(this);
 			this.deleteParts(recursionMode);
@@ -698,6 +698,7 @@ export class Entry
 			if (deleteTimeoutData)
 			{
 				EntryManager.unregisterDeleteTimeout(deleteTimeoutData);
+				BX.onCustomEvent('BX.Calendar.Entry:cancelDelete', [{entryId: this.id, entryData: this.data}]);
 				this.delayTimeoutMap.delete(this.delayTimeoutMap);
 			}
 			clearTimeout(this.deleteTimeout);

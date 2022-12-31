@@ -75,6 +75,8 @@
 	        state: 'error'
 	      });
 	      delete currentImage.lazyloadCallback;
+	    } else {
+	      currentImage.src = BLANK_IMAGE;
 	    }
 	  };
 
@@ -92,6 +94,10 @@
 	  lazyloadObserver = new IntersectionObserver(function (entries, observer) {
 	    entries.forEach(function (entry) {
 	      var currentImage = entry.target;
+
+	      if (currentImage.classList.contains(ERROR)) {
+	        return true;
+	      }
 
 	      if (entry.isIntersecting) {
 	        if (currentImage.classList.contains(HIDDEN)) {

@@ -170,6 +170,7 @@ class LogTable extends Main\Entity\DataManager
 	public static function addEntry(\CRestServer $server, $data)
 	{
 		$request = Main\Context::getCurrent()->getRequest();
+		static::filterResponseData($data);
 
 		static::add(array(
 			'CLIENT_ID' => $server->getClientId(),
@@ -183,6 +184,22 @@ class LogTable extends Main\Entity\DataManager
 			'RESPONSE_STATUS' => \CHTTP::getLastStatus(),
 			'RESPONSE_DATA' => $data,
 		));
+	}
+
+	public static function filterResponseData(&$data)
+	{
+		//filter non-searizable objects
+		if (is_object($data) && !method_exists($data, '__serialize'))
+		{
+			$data = '';
+		}
+		else if (is_array($data))
+		{
+			foreach ($data as &$oneData)
+			{
+				static::filterResponseData($oneData);
+			}
+		}
 	}
 
 	public static function getCountAll()

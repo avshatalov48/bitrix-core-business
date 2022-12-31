@@ -1,4 +1,7 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
+<?
+use Bitrix\Main\Web\Uri;
+
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
 \Bitrix\Main\UI\Extension::load([
 	"calendar.util"
@@ -78,7 +81,7 @@ $emptyAvatarSrc = "/bitrix/images/1.gif";
 							// Put to popup
 							$popupContent .= '<a href="'.$attendee['URL'].'" target="_blank" class="bxcal-att-popup-img bxcal-att-popup-att-full">'.
 								'<span class="bxcal-att-popup-avatar">'.
-									($attendee['AVATAR'] ? '<img src="'.$attendee['AVATAR'].'" width="'.$arParams['AVATAR_SIZE'].'" height="'.$arParams['AVATAR_SIZE'].'" class="bxcal-att-popup-img-not-empty" />' : '').
+									($attendee['AVATAR'] ? '<img src="'. Uri::urnEncode($attendee['AVATAR']).'" width="'.$arParams['AVATAR_SIZE'].'" height="'.$arParams['AVATAR_SIZE'].'" class="bxcal-att-popup-img-not-empty" />' : '').
 								'</span>'.
 								'<span class="bxcal-att-popup-name">'.htmlspecialcharsbx($attendee['DISPLAY_NAME']).'</span>'.
 							'</a>';
@@ -89,7 +92,7 @@ $emptyAvatarSrc = "/bitrix/images/1.gif";
 								?><span class="bxcal-att-popup-avatar"><?
 									if ($attendee['AVATAR'] && $attendee['AVATAR'] != $emptyAvatarSrc)
 									{
-										?><img src="<?= $attendee['AVATAR']?>" width="<?= $arParams['AVATAR_SIZE']?>"
+										?><img src="<?= Uri::urnEncode($attendee['AVATAR'])?>" width="<?= $arParams['AVATAR_SIZE']?>"
 											   height="<?= $arParams['AVATAR_SIZE']?>" class="bxcal-att-popup-img-not-empty1" /><?
 									}
 								?></span><?
@@ -123,7 +126,7 @@ $emptyAvatarSrc = "/bitrix/images/1.gif";
 								// Put to popup
 								$popupContent .= '<a href="'.$attendee['URL'].'" target="_blank" class="bxcal-att-popup-img bxcal-att-popup-att-full">'.
 									'<span class="bxcal-att-popup-avatar">'.
-										($attendee['AVATAR'] ? ('<img src="'.$attendee['AVATAR'].'" width="'.$arParams['AVATAR_SIZE'].'" height="'.$arParams['AVATAR_SIZE'].'" class="bxcal-att-popup-img-not-empty" />') : '').
+										($attendee['AVATAR'] ? ('<img src="'. Uri::urnEncode($attendee['AVATAR']).'" width="'.$arParams['AVATAR_SIZE'].'" height="'.$arParams['AVATAR_SIZE'].'" class="bxcal-att-popup-img-not-empty" />') : '').
 									'</span>'.
 									'<span class="bxcal-att-popup-name">'.htmlspecialcharsbx($attendee['DISPLAY_NAME']).'</span>'.
 								'</a>';
@@ -134,7 +137,7 @@ $emptyAvatarSrc = "/bitrix/images/1.gif";
 									?><span class="bxcal-att-popup-avatar"><?
 										if($attendee['AVATAR'] && $attendee['AVATAR'] != $emptyAvatarSrc)
 										{
-											?><img src="<?= $attendee['AVATAR']?>" width="<?= $arParams['AVATAR_SIZE']?>" height="<?= $arParams['AVATAR_SIZE']?>" class="bxcal-att-popup-img-not-empty" /><?
+											?><img src="<?= Uri::urnEncode($attendee['AVATAR'])?>" width="<?= $arParams['AVATAR_SIZE']?>" height="<?= $arParams['AVATAR_SIZE']?>" class="bxcal-att-popup-img-not-empty" /><?
 										}
 									?></span><?
 								?></a><?

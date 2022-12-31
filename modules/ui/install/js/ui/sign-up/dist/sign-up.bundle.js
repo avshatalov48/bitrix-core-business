@@ -337,10 +337,19 @@ this.BX = this.BX || {};
 	    const preparedText = String(text).trim();
 	    const canvas = this.getLayout();
 	    const context = canvas.getContext('2d');
+	    context.font = '34px Comforter Brush';
 	    this.clear();
 	    const ratio = this.getDevicePixelRatio();
+	    const maxTextWidth = canvas.width - 20;
+	    let fontSize = main_core.Text.toNumber(context.font);
+
+	    while (fontSize > 1 && context.measureText(preparedText).width * ratio > maxTextWidth) {
+	      fontSize -= 1;
+	      context.font = `${fontSize}px Comforter Brush`;
+	    }
+
 	    const textWidth = context.measureText(preparedText).width * ratio;
-	    context.fillText(preparedText, (canvas.width - textWidth) / (2 * ratio), 40);
+	    context.fillText(preparedText, (canvas.width - textWidth) / (2 * ratio), 34);
 	  }
 
 	  renderImage(file) {
@@ -413,6 +422,7 @@ this.BX = this.BX || {};
 	  constructor(options) {
 	    super(options);
 	    this.setEventNamespace('BX.UI.SignUp.Content.InitialsContent');
+	    this.subscribeFromOptions(options == null ? void 0 : options.events);
 	    this.onInput = this.onInput.bind(this);
 	    void this.forceLoadFonts();
 	  }
@@ -449,6 +459,7 @@ this.BX = this.BX || {};
 
 	  onInput() {
 	    this.getCanvas().renderText(this.getTextValue());
+	    this.emit('onChange');
 	  }
 
 	  getCanvas() {
@@ -529,6 +540,7 @@ this.BX = this.BX || {};
 	  constructor(options) {
 	    super(options);
 	    this.setEventNamespace('BX.UI.SignUp.Content.TouchContent');
+	    this.subscribeFromOptions(options == null ? void 0 : options.events);
 	    const canvasLayout = this.getCanvas().getLayout();
 	    main_core.Event.bind(canvasLayout, 'mousedown', this.onCanvasMouseDown.bind(this));
 	    main_core.Event.bind(document, 'mouseup', this.onCanvasMouseUp.bind(this));
@@ -562,6 +574,7 @@ this.BX = this.BX || {};
 	    const point = getPoint(event);
 	    context2d.moveTo(point.x, point.y);
 	    this.setStartEvent(event);
+	    this.emit('onChange');
 	  }
 
 	  onCanvasMouseUp(event) {
@@ -581,6 +594,8 @@ this.BX = this.BX || {};
 	        context2d.stroke();
 	      }
 	    }
+
+	    this.emit('onChange');
 	  }
 
 	  onCanvasMouseMove(event) {
@@ -590,6 +605,8 @@ this.BX = this.BX || {};
 	      context2d.lineTo(point.x, point.y);
 	      context2d.stroke();
 	    }
+
+	    this.emit('onChange');
 	  }
 
 	  onCanvasMouseOut() {
@@ -597,6 +614,7 @@ this.BX = this.BX || {};
 	    preventScrolling = false;
 	    const context2d = this.getCanvas().getLayout().getContext('2d');
 	    context2d.closePath();
+	    this.emit('onChange');
 	  }
 
 	  getCanvas() {
@@ -625,12 +643,18 @@ this.BX = this.BX || {};
 	  onClearClick(event) {
 	    event.preventDefault();
 	    this.getCanvas().clear();
+	    this.emit('onChange');
 	  }
 
 	  getLayout() {
 	    return this.cache.remember('layout', () => {
+	      const onTouchMove = event => {
+	        event.preventDefault();
+	        event.stopPropagation();
+	      };
+
 	      return main_core.Tag.render(_t2$3 || (_t2$3 = _$5`
-				<div class="ui-sign-up-content">
+				<div class="ui-sign-up-content" ontouchmove="${0}">
 					<div class="ui-sign-up-touch-form-label">
 						${0}
 					</div>
@@ -639,7 +663,13 @@ this.BX = this.BX || {};
 						${0}
 					</div>
 				</div>
-			`), main_core.Loc.getMessage('UI_SIGN_UP_TOUCH_LAYOUT_LABEL'), this.getClearButton(), this.getCanvas().getLayout());
+			`), onTouchMove, (() => {
+	        if (this.getOptions().mode === 'mobile') {
+	          return main_core.Loc.getMessage('UI_SIGN_UP_TOUCH_LAYOUT_MOBILE_LABEL');
+	        }
+
+	        return main_core.Loc.getMessage('UI_SIGN_UP_TOUCH_LAYOUT_LABEL');
+	      })(), this.getClearButton(), this.getCanvas().getLayout());
 	    });
 	  }
 
@@ -656,6 +686,7 @@ this.BX = this.BX || {};
 	  constructor(options) {
 	    super(options);
 	    this.setEventNamespace('BX.UI.SignUp.Content.PhotoContent');
+	    this.subscribeFromOptions(options == null ? void 0 : options.events);
 	  }
 
 	  getTakePhotoButton() {
@@ -705,22 +736,26 @@ this.BX = this.BX || {};
 	      }
 
 	      main_core.Dom.replace(this.getButtonsLayout(), this.getPreviewLayout());
-	      void this.getCanvas().renderImage(file);
+	      this.getCanvas().renderImage(file).then(() => {
+	        this.emit('onChange');
+	      });
 	    }
 	  }
 
 	  getButtonsLayout() {
 	    return this.cache.remember('buttonsLayout', () => {
+	      // const takePhotoLayout = Tag.render`
+	      // 	<div class="ui-sign-up-content-photo-button-wrapper">
+	      // 		${this.getOptions().mode !== 'desktop' ? this.getTakePhotoButton().render() : ''}
+	      // 	</div>
+	      // `;
 	      return main_core.Tag.render(_t2$4 || (_t2$4 = _$6`
 				<div class="ui-sign-up-content-photo-buttons">
 					<div class="ui-sign-up-content-photo-button-wrapper">
 						${0}
 					</div>
-					<div class="ui-sign-up-content-photo-button-wrapper">
-						${0}
-					</div>
 				</div>
-			`), this.getOptions().mode !== 'desktop' ? this.getTakePhotoButton().render() : '', this.getUploadPhoto().render());
+			`), this.getUploadPhoto().render());
 	    });
 	  }
 
@@ -809,6 +844,11 @@ this.BX = this.BX || {};
 	    this.setEventNamespace('BX.UI.SignUp');
 	    this.subscribeFromOptions(options.events);
 	    this.setOptions(options);
+	    this.onChangeDebounced = main_core.Runtime.debounce(this.onChangeDebounced, 200, this);
+
+	    if (!this.hasValue()) {
+	      this.getFooter().getSaveButton().setDisabled(true);
+	    }
 	  }
 
 	  setOptions(options) {
@@ -862,20 +902,32 @@ this.BX = this.BX || {};
 
 	  getInitialsContent() {
 	    return this.cache.remember('initialsContent', () => {
-	      return new InitialsContent();
+	      return new InitialsContent({
+	        events: {
+	          onChange: this.onChangeDebounced
+	        }
+	      });
 	    });
 	  }
 
 	  getTouchContent() {
 	    return this.cache.remember('touchContent', () => {
-	      return new TouchContent();
+	      return new TouchContent({
+	        mode: this.getOptions().mode,
+	        events: {
+	          onChange: this.onChangeDebounced
+	        }
+	      });
 	    });
 	  }
 
 	  getPhotoContent() {
 	    return this.cache.remember('photoContent', () => {
 	      return new PhotoContent({
-	        mode: this.getOptions().mode
+	        mode: this.getOptions().mode,
+	        events: {
+	          onChange: this.onChangeDebounced
+	        }
 	      });
 	    });
 	  }
@@ -907,6 +959,24 @@ this.BX = this.BX || {};
 	    });
 	  }
 
+	  getCanvas() {
+	    return this.getTabs().getCurrentTab().getContent().getCanvas().getLayout();
+	  }
+
+	  onChangeDebounced() {
+	    this.getFooter().getSaveButton().setDisabled(!this.hasValue());
+	  }
+
+	  hasValue() {
+	    const canvas = this.getCanvas();
+	    const context = canvas.getContext('2d');
+	    const pixelBuffer = new Uint32Array(context.getImageData(0, 0, canvas.width, canvas.height).data.buffer);
+	    let pixelsCount = 0;
+	    return pixelBuffer.some(color => {
+	      return color !== 0 && pixelsCount++ > SignUp.MIN_PIXELS_REQUIRED;
+	    });
+	  }
+
 	  async getValue() {
 	    const canvas = this.getTabs().getCurrentTab().getContent().getCanvas().getLayout();
 	    return await new Promise(resolve => {
@@ -915,6 +985,7 @@ this.BX = this.BX || {};
 	  }
 
 	}
+	SignUp.MIN_PIXELS_REQUIRED = 100;
 
 	exports.SignUp = SignUp;
 

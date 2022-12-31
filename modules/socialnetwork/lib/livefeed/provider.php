@@ -9,7 +9,6 @@ use Bitrix\Main\EventResult;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
-use Bitrix\Main\UserTable;
 use Bitrix\Socialnetwork\Item\Subscription;
 use Bitrix\Socialnetwork\LogTable;
 use Bitrix\Socialnetwork\UserContentViewTable;
@@ -1401,116 +1400,6 @@ abstract class Provider
 		}
 
 		return true;
-	}
-
-	public function deleteCounter($params = [])
-	{
-		global $USER;
-
-		$userId = (
-			isset($params['user_id'])
-			&& (int)$params['user_id'] > 0
-				? (int)$params['user_id']
-				: 0
-		);
-		if ($userId <= 0 && is_object($USER))
-		{
-			$userId = $USER->getId();
-		}
-
-		if ((int)$userId <= 0)
-		{
-			return false;
-		}
-
-		$siteId = (
-			isset($params['siteId'])
-			&& $params['siteId'] <> ''
-				? $params['siteId']
-				: SITE_ID
-		);
-
-		$code = false;
-		if ($this->getType() === self::TYPE_COMMENT)
-		{
-			$logCommentId = $this->getLogCommentId();
-			if ($logCommentId > 0)
-			{
-				$code = 'LC' . $logCommentId;
-			}
-		}
-		else
-		{
-			$logId = $this->getLogId();
-			if ($logId > 0)
-			{
-				$code = 'L' . $logId;
-			}
-		}
-
-		if (!$code)
-		{
-			return false;
-		}
-
-		$result = Main\UserCounterTable::delete([
-			'USER_ID' => $userId,
-			'SITE_ID' => $siteId,
-			'CODE' => \CUserCounter::LIVEFEED_CODE.$code
-		]);
-
-		$pullMessage = [];
-		if (\CUserCounter::checkLiveMode())
-		{
-			$connection = Application::getConnection();
-			$helper = $connection->getSqlHelper();
-
-			$query = "
-				SELECT pc.CHANNEL_ID, uc.USER_ID, uc.SITE_ID, uc.CODE, uc.CNT
-				FROM b_user_counter uc
-				INNER JOIN b_pull_channel pc ON pc.USER_ID = uc.USER_ID
-				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('" . implode("', '", UserTable::getExternalUserTypes()) . "') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime('(-3600)') . "
-				WHERE uc.USER_ID = " . $userId . " AND uc.CODE = '" . \CUserCounter::LIVEFEED_CODE . "'
-			";
-
-			$res = $connection->query($query);
-			while ($row = $res->fetch())
-			{
-				\CUserCounter::addValueToPullMessage($row, [ $siteId ], $pullMessage);
-			}
-
-			$res = $connection->query("
-				SELECT pc.CHANNEL_ID, uc.USER_ID, uc.SITE_ID, uc.CODE, uc.CNT
-				FROM b_user_counter uc
-				INNER JOIN b_pull_channel pc ON pc.USER_ID = uc.USER_ID
-				INNER JOIN b_user u ON u.ID = uc.USER_ID AND (CASE WHEN u.EXTERNAL_AUTH_ID IN ('" . implode("', '", UserTable::getExternalUserTypes()) . "') THEN 'Y' ELSE 'N' END) = 'N' AND u.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime('(-3600)') . "
-				WHERE uc.USER_ID = " . $userId . " AND uc.CODE LIKE '" . \CUserCounter::LIVEFEED_CODE . "L%'
-			");
-			while ($row = $res->fetch())
-			{
-				\CUserCounter::addValueToPullMessage($row, [ $siteId ], $pullMessage);
-			}
-
-			$connection->query("UPDATE b_user_counter SET SENT = '1' WHERE SENT = '0' AND USER_ID = " . $userId . " AND CODE = '" . \CUserCounter::LIVEFEED_CODE . "'");
-		}
-
-		if (
-			!empty($pullMessage)
-			&& Loader::includeModule('pull')
-		)
-		{
-			foreach ($pullMessage as $channelId => $messageFields)
-			{
-				\Bitrix\Pull\Event::add($channelId, [
-					'module_id' => 'main',
-					'command' => 'user_counter',
-					'expiry' => 3600,
-					'params' => $messageFields,
-				]);
-			}
-		}
-
-		return $result;
 	}
 
 	public function warmUpAuxCommentsStaticCache(array $params = []): void

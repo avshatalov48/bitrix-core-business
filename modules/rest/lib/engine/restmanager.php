@@ -118,6 +118,7 @@ class RestManager extends \IRestService
 	 */
 	public function processMethodRequest(array $params, $start, \CRestServer $restServer)
 	{
+		$start = intval($start);
 		$this->initialize($restServer, $start);
 
 		$errorCollection = new ErrorCollection();
@@ -191,7 +192,7 @@ class RestManager extends \IRestService
 	 * @param \CRestServer $restServer
 	 * @param $start
 	 */
-	private function initialize(\CRestServer $restServer, $start): void
+	private function initialize(\CRestServer $restServer, int $start): void
 	{
 		$pageNavigation = new PageNavigation('nav');
 		$pageNavigation->setPageSize(static::LIST_LIMIT);

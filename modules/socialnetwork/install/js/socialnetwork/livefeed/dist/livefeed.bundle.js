@@ -1869,24 +1869,24 @@ this.BX = this.BX || {};
 	        var _event$getData = event.getData(),
 	            _event$getData2 = babelHelpers.slicedToArray(_event$getData, 2),
 	            command = _event$getData2[0],
-	            params = _event$getData2[1];
+	            eventParams = _event$getData2[1];
 
-	        if (command !== 'user_counter' || !params[_this.currentSiteId] || !params[_this.currentSiteId][_this.currentCounterType]) {
+	        if (command !== 'user_counter' || !eventParams[_this.currentSiteId] || !eventParams[_this.currentSiteId][_this.currentCounterType]) {
 	          return;
 	        }
 
-	        _this.changeCounter(main_core.Runtime.clone(params[_this.currentSiteId][_this.currentCounterType]));
+	        _this.changeCounter(main_core.Runtime.clone(eventParams[_this.currentSiteId][_this.currentCounterType]));
 	      });
 	      main_core_events.EventEmitter.subscribe('onImUpdateCounter', function (event) {
 	        var _event$getData3 = event.getData(),
 	            _event$getData4 = babelHelpers.slicedToArray(_event$getData3, 1),
-	            arCount = _event$getData4[0];
+	            counterData = _event$getData4[0];
 
-	        if (!main_core.Type.isObjectLike(arCount) || main_core.Type.isUndefined(arCount[_this.currentCounterType])) {
+	        if (!main_core.Type.isObjectLike(counterData) || main_core.Type.isUndefined(counterData[_this.currentCounterType])) {
 	          return;
 	        }
 
-	        _this.changeCounter(arCount[_this.currentCounterType]);
+	        _this.changeCounter(counterData[_this.currentCounterType]);
 	      });
 	      main_core_events.EventEmitter.subscribe('OnUCCommentWasRead', function (event) {
 	        var _event$getData5 = event.getData(),

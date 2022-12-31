@@ -2129,9 +2129,7 @@ this.BX = this.BX || {};
 	    this.addMessage = this.params.addMessage || BX.message('USER_TYPE_RESOURCE_ADD_USER');
 	    this.checkLimit = BX.type.isFunction(params.checkLimitCallback) ? params.checkLimitCallback : false;
 
-	    if (BX.type.isArray(this.params.itemsSelected)) {
-	      this.params.itemsSelected = this.convertAttendeesCodes(this.params.itemsSelected);
-	    } else {
+	    if (!this.params.itemsSelected) {
 	      this.params.itemsSelected = this.getSocnetDestinationConfig('itemsSelected');
 	    }
 
@@ -3872,11 +3870,23 @@ this.BX = this.BX || {};
 	          className: "calendar-resourcebook-content-block-control custom-field-item"
 	        }
 	      }));
+	      let itemsSelected = {};
+
+	      if (this.params.value && calendar_resourcebooking.Type.isArray(this.params.value.ENTRIES)) {
+	        this.params.value.ENTRIES.forEach(function (entry) {
+	          if (entry.TYPE === 'user') {
+	            const userKey = 'U' + parseInt(entry.RESOURCE_ID);
+	            itemsSelected[userKey] = 'users';
+	          }
+	        });
+	      }
+
 	      this.userSelector = new UserSelectorFieldEditControl({
 	        wrapNode: this.DOM.userListWrap,
 	        socnetDestination: calendar_resourcebookinguserfield.ResourcebookingUserfield.getSocnetDestination(),
 	        addMessage: calendar_resourcebooking.Loc.getMessage('USER_TYPE_RESOURCE_SELECT_USER'),
-	        checkLimitCallback: this.checkResourceCountLimit.bind(this)
+	        checkLimitCallback: this.checkResourceCountLimit.bind(this),
+	        itemsSelected: itemsSelected
 	      });
 	      BX.addCustomEvent('OnResourceBookDestinationAddNewItem', this.triggerUpdatePlanner.bind(this));
 	      BX.addCustomEvent('OnResourceBookDestinationUnselect', this.triggerUpdatePlanner.bind(this));

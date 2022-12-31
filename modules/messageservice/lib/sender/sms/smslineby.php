@@ -101,7 +101,7 @@ class SmsLineBy extends Sender\BaseConfigurable
 		$message = [
 			'target' => $messageFields['MESSAGE_FROM'],
 			'msisdn' => str_replace('+', '', $messageFields['MESSAGE_TO']),
-			'text' => $messageFields['MESSAGE_BODY'],
+			'text' => $this->prepareMessageBodyForSend($messageFields['MESSAGE_BODY']),
 			'callback_url' => $this->getCallbackUrl()
 		];
 
@@ -278,8 +278,8 @@ class SmsLineBy extends Sender\BaseConfigurable
 	private function sendHttpRequest($method, $login, $signature, $path, $body = null): Sender\Result\HttpRequestResult
 	{
 		$httpClient = new HttpClient(array(
-			"socketTimeout" => 10,
-			"streamTimeout" => 30,
+			"socketTimeout" => $this->socketTimeout,
+			"streamTimeout" => $this->streamTimeout,
 			"waitResponse" => true,
 		));
 		$httpClient->setCharset('UTF-8');

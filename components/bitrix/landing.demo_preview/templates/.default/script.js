@@ -61,6 +61,7 @@
 		this.langId = BX.type.isString(params.langId)
 						? params.langId
 						: '';
+		this.folderId = params.folderId || 0;
 
 		this.onCreateButtonClick = proxy(this.onCreateButtonClick, this);
 		this.onCancelButtonClick = proxy(this.onCancelButtonClick, this);
@@ -368,7 +369,7 @@
 					result[this.themesPalette.dataset.name] = this.getActiveColorNode().dataset.value;
 				}
 			}
-			result[this.title.dataset.name] = this.title.value;
+			result[this.title.dataset.name] = this.title.value.replaceAll('&', '').replaceAll('?', '');
 			result[this.description.dataset.name] = this.description.value;
 
 			return result;
@@ -427,8 +428,10 @@
 			{
 				if (this.IsLoadedFrame)
 				{
-					this.initCatalogParams();
-					this.createCatalog();
+					this.showLoader().then(() => {
+						this.initCatalogParams();
+						this.createCatalog();
+					});
 				}
 			}
 			else if (this.zipInstallPath)
@@ -665,14 +668,14 @@
 			{
 				title = titleMatch[0].substr(7);
 			}
-			var hrefUrlMatch = url.match(/&preview_url=[^&]+/i);
-			var hrefUrl = '';
+			var hrefUrlMatch = url.match(/&preview_id=[^&]+/i);
+			var hrefId = '';
 			if (hrefUrlMatch !== null)
 			{
-				hrefUrl = hrefUrlMatch[0].substr(13);
+				hrefId = hrefUrlMatch[0].substr(12);
 			}
 
-			return 'app_code:' + appCode + ':title:' + title + ':preview_url:' + hrefUrl;
+			return '|' + appCode + '|' + title + '|' + hrefId;
 		}
 	};
 })();

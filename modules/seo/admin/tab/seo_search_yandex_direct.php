@@ -20,7 +20,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Seo\Engine;
 use Bitrix\Seo\Adv;
 
-Loc::loadMessages(dirname(__FILE__).'/../seo_adv.php');
+Loc::loadMessages(__DIR__.'/../seo_adv.php');
 
 $engine = new Engine\YandexDirect();
 $currentUser = $engine->getCurrentUser();
@@ -569,7 +569,7 @@ span.yandex-delete {
 
 <div id="adv_banner_list">
 <?
-	require(dirname(__FILE__)."/seo_search_yandex_direct_list_link.php");
+	require(__DIR__."/seo_search_yandex_direct_list_link.php");
 ?>
 </div>
 

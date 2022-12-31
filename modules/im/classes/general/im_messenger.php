@@ -3264,6 +3264,14 @@ class CIMMessenger
 				$olConfig['queue'][] = array_change_key_case($config, CASE_LOWER);
 			}
 
+			if (method_exists(\Bitrix\ImOpenLines\Config::class, 'getAllLinesSettings'))
+			{
+				foreach (\Bitrix\ImOpenLines\Config::getAllLinesSettings(['CONFIRM_CLOSE']) as $config)
+				{
+					$olConfig['settings'][$config['ID']] = array_change_key_case($config, CASE_LOWER);
+				}
+			}
+
 			$olConfig['canUseVoteHead'] = Imopenlines\Limit::canUseVoteHead();
 			$olConfig['canJoinChatUser'] = Imopenlines\Limit::canJoinChatUser();
 			$olConfig['canTransferToLine'] = Imopenlines\Limit::canTransferToLine();
@@ -3275,7 +3283,7 @@ class CIMMessenger
 		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
 		{
 			$bitrix24Enabled = true;
-			$bitrixPaid = CBitrix24::IsLicensePaid();
+			$bitrixPaid = CBitrix24::IsLicensePaid() || CBitrix24::IsNfrLicense();
 			if (CIMMessenger::IsBitrix24UserRestricted())
 			{
 				$bitrix24blocked = \Bitrix\Bitrix24\Limits\User::getUserRestrictedHelperCode();

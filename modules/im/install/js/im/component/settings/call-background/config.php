@@ -11,6 +11,7 @@ return [
 		'main.core',
 		'im.lib.uploader',
 		'im.lib.utils',
+		'rest.client',
 		'ui.info-helper',
 		'ui.notification',
 		'ui.fonts.opensans',

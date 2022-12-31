@@ -18,6 +18,8 @@ export class IconPanel extends Content
 	resolver: function;
 	iconList: IconListCard;
 	searchField: TextField;
+	dictionary: Object = null;
+	defaultCategory: string;
 
 	static SUPPORTED_LANG = ['en', 'ru'];
 	static DEFAULT_LANG = 'en';
@@ -41,12 +43,14 @@ export class IconPanel extends Content
 		// todo: add lupa icon after
 		this.searchField = new TextField({
 			className: 'landing-ui-panel-icon-search',
-			placeholder: 'search...',
+			placeholder: Loc.getMessage('LANDING_ICON_PANEL_INPUT_PLACEHOLDER'),
 			textOnly: true,
 			onInput: this.search,
 		});
 
 		Dom.append(this.layout, document.body);
+
+		this.initDictionary();
 	}
 
 	static getInstance(): IconPanel
@@ -81,6 +85,60 @@ export class IconPanel extends Content
 		});
 	}
 
+	/**
+	 * Requests current lang dictionary from backend.
+	 */
+	initDictionary()
+	{
+		if (this.dictionary === null)
+		{
+			this.dictionary = {};
+			const lang = Loc.getMessage('LANGUAGE_ID');
+
+			// available for 'ru' and 'de' languages only
+			if (lang !== 'ru' && lang !== 'de')
+			{
+				return;
+			}
+
+			BX.ajax.loadJSON('/bitrix/js/landing/dicdata/' + lang + '.json', dictionary => {
+				[...Object.keys(dictionary)].map(key => {
+					dictionary[key].toLowerCase().split(' ').map(word => {
+						if (word)
+						{
+							this.dictionary[word] = key;
+						}
+					});
+				});
+			});
+		}
+	}
+
+	/**
+	 * Returns translated word from loaded dictionary.
+	 *
+	 * @param {string} word Word to translate.
+	 * @returns {null|string}
+	 */
+	translateWord(word: string): ?string
+	{
+		if (this?.dictionary[word])
+		{
+			return this.dictionary[word];
+		}
+
+		return null;
+	}
+
+	selectDefaultCategory()
+	{
+		// todo: init current category and icon?
+		if (this.defaultCategory)
+		{
+			this.onCategoryChange(this.defaultCategory);
+		}
+	}
+
 	makeLayout()
 	{
 		if (Type.isStringFilled(this.content.innerHTML))
@@ -93,16 +151,15 @@ export class IconPanel extends Content
 		IconPanel
 			.getLibraries()
 			.then((libraries) => {
-				let defaultCategory = null;
 				libraries.forEach(({id, name: text, active, categories}) => {
 					if (active === false)
 					{
 						return;
 					}
 
-					if (!defaultCategory)
+					if (!this.defaultCategory)
 					{
-						defaultCategory = categories[0].id;
+						this.defaultCategory = categories[0].id;
 					}
 
 					this.appendSidebarButton(
@@ -124,11 +181,7 @@ export class IconPanel extends Content
 					});
 				});
 
-				// todo: init current category and icon?
-				if (defaultCategory)
-				{
-					this.onCategoryChange(defaultCategory);
-				}
+				this.selectDefaultCategory();
 			});
 
 		// bottom buttons
@@ -216,12 +269,13 @@ export class IconPanel extends Content
 		// mega optimization!
 		if (query.trim().length < 2)
 		{
+			this.selectDefaultCategory();
 			return;
 		}
 
 		// dbg
-		const date = new Date();
-		console.log('search at query "', query, '"was started at', date.getSeconds(), date.getMilliseconds());
+		//const date = new Date();
+		//console.log('search at query "', query, '"was started at', date.getSeconds(), date.getMilliseconds());
 
 		this.content.innerHTML = '';
 		if (this.sidebarButtons.getActive())
@@ -261,9 +315,12 @@ export class IconPanel extends Content
 								&& item.keywords !== ''
 							)
 							{
-								const isFind = preparedQuery.every((queryWord) => {
+								const isFind = preparedQuery.some((queryWord) => {
+									const queryWordTranslated = this.translateWord(queryWord);
 									return item.keywords.split(' ').find(word => {
-										return collator.compare(queryWord, word) === 0;
+										return collator.compare(queryWord, word) === 0
+											|| (collator.compare(queryWordTranslated, word) === 0)
+										;
 									});
 								});
 								if (isFind)
@@ -276,22 +333,38 @@ export class IconPanel extends Content
 				});
 
 				// print
-				const title = 'Search result "' + query.trim() + '"';
+				const title = Loc.getMessage('LANDING_ICON_PANEL_TITLE_RESULT').replace(
+					'@query@',
+					query.trim()
+				);
 				if (result.length > 0)
 				{
 					this.fillIconsList(result, title);
 				}
 				else
 				{
+					let notFoundMessage;
+
 					this.iconList = new IconListCard();
 					this.iconList.setTitle(title);
-					Dom.append(this.getNotFoundMessage(), this.iconList.getBody());
+
+					if (!/^[a-zA-Z0-9]+$/.test(query))
+					{
+						// another screen for trying English
+						notFoundMessage = this.getNotFoundMessage();
+					}
+					else
+					{
+						notFoundMessage = this.getNotFoundMessage();
+					}
+
+					Dom.append(notFoundMessage, this.iconList.getBody());
 					this.appendCard(this.iconList);
 				}
 
 				// dbg
-				const dateEnd = new Date();
-				console.log('search at query"', query, '"was end at____', dateEnd.getSeconds(), dateEnd.getMilliseconds());
+				//const dateEnd = new Date();
+				//console.log('search at query"', query, '"was end at____', dateEnd.getSeconds(), dateEnd.getMilliseconds());
 			});
 	}
 

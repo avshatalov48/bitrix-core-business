@@ -1,6 +1,7 @@
 import { Tag, Type, Loc } from 'main.core';
 import type Tab from '../tabs/tab';
 import BaseStub from './base-stub';
+import encodeUrl from '../../common/encode-url';
 
 export default class DefaultStub extends BaseStub
 {
@@ -26,7 +27,7 @@ export default class DefaultStub extends BaseStub
 
 			const iconStyle =
 				Type.isStringFilled(icon)
-					? `style="background-image: url('${icon}'); opacity: ${iconOpacity / 100};"`
+					? `style="background-image: url('${encodeUrl(icon)}'); opacity: ${iconOpacity / 100};"`
 					: ''
 			;
 

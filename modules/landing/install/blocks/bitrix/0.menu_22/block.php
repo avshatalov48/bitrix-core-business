@@ -1,4 +1,4 @@
-<section class="landing-block landing-block-menu-store g-pt-30 g-pb-30">
+<section class="landing-block landing-block-menu-store g-pt-30 g-pb-30 u-block-border-none">
 	<div class="container">
 		<nav class="landing-block-node-navbar landing-semantic-nav-bar g-pa-0 g-mb-0 navbar navbar-expand-md g-brd-0 u-navbar-color-main u-navbar-color-primary--hover">
 

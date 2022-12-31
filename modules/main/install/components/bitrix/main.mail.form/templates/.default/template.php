@@ -7,7 +7,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 \Bitrix\Main\UI\Extension::load([
 	'ui.design-tokens',
 	'ui.alerts',
-	'ui.buttons'
+	'ui.buttons',
+	'ui.entity-selector',
 ]);
 
 $htmlFormId = htmlspecialcharsbx('main_mail_form_'.$arParams['FORM_ID']);
@@ -435,7 +436,7 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 					'useFileDialogs' => false,
 					'useLinkStat' => false,
 					'uploadImagesFromClipboard' => false,
-					'autoLink' => false,
+					'autoLink' => true,
 					'controlsMap' => array(
 						array('id' => 'Bold', 'compact' => true, 'sort' => 10),
 						array('id' => 'Italic', 'compact' => true, 'sort' => 20),

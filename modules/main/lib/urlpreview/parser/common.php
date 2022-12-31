@@ -189,7 +189,7 @@ class Common extends Parser
 				if(
 					(isset($videoElement['width']) &&
 					isset($videoElement['height']) &&
-					$videoElement['width'] * $videoElement['height'] > $maxWeight) ||
+					(int)$videoElement['width'] * (int)$videoElement['height'] > $maxWeight) ||
 					(empty($result))
 				)
 				{
@@ -197,7 +197,7 @@ class Common extends Parser
 					$maxWeight = 0;
 					if(isset($videoElement['width']) && isset($videoElement['height']))
 					{
-						$maxWeight = $videoElement['width'] * $videoElement['height'];
+						$maxWeight = (int)$videoElement['width'] * (int)$videoElement['height'];
 					}
 				}
 			}

@@ -1,4 +1,4 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
 use Bitrix\Main\Loader,
 	Bitrix\Currency;
@@ -27,10 +27,10 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['Update']) && $CURRENCY_RIGHT=="W" && check_bitrix_sessid())
 {
 	$arFields = array(
-		'DATE_RATE' => (isset($_POST['DATE_RATE']) ? $_POST['DATE_RATE'] : ''),
-		'RATE' => (isset($_POST['RATE']) ? $_POST['RATE'] : ''),
-		'RATE_CNT' => (isset($_POST['RATE_CNT']) ? $_POST['RATE_CNT'] : ''),
-		'CURRENCY' => (isset($_POST['CURRENCY']) ? $_POST['CURRENCY'] : '')
+		'DATE_RATE' => ($_POST['DATE_RATE'] ?? ''),
+		'RATE' => ($_POST['RATE'] ?? ''),
+		'RATE_CNT' => ($_POST['RATE_CNT'] ?? ''),
+		'CURRENCY' => ($_POST['CURRENCY'] ?? '')
 	);
 
 	if ($ID > 0)
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['Update']) && $CURRENC
 	}
 	else
 	{
-		$arFields['BASE_CURRENCY'] = (isset($_POST['BASE_CURRENCY']) ? $_POST['BASE_CURRENCY'] : '');
+		$arFields['BASE_CURRENCY'] = ($_POST['BASE_CURRENCY'] ?? '');
 		$ID = (int)CCurrencyRates::Add($arFields);
 		$res = ($ID > 0);
 	}
@@ -59,10 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['Update']) && $CURRENC
 	{
 		if (empty($_POST['apply']))
 		{
-			if (!empty($return_url))
-				LocalRedirect($return_url);
-			else
-				LocalRedirect("/bitrix/admin/currencies_rates.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
+			LocalRedirect("/bitrix/admin/currencies_rates.php?lang=".LANGUAGE_ID.GetFilterParams("filter_", false));
 		}
 		LocalRedirect("/bitrix/admin/currency_rate_edit.php?lang=".LANGUAGE_ID."&ID=".$ID."&".GetFilterParams("filter_", false));
 	}
@@ -151,12 +148,12 @@ if (empty($currencyList))
 
 $showGetRate = ($baseCurrency != '' && in_array($baseCurrency, array('RUB', 'BYR', 'BYN', 'UAH')));
 ?>
-<form method="POST" action="<?$APPLICATION->GetCurPage()?>" name="rate_edit">
-<? echo bitrix_sessid_post();
+<form method="POST" action="<?= $APPLICATION->GetCurPage()?>" name="rate_edit">
+<?= bitrix_sessid_post();
 echo GetFilterHiddens("filter_");?>
-<input type="hidden" name="ID" value="<? echo $ID; ?>">
+<input type="hidden" name="ID" value="<?= $ID; ?>">
 <input type="hidden" name="Update" value="Y">
-<?
+<?php
 $tabControl->Begin();
 $tabControl->BeginNextTab();
 if ($ID > 0)
@@ -164,27 +161,27 @@ if ($ID > 0)
 ?>
 <tr>
 	<td>ID:</td>
-	<td><? echo $ID; ?></td>
-</tr><?
+	<td><?= $ID; ?></td>
+</tr><?php
 }
 ?>
 <tr class="adm-detail-required-field">
-	<td width="40%"><?echo GetMessage("curr_rates_date1")?>:</td>
+	<td width="40%"><?= GetMessage("curr_rates_date1")?>:</td>
 	<td width="60%"><?= CalendarDate("DATE_RATE", $currencyRate['DATE_RATE'], "rate_edit", "10", 'class="typeinput"'); ?></td>
 </tr>
 <tr class="adm-detail-required-field">
-	<td><?echo GetMessage("curr_rates_curr1")?>:</td>
-	<td><select name="CURRENCY"><?
+	<td><?= GetMessage("curr_rates_curr1")?>:</td>
+	<td><select name="CURRENCY"><?php
 		foreach ($currencyList as $currency => $title)
 		{
-			?><option value="<?=htmlspecialcharsbx($currency); ?>"<?=($currency == $currencyRate['CURRENCY'] ? ' selected' : ''); ?>><?=htmlspecialcharsbx($title); ?></option><?
+			?><option value="<?=htmlspecialcharsbx($currency); ?>"<?=($currency == $currencyRate['CURRENCY'] ? ' selected' : ''); ?>><?=htmlspecialcharsbx($title); ?></option><?php
 		}
 		unset($currency, $title);
 	?></select></td>
 </tr>
 <tr class="adm-detail-required-field">
-	<td><?echo GetMessage("BX_CURRENCY_RATE_BASE_CURRENCY")?>:</td>
-	<td><input type="hidden" name="BASE_CURRENCY" value="<?=htmlspecialcharsbx($currencyRate['BASE_CURRENCY']);?>"><?
+	<td><?= GetMessage("BX_CURRENCY_RATE_BASE_CURRENCY")?>:</td>
+	<td><input type="hidden" name="BASE_CURRENCY" value="<?=htmlspecialcharsbx($currencyRate['BASE_CURRENCY']);?>"><?php
 		if ($currencyRate['BASE_CURRENCY'] == '')
 			echo GetMessage('BX_CURRENCY_RATE_BASE_BASE_CURRENCY_FIELD_ABSENT');
 		elseif (!isset($baseCurrencyList[$currencyRate['BASE_CURRENCY']]))
@@ -194,23 +191,24 @@ if ($ID > 0)
 	?></td>
 </tr>
 <tr class="adm-detail-required-field">
-	<td><?echo GetMessage("curr_rates_rate_cnt")?>: <span class="required" style="vertical-align: super; font-size: smaller;">1</span></td>
+	<td><?= GetMessage("curr_rates_rate_cnt")?>: <span class="required" style="vertical-align: super; font-size: smaller;">1</span></td>
 	<td><input type="text" id="RATE_CNT" name="RATE_CNT" value="<?=htmlspecialcharsbx($currencyRate['RATE_CNT']); ?>" size="5"></td>
 </tr>
 <tr class="adm-detail-required-field">
-	<td><?echo GetMessage("curr_rates_rate")?>: <span class="required" style="vertical-align: super; font-size: smaller;">1</span></td>
+	<td><?= GetMessage("curr_rates_rate")?>: <span class="required" style="vertical-align: super; font-size: smaller;">1</span></td>
 	<td>
-		<input type="text" id="RATE" name="RATE" value="<?=htmlspecialcharsbx($currencyRate['RATE']); ?>" size="12"><?
+		<input type="text" id="RATE" name="RATE" value="<?=htmlspecialcharsbx($currencyRate['RATE']); ?>" size="12"><?php
 if ($showGetRate)
 {
 ?>
 		&nbsp;<input id="get_btn" type="button" title="<?=htmlspecialcharsbx(GetMessage("curr_rates_query_ex")); ?>" value="<?=htmlspecialcharsbx(GetMessage("curr_rates_query")); ?>">
-		<div id="currency_query_error_div"></div><?
+		<div id="currency_query_error_div"></div><?php
 }
 ?>
 	</td>
 </tr>
-<?$tabControl->EndTab();
+<?php
+$tabControl->EndTab();
 $tabControl->Buttons(
 	array(
 		"disabled" => $CURRENCY_RIGHT<"W",
@@ -219,9 +217,9 @@ $tabControl->Buttons(
 );
 $tabControl->End();?>
 </form>
-<?
+<?php
 echo BeginNote();
-?><span class="required" style="vertical-align: super; font-size: smaller;">1</span> - <?
+?><span class="required" style="vertical-align: super; font-size: smaller;">1</span> - <?php
 echo GetMessage('BX_CURRENCY_RATE_EDIT_MESS_AMOUNT');
 echo EndNote();
 ?><script type="text/javascript">
@@ -273,7 +271,7 @@ function resultCurrencyRate(result)
 	BX.closeWait();
 	if (!BX.type.isPlainObject(result) || !BX.type.isNotEmptyString(result.STATUS))
 	{
-		BX('currency_query_error_div').innerHTML = '<? echo GetMessageJS('BX_CURRENCY_GET_RATE_ERR_UNKNOWN'); ?>';
+		BX('currency_query_error_div').innerHTML = '<?= GetMessageJS('BX_CURRENCY_GET_RATE_ERR_UNKNOWN'); ?>';
 	}
 	else
 	{
@@ -296,4 +294,5 @@ BX.ready(function(){
 	}
 });
 </script>
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+<?php
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

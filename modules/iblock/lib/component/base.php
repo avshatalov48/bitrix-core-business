@@ -3132,7 +3132,7 @@ abstract class Base extends \CBitrixComponent
 				$priceRow['QUANTITY_FROM'] = $rawPrice['QUANTITY_FROM'];
 				$priceRow['QUANTITY_TO'] = $rawPrice['QUANTITY_TO'];
 				$priceRow['QUANTITY_HASH'] = $this->getQuantityRangeHash($rawPrice);
-				$priceRow['MEASURE_RATIO_ID'] = $rawPrice['MEASURE_RATIO_ID'];
+				$priceRow['MEASURE_RATIO_ID'] = $rawPrice['MEASURE_RATIO_ID'] ?? null;
 				$priceRow['PRICE_SCALE'] = \CCurrencyRates::ConvertCurrency(
 					$priceRow['PRICE'],
 					$priceRow['CURRENCY'],
@@ -3552,7 +3552,8 @@ abstract class Base extends \CBitrixComponent
 				array(
 					Catalog\ProductTable::TYPE_PRODUCT,
 					Catalog\ProductTable::TYPE_SET,
-					Catalog\ProductTable::TYPE_OFFER
+					Catalog\ProductTable::TYPE_OFFER,
+					Catalog\ProductTable::TYPE_SERVICE,
 				)
 			))
 			{

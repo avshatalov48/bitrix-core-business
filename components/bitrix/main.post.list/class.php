@@ -890,7 +890,7 @@ HTML;
 				(empty($res["AUTHOR"]["AVATAR"]) ? "N" : "Y"),
 			"#AUTHOR_AVATAR#" => (
 				!empty($res["AUTHOR"]["AVATAR"])
-					? $res['AUTHOR']['AVATAR']
+					? Uri::urnEncode($res['AUTHOR']['AVATAR'])
 					: (
 						!empty($arParams["AVATAR_DEFAULT"])
 							? Uri::urnEncode($arParams["AVATAR_DEFAULT"])
@@ -899,10 +899,10 @@ HTML;
 			),
 			"#AUTHOR_AVATAR_BG#" => (
 				!empty($res["AUTHOR"]["AVATAR"])
-					? "background-image:url('" . $res["AUTHOR"]["AVATAR"] . "')"
+					? "background-image:url('" . Uri::urnEncode($res["AUTHOR"]["AVATAR"]) . "')"
 					: (
 						!empty($arParams["AVATAR_DEFAULT"])
-							? "background-image:url('" . $arParams["AVATAR_DEFAULT"] . "')"
+							? "background-image:url('" . Uri::urnEncode($arParams["AVATAR_DEFAULT"]) . "')"
 							: ""
 					)
 				),

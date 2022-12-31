@@ -1,8 +1,14 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 \Bitrix\Main\UI\Extension::load([
 	'ui.design-tokens',
 	'ui.viewer',
+	'ui.buttons.icons'
 ]);
 
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
@@ -57,22 +63,32 @@ SCRIPT;
 			<span class="bp-btn-panel-inner">
 			<? if ($task['IS_INLINE'] == 'Y'):
 				foreach ($task['BUTTONS'] as $control):
-					$class = $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::No || $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::Cancel ? 'decline' : 'accept';
-					$props = CUtil::PhpToJSObject(array(
+					$isDecline =
+						$control['TARGET_USER_STATUS'] == CBPTaskUserStatus::No
+						|| $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::Cancel
+					;
+					$class = $isDecline ? 'danger' : 'success';
+					$icon = $isDecline ? 'cancel' : 'done';
+					$props = CUtil::PhpToJSObject([
 						'TASK_ID' => $task['ID'],
-						$control['NAME'] => $control['VALUE']
-					));
-			?>
-			<a href="#" onclick="return BX.Bizproc.doInlineTask(<?=$props?>, <?=$jsCallback?>, this)"
-				class="bp-button bp-button bp-button-<?=$class?>">
-				<span class="bp-button-icon"></span>
-				<span class="bp-button-text"><?=$control['TEXT']?></span>
-			</a>
-				<?endforeach;
+						$control['NAME'] => $control['VALUE'],
+					]);
+					?>
+					<a href="#" onclick="return BX.Bizproc.doInlineTask(<?= $props ?>, <?= $jsCallback ?>, this)"
+						class="ui-btn ui-btn-<?= $class ?> ui-btn-icon-<?= $icon ?>"
+						><?= $control['TEXT'] ?>
+					</a>
+				<?php
+				endforeach;
 			else:?>
-				<a href="#" class="bp-button bp-button bp-button-blue"
-					onclick="return BX.Bizproc.showTaskPopup(<?=$task['ID']?>, <?=$jsCallback?>, null, this, true)"><?=GetMessage("BPATL_BEGIN")?></a>
-			<?endif?>
+				<a
+					href="#"
+					class="ui-btn ui-btn-primary"
+					onclick="return BX.Bizproc.showTaskPopup(<?= $task['ID'] ?>, <?= $jsCallback ?>, null, this, true)"
+				><?= GetMessage("BPATL_BEGIN") ?></a>
+			<?php
+			endif;
+			?>
 			</span>
 		</div>
 		<?endforeach;?>

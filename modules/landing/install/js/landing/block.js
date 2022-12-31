@@ -111,31 +111,98 @@
 
 	function getTypeSettings(prop)
 	{
-		var lp = BX.Landing.Main.getInstance();
-		var type = lp.options.style["bitrix"]["style"][prop];
-		if (prop === 'background')
+		let lp = BX.Landing.Main.getInstance();
+		let namespaces = Object.keys(lp.options.style);
+
+		for (let i = 0; i < namespaces.length; i++)
 		{
-			type.items = type.items.concat(lp.options.style["bitrix"]["style"]['background-overlay'].items);
+			let namespace = namespaces[i];
+			let type = lp.options.style[namespace]["style"][prop];
+
+			if (!type)
+			{
+				continue;
+			}
+
+			type.attrKey = prop;
+
+			if (prop === "background")
+			{
+				type.items = type.items.concat(lp.options.style[namespace]["style"]["background-overlay"].items);
+			}
+
+			return type;
 		}
-		return type;
+
+		return null;
 	}
 
 	function getAttrsTypeSettings(prop)
 	{
-		var lp = BX.Landing.Main.getInstance();
-		return lp.options.attrs["bitrix"]["attrs"][prop];
+		let lp = BX.Landing.Main.getInstance();
+		let namespaces = Object.keys(lp.options.attrs);
+
+		for (let i = 0; i < namespaces.length; i++)
+		{
+			let namespace = namespaces[i];
+			let attr = lp.options.attrs[namespace]["attrs"][prop];
+
+			if (!attr)
+			{
+				continue;
+			}
+
+			attr.attrKey = prop;
+			return attr;
+		}
+
+		return {};
 	}
 
 	function isGroup(prop)
 	{
-		var lp = BX.Landing.Main.getInstance();
-		return prop in lp.options.style["bitrix"]["group"];
+		let lp = BX.Landing.Main.getInstance();
+		let namespaces = Object.keys(lp.options.style);
+
+		for (let i = 0; i < namespaces.length; i++)
+		{
+			let namespace = namespaces[i];
+
+			if (!lp.options.style[namespace]["group"])
+			{
+				continue;
+			}
+
+			if (prop in lp.options.style[namespace]["group"])
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	function getGroupTypes(group)
 	{
-		var lp = BX.Landing.Main.getInstance();
-		return lp.options.style["bitrix"]["group"][group];
+		let lp = BX.Landing.Main.getInstance();
+		let namespaces = Object.keys(lp.options.style);
+
+		for (let i = 0; i < namespaces.length; i++)
+		{
+			let namespace = namespaces[i];
+
+			if (!lp.options.style[namespace]["group"])
+			{
+				continue;
+			}
+
+			if (lp.options.style[namespace]["group"][group])
+			{
+				return lp.options.style[namespace]["group"][group];
+			}
+		}
+
+		return [];
 	}
 
 
@@ -444,6 +511,11 @@
 					}
 
 					var columnsSettings = getTypeSettings("columns");
+
+					if (columnsSettings === null)
+					{
+						return;
+					}
 
 					needAdjust.forEach(function(selector) {
 						var styleNode = this.styles.get(selector);
@@ -1140,6 +1212,7 @@
 					var blockDisplay = new ActionButton("block_display_info", {
 						html: "&nbsp;",
 						separate: true,
+						onClick: this.onStyleShow.bind(this),
 					});
 
 					bind(blockDisplay.layout, "mouseenter", this.onBlockDisplayMouseenter.bind(this));
@@ -1635,6 +1708,7 @@
 						}),
 						new BX.Main.MenuItem({
 							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON"),
+							className: this.isDefaultCrmFormBlock() ? "landing-ui-disabled" : "",
 							onclick: function() {
 								this.saveBlock();
 								this.blockActionsMenu.close();
@@ -2972,6 +3046,10 @@
 
 				type.forEach(function(type) {
 					var typeSettings = getTypeSettings(type);
+					if (typeSettings === null)
+					{
+						return;
+					}
 					var styleNode = this.styles.get(selector);
 					var field = styleFactory.createField({
 						block: this,
@@ -2982,6 +3060,7 @@
 						style: type,
 						pseudoElement: typeSettings["pseudo-element"],
 						pseudoClass: typeSettings["pseudo-class"],
+						attrKey: typeSettings.attrKey,
 						type: typeSettings.type,
 						subtype: typeSettings.subtype,
 						title: typeSettings.name,
@@ -3283,6 +3362,7 @@
 			);
 			var isBlock = this.isBlockSelector(selector);
 			var options = this.getStyleOptions(selector);
+			this.isMultiselection = this.content.querySelectorAll(selector).length > 1;
 
 			BX.Landing.PageObject.getInstance().design()
 				.then(function(stylePanel) {
@@ -3324,6 +3404,8 @@
 				.then(function(result) {
 					var stylePanel = result[0];
 					var formStyleAdapter = result[1];
+
+					stylePanel.prepareFooter(this.isMultiselection);
 
 					if (formStyleAdapter)
 					{
@@ -3443,7 +3525,11 @@
 			else
 			{
 				options.attrsType.forEach((atr) => {
-					attrsSet.push(getAttrsTypeSettings(atr));
+					let attrSetItem = getAttrsTypeSettings(atr);
+					if (attrSetItem)
+					{
+						attrsSet.push(attrSetItem);
+					}
 				})
 			}
 			attrsSet.forEach(function(attrOptions) {
@@ -4198,11 +4284,17 @@
 							.forEach(function(index) {
 								source[index] = {value: 0, type: "card"};
 
-								if (!isEmpty(presets) && !isEmpty(presets[index]) && !oldCards[indexes[index]])
+								if (!isEmpty(presets) && !isEmpty(presets[index]))
 								{
-									source[index].type = "preset";
-									source[index].value = presets[index];
-									return;
+									if (
+										!oldCards[indexes[index]]
+										|| !BX.type.isString(indexes[index])
+									)
+									{
+										source[index].type = "preset";
+										source[index].value = presets[index];
+										return;
+									}
 								}
 
 								if (oldCards[indexes[index]])
@@ -5544,6 +5636,21 @@
 		{
 			var contentPanel = this.panels.get("content_edit");
 			var isDynamicEnabled = !!event.state;
+
+			let restrictMessage = this.content.parentElement.querySelector('.landing-html-lock');
+			if (restrictMessage)
+			{
+				if (!isDynamicEnabled)
+				{
+					this.content.style.display = 'flex';
+					restrictMessage.style.display = 'none';
+				}
+				else
+				{
+					this.content.style.display = 'none';
+					restrictMessage.style.display = 'flex';
+				}
+			}
 
 			if (isDynamicEnabled)
 			{

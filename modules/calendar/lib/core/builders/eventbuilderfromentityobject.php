@@ -344,6 +344,9 @@ class EventBuilderFromEntityObject extends EventBuilder
 		}
 	}
 
+	/**
+	 * @return MeetingDescription|null
+	 */
 	protected function getMeetingDescription(): ?MeetingDescription
 	{
 		return $this->prepareMeetingDescription($this->event->getMeeting());
@@ -354,7 +357,10 @@ class EventBuilderFromEntityObject extends EventBuilder
 		return (int)$this->event->getVersion();
 	}
 
-	protected function getEventType(): ?string
+	/**
+	 * @return string|null
+	 */
+	protected function getCalendarType(): ?string
 	{
 		return $this->event->getCalType();
 	}
@@ -438,5 +444,13 @@ class EventBuilderFromEntityObject extends EventBuilder
 	protected function getRelations(): ?Relations
 	{
 		return $this->prepareRelations($this->event->getRelations());
+	}
+
+	/**
+	 * @return string|null
+	 */
+	protected function getSpecialLabel(): ?string
+	{
+		return $this->event->getEventType();
 	}
 }

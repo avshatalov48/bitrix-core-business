@@ -10,6 +10,7 @@ type ImageUploaderOptions = {
 		minHeight?: number,
 	},
 	sizes: Array<string>,
+	allowSvg: boolean,
 };
 
 export default ImageUploaderOptions;

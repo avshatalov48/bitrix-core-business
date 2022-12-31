@@ -399,6 +399,10 @@ class Theme extends Page
 			}
 		}
 
+		if (!is_string($colorHex))
+		{
+			$colorHex = '';
+		}
 		$colorHex = self::prepareColor($colorHex);
 
 		$restrictionCode = Restriction\Hook::getRestrictionCodeByHookCode('THEME');

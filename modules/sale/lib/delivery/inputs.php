@@ -424,9 +424,11 @@ Input\Manager::register('LOCATION_MULTI_EXCLUDE', array(
 	'NAME' => Loc::getMessage('INPUT_DELIVERY_LOCATION_MULTI_EXCLUDE')
 ));
 
+class ProductCategories extends Input\ProductCategories {}
+
 // Deprecated type
 Input\Manager::register('DELIVERY_PRODUCT_CATEGORIES', array(
-	'CLASS' => \Bitrix\Sale\Internals\Input\ProductCategories::class,
+	'CLASS' => __NAMESPACE__.'\\ProductCategories',
 	'NAME' => Loc::getMessage('INPUT_DELIVERY_PRODUCT_CATEGORIES')
 ));
 

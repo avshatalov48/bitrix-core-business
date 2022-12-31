@@ -101,11 +101,6 @@ class UI extends \CModule
 
 		\CAgent::addAgent('\Bitrix\UI\FileUploader\TempFileAgent::clearOldRecords();', 'ui', 'N', 1800);
 
-		return true;
-	}
-
-	function installEvents()
-	{
 		$eventManager = Bitrix\Main\EventManager::getInstance();
 		foreach ($this->events as $module => $events)
 		{

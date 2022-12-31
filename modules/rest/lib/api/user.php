@@ -2,7 +2,7 @@
 namespace Bitrix\Rest\Api;
 
 use Bitrix\Intranet\Invitation;
-use Bitrix\Main\Entity\ExpressionField;
+use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UserTable;
@@ -535,14 +535,14 @@ class User extends \IRestService
 			? $resizePresets[$presetName]
 			: false);
 
-		if(isset($query['ADMIN_MODE']) && $query['ADMIN_MODE'])
+		if (isset($query['ADMIN_MODE']) && $query['ADMIN_MODE'])
 		{
 			if ($moduleAdminList === false && Loader::includeModule('socialnetwork'))
 			{
 				$moduleAdminList = \Bitrix\Socialnetwork\User::getModuleAdminList(array(SITE_ID, false));
 			}
 
-			if(is_array($moduleAdminList))
+			if (is_array($moduleAdminList))
 			{
 				$adminMode = (array_key_exists($USER->getID(), $moduleAdminList));
 			}
@@ -560,7 +560,7 @@ class User extends \IRestService
 			$allowedUserFields[] = 'CONFIRM_CODE';
 		}
 
-		if(isset($query['FILTER']) && is_array($query['FILTER']))
+		if (isset($query['FILTER']) && is_array($query['FILTER']))
 		{
 			/**
 			 * The following code is a mistake
@@ -569,7 +569,15 @@ class User extends \IRestService
 			$query = array_change_key_case($query['FILTER'], CASE_UPPER);
 		}
 
-		$filter = self::prepareUserData($query, $allowedUserFields);
+		$filter = self::prepareUserFilter(
+			$query,
+			$allowedUserFields,
+			[
+				'HAS_DEPARTAMENT',
+				'NAME_SEARCH',
+				'FIND'
+			]
+		);
 
 		if (isset($filter['NAME_SEARCH']) || isset($filter['FIND']))
 		{
@@ -628,9 +636,9 @@ class User extends \IRestService
 			}
 		}
 
-		if(array_key_exists("HAS_DEPARTAMENT", $filter))
+		if (array_key_exists('HAS_DEPARTAMENT', $filter))
 		{
-			if ($filter["HAS_DEPARTAMENT"] === "Y")
+			if ($filter['HAS_DEPARTAMENT'] === 'Y')
 			{
 				$filter[] = [
 					'LOGIC' => 'AND',
@@ -638,10 +646,8 @@ class User extends \IRestService
 				];
 			}
 
-			unset($filter["HAS_DEPARTAMENT"]);
+			unset($filter['HAS_DEPARTAMENT']);
 		}
-
-		$result = array();
 
 		$filter['=IS_REAL_USER'] = 'Y';
 
@@ -652,63 +658,73 @@ class User extends \IRestService
 		}
 		$getListMethodName = 'getList';
 
-		$dbResCnt = $getListClassName::$getListMethodName(array(
-			'filter' => $filter,
-			'select' => array("CNT" => new ExpressionField('CNT', 'COUNT(1)')),
-		));
+		$navParams = self::getNavData($nav, true);
 
-		$resCnt = $dbResCnt->fetch();
-		if ($resCnt && $resCnt["CNT"] > 0)
+		$querySort = [];
+		if ($sort && $order)
 		{
-			$navParams = self::getNavData($nav, true);
+			$querySort[$sort] = $order;
+		}
+		$allowedFields = static::getAllowedUserFields($server->getAuthScope());
 
-			$querySort = array();
-			if($sort && $order)
-			{
-				$querySort[$sort] = $order;
-			}
-			$allowedFields = static::getAllowedUserFields($server->getAuthScope());
-			$dbRes = $getListClassName::$getListMethodName(array(
+		$dbRes = $getListClassName::$getListMethodName(
+			[
 				'order' => $querySort,
 				'filter' => $filter,
 				'select' => $allowedFields,
 				'limit' => $navParams['limit'],
 				'offset' => $navParams['offset'],
 				'data_doubling' => false,
-			));
+				'count_total' => $nav !== -1,
+			]
+		);
 
-			$result = array();
-			$files = array();
+		$result = [];
+		$files = [];
 
-			while($userInfo = $dbRes->fetch())
+		while ($userInfo = $dbRes->fetch())
+		{
+			$result[] = self::getUserData($userInfo, $allowedFields);
+
+			if ($userInfo['PERSONAL_PHOTO'] > 0)
 			{
-				$result[] = self::getUserData($userInfo, $allowedFields);
+				$files[] = $userInfo['PERSONAL_PHOTO'];
+			}
+		}
 
-				if($userInfo['PERSONAL_PHOTO'] > 0)
+		if (count($files) > 0)
+		{
+			$files = \CRestUtil::getFile($files, $resize);
+
+			foreach ($result as $key => $userInfo)
+			{
+				if ($userInfo['PERSONAL_PHOTO'] > 0)
 				{
-					$files[] = $userInfo['PERSONAL_PHOTO'];
+					$result[$key]['PERSONAL_PHOTO'] = $files[$userInfo['PERSONAL_PHOTO']];
 				}
 			}
+		}
 
-			if(count($files) > 0)
+		if ($result)
+		{
+			$count = 0;
+			if ($nav !== -1)
 			{
-				$files = \CRestUtil::getFile($files, $resize);
-
-				foreach ($result as $key => $userInfo)
+				try
 				{
-					if($userInfo['PERSONAL_PHOTO'] > 0)
-					{
-						$result[$key]['PERSONAL_PHOTO'] = $files[$userInfo['PERSONAL_PHOTO']];
-					}
+					$count = $dbRes->getCount();
+				}
+				catch (ObjectPropertyException $exception)
+				{
 				}
 			}
 
 			return self::setNavData(
 				$result,
-				array(
-					"count" => $resCnt['CNT'],
-					"offset" => $navParams['offset']
-				)
+				[
+					'count' => $count,
+					'offset' => $navParams['offset']
+				]
 			);
 		}
 
@@ -1016,6 +1032,12 @@ class User extends \IRestService
 		return $result;
 	}
 
+	/**
+	 * @deprecated
+	 * @param $userData
+	 * @param null $allowedUserFields
+	 * @return array
+	 */
 	protected static function prepareUserData($userData, $allowedUserFields = null)
 	{
 		$user = array();
@@ -1028,56 +1050,97 @@ class User extends \IRestService
 		{
 			if(in_array($key, $allowedUserFields, true))
 			{
-				$user[$key] = $value;
+				$user[$key] = static::prepareUserValue($key, $value);
 			}
-		}
-
-		if(isset($user['ID']))
-		{
-			if(is_array($user['ID']))
-			{
-				$user['ID'] = array_map("intval", $user['ID']);
-			}
-			else
-			{
-				$user['ID'] = intval($user['ID']);
-			}
-		}
-
-		if(isset($user['ACTIVE']))
-			$user['ACTIVE'] = ($user['ACTIVE'] && $user['ACTIVE'] != 'N') ? 'Y' : 'N';
-
-		if(isset($user['IS_ONLINE']))
-			$user['IS_ONLINE'] = ($user['IS_ONLINE'] && $user['IS_ONLINE'] != 'N') ? 'Y' : 'N';
-
-		if(isset($user['PERSONAL_BIRTHDAY']))
-			$user['PERSONAL_BIRTHDAY'] = \CRestUtil::unConvertDate($user['PERSONAL_BIRTHDAY']);
-
-		if(isset($user['UF_DEPARTMENT']) && !is_array($user['UF_DEPARTMENT']) && !empty($user['UF_DEPARTMENT']))
-			$user['UF_DEPARTMENT'] = array($user['UF_DEPARTMENT']);
-
-		if(isset($user['AUTO_TIME_ZONE']))
-			$user['AUTO_TIME_ZONE'] = ($user['AUTO_TIME_ZONE'] && $user['AUTO_TIME_ZONE'] === 'Y') ? 'Y' : 'N';
-
-		if(isset($user['PERSONAL_PHOTO']))
-		{
-			$user['PERSONAL_PHOTO'] = \CRestUtil::saveFile($user['PERSONAL_PHOTO']);
-
-			if(!$user['PERSONAL_PHOTO'])
-			{
-				$user['PERSONAL_PHOTO'] = array('del' => 'Y');
-			}
-		}
-
-		if(
-			isset($user['CONFIRM_CODE'])
-			&& $user['CONFIRM_CODE'] === '0'
-		)
-		{
-			$user['CONFIRM_CODE'] = false;
 		}
 
 		return $user;
+	}
+
+	private static function prepareUserValue($code, $value)
+	{
+		switch ($code):
+			case 'ID':
+				if (is_array($value))
+				{
+					$value = array_map('intval', $value);
+				}
+				else
+				{
+					$value = (int)($value);
+				}
+				break;
+			case 'ACTIVE':
+			case 'IS_ONLINE':
+				$value = ($value && $value !== 'N')? 'Y' : 'N';
+				break;
+			case 'AUTO_TIME_ZONE':
+				$value = $value === 'Y'? 'Y' : 'N';
+				break;
+			case 'PERSONAL_BIRTHDAY':
+				$value = \CRestUtil::unConvertDate($value);
+				break;
+			case 'PERSONAL_PHOTO':
+
+				$value = \CRestUtil::saveFile($value);
+
+				if(!$value)
+				{
+					$value = [
+						'del' => 'Y',
+					];
+				}
+				break;
+			case 'UF_DEPARTMENT':
+				if(!is_array($value) && !empty($value))
+				{
+					$value = [
+						$value
+					];
+				}
+				break;
+			case 'CONFIRM_CODE':
+				if($value === '0')
+				{
+					$value = false;
+				}
+				break;
+		endswitch;
+
+		return $value;
+	}
+
+	private static function prepareUserFilter($query, $allowedUserFields = null, $clearFilterType = []): array
+	{
+		$filter = [];
+
+		if (!$allowedUserFields)
+		{
+			$allowedUserFields = static::getDefaultAllowedUserFields();
+		}
+
+		foreach ($query as $code => $value)
+		{
+			$filterType = '';
+			$matches = [];
+			if (preg_match('/^([\W]{1,2})(.+)/', $code, $matches) && $matches[2])
+			{
+				$filterType = $matches[1];
+				$code = $matches[2];
+			}
+
+			if (in_array($code, $allowedUserFields, true))
+			{
+				if ($filterType !== '' && in_array($code, $clearFilterType, true))
+				{
+					$filterType = '';
+				}
+
+				$filter[$filterType . $code] = static::prepareUserValue($code, $value);
+			}
+		}
+
+		return $filter;
 	}
 
 	protected static function prepareSaveData($userData, $allowedUserFields = null)
@@ -1159,9 +1222,11 @@ class User extends \IRestService
 					$res[$key] = $userFields[$key] == 'Y';
 					break;
 				case 'PERSONAL_BIRTHDAY':
-				case 'LAST_LOGIN':
 				case 'DATE_REGISTER':
 					$res[$key] = \CRestUtil::convertDate($userFields[$key]);
+					break;
+				case 'LAST_LOGIN':
+					$res[$key] = \CRestUtil::convertDateTime($userFields[$key]);
 					break;
 				case 'EXTERNAL_AUTH_ID':
 					$res['IS_NETWORK'] = $userFields[$key] == 'replica';

@@ -23,10 +23,6 @@ return array(
 			'name' => Loc::getMessage('LANDING_BLOCK_16_2_TWO_COLS_TEXT_MAP_FIX--LANDINGBLOCKNODETEXT'),
 			'type' => 'text',
 		),
-		'.landing-block-node-map' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_16_2_TWO_COLS_TEXT_MAP_FIX--LANDINGBLOCKNODEMAP'),
-			'type' => 'map',
-		),
 	),
 	'style' => array(
 		'.landing-block-node-text-container' => array(

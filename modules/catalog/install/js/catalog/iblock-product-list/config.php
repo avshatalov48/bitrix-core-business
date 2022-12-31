@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'main.core.events',
 		'main.core',
+		'ui.hints',
 	],
 	'skip_core' => false,
 ];

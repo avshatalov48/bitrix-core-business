@@ -135,49 +135,71 @@ export class InterfaceTemplate extends EventEmitter
 
 	getContentInfoBodyHeader()
 	{
-		return Tag.render`
-			<div class="calendar-sync-slider-section">
-				<div class="calendar-sync-slider-header-icon ${this.sliderIconClass}"></div>
-				<div class="calendar-sync-slider-header">
-					<div class="calendar-sync-slider-title">
-						${this.titleInfoHeader}
-					</div>
-					<div class="calendar-sync-slider-info">
-						<span class="calendar-sync-slider-info-text">
-							${this.descriptionInfoHeader}
-						</span>
-					</div>
-					<div class="calendar-sync-slider-info">
-						<span class="calendar-sync-slider-info-text">
-							<a class="calendar-sync-slider-info-link" href="javascript:void(0);" onclick="${this.showHelp.bind(this)}">
-								${Loc.getMessage('CAL_TEXT_ABOUT_WORK_SYNC')}
-							</a>
-						</span>
+		if (!this.infoBodyHeader)
+		{
+			this.infoBodyHeader = Tag.render`
+				<div class="calendar-sync-slider-section calendar-sync-slider-section-flex-wrap">
+					<div class="calendar-sync-slider-header-icon ${this.sliderIconClass}"></div>
+					<div class="calendar-sync-slider-header">
+						<div class="calendar-sync-slider-title">
+							${this.titleInfoHeader}
+						</div>
+						<div class="calendar-sync-slider-info">
+							<span class="calendar-sync-slider-info-text">
+								${this.descriptionInfoHeader}
+							</span>
+						</div>
+						${this.getContentInfoBodyHeaderHelper()}
 					</div>
 				</div>
+			`;
+		}
+
+		return this.infoBodyHeader;
+	}
+
+	getContentInfoBodyHeaderHelper()
+	{
+		return Tag.render`
+			<div class="calendar-sync-slider-info">
+				<span class="calendar-sync-slider-info-text">
+					<a class="calendar-sync-slider-info-link" href="javascript:void(0);" onclick="${this.showHelp.bind(this)}">
+						${Loc.getMessage('CAL_TEXT_ABOUT_WORK_SYNC')}
+					</a>
+				</span>
 			</div>
 		`;
 	}
 
 	getContentInfoWarning()
 	{
-		const connectOtherButton = this.getWarningButton();
-		Event.bind(connectOtherButton, 'click', this.handleWarningButtonClick.bind(this));
+		const mobileSyncButton = this.getMobileSyncControlButton();
+		if (this.alreadyConnectedToNew)
+		{
+			Event.bind(mobileSyncButton, 'click', this.handleMobileButtonOtherSyncInfo.bind(this));
+		}
+		else
+		{
+			Event.bind(mobileSyncButton, 'click', this.handleMobileButtonConnectClick.bind(this));
+
+		}
 
 		return Tag.render`
-			<div class="calendar-sync-slider-section-warning ui-alert ui-alert-warning ui-alert-icon-warning">
-				<span class="ui-alert-message">${this.warningText}
-				<div class="calendar-sync-button">${connectOtherButton}</div>
-				</span>
-			</div>
-		`;
+				<div class="calendar-sync-slider-section-warning calendar-sync-slider-section-col">
+					<div class="ui-alert ui-alert-warning ui-alert-icon-info">
+						<span class="ui-alert-message">${this.warningText}
+						</span>
+					</div>
+					<div class="calendar-sync-button-warning">${mobileSyncButton}</div>
+				</div>
+			`;
 	}
 
-	getWarningButton()
+	getMobileSyncControlButton()
 	{
 		return Tag.render`
-			<button class="ui-btn ui-btn-success ui-btn-sm">
-				${this.warningButtonText}
+			<button class="ui-btn ui-btn-success ui-btn-sm ui-btn-round">
+				${this.mobileSyncButtonText}
 			</button>
 		`
 	}

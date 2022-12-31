@@ -13,6 +13,7 @@ $MESS["EC_ACCESSIBILITY_TITLE"] = "Availability status";
 $MESS["EC_CRM_TITLE"] = "CRM items";
 $MESS["EC_EDDIV_SPECIAL_NOTES"] = "Special notes";
 $MESS["EC_PRIVATE_EVENT"] = "Private event";
+$MESS["EC_T_REPEAT"] = "Repeat";
 $MESS["EC_VIEW_ATTENDEES_ADD"] = "invite more attendees";
 $MESS["EC_VIEW_ATTENDEES_TITLE"] = "Attendees";
 $MESS["EC_VIEW_CREATED_BY"] = "Created by";

@@ -57,9 +57,10 @@ class Demos
 		$className = \CBitrixComponent::includeComponentClass($componentName);
 		$demoCmp = new $className;
 		$demoCmp->initComponent($componentName);
-		$demoCmp->arParams = array(
-			'TYPE' => mb_strtoupper($type)
-		);
+		$demoCmp->arParams = [
+			'TYPE' => mb_strtoupper($type),
+			'SKIP_REMOTE' => 'Y',
+		];
 
 		if ($page)
 		{

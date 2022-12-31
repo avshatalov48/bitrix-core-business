@@ -67,15 +67,26 @@ if (
 	$rsData = \Bitrix\Clouds\FileHashTable::duplicateList($obBucket->ID, ['>FILE_ID_MIN' => $lastKey], ['FILE_ID_MIN' => 'ASC'], $batchSize);
 	while ($data = $rsData->fetch())
 	{
-		$c++;
-		$progress++;
-		$lastKey = (int)$data['FILE_ID_LIST'];
-		$fileIds = explode(',', $data['FILE_ID_LIST']);
+		$fileIds = \Bitrix\Clouds\FileHashTable::getFileDuplicates($obBucket->ID, $data['FILE_HASH'], $data['FILE_SIZE']);
 		$originalId = \Bitrix\Clouds\FileHashTable::prepareDuplicates($obBucket->ID, $fileIds);
 		if ($originalId && $fileIds)
 		{
-			CFile::DeleteDuplicates($originalId, $fileIds);
+			while ($fileIds)
+			{
+				CFile::DeleteDuplicates($originalId, array_splice($fileIds, 0, 10));
+				if (time() > $etime)
+				{
+					break;
+				}
+			}
+			if (!$fileIds)
+			{
+				$c++;
+				$progress++;
+				$lastKey = $originalId;
+			}
 		}
+
 		if (time() > $etime)
 		{
 			break;
@@ -145,7 +156,8 @@ if ($action && is_array($arID))
 		switch ($action)
 		{
 		case 'process':
-			$fileIds = explode(',', $ID);
+			$fileSizeAndHash = explode(',', $ID, 2);
+			$fileIds = \Bitrix\Clouds\FileHashTable::getFileDuplicates($obBucket->ID, $fileSizeAndHash[1], $fileSizeAndHash[0]);
 			$originalId = \Bitrix\Clouds\FileHashTable::prepareDuplicates($obBucket->ID, $fileIds);
 			if ($originalId && $fileIds)
 			{
@@ -204,7 +216,7 @@ $lAdmin->NavText($rsData->GetNavPrint(''));
 while (is_array($arRes = $rsData->Fetch()))
 {
 	$fileList = [];
-	$idList = explode(',', $arRes['FILE_ID_LIST']);
+	$idList = \Bitrix\Clouds\FileHashTable::getFileDuplicates($obBucket->ID, $arRes['FILE_HASH'], $arRes['FILE_SIZE']);
 	foreach ($idList as $i => $fileId)
 	{
 		$file = CFile::GetFileArray($fileId);
@@ -213,22 +225,8 @@ while (is_array($arRes = $rsData->Fetch()))
 			$fileList[$file['ID']] = '<a href="' . $file['SRC'] . '">' . htmlspecialcharsEx($file['SUBDIR'] . '/' . $file['FILE_NAME']) . '</a>';
 		}
 	}
-	/*
-	if ($fileList)
-	{
-		$duplicates = \Bitrix\Main\File\Internal\FileDuplicateTable::getList([
-			'select' => ['DUPLICATE_ID'],
-			'filter' => [
-				'=DUPLICATE_ID' => array_keys($fileList),
-			],
-		]);
-		while ($duplicate = $duplicates->fetch())
-		{
-			unset($fileList[$duplicate['DUPLICATE_ID']]);
-		}
-	}
-	*/
-	$row =& $lAdmin->AddRow($arRes['FILE_ID_LIST'], $arRes);
+
+	$row =& $lAdmin->AddRow($arRes['FILE_SIZE'] . ',' . $arRes['FILE_HASH'], $arRes);
 
 	$row->AddViewField('FILE_SIZE', CFile::FormatSize($arRes['FILE_SIZE']));
 	$row->AddViewField('FILE_LIST', implode('<br>', $fileList));
@@ -240,7 +238,7 @@ while (is_array($arRes = $rsData->Fetch()))
 			[
 				'ICON' => 'move',
 				'TEXT' => GetMessage('CLO_STORAGE_DUP_PROCESS'),
-				'ACTION' => $lAdmin->ActionDoGroup($arRes['FILE_ID_LIST'], 'process', 'bucket=' . $obBucket->ID)
+				'ACTION' => $lAdmin->ActionDoGroup($arRes['FILE_SIZE'] . ',' . $arRes['FILE_HASH'], 'process', 'bucket=' . $obBucket->ID)
 			]
 		];
 		$row->AddActions($arActions);

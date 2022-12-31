@@ -340,7 +340,7 @@ SQL;
 		{
 			return '';
 		}
-		return '\\' . __CLASS__ . "::" . __METHOD__ . "();";
+		return '\\' . __CLASS__ . "::" . __FUNCTION__ . "();";
 	}
 
 	public static function onFileDelete($file)

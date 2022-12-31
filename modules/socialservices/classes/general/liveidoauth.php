@@ -262,7 +262,7 @@ class CSocServLiveIDOAuth extends CSocServAuth
 
 		echo $JSScript;
 
-		die();
+		CMain::FinalActions();
 	}
 
 	public function getFriendsList($limit = 0, $offset = 0)

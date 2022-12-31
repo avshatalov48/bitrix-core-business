@@ -1,7 +1,11 @@
 import { Type } from 'main.core';
+import { mapState } from 'ui.vue3.pinia';
 import { GroupData } from '@/types/group';
 import { ItemListAdvice } from './item-list-advice';
 import { ItemList} from './item-list';
+import { EmptyContent } from './stubs/empty-content';
+
+import { useGlobalState } from '../stores/global-state';
 
 import '../css/main-content.css';
 
@@ -10,11 +14,15 @@ export const MainContent = {
 	components: {
 		ItemListAdvice,
 		ItemList,
+		EmptyContent,
 	},
 	props: {
 		items: {
 			type: Array,
 			required: true
+		},
+		itemsToShow: {
+			type: Array,
 		},
 		group: {
 			type: GroupData,
@@ -26,17 +34,32 @@ export const MainContent = {
 		},
 	},
 	computed: {
+		...mapState(useGlobalState, ['filtersApplied']),
 		showAdvice(): boolean
 		{
 			return this.group && Type.isStringFilled(this.group.adviceTitle) && !this.searching;
+		},
+		hasItems(): boolean
+		{
+			return this.group && this.items.length > 0;
 		},
 		showNoSelectedGroupStub(): boolean
 		{
 			return !this.group && !this.searching;
 		},
+		showFiltersStub()
+		{
+			const hasFilterStubTitle = !!this.$slots['main-content-filter-stub-title'];
+
+			return hasFilterStubTitle && this.hasItems && this.filtersApplied && (this.itemsToShow.length <= 0);
+		},
 		showSearchStub(): boolean
 		{
-			return this.searching && (this.items.length <= 0);
+			return (!this.group || this.hasItems) && this.searching && (this.itemsToShow.length <= 0);
+		},
+		showEmptyGroupStub(): boolean
+		{
+			return this.group && this.itemsToShow.length === 0;
 		},
 		showSeparator(): boolean
 		{
@@ -58,25 +81,22 @@ export const MainContent = {
 
 			<div class="ui-entity-catalog__main-content-body" ref="content">
 				<slot name="main-content-no-selected-group-stub" v-if="showNoSelectedGroupStub"/>
-				<slot name="main-content-search-stub" v-else-if="showSearchStub">
-					<div class="ui-entity-catalog__content --help-block">
-						<div class="ui-entity-catalog__empty-content">
-							<div class="ui-entity-catalog__empty-content_icon">
-								<img src="/bitrix/js/ui/entity-catalog/images/ui-entity-catalog--search-icon.svg" alt="Choose a grouping">
-							</div>
-							<div class="ui-entity-catalog__empty-content_text">
-								<slot name="main-content-search-not-found-stub"/>
-							</div>
-						</div>
-					</div>
+				<slot name="main-content-filter-stub" v-if="showFiltersStub">
+					<EmptyContent>
+						<slot name="main-content-filter-stub-title"/>
+					</EmptyContent>
 				</slot>
-				<ItemList v-else :items="items">
-					<template #empty-group-stub>
-						<slot name="main-content-empty-group-stub"/>
-					</template>
-					<template #empty-group-stub-title>
+				<slot name="main-content-search-stub" v-else-if="showSearchStub">
+					<EmptyContent>
+						<slot name="main-content-search-not-found-stub"/>
+					</EmptyContent>
+				</slot>
+				<slot name="main-content-empty-group-stub" v-else-if="showEmptyGroupStub">
+					<EmptyContent>
 						<slot name="main-content-empty-group-stub-title"/>
-					</template>
+					</EmptyContent> 
+				</slot>
+				<ItemList v-else :items="itemsToShow">
 					<template #item="itemSlotProps">
 						<slot name="item" v-bind:itemData="itemSlotProps.itemData"/>
 					</template>

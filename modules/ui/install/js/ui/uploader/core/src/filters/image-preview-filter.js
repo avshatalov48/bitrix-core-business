@@ -74,7 +74,8 @@ export default class ImagePreviewFilter extends Filter
 					//}, 60000);
 
 				})
-				.catch(() => {
+				.catch((error) => {
+					console.log('resize error', error);
 					resolve();
 				})
 			;

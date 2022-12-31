@@ -2,6 +2,87 @@ this.BX = this.BX || {};
 (function (exports,main_core_events,main_core) {
 	'use strict';
 
+	var _templateObject;
+
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	var _addAccessDeniedHintForPriceColumns = /*#__PURE__*/new WeakSet();
+
+	var _addAccessDeniedHintForCreateButton = /*#__PURE__*/new WeakSet();
+
+	var IblockProductListHints = /*#__PURE__*/function () {
+	  /**
+	   * @type {?BX.Main.grid}
+	   */
+	  function IblockProductListHints() {
+	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+	    babelHelpers.classCallCheck(this, IblockProductListHints);
+
+	    _classPrivateMethodInitSpec(this, _addAccessDeniedHintForCreateButton);
+
+	    _classPrivateMethodInitSpec(this, _addAccessDeniedHintForPriceColumns);
+
+	    babelHelpers.defineProperty(this, "variations", new Map());
+	    babelHelpers.defineProperty(this, "variationsEditData", new Map());
+	    babelHelpers.defineProperty(this, "editedVariations", new Map());
+	    babelHelpers.defineProperty(this, "morePhotoChangedInputs", new Map());
+	    this.gridId = options.gridId;
+	    this.canEditPrice = options.canEditPrice !== undefined ? options.canEditPrice === true : true;
+
+	    _classPrivateMethodGet(this, _addAccessDeniedHintForCreateButton, _addAccessDeniedHintForCreateButton2).call(this);
+
+	    this.handleOnGridUpdatedHandler();
+	    main_core_events.EventEmitter.subscribe('Grid::updated', this.handleOnGridUpdatedHandler.bind(this));
+	  }
+
+	  babelHelpers.createClass(IblockProductListHints, [{
+	    key: "getGrid",
+	    value: function getGrid() {
+	      if (!this.grid) {
+	        this.grid = BX.Main.gridManager.getInstanceById(this.gridId);
+	      }
+
+	      return this.grid;
+	    }
+	  }, {
+	    key: "handleOnGridUpdatedHandler",
+	    value: function handleOnGridUpdatedHandler() {
+	      if (!this.canEditPrice) {
+	        _classPrivateMethodGet(this, _addAccessDeniedHintForPriceColumns, _addAccessDeniedHintForPriceColumns2).call(this);
+	      }
+	    }
+	  }]);
+	  return IblockProductListHints;
+	}();
+
+	function _addAccessDeniedHintForPriceColumns2() {
+	  this.getGrid().getHeaders().forEach(function (header) {
+	    var cellsTitles = header.querySelectorAll('.main-grid-cell-head[data-name^="CATALOG_GROUP_"] .main-grid-head-title');
+	    cellsTitles.forEach(function (title) {
+	      var lockIcon = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"ui-btn ui-btn-link ui-btn-icon-lock ui-btn-xs catalog-product-grid-lock-hint\"></span>\n\t\t\t\t"])));
+	      lockIcon.dataset.hint = main_core.Loc.getMessage('CATALOG_IBLOCK_PRODUCT_LIST_PRICE_ACCESS_DENIED_HINT');
+	      lockIcon.dataset.hintNoIcon = true;
+	      BX.UI.Hint.initNode(lockIcon);
+	      title.prepend(lockIcon);
+	    });
+	  });
+	}
+
+	function _addAccessDeniedHintForCreateButton2() {
+	  var button = document.querySelector('#create_new_product_button_access_denied');
+
+	  if (button) {
+	    button.classList.add('ui-btn-icon-lock', 'ui-btn-disabled');
+	    button.dataset.hint = main_core.Loc.getMessage('CATALOG_IBLOCK_PRODUCT_LIST_CREATE_ACCESS_DENIED_HINT');
+	    button.dataset.hintNoIcon = true;
+	    BX.UI.Hint.initNode(button);
+	  }
+	}
+
 	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 	function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -36,6 +117,7 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe('Grid::beforeRequest', this.onBeforeGridRequestHandler);
 	    main_core_events.EventEmitter.subscribe('BX.Main.Filter:apply', this.onFilterApplyHandler);
 	    main_core_events.EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
+	    this.hints = new IblockProductListHints(options);
 	  }
 
 	  babelHelpers.createClass(IblockProductList, [{
@@ -497,6 +579,7 @@ this.BX = this.BX || {};
 	}();
 
 	exports.IblockProductList = IblockProductList;
+	exports.IblockProductListHints = IblockProductListHints;
 
 }((this.BX.Catalog = this.BX.Catalog || {}),BX.Event,BX));
 //# sourceMappingURL=iblock-product-list.bundle.js.map

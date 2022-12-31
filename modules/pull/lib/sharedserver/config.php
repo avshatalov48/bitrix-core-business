@@ -6,13 +6,14 @@ use Bitrix\Main\Config\Option;
 
 class Config
 {
-	const DEFAULT_SERVER = "rtc-cloud.bitrix.info";
+	const DEFAULT_SERVER = "https://rtc-cloud.bitrix.info";
 	const HOSTNAME_URL = "/hostname";
 	const SERVER_LIST_URL = "/servers";
 	const REGISTER_URL = "/register-client/";
 	const PUB_URL = "/pub/";
 	const SUB_URL = "/subws/";
 	const REST_URL = "/rest/";
+	const RPC_URL = "/api/";
 
 	const SERVER_ADDRESS = 'shared_server_address';
 	const SHARED_SERVER_KEY = 'shared_server_key';
@@ -22,6 +23,11 @@ class Config
 	public static function getServerVersion()
 	{
 		return static::CLOUD_SERVER_VERSION;
+	}
+
+	public static function getDefaultCloudServer(): string
+	{
+		return defined('PULL_CLOUD_SERVER') ? PULL_CLOUD_SERVER : static::DEFAULT_SERVER;
 	}
 
 	public static function getServerAddress()
@@ -47,6 +53,16 @@ class Config
 	public static function getPublishUrl()
 	{
 		return "https://" . static::getServerAddress() . static::PUB_URL;
+	}
+
+	/**
+	 * Returns url for Json RPC.
+	 *
+	 * @return string
+	 */
+	public static function getJsonRpcUrl()
+	{
+		return "https://" . static::getServerAddress() . static::RPC_URL;
 	}
 
 	/**

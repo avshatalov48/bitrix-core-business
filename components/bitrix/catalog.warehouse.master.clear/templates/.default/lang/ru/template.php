@@ -25,5 +25,5 @@ $MESS ['CAT_WAREHOUSE_MASTER_CLEAR_DISABLE'] = "Выключить";
 $MESS ['CAT_WAREHOUSE_MASTER_CLEAR_DISABLE_CONFIRMATION_TEXT'] = "Вы точно хотите отключить складской учёт? Проведение документов будет недоступно.";
 $MESS ['CAT_WAREHOUSE_MASTER_CLEAR_ENABLED'] = "Складской учёт включен";
 
-$MESS ['CAT_WAREHOUSE_MASTER_STORE_ORDER_DEAL_MODE_ERROR'] = "В режиме \"Сделки+Заказы\" складской учёт не работает. Чтобы включить складской учёт, перейдите в режим \"Сделки\"";
+$MESS ['CAT_WAREHOUSE_MASTER_STORE_ORDER_DEAL_MODE_ERROR'] = "В режиме \"Сделки+Заказы\" складской учёт не работает. Чтобы включить складской учёт, перейдите в режим \"Сделки\".";
 $MESS ['CAT_WAREHOUSE_MASTER_STORE_LEAD_ENABLED_MODE_ERROR'] = "В режиме \"Классическая CRM\" (с лидами) складской учёт не работает. Чтобы включить складской учёт, перейдите в режим \"Простая CRM\" (без лидов)";

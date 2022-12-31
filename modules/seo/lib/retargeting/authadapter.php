@@ -29,6 +29,11 @@ class AuthAdapter
 	public function __construct($type)
 	{
 		$this->type = $type;
+
+		if($type === \Bitrix\Seo\Retargeting\Service::TYPE_YANDEX)
+		{
+			$this->parameters['URL_PARAMETERS']['force_confirm'] = 'yes';
+		}
 	}
 
 	/**

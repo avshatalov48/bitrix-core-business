@@ -16,7 +16,7 @@ class CAdminTabControl
 	var $selectedTab;
 	var $tabIndex = 0;
 	var $bButtons = false;
-	var $arButtonsParams = false;
+	var $arButtonsParams = [];
 	var $bCanExpand;
 	var $bPublicModeBuffer = false;
 	var $bShowSettings = false;
@@ -272,7 +272,7 @@ echo '
 		if(
 			$this->tabIndex < 1
 			|| $this->tabIndex > count($this->tabs)
-			|| $this->tabs[$this->tabIndex-1]["_closed"] === true
+			|| isset($this->tabs[$this->tabIndex-1]["_closed"]) && $this->tabs[$this->tabIndex-1]["_closed"] === true
 		)
 		{
 			return;
@@ -300,7 +300,7 @@ echo '
 
 		$this->bButtons = true;
 		if($aParams === false)
-			$this->arButtonsParams = false;
+			$this->arButtonsParams = [];
 		else
 			$this->arButtonsParams = $aParams;
 
@@ -312,7 +312,7 @@ echo '
 			echo '<div class="adm-detail-content-btns-wrap" id="'.$this->name.'_buttons_div"><div class="adm-detail-content-btns">';
 		}
 
-		if ($_REQUEST['subdialog'])
+		if (isset($_REQUEST['subdialog']) && $_REQUEST['subdialog'])
 		{
 			echo '<input type="hidden" name="suffix" value="'.mb_substr($GLOBALS['obJSPopup']->suffix, 1).'" />';
 			echo '<input type="hidden" name="subdialog" value="Y" />';
@@ -531,11 +531,11 @@ echo '
 			$s .= ($s <> ""? ", ":"").
 			"{".
 			"'DIV': '".$tab["DIV"]."' ".
-			($tab["ONSELECT"] <> ""? ", 'ONSELECT': '".CUtil::JSEscape($tab["ONSELECT"])."'":"").
+			(isset($tab["ONSELECT"]) && $tab["ONSELECT"] <> ""? ", 'ONSELECT': '".CUtil::JSEscape($tab["ONSELECT"])."'":"").
 			"}";
 		}
 		$adminTabControlParams = array();
-		if ($this->arButtonsParams["back_url"] <> '')
+		if (isset($this->arButtonsParams["back_url"]) && $this->arButtonsParams["back_url"] <> '')
 			$adminTabControlParams["backUrl"] = $this->arButtonsParams["back_url"];
 		if ($this->isPublicFrame)
 			$adminTabControlParams["isPublicFrame"] = "Y";
@@ -558,20 +558,20 @@ else if(!!window.'.$this->name.')
 
 			if($this->bCanExpand && count($this->tabs) > 1)
 			{
-				if($aEditOpt["expand"] == "on")
+				if (isset($aEditOpt["expand"]) && $aEditOpt["expand"] == "on")
 				{
 					echo '
 '.$this->name.'.ToggleTabs();';
 				}
 			}
 
-			if ($aTabOpt["fix_top"] == "off" && $aEditOpt["expand"] != "on")
+			if (isset($aTabOpt["fix_top"]) && $aTabOpt["fix_top"] == "off" && $aEditOpt["expand"] != "on")
 			{
 				echo '
 '.$this->name.'.ToggleFix(\'top\');';
 			}
 
-			if ($aTabOpt["fix_bottom"] == "off")
+			if (isset($aTabOpt["fix_bottom"]) && $aTabOpt["fix_bottom"] == "off")
 			{
 				echo '
 '.$this->name.'.ToggleFix(\'bottom\');';

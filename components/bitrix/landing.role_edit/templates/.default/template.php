@@ -14,6 +14,7 @@ Loc::loadMessages(__FILE__);
 Manager::setPageTitle(Loc::getMessage('LANDING_TPL_TITLE_EDIT'));
 
 \Bitrix\Main\UI\Extension::load('ui.design-tokens');
+\Bitrix\Main\UI\Extension::load("ui.hint");
 $this->addExternalCss('/bitrix/css/main/table/style.css');
 
 if ($arResult['EXTENDED'])
@@ -182,6 +183,16 @@ unset($site);
 						<?php if (Loc::getMessage('LANDING_TPL_ADDITIONAL_ACTION_HINT_' . mb_strtoupper($code))): ?>
 							<span data-hint="<?= Loc::getMessage('LANDING_TPL_ADDITIONAL_ACTION_HINT_'.mb_strtoupper($code))?>" class="ui-hint"></span>
 						<?php endif;?>
+						<?php if (Loc::getMessage('LANDING_TPL_ADDITIONAL_ACTION_HINT_INTERACTIVITY_' . mb_strtoupper($code))): ?>
+							<?php $hintHtml = Loc::getMessage('LANDING_TPL_ADDITIONAL_ACTION_HINT_INTERACTIVITY_'.mb_strtoupper($code))
+								. "<br><a href='"
+								. \Bitrix\Landing\Help::getHelpUrl(mb_strtoupper($code))
+								. "' target='_blank'>"
+								. Loc::getMessage('LANDING_TPL_MORE')
+								. "</a>";
+							?>
+							<span data-hint="<?= $hintHtml?>" data-hint-interactivity data-hint-html class="ui-hint"></span>
+						<?php endif;?>
 					</label>
 				</td>
 				<td class="table-blue-td-select">
@@ -248,4 +259,9 @@ unset($site);
 		</div>
 	</div>
 </form>
+<script>
+	BX.ready(function() {
+		BX.UI.Hint.init(BX('landing-role-edit'));
+	})
+</script>
 

@@ -4419,7 +4419,7 @@ function NormalizePhone($number, $minLength = 10)
 		return false;
 	}
 
-	if (mb_strlen($number) >= 10 && mb_substr($number, 0, 2) == '+8')
+	if (mb_strlen($number) >= 10 && mb_substr($number, 0, 2) === '+8')
 	{
 		$number = '00'.mb_substr($number, 1);
 	}

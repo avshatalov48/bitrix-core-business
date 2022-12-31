@@ -6,6 +6,7 @@ use Bitrix\Calendar\Internals\HasStatusInterface;
 use Bitrix\Calendar\Internals\ObjectStatusTrait;
 use Bitrix\Calendar\Sync\Exceptions\ApiException;
 use Bitrix\Calendar\Sync\Exceptions\AuthException;
+use Bitrix\Calendar\Sync\Exceptions\GoneException;
 use Bitrix\Calendar\Sync\Internals\ContextInterface;
 use Bitrix\Calendar\Sync\Internals\HasContextTrait;
 use Bitrix\Calendar\Sync\Exceptions\ConflictException;
@@ -130,6 +131,13 @@ class ApiClient implements HasStatusInterface
 							throw new ConflictException(
 								$error['error']['code'],
 								409,
+								__FILE__,
+								__LINE__
+							);
+						case 410:
+							throw new GoneException(
+								$error['error']['code'],
+								410,
 								__FILE__,
 								__LINE__
 							);

@@ -33,6 +33,7 @@ DROP TABLE if exists b_sonet_user_content_view;
 DROP TABLE if exists b_sonet_log_tag;
 DROP TABLE if exists b_sonet_group_favorites;
 DROP TABLE if exists b_sonet_group_view;
+DROP TABLE if exists b_sonet_group_pin;
 DROP TABLE if exists b_sonet_user_tag;
 DROP TABLE if exists b_sonet_group_tag;
 DROP TABLE if exists b_sonet_user_welltory;

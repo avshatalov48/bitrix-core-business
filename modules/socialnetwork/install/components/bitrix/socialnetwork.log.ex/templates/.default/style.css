@@ -1630,7 +1630,7 @@ a.feed-post-title:hover {
 	color: #151515;
 	margin: 0 -18px 0 -70px;
 	min-height: 47px;
-	line-height: var(--ui-font-line-height-md, 20px);
+	line-height: var(--ui-font-line-height-lg, 20px);
 	overflow: hidden;
 	padding: 0 28px 3px 70px;
 	position: relative;

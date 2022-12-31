@@ -23,6 +23,11 @@ this.BX.Calendar.Ui = this.BX.Calendar.Ui || {};
 	    this.getEvents = getEvents;
 	  }
 
+	  setFinalTimeInterval(from, to) {
+	    this.finalFrom = new Date(from.getTime());
+	    this.finalTo = new Date(to.getTime());
+	  }
+
 	  getFinalFrom() {
 	    return this.finalFrom;
 	  }
@@ -34,9 +39,8 @@ this.BX.Calendar.Ui = this.BX.Calendar.Ui || {};
 	  onDragStart(duration, startPosition = 0) {
 	    this.savedDuration = duration;
 	    this.tryDuration = 0;
-	    const startBoundary = this.getBoundaryFromPosition(startPosition);
-	    this.finalFrom = startBoundary.from;
-	    this.finalTo = startBoundary.to;
+	    this.startBoundary = this.getBoundaryFromPositionAndDuration(startPosition, duration);
+	    this.setFinalTimeInterval(this.startBoundary.from, this.startBoundary.to);
 	  }
 
 	  getDragBoundary(position) {
@@ -44,7 +48,7 @@ this.BX.Calendar.Ui = this.BX.Calendar.Ui || {};
 	    this.previousPosition = position;
 	    this.calculateTryDuration(diff);
 	    this.resetMagnetStamps(diff);
-	    let boundary = this.getBoundaryFromPosition(position);
+	    let boundary = this.getBoundaryFromPositionAndDuration(position, this.savedDuration);
 
 	    if (this.doMagnetize()) {
 	      boundary = this.getMagnetizedBoundary(boundary, diff);
@@ -56,9 +60,9 @@ this.BX.Calendar.Ui = this.BX.Calendar.Ui || {};
 	    return boundary;
 	  }
 
-	  getBoundaryFromPosition(position) {
+	  getBoundaryFromPositionAndDuration(position, duration) {
 	    const from = this.getDateByPos(position);
-	    const to = from ? new Date(from.getTime() + this.savedDuration) : null;
+	    const to = from ? new Date(from.getTime() + duration) : null;
 	    return {
 	      from,
 	      to,

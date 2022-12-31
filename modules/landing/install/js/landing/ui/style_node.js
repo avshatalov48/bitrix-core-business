@@ -195,7 +195,15 @@
 		 */
 		isChanged: function()
 		{
-			return JSON.stringify(this.value) !== JSON.stringify(this.getValue());
+			const currentValue = this.getValue();
+			if (JSON.stringify(this.value) !== JSON.stringify(currentValue))
+			{
+				return true;
+			}
+			else
+			{
+				return this.lastValue !== undefined && JSON.stringify(this.lastValue) !== JSON.stringify(currentValue);
+			}
 		},
 
 		/**
@@ -255,7 +263,8 @@
 		 */
 		setValue: function(value, items, postfix, affect, exclude)
 		{
-			this.lastValue = this.lastValue || this.getValue();
+			this.lastValue = this.currentValue;
+			this.currentValue = this.getValue();
 
 			if(!value)
 			{

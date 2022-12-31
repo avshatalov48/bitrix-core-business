@@ -18,10 +18,12 @@ this.BX = this.BX || {};
 	    _this.flex = main_core.Type.isNumber(options === null || options === void 0 ? void 0 : options.flex) ? options.flex : null;
 	    _this.withoutBackground = main_core.Type.isBoolean(options === null || options === void 0 ? void 0 : options.withoutBackground) ? options.withoutBackground : null;
 	    _this.backgroundColor = main_core.Type.isString(options === null || options === void 0 ? void 0 : options.backgroundColor) ? options.backgroundColor : null;
+	    _this.backgroundImage = main_core.Type.isString(options === null || options === void 0 ? void 0 : options.backgroundImage) ? options.backgroundImage : null;
 	    _this.marginBottom = main_core.Type.isNumber(options === null || options === void 0 ? void 0 : options.marginBottom) ? options.marginBottom : null;
 	    _this.disabled = main_core.Type.isBoolean(options === null || options === void 0 ? void 0 : options.disabled) ? options.disabled : null;
 	    _this.overflow = main_core.Type.isBoolean(options === null || options === void 0 ? void 0 : options.overflow) ? options.overflow : null;
 	    _this.displayBlock = main_core.Type.isBoolean(options === null || options === void 0 ? void 0 : options.displayBlock) ? options.displayBlock : null;
+	    _this.attrs = main_core.Type.isPlainObject(options === null || options === void 0 ? void 0 : options.attrs) ? options.attrs : null;
 	    _this.layout = {
 	      container: null
 	    };
@@ -101,6 +103,10 @@ this.BX = this.BX || {};
 	          this.layout.container.style.backgroundColor = this.backgroundColor;
 	        }
 
+	        if (this.backgroundImage) {
+	          this.layout.container.style.backgroundImage = this.backgroundImage;
+	        }
+
 	        if (this.withoutBackground && !this.backgroundColor) {
 	          this.layout.container.classList.add('--transparent');
 	        }
@@ -120,6 +126,12 @@ this.BX = this.BX || {};
 	        if (this.displayBlock) {
 	          this.layout.container.classList.add('--block');
 	        }
+
+	        if (this.attrs) {
+	          main_core.Dom.adjust(this.layout.container, {
+	            attrs: this.attrs
+	          });
+	        }
 	      }
 
 	      return this.layout.container;
@@ -129,6 +141,7 @@ this.BX = this.BX || {};
 	}(main_core_events.EventEmitter);
 
 	var _templateObject$1, _templateObject2, _templateObject3;
+
 	var PopupComponentsMaker = /*#__PURE__*/function () {
 	  function PopupComponentsMaker(_ref) {
 	    var id = _ref.id,
@@ -224,6 +237,16 @@ this.BX = this.BX || {};
 	            main_core.Type.isNumber(item.marginBottom) ? sectionNode.style.marginBottom = item.marginBottom + 'px' : null;
 	          }
 
+	          if (item !== null && item !== void 0 && item.className) {
+	            main_core.Dom.addClass(sectionNode, item.className);
+	          }
+
+	          if (item !== null && item !== void 0 && item.attrs) {
+	            main_core.Dom.adjust(sectionNode, {
+	              attrs: item.attrs
+	            });
+	          }
+
 	          if (main_core.Type.isDomNode(item === null || item === void 0 ? void 0 : item.html)) {
 	            sectionNode.appendChild(_this.getItem(item).getContainer());
 
@@ -309,6 +332,7 @@ this.BX = this.BX || {};
 	  return PopupComponentsMaker;
 	}();
 
+	exports.PopupComponentsMakerItem = PopupComponentsMakerItem;
 	exports.PopupComponentsMaker = PopupComponentsMaker;
 
 }((this.BX.UI = this.BX.UI || {}),BX.Main,BX.Event,BX,BX));

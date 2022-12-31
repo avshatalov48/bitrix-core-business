@@ -285,7 +285,7 @@ class CSocServOffice365OAuth extends CSocServAuth
 
 		echo $JSScript;
 
-		die();
+		CMain::FinalActions();
 	}
 
 	public function getProfileUrl($id)

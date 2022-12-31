@@ -21,4 +21,4 @@ $MESS["STORE_ENTITY_ISSUING_CENTER_FIELD"] = "Пункт выдачи";
 $MESS["STORE_ENTITY_SHIPPING_CENTER_FIELD"] = "Для отгрузки";
 $MESS["STORE_ENTITY_SITE_ID_FIELD"] = "Сайт";
 $MESS["STORE_ENTITY_CODE_FIELD"] = "Символьный код";
-$MESS["STORE_ENTITY_IS_DEFAULT_FIELD"] = "Склад по-умолчанию";
+$MESS["STORE_ENTITY_IS_DEFAULT_FIELD"] = "Склад по умолчанию";

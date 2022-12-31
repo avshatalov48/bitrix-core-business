@@ -1,4 +1,8 @@
 <?php
+// exit;
+use Bitrix\Calendar\Sync\Managers\PushManager;
+use Bitrix\Main\Loader;
+
 define("NOT_CHECK_PERMISSIONS", true);
 require_once($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/prolog_before.php");
 
@@ -10,7 +14,7 @@ if (empty($fields))
 }
 foreach ($fields as $field)
 {
-	if (!preg_match('/^([A-z0-9\-\=])+$/', $field))
+	if (!preg_match('/^([A-z\d\-=])+$/', $field))
 	{
 		exit;
 	}
@@ -19,10 +23,9 @@ foreach ($fields as $field)
 $channelId = $fields['HTTP_X_GOOG_CHANNEL_ID'];
 $resourceId = $fields['HTTP_X_GOOG_RESOURCE_ID'];
 
-\Bitrix\Main\Loader::includeModule('calendar');
-\Bitrix\Main\Loader::includeModule('dav');
+Loader::includeModule('calendar');
+Loader::includeModule('dav');
 
-(new \Bitrix\Calendar\Sync\Managers\PushManager())->handlePush($channelId, $resourceId);
-// \Bitrix\Calendar\Sync\GoogleApiPush::receivePushSignal($channelId, $resourceId);
+(new PushManager())->handlePush($channelId, $resourceId);
 
 \Bitrix\Main\Application::getInstance()->end();

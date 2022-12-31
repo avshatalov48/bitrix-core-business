@@ -37,6 +37,7 @@
 	--ui-btn-clock-black: url(../images/ui-loader-clock-black.svg);
 	--ui-btn-wait-white: url(../images/ui-loader-wait-white.svg);
 	--ui-btn-wait-black: url(../images/ui-loader-wait-black.svg);
+	--ui-btn-spinner: url(../images/ui-loading-spinner.svg);
 }
 
 /*endregion*/
@@ -719,6 +720,38 @@ a.ui-btn-split:focus,
 
 .ui-btn.ui-btn-clock,
 .ui-btn-clock .ui-btn-main { background-image: var(--ui-btn-clock-loader); }
+
+/*endregion*/
+
+/* region Loading spinner */
+
+.ui-btn.ui-btn-spinner,
+.ui-btn-split.ui-btn-spinner .ui-btn-main {
+	background-position: center !important;
+	background-repeat: no-repeat !important;
+	color: transparent !important;
+}
+
+.ui-btn.ui-btn-spinner:after,
+.ui-btn-split.ui-btn-spinner .ui-btn-main:after { opacity: 0; }
+
+.ui-btn-spinner,
+.ui-btn-spinner.ui-btn-danger,
+.ui-btn-spinner.ui-btn-primary,
+.ui-btn-spinner.ui-btn-default,
+.ui-btn-spinner.ui-btn-danger-dark,
+.ui-btn-spinner.ui-btn-success-dark,
+.ui-btn-spinner.ui-btn-primary-dark { --ui-btn-clock-loader: var(--ui-btn-spinner); }
+
+.ui-btn-spinner.ui-btn-link,
+.ui-btn-spinner.ui-btn-secondary,
+.ui-btn-spinner.ui-btn-light,
+.ui-btn-spinner.ui-btn-success,
+.ui-btn-spinner.ui-btn-light-border,
+.ui-btn-spinner.ui-btn-link { --ui-btn-clock-loader: var(--ui-btn-spinner); }
+
+.ui-btn.ui-btn-spinner,
+.ui-btn-spinner .ui-btn-main { background-image: var(--ui-btn-spinner); }
 
 /*endregion*/
 

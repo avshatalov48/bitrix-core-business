@@ -125,7 +125,7 @@ class ISmsCenter extends Sender\BaseConfigurable
 		$message = [
 			'from' => $messageFields['MESSAGE_FROM'],
 			'to' => str_replace('+', '', $messageFields['MESSAGE_TO']),
-			'text' => $messageFields['MESSAGE_BODY'],
+			'text' => $this->prepareMessageBodyForSend($messageFields['MESSAGE_BODY']),
 			'notify_url' => $this->getCallbackUrl()
 		];
 
@@ -227,8 +227,8 @@ class ISmsCenter extends Sender\BaseConfigurable
 	private function sendHttpRequest($path, $login, $psw, array $params): Sender\Result\HttpRequestResult
 	{
 		$httpClient = new HttpClient([
-			'socketTimeout' => 10,
-			'streamTimeout' => 30,
+			"socketTimeout" => $this->socketTimeout,
+			"streamTimeout" => $this->streamTimeout,
 			'waitResponse' => true,
 		]);
 		$httpClient->setCharset('UTF-8');

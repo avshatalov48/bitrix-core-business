@@ -341,7 +341,6 @@ Vue.component(config.templatePanelCompilation,
 						<div ref="label"></div>
 						<div class="tariff-lock" v-if="compilationOptions.isLimitedStore"></div>
 					</label>
-					<div class="catalog-pf-product-panel-compilation-price-info">{{localize.CATALOG_FORM_COMPILATION_PRICE_NOTIFICATION}}</div>
 				</div>
 				<div
 					v-if="showQrLink"
@@ -352,6 +351,7 @@ Vue.component(config.templatePanelCompilation,
 					{{localize.CATALOG_FORM_COMPILATION_QR_LINK}}
 				</div>
 			</div>
+			<div class="catalog-pf-product-panel-compilation-price-info">{{localize.CATALOG_FORM_COMPILATION_PRICE_NOTIFICATION}}</div>
 			<div class="catalog-pf-product-panel-compilation-message" ref="message"></div>
 		</div>
 	`

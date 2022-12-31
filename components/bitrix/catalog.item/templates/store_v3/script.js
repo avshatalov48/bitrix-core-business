@@ -244,6 +244,7 @@
 				case 0: // no catalog
 				case 1: // product
 				case 2: // set
+				case 7: // service
 					if (arParams.PRODUCT && typeof arParams.PRODUCT === 'object')
 					{
 						this.currentPriceMode = arParams.PRODUCT.ITEM_PRICE_MODE;
@@ -686,6 +687,7 @@
 					case 0: // no catalog
 					case 1: // product
 					case 2: // set
+					case 7: // service
 						this.checkQuantityControls();
 
 						break;
@@ -789,6 +791,7 @@
 				case 0: //no catalog
 				case 1: //product
 				case 2: //set
+				case 7: // service
 					item = {
 						'id': this.product.id,
 						'name': this.product.name,
@@ -2599,6 +2602,7 @@
 					case 0: // no catalog
 					case 1: // product
 					case 2: // set
+					case 7: // service
 						compareLink = url.replace('#ID#', this.product.id.toString());
 						break;
 					case 3: // sku
@@ -2750,6 +2754,7 @@
 				case 0: // no catalog
 				case 1: // product
 				case 2: // set
+				case 7: // service
 					if (this.product.id == id)
 					{
 						this.setCompared(false);
@@ -2782,6 +2787,7 @@
 			{
 				case 1: // product
 				case 2: // set
+				case 7: // service
 					this.basketUrl = this.basketUrl.replace('#ID#', this.product.id.toString());
 					break;
 				case 3: // sku
@@ -2941,6 +2947,7 @@
 			{
 				case 1: // product
 				case 2: // set
+				case 7: // service
 					if (this.basketData.useProps && !this.basketData.emptyProps)
 					{
 						this.initPopupWindow();
@@ -3013,6 +3020,7 @@
 					{
 						case 1: // product
 						case 2: // set
+						case 7: // service
 							strPict = this.product.pict.SRC;
 							break;
 						case 3: // sku

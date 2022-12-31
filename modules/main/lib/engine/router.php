@@ -9,13 +9,24 @@ use Bitrix\Main\Engine\Component\ComponentController;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Security;
 use Bitrix\Main\SystemException;
 
 final class Router
 {
-	const COMPONENT_MODE_AJAX  = 'ajax';
-	const COMPONENT_MODE_CLASS = 'class';
+	public const COMPONENT_MODE_AJAX = 'ajax';
+	public const COMPONENT_MODE_CLASS = 'class';
+
+	public const EXCEPTION_INVALID_COMPONENT_INTERFACE = 2210201;
+	public const EXCEPTION_INVALID_COMPONENT = 2210202;
+	public const EXCEPTION_INVALID_AJAX_MODE = 2210203;
+	public const EXCEPTION_NO_CONFIGURATION = 2210204;
+	public const EXCEPTION_NO_MODULE = 2210205;
+	public const EXCEPTION_INVALID_MODULE_NAME = 22102051;
+	public const EXCEPTION_INVALID_COMPONENT_NAME = 2210206;
+	public const EXCEPTION_NO_COMPONENT = 2210207;
+	public const EXCEPTION_NO_COMPONENT_AJAX_CLASS = 2210208;
 
 	protected $vendor = Resolver::DEFAULT_VENDOR;
 	protected $module = 'main';
@@ -116,7 +127,8 @@ final class Router
 		if (!($component instanceof Controllerable))
 		{
 			throw new SystemException(
-				"The component {$this->component} must be implement interface \Bitrix\Main\Engine\Contract\Controllerable"
+				"The component {$this->component} must be implement interface \Bitrix\Main\Engine\Contract\Controllerable",
+				self::EXCEPTION_INVALID_COMPONENT_INTERFACE
 			);
 		}
 
@@ -159,7 +171,10 @@ final class Router
 			$component = $this->buildComponent($this->component, $this->request->getPost('signedParameters'));
 			if (!$component)
 			{
-				throw new SystemException("Could not build component instance {$componentAsString}");
+				throw new SystemException(
+					"Could not build component instance {$componentAsString}",
+					self::EXCEPTION_INVALID_COMPONENT
+				);
 			}
 
 			return array(new ComponentController($component), $this->action);
@@ -178,20 +193,34 @@ final class Router
 		else
 		{
 			$modeAsString = var_export($this->mode, true);
-			throw new SystemException("Unknown ajax mode ({$modeAsString}) to work {$componentAsString}");
+			throw new SystemException(
+				"Unknown ajax mode ({$modeAsString}) to work {$componentAsString}",
+				self::EXCEPTION_INVALID_AJAX_MODE
+			);
 		}
 	}
 
 	private function includeModule($module)
 	{
+		if (!ModuleManager::isValidModule($module))
+		{
+			throw new SystemException(
+				"Invalid module name {$module}",
+				self::EXCEPTION_INVALID_MODULE_NAME
+			);
+		}
+
 		if (!Configuration::getInstance($module)->get('controllers'))
 		{
-			throw new SystemException("There is no configuration in {$module} with 'controllers' value.");
+			throw new SystemException(
+				"There is no configuration in {$module} with 'controllers' value.",
+				self::EXCEPTION_NO_CONFIGURATION
+			);
 		}
 
 		if (!Loader::includeModule($module))
 		{
-			throw new SystemException("Could not find module {$module}");
+			throw new SystemException("Could not find module {$module}", self::EXCEPTION_NO_MODULE);
 		}
 	}
 
@@ -200,19 +229,19 @@ final class Router
 		$path2Comp = \CComponentEngine::makeComponentPath($name);
 		if ($path2Comp === '')
 		{
-			throw new SystemException("{$name} is not a valid component name");
+			throw new SystemException("{$name} is not a valid component name", self::EXCEPTION_INVALID_COMPONENT_NAME);
 		}
 
 		$componentPath = getLocalPath("components" . $path2Comp);
 		if ($componentPath === false)
 		{
-			throw new SystemException("Could not find component by name {$name}");
+			throw new SystemException("Could not find component by name {$name}", self::EXCEPTION_NO_COMPONENT);
 		}
 
 		$ajaxClass = $this->getAjaxClassForPath($componentPath);
 		if (!$ajaxClass)
 		{
-			throw new SystemException("Could not find ajax class {$componentPath}");
+			throw new SystemException("Could not find ajax class {$componentPath}", self::EXCEPTION_NO_COMPONENT_AJAX_CLASS);
 		}
 
 		return $ajaxClass;

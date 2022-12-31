@@ -1,4 +1,6 @@
 <?php
+IncludeModuleLangFile(__FILE__);
+
 abstract class CCloudStorageService
 {
 	protected $verb = '';
@@ -64,9 +66,13 @@ abstract class CCloudStorageService
 	/**
 	 * @param array[string]string $arBucket
 	 * @param mixed $arFile
+	 * @param boolean $encoded
 	 * @return string
 	*/
-	abstract public function GetFileSRC($arBucket, $arFile);
+	public function GetFileSRC($arBucket, $arFile, $encoded = true)
+	{
+		return '';
+	}
 	/**
 	 * @param array[string]string $arBucket
 	 * @param string $filePath
@@ -86,7 +92,19 @@ abstract class CCloudStorageService
 	 * @param string $filePath
 	 * @return bool
 	*/
-	abstract public function DownloadToFile($arBucket, $arFile, $filePath);
+	function DownloadToFile($arBucket, $arFile, $filePath)
+	{
+		$url = $this->GetFileSRC($arBucket, $arFile);
+		$request = new Bitrix\Main\Web\HttpClient(array(
+			"streamTimeout" => $this->streamTimeout,
+		));
+		$result = $request->download($url, $filePath);
+		if ($request->getStatus() == 404 || $request->getStatus() == 403)
+		{
+			return false;
+		}
+		return $result;
+	}
 	/**
 	 * @param array[string]string $arBucket
 	 * @param string $filePath
@@ -107,6 +125,15 @@ abstract class CCloudStorageService
 	 * @return array[string][int]string
 	*/
 	abstract public function ListFiles($arBucket, $filePath, $bRecursive = false);
+	/**
+	 * @param array[string]string $arBucket
+	 * @param string $filePath
+	 * @return null|false|array
+	*/
+	public function GetFileInfo($arBucket, $filePath)
+	{
+		return null; // not implemented
+	}
 	/**
 	 * @param array[string]string $arBucket
 	 * @param string $sourcePath
@@ -246,5 +273,19 @@ abstract class CCloudStorageService
 	public static function GetObjectInstance()
 	{
 		return new static();
+	}
+
+	public function formatError()
+	{
+		if ($this->errno > 0)
+		{
+			return GetMessage('CLO_STORAGE_HTTP_ERROR', [
+				'#verb#' => $this->verb,
+				'#url#' => $this->url,
+				'#errno#' => $this->errno,
+				'#errstr#' => $this->errstr,
+			]);
+		}
+		return '';
 	}
 }

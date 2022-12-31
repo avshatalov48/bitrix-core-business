@@ -1,5 +1,5 @@
 /*!
-  * vue-router v3.5.3
+  * vue-router v3.6.5
   * (c) 2021 Evan You
   * @license MIT
   *
@@ -515,7 +515,7 @@ function parsePath (path) {
 }
 
 function cleanPath (path) {
-  return path.replace(/\/+/g, '/')
+  return path.replace(/\/(?:\s*\/)+/g, '/')
 }
 
 var isarray = Array.isArray || function (arr) {
@@ -1444,7 +1444,7 @@ function addRouteRecord (
           `Named Route '${route.name}' has a default child route. ` +
           `When navigating to this named route (:to="{name: '${
             route.name
-          }'"), ` +
+          }'}"), ` +
           `the default child route will not be rendered. Remove the name from ` +
           `this route and use the name of the default child route for named ` +
           `links instead.`
@@ -1982,25 +1982,6 @@ function replaceState (url) {
   pushState(url, true);
 }
 
-/*  */
-
-function runQueue (queue, fn, cb) {
-  const step = index => {
-    if (index >= queue.length) {
-      cb();
-    } else {
-      if (queue[index]) {
-        fn(queue[index], () => {
-          step(index + 1);
-        });
-      } else {
-        step(index + 1);
-      }
-    }
-  };
-  step(0);
-}
-
 // When changing thing, also edit router.d.ts
 const NavigationFailureType = {
   redirected: 2,
@@ -2086,6 +2067,25 @@ function isNavigationFailure (err, errorType) {
     err._isRouter &&
     (errorType == null || err.type === errorType)
   )
+}
+
+/*  */
+
+function runQueue (queue, fn, cb) {
+  const step = index => {
+    if (index >= queue.length) {
+      cb();
+    } else {
+      if (queue[index]) {
+        fn(queue[index], () => {
+          step(index + 1);
+        });
+      } else {
+        step(index + 1);
+      }
+    }
+  };
+  step(0);
 }
 
 /*  */
@@ -2860,6 +2860,8 @@ class AbstractHistory extends History {
 
 /*  */
 
+
+
 class VueRouter {
 
 
@@ -3117,10 +3119,13 @@ function createHref (base, fullPath, mode) {
   return base ? cleanPath(base + '/' + path) : path
 }
 
+// We cannot remove this as it would be a breaking change
 VueRouter.install = install;
-VueRouter.version = '3.5.3';
+VueRouter.version = '3.6.5';
 VueRouter.isNavigationFailure = isNavigationFailure;
 VueRouter.NavigationFailureType = NavigationFailureType;
+VueRouter.RouterLink = Link;
+VueRouter.RouterView = View;
 VueRouter.START_LOCATION = START;
 // origin-end
 

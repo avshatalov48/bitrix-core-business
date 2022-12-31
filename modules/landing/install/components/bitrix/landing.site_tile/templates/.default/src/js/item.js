@@ -24,6 +24,7 @@ export default class Item {
 		this.ordersCount = options.ordersCount;
 		this.phone = options.phone;
 		this.preview = options.preview;
+		this.cloudPreview = options.cloudPreview;
 		this.published = options.published;
 		this.deleted = options.deleted;
 		this.domainStatus = options.domainStatus;
@@ -62,6 +63,8 @@ export default class Item {
 		this.$containerLinks = null;
 
 		this.bindEvents();
+
+		this.lazyLoadCloudPreview = this.lazyLoadCloudPreview.bind(this);
 	}
 
 	bindEvents()
@@ -579,18 +582,45 @@ export default class Item {
 
 	getContainerPreviewImage()
 	{
-		if(!this.$containerPreviewImage)
+		if (!this.$containerPreviewImage)
 		{
 			this.$containerPreviewImage = Tag.render`<div class="landing-sites__preview-image ${this.published ? '' : '--not-published'}"></div>`;
 
-			if(this.preview)
+			this.$containerPreviewImage.style.backgroundImage = 'url(' + this.preview + ')';
+			this.$containerPreviewImage.style.backgroundSize = 'cover';
+			if (this.published && this.cloudPreview && (this.cloudPreview !== this.preview))
 			{
-				this.$containerPreviewImage.style.backgroundImage = 'url(' + this.preview + ')';
-				this.$containerPreviewImage.style.backgroundSize = 'cover';
+				this.lazyLoadCloudPreview();
 			}
 		}
 
 		return this.$containerPreviewImage;
+	}
+
+	lazyLoadCloudPreview()
+	{
+		const previewUrl =
+			this.cloudPreview
+			+ ((this.cloudPreview.indexOf('?') > 0) ? '&' : '?')
+			+ 'refreshed' + (Date.now()/86400000|0)
+		;
+		const xhr = new XMLHttpRequest();
+		xhr.open("HEAD", previewUrl);
+		xhr.onload = () => {
+			const expires = xhr.getResponseHeader("expires");
+			if (
+				expires
+				&& (new Date(expires)) <= (new Date())
+			)
+			{
+				setTimeout(this.lazyLoadCloudPreview, 3000);
+			}
+			else
+			{
+				this.$containerPreviewImage.style.backgroundImage = 'url(' + previewUrl + ')';
+			}
+		};
+		xhr.send();
 	}
 
 	getContainerPreviewStatus()

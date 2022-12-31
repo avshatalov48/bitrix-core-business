@@ -742,6 +742,16 @@
 	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-olx.svg);
 }
 
+.ui-icon.ui-icon-service-kufar {
+	--ui-icon-service-bg-color: #01AD64;
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-kufar.svg);
+}
+
+.ui-icon.ui-icon-service-light-kufar {
+	--ui-icon-service-bg-color: #01AD64;
+	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-light-kufar.svg);
+}
+
 .ui-icon.ui-icon-service-import {
 	--ui-icon-service-bg-color: #6a89b0;
 	--ui-icon-service-bg-image: url(/bitrix/js/ui/icons/service/images/ui-service-import.svg);

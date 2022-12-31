@@ -537,16 +537,24 @@
 	margin-left: 16px;
 }
 
+.main-grid-cell-head-container.main-grid-cell-head-container--locked {
+	padding-top: 19px;
+}
+
 .main-grid-cell-head[data-name="SKU_GRID_BARCODE"] {
 	min-width: 300px !important;
 }
 
+.main-grid-cell-head[data-name="SKU_GRID_BARCODE"] .main-grid-cell-inner{
+	width: auto !important;
+}
+
 div[data-role="barcode-selector"] {
-	min-width: 300px;
+	min-width: 270px;
 }
 
 div[data-role="barcode-selector"] .ui-tag-selector-text-box{
-	min-width: 300px;
+	min-width: 270px;
 }
 
 .catalog-simple-popup-wrapper {

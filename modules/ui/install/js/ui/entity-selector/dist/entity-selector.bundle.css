@@ -890,7 +890,18 @@
 	transition: height 300ms, opacity 300ms;
 	margin-left: 16px;
 	padding-left: 16px;
-	border-left: 1px solid #ebecee;
+	position: relative;
+}
+
+.ui-selector-item-children:before {
+	content: '';
+	display: block;
+	width: 1px;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	background: #ebecee;
+	left: 7px;
 }
 
 .ui-selector-item-box-max-depth .ui-selector-item-children {

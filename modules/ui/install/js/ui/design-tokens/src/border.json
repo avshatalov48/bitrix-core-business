@@ -2,7 +2,7 @@
 	"border": {
 		"radius": {
 			"type": "borderRadius",
-			"none": { "value":  "0" },
+			"none": { "value": "0" },
 			"3xs": { "value": "2px" },
 			"2xs": { "value": "4px" },
 			"xs": { "value": "6px" },
@@ -13,7 +13,7 @@
 			"2xl": { "value": "16px" },
 			"3xl": { "value": "20px" },
 			"circle": { "value": "50%" },
-			"pill": { "value":  "99rem" }
+			"pill": { "value": "99rem" }
 		},
 		"width": {
 			"type": "borderWidth",

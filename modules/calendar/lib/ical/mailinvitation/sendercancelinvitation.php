@@ -13,13 +13,18 @@ class SenderCancelInvitation extends SenderInvitation
 	public const METHOD = 'cancel';
 
 	/**
-	 * @return array[]
+	 * @return array|array[]
 	 * @throws ObjectException
 	 */
 	protected function getContent(): array
 	{
-		$attachmentManager = AttachmentCancelManager::createInstance($this->event);
+		$attachmentManager = new AttachmentCancelManager($this->event);
 		$this->uid = $attachmentManager->getUid();
+
+		if (!$this->uid)
+		{
+			return [];
+		}
 
 		return [[
 			'CONTENT' => Encoding::convertEncoding($attachmentManager->getContent(), SITE_CHARSET, "utf-8"),

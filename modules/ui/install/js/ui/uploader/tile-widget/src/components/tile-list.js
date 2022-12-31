@@ -1,7 +1,9 @@
-import { BitrixVue } from 'ui.vue';
 import { TileItem } from './tile-item';
 
-export const TileList = BitrixVue.localComponent('tile-list', {
+/**
+ * @memberof BX.UI.Uploader
+ */
+export const TileList = {
 	components: {
 		TileItem,
 	},
@@ -17,4 +19,4 @@ export const TileList = BitrixVue.localComponent('tile-list', {
 			<TileItem v-for="item in items" :key="item.id" :item="item" />
 		</div>
 	`
-});
+};

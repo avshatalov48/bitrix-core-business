@@ -2,10 +2,12 @@
 namespace Bitrix\MessageService;
 
 use \Bitrix\Main\Loader;
+use Bitrix\MessageService\Context\User;
 use \Bitrix\Rest\AppTable;
 use Bitrix\Rest\HandlerHelper;
 use \Bitrix\Rest\RestException;
 use \Bitrix\Rest\AccessException;
+use CRestServer;
 
 Loader::includeModule('rest');
 
@@ -28,13 +30,16 @@ class RestService extends \IRestService
 
 	public static function onRestServiceBuildDescription()
 	{
-		return array(static::SCOPE => array(
-			'messageservice.sender.add' => array(__CLASS__, 'addSender'),
-			'messageservice.sender.delete' => array(__CLASS__, 'deleteSender'),
-			'messageservice.sender.list' => array(__CLASS__, 'getSenderList'),
+		return [
+			static::SCOPE => [
+			'messageservice.sender.add' => [__CLASS__, 'addSender'],
+			'messageservice.sender.delete' => [__CLASS__, 'deleteSender'],
+			'messageservice.sender.list' => [__CLASS__, 'getSenderList'],
 
-			'messageservice.message.status.update' => array(__CLASS__, 'updateMessageStatus'),
-		));
+			'messageservice.message.status.update' => [__CLASS__, 'updateMessageStatus'],
+			'messageservice.message.status.get' => [__CLASS__, 'getMessageStatus'],
+			]
+		];
 	}
 
 	/**
@@ -45,21 +50,27 @@ class RestService extends \IRestService
 	{
 		$fields = array_change_key_case($fields, CASE_UPPER);
 		if (empty($fields['APP_ID']))
+		{
 			return;
+		}
 
 		if (!Loader::includeModule('rest'))
+		{
 			return;
+		}
 
 		$dbRes = AppTable::getById($fields['APP_ID']);
 		$app = $dbRes->fetch();
 
 		if (!$app)
+		{
 			return;
+		}
 
-		$iterator = Internal\Entity\RestAppTable::getList(array(
-			'select' => array('ID'),
-			'filter' => array('=APP_ID' => $app['CLIENT_ID'])
-		));
+		$iterator = Internal\Entity\RestAppTable::getList([
+			'select' => ['ID'],
+			'filter' => ['=APP_ID' => $app['CLIENT_ID']]
+		]);
 
 		while ($row = $iterator->fetch())
 		{
@@ -79,7 +90,7 @@ class RestService extends \IRestService
 	/**
 	 * @param array $params Input params.
 	 * @param int $n Offset.
-	 * @param \CRestServer $server Rest server instance.
+	 * @param CRestServer $server Rest server instance.
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -99,30 +110,32 @@ class RestService extends \IRestService
 
 		$params['APP_ID'] = $server->getClientId();
 
-		$iterator = Internal\Entity\RestAppTable::getList(array(
-			'select' => array('ID'),
-			'filter' => array(
+		$iterator = Internal\Entity\RestAppTable::getList([
+			'select' => ['ID'],
+			'filter' => [
 				'=APP_ID' => $params['APP_ID'],
 				'=CODE' => $params['CODE']
-			)
-		));
+			]
+		]);
 		$result = $iterator->fetch();
 		if ($result)
 		{
 			throw new RestException('Sender already installed!', self::ERROR_SENDER_ALREADY_INSTALLED);
 		}
 
-		$senderLang = array(
+		$senderLang = [
 			'NAME' => $params['NAME'],
 			'DESCRIPTION' => isset($params['DESCRIPTION']) ? $params['DESCRIPTION'] : ''
-		);
+		];
 		unset($params['NAME'], $params['DESCRIPTION']);
 
 		$params['AUTHOR_ID'] = $USER->getId();
 		$result = Internal\Entity\RestAppTable::add($params);
 
 		if ($result->getErrors())
+		{
 			throw new RestException('Sender save error!', self::ERROR_SENDER_ADD_FAILURE);
+		}
 
 		$senderLang['APP_ID'] = $result->getId();
 		static::addSenderLang($senderLang, $server->getClientId());
@@ -144,7 +157,7 @@ class RestService extends \IRestService
 	/**
 	 * @param array $params Input params.
 	 * @param int $n Offset.
-	 * @param \CRestServer $server Rest server instance.
+	 * @param CRestServer $server Rest server instance.
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -160,13 +173,13 @@ class RestService extends \IRestService
 		self::validateSenderCode($params['CODE']);
 		$params['APP_ID'] = $server->getClientId();
 
-		$iterator = Internal\Entity\RestAppTable::getList(array(
-			'select' => array('ID'),
-			'filter' => array(
+		$iterator = Internal\Entity\RestAppTable::getList([
+			'select' => ['ID'],
+			'filter' => [
 				'=APP_ID' => $params['APP_ID'],
 				'=CODE' => $params['CODE']
-			)
-		));
+			]
+		]);
 		$result = $iterator->fetch();
 		if (!$result)
 		{
@@ -181,7 +194,7 @@ class RestService extends \IRestService
 	/**
 	 * @param array $params Input params.
 	 * @param int $n Offset.
-	 * @param \CRestServer $server Rest server instance.
+	 * @param CRestServer $server Rest server instance.
 	 * @return array
 	 * @throws AccessException
 	 * @throws \Bitrix\Main\ArgumentException
@@ -194,14 +207,14 @@ class RestService extends \IRestService
 		}
 
 		self::checkAdminPermissions();
-		$iterator = Internal\Entity\RestAppTable::getList(array(
-			'select' => array('CODE'),
-			'filter' => array(
+		$iterator = Internal\Entity\RestAppTable::getList([
+			'select' => ['CODE'],
+			'filter' => [
 				'=APP_ID' => $server->getClientId()
-			)
-		));
+			]
+		]);
 
-		$result = array();
+		$result = [];
 		while ($row = $iterator->fetch())
 		{
 			$result[] = $row['CODE'];
@@ -212,7 +225,7 @@ class RestService extends \IRestService
 	/**
 	 * @param array $params Input params.
 	 * @param int $n Offset.
-	 * @param \CRestServer $server Rest server instance.
+	 * @param CRestServer $server Rest server instance.
 	 * @return bool
 	 * @throws AccessException
 	 * @throws RestException
@@ -232,7 +245,7 @@ class RestService extends \IRestService
 		}
 
 		$statusId = isset($params['STATUS']) ? Sender\Sms\Rest::resolveStatus($params['STATUS']) : null;
-		if ($statusId === null || $statusId == MessageStatus::UNKNOWN)
+		if ($statusId === null || $statusId === MessageStatus::UNKNOWN)
 		{
 			throw new RestException('Message status incorrect!', self::ERROR_MESSAGE_STATUS_INCORRECT);
 		}
@@ -256,7 +269,40 @@ class RestService extends \IRestService
 		return true;
 	}
 
-	private static function getUserId()
+	/**
+	 * @param array{ message_id: int } $params
+	 * @param int $n
+	 * @param CRestServer $server
+	 * @return string
+	 * @throws RestException
+	 */
+	public static function getMessageStatus(array $params, int $n, CRestServer $server)
+	{
+		if (Loader::includeModule('intranet') && \Bitrix\Intranet\Util::isExtranetUser(static::getUserId()))
+		{
+			throw new AccessException("Extranet user denied access");
+		}
+
+		$params = array_change_key_case($params, CASE_UPPER);
+
+		if (empty($params['MESSAGE_ID']) || !is_numeric($params['MESSAGE_ID']))
+		{
+			throw new RestException('Message not found!', self::ERROR_MESSAGE_NOT_FOUND);
+		}
+
+		$message = Message::loadById($params['MESSAGE_ID']);
+
+		if ($message === null)
+		{
+			throw new RestException('Message not found!', self::ERROR_MESSAGE_NOT_FOUND);
+		}
+
+		$statusList = MessageStatus::getDescriptions('en');
+
+		return array_key_exists($message->getStatusId(), $statusList) ? $statusList[$message->getStatusId()] : '';
+	}
+
+	private static function getUserId(): int
 	{
 		global $USER;
 		if (isset($USER) && $USER instanceof \CUser)
@@ -281,26 +327,38 @@ class RestService extends \IRestService
 	private static function validateSender($data, $server)
 	{
 		if (!is_array($data) || empty($data))
+		{
 			throw new RestException('Empty data!', self::ERROR_SENDER_VALIDATION_FAILURE);
+		}
 
 		static::validateSenderCode($data['CODE']);
 		static::validateSenderHandler($data['HANDLER'], $server);
 		if (empty($data['NAME']))
+		{
 			throw new RestException('Empty sender NAME!', self::ERROR_SENDER_VALIDATION_FAILURE);
+		}
 
 		if (empty($data['TYPE']))
+		{
 			throw new RestException('Empty sender message TYPE!', self::ERROR_SENDER_VALIDATION_FAILURE);
+		}
 
-		if (!in_array($data['TYPE'], array('SMS'), true))
+		if (!in_array($data['TYPE'], ['SMS'], true))
+		{
 			throw new RestException('Unknown sender message TYPE!', self::ERROR_SENDER_VALIDATION_FAILURE);
+		}
 	}
 
 	private static function validateSenderCode($code)
 	{
 		if (empty($code))
+		{
 			throw new RestException('Empty sender code!', self::ERROR_SENDER_VALIDATION_FAILURE);
+		}
 		if (!preg_match('#^[a-z0-9\.\-_]+$#i', $code))
+		{
 			throw new RestException('Wrong sender code!', self::ERROR_SENDER_VALIDATION_FAILURE);
+		}
 	}
 
 	private static function validateSenderHandler($handler, $server)
@@ -309,7 +367,7 @@ class RestService extends \IRestService
 	}
 
 	/**
-	 * @param \CRestServer $server
+	 * @param CRestServer $server
 	 * @return array|bool|false|mixed|null
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\LoaderException
@@ -321,11 +379,11 @@ class RestService extends \IRestService
 			if (Loader::includeModule('rest'))
 			{
 				$result = AppTable::getList(
-					array(
-						'filter' => array(
+					[
+						'filter' => [
 							'=CLIENT_ID' => $server->getClientId()
-						)
-					)
+						]
+					]
 				);
 				self::$app = $result->fetch();
 			}
@@ -336,38 +394,38 @@ class RestService extends \IRestService
 
 	private static function addSenderLang($langFields, $clientId)
 	{
-		$langData = array();
+		$langData = [];
 
 		if (!is_array($langFields['NAME']))
 		{
-			$langData['**'] = array(
+			$langData['**'] = [
 				'APP_ID' => $langFields['APP_ID'],
 				'LANGUAGE_ID' => '**',
 				'NAME' => $langFields['NAME'],
 				'DESCRIPTION' => is_scalar($langFields['DESCRIPTION']) ? (string)$langFields['DESCRIPTION'] : null
-			);
+			];
 		}
 		else
 		{
 			foreach ($langFields['NAME'] as $langId => $langName)
 			{
-				$langData[mb_strtolower($langId)] = array(
+				$langData[mb_strtolower($langId)] = [
 					'APP_ID' => $langFields['APP_ID'],
 					'LANGUAGE_ID' => mb_strtolower($langId),
 					'NAME' => $langFields['NAME'][$langId],
 					'DESCRIPTION' => is_array($langFields['DESCRIPTION']) && isset($langFields['DESCRIPTION'][$langId])
 						? (string)$langFields['DESCRIPTION'][$langId] : null
-				);
+				];
 
 				if (!isset($langData['**']))
 				{
-					$langData['**'] = array(
+					$langData['**'] = [
 						'APP_ID' => $langFields['APP_ID'],
 						'LANGUAGE_ID' => '**',
 						'NAME' => $langFields['NAME'][$langId],
 						'DESCRIPTION' => is_array($langFields['DESCRIPTION']) && isset($langFields['DESCRIPTION'][$langId])
 							? (string)$langFields['DESCRIPTION'][$langId] : null
-					);
+					];
 				}
 			}
 		}
@@ -390,24 +448,24 @@ class RestService extends \IRestService
 	private static function getAppNames($clientId)
 	{
 		$iterator = \Bitrix\Rest\AppTable::getList(
-			array(
-				'filter' => array(
+			[
+				'filter' => [
 					'=CLIENT_ID' => $clientId
-				),
-				'select' => array('ID', 'APP_NAME', 'CODE'),
-			)
+				],
+				'select' => ['ID', 'APP_NAME', 'CODE'],
+			]
 		);
 		$app = $iterator->fetch();
-		$result = array(
+		$result = [
 			'**' => $app['APP_NAME'] ? $app['APP_NAME'] : $app['CODE']
-		);
+		];
 
-		$orm = \Bitrix\Rest\AppLangTable::getList(array(
-			'filter' => array(
+		$orm = \Bitrix\Rest\AppLangTable::getList([
+			'filter' => [
 				'=APP_ID' => $app['ID']
-			),
-			'select' => array('LANGUAGE_ID', 'MENU_NAME')
-		));
+			],
+			'select' => ['LANGUAGE_ID', 'MENU_NAME']
+		]);
 
 		while ($row = $orm->fetch())
 		{

@@ -1413,6 +1413,7 @@
 	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 16px;
 	color: var(--gray);
+	text-align: center;
 }
 
 .landing-sites__item-marketing--text {
@@ -1627,4 +1628,15 @@
 
 .bitrix24-light-theme .landing-sites__grid-empty-set:before {
 	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cg fill='%23fff' fill-rule='evenodd' transform='translate(-.5 -.5)'%3E%3Crect width='11' height='3' x='8' y='12'/%3E%3Crect width='3' height='11' x='12' y='8'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.landing-sites__grid-empty--bth-container .landing-sites__grid-empty--text {
+	margin-right: 30px;
+	font-size: 16px;
+}
+
+.landing-sites__grid-empty--bth-container .ui-btn {
+	font-size: 14px;
+	font-weight: 600;
+	text-transform: none;
 }

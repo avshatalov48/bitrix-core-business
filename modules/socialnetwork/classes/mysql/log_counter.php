@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/classes/general/log_counter.php");
 
 class CSocNetLogCounter extends CAllSocNetLogCounter
@@ -60,4 +61,3 @@ class CSocNetLogCounter extends CAllSocNetLogCounter
 	}
 
 }
-?>

@@ -1,5 +1,6 @@
 import {ajax, Text, Type} from "main.core";
 import {ProductModel} from "catalog.product-model";
+import {RightActionDictionary} from "./right-action-dictionary";
 
 export class StoreCollection
 {
@@ -32,7 +33,7 @@ export class StoreCollection
 	refresh(): {}
 	{
 		this.clear();
-		if (this.model.getSkuId() > 0)
+		if (this.model.getSkuId() > 0 && this.model.checkAccess(RightActionDictionary.ACTION_PRODUCT_VIEW))
 		{
 			ajax.runAction(
 				'catalog.storeSelector.getProductStores',

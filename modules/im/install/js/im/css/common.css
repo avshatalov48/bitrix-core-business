@@ -382,11 +382,6 @@
 	background-color: #fff;
 }
 
-.bx-ie .bx-messenger-file-image-text,
-.bx-ie .bx-messenger-file-image-src .bx-bxu-proper-canvas {
-	width: 100%;
-}
-
 .bx-messenger-file-image-link { max-width: 450px; max-height: 120px; }
 
 .bx-messenger-file-title {font: var(--ui-font-weight-bold) 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));color: #0562b1;display: inline-block; white-space: nowrap;}

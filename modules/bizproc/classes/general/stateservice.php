@@ -17,7 +17,7 @@ class CBPStateService extends CBPRuntimeService
 
 		$DB->Query(
 			"UPDATE b_bp_workflow_state SET ".
-			"	STATE_TITLE = ".($stateTitle <> '' ? "'".$DB->ForSql($stateTitle)."'" : "NULL").", ".
+			"	STATE_TITLE = ".($stateTitle && is_string($stateTitle) ? "'".$DB->ForSql($stateTitle)."'" : "NULL").", ".
 			"	MODIFIED = ".$DB->CurrentTimeFunction()." ".
 			"WHERE ID = '".$DB->ForSql($workflowId)."' "
 		);

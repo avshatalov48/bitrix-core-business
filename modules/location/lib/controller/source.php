@@ -21,9 +21,7 @@ class Source extends \Bitrix\Main\Engine\Controller
 
 	protected function getDefaultPreFilters()
 	{
-		return [
-			new Cors()
-		];
+		return [];
 	}
 
 	public function getPropsAction(): array

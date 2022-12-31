@@ -6,12 +6,12 @@ import UploaderError from '../uploader-error';
 
 export default class UploadController extends AbstractUploadController
 {
-	file: File = null;
-	chunkOffset: ?number = null;
-	chunkTimeout: ?number = null;
-	token: string = null;
-	xhr: XMLHttpRequest = null;
-	aborted: boolean = false;
+	#file: File = null;
+	#chunkOffset: ?number = null;
+	#chunkTimeout: ?number = null;
+	#token: string = null;
+	#xhr: XMLHttpRequest = null;
+	#aborted: boolean = false;
 
 	constructor(server: Server)
 	{
@@ -20,12 +20,12 @@ export default class UploadController extends AbstractUploadController
 
 	upload(file: File): void
 	{
-		if (this.chunkOffset !== null)
+		if (this.#chunkOffset !== null)
 		{
 			return;
 		}
 
-		this.file = file;
+		this.#file = file;
 
 		const nextChunk = this.#getNextChunk();
 		if (nextChunk)
@@ -36,16 +36,16 @@ export default class UploadController extends AbstractUploadController
 
 	abort(): void
 	{
-		if (this.xhr)
+		if (this.#xhr)
 		{
-			this.aborted = true;
-			this.xhr.abort();
-			this.xhr = null;
+			this.#aborted = true;
+			this.#xhr.abort();
+			this.#xhr = null;
 		}
 
 		this.emit('onAbort');
 
-		clearTimeout(this.chunkTimeout);
+		clearTimeout(this.#chunkTimeout);
 	}
 
 	#uploadChunk(chunk: Chunk)
@@ -59,8 +59,9 @@ export default class UploadController extends AbstractUploadController
 			fileName = fileName.normalize();
 		}
 
+		const type = Type.isStringFilled(this.getFile().type) ? this.getFile().type : 'application/octet-stream';
 		const headers = [
-			{ name: 'Content-Type', value: this.getFile().type },
+			{ name: 'Content-Type', value: type },
 			{ name: 'X-Upload-Content-Name', value: encodeURIComponent(fileName) },
 		];
 
@@ -84,8 +85,8 @@ export default class UploadController extends AbstractUploadController
 					token: this.getToken() || '',
 				},
 				onrequeststart: (xhr) => {
-					this.xhr = xhr;
-					this.aborted = false;
+					this.#xhr = xhr;
+					this.#aborted = false;
 				},
 				onprogressupload: (event: ProgressEvent) => {
 					if (event.lengthComputable)
@@ -98,8 +99,6 @@ export default class UploadController extends AbstractUploadController
 				},
 			})
 			.then(response => {
-				console.log('response', response);
-
 				if (response.data.token)
 				{
 					this.setToken(response.data.token);
@@ -125,13 +124,13 @@ export default class UploadController extends AbstractUploadController
 				}
 			})
 			.catch(response => {
-				if (this.aborted)
+				if (this.#aborted)
 				{
 					return;
 				}
 
 				const error = UploaderError.createFromAjaxErrors(response.errors);
-				const shouldRetry = error.getCode() === 'NETWORK_ERROR';
+				const shouldRetry = error.getCode() === 'NETWORK_ERROR' || error.getType() === UploaderError.Type.UNKNOWN;
 
 				if (!shouldRetry || !this.#retryUploadChunk(chunk))
 				{
@@ -149,9 +148,9 @@ export default class UploadController extends AbstractUploadController
 			return false;
 		}
 
-		clearTimeout(this.chunkTimeout);
+		clearTimeout(this.#chunkTimeout);
 
-		this.chunkTimeout = setTimeout(() => {
+		this.#chunkTimeout = setTimeout(() => {
 			this.#uploadChunk(chunk);
 		}, nextDelay);
 
@@ -169,14 +168,14 @@ export default class UploadController extends AbstractUploadController
 		if (this.getChunkOffset() === null)
 		{
 			// First call
-			this.chunkOffset = 0;
+			this.#chunkOffset = 0;
 		}
 
 		let chunk: Chunk;
 		if (this.getChunkOffset() === 0 && this.getFile().size <= this.getChunkSize())
 		{
 			chunk = new Chunk(this.getFile(), this.getChunkOffset());
-			this.chunkOffset = this.getFile().size;
+			this.#chunkOffset = this.getFile().size;
 		}
 		else
 		{
@@ -185,7 +184,7 @@ export default class UploadController extends AbstractUploadController
 			const fileRange = this.getFile().slice(this.getChunkOffset(), nextOffset);
 
 			chunk = new Chunk(fileRange, this.getChunkOffset());
-			this.chunkOffset = nextOffset;
+			this.#chunkOffset = nextOffset;
 		}
 
 		chunk.setRetries([...this.getServer().getChunkRetryDelays()]);
@@ -195,7 +194,7 @@ export default class UploadController extends AbstractUploadController
 
 	getFile(): File
 	{
-		return this.file;
+		return this.#file;
 	}
 
 	getChunkSize(): number
@@ -205,19 +204,19 @@ export default class UploadController extends AbstractUploadController
 
 	getChunkOffset(): number
 	{
-		return this.chunkOffset;
+		return this.#chunkOffset;
 	}
 
 	getToken(): ?string
 	{
-		return this.token;
+		return this.#token;
 	}
 
 	setToken(token: string): void
 	{
 		if (Type.isStringFilled(token))
 		{
-			this.token = token;
+			this.#token = token;
 		}
 	}
 }

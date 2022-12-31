@@ -17,9 +17,9 @@ use Bitrix\Main\NotImplementedException;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_UserWelltoryDisclaimer_Query query()
- * @method static EO_UserWelltoryDisclaimer_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_UserWelltoryDisclaimer_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_UserWelltoryDisclaimer_Result getById($id)
- * @method static EO_UserWelltoryDisclaimer_Result getList(array $parameters = array())
+ * @method static EO_UserWelltoryDisclaimer_Result getList(array $parameters = [])
  * @method static EO_UserWelltoryDisclaimer_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer createObject($setDefaultValues = true)
  * @method static \Bitrix\Socialnetwork\EO_UserWelltoryDisclaimer_Collection createCollection()

@@ -251,7 +251,7 @@ export class SectionSelector
 			let imageNode;
 			if (imageSrc)
 			{
-				imageNode = Tag.render`<img class="calendar-field-choice-calendar-img-value" src="${imageSrc}">`;
+				imageNode = Tag.render`<img class="calendar-field-choice-calendar-img-value" src="${encodeURI(imageSrc)}">`;
 			}
 			else if(section.type === 'group')
 			{

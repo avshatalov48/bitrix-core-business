@@ -266,7 +266,7 @@ class CSocServDropboxAuth extends CSocServAuth
 
 		echo $JSScript;
 
-		die();
+		CMain::FinalActions();
 	}
 }
 

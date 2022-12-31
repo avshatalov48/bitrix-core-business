@@ -1,12 +1,15 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 CUtil::InitJSCore(array());
 
-$rnd = rand();
+global $APPLICATION;
+
 $APPLICATION->SetAdditionalCSS('/bitrix/gadgets/bitrix/rssreader/styles.css');
-$_SESSION["GD_RSS_PARAMS"][$rnd] = $arGadgetParams;
+
+/** @var string $id Defined in BXGadget::GetGadgetContent */
+$idAttr = preg_replace('/[^a-z0-9\\-_]/i', '_', $id);
 ?>
-<div id="rss_container_<?=$rnd?>">
+<div id="rss_container_<?=$idAttr?>">
 </div>
 <script type="text/javascript">
 
@@ -71,16 +74,24 @@ $_SESSION["GD_RSS_PARAMS"][$rnd] = $arGadgetParams;
 		}
 	}
 
+<?php
+/** @var array $arParams Defined in BXGadget::GetGadgetContent */
+?>
 	BX.ready(function(){
-		url = '/bitrix/gadgets/bitrix/rssreader/getdata.php';
-		params = 'rnd=<?=$rnd?>&lang=<?=LANGUAGE_ID?>&sessid='+BX.bitrix_sessid();
+		var url = '/bitrix/gadgets/bitrix/rssreader/getdata.php';
+		var params = {
+			'id': '<?=CUtil::JSEscape($id)?>',
+			'params': <?=CUtil::PhpToJSObject(BXGadget::getDesktopParams($arParams))?>,
+			'lang': '<?=LANGUAGE_ID?>',
+			'sessid': BX.bitrix_sessid()
+		};
 
 		BX.ajax.post(url, params, function(result)
 		{
-			__RSScloseWait('rss_container_<?=$rnd?>');
-			BX('rss_container_<?=$rnd?>').innerHTML = result;
+			__RSScloseWait('rss_container_<?=$idAttr?>');
+			BX('rss_container_<?=$idAttr?>').innerHTML = result;
 		});
 
-		__RSSshowWait('rss_container_<?=$rnd?>');
+		__RSSshowWait('rss_container_<?=$idAttr?>');
 	});
 </script>

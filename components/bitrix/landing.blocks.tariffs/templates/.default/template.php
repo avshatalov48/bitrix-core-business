@@ -187,24 +187,27 @@ Loc::loadMessages(__FILE__);
 					{
 						link3.click();
 					}
-					if (
-						event.code === 'ENT250'
-						|| event.code === 'ENT500'
-						|| event.code === 'ENT1000'
-					)
+					if (event.code.indexOf('ENT') === 0)
 					{
+						//all tariffs of the ENT line
 						link4.click();
 					}
 				}
 			});
 
 			BX.addCustomEvent('BX.SB.Price.Compare.Button:onClick', function(event) {
-				event = event || window.event;
-				if (!!event.event)
+				if (
+					link5.getAttribute("href") !== null
+					&& link5.getAttribute("href") !== 'selectActions:'
+				)
 				{
-					event.event.preventDefault();
+					event = event || window.event;
+					if (!!event.event)
+					{
+						event.event.preventDefault();
+					}
+					link5.click();
 				}
-				link5.click();
 			});
 		});
 

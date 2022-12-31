@@ -185,7 +185,7 @@ export default class SyncButton
 		}
 
 		return {
-			text: Loc.getMessage('STATUS_BUTTON_SYNC_CALENDAR'),
+			text: Loc.getMessage('STATUS_BUTTON_SYNC_CALENDAR_NEW'),
 			color: BX.UI.Button.Color.PRIMARY,
 		}
 	}

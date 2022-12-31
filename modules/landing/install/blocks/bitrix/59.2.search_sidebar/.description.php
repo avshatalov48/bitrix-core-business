@@ -15,7 +15,7 @@ return [
 		'subtype' => 'search',
 		'subtype_params' => [
 			'type' => 'form',
-			'resultPage' => 'search-result2'
+			'resultPage' => 'search-result'
 		],
 		'version' => '20.0.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
 	],

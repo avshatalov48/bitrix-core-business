@@ -191,12 +191,16 @@ abstract class TransferProviderBase
 						$needReverseByStore = $itemData['NEED_RESERVE_BY_STORE_LIST'][$shipmentItemIndex];
 						foreach ($needReverseByStore as $storeId => $isNeeded)
 						{
+							/** @var Sale\ReserveQuantityCollection $reserveQuantityCollection */
+							$reserveQuantityCollection = $basketItem->getReserveQuantityCollection();
+
 							if (
-								$isNeeded &&
-								$shipment->needShip() !== Catalog\Provider::SALE_TRANSFER_PROVIDER_SHIPMENT_NEED_NOT_SHIP)
+								$isNeeded
+								&& $reserveQuantityCollection
+								&& $shipment->needShip() !== Catalog\Provider::SALE_TRANSFER_PROVIDER_SHIPMENT_NEED_NOT_SHIP)
 							{
 								/** @var Sale\ReserveQuantity $reserve */
-								foreach ($basketItem->getReserveQuantityCollection() as $reserve)
+								foreach ($reserveQuantityCollection as $reserve)
 								{
 									if ($reserve->getStoreId() !== $storeId)
 									{

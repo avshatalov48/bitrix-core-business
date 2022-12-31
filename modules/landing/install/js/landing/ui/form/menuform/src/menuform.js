@@ -118,16 +118,16 @@ export class MenuForm extends BaseForm
 		};
 
 		const allowedTypes = [
-			BX.Landing.UI.Field.LinkURL.TYPE_BLOCK,
-			BX.Landing.UI.Field.LinkURL.TYPE_PAGE,
-			BX.Landing.UI.Field.LinkURL.TYPE_CRM_FORM,
-			BX.Landing.UI.Field.LinkURL.TYPE_CRM_PHONE,
+			BX.Landing.UI.Field.LinkUrl.TYPE_BLOCK,
+			BX.Landing.UI.Field.LinkUrl.TYPE_PAGE,
+			BX.Landing.UI.Field.LinkUrl.TYPE_CRM_FORM,
+			BX.Landing.UI.Field.LinkUrl.TYPE_CRM_PHONE,
 		];
 
 		if (pageType === 'STORE')
 		{
 			allowedTypes.push(
-				BX.Landing.UI.Field.LinkURL.TYPE_CATALOG,
+				BX.Landing.UI.Field.LinkUrl.TYPE_CATALOG,
 			);
 		}
 

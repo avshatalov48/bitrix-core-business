@@ -291,21 +291,16 @@ input.adm-fileinput-area-input {
 	left: 0;
 	cursor: pointer !important;
 }
-.bx-ie8 input.adm-fileinput-area-input{
-	font-size: 120px;
-	right: 0;
-	left: inherit;
-	overflow: hidden;
-}
+
 .adm-fileinput-drag-area-error .adm-fileinput-drag-area-hint,
 .adm-fileinput-drag-area.adm-fileinput-drag-area-error:hover .adm-fileinput-drag-area-hint {
 	color: #d85452;
-
 }
 
 .adm-fileinput-drag-area:hover .adm-fileinput-drag-area-hint {
 	color: #929ba1;
 }
+
 input.adm-fileinput-drag-area-input {
 	filter: alpha(opacity=0) !important;
 	bottom: 15px !important;
@@ -317,12 +312,7 @@ input.adm-fileinput-drag-area-input {
 	height: 40px;
 	cursor: pointer !important;
 }
-.bx-ie8 input.adm-fileinput-drag-area-input{
-	font-size: 400px;
-	right: 0;
-	left: inherit;
-	overflow: hidden;
-}
+
 .adm-fileinput .adm-btn.adm-btn-grey, .adm-fileinput .adm-btn.adm-btn-grey:active {
 	padding-right: 15px!important;
 }

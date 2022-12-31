@@ -3,17 +3,19 @@ import type Server from './server';
 
 export default class AbstractUploadController extends EventEmitter
 {
+	#server: Server;
+
 	constructor(server: Server)
 	{
 		super();
 		this.setEventNamespace('BX.UI.Uploader.UploadController');
 
-		this.server = server;
+		this.#server = server;
 	}
 
 	getServer(): Server
 	{
-		return this.server;
+		return this.#server;
 	}
 
 	upload(file: File): void

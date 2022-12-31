@@ -842,6 +842,11 @@ function ReloadOffers()
 		$this->dialogButtons = $buttons;
 	}
 
+	public function setReadDialogButtons(): void
+	{
+		$this->setDialogButtons(['BX.CAdminDialog.btnCancel']);
+	}
+
 	public function getDialogButtons($jsFormat = false)
 	{
 		$jsFormat = ($jsFormat === true);
@@ -1796,8 +1801,10 @@ class CAdminSubResult extends CAdminResult
 			$nPageSize = array();
 
 		$nPageSize["nPageSize"] = $nSize;
-		if($_REQUEST["mode"] == "excel")
+		if (isset($_REQUEST["mode"]) && $_REQUEST["mode"] === "excel")
+		{
 			$nPageSize["NavShowAll"] = true;
+		}
 
 		$this->nInitialSize = $nPageSize["nPageSize"];
 

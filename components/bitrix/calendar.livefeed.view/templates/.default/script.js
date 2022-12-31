@@ -160,7 +160,7 @@
 					// Put to popup
 					popupContent += '<a href="' + att.URL + '" target="_blank" class="bxcal-att-popup-img bxcal-att-popup-att-full">' +
 						'<span class="bxcal-att-popup-avatar">' +
-							(att.AVATAR ? '<img src="' + att.AVATAR + '" width="' + avatarSize + '" height="' + avatarSize + '" class="bxcal-att-popup-img-not-empty" />' : '') +
+							(att.AVATAR ? '<img src="' + encodeURI(att.AVATAR) + '" width="' + avatarSize + '" height="' + avatarSize + '" class="bxcal-att-popup-img-not-empty" />' : '') +
 						'</span>' +
 						'<span class="bxcal-att-popup-name">' + BX.util.htmlspecialchars(att.DISPLAY_NAME) + '</span>' +
 					'</a>';
@@ -169,7 +169,7 @@
 				{
 					attCellContent += '<a title="' + BX.util.htmlspecialchars(att.DISPLAY_NAME) + '" href="' + att.URL + '" target="_blank" class="bxcal-att-popup-img">' +
 						'<span class="bxcal-att-popup-avatar">' +
-							(att.AVATAR ? '<img src="' + att.AVATAR + '" width="' + avatarSize + '" height="' + avatarSize + '" class="bxcal-att-popup-img-not-empty" />' : '') +
+							(att.AVATAR ? '<img src="' + encodeURI(att.AVATAR) + '" width="' + avatarSize + '" height="' + avatarSize + '" class="bxcal-att-popup-img-not-empty" />' : '') +
 						'</span>' +
 					'</a>';
 				}

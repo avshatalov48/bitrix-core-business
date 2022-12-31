@@ -74,6 +74,14 @@ export class SkuTree extends EventEmitter
 		{
 			this.existingValues = JSON.parse(options.skuTree.EXISTING_VALUES_JSON);
 		}
+
+		for (const key in this.existingValues)
+		{
+			if (this.existingValues[key].length === 1 && this.existingValues[key][0] === 0)
+			{
+				delete this.existingValues[key];
+			}
+		}
 	}
 
 	static #getIblockPropertiesRequestName(iblockId: number): string

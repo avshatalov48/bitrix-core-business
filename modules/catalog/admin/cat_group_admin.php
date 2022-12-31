@@ -2,7 +2,10 @@
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
+
 use Bitrix\Main\Loader,
+	Bitrix\Catalog\Access\ActionDictionary,
+	Bitrix\Catalog\Access\AccessController,
 	Bitrix\Catalog;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -16,10 +19,15 @@ global $adminSidePanelHelper;
 $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
-if (!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_group')))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 Loader::includeModule('catalog');
-$bReadOnly = !$USER->CanDoOperation('catalog_group');
+
+$accessController = AccessController::getCurrent();
+if (!($accessController->check(ActionDictionary::ACTION_CATALOG_READ) || $accessController->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT)))
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
+
+$bReadOnly = !$accessController->check(ActionDictionary::ACTION_PRICE_GROUP_EDIT);
 
 if ($ex = $APPLICATION->GetException())
 {
@@ -314,7 +322,7 @@ while ($arRes = $dbResultList->Fetch())
 	$arActions = array();
 	$arActions[] = array(
 		"ICON" => "edit",
-		"TEXT" => GetMessage("EDIT_STATUS_ALT"),
+		"TEXT" => $bReadOnly ? GetMessage('VIEW') : GetMessage('EDIT_STATUS_ALT'),
 		"LINK" => $editUrl,
 		"DEFAULT" => true
 	);

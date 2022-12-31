@@ -23,6 +23,7 @@ $MESS['LANDING_TPL_ADDITIONAL_ACTION_KNOWLEDGE_MENU24'] = 'Просмотр';
 $MESS['LANDING_TPL_ADDITIONAL_ACTION_KNOWLEDGE_CREATE'] = 'Создание';
 $MESS['LANDING_TPL_ADDITIONAL_ACTION_KNOWLEDGE_ADMIN'] = 'Полный доступ';
 $MESS['LANDING_TPL_ADDITIONAL_ACTION_KNOWLEDGE_UNEXPORTABLE'] = 'Экспорт';
+$MESS['LANDING_TPL_ADDITIONAL_ACTION_KNOWLEDGE_EXTENSION'] = 'Размещение в Расширениях';
 
 $MESS['LANDING_TPL_BUTTON_SAVE'] = 'Сохранить';
 $MESS['LANDING_TPL_BUTTON_CANCEL'] = 'Отменить';
@@ -32,9 +33,11 @@ $MESS['LANDING_TPL_CAPTION'] = 'Название';
 $MESS['LANDING_ALERT_CONTENT_RELOADED'] = 'Вы не сохранили изменения, форма будет перезагружена.';
 
 //hint in rights
-$MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_MENU24'] = 'Доступны права только на просмотр контента раздела. Если вы закрываете сотруднику доступ к просмотру, настройка остальных прав нецелесообразна.';
-$MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_KNOWLEDGE_MENU24'] = 'Доступны права только на просмотр контента раздела. Если вы закрываете сотруднику доступ к просмотру, настройка остальных прав нецелесообразна.';
+$MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_MENU24'] = 'Доступны права только на просмотр контента раздела. Если вы закрываете сотруднику доступ к просмотру, настройка остальных прав нецелесообразна';
+$MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_KNOWLEDGE_MENU24'] = 'Доступны права только на просмотр контента раздела. Если вы закрываете сотруднику доступ к просмотру, настройка остальных прав нецелесообразна';
 $MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_ADMIN'] = 'Доступны все права, в том числе изменение ролей и прав доступа сотрудников';
 $MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_UNEXPORTABLE'] = 'Доступны права на экспорт сайтов для дальнейшего свободного использования';
 $MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_KNOWLEDGE_ADMIN'] = 'Доступны все права, в том числе изменение ролей и прав доступа сотрудников';
 $MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_KNOWLEDGE_UNEXPORTABLE'] = 'Доступны права на экспорт баз знаний для дальнейшего свободного использования';
+$MESS['LANDING_TPL_ADDITIONAL_ACTION_HINT_INTERACTIVITY_KNOWLEDGE_EXTENSION'] = "Размещение баз знаний в любых разделах вашего Битрикс24";
+$MESS['LANDING_TPL_MORE'] = "Подробнее";

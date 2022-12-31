@@ -50,33 +50,31 @@ class Event extends Mapper
 	}
 
 	/**
-	 * @param Core\Event\Event $entity
+	 * @param $entity
 	 * @param array $params
-	 *
-	 * @return Core\Event\Event
-	 *
-	 * @throws Core\Base\BaseException
+	 * @return Core\Base\EntityInterface|null
+	 * @throws ArgumentException
 	 * @throws Core\Event\Tools\PropertyException
 	 */
-	protected function createEntity($entity, array $params = []): Core\Event\Event
+	protected function createEntity($entity, array $params = []): ?Core\Base\EntityInterface
 	{
 		$entity->setDateModified(new Core\Base\Date());
 		$result = $this->save($entity, $params);
+
 		if ($result->isSuccess())
 		{
 			// TODO: perhaps need to setup date create and date update
 			return $this->getById($result->getId());
 		}
-		throw new Core\Base\BaseException('Error of create event: '
-			. implode('; ',$result->getErrorMessages()), 400);
+
+		return null;
 	}
 
 	/**
-	 * @param Core\Event\Event $entity
+	 * @param $entity
 	 * @param array $params
-	 *
-	 * @return ?Core\Event\Event
-	 *
+	 * @return Core\Base\EntityInterface|null
+	 * @throws ArgumentException
 	 * @throws Core\Base\BaseException
 	 * @throws Core\Event\Tools\PropertyException
 	 */
@@ -99,7 +97,7 @@ class Event extends Mapper
 			return $this->getById((int)$id);
 		}
 
-		throw new Core\Base\BaseException('Error of update event', 400);
+		return null;
 	}
 
 	/**
@@ -122,19 +120,14 @@ class Event extends Mapper
 				?? $entity->getOwner() ? $entity->getOwner()->getId() : null,
 		]);
 
-		if (CCalendar::DeleteEvent($entity->getId(), true, $params))
+		if (CCalendar::DeleteEvent($entity->getId(), true, $params) && !empty($params['bMarkDeleted']))
 		{
-			if (!empty($params['bMarkDeleted']))
-			{
-				$entity->setIsDeleted(true);
+			$entity->setIsDeleted(true);
 
-				return $entity;
-			}
-
-			return null;
+			return $entity;
 		}
 
-		throw new Core\Base\BaseException('Error of delete event', 400);
+		return null;
 	}
 
 	/**
@@ -251,14 +244,15 @@ class Event extends Mapper
 			'NAME'               => $event->getName(),
 			'DATE_FROM'          => (string)$event->getStart(),
 			'DATE_TO'            => (string)$event->getEnd(),
-			'ORIGINAL_DATE_FROM' => (string)$event->getOriginalDateFrom(),
+			'ORIGINAL_DATE_FROM' => $this->prepareOriginalDateFrom($event),
 			'DESCRIPTION'        => $event->getDescription(),
 			'ACCESSIBILITY'      => $event->getAccessibility(),
 			'PRIVATE_EVENT'      => $event->isPrivate(), // TODO: add converter
 			'IMPORTANCE'         => $event->getImportance(), // TODO: add converter
 			'OWNER_ID'           => $event->getOwner() ? $event->getOwner()->getId() : null,
 			'CREATED_BY'         => $event->getOwner() ? $event->getOwner()->getId() : null,
-			'CAL_TYPE'           => $event->getEventType(),
+			'CAL_TYPE'           => $event->getCalendarType(),
+			'EVENT_TYPE'         => $event->getSpecialLabel(),
 			'DATE_CREATE'        => $event->getDateCreate() ? (string) $event->getDateCreate() : (string)new Core\Base\Date(),
 			'LOCATION'           => $event->getLocation() ? $event->getLocation()->getActualLocation() : '',
 			'REMIND'             => ($event->getRemindCollection() && $event->getRemindCollection()->count())
@@ -488,5 +482,25 @@ class Event extends Mapper
 	protected function getEntityClass(): string
 	{
 		return Core\Event\Event::class;
+	}
+
+	/**
+	 * @param Core\Event\Event $event
+	 *
+	 * @return string|null
+	 */
+	private function prepareOriginalDateFrom(Core\Event\Event $event): ?string
+	{
+		$result = null;
+		if ($event->getOriginalDateFrom())
+		{
+			if ($event->getStartTimeZone())
+			{
+				$event->getOriginalDateFrom()->setTimezone($event->getStartTimeZone()->getTimeZone());
+			}
+			$result = (string)$event->getOriginalDateFrom();
+		}
+
+		return $result;
 	}
 }

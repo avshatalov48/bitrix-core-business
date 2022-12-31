@@ -11,5 +11,5 @@ namespace Bitrix\Socialnetwork\Internals\Counter\Provider;
 
 interface Base
 {
-	public function getCounterValue(): int;
+	public function getCounterValue(): array;
 }

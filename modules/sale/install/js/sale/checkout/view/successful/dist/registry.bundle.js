@@ -2,7 +2,7 @@ this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
-(function (exports,main_core,sale_checkout_lib,currency_currencyCore,ui_vue) {
+(function (exports,main_core,sale_checkout_lib,currency_currencyCore,ui_vue,sale_checkout_view_element_button,sale_checkout_const) {
 	'use strict';
 
 	ui_vue.BitrixVue.component('sale-checkout-view-successful-property_list', {
@@ -83,11 +83,24 @@ this.BX.Sale.Checkout.View = this.BX.Sale.Checkout.View || {};
 	  computed: {
 	    localize: function localize() {
 	      return Object.freeze(ui_vue.BitrixVue.getFilteredPhrases('CHECKOUT_VIEW_SUCCESSFUL_'));
+	    },
+	    getItemsForView: function getItemsForView() {
+	      var itemsForView = [];
+
+	      for (var propertyId in this.items) {
+	        var item = this.items[propertyId];
+
+	        if (BX.util.in_array(item.type, [sale_checkout_const.Property.type.name, sale_checkout_const.Property.type.phone, sale_checkout_const.Property.type.email])) {
+	          itemsForView.push(item);
+	        }
+	      }
+
+	      return itemsForView;
 	    }
 	  },
 	  // language=Vue
-	  template: "\n      <div class=\"checkout-order-status-successful\">\n\t\t  <svg class=\"checkout-order-status-icon\" width=\"106\" height=\"106\" viewBox=\"0 0 106 106\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n\t\t\t<circle class=\"checkout-order-status-icon-circle\" stroke-width=\"3\" cx=\"53\" cy=\"53\" r=\"51\"/>\n\t\t\t<path class=\"checkout-order-status-icon-angle\" fill=\"#fff\" fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M45.517 72L28.5 55.4156L34.4559 49.611L45.517 60.3909L70.5441 36L76.5 41.8046L45.517 72Z\"/>\n\t\t  </svg>\n\t\n\t\t  <div class=\"checkout-order-status-text\">\n\t\t  \t{{localize.CHECKOUT_VIEW_SUCCESSFUL_STATUS_ORDER_CREATED}}\n\t\t  </div>\n\t\n\t\t  <sale-checkout-view-successful-property_list :items=\"items\" :order=\"order\"/>\n\t\t  <sale-checkout-view-element-button-shipping-button_to_checkout/>\n\t\t  <sale-checkout-view-element-button-shipping-link :url=\"config.mainPage\">\n\t\t\t<template v-slot:link-title>{{localize.CHECKOUT_VIEW_SUCCESSFUL_ELEMENT_BUTTON_SHIPPING_BUY}}</template>\n\t\t  </sale-checkout-view-element-button-shipping-link>\n      </div>\n\t"
+	  template: "\n      <div class=\"checkout-order-status-successful\">\n\t\t  <svg class=\"checkout-order-status-icon\" width=\"106\" height=\"106\" viewBox=\"0 0 106 106\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n\t\t\t<circle class=\"checkout-order-status-icon-circle\" stroke-width=\"3\" cx=\"53\" cy=\"53\" r=\"51\"/>\n\t\t\t<path class=\"checkout-order-status-icon-angle\" fill=\"#fff\" fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M45.517 72L28.5 55.4156L34.4559 49.611L45.517 60.3909L70.5441 36L76.5 41.8046L45.517 72Z\"/>\n\t\t  </svg>\n\t\n\t\t  <div class=\"checkout-order-status-text\">\n\t\t  \t{{localize.CHECKOUT_VIEW_SUCCESSFUL_STATUS_ORDER_CREATED}}\n\t\t  </div>\n\t\n\t\t  <sale-checkout-view-successful-property_list :items=\"getItemsForView\" :order=\"order\"/>\n\t\t  <sale-checkout-view-element-button-shipping-button_to_checkout/>\n\t\t  <sale-checkout-view-element-button-shipping-link :url=\"config.mainPage\">\n\t\t\t<template v-slot:link-title>{{localize.CHECKOUT_VIEW_SUCCESSFUL_ELEMENT_BUTTON_SHIPPING_BUY}}</template>\n\t\t  </sale-checkout-view-element-button-shipping-link>\n      </div>\n\t"
 	});
 
-}((this.BX.Sale.Checkout.View.Successful = this.BX.Sale.Checkout.View.Successful || {}),BX,BX.Sale.Checkout.Lib,BX.Currency,BX));
+}((this.BX.Sale.Checkout.View.Successful = this.BX.Sale.Checkout.View.Successful || {}),BX,BX.Sale.Checkout.Lib,BX.Currency,BX,BX.Sale.Checkout.View.Element,BX.Sale.Checkout.Const));
 //# sourceMappingURL=registry.bundle.js.map

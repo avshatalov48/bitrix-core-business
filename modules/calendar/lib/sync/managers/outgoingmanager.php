@@ -25,6 +25,7 @@ use Bitrix\Calendar\Sync\Util\EventContext;
 use Bitrix\Calendar\Sync\Util\Result;
 use Bitrix\Calendar\Sync\Util\SectionContext;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\Error;
@@ -547,17 +548,34 @@ class OutgoingManager
 				$subscribeResult = $this->syncManager->subscribeSection($link);
 				if ($subscribeResult->isSuccess())
 				{
-					if ($subscription !== null)
+					if ($subscription)
 					{
 						$pushManager->renewPush($subscription, $subscribeResult->getData());
 					}
 					else
 					{
-						$pushManager->addPush(
-							'SECTION_CONNECTION',
-							$link->getId(),
-							$subscribeResult->getData()
-						);
+						try
+						{
+							$pushManager->addPush(
+								'SECTION_CONNECTION',
+								$link->getId(),
+								$subscribeResult->getData()
+							);
+						}
+						catch(SqlQueryException $e)
+						{
+							if (
+								$e->getCode() === 400
+								&& substr($e->getDatabaseMessage(), 0, 6) === '(1062)')
+							{
+								// there's a race situation
+							}
+							else
+							{
+								throw $e;
+							}
+						}
+
 					}
 				}
 				else
@@ -682,6 +700,12 @@ class OutgoingManager
 			->setEventConnection($eventLink)
 		;
 
+		if ($eventLink && !$eventLink->getVendorEventId())
+		{
+			$this->mapperFactory->getEventConnection()->delete($eventLink);
+			$eventLink = null;
+		}
+
 		if ($event && $eventLink)
 		{
 			$resultUpdate = $this->syncManager->updateEvent($event, $eventContext);
@@ -740,13 +764,14 @@ class OutgoingManager
 	 */
 	private function exportRecurrenceEvent(SectionConnection $sectionLink, array $eventData): Result
 	{
-		$context = new Context([]);
-		$context->add('sync', 'sectionLink', $sectionLink);
+		$context = new EventContext();
+		$context->setSectionConnection($sectionLink);
 
 		$recurrenceEvent = $this->buildRecurrenceEvent($eventData);
 
 		if ($recurrenceEvent->getEventConnection())
 		{
+			$context->setEventConnection($recurrenceEvent->getEventConnection());
 			$result = $this->syncManager->updateRecurrence($recurrenceEvent, $context);
 		}
 		else
@@ -776,6 +801,11 @@ class OutgoingManager
 			->setEvent($masterEvent)
 			->setEventConnection($masterLink)
 		;
+		if ($masterSyncEvent->getEventConnection() && !$masterSyncEvent->getEventConnection()->getVendorEventId())
+		{
+			$this->mapperFactory->getEventConnection()->delete($masterSyncEvent->getEventConnection());
+			$masterSyncEvent->setEventConnection(null);
+		}
 
 		$instancesCollection = new InstanceMap();
 		$instances = $eventData['instances'] ?? [];
@@ -787,6 +817,12 @@ class OutgoingManager
 				->setEvent($instanceEvent)
 				->setEventConnection($instanceLink)
 			;
+
+			if ($instanceSyncEvent->getEventConnection() && !$instanceSyncEvent->getEventConnection()->getVendorEventId())
+			{
+				$this->mapperFactory->getEventConnection()->delete($instanceSyncEvent->getEventConnection());
+				$instanceSyncEvent->setEventConnection(null);
+			}
 			$instancesCollection->add($instanceSyncEvent);
 		}
 

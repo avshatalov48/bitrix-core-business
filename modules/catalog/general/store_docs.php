@@ -4,6 +4,7 @@ use Bitrix\Catalog;
 use Bitrix\Catalog\Component\UseStore;
 use Bitrix\Catalog\Integration\PullManager;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog\v2\Contractor;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -393,6 +394,12 @@ class CAllCatalogDocs
 		static::deleteDocumentFiles($id);
 		Catalog\StoreDocumentElementTable::deleteByDocument($id);
 		Catalog\StoreDocumentBarcodeTable::deleteByDocument($id);
+
+		$contractorsProvider = Contractor\Provider\Manager::getActiveProvider();
+		if ($contractorsProvider)
+		{
+			$contractorsProvider::onAfterDocumentDelete($id);
+		}
 
 		// First and second event - only for compatibility. Attention - order cannot change
 		$eventList = [

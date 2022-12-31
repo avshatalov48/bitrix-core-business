@@ -15,12 +15,6 @@ return [
 		'subtype' => 'map',
 	],
 	'cards' => [],
-	'nodes' => [
-		'.landing-block-node-map' => [
-			'name' => 'Map',
-			'type' => 'map',
-		],
-	],
 	'style' => [
 		'block' => [
 			// spec list only for maps, have not appropriate group

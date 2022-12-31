@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Catalog\v2\Contractor;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/contractor.php");
 
 class CCatalogContractor extends CAllCatalogContractor
@@ -11,7 +13,13 @@ class CCatalogContractor extends CAllCatalogContractor
 	*/
 	public static function add($arFields)
 	{
-		global $DB;
+		global $DB, $APPLICATION;
+
+		if (Contractor\Provider\Manager::getActiveProvider())
+		{
+			$APPLICATION->throwException('This API has been deprecated and is no longer available');
+			return false;
+		}
 
 		if(array_key_exists('DATE_CREATE', $arFields))
 			unset($arFields['DATE_CREATE']);
@@ -38,6 +46,15 @@ class CCatalogContractor extends CAllCatalogContractor
 	public static function getList($arOrder = array(), $arFilter = array(), $arGroupBy = false, $arNavStartParams = false, $arSelectFields = array())
 	{
 		global $DB;
+
+		if (Contractor\Provider\Manager::getActiveProvider())
+		{
+			/**
+			 * This API has been deprecated and is no longer available
+			 */
+			return new CDBResult();
+		}
+
 		if (empty($arSelectFields))
 			$arSelectFields = array("ID", "PERSON_TYPE", "PERSON_NAME", "PERSON_LASTNAME", "PERSON_MIDDLENAME", "EMAIL", "PHONE", "POST_INDEX", "COUNTRY", "CITY", "COMPANY", "ADDRESS", "INN", "KPP");
 

@@ -7,6 +7,7 @@ namespace Bitrix\Calendar\ICal\MailInvitation;
 use Bitrix\Calendar\ICal\Builder\Calendar;
 use Bitrix\Calendar\ICal\Builder\Dictionary;
 use Bitrix\Calendar\ICal\Builder\Event;
+use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\ObjectException;
 
@@ -24,6 +25,28 @@ class AttachmentCancelManager extends AttachmentManager
 	{
 		parent::__construct($event);
 		$this->uid = $event['DAV_XML_ID'];
+	}
+
+	public function getUid(): ?string
+	{
+		if ($this->uid)
+		{
+			return $this->uid;
+		}
+
+		if ($this->event['ID'])
+		{
+			$eventFromDb = EventTable::getById($this->event['ID'])->fetch();
+
+			if ($eventFromDb && $eventFromDb['DAV_XML_ID'])
+			{
+				$this->uid = $eventFromDb['DAV_XML_ID'];
+
+				return $this->uid;
+			}
+		}
+
+		return null;
 	}
 
 	/**

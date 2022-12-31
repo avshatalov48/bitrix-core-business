@@ -16,7 +16,14 @@ use Bitrix\Main\Web\Json;
 $settings = $arResult['SETTINGS'];
 $currency = $settings['CURRENCY'];
 
-\Bitrix\Main\UI\Extension::load(['ui.design-tokens', 'ui.fonts.opensans']);
+$productListConfig = $arResult['GRID_EDITOR_CONFIG'];
+$productListConfig['hiddenFields'] = $arResult['HIDDEN_FIELDS'];
+
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'ui.fonts.opensans',
+	'ui.hint',
+]);
 
 ?>
 <div class="catalog-document-product-list-wrapper" id="<?=$arResult['GRID_EDITOR_CONFIG']['containerId']?>">
@@ -47,7 +54,20 @@ $currency = $settings['CURRENCY'];
 					<?=Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_ADD_PRODUCT')?>
 				</a>
 				<?php
-				if (!empty($createUrl))
+				if (!$component->isAllowedProductCreation())
+				{
+					?>
+					<div
+						class="ui-btn ui-btn-light-border ui-btn-icon-lock ui-btn-disabled"
+						tabindex="-1"
+						data-hint="<?=Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_PRODUCT_CREATION_HINT')?>"
+						data-hint-no-icon
+					>
+						<?=Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_CREATE_PRODUCT')?>
+					</div>
+					<?php
+				}
+				elseif (!empty($createUrl))
 				{
 					?>
 					<a class="ui-btn ui-btn-light-border"
@@ -104,7 +124,20 @@ $currency = $settings['CURRENCY'];
 					<?=Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_ADD_PRODUCT')?>
 				</a>
 				<?php
-				if (!empty($createUrl))
+				if (!$component->isAllowedProductCreation())
+				{
+					?>
+					<div
+						class="ui-btn ui-btn-light-border ui-btn-icon-lock ui-btn-disabled"
+						tabindex="-1"
+						data-hint="<?=Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_ACCESS_DENIED_PRODUCT_CREATION_HINT')?>"
+						data-hint-no-icon
+					>
+						<?=Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_CREATE_PRODUCT')?>
+					</div>
+					<?php
+				}
+				elseif (!empty($createUrl))
 				{
 					?>
 					<a class="ui-btn ui-btn-light-border"
@@ -170,7 +203,7 @@ $currency = $settings['CURRENCY'];
 			BX.Catalog.Store.ProductList.Instance = new BX.Catalog.Store.ProductList.Editor('<?=$arResult['ID']?>');
 		}
 
-		BX.Catalog.Store.ProductList.Instance.init(<?=Json::encode($arResult['GRID_EDITOR_CONFIG'])?>);
-		BX.Catalog["<?=$arResult['GRID_EDITOR_CONFIG']['jsEventsManagerId']?>"] = BX.Catalog.Store.ProductList.Instance.getPageEventsManager();
+		BX.Catalog.Store.ProductList.Instance.init(<?=Json::encode($productListConfig)?>);
+		BX.Catalog["<?=$productListConfig['jsEventsManagerId']?>"] = BX.Catalog.Store.ProductList.Instance.getPageEventsManager();
 	});
 </script>

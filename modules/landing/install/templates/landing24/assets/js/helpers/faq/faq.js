@@ -1,17 +1,21 @@
 ;(function() {
 	"use strict";
 
-	BX.addCustomEvent("BX.Landing.Block:init", function(event)
+	if (document.querySelector('.landing-edit-mode') === null)
 	{
-		if (document.querySelector('.landing-edit-mode') === null)
+		BX.addCustomEvent("BX.Landing.Block:init", function(event)
 		{
-			onCardClick(event.block);
-		}
-	});
+			if (event.block.querySelector("[class^='landing-block-faq-']") !== null)
+			{
+				initCard(event.block);
+			}
+		});
+	}
 
-	function onCardClick(block)
+	function initCard(block)
 	{
-		block.querySelectorAll('.landing-block-card').forEach(function(card) {
+		const cards = block.querySelectorAll('.landing-block-card');
+		cards.forEach(function(card) {
 			if (card.querySelector('.landing-block-faq-visible'))
 			{
 				card.querySelector('.landing-block-faq-visible').onclick = function() {

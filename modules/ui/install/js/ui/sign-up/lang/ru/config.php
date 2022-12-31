@@ -12,6 +12,7 @@ $MESS["UI_SIGN_UP_SAVE_BUTTON_LABEL"] = 'Сохранить';
 $MESS["UI_SIGN_UP_CANCEL_BUTTON_LABEL"] = 'Отменить';
 
 $MESS["UI_SIGN_UP_TOUCH_LAYOUT_LABEL"] = 'Распишитесь мышкой в поле ниже &darr;';
+$MESS["UI_SIGN_UP_TOUCH_LAYOUT_MOBILE_LABEL"] = 'Распишитесь рукой в поле ниже &darr;';
 $MESS["UI_SIGN_UP_TOUCH_CLEAR_BUTTON"] = 'стереть';
 
 $MESS["UI_SIGN_UP_TAKE_SIGN_PHOTO"] = 'Сделать фото телефоном';

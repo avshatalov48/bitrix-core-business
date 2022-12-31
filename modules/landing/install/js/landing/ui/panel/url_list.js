@@ -21,6 +21,7 @@
 	var TYPE_SYSTEM = "system";
 	var TYPE_CRM_FORM = "crmFormPopup";
 	var TYPE_CRM_PHONE = "crmPhone";
+	var TYPE_USER = "user";
 
 	var SidebarButton = BX.Landing.UI.Button.SidebarButton;
 
@@ -141,6 +142,10 @@
 			{
 				setTextContent(this.title, options.panelTitle || BX.Landing.Loc.getMessage("LANDING_LINKS_CRM_PHONES_TITLE"));
 				this.showPhones(options);
+			}
+			else if (view === TYPE_USER)
+			{
+				setTextContent(this.title, options.panelTitle || BX.Landing.Loc.getMessage("LANDING_LINKS_CRM_PHONES_USERS"));
 			}
 
 			return new Promise(function(resolve) {
@@ -303,7 +308,7 @@
 						.then(function(landings) {
 							return sites.reduce(function(result, site, index) {
 								const currentLandings = landings.filter(function(landing) {
-									return site.ID === landing.SITE_ID;
+									return site.ID === landing.SITE_ID && !landing.IS_AREA;
 								});
 
 								result[site.ID] = {site: site, landings: currentLandings};
@@ -505,8 +510,9 @@
 						this.previewFrame.onload = function() {
 							var contentDocument = this.previewFrame.contentDocument;
 							BX.Landing.Utils.removePanels(contentDocument);
-							[].slice.call(contentDocument.querySelectorAll(".block-wrapper"))
+							[].slice.call(contentDocument.querySelectorAll(".landing-main .block-wrapper"))
 								.forEach(function(wrapper) {
+									wrapper.setAttribute("data-selectable", 1);
 									wrapper.classList.add("landing-ui-block-selectable-overlay");
 									wrapper.addEventListener("click", function(event) {
 										event.preventDefault();
@@ -514,6 +520,17 @@
 										var landingId = BX.Dom.attr(mainNode, 'data-landing');
 										this.onBlockClick(parseInt(wrapper.id.replace("block", "")), event, landingId);
 									}.bind(this));
+								}, this);
+							[].slice.call(contentDocument.querySelectorAll(".block-wrapper"))
+								.forEach(function(wrapper) {
+									if (!wrapper.getAttribute("data-selectable"))
+									{
+										wrapper.style.display = "none";
+									}
+								}, this);
+							[].slice.call(contentDocument.querySelectorAll(".landing-empty"))
+								.forEach(function(wrapper) {
+									wrapper.style.display = "none";
 								}, this);
 							resolve(this.previewFrame);
 						}.bind(this);

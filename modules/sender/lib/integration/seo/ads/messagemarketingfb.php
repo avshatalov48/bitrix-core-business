@@ -92,7 +92,7 @@ class MessageMarketingFb
 				[
 					'type'     => 'string',
 					'code'     => 'AUDIENCE_ID',
-					'required' => false,
+					'required' => true,
 				],
 				[
 					'type'     => 'string',

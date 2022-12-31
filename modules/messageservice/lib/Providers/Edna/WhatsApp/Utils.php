@@ -2,16 +2,14 @@
 
 namespace Bitrix\MessageService\Providers\Edna\WhatsApp;
 
-use Bitrix\ImConnector\Library;
 use Bitrix\Main\Error;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Result;
-use Bitrix\Main\Web\HttpClient;
 use Bitrix\MessageService\Internal\Entity\MessageTable;
-use Bitrix\MessageService\Providers\Edna\WhatsApp;
+use Bitrix\MessageService\Providers;
+use Bitrix\MessageService\Providers\Edna\EdnaUtils;
 use Bitrix\MessageService\Providers\OptionManager;
 
-class Utils implements WhatsApp\EdnaRu
+class Utils extends EdnaUtils
 {
 	protected string $providerId;
 	protected OptionManager $optionManager;
@@ -19,40 +17,18 @@ class Utils implements WhatsApp\EdnaRu
 	public function __construct(string $providerId, OptionManager $optionManager)
 	{
 		$this->providerId = $providerId;
-		$this->optionManager = $optionManager;
+
+		parent::__construct($optionManager);
 	}
 
-	public function getLineId(): ?int
+	protected function initializeDefaultExternalSender(): Providers\ExternalSender
 	{
-		if (!Loader::includeModule('imconnector'))
-		{
-			return null;
-		}
-
-		$statuses = \Bitrix\ImConnector\Status::getInstanceAllLine(Library::ID_EDNA_WHATSAPP_CONNECTOR);
-		foreach ($statuses as $status)
-		{
-			if ($status->isConfigured())
-			{
-				return (int)$status->getLine();
-			}
-		}
-
-		return null;
-	}
-
-	public function testConnection(): Result
-	{
-		$requestParams = ['types' => 'WHATSAPP'];
-
-		$externalSender =
-			new ExternalSender(
-				$this->optionManager->getOption(WhatsApp\Constants::API_KEY_OPTION),
-				Constants::API_ENDPOINT
-			)
-		;
-
-		return $externalSender->callExternalMethod('channel-profile', $requestParams, HttpClient::HTTP_GET);
+		return new ExternalSender(
+			$this->optionManager->getOption(Providers\Constants\InternalOption::API_KEY),
+			Constants::API_ENDPOINT,
+			$this->optionManager->getSocketTimeout(),
+			$this->optionManager->getStreamTimeout()
+		);
 	}
 
 	public function getMessageTemplates(string $subject = ''): Result
@@ -76,13 +52,6 @@ class Utils implements WhatsApp\EdnaRu
 
 		$verifiedSubjectIdList = $verifiedSubjectIdResult->getData();
 
-		$externalSender =
-			new ExternalSender(
-				$this->optionManager->getOption(WhatsApp\Constants::API_KEY_OPTION),
-				Constants::API_ENDPOINT
-			)
-		;
-
 		$templates = [];
 		foreach ($verifiedSubjectIdList as $subjectId)
 		{
@@ -91,7 +60,7 @@ class Utils implements WhatsApp\EdnaRu
 			];
 
 			$templatesRequestResult =
-				$externalSender->callExternalMethod(Constants::GET_TEMPLATES, $requestParams)
+				$this->externalSender->callExternalMethod(Providers\Edna\Constants\Method::GET_TEMPLATES, $requestParams)
 			;
 
 			if ($templatesRequestResult->isSuccess())
@@ -275,43 +244,9 @@ class Utils implements WhatsApp\EdnaRu
 		return $result;
 	}
 
-	public function getSubjectIdBySubject(string $subject): Result
-	{
-		$subjectResult = $this->getChannelList();
-
-		if (!$subjectResult->isSuccess())
-		{
-			return $subjectResult;
-		}
-
-		$channelList = $subjectResult->getData();
-		foreach ($channelList as $channel)
-		{
-			if ($channel['subject'] === $subject)
-			{
-				$result = new Result();
-				if (!isset($channel['subjectId']))
-				{
-					$result->addError(new Error('Unknown subject'));
-
-					return $result;
-				}
-
-				$result->setData(['subjectId' => $channel['subjectId']]);
-
-				return $result;
-			}
-		}
-
-		$result = new Result();
-		$result->addError(new Error("There is no channel with this subject = $subject"));
-
-		return $result;
-	}
-
 	private function getVerifiedSubjectIdList(array $subjectList): Result
 	{
-		$channelListResult = $this->getChannelList();
+		$channelListResult = $this->getChannelList(Providers\Edna\Constants\ChannelType::WHATSAPP);
 		if (!$channelListResult->isSuccess())
 		{
 			return $channelListResult;
@@ -338,32 +273,6 @@ class Utils implements WhatsApp\EdnaRu
 		return $result;
 	}
 
-	public function getChannelList(): Result
-	{
-		$requestParams = [
-			'imType' => 'WHATSAPP'
-		];
-
-		$externalSender =
-			new ExternalSender(
-				$this->optionManager->getOption(WhatsApp\Constants::API_KEY_OPTION),
-				Constants::API_ENDPOINT
-			)
-		;
-		$requestResult =
-			$externalSender->callExternalMethod(Constants::GET_SUBJECTS, $requestParams, 'GET')
-		;
-
-		if (!$requestResult->isSuccess())
-		{
-			return (new Result())->addErrors($requestResult->getErrors());
-		}
-
-		$result = new Result();
-		$result->setData($requestResult->getData());
-
-		return $result;
-	}
 
 	protected function checkForPlaceholders($template): bool
 	{

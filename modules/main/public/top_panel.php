@@ -1114,7 +1114,7 @@ class CTopPanel
 
 	public static function GetPanelHtml()
 	{
-		global $USER, $APPLICATION, $adminPage;
+		global $USER, $APPLICATION;
 		if ($APPLICATION->ShowPanel === false || (!$USER->IsAuthorized() && $APPLICATION->ShowPanel !== true))
 		{
 			return "";
@@ -1539,8 +1539,6 @@ class CTopPanel
 		BX.admin.moreButton.init({ buttonTitle : "'.GetMessageJS("top_panel_more_button_title").'"});
 		</script>';
 
-		//show script to play sound
-		$result .= $adminPage->ShowSound();
 		return $result;
 	}
 

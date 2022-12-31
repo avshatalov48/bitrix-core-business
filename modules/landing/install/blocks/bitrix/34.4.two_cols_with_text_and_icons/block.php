@@ -1,4 +1,4 @@
-<section class="landing-block g-pt-30 g-pb-0">
+<section class="landing-block g-pt-30 g-pb-0 u-block-border-none">
 	<div class="container">
 		<!-- Icon Blocks -->
 		<div class="row landing-block-inner">

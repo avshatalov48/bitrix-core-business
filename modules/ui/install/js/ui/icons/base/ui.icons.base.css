@@ -60,16 +60,4 @@ button.ui-icon > i:active,
 
 .ui-icon-lg { --ui-icon-size: var(--ui-icon-size-lg); }
 
-/* region Fix for IE*/
-.bx-ie .ui-icon,
-.bx-ie .ui-icon-md { width: 39px; }
-
-.bx-ie .ui-icon-xs { width: 26px; }
-
-.bx-ie .ui-icon-sm { width: 32px; }
-
-.bx-ie .ui-icon-lg { width: 47px; }
-
-/*endregion*/
-
 /*endregion*/

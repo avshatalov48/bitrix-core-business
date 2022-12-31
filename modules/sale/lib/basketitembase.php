@@ -81,12 +81,14 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	 */
 	public function findItemById($id)
 	{
+		$id = (int)$id;
+
 		if ($id <= 0)
 		{
 			return null;
 		}
 
-		if ($this->getId() === (int)$id)
+		if ($this->getId() === $id)
 		{
 			return $this;
 		}
@@ -693,16 +695,39 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 
 			if ($this->getField('SUBSCRIBE') !== 'Y')
 			{
-				if (array_key_exists('AVAILABLE_QUANTITY', $providerData) && $providerData['AVAILABLE_QUANTITY'] > 0)
+				if ($providerData)
 				{
-					$availableQuantity = $providerData['AVAILABLE_QUANTITY'];
+					if (array_key_exists('AVAILABLE_QUANTITY', $providerData) && $providerData['AVAILABLE_QUANTITY'] > 0)
+					{
+						$availableQuantity = $providerData['AVAILABLE_QUANTITY'];
+					}
+					else
+					{
+						$result->addError(
+							new ResultError(
+								Localization\Loc::getMessage(
+									'SALE_BASKET_ITEM_WRONG_AVAILABLE_QUANTITY_2',
+									['#PRODUCT_NAME#' => $this->getField('NAME')]
+								),
+								'SALE_BASKET_ITEM_WRONG_AVAILABLE_QUANTITY'
+							)
+						);
+
+						return $result;
+					}
 				}
 				else
 				{
+					$errorMessageCode = 'SALE_BASKET_PRODUCT_NOT_AVAILABLE';
+					if ($this->isService())
+					{
+						$errorMessageCode = 'SALE_BASKET_SERVICE_NOT_AVAILABLE';
+					}
+
 					$result->addError(
 						new ResultError(
 							Localization\Loc::getMessage(
-								'SALE_BASKET_ITEM_WRONG_AVAILABLE_QUANTITY_2',
+								$errorMessageCode,
 								['#PRODUCT_NAME#' => $this->getField('NAME')]
 							),
 							'SALE_BASKET_ITEM_WRONG_AVAILABLE_QUANTITY'

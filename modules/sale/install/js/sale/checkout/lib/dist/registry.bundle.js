@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
-(function (exports,main_core) {
+(function (exports,main_core,sale_checkout_const) {
 	'use strict';
 
 	var Url = /*#__PURE__*/function () {
@@ -195,6 +195,25 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 	  return Basket;
 	}();
 
+	var Product = /*#__PURE__*/function () {
+	  function Product() {
+	    babelHelpers.classCallCheck(this, Product);
+	  }
+
+	  babelHelpers.createClass(Product, null, [{
+	    key: "isService",
+	    value: function isService(item) {
+	      return item.product.type === sale_checkout_const.Product.type.service;
+	    }
+	  }, {
+	    key: "isLimitedQuantity",
+	    value: function isLimitedQuantity(item) {
+	      return item.product.checkMaxQuantity === 'Y';
+	    }
+	  }]);
+	  return Product;
+	}();
+
 	var History = /*#__PURE__*/function () {
 	  function History(options) {
 	    babelHelpers.classCallCheck(this, History);
@@ -238,7 +257,8 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
 	exports.Pool = Pool;
 	exports.Timer = Timer;
 	exports.Basket = Basket;
+	exports.Product = Product;
 	exports.History = History;
 
-}((this.BX.Sale.Checkout.Lib = this.BX.Sale.Checkout.Lib || {}),BX));
+}((this.BX.Sale.Checkout.Lib = this.BX.Sale.Checkout.Lib || {}),BX,BX.Sale.Checkout.Const));
 //# sourceMappingURL=registry.bundle.js.map

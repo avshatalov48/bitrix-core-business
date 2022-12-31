@@ -1,0 +1,144 @@
+.sonet-group-list-toolbar-container {
+	width: 100%;
+	display: flex;
+	align-items: center;
+}
+
+.sonet-group-list-toolbar-container.--group-actions {
+	height: 52px;
+}
+
+.sonet-group-grid-wrapper, .sonet-group-grid-wrapper:hover {
+	display: block;
+	overflow: hidden;
+	height: 46px;
+	margin: -16px -50px;
+	padding: 0 29px;
+	background: #f1f5f7;
+	font-family: 'OpenSans-Semibold', "Helvetica Neue", Arial, Helvetica, sans-serif;
+	line-height: 46px;
+	text-align: left;
+}
+
+.main-grid-cell-content .sonet-group-grid-wrapper a,
+.main-grid-cell-content .sonet-group-grid-wrapper a:hover {
+	color: #525c69;
+}
+
+.sonet-group-grid-name-container {
+	display: flex;
+	align-items: center;
+	margin-top: -4px;
+}
+
+.sonet-group-grid-name-text {
+	display: inline-block;
+	max-width: 100%;
+	color: #525C69;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.main-grid-cell-content a.sonet-group-grid-name-text:hover {
+	text-decoration: none;
+}
+
+.sonet-group-grid-action {
+	color: rgb(32,102,176,1);
+	cursor: pointer;
+}
+
+.sonet-group-grid-action:hover {
+	border-bottom: 1px rgb(32,102,176,1) dashed;
+}
+
+.sonet-group-grid-action.--red {
+	color: rgb(255,87,82,1);
+}
+
+.sonet-group-grid-action.--red:hover {
+	border-bottom: 1px rgb(255,87,82,1) dashed;
+}
+
+.sonet-group-grid-action-cont .sonet-group-grid-action {
+	margin: 0 6px;
+	display: inline-block;
+}
+.sonet-group-grid-action-cont .sonet-group-grid-action:first-child {
+	margin-left: 0;
+}
+.sonet-group-grid-action-cont .sonet-group-grid-action:last-child {
+	margin-right: 0;
+}
+
+.sonet-group-grid-action.--inactive,
+.sonet-group-grid-action.--red.--inactive {
+	pointer-events: none;
+	cursor: auto;
+}
+
+.sonet-group-grid-action.--inactive {
+	color: rgb(32,102,176,.3);
+}
+
+.sonet-group-grid-action.--red.--inactive {
+	color: rgb(255,87,82,.3);
+}
+.sonet-group-grid-action.--inactive:hover,
+.sonet-group-grid-action.--red.--inactive:hover {
+	border-bottom-color: transparent;
+}
+
+.sonet-group-grid-request-date {
+	font-size: 12px;
+	color: rgba(82, 92, 105, 0.5);
+}
+
+.sg-tasks-scrum__transfer--contant {
+	margin-bottom: 19%;
+}
+
+.sg-tasks-scrum__transfer--title,
+.sg-tasks-scrum__transfer--description {
+	color: #333;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-light, 300);
+}
+
+.sg-tasks-scrum__transfer--title {
+	font-size: 24px;
+}
+
+.sg-tasks-scrum__transfer--description {
+	margin-bottom: 20px;
+}
+
+.sg-tasks-scrum__transfer--content {
+	padding: 19px 48px;
+	background: #d9f6ff;
+	border-radius: 10px;
+}
+
+.sg-tasks-scrum__transfer--info {
+	padding: 18px 56px;
+	border-bottom: 1px solid rgba(82,92,105,.08);
+	margin-bottom: 14px;
+	line-height: 32px;
+}
+
+.sg-tasks-scrum__transfer--info-systems {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	font-size: 12px;
+	line-height: 29px;
+	color: #a8adb4;
+}
+
+.sg-tasks-scrum__transfer--info-systems-item {
+	display: flex;
+	align-items: center;
+	margin: 0 7px;
+}

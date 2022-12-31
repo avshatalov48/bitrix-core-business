@@ -6,14 +6,12 @@ use Bitrix\Main\Engine;
 use Bitrix\Main\Entity\Query;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Error;
-use Bitrix\Main\ORM\Query\Filter\Helper;
+use Bitrix\Main\ORM\Query\Filter;
 use Bitrix\Main\Search\Content;
 use Bitrix\Main\UI\PageNavigation;
-use Bitrix\Socialnetwork\Helper\Path;
-use Bitrix\Socialnetwork\Helper\Workgroup;
+use Bitrix\Socialnetwork\Helper;
 use Bitrix\Socialnetwork\Integration\Main\File;
 use Bitrix\Socialnetwork\UserToGroupTable;
-use Bitrix\Socialnetwork\WorkgroupTable;
 
 class UserToGroup extends Base
 {
@@ -185,7 +183,7 @@ class UserToGroup extends Base
 		{
 			$query->whereMatch(
 				'USER.INDEX.SEARCH_ADMIN_CONTENT',
-				Helper::matchAgainstWildcard(Content::prepareStringToken(trim($filter['SEARCH_INDEX'])))
+				Filter\Helper::matchAgainstWildcard(Content::prepareStringToken(trim($filter['SEARCH_INDEX'])))
 			);
 		}
 
@@ -228,7 +226,7 @@ class UserToGroup extends Base
 
 			if (!array_key_exists($projectId, $permissions))
 			{
-				$permissions[$projectId] = Workgroup::getPermissions(['groupId' => $projectId]);
+				$permissions[$projectId] = Helper\Workgroup::getPermissions(['groupId' => $projectId]);
 			}
 
 			$projectPermissions = $permissions[$projectId];
@@ -289,12 +287,6 @@ class UserToGroup extends Base
 
 	public function joinAction(array $params = [])
 	{
-		global $APPLICATION;
-
-		$result = [
-			'success' => false
-		];
-
 		$userId = (int)(isset($params['userId']) && (int)$params['userId'] > 0 ? $params['userId'] : $this->getCurrentUser()->getId());
 		$groupId = (int)(isset($params['groupId']) && (int)$params['groupId'] > 0 ? $params['groupId'] : 0);
 
@@ -325,78 +317,22 @@ class UserToGroup extends Base
 			return null;
 		}
 
-		$res = WorkgroupTable::getList([
-			'filter' => [
-				'ID' => $groupId
-			],
-			'select' => [ 'ID', 'OPENED', 'VISIBLE' ]
-		]);
-		$workgroupFields = $res->fetch();
-		if (!$workgroupFields)
+		try
 		{
-			$this->addError(new Error('No Workgroup', 'SONET_CONTROLLER_USERTOGROUP_NO_GROUP'));
+			$confirmationNeeded = Helper\Workgroup::join([
+				'groupId' => $groupId,
+			]);
+		}
+		catch (\Exception $e)
+		{
+			$this->addError(new Error($e->getMessage(), $e->getCode()));
 			return null;
 		}
 
-		$res = UserToGroupTable::getList([
-			'filter' => [
-				'USER_ID' => $userId,
-				'GROUP_ID' => $groupId,
-			],
-			'select' => [ 'ID', 'ROLE', 'INITIATED_BY_TYPE' ],
-		]);
-		if ($relationFields = $res->fetch())
-		{
-			if (in_array($relationFields['ROLE'], UserToGroupTable::getRolesMember(), true))
-			{
-				$this->addError(new Error('User is already a member of the group', 'SONET_CONTROLLER_USERTOGROUP_ALREADY_MEMBER'));
-				return null;
-			}
-
-			if ($relationFields['ROLE'] === UserToGroupTable::ROLE_BAN)
-			{
-				$this->addError(new Error('User cannot join the group', 'SONET_CONTROLLER_USERTOGROUP_BANNED'));
-				return null;
-			}
-
-			if (
-				$relationFields['ROLE'] === UserToGroupTable::ROLE_REQUEST
-				&& $relationFields['INITIATED_BY_TYPE'] === UserToGroupTable::INITIATED_BY_GROUP
-			)
-			{
-				if (!\CSocNetUserToGroup::userConfirmRequestToBeMember($userId, $relationFields['ID'], false))
-				{
-					$this->addError(new Error((($e = $APPLICATION->getException()) ? $e->getString() : 'Cannot join the group'), 'SONET_CONTROLLER_USERTOGROUP_JOIN_ERROR'));
-					return null;
-				}
-
-				$result = [
-					'success' => true,
-					'confirmationNeeded' => false,
-				];
-			}
-		}
-		elseif ($workgroupFields['VISIBLE'] === 'Y')
-		{
-			$requestConfirmUrl = \CComponentEngine::MakePathFromTemplate(Path::get('group_requests_path_template'), [ 'group_id' => $groupId ]);
-			if (!\CSocNetUserToGroup::sendRequestToBeMember($userId, $groupId, '', $requestConfirmUrl, false))
-			{
-				$this->addError(new Error((($e = $APPLICATION->getException()) ? $e->getString() : 'Cannot join the group'), 'SONET_CONTROLLER_USERTOGROUP_JOIN_ERROR'));
-				return null;
-			}
-
-			$result = [
-				'success' => true,
-				'confirmationNeeded' => ($workgroupFields['OPENED'] !== 'Y'),
-			];
-		}
-		else
-		{
-			$this->addError(new Error('User should request first', 'SONET_CONTROLLER_USERTOGROUP_JOIN_ERROR'));
-			return null;
-		}
-
-		return $result;
+		return [
+			'success' => true,
+			'confirmationNeeded' => $confirmationNeeded,
+		];
 	}
 
 	/* use Helper::exclude() then */
@@ -425,32 +361,16 @@ class UserToGroup extends Base
 			return null;
 		}
 
-		$res = UserToGroupTable::getList([
-			'filter' => [
-				'USER_ID' => $userId,
-				'GROUP_ID' => $groupId,
-			],
-			'select' => [ 'ID', 'ROLE', 'AUTO_MEMBER' ],
-		]);
-		if (!$relationFields = $res->fetch())
+		try
 		{
-			$this->addError(new Error('No relation', 'SONET_CONTROLLER_USERTOGROUP_NO_RELATION'));
-			return null;
+			Helper\Workgroup::leave([
+				'groupId' => $groupId,
+				'userId' => $userId,
+			]);
 		}
-
-		if (!in_array($relationFields['ROLE'], [ UserToGroupTable::ROLE_MODERATOR, UserToGroupTable::ROLE_USER ], true))
+		catch (\Exception $e)
 		{
-			$this->addError(new Error('Cannot leave group', 'SONET_CONTROLLER_USERTOGROUP_LEAVE_WRONG_CURRENT_ROLE'));
-		}
-
-		if ($relationFields['AUTO_MEMBER'] === 'Y')
-		{
-			$this->addError(new Error('Cannot leave group', 'SONET_CONTROLLER_USERTOGROUP_LEAVE_AUTO_MEMBER'));
-		}
-
-		if (!\CSocNetUserToGroup::deleteRelation($userId, $groupId))
-		{
-			$this->addError(new Error((($e = $APPLICATION->getException()) ? $e->getString() : 'Cannot leave the group'), 'SONET_CONTROLLER_USERTOGROUP_LEAVE_ERROR'));
+			$this->addError(new Error($e->getMessage(), $e->getCode()));
 			return null;
 		}
 
@@ -461,7 +381,7 @@ class UserToGroup extends Base
 
 	public function setOwnerAction(int $userId, int $groupId): bool
 	{
-		return Workgroup::setOwner([
+		return Helper\Workgroup::setOwner([
 			'userId' => $userId,
 			'groupId' => $groupId,
 		]);
@@ -469,7 +389,7 @@ class UserToGroup extends Base
 
 	public function setModeratorAction(int $userId, int $groupId): bool
 	{
-		return Workgroup::setModerator([
+		return Helper\Workgroup::setModerator([
 			'userId' => $userId,
 			'groupId' => $groupId,
 		]);
@@ -477,7 +397,7 @@ class UserToGroup extends Base
 
 	public function removeModeratorAction(int $userId, int $groupId): bool
 	{
-		return Workgroup::removeModerator([
+		return Helper\Workgroup::removeModerator([
 			'userId' => $userId,
 			'groupId' => $groupId,
 		]);
@@ -485,7 +405,7 @@ class UserToGroup extends Base
 
 	public function setModeratorsAction(array $userIds, int $groupId): bool
 	{
-		return Workgroup::setModerators([
+		return Helper\Workgroup::setModerators([
 			'userIds' => $userIds,
 			'groupId' => $groupId,
 		]);
@@ -493,7 +413,7 @@ class UserToGroup extends Base
 
 	public function excludeAction(int $userId, int $groupId): bool
 	{
-		return Workgroup::exclude([
+		return Helper\Workgroup::exclude([
 			'userId' => $userId,
 			'groupId' => $groupId,
 		]);
@@ -511,7 +431,7 @@ class UserToGroup extends Base
 
 	public function cancelInviteAction(int $userId, int $groupId): bool
 	{
-		return Workgroup::deleteOutgoingRequest([
+		return Helper\Workgroup::deleteOutgoingRequest([
 			'userId' => $userId,
 			'groupId' => $groupId,
 		]);
@@ -519,7 +439,7 @@ class UserToGroup extends Base
 
 	public function cancelIncomingRequestAction(int $userId, int $groupId): bool
 	{
-		return Workgroup::deleteIncomingRequest([
+		return Helper\Workgroup::deleteIncomingRequest([
 			'userId' => $userId,
 			'groupId' => $groupId,
 		]);
@@ -545,7 +465,7 @@ class UserToGroup extends Base
 
 	public function setHideRequestPopupAction(int $groupId): ?bool
 	{
-		$result = \Bitrix\Socialnetwork\Helper\UserToGroup\RequestPopup::setHideRequestPopup([
+		$result = Helper\UserToGroup\RequestPopup::setHideRequestPopup([
 			'groupId' => $groupId,
 			'userId' => (int)$this->getCurrentUser()->getId(),
 		]);

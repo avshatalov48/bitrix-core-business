@@ -105,6 +105,7 @@ if (
 	}
 }
 
+$additionalFields = [];
 if (
 	check_bitrix_sessid()
 	&& !$readOnly
@@ -247,7 +248,6 @@ if (
 		'USER_GROUPS' => $arGroupID,
 	);
 
-	$additionalFields = array();
 	if ($discountID == 0 || $copy)
 	{
 		$additionalFields = array(
@@ -445,8 +445,10 @@ if (!empty($errors))
 		$arDiscount = $arFields;
 	}
 	$arDiscountGroupList = $arFields['USER_GROUPS'];
-	if (isset($additionalFields))
+	if (!empty($additionalFields))
+	{
 		$coupons = array_merge($coupons, $additionalFields);
+	}
 }
 
 $contextMenuItems = array(

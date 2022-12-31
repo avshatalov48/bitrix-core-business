@@ -25,21 +25,23 @@ class Order extends Controller
 			Sale\Order::class,
 			'order',
 			function($className, $id) {
-				$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
-
-				/** @var \Bitrix\Sale\Order $className */
-				$orderClass = $registry->getOrderClassName();
-
-				/** @var \Bitrix\Sale\Order $className */
-				$order = $orderClass::load($id);
-				if ($order && $order instanceof Sale\OrderBase)
+				$id = (int)$id;
+				if ($id > 0)
 				{
-					return $order;
+					$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
+
+					/** @var \Bitrix\Sale\Order $className */
+					$orderClass = $registry->getOrderClassName();
+
+					/** @var \Bitrix\Sale\Order $className */
+					$order = $orderClass::load($id);
+					if ($order instanceof Sale\OrderBase)
+					{
+						return $order;
+					}
 				}
-				else
-				{
-					$this->addError(new Error('order is not exists', 200540400001));
-				}
+
+				$this->addError(new Error('order is not exists', 200540400001));
 				return null;
 			}
 		);
@@ -520,6 +522,7 @@ class Order extends Controller
 
 		$data['ORDER'] = $fields;
 		$data['ORDER']['ID'] = $order->getId();
+		$data['ORDER']['PERSON_TYPE_ID'] = $order->getPersonTypeId();
 
 		$orderBuilder = $this->getBuilder();
 		$order = $orderBuilder->buildEntityOrder($data);

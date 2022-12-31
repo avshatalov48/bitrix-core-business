@@ -98,7 +98,7 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 		),
 		"AUTHOR_URL_PARAMS" => array(
 			"entityType" => 'LOG_ENTRY',
-			"entityId" => $arParams["LOG_ID"]
+			"entityId" => $arParams["LOG_ID"],
 		),
 		"IS_POSTS_LIST" => ($arParams["bFromList"] ? "Y" : "N"),
 	),
@@ -125,10 +125,21 @@ if ($arParams["bFromList"])
 		$arResult["OUTPUT_LIST"]["HTML"] .= ob_get_clean();
 	}
 }
-elseif ($arResult['CanUserComment'])
+else
 {
 	ob_start();
-	include_once(__DIR__ . "/script.php");
+	?>
+	<script>
+		BXMobileApp.onCustomEvent('onCommentsGet', {
+			log_id: <?= $arParams["LOG_ID"] ?>,
+			ts: '<?= time() ?>',
+		}, true);
+	</script>
+	<?php
+	if ($arResult['CanUserComment'])
+	{
+		include_once(__DIR__ . "/script.php");
+	}
 	$arResult["OUTPUT_LIST"]["HTML"] .= ob_get_clean();
 }
 
@@ -148,10 +159,12 @@ if ($_REQUEST['empty_get_comments'] === 'Y')
 <script>
 	app.setPageID('BLOG_POST_<?=$arParams["ID"]?>');
 	BX.addCustomEvent(window, "OnUCFormSubmit", function(xml, id, obj, post) {
-		if (xml=='<?=$arParams["ENTITY_XML_ID"]?>') {
+		if (xml == '<?=$arParams["ENTITY_XML_ID"]?>')
+		{
 			post['comment_post_id'] = '<?=$arParams["ID"]?>';
 			post['logId'] = '<?=$arParams["LOG_ID"]?>';
-	} });
+		}
+	});
 </script>
 <div class="post-comments-wrap" id="post-comments-wrap">
 	<?=$arResult["OUTPUT_LIST"]["HTML"]?>

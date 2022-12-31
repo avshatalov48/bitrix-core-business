@@ -69,6 +69,7 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'c
 	isEmpty = <?= CUtil::PhpToJSObject((bool)$arResult['IS_EMPTY']) ?>;
 	presetList = <?= CUtil::PhpToJSObject($arResult['PRESET_LIST']) ?>;
 	previewLang = <?= CUtil::PhpToJSObject($arResult['PREVIEW_LANG']) ?>;
+	inventoryManagementSource = <?= CUtil::PhpToJSObject($arResult['INVENTORY_MANAGEMENT_SOURCE']) ?>;
 
 	BX.Vue.create({
 		el: document.getElementById('placeholder'),
@@ -85,7 +86,8 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'c
 			sliderType: 'store',
 			currentSlider: BX.SidePanel.Instance.getTopSlider() ?? false,
 			presetList: presetList,
-			previewLang: previewLang
+			previewLang: previewLang,
+			inventoryManagementSource: inventoryManagementSource,
 		}),
 		created: function ()
 		{
@@ -333,6 +335,7 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'c
 					this._processEnableResponse(
 						controller.inventoryManagementEnableWithResetDocuments({
 							preset: this.getListCheckedPreset(),
+							inventoryManagementSource: this.inventoryManagementSource,
 						})
 					);
 				},
@@ -351,6 +354,7 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'c
 					this._processEnableResponse(
 						controller.inventoryManagementEnableWithoutReset({
 							preset: this.getListCheckedPreset(),
+							inventoryManagementSource: this.inventoryManagementSource,
 						})
 					);
 				},
@@ -370,6 +374,7 @@ $APPLICATION->SetPageProperty('BodyClass', ($bodyClass ? $bodyClass.' ' : '').'c
 					this._processEnableResponse(
 						controller.inventoryManagementEnabled({
 							preset: this.getListCheckedPreset(),
+							inventoryManagementSource: this.inventoryManagementSource,
 						})
 					);
 				},

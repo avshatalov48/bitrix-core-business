@@ -1,7 +1,7 @@
 this.BX = this.BX || {};
 this.BX.Sale = this.BX.Sale || {};
 this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
-(function (exports,ui_vue,ui_vue_vuex,main_core,sale_checkout_const) {
+(function (exports,sale_checkout_const,ui_vue,ui_vue_vuex,main_core) {
     'use strict';
 
     var Order = /*#__PURE__*/function (_VuexBuilderModel) {
@@ -320,7 +320,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             picture: this.getVariable('product.noImage', null),
             detailPageUrl: "",
             availableQuantity: 0,
-            ratio: 0
+            ratio: 0,
+            type: sale_checkout_const.Product.type.product,
+            checkMaxQuantity: 'N'
           };
         }
       }, {
@@ -524,6 +526,16 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
               } else if (field === 'ratio') {
                 if (main_core.Type.isNumber(fields.ratio) || main_core.Type.isString(fields.ratio)) {
                   result.ratio = parseFloat(fields.ratio);
+                }
+              } else if (field === 'type') {
+                if (main_core.Type.isString(fields.type)) {
+                  var productTypes = Object.values(sale_checkout_const.Product.type);
+                  var type = fields.type.toString();
+                  result.type = productTypes.includes(type) ? type : sale_checkout_const.Product.type.product;
+                }
+              } else if (field === 'checkMaxQuantity') {
+                if (main_core.Type.isString(fields.checkMaxQuantity)) {
+                  result.checkMaxQuantity = fields.checkMaxQuantity.toString() === 'Y' ? 'Y' : 'N';
                 }
               } else {
                 result[field] = fields[field];
@@ -880,6 +892,16 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             result.personTypeId = parseInt(fields.personTypeId);
           }
 
+          if (main_core.Type.isString(fields.required)) {
+            var requiredValue = fields.required.toString();
+            result.required = requiredValue === 'Y' ? 'Y' : 'N';
+          }
+
+          if (main_core.Type.isString(fields.multiple)) {
+            var multipleValue = fields.multiple.toString();
+            result.multiple = multipleValue === 'Y' ? 'Y' : 'N';
+          }
+
           return result;
         }
       }, {
@@ -996,7 +1018,9 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
             name: "",
             type: sale_checkout_const.Property.type.undefined,
             value: "",
-            validated: sale_checkout_const.Property.validate.unvalidated
+            validated: sale_checkout_const.Property.validate.unvalidated,
+            required: 'N',
+            multiple: 'N'
           };
         }
       }]);
@@ -1680,6 +1704,145 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
       return Consent;
     }(ui_vue_vuex.VuexBuilderModel);
 
+    var Variant = /*#__PURE__*/function (_VuexBuilderModel) {
+      babelHelpers.inherits(Variant, _VuexBuilderModel);
+
+      function Variant() {
+        babelHelpers.classCallCheck(this, Variant);
+        return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(Variant).apply(this, arguments));
+      }
+
+      babelHelpers.createClass(Variant, [{
+        key: "getName",
+        value: function getName() {
+          return 'property-variant';
+        }
+      }, {
+        key: "getState",
+        value: function getState() {
+          return {
+            variant: []
+          };
+        }
+      }, {
+        key: "validate",
+        value: function validate(fields) {
+          var result = {};
+
+          if (main_core.Type.isNumber(fields.id) || main_core.Type.isString(fields.id)) {
+            result.id = parseInt(fields.id);
+          }
+
+          if (main_core.Type.isNumber(fields.orderPropsId) || main_core.Type.isString(fields.orderPropsId)) {
+            result.propertyId = parseInt(fields.orderPropsId);
+          }
+
+          if (main_core.Type.isString(fields.name)) {
+            result.name = fields.name.toString();
+          }
+
+          if (main_core.Type.isString(fields.value)) {
+            result.value = fields.value.toString();
+          }
+
+          return result;
+        }
+      }, {
+        key: "getActions",
+        value: function getActions() {
+          var _this = this;
+
+          return {
+            addItem: function addItem(_ref, payload) {
+              var commit = _ref.commit;
+              payload.fields = _this.validate(payload.fields);
+              commit('addItem', payload);
+            },
+            changeItem: function changeItem(_ref2, payload) {
+              var commit = _ref2.commit;
+              payload.fields = _this.validate(payload.fields);
+              commit('updateItem', payload);
+            },
+            removeItem: function removeItem(_ref3, payload) {
+              var commit = _ref3.commit;
+              commit('deleteItem', payload);
+            }
+          };
+        }
+      }, {
+        key: "getGetters",
+        value: function getGetters() {
+          return {
+            get: function get(state) {
+              return function (id) {
+                if (!state.variant[id] || state.variant[id].length <= 0) {
+                  return [];
+                }
+
+                return state.variant[id];
+              };
+            },
+            getVariant: function getVariant(state) {
+              return state.variant;
+            },
+            getBaseItem: function getBaseItem(state) {
+              return Variant.getBaseItem();
+            },
+            getErrors: function getErrors(state) {
+              return state.errors;
+            }
+          };
+        }
+      }, {
+        key: "getMutations",
+        value: function getMutations() {
+          var _this2 = this;
+
+          return {
+            addItem: function addItem(state, payload) {
+              payload = _this2.prepareFields(payload);
+              var item = Variant.getBaseItem();
+              item = Object.assign(item, payload);
+              state.variant.unshift(item);
+              state.variant.forEach(function (item, index) {
+                item.sort = index + 1;
+              });
+            },
+            updateItem: function updateItem(state, payload) {
+              if (typeof state.variant[payload.index] === 'undefined') {
+                ui_vue.Vue.set(state.variant, payload.index, Variant.getBaseItem());
+              }
+
+              state.variant[payload.index] = Object.assign(state.variant[payload.index], payload.fields);
+            },
+            deleteItem: function deleteItem(state, payload) {
+              state.variant.splice(payload.index, 1);
+            },
+            clearVariant: function clearVariant(state) {
+              state.variant = [];
+            },
+            setErrors: function setErrors(state, payload) {
+              state.errors = payload;
+            },
+            clearErrors: function clearErrors(state) {
+              state.errors = [];
+            }
+          };
+        }
+      }], [{
+        key: "getBaseItem",
+        value: function getBaseItem() {
+          return {
+            id: 0,
+            propertyId: 0,
+            value: "",
+            name: ""
+          };
+        }
+      }]);
+      return Variant;
+    }(ui_vue_vuex.VuexBuilderModel);
+
     exports.Order = Order;
     exports.Check = Check;
     exports.Basket = Basket;
@@ -1688,6 +1851,7 @@ this.BX.Sale.Checkout = this.BX.Sale.Checkout || {};
     exports.PaySystem = PaySystem;
     exports.Application = Application;
     exports.Consent = Consent;
+    exports.Variant = Variant;
 
-}((this.BX.Sale.Checkout.Model = this.BX.Sale.Checkout.Model || {}),BX,BX,BX,BX.Sale.Checkout.Const));
+}((this.BX.Sale.Checkout.Model = this.BX.Sale.Checkout.Model || {}),BX.Sale.Checkout.Const,BX,BX,BX));
 //# sourceMappingURL=model.bundle.js.map

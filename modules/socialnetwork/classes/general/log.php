@@ -1,7 +1,7 @@
 <?php
 
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Deprecated;
 
 Loc::loadMessages(__FILE__);
 
@@ -257,121 +257,66 @@ class CAllSocNetLog
 	/***************************************/
 	/**********  SEND EVENTS  **************/
 	/***************************************/
+	/**
+	 * @deprecated
+	 */
 	public static function __InitUserTmp($userID)
 	{
-		$title = "";
-
-		$dbUser = CUser::GetByID($userID);
-		if ($arUser = $dbUser->GetNext())
-		{
-			$title .= CSocNetUser::FormatName($arUser["NAME"], $arUser["LAST_NAME"], $arUser["LOGIN"]);
-		}
-
-		return $title;
+		return Deprecated\Log::__InitUserTmp($userID);
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function __InitUsersTmp($message, $titleTemplate1, $titleTemplate2)
 	{
-		$arUsersID = explode(",", $message);
-
-		$title = "";
-
-		$bFirst = true;
-		$count = 0;
-		foreach ($arUsersID as $userID)
-		{
-			$titleTmp = self::__InitUserTmp($userID);
-
-			if ($titleTmp !== '')
-			{
-				if (!$bFirst)
-				{
-					$title .= ", ";
-				}
-
-				$title .= $titleTmp;
-				$count++;
-			}
-
-			$bFirst = false;
-		}
-
-		return Str_Replace("#TITLE#", $title, (($count > 1) ? $titleTemplate2 : $titleTemplate1));
+		return Deprecated\Log::__InitUsersTmp($message, $titleTemplate1, $titleTemplate2);
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function __InitGroupTmp($groupID)
 	{
-		$title = '';
-
-		$arGroup = CSocNetGroup::GetByID($groupID);
-		if ($arGroup)
-		{
-			$title .= $arGroup["NAME"];
-		}
-
-		return $title;
+		return Deprecated\Log::__InitGroupTmp($groupID);
 	}
 
+	/**
+	 * @deprecated
+	 */
 	public static function __InitGroupsTmp($message, $titleTemplate1, $titleTemplate2)
 	{
-		$arGroupsID = explode(",", $message);
-
-		$title = "";
-
-		$bFirst = true;
-		$count = 0;
-		foreach ($arGroupsID as $groupID)
-		{
-			$titleTmp = CSocNetLog::__InitGroupTmp($groupID);
-
-			if ($titleTmp !== '')
-			{
-				if (!$bFirst)
-				{
-					$title .= ", ";
-				}
-
-				$title .= $titleTmp;
-				$count++;
-			}
-
-			$bFirst = false;
-		}
-
-		return Str_Replace("#TITLE#", $title, (($count > 1) ? $titleTemplate2 : $titleTemplate1));
+		return Deprecated\Log::__InitGroupsTmp($message, $titleTemplate1, $titleTemplate2);
 	}
 
-	public static function SendEventAgent($ID, $mailTemplate = "SONET_NEW_EVENT", $tmp_id = false)
+	public static function SendEventAgent($ID, $mailTemplate = "SONET_NEW_EVENT"): string
 	{
 		return (
-			CSocNetLog::SendEvent($ID, $mailTemplate, $tmp_id, true)
+			CSocNetLog::SendEvent($ID, $mailTemplate, 0, true)
 				? ""
-				: "CSocNetLog::SendEventAgent(".$ID.", '".$mailTemplate."', " . ($tmp_id ?: 'false') . ");"
+				: "CSocNetLog::SendEventAgent(".$ID.", '".$mailTemplate."');"
 		);
 	}
 
-	public static function SendEvent($ID, $mailTemplate = "SONET_NEW_EVENT", $tmp_id = false, $bAgent = false, $bTransport = false)
+	public static function SendEvent(
+		$ID,
+		$mailTemplate = "SONET_NEW_EVENT",
+		$tmpId = 0,
+		$bAgent = false
+	)
 	{
 		global $APPLICATION;
 
 		$arSocNetAllowedSubscribeEntityTypesDesc = CSocNetAllowed::GetAllowedEntityTypesDesc();
 
 		$ID = (int)$ID;
-		$tmp_id = (int)$tmp_id;
 
 		if ($ID <= 0)
 		{
 			return false;
 		}
 
-		if ($tmp_id > 0)
-		{
-			$arFilter = array("ID" => $tmp_id);
-		}
-		else
-		{
-			$arFilter = array("ID" => $ID);
-		}
+		$arFilter = array("ID" => $ID);
 
 		$dbLog = CSocNetLog::GetList(
 			array(),
@@ -389,7 +334,7 @@ class CAllSocNetLog
 
 		if (MakeTimeStamp($arLog["LOG_DATE"]) > (time() + CTimeZone::GetOffset()))
 		{
-			$agent = "CSocNetLog::SendEventAgent(".$ID.", '".CUtil::addslashes($mailTemplate)."', " . ($tmp_id ?: 'false') . ");";
+			$agent = "CSocNetLog::SendEventAgent(".$ID.", '".CUtil::addslashes($mailTemplate)."');";
 			$rsAgents = CAgent::GetList(array("ID"=>"DESC"), array("NAME" => $agent));
 			if(!$rsAgents->Fetch())
 			{
@@ -448,292 +393,8 @@ class CAllSocNetLog
 			$arOfEntities = false;
 		}
 
-		if ($bTransport)
-		{
-			$arListParams = array(
-				"USE_SUBSCRIBE" => "Y",
-				"ENTITY_TYPE" => $arLog["ENTITY_TYPE"],
-				"ENTITY_ID" => $arLog["ENTITY_ID"],
-				"EVENT_ID" => $arLog["EVENT_ID"],
-				"USER_ID" => $arLog["USER_ID"],
-				"OF_ENTITIES" => $arOfEntities,
-				"TRANSPORT" => array("M", "X")
-			);
+		$hasAccessAll = false;
 
-			$arLogSites = array();
-			$rsLogSite = CSocNetLog::GetSite($ID);
-
-			while($arLogSite = $rsLogSite->Fetch())
-			{
-				$arLogSites[] = $arLogSite["LID"];
-			}
-
-			if (CModule::IncludeModule("extranet"))
-			{
-				$arSites = array();
-				$dbSite = CSite::GetList("sort", "desc", array("ACTIVE" => "Y"));
-				while($arSite = $dbSite->Fetch())
-				{
-					$arSites[$arSite["ID"]] = array(
-						"DIR" => (trim($arSite["DIR"]) !== '' ? $arSite["DIR"] : "/"),
-						"SERVER_NAME" => (trim($arSite["SERVER_NAME"]) !== '' ? $arSite["SERVER_NAME"] : COption::GetOptionString("main", "server_name", $_SERVER["HTTP_HOST"]))
-					);
-				}
-
-				$extranet_site_id = CExtranet::GetExtranetSiteID();
-				$intranet_site_id = CSite::GetDefSite();
-
-				$arIntranetUsers = CExtranet::GetIntranetUsers();
-			}
-
-			$dbSubscribers = CSocNetLogEvents::GetList(
-				array("TRANSPORT" => "DESC"),
-				array(
-					"USER_ACTIVE" => "Y",
-					"SITE_ID" => array_merge($arLogSites, array(false))
-				),
-				false,
-				false,
-				array("USER_ID", "SITE_ID", "ENTITY_TYPE", "ENTITY_ID", "ENTITY_CB", "ENTITY_MY", "USER_NAME", "USER_LAST_NAME", "USER_LOGIN", "USER_LID", "USER_EMAIL", "TRANSPORT"),
-				$arListParams
-			);
-
-			$arListParams = array(
-				"USE_SUBSCRIBE" => "Y",
-				"ENTITY_TYPE" => $arLog["ENTITY_TYPE"],
-				"ENTITY_ID" => $arLog["ENTITY_ID"],
-				"EVENT_ID" => $arLog["EVENT_ID"],
-				"USER_ID" => $arLog["USER_ID"],
-				"OF_ENTITIES" => $arOfEntities,
-				"TRANSPORT" => "N"
-			);
-
-			$dbUnSubscribers = CSocNetLogEvents::GetList(
-				array("TRANSPORT" => "DESC"),
-				array(
-					"USER_ACTIVE" => "Y",
-					"SITE_ID" => array_merge($arLogSites, array(false))
-				),
-				false,
-				false,
-				array("USER_ID", "SITE_ID", "ENTITY_TYPE", "ENTITY_ID", "ENTITY_CB", "ENTITY_MY", "TRANSPORT", "EVENT_ID"),
-				$arListParams
-			);
-
-			$arUnSubscribers = array();
-			while ($arUnSubscriber = $dbUnSubscribers->Fetch())
-			{
-				$arUnSubscribers[] = $arUnSubscriber["USER_ID"]."_".$arUnSubscriber["ENTITY_TYPE"]."_".$arUnSubscriber["ENTITY_ID"]."_".$arUnSubscriber["ENTITY_MY"]."_".$arUnSubscriber["ENTITY_CB"]."_".$arUnSubscriber["EVENT_ID"];
-			}
-
-			$bHasAccessAll = CSocNetLogRights::CheckForUserAll($arLog["ID"]);
-
-			$arSentUserID = [
-				"M" => [],
-				"X" => [],
-			];
-			while ($arSubscriber = $dbSubscribers->Fetch())
-			{
-				if (
-					is_array($arIntranetUsers)
-					&& !in_array($arSubscriber["USER_ID"], $arIntranetUsers)
-					&& !in_array($extranet_site_id, $arLogSites)
-				)
-				{
-					continue;
-				}
-
-				if (
-					isset($arSentUserID[$arSubscriber["TRANSPORT"]])
-					&& in_array((int)$arSubscriber["USER_ID"], $arSentUserID[$arSubscriber["TRANSPORT"]], true)
-				)
-				{
-					continue;
-				}
-
-				if (
-					(int)$arSubscriber["ENTITY_ID"] !== 0
-					&& $arSubscriber["EVENT_ID"] === "all"
-					&& (
-						in_array($arSubscriber["USER_ID"]."_".$arSubscriber["ENTITY_TYPE"]."_".$arSubscriber["ENTITY_ID"]."_N_".$arSubscriber["ENTITY_CB"]."_".$arLog["EVENT_ID"], $arUnSubscribers)
-						|| in_array($arSubscriber["USER_ID"]."_".$arSubscriber["ENTITY_TYPE"]."_".$arSubscriber["ENTITY_ID"]."_Y_".$arSubscriber["ENTITY_CB"]."_".$arLog["EVENT_ID"], $arUnSubscribers)
-					)
-				)
-				{
-					continue;
-				}
-
-				$prefix = $arSubscriber["USER_ID"] . "_" . $arSubscriber["ENTITY_TYPE"] . "_" . $arLog["ENTITY_ID"];
-
-				if (
-					(int)$arSubscriber["ENTITY_ID"] === 0
-					&& $arSubscriber["ENTITY_CB"] === "N"
-					&& $arSubscriber["EVENT_ID"] !== "all"
-					&&
-					(
-						in_array($prefix . "_Y_N_all", $arUnSubscribers, true)
-						|| in_array($prefix . "_N_N_all", $arUnSubscribers, true)
-						|| in_array($prefix . "_Y_N_" . $arLog["EVENT_ID"], $arUnSubscribers, true)
-						|| in_array($prefix . "_N_N_" . $arLog["EVENT_ID"], $arUnSubscribers, true)
-					)
-				)
-				{
-					continue;
-				}
-
-				$arSentUserID[$arSubscriber["TRANSPORT"]][] = (int)$arSubscriber["USER_ID"];
-
-				if (!$bHasAccessAll)
-				{
-					$bHasAccess = CSocNetLogRights::CheckForUserOnly($arLog["ID"], $arSubscriber["USER_ID"]);
-					if (!$bHasAccess)
-					{
-						continue;
-					}
-				}
-
-				if (Loader::includeModule('extranet'))
-				{
-					$server_name = $arSites[((!in_array($arSubscriber["USER_ID"], $arIntranetUsers) && $extranet_site_id) ? $extranet_site_id : $intranet_site_id)]["SERVER_NAME"];
-					$arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL_TO_SEND"] = str_replace(
-						array("#SERVER_NAME#", "#GROUPS_PATH#"),
-						array(
-							$server_name,
-							COption::GetOptionString("socialnetwork", "workgroups_page", false, ((!in_array($arSubscriber["USER_ID"], $arIntranetUsers) && $extranet_site_id) ? $extranet_site_id : $intranet_site_id))
-						),
-						$arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL"]
-					);
-					$arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["MESSAGE_TO_SEND"] = str_replace(
-						array("#SERVER_NAME#", "#GROUPS_PATH#"),
-						array(
-							$server_name,
-							COption::GetOptionString("socialnetwork", "workgroups_page", false, ((!in_array($arSubscriber["USER_ID"], $arIntranetUsers) && $extranet_site_id) ? $extranet_site_id : $intranet_site_id))
-						),
-						$arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["MESSAGE"]
-					);
-				}
-				else
-				{
-					$arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["MESSAGE_TO_SEND"] = $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["MESSAGE"];
-				}
-
-				switch ($arSubscriber["TRANSPORT"])
-				{
-					case "X":
-
-						if (
-							isset($arLog['FIELDS_FORMATTED']['EVENT_FORMATTED']['URL_TO_SEND'])
-							&& (string)$arLog['FIELDS_FORMATTED']['EVENT_FORMATTED']['URL_TO_SEND'] !== ''
-						)
-						{
-							$link = Loc::getMessage('SONET_GL_SEND_EVENT_LINK') . $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL_TO_SEND"];
-						}
-						elseif (
-							isset($arLog['FIELDS_FORMATTED']['EVENT_FORMATTED']['URL'])
-							&& (string)$arLog['FIELDS_FORMATTED']['EVENT_FORMATTED']['URL'] !== ''
-						)
-						{
-							$link = Loc::getMessage('SONET_GL_SEND_EVENT_LINK') . $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL"];
-						}
-						else
-						{
-							$link = "";
-						}
-
-						$arMessageFields = array(
-							"FROM_USER_ID" => ((int)$arLog["USER_ID"] > 0 ? (int)$arLog["USER_ID"] : 1),
-							"TO_USER_ID" => $arSubscriber["USER_ID"],
-							"MESSAGE" => $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["TITLE"]." #BR#".$arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["MESSAGE_TO_SEND"].($link <> '' ? "#BR# ".$link : ""),
-							"=DATE_CREATE" => CDatabase::CurrentTimeFunction(),
-							"MESSAGE_TYPE" => SONET_MESSAGE_SYSTEM,
-							"IS_LOG" => "Y"
-						);
-						CSocNetMessages::Add($arMessageFields);
-						break;
-					case "M":
-						$arFields["SUBSCRIBER_ID"] = $arSubscriber["USER_ID"];
-						$arFields["SUBSCRIBER_NAME"] = $arSubscriber["USER_NAME"];
-						$arFields["SUBSCRIBER_LAST_NAME"] = $arSubscriber["USER_LAST_NAME"];
-						$arFields["SUBSCRIBER_LOGIN"] = $arSubscriber["USER_LOGIN"];
-						$arFields["SUBSCRIBER_EMAIL"] = $arSubscriber["USER_EMAIL"];
-						$arFields["EMAIL_TO"] = $arSubscriber["USER_EMAIL"];
-						$arFields["TITLE"] = str_replace("#BR#", "\n", $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["TITLE"]);
-						$arFields["MESSAGE"] = str_replace("#BR#", "\n", $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["MESSAGE_TO_SEND"]);
-						$arFields["ENTITY"] = $arLog["FIELDS_FORMATTED"]["ENTITY"]["FORMATTED"];
-						$arFields["ENTITY_TYPE"] = $arLog["FIELDS_FORMATTED"]["ENTITY"]["TYPE_MAIL"];
-
-						if (
-							isset($arLog['FIELDS_FORMATTED']['EVENT_FORMATTED']['URL_TO_SEND'])
-							&& (string)$arLog['FIELDS_FORMATTED']['EVENT_FORMATTED']['URL_TO_SEND'] !== ''
-						)
-						{
-							$arFields["URL"] = $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL_TO_SEND"];
-						}
-						elseif (
-							isset($arLog['FIELDS_FORMATTED']['EVENT_FORMATTED']['URL'])
-							&& (string)$arLog['FIELDS_FORMATTED']['EVENT_FORMATTED']['URL'] !== ''
-						)
-						{
-							$arFields["URL"] = $arLog["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["URL"];
-						}
-						else
-						{
-							$arFields["URL"] = $arLog["URL"];
-						}
-
-						if (Loader::includeModule('extranet'))
-						{
-							$arUserGroup = CUser::GetUserGroup($arSubscriber["USER_ID"]);
-						}
-
-						foreach ($arLogSites as $site_id_tmp)
-						{
-							if (IsModuleInstalled("extranet"))
-							{
-								if (
-									(
-										CExtranet::IsExtranetSite($site_id_tmp)
-										&& in_array(CExtranet::GetExtranetUserGroupID(), $arUserGroup)
-									)
-									||
-									(
-										!CExtranet::IsExtranetSite($site_id_tmp)
-										&& !in_array(CExtranet::GetExtranetUserGroupID(), $arUserGroup)
-									)
-								)
-								{
-									$siteID = $site_id_tmp;
-									break;
-								}
-							}
-							else
-							{
-								$siteID = $site_id_tmp;
-								break;
-							}
-						}
-
-						if (!$siteID)
-						{
-							$siteID = (defined("SITE_ID") ? SITE_ID : $arSubscriber["SITE_ID"]);
-						}
-
-						if ($siteID == '')
-						{
-							$siteID = $arSubscriber["USER_LID"];
-						}
-
-						if ($siteID == '')
-						{
-							break;
-						}
-
-						CEvent::Send($mailTemplate, $siteID, $arFields, "N");
-						break;
-					default:
-				}
-			}
-		}
 
 		$arUserIdToPush = ($arFields["USERS_TO_PUSH"] ?? []);
 
@@ -742,9 +403,9 @@ class CAllSocNetLog
 			'EVENT_ID' => $arLog["EVENT_ID"],
 			'OF_ENTITIES' => $arOfEntities,
 			'TYPE' => CSocNetLogCounter::TYPE_LOG_ENTRY,
-			'FOR_ALL_ACCESS' => $bHasAccessAll,
+			'FOR_ALL_ACCESS' => $hasAccessAll,
 			'USERS_TO_PUSH' => (
-				$bHasAccessAll
+				$hasAccessAll
 				|| empty($arUserIdToPush)
 				|| count($arUserIdToPush) > 20
 					? []
@@ -755,7 +416,14 @@ class CAllSocNetLog
 		return true;
 	}
 
-	public static function CounterIncrement($entityId, $event_id = false, $arOfEntities = false, $type = CSocNetLogCounter::TYPE_LOG_ENTRY, $bForAllAccess = false, $arUserIdToPush = array())
+	public static function CounterIncrement(
+		$entityId,
+		$eventId = '',
+		$entitiesList = false,
+		$type = CSocNetLogCounter::TYPE_LOG_ENTRY,
+		$forAllAccess = false,
+		$userIdToPushList = []
+	): void
 	{
 		if (
 			is_array($entityId)
@@ -764,117 +432,108 @@ class CAllSocNetLog
 		{
 			$arFields = $entityId;
 			$entityId = $arFields["ENTITY_ID"];
-			$event_id = ($arFields["EVENT_ID"] ?? false);
+			$eventId = (string)($arFields["EVENT_ID"] ?? '');
 			$type = ($arFields["TYPE"] ?? CSocNetLogCounter::TYPE_LOG_ENTRY);
-			$bForAllAccess = ($arFields["FOR_ALL_ACCESS"] ?? false);
-			$arUserIdToPush = ($arFields["USERS_TO_PUSH"] ?? []);
-			$bSendToAuthor = !(
-				!isset($arFields["SEND_TO_AUTHOR"])
-				|| $arFields["SEND_TO_AUTHOR"] !== 'Y'
+			$forAllAccess = ($arFields["FOR_ALL_ACCESS"] ?? false);
+			$userIdToPushList = ($arFields["USERS_TO_PUSH"] ?? []);
+			$sendToAuthor = (
+				isset($arFields['SEND_TO_AUTHOR'])
+				&& $arFields['SEND_TO_AUTHOR'] === 'Y'
 			);
 		}
 		else
 		{
-			$bSendToAuthor = false;
+			$sendToAuthor = false;
 		}
 
 		if ((int)$entityId <= 0)
 		{
-			return false;
+			return;
 		}
 
 		if (
-			$event_id === "tasks"
+			$eventId === "tasks"
 			&& !\Bitrix\Socialnetwork\ComponentHelper::checkLivefeedTasksAllowed()
 		)
 		{
-			return false;
+			return;
 		}
 
-		if (!$bForAllAccess)
+		if (!$forAllAccess)
 		{
-			$arParams = array(
-				"SET_TIMESTAMP" => "Y"
-			);
-
-			if (!empty($arUserIdToPush))
-			{
-				$arParams["USERS_TO_PUSH"] = $arUserIdToPush;
-			}
-
 			CUserCounter::IncrementWithSelect(
 				CSocNetLogCounter::GetSubSelect2(
 					$entityId,
-					array(
+					[
 						"TYPE" => $type,
 						"FOR_ALL_ACCESS" => false,
 						"MULTIPLE" => "Y",
 						"SET_TIMESTAMP" => "Y",
-						"SEND_TO_AUTHOR" => ($bSendToAuthor ? 'Y' : 'N')
-					)
+						"SEND_TO_AUTHOR" => ($sendToAuthor ? 'Y' : 'N')
+					]
 				),
-				true,
-				$arParams
+				false,
+				[
+					'SET_TIMESTAMP' => 'Y',
+				]
 			);
 		}
 		else // for all, mysql only
 		{
-
 			$tag = time();
 
 			// don't send to pull for all records
 			CUserCounter::IncrementWithSelect(
 				CSocNetLogCounter::GetSubSelect2(
 					$entityId,
-					array(
+					[
 						"TYPE" => $type,
 						"FOR_ALL_ACCESS_ONLY" => true,
 						"TAG_SET" => $tag,
 						"MULTIPLE" => "Y",
 						"SET_TIMESTAMP" => "Y",
-						"SEND_TO_AUTHOR" => ($bSendToAuthor ? 'Y' : 'N')
-					)
+						"SEND_TO_AUTHOR" => ($sendToAuthor ? 'Y' : 'N')
+					]
 				),
-				false, // sendpull
-				array(
+				false,
+				[
 					"SET_TIMESTAMP" => "Y",
-					"TAG_SET" => $tag
-				)
+					"TAG_SET" => $tag,
+				]
 			);
 
 			// send to pull discreet records (not for all)
 			CUserCounter::IncrementWithSelect(
 				CSocNetLogCounter::GetSubSelect2(
 					$entityId,
-					array(
+					[
 						"TYPE" => $type,
 						"FOR_ALL_ACCESS_ONLY" => false,
 						"MULTIPLE" => "Y",
 						"SET_TIMESTAMP" => "Y",
-						"SEND_TO_AUTHOR" => ($bSendToAuthor ? 'Y' : 'N')
-					)
+						"SEND_TO_AUTHOR" => ($sendToAuthor ? 'Y' : 'N')
+					]
 				),
-				true, // sendpull
-				array(
+				true,
+				[
 					"SET_TIMESTAMP" => "Y",
-					"TAG_CHECK" => $tag
-				)
+					"TAG_CHECK" => $tag,
+				]
 			);
-
 		}
 
-		if ($event_id === "blog_post_important")
+		if ($eventId === "blog_post_important")
 		{
 			CUserCounter::IncrementWithSelect(
 				CSocNetLogCounter::GetSubSelect2(
 					$entityId,
-					array(
+					[
 						"TYPE" => CSocNetLogCounter::TYPE_LOG_ENTRY,
 						"CODE" => "'BLOG_POST_IMPORTANT'",
-						"FOR_ALL_ACCESS" => $bForAllAccess,
+						"FOR_ALL_ACCESS" => $forAllAccess,
 						"MULTIPLE" => "N",
-						"SEND_TO_AUTHOR" => ($bSendToAuthor ? 'Y' : 'N')
-					)
+						"SEND_TO_AUTHOR" => ($sendToAuthor ? 'Y' : 'N')
+					]
 				)
 			);
 		}
@@ -887,35 +546,41 @@ class CAllSocNetLog
 		}
 	}
 
-	public static function CounterDecrement($log_id, $event_id = false, $type = CSocNetLogCounter::TYPE_LOG_ENTRY, $bForAllAccess = false)
+	public static function CounterDecrement(
+		$logId,
+		$eventId = '',
+		$type = CSocNetLogCounter::TYPE_LOG_ENTRY,
+		$forAllAccess = false
+	): void
 	{
-		if ((int)$log_id <= 0)
+		$logId = (int)$logId;
+		if ($logId <= 0)
 		{
-			return false;
+			return;
 		}
 
 		CUserCounter::IncrementWithSelect(
 			CSocNetLogCounter::GetSubSelect2(
-				$log_id, 
-				array(
+				$logId,
+				[
 					"TYPE" => $type,
 					"DECREMENT" => true,
-					"FOR_ALL_ACCESS" => $bForAllAccess
-				)
+					"FOR_ALL_ACCESS" => $forAllAccess,
+				]
 			)
 		);
 
-		if ($event_id === "blog_post_important")
+		if ($eventId === "blog_post_important")
 		{
 			CUserCounter::IncrementWithSelect(
 				CSocNetLogCounter::GetSubSelect2(
-					$log_id, 
-					array(
+					$logId,
+					[
 						"TYPE" => CSocNetLogCounter::TYPE_LOG_ENTRY,
 						"CODE" => "'BLOG_POST_IMPORTANT'",
 						"DECREMENT" => true,
-						"FOR_ALL_ACCESS" => $bForAllAccess
-					)
+						"FOR_ALL_ACCESS" => $forAllAccess,
+					]
 				)
 			);
 		}

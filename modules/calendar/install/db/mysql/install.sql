@@ -243,3 +243,19 @@ CREATE TABLE b_calendar_room_category (
 	NAME  varchar(255) NULL,
 	PRIMARY KEY (ID)
 );
+
+CREATE TABLE b_calendar_queue_message (
+	ID int NOT NULL AUTO_INCREMENT,
+	MESSAGE text NOT NULL,
+	DATE_CREATE datetime NULL,
+	PRIMARY KEY (ID)
+);
+
+CREATE TABLE b_calendar_queue_handled_message(
+	ID int NOT NULL AUTO_INCREMENT,
+	MESSAGE_ID int NOT NULL,
+	QUEUE_ID int NOT NULL,
+	HASH varchar(255) NULL,
+	DATE_CREATE datetime NULL,
+	PRIMARY KEY (ID)
+);

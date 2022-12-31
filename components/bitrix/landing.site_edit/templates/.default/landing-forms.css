@@ -176,7 +176,7 @@
 .landing-form-collapse-label {
 	color: #535c69;
 	font-weight: var(--ui-font-weight-bold);
-	margin-right: 2px;
+	margin-right: 3px;
 }
 
 .ui-checkbox-hidden-input-hook:last-child, .ui-checkbox-hidden-input-hook-help {
@@ -363,7 +363,7 @@
 }
 
 .landing-form-select-next {
-	right: 0;
+	left: 650px;
 }
 
 .landing-form-select-prev:before, .landing-form-select-prev:after, .landing-form-select-next:before, .landing-form-select-next:after {

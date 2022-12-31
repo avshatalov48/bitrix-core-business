@@ -889,8 +889,8 @@ class CAllUser extends CDBResult
 			if (!isset($_REQUEST["logout"]) || strtolower($_REQUEST["logout"]) != "yes")
 			{
 				$prefix = COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM');
-				$login = (string)$_COOKIE[$prefix.'_UIDL'];
-				$password = (string)$_COOKIE[$prefix.'_UIDH'];
+				$login = (string)($_COOKIE[$prefix.'_UIDL'] ?? '');
+				$password = (string)($_COOKIE[$prefix.'_UIDH'] ?? '');
 
 				if($login != '' && $password != '')
 				{
@@ -1124,16 +1124,18 @@ class CAllUser extends CDBResult
 
 		$APPLICATION->ResetException();
 
+		$request = Main\Context::getCurrent()->getRequest();
+		$url = str_replace('%', '%%', $request->getRequestedPage());
+
 		$connection = Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
-		// todo: here should be concat(replace(UH.URL, '\\', '\\\\'), '%')
 		$query = UserHitAuthTable::query()
 			->setSelect(['ID', 'USER_ID', 'HASH', 'VALID_UNTIL'])
 			->where('USER.ACTIVE', 'Y')
 			->where('USER.BLOCKED', 'N')
 			->where('HASH', $hash)
-			->whereExpr("'" . $helper->forSql($APPLICATION->GetCurPageParam('', [], true), 255) . "' LIKE " . $helper->getConcatFunction('%s', "'%%'"), ['URL'])
+			->whereExpr("%s = left('" . $helper->forSql($url) . "', length(%s))", ['URL', 'URL'])
 		;
 
 		if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
@@ -1319,7 +1321,6 @@ class CAllUser extends CDBResult
 				"POLICY" => static::getPolicy($arUser["ID"])->getValues(),
 				"AUTO_TIME_ZONE" => trim($arUser["AUTO_TIME_ZONE"]),
 				"TIME_ZONE" => $arUser["TIME_ZONE"],
-				"TIME_ZONE_OFFSET" => $arUser["TIME_ZONE_OFFSET"],
 				"GROUPS" => Main\UserTable::getUserGroupIds($arUser["ID"]),
 				"CONTEXT" => json_encode($context),
 			];
@@ -1390,9 +1391,7 @@ class CAllUser extends CDBResult
 				{
 					if (!CTimeZone::IsAutoTimeZone(trim($arUser["AUTO_TIME_ZONE"])) || CTimeZone::getTzCookie() !== null)
 					{
-						$offset = CTimeZone::GetOffset();
-						$tz = ', TIME_ZONE_OFFSET = '.$offset;
-						$this->SetParam("TIME_ZONE_OFFSET", $offset);
+						$tz = ', TIME_ZONE_OFFSET = ' . CTimeZone::GetOffset();
 					}
 				}
 
@@ -1697,8 +1696,8 @@ class CAllUser extends CDBResult
 				Note: there is no MFA check for an application password.
 				*/
 
-				$arParams["CAPTCHA_WORD"] = $_REQUEST["captcha_word"];
-				$arParams["CAPTCHA_SID"] = $_REQUEST["captcha_sid"];
+				$arParams["CAPTCHA_WORD"] = $_REQUEST["captcha_word"] ?? '';
+				$arParams["CAPTCHA_SID"] = $_REQUEST["captcha_sid"] ?? '';
 
 				$doAuthorize = \Bitrix\Security\Mfa\Otp::verifyUser($arParams);
 			}

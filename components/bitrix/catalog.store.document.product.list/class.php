@@ -4,6 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\Permission\PermissionDictionary;
 use Bitrix\Catalog\Component\ImageInput;
 use Bitrix\Catalog\StoreBarcodeTable;
 use Bitrix\Catalog\StoreDocumentBarcodeTable;
@@ -22,6 +25,7 @@ use Bitrix\Currency\CurrencyManager;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Web\Json;
+use Bitrix\Catalog\ProductTable;
 
 if (!Loader::includeModule('catalog'))
 {
@@ -59,6 +63,11 @@ final class CatalogStoreDocumentProductListComponent
 	protected $newRowCounter = 0;
 
 	protected $externalDocument = [];
+	protected AccessController $accessController;
+	/**
+	 * @var int[]
+	 */
+	protected array $accessibleStoresIds;
 
 	/**
 	 * Base constructor.
@@ -68,7 +77,9 @@ final class CatalogStoreDocumentProductListComponent
 	public function __construct($component = null)
 	{
 		parent::__construct($component);
+
 		$this->errorCollection = new Main\ErrorCollection();
+		$this->accessController = AccessController::getCurrent();
 	}
 
 	/**
@@ -143,6 +154,7 @@ final class CatalogStoreDocumentProductListComponent
 
 		$this->loadData();
 
+		$this->rows = $this->prepareRowsForAccessRights($this->rows);
 		$this->prepareResult();
 
 		$this->includeComponentTemplate();
@@ -681,8 +693,15 @@ final class CatalogStoreDocumentProductListComponent
 		}
 
 		$productInfo = $this->loadCatalog($productIds);
-		$productStoreInfo = $this->getProductStoreInfo($productIds);
-		$barcodes = $this->getBarcodes($productIds);
+
+		$restrictedProductTypes = ProductTable::getStoreDocumentRestrictedProductTypes();
+		$productIdsWithoutRestrictedTypes = array_keys(array_filter(
+			$productInfo,
+			static fn($product): bool => !in_array($product['FIELDS']['TYPE'], $restrictedProductTypes, true)
+		));
+
+		$productStoreInfo = $this->getProductStoreInfo($productIdsWithoutRestrictedTypes);
+		$barcodes = $this->getBarcodes($productIdsWithoutRestrictedTypes);
 
 		foreach ($documentProducts as $id => $document)
 		{
@@ -766,6 +785,7 @@ final class CatalogStoreDocumentProductListComponent
 				'PURCHASING_PRICE' => $document['PURCHASING_PRICE'] ?? 0,
 				'TOTAL_PRICE' => $totalPrice,
 				'BASKET_ID' => $document['BASKET_ID'] ?? 0,
+				'TYPE' => $product['TYPE'] ?? null,
 			];
 
 			$documentProducts[$id] = array_merge($document, $additionalData);
@@ -774,9 +794,95 @@ final class CatalogStoreDocumentProductListComponent
 		$this->rows = $documentProducts;
 	}
 
+	/**
+	 * Updating rows based on access rights.
+	 *
+	 * @return void
+	 */
+	private function prepareRowsForAccessRights(array $rows): array
+	{
+		$accessibleStoresIds = $this->getAccessibleStoresIds();
+		$hiddenFields = $this->getHiddenFieldsWithoutAccess();
+
+		$notHasAccessToPurchasingPrice = !AccessController::getCurrent()->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW);
+
+		foreach ($rows as &$row)
+		{
+			$hasAccess = true;
+
+			$storeTo = (int)($row['STORE_TO'] ?? 0);
+			$storeFrom = (int)($row['STORE_FROM'] ?? 0);
+
+			if ($storeTo && $storeFrom)
+			{
+				$hasAccess =
+					in_array($storeTo, $accessibleStoresIds, true)
+					&& in_array($storeFrom, $accessibleStoresIds, true)
+				;
+			}
+			elseif ($storeTo)
+			{
+				$hasAccess = in_array($storeTo, $accessibleStoresIds, true);
+			}
+			elseif ($storeFrom)
+			{
+				$hasAccess = in_array($storeFrom, $accessibleStoresIds, true);
+			}
+
+			$realValues = null;
+			if (!$hasAccess)
+			{
+				$realValues = [];
+				foreach ($hiddenFields as $fieldName)
+				{
+					if (isset($row[$fieldName]))
+					{
+						$realValues[$fieldName] = $row[$fieldName];
+						$row[$fieldName] = null;
+					}
+				}
+
+				$row['REAL_VALUES'] = base64_encode(Json::encode($realValues));
+			}
+
+			$row['ACCESS_DENIED'] = !$hasAccess;
+			$row['ACCESS_DENIED_TO_PURCHASING_PRICE'] = $notHasAccessToPurchasingPrice;
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Fields that are hidden when there is no access.
+	 *
+	 * @return array
+	 */
+	private function getHiddenFieldsWithoutAccess(): array
+	{
+		return [
+			'STORE_TO',
+			'STORE_TO_INFO',
+			'STORE_TO_TITLE',
+			'STORE_TO_AMOUNT',
+			'STORE_TO_RESERVED',
+			'STORE_TO_AVAILABLE_AMOUNT',
+			'STORE_FROM',
+			'STORE_FROM_INFO',
+			'STORE_FROM_TITLE',
+			'STORE_FROM_AMOUNT',
+			'STORE_FROM_RESERVED',
+			'STORE_FROM_AVAILABLE_AMOUNT',
+			'PURCHASING_PRICE',
+			'BASE_PRICE',
+			'TOTAL_PRICE',
+			'AMOUNT',
+		];
+	}
+
 	protected function getProductRowsFromRequest(): array
 	{
 		$rows = $this->arParams['~PRODUCTS'];
+		$rows = array_filter($rows);
 
 		if (
 			$this->arParams['REQUEST']['action_button_' . $this->getGridId()] === 'delete'
@@ -971,6 +1077,7 @@ final class CatalogStoreDocumentProductListComponent
 		$this->arResult['GRID'] = $this->getGridParams($gridRows);
 		$this->arResult['GRID_EDITOR_CONFIG'] = $this->getGridEditorConfig($gridRows);
 		$this->arResult['SETTINGS'] = $this->getSettings();
+		$this->arResult['HIDDEN_FIELDS'] = $this->getHiddenFieldsWithoutAccess();
 	}
 
 	protected function getGridParams(array $gridRows): array
@@ -1423,6 +1530,13 @@ final class CatalogStoreDocumentProductListComponent
 
 		$purchasingPriceName = Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_PURCHASING_PRICE');
 		$purchasingPriceName = $this->externalDocument['CUSTOM_COLUMN_NAMES']['PURCHASING_PRICE'] ?: $purchasingPriceName;
+		$purchasingPriceEditable =
+			$this->accessController->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW)
+			&& !(
+				$this->getDocumentType() === StoreDocumentTable::TYPE_MOVING
+				|| $this->getDocumentType() === StoreDocumentTable::TYPE_DEDUCT
+			)
+		;
 
 		$result['PURCHASING_PRICE'] = [
 			'id' => 'PURCHASING_PRICE',
@@ -1430,12 +1544,7 @@ final class CatalogStoreDocumentProductListComponent
 			'title' => $purchasingPriceName,
 			'sort' => 'PURCHASING_PRICE',
 			'default' => true,
-			'editable' =>
-				$this->getDocumentType() === StoreDocumentTable::TYPE_MOVING
-				|| $this->getDocumentType() === StoreDocumentTable::TYPE_DEDUCT
-					? false
-					: $priceEditable
-			,
+			'editable' => $purchasingPriceEditable ? $priceEditable : false,
 			'width' => $columnDefaultWidth,
 		];
 
@@ -1445,12 +1554,7 @@ final class CatalogStoreDocumentProductListComponent
 			'title' => Loc::getMessage('CATALOG_DOCUMENT_PRODUCT_LIST_COLUMN_PRICE'),
 			'sort' => 'BASE_PRICE',
 			'default' => true,
-			'editable' =>
-				$this->getDocumentType() === StoreDocumentTable::TYPE_MOVING
-				|| $this->getDocumentType() === StoreDocumentTable::TYPE_DEDUCT
-					? false
-					: $priceEditable
-			,
+			'editable' => $this->isEditableBasePrice() ? $priceEditable : false,
 			'width' => $columnDefaultWidth,
 		];
 
@@ -1644,6 +1748,11 @@ final class CatalogStoreDocumentProductListComponent
 
 		foreach ($gridRows as $row)
 		{
+			if ($row['editable'] === false)
+			{
+				continue;
+			}
+
 			$editData[$row['id']] = $row['data'];
 		}
 
@@ -1689,8 +1798,11 @@ final class CatalogStoreDocumentProductListComponent
 			'templateIdMask' => self::PRODUCT_ID_MASK,
 			'paintedColumns' => ['AMOUNT'],
 			'templateGridEditData' => $editData,
+			'enabledCreateProductButton' => $this->isAllowedProductCreation(),
 
 			'productUrlBuilderContext' => htmlspecialcharsbx($this->arParams['BUILDER_CONTEXT']),
+
+			'restrictedProductTypes' => $this->getRestrictedProductTypesForSelector(),
 		];
 	}
 
@@ -1740,6 +1852,7 @@ final class CatalogStoreDocumentProductListComponent
 		foreach ($this->rows as $row)
 		{
 			$item = $this->prepareEditorRow($row);
+			$editable = !($row['ACCESS_DENIED'] ?? false);
 
 			ob_start();
 			$APPLICATION->IncludeComponent(
@@ -1789,14 +1902,14 @@ final class CatalogStoreDocumentProductListComponent
 					'PURCHASING_PRICE' => \CCurrencyLang::formatValue($item['PURCHASING_PRICE_FORMATTED'], $this->currency['FORMAT']),
 					'TOTAL_PRICE' => \CCurrencyLang::formatValue($item['TOTAL_PRICE_FORMATTED'], $this->currency['FORMAT']),
 					'AMOUNT' => (float)$row['AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
-					'STORE_FROM_AMOUNT' => (float)$row['STORE_FROM_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
-					'STORE_TO_AMOUNT' => (float)$row['STORE_TO_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
-					'STORE_FROM_RESERVED' => (float)$row['STORE_FROM_RESERVED'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
-					'STORE_TO_RESERVED' => (float)$row['STORE_TO_RESERVED'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
-					'STORE_FROM_AVAILABLE_AMOUNT' => (float)$row['STORE_FROM_AVAILABLE_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
-					'STORE_TO_AVAILABLE_AMOUNT' => (float)$row['STORE_TO_AVAILABLE_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']),
+					'STORE_FROM_AMOUNT' => $this->formatRowStoreAmount($row, 'STORE_FROM_AMOUNT'),
+					'STORE_TO_AMOUNT' => $this->formatRowStoreAmount($row, 'STORE_TO_AMOUNT'),
+					'STORE_FROM_RESERVED' => $this->formatRowStoreAmount($row, 'STORE_FROM_RESERVED'),
+					'STORE_TO_RESERVED' => $this->formatRowStoreAmount($row, 'STORE_TO_RESERVED'),
+					'STORE_FROM_AVAILABLE_AMOUNT' => $this->formatRowStoreAmount($row, 'STORE_FROM_AVAILABLE_AMOUNT'),
+					'STORE_TO_AVAILABLE_AMOUNT' => $this->formatRowStoreAmount($row, 'STORE_TO_AVAILABLE_AMOUNT'),
 				],
-				'editable' => !$this->isReadOnly(),
+				'editable' => !$this->isReadOnly() && $editable,
 			];
 		}
 
@@ -1811,6 +1924,20 @@ final class CatalogStoreDocumentProductListComponent
 			'.',
 			''
 		);
+	}
+
+	private function formatRowStoreAmount(array $row, string $amountFieldName): ?string
+	{
+		$restrictedProductTypes = $this->getRestrictedProductTypes();
+
+		if (
+			!isset($row[$amountFieldName])
+			|| in_array((int)$row['TYPE'], $restrictedProductTypes, true))
+		{
+			return null;
+		}
+
+		return (float)$row[$amountFieldName] . ' ' . htmlspecialcharsbx($row['MEASURE_NAME']);
 	}
 
 	private function prepareEditorRow(array $row): array
@@ -1841,6 +1968,7 @@ final class CatalogStoreDocumentProductListComponent
 				'CURRENCY' => [
 					'NAME' => $rowId .'_MEASURE_CODE',
 					'VALUE' => $row['MEASURE_CODE'],
+					'DISABLED' => !$this->isCanChangeProductMeasure(),
 				],
 			],
 			'STORE_AMOUNT_MAP' => $row['STORE_AMOUNT_MAP'],
@@ -1884,16 +2012,16 @@ final class CatalogStoreDocumentProductListComponent
 
 				case 'STORE_TO_INFO':
 					$editorFields['STORE_TO'] = $row['STORE_TO'];
-					$editorFields['STORE_TO_AMOUNT'] = (float)$row['STORE_TO_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
-					$editorFields['STORE_TO_RESERVED'] = (float)$row['STORE_TO_RESERVED'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
-					$editorFields['STORE_TO_AVAILABLE_AMOUNT'] = (float)$row['STORE_TO_AVAILABLE_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
+					$editorFields['STORE_TO_AMOUNT'] = $this->formatRowStoreAmount($row, 'STORE_TO_AMOUNT');
+					$editorFields['STORE_TO_RESERVED'] = $this->formatRowStoreAmount($row, 'STORE_TO_RESERVED');
+					$editorFields['STORE_TO_AVAILABLE_AMOUNT'] = $this->formatRowStoreAmount($row, 'STORE_TO_AVAILABLE_AMOUNT');
 					break;
 
 				case 'STORE_FROM_INFO':
 					$editorFields['STORE_FROM'] = $row['STORE_FROM'];
-					$editorFields['STORE_FROM_AMOUNT'] = (float)$row['STORE_FROM_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
-					$editorFields['STORE_FROM_RESERVED'] = (float)$row['STORE_FROM_RESERVED'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
-					$editorFields['STORE_FROM_AVAILABLE_AMOUNT'] = (float)$row['STORE_FROM_AVAILABLE_AMOUNT'].' '.htmlspecialcharsbx($row['MEASURE_NAME']);
+					$editorFields['STORE_FROM_AMOUNT'] = $this->formatRowStoreAmount($row, 'STORE_FROM_AMOUNT');
+					$editorFields['STORE_FROM_RESERVED'] = $this->formatRowStoreAmount($row, 'STORE_FROM_RESERVED');
+					$editorFields['STORE_FROM_AVAILABLE_AMOUNT'] = $this->formatRowStoreAmount($row, 'STORE_FROM_AVAILABLE_AMOUNT');
 					break;
 			}
 		}
@@ -1903,18 +2031,12 @@ final class CatalogStoreDocumentProductListComponent
 
 	private function getDefaultRow(): array
 	{
-		foreach ($this->stores as $store)
-		{
-			if ($store['IS_DEFAULT'] === 'Y')
-			{
-				$defaultStoreId = $store['ID'];
-				$defaultStoreTitle = $store['TITLE'];
-				break;
-			}
-		}
+		$defaultStore = $this->getDefaultStore();
+		$defaultStoreId = $defaultStore['ID'] ?? null;
+		$defaultStoreTitle = $defaultStore['TITLE'] ?? null;
 
 		$defaultMeasure = $this->getDefaultMeasure();
-		return [
+		$row = [
 			'ROW_ID' => $this->getRowIdPrefix(self::PRODUCT_ID_MASK),
 			'ID' => self::PRODUCT_ID_MASK,
 			'IBLOCK_ID' => $this->arParams['CATALOG_ID'],
@@ -1946,7 +2068,12 @@ final class CatalogStoreDocumentProductListComponent
 			'IS_NEW' => 'N',
 			'BASE_PRICE_EXTRA' => '',
 			'BASE_PRICE_EXTRA_RATE' => StoreDocumentElementTable::EXTRA_RATE_PERCENTAGE,
+			'TYPE' => 0,
 		];
+
+		$row = $this->prepareRowsForAccessRights([ $row ])[0];
+
+		return $row;
 	}
 
 	protected function isReadOnly(): bool
@@ -2119,19 +2246,65 @@ final class CatalogStoreDocumentProductListComponent
 		return $repositoryFacade->loadVariation($productId);
 	}
 
+	private function getStores(): array
+	{
+		if (empty($this->stores))
+		{
+			$this->loadStores();
+		}
+
+		return $this->stores;
+	}
+
+	/**
+	 * Warehouses to which the user has access.
+	 *
+	 * @return array
+	 */
+	private function getAccessibleStoresIds(): array
+	{
+		if (isset($this->accessibleStoresIds))
+		{
+			return $this->accessibleStoresIds;
+		}
+
+		$storeIds = (array)$this->accessController->getPermissionValue(ActionDictionary::ACTION_STORE_VIEW);
+		if (in_array(PermissionDictionary::VALUE_VARIATION_ALL, $storeIds, true))
+		{
+			$storeIds = array_column($this->getStores(), 'ID');
+		}
+
+		$this->accessibleStoresIds = array_map('intval', $storeIds);
+
+		return $this->accessibleStoresIds;
+	}
+
 	private function getDefaultStore(): ?array
 	{
-		$stores = $this->stores;
-		if (!is_array($stores))
+		static $defaultStore;
+
+		if (isset($defaultStore))
+		{
+			return $defaultStore;
+		}
+
+		$accessibleStoresIds = $this->getAccessibleStoresIds();
+		if (empty($accessibleStoresIds))
 		{
 			return null;
 		}
 
-		$filteredStores = array_filter($stores, static function($store) {
+		$accessibleStores = array_filter($this->getStores(), static function($store) use($accessibleStoresIds) {
+			return in_array((int)$store['ID'], $accessibleStoresIds, true);
+		});
+
+		$filteredStores = array_filter($accessibleStores, static function($store) {
 			return $store['IS_DEFAULT'] === 'Y';
 		});
 
-		return reset($filteredStores) ?: null;
+		$defaultStore = reset($filteredStores) ?: reset($accessibleStores);
+
+		return $defaultStore;
 	}
 
 	/**
@@ -2242,5 +2415,45 @@ final class CatalogStoreDocumentProductListComponent
 		}
 
 		return $response;
+	}
+
+	private function getRestrictedProductTypesForSelector(): array
+	{
+		$restrictedProductTypes = $this->getRestrictedProductTypes();
+
+		if (!empty($this->externalDocument['RESTRICTED_PRODUCT_TYPES']))
+		{
+			$restrictedProductTypes = $this->externalDocument['RESTRICTED_PRODUCT_TYPES'];
+		}
+
+		return $restrictedProductTypes;
+	}
+
+	private function getRestrictedProductTypes(): array
+	{
+		return ProductTable::getStoreDocumentRestrictedProductTypes();
+	}
+
+	private function isEditableBasePrice(): bool
+	{
+		if (!$this->accessController->check(ActionDictionary::ACTION_PRICE_EDIT))
+		{
+			return false;
+		}
+
+		return ! in_array($this->getDocumentType(), [
+			StoreDocumentTable::TYPE_MOVING,
+			StoreDocumentTable::TYPE_DEDUCT,
+		], true);
+	}
+
+	private function isCanChangeProductMeasure(): bool
+	{
+		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_EDIT);
+	}
+
+	public function isAllowedProductCreation(): bool
+	{
+		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_ADD);
 	}
 }

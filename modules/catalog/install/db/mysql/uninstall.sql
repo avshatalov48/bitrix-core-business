@@ -40,3 +40,6 @@ drop table if exists b_catalog_rounding;
 drop table if exists b_catalog_product_compilation;
 drop table if exists b_catalog_exported_product;
 drop table if exists b_catalog_exported_product_queue;
+drop table if exists b_catalog_role;
+drop table if exists b_catalog_role_relation;
+drop table if exists b_catalog_permission;

@@ -1,7 +1,6 @@
 <?php
 $MESS["SALE_HPS_SBERBANK"] = "Sberbank";
 $MESS["SALE_HPS_SBERBANK_CHANGE_STATUS_PAY"] = "Auto change order status to paid when payment success status is received";
-$MESS["SALE_HPS_SBERBANK_DESCRIPTION_MAIN"] = "To have the order status change, configure <a href='https://securepayments.sberbank.ru/wiki/doku.php/integration:api:callback:start' target='_blank'>Callback notifications</a> to include checksum and the \"bx_paysystem_code\" parameter.";
 $MESS["SALE_HPS_SBERBANK_LOGIN"] = "Login";
 $MESS["SALE_HPS_SBERBANK_LOGIN_DESC"] = "Login";
 $MESS["SALE_HPS_SBERBANK_ORDER_DESCRIPTION"] = "Order description";

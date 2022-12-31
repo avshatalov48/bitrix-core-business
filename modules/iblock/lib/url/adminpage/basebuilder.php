@@ -260,6 +260,11 @@ abstract class BaseBuilder
 
 	public function getBaseParams(): string
 	{
+		if ($this->iblockId === null)
+		{
+			return '';
+		}
+
 		return 'IBLOCK_ID='.$this->iblockId
 			.'&type='.urlencode($this->iblock['IBLOCK_TYPE_ID'])
 			.'&lang='.urlencode($this->languageId);

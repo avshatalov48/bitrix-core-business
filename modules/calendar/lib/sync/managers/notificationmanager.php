@@ -107,4 +107,34 @@ class NotificationManager
 			ConvertTimeStamp(time() + CTimeZone::GetOffset() + self::FINISHED_SYNC_NOTIFICATION_DELAY, 'FULL')
 		);
 	}
+
+	/**
+	 * @param int $userId
+	 * @param $messageCode
+	 * @param $vars
+	 * @return void
+	 *
+	 * @throws LoaderException
+	 */
+	public static function sendBlockChangeNotification(int $userId, $messageCode, $vars)
+	{
+		if (
+			Main\Loader::includeModule("im")
+			&& $userId
+			&& !empty(Loc::getMessage($messageCode))
+		)
+		{
+			$message = Loc::getMessage($messageCode, $vars);
+
+			CIMNotify::Add([
+				'TO_USER_ID' => $userId,
+				'FROM_USER_ID' => $userId,
+				'NOTIFY_TYPE' => IM_NOTIFY_SYSTEM,
+				'NOTIFY_MODULE' => 'calendar',
+				'NOTIFY_TAG' => 'CALENDAR|SYNC_ROLLBACK|' . $userId . '|' . ($vars['EVENT_ID'] ?? rand(1,100)),
+				'NOTIFY_SUB_TAG' => 'CALENDAR|SYNC_ROLLBACK|'.$userId,
+				'NOTIFY_MESSAGE' => $message
+			]);
+		}
+	}
 }

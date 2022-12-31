@@ -89,18 +89,26 @@ class PushManager extends AbstractManager implements PushManagerInterface
 	public function addSectionPush(SectionConnection $link): Result
 	{
 		$result = new Result();
-		$data = $this->context->getVendorSyncService()->subscribeSection($link);
-		if ($data)
+		try
 		{
-			$result->setData([
-				'CHANNEL_ID' => $data['channelId'],
-				'RESOURCE_ID' => $data['id'],
-				'EXPIRES' => $this->convertToDateTime($data['expirationDateTime']),
-			]);
+			$data = $this->context->getVendorSyncService()->subscribeSection($link);
+
+			if ($data && !empty($data['channelId']))
+			{
+				$result->setData([
+					'CHANNEL_ID' => $data['channelId'],
+					'RESOURCE_ID' => $data['id'],
+					'EXPIRES' => $this->convertToDateTime($data['expirationDateTime'] ?? date('c')),
+				]);
+			}
+			else
+			{
+				$result->addError(new Error('Error of create subscription.'));
+			}
 		}
-		else
+		catch(ApiException $e)
 		{
-			$result->addError(new Error('Error of create subscription.'));
+			$result->addError(new Error('Error of Push subscribing. Vendor returned error.', $e->getCode()));
 		}
 
 		return $result;

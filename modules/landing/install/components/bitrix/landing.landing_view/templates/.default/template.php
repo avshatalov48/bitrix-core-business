@@ -227,7 +227,7 @@ if (!$request->offsetExists('landing_mode')):
 	<div class="landing-ui-panel landing-ui-panel-top<?= $panelModifier;?>">
 		<!-- region Logotype -->
 		<div class="landing-ui-panel-top-logo">
-			<a href="<?= $arParams['PAGE_URL_URL_SITES']?>" class="landing-ui-panel-top-logo-link" data-slider-ignore-autobinding="true">
+			<a href="<?= ($arParams['TYPE'] === 'GROUP') ? '#' : $arParams['PAGE_URL_URL_SITES']?>" class="landing-ui-panel-top-logo-link" data-slider-ignore-autobinding="true">
 				<span class="landing-ui-panel-top-logo-home-btn">
 					<svg class='landing-ui-panel-top-logo-home-btn-icon' width="27" height="27" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path fill-rule="evenodd" clip-rule="evenodd" d="M11.902 19.6877V15.8046C11.902 15.5837 12.0811 15.4046 12.302 15.4046H14.5087C14.7296 15.4046 14.9087 15.5837 14.9087 15.8046V19.6877C14.9089 19.9086 15.0879 20.0876 15.3087 20.0878L18.8299 20.0891C19.0508 20.0893 19.2299 19.9103 19.23 19.6894C19.23 19.6893 19.23 19.6893 19.2299 19.6892V13.4563C19.2299 13.4365 19.2275 13.4142 19.2275 13.3943H20.4332C20.6633 13.3943 20.8604 13.2883 20.9909 13.0932C21.1189 12.9005 21.1425 12.6747 21.0581 12.4561C20.9519 12.1816 14.2383 5.92948 14.2047 5.90379C13.7957 5.59077 13.3216 5.58796 12.9131 5.89536C12.8759 5.92337 6.15525 12.1815 6.04901 12.4561C5.96462 12.6729 5.99059 12.9011 6.11629 13.0932C6.24671 13.2859 6.44145 13.3943 6.67162 13.3943H7.87965C7.87729 13.4142 7.87729 13.4365 7.87729 13.4563V19.6846C7.8776 19.9054 8.0565 20.0844 8.27729 20.0849L11.502 20.0874C11.7229 20.0879 11.9021 19.9089 11.9023 19.688C11.9023 19.6879 11.9023 19.6878 11.902 19.6877Z" fill="#525C69"/>
@@ -505,26 +505,24 @@ if ($request->offsetExists('landing_mode'))
 								&& typeof BX.Landing.Metrika !== 'undefined'
 							)
 							{
-								var appCode = event.data.from.match(/app_code:(.*)=?:title/i);
-								var title = event.data.from.match(/title:(.*)=?:preview_url/iu);
-								var previewUrl = event.data.from.match(/preview_url:(.*)/i);
+								var dataFrom = event.data.from.split('|');
+								var appCode = dataFrom[1];
+								var title = dataFrom[2];
+								var previewId = dataFrom[3];
 								if (
 									appCode !== null
-									&& appCode.length > 1
 									&& title !== null
-									&& title.length > 1
-									&& previewUrl !== null
-									&& previewUrl.length > 1
+									&& previewId !== null
 								)
 								{
 									var metrikaValue =
 										landingPath
 										+ '?action=templateCreated&app_code='
-										+ appCode[1]
+										+ appCode
 										+ '&title='
-										+ title[1]
-										+ '&preview_url='
-										+ previewUrl[1];
+										+ title
+										+ '&preview_id='
+										+ previewId;
 									var metrika = new BX.Landing.Metrika(true);
 									metrika.sendLabel(
 										null,
@@ -534,7 +532,7 @@ if ($request->offsetExists('landing_mode'))
 								}
 							}
 							gotoSiteButton.setAttribute('href', landingPath);
-							top.window.location.href = landingPath;
+							setTimeout(() => {top.window.location.href = landingPath}, 3000);
 						}
 					}
 				}

@@ -6,6 +6,7 @@ import { Payment } from "./payment";
 import { PaySystem } from "./pay-system";
 import { Application } from "./application";
 import { Consent } from "./consent";
+import { Variant } from "./property-variant";
 
 export {
 	Order,
@@ -15,5 +16,6 @@ export {
 	Payment,
 	PaySystem,
 	Application,
-	Consent
+	Consent,
+	Variant,
 }

@@ -3,7 +3,6 @@
 
 	BX.namespace("BX.Landing");
 
-
 	var escapeText = BX.Landing.Utils.escapeText;
 	var headerTagMatcher = BX.Landing.Utils.Matchers.headerTag;
 	var changeTagName = BX.Landing.Utils.changeTagName;
@@ -184,6 +183,10 @@
 			{
 				var sourceText = event.clipboardData.getData("text/plain");
 				var encodedText = BX.Text.encode(sourceText);
+				if (this.isLinkPasted(sourceText))
+				{
+					encodedText = this.prepareToLink(encodedText);
+				}
 				var formattedHtml = encodedText.replace(new RegExp('\n', 'g'), "<br>");
 				document.execCommand("insertHTML", false, formattedHtml);
 			}
@@ -904,7 +907,7 @@
 			if (position === 0)
 			{
 				var focusNode = selection.focusNode;
-				if (focusNode.nodeType !== 3)
+				if (!BX.Type.isNil(focusNode) && focusNode.nodeType !== 3)
 				{
 					if (focusNode.firstChild.nodeType === 3 && focusNode.firstChild.firstChild.nodeType === 3)
 					{
@@ -943,7 +946,17 @@
 					}
 				}
 			}
-		}
+		},
+
+		isLinkPasted: function(text) {
+			var reg = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
+			return !!text.match(reg);
+		},
+
+		prepareToLink: function(text)
+		{
+			return "<a class='g-bg-transparent' href='" + text + "' target='_blank'> " + text + " </a>";
+		},
 	};
 
 })();

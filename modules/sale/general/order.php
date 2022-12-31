@@ -273,7 +273,11 @@ class CAllSaleOrder
 						$arResult['VAT_RATE'] = $arItem["VAT_RATE"];
 
 					$v = CSaleBasketHelper::getVat($arItem);
-					$arItem["VAT_VALUE"] = \Bitrix\Sale\PriceMaths::roundPrecision($v / $arItem["QUANTITY"]);
+
+					$arItem["VAT_VALUE"] = $arItem["QUANTITY"] > 0
+						? \Bitrix\Sale\PriceMaths::roundPrecision($v / $arItem["QUANTITY"])
+						: 0.0;
+
 					$arResult["VAT_SUM"] += $v;
 
 				}

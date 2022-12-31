@@ -1,4 +1,8 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+use Bitrix\Catalog\ProductTable;
+
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -200,7 +204,14 @@ $strContID = 'js_catalog_top_banner_s'.$this->randString();
 									?>
 									<span id="<? echo $arItemIDs['NOT_AVAILABLE_MESS']; ?>" class="bx_notavailable">
 <?
-echo ('' != $arParams['MESS_NOT_AVAILABLE'] ? $arParams['MESS_NOT_AVAILABLE'] : GetMessage('CT_BCT_TPL_MESS_PRODUCT_NOT_AVAILABLE'));
+if ($arResult['MODULES']['catalog'] && $arItem['PRODUCT']['TYPE'] === ProductTable::TYPE_SERVICE)
+{
+	echo ($arParams['MESS_NOT_AVAILABLE_SERVICE'] ?: GetMessage('CT_BCT_TPL_MESS_PRODUCT_NOT_AVAILABLE_SERVICE'));
+}
+else
+{
+	echo('' != $arParams['MESS_NOT_AVAILABLE'] ? $arParams['MESS_NOT_AVAILABLE'] : GetMessage('CT_BCT_TPL_MESS_PRODUCT_NOT_AVAILABLE'));
+}
 ?>
 			</span>
 									<?

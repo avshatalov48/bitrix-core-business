@@ -1,4 +1,8 @@
 <?
+
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 global $APPLICATION;
@@ -9,10 +13,18 @@ $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."cat_measure_list.php?lang=".LANGUAGE_ID;
 $listUrl = $adminSidePanelHelper->editUrlToPublicPage($listUrl);
 
-if(!($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_store')))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 CModule::IncludeModule("catalog");
-$bReadOnly = !$USER->CanDoOperation('catalog_store');
+
+$accessController = AccessController::getCurrent();
+if (
+	!$accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+	&& !$accessController->check(ActionDictionary::ACTION_MEASURE_EDIT)
+)
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
+
+$bReadOnly = !$accessController->check(ActionDictionary::ACTION_MEASURE_EDIT);
 
 IncludeModuleLangFile(__FILE__);
 
@@ -368,45 +380,46 @@ $actionUrl = $adminSidePanelHelper->setDefaultQueryParams($actionUrl);
 	<tr>
 		<td width="40%"><?= GetMessage("CAT_MEASURE_DEFAULT") ?>:</td>
 		<td width="60%">
-			<input type="checkbox" name="IS_DEFAULT" value="Y" <?if(($str_IS_DEFAULT=='Y')) echo"checked";?> size="50" />
+			<input type="checkbox" name="IS_DEFAULT" value="Y" <?if(($str_IS_DEFAULT==='Y')) echo"checked";?> size="50" <?=($bReadOnly) ? " disabled" : ""?>/>
 		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
 		<td><?= GetMessage("CAT_MEASURE_CODE") ?>:</td>
 		<td>
-			<input type="text" style="width:50px" name="CODE" value="<?=$str_CODE?>" />
+			<input type="text" style="width:50px" name="CODE" value="<?=$str_CODE?>" <?=($bReadOnly) ? " disabled" : ""?>/>
 		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
 		<td><?= GetMessage("CAT_MEASURE_MEASURE_TITLE") ?>:</td>
 		<td>
-			<input type="text" style="width:300px" name="MEASURE_TITLE" value="<?=$str_MEASURE_TITLE?>" />
+			<input type="text" style="width:300px" name="MEASURE_TITLE" value="<?=$str_MEASURE_TITLE?>" <?=($bReadOnly) ? " disabled" : ""?>/>
 		</td>
 	</tr>
 	<tr>
 		<td><?= GetMessage("CAT_MEASURE_SYMBOL_RUS") ?>:</td>
 		<td>
-			<input type="text" style="width:100px" name="SYMBOL_RUS" value="<?=$str_SYMBOL_RUS?>" />
+			<input type="text" style="width:100px" name="SYMBOL_RUS" value="<?=$str_SYMBOL_RUS?>" <?=($bReadOnly) ? " disabled" : ""?>/>
 		</td>
 	</tr>
 	<tr>
 		<td><?= GetMessage("CAT_MEASURE_SYMBOL_INTL") ?>:</td>
 		<td>
-			<input type="text" style="width:100px" name="SYMBOL_INTL" value="<?=$str_SYMBOL_INTL?>" size="45" />
+			<input type="text" style="width:100px" name="SYMBOL_INTL" value="<?=$str_SYMBOL_INTL?>" size="45" <?=($bReadOnly) ? " disabled" : ""?>/>
 		</td>
 	</tr><tr>
 	</tr>
 	<tr>
 		<td><?= GetMessage("CAT_MEASURE_SYMBOL_LETTER_INTL") ?>:</td>
-		<td><input type="text" style="width:100px" name="SYMBOL_LETTER_INTL" value="<?=$str_SYMBOL_LETTER_INTL?>" size="15" />
+		<td>
+			<input type="text" style="width:100px" name="SYMBOL_LETTER_INTL" value="<?=$str_SYMBOL_LETTER_INTL?>" size="15" <?=($bReadOnly) ? " disabled" : ""?>/>
 		</td>
 	</tr>
 <?endif;?>
 <?
 $tabControl->EndTab();
-if(!$classifierMode)
+if(!$classifierMode && !$bReadOnly)
 {
-	$tabControl->Buttons(array("disabled" => $bReadOnly, "back_url" => $listUrl));
+	$tabControl->Buttons(array("back_url" => $listUrl));
 }
 $tabControl->End();
 ?>

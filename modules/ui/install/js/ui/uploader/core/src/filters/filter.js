@@ -2,16 +2,16 @@ import type Uploader from '../uploader';
 
 export default class Filter
 {
-	uploader: Uploader = null;
+	#uploader: Uploader = null;
 
 	constructor(uploader: Uploader, filterOptions: { [key: string]: any } = {})
 	{
-		this.uploader = uploader;
+		this.#uploader = uploader;
 	}
 
 	getUploader(): Uploader
 	{
-		return this.uploader;
+		return this.#uploader;
 	}
 
 	/**

@@ -45,6 +45,7 @@ if($arFile)
 		{
 			$src = $arFile["SRC"];
 		}
+		$src = \Bitrix\Main\Web\Uri::urnEncode($src, "UTF-8");
 		echo '<a href="'.htmlspecialcharsbx($src).'">'.htmlspecialcharsbx($arFile["FILE_NAME"]).'</a> ('.CFile::FormatSize($arFile["FILE_SIZE"]).')';
 	}
 }

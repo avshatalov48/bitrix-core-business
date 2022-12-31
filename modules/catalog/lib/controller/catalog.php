@@ -1,14 +1,13 @@
 <?php
 
-
 namespace Bitrix\Catalog\Controller;
 
-
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\CatalogIblockTable;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
-use Bitrix\Rest\Integration\View\Base;
 
 final class Catalog extends Controller
 {
@@ -235,7 +234,7 @@ final class Catalog extends Controller
 		$r = $this->checkReadPermissionEntity();
 		if($r->isSuccess())
 		{
-			if (!static::getGlobalUser()->CanDoOperation('catalog_settings'))
+			if (!$this->accessController->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS))
 			{
 				$r->addError(new Error('Access Denied', 200040300020));
 			}
@@ -248,12 +247,16 @@ final class Catalog extends Controller
 	{
 		$r = new Result();
 
-		if(!static::getGlobalUser()->CanDoOperation('view_other_settings') && !static::getGlobalUser()->CanDoOperation('edit_other_settings'))
+		$user = CurrentUser::get();
+		if(!$user->canDoOperation('view_other_settings') && !$user->canDoOperation('edit_other_settings'))
 		{
 			$r->addError(new Error('Access Denied', 200040300010));
 		}
 
-		if (!static::getGlobalUser()->CanDoOperation('catalog_read') && !static::getGlobalUser()->CanDoOperation('catalog_settings'))
+		if (
+			!$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+			&& !$this->accessController->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS)
+		)
 		{
 			$r->addError(new Error('Access Denied', 200040300030));
 		}

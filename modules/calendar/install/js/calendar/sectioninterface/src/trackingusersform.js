@@ -16,6 +16,7 @@ export class TrackingUsersForm
 		this.trackingUserIdList = this.trackingUsers.map((item) => {
 			return parseInt(item.ID)
 		});
+		this.trackingGroupIdList = [];
 
 		this.CHECKED_CLASS = 'calendar-list-slider-item-checkbox-checked';
 		this.selectorId = 'add-tracking' + Util.getRandomInt();
@@ -81,6 +82,7 @@ export class TrackingUsersForm
 
 		this.userTagSelector = new TagSelector({
 			dialogOptions: {
+				width: 320,
 				context: 'CALENDAR',
 				preselectedItems: this.trackingUsers.map((item) => {
 					return ['user', parseInt(item.ID)]
@@ -160,10 +162,7 @@ export class TrackingUsersForm
 
 	prepareTrackingSections()
 	{
-		let sections = [];
-		// this.superposedSections.forEach((section) => {
-		// 	sections.push(parseInt(section.id));
-		// }, this);
+		let sections = this.getSelectedSections();
 
 		for (let id in this.sectionIndex)
 		{
@@ -182,6 +181,27 @@ export class TrackingUsersForm
 				}
 			}
 		}
+
+		return sections;
+	}
+
+	getSelectedSections()
+	{
+		const sections = [];
+		this.superposedSections.forEach((section) => {
+			if (
+				this.interfaceType === 'users'
+				&& section.type === 'user'
+				&& this.trackingUserIdList
+				&& !this.trackingUserIdList.includes(section.ownerId)
+			)
+			{
+				return;
+			}
+
+			sections.push(parseInt(section.id));
+
+		}, this);
 
 		return sections;
 	}

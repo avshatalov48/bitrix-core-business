@@ -1,4 +1,4 @@
-<section class="landing-block">
+<section class="landing-block u-block-border-none">
 
 	<ul class="row no-gutters list-inline g-mb-0">
 

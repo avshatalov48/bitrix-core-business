@@ -20,7 +20,7 @@ return array(
 	),
 	'style' => array(
 		'block' => array(
-			'type' => array('block-default', 'animation', 'block-border'),
+			'type' => ['block-default', 'animation', 'block-border'],
 		),
 		'nodes' => array(
 			'.landing-block-node-text' => array(

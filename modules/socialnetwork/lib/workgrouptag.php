@@ -17,9 +17,9 @@ use Bitrix\Main\DB\SqlQueryException;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_WorkgroupTag_Query query()
- * @method static EO_WorkgroupTag_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_WorkgroupTag_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_WorkgroupTag_Result getById($id)
- * @method static EO_WorkgroupTag_Result getList(array $parameters = array())
+ * @method static EO_WorkgroupTag_Result getList(array $parameters = [])
  * @method static EO_WorkgroupTag_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag createObject($setDefaultValues = true)
  * @method static \Bitrix\Socialnetwork\EO_WorkgroupTag_Collection createCollection()
@@ -38,6 +38,7 @@ class WorkgroupTagTable extends Entity\DataManager
 		return array(
 			'GROUP_ID' => array(
 				'data_type' => 'integer',
+				'primary' => true
 			),
 			'GROUP' => array(
 				'data_type' => '\Bitrix\Socialnetwork\Workgroup',

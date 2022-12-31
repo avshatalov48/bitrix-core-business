@@ -157,53 +157,61 @@ class Product
 
 	private function fillCatalogData()
 	{
-		$this->catalogData = array();
-		$this->measuresIds = array();
+		$this->catalogData = [];
+		$this->measuresIds = [];
 
-		if(empty($this->iblockData))
+		if (empty($this->iblockData))
+		{
 			return;
+		}
 
-		$setIds = array();
+		$setIds = [];
 
-		$res = Catalog\ProductTable::getList(array(
-			'select' => array(
+		$res = Catalog\ProductTable::getList([
+			'select' => [
 				'ID', 'TYPE',
 				'AVAILABLE', 'QUANTITY', 'QUANTITY_TRACE', 'CAN_BUY_ZERO',
 				'WEIGHT', 'WIDTH', 'LENGTH', 'HEIGHT',
 				'MEASURE', 'BARCODE_MULTI', 'VAT_ID'
-			),
-			'filter' => array('@ID' => array_keys($this->iblockData))
-		));
-		while($row = $res->fetch())
+			],
+			'filter' => ['@ID' => array_keys($this->iblockData)]
+		]);
+		while ($row = $res->fetch())
 		{
 			$this->catalogData[$row['ID']] = $row;
 			$this->measuresIds[] = $row['MEASURE'];
 
-			if($row['TYPE'] == Catalog\ProductTable::TYPE_SET)
-				$setIds[] = $row['ID'];
-
-			if(isset($this->resultData[$row['ID']]))
+			$type = (int)$row['TYPE'];
+			if($type === Catalog\ProductTable::TYPE_SET)
 			{
+				$setIds[] = $row['ID'];
+			}
+
+			if (isset($this->resultData[$row['ID']]))
+			{
+				$this->resultData[$row['ID']]['TYPE'] = Sale\Internals\Catalog\ProductTypeMapper::getType($type);
 				$this->resultData[$row['ID']]['DIMENSIONS'] = serialize(
-					array(
+					[
 						"WIDTH" => $row["WIDTH"],
 						"HEIGHT" => $row["HEIGHT"],
 						"LENGTH" => $row["LENGTH"]
-					)
+					]
 				);
 
-				$this->resultData[$row['ID']]['AVAILABLE'] = floatval($row["QUANTITY"]);
+				$this->resultData[$row['ID']]['AVAILABLE'] = (float)$row["QUANTITY"];
 				$this->resultData[$row['ID']]['WEIGHT'] = $row["WEIGHT"];
 				$this->resultData[$row['ID']]['BARCODE_MULTI'] = $row["BARCODE_MULTI"];
-				$this->resultData[$row['ID']]["SET_ITEMS"] = array();
+				$this->resultData[$row['ID']]["SET_ITEMS"] = [];
 				$this->resultData[$row['ID']]["IS_SET_ITEM"] = "N";
 				$this->resultData[$row['ID']]["VAT_ID"] = $row["VAT_ID"];
 				$this->resultData[$row['ID']]["IS_SET_PARENT"] = "N"; //empty($arSetInfo) ? "N" : "Y";
 			}
 		}
 
-		if(!empty($setIds))
+		if (!empty($setIds))
+		{
 			$this->fillSetInfo($setIds);
+		}
 	}
 
 	private function fillSetInfo($setIds)

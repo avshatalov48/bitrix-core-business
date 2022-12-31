@@ -4,7 +4,8 @@ namespace Bitrix\Landing\Connector;
 class Disk
 {
 	public const FILE_PREFIX_HREF = '#diskFile';
-	public const FILE_MASK_HREF = '"#diskFile([\d]+)"';
+	public const FILE_NEW_PREFIX_HREF = 'file:#diskFile';
+	public const FILE_MASK_HREF = '"(file:)?#diskFile([\d]+)"';
 
 	/**
 	 * Check disk's files within content for read access. If not, remove file's marks.
@@ -27,7 +28,7 @@ class Disk
 		{
 			if (preg_match_all('/' . self::FILE_MASK_HREF . '/i', $oldContent, $matches))
 			{
-				foreach ($matches[1] as $objectId)
+				foreach ($matches[2] as $objectId)
 				{
 					$existsFiles[] = $objectId;
 				}
@@ -36,7 +37,7 @@ class Disk
 
 		if (preg_match_all('/' . self::FILE_MASK_HREF . '/i', $content, $matches))
 		{
-			foreach ($matches[1] as $i => $objectId)
+			foreach ($matches[2] as $i => $objectId)
 			{
 				if ($oldContent && in_array($objectId, $existsFiles))
 				{

@@ -38,10 +38,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return [];
 	}
 
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	function prepareFilter(filter, source) {
 	  return filter.reduce(function (acc, field) {
 	    if (main_core.Type.isPlainObject(field)) {
-	      return [].concat(babelHelpers.toConsumableArray(acc), [babelHelpers.objectSpread({}, field, {
+	      return [].concat(babelHelpers.toConsumableArray(acc), [_objectSpread(_objectSpread({}, field), {}, {
 	        url: source.url
 	      })]);
 	    }
@@ -94,55 +98,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return value;
 	}
 
-	function _templateObject5() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"landing-ui-field-source-placeholder-remove\"></span>\n\t\t\t"]);
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
 
-	  _templateObject5 = function _templateObject5() {
-	    return data;
-	  };
+	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-source-placeholder\">\n\t\t\t\t<span class=\"landing-ui-field-source-placeholder-text\">", "</span>\n\t\t\t</div>\n\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-source-grid\">\n\t\t\t\t\t<div class=\"landing-ui-field-source-grid-left\">", "</div>\n\t\t\t\t\t<div class=\"landing-ui-field-source-grid-right\">", "</div>\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span>&nbsp;(", ")</span>"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["<span></span>"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	/**
 	 * @memberOf BX.Landing.UI.Field
 	 */
@@ -234,7 +194,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "getValueLayout",
 	    value: function getValueLayout() {
 	      return this.cache.remember('valueLayout', function () {
-	        return main_core.Tag.render(_templateObject());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<span></span>"])));
 	      });
 	    }
 	  }, {
@@ -243,7 +203,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this5 = this;
 
 	      return this.cache.remember('valueLayoutWrapper', function () {
-	        return main_core.Tag.render(_templateObject2(), _this5.getValueLayout());
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<span>&nbsp;(", ")</span>"])), _this5.getValueLayout());
 	      });
 	    }
 	  }, {
@@ -257,7 +217,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this6 = this;
 
 	      return this.cache.remember('grid', function () {
-	        return main_core.Tag.render(_templateObject3(), _this6.getInput(), _this6.getButtonField().layout);
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-source-grid\">\n\t\t\t\t\t<div class=\"landing-ui-field-source-grid-left\">", "</div>\n\t\t\t\t\t<div class=\"landing-ui-field-source-grid-right\">", "</div>\n\t\t\t\t</div>\n\t\t\t"])), _this6.getInput(), _this6.getButtonField().layout);
 	      });
 	    }
 	  }, {
@@ -313,9 +273,10 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "onSliderMessage",
 	    value: function onSliderMessage(event) {
 	      if (event.getEventId() === 'save') {
-	        var sourceValue = babelHelpers.objectSpread({}, this.getValue(), {
+	        var sourceValue = _objectSpread$1(_objectSpread$1({}, this.getValue()), {}, {
 	          filter: event.getData().filter
 	        });
+
 	        var value = prepareValue(sourceValue, this.items);
 	        this.value = value;
 	        this.setFilter(value.filter);
@@ -391,7 +352,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "addPlaceholder",
 	    value: function addPlaceholder(options) {
-	      var placeholder = main_core.Tag.render(_templateObject4(), main_core.Text.encode(options.name));
+	      var placeholder = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-source-placeholder\">\n\t\t\t\t<span class=\"landing-ui-field-source-placeholder-text\">", "</span>\n\t\t\t</div>\n\t\t"])), main_core.Text.encode(options.name));
 	      main_core.Dom.attr(placeholder, {
 	        'data-item': options,
 	        title: options.name
@@ -402,7 +363,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 
 	      if (options.url) {
-	        var removeButton = main_core.Tag.render(_templateObject5());
+	        var removeButton = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"landing-ui-field-source-placeholder-remove\"></span>\n\t\t\t"])));
 	        main_core.Dom.append(removeButton, placeholder);
 	        main_core.Event.bind(placeholder, 'click', this.onPlaceholderClick.bind(this, options));
 	        main_core.Event.bind(removeButton, 'click', this.onPlaceholderRemoveClick.bind(this, options));

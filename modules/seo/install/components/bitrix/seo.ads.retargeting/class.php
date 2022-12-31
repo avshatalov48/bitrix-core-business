@@ -179,6 +179,33 @@ class SeoAdsRetargetingComponent extends CBitrixComponent implements Controllera
 		return $this->prepareAjaxAnswer($data);
 	}
 
+	/**
+	 * Return audience array with normalized status and status translation
+	 * Normalize status example: 'READY', 'PROCESSED', 'OTHER'
+	 * @param $type
+	 * @param $messageCode
+	 * @param $clientId
+	 * @param $accountId
+	 * @return array
+	 */
+	public function getAudiencesWithNormalizedStatusAction(
+		$type,
+		$messageCode = '',
+		$clientId = null,
+		$accountId = null
+	): array
+	{
+		$data = [];
+		if ($this->checkAccess())
+		{
+			$service = AdsAudience::getService();
+			$service->setClientId($clientId);
+			$data = AdsAudience::getAudienceWithNormalizedStatus($type, $messageCode, $accountId);
+		}
+
+		return $this->prepareAjaxAnswer($data);
+	}
+
 	public function addAudienceAction($type, $name = null, $clientId = null, $accountId = null)
 	{
 		$data = [];

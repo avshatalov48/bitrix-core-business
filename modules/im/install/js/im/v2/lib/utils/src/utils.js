@@ -1,5 +1,5 @@
 import {DateFormat} from 'im.v2.const';
-import {Loc} from 'main.core';
+import {Loc, Type} from 'main.core';
 import 'main.date';
 
 const Utils = {
@@ -114,6 +114,15 @@ const Utils = {
 			this.getDesktopVersionStatic = version[3];
 
 			return this.getDesktopVersionStatic;
+		},
+		isDesktopFeatureEnabled(code: string)
+		{
+			if (!this.isBitrixDesktop() || !Type.isFunction(BXDesktopSystem.FeatureEnabled))
+			{
+				return false;
+			}
+
+			return !!BXDesktopSystem.FeatureEnabled(code);
 		},
 		isMobile(): boolean
 		{

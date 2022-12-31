@@ -142,7 +142,12 @@ export default class Dialog extends EventEmitter
 			});
 		}
 
-		if (options.enableSearch === true)
+		if (options.tagSelector instanceof TagSelector)
+		{
+			this.tagSelectorMode = TagSelectorMode.OUTSIDE;
+			this.setTagSelector(options.tagSelector);
+		}
+		else if (options.enableSearch === true)
 		{
 			const defaultOptions = {
 				placeholder: Loc.getMessage('UI_TAG_SELECTOR_SEARCH_PLACEHOLDER'),
@@ -162,11 +167,6 @@ export default class Dialog extends EventEmitter
 			const tagSelector = new TagSelector(tagSelectorOptions);
 			this.tagSelectorMode = TagSelectorMode.INSIDE;
 			this.setTagSelector(tagSelector);
-		}
-		else if (options.tagSelector instanceof TagSelector)
-		{
-			this.tagSelectorMode = TagSelectorMode.OUTSIDE;
-			this.setTagSelector(options.tagSelector);
 		}
 
 		this.setTargetNode(options.targetNode);

@@ -43,6 +43,7 @@ class DummyHttp extends Sender\BaseConfigurable
 
 	public function sendMessage(array $messageFields): Sender\Result\SendMessage
 	{
+		$messageFields['MESSAGE_BODY'] = $this->prepareMessageBodyForSend($messageFields['MESSAGE_BODY']);
 		$result = new Sender\Result\SendMessage();
 		$host = $this->getOption('remoteHost');
 		if (!$host)

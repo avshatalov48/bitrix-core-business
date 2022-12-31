@@ -1,11 +1,13 @@
 <?php
 
+use Bitrix\Catalog\Integration\Report\Handler\Chart\ChartStoreInfo;
 use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorableImplementation;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Catalog\Integration\Report\StoreStock\StoreStockSale;
+use Bitrix\Catalog\Integration\Report\Handler\Chart\StoreInfoCombiner\StoreWithProductsInfoCombiner;
 use Bitrix\Currency\CurrencyManager;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
@@ -26,6 +28,7 @@ final class CatalogReportStoreStockSaleChartStoresGrid
 
 	public function executeComponent()
 	{
+		$this->errorCollection = new \Bitrix\Main\ErrorCollection();
 		if ($this->checkModules())
 		{
 			$this->initGrid();
@@ -44,19 +47,19 @@ final class CatalogReportStoreStockSaleChartStoresGrid
 
 		if (!Loader::includeModule('catalog'))
 		{
-			$this->errorCollection[] = new \Bitrix\Main\Error('Module "catalog" is not installed.');
+			$this->errorCollection->add([new \Bitrix\Main\Error('Module "catalog" is not installed.')]);
 			$validateResult = false;
 		}
 
 		if (!Loader::includeModule('sale'))
 		{
-			$this->errorCollection[] = new \Bitrix\Main\Error('Module "sale" is not installed.');
+			$this->errorCollection->add([new \Bitrix\Main\Error('Module "sale" is not installed.')]);
 			$validateResult = false;
 		}
 
 		if (!Loader::includeModule('currency'))
 		{
-			$this->errorCollection[] = new \Bitrix\Main\Error('Module "sale" is not installed.');
+			$this->errorCollection->add([new \Bitrix\Main\Error('Module "currency" is not installed.')]);
 			$validateResult = false;
 		}
 
@@ -109,21 +112,6 @@ final class CatalogReportStoreStockSaleChartStoresGrid
 				'sort' => 'SUM_STORED',
 				'default' => true,
 			],
-
-			[
-				'id' => 'SUM_SOLD',
-				'name' => \Bitrix\Main\Localization\Loc::getMessage('STORE_STOCK_SALECHART_STORES_GRID_COLUMN_SUM_SOLD'),
-				'sort' => 'SUM_SOLD',
-				'default' => true,
-			],
-
-			[
-				'id' => 'SUM_SOLD_PERCENT',
-				'name' => \Bitrix\Main\Localization\Loc::getMessage('STORE_STOCK_SALECHART_STORES_GRID_COLUMN_SUM_SOLD_PERCENT'),
-				'sort' => 'SUM_SOLD_PERCENT',
-				'default' => true,
-			],
-
 		];
 
 		return $columns;
@@ -131,22 +119,14 @@ final class CatalogReportStoreStockSaleChartStoresGrid
 
 	private function getGridRows(): array
 	{
-		$storesData = StoreStockSale::getStoreStockSaleData(false, $this->arParams['FILTER']);
+		$storeInfo = new ChartStoreInfo(new StoreWithProductsInfoCombiner());
+		$storeInfo->accumulate('SUM_STORED', ...StoreStockSale::getReservedData($this->arParams['FILTER']));
+
 		$rows = [];
-
-		$storeIds = array_column($storesData, 'STORE_ID');
-		$storeNames = $this->getStoreNames($storeIds);
-
-		foreach ($storesData as $storeData)
+		foreach ($storeInfo->getCalculatedColumns() as $store)
 		{
-			$storeData['STORE_NAME'] = $storeNames[$storeData['STORE_ID']];
-			if (empty($storeData['STORE_NAME']))
-			{
-				$storeData['STORE_NAME'] = Loc::getMessage('STORE_STOCK_SALECHART_STORES_GRID_DEFAULT_STORE_NAME');
-			}
-
 			$rows[] = [
-				'data' => $this->prepareRow($storeData),
+				'data' => $this->prepareRow($store),
 			];
 		}
 
@@ -156,24 +136,9 @@ final class CatalogReportStoreStockSaleChartStoresGrid
 	private function prepareRow($columnData)
 	{
 		return [
-			'STORE_NAME' => htmlspecialcharsbx($columnData['STORE_NAME']),
+			'STORE_NAME' => htmlspecialcharsbx($columnData['TITLE']),
 			'SUM_STORED' => \CCurrencyLang::CurrencyFormat($columnData['SUM_STORED'], $this->currency, true),
-			'SUM_SOLD' => \CCurrencyLang::CurrencyFormat($columnData['SUM_SOLD'], $this->currency, true),
-			'SUM_SOLD_PERCENT' => round($columnData['SUM_SOLD_PERCENT'], 2) . '%',
 		];
-	}
-
-	private function getStoreNames($storeIds): array
-	{
-		$storesInfo = StoreTable::getList([
-			'select' => ['ID', 'TITLE'],
-			'filter' => [
-				'=ID' => $storeIds,
-				'ACTIVE' => 'Y',
-			],
-		])->fetchAll();
-
-		return array_column($storesInfo, 'TITLE', 'ID');
 	}
 
 	/**

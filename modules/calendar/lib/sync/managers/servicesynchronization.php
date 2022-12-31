@@ -12,6 +12,9 @@ use Bitrix\Calendar\Sync\Util\Context;
 use Bitrix\Calendar\Sync\Util\EventContext;
 use Bitrix\Main\Result;
 
+/**
+ * @deprecated usage not found
+ */
 class ServiceSynchronization
 {
 	/**
@@ -31,6 +34,8 @@ class ServiceSynchronization
 	 * @param Event $event
 	 * @param Context $context
 	 * @return Result
+	 *
+	 * @deprecated usage not found
 	 */
 	public function createEvent(Event $event, Context $context): Result
 	{
@@ -41,6 +46,14 @@ class ServiceSynchronization
 		return $this->handleResult($actionResult);
 	}
 
+	/**
+	 * @param Event $event
+	 * @param EventContext $context
+	 *
+	 * @return Result
+	 *
+	 * @deprecated usage not found
+	 */
 	public function updateEvent(Event $event, EventContext $context): Result
 	{
 		$manager = $this->factory->getEventManager();

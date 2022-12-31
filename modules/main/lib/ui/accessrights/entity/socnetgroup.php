@@ -44,7 +44,7 @@ class SocnetGroup extends EntityBase
 			$arFile = \CFile::GetFileArray($this->model->getImageId());
 			if(is_array($arFile))
 			{
-				return Uri::urnEncode($arFile['SRC']);
+				return $arFile['SRC'];
 			}
 		}
 		return '';

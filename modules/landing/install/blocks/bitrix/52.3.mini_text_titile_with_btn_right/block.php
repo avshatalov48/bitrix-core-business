@@ -1,4 +1,4 @@
-<section class="landing-block g-pt-30 g-pb-30">
+<section class="landing-block g-pt-30 g-pb-30 u-block-border-none">
 	<div class="container">
 		<div class="landing-block-node-container row g-flex-centered align-items-end">
 			<div class="landing-block-node-text-container col-6 js-animation slideInLeft">

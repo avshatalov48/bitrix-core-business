@@ -2,7 +2,10 @@
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
+
 use Bitrix\Iblock,
+	Bitrix\Catalog\Access\AccessController,
+	Bitrix\Catalog\Access\ActionDictionary,
 	Bitrix\Currency;
 
 define("STOP_STATISTICS", true);
@@ -31,7 +34,7 @@ $APPLICATION->SetTitle(GetMessage('YANDEX_DETAIL_TITLE'));
 
 CModule::IncludeModule('catalog');
 
-if (!$USER->CanDoOperation('catalog_export_edit'))
+if (!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_EXPORT_EDIT))
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError(GetMessage('YANDEX_ERR_NO_ACCESS_EXPORT'));

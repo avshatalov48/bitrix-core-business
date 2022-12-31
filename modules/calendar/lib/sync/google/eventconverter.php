@@ -10,7 +10,7 @@ use Bitrix\Calendar\Core\Event\Properties\Remind;
 use Bitrix\Calendar\Sync\Connection\EventConnection;
 use Bitrix\Calendar\Sync\Entities\InstanceMap;
 use Bitrix\Calendar\Sync\Entities\SyncEvent;
-use Bitrix\Calendar\Sync\Util\AttendeesDescription;
+use Bitrix\Calendar\Sync\Util\EventDescription;
 
 class EventConverter
 {
@@ -54,22 +54,17 @@ class EventConverter
 		$event = [];
 
 		$event['summary'] = $this->originalEvent->getName();
-		$event['description'] = AttendeesDescription::makeDescription($this->originalEvent);
+		$event['description'] = $this->prepareDescription($this->originalEvent);
 		$event['transparency'] = $this->prepareAccessibility();
 		$event = array_merge($event, $this->prepareDate());
 		$event['reminders'] = $this->prepareReminders();
 		$event['location'] = $this->prepareLocation();
 		$event['visibility'] = $this->prepareVisibility();
-		$event['sequence'] = $this->originalEvent->getVersion() - Helper::VERSION_DIFFERENCE;
+		// $event['sequence'] = $this->originalEvent->getVersion() - Helper::VERSION_DIFFERENCE;
 
 		if ($this->originalEvent->getUid() !== null)
 		{
 			$event['iCalUID'] = $this->originalEvent->getUid();
-		}
-
-		if ($this->originalEvent->getOriginalDateFrom() !== null)
-		{
-			$event['originalStartTime'] = $this->originalEvent->getOriginalDateFrom()->format(Helper::DATE_TIME_FORMAT);
 		}
 
 		if ($this->originalEvent->isRecurrence())
@@ -78,6 +73,20 @@ class EventConverter
 		}
 
 		return $event;
+	}
+
+	/**
+	 * @param Event $event
+	 * @return string
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ObjectPropertyException
+	 * @throws \Bitrix\Main\SystemException
+	 */
+	private function prepareDescription(Event $event): string
+	{
+		$description = \CCalendarEvent::ParseText((new EventDescription())->prepareForExport($event));
+
+		return preg_replace("/<br>/i", "\r\n", $description);
 	}
 
 	/**
@@ -153,6 +162,18 @@ class EventConverter
 				? $this->originalEvent->getEndTimeZone()->getTimeZone()->getName()
 				: (new \DateTime())->getTimezone()->getName()
 			;
+		}
+
+		if ($this->originalEvent->getOriginalDateFrom() !== null)
+		{
+			if ($this->originalEvent->isFullDayEvent())
+			{
+				$event['originalStartTime']['date'] = $this->originalEvent->getOriginalDateFrom()->format(Helper::DATE_FORMAT);
+			}
+			else
+			{
+				$event['originalStartTime']['dateTime'] = $this->originalEvent->getOriginalDateFrom()->format(Helper::DATE_TIME_FORMAT);
+			}
 		}
 
 		return $date;

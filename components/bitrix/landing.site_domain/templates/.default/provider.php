@@ -8,8 +8,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
 
-\Bitrix\Main\UI\Extension::load('ui.fonts.opensans');
+Extension::load(['ui.fonts.opensans', 'ui.hint']);
 
 $requestDomainName = $this->getComponent()->request('param');
 
@@ -34,9 +35,11 @@ if ($arResult['IS_FREE_DOMAIN'] != 'Y')
 				<div class="landing-domain-block-input-inner">
 					<span class="landing-domain-block-label">
 					<?= Loc::getMessage('LANDING_TPL_FREE_TITLE_SELECT1', ['#TLD#' => '.' . mb_strtoupper(implode(', .', $arResult['TLD']))]);?>
+					<span data-hint="<?= Loc::getMessage('LANDING_TPL_DOMAIN_RULES') ?>" data-hint-html></span>
 					</span>
 					<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
-						<div class="ui-ctl-ext-after ui-ctl-icon-loader" id="domain-edit-loader" style="display: none;"></div>
+						<div class="ui-ctl-ext-after ui-ctl-icon-loader" id="domain-edit-loader" hidden></div>
+						<div class="domain-edit-length" id="domain-edit-length" hidden></div>
 						<input type="text" name="param" value="<?= \htmlspecialcharsbx($requestDomainName ? $requestDomainName : $arResult['DOMAIN_NAME']);?>" <?
 							?>id="domain-edit-name" class="ui-ctl-element" placeholder="mysite.<?= $arResult['TLD'][0];?>">
 					</div>
@@ -45,7 +48,7 @@ if ($arResult['IS_FREE_DOMAIN'] != 'Y')
 					<?= Loc::getMessage('LANDING_TPL_CHECK');?>
 				</button>
 			</div>
-			<div class="landing-domain-alert" id="domain-edit-message" style="display: none;"></div>
+			<div class="landing-domain-alert" id="domain-edit-message" hidden></div>
 			<div class="landing-domain-block-available" style="display: none;">
 				<div class="landing-domain-block-available-title"><?= Loc::getMessage('LANDING_TPL_FREE_CHOOSE_ANOTHER_NAME');?></div>
 				<div id="domain-edit-another" class="landing-domain-block-available-list-wrap">
@@ -75,7 +78,7 @@ if ($arResult['IS_FREE_DOMAIN'] != 'Y')
 <script>
 	BX.ready(function()
 	{
-		new BX.Landing.SiteDomainFree({
+		new BX.Landing.SiteDomain.Free({
 			idDomainName: BX('domain-edit-name'),
 			idDomainCheck: BX('domain-edit-check'),
 			idDomainSubmit: BX('domain-edit-submit'),
@@ -83,13 +86,14 @@ if ($arResult['IS_FREE_DOMAIN'] != 'Y')
 			idDomainAnotherMore: BX('domain-edit-another-more'),
 			idDomainMessage: BX('domain-edit-message'),
 			idDomainLoader: BX('domain-edit-loader'),
+			idDomainLength: BX('domain-edit-length'),
 			idDomainErrorAlert: BX('domain-error-alert'),
 			saveBlocker: <?= !$arResult['FEATURE_FREE_AVAILABLE'] ? 'true' : 'false';?>,
 			saveBlockerCallback: function() {
 				<?= \Bitrix\Landing\Restriction\Manager::getActionCode('limit_free_domen');?>
 			},
 			maxVisibleSuggested: 10,
-			tld: <?= \CUtil::phpToJSObject($arResult['TLD'])?>,
+			tld: <?= \CUtil::phpToJSObject($arResult['TLD'][0])?>,
 			promoBlock: BX('landing-domain-block-info'),
 			promoCloseIcon: BX('landing-domain-block-info-close-icon'),
 			promoCloseLink: BX('landing-domain-block-info-close-link')

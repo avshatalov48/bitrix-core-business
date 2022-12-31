@@ -38,14 +38,7 @@ class Uri implements \JsonSerializable
 		{
 			$this->scheme = (isset($parsedUrl["scheme"])? strtolower($parsedUrl["scheme"]) : "http");
 			$this->host = $parsedUrl["host"] ?? '';
-			if(isset($parsedUrl["port"]))
-			{
-				$this->port = $parsedUrl["port"];
-			}
-			else
-			{
-				$this->port = ($this->scheme == "https"? 443 : 80);
-			}
+			$this->port = $parsedUrl["port"] ?? null;
 			$this->user = $parsedUrl["user"] ?? '';
 			$this->pass = $parsedUrl["pass"] ?? '';
 			$this->path = $parsedUrl["path"] ?? '/';
@@ -73,9 +66,10 @@ class Uri implements \JsonSerializable
 		{
 			$url .= $this->scheme."://".$this->host;
 
-			if(($this->scheme == "http" && $this->port <> 80) || ($this->scheme == "https" && $this->port <> 443))
+			$port = $this->getPort();
+			if (($this->scheme == 'http' && $port != 80) || ($this->scheme == 'https' && $port != 443))
 			{
-				$url .= ":".$this->port;
+				$url .= ':' . $port;
 			}
 		}
 
@@ -185,11 +179,15 @@ class Uri implements \JsonSerializable
 
 	/**
 	 * Returns the port number.
-	 * @return string
+	 * @return int
 	 */
 	public function getPort()
 	{
-		return $this->port;
+		if ($this->port === null)
+		{
+			return ($this->getScheme() == 'https' ? 443 : 80);
+		}
+		return (int)$this->port;
 	}
 
 	/**

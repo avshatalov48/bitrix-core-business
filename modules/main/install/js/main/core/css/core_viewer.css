@@ -16,9 +16,7 @@
 	background-color: rgba(0,0,0,0.6);
 }
 
-.bx-ie8 .bx-viewer-overlay,
-.bx-quirks .bx-viewer-overlay
-{
+.bx-quirks .bx-viewer-overlay {
 	background: url("../images/imageviewer_ie8bg.png");
 }
 
@@ -120,8 +118,6 @@
 .bx-viewer-wrap-outer:hover .bx-viewer-prev-outer,
 .bx-viewer-wrap-outer:hover .bx-viewer-next-outer { opacity: 1; }
 
-.bx-ie8 .bx-viewer-prev-outer .bx-viewer-prev,
-.bx-ie8 .bx-viewer-next-outer .bx-viewer-next,
 .bx-quirks .bx-viewer-prev-outer .bx-viewer-prev,
 .bx-quirks .bx-viewer-next-outer .bx-viewer-next { filter:progid:DXImageTransform.Microsoft.Alpha(opacity=50); }
 
@@ -133,8 +129,6 @@
 .bx-viewer-prev-outer:hover,
 .bx-viewer-next-outer:hover { opacity: 1 !important; }
 
-.bx-ie8 .bx-viewer-prev-outer:hover .bx-viewer-prev,
-.bx-ie8 .bx-viewer-next-outer:hover .bx-viewer-next,
 .bx-quirks .bx-viewer-prev-outer:hover .bx-viewer-prev,
 .bx-quirks .bx-viewer-next-outer:hover .bx-viewer-next { filter: none; }
 
@@ -150,14 +144,6 @@
 	box-shadow: 0 0 0 2px white inset, 0 1px 1px 0 rgba(0, 0, 0, 0.21);
 }
 
-/* IE10 has both script positioning of this elements and transitions. so we should animate them with other elements to avoid twitching */
-.bx-ie10 .bx-viewer-prev,
-.bx-ie10 .bx-viewer-next
-{
-	-ms-transition:top 0.15s ease-in;
-	transition:top 0.15s ease-in;
-}
-
 .bx-viewer-next {
 	right: 10%;
 	background: url("../images/imageviewer_sprite.png") no-repeat -30px 0 #4f4f4f;
@@ -168,8 +154,6 @@
 	background: url("../images/imageviewer_sprite.png") no-repeat -70px 0 #4f4f4f;
 }
 
-.bx-ie8 .bx-viewer-prev,
-.bx-ie8 .bx-viewer-next,
 .bx-quirks .bx-viewer-prev,
 .bx-quirks .bx-viewer-next
 {
@@ -199,9 +183,7 @@
 	background: url("../images/imageviewer_sprite.png") no-repeat 0 1px #545454;
 }
 
-.bx-ie8 .bx-viewer-close-inner,
-.bx-quirks .bx-viewer-close-inner
-{
+.bx-quirks .bx-viewer-close-inner {
 	border: solid 1px white;
 }
 
@@ -223,9 +205,7 @@
 
 .bx-viewer-title-2-btns {padding-right: 230px;}
 
-.bx-ie8 .bx-viewer-title,
-.bx-quirks .bx-viewer-title
-{
+.bx-quirks .bx-viewer-title {
 	background: url("../images/imageviewer_ie8bg.png");
 }
 

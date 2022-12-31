@@ -76,6 +76,11 @@ abstract class Source
 		return $this->isDefault;
 	}
 
+	public function isAvailable(): bool
+	{
+		return true;
+	}
+
 	/**
 	 * @return Config|null
 	 */

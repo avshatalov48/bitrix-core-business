@@ -276,7 +276,6 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 			}
 
 			$result['SHOW_FOLLOW_CONTROL'] = 'N';
-			$result['SHOW_UNREAD'] = 'N';
 			$this->showPinnedPanel = false;
 		}
 		elseif ($params['TO_USER_ID'] > 0)

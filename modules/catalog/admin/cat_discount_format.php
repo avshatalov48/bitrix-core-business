@@ -1,11 +1,17 @@
-<?
+<?php
+
+use Bitrix\Catalog\Access\ActionDictionary;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 global $USER;
 
-if (!$USER->CanDoOperation('catalog_discount'))
-	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 CModule::IncludeModule("catalog");
+if (!Bitrix\Catalog\Access\AccessController::getCurrent()->check(ActionDictionary::ACTION_PRODUCT_DISCOUNT_SET))
+{
+	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
+
 IncludeModuleLangFile(__FILE__);
 
 if ('POST' == $_SERVER['REQUEST_METHOD'] && (isset($_REQUEST["Convert"]) && 'Y' == $_REQUEST["Convert"]) && (isset($_REQUEST["format"]) && 'Y' == $_REQUEST["format"]) && check_bitrix_sessid())

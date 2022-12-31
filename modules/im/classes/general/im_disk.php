@@ -1891,7 +1891,7 @@ class CIMDisk
 			],
 			[
 				// allow only for user, access code `Uxxx`
-				['ACCESS_CODE' => 'U'.$userId, 'TASK_ID' => $rightsManager->getTaskIdByName($rightsManager::TASK_EDIT)],
+				['ACCESS_CODE' => 'U'.$userId, 'TASK_ID' => $rightsManager->getTaskIdByName($rightsManager::TASK_FULL)],
 			],
 			true
 		);
@@ -1919,6 +1919,29 @@ class CIMDisk
 		}
 
 		$fileModel->increaseGlobalContentVersion();
+
+		return true;
+	}
+/**
+	 * @param int $userId
+	 * @param int $fileId
+	 * @return bool
+	 */
+	public static function DeleteBackgroundFile($userId, $fileId)
+	{
+		$folderModel = self::GetBackgroundFolderModel($userId);
+		if (!$folderModel)
+		{
+			return false;
+		}
+
+		$fileModel = \Bitrix\Disk\File::getById($fileId);
+		if (!$fileModel || $fileModel->getParentId() != $folderModel->getId())
+		{
+			return false;
+		}
+
+		$fileModel->delete($userId);
 
 		return true;
 	}

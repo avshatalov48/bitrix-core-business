@@ -343,14 +343,15 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 	}
 	/**
 	 * @param mixed $arFile
+	 * @param boolean $encoded
 	 * @return string
 	*/
-	function GetFileSRC($arFile)
+	function GetFileSRC($arFile, $encoded = true)
 	{
 		if(is_array($arFile) && isset($arFile["URN"]))
-			return $this->service->GetFileSRC($this->arBucket, $arFile["URN"]);
+			return $this->service->GetFileSRC($this->arBucket, $arFile["URN"], $encoded);
 		else
-			return preg_replace("'(?<!:)/+'s", "/", $this->service->GetFileSRC($this->arBucket, $arFile));
+			return preg_replace("'(?<!:)/+'s", "/", $this->service->GetFileSRC($this->arBucket, $arFile, $encoded));
 	}
 	/**
 	 * @param string $filePath
@@ -367,7 +368,8 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 	*/
 	function DownloadToFile($arFile, $filePath)
 	{
-		return $this->service->DownloadToFile($this->arBucket, $arFile, $filePath);
+		$result = $this->service->DownloadToFile($this->arBucket, $arFile, $filePath);
+		return $result;
 	}
 	/**
 	 * @param string $filePath
@@ -491,21 +493,30 @@ class CCloudStorageBucket extends CAllCloudStorageBucket
 		$DIR_NAME = mb_substr($filePath, 0, mb_strrpos($filePath, "/") + 1);
 		$FILE_NAME = mb_substr($filePath, mb_strlen($DIR_NAME));
 
-		$arListing = $this->service->ListFiles($this->arBucket, $DIR_NAME, false);
-		if(is_array($arListing))
+		$arFileInfo = $this->service->GetFileInfo($this->arBucket, $filePath);
+		if ($arFileInfo === null)
 		{
-			foreach($arListing["file"] as $i => $name)
+			$arListing = $this->service->ListFiles($this->arBucket, $DIR_NAME, false);
+			if(is_array($arListing))
 			{
-				if($name === $FILE_NAME)
+				foreach($arListing["file"] as $i => $name)
 				{
-					return array(
-						"name" => $name,
-						"size" => $arListing["file_size"][$i],
-						"mtime" => $arListing["file_mtime"][$i],
-						"hash" => $arListing["file_hash"][$i],
-					);
+					if($name === $FILE_NAME)
+					{
+						return array(
+							"name" => $name,
+							"size" => $arListing["file_size"][$i],
+							"mtime" => $arListing["file_mtime"][$i],
+							"hash" => $arListing["file_hash"][$i],
+						);
+					}
 				}
 			}
+		}
+		elseif ($arFileInfo)
+		{
+			$arFileInfo['name'] = $FILE_NAME;
+			return $arFileInfo;
 		}
 		return false;
 	}

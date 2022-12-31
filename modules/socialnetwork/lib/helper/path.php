@@ -14,7 +14,7 @@ use Bitrix\Main\ModuleManager;
 
 class Path
 {
-	public static function get(string $key = '', string $siteId = SITE_ID): string
+	public static function get(string $key = '', $siteId = SITE_ID): string
 	{
 		$result = '';
 
@@ -35,16 +35,54 @@ class Path
 			case 'user_calendar_path_template':
 				$result = self::get('user_profile', $siteId) . 'calendar/';
 				break;
+			case 'user_create_group_path_template':
+				$result = self::get('user_profile', $siteId) . 'groups/create/';
+				break;
+			case 'user_tasks_path_template':
+				$result = self::get('user_profile', $siteId) . 'tasks/';
+				break;
+			case 'user_tasks_view_path_template':
+				$result = self::get('user_tasks_path_template', $siteId) . 'view/#action#/#view_id#/';
+				break;
+			case 'user_tasks_report_path_template':
+				$result = self::get('user_tasks_path_template', $siteId) . 'report/';
+				break;
+			case 'user_tasks_templates_path_template':
+				$result = self::get('user_tasks_path_template', $siteId) . 'templates/';
+				break;
 			case 'userblogpost_page':
 			case 'group_path_template':
 			case 'workgroups_page':
 				$result = Option::get('socialnetwork', $key, self::getDefault($key, $siteId), $siteId);
 				break;
+			case 'group_edit_path_template':
+				$result = self::get('group_path_template', $siteId) . 'edit/';
+				break;
+			case 'group_delete_path_template':
+				$result = self::get('group_path_template', $siteId) . 'delete/';
+				break;
 			case 'group_invite_path_template':
 				$result = self::get('group_path_template', $siteId) . 'invite/';
 				break;
+			case 'group_livefeed_path_template':
+				$result = self::get('group_path_template', $siteId) . (
+					ModuleManager::isModuleInstalled('intranet')
+					&& SITE_TEMPLATE_ID === 'bitrix24'
+						? 'general/'
+						: ''
+				);
+				break;
 			case 'group_tasks_path_template':
 				$result = self::get('group_path_template', $siteId) . 'tasks/';
+				break;
+			case 'group_tasks_task_path_template':
+				$result = self::get('group_tasks_path_template', $siteId) . 'task/#action#/#task_id#/';
+				break;
+			case 'group_tasks_view_path_template':
+				$result = self::get('group_tasks_path_template', $siteId) . 'view/#action#/#view_id#/';
+				break;
+			case 'group_tasks_report_path_template':
+				$result = self::get('group_tasks_path_template', $siteId) . 'report/';
 				break;
 			case 'group_calendar_path_template':
 				$result = self::get('group_path_template', $siteId) . 'calendar/';
@@ -58,6 +96,12 @@ class Path
 			case 'group_requests_out_path_template':
 				$result = self::get('group_path_template', $siteId) . 'requests_out/';
 				break;
+			case 'user_request_group_path_template':
+				$result = self::get('group_path_template', $siteId) . 'user_request/';
+				break;
+			case 'user_leave_group_path_template':
+				$result = self::get('group_path_template', $siteId) . 'user_leave/';
+				break;
 			case 'department_path_template':
 				$result = Option::get('main', 'TOOLTIP_PATH_TO_CONPANY_DEPARTMENT', self::getDefault('TOOLTIP_PATH_TO_CONPANY_DEPARTMENT', $siteId), $siteId);
 				break;
@@ -67,7 +111,7 @@ class Path
 		return $result;
 	}
 
-	private static function getDefault(string $key = '', string $siteId = SITE_ID): string
+	private static function getDefault(string $key = '', $siteId = SITE_ID): string
 	{
 		$result = '';
 		if ($key === '')
@@ -104,7 +148,7 @@ class Path
 		return $result;
 	}
 
-	private static function getUserFolder(string $siteId = SITE_ID): string
+	private static function getUserFolder($siteId = SITE_ID): string
 	{
 		static $extranetSiteId = null;
 

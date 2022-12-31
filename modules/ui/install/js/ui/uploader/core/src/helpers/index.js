@@ -16,16 +16,20 @@ import resizeImage from './resize-image';
 import createFileFromBlob from './create-file-from-blob';
 import createBlobFromDataUri from './create-blob-from-data-uri';
 import getArrayBuffer from './get-array-buffer';
+import getJpegOrientation from './get-jpeg-orientation';
+import isJpeg from './is-jpeg';
 
 export {
 	formatFileSize,
 	getFileExtension,
 	getFilenameWithoutExtension,
 	getExtensionFromType,
+	getJpegOrientation,
 	getArrayBuffer,
 	isDataUri,
 	isImage,
 	isResizableImage,
+	isJpeg,
 	getImageSize,
 	resizeImage,
 	loadImage,

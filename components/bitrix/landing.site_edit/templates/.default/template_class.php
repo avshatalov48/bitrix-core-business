@@ -80,6 +80,7 @@ class Template
 		$code = $field->getCode();
 		$additional = $params['additional'] ?? '';
 		$disabled = $params['disabled'] ?? false;
+		$readonly = $params['readonly'] ?? false;
 		$needWrapper = $params['needWrapper'] ?? false;
 
 		$isTitle = (bool)$params['title'];
@@ -91,6 +92,7 @@ class Template
 
 		$fieldWrapperTag = ($isTitle && $type === 'checkbox') ? 'label' : 'div';
 		$help = $field->getHelpValue();
+		$htmlHelp = $field->isHtmlHelp();
 		$isHelpLink = $help && strpos($help, '<a href=') !== false;
 
 		?>
@@ -101,9 +103,15 @@ class Template
 			<div class="ui-form-label">
 				<label class="ui-ctl-label-text" for="<?=$this->getFieldId($code)?>"><?=$title?></label>
 				<?php if ($help && !$isHelpLink): ?>
-					<span data-hint="<?= $help ?>" class="ui-hint">
-						<span class="ui-hint-icon"></span>
-					</span>
+					<?php if ($htmlHelp): ?>
+						<span data-hint="<?= $help ?>" data-hint-html class="ui-hint">
+							<span class="ui-hint-icon"></span>
+						</span>
+					<?php else:?>
+						<span data-hint="<?= $help ?>" class="ui-hint">
+							<span class="ui-hint-icon"></span>
+						</span>
+					<?php endif; ?>
 				<?php endif; ?>
 			</div>
 		<?php elseif (!$isTitle  && $type !== 'checkbox'): ?>
@@ -125,6 +133,7 @@ class Template
 				'additional' => $additional,
 				'class' => 'ui-ctl-element ui-field-'.strtolower($code),
 				'disabled' => $disabled,
+				'readonly' => $readonly,
 				'name_format' => 'fields[ADDITIONAL_FIELDS][#field_code#]'
 			])?>
 			<?php if ($isTitle && $type === 'checkbox'): ?>

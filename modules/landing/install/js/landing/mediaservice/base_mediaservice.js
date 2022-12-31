@@ -34,6 +34,7 @@
 		this.type = "iframe";
 		this.params = {};
 		this.isDataLoaded = true;
+		this.isBgVideoMode = false;
 	};
 
 	BX.Landing.MediaService.BaseMediaService.prototype = {
@@ -227,6 +228,15 @@
 		getSettingsForm: function()
 		{
 			return null;
+		},
+
+		/**
+		 * Set true if current service used for BG video
+		 * @param {bool} value
+		 */
+		setBgVideoMode(value)
+		{
+			this.isBgVideoMode = !!value;
 		}
 	}
 })();

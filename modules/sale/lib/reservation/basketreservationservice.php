@@ -129,4 +129,18 @@ class BasketReservationService
 	{
 		return $this->historyService->getAvailableCountForBasketItem($basketId, $storeId);
 	}
+
+	/**
+	 * The available amount to be debited based on the reservation history.
+	 *
+	 * @see BasketReservationHistoryService::getAvailableCountForBasketItems
+	 *
+	 * @param array $basketItemFilter
+	 *
+	 * @return array
+	 */
+	public function getAvailableCountForBasketItems(array $basketItemFilter): array
+	{
+		return $this->historyService->getAvailableCountForBasketItems($basketItemFilter);
+	}
 }

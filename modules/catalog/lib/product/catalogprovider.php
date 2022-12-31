@@ -212,7 +212,10 @@ if (Main\Loader::includeModule('sale'))
 				$iblockDataList = $this->getIblockData($iblockGetIdList) + $iblockDataList;
 			}
 
-			$iblockList = static::removeNotExistsIblockFromList($iblockList, array_keys($iblockDataList));
+			$iblockList = array_intersect_key(
+				$iblockList,
+				$iblockDataList
+			);
 
 			$iblockProductMap = static::createIblockProductMap($iblockList, $iblockDataList);
 
@@ -238,7 +241,8 @@ if (Main\Loader::includeModule('sale'))
 				'QUANTITY',
 				'QUANTITY_RESERVED',
 				'MEASURE',
-				'TYPE'
+				'TYPE',
+				'AVAILABLE',
 			);
 			if (!$catalogDataEnabled)
 			{
@@ -253,6 +257,7 @@ if (Main\Loader::includeModule('sale'))
 			$catalogSelect = array_merge($catalogSelect, Catalog\Product\SystemField::getProviderSelectFields());
 
 			$catalogProductDataList = static::getCatalogProducts(array_keys($products), $catalogSelect);
+
 			$products = array_intersect_key($products, $catalogProductDataList);
 			if (empty($products))
 			{
@@ -537,10 +542,6 @@ if (Main\Loader::includeModule('sale'))
 						$itemData["PRODUCT_ID"] = $item["ITEM_ID"];
 						$itemData["MODULE"] = 'catalog';
 						$itemData["PRODUCT_PROVIDER_CLASS"] = Basket::getDefaultProviderName();
-//					if ($type == \CCatalogProductSet::TYPE_SET)
-//					{
-//						$itemData['SET_DISCOUNT_PERCENT'] = ($item['DISCOUNT_PERCENT'] == '' ? false : (float)$item['DISCOUNT_PERCENT']);
-//					}
 
 						$productIdList[] = $item["ITEM_ID"];
 
@@ -1204,7 +1205,10 @@ if (Main\Loader::includeModule('sale'))
 
 			$needShip = ($productQuantity < 0);
 
-			if (Catalog\Config\State::isUsedInventoryManagement())
+			if (
+				//Catalog\Config\State::isUsedInventoryManagement()
+				$productData['PRODUCT']['USED_STORE_INVENTORY']
+			)
 			{
 				if (empty($productStoreDataList) && $needShip)
 				{
@@ -1237,10 +1241,10 @@ if (Main\Loader::includeModule('sale'))
 					return $r;
 				}
 
-				if ($productData['PRODUCT']['TYPE'] === Catalog\ProductTable::TYPE_SET)
+				/*if (!$productData['PRODUCT']['USED_STORE_INVENTORY']) // product types without stores
 				{
 					$setQuantityList = [];
-				}
+				} */
 
 				$r = static::updateCatalogStoreAmount($setQuantityList);
 				if ($r->isSuccess())
@@ -1385,7 +1389,7 @@ if (Main\Loader::includeModule('sale'))
 				}
 			}
 
-			if ($productData['PRODUCT']['TYPE'] === Catalog\ProductTable::TYPE_SET)
+			if (!$productData['PRODUCT']['USED_RESERVATION'])
 			{
 				if (isset($fields['QUANTITY_RESERVED']))
 				{
@@ -1508,7 +1512,7 @@ if (Main\Loader::includeModule('sale'))
 				}
 			}
 
-			if ($productData['PRODUCT']['TYPE'] === Catalog\ProductTable::TYPE_SET)
+			if (!$productData['PRODUCT']['USED_RESERVATION'])
 			{
 				if (isset($fields['QUANTITY_RESERVED']))
 				{
@@ -1605,7 +1609,7 @@ if (Main\Loader::includeModule('sale'))
 					foreach ($shipmentItemList as $index => $shipmentItem)
 					{
 						$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
-						if ($shipmentItemStoreCollection->count() === 0)
+						if ($shipmentItemStoreCollection && $shipmentItemStoreCollection->count() === 0)
 						{
 							$item = $shipmentItemStoreCollection->createItem($shipmentItem->getBasketItem());
 							$item->setField('STORE_ID', $autoShipStore['STORE_ID']);
@@ -2022,7 +2026,10 @@ if (Main\Loader::includeModule('sale'))
 		 */
 		private static function reserveProduct(array $productData): Sale\Result
 		{
-			if (!static::isReservationEnabled())
+			if (
+				!static::isReservationEnabled()
+				|| !$productData['PRODUCT']['USED_RESERVATION']
+			)
 			{
 				return static::reserveQuantityWithDisabledReservation($productData);
 			}
@@ -2191,7 +2198,7 @@ if (Main\Loader::includeModule('sale'))
 
 			} //quantity trace
 
-			if ($productData['PRODUCT']['TYPE'] === Catalog\ProductTable::TYPE_SET)
+			if (!$productData['PRODUCT']['USED_RESERVATION'])
 			{
 				if (isset($fields['QUANTITY_RESERVED']))
 				{
@@ -2454,7 +2461,7 @@ if (Main\Loader::includeModule('sale'))
 			if (!isset(self::$priceTitleCache[$priceType]))
 			{
 				self::$priceTitleCache[$priceType] = '';
-				$priceTypeList = \CCatalogGroup::GetListArray();
+				$priceTypeList = Catalog\GroupTable::getTypeList();
 				if (isset($priceTypeList[$priceType]))
 				{
 					$groupName = (string)$priceTypeList[$priceType]['NAME_LANG'];
@@ -2520,12 +2527,33 @@ if (Main\Loader::includeModule('sale'))
 			{
 				foreach ($availableItems as $productId => $productData)
 				{
-					if (!isset($productData['CATALOG']['ACTIVE']) || $productData['CATALOG']['ACTIVE'] != 'Y')
+					$messageId = null;
+					if (
+						isset($productData['PRODUCT']['TYPE'])
+						&& $productData['PRODUCT']['TYPE'] === Catalog\ProductTable::TYPE_SERVICE
+					)
+					{
+						if (
+							(!isset($productData['CATALOG']['ACTIVE']) || $productData['CATALOG']['ACTIVE'] !== 'Y')
+							|| (!isset($productData['PRODUCT']['AVAILABLE']) || $productData['PRODUCT']['AVAILABLE'] !== 'Y')
+						)
+						{
+							$messageId = 'SALE_PROVIDER_PRODUCT_SERVICE_NOT_AVAILABLE';
+						}
+					}
+					else
+					{
+						if (!isset($productData['CATALOG']['ACTIVE']) || $productData['CATALOG']['ACTIVE'] !== 'Y')
+						{
+							$messageId = 'SALE_PROVIDER_PRODUCT_NOT_AVAILABLE';
+						}
+					}
+					if ($messageId !== null)
 					{
 						$result->addError(
 							new Sale\ResultError(
 								Main\Localization\Loc::getMessage(
-									"SALE_PROVIDER_PRODUCT_NOT_AVAILABLE",
+									$messageId,
 									array_merge(
 										self::getProductCatalogInfo($productId),
 										array("#PRODUCT_ID#" => $productId)
@@ -3074,7 +3102,10 @@ if (Main\Loader::includeModule('sale'))
 			{
 				if (empty($productData['CATALOG']))
 					continue;
-				if (isset($productData['PRODUCT']) && $productData['PRODUCT']['TYPE'] === Catalog\ProductTable::TYPE_SET)
+				if (
+					isset($productData['PRODUCT'])
+					&& !$productData['PRODUCT']['USED_STORE_INVENTORY'] //product types without stores
+				)
 				{
 					continue;
 				}
@@ -3302,7 +3333,16 @@ if (Main\Loader::includeModule('sale'))
 
 					$resultList[$productId] = true;
 
-					if (isset($productData['BUNDLE_PARENT']) && $productData['BUNDLE_PARENT'] === true)
+					if (
+						(
+							isset($productData['BUNDLE_PARENT'])
+							&& $productData['BUNDLE_PARENT'] === true
+						)
+						|| (
+							isset($productData['PRODUCT']['USED_STORE_INVENTORY'])
+							&& !$productData['PRODUCT']['USED_STORE_INVENTORY']
+						)
+					)
 					{
 						continue;
 					}
@@ -3445,7 +3485,7 @@ if (Main\Loader::includeModule('sale'))
 					continue;
 				}
 
-				if ($productData['PRODUCT']['TYPE'] === Catalog\ProductTable::TYPE_SET)
+				if (!$productData['PRODUCT']['USED_STORE_INVENTORY']) // product types without stores
 				{
 					$canAutoList[$productId] = true;
 					$resultList[$productId] = true;
@@ -3763,7 +3803,10 @@ if (Main\Loader::includeModule('sale'))
 					$productGetIdList[$productId] = $productId;
 				} */
 				// remove cache because need clear cache after modify stores
-				if ($products[$productId]['PRODUCT']['TYPE'] === Catalog\ProductTable::TYPE_SET)
+				if (
+					isset($products[$productId]['PRODUCT']['USED_STORE_INVENTORY'])
+					&& !$products[$productId]['PRODUCT']['USED_STORE_INVENTORY']
+				) // product types without stores
 				{
 					continue;
 				}
@@ -4279,32 +4322,6 @@ if (Main\Loader::includeModule('sale'))
 		}
 
 		/**
-		 * @param array $iblockList
-		 * @param array $list
-		 *
-		 * @return array
-		 */
-		private static function removeNotExistsIblockFromList(array $iblockList, array $list): array
-		{
-			$checkList = array();
-
-			foreach ($list as $iblockId)
-			{
-				$checkList[$iblockId] = true;
-			}
-
-			foreach ($iblockList as $iblockId => $iblockProductIdList)
-			{
-				if (!isset($checkList[$iblockId]))
-				{
-					unset($iblockList[$iblockId]);
-				}
-			}
-
-			return $iblockList;
-		}
-
-		/**
 		 * @param array $iblockProductMap
 		 *
 		 * @return array
@@ -4401,13 +4418,30 @@ if (Main\Loader::includeModule('sale'))
 		 */
 		private static function getCatalogProducts(array $list, array $select): array
 		{
+			$usedStoreInventory = Catalog\Config\State::isUsedInventoryManagement();
+
+			$typesWithoutStores = [
+				Catalog\ProductTable::TYPE_SET => true,
+				Catalog\ProductTable::TYPE_SKU => true,
+				Catalog\ProductTable::TYPE_SERVICE => true,
+			];
+			$typesWithoutReservation = [
+				Catalog\ProductTable::TYPE_SET => true,
+				Catalog\ProductTable::TYPE_SKU => true,
+				Catalog\ProductTable::TYPE_SERVICE => true,
+			];
+
 			if (empty($select))
 			{
 				$select = ['*'];
 			}
-			elseif (!in_array('ID', $select))
+			else
 			{
 				$select[] = 'ID';
+				$select[] = 'TYPE';
+				$select[] = 'AVAILABLE';
+
+				$select = array_unique($select);
 			}
 			Main\Type\Collection::normalizeArrayValuesByInt($list, true);
 			if (empty($list))
@@ -4419,16 +4453,41 @@ if (Main\Loader::includeModule('sale'))
 			{
 				$iterator = Catalog\Model\Product::getList([
 					'select' => $select,
-					'filter' => ['@ID' => $pageIds],
+					'filter' => [
+						'@ID' => $pageIds,
+					],
 				]);
 				while ($row = $iterator->fetch())
 				{
-					Catalog\Product\SystemField::prepareRow($row, Catalog\Product\SystemField::OPERATION_PROVIDER);
-					$row['CHECK_QUANTITY'] = ($row['QUANTITY_TRACE'] === 'Y' && $row['CAN_BUY_ZERO'] === 'N');
 					$row['ID'] = (int)$row['ID'];
 					$row['TYPE'] = (int)$row['TYPE'];
 					$row['QUANTITY'] = (float)$row['QUANTITY'];
 					$row['QUANTITY_RESERVED'] = (float)$row['QUANTITY_RESERVED'];
+					$row['CHECK_QUANTITY'] = (
+						$row['TYPE'] !== Catalog\ProductTable::TYPE_SERVICE
+						&& $row['QUANTITY_TRACE'] === Catalog\ProductTable::STATUS_YES
+						&& $row['CAN_BUY_ZERO'] === Catalog\ProductTable::STATUS_NO
+					);
+					Catalog\Product\SystemField::prepareRow($row, Catalog\Product\SystemField::OPERATION_PROVIDER);
+
+					if (isset($typesWithoutStores[$row['TYPE']]))
+					{
+						$row['USED_STORE_INVENTORY'] = false;
+					}
+					else
+					{
+						$row['USED_STORE_INVENTORY'] = $usedStoreInventory;
+					}
+					if (isset($typesWithoutReservation[$row['TYPE']]))
+					{
+						$row['USED_RESERVATION'] = false;
+						$row['QUANTITY_RESERVED'] = 0;
+					}
+					else
+					{
+						$row['USED_RESERVATION'] = true;
+					}
+
 					$resultList[$row['ID']] = $row;
 				}
 				unset($row, $iterator);
@@ -4670,6 +4729,11 @@ if (Main\Loader::includeModule('sale'))
 		private static function setCatalogDataToProducts(array $products, array $catalogDataList, array $options = array()): array
 		{
 			$catalogDataEnabled = self::isCatalogDataEnabled($options);
+			$specialFields = [];
+			foreach (Catalog\Product\SystemField::getProviderSelectFields() as $index => $value)
+			{
+				$specialFields[] = is_string($index) ? $index : $value;
+			}
 
 			$result = [];
 			foreach ($products as $productId => $productData)
@@ -4682,7 +4746,12 @@ if (Main\Loader::includeModule('sale'))
 				$row = $catalogDataList[$productId];
 
 				$result[$productId] = [
-					'CAN_BUY' => ($productData['PRODUCT_DATA']['ACTIVE'] == 'Y' ? 'Y' : 'N'),
+					'CAN_BUY' => (
+						$productData['PRODUCT_DATA']['ACTIVE'] === 'Y'
+						&& $row['AVAILABLE'] === 'Y'
+						? 'Y'
+						: 'N'
+					),
 					'CAN_BUY_ZERO' => $row['CAN_BUY_ZERO'],
 					'QUANTITY_TRACE' => $row['QUANTITY_TRACE'],
 					'CHECK_QUANTITY' => $row['CHECK_QUANTITY'],
@@ -4694,27 +4763,42 @@ if (Main\Loader::includeModule('sale'))
 
 				if (!$catalogDataEnabled)
 				{
+					$basketRow = [
+						'NAME' => $productData['PRODUCT_DATA']['~NAME'],
+						'DETAIL_PAGE_URL' => $productData['PRODUCT_DATA']['~DETAIL_PAGE_URL'],
+						'MEASURE_ID' => $row['MEASURE'],
+						'MEASURE_NAME' => $row['MEASURE_NAME'],
+						'MEASURE_CODE' => $row['MEASURE_CODE'],
+						'BARCODE_MULTI' => $row['BARCODE_MULTI'],
+						'WEIGHT' => (float)$row['WEIGHT'],
+						'DIMENSIONS' => serialize(
+							[
+								'WIDTH' => $row['WIDTH'],
+								'HEIGHT' => $row['HEIGHT'],
+								'LENGTH' => $row['LENGTH'],
+							]
+						),
+					];
+					switch ($row['TYPE'])
+					{
+						case Catalog\ProductTable::TYPE_SET:
+							$basketRow['TYPE'] = Sale\BasketItem::TYPE_SET;
+							break;
+						case Catalog\ProductTable::TYPE_SERVICE:
+							$basketRow['TYPE'] = Sale\BasketItem::TYPE_SERVICE;
+							break;
+						default:
+							$basketRow['TYPE'] = null;
+							break;
+					}
+					foreach ($specialFields as $index)
+					{
+						$basketRow[$index] = $row[$index];
+					}
+
 					$result[$productId] = array_merge(
 						$result[$productId],
-						[
-							'NAME' => $productData['PRODUCT_DATA']['~NAME'],
-							'DETAIL_PAGE_URL' => $productData['PRODUCT_DATA']['~DETAIL_PAGE_URL'],
-							'MEASURE_ID' => $row['MEASURE'],
-							'MEASURE_NAME' => $row['MEASURE_NAME'],
-							'MEASURE_CODE' => $row['MEASURE_CODE'],
-							'BARCODE_MULTI' => $row['BARCODE_MULTI'],
-							'WEIGHT' => (float)$row['WEIGHT'],
-							'DIMENSIONS' => serialize(
-								[
-									'WIDTH' => $row['WIDTH'],
-									'HEIGHT' => $row['HEIGHT'],
-									'LENGTH' => $row['LENGTH'],
-								]
-							),
-							'TYPE' => ($row['TYPE'] == Catalog\ProductTable::TYPE_SET)
-								? \CCatalogProductSet::TYPE_SET : null,
-							'MARKING_CODE_GROUP' => $row['MARKING_CODE_GROUP'],
-						]
+						$basketRow
 					);
 				}
 

@@ -293,19 +293,33 @@ class CRestProvider
 							}
 						}
 
-						$pseudoServer = new \CRestServerBatchItem(array(
-							'CLASS' => __CLASS__,
-							'METHOD' => $method,
-							'QUERY' => $arParams
-						));
-						$pseudoServer->setApplicationId($server->getClientId());
-						$pseudoServer->setAuthKeys(array_keys($authData));
-						$pseudoServer->setAuthData($server->getAuthData());
-						$pseudoServer->setAuthType($server->getAuthType());
+						$methods = [ToLower($method), $method];
 
-						$res = $pseudoServer->process();
+						// try lowercase first, then original
+						foreach ($methods as $restMethod)
+						{
+							$pseudoServer = new \CRestServerBatchItem([
+								'CLASS' => __CLASS__,
+								'METHOD' => $restMethod,
+								'QUERY' => $arParams
+							], false);
+							$pseudoServer->setApplicationId($server->getClientId());
+							$pseudoServer->setAuthKeys(array_keys($authData));
+							$pseudoServer->setAuthData($server->getAuthData());
+							$pseudoServer->setAuthType($server->getAuthType());
+							$res = $pseudoServer->process();
 
-						unset($pseudoServer);
+							unset($pseudoServer);
+
+							// try original controller name if lower is not found
+							if (is_array($res) && !empty($res['error']) && $res['error'] === 'ERROR_METHOD_NOT_FOUND')
+							{
+								continue;
+							}
+
+							// output result
+							break;
+						}
 					}
 				}
 				else

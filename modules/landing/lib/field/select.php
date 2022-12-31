@@ -33,6 +33,7 @@ class Select extends \Bitrix\Landing\Field
 		$this->title = isset($params['title']) ? $params['title'] : '';
 		$this->multiple = isset($params['multiple']) && $params['multiple'];
 		$this->help = isset($params['help']) ? $params['help'] : '';
+		$this->htmlHelp = isset($params['htmlHelp']) ? $params['htmlHelp'] : '';
 		$this->options = isset($params['options']) ? (array)$params['options'] : array();
 	}
 

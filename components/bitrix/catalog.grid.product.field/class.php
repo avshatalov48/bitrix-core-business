@@ -76,6 +76,8 @@ class CatalogGridProductFieldComponent
 		$params['BUILDER_CONTEXT'] = (string)($params['BUILDER_CONTEXT'] ?? '') ?: BaseBuilder::TYPE_AUTODETECT;
 		$params['IS_NEW'] = ($params['IS_NEW'] ?? 'N') === 'Y';
 
+		$params['MODE'] = $params['MODE'] ?? '';
+
 		return parent::onPrepareComponentParams($params);
 	}
 
@@ -175,6 +177,7 @@ class CatalogGridProductFieldComponent
 				'SKU_ID' => $this->getSkuId(),
 				'NAME' => $this->getProductName(),
 			];
+			$this->arResult['FILE_TYPE'] = 'product';
 
 			if ($this->getIblockId() > 0 && $this->getProductId() > 0)
 			{

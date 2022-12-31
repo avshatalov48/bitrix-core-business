@@ -986,7 +986,7 @@
 						self.voximplantCall = voximplantClient.callConference({
 							number: "bx_conf_" + self.id,
 							video: {sendVideo: self.videoEnabled, receiveVideo: true},
-							simulcast: (self.getUserCount() > MAX_USERS_WITHOUT_SIMULCAST),
+							// simulcast: (self.getUserCount() > MAX_USERS_WITHOUT_SIMULCAST),
 							// simulcastProfileName: 'b24',
 							customData: JSON.stringify({
 								cameraState: self.videoEnabled,

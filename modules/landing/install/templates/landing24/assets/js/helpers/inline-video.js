@@ -50,6 +50,10 @@
 					&& video.dataset.preview
 				)
 				{
+					if (src.indexOf('autoplay=1') !== -1 && BX.Landing.getMode() !== 'edit')
+					{
+						loadPlayerVK(video)
+					}
 					BX.bind(video, 'click', () => {
 						loadPlayerVK(video);
 					});

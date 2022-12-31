@@ -1,5 +1,6 @@
-import {Dom, Reflection, Tag, Text, Type} from "main.core";
+import { Reflection, Loc} from "main.core";
 import {typeof BaseEvent, EventEmitter} from "main.core.events";
+import { AccessDeniedInput } from "catalog.access-denied-input";
 
 class StoreAmountDetails
 {
@@ -7,8 +8,16 @@ class StoreAmountDetails
 	{
 		this.gridId = settings.gridId;
 		this.productId = settings.productId;
+		this.allowPurchasingPrice = settings.allowPurchasingPrice;
+
 		this.onFilterApplyHandler = this.onFilterApply.bind(this);
 		EventEmitter.subscribe('BX.Main.Filter:apply', this.onFilterApplyHandler);
+
+		if (!this.allowPurchasingPrice)
+		{
+			this.#initPurchasingPrice();
+			EventEmitter.subscribe('Grid::updated', this.#initPurchasingPrice.bind(this));
+		}
 	}
 
 	getGridId()
@@ -69,6 +78,27 @@ class StoreAmountDetails
 			{
 				totalPriceNode.innerHTML = totalData.PRICE;
 			}
+		});
+	}
+
+	#getGrid()
+	{
+		if (!Reflection.getClass('BX.Main.gridManager.getInstanceById'))
+		{
+			throw Error(`Cannot find grid`)
+		}
+
+		return BX.Main.gridManager.getInstanceById(this.getGridId());
+	}
+
+	#initPurchasingPrice(): void
+	{
+		this.#getGrid().getContainer().querySelectorAll('purchasing-price').forEach((element) => {
+			const input = new AccessDeniedInput({
+				hint: Loc.getMessage('CATALOG_PRODUCTCARD_STORE_AMOUNT_DETAILS_PURCHASING_PRICE_HINT'),
+				isReadOnly: true,
+			});
+			input.renderTo(element);
 		});
 	}
 }

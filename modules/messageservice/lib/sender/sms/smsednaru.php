@@ -2,65 +2,168 @@
 
 namespace Bitrix\MessageService\Sender\Sms;
 
-use Bitrix\Main\Application;
-use Bitrix\Main\ArgumentException;
-use Bitrix\Main\Error;
-use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
-use Bitrix\Main\Text\StringHelper;
-use Bitrix\Main\Web\HttpClient;
-use Bitrix\Main\Web\Json;
-use Bitrix\MessageService\DTO;
-use Bitrix\MessageService\MessageStatus;
+use Bitrix\MessageService\Providers\Base\Option;
+use Bitrix\MessageService\Providers\Constants\InternalOption;
+use Bitrix\MessageService\Providers\Edna;
+use Bitrix\MessageService\Providers\Edna\SMS;
 use Bitrix\MessageService\Sender;
 
 class SmsEdnaru extends Sender\BaseConfigurable
 {
 	use Sender\Traits\RussianProvider;
 
+	protected Edna\EdnaRu $utils;
+
 	public const ID = 'smsednaru';
 
-	protected const JSON_API_URL = 'https://sms.edna.ru/connector_sme/api/';
-
-	public function getId()
+	public function __construct()
 	{
-		return static::ID;
+		$this->informant = new SMS\Informant();
+		$this->optionManager = new Option($this->getType(), $this->getId());
+		$this->utils = new SMS\Utils($this->getId(), $this->optionManager);
+
+		if (!$this->isMigratedToNewAPI())
+		{
+			$this->initializeOldApiComponents();
+
+			return;
+		}
+		$this->initializeNewApiComponents();
+
+		$this->migrateToNewApi();
 	}
 
-	public function getName()
+	public function getId(): string
 	{
-		return Loc::getMessage('MESSAGESERVICE_SENDER_SMS_SMSEDNARU_NAME');
+		return $this->informant->getId();
 	}
 
-	public function getShortName()
+	public function getName(): string
 	{
-		return 'sms.edna.ru';
+		return $this->informant->getName();
 	}
 
-	public function isRegistered()
+	public function getShortName(): string
 	{
-		return !is_null($this->getOption('apiKey'));
+		return $this->informant->getShortName();
 	}
 
-	public function register(array $fields)
+	public function getType(): string
 	{
-		$this->setOption('apiKey', $fields['apiKey']);
-
-		return $this->callExternalMethod('smsSubject/');
+		return $this->informant->getType();
 	}
 
-	public function getOwnerInfo()
+	public function getManageUrl(): string
 	{
-		return [
-			'apiKey' => $this->getOption('apiKey'),
-			'subjects' => array_column($this->getFromList(), 'name'),
-		];
+		return $this->informant->getManageUrl();
 	}
 
-	public function getExternalManageUrl()
+	public function getExternalId(): string
 	{
-		return 'https://sms.edna.ru/';
+		return $this->informant->getExternalId();
+	}
+
+	public function isRegistered(): bool
+	{
+		return $this->registrar->isRegistered();
+	}
+
+	public function register(array $fields): Result
+	{
+		return $this->registrar->register($fields);
+	}
+
+	public function getOwnerInfo(): array
+	{
+		return $this->registrar->getOwnerInfo();
+	}
+
+	public function getExternalManageUrl(): string
+	{
+		return $this->registrar->getExternalManageUrl();
+	}
+
+	public function getCallbackUrl(): string
+	{
+		return $this->registrar->getCallbackUrl();
+	}
+
+	public function isConfirmed(): bool
+	{
+		return $this->registrar->isConfirmed();
+	}
+
+	public function confirmRegistration(array $fields): Result
+	{
+		return $this->registrar->confirmRegistration($fields);
+	}
+
+	public function sendConfirmationCode(): Result
+	{
+		return $this->registrar->sendConfirmationCode();
+	}
+
+	public function getFromList(): array
+	{
+		return $this->initiator->getFromList();
+	}
+
+	public function isCorrectFrom($from): bool
+	{
+		return $this->initiator->isCorrectFrom($from);
+	}
+
+	public function getDefaultFrom(): ?string
+	{
+		return $this->initiator->getDefaultFrom();
+	}
+
+	public function getFirstFromList()
+	{
+		return $this->initiator->getDefaultFrom();
+	}
+
+	public function getMessageStatus(array $messageFields): Sender\Result\MessageStatus
+	{
+		return $this->sender->getMessageStatus($messageFields);
+	}
+
+	public function sendMessage(array $messageFields): Sender\Result\SendMessage
+	{
+		return $this->sender->sendMessage($messageFields);
+	}
+
+	public function prepareMessageBodyForSave(string $text): string
+	{
+		return $this->sender->prepareMessageBodyForSave($text);
+	}
+
+	public function getMessageTemplates(string $subject = ''): Result
+	{
+		return $this->utils->getMessageTemplates($subject);
+	}
+
+	public function getSentTemplateMessage(string $from, string $to): string
+	{
+		return $this->utils->getSentTemplateMessage($from, $to);
+	}
+
+	public function setSocketTimeout(int $socketTimeout): Sender\Base
+	{
+		$this->optionManager->setSocketTimeout($socketTimeout);
+		return $this;
+	}
+
+	public function setStreamTimeout(int $streamTimeout): Sender\Base
+	{
+		$this->optionManager->setStreamTimeout($streamTimeout);
+		return $this;
+	}
+
+	public static function resolveStatus($serviceStatus): ?int
+	{
+		return (new SMS\StatusResolver())->resolveStatus($serviceStatus);
 	}
 
 	public function getRegistrationUrl(): string
@@ -68,246 +171,76 @@ class SmsEdnaru extends Sender\BaseConfigurable
 		return 'https://edna.ru/sms-bitrix/';
 	}
 
-	public function getMessageStatus(array $messageFields)
+	public function isMigratedToNewAPI(): bool
 	{
-		$result = new Sender\Result\MessageStatus();
-		$result->setId($messageFields['ID']);
-		$result->setExternalId($messageFields['ID']);
-
-		if (!$this->canUse())
+		$isMigratedToNewAPI = \Bitrix\Main\Config\Option::get('messageservice',	$this->getMigratingOptionName(), 'N');
+		if ($isMigratedToNewAPI === 'Y')
 		{
-			$result->addError(new Error(Loc::getMessage('MESSAGESERVICE_SENDER_SMS_SMSEDNARU_USE_ERROR')));
-			return $result;
+			return true;
 		}
 
-		$apiResult = $this->callExternalMethod("smsOutMessage/{$messageFields['ID']}");
-		if (!$apiResult->isSuccess())
-		{
-			$result->addErrors($apiResult->getErrors());
-		}
-		else
-		{
-			$apiData = $apiResult->getData();
+		$currentDateTime = time();
+		$migratedDateTime = gmmktime(-3, 15,0, 12,1,2022); //December 01, 2022 00:15 MSK
 
-			$result->setStatusText($apiData['dlvStatus']);
-			$result->setStatusCode(static::resolveStatus($apiData['dlvStatus']));
-		}
-
-		return $result;
+		return $currentDateTime >= $migratedDateTime;
 	}
 
-	public function sendMessage(array $messageFields)
+	private function initializeOldApiComponents(): void
 	{
-		$result = new Sender\Result\SendMessage();
-
-		if (!$this->canUse())
-		{
-			$result->addError(new Error('Cant use'));
-			return $result;
-		}
-
-		$validationResult = $this->validatePhoneNumber($messageFields['MESSAGE_TO']);
-
-		if ($validationResult->isSuccess())
-		{
-			$phoneNumber = $validationResult->getData()['validNumber'];
-		}
-		else
-		{
-			$result->addErrors($validationResult->getErrors());
-			return $result;
-		}
-
-		$params = [
-			'id' => uniqid('', true),
-			'subject' => $messageFields['MESSAGE_FROM'],
-			'address' => $phoneNumber,
-			'priority' => 'high',
-			'contentType' => 'text',
-			'content' => $messageFields['MESSAGE_BODY'],
-		];
-
-		$apiResult = $this->callExternalMethod('smsOutMessage', $params);
-		$result->setServiceRequest($apiResult->getHttpRequest());
-		$result->setServiceResponse($apiResult->getHttpResponse());
-
-		if (!$apiResult->isSuccess())
-		{
-			$result->addErrors($apiResult->getErrors());
-		}
-		else
-		{
-			$apiData = $apiResult->getData();
-
-			$result->setExternalId($apiData['id']);
-			$result->setAccepted();
-		}
-
-		return $result;
+		$this->registrar = new SMS\Old\Registrar($this->getId(), $this->optionManager, $this->utils);
+		$this->initiator = new SMS\Old\Initiator($this->optionManager, $this->registrar, $this->utils);
+		$this->sender = new SMS\Old\Sender($this->optionManager,$this->registrar, $this->utils);
 	}
 
-	protected function validatePhoneNumber(string $number): Result
+	private function initializeNewApiComponents(): void
 	{
-		$result = new Result();
-
-		$number = str_replace('+', '', $number);
-		$apiResult = $this->callExternalMethod("validatePhoneNumber/{$number}");
-		if ($apiResult->isSuccess())
-		{
-			$result->setData(['validNumber' => $number]);
-		}
-		else
-		{
-			$result->addErrors($apiResult->getErrors());
-		}
-
-		return $result;
+		$this->registrar = new SMS\Registrar($this->getId(), $this->optionManager, $this->utils);
+		$this->initiator = new SMS\Initiator($this->optionManager, $this->registrar, $this->utils);
+		$this->sender = new SMS\Sender($this->optionManager,$this->registrar, $this->utils);
 	}
 
-	public function getFromList()
+	public function migrateToNewApi(): void
 	{
-		$fromList = [];
-		if (!$this->canUse())
+		$oldRegistrar = new SMS\Old\Registrar($this->getId(), $this->optionManager, $this->utils);
+
+		if (!$this->canUse() && !$oldRegistrar->canUse())
 		{
-			return $fromList;
+			return;
 		}
 
-		$apiResult = $this->callExternalMethod('smsSubject/');
-		if (!$apiResult->isSuccess())
+		if ($this->getOption(InternalOption::SENDER_ID) !== null)
 		{
-			return $fromList;
+			return;
 		}
-		else
+
+		$channelListResult = $this->utils->getChannelList(Edna\Constants\ChannelType::SMS);
+
+		$subjectIdList = [];
+		foreach ($channelListResult->getData() as $channel)
 		{
-			foreach ($apiResult->getData() as $subjectInfo)
+			if (isset($channel['active'], $channel['subjectId']) && $channel['active'] === true)
 			{
-				if ($subjectInfo['active'])
-				{
-					$fromList[] = [
-						'id' => $subjectInfo['subject'],
-						'name' => $subjectInfo['subject'],
-					];
-				}
-			}
-
-			return $fromList;
-		}
-	}
-
-	public static function resolveStatus($serviceStatus)
-	{
-		switch ($serviceStatus)
-		{
-			case 'read':
-			case 'sent':
-				return MessageStatus::SENT;
-			case 'enqueued':
-				return MessageStatus::QUEUED;
-			case 'delayed':
-				return MessageStatus::ACCEPTED;
-			case 'delivered':
-				return MessageStatus::DELIVERED;
-			case 'undelivered':
-				return MessageStatus::UNDELIVERED;
-			case 'failed':
-			case 'cancelled':
-				return MessageStatus::FAILED;
-			default:
-				return
-					mb_substr($serviceStatus, 0, mb_strlen('error')) === 'error'
-						? MessageStatus::ERROR
-						: null
-					;
-		}
-	}
-
-	protected function callExternalMethod(string $method, ?array $params = null): Sender\Result\HttpRequestResult
-	{
-		$url = static::JSON_API_URL . $method;
-		$queryMethod = HttpClient::HTTP_GET;
-
-		$httpClient = new HttpClient([
-			'socketTimeout' => 10,
-			'streamTimeout' => 30,
-			'waitResponse' => true,
-		]);
-		$httpClient->setHeader('User-Agent', 'Bitrix24');
-		$httpClient->setHeader('Content-type', 'application/json');
-		$httpClient->setHeader('X-API-KEY', $this->getOption('apiKey'));
-		$httpClient->setCharset('UTF-8');
-
-		if (is_array($params))
-		{
-			$queryMethod = HttpClient::HTTP_POST;
-			$params = Json::encode($params);
-		}
-
-		$result = new Sender\Result\HttpRequestResult();
-		$result->setHttpRequest(new DTO\Request([
-			'method' => $queryMethod,
-			'uri' => $url,
-			'headers' => method_exists($httpClient, 'getRequestHeaders') ? $httpClient->getRequestHeaders()->toArray() : [],
-			'body' => $params
-		]));
-
-		if ($httpClient->query($queryMethod, $url, $params))
-		{
-			if ($httpClient->getStatus() !== 200)
-			{
-				$answer = [
-					'code' => $httpClient->getStatus(),
-					'error' => $this->getMessageByErrorCode('error-' . $httpClient->getStatus()),
-				];
-			}
-			else
-			{
-				$answer = $this->parseExternalAnswer($httpClient->getResult());
+				$subjectIdList[] = $channel['subjectId'];
+				$this->utils->setCallback(
+					$this->getCallbackUrl(),
+					[
+						Edna\Constants\CallbackType::MESSAGE_STATUS
+					],
+					$channel['subjectId']
+				);
 			}
 		}
-		else
-		{
-			$error = $httpClient->getError();
-			$answer = [
-				'code' => key($error),
-				'error' => current($error),
-			];
-		}
-		$result->setHttpResponse(new DTO\Response([
-			'statusCode' => $httpClient->getStatus(),
-			'headers' => $httpClient->getHeaders()->toArray(),
-			'body' => $httpClient->getResult(),
-			'error' => Sender\Util::getHttpClientErrorString($httpClient)
-		]));
-
-		if (array_key_exists('code', $answer) && $answer['code'] !== 'ok')
-		{
-			$result->addError(new Error($answer['error'], $answer['code'], $answer));
-		}
-		else
-		{
-			$result->setData($answer);
-		}
-
-		return $result;
+		$this->setOption(InternalOption::SENDER_ID, $subjectIdList);
+		$this->setNewApi(true);
 	}
 
-	protected function getMessageByErrorCode(string $code)
+	public function setNewApi(bool $mode): void
 	{
-		$locCode = 'MESSAGESERVICE_SENDER_SMS_SMSEDNARU_';
-		$locCode .= StringHelper::str_replace('-', '_', mb_strtoupper($code));
-
-		return Loc::getMessage($locCode) ?? $code;
+		\Bitrix\Main\Config\Option::set('messageservice', $this->getMigratingOptionName(),$mode ? 'Y' : 'N');
 	}
 
-	protected function parseExternalAnswer(string $httpResult): array
+	private function getMigratingOptionName(): string
 	{
-		try
-		{
-			return Json::decode($httpResult);
-		}
-		catch (ArgumentException $exception)
-		{
-			return ['error' => 'error-json-parsing'];
-		}
+		return $this->getId() . '_' . InternalOption::NEW_API_AVAILABLE;
 	}
 }

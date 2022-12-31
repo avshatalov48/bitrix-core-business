@@ -118,6 +118,7 @@ $MESS["LANDING_FORM_SETTINGS_CRM_TYPE_2"] = "Customer";
 $MESS["LANDING_FORM_SETTINGS_CRM_TYPE_3"] = "Deal +&nbsp;Customer";
 $MESS["LANDING_FORM_SETTINGS_CRM_TYPE_4"] = "Quote +&nbsp;Customer";
 $MESS["LANDING_FORM_SETTINGS_CRM_TYPE_5"] = "Smart Process Automation";
+$MESS["LANDING_FORM_SETTINGS_CRM_TYPE_310"] = "Invoice";
 $MESS["LANDING_FORM_SETTINGS_DEFAULT_VALUE_MESSAGE_DESCRIPTION"] = "Create hidden fields invisible to a customer and set their values if those are available.";
 $MESS["LANDING_FORM_SETTINGS_DEFAULT_VALUE_MESSAGE_TITLE"] = "Auto set form fields on submit";
 $MESS["LANDING_FORM_SETTINGS_DEFAULT_VALUE_TITLE"] = "Hidden field values";

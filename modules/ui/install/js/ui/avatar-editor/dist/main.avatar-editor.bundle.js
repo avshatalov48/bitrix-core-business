@@ -2126,7 +2126,7 @@ this.BX.UI = this.BX.UI || {};
 
 	  if (main_core.Type.isPlainObject(file) && (file['src'] || file['tmp_url'])) {
 	    const src = file['src'] || file['tmp_url'];
-	    babelHelpers.classPrivateFieldLooseBase(this, _image)[_image].src = src + (src.indexOf("?") > 0 ? '&' : '?') + 'imageUploader' + babelHelpers.classPrivateFieldLooseBase(this, _id$1)[_id$1] + babelHelpers.classPrivateFieldLooseBase(this, _justACounter)[_justACounter]++;
+	    babelHelpers.classPrivateFieldLooseBase(this, _image)[_image].src = encodeURI(src) + (src.indexOf("?") > 0 ? '&' : '?') + 'imageUploader' + babelHelpers.classPrivateFieldLooseBase(this, _id$1)[_id$1] + babelHelpers.classPrivateFieldLooseBase(this, _justACounter)[_justACounter]++;
 	  } else {
 	    const res = Object.prototype.toString.call(file);
 
@@ -3568,12 +3568,6 @@ this.BX.UI = this.BX.UI || {};
 	      }) => {
 	        var _loader$hiddenCanvas;
 
-	        if (!babelHelpers.classPrivateFieldLooseBase(this, _canvasMask)[_canvasMask]) {
-	          return resolve({
-	            blob
-	          });
-	        }
-
 	        const loader = CanvasLoader.getInstance();
 	        loader[hiddenCanvas] = (_loader$hiddenCanvas = loader[hiddenCanvas]) != null ? _loader$hiddenCanvas : document.createElement('canvas');
 	        const canvas = loader[hiddenCanvas];
@@ -3581,15 +3575,24 @@ this.BX.UI = this.BX.UI || {};
 	        canvas.height = blob.height;
 	        canvas.getContext('2d').drawImage(loader.getCanvas(), 0, 0);
 
+	        if (!babelHelpers.classPrivateFieldLooseBase(this, _canvasMask)[_canvasMask]) {
+	          return resolve({
+	            blob,
+	            canvas
+	          });
+	        }
+
 	        babelHelpers.classPrivateFieldLooseBase(this, _canvasMask)[_canvasMask].applyAndPack(canvas).then((maskedBlob, maskId) => {
 	          resolve({
 	            blob,
 	            maskedBlob,
-	            maskId
+	            maskId,
+	            canvas
 	          });
 	        }).catch(() => {
 	          resolve({
-	            blob
+	            blob,
+	            canvas
 	          });
 	        });
 	      }).catch(error => {
@@ -3722,7 +3725,8 @@ this.BX.UI = this.BX.UI || {};
 	    this.packBlobAndMask().then(({
 	      blob,
 	      maskedBlob,
-	      maskId
+	      maskId,
+	      canvas
 	    }) => {
 	      if (blob instanceof Blob) {
 	        if (maskId > 0) {
@@ -3730,7 +3734,7 @@ this.BX.UI = this.BX.UI || {};
 	        }
 
 	        const ev = new main_core_events.BaseEvent({
-	          compatData: [blob, maskedBlob],
+	          compatData: [blob, canvas],
 	          data: {
 	            blob,
 	            maskedBlob

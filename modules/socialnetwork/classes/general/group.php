@@ -9,6 +9,7 @@ use Bitrix\Socialnetwork\Helper\Workgroup;
 use Bitrix\Socialnetwork\Helper\Path;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ScrumLimit;
+use Bitrix\Socialnetwork\Internals\EventService;
 
 class CAllSocNetGroup
 {
@@ -232,6 +233,10 @@ class CAllSocNetGroup
 		{
 			ExecuteModuleEventEx($arEvent, array($ID));
 		}
+
+		EventService\Service::addEvent(EventService\EventDictionary::EVENT_WORKGROUP_DELETE, [
+			'GROUP_ID' => $ID,
+		]);
 
 		$res = UserToGroupTable::getList([
 			'filter' => [

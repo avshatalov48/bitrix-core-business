@@ -20,6 +20,7 @@ class Workgroup
 		$result = [];
 
 		$currentUserId = (int)($params['currentUserId'] ?? 0);
+		$mode = (string)($params['mode'] ?? '');
 
 		if (Option::get('socialnetwork', 'work_with_closed_groups', 'N') !== 'Y')
 		{
@@ -28,7 +29,7 @@ class Workgroup
 				'fields' => [
 					'CLOSED' => 'N',
 				],
-				'default' => true,
+				'default' => ($mode === ''),
 			];
 		}
 
@@ -47,6 +48,7 @@ class Workgroup
 					'MEMBER' => 'U' . $currentUserId,
 					'MEMBER_label' => $userLabel,
 				],
+				'default' => (in_array($mode, \Bitrix\Socialnetwork\Component\WorkgroupList::getTasksModeList(), true)),
 			];
 			$result['favorites'] = [
 				'name' => Loc::getMessage('SONET_C36_T_FILTER_PRESET_FAVORITES'),

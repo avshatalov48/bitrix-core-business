@@ -6,15 +6,19 @@ class Common
 	public static function jsonEncode($params)
 	{
 		$option = JSON_UNESCAPED_UNICODE;
+		static::recursiveConvertDateToString($params);
 
+		return \Bitrix\Main\Web\Json::encode($params, $option);
+	}
+
+	public static function recursiveConvertDateToString(array &$params)
+	{
 		array_walk_recursive($params, function(&$item, $key){
 			if ($item instanceof \Bitrix\Main\Type\DateTime)
 			{
 				$item = date('c', $item->getTimestamp());
 			}
 		});
-
-		return \Bitrix\Main\Web\Json::encode($params, $option);
 	}
 
 	/**

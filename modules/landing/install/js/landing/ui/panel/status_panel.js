@@ -55,9 +55,18 @@
 
 		updateTime: function()
 		{
+			let lastUpdateTime = lastUpdate.getTime();
+			let nowTime = (new Date()).getTime();
+
+			if (lastUpdateTime > nowTime)
+			{
+				this.setContent(BX.Landing.Loc.getMessage("LANDING_PAGE_STATUS_UPDATED_NOW"));
+				return;
+			}
+
 			this.setContent([
 				BX.Landing.Loc.getMessage("LANDING_PAGE_STATUS_UPDATED"),
-				BX.date.format(format, lastUpdate.getTime() / 1000, (new Date()).getTime() / 1000)
+				BX.date.format(format, lastUpdateTime / 1000, nowTime / 1000)
 			].join(" "));
 		},
 

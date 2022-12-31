@@ -68,7 +68,7 @@ class SocialnetworkGroupAjaxController extends \Bitrix\Main\Engine\Controller
 	{
 		if (
 			!\Bitrix\Main\Loader::includeModule('socialnetwork')
-			|| !\Bitrix\Socialnetwork\Helper\Workgroup::canUpdate([
+			|| !\Bitrix\Socialnetwork\Helper\Workgroup\Access::canUpdate([
 				'groupId' => $this->groupId,
 			])
 		)

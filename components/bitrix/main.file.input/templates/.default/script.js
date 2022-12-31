@@ -327,7 +327,9 @@
 
 					var html = this.template, value;
 					file["ext"] = item.ext;
-					file["preview_url"] = (item.canvas ? item.canvas.toDataURL("image/png") : "/bitrix/images/1.gif");
+					file["preview_url"] = (item.canvas
+						? item.canvas.toDataURL("image/png")
+						: ( file['thumb_src'] ?? "/bitrix/images/1.gif"));
 					item.canvas = null;
 					delete item.canvas;
 					for (var ii in file)

@@ -1,4 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
 \Bitrix\Main\Loader::includeModule('socialnetwork');
@@ -9,6 +14,7 @@
 	'ui.tooltip',
 	'socnetlogdest',
 	'bp_user_selector',
+	'ui.buttons.icons'
 ]);
 
 $cmpId = RandString();
@@ -81,17 +87,24 @@ if (empty($arResult['DOCUMENT_ICON']))
 		elseif ($arResult["TASK"]['IS_INLINE'] == 'Y'):?>
 			<div class="bp-btn-panel">
 				<div class="bp-btn-panel-inner">
-				<?
+				<?php
 				if ($arParams['POPUP']):
 				foreach ($arResult['TaskControls']['BUTTONS'] as $control):
-					$class = $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::No || $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::Cancel ? 'decline' : 'accept';
+					$isDecline =
+						$control['TARGET_USER_STATUS'] == CBPTaskUserStatus::No
+						|| $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::Cancel
+					;
+					$class = $isDecline ? 'danger' : 'success';
+					$icon = $isDecline ? 'cancel' : 'done';
 					$props = CUtil::PhpToJSObject(array(
 						'TASK_ID' => $arResult["TASK"]['ID'],
 						$control['NAME'] => $control['VALUE']
 					));
 					?>
-					<a href="#" onclick="return BX.Bizproc.doInlineTask(<?=$props?>, function(){ if (!!BX.Bizproc.taskPopupInstance) BX.Bizproc.taskPopupInstance.close(); if (BX.Bizproc.taskPopupCallback) return BX.Bizproc.taskPopupCallback(); window.location.reload()}, this)"
-						class="bp-button bp-button bp-button-<?=$class?>"><span class="bp-button-icon"></span><span class="bp-button-text"><?=$control['TEXT']?></span></a>
+					<a href="#"
+						onclick="return BX.Bizproc.doInlineTask(<?= $props ?>, function(){ if (!!BX.Bizproc.taskPopupInstance) BX.Bizproc.taskPopupInstance.close(); if (BX.Bizproc.taskPopupCallback) return BX.Bizproc.taskPopupCallback(); window.location.reload()}, this)"
+						class="ui-btn ui-btn-<?= $class ?> ui-btn-icon-<?= $icon ?>"
+					><?= $control['TEXT'] ?></a>
 				<?
 				endforeach;
 				else: ?>
@@ -104,26 +117,30 @@ if (empty($arResult['DOCUMENT_ICON']))
 						<input type="hidden" name="back_url" value="<?= htmlspecialcharsbx($arResult['backUrl']) ?>" />
 						<?
 						foreach ($arResult['TaskControls']['BUTTONS'] as $control):
-							$class = $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::No || $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::Cancel ? 'decline' : 'accept';
+							$isDecline =
+								$control['TARGET_USER_STATUS'] == CBPTaskUserStatus::No
+								|| $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::Cancel
+							;
+							$class = $isDecline ? 'danger' : 'success';
+							$icon = $isDecline ? 'cancel' : 'done';
 							$props = CUtil::PhpToJSObject(array(
 								'TASK_ID' => $arResult["TASK"]['ID'],
 								$control['NAME'] => $control['VALUE']
 							));
 							?>
-							<button type="submit" name="<?=htmlspecialcharsbx($control['NAME'])?>"
-									value="<?=htmlspecialcharsbx($control['VALUE'])?>"
-									class="bp-button bp-button bp-button-<?=$class?>"
-									style="border: none">
-								<span class="bp-button-icon"></span><span class="bp-button-text"><?=$control['TEXT']?></span>
+							<button type="submit" name="<?= htmlspecialcharsbx($control['NAME']) ?>"
+									value="<?= htmlspecialcharsbx($control['VALUE']) ?>"
+									class="ui-btn ui-btn-<?= $class ?> ui-btn-icon-<?= $icon ?>"
+							><?= $control['TEXT'] ?>
 							</button>
-							<?
+						<?php
 						endforeach;
 						?>
 					</form>
-				<?endif;?>
+				<?php endif;?>
 				</div>
 			</div>
-		<?endif?>
+		<?php endif?>
 	</div>
 	<div class="bp-task-block">
 		<?
@@ -148,10 +165,14 @@ if (empty($arResult['DOCUMENT_ICON']))
 			<?endif;?>
 		</p>
 		<?
-		if ($showDelegationButton && $arResult["TASK"]['IS_INLINE'] == 'Y'):?>
-			<a href="#" class="bp-button bp-button-transparent bp-button-first" onclick="return BX.Bizproc.showDelegationPopup(this, <?= (int)$arResult["TASK"]["ID"] ?>, <?= (int)$arParams["USER_ID"] ?>)"><span></span><?=GetMessage('BPAT_DELEGATE_LABEL')?></a>
-		<?
+		if ($showDelegationButton && $arResult["TASK"]['IS_INLINE'] == 'Y'): ?>
+			<a href="#"
+				class="ui-btn ui-btn-light-border"
+				onclick="return BX.Bizproc.showDelegationPopup(this, <?= (int)$arResult["TASK"]["ID"] ?>, <?= (int)$arParams["USER_ID"] ?>)"><span></span><?= GetMessage('BPAT_DELEGATE_LABEL') ?>
+			</a>
+		<?php
 		endif;
+
 		if ($arResult["ShowMode"] != "Success" && $arResult["TASK"]['IS_INLINE'] != 'Y'):
 			?>
 			<form method="post" name="bp_task_<?=$cmpId?>" action="<?=POST_FORM_ACTION_URI?>" enctype="multipart/form-data"
@@ -170,25 +191,31 @@ if (empty($arResult['DOCUMENT_ICON']))
 					<?if (!empty($arResult['TaskControls']['BUTTONS'])):?>
 						<?
 						foreach ($arResult['TaskControls']['BUTTONS'] as $control):
-							$class = $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::No || $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::Cancel ? 'decline' : 'accept';
+							$isDecline =
+								$control['TARGET_USER_STATUS'] == CBPTaskUserStatus::No
+								|| $control['TARGET_USER_STATUS'] == CBPTaskUserStatus::Cancel
+							;
+							$class = $isDecline ? 'danger' : 'success';
 							$props = CUtil::PhpToJSObject(array(
 								'TASK_ID' => $arResult["TASK"]['ID'],
 								$control['NAME'] => $control['VALUE']
 							));
 							?>
-							<button type="submit" name="<?=htmlspecialcharsbx($control['NAME'])?>"
-									value="<?=htmlspecialcharsbx($control['VALUE'])?>"
-									class="bp-button bp-button bp-button-<?=$class?>"
-									style="border: none">
-								<?=$control['TEXT']?>
+							<button type="submit" name="<?= htmlspecialcharsbx($control['NAME']) ?>"
+									value="<?= htmlspecialcharsbx($control['VALUE']) ?>"
+									class="ui-btn ui-btn-<?= $class ?>"
+							><?= $control['TEXT'] ?>
 							</button>
-						<?
+						<?php
 						endforeach;
 						?>
 					<?else: echo $arResult["TaskFormButtons"]; endif;?>
 
 					<?if ($showDelegationButton):?>
-						<a href="#" class="bp-button bp-button-transparent" onclick="return BX.Bizproc.showDelegationPopup(this, <?= (int)$arResult["TASK"]["ID"] ?>, <?= (int)$arParams["USER_ID"] ?>)"><span></span><?=GetMessage('BPAT_DELEGATE_LABEL')?></a>
+						<a href="#"
+							class="ui-btn ui-btn-light-border"
+							onclick="return BX.Bizproc.showDelegationPopup(this, <?= (int)$arResult["TASK"]["ID"] ?>, <?= (int)$arParams["USER_ID"] ?>)"><span></span><?= GetMessage('BPAT_DELEGATE_LABEL') ?>
+						</a>
 					<?endif?>
 				</div>
 				<script>

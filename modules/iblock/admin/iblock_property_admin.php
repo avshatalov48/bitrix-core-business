@@ -1,6 +1,7 @@
 <?
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
+
 use Bitrix\Main\Loader,
 	Bitrix\Main,
 	Bitrix\Iblock;

@@ -82,6 +82,7 @@ BX.Kanban.Grid = function(options)
 	this.selectedItems = [];
 	this.addItemTitleText = options.addItemTitleText;
 	this.addDraftItemInfo = options.addDraftItemInfo;
+	this.columnsRevert = options.columnsRevert;
 
 	/** @private **/
 	this.canAddColumn = false;
@@ -920,7 +921,7 @@ BX.Kanban.Grid.prototype =
 
 		this.layout.outerContainer = BX.create("div", {
 			props: {
-				className: "main-kanban"
+				className: this.columnsRevert ? "main-kanban --columns-revert" : "main-kanban"
 			},
 			style: {
 				backgroundColor: this.getBgColorStyle()

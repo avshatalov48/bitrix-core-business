@@ -10,13 +10,13 @@ global $APPLICATION;
 	'ui.design-tokens',
 	'ui.fonts.opensans',
 	'popup',
+	'ui.dialogs.messagebox',
 ]);
 
 use Bitrix\Main\Localization\Loc;
 
 /** @var \Bitrix\MessageService\Sender\Sms\Ednaru $sender */
 $sender = $arResult['sender'];
-$newApiAvailable = $sender->isMigratedToNewAPI();
 if ($sender->isRegistered())
 {
 	?><div id="messageservice_toolbar" class="pagetitle-container pagetitle-align-right-container">
@@ -56,38 +56,22 @@ if ($sender->isRegistered())
 				<div class="sms-settings-step-number">1</div>
 				<div class="sms-settings-step-title"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_TITLE_ADMIN")?></div>
 				<ul class="sms-settings-futures-list">
-					<?php if (!$newApiAvailable): ?>
-						<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_1", array(
-								'#A1#' => '<a href="https://im.edna.ru/auth/signin" target="_blank">',
-								'#A2#' => '</a>'
-							))?></li>
-					<?php else: ?>
-						<li class="sms-settings-futures-list-item"><?= str_replace(
+					<li class="sms-settings-futures-list-item"><?= str_replace(
+						'im.edna.ru',
+						'app.edna.ru',
+						Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_1", array(
+							'#A1#' => '<a href="https://app.edna.ru/auth/signin" target="_blank">',
+							'#A2#' => '</a>'
+						)))?></li>
+					<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_2")?></li>
+					<li class="sms-settings-futures-list-item"><?= str_replace(
 							'im.edna.ru',
 							'app.edna.ru',
-							Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_1", array(
+							Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_3", array(
 								'#A1#' => '<a href="https://app.edna.ru/auth/signin" target="_blank">',
 								'#A2#' => '</a>'
 							)))?></li>
-					<?php endif; ?>
-					<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_2")?></li>
-					<?php if (!$newApiAvailable): ?>
-						<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_3", array(
-								'#A1#' => '<a href="https://im.edna.ru/auth/signin" target="_blank">',
-								'#A2#' => '</a>'
-							))?></li>
-					<?php else: ?>
-						<li class="sms-settings-futures-list-item"><?= str_replace(
-								'im.edna.ru',
-								'app.edna.ru',
-								Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_3", array(
-									'#A1#' => '<a href="https://app.edna.ru/auth/signin" target="_blank">',
-									'#A2#' => '</a>'
-								)))?></li>
-					<?php endif; ?>
-
 					<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_4")?></li>
-					<li class="sms-settings-futures-list-item"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_RULES_LIST_5").$sender->getCallbackUrl()?></li>
 				</ul>
 				<form action="" method="post" class="sms-settings-step-form" name="form_sms_registration">
 					<?=bitrix_sessid_post()?>
@@ -114,16 +98,13 @@ if ($sender->isRegistered())
 			<div class="sms-settings-step-section sms-settings-step-section-active">
 				<div class="sms-settings-step-number">1</div>
 
-				<div class="sms-settings-step-title"><?=
-					$newApiAvailable
-						? str_replace(
+				<div class="sms-settings-step-title"><?=str_replace(
 						'im.edna.ru',
 						'app.edna.ru',
 						Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_REGISTRATION_INFO", [
 							'#A1#' => '<a href="https://app.edna.ru/auth/signin" target="_blank">',
 							'#A2#' => '</a>'
-						]))
-						: Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_REGISTRATION_INFO") ?></div>
+						]));?></div>
 				<div class="sms-settings-step-contact-info">
 					<div class="sms-settings-step-contact-info-block">
 						<div class="sms-settings-step-contact-info-name"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_LABEL_ACCOUNT_API_KEY")?>:</div>
@@ -141,21 +122,13 @@ if ($sender->isRegistered())
 			<div class="sms-settings-step-section sms-settings-step-section-active">
 				<div class="sms-settings-step-number">2</div>
 				<div class="sms-settings-step-title"><?= Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_CABINET_TITLE")?></div>
-				<?php if (!$newApiAvailable): ?>
-					<div class="sms-settings-step-description"><?=Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_GO_TO_ACCOUNT", array(
+				<div class="sms-settings-step-description"><?= str_replace(
+						'im.edna.ru',
+						'app.edna.ru',
+						Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_GO_TO_ACCOUNT", array(
 							'#A1#' => '<a href="'.htmlspecialcharsbx($sender->getExternalManageUrl()).'" target="_blank">',
 							'#A2#' => '</a>'
-						))?></div>
-				<?php else: ?>
-					<div class="sms-settings-step-description"><?= str_replace(
-							'im.edna.ru',
-							'app.edna.ru',
-							Loc::getMessage("MESSAGESERVICE_CONFIG_SENDER_SMS_GO_TO_ACCOUNT", array(
-								'#A1#' => '<a href="'.htmlspecialcharsbx($sender->getExternalManageUrl()).'" target="_blank">',
-								'#A2#' => '</a>'
-							)))?></div>
-				<?php endif; ?>
-
+						)))?></div>
 			</div>
 		<?endif;?>
 	</div>

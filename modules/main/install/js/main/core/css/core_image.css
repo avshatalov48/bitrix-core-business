@@ -16,7 +16,6 @@
 	background-color: rgba(0,0,0,0.6);
 }
 
-.bx-ie8 .bx-images-viewer-overlay,
 .bx-quirks .bx-images-viewer-overlay
 {
 	background: url("../images/imageviewer_ie8bg.png");
@@ -113,8 +112,6 @@
 	opacity: 1;
 }
 
-.bx-ie8 .bx-images-viewer-prev-outer .bx-images-viewer-prev,
-.bx-ie8 .bx-images-viewer-next-outer .bx-images-viewer-next,
 .bx-quirks .bx-images-viewer-prev-outer .bx-images-viewer-prev,
 .bx-quirks .bx-images-viewer-next-outer .bx-images-viewer-next
 {
@@ -138,8 +135,6 @@
 	opacity: 1 !important;
 }
 
-.bx-ie8 .bx-images-viewer-prev-outer:hover .bx-images-viewer-prev,
-.bx-ie8 .bx-images-viewer-next-outer:hover .bx-images-viewer-next,
 .bx-quirks .bx-images-viewer-prev-outer:hover .bx-images-viewer-prev,
 .bx-quirks .bx-images-viewer-next-outer:hover .bx-images-viewer-next
 {
@@ -163,14 +158,6 @@
 	border-radius: 20px;
 }
 
-/* IE10 has both script positioning of this elements and transitions. so we should animate them with other elements to avoid twitching */
-.bx-ie10 .bx-images-viewer-prev,
-.bx-ie10 .bx-images-viewer-next
-{
-	-ms-transition:top 0.15s ease-in;
-	transition:top 0.15s ease-in;
-}
-
 .bx-images-viewer-next {
 	left: 80px;
 	background: url("../images/imageviewer_sprite.png") no-repeat -30px 0 #4f4f4f;
@@ -181,8 +168,6 @@
 	background: url("../images/imageviewer_sprite.png") no-repeat -70px 0 #4f4f4f;
 }
 
-.bx-ie8 .bx-images-viewer-prev,
-.bx-ie8 .bx-images-viewer-next,
 .bx-quirks .bx-images-viewer-prev,
 .bx-quirks .bx-images-viewer-next
 {
@@ -212,9 +197,7 @@
 	background: url("../images/imageviewer_sprite.png") no-repeat 0 1px #545454;
 }
 
-.bx-ie8 .bx-images-viewer-close-inner,
-.bx-quirks .bx-images-viewer-close-inner
-{
+.bx-quirks .bx-images-viewer-close-inner {
 	border: solid 1px white;
 }
 
@@ -254,9 +237,7 @@
 	text-decoration: none !important;
 }
 
-.bx-ie8 .bx-images-viewer-title,
-.bx-quirks .bx-images-viewer-title
-{
+.bx-quirks .bx-images-viewer-title {
 	background: url("../images/imageviewer_ie8bg.png");
 }
 

@@ -70,7 +70,7 @@ $arResult["ALLOW_CREATE_GROUP"] = false;
 if ($GLOBALS["USER"]->IsAuthorized())
 {
 	$arResult["Urls"]["GroupCreate"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_GROUP_CREATE"], array("user_id" => $GLOBALS["USER"]->GetID()));
-	$arResult["ALLOW_CREATE_GROUP"] = \Bitrix\Socialnetwork\Helper\Workgroup::canCreate();
+	$arResult["ALLOW_CREATE_GROUP"] = \Bitrix\Socialnetwork\Helper\Workgroup\Access::canCreate();
 }
 
 $arResult["SEARCH_RESULT"] = Array();

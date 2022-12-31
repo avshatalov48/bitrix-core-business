@@ -90,6 +90,13 @@ abstract class CAllMain
 		$this->oAsset = Asset::getInstance();
 	}
 
+	/**
+	 * @deprecated Does nothing.
+	 */
+	public function reinitPath()
+	{
+	}
+
 	public function GetCurPage($get_index_page=null)
 	{
 		if (null === $get_index_page)

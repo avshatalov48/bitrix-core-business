@@ -616,12 +616,25 @@
 	opacity: 1;
 }
 
+.bx-messenger-videocall-user-panel-button.mask {
+	background: linear-gradient(180deg, #AFECFF -0.69%, #E3F8FF 100.23%);
+	mix-blend-mode: normal;
+}
+
 .bx-messenger-videocall-user-panel-button-icon.background {
 	display: inline-block;
 	width: 13px;
 	height: 11px;
 	background: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2213%22%20height%3D%2211%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M3.596%203.821a.543.543%200%2001.77.011l.05.058L7.72%208.118l1.06-1.357a.543.543%200%2001.832-.058l.05.059%202.42%203.097a.672.672%200%2001.134.327l.006.09V11H.021L0%208.816a.69.69%200%2001.086-.342L.134%208.4l3.393-4.502a.616.616%200%2001.069-.077zM7.944%200a1.833%201.833%200%20110%203.667%201.833%201.833%200%20010-3.667z%22%20fill%3D%22%23525C69%22%20fill-rule%3D%22evenodd%22%20opacity%3D%22.8%22/%3E%3C/svg%3E')  no-repeat center;
 	margin-left: 2px;
+}
+.bx-messenger-videocall-user-panel-button-icon.mask {
+	display: inline-block;
+	width: 62px;
+	height: 30px;
+	background: url('./img/masks/avatars.png') no-repeat center center;
+	background-size: contain;
+	margin-top: -4px;
 }
 .bx-messenger-videocall-user-panel-button-icon.menu {
 	display: inline-block;

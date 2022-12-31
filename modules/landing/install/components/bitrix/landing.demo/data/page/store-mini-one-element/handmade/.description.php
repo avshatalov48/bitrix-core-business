@@ -6,7 +6,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-Loc::loadMessages(dirname(__FILE__) . '/.description-nottranslate.php');
+Loc::loadMessages(__DIR__ . '/.description-nottranslate.php');
 
 return array(
 	'parent' => 'store-mini-one-element',

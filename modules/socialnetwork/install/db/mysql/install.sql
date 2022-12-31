@@ -399,6 +399,16 @@ create table b_sonet_group_favorites
 	primary key (USER_ID, GROUP_ID)
 );
 
+create table b_sonet_group_pin
+(
+	ID int(11) not null auto_increment,
+	USER_ID int(11) not null,
+	GROUP_ID int(11) not null,
+	CONTEXT varchar(100) default null,
+	primary key (ID),
+	unique IX_SONET_GROUP_PIN_1(USER_ID, GROUP_ID)
+);
+
 create table b_sonet_log_index
 (
 	LOG_ID int(11) not null,

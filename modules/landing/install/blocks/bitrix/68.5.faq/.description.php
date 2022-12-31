@@ -52,6 +52,14 @@ return [
 				'name' => Loc::getMessage('LANDING_BLOCK_FAQ_5_TEXT'),
 				'type' => ['typo'],
 			],
+			'.landing-block-card' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_FAQ_5_COLUMN'),
+				'type' => ['columns'],
+			],
+			'.landing-block-faq-icons' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_FAQ_5_ICON'),
+				'type' => ['background'],
+			],
 		],
 	],
 	'assets' => [

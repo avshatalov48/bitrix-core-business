@@ -8,6 +8,8 @@ use Bitrix\Catalog\v2\Sku\BaseSku;
 use Bitrix\Catalog\Component\ImageInput;
 use Bitrix\Catalog\v2\IoC\ServiceContainer;
 use Bitrix\Catalog\v2\Property\Property;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Url\ShopBuilder;
 use Bitrix\Iblock\PropertyEnumerationTable;
 use Bitrix\Iblock\PropertyTable;
@@ -387,7 +389,7 @@ class BasketItem
 		return
 			\CIBlockElementRights::UserHasRightTo($this->sku->getIblockId(), $this->sku->getId(), 'element_edit')
 			&& \CIBlockElementRights::UserHasRightTo($this->sku->getIblockId(), $this->sku->getId(), 'element_edit_price')
-			&& !$USER->CanDoOperation('catalog_price')
+			&& !AccessController::getCurrent()->check(ActionDictionary::ACTION_PRICE_EDIT)
 		;
 	}
 

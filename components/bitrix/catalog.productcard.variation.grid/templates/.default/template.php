@@ -55,18 +55,21 @@ $isProduct = $arParams['VARIATION_ID_LIST'] === null;
 			'',
 			[
 				'AJAX_MODE' => 'N',
+				'AJAX_ID' => \CAjax::GetComponentID("bitrix:main.ui.grid", '', ''),
+
 				//Strongly required
 				'AJAX_OPTION_JUMP' => 'N',
 				'AJAX_OPTION_STYLE' => 'N',
 				'AJAX_OPTION_HISTORY' => 'N',
 
 				// 'MODE' => $arResult['GRID']['MODE'],
-				'GRID_ID' => $arResult['GRID']['ID'],
+				'GRID_ID' => $arResult['GRID']['GRID_ID'],
 				'HEADERS' => $arResult['GRID']['HEADERS'],
 				'SORT' => $arResult['GRID']['SORT'],
 				'SORT_VARS' => $arResult['GRID']['SORT_VARS'],
 				'ROWS' => $arResult['GRID']['ROWS'],
-				// 'TOTAL_ROWS_COUNT' => $arResult['GRID']['TOTAL_ROWS_COUNT'],
+				'TOTAL_ROWS_COUNT' => $arResult['GRID']['TOTAL_ROWS_COUNT'],
+				'NAV_OBJECT' => $arResult['GRID']['NAV_OBJECT'],
 
 				'ADVANCED_EDIT_MODE' => true,
 				'SHOW_CHECK_ALL_CHECKBOXES' => $isProduct ? $arResult['GRID']['SHOW_CHECK_ALL_CHECKBOXES'] : false,
@@ -77,8 +80,13 @@ $isProduct = $arParams['VARIATION_ID_LIST'] === null;
 				'SHOW_PAGINATION' => $arResult['GRID']['SHOW_PAGINATION'],
 				'SHOW_SELECTED_COUNTER' => $arResult['GRID']['SHOW_SELECTED_COUNTER'],
 				'SHOW_TOTAL_COUNTER' => $arResult['GRID']['SHOW_TOTAL_COUNTER'],
-				'TOTAL_ROWS_COUNT' => is_array($arResult['GRID']['ROWS']) ? count($arResult['GRID']['ROWS']) : 0,
 				'SHOW_PAGESIZE' => $arResult['GRID']['SHOW_PAGESIZE'],
+				'PAGE_SIZES' => [
+					['NAME' => '5', 'VALUE' => '5'],
+					['NAME' => '10', 'VALUE' => '10'],
+					['NAME' => '20', 'VALUE' => '20'],
+					['NAME' => '50', 'VALUE' => '50'],
+				],
 
 				'SHOW_ACTION_PANEL' => $isProduct ? $arResult['GRID']['SHOW_ACTION_PANEL'] : false,
 				'ACTION_PANEL' => $isProduct ? $arResult['GRID']['ACTION_PANEL'] : false,
@@ -112,6 +120,7 @@ $isProduct = $arParams['VARIATION_ID_LIST'] === null;
 			'gridId' => $component->getGridId(),
 			'isGridReload' => $component->isAjaxGridAction(),
 			'isNew' => $component->isNewProduct(),
+			'isReadOnly' => $arResult['IS_READ_ONLY'],
 			'isSimple' => $component->isSimpleProduct(),
 			'hiddenProperties' => $arResult['GRID']['HIDDEN_PROPERTIES'],
 			'modifyPropertyLink' => $arResult['PROPERTY_MODIFY_LINK'],

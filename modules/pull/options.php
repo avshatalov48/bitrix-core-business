@@ -85,6 +85,10 @@ if($_POST['Update'].$_GET['RestoreDefaults'] <> '' && check_bitrix_sessid() && $
 			{
 				CPullOptions::SetPublishUrl($_POST['path_to_publish']);
 			}
+			if ($_POST['path_to_json_rpc'] != "" && CPullOptions::GetJsonRpcUrl() != $_POST['path_to_json_rpc'])
+			{
+				CPullOptions::SetJsonRpcUrl($_POST['path_to_json_rpc']);
+			}
 			if ($_POST['path_to_modern_listener'] != "" && CPullOptions::GetListenUrl("") != $_POST['path_to_modern_listener'])
 			{
 				CPullOptions::SetListenUrl($_POST['path_to_modern_listener']);
@@ -249,9 +253,9 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 	<tbody id="pull_disabled" style="<?= \CPullOptions::IsServerShared() || \CPullOptions::GetQueueServerStatus()  ? "display: none" : ""?>">
 	<tr>
 		<td colspan="2" align="center">
-			<?= BeginNote()?>
+			<?= BeginNote() ?>
 				<?= Loc::getMessage("PULL_OPTIONS_PUSH_SERVER_IS_REQUIRED")?>
-			<?= EndNote()?>
+			<?= EndNote() ?>
 		</td>
 	</tr>
 	<tbody id="pull_cloud_settings" style="<?= \CPullOptions::IsServerShared() ? "" : "display: none"?>">
@@ -318,36 +322,24 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 			<nobr>
 				<label>
 					<input type="radio" id="config_nginx_version_4" value="4" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 4?' checked':'')?>>
-					<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_730")?>
+					<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_730_2")?>
 				</label>
 			</nobr>
-			<br>
-			<br>
-			<div style="border: 1px solid darkred; padding: 10px">
-				<div style="padding-bottom: 5px">
-					<b><?=GetMessage('PULL_NOTIFY_OUTDATED');?></b>
-				</div>
-				<nobr>
-					<label>
-						<input type="radio" id="config_nginx_version_3" value="3" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 3?' checked':'')?>>
-						<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_710")?>
-					</label>
-				</nobr>
-				<br>
-				<nobr>
-					<label>
-						<input type="radio" id="config_nginx_version_2" value="2" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 2?' checked':'')?>>
-						<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_040")?>
-					</label>
-				</nobr>
-				<br>
-				<nobr>
-					<label>
-						<input type="radio" id="config_nginx_version_1" value="1" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 1?' checked':'')?>>
-						<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_034")?>
-					</label>
-				</nobr>
-			</div>
+			<?php if (defined('PULL_ALLOW_VERSION_5')): ?>
+			<nobr>
+				<label>
+					<input type="radio" id="config_nginx_version_5" value="5" name="nginx_version" <?=(CPullOptions::GetQueueServerVersion() == 5?' checked':'')?>>
+					<?=GetMessage("PULL_OPTIONS_NGINX_VERSION_760")?>
+				</label>
+			</nobr>
+			<?php endif; ?>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" align="center">
+			<?= BeginNote(); ?>
+			<?=GetMessage('PULL_NOTIFY_DEPRECATED');?>
+			<?= EndNote(); ?>
 		</td>
 	</tr>
 	<tr class="heading">
@@ -356,6 +348,10 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 	<tr>
 		<td><?=GetMessage("PULL_OPTIONS_PATH_TO_PUBLISH")?>:</td>
 		<td><input id="config_path_to_publish" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetPublishUrl())?>" name="path_to_publish"></td>
+	</tr>
+	<tr>
+		<td><?=GetMessage("PULL_OPTIONS_PATH_TO_JSON_RPC")?>:</td>
+		<td><input id="config_path_to_json_rpc" type="text" size="40" value="<?=htmlspecialcharsbx(CPullOptions::GetJsonRpcUrl())?>" name="path_to_json_rpc"></td>
 	</tr>
 	<tr>
 		<td><?=GetMessage("PULL_OPTIONS_SIGNATURE_KEY")?>:</td>
@@ -487,6 +483,7 @@ BX.bind(BX('config_nginx'), 'change', function(){
 			BX('config_nginx_version_3').disabled = false;
 			BX('config_nginx_version_4').disabled = false;
 			BX('config_path_to_publish').disabled = false;
+			BX('config_path_to_json_rpc').disabled = false;
 			BX('config_path_to_modern_listener').disabled = false;
 			BX('config_path_to_modern_listener_secure').disabled = false;
 			BX('config_signature_key').disabled = false;
@@ -543,6 +540,7 @@ BX.bind(BX('config_nginx'), 'change', function(){
 		BX('config_nginx_version_4').disabled = true;
 		BX('config_signature_key').disabled = true;
 		BX('config_path_to_publish').disabled = true;
+		BX('config_path_to_json_rpc').disabled = true;
 		BX('config_path_to_modern_listener').disabled = true;
 		BX('config_path_to_modern_listener_secure').disabled = true;
 
@@ -607,6 +605,25 @@ BX.bind(BX('config_nginx_version_3'), 'change', function(){
 BX.bind(BX('config_nginx_version_4'), 'change', function(){
 
 	BX('config_signature_key').disabled = false;
+	BX('config_path_to_json_rpc').disabled = true;
+
+	BX('config_websocket').disabled = true;
+	BX('config_websocket').checked = true;
+	BX('config_path_to_websocket').disabled = false;
+	BX('config_path_to_websocket_secure').disabled = false;
+
+	BX('config_path_to_websocket').disabled = false;
+	BX('config_path_to_websocket_secure').disabled = false;
+
+	BX('config_path_to_publish_web').disabled = false;
+	BX('config_path_to_publish_web_secure').disabled = false;
+
+	BX.style(BX('config_signature_key_error'), 'display', BX('config_signature_key').value.toString().length>0? 'none': 'block');
+});
+BX.bind(BX('config_nginx_version_5'), 'change', function(){
+
+	BX('config_signature_key').disabled = false;
+	BX('config_path_to_json_rpc').disabled = false;
 
 	BX('config_websocket').disabled = true;
 	BX('config_websocket').checked = true;

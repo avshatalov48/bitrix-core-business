@@ -379,7 +379,6 @@ main.landing-edit-mode .landing-ui-panel-content
 	padding-right: 20px;
 	border-top: 20px transparent solid;
 	border-bottom: 20px transparent solid;
-	border-right: 7px transparent solid;
 	border-radius: var(--ui-border-radius-md);
 }
 
@@ -418,4 +417,22 @@ main.landing-edit-mode .landing-ui-panel-content
 
 .landing-ui-panel-show-from-right .landing-ui-panel-content-close {
 	display: none;
+}
+
+.landing-ui-action-panels-disable-scrollbar {
+	overflow: hidden;
+}
+
+.landing-ui-panel-highlight {
+	position: relative;
+}
+
+.landing-ui-panel-highlight::before {
+	position: absolute;
+	top: -20px;
+	bottom: -20px;
+	right: -20px;
+	left: -20px;
+	content: '';
+	background: rgba(187, 237, 33, .2);
 }

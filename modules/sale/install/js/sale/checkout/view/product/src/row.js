@@ -1,7 +1,8 @@
 import { BitrixVue } from 'ui.vue';
-import { EventType, Application, Loader as LoaderConst } from 'sale.checkout.const';
+import { EventType, Application, Loader as LoaderConst, Product as ProductConst } from 'sale.checkout.const';
 import { EventEmitter } from 'main.core.events';
 import { MixinLoader } from 'sale.checkout.view.mixins';
+import { Product as ProductLib } from 'sale.checkout.lib'
 
 import 'sale.checkout.view.element.button';
 
@@ -21,6 +22,13 @@ BitrixVue.component('sale-checkout-view-product-row', {
 			showBackdropMobileMenu : 'N',
 			showBackdropChangeSku : 'N',
 		}
+	},
+	methods:
+	{
+		isService()
+		{
+			return ProductLib.isService(this.item);
+		},
 	},
 	computed:
 	{
@@ -45,6 +53,7 @@ BitrixVue.component('sale-checkout-view-product-row', {
 		{
 			return this.item.deleted === 'Y';
 		},
+
 		isLocked()
 		{
 			return this.item.status === LoaderConst.status.wait
@@ -139,7 +148,8 @@ BitrixVue.component('sale-checkout-view-product-row', {
 				<template v-if="mode === getConstMode.edit">
 					<sale-checkout-view-product-item_edit :item="item" :index="index" :mode="mode" :error="error">
 						<template v-slot:button-minus><sale-checkout-view-element-button-minus :class="{'checkout-item-quantity-btn-disabled': buttonMinusDisabled}" :index="index"/></template>
-						<template v-slot:button-plus><sale-checkout-view-element-button-plus :class="{'checkout-item-quantity-btn-disabled': buttonPlusDisabled}" :index="index"/></template>
+						<template v-slot:button-plus v-if="isService"><sale-checkout-view-element-button-plus :index="index"/></template>
+						<template v-slot:button-plus v-else			 ><sale-checkout-view-element-button-plus :class="{'checkout-item-quantity-btn-disabled': buttonPlusDisabled}" :index="index"/></template>
 						<template v-slot:button-remove>
 							<div class="checkout-basket-item-remove-btn-block">
 								<sale-checkout-view-element-button-remove :index="index"/>
@@ -155,7 +165,8 @@ BitrixVue.component('sale-checkout-view-product-row', {
 					<sale-checkout-view-product-item_backdrop_remove :index="index"/>
 					<sale-checkout-view-product-item_backdrop :item="item" :index="index" :error="error">
 						<template v-slot:button-minus><sale-checkout-view-element-button-minus :class="{'checkout-item-quantity-btn-disabled': buttonMinusDisabled}" :index="index"/></template>
-						<template v-slot:button-plus><sale-checkout-view-element-button-plus :class="{'checkout-item-quantity-btn-disabled': buttonPlusDisabled}" :index="index"/></template>
+						<template v-slot:button-plus v-if="isService"><sale-checkout-view-element-button-plus :index="index"/></template>
+						<template v-slot:button-plus v-else			 ><sale-checkout-view-element-button-plus :class="{'checkout-item-quantity-btn-disabled': buttonPlusDisabled}" :index="index"/></template>
 					</sale-checkout-view-product-item_backdrop>
 				</template>
 				<template v-else>

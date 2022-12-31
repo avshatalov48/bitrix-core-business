@@ -9,6 +9,7 @@ use Bitrix\Catalog\ProductTable;
 use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Engine\CurrentUser;
+use Bitrix\Main\EventManager;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
@@ -130,10 +131,26 @@ final class UseStore
 
 		self::installRealizationDocumentTradingPlatform();
 
+		self::registerEventsHandlers();
+
 		self::showEntityProductGridColumns();
 		self::setNeedShowSlider(false);
 
 		return true;
+	}
+
+	protected static function registerEventsHandlers()
+	{
+		$eventManager = EventManager::getInstance();
+
+		$eventManager->registerEventHandler('sale', 'onBeforeSaleShipmentSetField', 'crm', '\Bitrix\Crm\Order\EventsHandler\Shipment', 'onBeforeSetField');
+	}
+
+	protected static function unRegisterEventsHandlers()
+	{
+		$eventManager = EventManager::getInstance();
+
+		$eventManager->unRegisterEventHandler('sale', 'onBeforeSaleShipmentSetField', 'crm', '\Bitrix\Crm\Order\EventsHandler\Shipment', 'onBeforeSetField');
 	}
 
 	/**
@@ -249,6 +266,8 @@ final class UseStore
 		self::clearNeedShowSlider();
 		self::deactivateRealizationDocumentTradingPlatform();
 
+		self::unRegisterEventsHandlers();
+
 		if (Loader::includeModule('pull'))
 		{
 			\CPullWatch::AddToStack(
@@ -267,7 +286,7 @@ final class UseStore
 	{
 		$conn = Application::getConnection();
 		$conn->queryExecute('truncate table b_catalog_store_product');
-		$conn->queryExecute('delete from b_catalog_store_barcode where ORDER_ID is null');
+		$conn->queryExecute('delete from b_catalog_store_barcode where ORDER_ID is null and STORE_ID > 0');
 		unset($conn);
 	}
 

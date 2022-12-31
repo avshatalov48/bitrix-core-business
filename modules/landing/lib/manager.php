@@ -638,11 +638,24 @@ class Manager
 			$file = \CFile::makeFileArray($tempPath);
 		}
 
-		// post array or file from prev. steps
-		if (\CFile::checkImageFile($file, 0, 0, 0, array('IMAGE')) === null)
+		$isSvg = false;
+		$isImage = \CFile::checkImageFile($file, 0, 0, 0, array('IMAGE')) === null;
+
+		if (!$isImage && (Manager::getOption('allow_svg_content') === 'Y'))
 		{
-			// resize if need
+			$extension = \getFileExtension(mb_strtolower($file['name']));
+			if ($extension === 'svg')
+			{
+				$isSvg = true;
+			}
+		}
+
+		// post array or file from prev. steps
+		if ($isImage || $isSvg)
+		{
+			// resize if needed
 			if (
+				$isImage &&
 				isset($params['width']) &&
 				isset($params['height'])
 			)
@@ -876,7 +889,8 @@ class Manager
 			'sc' => 'zh-Hans',
 			'tc' => 'zh-Hant',
 			'vn' => 'vi',
-			'ua' => 'uk'
+			'ua' => 'uk',
+			'in' => 'hi',
 		];
 
 		return $transform[LANGUAGE_ID] ?? LANGUAGE_ID;

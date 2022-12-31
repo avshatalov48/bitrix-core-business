@@ -47,7 +47,7 @@ abstract class AttachmentManager
 	/**
 	 * @return string
 	 */
-	public function getUid(): string
+	public function getUid(): ?string
 	{
 		return $this->uid;
 	}

@@ -12,6 +12,7 @@ $MESS['CVAT_FILTER_RATE'] = "Ставка";
 $MESS['CVAT_FILTER_XML_ID'] = "Внешний код";
 $MESS['CVAT_SORT'] = "Сорт.";
 $MESS['CVAT_EDIT_ALT'] = "Редактировать";
+$MESS['CVAT_VIEW_ALT'] = "Открыть";
 $MESS['CVAT_VAT_ACTIVATE'] = "Активировать";
 $MESS['CVAT_VAT_DEACTIVATE'] = "Деактивировать";
 $MESS['CVAT_DELETE_ALT'] = "Удалить";

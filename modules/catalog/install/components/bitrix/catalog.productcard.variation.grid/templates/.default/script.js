@@ -1,7 +1,7 @@
 (function (exports,main_core,main_core_events,main_popup,ui_dialogs_messagebox,ui_entitySelector) {
 	'use strict';
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14;
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8, _templateObject9, _templateObject10, _templateObject11, _templateObject12, _templateObject13, _templateObject14, _templateObject15;
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
@@ -23,6 +23,7 @@
 	    this.createPropertyHintId = settings.createPropertyHintId;
 	    this.gridId = settings.gridId;
 	    this.isNew = settings.isNew;
+	    this.isReadOnly = settings.isReadOnly;
 	    this.isSimple = settings.isSimple;
 	    this.hiddenProperties = settings.hiddenProperties;
 	    this.modifyPropertyLink = settings.modifyPropertyLink;
@@ -35,6 +36,15 @@
 
 	    if (settings.copyItemsMap) {
 	      this.getGrid().arParams.COPY_ITEMS_MAP = settings.copyItemsMap;
+	    }
+
+	    if (!this.isNew) {
+	      this.bindPopupInitToQuantityNodes();
+	      this.bindSliderToReservedQuantityNodes();
+	    }
+
+	    if (this.isReadOnly) {
+	      return;
 	    }
 
 	    var isGridReload = settings.isGridReload || false;
@@ -59,12 +69,11 @@
 	      this.getGrid().disableCheckAllCheckboxes();
 	    } else {
 	      this.bindInlineEdit();
-	      this.bindPopupInitToQuantityNodes();
-	      this.bindSliderToReservedQuantityNodes();
 	    }
 
 	    main_core.Event.bind(this.getGrid().getScrollContainer(), 'scroll', main_core.Runtime.throttle(this.onScrollHandler.bind(this), 50));
 	    main_core.Event.bind(this.getGridSettingsButton(), 'click', this.showGridSettingsWindowHandler.bind(this));
+	    this.modifyHeaders();
 	    this.subscribeCustomEvents();
 	  }
 
@@ -128,6 +137,38 @@
 	      if (this.onCreatePopupHandler) {
 	        main_core_events.EventEmitter.unsubscribe('UiSelect::onCreatePopup', this.onCreatePopupHandler);
 	        this.onCreatePopupHandler = null;
+	      }
+	    }
+	  }, {
+	    key: "modifyHeaders",
+	    value: function modifyHeaders() {
+	      var headers = this.getGrid().getParam('COLUMNS_ALL');
+
+	      for (var headerName in headers) {
+	        var header = headers[headerName];
+
+	        if (!header.locked && !main_core.Type.isStringFilled(header.headerHint)) {
+	          continue;
+	        }
+
+	        var headerCell = this.getGrid().getColumnHeaderCellByName(header.id);
+	        var headerTitle = headerCell === null || headerCell === void 0 ? void 0 : headerCell.querySelector('.main-grid-head-title');
+
+	        if (!headerTitle) {
+	          continue;
+	        }
+
+	        if (header.locked) {
+	          var lock = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<span class='ui-btn ui-btn-link ui-btn-icon-lock'></span>"])));
+	          main_core.Dom.addClass(headerTitle.parentNode, 'main-grid-cell-head-container--locked');
+	          main_core.Dom.prepend(lock, headerTitle);
+	        }
+
+	        if (main_core.Type.isStringFilled(header.headerHint)) {
+	          main_core.Dom.attr(headerTitle, 'data-hint-no-icon', 'true');
+	          main_core.Dom.attr(headerTitle, 'data-hint', header.headerHint);
+	          BX.UI.Hint.init(headerCell);
+	        }
 	      }
 	    }
 	  }, {
@@ -227,7 +268,7 @@
 	      }
 
 	      var propertyId = bindElementId.replace('SKU_GRID_PROPERTY_', '').replace('_control', '');
-	      var addButton = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-productcard-popup-select-item catalog-productcard-popup-multi-select-item-new\">\n\t\t\t\t<label \n\t\t\t\t\tclass=\"catalog-productcard-popup-select-label main-dropdown-item\">\n\t\t\t\t\t<span class=\"catalog-productcard-popup-select-add\"></span>\n\t\t\t\t\t<span class=\"catalog-productcard-popup-select-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t</label>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON'));
+	      var addButton = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-productcard-popup-select-item catalog-productcard-popup-multi-select-item-new\">\n\t\t\t\t<label \n\t\t\t\t\tclass=\"catalog-productcard-popup-select-label main-dropdown-item\">\n\t\t\t\t\t<span class=\"catalog-productcard-popup-select-add\"></span>\n\t\t\t\t\t<span class=\"catalog-productcard-popup-select-text\">\n\t\t\t\t\t\t", "\n\t\t\t\t\t</span>\n\t\t\t\t</label>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON'));
 	      main_core.Event.bind(addButton, 'mousedown', BX.Catalog.VariationGrid.firePropertyModification.bind(this, propertyId));
 	      popup.contentContainer.appendChild(addButton);
 	    }
@@ -400,22 +441,22 @@
 	    key: "getStoreAmountPopupContent",
 	    value: function getStoreAmountPopupContent(rowId) {
 	      var skuStoreAmountData = this.storeAmount[rowId];
-	      var currentSkusCount = skuStoreAmountData.storesCount;
+	      var currentSkusCount = (skuStoreAmountData === null || skuStoreAmountData === void 0 ? void 0 : skuStoreAmountData.storesCount) || 0;
 
 	      if (!main_core.Type.isObject(skuStoreAmountData) || currentSkusCount <= 0) {
-	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"store-amount-popup-container\">\n\t\t\t\t\t<p class=\"store-amount-popup-not-found-message\">", "</p>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_EMPTY'));
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"store-amount-popup-container\">\n\t\t\t\t\t<p class=\"store-amount-popup-not-found-message\">", "</p>\n\t\t\t\t</div>\n\t\t\t"])), main_core.Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_EMPTY'));
 	      }
 
 	      var stores = skuStoreAmountData.stores;
-	      var linkToDetails = skuStoreAmountData.linkToDetails;
-	      return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"store-amount-popup-container\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getStoreAmountTable(stores, rowId), linkToDetails ? this.getOpenStoreAmountDetailsSliderLabel(linkToDetails, currentSkusCount) : '');
+	      var linkToDetails = skuStoreAmountData === null || skuStoreAmountData === void 0 ? void 0 : skuStoreAmountData.linkToDetails;
+	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"store-amount-popup-container\">\n\t\t\t\t", "\n\t\t\t\t", "\n\t\t\t</div>\n\t\t"])), this.getStoreAmountTable(stores, rowId), linkToDetails ? this.getOpenStoreAmountDetailsSliderLabel(linkToDetails, currentSkusCount) : '');
 	    }
 	  }, {
 	    key: "getStoreAmountTable",
 	    value: function getStoreAmountTable(stores, rowId) {
 	      var _this5 = this;
 
-	      var table = main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["<table class=\"main-grid-table\"></table>"])));
+	      var table = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<table class=\"main-grid-table\"></table>"])));
 	      var tableHead = table.createTHead();
 	      tableHead.className = 'main-grid-header';
 	      var tableHeadRow = tableHead.insertRow();
@@ -438,7 +479,7 @@
 	        _this5.addCellToTable(tableRow, store.quantityCommon, false);
 
 	        if (_this5.isShowedStoreReserve) {
-	          var quantityReservedNode = main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["<a class=\"main-grid-cell-content-catalog-reserved-quantity\">", "</a>"])), store.quantityReserved);
+	          var quantityReservedNode = main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["<a class=\"main-grid-cell-content-catalog-reserved-quantity\">", "</a>"])), store.quantityReserved);
 	          main_core.Event.bind(quantityReservedNode, 'click', _this5.openDealsWithReservedProductSlider.bind(_this5, rowId, store.storeId));
 
 	          _this5.addCellToTable(tableRow, quantityReservedNode, false);
@@ -456,12 +497,12 @@
 	      var innerClassName = isHead ? 'main-grid-cell-head-container' : 'main-grid-cell-content';
 	      var cell = row.insertCell();
 	      cell.className = cellClassName + horizontalPosition;
-	      cell.appendChild(main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"main-grid-cell-inner\">\n\t\t\t\t<span class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t"])), innerClassName, textContent));
+	      cell.appendChild(main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"main-grid-cell-inner\">\n\t\t\t\t<span class=\"", "\">\n\t\t\t\t\t", "\n\t\t\t\t</span>\n\t\t\t</div>\n\t\t"])), innerClassName, textContent));
 	    }
 	  }, {
 	    key: "getOpenStoreAmountDetailsSliderLabel",
 	    value: function getOpenStoreAmountDetailsSliderLabel(linkToDetails, currentSkusCount) {
-	      var openSliderLabel = main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"ui-link ui-link-secondary ui-link-dashed ui-link-open-store-amount-slider\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), main_core.Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_OPEN_SLIDER_BUTTON', {
+	      var openSliderLabel = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"ui-link ui-link-secondary ui-link-dashed ui-link-open-store-amount-slider\">\n\t\t\t\t", "\n\t\t\t</span>\n\t\t"])), main_core.Loc.getMessage('C_PVG_STORE_AMOUNT_POPUP_OPEN_SLIDER_BUTTON', {
 	        '#STORE_COUNT#': currentSkusCount
 	      }));
 	      main_core.Event.bind(openSliderLabel, 'click', this.openStoreAmountSlider.bind(this, linkToDetails));
@@ -518,6 +559,10 @@
 	    key: "enableEdit",
 	    value: function enableEdit() {
 	      var _this6 = this;
+
+	      if (this.isReadOnly) {
+	        return;
+	      }
 
 	      this.getGrid().getRows().selectAll();
 	      this.getGrid().getRows().editSelected();
@@ -703,7 +748,7 @@
 	        var _item$editData;
 
 	        barcodeNode.innerHTML = '';
-	        var inputWrapper = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["<div style=\"display: none\"></div>"])));
+	        var inputWrapper = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["<div style=\"display: none\"></div>"])));
 	        main_core.Dom.append(inputWrapper, barcodeNode);
 	        var barcodes = (_item$editData = item.editData) === null || _item$editData === void 0 ? void 0 : _item$editData.SKU_GRID_BARCODE_VALUES;
 	        var items = [];
@@ -717,7 +762,7 @@
 	              id: id,
 	              title: title
 	            });
-	            var input = main_core.Tag.render(_templateObject9 || (_templateObject9 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\">"])));
+	            var input = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\">"])));
 	            input.name = id;
 	            input.value = title;
 	            inputWrapper.appendChild(input);
@@ -742,7 +787,7 @@
 	              title: title,
 	              entityId: 'productBarcode'
 	            });
-	            var input = main_core.Tag.render(_templateObject10 || (_templateObject10 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\">"])));
+	            var input = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["<input type=\"hidden\">"])));
 	            input.name = id;
 	            input.value = title;
 	            inputWrapper.appendChild(input);
@@ -813,7 +858,7 @@
 	      node.querySelectorAll('[data-role="dropdownContent"] ul').forEach(function (listNode) {
 	        if (!listNode.querySelector('[data-role="createItem"]')) {
 	          var propertyId = listNode.getAttribute('data-propertyId');
-	          var createItem = main_core.Tag.render(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<li data-role=\"createItem\"\n\t\t\t\t\t\t class=\"catalog-productcard-popup-select-item catalog-productcard-popup-select-item-new\"\n\t\t\t\t\t\t onclick=\"BX.Catalog.VariationGrid.firePropertyModification(", ")\">\n\t\t\t\t\t\t<label class=\"catalog-productcard-popup-select-label\">\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-add\"></span>\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</label>\n\t\t\t\t\t</li>"])), propertyId, main_core.Loc.getMessage('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON'));
+	          var createItem = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t\t<li data-role=\"createItem\"\n\t\t\t\t\t\t class=\"catalog-productcard-popup-select-item catalog-productcard-popup-select-item-new\"\n\t\t\t\t\t\t onclick=\"BX.Catalog.VariationGrid.firePropertyModification(", ")\">\n\t\t\t\t\t\t<label class=\"catalog-productcard-popup-select-label\">\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-add\"></span>\n\t\t\t\t\t\t\t<span class=\"catalog-productcard-popup-select-text\">\n\t\t\t\t\t\t\t\t", "\n\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t</label>\n\t\t\t\t\t</li>"])), propertyId, main_core.Loc.getMessage('C_PVG_ADD_NEW_PROPERTY_VALUE_BUTTON'));
 	          listNode.appendChild(createItem);
 	        }
 	      });
@@ -866,7 +911,7 @@
 	      var rowId = row === null || row === void 0 ? void 0 : (_row$dataset = row.dataset) === null || _row$dataset === void 0 ? void 0 : _row$dataset.id;
 
 	      if (rowId) {
-	        var deleteButton = main_core.Tag.render(_templateObject12 || (_templateObject12 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"main-grid-delete-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></span>\n\t\t\t"])), this.removeNewRowFromGrid.bind(this, rowId));
+	        var deleteButton = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span \n\t\t\t\t\tclass=\"main-grid-delete-button\" \n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></span>\n\t\t\t"])), this.removeNewRowFromGrid.bind(this, rowId));
 	        main_core.Dom.append(deleteButton, actionCellContentContainer);
 	      }
 	    }
@@ -1130,12 +1175,12 @@
 	    '#COPY_BUTTON_NAME#': "<b>".concat(main_core.Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_BUTTON_COPY'), "</b>"),
 	    '#LINK_INFO#': "<a href=\"\">".concat(main_core.Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_DOC_LINK_INFO'), "</a>")
 	  });
-	  var content = main_core.Tag.render(_templateObject13 || (_templateObject13 = babelHelpers.taggedTemplateLiteral(["<span>", "</span>"])), text);
+	  var content = main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["<span>", "</span>"])), text);
 	  main_core.Event.bind(content.querySelector('a'), 'click', function (event) {
 	    top.BX.Helper.show("redirect=detail&code=16172654");
 	    event.preventDefault();
 	  });
-	  return main_core.Tag.render(_templateObject14 || (_templateObject14 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-simple-popup-wrapper\">\n\t\t\t\t<h3>", "</h3>\n\t\t\t\t<div class=\"catalog-simple-popup-label-text\">", "</div>\n\t\t\t\t<div class=\"catalog-simple-popup-link-block\">\n\t\t\t\t\t<a class=\"ui-link ui-link-primary \" target=\"_blank\" href=\"\">\n\t\t\t\t\t</a>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_TITLE'), content);
+	  return main_core.Tag.render(_templateObject15 || (_templateObject15 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"catalog-simple-popup-wrapper\">\n\t\t\t\t<h3>", "</h3>\n\t\t\t\t<div class=\"catalog-simple-popup-label-text\">", "</div>\n\t\t\t\t<div class=\"catalog-simple-popup-link-block\">\n\t\t\t\t\t<a class=\"ui-link ui-link-primary \" target=\"_blank\" href=\"\">\n\t\t\t\t\t</a>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), main_core.Loc.getMessage('C_PVG_SIMPLE_PRODUCT_POPUP_TITLE'), content);
 	}
 
 	main_core.Reflection.namespace('BX.Catalog').VariationGrid = VariationGrid;

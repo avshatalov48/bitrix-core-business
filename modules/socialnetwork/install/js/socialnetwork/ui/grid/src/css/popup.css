@@ -1,0 +1,195 @@
+.sonet-ui-members-popup {
+	overflow: hidden;
+	padding: 6px 10px 10px 10px;
+	border-radius: 18px;
+}
+
+.sonet-ui-members-popup .sonet-ui-members-popup-container {
+	background-color:#fff;
+	display: block;
+	max-height: 200px;
+	margin: 0 0 2px 0;
+	padding: 0 8px 8px 8px;
+	overflow-y: hidden;
+	overflow-x: hidden;
+	width: auto;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	user-select: none;
+}
+
+.bx-firefox .sonet-ui-members-popup .sonet-ui-members-popup-container,
+.bx-ie .sonet-ui-members-popup .sonet-ui-members-popup-container {
+	min-width: 220px;
+}
+
+.sonet-ui-members-popup .sonet-ui-members-popup-head {
+	display: flex;
+	margin: 0 0 10px 0;
+	border-bottom: 1px solid #D8D8D8;
+}
+
+.sonet-ui-members-popup .sonet-ui-members-popup-head-item {
+	display: flex;
+	align-items: center;
+	margin: 0 11px 0 0;
+	height: 35px;
+	border-bottom: 2px solid transparent;
+	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #525C69;
+	transition: all .3s;
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.sonet-ui-members-popup .sonet-ui-members-popup-head-item:hover {
+	border-color: #D8D8D8;
+}
+
+.sonet-ui-members-popup .sonet-ui-members-popup-head-item:last-child {
+	margin: 0;
+}
+
+.sonet-ui-members-popup .sonet-ui-members-popup-head-item:first-child {
+	margin: 0 17px 0 0;
+}
+
+.sonet-ui-members-popup .sonet-ui-members-popup-head-item-current {
+	border-color: #0063C6;
+	cursor: default;
+	pointer-events: none;
+}
+
+.sonet-ui-members-popup-body {
+	position: relative;
+	display: block;
+	max-height: none;
+	height: auto;
+	width: auto;
+	overflow: hidden;
+}
+
+.sonet-ui-members-popup-content {
+	display: block;
+	padding: 8px;
+	max-height: 200px;
+	width: auto;
+	background-color: #fff;
+	overflow-y: hidden;
+	overflow-x: hidden;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	user-select: none;
+}
+
+.sonet-ui-members-popup-content-box {
+	display: block;
+	max-height: 100%;
+	overflow-y: auto;
+	-webkit-scrollbar-track-color: #f9fafb;
+	scrollbar-track-color: #f9fafb;
+	-webkit-scrollbar-base-color: #d4d7d9;
+	-webkit-scrollbar-base-color: #d4d7d9;
+	scrollbar-base-color: #d4d7d9;
+	-webkit-scrollbar-shadow-color: #d4d7d9;
+	scrollbar-shadow-color: #d4d7d9;
+	-webkit-scrollbar-highlight-color: #d4d7d9;
+	scrollbar-highlight-color: #d4d7d9;
+}
+
+.sonet-ui-members-popup-inner {
+	display: block;
+	padding: 0 17px 0 0;
+	min-height: 26px;
+	max-height: 135px;
+	min-width: 150px;
+	-webkit-scrollbar-track-color: #f9fafb;
+	scrollbar-track-color: #f9fafb;
+	-webkit-scrollbar-base-color: #d4d7d9;
+	-webkit-scrollbar-base-color: #d4d7d9;
+	scrollbar-base-color: #d4d7d9;
+	-webkit-scrollbar-shadow-color: #d4d7d9;
+	scrollbar-shadow-color: #d4d7d9;
+	-webkit-scrollbar-highlight-color: #d4d7d9;
+	scrollbar-highlight-color: #d4d7d9;
+	overflow-y: auto;
+}
+
+.sonet-ui-members-popup-inner::-webkit-scrollbar {
+	width: 6px;
+}
+
+.sonet-ui-members-popup-inner::-webkit-scrollbar-thumb {
+	border-radius: 3px;
+	background: #D8D8D8;
+}
+
+.sonet-ui-members-popup-inner::-webkit-scrollbar-track {
+	border-radius: 3px;
+	background: rgba(216,216,216,.2);
+}
+
+.sonet-ui-members-popup-item {
+	display: flex;
+	align-items: center;
+	margin-bottom: 8px;
+	max-width: 200px;
+	color: #656365;
+	text-decoration: none;
+	overflow: hidden;
+	white-space: nowrap;
+	zoom: 1;
+}
+
+.sonet-ui-members-popup-item:last-child {
+	margin-bottom: 0;
+}
+
+.sonet-ui-members-popup-avatar-new {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+
+.sonet-ui-members-popup-avatar-img {
+	max-width: 100%;
+	height: auto;
+	border: none;
+	border-radius: 50%;
+	background-color: #fff;
+	overflow: hidden;
+}
+
+.sonet-ui-members-popup-name {
+	display: inline-block;
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-basis: 0;
+	padding-left: 6px;
+	max-width: 200px;
+	height: 15px;
+	color: #656365;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding-top: 1px;
+	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.sonet-ui-members-popup-name:hover {
+	text-decoration: underline;
+}
+
+.sonet-ui-members-popup-name-title {
+	height: 18px;
+	display: block;
+	text-decoration: none;
+	cursor: auto;
+	padding: 10px 0 9px 0;
+	font: 13px "Helvetica Neue", Arial, Helvetica, sans-serif;
+	color: #525C69;
+	border-bottom: 1px solid #D8D8D8;
+	margin: 0 8px 9px 8px;
+	max-width: 190px;
+}

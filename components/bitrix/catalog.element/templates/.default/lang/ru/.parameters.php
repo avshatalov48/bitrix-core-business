@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CP_BCE_TPL_THEME_SITE"] = "Брать тему из настроек сайта (для решения bitrix.eshop)";
 $MESS["CP_BCE_TPL_THEME_BLUE"] = "синяя (тема по умолчанию)";
 $MESS["CP_BCE_TPL_THEME_GREEN"] = "зеленая";
@@ -57,6 +57,7 @@ $MESS["CP_BCE_TPL_MESS_BTN_ADD_TO_BASKET"] = "Текст кнопки \"Доба
 $MESS["CP_BCE_TPL_MESS_BTN_SUBSCRIBE"] = "Текст кнопки \"Уведомить о поступлении\"";
 $MESS["CP_BCE_TPL_MESS_BTN_COMPARE"] = "Текст кнопки \"Сравнить\"";
 $MESS["CP_BCE_TPL_MESS_NOT_AVAILABLE"] = "Сообщение об отсутствии товара";
+$MESS['CP_BCE_TPL_MESS_NOT_AVAILABLE_SERVICE'] = "Сообщение о недоступности услуги";
 $MESS["CP_BCE_TPL_MESS_PRICE_RANGES_TITLE"] = "Название блока c расширенными ценами";
 $MESS["CP_BCE_TPL_MESS_PRICE_RANGES_TITLE_DEFAULT"] = "Цены";
 $MESS["CP_BCE_TPL_MESS_DESCRIPTION_TAB"] = "Текст вкладки \"Описание\"";
@@ -77,6 +78,7 @@ $MESS["CP_BCE_TPL_FB_USE"] = "Использовать Facebook";
 $MESS["CP_BCE_TPL_FB_APP_ID"] = "Идентификатор приложения (APP_ID)";
 $MESS["CP_BCE_TPL_MESS_BTN_BUY_DEFAULT"] = "Купить";
 $MESS["CP_BCE_TPL_MESS_NOT_AVAILABLE_DEFAULT"] = "Нет в наличии";
+$MESS['CP_BCE_TPL_MESS_NOT_AVAILABLE_SERVICE_DEFAULT'] = "Недоступно";
 $MESS["CP_BCE_TPL_MESS_BTN_ADD_TO_BASKET_DEFAULT"] = "В корзину";
 $MESS["CP_BCE_TPL_MESS_BTN_SUBSCRIBE_DEFAULT"] = "Подписаться";
 $MESS["CP_BCE_TPL_MESS_BTN_COMPARE_DEFAULT"] = "Сравнить";
@@ -122,4 +124,3 @@ $MESS["CP_BCE_TPL_PRODUCT_BLOCK_QUANTITY"] = "Количество";
 $MESS["CP_BCE_TPL_PRODUCT_BLOCK_BUTTONS"] = "Действия";
 $MESS["CP_BCE_TPL_PRODUCT_BLOCK_COMPARE"] = "Сравнение";
 $MESS["CP_BCE_TPL_PRODUCT_BLOCK_QUANTITY_LIMIT"] = "Остаток";
-?>

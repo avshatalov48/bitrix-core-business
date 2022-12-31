@@ -84,6 +84,8 @@ class ShipmentItemStoreCollection extends Internals\EntityCollection
 	public function createItem(BasketItem $basketItem)
 	{
 		$registry = Registry::getInstance(static::getRegistryType());
+
+		/** @var ShipmentItemStore $itemClassName */
 		$itemClassName =  $registry->getShipmentItemStoreClassName();
 
 		$item = $itemClassName::create($this, $basketItem);

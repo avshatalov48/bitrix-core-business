@@ -6,6 +6,7 @@ use Bitrix\Catalog\v2\Facade\Repository;
 use Bitrix\Catalog\v2\Iblock\IblockInfo;
 use Bitrix\Catalog\v2\Product\ProductFactory;
 use Bitrix\Catalog\v2\Product\ProductRepositoryContract;
+use Bitrix\Catalog\v2\Sku\SkuFactory;
 use Bitrix\Catalog\v2\Sku\SkuRepositoryContract;
 use Bitrix\Main\ObjectNotFoundException;
 
@@ -128,6 +129,29 @@ final class ServiceContainer
 			$iblockId = $iblockInfo->getProductIblockId();
 
 			return static::make(Dependency::SKU_REPOSITORY, compact('iblockId'));
+		}
+
+		return null;
+	}
+
+	/**
+	 * SKU factory.
+	 *
+	 * @param int $iblockId
+	 *
+	 * @return SkuFactory|null
+	 */
+	public static function getSkuFactory(int $iblockId): ?SkuFactory
+	{
+		$iblockInfo = static::getIblockInfo($iblockId);
+
+		if ($iblockInfo)
+		{
+			$iblockId = $iblockInfo->getSkuIblockId();
+			if ($iblockId)
+			{
+				return static::get(Dependency::SKU_FACTORY, compact('iblockId'));
+			}
 		}
 
 		return null;

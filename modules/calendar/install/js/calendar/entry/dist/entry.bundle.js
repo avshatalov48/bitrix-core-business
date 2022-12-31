@@ -1059,7 +1059,8 @@ this.BX = this.BX || {};
 	      // Broadcast event
 	      BX.onCustomEvent('BX.Calendar.Entry:beforeDelete', [{
 	        entryId: this.id,
-	        recursionMode: recursionMode
+	        recursionMode: recursionMode,
+	        entryData: this.data
 	      }]);
 	      EntryManager.showDeleteEntryNotification(this);
 	      this.deleteParts(recursionMode);
@@ -1096,7 +1097,8 @@ this.BX = this.BX || {};
 	    if (this.isRecursive()) {
 	      BX.onCustomEvent('BX.Calendar.Entry:beforeDelete', [{
 	        entryId: this.id,
-	        recursionMode: recursionMode
+	        recursionMode: recursionMode,
+	        entryData: this.data
 	      }]);
 	      EntryManager.showDeleteEntryNotification(this);
 	      this.deleteParts(recursionMode);
@@ -1180,6 +1182,10 @@ this.BX = this.BX || {};
 
 	      if (deleteTimeoutData) {
 	        EntryManager.unregisterDeleteTimeout(deleteTimeoutData);
+	        BX.onCustomEvent('BX.Calendar.Entry:cancelDelete', [{
+	          entryId: this.id,
+	          entryData: this.data
+	        }]);
 	        this.delayTimeoutMap.delete(this.delayTimeoutMap);
 	      }
 

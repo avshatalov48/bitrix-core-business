@@ -1,6 +1,7 @@
 import { Tag, Type, Loc, Dom, Event, Text} from 'main.core';
 import { RoomsManager, RoomsSection } from 'calendar.roomsmanager';
 import { CategoryManager } from 'calendar.categorymanager';
+import {EventEmitter} from 'main.core.events';
 import { Util } from 'calendar.util';
 
 export class Location
@@ -59,30 +60,23 @@ export class Location
 				<div class="calendar-field-place-link calendar-location-readonly">${this.DOM.inlineEditLink = Tag.render`
 					<span class="calendar-text-link">${Loc.getMessage('EC_REMIND1_ADD')}</span>`}
 				</div>`);
+
 			this.DOM.inputWrap.style.display = 'none';
+
 			Event.bind(
-				this.DOM.inlineEditLinkWrap, 'click',
-				() => {
+				this.DOM.inlineEditLinkWrap, 'click', () => {
 					this.displayInlineEditControls();
 					this.selectContol.showPopup();
 				}
 			);
 		}
 
-		if (this.disabled)
-		{
-			Dom.addClass(this.DOM.wrapNode, 'locked');
-			this.DOM.inputWrap.appendChild(Dom.create('DIV', {
-				props: {className: 'calendar-lock-icon'},
-				events: {
-					click: () => {
-						top.BX.UI.InfoHelper.show('limit_office_calendar_location');
-					}
-				}
-			}))
-		}
+		this.DOM.inputWrapInner = this.DOM.inputWrap.appendChild(Tag.render`
+				<div class="calendar-event-location-input-wrap-inner">
+				</div>`
+		);
 
-		this.DOM.input = this.DOM.inputWrap.appendChild(Dom.create('INPUT', {
+		this.DOM.input = this.DOM.inputWrapInner.appendChild(Dom.create('INPUT', {
 			attrs: {
 				name: this.params.inputName || '',
 				placeholder: this.disabled
@@ -97,9 +91,24 @@ export class Location
 			},
 			style: {
 				paddingRight: 25 + 'px',
+				minWidth: 300 + 'px',
 				maxWidth: 300 + 'px',
 			}
 		}));
+
+		if (this.disabled)
+		{
+			Dom.addClass(this.DOM.wrapNode, 'locked');
+
+			this.DOM.lockIcon = Tag.render`
+				<div class="calendar-lock-icon"></div>
+			`;
+			Event.bind(this.DOM.lockIcon, 'click', () => {
+				top.BX.UI.InfoHelper.show('limit_office_calendar_location');
+			})
+
+			Dom.append(this.DOM.lockIcon, this.DOM.inputWrapInner);
+		}
 	}
 
 	setValues()
@@ -233,8 +242,8 @@ export class Location
 			zIndex: this.zIndex,
 			disabled: this.disabled,
 			minWidth: 300,
-			onChangeCallback: BX.delegate(function()
-			{
+			onChangeCallback: () => {
+				EventEmitter.emit('Calendar.LocationControl.onValueChange');
 				let i, value = this.DOM.input.value;
 				this.value = {text: value};
 				for (i = 0; i < menuItemList.length; i++)
@@ -257,7 +266,7 @@ export class Location
 				}
 				this.addLocationRemoveButton();
 				this.allowClick();
-			}, this)
+			}
 		});
 		this.allowClick();
 	}
@@ -267,9 +276,13 @@ export class Location
 		if (this.value)
 		{
 			this.DOM.input.value = this.value.str || '';
-			if (this.value.type &&
-				(this.value.str === this.getTextLocation(this.value) ||
-					this.getTextLocation(this.value) === Loc.getMessage('EC_LOCATION_EMPTY')))
+			if (
+				this.value.type
+				&& (
+					this.value.str === this.getTextLocation(this.value)
+					|| this.getTextLocation(this.value) === Loc.getMessage('EC_LOCATION_EMPTY')
+				)
+			)
 			{
 				this.DOM.input.value = '';
 				this.value = '';
@@ -301,11 +314,11 @@ export class Location
 
 	removeLocationRemoveButton()
 	{
-		if(this.DOM.inputWrap.contains(this.DOM.removeLocationButton))
+		if (this.DOM.inputWrap.contains(this.DOM.removeLocationButton))
 		{
 			this.DOM.inputWrap.removeChild(this.DOM.removeLocationButton);
 		}
-		else if(this.DOM.wrapNode.contains(this.DOM.removeLocationButton))
+		else if (this.DOM.wrapNode.contains(this.DOM.removeLocationButton))
 		{
 			this.DOM.wrapNode.removeChild(this.DOM.removeLocationButton);
 		}
@@ -335,7 +348,8 @@ export class Location
 			this.DOM.removeLocationButton = wrap.appendChild(Tag.render`
 				<span class="calendar-location-clear-btn-wrap calendar-location-readonly">
 					<span class="calendar-location-clear-btn-text">${Loc.getMessage('EC_LOCATION_CLEAR_INPUT')}</span>
-				</span>`);
+				</span>`
+			);
 			Event.bind(this.DOM.removeLocationButton, 'click', this.removeValue.bind(this));
 		}
 	}
@@ -383,7 +397,10 @@ export class Location
 	getCapacityMessage(capacity)
 	{
 		let suffix;
-		if ((capacity % 100 > 10) && (capacity % 100 < 20))
+		if (
+			(capacity % 100 > 10)
+			&& (capacity % 100 < 20)
+		)
 		{
 			suffix = 5;
 		}
@@ -940,11 +957,17 @@ export class Location
 
 	prohibitClick()
 	{
-		if(this.DOM.inlineEditLinkWrap && !Dom.hasClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly'))
+		if (
+			this.DOM.inlineEditLinkWrap
+			&& !Dom.hasClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly')
+		)
 		{
 			Dom.addClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly');
 		}
-		if(this.DOM.removeLocationButton && !Dom.hasClass(this.DOM.removeLocationButton, 'calendar-location-readonly'))
+		if (
+			this.DOM.removeLocationButton
+			&& !Dom.hasClass(this.DOM.removeLocationButton, 'calendar-location-readonly')
+		)
 		{
 			Dom.addClass(this.DOM.removeLocationButton, 'calendar-location-readonly');
 		}
@@ -952,11 +975,17 @@ export class Location
 
 	allowClick()
 	{
-		if(this.DOM.inlineEditLinkWrap && Dom.hasClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly'))
+		if (
+			this.DOM.inlineEditLinkWrap
+			&& Dom.hasClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly')
+		)
 		{
 			Dom.removeClass(this.DOM.inlineEditLinkWrap, 'calendar-location-readonly');
 		}
-		if(this.DOM.removeLocationButton && Dom.hasClass(this.DOM.removeLocationButton, 'calendar-location-readonly'))
+		if (
+			this.DOM.removeLocationButton
+			&& Dom.hasClass(this.DOM.removeLocationButton, 'calendar-location-readonly')
+		)
 		{
 			Dom.removeClass(this.DOM.removeLocationButton, 'calendar-location-readonly');
 		}

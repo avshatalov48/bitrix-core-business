@@ -135,7 +135,12 @@ if (
 			<div class="landing-error-site-img-inner"></div>
 		</div>
 		<div class="landing-error-site-title"><?= $error;?></div>
-		<div class="landing-error-site-desc"><?= Loc::getMessage('LANDING_TPL_ERROR_NOT_FOUND_NOTE');?></div>
+		<div class="landing-error-site-desc">
+			<?= Loc::getMessage('LANDING_TPL_ERROR_NOT_FOUND_NOTE', [
+				'#LINK1#' => '<a href="' . ($arResult['SITE_URL'] ?? '/') . '">',
+				'#LINK2#' => '</a>',
+			]);?>
+		</div>
 	</div>
 
 <?endif;?>

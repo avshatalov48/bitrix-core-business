@@ -94,7 +94,7 @@ export default class CanvasLoader
 		if (Type.isPlainObject(file) && (file['src'] || file['tmp_url']))
 		{
 			const src = file['src'] || file['tmp_url'];
-			this.#image.src = src + (src.indexOf("?") > 0 ? '&' : '?')
+			this.#image.src = encodeURI(src) + (src.indexOf("?") > 0 ? '&' : '?')
 				+ 'imageUploader' + this.#id + (this.#justACounter++);
 		}
 		else

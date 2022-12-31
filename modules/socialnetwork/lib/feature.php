@@ -32,9 +32,9 @@ create table b_sonet_features
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Feature_Query query()
- * @method static EO_Feature_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Feature_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Feature_Result getById($id)
- * @method static EO_Feature_Result getList(array $parameters = array())
+ * @method static EO_Feature_Result getList(array $parameters = [])
  * @method static EO_Feature_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\EO_Feature createObject($setDefaultValues = true)
  * @method static \Bitrix\Socialnetwork\EO_Feature_Collection createCollection()

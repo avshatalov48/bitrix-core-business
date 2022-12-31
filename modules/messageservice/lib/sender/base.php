@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\MessageService\Sender;
 
+use Bitrix\Main\Text\Emoji;
 use Bitrix\MessageService\MessageStatus;
 use Bitrix\MessageService\MessageType;
 use Bitrix\MessageService\Providers;
@@ -10,6 +11,30 @@ abstract class Base
 	protected Providers\Informant $informant;
 	protected Providers\Initiator $initiator;
 	protected Providers\Sender $sender;
+
+	protected int $socketTimeout = 10;
+	protected int $streamTimeout = 30;
+
+	/**
+	 * @param int $socketTimeout
+	 * @return Base
+	 */
+	public function setSocketTimeout(int $socketTimeout): Base
+	{
+		$this->socketTimeout = $socketTimeout;
+		return $this;
+	}
+
+	/**
+	 * @param int $streamTimeout
+	 * @return Base
+	 */
+	public function setStreamTimeout(int $streamTimeout): Base
+	{
+		$this->streamTimeout = $streamTimeout;
+		return $this;
+	}
+
 	/**
 	 * @return bool
 	 */
@@ -145,6 +170,11 @@ abstract class Base
 	 */
 	public function prepareMessageBodyForSave(string $text): string
 	{
-		return $text;
+		return Emoji::encode($text);
+	}
+
+	protected function prepareMessageBodyForSend(string $text): string
+	{
+		return Emoji::decode($text);
 	}
 }

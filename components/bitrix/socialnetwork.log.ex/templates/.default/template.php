@@ -105,7 +105,7 @@ if (
 
 $stub = '
 <div class="feed-stub">
-<svg class="feed-stub-svg" style="display: block" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="100%" height="230">
+<svg style="display: block" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" width="100%" height="230">
 	<svg>
 		<rect class="feed-stub-rect" width="100%" height="230" y="0" fill="#fff" />
 	</svg>
@@ -283,7 +283,7 @@ if (
 			<?php
 		}
 
-		if (in_array($arResult['PAGE_MODE'], [ 'first', 'refresh' ]))
+	if (in_array($arResult['PAGE_MODE'], [ 'first', 'refresh' ]))
 		{
 			?>
 			BX.ready(function(){
@@ -481,15 +481,14 @@ if (
 
 			$ind = \Bitrix\Main\Security\Random::getString(8);
 
-			$event_date_log_ts = ($arEvent["LOG_DATE_TS"] ?? (MakeTimeStamp($arEvent["LOG_DATE"]) - (int)$arResult["TZ_OFFSET"])
-			);
+			$event_date_log_ts = ($arEvent["LOG_DATE_TS"] ?? (MakeTimeStamp($arEvent["LOG_DATE"]) - (int)$arResult["TZ_OFFSET"]));
 
 			$is_unread = (
 				$arResult["SHOW_UNREAD"] === "Y"
 				&& in_array($arResult["COUNTER_TYPE"], [ '**', 'CRM_**', 'blog_post' ])
 				&& $arEvent["USER_ID"] != $arResult["currentUserId"]
-				&& (int)$arResult["LAST_LOG_TS"] > 0
-				&& $event_date_log_ts > $arResult["LAST_LOG_TS"]
+						&& (int)$arResult["LAST_LOG_TS"] > 0
+						&& $event_date_log_ts > $arResult["LAST_LOG_TS"]
 			);
 
 			if(

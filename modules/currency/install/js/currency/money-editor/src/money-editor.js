@@ -286,10 +286,10 @@ export class MoneyEditor
 			}
 		}
 
+		decPointPosition = formatValue.match(new RegExp('[' + currentFormat['DEC_POINT'] + ']'));
+		decPointPosition = decPointPosition === null ? formatValue.length : decPointPosition.index;
 		if(currentFormat['DECIMALS'] > 0)
 		{
-			decPointPosition = formatValue.match(new RegExp('[' + currentFormat['DEC_POINT'] + ']'));
-			decPointPosition = decPointPosition === null ? formatValue.length : decPointPosition.index;
 			while(formatValue.length - 1 - decPointPosition > currentFormat['DECIMALS'])
 			{
 				if(valueLength >= formatValue.length - 1)
@@ -299,6 +299,11 @@ export class MoneyEditor
 				formatValue = formatValue.substr(0, formatValue.length - 1);
 			}
 		}
+		else
+		{
+			formatValue = formatValue.substr(0, decPointPosition);
+		}
+
 		return formatValue;
 	}
 }

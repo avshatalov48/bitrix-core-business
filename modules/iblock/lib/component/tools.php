@@ -144,21 +144,29 @@ class Tools
 	{
 		$result = '';
 		if (empty($image) || !isset($image['SRC']))
+		{
 			return $result;
+		}
 		$safe = ($safe === true);
 
 		if ($safe)
 		{
 			if (isset($image['SAFE_SRC']))
+			{
 				$result = $image['SAFE_SRC'];
+			}
 			elseif (preg_match('/^(ftp|ftps|http|https):\/\//', $image['SRC']))
+			{
 				$result = $image['SRC'];
+			}
 			else
-				$result = \CHTTP::urnEncode($image['SRC'], 'UTF-8');
+			{
+				$result = \Bitrix\Main\Web\Uri::urnEncode($image['SRC'], 'UTF-8');
+			}
 		}
 		else
 		{
-			$result = (isset($image['UNSAFE_SRC']) ? $image['UNSAFE_SRC'] : $image['SRC']);
+			$result = ($image['UNSAFE_SRC'] ?? $image['SRC']);
 		}
 
 		return $result;

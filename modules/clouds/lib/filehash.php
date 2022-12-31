@@ -409,13 +409,13 @@ class FileHashTable extends Main\Entity\DataManager
 				['FILE.SUBDIR', 'FILE.FILE_NAME']
 			),
 			new \Bitrix\Main\Entity\ExpressionField(
-				'FILE_ID_LIST',
-				'group_concat(DISTINCT %s ORDER BY %s ASC, %s SEPARATOR \',\')',
-				['FILE_ID', 'FILE_ID', 'FILE_ID']
-			),
-			new \Bitrix\Main\Entity\ExpressionField(
 				'FILE_ID_MIN',
 				'MIN(%s)',
+				['FILE_ID']
+			),
+			new \Bitrix\Main\Entity\ExpressionField(
+				'FILE_ID_MAX',
+				'MAX(%s)',
 				['FILE_ID']
 			),
 		]);
@@ -433,7 +433,39 @@ class FileHashTable extends Main\Entity\DataManager
 		$sql = $query->getQuery();
 
 		return $connection->query($sql);
+	}
 
+	/**
+	 * Returns duplicate files list by bucket, hash, and size.
+	 *
+	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param array $fileHash File hash.
+	 * @param array $fileSize File size.
+	 * @return array
+	 * @see \Bitrix\Main\File\Internal\FileHashTable
+	 */
+	public static function getFileDuplicates($bucketId, $fileHash, $fileSize)
+	{
+		$query = \Bitrix\Main\File\Internal\FileHashTable::getList([
+			'select' => [
+				'FILE_ID',
+			],
+			'filter' => [
+				'=FILE.HANDLER_ID' => $bucketId,
+				'=FILE_HASH' => $fileHash,
+				'=FILE_SIZE' => $fileSize,
+			],
+			'order' => [
+				'FILE_ID' => 'ASC',
+			],
+		]);
+
+		$result = [];
+		while ($fileDuplicate = $query->fetch())
+		{
+			$result[] = $fileDuplicate['FILE_ID'];
+		}
+		return $result;
 	}
 
 	/**

@@ -38,6 +38,7 @@ export type FormOption = {
 	compilationFormType: FormCompilationType,
 	compilationFormOption: FormCompilationOption,
 	isBlockedExistedPrice: boolean,
+	isCatalogDiscountSetEnabled: boolean,
 	isCatalogPriceEditEnabled: boolean,
 	isCatalogPriceSaveEnabled: boolean,
 	fieldHints: {},

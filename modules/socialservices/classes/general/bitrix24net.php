@@ -318,8 +318,7 @@ class CSocServBitrix24Net extends CSocServAuth
 </script>
 <?
 
-		\CMain::FinalActions();
-		die();
+		CMain::FinalActions();
 	}
 
 	public static function registerSite($domain)
@@ -748,6 +747,9 @@ class CBitrix24NetTransport
 	const METHOD_PROFILE_RESTORE_PASSWORD = 'profile.password.restore';
 	const METHOD_PROFILE_PUSH_QRCODE_AUTH_TOKEN = 'profile.pushqrcodeauthtoken';
 	const METHOD_BRANCH_LIST = 'branch.list';
+	const METHOD_BRANCH_UPDATE = 'branch.update';
+	const METHOD_BRANCH_REMOVE = 'branch.remove';
+	const METHOD_BRANCH_PROFILE_REFRESH = 'branch.profile.refresh';
 
 	const RESTORE_PASSWORD_METHOD_EMAIL = 'EMAIL';
 	const RESTORE_PASSWORD_METHOD_PHONE = 'PHONE';
@@ -948,6 +950,31 @@ class CBitrix24NetTransport
 	public function branchList(array $params = [])
 	{
 		return $this->call(self::METHOD_BRANCH_LIST, $params);
+	}
+
+	/**
+	 * Update info about item in the branch.
+	 * @param array $params
+	 * @return mixed
+	 */
+	public function branchUpdate(array $params = [])
+	{
+		return $this->call(self::METHOD_BRANCH_UPDATE, $params);
+	}
+
+	/**
+	 * Removes brunch from the list.
+	 * @param array $params
+	 * @return mixed
+	 */
+	public function branchRemove(array $params = [])
+	{
+		return $this->call(self::METHOD_BRANCH_REMOVE, $params);
+	}
+
+	public function branchProfileRefresh($params)
+	{
+		return $this->call(self::METHOD_BRANCH_PROFILE_REFRESH, $params);
 	}
 }
 

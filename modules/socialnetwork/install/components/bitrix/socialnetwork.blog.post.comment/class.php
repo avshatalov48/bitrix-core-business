@@ -10,7 +10,6 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Security\Random;
-use Bitrix\Main\Security\Sign\Signer;
 use Bitrix\Main\Web\Json;
 use Bitrix\Blog\Item\Permissions;
 
@@ -194,7 +193,12 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 
 	public function onPrepareComponentParams($arParams)
 	{
-		global $USER;
+		global $APPLICATION;
+
+		if (!Loader::includeModule('socialnetwork'))
+		{
+			return [];
+		}
 
 		static $formId = null;
 
@@ -202,10 +206,225 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 		{
 			if ($formId === null)
 			{
-				$formId = 'blogCommentForm' . \Bitrix\Main\Security\Random::getString(4);
+				$formId = 'blogCommentForm' . Random::getString(4);
 			}
 			$arParams['FORM_ID'] = $formId;
 		}
+
+		$arParams['SOCNET_GROUP_ID'] = (int)$arParams['SOCNET_GROUP_ID'];
+
+		$arParams['ID'] = (
+			preg_match('/^[1-9][0-9]*$/', trim($arParams['ID']))
+				? (int)$arParams['ID']
+				: preg_replace('/[^a-zA-Z0-9_-]/i', '', $arParams['ID'])
+		);
+
+		$arParams['BLOG_URL'] = preg_replace('/[^a-zA-Z0-9_-]/i', '', $arParams['BLOG_URL']);
+		if (!is_array($arParams['GROUP_ID']))
+		{
+			$arParams['GROUP_ID'] = [ $arParams['GROUP_ID'] ];
+		}
+
+		foreach ($arParams['GROUP_ID'] as $key => $value)
+		{
+			if ((int)$value <= 0)
+			{
+				unset($arParams['GROUP_ID'][$key]);
+			}
+		}
+
+		$arParams['CACHE_TIME'] = (
+			$arParams['CACHE_TYPE'] === 'Y'
+			|| (
+				$arParams['CACHE_TYPE'] === 'A'
+				&& Config\Option::get('main', 'component_cache_on', 'Y') === 'Y'
+			)
+				? (int)$arParams['CACHE_TIME']
+				: 0
+		);
+
+		if ($arParams["BLOG_VAR"] == '')
+		{
+			$arParams["BLOG_VAR"] = "blog";
+		}
+		if ($arParams["PAGE_VAR"] == '')
+		{
+			$arParams["PAGE_VAR"] = "page";
+		}
+		if ($arParams["USER_VAR"] == '')
+		{
+			$arParams["USER_VAR"] = "id";
+		}
+		if ($arParams["POST_VAR"] == '')
+		{
+			$arParams["POST_VAR"] = "id";
+		}
+		if ($arParams["NAV_PAGE_VAR"] == '')
+		{
+			$arParams["NAV_PAGE_VAR"] = "pagen";
+		}
+		if ($arParams["COMMENT_ID_VAR"] == '')
+		{
+			$arParams["COMMENT_ID_VAR"] = "commentId";
+		}
+
+		$tzOffset = \CTimeZone::GetOffset();
+
+		$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+
+		if ((int)$request->get('LAST_LOG_TS') > 0)
+		{
+			$timeZoneOffset = (
+				$request->get('AJAX_CALL') === 'Y'
+				|| $request->get('empty_get_comments') === 'Y'
+					? $tzOffset
+					: 0
+			);
+
+			$arParams["LAST_LOG_TS"] = (int)$request->get('LAST_LOG_TS') + $timeZoneOffset; // next mobile livefeed page or get_empty_comments
+			if ($arParams['MOBILE'] !== 'Y')
+			{
+				$arParams['MARK_NEW_COMMENTS'] = 'Y';
+			}
+		}
+
+		if ((int)$arParams['COMMENTS_COUNT'] <= 0)
+		{
+			$arParams['COMMENTS_COUNT'] = 25;
+		}
+
+		if ($arParams['USE_ASC_PAGING'] !== 'Y')
+		{
+			$arParams['USE_DESC_PAGING'] = 'Y';
+		}
+
+		$applicationPage = $APPLICATION->GetCurPage();
+
+		$arParams['PATH_TO_BLOG'] = trim($arParams['PATH_TO_BLOG']);
+		if ($arParams['PATH_TO_BLOG'] === '')
+		{
+			$arParams['PATH_TO_BLOG'] = htmlspecialcharsbx($applicationPage . "?" . $arParams["PAGE_VAR"] . "=blog&" . $arParams["BLOG_VAR"] . "=#blog#");
+		}
+
+		$arParams["PATH_TO_USER"] = trim($arParams["PATH_TO_USER"]);
+		if ($arParams["PATH_TO_USER"] === '')
+		{
+			$arParams["PATH_TO_USER"] = htmlspecialcharsbx($applicationPage . "?" . $arParams["PAGE_VAR"] . "=user&" . $arParams["USER_VAR"] . "=#user_id#");
+		}
+
+		$arParams["PATH_TO_POST"] = trim($arParams["PATH_TO_POST"]);
+		if ($arParams["PATH_TO_POST"] === '')
+		{
+			$arParams["PATH_TO_POST"] = htmlspecialcharsbx($applicationPage . "?" . $arParams["PAGE_VAR"] . "=post&" . $arParams["BLOG_VAR"] . "=#blog#" . "&" . $arParams["POST_VAR"] . "=#post_id#");
+		}
+
+		$arParams["PATH_TO_POST_CURRENT"] = $arParams["PATH_TO_POST"];
+
+		if ($arParams["bPublicPage"])
+		{
+			$arParams["PATH_TO_POST"] = \Bitrix\Socialnetwork\Helper\Path::get('userblogpost_page');
+		}
+
+		$arParams["PATH_TO_SMILE"] = trim($arParams["PATH_TO_SMILE"]);
+		if ($arParams["PATH_TO_SMILE"] === '')
+		{
+			$arParams["PATH_TO_SMILE"] = false;
+		}
+
+		if (!isset($arParams["PATH_TO_CONPANY_DEPARTMENT"]) || $arParams["PATH_TO_CONPANY_DEPARTMENT"] == "")
+		{
+			$arParams["PATH_TO_CONPANY_DEPARTMENT"] = "/company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#";
+		}
+		if (!isset($arParams["PATH_TO_MESSAGES_CHAT"]) || $arParams["PATH_TO_MESSAGES_CHAT"] == "")
+		{
+			$arParams["PATH_TO_MESSAGES_CHAT"] = "/company/personal/messages/chat/#user_id#/";
+		}
+		if (!isset($arParams["PATH_TO_VIDEO_CALL"]) || $arParams["PATH_TO_VIDEO_CALL"] == "")
+		{
+			$arParams["PATH_TO_VIDEO_CALL"] = "/company/personal/video/#user_id#/";
+		}
+
+		if (trim($arParams["NAME_TEMPLATE"]) == '')
+		{
+			$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
+		}
+
+		$arParams['SHOW_LOGIN'] = $arParams['SHOW_LOGIN'] !== "N" ? "Y" : "N";
+		$arParams["IMAGE_MAX_WIDTH"] = (int)$arParams["IMAGE_MAX_WIDTH"];
+		$arParams["IMAGE_MAX_HEIGHT"] = (int)$arParams["IMAGE_MAX_HEIGHT"];
+		$arParams["ALLOW_POST_CODE"] = $arParams["ALLOW_POST_CODE"] !== "N";
+
+		$arParams["ATTACHED_IMAGE_MAX_WIDTH_SMALL"] = (
+			(int)$arParams["ATTACHED_IMAGE_MAX_WIDTH_SMALL"] > 0
+				? (int)$arParams["ATTACHED_IMAGE_MAX_WIDTH_SMALL"]
+				: 70
+		);
+		$arParams["ATTACHED_IMAGE_MAX_HEIGHT_SMALL"] = (
+			(int)$arParams["ATTACHED_IMAGE_MAX_HEIGHT_SMALL"] > 0
+				? (int)$arParams["ATTACHED_IMAGE_MAX_HEIGHT_SMALL"]
+				: 70
+		);
+		$arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"] = (
+			(int)$arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"] > 0
+				? (int)$arParams["ATTACHED_IMAGE_MAX_WIDTH_FULL"]
+				: 1000
+		);
+		$arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"] = (
+			(int)$arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"] > 0
+				? (int)$arParams["ATTACHED_IMAGE_MAX_HEIGHT_FULL"]
+				: 1000
+		);
+
+		$arParams["NAV_TYPE_NEW"] = (
+			isset($arParams['NAV_TYPE_NEW'])
+			&& $arParams['NAV_TYPE_NEW'] === 'Y'
+				? 'Y'
+				: 'N'
+		);
+
+		$arParams["DATE_TIME_FORMAT_S"] = $arParams["DATE_TIME_FORMAT"];
+
+		\CSocNetLogComponent::processDateTimeFormatParams($arParams);
+		\CRatingsComponentsMain::getShowRating($arParams);
+
+		$arParams["SEF"] = (
+			isset($arParams["SEF"])
+			&& $arParams["SEF"] === "N"
+				? "N"
+				: "Y"
+		);
+		$arParams["CAN_USER_COMMENT"] = (
+			!isset($arParams["CAN_USER_COMMENT"])
+			|| $arParams["CAN_USER_COMMENT"] === 'Y'
+				? 'Y'
+				: 'N'
+		);
+
+		$arParams["ALLOW_VIDEO"] = (
+			$arParams["ALLOW_VIDEO"] === "N"
+				? "N"
+				: "Y"
+		);
+
+		$arParams["PAGE_SIZE"] = (int)$arParams["PAGE_SIZE"];
+		if ($arParams["PAGE_SIZE"] <= 0)
+		{
+			$arParams["PAGE_SIZE"] = 20;
+		}
+
+		$arParams["PAGE_SIZE_MIN"] = 3;
+
+		$arParams["COMMENT_PROPERTY"] = [ 'UF_BLOG_COMMENT_DOC' ];
+		if (
+			Loader::includeModule('webdav')
+			|| Loader::includeModule('disk')
+		)
+		{
+			$arParams["COMMENT_PROPERTY"][] = "UF_BLOG_COMMENT_FILE";
+			$arParams["COMMENT_PROPERTY"][] = "UF_BLOG_COMMENT_FH";
+		}
+
+		$arParams["COMMENT_PROPERTY"][] = "UF_BLOG_COMM_URL_PRV";
 
 		return $arParams;
 	}

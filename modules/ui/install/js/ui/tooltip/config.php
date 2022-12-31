@@ -22,9 +22,11 @@ return (
 				'MAIN_UL_TOOLBAR_HONORED' => Loc::getMessage('MAIN_UL_TOOLBAR_HONORED'),
 				'MAIN_UL_TOOLBAR_ABSENT' => Loc::getMessage('MAIN_UL_TOOLBAR_ABSENT'),
 			),
-			"rel" => [
-				"ui.design-tokens",
-			],
+			'rel' => [
+		'main.core',
+		'main.core.events',
+	],
+	'skip_core' => false,
 		)
 		: array()
 );

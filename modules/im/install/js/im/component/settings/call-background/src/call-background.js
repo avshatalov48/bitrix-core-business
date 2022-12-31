@@ -3,6 +3,7 @@ import {BitrixVue} from "ui.vue";
 import {Uploader} from "im.lib.uploader";
 import {Utils} from "im.lib.utils";
 import {FileStatus} from "im.const";
+import {rest as Rest} from "rest.client";
 import "ui.info-helper";
 import "ui.notification";
 import "ui.fonts.opensans";
@@ -48,28 +49,27 @@ BitrixVue.component('bx-im-component-settings-call-background',
 	},
 	created()
 	{
-		this.defaultValue = this.isDesktop? window.BX.desktop.getBackgroundImage(): {id: ActionType.none, source: ''};
+		this.defaultValue = this.isDesktop? window.BX.desktop.getBackgroundImage(): {id: ActionType.none, background: ''};
 		this.selected = this.defaultValue.id;
 		this.limit = {};
 
-		Ajax.runAction("im.call.getBackground", {
-		}).then((response) => {
+		Rest.callMethod("im.v2.call.background.get").then((response) => {
 			this.loading = false;
 
-			this.diskFolderId = response.data.diskFolderId;
+			this.diskFolderId = response.data().upload.folderId;
 
-			response.data.list.default.forEach(element => {
-				element.video = element.id.includes(':video');
-				element.custom = false;
+			response.data().backgrounds.default.forEach(element => {
+				element.isVideo = element.id.includes(':video');
+				element.isCustom = false;
 				element.canRemove = false;
-				element.supported = true;
+				element.isSupported = true;
 				this.standard.push(element);
 			});
 
-			response.data.list.custom.forEach(element => {
-				element.custom = true;
+			response.data().backgrounds.custom.forEach(element => {
+				element.isCustom = true;
 				element.canRemove = true;
-				if (element.supported)
+				if (element.isSupported)
 				{
 					element.title = Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_CUSTOM');
 				}
@@ -81,14 +81,14 @@ BitrixVue.component('bx-im-component-settings-call-background',
 				this.custom.push(element);
 			});
 
-			response.data.limit.forEach(element => {
+			response.data().limits.forEach(element => {
 				this.limit[element.id] = element;
 			});
 
 			if (this.diskFolderId)
 			{
 				this.actions = this.actions.map(element => {
-					element.supported = true;
+					element.isSupported = true;
 					return element;
 				});
 			}
@@ -102,7 +102,7 @@ BitrixVue.component('bx-im-component-settings-call-background',
 			if (!window.BX.UI.InfoHelper.isInited())
 			{
 				window.BX.UI.InfoHelper.init({
-					frameUrlTemplate: response.data.infohelper.frameUrlTemplate
+					frameUrlTemplate: response.data().infoHelperParams.frameUrlTemplate
 				});
 			}
 
@@ -117,7 +117,7 @@ BitrixVue.component('bx-im-component-settings-call-background',
 		this.actions.push({
 			id: ActionType.none,
 			title: Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_ACTION_NONE'),
-			source: ActionType.none,
+			background: ActionType.none,
 		});
 		this.actions.push({
 			id: ActionType.upload,
@@ -126,12 +126,12 @@ BitrixVue.component('bx-im-component-settings-call-background',
 		this.actions.push({
 			id: ActionType.gaussianBlur,
 			title: Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_ACTION_BLUR'),
-			source: ActionType.gaussianBlur,
+			background: ActionType.gaussianBlur,
 		});
 		this.actions.push({
 			id: ActionType.blur,
 			title: Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_ACTION_BLUR_MAX'),
-			source: ActionType.blur,
+			background: ActionType.blur,
 		});
 	},
 	mounted()
@@ -184,14 +184,14 @@ BitrixVue.component('bx-im-component-settings-call-background',
 
 			this.custom.unshift({
 				id: eventData.id,
-				source: filePreview,
+				background: filePreview,
 				preview: filePreview,
 				title: Loc.getMessage('BX_IM_COMPONENT_SETTINGS_CALL_BG_CUSTOM'),
-				video: eventData.file.type.startsWith('video'),
-				custom: true,
+				isVideo: eventData.file.type.startsWith('video'),
+				isCustom: true,
 				canRemove: false,
-				supported: true,
-				loading: true,
+				isSupported: true,
+				isLoading: true,
 				state:
 				{
 					progress: 0,
@@ -222,19 +222,19 @@ BitrixVue.component('bx-im-component-settings-call-background',
 
 			element.id = eventData.result.data.file.id;
 
-			if (element.video)
+			if (element.isVideo)
 			{
-				element.source = eventData.result.data.file.links.download;
+				element.background = eventData.result.data.file.links.download;
 			}
 
-			element.loading = false;
+			element.isLoading = false;
 			element.canRemove = true;
 
 			this.select(element);
 
-			Ajax.runAction('im.call.commitBackground', {data: {
+			Rest.callMethod('im.v2.call.background.commit', {
 				fileId: element.id
-			}});
+			});
 		});
 
 		this.uploader.subscribe('onUploadFileError', (event) => {
@@ -263,6 +263,18 @@ BitrixVue.component('bx-im-component-settings-call-background',
 	},
 	computed:
 	{
+		isMaskAvailable()
+		{
+			if (window.BX.getClass('BX.desktop'))
+			{
+				return window.BX.desktop.getApiVersion() >= 72;
+			}
+			else if (window.BX.getClass("BX.Messenger.Lib.Utils.platform"))
+			{
+				return window.BX.Messenger.Lib.Utils.platform.getDesktopVersion() >= 72;
+			}
+		},
+
 		containerSize()
 		{
 			const result = {};
@@ -344,7 +356,7 @@ BitrixVue.component('bx-im-component-settings-call-background',
 				return false;
 			}
 
-			if (!element.supported || element.loading)
+			if (!element.isSupported || element.isLoading)
 			{
 				return false;
 			}
@@ -359,7 +371,7 @@ BitrixVue.component('bx-im-component-settings-call-background',
 
 			if (this.isDesktop)
 			{
-				window.BX.desktop.setBackgroundImage(element.id, element.source);
+				window.BX.desktop.setCallBackground(element.id, element.background);
 			}
 
 			return true;
@@ -373,11 +385,11 @@ BitrixVue.component('bx-im-component-settings-call-background',
 
 				if (this.isDesktop)
 				{
-					window.BX.desktop.setBackgroundImage(ActionType.none, ActionType.none);
+					window.BX.desktop.setCallBackground(ActionType.none, ActionType.none);
 				}
 			}
 
-			if (element.loading)
+			if (element.isLoading)
 			{
 				this.uploader.deleteTask(element.id);
 			}
@@ -408,7 +420,7 @@ BitrixVue.component('bx-im-component-settings-call-background',
 
 			if (this.isDesktop)
 			{
-				window.BX.desktop.setBackgroundImage(this.defaultValue.id, this.defaultValue.source).then(() => {
+				window.BX.desktop.setCallBackground(this.defaultValue.id, this.defaultValue.background).then(() => {
 					window.close();
 				});
 			}

@@ -1,5 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
+this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 (function (exports,im_v2_lib_utils,ui_fonts_opensans,im_v2_const,ui_vue3) {
 	'use strict';
 
@@ -379,5 +380,5 @@ this.BX.Messenger = this.BX.Messenger || {};
 	exports.ChatTitle = ChatTitle;
 	exports.RecentLoadingState = RecentLoadingState;
 
-}((this.BX.Messenger.v2 = this.BX.Messenger.v2 || {}),BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX.Vue3));
+}((this.BX.Messenger.v2.ComponentLegacy = this.BX.Messenger.v2.ComponentLegacy || {}),BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX.Vue3));
 //# sourceMappingURL=registry.bundle.js.map

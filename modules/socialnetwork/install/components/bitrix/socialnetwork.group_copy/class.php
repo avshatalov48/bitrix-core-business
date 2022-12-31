@@ -603,7 +603,7 @@ class SocialnetworkGroupCopy extends CBitrixComponent implements Controllerable,
 			"LANDING" => ($post["landing"] == "Y" ? "Y" : "N"),
 			"OWNER_ID" => $post["owner_id"],
 			"MODERATORS" => $post["moderators"],
-			"IMAGE_ID" => $post["image_id"],
+			"IMAGE_ID" => null,
 		];
 
 		if(Configuration::getValue("utf_mode") === true)

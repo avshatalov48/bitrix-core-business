@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\Controller;
 
+use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\StoreProductTable;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
@@ -21,6 +22,18 @@ final class StoreProduct extends Controller
 
 	public function listAction($select=[], $filter=[], $order=[], PageNavigation $pageNavigation)
 	{
+		$accessFilter = $this->accessController->getEntityFilter(
+			ActionDictionary::ACTION_STORE_VIEW,
+			get_class($this->getEntityTable())
+		);
+		if ($accessFilter)
+		{
+			$filter = [
+				$accessFilter,
+				$filter,
+			];
+		}
+
 		return new Page(self::LIST,
 			$this->getList($select, $filter, $order, $pageNavigation),
 			$this->count($filter)
@@ -60,7 +73,10 @@ final class StoreProduct extends Controller
 	{
 		$r = new Result();
 
-		if (!(static::getGlobalUser()->CanDoOperation('catalog_read') || static::getGlobalUser()->CanDoOperation('catalog_store')))
+		if (!(
+			$this->accessController->check(ActionDictionary::ACTION_CATALOG_READ)
+			|| $this->accessController->check(ActionDictionary::ACTION_STORE_VIEW)
+		))
 		{
 			$r->addError(new Error('Access Denied', 200040300010));
 		}

@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @global \CMain $APPLICATION
  * @var $component \CatalogProductDetailsComponent
  * @var $this \CBitrixComponentTemplate
  * @var $arResult

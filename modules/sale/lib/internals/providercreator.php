@@ -174,6 +174,11 @@ class ProviderCreator
 			'RESERVED_QUANTITY' => 0,
 		];
 
+		if (!$basketItem->isReservableItem())
+		{
+			return $result;
+		}
+
 		$shipmentItemQuantity = $shipmentItem->getQuantity();
 		if ($shipmentItemQuantity == 0)
 		{
@@ -188,17 +193,23 @@ class ProviderCreator
 		else
 		{
 			$quantityStoreList = [];
-			/** @var Sale\ShipmentItemStore $itemStore */
-			foreach ($shipmentItem->getShipmentItemStoreCollection() as $itemStore)
-			{
-				$storeId = $itemStore->getStoreId();
-				if (!isset($quantityStoreList[$storeId]))
-				{
-					$quantityStoreList[$storeId] = 0;
-				}
 
-				$quantityStoreList[$storeId] += $itemStore->getQuantity();
-				$shipmentItemQuantity -= $itemStore->getQuantity();
+			/** @var Sale\ShipmentItemStoreCollection $shipmentItemStoreCollection */
+			$shipmentItemStoreCollection = $shipmentItem->getShipmentItemStoreCollection();
+			if ($shipmentItemStoreCollection)
+			{
+				/** @var Sale\ShipmentItemStore $itemStore */
+				foreach ($shipmentItemStoreCollection as $itemStore)
+				{
+					$storeId = $itemStore->getStoreId();
+					if (!isset($quantityStoreList[$storeId]))
+					{
+						$quantityStoreList[$storeId] = 0;
+					}
+
+					$quantityStoreList[$storeId] += $itemStore->getQuantity();
+					$shipmentItemQuantity -= $itemStore->getQuantity();
+				}
 			}
 
 			if ($shipmentItemQuantity > 0)
@@ -220,9 +231,12 @@ class ProviderCreator
 			{
 				$reserveQuantity = 0;
 
-				if ($shipmentItemReservedQuantity > 0)
+				/** @var Sale\ReserveQuantityCollection $reserveQuantityCollection */
+				$reserveQuantityCollection = $basketItem->getReserveQuantityCollection();
+
+				if ($reserveQuantityCollection && $shipmentItemReservedQuantity > 0)
 				{
-					$reserveQuantity = $basketItem->getReserveQuantityCollection()->getQuantityByStoreId($storeId);
+					$reserveQuantity = $reserveQuantityCollection->getQuantityByStoreId($storeId);
 					if ($reserveQuantity > $shipmentItemReservedQuantity)
 					{
 						$reserveQuantity = $shipmentItemReservedQuantity;

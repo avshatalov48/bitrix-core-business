@@ -629,9 +629,9 @@ abstract class Helper
 			if (
 				is_array($fldDesc)
 				&& (
-					mb_strlen($fldDesc['title'])
-					|| $fldDesc['required']
-					|| $fldDesc['primary']
+					(isset($fldDesc['title']) && mb_strlen($fldDesc['title']))
+					|| (isset($fldDesc['required']) && $fldDesc['required'])
+					|| (isset($fldDesc['primary']) && $fldDesc['primary'])
 					|| $fldCode === 'ID'
 				)
 			)

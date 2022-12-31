@@ -105,6 +105,19 @@
 		this.appWrap.innerHTML = '<div class="ui-alert ui-alert-warning"><span class="ui-alert-message">' + BX.message('EC_REQUEST_APP_FAILURE').replace('#APPNAME#', this.appView.APP_NAME) + '</span></div>';
 	};
 
+	CustomView.prototype.loadEntries = function(from, to)
+	{
+		return new Promise((resolve) => {
+			this.entryController.getList({
+				startDate: from,
+				finishDate: to,
+				viewRange: this.calendar.getDisplayedViewRange(),
+			}).then((entries) => {
+				resolve(entries);
+			});
+		});
+	};
+
 	CustomView.prototype.appGetEntries = function(params, callback)
 	{
 		var
@@ -116,30 +129,22 @@
 
 		this.calendar.setDisplayedViewRange({start: dateFrom, end:dateTo});
 
-		this.entries = this.entryController.getList({
-			startDate: dateFrom,
-			finishDate: dateTo,
-			viewRange: this.calendar.getDisplayedViewRange(),
-			finishCallback: BX.delegate(function(params)
+		this.loadEntries(dateFrom, dateTo).then(entries => {
+			params.entries.forEach(function(entry)
 			{
-				params.entries.forEach(function(entry)
+				entry.UID = this.calendar.entryController.getUniqueId(entry);
+			}, this);
+			this.entries = entries;
+			if (BX.type.isArray(this.entries))
+			{
+				var i, entry;
+				for (i = 0; i < this.entries.length; i++)
 				{
-					entry.UID = this.calendar.entryController.getUniqueId(entry);
-				}, this);
-
-				this.entries = this.entryController.getList({startDate: dateFrom, finishDate: dateTo, viewRange: this.calendar.getDisplayedViewRange()});
-
-				if (BX.type.isArray(this.entries))
-				{
-					var i, entry;
-					for (i = 0; i < this.entries.length; i++)
-					{
-						entry = this.entries[i];
-						this.entriesIndex[entry.uid] = i;
-					}
+					entry = this.entries[i];
+					this.entriesIndex[entry.uid] = i;
 				}
-				callback(params.entries);
-			}, this)
+			}
+			callback(params.entries);
 		});
 
 		if (BX.type.isArray(this.entries))

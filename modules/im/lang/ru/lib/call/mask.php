@@ -1,0 +1,24 @@
+<?
+$MESS["IM_CALL_MASK_BEAR_1"] = "Мишка-романтик";
+$MESS["IM_CALL_MASK_BEAR_2"] = "Мишка-хулиган";
+$MESS["IM_CALL_MASK_BEAR_3"] = "Мишка-ботаник";
+$MESS["IM_CALL_MASK_BEAR_4"] = "Мишка-админ";
+$MESS["IM_CALL_MASK_FOX_1"] = "Озорной лисёнок";
+$MESS["IM_CALL_MASK_FOX_2"] = "Лисёнок-философ";
+$MESS["IM_CALL_MASK_FOX_3"] = "Лисёнок-меломан";
+$MESS["IM_CALL_MASK_FOX_4"] = "Лисёнок-диджей";
+$MESS["IM_CALL_MASK_OWL_1"] = "Сова-консультант";
+$MESS["IM_CALL_MASK_OWL_2"] = "Лупоглазая сова";
+$MESS["IM_CALL_MASK_OWL_3"] = "Мудрая сова";
+$MESS["IM_CALL_MASK_PANTHER_1"] = "Дикая пантера";
+$MESS["IM_CALL_MASK_PANTHER_2"] = "Гламурная пантера";
+$MESS["IM_CALL_MASK_PANTHER_3"] = "Учёная пантера";
+$MESS["IM_CALL_MASK_PANTHER_4"] = "Очаровательная пантера";
+$MESS["IM_CALL_MASK_POLEBEAR_1"] = "Полярный мишка";
+$MESS["IM_CALL_MASK_POLEBEAR_2"] = "Мишка-стиляга";
+$MESS["IM_CALL_MASK_POLEBEAR_3"] = "Мишка-умник";
+$MESS["IM_CALL_MASK_POLEBEAR_4"] = "Мишка-модник";
+$MESS["IM_CALL_MASK_SANTA_1"] = "Элегантный Дед Мороз";
+$MESS["IM_CALL_MASK_SANTA_2"] = "Мороз Красный Нос";
+$MESS["IM_CALL_MASK_SANTA_3"] = "Солидный Дед Мороз";
+$MESS["IM_CALL_MASK_SANTA_4"] = "На носу Новый год";

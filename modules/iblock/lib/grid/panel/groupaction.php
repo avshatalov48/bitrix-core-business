@@ -290,6 +290,24 @@ class GroupAction
 	 */
 	public function getApplyButtonWithConfirm(array $params): array
 	{
+		$confirmMessage = null;
+		if (
+			isset($params['CONFIRM_MESSAGE'])
+			&& is_string($params['CONFIRM_MESSAGE'])
+			&& $params['CONFIRM_MESSAGE'] !== ''
+		)
+		{
+			$confirmMessage = $params['CONFIRM_MESSAGE'];
+		}
+		elseif (
+			isset($params['DEFAULT_CONFIRM_MESSAGE'])
+			&& is_string($params['DEFAULT_CONFIRM_MESSAGE'])
+			&& $params['DEFAULT_CONFIRM_MESSAGE'] !== ''
+		)
+		{
+			$confirmMessage = $params['DEFAULT_CONFIRM_MESSAGE'];
+		}
+
 		$result = $this->mainSnippet->getApplyButton([]);
 		$result['id'] = $this->getElementId($params['APPLY_BUTTON_ID']);
 		$this->mainSnippet->setButtonActions(
@@ -298,16 +316,14 @@ class GroupAction
 				[
 					'ACTION' => Main\Grid\Panel\Actions::CALLBACK,
 					'CONFIRM' => true,
-					'CONFIRM_MESSAGE' => (isset($params['CONFIRM_MESSAGE']) && $params['CONFIRM_MESSAGE'] != ''
-						? $params['CONFIRM_MESSAGE']
-						: $params['DEFAULT_CONFIRM_MESSAGE']
-					),
+					'CONFIRM_MESSAGE' => $confirmMessage,
 					'DATA' => [
 						$this->getDefaultApplyAction(),
 					],
 				],
 			]
 		);
+
 		return $result;
 	}
 
@@ -498,7 +514,7 @@ class GroupAction
 	{
 		return (isset($params['NAME']) && $params['NAME'] != ''
 			? $params['NAME']
-			: Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_ACTIVATE')
+			: Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_ACTIVATE_MSGVER_1')
 		);
 	}
 
@@ -510,7 +526,7 @@ class GroupAction
 	{
 		return (isset($params['NAME']) && $params['NAME'] != ''
 			? $params['NAME']
-			: Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_DEACTIVATE')
+			: Loc::getMessage('IBLOCK_GRID_PANEL_ACTION_DEACTIVATE_MSGVER_1')
 		);
 	}
 

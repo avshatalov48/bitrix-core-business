@@ -2,10 +2,7 @@
 $MESS["LANDING_TPL_ACCEPT"] = "I accept the Terms";
 $MESS["LANDING_TPL_ACCEPTED"] = "You have already agreed to the Terms";
 $MESS["LANDING_TPL_ADD_PAGE"] = "New Page";
-$MESS["LANDING_TPL_ADD_SITE"] = "Create a Site";
-$MESS["LANDING_TPL_ADD_SITE_KNOWLEDGE"] = "Create knowledge base";
-$MESS["LANDING_TPL_ADD_SITE_PAGE"] = "Create a Site";
-$MESS["LANDING_TPL_ADD_SITE_STORE"] = "Create an online store";
+$MESS["LANDING_TPL_ADD_SITE_2"] = "Create";
 $MESS["LANDING_TPL_DEV_SITE"] = "Create development website";
 $MESS["LANDING_TPL_FOLDER_EDIT"] = "Folder settings";
 $MESS["LANDING_TPL_IMPORT_SITE_KNOWLEDGE"] = "Import knowledge base";

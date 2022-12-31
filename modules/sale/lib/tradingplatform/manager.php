@@ -42,4 +42,20 @@ class Manager
 
 		return null;
 	}
+
+	public static function getActivePlatformList() : array
+	{
+		$result = [];
+
+		$dbRes = self::getList([
+			'select' => ['ID', 'NAME'],
+			'filter' => ['=ACTIVE' => 'Y']
+		]);
+		while ($platform = $dbRes->fetch())
+		{
+			$result[$platform['ID']] = $platform['NAME'];
+		}
+
+		return $result;
+	}
 }

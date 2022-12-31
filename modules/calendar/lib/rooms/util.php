@@ -245,7 +245,8 @@ class Util
 			$roomEventId = Manager::reserveRoom([
 				'room_id' => $locNew['room_id'],
 				'room_event_id' => $locOld['room_event_id'],
-				'parentParams' => $params['parentParams']
+				'parentParams' => $params['parentParams'],
+				'checkPermission' => $params['checkPermission'],
 			]);
 			
 			$locNew = $roomEventId ? 'calendar_' . $locNew['room_id'] . '_' . $roomEventId : '';

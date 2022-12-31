@@ -10,7 +10,7 @@ use Bitrix\Calendar\Core\Event\Properties\Remind;
 use Bitrix\Calendar\Core\Event\Properties\RemindCollection;
 use Bitrix\Calendar\Sync\Office365\Dto\EventDto;
 use Bitrix\Calendar\Sync\Office365\Helper;
-use Bitrix\Calendar\Sync\Util\AttendeesDescription;
+use Bitrix\Calendar\Sync\Util\EventDescription;
 use Bitrix\Main\Type;
 use CCalendar;
 
@@ -49,7 +49,7 @@ class EventConverter
 			'subject' => $event->getName(),
 			'body' =>  [
 				'contentType' => 'HTML',
-				'content' => $this->parseImagesInDescription(AttendeesDescription::makeDescription($event)),
+				'content' => $this->prepareDescription($event),
 			],
 			'isAllDay' => $event->isFullDayEvent(),
 			'start' =>  [
@@ -283,11 +283,23 @@ class EventConverter
 	}
 
 	/**
-	 * @param $description
+	 * @param Event $event
 	 *
 	 * @return string
 	 */
-	private function parseImagesInDescription($description):string
+	private function prepareDescription(Event $event): string
+	{
+		$description = (new EventDescription())->prepareForExport($event);
+
+		return $description ? \CCalendarEvent::ParseText($this->parseImagesInDescription($description)) : '';
+	}
+
+	/**
+	 * @param string $description
+	 *
+	 * @return string
+	 */
+	private function parseImagesInDescription(string $description): string
 	{
 		return preg_replace(
 			"#\[img]((cid):[.\\-_:a-z0-9@]+)*\[/img]#is".BX_UTF_PCRE_MODIFIER,

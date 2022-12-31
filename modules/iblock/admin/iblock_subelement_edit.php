@@ -1,7 +1,10 @@
 <?
+
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Iblock;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
 
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
@@ -165,6 +168,13 @@ $urlBuilderId = $urlBuilder->getId();
 $urlBuilder->setIblockId($IBLOCK_ID);
 $urlBuilder->setUrlParams(array());
 
+$accessController = AccessController::getCurrent();
+$allowCatalogRead = $accessController->check(ActionDictionary::ACTION_CATALOG_READ);
+$allowPriceEdit = $accessController->check(ActionDictionary::ACTION_PRICE_EDIT);
+$allowProductAdd = $accessController->check(ActionDictionary::ACTION_PRODUCT_ADD);
+$allowProductEdit = $accessController->check(ActionDictionary::ACTION_PRODUCT_EDIT);
+$allowProductDelete = $accessController->check(ActionDictionary::ACTION_PRODUCT_DELETE);
+
 CCatalogAdminTools::setSkuFormParams();
 $arSubCatalogEx = array();
 $arSubCatalogTabs = CCatalogAdminTools::getShowTabs($IBLOCK_ID, ($copyID > 0 && $ID == 0 ? $copyID : $ID), $arSubCatalogEx);
@@ -256,7 +266,9 @@ do{ //one iteration loop
 		|| (($ID <= 0 || $bSubCopy) && CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "element_rights_edit"))
 	);
 	$arShowTabs['edit_rights'] = $bEditRights;
-	$arShowTabs['catalog'] = $view!="Y" && $bCatalog && ($USER->CanDoOperation('catalog_read') || $USER->CanDoOperation('catalog_price'));
+	$arShowTabs['catalog'] = ($view !== 'Y')
+		&& $bCatalog && ($allowCatalogRead || $allowPriceEdit)
+	;
 
 	$aTabs = array();
 	$aTabs[] = array(
@@ -2177,29 +2189,32 @@ if ($ID > 0 && !$bSubCopy && BX_SUB_SETTINGS)
 {
 	if (!$ajaxReload)
 	{
-		$reloadParams = array(
-			'bxpublic' => 'Y',
-			'bxsku' => 'Y',
-			'WF' => 'Y',
-			'TMP_ID' => $strSubTMP_ID,
-			'ajaxReload' => 'Y'
-		);
-
-		if ($arShowTabs['product_group'])
+		if ($allowProductEdit)
 		{
-			$reloadParams['groupdel'] = 'Y';
-			$reloadParams['sessid'] = bitrix_sessid();
-			$setBtn = "{
-				title: '".CUtil::JSEscape(GetMessage('IB_SE_SET_PRODUCT_TYPE_GROUP_DELETE'))."',
+			$reloadParams = [
+				'bxpublic' => 'Y',
+				'bxsku' => 'Y',
+				'WF' => 'Y',
+				'TMP_ID' => $strSubTMP_ID,
+				'ajaxReload' => 'Y'
+			];
+
+			if ($arShowTabs['product_group'])
+			{
+				$reloadParams['groupdel'] = 'Y';
+				$reloadParams['sessid'] = bitrix_sessid();
+				$setBtn = "{
+				title: '" . CUtil::JSEscape(GetMessage('IB_SE_SET_PRODUCT_TYPE_GROUP_DELETE')) . "',
 				name: 'groupdel',
 				id: 'groupdel',
 				className: 'adm-btn-add',
 				action: function () {
-					if (confirm('".CUtil::JSEscape(GetMessage('IB_SE_SET_PRODUCT_TYPE_GROUP_DELETE_CONFIRM'))."'))
+					if (confirm('" . CUtil::JSEscape(GetMessage('IB_SE_SET_PRODUCT_TYPE_GROUP_DELETE_CONFIRM')) . "'))
 					{
 						top.BX.showWait();
 						top.BX.ajax.get(
-							'".CIBlock::GetAdminSubElementEditLink($IBLOCK_ID, $intProductID, $ID, $reloadParams, '', true)."',
+							'" . CIBlock::GetAdminSubElementEditLink($IBLOCK_ID, $intProductID, $ID, $reloadParams, '',
+						true) . "',
 							function (result) {
 								top.BX.closeWait();
 								top.BX.WindowManager.Get().SetContent(result);
@@ -2212,18 +2227,19 @@ if ($ID > 0 && !$bSubCopy && BX_SUB_SETTINGS)
 					}
 				}
 			}";
-		}
-		else
-		{
-			$reloadParams['SUBPRODUCT_TYPE'] = CCatalogAdminTools::TAB_GROUP;
-			$setBtn = "{
-				title: '".CUtil::JSEscape(GetMessage('IB_SE_SET_PRODUCT_TYPE_GROUP_ADD'))."',
+			}
+			else
+			{
+				$reloadParams['SUBPRODUCT_TYPE'] = CCatalogAdminTools::TAB_GROUP;
+				$setBtn = "{
+				title: '" . CUtil::JSEscape(GetMessage('IB_SE_SET_PRODUCT_TYPE_GROUP_ADD')) . "',
 				name: 'groupset',
 				id: 'groupset',
 				className: 'adm-btn-add',
 				action: function () {
 					top.BX.showWait();
-					top.BX.ajax.get('".CIBlock::GetAdminSubElementEditLink($IBLOCK_ID, $intProductID, $ID, $reloadParams, '', true)."',
+					top.BX.ajax.get('" . CIBlock::GetAdminSubElementEditLink($IBLOCK_ID, $intProductID, $ID,
+						$reloadParams, '', true) . "',
 					function (result) {
 						top.BX.closeWait();
 						top.BX.WindowManager.Get().SetContent(result);
@@ -2234,9 +2250,11 @@ if ($ID > 0 && !$bSubCopy && BX_SUB_SETTINGS)
 					});
 				}
 			}";
+			}
+
+			$tabControl->ButtonsPublic([$setBtn]);
+			unset($setBtn, $reloadParams);
 		}
-		$tabControl->ButtonsPublic(array($setBtn));
-		unset($setBtn, $reloadParams);
 	}
 }
 else

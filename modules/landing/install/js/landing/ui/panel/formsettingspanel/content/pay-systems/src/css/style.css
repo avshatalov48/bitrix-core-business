@@ -1,0 +1,64 @@
+.landing-ui-content-pay-system-wrapper {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 12px 9px;
+
+	height: max-content;
+}
+
+.landing-ui-content-pay-system-img {
+	height: 50px;
+	width: 75px;
+}
+
+.landing-ui-content-pay-system-img img {
+	height: 100%;
+	width: 100%;
+
+	object-fit: contain;
+}
+
+.landing-ui-content-pay-system-title {
+	margin-left: 15px;
+	flex-grow: 1;
+}
+
+.landing-ui-content-pay-system-connect {
+	display: flex;
+	flex-direction: row;
+	color: var(--blue);
+	border-bottom: 1px dotted;
+	font-size: small;
+	align-self: center;
+	cursor: pointer;
+}
+
+.landing-ui-content-pay-system-switch {
+	margin: 0;
+}
+
+.landing-ui-content-pay-system-more-ps {
+	background-color: inherit;
+	border: 1px solid var(--blue);
+	border-radius: 10px;
+}
+
+.landing-ui-content-pay-system-more-ps-text {
+	color: var(--blue);
+	border-bottom: 1px dotted var(--blue);
+}
+
+.landing-ui-content-pay-system-get-payment {
+	display: flex;
+
+	align-items: center;
+	justify-content: left;
+
+	color: #333333;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
+	font-size: 18px;
+
+	margin-bottom: 23px;
+}

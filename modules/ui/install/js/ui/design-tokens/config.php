@@ -28,4 +28,5 @@ if (!defined('UI_DESIGN_TOKENS_SKIP_CUSTOM_EXTENSION') || UI_DESIGN_TOKENS_SKIP_
 return [
 	'css' => 'dist/ui.design-tokens.css',
 	'post_rel' => $postRelations,
+	'skip_core' => true,
 ];

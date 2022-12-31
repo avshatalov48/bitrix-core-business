@@ -2,7 +2,8 @@ import { Loc, Tag, Text} from 'main.core';
 
 export type DataType = {
 	ID: number,
-	TITLE: string
+	TITLE: string,
+	TYPE: string
 };
 
 export type FolderType = {
@@ -52,11 +53,15 @@ export class ExplorerUI
 		});
 	}
 
-	static getSiteList(data: Array<DataType>, onClick: () => {}): HTMLElement
+	static getSiteList(data: Array<DataType>, onClick: () => {}, siteType: string): HTMLElement
 	{
 		return Tag.render`
 			<ul class="landing-site-selector-list">
 				${data.map(item => {
+					if (siteType !== 'SMN' && item.TYPE !== siteType)
+					{
+						return;
+					}
 					return Tag.render`
 						<li class="landing-site-selector-item" data-explorer-depth="0" data-explorer-siteId="${item.ID}" onclick="${() => onClick(item.ID)}">
 							<span class="ui-icon ui-icon-file-folder"><i></i></span>

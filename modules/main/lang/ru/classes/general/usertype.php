@@ -14,11 +14,4 @@ $MESS["USER_TYPE_TABLE_CREATION_ERROR"] = "Ошибка создания таб�
 $MESS["USER_TYPE_ADD_ERROR"] = "Ошибка добавления #FIELD_NAME# для объекта #ENTITY_ID#.";
 $MESS["USER_TYPE_UPDATE_ERROR"] = "Ошибка редактирования #FIELD_NAME# для объекта #ENTITY_ID#.";
 $MESS["USER_TYPE_DELETE_ERROR"] = "Ошибка удаления #FIELD_NAME# для объекта #ENTITY_ID#.";
-$MESS["USER_TYPE_PROP_ADD"] = "Добавить";
-$MESS["USER_TYPE_EDIT_TAB"] = "Доп. поля";
-$MESS["USER_TYPE_EDIT_TAB_TITLE"] = "Дополнительные поля";
-$MESS["USER_TYPE_EDIT_TAB_HREF"] = "Добавить пользовательское поле";
-$MESS["USER_TYPE_FIELD_VALUE_IS_MISSING"] = "Не введено значение обязательного поля #FIELD_NAME#.";
-$MESS["USER_TYPE_XML_ID_UNIQ"] = "Элемент списка со значением XML_ID=#XML_ID# уже существует.";
-$MESS["MAIN_EDIT"] = "Изменить";
 ?>

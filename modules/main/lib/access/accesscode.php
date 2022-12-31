@@ -23,6 +23,7 @@ class AccessCode
 		AC_USER 			= '^(U)(\d+)$',
 		AC_SOCNETGROUP 		= '^(SG)(\d+)(_[AEK])?$',
 		AC_SOCNETUSER 		= '^(SU)(\d+)(_M)?$',
+		AC_CHAT				= '^(CHAT)(\d+)$',
 		AC_ACCESS_DIRECTOR	= '^('.self::ACCESS_DIRECTOR.')(\d+)?$',
 		AC_ACCESS_EMPLOYEE	= '^('.self::ACCESS_EMPLOYEE.')(\d+)?$';
 
@@ -34,6 +35,7 @@ class AccessCode
 		TYPE_DEPARTMENT			= 'departments',
 		TYPE_ACCESS_DIRECTOR	= 'access_director',
 		TYPE_ACCESS_EMPLOYEE	= 'access_employee',
+		TYPE_CHAT				= 'chat',
 		TYPE_OTHER				= 'other';
 
 	public static $map = [
@@ -44,6 +46,7 @@ class AccessCode
 		self::AC_USER 				=> self::TYPE_USER,
 		self::AC_SOCNETGROUP 		=> self::TYPE_SOCNETGROUP,
 		self::AC_SOCNETUSER 		=> self::TYPE_OTHER,
+		self::AC_CHAT 				=> self::TYPE_CHAT,
 		self::AC_ACCESS_DIRECTOR	=> self::TYPE_ACCESS_DIRECTOR,
 		self::AC_ACCESS_EMPLOYEE	=> self::TYPE_ACCESS_EMPLOYEE,
 	];

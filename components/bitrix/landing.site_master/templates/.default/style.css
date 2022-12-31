@@ -284,6 +284,33 @@
 	padding-bottom: 1px;
 }
 
+.landing-sm-content-table .ui-ctl-label-text .ui-hint-icon {
+	vertical-align: middle;
+	margin-top: -3px;
+}
+
+#domain-edit-length {
+	position: absolute;
+	right: 11px;
+	top: 0;
+	z-index: 10;
+	height: var(--ui-field-size);
+	line-height: var(--ui-field-size);
+	font-size: 10px;
+	color: #a8adb4;
+}
+
+#domain-edit-name {
+	padding-right: 120px;
+}
+
+#domain-edit-loader[hidden],
+#domain-edit-message[hidden],
+#domain-edit-length[hidden]
+{
+	display: none !important;
+}
+
 .landing-sm-content-table .ui-ctl {
 	margin-bottom: 14px;
 }

@@ -3,9 +3,57 @@
 namespace Bitrix\Calendar\Core\Managers\Compare;
 
 use Bitrix\Calendar\Core\Event\Event;
+use Bitrix\Calendar\Core\Event\Properties\RemindCollection;
 
 class EventCompareManager implements CompareManager
 {
+	public const SIGNIFICANT_FIELDS = [
+		'name' => 'name',
+		'attendees' => 'attendees',
+		'start' => 'start',
+		'end' => 'end',
+		'location' => 'location',
+		'recurringRule' => 'recurringRule',
+		'creatorId' => 'creatorId',
+		'hostId' => 'hostId',
+		'excludedDates' => 'excludedDates',
+	];
+
+	public const COMPARE_FIELDS = [
+		'name' => 'name',
+		'recurringRule' => 'recurringRule',
+		'start' => 'start',
+		'end' => 'end',
+		'startTimezone' => 'startTimezone',
+		'endTimezone' => 'endTimezone',
+		'location' => 'location',
+		'attendees' => 'attendees',
+		'description' => 'description',
+		'ownerId' => 'ownerId',
+		'creatorId' => 'creatorId',
+		'accessibility' => 'accessibility',
+		'transparent' => 'transparent',
+		'isPrivate' => 'isPrivate',
+		'importance' => 'importance',
+		'calendarType' => 'calendarType',
+		'specialLabel' => 'specialLabel',
+		'isFullDay' => 'isFullDay',
+		'color' => 'color',
+		'section' => 'section',
+		'uid' => 'uid',
+		'isActive' => 'isActive',
+		'deleted' => 'deleted',
+		'originalDateFrom' => 'originalDateFrom',
+		//			'excludedDates' => 'excludedDates',
+		//			'version' => 'version',
+		//			'recurrenceId' => 'recurrenceId',
+		//			'dateCreate' => 'dateCreate',
+		//			'dateModified' => 'dateModified',
+		//			'reminds' => 'reminds',
+		//			'hostId' => 'hostId',
+		//			'meetingDescription' => 'meetingDescription',
+	];
+
 	/**
 	 * @var array
 	 */
@@ -13,7 +61,7 @@ class EventCompareManager implements CompareManager
 	/**
 	 * @var array
 	 */
-	protected array $difference;
+	protected array $difference = [];
 	/**
 	 * @var array
 	 */
@@ -134,9 +182,9 @@ class EventCompareManager implements CompareManager
 			'end' => (string)$event->getEnd(),
 			'startTimeZone' => $event->getStartTimeZone() ? (string)$event->getStartTimeZone() : null,
 			'endTimeZone' => $event->getEndTimeZone() ? (string)$event->getEndTimeZone() : null,
-			'location' => $event->getLocation() ? (string) $event->getLocation()->toString() : null,
+			'location' => $event->getLocation() ? (string) $event->getLocation()->toString() : '',
 			'attendees' => (string) $event->getAttendeesCollection(),
-			'description' => $event->getDescription(),
+			'description' => trim($event->getDescription()),
 			'ownerId' => $event->getOwner() ? $event->getOwner()->getId() : null,
 			'creatorId' => $event->getCreator() ? $event->getCreator()->getId(): null,
 			'hostId' => $event->getEventHost() ? $event->getEventHost()->getId() : null,
@@ -145,7 +193,8 @@ class EventCompareManager implements CompareManager
 			'transparent' => (string)$event->getTransparent(),
 			'isPrivate' => (string)$event->getIsPrivate(),
 			'importance' => (string)$event->getImportance(),
-			'eventType' => (string)$event->getEventType(),
+			'calendarType' => (string)$event->getCalendarType(),
+			'specialLabel' => (string)$event->getSpecialLabel(),
 			'excludedDates' => (string)$event->getExcludedDateCollection(),
 			'isFullDay' => $event->isFullDayEvent(),
 			'color' => (string)$event->getColor(),
@@ -167,17 +216,7 @@ class EventCompareManager implements CompareManager
 	 */
 	private function getSignificantFields(): array
 	{
-		return [
-			'name',
-			'attendees',
-			'start',
-			'end',
-			'location',
-			'recurringRule',
-			'creatorId',
-			'hostId',
-			'excludedDates'
-		];
+		return self::SIGNIFICANT_FIELDS;
 	}
 
 	/**
@@ -185,39 +224,7 @@ class EventCompareManager implements CompareManager
 	 */
 	private function getCompareFields(): array
 	{
-		return [
-			'name',
-			'recurringRule',
-			'start',
-			'end',
-			'startTimezone',
-			'endTimezone',
-			'location',
-			'attendees',
-			'description',
-			'ownerId',
-			'creatorId',
-			'accessibility',
-			'transparent',
-			'isPrivate',
-			'importance',
-			'eventType',
-			'isFullDay',
-			'color',
-			'section',
-			'uid',
-			'isActive',
-			'deleted',
-			'originalDateFrom',
-//			'excludedDates',
-//			'version',
-//			'recurrenceId',
-//			'dateCreate',
-//			'dateModified',
-//			'reminds',
-//			'hostId',
-//			'meetingDescription',
-		];
+		return self::COMPARE_FIELDS;
 	}
 
 	/**
@@ -237,7 +244,7 @@ class EventCompareManager implements CompareManager
 	{
 		foreach ($this->getCompareFields() as $field)
 		{
-			if ($this->eventValueForCompare[$field] !== $this->originalValueForCompare[$field])
+			if ($this->eventValueForCompare[$field] != $this->originalValueForCompare[$field])
 			{
 				$this->differenceFields[$field] = $this->eventValueForCompare[$field];
 			}
@@ -268,8 +275,8 @@ class EventCompareManager implements CompareManager
 	protected function compareReminders(): void
 	{
 		$remindersCompareManager = RemindCompareManager::createInstance(
-			$this->event->getRemindCollection(),
-			$this->originalEvent->getRemindCollection()
+			$this->event->getRemindCollection() ?? new RemindCollection([]),
+			$this->originalEvent->getRemindCollection() ?? new RemindCollection([])
 		);
 		if (!$remindersCompareManager->isEqual())
 		{
@@ -282,6 +289,6 @@ class EventCompareManager implements CompareManager
 	 */
 	public function getDiff(): array
 	{
-		return $this->difference;
+		return $this->differenceFields;
 	}
 }

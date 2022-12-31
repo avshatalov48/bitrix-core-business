@@ -15,7 +15,20 @@ use Bitrix\Main\ORM\Fields;
  * </ul>
  *
  * @package Bitrix\Calendar
- **/
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_RoomCategory_Query query()
+ * @method static EO_RoomCategory_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_RoomCategory_Result getById($id)
+ * @method static EO_RoomCategory_Result getList(array $parameters = [])
+ * @method static EO_RoomCategory_Entity getEntity()
+ * @method static \Bitrix\Calendar\Internals\EO_RoomCategory createObject($setDefaultValues = true)
+ * @method static \Bitrix\Calendar\Internals\EO_RoomCategory_Collection createCollection()
+ * @method static \Bitrix\Calendar\Internals\EO_RoomCategory wakeUpObject($row)
+ * @method static \Bitrix\Calendar\Internals\EO_RoomCategory_Collection wakeUpCollection($rows)
+ */
 
 class RoomCategoryTable extends DataManager
 {

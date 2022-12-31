@@ -210,7 +210,7 @@ class Dialog implements \JsonSerializable
 			$item->setGlobalSort($globalRecentItem->getLastUseDate());
 		}
 
-		$preselectedItem = $this->getPreselectedItems()->getByItem($item);
+		$preselectedItem = $this->getPreselectedCollection()->getByItem($item);
 		if ($preselectedItem && !$preselectedItem->getItem())
 		{
 			$preselectedItem->setItem($item);
@@ -338,6 +338,11 @@ class Dialog implements \JsonSerializable
 			}
 		}
 
+		if ($this->getContext() !== null)
+		{
+			$this->fillRecentItems($entities);
+		}
+
 		$this->fillGlobalRecentItems($entities);
 		foreach ($entities as $entityId)
 		{
@@ -373,7 +378,7 @@ class Dialog implements \JsonSerializable
 		$this->preselectedItems->load($preselectedItems);
 	}
 
-	public function getPreselectedItems(): PreselectedCollection
+	public function getPreselectedCollection(): PreselectedCollection
 	{
 		return $this->preselectedItems;
 	}
@@ -381,21 +386,21 @@ class Dialog implements \JsonSerializable
 	/**
 	 * @internal
 	 */
-	public function loadPreselectedItems($selectedItemsMode = true): void
+	public function loadPreselectedItems($preselectedMode = true): void
 	{
-		if ($this->getPreselectedItems()->count() < 1)
+		if ($this->getPreselectedCollection()->count() < 1)
 		{
 			return;
 		}
 
-		foreach ($this->getPreselectedItems()->getItems() as $entityId => $preselectedItems)
+		foreach ($this->getPreselectedCollection()->getItems() as $entityId => $preselectedItems)
 		{
 			$unloadedIds = [];
 			$entity = $this->getEntity($entityId) ?? Entity::create(['id' => $entityId]);
 			foreach ($preselectedItems as $preselectedItem)
 			{
 				// Entity doesn't exist
-				if (!$entity && $selectedItemsMode)
+				if (!$entity && $preselectedMode)
 				{
 					$this->addItem(self::createHiddenItem($preselectedItem->getId(), $entityId));
 				}
@@ -409,8 +414,8 @@ class Dialog implements \JsonSerializable
 			{
 				$availableItems = [];
 				$items =
-					$selectedItemsMode
-					? $entity->getProvider()->getSelectedItems($unloadedIds)
+					$preselectedMode
+					? $entity->getProvider()->getPreselectedItems($unloadedIds)
 					: $entity->getProvider()->getItems($unloadedIds)
 				;
 
@@ -426,7 +431,7 @@ class Dialog implements \JsonSerializable
 					{
 						$this->addItem($item);
 					}
-					else if ($selectedItemsMode)
+					else if ($preselectedMode)
 					{
 						$this->addItem(self::createHiddenItem($unloadedId, $entityId));
 					}
@@ -456,7 +461,16 @@ class Dialog implements \JsonSerializable
 		]);
 	}
 
+	/**
+	 * @deprecated
+	 * @see Dialog::getPreselectedCollection()
+	 */
 	public static function getSelectedItems(array $ids, array $options = []): ItemCollection
+	{
+		return self::getItemsInternal($ids, $options, true);
+	}
+
+	public static function getPreselectedItems(array $ids, array $options = []): ItemCollection
 	{
 		return self::getItemsInternal($ids, $options, true);
 	}
@@ -466,14 +480,14 @@ class Dialog implements \JsonSerializable
 		return self::getItemsInternal($ids, $options, false);
 	}
 
-	private static function getItemsInternal(array $ids, array $options = [], $selectedItemsMode = true): ItemCollection
+	private static function getItemsInternal(array $ids, array $options = [], $preselectedMode = true): ItemCollection
 	{
 		$isAssocArray = array_keys($options) !== range(0, count($options) - 1);
 		$dialogOptions = $isAssocArray ? $options : ['entities' => $options];
 
 		$dialog = new self($dialogOptions);
 		$dialog->setPreselectedItems($ids);
-		$dialog->loadPreselectedItems($selectedItemsMode);
+		$dialog->loadPreselectedItems($preselectedMode);
 		$dialog->applyFilters();
 
 		return $dialog->getItemCollection();
@@ -724,9 +738,9 @@ class Dialog implements \JsonSerializable
 			$json['recentItems'] = $this->getRecentItems();
 		}
 
-		if ($this->getPreselectedItems()->count() > 0)
+		if ($this->getPreselectedCollection()->count() > 0)
 		{
-			$json['preselectedItems'] = $this->getPreselectedItems();
+			$json['preselectedItems'] = $this->getPreselectedCollection();
 		}
 
 		return $json;

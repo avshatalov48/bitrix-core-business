@@ -176,6 +176,11 @@ abstract class BaseProduct extends BaseIblockElementEntity implements HasSection
 	{
 		$isNew = $this->isNew();
 
+		if ($this->getType() === ProductTable::TYPE_EMPTY_SKU)
+		{
+			$this->setType(ProductTable::TYPE_PRODUCT);
+		}
+
 		$result = parent::saveInternal();
 		if ($result->isSuccess())
 		{

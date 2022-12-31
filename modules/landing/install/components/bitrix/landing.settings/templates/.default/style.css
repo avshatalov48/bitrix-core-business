@@ -63,3 +63,25 @@
 	height: 106px;
 	background: url(image/landing-landing-view__icon-404.svg) center no-repeat;
 }
+
+#landing-settings
+{
+	position: relative;
+	min-height: 100vh;
+}
+#landing-settings-content {
+	position: relative;
+	padding-left: 10px;
+}
+.landing-settings-loader-container {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background: #888;
+	opacity: .2;
+	/*pointer-events: none;*/
+	display: block;
+	z-index: 2;
+}

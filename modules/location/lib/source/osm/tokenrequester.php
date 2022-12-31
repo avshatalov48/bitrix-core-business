@@ -4,93 +4,77 @@ namespace Bitrix\Location\Source\Osm;
 
 use Bitrix\Location\Entity\Source\Config;
 use Bitrix\Location\Entity\Source\OrmConverter;
-use Bitrix\Location\Exception\RuntimeException;
 use Bitrix\Location\Infrastructure\Service\LoggerService;
 use Bitrix\Location\Repository\SourceRepository;
-use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Data\ManagedCache;
+use Bitrix\Main\Result;
 use Bitrix\Main\Service\MicroService\BaseSender;
-use Bitrix\Main\Web\Json;
+use Bitrix\Main\Application;
+use Bitrix\Main\Service\MicroService\Client;
 
-/**
- * Class TokenRequester
- * @package Bitrix\Location\Source\Osm
- * @internal
- */
 final class TokenRequester extends BaseSender
 {
-	/** @var int */
 	private const SAFE_BUFFER_TIME_SECONDS = 60;
+	private const ERROR_LICENSE_NOT_FOUND = 'LICENSE_NOT_FOUND';
+	private const ERROR_WRONG_SIGN = 'WRONG_SIGN';
+	private const ERROR_LICENSE_DEMO = 'LICENSE_DEMO';
+	private const ERROR_LICENSE_NOT_ACTIVE = 'LICENSE_NOT_ACTIVE';
 
-	/** @var OsmSource */
-	private $source;
+	private const CACHE_TABLE = '/bx/osmgateway/license';
+	private const CACHE_TTL = 86400;
 
-	/**
-	 * @param OsmSource $source
-	 * @return TokenRequester
-	 */
+	private OsmSource $source;
+	private ManagedCache $cacheManager;
+
 	public function setSource(OsmSource $source): TokenRequester
 	{
 		$this->source = $source;
+		$this->cacheManager = Application::getInstance()->getManagedCache();
 		return $this;
 	}
 
-	/**
-	 * @return Token|null
-	 * @throws ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
 	public function getToken(): ?Token
 	{
-		if ($this->source === null)
-		{
-			throw new RuntimeException('Source is not specified');
-		}
-
 		$token = $this->getFromConfig();
 		if ($token)
 		{
 			return $token;
 		}
 
-		$token = $this->requestNewToken();
-		if ($token)
+		if (!$this->hasLicenseIssues())
 		{
-			$this->updateConfigToken($token);
+			$token = $this->requestNewToken();
+			if ($token)
+			{
+				$this->updateConfigToken($token);
+			}
 		}
 
 		return $token;
 	}
 
-	/**
-	 * @param Token $token
-	 * @throws ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 */
 	private function updateConfigToken(Token $token): void
 	{
-		$config = $this->source->getConfig() ?? new Config();
-
+		$config = $this->source->getConfig();
+		if (!$config)
+		{
+			$config = new Config();
+			$this->source->setConfig($config);
+		}
 		$config->setValue('TOKEN', serialize($token->convertToArray()));
 
 		(new SourceRepository(new OrmConverter()))->save($this->source);
 	}
 
-	/**
-	 * @return Token|null
-	 */
 	private function getFromConfig(): ?Token
 	{
 		$config = $this->source->getConfig();
-
 		if ($config === null)
 		{
 			return null;
 		}
 
 		$tokenArray = $config->getValue('TOKEN');
-
 		if (!$tokenArray)
 		{
 			return null;
@@ -102,7 +86,6 @@ final class TokenRequester extends BaseSender
 		}
 
 		$token = Token::makeFromArray(unserialize($tokenArray, ['allowed_classes' => false]));
-
 		if(!$token)
 		{
 			return null;
@@ -121,22 +104,20 @@ final class TokenRequester extends BaseSender
 		return $token;
 	}
 
-	/**
-	 * @return Token|null
-	 * @throws ArgumentException
-	 */
 	private function requestNewToken(): ?Token
 	{
 		$result = $this->performRequest('osmgateway.token.get');
-
 		if (!$result->isSuccess())
 		{
+			$this->checkLicenseIssueByResult($result);
 			return null;
 		}
 
 		$tokenData = $result->getData();
-
-		if (!$tokenData || !isset($tokenData['token']) || !isset($tokenData['expire']))
+		if (
+			!isset($tokenData['token'])
+			|| !isset($tokenData['expire'])
+		)
 		{
 			LoggerService::getInstance()->log(
 				LoggerService\LogLevel::ERROR,
@@ -153,9 +134,6 @@ final class TokenRequester extends BaseSender
 		);
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function getServiceUrl(): string
 	{
 		$serviceUrl = $this->source->getOsmServiceUrl();
@@ -163,9 +141,6 @@ final class TokenRequester extends BaseSender
 		return $serviceUrl ?? '';
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getHttpClientParameters(): array
 	{
 		return [
@@ -175,5 +150,42 @@ final class TokenRequester extends BaseSender
 				'Bx-Location-Osm-Host' => $this->source->getOsmHostName()
 			]
 		];
+	}
+
+	private function checkLicenseIssueByResult(Result $result): void
+	{
+		$licenseIssueErrorCodes = [
+			self::ERROR_LICENSE_NOT_FOUND,
+			self::ERROR_WRONG_SIGN,
+			self::ERROR_LICENSE_DEMO,
+			self::ERROR_LICENSE_NOT_ACTIVE,
+		];
+
+		$errors = $result->getErrors();
+		foreach ($errors as $error)
+		{
+			if (in_array($error->getCode(), $licenseIssueErrorCodes, true))
+			{
+				$this->cacheManager->set(self::getCacheId(), true);
+			}
+		}
+	}
+
+	public function hasLicenseIssues(): bool
+	{
+		if ($this->cacheManager->read(self::CACHE_TTL, self::getCacheId(), self::CACHE_TABLE))
+		{
+			return (bool)$this->cacheManager->get(self::getCacheId());
+		}
+
+		return false;
+	}
+
+	private static function getCacheId(): string
+	{
+		return md5(serialize([
+			'BX_TYPE' => Client::getPortalType(),
+			'BX_LICENCE' => Client::getLicenseCode(),
+		]));
 	}
 }

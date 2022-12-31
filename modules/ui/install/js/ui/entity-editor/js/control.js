@@ -6558,12 +6558,27 @@ if(typeof BX.UI.EntityEditorMultiMoney === "undefined")
 			}
 		);
 	};
-	BX.UI.EntityEditorMultiMoney.prototype.onAmountValueChange = function(v, index)
+	BX.UI.EntityEditorMultiMoney.prototype.onAmountValueChange = function(value, index)
 	{
-		if(this._amountValue[index])
+		if(!this._amountValue[index])
 		{
-			this._amountValue[index].value = v;
+			return;
 		}
+
+		var currencyFormat = BX.prop.getObject(
+			BX.Currency.Editor.currencyList,
+			this._selectedCurrencyValue[index],
+			null
+		);
+		if (currencyFormat)
+		{
+			value = BX.Currency.Editor.getFormattedValue(
+				value,
+				this._selectedCurrencyValue[index]
+			);
+			value = value.replaceAll(currencyFormat['SEPARATOR'], '');
+		}
+		this._amountValue[index].value = value;
 	};
 	BX.UI.EntityEditorMultiMoney.prototype.getViewInnerLayout = function()
 	{
@@ -8147,12 +8162,20 @@ if(typeof BX.UI.EntityEditorList === "undefined")
 			menu.push(itemParams);
 		}
 
+		const selectBottomY = BX.Dom.getPosition(this._select).y;
+
+		const distanceToTop = selectBottomY - window.pageYOffset;
+		const distanceToBottom = document.documentElement.clientHeight + window.pageYOffset - selectBottomY;
+
+		const popupMaxHeight = distanceToTop > distanceToBottom ? distanceToTop - 50 : distanceToBottom - 100;
+
 		BX.PopupMenu.show(
 			this._id,
 			this._select,
 			menu,
 			{
 				angle: false, width: this._select.offsetWidth + 'px',
+				maxHeight: popupMaxHeight,
 				events:
 					{
 						onPopupShow: BX.delegate( this.onMenuShow, this),
@@ -10342,12 +10365,27 @@ if(typeof BX.UI.EntityEditorMoney === "undefined")
 			this._sumElement.innerHTML = this.renderMoney();
 		}
 	};
-	BX.UI.EntityEditorMoney.prototype.onAmountValueChange = function(v)
+	BX.UI.EntityEditorMoney.prototype.onAmountValueChange = function(value)
 	{
-		if(this._amountValue)
+		if(!this._amountValue)
 		{
-			this._amountValue.value = v;
+			return;
 		}
+
+		var currencyFormat = BX.prop.getObject(
+			BX.Currency.Editor.currencyList,
+			this._selectedCurrencyValue,
+			null
+		);
+		if (currencyFormat)
+		{
+			value = BX.Currency.Editor.getFormattedValue(
+				value,
+				this._selectedCurrencyValue
+			);
+			value = value.replaceAll(currencyFormat['SEPARATOR'], '');
+		}
+		this._amountValue.value = value;
 	};
 	BX.UI.EntityEditorMoney.prototype.getAmountFieldName = function()
 	{
@@ -10664,7 +10702,7 @@ if(typeof BX.UI.EntityEditorUser === "undefined")
 				props: { className: "ui-entity-editor-user-avatar-container", target: "_blank" },
 				style:
 					{
-						backgroundImage: BX.type.isNotEmptyString(photoUrl) ? "url('" + photoUrl + "')" : "",
+						backgroundImage: BX.type.isNotEmptyString(photoUrl) ? "url('" + encodeURI(photoUrl) + "')" : "",
 						backgroundSize: BX.type.isNotEmptyString(photoUrl) ? "30px" : ""
 					}
 			}
@@ -10796,7 +10834,7 @@ if(typeof BX.UI.EntityEditorUser === "undefined")
 
 		this._input.value = this._selectedData["id"];
 		this._photoElement.style.backgroundImage = this._selectedData["photoUrl"] !== ""
-			? "url('" + this._selectedData["photoUrl"] + "')" : "";
+			? "url('" + encodeURI(this._selectedData["photoUrl"]) + "')" : "";
 		this._photoElement.style.backgroundSize = this._selectedData["photoUrl"] !== ""
 			? "30px" : "";
 
@@ -11219,7 +11257,7 @@ if(typeof BX.UI.EntityEditorProductRowSummary === "undefined")
 		if (photoUrl !== '')
 		{
 			photoSettings.style = {
-				backgroundImage: `url(${photoUrl})`
+				backgroundImage: `url(${encodeURI(photoUrl)})`
 			};
 		}
 

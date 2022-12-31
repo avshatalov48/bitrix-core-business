@@ -109,7 +109,6 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 
 			if ($this->isRequestSuccess())
 			{
-
 				$this->connection->setToken($externalResult['nextSyncToken']);
 				$this->etag = $externalResult['etag'];
 				$this->connection->setStatus('[200] OK')
@@ -130,17 +129,25 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 
 				return $result->setData(['externalSyncSectionMap' => $map]);
 			}
-			else
+
+			$helper = new Helper();
+
+			if ($helper->isNotValidSyncTokenError($this->prepareError($externalResult)))
 			{
-				if ((new Helper())->isNotValidSyncTokenError($this->prepareError($externalResult)))
-				{
-					$this->connection->setToken(null);
+				$this->connection->setToken(null);
 
-					return $this->getSections();
-				}
-
-				$result->addError(new Error('do not sync sections'));
+				return $this->getSections();
 			}
+
+			if ($helper->isMissingRequiredAuthCredential($this->prepareError($externalResult)))
+			{
+				$this->connection->setStatus('[401] Unauthorized');
+				$result->addError(new Error('Auth error'));
+
+				return $result;
+			}
+
+			$result->addError(new Error('Do not sync sections'));
 		}
 		catch (\Exception $e)
 		{
@@ -199,7 +206,7 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 					{
 						$syncEvent = (new BuilderSyncEventFromExternalData($item, $this->connection, $syncSection))->build();
 
-						if ($syncEvent->isInstance())
+						if ($syncEvent->isInstance() || $syncEvent->getVendorRecurrenceId())
 						{
 							/** @var SyncEvent $masterEvent */
 							$masterEvent = $map->getItem($syncEvent->getVendorRecurrenceId());
@@ -235,14 +242,22 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 
 				return $result;
 			}
-			else
-			{
-				if ((new Helper())->isNotValidSyncTokenError($this->prepareError($externalResult)))
-				{
-					$syncSection->getSectionConnection()->setSyncToken(null);
 
-					return $this->getEvents($syncSection);
-				}
+			$helper = new Helper();
+
+			if ($helper->isNotValidSyncTokenError($this->prepareError($externalResult)))
+			{
+				$syncSection->getSectionConnection()->setSyncToken(null);
+
+				return $this->getEvents($syncSection);
+			}
+
+			if ($helper->isMissingRequiredAuthCredential($this->prepareError($externalResult)))
+			{
+				$this->connection->setStatus('[401] Unauthorized');
+				$result->addError(new Error('Auth error'));
+
+				return $result;
 			}
 
 			$this->handleErroneousBehavior($syncSection);
@@ -463,16 +478,15 @@ class ImportManager extends Manager implements IncomingSectionManagerInterface, 
 	}
 
 	/**
-	 * @param array $error
+	 * @param array|null $error
+	 *
 	 * @return string
 	 */
-	public function prepareError(array $error = null)
+	public function prepareError(array $error = null): string
 	{
 		if (
-			$error !== null
-			&& isset($error['error'])
-			&& isset($error['error']['code'])
-			&& isset($error['error']['message'])
+			isset($error['error']['code'], $error['error']['message'])
+			&& $error !== null
 		)
 		{
 			return '['

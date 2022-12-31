@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBEL_BIZPROC_DATE"] = "Current Status Date:";
 $MESS["IBEL_BIZPROC_DESC"] = "Business Process Description:";
 $MESS["IBEL_BIZPROC_NA"] = "No business processes running.";
@@ -43,6 +43,8 @@ $MESS["IBEL_E_TAB14_TITLE"] = "Edit SEO data";
 $MESS["IBEL_E_TAB_BIZPROC"] = "Business Processes";
 $MESS["IBEL_E_TAB_DET"] = "Details";
 $MESS["IBEL_E_TAB_DET_TITLE"] = "Information for detailed view";
+$MESS["IBEL_E_TAB_ELEMENT"] = "Parameters";
+$MESS["IBEL_E_TAB_ELEMENT_TITLE"] = "General parameters";
 $MESS["IBEL_E_TAB_PREV"] = "Preview";
 $MESS["IBEL_E_TAB_PREV_TITLE"] = "Information for preview";
 $MESS["IBEL_E_TAB_RIGHTS"] = "Access";
@@ -64,7 +66,10 @@ $MESS["IBLOCK_ELEMENT_EDIT_ELEMENTS"] = "Elements";
 $MESS["IBLOCK_ELEMENT_EDIT_LINKED"] = "Linked elements:";
 $MESS["IBLOCK_ELEMENT_EDIT_PROP_ADD"] = "Add";
 $MESS["IBLOCK_ELEMENT_EDIT_TAGS_TIP"] = "(enter words or phrases separated by commas)";
-$MESS["IBLOCK_ELEMENT_EDIT_VIEW"] = "View";
+$MESS["IBLOCK_ELEMENT_ERR_BUILDER_ADSENT"] = "Link builder was not found.";
+$MESS["IBLOCK_ELEMENT_FORM_TITLE_EDIT"] = "#IBLOCK_NAME#: #ELEMENT_TYPE#: #NAME# - Edit";
+$MESS["IBLOCK_ELEMENT_FORM_TITLE_NEW"] = "#IBLOCK_NAME#: #ELEMENT_TYPE#: Add";
+$MESS["IBLOCK_ELEMENT_FORM_TITLE_VIEW"] = "#IBLOCK_NAME#: #ELEMENT_TYPE#: #NAME# - View";
 $MESS["IBLOCK_ELEMENT_OFFERS_IS_ABSENT"] = "No SKU created";
 $MESS["IBLOCK_ELEMENT_PROP_VALUE"] = "Property values:";
 $MESS["IBLOCK_EL_CANC"] = "Cancel";
@@ -100,11 +105,8 @@ $MESS["IBLOCK_IMPORT_FROM"] = "Imported from";
 $MESS["IBLOCK_LAST_UPDATE"] = "Last update:";
 $MESS["IBLOCK_LINKED_ELEMENT_TITLE"] = "Open Control Panel";
 $MESS["IBLOCK_LINK_TO_MEDIA"] = "media link";
-$MESS["IBLOCK_NEW_TITLE"] = "New element";
 $MESS["IBLOCK_SECTION"] = "Link (multiple):";
 $MESS["IBLOCK_TCATALOG"] = "Commercial catalog";
 $MESS["IBLOCK_UPPER_LEVEL"] = "Upper level";
 $MESS["IBLOCK_WRONG_SESSION"] = "Your session has expired. Please save your document again.";
 $MESS["IBLOCK_WRONG_WF_STATUS"] = "Invalid status";
-$MESS["IBLOCK_ELEMENT_ERR_BUILDER_ADSENT"] = "Link builder was not found.";
-?>

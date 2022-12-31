@@ -21,6 +21,7 @@ export class TouchContent extends Content
 	{
 		super(options);
 		this.setEventNamespace('BX.UI.SignUp.Content.TouchContent');
+		this.subscribeFromOptions(options?.events);
 
 		const canvasLayout = this.getCanvas().getLayout();
 		Event.bind(canvasLayout, 'mousedown', this.onCanvasMouseDown.bind(this));
@@ -62,6 +63,7 @@ export class TouchContent extends Content
 		const point = getPoint(event);
 		context2d.moveTo(point.x, point.y);
 		this.setStartEvent(event);
+		this.emit('onChange');
 	}
 
 	onCanvasMouseUp(event: MouseEvent)
@@ -87,6 +89,8 @@ export class TouchContent extends Content
 				context2d.stroke();
 			}
 		}
+
+		this.emit('onChange');
 	}
 
 	onCanvasMouseMove(event: MouseEvent)
@@ -98,6 +102,8 @@ export class TouchContent extends Content
 			context2d.lineTo(point.x, point.y);
 			context2d.stroke();
 		}
+
+		this.emit('onChange');
 	}
 
 	onCanvasMouseOut()
@@ -107,6 +113,8 @@ export class TouchContent extends Content
 
 		const context2d = this.getCanvas().getLayout().getContext('2d');
 		context2d.closePath();
+
+		this.emit('onChange');
 	}
 
 	getCanvas(): CanvasWrapper
@@ -138,15 +146,28 @@ export class TouchContent extends Content
 	{
 		event.preventDefault();
 		this.getCanvas().clear();
+		this.emit('onChange');
 	}
 
 	getLayout(): HTMLDivElement
 	{
 		return this.cache.remember('layout', () => {
+			const onTouchMove = (event: TouchEvent) => {
+				event.preventDefault();
+				event.stopPropagation();
+			};
+
 			return Tag.render`
-				<div class="ui-sign-up-content">
+				<div class="ui-sign-up-content" ontouchmove="${onTouchMove}">
 					<div class="ui-sign-up-touch-form-label">
-						${Loc.getMessage('UI_SIGN_UP_TOUCH_LAYOUT_LABEL')}
+						${(() => {
+							if (this.getOptions().mode === 'mobile')
+							{
+								return Loc.getMessage('UI_SIGN_UP_TOUCH_LAYOUT_MOBILE_LABEL');
+							}
+				
+							return Loc.getMessage('UI_SIGN_UP_TOUCH_LAYOUT_LABEL');
+						})()}
 					</div>
 					<div class="ui-sign-up-content-touch-preview">
 						${this.getClearButton()}

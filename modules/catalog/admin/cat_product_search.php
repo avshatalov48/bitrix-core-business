@@ -1,8 +1,19 @@
 <?
+
+use Bitrix\Main\Loader;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Catalog\Access\ActionDictionary;
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
-if (!$USER->CanDoOperation('catalog_read') && !$USER->CanDoOperation('catalog_view'))
+Loader::includeModule('catalog');
+if (
+	!AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
+	&& !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_VIEW)
+)
+{
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+}
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/include.php");
 

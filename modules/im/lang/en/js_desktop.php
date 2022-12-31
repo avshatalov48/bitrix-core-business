@@ -1,4 +1,5 @@
 <?php
+$MESS["BXD_CALL_BG_MASK_TITLE"] = "3D avatar and background";
 $MESS["BXD_CALL_BG_TITLE"] = "Select background";
 $MESS["BXD_CONFIRM_CLOSE"] = "Close";
 $MESS["BXD_DEFAULT_TITLE"] = "Bitrix24 Desktop Application (version #VERSION#)";

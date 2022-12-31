@@ -27,10 +27,6 @@ return [
 		],
 	],
 	'nodes' => [
-		'.landing-block-node-map' => [
-			'name' => 'Map',
-			'type' => 'map',
-		],
 		'.landing-block-node-address-subtitle' => [
 			'name' => Loc::getMessage("LANDING_BLOCK_16_5_TWO_COLS_MAP--SUBTITLE"),
 			'type' => 'text',

@@ -28,6 +28,30 @@ class Uploader
 		$uploadResult = new UploadResult();
 		if ($chunk->isFirst())
 		{
+			// Common file validation (uses in CFile::SaveFile)
+			$commitOptions = $controller->getCommitOptions();
+			$error = \CFile::checkFile(
+				[
+					'name' => $chunk->getName(),
+					'size' => $chunk->getFileSize(),
+					'type' => $chunk->getType()
+				],
+				0,
+				false,
+				false,
+				$commitOptions->isForceRandom(),
+				$commitOptions->isSkipExtension()
+			);
+
+			if ($error !== '')
+			{
+				return $this->handleUploadError(
+					$uploadResult->addError(new UploaderError('CHECK_FILE_FAILED', $error)),
+					$controller
+				);
+			}
+
+			// Controller Validation
 			$validationResult = $chunk->validate($controller->getConfiguration());
 			if (!$validationResult->isSuccess())
 			{
@@ -41,7 +65,7 @@ class Uploader
 			if (!$controller->canUpload())
 			{
 				return $this->handleUploadError(
-					$uploadResult->addError(new UploaderError(UploaderError::CONTROLLER_UPLOAD_FAILED)),
+					$uploadResult->addError(new UploaderError(UploaderError::FILE_UPLOAD_ACCESS_DENIED)),
 					$controller
 				);
 			}
@@ -214,7 +238,7 @@ class Uploader
 				else
 				{
 					$loadResult = new LoadResult($fileOwnership->getId());
-					$loadResult->addError(new UploaderError(UploaderError::FILE_ACCESS_DENIED));
+					$loadResult->addError(new UploaderError(UploaderError::FILE_LOAD_ACCESS_DENIED));
 				}
 
 				$results->add($loadResult);
@@ -260,7 +284,7 @@ class Uploader
 				}
 				else
 				{
-					$removeResult->addError(new UploaderError(UploaderError::FILE_ACCESS_DENIED));
+					$removeResult->addError(new UploaderError(UploaderError::FILE_REMOVE_ACCESS_DENIED));
 				}
 
 				$results->add($removeResult);

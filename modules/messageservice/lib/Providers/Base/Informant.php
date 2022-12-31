@@ -19,6 +19,11 @@ abstract class Informant implements Providers\Informant
 
 	public function getManageUrl(): string
 	{
+		if (defined('ADMIN_SECTION') && ADMIN_SECTION === true)
+		{
+			return 'messageservice_sender_sms.php?sender_id='.$this->getId();
+		}
+
 		return $this->isConfigurable() ? '/crm/configs/sms/?sender=' . $this->getId() : '';
 	}
 }

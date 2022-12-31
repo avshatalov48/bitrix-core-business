@@ -8,8 +8,8 @@ use Bitrix\Main\Text\Converter;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Seo\Engine;
 
-Loc::loadMessages(dirname(__FILE__).'/../../main/tools.php');
-Loc::loadMessages(dirname(__FILE__).'/seo_search.php');
+Loc::loadMessages(__DIR__.'/../../main/tools.php');
+Loc::loadMessages(__DIR__.'/seo_search.php');
 
 if (!$USER->CanDoOperation('seo_tools'))
 {

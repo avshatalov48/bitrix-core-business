@@ -57,7 +57,7 @@ class Rest extends Sender\Base
 
 	public function getFromList()
 	{
-		$list = array();
+		$list = [];
 		if (!$this->canUse())
 		{
 			return $list;
@@ -66,29 +66,29 @@ class Rest extends Sender\Base
 		$result = RestAppTable::getList();
 		while ($row = $result->fetch())
 		{
-			$list[] = array(
+			$list[] = [
 				'id' => $row['APP_ID'].'|'.$row['CODE'],
 				'name' => sprintf('[%s] %s',
 					$this->getLangField($row['ID'], 'APP_NAME'),
 					$this->getLangField($row['ID'], 'NAME')
 				),
 				'description' => $this->getLangField($row['ID'], 'DESCRIPTION')
-			);
+			];
 		}
 		return $list;
 	}
 
 	public function isCorrectFrom($from)
 	{
-		list($appId, $code) = explode('|', $from);
+		[$appId, $code] = explode('|', $from);
 		$restSender = RestAppTable::getList(
-			array(
-				'filter' => array(
+			[
+				'filter' => [
 					'=APP_ID' => $appId,
 					'=CODE' => $code
-				),
-				'select' => array('ID')
-			)
+				],
+				'select' => ['ID']
+			]
 		)->fetch();
 
 		return $restSender !== false;
@@ -104,13 +104,18 @@ class Rest extends Sender\Base
 			return $sendResult;
 		}
 
-		list($appId, $code) = explode('|', $messageFields['MESSAGE_FROM']);
+		[$appId, $code] = explode('|', $messageFields['MESSAGE_FROM']);
 		$restSender = null;
 
 		if ($appId && $code)
 		{
 			$restSender = RestAppTable::getList(
-				array('filter' => array('=APP_ID' => $appId, '=CODE' => $code))
+				['filter' =>
+					[
+						'=APP_ID' => $appId,
+						'=CODE' => $code
+					]
+				]
 			)->fetch();
 		}
 
@@ -127,11 +132,11 @@ class Rest extends Sender\Base
 			return $sendResult;
 		}
 		*/
-		$dbRes = \Bitrix\Rest\AppTable::getList(array(
-			'filter' => array(
+		$dbRes = \Bitrix\Rest\AppTable::getList([
+			'filter' => [
 				'=CLIENT_ID' => $restSender['APP_ID'],
-			)
-		));
+			]
+		]);
 		$application = $dbRes->fetch();
 
 		if (!$application)
@@ -147,41 +152,46 @@ class Rest extends Sender\Base
 			return $sendResult;
 		}
 
-		$auth = $messageFields['AUTHOR_ID'] > 0 ? array(
+		$auth = $messageFields['AUTHOR_ID'] > 0 ? [
 			'CODE' => $restSender['CODE'],
 			\Bitrix\Rest\Event\Session::PARAM_SESSION => \Bitrix\Rest\Event\Session::get(),
 			\Bitrix\Rest\OAuth\Auth::PARAM_LOCAL_USER => $messageFields['AUTHOR_ID'],
 			"application_token" => \CRestUtil::getApplicationToken($application),
-		) : array();
+		] : [];
 
-		$messageId = md5((isset($messageFields['ID']) ? $messageFields['ID'] : 0).'|'.uniqid());
+		$messageId = $messageFields['EXTERNAL_ID'] ?? 0;
+		if (!$messageId)
+		{
+			$messageId = md5(($messageFields['ID'] ?? 0).'|'.uniqid());
+			$this->setExternalMessageId((int)$messageFields['ID'], $messageId);
+		}
 
 		$restData = is_array($messageFields['MESSAGE_HEADERS']) ? $messageFields['MESSAGE_HEADERS'] : array();
 		//compatible parameters
-		$restData['properties'] = array(
+		$restData['properties'] = [
 			'phone_number' => $messageFields['MESSAGE_TO'],
-			'message_text' => $messageFields['MESSAGE_BODY'],
-		);
+			'message_text' => $this->prepareMessageBodyForSend($messageFields['MESSAGE_BODY']),
+		];
 		$restData['type'] = $restSender['TYPE'];
 		$restData['code'] = $restSender['CODE'];
 		$restData['message_id'] = $messageId;
 		$restData['message_to'] = $messageFields['MESSAGE_TO'];
-		$restData['message_body'] = $messageFields['MESSAGE_BODY'];
+		$restData['message_body'] = $this->prepareMessageBodyForSend($messageFields['MESSAGE_BODY']);
 		$restData['ts'] = time();
 
-		$queryItems = array(
+		$queryItems = [
 			Sqs::queryItem(
 				$restSender['APP_ID'],
 				$restSender['HANDLER'],
 				$restData,
 				$auth,
-				array(
-					"sendAuth" => $auth? true : false,
+				[
+					"sendAuth" => (bool)$auth,
 					"sendRefreshToken" => false,
 					"category" => Sqs::CATEGORY_DEFAULT,
-				)
+				]
 			),
-		);
+		];
 
 		\Bitrix\Rest\OAuthService::getEngine()->getClient()->sendEvent($queryItems);
 		$sendResult->setExternalId($messageId);
@@ -269,5 +279,12 @@ class Rest extends Sender\Base
 			}
 		}
 		return isset(static::$langFields[$appId]) ? static::$langFields[$appId] : null;
+	}
+
+	private function setExternalMessageId(int $internalId, string $externalId): void
+	{
+		MessageService\Internal\Entity\MessageTable::update($internalId, [
+			'EXTERNAL_ID' => $externalId
+		]);
 	}
 }

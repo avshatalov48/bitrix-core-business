@@ -84,26 +84,44 @@ if ($this->startResultCache())
 		return;
 	}
 
+	$product = Catalog\ProductTable::getRow([
+		'select' => [
+			'ID',
+			'TYPE',
+			'IBLOCK_ID' => 'IBLOCK_ELEMENT.IBLOCK_ID',
+		],
+		'filter' => [
+			'=ID' => $arParams['ELEMENT_ID'],
+		],
+	]);
+	if ($product === null)
+	{
+		$this->abortResultCache();
+		ShowError(GetMessage("PRODUCT_NOT_EXIST"));
+		return;
+	}
+	$product['ID'] = (int)$product['ID'];
+	$product['TYPE'] = (int)$product['TYPE'];
+	$product['IBLOCK_ID'] = (int)$product['IBLOCK_ID'];
+	if (
+		$product['TYPE'] === Catalog\ProductTable::TYPE_SERVICE
+		|| $product['TYPE'] === Catalog\ProductTable::TYPE_EMPTY_SKU
+		|| $product['TYPE'] === Catalog\ProductTable::TYPE_FREE_OFFER
+	)
+	{
+		$this->abortResultCache();
+		return;
+	}
+
 	$context = Main\Application::getInstance()->getContext();
 
-	$arResult['IS_SKU'] = false;
+	$arResult['IS_SKU'] = $product['TYPE'] === Catalog\ProductTable::TYPE_SKU;
 	$arResult['STORES'] = array();
-	$isProductExistSKU = CCatalogSku::IsExistOffers($arParams['ELEMENT_ID'], $iblockId);
 	$productSku = array();
-	if ($isProductExistSKU)
+	if ($arResult['IS_SKU'])
 	{
-		$res = CIBlockElement::GetList(
-			array(),
-			array('ID' => $arParams['ELEMENT_ID']),
-			false,
-			false,
-			array('ID', 'IBLOCK_ID')
-		);
-		if ($productInfo = $res->Fetch())
-		{
-			$productId  = $productInfo['ID'];
-			$iblockId   = $productInfo['IBLOCK_ID'];
-		}
+		$productId = $product['ID'];
+		$iblockId = $product['IBLOCK_ID'];
 
 		$skuInfo = CCatalogSku::GetInfoByProductIBlock($iblockId);
 		$skuIterator = CIBlockElement::GetList(
@@ -116,7 +134,6 @@ if ($this->startResultCache())
 
 		while ($sku = $skuIterator->Fetch())
 		{
-			$arResult['IS_SKU'] = true;
 			$amount = array();
 			$sum = 0;
 			$filter = array('PRODUCT_ID' => $sku['ID']);

@@ -1009,11 +1009,23 @@ class CAdminUiList extends CAdminList
 
 			foreach ($gridColumns as $columnId)
 			{
-				$field = $row->aFields[$columnId];
-				if (!is_array($row->arRes[$columnId]))
-					$value = trim($row->arRes[$columnId]);
-				else
-					$value = $row->arRes[$columnId];
+				$value = '';
+				$field = [];
+				if (isset($row->aFields[$columnId]))
+				{
+					$field = $row->aFields[$columnId];
+				}
+				if (isset($row->arRes[$columnId]))
+				{
+					if (!is_array($row->arRes[$columnId]))
+					{
+						$value = trim($row->arRes[$columnId]);
+					}
+					else
+					{
+						$value = $row->arRes[$columnId];
+					}
+				}
 
 				$editValue = $value;
 				if (isset($field["edit"]["type"]))
@@ -1475,7 +1487,7 @@ class CAdminUiListActionPanel
 			$actionSection = $this->mapTypesAndSections[$type] ?? "list";
 
 			$method = "get".$type."ActionData";
-			if ($this->mapTypesAndHandlers[$type] && is_callable($this->mapTypesAndHandlers[$type]))
+			if (isset($this->mapTypesAndHandlers[$type]) && is_callable($this->mapTypesAndHandlers[$type]))
 			{
 				$actionSections[$actionSection][] = $this->mapTypesAndHandlers[$type]($actionKey, $action);
 			}
@@ -1910,8 +1922,10 @@ class CAdminUiResult extends CAdminResult
 			$nPageSize = array();
 
 		$nPageSize["nPageSize"] = $nSize;
-		if($_REQUEST["mode"] == "excel")
+		if (isset($_REQUEST["mode"]) && $_REQUEST["mode"] === "excel")
+		{
 			$nPageSize["NavShowAll"] = true;
+		}
 
 		$this->nInitialSize = $nPageSize["nPageSize"];
 

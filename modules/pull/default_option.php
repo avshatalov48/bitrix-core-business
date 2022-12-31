@@ -11,6 +11,7 @@ $temporary = array(
 	'path_to_publish' => 'http://127.0.0.1:8895/bitrix/pub/',
 	'path_to_publish_web' => 'http://#DOMAIN#/bitrix/pubweb/',
 	'path_to_publish_web_secure' => 'https://#DOMAIN#/bitrix/pubweb/',
+	'path_to_json_rpc' => 'https://#DOMAIN#/bitrix/api/',
 	'nginx_version' => 2,
 	'nginx_command_per_hit' => 100,
 	'nginx' => 'N',

@@ -169,12 +169,10 @@ class Factory implements IFactory
 			return $result;
 		}
 
-		$result = (new Repository\SourceRepository(
-			new Source\OrmConverter()
-		))->findByCode(
-			SourceCodePicker::getSourceCode()
-		);
+		$result = (new Repository\SourceRepository(new Source\OrmConverter()))
+			->findByCode(SourceCodePicker::getSourceCode())
+		;
 
-		return $result;
+		return $result && $result->isAvailable() ? $result : null;
 	}
 }

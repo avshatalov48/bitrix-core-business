@@ -19,9 +19,9 @@ Loc::loadMessages(__FILE__);
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_LogPage_Query query()
- * @method static EO_LogPage_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_LogPage_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_LogPage_Result getById($id)
- * @method static EO_LogPage_Result getList(array $parameters = array())
+ * @method static EO_LogPage_Result getList(array $parameters = [])
  * @method static EO_LogPage_Entity getEntity()
  * @method static \Bitrix\Socialnetwork\EO_LogPage createObject($setDefaultValues = true)
  * @method static \Bitrix\Socialnetwork\EO_LogPage_Collection createCollection()

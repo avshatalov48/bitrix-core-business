@@ -1,4 +1,4 @@
-<section class="landing-block g-pt-30 g-pb-30 g-pl-5 g-pr-5">
+<section class="landing-block g-pt-30 g-pb-30 g-pl-5 g-pr-5 u-block-border-none">
 	<div class="container">
 		<div class="landing-block-inner">
 			<article class="landing-block-card js-animation fadeIn media g-mb-30 g-mb-0--last">

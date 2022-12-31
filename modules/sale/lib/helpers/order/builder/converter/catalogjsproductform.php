@@ -53,7 +53,11 @@ class CatalogJSProductForm
 
 				if (isset($fields['discountRate']))
 				{
-					$fields['discountRate'] = $realDiscountPrice / $basePrice * 100;
+					$fields['discountRate'] =
+						$basePrice > 0
+							? $realDiscountPrice / $basePrice * 100
+							: 0
+					;
 				}
 			}
 		}
@@ -86,7 +90,9 @@ class CatalogJSProductForm
 			'ORIGIN_BASKET_ID' => (int)$fields['additionalFields']['originBasketId'] ?? 0,
 			'ORIGIN_PRODUCT_ID' => (int)$fields['additionalFields']['originProductId'] ?? 0,
 			'MANUALLY_EDITED' => 'Y',
-			'XML_ID' => $fields['innerId']
+			'XML_ID' => $fields['innerId'],
+			'WEIGHT' => $fields['weight'],
+			'DIMENSIONS' => $fields['dimensions'],
 		];
 
 		if (
@@ -124,6 +130,7 @@ class CatalogJSProductForm
 		if (
 			(int)$fields['discount'] === 0
 			&& abs($fields['priceExclusive'] - $fields['basePrice']) > 1e-10
+			&& (float)$fields['basePrice'] > 0
 		)
 		{
 			$fields['discount'] = (int)(100 - ($fields['priceExclusive'] / $fields['basePrice']) * 100);

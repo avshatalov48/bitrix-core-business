@@ -2,7 +2,9 @@
 namespace Bitrix\Pull;
 
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Security\Random;
 use Bitrix\Pull\SharedServer\Client;
 
 Loc::loadMessages(__FILE__);
@@ -37,10 +39,12 @@ class Config
 
 		if ($userId !== 0)
 		{
-			$privateChannelType = isset($params['CUSTOM_TYPE'])? $params['CUSTOM_TYPE']: \CPullChannel::TYPE_PRIVATE;
-			$sharedChannelType = isset($params['CUSTOM_TYPE'])? $params['CUSTOM_TYPE']: \CPullChannel::TYPE_SHARED;
-
-			$privateChannel = \CPullChannel::Get($userId, $cache, $reopen, $privateChannelType);
+			if (\CPullOptions::GetQueueServerVersion() < 5)
+			{
+				$privateChannelType = $params['CUSTOM_TYPE'] ?? \CPullChannel::TYPE_PRIVATE;
+				$privateChannel = \CPullChannel::Get($userId, $cache, $reopen, $privateChannelType);
+			}
+			$sharedChannelType = $params['CUSTOM_TYPE'] ?? \CPullChannel::TYPE_SHARED;
 			$sharedChannel = \CPullChannel::GetShared($cache, $reopen, $sharedChannelType);
 		}
 		else // isset($params['CHANNEL'])
@@ -125,6 +129,19 @@ class Config
 		}
 
 		$config['PUBLIC_CHANNELS'] = \Bitrix\Pull\Channel::getPublicIds(['JSON' => (bool)$params['JSON']]);
+		if (\CPullOptions::GetQueueServerVersion() >= 5)
+		{
+			$channelsForToken = [];
+			if ($sharedChannel)
+			{
+				$channelsForToken[] = $sharedChannel['CHANNEL_ID'];
+			}
+			if ($privateChannel)
+			{
+				$channelsForToken[] = $privateChannel['CHANNEL_ID'];
+			}
+			$config['JWT'] = \Bitrix\Pull\Auth\Jwt::create($channelsForToken, $userId);
+		}
 
 		if ($params['JSON'])
 		{
@@ -143,6 +160,10 @@ class Config
 			if($isSharedMode)
 			{
 				$result['clientId'] = $config['CLIENT_ID'];
+			}
+			if (isset($config['JWT']))
+			{
+				$result['jwt'] = $config['JWT'];
 			}
 
 			$result['publicChannels'] = $config['PUBLIC_CHANNELS'];
@@ -179,6 +200,39 @@ class Config
 		return \CHTTP::urlAddParams($result, $params);
 	}
 
+	public static function getJsonRpcUrl()
+	{
+		$params = [];
+		if(\CPullOptions::IsServerShared())
+		{
+			$result = \Bitrix\Pull\SharedServer\Config::getJsonRpcUrl();
+			$params["clientId"] = \Bitrix\Pull\SharedServer\Client::getPublicLicenseCode();
+		}
+		else
+		{
+			$result = \CPullOptions::GetJsonRpcUrl();
+		}
+
+		return \CHTTP::urlAddParams($result, $params);
+	}
+
+	public static function getHostId()
+	{
+		static $hostId = null;
+
+		if ($hostId === null)
+		{
+			$hostId = Option::get("pull", "host_id", "");
+		}
+		if ($hostId == '')
+		{
+			$hostId = Random::getString(32);
+			Option::set("pull", "host_id", $hostId);
+		}
+
+		return $hostId;
+	}
+
 	public static function getSignatureKey()
 	{
 		if(\CPullOptions::IsServerShared())
@@ -196,7 +250,7 @@ class Config
 		$result =
 			\CPullOptions::IsServerShared() ||
 			(
-				\CPullOptions::GetQueueServerVersion() >= 4 &&
+				\CPullOptions::GetQueueServerVersion() == 4 &&
 				\CPullOptions::IsProtobufSupported() &&
 				\CPullOptions::IsProtobufEnabled()
 			);
@@ -204,4 +258,8 @@ class Config
 		return $result;
 	}
 
+	public static function isJsonRpcUsed(): bool
+	{
+		return \CPullOptions::GetQueueServerVersion() >= 5;
+	}
 }

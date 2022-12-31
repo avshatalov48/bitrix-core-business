@@ -153,7 +153,7 @@ export class EventViewForm {
 					{
 						this.loadComponentAssets(params.crmView);
 						this.BX.ajax.runAction('calendar.api.calendareventviewform.getCrmView', {
-							data: { event: params.event }
+							data: { signedEvent: params.signedEvent }
 						});
 					}
 

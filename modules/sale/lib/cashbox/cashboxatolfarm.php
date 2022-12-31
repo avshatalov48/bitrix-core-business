@@ -181,7 +181,7 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 		$result['CHECK_TYPE'] = $checkInfo['TYPE'];
 
 		$check = CheckManager::getObjectById($checkInfo['ID']);
-		$dateTime = new Main\Type\DateTime($data['payload']['receipt_datetime']);
+		$dateTime = new Main\Type\DateTime($data['payload']['receipt_datetime'], 'd.m.Y H:i:s');
 		$result['LINK_PARAMS'] = array(
 			Check::PARAM_REG_NUMBER_KKT => $data['payload']['ecr_registration_number'],
 			Check::PARAM_FISCAL_DOC_ATTR => $data['payload']['fiscal_document_attribute'],

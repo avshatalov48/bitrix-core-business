@@ -441,7 +441,7 @@ class EventBuilderFromArray extends EventBuilder
 	/**
 	 * @return string|null
 	 */
-	protected function getEventType(): ?string
+	protected function getCalendarType(): ?string
 	{
 		return $this->fields['CAL_TYPE'];
 	}
@@ -583,5 +583,13 @@ class EventBuilderFromArray extends EventBuilder
 	protected function getRelations(): ?Relations
 	{
 		return $this->prepareRelations($this->fields['RELATIONS']);
+	}
+
+	/**
+	 * @return string|null
+	 */
+	protected function getSpecialLabel(): ?string
+	{
+		return $this->fields['EVENT_TYPE'];
 	}
 }

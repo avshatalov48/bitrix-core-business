@@ -145,7 +145,6 @@ class VendorSyncService
 	 * @throws ApiException
 	 * @throws ArgumentException
 	 * @throws ArgumentNullException
-	 * @throws BaseException
 	 * @throws ConflictException
 	 * @throws NotFoundException
 	 */
@@ -156,7 +155,7 @@ class VendorSyncService
 			return new EventDto($newEvent);
 		}
 
-		throw new BaseException('Error of API response.');
+		throw new ApiException('Error of API response.');
 	}
 
 	/**
@@ -240,9 +239,16 @@ class VendorSyncService
 	{
 		$result = $this->apiService->getEventInstances($params);
 
-		return array_map(function ($row){
-			return new EventDto($row);
-		}, $result['value']) ?? [];
+		if (!empty($result['value']))
+		{
+			return array_map(function ($row){
+				return new EventDto($row);
+			}, $result['value']) ?? [];
+		}
+		else
+		{
+			return [];
+		}
 	}
 
 	/**

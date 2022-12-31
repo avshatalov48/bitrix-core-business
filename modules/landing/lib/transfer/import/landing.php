@@ -392,11 +392,11 @@ class Landing
 				$blockInstance->changeFavoriteMeta($favoriteMeta);
 				\Bitrix\Landing\Block::clearRepositoryCache();
 			}
-			self::saveDataToBlock($blockInstance, $block);
 			if ($blockFields['CONTENT'] ?? null)
 			{
 				$blockInstance->saveContent($blockFields['CONTENT'], $block['designed'] ?? false);
 			}
+			self::saveDataToBlock($blockInstance, $block);
 			$blockInstance->save();
 			// if block is favorite
 			if (intval($block['meta']['LID'] ?? -1) === 0)
@@ -510,6 +510,10 @@ class Landing
 				$return['RATIO']['FOLDERS_REF'][$oldId] = $data['FOLDER_ID'];
 			}
 		}
+		elseif ($additional && $additional['folderId'])
+		{
+			$data['FOLDER_ID'] = (int)$additional['folderId'];
+		}
 
 		// set external partners info
 		$appCode = null;
@@ -549,7 +553,12 @@ class Landing
 				$newTplCode = $previousTplCode ?? $data['TPL_CODE'];
 				$delobotAppCode = 'local.5eea949386cd05.00160385';
 				$kraytAppCode = 'local.5f11a19f813b13.97126836';
-				if (strpos($newTplCode, $delobotAppCode) !== false || strpos($newTplCode, $kraytAppCode) !== false )
+				$bitrixAppCode = 'bitrix.';
+				if (
+					strpos($newTplCode, $delobotAppCode) !== false
+					|| strpos($newTplCode, $kraytAppCode) !== false
+					|| strpos($appCode, $bitrixAppCode) === 0
+				)
 				{
 					$wrapperClasses = [];
 					$http = new \Bitrix\Main\Web\HttpClient;
@@ -594,6 +603,115 @@ class Landing
 					}
 					unset($kraytCode, $delobotCode);
 				}
+				foreach ($data['BLOCKS'] as &$block)
+				{
+					//fix contact data
+					if (isset($block['nodes']) && strpos($appCode, $bitrixAppCode) === 0)
+					{
+						foreach ($block['nodes'] as &$node)
+						{
+							$countNodeItem = 0;
+							foreach ($node as &$nodeItem)
+							{
+								if (isset($nodeItem['href']))
+								{
+									$setContactsBlockCode = [
+										'14.1.contacts_4_cols',
+										'14.2contacts_3_cols',
+										'14.3contacts_2_cols'
+									];
+									if (preg_match('/^tel:.*$/i', $nodeItem['href']))
+									{
+										$nodeItem['href'] = 'tel:#crmPhone1';
+										if (isset($nodeItem['text']))
+										{
+											$nodeItem['text'] = '#crmPhoneTitle1';
+										}
+										if (
+											(isset($block['nodes']['.landing-block-node-linkcontact-text'])
+											&&	in_array($block['code'], $setContactsBlockCode, true))
+										)
+										{
+											$block['nodes']['.landing-block-node-linkcontact-text'][$countNodeItem] = '#crmPhoneTitle1';
+										}
+									}
+									if (preg_match('/^mailto:.*$/i', $nodeItem['href']))
+									{
+										$nodeItem['href'] = 'mailto:#crmEmail1';
+										if (isset($nodeItem['text']))
+										{
+											$nodeItem['text'] = '#crmEmailTitle1';
+										}
+										if (
+											isset($block['nodes']['.landing-block-node-linkcontact-text'])
+											&& (in_array($block['code'], $setContactsBlockCode, true))
+										)
+										{
+											$block['nodes']['.landing-block-node-linkcontact-text'][$countNodeItem] = '#crmEmailTitle1';
+										}
+									}
+								}
+								$countNodeItem++;
+							}
+							unset($nodeItem);
+						}
+						unset($node);
+					}
+					//fix countdown until the next unexpired date
+					if (isset($block['attrs']))
+					{
+						foreach ($block['attrs'] as &$attr)
+						{
+							foreach ($attr as &$attrItem)
+							{
+								if (array_key_exists('data-end-date', $attrItem))
+								{
+									$neededAttr = $attrItem['data-end-date'] / 1000;
+									$currenDate = time();
+									if ($neededAttr < $currenDate)
+									{
+										$m = date('m', $neededAttr);
+										$d = date('d', $neededAttr);
+										$currenDateY = (int)date('Y', $currenDate);
+										$currenDateM = date('m', $currenDate);
+										$currenDateD = date('d', $currenDate);
+										if ($currenDateM > $m)
+										{
+											$y = $currenDateY + 1;
+										}
+										else if (($currenDateM === $m) && $currenDateD >= $d)
+										{
+											$y = $currenDateY + 1;
+										}
+										else
+										{
+											$y = $currenDateY;
+										}
+										$time = '10:00:00';
+										$timestamp = strtotime($y . '-' . $m . '-' . $d . ' ' . $time) * 1000;
+										$attrItem['data-end-date'] = (string)$timestamp;
+
+										if (preg_match_all(
+											'/data-end-date="\d+"/',
+											$block['full_content'],
+											$matches)
+										)
+										{
+											$block['full_content'] = str_replace(
+												$matches[0],
+												'data-end-date="' . $attrItem['data-end-date'] . '"',
+												$block['full_content']
+											);
+										}
+									}
+								}
+							}
+							unset($attrItem);
+						}
+						unset($attr);
+					}
+				}
+				unset($block);
 			}
 
 			// save files to landing

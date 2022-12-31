@@ -231,7 +231,7 @@ export default class Counter
 		if (this.counterContainer === null)
 		{
 			this.counterContainer = Tag.render`
-				<div class="ui-counter-inner">${this.value}</div>
+				<div class="ui-counter-inner">${this.getValue()}</div>
 			`;
 		}
 

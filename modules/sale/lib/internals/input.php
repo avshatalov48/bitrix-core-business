@@ -1015,6 +1015,22 @@ class EitherYN extends Base
 	{
 		return $value == 'Y' ? 'Y' : 'N';
 	}
+
+	public static function getRequiredError(array $input, $value)
+	{
+		$errors = parent::getRequiredError($input, $value);
+		if (!$errors)
+		{
+			if (
+				$value === 'N'
+				&& $input['REQUIRED'] === 'Y'
+			)
+			{
+				$errors = ['REQUIRED' => Loc::getMessage('INPUT_REQUIRED_ERROR')];
+			}
+		}
+		return $errors;
+	}
 }
 
 Manager::register('Y/N', array(

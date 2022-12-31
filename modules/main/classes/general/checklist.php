@@ -640,7 +640,7 @@ class CAutoCheck
 		$arResult["STATUS"] = false;
 		$bBitrixCloud = function_exists('openssl_encrypt') && CModule::IncludeModule('bitrixcloud') && CModule::IncludeModule('clouds');
 
-		$site = CSite::GetSiteByFullPath(DOCUMENT_ROOT);
+		$site = CSite::GetSiteByFullPath($_SERVER['DOCUMENT_ROOT']);
 		$path = BX_ROOT."/backup";
 		$arTmpFiles = array();
 		$arFilter = array();

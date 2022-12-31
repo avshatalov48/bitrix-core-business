@@ -2844,8 +2844,8 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER'),
 			'type' => 'list',
 			'items' => [
-				['name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_N'), 'value' => 'u-block-border-none'],
-				['name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_Y'), 'value' => 'u-block-border'],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_N'), 'value' => 'u-block-border-none', 'hide' => ['block-border-margin', 'border-radius', 'block-border-position']],
+				['name' => Loc::getMessage('LANDING_BLOCK_STYLE-BLOCK_BORDER_Y'), 'value' => 'u-block-border', 'show' => ['block-border-margin', 'border-radius', 'block-border-position']],
 			],
 		],
 		'block-border-margin' => [

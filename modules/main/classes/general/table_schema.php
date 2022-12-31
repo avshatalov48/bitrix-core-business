@@ -10,6 +10,21 @@ class CTableSchema
 	{
 		return array(
 			"main" => array(
+				'b_file' => array(
+					'~actions' => [
+						'b_file_delete' => [
+							'title' => 'CFile::Delete',
+							//'confirm' => 'Are you sure to call CFile::Delete?',
+							'callback' => function ($fileId)
+							{
+								$result = new \Bitrix\Main\Result();
+								CFile::Delete($fileId);
+								//$result->addError(new \Bitrix\Main\Error('test'));
+								return $result;
+							}
+						],
+					],
+				),
 				"b_rating_voting" => array(
 					"ID" => array(
 						"b_rating_vote" => "RATING_VOTING_ID",

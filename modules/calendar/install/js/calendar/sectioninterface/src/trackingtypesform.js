@@ -8,6 +8,7 @@ export class TrackingTypesForm extends TrackingUsersForm
 	{
 		super(options);
 		this.trackingGroups = options.trackingGroups || [];
+		this.interfaceType = 'company';
 		this.selectGroups = true;
 		this.selectUsers = false;
 		this.addLinkMessage = Loc.getMessage('EC_SEC_SLIDER_SELECT_GROUPS');
@@ -99,7 +100,7 @@ export class TrackingTypesForm extends TrackingUsersForm
 	{
 		BX.ajax.runAction('calendar.api.calendarajax.setTrackingSections', {
 				data: {
-					sections: this.prepareTrackingSections()
+					sections: this.prepareTrackingSections(),
 				}
 			})
 			.then(
@@ -112,6 +113,16 @@ export class TrackingTypesForm extends TrackingUsersForm
 			);
 
 		this.close();
+	}
+
+	getSelectedSections()
+	{
+		const sections = [];
+		this.superposedSections.forEach((section) => {
+			sections.push(parseInt(section.id));
+		}, this);
+
+		return sections;
 	}
 }
 

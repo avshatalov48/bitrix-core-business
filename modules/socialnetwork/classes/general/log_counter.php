@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Socialnetwork\UserToGroupTable;
 
 class CAllSocNetLogCounter
 {
@@ -13,205 +14,213 @@ class CAllSocNetLogCounter
 	static $logRightTableClass = Bitrix\Socialnetwork\LogRightTable::class;
 	static $userTableClass = Bitrix\Main\UserTable::class;
 
-	public static function GetSubSelect2($entityId, $arParams = array())
+	public static function GetSubSelect2($entityId, array $arParams = [])
 	{
 		return CSocNetLogCounter::GetSubSelect(
-			array(
+			[
 				"LOG_ID" => $entityId,
-				"TYPE" => (is_array($arParams) && !empty($arParams["TYPE"]) ? $arParams["TYPE"] : CSocNetLogCounter::TYPE_LOG_ENTRY),
-				"CODE" => (is_array($arParams) && !empty($arParams["CODE"]) ? $arParams["CODE"] : false),
-				"DECREMENT" => (is_array($arParams) && $arParams["DECREMENT"]),
-				"FOR_ALL_ACCESS" => (is_array($arParams) && $arParams["FOR_ALL_ACCESS"]),
-				"FOR_ALL_ACCESS_ONLY" => (is_array($arParams) && $arParams["FOR_ALL_ACCESS_ONLY"]),
-				"TAG_SET" => (is_array($arParams) && !empty($arParams["TAG_SET"]) ? $arParams["TAG_SET"] : false),
-				"MULTIPLE" => (is_array($arParams) && !empty($arParams["MULTIPLE"]) && $arParams["MULTIPLE"] === "Y" ? "Y" : "N"),
-				"SET_TIMESTAMP" => (is_array($arParams) && !empty($arParams["SET_TIMESTAMP"]) && $arParams["SET_TIMESTAMP"] === "Y" ? "Y" : "N"),
-				"SEND_TO_AUTHOR" => (!is_array($arParams) || !isset($arParams["SEND_TO_AUTHOR"]) || $arParams["SEND_TO_AUTHOR"] !== "Y" ? "N" : "Y"),
-				"USER_ID" => (isset($arParams["USER_ID"]) && is_array($arParams["USER_ID"]) ? $arParams["USER_ID"] : array())
-			)
+				"TYPE" => (
+					!empty($arParams["TYPE"])
+						? $arParams["TYPE"]
+						: CSocNetLogCounter::TYPE_LOG_ENTRY
+				),
+				"CODE" => (
+					!empty($arParams["CODE"])
+						? $arParams["CODE"]
+						: false
+				),
+				"DECREMENT" => (bool)$arParams["DECREMENT"],
+				"FOR_ALL_ACCESS" => (bool)($arParams["FOR_ALL_ACCESS"] ?? false),
+				"FOR_ALL_ACCESS_ONLY" => (bool)($arParams["FOR_ALL_ACCESS_ONLY"] ?? false),
+				'WORKGROUP_MODE' => (bool)($arParams['WORKGROUP_MODE'] ?? false),
+				"TAG_SET" => (
+					!empty($arParams["TAG_SET"])
+						? $arParams["TAG_SET"]
+						: false
+				),
+				"MULTIPLE" => (
+					!empty($arParams["MULTIPLE"])
+					&& $arParams["MULTIPLE"] === "Y"
+						? "Y"
+						: "N"
+				),
+				"SET_TIMESTAMP" => (
+					!empty($arParams["SET_TIMESTAMP"])
+					&& $arParams["SET_TIMESTAMP"] === "Y"
+						? "Y"
+						: "N"
+				),
+				"SEND_TO_AUTHOR" => (
+					!isset($arParams["SEND_TO_AUTHOR"])
+					|| $arParams["SEND_TO_AUTHOR"] !== "Y"
+						? "N"
+						: "Y"
+				),
+				"USER_ID" => (
+					isset($arParams["USER_ID"])
+					&& is_array($arParams["USER_ID"])
+						? $arParams["USER_ID"]
+						: []
+				),
+			]
 		);
 	}
 
-	public static function GetSubSelect($entityId, $entity_type = false, $entity_id = false, $event_id = false, $created_by_id = false, $arOfEntities = null, $arAdmin = false, $transport = false, $visible = "Y", $type = CSocNetLogCounter::TYPE_LOG_ENTRY, $params = array(), $bDecrement = false, $bForAllAccess = false)
+	public static function GetSubSelect(
+		$counterEntityId,
+		$counterEntityType = '',
+		$logEntityId = false,
+		$logEventId = '',
+		$createdById = 0,
+		$entitiesList = null,
+		$adminList = false,
+		$transport = false,
+		$visible = "Y",
+		$type = CSocNetLogCounter::TYPE_LOG_ENTRY,
+		$params = array(),
+		$decrement = false,
+		$forAllAccess = false
+	)
 	{
 		global $DB;
 
 		if (
-			is_array($entityId)
-			&& isset($entityId["LOG_ID"])
+			is_array($counterEntityId)
+			&& isset($counterEntityId["LOG_ID"])
 		)
 		{
-			$arFields = $entityId;
+			$arFields = $counterEntityId;
 
-			$entityId = (int)$arFields["LOG_ID"];
-			$entity_type = ($arFields["ENTITY_TYPE"] ?? false);
-			$entity_id = ($arFields["ENTITY_ID"] ?? false);
-			$event_id = ($arFields["EVENT_ID"] ?? false);
-			$created_by_id = ($arFields["CREATED_BY_ID"] ?? false);
-			$arOfEntities = ($arFields["ENTITIES"] ?? null);
-			$transport  = ($arFields["TRANSPORT"] ?? false);
-			$visible  = ($arFields["VISIBLE"] ?? "Y");
-			$type  = ($arFields["TYPE"] ?? CSocNetLogCounter::TYPE_LOG_ENTRY);
-			$code  = ($arFields["CODE"] ?? false);
-			$params  = ($arFields["PARAMS"] ?? []);
-			$bDecrement = ($arFields["DECREMENT"] ?? false);
-			$bMultiple = (isset($arFields['MULTIPLE']) && $arFields['MULTIPLE'] === 'Y');
-			$bSetTimestamp = (isset($arFields['SET_TIMESTAMP']) && $arFields['SET_TIMESTAMP'] === 'Y');
+			$counterEntityId = (int)$arFields["LOG_ID"];
+			$counterEntityType = (string)($arFields["ENTITY_TYPE"] ?? '');
+			$logEventId = (string)($arFields["EVENT_ID"] ?? '');
+			$createdById = (int)($arFields["CREATED_BY_ID"] ?? 0);
+			$type = ($arFields["TYPE"] ?? CSocNetLogCounter::TYPE_LOG_ENTRY);
+			$code = ($arFields["CODE"] ?? false);
+			$params = ($arFields["PARAMS"] ?? []);
+			$decrement = ($arFields["DECREMENT"] ?? false);
+			$multiple = (isset($arFields['MULTIPLE']) && $arFields['MULTIPLE'] === 'Y');
+			$setTimestamp = (isset($arFields['SET_TIMESTAMP']) && $arFields['SET_TIMESTAMP'] === 'Y');
 
-			$IsForAllAccessOnly = false;
+			$forAllAccessOnly = false;
 			if (isset($arFields["FOR_ALL_ACCESS_ONLY"]))
 			{
-				$IsForAllAccessOnly = ($arFields["FOR_ALL_ACCESS_ONLY"] ? "Y" : "N");
+				$forAllAccessOnly = ($arFields["FOR_ALL_ACCESS_ONLY"] ? "Y" : "N");
 			}
-			$bForAllAccess  = (
-				$IsForAllAccessOnly === 'Y'
+
+			$forAllAccess = (
+				$forAllAccessOnly === 'Y'
 					? true
 					: ($arFields["FOR_ALL_ACCESS"] ?? false)
 			);
-			$tagSet  = ($arFields["TAG_SET"] ?? false);
-			$bSendToAuthor = (
-				!isset($arFields["SEND_TO_AUTHOR"])
-				|| $arFields['SEND_TO_AUTHOR'] !== 'Y'
-					? false
-					: true
+			$tagSet = ($arFields["TAG_SET"] ?? false);
+
+			$sendToAuthor = (
+				isset($arFields['SEND_TO_AUTHOR'])
+				&& $arFields['SEND_TO_AUTHOR'] === 'Y'
 			);
-			$arUserIdToIncrement = (isset($arFields["USER_ID"]) && is_array($arFields["USER_ID"]) ? $arFields["USER_ID"] : array());
+			$userIdListToIncrement = (
+				isset($arFields["USER_ID"])
+				&& is_array($arFields["USER_ID"])
+					? $arFields["USER_ID"]
+					: []
+			);
+			$workgroupMode = (bool)($arFields["WORKGROUP_MODE"] ?? false);
 		}
 		else
 		{
-			$bSendToAuthor = $IsForAllAccessOnly = $bMultiple = $tagSet = $code = $bSetTimestamp = false;
-			$arUserIdToIncrement = array();
+			$sendToAuthor = false;
+			$forAllAccessOnly = false;
+			$multiple = false;
+			$tagSet = false;
+			$code = false;
+			$setTimestamp = false;
+			$userIdListToIncrement = [];
+			$workgroupMode = false;
 		}
 
 		$intranetInstalled = static::$moduleManagerClass::isModuleInstalled('intranet');
-		if ((int)$entityId <= 0)
+		if ((int)$counterEntityId <= 0)
 		{
-			return false;
+			return '';
 		}
 
 		$arSocNetAllowedSubscribeEntityTypesDesc = static::$allowedClass::GetAllowedEntityTypesDesc();
 
-		$bGroupCounters = ($type === "group");
+		if (!$code)
+		{
+			$code = CUserCounter::LIVEFEED_CODE . ($multiple ? $type.$counterEntityId : "");
+
+			if ($workgroupMode)
+			{
+				$code .= 'SG';
+			}
+
+			$code = "'" . $code . "'";
+		}
 
 		$params = (
 			is_array($params)
 				? $params
-				: array()
+				: []
 		);
 
 		$params['CODE'] = (
 			!empty($params['CODE'])
 				? $params['CODE']
-				: (
-					$code
-						? $code
-						: (
-							$bGroupCounters
-								? "SLR0.GROUP_CODE"
-								: "'".CUserCounter::LIVEFEED_CODE.($bMultiple ? $type.$entityId : "")."'"
-						)
-				)
+				: $code
 		);
 
 		if (
 			$type === CSocNetLogCounter::TYPE_LOG_ENTRY
-			&& ($arLog = static::$logClass::GetByID($entityId))
+			&& ($arLog = static::$logClass::GetByID($counterEntityId))
 		)
 		{
-			$logId = $entityId;
-			$entity_type = $arLog["ENTITY_TYPE"];
-			$entity_id = $arLog["ENTITY_ID"];
-			$event_id = $arLog["EVENT_ID"];
-			$created_by_id = $arLog["USER_ID"];
+			$logId = $counterEntityId;
+			$counterEntityType = (string)$arLog["ENTITY_TYPE"];
+			$logEventId = (string)$arLog["EVENT_ID"];
+			$createdById = (int)$arLog["USER_ID"];
 		}
 		elseif (
 			$type === CSocNetLogCounter::TYPE_LOG_COMMENT
-			&& ($arLogComment = static::$logCommentClass::GetByID($entityId))
+			&& ($arLogComment = static::$logCommentClass::GetByID($counterEntityId))
 		)
 		{
-			$entity_type = $arLogComment["ENTITY_TYPE"];
-			$entity_id = $arLogComment["ENTITY_ID"];
-			$event_id = $arLogComment["EVENT_ID"];
-			$created_by_id = $arLogComment["USER_ID"];
+			$counterEntityType = (string)$arLogComment["ENTITY_TYPE"];
+			$logEventId = (string)$arLogComment["EVENT_ID"];
+			$createdById = (int)$arLogComment["USER_ID"];
 			$logId = $arLogComment["LOG_ID"]; // recalculate log_id
 		}
 		else
 		{
-			$logId = $entityId;
+			$logId = $counterEntityId;
 		}
 
 		if (
-			!in_array($entity_type, static::$allowedClass::GetAllowedEntityTypes(), true)
-			|| (int)$entity_id <= 0
-			|| $event_id == ''
+			$logEventId === ''
+			|| !in_array($counterEntityType, static::$allowedClass::GetAllowedEntityTypes(), true)
 		)
 		{
-			return false;
+			return '';
 		}
 
-		if (!$arOfEntities)
+		$logRightCodes = [];
+		$res = static::$logRightTableClass::getList([
+			'filter' => [
+				'=LOG_ID' => $logId,
+			],
+			'select' => [ 'GROUP_CODE' ],
+		]);
+		while ($logRightFields = $res->fetch())
 		{
-			if (
-				array_key_exists($entity_type, $arSocNetAllowedSubscribeEntityTypesDesc)
-				&& array_key_exists("HAS_MY", $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type])
-				&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["HAS_MY"] === "Y"
-				&& array_key_exists("CLASS_OF", $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type])
-				&& array_key_exists("METHOD_OF", $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type])
-				&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["CLASS_OF"] <> ''
-				&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["METHOD_OF"] <> ''
-				&& method_exists($arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["CLASS_OF"], $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["METHOD_OF"])
-			)
-			{
-				$arOfEntities = call_user_func(array($arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["CLASS_OF"], $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["METHOD_OF"]), $entity_id);
-			}
-			else
-			{
-				$arOfEntities = [];
-			}
+			$logRightCodes[] = $logRightFields['GROUP_CODE'];
 		}
 
 		$useUASubSelect = false;
 
-		if (
-			(
-				!defined("DisableSonetLogVisibleSubscr")
-				|| DisableSonetLogVisibleSubscr !== true
-			)
-			&& $visible 
-			&& $visible <> ''
-		)
-		{
-			$key_res = CSocNetGroup::GetFilterOperation($visible);
-			$strField = $key_res["FIELD"];
-			$strNegative = $key_res["NEGATIVE"];
-			$strOperation = $key_res["OPERATION"];
-			$visibleFilter = "AND (".($strNegative === "Y" ? " SLE.VISIBLE IS NULL OR NOT " : "")."(SLE.VISIBLE ".$strOperation." '".$DB->ForSql($strField)."'))";
-
-			$transportFilter = "";
-		}
-		else
-		{
-			$visibleFilter = "";
-
-			if (
-				$transport
-				&& $transport <> ''
-			)
-			{
-				$key_res = CSocNetGroup::GetFilterOperation($transport);
-				$strField = $key_res["FIELD"];
-				$strNegative = $key_res["NEGATIVE"];
-				$strOperation = $key_res["OPERATION"];
-				$transportFilter = "AND (".($strNegative === "Y" ? " SLE.TRANSPORT IS NULL OR NOT " : "")."(SLE.TRANSPORT ".$strOperation." '".$DB->ForSql($strField)."'))";
-			}
-			else
-			{
-				$transportFilter = "";
-			}
-		}
-
 		$useFollow = (
-			$type === CSocNetLogCounter::TYPE_LOG_COMMENT
+			!$workgroupMode
+			&& $type === CSocNetLogCounter::TYPE_LOG_COMMENT
 			&& (
 				!defined('DisableSonetLogFollow')
 				|| DisableSonetLogFollow !== true
@@ -229,602 +238,352 @@ class CAllSocNetLogCounter
 			{
 				$followWhere = "
 					AND (
-						NOT EXISTS (SELECT USER_ID FROM b_sonet_log_follow WHERE USER_ID = U.ID AND TYPE = 'N' AND (CODE = 'L".$logId."' OR CODE = '**'))
-						OR EXISTS (SELECT USER_ID FROM b_sonet_log_follow WHERE USER_ID = U.ID AND TYPE = 'Y' AND CODE = 'L".$logId."')
+						NOT EXISTS (
+							SELECT USER_ID 
+							FROM b_sonet_log_follow 
+							WHERE 
+								USER_ID = U.ID 
+								AND TYPE = 'N' 
+								AND (CODE = 'L" . $logId . "' OR CODE = '**')
+						)
+						OR EXISTS (
+							SELECT USER_ID 
+							FROM b_sonet_log_follow 
+							WHERE 
+								USER_ID = U.ID 
+								AND TYPE = 'Y' AND CODE = 'L" . $logId . "'
+						)
 					)
 				";
 			}
 			else
 			{
-				$followJoin = " 
-					INNER JOIN b_sonet_log_follow LFW ON LFW.USER_ID = U.ID AND (LFW.CODE = 'L".$logId."' OR LFW.CODE = '**')
-					LEFT JOIN b_sonet_log_follow LFW2 ON LFW2.USER_ID = U.ID AND (LFW2.CODE = 'L".$logId."' AND LFW2.TYPE = 'N')
-				";
+				$followJoin = '';
+
+				[ $join, $condition ] = static::getFollowJoin($logId, 'U.ID', 'positive');
+				$followJoin .= $join . ' AND ' . $condition . ' ';
+
+				[ $join, $condition ] = static::getFollowJoin($logId, 'U.ID', 'negative');
+				$followJoin .= $join . ' AND ' . $condition . ' ';
+
+				$wherePositive = static::getFollowWhere('positive');
+				$whereNegative = static::getFollowWhere('negative');
+
 				$followWhere = "
-					AND (LFW.USER_ID IS NOT NULL AND LFW.TYPE = 'Y')
-					AND LFW2.USER_ID IS NULL
+					AND (LFW.USER_ID IS NOT NULL AND " . $wherePositive .")
+					AND " . $whereNegative . "
 				";
 			}
 		}
 
-		$viewJoin = " LEFT JOIN b_sonet_log_view LFV ON LFV.USER_ID = U.ID AND LFV.EVENT_ID = '".$DB->ForSql($event_id)."'";
-		$viewWhere = "AND (LFV.USER_ID IS NULL OR LFV.TYPE = 'Y')";
+		$viewJoin = " 
+			LEFT JOIN b_sonet_log_view LFV 
+			ON 
+				LFV.USER_ID = U.ID 
+				AND LFV.EVENT_ID = '" . $DB->ForSql($logEventId) . "'";
 
-		$strOfEntities = (
-			is_array($arOfEntities)
-			&& count($arOfEntities) > 0
-				? "U.ID IN (".implode(",", $arOfEntities).")"
-				: ""
-		);
+		$viewWhere = "AND (LFV.USER_ID IS NULL OR LFV.TYPE = 'Y')";
 
 		$logRightFilterValue = [];
 
-		if (!empty($arUserIdToIncrement))
+		if (!empty($userIdListToIncrement))
 		{
-			$userWhere = "AND U.ID IN (".implode(",", $arUserIdToIncrement).")";
+			$userWhere = " AND U.ID IN (".implode(",", $userIdListToIncrement).")";
 		}
-		else
+		elseif ($workgroupMode)
 		{
-			if (!$bGroupCounters && !$intranetInstalled)
+			$workgroupIdList = [];
+			foreach ($logRightCodes as $rightCode)
 			{
-				if (static::$optionClass::get('socialnetwork', 'sonet_log_smart_filter', 'N') === 'Y')
+				if (
+					!preg_match('/^SG(\d+)/i', $rightCode, $matches)
+					|| (int)$matches[1] <= 0
+				)
 				{
-					$userWhere = "
-						AND (
-							0=1
-							OR (
-								(
-									SLSF.USER_ID IS NULL
-									OR SLSF.TYPE = 'Y'
-								)
-								" . (!$bForAllAccess ? ' AND (UA.ACCESS_CODE = SLR.GROUP_CODE)' : '') . "
-								AND (
-									SLR.GROUP_CODE LIKE 'SG%'
-									OR SLR.GROUP_CODE = " . $DB->Concat("'U'", 'U.ID') . "
-								)
+					continue;
+				}
+				$workgroupIdList[] = (int)$matches[1];
+			}
+
+			$workgroupIdList = array_unique($workgroupIdList);
+			if (empty($workgroupIdList))
+			{
+				return '';
+			}
+
+			$userWhere = "
+				AND SU2G.GROUP_ID IN (" . static::implodeArrayOfIntegers($workgroupIdList) . ")
+				AND SU2G.ROLE IN (" . static::implodeArrayOfStrings(UserToGroupTable::getRolesMember()) . ")
+			";
+		}
+		elseif (!$intranetInstalled)
+		{
+			if (static::$optionClass::get('socialnetwork', 'sonet_log_smart_filter', 'N') === 'Y')
+			{
+				$userWhere = "
+					AND (
+						0=1
+						OR (
+							(
+								SLSF.USER_ID IS NULL
+								OR SLSF.TYPE = 'Y'
 							)
-							OR (
-								SLSF.TYPE <> 'Y'
-								AND (
-									SLR.GROUP_CODE IN ('AU', 'G2')
-									" . (!$bForAllAccess ? ' OR (UA.ACCESS_CODE = SLR.GROUP_CODE)' : '') . "
-								)
+							" . (!$forAllAccess ? ' AND (UA.ACCESS_CODE = SLR.GROUP_CODE)' : '') . "
+							AND (
+								SLR.GROUP_CODE LIKE 'SG%'
+								OR SLR.GROUP_CODE = " . $DB->Concat("'U'", 'U.ID') . "
 							)
 						)
-					";
-				}
-				else
-				{
-					$userWhere = "
-						AND (
-							0=1
-							OR (
-								(
-									SLSF.USER_ID IS NULL
-									OR SLSF.TYPE <> 'Y'
-								)
-								AND (
-									SLR.GROUP_CODE IN ('AU', 'G2')
-									" . ($bForAllAccess ? '' : ' OR (UA.ACCESS_CODE = SLR.GROUP_CODE)') . "
-								)
-							)
-							OR (
-								SLSF.TYPE = 'Y'
-								" . ($bForAllAccess ? '' : ' AND (UA.ACCESS_CODE = SLR.GROUP_CODE)') . "
-								AND (
-									SLR.GROUP_CODE LIKE 'SG%'
-									OR SLR.GROUP_CODE = " . $DB->Concat("'U'", 'U.ID') . "
-								)
+						OR (
+							SLSF.TYPE <> 'Y'
+							AND (
+								SLR.GROUP_CODE IN ('AU', 'G2')
+								" . (!$forAllAccess ? ' OR (UA.ACCESS_CODE = SLR.GROUP_CODE)' : '') . "
 							)
 						)
-					";
-				}
+					)
+				";
 			}
 			else
 			{
-				$userLogRightsIntersectCondition = '';
-				if (!$bForAllAccess && $IsForAllAccessOnly !== 'Y')
+				$userWhere = "
+					AND (
+						0=1
+						OR (
+							(
+								SLSF.USER_ID IS NULL
+								OR SLSF.TYPE <> 'Y'
+							)
+							AND (
+								SLR.GROUP_CODE IN ('AU', 'G2')
+								" . ($forAllAccess ? '' : ' OR (UA.ACCESS_CODE = SLR.GROUP_CODE)') . "
+							)
+						)
+						OR (
+							SLSF.TYPE = 'Y'
+							" . ($forAllAccess ? '' : ' AND (UA.ACCESS_CODE = SLR.GROUP_CODE)') . "
+							AND (
+								SLR.GROUP_CODE LIKE 'SG%'
+								OR SLR.GROUP_CODE = " . $DB->Concat("'U'", 'U.ID') . "
+							)
+						)
+					)
+				";
+			}
+		}
+		else
+		{
+			$userLogRightsIntersectCondition = '';
+			if (!$forAllAccess && $forAllAccessOnly !== 'Y')
+			{
+				foreach ($logRightCodes as $rightCode)
 				{
-					if (!$bGroupCounters)
+					if (in_array($rightCode, [ 'AU', 'G2' ], true))
 					{
-						$res = static::$logRightTableClass::getList([
-							'filter' => [
-								'=LOG_ID' => $logId
-							],
-							'select' => [ 'GROUP_CODE' ],
-						]);
-						while ($logRightFields = $res->fetch())
-						{
-							if (in_array($logRightFields['GROUP_CODE'], [ 'AU', 'G2' ]))
-							{
-								continue;
-							}
-
-							$logRightFilterValue[] = $logRightFields['GROUP_CODE'];
-						}
+						continue;
 					}
 
-					$userLogRightsIntersectCondition = (
-						!empty($logRightFilterValue)
-							? ' OR UA.ACCESS_CODE IN (' . implode(', ', array_map(static function($item) use ($DB) { return "'" . $DB->forSql($item) . "'"; }, $logRightFilterValue)) . ') '
-							: ' OR (UA.ACCESS_CODE = SLR.GROUP_CODE) '
-						);
+					$logRightFilterValue[] = $rightCode;
 				}
 
-				if (
-					$useFollow
-					&& $defaultFollowValue !== 'Y'
-					&& !$bForAllAccess
-					&& $IsForAllAccessOnly !== 'Y'
-					&& !empty($logRightFilterValue)
-				)
-				{
-					$useUASubSelect = true;
-
-					$userWhere = "
-						AND U.ID IN (
-							SELECT DISTINCT UA.USER_ID
-							FROM
-							b_user_access UA
-							INNER JOIN b_sonet_log_follow LFW ON LFW.USER_ID = UA.USER_ID
-							WHERE
-								UA.ACCESS_CODE IN (" . implode(', ', array_map(static function($item) use ($DB) { return "'" . $DB->forSql($item) . "'"; }, $logRightFilterValue)) . ")
-								AND LFW.TYPE = 'Y'
-								AND (LFW.CODE = 'L" . $logId . "' OR LFW.CODE = '**')
-						)
-					";
-
-					$followJoin = " 
-						LEFT JOIN b_sonet_log_follow LFW2 ON LFW2.USER_ID = U.ID AND (LFW2.CODE = 'L" . $logId . "' AND LFW2.TYPE = 'N')
-					";
-					$followWhere = "
-						AND LFW2.USER_ID IS NULL
-					";
-				}
-				else
-				{
-					$userWhere = "
-						AND (
-							0=1
-							" . (
-								$IsForAllAccessOnly !== 'N' || $bForAllAccess
-									? "OR (SLR.GROUP_CODE IN ('AU', 'G2'))"
-									: ''
-							) . "
-							" . $userLogRightsIntersectCondition . "
-						)
-					";
-				}
-
-
+				$userLogRightsIntersectCondition = (
+					!empty($logRightFilterValue)
+						? ' OR UA.ACCESS_CODE IN (' . static::implodeArrayOfStrings($logRightFilterValue) . ') '
+						: ' OR UA.ACCESS_CODE = SLR.GROUP_CODE '
+					);
 			}
-		}
-
-		$strSQL = "
-			SELECT DISTINCT
-				U.ID as ID
-				,".($bDecrement ? "-1" : "1")." as CNT
-				,".$DB->IsNull("SLS.SITE_ID", "'**'")." as SITE_ID
-				,".$params['CODE']." as CODE,
-				0 as SENT
-				".($tagSet ? ", '".$DB->ForSQL($tagSet)."' as TAG" : "")."
-				" . ($bSetTimestamp ? ', ' . CDatabase::currentTimeFunction() . ' as TIMESTAMP_X' : '') . "
-			FROM
-				b_user U
-				INNER JOIN b_sonet_log_right SLR ON SLR.LOG_ID = ".$logId."
-				".($bGroupCounters ? "INNER JOIN b_sonet_log_right SLR0 ON SLR0.LOG_ID = SLR.LOG_ID ": "")."
-				".(
-					!$bForAllAccess && !$useUASubSelect
-						? 'INNER JOIN b_user_access UA ON UA.USER_ID = U.ID' . ($logRightFilterValue ? ' AND (UA.ACCESS_CODE = SLR.GROUP_CODE)' : '')
-						: ''
-				)."
-				LEFT JOIN b_sonet_log_site SLS ON SLS.LOG_ID = SLR.LOG_ID
-				".($followJoin !== '' ? $followJoin : "")."
-				" . $viewJoin . "
-				".(!$bGroupCounters && !$intranetInstalled ? "LEFT JOIN b_sonet_log_smartfilter SLSF ON SLSF.USER_ID = U.ID " : "")."
-
-			WHERE
-				U.ACTIVE = 'Y'
-				AND U.LAST_ACTIVITY_DATE IS NOT NULL
-				AND U.LAST_ACTIVITY_DATE > ".CSocNetLogCounter::dbWeeksAgo(2)."
-				AND CASE WHEN U.EXTERNAL_AUTH_ID IN ('".implode("','", static::$userTableClass::getExternalUserTypes())."') THEN 'N' ELSE 'Y' END = 'Y'
-				".(
-					(
-						$type === CSocNetLogCounter::TYPE_LOG_COMMENT
-						||
-						(	array_key_exists("USE_CB_FILTER", $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type])
-							&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["USE_CB_FILTER"] === "Y"
-						)
-					)
-					&& (int)$created_by_id > 0
-					&& !$bSendToAuthor
-						? "AND U.ID <> ".$created_by_id
-						: ""
-				)."
-				".($bGroupCounters ? "AND (SLR0.GROUP_CODE like 'SG%' AND SLR0.GROUP_CODE NOT LIKE 'SG%\_%')": "").
-				$userWhere."
-				".
-				($followWhere !== '' ? $followWhere : "").
-				$viewWhere . "
-		";
-
-		if($bGroupCounters)
-		{
-			return $strSQL;
-		}
-
-		if (
-			$visibleFilter <> ''
-			|| $transportFilter <> ''
-		)
-		{
-			$strSQL .= "
-				AND	
-				(
-					EXISTS(
-						SELECT ID
-						FROM b_sonet_log_events SLE
-						WHERE
-							SLE.USER_ID = U.ID
-							AND SLE.ENTITY_TYPE = '".$entity_type."'
-							AND SLE.ENTITY_CB = 'N'
-							AND SLE.ENTITY_ID = ".$entity_id."
-							AND SLE.EVENT_ID = '".$event_id."'
-							".$transportFilter."
-							".$visibleFilter."
-					)";
 
 			if (
-				array_key_exists("USE_CB_FILTER", $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type])
-				&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["USE_CB_FILTER"] === "Y"
-				&& (int)$created_by_id > 0
+				$useFollow
+				&& $defaultFollowValue !== 'Y'
+				&& !$forAllAccess
+				&& $forAllAccessOnly !== 'Y'
+				&& !empty($logRightFilterValue)
 			)
 			{
-				$strSQL .= "
-				OR
-				(
-					EXISTS(
-						SELECT ID
-						FROM b_sonet_log_events SLE
-						WHERE
-							SLE.USER_ID = U.ID
-							AND SLE.ENTITY_CB = 'Y'
-							AND SLE.ENTITY_ID = ".$created_by_id."
-							AND SLE.EVENT_ID = '".$event_id."'
-							".$transportFilter."
-							".$visibleFilter."
-					)
-				)";
-			}
+				$useUASubSelect = true;
 
-			$strSQL .= "
-			OR
+				[ $join, $condition ] = static::getFollowJoin($logId, 'UA.USER_ID', 'positive');
+				$where = static::getFollowWhere('positive');
+
+				$userWhere = "
+					AND U.ID IN (
+						SELECT DISTINCT UA.USER_ID
+						FROM b_user_access UA
+						" . $join . "
+						WHERE
+							UA.ACCESS_CODE IN (" . static::implodeArrayOfStrings($logRightFilterValue) . ")
+							AND " . $where . "
+							AND " . $condition . "
+					)
+				";
+
+				[ $join, $condition ] = static::getFollowJoin($logId, 'U.ID', 'negative');
+				$where = static::getFollowWhere('negative');
+
+				$followJoin = $join . ' AND ' . $condition . ' ';
+				$followWhere = " AND " . $where . " ";
+			}
+			else
+			{
+				$userWhere = "
+					AND (
+						0=1
+						" . (
+							$forAllAccessOnly !== 'N' || $forAllAccess
+								? "OR (SLR.GROUP_CODE IN ('AU', 'G2'))"
+								: ''
+						) . "
+						" . $userLogRightsIntersectCondition . "
+					)
+				";
+			}
+		}
+
+		$userWhere = (
 			(
-				(
-					NOT EXISTS(
-						SELECT ID
-						FROM b_sonet_log_events SLE
-						WHERE
-							SLE.USER_ID = U.ID
-							AND SLE.ENTITY_TYPE = '".$entity_type."'
-							AND SLE.ENTITY_CB = 'N'
-							AND SLE.ENTITY_ID = ".$entity_id."
-							AND SLE.EVENT_ID = '".$event_id."'
-					)
-					OR
-					EXISTS(
-						SELECT ID
-						FROM b_sonet_log_events SLE
-						WHERE
-							SLE.USER_ID = U.ID
-							AND SLE.ENTITY_TYPE = '".$entity_type."'
-							AND SLE.ENTITY_CB = 'N'
-							AND SLE.ENTITY_ID = ".$entity_id."
-							AND SLE.EVENT_ID = '".$event_id."'
-							AND ".($visibleFilter ? "SLE.VISIBLE = 'I'" : "SLE.TRANSPORT = 'I'")."
-					)
-				)";
-
-			if (
-				array_key_exists("USE_CB_FILTER", $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type])
-				&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["USE_CB_FILTER"] === "Y"
-				&& (int)$created_by_id > 0
-			)
-			{
-				$strSQL .= "
-				AND
-				(
-					NOT EXISTS(
-						SELECT ID
-						FROM b_sonet_log_events SLE
-						WHERE
-							SLE.USER_ID = U.ID
-							AND SLE.ENTITY_CB = 'Y'
-							AND SLE.ENTITY_ID = ".$created_by_id."
-							AND SLE.EVENT_ID = '".$event_id."'
-					)
-					OR
-					EXISTS(
-						SELECT ID
-						FROM b_sonet_log_events SLE
-						WHERE
-							SLE.USER_ID = U.ID
-							AND SLE.ENTITY_CB = 'Y'
-							AND SLE.ENTITY_ID = ".$created_by_id."
-							AND SLE.EVENT_ID = '".$event_id."'
-							AND ".($visibleFilter ? "SLE.VISIBLE = 'I'" : "SLE.TRANSPORT = 'I'")."
-					)
-
-				)";
-			}
-
-			$strSQL .= "
-				AND
-				(
-					EXISTS(
-						SELECT ID
-						FROM b_sonet_log_events SLE
-						WHERE
-							SLE.USER_ID = U.ID
-							AND SLE.ENTITY_TYPE = '".$entity_type."'
-							AND SLE.ENTITY_CB = 'N'
-							AND SLE.ENTITY_ID = ".$entity_id."
-							AND SLE.EVENT_ID = 'all'
-							".$transportFilter."
-							".$visibleFilter."
-					)";
-
-			if (
-				array_key_exists("USE_CB_FILTER", $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type])
-				&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["USE_CB_FILTER"] === "Y"
-				&& (int)$created_by_id > 0
-			)
-			{
-				$strSQL .= "
-					OR
-					(
-						EXISTS(
-							SELECT ID
-							FROM b_sonet_log_events SLE
-							WHERE
-								SLE.USER_ID = U.ID
-								AND SLE.ENTITY_CB = 'Y'
-								AND SLE.ENTITY_ID = ".$created_by_id."
-								AND SLE.EVENT_ID = 'all'
-								".$transportFilter."
-								".$visibleFilter."
-						)
-					)";
-			}
-
-			$strSQL .= "
-					OR
-					(
-						(
-							NOT EXISTS(
-								SELECT ID
-								FROM b_sonet_log_events SLE
-								WHERE
-									SLE.USER_ID = U.ID
-									AND SLE.ENTITY_TYPE = '".$entity_type."'
-									AND SLE.ENTITY_CB = 'N'
-									AND SLE.ENTITY_ID = ".$entity_id."
-									AND SLE.EVENT_ID = 'all'
-							)
-							OR
-							EXISTS(
-								SELECT ID
-								FROM b_sonet_log_events SLE
-								WHERE
-									SLE.USER_ID = U.ID
-									AND SLE.ENTITY_TYPE = '".$entity_type."'
-									AND SLE.ENTITY_CB = 'N'
-									AND SLE.ENTITY_ID = ".$entity_id."
-									AND SLE.EVENT_ID = 'all'
-									AND ".($visibleFilter ? "SLE.VISIBLE = 'I'" : "SLE.TRANSPORT = 'I'")."
-							)
-						)
-						AND ";
-
-			if (
-				array_key_exists("USE_CB_FILTER", $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type])
-				&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["USE_CB_FILTER"] === "Y"
-				&& (int)$created_by_id > 0
-			)
-			{
-				$strSQL .= "
-						(
-							NOT EXISTS(
-								SELECT ID
-								FROM b_sonet_log_events SLE
-								WHERE
-									SLE.USER_ID = U.ID
-									AND SLE.ENTITY_CB = 'Y'
-									AND SLE.ENTITY_ID = ".$created_by_id."
-									AND SLE.EVENT_ID = 'all'
-							)
-							OR
-							EXISTS(
-								SELECT ID
-								FROM b_sonet_log_events SLE
-								WHERE
-									SLE.USER_ID = U.ID
-									AND SLE.ENTITY_CB = 'Y'
-									AND SLE.ENTITY_ID = ".$created_by_id."
-									AND SLE.EVENT_ID = 'all'
-									AND ".($visibleFilter ? "SLE.VISIBLE = 'I'" : "SLE.TRANSPORT = 'I'")."
-							)
-						)
-						AND
-						(
-						";
-			}
-
-			if ($strOfEntities <> '')
-			{
-					$strSQL .= "
-						(
-							".$strOfEntities."
-							AND
-							(
-								EXISTS(
-									SELECT ID
-									FROM b_sonet_log_events SLE
-									WHERE
-										SLE.USER_ID = U.ID
-										AND SLE.ENTITY_TYPE = '".$entity_type."'
-										AND SLE.ENTITY_ID = 0
-										AND SLE.ENTITY_MY = 'Y'
-										AND SLE.EVENT_ID = '".$event_id."'
-										".$transportFilter."
-										".$visibleFilter."
-								)
-								OR
-								(
-									(
-										EXISTS(
-											SELECT ID
-											FROM b_sonet_log_events SLE
-											WHERE
-												SLE.USER_ID = U.ID
-												AND SLE.ENTITY_TYPE = '".$entity_type."'
-												AND SLE.ENTITY_ID = 0
-												AND SLE.ENTITY_MY = 'Y'
-												AND SLE.EVENT_ID = '".$event_id."'
-												AND ".($visibleFilter ? "SLE.VISIBLE = 'I'" : "SLE.TRANSPORT = 'I'")."
-										)
-										OR
-										NOT EXISTS(
-											SELECT ID
-											FROM b_sonet_log_events SLE
-											WHERE
-												SLE.USER_ID = U.ID
-												AND SLE.ENTITY_TYPE = '".$entity_type."'
-												AND SLE.ENTITY_ID = 0
-												AND SLE.ENTITY_MY = 'Y'
-												AND SLE.EVENT_ID = '".$event_id."'
-										)
-									)
-									AND
-									(
-										EXISTS(
-											SELECT ID
-											FROM b_sonet_log_events SLE
-											WHERE
-												SLE.USER_ID = U.ID
-												AND SLE.ENTITY_TYPE = '".$entity_type."'
-												AND SLE.ENTITY_ID = 0
-												AND SLE.ENTITY_MY = 'Y'
-												AND SLE.EVENT_ID = 'all'
-												".$transportFilter."
-												".$visibleFilter."
-										)
-									)
-								)
-							)
-						)
-						OR
-					";
-			}
-
-			$strSQL .=	"
-							(
-								EXISTS(
-									SELECT ID
-									FROM b_sonet_log_events SLE
-									WHERE
-										SLE.USER_ID = U.ID
-										AND SLE.ENTITY_TYPE = '".$entity_type."'
-										AND SLE.ENTITY_ID = 0
-										AND SLE.ENTITY_MY = 'N'
-										AND SLE.EVENT_ID = '".$event_id."'
-										".$transportFilter."
-										".$visibleFilter."
-								)
-								OR
-								(
-									(
-										EXISTS(
-											SELECT ID
-											FROM b_sonet_log_events SLE
-											WHERE
-												SLE.USER_ID = U.ID
-												AND SLE.ENTITY_TYPE = '".$entity_type."'
-												AND SLE.ENTITY_ID = 0
-												AND SLE.ENTITY_MY = 'N'
-												AND SLE.EVENT_ID = '".$event_id."'
-												AND ".($visibleFilter ? "SLE.VISIBLE = 'I'" : "SLE.TRANSPORT = 'I'")."
-											)
-										OR
-										NOT EXISTS(
-											SELECT ID
-											FROM b_sonet_log_events SLE
-											WHERE
-												SLE.USER_ID = U.ID
-												AND SLE.ENTITY_TYPE = '".$entity_type."'
-												AND SLE.ENTITY_ID = 0
-												AND SLE.ENTITY_MY = 'N'
-												AND SLE.EVENT_ID = '".$event_id."'
-										)
-									)
-									AND
-									(
-										EXISTS(
-											SELECT ID
-											FROM b_sonet_log_events SLE
-											WHERE
-												SLE.USER_ID = U.ID
-												AND SLE.ENTITY_TYPE = '".$entity_type."'
-												AND SLE.ENTITY_ID = 0
-												AND SLE.ENTITY_MY = 'N'
-												AND SLE.EVENT_ID = 'all'
-										".$transportFilter."
-										".$visibleFilter."
-										)
-										OR
-										EXISTS(
-											SELECT ID
-											FROM b_sonet_log_events SLE
-											WHERE
-												SLE.USER_ID = U.ID
-												AND SLE.ENTITY_TYPE = '".$entity_type."'
-												AND SLE.ENTITY_ID = 0
-												AND SLE.ENTITY_MY = 'N'
-												AND SLE.EVENT_ID = 'all'
-												AND ".($visibleFilter ? "SLE.VISIBLE = 'I'" : "SLE.TRANSPORT = 'I'")."
-										)
-										OR
-										NOT EXISTS(
-											SELECT ID
-											FROM b_sonet_log_events SLE
-											WHERE
-												SLE.USER_ID = U.ID
-												AND SLE.ENTITY_TYPE = '".$entity_type."'
-												AND SLE.ENTITY_ID = 0
-												AND SLE.ENTITY_MY = 'N'
-												AND SLE.EVENT_ID = 'all'
-										)
-									)
-								)
-							)";
-
-			if (
-				array_key_exists("USE_CB_FILTER", $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type])
-				&& $arSocNetAllowedSubscribeEntityTypesDesc[$entity_type]["USE_CB_FILTER"] === "Y"
-				&& (int)$created_by_id > 0
-			)
-				$strSQL .="
-						)";
-
-			$strSQL .="
-					)
+				$type === CSocNetLogCounter::TYPE_LOG_COMMENT
+				|| (
+					array_key_exists("USE_CB_FILTER", $arSocNetAllowedSubscribeEntityTypesDesc[$counterEntityType])
+					&& $arSocNetAllowedSubscribeEntityTypesDesc[$counterEntityType]["USE_CB_FILTER"] === "Y"
 				)
 			)
+			&& $createdById > 0
+			&& !$sendToAuthor
+				? " AND U.ID <> " . $createdById
+				: ""
+			) .
+			$userWhere;
 
-			)";
+		if ($workgroupMode)
+		{
+			$strSQL = "
+				SELECT DISTINCT
+					U.ID as ID
+					," . ($decrement ? "-1" : "1") . " as CNT
+					, '**' as SITE_ID
+					," . $DB->Concat($params['CODE'], 'SU2G.GROUP_ID') . " as CODE,
+					0 as SENT
+					" . ($tagSet ? ", '" . $DB->ForSQL($tagSet) . "' as TAG" : "") . "
+					" . ($setTimestamp ? ', ' . CDatabase::currentTimeFunction() . ' as TIMESTAMP_X' : '') . "
+				FROM
+					b_user U
+				INNER JOIN b_sonet_user2group SU2G ON SU2G.USER_ID = U.ID" .
+				$viewJoin . "
+				WHERE
+					U.ACTIVE = 'Y'
+					AND U.LAST_ACTIVITY_DATE IS NOT NULL
+					AND U.LAST_ACTIVITY_DATE > " . CSocNetLogCounter::dbWeeksAgo(2) . "
+					AND CASE WHEN U.EXTERNAL_AUTH_ID IN ('".implode("','", static::$userTableClass::getExternalUserTypes())."') THEN 'N' ELSE 'Y' END = 'Y'
+					" .
+					$userWhere . " " .
+					$viewWhere . "
+			";
+		}
+		else
+		{
+			$strSQL = "
+				SELECT DISTINCT
+					U.ID as ID
+					," . ($decrement ? "-1" : "1")." as CNT
+					, " .$DB->IsNull("SLS.SITE_ID", "'**'")." as SITE_ID
+					," . $params['CODE']." as CODE,
+					0 as SENT
+					" . ($tagSet ? ", '".$DB->ForSQL($tagSet)."' as TAG" : "") . "
+					" . ($setTimestamp ? ', ' . CDatabase::currentTimeFunction() . ' as TIMESTAMP_X' : '') . "
+				FROM
+					b_user U
+				INNER JOIN b_sonet_log_right SLR ON SLR.LOG_ID = ".$logId."
+					" . (
+						!$forAllAccess && !$useUASubSelect
+							? 'INNER JOIN b_user_access UA 
+								ON UA.USER_ID = U.ID' .
+								(!empty($logRightFilterValue) ? ' AND (UA.ACCESS_CODE = SLR.GROUP_CODE)' : '')
+							: ''
+					)."
+					LEFT JOIN b_sonet_log_site SLS ON SLS.LOG_ID = SLR.LOG_ID
+					" . ($followJoin !== '' ? $followJoin : "") . "
+					" . $viewJoin . "
+					".(!$intranetInstalled ? "LEFT JOIN b_sonet_log_smartfilter SLSF ON SLSF.USER_ID = U.ID " : "")."
+
+				WHERE
+					U.ACTIVE = 'Y'
+					AND U.LAST_ACTIVITY_DATE IS NOT NULL
+					AND U.LAST_ACTIVITY_DATE > " . CSocNetLogCounter::dbWeeksAgo(2) . "
+					AND CASE WHEN U.EXTERNAL_AUTH_ID IN ('".implode("','", static::$userTableClass::getExternalUserTypes())."') THEN 'N' ELSE 'Y' END = 'Y'
+					" .
+					$userWhere."
+					".
+					$followWhere .
+					$viewWhere . "
+			";
 		}
 
 		return $strSQL;
+	}
+
+	protected static function getFollowJoin(int $logId = 0, string $userIdReference = 'U.ID', string $mode = ''): array
+	{
+		if (!in_array($mode, [ 'positive', 'negative' ], true))
+		{
+			return [ '', '' ];
+		}
+
+		if ($mode === 'positive')
+		{
+			$join = " 
+				INNER JOIN b_sonet_log_follow LFW 
+				ON LFW.USER_ID = " . $userIdReference . " 
+			";
+
+			$condition = " (LFW.CODE = 'L" . $logId . "' OR LFW.CODE = '**') ";
+		}
+		else
+		{
+			$join = " 
+				LEFT JOIN b_sonet_log_follow LFW2 
+				ON LFW2.USER_ID = " . $userIdReference . " 
+			";
+
+			$condition = " (LFW2.CODE = 'L" . $logId . "' AND LFW2.TYPE = 'N') ";
+		}
+
+		return [ $join, $condition ];
+	}
+
+	protected static function getFollowWhere(string $mode = ''): string
+	{
+		if (!in_array($mode, [ 'positive', 'negative' ], true))
+		{
+			return '';
+		}
+
+		if ($mode === 'positive')
+		{
+			$result = " LFW.TYPE = 'Y' ";
+		}
+		else
+		{
+			$result = " LFW2.USER_ID IS NULL ";
+		}
+
+		return $result;
+	}
+
+	protected static function implodeArrayOfStrings(array $list = []): string
+	{
+		global $DB;
+
+		return implode(', ', array_map(static function($item) use ($DB) {
+			return "'" . $DB->forSql($item) . "'";
+		}, $list));
+	}
+
+	protected static function implodeArrayOfIntegers(array $list = []): string
+	{
+		return implode(', ', array_map(static function($item) {
+			return (int)$item;
+		}, $list));
 	}
 
 	/** @deprecated */

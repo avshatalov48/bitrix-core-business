@@ -174,22 +174,28 @@ function deleteAccessRow(link)
 	 */
 	BX.Landing.Custom404And503 = function(select, useField)
 	{
-		BX.bind(select, 'change', function ()
-		{
-			if (this.value === '')
+		BX.bind(select, 'change', event => {
+			if (event.currentTarget.value === '')
 			{
 				useField.checked = false;
+				useField.click();
 			}
 			else
 			{
 				useField.checked = true;
 			}
 		});
-		BX.bind(useField, 'change', function ()
-		{
-			if (!this.checked)
+
+		BX.addCustomEvent('BX.UI.LayoutForm:onToggle', event => {
+			if (
+				event.getData().checkbox
+				&& event.getData().checkbox === useField
+			)
 			{
-				select.value = ''
+				if (!event.getData().checkbox.checked)
+				{
+					select.value = ''
+				}
 			}
 		});
 	};
@@ -361,7 +367,7 @@ function deleteAccessRow(link)
 					}
 				}
 
-				const layoutField = new BX.Landing.UI.Field.LinkURL({
+				const layoutField = new BX.Landing.UI.Field.LinkUrl({
 					title: this.params.messages.area + ' #' + numberBlock,
 					content: linkContent,
 					textOnly: true,
@@ -370,8 +376,18 @@ function deleteAccessRow(link)
 					disallowType: true,
 					enableAreas: true,
 					allowedTypes: [
-						BX.Landing.UI.Field.LinkURL.TYPE_PAGE,
+						BX.Landing.UI.Field.LinkUrl.TYPE_PAGE,
 					],
+					typeData: {
+						button : {
+							'className': 'fa fa-chevron-right',
+							'text': '',
+							'action': BX.Landing.UI.Field.LinkUrl.TYPE_PAGE,
+						},
+						hideInput : false,
+						contentEditable : false,
+					},
+					settingMode: true,
 					options: {
 						siteId: this.params.siteId,
 						landingId: this.params.landingId,
@@ -381,6 +397,7 @@ function deleteAccessRow(link)
 					},
 					onInit: this.rebuildHiddenField.bind(this),
 					onInput: this.rebuildHiddenField.bind(this),
+					onValueChange: this.rebuildHiddenField.bind(this),
 				});
 
 				this.areas[i] = layoutField;
@@ -395,7 +412,8 @@ function deleteAccessRow(link)
 			for (let i = 0, c = this.areas.length; i < c; i++)
 			{
 				refs += (i + 1) + ':' +
-					(this.areas[i].getValue() ? this.areas[i].getValue().substr(8) : 0) +
+					//todo: 13 -> 8
+					(this.areas[i].getValue() ? this.areas[i].getValue().substr(13) : 0) +
 					',';
 			}
 			this.params.tplRefs.value = refs;
@@ -576,7 +594,7 @@ function deleteAccessRow(link)
 
 			setTimeout(() => {
 				BX.Dom.removeClass(node, BX.Landing.ToggleAdditionalFields.CLASS_HIGHLIGHT);
-			}, 1500);
+			}, 2500);
 		},
 	}
 

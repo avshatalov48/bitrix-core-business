@@ -1,0 +1,42 @@
+<svg width="19" height="19" id="loader-circular" viewBox="25 25 50 50" xmlns="http://www.w3.org/2000/svg">
+	<style>
+		#loader-circular {
+			-webkit-animation: rotate 2s linear infinite;
+			animation: rotate 2s linear infinite;
+			-webkit-transform-origin: center center;
+			transform-origin: center center;
+		}
+
+		#loader-path {
+			stroke: rgba(215,220,223,.74);
+			stroke-width: 6;
+			stroke-dasharray: 20, 200;
+			stroke-dashoffset: 0;
+			-webkit-animation: dash 1.5s ease-in-out infinite;
+			animation: dash 1.5s ease-in-out infinite;
+			stroke-linecap: round;
+		}
+
+		@keyframes rotate {
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+
+		@keyframes dash {
+			0% {
+				stroke-dasharray: 1, 200;
+				stroke-dashoffset: 0;
+			}
+			50% {
+				stroke-dasharray: 89, 200;
+				stroke-dashoffset: -35px;
+			}
+			100% {
+				stroke-dasharray: 89, 200;
+				stroke-dashoffset: -124px;
+			}
+		}
+	</style>
+	<circle id="loader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
+</svg>

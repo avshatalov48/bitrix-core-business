@@ -13,7 +13,7 @@ use Bitrix\Socialnetwork\Internals\Counter\Provider;
 
 class CounterController
 {
-	public static function getValue(string $name = '', int $entityId = 0, int $userId = 0): int
+	public static function getValue(string $name = '', int $entityId = 0, int $userId = 0): array
 	{
 		$instance = self::getInstance($name, $entityId, $userId);
 
@@ -39,6 +39,16 @@ class CounterController
 			case CounterDictionary::COUNTER_WORKGROUP_REQUESTS_OUT:
 				$result = new Provider\WorkgroupRequestsOut([
 					'workgroupId' => $entityId,
+				]);
+				break;
+			case CounterDictionary::COUNTER_WORKGROUP_LIST_LIVEFEED:
+				$result = new Provider\WorkgroupListLivefeed([
+					'userId' => $userId,
+				]);
+				break;
+			case CounterDictionary::COUNTER_WORKGROUP_LIST_TASKS:
+				$result = new Provider\WorkgroupListTasks([
+					'userId' => $userId,
 				]);
 				break;
 			default:

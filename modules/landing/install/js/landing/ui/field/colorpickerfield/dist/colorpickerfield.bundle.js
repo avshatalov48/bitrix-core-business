@@ -4,35 +4,11 @@ this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 (function (exports,landing_ui_field_basefield,main_core_events,main_core,ui_draganddrop_draggable,landing_ui_component_internal,landing_loc,landing_pageobject) {
 	'use strict';
 
-	function _templateObject3() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"landing-ui-field-color-opacity-picker\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t></div>\n\t\t\t"]);
+	var _templateObject, _templateObject2, _templateObject3;
 
-	  _templateObject3 = function _templateObject3() {
-	    return data;
-	  };
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-	  return data;
-	}
-
-	function _templateObject2() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-opacity-color\"></div>\n\t\t\t"]);
-
-	  _templateObject2 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-opacity\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 	var Opacity = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(Opacity, _EventEmitter);
@@ -48,7 +24,7 @@ this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 
 	    _this.subscribeFromOptions(landing_ui_component_internal.fetchEventsFromOptions(options));
 
-	    _this.options = babelHelpers.objectSpread({}, options);
+	    _this.options = _objectSpread({}, options);
 	    _this.cache = new main_core.Cache.MemoryCache();
 	    _this.onPickerDragStart = _this.onPickerDragStart.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.onPickerDragMove = _this.onPickerDragMove.bind(babelHelpers.assertThisInitialized(_this));
@@ -75,14 +51,14 @@ this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('layout', function () {
-	        return main_core.Tag.render(_templateObject(), _this2.getPicker(), _this2.getColorLayout());
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-opacity\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this2.getPicker(), _this2.getColorLayout());
 	      });
 	    }
 	  }, {
 	    key: "getColorLayout",
 	    value: function getColorLayout() {
 	      return this.cache.remember('colorLayout', function () {
-	        return main_core.Tag.render(_templateObject2());
+	        return main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-color-opacity-color\"></div>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
@@ -98,7 +74,7 @@ this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 	    key: "getPicker",
 	    value: function getPicker() {
 	      return this.cache.remember('picker', function () {
-	        return main_core.Tag.render(_templateObject3(), landing_loc.Loc.getMessage('LANDING_COLORPICKER_FIELD_CHANGE_COLOR_OPACITY'));
+	        return main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div \n\t\t\t\t\tclass=\"landing-ui-field-color-opacity-picker\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t></div>\n\t\t\t"])), landing_loc.Loc.getMessage('LANDING_COLORPICKER_FIELD_CHANGE_COLOR_OPACITY'));
 	      });
 	    }
 	  }, {
@@ -162,45 +138,7 @@ this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 	  return Opacity;
 	}(main_core_events.EventEmitter);
 
-	function _templateObject4() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-colorpicker-layout\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"]);
-
-	  _templateObject4 = function _templateObject4() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject3$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\ttype=\"color\" \n\t\t\t\t\tclass=\"landing-ui-field-colorpicker-input\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t\toninput=\"", "\"\n\t\t\t\t\tonchange=\"", "\"\n\t\t\t\t>\n\t\t\t"]);
-
-	  _templateObject3$1 = function _templateObject3() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject2$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label \n\t\t\t\t\tclass=\"landing-ui-field-colorpicker-label\"\n\t\t\t\t\tfor=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t</label>\n\t\t\t"]);
-
-	  _templateObject2$1 = function _templateObject2() {
-	    return data;
-	  };
-
-	  return data;
-	}
-
-	function _templateObject$1() {
-	  var data = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"landing-ui-field-colorpicker-label-inner\"></span>\n\t\t\t"]);
-
-	  _templateObject$1 = function _templateObject() {
-	    return data;
-	  };
-
-	  return data;
-	}
+	var _templateObject$1, _templateObject2$1, _templateObject3$1, _templateObject4;
 	var ColorPickerField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(ColorPickerField, _BaseField);
 
@@ -233,7 +171,7 @@ this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 	    key: "getColorLabelInner",
 	    value: function getColorLabelInner() {
 	      return this.cache.remember('colorLabelInner', function () {
-	        return main_core.Tag.render(_templateObject$1());
+	        return main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span class=\"landing-ui-field-colorpicker-label-inner\"></span>\n\t\t\t"])));
 	      });
 	    }
 	  }, {
@@ -242,7 +180,7 @@ this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 	      var _this2 = this;
 
 	      return this.cache.remember('colorLabel', function () {
-	        return main_core.Tag.render(_templateObject2$1(), _this2.getUid(), landing_loc.Loc.getMessage('LANDING_COLORPICKER_FIELD_CHANGE_COLOR_TITLE'), _this2.getColorLabelInner());
+	        return main_core.Tag.render(_templateObject2$1 || (_templateObject2$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label \n\t\t\t\t\tclass=\"landing-ui-field-colorpicker-label\"\n\t\t\t\t\tfor=\"", "\"\n\t\t\t\t\ttitle=\"", "\"\n\t\t\t\t>\n\t\t\t\t\t", "\n\t\t\t\t</label>\n\t\t\t"])), _this2.getUid(), landing_loc.Loc.getMessage('LANDING_COLORPICKER_FIELD_CHANGE_COLOR_TITLE'), _this2.getColorLabelInner());
 	      });
 	    }
 	  }, {
@@ -251,7 +189,7 @@ this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 	      var _this3 = this;
 
 	      return this.cache.remember('colorInput', function () {
-	        return main_core.Tag.render(_templateObject3$1(), _this3.getUid(), _this3.onInputChange.bind(_this3), _this3.onInputChange.bind(_this3));
+	        return main_core.Tag.render(_templateObject3$1 || (_templateObject3$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<input \n\t\t\t\t\ttype=\"color\" \n\t\t\t\t\tclass=\"landing-ui-field-colorpicker-input\"\n\t\t\t\t\tid=\"", "\"\n\t\t\t\t\toninput=\"", "\"\n\t\t\t\t\tonchange=\"", "\"\n\t\t\t\t>\n\t\t\t"])), _this3.getUid(), _this3.onInputChange.bind(_this3), _this3.onInputChange.bind(_this3));
 	      });
 	    }
 	  }, {
@@ -265,7 +203,7 @@ this.BX.Landing.Ui = this.BX.Landing.Ui || {};
 	      var _this4 = this;
 
 	      return this.cache.remember('colorLayout', function () {
-	        return main_core.Tag.render(_templateObject4(), _this4.getColorLabel(), _this4.getColorInput(), _this4.getOpacityField().getLayout());
+	        return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<div class=\"landing-ui-field-colorpicker-layout\">\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t"])), _this4.getColorLabel(), _this4.getColorInput(), _this4.getOpacityField().getLayout());
 	      });
 	    }
 	  }, {

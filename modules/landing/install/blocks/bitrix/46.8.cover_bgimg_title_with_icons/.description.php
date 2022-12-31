@@ -34,10 +34,12 @@ return array(
 		'.landing-block-node-icon' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.8.COVER_BGIMG_TITLE_WITH_ICONS_NODES_LANDINGBLOCKNODEICON'),
 			'type' => 'icon',
+			'useInDesigner' => false,
 		),
 		'.landing-block-node-icon-text' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.8.COVER_BGIMG_TITLE_WITH_ICONS_NODES_LANDINGBLOCKNODEICON_TEXT'),
 			'type' => 'text',
+			'useInDesigner' => false,
 		),
 		'.landing-block-node-button' => array(
 			'name' => Loc::getMessage('LANDING_BLOCK_46.8.COVER_BGIMG_TITLE_WITH_ICONS_NODES_LANDINGBLOCKNODEBUTTON'),
@@ -49,6 +51,9 @@ return array(
 			'useInDesigner' => false,
 			'dimensions' => array('width' => 1920, 'height' => 1440),
 			'create2xByDefault' => false,
+		),
+		'.landing-block-node-card-list-item' => array(
+			'type' => '???',
 		),
 	),
 	'style' => array(

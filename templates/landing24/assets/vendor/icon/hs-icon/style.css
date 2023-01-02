@@ -1,0 +1,24 @@
+/*
+dbg: was deleted all font, except woff - it is all what we need
+*/
+@font-face {
+  font-family: 'hs-icons';
+  src: url('/bitrix/templates/landing24/assets/vendor/icon/hs-icon/font.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.hs-icon {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'hs-icons' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

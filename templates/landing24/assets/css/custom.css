@@ -1,0 +1,68 @@
+/*deprecated. Use Unify custom_core.scss*/
+.custom-text-shadow-1 {
+	text-shadow: 2px 4px 3px rgba(0, 0, 0, .3);
+}
+
+.custom-text-shadow-2 {
+	text-shadow: 2px 2px 3px rgba(255, 255, 255, .1);
+}
+
+.custom-text-shadow-3 {
+	text-shadow: 6px 6px 0 rgba(0, 0, 0, .2);
+}
+
+.custom-text-shadow-4 {
+	text-shadow: 4px 3px 0 #fff, 9px 8px 0 rgba(0, 0, 0, .15);
+}
+
+.custom-text-shadow-5 {
+	text-shadow: 0 3px 0 #b2a98f, 0 14px 10px rgba(0, 0, 0, .15), 0 24px 2px rgba(0, 0, 0, .1), 0 34px 30px rgba(0, 0, 0, .1);
+}
+
+.custom-text-shadow-6 {
+	text-shadow: 0 4px 3px rgba(0, 0, 0, .4), 0 8px 13px rgba(0, 0, 0, .1), 0 18px 23px rgba(0, 0, 0, .1);
+}
+
+.custom-text-shadow-7 {
+	text-shadow: 0 1px 0 #ccc,
+	0 2px 0 #c9c9c9,
+	0 3px 0 #bbb,
+	0 4px 0 #b9b9b9,
+	0 5px 0 #aaa,
+	0 6px 1px rgba(0, 0, 0, .1),
+	0 0 5px rgba(0, 0, 0, .1),
+	0 1px 3px rgba(0, 0, 0,.3),
+	0 3px 5px rgba(0, 0, 0, .2),
+	0 5px 10px rgba(0, 0, 0, .25),
+	0 10px 10px rgba(0, 0, 0, .2),
+	0 20px 20px rgba(0, 0, 0, .15);
+}
+
+.custom-text-shadow-8 {
+	text-shadow: rgba(255, 255, 255, .5) 0 3px 3px;
+}
+
+.custom-text-shadow-9 {
+	text-shadow: 0 0 6px rgba(255, 255, 255, .7);
+}
+
+.custom-text-shadow-10 {
+	text-shadow: 0 15px 5px rgba(0, 0, 0, .1), 10px 20px 5px rgba(0, 0, 0, .05), -10px 20px 5px rgba(0, 0, 0, .05);
+}
+
+.custom-text-shadow-11 {
+	text-shadow: 2px 8px 6px rgba(0, 0, 0, .2), 0 -5px 35px rgba(255, 255, 255, .3);
+}
+
+
+[style*="line-through"] {
+	text-decoration: line-through;
+}
+
+.gm-style .gm-style-iw {
+	font-weight: normal;
+}
+
+.landing-public-mode [data-pseudo-url*="\"enabled\":true}"] {
+	cursor: pointer;
+}

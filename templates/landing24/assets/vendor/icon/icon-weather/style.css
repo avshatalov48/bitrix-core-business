@@ -1,0 +1,37 @@
+@charset "UTF-8";
+
+@font-face
+{
+	font-family: "weather";
+	src: url("/bitrix/templates/landing24/assets/vendor/icon/icon-weather/font.woff") format("woff");
+	font-weight: normal;
+	font-style: normal;
+}
+
+[data-icon-weather]:before
+{
+	font-family: "weather" !important;
+	content: attr(data-icon-weather);
+	font-style: normal !important;
+	font-weight: normal !important;
+	font-variant: normal !important;
+	text-transform: none !important;
+	speak: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+[class^="icon-weather"]:before,
+[class*=" icon-weather"]:before
+{
+	font-family: "weather" !important;
+	font-style: normal !important;
+	font-weight: normal !important;
+	font-variant: normal !important;
+	text-transform: none !important;
+	speak: none;
+	line-height: 1;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}

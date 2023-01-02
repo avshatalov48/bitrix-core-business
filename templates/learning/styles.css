@@ -1,0 +1,81 @@
+.text, li, td
+{
+	font-family: Verdana, Arial;
+	font-size: 12px;
+}
+
+h1, h2, h3, h4
+{
+	margin-bottom: .4em;
+	margin-top: 2em;
+	font-weight: bold;
+}
+
+h1{font-size: 140%;}
+h2{font-size: 120%;line-height: 100%;}
+h3{margin-left: 0em;font-size: 115%;}
+h4{font-size: 100%;}
+
+
+pre.syntax
+{
+	font-family: Courier New;
+	background-color:#EEEEEE;
+	padding:1em 1em 1em 1em;
+	border: 1px solid #DDD;
+	width:600px;
+	height: 80px;
+	overflow:auto;
+}
+
+code
+{
+	font-family: Courier New, Verdana, Arial;
+	font-size: 13px;
+	font-weight: bold;
+}
+
+div.hint, div.important
+{
+	font-family: Verdana, Arial;
+	font-size: 12px;
+	background:#f9fafe url(icons/prim.gif) no-repeat 0.5em 1em;
+	padding:1em 1em 1em 2em;
+	border: 1px solid #BCCCDC;
+}
+
+div.important
+{
+	background-image: url(icons/imp.gif);
+}
+
+li {padding: 4px;}
+
+/* Spoiler */
+table.learning-spoiler thead {
+	cursor:pointer;
+	cursor:hand;}
+table.learning-spoiler thead div {
+	padding-left: 15px;
+	background-image: url('./images/plus.gif');
+	background-position: left center;
+	background-repeat: no-repeat; }
+table.learning-spoiler thead.learning-spoiler-head-open div {
+	background-image: url('./images/minus.gif');}
+
+table.learning-spoiler{
+	border: 1px solid #dddddd;
+	table-layout:fixed;
+	padding: 3px;
+	width: 100%;
+}
+table.learning-spoiler td{
+	color: #696969;
+}
+table.learning-spoiler th {
+	font-weight:bold;
+	text-align:left;
+	color: #888;
+}
+
+/* /Spoiler */

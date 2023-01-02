@@ -1,0 +1,208 @@
+.landing-block-faq-hidden {
+	display: block;
+	max-height: 0;
+	transition: max-height .5s;
+	overflow: hidden;
+}
+.landing-block-card.active .landing-block-faq-hidden,
+.landing-edit-mode .landing-block-faq-hidden {
+	max-height: 10000px;
+	transition: max-height 1.5s;
+}
+
+/*
+block faq3
+ */
+.landing-block-faq-3 .landing-block-faq-visible {
+	border-width: 0 !important;
+}
+.landing-block-faq-3 .landing-block-card.active .landing-block-faq-visible,
+.landing-edit-mode .landing-block-faq-3 .landing-block-faq-visible {
+	border-width: 1px !important;
+}
+.landing-block-faq-3 .icon {
+	display: inline-block;
+	position: absolute;
+	right: 0;
+	width: 22px;
+	height: 22px;
+	border: 1px solid;
+	border-radius: 22px;
+}
+.landing-block-faq-3 .icon::before {
+	display: block;
+	position: absolute;
+	content: '';
+	top: 9px;
+	left: 5px;
+	width: 10px;
+	height: 2px;
+	background: currentColor;
+}
+.landing-block-faq-3 .icon::after {
+	display: block;
+	position: absolute;
+	content: '';
+	top: 5px;
+	left: 9px;
+	width: 2px;
+	height: 10px;
+	background: currentColor;
+	transition: width 1s;
+}
+.landing-block-faq-3 .active .icon::after,
+.landing-edit-mode .landing-block-faq-3 .icon::after{
+	width: 0;
+	transition: width 1s;
+}
+
+/*
+block faq4
+ */
+.landing-block-faq-4 .landing-block-faq-visible {
+	display: inline-block;
+	width: 50%;
+	padding-right: 40px;
+	cursor: pointer;
+}
+.landing-block-faq-4 .landing-block-card.active .landing-block-faq-visible {
+	font-weight: bold;
+}
+.landing-block-faq-4 .landing-block-card .landing-block-faq-hidden {
+	position: absolute;
+	opacity: 0;
+	top: -30%;
+	left: 50%;
+	width: 50%;
+	transition: top 0.2s;
+	border: 1px solid;
+	border-radius: 3px;
+}
+.landing-block-faq-4 .landing-block-card.active .landing-block-faq-hidden {
+	top: 30%;
+	opacity: 1;
+}
+.landing-edit-mode .landing-block-faq-4 .landing-block-faq-hidden {
+	position: relative;
+	opacity: 1;
+	top: 0;
+	left: 0;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	padding: 20px;
+}
+@media (max-width: 768px) {
+	.landing-block-faq-4 .landing-block-faq-hidden {
+		display: none;
+		border-right: 1px solid #f1f2f3 !important;
+		border-left: 1px solid #f1f2f3 !important;
+		border-bottom: 1px solid #f1f2f3 !important;
+	}
+	.landing-block-faq-4 .landing-block-card.active .landing-block-faq-hidden {
+		display: block;
+		position: relative;
+		opacity: 1;
+		top: 0;
+		left: 0;
+		margin-top: 5px;
+		margin-bottom: 10px;
+		padding: 20px;
+		width: 100%;
+	}
+	.landing-block-faq-4 .landing-block-faq-visible {
+		width: 90%;
+		padding-right: 0;
+	}
+}
+@media (min-width: 768px) {
+	.landing-block-faq-4 .landing-block-faq-hidden {
+		border-right: 1px solid #f1f2f3 !important;
+		border-bottom: 1px solid #f1f2f3 !important;
+	}
+	main:not(.landing-edit-mode) .landing-block-faq-4 .landing-block-faq-hidden {
+		border-top: 1px solid #f1f2f3 !important;
+	}
+	.landing-edit-mode .landing-block-faq-4 .landing-block-faq-hidden {
+		border-left: 1px solid #f1f2f3 !important;
+	}
+}
+
+/*
+block faq5
+ */
+.landing-block-faq-5 .landing-block-faq-visible {
+	border: 1px solid #9FA4A8;
+	border-radius: 10px;
+	overflow: hidden;
+	max-width: 600px;
+	transition: box-shadow .3s ease-out;
+}
+.landing-block-faq-5 .landing-block-card.active .landing-block-faq-visible {
+	box-shadow: 0 3px 6px rgba(0,0,0,0.1), 0 3px 6px rgba(0,0,0,0.1);
+	transition: box-shadow .3s ease-out;
+}
+.landing-block-faq-5 .landing-block-faq-icons {
+	background-color: transparent;
+	border: none;
+	border-radius: 50%;
+	color: #fff;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 16px;
+	padding: 0;
+	position: absolute;
+	top: 30px;
+	right: 30px;
+	height: 30px;
+	width: 30px;
+	transition: background-color .5s ease;
+}
+.landing-block-faq-5 .landing-block-faq-icons:focus {
+	outline: none;
+}
+.landing-block-faq-5 .landing-block-card.active .landing-block-faq-visible .landing-block-faq-icons,
+.landing-edit-mode .landing-block-faq-5 .landing-block-card .landing-block-faq-visible .landing-block-faq-icons {
+	background-color: #9FA4A8;
+	transition: background-color .5s ease;
+}
+.landing-block-faq-5 .landing-block-faq-icons .fa-times {
+	display: none;
+}
+.landing-block-faq-5 .landing-block-card.active .landing-block-faq-visible .landing-block-faq-icons .fa-times,
+.landing-edit-mode .landing-block-faq-5 .landing-block-card .landing-block-faq-visible .landing-block-faq-icons .fa-times {
+	display: block;
+}
+.landing-block-faq-5 .landing-block-faq-icons .fa-chevron-down {
+	color: #83888E;
+}
+.landing-block-faq-5 .landing-block-card.active .landing-block-faq-visible .landing-block-faq-icons .fa-chevron-down,
+.landing-edit-mode .landing-block-faq-5 .landing-block-card .landing-block-faq-visible .landing-block-faq-icons .fa-chevron-down {
+	display: none;
+}
+.landing-block-faq-5 .landing-block-faq-hidden {
+	display: none;
+}
+.landing-block-faq-5 .landing-block-card.active .landing-block-faq-hidden,
+.landing-edit-mode .landing-block-faq-5 .landing-block-faq-hidden {
+	display: block;
+}
+
+/*
+block faq6
+ */
+.landing-block-faq-6 .landing-block-faq-visible .landing-block-faq-icon-1 {
+	transition: transform .5s;
+}
+.landing-edit-mode .landing-block-faq-6 .landing-block-faq-visible .landing-block-faq-icon-1,
+.landing-block-faq-6 .landing-block-card.active .landing-block-faq-visible .landing-block-faq-icon-1
+ {
+	transform: rotate(90deg);
+	transition: transform .5s;
+}
+.landing-block-faq-6 .landing-block-faq-icons {
+	position: absolute;
+	right: 0;
+	top: calc(50% - 31px);
+}

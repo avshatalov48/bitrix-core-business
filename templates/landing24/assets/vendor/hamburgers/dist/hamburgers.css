@@ -1,0 +1,395 @@
+/*!
+ * Hamburgers
+ * @description Tasty CSS-animated hamburgers
+ * @author Jonathan Suh @jonsuh
+ * @site https://jonsuh.com/hamburgers
+ * @link https://github.com/jonsuh/hamburgers
+ */
+.hamburger {
+  padding: 15px 15px;
+  display: inline-block;
+  cursor: pointer;
+  transition-property: opacity, filter;
+  transition-duration: 0.15s;
+  transition-timing-function: linear;
+  font: inherit;
+  color: inherit;
+  text-transform: none;
+  background-color: transparent;
+  border: 0;
+  margin: 0;
+  overflow: visible;
+}
+
+.hamburger:hover {
+  opacity: 0.7;
+}
+
+.hamburger-box {
+  width: 40px;
+  height: 24px;
+  display: inline-block;
+  position: relative;
+}
+
+.hamburger-inner {
+  display: block;
+  top: 50%;
+  margin-top: -2px;
+}
+
+.hamburger-inner, .hamburger-inner::before, .hamburger-inner::after {
+  width: 40px;
+  height: 4px;
+  background-color: #000;
+  border-radius: 4px;
+  position: absolute;
+  transition-property: transform;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+
+.hamburger-inner::before, .hamburger-inner::after {
+  content: "";
+  display: block;
+}
+
+.hamburger-inner::before {
+  top: -10px;
+}
+
+.hamburger-inner::after {
+  bottom: -10px;
+}
+
+/*
+   * 3DX
+   */
+/*.h
+
+/*
+   * 3DX Reverse
+   */
+/*
+   * 3DY
+   */
+/*
+   * 3DY Reverse
+   */
+/*
+   * Arrow
+   */
+/*
+   * Arrow Right
+   */
+/*
+   * Arrow Alt
+   */
+/*
+   * Arrow Alt Right
+   */
+/*
+   * Boring
+   */
+/*
+.hamburger--boring .hamburger-inner, .hamburger--boring .hamburger-inner::before, .hamburger--boring .hamburger-inner::after
+{
+	transition-property: none;
+}
+
+.hamburger--boring.is-active .hamburger-inner
+{
+	transform: rotate(45deg);
+}
+
+.hamburger--boring.is-active .hamburger-inner::before
+{
+	top: 0;
+	opacity: 0;
+}
+
+.hamburger--boring.is-active .hamburger-inner::after
+{
+	bottom: 0;
+	transform: rotate(-90deg);
+}
+ */
+/*
+   * Collapse
+   */
+/*
+   * Collapse Reverse
+   */
+/*
+   * Elastic
+   */
+/*
+   * Elastic Reverse
+   */
+/*
+   * Emphatic
+   */
+/*
+   * Emphatic Reverse
+   */
+/*
+   * Slider
+   */
+.hamburger--slider .hamburger-inner {
+  top: 2px;
+}
+
+.hamburger--slider .hamburger-inner::before {
+  top: 10px;
+  transition-property: transform, opacity;
+  transition-timing-function: ease;
+  transition-duration: 0.15s;
+}
+
+.hamburger--slider .hamburger-inner::after {
+  top: 20px;
+}
+
+.hamburger--slider.is-active .hamburger-inner {
+  transform: translate3d(0, 10px, 0) rotate(45deg);
+}
+
+.hamburger--slider.is-active .hamburger-inner::before {
+  transform: rotate(-45deg) translate3d(-5.71429px, -6px, 0);
+  opacity: 0;
+}
+
+.hamburger--slider.is-active .hamburger-inner::after {
+  transform: translate3d(0, -20px, 0) rotate(-90deg);
+}
+
+/*
+   * Slider Reverse
+   */
+/*
+   * Spring
+   */
+/*
+   * Spring Reverse
+   */
+/*
+   * Stand
+   */
+/*
+   * Stand Reverse
+   */
+/*
+   * Spin
+   */
+/*
+   * Spin Reverse
+   */
+/*
+   * Squeeze
+   */
+/*
+   * Vortex
+   */
+/*
+   * Vortex Reverse
+   */
+
+/*------------------------------------
+  Landing-slick
+------------------------------------*/
+/*--------------------------------------------------
+  Hamburgers
+----------------------------------------------------*/
+/* Hamburger */
+.hamburger {
+  padding: 0;
+}
+
+/* Override vendor stylesheets */
+.hamburger-inner::before,
+.hamburger-inner::after {
+  background-color: inherit;
+}
+
+.hamburger .hamburger-box,
+.hamburger .hamburger-inner,
+.hamburger .hamburger-inner::after,
+.hamburger .hamburger-inner::before {
+  height: 1px;
+  border-radius: 0;
+  width: 25px;
+}
+
+.hamburger .hamburger-box {
+  height: 17px;
+}
+
+.hamburger .hamburger-inner {
+  top: 1px;
+}
+
+.hamburger .hamburger-inner:before {
+  top: 9px;
+}
+
+.hamburger .hamburger-inner:after {
+  top: 17px;
+}
+
+.hamburger.hamburger--md .hamburger-box,
+.hamburger.hamburger--md .hamburger-inner,
+.hamburger.hamburger--md .hamburger-inner::after,
+.hamburger.hamburger--md .hamburger-inner::before {
+  height: 1px;
+  border-radius: 0;
+  width: 25px;
+}
+
+.hamburger.hamburger--md .hamburger-box {
+  height: 17px;
+}
+
+.hamburger.hamburger--md .hamburger-inner {
+  top: 1px;
+}
+
+.hamburger.hamburger--md .hamburger-inner:before {
+  top: 9px;
+}
+
+.hamburger.hamburger--md .hamburger-inner:after {
+  top: 17px;
+}
+
+.hamburger.hamburger--slider.is-active .hamburger-inner:after,
+.hamburger.hamburger--slider.hamburger--md.is-active .hamburger-inner:after {
+  transform: translate3d(0, -17px, 0) rotate(-90deg);
+}
+
+.hamburger.hamburger--slider.is-active .hamburger-inner,
+.hamburger.hamburger--slider.hamburger--md.is-active .hamburger-inner {
+  transform: translate3d(0, 9px, 0) rotate(45deg);
+}
+
+/*
+.hamburger--md.hamburger--boring .hamburger.is-active .hamburger-inner:after {
+	transform: translate3d(0, -17px, 0) rotate(-90deg);
+}
+.hamburger--md.hamburger--boring .hamburger.is-active .hamburger-inner {
+	transform: translate3d(0, 9px, 0) rotate(45deg);
+}
+ */
+.hamburger.hamburger--sm .hamburger-box,
+.hamburger.hamburger--sm .hamburger-inner,
+.hamburger.hamburger--sm .hamburger-inner::after,
+.hamburger.hamburger--sm .hamburger-inner::before {
+  height: 2px;
+  border-radius: 1px;
+  width: 22px;
+}
+
+.hamburger.hamburger--sm .hamburger-box {
+  height: 12px;
+}
+
+.hamburger.hamburger--sm .hamburger-inner {
+  top: 0px;
+}
+
+.hamburger.hamburger--sm .hamburger-inner:before {
+  top: 6px;
+}
+
+.hamburger.hamburger--sm .hamburger-inner:after {
+  top: 12px;
+}
+
+.hamburger.hamburger--slider.hamburger--sm.is-active .hamburger-inner:after {
+  transform: translate3d(0, -12px, 0) rotate(-90deg);
+}
+
+.hamburger.hamburger--slider.hamburger--sm.is-active .hamburger-inner {
+  transform: translate3d(0, 6px, 0) rotate(45deg);
+}
+
+/*
+.hamburger--sm.hamburger--boring .hamburger.is-active .hamburger-inner:after {
+	transform: translate3d(0, -12px, 0) rotate(-90deg);
+}
+.hamburger--sm.hamburger--boring .hamburger.is-active .hamburger-inner {
+	transform: translate3d(0, 6px, 0) rotate(45deg);
+}
+ */
+.hamburger.hamburger--lg .hamburger-box,
+.hamburger.hamburger--lg .hamburger-inner,
+.hamburger.hamburger--lg .hamburger-inner::after,
+.hamburger.hamburger--lg .hamburger-inner::before {
+  height: 1px;
+  border-radius: 0;
+  width: 40px;
+}
+
+.hamburger.hamburger--lg .hamburger-box {
+  height: 20px;
+}
+
+.hamburger.hamburger--lg .hamburger-inner {
+  top: 2px;
+}
+
+.hamburger.hamburger--lg .hamburger-inner:before {
+  top: 10px;
+}
+
+.hamburger.hamburger--lg .hamburger-inner:after {
+  top: 20px;
+}
+
+.hamburger.hamburger--slider.hamburger--lg.is-active .hamburger-inner:after {
+  transform: translate3d(0, -20px, 0) rotate(-90deg);
+}
+
+.hamburger.hamburger--slider.hamburger--lg.is-active .hamburger-inner {
+  transform: translate3d(0, 10px, 0) rotate(45deg);
+}
+
+/*
+.hamburger--lg.hamburger--boring .hamburger.is-active .hamburger-inner:after {
+	transform: translate3d(0, -20px, 0) rotate(-90deg);
+}
+.hamburger--lg.hamburger--boring .hamburger.is-active .hamburger-inner {
+	transform: translate3d(0, 10px, 0) rotate(45deg);
+}
+ */
+.hamburger.hamburger--rounded .hamburger-box,
+.hamburger.hamburger--rounded .hamburger-inner,
+.hamburger.hamburger--rounded .hamburger-inner::after,
+.hamburger.hamburger--rounded .hamburger-inner::before {
+  height: 3px;
+  border-radius: 1px;
+  width: 23px;
+}
+
+.hamburger.hamburger--rounded .hamburger-box {
+  height: 17px;
+}
+
+.hamburger.hamburger--rounded .hamburger-inner {
+  top: 1px;
+}
+
+.hamburger.hamburger--rounded .hamburger-inner:before {
+  top: 9px;
+}
+
+.hamburger.hamburger--rounded .hamburger-inner:after {
+  top: 18px;
+}
+
+.hamburger.hamburger--slider.hamburger--rounded.is-active .hamburger-inner:after {
+  transform: translate3d(0, -18px, 0) rotate(-90deg);
+}
+
+.hamburger.hamburger--slider.hamburger--rounded.is-active .hamburger-inner {
+  transform: translate3d(0, 9px, 0) rotate(45deg);
+}

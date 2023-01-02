@@ -1,0 +1,26 @@
+/*!
+ * Font Awesome Pro 6.0.0-beta1 by @fontawesome - https://fontawesome.com
+ * License - https://fontawesome.com/license (Commercial License)
+ */
+@font-face {
+	font-family: 'Font Awesome 6 Pro';
+	font-style: normal;
+	font-weight: 300;
+	font-display: block;
+	src: url("/bitrix/templates/landing24/assets/vendor/icon/fal/font.woff2") format("woff2");
+}
+
+.fal, .fa.fal {
+	font-family: 'Font Awesome 6 Pro';
+	font-weight: 300;
+}
+.fal {
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-font-smoothing: antialiased;
+	display: inline-block;
+	display: var(--fa-display, inline-block);
+	font-style: normal;
+	font-variant: normal;
+	line-height: 1;
+	text-rendering: auto;
+}

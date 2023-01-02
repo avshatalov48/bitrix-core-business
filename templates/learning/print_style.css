@@ -1,0 +1,84 @@
+html, body
+{
+	margin: 0;
+	padding: 0;
+}
+
+html
+{
+	height:100%;
+}
+
+body
+{
+	height:auto !important;
+	height:100%;
+	min-height:100%;
+	min-width:760px;
+}
+
+/*Font*/
+body
+{
+	font-size: 80%;
+	font-family: Tahoma, Verdana, Helvetica, sans-serif;
+	color: #333;
+	background: #fff;
+}
+
+
+#logo, #toolbar, #menu, #panel, .learn-left-data, #printer
+{
+	display: none;
+}
+
+#header
+{
+	background:none;
+	width:auto;
+	margin-left:16px;
+}
+
+#logotext
+{
+	color:black;
+}
+
+#workarea-row table.learn-work-table
+{
+	background:none;
+}
+
+
+#copyright
+{
+	padding:10px 0 5px 10px;
+	color:#616161;
+	border-top:1px solid #CCC;
+	background-color:#eaecf1;
+}
+
+pre.syntax
+{
+	height: auto;
+	overflow: visible;
+}
+
+div.hint, div.important
+{
+	width: auto;
+}
+
+.page-break {page-break-after:always;}
+
+
+a {color:#1952D3;}
+
+
+.errortext
+{
+	color:red;
+	font-weight:bold;
+}
+
+#learning-copyright { background: #fff; }

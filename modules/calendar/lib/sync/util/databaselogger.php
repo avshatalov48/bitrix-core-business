@@ -23,4 +23,30 @@ class DatabaseLogger extends Main\Diag\Logger
 			'MESSAGE' => $message,
 		]);
 	}
+
+	public function logToDatabase(array $context)
+	{
+		$fields = [];
+		if ($context['serviceName'])
+		{
+			$fields['TYPE'] = (string)$context['serviceName'];
+			unset($context['serviceName']);
+		}
+
+		if ($context['userId'])
+		{
+			$fields['USER_ID'] = (int)$context['userId'];
+			unset($context['userId']);
+		}
+
+		if ($context['loggerUuid'])
+		{
+			$fields['UUID'] = (string)$context['loggerUuid'];
+			unset($context['loggerUuid']);
+		}
+
+		$fields['MESSAGE'] = var_export($context, true);
+
+		CalendarLogTable::add($fields);
+	}
 }

@@ -674,24 +674,22 @@ class Message
 				$charset = $mailbox['CHARSET'] ?: $mailbox['LANG_CHARSET'];
 				[$header, $html, $text, $attachments] = \CMailMessage::parseMessage($technicalTitle, $charset);
 
-				if($html === '')
-				{
-					$html = '<div></div>';
-				}
-
 				if (mb_strlen($text) > \CMailMessage::MAX_LENGTH_MESSAGE_BODY)
 				{
-
 					[$text, $html] = \CMailMessage::prepareLongMessage($text, $html);
 				}
+
+				$html = empty(trim(strip_tags($html))) ? '' : static::sanitizeHtml($html, true);
 
 				\CMailMessage::update(
 					$message['MESSAGE_ID'],
 					[
 						'BODY' => rtrim($text),
-						'BODY_HTML' => static::sanitizeHtml($html, true),
+						'BODY_HTML' => $html,
 					]
 				);
+
+				self::updateMailEntityOptionsRow($mailboxId, (int)$message['MESSAGE_ID']);
 			}
 		}
 
@@ -728,5 +726,24 @@ class Message
 			default:
 				return true; // tasks, crm creates per-user tokens
 		}
+	}
+
+	/**
+	 * @param $mailboxId
+	 * @param $messageId
+	 * @return void
+	 */
+	public static function updateMailEntityOptionsRow($mailboxId, $messageId): void
+	{
+		Internals\MailEntityOptionsTable::update([
+				'MAILBOX_ID' => $mailboxId,
+				'ENTITY_ID' => $messageId,
+				'ENTITY_TYPE' => 'MESSAGE',
+				'PROPERTY_NAME' => 'UNSYNC_BODY',
+			],
+			[
+				'VALUE' => 'N',
+			]
+		);
 	}
 }

@@ -39,7 +39,9 @@ if(!empty($errorMsgs))
 		<p class="connector-description"><?=Loc::getMessage('B24C_OL_DESCR21')?></p>
 		<p class="connector-description">
 			<div style="text-align: center;">
-				<img src="/bitrix/images/b24connector/fb.png" alt="Facebook" title="Facebook" style="margin: 0 25px 0 0;">&nbsp;&nbsp;
+				<?php if (LANGUAGE_ID !== 'ru'): ?>
+					<img src="/bitrix/images/b24connector/fb.png" alt="Facebook" title="Facebook" style="margin: 0 25px 0 0;">&nbsp;&nbsp;
+				<?php endif; ?>
 				<img src="/bitrix/images/b24connector/vk.png" alt="Vkontakte" title="Vkontakte" style="margin: 0 25px 0 0;">&nbsp;&nbsp;
 				<img src="/bitrix/images/b24connector/telegram.png" alt="Telegram" title="Telegram" style="margin: 0 25px 0 0;">&nbsp;&nbsp;
 				<img src="/bitrix/images/b24connector/skype.png" alt="Skype" title="Skype" style="margin: 0 25px 0 0;">&nbsp;&nbsp;
@@ -48,7 +50,11 @@ if(!empty($errorMsgs))
 		</p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_OL_DESCR23')?></p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_OL_DESCR3')?></p>
-		<img src="/bitrix/images/b24connector/img-5.png" alt="" class="connector-img">
+
+		<?php if (LANGUAGE_ID === 'ru'): ?>
+			<img src="/bitrix/images/b24connector/img-5.png" alt="" class="connector-img">
+		<?php endif; ?>
+
 		<p class="connector-description"><?=Loc::getMessage('B24C_OL_DESCR4')?></p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_OL_DESCR5')?></p>
 	</div>

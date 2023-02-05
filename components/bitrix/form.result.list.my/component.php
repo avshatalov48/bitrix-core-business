@@ -66,7 +66,9 @@ foreach ($arParams['FORMS'] as $FORM_ID)
 				$bFirst = false;
 			}
 
-			$arValues = CFormResult::GetDataByID($arRes['ID'], array(), $arRes1 = null, $arAnswers = null);
+			$arRes1 = null;
+			$arAnswers = null;
+			$arValues = CFormResult::GetDataByID($arRes['ID'], array(), $arRes1, $arAnswers);
 
 			$first_res = current($arValues);
 			$arRes['__TITLE'] = trim($first_res[0]['USER_TEXT'] ? $first_res[0]['USER_TEXT'] : $first_res[0]['MESSAGE']);

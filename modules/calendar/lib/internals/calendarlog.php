@@ -61,6 +61,15 @@ class CalendarLogTable extends Main\Entity\DataManager
 			new Entity\TextField('MESSAGE', [
 				'title' => Loc::getMessage('CALENDAR_LOG_ENTITY_MESSAGE_FIELD'),
 			]),
+			new Entity\TextField('UUID', [
+				'title' => Loc::getMessage('CALENDAR_LOG_ENTITY_UUID_FIELD'),
+			]),
+			new Entity\TextField('TYPE', [
+				'title' => Loc::getMessage('CALENDAR_LOG_ENTITY_TYPE_FIELD'),
+			]),
+			new Entity\IntegerField('USER_ID', [
+				'title' => Loc::getMessage('CALENDAR_LOG_ENTITY_USER_ID_FIELD'),
+			])
 		];
 	}
 }

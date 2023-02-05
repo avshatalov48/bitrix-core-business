@@ -138,7 +138,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 		{
 			if (empty($item['NAME']))
 			{
-				$item['NAME'] = $item['EMAIL'] ? : $item['LOGIN'] ? : sprintf('#%u', $item['ID']);
+				$item['NAME'] = $item['EMAIL'] ? : $item['LOGIN'] ? : "#".$item['ID'];
 			}
 
 			$this->arResult['MAILBOXES'][$k] = $item;
@@ -333,11 +333,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 			if (!empty($filterData['FIND']))
 			{
 				$filterData['FIND'] = Main\Text\Emoji::encode($filterData['FIND']);
-
-				$filterKey = sprintf(
-					'%sSEARCH_CONTENT',
-					Mail\MailMessageTable::getEntity()->fullTextIndexEnabled('SEARCH_CONTENT') ? '*' : '*%'
-				);
+				$filterKey = (Mail\MailMessageTable::getEntity()->fullTextIndexEnabled('SEARCH_CONTENT') ? '*' : '*%')."SEARCH_CONTENT";
 				$filter[$filterKey] = Mail\Helper\Message::prepareSearchString($filterData['FIND']);
 			}
 		}
@@ -354,10 +350,10 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 						]
 					),
 					new ORM\Fields\ExpressionField(
-						'MESSAGE_ACCESS', sprintf('EXISTS(%s)', $accessSubquery->getQuery()), ['MAILBOX_ID', 'ID']
+						'MESSAGE_ACCESS', "EXISTS(".$accessSubquery->getQuery().")", ['MAILBOX_ID', 'ID']
 					),
 					new ORM\Fields\ExpressionField(
-						'MESSAGE_CLOSURE', sprintf('EXISTS(%s)', $closureSubquery->getQuery()), ['ID', 'ID']
+						'MESSAGE_CLOSURE', "EXISTS(".$closureSubquery->getQuery().")", ['ID', 'ID']
 					),
 					new ORM\Fields\ExpressionField('DISTINCT_ID', 'DISTINCT %s', ['ID']),
 				],
@@ -590,13 +586,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 				$dateDisplayFormat = Context::getCurrent()->getCulture()->getDayShortMonthFormat();
 			}
 
-			$columns['DATE'] = sprintf(
-				'<span class="mail-msg-list-cell-%u %s" title="%s">%s</span>',
-				$item['ID'],
-				!in_array($item['IS_SEEN'], ['Y', 'S']) ? 'mail-msg-list-cell-unseen' : '',
-				FormatDate($titleDateFormat, $fieldDateInTimeStamp, (time() + \CTimeZone::getOffset())),
-				('<span class="mail-msg-date-title">'.FormatDate($dateDisplayFormat, $fieldDateInTimeStamp, (time() + \CTimeZone::getOffset())).'</span>')
-			);
+			$columns['DATE'] = "<span class='mail-msg-list-cell-".$item['ID']." ".(!in_array($item['IS_SEEN'], ['Y', 'S']) ? 'mail-msg-list-cell-unseen' : '')."' title='".FormatDate($titleDateFormat, $fieldDateInTimeStamp, (time() + \CTimeZone::getOffset()))."'>".('<span class="mail-msg-date-title">'.FormatDate($dateDisplayFormat, $fieldDateInTimeStamp, (time() + \CTimeZone::getOffset())).'</span>')."</span>";
 
 			$columns['SUBJECT'] = htmlspecialcharsbx(
 				$item['SUBJECT'] ? : Loc::getMessage('MAIL_MESSAGE_EMPTY_SUBJECT_PLACEHOLDER')
@@ -618,18 +608,10 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 
 			if ($from->validate())
 			{
-				$columns['FROM'] = sprintf(
-					$this->getSenderColumnCell($avatarParams).'<a onclick=\''.$onclickEventOpenMessageMethod.$onclickOpenMessageViewMethod.'\' class="mail-msg-from-title" title="%s">%s</a>',
-					htmlspecialcharsbx((!empty($from->getName())?$from->getName().' / ':'').$from->getEmail()),
-					htmlspecialcharsbx($from->getName() ? $from->getName() : $from->getEmail())
-				);
+				$columns['FROM'] = $this->getSenderColumnCell($avatarParams)."<a onclick='".$onclickEventOpenMessageMethod.$onclickOpenMessageViewMethod."' class='mail-msg-from-title' title='".htmlspecialcharsbx((!empty($from->getName())?$from->getName().' / ':'').$from->getEmail())."'>".htmlspecialcharsbx($from->getName() ? $from->getName() : $from->getEmail())."</a>";
 			}
 
-			$columns['SUBJECT'] = sprintf(
-				'<a class="mail-msg-list-subject" onclick=\''.$onclickEventOpenMessageMethod.$onclickOpenMessageViewMethod.'\' title="%s">%s</a>',
-				$columns['SUBJECT'],
-				$columns['SUBJECT']
-			);
+			$columns['SUBJECT'] = "<a class='mail-msg-list-subject' onclick='".$onclickEventOpenMessageMethod.$onclickOpenMessageViewMethod."' title='".$columns['SUBJECT']."'>".$columns['SUBJECT']."</a>";
 
 			if ($item['OPTIONS']['attachments'] > 0 || $item['ATTACHMENTS'] > 0)
 			{
@@ -641,23 +623,11 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 			$dir = $this->mailboxHelper->getDirsHelper()->getDirByHash($item['DIR_MD5']);
 
 			$jsFromClassNames = $dir && $dir->isSpam() ? 'js-spam ' : '';
-			$columns['FROM'] = sprintf(
-				'<span data-message-id="%u" class="'.
-				$jsFromClassNames.
-				'mail-name-block mail-msg-list-cell-%u mail-msg-list-cell-nowrap mail-msg-list-cell-flex %s">%s</span>',
-				$item['MID'],
-				$item['MID'],
-				!in_array($item['IS_SEEN'], ['Y', 'S']) ? 'mail-msg-list-cell-unseen' : '',
-				$columns['FROM']
-			);
 
-			$columns['SUBJECT'] = sprintf(
-				'<span class="mail-title-block mail-msg-list-cell-%u %s %s mail-msg-list-cell-flex">%s</span>',
-				$item['ID'],
-				!in_array($item['IS_SEEN'], ['Y', 'S']) ? 'mail-msg-list-cell-unseen' : '',
-				$item['IS_OLD'] === 'Y' ? 'mail-msg-list-cell-old' : '',
-				$columns['SUBJECT']
-			);
+
+			$columns['FROM'] = "<span data-message-id='".$item['MID']."' class='".$jsFromClassNames."mail-name-block mail-msg-list-cell-".$item['MID']." mail-msg-list-cell-nowrap mail-msg-list-cell-flex ".(!in_array($item['IS_SEEN'], ['Y', 'S']) ? 'mail-msg-list-cell-unseen' : '')."'>".$columns['FROM']."</span>";
+
+			$columns['SUBJECT'] = "<span class='mail-title-block mail-msg-list-cell-".$item['ID']." ".(!in_array($item['IS_SEEN'], ['Y', 'S']) ? 'mail-msg-list-cell-unseen' : '')." ".($item['IS_OLD'] === 'Y' ? 'mail-msg-list-cell-old' : '')." mail-msg-list-cell-flex'>".$columns['SUBJECT']."</span>";
 
 			$taskHref = \CHTTP::urlAddParams(
 				\CComponentEngine::makePathFromTemplate(
@@ -1446,7 +1416,7 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 				'delimiter' => $dir->getDelimiter(),
 				'name' => htmlspecialcharsbx($dir->getName()),
 				// @TODO: transfer to template
-				'html' => sprintf('<span class="mail-msg-list-menu-item">%s</span>', htmlspecialcharsbx($dir->getName())),
+				'html' => "<span class='mail-msg-list-menu-item'>".htmlspecialcharsbx($dir->getName())."</span>",
 				'dataset' => [
 					'path' => $path,
 					'dirMd5' => $dir->getDirMd5(),

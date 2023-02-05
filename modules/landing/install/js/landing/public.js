@@ -45,7 +45,7 @@
 					const linkOptions = BX.Landing.Utils.data(link, "data-pseudo-url");
 					if (linkOptions.href && linkOptions.enabled)
 					{
-						if (linkOptions.target !== "_popup")
+						if (linkOptions.target === "_self" || linkOptions.target === "_blank")
 						{
 							link.addEventListener("click", event => {
 								event.preventDefault();

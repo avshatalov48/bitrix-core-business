@@ -3,7 +3,7 @@
 	--primary: #f9a91d;
 	--theme-color-primary: #f9a91d;
 	--theme-color-second: #faba4a;
-	--theme-color-light: #f0f0f0;
+	--theme-color-light: #fff;
 	--theme-b-link: #f9a91d;
 	--theme-b-link-hover: #faba4a;
 	--theme-b-tx-primary: #fff;
@@ -99,8 +99,8 @@ body {
 #pagetitle { margin-bottom: 35px; }
 
 h1,h2,h3,h4,h5 {
-	font-family: "OpenSans-Regular", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-weight: normal;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .bx-content-section,
@@ -164,7 +164,8 @@ h1,h2,h3,h4,h5 {
 .bx-header-phone-number {
 	color: #000;
 	white-space: nowrap;
-	font: 700 21px/28px "Open Sans", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 21px/28px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	transition: 250ms linear all;
 }
 
@@ -177,7 +178,10 @@ h1,h2,h3,h4,h5 {
 }
 
 @media (max-width: 991px) {
-	.bx-header-phone-number { font: 600 15px/18px "Open Sans", "Helvetica Neue", Arial, Helvetica, sans-serif; }
+	.bx-header-phone-number {
+		font: 15px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+		font-weight: var(--ui-font-weight-semi-bold, 600);
+	}
 }
 
 /*endregion*/
@@ -185,22 +189,28 @@ h1,h2,h3,h4,h5 {
 /*region included Worktime*/
 .bx-header-worktime {
 	color: #000;
-	font: 600 16px/22px "Open Sans", "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font: 16px/22px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 	transition: 250ms linear all;
 }
 
 .bx-worktime-title {
 	color: #adadad;
-	font: 12px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 .bx-worktime-schedule {
 	color: #000;
-	font: 12px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 12px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-regular, 400);
 }
 
 @media (max-width: 991px) {
-	.bx-header-worktime { font: 500 15px/18px "Open Sans", "Helvetica Neue", Arial, Helvetica, sans-serif; }
+	.bx-header-worktime {
+		font: 15px/18px var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+		font-weight: var(--ui-font-weight-regular, 400);
+	}
 }
 
 /*endregion*/
@@ -210,9 +220,9 @@ h1,h2,h3,h4,h5 {
 .sidebar-block-title {
 	color: #343434;
 	text-transform: uppercase;
-	font-weight: 600;
 	font-size: 14px;
-	font-family: "Open Sans", Arial, "Helvetica Neue", Helvetica, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 /*region FOOTER*/
@@ -329,12 +339,14 @@ a:hover,
 .sidebar h5 {
 	text-transform: uppercase;
 	font-size: 14px;
-	font-family: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .sidebar li {
 	font-size: 12px;
-	font-family: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
+	font-weight: var(--ui-font-weight-semi-bold, 600);
 }
 
 .sidebar-icon {

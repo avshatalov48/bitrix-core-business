@@ -84,7 +84,7 @@ class form extends CModule
 
 		if ($EMPTY=="Y")
 		{
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/install/db/".mb_strtolower($DB->type)."/install.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/install/db/mysql/install.sql");
 		}
 
 		if (!empty($errors))
@@ -156,7 +156,7 @@ class form extends CModule
 		{
 			$errors = false;
 			// delete whole base
-			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/install/db/".mb_strtolower($DB->type)."/uninstall.sql");
+			$errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/form/install/db/mysql/uninstall.sql");
 
 			if (!empty($errors))
 			{

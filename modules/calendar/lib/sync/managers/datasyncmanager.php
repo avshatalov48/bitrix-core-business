@@ -135,10 +135,7 @@ class DataSyncManager
 		$logger = null;
 
 		if (
-			RequestLogger::isWriteToLogForSyncRequest(
-				$connection->getOwner()->getId(),
-				$connection->getVendor()->getCode()
-			)
+			RequestLogger::isEnabled()
 		)
 		{
 			$logger = new RequestLogger($connection->getOwner()->getId(), $connection->getVendor()->getCode());
@@ -146,7 +143,7 @@ class DataSyncManager
 
 		$client = $this->initClient($connection);
 
-		$calendarsList = $client->GetCalendarList($connection->getServer()->getBasePath(), $logger);
+		$calendarsList = $client->GetCalendarList($connection->getServer()->getBasePath(), null);
 
 		if ($client->getError())
 		{

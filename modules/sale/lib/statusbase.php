@@ -254,23 +254,25 @@ abstract class StatusBase
 	 */
 	public static function getAllStatuses()
 	{
-		static $statusList = array();
+		static $statusList = [];
 
-		if (!$statusList)
+		if (!isset($statusList[static::TYPE]))
 		{
-			$result = static::getList(array(
-				'select' => array('ID'),
-				'filter' => array('=TYPE' => static::TYPE),
-				'order'  => array('SORT' => 'ASC')
-			));
+			$statusList[static::TYPE] = [];
+
+			$result = static::getList([
+				'select' => ['ID'],
+				'filter' => ['=TYPE' => static::TYPE],
+				'order'  => ['SORT' => 'ASC']
+			]);
 
 			while ($row = $result->fetch())
 			{
-				$statusList[$row['ID']] = $row['ID'];
+				$statusList[static::TYPE][$row['ID']] = $row['ID'];
 			}
 		}
 
-		return $statusList;
+		return $statusList[static::TYPE];
 	}
 
 	/**
@@ -282,13 +284,13 @@ abstract class StatusBase
 	 */
 	public static function getAllStatusesNames($lang = null)
 	{
-		$parameters = array(
-			'select' => array("ID", "NAME" => 'Bitrix\Sale\Internals\StatusLangTable:STATUS.NAME'),
-			'filter' => array(
+		$parameters = [
+			'select' => ["ID", "NAME" => 'Bitrix\Sale\Internals\StatusLangTable:STATUS.NAME'],
+			'filter' => [
 				'=TYPE' => static::TYPE,
-			),
-			'order'  => array('SORT' => 'ASC')
-		);
+			],
+			'order'  => ['SORT' => 'ASC']
+		];
 
 		if ($lang !== null)
 		{
@@ -299,18 +301,20 @@ abstract class StatusBase
 			$parameters['filter']['=Bitrix\Sale\Internals\StatusLangTable:STATUS.LID'] = LANGUAGE_ID;
 		}
 
-		static $allStatusesNames = array();
+		static $allStatusesNames = [];
 
-		if (!$allStatusesNames)
+		if (!isset($allStatusesNames[static::TYPE]))
 		{
+			$allStatusesNames[static::TYPE] = [];
+
 			$result = static::getList($parameters);
 			while ($row = $result->fetch())
 			{
-				$allStatusesNames[$row['ID']] = $row['NAME'];
+				$allStatusesNames[static::TYPE][$row['ID']] = $row['NAME'];
 			}
 		}
 
-		return $allStatusesNames;
+		return $allStatusesNames[static::TYPE];
 	}
 
 	/**

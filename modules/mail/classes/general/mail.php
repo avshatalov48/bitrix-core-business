@@ -1648,10 +1648,15 @@ class CAllMailMessage
 		else
 		{
 			$bodyPart = CMailMessage::decodeMessageBody($header, $body, $charset);
+			$contentType = mb_strtolower($bodyPart['CONTENT-TYPE']);
 
-			if (!$bodyPart['FILENAME'] && mb_strpos(mb_strtolower($bodyPart['CONTENT-TYPE']), 'text/') === 0 && mb_strtolower($bodyPart['CONTENT-TYPE']) !== 'text/calendar')
+			if (
+				!$bodyPart['FILENAME']
+				&& (mb_strpos($contentType, 'text/') === 0)
+				&& ($contentType !== 'text/calendar')
+			)
 			{
-				if (mb_strtolower($bodyPart['CONTENT-TYPE']) == 'text/html')
+				if ($contentType == 'text/html')
 				{
 					$htmlBody = $bodyPart['BODY'];
 					$textBody = html_entity_decode(htmlToTxt($bodyPart['BODY']), ENT_QUOTES | ENT_HTML401, $charset);
@@ -1687,9 +1692,20 @@ class CAllMailMessage
 		$message_body = &$bodyText;
 		$arMessageParts = &$attachments;
 
+		$isStrippedTagsToBody = false;
+
 		if (self::isLongMessageBody($message_body))
 		{
 			[$message_body, $message_body_html] = self::prepareLongMessage($message_body, $message_body_html);
+		}
+
+		if (
+			(mb_strlen($message_body_html) > 0)
+			&& empty(trim(strip_tags($message_body_html)))
+		)
+		{
+			$message_body_html = '';
+			$isStrippedTagsToBody = true;
 		}
 
 		$arFields = array(
@@ -1709,10 +1725,14 @@ class CAllMailMessage
 			"BODY" => rtrim($message_body),
 			'OPTIONS' => array(
 				'attachments' => count($arMessageParts),
+				'isStrippedTags' => $isStrippedTagsToBody,
 			),
 		);
 
-		if (empty($message_body) || empty($message_body_html))
+		if (
+			($arFields['OPTIONS']['attachments'] <= 0)
+			&& (empty($message_body) || empty($message_body_html))
+		)
 		{
 			$arFields['OPTIONS']['isEmptyBody'] = 'Y';
 		}
@@ -2044,7 +2064,13 @@ class CAllMailMessage
 
 	private static function saveForDeferredDownload($ID, $arFields, $mailboxID)
 	{
-		if ($mailboxID !== false && is_set($arFields, 'BODY_HTML') && $arFields['BODY_HTML'] === '' && (!is_set($arFields, 'BODY') || $arFields['BODY'] === ''))
+		if (
+			$mailboxID !== false
+			&& is_set($arFields, 'BODY_HTML')
+			&& $arFields['BODY_HTML'] === ''
+			&& (!is_set($arFields, 'BODY') || $arFields['BODY'] === '')
+			&& !$arFields['OPTIONS']['isStrippedTags']
+		)
 		{
 			\Bitrix\Mail\Internals\MailEntityOptionsTable::add([
 				'MAILBOX_ID' => $mailboxID,
@@ -2351,6 +2377,7 @@ class CAllMailMessage
 	 */
 	private static function getClearBody(string $body): string
 	{
+		//todo merge with \Bitrix\Main\Mail\Mail::convertBodyHtmlToText
 		// get <body> inner html if exists
 		$innerBody = trim(preg_replace('/(.*?<body[^>]*>)(.*?)(<\/body>.*)/is', '$2', $body));
 		$body = $innerBody ?: $body;

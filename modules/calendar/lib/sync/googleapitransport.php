@@ -54,7 +54,7 @@ final class GoogleApiTransport
 		}
 
 		$this->client = new Web\HttpClient();
-		if (RequestLogger::isWriteToLogForSyncRequest((int)$userId, self::SERVICE_NAME))
+		if (RequestLogger::isEnabled())
 		{
 			$this->requestLogger = new RequestLogger((int)$userId, self::SERVICE_NAME);
 		}

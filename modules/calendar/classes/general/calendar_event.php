@@ -437,6 +437,19 @@ class CCalendarEvent
 
 			CTimeZone::Enable();
 
+			if (
+				$userId
+				&& $params
+				&& $params['overSaving'] !== true
+				&& \Bitrix\Calendar\Sync\Util\RequestLogger::isEnabled())
+			{
+				$loggerParams = $params;
+				$loggerParams['arFields'] = $entryFields;
+				$loggerParams['loggerUuid'] = $eventId;
+
+				(new \Bitrix\Calendar\Sync\Util\RequestLogger($userId, 'portal_edit'))->write($loggerParams);
+			}
+
 			if ($isNewEvent && !isset($dbFields['DAV_XML_ID']))
 			{
 				$strSql =
@@ -3508,6 +3521,18 @@ class CCalendarEvent
 				if (!$entry['IS_MEETING'] && $entry['CAL_TYPE'] === 'user')
 				{
 					self::onEventDelete($entry, $params);
+				}
+
+				if (
+					\Bitrix\Calendar\Sync\Util\RequestLogger::isEnabled()
+					&& $params
+					&& is_array($params)
+				)
+				{
+					$loggerData = $params;
+					unset($loggerData['Event']);
+					$loggerData['loggerUuid'] = $id;
+					(new \Bitrix\Calendar\Sync\Util\RequestLogger($userId, 'portal_delete'))->write($loggerData);
 				}
 
 				if ($params['bMarkDeleted'])

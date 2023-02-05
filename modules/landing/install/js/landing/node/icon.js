@@ -128,16 +128,26 @@
 				.then(function() {
 					if (value.url)
 					{
+						let isNeedSetPseudoLink = false;
+						if (!(value.url.href === '#' && value.url.target === ''))
+						{
+							isNeedSetPseudoLink = true;
+						}
 						if (value.url.href === 'selectActions:')
 						{
 							value.url.href = '';
 							value.url.enabled = false;
+							isNeedSetPseudoLink = true;
 						}
 						if (value.url.href.startsWith('product:'))
 						{
 							value.url.target = '_self';
+							isNeedSetPseudoLink = true;
 						}
-						attr(this.node, "data-pseudo-url", value.url);
+						if (isNeedSetPseudoLink)
+						{
+							attr(this.node, "data-pseudo-url", value.url);
+						}
 					}
 					this.onChange();
 

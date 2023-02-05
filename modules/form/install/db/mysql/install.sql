@@ -13,7 +13,7 @@ create table if not exists b_form (
 	FORM_TEMPLATE text null,
 	USE_DEFAULT_TEMPLATE char(1) null default 'Y',
 	SHOW_TEMPLATE varchar(255),
-	MAIL_EVENT_TYPE varchar(50),
+	MAIL_EVENT_TYPE varchar(255),
 	SHOW_RESULT_TEMPLATE varchar(255),
 	PRINT_RESULT_TEMPLATE varchar(255),
 	EDIT_RESULT_TEMPLATE varchar(255),

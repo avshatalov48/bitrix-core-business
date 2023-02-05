@@ -41,12 +41,12 @@ class b24connector extends CModule
 
 	function InstallDB()
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		if(!$DB->Query("SELECT 'x' FROM b_b24connector_buttons", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/db/".$DBType."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/db/mysql/install.sql");
 		}
 
 		if($this->errors !== false)
@@ -60,12 +60,12 @@ class b24connector extends CModule
 
 	function UnInstallDB()
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		if($DB->Query("SELECT 'x' FROM b_b24connector_buttons", true))
 		{
-			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/db/".$DBType."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/install/db/mysql/uninstall.sql");
 		}
 
 		if($this->errors !== false)

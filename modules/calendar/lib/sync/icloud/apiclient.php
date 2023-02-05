@@ -27,7 +27,7 @@ class ApiClient
 		$this->davClient = $davClient;
 		$this->userId = $userId;
 
-		if ($this->userId && RequestLogger::isWriteToLogForSyncRequest($this->userId, $this->helper::ACCOUNT_TYPE))
+		if ($this->userId && RequestLogger::isEnabled())
 		{
 			$this->logger = new RequestLogger($this->userId, $this->helper::ACCOUNT_TYPE);
 		}

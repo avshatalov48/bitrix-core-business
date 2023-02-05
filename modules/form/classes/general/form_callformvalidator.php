@@ -225,7 +225,7 @@ class CAllFormValidator
 					"VALIDATOR_SID" => $DB->ForSql($sValSID),
 				);
 
-				if (count($arParams) > 0)
+				if (!empty($arParams))
 				{
 					$strParams = CFormValidator::GetSettingsString($arVal, $arParams);
 					$arQueryFields["PARAMS"] = $strParams;
@@ -274,12 +274,12 @@ class CAllFormValidator
 				if (is_array($arFieldVal["PARAMS"]) && is_set($arVal, "CONVERT_TO_DB"))
 				{
 					$arParams = array();
-					foreach ($arFieldVal["PARAMS"] as $key => $arParam)
+					foreach ($arFieldVal["PARAMS"] as $arParam)
 					{
 						$arParams[$arParam["NAME"]] = $arParam["VALUE"];
 					}
 
-					if (count($arParams) > 0)
+					if (!empty($arParams))
 					{
 						$strParams = CFormValidator::GetSettingsString($arVal, $arParams);
 						$arQueryFields["PARAMS"] = $strParams;
@@ -293,7 +293,7 @@ class CAllFormValidator
 
 	public static function GetSettingsString($arValidator, $arParams)
 	{
-		if (count($arParams) > 0 && is_set($arValidator, "CONVERT_TO_DB"))
+		if (!empty($arParams) && is_set($arValidator, "CONVERT_TO_DB"))
 		{
 			$strParams = call_user_func($arValidator["CONVERT_TO_DB"], $arParams);
 			return $strParams;

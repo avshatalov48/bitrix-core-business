@@ -71,7 +71,7 @@ if ($contractId == false)
 		CAdvType::Set($arFields, "", $CHECK_RIGHTS="N");
 	}
 
-	$pathToBanner = str_replace("\\", "/", dirname(__FILE__));
+	$pathToBanner = str_replace("\\", "/", __DIR__);
 	$lang = (in_array(LANGUAGE_ID, array("ru", "en", "de"))) ? LANGUAGE_ID : \Bitrix\Main\Localization\Loc::getDefaultLang(LANGUAGE_ID);
 	$pathToBanner = $pathToBanner."/lang/".$lang;
 
@@ -102,10 +102,7 @@ if ($contractId == false)
 			"arrSITE" => Array(WIZARD_SITE_ID),
 			"WEIGHT"=> 200,
 			"FIX_SHOW" => "N",
-			"FIX_CLICK" => "N",
 			"AD_TYPE" => "template",
-			"STAT_EVENT_1" => "banner",
-			"STAT_EVENT_2" => "click",
 			"arrWEEKDAY" => $arWeekday,
 			"COMMENTS" => "banner for " . WIZARD_SITE_ID,
 			"TEMPLATE" => serialize(array(
@@ -233,10 +230,7 @@ if ($contractId == false)
 			"arrSITE" => Array(WIZARD_SITE_ID),
 			"WEIGHT"=> 200,
 			"FIX_SHOW" => "N",
-			"FIX_CLICK" => "N",
 			"AD_TYPE" => "template",
-			"STAT_EVENT_1" => "banner",
-			"STAT_EVENT_2" => "click",
 			"arrWEEKDAY" => $arWeekday,
 			"COMMENTS" => "banner2 for " . WIZARD_SITE_ID,
 			"TEMPLATE" => serialize(array(

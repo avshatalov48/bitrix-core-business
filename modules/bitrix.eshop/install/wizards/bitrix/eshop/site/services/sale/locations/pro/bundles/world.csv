@@ -1,58 +1,252 @@
-CODE;PARENT_CODE;TYPE_CODE;NAME.RU.NAME;NAME.EN.NAME;NAME.UA.NAME;EXT.YAMARKET.0;EXT.ZIP.0;LONGITUDE;LATITUDE;EXT.ZIP_LOWER.0
-0000000001;;COUNTRY;Беларусь;Belarus;;149;;;;
-0000000276;;COUNTRY;Казахстан;Kazakhstan;;;;;;
-0000000364;;COUNTRY;Украина;Ukraine;Україна;187;;;;
-0000011327;;COUNTRY;США;USA;;;;;;
-0000027948;;COUNTRY;Канада;Canada;;;;;;
-0000027949;;COUNTRY;Албания;Albania;;;;;;
-0000027950;;COUNTRY;Андорра;Andorra;;;;;;
-0000027951;;COUNTRY;Австрия;Austria;;;;;;
-0000027952;;COUNTRY;Бельгия;Belgium;;;;;;
-0000027953;;COUNTRY;Болгария;Bulgaria;;;;;;
-0000027954;;COUNTRY;Хорватия;Croatia;;;;;;
-0000027955;;COUNTRY;Дания;Denmark;;;;;;
-0000027956;;COUNTRY;Финляндия;Finland;;;;;;
-0000027957;;COUNTRY;Франция;France;;;;;;
-0000027958;;COUNTRY;Германия;Germany;;;;;;
-0000027959;;COUNTRY;Греция;Greece;;;;;;
-0000027960;;COUNTRY;Венгрия;Hungary;;;;;;
-0000027961;;COUNTRY;Исландия;Iceland;;;;;;
-0000027962;;COUNTRY;Италия;Italy;;;;;;
-0000027963;;COUNTRY;Лихтенштейн;Liechtenstein;;;;;;
-0000027964;;COUNTRY;Люксембург;Luxembourg;;;;;;
-0000027965;;COUNTRY;Македония;Macedonia;;;;;;
-0000027966;;COUNTRY;Мальта;Malta;;;;;;
-0000027967;;COUNTRY;Монако;Monaco;;;;;;
-0000027968;;COUNTRY;Нидерланды;Netherlands;;;;;;
-0000027969;;COUNTRY;Норвегия;Norway;;;;;;
-0000027970;;COUNTRY;Польша;Poland;;;;;;
-0000027971;;COUNTRY;Португалия;Portugal;;;;;;
-0000027972;;COUNTRY;Румыния;Romania;;;;;;
-0000027973;;COUNTRY;Словакия;Slovakia;;;;;;
-0000027974;;COUNTRY;Словения;Slovenia;;;;;;
-0000027975;;COUNTRY;Ирландия;Ireland;;;;;;
-0000027976;;COUNTRY;Испания;Spain;;;;;;
-0000027977;;COUNTRY;Швеция;Sweden;;;;;;
-0000027978;;COUNTRY;Швейцария;Switzerland;;;;;;
-0000027979;;COUNTRY;Великобритания;UK;;;;;;
-0000027980;;COUNTRY;Ватикан;Vatican City;;;;;;
-0000027981;;COUNTRY;Югославия;Yugoslavia;;;;;;
-0000027982;;COUNTRY;Босния и Герцеговина;Bosnia-Herzegovina;;;;;;
-0000027983;;COUNTRY;Чешская республика;Czech Republic;;;;;;
-0000027984;;COUNTRY;Мексика;Mexico;;;;;;
-0000027985;;COUNTRY;Израиль;Israel;;;;;;
-0000027986;;COUNTRY;Австралия;Australia;;;;;;
-0000027987;;COUNTRY;Ангола;Angola;;;;;;
-0000027988;;COUNTRY;Новая Зеландия;New Zealand;;;;;;
-0000027989;;COUNTRY;Азербайджан;Azerbaijan;;;;;;
-0000027996;;COUNTRY;Эстония;Estonia;;;;;;
-0000027999;;COUNTRY;Грузия;Georgia;;;;;;
-0000028003;;COUNTRY;Латвия;Latvia;;;;;;
-0000028010;;COUNTRY;Литва;Lithuania;;;;;;
-0000028014;;COUNTRY;Молдавия;Moldova;;;;;;
-0000028017;;COUNTRY;Туркменистан;Turkmenistan;;;;;;
-0000028018;;COUNTRY;Армения;Armenia;;;;;;
-0000028020;;COUNTRY;Таджикистан;Tajikistan;;;;;;
-0000028021;;COUNTRY;Узбекистан;Uzbekistan;;;;;;
-0000028022;;COUNTRY;Кыргызстан;Kyrgyzstan;;;;;;
-0000028023;;COUNTRY;Россия;Russian Federation;;225;;;;
+CODE;PARENT_CODE;TYPE_CODE;NAME.RU.NAME;NAME.EN.NAME;NAME.UA.NAME;EXT.YAMARKET.0;EXT.ZIP.0;LONGITUDE;LATITUDE;EXT.ZIP_LOWER;EXT.BX_ISO_3166_NUMERIC.0
+0000000001;;COUNTRY;Беларусь;Belarus;;149;;;;;112
+0000000276;;COUNTRY;Казахстан;Kazakhstan;;;;;;;398
+0000000364;;COUNTRY;Украина;Ukraine;Україна;187;;;;;804
+0000011327;;COUNTRY;США;USA;;;;;;;840
+0000027948;;COUNTRY;Канада;Canada;;;;;;;124
+0000027949;;COUNTRY;Албания;Albania;;;;;;;8
+0000027950;;COUNTRY;Андорра;Andorra;;;;;;;20
+0000027951;;COUNTRY;Австрия;Austria;;;;;;;40
+0000027952;;COUNTRY;Бельгия;Belgium;;;;;;;56
+0000027953;;COUNTRY;Болгария;Bulgaria;;;;;;;100
+0000027954;;COUNTRY;Хорватия;Croatia;;;;;;;191
+0000027955;;COUNTRY;Дания;Denmark;;;;;;;208
+0000027956;;COUNTRY;Финляндия;Finland;;;;;;;246
+0000027957;;COUNTRY;Франция;France;;;;;;;250
+0000027958;;COUNTRY;Германия;Germany;;;;;;;276
+0000027959;;COUNTRY;Греция;Greece;;;;;;;300
+0000027960;;COUNTRY;Венгрия;Hungary;;;;;;;348
+0000027961;;COUNTRY;Исландия;Iceland;;;;;;;352
+0000027962;;COUNTRY;Италия;Italy;;;;;;;380
+0000027963;;COUNTRY;Лихтенштейн;Liechtenstein;;;;;;;438
+0000027964;;COUNTRY;Люксембург;Luxembourg;;;;;;;442
+0000027965;;COUNTRY;Македония;Macedonia;;;;;;;807
+0000027966;;COUNTRY;Мальта;Malta;;;;;;;470
+0000027967;;COUNTRY;Монако;Monaco;;;;;;;492
+0000027968;;COUNTRY;Нидерланды;Netherlands;;;;;;;528
+0000027969;;COUNTRY;Норвегия;Norway;;;;;;;578
+0000027970;;COUNTRY;Польша;Poland;;;;;;;616
+0000027971;;COUNTRY;Португалия;Portugal;;;;;;;620
+0000027972;;COUNTRY;Румыния;Romania;;;;;;;642
+0000027973;;COUNTRY;Словакия;Slovakia;;;;;;;703
+0000027974;;COUNTRY;Словения;Slovenia;;;;;;;705
+0000027975;;COUNTRY;Ирландия;Ireland;;;;;;;372
+0000027976;;COUNTRY;Испания;Spain;;;;;;;724
+0000027977;;COUNTRY;Швеция;Sweden;;;;;;;752
+0000027978;;COUNTRY;Швейцария;Switzerland;;;;;;;756
+0000027979;;COUNTRY;Великобритания;UK;;;;;;;826
+0000027980;;COUNTRY;Ватикан;Vatican City;;;;;;;336
+0000027981;;COUNTRY;Югославия;Yugoslavia;;;;;;;
+0000027982;;COUNTRY;Босния и Герцеговина;Bosnia-Herzegovina;;;;;;;70
+0000027983;;COUNTRY;Чешская республика;Czech Republic;;;;;;;203
+0000027984;;COUNTRY;Мексика;Mexico;;;;;;;484
+0000027985;;COUNTRY;Израиль;Israel;;;;;;;376
+0000027986;;COUNTRY;Австралия;Australia;;;;;;;36
+0000027987;;COUNTRY;Ангола;Angola;;;;;;;24
+0000027988;;COUNTRY;Новая Зеландия;New Zealand;;;;;;;554
+0000027989;;COUNTRY;Азербайджан;Azerbaijan;;;;;;;31
+0000027996;;COUNTRY;Эстония;Estonia;;;;;;;233
+0000027999;;COUNTRY;Грузия;Georgia;;;;;;;268
+0000028003;;COUNTRY;Латвия;Latvia;;;;;;;428
+0000028010;;COUNTRY;Литва;Lithuania;;;;;;;440
+0000028014;;COUNTRY;Молдавия;Moldova;;;;;;;498
+0000028017;;COUNTRY;Туркменистан;Turkmenistan;;;;;;;795
+0000028018;;COUNTRY;Армения;Armenia;;;;;;;51
+0000028020;;COUNTRY;Таджикистан;Tajikistan;;;;;;;762
+0000028021;;COUNTRY;Узбекистан;Uzbekistan;;;;;;;860
+0000028022;;COUNTRY;Кыргызстан;Kyrgyzstan;;;;;;;417
+0000028023;;COUNTRY;Россия;Russian Federation;;225;;;;;643
+0010000001;;COUNTRY;Объединенные Арабские Эмираты;United Arab Emirates;;;;;;;784
+0010000002;;COUNTRY;Афганистан;Afghanistan;;;;;;;4
+0010000003;;COUNTRY;Антигуа и Барбуда;Antigua and Barbuda;;;;;;;28
+0010000004;;COUNTRY;Ангилья;Anguilla;;;;;;;660
+0010000005;;COUNTRY;Антильские острова;Netherlands Antilles;;;;;;;530
+0010000006;;COUNTRY;Антарктика;Antarctica;;;;;;;10
+0010000007;;COUNTRY;Аргентина;Argentina;;;;;;;32
+0010000008;;COUNTRY;Восточное Самоа (США);American Samoa;;;;;;;16
+0010000009;;COUNTRY;Аруба;Aruba;;;;;;;533
+0010000010;;COUNTRY;Аландские острова;Aland Islands;;;;;;;248
+0010000011;;COUNTRY;Барбадос;Barbados;;;;;;;52
+0010000012;;COUNTRY;Бангладеш;Bangladesh;;;;;;;50
+0010000013;;COUNTRY;Буркина-Фасо;Burkina Faso;;;;;;;854
+0010000014;;COUNTRY;Бахрейн;Bahrain;;;;;;;48
+0010000015;;COUNTRY;Бурунди;Burundi;;;;;;;108
+0010000016;;COUNTRY;Бенин;Benin;;;;;;;204
+0010000017;;COUNTRY;Сен-Бартелеми (Карибы);Saint Barthelemy;;;;;;;652
+0010000018;;COUNTRY;Бермудские острова;Bermuda;;;;;;;60
+0010000019;;COUNTRY;Бруней;Brunei Darussalam;;;;;;;96
+0010000020;;COUNTRY;Боливия;Bolivia, Plurinational State of;;;;;;;68
+0010000021;;COUNTRY;Бонэйр, Синт-Эстатиус и Саба;Bonaire, Sint Eustatius and Saba;;;;;;;535
+0010000022;;COUNTRY;Бразилия;Brazil;;;;;;;76
+0010000023;;COUNTRY;Багамские острова;Bahamas;;;;;;;44
+0010000024;;COUNTRY;Бутан;Bhutan;;;;;;;64
+0010000025;;COUNTRY;Буве;Bouvet Island;;;;;;;74
+0010000026;;COUNTRY;Ботсвана;Botswana;;;;;;;72
+0010000027;;COUNTRY;Белиз;Belize;;;;;;;84
+0010000028;;COUNTRY;Кокосовые острова;Cocos (Keeling) Islands;;;;;;;166
+0010000029;;COUNTRY;Демократическая Республика Конго;Congo, the Democratic Republic of the;;;;;;;180
+0010000030;;COUNTRY;Центрально-Африканская Республика (ЦАР);Central African Republic;;;;;;;140
+0010000031;;COUNTRY;Конго;Congo;;;;;;;178
+0010000032;;COUNTRY;Кот-д'Ивуар;Cote d'Ivoire;;;;;;;384
+0010000033;;COUNTRY;Острова Кука;Cook Islands;;;;;;;184
+0010000034;;COUNTRY;Чили;Chile;;;;;;;152
+0010000035;;COUNTRY;Камерун;Cameroon;;;;;;;120
+0010000036;;COUNTRY;Китай;China;;;;;;;156
+0010000037;;COUNTRY;Колумбия;Colombia;;;;;;;170
+0010000038;;COUNTRY;Коста-Рика;Costa Rica;;;;;;;188
+0010000039;;COUNTRY;Куба;Cuba;;;;;;;192
+0010000040;;COUNTRY;Кабо-Верде;Cabo Verde;;;;;;;132
+0010000041;;COUNTRY;Кюрасао;Cura?ao;;;;;;;531
+0010000042;;COUNTRY;Остров Рождества;Christmas Island;;;;;;;162
+0010000043;;COUNTRY;Кипр;Cyprus;;;;;;;196
+0010000044;;COUNTRY;Джибути;Djibouti;;;;;;;262
+0010000045;;COUNTRY;Доминика;Dominica;;;;;;;212
+0010000046;;COUNTRY;Доминиканская Республика;Dominican Republic;;;;;;;214
+0010000047;;COUNTRY;Алжир;Algeria;;;;;;;12
+0010000048;;COUNTRY;Эквадор;Ecuador;;;;;;;218
+0010000049;;COUNTRY;Египет;Egypt;;;;;;;818
+0010000050;;COUNTRY;Западная Сахара;Western Sahara;;;;;;;732
+0010000051;;COUNTRY;Эритрея;Eritrea;;;;;;;232
+0010000052;;COUNTRY;Эфиопия;Ethiopia;;;;;;;231
+0010000053;;COUNTRY;Фиджи;Fiji;;;;;;;242
+0010000054;;COUNTRY;Фолклендские острова;Falkland Islands (Malvinas);;;;;;;238
+0010000055;;COUNTRY;Микронезия;Micronesia, Federated States of;;;;;;;583
+0010000056;;COUNTRY;Фарерские острова;Faroe Islands;;;;;;;234
+0010000057;;COUNTRY;Габон;Gabon;;;;;;;266
+0010000058;;COUNTRY;Гренада;Grenada;;;;;;;308
+0010000059;;COUNTRY;Гвиана;French Guiana;;;;;;;254
+0010000060;;COUNTRY;Гернси;Guernsey;;;;;;;831
+0010000061;;COUNTRY;Гана;Ghana;;;;;;;288
+0010000062;;COUNTRY;Гибралтар;Gibraltar;;;;;;;292
+0010000063;;COUNTRY;Гренландия;Greenland;;;;;;;304
+0010000064;;COUNTRY;Гамбия;Gambia;;;;;;;270
+0010000065;;COUNTRY;Гвинея;Guinea;;;;;;;324
+0010000066;;COUNTRY;Гваделупа;Guadeloupe;;;;;;;312
+0010000067;;COUNTRY;Экваториальная Гвинея;Equatorial Guinea;;;;;;;226
+0010000068;;COUNTRY;Южная Георгия и Южные Сандвичевы острова;South Georgia and the South Sandwich Islands;;;;;;;239
+0010000069;;COUNTRY;Гватемала;Guatemala;;;;;;;320
+0010000070;;COUNTRY;Гуам;Guam;;;;;;;316
+0010000071;;COUNTRY;Гвинея-Бисау;Guinea-Bissau;;;;;;;624
+0010000072;;COUNTRY;Гайана;Guyana;;;;;;;328
+0010000073;;COUNTRY;Гонконг;Hong Kong;;;;;;;344
+0010000074;;COUNTRY;Остров Херд и острова Макдональд;Heard Island and McDonald Islands;;;;;;;334
+0010000075;;COUNTRY;Гондурас;Honduras;;;;;;;340
+0010000076;;COUNTRY;Гаити;Haiti;;;;;;;332
+0010000077;;COUNTRY;Индонезия;Indonesia;;;;;;;360
+0010000078;;COUNTRY;Остров Мэн;Isle of Man;;;;;;;833
+0010000079;;COUNTRY;Индия;India;;;;;;;356
+0010000080;;COUNTRY;Британская Территория в Индийском Океане;British Indian Ocean Territory;;;;;;;86
+0010000081;;COUNTRY;Ирак;Iraq;;;;;;;368
+0010000082;;COUNTRY;Иран;Iran, Islamic Republic of;;;;;;;364
+0010000083;;COUNTRY;Джерси;Jersey;;;;;;;832
+0010000084;;COUNTRY;Ямайка;Jamaica;;;;;;;388
+0010000085;;COUNTRY;Иордания;Jordan;;;;;;;400
+0010000086;;COUNTRY;Япония;Japan;;;;;;;392
+0010000087;;COUNTRY;Кения;Kenya;;;;;;;404
+0010000088;;COUNTRY;Камбоджа;Cambodia;;;;;;;116
+0010000089;;COUNTRY;Кирибати;Kiribati;;;;;;;296
+0010000090;;COUNTRY;Коморские острова;Comoros;;;;;;;174
+0010000091;;COUNTRY;Сент-Китс и Невис;Saint Kitts and Nevis;;;;;;;659
+0010000092;;COUNTRY;Северная Корея (КНДР);Korea, Democratic People's Republic of;;;;;;;408
+0010000093;;COUNTRY;Южная Корея;Korea, Republic of;;;;;;;410
+0010000094;;COUNTRY;Кувейт;Kuwait;;;;;;;414
+0010000095;;COUNTRY;Каймановы острова;Cayman Islands;;;;;;;136
+0010000096;;COUNTRY;Лаос;Lao People's Democratic Republic;;;;;;;418
+0010000097;;COUNTRY;Ливан;Lebanon;;;;;;;422
+0010000098;;COUNTRY;Сент-Люсия;Saint Lucia;;;;;;;662
+0010000099;;COUNTRY;Шри-Ланка;Sri Lanka;;;;;;;144
+0010000100;;COUNTRY;Либерия;Liberia;;;;;;;430
+0010000101;;COUNTRY;Лесото;Lesotho;;;;;;;426
+0010000102;;COUNTRY;Ливия;Libya;;;;;;;434
+0010000103;;COUNTRY;Марокко;Morocco;;;;;;;504
+0010000104;;COUNTRY;Черногория;Montenegro;;;;;;;499
+0010000105;;COUNTRY;Сен-Мартен (французский);Saint Martin (French part);;;;;;;663
+0010000106;;COUNTRY;Мадагаскар;Madagascar;;;;;;;450
+0010000107;;COUNTRY;Маршалловы острова;Marshall Islands;;;;;;;584
+0010000108;;COUNTRY;Мали;Mali;;;;;;;466
+0010000109;;COUNTRY;Мьянма;Myanmar;;;;;;;104
+0010000110;;COUNTRY;Монголия;Mongolia;;;;;;;496
+0010000111;;COUNTRY;Макао (Аомынь);Macao;;;;;;;446
+0010000112;;COUNTRY;Марианские острова;Northern Mariana Islands;;;;;;;580
+0010000113;;COUNTRY;Мартиника;Martinique;;;;;;;474
+0010000114;;COUNTRY;Мавритания;Mauritania;;;;;;;478
+0010000115;;COUNTRY;Монтсеррат;Montserrat;;;;;;;500
+0010000116;;COUNTRY;Маврикий;Mauritius;;;;;;;480
+0010000117;;COUNTRY;Мальдивы;Maldives;;;;;;;462
+0010000118;;COUNTRY;Малави;Malawi;;;;;;;454
+0010000119;;COUNTRY;Малайзия;Malaysia;;;;;;;458
+0010000120;;COUNTRY;Мозамбик;Mozambique;;;;;;;508
+0010000121;;COUNTRY;Намибия;Namibia;;;;;;;516
+0010000122;;COUNTRY;Новая Каледония;New Caledonia;;;;;;;540
+0010000123;;COUNTRY;Нигер;Niger;;;;;;;562
+0010000124;;COUNTRY;Норфолк;Norfolk Island;;;;;;;574
+0010000125;;COUNTRY;Нигерия;Nigeria;;;;;;;566
+0010000126;;COUNTRY;Никарагуа;Nicaragua;;;;;;;558
+0010000127;;COUNTRY;Непал;Nepal;;;;;;;524
+0010000128;;COUNTRY;Науру;Nauru;;;;;;;520
+0010000129;;COUNTRY;Ниуэ;Niue;;;;;;;570
+0010000130;;COUNTRY;Оман;Oman;;;;;;;512
+0010000131;;COUNTRY;Панама;Panama;;;;;;;591
+0010000132;;COUNTRY;Перу;Peru;;;;;;;604
+0010000133;;COUNTRY;Французская Полинезия;French Polynesia;;;;;;;258
+0010000134;;COUNTRY;Папуа-Новая Гвинея;Papua New Guinea;;;;;;;598
+0010000135;;COUNTRY;Филиппины;Philippines;;;;;;;608
+0010000136;;COUNTRY;Пакистан;Pakistan;;;;;;;586
+0010000137;;COUNTRY;Сен-Пьер и Микелон;Saint Pierre and Miquelon;;;;;;;666
+0010000138;;COUNTRY;Питкэрн;Pitcairn;;;;;;;612
+0010000139;;COUNTRY;Пуэрто-Рико;Puerto Rico;;;;;;;630
+0010000140;;COUNTRY;Палестина;Palestine, State of;;;;;;;275
+0010000141;;COUNTRY;Палау;Palau;;;;;;;585
+0010000142;;COUNTRY;Парагвай;Paraguay;;;;;;;600
+0010000143;;COUNTRY;Катар;Qatar;;;;;;;634
+0010000144;;COUNTRY;Реюньон;R?union;;;;;;;638
+0010000145;;COUNTRY;Сербия;Serbia;;;;;;;688
+0010000146;;COUNTRY;Руанда;Rwanda;;;;;;;646
+0010000147;;COUNTRY;Саудовская Аравия;Saudi Arabia;;;;;;;682
+0010000148;;COUNTRY;Соломоновы острова;Solomon Islands;;;;;;;90
+0010000149;;COUNTRY;Сейшельские острова;Seychelles;;;;;;;690
+0010000150;;COUNTRY;Судан;Sudan;;;;;;;729
+0010000151;;COUNTRY;Сингапур;Singapore;;;;;;;702
+0010000152;;COUNTRY;Остров Святой Елены;Saint Helena, Ascension and Tristan da Cunha;;;;;;;654
+0010000153;;COUNTRY;Шпицберген и Ян-Майен;Svalbard and Jan Mayen;;;;;;;744
+0010000154;;COUNTRY;Сьерра-Леоне;Sierra Leone;;;;;;;694
+0010000155;;COUNTRY;Сан-Марино;San Marino;;;;;;;674
+0010000156;;COUNTRY;Сенегал;Senegal;;;;;;;686
+0010000157;;COUNTRY;Сомали;Somalia;;;;;;;706
+0010000158;;COUNTRY;Суринам;Suriname;;;;;;;740
+0010000159;;COUNTRY;Южный Судан;South Sudan;;;;;;;728
+0010000160;;COUNTRY;Сан-Томе и Принсипи;Sao Tome and Principe;;;;;;;678
+0010000161;;COUNTRY;Сальвадор;El Salvador;;;;;;;222
+0010000162;;COUNTRY;Сен-Мартен (голландский);Sint Maarten (Dutch part);;;;;;;534
+0010000163;;COUNTRY;Сирия;Syrian Arab Republic;;;;;;;760
+0010000164;;COUNTRY;Свазиленд;Swaziland;;;;;;;748
+0010000165;;COUNTRY;Теркс и Кайкос;Turks and Caicos Islands;;;;;;;796
+0010000166;;COUNTRY;Чад;Chad;;;;;;;148
+0010000167;;COUNTRY;Французские Южные Территории;French Southern Territories;;;;;;;260
+0010000168;;COUNTRY;Того;Togo;;;;;;;768
+0010000169;;COUNTRY;Таиланд;Thailand;;;;;;;764
+0010000170;;COUNTRY;Токелау;Tokelau;;;;;;;772
+0010000171;;COUNTRY;Восточный Тимор;Timor-Leste;;;;;;;626
+0010000172;;COUNTRY;Тунис;Tunisia;;;;;;;788
+0010000173;;COUNTRY;Тонга;Tonga;;;;;;;776
+0010000174;;COUNTRY;Турция;Turkey;;;;;;;792
+0010000175;;COUNTRY;Тринидад и Тобаго;Trinidad and Tobago;;;;;;;780
+0010000176;;COUNTRY;Тувалу;Tuvalu;;;;;;;798
+0010000177;;COUNTRY;Тайвань;Taiwan, Province of China;;;;;;;158
+0010000178;;COUNTRY;Танзания;Tanzania, United Republic of;;;;;;;834
+0010000179;;COUNTRY;Уганда;Uganda;;;;;;;800
+0010000180;;COUNTRY;Внешние малые острова США;United States Minor Outlying Islands;;;;;;;581
+0010000181;;COUNTRY;Уругвай;Uruguay;;;;;;;858
+0010000182;;COUNTRY;С.винсент.гренад.;Saint Vincent and the Grenadines;;;;;;;670
+0010000183;;COUNTRY;Венесуэла;Venezuela, Bolivarian Republic of;;;;;;;862
+0010000184;;COUNTRY;Виргинские острова (Великобритания);Virgin Islands, British;;;;;;;92
+0010000185;;COUNTRY;Виргинские острова (США);Virgin Islands, U.S.;;;;;;;850
+0010000186;;COUNTRY;Вьетнам;Viet Nam;;;;;;;704
+0010000187;;COUNTRY;Вануату;Vanuatu;;;;;;;548
+0010000188;;COUNTRY;Уоллис и Футуна;Wallis and Futuna;;;;;;;876
+0010000189;;COUNTRY;Западное Самоа;Samoa;;;;;;;882
+0010000190;;COUNTRY;Йемен;Yemen;;;;;;;887
+0010000191;;COUNTRY;Майотта;Mayotte;;;;;;;175
+0010000192;;COUNTRY;Южно-Африканская Республика (ЮАР);South Africa;;;;;;;710
+0010000193;;COUNTRY;Замбия;Zambia;;;;;;;894
+0010000194;;COUNTRY;Зимбабве;Zimbabwe;;;;;;;716

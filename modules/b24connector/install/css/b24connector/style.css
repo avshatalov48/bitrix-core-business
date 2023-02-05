@@ -1,5 +1,5 @@
 .connector {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
   font-size: 16px;
   color: #535c69;
   padding: 20px;
@@ -367,27 +367,35 @@
 
 .connector-step-item {
   flex: 1;
-  padding: 175px 0 0 0;
+  padding: 0;
   text-align: center;
   font-size: 24px;
   color: #535c69;
   line-height: 26px;
 }
 
-.connector-step-item-arrow {
-  background: url("/bitrix/images/b24connector/arrow.png") center 65px no-repeat;
+.connector-step.ru .connector-step-item {
+	padding-top: 175px;
 }
 
-.connector-step-item-1 {
+.connector-step-item-arrow {
+  background: url("/bitrix/images/b24connector/arrow.png") center no-repeat;
+}
+
+.connector-step.ru .connector-step-item-arrow {
+	background-position: center 65px;
+}
+
+.connector-step.ru .connector-step-item-1 {
   max-width: 161px;
   background: url("/bitrix/images/b24connector/step-1.png") center 0 no-repeat;
 }
 
-.connector-step-item-2 {
+.connector-step.ru .connector-step-item-2 {
   background: url("/bitrix/images/b24connector/step-2.png") center 0 no-repeat;
 }
 
-.connector-step-item-3 {
+.connector-step.ru .connector-step-item-3 {
   background: url("/bitrix/images/b24connector/step-3.png") center 0 no-repeat;
 }
 

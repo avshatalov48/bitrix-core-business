@@ -477,6 +477,7 @@ class SberbankOnlineHandler extends PaySystem\ServiceHandler implements PaySyste
 		$result = new PaySystem\ServiceResult();
 
 		$httpClient = new HttpClient();
+		$httpClient->disableSslVerification();
 
 		$postData = static::encode($params);
 		PaySystem\Logger::addDebugInfo(

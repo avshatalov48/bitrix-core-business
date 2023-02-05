@@ -325,8 +325,7 @@ abstract class Mailbox
 
 	private function findMessagesWithAnEmptyBody(int $count, $mailboxId)
 	{
-		$resyncTime = new Main\Type\DateTime();
-		$resyncTime->add('- '.static::MESSAGE_RESYNCHRONIZATION_TIME.' seconds');
+		$reSyncTime = (new Main\Type\DateTime())->add('- '.static::MESSAGE_RESYNCHRONIZATION_TIME.' seconds');
 
 		$ids = Mail\Internals\MailEntityOptionsTable::getList(
 			[
@@ -337,35 +336,20 @@ abstract class Mailbox
 					'=ENTITY_TYPE' => 'MESSAGE',
 					'=PROPERTY_NAME' => 'UNSYNC_BODY',
 					'=VALUE' => 'Y',
-					'<=DATE_INSERT' => $resyncTime,
+					'<=DATE_INSERT' => $reSyncTime,
 				]
 				,
 				'limit' => $count,
 			]
 		)->fetchAll();
 
-		$messIds = array_map(
+		return array_map(
 			function ($item)
 			{
 				return $item['ENTITY_ID'];
 			},
 			$ids
 		);
-
-		foreach($messIds as $id)
-		{
-			Mail\Internals\MailEntityOptionsTable::update([
-				'MAILBOX_ID' => $mailboxId,
-				'ENTITY_ID' => $id,
-				'ENTITY_TYPE' => 'MESSAGE',
-				'PROPERTY_NAME' => 'UNSYNC_BODY',
-			],
-			[
-				'VALUE' => 'N',
-			]);
-		}
-
-		return $messIds;
 	}
 
 	//Finds completely missing messages

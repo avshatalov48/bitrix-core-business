@@ -42,7 +42,11 @@ if($moduleAccess >= "W"):
 		LocalRedirect($APPLICATION->GetCurPage()."?mid=".urlencode($module_id)."&lang=".urlencode(LANGUAGE_ID)."&".$tabControl->ActiveTabParam());
 	}
 
-	\Bitrix\Main\UI\Extension::load("main.core");
+	\Bitrix\Main\UI\Extension::load([
+		"main.core",
+		"ui.design-tokens"
+	]);
+
 	Asset::getInstance()->addString('<link rel="stylesheet" type="text/css" href="/bitrix/css/b24connector/style.css">');
 	Asset::getInstance()->addJs("/bitrix/js/b24connector/connector.js");
 

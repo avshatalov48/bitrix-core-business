@@ -42,6 +42,17 @@ class CBPCreateListsDocumentActivity extends CBPActivity
 
 		$documentType = $this->DocumentType;
 
+		if (!$documentType)
+		{
+			$this->writeToTrackingService(
+				GetMessage("BPCLDA_ERROR_DT_1"),
+				0,
+				CBPTrackingType::Error
+			);
+
+			return CBPActivityExecutionStatus::Closed;
+		}
+
 		$this->logDebugType($documentType);
 
 		$fields = $this->Fields;

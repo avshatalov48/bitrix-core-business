@@ -1,19 +1,18 @@
 <?
-use Bitrix\Main\Loader;
-
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 
+use Bitrix\Main\Loader;
+use	Bitrix\Sale\BusinessValue;
+use Bitrix\Sale\OrderStatus;
+use Bitrix\Sale\DeliveryStatus;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main;
+use Bitrix\Catalog;
+use Bitrix\Sale;
+
 if(!Loader::includeModule('sale'))
 	return;
-
-use	Bitrix\Sale\BusinessValue,
-	Bitrix\Sale\OrderStatus,
-	Bitrix\Sale\DeliveryStatus,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main,
-	Bitrix\Catalog,
-	Bitrix\Sale;
 
 $saleConverted15 = COption::GetOptionString("main", "~sale_converted_15", "") == "Y";
 if ($saleConverted15)
@@ -1953,46 +1952,6 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 //Ukraine
 	if($shopLocalization == "ua")
 	{
-		//oshadbank
-		if (($personType["fiz"] == "Y" || $personType["fiz_ua"] == "Y") && $paysystem["oshad"] == "Y")
-		{
-			$arPaySystems[] = array(
-				'PAYSYSTEM' => array(
-					"NAME" => GetMessage("SALE_WIZARD_PS_OS"),
-					"SORT" => 90,
-					"DESCRIPTION" => GetMessage("SALE_WIZARD_PS_OS_DESCR"),
-					"PSA_NAME" => GetMessage("SALE_WIZARD_PS_OS"),
-					"ACTION_FILE" => "/bitrix/modules/sale/payment/oshadbank",
-					"RESULT_FILE" => "",
-					"NEW_WINDOW" => "Y",
-					"HAVE_PAYMENT" => "Y",
-					"HAVE_ACTION" => "N",
-					"HAVE_RESULT" => "N",
-					"HAVE_PREPAY" => "N",
-					"HAVE_RESULT_RECEIVE" => "N",
-					'ENTITY_REGISTRY_TYPE' => Sale\Registry::REGISTRY_TYPE_ORDER,
-				),
-				"PERSON_TYPE" => array($arGeneralInfo["personType"]["fiz"], $arGeneralInfo["personType"]["fiz_ua"]),
-				"BIZVAL" => array(
-					'' => array(
-						"RECIPIENT_NAME" => array("TYPE" => "", "VALUE" => $shopOfName),
-						"RECIPIENT_ID" => array("TYPE" => "", "VALUE" => $shopEGRPU_ua),
-						"RECIPIENT_NUMBER" => array("TYPE" => "", "VALUE" => $shopNS_ua),
-						"RECIPIENT_BANK" => array("TYPE" => "", "VALUE" => $shopBank_ua),
-						"RECIPIENT_CODE_BANK" => array("TYPE" => "", "VALUE" => $shopMFO_ua),
-						"PAYER_FIO" => array("TYPE" => "PROPERTY", "VALUE" => "FIO"),
-						"PAYER_ADRES" => array("TYPE" => "PROPERTY", "VALUE" => "ADDRESS"),
-						"ORDER_ID" => array("TYPE" => "ORDER", "VALUE" => "ID"),
-						"DATE_INSERT" => array("TYPE" => "ORDER", "VALUE" => "DATE_INSERT_DATE"),
-						"PAYER_CONTACT_PERSON" => array("TYPE" => "PROPERTY", "VALUE" => "FIO"),
-						"PAYER_INDEX" => array("TYPE" => "PROPERTY", "VALUE" => "ZIP"),
-						"PAYER_COUNTRY" => array("TYPE" => "PROPERTY", "VALUE" => "LOCATION_COUNTRY"),
-						"PAYER_TOWN" => array("TYPE" => "PROPERTY", "VALUE" => "LOCATION_CITY"),
-						"SHOULD_PAY" => array("TYPE" => "ORDER", "VALUE" => "PRICE"),
-					)
-				),
-			);
-		}
 		if ($personType["fiz"] == "Y")
 		{
 			$arPaySystems[] = array(
@@ -2186,7 +2145,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 		$tmpPaySystem = $dbRes->fetch();
 		if (!$tmpPaySystem)
 		{
-			$resultAdd = \Bitrix\Sale\Internals\PaySystemActionTable::add($val);
+			$resultAdd = \Bitrix\Sale\PaySystem\Manager::add($val);
 			if ($resultAdd->isSuccess())
 			{
 				$id = $resultAdd->getId();
@@ -2241,7 +2200,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 				}
 
 				CFile::SaveForDB($updateFields, 'LOGOTIP', 'sale/paysystem/logotip');
-				\Bitrix\Sale\Internals\PaySystemActionTable::update($id, $updateFields);
+				\Bitrix\Sale\PaySystem\Manager::update($id, $updateFields);
 			}
 		}
 		else
@@ -2398,30 +2357,63 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 
 		if (Loader::includeModule("catalog"))
 		{
-			$dbVat = CCatalogVat::GetListEx(
-				array(),
-				array('RATE' => 0),
-				false,
-				false,
-				array('ID', 'RATE')
-			);
-			if(!($dbVat->Fetch()))
+			$vat = Catalog\Model\Vat::getRow([
+				'select' => [
+					'ID',
+				],
+				'filter' => [
+					'=EXCLUDE_VAT' => 'Y',
+				],
+			]);
+			if ($vat === null)
 			{
-				$arF = array("ACTIVE" => "Y", "SORT" => "100", "NAME" => GetMessage("WIZ_VAT_1"), "RATE" => 0);
-				CCatalogVat::Add($arF);
+				Catalog\Model\Vat::add([
+					'NAME' => GetMessage('WIZ_VAT_1'),
+					'ACTIVE' => 'Y',
+					'SORT' => 100,
+					'EXCLUDE_VAT' => 'Y',
+					'RATE' => null,
+				]);
 			}
-			$dbVat = CCatalogVat::GetListEx(
-				array(),
-				array('RATE' => GetMessage("WIZ_VAT_2_VALUE")),
-				false,
-				false,
-				array('ID', 'RATE')
-			);
-			if(!($dbVat->Fetch()))
+			$vat = Catalog\Model\Vat::getRow([
+				'select' => [
+					'ID',
+				],
+				'filter' => [
+					'=EXCLUDE_VAT' => 'N',
+					'=RATE' => 0,
+				],
+			]);
+			if ($vat === null)
 			{
-				$arF = array("ACTIVE" => "Y", "SORT" => "200", "NAME" => GetMessage("WIZ_VAT_2"), "RATE" => GetMessage("WIZ_VAT_2_VALUE"));
-				CCatalogVat::Add($arF);
+				Catalog\Model\Vat::add([
+					'NAME' => Loc::getMessage('WIZ_VAT_ZERO'),
+					'ACTIVE' => 'Y',
+					'SORT' => 200,
+					'EXCLUDE_VAT' => 'N',
+					'RATE' => 0,
+				]);
 			}
+			$vatValue = (float)GetMessage('WIZ_VAT_2_VALUE');
+			$vat = Catalog\Model\Vat::getRow([
+				'select' => [
+					'ID',
+				],
+				'filter' => [
+					'=RATE' => $vatValue,
+				],
+			]);
+			if ($vat === null)
+			{
+				Catalog\Model\Vat::add([
+					'NAME' => GetMessage('WIZ_VAT_2'),
+					'ACTIVE' => 'Y',
+					'SORT' => 300,
+					'EXCLUDE_VAT' => 'N',
+					'RATE' => $vatValue,
+				]);
+			}
+
 			$dbResultList = CCatalogGroup::GetList(array(), array("CODE" => "BASE"));
 			if($arRes = $dbResultList->Fetch())
 			{

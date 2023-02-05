@@ -22,7 +22,7 @@ class ResponseYandex extends Response
 	{
 		$endpointParts = explode('/', $this->getRequest()->getEndpoint());
 
-		$parsed = Json::decode($data);
+		$parsed = is_array($data) ? $data : Json::decode($data);
 
 		if (isset($parsed['errors']))
 		{

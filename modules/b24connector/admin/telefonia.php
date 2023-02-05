@@ -22,7 +22,11 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 	<div class="connector-content">
 		<p class="connector-title"><?=Loc::getMessage('B24C_TEL_TITLE')?></p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_TEL_DESCR1')?></p>
-		<img src="/bitrix/images/b24connector/img-2.png" alt="" class="connector-img">
+
+		<?php if (LANGUAGE_ID === 'ru'): ?>
+			<img src="/bitrix/images/b24connector/img-2.png" alt="" class="connector-img">
+		<?php endif; ?>
+
 		<p class="connector-title-sm"><?=Loc::getMessage('B24C_TEL_AUTO_FIX')?></p>
 		<ul class="connector-description-ul-green">
 			<li><?=Loc::getMessage('B24C_TEL_DESCR2')?></li>

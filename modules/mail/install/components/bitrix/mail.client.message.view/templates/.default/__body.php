@@ -2,6 +2,8 @@
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Viewer;
+use Bitrix\Main\Web\Uri;
+
 \Bitrix\Main\UI\Extension::load("ui.icons.b24");
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
@@ -349,7 +351,7 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 <? if (!$message['hideFastReplyPanel']):?>
 	<div class="mail-msg-view-reply-panel mail-msg-view-border-bottom js-msg-view-reply-panel">
 		<div class="ui-icon ui-icon-common-user mail-msg-userpic">
-			<i <? if (!empty($arResult['USER_IMAGE'])): ?> style="background: url('<?=htmlspecialcharsbx($arResult['USER_IMAGE']) ?>'); background-size: 23px 23px; "<? endif ?>></i>
+			<i <? if (!empty($arResult['USER_IMAGE'])): ?> style="background: url('<?= Uri::urnEncode(htmlspecialcharsbx($arResult['USER_IMAGE'])) ?>'); background-size: 23px 23px; "<? endif ?>></i>
 		</div>
 		<div class="mail-msg-view-reply-panel-text"><?=Loc::getMessage('MAIL_MESSAGE_REPLY_Q') ?></div>
 	</div>

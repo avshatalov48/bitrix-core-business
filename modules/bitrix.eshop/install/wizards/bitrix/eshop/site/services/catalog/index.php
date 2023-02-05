@@ -1,24 +1,39 @@
-<?
+<?php
+/** @global CWizardBase $wizard */
+
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 
+$allowModifyStoreControl = $wizard->GetDefaultVar('allowModifyStoreControl');
+if ($allowModifyStoreControl !== 'Y')
+{
+	return;
+}
+
 $catalogSubscribe = $wizard->GetVar("catalogSubscribe");
 $curSiteSubscribe = ($catalogSubscribe == "Y") ? array("use" => "Y", "del_after" => "100") : array("del_after" => "100");
-$subscribe = COption::GetOptionString("sale", "subscribe_prod", "");
+$subscribe = Option::get("sale", "subscribe_prod", "");
 $arSubscribe = unserialize($subscribe, ["allowed_classes" => false]);
 $arSubscribe[WIZARD_SITE_ID] = $curSiteSubscribe;
-COption::SetOptionString("sale", "subscribe_prod", serialize($arSubscribe));
+Option::set("sale", "subscribe_prod", serialize($arSubscribe));
 
 $useStoreControl = $wizard->GetVar("useStoreControl");
 $useStoreControl = ($useStoreControl == "Y") ? "Y" : "N";
-$curUseStoreControl = COption::GetOptionString("catalog", "default_use_store_control", "N");
-COption::SetOptionString("catalog", "default_use_store_control", $useStoreControl);
+$curUseStoreControl = Option::get("catalog", "default_use_store_control", "N");
+Option::set("catalog", "default_use_store_control", $useStoreControl);
+if ($useStoreControl === 'Y')
+{
+	Option::set('catalog', 'enable_reservation', 'Y');
+}
 
 $productReserveCondition = $wizard->GetVar("productReserveCondition");
 $productReserveCondition = (in_array($productReserveCondition, array("O", "P", "D", "S"))) ? $productReserveCondition : "P";
-COption::SetOptionString("sale", "product_reserve_condition", $productReserveCondition);
+Option::set("sale", "product_reserve_condition", $productReserveCondition);
 
-if (CModule::IncludeModule("catalog"))
+if (Loader::includeModule('catalog'))
 {
 	if($useStoreControl == "Y" && $curUseStoreControl == "N")
 	{
@@ -33,7 +48,7 @@ if (CModule::IncludeModule("catalog"))
 				$storeImageId =  CFile::SaveFile($storeImage, 'catalog');
 			}
 
-			$arStoreFields = array(
+			$arStoreFields = [
 				"TITLE" => GetMessage("CAT_STORE_NAME"),
 				"ADDRESS" => GetMessage("STORE_ADR_1"),
 				"DESCRIPTION" => GetMessage("STORE_DESCR_1"),
@@ -41,8 +56,9 @@ if (CModule::IncludeModule("catalog"))
 				"GPS_S" => GetMessage("STORE_GPS_S_1"),
 				"PHONE" => GetMessage("STORE_PHONE_1"),
 				"SCHEDULE" => GetMessage("STORE_PHONE_SCHEDULE"),
-				"IMAGE_ID" => $storeImageId
-			);
+				"IMAGE_ID" => $storeImageId,
+				"IS_DEFAULT" => "Y",
+			];
 			$newStoreId = CCatalogStore::Add($arStoreFields);
 			if($newStoreId)
 			{
@@ -52,9 +68,23 @@ if (CModule::IncludeModule("catalog"))
 	}
 }
 
-if(COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SITE_ID) == "Y" && !WIZARD_INSTALL_DEMO_DATA)
+if (
+	Option::get('eshop', 'wizard_installed', 'N', WIZARD_SITE_ID) === 'Y'
+	&& !WIZARD_INSTALL_DEMO_DATA
+)
+{
 	return;
+}
 
-COption::SetOptionString("catalog", "allow_negative_amount", "N");
-COption::SetOptionString("catalog", "default_can_buy_zero", "N");
-COption::SetOptionString("catalog", "default_quantity_trace", "Y");
+if (Loader::includeModule('crm'))
+{
+	Option::set('catalog', 'allow_negative_amount', 'Y');
+	Option::set('catalog', 'default_can_buy_zero', 'Y');
+	Option::set('catalog', 'default_quantity_trace', $useStoreControl);
+}
+else
+{
+	Option::set('catalog', 'allow_negative_amount', 'N');
+	Option::set('catalog', 'default_can_buy_zero', 'N');
+	Option::set('catalog', 'default_quantity_trace', 'Y');
+}

@@ -198,8 +198,13 @@ create table b_calendar_log
 (
   ID int not null auto_increment,
   TIMESTAMP_X TIMESTAMP NOT NULL DEFAULT current_timestamp,
-  MESSAGE TEXT NULL,
-  PRIMARY KEY(ID)
+  MESSAGE MEDIUMTEXT NULL,
+  TYPE varchar(50) default null,
+  UUID varchar(255) default null,
+  USER_ID int default null,
+  PRIMARY KEY(ID),
+  INDEX ix_cal_log_uuid(UUID),
+  INDEX ix_cal_log_user_id(USER_ID)
 );
 
 create table b_calendar_section_connection

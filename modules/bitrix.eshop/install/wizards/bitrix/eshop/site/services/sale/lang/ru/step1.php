@@ -101,10 +101,10 @@ $MESS["WIZ_SALE_STATUS_DESCRIPTION_P"] = "Заказ оплачен, форми�
 $MESS["WIZ_SALE_STATUS_F"] = "Выполнен";
 $MESS["WIZ_SALE_STATUS_DESCRIPTION_F"] = "Заказ отправлен клиенту";
 $MESS["WIZ_VAT_1"] = "Без НДС";
+$MESS["WIZ_VAT_ZERO"] = "НДС 0%";
 $MESS["WIZ_VAT_2"] = "НДС 20%";
 $MESS["WIZ_VAT_2_VALUE"] = "20";
 $MESS["WIZ_PRICE_NAME"] = "Розничная цена";
 $MESS["WIZ_ORD_FIO"] = "Иванов Петр";
 $MESS["WIZ_ORD_ADR"] = "ул. Первомайская 93";
 $MESS["WIZ_CITY"] = "Город";
-?>

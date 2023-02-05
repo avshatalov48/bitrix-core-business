@@ -631,6 +631,24 @@ class CFile extends CAllFile
 		/****************************** QUOTA ******************************/
 	}
 
+	public static function CloneFile(int $fileId): ?int
+	{
+		$originalFile = static::GetByID($fileId)->Fetch();
+		if (!$originalFile)
+		{
+			return null;
+		}
+
+		$originalFile['FILE_HASH'] = '';
+
+		$cloneId = static::DoInsert($originalFile);
+
+		static::AddDuplicate($fileId, $cloneId);
+		static::CleanCache($cloneId);
+
+		return $cloneId;
+	}
+
 	public static function DoInsert($arFields)
 	{
 		global $DB;

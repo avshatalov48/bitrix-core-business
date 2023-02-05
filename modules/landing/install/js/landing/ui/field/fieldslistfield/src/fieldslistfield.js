@@ -976,6 +976,14 @@ export class FieldsListField extends BaseField
 			'money',
 			'boolean',
 			'resourcebooking',
+			'radio',
+			'bool',
+			'hr',
+			'br',
+			'phone',
+			'email',
+			'page',
+			'section',
 		];
 	}
 

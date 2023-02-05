@@ -322,7 +322,7 @@ class Office365Context implements ContextInterface
 	 */
 	public function getLogger(): LoggerInterface
 	{
-		if (RequestLogger::isWriteToLogForSyncRequest($this->getOwner()->getId(), Helper::ACCOUNT_TYPE))
+		if (RequestLogger::isEnabled())
 		{
 			$this->logger = new RequestLogger($this->getOwner()->getId(), Helper::ACCOUNT_TYPE);
 		}

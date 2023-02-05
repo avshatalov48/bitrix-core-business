@@ -1,4 +1,6 @@
 <?
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+
 IncludeTemplateLangFile(__FILE__);
 
 return array(
@@ -51,4 +53,3 @@ return array(
 	"bxe-list bxe-lis-blue~~fa fa-caret-square-o-right" => array('section'=>'list', 'tag' => 'UL', "title" => GetMessage("STYLES_LIST_VIDEO"), "html" => '<ul  style="margin: 0; padding:0; list-style: none;"><li><i class="fa fa-caret-square-o-right" style="color: #0083d1;margin-right: 6px"></i>'.GetMessage("STYLES_LIST_VIDEO").'</li><ul>'),
 	"bxe-list bxe-lis-blue~~fa fa-heart" => array('section'=>'list', 'tag' => 'UL', "title" => GetMessage("STYLES_LIST_HEART"), "html" => '<ul  style="margin: 0; padding:0; list-style: none;"><li><i class="fa fa-heart" style="color: #0083d1;margin-right: 6px"></i>'.GetMessage("STYLES_LIST_HEART").'</li><ul>'),
 );
-?>

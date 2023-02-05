@@ -9,7 +9,10 @@ use Bitrix\B24Connector\Connection;
 /** @var array $arParams */
 /** @var array $arResult */
 
-CJSCore::Init(array('clipboard'));
+\Bitrix\Main\UI\Extension::load([
+	'ui.design-tokens',
+	'clipboard',
+]);
 ?>
 
 <?if(Connection::isExist()):?>

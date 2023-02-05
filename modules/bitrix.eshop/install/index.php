@@ -32,8 +32,6 @@ Class bitrix_eshop extends CModule
 
 	function InstallDB($install_wizard = true)
 	{
-		global $DB, $DBType, $APPLICATION;
-
 		RegisterModule("bitrix.eshop");
 		RegisterModuleDependences("main", "OnBeforeProlog", "bitrix.eshop", "CEShop", "ShowPanel");
 
@@ -42,8 +40,6 @@ Class bitrix_eshop extends CModule
 
 	function UnInstallDB($arParams = Array())
 	{
-		global $DB, $DBType, $APPLICATION;
-
 		UnRegisterModule("bitrix.eshop");
 		UnRegisterModuleDependences("main", "OnBeforeProlog", "bitrix.eshop", "CEShop", "ShowPanel");
 

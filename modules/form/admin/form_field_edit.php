@@ -730,7 +730,7 @@ if (is_array($arCurrentValidators) && count($arCurrentValidators) > 0)
 	}
 }
 
-\Bitrix\Main\Localization\Loc::loadMessages(dirname(__FILE__).'/../form_validator_props.php');
+\Bitrix\Main\Localization\Loc::loadMessages(__DIR__.'/../form_validator_props.php');
 ?>
 	</script>
 	<script>

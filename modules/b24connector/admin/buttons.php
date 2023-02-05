@@ -33,7 +33,10 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 			<li><?=Loc::getMessage('B24C_BL_AC_C5')?></li>
 		</ul>
 
-		<img src="/bitrix/images/b24connector/img-3.png" alt="" class="connector-img">
+		<?php if (LANGUAGE_ID === 'ru'): ?>
+			<img src="/bitrix/images/b24connector/img-3.png" alt="" class="connector-img">
+		<?php endif; ?>
+
 	<?=
 		$APPLICATION->IncludeComponent(
 			"bitrix:b24connector.button.list",

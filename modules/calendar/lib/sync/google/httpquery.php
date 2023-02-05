@@ -21,7 +21,7 @@ class HttpQuery
 	public function __construct(HttpClient $client, int $userId, string $serviceName = 'google')
 	{
 		$this->client = $client;
-		if (RequestLogger::isWriteToLogForSyncRequest($userId, self::SERVICE_NAME))
+		if (RequestLogger::isEnabled())
 		{
 			$this->logger = new RequestLogger($userId, self::SERVICE_NAME);
 		}

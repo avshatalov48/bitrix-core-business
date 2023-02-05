@@ -43,20 +43,8 @@ class MailboxTable extends Entity\DataManager
 		return array_key_exists($mailboxId, $mailboxes) ? $mailboxes[$mailboxId] : false;
 	}
 
-	public static function getTheOwnersMailboxes($userId = null)
+	public static function getTheOwnersMailboxes($userId)
 	{
-		global $USER;
-
-		if (!($userId > 0 || is_object($USER) && $USER->isAuthorized()))
-		{
-			return false;
-		}
-
-		if (!($userId > 0))
-		{
-			$userId = $USER->getId();
-		}
-
 		static $mailboxes = [];
 		static $userMailboxes = [];
 
@@ -98,20 +86,8 @@ class MailboxTable extends Entity\DataManager
 		return $result;
 	}
 
-	public static function getTheSharedMailboxes($userId = null)
+	public static function getTheSharedMailboxes($userId)
 	{
-		global $USER;
-
-		if (!($userId > 0 || is_object($USER) && $USER->isAuthorized()))
-		{
-			return false;
-		}
-
-		if (!($userId > 0))
-		{
-			$userId = $USER->getId();
-		}
-
 		static $mailboxes = [];
 		static $userMailboxes = [];
 
@@ -181,9 +157,17 @@ class MailboxTable extends Entity\DataManager
 	{
 		global $USER;
 
-		if (!($userId > 0 || is_object($USER) && $USER->isAuthorized()))
+		if (!(
+			$userId > 0
+			|| (is_object($USER) && $USER->isAuthorized())
+		))
 		{
-			return false;
+			return [];
+		}
+
+		if (!($userId > 0))
+		{
+			$userId = $USER->getId();
 		}
 
 		$sharedMailboxes = static::getTheSharedMailboxes($userId);

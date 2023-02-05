@@ -62,6 +62,32 @@ class BodyStructure
 	protected $number;
 	protected $data = array();
 	protected $isMultipart = false, $partsCount = 0;
+	protected const TYPE_INDEX = 0;
+	protected const SUBTYPE_INDEX = 1;
+	protected const ENCODING_INDEX = 5;
+
+	protected const DEFAULT_PROPERTIES = [
+		'text',
+		'html',
+		null,
+		null,
+		null,
+		'8bit',
+	];
+
+	protected function formatProperty($property, $propertyIndex)
+	{
+		if(is_string($property) && !empty($property))
+		{
+			$property = mb_strtolower($property);
+		}
+		else
+		{
+			$property = self::DEFAULT_PROPERTIES[$propertyIndex];
+		}
+
+		return $property;
+	}
 
 	public function __construct(array $bodystructure, $number = null)
 	{
@@ -88,11 +114,11 @@ class BodyStructure
 				$this->number = 1;
 			}
 
-			$bodystructure[0] = mb_strtolower($bodystructure[0]);
-			$bodystructure[5] = mb_strtolower($bodystructure[5]);
+			$bodystructure[self::TYPE_INDEX] = $this->formatProperty($bodystructure[self::TYPE_INDEX], self::TYPE_INDEX);
+			$bodystructure[self::ENCODING_INDEX] = $this->formatProperty($bodystructure[self::ENCODING_INDEX], self::ENCODING_INDEX);
 		}
 
-		$bodystructure[1] = mb_strtolower($bodystructure[1]);
+		$bodystructure[self::SUBTYPE_INDEX] = $this->formatProperty($bodystructure[self::SUBTYPE_INDEX], self::SUBTYPE_INDEX);
 
 		if (!empty($bodystructure[2]) && is_array($bodystructure[2]))
 		{

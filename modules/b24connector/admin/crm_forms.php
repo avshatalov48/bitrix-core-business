@@ -36,11 +36,15 @@ if(!empty($errorMsgs))
 		<p class="connector-title"><?=Loc::getMessage('B24C_CRMF_TITLE')?></p>
 
 		<p class="connector-description"><?=Loc::getMessage('B24C_CRMF_DESCR1')?></p>
-		<div class="connector-video-container">
-			<div class="connector-video-block">
-				<iframe class="connector-video" src="https://www.youtube.com/embed/3qyQhyNx-xs?rel=0" frameborder="0" allowfullscreen></iframe>
+
+		<?php if (LANGUAGE_ID === 'ru'): ?>
+			<div class="connector-video-container">
+				<div class="connector-video-block">
+					<iframe class="connector-video" src="https://www.youtube.com/embed/3qyQhyNx-xs?rel=0" frameborder="0" allowfullscreen></iframe>
+				</div>
 			</div>
-		</div>
+		<?php endif; ?>
+
 		<p class="connector-title-sm"><?=Loc::getMessage('B24C_CRMF_TYPES')?></p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_CRMF_DESCR2')?></p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_CRMF_DESCR3')?></p>

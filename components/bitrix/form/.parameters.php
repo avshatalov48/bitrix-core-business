@@ -1,5 +1,8 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 if (!CModule::IncludeModule("form")) return;
 
@@ -62,14 +65,14 @@ $arComponentParameters = array(
 			"VALUES" => $arrForms,
 			"ADDITIONAL_VALUES"	=> "Y",
 			"REFRESH" => "Y",
-			"DEFAULT" => "={\$_REQUEST[WEB_FORM_ID]}",
+			"DEFAULT" => "={\$_REQUEST[\"WEB_FORM_ID\"]}",
 			"PARENT" => "DATA_SOURCE",
 		),
 
 		"RESULT_ID" => array(
 			"NAME" => GetMessage("COMP_FORM_PARAMS_RESULT_ID"),
 			"TYPE" => "STRING",
-			"DEFAULT" => "={\$_REQUEST[RESULT_ID]}",
+			"DEFAULT" => "={\$_REQUEST[\"RESULT_ID\"]}",
 			"PARENT" => "DATA_SOURCE",
 		),
 
@@ -214,4 +217,3 @@ $arComponentParameters = array(
 		"CACHE_TIME" => array("DEFAULT" => "3600"),
 	),
 );
-?>

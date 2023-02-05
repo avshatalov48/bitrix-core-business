@@ -23,6 +23,12 @@ class MysqliConnection extends MysqlCommonConnection
 		return new MysqliSqlHelper($this);
 	}
 
+	protected function configureReportLevel(): void
+	{
+		// back to default before PHP 8.1
+		mysqli_report(MYSQLI_REPORT_OFF);
+	}
+
 	/***********************************************************
 	 * Connection and disconnection
 	 ***********************************************************/
@@ -125,6 +131,7 @@ class MysqliConnection extends MysqlCommonConnection
 	 */
 	protected function queryInternal($sql, array $binds = null, Diag\SqlTrackerQuery $trackerQuery = null)
 	{
+		$this->configureReportLevel();
 		$this->connectInternal();
 
 		if ($trackerQuery != null)

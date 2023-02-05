@@ -624,8 +624,10 @@ class CMailClientMessageViewComponent extends CBitrixComponent implements \Bitri
 		}
 
 		if (
-			(isset($message['OPTIONS']['isEmptyBody']) && $message['OPTIONS']['isEmptyBody'] === 'Y')
-			|| empty($message['BODY_HTML'])
+			($message['OPTIONS']['attachments'] <= 0)
+			&& ((isset($message['OPTIONS']['isEmptyBody']) && $message['OPTIONS']['isEmptyBody'] === 'Y')
+				|| empty($message['BODY_HTML'])
+			)
 		)
 		{
 			$message['isSyncError'] = true;

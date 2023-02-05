@@ -1,4 +1,4 @@
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/b24connector/admin/prolog_before.php");
 
@@ -37,16 +37,19 @@ if(!empty($errorMsgs))
 	<div class="connector-content">
 		<p class="connector-title"><?=Loc::getMessage('B24C_B24C_COMM')?></p>
 
-		<div class="connector-video-container">
-			<div class="connector-video-block">
-				<iframe class="connector-video" src="https://www.youtube.com/embed/bhKF6cq2E2M?rel=0" frameborder="0" allowfullscreen></iframe>
+		<?php if (LANGUAGE_ID === 'ru'): ?>
+			<div class="connector-video-container">
+				<div class="connector-video-block">
+					<iframe class="connector-video" src="https://www.youtube.com/embed/bhKF6cq2E2M?rel=0" frameborder="0" allowfullscreen></iframe>
+				</div>
 			</div>
-		</div>
+		<?php endif; ?>
+
 		<p class="connector-description"><?=Loc::getMessage('B24C_B24C_D1')?></p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_B24C_D2')?></p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_B24C_D3')?></p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_B24C_D4')?></p>
-		<div class="connector-step">
+		<div class="connector-step <?=LANGUAGE_ID;?>">
 			<div class="connector-step-item connector-step-item-1"><?=Loc::getMessage('B24C_B24C_S1')?></div>
 			<div class="connector-step-item connector-step-item-arrow"></div>
 			<div class="connector-step-item connector-step-item-2"><?=Loc::getMessage('B24C_B24C_S2')?></div>

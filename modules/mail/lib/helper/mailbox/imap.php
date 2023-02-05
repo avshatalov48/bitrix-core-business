@@ -1689,7 +1689,7 @@ class Imap extends Mail\Helper\Mailbox
 			'DIR_UIDV'     => $uidToken,
 			'MSG_UID'      => $message['UID'],
 			'INTERNALDATE' => $message['__internaldate'],
-			'IS_SEEN'      => preg_grep('/^ \x5c Seen $/ix', $message['FLAGS']) ? 'Y' : 'N',
+			'IS_SEEN'      => (isset($message['FLAGS']) && preg_grep('/^ \x5c Seen $/ix', $message['FLAGS'])) ? 'Y' : 'N',
 			'HEADER_MD5'   => $this->buildMessageHeaderHashForDataBase($message),
 			'MESSAGE_ID'   => 0,
 		];

@@ -91,7 +91,7 @@ class CalendarFilter
 				]
 			];
 		}
-		
+
 		$presets['filter_calendar_host'] = [
 				'name' => Loc::getMessage('CALENDAR_PRESET_I_AM_HOST'),
 				'default' => false,
@@ -100,7 +100,7 @@ class CalendarFilter
 					'MEETING_STATUS' => 'H',
 				]
 			];
-		
+
 		$presets['filter_calendar_attendee'] = [
 			'name' => Loc::getMessage('CALENDAR_PRESET_I_AM_ATTENDEE'),
 			'default' => false,
@@ -256,7 +256,7 @@ class CalendarFilter
 					//'I' => Loc::getMessage('CALENDAR_FILTER_MEETING_STATUS_I'),
 				]
 			];
-			
+
 			$filters['DATE'] = [
 				'id' => 'DATE',
 				'name' => Loc::getMessage('CALENDAR_FILTER_DATE'),
@@ -266,11 +266,11 @@ class CalendarFilter
 
 		return $filters;
 	}
-	
+
 	private static function getSectionsForFilter(string $type, ?int $ownerId, ?int $userId): array
 	{
 		$result = [];
-		
+
 		$sectionList = \CCalendar::getSectionList([
 			'CAL_TYPE' => $type,
 			'OWNER_ID' => $ownerId,
@@ -278,7 +278,7 @@ class CalendarFilter
 			'getPermissions' => true,
 		]);
 		$isPersonalCalendarContext = ($type === 'user' && $userId === $ownerId);
-		
+
 		$hiddenSections = UserSettings::getHiddenSections(
 			$userId,
 			[
@@ -287,7 +287,7 @@ class CalendarFilter
 				'isPersonalCalendarContext' => $isPersonalCalendarContext,
 			]
 		);
-		
+
 		foreach ($sectionList as $section)
 		{
 			if (in_array($section['ID'], $hiddenSections))
@@ -297,7 +297,7 @@ class CalendarFilter
 
 			$result[] = (int)$section['ID'];
 		}
-		
+
 		return $result;
 	}
 
@@ -316,7 +316,7 @@ class CalendarFilter
 		$userId = (int)$params['userId'];
 		$ownerId = (int)$params['ownerId'];
 		$type = $sqlHelper->forSql($params['type']);
-		
+
 		$fields = self::resolveFilterFields(
 			self::getFilterId($type, $ownerId, $userId)
 		);
@@ -325,7 +325,7 @@ class CalendarFilter
 			$params['ownerId'],
 			$params['userId']
 		);
-		
+
 		if (
 			$type === 'company_calendar'
 			|| $type === 'calendar_company'
@@ -359,12 +359,12 @@ class CalendarFilter
 			'CAL_TYPE' => $type,
 			'ACTIVE_SECTION' => 'Y',
 		];
-		
+
 		if (isset($fields['fields']['IS_MEETING']))
 		{
 			$filter['IS_MEETING'] = $fields['fields']['IS_MEETING'] === 'Y';
 		}
-		
+
 		if (isset($fields['fields']['MEETING_STATUS']))
 		{
 			$filter['MEETING_STATUS'] = $fields['fields']['MEETING_STATUS'];
@@ -377,7 +377,7 @@ class CalendarFilter
 			{
 				$filter['IS_MEETING'] = true;
 			}
-			
+
 			if ($fields['presetId'] === 'filter_calendar_meeting_status_q')
 			{
 				$filter['FROM_LIMIT'] = \CCalendar::Date(time(), false);
@@ -386,7 +386,7 @@ class CalendarFilter
 				$counters = CountersManager::getValues((int)$filter['OWNER_ID']);
 			}
 		}
-		
+
 		if (isset($fields['fields']['CREATED_BY']))
 		{
 			unset($filter['OWNER_ID'], $filter['CAL_TYPE']);
@@ -394,7 +394,7 @@ class CalendarFilter
 			// mantis: 93743
 			$filter['CREATED_BY'] = $userId;
 		}
-		
+
 		if (isset($fields['fields']['SECTION_ID']) && !empty($fields['fields']['SECTION_ID']))
 		{
 			$filter['SECTION'] = $fields['fields']['SECTION_ID'];
@@ -407,7 +407,7 @@ class CalendarFilter
 				'counters' => $counters
 			];
 		}
-		
+
 		if (isset($fields['fields']['ATTENDEES']))
 		{
 			$query = EventTable::query()
@@ -434,17 +434,25 @@ class CalendarFilter
 				$filter['ID'][] = (int)$event['ID'];
 			}
 
-			$filter['ID'] = array_unique($filter['ID']);
+			if ($filter['ID'])
+			{
+				$filter['ID'] = array_unique($filter['ID']);
+			}
+			else
+			{
+				$filter['ID'] = [0];
+			}
+
 			$filter['IS_MEETING'] = true;
 		}
-		
+
 		[$filter, $parseRecursion] = self::filterByDate($fields, $filter);
-		
+
 		if (isset($fields['search']) && $fields['search'])
 		{
 			$filter[(\CCalendarEvent::isFullTextIndexEnabled() ? '*' : '*%').'SEARCHABLE_CONTENT'] = \CCalendarEvent::prepareToken($fields['search']);
 		}
-		
+
 		$entries = \CCalendarEvent::GetList(
 			[
 				'arFilter' => $filter,
@@ -458,7 +466,7 @@ class CalendarFilter
 				'setDefaultLimit' => false
 			]
 		);
-		
+
 		return [
 			'result' => true,
 			'entries' => $entries,
@@ -505,7 +513,7 @@ class CalendarFilter
 		{
 			$filter['IS_MEETING'] = $fields['fields']['IS_MEETING'] === 'Y';
 		}
-		
+
 		if (isset($fields['fields']['MEETING_STATUS']) && $fields['fields']['MEETING_STATUS'])
 		{
 			$query->where('EVENT_SECOND.CREATED_BY', $userId);
@@ -523,17 +531,17 @@ class CalendarFilter
 				$filter['IS_MEETING'] = true;
 			}
 		}
-		
+
 		if (isset($fields['fields']['CREATED_BY']) && is_array($fields['fields']['CREATED_BY']))
 		{
 			$query->whereIn('EVENT_SECOND.MEETING_HOST', $fields['fields']['CREATED_BY']);
 		}
-		
+
 		if (isset($fields['fields']['SECTION_ID']) && is_array($fields['fields']['SECTION_ID']))
 		{
 			$query->whereIn('SECTION_ID',  $fields['fields']['SECTION_ID']);
 		}
-		
+
 		if (isset($fields['fields']['ATTENDEES']) && is_array($fields['fields']['ATTENDEES']))
 		{
 			if (isset($fields['fields']['MEETING_STATUS']))
@@ -557,12 +565,12 @@ class CalendarFilter
 			}
 			$filter['IS_MEETING'] = true;
 		}
-		
+
 		if (isset($fields['search']) && $fields['search'])
 		{
 			$filter[(\CCalendarEvent::isFullTextIndexEnabled() ? '*' : '*%').'SEARCHABLE_CONTENT'] = \CCalendarEvent::prepareToken($fields['search']);
 		}
-		
+
 		[$filter, $parseRecursion] = self::filterByDate($fields, $filter);
 
 		$eventsFromQuery = $query->exec();
@@ -571,11 +579,11 @@ class CalendarFilter
 		{
 			$filter['ID'][] = (int)$event['PARENT_ID'];
 		}
-		
+
 		if (isset($filter['ID']))
 		{
 			$filter['ID'] = array_unique($filter['ID']);
-			
+
 			$entries = \CCalendarEvent::GetList(
 				[
 					'arFilter' => $filter,
@@ -591,14 +599,14 @@ class CalendarFilter
 			);
 		}
 		$entries = self::applyAccessRestrictions($entries);
-		
+
 		return [
 			'result' => true,
 			'entries' => $entries,
 			'counters' => false
 		];
 	}
-	
+
 	/**
 	 * @param $fields
 	 * @param array $filter
@@ -628,12 +636,12 @@ class CalendarFilter
 				$filter['TO_LIMIT'] = $filter['FROM_LIMIT'];
 			}
 		}
-		
+
 		if ($fromTs && $toTs && $fromTs <= $toTs)
 		{
 			$parseRecursion = true;
 		}
-		
+
 		return [
 			$filter,
 			$parseRecursion

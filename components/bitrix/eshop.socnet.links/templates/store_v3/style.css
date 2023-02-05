@@ -1,0 +1,35 @@
+.store-social-profiles {
+	text-align: center;
+	margin-bottom: 28px;
+}
+
+.bx-icon {
+	position: relative;
+	display: inline-block;
+	width: 45px;
+	height: 45px;
+	margin: 0 14px;
+	transition: 250ms linear all;
+}
+
+.bx-icon > i {
+	position: relative;
+	display: block;
+	padding-top: 100%;
+	width: 100%;
+	border-radius: 50%;
+	background-position: center;
+	background-size: 24px auto;
+	background-repeat: no-repeat;
+	background: rgba(196, 196, 196, 1);
+}
+
+.bx-icon:hover { opacity: .8; }
+
+.bx-icon-service-in > i { background-image: url(images/ui-service-light-instagram.svg); }
+
+.bx-icon-service-vk > i { background-image: url(images/ui-service-light-vk.svg); }
+
+.bx-icon-service-fb > i { background-image: url(images/ui-service-light-fb.svg); }
+
+.bx-icon-service-tw > i { background-image: url(images/ui-service-light-twitter.svg); }

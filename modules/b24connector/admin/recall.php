@@ -37,7 +37,11 @@ if(!empty($errorMsgs))
 		<p class="connector-title"><?=Loc::getMessage('B24C_REC_TITLE')?></p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_REC_DESC1')?></p>
 		<p class="connector-description"><?=Loc::getMessage('B24C_REC_DESC2')?></p>
-		<img src="/bitrix/images/b24connector/img-4.png" alt="" class="connector-img">
+
+		<?php if (LANGUAGE_ID === 'ru'): ?>
+			<img src="/bitrix/images/b24connector/img-4.png" alt="" class="connector-img">
+		<?php endif; ?>
+
 		<p class="clonnector-description"><?=Loc::getMessage('B24C_REC_DESC3')?></p>
 	</div>
 	<?=

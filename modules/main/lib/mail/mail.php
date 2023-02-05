@@ -859,7 +859,11 @@ class Mail
 			return $eol;
 		}
 
-		if(strtoupper(substr(PHP_OS, 0, 3)) == 'WIN')
+		if ((int)(explode('.', phpversion())[0]) >= 8)
+		{
+			$eol = "\r\n";
+		}
+		elseif(strtoupper(substr(PHP_OS, 0, 3)) == 'WIN')
 		{
 			$eol = "\r\n";
 		}

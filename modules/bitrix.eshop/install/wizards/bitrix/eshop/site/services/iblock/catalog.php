@@ -203,6 +203,7 @@ if(!($dbResultList->Fetch()))
 	$arFields["BASE"] = "Y";
 	$arFields["SORT"] = 100;
 	$arFields["NAME"] = "BASE";
+	$arFields["XML_ID"] = "BASE";
 	$arFields["USER_GROUP"] = array(1);
 	$arFields["USER_GROUP_BUY"] = array(1);
 	CCatalogGroup::Add($arFields);

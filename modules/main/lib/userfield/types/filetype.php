@@ -119,7 +119,7 @@ class FileType extends BaseType
 
 		if(
 			is_array($value)
-			&& (!isset($value['tmp_name']) && !isset($value['old_id']))
+			&& (!isset($value['tmp_name']) && !isset($value['old_id']) && !isset($value['type']))
 		)
 		{
 			return [

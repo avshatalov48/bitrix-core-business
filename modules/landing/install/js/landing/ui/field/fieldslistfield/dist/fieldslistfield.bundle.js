@@ -311,28 +311,28 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	            });
 	            listItemOptions.actions = [autocompleteButton];
 	          }
-	          var _listItem2 = new landing_ui_component_listitem.ListItem(listItemOptions);
+	          var _listItem = new landing_ui_component_listitem.ListItem(listItemOptions);
 	          if (listItemOptions.fieldController) {
 	            return new Promise(function (resolve) {
 	              if (main_core.Type.isFunction(listItemOptions.fieldController.subscribe)) {
 	                listItemOptions.fieldController.subscribe('afterInit', function (event) {
 	                  options.booking.settings_data = event.getData().settings.data;
-	                  resolve(_listItem2);
+	                  resolve(_listItem);
 	                });
 	              } else {
-	                resolve(_listItem2);
+	                resolve(_listItem);
 	              }
 	            });
 	          }
-	          return Promise.resolve(_listItem2);
+	          return Promise.resolve(_listItem);
 	        }
 	        listItemOptions.editable = false;
 	        listItemOptions.isSeparator = false;
 	        listItemOptions.title = '';
 	        listItemOptions.description = landing_loc.Loc.getMessage('LANDING_FIELDS_ITEM_FIELD_UNAVAILABLE');
 	        listItemOptions.error = true;
-	        var _listItem = new landing_ui_component_listitem.ListItem(listItemOptions);
-	        return Promise.resolve(_listItem);
+	        var _listItem2 = new landing_ui_component_listitem.ListItem(listItemOptions);
+	        return Promise.resolve(_listItem2);
 	      }
 	      listItemOptions.isSeparator = true;
 	      listItemOptions.editable = !String(options.id).startsWith('hr_');
@@ -978,7 +978,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  return FieldsListField;
 	}(landing_ui_field_basefield.BaseField);
 	function _getFieldsPanelAllowedTypes2() {
-	  return ['list', 'string', 'checkbox', 'date', 'text', 'typed_string', 'file', 'datetime', 'integer', 'double', 'enumeration', 'url', 'money', 'boolean', 'resourcebooking'];
+	  return ['list', 'string', 'checkbox', 'date', 'text', 'typed_string', 'file', 'datetime', 'integer', 'double', 'enumeration', 'url', 'money', 'boolean', 'resourcebooking', 'radio', 'bool', 'hr', 'br', 'phone', 'email', 'page', 'section'];
 	}
 
 	exports.FieldsListField = FieldsListField;

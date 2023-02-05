@@ -28,16 +28,16 @@ CModule::AddAutoloadClasses(
 		"CAllFormCrm" => "classes/general/form_callformcrm.php",
 
 		// API classes
-		"CForm" => "classes/".$DBType."/form_cform.php",
-		"CFormAnswer" => "classes/".$DBType."/form_cformanswer.php",
-		"CFormField" => "classes/".$DBType."/form_cformfield.php",
-		"CFormOutput" => "classes/".$DBType."/form_cformoutput.php",
-		"CFormResult" => "classes/".$DBType."/form_cformresult.php",
-		"CFormStatus" => "classes/".$DBType."/form_cformstatus.php",
-		"CFormValidator" => "classes/".$DBType."/form_cformvalidator.php",
+		"CForm" => "classes/mysql/form_cform.php",
+		"CFormAnswer" => "classes/mysql/form_cformanswer.php",
+		"CFormField" => "classes/mysql/form_cformfield.php",
+		"CFormOutput" => "classes/mysql/form_cformoutput.php",
+		"CFormResult" => "classes/mysql/form_cformresult.php",
+		"CFormStatus" => "classes/mysql/form_cformstatus.php",
+		"CFormValidator" => "classes/mysql/form_cformvalidator.php",
 
-		"CFormCrm" => "classes/".$DBType."/form_cformcrm.php",
-		"CFormCrmSender" => "classes/".$DBType."/form_cformcrm.php",
+		"CFormCrm" => "classes/mysql/form_cformcrm.php",
+		"CFormCrmSender" => "classes/mysql/form_cformcrm.php",
 
 		// event handlers
 		"CFormEventHandlers" => "events.php",
